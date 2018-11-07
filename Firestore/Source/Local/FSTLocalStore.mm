@@ -107,7 +107,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 
     _targetIDs = [NSMutableDictionary dictionary];
 
-    _targetIDGenerator = TargetIdGenerator::LocalStoreTargetIdGenerator(0);
+    _targetIDGenerator = TargetIdGenerator::QueryCacheTargetIdGenerator(0);
   }
   return self;
 }
@@ -115,7 +115,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 - (void)start {
   [self startMutationQueue];
   TargetId targetID = [self.queryCache highestTargetID];
-  _targetIDGenerator = TargetIdGenerator::LocalStoreTargetIdGenerator(targetID);
+  _targetIDGenerator = TargetIdGenerator::QueryCacheTargetIdGenerator(targetID);
 }
 
 - (void)startMutationQueue {

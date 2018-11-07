@@ -126,56 +126,6 @@ NS_ASSUME_NONNULL_BEGIN
   });
 }
 
-- (void)testHighestAcknowledgedBatchIDNeverExceedsNextBatchID {
-  if ([self isTestBaseClass]) return;
-
-  FSTMutationBatch *batch1 =
-      self.persistence.run("testHighestAcknowledgedBatchIDNeverExceedsNextBatchID batch1",
-                           [&]() -> FSTMutationBatch * { return [self addMutationBatch]; });
-  FSTMutationBatch *batch2 =
-      self.persistence.run("testHighestAcknowledgedBatchIDNeverExceedsNextBatchID batch2",
-                           [&]() -> FSTMutationBatch * { return [self addMutationBatch]; });
-
-  self.persistence.run("testHighestAcknowledgedBatchIDNeverExceedsNextBatchID", [&]() {
-    [self.mutationQueue acknowledgeBatch:batch1 streamToken:nil];
-    [self.mutationQueue removeMutationBatch:batch1];
-    [self.mutationQueue acknowledgeBatch:batch2 streamToken:nil];
-    XCTAssertEqual([self.mutationQueue highestAcknowledgedBatchID], batch2.batchID);
-
-    [self.mutationQueue removeMutationBatch:batch2];
-    XCTAssertEqual([self.mutationQueue highestAcknowledgedBatchID], batch2.batchID);
-  });
-
-  // Restart the queue so that nextBatchID will be reset.
-  FSTMutationBatch *batch = self.persistence.run(
-      "testHighestAcknowledgedBatchIDNeverExceedsNextBatchID restart", [&]() -> FSTMutationBatch * {
-        self.mutationQueue = [self.persistence mutationQueueForUser:User("user")];
-
-        [self.mutationQueue start];
-
-        // Verify that on restart with an empty queue, nextBatchID falls to a lower value.
-        XCTAssertLessThan(self.mutationQueue.nextBatchID, batch2.batchID);
-
-        // As a result highestAcknowledgedBatchID must also reset lower.
-        XCTAssertEqual([self.mutationQueue highestAcknowledgedBatchID], kFSTBatchIDUnknown);
-
-        // The mutation queue will reset the next batchID after all mutations are removed so adding
-        // another mutation will cause a collision.
-        FSTMutationBatch *newBatch = [self addMutationBatch];
-        XCTAssertEqual(newBatch.batchID, batch1.batchID);
-        return newBatch;
-      });
-  self.persistence.run("testHighestAcknowledgedBatchIDNeverExceedsNextBatchID restart2", [&]() {
-    // Restart the queue with one unacknowledged batch in it.
-    [self.mutationQueue start];
-
-    XCTAssertEqual([self.mutationQueue nextBatchID], batch.batchID + 1);
-
-    // highestAcknowledgedBatchID must still be kFSTBatchIDUnknown.
-    XCTAssertEqual([self.mutationQueue highestAcknowledgedBatchID], kFSTBatchIDUnknown);
-  });
-}
-
 - (void)testLookupMutationBatch {
   if ([self isTestBaseClass]) return;
 

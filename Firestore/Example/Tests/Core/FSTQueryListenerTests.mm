@@ -42,6 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTQueryListenerTests {
   std::unique_ptr<ExecutorLibdispatch> _executor;
+  FSTListenOptions *_includeMetadataChanges;
 }
 
 - (void)setUp {
@@ -49,6 +50,21 @@ NS_ASSUME_NONNULL_BEGIN
   // not a pointer, and initialize it in the constructor.
   _executor = absl::make_unique<ExecutorLibdispatch>(
       dispatch_queue_create("FSTQueryListenerTests Queue", DISPATCH_QUEUE_SERIAL));
+  _includeMetadataChanges = [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:YES
+                                                           includeDocumentMetadataChanges:YES
+                                                                    waitForSyncWhenOnline:NO];
+}
+
+- (FSTViewSnapshot *)setExcludesMetadataChanges:(BOOL)excludesMetadataChanges
+                                       snapshot:(FSTViewSnapshot *)snapshot {
+  return [[FSTViewSnapshot alloc] initWithQuery:snapshot.query
+                                      documents:snapshot.documents
+                                   oldDocuments:snapshot.oldDocuments
+                                documentChanges:snapshot.documentChanges
+                                      fromCache:snapshot.fromCache
+                                    mutatedKeys:snapshot.mutatedKeys
+                               syncStateChanged:snapshot.syncStateChanged
+                        excludesMetadataChanges:excludesMetadataChanges];
 }
 
 - (void)testRaisesCollectionEvents {
@@ -61,7 +77,8 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocument *doc2prime = FSTTestDoc("rooms/Hades", 3, @{@"name" : @"Hades", @"owner" : @"Jonny"},
                                       FSTDocumentStateSynced);
 
-  FSTQueryListener *listener = [self listenToQuery:query accumulatingSnapshots:accum];
+  FSTQueryListener *listener =
+      [self listenToQuery:query options:_includeMetadataChanges accumulatingSnapshots:accum];
   FSTQueryListener *otherListener = [self listenToQuery:query accumulatingSnapshots:otherAccum];
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
@@ -86,13 +103,14 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqualObjects(accum[1].documentChanges, (@[ change3 ]));
 
   FSTViewSnapshot *expectedSnap2 = [[FSTViewSnapshot alloc]
-         initWithQuery:snap2.query
-             documents:snap2.documents
-          oldDocuments:[FSTDocumentSet documentSetWithComparator:snap2.query.comparator]
-       documentChanges:@[ change1, change4 ]
-             fromCache:snap2.fromCache
-           mutatedKeys:snap2.mutatedKeys
-      syncStateChanged:YES];
+                initWithQuery:snap2.query
+                    documents:snap2.documents
+                 oldDocuments:[FSTDocumentSet documentSetWithComparator:snap2.query.comparator]
+              documentChanges:@[ change1, change4 ]
+                    fromCache:snap2.fromCache
+                  mutatedKeys:snap2.mutatedKeys
+             syncStateChanged:YES
+      excludesMetadataChanges:YES];
   XCTAssertEqualObjects(otherAccum, (@[ expectedSnap2 ]));
 }
 
@@ -116,7 +134,8 @@ NS_ASSUME_NONNULL_BEGIN
   NSMutableArray<FSTViewSnapshot *> *accum = [NSMutableArray array];
   FSTQuery *query = FSTTestQuery("rooms");
 
-  FSTQueryListener *listener = [self listenToQuery:query accumulatingSnapshots:accum];
+  FSTQueryListener *listener =
+      [self listenToQuery:query options:_includeMetadataChanges accumulatingSnapshots:accum];
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
   FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[], nil);
@@ -174,14 +193,10 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocument *doc1 = FSTTestDoc("rooms/Eros", 1, @{@"name" : @"Eros"}, FSTDocumentStateSynced);
   FSTDocument *doc2 = FSTTestDoc("rooms/Hades", 2, @{@"name" : @"Hades"}, FSTDocumentStateSynced);
 
-  FSTListenOptions *options = [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:YES
-                                                             includeDocumentMetadataChanges:NO
-                                                                      waitForSyncWhenOnline:NO];
-
   FSTQueryListener *filteredListener =
       [self listenToQuery:query accumulatingSnapshots:filteredAccum];
   FSTQueryListener *fullListener =
-      [self listenToQuery:query options:options accumulatingSnapshots:fullAccum];
+      [self listenToQuery:query options:_includeMetadataChanges accumulatingSnapshots:fullAccum];
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
   FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[ doc1 ], nil);
@@ -198,7 +213,10 @@ NS_ASSUME_NONNULL_BEGIN
   [fullListener queryDidChangeViewSnapshot:snap2];  // state change event
   [fullListener queryDidChangeViewSnapshot:snap3];  // doc2 update
 
-  XCTAssertEqualObjects(filteredAccum, (@[ snap1, snap3 ]));
+  XCTAssertEqualObjects(filteredAccum, (@[
+                          [self setExcludesMetadataChanges:YES snapshot:snap1],
+                          [self setExcludesMetadataChanges:YES snapshot:snap3]
+                        ]));
   XCTAssertEqualObjects(fullAccum, (@[ snap1, snap2, snap3 ]));
 }
 
@@ -244,7 +262,10 @@ NS_ASSUME_NONNULL_BEGIN
   [fullListener queryDidChangeViewSnapshot:snap2];
   [fullListener queryDidChangeViewSnapshot:snap3];
 
-  XCTAssertEqualObjects(filteredAccum, (@[ snap1, snap3 ]));
+  XCTAssertEqualObjects(filteredAccum, (@[
+                          [self setExcludesMetadataChanges:YES snapshot:snap1],
+                          [self setExcludesMetadataChanges:YES snapshot:snap3]
+                        ]));
   XCTAssertEqualObjects(filteredAccum[0].documentChanges, (@[ change1, change2 ]));
   XCTAssertEqualObjects(filteredAccum[1].documentChanges, (@[ change4 ]));
 
@@ -285,14 +306,19 @@ NS_ASSUME_NONNULL_BEGIN
   [fullListener queryDidChangeViewSnapshot:snap3];
   [fullListener queryDidChangeViewSnapshot:snap4];  // Metadata change event.
 
-  FSTViewSnapshot *expectedSnap4 = [[FSTViewSnapshot alloc] initWithQuery:snap4.query
-                                                                documents:snap4.documents
-                                                             oldDocuments:snap3.documents
-                                                          documentChanges:@[]
-                                                                fromCache:snap4.fromCache
-                                                              mutatedKeys:snap4.mutatedKeys
-                                                         syncStateChanged:snap4.syncStateChanged];
-  XCTAssertEqualObjects(fullAccum, (@[ snap1, snap3, expectedSnap4 ]));
+  FSTViewSnapshot *expectedSnap4 =
+      [[FSTViewSnapshot alloc] initWithQuery:snap4.query
+                                   documents:snap4.documents
+                                oldDocuments:snap3.documents
+                             documentChanges:@[]
+                                   fromCache:snap4.fromCache
+                                 mutatedKeys:snap4.mutatedKeys
+                            syncStateChanged:snap4.syncStateChanged
+                     excludesMetadataChanges:YES];  // This test excludes document metadata changes
+  XCTAssertEqualObjects(fullAccum, (@[
+                          [self setExcludesMetadataChanges:YES snapshot:snap1],
+                          [self setExcludesMetadataChanges:YES snapshot:snap3], expectedSnap4
+                        ]));
 }
 
 - (void)testMetadataOnlyDocumentChangesAreFilteredOutWhenIncludeDocumentMetadataChangesIsFalse {
@@ -325,8 +351,10 @@ NS_ASSUME_NONNULL_BEGIN
                                                           documentChanges:@[ change3 ]
                                                                 fromCache:snap2.isFromCache
                                                               mutatedKeys:snap2.mutatedKeys
-                                                         syncStateChanged:snap2.syncStateChanged];
-  XCTAssertEqualObjects(filteredAccum, (@[ snap1, expectedSnap2 ]));
+                                                         syncStateChanged:snap2.syncStateChanged
+                                                  excludesMetadataChanges:YES];
+  XCTAssertEqualObjects(filteredAccum,
+                        (@[ [self setExcludesMetadataChanges:YES snapshot:snap1], expectedSnap2 ]));
 }
 
 - (void)testWillWaitForSyncIfOnline {
@@ -360,13 +388,14 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocumentViewChange *change2 =
       [FSTDocumentViewChange changeWithDocument:doc2 type:FSTDocumentViewChangeTypeAdded];
   FSTViewSnapshot *expectedSnap = [[FSTViewSnapshot alloc]
-         initWithQuery:snap3.query
-             documents:snap3.documents
-          oldDocuments:[FSTDocumentSet documentSetWithComparator:snap3.query.comparator]
-       documentChanges:@[ change1, change2 ]
-             fromCache:NO
-           mutatedKeys:snap3.mutatedKeys
-      syncStateChanged:YES];
+                initWithQuery:snap3.query
+                    documents:snap3.documents
+                 oldDocuments:[FSTDocumentSet documentSetWithComparator:snap3.query.comparator]
+              documentChanges:@[ change1, change2 ]
+                    fromCache:NO
+                  mutatedKeys:snap3.mutatedKeys
+             syncStateChanged:YES
+      excludesMetadataChanges:YES];
   XCTAssertEqualObjects(events, (@[ expectedSnap ]));
 }
 
@@ -399,20 +428,22 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocumentViewChange *change2 =
       [FSTDocumentViewChange changeWithDocument:doc2 type:FSTDocumentViewChangeTypeAdded];
   FSTViewSnapshot *expectedSnap1 = [[FSTViewSnapshot alloc]
-         initWithQuery:query
-             documents:snap1.documents
-          oldDocuments:[FSTDocumentSet documentSetWithComparator:snap1.query.comparator]
-       documentChanges:@[ change1 ]
-             fromCache:YES
-           mutatedKeys:snap1.mutatedKeys
-      syncStateChanged:YES];
+                initWithQuery:query
+                    documents:snap1.documents
+                 oldDocuments:[FSTDocumentSet documentSetWithComparator:snap1.query.comparator]
+              documentChanges:@[ change1 ]
+                    fromCache:YES
+                  mutatedKeys:snap1.mutatedKeys
+             syncStateChanged:YES
+      excludesMetadataChanges:YES];
   FSTViewSnapshot *expectedSnap2 = [[FSTViewSnapshot alloc] initWithQuery:query
                                                                 documents:snap2.documents
                                                              oldDocuments:snap1.documents
                                                           documentChanges:@[ change2 ]
                                                                 fromCache:YES
                                                               mutatedKeys:snap2.mutatedKeys
-                                                         syncStateChanged:NO];
+                                                         syncStateChanged:NO
+                                                  excludesMetadataChanges:YES];
   XCTAssertEqualObjects(events, (@[ expectedSnap1, expectedSnap2 ]));
 }
 
@@ -432,13 +463,14 @@ NS_ASSUME_NONNULL_BEGIN
   [listener applyChangedOnlineState:OnlineState::Offline];  // event
 
   FSTViewSnapshot *expectedSnap = [[FSTViewSnapshot alloc]
-         initWithQuery:query
-             documents:snap1.documents
-          oldDocuments:[FSTDocumentSet documentSetWithComparator:snap1.query.comparator]
-       documentChanges:@[]
-             fromCache:YES
-           mutatedKeys:snap1.mutatedKeys
-      syncStateChanged:YES];
+                initWithQuery:query
+                    documents:snap1.documents
+                 oldDocuments:[FSTDocumentSet documentSetWithComparator:snap1.query.comparator]
+              documentChanges:@[]
+                    fromCache:YES
+                  mutatedKeys:snap1.mutatedKeys
+             syncStateChanged:YES
+      excludesMetadataChanges:YES];
   XCTAssertEqualObjects(events, (@[ expectedSnap ]));
 }
 
@@ -457,13 +489,14 @@ NS_ASSUME_NONNULL_BEGIN
   [listener queryDidChangeViewSnapshot:snap1];              // event
 
   FSTViewSnapshot *expectedSnap = [[FSTViewSnapshot alloc]
-         initWithQuery:query
-             documents:snap1.documents
-          oldDocuments:[FSTDocumentSet documentSetWithComparator:snap1.query.comparator]
-       documentChanges:@[]
-             fromCache:YES
-           mutatedKeys:snap1.mutatedKeys
-      syncStateChanged:YES];
+                initWithQuery:query
+                    documents:snap1.documents
+                 oldDocuments:[FSTDocumentSet documentSetWithComparator:snap1.query.comparator]
+              documentChanges:@[]
+                    fromCache:YES
+                  mutatedKeys:snap1.mutatedKeys
+             syncStateChanged:YES
+      excludesMetadataChanges:YES];
   XCTAssertEqualObjects(events, (@[ expectedSnap ]));
 }
 

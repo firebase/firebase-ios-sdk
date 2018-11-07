@@ -227,7 +227,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)applyChangedOnlineState:(OnlineState)onlineState {
   [self.syncEngine applyChangedOnlineState:onlineState];
-  [self.eventManager applyChangedOnlineState:onlineState];
 }
 
 - (void)disableNetworkWithCompletion:(nullable FSTVoidErrorBlock)completion {

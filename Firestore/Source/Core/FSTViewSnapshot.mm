@@ -179,7 +179,8 @@ NS_ASSUME_NONNULL_BEGIN
               documentChanges:(NSArray<FSTDocumentViewChange *> *)documentChanges
                     fromCache:(BOOL)fromCache
                   mutatedKeys:(DocumentKeySet)mutatedKeys
-             syncStateChanged:(BOOL)syncStateChanged {
+             syncStateChanged:(BOOL)syncStateChanged
+      excludesMetadataChanges:(BOOL)excludesMetadataChanges {
   self = [super init];
   if (self) {
     _query = query;
@@ -189,8 +190,31 @@ NS_ASSUME_NONNULL_BEGIN
     _fromCache = fromCache;
     _mutatedKeys = mutatedKeys;
     _syncStateChanged = syncStateChanged;
+    _excludesMetadataChanges = excludesMetadataChanges;
   }
   return self;
+}
+
++ (instancetype)snapshotForInitialDocuments:(FSTDocumentSet *)documents
+                                      query:(FSTQuery *)query
+                                mutatedKeys:(DocumentKeySet)mutatedKeys
+                                  fromCache:(BOOL)fromCache
+                    excludesMetadataChanges:(BOOL)excludesMetadataChanges {
+  NSMutableArray<FSTDocumentViewChange *> *viewChanges = [NSMutableArray array];
+  for (FSTDocument *doc in documents.documentEnumerator) {
+    [viewChanges
+        addObject:[FSTDocumentViewChange changeWithDocument:doc
+                                                       type:FSTDocumentViewChangeTypeAdded]];
+  }
+  return [[FSTViewSnapshot alloc]
+                initWithQuery:query
+                    documents:documents
+                 oldDocuments:[FSTDocumentSet documentSetWithComparator:query.comparator]
+              documentChanges:viewChanges
+                    fromCache:fromCache
+                  mutatedKeys:mutatedKeys
+             syncStateChanged:YES
+      excludesMetadataChanges:excludesMetadataChanges];
 }
 
 - (BOOL)hasPendingWrites {
@@ -200,10 +224,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSString *)description {
   return [NSString stringWithFormat:
                        @"<FSTViewSnapshot query:%@ documents:%@ oldDocument:%@ changes:%@ "
-                        "fromCache:%@ mutatedKeys:%zd syncStateChanged:%@>",
+                        "fromCache:%@ mutatedKeys:%zd syncStateChanged:%@ "
+                        "excludesMetadataChanges%@>",
                        self.query, self.documents, self.oldDocuments, self.documentChanges,
                        (self.fromCache ? @"YES" : @"NO"), self.mutatedKeys.size(),
-                       (self.syncStateChanged ? @"YES" : @"NO")];
+                       (self.syncStateChanged ? @"YES" : @"NO"),
+                       (self.excludesMetadataChanges ? @"YES" : @"NO")];
 }
 
 - (BOOL)isEqual:(id)object {
@@ -218,7 +244,8 @@ NS_ASSUME_NONNULL_BEGIN
          [self.oldDocuments isEqual:other.oldDocuments] &&
          [self.documentChanges isEqualToArray:other.documentChanges] &&
          self.fromCache == other.fromCache && self.mutatedKeys == other.mutatedKeys &&
-         self.syncStateChanged == other.syncStateChanged;
+         self.syncStateChanged == other.syncStateChanged &&
+         self.excludesMetadataChanges == other.excludesMetadataChanges;
 }
 
 - (NSUInteger)hash {
@@ -232,6 +259,7 @@ NS_ASSUME_NONNULL_BEGIN
   result = 31 * result + [self.documentChanges hash];
   result = 31 * result + (self.fromCache ? 1231 : 1237);
   result = 31 * result + (self.syncStateChanged ? 1231 : 1237);
+  result = 31 * result + (self.excludesMetadataChanges ? 1231 : 1237);
   return result;
 }
 

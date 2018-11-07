@@ -46,14 +46,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isEmpty;
 
 /**
- * Returns the next BatchId that will be assigned to a new mutation batch.
- *
- * Callers generally don't care about this value except to test that the mutation queue is
- * properly maintaining the invariant that highestAcknowledgedBatchID is less than nextBatchID.
- */
-- (firebase::firestore::model::BatchId)nextBatchID;
-
-/**
  * Returns the highest batchID that has been acknowledged. If no batches have been acknowledged
  * or if there are no batches in the queue this can return kFSTBatchIDUnknown.
  */

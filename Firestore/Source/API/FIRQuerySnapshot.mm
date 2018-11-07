@@ -25,8 +25,7 @@
 #import "Firestore/Source/Core/FSTViewSnapshot.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
-
-#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#import "Firestore/Source/Util/FSTUsageValidation.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -150,6 +149,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSArray<FIRDocumentChange *> *)documentChangesWithIncludeMetadataChanges:
     (BOOL)includeMetadataChanges {
+  if (includeMetadataChanges && self.snapshot.excludesMetadataChanges) {
+    FSTThrowInvalidArgument(
+        @"To include metadata changes with your document changes, you must call "
+        @"addSnapshotListener(includeMetadataChanges: true).");
+  }
+
   if (!_documentChanges || _documentChangesIncludeMetadataChanges != includeMetadataChanges) {
     _documentChanges = [FIRDocumentChange documentChangesForSnapshot:self.snapshot
                                               includeMetadataChanges:includeMetadataChanges

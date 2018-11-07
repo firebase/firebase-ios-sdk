@@ -378,7 +378,8 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
                                documentChanges:changes
                                      fromCache:newSyncState == FSTSyncStateLocal
                                    mutatedKeys:docChanges.mutatedKeys
-                              syncStateChanged:syncStateChanged];
+                              syncStateChanged:syncStateChanged
+                       excludesMetadataChanges:NO];
 
     return [FSTViewChange changeWithSnapshot:snapshot limboChanges:limboChanges];
   }
