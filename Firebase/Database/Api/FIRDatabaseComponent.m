@@ -87,11 +87,11 @@ typedef NSMutableDictionary<NSString *, NSMutableDictionary<FRepoInfo *, FIRData
 }
 
 - (void)appWillBeDeleted:(FIRApp *)app {
-  NSString *appName = note.userInfo[kFIRAppNameKey];
+  NSString *appName = app.name;
   if (appName == nil) {
     return;
   }
-  FIRDatabaseDictionary* instances = [self instances];
+  FIRDatabaseDictionary* instances = [FIRDatabaseComponent instances];
   @synchronized (instances) {
     NSMutableDictionary<FRepoInfo *, FIRDatabase *> *databaseInstances = instances[appName];
     if (databaseInstances) {
