@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// This file contains std::string processing functions related to
+// This file contains string processing functions related to
 // numeric values.
 
 #include "absl/strings/numbers.h"
@@ -30,8 +30,10 @@
 #include <memory>
 #include <utility>
 
+#include "absl/base/internal/bits.h"
 #include "absl/base/internal/raw_logging.h"
 #include "absl/strings/ascii.h"
+#include "absl/strings/charconv.h"
 #include "absl/strings/internal/memutil.h"
 #include "absl/strings/str_cat.h"
 
@@ -39,51 +41,54 @@ namespace absl {
 
 bool SimpleAtof(absl::string_view str, float* value) {
   *value = 0.0;
-  if (str.empty()) return false;
-  char buf[32];
-  std::unique_ptr<char[]> bigbuf;
-  char* ptr = buf;
-  if (str.size() > sizeof(buf) - 1) {
-    bigbuf.reset(new char[str.size() + 1]);
-    ptr = bigbuf.get();
+  str = StripAsciiWhitespace(str);
+  if (!str.empty() && str[0] == '+') {
+    str.remove_prefix(1);
   }
-  memcpy(ptr, str.data(), str.size());
-  ptr[str.size()] = '\0';
-
-  char* endptr;
-  *value = strtof(ptr, &endptr);
-  if (endptr != ptr) {
-    while (absl::ascii_isspace(*endptr)) ++endptr;
+  auto result = absl::from_chars(str.data(), str.data() + str.size(), *value);
+  if (result.ec == std::errc::invalid_argument) {
+    return false;
   }
-  // Ignore range errors from strtod/strtof.
-  // The values it returns on underflow and
-  // overflow are the right fallback in a
-  // robust setting.
-  return *ptr != '\0' && *endptr == '\0';
+  if (result.ptr != str.data() + str.size()) {
+    // not all non-whitespace characters consumed
+    return false;
+  }
+  // from_chars() with DR 3801's current wording will return max() on
+  // overflow.  SimpleAtof returns infinity instead.
+  if (result.ec == std::errc::result_out_of_range) {
+    if (*value > 1.0) {
+      *value = std::numeric_limits<float>::infinity();
+    } else if (*value < -1.0) {
+      *value = -std::numeric_limits<float>::infinity();
+    }
+  }
+  return true;
 }
 
 bool SimpleAtod(absl::string_view str, double* value) {
   *value = 0.0;
-  if (str.empty()) return false;
-  char buf[32];
-  std::unique_ptr<char[]> bigbuf;
-  char* ptr = buf;
-  if (str.size() > sizeof(buf) - 1) {
-    bigbuf.reset(new char[str.size() + 1]);
-    ptr = bigbuf.get();
+  str = StripAsciiWhitespace(str);
+  if (!str.empty() && str[0] == '+') {
+    str.remove_prefix(1);
   }
-  memcpy(ptr, str.data(), str.size());
-  ptr[str.size()] = '\0';
-
-  char* endptr;
-  *value = strtod(ptr, &endptr);
-  if (endptr != ptr) {
-    while (absl::ascii_isspace(*endptr)) ++endptr;
+  auto result = absl::from_chars(str.data(), str.data() + str.size(), *value);
+  if (result.ec == std::errc::invalid_argument) {
+    return false;
   }
-  // Ignore range errors from strtod.  The values it
-  // returns on underflow and overflow are the right
-  // fallback in a robust setting.
-  return *ptr != '\0' && *endptr == '\0';
+  if (result.ptr != str.data() + str.size()) {
+    // not all non-whitespace characters consumed
+    return false;
+  }
+  // from_chars() with DR 3801's current wording will return max() on
+  // overflow.  SimpleAtod returns infinity instead.
+  if (result.ec == std::errc::result_out_of_range) {
+    if (*value > 1.0) {
+      *value = std::numeric_limits<double>::infinity();
+    } else if (*value < -1.0) {
+      *value = -std::numeric_limits<double>::infinity();
+    }
+  }
+  return true;
 }
 
 namespace {
@@ -156,8 +161,8 @@ bool SimpleAtob(absl::string_view str, bool* value) {
 // their output to the beginning of the buffer.  The caller is responsible
 // for ensuring that the buffer has enough space to hold the output.
 //
-// Returns a pointer to the end of the std::string (i.e. the null character
-// terminating the std::string).
+// Returns a pointer to the end of the string (i.e. the null character
+// terminating the string).
 // ----------------------------------------------------------------------
 
 namespace {
@@ -302,18 +307,6 @@ char* numbers_internal::FastIntToBuffer(int64_t i, char* buffer) {
   return numbers_internal::FastIntToBuffer(u, buffer);
 }
 
-// Returns the number of leading 0 bits in a 64-bit value.
-// TODO(jorg): Replace with builtin_clzll if available.
-// Are we shipping util/bits in absl?
-static inline int CountLeadingZeros64(uint64_t n) {
-  int zeroes = 60;
-  if (n >> 32) zeroes -= 32, n >>= 32;
-  if (n >> 16) zeroes -= 16, n >>= 16;
-  if (n >> 8) zeroes -= 8, n >>= 8;
-  if (n >> 4) zeroes -= 4, n >>= 4;
-  return "\4\3\2\2\1\1\1\1\0\0\0\0\0\0\0\0"[n] + zeroes;
-}
-
 // Given a 128-bit number expressed as a pair of uint64_t, high half first,
 // return that number multiplied by the given 32-bit value.  If the result is
 // too large to fit in a 128-bit number, divide it by 2 until it fits.
@@ -351,7 +344,7 @@ static std::pair<uint64_t, uint64_t> Mul32(std::pair<uint64_t, uint64_t> num,
   uint64_t bits128_up = (bits96_127 >> 32) + (bits64_127 < bits64_95);
   if (bits128_up == 0) return {bits64_127, bits0_63};
 
-  int shift = 64 - CountLeadingZeros64(bits128_up);
+  int shift = 64 - base_internal::CountLeadingZeros64(bits128_up);
   uint64_t lo = (bits0_63 >> shift) + (bits64_127 << (64 - shift));
   uint64_t hi = (bits64_127 >> shift) + (bits128_up << (64 - shift));
   return {hi, lo};
@@ -382,7 +375,7 @@ static std::pair<uint64_t, uint64_t> PowFive(uint64_t num, int expfive) {
       5 * 5 * 5 * 5 * 5 * 5 * 5 * 5 * 5 * 5 * 5,
       5 * 5 * 5 * 5 * 5 * 5 * 5 * 5 * 5 * 5 * 5 * 5};
   result = Mul32(result, powers_of_five[expfive & 15]);
-  int shift = CountLeadingZeros64(result.first);
+  int shift = base_internal::CountLeadingZeros64(result.first);
   if (shift != 0) {
     result.first = (result.first << shift) + (result.second >> (64 - shift));
     result.second = (result.second << shift);
