@@ -24,25 +24,25 @@ namespace nanopb {
 
 TEST(String, DefaultConstructor) {
   String str;
-  ASSERT_EQ(nullptr, str.data());
+  EXPECT_EQ(nullptr, str.data());
 }
 
 TEST(String, FromStdString) {
   std::string original{"foo"};
   String copy{original};
-  ASSERT_EQ(copy, original);
+  EXPECT_EQ(copy, original);
 
   original = "bar";
-  ASSERT_EQ(copy, "foo");
+  EXPECT_EQ(copy, "foo");
 }
 
 TEST(String, FromCString) {
   char original[] = {'f', 'o', 'o', '\0'};
   String copy{original};
-  ASSERT_EQ(copy, original);
+  EXPECT_EQ(copy, original);
 
   original[0] = 'b';
-  ASSERT_EQ(copy, "foo");
+  EXPECT_EQ(copy, "foo");
 }
 
 TEST(String, WrapByteArray) {
@@ -52,19 +52,19 @@ TEST(String, WrapByteArray) {
   original->size = 3;
 
   String wrapper = String::Wrap(original);
-  ASSERT_EQ(wrapper, absl::string_view{"foo"});
+  EXPECT_EQ(wrapper, absl::string_view{"foo"});
 
   original->bytes[0] = 'b';
-  ASSERT_EQ(wrapper, absl::string_view{"boo"});
+  EXPECT_EQ(wrapper, absl::string_view{"boo"});
 }
 
 TEST(String, Release) {
   String value{"foo"};
 
   pb_bytes_array_t* released = value.release();
-  ASSERT_EQ(released->size, 3);
-  ASSERT_EQ(memcmp(released->bytes, "foo", 3), 0);
-  ASSERT_EQ(value.get(), nullptr);
+  EXPECT_EQ(released->size, 3);
+  EXPECT_EQ(memcmp(released->bytes, "foo", 3), 0);
+  EXPECT_EQ(value.get(), nullptr);
 
   free(released);
 }
@@ -75,17 +75,17 @@ TEST(String, Comparison) {
 
   String abc2{"abc"};
 
-  ASSERT_TRUE(abc == abc);
-  ASSERT_TRUE(abc == abc2);
-  ASSERT_TRUE(abc != def);
+  EXPECT_TRUE(abc == abc);
+  EXPECT_TRUE(abc == abc2);
+  EXPECT_TRUE(abc != def);
 
-  ASSERT_TRUE(abc < def);
-  ASSERT_TRUE(abc <= def);
-  ASSERT_TRUE(abc <= abc2);
+  EXPECT_TRUE(abc < def);
+  EXPECT_TRUE(abc <= def);
+  EXPECT_TRUE(abc <= abc2);
 
-  ASSERT_TRUE(def > abc);
-  ASSERT_TRUE(def >= abc);
-  ASSERT_TRUE(abc2 >= abc);
+  EXPECT_TRUE(def > abc);
+  EXPECT_TRUE(def >= abc);
+  EXPECT_TRUE(abc2 >= abc);
 }
 
 }  //  namespace nanopb
