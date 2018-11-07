@@ -13,15 +13,27 @@
 // limitations under the License.
 
 #import <XCTest/XCTest.h>
+#import <objc/runtime.h>
 
 #import <GoogleUtilities/GULObjectSwizzler.h>
 #import <GoogleUtilities/GULSwizzledObject.h>
+#import <GoogleUtilities/GULProxy.h>
 
 @interface GULObjectSwizzlerTest : XCTestCase
 
 @end
 
 @implementation GULObjectSwizzlerTest
+
+/** Used as a donor method to add a method that doesn't exist on the superclass. */
+- (NSString *)donorDescription {
+  return @"SwizzledDonorDescription";
+}
+
+/** Used as a donor method to add a method that exists on superclass. */
+- (NSString *)description {
+  return @"SwizzledDescription";
+}
 
 /** Exists just as a donor method. */
 - (void)donorMethod {
@@ -233,6 +245,49 @@
   [swizzler setAssociatedObjectWithKey:@"key" value:associatedObject association:1337];
   NSDictionary *returnedObject = [swizzler getAssociatedObjectForKey:@"key"];
   XCTAssertEqualObjects(returnedObject, associatedObject);
+}
+
+- (void)testSwizzleProxiedObject {
+  NSObject *object = [[NSObject alloc] init];
+  GULProxy *proxyObject = [GULProxy proxyWithTarget:object];
+  GULObjectSwizzler *swizzler = [[GULObjectSwizzler alloc] initWithObject:proxyObject];
+
+  XCTAssertNoThrow([swizzler swizzle]);
+
+  XCTAssertNotEqual(object_getClass(proxyObject), [GULProxy class]);
+  XCTAssertTrue([object_getClass(proxyObject) isSubclassOfClass:[GULProxy class]]);
+  XCTAssertNoThrow([proxyObject performSelector:@selector(gul_objectSwizzler)]);
+  XCTAssertNoThrow([proxyObject performSelector:@selector(gul_class)]);
+
+  Class proxyObjectClass = object_getClass(proxyObject);
+  XCTAssertTrue([proxyObjectClass instancesRespondToSelector:@selector(gul_class)]);
+}
+
+- (void)testSwizzleProxiedObjectInvokesInjectedMethodWhenOverridingMethod {
+  NSObject *object = [[NSObject alloc] init];
+  GULProxy *proxyObject = [GULProxy proxyWithTarget:object];
+
+  GULObjectSwizzler *swizzler = [[GULObjectSwizzler alloc] initWithObject:proxyObject];
+  [swizzler copySelector:@selector(description)
+               fromClass:[GULObjectSwizzlerTest class]
+         isClassSelector:NO];
+  [swizzler swizzle];
+
+  XCTAssertEqual([proxyObject performSelector:@selector(description)], @"SwizzledDescription");
+}
+
+- (void)testSwizzleProxiedObjectInvokesInjectedMethodWhenAddingMethod {
+  NSObject *object = [[NSObject alloc] init];
+  GULProxy *proxyObject = [GULProxy proxyWithTarget:object];
+
+  GULObjectSwizzler *swizzler = [[GULObjectSwizzler alloc] initWithObject:proxyObject];
+  [swizzler copySelector:@selector(donorDescription)
+               fromClass:[GULObjectSwizzlerTest class]
+         isClassSelector:NO];
+  [swizzler swizzle];
+
+  XCTAssertEqual([proxyObject performSelector:@selector(donorDescription)],
+                 @"SwizzledDonorDescription");
 }
 
 @end
