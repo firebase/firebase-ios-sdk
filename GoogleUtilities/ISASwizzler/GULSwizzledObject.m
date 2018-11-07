@@ -14,8 +14,8 @@
 
 #import <objc/runtime.h>
 
-#import "Private/GULSwizzledObject.h"
 #import "Private/GULObjectSwizzler.h"
+#import "Private/GULSwizzledObject.h"
 
 NSString *kSwizzlerAssociatedObjectKey = @"gul_objectSwizzler";
 

@@ -16,8 +16,8 @@
 #import <objc/runtime.h>
 
 #import <GoogleUtilities/GULObjectSwizzler.h>
-#import <GoogleUtilities/GULSwizzledObject.h>
 #import <GoogleUtilities/GULProxy.h>
+#import <GoogleUtilities/GULSwizzledObject.h>
 
 @interface GULObjectSwizzlerTest : XCTestCase
 
