@@ -62,6 +62,13 @@ elseif(MSVC)
     FIREBASE_CPP_LIB_DIR
     ${FIREBASE_CPP_SDK_DIR}/libs/windows/${MSVC_VS_VERSION}/${MSVC_RUNTIME_MODE}/${MSVC_CPU}/${MSVC_CONFIG}
   )
+
+else()
+  message("Unknown platform for the firebase_cpp_sdk.")
+  message("")
+  message("  CMAKE_SYSTEM_NAME = ${CMAKE_SYSTEM_NAME}")
+  message("  CMAKE_SYSTEM_PROCESSOR = ${CMAKE_SYSTEM_PROCESSOR}")
+  message("")
 endif()
 
 find_library(
