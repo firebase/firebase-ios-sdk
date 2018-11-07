@@ -84,7 +84,7 @@ Firestore and Functions have self contained Xcode projects. See
 [Firestore/README.md](Firestore/README.md) and
 [Functions/README.md](Functions/README.md).
 
-## Code Formatting
+### Code Formatting
 
 Travis will verify that any code changes are done in a style compliant way. Install
 `clang-format` and `swiftformat`.
