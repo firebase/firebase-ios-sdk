@@ -131,11 +131,12 @@
 		AFAF36F81EC28C25004BDEE5 /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
 		AFAF36F91EC28C25004BDEE5 /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
 		C852AA112158606000EF7E2D /* FIRComponentTestUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E28211B08A300376BFF /* FIRComponentTestUtilities.m */; };
-		C852AA122158606000EF7E2D /* FIRAuthInteropFake.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E24211A442D00376BFF /* FIRAuthInteropFake.m */; };
 		C852AA132158606100EF7E2D /* FIRComponentTestUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E28211B08A300376BFF /* FIRComponentTestUtilities.m */; };
-		C852AA142158606100EF7E2D /* FIRAuthInteropFake.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E24211A442D00376BFF /* FIRAuthInteropFake.m */; };
 		C852AA152158607600EF7E2D /* FIRComponentTestUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E28211B08A300376BFF /* FIRComponentTestUtilities.m */; };
 		C852AA162158607600EF7E2D /* FIRAuthInteropFake.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E24211A442D00376BFF /* FIRAuthInteropFake.m */; };
+		C8A469472193753C008F5947 /* FIRAuthInteropFake.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E24211A442D00376BFF /* FIRAuthInteropFake.m */; };
+		C8A469482193753D008F5947 /* FIRAuthInteropFake.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E24211A442D00376BFF /* FIRAuthInteropFake.m */; };
+		C8A469492193754A008F5947 /* FIRAuthInteropFake.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E24211A442D00376BFF /* FIRAuthInteropFake.m */; };
 		D01853721EDAD084003A645C /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
 		D01853831EDAD113003A645C /* FIRAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D018537E1EDAD0E6003A645C /* FIRAppDelegate.m */; };
 		D01853841EDAD113003A645C /* FIRViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D01853801EDAD0E6003A645C /* FIRViewController.m */; };
@@ -3980,7 +3981,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				D0FE8A941ED9CAAE003F6722 /* FIRAppDelegate.m in Sources */,
-				C852AA122158606000EF7E2D /* FIRAuthInteropFake.m in Sources */,
 				D0FE8A951ED9CAAE003F6722 /* FIRViewController.m in Sources */,
 				C852AA112158606000EF7E2D /* FIRComponentTestUtilities.m in Sources */,
 				D0FE8A961ED9CAAE003F6722 /* main.m in Sources */,
@@ -4008,6 +4008,7 @@
 				D0FE8A441ED9C86F003F6722 /* FRepoInfoTest.m in Sources */,
 				D0FE8A451ED9C86F003F6722 /* FCompoundHashTest.m in Sources */,
 				D0FE8A461ED9C86F003F6722 /* FTrackedQueryManagerTest.m in Sources */,
+				C8A469482193753D008F5947 /* FIRAuthInteropFake.m in Sources */,
 				D0FE8A471ED9C86F003F6722 /* FUtilitiesTest.m in Sources */,
 				D0FE8A481ED9C86F003F6722 /* FSparseSnapshotTests.m in Sources */,
 				D0FE8A491ED9C86F003F6722 /* FTestBase.m in Sources */,
@@ -4126,6 +4127,7 @@
 				DE90373C1FBA5F8F00E239D3 /* FUtilitiesTest.m in Sources */,
 				DE90372C1FBA5F8F00E239D3 /* FCompoundWriteTest.m in Sources */,
 				DE9037431FBA675D00E239D3 /* FMockStorageEngine.m in Sources */,
+				C8A469492193754A008F5947 /* FIRAuthInteropFake.m in Sources */,
 				DE9037381FBA5F8F00E239D3 /* FSparseSnapshotTests.m in Sources */,
 				DE9037341FBA5F8F00E239D3 /* FPruningTest.m in Sources */,
 				DE9037471FBA675D00E239D3 /* FTestClock.m in Sources */,
@@ -4275,7 +4277,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				DE7B8DCB1E8EF23A009EB6DF /* FIRViewController.m in Sources */,
-				C852AA142158606100EF7E2D /* FIRAuthInteropFake.m in Sources */,
 				DE7B8DCC1E8EF23A009EB6DF /* main.m in Sources */,
 				C852AA132158606100EF7E2D /* FIRComponentTestUtilities.m in Sources */,
 				DE7B8DCA1E8EF23A009EB6DF /* FIRAppDelegate.m in Sources */,
@@ -4303,6 +4304,7 @@
 				063CB4D41EBA7B4600038A59 /* FRepoInfoTest.m in Sources */,
 				063CB4CA1EBA7B4600038A59 /* FCompoundHashTest.m in Sources */,
 				063CB4D81EBA7B4600038A59 /* FTrackedQueryManagerTest.m in Sources */,
+				C8A469472193753C008F5947 /* FIRAuthInteropFake.m in Sources */,
 				063CB4D91EBA7B4600038A59 /* FUtilitiesTest.m in Sources */,
 				063CB4D51EBA7B4600038A59 /* FSparseSnapshotTests.m in Sources */,
 				063CB4D71EBA7B4600038A59 /* FTestBase.m in Sources */,
