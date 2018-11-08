@@ -224,10 +224,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSString *)description {
   return [NSString stringWithFormat:
                        @"<FSTViewSnapshot query:%@ documents:%@ oldDocument:%@ changes:%@ "
-                        "fromCache:%@ mutatedKeys:%zd syncStateChanged:%@ "
+                        "fromCache:%@ mutatedKeys:%zu syncStateChanged:%@ "
                         "excludesMetadataChanges%@>",
                        self.query, self.documents, self.oldDocuments, self.documentChanges,
-                       (self.fromCache ? @"YES" : @"NO"), self.mutatedKeys.size(),
+                       (self.fromCache ? @"YES" : @"NO"), static_cast<size_t>(self.mutatedKeys.size()),
                        (self.syncStateChanged ? @"YES" : @"NO"),
                        (self.excludesMetadataChanges ? @"YES" : @"NO")];
 }
