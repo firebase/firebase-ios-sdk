@@ -16,10 +16,6 @@
 
 #import "FIRDatabaseConfig.h"
 
-#import <FirebaseAuthInterop/FIRAuthInterop.h>
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRComponentContainer.h>
-
 #import "FAuthTokenProvider.h"
 #import "FIRDatabaseConfig_Private.h"
 #import "FIRNoopAuthTokenProvider.h"

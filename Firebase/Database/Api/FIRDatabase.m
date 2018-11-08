@@ -45,19 +45,19 @@ static const char *FIREBASE_SEMVER = (const char *)STR(FIRDatabase_VERSION);
     if (![FIRApp isDefaultAppConfigured]) {
         [NSException raise:@"FIRAppNotConfigured"
                     format:@"Failed to get default Firebase Database instance. Must call `[FIRApp "
-         @"configure]` (`FirebaseApp.configure()` in Swift) before using "
-         @"Firebase Database."];
+                           @"configure]` (`FirebaseApp.configure()` in Swift) before using "
+                           @"Firebase Database."];
     }
     return [FIRDatabase databaseForApp:[FIRApp defaultApp]];
 }
 
 + (FIRDatabase *)databaseWithURL:(NSString *)url {
     FIRApp *app = [FIRApp defaultApp];
-        if (app == nil) {
-            [NSException raise:@"FIRAppNotConfigured"
-                        format:@"Failed to get default Firebase Database instance. "
-             @"Must call `[FIRApp configure]` (`FirebaseApp.configure()` in Swift) "
-             @"before using Firebase Database."];
+    if (app == nil) {
+        [NSException raise:@"FIRAppNotConfigured"
+                    format:@"Failed to get default Firebase Database instance. "
+                           @"Must call `[FIRApp configure]` (`FirebaseApp.configure()` in "
+                           @"Swift) before using Firebase Database."];
     }
     return [FIRDatabase databaseForApp:app URL:url];
 }
@@ -77,7 +77,7 @@ static const char *FIREBASE_SEMVER = (const char *)STR(FIRDatabase_VERSION);
   if (url == nil) {
     [NSException raise:@"MissingDatabaseURL"
                 format:@"Failed to get FirebaseDatabase instance: "
-     "Specify DatabaseURL within FIRApp or from your databaseForApp:URL: call."];
+                       @"Specify DatabaseURL within FIRApp or from your databaseForApp:URL: call."];
   }
   id<FIRDatabaseProvider> provider = FIR_COMPONENT(FIRDatabaseProvider, app.container);
   return [provider databaseForApp:app URL:url];

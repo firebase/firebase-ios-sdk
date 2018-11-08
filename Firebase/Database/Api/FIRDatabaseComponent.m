@@ -75,7 +75,7 @@ typedef NSMutableDictionary<NSString *, NSMutableDictionary<FRepoInfo *, FIRData
   return @[ databaseProvider ];
 }
 
-#pragma mar - Instance management.
+#pragma mark - Instance management.
 
 /**
  * A static NSMutableDictionary of FirebaseApp name and FRepoInfo to
@@ -143,7 +143,7 @@ typedef NSMutableDictionary<NSString *, NSMutableDictionary<FRepoInfo *, FIRData
   FIRDatabaseDictionary *instances = [FIRDatabaseComponent instances];
   @synchronized (instances) {
     NSMutableDictionary<FRepoInfo *, FIRDatabase *> *urlInstanceMap =
-    instances[app.name];
+        instances[app.name];
     if (!urlInstanceMap) {
       urlInstanceMap = [NSMutableDictionary dictionary];
       instances[app.name] = urlInstanceMap;
@@ -153,8 +153,8 @@ typedef NSMutableDictionary<NSString *, NSMutableDictionary<FRepoInfo *, FIRData
     FIRDatabase *database = urlInstanceMap[parsedUrl.repoInfo];
     if (!database) {
       id<FAuthTokenProvider> authTokenProvider =
-      [FAuthTokenProvider authTokenProviderWithAuth:
-       FIR_COMPONENT(FIRAuthInterop, app.container)];
+          [FAuthTokenProvider authTokenProviderWithAuth:
+              FIR_COMPONENT(FIRAuthInterop, app.container)];
 
       // If this is the default app, don't set the session persistence key so that we use our
       // default ("default") instead of the FIRApp default ("[DEFAULT]") so that we
