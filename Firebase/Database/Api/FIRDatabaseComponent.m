@@ -35,6 +35,7 @@ typedef NSMutableDictionary<NSString *, NSMutableDictionary<FRepoInfo *, FIRData
     FIRDatabaseDictionary;
 
 @interface FIRDatabaseComponent () <FIRComponentLifecycleMaintainer, FIRComponentRegistrant>
+@property (nonatomic) FIRDatabaseDictionary *instances;
 /// Internal intializer.
 - (instancetype)initWithApp:(FIRApp *)app;
 @end
@@ -47,6 +48,7 @@ typedef NSMutableDictionary<NSString *, NSMutableDictionary<FRepoInfo *, FIRData
   self = [super init];
   if (self) {
     _app = app;
+    _instances = [NSMutableDictionary dictionary];
   }
   return self;
 }
@@ -77,31 +79,12 @@ typedef NSMutableDictionary<NSString *, NSMutableDictionary<FRepoInfo *, FIRData
 
 #pragma mark - Instance management.
 
-/**
- * A static NSMutableDictionary of FirebaseApp name and FRepoInfo to
- * FirebaseDatabase instance. To ensure thread-safety, it should only be
- * accessed in databaseForApp:URL:, which is synchronized.
- *
- * TODO: This serves a duplicate purpose as RepoManager.  We should clean up.
- * TODO: We should maybe be conscious of leaks and make this a weak map or
- * similar but we have a lot of work to do to allow FirebaseDatabase/Repo etc.
- * to be GC'd.
- */
-+ (FIRDatabaseDictionary *)instances {
-  static dispatch_once_t pred = 0;
-  static FIRDatabaseDictionary *instances;
-  dispatch_once(&pred, ^{
-    instances = [NSMutableDictionary dictionary];
-  });
-  return instances;
-}
-
 - (void)appWillBeDeleted:(FIRApp *)app {
   NSString *appName = app.name;
   if (appName == nil) {
     return;
   }
-  FIRDatabaseDictionary* instances = [FIRDatabaseComponent instances];
+  FIRDatabaseDictionary* instances = [self instances];
   @synchronized (instances) {
     NSMutableDictionary<FRepoInfo *, FIRDatabase *> *databaseInstances = instances[appName];
     if (databaseInstances) {
@@ -140,7 +123,7 @@ typedef NSMutableDictionary<NSString *, NSMutableDictionary<FRepoInfo *, FIRData
      "to the root of a Firebase Database but it includes a path: %@",databaseUrl, databaseUrl.path];
   }
 
-  FIRDatabaseDictionary *instances = [FIRDatabaseComponent instances];
+  FIRDatabaseDictionary *instances = [self instances];
   @synchronized (instances) {
     NSMutableDictionary<FRepoInfo *, FIRDatabase *> *urlInstanceMap =
         instances[app.name];
