@@ -43,6 +43,7 @@ using util::AsyncQueue;
 using util::ByteBufferToString;
 using util::CompletionEndState;
 using util::CreateNoOpConnectivityMonitor;
+using util::ExecutorStd;
 using util::GetFirestoreErrorCodeName;
 using util::GetGrpcErrorCodeName;
 using util::GrpcStreamTester;
@@ -51,7 +52,6 @@ using util::Status;
 using util::StringFormat;
 using util::CompletionResult::Error;
 using util::CompletionResult::Ok;
-using util::internal::ExecutorStd;
 using Type = GrpcCompletion::Type;
 
 namespace {

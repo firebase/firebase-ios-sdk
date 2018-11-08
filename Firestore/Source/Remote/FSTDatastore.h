@@ -56,14 +56,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Creates a new Datastore instance with the given database info. */
 + (instancetype)datastoreWithDatabase:(const firebase::firestore::core::DatabaseInfo *)databaseInfo
-                  workerQueue:(firebase::firestore::util::AsyncQueue *)workerQueue
+                          workerQueue:(firebase::firestore::util::AsyncQueue *)workerQueue
                           credentials:(firebase::firestore::auth::CredentialsProvider *)
                                           credentials;  // no passing ownership
 
 - (instancetype)init __attribute__((unavailable("Use a static constructor method.")));
 
 - (instancetype)initWithDatabaseInfo:(const firebase::firestore::core::DatabaseInfo *)databaseInfo
-                 workerQueue:(firebase::firestore::util::AsyncQueue *)workerQueue
+                         workerQueue:(firebase::firestore::util::AsyncQueue *)workerQueue
                          credentials:(firebase::firestore::auth::CredentialsProvider *)
                                          credentials  // no passing ownership
     NS_DESIGNATED_INITIALIZER;

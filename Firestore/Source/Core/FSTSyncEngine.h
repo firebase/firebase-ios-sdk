@@ -102,7 +102,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param completion The block to call when the transaction is finished or failed.
  */
 - (void)transactionWithRetries:(int)retries
-           workerQueue:(firebase::firestore::util::AsyncQueue *)workerQueue
+                   workerQueue:(firebase::firestore::util::AsyncQueue *)workerQueue
                    updateBlock:(FSTTransactionBlock)updateBlock
                     completion:(FSTVoidIDErrorBlock)completion;
 

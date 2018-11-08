@@ -33,7 +33,7 @@
 
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::OnlineState;
-using firebase::firestore::util::internal::ExecutorLibdispatch;
+using firebase::firestore::util::ExecutorLibdispatch;
 
 NS_ASSUME_NONNULL_BEGIN
 

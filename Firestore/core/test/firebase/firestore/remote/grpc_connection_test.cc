@@ -37,10 +37,10 @@ using auth::User;
 using core::DatabaseInfo;
 using model::DatabaseId;
 using util::AsyncQueue;
+using util::ExecutorStd;
 using util::GrpcStreamTester;
 using util::Status;
 using util::StatusOr;
-using util::internal::ExecutorStd;
 using NetworkStatus = ConnectivityMonitor::NetworkStatus;
 
 namespace {

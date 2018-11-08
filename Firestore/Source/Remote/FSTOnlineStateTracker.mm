@@ -15,9 +15,10 @@
  */
 
 #import "Firestore/Source/Remote/FSTOnlineStateTracker.h"
-#import "Firestore/Source/Remote/FSTRemoteStore.h"
 
 #include <chrono>  // NOLINT(build/c++11)
+
+#import "Firestore/Source/Remote/FSTRemoteStore.h"
 
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
@@ -67,12 +68,12 @@ const AsyncQueue::Milliseconds kOnlineStateTimeout = chr::seconds(10);
 @end
 
 @implementation FSTOnlineStateTracker {
-/**
- * A timer that elapses after kOnlineStateTimeout, at which point we transition from OnlineState
- * Unknown to Offline without waiting for the stream to actually fail (kMaxWatchStreamFailures
- * times).
- */
-DelayedOperation _onlineStateTimer;
+  /**
+   * A timer that elapses after kOnlineStateTimeout, at which point we transition from OnlineState
+   * Unknown to Offline without waiting for the stream to actually fail (kMaxWatchStreamFailures
+   * times).
+   */
+  DelayedOperation _onlineStateTimer;
 
   /** The worker queue to use for running timers (and to call onlineStateDelegate). */
   AsyncQueue *_workerQueue;

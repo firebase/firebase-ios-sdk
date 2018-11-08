@@ -60,9 +60,8 @@ NS_ASSUME_NONNULL_BEGIN
                    credentialsProvider:(firebase::firestore::auth::CredentialsProvider *)
                                            credentialsProvider  // no passing ownership
                           userExecutor:
-                              (std::unique_ptr<firebase::firestore::util::internal::Executor>)
-                                  userExecutor
-                   workerQueue:(std::unique_ptr<firebase::firestore::util::AsyncQueue>)workerQueue;
+                              (std::unique_ptr<firebase::firestore::util::Executor>)userExecutor
+                           workerQueue:(firebase::firestore::util::AsyncQueue *)workerQueue;
 
 - (instancetype)init __attribute__((unavailable("Use static constructor method.")));
 
@@ -116,7 +115,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Dispatch queue for user callbacks / events. This will often be the "Main Dispatch Queue" of the
  * app but the developer can configure it to a different queue if they so choose.
  */
-- (firebase::firestore::util::internal::Executor *)userExecutor;
+- (firebase::firestore::util::Executor *)userExecutor;
 
 @end
 

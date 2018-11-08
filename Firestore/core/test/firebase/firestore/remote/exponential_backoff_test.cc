@@ -24,9 +24,9 @@
 #include "gtest/gtest.h"
 
 using firebase::firestore::util::AsyncQueue;
+using firebase::firestore::util::ExecutorStd;
 using firebase::firestore::util::TestWithTimeoutMixin;
 using firebase::firestore::util::TimerId;
-using firebase::firestore::util::internal::ExecutorStd;
 
 namespace chr = std::chrono;
 

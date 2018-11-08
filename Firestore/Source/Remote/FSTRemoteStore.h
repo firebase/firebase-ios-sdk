@@ -104,7 +104,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithLocalStore:(FSTLocalStore *)localStore
                          datastore:(FSTDatastore *)datastore
-               workerQueue:(firebase::firestore::util::AsyncQueue *)queue;
+                       workerQueue:(firebase::firestore::util::AsyncQueue *)queue;
 
 - (instancetype)init NS_UNAVAILABLE;
 

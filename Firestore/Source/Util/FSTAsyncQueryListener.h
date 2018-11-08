@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FSTAsyncQueryListener : NSObject
 
-- (instancetype)initWithExecutor:(firebase::firestore::util::internal::Executor*)executor
+- (instancetype)initWithExecutor:(firebase::firestore::util::Executor*)executor
                  snapshotHandler:(FSTViewSnapshotHandler)snapshotHandler NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)init NS_UNAVAILABLE;

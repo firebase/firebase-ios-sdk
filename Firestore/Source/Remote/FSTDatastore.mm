@@ -81,15 +81,15 @@ NSString *const kGRPCErrorDomain = @"io.grpc";
 }
 
 + (instancetype)datastoreWithDatabase:(const DatabaseInfo *)databaseInfo
-                  workerQueue:(AsyncQueue *)workerQueue
+                          workerQueue:(AsyncQueue *)workerQueue
                           credentials:(CredentialsProvider *)credentials {
   return [[FSTDatastore alloc] initWithDatabaseInfo:databaseInfo
-                                workerQueue:workerQueue
+                                        workerQueue:workerQueue
                                         credentials:credentials];
 }
 
 - (instancetype)initWithDatabaseInfo:(const DatabaseInfo *)databaseInfo
-                 workerQueue:(AsyncQueue *)workerQueue
+                         workerQueue:(AsyncQueue *)workerQueue
                          credentials:(CredentialsProvider *)credentials {
   if (self = [super init]) {
     _databaseInfo = databaseInfo;
@@ -97,8 +97,8 @@ NSString *const kGRPCErrorDomain = @"io.grpc";
     _credentials = credentials;
     _serializer = [[FSTSerializerBeta alloc] initWithDatabaseID:&databaseInfo->database_id()];
 
-    _datastore = std::make_shared<Datastore>(*_databaseInfo, _workerQueue,
-                                             _credentials, _serializer);
+    _datastore =
+        std::make_shared<Datastore>(*_databaseInfo, _workerQueue, _credentials, _serializer);
     _datastore->Start();
     if (!databaseInfo->ssl_enabled()) {
       GrpcConnection::UseInsecureChannel(databaseInfo->host());

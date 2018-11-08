@@ -43,10 +43,10 @@ using util::GrpcStreamTester;
 using util::FakeCredentialsProvider;
 using util::FakeGrpcQueue;
 using util::WrapNSString;
-using util::internal::ExecutorLibdispatch;
+using util::ExecutorLibdispatch;
 using util::CompletionResult::Error;
 using util::CompletionResult::Ok;
-using util::internal::ExecutorStd;
+using util::ExecutorStd;
 using Type = GrpcCompletion::Type;
 
 namespace {

@@ -122,7 +122,7 @@ static const int kMaxPendingWrites = 10;
 
 - (instancetype)initWithLocalStore:(FSTLocalStore *)localStore
                          datastore:(FSTDatastore *)datastore
-               workerQueue:(AsyncQueue *)queue {
+                       workerQueue:(AsyncQueue *)queue {
   if (self = [super init]) {
     _localStore = localStore;
     _datastore = datastore;

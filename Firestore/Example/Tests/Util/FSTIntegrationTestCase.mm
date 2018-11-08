@@ -50,15 +50,20 @@
 
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 
+#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
+#include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
+
 namespace util = firebase::firestore::util;
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::testutil::AppForUnitTesting;
 using firebase::firestore::remote::GrpcConnection;
+using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::CreateAutoId;
 using firebase::firestore::util::Path;
 using firebase::firestore::util::Status;
+using firebase::firestore::util::ExecutorLibdispatch;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -67,10 +72,6 @@ NS_ASSUME_NONNULL_BEGIN
  * recently, so before any tests run we "prime" the backend.
  */
 static const double kPrimingTimeout = 45.0;
-
-@interface FIRFirestore (Testing)
-@property(nonatomic, strong) FSTQueue *workerQueue;
-@end
 
 static NSString *defaultProjectId;
 static FIRFirestoreSettings *defaultSettings;
@@ -180,8 +181,10 @@ static FIRFirestoreSettings *defaultSettings;
 - (FIRFirestore *)firestoreWithProjectID:(NSString *)projectID {
   NSString *persistenceKey = [NSString stringWithFormat:@"db%lu", (unsigned long)_firestores.count];
 
-  FSTQueue *workerQueue = [FSTQueue
-      queueWith:dispatch_queue_create("com.google.firebase.firestore", DISPATCH_QUEUE_SERIAL)];
+  dispatch_queue_t queue =
+      dispatch_queue_create("com.google.firebase.firestore", DISPATCH_QUEUE_SERIAL);
+  std::unique_ptr<AsyncQueue> workerQueue =
+      absl::make_unique<AsyncQueue>(absl::make_unique<ExecutorLibdispatch>(queue));
 
   FIRSetLoggerLevel(FIRLoggerLevelDebug);
 
@@ -193,7 +196,7 @@ static FIRFirestoreSettings *defaultSettings;
                                                            database:DatabaseId::kDefault
                                                      persistenceKey:persistenceKey
                                                 credentialsProvider:std::move(credentials_provider)
-                                                workerQueue:workerQueue
+                                                        workerQueue:std::move(workerQueue)
                                                         firebaseApp:app];
 
   firestore.settings = [FSTIntegrationTestCase settings];
@@ -402,8 +405,8 @@ static FIRFirestoreSettings *defaultSettings;
   [self awaitExpectations];
 }
 
-- (FSTQueue *)queueForFirestore:(FIRFirestore *)firestore {
-  return firestore.workerQueue;
+- (AsyncQueue *)queueForFirestore:(FIRFirestore *)firestore {
+  return [firestore workerQueue];
 }
 
 - (void)waitUntil:(BOOL (^)())predicate {

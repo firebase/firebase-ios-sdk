@@ -35,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FSTOnlineStateTracker : NSObject
 
-- (instancetype)initWithWorkerQueue:(firebase::firestore::util::AsyncQueue*)queue;
+- (instancetype)initWithWorkerQueue:(firebase::firestore::util::AsyncQueue *)queue;
 
 - (instancetype)init NS_UNAVAILABLE;
 

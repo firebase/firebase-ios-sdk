@@ -43,12 +43,11 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
+#include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "absl/memory/memory.h"
-
-#include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::auth::CredentialsProvider;
@@ -57,8 +56,8 @@ using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::ResourcePath;
 using util::AsyncQueue;
-using util::internal::Executor;
-using util::internal::ExecutorLibdispatch;
+using util::Executor;
+using util::ExecutorLibdispatch;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -87,6 +86,10 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
   // All guarded by @synchronized(self)
   FIRFirestoreSettings *_settings;
   FSTFirestoreClient *_client;
+}
+
+- (AsyncQueue *)workerQueue {
+  return _workerQueue.get();
 }
 
 + (NSMutableDictionary<NSString *, FIRFirestore *> *)instances {
@@ -165,7 +168,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
                          database:(std::string)database
                    persistenceKey:(NSString *)persistenceKey
               credentialsProvider:(std::unique_ptr<CredentialsProvider>)credentialsProvider
-              workerQueue:(std::unique_ptr<AsyncQueue>)workerQueue
+                      workerQueue:(std::unique_ptr<AsyncQueue>)workerQueue
                       firebaseApp:(FIRApp *)app {
   if (self = [super init]) {
     _databaseID = DatabaseId{std::move(projectID), std::move(database)};
@@ -264,7 +267,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
                                             usePersistence:_settings.persistenceEnabled
                                        credentialsProvider:_credentialsProvider.get()
                                               userExecutor:std::move(userExecutor)
-                                       workerQueue:std::move(_workerQueue)];
+                                               workerQueue:_workerQueue.get()];
     }
   }
 }
@@ -335,14 +338,14 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 - (void)runTransactionWithBlock:(id _Nullable (^)(FIRTransaction *, NSError **error))updateBlock
                      completion:
                          (void (^)(id _Nullable result, NSError *_Nullable error))completion {
-  static dispatch_queue_t transactionQueue;
+  static dispatch_queue_t transactionDispatchQueue;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
-    transactionQueue = dispatch_queue_create("com.google.firebase.firestore.transaction",
+    transactionDispatchQueue = dispatch_queue_create("com.google.firebase.firestore.transaction",
                                                      DISPATCH_QUEUE_CONCURRENT);
   });
   [self runTransactionWithBlock:updateBlock
-                  dispatchQueue:transactionQueue
+                  dispatchQueue:transactionDispatchQueue
                      completion:completion];
 }
 

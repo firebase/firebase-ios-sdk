@@ -56,7 +56,7 @@ using util::FakeCredentialsProvider;
 using util::MakeByteBuffer;
 using util::StringFormat;
 using util::TimerId;
-using util::internal::ExecutorStd;
+using util::ExecutorStd;
 using Type = GrpcCompletion::Type;
 
 namespace {

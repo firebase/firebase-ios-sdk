@@ -41,7 +41,7 @@ namespace util = firebase::firestore::util;
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::FirebaseCredentialsProvider;
 using util::AsyncQueue;
-using util::internal::ExecutorLibdispatch;
+using util::ExecutorLibdispatch;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -85,7 +85,7 @@ NS_ASSUME_NONNULL_BEGIN
       }
 
       auto executor = absl::make_unique<ExecutorLibdispatch>(
-              dispatch_queue_create(queue_name.c_str(), DISPATCH_QUEUE_SERIAL));
+          dispatch_queue_create(queue_name.c_str(), DISPATCH_QUEUE_SERIAL));
       auto workerQueue = absl::make_unique<AsyncQueue>(std::move(executor));
 
       id<FIRAuthInterop> auth = FIR_COMPONENT(FIRAuthInterop, self.app.container);
