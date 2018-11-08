@@ -92,7 +92,10 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
       'Firestore/third_party/abseil-cpp/**/*.cc'
     ]
     ss.exclude_files = [
-      'Firestore/third_party/abseil-cpp/**/*_test.cc',
+      'Firestore/third_party/abseil-cpp/**/*_benchmark.cc',
+      'Firestore/third_party/abseil-cpp/**/*test*.cc',
+      'Firestore/third_party/abseil-cpp/absl/hash/internal/print_hash_of.cc',
+      'Firestore/third_party/abseil-cpp/absl/synchronization/internal/mutex_nonprod.cc',
     ]
 
     ss.library = 'c++'
