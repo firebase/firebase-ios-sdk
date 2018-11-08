@@ -28,14 +28,13 @@ typedef void (^GULNetworkURLSessionCompletionHandler)(NSHTTPURLResponse *respons
 typedef void (^GULNetworkSystemCompletionHandler)(void);
 
 /// The protocol that uses NSURLSession for iOS >= 7.0 to handle requests and responses.
-@interface GULNetworkURLSession
-    : NSObject <NSURLSessionDelegate, NSURLSessionTaskDelegate, NSURLSessionDownloadDelegate>
+@interface GULNetworkURLSession : NSObject
 
 /// Indicates whether the background network is enabled. Default value is NO.
 @property(nonatomic, getter=isBackgroundNetworkEnabled) BOOL backgroundNetworkEnabled;
 
 /// The logger delegate to log message, errors or warnings that occur during the network operations.
-@property(nonatomic, weak) id<GULNetworkLoggerDelegate> loggerDelegate;
+@property(nonatomic, weak, nullable) id<GULNetworkLoggerDelegate> loggerDelegate;
 
 /// Calls the system provided completion handler after the background session is finished.
 + (void)handleEventsForBackgroundURLSessionID:(NSString *)sessionID
