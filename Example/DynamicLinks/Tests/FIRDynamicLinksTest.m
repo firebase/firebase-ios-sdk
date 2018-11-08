@@ -1024,7 +1024,6 @@ static void UnswizzleDynamicLinkNetworking() {
   //  https://google.com/one
   //  https://a.firebase.com/mypath
 
-  [FIRApp configure];
   NSArray<NSString *> *urlStrings = @[
     @"https://google.com/1",                     // Valid domain. Any path.
     @"https://google.com/2",                     // Valid domain. Any path.
@@ -1051,7 +1050,6 @@ static void UnswizzleDynamicLinkNetworking() {
   //  https://google.com/one
   //  https://a.firebase.com/mypath
 
-  [FIRApp configure];
   NSArray<NSString *> *urlStrings = @[
     @"mydomain.com",                  // Domain not in plist. Also, no scheme.
     @"http://mydomain",               // Domain not in plist. No path.
