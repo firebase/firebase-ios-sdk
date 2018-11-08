@@ -21,8 +21,9 @@
 #import "Private/GULNetworkConstants.h"
 #import "Private/GULNetworkMessageCode.h"
 
-@interface GULNetworkURLSession () <NSURLSessionDelegate, NSURLSessionTaskDelegate,
-    NSURLSessionDownloadDelegate>
+@interface GULNetworkURLSession () <NSURLSessionDelegate,
+                                    NSURLSessionTaskDelegate,
+                                    NSURLSessionDownloadDelegate>
 @end
 
 @implementation GULNetworkURLSession {
