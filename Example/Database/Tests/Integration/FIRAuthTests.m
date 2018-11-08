@@ -47,10 +47,10 @@
     FIRAuthInteropFake *auth =
         [[FIRAuthInteropFake alloc] initWithToken:nil userID:nil error:nil];
     id<FAuthTokenProvider> authTokenProvider =
-        [FAuthTokenProvider authTokenProviderWithAuthInterop:auth];
+        [FAuthTokenProvider authTokenProviderWithAuth:auth];
             FIR_COMPONENT(FIRAuthInterop, [FIRApp defaultApp].container);
 
-    FIRDatabaseConfig *config = [FIRDatabaseConfig configForName:@"testWritesRestoredAfterAuth"];
+    FIRDatabaseConfig *config = [FTestHelpers configForName:@"testWritesRestoredAfterAuth"];
     config.authTokenProvider = authTokenProvider;
 
     FIRDatabaseReference *ref = [[[FIRDatabaseReference alloc] initWithConfig:config] childByAutoId];

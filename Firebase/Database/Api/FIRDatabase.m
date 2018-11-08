@@ -33,12 +33,6 @@
 #import "FRepoInfo.h"
 #import "FValidation.h"
 
-@interface FIRDatabase ()
-@property (nonatomic, strong) FRepoInfo *repoInfo;
-@property (nonatomic, strong) FIRDatabaseConfig *config;
-@property (nonatomic, strong) FRepo *repo;
-@end
-
 @implementation FIRDatabase
 
 // The STR and STR_EXPAND macro allow a numeric version passed to he compiler driver

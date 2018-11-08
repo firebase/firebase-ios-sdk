@@ -819,7 +819,7 @@
 // Skipping two tests on nested calls. Since iOS uses a work queue, nested calls don't actually happen synchronously, so they aren't problematic
 
 - (void) testPendingTransactionsAreCancelledOnDisconnect {
-    FIRDatabaseConfig *cfg = [FIRDatabaseConfig configForName:@"pending-transactions"];
+    FIRDatabaseConfig *cfg = [FTestHelpers configForName:@"pending-transactions"];
     FIRDatabaseReference * ref = [[[FIRDatabaseReference alloc] initWithConfig:cfg] childByAutoId];
 
     __block BOOL done = NO;
@@ -1359,7 +1359,7 @@
     // In real-world usage the much more common case is that we get redirected to a different
     // server, but that's harder to manufacture from a test.
     NSString *configName = @"testUnsentTransactionsAreNotCancelledOnDisconnect";
-    FIRDatabaseConfig *config = [FIRDatabaseConfig configForName:configName];
+    FIRDatabaseConfig *config = [FTestHelpers configForName:configName];
     config.authTokenProvider = [[FIROneBadTokenProvider alloc] init];
 
     // Queue a transaction offline.

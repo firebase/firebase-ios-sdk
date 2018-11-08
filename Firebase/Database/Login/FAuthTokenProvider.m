@@ -111,7 +111,7 @@
 
 @implementation FAuthTokenProvider
 
-+ (id<FAuthTokenProvider>)authTokenProviderWithAuthInterop:(id<FIRAuthInterop>)authInterop {
++ (id<FAuthTokenProvider>)authTokenProviderWithAuth:(id<FIRAuthInterop>)authInterop {
     return [[FIRFirebaseAuthTokenProvider alloc] initWithAuth:authInterop];
 }
 

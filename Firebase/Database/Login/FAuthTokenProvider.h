@@ -32,7 +32,7 @@
 
 @interface FAuthTokenProvider : NSObject
 
-+ (id<FAuthTokenProvider>)authTokenProviderWithAuthInterop:(id<FIRAuthInterop>)authInterop;
++ (id<FAuthTokenProvider>)authTokenProviderWithAuth:(id<FIRAuthInterop>)auth;
 
 - (instancetype)init NS_UNAVAILABLE;
 

@@ -48,6 +48,18 @@
     return (finish - start);
 }
 
++ (FIRDatabaseConfig *) defaultConfig {
+  return [self configForName:@"default"];
+}
+
++ (FIRDatabaseConfig *) configForName:(NSString *)name {
+  id<FIRAuthInterop> auth =
+  [[FIRAuthInteropFake alloc] initWithToken:nil userID:nil error:nil];
+  id<FAuthTokenProvider> authTokenProvider =
+  [FAuthTokenProvider authTokenProviderWithAuth:auth];
+  return [[FIRDatabaseConfig alloc] initWithSessionIdentifier:name authTokenProvider:authTokenProvider];
+}
+
 + (NSArray*) getRandomNodes:(int)num persistence:(BOOL)persistence {
     static dispatch_once_t pred = 0;
     static NSMutableArray *persistenceRefs = nil;
@@ -61,10 +73,10 @@
 
     NSMutableArray *refs = (persistence) ? persistenceRefs : noPersistenceRefs;
 
-    // This helper is used in integration tests and needs the information from the default app.
-    id<FIRAuthInterop> auth = FIR_COMPONENT(FIRAuthInterop, [FIRApp defaultApp].container);
+    id<FIRAuthInterop> auth =
+        [[FIRAuthInteropFake alloc] initWithToken:nil userID:nil error:nil];
     id<FAuthTokenProvider> authTokenProvider =
-        [FAuthTokenProvider authTokenProviderWithAuthInterop:auth];
+        [FAuthTokenProvider authTokenProviderWithAuth:auth];
 
     while (num > refs.count) {
         NSString *sessionIdentifier = [NSString stringWithFormat:@"test-config-%@persistence-%lu", (persistence) ? @"" : @"no-", refs.count];

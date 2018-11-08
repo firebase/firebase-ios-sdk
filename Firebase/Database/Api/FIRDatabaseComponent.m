@@ -34,14 +34,6 @@ NS_ASSUME_NONNULL_BEGIN
 typedef NSMutableDictionary<NSString *, NSMutableDictionary<FRepoInfo *, FIRDatabase *> *>
     FIRDatabaseDictionary;
 
-@interface FIRDatabase ()
-@property (nonatomic, strong) FRepoInfo *repoInfo;
-@property (nonatomic, strong) FIRDatabaseConfig *config;
-@property (nonatomic, strong) FRepo *repo;
-
-- (id)initWithApp:(FIRApp *)app repoInfo:(FRepoInfo *)info config:(FIRDatabaseConfig *)config;
-@end
-
 @interface FIRDatabaseComponent () <FIRComponentLifecycleMaintainer, FIRComponentRegistrant>
 /// Internal intializer.
 - (instancetype)initWithApp:(FIRApp *)app;
@@ -161,7 +153,7 @@ typedef NSMutableDictionary<NSString *, NSMutableDictionary<FRepoInfo *, FIRData
     FIRDatabase *database = urlInstanceMap[parsedUrl.repoInfo];
     if (!database) {
       id<FAuthTokenProvider> authTokenProvider =
-      [FAuthTokenProvider authTokenProviderWithAuthInterop:
+      [FAuthTokenProvider authTokenProviderWithAuth:
        FIR_COMPONENT(FIRAuthInterop, app.container)];
 
       // If this is the default app, don't set the session persistence key so that we use our
