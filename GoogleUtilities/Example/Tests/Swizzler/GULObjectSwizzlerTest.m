@@ -30,7 +30,7 @@
   return @"SwizzledDonorDescription";
 }
 
-/** Used as a donor method to add a method that exists on superclass. */
+/** Used as a donor method to add a method that exists on the superclass. */
 - (NSString *)description {
   return @"SwizzledDescription";
 }
@@ -238,6 +238,7 @@
   XCTAssertEqualObjects(returnedObject, associatedObject);
 }
 
+/** Tests getting and setting an associated object with an invalid association type. */
 - (void)testSetGetAssociatedObjectWithoutProperAssociation {
   NSObject *object = [[NSObject alloc] init];
   NSDictionary *associatedObject = [[NSDictionary alloc] init];
@@ -247,6 +248,7 @@
   XCTAssertEqualObjects(returnedObject, associatedObject);
 }
 
+/** Tests using the GULObjectSwizzler to swizzle an object wrapped in an NSProxy. */
 - (void)testSwizzleProxiedObject {
   NSObject *object = [[NSObject alloc] init];
   GULProxy *proxyObject = [GULProxy proxyWithDelegate:object];
@@ -264,6 +266,7 @@
   XCTAssertNoThrow([proxyObject performSelector:@selector(gul_class)]);
 }
 
+/** Tests overriding a method that already exists on a proxied object works as expected. */
 - (void)testSwizzleProxiedObjectInvokesInjectedMethodWhenOverridingMethod {
   NSObject *object = [[NSObject alloc] init];
   GULProxy *proxyObject = [GULProxy proxyWithDelegate:object];
@@ -277,6 +280,7 @@
   XCTAssertEqual([proxyObject performSelector:@selector(description)], @"SwizzledDescription");
 }
 
+/** Tests adding a method that doesn't exist on a proxied object works as expected. */
 - (void)testSwizzleProxiedObjectInvokesInjectedMethodWhenAddingMethod {
   NSObject *object = [[NSObject alloc] init];
   GULProxy *proxyObject = [GULProxy proxyWithDelegate:object];
@@ -291,6 +295,7 @@
                  @"SwizzledDonorDescription");
 }
 
+/** Tests KVOing a proxy object that we've ISA Swizzled works as expected. */
 - (void)testRespondsToSelectorWorksEvenIfSwizzledProxyIsKVOd {
   NSObject *object = [[NSObject alloc] init];
   GULProxy *proxyObject = [GULProxy proxyWithDelegate:object];
@@ -314,6 +319,9 @@
                                forKeyPath:NSStringFromSelector(@selector(description))];
 }
 
+/** Tests that -[NSObjectProtocol resopondsToSelector:] works as expected after someone else ISA
+ *  swizzles a proxy object that we've also ISA Swizzled.
+ */
 - (void)testRespondsToSelectorWorksEvenIfSwizzledProxyISASwizzledBySomeoneElse {
   NSObject *object = [[NSObject alloc] init];
   GULProxy *proxyObject = [GULProxy proxyWithDelegate:object];
