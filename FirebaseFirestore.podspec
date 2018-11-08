@@ -99,6 +99,9 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
     ]
 
     ss.library = 'c++'
-    ss.compiler_flags = '$(inherited) ' + '-Wno-comma -Wno-range-loop-analysis'
+    ss.compiler_flags = '$(inherited) ' +
+      '-Wno-comma ' +
+      '-Wno-range-loop-analysis ' +
+      '-Wno-shorten-64-to-32'
   end
 end
