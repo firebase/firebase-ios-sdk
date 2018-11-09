@@ -222,7 +222,7 @@ NS_ASSUME_NONNULL_BEGIN
   // Check to see if FirebaseDynamicLinksCustomDomains array is present.
   NSDictionary *infoDictionary = [NSBundle mainBundle].infoDictionary;
   NSArray *customDomains = infoDictionary[kInfoPlistCustomDomainsKey];
-  if (customDomains && customDomains.count > 0) {
+  if (customDomains) {
     FIRDLAddToWhiteListForCustomDomainsArray(customDomains);
   }
 }

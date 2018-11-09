@@ -1019,8 +1019,6 @@ static void UnswizzleDynamicLinkNetworking() {
 - (void)testValidCustomDomainNames {
   // Entries in plist file:
   //  https://google.com
-  //  g.co
-  //  https://g.co
   //  https://google.com/one
   //  https://a.firebase.com/mypath
 
@@ -1028,9 +1026,9 @@ static void UnswizzleDynamicLinkNetworking() {
     @"https://google.com/1",                     // Valid domain. Any path.
     @"https://google.com/2",                     // Valid domain. Any path.
     @"https://google.com/one",                   // Valid domain. Specified path.
-    @"https://g.co/1",                           // Valid domain. Any path.
     @"https://a.firebase.com/mypath/",           // Valid subdomain.
     @"https://a.firebase.com/mypath/abcd/efgh",  // Long path.
+    @"https://a.firebase.com/mypath?link=abcd&test=1",  // Long path.
   ];
 
   for (NSString *urlString in urlStrings) {
@@ -1045,8 +1043,6 @@ static void UnswizzleDynamicLinkNetworking() {
 - (void)testInvalidCustomDomainNames {
   // Entries in plist file:
   //  https://google.com
-  //  g.co
-  //  https://g.co
   //  https://google.com/one
   //  https://a.firebase.com/mypath
 
@@ -1056,7 +1052,7 @@ static void UnswizzleDynamicLinkNetworking() {
     @"google.com",                    // Valid domain. No scheme.
     @"https://google.com",            // Valid domain. No path.
     @"http://google.com",             // Valid domain. Invalid scheme.
-    @"https://g.co.com/abc",          // Invalid domain starts with valid domain.
+    @"https://google.co.in/abc",          // Invalid domain starts with valid domain name.
     @"https://firebase.com/mypath",   // Invalid (sub)domain.
     @"https://b.firebase.com/mypath"  // Invalid subdomain.
   ];
