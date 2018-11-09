@@ -1,6 +1,6 @@
 # Unreleased
 
-- Fixed a crash caused due to `NSURLConnection` delegates being wrapped in an
+- Fixed a crash caused due to `NSURLConnection` delegates being wrapped in a
   `NSProxy`. (#1936)
 
 # 5.3.4
