@@ -51,7 +51,7 @@ namespace strings_internal {
 
 // This class is implicitly constructible from everything that absl::string_view
 // is implicitly constructible from. If it's constructed from a temporary
-// std::string, the data is moved into a data member so its lifetime matches that of
+// string, the data is moved into a data member so its lifetime matches that of
 // the ConvertibleToStringView instance.
 class ConvertibleToStringView {
  public:
@@ -102,7 +102,7 @@ ConvertibleToStringView(std::string&& s)  // NOLINT(runtime/explicit)
   absl::string_view value_;
 };
 
-// An iterator that enumerates the parts of a std::string from a Splitter. The text
+// An iterator that enumerates the parts of a string from a Splitter. The text
 // to be split, the Delimiter, and the Predicate are all taken from the given
 // Splitter object. Iterators may only be compared if they refer to the same
 // Splitter instance.
@@ -159,7 +159,7 @@ class SplitIterator {
       }
       const absl::string_view text = splitter_->text();
       const absl::string_view d = delimiter_.Find(text, pos_);
-      if (d.data() == text.end()) state_ = kLastState;
+      if (d.data() == text.data() + text.size()) state_ = kLastState;
       curr_ = text.substr(pos_, d.data() - (text.data() + pos_));
       pos_ += curr_.size() + d.size();
     } while (!predicate_(curr_));
@@ -228,14 +228,31 @@ struct IsInitializerList
 // compiled in C++11 will get an error due to ambiguous conversion paths (in
 // C++11 std::vector<T>::operator= is overloaded to take either a std::vector<T>
 // or an std::initializer_list<T>).
+
+template <typename C, bool has_value_type, bool has_mapped_type>
+struct SplitterIsConvertibleToImpl : std::false_type {};
+
+template <typename C>
+struct SplitterIsConvertibleToImpl<C, true, false>
+    : std::is_constructible<typename C::value_type, absl::string_view> {};
+
+template <typename C>
+struct SplitterIsConvertibleToImpl<C, true, true>
+    : absl::conjunction<
+          std::is_constructible<typename C::key_type, absl::string_view>,
+          std::is_constructible<typename C::mapped_type, absl::string_view>> {};
+
 template <typename C>
 struct SplitterIsConvertibleTo
-    : std::enable_if<
+    : SplitterIsConvertibleToImpl<
+          C,
 #ifdef _GLIBCXX_DEBUG
           !IsStrictlyBaseOfAndConvertibleToSTLContainer<C>::value &&
 #endif  // _GLIBCXX_DEBUG
-          !IsInitializerList<C>::value && HasValueType<C>::value &&
-          HasConstIterator<C>::value> {
+              !IsInitializerList<
+                  typename std::remove_reference<C>::type>::value &&
+              HasValueType<C>::value && HasConstIterator<C>::value,
+          HasMappedType<C>::value> {
 };
 
 // This class implements the range that is returned by absl::StrSplit(). This
@@ -281,7 +298,8 @@ class Splitter {
   // An implicit conversion operator that is restricted to only those containers
   // that the splitter is convertible to.
   template <typename Container,
-            typename OnlyIf = typename SplitterIsConvertibleTo<Container>::type>
+            typename = typename std::enable_if<
+                SplitterIsConvertibleTo<Container>::value>::type>
   operator Container() const {  // NOLINT(runtime/explicit)
     return ConvertToContainer<Container, typename Container::value_type,
                               HasMappedType<Container>::value>()(*this);
