@@ -178,4 +178,14 @@ typedef NS_ENUM(NSInteger, FIRMessagingMessageCode) {
   kFIRMessagingMessageCodeUtilities000 = 18000,  // I-FCM018000
   kFIRMessagingMessageCodeUtilities001 = 18001,  // I-FCM018001
   kFIRMessagingMessageCodeUtilities002 = 18002,  // I-FCM018002
+  // FIRMessagingAnalytics.m
+  kFIRMessagingMessageCodeAnalytics000 = 19000,  // I-FCM019000
+  kFIRMessagingMessageCodeAnalytics001 = 19001,  // I-FCM019001
+  kFIRMessagingMessageCodeAnalytics002 = 19002,  // I-FCM019002
+  kFIRMessagingMessageCodeAnalytics003 = 19003,  // I-FCM019003
+  kFIRMessagingMessageCodeAnalytics004 = 19004,  // I-FCM019004
+  kFIRMessagingMessageCodeAnalytics005 = 19005,  // I-FCM019005
+  kFIRMessagingMessageCodeAnalyticsInvalidEvent = 19006,  // I-FCM019006
+  kFIRMessagingMessageCodeAnalytics007 = 19007,  // I-FCM019007
+  kFIRMessagingMessageCodeAnalyticsCouldNotInvokeAnalyticsLog = 19008,  // I-FCM019008
 };

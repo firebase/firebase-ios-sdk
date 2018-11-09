@@ -77,6 +77,15 @@ using leveldb::WriteOptions;
 
 static const char *kReservedPathComponent = "firestore";
 
+@interface FSTLevelDB ()
+
+- (size_t)byteSize;
+
+@property(nonatomic, assign, getter=isStarted) BOOL started;
+@property(nonatomic, strong, readonly) FSTLocalSerializer *serializer;
+
+@end
+
 /**
  * Provides LRU functionality for leveldb persistence.
  *
@@ -203,10 +212,15 @@ static const char *kReservedPathComponent = "firestore";
       if (![self isPinned:docKey]) {
         count++;
         [self->_db.remoteDocumentCache removeEntryForKey:docKey];
+        [self removeSentinel:docKey];
       }
     }
   }];
   return count;
+}
+
+- (void)removeSentinel:(const DocumentKey &)key {
+  _db.currentTransaction->Delete(LevelDbDocumentTargetKey::SentinelKey(key));
 }
 
 - (int)removeTargetsThroughSequenceNumber:(ListenSequenceNumber)sequenceNumber
@@ -220,9 +234,9 @@ static const char *kReservedPathComponent = "firestore";
 }
 
 - (void)writeSentinelForKey:(const DocumentKey &)key {
-  std::string encodedSequenceNumber;
-  OrderedCode::WriteSignedNumIncreasing(&encodedSequenceNumber, [self currentSequenceNumber]);
   std::string sentinelKey = LevelDbDocumentTargetKey::SentinelKey(key);
+  std::string encodedSequenceNumber =
+      LevelDbDocumentTargetKey::EncodeSentinelValue([self currentSequenceNumber]);
   _db.currentTransaction->Put(sentinelKey, encodedSequenceNumber);
 }
 
@@ -234,12 +248,9 @@ static const char *kReservedPathComponent = "firestore";
   [self writeSentinelForKey:key];
 }
 
-@end
-
-@interface FSTLevelDB ()
-
-@property(nonatomic, assign, getter=isStarted) BOOL started;
-@property(nonatomic, strong, readonly) FSTLocalSerializer *serializer;
+- (size_t)byteSize {
+  return [_db byteSize];
+}
 
 @end
 
@@ -288,6 +299,19 @@ static const char *kReservedPathComponent = "firestore";
     _transactionRunner.SetBackingPersistence(self);
   }
   return self;
+}
+
+- (size_t)byteSize {
+  int64_t count = 0;
+  auto iter = util::DirectoryIterator::Create(_directory);
+  for (; iter->Valid(); iter->Next()) {
+    int64_t fileSize = util::FileSize(iter->file()).ValueOrDie();
+    count += fileSize;
+  }
+  HARD_ASSERT(iter->status().ok(), "Failed to iterate leveldb directory: %s",
+              iter->status().error_message().c_str());
+  HARD_ASSERT(count <= SIZE_MAX, "Overflowed counting bytes cached");
+  return count;
 }
 
 - (const std::set<std::string> &)users {

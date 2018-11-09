@@ -1,4 +1,19 @@
 # Unreleased
+
+- [changed] Changed how the SDK handles locally-updated documents while syncing
+  those updates with Cloud Firestore servers. This can lead to slight behavior
+  changes and may affect the `SnapshotMetadata.hasPendingWrites` metadata flag.
+- [changed] Eliminated superfluous update events for locally cached documents
+  that are known to lag behind the server version. Instead, the SDK buffers
+  these events until the client has caught up with the server.
+
+# v0.14.0
+- [fixed] Fixed compilation in C99 and C++11 modes without GNU extensions.
+
+# v0.13.6
+- [changed] Internal improvements.
+
+# v0.13.5
 - [changed] Some SDK errors that represent common mistakes (such as permission
   denied or a missing index) will automatically be logged as a warning in
   addition to being surfaced via the API.
@@ -6,11 +21,10 @@
 # v0.13.4
 - [fixed] Fixed an issue where the first `get()` call made after being offline
   could incorrectly return cached data without attempting to reach the backend.
-- [changed] Changed `get()` to only make 1 attempt to reach the backend before
-  returning cached data, potentially reducing delays while offline. Previously
-  it would make 2 attempts, to work around a backend bug.
-- [fixed] Fixed an issue that caused us to drop empty objects from calls to
-  `setData(..., merge:true)`.
+- [changed] Changed `get()` to only make one attempt to reach the backend before
+  returning cached data, potentially reducing delays while offline.
+- [fixed] Fixed an issue that caused Firebase to drop empty objects from calls
+  to `setData(..., merge:true)`.
 
 # v0.13.3
 - [changed] Internal improvements.

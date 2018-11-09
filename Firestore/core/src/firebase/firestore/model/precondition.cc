@@ -45,17 +45,15 @@ Precondition Precondition::None() {
   return Precondition{Type::None, SnapshotVersion::None(), false};
 }
 
-bool Precondition::IsValidFor(const MaybeDocument& maybe_doc) const {
+bool Precondition::IsValidFor(const MaybeDocument* maybe_doc) const {
   switch (type_) {
     case Type::UpdateTime:
-      return maybe_doc.type() == MaybeDocument::Type::Document &&
-             maybe_doc.version() == update_time_;
+      return maybe_doc != nullptr &&
+             maybe_doc->type() == MaybeDocument::Type::Document &&
+             maybe_doc->version() == update_time_;
     case Type::Exists:
-      if (exists_) {
-        return maybe_doc.type() == MaybeDocument::Type::Document;
-      } else {
-        return maybe_doc.type() == MaybeDocument::Type::NoDocument;
-      }
+      return (exists_ == (maybe_doc != nullptr &&
+                          maybe_doc->type() == MaybeDocument::Type::Document));
     case Type::None:
       return true;
   }

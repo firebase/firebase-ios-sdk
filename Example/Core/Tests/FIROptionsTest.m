@@ -556,6 +556,25 @@ extern NSString *const kFIRLibraryVersionID;
   XCTAssertTrue([options isAnalyticsCollectionExpicitlySet]);
 }
 
+- (void)testModifyingOptionsThrows {
+  FIROptions *options =
+      [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
+  options.editingLocked = YES;
+
+  // Modification to every property should result in an exception.
+  XCTAssertThrows(options.androidClientID = @"should_throw");
+  XCTAssertThrows(options.APIKey = @"should_throw");
+  XCTAssertThrows(options.bundleID = @"should_throw");
+  XCTAssertThrows(options.clientID = @"should_throw");
+  XCTAssertThrows(options.databaseURL = @"should_throw");
+  XCTAssertThrows(options.deepLinkURLScheme = @"should_throw");
+  XCTAssertThrows(options.GCMSenderID = @"should_throw");
+  XCTAssertThrows(options.googleAppID = @"should_throw");
+  XCTAssertThrows(options.projectID = @"should_throw");
+  XCTAssertThrows(options.storageBucket = @"should_throw");
+  XCTAssertThrows(options.trackingID = @"should_throw");
+}
+
 - (void)testVersionFormat {
   NSRegularExpression *sLibraryVersionRegex =
       [NSRegularExpression regularExpressionWithPattern:@"^[0-9]{8,}$" options:0 error:NULL];

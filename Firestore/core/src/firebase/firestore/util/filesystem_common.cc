@@ -23,6 +23,26 @@ using firebase::firestore::util::Path;
 namespace firebase {
 namespace firestore {
 namespace util {
+namespace detail {
+
+Status RecursivelyDeleteDir(const Path& parent) {
+  std::unique_ptr<DirectoryIterator> iter = DirectoryIterator::Create(parent);
+  for (; iter->Valid(); iter->Next()) {
+    Status status = RecursivelyDelete(iter->file());
+    if (!status.ok()) {
+      return status;
+    }
+  }
+  if (!iter->status().ok()) {
+    if (iter->status().code() == FirestoreErrorCode::NotFound) {
+      return Status::OK();
+    }
+    return iter->status();
+  }
+  return detail::DeleteDir(parent);
+}
+
+}  // namespace detail
 
 Status RecursivelyCreateDir(const Path& path) {
   Status result = detail::CreateDir(path);

@@ -14,7 +14,7 @@ Firebase In-App Messaging SDK.
 
   s.source           = {
     :git => 'https://github.com/firebase/firebase-ios-sdk.git',
-    :tag => s.version.to_s
+    :tag => 'InAppMessagingDisplay-' + s.version.to_s
   }
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '8.0'
@@ -33,7 +33,9 @@ Firebase In-App Messaging SDK.
                                    base_dir + 'Resources/*.png']
   }
 
-  s.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' =>
+  s.pod_target_xcconfig = {
+    'GCC_C_LANGUAGE_STANDARD' => 'c99',
+    'GCC_PREPROCESSOR_DEFINITIONS' =>
       '$(inherited) ' +
       'FIRInAppMessagingDisplay_LIB_VERSION=' + String(s.version)
   }

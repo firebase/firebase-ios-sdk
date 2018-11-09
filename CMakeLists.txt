@@ -89,12 +89,12 @@ set(BUILD_TESTING ${old_build_testing} CACHE BOOL "Restore BUILD_TESTING" FORCE)
 
 
 # gRPC
-find_package(OpenSSL)
+find_package(OpenSSL QUIET)
 if(OPENSSL_FOUND)
   set(gRPC_SSL_PROVIDER package CACHE STRING "Use external OpenSSL")
 endif()
 
-find_package(ZLIB)
+find_package(ZLIB QUIET)
 if(ZLIB_FOUND)
   set(gRPC_ZLIB_PROVIDER package CACHE STRING "Use external ZLIB")
 endif()

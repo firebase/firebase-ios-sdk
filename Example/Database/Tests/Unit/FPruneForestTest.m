@@ -57,7 +57,7 @@
     FPruneForest *forest = [FPruneForest empty];
     forest = [forest prunePath:[FPath pathWithString:@"foo/bar"]];
     forest = [forest keepPath:[FPath pathWithString:@"foo/bar/baz"]];
-    forest = [forest keepAll:[NSSet setWithArray:@[@"qux", @"quu"]] atPath:[FPath pathWithString:@"foo/bar"]];
+    [forest keepAll:[NSSet setWithArray:@[@"qux", @"quu"]] atPath:[FPath pathWithString:@"foo/bar"]];
 }
 
 - (void) testPruneUnderKeepThrows {

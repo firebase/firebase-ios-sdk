@@ -61,6 +61,8 @@ extern const firebase::firestore::model::ListenSequenceNumber kFSTListenSequence
            (firebase::firestore::model::ListenSequenceNumber)sequenceNumber
                               liveQueries:(NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries;
 
+- (size_t)byteSize;
+
 /** Access to the underlying LRU Garbage collector instance. */
 @property(strong, nonatomic, readonly) FSTLRUGarbageCollector *gc;
 
@@ -102,5 +104,7 @@ extern const firebase::firestore::model::ListenSequenceNumber kFSTListenSequence
  */
 - (int)removeOrphanedDocumentsThroughSequenceNumber:
     (firebase::firestore::model::ListenSequenceNumber)sequenceNumber;
+
+- (size_t)byteSize;
 
 @end

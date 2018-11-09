@@ -41,6 +41,7 @@ const BatchId kFSTBatchIDUnknown = -1;
 - (instancetype)initWithBatchID:(BatchId)batchID
                  localWriteTime:(FIRTimestamp *)localWriteTime
                       mutations:(NSArray<FSTMutation *> *)mutations {
+  HARD_ASSERT(mutations.count != 0, "Cannot create an empty mutation batch");
   self = [super init];
   if (self) {
     _batchID = batchID;
@@ -75,45 +76,44 @@ const BatchId kFSTBatchIDUnknown = -1;
                                     self.batchID, self.localWriteTime, self.mutations];
 }
 
-- (FSTMaybeDocument *_Nullable)applyTo:(FSTMaybeDocument *_Nullable)maybeDoc
-                           documentKey:(const DocumentKey &)documentKey
-                   mutationBatchResult:(FSTMutationBatchResult *_Nullable)mutationBatchResult {
+- (FSTMaybeDocument *_Nullable)applyToRemoteDocument:(FSTMaybeDocument *_Nullable)maybeDoc
+                                         documentKey:(const DocumentKey &)documentKey
+                                 mutationBatchResult:
+                                     (FSTMutationBatchResult *_Nullable)mutationBatchResult {
   HARD_ASSERT(!maybeDoc || maybeDoc.key == documentKey,
               "applyTo: key %s doesn't match maybeDoc key %s", documentKey.ToString(),
               maybeDoc.key.ToString());
-  FSTMaybeDocument *baseDoc = maybeDoc;
-  if (mutationBatchResult) {
-    HARD_ASSERT(mutationBatchResult.mutationResults.count == self.mutations.count,
-                "Mismatch between mutations length (%s) and results length (%s)",
-                self.mutations.count, mutationBatchResult.mutationResults.count);
-  }
+
+  HARD_ASSERT(mutationBatchResult.mutationResults.count == self.mutations.count,
+              "Mismatch between mutations length (%s) and results length (%s)",
+              self.mutations.count, mutationBatchResult.mutationResults.count);
 
   for (NSUInteger i = 0; i < self.mutations.count; i++) {
     FSTMutation *mutation = self.mutations[i];
-    FSTMutationResult *_Nullable mutationResult = mutationBatchResult.mutationResults[i];
+    FSTMutationResult *mutationResult = mutationBatchResult.mutationResults[i];
     if (mutation.key == documentKey) {
-      maybeDoc = [mutation applyTo:maybeDoc
-                      baseDocument:baseDoc
-                    localWriteTime:self.localWriteTime
-                    mutationResult:mutationResult];
+      maybeDoc = [mutation applyToRemoteDocument:maybeDoc mutationResult:mutationResult];
     }
   }
   return maybeDoc;
 }
 
-- (FSTMaybeDocument *_Nullable)applyTo:(FSTMaybeDocument *_Nullable)maybeDoc
-                           documentKey:(const DocumentKey &)documentKey {
-  return [self applyTo:maybeDoc documentKey:documentKey mutationBatchResult:nil];
-}
+- (FSTMaybeDocument *_Nullable)applyToLocalDocument:(FSTMaybeDocument *_Nullable)maybeDoc
+                                        documentKey:(const DocumentKey &)documentKey {
+  HARD_ASSERT(!maybeDoc || maybeDoc.key == documentKey,
+              "applyTo: key %s doesn't match maybeDoc key %s", documentKey.ToString(),
+              maybeDoc.key.ToString());
+  FSTMaybeDocument *baseDoc = maybeDoc;
 
-- (BOOL)isTombstone {
-  return self.mutations.count == 0;
-}
-
-- (FSTMutationBatch *)toTombstone {
-  return [[FSTMutationBatch alloc] initWithBatchID:self.batchID
-                                    localWriteTime:self.localWriteTime
-                                         mutations:@[]];
+  for (NSUInteger i = 0; i < self.mutations.count; i++) {
+    FSTMutation *mutation = self.mutations[i];
+    if (mutation.key == documentKey) {
+      maybeDoc = [mutation applyToLocalDocument:maybeDoc
+                                   baseDocument:baseDoc
+                                 localWriteTime:self.localWriteTime];
+    }
+  }
+  return maybeDoc;
 }
 
 // TODO(klimt): This could use NSMutableDictionary instead.

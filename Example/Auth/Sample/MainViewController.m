@@ -861,11 +861,11 @@ typedef enum {
         }],
         [StaticContentTableViewCell cellWithTitle:kUnlinkFromFacebook
                                            action:^{
-          [weakSelf unlinkFromProvider:FIRGoogleAuthProviderID completion:nil];
+          [weakSelf unlinkFromProvider:FIRFacebookAuthProviderID completion:nil];
         }],
         [StaticContentTableViewCell cellWithTitle:kUnlinkFromEmailPassword
                                            action:^{
-          [weakSelf unlinkFromProvider:FIRGoogleAuthProviderID completion:nil];
+          [weakSelf unlinkFromProvider:FIREmailAuthProviderID completion:nil];
         }]
       ]],
       [StaticContentTableViewSection sectionWithTitle:kSectionTitleApp cells:@[

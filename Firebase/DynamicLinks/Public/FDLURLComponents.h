@@ -185,7 +185,7 @@ FIR_SWIFT_NAME(DynamicLinkIOSParameters)
  @abstract The the minimum version of your app that can open the link. If the
  *     installed app is an older version, the user is taken to the AppStore to upgrade the app.
  *     Note: It is app's developer responsibility to open AppStore when received link declares
- *     higher minimunAppVersion than currently installed.
+ *     higher minimumAppVersion than currently installed.
  */
 @property(nonatomic, copy, nullable) NSString *minimumAppVersion;
 

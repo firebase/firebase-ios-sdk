@@ -23,22 +23,22 @@
 
 #include "google/api/http.nanopb.h"
 
+namespace firebase {
+namespace firestore {
+
 /* @@protoc_insertion_point(includes) */
 #if PB_PROTO_HEADER_VERSION != 30
 #error Regenerate this file with the current version of nanopb generator.
 #endif
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /* Extensions */
 /* Extension field google_api_http was skipped because only "optional"
    type of extension fields is currently supported. */
 
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
+}  // namespace firestore
+}  // namespace firebase
+
 /* @@protoc_insertion_point(eof) */
 
 #endif

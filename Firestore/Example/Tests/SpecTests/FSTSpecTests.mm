@@ -174,17 +174,19 @@ static NSString *Describe(NSData *data) {
   return testutil::Version(version.longLongValue);
 }
 
-- (FSTDocumentViewChange *)parseChange:(NSArray *)change ofType:(FSTDocumentViewChangeType)type {
-  BOOL hasMutations = NO;
-  for (NSUInteger i = 3; i < change.count; ++i) {
-    if ([change[i] isEqual:@"local"]) {
-      hasMutations = YES;
-    }
-  }
-  NSNumber *version = change[1];
-  XCTAssert([change[0] isKindOfClass:[NSString class]]);
-  FSTDocument *doc = FSTTestDoc(util::MakeString((NSString *)change[0]), version.longLongValue,
-                                change[2], hasMutations);
+- (FSTDocumentViewChange *)parseChange:(NSDictionary *)jsonDoc
+                                ofType:(FSTDocumentViewChangeType)type {
+  NSNumber *version = jsonDoc[@"version"];
+  NSDictionary *options = jsonDoc[@"options"];
+  FSTDocumentState documentState = [options[@"hasLocalMutations"] isEqualToNumber:@YES]
+                                       ? FSTDocumentStateLocalMutations
+                                       : ([options[@"hasCommittedMutations"] isEqualToNumber:@YES]
+                                              ? FSTDocumentStateCommittedMutations
+                                              : FSTDocumentStateSynced);
+
+  XCTAssert([jsonDoc[@"key"] isKindOfClass:[NSString class]]);
+  FSTDocument *doc = FSTTestDoc(util::MakeString((NSString *)jsonDoc[@"key"]),
+                                version.longLongValue, jsonDoc[@"value"], documentState);
   return [FSTDocumentViewChange changeWithDocument:doc type:type];
 }
 
@@ -269,17 +271,19 @@ static NSString *Describe(NSData *data) {
       [self doWatchEntity:watchSpec];
     }
   } else if (watchEntity[@"doc"]) {
-    NSArray *docSpec = watchEntity[@"doc"];
-    FSTDocumentKey *key = FSTTestDocKey(docSpec[0]);
-    FSTObjectValue *_Nullable value =
-        [docSpec[2] isKindOfClass:[NSNull class]] ? nil : FSTTestObjectValue(docSpec[2]);
-    SnapshotVersion version = [self parseVersion:docSpec[1]];
-    FSTMaybeDocument *doc =
-        value ? [FSTDocument documentWithData:value
-                                          key:key
-                                      version:std::move(version)
-                            hasLocalMutations:NO]
-              : [FSTDeletedDocument documentWithKey:key version:std::move(version)];
+    NSDictionary *docSpec = watchEntity[@"doc"];
+    FSTDocumentKey *key = FSTTestDocKey(docSpec[@"key"]);
+    FSTObjectValue *_Nullable value = [docSpec[@"value"] isKindOfClass:[NSNull class]]
+                                          ? nil
+                                          : FSTTestObjectValue(docSpec[@"value"]);
+    SnapshotVersion version = [self parseVersion:docSpec[@"version"]];
+    FSTMaybeDocument *doc = value ? [FSTDocument documentWithData:value
+                                                              key:key
+                                                          version:std::move(version)
+                                                            state:FSTDocumentStateSynced]
+                                  : [FSTDeletedDocument documentWithKey:key
+                                                                version:std::move(version)
+                                                  hasCommittedMutations:NO];
     FSTWatchChange *change =
         [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:watchEntity[@"targets"]
                                                 removedTargetIDs:watchEntity[@"removedTargets"]
@@ -491,22 +495,22 @@ static NSString *Describe(NSData *data) {
   } else {
     NSMutableArray *expectedChanges = [NSMutableArray array];
     NSMutableArray *removed = expected[@"removed"];
-    for (NSArray *changeSpec in removed) {
+    for (NSDictionary *changeSpec in removed) {
       [expectedChanges
           addObject:[self parseChange:changeSpec ofType:FSTDocumentViewChangeTypeRemoved]];
     }
     NSMutableArray *added = expected[@"added"];
-    for (NSArray *changeSpec in added) {
+    for (NSDictionary *changeSpec in added) {
       [expectedChanges
           addObject:[self parseChange:changeSpec ofType:FSTDocumentViewChangeTypeAdded]];
     }
     NSMutableArray *modified = expected[@"modified"];
-    for (NSArray *changeSpec in modified) {
+    for (NSDictionary *changeSpec in modified) {
       [expectedChanges
           addObject:[self parseChange:changeSpec ofType:FSTDocumentViewChangeTypeModified]];
     }
     NSMutableArray *metadata = expected[@"metadata"];
-    for (NSArray *changeSpec in metadata) {
+    for (NSDictionary *changeSpec in metadata) {
       [expectedChanges
           addObject:[self parseChange:changeSpec ofType:FSTDocumentViewChangeTypeMetadata]];
     }

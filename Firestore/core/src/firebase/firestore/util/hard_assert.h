@@ -18,6 +18,7 @@
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_HARD_ASSERT_H_
 
 #include <string>
+#include <utility>
 
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
 
@@ -69,6 +70,23 @@
  */
 #define UNREACHABLE() abort()
 
+/**
+ * Returns the given `ptr` if it is non-null; otherwise, results in a failed
+ * assertion, similar to `HARD_ASSERT`. This macro deliberately expands to an
+ * expression, so that it can be used in initialization and assignment:
+ *
+ *   my_ptr_ = NOT_NULL(suspicious_ptr);
+ *   my_smart_ptr_ = std::move(NOT_NULL(suspicious_smart_ptr));
+ *
+ *   MyClass() : my_ptr_{NOT_NULL(suspicious_ptr)} {}
+ *
+ * @param ptr The pointer to check and return. Can be a smart pointer.
+ */
+#define NOT_NULL(ptr)                                                         \
+  firebase::firestore::util::internal::NotNull(                               \
+      __FILE__, FIRESTORE_FUNCTION_NAME, __LINE__, "Expected non-null " #ptr, \
+      ptr)
+
 namespace firebase {
 namespace firestore {
 namespace util {
@@ -85,6 +103,18 @@ ABSL_ATTRIBUTE_NORETURN void Fail(const char* file,
                                   int line,
                                   const std::string& message,
                                   const char* condition);
+
+template <typename T>
+T NotNull(const char* file,
+          const char* func,
+          int line,
+          const std::string& message,
+          T&& ptr) {
+  if (ptr == nullptr) {
+    Fail(file, func, line, message);
+  }
+  return std::forward<T>(ptr);
+}
 
 }  // namespace internal
 }  // namespace util

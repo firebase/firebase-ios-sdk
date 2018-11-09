@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseDynamicLinks'
-  s.version          = '2.3.0'
+  s.version          = '3.1.1'
   s.summary          = 'Firebase DynamicLinks for iOS'
 
   s.description      = <<-DESC
@@ -13,7 +13,7 @@ Firebase Dynamic Links are deep links that enhance user experience and increase 
 
   s.source           = {
     :git => 'https://github.com/firebase/firebase-ios-sdk.git',
-    :tag => s.version.to_s
+    :tag => 'DynamicLinks-' + s.version.to_s
   }
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '8.0'
@@ -24,19 +24,16 @@ Firebase Dynamic Links are deep links that enhance user experience and increase 
 
   s.source_files = 'Firebase/DynamicLinks/**/*.[mh]'
   s.public_header_files = 'Firebase/DynamicLinks/Public/*.h'
-  s.frameworks = [
-    'AssetsLibrary',
-    'MessageUI',
-    'QuartzCore',
-  ]
+  s.frameworks = 'AssetsLibrary', 'MessageUI', 'QuartzCore'
   s.weak_framework = 'WebKit'
   s.dependency 'FirebaseCore', '~> 5.1'
   s.ios.dependency 'FirebaseAnalytics', '~> 5.1'
   s.ios.dependency 'FirebaseAnalyticsInterop', '~> 1.0'
 
   s.pod_target_xcconfig = {
-    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"/Firebase',
+    'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' => 'FIRDynamicLinks_VERSION=' + s.version.to_s +
-                                      ' FIRDynamicLinks3P GIN_SCION_LOGGING'
+                                      ' FIRDynamicLinks3P GIN_SCION_LOGGING',
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"/Firebase'
   }
 end

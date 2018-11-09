@@ -71,7 +71,7 @@ static NSNumber *ToNSNumber(OnlineState state) {
   FSTQueryListener *listener2 = [self noopListenerForQuery:query];
 
   FSTSyncEngine *syncEngineMock = OCMStrictClassMock([FSTSyncEngine class]);
-  OCMExpect([syncEngineMock setDelegate:[OCMArg any]]);
+  OCMExpect([syncEngineMock setSyncEngineDelegate:[OCMArg any]]);
   FSTEventManager *eventManager = [FSTEventManager eventManagerWithSyncEngine:syncEngineMock];
 
   OCMExpect([syncEngineMock listenToQuery:query]);
@@ -91,7 +91,7 @@ static NSNumber *ToNSNumber(OnlineState state) {
   FSTQueryListener *listener = [self noopListenerForQuery:query];
 
   FSTSyncEngine *syncEngineMock = OCMStrictClassMock([FSTSyncEngine class]);
-  OCMExpect([syncEngineMock setDelegate:[OCMArg any]]);
+  OCMExpect([syncEngineMock setSyncEngineDelegate:[OCMArg any]]);
   FSTEventManager *eventManager = [FSTEventManager eventManagerWithSyncEngine:syncEngineMock];
 
   [eventManager removeListener:listener];
@@ -163,7 +163,7 @@ static NSNumber *ToNSNumber(OnlineState state) {
       });
 
   FSTSyncEngine *syncEngineMock = OCMClassMock([FSTSyncEngine class]);
-  OCMExpect([syncEngineMock setDelegate:[OCMArg any]]);
+  OCMExpect([syncEngineMock setSyncEngineDelegate:[OCMArg any]]);
   FSTEventManager *eventManager = [FSTEventManager eventManagerWithSyncEngine:syncEngineMock];
 
   [eventManager addListener:fakeListener];

@@ -832,7 +832,7 @@ NS_ASSUME_NONNULL_BEGIN
       initWithUpdatedTargetIDs:@[ @1, @2 ]
               removedTargetIDs:@[]
                    documentKey:FSTTestDocKey(@"coll/1")
-                      document:FSTTestDoc("coll/1", 5, @{@"foo" : @"bar"}, NO)];
+                      document:FSTTestDoc("coll/1", 5, @{@"foo" : @"bar"}, FSTDocumentStateSynced)];
   GCFSListenResponse *listenResponse = [GCFSListenResponse message];
   listenResponse.documentChange.document.name = @"projects/p/databases/d/documents/coll/1";
   listenResponse.documentChange.document.updateTime.nanos = 5000;
@@ -851,7 +851,7 @@ NS_ASSUME_NONNULL_BEGIN
       initWithUpdatedTargetIDs:@[ @2 ]
               removedTargetIDs:@[ @1 ]
                    documentKey:FSTTestDocKey(@"coll/1")
-                      document:FSTTestDoc("coll/1", 5, @{@"foo" : @"bar"}, NO)];
+                      document:FSTTestDoc("coll/1", 5, @{@"foo" : @"bar"}, FSTDocumentStateSynced)];
   GCFSListenResponse *listenResponse = [GCFSListenResponse message];
   listenResponse.documentChange.document.name = @"projects/p/databases/d/documents/coll/1";
   listenResponse.documentChange.document.updateTime.nanos = 5000;
@@ -870,7 +870,7 @@ NS_ASSUME_NONNULL_BEGIN
       [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[]
                                               removedTargetIDs:@[ @1, @2 ]
                                                    documentKey:FSTTestDocKey(@"coll/1")
-                                                      document:FSTTestDeletedDoc("coll/1", 5)];
+                                                      document:FSTTestDeletedDoc("coll/1", 5, NO)];
   GCFSListenResponse *listenResponse = [GCFSListenResponse message];
   listenResponse.documentDelete.document = @"projects/p/databases/d/documents/coll/1";
   listenResponse.documentDelete.readTime.nanos = 5000;

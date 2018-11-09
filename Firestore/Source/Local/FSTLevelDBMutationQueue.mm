@@ -327,29 +327,6 @@ using leveldb::WriteOptions;
   return [self decodedMutationBatch:it->value()];
 }
 
-- (NSArray<FSTMutationBatch *> *)allMutationBatchesThroughBatchID:(BatchId)batchID {
-  std::string userKey = LevelDbMutationKey::KeyPrefix(_userID);
-
-  auto it = _db.currentTransaction->NewIterator();
-  it->Seek(userKey);
-
-  NSMutableArray *result = [NSMutableArray array];
-  LevelDbMutationKey rowKey;
-  for (; it->Valid() && rowKey.Decode(it->key()); it->Next()) {
-    if (rowKey.user_id() != _userID) {
-      // End of this user's mutations
-      break;
-    } else if (rowKey.batch_id() > batchID) {
-      // This mutation is past what we're looking for
-      break;
-    }
-
-    [result addObject:[self decodedMutationBatch:it->value()]];
-  }
-
-  return result;
-}
-
 - (NSArray<FSTMutationBatch *> *)allMutationBatchesAffectingDocumentKey:
     (const DocumentKey &)documentKey {
   // Scan the document-mutation index starting with a prefix starting with the given documentKey.
@@ -521,27 +498,25 @@ using leveldb::WriteOptions;
   return result;
 }
 
-- (void)removeMutationBatches:(NSArray<FSTMutationBatch *> *)batches {
+- (void)removeMutationBatch:(FSTMutationBatch *)batch {
   auto checkIterator = _db.currentTransaction->NewIterator();
 
-  for (FSTMutationBatch *batch in batches) {
-    BatchId batchID = batch.batchID;
-    std::string key = LevelDbMutationKey::Key(_userID, batchID);
+  BatchId batchID = batch.batchID;
+  std::string key = LevelDbMutationKey::Key(_userID, batchID);
 
-    // As a sanity check, verify that the mutation batch exists before deleting it.
-    checkIterator->Seek(key);
-    HARD_ASSERT(checkIterator->Valid(), "Mutation batch %s did not exist", DescribeKey(key));
+  // As a sanity check, verify that the mutation batch exists before deleting it.
+  checkIterator->Seek(key);
+  HARD_ASSERT(checkIterator->Valid(), "Mutation batch %s did not exist", DescribeKey(key));
 
-    HARD_ASSERT(key == checkIterator->key(), "Mutation batch %s not found; found %s",
-                DescribeKey(key), DescribeKey(checkIterator));
+  HARD_ASSERT(key == checkIterator->key(), "Mutation batch %s not found; found %s",
+              DescribeKey(key), DescribeKey(checkIterator));
 
+  _db.currentTransaction->Delete(key);
+
+  for (FSTMutation *mutation in batch.mutations) {
+    key = LevelDbDocumentMutationKey::Key(_userID, mutation.key, batchID);
     _db.currentTransaction->Delete(key);
-
-    for (FSTMutation *mutation in batch.mutations) {
-      key = LevelDbDocumentMutationKey::Key(_userID, mutation.key, batchID);
-      _db.currentTransaction->Delete(key);
-      [_db.referenceDelegate removeMutationReference:mutation.key];
-    }
+    [_db.referenceDelegate removeMutationReference:mutation.key];
   }
 }
 

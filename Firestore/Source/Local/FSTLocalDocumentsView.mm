@@ -72,7 +72,7 @@ NS_ASSUME_NONNULL_BEGIN
                                     inBatches:(NSArray<FSTMutationBatch *> *)batches {
   FSTMaybeDocument *_Nullable document = [self.remoteDocumentCache entryForKey:key];
   for (FSTMutationBatch *batch in batches) {
-    document = [batch applyTo:document documentKey:key];
+    document = [batch applyToLocalDocument:document documentKey:key];
   }
 
   return document;
@@ -87,7 +87,9 @@ NS_ASSUME_NONNULL_BEGIN
     FSTMaybeDocument *maybeDoc = [self documentForKey:key inBatches:batches];
     // TODO(http://b/32275378): Don't conflate missing / deleted.
     if (!maybeDoc) {
-      maybeDoc = [FSTDeletedDocument documentWithKey:key version:SnapshotVersion::None()];
+      maybeDoc = [FSTDeletedDocument documentWithKey:key
+                                             version:SnapshotVersion::None()
+                               hasCommittedMutations:NO];
     }
     results = [results dictionaryBySettingObject:maybeDoc forKey:key];
   }
@@ -129,15 +131,14 @@ NS_ASSUME_NONNULL_BEGIN
       FSTDocumentKey *key = static_cast<FSTDocumentKey *>(mutation.key);
       // baseDoc may be nil for the documents that weren't yet written to the backend.
       FSTMaybeDocument *baseDoc = results[key];
-      FSTMaybeDocument *mutatedDoc =
-          [mutation applyTo:baseDoc baseDocument:baseDoc localWriteTime:batch.localWriteTime];
+      FSTMaybeDocument *mutatedDoc = [mutation applyToLocalDocument:baseDoc
+                                                       baseDocument:baseDoc
+                                                     localWriteTime:batch.localWriteTime];
 
-      if (!mutatedDoc || [mutatedDoc isKindOfClass:[FSTDeletedDocument class]]) {
-        results = [results dictionaryByRemovingObjectForKey:key];
-      } else if ([mutatedDoc isKindOfClass:[FSTDocument class]]) {
+      if ([mutatedDoc isKindOfClass:[FSTDocument class]]) {
         results = [results dictionaryBySettingObject:(FSTDocument *)mutatedDoc forKey:key];
       } else {
-        HARD_FAIL("Unknown document: %s", mutatedDoc);
+        results = [results dictionaryByRemovingObjectForKey:key];
       }
     }
   }

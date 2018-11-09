@@ -26,4 +26,8 @@ iOS SDK for Cloud Functions for Firebase.
 
   s.dependency 'FirebaseCore', '~> 5.0'
   s.dependency 'GTMSessionFetcher/Core', '~> 1.1'
+
+  s.pod_target_xcconfig = {
+    'GCC_C_LANGUAGE_STANDARD' => 'c99'
+  }
 end

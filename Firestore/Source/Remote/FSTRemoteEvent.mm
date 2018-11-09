@@ -427,10 +427,11 @@ NS_ASSUME_NONNULL_BEGIN
         // document there might be another query that will raise this document as part of a snapshot
         // until it is resolved, essentially exposing inconsistency between queries.
         FSTDocumentKey *key = [FSTDocumentKey keyWithPath:query.path];
-        [self
-            removeDocument:[FSTDeletedDocument documentWithKey:key version:SnapshotVersion::None()]
-                   withKey:key
-                fromTarget:targetID];
+        [self removeDocument:[FSTDeletedDocument documentWithKey:key
+                                                         version:SnapshotVersion::None()
+                                           hasCommittedMutations:NO]
+                     withKey:key
+                  fromTarget:targetID];
       } else {
         HARD_ASSERT(expectedCount == 1, "Single document existence filter with count: %s",
                     expectedCount);
@@ -575,7 +576,9 @@ NS_ASSUME_NONNULL_BEGIN
         FSTDocumentKey *key = [FSTDocumentKey keyWithPath:queryData.query.path];
         if (_pendingDocumentUpdates.find(key) == _pendingDocumentUpdates.end() &&
             ![self containsDocument:key inTarget:targetID]) {
-          [self removeDocument:[FSTDeletedDocument documentWithKey:key version:snapshotVersion]
+          [self removeDocument:[FSTDeletedDocument documentWithKey:key
+                                                           version:snapshotVersion
+                                             hasCommittedMutations:NO]
                        withKey:key
                     fromTarget:targetID];
         }

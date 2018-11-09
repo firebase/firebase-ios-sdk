@@ -34,7 +34,7 @@ const ListenSequenceNumber kFSTListenSequenceNumberInvalid = -1;
 class RollingSequenceNumberBuffer {
  public:
   explicit RollingSequenceNumberBuffer(size_t max_elements)
-      : max_elements_(max_elements), queue_(std::priority_queue<ListenSequenceNumber>()) {
+      : queue_(std::priority_queue<ListenSequenceNumber>()), max_elements_(max_elements) {
   }
 
   RollingSequenceNumberBuffer(const RollingSequenceNumberBuffer &other) = delete;
@@ -117,6 +117,10 @@ class RollingSequenceNumberBuffer {
 
 - (int)removeOrphanedDocumentsThroughSequenceNumber:(ListenSequenceNumber)sequenceNumber {
   return [_delegate removeOrphanedDocumentsThroughSequenceNumber:sequenceNumber];
+}
+
+- (size_t)byteSize {
+  return [_delegate byteSize];
 }
 
 @end
