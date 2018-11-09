@@ -294,8 +294,6 @@
   [self maybeRemoveTempFilesAtURL:_networkDirectoryURL
                      expiringTime:kGULNetworkTempFolderExpireTime];
 
-  NSString *sessionID = session.configuration.identifier;
-
   // This is called without checking the sessionID here since non-background sessions
   // won't have an ID.
   [session finishTasksAndInvalidate];
@@ -303,6 +301,7 @@
   // Explicitly remove the session so it won't be reused. The weak map table should
   // remove the session on deallocation, but dealloc may not happen immediately after
   // calling `finishTasksAndInvalidate`.
+  NSString *sessionID = session.configuration.identifier;
   [[self class] setSessionInFetcherMap:nil forSessionID:sessionID];
 }
 
@@ -688,7 +687,7 @@
   GULNetworkURLSession *existingSession =
       [[[self class] sessionIDToFetcherMap] objectForKey:sessionID];
   if (existingSession) {
-    if (session != nil) {
+    if (session) {
       NSString *message = [NSString stringWithFormat:@"Discarding session: %@", existingSession];
       [existingSession->_loggerDelegate GULNetwork_logWithLevel:kGULNetworkLogLevelInfo
                                                     messageCode:kGULNetworkMessageCodeURLSession019
