@@ -198,6 +198,44 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 30;
   [self waitForExpectations];
 }
 
+- (void)testUnauthenticatedSimplePutSpecialCharacter {
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"testUnauthenticatedSimplePutDataEscapedName"];
+  FIRStorageReference *ref = [self.storage referenceWithPath:@"ios/public/-._~!$'()*,=:@&+;"];
+
+  NSData *data = [@"Hello World" dataUsingEncoding:NSUTF8StringEncoding];
+
+  [ref putData:data
+        metadata:nil
+      completion:^(FIRStorageMetadata *metadata, NSError *error) {
+        XCTAssertNotNil(metadata, "Metadata should not be nil");
+        XCTAssertNil(error, "Error should be nil");
+        [expectation fulfill];
+      }];
+
+  [self waitForExpectations];
+}
+
+- (void)testUnauthenticatedSimplePutDataInBackgroundQueue {
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"testUnauthenticatedSimplePutDataInBackgroundQueue"];
+  FIRStorageReference *ref = [self.storage referenceWithPath:@"ios/public/testBytesUpload"];
+
+  NSData *data = [@"Hello World" dataUsingEncoding:NSUTF8StringEncoding];
+
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    [ref putData:data
+          metadata:nil
+        completion:^(FIRStorageMetadata *metadata, NSError *error) {
+          XCTAssertNotNil(metadata, "Metadata should not be nil");
+          XCTAssertNil(error, "Error should be nil");
+          [expectation fulfill];
+        }];
+  });
+
+  [self waitForExpectations];
+}
+
 - (void)testUnauthenticatedSimplePutEmptyData {
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"testUnauthenticatedSimplePutEmptyData"];
@@ -365,6 +403,24 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 30;
               XCTAssertNil(error, "Error should be nil");
               [expectation fulfill];
             }];
+
+  [self waitForExpectations];
+}
+
+- (void)testUnauthenticatedSimpleGetDataInBackgroundQueue {
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"testUnauthenticatedSimpleGetDataInBackgroundQueue"];
+
+  FIRStorageReference *ref = [self.storage referenceWithPath:@"ios/public/1mb"];
+
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    [ref dataWithMaxSize:1 * 1024 * 1024
+              completion:^(NSData *data, NSError *error) {
+                XCTAssertNotNil(data, "Data should not be nil");
+                XCTAssertNil(error, "Error should be nil");
+                [expectation fulfill];
+              }];
+  });
 
   [self waitForExpectations];
 }
@@ -613,6 +669,56 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 30;
   [self waitForExpectations];
   XCTAssertEqual(INT_MAX, resumeAtBytes);
   XCTAssertEqualWithAccuracy(sqrt(INT_MAX - 499), computationResult, 0.1);
+}
+
+- (void)testUnauthenticatedResumeGetFileInBackgroundQueue {
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"testUnauthenticatedResumeGetFileInBackgroundQueue"];
+
+  FIRStorageReference *ref = [self.storage referenceWithPath:@"ios/public/1mb"];
+
+  NSURL *tmpDirURL = [NSURL fileURLWithPath:NSTemporaryDirectory()];
+  NSURL *fileURL =
+      [[tmpDirURL URLByAppendingPathComponent:@"hello"] URLByAppendingPathExtension:@"txt"];
+
+  __block long resumeAtBytes = 256 * 1024;
+  __block long downloadedBytes = 0;
+
+  FIRStorageDownloadTask *task = [ref writeToFile:fileURL];
+
+  [task observeStatus:FIRStorageTaskStatusSuccess
+              handler:^(FIRStorageTaskSnapshot *snapshot) {
+                XCTAssertEqualObjects([snapshot description], @"<State: Success>");
+                [expectation fulfill];
+              }];
+
+  [task observeStatus:FIRStorageTaskStatusProgress
+              handler:^(FIRStorageTaskSnapshot *_Nonnull snapshot) {
+                XCTAssertTrue([[snapshot description] containsString:@"State: Progress"] ||
+                              [[snapshot description] containsString:@"State: Resume"]);
+                NSProgress *progress = snapshot.progress;
+                XCTAssertGreaterThanOrEqual(progress.completedUnitCount, downloadedBytes);
+                downloadedBytes = progress.completedUnitCount;
+                if (progress.completedUnitCount > resumeAtBytes) {
+                  NSLog(@"Pausing");
+                  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                    [task pause];
+                  });
+                  resumeAtBytes = INT_MAX;
+                }
+              }];
+
+  [task observeStatus:FIRStorageTaskStatusPause
+              handler:^(FIRStorageTaskSnapshot *snapshot) {
+                XCTAssertEqualObjects([snapshot description], @"<State: Paused>");
+                NSLog(@"Resuming");
+                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                  [task resume];
+                });
+              }];
+
+  [self waitForExpectations];
+  XCTAssertEqual(INT_MAX, resumeAtBytes);
 }
 
 - (void)waitForExpectations {

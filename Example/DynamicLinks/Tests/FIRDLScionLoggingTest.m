@@ -60,7 +60,7 @@ static FakeAnalyticsLogEventWithOriginNameParametersHandler _handler;
 - (nonnull NSArray<FIRAConditionalUserProperty *> *)
     conditionalUserProperties:(nonnull NSString *)origin
            propertyNamePrefix:(nonnull NSString *)propertyNamePrefix {
-  return nil;
+  return @[];
 }
 
 - (NSInteger)maxUserProperties:(nonnull NSString *)origin {

@@ -21,14 +21,14 @@
 #define PB_GOOGLE_PROTOBUF_TIMESTAMP_NANOPB_H_INCLUDED
 #include <pb.h>
 
+namespace firebase {
+namespace firestore {
+
 /* @@protoc_insertion_point(includes) */
 #if PB_PROTO_HEADER_VERSION != 30
 #error Regenerate this file with the current version of nanopb generator.
 #endif
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /* Struct definitions */
 typedef struct _google_protobuf_Timestamp {
@@ -61,9 +61,9 @@ extern const pb_field_t google_protobuf_Timestamp_fields[3];
 
 #endif
 
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
+}  // namespace firestore
+}  // namespace firebase
+
 /* @@protoc_insertion_point(eof) */
 
 #endif

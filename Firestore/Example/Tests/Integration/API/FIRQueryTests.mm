@@ -257,11 +257,6 @@
   querySnap = [self.eventAccumulator awaitEventWithName:@"offline event with isFromCache=YES"];
   XCTAssertEqual(querySnap.metadata.isFromCache, YES);
 
-  // TODO(b/70631617): There's currently a backend bug that prevents us from using a resume token
-  // right away (against hexa at least). So we sleep. :-( :-( Anything over ~10ms seems to be
-  // sufficient.
-  [NSThread sleepForTimeInterval:0.2f];
-
   [self enableNetwork];
   querySnap = [self.eventAccumulator awaitEventWithName:@"back online event with isFromCache=NO"];
   XCTAssertEqual(querySnap.metadata.isFromCache, NO);

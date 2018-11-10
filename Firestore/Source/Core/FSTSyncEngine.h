@@ -30,14 +30,20 @@
 @class FSTRemoteStore;
 @class FSTViewSnapshot;
 
+using firebase::firestore::model::OnlineState;
+
 NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTSyncEngineDelegate
 
-/** A Delegate to be notified when the sync engine produces new view snapshots or errors. */
+/**
+ * A delegate to be notified when the client's online state changes or when the sync engine produces
+ * new view snapshots or errors.
+ */
 @protocol FSTSyncEngineDelegate
 - (void)handleViewSnapshots:(NSArray<FSTViewSnapshot *> *)viewSnapshots;
 - (void)handleError:(NSError *)error forQuery:(FSTQuery *)query;
+- (void)applyChangedOnlineState:(OnlineState)onlineState;
 @end
 
 /**
@@ -63,10 +69,9 @@ NS_ASSUME_NONNULL_BEGIN
     NS_DESIGNATED_INITIALIZER;
 
 /**
- * A delegate to be notified when queries being listened to produce new view snapshots or
- * errors.
+ * A delegate to be notified when queries being listened to produce new view snapshots or errors.
  */
-@property(nonatomic, weak) id<FSTSyncEngineDelegate> delegate;
+@property(nonatomic, weak) id<FSTSyncEngineDelegate> syncEngineDelegate;
 
 /**
  * Initiates a new listen. The FSTLocalStore will be queried for initial data and the listen will

@@ -123,11 +123,11 @@ NS_ASSUME_NONNULL_BEGIN
   }
   NSURL *uniqueMatchLinkToCheck = [self uniqueMatchLinkToCheck];
 
-  __weak typeof(self) weakSelf = self;
+  __weak __typeof__(self) weakSelf = self;
   FIRPostInstallAttributionCompletionHandler completionHandler =
       ^(NSDictionary *_Nullable dynamicLinkParameters, NSString *_Nullable matchMessage,
         NSError *_Nullable error) {
-        typeof(self) strongSelf = weakSelf;
+        __typeof__(self) strongSelf = weakSelf;
         if (!strongSelf) {
           return;
         }
@@ -213,7 +213,7 @@ NS_ASSUME_NONNULL_BEGIN
   return [self.requestResults filteredArrayUsingPredicate:predicate];
 }
 
-- (FIRDLRetrievalProcessResult *)resultWithUniqueMatchedDynamicLink {
+- (nullable FIRDLRetrievalProcessResult *)resultWithUniqueMatchedDynamicLink {
   // return result with unique-matched dynamic link if found
   NSArray<FIRDLRetrievalProcessResult *> *foundResultsWithDynamicLinks =
       [self foundResultsWithDynamicLinks];

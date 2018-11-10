@@ -19,6 +19,7 @@
 #include <string>
 #include <vector>
 
+#import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentDictionary.h"
 #import "Firestore/Source/Remote/FSTRemoteEvent.h"
 
@@ -228,11 +229,15 @@ typedef int64_t FSTTestSnapshotVersion;
 FSTDocument *FSTTestDoc(const absl::string_view path,
                         FSTTestSnapshotVersion version,
                         NSDictionary<NSString *, id> *data,
-                        BOOL hasMutations);
+                        FSTDocumentState documentState);
 
 /** A convenience method for creating deleted docs for tests. */
-FSTDeletedDocument *FSTTestDeletedDoc(const absl::string_view path, FSTTestSnapshotVersion version);
+FSTDeletedDocument *FSTTestDeletedDoc(const absl::string_view path,
+                                      FSTTestSnapshotVersion version,
+                                      BOOL hasCommittedMutations);
 
+/** A convenience method for creating unknown docs for tests. */
+FSTUnknownDocument *FSTTestUnknownDoc(const absl::string_view path, FSTTestSnapshotVersion version);
 /**
  * A convenience method for creating a document reference from a path string.
  */

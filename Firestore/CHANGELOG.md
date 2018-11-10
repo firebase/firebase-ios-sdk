@@ -1,5 +1,15 @@
 # Unreleased
 
+- [changed] Changed how the SDK handles locally-updated documents while syncing
+  those updates with Cloud Firestore servers. This can lead to slight behavior
+  changes and may affect the `SnapshotMetadata.hasPendingWrites` metadata flag.
+- [changed] Eliminated superfluous update events for locally cached documents
+  that are known to lag behind the server version. Instead, the SDK buffers
+  these events until the client has caught up with the server.
+
+# v0.14.0
+- [fixed] Fixed compilation in C99 and C++11 modes without GNU extensions.
+
 # v0.13.6
 - [changed] Internal improvements.
 

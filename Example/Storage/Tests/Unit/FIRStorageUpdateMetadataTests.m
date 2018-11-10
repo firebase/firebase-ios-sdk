@@ -19,6 +19,7 @@
 @interface FIRStorageUpdateMetadataTests : XCTestCase
 
 @property(strong, nonatomic) GTMSessionFetcherService *fetcherService;
+@property(nonatomic) dispatch_queue_t dispatchQueue;
 @property(strong, nonatomic) FIRStorageMetadata *metadata;
 @property(strong, nonatomic) FIRStorage *storage;
 @property(strong, nonatomic) id mockApp;
@@ -45,6 +46,8 @@
       [[FIRStorageTokenAuthorizer alloc] initWithGoogleAppID:@"dummyAppID"
                                               fetcherService:self.fetcherService
                                                 authProvider:nil];
+
+  self.dispatchQueue = dispatch_queue_create("Test dispatch queue", DISPATCH_QUEUE_SERIAL);
 
   self.storage = [FIRStorage storageForApp:self.mockApp];
 }
@@ -84,6 +87,7 @@
   FIRStorageUpdateMetadataTask *task = [[FIRStorageUpdateMetadataTask alloc]
       initWithReference:ref
          fetcherService:self.fetcherService
+          dispatchQueue:self.dispatchQueue
                metadata:self.metadata
              completion:^(FIRStorageMetadata *_Nullable metadata, NSError *_Nullable error) {
                [expectation fulfill];
@@ -102,6 +106,7 @@
   FIRStorageUpdateMetadataTask *task = [[FIRStorageUpdateMetadataTask alloc]
       initWithReference:ref
          fetcherService:self.fetcherService
+          dispatchQueue:self.dispatchQueue
                metadata:self.metadata
              completion:^(FIRStorageMetadata *_Nullable metadata, NSError *_Nullable error) {
                XCTAssertEqualObjects(self.metadata.bucket, metadata.bucket);
@@ -124,6 +129,7 @@
   FIRStorageUpdateMetadataTask *task = [[FIRStorageUpdateMetadataTask alloc]
       initWithReference:ref
          fetcherService:self.fetcherService
+          dispatchQueue:self.dispatchQueue
                metadata:self.metadata
              completion:^(FIRStorageMetadata *_Nullable metadata, NSError *_Nullable error) {
                XCTAssertNil(metadata);
@@ -145,6 +151,7 @@
   FIRStorageUpdateMetadataTask *task = [[FIRStorageUpdateMetadataTask alloc]
       initWithReference:ref
          fetcherService:self.fetcherService
+          dispatchQueue:self.dispatchQueue
                metadata:self.metadata
              completion:^(FIRStorageMetadata *_Nullable metadata, NSError *_Nullable error) {
                XCTAssertNil(metadata);
@@ -166,6 +173,7 @@
   FIRStorageUpdateMetadataTask *task = [[FIRStorageUpdateMetadataTask alloc]
       initWithReference:ref
          fetcherService:self.fetcherService
+          dispatchQueue:self.dispatchQueue
                metadata:self.metadata
              completion:^(FIRStorageMetadata *_Nullable metadata, NSError *_Nullable error) {
                XCTAssertNil(metadata);
@@ -187,6 +195,7 @@
   FIRStorageUpdateMetadataTask *task = [[FIRStorageUpdateMetadataTask alloc]
       initWithReference:ref
          fetcherService:self.fetcherService
+          dispatchQueue:self.dispatchQueue
                metadata:self.metadata
              completion:^(FIRStorageMetadata *_Nullable metadata, NSError *_Nullable error) {
                XCTAssertNil(metadata);

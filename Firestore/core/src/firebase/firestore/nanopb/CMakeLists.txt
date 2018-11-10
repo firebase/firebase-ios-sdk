@@ -15,9 +15,11 @@
 cc_library(
   firebase_firestore_nanopb
   SOURCES
-    tag.h
+    nanopb_string.cc
+    nanopb_string.h
     reader.h
     reader.cc
+    tag.h
     writer.h
     writer.cc
   DEPENDS
