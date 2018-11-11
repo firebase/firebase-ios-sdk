@@ -1023,11 +1023,11 @@ static void UnswizzleDynamicLinkNetworking() {
   //  https://a.firebase.com/mypath
 
   NSArray<NSString *> *urlStrings = @[
-    @"https://google.com/1",                     // Valid domain. Any path.
-    @"https://google.com/2",                     // Valid domain. Any path.
-    @"https://google.com/one",                   // Valid domain. Specified path.
-    @"https://a.firebase.com/mypath/",           // Valid subdomain.
-    @"https://a.firebase.com/mypath/abcd/efgh",  // Long path.
+    @"https://google.com/1",                            // Valid domain. Any path.
+    @"https://google.com/2",                            // Valid domain. Any path.
+    @"https://google.com/one",                          // Valid domain. Specified path.
+    @"https://a.firebase.com/mypath/",                  // Valid subdomain.
+    @"https://a.firebase.com/mypath/abcd/efgh",         // Long path.
     @"https://a.firebase.com/mypath?link=abcd&test=1",  // Long path.
   ];
 
@@ -1052,7 +1052,7 @@ static void UnswizzleDynamicLinkNetworking() {
     @"google.com",                    // Valid domain. No scheme.
     @"https://google.com",            // Valid domain. No path.
     @"http://google.com",             // Valid domain. Invalid scheme.
-    @"https://google.co.in/abc",          // Invalid domain starts with valid domain name.
+    @"https://google.co.in/abc",      // Invalid domain starts with valid domain name.
     @"https://firebase.com/mypath",   // Invalid (sub)domain.
     @"https://b.firebase.com/mypath"  // Invalid subdomain.
   ];
