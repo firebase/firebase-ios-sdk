@@ -1,4 +1,6 @@
 # Unreleased
+- Fixed an issue where GoogleUtilities would leak non-background URL sessions.
+  (#2061)
 
 # 5.3.4
 - Fixed a crash caused by unprotected access to sessions in
