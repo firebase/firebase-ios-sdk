@@ -88,7 +88,7 @@ message DocumentTransform {
     oneof transform_type {
       // Sets the field to the given server value.
       ServerValue set_to_server_value = 2;
-	  
+
       // Adds the given value to the field's current value.
       //
       // This must be an integer or a double value.
