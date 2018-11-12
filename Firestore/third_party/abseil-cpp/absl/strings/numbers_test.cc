@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// This file tests std::string processing functions related to numeric values.
+// This file tests string processing functions related to numeric values.
 
 #include "absl/strings/numbers.h"
 
@@ -38,7 +38,7 @@
 #include "absl/base/internal/raw_logging.h"
 #include "absl/strings/str_cat.h"
 
-#include "absl/strings/internal/numbers_test_common.inc"
+#include "absl/strings/internal/numbers_test_common.h"
 
 namespace {
 
@@ -48,21 +48,19 @@ using absl::numbers_internal::safe_strto64_base;
 using absl::numbers_internal::safe_strtou32_base;
 using absl::numbers_internal::safe_strtou64_base;
 using absl::numbers_internal::SixDigitsToBuffer;
+using absl::strings_internal::Itoa;
+using absl::strings_internal::strtouint32_test_cases;
+using absl::strings_internal::strtouint64_test_cases;
 using absl::SimpleAtoi;
 using testing::Eq;
 using testing::MatchesRegex;
 
 // Number of floats to test with.
-// 10,000,000 is a reasonable default for a test that only takes a few seconds.
+// 5,000,000 is a reasonable default for a test that only takes a few seconds.
 // 1,000,000,000+ triggers checking for all possible mantissa values for
 // double-precision tests. 2,000,000,000+ triggers checking for every possible
 // single-precision float.
-#ifdef _MSC_VER
-// Use a smaller number on MSVC to avoid test time out (1 min)
 const int kFloatNumCases = 5000000;
-#else
-const int kFloatNumCases = 10000000;
-#endif
 
 // This is a slow, brute-force routine to compute the exact base-10
 // representation of a double-precision floating-point number.  It
@@ -119,7 +117,7 @@ TEST(ToString, PerfectDtoa) {
          {1e-300, 1e-200, 1e-100, 0.1, 1.0, 10.0, 1e100, 1e300}) {
       double d = multiplier * i;
       std::string s = PerfectDtoa(d);
-      EXPECT_EQ(d, strtod(s.c_str(), nullptr));
+      EXPECT_DOUBLE_EQ(d, strtod(s.c_str(), nullptr));
     }
   }
 }
@@ -654,8 +652,8 @@ TEST(stringtest, safe_strtou64_random) {
 }
 
 TEST(stringtest, safe_strtou32_base) {
-  for (int i = 0; strtouint32_test_cases[i].str != nullptr; ++i) {
-    const auto& e = strtouint32_test_cases[i];
+  for (int i = 0; strtouint32_test_cases()[i].str != nullptr; ++i) {
+    const auto& e = strtouint32_test_cases()[i];
     uint32_t value;
     EXPECT_EQ(e.expect_ok, safe_strtou32_base(e.str, &value, e.base))
         << "str=\"" << e.str << "\" base=" << e.base;
@@ -667,8 +665,8 @@ TEST(stringtest, safe_strtou32_base) {
 }
 
 TEST(stringtest, safe_strtou32_base_length_delimited) {
-  for (int i = 0; strtouint32_test_cases[i].str != nullptr; ++i) {
-    const auto& e = strtouint32_test_cases[i];
+  for (int i = 0; strtouint32_test_cases()[i].str != nullptr; ++i) {
+    const auto& e = strtouint32_test_cases()[i];
     std::string tmp(e.str);
     tmp.append("12");  // Adds garbage at the end.
 
@@ -685,8 +683,8 @@ TEST(stringtest, safe_strtou32_base_length_delimited) {
 }
 
 TEST(stringtest, safe_strtou64_base) {
-  for (int i = 0; strtouint64_test_cases[i].str != nullptr; ++i) {
-    const auto& e = strtouint64_test_cases[i];
+  for (int i = 0; strtouint64_test_cases()[i].str != nullptr; ++i) {
+    const auto& e = strtouint64_test_cases()[i];
     uint64_t value;
     EXPECT_EQ(e.expect_ok, safe_strtou64_base(e.str, &value, e.base))
         << "str=\"" << e.str << "\" base=" << e.base;
@@ -697,8 +695,8 @@ TEST(stringtest, safe_strtou64_base) {
 }
 
 TEST(stringtest, safe_strtou64_base_length_delimited) {
-  for (int i = 0; strtouint64_test_cases[i].str != nullptr; ++i) {
-    const auto& e = strtouint64_test_cases[i];
+  for (int i = 0; strtouint64_test_cases()[i].str != nullptr; ++i) {
+    const auto& e = strtouint64_test_cases()[i];
     std::string tmp(e.str);
     tmp.append("12");  // Adds garbage at the end.
 
@@ -713,8 +711,9 @@ TEST(stringtest, safe_strtou64_base_length_delimited) {
   }
 }
 
-// feenableexcept() and fedisableexcept() are missing on Mac OS X, MSVC.
-#if defined(_MSC_VER) || defined(__APPLE__)
+// feenableexcept() and fedisableexcept() are missing on Mac OS X, MSVC,
+// and WebAssembly.
+#if defined(_MSC_VER) || defined(__APPLE__) || defined(__EMSCRIPTEN__)
 #define ABSL_MISSING_FEENABLEEXCEPT 1
 #define ABSL_MISSING_FEDISABLEEXCEPT 1
 #endif

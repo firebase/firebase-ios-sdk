@@ -22,6 +22,8 @@ list(APPEND UTILITY_PUBLIC_HEADERS
 absl_header_library(
   TARGET
     absl_utility
+  PUBLIC_LIBRARIES
+    absl::base
   EXPORT_NAME
     utility
 )
@@ -31,3 +33,20 @@ absl_header_library(
 ## TESTS
 #
 
+# test utility_test
+set(UTILITY_TEST_SRC "utility_test.cc")
+set(UTILITY_TEST_PUBLIC_LIBRARIES
+  absl::base
+  absl::memory
+  absl::strings
+  absl::utility
+)
+
+absl_test(
+  TARGET
+    utility_test
+  SOURCES
+    ${UTILITY_TEST_SRC}
+  PUBLIC_LIBRARIES
+    ${UTILITY_TEST_PUBLIC_LIBRARIES}
+)

@@ -24,7 +24,6 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
 
   s.source_files = [
     'Firestore/Source/**/*',
-    'Firestore/Port/**/*',
     'Firestore/Protos/nanopb/**/*.{h,cc}',
     'Firestore/Protos/objc/**/*.[hm]',
     'Firestore/core/include/**/*.{h,cc,mm}',
@@ -37,7 +36,6 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
     'Firestore/third_party/Immutable/*.[mh]'
   ]
   s.exclude_files = [
-    'Firestore/Port/*test.cc',
     'Firestore/third_party/Immutable/Tests/**',
 
     # Exclude alternate implementations for other platforms
@@ -94,10 +92,16 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
       'Firestore/third_party/abseil-cpp/**/*.cc'
     ]
     ss.exclude_files = [
-      'Firestore/third_party/abseil-cpp/**/*_test.cc',
+      'Firestore/third_party/abseil-cpp/**/*_benchmark.cc',
+      'Firestore/third_party/abseil-cpp/**/*test*.cc',
+      'Firestore/third_party/abseil-cpp/absl/hash/internal/print_hash_of.cc',
+      'Firestore/third_party/abseil-cpp/absl/synchronization/internal/mutex_nonprod.cc',
     ]
 
     ss.library = 'c++'
-    ss.compiler_flags = '$(inherited) ' + '-Wno-comma -Wno-range-loop-analysis'
+    ss.compiler_flags = '$(inherited) ' +
+      '-Wno-comma ' +
+      '-Wno-range-loop-analysis ' +
+      '-Wno-shorten-64-to-32'
   end
 end

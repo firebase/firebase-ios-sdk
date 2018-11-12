@@ -22,6 +22,16 @@
 #include "gtest/gtest.h"
 #include "absl/strings/substitute.h"
 
+#ifdef __ANDROID__
+// Android assert messages only go to system log, so death tests cannot inspect
+// the message for matching.
+#define ABSL_EXPECT_DEBUG_DEATH(statement, regex) \
+  EXPECT_DEBUG_DEATH(statement, ".*")
+#else
+#define ABSL_EXPECT_DEBUG_DEATH(statement, regex) \
+  EXPECT_DEBUG_DEATH(statement, regex)
+#endif
+
 namespace {
 
 // Test absl::StrCat of ints and longs of various sizes and signdedness.
@@ -206,6 +216,8 @@ struct Mallocator {
     typedef Mallocator<U> other;
   };
   Mallocator() = default;
+  template <class U>
+  Mallocator(const Mallocator<U>&) {}  // NOLINT(runtime/explicit)
 
   T* allocate(size_t n) { return static_cast<T*>(std::malloc(n * sizeof(T))); }
   void deallocate(T* p, size_t) { std::free(p); }
@@ -394,8 +406,9 @@ TEST(StrAppend, Death) {
   std::string s = "self";
   // on linux it's "assertion", on mac it's "Assertion",
   // on chromiumos it's "Assertion ... failed".
-  EXPECT_DEBUG_DEATH(absl::StrAppend(&s, s.c_str() + 1), "ssertion.*failed");
-  EXPECT_DEBUG_DEATH(absl::StrAppend(&s, s), "ssertion.*failed");
+  ABSL_EXPECT_DEBUG_DEATH(absl::StrAppend(&s, s.c_str() + 1),
+                          "ssertion.*failed");
+  ABSL_EXPECT_DEBUG_DEATH(absl::StrAppend(&s, s), "ssertion.*failed");
 }
 #endif  // GTEST_HAS_DEATH_TEST
 
