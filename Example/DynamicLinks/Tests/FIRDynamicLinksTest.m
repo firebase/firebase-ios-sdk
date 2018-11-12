@@ -1015,6 +1015,57 @@ static void UnswizzleDynamicLinkNetworking() {
   [self waitForExpectationsWithTimeout:2.0 handler:nil];
 }
 
+#pragma mark - Custom domain tests
+- (void)testValidCustomDomainNames {
+  // Entries in plist file:
+  //  https://google.com
+  //  https://google.com/one
+  //  https://a.firebase.com/mypath
+
+  NSArray<NSString *> *urlStrings = @[
+    @"https://google.com/1",                            // Valid domain. Any path.
+    @"https://google.com/2",                            // Valid domain. Any path.
+    @"https://google.com/one",                          // Valid domain. Specified path.
+    @"https://a.firebase.com/mypath/",                  // Valid subdomain.
+    @"https://a.firebase.com/mypath/abcd/efgh",         // Long path.
+    @"https://a.firebase.com/mypath?link=abcd&test=1",  // Long path.
+  ];
+
+  for (NSString *urlString in urlStrings) {
+    NSURL *url = [NSURL URLWithString:urlString];
+    BOOL matchesShortLinkFormat = [self.service matchesShortLinkFormat:url];
+
+    XCTAssertTrue(matchesShortLinkFormat,
+                  @"Non-DDL domain URL matched short link format with URL: %@", url);
+  }
+}
+
+- (void)testInvalidCustomDomainNames {
+  // Entries in plist file:
+  //  https://google.com
+  //  https://google.com/one
+  //  https://a.firebase.com/mypath
+
+  NSArray<NSString *> *urlStrings = @[
+    @"mydomain.com",                  // Domain not in plist. Also, no scheme.
+    @"http://mydomain",               // Domain not in plist. No path.
+    @"google.com",                    // Valid domain. No scheme.
+    @"https://google.com",            // Valid domain. No path.
+    @"http://google.com",             // Valid domain. Invalid scheme.
+    @"https://google.co.in/abc",      // Invalid domain starts with valid domain name.
+    @"https://firebase.com/mypath",   // Invalid (sub)domain.
+    @"https://b.firebase.com/mypath"  // Invalid subdomain.
+  ];
+
+  for (NSString *urlString in urlStrings) {
+    NSURL *url = [NSURL URLWithString:urlString];
+    BOOL matchesShortLinkFormat = [self.service matchesShortLinkFormat:url];
+
+    XCTAssertFalse(matchesShortLinkFormat,
+                   @"Non-DDL domain URL matched short link format with URL: %@", url);
+  }
+}
+
 #pragma mark - Private Helpers
 
 - (void)removeAllFIRApps {
