@@ -516,7 +516,7 @@ FIR_SWIFT_NAME(DynamicLinkComponents)
  */
 + (instancetype)componentsWithLink:(NSURL *)link
                             domain:(NSString *)domain
-    NS_SWIFT_UNAVAILABLE("Use init(link:domain:)");
+    NS_SWIFT_UNAVAILABLE("Use init(link:domain:)")
 DEPRECATED_MSG_ATTRIBUTE(
     "This method is deprecated. Please use the new method with support for "
     "domainUriPrefix- componentsWithLink:domainURIPrefix.");
@@ -530,7 +530,7 @@ DEPRECATED_MSG_ATTRIBUTE(
  * @param domain Domain of your App. This value must be equal to your assigned domain from Firebase
  *     Console.
  */
-- (instancetype)initWithLink:(NSURL *)link domain:(NSString *)domain;
+- (instancetype)initWithLink:(NSURL *)link domain:(NSString *)domain
 DEPRECATED_MSG_ATTRIBUTE(
     "This method is deprecated. Please use the new method with support for "
     "domainUriPrefix- initWithLink:domainURIPrefix.");

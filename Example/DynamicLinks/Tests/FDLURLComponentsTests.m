@@ -104,8 +104,9 @@ static NSString *const kFDLURLCustomDomain = @"https://foo.com/path";
 }
 
 - (void)testAnalyticsParamsFactoryWithParamsReturnsInstanceOfCorrectClass {
-  id returnValue =
-      [FIRDynamicLinkGoogleAnalyticsParameters parametersWithSource:@"s" medium:@"m" campaign:@"c"];
+  id returnValue = [FIRDynamicLinkGoogleAnalyticsParameters parametersWithSource:@"s"
+                                                                          medium:@"m"
+                                                                        campaign:@"c"];
   XCTAssertTrue([returnValue isKindOfClass:[FIRDynamicLinkGoogleAnalyticsParameters class]]);
 }
 
@@ -516,7 +517,8 @@ static NSString *const kFDLURLCustomDomain = @"https://foo.com/path";
   NSURL *link = [NSURL URLWithString:linkString];
 
   FIRDynamicLinkComponents *components =
-      [FIRDynamicLinkComponents componentsWithLink:link domainURIPrefix:@"this is invalid domain"];
+      [FIRDynamicLinkComponents componentsWithLink:link
+                                   domainURIPrefix:@"this is invalid domain URI Prefix"];
 
   XCTAssertNil(components.url);
 }
@@ -733,7 +735,8 @@ static NSString *const kFDLURLCustomDomain = @"https://foo.com/path";
 
   NSURL *link = [NSURL URLWithString:@"https://google.com/abc"];
   FIRDynamicLinkComponents *components =
-      [FIRDynamicLinkComponents componentsWithLink:link domainURIPrefix:@"this is invalid domain"];
+      [FIRDynamicLinkComponents componentsWithLink:link
+                                   domainURIPrefix:@"this is invalid domain URI Prefix"];
   XCTAssertNil(components);
 
   [keyProviderClassMock verify];
