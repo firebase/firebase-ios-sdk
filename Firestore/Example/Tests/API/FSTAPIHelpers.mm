@@ -102,7 +102,7 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
                                                hasPendingWrites ? FSTDocumentStateLocalMutations
                                                                 : FSTDocumentStateSynced)];
     if (hasPendingWrites) {
-      const absl::string_view documentKey = util::StringFormat("%s/%s", path, key);
+      const std::string documentKey = util::StringFormat("%s/%s", path, key);
       mutatedKeys = mutatedKeys.insert(testutil::Key(documentKey));
     }
   }
@@ -118,7 +118,7 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
                                 changeWithDocument:docToAdd
                                               type:FSTDocumentViewChangeTypeAdded]];
     if (hasPendingWrites) {
-      const absl::string_view documentKey = util::StringFormat("%s/%s", path, key);
+      const std::string documentKey = util::StringFormat("%s/%s", path, key);
       mutatedKeys = mutatedKeys.insert(testutil::Key(documentKey));
     }
   }
