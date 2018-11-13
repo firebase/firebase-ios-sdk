@@ -16,8 +16,6 @@
 
 #import "Firestore/Source/Core/FSTTransaction.h"
 
-#import <GRPCClient/GRPCCall.h>
-
 #include <map>
 #include <utility>
 #include <vector>
