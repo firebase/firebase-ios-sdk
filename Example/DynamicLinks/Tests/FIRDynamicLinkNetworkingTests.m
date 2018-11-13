@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "OCMock.h"
+#import <OCMock/OCMock.h>
 
 #import <GoogleUtilities/GULSwizzler.h>
 #import "DynamicLinks/FIRDynamicLinkNetworking+Private.h"

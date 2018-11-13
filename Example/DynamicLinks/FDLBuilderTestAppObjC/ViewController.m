@@ -289,7 +289,7 @@ static NSArray *kParamsConfiguration;
 - (void)_buildFDLLink {
   NSURL *link = [NSURL URLWithString:_paramValues[@"linkString"]];
   FIRDynamicLinkComponents *components =
-      [FIRDynamicLinkComponents componentsWithLink:link domain:_paramValues[@"domain"]];
+      [FIRDynamicLinkComponents componentsWithLink:link domainURIPrefix:_paramValues[@"domain"]];
 
   FIRDynamicLinkGoogleAnalyticsParameters *analyticsParams =
       [FIRDynamicLinkGoogleAnalyticsParameters
