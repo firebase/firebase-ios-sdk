@@ -18,6 +18,7 @@
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_FILESYSTEM_H_
 
 #include <memory>
+#include <string>
 
 #include "Firestore/core/src/firebase/firestore/util/path.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
@@ -78,6 +79,12 @@ Path TempDir();
  * `path`.
  */
 StatusOr<int64_t> FileSize(const Path& path);
+
+/**
+ * On success, opens the file at the given `path` and returns its contents as
+ * a string.
+ */
+StatusOr<std::string> ReadFile(const Path& path);
 
 /**
  * Implements an iterator over the contents of a directory. Initializes to the

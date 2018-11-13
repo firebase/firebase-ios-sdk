@@ -39,6 +39,7 @@ function(cc_library name)
     ${FIREBASE_BINARY_DIR}
     ${FIREBASE_SOURCE_DIR}
   )
+
   target_link_libraries(${name} PUBLIC ${ccl_DEPENDS})
 
   if(ccl_EXCLUDE_FROM_ALL)

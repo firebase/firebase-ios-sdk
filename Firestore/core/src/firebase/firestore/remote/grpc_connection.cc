@@ -17,21 +17,20 @@
 #include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
 
 #include <algorithm>
-#include <fstream>
-#include <sstream>
 #include <string>
 #include <utility>
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
+#include "Firestore/core/include/firebase/firestore/firestore_version.h"
 #include "Firestore/core/src/firebase/firestore/auth/token.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_root_certificate_finder.h"
+#include "Firestore/core/src/firebase/firestore/util/filesystem.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
 #include "absl/memory/memory.h"
 #include "grpcpp/create_channel.h"
-
-#import "Firestore/Source/API/FIRFirestoreVersion.h"
 
 namespace firebase {
 namespace firestore {
@@ -40,7 +39,9 @@ namespace remote {
 using auth::Token;
 using core::DatabaseInfo;
 using model::DatabaseId;
+using util::Path;
 using util::Status;
+using util::StatusOr;
 using util::StringFormat;
 
 namespace {
@@ -52,9 +53,31 @@ std::string MakeString(absl::string_view view) {
   return view.data() ? std::string{view.data(), view.size()} : std::string{};
 }
 
-}  // namespace
+std::shared_ptr<grpc::ChannelCredentials> CreateSslCredentials(
+    const std::string& certificate) {
+  grpc::SslCredentialsOptions options;
+  options.pem_root_certs = certificate;
+  return grpc::SslCredentials(options);
+}
 
-GrpcConnection::TestCredentials* GrpcConnection::test_credentials_ = nullptr;
+struct HostConfig {
+  util::Path certificate_path;
+  std::string target_name;
+  bool use_insecure_channel = false;
+};
+
+using ConfigByHost = std::unordered_map<std::string, HostConfig>;
+
+ConfigByHost& Config() {
+  static ConfigByHost config_by_host_;
+  return config_by_host_;
+}
+
+bool HasSpecialConfig(const std::string& host) {
+  return Config().find(host) != Config().end();
+}
+
+}  // namespace
 
 GrpcConnection::GrpcConnection(const DatabaseInfo& database_info,
                                util::AsyncQueue* worker_queue,
@@ -87,7 +110,7 @@ std::unique_ptr<grpc::ClientContext> GrpcConnection::CreateContext(
     context->set_credentials(grpc::AccessTokenCredentials(MakeString(token)));
   }
 
-  // TODO(dimond): This should ideally also include the grpc version, however,
+  // TODO(dimond): This should ideally also include the gRPC version, however,
   // gRPC defines the version as a macro, so it would be hardcoded based on
   // version we have at compile time of the Firestore library, rather than the
   // version available at runtime/at compile time by the user of the library.
@@ -96,8 +119,7 @@ std::unique_ptr<grpc::ClientContext> GrpcConnection::CreateContext(
   // C++ SDK, etc.).
   context->AddMetadata(
       kXGoogAPIClientHeader,
-      StringFormat("gl-objc/ fire/%s grpc/",
-                   reinterpret_cast<const char*>(FIRFirestoreVersionString)));
+      StringFormat("gl-objc/ fire/%s grpc/", kFirestoreVersionString));
 
   // This header is used to improve routing and project isolation by the
   // backend.
@@ -120,31 +142,32 @@ void GrpcConnection::EnsureActiveStub() {
 }
 
 std::shared_ptr<grpc::Channel> GrpcConnection::CreateChannel() const {
-  if (!test_credentials_) {
-    return grpc::CreateChannel(
-        database_info_->host(),
-        grpc::SslCredentials(grpc::SslCredentialsOptions()));
+  const std::string& host = database_info_->host();
+
+  if (!HasSpecialConfig(host)) {
+    std::string root_certificate = LoadGrpcRootCertificate();
+    return grpc::CreateChannel(host, CreateSslCredentials(root_certificate));
   }
 
-  if (test_credentials_->use_insecure_channel) {
-    return grpc::CreateChannel(database_info_->host(),
-                               grpc::InsecureChannelCredentials());
+  const HostConfig& host_config = Config()[host];
+
+  // For the case when `Settings.sslEnabled == false`.
+  if (host_config.use_insecure_channel) {
+    return grpc::CreateChannel(host, grpc::InsecureChannelCredentials());
   }
 
-  std::ifstream cert_file{test_credentials_->certificate_path};
-  HARD_ASSERT(cert_file.good(),
-              StringFormat("Unable to open root certificates at file path %s",
-                           test_credentials_->certificate_path)
-                  .c_str());
-  std::stringstream cert_buffer;
-  cert_buffer << cert_file.rdbuf();
-  grpc::SslCredentialsOptions options;
-  options.pem_root_certs = cert_buffer.str();
-
+  // For tests only
   grpc::ChannelArguments args;
-  args.SetSslTargetNameOverride(test_credentials_->target_name);
-  return grpc::CreateCustomChannel(database_info_->host(),
-                                   grpc::SslCredentials(options), args);
+  args.SetSslTargetNameOverride(host_config.target_name);
+  Path path = host_config.certificate_path;
+  StatusOr<std::string> test_certificate = ReadFile(path);
+  HARD_ASSERT(test_certificate.ok(),
+              StringFormat("Unable to open root certificates at file path %s",
+                           path.ToUtf8String())
+                  .c_str());
+
+  return grpc::CreateCustomChannel(
+      host, CreateSslCredentials(test_certificate.ValueOrDie()), args);
 }
 
 std::unique_ptr<GrpcStream> GrpcConnection::CreateStream(
@@ -196,6 +219,11 @@ void GrpcConnection::RegisterConnectivityMonitor() {
           call->FinishAndNotify(Status{FirestoreErrorCode::Unavailable,
                                        "Network connectivity changed"});
         }
+        // The old channel may hang for a long time trying to reestablish
+        // connection before eventually failing. Note that gRPC Objective-C
+        // client does the same thing:
+        // https://github.com/grpc/grpc/blob/fe11db09575f2dfbe1f88cd44bd417acc168e354/src/objective-c/GRPCClient/private/GRPCHost.m#L309-L314
+        grpc_channel_.reset();
       });
 }
 
@@ -210,30 +238,24 @@ void GrpcConnection::Unregister(GrpcCall* call) {
 }
 
 /*static*/ void GrpcConnection::UseTestCertificate(
-    absl::string_view certificate_path, absl::string_view target_name) {
-  HARD_ASSERT(!certificate_path.empty(), "Empty path to test certificate");
+    const std::string& host,
+    const Path& certificate_path,
+    const std::string& target_name) {
+  HARD_ASSERT(!host.empty(), "Empty host name");
+  HARD_ASSERT(!certificate_path.native_value().empty(),
+              "Empty path to test certificate");
   HARD_ASSERT(!target_name.empty(), "Empty SSL target name");
 
-  if (!test_credentials_) {
-    // Deliberately never deleted.
-    test_credentials_ = new TestCredentials{};
-  }
-
-  test_credentials_->certificate_path =
-      std::string{certificate_path.data(), certificate_path.size()};
-  test_credentials_->target_name =
-      std::string{target_name.data(), target_name.size()};
-  // TODO(varconst): hostname if necessary.
+  HostConfig& host_config = Config()[host];
+  host_config.certificate_path = certificate_path;
+  host_config.target_name = target_name;
 }
 
-/*static*/ void GrpcConnection::UseInsecureChannel() {
-  if (!test_credentials_) {
-    // Deliberately never deleted.
-    test_credentials_ = new TestCredentials{};
-  }
+/*static*/ void GrpcConnection::UseInsecureChannel(const std::string& host) {
+  HARD_ASSERT(!host.empty(), "Empty host name");
 
-  test_credentials_->use_insecure_channel = true;
-  // TODO(varconst): hostname if necessary.
+  HostConfig& host_config = Config()[host];
+  host_config.use_insecure_channel = true;
 }
 
 }  // namespace remote

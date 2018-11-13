@@ -57,6 +57,10 @@ namespace remote {
  *
  * Streams are stateful and need to be `Start`ed before messages can
  * be sent and received. A `Stream` can be started and stopped repeatedly.
+ *
+ * All public virtual methods exist only for the sake of tests; the methods that
+ * are expected to be implemented by "normal" derived classes are pure virtual
+ * and private.
  */
 class Stream : public GrpcStreamObserver,
                public std::enable_shared_from_this<Stream> {
@@ -129,7 +133,7 @@ class Stream : public GrpcStreamObserver,
    *
    * When start returns, `IsStarted` will return true.
    */
-  void Start();
+  virtual void Start();
 
   /**
    * Stops the stream. This call is idempotent and allowed regardless of the
@@ -137,7 +141,7 @@ class Stream : public GrpcStreamObserver,
    *
    * When stop returns, `IsStarted` and `IsOpen` will both return false.
    */
-  void Stop();
+  virtual void Stop();
 
   /**
    * Returns true if `Start` has been called and no error has occurred. True
@@ -146,13 +150,13 @@ class Stream : public GrpcStreamObserver,
    * actual stream). Use `IsOpen` to determine if the stream is open and ready
    * for outbound requests.
    */
-  bool IsStarted() const;
+  virtual bool IsStarted() const;
 
   /**
    * Returns true if the underlying stream is open (`OnStreamStart` has been
    * called) and the stream is ready for outbound requests.
    */
-  bool IsOpen() const;
+  virtual bool IsOpen() const;
 
   /**
    * After an error, the stream will usually back off on the next attempt to

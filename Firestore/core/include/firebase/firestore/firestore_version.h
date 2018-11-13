@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2018 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,18 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/API/FIRFirestoreVersion.h"
+#ifndef FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_FIRESTORE_VERSION_H_
+#define FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_FIRESTORE_VERSION_H_
 
-#include "Firestore/core/include/firebase/firestore/firestore_version.h"
+/** Version for Firestore. */
 
-using firebase::firestore::kFirestoreVersionString;
+namespace firebase {
+namespace firestore {
 
-// Because `kFirestoreVersionString` is subject to constant initialization, this
-// is not affected by static initialization order fiasco.
-extern "C" const unsigned char *const FIRFirestoreVersionString =
-    (const unsigned char *const)kFirestoreVersionString;
+/** Version string for the Firebase Firestore SDK. */
+extern const char* const kFirestoreVersionString;
+
+}  // namespace firestore
+}  // namespace firebase
+
+#endif  // FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_FIRESTORE_VERSION_H_
