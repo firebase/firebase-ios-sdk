@@ -89,6 +89,10 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
   FSTFirestoreClient *_client;
 }
 
+- (AsyncQueue*)workerQueue {
+  return [_client workerQueue];
+}
+
 + (NSMutableDictionary<NSString *, FIRFirestore *> *)instances {
   static dispatch_once_t token = 0;
   static NSMutableDictionary<NSString *, FIRFirestore *> *instances;

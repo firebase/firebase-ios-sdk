@@ -103,6 +103,10 @@ NS_ASSUME_NONNULL_BEGIN
   return _userExecutor.get();
 }
 
+- (AsyncQueue*)workerQueue {
+  return _workerQueue.get();
+}
+
 + (instancetype)clientWithDatabaseInfo:(const DatabaseInfo &)databaseInfo
                         usePersistence:(BOOL)usePersistence
                    credentialsProvider:

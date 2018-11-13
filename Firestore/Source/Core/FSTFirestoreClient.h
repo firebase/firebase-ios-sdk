@@ -117,6 +117,9 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (firebase::firestore::util::Executor *)userExecutor;
 
+/** For testing only. */
+- (firebase::firestore::util::AsyncQueue *)workerQueue;
+
 @end
 
 NS_ASSUME_NONNULL_END
