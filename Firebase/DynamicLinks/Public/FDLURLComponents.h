@@ -517,8 +517,9 @@ FIR_SWIFT_NAME(DynamicLinkComponents)
 + (instancetype)componentsWithLink:(NSURL *)link
                             domain:(NSString *)domain
     NS_SWIFT_UNAVAILABLE("Use init(link:domain:)");
-DEPRECATED_MSG_ATTRIBUTE("This method is deprecated. Please use the new method with support for "
-                         "domainUriPrefix- componentsWithLink:domainURIPrefix.");
+DEPRECATED_MSG_ATTRIBUTE(
+    "This method is deprecated. Please use the new method with support for "
+    "domainUriPrefix- componentsWithLink:domainURIPrefix.");
 
 /**
  * @method initWithLink:domain:
@@ -530,8 +531,9 @@ DEPRECATED_MSG_ATTRIBUTE("This method is deprecated. Please use the new method w
  *     Console.
  */
 - (instancetype)initWithLink:(NSURL *)link domain:(NSString *)domain;
-DEPRECATED_MSG_ATTRIBUTE("This method is deprecated. Please use the new method with support for "
-                         "domainUriPrefix- initWithLink:domainURIPrefix.");
+DEPRECATED_MSG_ATTRIBUTE(
+    "This method is deprecated. Please use the new method with support for "
+    "domainUriPrefix- initWithLink:domainURIPrefix.");
 
 /**
  * @method componentsWithLink:domain:
