@@ -462,8 +462,14 @@ static NSString *const kFDLOtherPlatformParametersFallbackURLKey = @"ofl";
 
 #pragma mark Initializers.
 + (instancetype)componentsWithLink:(NSURL *)link domainURIPrefix:(NSString *)domainURIPrefix {
-  if (![[domainURIPrefix lowercaseString] hasPrefix:@"https://"]) {
-    FDLLog(FDLLogLevelError, FDLLogIdentifierSetupInvalidDomainScheme,
+  NSURL *domainURIPrefixURL = [NSURL URLWithString:domainURIPrefix];
+  if (!domainURIPrefixURL) {
+    FDLLog(FDLLogLevelError, FDLLogIdentifierSetupInvalidDomainURIPrefix,
+           @"Invalid domainURIPrefix. Please input a valid URL.");
+    return nil;
+  }
+  if (![[domainURIPrefixURL.scheme lowercaseString] hasPrefix:@"https"]) {
+    FDLLog(FDLLogLevelError, FDLLogIdentifierSetupInvalidDomainURIPrefixScheme,
            @"Invalid domainURIPrefix scheme. Scheme needs to be https");
     return nil;
   }
@@ -474,8 +480,15 @@ static NSString *const kFDLOtherPlatformParametersFallbackURLKey = @"ofl";
   self = [super init];
   if (self) {
     _link = link;
-    if (![[domainURIPrefix lowercaseString] hasPrefix:@"https://"]) {
-      FDLLog(FDLLogLevelError, FDLLogIdentifierSetupInvalidDomainScheme,
+    /// Must be a URL that conforms to RFC 2396.
+    NSURL *domainURIPrefixURL = [NSURL URLWithString:domainURIPrefix];
+    if (!domainURIPrefixURL) {
+      FDLLog(FDLLogLevelError, FDLLogIdentifierSetupInvalidDomainURIPrefix,
+             @"Invalid domainURIPrefix. Please input a valid URL.");
+      return nil;
+    }
+    if (![[domainURIPrefixURL.scheme lowercaseString] hasPrefix:@"https"]) {
+      FDLLog(FDLLogLevelError, FDLLogIdentifierSetupInvalidDomainURIPrefixScheme,
              @"Invalid domainURIPrefix scheme. Scheme needs to be https");
       return nil;
     }
