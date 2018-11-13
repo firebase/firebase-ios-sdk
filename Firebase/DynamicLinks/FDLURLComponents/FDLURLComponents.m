@@ -463,7 +463,8 @@ static NSString *const kFDLOtherPlatformParametersFallbackURLKey = @"ofl";
 #pragma mark Initializers.
 + (instancetype)componentsWithLink:(NSURL *)link domainURIPrefix:(NSString *)domainURIPrefix {
   if (![[domainURIPrefix lowercaseString] hasPrefix:@"https://"]) {
-     FDLLog(FDLLogLevelError, FDLLogIdentifierSetupInvalidDomainScheme, @"Invalid domainURIPrefix scheme. Scheme needs to be https");
+    FDLLog(FDLLogLevelError, FDLLogIdentifierSetupInvalidDomainScheme,
+           @"Invalid domainURIPrefix scheme. Scheme needs to be https");
     return nil;
   }
   return [[self alloc] initWithLink:link domainURIPrefix:domainURIPrefix];
@@ -474,7 +475,8 @@ static NSString *const kFDLOtherPlatformParametersFallbackURLKey = @"ofl";
   if (self) {
     _link = link;
     if (![[domainURIPrefix lowercaseString] hasPrefix:@"https://"]) {
-      FDLLog(FDLLogLevelError, FDLLogIdentifierSetupInvalidDomainScheme, @"Invalid domainURIPrefix scheme. Scheme needs to be https");
+      FDLLog(FDLLogLevelError, FDLLogIdentifierSetupInvalidDomainScheme,
+             @"Invalid domainURIPrefix scheme. Scheme needs to be https");
       return nil;
     }
     _domain = [domainURIPrefix copy];
@@ -498,8 +500,9 @@ static NSString *const kFDLOtherPlatformParametersFallbackURLKey = @"ofl";
   }
   NSURLRequest *request = [self shorteningRequestForLongURL:url options:options];
   if (!request) {
-    NSError *error =
-        [NSError errorWithDomain:kFirebaseDurableDeepLinkErrorDomain code:0 userInfo:nil];
+    NSError *error = [NSError errorWithDomain:kFirebaseDurableDeepLinkErrorDomain
+                                         code:0
+                                     userInfo:nil];
     completion(nil, nil, error);
     return;
   }

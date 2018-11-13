@@ -104,8 +104,9 @@ static NSString *const kFDLURLCustomDomain = @"https://foo.com/path";
 }
 
 - (void)testAnalyticsParamsFactoryWithParamsReturnsInstanceOfCorrectClass {
-  id returnValue =
-      [FIRDynamicLinkGoogleAnalyticsParameters parametersWithSource:@"s" medium:@"m" campaign:@"c"];
+  id returnValue = [FIRDynamicLinkGoogleAnalyticsParameters parametersWithSource:@"s"
+                                                                          medium:@"m"
+                                                                        campaign:@"c"];
   XCTAssertTrue([returnValue isKindOfClass:[FIRDynamicLinkGoogleAnalyticsParameters class]]);
 }
 
@@ -501,11 +502,11 @@ static NSString *const kFDLURLCustomDomain = @"https://foo.com/path";
   NSURL *link = [NSURL URLWithString:linkString];
 
   NSString *expectedURLString =
-  [NSString stringWithFormat:@"%@/?link=%@", kFDLURLCustomDomain, endcodedLinkString];
+      [NSString stringWithFormat:@"%@/?link=%@", kFDLURLCustomDomain, endcodedLinkString];
   NSURL *expectedURL = [NSURL URLWithString:expectedURLString];
 
   FIRDynamicLinkComponents *components =
-  [FIRDynamicLinkComponents componentsWithLink:link domainURIPrefix:kFDLURLCustomDomain];
+      [FIRDynamicLinkComponents componentsWithLink:link domainURIPrefix:kFDLURLCustomDomain];
   NSURL *actualURL = components.url;
 
   XCTAssertEqualObjects(actualURL, expectedURL);
