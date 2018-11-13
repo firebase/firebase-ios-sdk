@@ -89,7 +89,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
   FSTFirestoreClient *_client;
 }
 
-- (AsyncQueue*)workerQueue {
+- (AsyncQueue *)workerQueue {
   return [_client workerQueue];
 }
 

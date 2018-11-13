@@ -55,13 +55,13 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * All callbacks and events will be triggered on the provided userExecutor.
  */
-+ (instancetype)clientWithDatabaseInfo:(const firebase::firestore::core::DatabaseInfo &)databaseInfo
-                        usePersistence:(BOOL)usePersistence
-                   credentialsProvider:(firebase::firestore::auth::CredentialsProvider *)
-                                           credentialsProvider  // no passing ownership
-                          userExecutor:
-                              (std::unique_ptr<firebase::firestore::util::Executor>)userExecutor
-                           workerQueue:(std::unique_ptr<firebase::firestore::util::AsyncQueue>)workerQueue;
++ (instancetype)
+    clientWithDatabaseInfo:(const firebase::firestore::core::DatabaseInfo &)databaseInfo
+            usePersistence:(BOOL)usePersistence
+       credentialsProvider:(firebase::firestore::auth::CredentialsProvider *)
+                               credentialsProvider  // no passing ownership
+              userExecutor:(std::unique_ptr<firebase::firestore::util::Executor>)userExecutor
+               workerQueue:(std::unique_ptr<firebase::firestore::util::AsyncQueue>)workerQueue;
 
 - (instancetype)init __attribute__((unavailable("Use static constructor method.")));
 

@@ -103,7 +103,7 @@ NS_ASSUME_NONNULL_BEGIN
   return _userExecutor.get();
 }
 
-- (AsyncQueue*)workerQueue {
+- (AsyncQueue *)workerQueue {
   return _workerQueue.get();
 }
 
