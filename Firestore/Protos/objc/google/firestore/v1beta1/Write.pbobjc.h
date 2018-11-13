@@ -202,6 +202,7 @@ typedef GPB_ENUM(GCFSDocumentTransform_FieldNumber) {
 typedef GPB_ENUM(GCFSDocumentTransform_FieldTransform_FieldNumber) {
   GCFSDocumentTransform_FieldTransform_FieldNumber_FieldPath = 1,
   GCFSDocumentTransform_FieldTransform_FieldNumber_SetToServerValue = 2,
+  GCFSDocumentTransform_FieldTransform_FieldNumber_NumericAdd = 3,
   GCFSDocumentTransform_FieldTransform_FieldNumber_AppendMissingElements = 6,
   GCFSDocumentTransform_FieldTransform_FieldNumber_RemoveAllFromArray_p = 7,
 };
@@ -209,6 +210,7 @@ typedef GPB_ENUM(GCFSDocumentTransform_FieldTransform_FieldNumber) {
 typedef GPB_ENUM(GCFSDocumentTransform_FieldTransform_TransformType_OneOfCase) {
   GCFSDocumentTransform_FieldTransform_TransformType_OneOfCase_GPBUnsetOneOfCase = 0,
   GCFSDocumentTransform_FieldTransform_TransformType_OneOfCase_SetToServerValue = 2,
+  GCFSDocumentTransform_FieldTransform_TransformType_OneOfCase_NumericAdd = 3,
   GCFSDocumentTransform_FieldTransform_TransformType_OneOfCase_AppendMissingElements = 6,
   GCFSDocumentTransform_FieldTransform_TransformType_OneOfCase_RemoveAllFromArray_p = 7,
 };
@@ -229,6 +231,20 @@ typedef GPB_ENUM(GCFSDocumentTransform_FieldTransform_TransformType_OneOfCase) {
 
 /** Sets the field to the given server value. */
 @property(nonatomic, readwrite) GCFSDocumentTransform_FieldTransform_ServerValue setToServerValue;
+
+/**
+ * Adds the given value to the field's current value.
+ *
+ * This must be an integer or a double value.
+ * If the field is not an integer or double, or if the field does not yet
+ * exist, the transformation will set the field to the given value.
+ * If either of the given value or the current field value are doubles,
+ * both values will be interpreted as doubles. Double arithmetic and
+ * representation of double values follow IEEE 754 semantics.
+ * If there is positive/negative integer overflow, the field is resolved
+ * to the largest magnitude positive/negative integer.
+ **/
+@property(nonatomic, readwrite, strong, null_resettable) GCFSValue *numericAdd;
 
 /**
  * Append the given elements in order if they are not already present in
