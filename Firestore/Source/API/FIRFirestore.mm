@@ -81,15 +81,12 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 @end
 
 @implementation FIRFirestore {
+  // Ownership will be transferred to `FSTFirestoreClient` as soon as the client is created.
   std::unique_ptr<AsyncQueue> _workerQueue;
 
   // All guarded by @synchronized(self)
   FIRFirestoreSettings *_settings;
   FSTFirestoreClient *_client;
-}
-
-- (AsyncQueue *)workerQueue {
-  return _workerQueue.get();
 }
 
 + (NSMutableDictionary<NSString *, FIRFirestore *> *)instances {
@@ -267,7 +264,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
                                             usePersistence:_settings.persistenceEnabled
                                        credentialsProvider:_credentialsProvider.get()
                                               userExecutor:std::move(userExecutor)
-                                               workerQueue:_workerQueue.get()];
+                                               workerQueue:std::move(_workerQueue)];
     }
   }
 }

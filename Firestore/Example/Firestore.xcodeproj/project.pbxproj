@@ -206,6 +206,8 @@
 		B67BF44A216EB43000CA9097 /* create_noop_connectivity_monitor.cc in Sources */ = {isa = PBXBuildFile; fileRef = B67BF448216EB43000CA9097 /* create_noop_connectivity_monitor.cc */; };
 		B686F2AF2023DDEE0028D6BE /* field_path_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B686F2AD2023DDB20028D6BE /* field_path_test.cc */; };
 		B686F2B22025000D0028D6BE /* resource_path_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B686F2B02024FFD70028D6BE /* resource_path_test.cc */; };
+		B69CF05C219B9106004C434D /* FSTFirestoreClient+Testing.mm in Sources */ = {isa = PBXBuildFile; fileRef = B69CF058219B9105004C434D /* FSTFirestoreClient+Testing.mm */; };
+		B69CF05D219B9106004C434D /* FIRFirestore+Testing.mm in Sources */ = {isa = PBXBuildFile; fileRef = B69CF059219B9105004C434D /* FIRFirestore+Testing.mm */; };
 		B6BBE43121262CF400C6A53E /* grpc_stream_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6BBE42F21262CF400C6A53E /* grpc_stream_test.cc */; };
 		B6D1B68520E2AB1B00B35856 /* exponential_backoff_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6D1B68420E2AB1A00B35856 /* exponential_backoff_test.cc */; };
 		B6D9649121544D4F00EB9CFB /* grpc_connection_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6D9649021544D4F00EB9CFB /* grpc_connection_test.cc */; };
@@ -307,7 +309,7 @@
 		2A0CF41BA5AED6049B0BEB2C /* type_traits_apple_test.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; path = type_traits_apple_test.mm; sourceTree = "<group>"; };
 		2B50B3A0DF77100EEE887891 /* Pods_Firestore_Tests_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_Tests_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		332485C4DCC6BA0DBB5E31B7 /* leveldb_util_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = leveldb_util_test.cc; sourceTree = "<group>"; };
-		353EEE078EF3F39A9B7279F6 /* nanopb_string_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; name = nanopb_string_test.cc; path = nanopb/nanopb_string_test.cc; sourceTree = "<group>"; };
+		353EEE078EF3F39A9B7279F6 /* nanopb_string_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = nanopb_string_test.cc; path = nanopb/nanopb_string_test.cc; sourceTree = "<group>"; };
 		358C3B5FE573B1D60A4F7592 /* strerror_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = strerror_test.cc; sourceTree = "<group>"; };
 		3B843E4A1F3930A400548890 /* remote_store_spec_test.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = remote_store_spec_test.json; sourceTree = "<group>"; };
 		3C81DE3772628FE297055662 /* Pods-Firestore_Example_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Example_iOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Example_iOS/Pods-Firestore_Example_iOS.debug.xcconfig"; sourceTree = "<group>"; };
@@ -524,6 +526,10 @@
 		B67BF448216EB43000CA9097 /* create_noop_connectivity_monitor.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = create_noop_connectivity_monitor.cc; sourceTree = "<group>"; };
 		B686F2AD2023DDB20028D6BE /* field_path_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = field_path_test.cc; sourceTree = "<group>"; };
 		B686F2B02024FFD70028D6BE /* resource_path_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = resource_path_test.cc; sourceTree = "<group>"; };
+		B69CF058219B9105004C434D /* FSTFirestoreClient+Testing.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "FSTFirestoreClient+Testing.mm"; sourceTree = "<group>"; };
+		B69CF059219B9105004C434D /* FIRFirestore+Testing.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "FIRFirestore+Testing.mm"; sourceTree = "<group>"; };
+		B69CF05A219B9105004C434D /* FIRFirestore+Testing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "FIRFirestore+Testing.h"; sourceTree = "<group>"; };
+		B69CF05B219B9105004C434D /* FSTFirestoreClient+Testing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "FSTFirestoreClient+Testing.h"; sourceTree = "<group>"; };
 		B6BBE42F21262CF400C6A53E /* grpc_stream_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = grpc_stream_test.cc; sourceTree = "<group>"; };
 		B6D1B68420E2AB1A00B35856 /* exponential_backoff_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = exponential_backoff_test.cc; sourceTree = "<group>"; };
 		B6D9649021544D4F00EB9CFB /* grpc_connection_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = grpc_connection_test.cc; sourceTree = "<group>"; };
@@ -1159,6 +1165,10 @@
 		DE51B1851F0D48AC0013853F /* Util */ = {
 			isa = PBXGroup;
 			children = (
+				B69CF05A219B9105004C434D /* FIRFirestore+Testing.h */,
+				B69CF059219B9105004C434D /* FIRFirestore+Testing.mm */,
+				B69CF05B219B9105004C434D /* FSTFirestoreClient+Testing.h */,
+				B69CF058219B9105004C434D /* FSTFirestoreClient+Testing.mm */,
 				54E9281C1F33950B00C1953E /* FSTEventAccumulator.h */,
 				5492E0392021401F00B64F25 /* FSTEventAccumulator.mm */,
 				DE51B1881F0D48AC0013853F /* FSTHelpers.h */,
@@ -2023,6 +2033,7 @@
 			files = (
 				73866AA12082B0A5009BB4FF /* FIRArrayTransformTests.mm in Sources */,
 				5492E079202154D600B64F25 /* FIRCursorTests.mm in Sources */,
+				B69CF05D219B9106004C434D /* FIRFirestore+Testing.mm in Sources */,
 				5492E075202154D600B64F25 /* FIRDatabaseTests.mm in Sources */,
 				5492E073202154D600B64F25 /* FIRFieldsTests.mm in Sources */,
 				6161B5032047140C00A99DBB /* FIRFirestoreSourceTests.mm in Sources */,
@@ -2038,6 +2049,7 @@
 				5491BC731FB44593008B3588 /* FSTIntegrationTestCase.mm in Sources */,
 				5492E080202154EC00B64F25 /* FSTSmokeTests.mm in Sources */,
 				5492E07F202154EC00B64F25 /* FSTTransactionTests.mm in Sources */,
+				B69CF05C219B9106004C434D /* FSTFirestoreClient+Testing.mm in Sources */,
 				5492E0442021457E00B64F25 /* XCTestCase+Await.mm in Sources */,
 				B67BF44A216EB43000CA9097 /* create_noop_connectivity_monitor.cc in Sources */,
 				EBFC611B1BF195D0EC710AF4 /* app_testing.mm in Sources */,
