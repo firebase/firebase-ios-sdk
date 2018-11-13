@@ -13,8 +13,10 @@
 // limitations under the License.
 
 #import <XCTest/XCTest.h>
+#import <objc/runtime.h>
 
 #import <GoogleUtilities/GULObjectSwizzler.h>
+#import <GoogleUtilities/GULProxy.h>
 #import <GoogleUtilities/GULSwizzledObject.h>
 
 @interface GULObjectSwizzlerTest : XCTestCase
@@ -22,6 +24,16 @@
 @end
 
 @implementation GULObjectSwizzlerTest
+
+/** Used as a donor method to add a method that doesn't exist on the superclass. */
+- (NSString *)donorDescription {
+  return @"SwizzledDonorDescription";
+}
+
+/** Used as a donor method to add a method that exists on the superclass. */
+- (NSString *)description {
+  return @"SwizzledDescription";
+}
 
 /** Exists just as a donor method. */
 - (void)donorMethod {
@@ -226,6 +238,7 @@
   XCTAssertEqualObjects(returnedObject, associatedObject);
 }
 
+/** Tests getting and setting an associated object with an invalid association type. */
 - (void)testSetGetAssociatedObjectWithoutProperAssociation {
   NSObject *object = [[NSObject alloc] init];
   NSDictionary *associatedObject = [[NSDictionary alloc] init];
@@ -233,6 +246,107 @@
   [swizzler setAssociatedObjectWithKey:@"key" value:associatedObject association:1337];
   NSDictionary *returnedObject = [swizzler getAssociatedObjectForKey:@"key"];
   XCTAssertEqualObjects(returnedObject, associatedObject);
+}
+
+/** Tests using the GULObjectSwizzler to swizzle an object wrapped in an NSProxy. */
+- (void)testSwizzleProxiedObject {
+  NSObject *object = [[NSObject alloc] init];
+  GULProxy *proxyObject = [GULProxy proxyWithDelegate:object];
+  GULObjectSwizzler *swizzler = [[GULObjectSwizzler alloc] initWithObject:proxyObject];
+
+  XCTAssertNoThrow([swizzler swizzle]);
+
+  XCTAssertNotEqual(object_getClass(proxyObject), [GULProxy class]);
+  XCTAssertTrue([object_getClass(proxyObject) isSubclassOfClass:[GULProxy class]]);
+
+  XCTAssertTrue([proxyObject respondsToSelector:@selector(gul_objectSwizzler)]);
+  XCTAssertNoThrow([proxyObject performSelector:@selector(gul_objectSwizzler)]);
+
+  XCTAssertTrue([proxyObject respondsToSelector:@selector(gul_class)]);
+  XCTAssertNoThrow([proxyObject performSelector:@selector(gul_class)]);
+}
+
+/** Tests overriding a method that already exists on a proxied object works as expected. */
+- (void)testSwizzleProxiedObjectInvokesInjectedMethodWhenOverridingMethod {
+  NSObject *object = [[NSObject alloc] init];
+  GULProxy *proxyObject = [GULProxy proxyWithDelegate:object];
+
+  GULObjectSwizzler *swizzler = [[GULObjectSwizzler alloc] initWithObject:proxyObject];
+  [swizzler copySelector:@selector(description)
+               fromClass:[GULObjectSwizzlerTest class]
+         isClassSelector:NO];
+  [swizzler swizzle];
+
+  XCTAssertEqual([proxyObject performSelector:@selector(description)], @"SwizzledDescription");
+}
+
+/** Tests adding a method that doesn't exist on a proxied object works as expected. */
+- (void)testSwizzleProxiedObjectInvokesInjectedMethodWhenAddingMethod {
+  NSObject *object = [[NSObject alloc] init];
+  GULProxy *proxyObject = [GULProxy proxyWithDelegate:object];
+
+  GULObjectSwizzler *swizzler = [[GULObjectSwizzler alloc] initWithObject:proxyObject];
+  [swizzler copySelector:@selector(donorDescription)
+               fromClass:[GULObjectSwizzlerTest class]
+         isClassSelector:NO];
+  [swizzler swizzle];
+
+  XCTAssertEqual([proxyObject performSelector:@selector(donorDescription)],
+                 @"SwizzledDonorDescription");
+}
+
+/** Tests KVOing a proxy object that we've ISA Swizzled works as expected. */
+- (void)testRespondsToSelectorWorksEvenIfSwizzledProxyIsKVOd {
+  NSObject *object = [[NSObject alloc] init];
+  GULProxy *proxyObject = [GULProxy proxyWithDelegate:object];
+
+  GULObjectSwizzler *swizzler = [[GULObjectSwizzler alloc] initWithObject:proxyObject];
+  [swizzler copySelector:@selector(donorDescription)
+               fromClass:[GULObjectSwizzlerTest class]
+         isClassSelector:NO];
+  [swizzler swizzle];
+
+  [(NSObject *)proxyObject addObserver:self
+                            forKeyPath:NSStringFromSelector(@selector(description))
+                               options:0
+                               context:NULL];
+
+  XCTAssertTrue([proxyObject respondsToSelector:@selector(donorDescription)]);
+  XCTAssertEqual([proxyObject performSelector:@selector(donorDescription)],
+                 @"SwizzledDonorDescription");
+
+  [(NSObject *)proxyObject removeObserver:self
+                               forKeyPath:NSStringFromSelector(@selector(description))];
+}
+
+/** Tests that -[NSObjectProtocol resopondsToSelector:] works as expected after someone else ISA
+ *  swizzles a proxy object that we've also ISA Swizzled.
+ */
+- (void)testRespondsToSelectorWorksEvenIfSwizzledProxyISASwizzledBySomeoneElse {
+  NSObject *object = [[NSObject alloc] init];
+  GULProxy *proxyObject = [GULProxy proxyWithDelegate:object];
+
+  GULObjectSwizzler *swizzler = [[GULObjectSwizzler alloc] initWithObject:proxyObject];
+  [swizzler copySelector:@selector(donorDescription)
+               fromClass:[GULObjectSwizzlerTest class]
+         isClassSelector:NO];
+  [swizzler swizzle];
+
+  // Someone else ISA Swizzles the same object after GULObjectSwizzler.
+  Class originalClass = object_getClass(proxyObject);
+  NSString *newClassName =
+      [NSString stringWithFormat:@"gul_test_%p_%@", proxyObject, NSStringFromClass(originalClass)];
+  Class generatedClass = objc_allocateClassPair(originalClass, newClassName.UTF8String, 0);
+  objc_registerClassPair(generatedClass);
+  object_setClass(proxyObject, generatedClass);
+
+  XCTAssertTrue([proxyObject respondsToSelector:@selector(donorDescription)]);
+  XCTAssertEqual([proxyObject performSelector:@selector(donorDescription)],
+                 @"SwizzledDonorDescription");
+
+  // Clean up.
+  object_setClass(proxyObject, originalClass);
+  objc_disposeClassPair(generatedClass);
 }
 
 @end
