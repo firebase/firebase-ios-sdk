@@ -129,9 +129,9 @@ typedef GPB_ENUM(FSTPBWriteBatch_FieldNumber) {
 @property(nonatomic, readwrite) BOOL hasLocalWriteTime;
 
 /**
- * A list of "writes" that represent a partial base state from when this
- * write batch was initially created. During local application of the write
- * batch, these base_writes are applied prior to the real writes in order to
+ * A list of pseudo-writes that represent a partial base state from when this
+ * write batch was initially created. When computing the local view batch,
+ * these base_writes are applied prior to the real writes in order to
  * override certain document fields from the remote document cache. This is
  * necessary in the case of non-idempotent writes (e.g. numericAdd
  * transforms) to make sure that the local view of the modified documents
