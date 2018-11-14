@@ -284,35 +284,36 @@ class LimboResolution {
   HARD_ASSERT(retries >= 0, "Got negative number of retries for transaction");
   FSTTransaction *transaction = [self.remoteStore transaction];
   updateBlock(transaction, ^(id _Nullable result, NSError *_Nullable error) {
-    workerQueue->Enqueue([=] {
-      if (error) {
-        completion(nil, error);
-        return;
-      }
-      [transaction commitWithCompletion:^(NSError *_Nullable transactionError) {
-        if (!transactionError) {
-          completion(result, nil);
-          return;
-        }
-        // TODO(b/35201829): Only retry on real transaction failures.
-        if (retries == 0) {
-          NSError *wrappedError =
-              [NSError errorWithDomain:FIRFirestoreErrorDomain
-                                  code:FIRFirestoreErrorCodeFailedPrecondition
-                              userInfo:@{
-                                NSLocalizedDescriptionKey : @"Transaction failed all retries.",
-                                NSUnderlyingErrorKey : transactionError
-                              }];
-          completion(nil, wrappedError);
-          return;
-        }
-        workerQueue->VerifyIsCurrentQueue();
-        return [self transactionWithRetries:(retries - 1)
-                                workerQueue:workerQueue
-                                updateBlock:updateBlock
-                                 completion:completion];
-      }];
-    });
+    workerQueue->Enqueue(
+        [self, retries, workerQueue, updateBlock, completion, transaction, result, error] {
+          if (error) {
+            completion(nil, error);
+            return;
+          }
+          [transaction commitWithCompletion:^(NSError *_Nullable transactionError) {
+            if (!transactionError) {
+              completion(result, nil);
+              return;
+            }
+            // TODO(b/35201829): Only retry on real transaction failures.
+            if (retries == 0) {
+              NSError *wrappedError =
+                  [NSError errorWithDomain:FIRFirestoreErrorDomain
+                                      code:FIRFirestoreErrorCodeFailedPrecondition
+                                  userInfo:@{
+                                    NSLocalizedDescriptionKey : @"Transaction failed all retries.",
+                                    NSUnderlyingErrorKey : transactionError
+                                  }];
+              completion(nil, wrappedError);
+              return;
+            }
+            workerQueue->VerifyIsCurrentQueue();
+            return [self transactionWithRetries:(retries - 1)
+                                    workerQueue:workerQueue
+                                    updateBlock:updateBlock
+                                     completion:completion];
+          }];
+        });
   });
 }
 

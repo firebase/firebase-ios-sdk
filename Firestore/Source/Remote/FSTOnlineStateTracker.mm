@@ -94,7 +94,7 @@ const AsyncQueue::Milliseconds kOnlineStateTimeout = chr::seconds(10);
 
     HARD_ASSERT(!_onlineStateTimer, "_onlineStateTimer shouldn't be started yet");
     _onlineStateTimer =
-        _workerQueue->EnqueueAfterDelay(kOnlineStateTimeout, TimerId::OnlineStateTimeout, [=] {
+        _workerQueue->EnqueueAfterDelay(kOnlineStateTimeout, TimerId::OnlineStateTimeout, [self] {
           _onlineStateTimer = {};
           HARD_ASSERT(self.state == OnlineState::Unknown,
                       "Timer should be canceled if we transitioned to a different state.");

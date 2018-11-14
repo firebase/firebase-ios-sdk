@@ -144,7 +144,10 @@ NS_ASSUME_NONNULL_BEGIN
         initialized = true;
         userPromise->set_value(user);
       } else {
-        strongSelf->_workerQueue->Enqueue([=] { [strongSelf credentialDidChangeWithUser:user]; });
+        strongSelf->_workerQueue->Enqueue([weakSelf, user] {
+          __typeof__(self) strongSelf = weakSelf;
+          [strongSelf credentialDidChangeWithUser:user];
+        });
       }
     };
 
@@ -153,7 +156,7 @@ NS_ASSUME_NONNULL_BEGIN
     // Defer initialization until we get the current user from the credentialChangeListener. This is
     // guaranteed to be synchronously dispatched onto our worker queue, so we will be initialized
     // before any subsequently queued work runs.
-    _workerQueue->Enqueue([=] {
+    _workerQueue->Enqueue([self, userPromise, usePersistence] {
       User user = userPromise->get_future().get();
       [self initializeWithUser:user usePersistence:usePersistence];
     });
@@ -232,7 +235,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)disableNetworkWithCompletion:(nullable FSTVoidErrorBlock)completion {
-  _workerQueue->Enqueue([=] {
+  _workerQueue->Enqueue([self, completion] {
     [self.remoteStore disableNetwork];
     if (completion) {
       self->_userExecutor->Execute([=] { completion(nil); });
@@ -241,7 +244,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)enableNetworkWithCompletion:(nullable FSTVoidErrorBlock)completion {
-  _workerQueue->Enqueue([=] {
+  _workerQueue->Enqueue([self, completion] {
     [self.remoteStore enableNetwork];
     if (completion) {
       self->_userExecutor->Execute([=] { completion(nil); });
@@ -250,7 +253,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)shutdownWithCompletion:(nullable FSTVoidErrorBlock)completion {
-  _workerQueue->Enqueue([=] {
+  _workerQueue->Enqueue([self, completion] {
     self->_credentialsProvider->SetCredentialChangeListener(nullptr);
 
     [self.remoteStore shutdown];
@@ -268,19 +271,19 @@ NS_ASSUME_NONNULL_BEGIN
                                                                options:options
                                                    viewSnapshotHandler:viewSnapshotHandler];
 
-  _workerQueue->Enqueue([=] { [self.eventManager addListener:listener]; });
+  _workerQueue->Enqueue([self, listener] { [self.eventManager addListener:listener]; });
 
   return listener;
 }
 
 - (void)removeListener:(FSTQueryListener *)listener {
-  _workerQueue->Enqueue([=] { [self.eventManager removeListener:listener]; });
+  _workerQueue->Enqueue([self, listener] { [self.eventManager removeListener:listener]; });
 }
 
 - (void)getDocumentFromLocalCache:(FIRDocumentReference *)doc
                        completion:(void (^)(FIRDocumentSnapshot *_Nullable document,
                                             NSError *_Nullable error))completion {
-  _workerQueue->Enqueue([=] {
+  _workerQueue->Enqueue([self, doc, completion] {
     FSTMaybeDocument *maybeDoc = [self.localStore readDocument:doc.key];
     FIRDocumentSnapshot *_Nullable result = nil;
     NSError *_Nullable error = nil;
@@ -319,7 +322,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)getDocumentsFromLocalCache:(FIRQuery *)query
                         completion:(void (^)(FIRQuerySnapshot *_Nullable query,
                                              NSError *_Nullable error))completion {
-  _workerQueue->Enqueue([=] {
+  _workerQueue->Enqueue([self, query, completion] {
     FSTDocumentDictionary *docs = [self.localStore executeQuery:query.query];
 
     FSTView *view = [[FSTView alloc] initWithQuery:query.query remoteDocuments:DocumentKeySet{}];
@@ -346,7 +349,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)writeMutations:(NSArray<FSTMutation *> *)mutations
             completion:(nullable FSTVoidErrorBlock)completion {
-  _workerQueue->Enqueue([=] {
+  _workerQueue->Enqueue([self, mutations, completion] {
     if (mutations.count == 0) {
       if (completion) {
         self->_userExecutor->Execute([=] { completion(nil); });
@@ -366,7 +369,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)transactionWithRetries:(int)retries
                    updateBlock:(FSTTransactionBlock)updateBlock
                     completion:(FSTVoidIDErrorBlock)completion {
-  _workerQueue->Enqueue([=] {
+  _workerQueue->Enqueue([self, retries, updateBlock, completion] {
     [self.syncEngine
         transactionWithRetries:retries
                    workerQueue:_workerQueue.get()
