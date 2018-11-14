@@ -22,11 +22,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 typedef void (^GULNetworkCompletionHandler)(NSHTTPURLResponse *_Nullable response,
                                             NSData *_Nullable data,
-                                            NSError *error);
-typedef void (^GULNetworkURLSessionCompletionHandler)(NSHTTPURLResponse *response,
-                                                      NSData *data,
+                                            NSError *_Nullable error);
+typedef void (^GULNetworkURLSessionCompletionHandler)(NSHTTPURLResponse *_Nullable response,
+                                                      NSData *_Nullable data,
                                                       NSString *sessionID,
-                                                      NSError *error);
+                                                      NSError *_Nullable error);
 typedef void (^GULNetworkSystemCompletionHandler)(void);
 
 /// The protocol that uses NSURLSession for iOS >= 7.0 to handle requests and responses.
