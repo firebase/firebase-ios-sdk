@@ -35,6 +35,7 @@ typedef NS_ENUM(NSInteger, FDLLogIdentifier) {
   FDLLogIdentifierSetupNonDefaultApp = 2,
   FDLLogIdentifierSetupInvalidDomainURIPrefixScheme = 3,
   FDLLogIdentifierSetupInvalidDomainURIPrefix = 4,
+  FDLLogIdentifierSetupWarnHttpsScheme = 5,
 };
 
 /** The appropriate formatter for using NSInteger in FIRLogger. */
