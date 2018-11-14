@@ -16,8 +16,6 @@
 
 #import "Firestore/Source/Core/FSTSyncEngine.h"
 
-#import <GRPCClient/GRPCCall.h>
-
 #include <map>
 #include <set>
 #include <unordered_map>

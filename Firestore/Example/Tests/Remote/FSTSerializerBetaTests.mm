@@ -21,7 +21,6 @@
 #import <FirebaseFirestore/FIRFirestoreErrors.h>
 #import <FirebaseFirestore/FIRGeoPoint.h>
 #import <FirebaseFirestore/FIRTimestamp.h>
-#import <GRPCClient/GRPCCall.h>
 #import <XCTest/XCTest.h>
 
 #include <vector>

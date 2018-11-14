@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/API/FIRFirestoreVersion.h"
+#import <Foundation/Foundation.h>
 
-#include "Firestore/core/include/firebase/firestore/firestore_version.h"
+/** An example NSProxy that could be used to wrap an object that we have to ISA Swizzle. */
+@interface GULProxy : NSProxy
 
-using firebase::firestore::kFirestoreVersionString;
++ (instancetype)proxyWithDelegate:(id)delegate;
 
-// Because `kFirestoreVersionString` is subject to constant initialization, this
-// is not affected by static initialization order fiasco.
-extern "C" const unsigned char *const FIRFirestoreVersionString =
-    (const unsigned char *const)kFirestoreVersionString;
+@end

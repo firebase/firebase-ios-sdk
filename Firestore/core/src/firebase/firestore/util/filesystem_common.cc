@@ -16,7 +16,11 @@
 
 #include "Firestore/core/src/firebase/firestore/util/filesystem_detail.h"
 
+#include <fstream>
+#include <sstream>
+
 #include "Firestore/core/src/firebase/firestore/util/filesystem.h"
+#include "Firestore/core/src/firebase/firestore/util/string_format.h"
 
 using firebase::firestore::util::Path;
 
@@ -80,6 +84,21 @@ Status RecursivelyDelete(const Path& path) {
     default:
       return status;
   }
+}
+
+StatusOr<std::string> ReadFile(const Path& path) {
+  std::ifstream file{path.native_value()};
+  if (!file) {
+    // TODO(varconst): more error details. This will require platform-specific
+    // code, because `<iostream>` may not update `errno`.
+    return Status{FirestoreErrorCode::Unknown,
+                  StringFormat("File at path '%s' cannot be opened",
+                               path.ToUtf8String())};
+  }
+
+  std::stringstream buffer;
+  buffer << file.rdbuf();
+  return buffer.str();
 }
 
 }  // namespace util

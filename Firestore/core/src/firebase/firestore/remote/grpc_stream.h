@@ -191,12 +191,16 @@ class GrpcStream : public GrpcCall {
   void OnRead(const grpc::ByteBuffer& message);
   void OnWrite();
   void OnOperationFailed();
-  void OnFinishedByServer(const grpc::Status& status);
   void RemoveCompletion(const GrpcCompletion* to_remove);
 
   using OnSuccess = std::function<void(const GrpcCompletion*)>;
   GrpcCompletion* NewCompletion(GrpcCompletion::Type type,
                                 const OnSuccess& callback);
+  // Finishes the underlying gRPC call. Must always be invoked on any call that
+  // was started. Presumes that any pending completions will quickly come off
+  // the queue and will block until they do, so this must only be invoked when
+  // the current call either failed (`OnOperationFailed`) or canceled.
+  void FinishCall(const OnSuccess& callback);
 
   // Blocks until all the completions issued by this stream come out from the
   // gRPC completion queue. Once they do, it is safe to delete this `GrpcStream`
@@ -227,8 +231,6 @@ class GrpcStream : public GrpcCall {
   internal::BufferedWriter buffered_writer_;
 
   std::vector<GrpcCompletion*> completions_;
-
-  bool is_finishing_ = false;
 };
 
 }  // namespace remote
