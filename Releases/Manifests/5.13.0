@@ -1,0 +1,6 @@
+{
+  "FirebaseCore":"5.1.8",
+  "FirebaseDynamicLinks":"3.2.0",
+  "FirebaseFirestore":"0.15.0",
+  "FirebaseInAppMessagingDisplay":"0.12.2"
+}
