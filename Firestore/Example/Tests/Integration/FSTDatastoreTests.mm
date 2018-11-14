@@ -218,6 +218,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTSetMutation *mutation = [self setMutation];
   FSTMutationBatch *batch = [[FSTMutationBatch alloc] initWithBatchID:23
                                                        localWriteTime:[FIRTimestamp timestamp]
+                                                        baseMutations:@[]
                                                             mutations:@[ mutation ]];
   [_testWorkerQueue dispatchAsync:^{
     [_remoteStore addBatchToWritePipeline:batch];

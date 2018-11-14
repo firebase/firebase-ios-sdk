@@ -264,10 +264,11 @@ FSTPatchMutation *FSTTestPatchMutation(const absl::string_view path,
 
   DocumentKey key = testutil::Key(path);
   FieldMask mask(merge ? updateMask : fieldMaskPaths);
-  return [[FSTPatchMutation alloc] initWithKey:key
-                                     fieldMask:mask
-                                         value:objectValue
-                                  precondition:Precondition::Exists(true)];
+  return [[FSTPatchMutation alloc]
+       initWithKey:key
+         fieldMask:mask
+             value:objectValue
+      precondition:merge ? Precondition::None() : Precondition::Exists(true)];
 }
 
 FSTTransformMutation *FSTTestTransformMutation(NSString *path, NSDictionary<NSString *, id> *data) {

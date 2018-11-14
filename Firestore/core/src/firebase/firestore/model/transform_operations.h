@@ -44,6 +44,7 @@ class TransformOperation {
     ServerTimestamp,
     ArrayUnion,
     ArrayRemove,
+    Increment,
     Test,  // Purely for test purpose.
   };
 
@@ -66,6 +67,9 @@ class TransformOperation {
    */
   virtual FSTFieldValue* ApplyToRemoteDocument(
       FSTFieldValue* previousValue, FSTFieldValue* transformResult) const = 0;
+
+  /** Returns whether this field transform is idempotent. */
+  virtual bool idempotent() const = 0;
 
   /** Returns whether the two are equal. */
   virtual bool operator==(const TransformOperation& other) const = 0;
@@ -101,6 +105,10 @@ class ServerTimestampTransform : public TransformOperation {
       FSTFieldValue* /* previousValue */,
       FSTFieldValue* transformResult) const override {
     return transformResult;
+  }
+
+  bool idempotent() const override {
+    return true;
   }
 
   bool operator==(const TransformOperation& other) const override {
@@ -160,6 +168,10 @@ class ArrayTransform : public TransformOperation {
 
   const std::vector<FSTFieldValue*>& elements() const {
     return elements_;
+  }
+
+  bool idempotent() const override {
+    return true;
   }
 
   bool operator==(const TransformOperation& other) const override {
@@ -230,6 +242,116 @@ class ArrayTransform : public TransformOperation {
       }
     }
     return [[FSTArrayValue alloc] initWithValueNoCopy:result];
+  }
+};
+
+/**
+ * Implements the backend semantics for locally computed NUMERIC_ADD (increment)
+ * transforms. Converts all field values to longs or doubles and resolves
+ * overflows to LONG_MAX/LONG_MIN.
+ */
+class NumericIncrementTransform : public TransformOperation {
+ public:
+  NumericIncrementTransform(FSTNumberValue* operand)
+      : operand_(std::move(operand)) {
+  }
+
+  ~NumericIncrementTransform() override {
+  }
+
+  Type type() const override {
+    return Type::Increment;
+  }
+
+  FSTFieldValue* ApplyToLocalView(
+      FSTFieldValue* previousValue,
+      FIRTimestamp* /* localWriteTime */) const override {
+    // Return an integer value only if the previous value and the operand is an
+    // integer.
+    if ([previousValue isKindOfClass:[FSTIntegerValue class]] &&
+        [operand_ isKindOfClass:[FSTIntegerValue class]]) {
+      int64_t sum = SafeIncrement(
+          (reinterpret_cast<FSTIntegerValue*>(previousValue)).internalValue,
+          (reinterpret_cast<FSTIntegerValue*>(operand_)).internalValue);
+      return [FSTIntegerValue integerValue:sum];
+    } else if ([previousValue isKindOfClass:[FSTIntegerValue class]]) {
+      double sum =
+          (reinterpret_cast<FSTIntegerValue*>(previousValue)).internalValue +
+          OperandAsDouble();
+      return [FSTDoubleValue doubleValue:sum];
+    } else if ([previousValue isKindOfClass:[FSTDoubleValue class]]) {
+      double sum =
+          (reinterpret_cast<FSTDoubleValue*>(previousValue)).internalValue +
+          OperandAsDouble();
+      return [FSTDoubleValue doubleValue:sum];
+    } else {
+      // If the existing value is not a number, use the value of the transform
+      // as the new base value.
+      return operand_;
+    }
+  }
+
+  FSTFieldValue* ApplyToRemoteDocument(
+      FSTFieldValue* previousValue,
+      FSTFieldValue* transformResult) const override {
+    return transformResult;
+  }
+
+  FSTNumberValue* operand() const {
+    return operand_;
+  }
+
+  bool idempotent() const override {
+    return false;
+  }
+
+  bool operator==(const TransformOperation& other) const override {
+    if (other.type() != type()) {
+      return false;
+    }
+    auto numeric_add = static_cast<const NumericIncrementTransform&>(other);
+    return [operand_ isEqual:numeric_add.operand_];
+  }
+
+  // For Objective-C++ hash; to be removed after migration.
+  // Do NOT use in C++ code.
+  NSUInteger Hash() const override {
+    NSUInteger result = 37;
+    result = 31 * result + [operand_ hash];
+    return result;
+  }
+
+ private:
+  FSTNumberValue* operand_;
+
+  /**
+   * Implements integer addition. Overflows are resolved to LONG_MAX/LONG_MIN.
+   */
+  int64_t SafeIncrement(int64_t x, int64_t y) const {
+    int64_t r = x + y;
+
+    // See "Hacker's Delight" 2-12: Overflow if both arguments have the opposite
+    // sign of the result
+    if (((x ^ r) & (y ^ r)) >= 0) {
+      return r;
+    }
+
+    if (r >= 0L) {
+      return LONG_MIN;
+    } else {
+      return LONG_MAX;
+    }
+  }
+
+  double OperandAsDouble() const {
+    if ([operand_ isKindOfClass:[FSTDoubleValue class]]) {
+      return (reinterpret_cast<FSTDoubleValue*>(operand_)).internalValue;
+    } else if ([operand_ isKindOfClass:[FSTIntegerValue class]]) {
+      return (reinterpret_cast<FSTIntegerValue*>(operand_)).internalValue;
+    } else {
+      HARD_FAIL("Expected 'operand' to be of FSTNumerValue type, but was %s",
+                NSStringFromClass([operand_ class]));
+    }
   }
 };
 

@@ -143,6 +143,7 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
 }
 
 - (FSTMutationBatch *)addMutationBatchWithWriteTime:(FIRTimestamp *)localWriteTime
+                                      baseMutations:(NSArray<FSTMutation *> *)baseMutations
                                           mutations:(NSArray<FSTMutation *> *)mutations {
   HARD_ASSERT(mutations.count > 0, "Mutation batches should not be empty");
 
@@ -158,6 +159,7 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
 
   FSTMutationBatch *batch = [[FSTMutationBatch alloc] initWithBatchID:batchID
                                                        localWriteTime:localWriteTime
+                                                        baseMutations:baseMutations
                                                             mutations:mutations];
   [queue addObject:batch];
 

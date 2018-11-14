@@ -18,6 +18,8 @@
 
 #include <unordered_map>
 
+#import "Firestore/Source/Model/FSTDocumentDictionary.h"
+
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
@@ -57,9 +59,13 @@ extern const firebase::firestore::model::BatchId kFSTBatchIDUnknown;
  */
 @interface FSTMutationBatch : NSObject
 
-/** Initializes a mutation batch with the given batchID, localWriteTime, and mutations. */
+/**
+ * Initializes a mutation batch with the given batchID, localWriteTime, base mutations, and
+ * mutations.
+ */
 - (instancetype)initWithBatchID:(firebase::firestore::model::BatchId)batchID
                  localWriteTime:(FIRTimestamp *)localWriteTime
+                  baseMutations:(NSArray<FSTMutation *> *)baseMutations
                       mutations:(NSArray<FSTMutation *> *)mutations NS_DESIGNATED_INITIALIZER;
 
 - (id)init NS_UNAVAILABLE;
@@ -87,11 +93,29 @@ extern const firebase::firestore::model::BatchId kFSTBatchIDUnknown;
     applyToLocalDocument:(FSTMaybeDocument *_Nullable)maybeDoc
              documentKey:(const firebase::firestore::model::DocumentKey &)documentKey;
 
+/** Computes the local view for all provided documents given the mutations in this batch. */
+- (FSTMaybeDocumentDictionary *)applyToLocalDocumentSet:(FSTMaybeDocumentDictionary *)documentSet;
+
 /** Returns the set of unique keys referenced by all mutations in the batch. */
 - (firebase::firestore::model::DocumentKeySet)keys;
 
+/** The unique ID of this mutation batch. */
 @property(nonatomic, assign, readonly) firebase::firestore::model::BatchId batchID;
+
+/** The original write time of this mutation. */
 @property(nonatomic, strong, readonly) FIRTimestamp *localWriteTime;
+
+/**
+ * Mutations that are used to populate the base values when this mutation is applied locally. This
+ * can be used to locally overwrite values that are persisted in the remote document cache. Base
+ * mutations are never sent to the backend.
+ */
+@property(nonatomic, strong, readonly) NSArray<FSTMutation *> *baseMutations;
+
+/**
+ * The user-provided mutations in this mutation batch. User-provided mutations are applied both
+ * locally and remotely on the backend.
+ */
 @property(nonatomic, strong, readonly) NSArray<FSTMutation *> *mutations;
 
 @end

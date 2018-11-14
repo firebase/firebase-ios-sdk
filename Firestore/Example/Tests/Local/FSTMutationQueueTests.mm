@@ -232,6 +232,7 @@ NS_ASSUME_NONNULL_BEGIN
     for (FSTMutation *mutation in mutations) {
       FSTMutationBatch *batch =
           [self.mutationQueue addMutationBatchWithWriteTime:[FIRTimestamp timestamp]
+                                              baseMutations:@[]
                                                   mutations:@[ mutation ]];
       [batches addObject:batch];
     }
@@ -268,6 +269,7 @@ NS_ASSUME_NONNULL_BEGIN
     for (FSTMutation *mutation in mutations) {
       FSTMutationBatch *batch =
           [self.mutationQueue addMutationBatchWithWriteTime:[FIRTimestamp timestamp]
+                                              baseMutations:@[]
                                                   mutations:@[ mutation ]];
       [batches addObject:batch];
     }
@@ -297,10 +299,13 @@ NS_ASSUME_NONNULL_BEGIN
     ];
     FSTMutationBatch *batch1 =
         [self.mutationQueue addMutationBatchWithWriteTime:[FIRTimestamp timestamp]
+                                            baseMutations:@[]
                                                 mutations:group1];
 
     NSArray<FSTMutation *> *group2 = @[ FSTTestSetMutation(@"food/bar", @{@"a" : @1}) ];
-    [self.mutationQueue addMutationBatchWithWriteTime:[FIRTimestamp timestamp] mutations:group2];
+    [self.mutationQueue addMutationBatchWithWriteTime:[FIRTimestamp timestamp]
+                                        baseMutations:@[]
+                                            mutations:group2];
 
     NSArray<FSTMutation *> *group3 = @[
       FSTTestSetMutation(@"foo/bar",
@@ -308,6 +313,7 @@ NS_ASSUME_NONNULL_BEGIN
     ];
     FSTMutationBatch *batch3 =
         [self.mutationQueue addMutationBatchWithWriteTime:[FIRTimestamp timestamp]
+                                            baseMutations:@[]
                                                 mutations:group3];
 
     DocumentKeySet keys{
@@ -347,6 +353,7 @@ NS_ASSUME_NONNULL_BEGIN
     for (FSTMutation *mutation in mutations) {
       FSTMutationBatch *batch =
           [self.mutationQueue addMutationBatchWithWriteTime:[FIRTimestamp timestamp]
+                                              baseMutations:@[]
                                                   mutations:@[ mutation ]];
       [batches addObject:batch];
     }
@@ -454,6 +461,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTMutationBatch *batch =
       [self.mutationQueue addMutationBatchWithWriteTime:[FIRTimestamp timestamp]
+                                          baseMutations:@[]
                                               mutations:@[ mutation ]];
   return batch;
 }

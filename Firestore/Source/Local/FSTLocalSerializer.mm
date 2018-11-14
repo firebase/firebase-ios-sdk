@@ -178,6 +178,10 @@ using firebase::firestore::model::TargetId;
   proto.localWriteTime = [remoteSerializer
       encodedTimestamp:Timestamp{batch.localWriteTime.seconds, batch.localWriteTime.nanoseconds}];
 
+  NSMutableArray<GCFSWrite *> *baseWrites = proto.baseWritesArray;
+  for (FSTMutation *baseMutation in batch.baseMutations) {
+    [baseWrites addObject:[remoteSerializer encodedMutation:baseMutation]];
+  }
   NSMutableArray<GCFSWrite *> *writes = proto.writesArray;
   for (FSTMutation *mutation in batch.mutations) {
     [writes addObject:[remoteSerializer encodedMutation:mutation]];
@@ -189,6 +193,11 @@ using firebase::firestore::model::TargetId;
   FSTSerializerBeta *remoteSerializer = self.remoteSerializer;
 
   int batchID = batch.batchId;
+
+  NSMutableArray<FSTMutation *> *baseMutations = [NSMutableArray array];
+  for (GCFSWrite *write in batch.baseWritesArray) {
+    [baseMutations addObject:[remoteSerializer decodedMutation:write]];
+  }
   NSMutableArray<FSTMutation *> *mutations = [NSMutableArray array];
   for (GCFSWrite *write in batch.writesArray) {
     [mutations addObject:[remoteSerializer decodedMutation:write]];
@@ -200,6 +209,7 @@ using firebase::firestore::model::TargetId;
       initWithBatchID:batchID
        localWriteTime:[FIRTimestamp timestampWithSeconds:localWriteTime.seconds()
                                              nanoseconds:localWriteTime.nanoseconds()]
+        baseMutations:baseMutations
             mutations:mutations];
 }
 

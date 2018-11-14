@@ -49,6 +49,10 @@ class FieldMask {
       : fields_{std::move(fields)} {
   }
 
+  FieldMask(const FieldMask& f) {
+    fields_.assign(f.begin(), f.end());
+  }
+
   const_iterator begin() const {
     return fields_.begin();
   }

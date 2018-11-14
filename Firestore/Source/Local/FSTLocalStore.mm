@@ -49,7 +49,10 @@ using firebase::firestore::model::BatchId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentVersionMap;
+using firebase::firestore::model::FieldMask;
+using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::ListenSequenceNumber;
+using firebase::firestore::model::Precondition;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 
@@ -156,12 +159,51 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 }
 
 - (FSTLocalWriteResult *)locallyWriteMutations:(NSArray<FSTMutation *> *)mutations {
+  FIRTimestamp *localWriteTime = [FIRTimestamp timestamp];
+  DocumentKeySet keys;
+  for (FSTMutation *mutation in mutations) {
+    keys = keys.insert(mutation.key);
+  }
+
   return self.persistence.run("Locally write mutations", [&]() -> FSTLocalWriteResult * {
-    FIRTimestamp *localWriteTime = [FIRTimestamp timestamp];
-    FSTMutationBatch *batch =
-        [self.mutationQueue addMutationBatchWithWriteTime:localWriteTime mutations:mutations];
-    DocumentKeySet keys = [batch keys];
-    FSTMaybeDocumentDictionary *changedDocuments = [self.localDocuments documentsForKeys:keys];
+    // Load and apply all existing mutations. This lets us compute the current base state for
+    // all non-idempotent transforms before applying any additional user-provided writes.
+    FSTMaybeDocumentDictionary *existingDocuments = [self.localDocuments documentsForKeys:keys];
+
+    // For non-idempotent mutations (such as `FieldValue.increment()`), we record the base
+    // state in a separate patch mutation. This is later used to guarantee consistent values
+    // and prevents flicker even if the backend sends us an update that already includes our
+    // transform.
+    NSMutableArray<FSTMutation *> *baseMutations = [NSMutableArray array];
+    for (FSTMutation *mutation in mutations) {
+      FSTMaybeDocument *maybeDocument = [existingDocuments objectForKey:mutation.key];
+      if (!mutation.idempotent) {
+        // Theoretically, we should only include non-idempotent fields in this field mask as
+        // this mask is used to populate the base state for all DocumentTransforms.  By
+        // including all fields, we incorrectly prevent rebasing of idempotent transforms
+        // (such as `arrayUnion()`) when any non-idempotent transforms are present.
+        const FieldMask *fieldMask = [mutation fieldMask];
+        if (fieldMask) {
+          FSTObjectValue *baseValues =
+              [maybeDocument isKindOfClass:[FSTDocument class]]
+                  ? [((FSTDocument *)maybeDocument).data objectByApplyingFieldMask:*fieldMask]
+                  : [FSTObjectValue objectValue];
+          // NOTE: The base state should only be applied if there's some existing document to
+          // override, so use a Precondition of exists=true
+          [baseMutations
+              addObject:[[FSTPatchMutation alloc] initWithKey:mutation.key
+                                                    fieldMask:FieldMask(*fieldMask)
+                                                        value:baseValues
+                                                 precondition:Precondition::Exists(true)]];
+        }
+      }
+    }
+
+    FSTMutationBatch *batch = [self.mutationQueue addMutationBatchWithWriteTime:localWriteTime
+                                                                  baseMutations:baseMutations
+                                                                      mutations:mutations];
+    FSTMaybeDocumentDictionary *changedDocuments =
+        [batch applyToLocalDocumentSet:existingDocuments];
     return [FSTLocalWriteResult resultForBatchID:batch.batchID changes:changedDocuments];
   });
 }

@@ -60,8 +60,17 @@ NS_ASSUME_NONNULL_BEGIN
 /** Sets the stream token for this mutation queue. */
 - (void)setLastStreamToken:(nullable NSData *)streamToken;
 
-/** Creates a new mutation batch and adds it to this mutation queue. */
+/**
+ * Creates a new mutation batch and adds it to this mutation queue.
+ *
+ * @param localWriteTime The original write time of this mutation.
+ * @param baseMutations Mutations that are used to populate the base values when this mutation is
+ * applied locally. These mutations are used to locally overwrite values that are persisted in
+ * the remote document cache.
+ * @param mutations The user-provided mutations in this mutation batch.
+ */
 - (FSTMutationBatch *)addMutationBatchWithWriteTime:(FIRTimestamp *)localWriteTime
+                                      baseMutations:(NSArray<FSTMutation *> *)baseMutations
                                           mutations:(NSArray<FSTMutation *> *)mutations;
 
 /** Loads the mutation batch with the given batchID. */

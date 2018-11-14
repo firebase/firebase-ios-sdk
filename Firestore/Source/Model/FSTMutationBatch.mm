@@ -40,12 +40,14 @@ const BatchId kFSTBatchIDUnknown = -1;
 
 - (instancetype)initWithBatchID:(BatchId)batchID
                  localWriteTime:(FIRTimestamp *)localWriteTime
+                  baseMutations:(NSArray<FSTMutation *> *)baseMutations
                       mutations:(NSArray<FSTMutation *> *)mutations {
   HARD_ASSERT(mutations.count != 0, "Cannot create an empty mutation batch");
   self = [super init];
   if (self) {
     _batchID = batchID;
     _localWriteTime = localWriteTime;
+    _baseMutations = baseMutations;
     _mutations = mutations;
   }
   return self;
@@ -61,12 +63,14 @@ const BatchId kFSTBatchIDUnknown = -1;
   FSTMutationBatch *otherBatch = (FSTMutationBatch *)other;
   return self.batchID == otherBatch.batchID &&
          [self.localWriteTime isEqual:otherBatch.localWriteTime] &&
+         [self.baseMutations isEqual:otherBatch.baseMutations] &&
          [self.mutations isEqual:otherBatch.mutations];
 }
 
 - (NSUInteger)hash {
   NSUInteger result = (NSUInteger)self.batchID;
   result = result * 31 + self.localWriteTime.hash;
+  result = result * 31 + self.baseMutations.hash;
   result = result * 31 + self.mutations.hash;
   return result;
 }
@@ -103,8 +107,21 @@ const BatchId kFSTBatchIDUnknown = -1;
   HARD_ASSERT(!maybeDoc || maybeDoc.key == documentKey,
               "applyTo: key %s doesn't match maybeDoc key %s", documentKey.ToString(),
               maybeDoc.key.ToString());
+
+  // First, apply the base state. This allows us to apply non-idempotent transform against a
+  // consistent set of values.
+  for (NSUInteger i = 0; i < self.baseMutations.count; i++) {
+    FSTMutation *mutation = self.baseMutations[i];
+    if (mutation.key == documentKey) {
+      maybeDoc = [mutation applyToLocalDocument:maybeDoc
+                                   baseDocument:maybeDoc
+                                 localWriteTime:self.localWriteTime];
+    }
+  }
+
   FSTMaybeDocument *baseDoc = maybeDoc;
 
+  // Second, apply all user-provided mutations.
   for (NSUInteger i = 0; i < self.mutations.count; i++) {
     FSTMutation *mutation = self.mutations[i];
     if (mutation.key == documentKey) {
@@ -114,6 +131,22 @@ const BatchId kFSTBatchIDUnknown = -1;
     }
   }
   return maybeDoc;
+}
+
+- (FSTMaybeDocumentDictionary *)applyToLocalDocumentSet:(FSTMaybeDocumentDictionary *)documentSet {
+  // TODO(mrschmidt): This implementation is O(n^2). If we iterate through the mutations first (as
+  // done in `applyToLocalDocument:documentKey:`), we can reduce the complexity to O(n).
+
+  FSTMaybeDocumentDictionary *mutatedDocuments = documentSet;
+  for (FSTMutation *mutation in self.mutations) {
+    const DocumentKey &key = mutation.key;
+    FSTMaybeDocument *mutatedDocument =
+        [self applyToLocalDocument:[mutatedDocuments objectForKey:key] documentKey:key];
+    if (mutatedDocument) {
+      mutatedDocuments = [mutatedDocuments dictionaryBySettingObject:mutatedDocument forKey:key];
+    }
+  }
+  return mutatedDocuments;
 }
 
 // TODO(klimt): This could use NSMutableDictionary instead.

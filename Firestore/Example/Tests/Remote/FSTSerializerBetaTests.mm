@@ -354,7 +354,7 @@ NS_ASSUME_NONNULL_BEGIN
                            {});
   GCFSWrite *proto = [GCFSWrite message];
   proto.update = [self.serializer encodedDocumentWithFields:mutation.value key:mutation.key];
-  proto.updateMask = [self.serializer encodedFieldMask:mutation.fieldMask];
+  proto.updateMask = [self.serializer encodedFieldMask:*(mutation.fieldMask)];
   proto.currentDocument.exists = YES;
 
   [self assertRoundTripForMutation:mutation proto:proto];

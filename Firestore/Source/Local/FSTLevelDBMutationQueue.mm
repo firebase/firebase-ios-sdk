@@ -263,12 +263,14 @@ using leveldb::WriteOptions;
 }
 
 - (FSTMutationBatch *)addMutationBatchWithWriteTime:(FIRTimestamp *)localWriteTime
+                                      baseMutations:(NSArray<FSTMutation *> *)baseMutations
                                           mutations:(NSArray<FSTMutation *> *)mutations {
   BatchId batchID = self.nextBatchID;
   self.nextBatchID += 1;
 
   FSTMutationBatch *batch = [[FSTMutationBatch alloc] initWithBatchID:batchID
                                                        localWriteTime:localWriteTime
+                                                        baseMutations:baseMutations
                                                             mutations:mutations];
   std::string key = [self mutationKeyForBatch:batch];
   _db.currentTransaction->Put(key, [self.serializer encodedMutationBatch:batch]);

@@ -872,6 +872,22 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
       initWithImmutableDictionary:[_internalValue dictionaryBySettingObject:value forKey:field]];
 }
 
+- (FSTObjectValue *)objectByApplyingFieldMask:
+    (const firebase::firestore::model::FieldMask &)fieldMask {
+  FSTObjectValue *filteredObject = self;
+  for (const FieldPath &path : fieldMask) {
+    if (path.empty()) {
+      return self;
+    } else {
+      FSTFieldValue *newValue = [self valueForPath:path];
+      if (newValue) {
+        filteredObject = [filteredObject objectBySettingValue:newValue forPath:path];
+      }
+    }
+  }
+  return filteredObject;
+}
+
 @end
 
 @interface FSTArrayValue ()
