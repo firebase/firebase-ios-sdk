@@ -102,8 +102,8 @@
 
 /// Sends an async POST request using NSURLSession for iOS >= 7.0, and returns an ID of the
 /// connection.
-- (NSString *)sessionIDFromAsyncPOSTRequest:(NSURLRequest *)request
-                          completionHandler:(GULNetworkURLSessionCompletionHandler)handler
+- (nullable NSString *)sessionIDFromAsyncPOSTRequest:(NSURLRequest *)request
+                                   completionHandler:(GULNetworkURLSessionCompletionHandler)handler
     API_AVAILABLE(ios(7.0)) {
   // NSURLSessionUploadTask does not work with NSData in the background.
   // To avoid this issue, write the data to a temporary file to upload it.
@@ -180,8 +180,8 @@
 }
 
 /// Sends an async GET request using NSURLSession for iOS >= 7.0, and returns an ID of the session.
-- (NSString *)sessionIDFromAsyncGETRequest:(NSURLRequest *)request
-                         completionHandler:(GULNetworkURLSessionCompletionHandler)handler
+- (nullable NSString *)sessionIDFromAsyncGETRequest:(NSURLRequest *)request
+                                  completionHandler:(GULNetworkURLSessionCompletionHandler)handler
     API_AVAILABLE(ios(7.0)) {
   if (_backgroundNetworkEnabled) {
     _sessionConfig = [self backgroundSessionConfigWithSessionID:_sessionID];
