@@ -453,7 +453,7 @@ static NSString *const kFDLOtherPlatformParametersFallbackURLKey = @"ofl";
 + (instancetype)componentsWithLink:(NSURL *)link domain:(NSString *)domain {
   NSURL *domainURL = [NSURL URLWithString:domain];
   if (!domainURL.scheme) {
-    FDLLog(FDLLogLevelWarning, FDLLogIdentifierSetupWarnHttpsScheme,
+    FDLLog(FDLLogLevelWarning, FDLLogIdentifierSetupWarnHTTPSScheme,
            @"Only https scheme is allowed. The supplied domain's scheme will be treated as https.");
   }
   NSString *domainURIPrefix =
@@ -464,7 +464,7 @@ static NSString *const kFDLOtherPlatformParametersFallbackURLKey = @"ofl";
 - (instancetype)initWithLink:(NSURL *)link domain:(NSString *)domain {
   NSURL *domainURL = [NSURL URLWithString:domain];
   if (!domainURL.scheme) {
-    FDLLog(FDLLogLevelWarning, FDLLogIdentifierSetupWarnHttpsScheme,
+    FDLLog(FDLLogLevelWarning, FDLLogIdentifierSetupWarnHTTPSScheme,
            @"Only https scheme is allowed. The supplied domain's scheme will be treated as https.");
   }
   NSString *domainURIPrefix =
