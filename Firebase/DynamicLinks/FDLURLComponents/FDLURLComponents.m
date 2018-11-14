@@ -451,12 +451,16 @@ static NSString *const kFDLOtherPlatformParametersFallbackURLKey = @"ofl";
 
 #pragma mark Deprecated Initializers.
 + (instancetype)componentsWithLink:(NSURL *)link domain:(NSString *)domain {
-  NSString *domainURIPrefix = [NSString stringWithFormat:@"https://%@", domain];
+  NSURL *domainURL = [NSURL URLWithString:domain];
+  NSString *domainURIPrefix =
+      domainURL.scheme ? domain : [NSString stringWithFormat:@"https://%@", domain];
   return [FIRDynamicLinkComponents componentsWithLink:link domainURIPrefix:domainURIPrefix];
 }
 
 - (instancetype)initWithLink:(NSURL *)link domain:(NSString *)domain {
-  NSString *domainURIPrefix = [NSString stringWithFormat:@"https://%@", domain];
+  NSURL *domainURL = [NSURL URLWithString:domain];
+  NSString *domainURIPrefix =
+      domainURL.scheme ? domain : [NSString stringWithFormat:@"https://%@", domain];
   return [self initWithLink:link domainURIPrefix:domainURIPrefix];
 }
 
