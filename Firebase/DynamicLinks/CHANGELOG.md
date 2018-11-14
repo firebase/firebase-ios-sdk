@@ -1,3 +1,6 @@
+# v3.2.0
+- Add support for creating and receiving dynamic links from custom domains. This feature is not yet available for public consumption.
+
 # v3.1.2
 - Delete deprecated source files. (#2038)
 
