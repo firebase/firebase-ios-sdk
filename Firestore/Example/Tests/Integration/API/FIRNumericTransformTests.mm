@@ -23,6 +23,8 @@
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
+double DOUBLE_EPSILON = 0.000001;
+
 @interface FIRNumericTransformTests : FSTIntegrationTestCase
 @end
 
@@ -75,9 +77,9 @@
 
 - (void)expectApproximateLocalAndRemoteValue:(double)expectedSum {
   FIRDocumentSnapshot *snap = [_accumulator awaitLocalEvent];
-  XCTAssertEqual(@(expectedSum), snap[@"sum"]);
+  XCTAssertEqualWithAccuracy(expectedSum, [snap[@"sum"] doubleValue], DOUBLE_EPSILON);
   snap = [_accumulator awaitRemoteEvent];
-  XCTAssertEqual(@(expectedSum), snap[@"sum"]);
+  XCTAssertEqualWithAccuracy(expectedSum, [snap[@"sum"] doubleValue], DOUBLE_EPSILON);
 }
 
 #pragma mark - Test Cases
@@ -97,7 +99,7 @@
 - (void)testIntegerIncrementWithExistingInteger {
   [self writeInitialData:@{@"sum" : @1337}];
   [self updateDocumentRef:_docRef data:@{@"sum" : [FIRFieldValue fieldValueForIntegerIncrement:1]}];
-  [self expectLocalAndRemoteValue:13378];
+  [self expectLocalAndRemoteValue:1338];
 }
 
 - (void)testDoubleIncrementWithExistingDouble {
@@ -139,23 +141,21 @@
 
   [self disableNetwork];
 
-  [self updateDocumentRef:_docRef
-                     data:@{@"sum" : [FIRFieldValue fieldValueForDoubleIncrement:0.1]}];
-  [self updateDocumentRef:_docRef
-                     data:@{@"sum" : [FIRFieldValue fieldValueForDoubleIncrement:0.01]}];
-  [self updateDocumentRef:_docRef
-                     data:@{@"sum" : [FIRFieldValue fieldValueForDoubleIncrement:0.01]}];
+  [_docRef updateData:@{@"sum" : [FIRFieldValue fieldValueForDoubleIncrement:0.1]}];
+  [_docRef updateData:@{@"sum" : [FIRFieldValue fieldValueForDoubleIncrement:0.01]}];
+  [_docRef updateData:@{@"sum" : [FIRFieldValue fieldValueForDoubleIncrement:0.001]}];
 
   FIRDocumentSnapshot *snap = [_accumulator awaitLocalEvent];
-  XCTAssertEqual(@(0.1), snap[@"sum"]);
+
+  XCTAssertEqualWithAccuracy(0.1, [snap[@"sum"] doubleValue], DOUBLE_EPSILON);
   snap = [_accumulator awaitLocalEvent];
-  XCTAssertEqual(@(0.11), snap[@"sum"]);
+  XCTAssertEqualWithAccuracy(0.11, [snap[@"sum"] doubleValue], DOUBLE_EPSILON);
   snap = [_accumulator awaitLocalEvent];
-  XCTAssertEqual(@(0.111), snap[@"sum"]);
+  XCTAssertEqualWithAccuracy(0.111, [snap[@"sum"] doubleValue], DOUBLE_EPSILON);
 
   [self enableNetwork];
   snap = [_accumulator awaitRemoteEvent];
-  XCTAssertEqual(@(0.111), snap[@"sum"]);
+  XCTAssertEqualWithAccuracy(0.111, [snap[@"sum"] doubleValue], DOUBLE_EPSILON);
 }
 
 @end

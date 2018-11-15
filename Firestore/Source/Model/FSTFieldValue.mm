@@ -31,6 +31,7 @@
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::util::Comparator;
 using firebase::firestore::util::CompareMixedNumber;
@@ -872,8 +873,7 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
       initWithImmutableDictionary:[_internalValue dictionaryBySettingObject:value forKey:field]];
 }
 
-- (FSTObjectValue *)objectByApplyingFieldMask:
-    (const firebase::firestore::model::FieldMask &)fieldMask {
+- (FSTObjectValue *)objectByApplyingFieldMask:(const FieldMask &)fieldMask {
   FSTObjectValue *filteredObject = self;
   for (const FieldPath &path : fieldMask) {
     if (path.empty()) {

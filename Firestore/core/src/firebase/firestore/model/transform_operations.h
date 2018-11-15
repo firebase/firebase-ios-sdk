@@ -87,9 +87,6 @@ class TransformOperation {
 /** Transforms a value into a server-generated timestamp. */
 class ServerTimestampTransform : public TransformOperation {
  public:
-  ~ServerTimestampTransform() override {
-  }
-
   Type type() const override {
     return Type::ServerTimestamp;
   }
@@ -142,9 +139,6 @@ class ArrayTransform : public TransformOperation {
  public:
   ArrayTransform(Type type, std::vector<FSTFieldValue*> elements)
       : type_(type), elements_(std::move(elements)) {
-  }
-
-  ~ArrayTransform() override {
   }
 
   Type type() const override {
@@ -252,11 +246,7 @@ class ArrayTransform : public TransformOperation {
  */
 class NumericIncrementTransform : public TransformOperation {
  public:
-  NumericIncrementTransform(FSTNumberValue* operand)
-      : operand_(std::move(operand)) {
-  }
-
-  ~NumericIncrementTransform() override {
+  NumericIncrementTransform(FSTNumberValue* operand) : operand_(operand) {
   }
 
   Type type() const override {
@@ -271,18 +261,17 @@ class NumericIncrementTransform : public TransformOperation {
     if ([previousValue isKindOfClass:[FSTIntegerValue class]] &&
         [operand_ isKindOfClass:[FSTIntegerValue class]]) {
       int64_t sum = SafeIncrement(
-          (reinterpret_cast<FSTIntegerValue*>(previousValue)).internalValue,
-          (reinterpret_cast<FSTIntegerValue*>(operand_)).internalValue);
+          (static_cast<FSTIntegerValue*>(previousValue)).internalValue,
+          (static_cast<FSTIntegerValue*>(operand_)).internalValue);
       return [FSTIntegerValue integerValue:sum];
     } else if ([previousValue isKindOfClass:[FSTIntegerValue class]]) {
       double sum =
-          (reinterpret_cast<FSTIntegerValue*>(previousValue)).internalValue +
+          (static_cast<FSTIntegerValue*>(previousValue)).internalValue +
           OperandAsDouble();
       return [FSTDoubleValue doubleValue:sum];
     } else if ([previousValue isKindOfClass:[FSTDoubleValue class]]) {
-      double sum =
-          (reinterpret_cast<FSTDoubleValue*>(previousValue)).internalValue +
-          OperandAsDouble();
+      double sum = (static_cast<FSTDoubleValue*>(previousValue)).internalValue +
+                   OperandAsDouble();
       return [FSTDoubleValue doubleValue:sum];
     } else {
       // If the existing value is not a number, use the value of the transform
@@ -328,26 +317,22 @@ class NumericIncrementTransform : public TransformOperation {
    * Implements integer addition. Overflows are resolved to LONG_MAX/LONG_MIN.
    */
   int64_t SafeIncrement(int64_t x, int64_t y) const {
-    int64_t r = x + y;
-
-    // See "Hacker's Delight" 2-12: Overflow if both arguments have the opposite
-    // sign of the result
-    if (((x ^ r) & (y ^ r)) >= 0) {
-      return r;
-    }
-
-    if (r >= 0L) {
-      return LONG_MIN;
-    } else {
+    if (x > 0 && y > LONG_MAX - x) {
       return LONG_MAX;
     }
+
+    if (x < 0 && y < LONG_MIN - x) {
+      return LONG_MIN;
+    }
+
+    return x + y;
   }
 
   double OperandAsDouble() const {
     if ([operand_ isKindOfClass:[FSTDoubleValue class]]) {
-      return (reinterpret_cast<FSTDoubleValue*>(operand_)).internalValue;
+      return (static_cast<FSTDoubleValue*>(operand_)).internalValue;
     } else if ([operand_ isKindOfClass:[FSTIntegerValue class]]) {
-      return (reinterpret_cast<FSTIntegerValue*>(operand_)).internalValue;
+      return (static_cast<FSTIntegerValue*>(operand_)).internalValue;
     } else {
       HARD_FAIL("Expected 'operand' to be of FSTNumerValue type, but was %s",
                 NSStringFromClass([operand_ class]));

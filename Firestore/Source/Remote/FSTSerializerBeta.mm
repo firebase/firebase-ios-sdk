@@ -659,9 +659,8 @@ NS_ASSUME_NONNULL_BEGIN
       case GCFSDocumentTransform_FieldTransform_TransformType_OneOfCase_NumericAdd: {
         FSTNumberValue *operand =
             static_cast<FSTNumberValue *>([self decodedFieldValue:proto.numericAdd]);
-        fieldTransforms.emplace_back(
-            FieldPath::FromServerFormat(util::MakeString(proto.fieldPath)),
-            absl::make_unique<NumericIncrementTransform>(std::move(operand)));
+        fieldTransforms.emplace_back(FieldPath::FromServerFormat(util::MakeString(proto.fieldPath)),
+                                     absl::make_unique<NumericIncrementTransform>(operand));
         break;
       }
 

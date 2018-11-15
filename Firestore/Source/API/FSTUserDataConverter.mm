@@ -348,7 +348,7 @@ NS_ASSUME_NONNULL_BEGIN
         (FSTNumericIncrementFieldValue *)fieldValue;
     FSTNumberValue *operand =
         (FSTNumberValue *)[self parsedQueryValue:numericIncrementFieldValue.operand];
-    auto numeric_increment = absl::make_unique<NumericIncrementTransform>(std::move(operand));
+    auto numeric_increment = absl::make_unique<NumericIncrementTransform>(operand);
 
     context.AddToFieldTransforms(*context.path(), std::move(numeric_increment));
 

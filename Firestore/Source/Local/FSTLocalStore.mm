@@ -177,25 +177,27 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
     NSMutableArray<FSTMutation *> *baseMutations = [NSMutableArray array];
     for (FSTMutation *mutation in mutations) {
       FSTMaybeDocument *maybeDocument = [existingDocuments objectForKey:mutation.key];
-      if (!mutation.idempotent) {
-        // Theoretically, we should only include non-idempotent fields in this field mask as
-        // this mask is used to populate the base state for all DocumentTransforms.  By
-        // including all fields, we incorrectly prevent rebasing of idempotent transforms
-        // (such as `arrayUnion()`) when any non-idempotent transforms are present.
-        const FieldMask *fieldMask = [mutation fieldMask];
-        if (fieldMask) {
-          FSTObjectValue *baseValues =
-              [maybeDocument isKindOfClass:[FSTDocument class]]
-                  ? [((FSTDocument *)maybeDocument).data objectByApplyingFieldMask:*fieldMask]
-                  : [FSTObjectValue objectValue];
-          // NOTE: The base state should only be applied if there's some existing document to
-          // override, so use a Precondition of exists=true
-          [baseMutations
-              addObject:[[FSTPatchMutation alloc] initWithKey:mutation.key
-                                                    fieldMask:FieldMask(*fieldMask)
-                                                        value:baseValues
-                                                 precondition:Precondition::Exists(true)]];
-        }
+      if (mutation.idempotent) {
+        continue;
+      }
+
+      // Theoretically, we should only include non-idempotent fields in this field mask as this mask
+      // is used to prevent flicker for non-idempotent transforms by providing consistent base
+      // values. By including the fields for all DocumentTransforms, we incorrectly prevent rebasing
+      // of idempotent transforms (such as `arrayUnion()`) when any non-idempotent transforms are
+      // present.
+      const FieldMask *fieldMask = [mutation fieldMask];
+      if (fieldMask) {
+        FSTObjectValue *baseValues =
+            [maybeDocument isKindOfClass:[FSTDocument class]]
+                ? [((FSTDocument *)maybeDocument).data objectByApplyingFieldMask:*fieldMask]
+                : [FSTObjectValue objectValue];
+        // NOTE: The base state should only be applied if there's some existing document to
+        // override, so use a Precondition of exists=true
+        [baseMutations addObject:[[FSTPatchMutation alloc] initWithKey:mutation.key
+                                                             fieldMask:FieldMask(*fieldMask)
+                                                                 value:baseValues
+                                                          precondition:Precondition::Exists(true)]];
       }
     }
 

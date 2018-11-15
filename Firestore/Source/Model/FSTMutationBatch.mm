@@ -110,8 +110,7 @@ const BatchId kFSTBatchIDUnknown = -1;
 
   // First, apply the base state. This allows us to apply non-idempotent transform against a
   // consistent set of values.
-  for (NSUInteger i = 0; i < self.baseMutations.count; i++) {
-    FSTMutation *mutation = self.baseMutations[i];
+  for (FSTMutation *mutation in self.baseMutations) {
     if (mutation.key == documentKey) {
       maybeDoc = [mutation applyToLocalDocument:maybeDoc
                                    baseDocument:maybeDoc
@@ -122,8 +121,7 @@ const BatchId kFSTBatchIDUnknown = -1;
   FSTMaybeDocument *baseDoc = maybeDoc;
 
   // Second, apply all user-provided mutations.
-  for (NSUInteger i = 0; i < self.mutations.count; i++) {
-    FSTMutation *mutation = self.mutations[i];
+  for (FSTMutation *mutation in self.mutations) {
     if (mutation.key == documentKey) {
       maybeDoc = [mutation applyToLocalDocument:maybeDoc
                                    baseDocument:baseDoc

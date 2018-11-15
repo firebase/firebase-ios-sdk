@@ -44,7 +44,7 @@ class FieldTransform {
     return *transformation_.get();
   }
 
-  const bool idempotent() const {
+  bool idempotent() const {
     return transformation_->idempotent();
   }
 

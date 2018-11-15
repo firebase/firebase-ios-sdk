@@ -343,7 +343,7 @@ NS_ASSUME_NONNULL_BEGIN
       fields.push_back(transform.path());
     }
 
-    _fieldMask = FieldMask(fields);
+    _fieldMask = FieldMask(std::move(fields));
   }
   return self;
 }
@@ -516,9 +516,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (BOOL)idempotent {
-  for (size_t i = 0; i < self.fieldTransforms.size(); i++) {
-    const FieldTransform &fieldTransform = self.fieldTransforms[i];
-    if (!fieldTransform.idempotent()) {
+  for (const auto &transform : self.fieldTransforms) {
+    if (!transform.idempotent()) {
       return NO;
     }
   }

@@ -41,7 +41,7 @@ class DummyOperation : public TransformOperation {
     return nil;
   }
 
-  virtual bool idempotent() const override {
+  bool idempotent() const override {
     return true;
   }
 
