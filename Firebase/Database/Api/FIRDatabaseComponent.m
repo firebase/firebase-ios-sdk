@@ -31,8 +31,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** A NSMutableDictionary of FirebaseApp name and FRepoInfo to FirebaseDatabase instance. */
-typedef NSMutableDictionary<NSString *, NSMutableDictionary<FRepoInfo *, FIRDatabase *> *>
-    FIRDatabaseDictionary;
+typedef NSMutableDictionary<NSString *, FIRDatabase *> FIRDatabaseDictionary;
 
 @interface FIRDatabaseComponent () <FIRComponentLifecycleMaintainer, FIRComponentRegistrant>
 @property (nonatomic) FIRDatabaseDictionary *instances;
@@ -86,15 +85,12 @@ typedef NSMutableDictionary<NSString *, NSMutableDictionary<FRepoInfo *, FIRData
   }
   FIRDatabaseDictionary* instances = [self instances];
   @synchronized (instances) {
-    NSMutableDictionary<FRepoInfo *, FIRDatabase *> *databaseInstances = instances[appName];
-    if (databaseInstances) {
-      // Clean up the deleted instance in an effort to remove any resources still in use.
-      // Note: Any leftover instances of this exact database will be invalid.
-      for (FIRDatabase * database in [databaseInstances allValues]) {
-        [FRepoManager disposeRepos:database.config];
-      }
-      [instances removeObjectForKey:appName];
+    // Clean up the deleted instance in an effort to remove any resources still in use.
+    // Note: Any leftover instances of this exact database will be invalid.
+    for (FIRDatabase * database in [instances allValues]) {
+      [FRepoManager disposeRepos:database.config];
     }
+    [instances removeAllObjects];
   }
 }
 
@@ -125,15 +121,8 @@ typedef NSMutableDictionary<NSString *, NSMutableDictionary<FRepoInfo *, FIRData
 
   FIRDatabaseDictionary *instances = [self instances];
   @synchronized (instances) {
-    NSMutableDictionary<FRepoInfo *, FIRDatabase *> *urlInstanceMap =
-        instances[app.name];
-    if (!urlInstanceMap) {
-      urlInstanceMap = [NSMutableDictionary dictionary];
-      instances[app.name] = urlInstanceMap;
-    }
-
     FParsedUrl *parsedUrl = [FUtilities parseUrl:databaseUrl.absoluteString];
-    FIRDatabase *database = urlInstanceMap[parsedUrl.repoInfo];
+    FIRDatabase *database = instances[url];
     if (!database) {
       id<FAuthTokenProvider> authTokenProvider =
           [FAuthTokenProvider authTokenProviderWithAuth:
@@ -153,7 +142,7 @@ typedef NSMutableDictionary<NSString *, NSMutableDictionary<FRepoInfo *, FIRData
       database = [[FIRDatabase alloc] initWithApp:app
                                          repoInfo:parsedUrl.repoInfo
                                            config:config];
-      urlInstanceMap[parsedUrl.repoInfo] = database;
+      instances[url] = database;
     }
 
     return database;
