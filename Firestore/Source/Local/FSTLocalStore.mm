@@ -186,6 +186,8 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
       // values. By including the fields for all DocumentTransforms, we incorrectly prevent rebasing
       // of idempotent transforms (such as `arrayUnion()`) when any non-idempotent transforms are
       // present.
+      // TODO(mrschmidt): Expose a method that only returns the a field mask for non-idempotent
+      // transforms
       const FieldMask *fieldMask = [mutation fieldMask];
       if (fieldMask) {
         FSTObjectValue *baseValues =
@@ -195,7 +197,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
         // NOTE: The base state should only be applied if there's some existing document to
         // override, so use a Precondition of exists=true
         [baseMutations addObject:[[FSTPatchMutation alloc] initWithKey:mutation.key
-                                                             fieldMask:FieldMask(*fieldMask)
+                                                             fieldMask:*fieldMask
                                                                  value:baseValues
                                                           precondition:Precondition::Exists(true)]];
       }
