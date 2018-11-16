@@ -144,8 +144,7 @@ NS_ASSUME_NONNULL_BEGIN
         initialized = true;
         userPromise->set_value(user);
       } else {
-        strongSelf->_workerQueue->Enqueue([weakSelf, user] {
-          __typeof__(self) strongSelf = weakSelf;
+        strongSelf->_workerQueue->Enqueue([strongSelf, user] {
           [strongSelf credentialDidChangeWithUser:user];
         });
       }
