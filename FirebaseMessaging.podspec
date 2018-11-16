@@ -37,7 +37,7 @@ device, and it is completely free.
       'FIRMessaging_LIB_VERSION=' + String(s.version)
   }
   s.framework = 'SystemConfiguration'
-  s.ios.dependency 'FirebaseAnalyticsInterop', '~> 1.1'
+  s.dependency 'FirebaseAnalyticsInterop', '~> 1.1'
   s.dependency 'FirebaseCore', '~> 5.1'
   s.dependency 'FirebaseInstanceID', '~> 3.0'
   s.dependency 'GoogleUtilities/Reachability', '~> 5.2'
