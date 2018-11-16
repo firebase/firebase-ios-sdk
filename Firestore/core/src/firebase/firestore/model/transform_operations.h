@@ -246,7 +246,8 @@ class ArrayTransform : public TransformOperation {
  */
 class NumericIncrementTransform : public TransformOperation {
  public:
-  NumericIncrementTransform(FSTNumberValue* operand) : operand_(operand) {
+  explicit NumericIncrementTransform(FSTNumberValue* operand)
+      : operand_(operand) {
   }
 
   Type type() const override {
