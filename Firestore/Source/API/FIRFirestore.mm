@@ -351,18 +351,14 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 }
 
 - (void)shutdownWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
-  FSTFirestoreClient *client;
-  @synchronized(self) {
-    client = _client;
-    _client = nil;
-  }
-
-  if (!client) {
-    // We should be dispatching the callback on the user dispatch queue but if the client is nil
-    // here that queue was never created.
-    completion(nil);
+  if (!_client) {
+    if (completion) {
+      // We should be dispatching the callback on the user dispatch queue but if the client is nil
+      // here that queue was never created.
+      completion(nil);
+    }
   } else {
-    [client shutdownWithCompletion:completion];
+    [_client shutdownWithCompletion:completion];
   }
 }
 
