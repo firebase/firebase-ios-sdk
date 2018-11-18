@@ -14,28 +14,18 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/test/firebase/firestore/util/async_queue_test.h"
+#import <Foundation/Foundation.h>
 
-#include "Firestore/core/src/firebase/firestore/util/executor_std.h"
+#import <FirebaseFirestore/FIRFirestore.h>
 
-#include "absl/memory/memory.h"
-#include "gtest/gtest.h"
+#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 
-namespace firebase {
-namespace firestore {
-namespace util {
+NS_ASSUME_NONNULL_BEGIN
 
-namespace {
+@interface FIRFirestore (Testing)
 
-std::unique_ptr<Executor> ExecutorFactory() {
-  return absl::make_unique<ExecutorStd>();
-}
+- (firebase::firestore::util::AsyncQueue*)workerQueue;
 
-}  // namespace
+@end
 
-INSTANTIATE_TEST_CASE_P(AsyncQueueStd,
-                        AsyncQueueTest,
-                        ::testing::Values(ExecutorFactory));
-}  // namespace util
-}  // namespace firestore
-}  // namespace firebase
+NS_ASSUME_NONNULL_END

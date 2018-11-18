@@ -118,7 +118,7 @@ class FakeGrpcQueue {
  private:
   remote::GrpcCompletion* ExtractCompletion();
 
-  std::unique_ptr<internal::ExecutorStd> dedicated_executor_;
+  std::unique_ptr<ExecutorStd> dedicated_executor_;
   grpc::CompletionQueue* grpc_queue_;
   bool is_shut_down_ = false;
 

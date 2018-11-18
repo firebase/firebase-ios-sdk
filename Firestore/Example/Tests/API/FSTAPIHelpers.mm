@@ -53,7 +53,7 @@ FIRFirestore *FSTTestFirestore() {
                                                     database:"abc"
                                               persistenceKey:@"db123"
                                          credentialsProvider:nil
-                                         workerDispatchQueue:nil
+                                                 workerQueue:nil
                                                  firebaseApp:nil];
   });
 #pragma clang diagnostic pop

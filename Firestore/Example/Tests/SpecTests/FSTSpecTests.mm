@@ -32,7 +32,6 @@
 #import "Firestore/Source/Remote/FSTExistenceFilter.h"
 #import "Firestore/Source/Remote/FSTWatchChange.h"
 #import "Firestore/Source/Util/FSTClasses.h"
-#import "Firestore/Source/Util/FSTDispatchQueue.h"
 
 #import "Firestore/Example/Tests/Remote/FSTWatchChange+Testing.h"
 #import "Firestore/Example/Tests/SpecTests/FSTSyncEngineTestDriver.h"
@@ -41,6 +40,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
@@ -52,6 +52,7 @@ using firebase::firestore::auth::User;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::util::TimerId;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -373,19 +374,19 @@ static NSString *Describe(NSData *data) {
 }
 
 - (void)doRunTimer:(NSString *)timer {
-  FSTTimerID timerID;
+  TimerId timerID;
   if ([timer isEqualToString:@"all"]) {
-    timerID = FSTTimerIDAll;
+    timerID = TimerId::All;
   } else if ([timer isEqualToString:@"listen_stream_idle"]) {
-    timerID = FSTTimerIDListenStreamIdle;
+    timerID = TimerId::ListenStreamIdle;
   } else if ([timer isEqualToString:@"listen_stream_connection_backoff"]) {
-    timerID = FSTTimerIDListenStreamConnectionBackoff;
+    timerID = TimerId::ListenStreamConnectionBackoff;
   } else if ([timer isEqualToString:@"write_stream_idle"]) {
-    timerID = FSTTimerIDWriteStreamIdle;
+    timerID = TimerId::WriteStreamIdle;
   } else if ([timer isEqualToString:@"write_stream_connection_backoff"]) {
-    timerID = FSTTimerIDWriteStreamConnectionBackoff;
+    timerID = TimerId::WriteStreamConnectionBackoff;
   } else if ([timer isEqualToString:@"online_state_timeout"]) {
-    timerID = FSTTimerIDOnlineStateTimeout;
+    timerID = TimerId::OnlineStateTimeout;
   } else {
     HARD_FAIL("runTimer spec step specified unknown timer: %s", timer);
   }

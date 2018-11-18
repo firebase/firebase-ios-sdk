@@ -20,12 +20,12 @@
 #include <unordered_map>
 
 #import "Firestore/Source/Remote/FSTRemoteStore.h"
-#import "Firestore/Source/Util/FSTDispatchQueue.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 
 @class FSTDocumentKey;
 @class FSTMutation;
@@ -227,9 +227,9 @@ typedef std::unordered_map<firebase::firestore::auth::User,
 - (void)enableNetwork;
 
 /**
- * Runs a pending timer callback on the FSTDispatchQueue.
+ * Runs a pending timer callback on the worker queue.
  */
-- (void)runTimer:(FSTTimerID)timerID;
+- (void)runTimer:(firebase::firestore::util::TimerId)timerID;
 
 /**
  * Switches the FSTSyncEngine to a new user. The test driver tracks the outstanding mutations for

@@ -28,13 +28,13 @@
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 #import "Firestore/Source/Remote/FSTStream.h"
-#import "Firestore/Source/Util/FSTDispatchQueue.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/auth/token.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
@@ -52,6 +52,7 @@ using firebase::firestore::remote::Datastore;
 using firebase::firestore::remote::GrpcConnection;
 using firebase::firestore::remote::WatchStream;
 using firebase::firestore::remote::WriteStream;
+using util::AsyncQueue;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -64,8 +65,6 @@ NSString *const kGRPCErrorDomain = @"io.grpc";
 
 @interface FSTDatastore ()
 
-@property(nonatomic, strong, readonly) FSTDispatchQueue *workerDispatchQueue;
-
 /**
  * An object for getting an auth token before each request. Does not own the CredentialsProvider
  * instance.
@@ -77,28 +76,29 @@ NSString *const kGRPCErrorDomain = @"io.grpc";
 @end
 
 @implementation FSTDatastore {
+  AsyncQueue *_workerQueue;
   std::shared_ptr<Datastore> _datastore;
 }
 
 + (instancetype)datastoreWithDatabase:(const DatabaseInfo *)databaseInfo
-                  workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
+                          workerQueue:(AsyncQueue *)workerQueue
                           credentials:(CredentialsProvider *)credentials {
   return [[FSTDatastore alloc] initWithDatabaseInfo:databaseInfo
-                                workerDispatchQueue:workerDispatchQueue
+                                        workerQueue:workerQueue
                                         credentials:credentials];
 }
 
 - (instancetype)initWithDatabaseInfo:(const DatabaseInfo *)databaseInfo
-                 workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
+                         workerQueue:(AsyncQueue *)workerQueue
                          credentials:(CredentialsProvider *)credentials {
   if (self = [super init]) {
     _databaseInfo = databaseInfo;
-    _workerDispatchQueue = workerDispatchQueue;
+    _workerQueue = workerQueue;
     _credentials = credentials;
     _serializer = [[FSTSerializerBeta alloc] initWithDatabaseID:&databaseInfo->database_id()];
 
-    _datastore = std::make_shared<Datastore>(*_databaseInfo, [_workerDispatchQueue implementation],
-                                             _credentials, _serializer);
+    _datastore =
+        std::make_shared<Datastore>(*_databaseInfo, _workerQueue, _credentials, _serializer);
     _datastore->Start();
     if (!databaseInfo->ssl_enabled()) {
       GrpcConnection::UseInsecureChannel(databaseInfo->host());

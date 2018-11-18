@@ -37,7 +37,7 @@ namespace {
 
 using NetworkStatus = ConnectivityMonitor::NetworkStatus;
 using util::AsyncQueue;
-using util::internal::ExecutorLibdispatch;
+using util::ExecutorLibdispatch;
 
 NetworkStatus ToNetworkStatus(SCNetworkReachabilityFlags flags) {
   if (!(flags & kSCNetworkReachabilityFlagsReachable)) {
