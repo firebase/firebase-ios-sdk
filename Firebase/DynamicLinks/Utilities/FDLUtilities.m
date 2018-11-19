@@ -195,13 +195,12 @@ NSString *FIRDLDeviceTimezone() {
 
 BOOL FIRDLIsURLForWhiteListedCustomDomain(NSURL *_Nullable URL) {
   BOOL customDomainMatchFound = false;
-  for (NSURL *allowedCustomDomain in FIRDLCustomDomains) {
+  for(NSURL* allowedCustomDomain in FIRDLCustomDomains) {
     // All custom domain host names should match at a minimum.
     if ([allowedCustomDomain.host isEqualToString:URL.host]) {
       // Next, do a string compare to check if the full path matches as well.
-      if (([URL.absoluteString rangeOfString:allowedCustomDomain.absoluteString
-                                     options:NSCaseInsensitiveSearch | NSAnchoredSearch]
-               .location) == 0) {
+      if (([URL.absoluteString rangeOfString:allowedCustomDomain.absoluteString options:NSCaseInsensitiveSearch | NSAnchoredSearch].location) == 0)
+      {
         customDomainMatchFound = true;
         break;
       }
@@ -249,12 +248,11 @@ NSString *FIRDLMatchTypeStringFromServerString(NSString *_Nullable serverMatchTy
   return matchMap[serverMatchTypeString] ?: @"none";
 }
 
-void FIRDLAddToWhiteListForCustomDomainsArray(NSArray *_Nonnull customDomains) {
+void FIRDLAddToWhiteListForCustomDomainsArray(NSArray* _Nonnull customDomains) {
   // Duplicates will be weeded out when converting to a set.
-  NSMutableArray *validCustomDomains =
-      [[NSMutableArray alloc] initWithCapacity:customDomains.count];
-  for (NSString *customDomainEntry in customDomains) {
-    NSURL *customDomainURL = [NSURL URLWithString:customDomainEntry];
+  NSMutableArray *validCustomDomains = [[NSMutableArray alloc] initWithCapacity:customDomains.count];
+  for(NSString* customDomainEntry in customDomains) {
+    NSURL* customDomainURL = [NSURL URLWithString:customDomainEntry];
     // We require a valid scheme for each custom domain enumerated in the info.plist file.
     if (customDomainURL && customDomainURL.scheme) {
       [validCustomDomains addObject:customDomainURL];
