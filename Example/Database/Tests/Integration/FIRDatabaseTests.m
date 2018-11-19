@@ -183,7 +183,7 @@ static NSString *kFirebaseTestAltNamespace = @"https://foobar.firebaseio.com";
 }
 
 - (FIRDatabaseReference *)rootRefWithEngine:(id<FStorageEngine>)engine name:(NSString *)name {
-    FIRDatabaseConfig *config = [FTestHelpers configForName:name];
+    FIRDatabaseConfig *config = [FIRDatabaseConfig configForName:name];
     config.persistenceEnabled = YES;
     config.forceStorageEngine = engine;
     return [[FIRDatabaseReference alloc] initWithConfig:config];

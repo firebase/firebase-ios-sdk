@@ -129,12 +129,6 @@
 		AFAF36F71EC28C25004BDEE5 /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
 		AFAF36F81EC28C25004BDEE5 /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
 		AFAF36F91EC28C25004BDEE5 /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
-		C859EB092193955E008FBD29 /* FIRAuthInteropFake.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E24211A442D00376BFF /* FIRAuthInteropFake.m */; };
-		C859EB0A21939565008FBD29 /* FIRAuthInteropFake.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E24211A442D00376BFF /* FIRAuthInteropFake.m */; };
-		C859EB0B2193956B008FBD29 /* FIRAuthInteropFake.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E24211A442D00376BFF /* FIRAuthInteropFake.m */; };
-		C859EB0C2193956E008FBD29 /* FIRAuthInteropFake.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E24211A442D00376BFF /* FIRAuthInteropFake.m */; };
-		C86FBB1121944B2100B3832E /* FIRAuthInteropFake.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E24211A442D00376BFF /* FIRAuthInteropFake.m */; };
-		C86FBB1221944C0D00B3832E /* FIRAuthInteropFake.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E24211A442D00376BFF /* FIRAuthInteropFake.m */; };
 		D01853721EDAD084003A645C /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
 		D01853831EDAD113003A645C /* FIRAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D018537E1EDAD0E6003A645C /* FIRAppDelegate.m */; };
 		D01853841EDAD113003A645C /* FIRViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D01853801EDAD0E6003A645C /* FIRViewController.m */; };
@@ -3823,7 +3817,6 @@
 				0637BA721EC0F9E000CAEFD4 /* FTupleEventTypeString.m in Sources */,
 				0637BA6C1EC0F9CB00CAEFD4 /* FTestAuthTokenGenerator.m in Sources */,
 				0637BA6B1EC0F9C700CAEFD4 /* FMockStorageEngine.m in Sources */,
-				C86FBB1121944B2100B3832E /* FIRAuthInteropFake.m in Sources */,
 				0624F3EB1EC0ED0800E5940D /* FConnectionTest.m in Sources */,
 				0624F3F21EC0ED3F00E5940D /* FKeepSyncedTest.m in Sources */,
 				0624F3F71EC0ED5600E5940D /* FTransactionTest.m in Sources */,
@@ -4010,7 +4003,6 @@
 				D0FE8A441ED9C86F003F6722 /* FRepoInfoTest.m in Sources */,
 				D0FE8A451ED9C86F003F6722 /* FCompoundHashTest.m in Sources */,
 				D0FE8A461ED9C86F003F6722 /* FTrackedQueryManagerTest.m in Sources */,
-				C859EB0B2193956B008FBD29 /* FIRAuthInteropFake.m in Sources */,
 				D0FE8A471ED9C86F003F6722 /* FUtilitiesTest.m in Sources */,
 				D0FE8A481ED9C86F003F6722 /* FSparseSnapshotTests.m in Sources */,
 				D0FE8A491ED9C86F003F6722 /* FTestBase.m in Sources */,
@@ -4038,7 +4030,6 @@
 				D0FE8A6B1ED9C87B003F6722 /* FTupleEventTypeString.m in Sources */,
 				D0FE8A6C1ED9C87B003F6722 /* FTestAuthTokenGenerator.m in Sources */,
 				D0FE8A6D1ED9C87B003F6722 /* FMockStorageEngine.m in Sources */,
-				C86FBB1221944C0D00B3832E /* FIRAuthInteropFake.m in Sources */,
 				D0FE8A6E1ED9C87B003F6722 /* FConnectionTest.m in Sources */,
 				D0FE8A6F1ED9C87B003F6722 /* FKeepSyncedTest.m in Sources */,
 				D0FE8A701ED9C87B003F6722 /* FTransactionTest.m in Sources */,
@@ -4129,7 +4120,6 @@
 				DE90373C1FBA5F8F00E239D3 /* FUtilitiesTest.m in Sources */,
 				DE90372C1FBA5F8F00E239D3 /* FCompoundWriteTest.m in Sources */,
 				DE9037431FBA675D00E239D3 /* FMockStorageEngine.m in Sources */,
-				C859EB0C2193956E008FBD29 /* FIRAuthInteropFake.m in Sources */,
 				DE9037381FBA5F8F00E239D3 /* FSparseSnapshotTests.m in Sources */,
 				DE9037341FBA5F8F00E239D3 /* FPruningTest.m in Sources */,
 				DE9037471FBA675D00E239D3 /* FTestClock.m in Sources */,
@@ -4280,7 +4270,6 @@
 			files = (
 				DE7B8DCB1E8EF23A009EB6DF /* FIRViewController.m in Sources */,
 				DE7B8DCC1E8EF23A009EB6DF /* main.m in Sources */,
-				C859EB0A21939565008FBD29 /* FIRAuthInteropFake.m in Sources */,
 				DE7B8DCA1E8EF23A009EB6DF /* FIRAppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4306,7 +4295,6 @@
 				063CB4D41EBA7B4600038A59 /* FRepoInfoTest.m in Sources */,
 				063CB4CA1EBA7B4600038A59 /* FCompoundHashTest.m in Sources */,
 				063CB4D81EBA7B4600038A59 /* FTrackedQueryManagerTest.m in Sources */,
-				C859EB092193955E008FBD29 /* FIRAuthInteropFake.m in Sources */,
 				063CB4D91EBA7B4600038A59 /* FUtilitiesTest.m in Sources */,
 				063CB4D51EBA7B4600038A59 /* FSparseSnapshotTests.m in Sources */,
 				063CB4D71EBA7B4600038A59 /* FTestBase.m in Sources */,

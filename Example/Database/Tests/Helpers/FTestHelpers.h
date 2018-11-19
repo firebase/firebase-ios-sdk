@@ -28,8 +28,6 @@
 #define PATH(__path) [FPath pathWithString:(__path)]
 
 @interface FTestHelpers : XCTestCase
-+ (FIRDatabaseConfig *) defaultConfig;
-+ (FIRDatabaseConfig *) configForName:(NSString *)name;
 + (FIRDatabaseReference *) getRandomNode;
 + (FIRDatabaseReference *) getRandomNodeWithoutPersistence;
 + (FTupleFirebase *) getRandomNodePair;
