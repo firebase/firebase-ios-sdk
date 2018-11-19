@@ -136,9 +136,4 @@ BOOL FIRDLMatchesShortLinkFormat(NSURL *URL);
  */
 NSString *FIRDLMatchTypeStringFromServerString(NSString *_Nullable serverMatchTypeString);
 
-/**
- Add custom domains from the info.plist to the internal whitelist.
- */
-void FIRDLAddToWhiteListForCustomDomainsArray(NSArray *_Nonnull customDomains);
-
 NS_ASSUME_NONNULL_END

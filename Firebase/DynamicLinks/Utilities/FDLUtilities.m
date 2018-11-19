@@ -32,7 +32,6 @@ NSString *const kFIRDLParameterInviteId = @"invitation_id";
 NSString *const kFIRDLParameterWeakMatchEndpoint = @"invitation_weakMatchEndpoint";
 NSString *const kFIRDLParameterMatchMessage = @"match_message";
 NSString *const kFIRDLParameterRequestIPVersion = @"request_ip_version";
-static NSSet *FIRDLCustomDomains = nil;
 
 NSURL *FIRDLCookieRetrievalURL(NSString *urlScheme, NSString *bundleID) {
   static NSString *const kFDLBundleIDQueryParameterName = @"fdl_ios_bundle_id";
@@ -193,23 +192,6 @@ NSString *FIRDLDeviceTimezone() {
   return timeZoneName;
 }
 
-BOOL FIRDLIsURLForWhiteListedCustomDomain(NSURL *_Nullable URL) {
-  BOOL customDomainMatchFound = false;
-  for (NSURL *allowedCustomDomain in FIRDLCustomDomains) {
-    // All custom domain host names should match at a minimum.
-    if ([allowedCustomDomain.host isEqualToString:URL.host]) {
-      // Next, do a string compare to check if the full path matches as well.
-      if (([URL.absoluteString rangeOfString:allowedCustomDomain.absoluteString
-                                     options:NSCaseInsensitiveSearch | NSAnchoredSearch]
-               .location) == 0) {
-        customDomainMatchFound = true;
-        break;
-      }
-    }
-  }
-  return customDomainMatchFound;
-}
-
 BOOL FIRDLCanParseUniversalLinkURL(NSURL *_Nullable URL) {
   // Handle universal links with format |https://goo.gl/app/<appcode>?<parameters>|.
   // Also support page.link format.
@@ -218,11 +200,7 @@ BOOL FIRDLCanParseUniversalLinkURL(NSURL *_Nullable URL) {
   // Handle universal links with format |https://<appcode>.app.goo.gl?<parameters>| and page.link.
   BOOL isDDLWithSubdomain =
       [URL.host hasSuffix:@".app.goo.gl"] || [URL.host hasSuffix:@".page.link"];
-
-  // Handle universal links for custom domains.
-  BOOL isDDLWithCustomDomain = FIRDLIsURLForWhiteListedCustomDomain(URL);
-
-  return isDDLWithAppcodeInPath || isDDLWithSubdomain || isDDLWithCustomDomain;
+  return isDDLWithAppcodeInPath || isDDLWithSubdomain;
 }
 
 BOOL FIRDLMatchesShortLinkFormat(NSURL *URL) {
@@ -247,21 +225,6 @@ NSString *FIRDLMatchTypeStringFromServerString(NSString *_Nullable serverMatchTy
     };
   });
   return matchMap[serverMatchTypeString] ?: @"none";
-}
-
-void FIRDLAddToWhiteListForCustomDomainsArray(NSArray *_Nonnull customDomains) {
-  // Duplicates will be weeded out when converting to a set.
-  NSMutableArray *validCustomDomains =
-      [[NSMutableArray alloc] initWithCapacity:customDomains.count];
-  for (NSString *customDomainEntry in customDomains) {
-    NSURL *customDomainURL = [NSURL URLWithString:customDomainEntry];
-    // We require a valid scheme for each custom domain enumerated in the info.plist file.
-    if (customDomainURL && customDomainURL.scheme) {
-      [validCustomDomains addObject:customDomainURL];
-    }
-  }
-  // Duplicates will be weeded out when converting to a set.
-  FIRDLCustomDomains = [NSSet setWithArray:validCustomDomains];
 }
 
 NS_ASSUME_NONNULL_END

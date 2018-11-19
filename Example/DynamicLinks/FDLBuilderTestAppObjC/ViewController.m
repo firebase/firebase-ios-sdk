@@ -155,9 +155,9 @@ static NSArray *kParamsConfiguration;
       },
       // The default value of domain appcode belongs to project: app-invites-qa
       @{
-        @"id" : @"domainURIPrefix",
-        @"label" : @"App domainURIPrefix (required)",
-        @"defaultValue" : @"https://testfdl.page.link",
+        @"id" : @"domain",
+        @"label" : @"App domain (required)",
+        @"defaultValue" : @"testfdl.page.link",
       },
       // analytics params
       @{
@@ -289,8 +289,7 @@ static NSArray *kParamsConfiguration;
 - (void)_buildFDLLink {
   NSURL *link = [NSURL URLWithString:_paramValues[@"linkString"]];
   FIRDynamicLinkComponents *components =
-      [FIRDynamicLinkComponents componentsWithLink:link
-                                   domainURIPrefix:_paramValues[@"https://domain"]];
+      [FIRDynamicLinkComponents componentsWithLink:link domain:_paramValues[@"domain"]];
 
   FIRDynamicLinkGoogleAnalyticsParameters *analyticsParams =
       [FIRDynamicLinkGoogleAnalyticsParameters
