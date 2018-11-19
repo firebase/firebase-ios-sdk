@@ -2957,13 +2957,13 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
 }
 
 /** @fn signInWithPhoneNumberWithPrompt
- @brief Allows sign in with phone number via popup prompt.
+    @brief Allows sign in with phone number via popup prompt.
  */
 - (void)signInWithPhoneNumberWithPrompt {
   [self commonPhoneNumberInputWithTitle:@"Phone #"
                              Completion:^(NSString *_Nullable phone) {
-                               [self signInWithPhoneNumber:phone completion:nil];
-                             }];
+    [self signInWithPhoneNumber:phone completion:nil];
+  }];
 }
 
 /** @fn commonPhoneNumberInputWithLabel:Completion
