@@ -512,8 +512,7 @@ FIR_SWIFT_NAME(DynamicLinkComponents)
  * @param link Deep link to be stored in created Dynamic link. This link also called "payload" of
  *     the Dynamic link.
  * @param domain Domain of your App. This value must be equal to your assigned domain from Firebase
- *     Console. (e.g. xyz.page.link). Note that the domain scheme is required to be https and is
- * assumed as such by this API.
+ *     Console.
  */
 + (instancetype)componentsWithLink:(NSURL *)link
                             domain:(NSString *)domain
@@ -528,8 +527,7 @@ FIR_SWIFT_NAME(DynamicLinkComponents)
  * @param link Deep link to be stored in created Dynamic link. This link also called "payload" of
  *     the Dynamic link.
  * @param domain Domain of your App. This value must be equal to your assigned domain from Firebase
- *     Console. (e.g. xyz.page.link). Note that the domain scheme is required to be https and is
- * assumed as such by this API.
+ *     Console.
  */
 - (instancetype)initWithLink:(NSURL *)link
                       domain:(NSString *)domain
