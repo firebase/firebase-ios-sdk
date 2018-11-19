@@ -16,7 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-@class FIRComponentContainer;
 @class FIRFakeOptions;
 
 @interface FIRFakeApp : NSObject
@@ -25,5 +24,4 @@
 
 @property(nonatomic, readonly) FIRFakeOptions *options;
 @property(nonatomic, copy, readonly) NSString *name;
-@property(nonatomic, readonly) FIRComponentContainer *container;
 @end
