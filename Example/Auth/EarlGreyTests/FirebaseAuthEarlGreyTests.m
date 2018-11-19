@@ -38,7 +38,7 @@ static NSTimeInterval const kWaitForElementTimeOut = 5;
 @end
 
 /** Convenience function for EarlGrey tests. */
-id<GREYMatcher> grey_scrollView(void) {
+static id<GREYMatcher> grey_scrollView(void) {
   return [GREYMatchers matcherForKindOfClass:[UIScrollView class]];
 }
 
@@ -148,8 +148,7 @@ id<GREYMatcher> grey_scrollView(void) {
 
   [[EarlGrey selectElementWithMatcher:grey_text(@"Done")] performAction:grey_tap()];
 
-  NSString *invalidTokenErrorMessage =
-      @"The custom token format is incorrect. Please check the documentation.";
+  NSString *invalidTokenErrorMessage = @"Sign-In Error";
 
   [self waitForElementWithText:invalidTokenErrorMessage withDelay:kWaitForElementTimeOut];
 
@@ -182,4 +181,5 @@ id<GREYMatcher> grey_scrollView(void) {
                                  }];
   GREYAssertTrue([displayed waitWithTimeout:maxDelay], @"Failed to wait for element '%@'.", text);
 }
+
 @end

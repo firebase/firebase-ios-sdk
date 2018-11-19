@@ -116,6 +116,7 @@
 		0672F2F31EBBA7D900818E87 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0672F2F11EBBA7D900818E87 /* GoogleService-Info.plist */; };
 		069428831EC3B38C00F7BC69 /* 1mb.dat in Resources */ = {isa = PBXBuildFile; fileRef = 069428801EC3B35A00F7BC69 /* 1mb.dat */; };
 		06C24A061EC39BCB005208CA /* FIRStorageIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 06121ECA1EC39A0B0008D70E /* FIRStorageIntegrationTests.m */; };
+		409E1130219FA260000E6CFC /* FIRVerifyIOSClientTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 409E112F219FA260000E6CFC /* FIRVerifyIOSClientTests.m */; };
 		7E9485421F578AC4005A3939 /* FIRAuthURLPresenterTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7E94853F1F578A9D005A3939 /* FIRAuthURLPresenterTests.m */; };
 		7EE21F7A1FE89193009B1370 /* FIREmailLinkRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7EE21F791FE89193009B1370 /* FIREmailLinkRequestTests.m */; };
 		7EE21F7C1FE8919E009B1370 /* FIREmailLinkSignInResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7EE21F7B1FE8919D009B1370 /* FIREmailLinkSignInResponseTests.m */; };
@@ -947,6 +948,7 @@
 		069428801EC3B35A00F7BC69 /* 1mb.dat */ = {isa = PBXFileReference; lastKnownFileType = file; path = 1mb.dat; sourceTree = "<group>"; };
 		0697B1201EC13D8A00542174 /* Base64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Base64.h; sourceTree = "<group>"; };
 		0697B1211EC13D8A00542174 /* Base64.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Base64.m; sourceTree = "<group>"; };
+		409E112F219FA260000E6CFC /* FIRVerifyIOSClientTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRVerifyIOSClientTests.m; sourceTree = "<group>"; };
 		6003F58D195388D20070C39A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		6003F58F195388D20070C39A /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		6003F591195388D20070C39A /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -2017,6 +2019,7 @@
 			isa = PBXGroup;
 			children = (
 				DE26D1FA1F70333E004AE1D3 /* FirebaseAuthEarlGreyTests.m */,
+				409E112F219FA260000E6CFC /* FIRVerifyIOSClientTests.m */,
 				DE26D1FB1F70333E004AE1D3 /* Info.plist */,
 			);
 			path = EarlGreyTests;
@@ -4181,6 +4184,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DE26D2771F705CB5004AE1D3 /* FirebaseAuthEarlGreyTests.m in Sources */,
+				409E1130219FA260000E6CFC /* FIRVerifyIOSClientTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6033,7 +6037,7 @@
 					"\"${PODS_ROOT}/Headers/Public\"",
 					"\"${PODS_ROOT}/Headers/Public/FirebaseInstanceID\"",
 					"\"${PODS_ROOT}/Headers/Public/GoogleSignIn\"",
-					"\"${PODS_ROOT}/../../Firebase/Auth/Source\"",
+					"\"${PODS_ROOT}/../../Firebase/Auth/Source\"/**",
 				);
 				INFOPLIST_FILE = Auth/Sample/Application.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
@@ -6072,7 +6076,7 @@
 					"\"${PODS_ROOT}/Headers/Public\"",
 					"\"${PODS_ROOT}/Headers/Public/FirebaseInstanceID\"",
 					"\"${PODS_ROOT}/Headers/Public/GoogleSignIn\"",
-					"\"${PODS_ROOT}/../../Firebase/Auth/Source\"",
+					"\"${PODS_ROOT}/../../Firebase/Auth/Source\"/**",
 				);
 				INFOPLIST_FILE = Auth/Sample/Application.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
