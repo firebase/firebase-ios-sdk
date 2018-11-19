@@ -66,6 +66,7 @@ static NSString *const kProviderID = @"PROVIDER_ID";
         @c initWithProviderID:profile:username: call.
  */
 - (void)testAditionalUserInfoCreation {
+  XCTAssertTrue(NO);
   FIRAdditionalUserInfo *userInfo =
       [[FIRAdditionalUserInfo alloc] initWithProviderID:kProviderID
                                                 profile:[[self class] profile]
