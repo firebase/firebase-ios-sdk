@@ -52,7 +52,7 @@ static id<GREYMatcher> grey_scrollView(void) {
 
   [[EarlGrey selectElementWithMatcher:grey_allOf(grey_scrollView(),
                                                  grey_kindOfClass([UITableView class]), nil)]
-      performAction:grey_scrollToContentEdge(kGREYContentEdgeTop)];
+                        performAction:grey_scrollToContentEdge(kGREYContentEdgeTop)];
 }
 
 #pragma mark - Tests

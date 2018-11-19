@@ -2915,9 +2915,9 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
       return;
     }
     FIRVerifyClientRequest *request =
-    [[FIRVerifyClientRequest alloc] initWithAppToken:token.string
-                                           isSandbox:token.type == FIRAuthAPNSTokenTypeSandbox
-                                requestConfiguration:[AppManager auth].requestConfiguration];
+        [[FIRVerifyClientRequest alloc] initWithAppToken:token.string
+                                               isSandbox:token.type == FIRAuthAPNSTokenTypeSandbox
+                                    requestConfiguration:[AppManager auth].requestConfiguration];
     [FIRAuthBackend verifyClient:request callback:^(FIRVerifyClientResponse *_Nullable response,
                                                     NSError *_Nullable error) {
       if (error) {
@@ -2936,10 +2936,11 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
          }
          NSString *testPhoneNumber = @"+16509964692";
          FIRSendVerificationCodeRequest *request =
-         [[FIRSendVerificationCodeRequest alloc] initWithPhoneNumber:testPhoneNumber
-                                                       appCredential:credential
-                                                      reCAPTCHAToken:nil
-                                                requestConfiguration:[AppManager auth].requestConfiguration];
+             [[FIRSendVerificationCodeRequest alloc] initWithPhoneNumber:testPhoneNumber
+                                                           appCredential:credential
+                                                          reCAPTCHAToken:nil
+                                                    requestConfiguration:
+                                                      [AppManager auth].requestConfiguration];
          [FIRAuthBackend sendVerificationCode:request
                                      callback:^(FIRSendVerificationCodeResponse *_Nullable response,
                                                 NSError *_Nullable error) {

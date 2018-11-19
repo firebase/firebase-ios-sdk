@@ -16,7 +16,6 @@
 
 #import <XCTest/XCTest.h>
 #import <EarlGrey/EarlGrey.h>
-
 #import <FirebaseCore/FIRApp.h>
 #import "FirebaseAuth.h"
 
@@ -42,7 +41,7 @@ static id<GREYMatcher> grey_scrollView(void) {
 
   [[EarlGrey selectElementWithMatcher:grey_allOf(grey_scrollView(),
                                                  grey_kindOfClass([UITableView class]), nil)]
-   performAction:grey_scrollToContentEdge(kGREYContentEdgeTop)];
+                        performAction:grey_scrollToContentEdge(kGREYContentEdgeTop)];
 }
 
 #pragma mark - Tests
@@ -81,7 +80,7 @@ static id<GREYMatcher> grey_scrollView(void) {
                                NSError *error = nil;
                                [[EarlGrey selectElementWithMatcher:grey_text(text)]
                                 assertWithMatcher:grey_sufficientlyVisible()
-                                error:&error];
+                                            error:&error];
                                return !error;
                              }];
   GREYAssertTrue([displayed waitWithTimeout:maxDelay], @"Failed to wait for element '%@'.", text);
