@@ -15,118 +15,141 @@
  */
 
 #import "FTestHelpers.h"
-#import "FConstants.h"
-#import <FirebaseCore/FIRApp.h>
+
+#import <FirebaseAuthInterop/FIRAuthInterop.h>
+#import <FirebaseCore/FIRAppInternal.h>
+#import <FirebaseCore/FIRComponent.h>
+#import <FirebaseCore/FIRComponentContainer.h>
 #import <FirebaseCore/FIROptions.h>
+
+#import "FConstants.h"
+#import "FIRAuthInteropFake.h"
 #import "FIRDatabaseConfig_Private.h"
 #import "FTestAuthTokenGenerator.h"
 
 @implementation FTestHelpers
 
-+ (NSTimeInterval) waitUntil:(BOOL (^)())predicate timeout:(NSTimeInterval)seconds {
-    NSTimeInterval start = [NSDate timeIntervalSinceReferenceDate];
-    NSDate *timeoutDate = [NSDate dateWithTimeIntervalSinceNow:seconds];
-    NSTimeInterval timeoutTime = [timeoutDate timeIntervalSinceReferenceDate];
-    NSTimeInterval currentTime;
++ (NSTimeInterval)waitUntil:(BOOL (^)())predicate timeout:(NSTimeInterval)seconds {
+  NSTimeInterval start = [NSDate timeIntervalSinceReferenceDate];
+  NSDate *timeoutDate = [NSDate dateWithTimeIntervalSinceNow:seconds];
+  NSTimeInterval timeoutTime = [timeoutDate timeIntervalSinceReferenceDate];
+  NSTimeInterval currentTime;
 
-    for (currentTime = [NSDate timeIntervalSinceReferenceDate];
-         !predicate() && currentTime < timeoutTime;
-         currentTime = [NSDate timeIntervalSinceReferenceDate]) {
-        [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.25]];
-    }
+  for (currentTime = [NSDate timeIntervalSinceReferenceDate];
+       !predicate() && currentTime < timeoutTime;
+       currentTime = [NSDate timeIntervalSinceReferenceDate]) {
+    [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode
+                             beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.25]];
+  }
 
-    NSTimeInterval finish = [NSDate timeIntervalSinceReferenceDate];
+  NSTimeInterval finish = [NSDate timeIntervalSinceReferenceDate];
 
-    NSAssert(currentTime <= timeoutTime, @"Timed out");
+  NSAssert(currentTime <= timeoutTime, @"Timed out");
 
-    return (finish - start);
+  return (finish - start);
 }
 
-+ (NSArray*) getRandomNodes:(int)num persistence:(BOOL)persistence {
-    static dispatch_once_t pred = 0;
-    static NSMutableArray *persistenceRefs = nil;
-    static NSMutableArray *noPersistenceRefs = nil;
-    dispatch_once(&pred, ^{
-        persistenceRefs = [[NSMutableArray alloc] init];
-        noPersistenceRefs = [[NSMutableArray alloc] init];
-        // Uncomment the following line to run tests against a background thread
-        //[Firebase setDispatchQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)];
-    });
++ (FIRDatabaseConfig *)defaultConfig {
+  return [self configForName:@"default"];
+}
 
-    NSMutableArray *refs = (persistence) ? persistenceRefs : noPersistenceRefs;
++ (FIRDatabaseConfig *)configForName:(NSString *)name {
+  id<FIRAuthInterop> auth = [[FIRAuthInteropFake alloc] initWithToken:nil userID:nil error:nil];
+  id<FAuthTokenProvider> authTokenProvider = [FAuthTokenProvider authTokenProviderWithAuth:auth];
+  return [[FIRDatabaseConfig alloc] initWithSessionIdentifier:name
+                                            authTokenProvider:authTokenProvider];
+}
 
-    id<FAuthTokenProvider> authTokenProvider = [FAuthTokenProvider authTokenProviderForApp:[FIRApp defaultApp]];
++ (NSArray *)getRandomNodes:(int)num persistence:(BOOL)persistence {
+  static dispatch_once_t pred = 0;
+  static NSMutableArray *persistenceRefs = nil;
+  static NSMutableArray *noPersistenceRefs = nil;
+  dispatch_once(&pred, ^{
+    persistenceRefs = [[NSMutableArray alloc] init];
+    noPersistenceRefs = [[NSMutableArray alloc] init];
+    // Uncomment the following line to run tests against a background thread
+    //[Firebase setDispatchQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)];
+  });
 
-    while (num > refs.count) {
-        NSString *sessionIdentifier = [NSString stringWithFormat:@"test-config-%@persistence-%lu", (persistence) ? @"" : @"no-", refs.count];
-        FIRDatabaseConfig *config = [[FIRDatabaseConfig alloc] initWithSessionIdentifier:sessionIdentifier authTokenProvider:authTokenProvider];
-        config.persistenceEnabled = persistence;
-        FIRDatabaseReference * ref = [[FIRDatabaseReference alloc] initWithConfig:config];
-        [refs addObject:ref];
+  NSMutableArray *refs = (persistence) ? persistenceRefs : noPersistenceRefs;
+
+  id<FIRAuthInterop> auth = [[FIRAuthInteropFake alloc] initWithToken:nil userID:nil error:nil];
+  id<FAuthTokenProvider> authTokenProvider = [FAuthTokenProvider authTokenProviderWithAuth:auth];
+
+  while (num > refs.count) {
+    NSString *sessionIdentifier =
+        [NSString stringWithFormat:@"test-config-%@persistence-%lu", (persistence) ? @"" : @"no-",
+                                   refs.count];
+    FIRDatabaseConfig *config =
+        [[FIRDatabaseConfig alloc] initWithSessionIdentifier:sessionIdentifier
+                                           authTokenProvider:authTokenProvider];
+    config.persistenceEnabled = persistence;
+    FIRDatabaseReference *ref = [[FIRDatabaseReference alloc] initWithConfig:config];
+    [refs addObject:ref];
+  }
+
+  NSMutableArray *results = [[NSMutableArray alloc] init];
+  NSString *name = nil;
+  for (int i = 0; i < num; ++i) {
+    FIRDatabaseReference *ref = [refs objectAtIndex:i];
+    if (!name) {
+      name = [ref childByAutoId].key;
     }
-
-    NSMutableArray* results = [[NSMutableArray alloc] init];
-    NSString* name = nil;
-    for (int i = 0; i < num; ++i) {
-        FIRDatabaseReference * ref = [refs objectAtIndex:i];
-        if (!name) {
-            name = [ref childByAutoId].key;
-        }
-        [results addObject:[ref child:name]];
-    }
-    return results;
+    [results addObject:[ref child:name]];
+  }
+  return results;
 }
 
 // Helpers
-+ (FIRDatabaseReference *) getRandomNode {
-    NSArray* refs = [self getRandomNodes:1 persistence:YES];
-    return [refs objectAtIndex:0];
++ (FIRDatabaseReference *)getRandomNode {
+  NSArray *refs = [self getRandomNodes:1 persistence:YES];
+  return [refs objectAtIndex:0];
 }
 
-+ (FIRDatabaseReference *) getRandomNodeWithoutPersistence {
-    NSArray* refs = [self getRandomNodes:1 persistence:NO];
-    return refs[0];
++ (FIRDatabaseReference *)getRandomNodeWithoutPersistence {
+  NSArray *refs = [self getRandomNodes:1 persistence:NO];
+  return refs[0];
 }
 
-+ (FTupleFirebase *) getRandomNodePair {
-    NSArray* refs = [self getRandomNodes:2 persistence:YES];
++ (FTupleFirebase *)getRandomNodePair {
+  NSArray *refs = [self getRandomNodes:2 persistence:YES];
 
-    FTupleFirebase* tuple = [[FTupleFirebase alloc] init];
-    tuple.one = [refs objectAtIndex:0];
-    tuple.two = [refs objectAtIndex:1];
+  FTupleFirebase *tuple = [[FTupleFirebase alloc] init];
+  tuple.one = [refs objectAtIndex:0];
+  tuple.two = [refs objectAtIndex:1];
 
-    return tuple;
+  return tuple;
 }
 
-+ (FTupleFirebase *) getRandomNodePairWithoutPersistence {
-    NSArray* refs = [self getRandomNodes:2 persistence:NO];
++ (FTupleFirebase *)getRandomNodePairWithoutPersistence {
+  NSArray *refs = [self getRandomNodes:2 persistence:NO];
 
-    FTupleFirebase* tuple = [[FTupleFirebase alloc] init];
-    tuple.one = refs[0];
-    tuple.two = refs[1];
+  FTupleFirebase *tuple = [[FTupleFirebase alloc] init];
+  tuple.one = refs[0];
+  tuple.two = refs[1];
 
-    return tuple;
+  return tuple;
 }
 
-+ (FTupleFirebase *) getRandomNodeTriple {
-    NSArray* refs = [self getRandomNodes:3 persistence:YES];
-    FTupleFirebase* triple = [[FTupleFirebase alloc] init];
-    triple.one = [refs objectAtIndex:0];
-    triple.two = [refs objectAtIndex:1];
-    triple.three = [refs objectAtIndex:2];
++ (FTupleFirebase *)getRandomNodeTriple {
+  NSArray *refs = [self getRandomNodes:3 persistence:YES];
+  FTupleFirebase *triple = [[FTupleFirebase alloc] init];
+  triple.one = [refs objectAtIndex:0];
+  triple.two = [refs objectAtIndex:1];
+  triple.three = [refs objectAtIndex:2];
 
-    return triple;
+  return triple;
 }
 
 + (id<FNode>)leafNodeOfSize:(NSUInteger)size {
-    NSMutableString *string = [NSMutableString string];
-    NSString *pattern = @"abdefghijklmopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    for (NSUInteger i = 0; i < size - pattern.length; i = i + pattern.length) {
-        [string appendString:pattern];
-    }
-    NSUInteger remainingLength = size - string.length;
-    [string appendString:[pattern substringToIndex:remainingLength]];
-    return [FSnapshotUtilities nodeFrom:string];
+  NSMutableString *string = [NSMutableString string];
+  NSString *pattern = @"abdefghijklmopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  for (NSUInteger i = 0; i < size - pattern.length; i = i + pattern.length) {
+    [string appendString:pattern];
+  }
+  NSUInteger remainingLength = size - string.length;
+  [string appendString:[pattern substringToIndex:remainingLength]];
+  return [FSnapshotUtilities nodeFrom:string];
 }
 
 @end
