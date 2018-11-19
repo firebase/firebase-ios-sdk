@@ -1,4 +1,4 @@
-# v3.1.2
+# v3.2.0
 - Delete deprecated source files. (#2038)
 
 # v3.1.1
