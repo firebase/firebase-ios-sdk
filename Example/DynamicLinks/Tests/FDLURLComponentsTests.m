@@ -21,8 +21,7 @@
 
 #import <OCMock/OCMock.h>
 
-static NSString *const kFDLURLDomain = @"https://xyz.page.link";
-static NSString *const kFDLURLCustomDomain = @"https://foo.com/path";
+static NSString *const kFDLURLDomain = @"xyz.page.link";
 
 @interface FDLURLComponentsTests : XCTestCase
 @end
@@ -462,14 +461,14 @@ static NSString *const kFDLURLCustomDomain = @"https://foo.com/path";
 
 - (void)testFDLComponentsFactoryReturnsInstanceOfCorrectClass {
   NSURL *link = [NSURL URLWithString:@"https://google.com"];
-  id returnValue = [FIRDynamicLinkComponents componentsWithLink:link domainURIPrefix:kFDLURLDomain];
+  id returnValue = [FIRDynamicLinkComponents componentsWithLink:link domain:kFDLURLDomain];
   XCTAssertTrue([returnValue isKindOfClass:[FIRDynamicLinkComponents class]]);
 }
 
 - (void)testFDLComponentsFactoryReturnsInstanceWithAllNilProperties {
   NSURL *link = [NSURL URLWithString:@"https://google.com"];
   FIRDynamicLinkComponents *components =
-      [FIRDynamicLinkComponents componentsWithLink:link domainURIPrefix:kFDLURLDomain];
+      [FIRDynamicLinkComponents componentsWithLink:link domain:kFDLURLDomain];
 
   XCTAssertNil(components.analyticsParameters);
   XCTAssertNil(components.socialMetaTagParameters);
@@ -485,27 +484,11 @@ static NSString *const kFDLURLCustomDomain = @"https://foo.com/path";
   NSURL *link = [NSURL URLWithString:linkString];
 
   NSString *expectedURLString =
-      [NSString stringWithFormat:@"%@/?link=%@", kFDLURLDomain, endcodedLinkString];
+      [NSString stringWithFormat:@"https://%@/?link=%@", kFDLURLDomain, endcodedLinkString];
   NSURL *expectedURL = [NSURL URLWithString:expectedURLString];
 
   FIRDynamicLinkComponents *components =
-      [FIRDynamicLinkComponents componentsWithLink:link domainURIPrefix:kFDLURLDomain];
-  NSURL *actualURL = components.url;
-
-  XCTAssertEqualObjects(actualURL, expectedURL);
-}
-
-- (void)testFDLComponentsCustomDomainWithPath {
-  NSString *linkString = @"https://google.com";
-  NSString *endcodedLinkString = @"https%3A%2F%2Fgoogle%2Ecom";
-  NSURL *link = [NSURL URLWithString:linkString];
-
-  NSString *expectedURLString =
-      [NSString stringWithFormat:@"%@/?link=%@", kFDLURLCustomDomain, endcodedLinkString];
-  NSURL *expectedURL = [NSURL URLWithString:expectedURLString];
-
-  FIRDynamicLinkComponents *components =
-      [FIRDynamicLinkComponents componentsWithLink:link domainURIPrefix:kFDLURLCustomDomain];
+      [FIRDynamicLinkComponents componentsWithLink:link domain:kFDLURLDomain];
   NSURL *actualURL = components.url;
 
   XCTAssertEqualObjects(actualURL, expectedURL);
@@ -516,8 +499,7 @@ static NSString *const kFDLURLCustomDomain = @"https://foo.com/path";
   NSURL *link = [NSURL URLWithString:linkString];
 
   FIRDynamicLinkComponents *components =
-      [FIRDynamicLinkComponents componentsWithLink:link
-                                   domainURIPrefix:@"this is invalid domain URI Prefix"];
+      [FIRDynamicLinkComponents componentsWithLink:link domain:@"this is invalid domain"];
 
   XCTAssertNil(components.url);
 }
@@ -571,7 +553,7 @@ static NSString *const kFDLURLCustomDomain = @"https://foo.com/path";
 
   NSURL *link = [NSURL URLWithString:@"https://google.com"];
   FIRDynamicLinkComponents *fdlComponents =
-      [FIRDynamicLinkComponents componentsWithLink:link domainURIPrefix:kFDLURLDomain];
+      [FIRDynamicLinkComponents componentsWithLink:link domain:kFDLURLDomain];
   fdlComponents.analyticsParameters = analyticsParams;
   fdlComponents.iOSParameters = iosParams;
   fdlComponents.iTunesConnectParameters = itcParams;
@@ -660,43 +642,7 @@ static NSString *const kFDLURLCustomDomain = @"https://foo.com/path";
   XCTestExpectation *expectation = [self expectationWithDescription:@"completion called"];
   NSURL *link = [NSURL URLWithString:@"https://google.com/abc"];
   FIRDynamicLinkComponents *components =
-      [FIRDynamicLinkComponents componentsWithLink:link domainURIPrefix:kFDLURLDomain];
-  [components
-      shortenWithCompletion:^(NSURL *_Nullable shortURL, NSArray<NSString *> *_Nullable warnings,
-                              NSError *_Nullable error) {
-        XCTAssertEqualObjects(shortURL.absoluteString, shortURLString);
-        [expectation fulfill];
-      }];
-  [self waitForExpectationsWithTimeout:0.1 handler:nil];
-
-  [keyProviderClassMock verify];
-  [keyProviderClassMock stopMocking];
-  [componentsClassMock verify];
-  [componentsClassMock stopMocking];
-}
-
-- (void)testDeprecatedMethodComponentsWithLinkForDomain {
-  NSString *shortURLString = @"https://xyz.page.link/abcd";
-
-  // Mock key provider
-  id keyProviderClassMock = OCMClassMock([FIRDynamicLinkComponentsKeyProvider class]);
-  [[[keyProviderClassMock expect] andReturn:@"fake-api-key"] APIKey];
-
-  id componentsClassMock = OCMClassMock([FIRDynamicLinkComponents class]);
-  [[componentsClassMock expect]
-      sendHTTPRequest:OCMOCK_ANY
-           completion:[OCMArg checkWithBlock:^BOOL(id obj) {
-             void (^completion)(NSData *_Nullable, NSError *_Nullable) = obj;
-             NSDictionary *JSON = @{@"shortLink" : shortURLString};
-             NSData *JSONData = [NSJSONSerialization dataWithJSONObject:JSON options:0 error:0];
-             completion(JSONData, nil);
-             return YES;
-           }]];
-
-  XCTestExpectation *expectation = [self expectationWithDescription:@"completion called"];
-  NSURL *link = [NSURL URLWithString:@"https://google.com/abc"];
-  FIRDynamicLinkComponents *components =
-      [FIRDynamicLinkComponents componentsWithLink:link domain:@"xyz.page.link"];
+      [FIRDynamicLinkComponents componentsWithLink:link domain:kFDLURLDomain];
   [components
       shortenWithCompletion:^(NSURL *_Nullable shortURL, NSArray<NSString *> *_Nullable warnings,
                               NSError *_Nullable error) {
@@ -733,7 +679,7 @@ static NSString *const kFDLURLCustomDomain = @"https://foo.com/path";
       [self expectationWithDescription:@"completion called with error"];
   NSURL *link = [NSURL URLWithString:@"https://google.com/abc"];
   FIRDynamicLinkComponents *components =
-      [FIRDynamicLinkComponents componentsWithLink:link domainURIPrefix:kFDLURLDomain];
+      [FIRDynamicLinkComponents componentsWithLink:link domain:kFDLURLDomain];
   [components
       shortenWithCompletion:^(NSURL *_Nullable shortURL, NSArray<NSString *> *_Nullable warnings,
                               NSError *_Nullable error) {
@@ -768,11 +714,20 @@ static NSString *const kFDLURLCustomDomain = @"https://foo.com/path";
              return YES;
            }]];
 
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"completion called with error"];
   NSURL *link = [NSURL URLWithString:@"https://google.com/abc"];
   FIRDynamicLinkComponents *components =
-      [FIRDynamicLinkComponents componentsWithLink:link
-                                   domainURIPrefix:@"this is invalid domain URI Prefix"];
-  XCTAssertNil(components);
+      [FIRDynamicLinkComponents componentsWithLink:link domain:@"this is invalid domain"];
+  [components
+      shortenWithCompletion:^(NSURL *_Nullable shortURL, NSArray<NSString *> *_Nullable warnings,
+                              NSError *_Nullable error) {
+        XCTAssertNil(shortURL);
+        if (error) {
+          [expectation fulfill];
+        }
+      }];
+  [self waitForExpectationsWithTimeout:0.1 handler:nil];
 
   [keyProviderClassMock verify];
   [keyProviderClassMock stopMocking];

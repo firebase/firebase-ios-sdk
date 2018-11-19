@@ -512,14 +512,11 @@ FIR_SWIFT_NAME(DynamicLinkComponents)
  * @param link Deep link to be stored in created Dynamic link. This link also called "payload" of
  *     the Dynamic link.
  * @param domain Domain of your App. This value must be equal to your assigned domain from Firebase
- *     Console. (e.g. xyz.page.link). Note that the domain scheme is required to be https and is
- * assumed as such by this API.
+ *     Console.
  */
 + (instancetype)componentsWithLink:(NSURL *)link
                             domain:(NSString *)domain
-    NS_SWIFT_UNAVAILABLE("Use init(link:domain:)")DEPRECATED_MSG_ATTRIBUTE(
-        "This method is deprecated. Please use the new method with support for "
-        "domainURIPrefix- componentsWithLink:domainURIPrefix.");
+    NS_SWIFT_UNAVAILABLE("Use init(link:domain:)");
 
 /**
  * @method initWithLink:domain:
@@ -528,42 +525,9 @@ FIR_SWIFT_NAME(DynamicLinkComponents)
  * @param link Deep link to be stored in created Dynamic link. This link also called "payload" of
  *     the Dynamic link.
  * @param domain Domain of your App. This value must be equal to your assigned domain from Firebase
- *     Console. (e.g. xyz.page.link). Note that the domain scheme is required to be https and is
- * assumed as such by this API.
+ *     Console.
  */
-- (instancetype)initWithLink:(NSURL *)link
-                      domain:(NSString *)domain
-    DEPRECATED_MSG_ATTRIBUTE(
-        "This method is deprecated. Please use the new method with support for "
-        "domainURIPrefix- initWithLink:domainURIPrefix.");
-
-/**
- * @method componentsWithLink:domain:
- * @abstract Generates a Dynamic Link URL components object with the minimum necessary parameters
- *     set to generate a fully-functional Dynamic Link.
- * @param link Deep link to be stored in created Dynamic link. This link also called "payload" of
- *     the Dynamic link.
- * @param domainURIPrefix Domain URI Prefix of your App. This value must be either a. your assigned
- * domain from the Firebase console or b. your custom domain or c. your custom domain with a valid
- * path that is registered for Dynamic Links.  The domain URI prefix must start with a valid scheme
- * (https://)
- */
-+ (instancetype)componentsWithLink:(NSURL *)link
-                   domainURIPrefix:(NSString *)domainURIPrefix
-    NS_SWIFT_UNAVAILABLE("Use init(link:domainURIPrefix:)");
-
-/**
- * @method initWithLink:domain:
- * @abstract Generates a Dynamic Link URL components object with the minimum necessary parameters
- *     set to generate a fully-functional Dynamic Link.
- * @param link Deep link to be stored in created Dynamic link. This link also called "payload" of
- *     the Dynamic link.
- * @param domainURIPrefix Domain URI Prefix of your App. This value must be either a. your assigned
- * domain from the Firebase console or b. your custom domain or c. your custom domain with a valid
- * path that is registered for Dynamic Links. The domain URI prefix must start with a valid scheme
- * (https://).
- */
-- (instancetype)initWithLink:(NSURL *)link domainURIPrefix:(NSString *)domainURIPrefix;
+- (instancetype)initWithLink:(NSURL *)link domain:(NSString *)domain;
 
 /**
  * @method shortenURL:options:completion:
