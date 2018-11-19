@@ -71,20 +71,6 @@
 	</array>
 	<key>CFBundleVersion</key>
 	<string>1</string>
-	<key>FirebaseDynamicLinksCustomDomains</key>
-	<array>
-		<string>https://mydomain.com</string>
-		<string>https://mydomain2.com</string>
-		<string>https://google.com</string>
-		<string>https://google.com</string>
-		<string>google</string>
-		<string>mydomain.com</string>
-		<string>https://mydomain</string>
-		<string>https://mydomain3.com</string>
-		<string>https://google.com/one</string>
-		<string>https://custom.com/one/two</string>
-		<string>https://custom1.com/one/</string>
-	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
@@ -98,6 +84,20 @@
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>FirebaseDynamicLinksCustomDomains</key>
+	<array>
+		<string>https://mydomain.com</string>
+		<string>https://mydomain2.com</string>
+		<string>https://google.com</string>
+		<string>https://google.com</string>
+		<string>go</string>
+		<string>g.co</string>
+		<string>https://go</string>
+		<string>https://g.co</string>
+		<string>https://google.com/one</string>
+		<string>https://custom.com/one/two</string>
+		<string>https://custom1.com/one/</string>
 	</array>
 </dict>
 </plist>
