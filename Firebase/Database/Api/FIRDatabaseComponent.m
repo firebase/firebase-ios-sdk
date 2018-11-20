@@ -122,7 +122,9 @@ typedef NSMutableDictionary<NSString *, FIRDatabase *> FIRDatabaseDictionary;
   FIRDatabaseDictionary *instances = [self instances];
   @synchronized (instances) {
     FParsedUrl *parsedUrl = [FUtilities parseUrl:databaseUrl.absoluteString];
-    FIRDatabase *database = instances[url];
+    NSString *urlIndex =
+        [NSString stringWithFormat:@"%@:%@", parsedUrl.repoInfo.host, [parsedUrl.path toString]];
+    FIRDatabase *database = instances[urlIndex];
     if (!database) {
       id<FAuthTokenProvider> authTokenProvider =
           [FAuthTokenProvider authTokenProviderWithAuth:
@@ -142,7 +144,7 @@ typedef NSMutableDictionary<NSString *, FIRDatabase *> FIRDatabaseDictionary;
       database = [[FIRDatabase alloc] initWithApp:app
                                          repoInfo:parsedUrl.repoInfo
                                            config:config];
-      instances[url] = database;
+      instances[urlIndex] = database;
     }
 
     return database;

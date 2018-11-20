@@ -52,6 +52,7 @@
         };
     FIRComponentCreationBlock databaseBlock =
         ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
+          *isCacheable = YES;
           return [[FIRDatabaseComponent alloc] initWithApp:container.app];
         };
     NSDictionary<NSString *, FIRComponentCreationBlock> *components =

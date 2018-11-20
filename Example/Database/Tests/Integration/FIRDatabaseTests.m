@@ -447,7 +447,13 @@ static NSString *kFirebaseTestAltNamespace = @"https://foobar.firebaseio.com";
 }
 
 - (FIRDatabase *) databaseForURL:(NSString *)url name:(NSString *)name {
-    id app = [[FIRFakeApp alloc] initWithName:name URL:url];
+    id app = nil;
+    NSString *defaultDatabaseURL = [NSString stringWithFormat:@"url:%@", self.databaseURL];
+    if ([url isEqualToString:self.databaseURL] && [name isEqualToString:defaultDatabaseURL]) {
+        app = [FIRApp defaultApp];
+    } else {
+        app = [[FIRFakeApp alloc] initWithName:name URL:url];
+    }
     return [FIRDatabase databaseForApp:app];
 }
 @end
