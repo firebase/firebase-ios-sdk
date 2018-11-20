@@ -1,0 +1,4 @@
+module Moo {
+  export *
+  header "Firebase.h"
+}

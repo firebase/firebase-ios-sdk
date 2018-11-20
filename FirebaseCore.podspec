@@ -13,7 +13,7 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
 
   s.source           = {
     :git => 'https://github.com/firebase/firebase-ios-sdk.git',
-    :tag => 'Core-' + s.version.to_s
+    :tag => 'Core-Test-' + s.version.to_s
   }
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '8.0'
@@ -29,6 +29,7 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   s.private_header_files = 'Firebase/Core/Private/*.h'
   s.framework = 'Foundation'
   s.dependency 'GoogleUtilities/Logger', '~> 5.2'
+  s.preserve_paths = [ 'Firebase/Core/Firebase/*' ]
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
