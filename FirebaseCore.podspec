@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCore'
-  s.version          = '5.1.990'
+  s.version          = '5.1.991'
   s.summary          = 'Firebase Core for iOS (plus community support for macOS and tvOS)'
 
   s.description      = <<-DESC
@@ -36,7 +36,11 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
       'FIRCore_VERSION=' + s.version.to_s + ' Firebase_VERSION=5.12.0',
     'OTHER_CFLAGS' => '-fno-autolink'
   }
+
+  # Set up HEADER_SEARCH_PATHS to find the Firebase module for @import Firebase and 
+  # Firebase/Firebase.h.
   s.user_target_xcconfig = {
-    "HEADER_SEARCH_PATHS": "$(inherited) ${PODS_ROOT}/Firebase/Core/Firebase"
+    "HEADER_SEARCH_PATHS": '$(inherited) "${PODS_ROOT}/FirebaseCore/Firebase/Core/Firebase" ' +
+                                         "${PODS_ROOT}/FirebaseCore/Firebase/Core"
   }
 end
