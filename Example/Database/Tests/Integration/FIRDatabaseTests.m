@@ -450,6 +450,8 @@ static NSString *kFirebaseTestAltNamespace = @"https://foobar.firebaseio.com";
     id app = nil;
     NSString *defaultDatabaseURL = [NSString stringWithFormat:@"url:%@", self.databaseURL];
     if ([url isEqualToString:self.databaseURL] && [name isEqualToString:defaultDatabaseURL]) {
+        // Use the default app for the default URL to avoid getting out of sync with FRepoManager
+        // when calling ensureRepo during tests that don't create their own FIRFakeApp.
         app = [FIRApp defaultApp];
     } else {
         app = [[FIRFakeApp alloc] initWithName:name URL:url];
