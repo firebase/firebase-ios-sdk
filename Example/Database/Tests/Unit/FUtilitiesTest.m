@@ -22,6 +22,7 @@
 #import "FIRDatabaseConfig_Private.h"
 #import "FWebSocketConnection.h"
 #import "FConstants.h"
+#import "FTestHelpers.h"
 
 @interface FWebSocketConnection (Tests)
 - (NSString*)userAgent;
@@ -50,12 +51,12 @@
 }
 
 - (void)testDefaultCacheSizeIs10MB {
-    XCTAssertEqual([FIRDatabaseReference defaultConfig].persistenceCacheSizeBytes, (NSUInteger)10*1024*1024);
-    XCTAssertEqual([FIRDatabaseConfig configForName:@"test-config"].persistenceCacheSizeBytes, (NSUInteger)10*1024*1024);
+    XCTAssertEqual([FTestHelpers defaultConfig].persistenceCacheSizeBytes, (NSUInteger)10*1024*1024);
+    XCTAssertEqual([FTestHelpers configForName:@"test-config"].persistenceCacheSizeBytes, (NSUInteger)10*1024*1024);
 }
 
 - (void)testSettingCacheSizeToHighOrToLowThrows {
-    FIRDatabaseConfig *config = [FIRDatabaseConfig configForName:@"config-tests-config"];
+    FIRDatabaseConfig *config = [FTestHelpers configForName:@"config-tests-config"];
     config.persistenceCacheSizeBytes = 5*1024*1024; // Works fine
     XCTAssertThrows(config.persistenceCacheSizeBytes = (1024*1024-1));
     XCTAssertThrows(config.persistenceCacheSizeBytes = 100*1024*1024+1);
