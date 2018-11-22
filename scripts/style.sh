@@ -39,7 +39,7 @@ version="${version/ (*)/}"
 version="${version/.*/}"
 
 case "$version" in
-  6 | 7)
+  7 | 8)
     # Allow an older clang-format to accommodate Travis version skew.
     ;;
   google3-trunk)
