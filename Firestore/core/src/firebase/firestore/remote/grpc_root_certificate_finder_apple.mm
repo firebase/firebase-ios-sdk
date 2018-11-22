@@ -20,6 +20,7 @@
 
 #include "Firestore/core/src/firebase/firestore/util/filesystem.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
 
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
@@ -43,8 +44,12 @@ std::string LoadGrpcRootCertificate() {
     path =
         [bundle pathForResource:@"gRPCCertificates.bundle/roots" ofType:@"pem"];
   }
-  if (!path) {
+  if (path) {
+    LOG_DEBUG("Using roots.pem file from gRPC-C++ pod");
+  } else {
     // Fall back to the certificates bundled with Firestore if necessary.
+    LOG_DEBUG("Using roots.pem file from Firestore pod");
+
     bundle = [NSBundle bundleForClass:FSTFirestoreClient.class];
     HARD_ASSERT(bundle, "Could not find Firestore bundle");
     path = [bundle pathForResource:@"gRPCCertificates-Firestore.bundle/roots"
