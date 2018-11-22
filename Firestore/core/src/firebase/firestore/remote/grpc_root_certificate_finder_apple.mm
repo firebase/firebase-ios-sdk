@@ -20,6 +20,7 @@
 
 #include "Firestore/core/src/firebase/firestore/util/filesystem.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
 
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
@@ -34,19 +35,30 @@ using util::StatusOr;
 using util::StringFormat;
 
 std::string LoadGrpcRootCertificate() {
-  // TODO(varconst): uncomment these lines once it's possible to load the
-  // certificate from gRPC-C++ pod.
-  // NSBundle* bundle = [NSBundle bundleWithIdentifier:@"org.cocoapods.grpcpp"];
-  // HARD_ASSERT(bundle, "Could not find grpcpp bundle");
+  // Try to load certificates bundled by gRPC-C++ if available (depends on
+  // gRPC-C++ version).
+  // Note that `mainBundle` may be nil in certain cases (e.g., unit tests).
+  NSBundle* bundle = [NSBundle bundleWithIdentifier:@"org.cocoapods.grpcpp"];
+  NSString* path;
+  if (bundle) {
+    path =
+        [bundle pathForResource:@"gRPCCertificates.bundle/roots" ofType:@"pem"];
+  }
+  if (path) {
+    LOG_DEBUG("Using roots.pem file from gRPC-C++ pod");
+  } else {
+    // Fall back to the certificates bundled with Firestore if necessary.
+    LOG_DEBUG("Using roots.pem file from Firestore pod");
 
-  // `mainBundle` may be nil in certain cases (e.g., unit tests).
-  NSBundle* bundle = [NSBundle bundleForClass:FSTFirestoreClient.class];
-  HARD_ASSERT(bundle, "Could not find Firestore bundle");
-  NSString* path =
-      [bundle pathForResource:@"gRPCCertificates.bundle/roots" ofType:@"pem"];
+    bundle = [NSBundle bundleForClass:FSTFirestoreClient.class];
+    HARD_ASSERT(bundle, "Could not find Firestore bundle");
+    path = [bundle pathForResource:@"gRPCCertificates-Firestore.bundle/roots"
+                            ofType:@"pem"];
+  }
+
   HARD_ASSERT(
       path,
-      "Could not load root certificates from the bundle. SSL won't work.");
+      "Could not load root certificates from the bundle. SSL cannot work.");
 
   StatusOr<std::string> certificate = ReadFile(Path::FromNSString(path));
   HARD_ASSERT(
