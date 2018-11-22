@@ -52,9 +52,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param region The region for the http trigger, such as "us-central1".
  * @param auth The auth provider to use (optional).
  */
-- (id)initWithApp:(FIRApp *)app
-           region:(NSString *)region
-             auth:(nullable id<FIRAuthInterop>)auth;
+- (id)initWithApp:(FIRApp *)app region:(NSString *)region auth:(nullable id<FIRAuthInterop>)auth;
 
 @end
 

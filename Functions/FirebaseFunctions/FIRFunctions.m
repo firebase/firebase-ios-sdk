@@ -71,11 +71,11 @@ NSString *const kFUNDefaultRegion = @"us-central1";
 + (NSArray<FIRComponent *> *)componentsToRegister {
   FIRComponentCreationBlock creationBlock =
       ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
-        *isCacheable = YES;
-        return [self functionsForApp:container.app];
-      };
-  FIRDependency *auth =
-      [FIRDependency dependencyWithProtocol:@protocol(FIRAuthInterop) isRequired:NO];
+    *isCacheable = YES;
+    return [self functionsForApp:container.app];
+  };
+  FIRDependency *auth = [FIRDependency dependencyWithProtocol:@protocol(FIRAuthInterop)
+                                                   isRequired:NO];
   FIRComponent *internalProvider =
       [FIRComponent componentWithProtocol:@protocol(FIRFunctionsInstanceProvider)
                       instantiationTiming:FIRInstantiationTimingLazy
