@@ -21,7 +21,6 @@
 #import <FirebaseAuthInterop/FIRAuthInterop.h>
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
-#import <FirebaseCore/FIRComponentContainer.h>
 #import <FirebaseCore/FIRComponentRegistrant.h>
 
 #import "FIRAdditionalUserInfo.h"
@@ -2270,7 +2269,7 @@ static const NSTimeInterval kWaitInterval = .5;
  */
 - (void)enableAutoTokenRefresh {
   XCTestExpectation *expectation = [self expectationWithDescription:@"autoTokenRefreshcallback"];
-  id<FIRAuthInterop> auth = FIR_COMPONENT(FIRAuthInterop, [FIRAuth auth].app.container);
+  id<FIRAuthInterop> auth = (id<FIRAuthInterop>)[FIRAuth auth];
   [auth getTokenForcingRefresh:NO withCallback:^(NSString *_Nullable token,
                                                  NSError *_Nullable error) {
     [expectation fulfill];
