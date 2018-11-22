@@ -2269,9 +2269,8 @@ static const NSTimeInterval kWaitInterval = .5;
  */
 - (void)enableAutoTokenRefresh {
   XCTestExpectation *expectation = [self expectationWithDescription:@"autoTokenRefreshcallback"];
-  id<FIRAuthInterop> auth = (id<FIRAuthInterop>)[FIRAuth auth];
-  [auth getTokenForcingRefresh:NO withCallback:^(NSString *_Nullable token,
-                                                 NSError *_Nullable error) {
+  [[FIRAuth auth] getTokenForcingRefresh:NO withCallback:^(NSString *_Nullable token,
+                                                           NSError *_Nullable error) {
     [expectation fulfill];
   }];
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];

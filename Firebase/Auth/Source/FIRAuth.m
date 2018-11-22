@@ -22,7 +22,6 @@
 #import <UIKit/UIKit.h>
 #endif
 
-#import <FirebaseAuthInterop/FIRAuthInterop.h>
 #import <FirebaseCore/FIRAppAssociationRegistration.h>
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
@@ -226,9 +225,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 #pragma mark - FIRAuth
 
 #if TARGET_OS_IOS
-@interface FIRAuth () <FIRAuthAppDelegateHandler, FIRAuthInterop, FIRComponentRegistrant, FIRCoreConfigurable, FIRComponentLifecycleMaintainer>
+@interface FIRAuth () <FIRAuthAppDelegateHandler, FIRComponentRegistrant, FIRCoreConfigurable, FIRComponentLifecycleMaintainer>
 #else
-@interface FIRAuth () <FIRAuthInterop, FIRComponentRegistrant, FIRCoreConfigurable, FIRComponentLifecycleMaintainer>
+@interface FIRAuth () <FIRComponentRegistrant, FIRCoreConfigurable, FIRComponentLifecycleMaintainer>
 #endif
 
 /** @property firebaseAppId
