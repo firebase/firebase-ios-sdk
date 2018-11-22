@@ -341,23 +341,6 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   self = [self initWithAPIKey:app.options.APIKey appName:app.name];
   if (self) {
     _app = app;
-    __weak FIRAuth *weakSelf = self;
-
-    // TODO: Remove this block once Firestore, Database, and Storage move to the new interop API.
-    app.getTokenImplementation = ^(BOOL forceRefresh, FIRTokenCallback callback) {
-      // In the meantime, redirect call to the interop method that provides this functionality.
-      __weak FIRAuth *weakSelf = self;
-      [weakSelf getTokenForcingRefresh:forceRefresh withCallback:callback];
-    };
-
-    // TODO: Remove this block once Firestore, Database, and Storage move to the new interop API.
-    app.getUIDImplementation = ^NSString *_Nullable() {
-      __block NSString *uid;
-      dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
-        uid = [weakSelf getUserID];
-      });
-      return uid;
-    };
     #if TARGET_OS_IOS
     _authURLPresenter = [[FIRAuthURLPresenter alloc] init];
     #endif
