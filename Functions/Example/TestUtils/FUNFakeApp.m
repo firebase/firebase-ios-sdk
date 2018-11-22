@@ -18,6 +18,8 @@
 
 #import "FUNFakeApp.h"
 
+#import <FirebaseCore/FIRComponentContainerInternal.h>
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FUNFakeOptions : NSObject
@@ -58,14 +60,9 @@ NS_ASSUME_NONNULL_BEGIN
   if (self) {
     _options = [[FUNFakeOptions alloc] initWithProjectID:projectID];
     _token = [token copy];
+    _container = [[FIRComponentContainer alloc] initWithApp:(FIRApp *)self];
   }
   return self;
-}
-
-- (void)getTokenForcingRefresh:(BOOL)forceRefresh
-                  withCallback:
-                      (void (^)(NSString *_Nullable token, NSError *_Nullable error))callback {
-  callback(_token, nil);
 }
 
 @end

@@ -24,6 +24,7 @@ iOS SDK for Cloud Functions for Firebase.
   s.source_files = 'Functions/FirebaseFunctions/**/*'
   s.public_header_files = 'Functions/FirebaseFunctions/Public/*.h'
 
+  s.dependency 'FirebaseAuthInterop', '~> 1.0'
   s.dependency 'FirebaseCore', '~> 5.0'
   s.dependency 'GTMSessionFetcher/Core', '~> 1.1'
 

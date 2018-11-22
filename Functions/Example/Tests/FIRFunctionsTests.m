@@ -34,7 +34,7 @@
 
 - (void)testURLWithName {
   id app = [[FUNFakeApp alloc] initWithProjectID:@"my-project"];
-  FIRFunctions *functions = [FIRFunctions functionsForApp:app region:@"my-region"];
+  FIRFunctions *functions = [[FIRFunctions alloc] initWithApp:app region:@"my-region" auth:nil];
   NSString *url = [functions URLWithName:@"my-endpoint"];
   XCTAssertEqualObjects(@"https://my-region-my-project.cloudfunctions.net/my-endpoint", url);
 

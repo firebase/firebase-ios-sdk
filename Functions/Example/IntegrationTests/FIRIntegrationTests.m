@@ -14,6 +14,7 @@
 
 #import <XCTest/XCTest.h>
 
+#import "FIRAuthInteropFake.h"
 #import "FIRError.h"
 #import "FIRFunctions+Internal.h"
 #import "FIRFunctions.h"
@@ -31,7 +32,7 @@
 - (void)setUp {
   [super setUp];
   id app = [[FUNFakeApp alloc] initWithProjectID:@"functions-integration-test"];
-  _functions = [FIRFunctions functionsForApp:app];
+  _functions = [[FIRFunctions alloc] initWithApp:app region:@"my-region" auth:[[FIRAuthInteropFake alloc] initWithToken:nil userID:nil error:nil]];
   [_functions useLocalhost];
 }
 

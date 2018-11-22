@@ -16,6 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
+@class FIRComponentContainer;
 @class FUNFakeOptions;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -33,6 +34,8 @@ NS_ASSUME_NONNULL_BEGIN
                             token:(NSString *_Nullable)token NS_DESIGNATED_INITIALIZER;
 
 @property(nonatomic, strong, readonly) FUNFakeOptions *options;
+
+@property(nonatomic, strong, readonly) FIRComponentContainer *container;
 
 @end
 

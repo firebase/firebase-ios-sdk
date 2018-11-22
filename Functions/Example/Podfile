@@ -3,6 +3,7 @@ use_frameworks!
 target 'FirebaseFunctions_Example' do
   platform :ios, '8.0'
 
+  pod 'FirebaseAuth', :path => '../../'
   pod 'FirebaseCore', :path => '../../'
   pod 'GoogleUtilities', :path => '../../'
   pod 'FirebaseFunctions', :path => '../../'

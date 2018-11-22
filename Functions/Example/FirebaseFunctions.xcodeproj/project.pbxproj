@@ -30,6 +30,7 @@
 		7CF3BEC21F97EE2F00B16B6E /* FUNFakeInstanceID.m in Sources */ = {isa = PBXBuildFile; fileRef = 7CF3BEC01F97EE2F00B16B6E /* FUNFakeInstanceID.m */; };
 		7CF563091F1FE70600FEE1F4 /* FUNFakeApp.m in Sources */ = {isa = PBXBuildFile; fileRef = 7CF563081F1FE70600FEE1F4 /* FUNFakeApp.m */; };
 		873B8AEB1B1F5CCA007FD442 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 873B8AEA1B1F5CCA007FD442 /* Main.storyboard */; };
+		C88B727621A73B98005A178E /* FIRAuthInteropFake.m in Sources */ = {isa = PBXBuildFile; fileRef = C88B727221A73B52005A178E /* FIRAuthInteropFake.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -77,6 +78,8 @@
 		7CF563081F1FE70600FEE1F4 /* FUNFakeApp.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FUNFakeApp.m; sourceTree = "<group>"; };
 		7CF5630A1F1FE76700FEE1F4 /* FUNFakeApp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FUNFakeApp.h; sourceTree = "<group>"; };
 		873B8AEA1B1F5CCA007FD442 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = Main.storyboard; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		C88B727121A73B51005A178E /* FIRAuthInteropFake.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FIRAuthInteropFake.h; path = ../../../Example/Shared/FIRAuthInteropFake.h; sourceTree = "<group>"; };
+		C88B727221A73B52005A178E /* FIRAuthInteropFake.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAuthInteropFake.m; path = ../../../Example/Shared/FIRAuthInteropFake.m; sourceTree = "<group>"; };
 		E0A8D570636E99E7C3396DF8 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		F1F2A7C03C10A3A03F9502B8 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -207,6 +210,8 @@
 		7C70065B20572C1B007A5573 /* TestUtils */ = {
 			isa = PBXGroup;
 			children = (
+				C88B727121A73B51005A178E /* FIRAuthInteropFake.h */,
+				C88B727221A73B52005A178E /* FIRAuthInteropFake.m */,
 				7CF5630A1F1FE76700FEE1F4 /* FUNFakeApp.h */,
 				7CF563081F1FE70600FEE1F4 /* FUNFakeApp.m */,
 				7CF3BEC11F97EE2F00B16B6E /* FUNFakeInstanceID.h */,
@@ -351,6 +356,7 @@
 			files = (
 				7CF563091F1FE70600FEE1F4 /* FUNFakeApp.m in Sources */,
 				6003F59E195388D20070C39A /* FIRAppDelegate.m in Sources */,
+				C88B727621A73B98005A178E /* FIRAuthInteropFake.m in Sources */,
 				6003F5A7195388D20070C39A /* FIRViewController.m in Sources */,
 				7CF3BEC21F97EE2F00B16B6E /* FUNFakeInstanceID.m in Sources */,
 				6003F59A195388D20070C39A /* main.m in Sources */,
@@ -420,7 +426,6 @@
 		6003F5BD195388D20070C39A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
@@ -450,6 +455,10 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../FirebaseFunctions/**",
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -460,7 +469,6 @@
 		6003F5BE195388D20070C39A /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
@@ -483,6 +491,10 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../FirebaseFunctions/**",
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -538,7 +550,6 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
-				HEADER_SEARCH_PATHS = "$(SRCROOT)/../FirebaseFunctions";
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -557,7 +568,6 @@
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
-				HEADER_SEARCH_PATHS = "$(SRCROOT)/../FirebaseFunctions";
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -580,7 +590,6 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
-				HEADER_SEARCH_PATHS = "$(SRCROOT)/../FirebaseFunctions";
 				INFOPLIST_FILE = "IntegrationTests/IntegrationTests-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -599,7 +608,6 @@
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
-				HEADER_SEARCH_PATHS = "$(SRCROOT)/../FirebaseFunctions";
 				INFOPLIST_FILE = "IntegrationTests/IntegrationTests-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
