@@ -175,9 +175,9 @@
 		6EDD3B6020BF25AE00C33877 /* FSTFuzzTestsPrincipal.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6EDD3B5E20BF24D000C33877 /* FSTFuzzTestsPrincipal.mm */; };
 		6F3CAC76D918D6B0917EDF92 /* query_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B9C261C26C5D311E1E3C0CB9 /* query_test.cc */; };
 		71719F9F1E33DC2100824A3D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 71719F9D1E33DC2100824A3D /* LaunchScreen.storyboard */; };
-		7346E61D20325C6900FD6CEF /* FSTDispatchQueueTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7346E61C20325C6900FD6CEF /* FSTDispatchQueueTests.mm */; };
 		73866AA12082B0A5009BB4FF /* FIRArrayTransformTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 73866A9F2082B069009BB4FF /* FIRArrayTransformTests.mm */; };
 		73FE5066020EF9B2892C86BF /* hard_assert_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 444B7AB3F5A2929070CB1363 /* hard_assert_test.cc */; };
+		84DBE646DCB49305879D3500 /* nanopb_string_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 353EEE078EF3F39A9B7279F6 /* nanopb_string_test.cc */; };
 		873B8AEB1B1F5CCA007FD442 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 873B8AEA1B1F5CCA007FD442 /* Main.storyboard */; };
 		8C82D4D3F9AB63E79CC52DC8 /* Pods_Firestore_IntegrationTests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ECEBABC7E7B693BE808A1052 /* Pods_Firestore_IntegrationTests_iOS.framework */; };
 		AB356EF7200EA5EB0089B766 /* field_value_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB356EF6200EA5EB0089B766 /* field_value_test.cc */; };
@@ -307,6 +307,7 @@
 		2A0CF41BA5AED6049B0BEB2C /* type_traits_apple_test.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; path = type_traits_apple_test.mm; sourceTree = "<group>"; };
 		2B50B3A0DF77100EEE887891 /* Pods_Firestore_Tests_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_Tests_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		332485C4DCC6BA0DBB5E31B7 /* leveldb_util_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = leveldb_util_test.cc; sourceTree = "<group>"; };
+		353EEE078EF3F39A9B7279F6 /* nanopb_string_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = nanopb_string_test.cc; path = nanopb/nanopb_string_test.cc; sourceTree = "<group>"; };
 		358C3B5FE573B1D60A4F7592 /* strerror_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = strerror_test.cc; sourceTree = "<group>"; };
 		3B843E4A1F3930A400548890 /* remote_store_spec_test.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = remote_store_spec_test.json; sourceTree = "<group>"; };
 		3C81DE3772628FE297055662 /* Pods-Firestore_Example_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Example_iOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Example_iOS/Pods-Firestore_Example_iOS.debug.xcconfig"; sourceTree = "<group>"; };
@@ -486,7 +487,6 @@
 		6EDD3B5C20BF247500C33877 /* Firestore_FuzzTests_iOS-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Firestore_FuzzTests_iOS-Info.plist"; sourceTree = "<group>"; };
 		6EDD3B5E20BF24D000C33877 /* FSTFuzzTestsPrincipal.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTFuzzTestsPrincipal.mm; sourceTree = "<group>"; };
 		71719F9E1E33DC2100824A3D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		7346E61C20325C6900FD6CEF /* FSTDispatchQueueTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTDispatchQueueTests.mm; sourceTree = "<group>"; };
 		73866A9F2082B069009BB4FF /* FIRArrayTransformTests.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FIRArrayTransformTests.mm; sourceTree = "<group>"; };
 		79507DF8378D3C42F5B36268 /* string_win_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = string_win_test.cc; sourceTree = "<group>"; };
 		84434E57CA72951015FC71BC /* Pods-Firestore_FuzzTests_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_FuzzTests_iOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_FuzzTests_iOS/Pods-Firestore_FuzzTests_iOS.debug.xcconfig"; sourceTree = "<group>"; };
@@ -524,6 +524,7 @@
 		B67BF448216EB43000CA9097 /* create_noop_connectivity_monitor.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = create_noop_connectivity_monitor.cc; sourceTree = "<group>"; };
 		B686F2AD2023DDB20028D6BE /* field_path_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = field_path_test.cc; sourceTree = "<group>"; };
 		B686F2B02024FFD70028D6BE /* resource_path_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = resource_path_test.cc; sourceTree = "<group>"; };
+		B69CF05A219B9105004C434D /* FIRFirestore+Testing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "FIRFirestore+Testing.h"; sourceTree = "<group>"; };
 		B6BBE42F21262CF400C6A53E /* grpc_stream_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = grpc_stream_test.cc; sourceTree = "<group>"; };
 		B6D1B68420E2AB1A00B35856 /* exponential_backoff_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = exponential_backoff_test.cc; sourceTree = "<group>"; };
 		B6D9649021544D4F00EB9CFB /* grpc_connection_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = grpc_connection_test.cc; sourceTree = "<group>"; };
@@ -727,6 +728,7 @@
 				54EB764B202277970088B8F3 /* immutable */,
 				54995F70205B6E1A004EFFA0 /* local */,
 				AB356EF5200E9D1A0089B766 /* model */,
+				5C332D7293E6114E491D3662 /* nanopb */,
 				546854A720A3681B004BDBD5 /* remote */,
 				5467FB05203E652F009C9584 /* testutil */,
 				54740A561FC913EB00713A1A /* util */,
@@ -777,6 +779,14 @@
 				549CCA4D20A36DBB00BCEB75 /* tree_sorted_map_test.cc */,
 			);
 			path = immutable;
+			sourceTree = "<group>";
+		};
+		5C332D7293E6114E491D3662 /* nanopb */ = {
+			isa = PBXGroup;
+			children = (
+				353EEE078EF3F39A9B7279F6 /* nanopb_string_test.cc */,
+			);
+			name = nanopb;
 			sourceTree = "<group>";
 		};
 		5CAE131A20FFFED600BE9A4A /* Benchmarks */ = {
@@ -1150,7 +1160,7 @@
 		DE51B1851F0D48AC0013853F /* Util */ = {
 			isa = PBXGroup;
 			children = (
-				7346E61C20325C6900FD6CEF /* FSTDispatchQueueTests.mm */,
+				B69CF05A219B9105004C434D /* FIRFirestore+Testing.h */,
 				54E9281C1F33950B00C1953E /* FSTEventAccumulator.h */,
 				5492E0392021401F00B64F25 /* FSTEventAccumulator.mm */,
 				DE51B1881F0D48AC0013853F /* FSTHelpers.h */,
@@ -1867,7 +1877,6 @@
 				5492E058202154AB00B64F25 /* FSTAPIHelpers.mm in Sources */,
 				DE2EF0851F3D0B6E003D0CDC /* FSTArraySortedDictionaryTests.m in Sources */,
 				5492E0C82021557E00B64F25 /* FSTDatastoreTests.mm in Sources */,
-				7346E61D20325C6900FD6CEF /* FSTDispatchQueueTests.mm in Sources */,
 				5492E0B92021555100B64F25 /* FSTDocumentKeyTests.mm in Sources */,
 				5492E0BA2021555100B64F25 /* FSTDocumentSetTests.mm in Sources */,
 				5492E0BD2021555100B64F25 /* FSTDocumentTests.mm in Sources */,
@@ -1962,6 +1971,7 @@
 				AB6B908620322E6D00CC290A /* maybe_document_test.cc in Sources */,
 				618BBEA820B89AAC00B5BCE7 /* mutation.pb.cc in Sources */,
 				32F022CB75AEE48CDDAF2982 /* mutation_test.cc in Sources */,
+				84DBE646DCB49305879D3500 /* nanopb_string_test.cc in Sources */,
 				AB6B908820322E8800CC290A /* no_document_test.cc in Sources */,
 				AB380D04201BC6E400D97691 /* ordered_code_test.cc in Sources */,
 				5A080105CCBFDB6BF3F3772D /* path_test.cc in Sources */,

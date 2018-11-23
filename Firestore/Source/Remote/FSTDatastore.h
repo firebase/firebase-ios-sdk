@@ -28,10 +28,10 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
+#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "absl/memory/memory.h"
 #include "absl/strings/string_view.h"
 
-@class FSTDispatchQueue;
 @class FSTMutation;
 @class FSTMutationResult;
 @class FSTQueryData;
@@ -56,14 +56,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Creates a new Datastore instance with the given database info. */
 + (instancetype)datastoreWithDatabase:(const firebase::firestore::core::DatabaseInfo *)databaseInfo
-                  workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
+                          workerQueue:(firebase::firestore::util::AsyncQueue *)workerQueue
                           credentials:(firebase::firestore::auth::CredentialsProvider *)
                                           credentials;  // no passing ownership
 
 - (instancetype)init __attribute__((unavailable("Use a static constructor method.")));
 
 - (instancetype)initWithDatabaseInfo:(const firebase::firestore::core::DatabaseInfo *)databaseInfo
-                 workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
+                         workerQueue:(firebase::firestore::util::AsyncQueue *)workerQueue
                          credentials:(firebase::firestore::auth::CredentialsProvider *)
                                          credentials  // no passing ownership
     NS_DESIGNATED_INITIALIZER;

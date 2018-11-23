@@ -161,6 +161,37 @@ jobs:
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
+    # Xcode 9 may find lint errors that don't show up in Xcode 10 (#2081)
+    - stage: test
+      osx_image: xcode9.4
+      env:
+        - PROJECT=Firebase PLATFORM=iOS METHOD=pod-lib-lint
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+      script:
+        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh GoogleUtilities.podspec
+        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseCore.podspec
+        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseAnalyticsInterop.podspec
+        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseAuth.podspec
+        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseAuthInterop.podspec
+        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseDatabase.podspec
+        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseDynamicLinks.podspec
+        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseMessaging.podspec
+        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseStorage.podspec
+        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseFunctions.podspec
+        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseInAppMessagingDisplay.podspec
+
+    - stage: test
+      osx_image: xcode9.4
+      env:
+        - PROJECT=Firestore PLATFORM=iOS METHOD=pod-lib-lint
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+      script:
+        # Eliminate the one warning from BoringSSL when CocoaPods 1.6.0 is available.
+        # The travis_wait is necessary because the command takes more than 10 minutes.
+        - travis_wait ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseFirestore.podspec --allow-warnings --no-subspecs
+
     # Community-supported platforms
 
     - stage: test

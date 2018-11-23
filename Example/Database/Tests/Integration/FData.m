@@ -2529,7 +2529,7 @@
 
 - (void) testDeltaSyncNoDataUpdatesAfterReconnect {
     FIRDatabaseReference *ref = [FTestHelpers getRandomNode];
-    FIRDatabaseConfig *cfg = [FIRDatabaseConfig configForName:@"test-config"];
+    FIRDatabaseConfig *cfg = [FTestHelpers configForName:@"test-config"];
     FIRDatabaseReference * ref2 = [[[FIRDatabaseReference alloc] initWithConfig:cfg] child:ref.key];
     __block id data = @{ @"a": @1, @"b": @2, @"c": @{ @".priority": @3, @".value": @3}, @"d": @4 };
     [self waitForCompletionOf:ref setValue:data];

@@ -23,8 +23,6 @@
 
 #ifdef NO_NETWORK
 #import "ITUIOSTestUtil.h"
-#import "ioReplayer/IORManager.h"
-#import "ioReplayer/IORTestCase.h"
 #endif
 
 #import <GTMSessionFetcher/GTMSessionFetcher.h>
@@ -93,11 +91,8 @@ static NSTimeInterval const kExpectationsTimeout = 10;
 #define SKIP_IF_ON_MOBILE_HARNESS
 #endif
 
-#ifdef NO_NETWORK
-@interface ApiTests : IORTestCase
-#else
 @interface ApiTests : XCTestCase
-#endif
+
 @end
 
 @implementation ApiTests

@@ -46,14 +46,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isEmpty;
 
 /**
- * Returns the next BatchId that will be assigned to a new mutation batch.
- *
- * Callers generally don't care about this value except to test that the mutation queue is
- * properly maintaining the invariant that highestAcknowledgedBatchID is less than nextBatchID.
- */
-- (firebase::firestore::model::BatchId)nextBatchID;
-
-/**
  * Returns the highest batchID that has been acknowledged. If no batches have been acknowledged
  * or if there are no batches in the queue this can return kFSTBatchIDUnknown.
  */
@@ -91,21 +83,6 @@ NS_ASSUME_NONNULL_BEGIN
 // TODO(mikelehen): PERF: Current consumer only needs mutated keys; if we can provide that
 // cheaply, we should replace this.
 - (NSArray<FSTMutationBatch *> *)allMutationBatches;
-
-/**
- * Finds all mutations with a batchID less than or equal to the given batchID.
- *
- * Generally the caller should be asking for the next unacknowledged batchID and the number of
- * acknowledged batches should be very small when things are functioning well.
- *
- * @param batchID The batch to search through.
- *
- * @return an NSArray containing all batches with matching batchIDs.
- */
-// TODO(mcg): This should really return NSEnumerator and the caller should be adjusted to only
-// loop through these once.
-- (NSArray<FSTMutationBatch *> *)allMutationBatchesThroughBatchID:
-    (firebase::firestore::model::BatchId)batchID;
 
 /**
  * Finds all mutation batches that could @em possibly affect the given document key. Not all
@@ -147,15 +124,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSArray<FSTMutationBatch *> *)allMutationBatchesAffectingQuery:(FSTQuery *)query;
 
 /**
- * Removes the given mutation batches from the queue. This is useful in two circumstances:
+ * Removes the given mutation batch from the queue. This is useful in two circumstances:
  *
  * + Removing applied mutations from the head of the queue
  * + Removing rejected mutations from anywhere in the queue
- *
- * In both cases, the array of mutations to remove must be a contiguous range of batchIds. This is
- * most easily accomplished by loading mutations with @a -allMutationBatchesThroughBatchID:.
  */
-- (void)removeMutationBatches:(NSArray<FSTMutationBatch *> *)batches;
+- (void)removeMutationBatch:(FSTMutationBatch *)batch;
 
 /** Performs a consistency check, examining the mutation queue for any leaks, if possible. */
 - (void)performConsistencyCheck;

@@ -89,6 +89,18 @@ message DocumentTransform {
       // Sets the field to the given server value.
       ServerValue set_to_server_value = 2;
 
+      // Adds the given value to the field's current value.
+      //
+      // This must be an integer or a double value.
+      // If the field is not an integer or double, or if the field does not yet
+      // exist, the transformation will set the field to the given value.
+      // If either of the given value or the current field value are doubles,
+      // both values will be interpreted as doubles. Double arithmetic and
+      // representation of double values follow IEEE 754 semantics.
+      // If there is positive/negative integer overflow, the field is resolved
+      // to the largest magnitude positive/negative integer.
+      Value numeric_add = 3;
+
       // Append the given elements in order if they are not already present in
       // the current field value.
       // If the field is not an array, or if the field does not yet exist, it is

@@ -12,8 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Private/GULSwizzledObject.h"
+#import <objc/runtime.h>
+
 #import "Private/GULObjectSwizzler.h"
+#import "Private/GULSwizzledObject.h"
 
 NSString *kSwizzlerAssociatedObjectKey = @"gul_objectSwizzler";
 
@@ -26,6 +28,16 @@ NSString *kSwizzlerAssociatedObjectKey = @"gul_objectSwizzler";
 + (void)copyDonorSelectorsUsingObjectSwizzler:(GULObjectSwizzler *)objectSwizzler {
   [objectSwizzler copySelector:@selector(gul_objectSwizzler) fromClass:self isClassSelector:NO];
   [objectSwizzler copySelector:@selector(gul_class) fromClass:self isClassSelector:NO];
+
+  // This is needed because NSProxy objects usually override -[NSObjectProtocol respondsToSelector:]
+  // and ask this question to the underlying object. Since we don't swizzle the underlying object
+  // but swizzle the proxy, when someone calls -[NSObjectProtocol respondsToSelector:] on the proxy,
+  // the answer ends up being NO even if we added new methods to the subclass through ISA Swizzling.
+  // To solve that, we override -[NSObjectProtocol respondsToSelector:] in such a way that takes
+  // into account the fact that we've added new methods.
+  if ([objectSwizzler isSwizzlingProxyObject]) {
+    [objectSwizzler copySelector:@selector(respondsToSelector:) fromClass:self isClassSelector:NO];
+  }
 }
 
 - (instancetype)init {
@@ -41,6 +53,12 @@ NSString *kSwizzlerAssociatedObjectKey = @"gul_objectSwizzler";
 
 - (Class)gul_class {
   return [[self gul_objectSwizzler] generatedClass];
+}
+
+// Only added to a class when we detect it is a proxy.
+- (BOOL)respondsToSelector:(SEL)aSelector {
+  Class gulClass = [[self gul_objectSwizzler] generatedClass];
+  return [gulClass instancesRespondToSelector:aSelector] || [super respondsToSelector:aSelector];
 }
 
 @end

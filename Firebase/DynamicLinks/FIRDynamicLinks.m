@@ -188,8 +188,8 @@ NS_ASSUME_NONNULL_BEGIN
                                                       service:kFIRServiceDynamicLinks
                                                        reason:errorDescription];
   }
-  [app sendLogsWithServiceName:kFIRServiceDynamicLinks version:kFIRDLVersion error:error];
   if (error) {
+    [app sendLogsWithServiceName:kFIRServiceDynamicLinks version:kFIRDLVersion error:error];
     NSString *message = nil;
     if (options.usingOptionsFromDefaultPlist) {
       // Configured using plist file

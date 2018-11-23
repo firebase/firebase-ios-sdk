@@ -28,8 +28,4 @@
 
 - (void)freeze;
 
-+ (FIRDatabaseConfig *)configForName:(NSString *)name;
-
-+ (FIRDatabaseConfig *)defaultConfig;
-
 @end

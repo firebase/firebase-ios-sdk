@@ -20,6 +20,7 @@
 #import "FUtilities.h"
 #import "FParsedUrl.h"
 #import "FIRDatabaseConfig_Private.h"
+#import "FTestHelpers.h"
 
 @implementation FRealtime
 
@@ -76,8 +77,8 @@
 }
 
 - (void) testOnDisconnectSetWorks {
-    FIRDatabaseConfig *writerCfg = [FIRDatabaseConfig configForName:@"writer"];
-    FIRDatabaseConfig *readerCfg = [FIRDatabaseConfig configForName:@"reader"];
+    FIRDatabaseConfig *writerCfg = [FTestHelpers configForName:@"writer"];
+    FIRDatabaseConfig *readerCfg = [FTestHelpers configForName:@"reader"];
 
     FIRDatabaseReference * writer = [[[FIRDatabaseReference alloc] initWithConfig:writerCfg] childByAutoId];
     FIRDatabaseReference * reader = [[[FIRDatabaseReference alloc] initWithConfig:readerCfg] child:writer.key];
@@ -134,8 +135,8 @@
 }
 
 - (void) testOnDisconnectSetWithPriorityWorks {
-    FIRDatabaseConfig *writerCfg = [FIRDatabaseConfig configForName:@"writer"];
-    FIRDatabaseConfig *readerCfg = [FIRDatabaseConfig configForName:@"reader"];
+    FIRDatabaseConfig *writerCfg = [FTestHelpers configForName:@"writer"];
+    FIRDatabaseConfig *readerCfg = [FTestHelpers configForName:@"reader"];
 
     FIRDatabaseReference * writer = [[[FIRDatabaseReference alloc] initWithConfig:writerCfg] childByAutoId];
     FIRDatabaseReference * reader = [[[FIRDatabaseReference alloc] initWithConfig:readerCfg] child:writer.key];
@@ -181,8 +182,8 @@
 }
 
 - (void) testOnDisconnectRemoveWorks {
-    FIRDatabaseConfig *writerCfg = [FIRDatabaseConfig configForName:@"writer"];
-    FIRDatabaseConfig *readerCfg = [FIRDatabaseConfig configForName:@"reader"];
+    FIRDatabaseConfig *writerCfg = [FTestHelpers configForName:@"writer"];
+    FIRDatabaseConfig *readerCfg = [FTestHelpers configForName:@"reader"];
 
     FIRDatabaseReference * writer = [[[FIRDatabaseReference alloc] initWithConfig:writerCfg] childByAutoId];
     FIRDatabaseReference * reader = [[[FIRDatabaseReference alloc] initWithConfig:readerCfg] child:writer.key];
@@ -228,8 +229,8 @@
 }
 
 - (void) testOnDisconnectUpdateWorks {
-    FIRDatabaseConfig *writerCfg = [FIRDatabaseConfig configForName:@"writer"];
-    FIRDatabaseConfig *readerCfg = [FIRDatabaseConfig configForName:@"reader"];
+    FIRDatabaseConfig *writerCfg = [FTestHelpers configForName:@"writer"];
+    FIRDatabaseConfig *readerCfg = [FTestHelpers configForName:@"reader"];
 
     FIRDatabaseReference * writer = [[[FIRDatabaseReference alloc] initWithConfig:writerCfg] childByAutoId];
     FIRDatabaseReference * reader = [[[FIRDatabaseReference alloc] initWithConfig:readerCfg] child:writer.key];
@@ -275,7 +276,7 @@
 }
 
 - (void) testOnDisconnectTriggersSingleLocalValueEventForWriter {
-    FIRDatabaseConfig *writerCfg = [FIRDatabaseConfig configForName:@"writer"];
+    FIRDatabaseConfig *writerCfg = [FTestHelpers configForName:@"writer"];
     FIRDatabaseReference * writer = [[[FIRDatabaseReference alloc] initWithConfig:writerCfg] childByAutoId];
 
     __block int calls = 0;
@@ -318,7 +319,7 @@
 }
 
 - (void) testOnDisconnectTriggersSingleLocalValueEventForReader {
-    FIRDatabaseConfig *writerCfg = [FIRDatabaseConfig configForName:@"writer"];
+    FIRDatabaseConfig *writerCfg = [FTestHelpers configForName:@"writer"];
     FIRDatabaseReference * reader = [FTestHelpers getRandomNode];
     FIRDatabaseReference * writer = [[[FIRDatabaseReference alloc] initWithConfig:writerCfg] child:reader.key];
 
@@ -362,7 +363,7 @@
 }
 
 - (void) testOnDisconnectTriggersSingleLocalValueEventForWriterWithQuery {
-    FIRDatabaseConfig *writerCfg = [FIRDatabaseConfig configForName:@"writer"];
+    FIRDatabaseConfig *writerCfg = [FTestHelpers configForName:@"writer"];
     FIRDatabaseReference * writer = [[[FIRDatabaseReference alloc] initWithConfig:writerCfg] childByAutoId];
 
     __block int calls = 0;
@@ -406,7 +407,7 @@
 
 - (void) testOnDisconnectTriggersSingleLocalValueEventForReaderWithQuery {
     FIRDatabaseReference * reader = [FTestHelpers getRandomNode];
-    FIRDatabaseConfig *writerCfg = [FIRDatabaseConfig configForName:@"writer"];
+    FIRDatabaseConfig *writerCfg = [FTestHelpers configForName:@"writer"];
     FIRDatabaseReference * writer = [[[FIRDatabaseReference alloc] initWithConfig:writerCfg] child:reader.key];
 
     __block int calls = 0;
@@ -451,7 +452,7 @@
 
 - (void) testOnDisconnectDeepMergeTriggersOnlyOneValueEventForReaderWithQuery {
     FIRDatabaseReference * reader = [FTestHelpers getRandomNode];
-    FIRDatabaseConfig *writerCfg = [FIRDatabaseConfig configForName:@"writer"];
+    FIRDatabaseConfig *writerCfg = [FTestHelpers configForName:@"writer"];
     FIRDatabaseReference * writer = [[[FIRDatabaseReference alloc] initWithConfig:writerCfg] childByAutoId];
 
     __block BOOL done = NO;
@@ -487,8 +488,8 @@
 
 
 - (void) testOnDisconnectCancelWorks {
-    FIRDatabaseConfig *writerCfg = [FIRDatabaseConfig configForName:@"writer"];
-    FIRDatabaseConfig *readerCfg = [FIRDatabaseConfig configForName:@"reader"];
+    FIRDatabaseConfig *writerCfg = [FTestHelpers configForName:@"writer"];
+    FIRDatabaseConfig *readerCfg = [FTestHelpers configForName:@"reader"];
 
     FIRDatabaseReference * writer = [[[FIRDatabaseReference alloc] initWithConfig:writerCfg] childByAutoId];
     FIRDatabaseReference * reader = [[[FIRDatabaseReference alloc] initWithConfig:readerCfg] child:writer.key];
@@ -542,7 +543,7 @@
 }
 
 - (void) testOnDisconnectWithServerValuesWithLocalEvents {
-    FIRDatabaseConfig *writerCfg = [FIRDatabaseConfig configForName:@"writer"];
+    FIRDatabaseConfig *writerCfg = [FTestHelpers configForName:@"writer"];
     FIRDatabaseReference * node = [[[FIRDatabaseReference alloc] initWithConfig:writerCfg] childByAutoId];
 
     __block FIRDataSnapshot *snap = nil;

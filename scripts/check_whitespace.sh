@@ -25,9 +25,11 @@ options=(
   ' $'
 )
 
-git grep "${options[@]}" \
-    -- ':(exclude)Firestore/Protos/nanopb' ':(exclude)Firestore/Protos/cpp' \
-    ':(exclude)Firestore/Protos/objc'
+git grep "${options[@]}" -- \
+    ':(exclude)Firestore/Protos/nanopb' \
+    ':(exclude)Firestore/Protos/cpp' \
+    ':(exclude)Firestore/Protos/objc' \
+    ':(exclude)Firestore/third_party/abseil-cpp'
 if [[ $? == 0 ]]; then
   echo "ERROR: Trailing whitespace found in the files above. Please fix."
   exit 1

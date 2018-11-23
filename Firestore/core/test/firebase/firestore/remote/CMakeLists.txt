@@ -16,10 +16,16 @@ cc_test(
   firebase_firestore_remote_test
   SOURCES
     exponential_backoff_test.cc
+    grpc_connection_test.cc
+    grpc_stream_test.cc
+    grpc_streaming_reader_test.cc
+    grpc_unary_call_test.cc
     serializer_test.cc
   DEPENDS
     absl_base
     firebase_firestore_protos_libprotobuf
+    firebase_firestore_core
     firebase_firestore_remote
+    firebase_firestore_remote_test_util
     firebase_firestore_util_async_std
 )

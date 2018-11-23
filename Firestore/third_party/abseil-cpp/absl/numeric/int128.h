@@ -31,6 +31,7 @@
 #include <cstring>
 #include <iosfwd>
 #include <limits>
+#include <utility>
 
 #include "absl/base/config.h"
 #include "absl/base/macros.h"
@@ -191,6 +192,12 @@ class
   // Returns the highest value for a 128-bit unsigned integer.
   friend constexpr uint128 Uint128Max();
 
+  // Support for absl::Hash.
+  template <typename H>
+  friend H AbslHashValue(H h, uint128 v) {
+    return H::combine(std::move(h), Uint128High64(v), Uint128Low64(v));
+  }
+
  private:
   constexpr uint128(uint64_t high, uint64_t low);
 
@@ -219,19 +226,67 @@ std::ostream& operator<<(std::ostream& os, uint128 v);
 
 // TODO(strel) add operator>>(std::istream&, uint128)
 
+constexpr uint128 Uint128Max() {
+  return uint128((std::numeric_limits<uint64_t>::max)(),
+                 (std::numeric_limits<uint64_t>::max)());
+}
+
+}  // namespace absl
+
+// Specialized numeric_limits for uint128.
+namespace std {
+template <>
+class numeric_limits<absl::uint128> {
+ public:
+  static constexpr bool is_specialized = true;
+  static constexpr bool is_signed = false;
+  static constexpr bool is_integer = true;
+  static constexpr bool is_exact = true;
+  static constexpr bool has_infinity = false;
+  static constexpr bool has_quiet_NaN = false;
+  static constexpr bool has_signaling_NaN = false;
+  static constexpr float_denorm_style has_denorm = denorm_absent;
+  static constexpr bool has_denorm_loss = false;
+  static constexpr float_round_style round_style = round_toward_zero;
+  static constexpr bool is_iec559 = false;
+  static constexpr bool is_bounded = true;
+  static constexpr bool is_modulo = true;
+  static constexpr int digits = 128;
+  static constexpr int digits10 = 38;
+  static constexpr int max_digits10 = 0;
+  static constexpr int radix = 2;
+  static constexpr int min_exponent = 0;
+  static constexpr int min_exponent10 = 0;
+  static constexpr int max_exponent = 0;
+  static constexpr int max_exponent10 = 0;
+#ifdef ABSL_HAVE_INTRINSIC_INT128
+  static constexpr bool traps = numeric_limits<unsigned __int128>::traps;
+#else   // ABSL_HAVE_INTRINSIC_INT128
+  static constexpr bool traps = numeric_limits<uint64_t>::traps;
+#endif  // ABSL_HAVE_INTRINSIC_INT128
+  static constexpr bool tinyness_before = false;
+
+  static constexpr absl::uint128 min() { return 0; }
+  static constexpr absl::uint128 lowest() { return 0; }
+  static constexpr absl::uint128 max() { return absl::Uint128Max(); }
+  static constexpr absl::uint128 epsilon() { return 0; }
+  static constexpr absl::uint128 round_error() { return 0; }
+  static constexpr absl::uint128 infinity() { return 0; }
+  static constexpr absl::uint128 quiet_NaN() { return 0; }
+  static constexpr absl::uint128 signaling_NaN() { return 0; }
+  static constexpr absl::uint128 denorm_min() { return 0; }
+};
+}  // namespace std
+
 // TODO(absl-team): Implement signed 128-bit type
 
 // --------------------------------------------------------------------------
 //                      Implementation details follow
 // --------------------------------------------------------------------------
+namespace absl {
 
 constexpr uint128 MakeUint128(uint64_t high, uint64_t low) {
   return uint128(high, low);
-}
-
-constexpr uint128 Uint128Max() {
-  return uint128(std::numeric_limits<uint64_t>::max(),
-                 std::numeric_limits<uint64_t>::max());
 }
 
 // Assignment from integer types.
@@ -329,13 +384,13 @@ constexpr uint128::uint128(uint64_t high, uint64_t low)
 
 constexpr uint128::uint128(int v)
     : lo_{static_cast<uint64_t>(v)},
-      hi_{v < 0 ? std::numeric_limits<uint64_t>::max() : 0} {}
+      hi_{v < 0 ? (std::numeric_limits<uint64_t>::max)() : 0} {}
 constexpr uint128::uint128(long v)  // NOLINT(runtime/int)
     : lo_{static_cast<uint64_t>(v)},
-      hi_{v < 0 ? std::numeric_limits<uint64_t>::max() : 0} {}
+      hi_{v < 0 ? (std::numeric_limits<uint64_t>::max)() : 0} {}
 constexpr uint128::uint128(long long v)  // NOLINT(runtime/int)
     : lo_{static_cast<uint64_t>(v)},
-      hi_{v < 0 ? std::numeric_limits<uint64_t>::max() : 0} {}
+      hi_{v < 0 ? (std::numeric_limits<uint64_t>::max)() : 0} {}
 
 constexpr uint128::uint128(unsigned int v) : lo_{v}, hi_{0} {}
 // NOLINTNEXTLINE(runtime/int)
@@ -358,13 +413,13 @@ constexpr uint128::uint128(uint64_t high, uint64_t low)
     : hi_{high}, lo_{low} {}
 
 constexpr uint128::uint128(int v)
-    : hi_{v < 0 ? std::numeric_limits<uint64_t>::max() : 0},
+    : hi_{v < 0 ? (std::numeric_limits<uint64_t>::max)() : 0},
       lo_{static_cast<uint64_t>(v)} {}
 constexpr uint128::uint128(long v)  // NOLINT(runtime/int)
-    : hi_{v < 0 ? std::numeric_limits<uint64_t>::max() : 0},
+    : hi_{v < 0 ? (std::numeric_limits<uint64_t>::max)() : 0},
       lo_{static_cast<uint64_t>(v)} {}
 constexpr uint128::uint128(long long v)  // NOLINT(runtime/int)
-    : hi_{v < 0 ? std::numeric_limits<uint64_t>::max() : 0},
+    : hi_{v < 0 ? (std::numeric_limits<uint64_t>::max)() : 0},
       lo_{static_cast<uint64_t>(v)} {}
 
 constexpr uint128::uint128(unsigned int v) : hi_{0}, lo_{v} {}

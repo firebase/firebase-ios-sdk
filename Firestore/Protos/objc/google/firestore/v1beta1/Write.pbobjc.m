@@ -227,6 +227,7 @@ typedef struct GCFSDocumentTransform__storage_ {
 @dynamic transformTypeOneOfCase;
 @dynamic fieldPath;
 @dynamic setToServerValue;
+@dynamic numericAdd;
 @dynamic appendMissingElements;
 @dynamic removeAllFromArray_p;
 
@@ -234,6 +235,7 @@ typedef struct GCFSDocumentTransform_FieldTransform__storage_ {
   uint32_t _has_storage_[2];
   GCFSDocumentTransform_FieldTransform_ServerValue setToServerValue;
   NSString *fieldPath;
+  GCFSValue *numericAdd;
   GCFSArrayValue *appendMissingElements;
   GCFSArrayValue *removeAllFromArray_p;
 } GCFSDocumentTransform_FieldTransform__storage_;
@@ -261,6 +263,15 @@ typedef struct GCFSDocumentTransform_FieldTransform__storage_ {
         .offset = (uint32_t)offsetof(GCFSDocumentTransform_FieldTransform__storage_, setToServerValue),
         .flags = (GPBFieldFlags)(GPBFieldOptional | GPBFieldHasEnumDescriptor),
         .dataType = GPBDataTypeEnum,
+      },
+      {
+        .name = "numericAdd",
+        .dataTypeSpecific.className = GPBStringifySymbol(GCFSValue),
+        .number = GCFSDocumentTransform_FieldTransform_FieldNumber_NumericAdd,
+        .hasIndex = -1,
+        .offset = (uint32_t)offsetof(GCFSDocumentTransform_FieldTransform__storage_, numericAdd),
+        .flags = GPBFieldOptional,
+        .dataType = GPBDataTypeMessage,
       },
       {
         .name = "appendMissingElements",

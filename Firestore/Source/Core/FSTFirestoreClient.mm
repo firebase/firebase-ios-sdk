@@ -41,11 +41,11 @@
 #import "Firestore/Source/Remote/FSTRemoteStore.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 #import "Firestore/Source/Util/FSTClasses.h"
-#import "Firestore/Source/Util/FSTDispatchQueue.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
@@ -59,7 +59,8 @@ using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::util::Path;
 using firebase::firestore::util::Status;
-using firebase::firestore::util::internal::Executor;
+using firebase::firestore::util::AsyncQueue;
+using firebase::firestore::util::Executor;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -72,7 +73,7 @@ NS_ASSUME_NONNULL_BEGIN
                  credentialsProvider:
                      (CredentialsProvider *)credentialsProvider  // no passing ownership
                         userExecutor:(std::unique_ptr<Executor>)userExecutor
-                 workerDispatchQueue:(FSTDispatchQueue *)queue NS_DESIGNATED_INITIALIZER;
+                         workerQueue:(std::unique_ptr<AsyncQueue>)queue NS_DESIGNATED_INITIALIZER;
 
 @property(nonatomic, assign, readonly) const DatabaseInfo *databaseInfo;
 @property(nonatomic, strong, readonly) FSTEventManager *eventManager;
@@ -81,20 +82,20 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong, readonly) FSTRemoteStore *remoteStore;
 @property(nonatomic, strong, readonly) FSTLocalStore *localStore;
 
-/**
- * Dispatch queue responsible for all of our internal processing. When we get incoming work from
- * the user (via public API) or the network (incoming GRPC messages), we should always dispatch
- * onto this queue. This ensures our internal data structures are never accessed from multiple
- * threads simultaneously.
- */
-@property(nonatomic, strong, readonly) FSTDispatchQueue *workerDispatchQueue;
-
 // Does not own the CredentialsProvider instance.
 @property(nonatomic, assign, readonly) CredentialsProvider *credentialsProvider;
 
 @end
 
 @implementation FSTFirestoreClient {
+  /**
+   * Async queue responsible for all of our internal processing. When we get incoming work from
+   * the user (via public API) or the network (incoming gRPC messages), we should always dispatch
+   * onto this queue. This ensures our internal data structures are never accessed from multiple
+   * threads simultaneously.
+   */
+  std::unique_ptr<AsyncQueue> _workerQueue;
+
   std::unique_ptr<Executor> _userExecutor;
 }
 
@@ -102,17 +103,21 @@ NS_ASSUME_NONNULL_BEGIN
   return _userExecutor.get();
 }
 
+- (AsyncQueue *)workerQueue {
+  return _workerQueue.get();
+}
+
 + (instancetype)clientWithDatabaseInfo:(const DatabaseInfo &)databaseInfo
                         usePersistence:(BOOL)usePersistence
                    credentialsProvider:
                        (CredentialsProvider *)credentialsProvider  // no passing ownership
                           userExecutor:(std::unique_ptr<Executor>)userExecutor
-                   workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue {
+                           workerQueue:(std::unique_ptr<AsyncQueue>)workerQueue {
   return [[FSTFirestoreClient alloc] initWithDatabaseInfo:databaseInfo
                                            usePersistence:usePersistence
                                       credentialsProvider:credentialsProvider
                                              userExecutor:std::move(userExecutor)
-                                      workerDispatchQueue:workerDispatchQueue];
+                                              workerQueue:std::move(workerQueue)];
 }
 
 - (instancetype)initWithDatabaseInfo:(const DatabaseInfo &)databaseInfo
@@ -120,19 +125,18 @@ NS_ASSUME_NONNULL_BEGIN
                  credentialsProvider:
                      (CredentialsProvider *)credentialsProvider  // no passing ownership
                         userExecutor:(std::unique_ptr<Executor>)userExecutor
-                 workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue {
+                         workerQueue:(std::unique_ptr<AsyncQueue>)workerQueue {
   if (self = [super init]) {
     _databaseInfo = databaseInfo;
     _credentialsProvider = credentialsProvider;
     _userExecutor = std::move(userExecutor);
-    _workerDispatchQueue = workerDispatchQueue;
+    _workerQueue = std::move(workerQueue);
 
     auto userPromise = std::make_shared<std::promise<User>>();
     bool initialized = false;
 
     __weak __typeof__(self) weakSelf = self;
-    auto credentialChangeListener = [initialized, userPromise, weakSelf,
-                                     workerDispatchQueue](User user) mutable {
+    auto credentialChangeListener = [initialized, userPromise, weakSelf](User user) mutable {
       __typeof__(self) strongSelf = weakSelf;
       if (!strongSelf) return;
 
@@ -140,9 +144,8 @@ NS_ASSUME_NONNULL_BEGIN
         initialized = true;
         userPromise->set_value(user);
       } else {
-        [workerDispatchQueue dispatchAsync:^{
-          [strongSelf credentialDidChangeWithUser:user];
-        }];
+        strongSelf->_workerQueue->Enqueue(
+            [strongSelf, user] { [strongSelf credentialDidChangeWithUser:user]; });
       }
     };
 
@@ -151,17 +154,17 @@ NS_ASSUME_NONNULL_BEGIN
     // Defer initialization until we get the current user from the credentialChangeListener. This is
     // guaranteed to be synchronously dispatched onto our worker queue, so we will be initialized
     // before any subsequently queued work runs.
-    [_workerDispatchQueue dispatchAsync:^{
+    _workerQueue->Enqueue([self, userPromise, usePersistence] {
       User user = userPromise->get_future().get();
       [self initializeWithUser:user usePersistence:usePersistence];
-    }];
+    });
   }
   return self;
 }
 
 - (void)initializeWithUser:(const User &)user usePersistence:(BOOL)usePersistence {
   // Do all of our initialization on our own dispatch queue.
-  [self.workerDispatchQueue verifyIsCurrentQueue];
+  _workerQueue->VerifyIsCurrentQueue();
   LOG_DEBUG("Initializing. Current user: %s", user.uid());
 
   // Note: The initialization work must all be synchronous (we can't dispatch more work) since
@@ -194,12 +197,12 @@ NS_ASSUME_NONNULL_BEGIN
   _localStore = [[FSTLocalStore alloc] initWithPersistence:_persistence initialUser:user];
 
   FSTDatastore *datastore = [FSTDatastore datastoreWithDatabase:self.databaseInfo
-                                            workerDispatchQueue:self.workerDispatchQueue
+                                                    workerQueue:_workerQueue.get()
                                                     credentials:_credentialsProvider];
 
   _remoteStore = [[FSTRemoteStore alloc] initWithLocalStore:_localStore
                                                   datastore:datastore
-                                        workerDispatchQueue:self.workerDispatchQueue];
+                                                workerQueue:_workerQueue.get()];
 
   _syncEngine = [[FSTSyncEngine alloc] initWithLocalStore:_localStore
                                               remoteStore:_remoteStore
@@ -219,7 +222,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)credentialDidChangeWithUser:(const User &)user {
-  [self.workerDispatchQueue verifyIsCurrentQueue];
+  _workerQueue->VerifyIsCurrentQueue();
 
   LOG_DEBUG("Credential Changed. Current user: %s", user.uid());
   [self.syncEngine credentialDidChangeWithUser:user];
@@ -227,29 +230,28 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)applyChangedOnlineState:(OnlineState)onlineState {
   [self.syncEngine applyChangedOnlineState:onlineState];
-  [self.eventManager applyChangedOnlineState:onlineState];
 }
 
 - (void)disableNetworkWithCompletion:(nullable FSTVoidErrorBlock)completion {
-  [self.workerDispatchQueue dispatchAsync:^{
+  _workerQueue->Enqueue([self, completion] {
     [self.remoteStore disableNetwork];
     if (completion) {
       self->_userExecutor->Execute([=] { completion(nil); });
     }
-  }];
+  });
 }
 
 - (void)enableNetworkWithCompletion:(nullable FSTVoidErrorBlock)completion {
-  [self.workerDispatchQueue dispatchAsync:^{
+  _workerQueue->Enqueue([self, completion] {
     [self.remoteStore enableNetwork];
     if (completion) {
       self->_userExecutor->Execute([=] { completion(nil); });
     }
-  }];
+  });
 }
 
 - (void)shutdownWithCompletion:(nullable FSTVoidErrorBlock)completion {
-  [self.workerDispatchQueue dispatchAsync:^{
+  _workerQueue->Enqueue([self, completion] {
     self->_credentialsProvider->SetCredentialChangeListener(nullptr);
 
     [self.remoteStore shutdown];
@@ -257,7 +259,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (completion) {
       self->_userExecutor->Execute([=] { completion(nil); });
     }
-  }];
+  });
 }
 
 - (FSTQueryListener *)listenToQuery:(FSTQuery *)query
@@ -267,33 +269,36 @@ NS_ASSUME_NONNULL_BEGIN
                                                                options:options
                                                    viewSnapshotHandler:viewSnapshotHandler];
 
-  [self.workerDispatchQueue dispatchAsync:^{
-    [self.eventManager addListener:listener];
-  }];
+  _workerQueue->Enqueue([self, listener] { [self.eventManager addListener:listener]; });
 
   return listener;
 }
 
 - (void)removeListener:(FSTQueryListener *)listener {
-  [self.workerDispatchQueue dispatchAsync:^{
-    [self.eventManager removeListener:listener];
-  }];
+  _workerQueue->Enqueue([self, listener] { [self.eventManager removeListener:listener]; });
 }
 
 - (void)getDocumentFromLocalCache:(FIRDocumentReference *)doc
                        completion:(void (^)(FIRDocumentSnapshot *_Nullable document,
                                             NSError *_Nullable error))completion {
-  [self.workerDispatchQueue dispatchAsync:^{
+  _workerQueue->Enqueue([self, doc, completion] {
     FSTMaybeDocument *maybeDoc = [self.localStore readDocument:doc.key];
     FIRDocumentSnapshot *_Nullable result = nil;
     NSError *_Nullable error = nil;
-    if (maybeDoc) {
-      FSTDocument *_Nullable document =
-          ([maybeDoc isKindOfClass:[FSTDocument class]]) ? (FSTDocument *)maybeDoc : nil;
+
+    if ([maybeDoc isKindOfClass:[FSTDocument class]]) {
+      FSTDocument *document = (FSTDocument *)maybeDoc;
       result = [FIRDocumentSnapshot snapshotWithFirestore:doc.firestore
                                               documentKey:doc.key
                                                  document:document
-                                                fromCache:YES];
+                                                fromCache:YES
+                                         hasPendingWrites:document.hasLocalMutations];
+    } else if ([maybeDoc isKindOfClass:[FSTDeletedDocument class]]) {
+      result = [FIRDocumentSnapshot snapshotWithFirestore:doc.firestore
+                                              documentKey:doc.key
+                                                 document:nil
+                                                fromCache:YES
+                                         hasPendingWrites:NO];
     } else {
       error = [NSError errorWithDomain:FIRFirestoreErrorDomain
                                   code:FIRFirestoreErrorCodeUnavailable
@@ -309,13 +314,13 @@ NS_ASSUME_NONNULL_BEGIN
     if (completion) {
       self->_userExecutor->Execute([=] { completion(result, error); });
     }
-  }];
+  });
 }
 
 - (void)getDocumentsFromLocalCache:(FIRQuery *)query
                         completion:(void (^)(FIRQuerySnapshot *_Nullable query,
                                              NSError *_Nullable error))completion {
-  [self.workerDispatchQueue dispatchAsync:^{
+  _workerQueue->Enqueue([self, query, completion] {
     FSTDocumentDictionary *docs = [self.localStore executeQuery:query.query];
 
     FSTView *view = [[FSTView alloc] initWithQuery:query.query remoteDocuments:DocumentKeySet{}];
@@ -337,12 +342,12 @@ NS_ASSUME_NONNULL_BEGIN
     if (completion) {
       self->_userExecutor->Execute([=] { completion(result, nil); });
     }
-  }];
+  });
 }
 
 - (void)writeMutations:(NSArray<FSTMutation *> *)mutations
             completion:(nullable FSTVoidErrorBlock)completion {
-  [self.workerDispatchQueue dispatchAsync:^{
+  _workerQueue->Enqueue([self, mutations, completion] {
     if (mutations.count == 0) {
       if (completion) {
         self->_userExecutor->Execute([=] { completion(nil); });
@@ -356,16 +361,16 @@ NS_ASSUME_NONNULL_BEGIN
                              }
                            }];
     }
-  }];
+  });
 };
 
 - (void)transactionWithRetries:(int)retries
                    updateBlock:(FSTTransactionBlock)updateBlock
                     completion:(FSTVoidIDErrorBlock)completion {
-  [self.workerDispatchQueue dispatchAsync:^{
+  _workerQueue->Enqueue([self, retries, updateBlock, completion] {
     [self.syncEngine
         transactionWithRetries:retries
-           workerDispatchQueue:self.workerDispatchQueue
+                   workerQueue:_workerQueue.get()
                    updateBlock:updateBlock
                     completion:^(id _Nullable result, NSError *_Nullable error) {
                       // Dispatch the result back onto the user dispatch queue.
@@ -373,7 +378,7 @@ NS_ASSUME_NONNULL_BEGIN
                         self->_userExecutor->Execute([=] { completion(result, error); });
                       }
                     }];
-  }];
+  });
 }
 
 - (const DatabaseInfo *)databaseInfo {

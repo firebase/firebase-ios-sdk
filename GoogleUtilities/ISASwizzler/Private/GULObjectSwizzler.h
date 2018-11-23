@@ -115,6 +115,9 @@ typedef OBJC_ENUM(uintptr_t, GUL_ASSOCIATION){
  *  the class pair. */
 - (void)swizzle;
 
+/** @return The value of -[objectBeingSwizzled isProxy] */
+- (BOOL)isSwizzlingProxyObject;
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -53,6 +53,7 @@ using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::remote::WatchStream;
 using firebase::firestore::remote::WriteStream;
+using util::AsyncQueue;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -121,14 +122,14 @@ static const int kMaxPendingWrites = 10;
 
 - (instancetype)initWithLocalStore:(FSTLocalStore *)localStore
                          datastore:(FSTDatastore *)datastore
-               workerDispatchQueue:(FSTDispatchQueue *)queue {
+                       workerQueue:(AsyncQueue *)queue {
   if (self = [super init]) {
     _localStore = localStore;
     _datastore = datastore;
     _listenTargets = [NSMutableDictionary dictionary];
 
     _writePipeline = [NSMutableArray array];
-    _onlineStateTracker = [[FSTOnlineStateTracker alloc] initWithWorkerDispatchQueue:queue];
+    _onlineStateTracker = [[FSTOnlineStateTracker alloc] initWithWorkerQueue:queue];
 
     // Create streams (but note they're not started yet)
     _watchStream = [self.datastore createWatchStreamWithDelegate:self];

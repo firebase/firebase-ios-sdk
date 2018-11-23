@@ -26,11 +26,11 @@ namespace firestore {
 namespace remote {
 
 /**
- * Finds the file containing gRPC root certificates (`roots.pem`, must be among
- * resources accessible by Firestore) and returns its path. Will trigger
- * assertion failure if the file cannot be found.
+ * Finds the file containing gRPC root certificates (how it is stored differs by
+ * platform) and returns its contents as a string. Will trigger assertion
+ * failure if the file cannot be found or open.
  */
-util::Path FindGrpcRootCertificate();
+std::string LoadGrpcRootCertificate();
 
 }  // namespace remote
 }  // namespace firestore

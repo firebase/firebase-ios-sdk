@@ -15,6 +15,8 @@
 cc_library(
   firebase_firestore_nanopb
   SOURCES
+    nanopb_string.cc
+    nanopb_string.h
     reader.h
     reader.cc
     writer.h
