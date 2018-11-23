@@ -31,7 +31,6 @@
 		7CF563091F1FE70600FEE1F4 /* FUNFakeApp.m in Sources */ = {isa = PBXBuildFile; fileRef = 7CF563081F1FE70600FEE1F4 /* FUNFakeApp.m */; };
 		873B8AEB1B1F5CCA007FD442 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 873B8AEA1B1F5CCA007FD442 /* Main.storyboard */; };
 		C88B727621A73B98005A178E /* FIRAuthInteropFake.m in Sources */ = {isa = PBXBuildFile; fileRef = C88B727221A73B52005A178E /* FIRAuthInteropFake.m */; };
-		C8D36AAE21A81FC200148A23 /* FirebaseCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C8D36AAD21A81FC200148A23 /* FirebaseCore.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -91,7 +90,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C8D36AAE21A81FC200148A23 /* FirebaseCore.framework in Frameworks */,
 				6003F590195388D20070C39A /* CoreGraphics.framework in Frameworks */,
 				6003F592195388D20070C39A /* UIKit.framework in Frameworks */,
 				6003F58E195388D20070C39A /* Foundation.framework in Frameworks */,
@@ -461,6 +459,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
+					"$(SRCROOT)/../Firebase/Core/Private",
 					"$(SRCROOT)/../FirebaseFunctions/**",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
@@ -497,6 +496,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
+					"$(SRCROOT)/../Firebase/Core/Private",
 					"$(SRCROOT)/../FirebaseFunctions/**",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
@@ -630,7 +630,7 @@
 				6003F5BE195388D20070C39A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		6003F5BF195388D20070C39A /* Build configuration list for PBXNativeTarget "FirebaseFunctions_Example" */ = {
 			isa = XCConfigurationList;
@@ -639,7 +639,7 @@
 				6003F5C1195388D20070C39A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		6003F5C2195388D20070C39A /* Build configuration list for PBXNativeTarget "FirebaseFunctions_Tests" */ = {
 			isa = XCConfigurationList;
@@ -648,7 +648,7 @@
 				6003F5C4195388D20070C39A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		7CBFAA8E205702AB00A65866 /* Build configuration list for PBXNativeTarget "FirebaseFunctions_IntegrationTests" */ = {
 			isa = XCConfigurationList;
@@ -657,7 +657,7 @@
 				7CBFAA90205702AB00A65866 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
 	};
