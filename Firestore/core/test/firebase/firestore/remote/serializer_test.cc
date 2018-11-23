@@ -49,6 +49,10 @@
 #include "google/protobuf/util/message_differencer.h"
 #include "gtest/gtest.h"
 
+namespace firebase {
+namespace firestore {
+namespace remote {
+
 namespace v1beta1 = google::firestore::v1beta1;
 using firebase::Timestamp;
 using firebase::TimestampInternal;
@@ -943,3 +947,7 @@ TEST_F(SerializerTest, DecodeMaybeDocWithoutFoundOrMissingSetShouldFail) {
 
 // TODO(rsgowman): Test [en|de]coding multiple protos into the same output
 // vector.
+
+}  // namespace remote
+}  // namespace firestore
+}  // namespace firebase
