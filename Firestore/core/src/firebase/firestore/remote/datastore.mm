@@ -293,6 +293,45 @@ void Datastore::RemoveGrpcCall(GrpcCall* to_remove) {
   active_calls_.erase(found);
 }
 
++ (BOOL)isAbortedError:(NSError *)error {
+bool Data
+  HARD_ASSERT([error.domain isEqualToString:FIRFirestoreErrorDomain],
+              "isAbortedError: only works with errors emitted by FSTDatastore.");
+  return error.code == FIRFirestoreErrorCodeAborted;
+}
+
++ (BOOL)isPermanentWriteError:(NSError *)error {
+  HARD_ASSERT([error.domain isEqualToString:FIRFirestoreErrorDomain],
+              "isPerminanteWriteError: only works with errors emitted by FSTDatastore.");
+  switch (error.code) {
+    case FIRFirestoreErrorCodeCancelled:
+    case FIRFirestoreErrorCodeUnknown:
+    case FIRFirestoreErrorCodeDeadlineExceeded:
+    case FIRFirestoreErrorCodeResourceExhausted:
+    case FIRFirestoreErrorCodeInternal:
+    case FIRFirestoreErrorCodeUnavailable:
+    // Unauthenticated means something went wrong with our token and we need to retry with new
+    // credentials which will happen automatically.
+    case FIRFirestoreErrorCodeUnauthenticated:
+      return NO;
+    case FIRFirestoreErrorCodeInvalidArgument:
+    case FIRFirestoreErrorCodeNotFound:
+    case FIRFirestoreErrorCodeAlreadyExists:
+    case FIRFirestoreErrorCodePermissionDenied:
+    case FIRFirestoreErrorCodeFailedPrecondition:
+    case FIRFirestoreErrorCodeAborted:
+    // Aborted might be retried in some scenarios, but that is dependant on
+    // the context and should handled individually by the calling code.
+    // See https://cloud.google.com/apis/design/errors
+    case FIRFirestoreErrorCodeOutOfRange:
+    case FIRFirestoreErrorCodeUnimplemented:
+    case FIRFirestoreErrorCodeDataLoss:
+      return YES;
+    default:
+      return YES;
+  }
+}
+
 std::string Datastore::GetWhitelistedHeadersAsString(
     const GrpcCall::Metadata& headers) {
   static std::unordered_set<std::string> whitelist = {

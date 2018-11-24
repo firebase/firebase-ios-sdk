@@ -56,11 +56,6 @@ using util::AsyncQueue;
 
 NS_ASSUME_NONNULL_BEGIN
 
-// TODO(varconst): this is the only leftover from the dependency on gRPC
-// Objective-C client (where this constant is declared in `GRPCCall.h`). Remove
-// this once error handling is fully translated to C++.
-NSString *const kGRPCErrorDomain = @"io.grpc";
-
 #pragma mark - FSTDatastore
 
 @interface FSTDatastore ()
@@ -115,64 +110,6 @@ NSString *const kGRPCErrorDomain = @"io.grpc";
   return [NSString stringWithFormat:@"<FSTDatastore: <DatabaseInfo: database_id:%s host:%s>>",
                                     self.databaseInfo->database_id().database_id().c_str(),
                                     self.databaseInfo->host().c_str()];
-}
-
-/**
- * Converts the error to an error within the domain FIRFirestoreErrorDomain.
- */
-+ (NSError *)firestoreErrorForError:(NSError *)error {
-  if (!error) {
-    return error;
-  } else if ([error.domain isEqualToString:FIRFirestoreErrorDomain]) {
-    return error;
-  } else if ([error.domain isEqualToString:kGRPCErrorDomain]) {
-    HARD_ASSERT(error.code >= grpc::CANCELLED && error.code <= grpc::UNAUTHENTICATED,
-                "Unknown GRPC error code: %s", error.code);
-    return
-        [NSError errorWithDomain:FIRFirestoreErrorDomain code:error.code userInfo:error.userInfo];
-  } else {
-    return [NSError errorWithDomain:FIRFirestoreErrorDomain
-                               code:FIRFirestoreErrorCodeUnknown
-                           userInfo:@{NSUnderlyingErrorKey : error}];
-  }
-}
-
-+ (BOOL)isAbortedError:(NSError *)error {
-  HARD_ASSERT([error.domain isEqualToString:FIRFirestoreErrorDomain],
-              "isAbortedError: only works with errors emitted by FSTDatastore.");
-  return error.code == FIRFirestoreErrorCodeAborted;
-}
-
-+ (BOOL)isPermanentWriteError:(NSError *)error {
-  HARD_ASSERT([error.domain isEqualToString:FIRFirestoreErrorDomain],
-              "isPerminanteWriteError: only works with errors emitted by FSTDatastore.");
-  switch (error.code) {
-    case FIRFirestoreErrorCodeCancelled:
-    case FIRFirestoreErrorCodeUnknown:
-    case FIRFirestoreErrorCodeDeadlineExceeded:
-    case FIRFirestoreErrorCodeResourceExhausted:
-    case FIRFirestoreErrorCodeInternal:
-    case FIRFirestoreErrorCodeUnavailable:
-    // Unauthenticated means something went wrong with our token and we need to retry with new
-    // credentials which will happen automatically.
-    case FIRFirestoreErrorCodeUnauthenticated:
-      return NO;
-    case FIRFirestoreErrorCodeInvalidArgument:
-    case FIRFirestoreErrorCodeNotFound:
-    case FIRFirestoreErrorCodeAlreadyExists:
-    case FIRFirestoreErrorCodePermissionDenied:
-    case FIRFirestoreErrorCodeFailedPrecondition:
-    case FIRFirestoreErrorCodeAborted:
-    // Aborted might be retried in some scenarios, but that is dependant on
-    // the context and should handled individually by the calling code.
-    // See https://cloud.google.com/apis/design/errors
-    case FIRFirestoreErrorCodeOutOfRange:
-    case FIRFirestoreErrorCodeUnimplemented:
-    case FIRFirestoreErrorCodeDataLoss:
-      return YES;
-    default:
-      return YES;
-  }
 }
 
 - (void)commitMutations:(NSArray<FSTMutation *> *)mutations

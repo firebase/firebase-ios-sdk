@@ -70,15 +70,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)shutdown;
 
-/** Converts the error to a FIRFirestoreErrorDomain error. */
-+ (NSError *)firestoreErrorForError:(NSError *)error;
-
-/** Returns YES if the given error is a GRPC ABORTED error. **/
-+ (BOOL)isAbortedError:(NSError *)error;
-
-/** Returns YES if the given error indicates the RPC associated with it may not be retried. */
-+ (BOOL)isPermanentWriteError:(NSError *)error;
-
 /** Looks up a list of documents in datastore. */
 - (void)lookupDocuments:(const std::vector<firebase::firestore::model::DocumentKey> &)keys
              completion:(FSTVoidMaybeDocumentArrayErrorBlock)completion;

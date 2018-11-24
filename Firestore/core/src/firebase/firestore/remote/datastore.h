@@ -72,6 +72,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
             auth::CredentialsProvider* credentials,
             FSTSerializerBeta* serializer);
 
+  // To enable mocking
   virtual ~Datastore() {
   }
 
@@ -97,6 +98,12 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
                        FSTVoidErrorBlock completion);
   void LookupDocuments(const std::vector<model::DocumentKey>& keys,
                        FSTVoidMaybeDocumentArrayErrorBlock completion);
+
+  /** Returns true if the given error is a gRPC ABORTED error. */
+  static bool IsAbortedError(const util::Status& status);
+
+  /** Returns true if the given error indicates the RPC associated with it may not be retried. */
+  static bool IsPermanentWriteError(const util::Status& status);
 
   static std::string GetWhitelistedHeadersAsString(
       const GrpcCall::Metadata& headers);
