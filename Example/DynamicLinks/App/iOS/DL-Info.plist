@@ -50,5 +50,11 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>FirebaseDynamicLinksCustomDomains</key>
+	<array>
+		<string>https://google.com</string>
+		<string>https://google.com/one</string>
+		<string>https://a.firebase.com/mypath</string>
+	</array>
 </dict>
 </plist>
