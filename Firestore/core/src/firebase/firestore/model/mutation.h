@@ -20,6 +20,7 @@
 #include <memory>
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
@@ -139,6 +140,41 @@ class SetMutation : public Mutation {
 
  private:
   const FieldValue value_;
+};
+
+/**
+ * A mutation that modifies fields of the document at the given key with the
+ * given values. The values are applied through a field mask:
+ *
+ * - When a field is in both the mask and the values, the corresponding field is
+ *   updated.
+ * - When a field is in neither the mask nor the values, the corresponding field
+ *   is unmodified.
+ * - When a field is in the mask but not in the values, the corresponding field
+ *   is deleted.
+ * - When a field is not in the mask but is in the values, the values map is
+ *   ignored.
+ */
+class PatchMutation : public Mutation {
+ public:
+  PatchMutation(DocumentKey&& key,
+                FieldValue&& value,
+                FieldMask&& mask,
+                Precondition&& precondition);
+
+  // TODO(rsgowman): ApplyToRemoteDocument()
+
+  std::shared_ptr<const MaybeDocument> ApplyToLocalView(
+      const std::shared_ptr<const MaybeDocument>& maybe_doc,
+      const MaybeDocument* base_doc,
+      const Timestamp& local_write_time) const override;
+
+ private:
+  FieldValue PatchDocument(const MaybeDocument* maybe_doc) const;
+  FieldValue PatchObject(FieldValue obj) const;
+
+  const FieldValue value_;
+  const FieldMask mask_;
 };
 
 }  // namespace model

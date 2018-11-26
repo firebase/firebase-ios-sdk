@@ -22,6 +22,12 @@
 
 @interface FIRDatabase ()
 
+@property (nonatomic, strong) FRepoInfo *repoInfo;
+@property (nonatomic, strong) FIRDatabaseConfig *config;
+@property (nonatomic, strong) FRepo *repo;
+
+- (id)initWithApp:(FIRApp *)app repoInfo:(FRepoInfo *)info config:(FIRDatabaseConfig *)config;
+
 + (NSString *) buildVersion;
 + (FIRDatabase *) createDatabaseForTests:(FRepoInfo *)repoInfo config:(FIRDatabaseConfig *)config;
 

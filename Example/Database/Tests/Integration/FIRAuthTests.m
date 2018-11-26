@@ -16,13 +16,17 @@
 
 #import <XCTest/XCTest.h>
 
-#import <FirebaseCore/FIRApp.h>
+#import <FirebaseAuthInterop/FIRAuthInterop.h>
+#import <FirebaseCore/FIRAppInternal.h>
+#import <FirebaseCore/FIRComponent.h>
+#import <FirebaseCore/FIRComponentContainer.h>
 
-#import "FTestHelpers.h"
-#import "FTestAuthTokenGenerator.h"
-#import "FIRTestAuthTokenProvider.h"
+#import "FIRAuthInteropFake.h"
 #import "FIRDatabaseConfig_Private.h"
+#import "FIRTestAuthTokenProvider.h"
+#import "FTestAuthTokenGenerator.h"
 #import "FTestBase.h"
+#import "FTestHelpers.h"
 
 @interface FIRAuthTests : FTestBase
 
@@ -31,39 +35,43 @@
 @implementation FIRAuthTests
 
 - (void)setUp {
-    [super setUp];
+  [super setUp];
 }
 
 - (void)tearDown {
-    [super tearDown];
+  [super tearDown];
 }
 
 - (void)testListensAndAuthRaceCondition {
-    [FIRDatabase setLoggingEnabled:YES];
-    id<FAuthTokenProvider> tokenProvider = [FAuthTokenProvider authTokenProviderForApp:[FIRApp defaultApp]];
+  [FIRDatabase setLoggingEnabled:YES];
+  FIRAuthInteropFake *auth = [[FIRAuthInteropFake alloc] initWithToken:nil userID:nil error:nil];
+  id<FAuthTokenProvider> authTokenProvider = [FAuthTokenProvider authTokenProviderWithAuth:auth];
 
-    FIRDatabaseConfig *config = [FIRDatabaseConfig configForName:@"testWritesRestoredAfterAuth"];
-    config.authTokenProvider = tokenProvider;
+  FIRDatabaseConfig *config = [FTestHelpers configForName:@"testWritesRestoredAfterAuth"];
+  config.authTokenProvider = authTokenProvider;
 
-    FIRDatabaseReference *ref = [[[FIRDatabaseReference alloc] initWithConfig:config] childByAutoId];
+  FIRDatabaseReference *ref = [[[FIRDatabaseReference alloc] initWithConfig:config] childByAutoId];
 
-    __block BOOL done = NO;
+  __block BOOL done = NO;
 
-    [[[ref root] child:@".info/connected"] observeEventType:FIRDataEventTypeValue withBlock:^void(
-            FIRDataSnapshot *snapshot) {
-        if ([snapshot.value boolValue]) {
-            // Start a listen before auth credentials are restored.
-            [ref observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+  [[[ref root] child:@".info/connected"]
+      observeEventType:FIRDataEventTypeValue
+             withBlock:^void(FIRDataSnapshot *snapshot) {
+               if ([snapshot.value boolValue]) {
+                 // Start a listen before auth credentials are restored.
+                 [ref observeEventType:FIRDataEventTypeValue
+                             withBlock:^(FIRDataSnapshot *snapshot){
 
-            }];
+                             }];
 
-            // subsequent writes should complete successfully.
-            [ref setValue:@42 withCompletionBlock:^(NSError *error, FIRDatabaseReference *ref) {
-               done = YES;
-            }];
-        }
-    }];
+                 // subsequent writes should complete successfully.
+                 [ref setValue:@42
+                     withCompletionBlock:^(NSError *error, FIRDatabaseReference *ref) {
+                       done = YES;
+                     }];
+               }
+             }];
 
-    WAIT_FOR(done);
+  WAIT_FOR(done);
 }
 @end
