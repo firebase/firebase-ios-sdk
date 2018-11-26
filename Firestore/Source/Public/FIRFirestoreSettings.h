@@ -18,6 +18,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/** Used to set on-disk cache size to unlimited. Garbage collection will not run. */
+extern const int64_t kFIRFirestoreCacheSizeUnlimited NS_SWIFT_NAME(FirestoreCacheSizeUnlimited);
+
 /** Settings used to configure a `FIRFirestore` instance. */
 NS_SWIFT_NAME(FirestoreSettings)
 @interface FIRFirestoreSettings : NSObject <NSCopying>
@@ -60,6 +63,15 @@ NS_SWIFT_NAME(FirestoreSettings)
  * behavior as soon as you can.
  */
 @property(nonatomic, getter=areTimestampsInSnapshotsEnabled) BOOL timestampsInSnapshotsEnabled;
+
+/**
+ * Sets the cache size threshold above which the SDK will attempt to collect least-recently-used
+ * documents. The size is not a guarantee that the cache will stay below that size, only that if
+ * the cache exceeds the given size, cleanup will be attempted. Cannot be set lower than 1MB.
+ *
+ * Set to kFIRFirestoreCacheSizeUnlimited to disable garbage collection entirely.
+ */
+@property(nonatomic, assign) int64_t cacheSizeBytes;
 
 @end
 

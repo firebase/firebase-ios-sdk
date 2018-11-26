@@ -124,7 +124,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Implementations that care about sequence numbers are responsible for generating them and making
  * them available.
  */
-@protocol FSTReferenceDelegate
+@protocol FSTReferenceDelegate <NSObject>
 
 /**
  * Registers an FSTReferenceSet of documents that should be considered 'referenced' and not eligible

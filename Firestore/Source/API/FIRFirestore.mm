@@ -265,7 +265,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 
       HARD_ASSERT(_workerQueue, "Expected non-null _workerQueue");
       _client = [FSTFirestoreClient clientWithDatabaseInfo:database_info
-                                            usePersistence:_settings.persistenceEnabled
+                                                  settings:_settings
                                        credentialsProvider:_credentialsProvider.get()
                                               userExecutor:std::move(userExecutor)
                                                workerQueue:std::move(_workerQueue)];
