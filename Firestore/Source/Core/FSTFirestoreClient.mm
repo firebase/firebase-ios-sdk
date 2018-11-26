@@ -16,7 +16,7 @@
 
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 
-#include <chrono>  // NOLINY(build/c++11)
+#include <chrono>  // NOLINT(build/c++11)
 #include <future>  // NOLINT(build/c++11)
 #include <memory>
 #include <utility>
