@@ -108,8 +108,13 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
   std::unique_ptr<AsyncQueue> _workerQueue;
 
   std::unique_ptr<Executor> _userExecutor;
+<<<<<<< HEAD
   std::chrono::milliseconds _initialGcDelay;
   std::chrono::milliseconds _regularGcDelay;
+=======
+  NSTimeInterval _initialGcDelay;
+  NSTimeInterval _regularGcDelay;
+>>>>>>> lru_gc_disabled
   BOOL _gcHasRun;
   _Nullable id<FSTLRUDelegate> _lruDelegate;
   std::unique_ptr<DelayedOperation> _lruCallback;
