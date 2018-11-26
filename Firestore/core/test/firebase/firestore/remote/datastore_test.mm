@@ -43,10 +43,10 @@ using util::GrpcStreamTester;
 using util::FakeCredentialsProvider;
 using util::FakeGrpcQueue;
 using util::WrapNSString;
-using util::internal::ExecutorLibdispatch;
+using util::ExecutorLibdispatch;
 using util::CompletionResult::Error;
 using util::CompletionResult::Ok;
-using util::internal::ExecutorStd;
+using util::ExecutorStd;
 using Type = GrpcCompletion::Type;
 
 namespace {
@@ -340,10 +340,7 @@ TEST_F(DatastoreTest, AuthAfterDatastoreHasBeenShutDown) {
   EXPECT_NO_THROW(credentials.InvokeGetToken());
 }
 
-// TODO(varconst): this test currently fails due to a gRPC issue, see here
-// https://github.com/firebase/firebase-ios-sdk/pull/1935#discussion_r224900667
-// for details. Reenable when/if possible.
-TEST_F(DatastoreTest, DISABLED_AuthOutlivesDatastore) {
+TEST_F(DatastoreTest, AuthOutlivesDatastore) {
   credentials.DelayGetToken();
 
   worker_queue.EnqueueBlocking([&] {

@@ -27,8 +27,9 @@
 
 - (instancetype)initWithReference:(FIRStorageReference *)reference
                    fetcherService:(GTMSessionFetcherService *)service
+                    dispatchQueue:(dispatch_queue_t)queue
                              file:(nullable NSURL *)fileURL {
-  self = [super initWithReference:reference fetcherService:service];
+  self = [super initWithReference:reference fetcherService:service dispatchQueue:queue];
   if (self) {
     _fileURL = [fileURL copy];
     _progress = [NSProgress progressWithTotalUnitCount:0];
@@ -45,97 +46,102 @@
 }
 
 - (void)enqueueWithData:(nullable NSData *)resumeData {
-  NSAssert([NSThread isMainThread],
-           @"Download attempting to execute on non main queue! Please "
-           @"only execute this method on the main queue.");
-  self.state = FIRStorageTaskStateQueueing;
-  NSMutableURLRequest *request = [self.baseRequest mutableCopy];
-  request.HTTPMethod = @"GET";
-  request.timeoutInterval = self.reference.storage.maxDownloadRetryTime;
-  NSURLComponents *components =
-      [NSURLComponents componentsWithURL:request.URL resolvingAgainstBaseURL:NO];
-  [components setQuery:@"alt=media"];
-  request.URL = components.URL;
-
-  GTMSessionFetcher *fetcher;
-  if (resumeData) {
-    fetcher = [GTMSessionFetcher fetcherWithDownloadResumeData:resumeData];
-    fetcher.comment = @"Resuming DownloadTask";
-  } else {
-    fetcher = [self.fetcherService fetcherWithRequest:request];
-    fetcher.comment = @"Starting DownloadTask";
-  }
-
   __weak FIRStorageDownloadTask *weakSelf = self;
 
-  [fetcher setResumeDataBlock:^(NSData *data) {
-    if (data) {
-      FIRStorageDownloadTask *strongSelf = weakSelf;
-      strongSelf->_downloadData = data;
-    }
-  }];
+  [self dispatchAsync:^() {
+    FIRStorageDownloadTask *strongSelf = weakSelf;
 
-  fetcher.maxRetryInterval = self.reference.storage.maxDownloadRetryTime;
-
-  if (_fileURL) {
-    // Handle file downloads
-    [fetcher setDestinationFileURL:_fileURL];
-    [fetcher setDownloadProgressBlock:^(int64_t bytesWritten, int64_t totalBytesWritten,
-                                        int64_t totalBytesExpectedToWrite) {
-      weakSelf.state = FIRStorageTaskStateProgress;
-      weakSelf.progress.completedUnitCount = totalBytesWritten;
-      weakSelf.progress.totalUnitCount = totalBytesExpectedToWrite;
-      FIRStorageTaskSnapshot *snapshot = weakSelf.snapshot;
-      [weakSelf fireHandlersForStatus:FIRStorageTaskStatusProgress snapshot:snapshot];
-      weakSelf.state = FIRStorageTaskStateRunning;
-    }];
-  } else {
-    // Handle data downloads
-    [fetcher setReceivedProgressBlock:^(int64_t bytesWritten, int64_t totalBytesWritten) {
-      weakSelf.state = FIRStorageTaskStateProgress;
-      weakSelf.progress.completedUnitCount = totalBytesWritten;
-      int64_t totalLength = [[weakSelf.fetcher response] expectedContentLength];
-      weakSelf.progress.totalUnitCount = totalLength;
-      FIRStorageTaskSnapshot *snapshot = weakSelf.snapshot;
-      [weakSelf fireHandlersForStatus:FIRStorageTaskStatusProgress snapshot:snapshot];
-      weakSelf.state = FIRStorageTaskStateRunning;
-    }];
-  }
-
-  _fetcher = fetcher;
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-retain-cycles"
-  _fetcherCompletion = ^(NSData *data, NSError *error) {
-    // Fire last progress updates
-    [self fireHandlersForStatus:FIRStorageTaskStatusProgress snapshot:self.snapshot];
-
-    // Handle potential issues with download
-    if (error) {
-      self.state = FIRStorageTaskStateFailed;
-      self.error = [FIRStorageErrors errorWithServerError:error reference:self.reference];
-      [self fireHandlersForStatus:FIRStorageTaskStatusFailure snapshot:self.snapshot];
-      [self removeAllObservers];
-      self->_fetcherCompletion = nil;
+    if (!strongSelf) {
       return;
     }
 
-    // Download completed successfully, fire completion callbacks
-    self.state = FIRStorageTaskStateSuccess;
+    strongSelf.state = FIRStorageTaskStateQueueing;
+    NSMutableURLRequest *request = [strongSelf.baseRequest mutableCopy];
+    request.HTTPMethod = @"GET";
+    request.timeoutInterval = strongSelf.reference.storage.maxDownloadRetryTime;
+    NSURLComponents *components =
+        [NSURLComponents componentsWithURL:request.URL resolvingAgainstBaseURL:NO];
+    [components setQuery:@"alt=media"];
+    request.URL = components.URL;
 
-    if (data) {
-      self->_downloadData = data;
+    GTMSessionFetcher *fetcher;
+    if (resumeData) {
+      fetcher = [GTMSessionFetcher fetcherWithDownloadResumeData:resumeData];
+      fetcher.comment = @"Resuming DownloadTask";
+    } else {
+      fetcher = [strongSelf.fetcherService fetcherWithRequest:request];
+      fetcher.comment = @"Starting DownloadTask";
     }
 
-    [self fireHandlersForStatus:FIRStorageTaskStatusSuccess snapshot:self.snapshot];
-    [self removeAllObservers];
-    self->_fetcherCompletion = nil;
-  };
+    [fetcher setResumeDataBlock:^(NSData *data) {
+      FIRStorageDownloadTask *strong = weakSelf;
+      if (strong && data) {
+        strong->_downloadData = data;
+      }
+    }];
+
+    fetcher.maxRetryInterval = strongSelf.reference.storage.maxDownloadRetryTime;
+
+    if (strongSelf->_fileURL) {
+      // Handle file downloads
+      [fetcher setDestinationFileURL:strongSelf->_fileURL];
+      [fetcher setDownloadProgressBlock:^(int64_t bytesWritten, int64_t totalBytesWritten,
+                                          int64_t totalBytesExpectedToWrite) {
+        weakSelf.state = FIRStorageTaskStateProgress;
+        weakSelf.progress.completedUnitCount = totalBytesWritten;
+        weakSelf.progress.totalUnitCount = totalBytesExpectedToWrite;
+        FIRStorageTaskSnapshot *snapshot = weakSelf.snapshot;
+        [weakSelf fireHandlersForStatus:FIRStorageTaskStatusProgress snapshot:snapshot];
+        weakSelf.state = FIRStorageTaskStateRunning;
+      }];
+    } else {
+      // Handle data downloads
+      [fetcher setReceivedProgressBlock:^(int64_t bytesWritten, int64_t totalBytesWritten) {
+        weakSelf.state = FIRStorageTaskStateProgress;
+        weakSelf.progress.completedUnitCount = totalBytesWritten;
+        int64_t totalLength = [[weakSelf.fetcher response] expectedContentLength];
+        weakSelf.progress.totalUnitCount = totalLength;
+        FIRStorageTaskSnapshot *snapshot = weakSelf.snapshot;
+        [weakSelf fireHandlersForStatus:FIRStorageTaskStatusProgress snapshot:snapshot];
+        weakSelf.state = FIRStorageTaskStateRunning;
+      }];
+    }
+
+    strongSelf->_fetcher = fetcher;
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-retain-cycles"
+    strongSelf->_fetcherCompletion = ^(NSData *data, NSError *error) {
+      // Fire last progress updates
+      [self fireHandlersForStatus:FIRStorageTaskStatusProgress snapshot:self.snapshot];
+
+      // Handle potential issues with download
+      if (error) {
+        self.state = FIRStorageTaskStateFailed;
+        self.error = [FIRStorageErrors errorWithServerError:error reference:self.reference];
+        [self fireHandlersForStatus:FIRStorageTaskStatusFailure snapshot:self.snapshot];
+        [self removeAllObservers];
+        self->_fetcherCompletion = nil;
+        return;
+      }
+
+      // Download completed successfully, fire completion callbacks
+      self.state = FIRStorageTaskStateSuccess;
+
+      if (data) {
+        self->_downloadData = data;
+      }
+
+      [self fireHandlersForStatus:FIRStorageTaskStatusSuccess snapshot:self.snapshot];
+      [self removeAllObservers];
+      self->_fetcherCompletion = nil;
+    };
 #pragma clang diagnostic pop
 
-  self.state = FIRStorageTaskStateRunning;
-  [self.fetcher beginFetchWithCompletionHandler:^(NSData *data, NSError *error) {
-    weakSelf.fetcherCompletion(data, error);
+    strongSelf.state = FIRStorageTaskStateRunning;
+    [strongSelf.fetcher beginFetchWithCompletionHandler:^(NSData *data, NSError *error) {
+      weakSelf.fetcherCompletion(data, error);
+    }];
   }];
 }
 
@@ -147,37 +153,37 @@
 }
 
 - (void)cancelWithError:(NSError *)error {
-  NSAssert([NSThread isMainThread],
-           @"Cancel attempting to execute on non main queue! Please only "
-           @"execute this method on the main queue.");
-  self.state = FIRStorageTaskStateCancelled;
-  [self.fetcher stopFetching];
-  self.error = error;
-  [self fireHandlersForStatus:FIRStorageTaskStatusFailure snapshot:self.snapshot];
+  __weak FIRStorageDownloadTask *weakSelf = self;
+  [self dispatchAsync:^() {
+    weakSelf.state = FIRStorageTaskStateCancelled;
+    [weakSelf.fetcher stopFetching];
+    weakSelf.error = error;
+    [weakSelf fireHandlersForStatus:FIRStorageTaskStatusFailure snapshot:weakSelf.snapshot];
+  }];
 }
 
 - (void)pause {
-  NSAssert([NSThread isMainThread],
-           @"Pause attempting to execute on non main queue! Please only "
-           @"execute this method on the main queue.");
-  self.state = FIRStorageTaskStatePausing;
-  [self.fetcher stopFetching];
-  // Give the resume callback a chance to run (if scheduled)
-  [self.fetcher waitForCompletionWithTimeout:0.001];
-  self.state = FIRStorageTaskStatePaused;
-  FIRStorageTaskSnapshot *snapshot = self.snapshot;
-  [self fireHandlersForStatus:FIRStorageTaskStatusPause snapshot:snapshot];
+  __weak FIRStorageDownloadTask *weakSelf = self;
+  [self dispatchAsync:^() {
+    weakSelf.state = FIRStorageTaskStatePausing;
+    [weakSelf.fetcher stopFetching];
+    // Give the resume callback a chance to run (if scheduled)
+    [weakSelf.fetcher waitForCompletionWithTimeout:0.001];
+    weakSelf.state = FIRStorageTaskStatePaused;
+    FIRStorageTaskSnapshot *snapshot = weakSelf.snapshot;
+    [weakSelf fireHandlersForStatus:FIRStorageTaskStatusPause snapshot:snapshot];
+  }];
 }
 
 - (void)resume {
-  NSAssert([NSThread isMainThread],
-           @"Resume attempting to execute on non main queue! Please only "
-           @"execute this method on the main queue.");
-  self.state = FIRStorageTaskStateResuming;
-  FIRStorageTaskSnapshot *snapshot = self.snapshot;
-  [self fireHandlersForStatus:FIRStorageTaskStatusResume snapshot:snapshot];
-  self.state = FIRStorageTaskStateRunning;
-  [self enqueueWithData:_downloadData];
+  __weak FIRStorageDownloadTask *weakSelf = self;
+  [self dispatchAsync:^() {
+    weakSelf.state = FIRStorageTaskStateResuming;
+    FIRStorageTaskSnapshot *snapshot = weakSelf.snapshot;
+    [weakSelf fireHandlersForStatus:FIRStorageTaskStatusResume snapshot:snapshot];
+    weakSelf.state = FIRStorageTaskStateRunning;
+    [weakSelf enqueueWithData:weakSelf.downloadData];
+  }];
 }
 
 @end

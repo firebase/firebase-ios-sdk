@@ -90,7 +90,7 @@ void GULLoggerForceDebug(void) {
   }
 }
 
-void GULSetLoggerLevel(GULLoggerLevel loggerLevel) {
+__attribute__((no_sanitize("thread"))) void GULSetLoggerLevel(GULLoggerLevel loggerLevel) {
   if (loggerLevel < GULLoggerLevelMin || loggerLevel > GULLoggerLevelMax) {
     GULLogError(kGULLoggerLogger, NO, @"I-COR000023", @"Invalid logger level, %ld",
                 (long)loggerLevel);

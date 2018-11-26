@@ -43,6 +43,7 @@ using util::AsyncQueue;
 using util::ByteBufferToString;
 using util::CompletionEndState;
 using util::CreateNoOpConnectivityMonitor;
+using util::ExecutorStd;
 using util::GetFirestoreErrorCodeName;
 using util::GetGrpcErrorCodeName;
 using util::GrpcStreamTester;
@@ -51,7 +52,6 @@ using util::Status;
 using util::StringFormat;
 using util::CompletionResult::Error;
 using util::CompletionResult::Ok;
-using util::internal::ExecutorStd;
 using Type = GrpcCompletion::Type;
 
 namespace {
@@ -149,6 +149,11 @@ class GrpcStreamTest : public testing::Test {
     return {states};
   }
 
+  void UnexpectedType(GrpcCompletion* completion) {
+    ADD_FAILURE() << "Unexpected completion type "
+                  << static_cast<int>(completion->type());
+  }
+
   AsyncQueue worker_queue;
 
   std::unique_ptr<ConnectivityMonitor> connectivity_monitor;
@@ -239,8 +244,7 @@ TEST_F(GrpcStreamTest, CanAddSeveralWrites) {
         completion->Complete(true);
         break;
       default:
-        ADD_FAILURE() << "Unexpected completion type "
-                      << static_cast<int>(completion->type());
+        UnexpectedType(completion);
         break;
     }
 
@@ -300,11 +304,7 @@ TEST_F(GrpcStreamTest, WriteAndFinish) {
   KeepPollingGrpcQueue();
 
   worker_queue.EnqueueBlocking([&] {
-    bool did_last_write = stream->WriteAndFinish({});
-    // Canceling gRPC context is not used in this test, so the write operation
-    // won't come back from the completion queue.
-    EXPECT_FALSE(did_last_write);
-
+    // Ignore the returned result; last write may or may not finish fast enough
     EXPECT_EQ(observed_states(), States({"OnStreamStart"}));
   });
 }
@@ -320,28 +320,31 @@ TEST_F(GrpcStreamTest, ErrorOnWrite) {
   });
 
   bool failed_write = false;
-  ForceFinish([&](GrpcCompletion* completion) {
+  auto future = tester.ForceFinishAsync([&](GrpcCompletion* completion) {
     switch (completion->type()) {
       case Type::Read:
-        completion->Complete(true);
-        break;
+        // After a write is failed, fail the read too.
+        completion->Complete(!failed_write);
+        return false;
 
       case Type::Write:
         failed_write = true;
         completion->Complete(false);
-        break;
+        return false;
+
+      case Type::Finish:
+        EXPECT_TRUE(failed_write);
+        *completion->status() = grpc::Status{grpc::ABORTED, ""};
+        completion->Complete(true);
+        return true;
 
       default:
-        ADD_FAILURE() << "Unexpected completion type "
-                      << static_cast<int>(completion->type());
-        break;
+        UnexpectedType(completion);
+        return false;
     }
-
-    return failed_write;
   });
-
-  ForceFinish(
-      {{Type::Read, Error}, {Type::Finish, grpc::Status{grpc::ABORTED, ""}}});
+  future.wait();
+  worker_queue.EnqueueBlocking([] {});
 
   EXPECT_EQ(observed_states().back(), "OnStreamFinish(Aborted)");
 }
@@ -355,25 +358,27 @@ TEST_F(GrpcStreamTest, ErrorWithPendingWrites) {
   });
 
   bool failed_write = false;
-  ForceFinish([&](GrpcCompletion* completion) {
+  auto future = tester.ForceFinishAsync([&](GrpcCompletion* completion) {
     switch (completion->type()) {
       case Type::Read:
-        completion->Complete(true);
-        break;
+        completion->Complete(!failed_write);
+        return false;
       case Type::Write:
         failed_write = true;
         completion->Complete(false);
-        break;
+        return false;
+      case Type::Finish:
+        EXPECT_TRUE(failed_write);
+        *completion->status() = grpc::Status{grpc::UNAVAILABLE, ""};
+        completion->Complete(true);
+        return true;
       default:
-        ADD_FAILURE() << "Unexpected completion type "
-                      << static_cast<int>(completion->type());
-        break;
+        UnexpectedType(completion);
+        return false;
     }
-
-    return failed_write;
   });
-  ForceFinish({{Type::Read, Error},
-               {Type::Finish, grpc::Status{grpc::UNAVAILABLE, ""}}});
+  future.wait();
+  worker_queue.EnqueueBlocking([] {});
 
   EXPECT_EQ(observed_states().back(), "OnStreamFinish(Unavailable)");
 }

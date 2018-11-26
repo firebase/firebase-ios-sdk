@@ -120,14 +120,14 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
   void PollGrpcQueue();
 
   void CommitMutationsWithCredentials(const auth::Token& token,
-                                      const grpc::ByteBuffer& message,
+                                      NSArray<FSTMutation*>* mutations,
                                       FSTVoidErrorBlock completion);
   void OnCommitMutationsResponse(const util::StatusOr<grpc::ByteBuffer>& result,
                                  FSTVoidErrorBlock completion);
 
   void LookupDocumentsWithCredentials(
       const auth::Token& token,
-      const grpc::ByteBuffer& message,
+      const std::vector<model::DocumentKey>& keys,
       FSTVoidMaybeDocumentArrayErrorBlock completion);
   void OnLookupDocumentsResponse(
       const util::StatusOr<std::vector<grpc::ByteBuffer>>& result,
@@ -152,7 +152,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
 
   // A separate executor dedicated to polling gRPC completion queue (which is
   // shared for all spawned gRPC streams and calls).
-  std::unique_ptr<util::internal::Executor> rpc_executor_;
+  std::unique_ptr<util::Executor> rpc_executor_;
   grpc::CompletionQueue grpc_queue_;
   // TODO(varconst): move `ConnectivityMonitor` to `FSTFirestoreClient`.
   std::unique_ptr<ConnectivityMonitor> connectivity_monitor_;

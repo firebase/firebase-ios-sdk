@@ -56,7 +56,7 @@ using util::FakeCredentialsProvider;
 using util::MakeByteBuffer;
 using util::StringFormat;
 using util::TimerId;
-using util::internal::ExecutorStd;
+using util::ExecutorStd;
 using Type = GrpcCompletion::Type;
 
 namespace {
@@ -461,31 +461,32 @@ TEST_F(StreamTest, ErrorOnWrite) {
   worker_queue.EnqueueBlocking([&] { firestore_stream->WriteEmptyBuffer(); });
 
   bool failed_write = false;
-  // Callback is used because it's indeterminate whether one or two read
-  // operations will have a chance to succeed.
-  ForceFinish([&](GrpcCompletion* completion) {
+  auto future = tester.ForceFinishAsync([&](GrpcCompletion* completion) {
     switch (completion->type()) {
       case Type::Read:
-        completion->Complete(true);
-        break;
+        // After a write is failed, fail the read too.
+        completion->Complete(!failed_write);
+        return false;
 
       case Type::Write:
         failed_write = true;
         completion->Complete(false);
-        break;
+        return false;
+
+      case Type::Finish:
+        EXPECT_TRUE(failed_write);
+        *completion->status() = grpc::Status{grpc::UNAUTHENTICATED, ""};
+        completion->Complete(true);
+        return true;
 
       default:
         ADD_FAILURE() << "Unexpected completion type "
                       << static_cast<int>(completion->type());
-        break;
+        return false;
     }
-
-    return failed_write;
   });
-
-  ForceFinish(
-      {{Type::Read, Error},
-       {Type::Finish, grpc::Status{grpc::StatusCode::UNAUTHENTICATED, ""}}});
+  future.wait();
+  worker_queue.EnqueueBlocking([] {});
 
   worker_queue.EnqueueBlocking([&] {
     EXPECT_FALSE(firestore_stream->IsStarted());

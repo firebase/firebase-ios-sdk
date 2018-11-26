@@ -85,10 +85,6 @@ static NSMutableArray<Class<FIRCoreConfigurable>> *gRegisteredAsConfigurable;
 
 @interface FIRApp ()
 
-@property(nonatomic) BOOL alreadySentConfigureNotification;
-
-@property(nonatomic) BOOL alreadySentDeleteNotification;
-
 #ifdef DEBUG
 @property(nonatomic) BOOL alreadyOutputDataCollectionFlag;
 #endif  // DEBUG
@@ -107,13 +103,19 @@ static NSMutableDictionary *sLibraryVersions;
 + (void)configure {
   FIROptions *options = [FIROptions defaultOptions];
   if (!options) {
-    [[NSNotificationCenter defaultCenter]
-        postNotificationName:kFIRAppDiagnosticsNotification
-                      object:nil
-                    userInfo:@{
-                      kFIRAppDiagnosticsConfigurationTypeKey : @(FIRConfigTypeCore),
-                      kFIRAppDiagnosticsErrorKey : [FIRApp errorForMissingOptions]
-                    }];
+    // Read the Info.plist to see if the flag is set. At this point we can't check any user defaults
+    // since the app isn't configured at all, so only rely on the Info.plist value.
+    NSNumber *collectionEnabledPlistValue = [[self class] readDataCollectionSwitchFromPlist];
+    if (collectionEnabledPlistValue == nil || [collectionEnabledPlistValue boolValue]) {
+      [[NSNotificationCenter defaultCenter]
+          postNotificationName:kFIRAppDiagnosticsNotification
+                        object:nil
+                      userInfo:@{
+                        kFIRAppDiagnosticsConfigurationTypeKey : @(FIRConfigTypeCore),
+                        kFIRAppDiagnosticsErrorKey : [FIRApp errorForMissingOptions]
+                      }];
+    }
+
     [NSException raise:kFirebaseCoreErrorDomain
                 format:
                     @"`[FIRApp configure];` (`FirebaseApp.configure()` in Swift) could not find "
@@ -121,7 +123,7 @@ static NSMutableDictionary *sLibraryVersions;
                     @"from %@.",
                     kPlistURL];
   }
-  [FIRApp configureDefaultAppWithOptions:options sendingNotifications:YES];
+  [FIRApp configureWithOptions:options];
 #if TARGET_OS_OSX || TARGET_OS_TV
   FIRLogNotice(kFIRLoggerCore, @"I-COR000028",
                @"tvOS and macOS SDK support is not part of the official Firebase product. "
@@ -135,29 +137,7 @@ static NSMutableDictionary *sLibraryVersions;
     [NSException raise:kFirebaseCoreErrorDomain
                 format:@"Options is nil. Please pass a valid options."];
   }
-  [FIRApp configureDefaultAppWithOptions:options sendingNotifications:YES];
-}
-
-+ (void)configureDefaultAppWithOptions:(FIROptions *)options
-                  sendingNotifications:(BOOL)sendNotifications {
-  if (sDefaultApp) {
-    // FIRApp sets up FirebaseAnalytics and does plist validation, but does not cause it
-    // to fire notifications. So, if the default app already exists, but has not sent out
-    // configuration notifications, then continue re-initializing it.
-    if (!sendNotifications || sDefaultApp.alreadySentConfigureNotification) {
-      [NSException raise:kFirebaseCoreErrorDomain
-                  format:@"Default app has already been configured."];
-    }
-  }
-  @synchronized(self) {
-    FIRLogDebug(kFIRLoggerCore, @"I-COR000001", @"Configuring the default app.");
-    sDefaultApp = [[FIRApp alloc] initInstanceWithName:kFIRDefaultAppName options:options];
-    [FIRApp addAppToAppDictionary:sDefaultApp];
-    if (!sDefaultApp.alreadySentConfigureNotification && sendNotifications) {
-      [FIRApp sendNotificationsToSDKs:sDefaultApp];
-      sDefaultApp.alreadySentConfigureNotification = YES;
-    }
-  }
+  [FIRApp configureWithName:kFIRDefaultAppName options:options];
 }
 
 + (void)configureWithName:(NSString *)name options:(FIROptions *)options {
@@ -167,33 +147,43 @@ static NSMutableDictionary *sLibraryVersions;
   if (name.length == 0) {
     [NSException raise:kFirebaseCoreErrorDomain format:@"Name cannot be empty."];
   }
-  if ([name isEqualToString:kFIRDefaultAppName]) {
-    [NSException raise:kFirebaseCoreErrorDomain format:@"Name cannot be __FIRAPP_DEFAULT."];
-  }
-  for (NSUInteger charIndex = 0; charIndex < name.length; charIndex++) {
-    char character = [name characterAtIndex:charIndex];
-    if (!((character >= 'a' && character <= 'z') || (character >= 'A' && character <= 'Z') ||
-          (character >= '0' && character <= '9') || character == '_' || character == '-')) {
-      [NSException raise:kFirebaseCoreErrorDomain
-                  format:
-                      @"App name should only contain Letters, "
-                      @"Numbers, Underscores, and Dashes."];
-    }
-  }
 
-  if (sAllApps && sAllApps[name]) {
-    [NSException raise:kFirebaseCoreErrorDomain
-                format:@"App named %@ has already been configured.", name];
+  if ([name isEqualToString:kFIRDefaultAppName]) {
+    if (sDefaultApp) {
+      [NSException raise:kFirebaseCoreErrorDomain
+                  format:@"Default app has already been configured."];
+    }
+
+    FIRLogDebug(kFIRLoggerCore, @"I-COR000001", @"Configuring the default app.");
+  } else {
+    // Validate the app name and ensure it hasn't been configured already.
+    for (NSUInteger charIndex = 0; charIndex < name.length; charIndex++) {
+      char character = [name characterAtIndex:charIndex];
+      if (!((character >= 'a' && character <= 'z') || (character >= 'A' && character <= 'Z') ||
+            (character >= '0' && character <= '9') || character == '_' || character == '-')) {
+        [NSException raise:kFirebaseCoreErrorDomain
+                    format:
+                        @"App name should only contain Letters, "
+                        @"Numbers, Underscores, and Dashes."];
+      }
+    }
+
+    if (sAllApps && sAllApps[name]) {
+      [NSException raise:kFirebaseCoreErrorDomain
+                  format:@"App named %@ has already been configured.", name];
+    }
+
+    FIRLogDebug(kFIRLoggerCore, @"I-COR000002", @"Configuring app named %@", name);
   }
 
   @synchronized(self) {
-    FIRLogDebug(kFIRLoggerCore, @"I-COR000002", @"Configuring app named %@", name);
     FIRApp *app = [[FIRApp alloc] initInstanceWithName:name options:options];
-    [FIRApp addAppToAppDictionary:app];
-    if (!app.alreadySentConfigureNotification) {
-      [FIRApp sendNotificationsToSDKs:app];
-      app.alreadySentConfigureNotification = YES;
+    if (app.isDefaultApp) {
+      sDefaultApp = app;
     }
+
+    [FIRApp addAppToAppDictionary:app];
+    [FIRApp sendNotificationsToSDKs:app];
   }
 }
 
@@ -253,13 +243,10 @@ static NSMutableDictionary *sLibraryVersions;
       if ([self.name isEqualToString:kFIRDefaultAppName]) {
         sDefaultApp = nil;
       }
-      if (!self.alreadySentDeleteNotification) {
-        NSDictionary *appInfoDict = @{kFIRAppNameKey : self.name};
-        [[NSNotificationCenter defaultCenter] postNotificationName:kFIRAppDeleteNotification
-                                                            object:[self class]
-                                                          userInfo:appInfoDict];
-        self.alreadySentDeleteNotification = YES;
-      }
+      NSDictionary *appInfoDict = @{kFIRAppNameKey : self.name};
+      [[NSNotificationCenter defaultCenter] postNotificationName:kFIRAppDeleteNotification
+                                                          object:[self class]
+                                                        userInfo:appInfoDict];
       completion(YES);
     } else {
       FIRLogError(kFIRLoggerCore, @"I-COR000007", @"App does not exist.");
@@ -274,13 +261,6 @@ static NSMutableDictionary *sLibraryVersions;
   }
   if ([app configureCore]) {
     sAllApps[app.name] = app;
-    [[NSNotificationCenter defaultCenter]
-        postNotificationName:kFIRAppDiagnosticsNotification
-                      object:nil
-                    userInfo:@{
-                      kFIRAppDiagnosticsConfigurationTypeKey : @(FIRConfigTypeCore),
-                      kFIRAppDiagnosticsFIRAppKey : app
-                    }];
   } else {
     [NSException raise:kFirebaseCoreErrorDomain
                 format:
@@ -297,10 +277,6 @@ static NSMutableDictionary *sLibraryVersions;
     _options.editingLocked = YES;
     _isDefaultApp = [name isEqualToString:kFIRDefaultAppName];
     _container = [[FIRComponentContainer alloc] initWithApp:self];
-
-    FIRApp *app = sAllApps[name];
-    _alreadySentConfigureNotification = app.alreadySentConfigureNotification;
-    _alreadySentDeleteNotification = app.alreadySentDeleteNotification;
   }
   return self;
 }
@@ -317,7 +293,7 @@ static NSMutableDictionary *sLibraryVersions;
 - (BOOL)configureCore {
   [self checkExpectedBundleID];
   if (![self isAppIDValid]) {
-    if (_options.usingOptionsFromDefaultPlist) {
+    if (_options.usingOptionsFromDefaultPlist && [self isDataCollectionDefaultEnabled]) {
       [[NSNotificationCenter defaultCenter]
           postNotificationName:kFIRAppDiagnosticsNotification
                         object:nil
@@ -327,6 +303,16 @@ static NSMutableDictionary *sLibraryVersions;
                       }];
     }
     return NO;
+  }
+
+  if ([self isDataCollectionDefaultEnabled]) {
+    [[NSNotificationCenter defaultCenter]
+        postNotificationName:kFIRAppDiagnosticsNotification
+                      object:nil
+                    userInfo:@{
+                      kFIRAppDiagnosticsConfigurationTypeKey : @(FIRConfigTypeCore),
+                      kFIRAppDiagnosticsFIRAppKey : self
+                    }];
   }
 
 #if TARGET_OS_IOS
@@ -376,7 +362,7 @@ static NSMutableDictionary *sLibraryVersions;
   // Core also controls the FirebaseAnalytics flag, so check if the Analytics flags are set
   // within FIROptions and change the Analytics value if necessary. Analytics only works with the
   // default app, so return if this isn't the default app.
-  if (self != sDefaultApp) {
+  if (!self.isDefaultApp) {
     return;
   }
 
@@ -433,7 +419,7 @@ static NSMutableDictionary *sLibraryVersions;
 
 + (void)sendNotificationsToSDKs:(FIRApp *)app {
   // TODO: Remove this notification once all SDKs are registered with `FIRCoreConfigurable`.
-  NSNumber *isDefaultApp = [NSNumber numberWithBool:(app == sDefaultApp)];
+  NSNumber *isDefaultApp = [NSNumber numberWithBool:app.isDefaultApp];
   NSDictionary *appInfoDict = @{
     kFIRAppNameKey : app.name,
     kFIRAppIsDefaultAppKey : isDefaultApp,

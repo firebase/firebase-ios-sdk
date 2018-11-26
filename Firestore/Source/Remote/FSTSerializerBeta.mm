@@ -16,8 +16,6 @@
 
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
-#import <GRPCClient/GRPCCall.h>
-
 #include <cinttypes>
 #include <string>
 #include <utility>
@@ -439,7 +437,7 @@ NS_ASSUME_NONNULL_BEGIN
   HARD_ASSERT(version != SnapshotVersion::None(),
               "Got a document response with no snapshot version");
 
-  return [FSTDocument documentWithData:value key:key version:version hasLocalMutations:NO];
+  return [FSTDocument documentWithData:value key:key version:version state:FSTDocumentStateSynced];
 }
 
 - (FSTDeletedDocument *)decodedDeletedDocument:(GCFSBatchGetDocumentsResponse *)response {
@@ -448,7 +446,7 @@ NS_ASSUME_NONNULL_BEGIN
   SnapshotVersion version = [self decodedVersion:response.readTime];
   HARD_ASSERT(version != SnapshotVersion::None(),
               "Got a no document response with no snapshot version");
-  return [FSTDeletedDocument documentWithKey:key version:version];
+  return [FSTDeletedDocument documentWithKey:key version:version hasCommittedMutations:NO];
 }
 
 #pragma mark - FSTMutation => GCFSWrite proto
@@ -1146,7 +1144,7 @@ NS_ASSUME_NONNULL_BEGIN
   SnapshotVersion version = [self decodedVersion:change.document.updateTime];
   HARD_ASSERT(version != SnapshotVersion::None(), "Got a document change with no snapshot version");
   FSTMaybeDocument *document =
-      [FSTDocument documentWithData:value key:key version:version hasLocalMutations:NO];
+      [FSTDocument documentWithData:value key:key version:version state:FSTDocumentStateSynced];
 
   NSArray<NSNumber *> *updatedTargetIds = [self decodedIntegerArray:change.targetIdsArray];
   NSArray<NSNumber *> *removedTargetIds = [self decodedIntegerArray:change.removedTargetIdsArray];
@@ -1161,7 +1159,8 @@ NS_ASSUME_NONNULL_BEGIN
   const DocumentKey key = [self decodedDocumentKey:change.document];
   // Note that version might be unset in which case we use SnapshotVersion::None()
   SnapshotVersion version = [self decodedVersion:change.readTime];
-  FSTMaybeDocument *document = [FSTDeletedDocument documentWithKey:key version:version];
+  FSTMaybeDocument *document =
+      [FSTDeletedDocument documentWithKey:key version:version hasCommittedMutations:NO];
 
   NSArray<NSNumber *> *removedTargetIds = [self decodedIntegerArray:change.removedTargetIdsArray];
 

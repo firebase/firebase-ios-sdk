@@ -22,7 +22,6 @@
 namespace firebase {
 namespace firestore {
 namespace util {
-namespace internal {
 
 namespace {
 
@@ -148,7 +147,6 @@ absl::optional<Executor::TaggedOperation> ExecutorStd::PopFromSchedule() {
   return {std::move(removed.value().tagged)};
 }
 
-}  // namespace internal
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase

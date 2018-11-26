@@ -126,12 +126,14 @@ typedef struct FSTPBMutationQueue__storage_ {
 @dynamic batchId;
 @dynamic writesArray, writesArray_Count;
 @dynamic hasLocalWriteTime, localWriteTime;
+@dynamic baseWritesArray, baseWritesArray_Count;
 
 typedef struct FSTPBWriteBatch__storage_ {
   uint32_t _has_storage_[1];
   int32_t batchId;
   NSMutableArray *writesArray;
   GPBTimestamp *localWriteTime;
+  NSMutableArray *baseWritesArray;
 } FSTPBWriteBatch__storage_;
 
 // This method is threadsafe because it is initially called
@@ -165,6 +167,15 @@ typedef struct FSTPBWriteBatch__storage_ {
         .hasIndex = 1,
         .offset = (uint32_t)offsetof(FSTPBWriteBatch__storage_, localWriteTime),
         .flags = GPBFieldOptional,
+        .dataType = GPBDataTypeMessage,
+      },
+      {
+        .name = "baseWritesArray",
+        .dataTypeSpecific.className = GPBStringifySymbol(GCFSWrite),
+        .number = FSTPBWriteBatch_FieldNumber_BaseWritesArray,
+        .hasIndex = GPBNoHasBit,
+        .offset = (uint32_t)offsetof(FSTPBWriteBatch__storage_, baseWritesArray),
+        .flags = GPBFieldRepeated,
         .dataType = GPBDataTypeMessage,
       },
     };

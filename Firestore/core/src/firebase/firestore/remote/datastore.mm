@@ -47,8 +47,8 @@ using model::DocumentKey;
 using util::AsyncQueue;
 using util::Status;
 using util::StatusOr;
-using util::internal::Executor;
-using util::internal::ExecutorLibdispatch;
+using util::Executor;
+using util::ExecutorLibdispatch;
 
 namespace {
 
@@ -151,23 +151,23 @@ std::shared_ptr<WriteStream> Datastore::CreateWriteStream(
 
 void Datastore::CommitMutations(NSArray<FSTMutation*>* mutations,
                                 FSTVoidErrorBlock completion) {
-  grpc::ByteBuffer message = serializer_bridge_.ToByteBuffer(
-      serializer_bridge_.CreateCommitRequest(mutations));
-
   ResumeRpcWithCredentials(
-      [this, message, completion](const StatusOr<Token>& maybe_credentials) {
+      [this, mutations, completion](const StatusOr<Token>& maybe_credentials) {
         if (!maybe_credentials.ok()) {
           completion(util::MakeNSError(maybe_credentials.status()));
           return;
         }
-        CommitMutationsWithCredentials(maybe_credentials.ValueOrDie(), message,
-                                       completion);
+        CommitMutationsWithCredentials(maybe_credentials.ValueOrDie(),
+                                       mutations, completion);
       });
 }
 
 void Datastore::CommitMutationsWithCredentials(const Token& token,
-                                               const grpc::ByteBuffer& message,
+                                               NSArray<FSTMutation*>* mutations,
                                                FSTVoidErrorBlock completion) {
+  grpc::ByteBuffer message = serializer_bridge_.ToByteBuffer(
+      serializer_bridge_.CreateCommitRequest(mutations));
+
   std::unique_ptr<GrpcUnaryCall> call_owning = grpc_connection_.CreateUnaryCall(
       kRpcNameCommit, token, std::move(message));
   GrpcUnaryCall* call = call_owning.get();
@@ -196,24 +196,24 @@ void Datastore::OnCommitMutationsResponse(
 void Datastore::LookupDocuments(
     const std::vector<DocumentKey>& keys,
     FSTVoidMaybeDocumentArrayErrorBlock completion) {
-  grpc::ByteBuffer message = serializer_bridge_.ToByteBuffer(
-      serializer_bridge_.CreateLookupRequest(keys));
-
   ResumeRpcWithCredentials(
-      [this, message, completion](const StatusOr<Token>& maybe_credentials) {
+      [this, keys, completion](const StatusOr<Token>& maybe_credentials) {
         if (!maybe_credentials.ok()) {
           completion(nil, util::MakeNSError(maybe_credentials.status()));
           return;
         }
-        LookupDocumentsWithCredentials(maybe_credentials.ValueOrDie(), message,
+        LookupDocumentsWithCredentials(maybe_credentials.ValueOrDie(), keys,
                                        completion);
       });
 }
 
 void Datastore::LookupDocumentsWithCredentials(
     const Token& token,
-    const grpc::ByteBuffer& message,
+    const std::vector<DocumentKey>& keys,
     FSTVoidMaybeDocumentArrayErrorBlock completion) {
+  grpc::ByteBuffer message = serializer_bridge_.ToByteBuffer(
+      serializer_bridge_.CreateLookupRequest(keys));
+
   std::unique_ptr<GrpcStreamingReader> call_owning =
       grpc_connection_.CreateStreamingReader(kRpcNameLookup, token,
                                              std::move(message));

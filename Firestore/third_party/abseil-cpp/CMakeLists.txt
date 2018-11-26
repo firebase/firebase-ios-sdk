@@ -13,11 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-cmake_minimum_required(VERSION 2.8.12)
-project(absl)
 
-# enable ctest
-include(CTest)
+# We require 3.0 for modern, target-based CMake.  We require 3.1 for the use of
+# CXX_STANDARD in our targets.
+cmake_minimum_required(VERSION 3.1)
+project(absl)
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake)
 
@@ -32,8 +32,16 @@ if (MSVC)
   # /wd4244  conversion from 'type1' to 'type2'
   # /wd4267  conversion from 'size_t' to 'type2'
   # /wd4800  force value to bool 'true' or 'false' (performance warning)
-  add_compile_options(/W3 /WX /wd4005 /wd4068 /wd4244 /wd4267 /wd4800)
-  add_definitions(/DNOMINMAX /DWIN32_LEAN_AND_MEAN=1 /D_CRT_SECURE_NO_WARNINGS /D_SCL_SECURE_NO_WARNINGS)
+  add_compile_options(/W3 /wd4005 /wd4068 /wd4244 /wd4267 /wd4800)
+  # /D_ENABLE_EXTENDED_ALIGNED_STORAGE Introduced in VS 2017 15.8, before the
+  # member type would non-conformingly have an alignment of only alignof(max_align_t).
+  add_definitions(
+    /DNOMINMAX
+    /DWIN32_LEAN_AND_MEAN=1
+    /D_CRT_SECURE_NO_WARNINGS
+    /D_SCL_SECURE_NO_WARNINGS
+    /D_ENABLE_EXTENDED_ALIGNED_STORAGE
+  )
 else()
   set(ABSL_STD_CXX_FLAG "-std=c++11" CACHE STRING "c++ std flag (default: c++11)")
 endif()
@@ -56,7 +64,6 @@ list(APPEND ABSL_COMMON_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR})
 
 # -std=X
 set(CMAKE_CXX_FLAGS "${ABSL_STD_CXX_FLAG} ${CMAKE_CXX_FLAGS}")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_WARNING_VLA} ${CMAKE_CXX_FLAGS} ")
 
 # -fexceptions
 set(ABSL_EXCEPTIONS_FLAG "${CMAKE_CXX_EXCEPTIONS}")
@@ -65,17 +72,25 @@ set(ABSL_EXCEPTIONS_FLAG "${CMAKE_CXX_EXCEPTIONS}")
 ## pthread
 find_package(Threads REQUIRED)
 
-if(NOT ABSL_CCTZ_TARGET)
-  set(ABSL_CCTZ_TARGET cctz)
-endif()
+option(ABSL_USE_GOOGLETEST_HEAD
+  "If ON, abseil will download HEAD from googletest at config time." OFF)
 
-# commented: used only for standalone test
-# Don't remove these or else CMake CI will break
-#add_subdirectory(cctz)
-#add_subdirectory(googletest)
+option(ABSL_RUN_TESTS "If ON, Abseil tests will be run." OFF)
+
+if(${ABSL_RUN_TESTS})
+  # enable CTest.  This will set BUILD_TESTING to ON unless otherwise specified
+  # on the command line
+  include(CTest)
+  enable_testing()
+endif()
 
 ## check targets
 if(BUILD_TESTING)
+
+  if(${ABSL_USE_GOOGLETEST_HEAD})
+    include(CMake/DownloadGTest.cmake)
+  endif()
+
   check_target(gtest)
   check_target(gtest_main)
   check_target(gmock)

@@ -17,6 +17,7 @@
 #import "Firestore/Source/Remote/FSTRemoteStore.h"
 
 #include <cinttypes>
+#include <memory>
 
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTTransaction.h"
@@ -35,9 +36,11 @@
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/remote/stream.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "absl/memory/memory.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::auth::User;
@@ -46,7 +49,11 @@ using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::SnapshotVersion;
+using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::remote::WatchStream;
+using firebase::firestore::remote::WriteStream;
+using util::AsyncQueue;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -70,9 +77,6 @@ static const int kMaxPendingWrites = 10;
 @property(nonatomic, strong, readonly) FSTDatastore *datastore;
 
 #pragma mark Watch Stream
-// The watchStream is null when the network is disabled. The non-null check is performed by
-// isNetworkEnabled.
-@property(nonatomic, strong, nullable) FSTWatchStream *watchStream;
 
 /**
  * A mapping of watched targets that the client cares about tracking and the
@@ -88,11 +92,6 @@ static const int kMaxPendingWrites = 10;
 @property(nonatomic, strong, readonly) FSTOnlineStateTracker *onlineStateTracker;
 
 @property(nonatomic, strong, nullable) FSTWatchChangeAggregator *watchChangeAggregator;
-
-#pragma mark Write Stream
-// The writeStream is null when the network is disabled. The non-null check is performed by
-// isNetworkEnabled.
-@property(nonatomic, strong, nullable) FSTWriteStream *writeStream;
 
 /**
  * A list of up to kMaxPendingWrites writes that we have fetched from the LocalStore via
@@ -111,18 +110,32 @@ static const int kMaxPendingWrites = 10;
 @property(nonatomic, strong, readonly) NSMutableArray<FSTMutationBatch *> *writePipeline;
 @end
 
-@implementation FSTRemoteStore
+@implementation FSTRemoteStore {
+  std::shared_ptr<WatchStream> _watchStream;
+  std::shared_ptr<WriteStream> _writeStream;
+  /**
+   * Set to YES by 'enableNetwork:' and NO by 'disableNetworkInternal:' and
+   * indicates the user-preferred network state.
+   */
+  BOOL _isNetworkEnabled;
+}
 
 - (instancetype)initWithLocalStore:(FSTLocalStore *)localStore
                          datastore:(FSTDatastore *)datastore
-               workerDispatchQueue:(FSTDispatchQueue *)queue {
+                       workerQueue:(AsyncQueue *)queue {
   if (self = [super init]) {
     _localStore = localStore;
     _datastore = datastore;
     _listenTargets = [NSMutableDictionary dictionary];
 
     _writePipeline = [NSMutableArray array];
-    _onlineStateTracker = [[FSTOnlineStateTracker alloc] initWithWorkerDispatchQueue:queue];
+    _onlineStateTracker = [[FSTOnlineStateTracker alloc] initWithWorkerQueue:queue];
+
+    // Create streams (but note they're not started yet)
+    _watchStream = [self.datastore createWatchStreamWithDelegate:self];
+    _writeStream = [self.datastore createWriteStreamWithDelegate:self];
+
+    _isNetworkEnabled = NO;
   }
   return self;
 }
@@ -144,76 +157,71 @@ static const int kMaxPendingWrites = 10;
 
 #pragma mark Online/Offline state
 
-- (BOOL)isNetworkEnabled {
-  HARD_ASSERT((self.watchStream == nil) == (self.writeStream == nil),
-              "WatchStream and WriteStream should both be null or non-null");
-  return self.watchStream != nil;
+- (BOOL)canUseNetwork {
+  // PORTING NOTE: This method exists mostly because web also has to take into
+  // account primary vs. secondary state.
+  return _isNetworkEnabled;
 }
 
 - (void)enableNetwork {
-  if ([self isNetworkEnabled]) {
-    return;
+  _isNetworkEnabled = YES;
+
+  if ([self canUseNetwork]) {
+    // Load any saved stream token from persistent storage
+    _writeStream->SetLastStreamToken([self.localStore lastStreamToken]);
+
+    if ([self shouldStartWatchStream]) {
+      [self startWatchStream];
+    } else {
+      [self.onlineStateTracker updateState:OnlineState::Unknown];
+    }
+
+    // This will start the write stream if necessary.
+    [self fillWritePipeline];
   }
-
-  // Create new streams (but note they're not started yet).
-  self.watchStream = [self.datastore createWatchStream];
-  self.writeStream = [self.datastore createWriteStream];
-
-  // Load any saved stream token from persistent storage
-  self.writeStream.lastStreamToken = [self.localStore lastStreamToken];
-
-  if ([self shouldStartWatchStream]) {
-    [self startWatchStream];
-  } else {
-    [self.onlineStateTracker updateState:OnlineState::Unknown];
-  }
-
-  [self fillWritePipeline];  // This may start the writeStream.
 }
 
 - (void)disableNetwork {
+  _isNetworkEnabled = NO;
   [self disableNetworkInternal];
+
   // Set the OnlineState to Offline so get()s return from cache, etc.
   [self.onlineStateTracker updateState:OnlineState::Offline];
 }
 
 /** Disables the network, setting the OnlineState to the specified targetOnlineState. */
 - (void)disableNetworkInternal {
-  if ([self isNetworkEnabled]) {
-    // NOTE: We're guaranteed not to get any further events from these streams (not even a close
-    // event).
-    [self.watchStream stop];
-    [self.writeStream stop];
+  _watchStream->Stop();
+  _writeStream->Stop();
 
-    [self cleanUpWatchStreamState];
-
-    if (self.writePipeline.count > 0) {
-      LOG_DEBUG("Stopping write stream with %lu pending writes",
-                (unsigned long)self.writePipeline.count);
-      [self.writePipeline removeAllObjects];
-    }
-
-    self.writeStream = nil;
-    self.watchStream = nil;
+  if (self.writePipeline.count > 0) {
+    LOG_DEBUG("Stopping write stream with %lu pending writes",
+              (unsigned long)self.writePipeline.count);
+    [self.writePipeline removeAllObjects];
   }
+
+  [self cleanUpWatchStreamState];
 }
 
 #pragma mark Shutdown
 
 - (void)shutdown {
   LOG_DEBUG("FSTRemoteStore %s shutting down", (__bridge void *)self);
+  _isNetworkEnabled = NO;
   [self disableNetworkInternal];
   // Set the OnlineState to Unknown (rather than Offline) to avoid potentially triggering
   // spurious listener events with cached data, etc.
   [self.onlineStateTracker updateState:OnlineState::Unknown];
+  [self.datastore shutdown];
 }
 
 - (void)credentialDidChange {
-  if ([self isNetworkEnabled]) {
+  if ([self canUseNetwork]) {
     // Tear down and re-create our network streams. This will ensure we get a fresh auth token
     // for the new user and re-fill the write pipeline with new mutations from the LocalStore
     // (since mutations are per-user).
     LOG_DEBUG("FSTRemoteStore %s restarting streams for new credential", (__bridge void *)self);
+    _isNetworkEnabled = NO;
     [self disableNetworkInternal];
     [self.onlineStateTracker updateState:OnlineState::Unknown];
     [self enableNetwork];
@@ -226,7 +234,8 @@ static const int kMaxPendingWrites = 10;
   HARD_ASSERT([self shouldStartWatchStream],
               "startWatchStream: called when shouldStartWatchStream: is false.");
   _watchChangeAggregator = [[FSTWatchChangeAggregator alloc] initWithTargetMetadataProvider:self];
-  [self.watchStream startWithDelegate:self];
+  _watchStream->Start();
+
   [self.onlineStateTracker handleWatchStreamStart];
 }
 
@@ -239,14 +248,14 @@ static const int kMaxPendingWrites = 10;
 
   if ([self shouldStartWatchStream]) {
     [self startWatchStream];
-  } else if ([self isNetworkEnabled] && [self.watchStream isOpen]) {
+  } else if (_watchStream->IsOpen()) {
     [self sendWatchRequestWithQueryData:queryData];
   }
 }
 
 - (void)sendWatchRequestWithQueryData:(FSTQueryData *)queryData {
   [self.watchChangeAggregator recordTargetRequest:@(queryData.targetID)];
-  [self.watchStream watchQuery:queryData];
+  _watchStream->WatchQuery(queryData);
 }
 
 - (void)stopListeningToTargetID:(TargetId)targetID {
@@ -255,26 +264,24 @@ static const int kMaxPendingWrites = 10;
   HARD_ASSERT(queryData, "stopListeningToTargetID: target not currently watched: %s", targetKey);
 
   [self.listenTargets removeObjectForKey:targetKey];
-  if ([self isNetworkEnabled] && [self.watchStream isOpen]) {
+  if (_watchStream->IsOpen()) {
     [self sendUnwatchRequestForTargetID:targetKey];
   }
   if ([self.listenTargets count] == 0) {
-    if ([self isNetworkEnabled]) {
-      if ([self.watchStream isOpen]) {
-        [self.watchStream markIdle];
-      } else {
-        // Revert to OnlineState::Unknown if the watch stream is not open and we have no listeners,
-        // since without any listens to send we cannot confirm if the stream is healthy and upgrade
-        // to OnlineState::Online.
-        [self.onlineStateTracker updateState:OnlineState::Unknown];
-      }
+    if (_watchStream->IsOpen()) {
+      _watchStream->MarkIdle();
+    } else if ([self canUseNetwork]) {
+      // Revert to OnlineState::Unknown if the watch stream is not open and we have no listeners,
+      // since without any listens to send we cannot confirm if the stream is healthy and upgrade
+      // to OnlineState::Online.
+      [self.onlineStateTracker updateState:OnlineState::Unknown];
     }
   }
 }
 
 - (void)sendUnwatchRequestForTargetID:(FSTBoxedTargetID *)targetID {
   [self.watchChangeAggregator recordTargetRequest:targetID];
-  [self.watchStream unwatchTargetID:[targetID intValue]];
+  _watchStream->UnwatchTargetId([targetID intValue]);
 }
 
 /**
@@ -282,7 +289,7 @@ static const int kMaxPendingWrites = 10;
  * active watch targets.
  */
 - (BOOL)shouldStartWatchStream {
-  return [self isNetworkEnabled] && ![self.watchStream isStarted] && self.listenTargets.count > 0;
+  return [self canUseNetwork] && !_watchStream->IsStarted() && self.listenTargets.count > 0;
 }
 
 - (void)cleanUpWatchStreamState {
@@ -326,20 +333,18 @@ static const int kMaxPendingWrites = 10;
 }
 
 - (void)watchStreamWasInterruptedWithError:(nullable NSError *)error {
-  HARD_ASSERT([self isNetworkEnabled],
-              "watchStreamWasInterruptedWithError: should only be called when the network is "
-              "enabled");
+  if (!error) {
+    // Graceful stop (due to Stop() or idle timeout). Make sure that's desirable.
+    HARD_ASSERT(![self shouldStartWatchStream],
+                "Watch stream was stopped gracefully while still needed.");
+  }
 
   [self cleanUpWatchStreamState];
 
-  // If the watch stream closed due to an error, retry the connection if there are any active
-  // watch targets.
+  // If we still need the watch stream, retry the connection.
   if ([self shouldStartWatchStream]) {
-    if (error) {
-      // There should generally be an error if the watch stream was closed when it's still needed,
-      // but it's not quite worth asserting.
-      [self.onlineStateTracker handleWatchStreamFailure:error];
-    }
+    [self.onlineStateTracker handleWatchStreamFailure:error];
+
     [self startWatchStream];
   } else {
     // We don't need to restart the watch stream because there are no active targets. The online
@@ -440,14 +445,13 @@ static const int kMaxPendingWrites = 10;
  * pending writes.
  */
 - (BOOL)shouldStartWriteStream {
-  return [self isNetworkEnabled] && ![self.writeStream isStarted] && self.writePipeline.count > 0;
+  return [self canUseNetwork] && !_writeStream->IsStarted() && self.writePipeline.count > 0;
 }
 
 - (void)startWriteStream {
   HARD_ASSERT([self shouldStartWriteStream],
               "startWriteStream: called when shouldStartWriteStream: is false.");
-
-  [self.writeStream startWithDelegate:self];
+  _writeStream->Start();
 }
 
 /**
@@ -465,7 +469,7 @@ static const int kMaxPendingWrites = 10;
     FSTMutationBatch *batch = [self.localStore nextMutationBatchAfterBatchID:lastBatchIDRetrieved];
     if (!batch) {
       if (self.writePipeline.count == 0) {
-        [self.writeStream markIdle];
+        _writeStream->MarkIdle();
       }
       break;
     }
@@ -482,28 +486,25 @@ static const int kMaxPendingWrites = 10;
  * Returns YES if we can add to the write pipeline (i.e. it is not full and the network is enabled).
  */
 - (BOOL)canAddToWritePipeline {
-  return [self isNetworkEnabled] && self.writePipeline.count < kMaxPendingWrites;
+  return [self canUseNetwork] && self.writePipeline.count < kMaxPendingWrites;
 }
 
 /**
  * Queues additional writes to be sent to the write stream, sending them immediately if the write
- * stream is established, else starting the write stream if it is not yet started.
+ * stream is established.
  */
 - (void)addBatchToWritePipeline:(FSTMutationBatch *)batch {
-  HARD_ASSERT([self canAddToWritePipeline],
-              "addBatchToWritePipeline called when mutations can't be written");
+  HARD_ASSERT([self canAddToWritePipeline], "addBatchToWritePipeline called when pipeline is full");
 
   [self.writePipeline addObject:batch];
 
-  if ([self shouldStartWriteStream]) {
-    [self startWriteStream];
-  } else if ([self isNetworkEnabled] && self.writeStream.handshakeComplete) {
-    [self.writeStream writeMutations:batch.mutations];
+  if (_writeStream->IsOpen() && _writeStream->handshake_complete()) {
+    _writeStream->WriteMutations(batch.mutations);
   }
 }
 
 - (void)writeStreamDidOpen {
-  [self.writeStream writeHandshake];
+  _writeStream->WriteHandshake();
 }
 
 /**
@@ -512,11 +513,11 @@ static const int kMaxPendingWrites = 10;
  */
 - (void)writeStreamDidCompleteHandshake {
   // Record the stream token.
-  [self.localStore setLastStreamToken:self.writeStream.lastStreamToken];
+  [self.localStore setLastStreamToken:_writeStream->GetLastStreamToken()];
 
   // Send the write pipeline now that the stream is established.
   for (FSTMutationBatch *write in self.writePipeline) {
-    [self.writeStream writeMutations:write.mutations];
+    _writeStream->WriteMutations(write.mutations);
   }
 }
 
@@ -533,7 +534,7 @@ static const int kMaxPendingWrites = 10;
       [FSTMutationBatchResult resultWithBatch:batch
                                 commitVersion:commitVersion
                               mutationResults:results
-                                  streamToken:self.writeStream.lastStreamToken];
+                                  streamToken:_writeStream->GetLastStreamToken()];
   [self.syncEngine applySuccessfulWriteWithResult:batchResult];
 
   // It's possible that with the completion of this mutation another slot has freed up.
@@ -545,13 +546,16 @@ static const int kMaxPendingWrites = 10;
  * has been terminated by the client or the server.
  */
 - (void)writeStreamWasInterruptedWithError:(nullable NSError *)error {
-  HARD_ASSERT([self isNetworkEnabled],
-              "writeStreamDidClose: should only be called when the network is enabled");
+  if (!error) {
+    // Graceful stop (due to Stop() or idle timeout). Make sure that's desirable.
+    HARD_ASSERT(![self shouldStartWriteStream],
+                "Write stream was stopped gracefully while still needed.");
+  }
 
   // If the write stream closed due to an error, invoke the error callbacks if there are pending
   // writes.
   if (error != nil && self.writePipeline.count > 0) {
-    if (self.writeStream.handshakeComplete) {
+    if (_writeStream->handshake_complete()) {
       // This error affects the actual writes.
       [self handleWriteError:error];
     } else {
@@ -568,18 +572,20 @@ static const int kMaxPendingWrites = 10;
 }
 
 - (void)handleHandshakeError:(NSError *)error {
+  HARD_ASSERT(error, "Handling write error with status OK.");
   // Reset the token if it's a permanent error or the error code is ABORTED, signaling the write
   // stream is no longer valid.
   if ([FSTDatastore isPermanentWriteError:error] || [FSTDatastore isAbortedError:error]) {
-    NSString *token = [self.writeStream.lastStreamToken base64EncodedStringWithOptions:0];
+    NSString *token = [_writeStream->GetLastStreamToken() base64EncodedStringWithOptions:0];
     LOG_DEBUG("FSTRemoteStore %s error before completed handshake; resetting stream token %s: %s",
               (__bridge void *)self, token, error);
-    self.writeStream.lastStreamToken = nil;
+    _writeStream->SetLastStreamToken(nil);
     [self.localStore setLastStreamToken:nil];
   }
 }
 
 - (void)handleWriteError:(NSError *)error {
+  HARD_ASSERT(error, "Handling write error with status OK.");
   // Only handle permanent error. If it's transient, just let the retry logic kick in.
   if (![FSTDatastore isPermanentWriteError:error]) {
     return;
@@ -592,7 +598,7 @@ static const int kMaxPendingWrites = 10;
 
   // In this case it's also unlikely that the server itself is melting down--this was just a
   // bad request so inhibit backoff on the next restart.
-  [self.writeStream inhibitBackoff];
+  _writeStream->InhibitBackoff();
 
   [self.syncEngine rejectFailedWriteWithBatchID:batch.batchID error:error];
 

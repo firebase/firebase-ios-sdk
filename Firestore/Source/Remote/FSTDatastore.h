@@ -16,26 +16,27 @@
 
 #import <Foundation/Foundation.h>
 
+#include <memory>
 #include <vector>
 
 #import "Firestore/Source/Core/FSTTypes.h"
 
+#include "Firestore/core/src/firebase/firestore//remote/watch_stream.h"
+#include "Firestore/core/src/firebase/firestore//remote/write_stream.h"
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/remote/datastore.h"
+#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
+#include "absl/memory/memory.h"
 #include "absl/strings/string_view.h"
 
-@class FSTDispatchQueue;
 @class FSTMutation;
 @class FSTMutationResult;
 @class FSTQueryData;
 @class FSTSerializerBeta;
 @class FSTWatchChange;
-@class FSTWatchStream;
-@class FSTWriteStream;
-@class GRPCCall;
-@class GRXWriter;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -55,24 +56,19 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Creates a new Datastore instance with the given database info. */
 + (instancetype)datastoreWithDatabase:(const firebase::firestore::core::DatabaseInfo *)databaseInfo
-                  workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
+                          workerQueue:(firebase::firestore::util::AsyncQueue *)workerQueue
                           credentials:(firebase::firestore::auth::CredentialsProvider *)
                                           credentials;  // no passing ownership
 
 - (instancetype)init __attribute__((unavailable("Use a static constructor method.")));
 
 - (instancetype)initWithDatabaseInfo:(const firebase::firestore::core::DatabaseInfo *)databaseInfo
-                 workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
+                         workerQueue:(firebase::firestore::util::AsyncQueue *)workerQueue
                          credentials:(firebase::firestore::auth::CredentialsProvider *)
                                          credentials  // no passing ownership
     NS_DESIGNATED_INITIALIZER;
 
-/**
- * Takes a dictionary of (HTTP) response headers and returns the set of whitelisted headers
- * (for logging purposes).
- */
-+ (NSDictionary<NSString *, NSString *> *)extractWhiteListedHeaders:
-    (NSDictionary<NSString *, NSString *> *)header;
+- (void)shutdown;
 
 /** Converts the error to a FIRFirestoreErrorDomain error. */
 + (NSError *)firestoreErrorForError:(NSError *)error;
@@ -83,11 +79,6 @@ NS_ASSUME_NONNULL_BEGIN
 /** Returns YES if the given error indicates the RPC associated with it may not be retried. */
 + (BOOL)isPermanentWriteError:(NSError *)error;
 
-/** Adds headers to the RPC including any OAuth access token if provided .*/
-+ (void)prepareHeadersForRPC:(GRPCCall *)rpc
-                  databaseID:(const firebase::firestore::model::DatabaseId *)databaseID
-                       token:(const absl::string_view)token;
-
 /** Looks up a list of documents in datastore. */
 - (void)lookupDocuments:(const std::vector<firebase::firestore::model::DocumentKey> &)keys
              completion:(FSTVoidMaybeDocumentArrayErrorBlock)completion;
@@ -97,10 +88,12 @@ NS_ASSUME_NONNULL_BEGIN
              completion:(FSTVoidErrorBlock)completion;
 
 /** Creates a new watch stream. */
-- (FSTWatchStream *)createWatchStream;
+- (std::shared_ptr<firebase::firestore::remote::WatchStream>)createWatchStreamWithDelegate:
+    (id<FSTWatchStreamDelegate>)delegate;
 
 /** Creates a new write stream. */
-- (FSTWriteStream *)createWriteStream;
+- (std::shared_ptr<firebase::firestore::remote::WriteStream>)createWriteStreamWithDelegate:
+    (id<FSTWriteStreamDelegate>)delegate;
 
 /** The name of the database and the backend. */
 // Does not own this DatabaseInfo.

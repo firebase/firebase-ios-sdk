@@ -1,5 +1,5 @@
 # Uncomment the next two lines for pre-release testing
-#source 'sso://cpdc-internal/spec'
+#source 'sso://cpdc-internal/firebase'
 #source 'https://github.com/CocoaPods/Specs.git'
 
 use_frameworks!
@@ -15,7 +15,7 @@ target 'Core_Example_iOS' do
   # The next line is the forcing function for the Firebase pod. The Firebase
   # version's subspecs should depend on the component versions in their
   # corresponding podspec's.
-  pod 'Firebase/CoreOnly', '5.10.0'
+  pod 'Firebase/CoreOnly', '5.13.0'
 
   target 'Core_Tests_iOS' do
     inherit! :search_paths
@@ -41,12 +41,10 @@ target 'Database_Example_iOS' do
 
   target 'Database_Tests_iOS' do
     inherit! :search_paths
-    pod 'OCMock'
   end
 
   target 'Database_IntegrationTests_iOS' do
     inherit! :search_paths
-    pod 'OCMock'
   end
 end
 
@@ -113,7 +111,6 @@ target 'Storage_Example_iOS' do
 
   target 'Storage_IntegrationTests_iOS' do
     inherit! :search_paths
-    pod 'OCMock'
   end
 end
 
@@ -173,12 +170,10 @@ target 'Database_Example_macOS' do
 
   target 'Database_Tests_macOS' do
     inherit! :search_paths
-    pod 'OCMock'
   end
 
   target 'Database_IntegrationTests_macOS' do
     inherit! :search_paths
-    pod 'OCMock'
   end
 end
 
@@ -194,7 +189,6 @@ target 'Storage_Example_macOS' do
 
   target 'Storage_IntegrationTests_macOS' do
     inherit! :search_paths
-    pod 'OCMock'
   end
 end
 
@@ -225,13 +219,11 @@ target 'Database_Example_tvOS' do
 
   target 'Database_Tests_tvOS' do
     inherit! :search_paths
-    pod 'OCMock'
   end
 
 # TODO
 # target 'Database_IntegrationTests_tvOS' do
 #    inherit! :search_paths
-#    pod 'OCMock'
 #  end
 end
 
@@ -248,6 +240,5 @@ target 'Storage_Example_tvOS' do
 #TODO Storage_IntegrationTests_tvOS
 #  target 'Storage_IntegrationTests_tvOS' do
 #    inherit! :search_paths
-#    pod 'OCMock'
 #  end
 end

@@ -25,7 +25,7 @@
 /// The exact behavior of dict[key] = value is unclear when value is nil. This function safely adds
 /// the key-value pair to the dictionary, even when value is nil.
 /// This function will treat empty string in the same way as nil.
-NS_INLINE void FDLSafelyAddKeyValuePairToDictionary(id<NSCopying> key,
+NS_INLINE void FDLSafelyAddKeyValuePairToDictionary(NSString *key,
                                                     NSString *stringValue,
                                                     NSMutableDictionary *dictionary) {
   if (stringValue != nil && stringValue.length > 0) {

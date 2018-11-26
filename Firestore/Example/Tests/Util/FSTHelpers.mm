@@ -153,18 +153,27 @@ FSTDocumentKey *FSTTestDocKey(NSString *path) {
 FSTDocument *FSTTestDoc(const absl::string_view path,
                         FSTTestSnapshotVersion version,
                         NSDictionary<NSString *, id> *data,
-                        BOOL hasMutations) {
+                        FSTDocumentState documentState) {
   DocumentKey key = testutil::Key(path);
   return [FSTDocument documentWithData:FSTTestObjectValue(data)
                                    key:key
                                version:testutil::Version(version)
-                     hasLocalMutations:hasMutations];
+                                 state:documentState];
 }
 
 FSTDeletedDocument *FSTTestDeletedDoc(const absl::string_view path,
+                                      FSTTestSnapshotVersion version,
+                                      BOOL hasCommittedMutations) {
+  DocumentKey key = testutil::Key(path);
+  return [FSTDeletedDocument documentWithKey:key
+                                     version:testutil::Version(version)
+                       hasCommittedMutations:hasCommittedMutations];
+}
+
+FSTUnknownDocument *FSTTestUnknownDoc(const absl::string_view path,
                                       FSTTestSnapshotVersion version) {
   DocumentKey key = testutil::Key(path);
-  return [FSTDeletedDocument documentWithKey:key version:testutil::Version(version)];
+  return [FSTUnknownDocument documentWithKey:key version:testutil::Version(version)];
 }
 
 FSTDocumentKeyReference *FSTTestRef(std::string projectID, std::string database, NSString *path) {

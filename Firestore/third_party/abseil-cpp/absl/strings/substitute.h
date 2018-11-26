@@ -17,46 +17,46 @@
 // File: substitute.h
 // -----------------------------------------------------------------------------
 //
-// This package contains functions for efficiently performing std::string
-// substitutions using a format std::string with positional notation:
+// This package contains functions for efficiently performing string
+// substitutions using a format string with positional notation:
 // `Substitute()` and `SubstituteAndAppend()`.
 //
 // Unlike printf-style format specifiers, `Substitute()` functions do not need
 // to specify the type of the substitution arguments. Supported arguments
-// following the format std::string, such as strings, string_views, ints,
+// following the format string, such as strings, string_views, ints,
 // floats, and bools, are automatically converted to strings during the
 // substitution process. (See below for a full list of supported types.)
 //
 // `Substitute()` does not allow you to specify *how* to format a value, beyond
-// the default conversion to std::string. For example, you cannot format an integer
+// the default conversion to string. For example, you cannot format an integer
 // in hex.
 //
-// The format std::string uses positional identifiers indicated by a dollar sign ($)
+// The format string uses positional identifiers indicated by a dollar sign ($)
 // and single digit positional ids to indicate which substitution arguments to
-// use at that location within the format std::string.
+// use at that location within the format string.
 //
 // Example 1:
-//   std::string s = Substitute("$1 purchased $0 $2. Thanks $1!",
+//   string s = Substitute("$1 purchased $0 $2. Thanks $1!",
 //                         5, "Bob", "Apples");
 //   EXPECT_EQ("Bob purchased 5 Apples. Thanks Bob!", s);
 //
 // Example 2:
-//   std::string s = "Hi. ";
+//   string s = "Hi. ";
 //   SubstituteAndAppend(&s, "My name is $0 and I am $1 years old.", "Bob", 5);
 //   EXPECT_EQ("Hi. My name is Bob and I am 5 years old.", s);
 //
 //
 // Supported types:
-//   * absl::string_view, std::string, const char* (null is equivalent to "")
+//   * absl::string_view, string, const char* (null is equivalent to "")
 //   * int32_t, int64_t, uint32_t, uint64
 //   * float, double
 //   * bool (Printed as "true" or "false")
-//   * pointer types other than char* (Printed as "0x<lower case hex std::string>",
+//   * pointer types other than char* (Printed as "0x<lower case hex string>",
 //     except that null is printed as "NULL")
 //
-// If an invalid format std::string is provided, Substitute returns an empty std::string
-// and SubstituteAndAppend does not change the provided output std::string.
-// A format std::string is invalid if it:
+// If an invalid format string is provided, Substitute returns an empty string
+// and SubstituteAndAppend does not change the provided output string.
+// A format string is invalid if it:
 //   * ends in an unescaped $ character,
 //     e.g. "Hello $", or
 //   * calls for a position argument which is not provided,
@@ -76,7 +76,7 @@
 #include "absl/strings/ascii.h"
 #include "absl/strings/escaping.h"
 #include "absl/strings/numbers.h"
-#include "absl/strings/str_join.h"
+#include "absl/strings/str_cat.h"
 #include "absl/strings/str_split.h"
 #include "absl/strings/string_view.h"
 #include "absl/strings/strip.h"
@@ -88,7 +88,7 @@ namespace substitute_internal {
 //
 // This class provides an argument type for `absl::Substitute()` and
 // `absl::SubstituteAndAppend()`. `Arg` handles implicit conversion of various
-// types to a std::string. (`Arg` is very similar to the `AlphaNum` class in
+// types to a string. (`Arg` is very similar to the `AlphaNum` class in
 // `StrCat()`.)
 //
 // This class has implicit constructors.
@@ -99,7 +99,10 @@ class Arg {
   // Explicitly overload `const char*` so the compiler doesn't cast to `bool`.
   Arg(const char* value)  // NOLINT(runtime/explicit)
       : piece_(absl::NullSafeStringView(value)) {}
-  Arg(const std::string& value)  // NOLINT(runtime/explicit)
+  template <typename Allocator>
+  Arg(  // NOLINT
+      const std::basic_string<char, std::char_traits<char>, Allocator>&
+          value) noexcept
       : piece_(value) {}
   Arg(absl::string_view value)  // NOLINT(runtime/explicit)
       : piece_(value) {}
@@ -113,10 +116,10 @@ class Arg {
   // what to do.
   Arg(char value)  // NOLINT(runtime/explicit)
       : piece_(scratch_, 1) { scratch_[0] = value; }
-  Arg(short value)  // NOLINT(runtime/explicit)
+  Arg(short value)  // NOLINT(*)
       : piece_(scratch_,
                numbers_internal::FastIntToBuffer(value, scratch_) - scratch_) {}
-  Arg(unsigned short value)  // NOLINT(runtime/explicit)
+  Arg(unsigned short value)  // NOLINT(*)
       : piece_(scratch_,
                numbers_internal::FastIntToBuffer(value, scratch_) - scratch_) {}
   Arg(int value)  // NOLINT(runtime/explicit)
@@ -125,16 +128,16 @@ class Arg {
   Arg(unsigned int value)  // NOLINT(runtime/explicit)
       : piece_(scratch_,
                numbers_internal::FastIntToBuffer(value, scratch_) - scratch_) {}
-  Arg(long value)  // NOLINT(runtime/explicit)
+  Arg(long value)  // NOLINT(*)
       : piece_(scratch_,
                numbers_internal::FastIntToBuffer(value, scratch_) - scratch_) {}
-  Arg(unsigned long value)  // NOLINT(runtime/explicit)
+  Arg(unsigned long value)  // NOLINT(*)
       : piece_(scratch_,
                numbers_internal::FastIntToBuffer(value, scratch_) - scratch_) {}
-  Arg(long long value)  // NOLINT(runtime/explicit)
+  Arg(long long value)  // NOLINT(*)
       : piece_(scratch_,
                numbers_internal::FastIntToBuffer(value, scratch_) - scratch_) {}
-  Arg(unsigned long long value)  // NOLINT(runtime/explicit)
+  Arg(unsigned long long value)  // NOLINT(*)
       : piece_(scratch_,
                numbers_internal::FastIntToBuffer(value, scratch_) - scratch_) {}
   Arg(float value)  // NOLINT(runtime/explicit)
@@ -145,6 +148,10 @@ class Arg {
   }
   Arg(bool value)  // NOLINT(runtime/explicit)
       : piece_(value ? "true" : "false") {}
+
+  Arg(Hex hex);  // NOLINT(runtime/explicit)
+  Arg(Dec dec);  // NOLINT(runtime/explicit)
+
   // `void*` values, with the exception of `char*`, are printed as
   // "0x<hex value>". However, in the case of `nullptr`, "NULL" is printed.
   Arg(const void* value);  // NOLINT(runtime/explicit)
@@ -190,8 +197,8 @@ constexpr int PlaceholderBitmask(const char* format) {
 
 // SubstituteAndAppend()
 //
-// Substitutes variables into a given format std::string and appends to a given
-// output std::string. See file comments above for usage.
+// Substitutes variables into a given format string and appends to a given
+// output string. See file comments above for usage.
 //
 // The declarations of `SubstituteAndAppend()` below consist of overloads
 // for passing 0 to 10 arguments, respectively.
@@ -437,7 +444,7 @@ void SubstituteAndAppend(
 
 // Substitute()
 //
-// Substitutes variables into a given format std::string. See file comments above
+// Substitutes variables into a given format string. See file comments above
 // for usage.
 //
 // The declarations of `Substitute()` below consist of overloads for passing 0
@@ -449,7 +456,7 @@ void SubstituteAndAppend(
 // Example:
 //  template <typename... Args>
 //  void VarMsg(absl::string_view format, const Args&... args) {
-//    std::string s = absl::Substitute(format, args...);
+//    string s = absl::Substitute(format, args...);
 
 ABSL_MUST_USE_RESULT inline std::string Substitute(absl::string_view format) {
   std::string result;

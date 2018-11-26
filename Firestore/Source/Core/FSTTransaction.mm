@@ -16,8 +16,6 @@
 
 #import "Firestore/Source/Core/FSTTransaction.h"
 
-#import <GRPCClient/GRPCCall.h>
-
 #include <map>
 #include <utility>
 #include <vector>
@@ -84,12 +82,17 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)recordVersionForDocument:(FSTMaybeDocument *)doc error:(NSError **)error {
   HARD_ASSERT(error != nil, "nil error parameter");
   *error = nil;
-  SnapshotVersion docVersion = doc.version;
-  if ([doc isKindOfClass:[FSTDeletedDocument class]]) {
+  SnapshotVersion docVersion;
+  if ([doc isKindOfClass:[FSTDocument class]]) {
+    docVersion = doc.version;
+  } else if ([doc isKindOfClass:[FSTDeletedDocument class]]) {
     // For deleted docs, we must record an explicit no version to build the right precondition
     // when writing.
     docVersion = SnapshotVersion::None();
+  } else {
+    HARD_FAIL("Unexpected document type in transaction: %s", NSStringFromClass([doc class]));
   }
+
   if (_readVersions.find(doc.key) == _readVersions.end()) {
     _readVersions[doc.key] = docVersion;
     return YES;
