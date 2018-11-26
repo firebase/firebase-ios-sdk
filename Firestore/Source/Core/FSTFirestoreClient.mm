@@ -112,7 +112,7 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
   std::chrono::milliseconds _regularGcDelay;
   BOOL _gcHasRun;
   _Nullable id<FSTLRUDelegate> _lruDelegate;
-  std::unique_ptr<DelayedOperation> _lruCallback;
+  DelayedOperation _lruCallback;
 }
 
 - (Executor *)userExecutor {
@@ -251,12 +251,11 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
  */
 - (void)scheduleLruGarbageCollection {
   std::chrono::milliseconds delay = _gcHasRun ? _regularGcDelay : _initialGcDelay;
-  _lruCallback = absl::make_unique<DelayedOperation>(
-      _workerQueue->EnqueueAfterDelay(delay, TimerId::GarbageCollectionDelay, [&]() {
-        [self->_localStore collectGarbage:self->_lruDelegate.gc];
-        self->_gcHasRun = YES;
-        [self scheduleLruGarbageCollection];
-      }));
+  _lruCallback = _workerQueue->EnqueueAfterDelay(delay, TimerId::GarbageCollectionDelay, [self]() {
+    [self->_localStore collectGarbage:self->_lruDelegate.gc];
+    self->_gcHasRun = YES;
+    [self scheduleLruGarbageCollection];
+  });
 }
 
 - (void)credentialDidChangeWithUser:(const User &)user {
@@ -294,8 +293,7 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
 
     // If we've scheduled LRU garbage collection, cancel it.
     if (self->_lruCallback) {
-      self->_lruCallback->Cancel();
-      self->_lruCallback.reset();
+      self->_lruCallback.Cancel();
     }
     [self.remoteStore shutdown];
     [self.persistence shutdown];
