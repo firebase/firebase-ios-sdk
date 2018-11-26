@@ -28,7 +28,7 @@
 
 // We currently require every document read to also be written.
 // TODO(b/34879758): Re-enable this test once we fix it.
-- (void)xtestGetDocuments {
+- (void)testGetDocuments {
   FIRFirestore *firestore = [self firestore];
   FIRDocumentReference *doc = [[firestore collectionWithPath:@"spaces"] documentWithAutoID];
   [self writeDocumentRef:doc data:@{@"foo" : @1, @"desc" : @"Stuff", @"owner" : @"Jonny"}];
@@ -336,7 +336,7 @@
 
 // We currently require every document read to also be written.
 // TODO(b/34879758): Re-enable this test once we fix it.
-- (void)xtestHandleReadingOneDocAndWritingAnother {
+- (void)testHandleReadingOneDocAndWritingAnother {
   FIRFirestore *firestore = [self firestore];
   FIRDocumentReference *doc1 = [[firestore collectionWithPath:@"counters"] documentWithAutoID];
   FIRDocumentReference *doc2 = [[firestore collectionWithPath:@"counters"] documentWithAutoID];
@@ -425,7 +425,7 @@
 
 // We currently require every document read to also be written.
 // TODO(b/34879758): Add this test back once we fix that.
-- (void)xtestCannotHaveAGetWithoutMutations {
+- (void)testCannotHaveAGetWithoutMutations {
   FIRFirestore *firestore = [self firestore];
   FIRDocumentReference *doc = [[firestore collectionWithPath:@"foo"] documentWithAutoID];
   [self writeDocumentRef:doc data:@{@"foo" : @"bar"}];
