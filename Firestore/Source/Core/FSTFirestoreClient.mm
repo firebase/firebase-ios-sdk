@@ -251,11 +251,12 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
  */
 - (void)scheduleLruGarbageCollection {
   std::chrono::milliseconds delay = _gcHasRun ? _regularGcDelay : _initialGcDelay;
-  _lruCallback = absl::make_unique<DelayedOperation>(_workerQueue->EnqueueAfterDelay(delay, TimerId::GarbageCollectionDelay, [&]() {
-    [self->_localStore collectGarbage:self->_lruDelegate.gc];
-    self->_gcHasRun = YES;
-    [self scheduleLruGarbageCollection];
-  }));
+  _lruCallback = absl::make_unique<DelayedOperation>(
+      _workerQueue->EnqueueAfterDelay(delay, TimerId::GarbageCollectionDelay, [&]() {
+        [self->_localStore collectGarbage:self->_lruDelegate.gc];
+        self->_gcHasRun = YES;
+        [self scheduleLruGarbageCollection];
+      }));
 }
 
 - (void)credentialDidChangeWithUser:(const User &)user {
