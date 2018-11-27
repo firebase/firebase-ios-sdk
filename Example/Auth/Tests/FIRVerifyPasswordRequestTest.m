@@ -48,9 +48,9 @@ static NSString *const kTestEmail = @"testEmail.";
 static NSString *const kTestPassword = @"testPassword";
 
 /** @var kPendingIDTokenKey
-    @brief The key for the "pendingIDToken" value in the request.
+    @brief The key for the "pendingIdToken" value in the request.
  */
-static NSString *const kPendingIDTokenKey = @"pendingIDToken";
+static NSString *const kPendingIdTokenKey = @"pendingIdToken";
 
 /** @var kTestPendingToken
     @brief Fake pendingToken for testing the request.
