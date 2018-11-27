@@ -1,5 +1,13 @@
 # Unreleased
 
+# v0.16.0
+- [changed] Implemented LRU garbage collection for on-disk persistence. The SDK
+  will attempt to periodically clean up older, unused documents once the on-disk
+  cache passes a threshold size (default: 100mb). This threshold can be configured 
+  by setting `FIRFirestoreSettings.cacheSizeBytes`. It must be set to a minimum of
+  1mb. LRU garbage collection can be disabled entirely by setting 
+  `FIRFirestoreSettings.cacheSizeBytes` to `kFIRFirestoreCacheSizeUnlimited`.
+
 # v0.15.0
 - [changed] Changed how the SDK handles locally-updated documents while syncing
   those updates with Cloud Firestore servers. This can lead to slight behavior
