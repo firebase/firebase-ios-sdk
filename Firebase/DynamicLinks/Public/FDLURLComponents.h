@@ -538,30 +538,28 @@ FIR_SWIFT_NAME(DynamicLinkComponents)
         "domainURIPrefix- initWithLink:domainURIPrefix.");
 
 /**
- * @method componentsWithLink:domain:
+ * @method componentsWithLink:domainURIPrefix:
  * @abstract Generates a Dynamic Link URL components object with the minimum necessary parameters
  *     set to generate a fully-functional Dynamic Link.
  * @param link Deep link to be stored in created Dynamic link. This link also called "payload" of
  *     the Dynamic link.
- * @param domainURIPrefix Domain URI Prefix of your App. This value must be either a. your assigned
- * domain from the Firebase console or b. your custom domain or c. your custom domain with a valid
- * path that is registered for Dynamic Links.  The domain URI prefix must start with a valid scheme
- * (https://)
+ * @param domainURIPrefix Domain URI Prefix of your App. This value must be your assigned
+ * domain from the Firebase console. (e.g. https://xyz.page.link)  The domain URI prefix must
+ * start with a valid HTTPS scheme (https://).
  */
 + (instancetype)componentsWithLink:(NSURL *)link
                    domainURIPrefix:(NSString *)domainURIPrefix
     NS_SWIFT_UNAVAILABLE("Use init(link:domainURIPrefix:)");
 
 /**
- * @method initWithLink:domain:
+ * @method initWithLink:domainURIPrefix:
  * @abstract Generates a Dynamic Link URL components object with the minimum necessary parameters
  *     set to generate a fully-functional Dynamic Link.
  * @param link Deep link to be stored in created Dynamic link. This link also called "payload" of
  *     the Dynamic link.
- * @param domainURIPrefix Domain URI Prefix of your App. This value must be either a. your assigned
- * domain from the Firebase console or b. your custom domain or c. your custom domain with a valid
- * path that is registered for Dynamic Links. The domain URI prefix must start with a valid scheme
- * (https://).
+ * @param domainURIPrefix Domain URI Prefix of your App. This value must be your assigned
+ * domain from the Firebase console. (e.g. https://xyz.page.link)  The domain URI prefix must
+ * start with a valid HTTPS scheme (https://).
  */
 - (instancetype)initWithLink:(NSURL *)link domainURIPrefix:(NSString *)domainURIPrefix;
 
