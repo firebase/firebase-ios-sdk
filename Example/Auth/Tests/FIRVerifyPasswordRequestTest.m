@@ -47,10 +47,10 @@ static NSString *const kTestEmail = @"testEmail.";
  */
 static NSString *const kTestPassword = @"testPassword";
 
-/** @var kPendingTokenKey
-    @brief The key for the "pendingToken" value in the request.
+/** @var kPendingIDTokenKey
+    @brief The key for the "pendingIDToken" value in the request.
  */
-static NSString *const kPendingTokenKey = @"pendingToken";
+static NSString *const kPendingIDTokenKey = @"pendingIDToken";
 
 /** @var kTestPendingToken
     @brief Fake pendingToken for testing the request.
@@ -152,7 +152,7 @@ static NSString *const kExpectedAPIURL =
       [[FIRVerifyPasswordRequest alloc] initWithEmail:kTestEmail
                                              password:kTestPassword
                                  requestConfiguration:_requestConfiguration];
-  request.pendingToken = kTestPendingToken;
+  request.pendingIDToken = kTestPendingToken;
   request.captchaChallenge = kTestCaptchaChallenge;
   request.captchaResponse = kTestCaptchaResponse;
   [FIRAuthBackend verifyPassword:request
