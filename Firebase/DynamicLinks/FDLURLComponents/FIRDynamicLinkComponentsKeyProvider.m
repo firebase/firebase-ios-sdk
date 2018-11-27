@@ -16,21 +16,20 @@
 
 #import "DynamicLinks/FDLURLComponents/FIRDynamicLinkComponentsKeyProvider.h"
 
+#import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIROptions.h>
-
-NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRDynamicLinkComponentsKeyProvider
 
-+ (NSString *)APIKey {
-  static NSString *apiKey;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    apiKey = [FIROptions defaultOptions].APIKey;
-  });
-  return apiKey;
++ (nullable NSString *)APIKey {
+  // If there's no default app, immediately return nil since reading from the default app will cause
+  // an error to be logged.
+  if (![FIRApp isDefaultAppConfigured]) {
+    return nil;
+  }
+
+  // FDL only supports the default app, use the options from it.
+  return [FIRApp defaultApp].options.APIKey;
 }
 
 @end
-
-NS_ASSUME_NONNULL_END
