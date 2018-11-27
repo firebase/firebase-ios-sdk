@@ -50,7 +50,7 @@ static NSString *const kTestPassword = @"testPassword";
 /** @var kPendingIDTokenKey
     @brief The key for the "pendingIdToken" value in the request.
  */
-static NSString *const kPendingIdTokenKey = @"pendingIdToken";
+static NSString *const kPendingIDTokenKey = @"pendingIdToken";
 
 /** @var kTestPendingToken
     @brief Fake pendingToken for testing the request.
