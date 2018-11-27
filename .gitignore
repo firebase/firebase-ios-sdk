@@ -33,6 +33,13 @@ DerivedData
 *.hmap
 *.ipa
 
+# Swift Package Manager
+*/.build
+ZipBuilder/Packages
+ZipBuilder/*.xcodeproj
+ZipBuilder/Package.resolved
+
+
 # IntelliJ
 .idea
 
