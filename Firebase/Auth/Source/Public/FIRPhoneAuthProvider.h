@@ -32,7 +32,6 @@ extern NSString *const FIRPhoneAuthProviderID NS_SWIFT_NAME(PhoneAuthProviderID)
  */
 extern NSString *const _Nonnull FIRPhoneAuthSignInMethod NS_SWIFT_NAME(PhoneAuthSignInMethod);
 
-
 /** @typedef FIRVerificationResultCallback
     @brief The type of block invoked when a request to send a verification code has finished.
 

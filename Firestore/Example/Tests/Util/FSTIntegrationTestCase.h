@@ -21,6 +21,8 @@
 
 #import "FIRFirestoreSource.h"
 
+#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
+
 @class FIRCollectionReference;
 @class FIRDocumentSnapshot;
 @class FIRDocumentReference;
@@ -29,7 +31,6 @@
 @class FIRFirestoreSettings;
 @class FIRQuery;
 @class FSTEventAccumulator;
-@class FSTDispatchQueue;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -98,7 +99,7 @@ extern "C" {
 
 - (void)enableNetwork;
 
-- (FSTDispatchQueue *)queueForFirestore:(FIRFirestore *)firestore;
+- (firebase::firestore::util::AsyncQueue *)queueForFirestore:(FIRFirestore *)firestore;
 
 /**
  * "Blocks" the current thread/run loop until the block returns YES.

@@ -21,11 +21,11 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "absl/strings/string_view.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class FSTDispatchQueue;
 @class FSTFirestoreClient;
 @class FSTUserDataConverter;
 
@@ -35,13 +35,14 @@ NS_ASSUME_NONNULL_BEGIN
  * Initializes a Firestore object with all the required parameters directly. This exists so that
  * tests can create FIRFirestore objects without needing FIRApp.
  */
-- (instancetype)initWithProjectID:(std::string)projectID
-                         database:(std::string)database
-                   persistenceKey:(NSString *)persistenceKey
-              credentialsProvider:(std::unique_ptr<firebase::firestore::auth::CredentialsProvider>)
-                                      credentialsProvider
-              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
-                      firebaseApp:(FIRApp *)app;
+- (instancetype)
+      initWithProjectID:(std::string)projectID
+               database:(std::string)database
+         persistenceKey:(NSString *)persistenceKey
+    credentialsProvider:
+        (std::unique_ptr<firebase::firestore::auth::CredentialsProvider>)credentialsProvider
+            workerQueue:(std::unique_ptr<firebase::firestore::util::AsyncQueue>)workerQueue
+            firebaseApp:(FIRApp *)app;
 
 @end
 
@@ -59,6 +60,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)shutdownWithCompletion:(nullable void (^)(NSError *_Nullable error))completion
     NS_SWIFT_NAME(shutdown(completion:));
+
+- (firebase::firestore::util::AsyncQueue *)workerQueue;
 
 // FIRFirestore ownes the DatabaseId instance.
 @property(nonatomic, assign, readonly) const firebase::firestore::model::DatabaseId *databaseID;

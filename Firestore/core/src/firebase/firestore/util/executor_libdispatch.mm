@@ -23,7 +23,6 @@
 namespace firebase {
 namespace firestore {
 namespace util {
-namespace internal {
 
 namespace {
 
@@ -45,6 +44,8 @@ absl::string_view GetCurrentQueueLabel() {
 }
 
 }  // namespace
+
+namespace internal {
 
 void DispatchAsync(const dispatch_queue_t queue, std::function<void()>&& work) {
   // Dynamically allocate the function to make sure the object is valid by the
@@ -71,7 +72,12 @@ void DispatchSync(const dispatch_queue_t queue, std::function<void()> work) {
   });
 }
 
+}  // namespace internal
+
 namespace {
+
+using internal::DispatchAsync;
+using internal::DispatchSync;
 
 template <typename Work>
 void RunSynchronized(const ExecutorLibdispatch* const executor, Work&& work) {
@@ -297,7 +303,6 @@ ExecutorLibdispatch::PopFromSchedule() {
   return result;
 }
 
-}  // namespace internal
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase

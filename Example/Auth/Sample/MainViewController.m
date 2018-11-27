@@ -39,6 +39,16 @@
 #import "UserInfoViewController.h"
 #import "UserTableViewCell.h"
 
+#import "FIRAuth_Internal.h"
+#import "FIRAuthAPNSToken.h"
+#import "FIRAuthAPNSTokenManager.h"
+#import "FIRAuthAppCredential.h"
+#import "FIRAuthAppCredentialManager.h"
+#import "FIRAuthBackend.h"
+#import "FIRVerifyClientRequest.h"
+#import "FIRVerifyClientResponse.h"
+#import "FIRSendVerificationCodeRequest.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 /** @typedef textInputCompletionBlock
@@ -578,6 +588,11 @@ static NSString *const kPhoneAuthSectionTitle = @"Phone Auth";
  */
 static NSString *const kPhoneNumberSignInReCaptchaTitle = @"Sign in With Phone Number";
 
+/** @var kVerifyIOSClientTitle
+ @brief The title for button to verify iOS client.
+ */
+static NSString *const kVerifyIOSClientTitle = @"Verify iOS client";
+
 /** @var kIsNewUserToggleTitle
     @brief The title for button to enable new or existing user toggle.
  */
@@ -741,6 +756,8 @@ typedef enum {
                                            action:^{
           [weakSelf unlinkFromProvider:FIRPhoneAuthProviderID completion:nil];
         }],
+        [StaticContentTableViewCell cellWithTitle:kVerifyIOSClientTitle
+                                           action:^{ [weakSelf verifyIOSClient]; }],
       ]],
       [StaticContentTableViewSection sectionWithTitle:kSectionTitleSignIn cells:@[
         [StaticContentTableViewCell cellWithTitle:kSwitchToInMemoryUserTitle
@@ -1605,17 +1622,19 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
     @param string The string to add to the console.
  */
 - (void)log:(NSString *)string {
-  NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-  dateFormatter.dateFormat = @"yyyy-MM-dd HH:mm:ss";
-  NSString *date = [dateFormatter stringFromDate:[NSDate date]];
-  if (!_consoleString) {
-    _consoleString = [NSMutableString string];
-  }
-  [_consoleString appendString:[NSString stringWithFormat:@"%@  %@\n", date, string]];
-  _consoleTextView.text = _consoleString;
+  dispatch_async(dispatch_get_main_queue(), ^{
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    dateFormatter.dateFormat = @"yyyy-MM-dd HH:mm:ss";
+    NSString *date = [dateFormatter stringFromDate:[NSDate date]];
+    if (!_consoleString) {
+      _consoleString = [NSMutableString string];
+    }
+    [_consoleString appendString:[NSString stringWithFormat:@"%@  %@\n", date, string]];
+    _consoleTextView.text = _consoleString;
 
-  CGRect targetRect = CGRectMake(0, _consoleTextView.contentSize.height - 1, 1, 1);
-  [_consoleTextView scrollRectToVisible:targetRect animated:YES];
+    CGRect targetRect = CGRectMake(0, _consoleTextView.contentSize.height - 1, 1, 1);
+    [_consoleTextView scrollRectToVisible:targetRect animated:YES];
+  });
 }
 
 /** @fn logSuccess:
@@ -2881,6 +2900,59 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
           }
         }];
       }];
+    }];
+  }];
+}
+
+/** @fn verifyIOSClient
+    @brief Trigger verify iOS client by sending a verification code to the test number.
+ */
+- (void)verifyIOSClient {
+  [[AppManager auth].tokenManager getTokenWithCallback:^(FIRAuthAPNSToken *_Nullable token,
+                                                         NSError *_Nullable error) {
+    if (!token) {
+      [self logFailure:@"Verify iOS client failed." error:error];
+      return;
+    }
+    FIRVerifyClientRequest *request =
+        [[FIRVerifyClientRequest alloc] initWithAppToken:token.string
+                                               isSandbox:token.type == FIRAuthAPNSTokenTypeSandbox
+                                    requestConfiguration:[AppManager auth].requestConfiguration];
+    [FIRAuthBackend verifyClient:request callback:^(FIRVerifyClientResponse *_Nullable response,
+                                                    NSError *_Nullable error) {
+      if (error) {
+        [self logFailure:@"Verify iOS client failed." error:error];
+        return;
+      }
+      NSTimeInterval timeout = [response.suggestedTimeOutDate timeIntervalSinceNow];
+      [[AppManager auth].appCredentialManager
+       didStartVerificationWithReceipt:response.receipt
+       timeout:timeout
+       callback:^(FIRAuthAppCredential *credential) {
+         if (!credential.secret) {
+           [self logFailure:@"Failed to receive remote notification to verify app identity."
+                      error:error];
+           return;
+         }
+         NSString *testPhoneNumber = @"+16509964692";
+         FIRSendVerificationCodeRequest *request =
+             [[FIRSendVerificationCodeRequest alloc] initWithPhoneNumber:testPhoneNumber
+                                                           appCredential:credential
+                                                          reCAPTCHAToken:nil
+                                                    requestConfiguration:
+                                                      [AppManager auth].requestConfiguration];
+         [FIRAuthBackend sendVerificationCode:request
+                                     callback:^(FIRSendVerificationCodeResponse *_Nullable response,
+                                                NSError *_Nullable error) {
+           if (error) {
+             [self logFailure:@"Verify iOS client failed." error:error];
+             return;
+           } else {
+             [self logSuccess:@"Verify iOS client succeeded."];
+             [self showMessagePrompt:@"Verify iOS client succeed."];
+           }
+         }];
+       }];
     }];
   }];
 }

@@ -1,3 +1,6 @@
+# v3.2.0
+- Delete deprecated source files. (#2038)
+
 # v3.1.1
 - Use c99 compatible __typeof__() operator. (#1982)
 

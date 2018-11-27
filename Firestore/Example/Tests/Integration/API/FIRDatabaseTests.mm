@@ -22,7 +22,8 @@
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
-#import "Firestore/Source/Util/FSTDispatchQueue.h"
+
+using firebase::firestore::util::TimerId;
 
 @interface FIRDatabaseTests : FSTIntegrationTestCase
 @end
@@ -53,6 +54,32 @@
   FIRDocumentSnapshot *result = [self readDocumentForRef:doc];
   XCTAssertTrue(result.exists);
   XCTAssertEqualObjects(result.data, finalData);
+}
+
+- (void)testCanUpdateAnUnknownDocument {
+  [self readerAndWriterOnDocumentRef:^(NSString *path, FIRDocumentReference *readerRef,
+                                       FIRDocumentReference *writerRef) {
+    [self writeDocumentRef:writerRef data:@{@"a" : @"a"}];
+    [self updateDocumentRef:readerRef data:@{@"b" : @"b"}];
+
+    FIRDocumentSnapshot *writerSnap =
+        [self readDocumentForRef:writerRef source:FIRFirestoreSourceCache];
+    XCTAssertTrue(writerSnap.exists);
+
+    XCTestExpectation *expectation =
+        [self expectationWithDescription:@"testCanUpdateAnUnknownDocument"];
+    [readerRef getDocumentWithSource:FIRFirestoreSourceCache
+                          completion:^(FIRDocumentSnapshot *doc, NSError *_Nullable error) {
+                            XCTAssertNotNil(error);
+                            [expectation fulfill];
+                          }];
+    [self awaitExpectations];
+
+    writerSnap = [self readDocumentForRef:writerRef];
+    XCTAssertEqualObjects(writerSnap.data, (@{@"a" : @"a", @"b" : @"b"}));
+    FIRDocumentSnapshot *readerSnap = [self readDocumentForRef:writerRef];
+    XCTAssertEqualObjects(readerSnap.data, (@{@"a" : @"a", @"b" : @"b"}));
+  }];
 }
 
 - (void)testCanDeleteAFieldWithAnUpdate {
@@ -1178,7 +1205,7 @@
   FIRFirestore *firestore = doc.firestore;
 
   [self writeDocumentRef:doc data:@{@"foo" : @"bar"}];
-  [[self queueForFirestore:firestore] runDelayedCallbacksUntil:FSTTimerIDWriteStreamIdle];
+  [self queueForFirestore:firestore] -> RunScheduledOperationsUntil(TimerId::WriteStreamIdle);
   [self writeDocumentRef:doc data:@{@"foo" : @"bar"}];
 }
 
@@ -1187,7 +1214,7 @@
   FIRFirestore *firestore = doc.firestore;
 
   [self readSnapshotForRef:[self documentRef] requireOnline:YES];
-  [[self queueForFirestore:firestore] runDelayedCallbacksUntil:FSTTimerIDListenStreamIdle];
+  [self queueForFirestore:firestore] -> RunScheduledOperationsUntil(TimerId::ListenStreamIdle);
   [self readSnapshotForRef:[self documentRef] requireOnline:YES];
 }
 

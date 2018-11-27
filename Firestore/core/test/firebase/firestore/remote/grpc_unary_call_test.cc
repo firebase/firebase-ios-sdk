@@ -37,13 +37,13 @@ using util::AsyncQueue;
 using util::ByteBufferToString;
 using util::CompletionEndState;
 using util::CreateNoOpConnectivityMonitor;
+using util::ExecutorStd;
 using util::GrpcStreamTester;
 using util::MakeByteBuffer;
 using util::Status;
 using util::StatusOr;
 using util::CompletionResult::Error;
 using util::CompletionResult::Ok;
-using util::internal::ExecutorStd;
 using Type = GrpcCompletion::Type;
 
 class GrpcUnaryCallTest : public testing::Test {

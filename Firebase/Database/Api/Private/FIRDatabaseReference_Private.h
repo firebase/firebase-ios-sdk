@@ -24,6 +24,4 @@
 - (id)initWithConfig:(FIRDatabaseConfig *)config;
 - (id)initWithRepo:(FRepo *)repo path:(FPath *)path;
 
-// TODO: Update tests to not use this.
-+ (FIRDatabaseConfig *)defaultConfig;
 @end

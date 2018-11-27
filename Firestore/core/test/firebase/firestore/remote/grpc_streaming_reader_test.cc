@@ -35,6 +35,7 @@ using util::AsyncQueue;
 using util::ByteBufferToString;
 using util::CompletionEndState;
 using util::CreateNoOpConnectivityMonitor;
+using util::ExecutorStd;
 using util::GetFirestoreErrorCodeName;
 using util::GetGrpcErrorCodeName;
 using util::GrpcStreamTester;
@@ -44,7 +45,6 @@ using util::StatusOr;
 using util::StringFormat;
 using util::CompletionResult::Error;
 using util::CompletionResult::Ok;
-using util::internal::ExecutorStd;
 using Type = GrpcCompletion::Type;
 
 class GrpcStreamingReaderTest : public testing::Test {
@@ -141,13 +141,6 @@ TEST_F(GrpcStreamingReaderTest, CanGetResponseHeadersAfterFinishing) {
 // https://github.com/google/googletest/blob/master/googletest/docs/advanced.md#death-test-naming
 using GrpcStreamingReaderDeathTest = GrpcStreamingReaderTest;
 
-TEST_F(GrpcStreamingReaderDeathTest, CannotRestart) {
-  StartReader();
-  KeepPollingGrpcQueue();
-  worker_queue.EnqueueBlocking([&] { reader->FinishImmediately(); });
-  EXPECT_DEATH_IF_SUPPORTED(StartReader(), "");
-}
-
 TEST_F(GrpcStreamingReaderTest, CannotFinishAndNotifyBeforeStarting) {
   // No callback has been assigned.
   worker_queue.EnqueueBlocking(
@@ -214,31 +207,33 @@ TEST_F(GrpcStreamingReaderTest, ErrorOnWrite) {
   StartReader();
 
   bool failed_write = false;
-  // Callback is used because it's indeterminate whether one or two read
-  // operations will have a chance to succeed.
-  ForceFinish([&](GrpcCompletion* completion) {
+  auto future = tester.ForceFinishAsync([&](GrpcCompletion* completion) {
     switch (completion->type()) {
       case Type::Read:
-        completion->Complete(true);
-        break;
+        // After a write is failed, fail the read too.
+        completion->Complete(!failed_write);
+        return false;
 
       case Type::Write:
         failed_write = true;
         completion->Complete(false);
-        break;
+        return false;
+
+      case Type::Finish:
+        EXPECT_TRUE(failed_write);
+        *completion->status() = grpc::Status{grpc::RESOURCE_EXHAUSTED, ""};
+        completion->Complete(true);
+        return true;
 
       default:
         ADD_FAILURE() << "Unexpected completion type "
                       << static_cast<int>(completion->type());
-        break;
+        return false;
     }
-
-    return failed_write;
   });
+  future.wait();
+  worker_queue.EnqueueBlocking([] {});
 
-  ForceFinish(
-      {{Type::Read, Error},
-       {Type::Finish, grpc::Status{grpc::StatusCode::RESOURCE_EXHAUSTED, ""}}});
   ASSERT_TRUE(status.has_value());
   EXPECT_EQ(status.value().code(), FirestoreErrorCode::ResourceExhausted);
   EXPECT_TRUE(responses.empty());

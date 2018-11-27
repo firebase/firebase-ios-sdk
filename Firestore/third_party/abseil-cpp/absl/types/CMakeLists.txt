@@ -15,9 +15,57 @@
 #
 
 list(APPEND TYPES_PUBLIC_HEADERS
+  "any.h"
+  "bad_any_cast.h"
   "bad_optional_access.h"
   "optional.h"
+  "span.h"
+  "variant.h"
 )
+
+
+# any library
+absl_header_library(
+  TARGET
+    absl_any
+  PUBLIC_LIBRARIES
+    absl::bad_any_cast
+    absl::base
+    absl::meta
+    absl::utility
+  PRIVATE_COMPILE_FLAGS
+    ${ABSL_EXCEPTIONS_FLAG}
+  EXPORT_NAME
+    any
+)
+
+# span library
+absl_header_library(
+  TARGET
+    absl_span
+  PUBLIC_LIBRARIES
+    absl::utility
+  EXPORT_NAME
+    span
+)
+
+
+# bad_any_cast library
+list(APPEND BAD_ANY_CAST_SRC
+  "bad_any_cast.cc"
+  ${TYPES_PUBLIC_HEADERS}
+)
+
+absl_library(
+  TARGET
+    absl_bad_any_cast
+  SOURCES
+    ${BAD_ANY_CAST_SRC}
+  PUBLIC_LIBRARIES
+  EXPORT_NAME
+    bad_any_cast
+)
+
 
 # optional library
 list(APPEND OPTIONAL_SRC
@@ -30,7 +78,11 @@ absl_library(
   SOURCES
     ${OPTIONAL_SRC}
   PUBLIC_LIBRARIES
+    absl::bad_optional_access
     absl::base
+    absl::memory
+    absl::meta
+    absl::utility
   EXPORT_NAME
     optional
 )
@@ -50,14 +102,102 @@ absl_library(
     bad_optional_access
 )
 
+# variant library
+absl_library(
+  TARGET
+    absl_variant
+  SOURCES
+    "bad_variant_access.h" "bad_variant_access.cc" "variant.h" "internal/variant.h"
+  PUBLIC_LIBRARIES
+    absl::base absl::meta absl::utility
+  PRIVATE_COMPILE_FLAGS
+    ${ABSL_EXCEPTIONS_FLAG}
+  EXPORT_NAME
+    variant
+)
 
 #
 ## TESTS
 #
 
+
+# test any_test
+set(ANY_TEST_SRC "any_test.cc")
+set(ANY_TEST_PUBLIC_LIBRARIES absl::base absl_internal_throw_delegate absl::any absl::bad_any_cast test_instance_tracker_lib)
+
+absl_test(
+  TARGET
+    any_test
+  SOURCES
+    ${ANY_TEST_SRC}
+  PUBLIC_LIBRARIES
+    ${ANY_TEST_PUBLIC_LIBRARIES}
+  PRIVATE_COMPILE_FLAGS
+    ${ABSL_EXCEPTIONS_FLAG}
+)
+
+
+# test any_test_noexceptions
+absl_test(
+  TARGET
+    any_test_noexceptions
+  SOURCES
+    ${ANY_TEST_SRC}
+  PUBLIC_LIBRARIES
+    ${ANY_TEST_PUBLIC_LIBRARIES}
+)
+
+# test any_exception_safety_test
+set(ANY_EXCEPTION_SAFETY_TEST_SRC "any_exception_safety_test.cc")
+set(ANY_EXCEPTION_SAFETY_TEST_PUBLIC_LIBRARIES
+  absl::any
+  absl::base
+  absl_internal_exception_safety_testing
+)
+
+absl_test(
+  TARGET
+    any_exception_safety_test
+  SOURCES
+    ${ANY_EXCEPTION_SAFETY_TEST_SRC}
+  PUBLIC_LIBRARIES
+    ${ANY_EXCEPTION_SAFETY_TEST_PUBLIC_LIBRARIES}
+  PRIVATE_COMPILE_FLAGS
+    ${ABSL_EXCEPTIONS_FLAG}
+)
+
+
+# test span_test
+set(SPAN_TEST_SRC "span_test.cc")
+set(SPAN_TEST_PUBLIC_LIBRARIES absl::base absl::strings absl_internal_throw_delegate absl::span test_instance_tracker_lib)
+
+absl_test(
+  TARGET
+    span_test
+  SOURCES
+    ${SPAN_TEST_SRC}
+  PUBLIC_LIBRARIES
+    ${SPAN_TEST_PUBLIC_LIBRARIES}
+  PRIVATE_COMPILE_FLAGS
+    ${ABSL_EXCEPTIONS_FLAG}
+)
+
+
+# test span_test_noexceptions
+absl_test(
+  TARGET
+    span_test_noexceptions
+  SOURCES
+    ${SPAN_TEST_SRC}
+  PUBLIC_LIBRARIES
+    ${SPAN_TEST_PUBLIC_LIBRARIES}
+)
+
+
+
 # test optional_test
 set(OPTIONAL_TEST_SRC "optional_test.cc")
-set(OPTIONAL_TEST_PUBLIC_LIBRARIES absl::base absl::throw_delegate absl::optional absl_bad_optional_access)
+set(OPTIONAL_TEST_PUBLIC_LIBRARIES absl::base absl_internal_throw_delegate absl::optional absl_bad_optional_access)
 
 absl_test(
   TARGET
@@ -69,3 +209,20 @@ absl_test(
 )
 
 
+# test optional_exception_safety_test
+set(OPTIONAL_EXCEPTION_SAFETY_TEST_SRC "optional_exception_safety_test.cc")
+set(OPTIONAL_EXCEPTION_SAFETY_TEST_PUBLIC_LIBRARIES
+  absl::optional
+  absl_internal_exception_safety_testing
+)
+
+absl_test(
+  TARGET
+    optional_exception_safety_test
+  SOURCES
+    ${OPTIONAL_EXCEPTION_SAFETY_TEST_SRC}
+  PUBLIC_LIBRARIES
+    ${OPTIONAL_EXCEPTION_SAFETY_TEST_PUBLIC_LIBRARIES}
+  PRIVATE_COMPILE_FLAGS
+    ${ABSL_EXCEPTIONS_FLAG}
+)

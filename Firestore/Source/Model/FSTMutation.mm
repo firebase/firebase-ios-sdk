@@ -84,8 +84,8 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-- (nullable FSTMaybeDocument *)applyToRemoteDocument:(nullable FSTMaybeDocument *)maybeDoc
-                                      mutationResult:(FSTMutationResult *)mutationResult {
+- (FSTMaybeDocument *)applyToRemoteDocument:(nullable FSTMaybeDocument *)maybeDoc
+                             mutationResult:(FSTMutationResult *)mutationResult {
   @throw FSTAbstractMethodException();  // NOLINT
 }
 
@@ -103,6 +103,20 @@ NS_ASSUME_NONNULL_BEGIN
   return _precondition;
 }
 
+- (void)verifyKeyMatches:(nullable FSTMaybeDocument *)maybeDoc {
+  if (maybeDoc) {
+    HARD_ASSERT(maybeDoc.key == self.key, "Can only set a document with the same key");
+  }
+}
+
+/**
+ * Returns the version from the given document for use as the result of a mutation. Mutations are
+ * defined to return the version of the base document only if it is an existing document. Deleted
+ * and unknown documents have a post-mutation version of {@code SnapshotVersion::None()}.
+ */
+- (const SnapshotVersion &)postMutationVersionForDocument:(FSTMaybeDocument *)maybeDoc {
+  return [maybeDoc isKindOfClass:[FSTDocument class]] ? maybeDoc.version : SnapshotVersion::None();
+}
 @end
 
 #pragma mark - FSTSetMutation
@@ -144,56 +158,32 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable FSTMaybeDocument *)applyToLocalDocument:(nullable FSTMaybeDocument *)maybeDoc
                                        baseDocument:(nullable FSTMaybeDocument *)baseDoc
                                      localWriteTime:(FIRTimestamp *)localWriteTime {
+  [self verifyKeyMatches:maybeDoc];
+
   if (!self.precondition.IsValidFor(maybeDoc)) {
     return maybeDoc;
   }
 
-  if (!maybeDoc || [maybeDoc isMemberOfClass:[FSTDeletedDocument class]]) {
-    // If the document didn't exist before, create it.
-    return [FSTDocument documentWithData:self.value
-                                     key:self.key
-                                 version:SnapshotVersion::None()
-                       hasLocalMutations:YES];
-  }
-
-  HARD_ASSERT([maybeDoc isMemberOfClass:[FSTDocument class]], "Unknown MaybeDocument type %s",
-              [maybeDoc class]);
-  FSTDocument *doc = (FSTDocument *)maybeDoc;
-
-  HARD_ASSERT(doc.key == self.key, "Can only set a document with the same key");
+  SnapshotVersion version = [self postMutationVersionForDocument:maybeDoc];
   return [FSTDocument documentWithData:self.value
-                                   key:doc.key
-                               version:doc.version
-                     hasLocalMutations:YES];
+                                   key:self.key
+                               version:version
+                                 state:FSTDocumentStateLocalMutations];
 }
 
-- (nullable FSTMaybeDocument *)applyToRemoteDocument:(nullable FSTMaybeDocument *)maybeDoc
-                                      mutationResult:(FSTMutationResult *)mutationResult {
-  if (mutationResult) {
-    HARD_ASSERT(!mutationResult.transformResults, "Transform results received by FSTSetMutation.");
-  }
+- (FSTMaybeDocument *)applyToRemoteDocument:(nullable FSTMaybeDocument *)maybeDoc
+                             mutationResult:(FSTMutationResult *)mutationResult {
+  [self verifyKeyMatches:maybeDoc];
 
-  if (!self.precondition.IsValidFor(maybeDoc)) {
-    return maybeDoc;
-  }
+  HARD_ASSERT(!mutationResult.transformResults, "Transform results received by FSTSetMutation.");
 
-  if (!maybeDoc || [maybeDoc isMemberOfClass:[FSTDeletedDocument class]]) {
-    // If the document didn't exist before, create it.
-    return [FSTDocument documentWithData:self.value
-                                     key:self.key
-                                 version:SnapshotVersion::None()
-                       hasLocalMutations:NO];
-  }
+  // Unlike applyToLocalView, if we're applying a mutation to a remote document the server has
+  // accepted the mutation so the precondition must have held.
 
-  HARD_ASSERT([maybeDoc isMemberOfClass:[FSTDocument class]], "Unknown MaybeDocument type %s",
-              [maybeDoc class]);
-  FSTDocument *doc = (FSTDocument *)maybeDoc;
-
-  HARD_ASSERT(doc.key == self.key, "Can only set a document with the same key");
   return [FSTDocument documentWithData:self.value
-                                   key:doc.key
-                               version:doc.version
-                     hasLocalMutations:NO];
+                                   key:self.key
+                               version:mutationResult.version
+                                 state:FSTDocumentStateCommittedMutations];
 }
 @end
 
@@ -243,64 +233,57 @@ NS_ASSUME_NONNULL_BEGIN
                                     self.value, self.precondition.description()];
 }
 
+/**
+ * Patches the data of document if available or creates a new document. Note that this does not
+ * check whether or not the precondition of this patch holds.
+ */
+- (FSTObjectValue *)patchDocument:(nullable FSTMaybeDocument *)maybeDoc {
+  FSTObjectValue *data;
+  if ([maybeDoc isKindOfClass:[FSTDocument class]]) {
+    data = ((FSTDocument *)maybeDoc).data;
+  } else {
+    data = [FSTObjectValue objectValue];
+  }
+  return [self patchObjectValue:data];
+}
+
 - (nullable FSTMaybeDocument *)applyToLocalDocument:(nullable FSTMaybeDocument *)maybeDoc
                                        baseDocument:(nullable FSTMaybeDocument *)baseDoc
                                      localWriteTime:(FIRTimestamp *)localWriteTime {
+  [self verifyKeyMatches:maybeDoc];
+
   if (!self.precondition.IsValidFor(maybeDoc)) {
     return maybeDoc;
   }
 
-  if (!maybeDoc || [maybeDoc isMemberOfClass:[FSTDeletedDocument class]]) {
-    // Precondition applied, so create the document if necessary
-    const DocumentKey &key = maybeDoc ? maybeDoc.key : self.key;
-    SnapshotVersion version = maybeDoc ? maybeDoc.version : SnapshotVersion::None();
-    maybeDoc = [FSTDocument documentWithData:[FSTObjectValue objectValue]
-                                         key:key
-                                     version:std::move(version)
-                           hasLocalMutations:YES];
-  }
+  FSTObjectValue *newData = [self patchDocument:maybeDoc];
+  SnapshotVersion version = [self postMutationVersionForDocument:maybeDoc];
 
-  HARD_ASSERT([maybeDoc isMemberOfClass:[FSTDocument class]], "Unknown MaybeDocument type %s",
-              [maybeDoc class]);
-  FSTDocument *doc = (FSTDocument *)maybeDoc;
-
-  HARD_ASSERT(doc.key == self.key, "Can only patch a document with the same key");
-
-  FSTObjectValue *newData = [self patchObjectValue:doc.data];
-  return
-      [FSTDocument documentWithData:newData key:doc.key version:doc.version hasLocalMutations:YES];
+  return [FSTDocument documentWithData:newData
+                                   key:self.key
+                               version:version
+                                 state:FSTDocumentStateLocalMutations];
 }
 
-- (nullable FSTMaybeDocument *)applyToRemoteDocument:(nullable FSTMaybeDocument *)maybeDoc
-                                      mutationResult:(FSTMutationResult *)mutationResult {
+- (FSTMaybeDocument *)applyToRemoteDocument:(nullable FSTMaybeDocument *)maybeDoc
+                             mutationResult:(FSTMutationResult *)mutationResult {
+  [self verifyKeyMatches:maybeDoc];
+
   HARD_ASSERT(!mutationResult.transformResults, "Transform results received by FSTPatchMutation.");
 
   if (!self.precondition.IsValidFor(maybeDoc)) {
-    return maybeDoc;
+    // Since the mutation was not rejected, we know that the precondition matched on the backend.
+    // We therefore must not have the expected version of the document in our cache and return a
+    // FSTUnknownDocument with the known updateTime.
+    return [FSTUnknownDocument documentWithKey:self.key version:mutationResult.version];
   }
 
-  BOOL hasLocalMutations = (mutationResult == nil);
-  if (!maybeDoc || [maybeDoc isMemberOfClass:[FSTDeletedDocument class]]) {
-    // Precondition applied, so create the document if necessary
-    const DocumentKey &key = maybeDoc ? maybeDoc.key : self.key;
-    SnapshotVersion version = maybeDoc ? maybeDoc.version : SnapshotVersion::None();
-    maybeDoc = [FSTDocument documentWithData:[FSTObjectValue objectValue]
-                                         key:key
-                                     version:std::move(version)
-                           hasLocalMutations:hasLocalMutations];
-  }
+  FSTObjectValue *newData = [self patchDocument:maybeDoc];
 
-  HARD_ASSERT([maybeDoc isMemberOfClass:[FSTDocument class]], "Unknown MaybeDocument type %s",
-              [maybeDoc class]);
-  FSTDocument *doc = (FSTDocument *)maybeDoc;
-
-  HARD_ASSERT(doc.key == self.key, "Can only patch a document with the same key");
-
-  FSTObjectValue *newData = [self patchObjectValue:doc.data];
   return [FSTDocument documentWithData:newData
-                                   key:doc.key
-                               version:doc.version
-                     hasLocalMutations:hasLocalMutations];
+                                   key:self.key
+                               version:mutationResult.version
+                                 state:FSTDocumentStateCommittedMutations];
 }
 
 - (FSTObjectValue *)patchObjectValue:(FSTObjectValue *)objectValue {
@@ -375,6 +358,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable FSTMaybeDocument *)applyToLocalDocument:(nullable FSTMaybeDocument *)maybeDoc
                                        baseDocument:(nullable FSTMaybeDocument *)baseDoc
                                      localWriteTime:(FIRTimestamp *)localWriteTime {
+  [self verifyKeyMatches:maybeDoc];
+
   if (!self.precondition.IsValidFor(maybeDoc)) {
     return maybeDoc;
   }
@@ -384,23 +369,29 @@ NS_ASSUME_NONNULL_BEGIN
   HARD_ASSERT([maybeDoc isMemberOfClass:[FSTDocument class]], "Unknown MaybeDocument type %s",
               [maybeDoc class]);
   FSTDocument *doc = (FSTDocument *)maybeDoc;
-
-  HARD_ASSERT(doc.key == self.key, "Can only transform a document with the same key");
 
   NSArray<FSTFieldValue *> *transformResults =
       [self localTransformResultsWithBaseDocument:baseDoc writeTime:localWriteTime];
   FSTObjectValue *newData = [self transformObject:doc.data transformResults:transformResults];
-  return
-      [FSTDocument documentWithData:newData key:doc.key version:doc.version hasLocalMutations:YES];
+
+  return [FSTDocument documentWithData:newData
+                                   key:doc.key
+                               version:doc.version
+                                 state:FSTDocumentStateLocalMutations];
 }
 
-- (nullable FSTMaybeDocument *)applyToRemoteDocument:(nullable FSTMaybeDocument *)maybeDoc
-                                      mutationResult:(FSTMutationResult *)mutationResult {
+- (FSTMaybeDocument *)applyToRemoteDocument:(nullable FSTMaybeDocument *)maybeDoc
+                             mutationResult:(FSTMutationResult *)mutationResult {
+  [self verifyKeyMatches:maybeDoc];
+
   HARD_ASSERT(mutationResult.transformResults,
               "Transform results missing for FSTTransformMutation.");
 
   if (!self.precondition.IsValidFor(maybeDoc)) {
-    return maybeDoc;
+    // Since the mutation was not rejected, we know that the precondition matched on the backend.
+    // We therefore must not have the expected version of the document in our cache and return an
+    // FSTUnknownDocument with the known updateTime.
+    return [FSTUnknownDocument documentWithKey:self.key version:mutationResult.version];
   }
 
   // We only support transforms with precondition exists, so we can only apply it to an existing
@@ -408,16 +399,16 @@ NS_ASSUME_NONNULL_BEGIN
   HARD_ASSERT([maybeDoc isMemberOfClass:[FSTDocument class]], "Unknown MaybeDocument type %s",
               [maybeDoc class]);
   FSTDocument *doc = (FSTDocument *)maybeDoc;
-
-  HARD_ASSERT(doc.key == self.key, "Can only transform a document with the same key");
-
   NSArray<FSTFieldValue *> *transformResults =
       [self serverTransformResultsWithBaseDocument:maybeDoc
                             serverTransformResults:mutationResult.transformResults];
 
   FSTObjectValue *newData = [self transformObject:doc.data transformResults:transformResults];
-  return
-      [FSTDocument documentWithData:newData key:doc.key version:doc.version hasLocalMutations:NO];
+
+  return [FSTDocument documentWithData:newData
+                                   key:self.key
+                               version:mutationResult.version
+                                 state:FSTDocumentStateCommittedMutations];
 }
 
 /**
@@ -521,33 +512,34 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable FSTMaybeDocument *)applyToLocalDocument:(nullable FSTMaybeDocument *)maybeDoc
                                        baseDocument:(nullable FSTMaybeDocument *)baseDoc
                                      localWriteTime:(FIRTimestamp *)localWriteTime {
+  [self verifyKeyMatches:maybeDoc];
+
   if (!self.precondition.IsValidFor(maybeDoc)) {
     return maybeDoc;
   }
 
-  if (maybeDoc) {
-    HARD_ASSERT(maybeDoc.key == self.key, "Can only delete a document with the same key");
-  }
-
-  return [FSTDeletedDocument documentWithKey:self.key version:SnapshotVersion::None()];
+  return [FSTDeletedDocument documentWithKey:self.key
+                                     version:SnapshotVersion::None()
+                       hasCommittedMutations:NO];
 }
 
-- (nullable FSTMaybeDocument *)applyToRemoteDocument:(nullable FSTMaybeDocument *)maybeDoc
-                                      mutationResult:(FSTMutationResult *)mutationResult {
+- (FSTMaybeDocument *)applyToRemoteDocument:(nullable FSTMaybeDocument *)maybeDoc
+                             mutationResult:(FSTMutationResult *)mutationResult {
+  [self verifyKeyMatches:maybeDoc];
+
   if (mutationResult) {
     HARD_ASSERT(!mutationResult.transformResults,
                 "Transform results received by FSTDeleteMutation.");
   }
 
-  if (!self.precondition.IsValidFor(maybeDoc)) {
-    return maybeDoc;
-  }
+  // Unlike applyToLocalView, if we're applying a mutation to a remote document the server has
+  // accepted the mutation so the precondition must have held.
 
-  if (maybeDoc) {
-    HARD_ASSERT(maybeDoc.key == self.key, "Can only delete a document with the same key");
-  }
-
-  return [FSTDeletedDocument documentWithKey:self.key version:SnapshotVersion::None()];
+  // We store the deleted document at the commit version of the delete. Any document version
+  // that the server sends us before the delete was applied is discarded
+  return [FSTDeletedDocument documentWithKey:self.key
+                                     version:mutationResult.version
+                       hasCommittedMutations:YES];
 }
 
 @end

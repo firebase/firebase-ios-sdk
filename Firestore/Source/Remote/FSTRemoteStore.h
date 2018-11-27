@@ -20,6 +20,7 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 
 @class FSTDatastore;
 @class FSTLocalStore;
@@ -28,7 +29,6 @@
 @class FSTQueryData;
 @class FSTRemoteEvent;
 @class FSTTransaction;
-@class FSTDispatchQueue;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -104,7 +104,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithLocalStore:(FSTLocalStore *)localStore
                          datastore:(FSTDatastore *)datastore
-               workerDispatchQueue:(FSTDispatchQueue *)queue;
+                       workerQueue:(firebase::firestore::util::AsyncQueue *)queue;
 
 - (instancetype)init NS_UNAVAILABLE;
 

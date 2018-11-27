@@ -18,6 +18,7 @@
 #define FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_UTIL_GRPC_STREAM_TESTER_H_
 
 #include <functional>
+#include <future>  // NOLINT(build/c++11)
 #include <initializer_list>
 #include <memory>
 #include <string>
@@ -106,6 +107,7 @@ class FakeGrpcQueue {
   void ExtractCompletions(std::initializer_list<CompletionEndState> results);
   void ExtractCompletions(const CompletionCallback& callback);
   void KeepPolling();
+  std::future<void> KeepPolling(const CompletionCallback& callback);
 
   void Shutdown();
 
@@ -116,9 +118,11 @@ class FakeGrpcQueue {
  private:
   remote::GrpcCompletion* ExtractCompletion();
 
-  std::unique_ptr<internal::ExecutorStd> dedicated_executor_;
+  std::unique_ptr<ExecutorStd> dedicated_executor_;
   grpc::CompletionQueue* grpc_queue_;
   bool is_shut_down_ = false;
+
+  std::promise<void> current_promise_;
 };
 
 /**
@@ -216,12 +220,24 @@ class GrpcStreamTester {
       std::initializer_list<CompletionEndState> results);
 
   /**
+   * Will asynchronously continuously pull gRPC completion queue and delegate
+   * handling all the completions taken off to the given `callback`, until the
+   * callback returns true (interpreted as "done"). Returns a future that will
+   * finish once the callback returns "done".
+   */
+  std::future<void> ForceFinishAsync(const CompletionCallback& callback);
+
+  /**
    * Creates a `CompletionCallback` from given `results` which is equivalent to
    * what `ForceFinishAnyTypeOrder` would use, but doesn't run it.
    */
   static CompletionCallback CreateAnyTypeOrderCallback(
       std::initializer_list<CompletionEndState> results);
 
+  /**
+   * Will asynchronously continuously pull gRPC completion queue and apply "Ok"
+   * to every completion that comes off the queue.
+   */
   void KeepPollingGrpcQueue();
   void ShutdownGrpcQueue();
 

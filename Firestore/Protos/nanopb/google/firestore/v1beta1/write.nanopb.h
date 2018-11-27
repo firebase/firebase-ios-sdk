@@ -29,14 +29,14 @@
 
 #include "google/protobuf/timestamp.nanopb.h"
 
+namespace firebase {
+namespace firestore {
+
 /* @@protoc_insertion_point(includes) */
 #if PB_PROTO_HEADER_VERSION != 30
 #error Regenerate this file with the current version of nanopb generator.
 #endif
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /* Enum definitions */
 typedef enum _google_firestore_v1beta1_DocumentTransform_FieldTransform_ServerValue {
@@ -85,6 +85,7 @@ typedef struct _google_firestore_v1beta1_DocumentTransform_FieldTransform {
     pb_size_t which_transform_type;
     union {
         google_firestore_v1beta1_DocumentTransform_FieldTransform_ServerValue set_to_server_value;
+        google_firestore_v1beta1_Value numeric_add;
         google_firestore_v1beta1_ArrayValue append_missing_elements;
         google_firestore_v1beta1_ArrayValue remove_all_from_array;
     };
@@ -149,6 +150,7 @@ typedef struct _google_firestore_v1beta1_WriteResult {
 #define google_firestore_v1beta1_DocumentRemove_removed_target_ids_tag 2
 #define google_firestore_v1beta1_DocumentRemove_read_time_tag 4
 #define google_firestore_v1beta1_DocumentTransform_FieldTransform_set_to_server_value_tag 2
+#define google_firestore_v1beta1_DocumentTransform_FieldTransform_numeric_add_tag 3
 #define google_firestore_v1beta1_DocumentTransform_FieldTransform_append_missing_elements_tag 6
 #define google_firestore_v1beta1_DocumentTransform_FieldTransform_remove_all_from_array_tag 7
 #define google_firestore_v1beta1_DocumentTransform_FieldTransform_field_path_tag 1
@@ -165,7 +167,7 @@ typedef struct _google_firestore_v1beta1_WriteResult {
 /* Struct field encoding specification for nanopb */
 extern const pb_field_t google_firestore_v1beta1_Write_fields[6];
 extern const pb_field_t google_firestore_v1beta1_DocumentTransform_fields[3];
-extern const pb_field_t google_firestore_v1beta1_DocumentTransform_FieldTransform_fields[5];
+extern const pb_field_t google_firestore_v1beta1_DocumentTransform_FieldTransform_fields[6];
 extern const pb_field_t google_firestore_v1beta1_WriteResult_fields[3];
 extern const pb_field_t google_firestore_v1beta1_DocumentChange_fields[4];
 extern const pb_field_t google_firestore_v1beta1_DocumentDelete_fields[4];
@@ -190,9 +192,9 @@ extern const pb_field_t google_firestore_v1beta1_ExistenceFilter_fields[3];
 
 #endif
 
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
+}  // namespace firestore
+}  // namespace firebase
+
 /* @@protoc_insertion_point(eof) */
 
 #endif

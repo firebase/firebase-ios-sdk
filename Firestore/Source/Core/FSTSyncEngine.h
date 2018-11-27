@@ -21,8 +21,8 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 
-@class FSTDispatchQueue;
 @class FSTLocalStore;
 @class FSTMutation;
 @class FSTQuery;
@@ -30,14 +30,20 @@
 @class FSTRemoteStore;
 @class FSTViewSnapshot;
 
+using firebase::firestore::model::OnlineState;
+
 NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTSyncEngineDelegate
 
-/** A Delegate to be notified when the sync engine produces new view snapshots or errors. */
+/**
+ * A delegate to be notified when the client's online state changes or when the sync engine produces
+ * new view snapshots or errors.
+ */
 @protocol FSTSyncEngineDelegate
 - (void)handleViewSnapshots:(NSArray<FSTViewSnapshot *> *)viewSnapshots;
 - (void)handleError:(NSError *)error forQuery:(FSTQuery *)query;
+- (void)applyChangedOnlineState:(OnlineState)onlineState;
 @end
 
 /**
@@ -52,7 +58,7 @@ NS_ASSUME_NONNULL_BEGIN
  *    sending to the backend.
  *
  * The SyncEngine’s methods should only ever be called by methods running on our own worker
- * dispatch queue.
+ * queue.
  */
 @interface FSTSyncEngine : NSObject <FSTRemoteSyncer>
 
@@ -63,10 +69,9 @@ NS_ASSUME_NONNULL_BEGIN
     NS_DESIGNATED_INITIALIZER;
 
 /**
- * A delegate to be notified when queries being listened to produce new view snapshots or
- * errors.
+ * A delegate to be notified when queries being listened to produce new view snapshots or errors.
  */
-@property(nonatomic, weak) id<FSTSyncEngineDelegate> delegate;
+@property(nonatomic, weak) id<FSTSyncEngineDelegate> syncEngineDelegate;
 
 /**
  * Initiates a new listen. The FSTLocalStore will be queried for initial data and the listen will
@@ -92,12 +97,12 @@ NS_ASSUME_NONNULL_BEGIN
  * Runs the given transaction block up to retries times and then calls completion.
  *
  * @param retries The number of times to try before giving up.
- * @param workerDispatchQueue The queue to dispatch sync engine calls to.
+ * @param workerQueue The queue to dispatch sync engine calls to.
  * @param updateBlock The block to call to execute the user's transaction.
  * @param completion The block to call when the transaction is finished or failed.
  */
 - (void)transactionWithRetries:(int)retries
-           workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
+                   workerQueue:(firebase::firestore::util::AsyncQueue *)workerQueue
                    updateBlock:(FSTTransactionBlock)updateBlock
                     completion:(FSTVoidIDErrorBlock)completion;
 

@@ -178,8 +178,9 @@ NS_ASSUME_NONNULL_BEGIN
                  oldDocuments:(FSTDocumentSet *)oldDocuments
               documentChanges:(NSArray<FSTDocumentViewChange *> *)documentChanges
                     fromCache:(BOOL)fromCache
-             hasPendingWrites:(BOOL)hasPendingWrites
-             syncStateChanged:(BOOL)syncStateChanged {
+                  mutatedKeys:(DocumentKeySet)mutatedKeys
+             syncStateChanged:(BOOL)syncStateChanged
+      excludesMetadataChanges:(BOOL)excludesMetadataChanges {
   self = [super init];
   if (self) {
     _query = query;
@@ -187,19 +188,49 @@ NS_ASSUME_NONNULL_BEGIN
     _oldDocuments = oldDocuments;
     _documentChanges = documentChanges;
     _fromCache = fromCache;
-    _hasPendingWrites = hasPendingWrites;
+    _mutatedKeys = mutatedKeys;
     _syncStateChanged = syncStateChanged;
+    _excludesMetadataChanges = excludesMetadataChanges;
   }
   return self;
 }
 
++ (instancetype)snapshotForInitialDocuments:(FSTDocumentSet *)documents
+                                      query:(FSTQuery *)query
+                                mutatedKeys:(DocumentKeySet)mutatedKeys
+                                  fromCache:(BOOL)fromCache
+                    excludesMetadataChanges:(BOOL)excludesMetadataChanges {
+  NSMutableArray<FSTDocumentViewChange *> *viewChanges = [NSMutableArray array];
+  for (FSTDocument *doc in documents.documentEnumerator) {
+    [viewChanges
+        addObject:[FSTDocumentViewChange changeWithDocument:doc
+                                                       type:FSTDocumentViewChangeTypeAdded]];
+  }
+  return [[FSTViewSnapshot alloc]
+                initWithQuery:query
+                    documents:documents
+                 oldDocuments:[FSTDocumentSet documentSetWithComparator:query.comparator]
+              documentChanges:viewChanges
+                    fromCache:fromCache
+                  mutatedKeys:mutatedKeys
+             syncStateChanged:YES
+      excludesMetadataChanges:excludesMetadataChanges];
+}
+
+- (BOOL)hasPendingWrites {
+  return _mutatedKeys.size() != 0;
+}
+
 - (NSString *)description {
-  return [NSString stringWithFormat:
-                       @"<FSTViewSnapshot query:%@ documents:%@ oldDocument:%@ changes:%@ "
-                        "fromCache:%@ hasPendingWrites:%@ syncStateChanged:%@>",
-                       self.query, self.documents, self.oldDocuments, self.documentChanges,
-                       (self.fromCache ? @"YES" : @"NO"), (self.hasPendingWrites ? @"YES" : @"NO"),
-                       (self.syncStateChanged ? @"YES" : @"NO")];
+  return
+      [NSString stringWithFormat:
+                    @"<FSTViewSnapshot query:%@ documents:%@ oldDocument:%@ changes:%@ "
+                     "fromCache:%@ mutatedKeys:%zu syncStateChanged:%@ "
+                     "excludesMetadataChanges%@>",
+                    self.query, self.documents, self.oldDocuments, self.documentChanges,
+                    (self.fromCache ? @"YES" : @"NO"), static_cast<size_t>(self.mutatedKeys.size()),
+                    (self.syncStateChanged ? @"YES" : @"NO"),
+                    (self.excludesMetadataChanges ? @"YES" : @"NO")];
 }
 
 - (BOOL)isEqual:(id)object {
@@ -213,18 +244,23 @@ NS_ASSUME_NONNULL_BEGIN
   return [self.query isEqual:other.query] && [self.documents isEqual:other.documents] &&
          [self.oldDocuments isEqual:other.oldDocuments] &&
          [self.documentChanges isEqualToArray:other.documentChanges] &&
-         self.fromCache == other.fromCache && self.hasPendingWrites == other.hasPendingWrites &&
-         self.syncStateChanged == other.syncStateChanged;
+         self.fromCache == other.fromCache && self.mutatedKeys == other.mutatedKeys &&
+         self.syncStateChanged == other.syncStateChanged &&
+         self.excludesMetadataChanges == other.excludesMetadataChanges;
 }
 
 - (NSUInteger)hash {
+  // Note: We are omitting `mutatedKeys` from the hash, since we don't have a straightforward
+  // way to compute its hash value. Since `FSTViewSnapshot` is currently not stored in an
+  // NSDictionary, this has no side effects.
+
   NSUInteger result = [self.query hash];
   result = 31 * result + [self.documents hash];
   result = 31 * result + [self.oldDocuments hash];
   result = 31 * result + [self.documentChanges hash];
   result = 31 * result + (self.fromCache ? 1231 : 1237);
-  result = 31 * result + (self.hasPendingWrites ? 1231 : 1237);
   result = 31 * result + (self.syncStateChanged ? 1231 : 1237);
+  result = 31 * result + (self.excludesMetadataChanges ? 1231 : 1237);
   return result;
 }
 

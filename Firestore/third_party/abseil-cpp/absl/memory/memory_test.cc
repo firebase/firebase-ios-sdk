@@ -145,11 +145,10 @@ TEST(Make_UniqueTest, NotAmbiguousWithStdMakeUnique) {
     explicit TakesStdType(const std::vector<int> &vec) {}
   };
   using absl::make_unique;
-  make_unique<TakesStdType>(std::vector<int>());
+  (void)make_unique<TakesStdType>(std::vector<int>());
 }
 
 #if 0
-// TODO(billydonahue): Make a proper NC test.
 // These tests shouldn't compile.
 TEST(MakeUniqueTestNC, AcceptMoveOnlyLvalue) {
   auto m = MoveOnly();

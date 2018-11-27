@@ -22,7 +22,6 @@
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSyncEngine.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
-#import "Firestore/Source/Util/FSTDispatchQueue.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
@@ -49,13 +48,7 @@ static NSNumber *ToNSNumber(OnlineState state) {
 @interface FSTEventManagerTests : XCTestCase
 @end
 
-@implementation FSTEventManagerTests {
-  FSTDispatchQueue *_testUserQueue;
-}
-
-- (void)setUp {
-  _testUserQueue = [FSTDispatchQueue queueWith:dispatch_get_main_queue()];
-}
+@implementation FSTEventManagerTests
 
 - (FSTQueryListener *)noopListenerForQuery:(FSTQuery *)query {
   return [[FSTQueryListener alloc]
@@ -71,7 +64,7 @@ static NSNumber *ToNSNumber(OnlineState state) {
   FSTQueryListener *listener2 = [self noopListenerForQuery:query];
 
   FSTSyncEngine *syncEngineMock = OCMStrictClassMock([FSTSyncEngine class]);
-  OCMExpect([syncEngineMock setDelegate:[OCMArg any]]);
+  OCMExpect([syncEngineMock setSyncEngineDelegate:[OCMArg any]]);
   FSTEventManager *eventManager = [FSTEventManager eventManagerWithSyncEngine:syncEngineMock];
 
   OCMExpect([syncEngineMock listenToQuery:query]);
@@ -91,7 +84,7 @@ static NSNumber *ToNSNumber(OnlineState state) {
   FSTQueryListener *listener = [self noopListenerForQuery:query];
 
   FSTSyncEngine *syncEngineMock = OCMStrictClassMock([FSTSyncEngine class]);
-  OCMExpect([syncEngineMock setDelegate:[OCMArg any]]);
+  OCMExpect([syncEngineMock setSyncEngineDelegate:[OCMArg any]]);
   FSTEventManager *eventManager = [FSTEventManager eventManagerWithSyncEngine:syncEngineMock];
 
   [eventManager removeListener:listener];
@@ -163,7 +156,7 @@ static NSNumber *ToNSNumber(OnlineState state) {
       });
 
   FSTSyncEngine *syncEngineMock = OCMClassMock([FSTSyncEngine class]);
-  OCMExpect([syncEngineMock setDelegate:[OCMArg any]]);
+  OCMExpect([syncEngineMock setSyncEngineDelegate:[OCMArg any]]);
   FSTEventManager *eventManager = [FSTEventManager eventManagerWithSyncEngine:syncEngineMock];
 
   [eventManager addListener:fakeListener];

@@ -213,7 +213,7 @@ NS_ASSUME_NONNULL_BEGIN
   return [self.requestResults filteredArrayUsingPredicate:predicate];
 }
 
-- (FIRDLRetrievalProcessResult *)resultWithUniqueMatchedDynamicLink {
+- (nullable FIRDLRetrievalProcessResult *)resultWithUniqueMatchedDynamicLink {
   // return result with unique-matched dynamic link if found
   NSArray<FIRDLRetrievalProcessResult *> *foundResultsWithDynamicLinks =
       [self foundResultsWithDynamicLinks];

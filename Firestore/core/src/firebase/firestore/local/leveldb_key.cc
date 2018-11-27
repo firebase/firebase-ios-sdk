@@ -656,7 +656,7 @@ std::string LevelDbMutationQueueKey::Key(absl::string_view user_id) {
   return writer.result();
 }
 
-bool LevelDbMutationQueueKey::Decode(leveldb::Slice key) {
+bool LevelDbMutationQueueKey::Decode(absl::string_view key) {
   Reader reader{key};
   reader.ReadTableNameMatching(kMutationQueuesTable);
   user_id_ = reader.ReadUserId();

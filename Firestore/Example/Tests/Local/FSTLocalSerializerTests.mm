@@ -130,7 +130,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesDocumentAsMaybeDocument {
-  FSTDocument *doc = FSTTestDoc("some/path", 42, @{@"foo" : @"bar"}, NO);
+  FSTDocument *doc = FSTTestDoc("some/path", 42, @{@"foo" : @"bar"}, FSTDocumentStateSynced);
 
   FSTPBMaybeDocument *maybeDocProto = [FSTPBMaybeDocument message];
   maybeDocProto.document = [GCFSDocument message];
@@ -146,8 +146,23 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqualObjects(decoded, doc);
 }
 
+- (void)testEncodesUnknownDocumentAsMaybeDocument {
+  FSTUnknownDocument *doc = FSTTestUnknownDoc("some/path", 42);
+
+  FSTPBMaybeDocument *maybeDocProto = [FSTPBMaybeDocument message];
+  maybeDocProto.unknownDocument = [FSTPBUnknownDocument message];
+  maybeDocProto.unknownDocument.name = @"projects/p/databases/d/documents/some/path";
+  maybeDocProto.unknownDocument.version.seconds = 0;
+  maybeDocProto.unknownDocument.version.nanos = 42000;
+  maybeDocProto.hasCommittedMutations = true;
+
+  XCTAssertEqualObjects([self.serializer encodedMaybeDocument:doc], maybeDocProto);
+  FSTMaybeDocument *decoded = [self.serializer decodedMaybeDocument:maybeDocProto];
+  XCTAssertEqualObjects(decoded, doc);
+}
+
 - (void)testEncodesDeletedDocumentAsMaybeDocument {
-  FSTDeletedDocument *deletedDoc = FSTTestDeletedDoc("some/path", 42);
+  FSTDeletedDocument *deletedDoc = FSTTestDeletedDoc("some/path", 42, false);
 
   FSTPBMaybeDocument *maybeDocProto = [FSTPBMaybeDocument message];
   maybeDocProto.noDocument = [FSTPBNoDocument message];

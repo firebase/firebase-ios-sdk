@@ -26,7 +26,6 @@
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 #import "Firestore/Source/Remote/FSTStream.h"
-#import "Firestore/Source/Util/FSTDispatchQueue.h"
 
 #import "Firestore/Example/Tests/Remote/FSTWatchChange+Testing.h"
 
@@ -37,6 +36,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/connectivity_monitor.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
 #include "Firestore/core/src/firebase/firestore/remote/stream.h"
+#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/util/create_noop_connectivity_monitor.h"
@@ -249,12 +249,13 @@ using firebase::firestore::remote::MockWriteStream;
 @interface FSTMockDatastore ()
 
 /** Properties implemented in FSTDatastore that are nonpublic. */
-@property(nonatomic, strong, readonly) FSTDispatchQueue *workerDispatchQueue;
 @property(nonatomic, assign, readonly) CredentialsProvider *credentials;
 
 @end
 
 @implementation FSTMockDatastore {
+  AsyncQueue *_workerQueue;
+
   std::shared_ptr<MockWatchStream> _watchStream;
   std::shared_ptr<MockWriteStream> _writeStream;
 
@@ -266,24 +267,23 @@ using firebase::firestore::remote::MockWriteStream;
 #pragma mark - Overridden FSTDatastore methods.
 
 - (instancetype)initWithDatabaseInfo:(const DatabaseInfo *)databaseInfo
-                 workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
+                         workerQueue:(AsyncQueue *)workerQueue
                          credentials:(CredentialsProvider *)credentials {
   if (self = [super initWithDatabaseInfo:databaseInfo
-                     workerDispatchQueue:workerDispatchQueue
+                             workerQueue:workerQueue
                              credentials:credentials]) {
-    _workerDispatchQueue = workerDispatchQueue;
+    _workerQueue = workerQueue;
     _credentials = credentials;
     _connectivityMonitor = CreateNoOpConnectivityMonitor();
-    _grpcConnection =
-        absl::make_unique<GrpcConnection>(*databaseInfo, [workerDispatchQueue implementation],
-                                          &_grpcQueue, _connectivityMonitor.get());
+    _grpcConnection = absl::make_unique<GrpcConnection>(*databaseInfo, workerQueue, &_grpcQueue,
+                                                        _connectivityMonitor.get());
   }
   return self;
 }
 
 - (std::shared_ptr<WatchStream>)createWatchStreamWithDelegate:(id<FSTWatchStreamDelegate>)delegate {
   _watchStream = std::make_shared<MockWatchStream>(
-      [self.workerDispatchQueue implementation], self.credentials,
+      _workerQueue, self.credentials,
       [[FSTSerializerBeta alloc] initWithDatabaseID:&self.databaseInfo->database_id()],
       _grpcConnection.get(), delegate, self);
 
@@ -292,7 +292,7 @@ using firebase::firestore::remote::MockWriteStream;
 
 - (std::shared_ptr<WriteStream>)createWriteStreamWithDelegate:(id<FSTWriteStreamDelegate>)delegate {
   _writeStream = std::make_shared<MockWriteStream>(
-      [self.workerDispatchQueue implementation], self.credentials,
+      _workerQueue, self.credentials,
       [[FSTSerializerBeta alloc] initWithDatabaseID:&self.databaseInfo->database_id()],
       _grpcConnection.get(), delegate, self);
 

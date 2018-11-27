@@ -25,14 +25,14 @@
 
 #include "google/protobuf/timestamp.nanopb.h"
 
+namespace firebase {
+namespace firestore {
+
 /* @@protoc_insertion_point(includes) */
 #if PB_PROTO_HEADER_VERSION != 30
 #error Regenerate this file with the current version of nanopb generator.
 #endif
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /* Struct definitions */
 typedef struct _firestore_client_MutationQueue {
@@ -46,6 +46,8 @@ typedef struct _firestore_client_WriteBatch {
     pb_size_t writes_count;
     struct _google_firestore_v1beta1_Write *writes;
     google_protobuf_Timestamp local_write_time;
+    pb_size_t base_writes_count;
+    struct _google_firestore_v1beta1_Write *base_writes;
 /* @@protoc_insertion_point(struct:firestore_client_WriteBatch) */
 } firestore_client_WriteBatch;
 
@@ -53,9 +55,9 @@ typedef struct _firestore_client_WriteBatch {
 
 /* Initializer values for message structs */
 #define firestore_client_MutationQueue_init_default {0, NULL}
-#define firestore_client_WriteBatch_init_default {0, 0, NULL, google_protobuf_Timestamp_init_default}
+#define firestore_client_WriteBatch_init_default {0, 0, NULL, google_protobuf_Timestamp_init_default, 0, NULL}
 #define firestore_client_MutationQueue_init_zero {0, NULL}
-#define firestore_client_WriteBatch_init_zero    {0, 0, NULL, google_protobuf_Timestamp_init_zero}
+#define firestore_client_WriteBatch_init_zero    {0, 0, NULL, google_protobuf_Timestamp_init_zero, 0, NULL}
 
 /* Field tags (for use in manual encoding/decoding) */
 #define firestore_client_MutationQueue_last_acknowledged_batch_id_tag 1
@@ -63,10 +65,11 @@ typedef struct _firestore_client_WriteBatch {
 #define firestore_client_WriteBatch_batch_id_tag 1
 #define firestore_client_WriteBatch_writes_tag   2
 #define firestore_client_WriteBatch_local_write_time_tag 3
+#define firestore_client_WriteBatch_base_writes_tag 4
 
 /* Struct field encoding specification for nanopb */
 extern const pb_field_t firestore_client_MutationQueue_fields[3];
-extern const pb_field_t firestore_client_WriteBatch_fields[4];
+extern const pb_field_t firestore_client_WriteBatch_fields[5];
 
 /* Maximum encoded size of messages (where known) */
 /* firestore_client_MutationQueue_size depends on runtime parameters */
@@ -80,9 +83,9 @@ extern const pb_field_t firestore_client_WriteBatch_fields[4];
 
 #endif
 
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
+}  // namespace firestore
+}  // namespace firebase
+
 /* @@protoc_insertion_point(eof) */
 
 #endif

@@ -29,16 +29,19 @@
 #include <utility>
 
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
-#import "Firestore/Source/Util/FSTDispatchQueue.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/auth/firebase_credentials_provider_apple.h"
+#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
+#include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/memory/memory.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::FirebaseCredentialsProvider;
+using util::AsyncQueue;
+using util::ExecutorLibdispatch;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -80,8 +83,10 @@ NS_ASSUME_NONNULL_BEGIN
       if (!self.app.isDefaultApp) {
         absl::StrAppend(&queue_name, ".", util::MakeString(self.app.name));
       }
-      FSTDispatchQueue *workerDispatchQueue = [FSTDispatchQueue
-          queueWith:dispatch_queue_create(queue_name.c_str(), DISPATCH_QUEUE_SERIAL)];
+
+      auto executor = absl::make_unique<ExecutorLibdispatch>(
+          dispatch_queue_create(queue_name.c_str(), DISPATCH_QUEUE_SERIAL));
+      auto workerQueue = absl::make_unique<AsyncQueue>(std::move(executor));
 
       id<FIRAuthInterop> auth = FIR_COMPONENT(FIRAuthInterop, self.app.container);
       std::unique_ptr<CredentialsProvider> credentials_provider =
@@ -93,7 +98,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                  database:util::MakeString(database)
                                            persistenceKey:persistenceKey
                                       credentialsProvider:std::move(credentials_provider)
-                                      workerDispatchQueue:workerDispatchQueue
+                                              workerQueue:std::move(workerQueue)
                                               firebaseApp:self.app];
       _instances[key] = firestore;
     }

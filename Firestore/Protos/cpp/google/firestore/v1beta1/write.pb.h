@@ -348,6 +348,7 @@ class DocumentTransform_FieldTransform : public ::google::protobuf::Message /* @
 
   enum TransformTypeCase {
     kSetToServerValue = 2,
+    kNumericAdd = 3,
     kAppendMissingElements = 6,
     kRemoveAllFromArray = 7,
     TRANSFORM_TYPE_NOT_SET = 0,
@@ -455,6 +456,15 @@ class DocumentTransform_FieldTransform : public ::google::protobuf::Message /* @
   ::google::firestore::v1beta1::DocumentTransform_FieldTransform_ServerValue set_to_server_value() const;
   void set_set_to_server_value(::google::firestore::v1beta1::DocumentTransform_FieldTransform_ServerValue value);
 
+  // .google.firestore.v1beta1.Value numeric_add = 3;
+  bool has_numeric_add() const;
+  void clear_numeric_add();
+  static const int kNumericAddFieldNumber = 3;
+  const ::google::firestore::v1beta1::Value& numeric_add() const;
+  ::google::firestore::v1beta1::Value* release_numeric_add();
+  ::google::firestore::v1beta1::Value* mutable_numeric_add();
+  void set_allocated_numeric_add(::google::firestore::v1beta1::Value* numeric_add);
+
   // .google.firestore.v1beta1.ArrayValue append_missing_elements = 6;
   bool has_append_missing_elements() const;
   void clear_append_missing_elements();
@@ -477,6 +487,7 @@ class DocumentTransform_FieldTransform : public ::google::protobuf::Message /* @
   // @@protoc_insertion_point(class_scope:google.firestore.v1beta1.DocumentTransform.FieldTransform)
  private:
   void set_has_set_to_server_value();
+  void set_has_numeric_add();
   void set_has_append_missing_elements();
   void set_has_remove_all_from_array();
 
@@ -489,6 +500,7 @@ class DocumentTransform_FieldTransform : public ::google::protobuf::Message /* @
   union TransformTypeUnion {
     TransformTypeUnion() {}
     int set_to_server_value_;
+    ::google::firestore::v1beta1::Value* numeric_add_;
     ::google::firestore::v1beta1::ArrayValue* append_missing_elements_;
     ::google::firestore::v1beta1::ArrayValue* remove_all_from_array_;
   } transform_type_;
@@ -1594,6 +1606,40 @@ inline void DocumentTransform_FieldTransform::set_set_to_server_value(::google::
   }
   transform_type_.set_to_server_value_ = value;
   // @@protoc_insertion_point(field_set:google.firestore.v1beta1.DocumentTransform.FieldTransform.set_to_server_value)
+}
+
+// .google.firestore.v1beta1.Value numeric_add = 3;
+inline bool DocumentTransform_FieldTransform::has_numeric_add() const {
+  return transform_type_case() == kNumericAdd;
+}
+inline void DocumentTransform_FieldTransform::set_has_numeric_add() {
+  _oneof_case_[0] = kNumericAdd;
+}
+inline ::google::firestore::v1beta1::Value* DocumentTransform_FieldTransform::release_numeric_add() {
+  // @@protoc_insertion_point(field_release:google.firestore.v1beta1.DocumentTransform.FieldTransform.numeric_add)
+  if (has_numeric_add()) {
+    clear_has_transform_type();
+      ::google::firestore::v1beta1::Value* temp = transform_type_.numeric_add_;
+    transform_type_.numeric_add_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+inline const ::google::firestore::v1beta1::Value& DocumentTransform_FieldTransform::numeric_add() const {
+  // @@protoc_insertion_point(field_get:google.firestore.v1beta1.DocumentTransform.FieldTransform.numeric_add)
+  return has_numeric_add()
+      ? *transform_type_.numeric_add_
+      : *reinterpret_cast< ::google::firestore::v1beta1::Value*>(&::google::firestore::v1beta1::_Value_default_instance_);
+}
+inline ::google::firestore::v1beta1::Value* DocumentTransform_FieldTransform::mutable_numeric_add() {
+  if (!has_numeric_add()) {
+    clear_transform_type();
+    set_has_numeric_add();
+    transform_type_.numeric_add_ = new ::google::firestore::v1beta1::Value;
+  }
+  // @@protoc_insertion_point(field_mutable:google.firestore.v1beta1.DocumentTransform.FieldTransform.numeric_add)
+  return transform_type_.numeric_add_;
 }
 
 // .google.firestore.v1beta1.ArrayValue append_missing_elements = 6;

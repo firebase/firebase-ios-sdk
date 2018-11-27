@@ -32,12 +32,12 @@ dispatch_queue_t CreateDispatchQueue() {
   return dispatch_queue_create("AsyncQueueTests", DISPATCH_QUEUE_SERIAL);
 }
 
-std::unique_ptr<internal::Executor> CreateExecutorFromQueue(
+std::unique_ptr<Executor> CreateExecutorFromQueue(
     const dispatch_queue_t queue) {
-  return absl::make_unique<internal::ExecutorLibdispatch>(queue);
+  return absl::make_unique<ExecutorLibdispatch>(queue);
 }
 
-std::unique_ptr<internal::Executor> CreateExecutorLibdispatch() {
+std::unique_ptr<Executor> CreateExecutorLibdispatch() {
   return CreateExecutorFromQueue(CreateDispatchQueue());
 }
 

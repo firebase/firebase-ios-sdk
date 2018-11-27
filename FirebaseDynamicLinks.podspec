@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseDynamicLinks'
-  s.version          = '3.1.1'
+  s.version          = '3.2.0'
   s.summary          = 'Firebase DynamicLinks for iOS'
 
   s.description      = <<-DESC
@@ -28,7 +28,7 @@ Firebase Dynamic Links are deep links that enhance user experience and increase 
   s.weak_framework = 'WebKit'
   s.dependency 'FirebaseCore', '~> 5.1'
   s.ios.dependency 'FirebaseAnalytics', '~> 5.1'
-  s.ios.dependency 'FirebaseAnalyticsInterop', '~> 1.0'
+  s.dependency 'FirebaseAnalyticsInterop', '~> 1.0'
 
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',

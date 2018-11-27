@@ -31,10 +31,6 @@
 
 @implementation FIRDatabaseReference
 
-+ (FIRDatabaseConfig *)defaultConfig {
-    return [FIRDatabaseConfig defaultConfig];
-}
-
 #pragma mark -
 #pragma mark Constructors
 

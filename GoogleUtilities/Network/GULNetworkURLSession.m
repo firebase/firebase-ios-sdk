@@ -21,6 +21,11 @@
 #import "Private/GULNetworkConstants.h"
 #import "Private/GULNetworkMessageCode.h"
 
+@interface GULNetworkURLSession () <NSURLSessionDelegate,
+                                    NSURLSessionTaskDelegate,
+                                    NSURLSessionDownloadDelegate>
+@end
+
 @implementation GULNetworkURLSession {
   /// The handler to be called when the request completes or error has occurs.
   GULNetworkURLSessionCompletionHandler _completionHandler;
@@ -45,6 +50,9 @@
 
   /// The current request.
   NSURLRequest *_request;
+
+  /// The current NSURLSession.
+  NSURLSession *__weak _Nullable _URLSession;
 }
 
 #pragma mark - Init
@@ -94,8 +102,8 @@
 
 /// Sends an async POST request using NSURLSession for iOS >= 7.0, and returns an ID of the
 /// connection.
-- (NSString *)sessionIDFromAsyncPOSTRequest:(NSURLRequest *)request
-                          completionHandler:(GULNetworkURLSessionCompletionHandler)handler
+- (nullable NSString *)sessionIDFromAsyncPOSTRequest:(NSURLRequest *)request
+                                   completionHandler:(GULNetworkURLSessionCompletionHandler)handler
     API_AVAILABLE(ios(7.0)) {
   // NSURLSessionUploadTask does not work with NSData in the background.
   // To avoid this issue, write the data to a temporary file to upload it.
@@ -128,7 +136,7 @@
 
   if (didWriteFile) {
     // Exclude this file from backing up to iTunes. There are conflicting reports that excluding
-    // directory from backing up does not excluding files of that directory from backing up.
+    // directory from backing up does not exclude files of that directory from backing up.
     [self excludeFromBackupForURL:_uploadingFileURL];
 
     _sessionConfig = [self backgroundSessionConfigWithSessionID:_sessionID];
@@ -141,7 +149,6 @@
     // If we cannot write to file, just send it in the foreground.
     _sessionConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
     [self populateSessionConfig:_sessionConfig withRequest:request];
-    _sessionConfig.URLCache = nil;
     session = [NSURLSession sessionWithConfiguration:_sessionConfig
                                             delegate:self
                                        delegateQueue:[NSOperationQueue mainQueue]];
@@ -157,6 +164,8 @@
     return nil;
   }
 
+  _URLSession = session;
+
   // Save the session into memory.
   [[self class] setSessionInFetcherMap:self forSessionID:_sessionID];
 
@@ -171,8 +180,8 @@
 }
 
 /// Sends an async GET request using NSURLSession for iOS >= 7.0, and returns an ID of the session.
-- (NSString *)sessionIDFromAsyncGETRequest:(NSURLRequest *)request
-                         completionHandler:(GULNetworkURLSessionCompletionHandler)handler
+- (nullable NSString *)sessionIDFromAsyncGETRequest:(NSURLRequest *)request
+                                  completionHandler:(GULNetworkURLSessionCompletionHandler)handler
     API_AVAILABLE(ios(7.0)) {
   if (_backgroundNetworkEnabled) {
     _sessionConfig = [self backgroundSessionConfigWithSessionID:_sessionID];
@@ -198,6 +207,8 @@
     [self callCompletionHandler:handler withResponse:nil data:nil error:error];
     return nil;
   }
+
+  _URLSession = session;
 
   // Save the session into memory.
   [[self class] setSessionInFetcherMap:self forSessionID:_sessionID];
@@ -283,16 +294,15 @@
   [self maybeRemoveTempFilesAtURL:_networkDirectoryURL
                      expiringTime:kGULNetworkTempFolderExpireTime];
 
-  // Invalidate the session only if it's owned by this class.
-  NSString *sessionID = session.configuration.identifier;
-  if ([sessionID hasPrefix:kGULNetworkBackgroundSessionConfigIDPrefix]) {
-    [session finishTasksAndInvalidate];
+  // This is called without checking the sessionID here since non-background sessions
+  // won't have an ID.
+  [session finishTasksAndInvalidate];
 
-    // Explicitly remove the session so it won't be reused. The weak map table should
-    // remove the session on deallocation, but dealloc may not happen immediately after
-    // calling `finishTasksAndInvalidate`.
-    [[self class] setSessionInFetcherMap:nil forSessionID:sessionID];
-  }
+  // Explicitly remove the session so it won't be reused. The weak map table should
+  // remove the session on deallocation, but dealloc may not happen immediately after
+  // calling `finishTasksAndInvalidate`.
+  NSString *sessionID = session.configuration.identifier;
+  [[self class] setSessionInFetcherMap:nil forSessionID:sessionID];
 }
 
 - (void)URLSession:(NSURLSession *)session
@@ -677,13 +687,13 @@
   GULNetworkURLSession *existingSession =
       [[[self class] sessionIDToFetcherMap] objectForKey:sessionID];
   if (existingSession) {
-    // Invalidating doesn't seem like the right thing to do here since it may cancel an active
-    // background transfer if the background session is handling multiple requests. The old
-    // session will be dropped from the map table, but still complete its request.
-    NSString *message = [NSString stringWithFormat:@"Discarding session: %@", existingSession];
-    [existingSession->_loggerDelegate GULNetwork_logWithLevel:kGULNetworkLogLevelInfo
-                                                  messageCode:kGULNetworkMessageCodeURLSession019
-                                                      message:message];
+    if (session) {
+      NSString *message = [NSString stringWithFormat:@"Discarding session: %@", existingSession];
+      [existingSession->_loggerDelegate GULNetwork_logWithLevel:kGULNetworkLogLevelInfo
+                                                    messageCode:kGULNetworkMessageCodeURLSession019
+                                                        message:message];
+    }
+    [existingSession->_URLSession finishTasksAndInvalidate];
   }
   if (session) {
     [[[self class] sessionIDToFetcherMap] setObject:session forKey:sessionID];

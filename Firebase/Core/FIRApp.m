@@ -106,7 +106,7 @@ static NSMutableDictionary *sLibraryVersions;
     // Read the Info.plist to see if the flag is set. At this point we can't check any user defaults
     // since the app isn't configured at all, so only rely on the Info.plist value.
     NSNumber *collectionEnabledPlistValue = [[self class] readDataCollectionSwitchFromPlist];
-    if (!collectionEnabledPlistValue || [collectionEnabledPlistValue boolValue]) {
+    if (collectionEnabledPlistValue == nil || [collectionEnabledPlistValue boolValue]) {
       [[NSNotificationCenter defaultCenter]
           postNotificationName:kFIRAppDiagnosticsNotification
                         object:nil
@@ -178,12 +178,12 @@ static NSMutableDictionary *sLibraryVersions;
 
   @synchronized(self) {
     FIRApp *app = [[FIRApp alloc] initInstanceWithName:name options:options];
-    [FIRApp addAppToAppDictionary:app];
-    [FIRApp sendNotificationsToSDKs:app];
-
     if (app.isDefaultApp) {
       sDefaultApp = app;
     }
+
+    [FIRApp addAppToAppDictionary:app];
+    [FIRApp sendNotificationsToSDKs:app];
   }
 }
 
