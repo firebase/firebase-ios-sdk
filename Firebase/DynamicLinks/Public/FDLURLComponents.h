@@ -548,7 +548,7 @@ FIR_SWIFT_NAME(DynamicLinkComponents)
  * start with a valid HTTPS scheme (https://).
  */
 + (nullable instancetype)componentsWithLink:(NSURL *)link
-                   domainURIPrefix:(NSString *)domainURIPrefix
+                            domainURIPrefix:(NSString *)domainURIPrefix
     NS_SWIFT_UNAVAILABLE("Use init(link:domainURIPrefix:)");
 
 /**
