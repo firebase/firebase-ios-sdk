@@ -547,7 +547,7 @@ FIR_SWIFT_NAME(DynamicLinkComponents)
  * domain from the Firebase console. (e.g. https://xyz.page.link)  The domain URI prefix must
  * start with a valid HTTPS scheme (https://).
  */
-+ (instancetype)componentsWithLink:(NSURL *)link
++ (nullable instancetype)componentsWithLink:(NSURL *)link
                    domainURIPrefix:(NSString *)domainURIPrefix
     NS_SWIFT_UNAVAILABLE("Use init(link:domainURIPrefix:)");
 
@@ -561,7 +561,7 @@ FIR_SWIFT_NAME(DynamicLinkComponents)
  * domain from the Firebase console. (e.g. https://xyz.page.link)  The domain URI prefix must
  * start with a valid HTTPS scheme (https://).
  */
-- (instancetype)initWithLink:(NSURL *)link domainURIPrefix:(NSString *)domainURIPrefix;
+- (nullable instancetype)initWithLink:(NSURL *)link domainURIPrefix:(NSString *)domainURIPrefix;
 
 /**
  * @method shortenURL:options:completion:
