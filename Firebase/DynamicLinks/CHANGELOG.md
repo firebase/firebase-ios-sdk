@@ -1,5 +1,7 @@
+# v3.3.0
+- Introduced a new componentsWithLink:domainURIPrefix: and deprecated the existing componentsWithLink:domain:. (#1962, #2017, #2078, #2097)
+
 # v3.2.0
-- introduced a new componentsWithLink:domainURIPrefix: and deprecated the existing componentsWithLink:domain:. (#1962, #2017, #2078)
 - Delete deprecated source files. (#2038)
 
 # v3.1.1
