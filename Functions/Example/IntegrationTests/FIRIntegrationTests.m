@@ -81,7 +81,10 @@
 - (void)testToken {
   // Recreate _functions with a token.
   id app = [[FUNFakeApp alloc] initWithProjectID:@"functions-integration-test" token:@"token"];
-  FIRFunctions *functions = [FIRFunctions functionsForApp:app];
+  FIRFunctions *functions = [[FIRFunctions alloc]
+      initWithApp:app
+           region:@"my-region"
+             auth:[[FIRAuthInteropFake alloc] initWithToken:nil userID:nil error:nil]];
   [functions useLocalhost];
 
   XCTestExpectation *expectation = [[XCTestExpectation alloc] init];
