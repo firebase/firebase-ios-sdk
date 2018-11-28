@@ -451,14 +451,7 @@ static NSString *const kFDLOtherPlatformParametersFallbackURLKey = @"ofl";
 
 #pragma mark Deprecated Initializers.
 + (instancetype)componentsWithLink:(NSURL *)link domain:(NSString *)domain {
-  NSURL *domainURL = [NSURL URLWithString:domain];
-  if (!domainURL.scheme) {
-    FDLLog(FDLLogLevelWarning, FDLLogIdentifierSetupWarnHTTPSScheme,
-           @"Only https scheme is allowed. The supplied domain's scheme will be treated as https.");
-  }
-  NSString *domainURIPrefix =
-      domainURL.scheme ? domain : [NSString stringWithFormat:@"https://%@", domain];
-  return [[self alloc] initWithLink:link domainURIPrefix:domainURIPrefix allowNilReturn:NO];
+  return [[self alloc] initWithLink:link domain:domain];
 }
 
 - (instancetype)initWithLink:(NSURL *)link domain:(NSString *)domain {
@@ -469,7 +462,12 @@ static NSString *const kFDLOtherPlatformParametersFallbackURLKey = @"ofl";
   }
   NSString *domainURIPrefix =
       domainURL.scheme ? domain : [NSString stringWithFormat:@"https://%@", domain];
-  return [self initWithLink:link domainURIPrefix:domainURIPrefix allowNilReturn:NO];
+  self = [super init];
+  if (self) {
+    _link = link;
+    _domain = domainURIPrefix;
+  }
+  return self;
 }
 
 #pragma mark Initializers.
@@ -477,15 +475,9 @@ static NSString *const kFDLOtherPlatformParametersFallbackURLKey = @"ofl";
   return [[self alloc] initWithLink:link domainURIPrefix:domainURIPrefix];
 }
 
-- (instancetype)initWithLink:(NSURL *)link domainURIPrefix:(NSString *)domainURIPrefix {
-  return [self initWithLink:link domainURIPrefix:domainURIPrefix allowNilReturn:YES];
-}
-
 /// Deprecated init API has nonnull return type. If the check fails, support returning an instance
 /// for the deprecated API (the backend call will return an error. This is pre-existing behavior).
-- (instancetype)initWithLink:(NSURL *)link
-             domainURIPrefix:(NSString *)domainURIPrefix
-              allowNilReturn:(BOOL)allowNilReturn {
+- (instancetype)initWithLink:(NSURL *)link domainURIPrefix:(NSString *)domainURIPrefix {
   self = [super init];
   if (self) {
     _link = link;
@@ -494,16 +486,12 @@ static NSString *const kFDLOtherPlatformParametersFallbackURLKey = @"ofl";
     if (!domainURIPrefixURL) {
       FDLLog(FDLLogLevelError, FDLLogIdentifierSetupInvalidDomainURIPrefix,
              @"Invalid domainURIPrefix. Please input a valid URL.");
-      if (allowNilReturn) {
-        return nil;
-      }
+      return nil;
     }
     if (![[domainURIPrefixURL.scheme lowercaseString] isEqualToString:@"https"]) {
       FDLLog(FDLLogLevelError, FDLLogIdentifierSetupInvalidDomainURIPrefixScheme,
              @"Invalid domainURIPrefix scheme. Scheme needs to be https");
-      if (allowNilReturn) {
-        return nil;
-      }
+      return nil;
     }
     _domain = [domainURIPrefix copy];
   }
