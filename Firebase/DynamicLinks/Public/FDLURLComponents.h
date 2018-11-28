@@ -519,7 +519,7 @@ FIR_SWIFT_NAME(DynamicLinkComponents)
                             domain:(NSString *)domain
     NS_SWIFT_UNAVAILABLE("Use init(link:domain:)")DEPRECATED_MSG_ATTRIBUTE(
         "This method is deprecated. Please use the new method with support for "
-        "domainURIPrefix- componentsWithLink:domainURIPrefix.");
+        "domainURIPrefix- init(link:domainURIPrefix:).");
 
 /**
  * @method initWithLink:domain:
@@ -535,7 +535,7 @@ FIR_SWIFT_NAME(DynamicLinkComponents)
                       domain:(NSString *)domain
     DEPRECATED_MSG_ATTRIBUTE(
         "This method is deprecated. Please use the new method with support for "
-        "domainURIPrefix- initWithLink:domainURIPrefix.");
+        "domainURIPrefix- init(link:domainURIPrefix:).");
 
 /**
  * @method componentsWithLink:domainURIPrefix:
@@ -546,6 +546,8 @@ FIR_SWIFT_NAME(DynamicLinkComponents)
  * @param domainURIPrefix Domain URI Prefix of your App. This value must be your assigned
  * domain from the Firebase console. (e.g. https://xyz.page.link)  The domain URI prefix must
  * start with a valid HTTPS scheme (https://).
+ * @return Returns an instance of FIRDynamicLinkComponents if the parameters succeed validation,
+ * else returns nil.
  */
 + (nullable instancetype)componentsWithLink:(NSURL *)link
                             domainURIPrefix:(NSString *)domainURIPrefix
@@ -560,6 +562,8 @@ FIR_SWIFT_NAME(DynamicLinkComponents)
  * @param domainURIPrefix Domain URI Prefix of your App. This value must be your assigned
  * domain from the Firebase console. (e.g. https://xyz.page.link)  The domain URI prefix must
  * start with a valid HTTPS scheme (https://).
+ * @return Returns an instance of FIRDynamicLinkComponents if the parameters succeed validation,
+ * else returns nil.
  */
 - (nullable instancetype)initWithLink:(NSURL *)link domainURIPrefix:(NSString *)domainURIPrefix;
 

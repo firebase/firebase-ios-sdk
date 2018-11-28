@@ -249,7 +249,7 @@ NSString *FIRDLMatchTypeStringFromServerString(NSString *_Nullable serverMatchTy
   return matchMap[serverMatchTypeString] ?: @"none";
 }
 
-void FIRDLAddToWhiteListForCustomDomainsArray(NSArray *_Nonnull customDomains) {
+void FIRDLAddToAllowListForCustomDomainsArray(NSArray *_Nonnull customDomains) {
   // Duplicates will be weeded out when converting to a set.
   NSMutableArray *validCustomDomains =
       [[NSMutableArray alloc] initWithCapacity:customDomains.count];

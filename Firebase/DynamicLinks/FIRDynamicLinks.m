@@ -223,7 +223,7 @@ NS_ASSUME_NONNULL_BEGIN
   NSDictionary *infoDictionary = [NSBundle mainBundle].infoDictionary;
   NSArray *customDomains = infoDictionary[kInfoPlistCustomDomainsKey];
   if (customDomains) {
-    FIRDLAddToWhiteListForCustomDomainsArray(customDomains);
+    FIRDLAddToAllowListForCustomDomainsArray(customDomains);
   }
 }
 

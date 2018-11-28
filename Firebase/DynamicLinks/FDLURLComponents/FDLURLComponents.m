@@ -475,8 +475,6 @@ static NSString *const kFDLOtherPlatformParametersFallbackURLKey = @"ofl";
   return [[self alloc] initWithLink:link domainURIPrefix:domainURIPrefix];
 }
 
-/// Deprecated init API has nonnull return type. If the check fails, support returning an instance
-/// for the deprecated API (the backend call will return an error. This is pre-existing behavior).
 - (instancetype)initWithLink:(NSURL *)link domainURIPrefix:(NSString *)domainURIPrefix {
   self = [super init];
   if (self) {
