@@ -543,6 +543,7 @@
 					"\"${PODS_ROOT}/Headers/Public\"",
 					"\"${PODS_ROOT}/Headers/Public/FirebaseAuthInterop\"",
 					"\"$(SRC_ROOT)/../../Firebase/Core/Private\"",
+					"\"$(SRC_ROOT)/../FirebaseFunctions\"",
 				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
@@ -561,6 +562,7 @@
 					"\"${PODS_ROOT}/Headers/Public\"",
 					"\"${PODS_ROOT}/Headers/Public/FirebaseAuthInterop\"",
 					"\"$(SRC_ROOT)/../../Firebase/Core/Private\"",
+					"\"$(SRC_ROOT)/../FirebaseFunctions\"",
 				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
@@ -579,6 +581,7 @@
 					"\"${PODS_ROOT}/Headers/Public\"",
 					"\"${PODS_ROOT}/Headers/Public/FirebaseAuthInterop\"",
 					"\"$(SRC_ROOT)/../../Firebase/Core/Private\"",
+					"\"$(SRC_ROOT)/../FirebaseFunctions\"",
 				);
 				INFOPLIST_FILE = "IntegrationTests/IntegrationTests-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
@@ -597,6 +600,7 @@
 					"\"${PODS_ROOT}/Headers/Public\"",
 					"\"${PODS_ROOT}/Headers/Public/FirebaseAuthInterop\"",
 					"\"$(SRC_ROOT)/../../Firebase/Core/Private\"",
+					"\"$(SRC_ROOT)/../FirebaseFunctions\"",
 				);
 				INFOPLIST_FILE = "IntegrationTests/IntegrationTests-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
