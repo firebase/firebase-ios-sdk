@@ -969,7 +969,7 @@ using firebase::firestore::util::TimerId;
           XCTAssertEqual(docSet.count, 0);
           [changeCompletion fulfill];
 
-        } else if (callbacks == 4) {
+        } else if (callbacks == 3) {
           XCTFail("Should not have received a third callback");
         }
       }];
