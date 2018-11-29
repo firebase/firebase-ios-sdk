@@ -162,7 +162,7 @@ NS_ASSUME_NONNULL_BEGIN
         continue;
       }
 
-      FSTDocumentKey *key = static_cast<FSTDocumentKey *>(mutation.key);
+      const DocumentKey &key = mutation.key;
       // baseDoc may be nil for the documents that weren't yet written to the backend.
       FSTMaybeDocument *baseDoc = results[key];
       FSTMaybeDocument *mutatedDoc = [mutation applyToLocalDocument:baseDoc

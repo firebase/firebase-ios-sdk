@@ -22,10 +22,6 @@
 #include <memory>
 #include <string>
 
-#if defined(__OBJC__)
-#import "Firestore/Source/Model/FSTDocumentKey.h"
-#endif  // defined(__OBJC__)
-
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
@@ -51,14 +47,6 @@ class DocumentKey {
   explicit DocumentKey(ResourcePath&& path);
 
 #if defined(__OBJC__)
-  DocumentKey(FSTDocumentKey* key)  // NOLINT(runtime/explicit)
-      : path_(std::make_shared<ResourcePath>(key.path)) {
-  }
-
-  operator FSTDocumentKey*() const {
-    return [FSTDocumentKey keyWithDocumentKey:*this];
-  }
-
   NSUInteger Hash() const {
     return util::Hash(ToString());
   }

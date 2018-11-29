@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Represents cached documents received from the remote backend.
  *
- * The cache is keyed by FSTDocumentKey and entries in the cache are FSTMaybeDocument instances,
+ * The cache is keyed by DocumentKey and entries in the cache are FSTMaybeDocument instances,
  * meaning we can cache both FSTDocument instances (an actual document with data) as well as
  * FSTDeletedDocument instances (indicating that the document is known to not exist).
  */

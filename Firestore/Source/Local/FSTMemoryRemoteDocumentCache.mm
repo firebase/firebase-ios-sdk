@@ -36,9 +36,9 @@ NS_ASSUME_NONNULL_BEGIN
  * document key in memory. This is only an estimate and includes the size
  * of the segments of the path, but not any object overhead or path separators.
  */
-static size_t FSTDocumentKeyByteSize(FSTDocumentKey *key) {
+static size_t FSTDocumentKeyByteSize(const DocumentKey&) {
   size_t count = 0;
-  for (const auto &segment : key.path) {
+  for (const auto &segment : key.path()) {
     count += segment.size();
   }
   return count;
