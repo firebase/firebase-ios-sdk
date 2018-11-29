@@ -175,7 +175,7 @@ NS_ASSUME_NONNULL_BEGIN
   __block size_t count = 0;
   [self.queries
       enumerateKeysAndObjectsUsingBlock:^(FSTQuery *key, FSTQueryData *queryData, BOOL *stop) {
-        count += [[[serializer encodedQueryData:queryData] data] length];
+        count += [[serializer encodedQueryData:queryData] serializedSize];
       }];
   return count;
 }

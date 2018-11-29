@@ -20,6 +20,7 @@
 #include <set>
 #include <string>
 
+#import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
@@ -31,6 +32,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@interface FSTLevelDBLRUDelegate : NSObject <FSTReferenceDelegate, FSTLRUDelegate>
+@end
+
 /** A LevelDB-backed instance of FSTPersistence. */
 // TODO(mikelehen): Rename to FSTLevelDBPersistence.
 @interface FSTLevelDB : NSObject <FSTPersistence, FSTTransactional>
@@ -40,7 +44,9 @@ NS_ASSUME_NONNULL_BEGIN
  * opening any database files is deferred until -[FSTPersistence start] is called.
  */
 - (instancetype)initWithDirectory:(firebase::firestore::util::Path)directory
-                       serializer:(FSTLocalSerializer *)serializer NS_DESIGNATED_INITIALIZER;
+                       serializer:(FSTLocalSerializer *)serializer
+                        lruParams:(firebase::firestore::local::LruParams)lruParams
+    NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -79,6 +85,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, readonly) firebase::firestore::local::LevelDbTransaction *currentTransaction;
 
 @property(nonatomic, readonly) const std::set<std::string> &users;
+
+@property(nonatomic, readonly, strong) FSTLevelDBLRUDelegate *referenceDelegate;
 
 @end
 

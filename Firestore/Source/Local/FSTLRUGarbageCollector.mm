@@ -16,16 +16,30 @@
 
 #import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 
+#include <chrono>  //NOLINT(build/c++11)
 #include <queue>
+#include <utility>
 
 #import "Firestore/Source/Local/FSTMutationQueue.h"
+#import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Local/FSTQueryCache.h"
+#include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/util/log.h"
 
+using Millis = std::chrono::milliseconds;
+using firebase::Timestamp;
+using firebase::firestore::local::LruParams;
+using firebase::firestore::local::LruResults;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::ListenSequenceNumber;
 
+const int64_t kFIRFirestoreCacheSizeUnlimited = LruParams::CacheSizeUnlimited;
 const ListenSequenceNumber kFSTListenSequenceNumberInvalid = -1;
+
+static Millis::rep millisecondsBetween(const Timestamp &start, const Timestamp &end) {
+  return std::chrono::duration_cast<Millis>(end.ToTimePoint() - start.ToTimePoint()).count();
+}
 
 /**
  * RollingSequenceNumberBuffer tracks the nth sequence number in a series. Sequence numbers may be
@@ -66,28 +80,75 @@ class RollingSequenceNumberBuffer {
   const size_t max_elements_;
 };
 
-@interface FSTLRUGarbageCollector ()
-
-@property(nonatomic, strong, readonly) id<FSTQueryCache> queryCache;
-
-@end
-
 @implementation FSTLRUGarbageCollector {
   id<FSTLRUDelegate> _delegate;
+  LruParams _params;
 }
 
-- (instancetype)initWithQueryCache:(id<FSTQueryCache>)queryCache
-                          delegate:(id<FSTLRUDelegate>)delegate {
+- (instancetype)initWithDelegate:(id<FSTLRUDelegate>)delegate params:(LruParams)params {
   self = [super init];
   if (self) {
-    _queryCache = queryCache;
     _delegate = delegate;
+    _params = std::move(params);
   }
   return self;
 }
 
+- (LruResults)collectWithLiveTargets:(NSDictionary<NSNumber *, FSTQueryData *> *)liveTargets {
+  if (_params.minBytesThreshold == kFIRFirestoreCacheSizeUnlimited) {
+    LOG_DEBUG("Garbage collection skipped; disabled");
+    return LruResults::DidNotRun();
+  }
+
+  size_t currentSize = [self byteSize];
+  if (currentSize < _params.minBytesThreshold) {
+    // Not enough on disk to warrant collection. Wait another timeout cycle.
+    LOG_DEBUG("Garbage collection skipped; Cache size %s is lower than threshold %s", currentSize,
+              _params.minBytesThreshold);
+    return LruResults::DidNotRun();
+  } else {
+    LOG_DEBUG("Running garbage collection on cache of size: %s", currentSize);
+    return [self runGCWithLiveTargets:liveTargets];
+  }
+}
+
+- (LruResults)runGCWithLiveTargets:(NSDictionary<NSNumber *, FSTQueryData *> *)liveTargets {
+  Timestamp start = Timestamp::Now();
+  int sequenceNumbers = [self queryCountForPercentile:_params.percentileToCollect];
+  // Cap at the configured max
+  if (sequenceNumbers > _params.maximumSequenceNumbersToCollect) {
+    sequenceNumbers = _params.maximumSequenceNumbersToCollect;
+  }
+  Timestamp countedTargets = Timestamp::Now();
+
+  ListenSequenceNumber upperBound = [self sequenceNumberForQueryCount:sequenceNumbers];
+  Timestamp foundUpperBound = Timestamp::Now();
+
+  int numTargetsRemoved =
+      [self removeQueriesUpThroughSequenceNumber:upperBound liveQueries:liveTargets];
+  Timestamp removedTargets = Timestamp::Now();
+
+  int numDocumentsRemoved = [self removeOrphanedDocumentsThroughSequenceNumber:upperBound];
+  Timestamp removedDocuments = Timestamp::Now();
+
+  std::string desc = "LRU Garbage Collection:\n";
+  absl::StrAppend(&desc, "\tCounted targets in ", millisecondsBetween(start, countedTargets),
+                  "ms\n");
+  absl::StrAppend(&desc, "\tDetermined least recently used ", sequenceNumbers,
+                  " sequence numbers in ", millisecondsBetween(countedTargets, foundUpperBound),
+                  "ms\n");
+  absl::StrAppend(&desc, "\tRemoved ", numTargetsRemoved, " targets in ",
+                  millisecondsBetween(foundUpperBound, removedTargets), "ms\n");
+  absl::StrAppend(&desc, "\tRemoved ", numDocumentsRemoved, " documents in ",
+                  millisecondsBetween(removedTargets, removedDocuments), "ms\n");
+  absl::StrAppend(&desc, "Total duration: ", millisecondsBetween(start, removedDocuments), "ms");
+  LOG_DEBUG(desc.c_str());
+
+  return LruResults{/* didRun= */ true, sequenceNumbers, numTargetsRemoved, numDocumentsRemoved};
+}
+
 - (int)queryCountForPercentile:(NSUInteger)percentile {
-  int totalCount = [self.queryCache count];
+  int totalCount = [_delegate sequenceNumberCount];
   int setSize = (int)((percentile / 100.0f) * totalCount);
   return setSize;
 }
