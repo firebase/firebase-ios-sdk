@@ -1,13 +1,12 @@
 use_frameworks!
 
-pod 'FirebaseFunctions', :path => '../../'
-
-pod 'FirebaseAuthInterop', :path => '../../'
-pod 'FirebaseCore', :path => '../../'
-pod 'GoogleUtilities', :path => '../../'
-
 target 'FirebaseFunctions_Example' do
   platform :ios, '8.0'
+  
+  pod 'FirebaseAuthInterop', :path => '../../'
+  pod 'FirebaseCore', :path => '../../'
+  pod 'FirebaseFunctions', :path => '../../'
+  pod 'GoogleUtilities', :path => '../../'
 
   target 'FirebaseFunctions_Tests' do
     inherit! :search_paths

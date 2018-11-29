@@ -23,13 +23,15 @@
 		7CBFAA82205702AB00A65866 /* FIRIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C9BFD3F1F10A12F001A19ED /* FIRIntegrationTests.m */; };
 		7CBFAA86205702AB00A65866 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F5AF195388D20070C39A /* XCTest.framework */; };
 		7CBFAA8B205702AB00A65866 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6003F5B8195388D20070C39A /* InfoPlist.strings */; };
-		7CF3BEC21F97EE2F00B16B6E /* FUNFakeInstanceID.m in Sources */ = {isa = PBXBuildFile; fileRef = 7CF3BEC01F97EE2F00B16B6E /* FUNFakeInstanceID.m */; };
 		873B8AEB1B1F5CCA007FD442 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 873B8AEA1B1F5CCA007FD442 /* Main.storyboard */; };
 		C81A8BF721AC4F73008E79A5 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F591195388D20070C39A /* UIKit.framework */; };
 		C81A8BF821AC4F73008E79A5 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F591195388D20070C39A /* UIKit.framework */; };
 		C81A8BF921AC4F78008E79A5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F58D195388D20070C39A /* Foundation.framework */; };
 		C81A8BFA21AC4F78008E79A5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F58D195388D20070C39A /* Foundation.framework */; };
-		C88B727621A73B98005A178E /* FIRAuthInteropFake.m in Sources */ = {isa = PBXBuildFile; fileRef = C88B727221A73B52005A178E /* FIRAuthInteropFake.m */; };
+		C8A6A5CF21B05DA000BC8D46 /* FIRAuthInteropFake.m in Sources */ = {isa = PBXBuildFile; fileRef = C88B727221A73B52005A178E /* FIRAuthInteropFake.m */; };
+		C8A6A5D021B05DA100BC8D46 /* FIRAuthInteropFake.m in Sources */ = {isa = PBXBuildFile; fileRef = C88B727221A73B52005A178E /* FIRAuthInteropFake.m */; };
+		C8A6A5D121B05DAB00BC8D46 /* FUNFakeInstanceID.m in Sources */ = {isa = PBXBuildFile; fileRef = 7CF3BEC01F97EE2F00B16B6E /* FUNFakeInstanceID.m */; };
+		C8A6A5D221B05DAC00BC8D46 /* FUNFakeInstanceID.m in Sources */ = {isa = PBXBuildFile; fileRef = 7CF3BEC01F97EE2F00B16B6E /* FUNFakeInstanceID.m */; };
 		C8E1469121B046FF006BE5CF /* FUNFakeApp.m in Sources */ = {isa = PBXBuildFile; fileRef = 7CF563081F1FE70600FEE1F4 /* FUNFakeApp.m */; };
 		C8E1469221B046FF006BE5CF /* FUNFakeApp.m in Sources */ = {isa = PBXBuildFile; fileRef = 7CF563081F1FE70600FEE1F4 /* FUNFakeApp.m */; };
 /* End PBXBuildFile section */
@@ -356,9 +358,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				6003F59E195388D20070C39A /* FIRAppDelegate.m in Sources */,
-				C88B727621A73B98005A178E /* FIRAuthInteropFake.m in Sources */,
 				6003F5A7195388D20070C39A /* FIRViewController.m in Sources */,
-				7CF3BEC21F97EE2F00B16B6E /* FUNFakeInstanceID.m in Sources */,
 				6003F59A195388D20070C39A /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -369,6 +369,8 @@
 			files = (
 				7C58B03A1F1441F0005ED954 /* FUNSerializerTests.m in Sources */,
 				C8E1469221B046FF006BE5CF /* FUNFakeApp.m in Sources */,
+				C8A6A5D021B05DA100BC8D46 /* FIRAuthInteropFake.m in Sources */,
+				C8A6A5D221B05DAC00BC8D46 /* FUNFakeInstanceID.m in Sources */,
 				6003F5BC195388D20070C39A /* FIRFunctionsTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -377,8 +379,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C8A6A5D121B05DAB00BC8D46 /* FUNFakeInstanceID.m in Sources */,
 				C8E1469121B046FF006BE5CF /* FUNFakeApp.m in Sources */,
 				7CBFAA82205702AB00A65866 /* FIRIntegrationTests.m in Sources */,
+				C8A6A5CF21B05DA000BC8D46 /* FIRAuthInteropFake.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -457,6 +461,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "\"$(SRC_ROOT)/../FirebaseFunctions\"";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
@@ -493,6 +498,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "\"$(SRC_ROOT)/../FirebaseFunctions\"";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -532,6 +538,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"${PODS_ROOT}/Headers/Public\"",
+					"\"${PODS_ROOT}/Headers/Public/FirebaseAuthInterop\"",
+					"\"$(SRC_ROOT)/../../Firebase/Core/Private\"",
+				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -544,6 +556,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"${PODS_ROOT}/Headers/Public\"",
+					"\"${PODS_ROOT}/Headers/Public/FirebaseAuthInterop\"",
+					"\"$(SRC_ROOT)/../../Firebase/Core/Private\"",
+				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -556,6 +574,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"${PODS_ROOT}/Headers/Public\"",
+					"\"${PODS_ROOT}/Headers/Public/FirebaseAuthInterop\"",
+					"\"$(SRC_ROOT)/../../Firebase/Core/Private\"",
+				);
 				INFOPLIST_FILE = "IntegrationTests/IntegrationTests-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -568,6 +592,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"${PODS_ROOT}/Headers/Public\"",
+					"\"${PODS_ROOT}/Headers/Public/FirebaseAuthInterop\"",
+					"\"$(SRC_ROOT)/../../Firebase/Core/Private\"",
+				);
 				INFOPLIST_FILE = "IntegrationTests/IntegrationTests-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
