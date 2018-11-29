@@ -456,12 +456,12 @@ static NSString *const kFDLOtherPlatformParametersFallbackURLKey = @"ofl";
 
 - (instancetype)initWithLink:(NSURL *)link domain:(NSString *)domain {
   NSURL *domainURL = [NSURL URLWithString:domain];
-  if (!domainURL.scheme) {
+  if (domainURL.scheme) {
     FDLLog(FDLLogLevelWarning, FDLLogIdentifierSetupWarnHTTPSScheme,
-           @"Only https scheme is allowed. The supplied domain's scheme will be treated as https.");
+           @"You have supplied a domain with a scheme. Please enter a domain name without the "
+           @"scheme.");
   }
-  NSString *domainURIPrefix =
-      domainURL.scheme ? domain : [NSString stringWithFormat:@"https://%@", domain];
+  NSString *domainURIPrefix = [NSString stringWithFormat:@"https://%@", domain];
   self = [super init];
   if (self) {
     _link = link;
