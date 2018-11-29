@@ -224,7 +224,7 @@ typedef void (^FIRVerifyClientResponseCallback)
     @remarks One of response or error will be non-nil.
  */
 typedef void (^FIRSignInWithGameCenterResponseCallback)
-(FIRSignInWithGameCenterResponse *_Nullable response, NSError *_Nullable error);
+    (FIRSignInWithGameCenterResponse *_Nullable response, NSError *_Nullable error);
 
 /** @class FIRAuthBackend
     @brief Simple static class with methods representing the backend RPCs.

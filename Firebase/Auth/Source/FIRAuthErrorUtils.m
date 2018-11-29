@@ -315,7 +315,7 @@ static NSString *const kFIRAuthErrorMessageInvalidVerificationID =
  @brief Message for @c FIRAuthErrorCodeLocalPlayerNotAuthenticated error code.
  */
 static NSString *const kFIRAuthErrorMessageLocalPlayerNotAuthenticated =
-@"The local player is not authenticated. Please log the local player in to Game Center.";
+    @"The local player is not authenticated. Please log the local player in to Game Center.";
 
 /** @var kFIRAuthErrorMessageSessionExpired
     @brief Message for @c FIRAuthErrorCodeSessionExpired error code.

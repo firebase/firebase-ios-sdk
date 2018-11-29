@@ -57,12 +57,12 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, copy, nullable) NSString *accessToken;
 
 /** @property displayName
-    @brief The display name of the local game center player.
+    @brief The display name of the local Game Center player.
  */
 @property(nonatomic, copy, nullable) NSString *displayName;
 
 /** @fn initWithEndpoint:requestConfiguration:
-    @brief Please use initWithPlayerId:publicKeyURL:signature:salt:timestamp:requestConfiguration:.
+    @brief Please use initWithPlayerID:publicKeyURL:signature:salt:timestamp:requestConfiguration:.
  */
 - (nullable instancetype)initWithEndpoint:(NSString *)endpoint
                      requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration

@@ -626,7 +626,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                   return;
                                 }
 
-                                [self completeSignInWithAccessToken:response.idToken
+                                [self completeSignInWithAccessToken:response.IDToken
                                           accessTokenExpirationDate:response.approximateExpirationDate
                                                        refreshToken:response.refreshToken
                                                           anonymous:NO

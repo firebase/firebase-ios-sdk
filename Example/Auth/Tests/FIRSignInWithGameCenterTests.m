@@ -33,15 +33,15 @@ static NSString *const kTestAPIKey = @"APIKEY";
 static NSString *const kExpectedAPIURL =
     @"https://www.googleapis.com/identitytoolkit/v3/relyingparty/signInWithGameCenter?key=APIKEY";
 
-/** @var kIdTokenKey
+/** @var kIDTokenKey
     @brief The key of the id token.
  */
-static NSString *const kIdTokenKey = @"idToken";
+static NSString *const kIDTokenKey = @"idToken";
 
-/** @var kIdToken
+/** @var kIDToken
     @brief The testing id token.
  */
-static NSString *const kIdToken = @"IDTOKEN";
+static NSString *const kIDToken = @"IDTOKEN";
 
 /** @var kRefreshTokenKey
     @brief The key of the refresh token.
@@ -63,15 +63,15 @@ static NSString *const kLocalIDKey = @"localId";
  */
 static NSString *const kLocalID = @"LOCALID";
 
-/** @var kPlayerIdKey
+/** @var kPlayerIDKey
     @brief The key of player id.
  */
-static NSString *const kPlayerIdKey = @"playerId";
+static NSString *const kPlayerIDKey = @"playerId";
 
-/** @var kPlayerId
+/** @var kPlayerID
     @brief The testing player id.
  */
-static NSString *const kPlayerId = @"PLAYERID";
+static NSString *const kPlayerID = @"PLAYERID";
 
 /** @var kApproximateExpirationDateKey
     @brief The approximate expiration date key.
@@ -102,16 +102,6 @@ static NSString *const kDisplayNameKey = @"displayName";
     @brief The testing display name.
  */
 static NSString *const kDisplayName = @"DISPLAYNAME";
-
-/** @var kPlayerIDKey
-    @brief The key of player id.
- */
-static NSString *const kPlayerIDKey = @"playerId";
-
-/** @var kPlayerID
-    @brief The testing player id.
- */
-static NSString *const kPlayerID = @"12345678";
 
 /** @var kPublicKeyURLKey
     @brief The key of public key url.
@@ -234,10 +224,10 @@ static NSString *const kAccessToken = @"ACCESSTOKEN";
   XCTAssertEqualObjects(self.RPCIssuer.decodedRequest[kDisplayNameKey], kDisplayName);
 
   NSDictionary *jsonDictionary = @{
-    @"idToken" : kIdToken,
+    @"idToken" : kIDToken,
     @"refreshToken" : kRefreshToken,
     @"localId" : kLocalID,
-    @"playerId" : kPlayerId,
+    @"playerId" : kPlayerID,
     @"expiresIn" : kApproximateExpirationDate,
     @"isNewUser" : [NSNumber numberWithBool:kIsNewUser],
     @"displayName" : kDisplayName,
@@ -246,10 +236,10 @@ static NSString *const kAccessToken = @"ACCESSTOKEN";
 
   XCTAssertTrue(callbackInvoked);
   XCTAssertNotNil(RPCResponse);
-  XCTAssertEqualObjects(RPCResponse.idToken, kIdToken);
+  XCTAssertEqualObjects(RPCResponse.IDToken, kIDToken);
   XCTAssertEqualObjects(RPCResponse.refreshToken, kRefreshToken);
   XCTAssertEqualObjects(RPCResponse.localID, kLocalID);
-  XCTAssertEqualObjects(RPCResponse.playerID, kPlayerId);
+  XCTAssertEqualObjects(RPCResponse.playerID, kPlayerID);
   XCTAssertEqual(RPCResponse.isNewUser, kIsNewUser);
   XCTAssertEqualObjects(RPCResponse.displayName, kDisplayName);
 }

@@ -22,12 +22,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRSignInWithGameCenterResponse : NSObject <FIRAuthRPCResponse>
 
-/** @property idToken
+/** @property IDToken
     @breif Either an authorization code suitable for performing an STS token exchange, or the access
     token from Secure Token Service, depending on whether @c returnSecureToken is set on the
     request.
  */
-@property(nonatomic, copy, readonly, nullable) NSString *idToken;
+@property(nonatomic, copy, readonly, nullable) NSString *IDToken;
 
 /** @property refreshToken
     @breif @breif The refresh token from Secure Token Service.

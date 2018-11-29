@@ -22,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)setWithDictionary:(NSDictionary *)dictionary
                     error:(NSError *_Nullable *_Nullable)error {
-  _idToken = [dictionary[@"idToken"] copy];
+  _IDToken = [dictionary[@"idToken"] copy];
   _refreshToken = [dictionary[@"refreshToken"] copy];
   _localID = [dictionary[@"localId"] copy];
   _approximateExpirationDate = nil;

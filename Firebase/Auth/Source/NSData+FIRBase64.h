@@ -22,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** @fn fir_base64URLEncodedStringWithOptions:
     @brief Get a web safe base64 encoded string
-    @param options The base64 encoding opations
+    @param options The base64 encoding options
  */
 - (NSString *)fir_base64URLEncodedStringWithOptions:(NSDataBase64EncodingOptions)options;
 
