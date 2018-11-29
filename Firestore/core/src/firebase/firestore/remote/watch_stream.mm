@@ -47,8 +47,10 @@ void WatchStream::WatchQuery(FSTQueryData* query) {
   EnsureOnQueue();
 
   GCFSListenRequest* request = serializer_bridge_.CreateWatchRequest(query);
-  LOG_DEBUG("%s watch: %s", GetDebugDescription(),
-            serializer_bridge_.Describe(request));
+  if (bridge::IsLoggingEnabled()) {
+    LOG_DEBUG("%s watch: %s", GetDebugDescription(),
+              serializer_bridge_.Describe(request));
+  }
   Write(serializer_bridge_.ToByteBuffer(request));
 }
 

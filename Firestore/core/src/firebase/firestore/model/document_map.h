@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2018 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,31 +14,27 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_DOCUMENT_MAP_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_DOCUMENT_MAP_H_
 
-#import "Firestore/third_party/Immutable/FSTImmutableSortedDictionary.h"
+#import "Firestore/Source/Model/FSTDocument.h"
 
-@class FSTDocument;
-@class FSTDocumentKey;
-@class FSTMaybeDocument;
+#include "Firestore/core/src/firebase/firestore/immutable/sorted_map.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
-NS_ASSUME_NONNULL_BEGIN
+namespace firebase {
+namespace firestore {
+namespace model {
 
 /** Convenience type for a map of keys to MaybeDocuments, since they are so common. */
-typedef FSTImmutableSortedDictionary<FSTDocumentKey *, FSTMaybeDocument *>
-    FSTMaybeDocumentDictionary;
+using MaybeDocumentMap = immutable::SortedMap<DocumentKey, FSTMaybeDocument*>;
 
 /** Convenience type for a map of keys to Documents, since they are so common. */
-typedef FSTImmutableSortedDictionary<FSTDocumentKey *, FSTDocument *> FSTDocumentDictionary;
+using DocumentMap = immutable::SortedMap<DocumentKey, FSTDocument*>;
 
-@interface FSTImmutableSortedDictionary (FSTDocumentDictionary)
 
-/** Returns a new set using the DocumentKeyComparator. */
-+ (FSTMaybeDocumentDictionary *)maybeDocumentDictionary;
+}  // namespace model
+}  // namespace firestore
+}  // namespace firebase
 
-/** Returns a new set using the DocumentKeyComparator. */
-+ (FSTDocumentDictionary *)documentDictionary;
-
-@end
-
-NS_ASSUME_NONNULL_END
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_DOCUMENT_MAP_H_

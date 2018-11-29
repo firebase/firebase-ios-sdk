@@ -321,7 +321,7 @@ NS_ASSUME_NONNULL_BEGIN
                         completion:(void (^)(FIRQuerySnapshot *_Nullable query,
                                              NSError *_Nullable error))completion {
   _workerQueue->Enqueue([self, query, completion] {
-    FSTDocumentDictionary *docs = [self.localStore executeQuery:query.query];
+    DocumentMap docs = [self.localStore executeQuery:query.query];
 
     FSTView *view = [[FSTView alloc] initWithQuery:query.query remoteDocuments:DocumentKeySet{}];
     FSTViewDocumentChanges *viewDocChanges = [view computeChangesWithDocuments:docs];

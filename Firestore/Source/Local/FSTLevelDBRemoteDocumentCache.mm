@@ -23,7 +23,6 @@
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentDictionary.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
@@ -83,8 +82,28 @@ using leveldb::Status;
   }
 }
 
-- (FSTDocumentDictionary *)documentsMatchingQuery:(FSTQuery *)query {
-  FSTDocumentDictionary *results = [FSTDocumentDictionary documentDictionary];
+- (MaybeDocumentMap)entriesForKeys:(const DocumentKeySet&)keys {
+  MaybeDocumentMap results;
+  for (const DocumentKey& key : keys) {
+    results = results.insert(key, nil);
+  }
+
+  LevelDbRemoteDocumentKey currentKey;
+  auto it = _db.currentTransaction->NewIterator();
+
+  for (const DocumentKey& key : keys) {
+    it->Seek(key);
+    if (!it->Valid() || !currentKey.Decode(it->key())) {
+      continue;
+    }
+    results = results.insert(key, [self decodeMaybeDocument:value withKey:key]);
+  }
+
+  return results;
+}
+
+- (MaybeDocumentMap)documentsMatchingQuery:(FSTQuery *)query {
+  MaybeDocumentMap results;
 
   // Documents are ordered by key, so we can use a prefix scan to narrow down
   // the documents we need to match the query against.
@@ -99,7 +118,7 @@ using leveldb::Status;
     if (!query.path.IsPrefixOf(maybeDoc.key.path())) {
       break;
     } else if ([maybeDoc isKindOfClass:[FSTDocument class]]) {
-      results = [results dictionaryBySettingObject:(FSTDocument *)maybeDoc forKey:maybeDoc.key];
+      results = results.insert(maybeDoc.key, maybeDoc);
     }
   }
 

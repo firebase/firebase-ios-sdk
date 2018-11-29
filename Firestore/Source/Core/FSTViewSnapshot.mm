@@ -19,11 +19,12 @@
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
-#import "Firestore/third_party/Immutable/FSTImmutableSortedDictionary.h"
 
+#include "Firestore/core/src/firebase/firestore/immutable/sorted_map.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
+using firebase::firestore::immutable::SortedMap;
 using firebase::firestore::model::DocumentKey;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -74,78 +75,68 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTDocumentViewChangeSet
 
-@interface FSTDocumentViewChangeSet ()
-
+@implementation FSTDocumentViewChangeSet {
 /** The set of all changes tracked so far, with redundant changes merged. */
-@property(nonatomic, strong)
-    FSTImmutableSortedDictionary<FSTDocumentKey *, FSTDocumentViewChange *> *changeMap;
-
-@end
-
-@implementation FSTDocumentViewChangeSet
+    SortedMap<DocumentKey, FSTDocumentViewChange *> _changeMap;
+}
 
 + (instancetype)changeSet {
   return [[FSTDocumentViewChangeSet alloc] init];
 }
 
-- (instancetype)init {
-  self = [super init];
-  if (self) {
-    _changeMap = [FSTImmutableSortedDictionary dictionaryWithComparator:FSTDocumentKeyComparator];
-  }
-  return self;
-}
-
 - (NSString *)description {
-  return [self.changeMap description];
+  // OBC
+  //return [self.changeMap description];
+  return nil;
 }
 
 - (void)addChange:(FSTDocumentViewChange *)change {
   const DocumentKey &key = change.document.key;
-  FSTDocumentViewChange *oldChange = [self.changeMap objectForKey:key];
-  if (!oldChange) {
-    self.changeMap = [self.changeMap dictionaryBySettingObject:change forKey:key];
+  auto oldChangeIter = self._changeMap.find(key);
+  if (oldChangeIter == self._changeMap.end()) {
+    self._changeMap = self._changeMap.insert(key, change);
     return;
   }
+  FSTDocumentViewChange *oldChange = *oldChangeIter;
 
   // Merge the new change with the existing change.
   if (change.type != FSTDocumentViewChangeTypeAdded &&
       oldChange.type == FSTDocumentViewChangeTypeMetadata) {
-    self.changeMap = [self.changeMap dictionaryBySettingObject:change forKey:key];
+    self._changeMap = self._changeMap.insert(key, change);
 
   } else if (change.type == FSTDocumentViewChangeTypeMetadata &&
              oldChange.type != FSTDocumentViewChangeTypeRemoved) {
     FSTDocumentViewChange *newChange =
         [FSTDocumentViewChange changeWithDocument:change.document type:oldChange.type];
-    self.changeMap = [self.changeMap dictionaryBySettingObject:newChange forKey:key];
+    self._changeMap = self._changeMap.insert(key, newChange);
 
   } else if (change.type == FSTDocumentViewChangeTypeModified &&
              oldChange.type == FSTDocumentViewChangeTypeModified) {
     FSTDocumentViewChange *newChange =
         [FSTDocumentViewChange changeWithDocument:change.document
                                              type:FSTDocumentViewChangeTypeModified];
-    self.changeMap = [self.changeMap dictionaryBySettingObject:newChange forKey:key];
+    self._changeMap = self._changeMap.insert(key, newChange);
   } else if (change.type == FSTDocumentViewChangeTypeModified &&
              oldChange.type == FSTDocumentViewChangeTypeAdded) {
     FSTDocumentViewChange *newChange =
         [FSTDocumentViewChange changeWithDocument:change.document
                                              type:FSTDocumentViewChangeTypeAdded];
-    self.changeMap = [self.changeMap dictionaryBySettingObject:newChange forKey:key];
+    self._changeMap = self._changeMap.insert(key, newChange);
   } else if (change.type == FSTDocumentViewChangeTypeRemoved &&
              oldChange.type == FSTDocumentViewChangeTypeAdded) {
-    self.changeMap = [self.changeMap dictionaryByRemovingObjectForKey:key];
+    self._changeMap = self._changeMap.erase(key);
   } else if (change.type == FSTDocumentViewChangeTypeRemoved &&
              oldChange.type == FSTDocumentViewChangeTypeModified) {
     FSTDocumentViewChange *newChange =
         [FSTDocumentViewChange changeWithDocument:oldChange.document
                                              type:FSTDocumentViewChangeTypeRemoved];
-    self.changeMap = [self.changeMap dictionaryBySettingObject:newChange forKey:key];
+    self._changeMap = self._changeMap.insert(key, newChange);
   } else if (change.type == FSTDocumentViewChangeTypeAdded &&
              oldChange.type == FSTDocumentViewChangeTypeRemoved) {
     FSTDocumentViewChange *newChange =
         [FSTDocumentViewChange changeWithDocument:change.document
                                              type:FSTDocumentViewChangeTypeModified];
-    self.changeMap = [self.changeMap dictionaryBySettingObject:newChange forKey:key];
+    self._changeMap = self._changeMap.insert(key, newChange);
   } else {
     // This includes these cases, which don't make sense:
     // Added -> Added
@@ -160,10 +151,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSArray<FSTDocumentViewChange *> *)changes {
   NSMutableArray<FSTDocumentViewChange *> *changes = [NSMutableArray array];
-  [self.changeMap enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key,
-                                                      FSTDocumentViewChange *change, BOOL *stop) {
+  for (const auto& kv : self._changeMap) {
+    FSTDocumentViewChange *change = kv.second;
     [changes addObject:change];
-  }];
+  }
   return changes;
 }
 
