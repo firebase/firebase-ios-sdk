@@ -32,6 +32,7 @@ NSString *const kFIRDLParameterInviteId = @"invitation_id";
 NSString *const kFIRDLParameterWeakMatchEndpoint = @"invitation_weakMatchEndpoint";
 NSString *const kFIRDLParameterMatchMessage = @"match_message";
 NSString *const kFIRDLParameterRequestIPVersion = @"request_ip_version";
+static NSSet *FIRDLCustomDomains = nil;
 
 NSURL *FIRDLCookieRetrievalURL(NSString *urlScheme, NSString *bundleID) {
   static NSString *const kFDLBundleIDQueryParameterName = @"fdl_ios_bundle_id";
@@ -192,6 +193,39 @@ NSString *FIRDLDeviceTimezone() {
   return timeZoneName;
 }
 
+BOOL FIRDLIsURLForWhiteListedCustomDomain(NSURL *_Nullable URL) {
+  BOOL customDomainMatchFound = false;
+  for (NSURL *allowedCustomDomain in FIRDLCustomDomains) {
+    // All custom domain host names should match at a minimum.
+    if ([allowedCustomDomain.host isEqualToString:URL.host]) {
+      NSString *urlStr = URL.absoluteString;
+      NSString *domainURIPrefixStr = allowedCustomDomain.absoluteString;
+
+      // Next, do a string compare to check if entire domainURIPrefix matches as well.
+      if (([URL.absoluteString rangeOfString:allowedCustomDomain.absoluteString
+                                     options:NSCaseInsensitiveSearch | NSAnchoredSearch]
+               .location) == 0) {
+        // The (short) URL needs to be longer than the domainURIPrefix, it's first character after
+        // the domainURIPrefix needs to be '/' or '?' and should be followed by at-least one more
+        // character.
+        if (urlStr.length > domainURIPrefixStr.length + 1 &&
+            ([urlStr characterAtIndex:domainURIPrefixStr.length] == '/' ||
+             [urlStr characterAtIndex:domainURIPrefixStr.length] == '?')) {
+          // Check if there are any more '/' after the first '/' or '?' trailing the
+          // domainURIPrefix.
+          NSString *urlWithoutDomainURIPrefix =
+              [urlStr substringFromIndex:domainURIPrefixStr.length + 1];
+          if ([urlWithoutDomainURIPrefix rangeOfString:@"/"].location == NSNotFound) {
+            customDomainMatchFound = true;
+            break;
+          }
+        }
+      }
+    }
+  }
+  return customDomainMatchFound;
+}
+
 BOOL FIRDLCanParseUniversalLinkURL(NSURL *_Nullable URL) {
   // Handle universal links with format |https://goo.gl/app/<appcode>?<parameters>|.
   // Also support page.link format.
@@ -200,12 +234,19 @@ BOOL FIRDLCanParseUniversalLinkURL(NSURL *_Nullable URL) {
   // Handle universal links with format |https://<appcode>.app.goo.gl?<parameters>| and page.link.
   BOOL isDDLWithSubdomain =
       [URL.host hasSuffix:@".app.goo.gl"] || [URL.host hasSuffix:@".page.link"];
-  return isDDLWithAppcodeInPath || isDDLWithSubdomain;
+
+  // Handle universal links for custom domains.
+  BOOL isDDLWithCustomDomain = FIRDLIsURLForWhiteListedCustomDomain(URL);
+
+  return isDDLWithAppcodeInPath || isDDLWithSubdomain || isDDLWithCustomDomain;
 }
 
 BOOL FIRDLMatchesShortLinkFormat(NSURL *URL) {
-  // Short Durable Link URLs always have a path.
-  BOOL hasPath = URL.path.length > 0;
+  // Short Durable Link URLs always have a path, except for certain custom domain URLs e.g.
+  // 'https://google.com?link=abcd' will not have a path component.
+  // FIRDLIsURLForWhiteListedCustomDomain implicitely checks for path component in custom domain
+  // URLs.
+  BOOL hasPath = URL.path.length > 0 || FIRDLIsURLForWhiteListedCustomDomain(URL);
   // Must be able to parse (also checks if the URL conforms to *.app.goo.gl/* or goo.gl/app/*)
   BOOL canParse = FIRDLCanParseUniversalLinkURL(URL);
   // Path cannot be prefixed with /link/dismiss
@@ -225,6 +266,26 @@ NSString *FIRDLMatchTypeStringFromServerString(NSString *_Nullable serverMatchTy
     };
   });
   return matchMap[serverMatchTypeString] ?: @"none";
+}
+
+void FIRDLAddToAllowListForCustomDomainsArray(NSArray *_Nonnull customDomains) {
+  // Duplicates will be weeded out when converting to a set.
+  NSMutableArray *validCustomDomains =
+      [[NSMutableArray alloc] initWithCapacity:customDomains.count];
+  for (NSString *customDomainEntry in customDomains) {
+    // We remove trailing slashes in the path if present.
+    NSString *domainEntry =
+        [customDomainEntry hasSuffix:@"/"]
+            ? [customDomainEntry substringToIndex:[customDomainEntry length] - 1]
+            : customDomainEntry;
+    NSURL *customDomainURL = [NSURL URLWithString:domainEntry];
+    // We require a valid scheme for each custom domain enumerated in the info.plist file.
+    if (customDomainURL && customDomainURL.scheme) {
+      [validCustomDomains addObject:customDomainURL];
+    }
+  }
+  // Duplicates will be weeded out when converting to a set.
+  FIRDLCustomDomains = [NSSet setWithArray:validCustomDomains];
 }
 
 NS_ASSUME_NONNULL_END
