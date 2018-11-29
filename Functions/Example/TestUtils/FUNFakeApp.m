@@ -18,13 +18,9 @@
 
 #import "FUNFakeApp.h"
 
-#import <FirebaseCore/FIRComponentContainer.h>
+#import <FirebaseCore/FIRComponentContainerInternal.h>
 
 NS_ASSUME_NONNULL_BEGIN
-
-@interface FIRComponentContainer (Testing)
-- (instancetype)initWithApp:(FIRApp *)app;
-@end
 
 @interface FUNFakeOptions : NSObject
 

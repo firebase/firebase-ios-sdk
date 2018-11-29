@@ -2,7 +2,6 @@ use_frameworks!
 
 pod 'FirebaseFunctions', :path => '../../'
 
-pod 'FirebaseAnalyticsInterop', :path => '../../'
 pod 'FirebaseAuthInterop', :path => '../../'
 pod 'FirebaseCore', :path => '../../'
 pod 'GoogleUtilities', :path => '../../'
