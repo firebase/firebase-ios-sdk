@@ -39,6 +39,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
@@ -51,6 +52,7 @@ using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::BatchId;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::TargetId;
@@ -243,7 +245,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FSTSetMutation *)setMutation {
   return [[FSTSetMutation alloc]
-       initWithKey:[FSTDocumentKey keyWithPathString:@"rooms/eros"]
+       initWithKey:DocumentKey::FromPathString("rooms/eros")
              value:[[FSTObjectValue alloc]
                        initWithDictionary:@{@"name" : [FSTStringValue stringValue:@"Eros"]}]
       precondition:Precondition::None()];
