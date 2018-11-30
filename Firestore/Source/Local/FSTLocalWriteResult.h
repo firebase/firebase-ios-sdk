@@ -29,8 +29,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (id)init __attribute__((unavailable("Use resultForBatchID:changes:")));
 
+- (const firebase::firestore::model::MaybeDocumentMap &)changes;
+
 @property(nonatomic, assign, readonly) firebase::firestore::model::BatchId batchID;
-@property(nonatomic, assign, readonly) const firebase::firestore::model::MaybeDocumentMap &changes;
 
 @end
 

@@ -52,29 +52,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-#if __cplusplus
-// extern "C" {
-#endif
-
 #define FSTAssertIsKindOfClass(value, classType)             \
   do {                                                       \
     XCTAssertEqualObjects([value class], [classType class]); \
   } while (0);
-
-/**
- * Asserts that the given NSSet of FSTDocumentKeys contains exactly the given expected keys.
- * This is a macro instead of a method so that the failure shows up on the right line.
- *
- * @param actualSet An NSSet of FSTDocumentKeys.
- * @param expectedArray A sorted array of keys that actualSet must be equal to (after converting
- *     to an array and sorting).
- */
-#define FSTAssertEqualSets(actualSet, expectedArray)                \
-  do {                                                              \
-    NSArray<FSTDocumentKey *> *actual = [(actualSet)allObjects];    \
-    actual = [actual sortedArrayUsingSelector:@selector(compare:)]; \
-    XCTAssertEqualObjects(actual, (expectedArray));                 \
-  } while (0)
 
 /**
  * Takes an array of "equality group" arrays and asserts that the compare: selector returns the
@@ -328,9 +309,5 @@ FSTTargetChange *FSTTestTargetChange(firebase::firestore::model::DocumentKeySet 
 
 /** Creates a resume token to match the given snapshot version. */
 NSData *_Nullable FSTTestResumeTokenFromSnapshotVersion(FSTTestSnapshotVersion watchSnapshot);
-
-#if __cplusplus
-// }  // extern "C"
-#endif
 
 NS_ASSUME_NONNULL_END
