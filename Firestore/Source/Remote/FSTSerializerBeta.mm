@@ -17,6 +17,7 @@
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
 #include <cinttypes>
+#include <set>
 #include <string>
 #include <utility>
 #include <vector>
@@ -565,10 +566,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FieldMask)decodedFieldMask:(GCFSDocumentMask *)fieldMask {
-  std::vector<FieldPath> fields;
-  fields.reserve(fieldMask.fieldPathsArray_Count);
+  std::set<FieldPath> fields;
   for (NSString *path in fieldMask.fieldPathsArray) {
-    fields.push_back(FieldPath::FromServerFormat(util::MakeString(path)));
+    fields.insert(FieldPath::FromServerFormat(util::MakeString(path)));
   }
   return FieldMask(std::move(fields));
 }
