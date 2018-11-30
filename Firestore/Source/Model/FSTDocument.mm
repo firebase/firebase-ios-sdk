@@ -265,7 +265,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 const NSComparator FSTDocumentComparatorByKey =
     ^NSComparisonResult(FSTMaybeDocument *doc1, FSTMaybeDocument *doc2) {
-      return [doc1.key compare:doc2.key];
+      return CompareKeys(doc1.key, doc2.key);
     };
 
 NS_ASSUME_NONNULL_END

@@ -216,7 +216,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   } else if (fieldClass == [FSTReferenceValue class]) {
     FSTReferenceValue *ref = (FSTReferenceValue *)fieldValue;
-    DocumentKey key{[ref value]};
+    DocumentKey key = [[ref value] key];
     return [self encodedReferenceValueForDatabaseID:[ref databaseID] key:key];
 
   } else if (fieldClass == [FSTObjectValue class]) {
