@@ -310,6 +310,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 }
 
 + (void)load {
+  [FIRApp registerLibrary:@"FirebaseAuth" withVersion:[NSString stringWithUTF8String:FirebaseAuthVersionStr] withComponentRegistrant:self withConfigurable:self];
   [FIRComponentContainer registerAsComponentRegistrant:self];
   [FIRApp registerAsConfigurable:self];
 }
