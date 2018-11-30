@@ -35,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (instancetype)resultForBatchID:(BatchId)batchID changes:(MaybeDocumentMap&&)changes {
-  return [[FSTLocalWriteResult alloc] initWithBatchID:batchID changes:changes];
+  return [[FSTLocalWriteResult alloc] initWithBatchID:batchID changes:std::move(changes)];
 }
 
 - (instancetype)initWithBatchID:(BatchId)batchID changes:(MaybeDocumentMap&&)changes {

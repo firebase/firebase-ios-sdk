@@ -108,12 +108,12 @@ NS_ASSUME_NONNULL_BEGIN
 
   DocumentKeySet allKeys;
   for (const auto &kv : baseDocs) {
-    allKeys.insert(kv.first);
+    allKeys = allKeys.insert(kv.first);
   }
   NSArray<FSTMutationBatch *> *batches =
       [self.mutationQueue allMutationBatchesAffectingDocumentKeys:allKeys];
 
-  MaybeDocumentMap docs = applyLocalMutationsToDocuments(baseDocs, batches);
+  MaybeDocumentMap docs = [self applyLocalMutationsToDocuments:baseDocs fromBatches: batches];
 
   for (const auto &kv : docs) {
     const DocumentKey &key = kv.first;
@@ -164,7 +164,11 @@ NS_ASSUME_NONNULL_BEGIN
 
       const DocumentKey &key = mutation.key;
       // baseDoc may be nil for the documents that weren't yet written to the backend.
-      FSTMaybeDocument *baseDoc = results[key];
+      FSTMaybeDocument *baseDoc = nil;
+      auto found = results.find(key);
+      if (found != results.end()) {
+        baseDoc = found->second;
+        }
       FSTMaybeDocument *mutatedDoc = [mutation applyToLocalDocument:baseDoc
                                                        baseDocument:baseDoc
                                                      localWriteTime:batch.localWriteTime];

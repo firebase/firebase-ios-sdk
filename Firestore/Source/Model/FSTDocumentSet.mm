@@ -23,20 +23,16 @@
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
-using firebase::firestore::immutable::DocumentMap;
+using firebase::firestore::model::DocumentMap;
 using firebase::firestore::model::DocumentKey;
 
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * The type of the index of the documents in an FSTDocumentSet.
- * @see FSTDocumentSet#index
- */
-/**
  * The type of the main collection of documents in an FSTDocumentSet.
  * @see FSTDocumentSet#sortedSet
  */
-using SetType =  FSTImmutableSortedSet<FSTDocument *> SetType;
+typedef FSTImmutableSortedSet<FSTDocument *> SetType;
 
 @interface FSTDocumentSet ()
 
@@ -114,20 +110,20 @@ using SetType =  FSTImmutableSortedSet<FSTDocument *> SetType;
 }
 
 - (NSUInteger)count {
-  return self._index.size();
+  return self->_index.size();
 }
 
 - (BOOL)isEmpty {
-  return self._index.empty();
+  return self->_index.empty();
 }
 
 - (BOOL)containsKey:(const DocumentKey &)key {
-  return self._index.find(key) != self._index.end();
+  return self->_index.find(key) != self->_index.end();
 }
 
 - (FSTDocument *_Nullable)documentForKey:(const DocumentKey &)key {
-  auto found = self._index.find(key);
-  return found != self._index.end() ? *found : nil;
+  auto found = self->_index.find(key);
+  return found != self->_index.end() ? found->second  : nil;
 }
 
 - (FSTDocument *_Nullable)firstDocument {
@@ -156,7 +152,7 @@ using SetType =  FSTImmutableSortedSet<FSTDocument *> SetType;
 }
 
 - (const DocumentMap&)mapValue {
-  return self._index;
+  return self->_index;
 }
 
 - (instancetype)documentSetByAddingDocument:(FSTDocument *_Nullable)document {
@@ -169,18 +165,18 @@ using SetType =  FSTImmutableSortedSet<FSTDocument *> SetType;
   // accumulating values that aren't in the index.
   FSTDocumentSet *removed = [self documentSetByRemovingKey:document.key];
 
-  DocumentMap index = removed._index.insert(document.key, document);
+  DocumentMap index = removed->_index.insert(document.key, document);
   SetType *set = [removed.sortedSet setByAddingObject:document];
   return [[FSTDocumentSet alloc] initWithIndex:std::move(index) set:set];
 }
 
 - (instancetype)documentSetByRemovingKey:(const DocumentKey &)key {
-  FSTDocument *doc = [self.documentForKey:key];
+  FSTDocument *doc = [self documentForKey:key];
   if (!doc) {
     return self;
   }
 
-  DocumentMap index = self._index.erase(key);
+  DocumentMap index = self->_index.erase(key);
   SetType *set = [self.sortedSet setByRemovingObject:doc];
   return [[FSTDocumentSet alloc] initWithIndex:std::move(index) set:set];
 }

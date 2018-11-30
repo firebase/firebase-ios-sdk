@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FSTLocalWriteResult : NSObject
 
 + (instancetype)resultForBatchID:(firebase::firestore::model::BatchId)batchID
-                         changes:(MaybeDocumentMap&&)changes;
+                         changes:(firebase::firestore::model::MaybeDocumentMap&&)changes;
 
 - (id)init __attribute__((unavailable("Use resultForBatchID:changes:")));
 

@@ -21,6 +21,7 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 
+@class FSTDocumentKey;
 @class FIRTimestamp;
 @class FSTFieldValueOptions;
 @class FIRGeoPoint;

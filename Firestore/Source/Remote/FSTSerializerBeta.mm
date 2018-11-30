@@ -216,7 +216,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   } else if (fieldClass == [FSTReferenceValue class]) {
     FSTReferenceValue *ref = (FSTReferenceValue *)fieldValue;
-    return [self encodedReferenceValueForDatabaseID:[ref databaseID] key:[ref value]];
+    DocumentKey key{[ref value]};
+    return [self encodedReferenceValueForDatabaseID:[ref databaseID] key:key];
 
   } else if (fieldClass == [FSTObjectValue class]) {
     GCFSValue *result = [GCFSValue message];

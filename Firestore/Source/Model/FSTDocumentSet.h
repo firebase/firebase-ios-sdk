@@ -73,7 +73,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Returns the documents as a `DocumentMap`. This is O(1) as this leverages
  * our internal representation.
  */
-- (const firebase::firestore::immutable::DocumentMap& )mapValue;
+- (const firebase::firestore::model::DocumentMap& )mapValue;
 
 /** Returns a new FSTDocumentSet that contains the given document. */
 - (instancetype)documentSetByAddingDocument:(FSTDocument *_Nullable)document;

@@ -37,6 +37,8 @@ NS_ASSUME_NONNULL_BEGIN
 using firebase::firestore::local::LevelDbRemoteDocumentKey;
 using firebase::firestore::local::LevelDbTransaction;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::MaybeDocumentMap;
 using leveldb::DB;
 using leveldb::Status;
 
@@ -89,11 +91,11 @@ using leveldb::Status;
   auto it = _db.currentTransaction->NewIterator();
 
   for (const DocumentKey &key : keys) {
-    it->Seek(key);
+    it->Seek(key.ToString());
     if (!it->Valid() || !currentKey.Decode(it->key())) {
       results = results.insert(key, nil);
     } else {
-      results = results.insert(key, [self decodeMaybeDocument:value withKey:key]);
+      results = results.insert(key, [self decodeMaybeDocument:it->value() withKey:key]);
     }
   }
 

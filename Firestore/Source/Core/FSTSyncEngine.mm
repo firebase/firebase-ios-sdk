@@ -215,7 +215,7 @@ class LimboResolution {
 }
 
 - (FSTViewSnapshot *)initializeViewAndComputeSnapshotForQueryData:(FSTQueryData *)queryData {
-  DocumentMap docs = [self.localStore executeQuery:queryData.query];
+  MaybeDocumentMap docs = [self.localStore executeQuery:queryData.query];
   DocumentKeySet remoteKeys = [self.localStore remoteDocumentKeysForTarget:queryData.targetID];
 
   FSTView *view =
@@ -430,8 +430,9 @@ class LimboResolution {
   [self assertDelegateExistsForSelector:_cmd];
   MaybeDocumentMap changes = [self.localStore rejectBatchID:batchID];
 
-  if (!changes.isEmpty && [self errorIsInteresting:error]) {
-    LOG_WARN("Write at %s failed: %s", changes.minKey.path.CanonicalString(),
+  if (!changes.empty() && [self errorIsInteresting:error]) {
+    const DocumentKey& minKey = changes.min()->first;
+    LOG_WARN("Write at %s failed: %s", minKey.ToString(),
              error.localizedDescription);
   }
 
@@ -494,7 +495,7 @@ class LimboResolution {
           // The query has a limit and some docs were removed/updated, so we need to re-run the
           // query against the local store to make sure we didn't lose any good docs that had been
           // past the limit.
-          DocumentMap docs = [self.localStore executeQuery:queryView.query];
+          MaybeDocumentMap docs = [self.localStore executeQuery:queryView.query];
           viewDocChanges = [view computeChangesWithDocuments:docs previousChanges:viewDocChanges];
         }
 

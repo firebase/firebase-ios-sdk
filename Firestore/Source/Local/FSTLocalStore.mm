@@ -265,7 +265,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
     const DocumentKeySet &limboDocuments = remoteEvent.limboDocumentChanges;
     DocumentKeySet updatedKeys;
     for (const auto& kv : remoteEvent.documentUpdates) {
-      updatedKeys.insert(kv.first);
+      updatedKeys = updatedKeys.insert(kv.first);
     }
     // Each loop iteration only affects its "own" doc, so it's safe to get all the remote
     // documents in advance in a single call.
@@ -277,7 +277,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
       FSTMaybeDocument *existingDoc = nil;
       auto foundExisting = existingDocs.find(key);
       if (foundExisting != existingDocs.end()) {
-        existingDoc = *found;
+        existingDoc = foundExisting->second;
       }
 
       // If a document update isn't authoritative, make sure we don't apply an old document version
@@ -287,7 +287,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
           (authoritativeUpdates.contains(doc.key) && !existingDoc.hasPendingWrites) ||
           doc.version >= existingDoc.version) {
         [self.remoteDocumentCache addEntry:doc];
-        changedDocs.insert(key, doc);
+        changedDocs = changedDocs.insert(key, doc);
       } else {
         LOG_DEBUG(
             "FSTLocalStore Ignoring outdated watch update for %s. "
@@ -433,8 +433,8 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
   });
 }
 
-- (DocumentMap)executeQuery:(FSTQuery *)query {
-  return self.persistence.run("ExecuteQuery", [&]() -> DocumentMap {
+- (MaybeDocumentMap)executeQuery:(FSTQuery *)query {
+  return self.persistence.run("ExecuteQuery", [&]() -> MaybeDocumentMap {
     return [self.localDocuments documentsMatchingQuery:query];
   });
 }
