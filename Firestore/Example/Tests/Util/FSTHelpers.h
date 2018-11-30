@@ -22,6 +22,7 @@
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Remote/FSTRemoteEvent.h"
 
+#include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
@@ -52,7 +53,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 #if __cplusplus
-extern "C" {
+// extern "C" {
 #endif
 
 #define FSTAssertIsKindOfClass(value, classType)             \
@@ -219,7 +220,7 @@ FSTFieldValue *FSTTestFieldValue(id _Nullable value);
 FSTObjectValue *FSTTestObjectValue(NSDictionary<NSString *, id> *data);
 
 /** A convenience method for creating document keys for tests. */
-FSTDocumentKey *FSTTestDocKey(NSString *path);
+firebase::firestore::model::DocumentKey FSTTestDocKey(NSString *path);
 
 /** Allow tests to just use an int literal for versions. */
 typedef int64_t FSTTestSnapshotVersion;
@@ -291,14 +292,14 @@ FSTTransformMutation *FSTTestTransformMutation(NSString *path, NSDictionary<NSSt
 FSTDeleteMutation *FSTTestDeleteMutation(NSString *path);
 
 /** Converts a list of documents to a sorted map. */
-FSTMaybeDocumentDictionary *FSTTestDocUpdates(NSArray<FSTMaybeDocument *> *docs);
+firebase::firestore::model::MaybeDocumentMap FSTTestDocUpdates(NSArray<FSTMaybeDocument *> *docs);
 
 /** Creates a remote event that inserts a new document. */
 FSTRemoteEvent *FSTTestAddedRemoteEvent(FSTMaybeDocument *doc, NSArray<NSNumber *> *addedToTargets);
 
 /** Creates a remote event with changes to a document. */
 FSTRemoteEvent *FSTTestUpdateRemoteEvent(FSTMaybeDocument *doc,
-                                         NSArray<NSNumber *> *updatedInTargets,
+                                          NSArray<NSNumber *> *updatedInTargets,
                                          NSArray<NSNumber *> *removedFromTargets);
 
 /** Creates a remote event with changes to a document. Allows for identifying limbo targets */
@@ -329,7 +330,7 @@ FSTTargetChange *FSTTestTargetChange(firebase::firestore::model::DocumentKeySet 
 NSData *_Nullable FSTTestResumeTokenFromSnapshotVersion(FSTTestSnapshotVersion watchSnapshot);
 
 #if __cplusplus
-}  // extern "C"
+// }  // extern "C"
 #endif
 
 NS_ASSUME_NONNULL_END

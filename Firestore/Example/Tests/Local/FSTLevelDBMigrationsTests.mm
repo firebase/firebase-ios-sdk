@@ -130,8 +130,8 @@ using SchemaVersion = LevelDbMigrations::SchemaVersion;
   BatchId batchID = 1;
   TargetId targetID = 2;
 
-  FSTDocumentKey *key1 = Key("documents/1");
-  FSTDocumentKey *key2 = Key("documents/2");
+  DocumentKey key1 = Key("documents/1");
+  DocumentKey key2 = Key("documents/2");
 
   std::string targetKeys[] = {
       LevelDbTargetKey::Key(targetID),
