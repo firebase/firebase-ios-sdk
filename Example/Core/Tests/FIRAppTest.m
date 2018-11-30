@@ -778,23 +778,38 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 }
 
 - (void)testIllegalLibraryName {
-  [FIRApp registerLibrary:@"Oops>" withVersion:@"1.0.0"];
+  [FIRApp registerLibrary:@"Oops>"
+                  withVersion:@"1.0.0"
+      withComponentRegistrant:nil
+             withConfigurable:nil];
   XCTAssertTrue([[FIRApp firebaseUserAgent] isEqualToString:@""]);
 }
 
 - (void)testIllegalLibraryVersion {
-  [FIRApp registerLibrary:@"LegalName" withVersion:@"1.0.0+"];
+  [FIRApp registerLibrary:@"LegalName"
+                  withVersion:@"1.0.0+"
+      withComponentRegistrant:nil
+             withConfigurable:nil];
   XCTAssertTrue([[FIRApp firebaseUserAgent] isEqualToString:@""]);
 }
 
 - (void)testSingleLibrary {
-  [FIRApp registerLibrary:@"LegalName" withVersion:@"1.0.0"];
+  [FIRApp registerLibrary:@"LegalName"
+                  withVersion:@"1.0.0"
+      withComponentRegistrant:nil
+             withConfigurable:nil];
   XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"LegalName/1.0.0"]);
 }
 
 - (void)testMultipleLibraries {
-  [FIRApp registerLibrary:@"LegalName" withVersion:@"1.0.0"];
-  [FIRApp registerLibrary:@"LegalName2" withVersion:@"2.0.0"];
+  [FIRApp registerLibrary:@"LegalName"
+                  withVersion:@"1.0.0"
+      withComponentRegistrant:nil
+             withConfigurable:nil];
+  [FIRApp registerLibrary:@"LegalName2"
+                  withVersion:@"2.0.0"
+      withComponentRegistrant:nil
+             withConfigurable:nil];
   XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"LegalName/1.0.0 LegalName2/2.0.0"]);
 }
 

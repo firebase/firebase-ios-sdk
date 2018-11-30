@@ -52,7 +52,10 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Lifecycle
 
 + (void)load {
-  [FIRComponentContainer registerAsComponentRegistrant:self];
+  [FIRApp registerLibrary:@"FirebaseStorage"
+                  withVersion:[NSString stringWithUTF8String:FIRStorageVersionString]
+      withComponentRegistrant:self
+             withConfigurable:nil];
 }
 
 #pragma mark - FIRComponentRegistrant

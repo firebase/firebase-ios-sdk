@@ -215,8 +215,7 @@ static FIRMessaging *sMessaging;
 #pragma mark - Config
 
 + (void)load {
-  [FIRApp registerAsConfigurable:self];
-  [FIRComponentContainer registerAsComponentRegistrant:self];
+  [FIRApp registerLibrary:@"FirebaseMessaging" withVersion:FIRMessagingCurrentLibraryVersion() withComponentRegistrant:self withConfigurable:self];
 }
 
 + (nonnull NSArray<FIRComponent *> *)componentsToRegister {

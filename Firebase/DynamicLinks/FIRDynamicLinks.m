@@ -117,8 +117,10 @@ NS_ASSUME_NONNULL_BEGIN
 #ifdef FIRDynamicLinks3P
 
 + (void)load {
-  [FIRApp registerAsConfigurable:self];
-  [FIRComponentContainer registerAsComponentRegistrant:self];
+  [FIRApp registerLibrary:@"FirebaseDynamicLinks"
+                  withVersion:kFIRDLVersion
+      withComponentRegistrant:self
+             withConfigurable:self];
 }
 
 + (nonnull NSArray<FIRComponent *> *)componentsToRegister {

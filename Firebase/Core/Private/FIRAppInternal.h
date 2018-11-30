@@ -174,12 +174,14 @@ typedef NSString *_Nullable (^FIRAppGetUIDImplementation)(void);
  * Registers a given third-party library with the given version number to be reported for
  * analyitcs.
  *
- * @param library Name of the library
+ * @param library Name of the library. It's typically the CocoaPod name
  * @param version Version of the library
  */
 // clang-format off
 + (void)registerLibrary:(NSString *)library
-            withVersion:(NSString *)version NS_SWIFT_NAME(registerLibrary(_:version:));
+            withVersion:(NSString *)version
+withComponentRegistrant:(nullable Class)componentRegistrant
+       withConfigurable:(nullable Class<FIRCoreConfigurable>)configurableRegistrant;
 // clang-format on
 
 /**

@@ -487,7 +487,10 @@ static NSMutableDictionary *sLibraryVersions;
   return (sDefaultApp != nil);
 }
 
-+ (void)registerLibrary:(nonnull NSString *)library withVersion:(nonnull NSString *)version {
++ (void)registerLibrary:(nonnull NSString *)library
+                withVersion:(nonnull NSString *)version
+    withComponentRegistrant:(nullable Class)componentRegistrant
+           withConfigurable:(nullable Class<FIRCoreConfigurable>)configurableRegistrant {
   // Create the set of characters which aren't allowed, only if this feature is used.
   NSMutableCharacterSet *allowedSet = [NSMutableCharacterSet alphanumericCharacterSet];
   [allowedSet addCharactersInString:@"-_."];
@@ -505,6 +508,12 @@ static NSMutableDictionary *sLibraryVersions;
                 @"The library name (%@) or version number (%@) contain illegal characters. "
                 @"Only alphanumeric, dash, underscore and period characters are allowed.",
                 library, version);
+  }
+  if (configurableRegistrant) {
+    [FIRApp registerAsConfigurable:configurableRegistrant];
+  }
+  if (componentRegistrant) {
+    [FIRComponentContainer registerAsComponentRegistrant:componentRegistrant];
   }
 }
 

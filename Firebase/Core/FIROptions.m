@@ -113,22 +113,30 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
   NSRange major = NSMakeRange(0, 1);
   NSRange minor = NSMakeRange(1, 2);
   NSRange patch = NSMakeRange(3, 2);
-  [FIRApp
-      registerLibrary:@"fire-ios"
-          withVersion:[NSString stringWithFormat:@"%@.%d.%d",
-                                                 [kFIRLibraryVersionID substringWithRange:major],
-                                                 [[kFIRLibraryVersionID substringWithRange:minor]
-                                                     intValue],
-                                                 [[kFIRLibraryVersionID substringWithRange:patch]
-                                                     intValue]]];
+  [FIRApp registerLibrary:@"fire-ios"
+                  withVersion:[NSString
+                                  stringWithFormat:@"%@.%d.%d",
+                                                   [kFIRLibraryVersionID substringWithRange:major],
+                                                   [[kFIRLibraryVersionID substringWithRange:minor]
+                                                       intValue],
+                                                   [[kFIRLibraryVersionID substringWithRange:patch]
+                                                       intValue]]
+      withComponentRegistrant:nil
+             withConfigurable:nil];
   NSDictionary<NSString *, id> *info = [[NSBundle mainBundle] infoDictionary];
   NSString *xcodeVersion = info[@"DTXcodeBuild"];
   NSString *sdkVersion = info[@"DTSDKBuild"];
   if (xcodeVersion) {
-    [FIRApp registerLibrary:@"xcode" withVersion:xcodeVersion];
+    [FIRApp registerLibrary:@"xcode"
+                    withVersion:xcodeVersion
+        withComponentRegistrant:nil
+               withConfigurable:nil];
   }
   if (sdkVersion) {
-    [FIRApp registerLibrary:@"apple-sdk" withVersion:sdkVersion];
+    [FIRApp registerLibrary:@"apple-sdk"
+                    withVersion:sdkVersion
+        withComponentRegistrant:nil
+               withConfigurable:nil];
   }
 }
 
