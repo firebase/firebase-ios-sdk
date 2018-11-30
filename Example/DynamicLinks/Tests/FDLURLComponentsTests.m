@@ -511,7 +511,7 @@ static NSString *const kFDLURLCustomDomain = @"https://foo.com/path";
   XCTAssertEqualObjects(actualURL, expectedURL);
 }
 
-- (void)testFDLComponentsFailsOnMalformedDomain {
+- (void)testFDLComponentsFailsOnMalformedDomainURIPrefix {
   NSString *linkString = @"https://google.com";
   NSURL *link = [NSURL URLWithString:linkString];
 
@@ -519,6 +519,38 @@ static NSString *const kFDLURLCustomDomain = @"https://foo.com/path";
       [FIRDynamicLinkComponents componentsWithLink:link
                                    domainURIPrefix:@"this is invalid domain URI Prefix"];
 
+  XCTAssertNil(components.url);
+}
+
+- (void)testFDLComponentsNotNilOnDomainWithHTTPScheme {
+  NSString *linkString = @"https://google.com";
+  NSURL *link = [NSURL URLWithString:linkString];
+
+  FIRDynamicLinkComponents *components =
+      [FIRDynamicLinkComponents componentsWithLink:link domain:@"http://xyz.page.link"];
+
+  XCTAssertNotNil(components);
+}
+
+- (void)testFDLComponentsNotNilOnDomainWithHTTPSScheme {
+  NSString *linkString = @"https://google.com";
+  NSURL *link = [NSURL URLWithString:linkString];
+
+  FIRDynamicLinkComponents *components =
+      [FIRDynamicLinkComponents componentsWithLink:link domain:@"https://xyz.page.link"];
+
+  XCTAssertNotNil(components);
+}
+
+- (void)testFDLComponentsFailsOnMalformedDomain {
+  NSString *linkString = @"https://google.com";
+  NSURL *link = [NSURL URLWithString:linkString];
+
+  FIRDynamicLinkComponents *components =
+      [FIRDynamicLinkComponents componentsWithLink:link
+                                            domain:@"this is invalid domain URI Prefix"];
+
+  XCTAssertNotNil(components);
   XCTAssertNil(components.url);
 }
 
