@@ -26,13 +26,13 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-/** Convenience type for a map of keys to MaybeDocuments, since they are so
- * common. */
+/**
+ * Convenience type for a map of keys to MaybeDocuments, since they are so
+ * common.
+ */
 using MaybeDocumentMap = immutable::SortedMap<DocumentKey, FSTMaybeDocument*>;
 
-/** Convenience type for a map of keys to Documents, since they are so common.
- */
-using DocumentMap = immutable::SortedMap<DocumentKey, FSTDocument*>;
+// OBC PORTING NOTE
 
 }  // namespace model
 }  // namespace firestore
