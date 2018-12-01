@@ -32,7 +32,10 @@ namespace model {
  */
 using MaybeDocumentMap = immutable::SortedMap<DocumentKey, FSTMaybeDocument*>;
 
-// OBC PORTING NOTE
+/**
+ * Convenience type for a map of keys to Documents, since they are so common.
+ */
+using DocumentMap = immutable::SortedMap<DocumentKey, FSTDocument*>;
 
 }  // namespace model
 }  // namespace firestore
