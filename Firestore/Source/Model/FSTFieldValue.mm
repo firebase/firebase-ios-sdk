@@ -679,7 +679,7 @@ static NSComparisonResult CompareBytes(NSData *left, NSData *right) {
   }
 
   FSTReferenceValue *otherRef = (FSTReferenceValue *)other;
-  return self.key == otherRef.key && *self.databaseID == *otherRef.databaseID;
+  return self.key.key == otherRef.key.key && *self.databaseID == *otherRef.databaseID;
 }
 
 - (NSUInteger)hash {

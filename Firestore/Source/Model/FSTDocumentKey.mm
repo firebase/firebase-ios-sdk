@@ -57,6 +57,16 @@ NS_ASSUME_NONNULL_BEGIN
   return _delegate;
 }
 
+- (BOOL)isEqual:(id)object {
+  if (self == object) {
+    return YES;
+  }
+  if (![object isKindOfClass:[FSTDocumentKey class]]) {
+    return NO;
+  }
+  return _delegate == static_cast<FSTDocumentKey*>(object)->_delegate;
+}
+
 - (NSUInteger)hash {
   return _delegate.Hash();
 }

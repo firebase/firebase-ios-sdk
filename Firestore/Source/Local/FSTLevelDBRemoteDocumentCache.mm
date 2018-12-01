@@ -91,8 +91,10 @@ using leveldb::Status;
   auto it = _db.currentTransaction->NewIterator();
 
   for (const DocumentKey &key : keys) {
-    it->Seek(key.ToString());
-    if (!it->Valid() || !currentKey.Decode(it->key())) {
+    if (key > currentKey.document_key()) {
+      it->Seek([self remoteDocumentKey:key]);
+    }
+    if (!it->Valid() || !currentKey.Decode(it->key()) || currentKey.document_key() != key) {
       results = results.insert(key, nil);
     } else {
       results = results.insert(key, [self decodeMaybeDocument:it->value() withKey:key]);

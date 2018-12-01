@@ -40,6 +40,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (instancetype)keyWithDocumentKey:(const firebase::firestore::model::DocumentKey &)documentKey;
 
+- (BOOL)isEqual:(id)object;
+
 /** Gets the underlying C++ representation. */
 - (const firebase::firestore::model::DocumentKey &)key;
 

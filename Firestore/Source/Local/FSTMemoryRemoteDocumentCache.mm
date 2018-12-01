@@ -81,7 +81,7 @@ static size_t FSTDocumentKeyByteSize(const DocumentKey& key) {
   // Documents are ordered by key, so we can use a prefix scan to narrow down the documents
   // we need to match the query against.
   DocumentKey prefix{query.path.Append("")};
-  for (auto it = self->_docs.find(prefix); it != self->_docs.end(); ++it) {
+  for (auto it = self->_docs.lower_bound(prefix); it != self->_docs.end(); ++it) {
     const DocumentKey& key = it->first;
     if (!query.path.IsPrefixOf(key.path())) {
       break;
