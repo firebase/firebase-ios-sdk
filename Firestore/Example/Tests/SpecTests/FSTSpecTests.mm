@@ -640,7 +640,7 @@ static NSString *Describe(NSData *data) {
                     @"Found limbo doc without an expected active target");
   }
 
-  for (const DocumentKey& expectedLimboDoc : self.driver.expectedLimboDocuments) {
+  for (const DocumentKey &expectedLimboDoc : self.driver.expectedLimboDocuments) {
     XCTAssert(actualLimboDocs.find(expectedLimboDoc) != actualLimboDocs.end(),
               @"Expected doc to be in limbo, but was not: %s", expectedLimboDoc.ToString().c_str());
     actualLimboDocs.erase(expectedLimboDoc);

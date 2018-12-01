@@ -63,7 +63,7 @@ typedef NS_ENUM(NSInteger, FSTDocumentState) {
                              key:(firebase::firestore::model::DocumentKey)key
                          version:(firebase::firestore::model::SnapshotVersion)version
                            state:(FSTDocumentState)state
-                           proto:(GCFSDocument*)proto;
+                           proto:(GCFSDocument *)proto;
 
 - (nullable FSTFieldValue *)fieldForPath:(const firebase::firestore::model::FieldPath &)path;
 - (BOOL)hasLocalMutations;
@@ -71,10 +71,10 @@ typedef NS_ENUM(NSInteger, FSTDocumentState) {
 
 @property(nonatomic, strong, readonly) FSTObjectValue *data;
 
- /**
-   * Memoized serialized form of the document for optimization purposes (avoids repeated
-   * serialization). Might be nil.
-   */
+/**
+ * Memoized serialized form of the document for optimization purposes (avoids repeated
+ * serialization). Might be nil.
+ */
 @property(nonatomic, strong, readonly) GCFSDocument *proto;
 
 @end

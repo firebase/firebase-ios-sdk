@@ -88,7 +88,8 @@ NS_ASSUME_NONNULL_BEGIN
  * In response the local store switches the mutation queue to the new user and returns any
  * resulting document changes.
  */
-- (firebase::firestore::model::MaybeDocumentMap)userDidChange:(const firebase::firestore::auth::User &)user;
+- (firebase::firestore::model::MaybeDocumentMap)userDidChange:
+    (const firebase::firestore::auth::User &)user;
 
 /** Accepts locally generated Mutations and commits them to storage. */
 - (FSTLocalWriteResult *)locallyWriteMutations:(NSArray<FSTMutation *> *)mutations;
@@ -109,7 +110,8 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @return The resulting (modified) documents.
  */
-- (firebase::firestore::model::MaybeDocumentMap)acknowledgeBatchWithResult:(FSTMutationBatchResult *)batchResult;
+- (firebase::firestore::model::MaybeDocumentMap)acknowledgeBatchWithResult:
+    (FSTMutationBatchResult *)batchResult;
 
 /**
  * Removes mutations from the MutationQueue for the specified batch. LocalDocuments will be
@@ -117,7 +119,8 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @return The resulting (modified) documents.
  */
-- (firebase::firestore::model::MaybeDocumentMap)rejectBatchID:(firebase::firestore::model::BatchId)batchID;
+- (firebase::firestore::model::MaybeDocumentMap)rejectBatchID:
+    (firebase::firestore::model::BatchId)batchID;
 
 /** Returns the last recorded stream token for the current user. */
 - (nullable NSData *)lastStreamToken;

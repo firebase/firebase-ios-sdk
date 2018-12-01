@@ -33,8 +33,8 @@ class DocumentKey;
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * `FSTDocumentKey` is a thin wrapper over `DocumentKey`, necessary until full migration is possible.
- * Use the underlying `DocumentKey` for any operations.
+ * `FSTDocumentKey` is a thin wrapper over `DocumentKey`, necessary until full migration is
+ * possible. Use the underlying `DocumentKey` for any operations.
  */
 @interface FSTDocumentKey : NSObject <NSCopying>
 

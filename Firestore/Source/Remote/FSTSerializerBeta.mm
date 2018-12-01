@@ -438,7 +438,11 @@ NS_ASSUME_NONNULL_BEGIN
   HARD_ASSERT(version != SnapshotVersion::None(),
               "Got a document response with no snapshot version");
 
-  return [FSTDocument documentWithData:value key:key version:version state:FSTDocumentStateSynced proto:response.found];
+  return [FSTDocument documentWithData:value
+                                   key:key
+                               version:version
+                                 state:FSTDocumentStateSynced
+                                 proto:response.found];
 }
 
 - (FSTDeletedDocument *)decodedDeletedDocument:(GCFSBatchGetDocumentsResponse *)response {
@@ -1146,8 +1150,11 @@ NS_ASSUME_NONNULL_BEGIN
   HARD_ASSERT(version != SnapshotVersion::None(), "Got a document change with no snapshot version");
   // The document may soon be re-serialized back to protos in order to store it in local
   // persistence. Memoize the encoded form to avoid encoding it again.
-  FSTMaybeDocument *document =
-      [FSTDocument documentWithData:value key:key version:version state:FSTDocumentStateSynced proto:change.document];
+  FSTMaybeDocument *document = [FSTDocument documentWithData:value
+                                                         key:key
+                                                     version:version
+                                                       state:FSTDocumentStateSynced
+                                                       proto:change.document];
 
   NSArray<NSNumber *> *updatedTargetIds = [self decodedIntegerArray:change.targetIdsArray];
   NSArray<NSNumber *> *removedTargetIds = [self decodedIntegerArray:change.removedTargetIdsArray];

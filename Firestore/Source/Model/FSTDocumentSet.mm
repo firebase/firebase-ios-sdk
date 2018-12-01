@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
+#include <utility>
+
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/third_party/Immutable/FSTImmutableSortedSet.h"
-
-#include <utility>
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
@@ -36,7 +36,8 @@ typedef FSTImmutableSortedSet<FSTDocument *> SetType;
 
 @interface FSTDocumentSet ()
 
-- (instancetype)initWithIndex:(DocumentMap&&)index set:(SetType *)sortedSet NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithIndex:(DocumentMap &&)index
+                          set:(SetType *)sortedSet NS_DESIGNATED_INITIALIZER;
 
 /**
  * The main collection of documents in the FSTDocumentSet. The documents are ordered by a
@@ -47,20 +48,20 @@ typedef FSTImmutableSortedSet<FSTDocument *> SetType;
 @end
 
 @implementation FSTDocumentSet {
-/**
- * An index of the documents in the FSTDocumentSet, indexed by document key. The index
- * exists to guarantee the uniqueness of document keys in the set and to allow lookup and removal
- * of documents by key.
- */
- DocumentMap _index;
+  /**
+   * An index of the documents in the FSTDocumentSet, indexed by document key. The index
+   * exists to guarantee the uniqueness of document keys in the set and to allow lookup and removal
+   * of documents by key.
+   */
+  DocumentMap _index;
 }
 
 + (instancetype)documentSetWithComparator:(NSComparator)comparator {
   SetType *set = [FSTImmutableSortedSet setWithComparator:comparator];
-  return [[FSTDocumentSet alloc] initWithIndex:DocumentMap{} set:set];
+  return [[FSTDocumentSet alloc] initWithIndex:DocumentMap {} set:set];
 }
 
-- (instancetype)initWithIndex:(DocumentMap&&)index set:(SetType *)sortedSet {
+- (instancetype)initWithIndex:(DocumentMap &&)index set:(SetType *)sortedSet {
   self = [super init];
   if (self) {
     _index = std::move(index);
@@ -123,7 +124,7 @@ typedef FSTImmutableSortedSet<FSTDocument *> SetType;
 
 - (FSTDocument *_Nullable)documentForKey:(const DocumentKey &)key {
   auto found = self->_index.find(key);
-  return found != self->_index.end() ? found->second  : nil;
+  return found != self->_index.end() ? found->second : nil;
 }
 
 - (FSTDocument *_Nullable)firstDocument {
@@ -151,7 +152,7 @@ typedef FSTImmutableSortedSet<FSTDocument *> SetType;
   return result;
 }
 
-- (const DocumentMap&)mapValue {
+- (const DocumentMap &)mapValue {
   return self->_index;
 }
 

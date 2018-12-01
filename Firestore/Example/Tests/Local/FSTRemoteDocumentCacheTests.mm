@@ -149,7 +149,7 @@ static const int kVersion = 42;
       FSTDocument *actual = nil;
       auto found = results.find(doc.key);
       if (found != results.end()) {
-        actual = static_cast<FSTDocument*>(found->second);
+        actual = static_cast<FSTDocument *>(found->second);
       }
       XCTAssertEqualObjects(actual, doc);
     }

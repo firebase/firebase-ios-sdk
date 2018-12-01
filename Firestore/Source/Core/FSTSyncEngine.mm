@@ -431,9 +431,8 @@ class LimboResolution {
   MaybeDocumentMap changes = [self.localStore rejectBatchID:batchID];
 
   if (!changes.empty() && [self errorIsInteresting:error]) {
-    const DocumentKey& minKey = changes.min()->first;
-    LOG_WARN("Write at %s failed: %s", minKey.ToString(),
-             error.localizedDescription);
+    const DocumentKey &minKey = changes.min()->first;
+    LOG_WARN("Write at %s failed: %s", minKey.ToString(), error.localizedDescription);
   }
 
   // The local store may or may not be able to apply the write result and raise events immediately
@@ -482,7 +481,7 @@ class LimboResolution {
 /**
  * Computes a new snapshot from the changes and calls the registered callback with the new snapshot.
  */
-- (void)emitNewSnapshotsAndNotifyLocalStoreWithChanges:(const MaybeDocumentMap&)changes
+- (void)emitNewSnapshotsAndNotifyLocalStoreWithChanges:(const MaybeDocumentMap &)changes
                                            remoteEvent:(FSTRemoteEvent *_Nullable)remoteEvent {
   NSMutableArray<FSTViewSnapshot *> *newSnapshots = [NSMutableArray array];
   NSMutableArray<FSTLocalViewChanges *> *documentChangesInAllViews = [NSMutableArray array];

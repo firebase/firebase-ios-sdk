@@ -64,7 +64,7 @@ NS_ASSUME_NONNULL_BEGIN
   if (![object isKindOfClass:[FSTDocumentKey class]]) {
     return NO;
   }
-  return _delegate == static_cast<FSTDocumentKey*>(object)->_delegate;
+  return _delegate == static_cast<FSTDocumentKey *>(object)->_delegate;
 }
 
 - (NSUInteger)hash {

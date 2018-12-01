@@ -57,13 +57,14 @@ NS_ASSUME_NONNULL_BEGIN
     (const firebase::firestore::model::DocumentKey &)documentKey;
 
 /**
-   * Looks up a set of entries in the cache.
-   *
-   * @param documentKeys The keys of the entries to look up.
-   * @return The cached Document or NoDocument entries indexed by key. If an entry is not cached,
-   *     the corresponding key will be mapped to a null value.
-   */
-- (firebase::firestore::model::MaybeDocumentMap)entriesForKeys:(const firebase::firestore::model::DocumentKeySet&)documentKeys;
+ * Looks up a set of entries in the cache.
+ *
+ * @param documentKeys The keys of the entries to look up.
+ * @return The cached Document or NoDocument entries indexed by key. If an entry is not cached,
+ *     the corresponding key will be mapped to a null value.
+ */
+- (firebase::firestore::model::MaybeDocumentMap)entriesForKeys:
+    (const firebase::firestore::model::DocumentKeySet &)documentKeys;
 
 /**
  * Executes a query against the cached FSTDocument entries

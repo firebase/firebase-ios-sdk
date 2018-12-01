@@ -122,7 +122,8 @@ struct DocumentKeyHash {
 };
 
 #if defined(__OBJC__)
-inline NSComparisonResult CompareKeys(const DocumentKey& lhs, const DocumentKey& rhs) {
+inline NSComparisonResult CompareKeys(const DocumentKey& lhs,
+                                      const DocumentKey& rhs) {
   if (lhs < rhs) {
     return NSOrderedAscending;
   }

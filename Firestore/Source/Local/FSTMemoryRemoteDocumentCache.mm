@@ -37,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
  * document key in memory. This is only an estimate and includes the size
  * of the segments of the path, but not any object overhead or path separators.
  */
-static size_t FSTDocumentKeyByteSize(const DocumentKey& key) {
+static size_t FSTDocumentKeyByteSize(const DocumentKey &key) {
   size_t count = 0;
   for (const auto &segment : key.path()) {
     count += segment.size();
@@ -69,7 +69,7 @@ static size_t FSTDocumentKeyByteSize(const DocumentKey& key) {
 
 - (MaybeDocumentMap)entriesForKeys:(const DocumentKeySet &)keys {
   MaybeDocumentMap results;
-  for (const DocumentKey& key : keys) {
+  for (const DocumentKey &key : keys) {
     results = results.insert(key, [self entryForKey:key]);
   }
   return results;
@@ -82,7 +82,7 @@ static size_t FSTDocumentKeyByteSize(const DocumentKey& key) {
   // we need to match the query against.
   DocumentKey prefix{query.path.Append("")};
   for (auto it = self->_docs.lower_bound(prefix); it != self->_docs.end(); ++it) {
-    const DocumentKey& key = it->first;
+    const DocumentKey &key = it->first;
     if (!query.path.IsPrefixOf(key.path())) {
       break;
     }
@@ -108,8 +108,8 @@ static size_t FSTDocumentKeyByteSize(const DocumentKey& key) {
                               throughSequenceNumber:(ListenSequenceNumber)upperBound {
   std::vector<DocumentKey> removed;
   MaybeDocumentMap updatedDocs = self->_docs;
-  for (const auto& kv : self->_docs) {
-    const DocumentKey& docKey = kv.first;
+  for (const auto &kv : self->_docs) {
+    const DocumentKey &docKey = kv.first;
     if (![referenceDelegate isPinnedAtSequenceNumber:upperBound document:docKey]) {
       updatedDocs = updatedDocs.erase(docKey);
       removed.push_back(docKey);
@@ -121,8 +121,8 @@ static size_t FSTDocumentKeyByteSize(const DocumentKey& key) {
 
 - (size_t)byteSizeWithSerializer:(FSTLocalSerializer *)serializer {
   size_t count = 0;
-  for (const auto& kv : self->_docs) {
-    const DocumentKey& key = kv.first;
+  for (const auto &kv : self->_docs) {
+    const DocumentKey &key = kv.first;
     FSTMaybeDocument *doc = kv.second;
     count += FSTDocumentKeyByteSize(key);
     count += [[[serializer encodedMaybeDocument:doc] data] length];

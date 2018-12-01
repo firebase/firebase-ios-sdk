@@ -52,9 +52,9 @@ using firebase::firestore::model::MaybeDocumentMap;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 
-static NSArray<FSTMaybeDocument*> *docMapToArray(const MaybeDocumentMap& docs) {
-  NSMutableArray<FSTMaybeDocument*> *result = [NSMutableArray array];
-  for (const auto& kv : docs) {
+static NSArray<FSTMaybeDocument *> *docMapToArray(const MaybeDocumentMap &docs) {
+  NSMutableArray<FSTMaybeDocument *> *result = [NSMutableArray array];
+  for (const auto &kv : docs) {
     [result addObject:kv.second];
   }
   return result;
@@ -173,28 +173,28 @@ NS_ASSUME_NONNULL_BEGIN
 #define FSTAssertChanged(documents)                                           \
   do {                                                                        \
     NSArray<FSTMaybeDocument *> *expected = (documents);                      \
-    XCTAssertEqual(_lastChanges.size(), expected.count);                \
+    XCTAssertEqual(_lastChanges.size(), expected.count);                      \
     NSEnumerator<FSTMaybeDocument *> *enumerator = expected.objectEnumerator; \
-    for (const auto &kv : _lastChanges) {                               \
+    for (const auto &kv : _lastChanges) {                                     \
       FSTMaybeDocument *value = kv.second;                                    \
       XCTAssertEqualObjects(value, [enumerator nextObject]);                  \
     }                                                                         \
-    _lastChanges = MaybeDocumentMap{};                                                 \
+    _lastChanges = MaybeDocumentMap{};                                        \
   } while (0)
 
 /** Asserts that the given keys were removed. */
 #define FSTAssertRemoved(keyPaths)                                             \
   do {                                                                         \
-    XCTAssertEqual(_lastChanges.size(), keyPaths.count);                 \
+    XCTAssertEqual(_lastChanges.size(), keyPaths.count);                       \
     NSEnumerator<NSString *> *keyPathEnumerator = keyPaths.objectEnumerator;   \
-    for (const auto &kv : _lastChanges) {                                \
-      const DocumentKey &actualKey = kv.first;                                       \
+    for (const auto &kv : _lastChanges) {                                      \
+      const DocumentKey &actualKey = kv.first;                                 \
       FSTMaybeDocument *value = kv.second;                                     \
       DocumentKey expectedKey = FSTTestDocKey([keyPathEnumerator nextObject]); \
       XCTAssertEqual(actualKey, expectedKey);                                  \
       XCTAssertTrue([value isKindOfClass:[FSTDeletedDocument class]]);         \
     }                                                                          \
-    _lastChanges = MaybeDocumentMap{};                                                   \
+    _lastChanges = MaybeDocumentMap{};                                         \
   } while (0)
 
 /** Asserts that the given local store contains the given document.*/
@@ -208,7 +208,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** Asserts that the given local store does not contain the given document. */
 #define FSTAssertNotContains(keyPathString)                        \
   do {                                                             \
-    DocumentKey key = FSTTestDocKey(keyPathString);            \
+    DocumentKey key = FSTTestDocKey(keyPathString);                \
     FSTMaybeDocument *actual = [self.localStore readDocument:key]; \
     XCTAssertNil(actual);                                          \
   } while (0)
@@ -844,7 +844,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQuery *query = FSTTestQuery("foo/bar");
   MaybeDocumentMap docs = [self.localStore executeQuery:query];
   XCTAssertEqualObjects(docMapToArray(docs), @[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"},
-                                                     FSTDocumentStateLocalMutations) ]);
+                                                           FSTDocumentStateLocalMutations) ]);
 }
 
 - (void)testCanExecuteCollectionQueries {

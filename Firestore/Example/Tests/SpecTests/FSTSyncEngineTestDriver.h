@@ -267,10 +267,10 @@ typedef std::unordered_map<firebase::firestore::auth::User,
     currentLimboDocuments;
 
 /** The expected set of documents in limbo. */
-- (const firebase::firestore::model::DocumentKeySet&) expectedLimboDocuments;
+- (const firebase::firestore::model::DocumentKeySet &)expectedLimboDocuments;
 
 /** Sets the expected set of documents in limbo. */
-- (void)setExpectedLimboDocuments:(firebase::firestore::model::DocumentKeySet) docs;
+- (void)setExpectedLimboDocuments:(firebase::firestore::model::DocumentKeySet)docs;
 
 /**
  * The writes that have been sent to the FSTSyncEngine via writeUserMutation: but not yet

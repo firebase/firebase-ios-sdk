@@ -113,7 +113,7 @@ NS_ASSUME_NONNULL_BEGIN
   NSArray<FSTMutationBatch *> *batches =
       [self.mutationQueue allMutationBatchesAffectingDocumentKeys:allKeys];
 
-  MaybeDocumentMap docs = [self applyLocalMutationsToDocuments:baseDocs fromBatches: batches];
+  MaybeDocumentMap docs = [self applyLocalMutationsToDocuments:baseDocs fromBatches:batches];
 
   for (const auto &kv : docs) {
     const DocumentKey &key = kv.first;
@@ -168,7 +168,7 @@ NS_ASSUME_NONNULL_BEGIN
       auto found = results.find(key);
       if (found != results.end()) {
         baseDoc = found->second;
-        }
+      }
       FSTMaybeDocument *mutatedDoc = [mutation applyToLocalDocument:baseDoc
                                                        baseDocument:baseDoc
                                                      localWriteTime:batch.localWriteTime];

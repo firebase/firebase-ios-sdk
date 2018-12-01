@@ -280,7 +280,7 @@ FSTRemoteEvent *FSTTestAddedRemoteEvent(FSTMaybeDocument *doc, NSArray<NSNumber 
 
 /** Creates a remote event with changes to a document. */
 FSTRemoteEvent *FSTTestUpdateRemoteEvent(FSTMaybeDocument *doc,
-                                          NSArray<NSNumber *> *updatedInTargets,
+                                         NSArray<NSNumber *> *updatedInTargets,
                                          NSArray<NSNumber *> *removedFromTargets);
 
 /** Creates a remote event with changes to a document. Allows for identifying limbo targets */

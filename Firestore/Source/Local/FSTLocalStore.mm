@@ -17,6 +17,7 @@
 #import "Firestore/Source/Local/FSTLocalStore.h"
 
 #include <set>
+#include <utility>
 
 #import "FIRTimestamp.h"
 #import "Firestore/Source/Core/FSTListenSequence.h"
@@ -264,7 +265,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
     MaybeDocumentMap changedDocs;
     const DocumentKeySet &limboDocuments = remoteEvent.limboDocumentChanges;
     DocumentKeySet updatedKeys;
-    for (const auto& kv : remoteEvent.documentUpdates) {
+    for (const auto &kv : remoteEvent.documentUpdates) {
       updatedKeys = updatedKeys.insert(kv.first);
     }
     // Each loop iteration only affects its "own" doc, so it's safe to get all the remote

@@ -201,19 +201,18 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
   return _syncedDocuments;
 }
 
-- (FSTViewDocumentChanges *)computeChangesWithDocuments:(const MaybeDocumentMap&)docChanges {
+- (FSTViewDocumentChanges *)computeChangesWithDocuments:(const MaybeDocumentMap &)docChanges {
   return [self computeChangesWithDocuments:docChanges previousChanges:nil];
 }
 
-- (FSTViewDocumentChanges *)computeChangesWithDocuments:(const MaybeDocumentMap&)docChanges
+- (FSTViewDocumentChanges *)computeChangesWithDocuments:(const MaybeDocumentMap &)docChanges
                                         previousChanges:
                                             (nullable FSTViewDocumentChanges *)previousChanges {
   FSTDocumentViewChangeSet *changeSet =
       previousChanges ? previousChanges.changeSet : [FSTDocumentViewChangeSet changeSet];
   FSTDocumentSet *oldDocumentSet = previousChanges ? previousChanges.documentSet : self.documentSet;
 
-  DocumentKeySet newMutatedKeys =
-      previousChanges ? previousChanges.mutatedKeys : _mutatedKeys;
+  DocumentKeySet newMutatedKeys = previousChanges ? previousChanges.mutatedKeys : _mutatedKeys;
   DocumentKeySet oldMutatedKeys = _mutatedKeys;
   FSTDocumentSet *newDocumentSet = oldDocumentSet;
   BOOL needsRefill = NO;
@@ -230,8 +229,8 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
       (self.query.limit && oldDocumentSet.count == self.query.limit) ? oldDocumentSet.lastDocument
                                                                      : nil;
 
-  for (const auto& kv : docChanges) {
-    const DocumentKey& key = kv.first;
+  for (const auto &kv : docChanges) {
+    const DocumentKey &key = kv.first;
     FSTMaybeDocument *maybeNewDoc = kv.second;
 
     FSTDocument *_Nullable oldDoc = [oldDocumentSet documentForKey:key];

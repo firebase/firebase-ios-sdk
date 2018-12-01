@@ -76,8 +76,8 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - FSTDocumentViewChangeSet
 
 @implementation FSTDocumentViewChangeSet {
-/** The set of all changes tracked so far, with redundant changes merged. */
-    SortedMap<DocumentKey, FSTDocumentViewChange *> _changeMap;
+  /** The set of all changes tracked so far, with redundant changes merged. */
+  SortedMap<DocumentKey, FSTDocumentViewChange *> _changeMap;
 }
 
 + (instancetype)changeSet {
@@ -86,7 +86,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSString *)description {
   // OBC
-  //return [self.changeMap description];
+  // return [self.changeMap description];
   return nil;
 }
 
@@ -151,7 +151,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSArray<FSTDocumentViewChange *> *)changes {
   NSMutableArray<FSTDocumentViewChange *> *changes = [NSMutableArray array];
-  for (const auto& kv : self->_changeMap) {
+  for (const auto &kv : self->_changeMap) {
     FSTDocumentViewChange *change = kv.second;
     [changes addObject:change];
   }

@@ -21,6 +21,7 @@
 #include <map>
 #include <memory>
 #include <unordered_map>
+#include <utility>
 
 #import "Firestore/Source/Core/FSTEventManager.h"
 #import "Firestore/Source/Core/FSTQuery.h"
@@ -181,11 +182,11 @@ NS_ASSUME_NONNULL_BEGIN
   return _outstandingWrites;
 }
 
-- (const DocumentKeySet&)expectedLimboDocuments {
+- (const DocumentKeySet &)expectedLimboDocuments {
   return _expectedLimboDocuments;
 }
 
-- (void)setExpectedLimboDocuments:(DocumentKeySet) docs{
+- (void)setExpectedLimboDocuments:(DocumentKeySet)docs {
   _expectedLimboDocuments = std::move(docs);
 }
 

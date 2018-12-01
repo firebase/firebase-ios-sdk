@@ -229,8 +229,7 @@ static FSTServerTimestampBehavior InternalServerTimestampBehavor(
           database->database_id().c_str());
     }
     DocumentKey key = [[ref valueWithOptions:options] key];
-    return [FIRDocumentReference referenceWithKey:key
-                                        firestore:self.firestore];
+    return [FIRDocumentReference referenceWithKey:key firestore:self.firestore];
   } else {
     return [value valueWithOptions:options];
   }
