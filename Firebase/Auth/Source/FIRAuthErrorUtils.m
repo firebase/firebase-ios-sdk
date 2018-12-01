@@ -311,6 +311,12 @@ static NSString *const kFIRAuthErrorMessageMissingVerificationID =
 static NSString *const kFIRAuthErrorMessageInvalidVerificationID =
     @"The verification ID used to create the phone auth credential is invalid.";
 
+/** @var kFIRAuthErrorMessageLocalPlayerNotAuthenticated
+ @brief Message for @c FIRAuthErrorCodeLocalPlayerNotAuthenticated error code.
+ */
+static NSString *const kFIRAuthErrorMessageLocalPlayerNotAuthenticated =
+    @"The local player is not authenticated. Please log the local player in to Game Center.";
+
 /** @var kFIRAuthErrorMessageSessionExpired
     @brief Message for @c FIRAuthErrorCodeSessionExpired error code.
  */
@@ -548,6 +554,8 @@ static NSString *FIRAuthErrorDescription(FIRAuthErrorCode code) {
       return kFIRAuthErrorMessageWebInternalError;
     case FIRAuthErrorCodeMalformedJWT:
       return kFIRAuthErrorMessageMalformedJWT;
+    case FIRAuthErrorCodeLocalPlayerNotAuthenticated:
+      return kFIRAuthErrorMessageLocalPlayerNotAuthenticated;
   }
 }
 
@@ -673,6 +681,8 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
       return @"ERROR_WEB_INTERNAL_ERROR";
     case FIRAuthErrorCodeMalformedJWT:
       return @"ERROR_MALFORMED_JWT";
+    case FIRAuthErrorCodeLocalPlayerNotAuthenticated:
+      return @"ERROR_LOCAL_PLAYER_NOT_AUTHENTICATED";
   }
 }
 
@@ -984,6 +994,10 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
 + (NSError *)missingAppTokenErrorWithUnderlyingError:(nullable NSError *)underlyingError {
   return [self errorWithCode:FIRAuthInternalErrorCodeMissingAppToken
              underlyingError:underlyingError];
+}
+
++ (NSError *)localPlayerNotAuthenticatedError {
+  return [self errorWithCode:FIRAuthInternalErrorCodeLocalPlayerNotAuthenticated];
 }
 
 + (NSError *)notificationNotForwardedError {

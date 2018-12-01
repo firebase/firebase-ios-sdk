@@ -19,6 +19,8 @@
 @class FIRAuthRequestConfiguration;
 @class FIRCreateAuthURIRequest;
 @class FIRCreateAuthURIResponse;
+@class FIRDeleteAccountRequest;
+@class FIRDeleteAccountResponse;
 @class FIREmailLinkSignInRequest;
 @class FIREmailLinkSignInResponse;
 @class FIRGetAccountInfoRequest;
@@ -45,10 +47,11 @@
 @class FIRVerifyPhoneNumberResponse;
 @class FIRSendVerificationCodeRequest;
 @class FIRSendVerificationCodeResponse;
+@class FIRSignInWithGameCenterRequest;
+@class FIRSignInWithGameCenterResponse;
 @class FIRSignUpNewUserRequest;
 @class FIRSignUpNewUserResponse;
-@class FIRDeleteAccountRequest;
-@class FIRDeleteAccountResponse;
+
 @protocol FIRAuthBackendImplementation;
 @protocol FIRAuthBackendRPCIssuer;
 
@@ -214,6 +217,15 @@ typedef void (^FIRVerifyPhoneNumberResponseCallback)
 typedef void (^FIRVerifyClientResponseCallback)
     (FIRVerifyClientResponse *_Nullable response, NSError *_Nullable error);
 
+/** @typedef FIRSignInWithGameCenterResponseCallback
+    @brief The type of block used to return the result of a call to the SignInWithGameCenter endpoint.
+    @param response The received response, if any.
+    @param error The error which occurred, if any.
+    @remarks One of response or error will be non-nil.
+ */
+typedef void (^FIRSignInWithGameCenterResponseCallback)
+    (FIRSignInWithGameCenterResponse *_Nullable response, NSError *_Nullable error);
+
 /** @class FIRAuthBackend
     @brief Simple static class with methods representing the backend RPCs.
     @remarks All callback blocks passed as method parameters are invoked asynchronously on the
@@ -360,6 +372,15 @@ typedef void (^FIRVerifyClientResponseCallback)
  */
 + (void)deleteAccount:(FIRDeleteAccountRequest *)request
              callback:(FIRDeleteCallBack)callback;
+
+/** @fn SignInWithGameCenter:callback:
+    @brief Calls the SignInWithGameCenter endpoint, which is responsible for authenticating a user
+      who has Game Center credentials.
+    @param request The request parameters.
+    @param callback The callback.
+ */
++ (void)signInWithGameCenter:(FIRSignInWithGameCenterRequest *)request
+                    callback:(FIRSignInWithGameCenterResponseCallback)callback;
 
 #if TARGET_OS_IOS
 /** @fn sendVerificationCode:callback:
@@ -554,6 +575,15 @@ typedef void (^FIRVerifyClientResponseCallback)
 - (void)verifyClient:(FIRVerifyClientRequest *)request
             callback:(FIRVerifyClientResponseCallback)callback;
 #endif
+
+/** @fn SignInWithGameCenter:callback:
+    @brief Calls the SignInWithGameCenter endpoint, which is responsible for authenticating a user
+      who has Game Center credentials.
+    @param request The request parameters.
+    @param callback The callback.
+ */
+- (void)signInWithGameCenter:(FIRSignInWithGameCenterRequest *)request
+                    callback:(FIRSignInWithGameCenterResponseCallback)callback;
 
 /** @fn resetPassword:callback
     @brief Calls the resetPassword endpoint, which is responsible for resetting a user's password

@@ -52,6 +52,7 @@
 #import "FIRCreateAuthURIResponse.h"
 #import "FIREmailLinkSignInRequest.h"
 #import "FIREmailLinkSignInResponse.h"
+#import "FIRGameCenterAuthCredential.h"
 #import "FIRGetOOBConfirmationCodeRequest.h"
 #import "FIRGetOOBConfirmationCodeResponse.h"
 #import "FIRResetPasswordRequest.h"
@@ -60,6 +61,8 @@
 #import "FIRSendVerificationCodeResponse.h"
 #import "FIRSetAccountInfoRequest.h"
 #import "FIRSetAccountInfoResponse.h"
+#import "FIRSignInWithGameCenterRequest.h"
+#import "FIRSignInWithGameCenterResponse.h"
 #import "FIRSignUpNewUserRequest.h"
 #import "FIRSignUpNewUserResponse.h"
 #import "FIRVerifyAssertionRequest.h"
@@ -597,6 +600,40 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                            callback:completion];
 }
 
+/** @fn signInWithGameCenterCredential:callback:
+    @brief Signs in using a game center credential.
+    @param credential The Game Center Auth Credential used to sign in.
+    @param callback A block which is invoked when the sign in finished (or is cancelled). Invoked
+        asynchronously on the global auth work queue in the future.
+ */
+- (void)signInWithGameCenterCredential:(FIRGameCenterAuthCredential *)credential
+                              callback:(FIRAuthResultCallback)callback {
+  FIRSignInWithGameCenterRequest *request =
+    [[FIRSignInWithGameCenterRequest alloc] initWithPlayerID:credential.playerID
+                                                publicKeyURL:credential.publicKeyURL
+                                                   signature:credential.signature
+                                                        salt:credential.salt
+                                                   timestamp:credential.timestamp
+                                                 displayName:credential.displayName
+                                        requestConfiguration:_requestConfiguration];
+  [FIRAuthBackend signInWithGameCenter:request
+                              callback:^(FIRSignInWithGameCenterResponse *_Nullable response,
+                                         NSError *_Nullable error) {
+                                if (error) {
+                                  if (callback) {
+                                    callback(nil, error);
+                                  }
+                                  return;
+                                }
+
+                                [self completeSignInWithAccessToken:response.IDToken
+                                          accessTokenExpirationDate:response.approximateExpirationDate
+                                                       refreshToken:response.refreshToken
+                                                          anonymous:NO
+                                                           callback:callback];
+                              }];
+}
+
 /** @fn internalSignInWithEmail:link:completion:
     @brief Signs in using an email and email sign-in link.
     @param email The user's email address.
@@ -701,6 +738,21 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                    password:emailPasswordCredential.password
                    callback:completeEmailSignIn];
     }
+    return;
+  }
+
+  if ([credential isKindOfClass:[FIRGameCenterAuthCredential class]]) {
+    // Special case for Game Center credentials.
+    [self signInWithGameCenterCredential:(FIRGameCenterAuthCredential *)credential
+                                callback:^(FIRUser *_Nullable user, NSError *_Nullable error) {
+      if (callback) {
+        FIRAuthDataResult *result;
+        if (user) {
+          result = [[FIRAuthDataResult alloc] initWithUser:user additionalUserInfo:nil];
+        }
+        callback(result, error);
+      }
+    }];
     return;
   }
 
