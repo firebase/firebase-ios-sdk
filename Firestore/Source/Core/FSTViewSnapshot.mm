@@ -17,6 +17,7 @@
 #import "Firestore/Source/Core/FSTViewSnapshot.h"
 
 #include <string>
+#include <utility>
 
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Model/FSTDocument.h"
@@ -92,8 +93,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSString *)description {
-  std::string result =
-      absl::StrJoin(_changeMap, ",", [](std::string *out, const std::pair<DocumentKey, FSTDocumentViewChange*> &kv) {
+  std::string result = absl::StrJoin(
+      _changeMap, ",",
+      [](std::string *out, const std::pair<DocumentKey, FSTDocumentViewChange *> &kv) {
         out->append(StringFormat("%s: %s", kv.first, kv.second));
       });
   return WrapNSString(std::string{"{"} + result + "}");
