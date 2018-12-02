@@ -153,8 +153,8 @@ NS_ASSUME_NONNULL_BEGIN
   // enumerating them.
   MaybeDocumentMap unfiltered = results;
   for (const auto &kv : unfiltered) {
-    const DocumentKey& key = kv.first;
-    FSTDocument *doc = static_cast<FSTDocument*>(kv.second);
+    const DocumentKey &key = kv.first;
+    FSTDocument *doc = static_cast<FSTDocument *>(kv.second);
     if (![query matchesDocument:doc]) {
       results = results.erase(key);
     }
