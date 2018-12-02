@@ -196,7 +196,7 @@ NS_ASSUME_NONNULL_BEGIN
     _lastChanges = MaybeDocumentMap{};                                         \
   } while (0)
 
-/** Asserts that the given local store contains the given document.*/
+/** Asserts that the given local store contains the given document. */
 #define FSTAssertContains(document)                                         \
   do {                                                                      \
     FSTMaybeDocument *expected = (document);                                \
