@@ -29,8 +29,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTMemoryRemoteDocumentCache : NSObject <FSTRemoteDocumentCache>
 
-- (instancetype)init NS_DESIGNATED_INITIALIZER;
-
 - (std::vector<firebase::firestore::model::DocumentKey>)
     removeOrphanedDocuments:(FSTMemoryLRUReferenceDelegate *)referenceDelegate
       throughSequenceNumber:(firebase::firestore::model::ListenSequenceNumber)upperBound;

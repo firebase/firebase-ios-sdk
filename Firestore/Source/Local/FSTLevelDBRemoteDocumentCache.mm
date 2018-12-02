@@ -23,7 +23,6 @@
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentDictionary.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
@@ -38,6 +37,8 @@ NS_ASSUME_NONNULL_BEGIN
 using firebase::firestore::local::LevelDbRemoteDocumentKey;
 using firebase::firestore::local::LevelDbTransaction;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::MaybeDocumentMap;
 using leveldb::DB;
 using leveldb::Status;
 
@@ -83,8 +84,8 @@ using leveldb::Status;
   }
 }
 
-- (FSTDocumentDictionary *)documentsMatchingQuery:(FSTQuery *)query {
-  FSTDocumentDictionary *results = [FSTDocumentDictionary documentDictionary];
+- (MaybeDocumentMap)documentsMatchingQuery:(FSTQuery *)query {
+  MaybeDocumentMap results;
 
   // Documents are ordered by key, so we can use a prefix scan to narrow down
   // the documents we need to match the query against.
@@ -99,7 +100,7 @@ using leveldb::Status;
     if (!query.path.IsPrefixOf(maybeDoc.key.path())) {
       break;
     } else if ([maybeDoc isKindOfClass:[FSTDocument class]]) {
-      results = [results dictionaryBySettingObject:(FSTDocument *)maybeDoc forKey:maybeDoc.key];
+      results = results.insert(maybeDoc.key, maybeDoc);
     }
   }
 

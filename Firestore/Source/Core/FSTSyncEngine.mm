@@ -39,6 +39,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
@@ -49,6 +50,8 @@ using firebase::firestore::core::TargetIdGenerator;
 using firebase::firestore::model::BatchId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::DocumentMap;
+using firebase::firestore::model::MaybeDocumentMap;
 using firebase::firestore::model::ListenSequenceNumber;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::SnapshotVersion;
@@ -212,7 +215,7 @@ class LimboResolution {
 }
 
 - (FSTViewSnapshot *)initializeViewAndComputeSnapshotForQueryData:(FSTQueryData *)queryData {
-  FSTDocumentDictionary *docs = [self.localStore executeQuery:queryData.query];
+  MaybeDocumentMap docs = [self.localStore executeQuery:queryData.query];
   DocumentKeySet remoteKeys = [self.localStore remoteDocumentKeysForTarget:queryData.targetID];
 
   FSTView *view =
@@ -349,7 +352,7 @@ class LimboResolution {
     }
   }
 
-  FSTMaybeDocumentDictionary *changes = [self.localStore applyRemoteEvent:remoteEvent];
+  MaybeDocumentMap changes = [self.localStore applyRemoteEvent:remoteEvent];
   [self emitNewSnapshotsAndNotifyLocalStoreWithChanges:changes remoteEvent:remoteEvent];
 }
 
@@ -419,17 +422,17 @@ class LimboResolution {
   // consistently happen before listen events.
   [self processUserCallbacksForBatchID:batchResult.batch.batchID error:nil];
 
-  FSTMaybeDocumentDictionary *changes = [self.localStore acknowledgeBatchWithResult:batchResult];
+  MaybeDocumentMap changes = [self.localStore acknowledgeBatchWithResult:batchResult];
   [self emitNewSnapshotsAndNotifyLocalStoreWithChanges:changes remoteEvent:nil];
 }
 
 - (void)rejectFailedWriteWithBatchID:(BatchId)batchID error:(NSError *)error {
   [self assertDelegateExistsForSelector:_cmd];
-  FSTMaybeDocumentDictionary *changes = [self.localStore rejectBatchID:batchID];
+  MaybeDocumentMap changes = [self.localStore rejectBatchID:batchID];
 
-  if (!changes.isEmpty && [self errorIsInteresting:error]) {
-    LOG_WARN("Write at %s failed: %s", changes.minKey.path.CanonicalString(),
-             error.localizedDescription);
+  if (!changes.empty() && [self errorIsInteresting:error]) {
+    const DocumentKey &minKey = changes.min()->first;
+    LOG_WARN("Write at %s failed: %s", minKey.ToString(), error.localizedDescription);
   }
 
   // The local store may or may not be able to apply the write result and raise events immediately
@@ -478,7 +481,7 @@ class LimboResolution {
 /**
  * Computes a new snapshot from the changes and calls the registered callback with the new snapshot.
  */
-- (void)emitNewSnapshotsAndNotifyLocalStoreWithChanges:(FSTMaybeDocumentDictionary *)changes
+- (void)emitNewSnapshotsAndNotifyLocalStoreWithChanges:(const MaybeDocumentMap &)changes
                                            remoteEvent:(FSTRemoteEvent *_Nullable)remoteEvent {
   NSMutableArray<FSTViewSnapshot *> *newSnapshots = [NSMutableArray array];
   NSMutableArray<FSTLocalViewChanges *> *documentChangesInAllViews = [NSMutableArray array];
@@ -491,7 +494,7 @@ class LimboResolution {
           // The query has a limit and some docs were removed/updated, so we need to re-run the
           // query against the local store to make sure we didn't lose any good docs that had been
           // past the limit.
-          FSTDocumentDictionary *docs = [self.localStore executeQuery:queryView.query];
+          MaybeDocumentMap docs = [self.localStore executeQuery:queryView.query];
           viewDocChanges = [view computeChangesWithDocuments:docs previousChanges:viewDocChanges];
         }
 
@@ -587,7 +590,7 @@ class LimboResolution {
 
   if (userChanged) {
     // Notify local store and emit any resulting events from swapping out the mutation queue.
-    FSTMaybeDocumentDictionary *changes = [self.localStore userDidChange:user];
+    MaybeDocumentMap changes = [self.localStore userDidChange:user];
     [self emitNewSnapshotsAndNotifyLocalStoreWithChanges:changes remoteEvent:nil];
   }
 

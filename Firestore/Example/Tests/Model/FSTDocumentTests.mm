@@ -43,7 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocument *doc =
       [FSTDocument documentWithData:data key:key version:version state:FSTDocumentStateSynced];
 
-  XCTAssertEqualObjects(doc.key, FSTTestDocKey(@"messages/first"));
+  XCTAssertEqual(doc.key, FSTTestDocKey(@"messages/first"));
   XCTAssertEqual(doc.version, version);
   XCTAssertEqualObjects(doc.data, data);
   XCTAssertEqual(doc.hasLocalMutations, NO);

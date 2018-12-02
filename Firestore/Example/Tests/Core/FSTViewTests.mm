@@ -22,7 +22,6 @@
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTViewSnapshot.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Remote/FSTRemoteEvent.h"

@@ -20,19 +20,20 @@
 #import "Firestore/Source/Local/FSTMutationQueue.h"
 #import "Firestore/Source/Local/FSTRemoteDocumentCache.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentDictionary.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::MaybeDocumentMap;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::SnapshotVersion;
-using firebase::firestore::model::DocumentKeySet;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -78,8 +79,8 @@ NS_ASSUME_NONNULL_BEGIN
   return document;
 }
 
-- (FSTMaybeDocumentDictionary *)documentsForKeys:(const DocumentKeySet &)keys {
-  FSTMaybeDocumentDictionary *results = [FSTMaybeDocumentDictionary maybeDocumentDictionary];
+- (MaybeDocumentMap)documentsForKeys:(const DocumentKeySet &)keys {
+  MaybeDocumentMap results;
   NSArray<FSTMutationBatch *> *batches =
       [self.mutationQueue allMutationBatchesAffectingDocumentKeys:keys];
   for (const DocumentKey &key : keys) {
@@ -91,13 +92,13 @@ NS_ASSUME_NONNULL_BEGIN
                                              version:SnapshotVersion::None()
                                hasCommittedMutations:NO];
     }
-    results = [results dictionaryBySettingObject:maybeDoc forKey:key];
+    results = results.insert(key, maybeDoc);
   }
 
   return results;
 }
 
-- (FSTDocumentDictionary *)documentsMatchingQuery:(FSTQuery *)query {
+- (MaybeDocumentMap)documentsMatchingQuery:(FSTQuery *)query {
   if (DocumentKey::IsDocumentKey(query.path)) {
     return [self documentsMatchingDocumentQuery:query.path];
   } else {
@@ -105,18 +106,18 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-- (FSTDocumentDictionary *)documentsMatchingDocumentQuery:(const ResourcePath &)docPath {
-  FSTDocumentDictionary *result = [FSTDocumentDictionary documentDictionary];
+- (MaybeDocumentMap)documentsMatchingDocumentQuery:(const ResourcePath &)docPath {
+  MaybeDocumentMap result;
   // Just do a simple document lookup.
   FSTMaybeDocument *doc = [self documentForKey:DocumentKey{docPath}];
   if ([doc isKindOfClass:[FSTDocument class]]) {
-    result = [result dictionaryBySettingObject:(FSTDocument *)doc forKey:doc.key];
+    result = result.insert(doc.key, doc);
   }
   return result;
 }
 
-- (FSTDocumentDictionary *)documentsMatchingCollectionQuery:(FSTQuery *)query {
-  __block FSTDocumentDictionary *results = [self.remoteDocumentCache documentsMatchingQuery:query];
+- (MaybeDocumentMap)documentsMatchingCollectionQuery:(FSTQuery *)query {
+  MaybeDocumentMap results = [self.remoteDocumentCache documentsMatchingQuery:query];
   // Get locally persisted mutation batches.
   NSArray<FSTMutationBatch *> *matchingBatches =
       [self.mutationQueue allMutationBatchesAffectingQuery:query];
@@ -128,17 +129,21 @@ NS_ASSUME_NONNULL_BEGIN
         continue;
       }
 
-      FSTDocumentKey *key = static_cast<FSTDocumentKey *>(mutation.key);
+      const DocumentKey key = mutation.key;
       // baseDoc may be nil for the documents that weren't yet written to the backend.
-      FSTMaybeDocument *baseDoc = results[key];
+      FSTMaybeDocument *baseDoc = nil;
+      auto found = results.find(key);
+      if (found != results.end()) {
+        baseDoc = found->second;
+      }
       FSTMaybeDocument *mutatedDoc = [mutation applyToLocalDocument:baseDoc
                                                        baseDocument:baseDoc
                                                      localWriteTime:batch.localWriteTime];
 
       if ([mutatedDoc isKindOfClass:[FSTDocument class]]) {
-        results = [results dictionaryBySettingObject:(FSTDocument *)mutatedDoc forKey:key];
+        results = results.insert(key, mutatedDoc);
       } else {
-        results = [results dictionaryByRemovingObjectForKey:key];
+        results = results.erase(key);
       }
     }
   }
@@ -146,13 +151,14 @@ NS_ASSUME_NONNULL_BEGIN
   // Finally, filter out any documents that don't actually match the query. Note that the extra
   // reference here prevents ARC from deallocating the initial unfiltered results while we're
   // enumerating them.
-  FSTDocumentDictionary *unfiltered = results;
-  [unfiltered
-      enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key, FSTDocument *doc, BOOL *stop) {
-        if (![query matchesDocument:doc]) {
-          results = [results dictionaryByRemovingObjectForKey:key];
-        }
-      }];
+  MaybeDocumentMap unfiltered = results;
+  for (const auto &kv : unfiltered) {
+    const DocumentKey& key = kv.first;
+    FSTDocument *doc = static_cast<FSTDocument*>(kv.second);
+    if (![query matchesDocument:doc]) {
+      results = results.erase(key);
+    }
+  }
 
   return results;
 }

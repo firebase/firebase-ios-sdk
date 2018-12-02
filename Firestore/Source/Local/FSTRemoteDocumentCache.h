@@ -16,9 +16,9 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Firestore/Source/Model/FSTDocumentDictionary.h"
-
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
+#include "Firestore/core/src/firebase/firestore/model/document_map.h"
 
 @class FSTMaybeDocument;
 @class FSTQuery;
@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Represents cached documents received from the remote backend.
  *
- * The cache is keyed by FSTDocumentKey and entries in the cache are FSTMaybeDocument instances,
+ * The cache is keyed by DocumentKey and entries in the cache are FSTMaybeDocument instances,
  * meaning we can cache both FSTDocument instances (an actual document with data) as well as
  * FSTDeletedDocument instances (indicating that the document is known to not exist).
  */
@@ -67,7 +67,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param query The query to match documents against.
  * @return The set of matching documents.
  */
-- (FSTDocumentDictionary *)documentsMatchingQuery:(FSTQuery *)query;
+- (firebase::firestore::model::MaybeDocumentMap)documentsMatchingQuery:(FSTQuery *)query;
 
 @end
 

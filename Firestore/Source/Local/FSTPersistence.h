@@ -22,7 +22,6 @@
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 
-@class FSTDocumentKey;
 @class FSTQueryData;
 @class FSTReferenceSet;
 @protocol FSTMutationQueue;

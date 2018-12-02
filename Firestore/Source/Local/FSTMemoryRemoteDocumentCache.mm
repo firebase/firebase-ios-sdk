@@ -21,12 +21,14 @@
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentDictionary.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/document_map.h"
 
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::ListenSequenceNumber;
+using firebase::firestore::model::MaybeDocumentMap;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -35,9 +37,9 @@ NS_ASSUME_NONNULL_BEGIN
  * document key in memory. This is only an estimate and includes the size
  * of the segments of the path, but not any object overhead or path separators.
  */
-static size_t FSTDocumentKeyByteSize(FSTDocumentKey *key) {
+static size_t FSTDocumentKeyByteSize(const DocumentKey &key) {
   size_t count = 0;
-  for (const auto &segment : key.path) {
+  for (const auto &segment : key.path()) {
     count += segment.size();
   }
   return count;
@@ -45,50 +47,48 @@ static size_t FSTDocumentKeyByteSize(FSTDocumentKey *key) {
 
 @interface FSTMemoryRemoteDocumentCache ()
 
-/** Underlying cache of documents. */
-@property(nonatomic, strong) FSTMaybeDocumentDictionary *docs;
-
 @end
 
-@implementation FSTMemoryRemoteDocumentCache
-
-- (instancetype)init {
-  if (self = [super init]) {
-    _docs = [FSTMaybeDocumentDictionary maybeDocumentDictionary];
-  }
-  return self;
+@implementation FSTMemoryRemoteDocumentCache {
+  /** Underlying cache of documents. */
+  MaybeDocumentMap _docs;
 }
 
 - (void)addEntry:(FSTMaybeDocument *)document {
-  self.docs = [self.docs dictionaryBySettingObject:document forKey:document.key];
+  self->_docs = self->_docs.insert(document.key, document);
 }
 
 - (void)removeEntryForKey:(const DocumentKey &)key {
-  self.docs = [self.docs dictionaryByRemovingObjectForKey:key];
+  self->_docs = self->_docs.erase(key);
 }
 
 - (nullable FSTMaybeDocument *)entryForKey:(const DocumentKey &)key {
-  return self.docs[static_cast<FSTDocumentKey *>(key)];
+  auto found = self->_docs.find(key);
+  return found != self->_docs.end() ? found->second : nil;
 }
 
-- (FSTDocumentDictionary *)documentsMatchingQuery:(FSTQuery *)query {
-  FSTDocumentDictionary *result = [FSTDocumentDictionary documentDictionary];
+- (MaybeDocumentMap)documentsMatchingQuery:(FSTQuery *)query {
+  MaybeDocumentMap result;
 
   // Documents are ordered by key, so we can use a prefix scan to narrow down the documents
   // we need to match the query against.
-  FSTDocumentKey *prefix = [FSTDocumentKey keyWithPath:query.path.Append("")];
-  NSEnumerator<FSTDocumentKey *> *enumerator = [self.docs keyEnumeratorFrom:prefix];
-  for (FSTDocumentKey *key in enumerator) {
-    if (!query.path.IsPrefixOf(key.path)) {
+  DocumentKey prefix{query.path.Append("")};
+  for (auto it = self->_docs.lower_bound(prefix); it != self->_docs.end(); ++it) {
+    const DocumentKey &key = it->first;
+    if (!query.path.IsPrefixOf(key.path())) {
       break;
     }
-    FSTMaybeDocument *maybeDoc = self.docs[key];
+    FSTMaybeDocument *maybeDoc = nil;
+    auto found = self->_docs.find(key);
+    if (found != self->_docs.end()) {
+      maybeDoc = found->second;
+    }
     if (![maybeDoc isKindOfClass:[FSTDocument class]]) {
       continue;
     }
-    FSTDocument *doc = (FSTDocument *)maybeDoc;
+    FSTDocument *doc = static_cast<FSTDocument *>(maybeDoc);
     if ([query matchesDocument:doc]) {
-      result = [result dictionaryBySettingObject:doc forKey:doc.key];
+      result = result.insert(key, doc);
     }
   }
 
@@ -99,24 +99,26 @@ static size_t FSTDocumentKeyByteSize(FSTDocumentKey *key) {
                                 (FSTMemoryLRUReferenceDelegate *)referenceDelegate
                               throughSequenceNumber:(ListenSequenceNumber)upperBound {
   std::vector<DocumentKey> removed;
-  FSTMaybeDocumentDictionary *updatedDocs = self.docs;
-  for (FSTDocumentKey *docKey in [self.docs keyEnumerator]) {
+  MaybeDocumentMap updatedDocs = self->_docs;
+  for (const auto &kv : self->_docs) {
+    const DocumentKey &docKey = kv.first;
     if (![referenceDelegate isPinnedAtSequenceNumber:upperBound document:docKey]) {
-      updatedDocs = [updatedDocs dictionaryByRemovingObjectForKey:docKey];
-      removed.push_back(DocumentKey{docKey});
+      updatedDocs = updatedDocs.erase(docKey);
+      removed.push_back(docKey);
     }
   }
-  self.docs = updatedDocs;
+  self->_docs = updatedDocs;
   return removed;
 }
 
 - (size_t)byteSizeWithSerializer:(FSTLocalSerializer *)serializer {
-  __block size_t count = 0;
-  [self.docs
-      enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key, FSTMaybeDocument *doc, BOOL *stop) {
-        count += FSTDocumentKeyByteSize(key);
-        count += [[[serializer encodedMaybeDocument:doc] data] length];
-      }];
+  size_t count = 0;
+  for (const auto &kv : self->_docs) {
+    const DocumentKey &key = kv.first;
+    FSTMaybeDocument *doc = kv.second;
+    count += FSTDocumentKeyByteSize(key);
+    count += [[[serializer encodedMaybeDocument:doc] data] length];
+  }
   return count;
 }
 

@@ -21,6 +21,7 @@
 #include <map>
 #include <memory>
 #include <unordered_map>
+#include <utility>
 
 #import "Firestore/Source/Core/FSTEventManager.h"
 #import "Firestore/Source/Core/FSTQuery.h"
@@ -51,6 +52,7 @@ using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
@@ -108,6 +110,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   // ivar is declared as mutable.
   std::unordered_map<User, NSMutableArray<FSTOutstandingWrite *> *, HashUser> _outstandingWrites;
+  DocumentKeySet _expectedLimboDocuments;
 
   DatabaseInfo _databaseInfo;
   User _currentUser;
@@ -164,8 +167,6 @@ NS_ASSUME_NONNULL_BEGIN
 
     _queryListeners = [NSMutableDictionary dictionary];
 
-    _expectedLimboDocuments = [NSSet set];
-
     _expectedActiveTargets = [NSDictionary dictionary];
 
     _currentUser = initialUser;
@@ -179,6 +180,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (const FSTOutstandingWriteQueues &)outstandingWrites {
   return _outstandingWrites;
+}
+
+- (const DocumentKeySet &)expectedLimboDocuments {
+  return _expectedLimboDocuments;
+}
+
+- (void)setExpectedLimboDocuments:(DocumentKeySet)docs {
+  _expectedLimboDocuments = std::move(docs);
 }
 
 - (void)drainQueue {
