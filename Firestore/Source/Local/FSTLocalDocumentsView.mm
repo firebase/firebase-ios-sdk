@@ -23,6 +23,8 @@
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
@@ -144,7 +146,7 @@ NS_ASSUME_NONNULL_BEGIN
   // Just do a simple document lookup.
   FSTMaybeDocument *doc = [self documentForKey:DocumentKey{docPath}];
   if ([doc isKindOfClass:[FSTDocument class]]) {
-    result = result.insert(doc.key, static_cast<FSTDocument *>(doc));
+    result = result.insert(doc.key, doc);
   }
   return result;
 }

@@ -111,20 +111,20 @@ typedef FSTImmutableSortedSet<FSTDocument *> SetType;
 }
 
 - (NSUInteger)count {
-  return self->_index.size();
+  return _index.size();
 }
 
 - (BOOL)isEmpty {
-  return self->_index.empty();
+  return _index.empty();
 }
 
 - (BOOL)containsKey:(const DocumentKey &)key {
-  return self->_index.find(key) != self->_index.end();
+  return _index.find(key) != _index.end();
 }
 
 - (FSTDocument *_Nullable)documentForKey:(const DocumentKey &)key {
-  auto found = self->_index.find(key);
-  return found != self->_index.end() ? found->second : nil;
+  auto found = _index.find(key);
+  return found != _index.end() ? found->second : nil;
 }
 
 - (FSTDocument *_Nullable)firstDocument {
@@ -153,7 +153,7 @@ typedef FSTImmutableSortedSet<FSTDocument *> SetType;
 }
 
 - (const DocumentMap &)mapValue {
-  return self->_index;
+  return _index;
 }
 
 - (instancetype)documentSetByAddingDocument:(FSTDocument *_Nullable)document {
@@ -177,7 +177,7 @@ typedef FSTImmutableSortedSet<FSTDocument *> SetType;
     return self;
   }
 
-  DocumentMap index = self->_index.erase(key);
+  DocumentMap index = _index.erase(key);
   SetType *set = [self.sortedSet setByRemovingObject:doc];
   return [[FSTDocumentSet alloc] initWithIndex:std::move(index) set:set];
 }
