@@ -104,7 +104,7 @@ class LevelDBFixture : public benchmark::Fixture {
     LevelDbTransaction txn(db_.ptr, "benchmark");
 
     for (int i = 0; i < numDocuments_; i++) {
-      auto docKey = DocumentKey::FromPathString(StringFormat(docs / doc_ % i, i));
+      auto docKey = DocumentKey::FromPathString(StringFormat("docs/doc_%i", i));
       std::string docKeyString = LevelDbRemoteDocumentKey::Key(docKey);
       txn.Put(docKeyString, DocumentData());
       WriteIndex(txn, docKey);
@@ -139,7 +139,7 @@ BENCHMARK_DEFINE_F(LevelDBFixture, RemoteEvent)(benchmark::State &state) {
   for (const auto &_ : state) {
     LevelDbTransaction txn(db_.ptr, "benchmark");
     for (int i = 0; i < docsToUpdate; i++) {
-      auto docKey = DocumentKey::FromPathString(StringFormat(docs / doc_ % i, i));
+      auto docKey = DocumentKey::FromPathString(StringFormat("docs/doc_%i", i));
       if (writeIndexes) WriteIndex(txn, docKey);
       std::string docKeyString = LevelDbRemoteDocumentKey::Key(docKey);
       txn.Put(docKeyString, documentUpdate);

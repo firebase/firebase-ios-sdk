@@ -129,7 +129,7 @@ NS_ASSUME_NONNULL_BEGIN
         continue;
       }
 
-      const DocumentKey key = mutation.key;
+      const DocumentKey& key = mutation.key;
       // baseDoc may be nil for the documents that weren't yet written to the backend.
       FSTMaybeDocument *baseDoc = nil;
       auto found = results.find(key);
