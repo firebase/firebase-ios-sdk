@@ -16,6 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
+#import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 #include "Firestore/core/src/firebase/firestore/util/path.h"
 
 @class FSTLevelDB;
@@ -48,10 +49,21 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (FSTLevelDB *)levelDBPersistenceWithDir:(firebase::firestore::util::Path)dir;
 
+/**
+ * Creates and starts a new FSTLevelDB instance for testing, destroying any previous contents
+ * if they existed.
+ *
+ * Sets up the LRU garbage collection to use the provided params.
+ */
++ (FSTLevelDB *)levelDBPersistenceWithLruParams:(firebase::firestore::local::LruParams)lruParams;
+
 /** Creates and starts a new FSTMemoryPersistence instance for testing. */
 + (FSTMemoryPersistence *)eagerGCMemoryPersistence;
 
 + (FSTMemoryPersistence *)lruMemoryPersistence;
+
++ (FSTMemoryPersistence *)lruMemoryPersistenceWithLruParams:
+    (firebase::firestore::local::LruParams)lruParams;
 @end
 
 NS_ASSUME_NONNULL_END

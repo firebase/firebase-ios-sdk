@@ -16,11 +16,13 @@
 
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 
+#include <chrono>  // NOLINT(build/c++11)
 #include <future>  // NOLINT(build/c++11)
 #include <memory>
 #include <utility>
 
 #import "FIRFirestoreErrors.h"
+#import "FIRFirestoreSettings.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
 #import "Firestore/Source/API/FIRQuery+Internal.h"
@@ -31,6 +33,7 @@
 #import "Firestore/Source/Core/FSTSyncEngine.h"
 #import "Firestore/Source/Core/FSTTransaction.h"
 #import "Firestore/Source/Core/FSTView.h"
+#import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Local/FSTLocalStore.h"
@@ -54,6 +57,7 @@ namespace util = firebase::firestore::util;
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
+using firebase::firestore::local::LruParams;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::MaybeDocumentMap;
@@ -61,16 +65,23 @@ using firebase::firestore::model::OnlineState;
 using firebase::firestore::util::Path;
 using firebase::firestore::util::Status;
 using firebase::firestore::util::AsyncQueue;
+using firebase::firestore::util::DelayedOperation;
 using firebase::firestore::util::Executor;
+using firebase::firestore::util::TimerId;
 
 NS_ASSUME_NONNULL_BEGIN
+
+/** How long we wait to try running LRU GC after SDK initialization. */
+static const std::chrono::milliseconds FSTLruGcInitialDelay = std::chrono::minutes(1);
+/** Minimum amount of time between GC checks, after the first one. */
+static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minutes(5);
 
 @interface FSTFirestoreClient () {
   DatabaseInfo _databaseInfo;
 }
 
 - (instancetype)initWithDatabaseInfo:(const DatabaseInfo &)databaseInfo
-                      usePersistence:(BOOL)usePersistence
+                            settings:(FIRFirestoreSettings *)settings
                  credentialsProvider:
                      (CredentialsProvider *)credentialsProvider  // no passing ownership
                         userExecutor:(std::unique_ptr<Executor>)userExecutor
@@ -98,6 +109,11 @@ NS_ASSUME_NONNULL_BEGIN
   std::unique_ptr<AsyncQueue> _workerQueue;
 
   std::unique_ptr<Executor> _userExecutor;
+  std::chrono::milliseconds _initialGcDelay;
+  std::chrono::milliseconds _regularGcDelay;
+  BOOL _gcHasRun;
+  _Nullable id<FSTLRUDelegate> _lruDelegate;
+  DelayedOperation _lruCallback;
 }
 
 - (Executor *)userExecutor {
@@ -109,20 +125,20 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (instancetype)clientWithDatabaseInfo:(const DatabaseInfo &)databaseInfo
-                        usePersistence:(BOOL)usePersistence
+                              settings:(FIRFirestoreSettings *)settings
                    credentialsProvider:
                        (CredentialsProvider *)credentialsProvider  // no passing ownership
                           userExecutor:(std::unique_ptr<Executor>)userExecutor
                            workerQueue:(std::unique_ptr<AsyncQueue>)workerQueue {
   return [[FSTFirestoreClient alloc] initWithDatabaseInfo:databaseInfo
-                                           usePersistence:usePersistence
+                                                 settings:settings
                                       credentialsProvider:credentialsProvider
                                              userExecutor:std::move(userExecutor)
                                               workerQueue:std::move(workerQueue)];
 }
 
 - (instancetype)initWithDatabaseInfo:(const DatabaseInfo &)databaseInfo
-                      usePersistence:(BOOL)usePersistence
+                            settings:(FIRFirestoreSettings *)settings
                  credentialsProvider:
                      (CredentialsProvider *)credentialsProvider  // no passing ownership
                         userExecutor:(std::unique_ptr<Executor>)userExecutor
@@ -132,6 +148,9 @@ NS_ASSUME_NONNULL_BEGIN
     _credentialsProvider = credentialsProvider;
     _userExecutor = std::move(userExecutor);
     _workerQueue = std::move(workerQueue);
+    _gcHasRun = NO;
+    _initialGcDelay = FSTLruGcInitialDelay;
+    _regularGcDelay = FSTLruGcRegularDelay;
 
     auto userPromise = std::make_shared<std::promise<User>>();
     bool initialized = false;
@@ -155,15 +174,15 @@ NS_ASSUME_NONNULL_BEGIN
     // Defer initialization until we get the current user from the credentialChangeListener. This is
     // guaranteed to be synchronously dispatched onto our worker queue, so we will be initialized
     // before any subsequently queued work runs.
-    _workerQueue->Enqueue([self, userPromise, usePersistence] {
+    _workerQueue->Enqueue([self, userPromise, settings] {
       User user = userPromise->get_future().get();
-      [self initializeWithUser:user usePersistence:usePersistence];
+      [self initializeWithUser:user settings:settings];
     });
   }
   return self;
 }
 
-- (void)initializeWithUser:(const User &)user usePersistence:(BOOL)usePersistence {
+- (void)initializeWithUser:(const User &)user settings:(FIRFirestoreSettings *)settings {
   // Do all of our initialization on our own dispatch queue.
   _workerQueue->VerifyIsCurrentQueue();
   LOG_DEBUG("Initializing. Current user: %s", user.uid());
@@ -171,7 +190,7 @@ NS_ASSUME_NONNULL_BEGIN
   // Note: The initialization work must all be synchronous (we can't dispatch more work) since
   // external write/listen operations could get queued to run before that subsequent work
   // completes.
-  if (usePersistence) {
+  if (settings.isPersistenceEnabled) {
     Path dir = [FSTLevelDB storageDirectoryForDatabaseInfo:*self.databaseInfo
                                         documentsDirectory:[FSTLevelDB documentsDirectory]];
 
@@ -179,8 +198,13 @@ NS_ASSUME_NONNULL_BEGIN
         [[FSTSerializerBeta alloc] initWithDatabaseID:&self.databaseInfo->database_id()];
     FSTLocalSerializer *serializer =
         [[FSTLocalSerializer alloc] initWithRemoteSerializer:remoteSerializer];
-
-    _persistence = [[FSTLevelDB alloc] initWithDirectory:std::move(dir) serializer:serializer];
+    FSTLevelDB *ldb =
+        [[FSTLevelDB alloc] initWithDirectory:std::move(dir)
+                                   serializer:serializer
+                                    lruParams:LruParams::WithCacheSize(settings.cacheSizeBytes)];
+    _lruDelegate = ldb.referenceDelegate;
+    _persistence = ldb;
+    [self scheduleLruGarbageCollection];
   } else {
     _persistence = [FSTMemoryPersistence persistenceWithEagerGC];
   }
@@ -222,6 +246,19 @@ NS_ASSUME_NONNULL_BEGIN
   [_remoteStore start];
 }
 
+/**
+ * Schedules a callback to try running LRU garbage collection. Reschedules itself after the GC has
+ * run.
+ */
+- (void)scheduleLruGarbageCollection {
+  std::chrono::milliseconds delay = _gcHasRun ? _regularGcDelay : _initialGcDelay;
+  _lruCallback = _workerQueue->EnqueueAfterDelay(delay, TimerId::GarbageCollectionDelay, [self]() {
+    [self->_localStore collectGarbage:self->_lruDelegate.gc];
+    self->_gcHasRun = YES;
+    [self scheduleLruGarbageCollection];
+  });
+}
+
 - (void)credentialDidChangeWithUser:(const User &)user {
   _workerQueue->VerifyIsCurrentQueue();
 
@@ -255,6 +292,10 @@ NS_ASSUME_NONNULL_BEGIN
   _workerQueue->Enqueue([self, completion] {
     self->_credentialsProvider->SetCredentialChangeListener(nullptr);
 
+    // If we've scheduled LRU garbage collection, cancel it.
+    if (self->_lruCallback) {
+      self->_lruCallback.Cancel();
+    }
     [self.remoteStore shutdown];
     [self.persistence shutdown];
     if (completion) {

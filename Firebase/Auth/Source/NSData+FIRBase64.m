@@ -14,22 +14,16 @@
  * limitations under the License.
  */
 
-#import "DynamicLinks/FDLURLComponents/FIRDynamicLinkComponentsKeyProvider.h"
+#import "NSData+FIRBase64.h"
 
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIROptions.h>
+@implementation NSData (FIRBase64)
 
-@implementation FIRDynamicLinkComponentsKeyProvider
-
-+ (nullable NSString *)APIKey {
-  // If there's no default app, immediately return nil since reading from the default app will cause
-  // an error to be logged.
-  if (![FIRApp isDefaultAppConfigured]) {
-    return nil;
-  }
-
-  // FDL only supports the default app, use the options from it.
-  return [FIRApp defaultApp].options.APIKey;
+- (NSString *)fir_base64URLEncodedStringWithOptions:(NSDataBase64EncodingOptions)options {
+  NSString *string = [self base64EncodedStringWithOptions:options];
+  string = [string stringByReplacingOccurrencesOfString:@"/" withString:@"_"];
+  string = [string stringByReplacingOccurrencesOfString:@"+" withString:@"-"];
+  string = [string stringByReplacingOccurrencesOfString:@"=" withString:@""];
+  return string;
 }
 
 @end
