@@ -19,12 +19,15 @@
 #import "Firestore/Example/Tests/Local/FSTLRUGarbageCollectorTests.h"
 
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
+#import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
 using firebase::firestore::local::LevelDbDocumentTargetKey;
 using firebase::firestore::model::DocumentKey;
+
+using firebase::firestore::local::LruParams;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -33,8 +36,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTLevelDBLRUGarbageCollectorTests
 
-- (id<FSTPersistence>)newPersistence {
-  return [FSTPersistenceTestHelpers levelDBPersistence];
+- (id<FSTPersistence>)newPersistenceWithLruParams:(LruParams)lruParams {
+  return [FSTPersistenceTestHelpers levelDBPersistenceWithLruParams:lruParams];
 }
 
 - (BOOL)sentinelExists:(const DocumentKey &)key {

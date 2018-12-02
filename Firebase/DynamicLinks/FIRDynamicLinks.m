@@ -60,6 +60,9 @@ NSString *const kFIRDLReadDeepLinkAfterInstallKey =
 // We should only open url once. We use the following key to store the state in the user defaults.
 static NSString *const kFIRDLOpenURLKey = @"com.google.appinvite.openURL";
 
+// Custom domains to be whitelisted are optionally added as an array to the info.plist.
+static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustomDomains";
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRDynamicLinks () <FIRDLRetrievalProcessDelegate>
@@ -215,6 +218,12 @@ NS_ASSUME_NONNULL_BEGIN
               error.localizedFailureReason];
     }
     [NSException raise:kFirebaseDurableDeepLinkErrorDomain format:@"%@", message];
+  }
+  // Check to see if FirebaseDynamicLinksCustomDomains array is present.
+  NSDictionary *infoDictionary = [NSBundle mainBundle].infoDictionary;
+  NSArray *customDomains = infoDictionary[kInfoPlistCustomDomainsKey];
+  if (customDomains) {
+    FIRDLAddToAllowListForCustomDomainsArray(customDomains);
   }
 }
 

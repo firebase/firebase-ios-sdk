@@ -125,7 +125,7 @@ static size_t FSTDocumentKeyByteSize(const DocumentKey &key) {
     const DocumentKey &key = kv.first;
     FSTMaybeDocument *doc = kv.second;
     count += FSTDocumentKeyByteSize(key);
-    count += [[[serializer encodedMaybeDocument:doc] data] length];
+    count += [[serializer encodedMaybeDocument:doc] serializedSize];
   }
   return count;
 }

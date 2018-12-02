@@ -36,6 +36,10 @@ readonly EXIT_FAILURE=1
 # Get day of the year to use it when selecting a main target.
 readonly DOY="$(date +%j)"
 
+# How many last lines of the log to output for a failing job. This is to avoid
+# exceeding Travis log size limit (4 Mb).
+readonly LINES_TO_OUTPUT=500
+
 # Run fuzz testing only if executing on xcode >= 9 because fuzzing requires
 # Clang that supports -fsanitize-coverage=trace-pc-guard.
 xcode_version="$(xcodebuild -version | head -n 1)"
@@ -110,7 +114,8 @@ for i in "${!all_fuzzing_targets[@]}"; do
     echo "Error: Fuzz testing for target ${fuzzing_target} failed."
     script_return=${EXIT_FAILURE}
     echo "Fuzzing logs:"
-    echo "${fuzzing_results}"
+    echo "${fuzzing_results}" | tail -n${LINES_TO_OUTPUT}
+    echo "End fuzzing logs"
   fi
 done
 
