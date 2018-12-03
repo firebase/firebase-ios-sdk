@@ -1,4 +1,7 @@
-# v5.0.6
+# v5.2.0
+- Add support of Game Center sign in (#2127).
+
+# v5.1.0
 - Add support of custom FDL domain link (#2121).
 
 # v5.0.5
