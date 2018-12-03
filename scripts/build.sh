@@ -22,7 +22,7 @@ set -euo pipefail
 
 if [[ $# -lt 1 ]]; then
   cat 1>&2 <<EOF
-USAGE: $0 product [platform] [method]
+USAGE: $0 [product] [platform] [method]
 
 product can be one of:
   Firebase
