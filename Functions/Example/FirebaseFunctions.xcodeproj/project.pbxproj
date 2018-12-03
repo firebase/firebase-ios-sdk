@@ -28,8 +28,9 @@
 		7CBFAA88205702AB00A65866 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F58D195388D20070C39A /* Foundation.framework */; };
 		7CBFAA8B205702AB00A65866 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6003F5B8195388D20070C39A /* InfoPlist.strings */; };
 		7CF3BEC21F97EE2F00B16B6E /* FUNFakeInstanceID.m in Sources */ = {isa = PBXBuildFile; fileRef = 7CF3BEC01F97EE2F00B16B6E /* FUNFakeInstanceID.m */; };
-		7CF563091F1FE70600FEE1F4 /* FUNFakeApp.m in Sources */ = {isa = PBXBuildFile; fileRef = 7CF563081F1FE70600FEE1F4 /* FUNFakeApp.m */; };
 		873B8AEB1B1F5CCA007FD442 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 873B8AEA1B1F5CCA007FD442 /* Main.storyboard */; };
+		C8E1AD6521B5ABC300A43E79 /* FUNFakeApp.m in Sources */ = {isa = PBXBuildFile; fileRef = 7CF563081F1FE70600FEE1F4 /* FUNFakeApp.m */; };
+		C8E1AD6621B5ABC400A43E79 /* FUNFakeApp.m in Sources */ = {isa = PBXBuildFile; fileRef = 7CF563081F1FE70600FEE1F4 /* FUNFakeApp.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -349,7 +350,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7CF563091F1FE70600FEE1F4 /* FUNFakeApp.m in Sources */,
 				6003F59E195388D20070C39A /* FIRAppDelegate.m in Sources */,
 				6003F5A7195388D20070C39A /* FIRViewController.m in Sources */,
 				7CF3BEC21F97EE2F00B16B6E /* FUNFakeInstanceID.m in Sources */,
@@ -362,6 +362,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7C58B03A1F1441F0005ED954 /* FUNSerializerTests.m in Sources */,
+				C8E1AD6621B5ABC400A43E79 /* FUNFakeApp.m in Sources */,
 				6003F5BC195388D20070C39A /* FIRFunctionsTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -370,6 +371,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C8E1AD6521B5ABC300A43E79 /* FUNFakeApp.m in Sources */,
 				7CBFAA82205702AB00A65866 /* FIRIntegrationTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -538,7 +540,11 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
-				HEADER_SEARCH_PATHS = "$(SRCROOT)/../FirebaseFunctions";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../../Firebase/Core/Private",
+					"$(SRCROOT)/../FirebaseFunctions",
+				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -557,7 +563,11 @@
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
-				HEADER_SEARCH_PATHS = "$(SRCROOT)/../FirebaseFunctions";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../../Firebase/Core/Private",
+					"$(SRCROOT)/../FirebaseFunctions",
+				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -580,7 +590,11 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
-				HEADER_SEARCH_PATHS = "$(SRCROOT)/../FirebaseFunctions";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../../Firebase/Core/Private",
+					"$(SRCROOT)/../FirebaseFunctions",
+				);
 				INFOPLIST_FILE = "IntegrationTests/IntegrationTests-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -599,7 +613,11 @@
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
-				HEADER_SEARCH_PATHS = "$(SRCROOT)/../FirebaseFunctions";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../../Firebase/Core/Private",
+					"$(SRCROOT)/../FirebaseFunctions",
+				);
 				INFOPLIST_FILE = "IntegrationTests/IntegrationTests-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";

@@ -18,7 +18,7 @@
 
 #import "FUNFakeApp.h"
 
-#import <FirebaseCore/FIRComponentContainerInternal.h>
+#import "FIRComponentContainerInternal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
