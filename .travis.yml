@@ -248,6 +248,7 @@ jobs:
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
+  allow_failures:
     # Run fuzz tests only on cron jobs.
     - stage: test
       env:
@@ -262,7 +263,6 @@ jobs:
     # need to make them fatal for the purposes of the test run.
 
   # TODO(varconst): disallow sanitizers to fail once we fix all existing issues.
-  allow_failures:
     - env:
       - PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=asan
     - env:
