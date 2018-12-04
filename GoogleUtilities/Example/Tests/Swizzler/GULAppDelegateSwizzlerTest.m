@@ -262,7 +262,7 @@ static BOOL gRespondsToHandleBackgroundSession;
 
   UIApplication *currentApplication = [UIApplication sharedApplication];
   NSString *sessionID = @"123";
-  void (^nilHandler)() = nil;
+  void (^nilHandler)(void) = nil;
   [realAppDelegate application:currentApplication
       handleEventsForBackgroundURLSession:sessionID
                         completionHandler:nilHandler];
