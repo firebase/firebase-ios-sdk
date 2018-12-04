@@ -455,9 +455,8 @@ TEST_F(GrpcStreamTest, DoubleFinish_FailThenFinishImmediately) {
 
   ForceFinish({{Type::Read, Error}});
   KeepPollingGrpcQueue();
-  worker_queue.EnqueueBlocking([&] {
-    EXPECT_NO_THROW(stream->FinishImmediately());
-  });
+  worker_queue.EnqueueBlocking(
+      [&] { EXPECT_NO_THROW(stream->FinishImmediately()); });
 }
 
 TEST_F(GrpcStreamTest, DoubleFinish_FailThenWriteAndFinish) {
@@ -465,15 +464,15 @@ TEST_F(GrpcStreamTest, DoubleFinish_FailThenWriteAndFinish) {
 
   ForceFinish({{Type::Read, Error}});
   KeepPollingGrpcQueue();
-  worker_queue.EnqueueBlocking([&] {
-    EXPECT_NO_THROW(stream->WriteAndFinish({}));
-  });
+  worker_queue.EnqueueBlocking(
+      [&] { EXPECT_NO_THROW(stream->WriteAndFinish({})); });
 }
 
-TEST_F(GrpcStreamTest, DoubleFinish_FailThenFailAgainThenFinishImmediately) {
-  worker_queue.EnqueueBlocking([&] { stream->Start();
+TEST_F(GrpcStreamTest, DoubleFinish_FailThenFailAgain) {
+  worker_queue.EnqueueBlocking([&] {
+    stream->Start();
     stream->Write({});
-      });
+  });
 
   int failures_count = 0;
   auto future = tester.ForceFinishAsync([&](GrpcCompletion* completion) {
@@ -482,20 +481,19 @@ TEST_F(GrpcStreamTest, DoubleFinish_FailThenFailAgainThenFinishImmediately) {
       case Type::Write:
         ++failures_count;
         completion->Complete(false);
-        break;
+        return failures_count == 2;
       default:
         UnexpectedType(completion);
-        return false;
+        return true;
     }
-    return failures_count == 2;
   });
   future.wait();
   worker_queue.EnqueueBlocking([] {});
 
-  KeepPollingGrpcQueue();
-  worker_queue.EnqueueBlocking([&] {
-    EXPECT_NO_THROW(stream->FinishImmediately());
-  });
+  // Normally, "Finish" never fails, but for the test it's easier to abuse the
+  // finish operation that has already been enqueued by `OnOperationFailed`
+  // rather than adding a new operation.
+  ForceFinish({{Type::Finish, Error}});
 }
 
 }  // namespace remote
