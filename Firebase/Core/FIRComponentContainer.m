@@ -18,7 +18,7 @@
 
 #import "Private/FIRAppInternal.h"
 #import "Private/FIRComponent.h"
-#import "Private/FIRComponentRegistrant.h"
+#import "Private/FIRLibrary.h"
 #import "Private/FIRLogger.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -41,13 +41,13 @@ static NSMutableSet<Class> *gFIRComponentRegistrants;
 
 #pragma mark - Public Registration
 
-+ (void)registerAsComponentRegistrant:(Class)klass {
++ (void)registerAsComponentRegistrant:(id<FIRLibrary>)klass {
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
     gFIRComponentRegistrants = [[NSMutableSet<Class> alloc] init];
   });
 
-  [self registerAsComponentRegistrant:klass inSet:gFIRComponentRegistrants];
+  [self registerAsComponentRegistrant:(Class)klass inSet:gFIRComponentRegistrants];
 }
 
 + (void)registerAsComponentRegistrant:(Class)klass inSet:(NSMutableSet<Class> *)allRegistrants {
@@ -59,7 +59,7 @@ static NSMutableSet<Class> *gFIRComponentRegistrants;
   }
 
   // Ensure the class given conforms to the proper protocol.
-  if (![klass conformsToProtocol:@protocol(FIRComponentRegistrant)] ||
+  if (![klass conformsToProtocol:@protocol(FIRLibrary)] ||
       ![klass respondsToSelector:@selector(componentsToRegister)]) {
     [NSException raise:NSInvalidArgumentException
                 format:
@@ -91,7 +91,7 @@ static NSMutableSet<Class> *gFIRComponentRegistrants;
 
 - (void)populateComponentsFromRegisteredClasses:(NSSet<Class> *)classes forApp:(FIRApp *)app {
   // Loop through the verified component registrants and populate the components array.
-  for (Class<FIRComponentRegistrant> klass in classes) {
+  for (Class<FIRLibrary> klass in classes) {
     // Loop through all the components being registered and store them as appropriate.
     // Classes which do not provide functionality should use a dummy FIRComponentRegistrant
     // protocol.

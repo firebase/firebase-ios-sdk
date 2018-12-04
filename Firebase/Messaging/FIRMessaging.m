@@ -43,9 +43,8 @@
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
 #import <FirebaseCore/FIRComponentContainer.h>
-#import <FirebaseCore/FIRComponentRegistrant.h>
-#import <FirebaseCore/FIRCoreConfigurable.h>
 #import <FirebaseCore/FIRDependency.h>
+#import <FirebaseCore/FIRLibrary.h>
 #import <FirebaseInstanceID/FirebaseInstanceID.h>
 #import <GoogleUtilities/GULReachabilityChecker.h>
 
@@ -158,9 +157,7 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 @protocol FIRMessagingInstanceProvider
 @end
 
-@interface FIRMessaging () <FIRMessagingInstanceProvider,
-                            FIRCoreConfigurable,
-                            FIRComponentRegistrant>
+@interface FIRMessaging () <FIRMessagingInstanceProvider, FIRLibrary>
 @end
 
 @implementation FIRMessaging
@@ -215,7 +212,10 @@ static FIRMessaging *sMessaging;
 #pragma mark - Config
 
 + (void)load {
-  [FIRApp registerLibrary:@"FirebaseMessaging" withVersion:FIRMessagingCurrentLibraryVersion() withComponentRegistrant:self withConfigurable:self];
+  [FIRApp registerLibrary:(id<FIRLibrary>)self
+                 withName:@"msg"
+              withVersion:FIRMessagingCurrentLibraryVersion()];
+  [FIRApp registerAsConfigurable:self];
 }
 
 + (nonnull NSArray<FIRComponent *> *)componentsToRegister {
