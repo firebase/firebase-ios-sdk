@@ -23,9 +23,8 @@
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
 #import <FirebaseCore/FIRComponentContainer.h>
-#import <FirebaseCore/FIRComponentRegistrant.h>
-#import <FirebaseCore/FIRCoreConfigurable.h>
 #import <FirebaseCore/FIRDependency.h>
+#import <FirebaseCore/FIRLibrary.h>
 #import <FirebaseCore/FIROptionsInternal.h>
 #import "DynamicLinks/FIRDLScionLogging.h"
 #endif
@@ -96,9 +95,8 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol FIRDynamicLinksInstanceProvider
 @end
 
-@interface FIRDynamicLinks () <FIRDynamicLinksInstanceProvider,
-                               FIRCoreConfigurable,
-                               FIRComponentRegistrant>
+@interface FIRDynamicLinks () <FIRDynamicLinksInstanceProvider, FIRLibrary>
+
 @end
 
 #endif
@@ -117,10 +115,7 @@ NS_ASSUME_NONNULL_BEGIN
 #ifdef FIRDynamicLinks3P
 
 + (void)load {
-  [FIRApp registerLibrary:@"FirebaseDynamicLinks"
-                  withVersion:kFIRDLVersion
-      withComponentRegistrant:self
-             withConfigurable:self];
+  [FIRApp registerLibrary:(id<FIRLibrary>)self withName:@"dynlinks" withVersion:kFIRDLVersion];
 }
 
 + (nonnull NSArray<FIRComponent *> *)componentsToRegister {

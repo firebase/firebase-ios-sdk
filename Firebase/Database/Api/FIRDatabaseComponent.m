@@ -24,8 +24,8 @@
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
 #import <FirebaseCore/FIRComponentContainer.h>
-#import <FirebaseCore/FIRComponentRegistrant.h>
 #import <FirebaseCore/FIRDependency.h>
+#import <FirebaseCore/FIRLibrary.h>
 #import <FirebaseCore/FIROptions.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -33,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** A NSMutableDictionary of FirebaseApp name and FRepoInfo to FirebaseDatabase instance. */
 typedef NSMutableDictionary<NSString *, FIRDatabase *> FIRDatabaseDictionary;
 
-@interface FIRDatabaseComponent () <FIRComponentLifecycleMaintainer, FIRComponentRegistrant>
+@interface FIRDatabaseComponent () <FIRComponentLifecycleMaintainer, FIRLibrary>
 @property (nonatomic) FIRDatabaseDictionary *instances;
 /// Internal intializer.
 - (instancetype)initWithApp:(FIRApp *)app;
@@ -55,7 +55,7 @@ typedef NSMutableDictionary<NSString *, FIRDatabase *> FIRDatabaseDictionary;
 #pragma mark - Lifecycle
 
 + (void)load {
-  [FIRApp registerLibrary:@"FirebaseDatabase" withVersion:[FIRDatabase sdkVersion] withComponentRegistrant:self withConfigurable:nil];
+  [FIRApp registerLibrary:(id<FIRLibrary>)self withName:@"db" withVersion:[FIRDatabase sdkVersion]];
 }
 
 #pragma mark - FIRComponentRegistrant

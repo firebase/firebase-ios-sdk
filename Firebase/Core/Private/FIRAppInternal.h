@@ -18,7 +18,7 @@
 #import "FIRErrors.h"
 
 @class FIRComponentContainer;
-@protocol FIRCoreConfigurable;
+@protocol FIRLibrary;
 
 /**
  * The internal interface to FIRApp. This is meant for first-party integrators, who need to receive
@@ -168,21 +168,19 @@ typedef NSString *_Nullable (^FIRAppGetUIDImplementation)(void);
  * registers in order to provide critical information for interoperability and lifecycle events.
  * TODO(wilsonryan): Write more documentation.
  */
-+ (void)registerAsConfigurable:(Class<FIRCoreConfigurable>)klass;
++ (void)registerAsConfigurable:(Class<FIRLibrary>)klass;
 
 /**
  * Registers a given third-party library with the given version number to be reported for
- * analyitcs.
+ * analytics.
  *
- * @param library Name of the library. It's typically the CocoaPod name
- * @param version Version of the library
+ * @param library Optional parameter for component registration.
+ * @param name Name of the library. It's typically the CocoaPod name.
+ * @param version Version of the library.
  */
-// clang-format off
-+ (void)registerLibrary:(NSString *)library
-            withVersion:(NSString *)version
-withComponentRegistrant:(nullable Class)componentRegistrant
-       withConfigurable:(nullable Class<FIRCoreConfigurable>)configurableRegistrant;
-// clang-format on
++ (void)registerLibrary:(nullable id<FIRLibrary>)library
+               withName:(nonnull NSString *)name
+            withVersion:(nonnull NSString *)version;
 
 /**
  * A concatenated string representing all the third-party libraries and version numbers.

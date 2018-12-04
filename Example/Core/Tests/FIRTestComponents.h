@@ -16,7 +16,7 @@
 
 #import <FirebaseCore/FIRComponent.h>
 #import <FirebaseCore/FIRComponentContainer.h>
-#import <FirebaseCore/FIRComponentRegistrant.h>
+#import <FirebaseCore/FIRLibrary.h>
 
 @protocol FIRComponentRegistrant;
 
@@ -28,13 +28,12 @@
 @end
 
 /// A test class that is a component registrant.
-@interface FIRTestClass
-    : NSObject <FIRTestProtocol, FIRComponentRegistrant, FIRComponentLifecycleMaintainer>
+@interface FIRTestClass : NSObject <FIRTestProtocol, FIRComponentLifecycleMaintainer, FIRLibrary>
 @end
 
 /// A test class that is a component registrant, a duplicate of FIRTestClass.
 @interface FIRTestClassDuplicate
-    : NSObject <FIRTestProtocol, FIRComponentRegistrant, FIRComponentLifecycleMaintainer>
+    : NSObject <FIRTestProtocol, FIRComponentLifecycleMaintainer, FIRLibrary>
 @end
 
 #pragma mark - Eager Component
@@ -47,7 +46,7 @@
 /// A test class that is a component registrant that provides a component requiring eager
 /// instantiation, and is cached for easier validation that it was instantiated.
 @interface FIRTestClassEagerCached
-    : NSObject <FIRTestProtocolEagerCached, FIRComponentRegistrant, FIRComponentLifecycleMaintainer>
+    : NSObject <FIRTestProtocol, FIRComponentLifecycleMaintainer, FIRLibrary>
 @end
 
 #pragma mark - Cached Component
@@ -59,5 +58,5 @@
 /// A test class that is a component registrant that provides a component that requests to be
 /// cached.
 @interface FIRTestClassCached
-    : NSObject <FIRTestProtocolCached, FIRComponentRegistrant, FIRComponentLifecycleMaintainer>
+    : NSObject <FIRTestProtocol, FIRComponentLifecycleMaintainer, FIRLibrary>
 @end

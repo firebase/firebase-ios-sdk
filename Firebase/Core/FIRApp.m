@@ -14,15 +14,15 @@
 
 #include <sys/utsname.h>
 
-#import "FIRApp.h"
-#import "FIRConfiguration.h"
 #import "Private/FIRAnalyticsConfiguration+Internal.h"
 #import "Private/FIRAppInternal.h"
 #import "Private/FIRBundleUtil.h"
 #import "Private/FIRComponentContainerInternal.h"
-#import "Private/FIRCoreConfigurable.h"
+#import "Private/FIRLibrary.h"
 #import "Private/FIRLogger.h"
 #import "Private/FIROptionsInternal.h"
+#import "Public/FIRApp.h"
+#import "Public/FIRConfiguration.h"
 
 NSString *const kFIRServiceAdMob = @"AdMob";
 NSString *const kFIRServiceAuth = @"Auth";
@@ -81,7 +81,7 @@ static NSString *const kPlistURL = @"https://console.firebase.google.com/";
  * An array of all classes that registered as `FIRCoreConfigurable` in order to receive lifecycle
  * events from Core.
  */
-static NSMutableArray<Class<FIRCoreConfigurable>> *gRegisteredAsConfigurable;
+static NSMutableArray<Class<FIRLibrary>> *gRegisteredAsConfigurable;
 
 @interface FIRApp ()
 
@@ -431,7 +431,7 @@ static NSMutableDictionary *sLibraryVersions;
 
   // This is the new way of sending information to SDKs.
   // TODO: Do we want this on a background thread, maybe?
-  for (Class<FIRCoreConfigurable> library in gRegisteredAsConfigurable) {
+  for (Class<FIRLibrary> library in gRegisteredAsConfigurable) {
     [library configureWithApp:app];
   }
 }
@@ -471,15 +471,15 @@ static NSMutableDictionary *sLibraryVersions;
                          userInfo:errorDict];
 }
 
-+ (void)registerAsConfigurable:(Class<FIRCoreConfigurable>)klass {
++ (void)registerAsConfigurable:(Class<FIRLibrary>)klass {
   // This is called at +load time, keep the work to a minimum.
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
     gRegisteredAsConfigurable = [[NSMutableArray alloc] initWithCapacity:1];
   });
-
-  NSAssert([(Class)klass conformsToProtocol:@protocol(FIRCoreConfigurable)],
-           @"The class being registered (%@) must conform to `FIRCoreConfigurable`.", klass);
+  NSAssert([(Class)klass conformsToProtocol:@protocol(FIRLibrary)] &&
+               [(Class)klass respondsToSelector:@selector(configureWithApp:)],
+           @"The class being registered (%@) must conform to `FIRLibrary`.", klass);
   [gRegisteredAsConfigurable addObject:klass];
 }
 
@@ -487,33 +487,29 @@ static NSMutableDictionary *sLibraryVersions;
   return (sDefaultApp != nil);
 }
 
-+ (void)registerLibrary:(nonnull NSString *)library
-                withVersion:(nonnull NSString *)version
-    withComponentRegistrant:(nullable Class)componentRegistrant
-           withConfigurable:(nullable Class<FIRCoreConfigurable>)configurableRegistrant {
++ (void)registerLibrary:(nullable id<FIRLibrary>)library
+               withName:(nonnull NSString *)name
+            withVersion:(nonnull NSString *)version {
+  if (library) {
+    [FIRComponentContainer registerAsComponentRegistrant:library];
+  }
   // Create the set of characters which aren't allowed, only if this feature is used.
   NSMutableCharacterSet *allowedSet = [NSMutableCharacterSet alphanumericCharacterSet];
   [allowedSet addCharactersInString:@"-_."];
   NSCharacterSet *disallowedSet = [allowedSet invertedSet];
   // Make sure the library name and version strings do not contain unexpected characters, and
   // add the name/version pair to the dictionary.
-  if ([library rangeOfCharacterFromSet:disallowedSet].location == NSNotFound &&
+  if ([name rangeOfCharacterFromSet:disallowedSet].location == NSNotFound &&
       [version rangeOfCharacterFromSet:disallowedSet].location == NSNotFound) {
     if (!sLibraryVersions) {
       sLibraryVersions = [[NSMutableDictionary alloc] init];
     }
-    sLibraryVersions[library] = version;
+    sLibraryVersions[name] = version;
   } else {
     FIRLogError(kFIRLoggerCore, @"I-COR000027",
                 @"The library name (%@) or version number (%@) contain illegal characters. "
                 @"Only alphanumeric, dash, underscore and period characters are allowed.",
-                library, version);
-  }
-  if (configurableRegistrant) {
-    [FIRApp registerAsConfigurable:configurableRegistrant];
-  }
-  if (componentRegistrant) {
-    [FIRComponentContainer registerAsComponentRegistrant:componentRegistrant];
+                name, version);
   }
 }
 

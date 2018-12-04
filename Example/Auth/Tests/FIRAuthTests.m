@@ -21,7 +21,7 @@
 #import <FirebaseAuthInterop/FIRAuthInterop.h>
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
-#import <FirebaseCore/FIRComponentRegistrant.h>
+#import <FirebaseCore/FIRLibrary.h>
 
 #import "FIRAdditionalUserInfo.h"
 #import "FIRAuth_Internal.h"
@@ -225,7 +225,7 @@ static const NSTimeInterval kExpectationTimeout = 2;
 static const NSTimeInterval kWaitInterval = .5;
 
 /** Category for FIRAuth to expose FIRComponentRegistrant conformance. */
-@interface FIRAuth () <FIRComponentRegistrant>
+@interface FIRAuth () <FIRLibrary>
 @end
 
 /** @class FIRAuthTests
