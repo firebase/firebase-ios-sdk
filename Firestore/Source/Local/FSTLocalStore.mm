@@ -21,6 +21,7 @@
 #import "FIRTimestamp.h"
 #import "Firestore/Source/Core/FSTListenSequence.h"
 #import "Firestore/Source/Core/FSTQuery.h"
+#import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 #import "Firestore/Source/Local/FSTLocalDocumentsView.h"
 #import "Firestore/Source/Local/FSTLocalViewChanges.h"
 #import "Firestore/Source/Local/FSTLocalWriteResult.h"
@@ -45,6 +46,7 @@
 
 using firebase::firestore::auth::User;
 using firebase::firestore::core::TargetIdGenerator;
+using firebase::firestore::local::LruResults;
 using firebase::firestore::model::BatchId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
@@ -457,6 +459,12 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
   }
 
   [self.mutationQueue removeMutationBatch:batch];
+}
+
+- (LruResults)collectGarbage:(FSTLRUGarbageCollector *)garbageCollector {
+  return self.persistence.run("Collect garbage", [&]() -> LruResults {
+    return [garbageCollector collectWithLiveTargets:_targetIDs];
+  });
 }
 
 @end

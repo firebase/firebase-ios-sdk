@@ -16,12 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
-NS_ASSUME_NONNULL_BEGIN
-
 @interface FIRDynamicLinkComponentsKeyProvider : NSObject
 
-+ (NSString *)APIKey;
++ (nullable NSString *)APIKey;
 
 @end
-
-NS_ASSUME_NONNULL_END

@@ -37,6 +37,9 @@
 #pragma clang diagnostic ignored "-Wunguarded-availability"
   /// The session configuration. NSURLSessionConfiguration' is only available on iOS 7.0 or newer.
   NSURLSessionConfiguration *_sessionConfig;
+
+  /// The current NSURLSession.
+  NSURLSession *__weak _Nullable _URLSession;
 #pragma clang diagnostic pop
 
   /// The path to the directory where all temporary files are stored before uploading.
@@ -50,9 +53,6 @@
 
   /// The current request.
   NSURLRequest *_request;
-
-  /// The current NSURLSession.
-  NSURLSession *__weak _Nullable _URLSession;
 }
 
 #pragma mark - Init
