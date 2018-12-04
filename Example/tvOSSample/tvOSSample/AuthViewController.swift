@@ -16,7 +16,6 @@ import UIKit
 import FirebaseAuth
 
 class AuthViewController: UIViewController {
-
   // MARK: - User Interface
 
   /// A stackview containing all of the buttons to providers (Email, OAuth, etc).
