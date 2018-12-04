@@ -97,7 +97,7 @@ GrpcStream::GrpcStream(
 }
 
 GrpcStream::~GrpcStream() {
-  LOG_DEBUG("Destroying gRPC stream '%s'", this);
+  LOG_DEBUG("GrpcStream('%s'): destroying stream", this);
   HARD_ASSERT(completions_.empty(),
               "GrpcStream is being destroyed without proper shutdown");
   MaybeUnregister();
@@ -158,14 +158,14 @@ void GrpcStream::MaybeWrite(absl::optional<BufferedWrite> maybe_write) {
 }
 
 void GrpcStream::FinishImmediately() {
-  LOG_DEBUG("Finishing gRPC stream '%s' without notifying observers", this);
+  LOG_DEBUG("GrpcStream('%s'): finishing without notifying observers", this);
 
   Shutdown();
   UnsetObserver();
 }
 
 void GrpcStream::FinishAndNotify(const Status& status) {
-  LOG_DEBUG("Finishing gRPC stream '%s' and notifying observers", this);
+  LOG_DEBUG("GrpcStream('%s'): finishing and notifying observers", this);
 
   Shutdown();
 
@@ -179,7 +179,7 @@ void GrpcStream::FinishAndNotify(const Status& status) {
 }
 
 void GrpcStream::Shutdown() {
-  LOG_DEBUG("Shutting down gRPC stream '%s'; completions: %s, is finished: %s",
+  LOG_DEBUG("GrpcStream('%s'): shutting down; completion(s): %s, is finished: %s",
             this, completions_.size(), is_grpc_call_finished_);
 
   MaybeUnregister();
@@ -211,7 +211,9 @@ void GrpcStream::MaybeUnregister() {
 }
 
 void GrpcStream::FinishGrpcCall(const OnSuccess& callback) {
-  LOG_DEBUG("Finishing the underlying call for gRPC stream '%s'", this);
+  LOG_DEBUG(
+      "GrpcStream('%s'): finishing the underlying call",
+      this);
 
   HARD_ASSERT(!is_grpc_call_finished_, "FinishGrpcCall called twice");
   is_grpc_call_finished_ = true;
@@ -224,8 +226,8 @@ void GrpcStream::FinishGrpcCall(const OnSuccess& callback) {
 }
 
 void GrpcStream::FastFinishCompletionsBlocking() {
-  LOG_DEBUG("Fast finishing %s completion(s) for gRPC stream '%s'",
-            completions_.size(), this);
+  LOG_DEBUG(
+      "GrpcStream('%s'): fast finishing %s completion(s)", this, completions_.size());
 
   // TODO(varconst): reset buffered_writer_? Should not be necessary, because it
   // should never be called again after a call to Finish.
@@ -333,8 +335,8 @@ GrpcCompletion* GrpcStream::NewCompletion(Type tag,
         } else {
           // Use the same error-handling for all operations; all errors are
           // unrecoverable.
-          LOG_DEBUG("Operation of type %s failed in gRPC stream '%s'",
-                    completion->type(), this);
+      LOG_DEBUG("GrpcStream('%s'): operation of type %s failed",
+                    this, completion->type());
           OnOperationFailed();
         }
       };
