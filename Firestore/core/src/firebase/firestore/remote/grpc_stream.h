@@ -120,8 +120,7 @@ class GrpcStream : public GrpcCall {
  public:
   GrpcStream(std::unique_ptr<grpc::ClientContext> context,
              std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
-             util::AsyncQueue* worker_queue,
-             GrpcConnection* grpc_connection,
+             util::AsyncQueue* worker_queue, GrpcConnection* grpc_connection,
              GrpcStreamObserver* observer);
   ~GrpcStream();
 
@@ -161,9 +160,7 @@ class GrpcStream : public GrpcCall {
    */
   bool WriteAndFinish(grpc::ByteBuffer&& message);
 
-  bool IsFinished() const {
-    return observer_ == nullptr;
-  }
+  bool IsFinished() const { return observer_ == nullptr; }
 
   /**
    * Returns the metadata received from the server.
@@ -173,18 +170,15 @@ class GrpcStream : public GrpcCall {
   Metadata GetResponseHeaders() const override;
 
   /** For tests only */
-  grpc::ClientContext* context() override {
-    return context_.get();
-  }
+  grpc::ClientContext* context() override { return context_.get(); }
 
  private:
   void Read();
   void MaybeWrite(absl::optional<internal::BufferedWrite> maybe_write);
+  bool TryLastWrite(grpc::ByteBuffer&& message);
 
   void Shutdown();
-  void UnsetObserver() {
-    observer_ = nullptr;
-  }
+  void UnsetObserver() { observer_ = nullptr; }
   void MaybeUnregister();
 
   void OnStart();
@@ -200,7 +194,7 @@ class GrpcStream : public GrpcCall {
   // was started. Presumes that any pending completions will quickly come off
   // the queue and will block until they do, so this must only be invoked when
   // the current call either failed (`OnOperationFailed`) or canceled.
-  void FinishCall(const OnSuccess& callback);
+  void FinishGrpcCall(const OnSuccess& callback);
 
   // Blocks until all the completions issued by this stream come out from the
   // gRPC completion queue. Once they do, it is safe to delete this `GrpcStream`
@@ -231,6 +225,9 @@ class GrpcStream : public GrpcCall {
   internal::BufferedWriter buffered_writer_;
 
   std::vector<GrpcCompletion*> completions_;
+
+  // gRPC asserts that a call is finished exactly once.
+  bool is_grpc_call_finished_ = false;
 };
 
 }  // namespace remote
