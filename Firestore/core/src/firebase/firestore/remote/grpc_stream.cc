@@ -179,8 +179,9 @@ void GrpcStream::FinishAndNotify(const Status& status) {
 }
 
 void GrpcStream::Shutdown() {
-  LOG_DEBUG("GrpcStream('%s'): shutting down; completion(s): %s, is finished: %s",
-            this, completions_.size(), is_grpc_call_finished_);
+  LOG_DEBUG(
+      "GrpcStream('%s'): shutting down; completion(s): %s, is finished: %s",
+      this, completions_.size(), is_grpc_call_finished_);
 
   MaybeUnregister();
 
@@ -211,9 +212,7 @@ void GrpcStream::MaybeUnregister() {
 }
 
 void GrpcStream::FinishGrpcCall(const OnSuccess& callback) {
-  LOG_DEBUG(
-      "GrpcStream('%s'): finishing the underlying call",
-      this);
+  LOG_DEBUG("GrpcStream('%s'): finishing the underlying call", this);
 
   HARD_ASSERT(!is_grpc_call_finished_, "FinishGrpcCall called twice");
   is_grpc_call_finished_ = true;
@@ -226,8 +225,8 @@ void GrpcStream::FinishGrpcCall(const OnSuccess& callback) {
 }
 
 void GrpcStream::FastFinishCompletionsBlocking() {
-  LOG_DEBUG(
-      "GrpcStream('%s'): fast finishing %s completion(s)", this, completions_.size());
+  LOG_DEBUG("GrpcStream('%s'): fast finishing %s completion(s)", this,
+            completions_.size());
 
   // TODO(varconst): reset buffered_writer_? Should not be necessary, because it
   // should never be called again after a call to Finish.
@@ -335,8 +334,8 @@ GrpcCompletion* GrpcStream::NewCompletion(Type tag,
         } else {
           // Use the same error-handling for all operations; all errors are
           // unrecoverable.
-      LOG_DEBUG("GrpcStream('%s'): operation of type %s failed",
-                    this, completion->type());
+          LOG_DEBUG("GrpcStream('%s'): operation of type %s failed", this,
+                    completion->type());
           OnOperationFailed();
         }
       };
