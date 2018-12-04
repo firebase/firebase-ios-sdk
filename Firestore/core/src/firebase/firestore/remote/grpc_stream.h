@@ -120,7 +120,8 @@ class GrpcStream : public GrpcCall {
  public:
   GrpcStream(std::unique_ptr<grpc::ClientContext> context,
              std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
-             util::AsyncQueue* worker_queue, GrpcConnection* grpc_connection,
+             util::AsyncQueue* worker_queue,
+             GrpcConnection* grpc_connection,
              GrpcStreamObserver* observer);
   ~GrpcStream();
 
@@ -160,7 +161,9 @@ class GrpcStream : public GrpcCall {
    */
   bool WriteAndFinish(grpc::ByteBuffer&& message);
 
-  bool IsFinished() const { return observer_ == nullptr; }
+  bool IsFinished() const {
+    return observer_ == nullptr;
+  }
 
   /**
    * Returns the metadata received from the server.
@@ -170,7 +173,9 @@ class GrpcStream : public GrpcCall {
   Metadata GetResponseHeaders() const override;
 
   /** For tests only */
-  grpc::ClientContext* context() override { return context_.get(); }
+  grpc::ClientContext* context() override {
+    return context_.get();
+  }
 
  private:
   void Read();
@@ -178,7 +183,9 @@ class GrpcStream : public GrpcCall {
   bool TryLastWrite(grpc::ByteBuffer&& message);
 
   void Shutdown();
-  void UnsetObserver() { observer_ = nullptr; }
+  void UnsetObserver() {
+    observer_ = nullptr;
+  }
   void MaybeUnregister();
 
   void OnStart();

@@ -85,7 +85,8 @@ using internal::BufferedWriter;
 GrpcStream::GrpcStream(
     std::unique_ptr<grpc::ClientContext> context,
     std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
-    AsyncQueue* worker_queue, GrpcConnection* grpc_connection,
+    AsyncQueue* worker_queue,
+    GrpcConnection* grpc_connection,
     GrpcStreamObserver* observer)
     : context_{std::move(NOT_NULL(context))},
       call_{std::move(NOT_NULL(call))},
