@@ -48,8 +48,6 @@ NSString *const kFUNDefaultRegion = @"us-central1";
   GTMSessionFetcherService *_fetcherService;
   // The projectID to use for all function references.
   FIRApp *_app;
-  // The Auth instance to use, may be nil if auth is unavailable.
-  id<FIRAuthInterop> _auth;
   // The region to use for all function references.
   NSString *_region;
   // A serializer to encode/decode data and return values.
@@ -114,10 +112,9 @@ NSString *const kFUNDefaultRegion = @"us-central1";
     }
     _fetcherService = [[GTMSessionFetcherService alloc] init];
     _app = app;
-    _auth = auth;
     _region = [region copy];
     _serializer = [[FUNSerializer alloc] init];
-    _contextProvider = [[FUNContextProvider alloc] initWithAuth:_auth];
+    _contextProvider = [[FUNContextProvider alloc] initWithAuth:auth];
     _emulatorOrigin = nil;
   }
   return self;
