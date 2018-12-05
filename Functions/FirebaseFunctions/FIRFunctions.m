@@ -118,7 +118,7 @@ NSString *const kFUNDefaultRegion = @"us-central1";
       FUNThrowInvalidArgument(@"FIRFunctions region cannot be nil.");
     }
     _fetcherService = [[GTMSessionFetcherService alloc] init];
-    _projectID = projectID;
+    _projectID = [projectID copy];
     _region = [region copy];
     _serializer = [[FUNSerializer alloc] init];
     _contextProvider = [[FUNContextProvider alloc] initWithAuth:auth];

@@ -21,6 +21,9 @@
 #import "FIRHTTPSCallable.h"
 #import "FUNFakeInstanceID.h"
 
+// Project ID used by these tests.
+static NSString *const kProjectID = @"functions-integration-test";
+
 @interface FIRIntegrationTests : XCTestCase {
   FIRFunctions *_functions;
 }
@@ -31,7 +34,7 @@
 - (void)setUp {
   [super setUp];
   _functions = [[FIRFunctions alloc]
-      initWithProjectID:@"functions-integration-test"
+      initWithProjectID:kProjectID
                  region:@"my-region"
                    auth:[[FIRAuthInteropFake alloc] initWithToken:nil userID:nil error:nil]];
   [_functions useLocalhost];
@@ -79,7 +82,7 @@
 - (void)testToken {
   // Recreate _functions with a token.
   FIRFunctions *functions = [[FIRFunctions alloc]
-      initWithProjectID:@"functions-integration-test"
+      initWithProjectID:kProjectID
                  region:@"my-region"
                    auth:[[FIRAuthInteropFake alloc] initWithToken:@"token" userID:nil error:nil]];
   [functions useLocalhost];
