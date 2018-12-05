@@ -37,17 +37,17 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRComponentContainer
 
 // Collection of all classes that register to provide components.
-static NSMutableSet<Class> *gFIRComponentRegistrants;
+static NSMutableSet<Class> *sFIRComponentRegistrants;
 
 #pragma mark - Public Registration
 
-+ (void)registerAsComponentRegistrant:(id<FIRLibrary>)klass {
++ (void)registerAsComponentRegistrant:(Class<FIRLibrary>)klass {
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
-    gFIRComponentRegistrants = [[NSMutableSet<Class> alloc] init];
+    sFIRComponentRegistrants = [[NSMutableSet<Class> alloc] init];
   });
 
-  [self registerAsComponentRegistrant:(Class)klass inSet:gFIRComponentRegistrants];
+  [self registerAsComponentRegistrant:klass inSet:sFIRComponentRegistrants];
 }
 
 + (void)registerAsComponentRegistrant:(Class)klass inSet:(NSMutableSet<Class> *)allRegistrants {
@@ -59,7 +59,8 @@ static NSMutableSet<Class> *gFIRComponentRegistrants;
   }
 
   // Ensure the class given conforms to the proper protocol.
-  if (![klass conformsToProtocol:@protocol(FIRLibrary)] ||
+  // TODO restore protocol check after new code propagates internally
+  if (  //![klass conformsToProtocol:@protocol(FIRLibrary)] ||
       ![klass respondsToSelector:@selector(componentsToRegister)]) {
     [NSException raise:NSInvalidArgumentException
                 format:
@@ -74,7 +75,7 @@ static NSMutableSet<Class> *gFIRComponentRegistrants;
 #pragma mark - Internal Initialization
 
 - (instancetype)initWithApp:(FIRApp *)app {
-  return [self initWithApp:app registrants:gFIRComponentRegistrants];
+  return [self initWithApp:app registrants:sFIRComponentRegistrants];
 }
 
 - (instancetype)initWithApp:(FIRApp *)app registrants:(NSMutableSet<Class> *)allRegistrants {

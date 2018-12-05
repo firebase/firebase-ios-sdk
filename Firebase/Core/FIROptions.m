@@ -114,8 +114,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
   NSRange minor = NSMakeRange(1, 2);
   NSRange patch = NSMakeRange(3, 2);
   [FIRApp
-      registerLibrary:nil
-             withName:@"fire-ios"
+      registerLibrary:@"fire-ios"
           withVersion:[NSString stringWithFormat:@"%@.%d.%d",
                                                  [kFIRLibraryVersionID substringWithRange:major],
                                                  [[kFIRLibraryVersionID substringWithRange:minor]
@@ -126,10 +125,10 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
   NSString *xcodeVersion = info[@"DTXcodeBuild"];
   NSString *sdkVersion = info[@"DTSDKBuild"];
   if (xcodeVersion) {
-    [FIRApp registerLibrary:nil withName:@"xcode" withVersion:xcodeVersion];
+    [FIRApp registerLibrary:@"xcode" withVersion:xcodeVersion];
   }
   if (sdkVersion) {
-    [FIRApp registerLibrary:nil withName:@"apple-sdk" withVersion:sdkVersion];
+    [FIRApp registerLibrary:@"apple-sdk" withVersion:sdkVersion];
   }
 }
 

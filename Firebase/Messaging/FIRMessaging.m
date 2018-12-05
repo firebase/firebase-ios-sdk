@@ -212,10 +212,9 @@ static FIRMessaging *sMessaging;
 #pragma mark - Config
 
 + (void)load {
-  [FIRApp registerLibrary:(id<FIRLibrary>)self
-                 withName:@"msg"
+  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self
+                 withName:@"fire-msg"
               withVersion:FIRMessagingCurrentLibraryVersion()];
-  [FIRApp registerAsConfigurable:self];
 }
 
 + (nonnull NSArray<FIRComponent *> *)componentsToRegister {
