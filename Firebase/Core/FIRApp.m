@@ -17,7 +17,7 @@
 #import "Private/FIRAnalyticsConfiguration+Internal.h"
 #import "Private/FIRAppInternal.h"
 #import "Private/FIRBundleUtil.h"
-#import "FIRComponentContainerInternal.h"
+#import "Private/FIRComponentContainerInternal.h"
 #import "Private/FIRLibrary.h"
 #import "Private/FIRLogger.h"
 #import "Private/FIROptionsInternal.h"
