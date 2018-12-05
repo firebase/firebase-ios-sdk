@@ -19,7 +19,6 @@
 #import "FIRFunctions+Internal.h"
 #import "FIRFunctions.h"
 #import "FIRHTTPSCallable.h"
-#import "FUNFakeApp.h"
 #import "FUNFakeInstanceID.h"
 
 @interface FIRIntegrationTests : XCTestCase {
@@ -31,11 +30,10 @@
 
 - (void)setUp {
   [super setUp];
-  id app = [[FUNFakeApp alloc] initWithProjectID:@"functions-integration-test"];
   _functions = [[FIRFunctions alloc]
-      initWithApp:app
-           region:@"my-region"
-             auth:[[FIRAuthInteropFake alloc] initWithToken:nil userID:nil error:nil]];
+      initWithProjectID:@"functions-integration-test"
+                region:@"my-region"
+                  auth:[[FIRAuthInteropFake alloc] initWithToken:nil userID:nil error:nil]];
   [_functions useLocalhost];
 }
 
@@ -80,11 +78,10 @@
 
 - (void)testToken {
   // Recreate _functions with a token.
-  id app = [[FUNFakeApp alloc] initWithProjectID:@"functions-integration-test" token:@"token"];
   FIRFunctions *functions = [[FIRFunctions alloc]
-      initWithApp:app
-           region:@"my-region"
-             auth:[[FIRAuthInteropFake alloc] initWithToken:nil userID:nil error:nil]];
+      initWithProjectID:@"functions-integration-test"
+                 region:@"my-region"
+                   auth:[[FIRAuthInteropFake alloc] initWithToken:@"token" userID:nil error:nil]];
   [functions useLocalhost];
 
   XCTestExpectation *expectation = [[XCTestExpectation alloc] init];

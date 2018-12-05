@@ -48,11 +48,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Internal initializer for the Cloud Functions client.
- * @param app The app for the Firebase project.
+ * @param projectID The project ID for the Firebase project.
  * @param region The region for the http trigger, such as "us-central1".
  * @param auth The auth provider to use (optional).
  */
-- (id)initWithApp:(FIRApp *)app region:(NSString *)region auth:(nullable id<FIRAuthInterop>)auth;
+- (id)initWithProjectID:(NSString *)projectID
+                 region:(NSString *)region
+                   auth:(nullable id<FIRAuthInterop>)auth;
 
 @end
 

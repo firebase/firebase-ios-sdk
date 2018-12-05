@@ -47,7 +47,7 @@ NSString *const kFUNDefaultRegion = @"us-central1";
   // The network client to use for http requests.
   GTMSessionFetcherService *_fetcherService;
   // The projectID to use for all function references.
-  FIRApp *_app;
+  NSString *_projectID;
   // The region to use for all function references.
   NSString *_region;
   // A serializer to encode/decode data and return values.
@@ -57,6 +57,11 @@ NSString *const kFUNDefaultRegion = @"us-central1";
   // For testing only. If this is set, functions will be called against it instead of Firebase.
   NSString *_emulatorOrigin;
 }
+
+// Re-declare this initializer here in order to attribute it as the designated initializer.
+- (instancetype)initWithProjectID:(NSString *)projectID
+                           region:(NSString *)region
+                             auth:(nullable id<FIRAuthInterop>)auth NS_DESIGNATED_INITIALIZER;
 
 @end
 
@@ -99,19 +104,21 @@ NSString *const kFUNDefaultRegion = @"us-central1";
 }
 
 - (instancetype)initWithApp:(FIRApp *)app region:(NSString *)region {
-  return [self initWithApp:app region:region auth:FIR_COMPONENT(FIRAuthInterop, _app.container)];
+  return [self initWithProjectID:app.options.projectID
+                          region:region
+                            auth:FIR_COMPONENT(FIRAuthInterop, app.container)];
 }
 
-- (instancetype)initWithApp:(FIRApp *)app
-                     region:(NSString *)region
-                       auth:(nullable id<FIRAuthInterop>)auth {
+- (instancetype)initWithProjectID:(NSString *)projectID
+                           region:(NSString *)region
+                             auth:(nullable id<FIRAuthInterop>)auth {
   self = [super init];
   if (self) {
     if (!region) {
       FUNThrowInvalidArgument(@"FIRFunctions region cannot be nil.");
     }
     _fetcherService = [[GTMSessionFetcherService alloc] init];
-    _app = app;
+    _projectID = projectID;
     _region = [region copy];
     _serializer = [[FUNSerializer alloc] init];
     _contextProvider = [[FUNContextProvider alloc] initWithAuth:auth];
@@ -132,15 +139,14 @@ NSString *const kFUNDefaultRegion = @"us-central1";
   if (!name) {
     FUNThrowInvalidArgument(@"FIRFunctions function name cannot be nil.");
   }
-  NSString *projectID = _app.options.projectID;
-  if (!projectID) {
+  if (!_projectID) {
     FUNThrowInvalidArgument(@"FIRFunctions app projectID cannot be nil.");
   }
   if (_emulatorOrigin) {
-    return [NSString stringWithFormat:@"%@/%@/%@/%@", _emulatorOrigin, projectID, _region, name];
+    return [NSString stringWithFormat:@"%@/%@/%@/%@", _emulatorOrigin, _projectID, _region, name];
   }
   return
-      [NSString stringWithFormat:@"https://%@-%@.cloudfunctions.net/%@", _region, projectID, name];
+      [NSString stringWithFormat:@"https://%@-%@.cloudfunctions.net/%@", _region, _projectID, name];
 }
 
 - (void)callFunction:(NSString *)name

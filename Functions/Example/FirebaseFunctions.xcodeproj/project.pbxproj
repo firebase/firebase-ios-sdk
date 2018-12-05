@@ -29,8 +29,7 @@
 		7CBFAA8B205702AB00A65866 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6003F5B8195388D20070C39A /* InfoPlist.strings */; };
 		7CF3BEC21F97EE2F00B16B6E /* FUNFakeInstanceID.m in Sources */ = {isa = PBXBuildFile; fileRef = 7CF3BEC01F97EE2F00B16B6E /* FUNFakeInstanceID.m */; };
 		873B8AEB1B1F5CCA007FD442 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 873B8AEA1B1F5CCA007FD442 /* Main.storyboard */; };
-		C8E1AD6521B5ABC300A43E79 /* FUNFakeApp.m in Sources */ = {isa = PBXBuildFile; fileRef = 7CF563081F1FE70600FEE1F4 /* FUNFakeApp.m */; };
-		C8E1AD6621B5ABC400A43E79 /* FUNFakeApp.m in Sources */ = {isa = PBXBuildFile; fileRef = 7CF563081F1FE70600FEE1F4 /* FUNFakeApp.m */; };
+		C8AEC40B21B7EE440051C01E /* FIRAuthInteropFake.m in Sources */ = {isa = PBXBuildFile; fileRef = C8AEC40A21B7EE440051C01E /* FIRAuthInteropFake.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -75,9 +74,9 @@
 		7CBFAA91205702AB00A65866 /* FirebaseFunctions_IntegrationTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FirebaseFunctions_IntegrationTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		7CF3BEC01F97EE2F00B16B6E /* FUNFakeInstanceID.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FUNFakeInstanceID.m; sourceTree = "<group>"; };
 		7CF3BEC11F97EE2F00B16B6E /* FUNFakeInstanceID.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FUNFakeInstanceID.h; sourceTree = "<group>"; };
-		7CF563081F1FE70600FEE1F4 /* FUNFakeApp.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FUNFakeApp.m; sourceTree = "<group>"; };
-		7CF5630A1F1FE76700FEE1F4 /* FUNFakeApp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FUNFakeApp.h; sourceTree = "<group>"; };
 		873B8AEA1B1F5CCA007FD442 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = Main.storyboard; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		C8AEC40921B7EE440051C01E /* FIRAuthInteropFake.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FIRAuthInteropFake.h; path = ../../../Example/Shared/FIRAuthInteropFake.h; sourceTree = "<group>"; };
+		C8AEC40A21B7EE440051C01E /* FIRAuthInteropFake.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAuthInteropFake.m; path = ../../../Example/Shared/FIRAuthInteropFake.m; sourceTree = "<group>"; };
 		E0A8D570636E99E7C3396DF8 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		F1F2A7C03C10A3A03F9502B8 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -208,8 +207,8 @@
 		7C70065B20572C1B007A5573 /* TestUtils */ = {
 			isa = PBXGroup;
 			children = (
-				7CF5630A1F1FE76700FEE1F4 /* FUNFakeApp.h */,
-				7CF563081F1FE70600FEE1F4 /* FUNFakeApp.m */,
+				C8AEC40921B7EE440051C01E /* FIRAuthInteropFake.h */,
+				C8AEC40A21B7EE440051C01E /* FIRAuthInteropFake.m */,
 				7CF3BEC11F97EE2F00B16B6E /* FUNFakeInstanceID.h */,
 				7CF3BEC01F97EE2F00B16B6E /* FUNFakeInstanceID.m */,
 			);
@@ -362,7 +361,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				7C58B03A1F1441F0005ED954 /* FUNSerializerTests.m in Sources */,
-				C8E1AD6621B5ABC400A43E79 /* FUNFakeApp.m in Sources */,
 				6003F5BC195388D20070C39A /* FIRFunctionsTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -371,7 +369,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C8E1AD6521B5ABC300A43E79 /* FUNFakeApp.m in Sources */,
+				C8AEC40B21B7EE440051C01E /* FIRAuthInteropFake.m in Sources */,
 				7CBFAA82205702AB00A65866 /* FIRIntegrationTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
