@@ -179,19 +179,18 @@ void GrpcStream::FinishAndNotify(const Status& status) {
 }
 
 void GrpcStream::Shutdown() {
-  LOG_DEBUG(
-      "GrpcStream('%s'): shutting down; completion(s): %s, is finished: %s",
-      this, completions_.size(), is_grpc_call_finished_);
+  LOG_DEBUG("GrpcStream('%s'): shutting down; completions: %s, is finished: %s",
+            this, completions_.size(), is_grpc_call_finished_);
 
   MaybeUnregister();
 
   if (!completions_.empty() && !is_grpc_call_finished_) {
-    // Important: since the stream always has a pending read operation,
-    // cancellation has to be called, or else the read would hang forever, and
-    // finish operation will never get completed.
-    // (on the other hand, when an operation fails, cancellation should not be
-    // called, otherwise the real failure cause will be overwritten by status
-    // "canceled".)
+    // Important: during normal operation, the stream always has a pending read
+    // operation, so `Shutdown` would hang indefinitely if we didn't cancel the
+    // `context_`. However, if the stream has already failed, avoid canceling
+    // the context to avoid overwriting the status captured during the
+    // `OnOperationFailed`.
+
     context_->TryCancel();
     FinishGrpcCall({});
   }
