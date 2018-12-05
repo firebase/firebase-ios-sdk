@@ -188,7 +188,6 @@ void GrpcStream::Shutdown() {
   // stream has never started. Calling `Finish` on the underlying gRPC call is
   // invalid if it wasn't started previously.
   if (!completions_.empty() && !is_grpc_call_finished_) {
-
     // Important: during normal operation, the stream always has a pending read
     // operation, so `Shutdown` would hang indefinitely if we didn't cancel the
     // `context_`. However, if the stream has already failed, avoid canceling
