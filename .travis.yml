@@ -112,11 +112,12 @@ jobs:
         # The travis_wait is necessary because the command takes more than 10 minutes.
         - travis_wait ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseFirestore.podspec --use-libraries --allow-warnings --no-subspecs
 
+    # Daily test for symbol collisions between Firebase and other published pods.
     - stage: test
       env:
         - PROJECT=SymbolCollision PLATFORM=iOS METHOD=xcodebuild
       before_install:
-        - ./scripts/if_cron.sh ./scripts/install_prereqs.sh
+        - ./scripts/install_prereqs.sh
       script:
         - ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
