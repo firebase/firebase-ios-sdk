@@ -32,8 +32,8 @@
   [super setUp];
   _functions = [[FIRFunctions alloc]
       initWithProjectID:@"functions-integration-test"
-                region:@"my-region"
-                  auth:[[FIRAuthInteropFake alloc] initWithToken:nil userID:nil error:nil]];
+                 region:@"my-region"
+                   auth:[[FIRAuthInteropFake alloc] initWithToken:nil userID:nil error:nil]];
   [_functions useLocalhost];
 }
 
