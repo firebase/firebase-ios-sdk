@@ -146,6 +146,95 @@ TEST(Mutation, PatchesPrimitiveValue) {
           DocumentState::kLocalMutations));
 }
 
+TEST(Mutation, PatchingDeletedDocumentsDoesNothing) {
+  // TODO(rsgowman)
+}
+
+TEST(Mutation, AppliesLocalServerTimestampTransformsToDocuments) {
+  // TODO(rsgowman)
+}
+
+TEST(Mutation, CreatesArrayUnionTransform) {
+  // TODO(rsgowman)
+}
+
+TEST(Mutation, AppliesLocalArrayUnionTransformToMissingField) {
+  // TODO(rsgowman)
+}
+
+TEST(Mutation, AppliesLocalArrayUnionTransformToNonArrayField) {
+  // TODO(rsgowman)
+}
+
+TEST(Mutation, AppliesLocalArrayUnionTransformWithNonExistingElements) {
+  // TODO(rsgowman)
+}
+
+TEST(Mutation, AppliesLocalArrayUnionTransformWithExistingElements) {
+  // TODO(rsgowman)
+}
+
+TEST(Mutation, AppliesLocalArrayUnionTransformWithDuplicateExistingElements) {
+  // TODO(rsgowman)
+}
+
+TEST(Mutation, AppliesLocalArrayUnionTransformWithDuplicateUnionElements) {
+  // TODO(rsgowman)
+}
+
+TEST(Mutation, AppliesLocalArrayUnionTransformWithNonPrimitiveElements) {
+  // TODO(rsgowman)
+}
+
+TEST(Mutation,
+     AppliesLocalArrayUnionTransformWithPartiallyOverlappingElements) {
+  // TODO(rsgowman)
+}
+
+TEST(Mutation, AppliesLocalArrayRemoveTransformToMissingField) {
+  // TODO(rsgowman)
+}
+
+TEST(Mutation, AppliesLocalArrayRemoveTransformToNonArrayField) {
+  // TODO(rsgowman)
+}
+
+TEST(Mutation, AppliesLocalArrayRemoveTransformWithNonExistingElements) {
+  // TODO(rsgowman)
+}
+
+TEST(Mutation, AppliesLocalArrayRemoveTransformWithExistingElements) {
+  // TODO(rsgowman)
+}
+
+TEST(Mutation, AppliesLocalArrayRemoveTransformWithNonPrimitiveElements) {
+  // TODO(rsgowman)
+}
+
+TEST(Mutation, AppliesServerAckedServerTimestampTransformsToDocuments) {
+  // TODO(rsgowman)
+}
+
+TEST(Mutation, AppliesServerAckedArrayTransformsToDocuments) {
+  // TODO(rsgowman)
+}
+
+TEST(Mutation, DeleteDeletes) {
+  // TODO(rsgowman)
+}
+
+TEST(Mutation, SetWithMutationResult) {
+  // TODO(rsgowman)
+}
+
+TEST(Mutation, PatchWithMutationResult) {
+  // TODO(rsgowman)
+}
+
+TEST(Mutation, Transitions) {
+  // TODO(rsgowman)
+}
+
 }  // namespace model
 }  // namespace firestore
 }  // namespace firebase
