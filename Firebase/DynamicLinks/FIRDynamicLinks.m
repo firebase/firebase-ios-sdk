@@ -115,7 +115,7 @@ NS_ASSUME_NONNULL_BEGIN
 #ifdef FIRDynamicLinks3P
 
 + (void)load {
-  [FIRApp registerLibrary:(id<FIRLibrary>)self withName:@"dynlinks" withVersion:kFIRDLVersion];
+  [FIRApp registerInternalLibrary:self withName:@"fire-dynlinks" withVersion:kFIRDLVersion];
 }
 
 + (nonnull NSArray<FIRComponent *> *)componentsToRegister {

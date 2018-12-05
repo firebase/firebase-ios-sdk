@@ -164,23 +164,25 @@ typedef NSString *_Nullable (^FIRAppGetUIDImplementation)(void);
 + (BOOL)isDefaultAppConfigured;
 
 /**
- * Register a class that conforms to `FIRCoreConfigurable`. Each SDK should have one class that
- * registers in order to provide critical information for interoperability and lifecycle events.
- * TODO(wilsonryan): Write more documentation.
- */
-+ (void)registerAsConfigurable:(Class<FIRLibrary>)klass;
-
-/**
  * Registers a given third-party library with the given version number to be reported for
  * analytics.
  *
- * @param library Optional parameter for component registration.
- * @param name Name of the library. It's typically the CocoaPod name.
+ * @param name Name of the library.
  * @param version Version of the library.
  */
-+ (void)registerLibrary:(nullable id<FIRLibrary>)library
-               withName:(nonnull NSString *)name
-            withVersion:(nonnull NSString *)version;
++ (void)registerLibrary:(nonnull NSString *)name withVersion:(nonnull NSString *)version;
+
+/**
+ * Registers a given internal library with the given version number to be reported for
+ * analytics.
+ *
+ * @param library Optional parameter for component registration.
+ * @param name Name of the library.
+ * @param version Version of the library.
+ */
++ (void)registerInternalLibrary:(nonnull Class<FIRLibrary>)library
+                       withName:(nonnull NSString *)name
+                    withVersion:(nonnull NSString *)version;
 
 /**
  * A concatenated string representing all the third-party libraries and version numbers.

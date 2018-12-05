@@ -28,14 +28,13 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(Library)
 @protocol FIRLibrary
 
-//@optional
 /// Returns one or more FIRComponents that will be registered in
 /// FIRApp and participate in dependency resolution and injection.
 + (NSArray<FIRComponent *> *)componentsToRegister;
 
 @optional
-/// Configure the SDK if needed ahead of time. This method is called when the developer calls
-/// `FirebaseApp.configure()`.
+/// Implement this method if the library needs notifications for lifecycle events. This method is
+/// called when the developer calls `FirebaseApp.configure()`.
 + (void)configureWithApp:(FIRApp *)app;
 
 @end

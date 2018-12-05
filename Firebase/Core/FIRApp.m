@@ -17,7 +17,7 @@
 #import "Private/FIRAnalyticsConfiguration+Internal.h"
 #import "Private/FIRAppInternal.h"
 #import "Private/FIRBundleUtil.h"
-#import "Private/FIRComponentContainerInternal.h"
+#import "FIRComponentContainerInternal.h"
 #import "Private/FIRLibrary.h"
 #import "Private/FIRLogger.h"
 #import "Private/FIROptionsInternal.h"
@@ -81,7 +81,7 @@ static NSString *const kPlistURL = @"https://console.firebase.google.com/";
  * An array of all classes that registered as `FIRCoreConfigurable` in order to receive lifecycle
  * events from Core.
  */
-static NSMutableArray<Class<FIRLibrary>> *gRegisteredAsConfigurable;
+static NSMutableArray<Class<FIRLibrary>> *sRegisteredAsConfigurable;
 
 @interface FIRApp ()
 
@@ -431,7 +431,7 @@ static NSMutableDictionary *sLibraryVersions;
 
   // This is the new way of sending information to SDKs.
   // TODO: Do we want this on a background thread, maybe?
-  for (Class<FIRLibrary> library in gRegisteredAsConfigurable) {
+  for (Class<FIRLibrary> library in sRegisteredAsConfigurable) {
     [library configureWithApp:app];
   }
 }
@@ -471,28 +471,11 @@ static NSMutableDictionary *sLibraryVersions;
                          userInfo:errorDict];
 }
 
-+ (void)registerAsConfigurable:(Class<FIRLibrary>)klass {
-  // This is called at +load time, keep the work to a minimum.
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    gRegisteredAsConfigurable = [[NSMutableArray alloc] initWithCapacity:1];
-  });
-  NSAssert([(Class)klass conformsToProtocol:@protocol(FIRLibrary)] &&
-               [(Class)klass respondsToSelector:@selector(configureWithApp:)],
-           @"The class being registered (%@) must conform to `FIRLibrary`.", klass);
-  [gRegisteredAsConfigurable addObject:klass];
-}
-
 + (BOOL)isDefaultAppConfigured {
   return (sDefaultApp != nil);
 }
 
-+ (void)registerLibrary:(nullable id<FIRLibrary>)library
-               withName:(nonnull NSString *)name
-            withVersion:(nonnull NSString *)version {
-  if (library) {
-    [FIRComponentContainer registerAsComponentRegistrant:library];
-  }
++ (void)registerLibrary:(nonnull NSString *)name withVersion:(nonnull NSString *)version {
   // Create the set of characters which aren't allowed, only if this feature is used.
   NSMutableCharacterSet *allowedSet = [NSMutableCharacterSet alphanumericCharacterSet];
   [allowedSet addCharactersInString:@"-_."];
@@ -511,6 +494,21 @@ static NSMutableDictionary *sLibraryVersions;
                 @"Only alphanumeric, dash, underscore and period characters are allowed.",
                 name, version);
   }
+}
+
++ (void)registerInternalLibrary:(nonnull Class<FIRLibrary>)library
+                       withName:(nonnull NSString *)name
+                    withVersion:(nonnull NSString *)version {
+  // This is called at +load time, keep the work to a minimum.
+  [FIRComponentContainer registerAsComponentRegistrant:library];
+  if ([(Class)library respondsToSelector:@selector(configureWithApp:)]) {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+      sRegisteredAsConfigurable = [[NSMutableArray alloc] init];
+    });
+    [sRegisteredAsConfigurable addObject:library];
+  }
+  [self registerLibrary:name withVersion:version];
 }
 
 + (NSString *)firebaseUserAgent {

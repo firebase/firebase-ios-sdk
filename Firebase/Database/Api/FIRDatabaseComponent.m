@@ -55,7 +55,9 @@ typedef NSMutableDictionary<NSString *, FIRDatabase *> FIRDatabaseDictionary;
 #pragma mark - Lifecycle
 
 + (void)load {
-  [FIRApp registerLibrary:(id<FIRLibrary>)self withName:@"db" withVersion:[FIRDatabase sdkVersion]];
+  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self
+                         withName:@"fire-db"
+                      withVersion:[FIRDatabase sdkVersion]];
 }
 
 #pragma mark - FIRComponentRegistrant
