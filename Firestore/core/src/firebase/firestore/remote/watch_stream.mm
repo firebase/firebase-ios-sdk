@@ -47,10 +47,8 @@ void WatchStream::WatchQuery(FSTQueryData* query) {
   EnsureOnQueue();
 
   GCFSListenRequest* request = serializer_bridge_.CreateWatchRequest(query);
-  if (bridge::IsLoggingEnabled()) {
-    LOG_DEBUG("%s watch: %s", GetDebugDescription(),
-              serializer_bridge_.Describe(request));
-  }
+  LOG_DEBUG("%s watch: %s", GetDebugDescription(),
+            serializer_bridge_.Describe(request));
   Write(serializer_bridge_.ToByteBuffer(request));
 }
 
@@ -86,8 +84,10 @@ Status WatchStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
     return status;
   }
 
-  LOG_DEBUG("%s response: %s", GetDebugDescription(),
-            serializer_bridge_.Describe(response));
+  if (bridge::IsLoggingEnabled()) {
+    LOG_DEBUG("%s response: %s", GetDebugDescription(),
+              serializer_bridge_.Describe(response));
+  }
 
   // A successful response means the stream is healthy.
   backoff_.Reset();
