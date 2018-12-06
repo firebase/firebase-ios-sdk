@@ -54,7 +54,7 @@ target 'SymbolCollisionTest' do
     pod 'GoogleUtilities'
 #    pod 'FirebaseUI'. - requires use_frameworks!
     pod 'nanopb'
-    pod 'NearbyMessages' - conflicts with google-cast-sdk
+    pod 'NearbyMessages' # - conflicts with google-cast-sdk
     pod 'Protobuf'
     pod 'TensorFlow-experimental'
 #    pod 'GTMHTTPFetcher' - conflicts with GTMSessionFetcher
