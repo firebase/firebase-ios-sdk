@@ -1,0 +1,6 @@
+use_frameworks!
+target 'GoogleDataLogger_Tests' do
+  pod 'GoogleDataLogger', :path => '../'
+  
+  
+end
