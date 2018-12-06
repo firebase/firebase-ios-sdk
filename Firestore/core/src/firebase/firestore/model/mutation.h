@@ -18,8 +18,8 @@
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_MUTATION_H_
 
 #include <memory>
-#include <vector>
 #include <utility>
+#include <vector>
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"

@@ -240,7 +240,18 @@ TEST(Mutation, SetWithMutationResult) {
 }
 
 TEST(Mutation, PatchWithMutationResult) {
-  // TODO(rsgowman)
+  auto base_doc = std::make_shared<Document>(
+      Doc("collection/key", 0, {{"foo", FieldValue::FromString("bar")}}));
+
+  std::unique_ptr<Mutation> patch = PatchMutation(
+      "collection/key", {{"foo", FieldValue::FromString("new-bar")}});
+  std::shared_ptr<const MaybeDocument> patch_doc =
+      patch->ApplyToRemoteDocument(base_doc, MutationResult(4));
+
+  ASSERT_TRUE(patch_doc);
+  EXPECT_EQ(*patch_doc.get(), Doc("collection/key", 4,
+                                  {{"foo", FieldValue::FromString("new-bar")}},
+                                  DocumentState::kCommittedMutations));
 }
 
 TEST(Mutation, Transitions) {

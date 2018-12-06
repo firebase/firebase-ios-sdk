@@ -94,10 +94,30 @@ PatchMutation::PatchMutation(DocumentKey&& key,
 }
 
 std::shared_ptr<const MaybeDocument> PatchMutation::ApplyToRemoteDocument(
-    const std::shared_ptr<const MaybeDocument>& /*maybe_doc*/,
-    const MutationResult& /*mutation_result*/) const {
-  // TODO(rsgowman): implement
-  abort();
+    const std::shared_ptr<const MaybeDocument>& maybe_doc,
+    const MutationResult& mutation_result) const {
+  VerifyKeyMatches(maybe_doc.get());
+  HARD_ASSERT(mutation_result.transform_results() == nullptr,
+              "Transform results received by PatchMutation.");
+
+  if (!precondition().IsValidFor(maybe_doc.get())) {
+    // Since the mutation was not rejected, we know that the precondition
+    // matched on the backend. We therefore must not have the expected version
+    // of the document in our cache and return an UnknownDocument with the known
+    // updateTime.
+
+    // TODO(rsgowman): heldwriteacks: Implement. Like this (once UnknownDocument
+    // is ported):
+    // return absl::make_unique<UnknownDocument>(key(),
+    // mutation_result.version());
+
+    abort();
+  }
+
+  const SnapshotVersion& version = mutation_result.version();
+  FieldValue new_data = PatchDocument(maybe_doc.get());
+  return absl::make_unique<Document>(std::move(new_data), key(), version,
+                                     DocumentState::kCommittedMutations);
 }
 
 std::shared_ptr<const MaybeDocument> PatchMutation::ApplyToLocalView(
