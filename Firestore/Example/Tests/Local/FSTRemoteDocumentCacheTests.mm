@@ -34,6 +34,7 @@ namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::DocumentMap;
 using firebase::firestore::model::MaybeDocumentMap;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -142,7 +143,7 @@ static const int kVersion = 42;
     [self setTestDocumentAtPath:"c/1"];
 
     FSTQuery *query = FSTTestQuery("b");
-    MaybeDocumentMap results = [self.remoteDocumentCache documentsMatchingQuery:query];
+    DocumentMap results = [self.remoteDocumentCache documentsMatchingQuery:query];
     [self expectMap:results
         hasDocsInArray:@[
           FSTTestDoc("b/1", kVersion, _kDocData, FSTDocumentStateSynced),
@@ -161,14 +162,14 @@ static const int kVersion = 42;
   return doc;
 }
 
-- (void)expectMap:(const MaybeDocumentMap &)map
+- (void)expectMap:(const DocumentMap &)map
     hasDocsInArray:(NSArray<FSTDocument *> *)expected
            exactly:(BOOL)exactly {
   if (exactly) {
     XCTAssertEqual(map.size(), [expected count]);
   }
   for (FSTDocument *doc in expected) {
-    FSTMaybeDocument *actual = nil;
+    FSTDocument *actual = nil;
     auto found = map.find(doc.key);
     if (found != map.end()) {
       actual = found->second;

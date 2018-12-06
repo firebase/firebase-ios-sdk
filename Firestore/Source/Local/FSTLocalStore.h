@@ -166,7 +166,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)releaseQuery:(FSTQuery *)query;
 
 /** Runs @a query against all the documents in the local store and returns the results. */
-- (firebase::firestore::model::MaybeDocumentMap)executeQuery:(FSTQuery *)query;
+- (firebase::firestore::model::DocumentMap)executeQuery:(FSTQuery *)query;
 
 /** Notify the local store of the changed views to locally pin / unpin documents. */
 - (void)notifyLocalViewChanges:(NSArray<FSTLocalViewChanges *> *)viewChanges;

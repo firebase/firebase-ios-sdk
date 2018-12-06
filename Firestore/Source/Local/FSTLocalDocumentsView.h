@@ -56,7 +56,7 @@ NS_ASSUME_NONNULL_BEGIN
     (const firebase::firestore::model::DocumentKeySet &)keys;
 
 /** Performs a query against the local view of all documents. */
-- (firebase::firestore::model::MaybeDocumentMap)documentsMatchingQuery:(FSTQuery *)query;
+- (firebase::firestore::model::DocumentMap)documentsMatchingQuery:(FSTQuery *)query;
 
 @end
 

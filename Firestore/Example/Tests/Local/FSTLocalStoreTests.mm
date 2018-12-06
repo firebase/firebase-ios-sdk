@@ -47,12 +47,13 @@ using firebase::firestore::auth::User;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::ListenSequenceNumber;
+using firebase::firestore::model::DocumentMap;
 using firebase::firestore::model::MaybeDocumentMap;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 
-static NSArray<FSTMaybeDocument *> *docMapToArray(const MaybeDocumentMap &docs) {
-  NSMutableArray<FSTMaybeDocument *> *result = [NSMutableArray array];
+static NSArray<FSTDocument *> *docMapToArray(const DocumentMap &docs) {
+  NSMutableArray<FSTDocument *> *result = [NSMutableArray array];
   for (const auto &kv : docs) {
     [result addObject:kv.second];
   }
@@ -841,7 +842,7 @@ NS_ASSUME_NONNULL_BEGIN
     FSTTestSetMutation(@"foo/bar/Foo/Bar", @{@"Foo" : @"Bar"})
   ]];
   FSTQuery *query = FSTTestQuery("foo/bar");
-  MaybeDocumentMap docs = [self.localStore executeQuery:query];
+  DocumentMap docs = [self.localStore executeQuery:query];
   XCTAssertEqualObjects(docMapToArray(docs), @[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"},
                                                            FSTDocumentStateLocalMutations) ]);
 }
@@ -857,7 +858,7 @@ NS_ASSUME_NONNULL_BEGIN
     FSTTestSetMutation(@"fooo/blah", @{@"fooo" : @"blah"})
   ]];
   FSTQuery *query = FSTTestQuery("foo");
-  MaybeDocumentMap docs = [self.localStore executeQuery:query];
+  DocumentMap docs = [self.localStore executeQuery:query];
   XCTAssertEqualObjects(
       docMapToArray(docs), (@[
         FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, FSTDocumentStateLocalMutations),
@@ -881,7 +882,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   [self.localStore locallyWriteMutations:@[ FSTTestSetMutation(@"foo/bonk", @{@"a" : @"b"}) ]];
 
-  MaybeDocumentMap docs = [self.localStore executeQuery:query];
+  DocumentMap docs = [self.localStore executeQuery:query];
   XCTAssertEqualObjects(docMapToArray(docs), (@[
                           FSTTestDoc("foo/bar", 20, @{@"a" : @"b"}, FSTDocumentStateSynced),
                           FSTTestDoc("foo/baz", 10, @{@"a" : @"b"}, FSTDocumentStateSynced),

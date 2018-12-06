@@ -215,7 +215,7 @@ class LimboResolution {
 }
 
 - (FSTViewSnapshot *)initializeViewAndComputeSnapshotForQueryData:(FSTQueryData *)queryData {
-  MaybeDocumentMap docs = [self.localStore executeQuery:queryData.query];
+  DocumentMap docs = [self.localStore executeQuery:queryData.query];
   DocumentKeySet remoteKeys = [self.localStore remoteDocumentKeysForTarget:queryData.targetID];
 
   FSTView *view =
@@ -489,12 +489,12 @@ class LimboResolution {
   [self.queryViewsByQuery
       enumerateKeysAndObjectsUsingBlock:^(FSTQuery *query, FSTQueryView *queryView, BOOL *stop) {
         FSTView *view = queryView.view;
-        FSTViewDocumentChanges *viewDocChanges = [view computeChangesWithDocuments:changes];
+        FSTViewDocumentChanges *viewDocChanges = [view computeChangesWithMaybeDocuments:changes];
         if (viewDocChanges.needsRefill) {
           // The query has a limit and some docs were removed/updated, so we need to re-run the
           // query against the local store to make sure we didn't lose any good docs that had been
           // past the limit.
-          MaybeDocumentMap docs = [self.localStore executeQuery:queryView.query];
+          DocumentMap docs = [self.localStore executeQuery:queryView.query];
           viewDocChanges = [view computeChangesWithDocuments:docs previousChanges:viewDocChanges];
         }
 

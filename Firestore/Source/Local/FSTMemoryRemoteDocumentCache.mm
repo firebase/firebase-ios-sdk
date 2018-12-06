@@ -28,6 +28,7 @@
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::ListenSequenceNumber;
+using firebase::firestore::model::DocumentMap;
 using firebase::firestore::model::MaybeDocumentMap;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -67,8 +68,8 @@ static size_t FSTDocumentKeyByteSize(const DocumentKey &key) {
   return found != _docs.end() ? found->second : nil;
 }
 
-- (MaybeDocumentMap)documentsMatchingQuery:(FSTQuery *)query {
-  MaybeDocumentMap result;
+- (DocumentMap)documentsMatchingQuery:(FSTQuery *)query {
+  DocumentMap result;
 
   // Documents are ordered by key, so we can use a prefix scan to narrow down the documents
   // we need to match the query against.

@@ -31,6 +31,7 @@
 
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::DocumentMap;
 using firebase::firestore::model::MaybeDocumentMap;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::SnapshotVersion;
@@ -98,7 +99,7 @@ NS_ASSUME_NONNULL_BEGIN
   return results;
 }
 
-- (MaybeDocumentMap)documentsMatchingQuery:(FSTQuery *)query {
+- (DocumentMap)documentsMatchingQuery:(FSTQuery *)query {
   if (DocumentKey::IsDocumentKey(query.path)) {
     return [self documentsMatchingDocumentQuery:query.path];
   } else {
@@ -106,18 +107,18 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-- (MaybeDocumentMap)documentsMatchingDocumentQuery:(const ResourcePath &)docPath {
-  MaybeDocumentMap result;
+- (DocumentMap)documentsMatchingDocumentQuery:(const ResourcePath &)docPath {
+  DocumentMap result;
   // Just do a simple document lookup.
   FSTMaybeDocument *doc = [self documentForKey:DocumentKey{docPath}];
   if ([doc isKindOfClass:[FSTDocument class]]) {
-    result = result.insert(doc.key, doc);
+    result = result.insert(doc.key, static_cast<FSTDocument *>(doc));
   }
   return result;
 }
 
-- (MaybeDocumentMap)documentsMatchingCollectionQuery:(FSTQuery *)query {
-  MaybeDocumentMap results = [self.remoteDocumentCache documentsMatchingQuery:query];
+- (DocumentMap)documentsMatchingCollectionQuery:(FSTQuery *)query {
+  DocumentMap results = [self.remoteDocumentCache documentsMatchingQuery:query];
   // Get locally persisted mutation batches.
   NSArray<FSTMutationBatch *> *matchingBatches =
       [self.mutationQueue allMutationBatchesAffectingQuery:query];
@@ -141,7 +142,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                      localWriteTime:batch.localWriteTime];
 
       if ([mutatedDoc isKindOfClass:[FSTDocument class]]) {
-        results = results.insert(key, mutatedDoc);
+        results = results.insert(key, static_cast<FSTDocument *>(mutatedDoc));
       } else {
         results = results.erase(key);
       }
@@ -151,10 +152,10 @@ NS_ASSUME_NONNULL_BEGIN
   // Finally, filter out any documents that don't actually match the query. Note that the extra
   // reference here prevents ARC from deallocating the initial unfiltered results while we're
   // enumerating them.
-  MaybeDocumentMap unfiltered = results;
+  DocumentMap unfiltered = results;
   for (const auto &kv : unfiltered) {
     const DocumentKey &key = kv.first;
-    FSTDocument *doc = static_cast<FSTDocument *>(kv.second);
+    FSTDocument *doc = kv.second;
     if (![query matchesDocument:doc]) {
       results = results.erase(key);
     }

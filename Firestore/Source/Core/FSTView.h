@@ -107,6 +107,9 @@ typedef NS_ENUM(NSInteger, FSTLimboDocumentChangeType) {
  * @return a new set of docs, changes, and refill flag.
  */
 - (FSTViewDocumentChanges *)computeChangesWithDocuments:
+    (const firebase::firestore::model::DocumentMap &)docChanges;
+
+- (FSTViewDocumentChanges *)computeChangesWithMaybeDocuments:
     (const firebase::firestore::model::MaybeDocumentMap &)docChanges;
 
 /**
@@ -120,8 +123,13 @@ typedef NS_ENUM(NSInteger, FSTLimboDocumentChangeType) {
  * @return a new set of docs, changes, and refill flag.
  */
 - (FSTViewDocumentChanges *)
-    computeChangesWithDocuments:(const firebase::firestore::model::MaybeDocumentMap &)docChanges
+    computeChangesWithDocuments:(const firebase::firestore::model::DocumentMap &)docChanges
                 previousChanges:(nullable FSTViewDocumentChanges *)previousChanges;
+
+- (FSTViewDocumentChanges *)computeChangesWithMaybeDocuments:
+                                (const firebase::firestore::model::MaybeDocumentMap &)docChanges
+                                             previousChanges:
+                                                 (nullable FSTViewDocumentChanges *)previousChanges;
 
 /**
  * Updates the view with the given ViewDocumentChanges.
