@@ -43,7 +43,7 @@
                  components:(NSDictionary<NSString *, FIRComponentCreationBlock> *)components {
   self = [self initWithApp:app registrants:[[NSMutableSet alloc] init]];
   if (self) {
-    components = [components mutableCopy];
+    self.components = [components mutableCopy];
   }
   return self;
 }
