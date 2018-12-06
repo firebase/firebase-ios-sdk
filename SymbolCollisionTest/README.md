@@ -4,7 +4,7 @@
 
 This directory provides a project that is used to test a set of CocoaPods for symbol
 collisions daily.  It's controlled by the cron functionality in
-[.travis.ml](../.travis.ml)
+[.travis.ml](../.travis.yml)
 
 ### Contributing
 
