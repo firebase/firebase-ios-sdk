@@ -18,6 +18,8 @@
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_MUTATION_H_
 
 #include <memory>
+#include <vector>
+#include <utility>
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
@@ -29,6 +31,54 @@
 namespace firebase {
 namespace firestore {
 namespace model {
+
+/**
+ * The result of applying a mutation to the server. This is a model of the
+ * WriteResult proto message.
+ *
+ * Note that MutationResult does not name which document was mutated. The
+ * association is implied positionally: for each entry in the array of
+ * Mutations, there's a corresponding entry in the array of MutationResults.
+ */
+class MutationResult {
+ public:
+  MutationResult(
+      SnapshotVersion&& version,
+      const std::shared_ptr<const std::vector<FieldValue>>& transform_results)
+      : version_(std::move(version)),
+        transform_results_(std::move(transform_results)) {
+  }
+
+  /**
+   * The version at which the mutation was committed.
+   *
+   * - For most operations, this is the update_time in the WriteResult.
+   * - For deletes, it is the commit_time of the WriteResponse (because
+   *   deletes are not stored and have no update_time).
+   *
+   * Note that these versions can be different: No-op writes will not change
+   * the update_time even though the commit_time advances.
+   */
+  const SnapshotVersion& version() const {
+    return version_;
+  }
+
+  /**
+   * The resulting fields returned from the backend after a TransformMutation
+   * has been committed.  Contains one FieldValue for each FieldTransform
+   * that was in the mutation.
+   *
+   * Will be null if the mutation was not a TransformMutation.
+   */
+  const std::shared_ptr<const std::vector<FieldValue>>& transform_results()
+      const {
+    return transform_results_;
+  }
+
+ private:
+  const SnapshotVersion version_;
+  const std::shared_ptr<const std::vector<FieldValue>> transform_results_;
+};
 
 /**
  * Represents a Mutation of a document. Different subclasses of Mutation will
@@ -85,7 +135,24 @@ class Mutation {
     return precondition_;
   }
 
-  // TODO(rsgowman): ApplyToRemoteDocument()
+  /**
+   * Applies this mutation to the given MaybeDocument for the purposes of
+   * computing a new remote document. If the input document doesn't match the
+   * expected state (e.g. it is null or outdated), an `UnknownDocument` can be
+   * returned.
+   *
+   * @param maybe_doc The document to mutate. The input document can be nullptr
+   *     if the client has no knowledge of the pre-mutation state of the
+   *     document.
+   * @param mutation_result The result of applying the mutation from the
+   *     backend.
+   * @return The mutated document. The returned document may be an
+   *     UnknownDocument if the mutation could not be applied to the locally
+   *     cached base document.
+   */
+  virtual std::shared_ptr<const MaybeDocument> ApplyToRemoteDocument(
+      const std::shared_ptr<const MaybeDocument>& maybe_doc,
+      const MutationResult& mutation_result) const = 0;
 
   /**
    * Applies this mutation to the given MaybeDocument for the purposes of
@@ -131,7 +198,9 @@ class SetMutation : public Mutation {
               FieldValue&& value,
               Precondition&& precondition);
 
-  // TODO(rsgowman): ApplyToRemoteDocument()
+  std::shared_ptr<const MaybeDocument> ApplyToRemoteDocument(
+      const std::shared_ptr<const MaybeDocument>& maybe_doc,
+      const MutationResult& mutation_result) const override;
 
   std::shared_ptr<const MaybeDocument> ApplyToLocalView(
       const std::shared_ptr<const MaybeDocument>& maybe_doc,
@@ -162,7 +231,9 @@ class PatchMutation : public Mutation {
                 FieldMask&& mask,
                 Precondition&& precondition);
 
-  // TODO(rsgowman): ApplyToRemoteDocument()
+  std::shared_ptr<const MaybeDocument> ApplyToRemoteDocument(
+      const std::shared_ptr<const MaybeDocument>& maybe_doc,
+      const MutationResult& mutation_result) const override;
 
   std::shared_ptr<const MaybeDocument> ApplyToLocalView(
       const std::shared_ptr<const MaybeDocument>& maybe_doc,

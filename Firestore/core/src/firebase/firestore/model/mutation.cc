@@ -53,6 +53,22 @@ SetMutation::SetMutation(DocumentKey&& key,
       value_(std::move(value)) {
 }
 
+std::shared_ptr<const MaybeDocument> SetMutation::ApplyToRemoteDocument(
+    const std::shared_ptr<const MaybeDocument>& maybe_doc,
+    const MutationResult& mutation_result) const {
+  VerifyKeyMatches(maybe_doc.get());
+
+  HARD_ASSERT(mutation_result.transform_results() == nullptr,
+              "Transform results received by SetMutation.");
+
+  // Unlike applyToLocalView, if we're applying a mutation to a remote document
+  // the server has accepted the mutation so the precondition must have held.
+
+  const SnapshotVersion& version = mutation_result.version();
+  return absl::make_unique<Document>(FieldValue(value_), key(), version,
+                                     DocumentState::kCommittedMutations);
+}
+
 std::shared_ptr<const MaybeDocument> SetMutation::ApplyToLocalView(
     const std::shared_ptr<const MaybeDocument>& maybe_doc,
     const MaybeDocument*,
@@ -75,6 +91,13 @@ PatchMutation::PatchMutation(DocumentKey&& key,
     : Mutation(std::move(key), std::move(precondition)),
       value_(std::move(value)),
       mask_(std::move(mask)) {
+}
+
+std::shared_ptr<const MaybeDocument> PatchMutation::ApplyToRemoteDocument(
+    const std::shared_ptr<const MaybeDocument>& /*maybe_doc*/,
+    const MutationResult& /*mutation_result*/) const {
+  // TODO(rsgowman): implement
+  abort();
 }
 
 std::shared_ptr<const MaybeDocument> PatchMutation::ApplyToLocalView(

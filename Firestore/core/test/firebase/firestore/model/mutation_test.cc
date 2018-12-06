@@ -30,6 +30,7 @@ namespace model {
 using testutil::DeletedDoc;
 using testutil::Doc;
 using testutil::Field;
+using testutil::MutationResult;
 using testutil::PatchMutation;
 using testutil::SetMutation;
 
@@ -224,7 +225,18 @@ TEST(Mutation, DeleteDeletes) {
 }
 
 TEST(Mutation, SetWithMutationResult) {
-  // TODO(rsgowman)
+  auto base_doc = std::make_shared<Document>(
+      Doc("collection/key", 0, {{"foo", FieldValue::FromString("bar")}}));
+
+  std::unique_ptr<Mutation> set = SetMutation(
+      "collection/key", {{"foo", FieldValue::FromString("new-bar")}});
+  std::shared_ptr<const MaybeDocument> set_doc =
+      set->ApplyToRemoteDocument(base_doc, MutationResult(4));
+
+  ASSERT_TRUE(set_doc);
+  EXPECT_EQ(*set_doc.get(), Doc("collection/key", 4,
+                                {{"foo", FieldValue::FromString("new-bar")}},
+                                DocumentState::kCommittedMutations));
 }
 
 TEST(Mutation, PatchWithMutationResult) {

@@ -152,6 +152,10 @@ inline std::unique_ptr<model::PatchMutation> PatchMutation(
   return PatchMutation(path, values, &update_mask);
 }
 
+inline model::MutationResult MutationResult(int64_t version) {
+  return model::MutationResult(Version(version), nullptr);
+}
+
 inline std::vector<uint8_t> ResumeToken(int64_t snapshot_version) {
   if (snapshot_version == 0) {
     // TODO(rsgowman): The other platforms return null here, though I'm not sure
