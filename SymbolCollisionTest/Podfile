@@ -4,11 +4,8 @@
 target 'SymbolCollisionTest' do
   # Uncomment the next line if you're using Swift or would like to use dynamic frameworks
   # use_frameworks!
-    #'Blockly', This is a Swift Pod and requires usage of use_frameworks!
-    pod 'Crashlytics'
-    pod 'DigitsMigrationHelper'
-    pod 'EarlGrey'
-    pod 'GeoFire'
+
+  # Firebase Pods
     pod 'Firebase', '5.14.0'
     pod 'FirebaseAnalytics'
     pod 'FirebaseAuth'
@@ -31,6 +28,14 @@ target 'SymbolCollisionTest' do
     pod 'FirebasePerformance'
     pod 'FirebaseRemoteConfig'
     pod 'FirebaseStorage'
+#    pod 'FirebaseUI'. - requires use_frameworks!
+
+  # Other Google Pods
+#    pod 'Blockly' This is a Swift Pod and requires usage of use_frameworks!
+    pod 'Crashlytics'
+    pod 'DigitsMigrationHelper'
+    pod 'EarlGrey'
+    pod 'GeoFire'
     pod 'google-cast-sdk'
     pod 'Google-Mobile-Ads-SDK'
     pod 'GoogleAnalytics'
@@ -52,16 +57,17 @@ target 'SymbolCollisionTest' do
     pod 'GoogleTagManager'
     pod 'GoogleToolboxForMac'
     pod 'GoogleUtilities'
-#    pod 'FirebaseUI'. - requires use_frameworks!
-    pod 'nanopb'
-    pod 'NearbyMessages' # - conflicts with google-cast-sdk
-    pod 'Protobuf'
-    pod 'TensorFlow-experimental'
-#    pod 'GTMHTTPFetcher' - conflicts with GTMSessionFetcher
     pod 'GTMAppAuth'
+#    pod 'GTMHTTPFetcher' - conflicts with GTMSessionFetcher
     pod 'GTMSessionFetcher'
     pod 'GVRSDK'
     pod 'leveldb-library'
-#     pod 'MDFTextAccessibility' - conflicts with GVRSDK
+#    pod 'MDFTextAccessibility' - conflicts with GVRSDK
+    pod 'nanopb'
+#    pod 'NearbyMessages' # - conflicts with google-cast-sdk
+    pod 'Protobuf'
+    pod 'TensorFlow-experimental'
+
+  # Non-Google Pods
 
 end
