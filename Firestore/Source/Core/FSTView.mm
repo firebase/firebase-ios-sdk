@@ -202,13 +202,13 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
   return _syncedDocuments;
 }
 
+// These two overloads allow skipping a cast when dealing with a map of `FSTDocument`s.
 FSTDocument *GetFSTDocumentOrNil(FSTMaybeDocument *maybeDoc) {
   if ([maybeDoc isKindOfClass:[FSTDocument class]]) {
     return static_cast<FSTDocument *>(maybeDoc);
   }
   return nil;
 }
-
 FSTDocument *GetFSTDocumentOrNil(FSTDocument *doc) {
   return doc;
 }
@@ -223,6 +223,8 @@ bool ShouldWaitForSyncedDocument(FSTDocument *newDoc, FSTDocument *oldDoc) {
   return (oldDoc.hasLocalMutations && newDoc.hasCommittedMutations && !newDoc.hasLocalMutations);
 }
 
+// Shared implementation of the `computeChanges` methods; the customization point is in
+// `GetFSTDocumentOrNil` function.
 template <typename MapT>
 FSTViewDocumentChanges *ComputeChanges(FSTView *view,
                                        const DocumentKeySet &mutatedKeys,
