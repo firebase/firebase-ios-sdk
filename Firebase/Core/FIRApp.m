@@ -500,6 +500,17 @@ static NSMutableDictionary *sLibraryVersions;
                        withName:(nonnull NSString *)name
                     withVersion:(nonnull NSString *)version {
   // This is called at +load time, keep the work to a minimum.
+
+  // Ensure the class given conforms to the proper protocol.
+  if (![(Class)library conformsToProtocol:@protocol(FIRLibrary)] ||
+      ![(Class)library respondsToSelector:@selector(componentsToRegister)]) {
+    [NSException raise:NSInvalidArgumentException
+                format:
+                    @"Class %@ attempted to register components, but it does not conform to "
+                    @"`FIRLibrary or provide a `componentsToRegister:` method.",
+                    library];
+  }
+
   [FIRComponentContainer registerAsComponentRegistrant:library];
   if ([(Class)library respondsToSelector:@selector(configureWithApp:)]) {
     static dispatch_once_t onceToken;

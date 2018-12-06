@@ -47,29 +47,7 @@ static NSMutableSet<Class> *sFIRComponentRegistrants;
     sFIRComponentRegistrants = [[NSMutableSet<Class> alloc] init];
   });
 
-  [self registerAsComponentRegistrant:klass inSet:sFIRComponentRegistrants];
-}
-
-+ (void)registerAsComponentRegistrant:(Class)klass inSet:(NSMutableSet<Class> *)allRegistrants {
-  // Validate the array to store the components is initialized.
-  if (!allRegistrants) {
-    FIRLogWarning(kFIRLoggerCore, @"I-COR000025",
-                  @"Attempted to store registered components in an empty set.");
-    return;
-  }
-
-  // Ensure the class given conforms to the proper protocol.
-  // TODO restore protocol check after new code propagates internally
-  if (  //![klass conformsToProtocol:@protocol(FIRLibrary)] ||
-      ![klass respondsToSelector:@selector(componentsToRegister)]) {
-    [NSException raise:NSInvalidArgumentException
-                format:
-                    @"Class %@ attempted to register components, but it does not conform to "
-                    @"`FIRComponentRegistrant` or provide a `componentsToRegister:` method.",
-                    klass];
-  }
-
-  [allRegistrants addObject:klass];
+  [sFIRComponentRegistrants addObject:klass];
 }
 
 #pragma mark - Internal Initialization
@@ -188,17 +166,14 @@ static NSMutableSet<Class> *sFIRComponentRegistrants;
   [self.cachedInstances removeAllObjects];
 }
 
-#pragma mark - Testing Initializers
+#pragma mark - Testing Accessors
 
-// TODO(wilsonryan): Set up a testing flag so this only is compiled in with unit tests.
-/// Initialize an instance with an app and existing components.
-- (instancetype)initWithApp:(FIRApp *)app
-                 components:(NSDictionary<NSString *, FIRComponentCreationBlock> *)components {
-  self = [self initWithApp:app registrants:[[NSMutableSet alloc] init]];
-  if (self) {
-    _components = [components mutableCopy];
-  }
-  return self;
++ (void)setRegistrantSet:(NSMutableSet<Class> *)testInput {
+  sFIRComponentRegistrants = testInput;
+}
+
++ (NSMutableSet<Class> *)registrantSet {
+  return sFIRComponentRegistrants;
 }
 
 @end
