@@ -18,8 +18,8 @@
 #import <FirebaseAuthInterop/FIRAuthInterop.h>
 #import <FirebaseCore/FIRComponent.h>
 #import <FirebaseCore/FIRComponentContainer.h>
-#import <FirebaseCore/FIRLibrary.h>
 #import <FirebaseCore/FIRDependency.h>
+#import <FirebaseCore/FIRLibrary.h>
 
 #import "FIRError.h"
 #import "FIRHTTPSCallable+Internal.h"
