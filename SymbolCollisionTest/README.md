@@ -6,12 +6,21 @@ This directory provides a project that is used to test a set of CocoaPods for sy
 collisions daily.  It's controlled by the cron functionality in
 [.travis.ml](../.travis.yml).
 
-### Contributing
+## Run Locally
+
+* `git clone git@github.com:firebase/firebase-ios-sdk.git`
+* `cd firebase-ios-sdk/SymbolCollisionTest`
+* Optionally make any changes to the Podfile
+* `pod install`
+* `open SymbolCollisionTest.xcworkspace`
+* Build
+
+## Contributing
 
 If you'd like to add a CocoaPod to the tests, add it to the
 [Podfile](Podfile), test that it builds locally and then send a PR.
 
-### Future
+## Future
 
 Currently the tests primarily test static libraries and static frameworks.
 `use_frameworks!` and
