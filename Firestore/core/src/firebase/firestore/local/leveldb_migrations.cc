@@ -245,7 +245,7 @@ void EnsureSentinelRows(leveldb::DB* db) {
 
 LevelDbMigrations::SchemaVersion LevelDbMigrations::ReadSchemaVersion(
     leveldb::DB* db) {
-  LevelDbTransaction transaction(db, "ReadSchemaVersion");
+  LevelDbTransaction transaction(db, "Read schema version");
   std::string key = LevelDbVersionKey::Key();
   std::string version_string;
   Status status = transaction.Get(key, &version_string);
@@ -263,7 +263,7 @@ void LevelDbMigrations::RunMigrations(leveldb::DB* db) {
 void LevelDbMigrations::RunMigrations(leveldb::DB* db,
                                       SchemaVersion to_version) {
   SchemaVersion from_version = ReadSchemaVersion(db);
-  // If this is a downgrade, just save the downgrade version so
+  // If this is a downgrade, just save the downgrade version so we can
   // detect it when we go to upgrade again, allowing us to rerun the
   // data migrations.
   if (from_version > to_version) {
