@@ -35,7 +35,7 @@ static NSString *const kProjectID = @"functions-integration-test";
   [super setUp];
   _functions = [[FIRFunctions alloc]
       initWithProjectID:kProjectID
-                 region:@"my-region"
+                 region:@"us-central1"
                    auth:[[FIRAuthInteropFake alloc] initWithToken:nil userID:nil error:nil]];
   [_functions useLocalhost];
 }
@@ -83,7 +83,7 @@ static NSString *const kProjectID = @"functions-integration-test";
   // Recreate _functions with a token.
   FIRFunctions *functions = [[FIRFunctions alloc]
       initWithProjectID:kProjectID
-                 region:@"my-region"
+                 region:@"us-central1"
                    auth:[[FIRAuthInteropFake alloc] initWithToken:@"token" userID:nil error:nil]];
   [functions useLocalhost];
 
@@ -122,6 +122,7 @@ static NSString *const kProjectID = @"functions-integration-test";
   [self waitForExpectations:@[ expectation ] timeout:10];
 
   // Test the version with no arguments.
+  expectation = [[XCTestExpectation alloc] init];
   [function
       callWithCompletion:^(FIRHTTPSCallableResult *_Nullable result, NSError *_Nullable error) {
         XCTAssertEqualObjects([NSNull null], result.data);
