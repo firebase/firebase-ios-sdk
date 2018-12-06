@@ -28,6 +28,7 @@ product can be one of:
   Firebase
   Firestore
   InAppMessagingDisplay
+  SymbolCollision
 
 platform can be one of:
   iOS (default)
@@ -315,6 +316,14 @@ case "$product-$method-$platform" in
     cpus=$(sysctl -n hw.ncpu)
     (cd build; env make -j $cpus all generate_protos)
     (cd build; env CTEST_OUTPUT_ON_FAILURE=1 make -j $cpus test)
+    ;;
+
+  SymbolCollision-xcodebuild-*)
+    RunXcodebuild \
+        -workspace 'SymbolCollisionTest/SymbolCollisionTest.xcworkspace' \
+        -scheme "SymbolCollisionTest" \
+        "${xcb_flags[@]}" \
+        build
     ;;
 
   *)

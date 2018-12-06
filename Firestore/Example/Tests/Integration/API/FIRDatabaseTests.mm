@@ -594,7 +594,7 @@ using firebase::firestore::util::TimerId;
           XCTAssertFalse(doc.exists);
           [snapshotCompletion fulfill];
 
-        } else if (callbacks == 2) {
+        } else {
           XCTFail("Should not have received this callback");
         }
       }];
@@ -625,7 +625,7 @@ using firebase::firestore::util::TimerId;
           XCTAssertEqual(doc.metadata.hasPendingWrites, YES);
           [dataCompletion fulfill];
 
-        } else if (callbacks == 3) {
+        } else {
           XCTFail("Should not have received this callback");
         }
       }];
@@ -666,7 +666,7 @@ using firebase::firestore::util::TimerId;
                                                XCTAssertEqual(doc.metadata.hasPendingWrites, NO);
                                                [dataCompletion fulfill];
 
-                                             } else if (callbacks == 4) {
+                                             } else {
                                                XCTFail("Should not have received this callback");
                                              }
                                            }];
@@ -706,7 +706,7 @@ using firebase::firestore::util::TimerId;
           XCTAssertEqual(doc.metadata.hasPendingWrites, YES);
           [changeCompletion fulfill];
 
-        } else if (callbacks == 3) {
+        } else {
           XCTFail("Should not have received this callback");
         }
       }];
@@ -760,7 +760,7 @@ using firebase::firestore::util::TimerId;
                                                XCTAssertEqual(doc.metadata.isFromCache, NO);
                                                [changeCompletion fulfill];
 
-                                             } else if (callbacks == 5) {
+                                             } else {
                                                XCTFail("Should not have received this callback");
                                              }
                                            }];
@@ -799,7 +799,7 @@ using firebase::firestore::util::TimerId;
           XCTAssertFalse(doc.exists);
           [changeCompletion fulfill];
 
-        } else if (callbacks == 3) {
+        } else {
           XCTFail("Should not have received this callback");
         }
       }];
@@ -847,7 +847,7 @@ using firebase::firestore::util::TimerId;
                                                XCTAssertEqual(doc.metadata.isFromCache, NO);
                                                [changeCompletion fulfill];
 
-                                             } else if (callbacks == 4) {
+                                             } else {
                                                XCTFail("Should not have received this callback");
                                              }
                                            }];
@@ -886,7 +886,7 @@ using firebase::firestore::util::TimerId;
           XCTAssertEqual(docSet.documents[0].metadata.hasPendingWrites, YES);
           [changeCompletion fulfill];
 
-        } else if (callbacks == 3) {
+        } else {
           XCTFail("Should not have received a third callback");
         }
       }];
@@ -929,7 +929,7 @@ using firebase::firestore::util::TimerId;
           XCTAssertEqual(docSet.documents[0].metadata.hasPendingWrites, YES);
           [changeCompletion fulfill];
 
-        } else if (callbacks == 3) {
+        } else {
           XCTFail("Should not have received a third callback");
         }
       }];
@@ -969,7 +969,7 @@ using firebase::firestore::util::TimerId;
           XCTAssertEqual(docSet.count, 0);
           [changeCompletion fulfill];
 
-        } else if (callbacks == 4) {
+        } else {
           XCTFail("Should not have received a third callback");
         }
       }];

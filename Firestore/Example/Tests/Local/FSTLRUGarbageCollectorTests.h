@@ -16,13 +16,15 @@
 
 #import <XCTest/XCTest.h>
 
+#import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
+
 @protocol FSTPersistence;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTLRUGarbageCollectorTests : XCTestCase
 
-- (id<FSTPersistence>)newPersistence;
+- (id<FSTPersistence>)newPersistenceWithLruParams:(firebase::firestore::local::LruParams)lruParams;
 
 @property(nonatomic, strong) id<FSTPersistence> persistence;
 

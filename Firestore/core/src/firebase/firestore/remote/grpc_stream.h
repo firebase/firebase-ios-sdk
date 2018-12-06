@@ -180,6 +180,7 @@ class GrpcStream : public GrpcCall {
  private:
   void Read();
   void MaybeWrite(absl::optional<internal::BufferedWrite> maybe_write);
+  bool TryLastWrite(grpc::ByteBuffer&& message);
 
   void Shutdown();
   void UnsetObserver() {
@@ -200,7 +201,7 @@ class GrpcStream : public GrpcCall {
   // was started. Presumes that any pending completions will quickly come off
   // the queue and will block until they do, so this must only be invoked when
   // the current call either failed (`OnOperationFailed`) or canceled.
-  void FinishCall(const OnSuccess& callback);
+  void FinishGrpcCall(const OnSuccess& callback);
 
   // Blocks until all the completions issued by this stream come out from the
   // gRPC completion queue. Once they do, it is safe to delete this `GrpcStream`
@@ -231,6 +232,9 @@ class GrpcStream : public GrpcCall {
   internal::BufferedWriter buffered_writer_;
 
   std::vector<GrpcCompletion*> completions_;
+
+  // gRPC asserts that a call is finished exactly once.
+  bool is_grpc_call_finished_ = false;
 };
 
 }  // namespace remote

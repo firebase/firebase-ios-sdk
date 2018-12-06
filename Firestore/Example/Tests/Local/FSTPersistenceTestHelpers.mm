@@ -18,6 +18,7 @@
 
 #include <utility>
 
+#import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
@@ -30,6 +31,7 @@
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::local::LruParams;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::util::Path;
 using firebase::firestore::util::Status;
@@ -61,8 +63,13 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (FSTLevelDB *)levelDBPersistenceWithDir:(Path)dir {
+  return [self levelDBPersistenceWithDir:dir lruParams:LruParams::Default()];
+}
+
++ (FSTLevelDB *)levelDBPersistenceWithDir:(Path)dir lruParams:(LruParams)params {
   FSTLocalSerializer *serializer = [self localSerializer];
-  FSTLevelDB *db = [[FSTLevelDB alloc] initWithDirectory:std::move(dir) serializer:serializer];
+  FSTLevelDB *db =
+      [[FSTLevelDB alloc] initWithDirectory:std::move(dir) serializer:serializer lruParams:params];
   Status status = [db start];
   if (!status.ok()) {
     [NSException raise:NSInternalInconsistencyException
@@ -70,6 +77,10 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   return db;
+}
+
++ (FSTLevelDB *)levelDBPersistenceWithLruParams:(LruParams)lruParams {
+  return [self levelDBPersistenceWithDir:[self levelDBDir] lruParams:lruParams];
 }
 
 + (FSTLevelDB *)levelDBPersistence {
@@ -88,9 +99,13 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (FSTMemoryPersistence *)lruMemoryPersistence {
+  return [self lruMemoryPersistenceWithLruParams:LruParams::Default()];
+}
+
++ (FSTMemoryPersistence *)lruMemoryPersistenceWithLruParams:(LruParams)lruParams {
   FSTLocalSerializer *serializer = [self localSerializer];
   FSTMemoryPersistence *persistence =
-      [FSTMemoryPersistence persistenceWithLRUGCAndSerializer:serializer];
+      [FSTMemoryPersistence persistenceWithLruParams:lruParams serializer:serializer];
   Status status = [persistence start];
   if (!status.ok()) {
     [NSException raise:NSInternalInconsistencyException

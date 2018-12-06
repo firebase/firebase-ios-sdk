@@ -14,12 +14,15 @@
 
 #import <XCTest/XCTest.h>
 
+#import "FIRAuthInteropFake.h"
 #import "FIRError.h"
 #import "FIRFunctions+Internal.h"
 #import "FIRFunctions.h"
 #import "FIRHTTPSCallable.h"
-#import "FUNFakeApp.h"
 #import "FUNFakeInstanceID.h"
+
+// Project ID used by these tests.
+static NSString *const kProjectID = @"functions-integration-test";
 
 @interface FIRIntegrationTests : XCTestCase {
   FIRFunctions *_functions;
@@ -30,8 +33,10 @@
 
 - (void)setUp {
   [super setUp];
-  id app = [[FUNFakeApp alloc] initWithProjectID:@"functions-integration-test"];
-  _functions = [FIRFunctions functionsForApp:app];
+  _functions = [[FIRFunctions alloc]
+      initWithProjectID:kProjectID
+                 region:@"us-central1"
+                   auth:[[FIRAuthInteropFake alloc] initWithToken:nil userID:nil error:nil]];
   [_functions useLocalhost];
 }
 
@@ -76,8 +81,10 @@
 
 - (void)testToken {
   // Recreate _functions with a token.
-  id app = [[FUNFakeApp alloc] initWithProjectID:@"functions-integration-test" token:@"token"];
-  FIRFunctions *functions = [FIRFunctions functionsForApp:app];
+  FIRFunctions *functions = [[FIRFunctions alloc]
+      initWithProjectID:kProjectID
+                 region:@"us-central1"
+                   auth:[[FIRAuthInteropFake alloc] initWithToken:@"token" userID:nil error:nil]];
   [functions useLocalhost];
 
   XCTestExpectation *expectation = [[XCTestExpectation alloc] init];
@@ -115,6 +122,7 @@
   [self waitForExpectations:@[ expectation ] timeout:10];
 
   // Test the version with no arguments.
+  expectation = [[XCTestExpectation alloc] init];
   [function
       callWithCompletion:^(FIRHTTPSCallableResult *_Nullable result, NSError *_Nullable error) {
         XCTAssertEqualObjects([NSNull null], result.data);

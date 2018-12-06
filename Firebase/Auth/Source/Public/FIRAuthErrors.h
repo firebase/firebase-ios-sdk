@@ -299,10 +299,19 @@ typedef NS_ENUM(NSInteger, FIRAuthErrorCode) {
      */
     FIRAuthErrorCodeWebInternalError = 17062,
 
+    /** Indicates that the local player was not authenticated prior to attempting Game Center signin.
+     */
+    FIRAuthErrorCodeLocalPlayerNotAuthenticated = 17066,
+
     /** Indicates that a non-null user was expected as an argmument to the operation but a null
         user was provided.
      */
     FIRAuthErrorCodeNullUser = 17067,
+
+    /** Indicates that the Firebase Dynamic Link domain used is either not configured or is unauthorized
+        for the current project.
+     */
+    FIRAuthErrorCodeInvalidDynamicLinkDomain = 17074,
 
     /** Indicates an error occurred while attempting to access the keychain.
      */

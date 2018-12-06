@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2018 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,15 @@
 
 #import <Foundation/Foundation.h>
 
-@class FUNFakeOptions;
-
 NS_ASSUME_NONNULL_BEGIN
 
-/**
- * FUNFakeApp is a mock app to use for tests.
+@interface NSData (FIRBase64)
+
+/** @fn fir_base64URLEncodedStringWithOptions:
+    @brief Get a web safe base64 encoded string
+    @param options The base64 encoding options
  */
-@interface FUNFakeApp : NSObject
-
-- (id)init NS_UNAVAILABLE;
-
-- (instancetype)initWithProjectID:(NSString *)projectID;
-
-- (instancetype)initWithProjectID:(NSString *)projectID
-                            token:(NSString *_Nullable)token NS_DESIGNATED_INITIALIZER;
-
-@property(nonatomic, strong, readonly) FUNFakeOptions *options;
+- (NSString *)fir_base64URLEncodedStringWithOptions:(NSDataBase64EncodingOptions)options;
 
 @end
 

@@ -67,6 +67,11 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     pip install six
     ;;
 
+  SymbolCollision-*-xcodebuild)
+    gem install xcpretty
+    bundle exec pod install --project-directory=SymbolCollisionTest --repo-update
+    ;;
+
   *)
     echo "Unknown project-platform-method combo" 1>&2
     echo "  PROJECT=$PROJECT" 1>&2
