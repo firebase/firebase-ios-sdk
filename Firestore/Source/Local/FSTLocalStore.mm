@@ -436,8 +436,8 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
   });
 }
 
-- (MaybeDocumentMap)executeQuery:(FSTQuery *)query {
-  return self.persistence.run("ExecuteQuery", [&]() -> MaybeDocumentMap {
+- (DocumentMap)executeQuery:(FSTQuery *)query {
+  return self.persistence.run("ExecuteQuery", [&]() -> DocumentMap {
     return [self.localDocuments documentsMatchingQuery:query];
   });
 }

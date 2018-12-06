@@ -38,6 +38,7 @@ using firebase::firestore::local::LevelDbRemoteDocumentKey;
 using firebase::firestore::local::LevelDbTransaction;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::DocumentMap;
 using firebase::firestore::model::MaybeDocumentMap;
 using leveldb::DB;
 using leveldb::Status;
@@ -102,8 +103,8 @@ using leveldb::Status;
   return results;
 }
 
-- (MaybeDocumentMap)documentsMatchingQuery:(FSTQuery *)query {
-  MaybeDocumentMap results;
+- (DocumentMap)documentsMatchingQuery:(FSTQuery *)query {
+  DocumentMap results;
 
   // Documents are ordered by key, so we can use a prefix scan to narrow down
   // the documents we need to match the query against.
@@ -118,7 +119,7 @@ using leveldb::Status;
     if (!query.path.IsPrefixOf(maybeDoc.key.path())) {
       break;
     } else if ([maybeDoc isKindOfClass:[FSTDocument class]]) {
-      results = results.insert(maybeDoc.key, maybeDoc);
+      results = results.insert(maybeDoc.key, static_cast<FSTDocument *>(maybeDoc));
     }
   }
 

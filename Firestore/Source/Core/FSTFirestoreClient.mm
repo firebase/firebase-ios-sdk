@@ -60,6 +60,7 @@ using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::local::LruParams;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::DocumentMap;
 using firebase::firestore::model::MaybeDocumentMap;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::util::Path;
@@ -363,7 +364,7 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
                         completion:(void (^)(FIRQuerySnapshot *_Nullable query,
                                              NSError *_Nullable error))completion {
   _workerQueue->Enqueue([self, query, completion] {
-    MaybeDocumentMap docs = [self.localStore executeQuery:query.query];
+    DocumentMap docs = [self.localStore executeQuery:query.query];
 
     FSTView *view = [[FSTView alloc] initWithQuery:query.query remoteDocuments:DocumentKeySet{}];
     FSTViewDocumentChanges *viewDocChanges = [view computeChangesWithDocuments:docs];

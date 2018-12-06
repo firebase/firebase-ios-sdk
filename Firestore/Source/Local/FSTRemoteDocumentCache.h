@@ -77,7 +77,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param query The query to match documents against.
  * @return The set of matching documents.
  */
-- (firebase::firestore::model::MaybeDocumentMap)documentsMatchingQuery:(FSTQuery *)query;
+- (firebase::firestore::model::DocumentMap)documentsMatchingQuery:(FSTQuery *)query;
 
 @end
 
