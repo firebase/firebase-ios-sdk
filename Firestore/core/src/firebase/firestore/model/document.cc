@@ -27,10 +27,10 @@ namespace model {
 Document::Document(FieldValue&& data,
                    DocumentKey key,
                    SnapshotVersion version,
-                   bool has_local_mutations)
+                   DocumentState document_state)
     : MaybeDocument(std::move(key), std::move(version)),
       data_(std::move(data)),
-      has_local_mutations_(has_local_mutations) {
+      document_state_(document_state) {
   set_type(Type::Document);
   HARD_ASSERT(FieldValue::Type::Object == data.type());
 }
@@ -41,7 +41,7 @@ bool Document::Equals(const MaybeDocument& other) const {
   }
   auto& other_doc = static_cast<const Document&>(other);
   return MaybeDocument::Equals(other) &&
-         has_local_mutations_ == other_doc.has_local_mutations_ &&
+         document_state_ == other_doc.document_state_ &&
          data_ == other_doc.data_;
 }
 

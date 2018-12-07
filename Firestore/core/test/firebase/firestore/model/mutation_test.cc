@@ -47,7 +47,7 @@ TEST(Mutation, AppliesSetsToDocuments) {
   ASSERT_EQ(set_doc->type(), MaybeDocument::Type::Document);
   EXPECT_EQ(*set_doc.get(), Doc("collection/key", 0,
                                 {{"bar", FieldValue::FromString("bar-value")}},
-                                /*has_local_mutations=*/true));
+                                DocumentState::kLocalMutations));
 }
 
 TEST(Mutation, AppliesPatchToDocuments) {
@@ -68,7 +68,7 @@ TEST(Mutation, AppliesPatchToDocuments) {
           {{"foo", FieldValue::FromMap(
                        {{"bar", FieldValue::FromString("new-bar-value")}})},
            {"baz", FieldValue::FromString("baz-value")}},
-          /*has_local_mutations=*/true));
+          DocumentState::kLocalMutations));
 }
 
 TEST(Mutation, AppliesPatchWithMergeToDocuments) {
@@ -85,7 +85,7 @@ TEST(Mutation, AppliesPatchWithMergeToDocuments) {
       Doc("collection/key", 0,
           {{"foo", FieldValue::FromMap(
                        {{"bar", FieldValue::FromString("new-bar-value")}})}},
-          /*has_local_mutations=*/true));
+          DocumentState::kLocalMutations));
 }
 
 TEST(Mutation, AppliesPatchToNullDocWithMergeToDocuments) {
@@ -102,7 +102,7 @@ TEST(Mutation, AppliesPatchToNullDocWithMergeToDocuments) {
       Doc("collection/key", 0,
           {{"foo", FieldValue::FromMap(
                        {{"bar", FieldValue::FromString("new-bar-value")}})}},
-          /*has_local_mutations=*/true));
+          DocumentState::kLocalMutations));
 }
 
 TEST(Mutation, DeletesValuesFromTheFieldMask) {
@@ -122,7 +122,7 @@ TEST(Mutation, DeletesValuesFromTheFieldMask) {
             Doc("collection/key", 0,
                 {{"foo", FieldValue::FromMap(
                              {{"baz", FieldValue::FromString("baz-value")}})}},
-                /*has_local_mutations=*/true));
+                DocumentState::kLocalMutations));
 }
 
 TEST(Mutation, PatchesPrimitiveValue) {
@@ -143,7 +143,7 @@ TEST(Mutation, PatchesPrimitiveValue) {
           {{"foo", FieldValue::FromMap(
                        {{"bar", FieldValue::FromString("new-bar-value")}})},
            {"baz", FieldValue::FromString("baz-value")}},
-          /*has_local_mutations=*/true));
+          DocumentState::kLocalMutations));
 }
 
 }  // namespace model

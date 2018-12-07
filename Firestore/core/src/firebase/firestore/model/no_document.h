@@ -26,7 +26,16 @@ namespace model {
 /** Represents that no documents exists for the key at the given version. */
 class NoDocument : public MaybeDocument {
  public:
-  NoDocument(DocumentKey key, SnapshotVersion version);
+  NoDocument(DocumentKey key,
+             SnapshotVersion version,
+             bool has_committed_mutations);
+
+  bool HasPendingWrites() const override {
+    return has_committed_mutations_;
+  }
+
+ private:
+  bool has_committed_mutations_;
 };
 
 }  // namespace model
