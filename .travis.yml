@@ -292,3 +292,4 @@ jobs:
 branches:
   only:
     - master
+    - googledatalogger
