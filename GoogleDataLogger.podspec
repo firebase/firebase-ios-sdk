@@ -19,7 +19,9 @@ Shared library for iOS SDK data logging needs.
   s.ios.deployment_target = '8.0'
 
   s.cocoapods_version = '>= 1.4.0'
-  s.static_framework = true
+
+  # TODO(mikehaney24): Change to static framework after cocoapods 1.6.0 release?
+  s.static_framework = false
   s.prefix_header_file = false
 
   s.source_files = 'GoogleDataLogger/GoogleDataLogger/**/*'
@@ -28,4 +30,9 @@ Shared library for iOS SDK data logging needs.
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99'
   }
+
+  # Test specs
+  s.test_spec 'Tests' do |test_spec|
+    test_spec.source_files = 'GoogleDataLogger/Tests/**/*.{h,m}'
+  end
 end
