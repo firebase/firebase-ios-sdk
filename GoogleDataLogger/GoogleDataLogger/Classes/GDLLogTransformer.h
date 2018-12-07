@@ -14,8 +14,19 @@
  * limitations under the License.
  */
 
-#import "GDLLogEvent.h"
+#import <Foundation/Foundation.h>
 
-@implementation GDLLogEvent
+@class GDLLogEvent;
+
+/** Defines the API that log transformers must adopt. */
+@protocol GDLLogTransformer
+
+/** Transforms a log by applying some logic to it. Logs returned can be nil, for example, in
+ *  instances where the log should be sampled.
+ *
+ * @param logEvent The log event to transform.
+ * @return A transformed log event, or nil if the transformation removed the log event.
+ */
+- (GDLLogEvent *)transform:(GDLLogEvent *)logEvent;
 
 @end

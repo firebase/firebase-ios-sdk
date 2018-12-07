@@ -16,9 +16,25 @@
 
 #import <Foundation/Foundation.h>
 
+#import "GDLLogTransformer.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface GDLLogger : NSObject
+
+/** Please use the designated initializer. */
+- (instancetype)init NS_UNAVAILABLE;
+
+/** Initializes a new logger that will log events to the given target backend.
+ *
+ * @param logSource The log source/type that this logger logs to.
+ * @param logTransformers A list of transformers to be applied to log events that are logged.
+ * @param logTarget The target backend of this logger.
+ * @return A logger that will log events.
+ */
+- (instancetype)initWithLogSource:(NSInteger)logSource
+                  logTransformers:(nullable NSArray<id<GDLLogTransformer>> *)logTransformers
+                        logTarget:(NSInteger)logTarget;
 
 @end
 
