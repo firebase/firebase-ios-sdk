@@ -37,7 +37,7 @@ fi
 # or Core APIs change. GoogleUtilities.podspec and FirebaseCore.podspec should be
 # manually pushed to a temporary Specs repo. See
 # https://guides.cocoapods.org/making/private-cocoapods.
-#ALT_SOURCES="--sources=https://github.com/paulb777/Specs.git,https://github.com/CocoaPods/Specs.git"
+ALT_SOURCES="--sources=https://github.com/paulb777/Specs.git,https://github.com/CocoaPods/Specs.git"
 
 podspec="$1"
 if [[ $# -gt 1 ]]; then
