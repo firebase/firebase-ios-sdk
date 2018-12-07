@@ -22,7 +22,6 @@
 #import <UIKit/UIKit.h>
 #endif
 
-#import <FirebaseAuthInterop/FIRAuthInterop.h>
 #import <FirebaseCore/FIRAppAssociationRegistration.h>
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
@@ -229,9 +228,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 #pragma mark - FIRAuth
 
 #if TARGET_OS_IOS
-@interface FIRAuth () <FIRAuthAppDelegateHandler, FIRAuthInterop, FIRComponentRegistrant, FIRCoreConfigurable, FIRComponentLifecycleMaintainer>
+@interface FIRAuth () <FIRAuthAppDelegateHandler, FIRComponentRegistrant, FIRCoreConfigurable, FIRComponentLifecycleMaintainer>
 #else
-@interface FIRAuth () <FIRAuthInterop, FIRComponentRegistrant, FIRCoreConfigurable, FIRComponentLifecycleMaintainer>
+@interface FIRAuth () <FIRComponentRegistrant, FIRCoreConfigurable, FIRComponentLifecycleMaintainer>
 #endif
 
 /** @property firebaseAppId
@@ -344,23 +343,6 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   self = [self initWithAPIKey:app.options.APIKey appName:app.name];
   if (self) {
     _app = app;
-    __weak FIRAuth *weakSelf = self;
-
-    // TODO: Remove this block once Firestore, Database, and Storage move to the new interop API.
-    app.getTokenImplementation = ^(BOOL forceRefresh, FIRTokenCallback callback) {
-      // In the meantime, redirect call to the interop method that provides this functionality.
-      __weak FIRAuth *weakSelf = self;
-      [weakSelf getTokenForcingRefresh:forceRefresh withCallback:callback];
-    };
-
-    // TODO: Remove this block once Firestore, Database, and Storage move to the new interop API.
-    app.getUIDImplementation = ^NSString *_Nullable() {
-      __block NSString *uid;
-      dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
-        uid = [weakSelf getUserID];
-      });
-      return uid;
-    };
     #if TARGET_OS_IOS
     _authURLPresenter = [[FIRAuthURLPresenter alloc] init];
     #endif
