@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "GDLLogger.h"
+#import <GoogleDataLogger/GDLLogger.h>
 
 @interface GDLLoggerTest : XCTestCase
 
