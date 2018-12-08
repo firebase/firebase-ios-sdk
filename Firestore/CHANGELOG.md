@@ -1,5 +1,14 @@
 # Unreleased
 
+# v0.16.1
+- [fixed] Offline persistence now properly records schema downgrades. This is a
+  forward-looking change that allows versions past this one to safely downgrade
+  to this version. Downgrading to versions prior this one can be safe depending
+  on the source version. For example, downgrading from v0.16.1 to v0.15.0 is
+  safe because there have been no schema changes between these releases.
+- [fixed] Fixed an issue where gRPC would crash if shut down multiple times
+  (#2146).
+
 # v0.16.0
 - [changed] Added a garbage collection process to on-disk persistence that
   removes older documents. This is enabled by default, and the SDK will attempt
