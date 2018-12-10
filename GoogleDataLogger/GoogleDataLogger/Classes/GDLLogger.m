@@ -34,8 +34,8 @@
 @implementation GDLLogger
 
 - (instancetype)initWithLogMapID:(NSString *)logMapID
-                  logTransformers:(nullable NSArray<id<GDLLogTransformer>> *)logTransformers
-                        logTarget:(NSInteger)logTarget {
+                 logTransformers:(nullable NSArray<id<GDLLogTransformer>> *)logTransformers
+                       logTarget:(NSInteger)logTarget {
   self = [super init];
   if (self) {
     NSAssert(logMapID.length > 0, @"A log source cannot be negative or 0");

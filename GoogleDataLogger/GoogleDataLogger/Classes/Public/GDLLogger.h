@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface GDLLogger : NSObject
 
-/** Please use the designated initializer. */
+// Please use the designated initializer.
 - (instancetype)init NS_UNAVAILABLE;
 
 /** Initializes a new logger that will log events to the given target backend.
@@ -35,8 +35,8 @@ NS_ASSUME_NONNULL_BEGIN
  * @return A logger that will log events.
  */
 - (instancetype)initWithLogMapID:(NSString *)logMapID
-                  logTransformers:(nullable NSArray<id<GDLLogTransformer>> *)logTransformers
-                        logTarget:(NSInteger)logTarget;
+                 logTransformers:(nullable NSArray<id<GDLLogTransformer>> *)logTransformers
+                       logTarget:(NSInteger)logTarget NS_DESIGNATED_INITIALIZER;
 
 /** Logs an internal telemetry event. Logs sent using this API are lower in priority, and sometimes
  *  won't be sent on their own.
