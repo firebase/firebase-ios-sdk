@@ -60,7 +60,7 @@
 }
 
 - (GDLLogEvent *)newEvent {
-  return [[GDLLogEvent alloc] init];
+  return [[GDLLogEvent alloc] initWithLogMapID:_logMapID];
 }
 
 @end

@@ -25,7 +25,8 @@
 @implementation GDLLogEventTest
 
 - (void)testInit {
-  XCTAssertNotNil([[GDLLogEvent alloc] init]);
+  XCTAssertNotNil([[GDLLogEvent alloc] initWithLogMapID:@"1"]);
+  XCTAssertThrows([[GDLLogEvent alloc] initWithLogMapID:@""]);
 }
 
 @end
