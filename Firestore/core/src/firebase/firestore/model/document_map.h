@@ -40,10 +40,23 @@ using MaybeDocumentMap = immutable::SortedMap<DocumentKey, FSTMaybeDocument*>;
 /**
  * Convenience type for a map of keys to Documents, since they are so common.
  *
- * PORTING NOTE: OBC
+ * PORTING NOTE: unlike other platforms, in C++ `Foo<Derived*>` cannot be
+ * converted to `Foo<Base*>`; consequently, if `DocumentMap` were simply an
+ * alias similar to `MaybeDocumentMap`, it couldn't be passed to functions
+ * expecting `MaybeDocumentMap`.
+ *
+ * To work around this, in C++ `DocumentMap` is a simple wrapper over
+ * a `MaybeDocumentMap` that forwards all functions to the underlying map but
+ * with added type safety (it only accepts `FSTDocument`s, not
+ * `FSTMaybeDocument`s). Use `DocumentMap` in functions creating and/or
+ * returning maps that only contain `FSTDocument`s; when the `DocumentMap` needs
+ * to be passed to a function accepting a `MaybeDocumentMap`, use
+ * `underlying_map` function to get (read-only) access to the representation.
  */
 class DocumentMap {
  public:
+   // Wraps `MaybeDocumentMap::const_iterator`, providing necessary conversions
+   // from `FSTMaybeDocument*` to `FSTDocument*`.
   class const_iterator {
    public:
     using iterator_category =
@@ -91,6 +104,19 @@ class DocumentMap {
         : iter_{iter} {
     }
 
+    // Iterator cannot use the value of the underlying iterator because the
+    // types are unrelated and one cannot be cast to the other. Also, the value
+    // cannot be created on the fly, otherwise `get` and `operator->` would
+    // return a pointer to a stale temporary. As a result, the value has be
+    // stored as a data member.
+    //
+    // The problem is when to update the value. Value cannot be updated in
+    // constructor or during iteration, because the underlying iterator might be
+    // one-past-end at that point. Consequently, value has to be updated upon
+    // access. It's a tradeoff whether to only update the value if it changed
+    // or unconditionally. Here it is done unconditionally, on the assumption
+    // that each particular value usually doesn't get more than one or two
+    // accesses.
     void UpdateCurrentValue() const {
       const std::pair<DocumentKey, FSTMaybeDocument*>& underlying_value =
           *iter_;
@@ -100,6 +126,9 @@ class DocumentMap {
     }
 
     MaybeDocumentMap::const_iterator iter_;
+    // To mimic the underlying iterator, functions returning the value or
+    // a pointer to value are const, but they still have to update the
+    // `current_value_`.
     mutable value_type current_value_;
   };
 
@@ -132,6 +161,7 @@ class DocumentMap {
     return map_.size();
   }
 
+  /** Use this function to "convert" `DocumentMap` to a `MaybeDocumentMap`. */
   const MaybeDocumentMap& underlying_map() const {
     return map_;
   }
