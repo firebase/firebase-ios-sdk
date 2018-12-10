@@ -16,8 +16,15 @@
 
 #import <Foundation/Foundation.h>
 
+/** This protocol defines the common interface that log protos should implement regardless of the
+ * underlying transport technology (protobuf, nanopb, etc).
+ */
 @protocol GDLLogProto <NSObject>
 
+/** Returns the serialized proto bytes of the implementing log proto.
+ *
+ * @return the serialized proto bytes of the implementing log proto.
+ */
 - (NSData *)protoBytes;
 
 @end
