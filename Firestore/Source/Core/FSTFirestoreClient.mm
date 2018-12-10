@@ -208,16 +208,6 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
     _persistence = [FSTMemoryPersistence persistenceWithEagerGC];
   }
 
-  Status status = [_persistence start];
-  if (!status.ok()) {
-    // If local storage fails to start then just throw up our hands: the error is unrecoverable.
-    // There's nothing an end-user can do and nearly all failures indicate the developer is doing
-    // something grossly wrong so we should stop them cold in their tracks with a failure they
-    // can't ignore.
-    [NSException raise:NSInternalInconsistencyException
-                format:@"Failed to open DB: %s", status.ToString().c_str()];
-  }
-
   _localStore = [[FSTLocalStore alloc] initWithPersistence:_persistence initialUser:user];
 
   FSTDatastore *datastore = [FSTDatastore datastoreWithDatabase:self.databaseInfo

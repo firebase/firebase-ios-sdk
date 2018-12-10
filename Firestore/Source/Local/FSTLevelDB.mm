@@ -309,6 +309,15 @@ static const char *kReservedPathComponent = "firestore";
     _referenceDelegate =
         [[FSTLevelDBLRUDelegate alloc] initWithPersistence:self lruParams:lruParams];
     _transactionRunner.SetBackingPersistence(self);
+    Status status = [self start];
+    if (!status.ok()) {
+      // If leveldb fails to start then just throw up our hands: the error is unrecoverable.
+      // There's nothing an end-user can do and nearly all failures indicate the developer is doing
+      // something grossly wrong so we should stop them cold in their tracks with a failure they
+      // can't ignore.
+      [NSException raise:NSInternalInconsistencyException
+                  format:@"Failed to open DB: %s", status.ToString().c_str()];
+    }
   }
   return self;
 }

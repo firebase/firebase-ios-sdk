@@ -82,6 +82,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTMemoryPersistence *persistence = [[FSTMemoryPersistence alloc] init];
   persistence.referenceDelegate =
       [[FSTMemoryEagerReferenceDelegate alloc] initWithPersistence:persistence];
+  [persistence start];
   return persistence;
 }
 
@@ -92,6 +93,7 @@ NS_ASSUME_NONNULL_BEGIN
       [[FSTMemoryLRUReferenceDelegate alloc] initWithPersistence:persistence
                                                       serializer:serializer
                                                        lruParams:lruParams];
+  [persistence start];
   return persistence;
 }
 
@@ -111,11 +113,10 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-- (Status)start {
+- (void)start {
   // No durable state to read on startup.
   HARD_ASSERT(!self.isStarted, "FSTMemoryPersistence double-started!");
   self.started = YES;
-  return Status::OK();
 }
 
 - (void)shutdown {

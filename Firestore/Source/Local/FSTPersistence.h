@@ -66,13 +66,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @protocol FSTPersistence <NSObject>
 
-/**
- * Starts persistent storage, opening the database or similar.
- *
- * @return A Status object that will be populated with an error message if startup fails.
- */
-- (firebase::firestore::util::Status)start;
-
 /** Releases any resources held during eager shutdown. */
 - (void)shutdown;
 
