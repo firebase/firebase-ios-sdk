@@ -47,4 +47,20 @@
   return self;
 }
 
+- (void)logTelemetryEvent:(GDLLogEvent *)logEvent {
+  NSAssert(logEvent, @"You can't log a nil event");
+
+  // TODO(mikehaney24): Implement.
+}
+
+- (void)logDataEvent:(GDLLogEvent *)logEvent {
+  NSAssert(logEvent, @"You can't log a nil event");
+
+  // TODO(mikehaney24): Implement.
+}
+
+- (GDLLogEvent *)newEvent {
+  return [[GDLLogEvent alloc] init];
+}
+
 @end
