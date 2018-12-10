@@ -168,8 +168,8 @@ NS_ASSUME_NONNULL_BEGIN
       const DocumentKey &key = mutation.key;
       // baseDoc may be nil for the documents that weren't yet written to the backend.
       FSTMaybeDocument *baseDoc = nil;
-      auto found = results.find(key);
-      if (found != results.end()) {
+      auto found = results.underlying_map().find(key);
+      if (found != results.underlying_map().end()) {
         baseDoc = found->second;
       }
       FSTMaybeDocument *mutatedDoc = [mutation applyToLocalDocument:baseDoc
@@ -188,9 +188,9 @@ NS_ASSUME_NONNULL_BEGIN
   // reference here prevents ARC from deallocating the initial unfiltered results while we're
   // enumerating them.
   DocumentMap unfiltered = results;
-  for (const auto &kv : unfiltered) {
+  for (const auto &kv : unfiltered.underlying_map()) {
     const DocumentKey &key = kv.first;
-    FSTDocument *doc = kv.second;
+    FSTDocument *doc = static_cast<FSTDocument *>(kv.second);
     if (![query matchesDocument:doc]) {
       results = results.erase(key);
     }

@@ -30,7 +30,6 @@
 
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
-using firebase::firestore::model::DocumentMap;
 using firebase::firestore::model::MaybeDocumentMap;
 using firebase::firestore::model::OnlineState;
 
@@ -202,40 +201,19 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
   return _syncedDocuments;
 }
 
-// These two overloads allow skipping a cast when dealing with a map of `FSTDocument`s.
-FSTDocument *GetFSTDocumentOrNil(FSTMaybeDocument *maybeDoc) {
-  if ([maybeDoc isKindOfClass:[FSTDocument class]]) {
-    return static_cast<FSTDocument *>(maybeDoc);
-  }
-  return nil;
-}
-FSTDocument *GetFSTDocumentOrNil(FSTDocument *doc) {
-  return doc;
+- (FSTViewDocumentChanges *)computeChangesWithDocuments:(const MaybeDocumentMap &)docChanges {
+  return [self computeChangesWithDocuments:docChanges previousChanges:nil];
 }
 
-bool ShouldWaitForSyncedDocument(FSTDocument *newDoc, FSTDocument *oldDoc) {
-  // We suppress the initial change event for documents that were modified as part of a write
-  // acknowledgment (e.g. when the value of a server transform is applied) as Watch will send us
-  // the same document again. By suppressing the event, we only raise two user visible events (one
-  // with `hasPendingWrites` and the final state of the document) instead of three (one with
-  // `hasPendingWrites`, the modified document with `hasPendingWrites` and the final state of the
-  // document).
-  return (oldDoc.hasLocalMutations && newDoc.hasCommittedMutations && !newDoc.hasLocalMutations);
-}
-
-// Shared implementation of the `computeChanges` methods; the customization point is in
-// `GetFSTDocumentOrNil` function.
-template <typename MapT>
-FSTViewDocumentChanges *ComputeChanges(FSTView *view,
-                                       const DocumentKeySet &mutatedKeys,
-                                       const MapT &docChanges,
-                                       FSTViewDocumentChanges *previousChanges) {
+- (FSTViewDocumentChanges *)computeChangesWithDocuments:(const MaybeDocumentMap &)docChanges
+                                        previousChanges:
+                                            (nullable FSTViewDocumentChanges *)previousChanges {
   FSTDocumentViewChangeSet *changeSet =
       previousChanges ? previousChanges.changeSet : [FSTDocumentViewChangeSet changeSet];
-  FSTDocumentSet *oldDocumentSet = previousChanges ? previousChanges.documentSet : view.documentSet;
+  FSTDocumentSet *oldDocumentSet = previousChanges ? previousChanges.documentSet : self.documentSet;
 
-  DocumentKeySet newMutatedKeys = previousChanges ? previousChanges.mutatedKeys : mutatedKeys;
-  DocumentKeySet oldMutatedKeys = mutatedKeys;
+  DocumentKeySet newMutatedKeys = previousChanges ? previousChanges.mutatedKeys : _mutatedKeys;
+  DocumentKeySet oldMutatedKeys = _mutatedKeys;
   FSTDocumentSet *newDocumentSet = oldDocumentSet;
   BOOL needsRefill = NO;
 
@@ -248,17 +226,22 @@ FSTViewDocumentChanges *ComputeChanges(FSTView *view,
   // Note that this should never get used in a refill (when previousChanges is set), because there
   // will only be adds -- no deletes or updates.
   FSTDocument *_Nullable lastDocInLimit =
-      (view.query.limit && oldDocumentSet.count == view.query.limit) ? oldDocumentSet.lastDocument
+      (self.query.limit && oldDocumentSet.count == self.query.limit) ? oldDocumentSet.lastDocument
                                                                      : nil;
 
   for (const auto &kv : docChanges) {
     const DocumentKey &key = kv.first;
+    FSTMaybeDocument *maybeNewDoc = kv.second;
+
     FSTDocument *_Nullable oldDoc = [oldDocumentSet documentForKey:key];
-    FSTDocument *_Nullable newDoc = GetFSTDocumentOrNil(kv.second);
+    FSTDocument *_Nullable newDoc = nil;
+    if ([maybeNewDoc isKindOfClass:[FSTDocument class]]) {
+      newDoc = (FSTDocument *)maybeNewDoc;
+    }
     if (newDoc) {
       HARD_ASSERT(key == newDoc.key, "Mismatching key in document changes: %s != %s", key,
                   newDoc.key.ToString());
-      if (![view.query matchesDocument:newDoc]) {
+      if (![self.query matchesDocument:newDoc]) {
         newDoc = nil;
       }
     }
@@ -276,13 +259,13 @@ FSTViewDocumentChanges *ComputeChanges(FSTView *view,
     if (oldDoc && newDoc) {
       BOOL docsEqual = [oldDoc.data isEqual:newDoc.data];
       if (!docsEqual) {
-        if (!ShouldWaitForSyncedDocument(newDoc, oldDoc)) {
+        if (![self shouldWaitForSyncedDocument:newDoc oldDocument:oldDoc]) {
           [changeSet addChange:[FSTDocumentViewChange
                                    changeWithDocument:newDoc
                                                  type:FSTDocumentViewChangeTypeModified]];
           changeApplied = YES;
 
-          if (lastDocInLimit && view.query.comparator(newDoc, lastDocInLimit) > 0) {
+          if (lastDocInLimit && self.query.comparator(newDoc, lastDocInLimit) > 0) {
             // This doc moved from inside the limit to after the limit. That means there may be
             // some doc in the local cache that's actually less than this one.
             needsRefill = YES;
@@ -328,8 +311,8 @@ FSTViewDocumentChanges *ComputeChanges(FSTView *view,
     }
   }
 
-  if (view.query.limit) {
-    for (long i = newDocumentSet.count - view.query.limit; i > 0; --i) {
+  if (self.query.limit) {
+    for (long i = newDocumentSet.count - self.query.limit; i > 0; --i) {
       FSTDocument *oldDoc = [newDocumentSet lastDocument];
       newDocumentSet = [newDocumentSet documentSetByRemovingKey:oldDoc.key];
       newMutatedKeys = newMutatedKeys.erase(oldDoc.key);
@@ -348,24 +331,14 @@ FSTViewDocumentChanges *ComputeChanges(FSTView *view,
                                                  mutatedKeys:newMutatedKeys];
 }
 
-- (FSTViewDocumentChanges *)computeChangesWithDocuments:(const DocumentMap &)docChanges {
-  return [self computeChangesWithDocuments:docChanges previousChanges:nil];
-}
-
-- (FSTViewDocumentChanges *)computeChangesWithMaybeDocuments:(const MaybeDocumentMap &)docChanges {
-  return [self computeChangesWithMaybeDocuments:docChanges previousChanges:nil];
-}
-
-- (FSTViewDocumentChanges *)computeChangesWithMaybeDocuments:(const MaybeDocumentMap &)docChanges
-                                             previousChanges:(nullable FSTViewDocumentChanges *)
-                                                                 previousChanges {
-  return ComputeChanges(self, _mutatedKeys, docChanges, previousChanges);
-}
-
-- (FSTViewDocumentChanges *)computeChangesWithDocuments:(const DocumentMap &)docChanges
-                                        previousChanges:
-                                            (nullable FSTViewDocumentChanges *)previousChanges {
-  return ComputeChanges(self, _mutatedKeys, docChanges, previousChanges);
+- (BOOL)shouldWaitForSyncedDocument:(FSTDocument *)newDoc oldDocument:(FSTDocument *)oldDoc {
+  // We suppress the initial change event for documents that were modified as part of a write
+  // acknowledgment (e.g. when the value of a server transform is applied) as Watch will send us
+  // the same document again. By suppressing the event, we only raise two user visible events (one
+  // with `hasPendingWrites` and the final state of the document) instead of three (one with
+  // `hasPendingWrites`, the modified document with `hasPendingWrites` and the final state of the
+  // document).
+  return (oldDoc.hasLocalMutations && newDoc.hasCommittedMutations && !newDoc.hasLocalMutations);
 }
 
 - (FSTViewChange *)applyChangesToDocuments:(FSTViewDocumentChanges *)docChanges {

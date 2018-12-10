@@ -201,9 +201,9 @@ static const int kVersion = 42;
   }
   for (FSTDocument *doc in expected) {
     FSTDocument *actual = nil;
-    auto found = map.find(doc.key);
-    if (found != map.end()) {
-      actual = found->second;
+    auto found = map.underlying_map().find(doc.key);
+    if (found != map.underlying_map().end()) {
+      actual = static_cast<FSTDocument *>(found->second);
     }
     XCTAssertEqualObjects(actual, doc);
   }

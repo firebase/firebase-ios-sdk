@@ -107,12 +107,6 @@ typedef NS_ENUM(NSInteger, FSTLimboDocumentChangeType) {
  * @return a new set of docs, changes, and refill flag.
  */
 - (FSTViewDocumentChanges *)computeChangesWithDocuments:
-    (const firebase::firestore::model::DocumentMap &)docChanges;
-
-/** Like `computeChangesWithDocuments:`, but accepts a map of `MaybeDocument`s. */
-// PORTING NOTE: in C++, a container of `Derived` does not convert to a container of `Base`,
-// necessitating two overloads.
-- (FSTViewDocumentChanges *)computeChangesWithMaybeDocuments:
     (const firebase::firestore::model::MaybeDocumentMap &)docChanges;
 
 /**
@@ -126,14 +120,8 @@ typedef NS_ENUM(NSInteger, FSTLimboDocumentChangeType) {
  * @return a new set of docs, changes, and refill flag.
  */
 - (FSTViewDocumentChanges *)
-    computeChangesWithDocuments:(const firebase::firestore::model::DocumentMap &)docChanges
+    computeChangesWithDocuments:(const firebase::firestore::model::MaybeDocumentMap &)docChanges
                 previousChanges:(nullable FSTViewDocumentChanges *)previousChanges;
-
-/** Like `computeChangesWithDocuments:`, but accepts a map of `MaybeDocument`s. */
-- (FSTViewDocumentChanges *)computeChangesWithMaybeDocuments:
-                                (const firebase::firestore::model::MaybeDocumentMap &)docChanges
-                                             previousChanges:
-                                                 (nullable FSTViewDocumentChanges *)previousChanges;
 
 /**
  * Updates the view with the given ViewDocumentChanges.

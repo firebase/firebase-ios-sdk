@@ -220,7 +220,7 @@ class LimboResolution {
 
   FSTView *view =
       [[FSTView alloc] initWithQuery:queryData.query remoteDocuments:std::move(remoteKeys)];
-  FSTViewDocumentChanges *viewDocChanges = [view computeChangesWithDocuments:docs];
+  FSTViewDocumentChanges *viewDocChanges = [view computeChangesWithDocuments:docs.underlying_map()];
   FSTViewChange *viewChange = [view applyChangesToDocuments:viewDocChanges];
   HARD_ASSERT(viewChange.limboChanges.count == 0,
               "View returned limbo docs before target ack from the server.");
@@ -489,13 +489,14 @@ class LimboResolution {
   [self.queryViewsByQuery
       enumerateKeysAndObjectsUsingBlock:^(FSTQuery *query, FSTQueryView *queryView, BOOL *stop) {
         FSTView *view = queryView.view;
-        FSTViewDocumentChanges *viewDocChanges = [view computeChangesWithMaybeDocuments:changes];
+        FSTViewDocumentChanges *viewDocChanges = [view computeChangesWithDocuments:changes];
         if (viewDocChanges.needsRefill) {
           // The query has a limit and some docs were removed/updated, so we need to re-run the
           // query against the local store to make sure we didn't lose any good docs that had been
           // past the limit.
           DocumentMap docs = [self.localStore executeQuery:queryView.query];
-          viewDocChanges = [view computeChangesWithDocuments:docs previousChanges:viewDocChanges];
+          viewDocChanges = [view computeChangesWithDocuments:docs.underlying_map()
+                                             previousChanges:viewDocChanges];
         }
 
         FSTTargetChange *_Nullable targetChange = nil;
