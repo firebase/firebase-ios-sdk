@@ -38,7 +38,7 @@
                        logTarget:(NSInteger)logTarget {
   self = [super init];
   if (self) {
-    NSAssert(logMapID.length > 0, @"A log source cannot be negative or 0");
+    NSAssert(logMapID.length > 0, @"A log mapping ID cannot be nil or empty");
     NSAssert(logTarget > 0, @"A log target cannot be negative or 0");
     _logMapID = logMapID;
     _logTransformers = logTransformers;
