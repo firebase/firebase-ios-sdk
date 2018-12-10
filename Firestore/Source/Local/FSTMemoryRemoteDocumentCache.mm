@@ -15,6 +15,7 @@
  */
 
 #import "Firestore/Source/Local/FSTMemoryRemoteDocumentCache.h"
+#import <Foundation/Foundation.h>
 
 #import <Protobuf/GPBProtocolBuffers.h>
 #import "Firestore/Protos/objc/firestore/local/MaybeDocument.pbobjc.h"
@@ -25,6 +26,7 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
 
+using firebase::firestore::local::MemoryRemoteDocumentCache;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::ListenSequenceNumber;
@@ -33,106 +35,143 @@ using firebase::firestore::model::MaybeDocumentMap;
 
 NS_ASSUME_NONNULL_BEGIN
 
+@implementation FSTMemoryRemoteDocumentCache {
+  MemoryRemoteDocumentCache _cache;
+}
+
+- (instancetype)init {
+  if (self = [super init]) {
+  }
+  return self;
+}
+
+- (void)addEntry:(FSTMaybeDocument *)document {
+  _cache.AddEntry(document);
+}
+
+- (void)removeEntryForKey:(const DocumentKey &)key {
+  _cache.RemoveEntry(key);
+}
+
+- (nullable FSTMaybeDocument *)entryForKey:(const DocumentKey &)key {
+  return _cache.Find(key);
+}
+
+- (MaybeDocumentMap)entriesForKeys:(const DocumentKeySet &)keys {
+  return _cache.FindAll(keys);
+}
+
+- (DocumentMap)documentsMatchingQuery:(FSTQuery *)query {
+  return _cache.GetMatchingDocuments(query);
+}
+
+- (std::vector<DocumentKey>)removeOrphanedDocuments:
+                                (FSTMemoryLRUReferenceDelegate *)referenceDelegate
+                              throughSequenceNumber:(ListenSequenceNumber)upperBound {
+  return _cache.RemoveOrphanedDocuments(referenceDelegate, upperBound);
+}
+
+- (size_t)byteSizeWithSerializer:(FSTLocalSerializer *)serializer {
+  return _cache.ByteSize(serializer);
+}
+
+@end
+
+namespace firebase {
+namespace firestore {
+namespace local {
+
+namespace {
 /**
  * Returns an estimate of the number of bytes used to store the given
  * document key in memory. This is only an estimate and includes the size
  * of the segments of the path, but not any object overhead or path separators.
  */
-static size_t FSTDocumentKeyByteSize(const DocumentKey &key) {
+static size_t DocumentKeyByteSize(const DocumentKey &key) {
   size_t count = 0;
   for (const auto &segment : key.path()) {
     count += segment.size();
   }
   return count;
 }
+}  // namespace
 
-@interface FSTMemoryRemoteDocumentCache ()
-
-@end
-
-@implementation FSTMemoryRemoteDocumentCache {
-  /** Underlying cache of documents. */
-  MaybeDocumentMap _docs;
+MemoryRemoteDocumentCache::MemoryRemoteDocumentCache() {
 }
 
-- (void)addEntry:(FSTMaybeDocument *)document {
-  _docs = _docs.insert(document.key, document);
+void MemoryRemoteDocumentCache::AddEntry(FSTMaybeDocument *document) {
+  docs_ = docs_.insert(document.key, document);
 }
 
-- (void)removeEntryForKey:(const DocumentKey &)key {
-  _docs = _docs.erase(key);
+void MemoryRemoteDocumentCache::RemoveEntry(const DocumentKey &key) {
+  docs_ = docs_.erase(key);
 }
 
-- (nullable FSTMaybeDocument *)entryForKey:(const DocumentKey &)key {
-  auto found = _docs.find(key);
-  return found != _docs.end() ? found->second : nil;
+FSTMaybeDocument *_Nullable MemoryRemoteDocumentCache::Find(const DocumentKey &key) {
+  auto found = docs_.find(key);
+  return found != docs_.end() ? found->second : nil;
 }
 
-- (MaybeDocumentMap)entriesForKeys:(const DocumentKeySet &)keys {
+model::MaybeDocumentMap MemoryRemoteDocumentCache::FindAll(const model::DocumentKeySet &keys) {
   MaybeDocumentMap results;
   for (const DocumentKey &key : keys) {
     // Make sure each key has a corresponding entry, which is null in case the document is not
     // found.
-    results = results.insert(key, [self entryForKey:key]);
+    // TODO(http://b/32275378): Don't conflate missing / deleted.
+    results = results.insert(key, Find(key));
   }
   return results;
 }
 
-- (DocumentMap)documentsMatchingQuery:(FSTQuery *)query {
-  DocumentMap result;
+DocumentMap MemoryRemoteDocumentCache::GetMatchingDocuments(FSTQuery *query) {
+  DocumentMap results;
 
   // Documents are ordered by key, so we can use a prefix scan to narrow down the documents
   // we need to match the query against.
-  DocumentKey prefix{query.path.Append("")};
-  for (auto it = _docs.lower_bound(prefix); it != _docs.end(); ++it) {
+  DocumentKey prefix = DocumentKey{query.path.Append("")};
+  for (auto it = docs_.lower_bound(prefix); it != docs_.end(); it++) {
     const DocumentKey &key = it->first;
     if (!query.path.IsPrefixOf(key.path())) {
       break;
     }
-    FSTMaybeDocument *maybeDoc = nil;
-    auto found = _docs.find(key);
-    if (found != _docs.end()) {
-      maybeDoc = found->second;
-    }
+    FSTMaybeDocument *maybeDoc = it->second;
     if (![maybeDoc isKindOfClass:[FSTDocument class]]) {
       continue;
     }
     FSTDocument *doc = static_cast<FSTDocument *>(maybeDoc);
     if ([query matchesDocument:doc]) {
-      result = result.insert(key, doc);
+      results = results.insert(key, doc);
     }
   }
-
-  return result;
+  return results;
 }
 
-- (std::vector<DocumentKey>)removeOrphanedDocuments:
-                                (FSTMemoryLRUReferenceDelegate *)referenceDelegate
-                              throughSequenceNumber:(ListenSequenceNumber)upperBound {
+std::vector<model::DocumentKey> MemoryRemoteDocumentCache::RemoveOrphanedDocuments(
+    FSTMemoryLRUReferenceDelegate *reference_delegate, ListenSequenceNumber upper_bound) {
   std::vector<DocumentKey> removed;
-  MaybeDocumentMap updatedDocs = _docs;
-  for (const auto &kv : _docs) {
-    const DocumentKey &docKey = kv.first;
-    if (![referenceDelegate isPinnedAtSequenceNumber:upperBound document:docKey]) {
-      updatedDocs = updatedDocs.erase(docKey);
-      removed.push_back(docKey);
+  MaybeDocumentMap updated_docs = docs_;
+  for (const auto &kv : docs_) {
+    const DocumentKey &key = kv.first;
+    if (![reference_delegate isPinnedAtSequenceNumber:upper_bound document:key]) {
+      updated_docs = updated_docs.erase(key);
+      removed.push_back(key);
     }
   }
-  _docs = updatedDocs;
+  docs_ = updated_docs;
   return removed;
 }
 
-- (size_t)byteSizeWithSerializer:(FSTLocalSerializer *)serializer {
+size_t MemoryRemoteDocumentCache::ByteSize(FSTLocalSerializer *serializer) {
   size_t count = 0;
-  for (const auto &kv : _docs) {
-    const DocumentKey &key = kv.first;
-    FSTMaybeDocument *doc = kv.second;
-    count += FSTDocumentKeyByteSize(key);
-    count += [[serializer encodedMaybeDocument:doc] serializedSize];
+  for (const auto &kv : docs_) {
+    count += DocumentKeyByteSize(kv.first);
+    count += [[serializer encodedMaybeDocument:kv.second] serializedSize];
   }
   return count;
 }
 
-@end
+}  // namespace local
+}  // namespace firestore
+}  // namespace firebase
 
 NS_ASSUME_NONNULL_END

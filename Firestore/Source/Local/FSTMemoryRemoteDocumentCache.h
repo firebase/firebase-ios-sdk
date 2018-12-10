@@ -20,6 +20,8 @@
 
 #import "Firestore/Source/Local/FSTRemoteDocumentCache.h"
 
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -36,5 +38,37 @@ NS_ASSUME_NONNULL_BEGIN
 - (size_t)byteSizeWithSerializer:(FSTLocalSerializer *)serializer;
 
 @end
+
+namespace firebase {
+namespace firestore {
+namespace local {
+
+class MemoryRemoteDocumentCache {
+ public:
+  MemoryRemoteDocumentCache();
+
+  void AddEntry(FSTMaybeDocument *document);
+
+  void RemoveEntry(const model::DocumentKey &key);
+
+  FSTMaybeDocument *_Nullable Find(const model::DocumentKey &key);
+
+  model::MaybeDocumentMap FindAll(const model::DocumentKeySet &keys);
+
+  model::DocumentMap GetMatchingDocuments(FSTQuery *query);
+
+  std::vector<model::DocumentKey> RemoveOrphanedDocuments(
+      FSTMemoryLRUReferenceDelegate *reference_delegate, model::ListenSequenceNumber upper_bound);
+
+  size_t ByteSize(FSTLocalSerializer *serializer);
+
+ private:
+  /** Underlying cache of documents. */
+  model::MaybeDocumentMap docs_;
+};
+
+}  // namespace local
+}  // namespace firestore
+}  // namespace firebase
 
 NS_ASSUME_NONNULL_END
