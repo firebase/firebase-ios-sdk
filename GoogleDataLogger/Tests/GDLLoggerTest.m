@@ -26,7 +26,6 @@
 
 /** Tests the default initializer. */
 - (void)testInit {
-  XCTAssertNotNil([[GDLLogger alloc] initWithLogSource:1 logTransformers:nil logTarget:1]);
 }
 
 @end

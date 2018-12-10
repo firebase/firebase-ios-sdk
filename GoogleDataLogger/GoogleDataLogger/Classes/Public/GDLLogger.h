@@ -27,12 +27,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Initializes a new logger that will log events to the given target backend.
  *
- * @param logSource The log source/type that this logger logs to.
+ * @param logMapID The mapping identifier used by the backend to map the extension to a proto.
  * @param logTransformers A list of transformers to be applied to log events that are logged.
  * @param logTarget The target backend of this logger.
  * @return A logger that will log events.
  */
-- (instancetype)initWithLogSource:(NSInteger)logSource
+- (instancetype)initWithLogMapID:(NSString *)logMapID
                   logTransformers:(nullable NSArray<id<GDLLogTransformer>> *)logTransformers
                         logTarget:(NSInteger)logTarget;
 
