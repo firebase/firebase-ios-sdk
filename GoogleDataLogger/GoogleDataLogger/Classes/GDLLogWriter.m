@@ -16,6 +16,47 @@
 
 #import "GDLLogWriter.h"
 
-@implementation GDLLogWriter : NSObject
+#import <GoogleDataLogger/GDLLogTransformer.h>
+
+#import "GDLLogStorage.h"
+
+@implementation GDLLogWriter {
+  /** The queue on which all work will occur. */
+  dispatch_queue_t _logWritingQueue;
+}
+
+// This class doesn't have to be a singleton, but allocating an instance for every logger could be
+// wasteful.
++ (instancetype)sharedInstance {
+  static GDLLogWriter *logWriter;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    logWriter = [[self alloc] init];
+  });
+  return logWriter;
+}
+
+- (instancetype)init {
+  self = [super init];
+  if (self) {
+    _logWritingQueue = dispatch_queue_create("com.google.GDLLogWriter", DISPATCH_QUEUE_SERIAL);
+  }
+  return self;
+}
+
+- (void)writeLog:(GDLLogEvent *)log
+    afterApplyingTransformers:(NSArray<id<GDLLogTransformer>> *)logTransformers {
+  NSAssert(log, @"You can't write a nil log");
+  dispatch_async(_logWritingQueue, ^{
+    GDLLogEvent *transformedLog = log;
+    for (id<GDLLogTransformer> transformer in logTransformers) {
+      transformedLog = [transformer transform:transformedLog];
+      if (!transformedLog) {
+        return;
+      }
+    }
+    // TODO(mikehaney24): [[GDLLogStorage sharedInstance] storeLog:transformedLog];
+  });
+}
 
 @end
