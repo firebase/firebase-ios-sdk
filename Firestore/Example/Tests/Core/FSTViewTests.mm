@@ -276,12 +276,11 @@ NS_ASSUME_NONNULL_BEGIN
   // doc4 will be added + removed = nothing
   doc2 = FSTTestDoc("rooms/eros/messages/2", 1, @{@"num" : @5}, FSTDocumentStateSynced);
   FSTViewDocumentChanges *viewDocChanges =
-      [view computeChangesWithMaybeDocuments:FSTTestDocUpdates(@[ doc2, doc3, doc4 ])];
+      [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc2, doc3, doc4 ])];
   XCTAssertTrue(viewDocChanges.needsRefill);
   // Verify that all the docs still match.
-  viewDocChanges =
-      [view computeChangesWithMaybeDocuments:FSTTestDocUpdates(@[ doc1, doc2, doc3, doc4 ])
-                             previousChanges:viewDocChanges];
+  viewDocChanges = [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1, doc2, doc3, doc4 ])
+                                     previousChanges:viewDocChanges];
   FSTViewSnapshot *snapshot =
       [view applyChangesToDocuments:viewDocChanges
                        targetChange:FSTTestTargetChangeAckDocuments(
@@ -311,35 +310,33 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocument *doc3 = FSTTestDoc("rooms/eros/messages/2", 0, @{}, FSTDocumentStateSynced);
 
   FSTViewChange *change = [view
-      applyChangesToDocuments:[view computeChangesWithMaybeDocuments:FSTTestDocUpdates(@[ doc1 ])]];
+      applyChangesToDocuments:[view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1 ])]];
   XCTAssertEqualObjects(change.limboChanges, @[]);
 
-  change =
-      [view applyChangesToDocuments:[view computeChangesWithMaybeDocuments:FSTTestDocUpdates(@[])]
-                       targetChange:FSTTestTargetChangeMarkCurrent()];
+  change = [view applyChangesToDocuments:[view computeChangesWithDocuments:FSTTestDocUpdates(@[])]
+                            targetChange:FSTTestTargetChangeMarkCurrent()];
   XCTAssertEqualObjects(
       change.limboChanges,
       @[ [FSTLimboDocumentChange changeWithType:FSTLimboDocumentChangeTypeAdded key:doc1.key] ]);
 
-  change =
-      [view applyChangesToDocuments:[view computeChangesWithMaybeDocuments:FSTTestDocUpdates(@[])]
-                       targetChange:FSTTestTargetChangeAckDocuments({doc1.key})];
+  change = [view applyChangesToDocuments:[view computeChangesWithDocuments:FSTTestDocUpdates(@[])]
+                            targetChange:FSTTestTargetChangeAckDocuments({doc1.key})];
   XCTAssertEqualObjects(
       change.limboChanges,
       @[ [FSTLimboDocumentChange changeWithType:FSTLimboDocumentChangeTypeRemoved key:doc1.key] ]);
 
-  change = [view
-      applyChangesToDocuments:[view computeChangesWithMaybeDocuments:FSTTestDocUpdates(@[ doc2 ])]
-                 targetChange:FSTTestTargetChangeAckDocuments({doc2.key})];
+  change =
+      [view applyChangesToDocuments:[view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc2 ])]
+                       targetChange:FSTTestTargetChangeAckDocuments({doc2.key})];
   XCTAssertEqualObjects(change.limboChanges, @[]);
 
   change = [view
-      applyChangesToDocuments:[view computeChangesWithMaybeDocuments:FSTTestDocUpdates(@[ doc3 ])]];
+      applyChangesToDocuments:[view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc3 ])]];
   XCTAssertEqualObjects(
       change.limboChanges,
       @[ [FSTLimboDocumentChange changeWithType:FSTLimboDocumentChangeTypeAdded key:doc3.key] ]);
 
-  change = [view applyChangesToDocuments:[view computeChangesWithMaybeDocuments:FSTTestDocUpdates(@[
+  change = [view applyChangesToDocuments:[view computeChangesWithDocuments:FSTTestDocUpdates(@[
                                                  FSTTestDeletedDoc("rooms/eros/messages/2", 1, NO)
                                                ])]];  // remove
   XCTAssertEqualObjects(
@@ -358,7 +355,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTView *view =
       [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{doc1.key, doc2.key}];
 
-  FSTViewDocumentChanges *changes = [view computeChangesWithMaybeDocuments:FSTTestDocUpdates(@[])];
+  FSTViewDocumentChanges *changes = [view computeChangesWithDocuments:FSTTestDocUpdates(@[])];
   FSTViewChange *change =
       [view applyChangesToDocuments:changes targetChange:FSTTestTargetChangeMarkCurrent()];
   XCTAssertEqualObjects(change.limboChanges, @[]);
@@ -379,21 +376,20 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Start with a full view.
   FSTViewDocumentChanges *changes =
-      [view computeChangesWithMaybeDocuments:FSTTestDocUpdates(@[ doc1, doc2 ])];
+      [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1, doc2 ])];
   [self assertDocSet:changes.documentSet containsDocs:@[ doc1, doc2 ]];
   XCTAssertFalse(changes.needsRefill);
   XCTAssertEqual(2, [changes.changeSet changes].count);
   [view applyChangesToDocuments:changes];
 
   // Remove one of the docs.
-  changes = [view computeChangesWithMaybeDocuments:FSTTestDocUpdates(@[ FSTTestDeletedDoc(
-                                                       "rooms/eros/messages/0", 0, NO) ])];
+  changes = [view computeChangesWithDocuments:FSTTestDocUpdates(@[ FSTTestDeletedDoc(
+                                                  "rooms/eros/messages/0", 0, NO) ])];
   [self assertDocSet:changes.documentSet containsDocs:@[ doc2 ]];
   XCTAssertTrue(changes.needsRefill);
   XCTAssertEqual(1, [changes.changeSet changes].count);
   // Refill it with just the one doc remaining.
-  changes =
-      [view computeChangesWithMaybeDocuments:FSTTestDocUpdates(@[ doc2 ]) previousChanges:changes];
+  changes = [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc2 ]) previousChanges:changes];
   [self assertDocSet:changes.documentSet containsDocs:@[ doc2 ]];
   XCTAssertFalse(changes.needsRefill);
   XCTAssertEqual(1, [changes.changeSet changes].count);
@@ -416,7 +412,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Start with a full view.
   FSTViewDocumentChanges *changes =
-      [view computeChangesWithMaybeDocuments:FSTTestDocUpdates(@[ doc1, doc2, doc3 ])];
+      [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1, doc2, doc3 ])];
   [self assertDocSet:changes.documentSet containsDocs:@[ doc1, doc2 ]];
   XCTAssertFalse(changes.needsRefill);
   XCTAssertEqual(2, [changes.changeSet changes].count);
@@ -424,13 +420,13 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Move one of the docs.
   doc2 = FSTTestDoc("rooms/eros/messages/1", 1, @{@"order" : @2000}, FSTDocumentStateSynced);
-  changes = [view computeChangesWithMaybeDocuments:FSTTestDocUpdates(@[ doc2 ])];
+  changes = [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc2 ])];
   [self assertDocSet:changes.documentSet containsDocs:@[ doc1, doc2 ]];
   XCTAssertTrue(changes.needsRefill);
   XCTAssertEqual(1, [changes.changeSet changes].count);
   // Refill it with all three current docs.
-  changes = [view computeChangesWithMaybeDocuments:FSTTestDocUpdates(@[ doc1, doc2, doc3 ])
-                                   previousChanges:changes];
+  changes = [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1, doc2, doc3 ])
+                              previousChanges:changes];
   [self assertDocSet:changes.documentSet containsDocs:@[ doc1, doc3 ]];
   XCTAssertFalse(changes.needsRefill);
   XCTAssertEqual(2, [changes.changeSet changes].count);
@@ -457,7 +453,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Start with a full view.
   FSTViewDocumentChanges *changes =
-      [view computeChangesWithMaybeDocuments:FSTTestDocUpdates(@[ doc1, doc2, doc3, doc4, doc5 ])];
+      [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1, doc2, doc3, doc4, doc5 ])];
   [self assertDocSet:changes.documentSet containsDocs:@[ doc1, doc2, doc3 ]];
   XCTAssertFalse(changes.needsRefill);
   XCTAssertEqual(3, [changes.changeSet changes].count);
@@ -465,7 +461,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Move one of the docs.
   doc1 = FSTTestDoc("rooms/eros/messages/0", 1, @{@"order" : @3}, FSTDocumentStateSynced);
-  changes = [view computeChangesWithMaybeDocuments:FSTTestDocUpdates(@[ doc1 ])];
+  changes = [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1 ])];
   [self assertDocSet:changes.documentSet containsDocs:@[ doc2, doc3, doc1 ]];
   XCTAssertFalse(changes.needsRefill);
   XCTAssertEqual(1, [changes.changeSet changes].count);
@@ -492,7 +488,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Start with a full view.
   FSTViewDocumentChanges *changes =
-      [view computeChangesWithMaybeDocuments:FSTTestDocUpdates(@[ doc1, doc2, doc3, doc4, doc5 ])];
+      [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1, doc2, doc3, doc4, doc5 ])];
   [self assertDocSet:changes.documentSet containsDocs:@[ doc1, doc2, doc3 ]];
   XCTAssertFalse(changes.needsRefill);
   XCTAssertEqual(3, [changes.changeSet changes].count);
@@ -500,7 +496,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Move one of the docs.
   doc4 = FSTTestDoc("rooms/eros/messages/3", 1, @{@"order" : @6}, FSTDocumentStateSynced);
-  changes = [view computeChangesWithMaybeDocuments:FSTTestDocUpdates(@[ doc4 ])];
+  changes = [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc4 ])];
   [self assertDocSet:changes.documentSet containsDocs:@[ doc1, doc2, doc3 ]];
   XCTAssertFalse(changes.needsRefill);
   XCTAssertEqual(0, [changes.changeSet changes].count);
@@ -515,7 +511,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Start with a full view.
   FSTViewDocumentChanges *changes =
-      [view computeChangesWithMaybeDocuments:FSTTestDocUpdates(@[ doc1, doc2 ])];
+      [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1, doc2 ])];
   [self assertDocSet:changes.documentSet containsDocs:@[ doc1, doc2 ]];
   XCTAssertFalse(changes.needsRefill);
   XCTAssertEqual(2, [changes.changeSet changes].count);
@@ -523,7 +519,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Add a doc that is past the limit.
   FSTDocument *doc3 = FSTTestDoc("rooms/eros/messages/2", 1, @{}, FSTDocumentStateSynced);
-  changes = [view computeChangesWithMaybeDocuments:FSTTestDocUpdates(@[ doc3 ])];
+  changes = [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc3 ])];
   [self assertDocSet:changes.documentSet containsDocs:@[ doc1, doc2 ]];
   XCTAssertFalse(changes.needsRefill);
   XCTAssertEqual(0, [changes.changeSet changes].count);
@@ -537,15 +533,15 @@ NS_ASSUME_NONNULL_BEGIN
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
 
   FSTViewDocumentChanges *changes =
-      [view computeChangesWithMaybeDocuments:FSTTestDocUpdates(@[ doc1, doc2 ])];
+      [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1, doc2 ])];
   [self assertDocSet:changes.documentSet containsDocs:@[ doc1, doc2 ]];
   XCTAssertFalse(changes.needsRefill);
   XCTAssertEqual(2, [changes.changeSet changes].count);
   [view applyChangesToDocuments:changes];
 
   // Remove one of the docs.
-  changes = [view computeChangesWithMaybeDocuments:FSTTestDocUpdates(@[ FSTTestDeletedDoc(
-                                                       "rooms/eros/messages/1", 0, NO) ])];
+  changes = [view computeChangesWithDocuments:FSTTestDocUpdates(@[ FSTTestDeletedDoc(
+                                                  "rooms/eros/messages/1", 0, NO) ])];
   [self assertDocSet:changes.documentSet containsDocs:@[ doc1 ]];
   XCTAssertFalse(changes.needsRefill);
   XCTAssertEqual(1, [changes.changeSet changes].count);
@@ -560,15 +556,15 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Start with a full view.
   FSTViewDocumentChanges *changes =
-      [view computeChangesWithMaybeDocuments:FSTTestDocUpdates(@[ doc1, doc2 ])];
+      [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1, doc2 ])];
   [self assertDocSet:changes.documentSet containsDocs:@[ doc1, doc2 ]];
   XCTAssertFalse(changes.needsRefill);
   XCTAssertEqual(2, [changes.changeSet changes].count);
   [view applyChangesToDocuments:changes];
 
   // Remove a doc that isn't even in the results.
-  changes = [view computeChangesWithMaybeDocuments:FSTTestDocUpdates(@[ FSTTestDeletedDoc(
-                                                       "rooms/eros/messages/2", 0, NO) ])];
+  changes = [view computeChangesWithDocuments:FSTTestDocUpdates(@[ FSTTestDeletedDoc(
+                                                  "rooms/eros/messages/2", 0, NO) ])];
   [self assertDocSet:changes.documentSet containsDocs:@[ doc1, doc2 ]];
   XCTAssertFalse(changes.needsRefill);
   XCTAssertEqual(0, [changes.changeSet changes].count);
@@ -583,12 +579,12 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Start with a full view.
   FSTViewDocumentChanges *changes =
-      [view computeChangesWithMaybeDocuments:FSTTestDocUpdates(@[ doc1, doc2 ])];
+      [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1, doc2 ])];
   [view applyChangesToDocuments:changes];
   XCTAssertEqual(changes.mutatedKeys, DocumentKeySet{});
 
   FSTDocument *doc3 = FSTTestDoc("rooms/eros/messages/2", 0, @{}, FSTDocumentStateLocalMutations);
-  changes = [view computeChangesWithMaybeDocuments:FSTTestDocUpdates(@[ doc3 ])];
+  changes = [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc3 ])];
   XCTAssertEqual(changes.mutatedKeys, DocumentKeySet{doc3.key});
 }
 
@@ -600,12 +596,12 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Start with a full view.
   FSTViewDocumentChanges *changes =
-      [view computeChangesWithMaybeDocuments:FSTTestDocUpdates(@[ doc1, doc2 ])];
+      [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1, doc2 ])];
   [view applyChangesToDocuments:changes];
   XCTAssertEqual(changes.mutatedKeys, (DocumentKeySet{doc2.key}));
 
   FSTDocument *doc2Prime = FSTTestDoc("rooms/eros/messages/1", 0, @{}, FSTDocumentStateSynced);
-  changes = [view computeChangesWithMaybeDocuments:FSTTestDocUpdates(@[ doc2Prime ])];
+  changes = [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc2Prime ])];
   [view applyChangesToDocuments:changes];
   XCTAssertEqual(changes.mutatedKeys, DocumentKeySet{});
 }
@@ -618,12 +614,12 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Start with a full view.
   FSTViewDocumentChanges *changes =
-      [view computeChangesWithMaybeDocuments:FSTTestDocUpdates(@[ doc1, doc2 ])];
+      [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1, doc2 ])];
   [view applyChangesToDocuments:changes];
   XCTAssertEqual(changes.mutatedKeys, (DocumentKeySet{doc2.key}));
 
   FSTDocument *doc3 = FSTTestDoc("rooms/eros/messages/2", 0, @{}, FSTDocumentStateSynced);
-  changes = [view computeChangesWithMaybeDocuments:FSTTestDocUpdates(@[ doc3 ])];
+  changes = [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc3 ])];
   [view applyChangesToDocuments:changes];
   XCTAssertEqual(changes.mutatedKeys, (DocumentKeySet{doc2.key}));
 }
@@ -636,12 +632,11 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Start with a full view.
   FSTViewDocumentChanges *changes =
-      [view computeChangesWithMaybeDocuments:FSTTestDocUpdates(@[ doc1, doc2 ])];
+      [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1, doc2 ])];
   XCTAssertEqual(changes.mutatedKeys, (DocumentKeySet{doc2.key}));
 
   FSTDocument *doc3 = FSTTestDoc("rooms/eros/messages/2", 0, @{}, FSTDocumentStateSynced);
-  changes =
-      [view computeChangesWithMaybeDocuments:FSTTestDocUpdates(@[ doc3 ]) previousChanges:changes];
+  changes = [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc3 ]) previousChanges:changes];
   XCTAssertEqual(changes.mutatedKeys, (DocumentKeySet{doc2.key}));
 }
 
@@ -649,8 +644,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQuery *query = [self queryForMessages];
   FSTDocument *doc1 = FSTTestDoc("rooms/eros/messages/1", 0, @{}, FSTDocumentStateLocalMutations);
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
-  FSTViewDocumentChanges *changes =
-      [view computeChangesWithMaybeDocuments:FSTTestDocUpdates(@[ doc1 ])];
+  FSTViewDocumentChanges *changes = [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1 ])];
   FSTViewChange *viewChange = [view applyChangesToDocuments:changes];
   XCTAssertTrue(viewChange.snapshot.hasPendingWrites);
 }
@@ -660,8 +654,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocument *doc1 =
       FSTTestDoc("rooms/eros/messages/1", 0, @{}, FSTDocumentStateCommittedMutations);
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
-  FSTViewDocumentChanges *changes =
-      [view computeChangesWithMaybeDocuments:FSTTestDocUpdates(@[ doc1 ])];
+  FSTViewDocumentChanges *changes = [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1 ])];
   FSTViewChange *viewChange = [view applyChangesToDocuments:changes];
   XCTAssertFalse(viewChange.snapshot.hasPendingWrites);
 }
@@ -686,7 +679,7 @@ NS_ASSUME_NONNULL_BEGIN
                                              @{@"time" : @3}, FSTDocumentStateSynced);
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
   FSTViewDocumentChanges *changes =
-      [view computeChangesWithMaybeDocuments:FSTTestDocUpdates(@[ doc1, doc2 ])];
+      [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1, doc2 ])];
   FSTViewChange *viewChange = [view applyChangesToDocuments:changes];
 
   XCTAssertEqualObjects(
@@ -696,8 +689,7 @@ NS_ASSUME_NONNULL_BEGIN
       ]),
       viewChange.snapshot.documentChanges);
 
-  changes =
-      [view computeChangesWithMaybeDocuments:FSTTestDocUpdates(@[ doc1Committed, doc2Modified ])];
+  changes = [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1Committed, doc2Modified ])];
   viewChange = [view applyChangesToDocuments:changes];
   // The 'doc1Committed' update is suppressed
   XCTAssertEqualObjects(
@@ -705,8 +697,8 @@ NS_ASSUME_NONNULL_BEGIN
                                                type:FSTDocumentViewChangeTypeModified] ]),
       viewChange.snapshot.documentChanges);
 
-  changes = [view
-      computeChangesWithMaybeDocuments:FSTTestDocUpdates(@[ doc1Acknowledged, doc2Acknowledged ])];
+  changes =
+      [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1Acknowledged, doc2Acknowledged ])];
   viewChange = [view applyChangesToDocuments:changes];
   XCTAssertEqualObjects(
       (@[
