@@ -54,8 +54,8 @@ using firebase::firestore::model::TargetId;
 
 static NSArray<FSTDocument *> *docMapToArray(const DocumentMap &docs) {
   NSMutableArray<FSTDocument *> *result = [NSMutableArray array];
-  for (const auto &kv : docs) {
-    [result addObject:kv.second];
+  for (const auto &kv : docs.underlying_map()) {
+    [result addObject:static_cast<FSTDocument *>(kv.second)];
   }
   return result;
 }

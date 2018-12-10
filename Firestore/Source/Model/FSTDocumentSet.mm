@@ -119,12 +119,12 @@ typedef FSTImmutableSortedSet<FSTDocument *> SetType;
 }
 
 - (BOOL)containsKey:(const DocumentKey &)key {
-  return _index.find(key) != _index.end();
+  return _index.underlying_map().find(key) != _index.underlying_map().end();
 }
 
 - (FSTDocument *_Nullable)documentForKey:(const DocumentKey &)key {
-  auto found = _index.find(key);
-  return found != _index.end() ? found->second : nil;
+  auto found = _index.underlying_map().find(key);
+  return found != _index.underlying_map().end() ? static_cast<FSTDocument *>(found->second) : nil;
 }
 
 - (FSTDocument *_Nullable)firstDocument {
