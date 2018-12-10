@@ -77,7 +77,7 @@ NSString *const kFUNDefaultRegion = @"us-central1";
 + (void)load {
   NSString *version = [NSString stringWithUTF8String:(const char *const)STR(FIRFunctions_VERSION)];
   [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self
-                         withName:@"fire-functions"
+                         withName:@"fire-fun"
                       withVersion:version];
 }
 

@@ -53,7 +53,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)load {
   [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self
-                         withName:@"fire-storage"
+                         withName:@"fire-str"
                       withVersion:[NSString stringWithUTF8String:FIRStorageVersionString]];
 }
 

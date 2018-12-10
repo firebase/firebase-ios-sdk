@@ -213,7 +213,7 @@ static FIRMessaging *sMessaging;
 
 + (void)load {
   [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self
-                 withName:@"fire-msg"
+                 withName:@"fire-fcm"
               withVersion:FIRMessagingCurrentLibraryVersion()];
 }
 
