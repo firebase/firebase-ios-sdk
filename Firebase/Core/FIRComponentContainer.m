@@ -47,7 +47,12 @@ static NSMutableSet<Class> *sFIRComponentRegistrants;
     sFIRComponentRegistrants = [[NSMutableSet<Class> alloc] init];
   });
 
-  [sFIRComponentRegistrants addObject:klass];
+  [self registerAsComponentRegistrant:klass inSet:sFIRComponentRegistrants];
+}
+
++ (void)registerAsComponentRegistrant:(Class<FIRLibrary>)klass
+                                inSet:(NSMutableSet<Class> *)allRegistrants {
+  [allRegistrants addObject:klass];
 }
 
 #pragma mark - Internal Initialization
@@ -164,16 +169,6 @@ static NSMutableSet<Class> *sFIRComponentRegistrants;
   }
 
   [self.cachedInstances removeAllObjects];
-}
-
-#pragma mark - Testing Accessors
-
-+ (void)setRegistrantSet:(NSMutableSet<Class> *)testInput {
-  sFIRComponentRegistrants = testInput;
-}
-
-+ (NSMutableSet<Class> *)registrantSet {
-  return sFIRComponentRegistrants;
 }
 
 @end

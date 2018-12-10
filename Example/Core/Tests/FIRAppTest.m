@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #import "FIRTestCase.h"
+#import "FIRTestComponents.h"
 
 #import <FirebaseCore/FIRAnalyticsConfiguration+Internal.h>
 #import <FirebaseCore/FIRAppInternal.h>
@@ -733,6 +734,17 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   [FIRApp registerLibrary:@"LegalName" withVersion:@"1.0.0"];
   [FIRApp registerLibrary:@"LegalName2" withVersion:@"2.0.0"];
   XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"LegalName/1.0.0 LegalName2/2.0.0"]);
+}
+
+- (void)testRegisteringConformingLibrary {
+  Class testClass = [FIRTestClass class];
+  [FIRApp registerInternalLibrary:testClass withName:@"LegalName" withVersion:@"1.0.0"];
+  XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"LegalName/1.0.0"]);
+}
+
+- (void)testRegisteringNonConformingLibrary {
+  XCTAssertThrows([FIRApp registerInternalLibrary:[NSString class] withName:@"IllegalLibrary" withVersion:@"1.0.0"]);
+  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"LegalName/1.0.0"]);
 }
 
 #pragma mark - private

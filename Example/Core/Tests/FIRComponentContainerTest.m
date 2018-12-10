@@ -26,10 +26,9 @@
 @property(nonatomic, strong) NSMutableDictionary<NSString *, FIRComponentCreationBlock> *components;
 @property(nonatomic, strong) NSMutableDictionary<NSString *, id> *cachedInstances;
 
-+ (void)registerAsComponentRegistrant:(Class)klass inSet:(NSMutableSet<Class> *)allRegistrants;
++ (void)registerAsComponentRegistrant:(Class<FIRLibrary>)klass
+                                inSet:(NSMutableSet<Class> *)allRegistrants;
 - (instancetype)initWithApp:(FIRApp *)app registrants:(NSMutableSet<Class> *)allRegistrants;
-+ (void)setRegistrantSet:(NSMutableSet<Class> *)testInput;
-+ (NSMutableSet<Class> *)registrantSet;
 @end
 
 @interface FIRComponentContainer (TestInternalImplementations)
@@ -59,17 +58,10 @@
 #pragma mark - Registration Tests
 
 - (void)testRegisteringConformingClass {
-  [FIRComponentContainer setRegistrantSet:[NSMutableSet<Class> set]];
-  Class testClass = [FIRTestClass class];
-  [FIRComponentContainer registerAsComponentRegistrant:testClass];
-  XCTAssertTrue([[FIRComponentContainer registrantSet] containsObject:testClass]);
-}
-
-- (void)testRegisteringNonConformingClass {
   NSMutableSet<Class> *allRegistrants = [NSMutableSet<Class> set];
-  XCTAssertThrows(
-      [FIRComponentContainer registerAsComponentRegistrant:[NSString class] inSet:allRegistrants]);
-  XCTAssertTrue(allRegistrants.count == 0);
+  Class testClass = [FIRTestClass class];
+  [FIRComponentContainer registerAsComponentRegistrant:testClass inSet:allRegistrants];
+  XCTAssertTrue([allRegistrants containsObject:testClass]);
 }
 
 - (void)testComponentsPopulatedOnInit {
@@ -161,15 +153,13 @@
 /// Create a container that has registered the test class.
 - (FIRComponentContainer *)containerWithRegistrants:(NSArray<Class> *)registrants {
   id appMock = OCMClassMock([FIRApp class]);
-  [FIRComponentContainer setRegistrantSet:[NSMutableSet<Class> set]];
+  NSMutableSet<Class> *allRegistrants = [NSMutableSet<Class> set];
 
   // Initialize the container with the test classes.
   for (Class c in registrants) {
-    [FIRComponentContainer registerAsComponentRegistrant:c];
+    [FIRComponentContainer registerAsComponentRegistrant:c inSet:allRegistrants];
   }
-
-  return [[FIRComponentContainer alloc] initWithApp:appMock
-                                        registrants:[FIRComponentContainer registrantSet]];
+  return [[FIRComponentContainer alloc] initWithApp:appMock registrants:allRegistrants];
 }
 
 @end
