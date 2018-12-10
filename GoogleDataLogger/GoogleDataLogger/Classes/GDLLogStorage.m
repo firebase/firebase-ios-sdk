@@ -16,7 +16,6 @@
 
 #import "GDLLogStorage.h"
 
-/** Manages the storage and prioritizing of logs. */
 @implementation GDLLogStorage
 
 @end
