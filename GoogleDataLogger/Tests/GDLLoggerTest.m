@@ -26,7 +26,22 @@
 
 /** Tests the default initializer. */
 - (void)testInit {
-  XCTAssertNotNil([[GDLLogger alloc] initWithLogSource:1 logTransformers:nil logTarget:1]);
+  XCTAssertNotNil([[GDLLogger alloc] initWithLogMapID:@"1" logTransformers:nil logTarget:1]);
+  XCTAssertThrows([[GDLLogger alloc] initWithLogMapID:@"" logTransformers:nil logTarget:1]);
+}
+
+/** Tests logging a telemetry event. */
+- (void)testLogTelemetryEvent {
+  GDLLogger *logger = [[GDLLogger alloc] initWithLogMapID:@"1" logTransformers:nil logTarget:1];
+  GDLLogEvent *event = [logger newEvent];
+  XCTAssertNoThrow([logger logTelemetryEvent:event]);
+}
+
+/** Tests logging a data event. */
+- (void)testLogDataEvent {
+  GDLLogger *logger = [[GDLLogger alloc] initWithLogMapID:@"1" logTransformers:nil logTarget:1];
+  GDLLogEvent *event = [logger newEvent];
+  XCTAssertNoThrow([logger logDataEvent:event]);
 }
 
 @end

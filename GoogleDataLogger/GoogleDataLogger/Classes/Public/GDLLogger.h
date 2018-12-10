@@ -18,23 +18,45 @@
 
 #import "GDLLogTransformer.h"
 
+@class GDLLogEvent;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface GDLLogger : NSObject
 
-/** Please use the designated initializer. */
+// Please use the designated initializer.
 - (instancetype)init NS_UNAVAILABLE;
 
 /** Initializes a new logger that will log events to the given target backend.
  *
- * @param logSource The log source/type that this logger logs to.
+ * @param logMapID The mapping identifier used by the backend to map the extension to a proto.
  * @param logTransformers A list of transformers to be applied to log events that are logged.
  * @param logTarget The target backend of this logger.
  * @return A logger that will log events.
  */
-- (instancetype)initWithLogSource:(NSInteger)logSource
-                  logTransformers:(nullable NSArray<id<GDLLogTransformer>> *)logTransformers
-                        logTarget:(NSInteger)logTarget;
+- (instancetype)initWithLogMapID:(NSString *)logMapID
+                 logTransformers:(nullable NSArray<id<GDLLogTransformer>> *)logTransformers
+                       logTarget:(NSInteger)logTarget NS_DESIGNATED_INITIALIZER;
+
+/** Logs an internal telemetry event. Logs sent using this API are lower in priority, and sometimes
+ *  won't be sent on their own.
+ *
+ * @param logEvent The log event to log.
+ */
+- (void)logTelemetryEvent:(GDLLogEvent *)logEvent;
+
+/** Logs an SDK service data event. Logs send using this API are higher in priority, and will cause
+ *  a network request at some point in the relative near future.
+ *
+ * @param logEvent The log event to log.
+ */
+- (void)logDataEvent:(GDLLogEvent *)logEvent;
+
+/** Creates a log event for use by this logger.
+ *
+ * @return A log event that is suited for use by this logger.
+ */
+- (GDLLogEvent *)newEvent;
 
 @end
 

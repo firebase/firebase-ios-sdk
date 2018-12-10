@@ -16,10 +16,12 @@
 
 #import "GDLLogger.h"
 
+#import "GDLLogEvent.h"
+
 @interface GDLLogger ()
 
-/** The log source this logger logs to. */
-@property(nonatomic) NSInteger logSource;
+/** The log mapping identifier that a GDLLogBackend will use to map the extension to proto. */
+@property(nonatomic) NSString *logMapID;
 
 /** The log transformers that will operate on logs logged by this logger. */
 @property(nonatomic) NSArray<id<GDLLogTransformer>> *logTransformers;
@@ -31,18 +33,34 @@
 
 @implementation GDLLogger
 
-- (instancetype)initWithLogSource:(NSInteger)logSource
-                  logTransformers:(nullable NSArray<id<GDLLogTransformer>> *)logTransformers
-                        logTarget:(NSInteger)logTarget {
+- (instancetype)initWithLogMapID:(NSString *)logMapID
+                 logTransformers:(nullable NSArray<id<GDLLogTransformer>> *)logTransformers
+                       logTarget:(NSInteger)logTarget {
   self = [super init];
   if (self) {
-    NSAssert(logSource > 0, @"A log source cannot be negative or 0");
+    NSAssert(logMapID.length > 0, @"A log mapping ID cannot be nil or empty");
     NSAssert(logTarget > 0, @"A log target cannot be negative or 0");
-    _logSource = logSource;
+    _logMapID = logMapID;
     _logTransformers = logTransformers;
     _logTarget = logTarget;
   }
   return self;
+}
+
+- (void)logTelemetryEvent:(GDLLogEvent *)logEvent {
+  NSAssert(logEvent, @"You can't log a nil event");
+
+  // TODO(mikehaney24): Implement.
+}
+
+- (void)logDataEvent:(GDLLogEvent *)logEvent {
+  NSAssert(logEvent, @"You can't log a nil event");
+
+  // TODO(mikehaney24): Implement.
+}
+
+- (GDLLogEvent *)newEvent {
+  return [[GDLLogEvent alloc] init];
 }
 
 @end
