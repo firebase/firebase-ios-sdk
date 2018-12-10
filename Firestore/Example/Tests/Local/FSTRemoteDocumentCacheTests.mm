@@ -19,17 +19,23 @@
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
+#include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 #include "absl/strings/string_view.h"
 
 namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
+using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::DocumentMap;
+using firebase::firestore::model::MaybeDocumentMap;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -137,15 +143,13 @@ static const int kVersion = 42;
     [self setTestDocumentAtPath:"c/1"];
 
     FSTQuery *query = FSTTestQuery("b");
-    FSTDocumentDictionary *results = [self.remoteDocumentCache documentsMatchingQuery:query];
-    NSArray *expected = @[
-      FSTTestDoc("b/1", kVersion, _kDocData, FSTDocumentStateSynced),
-      FSTTestDoc("b/2", kVersion, _kDocData, FSTDocumentStateSynced)
-    ];
-    XCTAssertEqual([results count], [expected count]);
-    for (FSTDocument *doc in expected) {
-      XCTAssertEqualObjects([results objectForKey:doc.key], doc);
-    }
+    DocumentMap results = [self.remoteDocumentCache documentsMatchingQuery:query];
+    [self expectMap:results
+        hasDocsInArray:@[
+          FSTTestDoc("b/1", kVersion, _kDocData, FSTDocumentStateSynced),
+          FSTTestDoc("b/2", kVersion, _kDocData, FSTDocumentStateSynced)
+        ]
+               exactly:YES];
   });
 }
 
@@ -156,6 +160,22 @@ static const int kVersion = 42;
   FSTDocument *doc = FSTTestDoc(path, kVersion, _kDocData, FSTDocumentStateSynced);
   [self.remoteDocumentCache addEntry:doc];
   return doc;
+}
+
+- (void)expectMap:(const DocumentMap &)map
+    hasDocsInArray:(NSArray<FSTDocument *> *)expected
+           exactly:(BOOL)exactly {
+  if (exactly) {
+    XCTAssertEqual(map.size(), [expected count]);
+  }
+  for (FSTDocument *doc in expected) {
+    FSTDocument *actual = nil;
+    auto found = map.underlying_map().find(doc.key);
+    if (found != map.underlying_map().end()) {
+      actual = static_cast<FSTDocument *>(found->second);
+    }
+    XCTAssertEqualObjects(actual, doc);
+  }
 }
 
 @end
