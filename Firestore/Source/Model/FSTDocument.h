@@ -16,13 +16,12 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Document.pbobjc.h"
-
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 
 @class FSTFieldValue;
+@class GCFSDocument;
 @class FSTObjectValue;
 
 NS_ASSUME_NONNULL_BEGIN
