@@ -244,10 +244,11 @@ void EnsureSentinelRows(leveldb::DB* db) {
 }  // namespace
 
 LevelDbMigrations::SchemaVersion LevelDbMigrations::ReadSchemaVersion(
-    LevelDbTransaction* transaction) {
+    leveldb::DB* db) {
+  LevelDbTransaction transaction(db, "Read schema version");
   std::string key = LevelDbVersionKey::Key();
   std::string version_string;
-  Status status = transaction->Get(key, &version_string);
+  Status status = transaction.Get(key, &version_string);
   if (status.IsNotFound()) {
     return 0;
   } else {
@@ -261,8 +262,16 @@ void LevelDbMigrations::RunMigrations(leveldb::DB* db) {
 
 void LevelDbMigrations::RunMigrations(leveldb::DB* db,
                                       SchemaVersion to_version) {
-  LevelDbTransaction transaction{db, "Read schema version"};
-  SchemaVersion from_version = ReadSchemaVersion(&transaction);
+  SchemaVersion from_version = ReadSchemaVersion(db);
+  // If this is a downgrade, just save the downgrade version so we can
+  // detect it when we go to upgrade again, allowing us to rerun the
+  // data migrations.
+  if (from_version > to_version) {
+    LevelDbTransaction transaction(db, "Save downgrade version");
+    SaveVersion(to_version, &transaction);
+    transaction.Commit();
+    return;
+  }
 
   // This must run unconditionally because schema migrations were added to iOS
   // after the first release. There may be clients that have never run any

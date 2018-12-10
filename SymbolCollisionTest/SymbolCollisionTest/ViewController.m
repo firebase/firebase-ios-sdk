@@ -1,4 +1,4 @@
-// Copyright 2017 Google
+// Copyright 2018 Google
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,29 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <XCTest/XCTest.h>
+#import "ViewController.h"
 
-#import "FIRFunctions+Internal.h"
-#import "FIRFunctions.h"
+@interface ViewController ()
 
-@interface FIRFunctionsTests : XCTestCase
 @end
 
-@implementation FIRFunctionsTests
+@implementation ViewController
 
-- (void)setUp {
-  [super setUp];
-}
-
-- (void)tearDown {
-  [super tearDown];
-}
-
-- (void)testURLWithName {
-  FIRFunctions *functions =
-      [[FIRFunctions alloc] initWithProjectID:@"my-project" region:@"my-region" auth:nil];
-  NSString *url = [functions URLWithName:@"my-endpoint"];
-  XCTAssertEqualObjects(@"https://my-region-my-project.cloudfunctions.net/my-endpoint", url);
+- (void)viewDidLoad {
+  [super viewDidLoad];
+  // Do any additional setup after loading the view, typically from a nib.
 }
 
 @end

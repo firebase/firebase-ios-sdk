@@ -110,15 +110,16 @@
   NSString *swizzledPollutedTestObjectSubclassSubclassDescription =
       [originalPollutedTestObjectSubclassSubclassDescription stringByAppendingString:@"SWIZZLED!"];
 
-  NSString * (^newImplementationPollutedTestObject)() = ^NSString *(id _self) {
+  NSString * (^newImplementationPollutedTestObject)(NSString *) = ^NSString *(id _self) {
     return swizzledPollutedTestObjectDescription;
   };
 
-  NSString * (^newImplementationPollutedTestObjectSubclass)() = ^NSString *(id _self) {
+  NSString * (^newImplementationPollutedTestObjectSubclass)(NSString *) = ^NSString *(id _self) {
     return swizzledPollutedTestObjectSubclassDescription;
   };
 
-  NSString * (^newImplementationPollutedTestObjectSubclassSubclass)() = ^NSString *(id _self) {
+  NSString * (^newImplementationPollutedTestObjectSubclassSubclass)(NSString *) =
+      ^NSString *(id _self) {
     return swizzledPollutedTestObjectSubclassSubclassDescription;
   };
 

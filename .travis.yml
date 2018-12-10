@@ -112,6 +112,15 @@ jobs:
         # The travis_wait is necessary because the command takes more than 10 minutes.
         - travis_wait ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseFirestore.podspec --use-libraries --allow-warnings --no-subspecs
 
+    # Daily test for symbol collisions between Firebase and CocoaPods.
+    - stage: test
+      env:
+        - PROJECT=SymbolCollision PLATFORM=iOS METHOD=xcodebuild
+      before_install:
+        - ./scripts/if_cron.sh ./scripts/install_prereqs.sh
+      script:
+        - ./scripts/if_cron.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+
     # Alternative platforms
 
     # Xcode 9
@@ -248,6 +257,7 @@ jobs:
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
+  allow_failures:
     # Run fuzz tests only on cron jobs.
     - stage: test
       env:
@@ -262,7 +272,6 @@ jobs:
     # need to make them fatal for the purposes of the test run.
 
   # TODO(varconst): disallow sanitizers to fail once we fix all existing issues.
-  allow_failures:
     - env:
       - PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=asan
     - env:

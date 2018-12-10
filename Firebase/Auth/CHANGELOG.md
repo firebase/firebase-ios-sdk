@@ -1,3 +1,9 @@
+# v5.2.0
+- Add support of Game Center sign in (#2127).
+
+# v5.1.0
+- Add support of custom FDL domain link (#2121).
+
 # v5.0.5
 - Restore SafariServices framework dependency (#2002).
 
@@ -5,7 +11,7 @@
 - Fix analyzer issues (#1740).
 
 # v5.0.3
-- Adds `FIRAuthErrorCodeMalformedJWT`, which is raised on JWT token parsing.
+- Add `FIRAuthErrorCodeMalformedJWT`, which is raised on JWT token parsing.
   failures during auth operations (#1436).
 - Migrate to use FirebaseAuthInterop interfaces to access FirebaseAuth (#1501).
 

@@ -175,7 +175,7 @@ static const int kVersion = 42;
 
     FSTQuery *query = FSTTestQuery("b");
     DocumentMap results = [self.remoteDocumentCache documentsMatchingQuery:query];
-    [self expectMap:results
+    [self expectMap:results.underlying_map()
         hasDocsInArray:@[
           FSTTestDoc("b/1", kVersion, _kDocData, FSTDocumentStateSynced),
           FSTTestDoc("b/2", kVersion, _kDocData, FSTDocumentStateSynced)
@@ -193,7 +193,7 @@ static const int kVersion = 42;
   return doc;
 }
 
-- (void)expectMap:(const DocumentMap &)map
+- (void)expectMap:(const MaybeDocumentMap &)map
     hasDocsInArray:(NSArray<FSTDocument *> *)expected
            exactly:(BOOL)exactly {
   if (exactly) {
@@ -201,8 +201,8 @@ static const int kVersion = 42;
   }
   for (FSTDocument *doc in expected) {
     FSTDocument *actual = nil;
-    auto found = map.underlying_map().find(doc.key);
-    if (found != map.underlying_map().end()) {
+    auto found = map.find(doc.key);
+    if (found != map.end()) {
       actual = static_cast<FSTDocument *>(found->second);
     }
     XCTAssertEqualObjects(actual, doc);
