@@ -68,6 +68,16 @@ static size_t FSTDocumentKeyByteSize(const DocumentKey &key) {
   return found != _docs.end() ? found->second : nil;
 }
 
+- (MaybeDocumentMap)entriesForKeys:(const DocumentKeySet &)keys {
+  MaybeDocumentMap results;
+  for (const DocumentKey &key : keys) {
+    // Make sure each key has a corresponding entry, which is null in case the document is not
+    // found.
+    results = results.insert(key, [self entryForKey:key]);
+  }
+  return results;
+}
+
 - (DocumentMap)documentsMatchingQuery:(FSTQuery *)query {
   DocumentMap result;
 

@@ -80,13 +80,48 @@ NS_ASSUME_NONNULL_BEGIN
   return document;
 }
 
-- (MaybeDocumentMap)documentsForKeys:(const DocumentKeySet &)keys {
+// Returns the view of the given `docs` as they would appear after applying all
+// mutations in the given `batches`.
+- (MaybeDocumentMap)applyLocalMutationsToDocuments:(const MaybeDocumentMap &)docs
+                                       fromBatches:(NSArray<FSTMutationBatch *> *)batches {
   MaybeDocumentMap results;
+
+  for (const auto &kv : docs) {
+    const DocumentKey &key = kv.first;
+    FSTMaybeDocument *localView = kv.second;
+    for (FSTMutationBatch *batch in batches) {
+      localView = [batch applyToLocalDocument:localView documentKey:key];
+    }
+    results = results.insert(key, localView);
+  }
+  return results;
+}
+
+- (MaybeDocumentMap)documentsForKeys:(const DocumentKeySet &)keys {
+  MaybeDocumentMap docs = [self.remoteDocumentCache entriesForKeys:keys];
+  return [self localViewsForDocuments:docs];
+}
+
+/**
+ * Similar to `documentsForKeys`, but creates the local view from the given
+ * `baseDocs` without retrieving documents from the local store.
+ */
+- (MaybeDocumentMap)localViewsForDocuments:(const MaybeDocumentMap &)baseDocs {
+  MaybeDocumentMap results;
+
+  DocumentKeySet allKeys;
+  for (const auto &kv : baseDocs) {
+    allKeys = allKeys.insert(kv.first);
+  }
   NSArray<FSTMutationBatch *> *batches =
-      [self.mutationQueue allMutationBatchesAffectingDocumentKeys:keys];
-  for (const DocumentKey &key : keys) {
-    // TODO(mikelehen): PERF: Consider fetching all remote documents at once rather than one-by-one.
-    FSTMaybeDocument *maybeDoc = [self documentForKey:key inBatches:batches];
+      [self.mutationQueue allMutationBatchesAffectingDocumentKeys:allKeys];
+
+  MaybeDocumentMap docs = [self applyLocalMutationsToDocuments:baseDocs fromBatches:batches];
+
+  for (const auto &kv : docs) {
+    const DocumentKey &key = kv.first;
+    FSTMaybeDocument *maybeDoc = kv.second;
+
     // TODO(http://b/32275378): Don't conflate missing / deleted.
     if (!maybeDoc) {
       maybeDoc = [FSTDeletedDocument documentWithKey:key

@@ -55,6 +55,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (firebase::firestore::model::MaybeDocumentMap)documentsForKeys:
     (const firebase::firestore::model::DocumentKeySet &)keys;
 
+/**
+ * Similar to `documentsForKeys`, but creates the local view from the given
+ * `baseDocs` without retrieving documents from the local store.
+ */
+- (firebase::firestore::model::MaybeDocumentMap)localViewsForDocuments:
+    (const firebase::firestore::model::MaybeDocumentMap &)baseDocs;
+
 /** Performs a query against the local view of all documents. */
 - (firebase::firestore::model::DocumentMap)documentsMatchingQuery:(FSTQuery *)query;
 

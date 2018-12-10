@@ -264,14 +264,24 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
       }
     }
 
-    // TODO(klimt): This could probably be an NSMutableDictionary.
-    DocumentKeySet changedDocKeys;
+    MaybeDocumentMap changedDocs;
     const DocumentKeySet &limboDocuments = remoteEvent.limboDocumentChanges;
+    DocumentKeySet updatedKeys;
+    for (const auto &kv : remoteEvent.documentUpdates) {
+      updatedKeys = updatedKeys.insert(kv.first);
+    }
+    // Each loop iteration only affects its "own" doc, so it's safe to get all the remote
+    // documents in advance in a single call.
+    MaybeDocumentMap existingDocs = [self.remoteDocumentCache entriesForKeys:updatedKeys];
+
     for (const auto &kv : remoteEvent.documentUpdates) {
       const DocumentKey &key = kv.first;
       FSTMaybeDocument *doc = kv.second;
-      changedDocKeys = changedDocKeys.insert(key);
-      FSTMaybeDocument *existingDoc = [self.remoteDocumentCache entryForKey:key];
+      FSTMaybeDocument *existingDoc = nil;
+      auto foundExisting = existingDocs.find(key);
+      if (foundExisting != existingDocs.end()) {
+        existingDoc = foundExisting->second;
+      }
 
       // If a document update isn't authoritative, make sure we don't apply an old document version
       // to the remote cache. We make an exception for SnapshotVersion.MIN which can happen for
@@ -280,6 +290,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
           (authoritativeUpdates.contains(doc.key) && !existingDoc.hasPendingWrites) ||
           doc.version >= existingDoc.version) {
         [self.remoteDocumentCache addEntry:doc];
+        changedDocs = changedDocs.insert(key, doc);
       } else {
         LOG_DEBUG(
             "FSTLocalStore Ignoring outdated watch update for %s. "
@@ -306,7 +317,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
       [self.queryCache setLastRemoteSnapshotVersion:remoteVersion];
     }
 
-    return [self.localDocuments documentsForKeys:changedDocKeys];
+    return [self.localDocuments localViewsForDocuments:changedDocs];
   });
 }
 

@@ -85,6 +85,24 @@ using leveldb::Status;
   }
 }
 
+- (MaybeDocumentMap)entriesForKeys:(const DocumentKeySet &)keys {
+  MaybeDocumentMap results;
+
+  LevelDbRemoteDocumentKey currentKey;
+  auto it = _db.currentTransaction->NewIterator();
+
+  for (const DocumentKey &key : keys) {
+    it->Seek([self remoteDocumentKey:key]);
+    if (!it->Valid() || !currentKey.Decode(it->key()) || currentKey.document_key() != key) {
+      results = results.insert(key, nil);
+    } else {
+      results = results.insert(key, [self decodeMaybeDocument:it->value() withKey:key]);
+    }
+  }
+
+  return results;
+}
+
 - (DocumentMap)documentsMatchingQuery:(FSTQuery *)query {
   DocumentMap results;
 
