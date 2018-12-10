@@ -296,7 +296,7 @@ FSTViewSnapshot *_Nullable FSTTestApplyChanges(FSTView *view,
                                                NSArray<FSTMaybeDocument *> *docs,
                                                FSTTargetChange *_Nullable targetChange) {
   return
-      [view applyChangesToDocuments:[view computeChangesWithMaybeDocuments:FSTTestDocUpdates(docs)]
+      [view applyChangesToDocuments:[view computeChangesWithDocuments:FSTTestDocUpdates(docs)]
                        targetChange:targetChange]
           .snapshot;
 }

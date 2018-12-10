@@ -489,7 +489,7 @@ class LimboResolution {
   [self.queryViewsByQuery
       enumerateKeysAndObjectsUsingBlock:^(FSTQuery *query, FSTQueryView *queryView, BOOL *stop) {
         FSTView *view = queryView.view;
-        FSTViewDocumentChanges *viewDocChanges = [view computeChangesWithMaybeDocuments:changes];
+        FSTViewDocumentChanges *viewDocChanges = [view computeChangesWithDocuments:changes];
         if (viewDocChanges.needsRefill) {
           // The query has a limit and some docs were removed/updated, so we need to re-run the
           // query against the local store to make sure we didn't lose any good docs that had been
