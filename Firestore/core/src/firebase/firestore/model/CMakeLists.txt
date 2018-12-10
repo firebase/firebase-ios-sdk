@@ -22,6 +22,7 @@ cc_library(
     document.h
     document_key.cc
     document_key.h
+    document_map.h
     field_mask.h
     field_path.cc
     field_path.h
@@ -45,6 +46,7 @@ cc_library(
   DEPENDS
     absl_optional
     absl_strings
+    firebase_firestore_immutable
     firebase_firestore_util
     firebase_firestore_types
 )
