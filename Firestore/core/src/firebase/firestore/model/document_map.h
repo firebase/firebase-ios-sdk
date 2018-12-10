@@ -17,9 +17,9 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_DOCUMENT_MAP_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_DOCUMENT_MAP_H_
 
-#import "Firestore/Source/Model/FSTDocument.h"
-
 #include <utility>
+
+#import "Firestore/Source/Model/FSTDocument.h"
 
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_map.h"
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_map_iterator.h"
@@ -92,7 +92,8 @@ class DocumentMap {
     }
 
     void UpdateCurrentValue() const {
-      const std::pair<DocumentKey, FSTMaybeDocument*>& underlying_value = *iter_;
+      const std::pair<DocumentKey, FSTMaybeDocument*>& underlying_value =
+          *iter_;
       current_value_ =
           value_type{underlying_value.first,
                      static_cast<FSTDocument*>(underlying_value.second)};
@@ -124,8 +125,12 @@ class DocumentMap {
     return DocumentMap{map_.erase(key)};
   }
 
-  bool empty() const { return map_.empty(); }
-  MaybeDocumentMap::size_type size() const { return map_.size(); }
+  bool empty() const {
+    return map_.empty();
+  }
+  MaybeDocumentMap::size_type size() const {
+    return map_.size();
+  }
 
   const MaybeDocumentMap& underlying_map() const {
     return map_;

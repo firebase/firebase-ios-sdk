@@ -495,7 +495,8 @@ class LimboResolution {
           // query against the local store to make sure we didn't lose any good docs that had been
           // past the limit.
           DocumentMap docs = [self.localStore executeQuery:queryView.query];
-          viewDocChanges = [view computeChangesWithDocuments:docs.underlying_map() previousChanges:viewDocChanges];
+          viewDocChanges = [view computeChangesWithDocuments:docs.underlying_map()
+                                             previousChanges:viewDocChanges];
         }
 
         FSTTargetChange *_Nullable targetChange = nil;
