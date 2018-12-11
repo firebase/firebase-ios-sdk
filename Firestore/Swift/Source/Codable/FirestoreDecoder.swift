@@ -156,7 +156,7 @@ fileprivate struct _FirestoreKeyedDecodingContainer<K : CodingKey> : KeyedDecodi
     
     // MARK: - KeyedDecodingContainerProtocol Methods
     public var allKeys: [Key] {
-        return container.keys.flatMap { Key(stringValue: $0) }
+        return container.keys.compactMap { Key(stringValue: $0) }
     }
     
     public func contains(_ key: Key) -> Bool {
