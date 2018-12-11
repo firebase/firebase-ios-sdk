@@ -44,6 +44,9 @@ typedef NS_ENUM(NSInteger, GDLLogQoS) {
 /** The log map identifier, to allow backends to map the extension property to a proto. */
 @property(readonly, nonatomic) NSString *logMapID;
 
+/** The identifier for the backend this log will eventually be sent to. */
+@property(readonly, nonatomic) NSInteger logTarget;
+
 /** The log object itself, encapsulated in the transport of your choice, as long as it implements
  * the GDLLogProto protocol. */
 @property(nonatomic) id<GDLLogProto> extension;
@@ -62,7 +65,8 @@ typedef NS_ENUM(NSInteger, GDLLogQoS) {
  * @param logMapID The log map identifier.
  * @return An instance of this class.
  */
-- (instancetype)initWithLogMapID:(NSString *)logMapID NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithLogMapID:(NSString *)logMapID
+                       logTarget:(NSInteger)logTarget NS_DESIGNATED_INITIALIZER;
 
 @end
 
