@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** The different possible log quality of service specifiers. High values indicate high priority. */
 typedef NS_ENUM(NSInteger, GDLLogQoS) {
-  /** The QoS tier wasn't set. */
+  /** The QoS tier wasn't set, and won't ever be sent. */
   GDLLogQoSUnknown = 0,
 
   /** This log is internal telemetry data that should not be sent on its own if possible. */
