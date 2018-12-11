@@ -55,8 +55,8 @@
   GDLLogEvent *log = [[GDLLogEvent alloc] initWithLogMapID:@"1"];
   XCTAssertNoThrow([writer writeLog:log afterApplyingTransformers:nil]);
   dispatch_sync(writer.logWritingQueue, ^{
-    // TODO(mikehaney24): Assert that storage contains the log.
-  });
+                    // TODO(mikehaney24): Assert that storage contains the log.
+                });
 }
 
 - (void)testWriteLogWithTransformersThatNilTheLog {
@@ -66,8 +66,8 @@
       @[ [[GDLLogWriterTestNilingTransformer alloc] init] ];
   XCTAssertNoThrow([writer writeLog:log afterApplyingTransformers:transformers]);
   dispatch_sync(writer.logWritingQueue, ^{
-    // TODO(mikehaney24): Assert that storage does not contain the log.
-  });
+                    // TODO(mikehaney24): Assert that storage does not contain the log.
+                });
 }
 
 @end
