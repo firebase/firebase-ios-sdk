@@ -27,9 +27,9 @@ import FirebaseFirestore
 fileprivate protocol CodableFieldValue: Encodable {}
 
 extension CodableFieldValue {
-    public func encode(to encoder: Encoder) throws {
-        throw FirestoreEncodingError.encodingIsNotSupported
-    }
+  public func encode(to encoder: Encoder) throws {
+    throw FirestoreEncodingError.encodingIsNotSupported
+  }
 }
 
 extension FieldValue: CodableFieldValue {}

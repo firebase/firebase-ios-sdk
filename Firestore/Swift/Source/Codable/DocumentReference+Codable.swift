@@ -27,13 +27,13 @@ import FirebaseFirestore
 fileprivate protocol CodableDocumentReference: Codable {}
 
 extension CodableDocumentReference {
-    public init(from decoder: Decoder) throws {
-        throw FirestoreDecodingError.decodingIsNotSupported
-    }
-    
-    public func encode(to encoder: Encoder) throws {
-        throw FirestoreEncodingError.encodingIsNotSupported
-    }
+  public init(from decoder: Decoder) throws {
+    throw FirestoreDecodingError.decodingIsNotSupported
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    throw FirestoreEncodingError.encodingIsNotSupported
+  }
 }
 
 extension DocumentReference: CodableDocumentReference {}
