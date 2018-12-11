@@ -16,7 +16,25 @@
 
 #import <Foundation/Foundation.h>
 
+@class GDLLogEvent;
+
+@protocol GDLLogTransformer;
+
 /** Manages the writing and log-time transforming of logs. */
 @interface GDLLogWriter : NSObject
+
+/** Instantiates or returns the log writer singleton.
+ *
+ * @return The singleton instance of the log writer.
+ */
++ (instancetype)sharedInstance;
+
+/** Writes the result of applying the given transformers' -transform method on the given log.
+ *
+ * @param log The log to apply transformers on.
+ * @param logTransformers The list of transformers to apply.
+ */
+- (void)writeLog:(GDLLogEvent *)log
+    afterApplyingTransformers:(nullable NSArray<id<GDLLogTransformer>> *)logTransformers;
 
 @end

@@ -14,19 +14,8 @@
  * limitations under the License.
  */
 
-#import <XCTest/XCTest.h>
+#import "GDLLogClock.h"
 
-#import "GDLLogEvent.h"
-
-@interface GDLLogEventTest : XCTestCase
-
-@end
-
-@implementation GDLLogEventTest
-
-- (void)testInit {
-  XCTAssertNotNil([[GDLLogEvent alloc] initWithLogMapID:@"1"]);
-  XCTAssertThrows([[GDLLogEvent alloc] initWithLogMapID:@""]);
-}
+@implementation GDLLogClock
 
 @end

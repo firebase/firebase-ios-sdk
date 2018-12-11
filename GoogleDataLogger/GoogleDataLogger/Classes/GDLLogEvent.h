@@ -16,6 +16,54 @@
 
 #import <Foundation/Foundation.h>
 
+#import "GDLLogClock.h"
+#import "GDLLogProto.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+/** The different possible log quality of service specifiers. High values indicate high priority. */
+typedef NS_ENUM(NSInteger, GDLLogQoS) {
+  /** The QoS tier wasn't set, and won't ever be sent. */
+  GDLLogQoSUnknown = 0,
+
+  /** This log is internal telemetry data that should not be sent on its own if possible. */
+  GDLLogQoSTelemetry = 1,
+
+  /** This log should be sent, but in a batch only roughly once per day. */
+  GDLLogQoSDaily = 2,
+
+  /** This log should be sent when requested by the uploader. */
+  GDLLogQosDefault = 3,
+
+  /** This log should be sent immediately along with any other data that can be batched. */
+  GDLLogQoSFast = 4
+};
+
 @interface GDLLogEvent : NSObject
 
+/** The log map identifier, to allow backends to map the extension property to a proto. */
+@property(readonly, nonatomic) NSString *logMapID;
+
+/** The log object itself, encapsulated in the transport of your choice, as long as it implements
+ * the GDLLogProto protocol. */
+@property(nonatomic) id<GDLLogProto> extension;
+
+/** The quality of service tier this log belongs to. */
+@property(nonatomic) GDLLogQoS qosTier;
+
+/** The clock snapshot at the time of logging. */
+@property(nonatomic) GDLLogClockSnapshot clockSnapshot;
+
+// Please use the designated initializer.
+- (instancetype)init NS_UNAVAILABLE;
+
+/** Initializes an instance using the given logMapID.
+ *
+ * @param logMapID The log map identifier.
+ * @return An instance of this class.
+ */
+- (instancetype)initWithLogMapID:(NSString *)logMapID NS_DESIGNATED_INITIALIZER;
+
 @end
+
+NS_ASSUME_NONNULL_END

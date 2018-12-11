@@ -16,7 +16,23 @@
 
 #import <XCTest/XCTest.h>
 
+#import <GoogleDataLogger/GDLLogTransformer.h>
+
+#import "GDLLogEvent.h"
 #import "GDLLogWriter.h"
+#import "GDLLogWriter_Private.h"
+
+@interface GDLLogWriterTestNilingTransformer : NSObject <GDLLogTransformer>
+
+@end
+
+@implementation GDLLogWriterTestNilingTransformer
+
+- (GDLLogEvent *)transform:(GDLLogEvent *)logEvent {
+  return nil;
+}
+
+@end
 
 @interface GDLLogWriterTest : XCTestCase
 
@@ -27,6 +43,31 @@
 /** Tests the default initializer. */
 - (void)testInit {
   XCTAssertNotNil([[GDLLogWriter alloc] init]);
+}
+
+/** Tests the pointer equality of result of the -sharedInstance method. */
+- (void)testSharedInstance {
+  XCTAssertEqual([GDLLogWriter sharedInstance], [GDLLogWriter sharedInstance]);
+}
+
+- (void)testWriteLogWithoutTransformers {
+  GDLLogWriter *writer = [GDLLogWriter sharedInstance];
+  GDLLogEvent *log = [[GDLLogEvent alloc] initWithLogMapID:@"1"];
+  XCTAssertNoThrow([writer writeLog:log afterApplyingTransformers:nil]);
+  dispatch_sync(writer.logWritingQueue, ^{
+                    // TODO(mikehaney24): Assert that storage contains the log.
+                });
+}
+
+- (void)testWriteLogWithTransformersThatNilTheLog {
+  GDLLogWriter *writer = [GDLLogWriter sharedInstance];
+  GDLLogEvent *log = [[GDLLogEvent alloc] initWithLogMapID:@"2"];
+  NSArray<id<GDLLogTransformer>> *transformers =
+      @[ [[GDLLogWriterTestNilingTransformer alloc] init] ];
+  XCTAssertNoThrow([writer writeLog:log afterApplyingTransformers:transformers]);
+  dispatch_sync(writer.logWritingQueue, ^{
+                    // TODO(mikehaney24): Assert that storage does not contain the log.
+                });
 }
 
 @end

@@ -18,4 +18,13 @@
 
 @implementation GDLLogEvent
 
+- (instancetype)initWithLogMapID:(NSString *)logMapID {
+  NSAssert(logMapID.length > 0, @"Please give a valid log map ID");
+  self = [super init];
+  if (self) {
+    _logMapID = logMapID;
+  }
+  return self;
+}
+
 @end

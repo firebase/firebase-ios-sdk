@@ -14,19 +14,17 @@
  * limitations under the License.
  */
 
-#import <XCTest/XCTest.h>
+#import <Foundation/Foundation.h>
 
-#import "GDLLogEvent.h"
+/** This protocol defines the common interface that log protos should implement regardless of the
+ * underlying transport technology (protobuf, nanopb, etc).
+ */
+@protocol GDLLogProto <NSObject>
 
-@interface GDLLogEventTest : XCTestCase
-
-@end
-
-@implementation GDLLogEventTest
-
-- (void)testInit {
-  XCTAssertNotNil([[GDLLogEvent alloc] initWithLogMapID:@"1"]);
-  XCTAssertThrows([[GDLLogEvent alloc] initWithLogMapID:@""]);
-}
+/** Returns the serialized proto bytes of the implementing log proto.
+ *
+ * @return the serialized proto bytes of the implementing log proto.
+ */
+- (NSData *)protoBytes;
 
 @end

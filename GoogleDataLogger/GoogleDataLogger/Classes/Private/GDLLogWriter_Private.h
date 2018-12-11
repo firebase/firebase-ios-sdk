@@ -14,19 +14,11 @@
  * limitations under the License.
  */
 
-#import <XCTest/XCTest.h>
+#import "GDLLogWriter.h"
 
-#import "GDLLogEvent.h"
+@interface GDLLogWriter ()
 
-@interface GDLLogEventTest : XCTestCase
-
-@end
-
-@implementation GDLLogEventTest
-
-- (void)testInit {
-  XCTAssertNotNil([[GDLLogEvent alloc] initWithLogMapID:@"1"]);
-  XCTAssertThrows([[GDLLogEvent alloc] initWithLogMapID:@""]);
-}
+/** The queue on which all work will occur. */
+@property(nonatomic) dispatch_queue_t logWritingQueue;
 
 @end
