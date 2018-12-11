@@ -20,6 +20,7 @@
 
 #import "GDLLogEvent.h"
 #import "GDLLogWriter.h"
+#import "GDLLogWriter_Private.h"
 
 @interface GDLLogWriterTestNilingTransformer : NSObject <GDLLogTransformer>
 
@@ -53,7 +54,9 @@
   GDLLogWriter *writer = [GDLLogWriter sharedInstance];
   GDLLogEvent *log = [[GDLLogEvent alloc] initWithLogMapID:@"1"];
   XCTAssertNoThrow([writer writeLog:log afterApplyingTransformers:nil]);
-  // TODO(mikehaney24): Assert that storage contains the log.
+  dispatch_sync(writer.logWritingQueue, ^{
+    // TODO(mikehaney24): Assert that storage contains the log.
+  });
 }
 
 - (void)testWriteLogWithTransformersThatNilTheLog {
@@ -62,7 +65,9 @@
   NSArray<id<GDLLogTransformer>> *transformers =
       @[ [[GDLLogWriterTestNilingTransformer alloc] init] ];
   XCTAssertNoThrow([writer writeLog:log afterApplyingTransformers:transformers]);
-  // TODO(mikehaney24): Assert that storage does not contain the log.
+  dispatch_sync(writer.logWritingQueue, ^{
+    // TODO(mikehaney24): Assert that storage does not contain the log.
+  });
 }
 
 @end

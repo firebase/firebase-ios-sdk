@@ -15,15 +15,13 @@
  */
 
 #import "GDLLogWriter.h"
+#import "GDLLogWriter_Private.h"
 
 #import <GoogleDataLogger/GDLLogTransformer.h>
 
 #import "GDLLogStorage.h"
 
-@implementation GDLLogWriter {
-  /** The queue on which all work will occur. */
-  dispatch_queue_t _logWritingQueue;
-}
+@implementation GDLLogWriter
 
 // This class doesn't have to be a singleton, but allocating an instance for every logger could be
 // wasteful.
