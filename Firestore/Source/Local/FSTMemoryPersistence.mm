@@ -82,7 +82,6 @@ NS_ASSUME_NONNULL_BEGIN
   FSTMemoryPersistence *persistence = [[FSTMemoryPersistence alloc] init];
   persistence.referenceDelegate =
       [[FSTMemoryEagerReferenceDelegate alloc] initWithPersistence:persistence];
-  [persistence start];
   return persistence;
 }
 
@@ -93,7 +92,6 @@ NS_ASSUME_NONNULL_BEGIN
       [[FSTMemoryLRUReferenceDelegate alloc] initWithPersistence:persistence
                                                       serializer:serializer
                                                        lruParams:lruParams];
-  [persistence start];
   return persistence;
 }
 
@@ -101,6 +99,7 @@ NS_ASSUME_NONNULL_BEGIN
   if (self = [super init]) {
     _queryCache = [[FSTMemoryQueryCache alloc] initWithPersistence:self];
     _remoteDocumentCache = [[FSTMemoryRemoteDocumentCache alloc] init];
+    self.started = YES;
   }
   return self;
 }
@@ -111,12 +110,6 @@ NS_ASSUME_NONNULL_BEGIN
   if ([delegate conformsToProtocol:@protocol(FSTTransactional)]) {
     _transactionRunner.SetBackingPersistence((id<FSTTransactional>)_referenceDelegate);
   }
-}
-
-- (void)start {
-  // No durable state to read on startup.
-  HARD_ASSERT(!self.isStarted, "FSTMemoryPersistence double-started!");
-  self.started = YES;
 }
 
 - (void)shutdown {
