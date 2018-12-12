@@ -51,10 +51,14 @@ NSString* FindPathToCertificatesFile() {
   ];
 
   NSString* path;
+  int i = 0;
   for (NSBundle* bundle in bundles) {
+    ++i;
+    LOG_DEBUG("roots.pem file: searching, iteration %s", i);
     if (!bundle) {
       continue;
     }
+    LOG_DEBUG("roots.pem file: loaded bundle %s", [bundle bundleIdentifier]);
 
     path =
         [bundle pathForResource:@"gRPCCertificates.bundle/roots" ofType:@"pem"];
