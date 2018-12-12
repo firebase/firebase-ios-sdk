@@ -2,9 +2,9 @@
 
 # v0.16.1
 - [fixed] Offline persistence now properly records schema downgrades. This is a
-  forward-looking change that allows versions past this one to safely downgrade
-  to this version. Downgrading to versions prior this one can be safe depending
-  on the source version. For example, downgrading from v0.16.1 to v0.15.0 is
+  forward-looking change that allows all subsequent versions to safely downgrade
+  to this version. Depending on the source version, you can also downgrade to
+  previous versions. For example, downgrading from v0.16.1 to v0.15.0 is
   safe because there have been no schema changes between these releases.
 - [fixed] Fixed an issue where gRPC would crash if shut down multiple times
   (#2146).
