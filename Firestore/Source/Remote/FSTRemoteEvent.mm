@@ -426,7 +426,7 @@ NS_ASSUME_NONNULL_BEGIN
         // does not exist and apply a deleted document to our updates. Without applying this deleted
         // document there might be another query that will raise this document as part of a snapshot
         // until it is resolved, essentially exposing inconsistency between queries.
-        FSTDocumentKey *key = [FSTDocumentKey keyWithPath:query.path];
+        DocumentKey key{query.path};
         [self removeDocument:[FSTDeletedDocument documentWithKey:key
                                                          version:SnapshotVersion::None()
                                            hasCommittedMutations:NO]
@@ -470,7 +470,7 @@ NS_ASSUME_NONNULL_BEGIN
   // of the initial snapshot if Watch does not resend these documents.
   DocumentKeySet existingKeys = [_targetMetadataProvider remoteKeysForTarget:@(targetID)];
 
-  for (FSTDocumentKey *key : existingKeys) {
+  for (const DocumentKey &key : existingKeys) {
     [self removeDocument:nil withKey:key fromTarget:targetID];
   }
 }
@@ -527,7 +527,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Returns whether the LocalStore considers the document to be part of the specified target.
  */
-- (BOOL)containsDocument:(FSTDocumentKey *)key inTarget:(TargetId)targetID {
+- (BOOL)containsDocument:(const DocumentKey &)key inTarget:(TargetId)targetID {
   const DocumentKeySet &existingKeys = [_targetMetadataProvider remoteKeysForTarget:@(targetID)];
   return existingKeys.contains(key);
 }
@@ -573,7 +573,7 @@ NS_ASSUME_NONNULL_BEGIN
         // our local cache, we synthesize a document delete if we have not previously received the
         // document. This resolves the limbo state of the document, removing it from
         // limboDocumentRefs.
-        FSTDocumentKey *key = [FSTDocumentKey keyWithPath:queryData.query.path];
+        DocumentKey key{queryData.query.path};
         if (_pendingDocumentUpdates.find(key) == _pendingDocumentUpdates.end() &&
             ![self containsDocument:key inTarget:targetID]) {
           [self removeDocument:[FSTDeletedDocument documentWithKey:key
