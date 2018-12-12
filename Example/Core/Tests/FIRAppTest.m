@@ -746,7 +746,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   XCTAssertThrows([FIRApp registerInternalLibrary:[NSString class]
                                          withName:@"IllegalLibrary"
                                       withVersion:@"1.0.0"]);
-  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"LegalName/1.0.0"]);
+  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"IllegalLibrary/1.0.0"]);
 }
 
 #pragma mark - private
