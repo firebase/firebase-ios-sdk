@@ -45,22 +45,20 @@ namespace local {
 
 class MemoryRemoteDocumentCache {
  public:
-  MemoryRemoteDocumentCache();
-
   void AddEntry(FSTMaybeDocument *document);
 
   void RemoveEntry(const model::DocumentKey &key);
 
-  FSTMaybeDocument *_Nullable Find(const model::DocumentKey &key);
+  FSTMaybeDocument *_Nullable Get(const model::DocumentKey &key);
 
-  model::MaybeDocumentMap FindAll(const model::DocumentKeySet &keys);
+  model::MaybeDocumentMap GetAll(const model::DocumentKeySet &keys);
 
   model::DocumentMap GetMatchingDocuments(FSTQuery *query);
 
   std::vector<model::DocumentKey> RemoveOrphanedDocuments(
       FSTMemoryLRUReferenceDelegate *reference_delegate, model::ListenSequenceNumber upper_bound);
 
-  size_t ByteSize(FSTLocalSerializer *serializer);
+  size_t CalculateByteSize(FSTLocalSerializer *serializer);
 
  private:
   /** Underlying cache of documents. */
