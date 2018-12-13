@@ -20,7 +20,7 @@
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Firestore.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Firestore.pbobjc.h"
 
 namespace firebase {
 namespace firestore {
@@ -80,8 +80,8 @@ void WriteStream::WriteMutations(NSArray<FSTMutation*>* mutations) {
 
 std::unique_ptr<GrpcStream> WriteStream::CreateGrpcStream(
     GrpcConnection* grpc_connection, const Token& token) {
-  return grpc_connection->CreateStream(
-      "/google.firestore.v1beta1.Firestore/Write", token, this);
+  return grpc_connection->CreateStream("/google.firestore.v1.Firestore/Write",
+                                       token, this);
 }
 
 void WriteStream::TearDown(GrpcStream* grpc_stream) {

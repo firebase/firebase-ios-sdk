@@ -18,7 +18,7 @@
 
 #include "Firestore/Protos/cpp/firestore/local/maybe_document.pb.h"
 #include "Firestore/Protos/cpp/firestore/local/target.pb.h"
-#include "Firestore/Protos/cpp/google/firestore/v1beta1/firestore.pb.h"
+#include "Firestore/Protos/cpp/google/firestore/v1/firestore.pb.h"
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
@@ -38,7 +38,7 @@ namespace firebase {
 namespace firestore {
 namespace local {
 
-namespace v1beta1 = google::firestore::v1beta1;
+namespace v1 = google::firestore::v1;
 using core::Query;
 using ::google::protobuf::util::MessageDifferencer;
 using model::DatabaseId;
@@ -205,7 +205,7 @@ TEST_F(LocalSerializerTest, EncodesDocumentAsMaybeDocument) {
   ::firestore::client::MaybeDocument maybe_doc_proto;
   maybe_doc_proto.mutable_document()->set_name(
       "projects/p/databases/d/documents/some/path");
-  ::google::firestore::v1beta1::Value value_proto;
+  ::google::firestore::v1::Value value_proto;
   value_proto.set_string_value("bar");
   maybe_doc_proto.mutable_document()->mutable_fields()->insert(
       {"foo", value_proto});
@@ -259,7 +259,7 @@ TEST_F(LocalSerializerTest, EncodesQueryData) {
   std::vector<uint8_t> query_target_bytes;
   Writer writer = Writer::Wrap(&query_target_bytes);
   remote_serializer.EncodeQueryTarget(&writer, query_data.query());
-  v1beta1::Target::QueryTarget queryTargetProto;
+  v1::Target::QueryTarget queryTargetProto;
   bool ok = queryTargetProto.ParseFromArray(
       query_target_bytes.data(), static_cast<int>(query_target_bytes.size()));
   EXPECT_TRUE(ok);
@@ -269,7 +269,7 @@ TEST_F(LocalSerializerTest, EncodesQueryData) {
   expected.set_last_listen_sequence_number(sequence_number);
   expected.mutable_snapshot_version()->set_nanos(1039000);
   expected.set_resume_token(resume_token.data(), resume_token.size());
-  v1beta1::Target::QueryTarget* query_proto = expected.mutable_query();
+  v1::Target::QueryTarget* query_proto = expected.mutable_query();
   query_proto->set_parent(queryTargetProto.parent());
   *query_proto->mutable_structured_query() =
       queryTargetProto.structured_query();

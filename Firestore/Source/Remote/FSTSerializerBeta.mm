@@ -21,11 +21,11 @@
 #include <utility>
 #include <vector>
 
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Common.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Document.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Firestore.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Query.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Write.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Common.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Document.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Firestore.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Query.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Write.pbobjc.h"
 #import "Firestore/Protos/objc/google/rpc/Status.pbobjc.h"
 #import "Firestore/Protos/objc/google/type/Latlng.pbobjc.h"
 

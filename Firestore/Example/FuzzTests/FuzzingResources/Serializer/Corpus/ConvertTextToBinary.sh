@@ -53,6 +53,6 @@ for text_proto_file in "${text_protos_dir}"/*; do
   echo "${file_content}" \
     | "${SRCROOT}/Pods/!ProtoCompiler/protoc" \
     -I"${SRCROOT}/../../Firestore/Protos/protos" \
-    --encode=google.firestore.v1beta1."${message_type}" \
-    google/firestore/v1beta1/document.proto > "${binary_protos_dir}/${file_name}"
+    --encode=google.firestore.v1."${message_type}" \
+    google/firestore/v1/document.proto > "${binary_protos_dir}/${file_name}"
 done
