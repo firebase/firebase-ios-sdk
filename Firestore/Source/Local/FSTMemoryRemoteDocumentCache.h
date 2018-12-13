@@ -20,6 +20,7 @@
 
 #import "Firestore/Source/Local/FSTRemoteDocumentCache.h"
 
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 
 NS_ASSUME_NONNULL_BEGIN
