@@ -331,7 +331,8 @@ case "$product-$method-$platform" in
         -workspace 'GoogleDataLogger/gen/GoogleDataLogger/GoogleDataLogger.xcworkspace' \
         -scheme "GoogleDataLogger-Unit-Tests" \
         "${xcb_flags[@]}" \
-        build
+        build \
+        test
     ;;
 
   *)
