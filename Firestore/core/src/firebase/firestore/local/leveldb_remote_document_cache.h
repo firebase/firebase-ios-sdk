@@ -25,11 +25,11 @@
 
 #include <vector>
 
-#include "absl/strings/string_view.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "absl/strings/string_view.h"
 
 @class FSTLevelDB;
 @class FSTLocalSerializer;
@@ -55,7 +55,8 @@ class LevelDbRemoteDocumentCache {
   model::DocumentMap GetMatchingDocuments(FSTQuery *query);
 
  private:
-  FSTMaybeDocument *DecodeMaybeDocument(absl::string_view encoded, const model::DocumentKey& key);
+  FSTMaybeDocument *DecodeMaybeDocument(absl::string_view encoded,
+                                        const model::DocumentKey &key);
 
   FSTLevelDB *db_;
   FSTLocalSerializer *serializer_;
