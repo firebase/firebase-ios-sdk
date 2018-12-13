@@ -328,7 +328,7 @@ case "$product-$method-$platform" in
 
   GoogleDataLogger-xcodebuild-iOS)
     RunXcodebuild \
-        -workspace 'GoogleDataLogger/gen/GoogleDataLogger.xcworkspace' \
+        -workspace 'GoogleDataLogger/gen/GoogleDataLogger/GoogleDataLogger.xcworkspace' \
         -scheme "GoogleDataLogger-Unit-Tests" \
         "${xcb_flags[@]}" \
         build
