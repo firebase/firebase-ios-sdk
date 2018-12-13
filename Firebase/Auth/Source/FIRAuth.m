@@ -26,8 +26,7 @@
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
 #import <FirebaseCore/FIRComponentContainer.h>
-#import <FirebaseCore/FIRComponentRegistrant.h>
-#import <FirebaseCore/FIRCoreConfigurable.h>
+#import <FirebaseCore/FIRLibrary.h>
 #import <FirebaseCore/FIRLogger.h>
 #import <FirebaseCore/FIROptions.h>
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
@@ -228,9 +227,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 #pragma mark - FIRAuth
 
 #if TARGET_OS_IOS
-@interface FIRAuth () <FIRAuthAppDelegateHandler, FIRComponentRegistrant, FIRCoreConfigurable, FIRComponentLifecycleMaintainer>
+@interface FIRAuth () <FIRAuthAppDelegateHandler, FIRLibrary, FIRComponentLifecycleMaintainer>
 #else
-@interface FIRAuth () <FIRComponentRegistrant, FIRCoreConfigurable, FIRComponentLifecycleMaintainer>
+@interface FIRAuth () <FIRLibrary, FIRComponentLifecycleMaintainer>
 #endif
 
 /** @property firebaseAppId
@@ -310,8 +309,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 }
 
 + (void)load {
-  [FIRComponentContainer registerAsComponentRegistrant:self];
-  [FIRApp registerAsConfigurable:self];
+  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self
+                 withName:@"fire-auth"
+              withVersion:[NSString stringWithUTF8String:FirebaseAuthVersionStr]];
 }
 
 + (void)initialize {

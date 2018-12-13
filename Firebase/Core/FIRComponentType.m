@@ -16,7 +16,7 @@
 
 #import "Private/FIRComponentType.h"
 
-#import "Private/FIRComponentContainerInternal.h"
+#import "FIRComponentContainerInternal.h"
 
 @implementation FIRComponentType
 

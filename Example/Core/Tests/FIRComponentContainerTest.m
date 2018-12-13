@@ -26,9 +26,26 @@
 @property(nonatomic, strong) NSMutableDictionary<NSString *, FIRComponentCreationBlock> *components;
 @property(nonatomic, strong) NSMutableDictionary<NSString *, id> *cachedInstances;
 
-+ (void)registerAsComponentRegistrant:(Class)klass inSet:(NSMutableSet<Class> *)allRegistrants;
-
++ (void)registerAsComponentRegistrant:(Class<FIRLibrary>)klass
+                                inSet:(NSMutableSet<Class> *)allRegistrants;
 - (instancetype)initWithApp:(FIRApp *)app registrants:(NSMutableSet<Class> *)allRegistrants;
+@end
+
+@interface FIRComponentContainer (TestInternalImplementations)
+- (instancetype)initWithApp:(FIRApp *)app
+                 components:(NSDictionary<NSString *, FIRComponentCreationBlock> *)components;
+@end
+
+@implementation FIRComponentContainer (TestInternalImplementations)
+
+- (instancetype)initWithApp:(FIRApp *)app
+                 components:(NSDictionary<NSString *, FIRComponentCreationBlock> *)components {
+  self = [self initWithApp:app registrants:[[NSMutableSet alloc] init]];
+  if (self) {
+    self.components = [components mutableCopy];
+  }
+  return self;
+}
 
 @end
 
@@ -45,13 +62,6 @@
   Class testClass = [FIRTestClass class];
   [FIRComponentContainer registerAsComponentRegistrant:testClass inSet:allRegistrants];
   XCTAssertTrue([allRegistrants containsObject:testClass]);
-}
-
-- (void)testRegisteringNonConformingClass {
-  NSMutableSet<Class> *allRegistrants = [NSMutableSet<Class> set];
-  XCTAssertThrows(
-      [FIRComponentContainer registerAsComponentRegistrant:[NSString class] inSet:allRegistrants]);
-  XCTAssertTrue(allRegistrants.count == 0);
 }
 
 - (void)testComponentsPopulatedOnInit {
@@ -149,7 +159,6 @@
   for (Class c in registrants) {
     [FIRComponentContainer registerAsComponentRegistrant:c inSet:allRegistrants];
   }
-
   return [[FIRComponentContainer alloc] initWithApp:appMock registrants:allRegistrants];
 }
 
