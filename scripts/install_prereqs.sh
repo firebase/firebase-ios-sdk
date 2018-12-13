@@ -73,6 +73,7 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     ;;
 
   GoogleDataLogger-iOS-xcodebuild)
+    gem install xcpretty
     bundle exec pod gen GoogleDataLogger.podspec --gen-directory=GoogleDataLogger/gen
     ;;
   *)
