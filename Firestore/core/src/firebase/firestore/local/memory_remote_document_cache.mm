@@ -16,10 +16,6 @@
 
 #include "Firestore/core/src/firebase/firestore/local/memory_remote_document_cache.h"
 
-#include "Firestore/core/src/firebase/firestore/model/document_key.h"
-#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
-#include "Firestore/core/src/firebase/firestore/model/document_map.h"
-
 #import "Firestore/Protos/objc/firestore/local/MaybeDocument.pbobjc.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
@@ -40,7 +36,7 @@ namespace {
  * document key in memory. This is only an estimate and includes the size
  * of the segments of the path, but not any object overhead or path separators.
  */
-static size_t DocumentKeyByteSize(const DocumentKey &key) {
+size_t DocumentKeyByteSize(const DocumentKey &key) {
   size_t count = 0;
   for (const auto &segment : key.path()) {
     count += segment.size();
@@ -57,7 +53,8 @@ void MemoryRemoteDocumentCache::RemoveEntry(const DocumentKey &key) {
   docs_ = docs_.erase(key);
 }
 
-FSTMaybeDocument *_Nullable MemoryRemoteDocumentCache::Get(const DocumentKey &key) {
+FSTMaybeDocument *_Nullable MemoryRemoteDocumentCache::Get(
+    const DocumentKey &key) {
   auto found = docs_.find(key);
   return found != docs_.end() ? found->second : nil;
 }
@@ -65,8 +62,8 @@ FSTMaybeDocument *_Nullable MemoryRemoteDocumentCache::Get(const DocumentKey &ke
 MaybeDocumentMap MemoryRemoteDocumentCache::GetAll(const DocumentKeySet &keys) {
   MaybeDocumentMap results;
   for (const DocumentKey &key : keys) {
-    // Make sure each key has a corresponding entry, which is null in case the document is not
-    // found.
+    // Make sure each key has a corresponding entry, which is null in case the
+    // document is not found.
     // TODO(http://b/32275378): Don't conflate missing / deleted.
     results = results.insert(key, Get(key));
   }
@@ -76,8 +73,8 @@ MaybeDocumentMap MemoryRemoteDocumentCache::GetAll(const DocumentKeySet &keys) {
 DocumentMap MemoryRemoteDocumentCache::GetMatchingDocuments(FSTQuery *query) {
   DocumentMap results;
 
-  // Documents are ordered by key, so we can use a prefix scan to narrow down the documents
-  // we need to match the query against.
+  // Documents are ordered by key, so we can use a prefix scan to narrow down
+  // the documents we need to match the query against.
   DocumentKey prefix{query.path.Append("")};
   for (auto it = docs_.lower_bound(prefix); it != docs_.end(); ++it) {
     const DocumentKey &key = it->first;
@@ -97,12 +94,14 @@ DocumentMap MemoryRemoteDocumentCache::GetMatchingDocuments(FSTQuery *query) {
 }
 
 std::vector<DocumentKey> MemoryRemoteDocumentCache::RemoveOrphanedDocuments(
-        FSTMemoryLRUReferenceDelegate *reference_delegate, ListenSequenceNumber upper_bound) {
+    FSTMemoryLRUReferenceDelegate *reference_delegate,
+    ListenSequenceNumber upper_bound) {
   std::vector<DocumentKey> removed;
   MaybeDocumentMap updated_docs = docs_;
   for (const auto &kv : docs_) {
     const DocumentKey &key = kv.first;
-    if (![reference_delegate isPinnedAtSequenceNumber:upper_bound document:key]) {
+    if (![reference_delegate isPinnedAtSequenceNumber:upper_bound
+                                             document:key]) {
       updated_docs = updated_docs.erase(key);
       removed.push_back(key);
     }
@@ -111,7 +110,8 @@ std::vector<DocumentKey> MemoryRemoteDocumentCache::RemoveOrphanedDocuments(
   return removed;
 }
 
-size_t MemoryRemoteDocumentCache::CalculateByteSize(FSTLocalSerializer *serializer) {
+size_t MemoryRemoteDocumentCache::CalculateByteSize(
+    FSTLocalSerializer *serializer) {
   size_t count = 0;
   for (const auto &kv : docs_) {
     count += DocumentKeyByteSize(kv.first);

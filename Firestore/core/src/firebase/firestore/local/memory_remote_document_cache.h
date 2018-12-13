@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_LOCAL_MEMORY_REMOTE_DOCUMENT_CACHE_H_
-#define FIRESTORE_CORE_SRC_LOCAL_MEMORY_REMOTE_DOCUMENT_CACHE_H_
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_MEMORY_REMOTE_DOCUMENT_CACHE_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_MEMORY_REMOTE_DOCUMENT_CACHE_H_
 
 #if !defined(__OBJC__)
 #error "For now, this file must only be included by ObjC source files."
@@ -23,11 +23,12 @@
 
 #import <Foundation/Foundation.h>
 
+#include <vector>
+
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
-
 
 @class FSTLocalSerializer;
 @class FSTMaybeDocument;
@@ -43,17 +44,15 @@ namespace local {
 class MemoryRemoteDocumentCache {
  public:
   void AddEntry(FSTMaybeDocument *document);
-
   void RemoveEntry(const model::DocumentKey &key);
 
   FSTMaybeDocument *_Nullable Get(const model::DocumentKey &key);
-
   model::MaybeDocumentMap GetAll(const model::DocumentKeySet &keys);
-
   model::DocumentMap GetMatchingDocuments(FSTQuery *query);
 
   std::vector<model::DocumentKey> RemoveOrphanedDocuments(
-          FSTMemoryLRUReferenceDelegate *reference_delegate, model::ListenSequenceNumber upper_bound);
+      FSTMemoryLRUReferenceDelegate *reference_delegate,
+      model::ListenSequenceNumber upper_bound);
 
   size_t CalculateByteSize(FSTLocalSerializer *serializer);
 
@@ -68,4 +67,4 @@ class MemoryRemoteDocumentCache {
 
 NS_ASSUME_NONNULL_END
 
-#endif  // FIRESTORE_CORE_SRC_LOCAL_MEMORY_REMOTE_DOCUMENT_CACHE_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_MEMORY_REMOTE_DOCUMENT_CACHE_H_
