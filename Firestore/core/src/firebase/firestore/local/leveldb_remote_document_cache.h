@@ -45,21 +45,21 @@ namespace local {
 /** Cached Remote Documents backed by leveldb. */
 class LevelDbRemoteDocumentCache {
  public:
-  LevelDbRemoteDocumentCache(FSTLevelDB *db, FSTLocalSerializer *serializer);
+  LevelDbRemoteDocumentCache(FSTLevelDB* db, FSTLocalSerializer* serializer);
 
-  void AddEntry(FSTMaybeDocument *document);
-  void RemoveEntry(const model::DocumentKey &key);
+  void AddEntry(FSTMaybeDocument* document);
+  void RemoveEntry(const model::DocumentKey& key);
 
-  FSTMaybeDocument *_Nullable Get(const model::DocumentKey &key);
-  model::MaybeDocumentMap GetAll(const model::DocumentKeySet &keys);
-  model::DocumentMap GetMatchingDocuments(FSTQuery *query);
+  FSTMaybeDocument* _Nullable Get(const model::DocumentKey& key);
+  model::MaybeDocumentMap GetAll(const model::DocumentKeySet& keys);
+  model::DocumentMap GetMatchingDocuments(FSTQuery* query);
 
  private:
-  FSTMaybeDocument *DecodeMaybeDocument(absl::string_view encoded,
-                                        const model::DocumentKey &key);
+  FSTMaybeDocument* DecodeMaybeDocument(absl::string_view encoded,
+                                        const model::DocumentKey& key);
 
-  FSTLevelDB *db_;
-  FSTLocalSerializer *serializer_;
+  FSTLevelDB* db_;
+  FSTLocalSerializer* serializer_;
 };
 
 }  // namespace local
