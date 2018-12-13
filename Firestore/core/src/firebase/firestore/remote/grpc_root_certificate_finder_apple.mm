@@ -50,29 +50,25 @@ NSString* FindPathToCertificatesFile() {
     [NSBundle mainBundle],
   ];
 
-  NSString* path;
-  int i = 0;
   for (NSBundle* bundle in bundles) {
-    ++i;
-    LOG_DEBUG("roots.pem file: searching, iteration %s", i);
     if (!bundle) {
       continue;
     }
-    LOG_DEBUG("roots.pem file: loaded bundle %s", [bundle bundleIdentifier]);
 
-    path =
-        [bundle pathForResource:@"gRPCCertificates.bundle/roots" ofType:@"pem"];
+    NSString* resource = @"gRPCCertificates.bundle/roots";
+    NSString* path = [bundle pathForResource:resource ofType:@"pem"];
     if (!path) {
-      // Technically, certificate with this name cannot be present in gRPC-C++
-      // framework, but checking for it unconditionally makes logic here
-      // simpler.
-      path = [bundle pathForResource:@"gRPCCertificates-Firestore.bundle/roots"
-                              ofType:@"pem"];
+      resource = @"gRPCCertificates-Firestore.bundle/roots";
+      path = [bundle pathForResource:resource ofType:@"pem"];
     }
+
     if (path) {
-      LOG_DEBUG("Using roots.pem file from bundle %s",
+      LOG_DEBUG("%s.pem found in bundle %s", resource,
                 [bundle bundleIdentifier]);
       return path;
+    } else {
+      LOG_DEBUG("%s.pem not found in bundle %s", resource,
+                [bundle bundleIdentifier]);
     }
   }
 
