@@ -42,6 +42,12 @@ GIT
       colored2 (~> 3.1)
       nanaimo (~> 0.2.5)
 
+GIT
+  remote: https://github.com/square/cocoapods-generate
+  revision: 46c337129ad97e52049f673e801fe56361660aa9
+  specs:
+    cocoapods-generate (1.3.1)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -87,7 +93,8 @@ PLATFORMS
 DEPENDENCIES
   cocoapods!
   cocoapods-core!
+  cocoapods-generate!
   xcodeproj!
 
 BUNDLED WITH
-   1.16.1
+   1.17.2
