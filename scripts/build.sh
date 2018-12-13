@@ -326,6 +326,14 @@ case "$product-$method-$platform" in
         build
     ;;
 
+  GoogleDataLogger-xcodebuild-iOS)
+    RunXcodebuild \
+        -workspace 'GoogleDataLogger/gen/GoogleDataLogger.xcworkspace' \
+        -scheme "GoogleDataLogger-Unit-Tests" \
+        "${xcb_flags[@]}" \
+        build
+    ;;
+
   *)
     echo "Don't know how to build this product-platform-method combination" 1>&2
     echo "  product=$product" 1>&2

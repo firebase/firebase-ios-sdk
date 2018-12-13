@@ -53,6 +53,14 @@ jobs:
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
+      stage: test
+      env:
+        - PROJECT=GoogleDataLogger PLATFORM=iOS METHOD=xcodebuild
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+      script:
+        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
+
     # pod lib lint to check build and warnings for dynamic framework build (use_frameworks!)
     - stage: test
       env:
