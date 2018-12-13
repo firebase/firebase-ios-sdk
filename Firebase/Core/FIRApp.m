@@ -481,7 +481,7 @@ static NSMutableDictionary *sLibraryVersions;
     sLibraryVersions[name] = version;
   } else {
     FIRLogError(kFIRLoggerCore, @"I-COR000027",
-                @"The library name (%@) or version number (%@) contain illegal characters. "
+                @"The library name (%@) or version number (%@) contain invalid characters. "
                 @"Only alphanumeric, dash, underscore and period characters are allowed.",
                 name, version);
   }

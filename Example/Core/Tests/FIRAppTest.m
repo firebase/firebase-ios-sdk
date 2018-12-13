@@ -715,38 +715,38 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   XCTAssertFalse([FIRApp isDefaultAppConfigured]);
 }
 
-- (void)testIllegalLibraryName {
+- (void)testInvalidLibraryName {
   [FIRApp registerLibrary:@"Oops>" withVersion:@"1.0.0"];
   XCTAssertTrue([[FIRApp firebaseUserAgent] isEqualToString:@""]);
 }
 
-- (void)testIllegalLibraryVersion {
-  [FIRApp registerLibrary:@"LegalName" withVersion:@"1.0.0+"];
+- (void)testInvalidLibraryVersion {
+  [FIRApp registerLibrary:@"ValidName" withVersion:@"1.0.0+"];
   XCTAssertTrue([[FIRApp firebaseUserAgent] isEqualToString:@""]);
 }
 
 - (void)testSingleLibrary {
-  [FIRApp registerLibrary:@"LegalName" withVersion:@"1.0.0"];
-  XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"LegalName/1.0.0"]);
+  [FIRApp registerLibrary:@"ValidName" withVersion:@"1.0.0"];
+  XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"ValidName/1.0.0"]);
 }
 
 - (void)testMultipleLibraries {
-  [FIRApp registerLibrary:@"LegalName" withVersion:@"1.0.0"];
-  [FIRApp registerLibrary:@"LegalName2" withVersion:@"2.0.0"];
-  XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"LegalName/1.0.0 LegalName2/2.0.0"]);
+  [FIRApp registerLibrary:@"ValidName" withVersion:@"1.0.0"];
+  [FIRApp registerLibrary:@"ValidName2" withVersion:@"2.0.0"];
+  XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"ValidName/1.0.0 ValidName2/2.0.0"]);
 }
 
 - (void)testRegisteringConformingLibrary {
   Class testClass = [FIRTestClass class];
-  [FIRApp registerInternalLibrary:testClass withName:@"LegalName" withVersion:@"1.0.0"];
-  XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"LegalName/1.0.0"]);
+  [FIRApp registerInternalLibrary:testClass withName:@"ValidName" withVersion:@"1.0.0"];
+  XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"ValidName/1.0.0"]);
 }
 
 - (void)testRegisteringNonConformingLibrary {
   XCTAssertThrows([FIRApp registerInternalLibrary:[NSString class]
-                                         withName:@"IllegalLibrary"
+                                         withName:@"InvalidLibrary"
                                       withVersion:@"1.0.0"]);
-  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"IllegalLibrary/1.0.0"]);
+  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"InvalidLibrary`/1.0.0"]);
 }
 
 #pragma mark - private
