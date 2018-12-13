@@ -30,8 +30,7 @@ $ gem install cocoapods-rome
 
 ## Firebase Installation
 
-1. Prefix a Podfile with the following:
-```
+1. Prefix a Podfile with the following: ```
 plugin 'cocoapods-rome',
     dsym: false,
     configuration: 'Release'
