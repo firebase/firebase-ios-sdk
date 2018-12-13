@@ -30,11 +30,14 @@ $ gem install cocoapods-rome
 
 ## Firebase Installation
 
-1. Prefix a Podfile with the following: ```
+Prefix a Podfile with the following:
+```
 plugin 'cocoapods-rome',
     dsym: false,
     configuration: 'Release'
 ```
+Then do the following steps:
+
 1. Delete any Firebase pods that you don't need
 1. Run `pod install`
 1. With the Finder `open Rome`
