@@ -28,15 +28,17 @@ typedef NS_ENUM(NSInteger, GDLMessageCode) {
 };
 
 /** */
-FOUNDATION_EXTERN NSString * GDLMessageCodeEnumToString(GDLMessageCode code);
+FOUNDATION_EXTERN NSString *GDLMessageCodeEnumToString(GDLMessageCode code);
 
 /** Logs the warningMessage string to the console at the warning level.
  *
  * @param warningMessageFormat The format string to log to the console.
  */
-FOUNDATION_EXTERN void GDLLogWarning(GDLMessageCode messageCode, NSString *warningMessageFormat, ...) NS_FORMAT_FUNCTION(2, 3);
+FOUNDATION_EXTERN void GDLLogWarning(GDLMessageCode messageCode,
+                                     NSString *warningMessageFormat,
+                                     ...) NS_FORMAT_FUNCTION(2, 3);
 
 // A define to wrap GULLogWarning with slightly more convenient usage.
-#define GDLLogWarning(MESSAGE_CODE, MESSAGE_FORMAT, ...) \
-  GULLogWarning(kGDLConsoleLogger, YES, GDLMessageCodeEnumToString(MESSAGE_CODE), MESSAGE_FORMAT, __VA_ARGS__);
-
+#define GDLLogWarning(MESSAGE_CODE, MESSAGE_FORMAT, ...)                                          \
+  GULLogWarning(kGDLConsoleLogger, YES, GDLMessageCodeEnumToString(MESSAGE_CODE), MESSAGE_FORMAT, \
+                __VA_ARGS__);

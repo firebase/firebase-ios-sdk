@@ -16,6 +16,6 @@
 
 #import "GDLConsoleLogger.h"
 
-NSString * GDLMessageCodeEnumToString(GDLMessageCode code) {
+NSString* GDLMessageCodeEnumToString(GDLMessageCode code) {
   return [[NSString alloc] initWithFormat:@"I-GDL%06ld", (long)code];
 }

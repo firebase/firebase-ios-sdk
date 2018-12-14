@@ -63,6 +63,7 @@ typedef NS_ENUM(NSInteger, GDLLogQoS) {
 /** Initializes an instance using the given logMapID.
  *
  * @param logMapID The log map identifier.
+ * @param logTarget The log's target identifier.
  * @return An instance of this class.
  */
 - (instancetype)initWithLogMapID:(NSString *)logMapID
