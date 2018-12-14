@@ -25,6 +25,7 @@ namespace testutil {
 std::unique_ptr<model::PatchMutation> PatchMutation(
     absl::string_view path,
     const model::ObjectValue::Map& values,
+    // TODO(rsgowman): Investigate changing update_mask to a set.
     const std::vector<model::FieldPath>* update_mask) {
   model::FieldValue object_value = model::FieldValue::FromMap({});
   std::set<model::FieldPath> object_mask;
