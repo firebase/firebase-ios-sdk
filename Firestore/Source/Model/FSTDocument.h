@@ -21,6 +21,7 @@
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 
 @class FSTFieldValue;
+@class GCFSDocument;
 @class FSTObjectValue;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -57,11 +58,23 @@ typedef NS_ENUM(NSInteger, FSTDocumentState) {
                          version:(firebase::firestore::model::SnapshotVersion)version
                            state:(FSTDocumentState)state;
 
++ (instancetype)documentWithData:(FSTObjectValue *)data
+                             key:(firebase::firestore::model::DocumentKey)key
+                         version:(firebase::firestore::model::SnapshotVersion)version
+                           state:(FSTDocumentState)state
+                           proto:(GCFSDocument *)proto;
+
 - (nullable FSTFieldValue *)fieldForPath:(const firebase::firestore::model::FieldPath &)path;
 - (BOOL)hasLocalMutations;
 - (BOOL)hasCommittedMutations;
 
 @property(nonatomic, strong, readonly) FSTObjectValue *data;
+
+/**
+ * Memoized serialized form of the document for optimization purposes (avoids repeated
+ * serialization). Might be nil.
+ */
+@property(nonatomic, strong, readonly) GCFSDocument *proto;
 
 @end
 

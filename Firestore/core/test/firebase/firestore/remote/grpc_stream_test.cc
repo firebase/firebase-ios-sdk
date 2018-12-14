@@ -448,6 +448,54 @@ TEST_F(GrpcStreamTest, ObserverCanImmediatelyDestroyStreamOnFinishAndNotify) {
   });
 }
 
+// Double finish
+
+TEST_F(GrpcStreamTest, DoubleFinish_FailThenFinishImmediately) {
+  worker_queue.EnqueueBlocking([&] { stream->Start(); });
+
+  ForceFinish({{Type::Read, Error}});
+  KeepPollingGrpcQueue();
+  worker_queue.EnqueueBlocking(
+      [&] { EXPECT_NO_THROW(stream->FinishImmediately()); });
+}
+
+TEST_F(GrpcStreamTest, DoubleFinish_FailThenWriteAndFinish) {
+  worker_queue.EnqueueBlocking([&] { stream->Start(); });
+
+  ForceFinish({{Type::Read, Error}});
+  KeepPollingGrpcQueue();
+  worker_queue.EnqueueBlocking(
+      [&] { EXPECT_NO_THROW(stream->WriteAndFinish({})); });
+}
+
+TEST_F(GrpcStreamTest, DoubleFinish_FailThenFailAgain) {
+  worker_queue.EnqueueBlocking([&] {
+    stream->Start();
+    stream->Write({});
+  });
+
+  int failures_count = 0;
+  auto future = tester.ForceFinishAsync([&](GrpcCompletion* completion) {
+    switch (completion->type()) {
+      case Type::Read:
+      case Type::Write:
+        ++failures_count;
+        completion->Complete(false);
+        return failures_count == 2;
+      default:
+        UnexpectedType(completion);
+        return true;
+    }
+  });
+  future.wait();
+  worker_queue.EnqueueBlocking([] {});
+
+  // Normally, "Finish" never fails, but for the test it's easier to abuse the
+  // finish operation that has already been enqueued by `OnOperationFailed`
+  // rather than adding a new operation.
+  ForceFinish({{Type::Finish, Error}});
+}
+
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase

@@ -22,19 +22,23 @@
 
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/util/string_format.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
+using firebase::firestore::local::LevelDbRemoteDocumentKey;
 using firebase::firestore::local::LevelDbTargetDocumentKey;
 using firebase::firestore::local::LevelDbTransaction;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::util::StringFormat;
 
 namespace {
 
@@ -100,9 +104,8 @@ class LevelDBFixture : public benchmark::Fixture {
     LevelDbTransaction txn(db_.ptr, "benchmark");
 
     for (int i = 0; i < numDocuments_; i++) {
-      FSTDocumentKey *docKey =
-          [FSTDocumentKey keyWithPathString:[NSString stringWithFormat:@"docs/doc_%i", i]];
-      std::string docKeyString = [FSTLevelDBRemoteDocumentKey keyWithDocumentKey:docKey];
+      auto docKey = DocumentKey::FromPathString(StringFormat("docs/doc_%i", i));
+      std::string docKeyString = LevelDbRemoteDocumentKey::Key(docKey);
       txn.Put(docKeyString, DocumentData());
       WriteIndex(txn, docKey);
     }
@@ -112,7 +115,7 @@ class LevelDBFixture : public benchmark::Fixture {
   }
 
  protected:
-  void WriteIndex(LevelDbTransaction &txn, FSTDocumentKey *docKey) {
+  void WriteIndex(LevelDbTransaction &txn, const DocumentKey &docKey) {
     // Arbitrary target ID
     TargetId targetID = 1;
     txn.Put(LevelDbDocumentTargetKey::Key(docKey, targetID), emptyBuffer_);
@@ -136,10 +139,9 @@ BENCHMARK_DEFINE_F(LevelDBFixture, RemoteEvent)(benchmark::State &state) {
   for (const auto &_ : state) {
     LevelDbTransaction txn(db_.ptr, "benchmark");
     for (int i = 0; i < docsToUpdate; i++) {
-      FSTDocumentKey *docKey =
-          [FSTDocumentKey keyWithPathString:[NSString stringWithFormat:@"docs/doc_%i", i]];
+      auto docKey = DocumentKey::FromPathString(StringFormat("docs/doc_%i", i));
       if (writeIndexes) WriteIndex(txn, docKey);
-      std::string docKeyString = [FSTLevelDBRemoteDocumentKey keyWithDocumentKey:docKey];
+      std::string docKeyString = LevelDbRemoteDocumentKey::Key(docKey);
       txn.Put(docKeyString, documentUpdate);
     }
     txn.Commit();

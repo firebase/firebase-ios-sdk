@@ -24,10 +24,12 @@ iOS SDK for Cloud Functions for Firebase.
   s.source_files = 'Functions/FirebaseFunctions/**/*'
   s.public_header_files = 'Functions/FirebaseFunctions/Public/*.h'
 
-  s.dependency 'FirebaseCore', '~> 5.0'
+  s.dependency 'FirebaseAuthInterop', '~> 1.0'
+  s.dependency 'FirebaseCore', '~> 5.1'
   s.dependency 'GTMSessionFetcher/Core', '~> 1.1'
 
   s.pod_target_xcconfig = {
-    'GCC_C_LANGUAGE_STANDARD' => 'c99'
+    'GCC_C_LANGUAGE_STANDARD' => 'c99',
+    'GCC_PREPROCESSOR_DEFINITIONS' => 'FIRFunctions_VERSION=' + s.version.to_s
   }
 end

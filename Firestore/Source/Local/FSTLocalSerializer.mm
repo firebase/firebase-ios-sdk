@@ -67,7 +67,11 @@ using firebase::firestore::model::TargetId;
     proto.hasCommittedMutations = deletedDocument.hasCommittedMutations;
   } else if ([document isKindOfClass:[FSTDocument class]]) {
     FSTDocument *existingDocument = (FSTDocument *)document;
-    proto.document = [self encodedDocument:existingDocument];
+    if (existingDocument.proto != nil) {
+      proto.document = existingDocument.proto;
+    } else {
+      proto.document = [self encodedDocument:existingDocument];
+    }
     proto.hasCommittedMutations = existingDocument.hasCommittedMutations;
   } else if ([document isKindOfClass:[FSTUnknownDocument class]]) {
     FSTUnknownDocument *unknownDocument = (FSTUnknownDocument *)document;

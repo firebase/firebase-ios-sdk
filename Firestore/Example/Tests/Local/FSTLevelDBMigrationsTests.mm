@@ -95,20 +95,14 @@ using SchemaVersion = LevelDbMigrations::SchemaVersion;
 }
 
 - (void)testSetsVersionNumber {
-  {
-    LevelDbTransaction transaction(_db.get(), "testSetsVersionNumber before");
-    SchemaVersion initial = LevelDbMigrations::ReadSchemaVersion(&transaction);
-    XCTAssertEqual(0, initial, "No version should be equivalent to 0");
-  }
+  SchemaVersion initial = LevelDbMigrations::ReadSchemaVersion(_db.get());
+  XCTAssertEqual(0, initial, "No version should be equivalent to 0");
 
-  {
-    // Pick an arbitrary high migration number and migrate to it.
-    LevelDbMigrations::RunMigrations(_db.get());
+  // Pick an arbitrary high migration number and migrate to it.
+  LevelDbMigrations::RunMigrations(_db.get());
 
-    LevelDbTransaction transaction(_db.get(), "testSetsVersionNumber after");
-    SchemaVersion actual = LevelDbMigrations::ReadSchemaVersion(&transaction);
-    XCTAssertGreaterThan(actual, 0, @"Expected to migrate to a schema version > 0");
-  }
+  SchemaVersion actual = LevelDbMigrations::ReadSchemaVersion(_db.get());
+  XCTAssertGreaterThan(actual, 0, @"Expected to migrate to a schema version > 0");
 }
 
 #define ASSERT_NOT_FOUND(transaction, key)                \
@@ -130,8 +124,8 @@ using SchemaVersion = LevelDbMigrations::SchemaVersion;
   BatchId batchID = 1;
   TargetId targetID = 2;
 
-  FSTDocumentKey *key1 = Key("documents/1");
-  FSTDocumentKey *key2 = Key("documents/2");
+  DocumentKey key1 = Key("documents/1");
+  DocumentKey key2 = Key("documents/2");
 
   std::string targetKeys[] = {
       LevelDbTargetKey::Key(targetID),
@@ -364,6 +358,25 @@ using SchemaVersion = LevelDbMigrations::SchemaVersion;
     XCTAssertTrue(
         transaction.Get(LevelDbDocumentMutationKey::Key("bar", testWritePending, 4), &buffer).ok());
   }
+}
+
+- (void)testCanDowngrade {
+  // First, run all of the migrations
+  LevelDbMigrations::RunMigrations(_db.get());
+
+  LevelDbMigrations::SchemaVersion latestVersion = LevelDbMigrations::ReadSchemaVersion(_db.get());
+
+  // Downgrade to an early version.
+  LevelDbMigrations::SchemaVersion downgradeVersion = 1;
+  LevelDbMigrations::RunMigrations(_db.get(), downgradeVersion);
+  LevelDbMigrations::SchemaVersion postDowngradeVersion =
+      LevelDbMigrations::ReadSchemaVersion(_db.get());
+  XCTAssertEqual(downgradeVersion, postDowngradeVersion);
+
+  // Verify that we can upgrade again to the latest version.
+  LevelDbMigrations::RunMigrations(_db.get());
+  LevelDbMigrations::SchemaVersion finalVersion = LevelDbMigrations::ReadSchemaVersion(_db.get());
+  XCTAssertEqual(finalVersion, latestVersion);
 }
 
 /**

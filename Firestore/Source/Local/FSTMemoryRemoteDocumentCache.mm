@@ -21,103 +21,52 @@
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentDictionary.h"
 
+#include "Firestore/core/src/firebase/firestore/local/memory_remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/document_map.h"
 
+using firebase::firestore::local::MemoryRemoteDocumentCache;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::ListenSequenceNumber;
+using firebase::firestore::model::DocumentMap;
+using firebase::firestore::model::MaybeDocumentMap;
 
 NS_ASSUME_NONNULL_BEGIN
 
-/**
- * Returns an estimate of the number of bytes used to store the given
- * document key in memory. This is only an estimate and includes the size
- * of the segments of the path, but not any object overhead or path separators.
- */
-static size_t FSTDocumentKeyByteSize(FSTDocumentKey *key) {
-  size_t count = 0;
-  for (const auto &segment : key.path) {
-    count += segment.size();
-  }
-  return count;
-}
-
-@interface FSTMemoryRemoteDocumentCache ()
-
-/** Underlying cache of documents. */
-@property(nonatomic, strong) FSTMaybeDocumentDictionary *docs;
-
-@end
-
-@implementation FSTMemoryRemoteDocumentCache
-
-- (instancetype)init {
-  if (self = [super init]) {
-    _docs = [FSTMaybeDocumentDictionary maybeDocumentDictionary];
-  }
-  return self;
+@implementation FSTMemoryRemoteDocumentCache {
+  MemoryRemoteDocumentCache _cache;
 }
 
 - (void)addEntry:(FSTMaybeDocument *)document {
-  self.docs = [self.docs dictionaryBySettingObject:document forKey:document.key];
+  _cache.AddEntry(document);
 }
 
 - (void)removeEntryForKey:(const DocumentKey &)key {
-  self.docs = [self.docs dictionaryByRemovingObjectForKey:key];
+  _cache.RemoveEntry(key);
 }
 
 - (nullable FSTMaybeDocument *)entryForKey:(const DocumentKey &)key {
-  return self.docs[static_cast<FSTDocumentKey *>(key)];
+  return _cache.Get(key);
 }
 
-- (FSTDocumentDictionary *)documentsMatchingQuery:(FSTQuery *)query {
-  FSTDocumentDictionary *result = [FSTDocumentDictionary documentDictionary];
+- (MaybeDocumentMap)entriesForKeys:(const DocumentKeySet &)keys {
+  return _cache.GetAll(keys);
+}
 
-  // Documents are ordered by key, so we can use a prefix scan to narrow down the documents
-  // we need to match the query against.
-  FSTDocumentKey *prefix = [FSTDocumentKey keyWithPath:query.path.Append("")];
-  NSEnumerator<FSTDocumentKey *> *enumerator = [self.docs keyEnumeratorFrom:prefix];
-  for (FSTDocumentKey *key in enumerator) {
-    if (!query.path.IsPrefixOf(key.path)) {
-      break;
-    }
-    FSTMaybeDocument *maybeDoc = self.docs[key];
-    if (![maybeDoc isKindOfClass:[FSTDocument class]]) {
-      continue;
-    }
-    FSTDocument *doc = (FSTDocument *)maybeDoc;
-    if ([query matchesDocument:doc]) {
-      result = [result dictionaryBySettingObject:doc forKey:doc.key];
-    }
-  }
-
-  return result;
+- (DocumentMap)documentsMatchingQuery:(FSTQuery *)query {
+  return _cache.GetMatchingDocuments(query);
 }
 
 - (std::vector<DocumentKey>)removeOrphanedDocuments:
                                 (FSTMemoryLRUReferenceDelegate *)referenceDelegate
                               throughSequenceNumber:(ListenSequenceNumber)upperBound {
-  std::vector<DocumentKey> removed;
-  FSTMaybeDocumentDictionary *updatedDocs = self.docs;
-  for (FSTDocumentKey *docKey in [self.docs keyEnumerator]) {
-    if (![referenceDelegate isPinnedAtSequenceNumber:upperBound document:docKey]) {
-      updatedDocs = [updatedDocs dictionaryByRemovingObjectForKey:docKey];
-      removed.push_back(DocumentKey{docKey});
-    }
-  }
-  self.docs = updatedDocs;
-  return removed;
+  return _cache.RemoveOrphanedDocuments(referenceDelegate, upperBound);
 }
 
 - (size_t)byteSizeWithSerializer:(FSTLocalSerializer *)serializer {
-  __block size_t count = 0;
-  [self.docs
-      enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key, FSTMaybeDocument *doc, BOOL *stop) {
-        count += FSTDocumentKeyByteSize(key);
-        count += [[serializer encodedMaybeDocument:doc] serializedSize];
-      }];
-  return count;
+  return _cache.CalculateByteSize(serializer);
 }
 
 @end

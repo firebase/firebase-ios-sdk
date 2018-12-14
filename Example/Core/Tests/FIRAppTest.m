@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #import "FIRTestCase.h"
+#import "FIRTestComponents.h"
 
 #import <FirebaseCore/FIRAnalyticsConfiguration+Internal.h>
 #import <FirebaseCore/FIRAppInternal.h>
@@ -265,59 +266,6 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   XCTAssert([error.domain isEqualToString:kFirebaseAdMobErrorDomain]);
   XCTAssert(error.code == FIRErrorCodeAdMobFailed);
   XCTAssert([error.description containsString:@"Configuration failed for"]);
-}
-
-- (void)testGetTokenWithCallback {
-  [FIRApp configure];
-  FIRApp *app = [FIRApp defaultApp];
-
-  __block BOOL getTokenImplementationWasCalled = NO;
-  __block BOOL getTokenCallbackWasCalled = NO;
-  __block BOOL passedRefreshValue = NO;
-
-  [app getTokenForcingRefresh:YES
-                 withCallback:^(NSString *_Nullable token, NSError *_Nullable error) {
-                   getTokenCallbackWasCalled = YES;
-                 }];
-
-  XCTAssert(getTokenCallbackWasCalled,
-            @"The callback should be invoked by the base implementation when no block for "
-             "'getTokenImplementation' has been specified.");
-
-  getTokenCallbackWasCalled = NO;
-
-  app.getTokenImplementation = ^(BOOL refresh, FIRTokenCallback callback) {
-    getTokenImplementationWasCalled = YES;
-    passedRefreshValue = refresh;
-    callback(nil, nil);
-  };
-  [app getTokenForcingRefresh:YES
-                 withCallback:^(NSString *_Nullable token, NSError *_Nullable error) {
-                   getTokenCallbackWasCalled = YES;
-                 }];
-
-  XCTAssert(getTokenImplementationWasCalled,
-            @"The 'getTokenImplementation' block was never called.");
-  XCTAssert(passedRefreshValue,
-            @"The value for the 'refresh' parameter wasn't passed to the 'getTokenImplementation' "
-             "block correctly.");
-  XCTAssert(getTokenCallbackWasCalled,
-            @"The 'getTokenImplementation' should have invoked the callback. This could be an "
-             "error in this test, or the callback parameter may not have been passed to the "
-             "implementation correctly.");
-
-  getTokenImplementationWasCalled = NO;
-  getTokenCallbackWasCalled = NO;
-  passedRefreshValue = NO;
-
-  [app getTokenForcingRefresh:NO
-                 withCallback:^(NSString *_Nullable token, NSError *_Nullable error) {
-                   getTokenCallbackWasCalled = YES;
-                 }];
-
-  XCTAssertFalse(passedRefreshValue,
-                 @"The value for the 'refresh' parameter wasn't passed to the "
-                  "'getTokenImplementation' block correctly.");
 }
 
 - (void)testOptionsLocking {
@@ -754,16 +702,6 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 
 #pragma mark - Internal Methods
 
-// TODO: Remove this test once the `getUIDImplementation` block doesn't need to be set in Core.
-- (void)testAuthGetUID {
-  [FIRApp configure];
-
-  [FIRApp defaultApp].getUIDImplementation = ^NSString * {
-    return @"highlander";
-  };
-  XCTAssertEqual([[FIRApp defaultApp] getUID], @"highlander");
-}
-
 - (void)testIsDefaultAppConfigured {
   // Ensure it's false before anything is configured.
   XCTAssertFalse([FIRApp isDefaultAppConfigured]);
@@ -777,25 +715,38 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   XCTAssertFalse([FIRApp isDefaultAppConfigured]);
 }
 
-- (void)testIllegalLibraryName {
+- (void)testInvalidLibraryName {
   [FIRApp registerLibrary:@"Oops>" withVersion:@"1.0.0"];
   XCTAssertTrue([[FIRApp firebaseUserAgent] isEqualToString:@""]);
 }
 
-- (void)testIllegalLibraryVersion {
-  [FIRApp registerLibrary:@"LegalName" withVersion:@"1.0.0+"];
+- (void)testInvalidLibraryVersion {
+  [FIRApp registerLibrary:@"ValidName" withVersion:@"1.0.0+"];
   XCTAssertTrue([[FIRApp firebaseUserAgent] isEqualToString:@""]);
 }
 
 - (void)testSingleLibrary {
-  [FIRApp registerLibrary:@"LegalName" withVersion:@"1.0.0"];
-  XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"LegalName/1.0.0"]);
+  [FIRApp registerLibrary:@"ValidName" withVersion:@"1.0.0"];
+  XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"ValidName/1.0.0"]);
 }
 
 - (void)testMultipleLibraries {
-  [FIRApp registerLibrary:@"LegalName" withVersion:@"1.0.0"];
-  [FIRApp registerLibrary:@"LegalName2" withVersion:@"2.0.0"];
-  XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"LegalName/1.0.0 LegalName2/2.0.0"]);
+  [FIRApp registerLibrary:@"ValidName" withVersion:@"1.0.0"];
+  [FIRApp registerLibrary:@"ValidName2" withVersion:@"2.0.0"];
+  XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"ValidName/1.0.0 ValidName2/2.0.0"]);
+}
+
+- (void)testRegisteringConformingLibrary {
+  Class testClass = [FIRTestClass class];
+  [FIRApp registerInternalLibrary:testClass withName:@"ValidName" withVersion:@"1.0.0"];
+  XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"ValidName/1.0.0"]);
+}
+
+- (void)testRegisteringNonConformingLibrary {
+  XCTAssertThrows([FIRApp registerInternalLibrary:[NSString class]
+                                         withName:@"InvalidLibrary"
+                                      withVersion:@"1.0.0"]);
+  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"InvalidLibrary`/1.0.0"]);
 }
 
 #pragma mark - private

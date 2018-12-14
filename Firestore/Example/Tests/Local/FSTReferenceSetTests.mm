@@ -19,7 +19,10 @@
 #import <XCTest/XCTest.h>
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
+
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+
+using firebase::firestore::model::DocumentKey;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -29,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FSTReferenceSetTests
 
 - (void)testAddOrRemoveReferences {
-  FSTDocumentKey *key = FSTTestDocKey(@"foo/bar");
+  DocumentKey key = FSTTestDocKey(@"foo/bar");
 
   FSTReferenceSet *referenceSet = [[FSTReferenceSet alloc] init];
   XCTAssertTrue([referenceSet isEmpty]);
@@ -54,9 +57,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testRemoveAllReferencesForTargetID {
-  FSTDocumentKey *key1 = FSTTestDocKey(@"foo/bar");
-  FSTDocumentKey *key2 = FSTTestDocKey(@"foo/baz");
-  FSTDocumentKey *key3 = FSTTestDocKey(@"foo/blah");
+  DocumentKey key1 = FSTTestDocKey(@"foo/bar");
+  DocumentKey key2 = FSTTestDocKey(@"foo/baz");
+  DocumentKey key3 = FSTTestDocKey(@"foo/blah");
   FSTReferenceSet *referenceSet = [[FSTReferenceSet alloc] init];
 
   [referenceSet addReferenceToKey:key1 forID:1];

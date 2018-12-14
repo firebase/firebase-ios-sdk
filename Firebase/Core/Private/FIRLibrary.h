@@ -14,25 +14,31 @@
  * limitations under the License.
  */
 
-#ifndef FIRCoreConfigurable_h
-#define FIRCoreConfigurable_h
+#ifndef FIRLibrary_h
+#define FIRLibrary_h
 
 #import <Foundation/Foundation.h>
+#import "FIRComponent.h"
 
 @class FIRApp;
 
 NS_ASSUME_NONNULL_BEGIN
 
-/// Provides an interface to set up an SDK once a `FIRApp` is configured.
-NS_SWIFT_NAME(CoreConfigurable)
-@protocol FIRCoreConfigurable
+/// Provide an interface to register a library for userAgent logging and availability to others.
+NS_SWIFT_NAME(Library)
+@protocol FIRLibrary
 
-/// Configure the SDK if needed ahead of time. This method is called when the developer calls
-/// `FirebaseApp.configure()`.
+/// Returns one or more FIRComponents that will be registered in
+/// FIRApp and participate in dependency resolution and injection.
++ (NSArray<FIRComponent *> *)componentsToRegister;
+
+@optional
+/// Implement this method if the library needs notifications for lifecycle events. This method is
+/// called when the developer calls `FirebaseApp.configure()`.
 + (void)configureWithApp:(FIRApp *)app;
 
 @end
 
 NS_ASSUME_NONNULL_END
 
-#endif /* FIRCoreConfigurable_h */
+#endif /* FIRLibrary_h */

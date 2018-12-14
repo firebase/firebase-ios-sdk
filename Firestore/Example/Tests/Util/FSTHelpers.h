@@ -20,9 +20,9 @@
 #include <vector>
 
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentDictionary.h"
 #import "Firestore/Source/Remote/FSTRemoteEvent.h"
 
+#include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
@@ -52,29 +52,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-#if __cplusplus
-extern "C" {
-#endif
-
 #define FSTAssertIsKindOfClass(value, classType)             \
   do {                                                       \
     XCTAssertEqualObjects([value class], [classType class]); \
   } while (0);
-
-/**
- * Asserts that the given NSSet of FSTDocumentKeys contains exactly the given expected keys.
- * This is a macro instead of a method so that the failure shows up on the right line.
- *
- * @param actualSet An NSSet of FSTDocumentKeys.
- * @param expectedArray A sorted array of keys that actualSet must be equal to (after converting
- *     to an array and sorting).
- */
-#define FSTAssertEqualSets(actualSet, expectedArray)                \
-  do {                                                              \
-    NSArray<FSTDocumentKey *> *actual = [(actualSet)allObjects];    \
-    actual = [actual sortedArrayUsingSelector:@selector(compare:)]; \
-    XCTAssertEqualObjects(actual, (expectedArray));                 \
-  } while (0)
 
 /**
  * Takes an array of "equality group" arrays and asserts that the compare: selector returns the
@@ -220,7 +201,7 @@ FSTFieldValue *FSTTestFieldValue(id _Nullable value);
 FSTObjectValue *FSTTestObjectValue(NSDictionary<NSString *, id> *data);
 
 /** A convenience method for creating document keys for tests. */
-FSTDocumentKey *FSTTestDocKey(NSString *path);
+firebase::firestore::model::DocumentKey FSTTestDocKey(NSString *path);
 
 /** Allow tests to just use an int literal for versions. */
 typedef int64_t FSTTestSnapshotVersion;
@@ -292,7 +273,7 @@ FSTTransformMutation *FSTTestTransformMutation(NSString *path, NSDictionary<NSSt
 FSTDeleteMutation *FSTTestDeleteMutation(NSString *path);
 
 /** Converts a list of documents to a sorted map. */
-FSTMaybeDocumentDictionary *FSTTestDocUpdates(NSArray<FSTMaybeDocument *> *docs);
+firebase::firestore::model::MaybeDocumentMap FSTTestDocUpdates(NSArray<FSTMaybeDocument *> *docs);
 
 /** Creates a remote event that inserts a new document. */
 FSTRemoteEvent *FSTTestAddedRemoteEvent(FSTMaybeDocument *doc, NSArray<NSNumber *> *addedToTargets);
@@ -328,9 +309,5 @@ FSTTargetChange *FSTTestTargetChange(firebase::firestore::model::DocumentKeySet 
 
 /** Creates a resume token to match the given snapshot version. */
 NSData *_Nullable FSTTestResumeTokenFromSnapshotVersion(FSTTestSnapshotVersion watchSnapshot);
-
-#if __cplusplus
-}  // extern "C"
-#endif
 
 NS_ASSUME_NONNULL_END

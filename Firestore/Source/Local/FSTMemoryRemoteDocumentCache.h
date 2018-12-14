@@ -20,6 +20,7 @@
 
 #import "Firestore/Source/Local/FSTRemoteDocumentCache.h"
 
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -28,8 +29,6 @@ NS_ASSUME_NONNULL_BEGIN
 @class FSTMemoryLRUReferenceDelegate;
 
 @interface FSTMemoryRemoteDocumentCache : NSObject <FSTRemoteDocumentCache>
-
-- (instancetype)init NS_DESIGNATED_INITIALIZER;
 
 - (std::vector<firebase::firestore::model::DocumentKey>)
     removeOrphanedDocuments:(FSTMemoryLRUReferenceDelegate *)referenceDelegate

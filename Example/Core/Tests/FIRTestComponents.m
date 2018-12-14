@@ -47,7 +47,7 @@
 - (void)doSomething {
 }
 
-/// FIRComponentRegistrant conformance.
+/// FIRLibrary conformance.
 + (nonnull NSArray<FIRComponent *> *)componentsToRegister {
   FIRComponent *testComponent =
       [FIRComponent componentWithProtocol:@protocol(FIRTestProtocol)
@@ -72,7 +72,7 @@
 - (void)doSomethingFaster {
 }
 
-/// FIRComponentRegistrant conformance.
+/// FIRLibrary conformance.
 + (nonnull NSArray<FIRComponent *> *)componentsToRegister {
   FIRComponent *testComponent = [FIRComponent
       componentWithProtocol:@protocol(FIRTestProtocolEagerCached)
@@ -92,13 +92,16 @@
 - (void)appWillBeDeleted:(FIRApp *)app {
 }
 
+- (void)doSomething {
+}
+
 @end
 
 #pragma mark - Cached Component
 
 @implementation FIRTestClassCached
 
-/// FIRComponentRegistrant conformance.
+/// FIRLibrary conformance.
 + (nonnull NSArray<FIRComponent *> *)componentsToRegister {
   FIRComponent *testComponent = [FIRComponent
       componentWithProtocol:@protocol(FIRTestProtocolCached)
@@ -113,6 +116,9 @@
 
 /// FIRComponentLifecycleMaintainer conformance.
 - (void)appWillBeDeleted:(FIRApp *)app {
+}
+
+- (void)doSomething {
 }
 
 @end
