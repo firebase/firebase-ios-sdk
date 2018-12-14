@@ -39,8 +39,8 @@ namespace firestore {
 namespace local {
 
 namespace v1beta1 = google::firestore::v1beta1;
-using ::google::protobuf::util::MessageDifferencer;
 using core::Query;
+using ::google::protobuf::util::MessageDifferencer;
 using model::DatabaseId;
 using model::Document;
 using model::DocumentKey;
