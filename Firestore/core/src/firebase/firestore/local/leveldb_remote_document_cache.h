@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_MEMORY_REMOTE_DOCUMENT_CACHE_H_
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_MEMORY_REMOTE_DOCUMENT_CACHE_H_
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LEVELDB_REMOTE_DOCUMENT_CACHE_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LEVELDB_REMOTE_DOCUMENT_CACHE_H_
 
 #if !defined(__OBJC__)
 #error "For now, this file must only be included by ObjC source files."
@@ -27,10 +27,11 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "absl/strings/string_view.h"
 
+@class FSTLevelDB;
 @class FSTLocalSerializer;
 @class FSTMaybeDocument;
-@class FSTMemoryLRUReferenceDelegate;
 @class FSTQuery;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -39,24 +40,24 @@ namespace firebase {
 namespace firestore {
 namespace local {
 
-class MemoryRemoteDocumentCache {
+/** Cached Remote Documents backed by leveldb. */
+class LevelDbRemoteDocumentCache {
  public:
-  void AddEntry(FSTMaybeDocument *document);
-  void RemoveEntry(const model::DocumentKey &key);
+  LevelDbRemoteDocumentCache(FSTLevelDB* db, FSTLocalSerializer* serializer);
 
-  FSTMaybeDocument *_Nullable Get(const model::DocumentKey &key);
-  model::MaybeDocumentMap GetAll(const model::DocumentKeySet &keys);
-  model::DocumentMap GetMatchingDocuments(FSTQuery *query);
+  void AddEntry(FSTMaybeDocument* document);
+  void RemoveEntry(const model::DocumentKey& key);
 
-  std::vector<model::DocumentKey> RemoveOrphanedDocuments(
-      FSTMemoryLRUReferenceDelegate *reference_delegate,
-      model::ListenSequenceNumber upper_bound);
-
-  size_t CalculateByteSize(FSTLocalSerializer *serializer);
+  FSTMaybeDocument* _Nullable Get(const model::DocumentKey& key);
+  model::MaybeDocumentMap GetAll(const model::DocumentKeySet& keys);
+  model::DocumentMap GetMatchingDocuments(FSTQuery* query);
 
  private:
-  /** Underlying cache of documents. */
-  model::MaybeDocumentMap docs_;
+  FSTMaybeDocument* DecodeMaybeDocument(absl::string_view encoded,
+                                        const model::DocumentKey& key);
+
+  FSTLevelDB* db_;
+  FSTLocalSerializer* serializer_;
 };
 
 }  // namespace local
@@ -65,4 +66,4 @@ class MemoryRemoteDocumentCache {
 
 NS_ASSUME_NONNULL_END
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_MEMORY_REMOTE_DOCUMENT_CACHE_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LEVELDB_REMOTE_DOCUMENT_CACHE_H_
