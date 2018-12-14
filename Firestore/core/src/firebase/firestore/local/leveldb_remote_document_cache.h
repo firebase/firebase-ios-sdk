@@ -21,8 +21,6 @@
 #error "For now, this file must only be included by ObjC source files."
 #endif  // !defined(__OBJC__)
 
-#import <Foundation/Foundation.h>
-
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
