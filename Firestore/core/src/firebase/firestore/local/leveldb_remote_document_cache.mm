@@ -16,6 +16,10 @@
 
 #include "Firestore/core/src/firebase/firestore/local/leveldb_remote_document_cache.h"
 
+#include <string>
+
+#import <Foundation/Foundation.h>
+
 #import "Firestore/Protos/objc/firestore/local/MaybeDocument.pbobjc.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
