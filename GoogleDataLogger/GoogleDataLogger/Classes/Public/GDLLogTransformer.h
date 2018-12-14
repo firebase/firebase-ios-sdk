@@ -19,7 +19,9 @@
 @class GDLLogEvent;
 
 /** Defines the API that log transformers must adopt. */
-@protocol GDLLogTransformer
+@protocol GDLLogTransformer <NSObject>
+
+@required
 
 /** Transforms a log by applying some logic to it. Logs returned can be nil, for example, in
  *  instances where the log should be sampled.
