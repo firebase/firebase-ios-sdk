@@ -66,6 +66,10 @@ else
       check_changes '^(Firestore/(core|third_party)|cmake)'
       ;;
 
+    GoogleDataLogger-*)
+      check_changes '^(GoogleDataLogger|GoogleDataLogger.podspec)'
+      ;;
+
     *)
       echo "Unknown project-method combo" 1>&2
       echo "  PROJECT=$PROJECT" 1>&2

@@ -72,6 +72,10 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     bundle exec pod install --project-directory=SymbolCollisionTest --repo-update
     ;;
 
+  GoogleDataLogger-iOS-xcodebuild)
+    gem install xcpretty
+    bundle exec pod gen GoogleDataLogger.podspec --gen-directory=GoogleDataLogger/gen
+    ;;
   *)
     echo "Unknown project-platform-method combo" 1>&2
     echo "  PROJECT=$PROJECT" 1>&2

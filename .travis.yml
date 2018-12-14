@@ -60,7 +60,6 @@ jobs:
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
-        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh GoogleDataLogger.podspec
         - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh GoogleUtilities.podspec
         - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseCore.podspec
         - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseAnalyticsInterop.podspec
@@ -113,6 +112,16 @@ jobs:
         # TBD - non-portable path warnings
         # The travis_wait is necessary because the command takes more than 10 minutes.
         - travis_wait ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseFirestore.podspec --use-libraries --allow-warnings --no-subspecs
+
+    # GoogleDataLogger unit tests and pod linting using the default Xcode version.
+    - stage: test
+      env:
+        - PROJECT=GoogleDataLogger PLATFORM=iOS METHOD=xcodebuild
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+      script:
+        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
+        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh GoogleDataLogger.podspec
 
     # Daily test for symbol collisions between Firebase and CocoaPods.
     - stage: test
@@ -180,7 +189,6 @@ jobs:
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
-        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh GoogleDataLogger.podspec
         - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh GoogleUtilities.podspec
         - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseCore.podspec
         - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseAnalyticsInterop.podspec
