@@ -99,6 +99,7 @@ NS_ASSUME_NONNULL_BEGIN
   if (self = [super init]) {
     _queryCache = [[FSTMemoryQueryCache alloc] initWithPersistence:self];
     _remoteDocumentCache = [[FSTMemoryRemoteDocumentCache alloc] init];
+    self.started = YES;
   }
   return self;
 }
@@ -109,13 +110,6 @@ NS_ASSUME_NONNULL_BEGIN
   if ([delegate conformsToProtocol:@protocol(FSTTransactional)]) {
     _transactionRunner.SetBackingPersistence((id<FSTTransactional>)_referenceDelegate);
   }
-}
-
-- (Status)start {
-  // No durable state to read on startup.
-  HARD_ASSERT(!self.isStarted, "FSTMemoryPersistence double-started!");
-  self.started = YES;
-  return Status::OK();
 }
 
 - (void)shutdown {
