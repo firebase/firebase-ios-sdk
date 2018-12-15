@@ -21,110 +21,109 @@ import XCTest
 
 class CodableDocumentTests: XCTestCase {
   func testInt() {
-    struct Model : Codable {
+    struct Model: Codable {
       let x: Int
     }
-    let model = Model(x:42)
-    let dict = ["x":42]
+    let model = Model(x: 42)
+    let dict = ["x": 42]
     XCTAssertEqual((try Firestore.Encoder().encode(model)) as NSDictionary, dict as NSDictionary)
-    let model2 = try? Firestore.Decoder().decode(Model.self, from:dict)
+    let model2 = try? Firestore.Decoder().decode(Model.self, from: dict)
     XCTAssertEqual(model.x, model2!.x)
   }
 
   func testEmpty() {
-    struct Model : Codable {
-    }
+    struct Model: Codable {}
     let model = Model()
     let dict = [String: Any]()
     XCTAssertEqual((try Firestore.Encoder().encode(model)) as NSDictionary, dict as NSDictionary)
   }
 
   func testNil() {
-    struct Model : Codable {
+    struct Model: Codable {
       let x: Int?
     }
-    let model = Model(x:nil)
-    let dict = ["x":nil] as [String : Int?]
+    let model = Model(x: nil)
+    let dict = ["x": nil] as [String: Int?]
     let encodedDict = try! Firestore.Encoder().encode(model)
     XCTAssertNil(encodedDict["x"])
-    let model2 = try? Firestore.Decoder().decode(Model.self, from:dict as [String : Any])
+    let model2 = try? Firestore.Decoder().decode(Model.self, from: dict as [String: Any])
     XCTAssertNil(model2?.x)
   }
 
   func testGeoPoint() {
-    struct Model : Codable {
+    struct Model: Codable {
       let p: GeoPoint
     }
-    let model = Model(p:GeoPoint(latitude:1,longitude:-2))
-    let dict = ["p": GeoPoint(latitude:1,longitude:-2)]
+    let model = Model(p: GeoPoint(latitude: 1, longitude: -2))
+    let dict = ["p": GeoPoint(latitude: 1, longitude: -2)]
 
     XCTAssertEqual((try Firestore.Encoder().encode(model)) as NSDictionary, dict as NSDictionary)
-    let model2 = try? Firestore.Decoder().decode(Model.self, from:dict)
+    let model2 = try? Firestore.Decoder().decode(Model.self, from: dict)
     XCTAssertEqual(model.p, model2!.p)
   }
 
   func testDate() {
-    struct Model : Codable {
+    struct Model: Codable {
       let date: Date
     }
     let d = Date(timeIntervalSinceReferenceDate: 0)
-    let model = Model(date:d)
+    let model = Model(date: d)
     let dict = ["date": d]
 
     XCTAssertEqual((try Firestore.Encoder().encode(model)) as NSDictionary, dict as NSDictionary)
-    let model2 = try? Firestore.Decoder().decode(Model.self, from:dict)
+    let model2 = try? Firestore.Decoder().decode(Model.self, from: dict)
     XCTAssertEqual(model.date, model2!.date)
   }
 
   func testDocumentReference() {
-    struct Model : Codable {
+    struct Model: Codable {
       let doc: DocumentReference
     }
     let d = FSTTestDocRef("abc/xyz")
-    let model = Model(doc:d)
+    let model = Model(doc: d)
     let dict = ["doc": d]
 
     XCTAssertEqual((try Firestore.Encoder().encode(model)) as NSDictionary, dict as NSDictionary)
-    let model2 = try? Firestore.Decoder().decode(Model.self, from:dict)
+    let model2 = try? Firestore.Decoder().decode(Model.self, from: dict)
     XCTAssertEqual(model.doc, model2!.doc)
   }
 
   func testTimestamp() {
-    struct Model : Codable {
+    struct Model: Codable {
       let timestamp: Timestamp
     }
     let t = Timestamp(date: Date())
-    let model = Model(timestamp:t)
+    let model = Model(timestamp: t)
     let encoded = (try! Firestore.Encoder().encode(model))
-    let model2 = try? Firestore.Decoder().decode(Model.self, from:encoded)
+    let model2 = try? Firestore.Decoder().decode(Model.self, from: encoded)
     XCTAssertEqual(model.timestamp, model2!.timestamp)
   }
 
   func testBadValue() {
-    struct Model : Codable {
+    struct Model: Codable {
       let x: Int
     }
-    let dict = ["x":"abc"]
-    let model2 = try? Firestore.Decoder().decode(Model.self, from:dict)
+    let dict = ["x": "abc"]
+    let model2 = try? Firestore.Decoder().decode(Model.self, from: dict)
     XCTAssertNil(model2)
   }
 
   func testValueTooBig() {
-    struct Model : Codable {
+    struct Model: Codable {
       let x: CChar
     }
-    let dict = ["x":12345]
-    let model = try? Firestore.Decoder().decode(Model.self, from:dict)
+    let dict = ["x": 12345]
+    let model = try? Firestore.Decoder().decode(Model.self, from: dict)
     XCTAssertNil(model)
 
-    let dict2 = ["x":12]
-    let model2 = try? Firestore.Decoder().decode(Model.self, from:dict2)
+    let dict2 = ["x": 12]
+    let model2 = try? Firestore.Decoder().decode(Model.self, from: dict2)
     XCTAssertNotNil(model2)
   }
 
   // Inspired by https://github.com/firebase/firebase-android-sdk/blob/master/firebase-firestore/src/test/java/com/google/firebase/firestore/util/MapperTest.java
   func testBeans() {
-    struct Model : Codable {
+    struct Model: Codable {
       let s: String
       let d: Double
       let f: Float
@@ -144,13 +143,13 @@ class CodableDocumentTests: XCTestCase {
       s: "abc",
       d: 123,
       f: -4.321,
-      l: 1234567890123,
+      l: 1_234_567_890_123,
       i: -4444,
       b: false,
       sh: 123,
       byte: 45,
       uchar: 44,
-      ai: [1,2,3,4],
+      ai: [1, 2, 3, 4],
       si: ["abc", "def"],
       caseSensitive: "aaa",
       casESensitive: "bbb",
@@ -160,20 +159,20 @@ class CodableDocumentTests: XCTestCase {
       "s": "abc",
       "d": 123,
       "f": -4.321,
-      "l": 1234567890123,
+      "l": 1_234_567_890_123,
       "i": -4444,
       "b": false,
       "sh": 123,
       "byte": 45,
       "uchar": 44,
-      "ai": [1,2,3,4],
+      "ai": [1, 2, 3, 4],
       "si": ["abc", "def"],
       "caseSensitive": "aaa",
       "casESensitive": "bbb",
-      "casESensitivE": "ccc"
-    ] as [String:Any]
+      "casESensitivE": "ccc",
+    ] as [String: Any]
 
-    let model2 = try? Firestore.Decoder().decode(Model.self, from:dict)
+    let model2 = try? Firestore.Decoder().decode(Model.self, from: dict)
     XCTAssertEqual(model.s, model2!.s)
     XCTAssertEqual(model.d, model2!.d)
     XCTAssertEqual(model.f, model2!.f)
@@ -193,13 +192,13 @@ class CodableDocumentTests: XCTestCase {
     XCTAssertEqual(encodedDict["s"] as! String, "abc")
     XCTAssertEqual(encodedDict["d"] as! Double, 123)
     XCTAssertEqual(encodedDict["f"] as! Float, -4.321)
-    XCTAssertEqual(encodedDict["l"] as! CLongLong ,1234567890123)
-    XCTAssertEqual(encodedDict["i"] as! Int,-4444)
+    XCTAssertEqual(encodedDict["l"] as! CLongLong, 1_234_567_890_123)
+    XCTAssertEqual(encodedDict["i"] as! Int, -4444)
     XCTAssertEqual(encodedDict["b"] as! Bool, false)
     XCTAssertEqual(encodedDict["sh"] as! CShort, 123)
     XCTAssertEqual(encodedDict["byte"] as! CChar, 45)
     XCTAssertEqual(encodedDict["uchar"] as! CUnsignedChar, 44)
-    XCTAssertEqual(encodedDict["ai"] as! [Int], [1,2,3,4])
+    XCTAssertEqual(encodedDict["ai"] as! [Int], [1, 2, 3, 4])
     XCTAssertEqual(encodedDict["si"] as! [String], ["abc", "def"])
     XCTAssertEqual(encodedDict["caseSensitive"] as! String, "aaa")
     XCTAssertEqual(encodedDict["casESensitive"] as! String, "bbb")
@@ -207,14 +206,14 @@ class CodableDocumentTests: XCTestCase {
   }
 
 //  func testDocumentEncodesBackwardsWithEncodeCall() {
-////    let doc = FSTTestDocSnapshot("abc/xyz",
-////                                 456,
-////                                 ["stringKey": "myValue1", "intKey2":123, "floatKey": -1.23],
-////                                 false,
-////                                 false)
-////
-////    let jsonData = try! JSONEncoder().encode(doc)
-////    let json = String(data: jsonData, encoding: .utf8)!
+  ////    let doc = FSTTestDocSnapshot("abc/xyz",
+  ////                                 456,
+  ////                                 ["stringKey": "myValue1", "intKey2":123, "floatKey": -1.23],
+  ////                                 false,
+  ////                                 false)
+  ////
+  ////    let jsonData = try! JSONEncoder().encode(doc)
+  ////    let json = String(data: jsonData, encoding: .utf8)!
 //
 //    // The ordering of attributes in the JSON output is not guaranteed, nor is the rounding of
 //    // the values so just verify that each required property is present and that the value

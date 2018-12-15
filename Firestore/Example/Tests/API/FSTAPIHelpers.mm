@@ -16,14 +16,13 @@
 
 #import "Firestore/Example/Tests/API/FSTAPIHelpers.h"
 
-#import "Firestore/Example/Tests/Util/FSTHelpers.h"
-
 #import <FirebaseFirestore/FIRDocumentChange.h>
 #import <FirebaseFirestore/FIRDocumentReference.h>
 #import <FirebaseFirestore/FIRSnapshotMetadata.h>
 
 #include <string>
 
+#import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Source/API/FIRCollectionReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
