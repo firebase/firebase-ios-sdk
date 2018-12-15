@@ -20,7 +20,11 @@
 static GULLoggerService kGDLConsoleLogger = @"[GoogleDataLogger]";
 
 /** A list of message codes to print in the logger that help to correspond printed messages with
- * code locations. */
+ * code locations.
+ *
+ * Prefixes:
+ * - MCW => MessageCodeWarning
+ */
 typedef NS_ENUM(NSInteger, GDLMessageCode) {
 
   /** For warning messages concerning transform: not being implemented by a log transformer. */
