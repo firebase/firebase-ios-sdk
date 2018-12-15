@@ -22,6 +22,7 @@
 #import "Firestore/Source/Core/FSTQuery.h"
 
 #import "Firestore/Example/Tests/API/FSTAPIHelpers.h"
+#import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

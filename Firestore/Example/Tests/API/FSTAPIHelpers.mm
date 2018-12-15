@@ -76,7 +76,7 @@ FIRDocumentSnapshot *FSTTestDocSnapshot(const char *path,
                                    hasPendingWrites:hasMutations];
 }
 
-FIRCollectionReference *FSTTestCollectionRef(const absl::string_view path) {
+FIRCollectionReference *FSTTestCollectionRef(const char *path) {
   return [FIRCollectionReference referenceWithPath:testutil::Resource(path)
                                          firestore:FSTTestFirestore()];
 }
@@ -88,7 +88,7 @@ FIRDocumentReference *FSTTestDocRef(const char *path) {
 
 /** A convenience method for creating a query snapshots for tests. */
 FIRQuerySnapshot *FSTTestQuerySnapshot(
-    const absl::string_view path,
+    const char *path,
     NSDictionary<NSString *, NSDictionary<NSString *, id> *> *oldDocs,
     NSDictionary<NSString *, NSDictionary<NSString *, id> *> *docsToAdd,
     BOOL hasPendingWrites,
