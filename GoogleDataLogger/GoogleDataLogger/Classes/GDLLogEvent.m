@@ -29,4 +29,34 @@
   return self;
 }
 
+#pragma mark - NSSecureCoding and NSCoding Protocols
+
++ (BOOL)supportsSecureCoding {
+  return YES;
+}
+
+- (id)initWithCoder:(NSCoder *)aDecoder {
+  NSString *logMapID = [aDecoder decodeObjectOfClass:[NSObject class] forKey:@"_logMapID"];
+  NSInteger logTarget = [aDecoder decodeIntegerForKey:@"_logTarget"];
+  self = [self initWithLogMapID:logMapID logTarget:logTarget];
+  if (self) {
+    _extensionData = [aDecoder decodeObjectOfClass:[NSData class] forKey:@"_extensionData"];
+    _qosTier = [aDecoder decodeIntegerForKey:@"_qosTier"];
+    _clockSnapshot.timeMillis = [aDecoder decodeInt64ForKey:@"clockSnapshotTimeMillis"];
+    _clockSnapshot.uptimeMillis = [aDecoder decodeInt64ForKey:@"clockSnapshotUpTimeMillis"];
+    _clockSnapshot.timezoneOffsetMillis = [aDecoder decodeInt64ForKey:@"clockSnapshotTimezoneOffsetMillis"];
+  }
+  return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)aCoder {
+  [aCoder encodeObject:_logMapID forKey:@"_logMapID"];
+  [aCoder encodeInteger:_logTarget forKey:@"_logTarget"];
+  [aCoder encodeObject:_extensionData forKey:@"_extensionData"];
+  [aCoder encodeInteger:_qosTier forKey:@"_qosTier"];
+  [aCoder encodeInt64:_clockSnapshot.timeMillis forKey:@"clockSnapshotTimeMillis"];
+  [aCoder encodeInt64:_clockSnapshot.uptimeMillis forKey:@"clockSnapshotUpTimeMillis"];
+  [aCoder encodeInt64:_clockSnapshot.timezoneOffsetMillis forKey:@"clockSnapshotTimezoneOffsetMillis"];
+}
+
 @end

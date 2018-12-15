@@ -39,7 +39,7 @@ typedef NS_ENUM(NSInteger, GDLLogQoS) {
   GDLLogQoSFast = 4
 };
 
-@interface GDLLogEvent : NSObject
+@interface GDLLogEvent : NSObject <NSSecureCoding>
 
 /** The log map identifier, to allow backends to map the extension property to a proto. */
 @property(readonly, nonatomic) NSString *logMapID;
@@ -49,7 +49,7 @@ typedef NS_ENUM(NSInteger, GDLLogQoS) {
 
 /** The log object itself, encapsulated in the transport of your choice, as long as it implements
  * the GDLLogProto protocol. */
-@property(nonatomic) id<GDLLogProto> extension;
+@property(nonatomic) NSData *extensionData;
 
 /** The quality of service tier this log belongs to. */
 @property(nonatomic) GDLLogQoS qosTier;
