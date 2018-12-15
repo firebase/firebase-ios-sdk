@@ -16,6 +16,8 @@
 
 #import "Firestore/Example/Tests/API/FSTAPIHelpers.h"
 
+#import "Firestore/Example/Tests/Util/FSTHelpers.h"
+
 #import <FirebaseFirestore/FIRDocumentChange.h>
 #import <FirebaseFirestore/FIRDocumentReference.h>
 #import <FirebaseFirestore/FIRSnapshotMetadata.h>
@@ -59,7 +61,7 @@ FIRFirestore *FSTTestFirestore() {
   return sharedInstance;
 }
 
-FIRDocumentSnapshot *FSTTestDocSnapshot(const absl::string_view path,
+FIRDocumentSnapshot *FSTTestDocSnapshot(const char *path,
                                         FSTTestSnapshotVersion version,
                                         NSDictionary<NSString *, id> *_Nullable data,
                                         BOOL hasMutations,
@@ -80,7 +82,7 @@ FIRCollectionReference *FSTTestCollectionRef(const absl::string_view path) {
                                          firestore:FSTTestFirestore()];
 }
 
-FIRDocumentReference *FSTTestDocRef(const absl::string_view path) {
+FIRDocumentReference *FSTTestDocRef(const char *path) {
   return [FIRDocumentReference referenceWithPath:testutil::Resource(path)
                                        firestore:FSTTestFirestore()];
 }

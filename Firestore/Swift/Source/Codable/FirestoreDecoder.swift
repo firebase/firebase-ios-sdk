@@ -43,7 +43,7 @@ extension Firestore {
 }
 
 @available(swift 4.0.0)
-fileprivate class _FirestoreDecoder: Decoder {
+ class _FirestoreDecoder: Decoder {
   /// Options set on the top-level encoder to pass down the decoding hierarchy.
 
   // MARK: Properties
