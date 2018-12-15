@@ -19,6 +19,7 @@
 
 #import <GoogleDataLogger/GDLLogTransformer.h>
 
+#import "GDLConsoleLogger.h"
 #import "GDLLogStorage.h"
 
 @implementation GDLLogWriter
@@ -48,8 +49,14 @@
   dispatch_async(_logWritingQueue, ^{
     GDLLogEvent *transformedLog = log;
     for (id<GDLLogTransformer> transformer in logTransformers) {
-      transformedLog = [transformer transform:transformedLog];
-      if (!transformedLog) {
+      if ([transformer respondsToSelector:@selector(transform:)]) {
+        transformedLog = [transformer transform:transformedLog];
+        if (!transformedLog) {
+          return;
+        }
+      } else {
+        GDLLogWarning(GDLMCWTransformerDoesntImplementTransform,
+                      @"Transformer doesn't implement transform: %@", transformer);
         return;
       }
     }

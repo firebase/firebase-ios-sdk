@@ -17,6 +17,7 @@
 #import "GDLLogger.h"
 
 #import "GDLLogEvent.h"
+#import "GDLLogWriter.h"
 
 @interface GDLLogger ()
 
@@ -49,18 +50,16 @@
 
 - (void)logTelemetryEvent:(GDLLogEvent *)logEvent {
   NSAssert(logEvent, @"You can't log a nil event");
-
-  // TODO(mikehaney24): Implement.
+  [[GDLLogWriter sharedInstance] writeLog:logEvent afterApplyingTransformers:_logTransformers];
 }
 
 - (void)logDataEvent:(GDLLogEvent *)logEvent {
   NSAssert(logEvent, @"You can't log a nil event");
-
-  // TODO(mikehaney24): Implement.
+  [[GDLLogWriter sharedInstance] writeLog:logEvent afterApplyingTransformers:_logTransformers];
 }
 
 - (GDLLogEvent *)newEvent {
-  return [[GDLLogEvent alloc] initWithLogMapID:_logMapID];
+  return [[GDLLogEvent alloc] initWithLogMapID:_logMapID logTarget:_logTarget];
 }
 
 @end

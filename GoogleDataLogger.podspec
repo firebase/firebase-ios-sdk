@@ -27,6 +27,8 @@ Shared library for iOS SDK data logging needs.
   s.source_files = 'GoogleDataLogger/GoogleDataLogger/**/*'
   s.public_header_files = 'GoogleDataLogger/GoogleDataLogger/Classes/Public/*.h'
 
+  s.dependency 'GoogleUtilities/Logger'
+
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99'
   }

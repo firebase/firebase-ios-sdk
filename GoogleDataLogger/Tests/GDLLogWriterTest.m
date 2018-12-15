@@ -34,6 +34,18 @@
 
 @end
 
+@interface GDLLogWriterTestNewLogTransformer : NSObject <GDLLogTransformer>
+
+@end
+
+@implementation GDLLogWriterTestNewLogTransformer
+
+- (GDLLogEvent *)transform:(GDLLogEvent *)logEvent {
+  return [[GDLLogEvent alloc] initWithLogMapID:@"new" logTarget:1];
+}
+
+@end
+
 @interface GDLLogWriterTest : XCTestCase
 
 @end
@@ -50,24 +62,53 @@
   XCTAssertEqual([GDLLogWriter sharedInstance], [GDLLogWriter sharedInstance]);
 }
 
+/** Tests writing a log without a transformer. */
 - (void)testWriteLogWithoutTransformers {
   GDLLogWriter *writer = [GDLLogWriter sharedInstance];
-  GDLLogEvent *log = [[GDLLogEvent alloc] initWithLogMapID:@"1"];
+  GDLLogEvent *log = [[GDLLogEvent alloc] initWithLogMapID:@"1" logTarget:1];
   XCTAssertNoThrow([writer writeLog:log afterApplyingTransformers:nil]);
   dispatch_sync(writer.logWritingQueue, ^{
                     // TODO(mikehaney24): Assert that storage contains the log.
                 });
 }
 
+/** Tests writing a log with a transformer that nils out the log. */
 - (void)testWriteLogWithTransformersThatNilTheLog {
   GDLLogWriter *writer = [GDLLogWriter sharedInstance];
-  GDLLogEvent *log = [[GDLLogEvent alloc] initWithLogMapID:@"2"];
+  GDLLogEvent *log = [[GDLLogEvent alloc] initWithLogMapID:@"2" logTarget:1];
   NSArray<id<GDLLogTransformer>> *transformers =
       @[ [[GDLLogWriterTestNilingTransformer alloc] init] ];
   XCTAssertNoThrow([writer writeLog:log afterApplyingTransformers:transformers]);
   dispatch_sync(writer.logWritingQueue, ^{
                     // TODO(mikehaney24): Assert that storage does not contain the log.
                 });
+}
+
+/** Tests writing a log with a transformer that creates a new log. */
+- (void)testWriteLogWithTransformersThatCreateANewLog {
+  GDLLogWriter *writer = [GDLLogWriter sharedInstance];
+  GDLLogEvent *log = [[GDLLogEvent alloc] initWithLogMapID:@"2" logTarget:1];
+  NSArray<id<GDLLogTransformer>> *transformers =
+      @[ [[GDLLogWriterTestNewLogTransformer alloc] init] ];
+  XCTAssertNoThrow([writer writeLog:log afterApplyingTransformers:transformers]);
+  dispatch_sync(writer.logWritingQueue, ^{
+                    // TODO(mikehaney24): Assert that storage contains the new log.
+                });
+}
+
+/** Tests that using a transformer without transform: implemented throws. */
+- (void)testWriteLogWithBadTransformer {
+  GDLLogWriter *writer = [GDLLogWriter sharedInstance];
+  GDLLogEvent *log = [[GDLLogEvent alloc] initWithLogMapID:@"2" logTarget:1];
+  NSArray *transformers = @[ [[NSObject alloc] init] ];
+  @try {
+    dispatch_sync(writer.logWritingQueue, ^{
+      // TODO(mikehaney24): Assert that storage contains the new log.
+      [writer writeLog:log afterApplyingTransformers:transformers];
+    });
+  } @catch (NSException *exception) {
+    NSLog(@"");
+  }
 }
 
 @end
