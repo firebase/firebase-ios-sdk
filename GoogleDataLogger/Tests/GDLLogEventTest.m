@@ -45,7 +45,8 @@
   logEvent = [NSKeyedUnarchiver unarchiveObjectWithData:archiveData];
   XCTAssertEqualObjects(logEvent.logMapID, @"testID");
   XCTAssertEqual(logEvent.logTarget, 42);
-  XCTAssertEqualObjects(logEvent.extensionData, [@"someData" dataUsingEncoding:NSUTF8StringEncoding]);
+  XCTAssertEqualObjects(logEvent.extensionData,
+                        [@"someData" dataUsingEncoding:NSUTF8StringEncoding]);
   XCTAssertEqual(logEvent.qosTier, GDLLogQoSTelemetry);
   XCTAssertEqual(logEvent.clockSnapshot.timeMillis, 10);
   XCTAssertEqual(logEvent.clockSnapshot.uptimeMillis, 100);

@@ -44,7 +44,8 @@
     _qosTier = [aDecoder decodeIntegerForKey:@"_qosTier"];
     _clockSnapshot.timeMillis = [aDecoder decodeInt64ForKey:@"clockSnapshotTimeMillis"];
     _clockSnapshot.uptimeMillis = [aDecoder decodeInt64ForKey:@"clockSnapshotUpTimeMillis"];
-    _clockSnapshot.timezoneOffsetMillis = [aDecoder decodeInt64ForKey:@"clockSnapshotTimezoneOffsetMillis"];
+    _clockSnapshot.timezoneOffsetMillis =
+        [aDecoder decodeInt64ForKey:@"clockSnapshotTimezoneOffsetMillis"];
   }
   return self;
 }
@@ -56,7 +57,8 @@
   [aCoder encodeInteger:_qosTier forKey:@"_qosTier"];
   [aCoder encodeInt64:_clockSnapshot.timeMillis forKey:@"clockSnapshotTimeMillis"];
   [aCoder encodeInt64:_clockSnapshot.uptimeMillis forKey:@"clockSnapshotUpTimeMillis"];
-  [aCoder encodeInt64:_clockSnapshot.timezoneOffsetMillis forKey:@"clockSnapshotTimezoneOffsetMillis"];
+  [aCoder encodeInt64:_clockSnapshot.timezoneOffsetMillis
+               forKey:@"clockSnapshotTimezoneOffsetMillis"];
 }
 
 @end
