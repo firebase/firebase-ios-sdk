@@ -250,8 +250,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (int)removeOrphanedDocumentsThroughSequenceNumber:(ListenSequenceNumber)upperBound {
   std::vector<DocumentKey> removed =
-      static_cast<MemoryRemoteDocumentCache *>(_persistence.remoteDocumentCache)
-          ->RemoveOrphanedDocuments(self, upperBound);
+      _persistence.remoteDocumentCache->RemoveOrphanedDocuments(self, upperBound);
   for (const auto &key : removed) {
     _sequenceNumbers.erase(key);
   }

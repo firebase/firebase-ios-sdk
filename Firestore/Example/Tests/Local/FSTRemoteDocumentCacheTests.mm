@@ -21,7 +21,6 @@
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentSet.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
@@ -188,8 +187,6 @@ static const int kVersion = 42;
 }
 
 #pragma mark - Helpers
-// TODO(gsoltis): reevaluate if any of these helpers are still needed
-
 - (FSTDocument *)setTestDocumentAtPath:(const absl::string_view)path {
   FSTDocument *doc = FSTTestDoc(path, kVersion, _kDocData, FSTDocumentStateSynced);
   self.remoteDocumentCache->AddEntry(doc);
