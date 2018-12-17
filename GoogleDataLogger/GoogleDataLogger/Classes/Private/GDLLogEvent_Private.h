@@ -15,5 +15,22 @@
  */
 
 #import "GDLLogEvent.h"
-#import "GDLLogTransformer.h"
-#import "GDLLogger.h"
+
+#import "GDLLogClock.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface GDLLogEvent ()
+
+/** The serialized bytes of the log object. */
+@property(nonatomic) NSData *extensionBytes;
+
+/** The quality of service tier this log belongs to. */
+@property(nonatomic) GDLLogQoS qosTier;
+
+/** The clock snapshot at the time of logging. */
+@property(nonatomic) GDLLogClockSnapshot clockSnapshot;
+
+@end
+
+NS_ASSUME_NONNULL_END

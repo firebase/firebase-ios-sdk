@@ -14,6 +14,18 @@
  * limitations under the License.
  */
 
-#import "GDLLogEvent.h"
-#import "GDLLogTransformer.h"
-#import "GDLLogger.h"
+#import <Foundation/Foundation.h>
+
+#import <GoogleDataLogger/GDLLogProto.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+/** A class to represent a simple log proto. */
+@interface GDLLogExtensionTesterSimple : NSObject <GDLLogProto>
+
+/** A string that will be turned into bytes. */
+@property(nonatomic) NSString *aString;
+
+@end
+
+NS_ASSUME_NONNULL_END

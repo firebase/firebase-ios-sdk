@@ -19,6 +19,7 @@
 #import <GoogleDataLogger/GDLLogTransformer.h>
 
 #import "GDLLogEvent.h"
+#import "GDLLogExtensionTesterClasses.h"
 #import "GDLLogWriter.h"
 #import "GDLLogWriter_Private.h"
 
@@ -66,6 +67,7 @@
 - (void)testWriteLogWithoutTransformers {
   GDLLogWriter *writer = [GDLLogWriter sharedInstance];
   GDLLogEvent *log = [[GDLLogEvent alloc] initWithLogMapID:@"1" logTarget:1];
+  log.extension = [[GDLLogExtensionTesterSimple alloc] init];
   XCTAssertNoThrow([writer writeLog:log afterApplyingTransformers:nil]);
   dispatch_sync(writer.logWritingQueue, ^{
                     // TODO(mikehaney24): Assert that storage contains the log.
@@ -76,6 +78,7 @@
 - (void)testWriteLogWithTransformersThatNilTheLog {
   GDLLogWriter *writer = [GDLLogWriter sharedInstance];
   GDLLogEvent *log = [[GDLLogEvent alloc] initWithLogMapID:@"2" logTarget:1];
+  log.extension = [[GDLLogExtensionTesterSimple alloc] init];
   NSArray<id<GDLLogTransformer>> *transformers =
       @[ [[GDLLogWriterTestNilingTransformer alloc] init] ];
   XCTAssertNoThrow([writer writeLog:log afterApplyingTransformers:transformers]);
@@ -88,6 +91,7 @@
 - (void)testWriteLogWithTransformersThatCreateANewLog {
   GDLLogWriter *writer = [GDLLogWriter sharedInstance];
   GDLLogEvent *log = [[GDLLogEvent alloc] initWithLogMapID:@"2" logTarget:1];
+  log.extension = [[GDLLogExtensionTesterSimple alloc] init];
   NSArray<id<GDLLogTransformer>> *transformers =
       @[ [[GDLLogWriterTestNewLogTransformer alloc] init] ];
   XCTAssertNoThrow([writer writeLog:log afterApplyingTransformers:transformers]);
@@ -100,6 +104,7 @@
 - (void)testWriteLogWithBadTransformer {
   GDLLogWriter *writer = [GDLLogWriter sharedInstance];
   GDLLogEvent *log = [[GDLLogEvent alloc] initWithLogMapID:@"2" logTarget:1];
+  log.extension = [[GDLLogExtensionTesterSimple alloc] init];
   NSArray *transformers = @[ [[NSObject alloc] init] ];
   @try {
     dispatch_sync(writer.logWritingQueue, ^{

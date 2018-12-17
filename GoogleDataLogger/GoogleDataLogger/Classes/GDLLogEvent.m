@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-#import "GDLLogEvent.h"
+#import <GoogleDataLogger/GDLLogEvent.h>
+
+#import "GDLLogEvent_Private.h"
 
 @implementation GDLLogEvent
 
@@ -31,34 +33,54 @@
 
 #pragma mark - NSSecureCoding and NSCoding Protocols
 
+/** NSCoding key for logMapID property. */
+static NSString *logMapIDKey = @"_logMapID";
+
+/** NSCoding key for logTarget property. */
+static NSString *logTargetKey = @"_logTarget";
+
+/** NSCoding key for extensionBytes property. */
+static NSString *extensionBytesKey = @"_extensionBytes";
+
+/** NSCoding key for qosTier property. */
+static NSString *qosTierKey = @"_qosTier";
+
+/** NSCoding key for clockSnapshot.timeMillis property. */
+static NSString *clockSnapshotTimeMillisKey = @"_clockSnapshotTimeMillis";
+
+/** NSCoding key for clockSnapshot.uptimeMillis property. */
+static NSString *clockSnapshotUpTimeMillis = @"_clockSnapshotUpTimeMillis";
+
+/** NSCoding key for clockSnapshot.timezoneOffsetMillis property. */
+static NSString *clockSnapshotTimezoneOffsetMillis = @"_clockSnapshotTimezoneOffsetMillis";
+
 + (BOOL)supportsSecureCoding {
   return YES;
 }
 
 - (id)initWithCoder:(NSCoder *)aDecoder {
-  NSString *logMapID = [aDecoder decodeObjectOfClass:[NSObject class] forKey:@"_logMapID"];
-  NSInteger logTarget = [aDecoder decodeIntegerForKey:@"_logTarget"];
+  NSString *logMapID = [aDecoder decodeObjectOfClass:[NSObject class] forKey:logMapIDKey];
+  NSInteger logTarget = [aDecoder decodeIntegerForKey:logTargetKey];
   self = [self initWithLogMapID:logMapID logTarget:logTarget];
   if (self) {
-    _extensionData = [aDecoder decodeObjectOfClass:[NSData class] forKey:@"_extensionData"];
-    _qosTier = [aDecoder decodeIntegerForKey:@"_qosTier"];
-    _clockSnapshot.timeMillis = [aDecoder decodeInt64ForKey:@"clockSnapshotTimeMillis"];
-    _clockSnapshot.uptimeMillis = [aDecoder decodeInt64ForKey:@"clockSnapshotUpTimeMillis"];
+    _extensionBytes = [aDecoder decodeObjectOfClass:[NSData class] forKey:extensionBytesKey];
+    _qosTier = [aDecoder decodeIntegerForKey:qosTierKey];
+    _clockSnapshot.timeMillis = [aDecoder decodeInt64ForKey:clockSnapshotTimeMillisKey];
+    _clockSnapshot.uptimeMillis = [aDecoder decodeInt64ForKey:clockSnapshotUpTimeMillis];
     _clockSnapshot.timezoneOffsetMillis =
-        [aDecoder decodeInt64ForKey:@"clockSnapshotTimezoneOffsetMillis"];
+        [aDecoder decodeInt64ForKey:clockSnapshotTimezoneOffsetMillis];
   }
   return self;
 }
 
 - (void)encodeWithCoder:(NSCoder *)aCoder {
-  [aCoder encodeObject:_logMapID forKey:@"_logMapID"];
-  [aCoder encodeInteger:_logTarget forKey:@"_logTarget"];
-  [aCoder encodeObject:_extensionData forKey:@"_extensionData"];
-  [aCoder encodeInteger:_qosTier forKey:@"_qosTier"];
-  [aCoder encodeInt64:_clockSnapshot.timeMillis forKey:@"clockSnapshotTimeMillis"];
-  [aCoder encodeInt64:_clockSnapshot.uptimeMillis forKey:@"clockSnapshotUpTimeMillis"];
-  [aCoder encodeInt64:_clockSnapshot.timezoneOffsetMillis
-               forKey:@"clockSnapshotTimezoneOffsetMillis"];
+  [aCoder encodeObject:_logMapID forKey:logMapIDKey];
+  [aCoder encodeInteger:_logTarget forKey:logTargetKey];
+  [aCoder encodeObject:_extensionBytes forKey:extensionBytesKey];
+  [aCoder encodeInteger:_qosTier forKey:qosTierKey];
+  [aCoder encodeInt64:_clockSnapshot.timeMillis forKey:clockSnapshotTimeMillisKey];
+  [aCoder encodeInt64:_clockSnapshot.uptimeMillis forKey:clockSnapshotUpTimeMillis];
+  [aCoder encodeInt64:_clockSnapshot.timezoneOffsetMillis forKey:clockSnapshotTimezoneOffsetMillis];
 }
 
 @end

@@ -16,7 +16,10 @@
 
 #import <XCTest/XCTest.h>
 
+#import <GoogleDataLogger/GDLLogEvent.h>
 #import <GoogleDataLogger/GDLLogger.h>
+
+#import "GDLLogExtensionTesterClasses.h"
 
 @interface GDLLoggerTest : XCTestCase
 
@@ -34,6 +37,7 @@
 - (void)testLogTelemetryEvent {
   GDLLogger *logger = [[GDLLogger alloc] initWithLogMapID:@"1" logTransformers:nil logTarget:1];
   GDLLogEvent *event = [logger newEvent];
+  event.extension = [[GDLLogExtensionTesterSimple alloc] init];
   XCTAssertNoThrow([logger logTelemetryEvent:event]);
 }
 
@@ -41,6 +45,7 @@
 - (void)testLogDataEvent {
   GDLLogger *logger = [[GDLLogger alloc] initWithLogMapID:@"1" logTransformers:nil logTarget:1];
   GDLLogEvent *event = [logger newEvent];
+  event.extension = [[GDLLogExtensionTesterSimple alloc] init];
   XCTAssertNoThrow([logger logDataEvent:event]);
 }
 
