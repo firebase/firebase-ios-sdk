@@ -71,7 +71,7 @@ NS_ASSUME_NONNULL_BEGIN
    */
   FSTMemoryQueryCache *_queryCache;
 
-  /** The FSTRemoteDocumentCache representing the persisted cache of remote documents. */
+  /** The RemoteDocumentCache representing the persisted cache of remote documents. */
   MemoryRemoteDocumentCache _remoteDocumentCache;
 
   FSTTransactionRunner _transactionRunner;
@@ -99,7 +99,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init {
   if (self = [super init]) {
     _queryCache = [[FSTMemoryQueryCache alloc] initWithPersistence:self];
-    //_remoteDocumentCache = [[FSTMemoryRemoteDocumentCache alloc] init];
     self.started = YES;
   }
   return self;

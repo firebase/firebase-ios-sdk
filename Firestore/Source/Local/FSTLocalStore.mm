@@ -76,9 +76,6 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 /** The set of all mutations that have been sent but not yet been applied to the backend. */
 @property(nonatomic, strong) id<FSTMutationQueue> mutationQueue;
 
-/** The set of all cached remote documents. */
-//@property(nonatomic) RemoteDocumentCache* remoteDocumentCache;
-
 /** The "local" view of all documents (layering mutationQueue on top of remoteDocumentCache). */
 @property(nonatomic, strong) FSTLocalDocumentsView *localDocuments;
 
@@ -96,6 +93,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 @implementation FSTLocalStore {
   /** Used to generate targetIDs for queries tracked locally. */
   TargetIdGenerator _targetIDGenerator;
+  /** The set of all cached remote documents. */
   RemoteDocumentCache *_remoteDocumentCache;
 }
 

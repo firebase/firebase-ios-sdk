@@ -43,7 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithRemoteDocumentCache:(RemoteDocumentCache *)remoteDocumentCache
                               mutationQueue:(id<FSTMutationQueue>)mutationQueue
     NS_DESIGNATED_INITIALIZER;
-//@property(nonatomic, strong, readonly) id<FSTRemoteDocumentCache> remoteDocumentCache;
+
 @property(nonatomic, strong, readonly) id<FSTMutationQueue> mutationQueue;
 @end
 
