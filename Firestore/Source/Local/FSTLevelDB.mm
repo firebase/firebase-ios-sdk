@@ -299,16 +299,50 @@ static const char *kReservedPathComponent = "firestore";
   return users;
 }
 
-- (instancetype)initWithDirectory:(firebase::firestore::util::Path)directory
-                       serializer:(FSTLocalSerializer *)serializer
-                        lruParams:(firebase::firestore::local::LruParams)lruParams {
++ (firebase::firestore::util::Status)dbWithDirectory:(firebase::firestore::util::Path)directory
+                                          serializer:(FSTLocalSerializer *)serializer
+                                           lruParams:
+                                               (firebase::firestore::local::LruParams)lruParams
+                                                 ptr:(FSTLevelDB **)ptr {
+  Status status = [self ensureDirectory:directory];
+  if (!status.ok()) return status;
+
+  StatusOr<std::unique_ptr<DB>> database = [self createDBWithDirectory:directory];
+  if (!database.status().ok()) {
+    return database.status();
+  }
+
+  std::unique_ptr<DB> ldb = std::move(database.ValueOrDie());
+  LevelDbMigrations::RunMigrations(ldb.get());
+  LevelDbTransaction transaction(ldb.get(), "Start LevelDB");
+  std::set<std::string> users = [self collectUserSet:&transaction];
+  transaction.Commit();
+  FSTLevelDB *db = [[self alloc] initWithLevelDB:std::move(ldb)
+                                           users:users
+                                       directory:directory
+                                      serializer:serializer
+                                       lruParams:lruParams];
+  *ptr = db;
+  return Status::OK();
+}
+
+- (instancetype)initWithLevelDB:(std::unique_ptr<leveldb::DB>)db
+                          users:(std::set<std::string>)users
+                      directory:(firebase::firestore::util::Path)directory
+                     serializer:(FSTLocalSerializer *)serializer
+                      lruParams:(firebase::firestore::local::LruParams)lruParams {
   if (self = [super init]) {
+    self.started = YES;
+    _ptr = std::move(db);
     _directory = std::move(directory);
     _serializer = serializer;
     _queryCache = [[FSTLevelDBQueryCache alloc] initWithDB:self serializer:self.serializer];
     _referenceDelegate =
         [[FSTLevelDBLRUDelegate alloc] initWithPersistence:self lruParams:lruParams];
     _transactionRunner.SetBackingPersistence(self);
+    _users = std::move(users);
+    [_queryCache start];
+    [_referenceDelegate start];
   }
   return self;
 }
@@ -376,30 +410,8 @@ static const char *kReservedPathComponent = "firestore";
 
 #pragma mark - Startup
 
-- (Status)start {
-  HARD_ASSERT(!self.isStarted, "FSTLevelDB double-started!");
-  self.started = YES;
-
-  Status status = [self ensureDirectory:_directory];
-  if (!status.ok()) return status;
-
-  StatusOr<std::unique_ptr<DB>> database = [self createDBWithDirectory:_directory];
-  if (!database.status().ok()) {
-    return database.status();
-  }
-  _ptr = std::move(database).ValueOrDie();
-
-  LevelDbMigrations::RunMigrations(_ptr.get());
-  LevelDbTransaction transaction(_ptr.get(), "Start LevelDB");
-  _users = [FSTLevelDB collectUserSet:&transaction];
-  transaction.Commit();
-  [_queryCache start];
-  [_referenceDelegate start];
-  return Status::OK();
-}
-
 /** Creates the directory at @a directory and marks it as excluded from iCloud backup. */
-- (Status)ensureDirectory:(const Path &)directory {
++ (Status)ensureDirectory:(const Path &)directory {
   Status status = util::RecursivelyCreateDir(directory);
   if (!status.ok()) {
     return Status{FirestoreErrorCode::Internal, "Failed to create persistence directory"}.CausedBy(
@@ -418,7 +430,7 @@ static const char *kReservedPathComponent = "firestore";
 }
 
 /** Opens the database within the given directory. */
-- (StatusOr<std::unique_ptr<DB>>)createDBWithDirectory:(const Path &)directory {
++ (StatusOr<std::unique_ptr<DB>>)createDBWithDirectory:(const Path &)directory {
   Options options;
   options.create_if_missing = true;
 

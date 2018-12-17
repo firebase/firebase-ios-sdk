@@ -18,7 +18,7 @@
 #import "FIRErrors.h"
 
 @class FIRComponentContainer;
-@protocol FIRCoreConfigurable;
+@protocol FIRLibrary;
 
 /**
  * The internal interface to FIRApp. This is meant for first-party integrators, who need to receive
@@ -135,23 +135,25 @@ extern NSString *const FIRAuthStateDidChangeInternalNotificationUIDKey;
 + (BOOL)isDefaultAppConfigured;
 
 /**
- * Register a class that conforms to `FIRCoreConfigurable`. Each SDK should have one class that
- * registers in order to provide critical information for interoperability and lifecycle events.
- * TODO(wilsonryan): Write more documentation.
+ * Registers a given third-party library with the given version number to be reported for
+ * analytics.
+ *
+ * @param name Name of the library.
+ * @param version Version of the library.
  */
-+ (void)registerAsConfigurable:(Class<FIRCoreConfigurable>)klass;
++ (void)registerLibrary:(nonnull NSString *)name withVersion:(nonnull NSString *)version;
 
 /**
- * Registers a given third-party library with the given version number to be reported for
- * analyitcs.
+ * Registers a given internal library with the given version number to be reported for
+ * analytics.
  *
- * @param library Name of the library
- * @param version Version of the library
+ * @param library Optional parameter for component registration.
+ * @param name Name of the library.
+ * @param version Version of the library.
  */
-// clang-format off
-+ (void)registerLibrary:(NSString *)library
-            withVersion:(NSString *)version NS_SWIFT_NAME(registerLibrary(_:version:));
-// clang-format on
++ (void)registerInternalLibrary:(nonnull Class<FIRLibrary>)library
+                       withName:(nonnull NSString *)name
+                    withVersion:(nonnull NSString *)version;
 
 /**
  * A concatenated string representing all the third-party libraries and version numbers.

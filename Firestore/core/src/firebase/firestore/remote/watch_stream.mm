@@ -84,8 +84,10 @@ Status WatchStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
     return status;
   }
 
-  LOG_DEBUG("%s response: %s", GetDebugDescription(),
-            serializer_bridge_.Describe(response));
+  if (bridge::IsLoggingEnabled()) {
+    LOG_DEBUG("%s response: %s", GetDebugDescription(),
+              serializer_bridge_.Describe(response));
+  }
 
   // A successful response means the stream is healthy.
   backoff_.Reset();

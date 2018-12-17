@@ -208,7 +208,7 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
 
   NSMutableArray<FSTMutationBatch *> *result = [NSMutableArray array];
   FSTDocumentReferenceBlock block = ^(FSTDocumentReference *reference, BOOL *stop) {
-    if (![documentKey isEqualToKey:reference.key]) {
+    if (documentKey != reference.key) {
       *stop = YES;
       return;
     }
@@ -230,7 +230,7 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
     FSTDocumentReference *start = [[FSTDocumentReference alloc] initWithKey:key ID:0];
 
     FSTDocumentReferenceBlock block = ^(FSTDocumentReference *reference, BOOL *stop) {
-      if (![key isEqualToKey:reference.key]) {
+      if (key != reference.key) {
         *stop = YES;
         return;
       }

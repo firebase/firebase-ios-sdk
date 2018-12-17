@@ -22,8 +22,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * A FIRDatabaseHandle is used to identify listeners of Firebase Database events. These handles
- * are returned by observeEventType: and and can later be passed to removeObserverWithHandle: to
- * stop receiving updates.
+ * are returned by observeEventType: and can later be passed to removeObserverWithHandle: to stop
+ * receiving updates.
  */
 typedef NSUInteger FIRDatabaseHandle NS_SWIFT_NAME(DatabaseHandle);
 

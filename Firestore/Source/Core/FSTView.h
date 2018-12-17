@@ -16,15 +16,13 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Firestore/Source/Model/FSTDocumentDictionary.h"
-
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
+#include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 
 @class FSTDocumentSet;
 @class FSTDocumentViewChangeSet;
-@class FSTMaybeDocument;
 @class FSTQuery;
 @class FSTTargetChange;
 @class FSTViewSnapshot;
@@ -108,7 +106,8 @@ typedef NS_ENUM(NSInteger, FSTLimboDocumentChangeType) {
  * @param docChanges The doc changes to apply to this view.
  * @return a new set of docs, changes, and refill flag.
  */
-- (FSTViewDocumentChanges *)computeChangesWithDocuments:(FSTMaybeDocumentDictionary *)docChanges;
+- (FSTViewDocumentChanges *)computeChangesWithDocuments:
+    (const firebase::firestore::model::MaybeDocumentMap &)docChanges;
 
 /**
  * Iterates over a set of doc changes, applies the query limit, and computes what the new results
@@ -120,9 +119,9 @@ typedef NS_ENUM(NSInteger, FSTLimboDocumentChangeType) {
  *     and changes instead of the current view.
  * @return a new set of docs, changes, and refill flag.
  */
-- (FSTViewDocumentChanges *)computeChangesWithDocuments:(FSTMaybeDocumentDictionary *)docChanges
-                                        previousChanges:
-                                            (nullable FSTViewDocumentChanges *)previousChanges;
+- (FSTViewDocumentChanges *)
+    computeChangesWithDocuments:(const firebase::firestore::model::MaybeDocumentMap &)docChanges
+                previousChanges:(nullable FSTViewDocumentChanges *)previousChanges;
 
 /**
  * Updates the view with the given ViewDocumentChanges.

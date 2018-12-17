@@ -22,7 +22,6 @@
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 
-@class FSTDocumentKey;
 @class FSTQueryData;
 @class FSTReferenceSet;
 @protocol FSTMutationQueue;
@@ -65,13 +64,6 @@ NS_ASSUME_NONNULL_BEGIN
  * of its reads and writes in order to avoid relying on being able to read back uncommitted writes.
  */
 @protocol FSTPersistence <NSObject>
-
-/**
- * Starts persistent storage, opening the database or similar.
- *
- * @return A Status object that will be populated with an error message if startup fails.
- */
-- (firebase::firestore::util::Status)start;
 
 /** Releases any resources held during eager shutdown. */
 - (void)shutdown;

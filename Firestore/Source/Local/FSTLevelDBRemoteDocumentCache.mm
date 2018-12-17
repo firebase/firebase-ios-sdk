@@ -23,110 +23,58 @@
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentDictionary.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "absl/memory/memory.h"
 #include "leveldb/db.h"
 #include "leveldb/write_batch.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
+using firebase::firestore::local::LevelDbRemoteDocumentCache;
 using firebase::firestore::local::LevelDbRemoteDocumentKey;
 using firebase::firestore::local::LevelDbTransaction;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::DocumentMap;
+using firebase::firestore::model::MaybeDocumentMap;
 using leveldb::DB;
 using leveldb::Status;
 
-@interface FSTLevelDBRemoteDocumentCache ()
-
-@property(nonatomic, strong, readonly) FSTLocalSerializer *serializer;
-
-@end
-
 @implementation FSTLevelDBRemoteDocumentCache {
-  FSTLevelDB *_db;
+  std::unique_ptr<LevelDbRemoteDocumentCache> _cache;
 }
 
 - (instancetype)initWithDB:(FSTLevelDB *)db serializer:(FSTLocalSerializer *)serializer {
   if (self = [super init]) {
-    _db = db;
-    _serializer = serializer;
+    _cache = absl::make_unique<LevelDbRemoteDocumentCache>(db, serializer);
   }
   return self;
 }
 
 - (void)addEntry:(FSTMaybeDocument *)document {
-  std::string key = [self remoteDocumentKey:document.key];
-  _db.currentTransaction->Put(key, [self.serializer encodedMaybeDocument:document]);
+  _cache->AddEntry(document);
 }
 
 - (void)removeEntryForKey:(const DocumentKey &)documentKey {
-  std::string key = [self remoteDocumentKey:documentKey];
-  _db.currentTransaction->Delete(key);
+  _cache->RemoveEntry(documentKey);
 }
 
 - (nullable FSTMaybeDocument *)entryForKey:(const DocumentKey &)documentKey {
-  std::string key = LevelDbRemoteDocumentKey::Key(documentKey);
-  std::string value;
-  Status status = _db.currentTransaction->Get(key, &value);
-  if (status.IsNotFound()) {
-    return nil;
-  } else if (status.ok()) {
-    return [self decodeMaybeDocument:value withKey:documentKey];
-  } else {
-    HARD_FAIL("Fetch document for key (%s) failed with status: %s", documentKey.ToString(),
-              status.ToString());
-  }
+  return _cache->Get(documentKey);
 }
 
-- (FSTDocumentDictionary *)documentsMatchingQuery:(FSTQuery *)query {
-  FSTDocumentDictionary *results = [FSTDocumentDictionary documentDictionary];
-
-  // Documents are ordered by key, so we can use a prefix scan to narrow down
-  // the documents we need to match the query against.
-  std::string startKey = LevelDbRemoteDocumentKey::KeyPrefix(query.path);
-  auto it = _db.currentTransaction->NewIterator();
-  it->Seek(startKey);
-
-  LevelDbRemoteDocumentKey currentKey;
-  for (; it->Valid() && currentKey.Decode(it->key()); it->Next()) {
-    FSTMaybeDocument *maybeDoc =
-        [self decodeMaybeDocument:it->value() withKey:currentKey.document_key()];
-    if (!query.path.IsPrefixOf(maybeDoc.key.path())) {
-      break;
-    } else if ([maybeDoc isKindOfClass:[FSTDocument class]]) {
-      results = [results dictionaryBySettingObject:(FSTDocument *)maybeDoc forKey:maybeDoc.key];
-    }
-  }
-
-  return results;
+- (MaybeDocumentMap)entriesForKeys:(const DocumentKeySet &)keys {
+  return _cache->GetAll(keys);
 }
 
-- (std::string)remoteDocumentKey:(const DocumentKey &)key {
-  return LevelDbRemoteDocumentKey::Key(key);
-}
-
-- (FSTMaybeDocument *)decodeMaybeDocument:(absl::string_view)encoded
-                                  withKey:(const DocumentKey &)documentKey {
-  NSData *data = [[NSData alloc] initWithBytesNoCopy:(void *)encoded.data()
-                                              length:encoded.size()
-                                        freeWhenDone:NO];
-
-  NSError *error;
-  FSTPBMaybeDocument *proto = [FSTPBMaybeDocument parseFromData:data error:&error];
-  if (!proto) {
-    HARD_FAIL("FSTPBMaybeDocument failed to parse: %s", error);
-  }
-
-  FSTMaybeDocument *maybeDocument = [self.serializer decodedMaybeDocument:proto];
-  HARD_ASSERT(maybeDocument.key == documentKey,
-              "Read document has key (%s) instead of expected key (%s).",
-              maybeDocument.key.ToString(), documentKey.ToString());
-  return maybeDocument;
+- (DocumentMap)documentsMatchingQuery:(FSTQuery *)query {
+  return _cache->GetMatchingDocuments(query);
 }
 
 @end
