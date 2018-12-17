@@ -96,7 +96,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 @implementation FSTLocalStore {
   /** Used to generate targetIDs for queries tracked locally. */
   TargetIdGenerator _targetIDGenerator;
-  RemoteDocumentCache* _remoteDocumentCache;
+  RemoteDocumentCache *_remoteDocumentCache;
 }
 
 - (instancetype)initWithPersistence:(id<FSTPersistence>)persistence
@@ -142,9 +142,8 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
     NSArray<FSTMutationBatch *> *newBatches = [self.mutationQueue allMutationBatches];
 
     // Recreate our LocalDocumentsView using the new MutationQueue.
-    self.localDocuments =
-        [FSTLocalDocumentsView viewWithRemoteDocumentCache:_remoteDocumentCache
-                                             mutationQueue:self.mutationQueue];
+    self.localDocuments = [FSTLocalDocumentsView viewWithRemoteDocumentCache:_remoteDocumentCache
+                                                               mutationQueue:self.mutationQueue];
 
     // Union the old/new changed keys.
     DocumentKeySet changedKeys;

@@ -59,7 +59,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTObjectValue *_bigObjectValue;
   id<FSTPersistence> _persistence;
   id<FSTQueryCache> _queryCache;
-  RemoteDocumentCache* _documentCache;
+  RemoteDocumentCache *_documentCache;
   id<FSTMutationQueue> _mutationQueue;
   id<FSTLRUDelegate> _lruDelegate;
   FSTLRUGarbageCollector *_gc;
@@ -466,8 +466,7 @@ NS_ASSUME_NONNULL_BEGIN
       XCTAssertFalse([_queryCache containsKey:key]);
     }
     for (const DocumentKey &key : expectedRetained) {
-      XCTAssertNotNil(_documentCache->Get(key), @"Missing document %s",
-                      key.ToString().c_str());
+      XCTAssertNotNil(_documentCache->Get(key), @"Missing document %s", key.ToString().c_str());
     }
   });
   [_persistence shutdown];

@@ -34,7 +34,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FSTLocalDocumentsView : NSObject
 
-+ (instancetype)viewWithRemoteDocumentCache:(firebase::firestore::local::RemoteDocumentCache *)remoteDocumentCache
++ (instancetype)viewWithRemoteDocumentCache:
+                    (firebase::firestore::local::RemoteDocumentCache *)remoteDocumentCache
                               mutationQueue:(id<FSTMutationQueue>)mutationQueue;
 
 - (instancetype)init __attribute__((unavailable("Use a static constructor")));

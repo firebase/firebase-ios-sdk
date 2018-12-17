@@ -48,7 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @implementation FSTLocalDocumentsView {
-  RemoteDocumentCache* _remoteDocumentCache;
+  RemoteDocumentCache *_remoteDocumentCache;
 }
 
 + (instancetype)viewWithRemoteDocumentCache:(RemoteDocumentCache *)remoteDocumentCache

@@ -464,7 +464,7 @@ static const char *kReservedPathComponent = "firestore";
 }
 
 - (LevelDbRemoteDocumentCache *)remoteDocumentCache {
-  //return [[FSTLevelDBRemoteDocumentCache alloc] initWithDB:self serializer:self.serializer];
+  // return [[FSTLevelDBRemoteDocumentCache alloc] initWithDB:self serializer:self.serializer];
   return _documentCache.get();
 }
 
