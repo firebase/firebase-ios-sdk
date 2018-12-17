@@ -61,7 +61,7 @@ NS_SWIFT_NAME(PhoneAuthProvider)
 + (instancetype)providerWithAuth:(FIRAuth *)auth NS_SWIFT_NAME(provider(auth:));
 
 /** @fn verifyPhoneNumber:UIDelegate:completion:
-    @brief Starts the phone number authentication flow by sending a verifcation code to the
+    @brief Starts the phone number authentication flow by sending a verification code to the
         specified phone number.
     @param phoneNumber The phone number to be verified.
     @param UIDelegate An object used to present the SFSafariViewController. The object is retained
