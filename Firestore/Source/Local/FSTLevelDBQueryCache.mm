@@ -62,7 +62,8 @@ using leveldb::Status;
 @end
 
 @implementation FSTLevelDBQueryCache {
-  FSTLevelDB *_db;
+  // This instance is owned by FSTLevelDB; avoid a retain cycle.
+  __weak FSTLevelDB *_db;
 
   /**
    * The last received snapshot version. This is part of `metadata` but we store it separately to
