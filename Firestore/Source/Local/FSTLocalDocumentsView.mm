@@ -18,7 +18,6 @@
 
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTMutationQueue.h"
-#import "Firestore/Source/Local/FSTRemoteDocumentCache.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"

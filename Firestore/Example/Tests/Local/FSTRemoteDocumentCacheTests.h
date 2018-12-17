@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/Local/FSTRemoteDocumentCache.h"
-
 #import <XCTest/XCTest.h>
 
 #include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"

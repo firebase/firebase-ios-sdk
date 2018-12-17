@@ -31,7 +31,6 @@
 #import "Firestore/Source/Local/FSTQueryCache.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Local/FSTReferenceSet.h"
-#import "Firestore/Source/Local/FSTRemoteDocumentCache.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"

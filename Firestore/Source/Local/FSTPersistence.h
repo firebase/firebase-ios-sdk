@@ -82,7 +82,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (id<FSTQueryCache>)queryCache;
 
 /** Creates an FSTRemoteDocumentCache representing the persisted cache of remote documents. */
-//- (id<FSTRemoteDocumentCache>)remoteDocumentCache;
 - (firebase::firestore::local::RemoteDocumentCache *)remoteDocumentCache;
 
 @property(nonatomic, readonly, assign) const FSTTransactionRunner &run;

@@ -24,7 +24,6 @@
 #import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 #import "Firestore/Source/Local/FSTLevelDBMutationQueue.h"
 #import "Firestore/Source/Local/FSTLevelDBQueryCache.h"
-#import "Firestore/Source/Local/FSTLevelDBRemoteDocumentCache.h"
 #import "Firestore/Source/Local/FSTReferenceSet.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
