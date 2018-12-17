@@ -23,6 +23,7 @@
 
 #include <vector>
 
+#include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
@@ -39,14 +40,14 @@ namespace firebase {
 namespace firestore {
 namespace local {
 
-class MemoryRemoteDocumentCache {
+class MemoryRemoteDocumentCache : public RemoteDocumentCache {
  public:
-  void AddEntry(FSTMaybeDocument *document);
-  void RemoveEntry(const model::DocumentKey &key);
+  void AddEntry(FSTMaybeDocument *document) override;
+  void RemoveEntry(const model::DocumentKey &key) override;
 
-  FSTMaybeDocument *_Nullable Get(const model::DocumentKey &key);
-  model::MaybeDocumentMap GetAll(const model::DocumentKeySet &keys);
-  model::DocumentMap GetMatchingDocuments(FSTQuery *query);
+  FSTMaybeDocument *_Nullable Get(const model::DocumentKey &key) override;
+  model::MaybeDocumentMap GetAll(const model::DocumentKeySet &keys) override;
+  model::DocumentMap GetMatchingDocuments(FSTQuery *query) override;
 
   std::vector<model::DocumentKey> RemoveOrphanedDocuments(
       FSTMemoryLRUReferenceDelegate *reference_delegate,
