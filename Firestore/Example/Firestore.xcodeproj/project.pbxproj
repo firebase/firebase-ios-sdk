@@ -2648,6 +2648,7 @@
 					"\"${PODS_ROOT}/../../..\"",
 					"\"${PODS_ROOT}/../../../Firestore/third_party/abseil-cpp\"",
 					"\"${PODS_ROOT}/nanopb\"",
+					"\"${PODS_ROOT}/../../../Firestore/Protos/nanopb\"",
 				);
 				INFOPLIST_FILE = "FuzzTests/Firestore_FuzzTests_iOS-Info.plist";
 				OTHER_CFLAGS = (
@@ -2680,6 +2681,7 @@
 					"\"${PODS_ROOT}/../../..\"",
 					"\"${PODS_ROOT}/../../../Firestore/third_party/abseil-cpp\"",
 					"\"${PODS_ROOT}/nanopb\"",
+					"\"${PODS_ROOT}/../../../Firestore/Protos/nanopb\"",
 				);
 				INFOPLIST_FILE = "FuzzTests/Firestore_FuzzTests_iOS-Info.plist";
 				OTHER_CFLAGS = (
