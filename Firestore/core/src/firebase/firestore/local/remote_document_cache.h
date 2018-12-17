@@ -66,7 +66,7 @@ class RemoteDocumentCache {
   /**
    * Looks up an entry in the cache.
    *
-   * @param documentKey The key of the entry to look up.
+   * @param key The key of the entry to look up.
    * @return The cached FSTDocument or FSTDeletedDocument entry, or nil if we
    * have nothing cached.
    */

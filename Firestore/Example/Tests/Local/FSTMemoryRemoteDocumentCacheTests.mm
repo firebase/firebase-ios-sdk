@@ -18,12 +18,14 @@
 
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
 #include "Firestore/core/src/firebase/firestore/local/memory_remote_document_cache.h"
+#include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
 #include "absl/memory/memory.h"
 
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 #import "Firestore/Example/Tests/Local/FSTRemoteDocumentCacheTests.h"
 
 using firebase::firestore::local::MemoryRemoteDocumentCache;
+using firebase::firestore::local::RemoteDocumentCache;
 
 @interface FSTMemoryRemoteDocumentCacheTests : FSTRemoteDocumentCacheTests
 @end
@@ -45,7 +47,7 @@ using firebase::firestore::local::MemoryRemoteDocumentCache;
   _cache = absl::make_unique<MemoryRemoteDocumentCache>();
 }
 
-- (MemoryRemoteDocumentCache *)remoteDocumentCache {
+- (RemoteDocumentCache *)remoteDocumentCache {
   return _cache.get();
 }
 

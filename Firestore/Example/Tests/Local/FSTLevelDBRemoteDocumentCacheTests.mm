@@ -21,6 +21,7 @@
 #import "Firestore/Example/Tests/Local/FSTRemoteDocumentCacheTests.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_remote_document_cache.h"
+#include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
 
 #include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
 #include "absl/memory/memory.h"
@@ -30,6 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 using leveldb::WriteOptions;
 using firebase::firestore::local::LevelDbRemoteDocumentCache;
+using firebase::firestore::local::RemoteDocumentCache;
 using firebase::firestore::util::OrderedCode;
 
 // A dummy document value, useful for testing code that's known to examine only document keys.
@@ -61,7 +63,7 @@ static const char *kDummy = "1";
   [self writeDummyRowWithSegments:@[ @"remote_documentsa", @"foo", @"bar" ]];
 }
 
-- (LevelDbRemoteDocumentCache *_Nullable)remoteDocumentCache {
+- (RemoteDocumentCache *_Nullable)remoteDocumentCache {
   return _cache.get();
 }
 

@@ -50,7 +50,7 @@ NS_ASSUME_NONNULL_BEGIN
                                           serializer:(FSTLocalSerializer *)serializer
                                            lruParams:
                                                (firebase::firestore::local::LruParams)lruParams
-                                                 ptr:(FSTLevelDB **)ptr;
+                                                 ptr:(FSTLevelDB *_Nullable*_Nonnull)ptr;
 
 - (instancetype)init NS_UNAVAILABLE;
 

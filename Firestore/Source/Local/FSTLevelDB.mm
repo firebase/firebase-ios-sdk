@@ -35,6 +35,7 @@
 #include "Firestore/core/src/firebase/firestore/local/leveldb_remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_util.h"
+#include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
@@ -63,6 +64,7 @@ using firebase::firestore::local::LevelDbMutationKey;
 using firebase::firestore::local::LevelDbRemoteDocumentCache;
 using firebase::firestore::local::LevelDbTransaction;
 using firebase::firestore::local::LruParams;
+using firebase::firestore::local::RemoteDocumentCache;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::ListenSequenceNumber;
@@ -463,8 +465,7 @@ static const char *kReservedPathComponent = "firestore";
   return _queryCache;
 }
 
-- (LevelDbRemoteDocumentCache *)remoteDocumentCache {
-  // return [[FSTLevelDBRemoteDocumentCache alloc] initWithDB:self serializer:self.serializer];
+- (RemoteDocumentCache *)remoteDocumentCache {
   return _documentCache.get();
 }
 
