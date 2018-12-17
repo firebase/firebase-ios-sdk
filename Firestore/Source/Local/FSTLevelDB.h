@@ -83,6 +83,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic, readonly, strong) FSTLevelDBLRUDelegate *referenceDelegate;
 
+@property(nonatomic, readonly, strong) FSTLocalSerializer *serializer;
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -37,17 +37,62 @@ namespace firebase {
 namespace firestore {
 namespace local {
 
+/**
+ * Represents cached documents received from the remote backend.
+ *
+ * The cache is keyed by DocumentKey and entries in the cache are
+ * FSTMaybeDocument instances, meaning we can cache both FSTDocument instances
+ * (an actual document with data) as well as FSTDeletedDocument instances
+ * (indicating that the document is known to not exist).
+ */
 class RemoteDocumentCache {
  public:
   virtual ~RemoteDocumentCache() {
   }
 
-  virtual void AddEntry(FSTMaybeDocument *document) = 0;
-  virtual void RemoveEntry(const model::DocumentKey &key) = 0;
+  /**
+   * Adds or replaces an entry in the cache.
+   *
+   * The cache key is extracted from `document.key`. If there is already a cache
+   * entry for the key, it will be replaced.
+   *
+   * @param document A FSTDocument or FSTDeletedDocument to put in the cache.
+   */
+  virtual void AddEntry(FSTMaybeDocument* document) = 0;
 
-  virtual FSTMaybeDocument *_Nullable Get(const model::DocumentKey &key) = 0;
-  virtual model::MaybeDocumentMap GetAll(const model::DocumentKeySet &keys) = 0;
-  virtual model::DocumentMap GetMatchingDocuments(FSTQuery *query) = 0;
+  /** Removes the cached entry for the given key (no-op if no entry exists). */
+  virtual void RemoveEntry(const model::DocumentKey& key) = 0;
+
+  /**
+   * Looks up an entry in the cache.
+   *
+   * @param documentKey The key of the entry to look up.
+   * @return The cached FSTDocument or FSTDeletedDocument entry, or nil if we
+   * have nothing cached.
+   */
+  virtual FSTMaybeDocument* _Nullable Get(const model::DocumentKey& key) = 0;
+
+  /**
+   * Looks up a set of entries in the cache.
+   *
+   * @param keys The keys of the entries to look up.
+   * @return The cached Document or NoDocument entries indexed by key. If an
+   * entry is not cached, the corresponding key will be mapped to a null value.
+   */
+  virtual model::MaybeDocumentMap GetAll(const model::DocumentKeySet& keys) = 0;
+
+  /**
+   * Executes a query against the cached FSTDocument entries
+   *
+   * Implementations may return extra documents if convenient. The results
+   * should be re-filtered by the consumer before presenting them to the user.
+   *
+   * Cached FSTDeletedDocument entries have no bearing on query results.
+   *
+   * @param query The query to match documents against.
+   * @return The set of matching documents.
+   */
+  virtual model::DocumentMap GetMatchingDocuments(FSTQuery* query) = 0;
 };
 
 }  // namespace local

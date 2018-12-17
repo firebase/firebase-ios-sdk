@@ -85,7 +85,6 @@ static const char *kReservedPathComponent = "firestore";
 - (size_t)byteSize;
 
 @property(nonatomic, assign, getter=isStarted) BOOL started;
-@property(nonatomic, strong, readonly) FSTLocalSerializer *serializer;
 
 @end
 

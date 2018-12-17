@@ -16,6 +16,8 @@
 
 #import "Firestore/Example/Tests/Local/FSTRemoteDocumentCacheTests.h"
 
+#include <memory>
+
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Model/FSTDocument.h"
@@ -23,6 +25,8 @@
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
+#include "Firestore/core/src/firebase/firestore/local/memory_remote_document_cache.h"
+#include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
@@ -32,6 +36,7 @@
 
 namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
+using firebase::firestore::local::RemoteDocumentCache;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentMap;
@@ -62,7 +67,7 @@ static const int kVersion = 42;
   if (!self.remoteDocumentCache) return;
 
   self.persistence.run("testReadDocumentNotInCache", [&]() {
-    XCTAssertNil([self.remoteDocumentCache entryForKey:testutil::Key(kDocPath)]);
+    XCTAssertNil(self.remoteDocumentCache->Get(testutil::Key(kDocPath)));
   });
 }
 
@@ -70,7 +75,7 @@ static const int kVersion = 42;
 - (void)setAndReadADocumentAtPath:(const absl::string_view)path {
   self.persistence.run("setAndReadADocumentAtPath", [&]() {
     FSTDocument *written = [self setTestDocumentAtPath:path];
-    FSTMaybeDocument *read = [self.remoteDocumentCache entryForKey:testutil::Key(path)];
+    FSTMaybeDocument *read = self.remoteDocumentCache->Get(testutil::Key(path));
     XCTAssertEqualObjects(read, written);
   });
 }
@@ -87,8 +92,8 @@ static const int kVersion = 42;
   self.persistence.run("testSetAndReadSeveralDocuments", [=]() {
     NSArray<FSTDocument *> *written =
         @[ [self setTestDocumentAtPath:kDocPath], [self setTestDocumentAtPath:kLongDocPath] ];
-    MaybeDocumentMap read = [self.remoteDocumentCache
-        entriesForKeys:DocumentKeySet{testutil::Key(kDocPath), testutil::Key(kLongDocPath)}];
+    MaybeDocumentMap read = self.remoteDocumentCache->GetAll(
+        DocumentKeySet{testutil::Key(kDocPath), testutil::Key(kLongDocPath)});
     [self expectMap:read hasDocsInArray:written exactly:YES];
   });
 }
@@ -99,12 +104,11 @@ static const int kVersion = 42;
   self.persistence.run("testSetAndReadSeveralDocumentsIncludingMissingDocument", [=]() {
     NSArray<FSTDocument *> *written =
         @[ [self setTestDocumentAtPath:kDocPath], [self setTestDocumentAtPath:kLongDocPath] ];
-    MaybeDocumentMap read =
-        [self.remoteDocumentCache entriesForKeys:DocumentKeySet{
-                                                     testutil::Key(kDocPath),
-                                                     testutil::Key(kLongDocPath),
-                                                     testutil::Key("foo/nonexistent"),
-                                                 }];
+    MaybeDocumentMap read = self.remoteDocumentCache->GetAll(DocumentKeySet{
+        testutil::Key(kDocPath),
+        testutil::Key(kLongDocPath),
+        testutil::Key("foo/nonexistent"),
+    });
     [self expectMap:read hasDocsInArray:written exactly:NO];
     auto found = read.find(DocumentKey::FromPathString("foo/nonexistent"));
     XCTAssertTrue(found != read.end());
@@ -123,10 +127,9 @@ static const int kVersion = 42;
 
   self.persistence.run("testSetAndReadDeletedDocument", [&]() {
     FSTDeletedDocument *deletedDoc = FSTTestDeletedDoc(kDocPath, kVersion, NO);
-    [self.remoteDocumentCache addEntry:deletedDoc];
+    self.remoteDocumentCache->AddEntry(deletedDoc);
 
-    XCTAssertEqualObjects([self.remoteDocumentCache entryForKey:testutil::Key(kDocPath)],
-                          deletedDoc);
+    XCTAssertEqualObjects(self.remoteDocumentCache->Get(testutil::Key(kDocPath)), deletedDoc);
   });
 }
 
@@ -136,8 +139,8 @@ static const int kVersion = 42;
   self.persistence.run("testSetDocumentToNewValue", [&]() {
     [self setTestDocumentAtPath:kDocPath];
     FSTDocument *newDoc = FSTTestDoc(kDocPath, kVersion, @{@"data" : @2}, FSTDocumentStateSynced);
-    [self.remoteDocumentCache addEntry:newDoc];
-    XCTAssertEqualObjects([self.remoteDocumentCache entryForKey:testutil::Key(kDocPath)], newDoc);
+    self.remoteDocumentCache->AddEntry(newDoc);
+    XCTAssertEqualObjects(self.remoteDocumentCache->Get(testutil::Key(kDocPath)), newDoc);
   });
 }
 
@@ -146,9 +149,9 @@ static const int kVersion = 42;
 
   self.persistence.run("testRemoveDocument", [&]() {
     [self setTestDocumentAtPath:kDocPath];
-    [self.remoteDocumentCache removeEntryForKey:testutil::Key(kDocPath)];
+    self.remoteDocumentCache->RemoveEntry(testutil::Key(kDocPath));
 
-    XCTAssertNil([self.remoteDocumentCache entryForKey:testutil::Key(kDocPath)]);
+    XCTAssertNil(self.remoteDocumentCache->Get(testutil::Key(kDocPath)));
   });
 }
 
@@ -157,7 +160,7 @@ static const int kVersion = 42;
 
   self.persistence.run("testRemoveNonExistentDocument", [&]() {
     // no-op, but make sure it doesn't throw.
-    XCTAssertNoThrow([self.remoteDocumentCache removeEntryForKey:testutil::Key(kDocPath)]);
+    XCTAssertNoThrow(self.remoteDocumentCache->RemoveEntry(testutil::Key(kDocPath)));
   });
 }
 
@@ -174,7 +177,7 @@ static const int kVersion = 42;
     [self setTestDocumentAtPath:"c/1"];
 
     FSTQuery *query = FSTTestQuery("b");
-    DocumentMap results = [self.remoteDocumentCache documentsMatchingQuery:query];
+    DocumentMap results = self.remoteDocumentCache->GetMatchingDocuments(query);
     [self expectMap:results.underlying_map()
         hasDocsInArray:@[
           FSTTestDoc("b/1", kVersion, _kDocData, FSTDocumentStateSynced),
@@ -189,7 +192,7 @@ static const int kVersion = 42;
 
 - (FSTDocument *)setTestDocumentAtPath:(const absl::string_view)path {
   FSTDocument *doc = FSTTestDoc(path, kVersion, _kDocData, FSTDocumentStateSynced);
-  [self.remoteDocumentCache addEntry:doc];
+  self.remoteDocumentCache->AddEntry(doc);
   return doc;
 }
 
