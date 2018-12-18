@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-#import <Protobuf/GPBMessage.h>
 #include "Firestore/core/src/firebase/firestore/local/memory_query_cache.h"
+#import <Protobuf/GPBMessage.h>
 
-#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Local/FSTReferenceSet.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::ListenSequenceNumber;
 using firebase::firestore::model::SnapshotVersion;
-using firebase::firestore::model::TargetId ;
+using firebase::firestore::model::TargetId;
 
 namespace firebase {
 namespace firestore {
@@ -36,17 +36,16 @@ namespace local {
 
 NS_ASSUME_NONNULL_BEGIN
 
-MemoryQueryCache::MemoryQueryCache(FSTMemoryPersistence* persistence) :
-        persistence_(persistence),
-        highest_listen_sequence_number_(ListenSequenceNumber(0)),
-        highest_target_id_(TargetId(0)),
-        last_remote_snapshot_version_(SnapshotVersion::None()),
-        queries_([NSMutableDictionary dictionary]),
-        references_([[FSTReferenceSet alloc] init]) {
-
+MemoryQueryCache::MemoryQueryCache(FSTMemoryPersistence* persistence)
+    : persistence_(persistence),
+      highest_listen_sequence_number_(ListenSequenceNumber(0)),
+      highest_target_id_(TargetId(0)),
+      last_remote_snapshot_version_(SnapshotVersion::None()),
+      queries_([NSMutableDictionary dictionary]),
+      references_([[FSTReferenceSet alloc] init]) {
 }
 
-void MemoryQueryCache::Add(FSTQueryData* query_data) {
+void MemoryQueryCache::AddTarget(FSTQueryData* query_data) {
   queries_[query_data.query] = query_data;
   if (query_data.targetID > highest_target_id_) {
     highest_target_id_ = query_data.targetID;
@@ -56,57 +55,61 @@ void MemoryQueryCache::Add(FSTQueryData* query_data) {
   }
 }
 
-void MemoryQueryCache::Update(FSTQueryData* query_data) {
+void MemoryQueryCache::UpdateTarget(FSTQueryData* query_data) {
   // For the memory query cache, adds and updates are treated the same.
-  Add(query_data);
+  AddTarget(query_data);
 }
 
-void MemoryQueryCache::Remove(FSTQueryData* query_data) {
+void MemoryQueryCache::RemoveTarget(FSTQueryData* query_data) {
   [queries_ removeObjectForKey:query_data.query];
   [references_ removeReferencesForID:query_data.targetID];
 }
 
-FSTQueryData *_Nullable MemoryQueryCache::Get(FSTQuery* query) {
+FSTQueryData* _Nullable MemoryQueryCache::GetTarget(FSTQuery* query) {
   return queries_[query];
 }
 
-int MemoryQueryCache::RemoveThroughBound(model::ListenSequenceNumber upper_bound,
-        NSDictionary<NSNumber*, FSTQueryData*>* live_targets) {
-  NSMutableArray<FSTQuery *> *toRemove = [NSMutableArray array];
-  [queries_
-          enumerateKeysAndObjectsUsingBlock:^(FSTQuery *query, FSTQueryData *queryData, BOOL *stop) {
-            if (queryData.sequenceNumber <= upper_bound) {
-              if (live_targets[@(queryData.targetID)] == nil) {
-                [toRemove addObject:query];
-                [references_ removeReferencesForID:queryData.targetID];
-              }
-            }
-          }];
-  [queries_ removeObjectsForKeys:toRemove];
-  return (int)[toRemove count];
-}
-
 void MemoryQueryCache::EnumerateTargets(TargetEnumerator block) {
-  [queries_ enumerateKeysAndObjectsUsingBlock:^(FSTQuery* query, FSTQueryData* query_data, BOOL *stop) {
+  [queries_ enumerateKeysAndObjectsUsingBlock:^(
+                FSTQuery* query, FSTQueryData* query_data, BOOL* stop) {
     block(query_data, stop);
   }];
 }
 
-void MemoryQueryCache::AddMatchingKeys(const DocumentKeySet &keys, TargetId target_id) {
+int MemoryQueryCache::RemoveTargets(
+    model::ListenSequenceNumber upper_bound,
+    NSDictionary<NSNumber*, FSTQueryData*>* live_targets) {
+  NSMutableArray<FSTQuery*>* toRemove = [NSMutableArray array];
+  [queries_ enumerateKeysAndObjectsUsingBlock:^(
+                FSTQuery* query, FSTQueryData* queryData, BOOL* stop) {
+    if (queryData.sequenceNumber <= upper_bound) {
+      if (live_targets[@(queryData.targetID)] == nil) {
+        [toRemove addObject:query];
+        [references_ removeReferencesForID:queryData.targetID];
+      }
+    }
+  }];
+  [queries_ removeObjectsForKeys:toRemove];
+  return (int)[toRemove count];
+}
+
+void MemoryQueryCache::AddMatchingKeys(const DocumentKeySet& keys,
+                                       TargetId target_id) {
   [references_ addReferencesToKeys:keys forID:target_id];
   for (const DocumentKey& key : keys) {
     [persistence_.referenceDelegate addReference:key];
   }
 }
 
-void MemoryQueryCache::RemoveMatchingKeys(const DocumentKeySet &keys, TargetId target_id) {
+void MemoryQueryCache::RemoveMatchingKeys(const DocumentKeySet& keys,
+                                          TargetId target_id) {
   [references_ removeReferencesToKeys:keys forID:target_id];
   for (const DocumentKey& key : keys) {
     [persistence_.referenceDelegate removeReference:key];
   }
 }
 
-void MemoryQueryCache::RemoveMatchingKeysForTargetId(TargetId target_id) {
+void MemoryQueryCache::RemoveAllKeysForTarget(TargetId target_id) {
   [references_ removeReferencesForID:target_id];
 }
 
@@ -120,7 +123,8 @@ bool MemoryQueryCache::Contains(const DocumentKey& key) {
 
 size_t MemoryQueryCache::CalculateByteSize(FSTLocalSerializer* serializer) {
   __block size_t count = 0;
-  [queries_ enumerateKeysAndObjectsUsingBlock:^(FSTQuery* query, FSTQueryData* query_data, BOOL *stop) {
+  [queries_ enumerateKeysAndObjectsUsingBlock:^(
+                FSTQuery* query, FSTQueryData* query_data, BOOL* stop) {
     count += [[serializer encodedQueryData:query_data] serializedSize];
   }];
   return count;

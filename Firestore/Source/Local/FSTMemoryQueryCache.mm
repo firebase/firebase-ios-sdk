@@ -72,11 +72,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)addQueryData:(FSTQueryData *)queryData {
-  _cache->Add(queryData);
+  _cache->AddTarget(queryData);
 }
 
 - (void)updateQueryData:(FSTQueryData *)queryData {
-  _cache->Update(queryData);
+  _cache->UpdateTarget(queryData);
 }
 
 - (int32_t)count {
@@ -84,11 +84,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)removeQueryData:(FSTQueryData *)queryData {
-  _cache->Remove(queryData);
+  _cache->RemoveTarget(queryData);
 }
 
 - (nullable FSTQueryData *)queryDataForQuery:(FSTQuery *)query {
-  return _cache->Get(query);
+  return _cache->GetTarget(query);
 }
 
 - (void)enumerateTargetsUsingBlock:(void (^)(FSTQueryData *queryData, BOOL *stop))block {
@@ -97,7 +97,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (int)removeQueriesThroughSequenceNumber:(ListenSequenceNumber)sequenceNumber
                               liveQueries:(NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries {
-  return _cache->RemoveThroughBound(sequenceNumber, liveQueries);
+  return _cache->RemoveTargets(sequenceNumber, liveQueries);
 }
 
 #pragma mark Reference tracking
@@ -111,7 +111,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)removeMatchingKeysForTargetID:(TargetId)targetID {
-  _cache->RemoveMatchingKeysForTargetId(targetID);
+  _cache->RemoveAllKeysForTarget(targetID);
 }
 
 - (DocumentKeySet)matchingKeysForTargetID:(TargetId)targetID {

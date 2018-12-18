@@ -46,41 +46,53 @@ typedef void (^TargetEnumerator)(FSTQueryData*, BOOL*);
 
 class MemoryQueryCache {
  public:
-  MemoryQueryCache(FSTMemoryPersistence* persistence);
+  explicit MemoryQueryCache(FSTMemoryPersistence* persistence);
 
-  // Targets
-  void Add(FSTQueryData* query_data);
+  // Target-related methods
+  void AddTarget(FSTQueryData* query_data);
 
-  void Update(FSTQueryData* query_data);
+  void UpdateTarget(FSTQueryData* query_data);
 
-  void Remove(FSTQueryData* query_data);
+  void RemoveTarget(FSTQueryData* query_data);
 
-  FSTQueryData *_Nullable Get(FSTQuery* query);
+  FSTQueryData* _Nullable GetTarget(FSTQuery* query);
 
   void EnumerateTargets(TargetEnumerator block);
 
-  int RemoveThroughBound(model::ListenSequenceNumber upper_bound, NSDictionary<NSNumber*, FSTQueryData*>* live_targets);
+  int RemoveTargets(model::ListenSequenceNumber upper_bound,
+                    NSDictionary<NSNumber*, FSTQueryData*>* live_targets);
 
-  // Keys
-  void AddMatchingKeys(const model::DocumentKeySet &keys, model::TargetId target_id);
+  // Key-related methods
+  void AddMatchingKeys(const model::DocumentKeySet& keys,
+                       model::TargetId target_id);
 
-  void RemoveMatchingKeys(const model::DocumentKeySet &keys, model::TargetId target_id);
+  void RemoveMatchingKeys(const model::DocumentKeySet& keys,
+                          model::TargetId target_id);
 
-  void RemoveMatchingKeysForTargetId(model::TargetId target_id);
+  void RemoveAllKeysForTarget(model::TargetId target_id);
 
   model::DocumentKeySet GetMatchingKeys(model::TargetId target_id);
 
   bool Contains(const model::DocumentKey& key);
 
+  // Other methods and accessors
   size_t CalculateByteSize(FSTLocalSerializer* serializer);
 
-  int32_t count() const { return static_cast<int32_t>([queries_ count]); }
+  int32_t count() const {
+    return static_cast<int32_t>([queries_ count]);
+  }
 
-  model::ListenSequenceNumber highest_listen_sequence_number() const { return highest_listen_sequence_number_; }
+  model::ListenSequenceNumber highest_listen_sequence_number() const {
+    return highest_listen_sequence_number_;
+  }
 
-  model::TargetId highest_target_id() const { return highest_target_id_; }
+  model::TargetId highest_target_id() const {
+    return highest_target_id_;
+  }
 
-  const model::SnapshotVersion& last_remote_snapshot_version() const { return last_remote_snapshot_version_; }
+  const model::SnapshotVersion& last_remote_snapshot_version() const {
+    return last_remote_snapshot_version_;
+  }
 
   void set_last_remote_snapshot_version(model::SnapshotVersion version) {
     last_remote_snapshot_version_ = std::move(version);
@@ -88,6 +100,7 @@ class MemoryQueryCache {
 
  private:
   FSTMemoryPersistence* persistence_;
+  /** The highest sequence number encountered */
   model::ListenSequenceNumber highest_listen_sequence_number_;
   /** The highest numbered target ID encountered. */
   model::TargetId highest_target_id_;
@@ -95,8 +108,9 @@ class MemoryQueryCache {
   model::SnapshotVersion last_remote_snapshot_version_;
 
   /** Maps a query to the data about that query. */
-  NSMutableDictionary<FSTQuery*, FSTQueryData *>* queries_;
-  /** A ordered bidirectional mapping between documents and the remote target IDs. */
+  NSMutableDictionary<FSTQuery*, FSTQueryData*>* queries_;
+  /** A ordered bidirectional mapping between documents and the remote target
+   * IDs. */
   FSTReferenceSet* references_;
 };
 
