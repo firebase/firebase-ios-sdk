@@ -16,7 +16,7 @@
 
 #import "GDLLogEvent.h"
 
-#import "GDLLogClock.h"
+#import "GDLClock.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

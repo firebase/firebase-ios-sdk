@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "GDLLogClock.h"
+#import "GDLClock.h"
 
-@implementation GDLLogClock
+@implementation GDLClock
 
 @end

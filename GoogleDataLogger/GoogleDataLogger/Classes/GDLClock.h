@@ -31,7 +31,7 @@ typedef struct {
 } GDLLogClockSnapshot;
 
 /** This class manages the device clock and produces snapshots of the current time. */
-@interface GDLLogClock : NSObject
+@interface GDLClock : NSObject
 
 // TODO(mikehaney24): - (GDLLogClockSnapshot)snapshot;
 
