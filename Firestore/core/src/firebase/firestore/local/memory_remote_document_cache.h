@@ -42,12 +42,12 @@ namespace local {
 
 class MemoryRemoteDocumentCache : public RemoteDocumentCache {
  public:
-  void AddEntry(FSTMaybeDocument *document) override;
-  void RemoveEntry(const model::DocumentKey &key) override;
+  void Add(FSTMaybeDocument *document) override;
+  void Remove(const model::DocumentKey &key) override;
 
   FSTMaybeDocument *_Nullable Get(const model::DocumentKey &key) override;
   model::MaybeDocumentMap GetAll(const model::DocumentKeySet &keys) override;
-  model::DocumentMap GetMatchingDocuments(FSTQuery *query) override;
+  model::DocumentMap GetMatching(FSTQuery *query) override;
 
   std::vector<model::DocumentKey> RemoveOrphanedDocuments(
       FSTMemoryLRUReferenceDelegate *reference_delegate,

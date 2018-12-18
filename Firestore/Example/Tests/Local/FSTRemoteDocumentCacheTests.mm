@@ -126,7 +126,7 @@ static const int kVersion = 42;
 
   self.persistence.run("testSetAndReadDeletedDocument", [&]() {
     FSTDeletedDocument *deletedDoc = FSTTestDeletedDoc(kDocPath, kVersion, NO);
-    self.remoteDocumentCache->AddEntry(deletedDoc);
+    self.remoteDocumentCache->Add(deletedDoc);
 
     XCTAssertEqualObjects(self.remoteDocumentCache->Get(testutil::Key(kDocPath)), deletedDoc);
   });
@@ -138,7 +138,7 @@ static const int kVersion = 42;
   self.persistence.run("testSetDocumentToNewValue", [&]() {
     [self setTestDocumentAtPath:kDocPath];
     FSTDocument *newDoc = FSTTestDoc(kDocPath, kVersion, @{@"data" : @2}, FSTDocumentStateSynced);
-    self.remoteDocumentCache->AddEntry(newDoc);
+    self.remoteDocumentCache->Add(newDoc);
     XCTAssertEqualObjects(self.remoteDocumentCache->Get(testutil::Key(kDocPath)), newDoc);
   });
 }
@@ -148,7 +148,7 @@ static const int kVersion = 42;
 
   self.persistence.run("testRemoveDocument", [&]() {
     [self setTestDocumentAtPath:kDocPath];
-    self.remoteDocumentCache->RemoveEntry(testutil::Key(kDocPath));
+    self.remoteDocumentCache->Remove(testutil::Key(kDocPath));
 
     XCTAssertNil(self.remoteDocumentCache->Get(testutil::Key(kDocPath)));
   });
@@ -159,7 +159,7 @@ static const int kVersion = 42;
 
   self.persistence.run("testRemoveNonExistentDocument", [&]() {
     // no-op, but make sure it doesn't throw.
-    XCTAssertNoThrow(self.remoteDocumentCache->RemoveEntry(testutil::Key(kDocPath)));
+    XCTAssertNoThrow(self.remoteDocumentCache->Remove(testutil::Key(kDocPath)));
   });
 }
 
@@ -176,7 +176,7 @@ static const int kVersion = 42;
     [self setTestDocumentAtPath:"c/1"];
 
     FSTQuery *query = FSTTestQuery("b");
-    DocumentMap results = self.remoteDocumentCache->GetMatchingDocuments(query);
+    DocumentMap results = self.remoteDocumentCache->GetMatching(query);
     [self expectMap:results.underlying_map()
         hasDocsInArray:@[
           FSTTestDoc("b/1", kVersion, _kDocData, FSTDocumentStateSynced),
@@ -189,7 +189,7 @@ static const int kVersion = 42;
 #pragma mark - Helpers
 - (FSTDocument *)setTestDocumentAtPath:(const absl::string_view)path {
   FSTDocument *doc = FSTTestDoc(path, kVersion, _kDocData, FSTDocumentStateSynced);
-  self.remoteDocumentCache->AddEntry(doc);
+  self.remoteDocumentCache->Add(doc);
   return doc;
 }
 

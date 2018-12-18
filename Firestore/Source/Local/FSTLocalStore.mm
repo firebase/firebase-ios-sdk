@@ -288,7 +288,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
       if (!existingDoc || doc.version == SnapshotVersion::None() ||
           (authoritativeUpdates.contains(doc.key) && !existingDoc.hasPendingWrites) ||
           doc.version >= existingDoc.version) {
-        _remoteDocumentCache->AddEntry(doc);
+        _remoteDocumentCache->Add(doc);
         changedDocs = changedDocs.insert(key, doc);
       } else {
         LOG_DEBUG(
@@ -465,7 +465,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
         HARD_ASSERT(!remoteDoc, "Mutation batch %s applied to document %s resulted in nil.", batch,
                     remoteDoc);
       } else {
-        _remoteDocumentCache->AddEntry(doc);
+        _remoteDocumentCache->Add(doc);
       }
     }
   }

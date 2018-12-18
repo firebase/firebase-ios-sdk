@@ -395,7 +395,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)commitTransaction {
   for (const auto &key : *_orphaned) {
     if (![self isReferenced:key]) {
-      _persistence.remoteDocumentCache->RemoveEntry(key);
+      _persistence.remoteDocumentCache->Remove(key);
     }
   }
   _orphaned.reset();

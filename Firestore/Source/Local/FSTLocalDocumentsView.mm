@@ -156,7 +156,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (DocumentMap)documentsMatchingCollectionQuery:(FSTQuery *)query {
-  DocumentMap results = _remoteDocumentCache->GetMatchingDocuments(query);
+  DocumentMap results = _remoteDocumentCache->GetMatching(query);
   // Get locally persisted mutation batches.
   NSArray<FSTMutationBatch *> *matchingBatches =
       [self.mutationQueue allMutationBatchesAffectingQuery:query];

@@ -213,7 +213,7 @@ static const char *kReservedPathComponent = "firestore";
     if (sequenceNumber <= upperBound) {
       if (![self isPinned:docKey]) {
         count++;
-        self->_db.remoteDocumentCache->RemoveEntry(docKey);
+        self->_db.remoteDocumentCache->Remove(docKey);
         [self removeSentinel:docKey];
       }
     }

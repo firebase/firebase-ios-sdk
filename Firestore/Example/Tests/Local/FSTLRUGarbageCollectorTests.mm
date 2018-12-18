@@ -210,7 +210,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (FSTDocument *)cacheADocumentInTransaction {
   FSTDocument *doc = [self nextTestDocument];
-  _documentCache->AddEntry(doc);
+  _documentCache->Add(doc);
   return doc;
 }
 
@@ -618,7 +618,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                  key:middleDocToUpdate
                                              version:testutil::Version(version)
                                                state:FSTDocumentStateSynced];
-    _documentCache->AddEntry(doc);
+    _documentCache->Add(doc);
     [self updateTargetInTransaction:middleTarget];
   });
 
