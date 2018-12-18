@@ -16,7 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-#import "GDLLogClock.h"
 #import "GDLLogProto.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -39,7 +38,7 @@ typedef NS_ENUM(NSInteger, GDLLogQoS) {
   GDLLogQoSFast = 4
 };
 
-@interface GDLLogEvent : NSObject
+@interface GDLLogEvent : NSObject <NSSecureCoding>
 
 /** The log map identifier, to allow backends to map the extension property to a proto. */
 @property(readonly, nonatomic) NSString *logMapID;
@@ -49,13 +48,7 @@ typedef NS_ENUM(NSInteger, GDLLogQoS) {
 
 /** The log object itself, encapsulated in the transport of your choice, as long as it implements
  * the GDLLogProto protocol. */
-@property(nonatomic) id<GDLLogProto> extension;
-
-/** The quality of service tier this log belongs to. */
-@property(nonatomic) GDLLogQoS qosTier;
-
-/** The clock snapshot at the time of logging. */
-@property(nonatomic) GDLLogClockSnapshot clockSnapshot;
+@property(nullable, nonatomic) id<GDLLogProto> extension;
 
 // Please use the designated initializer.
 - (instancetype)init NS_UNAVAILABLE;

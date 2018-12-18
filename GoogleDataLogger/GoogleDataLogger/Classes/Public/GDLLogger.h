@@ -38,15 +38,19 @@ NS_ASSUME_NONNULL_BEGIN
                  logTransformers:(nullable NSArray<id<GDLLogTransformer>> *)logTransformers
                        logTarget:(NSInteger)logTarget NS_DESIGNATED_INITIALIZER;
 
-/** Logs an internal telemetry event. Logs sent using this API are lower in priority, and sometimes
- *  won't be sent on their own.
+/** Copies and logs an internal telemetry event. Logs sent using this API are lower in priority, and
+ * sometimes won't be sent on their own.
+ *
+ * @note This will convert the log event's extension proto to data and release the original log.
  *
  * @param logEvent The log event to log.
  */
 - (void)logTelemetryEvent:(GDLLogEvent *)logEvent;
 
-/** Logs an SDK service data event. Logs send using this API are higher in priority, and will cause
- *  a network request at some point in the relative near future.
+/** Copies and logs an SDK service data event. Logs send using this API are higher in priority, and
+ * will cause a network request at some point in the relative near future.
+ *
+ * @note This will convert the log event's extension proto to data and release the original log.
  *
  * @param logEvent The log event to log.
  */

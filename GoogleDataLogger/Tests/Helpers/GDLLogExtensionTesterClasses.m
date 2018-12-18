@@ -14,6 +14,20 @@
  * limitations under the License.
  */
 
-#import "GDLLogEvent.h"
-#import "GDLLogTransformer.h"
-#import "GDLLogger.h"
+#import "GDLLogExtensionTesterClasses.h"
+
+@implementation GDLLogExtensionTesterSimple
+
+- (instancetype)init {
+  self = [super init];
+  if (self) {
+    _aString = @"test";
+  }
+  return self;
+}
+
+- (NSData *)protoBytes {
+  return [_aString dataUsingEncoding:NSUTF8StringEncoding];
+}
+
+@end

@@ -16,7 +16,9 @@
 
 #import <XCTest/XCTest.h>
 
-#import "GDLLogEvent.h"
+#import <GoogleDataLogger/GDLLogEvent.h>
+
+#import "GDLLogEvent_Private.h"
 
 @interface GDLLogEventTest : XCTestCase
 
@@ -24,9 +26,35 @@
 
 @implementation GDLLogEventTest
 
+/** Tests the designated initializer. */
 - (void)testInit {
   XCTAssertNotNil([[GDLLogEvent alloc] initWithLogMapID:@"1" logTarget:1]);
   XCTAssertThrows([[GDLLogEvent alloc] initWithLogMapID:@"" logTarget:1]);
+}
+
+/** Tests NSKeyedArchiver encoding and decoding. */
+- (void)testArchiving {
+  XCTAssertTrue([GDLLogEvent supportsSecureCoding]);
+  GDLLogClockSnapshot clockSnapshot = {10, 100, 1000};
+  GDLLogEvent *logEvent = [[GDLLogEvent alloc] initWithLogMapID:@"testID" logTarget:42];
+  logEvent.extensionBytes = [@"someData" dataUsingEncoding:NSUTF8StringEncoding];
+  logEvent.qosTier = GDLLogQoSTelemetry;
+  logEvent.clockSnapshot = clockSnapshot;
+
+  NSData *archiveData = [NSKeyedArchiver archivedDataWithRootObject:logEvent];
+
+  // To ensure that all the objects being retained by the original logEvent are dealloc'd.
+  logEvent = nil;
+
+  GDLLogEvent *decodedLogEvent = [NSKeyedUnarchiver unarchiveObjectWithData:archiveData];
+  XCTAssertEqualObjects(decodedLogEvent.logMapID, @"testID");
+  XCTAssertEqual(decodedLogEvent.logTarget, 42);
+  XCTAssertEqualObjects(decodedLogEvent.extensionBytes,
+                        [@"someData" dataUsingEncoding:NSUTF8StringEncoding]);
+  XCTAssertEqual(decodedLogEvent.qosTier, GDLLogQoSTelemetry);
+  XCTAssertEqual(decodedLogEvent.clockSnapshot.timeMillis, 10);
+  XCTAssertEqual(decodedLogEvent.clockSnapshot.uptimeMillis, 100);
+  XCTAssertEqual(decodedLogEvent.clockSnapshot.timezoneOffsetMillis, 1000);
 }
 
 @end
