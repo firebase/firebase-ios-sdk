@@ -31,7 +31,6 @@
 #import "Firestore/Source/Local/FSTQueryCache.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Local/FSTReferenceSet.h"
-#import "Firestore/Source/Local/FSTRemoteDocumentCache.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
@@ -40,6 +39,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_set.h"
+#include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
@@ -47,6 +47,7 @@
 using firebase::firestore::auth::User;
 using firebase::firestore::core::TargetIdGenerator;
 using firebase::firestore::local::LruResults;
+using firebase::firestore::local::RemoteDocumentCache;
 using firebase::firestore::model::BatchId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
@@ -75,9 +76,6 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 /** The set of all mutations that have been sent but not yet been applied to the backend. */
 @property(nonatomic, strong) id<FSTMutationQueue> mutationQueue;
 
-/** The set of all cached remote documents. */
-@property(nonatomic, strong) id<FSTRemoteDocumentCache> remoteDocumentCache;
-
 /** The "local" view of all documents (layering mutationQueue on top of remoteDocumentCache). */
 @property(nonatomic, strong) FSTLocalDocumentsView *localDocuments;
 
@@ -95,6 +93,8 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 @implementation FSTLocalStore {
   /** Used to generate targetIDs for queries tracked locally. */
   TargetIdGenerator _targetIDGenerator;
+  /** The set of all cached remote documents. */
+  RemoteDocumentCache *_remoteDocumentCache;
 }
 
 - (instancetype)initWithPersistence:(id<FSTPersistence>)persistence
@@ -140,9 +140,8 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
     NSArray<FSTMutationBatch *> *newBatches = [self.mutationQueue allMutationBatches];
 
     // Recreate our LocalDocumentsView using the new MutationQueue.
-    self.localDocuments =
-        [FSTLocalDocumentsView viewWithRemoteDocumentCache:self.remoteDocumentCache
-                                             mutationQueue:self.mutationQueue];
+    self.localDocuments = [FSTLocalDocumentsView viewWithRemoteDocumentCache:_remoteDocumentCache
+                                                               mutationQueue:self.mutationQueue];
 
     // Union the old/new changed keys.
     DocumentKeySet changedKeys;
@@ -272,7 +271,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
     }
     // Each loop iteration only affects its "own" doc, so it's safe to get all the remote
     // documents in advance in a single call.
-    MaybeDocumentMap existingDocs = [self.remoteDocumentCache entriesForKeys:updatedKeys];
+    MaybeDocumentMap existingDocs = _remoteDocumentCache->GetAll(updatedKeys);
 
     for (const auto &kv : remoteEvent.documentUpdates) {
       const DocumentKey &key = kv.first;
@@ -289,7 +288,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
       if (!existingDoc || doc.version == SnapshotVersion::None() ||
           (authoritativeUpdates.contains(doc.key) && !existingDoc.hasPendingWrites) ||
           doc.version >= existingDoc.version) {
-        [self.remoteDocumentCache addEntry:doc];
+        _remoteDocumentCache->Add(doc);
         changedDocs = changedDocs.insert(key, doc);
       } else {
         LOG_DEBUG(
@@ -453,7 +452,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
   DocumentKeySet docKeys = batch.keys;
   const DocumentVersionMap &versions = batchResult.docVersions;
   for (const DocumentKey &docKey : docKeys) {
-    FSTMaybeDocument *_Nullable remoteDoc = [self.remoteDocumentCache entryForKey:docKey];
+    FSTMaybeDocument *_Nullable remoteDoc = _remoteDocumentCache->Get(docKey);
     FSTMaybeDocument *_Nullable doc = remoteDoc;
 
     auto ackVersionIter = versions.find(docKey);
@@ -466,7 +465,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
         HARD_ASSERT(!remoteDoc, "Mutation batch %s applied to document %s resulted in nil.", batch,
                     remoteDoc);
       } else {
-        [self.remoteDocumentCache addEntry:doc];
+        _remoteDocumentCache->Add(doc);
       }
     }
   }

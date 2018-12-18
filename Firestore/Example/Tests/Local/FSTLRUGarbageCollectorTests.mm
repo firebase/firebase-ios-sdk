@@ -26,12 +26,12 @@
 #import "Firestore/Source/Local/FSTMutationQueue.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Local/FSTQueryCache.h"
-#import "Firestore/Source/Local/FSTRemoteDocumentCache.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
@@ -42,6 +42,7 @@ namespace testutil = firebase::firestore::testutil;
 using firebase::firestore::auth::User;
 using firebase::firestore::local::LruParams;
 using firebase::firestore::local::LruResults;
+using firebase::firestore::local::RemoteDocumentCache;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeyHash;
 using firebase::firestore::model::DocumentKeySet;
@@ -58,7 +59,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTObjectValue *_bigObjectValue;
   id<FSTPersistence> _persistence;
   id<FSTQueryCache> _queryCache;
-  id<FSTRemoteDocumentCache> _documentCache;
+  RemoteDocumentCache *_documentCache;
   id<FSTMutationQueue> _mutationQueue;
   id<FSTLRUDelegate> _lruDelegate;
   FSTLRUGarbageCollector *_gc;
@@ -209,7 +210,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (FSTDocument *)cacheADocumentInTransaction {
   FSTDocument *doc = [self nextTestDocument];
-  [_documentCache addEntry:doc];
+  _documentCache->Add(doc);
   return doc;
 }
 
@@ -461,12 +462,11 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqual(toBeRemoved.size(), removed);
   _persistence.run("verify", [&]() {
     for (const DocumentKey &key : toBeRemoved) {
-      XCTAssertNil([_documentCache entryForKey:key]);
+      XCTAssertNil(_documentCache->Get(key));
       XCTAssertFalse([_queryCache containsKey:key]);
     }
     for (const DocumentKey &key : expectedRetained) {
-      XCTAssertNotNil([_documentCache entryForKey:key], @"Missing document %s",
-                      key.ToString().c_str());
+      XCTAssertNotNil(_documentCache->Get(key), @"Missing document %s", key.ToString().c_str());
     }
   });
   [_persistence shutdown];
@@ -618,7 +618,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                  key:middleDocToUpdate
                                              version:testutil::Version(version)
                                                state:FSTDocumentStateSynced];
-    [_documentCache addEntry:doc];
+    _documentCache->Add(doc);
     [self updateTargetInTransaction:middleTarget];
   });
 
@@ -643,14 +643,14 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqual(expectedRemoved.size(), docsRemoved);
   _persistence.run("verify results", [&]() {
     for (const DocumentKey &key : expectedRemoved) {
-      XCTAssertNil([_documentCache entryForKey:key], @"Did not expect to find %s in document cache",
+      XCTAssertNil(_documentCache->Get(key), @"Did not expect to find %s in document cache",
                    key.ToString().c_str());
       XCTAssertFalse([_queryCache containsKey:key], @"Did not expect to find %s in queryCache",
                      key.ToString().c_str());
       [self expectSentinelRemoved:key];
     }
     for (const DocumentKey &key : expectedRetained) {
-      XCTAssertNotNil([_documentCache entryForKey:key], @"Expected to find %s in document cache",
+      XCTAssertNotNil(_documentCache->Get(key), @"Expected to find %s in document cache",
                       key.ToString().c_str());
     }
   });

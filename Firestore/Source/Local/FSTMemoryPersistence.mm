@@ -24,17 +24,18 @@
 #import "Firestore/Source/Core/FSTListenSequence.h"
 #import "Firestore/Source/Local/FSTMemoryMutationQueue.h"
 #import "Firestore/Source/Local/FSTMemoryQueryCache.h"
-#import "Firestore/Source/Local/FSTMemoryRemoteDocumentCache.h"
 #import "Firestore/Source/Local/FSTReferenceSet.h"
 #include "absl/memory/memory.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/local/memory_remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 using firebase::firestore::auth::HashUser;
 using firebase::firestore::auth::User;
 using firebase::firestore::local::LruParams;
+using firebase::firestore::local::MemoryRemoteDocumentCache;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeyHash;
 using firebase::firestore::model::ListenSequenceNumber;
@@ -48,7 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FSTMemoryQueryCache *)queryCache;
 
-- (FSTMemoryRemoteDocumentCache *)remoteDocumentCache;
+- (MemoryRemoteDocumentCache *)remoteDocumentCache;
 
 @property(nonatomic, readonly) MutationQueues &mutationQueues;
 
@@ -70,8 +71,8 @@ NS_ASSUME_NONNULL_BEGIN
    */
   FSTMemoryQueryCache *_queryCache;
 
-  /** The FSTRemoteDocumentCache representing the persisted cache of remote documents. */
-  FSTMemoryRemoteDocumentCache *_remoteDocumentCache;
+  /** The RemoteDocumentCache representing the persisted cache of remote documents. */
+  MemoryRemoteDocumentCache _remoteDocumentCache;
 
   FSTTransactionRunner _transactionRunner;
 
@@ -98,7 +99,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init {
   if (self = [super init]) {
     _queryCache = [[FSTMemoryQueryCache alloc] initWithPersistence:self];
-    _remoteDocumentCache = [[FSTMemoryRemoteDocumentCache alloc] init];
     self.started = YES;
   }
   return self;
@@ -143,8 +143,8 @@ NS_ASSUME_NONNULL_BEGIN
   return _queryCache;
 }
 
-- (id<FSTRemoteDocumentCache>)remoteDocumentCache {
-  return _remoteDocumentCache;
+- (MemoryRemoteDocumentCache *)remoteDocumentCache {
+  return &_remoteDocumentCache;
 }
 
 @end
@@ -249,9 +249,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (int)removeOrphanedDocumentsThroughSequenceNumber:(ListenSequenceNumber)upperBound {
   std::vector<DocumentKey> removed =
-      [(FSTMemoryRemoteDocumentCache *)_persistence.remoteDocumentCache
-          removeOrphanedDocuments:self
-            throughSequenceNumber:upperBound];
+      _persistence.remoteDocumentCache->RemoveOrphanedDocuments(self, upperBound);
   for (const auto &key : removed) {
     _sequenceNumbers.erase(key);
   }
@@ -304,7 +302,7 @@ NS_ASSUME_NONNULL_BEGIN
   // and count bytes) is inefficient and inexact, but won't run in production.
   size_t count = 0;
   count += [_persistence.queryCache byteSizeWithSerializer:_serializer];
-  count += [_persistence.remoteDocumentCache byteSizeWithSerializer:_serializer];
+  count += _persistence.remoteDocumentCache->CalculateByteSize(_serializer);
   const MutationQueues &queues = [_persistence mutationQueues];
   for (const auto &entry : queues) {
     count += [entry.second byteSizeWithSerializer:_serializer];
@@ -397,7 +395,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)commitTransaction {
   for (const auto &key : *_orphaned) {
     if (![self isReferenced:key]) {
-      [[_persistence remoteDocumentCache] removeEntryForKey:key];
+      _persistence.remoteDocumentCache->Remove(key);
     }
   }
   _orphaned.reset();

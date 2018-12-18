@@ -46,12 +46,12 @@ class LevelDbRemoteDocumentCache : public RemoteDocumentCache {
  public:
   LevelDbRemoteDocumentCache(FSTLevelDB* db, FSTLocalSerializer* serializer);
 
-  void AddEntry(FSTMaybeDocument* document) override;
-  void RemoveEntry(const model::DocumentKey& key) override;
+  void Add(FSTMaybeDocument* document) override;
+  void Remove(const model::DocumentKey& key) override;
 
   FSTMaybeDocument* _Nullable Get(const model::DocumentKey& key) override;
   model::MaybeDocumentMap GetAll(const model::DocumentKeySet& keys) override;
-  model::DocumentMap GetMatchingDocuments(FSTQuery* query) override;
+  model::DocumentMap GetMatching(FSTQuery* query) override;
 
  private:
   FSTMaybeDocument* DecodeMaybeDocument(absl::string_view encoded,

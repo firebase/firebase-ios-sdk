@@ -58,15 +58,15 @@ class RemoteDocumentCache {
    *
    * @param document A FSTDocument or FSTDeletedDocument to put in the cache.
    */
-  virtual void AddEntry(FSTMaybeDocument* document) = 0;
+  virtual void Add(FSTMaybeDocument* document) = 0;
 
   /** Removes the cached entry for the given key (no-op if no entry exists). */
-  virtual void RemoveEntry(const model::DocumentKey& key) = 0;
+  virtual void Remove(const model::DocumentKey& key) = 0;
 
   /**
    * Looks up an entry in the cache.
    *
-   * @param documentKey The key of the entry to look up.
+   * @param key The key of the entry to look up.
    * @return The cached FSTDocument or FSTDeletedDocument entry, or nil if we
    * have nothing cached.
    */
@@ -92,7 +92,7 @@ class RemoteDocumentCache {
    * @param query The query to match documents against.
    * @return The set of matching documents.
    */
-  virtual model::DocumentMap GetMatchingDocuments(FSTQuery* query) = 0;
+  virtual model::DocumentMap GetMatching(FSTQuery* query) = 0;
 };
 
 }  // namespace local

@@ -17,6 +17,7 @@
 #import <Foundation/Foundation.h>
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
@@ -27,7 +28,6 @@
 @protocol FSTMutationQueue;
 @protocol FSTQueryCache;
 @protocol FSTReferenceDelegate;
-@protocol FSTRemoteDocumentCache;
 
 struct FSTTransactionRunner;
 
@@ -82,7 +82,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (id<FSTQueryCache>)queryCache;
 
 /** Creates an FSTRemoteDocumentCache representing the persisted cache of remote documents. */
-- (id<FSTRemoteDocumentCache>)remoteDocumentCache;
+- (firebase::firestore::local::RemoteDocumentCache *)remoteDocumentCache;
 
 @property(nonatomic, readonly, assign) const FSTTransactionRunner &run;
 

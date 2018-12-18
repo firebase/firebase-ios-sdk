@@ -43,13 +43,13 @@ LevelDbRemoteDocumentCache::LevelDbRemoteDocumentCache(
     : db_(db), serializer_(serializer) {
 }
 
-void LevelDbRemoteDocumentCache::AddEntry(FSTMaybeDocument* document) {
+void LevelDbRemoteDocumentCache::Add(FSTMaybeDocument* document) {
   std::string ldb_key = LevelDbRemoteDocumentKey::Key(document.key);
   db_.currentTransaction->Put(ldb_key,
                               [serializer_ encodedMaybeDocument:document]);
 }
 
-void LevelDbRemoteDocumentCache::RemoveEntry(const DocumentKey& key) {
+void LevelDbRemoteDocumentCache::Remove(const DocumentKey& key) {
   std::string ldb_key = LevelDbRemoteDocumentKey::Key(key);
   db_.currentTransaction->Delete(ldb_key);
 }
@@ -89,7 +89,7 @@ MaybeDocumentMap LevelDbRemoteDocumentCache::GetAll(
   return results;
 }
 
-DocumentMap LevelDbRemoteDocumentCache::GetMatchingDocuments(FSTQuery* query) {
+DocumentMap LevelDbRemoteDocumentCache::GetMatching(FSTQuery* query) {
   DocumentMap results;
 
   // Documents are ordered by key, so we can use a prefix scan to narrow down
