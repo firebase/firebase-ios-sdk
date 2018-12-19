@@ -68,7 +68,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)setLastRemoteSnapshotVersion:(SnapshotVersion)snapshotVersion {
-  _cache->set_last_remote_snapshot_version(snapshotVersion);
+  _cache->set_last_remote_snapshot_version(std::move(snapshotVersion));
 }
 
 - (void)addQueryData:(FSTQueryData *)queryData {
