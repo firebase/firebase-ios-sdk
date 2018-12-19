@@ -48,6 +48,7 @@ using firebase::firestore::core::Query;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::DocumentState;
 using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::MaybeDocument;
 using firebase::firestore::model::NoDocument;
@@ -497,8 +498,9 @@ std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
   } else if (found != nullptr) {
     return found;
   } else if (!missing.empty()) {
-    return absl::make_unique<NoDocument>(
-        DecodeKey(missing), SnapshotVersion{*std::move(read_time)});
+    return absl::make_unique<NoDocument>(DecodeKey(missing),
+                                         SnapshotVersion{*std::move(read_time)},
+                                         /*has_committed_mutations=*/false);
   } else {
     reader->Fail(
         "Invalid BatchGetDocumentsReponse message: "
@@ -551,7 +553,7 @@ std::unique_ptr<Document> Serializer::DecodeDocument(Reader* reader) const {
   if (!reader->status().ok()) return nullptr;
   return absl::make_unique<Document>(FieldValue::FromMap(fields_internal),
                                      DecodeKey(name), *std::move(version),
-                                     /*has_local_modifications=*/false);
+                                     DocumentState::kSynced);
 }
 
 void Serializer::EncodeQueryTarget(Writer* writer,

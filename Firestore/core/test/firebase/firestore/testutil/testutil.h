@@ -76,16 +76,18 @@ inline model::SnapshotVersion Version(int64_t version) {
   return model::SnapshotVersion{Timestamp::FromTimePoint(timepoint)};
 }
 
-inline model::Document Doc(absl::string_view key,
-                           int64_t version = 0,
-                           const model::ObjectValue::Map& data = {},
-                           bool has_local_mutations = false) {
+inline model::Document Doc(
+    absl::string_view key,
+    int64_t version = 0,
+    const model::ObjectValue::Map& data = {},
+    model::DocumentState document_state = model::DocumentState::kSynced) {
   return model::Document{model::FieldValue::FromMap(data), Key(key),
-                         Version(version), has_local_mutations};
+                         Version(version), document_state};
 }
 
 inline model::NoDocument DeletedDoc(absl::string_view key, int64_t version) {
-  return model::NoDocument{Key(key), Version(version)};
+  return model::NoDocument{Key(key), Version(version),
+                           /*has_committed_mutations=*/false};
 }
 
 inline core::RelationFilter::Operator OperatorFromString(absl::string_view s) {

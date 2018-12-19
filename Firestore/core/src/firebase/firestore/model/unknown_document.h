@@ -14,22 +14,30 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/model/no_document.h"
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_UNKNOWN_DOCUMENT_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_UNKNOWN_DOCUMENT_H_
 
-#include <utility>
+#include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
 
 namespace firebase {
 namespace firestore {
 namespace model {
 
-NoDocument::NoDocument(DocumentKey key,
-                       SnapshotVersion version,
-                       bool has_committed_mutations)
-    : MaybeDocument(std::move(key), std::move(version)),
-      has_committed_mutations_(has_committed_mutations) {
-  set_type(Type::NoDocument);
-}
+/**
+ * A class representing an existing document whose data is unknown (e.g. a
+ * document that was updated without a known base document).
+ */
+class UnknownDocument : public MaybeDocument {
+ public:
+  UnknownDocument(DocumentKey key, SnapshotVersion version);
+
+  bool HasPendingWrites() const override {
+    return true;
+  }
+};
 
 }  // namespace model
 }  // namespace firestore
 }  // namespace firebase
+
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_UNKNOWN_DOCUMENT_H_

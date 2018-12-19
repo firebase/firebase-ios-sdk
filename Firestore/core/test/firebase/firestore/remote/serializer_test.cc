@@ -357,6 +357,12 @@ class SerializerTest : public ::testing::Test {
       case MaybeDocument::Type::NoDocument:
         EXPECT_FALSE(value.has_value());
         break;
+      case MaybeDocument::Type::UnknownDocument:
+        // TODO(rsgowman): implement.
+        // In particular, since this statement isn't hit, it implies a missing
+        // test for UnknownDocument. However, we'll defer that until after
+        // nanopb-master is merged to master.
+        abort();
       case MaybeDocument::Type::Unknown:
         FAIL() << "We somehow created an invalid model object";
     }
@@ -888,7 +894,8 @@ TEST_F(SerializerTest,
 
   // Ensure the decoded model is as expected.
   NoDocument expected_model =
-      NoDocument(Key("one/two"), SnapshotVersion::None());
+      NoDocument(Key("one/two"), SnapshotVersion::None(),
+                 /*has_committed_mutations=*/false);
   EXPECT_EQ(expected_model, *actual_model);
 }
 

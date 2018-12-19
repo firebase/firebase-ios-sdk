@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/model/no_document.h"
+#include "Firestore/core/src/firebase/firestore/model/unknown_document.h"
 
 #include <utility>
 
@@ -22,12 +22,9 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-NoDocument::NoDocument(DocumentKey key,
-                       SnapshotVersion version,
-                       bool has_committed_mutations)
-    : MaybeDocument(std::move(key), std::move(version)),
-      has_committed_mutations_(has_committed_mutations) {
-  set_type(Type::NoDocument);
+UnknownDocument::UnknownDocument(DocumentKey key, SnapshotVersion version)
+    : MaybeDocument(std::move(key), std::move(version)) {
+  set_type(Type::UnknownDocument);
 }
 
 }  // namespace model

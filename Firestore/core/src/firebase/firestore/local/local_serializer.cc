@@ -64,8 +64,12 @@ void LocalSerializer::EncodeMaybeDocument(
       });
       return;
 
+    case MaybeDocument::Type::UnknownDocument:
+      // TODO(rsgowman): Implement
+      abort();
+
     case MaybeDocument::Type::Unknown:
-      // TODO(rsgowman)
+      // TODO(rsgowman): Error handling
       abort();
   }
 
@@ -168,8 +172,12 @@ std::unique_ptr<NoDocument> LocalSerializer::DecodeNoDocument(
   }
 
   if (!reader->status().ok()) return nullptr;
+  // TODO(rsgowman): Fix hardcoding of has_committed_mutations.
+  // Instead, we should grab this from the proto (see other ports). However,
+  // we'll defer until the nanopb-master gets merged to master.
   return absl::make_unique<NoDocument>(rpc_serializer_.DecodeKey(name),
-                                       *std::move(version));
+                                       *std::move(version),
+                                       /*has_committed_mutations=*/false);
 }
 
 void LocalSerializer::EncodeQueryData(Writer* writer,
