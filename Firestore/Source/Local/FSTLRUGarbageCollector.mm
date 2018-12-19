@@ -81,7 +81,7 @@ class RollingSequenceNumberBuffer {
 };
 
 @implementation FSTLRUGarbageCollector {
-  id<FSTLRUDelegate> _delegate;
+  __weak id<FSTLRUDelegate> _delegate;
   LruParams _params;
 }
 

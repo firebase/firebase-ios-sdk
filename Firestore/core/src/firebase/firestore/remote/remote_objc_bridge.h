@@ -185,7 +185,7 @@ class WatchStreamDelegate {
   void NotifyDelegateOnClose(const util::Status& status);
 
  private:
-  id<FSTWatchStreamDelegate> delegate_;
+  __weak id<FSTWatchStreamDelegate> delegate_;
 };
 
 /** A C++ bridge that invokes methods on an `FSTWriteStreamDelegate`. */
@@ -202,7 +202,7 @@ class WriteStreamDelegate {
   void NotifyDelegateOnClose(const util::Status& status);
 
  private:
-  id<FSTWriteStreamDelegate> delegate_;
+  __weak id<FSTWriteStreamDelegate> delegate_;
 };
 
 }  // namespace bridge
