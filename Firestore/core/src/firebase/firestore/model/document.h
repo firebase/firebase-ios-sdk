@@ -32,11 +32,13 @@ enum class DocumentState {
    * inconsistent.
    */
   kLocalMutations,
+
   /**
    * Mutations applied based on a write acknowledgment. Document is potentially
    * inconsistent.
    */
   kCommittedMutations,
+
   /** No mutations applied. Document was sent to us by Watch. */
   kSynced,
 };
@@ -63,16 +65,16 @@ class Document : public MaybeDocument {
     return data_.Get(path);
   }
 
-  bool has_local_mutations() const {
+  bool HasLocalMutations() const {
     return document_state_ == DocumentState::kLocalMutations;
   }
 
-  bool has_committed_mutations() const {
+  bool HasCommittedMutations() const {
     return document_state_ == DocumentState::kCommittedMutations;
   }
 
   bool HasPendingWrites() const override {
-    return has_local_mutations() || has_committed_mutations();
+    return HasLocalMutations() || HasCommittedMutations();
   }
 
  protected:
@@ -86,7 +88,7 @@ class Document : public MaybeDocument {
 /** Compares against another Document. */
 inline bool operator==(const Document& lhs, const Document& rhs) {
   return lhs.version() == rhs.version() && lhs.key() == rhs.key() &&
-         lhs.has_local_mutations() == rhs.has_local_mutations() &&
+         lhs.HasLocalMutations() == rhs.HasLocalMutations() &&
          lhs.data() == rhs.data();
 }
 
