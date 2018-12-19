@@ -18,11 +18,11 @@
 
 @class GDLLogEvent;
 
-/** This protocol defines the common interface of a log scorer. Log scorers are stateful objects
- *  that score logs upon insertion into storage and remain prepared to return a set of log filenames
- *to the storage system
- **/
-@protocol GDLLogScorer <NSObject>
+/** This protocol defines the common interface of a log prioritization. Log prioritizers are
+ * stateful objects that prioritize logs upon insertion into storage and remain prepared to return a
+ * set of log filenames to the storage system.
+ */
+@protocol GDLLogPrioritizer <NSObject>
 
 @required
 
@@ -34,11 +34,11 @@
  * this method. 2. The extension should be nil by this point and should not be used to prioritize
  * logs. 3. You should retain the logEvent hashes, because those are returned in logsForNextUpload.
  *
- * @param logEvent The log event to score.
+ * @param logEvent The log event to prioritize.
  */
-- (void)scoreLog:(GDLLogEvent *)logEvent;
+- (void)prioritizeLog:(GDLLogEvent *)logEvent;
 
-/** Returns a set of logs based on the prioritization logic  of the scorer.
+/** Returns a set of logs based on the logic of the prioritizer.
  *
  * @return A set of log hashes to upload, presumably based on the logs' priority.
  */

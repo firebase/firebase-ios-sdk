@@ -21,7 +21,7 @@
 /** A map of logTargets to backend implementations. */
 @property(nonatomic) NSDictionary<NSNumber *, id<GDLLogBackend>> *logTargetToBackend;
 
-/** A map of logTargets to scorer implementations. */
-@property(nonatomic) NSDictionary<NSNumber *, id<GDLLogBackend>> *logTargetToScorer;
+/** A map of logTargets to prioritizer implementations. */
+@property(nonatomic) NSDictionary<NSNumber *, id<GDLLogBackend>> *logTargetToPrioritizer;
 
 @end

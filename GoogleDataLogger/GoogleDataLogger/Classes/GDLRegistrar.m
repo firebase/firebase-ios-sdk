@@ -31,7 +31,8 @@
   // TODO
 }
 
-- (void)registerLogScorer:(id<GDLLogScorer>)scorer forLogTarget:(NSInteger)logTarget {
+- (void)registerLogPrioritizer:(id<GDLLogPrioritizer>)prioritizer
+                  forLogTarget:(NSInteger)logTarget {
   // TODO
 }
 

@@ -17,7 +17,7 @@
 #import <Foundation/Foundation.h>
 
 #import <GoogleDataLogger/GDLLogBackend.h>
-#import <GoogleDataLogger/GDLLogScorer.h>
+#import <GoogleDataLogger/GDLLogPrioritizer.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -37,12 +37,12 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)registerBackend:(id<GDLLogBackend>)backend forLogTarget:(NSInteger)logTarget;
 
-/** Registers a log scorer implementation with the GoogleDataLogger infrastructure.
+/** Registers a log prioritizer implementation with the GoogleDataLogger infrastructure.
  *
- * @param scorer The scorer object to register.
- * @param logTarget The logTarget this scorer objet will be responsible for.
+ * @param prioritizer The prioritizer object to register.
+ * @param logTarget The logTarget this prioritizer object will be responsible for.
  */
-- (void)registerLogScorer:(id<GDLLogScorer>)scorer forLogTarget:(NSInteger)logTarget;
+- (void)registerLogPrioritizer:(id<GDLLogPrioritizer>)prioritizer forLogTarget:(NSInteger)logTarget;
 
 @end
 
