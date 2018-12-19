@@ -24,6 +24,7 @@
   dispatch_once(&onceToken, ^{
     sharedInstance = [[GDLRegistrar alloc] init];
   });
+  return sharedInstance;
 }
 
 - (void)registerBackend:(id<GDLLogBackend>)backend forLogTarget:(NSInteger)logTarget {
