@@ -22,6 +22,6 @@
 @property(nonatomic) NSDictionary<NSNumber *, id<GDLLogBackend>> *logTargetToBackend;
 
 /** A map of logTargets to prioritizer implementations. */
-@property(nonatomic) NSDictionary<NSNumber *, id<GDLLogBackend>> *logTargetToPrioritizer;
+@property(nonatomic) NSDictionary<NSNumber *, id<GDLLogPrioritizer>> *logTargetToPrioritizer;
 
 @end
