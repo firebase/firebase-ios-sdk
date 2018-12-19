@@ -30,8 +30,9 @@ extension DocumentReference {
 
 extension Firestore {
   @available(swift 4.0.0)
-  struct Encoder {
-    func encode<T: Encodable>(_ value: T) throws -> [String: Any] {
+  public struct Encoder {
+    public init() {}
+    public func encode<T: Encodable>(_ value: T) throws -> [String: Any] {
       guard let topLevel = try _FirestoreEncoder().box_(value) else {
         throw EncodingError.invalidValue(value,
                                          EncodingError.Context(codingPath: [],

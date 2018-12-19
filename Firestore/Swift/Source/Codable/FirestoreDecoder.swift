@@ -30,8 +30,9 @@ extension DocumentSnapshot {
 
 extension Firestore {
   @available(swift 4.0.0)
-  struct Decoder {
-    func decode<T: Decodable>(_ type: T.Type, from container: [String: Any]) throws -> T {
+  public struct Decoder {
+    public init() {}
+    public func decode<T: Decodable>(_ type: T.Type, from container: [String: Any]) throws -> T {
       let decoder = _FirestoreDecoder(referencing: container)
       guard let value = try decoder.unbox(container, as: T.self) else {
         throw DecodingError.valueNotFound(T.self, DecodingError.Context(codingPath: [], debugDescription: "The given dictionary was invalid"))
@@ -49,6 +50,7 @@ class _FirestoreDecoder: Decoder {
   // MARK: Properties
 
   /// The decoder's storage.
+
   fileprivate var storage: _FirestoreDecodingStorage
 
   /// The path to the current point in encoding.
@@ -60,7 +62,7 @@ class _FirestoreDecoder: Decoder {
   // MARK: - Initialization
 
   /// Initializes `self` with the given top-level container and options.
-  init(referencing container: Any, at codingPath: [CodingKey] = []) {
+  public init(referencing container: Any, at codingPath: [CodingKey] = []) {
     storage = _FirestoreDecodingStorage()
     storage.push(container: container)
     self.codingPath = codingPath
@@ -1013,7 +1015,6 @@ extension _FirestoreDecoder {
     guard let data = value as? Data else {
       throw DecodingError._typeMismatch(at: codingPath, expectation: type, reality: value)
     }
-
     return data
   }
 
