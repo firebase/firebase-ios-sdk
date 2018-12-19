@@ -18,11 +18,10 @@
 
 @interface GDLRegistrar ()
 
-/** */
-- (id<GDLLogBackend>)backendForLogTarget:(NSInteger)logTarget;
+/** A map of logTargets to backend implementations. */
+@property(nonatomic) NSDictionary<NSNumber *, id<GDLLogBackend>> *logTargetToBackend;
 
-/** */
-- (id<GDLLogScorer>)scorerForLogTarger:(NSInteger)
-                             logTarget:
+/** A map of logTargets to scorer implementations. */
+@property(nonatomic) NSDictionary<NSNumber *, id<GDLLogBackend>> *logTargetToScorer;
 
-                                 @end
+@end

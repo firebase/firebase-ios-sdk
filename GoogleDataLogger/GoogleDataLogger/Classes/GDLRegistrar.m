@@ -19,10 +19,19 @@
 @implementation GDLRegistrar
 
 + (instancetype)sharedInstance {
-  return nil;
+  static GDLRegistrar *sharedInstance;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    sharedInstance = [[GDLRegistrar alloc] init];
+  });
 }
 
 - (void)registerBackend:(id<GDLLogBackend>)backend forLogTarget:(NSInteger)logTarget {
+  // TODO
+}
+
+- (void)registerLogScorer:(id<GDLLogScorer>)scorer forLogTarget:(NSInteger)logTarget {
+  // TODO
 }
 
 @end

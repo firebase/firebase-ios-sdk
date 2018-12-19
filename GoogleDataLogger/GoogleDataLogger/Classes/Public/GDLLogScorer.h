@@ -30,17 +30,18 @@
  *  method exists as a way to help prioritize which logs should be sent, which is dependent on the
  *  request proto structure of your backend.
  *
- *  @note the logEvent cannot be retained for longer than the execution time of this method. Also,
- *      extension should be nil by this point and should not be used to prioritize logs.
+ *  @note Three things: 1. the logEvent cannot be retained for longer than the execution time of
+ * this method. 2. The extension should be nil by this point and should not be used to prioritize
+ * logs. 3. You should retain the logEvent hashes, because those are returned in logsForNextUpload.
  *
  * @param logEvent The log event to score.
  */
-- (NSInteger)scoreLog:(GDLLogEvent *)logEvent;
+- (void)scoreLog:(GDLLogEvent *)logEvent;
 
 /** Returns a set of logs based on the prioritization logic  of the scorer.
  *
- * @return A set of logs to upload, presumably based on the logs' priority.
+ * @return A set of log hashes to upload, presumably based on the logs' priority.
  */
-- (NSSet<NSURL *> *)logsForNextUpload;
+- (NSSet<NSNumber *> *)logsForNextUpload;
 
 @end
