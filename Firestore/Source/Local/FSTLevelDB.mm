@@ -345,6 +345,7 @@ static const char *kReservedPathComponent = "firestore";
         [[FSTLevelDBLRUDelegate alloc] initWithPersistence:self lruParams:lruParams];
     _transactionRunner.SetBackingPersistence(self);
     _users = std::move(users);
+    // TODO(gsoltis): set up a leveldb transaction for these operations.
     [_queryCache start];
     [_referenceDelegate start];
   }

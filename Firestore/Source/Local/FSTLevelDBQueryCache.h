@@ -38,12 +38,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (nullable FSTPBTargetGlobal *)readTargetMetadataFromDB:(leveldb::DB *)db;
 
-/**
- * Retrieves the global singleton metadata row using the given transaction, if it exists.
- */
-+ (nullable FSTPBTargetGlobal *)readTargetMetadataWithTransaction:
-    (firebase::firestore::local::LevelDbTransaction *)transaction;
-
 - (instancetype)init NS_UNAVAILABLE;
 
 /**
