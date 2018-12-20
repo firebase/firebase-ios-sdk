@@ -113,8 +113,6 @@ void LevelDbQueryCache::RemoveTarget(FSTQueryData* query_data) {
   std::string key = LevelDbTargetKey::Key(target_id);
   db_.currentTransaction->Delete(key);
 
-  RemoveAllKeysForTarget(target_id);
-
   std::string index_key = LevelDbQueryTargetKey::Key(
       MakeString(query_data.query.canonicalID), target_id);
   db_.currentTransaction->Delete(index_key);
