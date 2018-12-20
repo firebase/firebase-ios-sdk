@@ -22,4 +22,8 @@
   return nil;
 }
 
+- (void)forceUploadLogs:(NSSet<NSURL *> *)logFiles target:(NSInteger)logTarget {
+  // TODO
+}
+
 @end
