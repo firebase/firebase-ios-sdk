@@ -31,6 +31,27 @@
   return self;
 }
 
+- (instancetype)copy {
+  GDLLogEvent *copy = [[GDLLogEvent alloc] initWithLogMapID:_logMapID logTarget:_logTarget];
+  copy.extension = _extension;
+  copy.extensionBytes = _extensionBytes;
+  copy.qosTier = _qosTier;
+  copy.clockSnapshot = _clockSnapshot;
+  return copy;
+}
+
+- (NSUInteger)hash {
+  return [_logMapID hash] ^ _logTarget ^ [_extensionBytes hash] ^ _qosTier ^
+         _clockSnapshot.timeMillis ^ _clockSnapshot.uptimeMillis;
+}
+
+- (void)setExtension:(id<GDLLogProto>)extension {
+  if (extension != _extension) {
+    _extension = extension;
+    _extensionBytes = [extension protoBytes];
+  }
+}
+
 #pragma mark - NSSecureCoding and NSCoding Protocols
 
 /** NSCoding key for logMapID property. */
