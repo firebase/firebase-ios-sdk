@@ -45,13 +45,15 @@ namespace firebase {
 namespace firestore {
 namespace local {
 
-typedef void (^OrphanedDocumentEnumerator)(const model::DocumentKey&,
-                                           model::ListenSequenceNumber,
-                                           BOOL*);
-
 /** Cached Queries backed by LevelDB. */
 class LevelDbQueryCache {
  public:
+  /** Enumerator callback type for orphaned documents */
+  typedef void (^OrphanedDocumentEnumerator)(const model::DocumentKey&,
+          model::ListenSequenceNumber,
+          BOOL*);
+
+
   /**
    * Retrieves the global singleton metadata row from the given database, if it
    * exists.
