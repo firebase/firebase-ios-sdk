@@ -130,6 +130,14 @@ size_t MemoryQueryCache::CalculateByteSize(FSTLocalSerializer* serializer) {
   return count;
 }
 
+const SnapshotVersion& MemoryQueryCache::GetLastRemoteSnapshotVersion() const {
+  return last_remote_snapshot_version_;
+}
+
+void MemoryQueryCache::SetLastRemoteSnapshotVersion(SnapshotVersion version) {
+  last_remote_snapshot_version_ = std::move(version);
+}
+
 NS_ASSUME_NONNULL_END
 
 }  // namespace local

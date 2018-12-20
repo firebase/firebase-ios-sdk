@@ -78,7 +78,7 @@ class MemoryQueryCache {
   // Other methods and accessors
   size_t CalculateByteSize(FSTLocalSerializer* serializer);
 
-  int32_t count() const {
+  int32_t size() const {
     return static_cast<int32_t>([queries_ count]);
   }
 
@@ -90,13 +90,9 @@ class MemoryQueryCache {
     return highest_target_id_;
   }
 
-  const model::SnapshotVersion& last_remote_snapshot_version() const {
-    return last_remote_snapshot_version_;
-  }
+  const model::SnapshotVersion& GetLastRemoteSnapshotVersion() const;
 
-  void set_last_remote_snapshot_version(model::SnapshotVersion version) {
-    last_remote_snapshot_version_ = std::move(version);
-  }
+  void SetLastRemoteSnapshotVersion(model::SnapshotVersion version);
 
  private:
   FSTMemoryPersistence* persistence_;
