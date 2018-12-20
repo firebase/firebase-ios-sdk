@@ -50,12 +50,14 @@
 
 - (void)logTelemetryEvent:(GDLLogEvent *)logEvent {
   NSAssert(logEvent, @"You can't log a nil event");
-  [[GDLLogWriter sharedInstance] writeLog:logEvent afterApplyingTransformers:_logTransformers];
+  GDLLogEvent *copiedLog = [logEvent copy];
+  [[GDLLogWriter sharedInstance] writeLog:copiedLog afterApplyingTransformers:_logTransformers];
 }
 
 - (void)logDataEvent:(GDLLogEvent *)logEvent {
   NSAssert(logEvent, @"You can't log a nil event");
-  [[GDLLogWriter sharedInstance] writeLog:logEvent afterApplyingTransformers:_logTransformers];
+  GDLLogEvent *copiedLog = [logEvent copy];
+  [[GDLLogWriter sharedInstance] writeLog:copiedLog afterApplyingTransformers:_logTransformers];
 }
 
 - (GDLLogEvent *)newEvent {
