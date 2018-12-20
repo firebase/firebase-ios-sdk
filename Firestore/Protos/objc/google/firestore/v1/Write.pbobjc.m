@@ -227,6 +227,9 @@ typedef struct GCFSDocumentTransform__storage_ {
 @dynamic transformTypeOneOfCase;
 @dynamic fieldPath;
 @dynamic setToServerValue;
+@dynamic increment;
+@dynamic maximum;
+@dynamic minimum;
 @dynamic appendMissingElements;
 @dynamic removeAllFromArray_p;
 
@@ -234,6 +237,9 @@ typedef struct GCFSDocumentTransform_FieldTransform__storage_ {
   uint32_t _has_storage_[2];
   GCFSDocumentTransform_FieldTransform_ServerValue setToServerValue;
   NSString *fieldPath;
+  GCFSValue *increment;
+  GCFSValue *maximum;
+  GCFSValue *minimum;
   GCFSArrayValue *appendMissingElements;
   GCFSArrayValue *removeAllFromArray_p;
 } GCFSDocumentTransform_FieldTransform__storage_;
@@ -261,6 +267,33 @@ typedef struct GCFSDocumentTransform_FieldTransform__storage_ {
         .offset = (uint32_t)offsetof(GCFSDocumentTransform_FieldTransform__storage_, setToServerValue),
         .flags = (GPBFieldFlags)(GPBFieldOptional | GPBFieldHasEnumDescriptor),
         .dataType = GPBDataTypeEnum,
+      },
+      {
+        .name = "increment",
+        .dataTypeSpecific.className = GPBStringifySymbol(GCFSValue),
+        .number = GCFSDocumentTransform_FieldTransform_FieldNumber_Increment,
+        .hasIndex = -1,
+        .offset = (uint32_t)offsetof(GCFSDocumentTransform_FieldTransform__storage_, increment),
+        .flags = GPBFieldOptional,
+        .dataType = GPBDataTypeMessage,
+      },
+      {
+        .name = "maximum",
+        .dataTypeSpecific.className = GPBStringifySymbol(GCFSValue),
+        .number = GCFSDocumentTransform_FieldTransform_FieldNumber_Maximum,
+        .hasIndex = -1,
+        .offset = (uint32_t)offsetof(GCFSDocumentTransform_FieldTransform__storage_, maximum),
+        .flags = GPBFieldOptional,
+        .dataType = GPBDataTypeMessage,
+      },
+      {
+        .name = "minimum",
+        .dataTypeSpecific.className = GPBStringifySymbol(GCFSValue),
+        .number = GCFSDocumentTransform_FieldTransform_FieldNumber_Minimum,
+        .hasIndex = -1,
+        .offset = (uint32_t)offsetof(GCFSDocumentTransform_FieldTransform__storage_, minimum),
+        .flags = GPBFieldOptional,
+        .dataType = GPBDataTypeMessage,
       },
       {
         .name = "appendMissingElements",

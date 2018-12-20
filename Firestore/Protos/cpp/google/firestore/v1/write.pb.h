@@ -348,6 +348,9 @@ class DocumentTransform_FieldTransform : public ::google::protobuf::Message /* @
 
   enum TransformTypeCase {
     kSetToServerValue = 2,
+    kIncrement = 3,
+    kMaximum = 4,
+    kMinimum = 5,
     kAppendMissingElements = 6,
     kRemoveAllFromArray = 7,
     TRANSFORM_TYPE_NOT_SET = 0,
@@ -455,6 +458,33 @@ class DocumentTransform_FieldTransform : public ::google::protobuf::Message /* @
   ::google::firestore::v1::DocumentTransform_FieldTransform_ServerValue set_to_server_value() const;
   void set_set_to_server_value(::google::firestore::v1::DocumentTransform_FieldTransform_ServerValue value);
 
+  // .google.firestore.v1.Value increment = 3;
+  bool has_increment() const;
+  void clear_increment();
+  static const int kIncrementFieldNumber = 3;
+  const ::google::firestore::v1::Value& increment() const;
+  ::google::firestore::v1::Value* release_increment();
+  ::google::firestore::v1::Value* mutable_increment();
+  void set_allocated_increment(::google::firestore::v1::Value* increment);
+
+  // .google.firestore.v1.Value maximum = 4;
+  bool has_maximum() const;
+  void clear_maximum();
+  static const int kMaximumFieldNumber = 4;
+  const ::google::firestore::v1::Value& maximum() const;
+  ::google::firestore::v1::Value* release_maximum();
+  ::google::firestore::v1::Value* mutable_maximum();
+  void set_allocated_maximum(::google::firestore::v1::Value* maximum);
+
+  // .google.firestore.v1.Value minimum = 5;
+  bool has_minimum() const;
+  void clear_minimum();
+  static const int kMinimumFieldNumber = 5;
+  const ::google::firestore::v1::Value& minimum() const;
+  ::google::firestore::v1::Value* release_minimum();
+  ::google::firestore::v1::Value* mutable_minimum();
+  void set_allocated_minimum(::google::firestore::v1::Value* minimum);
+
   // .google.firestore.v1.ArrayValue append_missing_elements = 6;
   bool has_append_missing_elements() const;
   void clear_append_missing_elements();
@@ -477,6 +507,9 @@ class DocumentTransform_FieldTransform : public ::google::protobuf::Message /* @
   // @@protoc_insertion_point(class_scope:google.firestore.v1.DocumentTransform.FieldTransform)
  private:
   void set_has_set_to_server_value();
+  void set_has_increment();
+  void set_has_maximum();
+  void set_has_minimum();
   void set_has_append_missing_elements();
   void set_has_remove_all_from_array();
 
@@ -489,6 +522,9 @@ class DocumentTransform_FieldTransform : public ::google::protobuf::Message /* @
   union TransformTypeUnion {
     TransformTypeUnion() {}
     int set_to_server_value_;
+    ::google::firestore::v1::Value* increment_;
+    ::google::firestore::v1::Value* maximum_;
+    ::google::firestore::v1::Value* minimum_;
     ::google::firestore::v1::ArrayValue* append_missing_elements_;
     ::google::firestore::v1::ArrayValue* remove_all_from_array_;
   } transform_type_;
@@ -1594,6 +1630,108 @@ inline void DocumentTransform_FieldTransform::set_set_to_server_value(::google::
   }
   transform_type_.set_to_server_value_ = value;
   // @@protoc_insertion_point(field_set:google.firestore.v1.DocumentTransform.FieldTransform.set_to_server_value)
+}
+
+// .google.firestore.v1.Value increment = 3;
+inline bool DocumentTransform_FieldTransform::has_increment() const {
+  return transform_type_case() == kIncrement;
+}
+inline void DocumentTransform_FieldTransform::set_has_increment() {
+  _oneof_case_[0] = kIncrement;
+}
+inline ::google::firestore::v1::Value* DocumentTransform_FieldTransform::release_increment() {
+  // @@protoc_insertion_point(field_release:google.firestore.v1.DocumentTransform.FieldTransform.increment)
+  if (has_increment()) {
+    clear_has_transform_type();
+      ::google::firestore::v1::Value* temp = transform_type_.increment_;
+    transform_type_.increment_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+inline const ::google::firestore::v1::Value& DocumentTransform_FieldTransform::increment() const {
+  // @@protoc_insertion_point(field_get:google.firestore.v1.DocumentTransform.FieldTransform.increment)
+  return has_increment()
+      ? *transform_type_.increment_
+      : *reinterpret_cast< ::google::firestore::v1::Value*>(&::google::firestore::v1::_Value_default_instance_);
+}
+inline ::google::firestore::v1::Value* DocumentTransform_FieldTransform::mutable_increment() {
+  if (!has_increment()) {
+    clear_transform_type();
+    set_has_increment();
+    transform_type_.increment_ = new ::google::firestore::v1::Value;
+  }
+  // @@protoc_insertion_point(field_mutable:google.firestore.v1.DocumentTransform.FieldTransform.increment)
+  return transform_type_.increment_;
+}
+
+// .google.firestore.v1.Value maximum = 4;
+inline bool DocumentTransform_FieldTransform::has_maximum() const {
+  return transform_type_case() == kMaximum;
+}
+inline void DocumentTransform_FieldTransform::set_has_maximum() {
+  _oneof_case_[0] = kMaximum;
+}
+inline ::google::firestore::v1::Value* DocumentTransform_FieldTransform::release_maximum() {
+  // @@protoc_insertion_point(field_release:google.firestore.v1.DocumentTransform.FieldTransform.maximum)
+  if (has_maximum()) {
+    clear_has_transform_type();
+      ::google::firestore::v1::Value* temp = transform_type_.maximum_;
+    transform_type_.maximum_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+inline const ::google::firestore::v1::Value& DocumentTransform_FieldTransform::maximum() const {
+  // @@protoc_insertion_point(field_get:google.firestore.v1.DocumentTransform.FieldTransform.maximum)
+  return has_maximum()
+      ? *transform_type_.maximum_
+      : *reinterpret_cast< ::google::firestore::v1::Value*>(&::google::firestore::v1::_Value_default_instance_);
+}
+inline ::google::firestore::v1::Value* DocumentTransform_FieldTransform::mutable_maximum() {
+  if (!has_maximum()) {
+    clear_transform_type();
+    set_has_maximum();
+    transform_type_.maximum_ = new ::google::firestore::v1::Value;
+  }
+  // @@protoc_insertion_point(field_mutable:google.firestore.v1.DocumentTransform.FieldTransform.maximum)
+  return transform_type_.maximum_;
+}
+
+// .google.firestore.v1.Value minimum = 5;
+inline bool DocumentTransform_FieldTransform::has_minimum() const {
+  return transform_type_case() == kMinimum;
+}
+inline void DocumentTransform_FieldTransform::set_has_minimum() {
+  _oneof_case_[0] = kMinimum;
+}
+inline ::google::firestore::v1::Value* DocumentTransform_FieldTransform::release_minimum() {
+  // @@protoc_insertion_point(field_release:google.firestore.v1.DocumentTransform.FieldTransform.minimum)
+  if (has_minimum()) {
+    clear_has_transform_type();
+      ::google::firestore::v1::Value* temp = transform_type_.minimum_;
+    transform_type_.minimum_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+inline const ::google::firestore::v1::Value& DocumentTransform_FieldTransform::minimum() const {
+  // @@protoc_insertion_point(field_get:google.firestore.v1.DocumentTransform.FieldTransform.minimum)
+  return has_minimum()
+      ? *transform_type_.minimum_
+      : *reinterpret_cast< ::google::firestore::v1::Value*>(&::google::firestore::v1::_Value_default_instance_);
+}
+inline ::google::firestore::v1::Value* DocumentTransform_FieldTransform::mutable_minimum() {
+  if (!has_minimum()) {
+    clear_transform_type();
+    set_has_minimum();
+    transform_type_.minimum_ = new ::google::firestore::v1::Value;
+  }
+  // @@protoc_insertion_point(field_mutable:google.firestore.v1.DocumentTransform.FieldTransform.minimum)
+  return transform_type_.minimum_;
 }
 
 // .google.firestore.v1.ArrayValue append_missing_elements = 6;
