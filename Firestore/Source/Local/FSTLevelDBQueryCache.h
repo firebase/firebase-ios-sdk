@@ -19,6 +19,7 @@
 #include <memory>
 
 #import "Firestore/Source/Local/FSTQueryCache.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_query_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "leveldb/db.h"
@@ -55,6 +56,9 @@ NS_ASSUME_NONNULL_BEGIN
     (void (^)(const firebase::firestore::model::DocumentKey &docKey,
               firebase::firestore::model::ListenSequenceNumber sequenceNumber,
               BOOL *stop))block;
+
+// Visible for testing, will go away when this class is fully ported.
+@property(readonly, nonatomic) firebase::firestore::local::LevelDbQueryCache *cache;
 
 @end
 

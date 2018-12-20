@@ -113,9 +113,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)removeMatchingKeys:(const firebase::firestore::model::DocumentKeySet &)keys
                forTargetID:(firebase::firestore::model::TargetId)targetID;
 
-/** Removes all the keys in the query results of the given target ID. */
-- (void)removeMatchingKeysForTargetID:(firebase::firestore::model::TargetId)targetID;
-
 - (firebase::firestore::model::DocumentKeySet)matchingKeysForTargetID:
     (firebase::firestore::model::TargetId)targetID;
 

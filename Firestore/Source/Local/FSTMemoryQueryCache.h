@@ -16,6 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
+#include "Firestore/core/src/firebase/firestore/local/memory_query_cache.h"
 #import "Firestore/Source/Local/FSTQueryCache.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -34,6 +35,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init NS_UNAVAILABLE;
 
 - (size_t)byteSizeWithSerializer:(FSTLocalSerializer *)serializer;
+
+// Visible for testing, will go away when this class is fully ported.
+@property(readonly, nonatomic) firebase::firestore::local::MemoryQueryCache *cache;
 
 @end
 

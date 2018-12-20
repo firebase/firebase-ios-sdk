@@ -109,10 +109,6 @@ void MemoryQueryCache::RemoveMatchingKeys(const DocumentKeySet& keys,
   }
 }
 
-void MemoryQueryCache::RemoveAllKeysForTarget(TargetId target_id) {
-  [references_ removeReferencesForID:target_id];
-}
-
 DocumentKeySet MemoryQueryCache::GetMatchingKeys(TargetId target_id) {
   return [references_ referencedKeysForID:target_id];
 }

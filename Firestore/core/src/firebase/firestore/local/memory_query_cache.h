@@ -26,6 +26,7 @@
 #include <cstdint>
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/local/query_cache.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
@@ -42,57 +43,53 @@ namespace firebase {
 namespace firestore {
 namespace local {
 
-typedef void (^TargetEnumerator)(FSTQueryData*, BOOL*);
-
-class MemoryQueryCache {
+class MemoryQueryCache : public QueryCache {
  public:
   explicit MemoryQueryCache(FSTMemoryPersistence* persistence);
 
   // Target-related methods
-  void AddTarget(FSTQueryData* query_data);
+  void AddTarget(FSTQueryData* query_data) override;
 
-  void UpdateTarget(FSTQueryData* query_data);
+  void UpdateTarget(FSTQueryData* query_data) override;
 
-  void RemoveTarget(FSTQueryData* query_data);
+  void RemoveTarget(FSTQueryData* query_data) override;
 
-  FSTQueryData* _Nullable GetTarget(FSTQuery* query);
+  FSTQueryData* _Nullable GetTarget(FSTQuery* query) override;
 
-  void EnumerateTargets(TargetEnumerator block);
+  void EnumerateTargets(TargetEnumerator block) override;
 
   int RemoveTargets(model::ListenSequenceNumber upper_bound,
-                    NSDictionary<NSNumber*, FSTQueryData*>* live_targets);
+                    NSDictionary<NSNumber*, FSTQueryData*>* live_targets) override;
 
   // Key-related methods
   void AddMatchingKeys(const model::DocumentKeySet& keys,
-                       model::TargetId target_id);
+                       model::TargetId target_id) override;
 
   void RemoveMatchingKeys(const model::DocumentKeySet& keys,
-                          model::TargetId target_id);
+                          model::TargetId target_id) override;
 
-  void RemoveAllKeysForTarget(model::TargetId target_id);
+  model::DocumentKeySet GetMatchingKeys(model::TargetId target_id) override;
 
-  model::DocumentKeySet GetMatchingKeys(model::TargetId target_id);
-
-  bool Contains(const model::DocumentKey& key);
+  bool Contains(const model::DocumentKey& key) override;
 
   // Other methods and accessors
   size_t CalculateByteSize(FSTLocalSerializer* serializer);
 
-  int32_t size() const {
+  int32_t size() const override {
     return static_cast<int32_t>([queries_ count]);
   }
 
-  model::ListenSequenceNumber highest_listen_sequence_number() const {
+  model::ListenSequenceNumber highest_listen_sequence_number() const override {
     return highest_listen_sequence_number_;
   }
 
-  model::TargetId highest_target_id() const {
+  model::TargetId highest_target_id() const override {
     return highest_target_id_;
   }
 
-  const model::SnapshotVersion& GetLastRemoteSnapshotVersion() const;
+  const model::SnapshotVersion& GetLastRemoteSnapshotVersion() const override;
 
-  void SetLastRemoteSnapshotVersion(model::SnapshotVersion version);
+  void SetLastRemoteSnapshotVersion(model::SnapshotVersion version) override;
 
  private:
   FSTMemoryPersistence* persistence_;

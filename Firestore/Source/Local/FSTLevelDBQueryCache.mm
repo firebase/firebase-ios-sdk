@@ -73,6 +73,10 @@ using leveldb::Status;
   _cache->Start();
 }
 
+- (LevelDbQueryCache *)cache {
+  return _cache.get();
+}
+
 #pragma mark - FSTQueryCache implementation
 
 - (TargetId)highestTargetID {

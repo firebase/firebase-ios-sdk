@@ -23,14 +23,11 @@
 
 #import <Foundation/Foundation.h>
 
-// TODO(gsoltis): temporary include for `TargetEnumerator`. This will move once
-// the QueryCache interface is defined, and then likely be deleted or replaced
-// in favor of an iterator.
-#import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
-#include "Firestore/core/src/firebase/firestore/local/memory_query_cache.h"
+#include "Firestore/core/src/firebase/firestore/local/query_cache.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
 #include "absl/strings/string_view.h"
 #include "leveldb/db.h"
 
@@ -46,7 +43,7 @@ namespace firestore {
 namespace local {
 
 /** Cached Queries backed by LevelDB. */
-class LevelDbQueryCache {
+class LevelDbQueryCache : public QueryCache {
  public:
   /** Enumerator callback type for orphaned documents */
   typedef void (^OrphanedDocumentEnumerator)(const model::DocumentKey&,
@@ -68,48 +65,55 @@ class LevelDbQueryCache {
   LevelDbQueryCache(FSTLevelDB* db, FSTLocalSerializer* serializer);
 
   // Target-related methods
-  void AddTarget(FSTQueryData* query_data);
+  void AddTarget(FSTQueryData* query_data) override;
 
-  void UpdateTarget(FSTQueryData* query_data);
+  void UpdateTarget(FSTQueryData* query_data) override;
 
-  void RemoveTarget(FSTQueryData* query_data);
+  void RemoveTarget(FSTQueryData* query_data) override;
 
-  FSTQueryData* _Nullable GetTarget(FSTQuery* query);
+  FSTQueryData* _Nullable GetTarget(FSTQuery* query) override;
 
-  void EnumerateTargets(TargetEnumerator block);
+  void EnumerateTargets(TargetEnumerator block) override;
 
   int RemoveTargets(model::ListenSequenceNumber upper_bound,
-                    NSDictionary<NSNumber*, FSTQueryData*>* live_targets);
+                    NSDictionary<NSNumber*, FSTQueryData*>* live_targets) override;
 
   // Key-related methods
+
+  /** Adds the given document keys to cached query results of the given target ID. */
   void AddMatchingKeys(const model::DocumentKeySet& keys,
-                       model::TargetId target_id);
+                       model::TargetId target_id) override;
 
+  /** Removes the given document keys from the cached query results of the given target ID. */
   void RemoveMatchingKeys(const model::DocumentKeySet& keys,
-                          model::TargetId target_id);
+                          model::TargetId target_id) override;
 
+  /** Removes all the keys in the query results of the given target ID. */
   void RemoveAllKeysForTarget(model::TargetId target_id);
 
-  model::DocumentKeySet GetMatchingKeys(model::TargetId target_id);
+  model::DocumentKeySet GetMatchingKeys(model::TargetId target_id) override;
 
-  bool Contains(const model::DocumentKey& key);
+  /**
+   * Checks to see if there are any references to a document with the given key.
+   */
+  bool Contains(const model::DocumentKey& key) override;
 
   // Other methods and accessors
-  int32_t size() const {
+  int32_t size() const override {
     return metadata_.targetCount;
   }
 
-  model::TargetId highest_target_id() const {
+  model::TargetId highest_target_id() const override {
     return metadata_.highestTargetId;
   }
 
-  model::ListenSequenceNumber highest_listen_sequence_number() const {
+  model::ListenSequenceNumber highest_listen_sequence_number() const override {
     return metadata_.highestListenSequenceNumber;
   }
 
-  const model::SnapshotVersion& GetLastRemoteSnapshotVersion() const;
+  const model::SnapshotVersion& GetLastRemoteSnapshotVersion() const override;
 
-  void SetLastRemoteSnapshotVersion(model::SnapshotVersion version);
+  void SetLastRemoteSnapshotVersion(model::SnapshotVersion version) override;
 
   // Non-interface methods
   void Start();

@@ -45,6 +45,10 @@ NS_ASSUME_NONNULL_BEGIN
   std::unique_ptr<MemoryQueryCache> _cache;
 }
 
+- (MemoryQueryCache *)cache {
+  return _cache.get();
+}
+
 - (instancetype)initWithPersistence:(FSTMemoryPersistence *)persistence {
   if (self = [super init]) {
     _cache = absl::make_unique<MemoryQueryCache>(persistence);
@@ -108,10 +112,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)removeMatchingKeys:(const DocumentKeySet &)keys forTargetID:(TargetId)targetID {
   _cache->RemoveMatchingKeys(keys, targetID);
-}
-
-- (void)removeMatchingKeysForTargetID:(TargetId)targetID {
-  _cache->RemoveAllKeysForTarget(targetID);
 }
 
 - (DocumentKeySet)matchingKeysForTargetID:(TargetId)targetID {
