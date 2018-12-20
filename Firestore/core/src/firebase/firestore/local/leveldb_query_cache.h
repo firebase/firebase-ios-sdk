@@ -50,9 +50,8 @@ class LevelDbQueryCache {
  public:
   /** Enumerator callback type for orphaned documents */
   typedef void (^OrphanedDocumentEnumerator)(const model::DocumentKey&,
-          model::ListenSequenceNumber,
-          BOOL*);
-
+                                             model::ListenSequenceNumber,
+                                             BOOL*);
 
   /**
    * Retrieves the global singleton metadata row from the given database, if it
@@ -96,7 +95,7 @@ class LevelDbQueryCache {
   bool Contains(const model::DocumentKey& key);
 
   // Other methods and accessors
-  int32_t count() const {
+  int32_t size() const {
     return metadata_.targetCount;
   }
 
@@ -108,11 +107,9 @@ class LevelDbQueryCache {
     return metadata_.highestListenSequenceNumber;
   }
 
-  const model::SnapshotVersion& last_remote_snapshot_version() const {
-    return last_remote_snapshot_version_;
-  }
+  const model::SnapshotVersion& GetLastRemoteSnapshotVersion() const;
 
-  void set_last_remote_snapshot_version(model::SnapshotVersion version);
+  void SetLastRemoteSnapshotVersion(model::SnapshotVersion version);
 
   // Non-interface methods
   void Start();

@@ -64,11 +64,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (const SnapshotVersion &)lastRemoteSnapshotVersion {
-  return _cache->last_remote_snapshot_version();
+  return _cache->GetLastRemoteSnapshotVersion();
 }
 
 - (void)setLastRemoteSnapshotVersion:(SnapshotVersion)snapshotVersion {
-  _cache->set_last_remote_snapshot_version(std::move(snapshotVersion));
+  _cache->SetLastRemoteSnapshotVersion(std::move(snapshotVersion));
 }
 
 - (void)addQueryData:(FSTQueryData *)queryData {
@@ -80,7 +80,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (int32_t)count {
-  return _cache->count();
+  return _cache->size();
 }
 
 - (void)removeQueryData:(FSTQueryData *)queryData {

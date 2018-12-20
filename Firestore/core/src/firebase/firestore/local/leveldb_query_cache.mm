@@ -30,17 +30,17 @@
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "absl/strings/match.h"
 
-using firebase::firestore::model::DocumentKey;
-using firebase::firestore::model::DocumentKeySet;
-using firebase::firestore::model::ListenSequenceNumber;
-using firebase::firestore::model::SnapshotVersion;
-using firebase::firestore::model::TargetId;
-using firebase::firestore::util::MakeString;
-using leveldb::Status;
-
 namespace firebase {
 namespace firestore {
 namespace local {
+
+using model::DocumentKey;
+using model::DocumentKeySet;
+using model::ListenSequenceNumber;
+using model::SnapshotVersion;
+using model::TargetId;
+using util::MakeString;
+using leveldb::Status;
 
 FSTPBTargetGlobal* LevelDbQueryCache::ReadMetadata(leveldb::DB* db) {
   std::string key = LevelDbTargetGlobalKey::Key();
@@ -72,7 +72,8 @@ LevelDbQueryCache::LevelDbQueryCache(FSTLevelDB* db,
     : db_(db), serializer_(serializer) {
 }
 
-// TODO(gsoltis): revisit this
+// TODO(gsoltis): revisit having a Start method vs a static factory function
+// that returns a started instance.
 void LevelDbQueryCache::Start() {
   // TODO(gsoltis): switch this usage of ptr to currentTransaction
   metadata_ = ReadMetadata(db_.ptr);
@@ -294,8 +295,11 @@ bool LevelDbQueryCache::Contains(const DocumentKey& key) {
   return false;
 }
 
-void LevelDbQueryCache::set_last_remote_snapshot_version(
-    SnapshotVersion version) {
+const SnapshotVersion& LevelDbQueryCache::GetLastRemoteSnapshotVersion() const {
+  return last_remote_snapshot_version_;
+}
+
+void LevelDbQueryCache::SetLastRemoteSnapshotVersion(SnapshotVersion version) {
   last_remote_snapshot_version_ = std::move(version);
   metadata_.lastRemoteSnapshotVersion =
       [serializer_ encodedVersion:last_remote_snapshot_version_];

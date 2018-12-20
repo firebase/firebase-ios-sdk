@@ -84,11 +84,11 @@ using leveldb::Status;
 }
 
 - (const SnapshotVersion &)lastRemoteSnapshotVersion {
-  return _cache->last_remote_snapshot_version();
+  return _cache->GetLastRemoteSnapshotVersion();
 }
 
 - (void)setLastRemoteSnapshotVersion:(SnapshotVersion)snapshotVersion {
-  _cache->set_last_remote_snapshot_version(std::move(snapshotVersion));
+  _cache->SetLastRemoteSnapshotVersion(std::move(snapshotVersion));
 }
 
 - (void)enumerateTargetsUsingBlock:(void (^)(FSTQueryData *queryData, BOOL *stop))block {
@@ -118,7 +118,7 @@ using leveldb::Status;
 }
 
 - (int32_t)count {
-  return _cache->count();
+  return _cache->size();
 }
 
 - (nullable FSTQueryData *)queryDataForQuery:(FSTQuery *)query {
