@@ -14,23 +14,19 @@
  * limitations under the License.
  */
 
-#import "GDLLogEvent.h"
+#import <XCTest/XCTest.h>
 
-#import "GDLClock.h"
+#import <GoogleDataLogger/GDLRegistrar.h>
 
-NS_ASSUME_NONNULL_BEGIN
-
-@interface GDLLogEvent ()
-
-/** The serialized bytes of the log object. */
-@property(nonatomic) NSData *extensionBytes;
-
-/** The quality of service tier this log belongs to. */
-@property(nonatomic) GDLLogQoS qosTier;
-
-/** The clock snapshot at the time of logging. */
-@property(nonatomic) GDLLogClockSnapshot clockSnapshot;
+@interface GDLRegistrarTest : XCTestCase
 
 @end
 
-NS_ASSUME_NONNULL_END
+@implementation GDLRegistrarTest
+
+/** Tests the default initializer. */
+- (void)testInit {
+  XCTAssertNotNil([[GDLRegistrarTest alloc] init]);
+}
+
+@end

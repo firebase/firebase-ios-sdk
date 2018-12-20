@@ -14,22 +14,26 @@
  * limitations under the License.
  */
 
-#import "GDLLogEvent.h"
-
-#import "GDLClock.h"
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface GDLLogEvent ()
+/** A struct to hold data pertaining to a snapshot in time. */
+typedef struct {
+  /** The current time in millis. */
+  int64_t timeMillis;
 
-/** The serialized bytes of the log object. */
-@property(nonatomic) NSData *extensionBytes;
+  /** The device uptime in millis. */
+  int64_t uptimeMillis;
 
-/** The quality of service tier this log belongs to. */
-@property(nonatomic) GDLLogQoS qosTier;
+  /** The timezone offset in millis. */
+  int64_t timezoneOffsetMillis;
+} GDLLogClockSnapshot;
 
-/** The clock snapshot at the time of logging. */
-@property(nonatomic) GDLLogClockSnapshot clockSnapshot;
+/** This class manages the device clock and produces snapshots of the current time. */
+@interface GDLClock : NSObject
+
+// TODO(mikehaney24): - (GDLLogClockSnapshot)snapshot;
 
 @end
 

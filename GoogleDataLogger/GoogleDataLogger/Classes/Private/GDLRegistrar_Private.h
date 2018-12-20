@@ -14,8 +14,14 @@
  * limitations under the License.
  */
 
-#import "GDLLogClock.h"
+#import <GoogleDataLogger/GDLRegistrar.h>
 
-@implementation GDLLogClock
+@interface GDLRegistrar ()
+
+/** A map of logTargets to backend implementations. */
+@property(nonatomic) NSDictionary<NSNumber *, id<GDLLogBackend>> *logTargetToBackend;
+
+/** A map of logTargets to prioritizer implementations. */
+@property(nonatomic) NSDictionary<NSNumber *, id<GDLLogPrioritizer>> *logTargetToPrioritizer;
 
 @end

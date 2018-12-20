@@ -14,23 +14,26 @@
  * limitations under the License.
  */
 
-#import "GDLLogEvent.h"
+#import "GDLRegistrar.h"
 
-#import "GDLClock.h"
+@implementation GDLRegistrar
 
-NS_ASSUME_NONNULL_BEGIN
++ (instancetype)sharedInstance {
+  static GDLRegistrar *sharedInstance;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    sharedInstance = [[GDLRegistrar alloc] init];
+  });
+  return sharedInstance;
+}
 
-@interface GDLLogEvent ()
+- (void)registerBackend:(id<GDLLogBackend>)backend forLogTarget:(NSInteger)logTarget {
+  // TODO
+}
 
-/** The serialized bytes of the log object. */
-@property(nonatomic) NSData *extensionBytes;
-
-/** The quality of service tier this log belongs to. */
-@property(nonatomic) GDLLogQoS qosTier;
-
-/** The clock snapshot at the time of logging. */
-@property(nonatomic) GDLLogClockSnapshot clockSnapshot;
+- (void)registerLogPrioritizer:(id<GDLLogPrioritizer>)prioritizer
+                  forLogTarget:(NSInteger)logTarget {
+  // TODO
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

@@ -14,27 +14,8 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import "GDLClock.h"
 
-NS_ASSUME_NONNULL_BEGIN
-
-/** A struct to hold data pertaining to a snapshot in time. */
-typedef struct {
-  /** The current time in millis. */
-  int64_t timeMillis;
-
-  /** The device uptime in millis. */
-  int64_t uptimeMillis;
-
-  /** The timezone offset in millis. */
-  int64_t timezoneOffsetMillis;
-} GDLLogClockSnapshot;
-
-/** This class manages the device clock and produces snapshots of the current time. */
-@interface GDLLogClock : NSObject
-
-// TODO(mikehaney24): - (GDLLogClockSnapshot)snapshot;
+@implementation GDLClock
 
 @end
-
-NS_ASSUME_NONNULL_END
