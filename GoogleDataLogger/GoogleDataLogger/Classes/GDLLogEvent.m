@@ -41,8 +41,9 @@
 }
 
 - (NSUInteger)hash {
-  return [_logMapID hash] ^ _logTarget ^ [_extensionBytes hash] ^ _qosTier ^
-         _clockSnapshot.timeMillis ^ _clockSnapshot.uptimeMillis;
+  // This loses some precision, but it's probably fine.
+  NSUInteger timeHash = (NSUInteger)(_clockSnapshot.timeMillis ^ _clockSnapshot.uptimeMillis);
+  return [_logMapID hash] ^ _logTarget ^ [_extensionBytes hash] ^ _qosTier ^ timeHash;
 }
 
 - (void)setExtension:(id<GDLLogProto>)extension {
