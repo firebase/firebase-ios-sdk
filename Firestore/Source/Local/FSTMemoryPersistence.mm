@@ -338,8 +338,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)removeTarget:(FSTQueryData *)queryData {
-  for (const DocumentKey &docKey :
-       _persistence.queryCache->GetMatchingKeys(queryData.targetID)) {
+  for (const DocumentKey &docKey : _persistence.queryCache->GetMatchingKeys(queryData.targetID)) {
     _orphaned->insert(docKey);
   }
   _persistence.queryCache->RemoveTarget(queryData);

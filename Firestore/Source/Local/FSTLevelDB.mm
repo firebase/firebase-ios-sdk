@@ -208,16 +208,16 @@ static const char *kReservedPathComponent = "firestore";
 
 - (int)removeOrphanedDocumentsThroughSequenceNumber:(ListenSequenceNumber)upperBound {
   __block int count = 0;
-  _db.queryCache->EnumerateOrphanedDocuments(^(
-                  const DocumentKey &docKey, ListenSequenceNumber sequenceNumber, BOOL *stop) {
-    if (sequenceNumber <= upperBound) {
-      if (![self isPinned:docKey]) {
-        count++;
-        self->_db.remoteDocumentCache->Remove(docKey);
-        [self removeSentinel:docKey];
-      }
-    }
-  });
+  _db.queryCache->EnumerateOrphanedDocuments(
+      ^(const DocumentKey &docKey, ListenSequenceNumber sequenceNumber, BOOL *stop) {
+        if (sequenceNumber <= upperBound) {
+          if (![self isPinned:docKey]) {
+            count++;
+            self->_db.remoteDocumentCache->Remove(docKey);
+            [self removeSentinel:docKey];
+          }
+        }
+      });
   return count;
 }
 
@@ -271,7 +271,6 @@ static const char *kReservedPathComponent = "firestore";
   std::unique_ptr<LevelDbRemoteDocumentCache> _documentCache;
   FSTTransactionRunner _transactionRunner;
   FSTLevelDBLRUDelegate *_referenceDelegate;
-  //FSTLevelDBQueryCache *_queryCache;
   std::unique_ptr<LevelDbQueryCache> _queryCache;
   std::set<std::string> _users;
 }
