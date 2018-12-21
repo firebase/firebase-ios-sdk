@@ -238,8 +238,8 @@ NS_ASSUME_NONNULL_BEGIN
   return _persistence.queryCache->RemoveTargets(sequenceNumber, liveQueries);
 }
 
-- (int32_t)sequenceNumberCount {
-  __block int32_t totalCount = _persistence.queryCache->size();
+- (size_t)sequenceNumberCount {
+  __block size_t totalCount = _persistence.queryCache->size();
   [self enumerateMutationsUsingBlock:^(const DocumentKey &key, ListenSequenceNumber sequenceNumber,
                                        BOOL *stop) {
     totalCount++;

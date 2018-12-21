@@ -230,8 +230,8 @@ static const char *kReservedPathComponent = "firestore";
   return _db.queryCache->RemoveTargets(sequenceNumber, liveQueries);
 }
 
-- (int32_t)sequenceNumberCount {
-  __block int32_t totalCount = _db.queryCache->size();
+- (size_t)sequenceNumberCount {
+  __block size_t totalCount = _db.queryCache->size();
   [self enumerateMutationsUsingBlock:^(const DocumentKey &key, ListenSequenceNumber sequenceNumber,
                                        BOOL *stop) {
     totalCount++;

@@ -107,7 +107,7 @@ class QueryCache {
   // Accessors
 
   /** Returns the number of targets cached. */
-  virtual int32_t size() const = 0;
+  virtual size_t size() const = 0;
 
   /**
    * Returns the highest listen sequence number of any query seen by the cache.
