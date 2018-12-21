@@ -21,6 +21,10 @@
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 #import "Firestore/Example/Tests/Local/FSTQueryCacheTests.h"
 
+#include "Firestore/core/src/firebase/firestore/local/reference_set.h"
+
+using firebase::firestore::local::ReferenceSet;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTMemoryQueryCacheTests : FSTQueryCacheTests
@@ -31,13 +35,16 @@ NS_ASSUME_NONNULL_BEGIN
  * FSTQueryCacheTests. This class is merely responsible for setting up and tearing down the
  * @a queryCache.
  */
-@implementation FSTMemoryQueryCacheTests
+@implementation FSTMemoryQueryCacheTests {
+  ReferenceSet _additionalReferences;
+}
 
 - (void)setUp {
   [super setUp];
 
   self.persistence = [FSTPersistenceTestHelpers eagerGCMemoryPersistence];
   self.queryCache = [self.persistence queryCache];
+  [self.persistence.referenceDelegate addInMemoryPins:&_additionalReferences];
 }
 
 - (void)tearDown {

@@ -29,6 +29,7 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/local/memory_remote_document_cache.h"
+#include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
@@ -36,6 +37,7 @@ using firebase::firestore::auth::HashUser;
 using firebase::firestore::auth::User;
 using firebase::firestore::local::LruParams;
 using firebase::firestore::local::MemoryRemoteDocumentCache;
+using firebase::firestore::local::ReferenceSet;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeyHash;
 using firebase::firestore::model::ListenSequenceNumber;
@@ -156,7 +158,7 @@ NS_ASSUME_NONNULL_BEGIN
   // Tracks sequence numbers of when documents are used. Equivalent to sentinel rows in
   // the leveldb implementation.
   std::unordered_map<DocumentKey, ListenSequenceNumber, DocumentKeyHash> _sequenceNumbers;
-  FSTReferenceSet *_additionalReferences;
+  ReferenceSet *_additionalReferences;
   FSTLRUGarbageCollector *_gc;
   FSTListenSequence *_listenSequence;
   ListenSequenceNumber _currentSequenceNumber;
@@ -189,7 +191,7 @@ NS_ASSUME_NONNULL_BEGIN
   return _currentSequenceNumber;
 }
 
-- (void)addInMemoryPins:(FSTReferenceSet *)set {
+- (void)addInMemoryPins:(ReferenceSet *)set {
   // Technically can't assert this, due to restartWithNoopGarbageCollector (for now...)
   // FSTAssert(_additionalReferences == nil, @"Overwriting additional references");
   _additionalReferences = set;
@@ -283,7 +285,7 @@ NS_ASSUME_NONNULL_BEGIN
   if ([self mutationQueuesContainKey:key]) {
     return YES;
   }
-  if ([_additionalReferences containsKey:key]) {
+  if (_additionalReferences->ContainsKey(key)) {
     return YES;
   }
   if ([_persistence.queryCache containsKey:key]) {
@@ -317,7 +319,7 @@ NS_ASSUME_NONNULL_BEGIN
   // This delegate should have the same lifetime as the persistence layer, but mark as
   // weak to avoid retain cycle.
   __weak FSTMemoryPersistence *_persistence;
-  FSTReferenceSet *_additionalReferences;
+  ReferenceSet *_additionalReferences;
 }
 
 - (instancetype)initWithPersistence:(FSTMemoryPersistence *)persistence {
@@ -331,7 +333,7 @@ NS_ASSUME_NONNULL_BEGIN
   return kFSTListenSequenceNumberInvalid;
 }
 
-- (void)addInMemoryPins:(FSTReferenceSet *)set {
+- (void)addInMemoryPins:(ReferenceSet *)set {
   // We should be able to assert that _additionalReferences is nil, but due to restarts in spec
   // tests it would fail.
   _additionalReferences = set;
@@ -364,7 +366,7 @@ NS_ASSUME_NONNULL_BEGIN
   if ([self mutationQueuesContainKey:key]) {
     return YES;
   }
-  if ([_additionalReferences containsKey:key]) {
+  if (_additionalReferences->ContainsKey(key)) {
     return YES;
   }
   return NO;
