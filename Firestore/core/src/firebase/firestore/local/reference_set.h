@@ -17,10 +17,10 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_REFERENCE_SET_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_REFERENCE_SET_H_
 
-#include "Firestore/core/src/firebase/firestore/model/document_key.h"
-#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_set.h"
 #include "Firestore/core/src/firebase/firestore/local/document_reference.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 
 namespace firebase {
 namespace firestore {
@@ -43,7 +43,6 @@ namespace local {
  */
 class ReferenceSet {
  public:
-
   /** Returns true if the reference set contains no references. */
   bool empty() const {
     return by_key_.empty();

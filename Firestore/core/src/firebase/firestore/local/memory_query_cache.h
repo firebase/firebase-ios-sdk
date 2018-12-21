@@ -26,10 +26,10 @@
 #include <cstdint>
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
-#include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 
 @class FSTLocalSerializer;
 @class FSTMemoryPersistence;
