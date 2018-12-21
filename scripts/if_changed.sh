@@ -66,8 +66,6 @@ else
       check_changes '^(Firestore/(core|third_party)|cmake)'
       ;;
 
-    SymbolCollision-xcodebuild-*)
-      check_changes '^(SymbolCollisionTest)'
     *)
       echo "Unknown project-method combo" 1>&2
       echo "  PROJECT=$PROJECT" 1>&2
