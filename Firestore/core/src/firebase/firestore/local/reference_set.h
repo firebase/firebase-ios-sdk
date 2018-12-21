@@ -67,7 +67,7 @@ class ReferenceSet {
 
   /** Clears all references with a given ID. Calls -removeReferenceToKey: for
    * each key removed. */
-  void RemoveReferences(int id);
+  model::DocumentKeySet RemoveReferences(int id);
 
   /** Clears all references for all IDs. */
   void RemoveAllReferences();

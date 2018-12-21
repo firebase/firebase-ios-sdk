@@ -49,17 +49,23 @@ void ReferenceSet::RemoveReferences(
   }
 }
 
-void ReferenceSet::RemoveReferences(int id) {
+DocumentKeySet ReferenceSet::RemoveReferences(int id) {
   DocumentReference start{DocumentKey::Empty(), id};
   DocumentReference end{DocumentKey::Empty(), id + 1};
 
-  for (const auto& reference : by_id_.values_in(start, end)) {
+  DocumentKeySet removed{};
+
+  auto initial = by_id_;
+  for (const auto& reference : initial.values_in(start, end)) {
     RemoveReference(reference);
+    removed = removed.insert(reference.key());
   }
+  return removed;
 }
 
 void ReferenceSet::RemoveAllReferences() {
-  for (const DocumentReference& reference : by_key_) {
+  auto initial = by_key_;
+  for (const DocumentReference& reference : initial) {
     RemoveReference(reference);
   }
 }
