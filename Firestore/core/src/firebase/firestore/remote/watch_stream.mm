@@ -19,7 +19,7 @@
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Firestore.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Firestore.pbobjc.h"
 
 namespace firebase {
 namespace firestore {
@@ -64,8 +64,8 @@ void WatchStream::UnwatchTargetId(TargetId target_id) {
 
 std::unique_ptr<GrpcStream> WatchStream::CreateGrpcStream(
     GrpcConnection* grpc_connection, const Token& token) {
-  return grpc_connection->CreateStream(
-      "/google.firestore.v1beta1.Firestore/Listen", token, this);
+  return grpc_connection->CreateStream("/google.firestore.v1.Firestore/Listen",
+                                       token, this);
 }
 
 void WatchStream::TearDown(GrpcStream* grpc_stream) {

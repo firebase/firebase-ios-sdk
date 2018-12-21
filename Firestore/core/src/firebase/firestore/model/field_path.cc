@@ -79,11 +79,6 @@ struct JoinEscaped {
 }  // namespace
 
 FieldPath FieldPath::FromServerFormat(const absl::string_view path) {
-  // TODO(b/37244157): Once we move to v1beta1, we should make this more
-  // strict. Right now, it allows non-identifier path components, even if they
-  // aren't escaped. Technically, this will mangle paths with backticks in
-  // them used in v1alpha1, but that's fine.
-
   SegmentsT segments;
   std::string segment;
   segment.reserve(path.size());
@@ -124,8 +119,6 @@ FieldPath FieldPath::FromServerFormat(const absl::string_view path) {
         break;
 
       case '\\':
-        // TODO(b/37244157): Make this a user-facing exception once we
-        // finalize field escaping.
         HARD_ASSERT(i + 1 != path.size(),
                     "Trailing escape characters not allowed in %s", path);
         ++i;

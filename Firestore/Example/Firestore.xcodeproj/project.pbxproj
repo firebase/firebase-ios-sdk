@@ -34,6 +34,11 @@
 		3B843E4C1F3A182900548890 /* remote_store_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 3B843E4A1F3930A400548890 /* remote_store_spec_test.json */; };
 		4AA4ABE36065DB79CD76DD8D /* Pods_Firestore_Benchmarks_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F694C3CE4B77B3C0FA4BBA53 /* Pods_Firestore_Benchmarks_iOS.framework */; };
 		54131E9720ADE679001DF3FF /* string_format_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54131E9620ADE678001DF3FF /* string_format_test.cc */; };
+		544129DA21C2DDC800EFB9CC /* common.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 544129D221C2DDC800EFB9CC /* common.pb.cc */; };
+		544129DB21C2DDC800EFB9CC /* firestore.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 544129D421C2DDC800EFB9CC /* firestore.pb.cc */; };
+		544129DC21C2DDC800EFB9CC /* query.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 544129D621C2DDC800EFB9CC /* query.pb.cc */; };
+		544129DD21C2DDC800EFB9CC /* document.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 544129D821C2DDC800EFB9CC /* document.pb.cc */; };
+		544129DE21C2DDC800EFB9CC /* write.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 544129D921C2DDC800EFB9CC /* write.pb.cc */; };
 		544A20EE20F6C10C004E52CD /* BasicCompileTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE0761F61F2FE68D003233AF /* BasicCompileTests.swift */; };
 		54511E8E209805F8005BD28F /* hashing_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54511E8D209805F8005BD28F /* hashing_test.cc */; };
 		5467FB01203E5717009C9584 /* FIRFirestoreTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5467FAFF203E56F8009C9584 /* FIRFirestoreTests.mm */; };
@@ -156,11 +161,6 @@
 		618BBEA620B89AAC00B5BCE7 /* target.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 618BBE7D20B89AAC00B5BCE7 /* target.pb.cc */; };
 		618BBEA720B89AAC00B5BCE7 /* maybe_document.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 618BBE7E20B89AAC00B5BCE7 /* maybe_document.pb.cc */; };
 		618BBEA820B89AAC00B5BCE7 /* mutation.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 618BBE8220B89AAC00B5BCE7 /* mutation.pb.cc */; };
-		618BBEA920B89AAC00B5BCE7 /* common.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 618BBE8820B89AAC00B5BCE7 /* common.pb.cc */; };
-		618BBEAA20B89AAC00B5BCE7 /* firestore.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 618BBE8A20B89AAC00B5BCE7 /* firestore.pb.cc */; };
-		618BBEAB20B89AAC00B5BCE7 /* query.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 618BBE8C20B89AAC00B5BCE7 /* query.pb.cc */; };
-		618BBEAC20B89AAC00B5BCE7 /* document.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 618BBE8E20B89AAC00B5BCE7 /* document.pb.cc */; };
-		618BBEAD20B89AAC00B5BCE7 /* write.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 618BBE8F20B89AAC00B5BCE7 /* write.pb.cc */; };
 		618BBEAE20B89AAC00B5BCE7 /* latlng.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 618BBE9220B89AAC00B5BCE7 /* latlng.pb.cc */; };
 		618BBEAF20B89AAC00B5BCE7 /* annotations.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 618BBE9520B89AAC00B5BCE7 /* annotations.pb.cc */; };
 		618BBEB020B89AAC00B5BCE7 /* http.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 618BBE9720B89AAC00B5BCE7 /* http.pb.cc */; };
@@ -313,6 +313,16 @@
 		403DBF6EFB541DFD01582AA3 /* path_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = path_test.cc; sourceTree = "<group>"; };
 		444B7AB3F5A2929070CB1363 /* hard_assert_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = hard_assert_test.cc; sourceTree = "<group>"; };
 		54131E9620ADE678001DF3FF /* string_format_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = string_format_test.cc; sourceTree = "<group>"; };
+		544129D021C2DDC800EFB9CC /* query.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = query.pb.h; sourceTree = "<group>"; };
+		544129D121C2DDC800EFB9CC /* common.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = common.pb.h; sourceTree = "<group>"; };
+		544129D221C2DDC800EFB9CC /* common.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = common.pb.cc; sourceTree = "<group>"; };
+		544129D321C2DDC800EFB9CC /* firestore.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = firestore.pb.h; sourceTree = "<group>"; };
+		544129D421C2DDC800EFB9CC /* firestore.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = firestore.pb.cc; sourceTree = "<group>"; };
+		544129D521C2DDC800EFB9CC /* write.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = write.pb.h; sourceTree = "<group>"; };
+		544129D621C2DDC800EFB9CC /* query.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = query.pb.cc; sourceTree = "<group>"; };
+		544129D721C2DDC800EFB9CC /* document.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = document.pb.h; sourceTree = "<group>"; };
+		544129D821C2DDC800EFB9CC /* document.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = document.pb.cc; sourceTree = "<group>"; };
+		544129D921C2DDC800EFB9CC /* write.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = write.pb.cc; sourceTree = "<group>"; };
 		54511E8D209805F8005BD28F /* hashing_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = hashing_test.cc; sourceTree = "<group>"; };
 		5467FAFF203E56F8009C9584 /* FIRFirestoreTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FIRFirestoreTests.mm; sourceTree = "<group>"; };
 		5467FB06203E6A44009C9584 /* app_testing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = app_testing.h; sourceTree = "<group>"; };
@@ -456,16 +466,6 @@
 		618BBE8020B89AAC00B5BCE7 /* maybe_document.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = maybe_document.pb.h; sourceTree = "<group>"; };
 		618BBE8120B89AAC00B5BCE7 /* mutation.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mutation.pb.h; sourceTree = "<group>"; };
 		618BBE8220B89AAC00B5BCE7 /* mutation.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mutation.pb.cc; sourceTree = "<group>"; };
-		618BBE8620B89AAC00B5BCE7 /* query.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = query.pb.h; sourceTree = "<group>"; };
-		618BBE8720B89AAC00B5BCE7 /* common.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = common.pb.h; sourceTree = "<group>"; };
-		618BBE8820B89AAC00B5BCE7 /* common.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = common.pb.cc; sourceTree = "<group>"; };
-		618BBE8920B89AAC00B5BCE7 /* firestore.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = firestore.pb.h; sourceTree = "<group>"; };
-		618BBE8A20B89AAC00B5BCE7 /* firestore.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = firestore.pb.cc; sourceTree = "<group>"; };
-		618BBE8B20B89AAC00B5BCE7 /* write.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = write.pb.h; sourceTree = "<group>"; };
-		618BBE8C20B89AAC00B5BCE7 /* query.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = query.pb.cc; sourceTree = "<group>"; };
-		618BBE8D20B89AAC00B5BCE7 /* document.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = document.pb.h; sourceTree = "<group>"; };
-		618BBE8E20B89AAC00B5BCE7 /* document.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = document.pb.cc; sourceTree = "<group>"; };
-		618BBE8F20B89AAC00B5BCE7 /* write.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = write.pb.cc; sourceTree = "<group>"; };
 		618BBE9120B89AAC00B5BCE7 /* latlng.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = latlng.pb.h; sourceTree = "<group>"; };
 		618BBE9220B89AAC00B5BCE7 /* latlng.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = latlng.pb.cc; sourceTree = "<group>"; };
 		618BBE9420B89AAC00B5BCE7 /* http.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = http.pb.h; sourceTree = "<group>"; };
@@ -638,6 +638,23 @@
 				54D400D32148BACE001D2BCC /* GoogleService-Info.plist */,
 			);
 			path = App;
+			sourceTree = "<group>";
+		};
+		544129CF21C2DDC800EFB9CC /* v1 */ = {
+			isa = PBXGroup;
+			children = (
+				544129D221C2DDC800EFB9CC /* common.pb.cc */,
+				544129D121C2DDC800EFB9CC /* common.pb.h */,
+				544129D821C2DDC800EFB9CC /* document.pb.cc */,
+				544129D721C2DDC800EFB9CC /* document.pb.h */,
+				544129D421C2DDC800EFB9CC /* firestore.pb.cc */,
+				544129D321C2DDC800EFB9CC /* firestore.pb.h */,
+				544129D621C2DDC800EFB9CC /* query.pb.cc */,
+				544129D021C2DDC800EFB9CC /* query.pb.h */,
+				544129D921C2DDC800EFB9CC /* write.pb.cc */,
+				544129D521C2DDC800EFB9CC /* write.pb.h */,
+			);
+			path = v1;
 			sourceTree = "<group>";
 		};
 		544A20ED20F6C046004E52CD /* API */ = {
@@ -940,26 +957,9 @@
 		618BBE8420B89AAC00B5BCE7 /* firestore */ = {
 			isa = PBXGroup;
 			children = (
-				618BBE8520B89AAC00B5BCE7 /* v1beta1 */,
+				544129CF21C2DDC800EFB9CC /* v1 */,
 			);
 			path = firestore;
-			sourceTree = "<group>";
-		};
-		618BBE8520B89AAC00B5BCE7 /* v1beta1 */ = {
-			isa = PBXGroup;
-			children = (
-				618BBE8820B89AAC00B5BCE7 /* common.pb.cc */,
-				618BBE8720B89AAC00B5BCE7 /* common.pb.h */,
-				618BBE8E20B89AAC00B5BCE7 /* document.pb.cc */,
-				618BBE8D20B89AAC00B5BCE7 /* document.pb.h */,
-				618BBE8A20B89AAC00B5BCE7 /* firestore.pb.cc */,
-				618BBE8920B89AAC00B5BCE7 /* firestore.pb.h */,
-				618BBE8C20B89AAC00B5BCE7 /* query.pb.cc */,
-				618BBE8620B89AAC00B5BCE7 /* query.pb.h */,
-				618BBE8F20B89AAC00B5BCE7 /* write.pb.cc */,
-				618BBE8B20B89AAC00B5BCE7 /* write.pb.h */,
-			);
-			path = v1beta1;
 			sourceTree = "<group>";
 		};
 		618BBE9020B89AAC00B5BCE7 /* type */ = {
@@ -1927,14 +1927,14 @@
 				B6FB467D208E9D3C00554BA2 /* async_queue_test.cc in Sources */,
 				54740A581FC914F000713A1A /* autoid_test.cc in Sources */,
 				AB380D02201BC69F00D97691 /* bits_test.cc in Sources */,
-				618BBEA920B89AAC00B5BCE7 /* common.pb.cc in Sources */,
+				544129DA21C2DDC800EFB9CC /* common.pb.cc in Sources */,
 				548DB929200D59F600E00ABC /* comparison_test.cc in Sources */,
 				B67BF449216EB43000CA9097 /* create_noop_connectivity_monitor.cc in Sources */,
 				ABC1D7DC2023A04B00BA84F0 /* credentials_provider_test.cc in Sources */,
 				ABE6637A201FA81900ED349A /* database_id_test.cc in Sources */,
 				AB38D93020236E21000A432D /* database_info_test.cc in Sources */,
 				546854AA20A36867004BDBD5 /* datastore_test.mm in Sources */,
-				618BBEAC20B89AAC00B5BCE7 /* document.pb.cc in Sources */,
+				544129DD21C2DDC800EFB9CC /* document.pb.cc in Sources */,
 				B6152AD7202A53CB000E5744 /* document_key_test.cc in Sources */,
 				AB6B908420322E4D00CC290A /* document_test.cc in Sources */,
 				ABC1D7DD2023A04F00BA84F0 /* empty_credentials_provider_test.cc in Sources */,
@@ -1949,7 +1949,7 @@
 				AB356EF7200EA5EB0089B766 /* field_value_test.cc in Sources */,
 				D94A1862B8FB778225DB54A1 /* filesystem_test.cc in Sources */,
 				ABC1D7E42024AFDE00BA84F0 /* firebase_credentials_provider_test.mm in Sources */,
-				618BBEAA20B89AAC00B5BCE7 /* firestore.pb.cc in Sources */,
+				544129DB21C2DDC800EFB9CC /* firestore.pb.cc in Sources */,
 				AB7BAB342012B519001E0872 /* geo_point_test.cc in Sources */,
 				B6D9649121544D4F00EB9CFB /* grpc_connection_test.cc in Sources */,
 				B6BBE43121262CF400C6A53E /* grpc_stream_test.cc in Sources */,
@@ -1973,7 +1973,7 @@
 				AB380D04201BC6E400D97691 /* ordered_code_test.cc in Sources */,
 				5A080105CCBFDB6BF3F3772D /* path_test.cc in Sources */,
 				549CCA5920A36E1F00BCEB75 /* precondition_test.cc in Sources */,
-				618BBEAB20B89AAC00B5BCE7 /* query.pb.cc in Sources */,
+				544129DC21C2DDC800EFB9CC /* query.pb.cc in Sources */,
 				6F3CAC76D918D6B0917EDF92 /* query_test.cc in Sources */,
 				B686F2B22025000D0028D6BE /* resource_path_test.cc in Sources */,
 				54740A571FC914BA00713A1A /* secure_random_test.cc in Sources */,
@@ -2000,7 +2000,7 @@
 				549CCA5120A36DBC00BCEB75 /* tree_sorted_map_test.cc in Sources */,
 				C80B10E79CDD7EF7843C321E /* type_traits_apple_test.mm in Sources */,
 				ABC1D7DE2023A05300BA84F0 /* user_test.cc in Sources */,
-				618BBEAD20B89AAC00B5BCE7 /* write.pb.cc in Sources */,
+				544129DE21C2DDC800EFB9CC /* write.pb.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

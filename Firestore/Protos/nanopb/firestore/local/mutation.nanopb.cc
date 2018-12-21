@@ -37,9 +37,9 @@ const pb_field_t firestore_client_MutationQueue_fields[3] = {
 
 const pb_field_t firestore_client_WriteBatch_fields[5] = {
     PB_FIELD(  1, INT32   , SINGULAR, STATIC  , FIRST, firestore_client_WriteBatch, batch_id, batch_id, 0),
-    PB_FIELD(  2, MESSAGE , REPEATED, POINTER , OTHER, firestore_client_WriteBatch, writes, batch_id, &google_firestore_v1beta1_Write_fields),
+    PB_FIELD(  2, MESSAGE , REPEATED, POINTER , OTHER, firestore_client_WriteBatch, writes, batch_id, &google_firestore_v1_Write_fields),
     PB_FIELD(  3, MESSAGE , SINGULAR, STATIC  , OTHER, firestore_client_WriteBatch, local_write_time, writes, &google_protobuf_Timestamp_fields),
-    PB_FIELD(  4, MESSAGE , REPEATED, POINTER , OTHER, firestore_client_WriteBatch, base_writes, local_write_time, &google_firestore_v1beta1_Write_fields),
+    PB_FIELD(  4, MESSAGE , REPEATED, POINTER , OTHER, firestore_client_WriteBatch, base_writes, local_write_time, &google_firestore_v1_Write_fields),
     PB_LAST_FIELD
 };
 

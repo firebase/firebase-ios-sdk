@@ -134,9 +134,9 @@ union DoubleBits {
 };
 
 - (void)testNormalizesNaNs {
-  // NOTE: With v1beta1 query semantics, it's no longer as important that our NaN representation
-  // matches the backend, since all NaNs are defined to sort as equal, but we preserve the
-  // normalization and this test regardless for now.
+  // NOTE: With v1 query semantics, it's no longer as important that our NaN representation matches
+  // the backend, since all NaNs are defined to sort as equal, but we preserve the normalization and
+  // this test regardless for now.
 
   // We use a canonical NaN bit pattern that's common for both Java and Objective-C. Specifically:
   //   - sign: 0
