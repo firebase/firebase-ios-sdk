@@ -31,6 +31,31 @@
   return self;
 }
 
+- (instancetype)copy {
+  GDLLogEvent *copy = [[GDLLogEvent alloc] initWithLogMapID:_logMapID logTarget:_logTarget];
+  copy.extension = _extension;
+  copy.extensionBytes = _extensionBytes;
+  copy.qosTier = _qosTier;
+  copy.clockSnapshot = _clockSnapshot;
+  return copy;
+}
+
+- (NSUInteger)hash {
+  // This loses some precision, but it's probably fine.
+  NSUInteger timeHash = (NSUInteger)(_clockSnapshot.timeMillis ^ _clockSnapshot.uptimeMillis);
+  return [_logMapID hash] ^ _logTarget ^ [_extensionBytes hash] ^ _qosTier ^ timeHash;
+}
+
+- (void)setExtension:(id<GDLLogProto>)extension {
+  // If you're looking here because of a performance issue in -protoBytes slowing the assignment
+  // of extension, one way to address this is to add a queue to this class,
+  // dispatch_(barrier_ if concurrent)async here, and implement the getter with a dispatch_sync.
+  if (extension != _extension) {
+    _extension = extension;
+    _extensionBytes = [extension protoBytes];
+  }
+}
+
 #pragma mark - NSSecureCoding and NSCoding Protocols
 
 /** NSCoding key for logMapID property. */

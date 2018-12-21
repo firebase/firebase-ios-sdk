@@ -61,17 +61,6 @@
         return;
       }
     }
-
-    // Convert the extension to bytes after transforming.
-    NSAssert([log.extension respondsToSelector:@selector(protoBytes)],
-             @"The log event's extension must respond to -protoBytes.");
-    if ([log.extension respondsToSelector:@selector(protoBytes)]) {
-      log.extensionBytes = [log.extension protoBytes];
-      log.extension = nil;
-    } else {
-      GDLLogWarning(GDLMCWExtensionMissingBytesImpl, @"%@",
-                    @"The log event's extension must respond to -protoBytes.");
-    }
     // TODO(mikehaney24): [[GDLLogStorage sharedInstance] storeLog:transformedLog];
   });
 }
