@@ -58,8 +58,9 @@ class MemoryQueryCache : public QueryCache {
 
   void EnumerateTargets(TargetEnumerator block) override;
 
-  int RemoveTargets(model::ListenSequenceNumber upper_bound,
-                    NSDictionary<NSNumber*, FSTQueryData*>* live_targets) override;
+  int RemoveTargets(
+      model::ListenSequenceNumber upper_bound,
+      NSDictionary<NSNumber*, FSTQueryData*>* live_targets) override;
 
   // Key-related methods
   void AddMatchingKeys(const model::DocumentKeySet& keys,

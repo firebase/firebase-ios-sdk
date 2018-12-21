@@ -16,8 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
-#include "Firestore/core/src/firebase/firestore/local/memory_query_cache.h"
 #import "Firestore/Source/Local/FSTQueryCache.h"
+#include "Firestore/core/src/firebase/firestore/local/memory_query_cache.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

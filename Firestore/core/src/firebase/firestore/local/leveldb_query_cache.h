@@ -23,11 +23,11 @@
 
 #import <Foundation/Foundation.h>
 
+#import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
 #include "Firestore/core/src/firebase/firestore/local/query_cache.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
-#import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
 #include "absl/strings/string_view.h"
 #include "leveldb/db.h"
 
@@ -75,16 +75,19 @@ class LevelDbQueryCache : public QueryCache {
 
   void EnumerateTargets(TargetEnumerator block) override;
 
-  int RemoveTargets(model::ListenSequenceNumber upper_bound,
-                    NSDictionary<NSNumber*, FSTQueryData*>* live_targets) override;
+  int RemoveTargets(
+      model::ListenSequenceNumber upper_bound,
+      NSDictionary<NSNumber*, FSTQueryData*>* live_targets) override;
 
   // Key-related methods
 
-  /** Adds the given document keys to cached query results of the given target ID. */
+  /** Adds the given document keys to cached query results of the given target
+   * ID. */
   void AddMatchingKeys(const model::DocumentKeySet& keys,
                        model::TargetId target_id) override;
 
-  /** Removes the given document keys from the cached query results of the given target ID. */
+  /** Removes the given document keys from the cached query results of the given
+   * target ID. */
   void RemoveMatchingKeys(const model::DocumentKeySet& keys,
                           model::TargetId target_id) override;
 

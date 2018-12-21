@@ -38,11 +38,12 @@ namespace firestore {
 namespace local {
 
 /**
- * Represents cached targets received from the remote backend. This contains both a mapping between
- * targets and the documents that matched them according to the server, but also metadata about the
- * targets.
+ * Represents cached targets received from the remote backend. This contains
+ * both a mapping between targets and the documents that matched them according
+ * to the server, but also metadata about the targets.
  *
- * The cache is keyed by FSTQuery and entries in the cache are FSTQueryData instances.
+ * The cache is keyed by FSTQuery and entries in the cache are FSTQueryData
+ * instances.
  */
 class QueryCache {
  public:
@@ -56,7 +57,8 @@ class QueryCache {
   /**
    * Adds an entry in the cache.
    *
-   * The cache key is extracted from `queryData.query`. The key must not already exist in the cache.
+   * The cache key is extracted from `queryData.query`. The key must not already
+   * exist in the cache.
    *
    * @param query_data A new FSTQueryData instance to put in the cache.
    */
@@ -65,34 +67,38 @@ class QueryCache {
   /**
    * Updates an entry in the cache.
    *
-   * The cache key is extracted from `queryData.query`. The entry must already exist in the cache,
-   * and it will be replaced.
-   * @param query_data An FSTQueryData instance to replace an existing entry in the cache
+   * The cache key is extracted from `queryData.query`. The entry must already
+   * exist in the cache, and it will be replaced.
+   * @param query_data An FSTQueryData instance to replace an existing entry in
+   * the cache
    */
   virtual void UpdateTarget(FSTQueryData* query_data) = 0;
 
-  /** Removes the cached entry for the given query data. The entry must already exist in the cache. */
+  /** Removes the cached entry for the given query data. The entry must already
+   * exist in the cache. */
   virtual void RemoveTarget(FSTQueryData* query_data) = 0;
 
   /**
    * Looks up an FSTQueryData entry in the cache.
    *
    * @param query The query corresponding to the entry to look up.
-   * @return The cached FSTQueryData entry, or nil if the cache has no entry for the query.
+   * @return The cached FSTQueryData entry, or nil if the cache has no entry for
+   * the query.
    */
   virtual FSTQueryData* _Nullable GetTarget(FSTQuery* query) = 0;
 
   virtual void EnumerateTargets(TargetEnumerator block) = 0;
 
-  virtual int RemoveTargets(model::ListenSequenceNumber upper_bound,
-          NSDictionary<NSNumber*, FSTQueryData*>* live_targets) = 0;
+  virtual int RemoveTargets(
+      model::ListenSequenceNumber upper_bound,
+      NSDictionary<NSNumber*, FSTQueryData*>* live_targets) = 0;
 
   // Key-related methods
   virtual void AddMatchingKeys(const model::DocumentKeySet& keys,
-          model::TargetId target_id) = 0;
+                               model::TargetId target_id) = 0;
 
   virtual void RemoveMatchingKeys(const model::DocumentKeySet& keys,
-          model::TargetId target_id) = 0;
+                                  model::TargetId target_id) = 0;
 
   virtual model::DocumentKeySet GetMatchingKeys(model::TargetId target_id) = 0;
 
@@ -106,29 +112,33 @@ class QueryCache {
   /**
    * Returns the highest listen sequence number of any query seen by the cache.
    */
-  virtual model::ListenSequenceNumber highest_listen_sequence_number() const = 0;
+  virtual model::ListenSequenceNumber highest_listen_sequence_number()
+      const = 0;
 
   /**
-   * Returns the highest target ID of any query in the cache. Typically called during startup to
-   * seed a target ID generator and avoid collisions with existing queries. If there are no queries
-   * in the cache, returns zero.
+   * Returns the highest target ID of any query in the cache. Typically called
+   * during startup to seed a target ID generator and avoid collisions with
+   * existing queries. If there are no queries in the cache, returns zero.
    */
   virtual model::TargetId highest_target_id() const = 0;
 
   /**
-   * A global snapshot version representing the last consistent snapshot we received from the
-   * backend. This is monotonically increasing and any snapshots received from the backend prior to
-   * this version (e.g. for targets resumed with a resume_token) should be suppressed (buffered)
-   * until the backend has caught up to this snapshot version again. This prevents our cache from
-   * ever going backwards in time.
+   * A global snapshot version representing the last consistent snapshot we
+   * received from the backend. This is monotonically increasing and any
+   * snapshots received from the backend prior to this version (e.g. for targets
+   * resumed with a resume_token) should be suppressed (buffered) until the
+   * backend has caught up to this snapshot version again. This prevents our
+   * cache from ever going backwards in time.
    *
-   * This is updated whenever our we get a TargetChange with a read_time and empty target_ids.
+   * This is updated whenever our we get a TargetChange with a read_time and
+   * empty target_ids.
    */
-  virtual const model::SnapshotVersion& GetLastRemoteSnapshotVersion() const = 0;
+  virtual const model::SnapshotVersion& GetLastRemoteSnapshotVersion()
+      const = 0;
 
   /**
-   * Set the snapshot version representing the last consistent snapshot received from the backend.
-   * (see `GetLastRemoteSnapshotVersion()` for more details).
+   * Set the snapshot version representing the last consistent snapshot received
+   * from the backend. (see `GetLastRemoteSnapshotVersion()` for more details).
    *
    * @param version The new snapshot version.
    */

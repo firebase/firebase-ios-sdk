@@ -78,7 +78,7 @@ NS_ASSUME_NONNULL_BEGIN
   Path dir = [FSTPersistenceTestHelpers levelDBDir];
 
   FSTLevelDB *db1 = [FSTPersistenceTestHelpers levelDBPersistenceWithDir:dir];
-  LevelDbQueryCache* queryCache = [self getCache:db1];
+  LevelDbQueryCache *queryCache = [self getCache:db1];
 
   XCTAssertEqual(0, queryCache->highest_listen_sequence_number());
   XCTAssertEqual(0, queryCache->highest_target_id());
@@ -109,7 +109,7 @@ NS_ASSUME_NONNULL_BEGIN
     XCTAssertGreaterThan(db2.currentSequenceNumber, minimumSequenceNumber);
   });
 
-  LevelDbQueryCache* queryCache2 = [self getCache:db2];
+  LevelDbQueryCache *queryCache2 = [self getCache:db2];
   XCTAssertEqual(lastTargetId, queryCache2->highest_target_id());
   XCTAssertEqual(lastVersion, queryCache2->GetLastRemoteSnapshotVersion());
 
@@ -117,14 +117,13 @@ NS_ASSUME_NONNULL_BEGIN
   db2 = nil;
 }
 
-
 - (void)testRemoveMatchingKeysForTargetID {
   self.persistence.run("testRemoveMatchingKeysForTargetID", [&]() {
     DocumentKey key1 = testutil::Key("foo/bar");
     DocumentKey key2 = testutil::Key("foo/baz");
     DocumentKey key3 = testutil::Key("foo/blah");
 
-    LevelDbQueryCache* cache = [self getCache:self.persistence];
+    LevelDbQueryCache *cache = [self getCache:self.persistence];
     [self addMatchingKey:key1 forTargetID:1];
     [self addMatchingKey:key2 forTargetID:1];
     [self addMatchingKey:key3 forTargetID:2];

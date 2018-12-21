@@ -36,7 +36,8 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FSTQueryCacheTests : XCTestCase
 
 /** Helper method to add a single document key to target association */
-- (void)addMatchingKey:(const firebase::firestore::model::DocumentKey &)key forTargetID:(firebase::firestore::model::TargetId)targetID;
+- (void)addMatchingKey:(const firebase::firestore::model::DocumentKey&)key
+           forTargetID:(firebase::firestore::model::TargetId)targetID;
 
 /** The implementation of the query cache to test. */
 @property(nonatomic, nullable) firebase::firestore::local::QueryCache* queryCache;
