@@ -29,12 +29,12 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 
 @class FSTLocalSerializer;
 @class FSTMemoryPersistence;
 @class FSTQuery;
 @class FSTQueryData;
-@class FSTReferenceSet;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -107,7 +107,7 @@ class MemoryQueryCache {
   NSMutableDictionary<FSTQuery*, FSTQueryData*>* queries_;
   /** A ordered bidirectional mapping between documents and the remote target
    * IDs. */
-  FSTReferenceSet* references_;
+  ReferenceSet references_;
 };
 
 }  // namespace local
