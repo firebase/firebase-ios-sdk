@@ -18,6 +18,7 @@
 
 @class FIRDatabaseReference;
 @class SenTest;
+@class XCTest;
 
 @interface FDevice : NSObject
 - (id)initOnline;

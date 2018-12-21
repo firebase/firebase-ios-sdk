@@ -1,5 +1,14 @@
 # Unreleased
 
+# 2018-12-18 -- v5.1.10 -- M40
+- [changed] Removed some internal authentication methods on FIRApp which are no longer used thanks to the interop platform.
+
+# 2018-10-31 -- v5.1.7 -- M37
+- [fixed] Fixed static analysis warning for improper `nil` comparison. (#2034)
+- [changed] Assign the default app before posting notifications. (#2024)
+- [changed] Remove unnecessary notification flag. (#1993)
+- [changed] Wrap diagnostics notification in collection flag check. (#1979)
+
 # 2018-08-28 -- v5.1.2 -- M32
 - [fixed] Clarified wording in `FirebaseAnalytics not available` log message. (#1653)
 

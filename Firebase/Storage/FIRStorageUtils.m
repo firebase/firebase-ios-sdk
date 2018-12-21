@@ -29,9 +29,9 @@
 
 #import "GTMSessionFetcher.h"
 
-// This is the list at https://cloud.google.com/storage/docs/json_api/ without & and +.
+// This is the list at https://cloud.google.com/storage/docs/json_api/ without &, ; and +.
 NSString *const kGCSObjectAllowedCharacterSet =
-    @"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~!$'()*,;=:@";
+    @"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~!$'()*,=:@";
 
 @implementation FIRStorageUtils
 

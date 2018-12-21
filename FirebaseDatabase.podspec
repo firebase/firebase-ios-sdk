@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseDatabase'
-  s.version          = '5.0.3'
+  s.version          = '5.0.4'
   s.summary          = 'Firebase Open Source Libraries for iOS (plus community support for macOS and tvOS)'
 
   s.description      = <<-DESC
@@ -30,10 +30,13 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
     base_dir + 'third_party/SocketRocket/fbase64.c'
   s.public_header_files = base_dir + 'Public/*.h'
   s.libraries = ['c++', 'icucore']
-  s.frameworks = ['CFNetwork', 'Security', 'SystemConfiguration']
+  s.frameworks = 'CFNetwork', 'Security', 'SystemConfiguration'
   s.dependency 'leveldb-library', '~> 1.18'
-  s.dependency 'FirebaseCore', '~> 5.0'
+  s.dependency 'FirebaseAuthInterop', '~> 1.0'
+  s.dependency 'FirebaseCore', '~> 5.1'
   s.pod_target_xcconfig = {
+    'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
-      'FIRDatabase_VERSION=' + s.version.to_s }
+      'FIRDatabase_VERSION=' + s.version.to_s
+  }
 end

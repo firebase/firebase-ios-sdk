@@ -21,7 +21,6 @@ protocol EmailLoginDelegate {
 }
 
 class EmailLoginViewController: UIViewController {
-
   // MARK: - Public Properties
 
   var delegate: EmailLoginDelegate?
@@ -36,37 +35,36 @@ class EmailLoginViewController: UIViewController {
   @IBAction func logInButtonHit(_ sender: UIButton) {
     guard let (email, password) = validatedInputs() else { return }
 
-    Auth.auth().signIn(withEmail: email, password: password) { [unowned self] user, error in
-      guard let user = user else {
+    Auth.auth().signIn(withEmail: email, password: password) { [unowned self] result, error in
+      guard let result = result else {
         print("Error signing in: \(error!)")
         self.delegate?.emailLogin(self, failedWithError: error!)
         return
       }
 
-      print("Signed in as user: \(user.uid)!")
-      self.delegate?.emailLogin(self, signedInAs: user)
+      print("Signed in as user: \(result.user.uid)")
+      self.delegate?.emailLogin(self, signedInAs: result.user)
     }
   }
 
   @IBAction func signUpButtonHit(_ sender: UIButton) {
     guard let (email, password) = validatedInputs() else { return }
 
-    Auth.auth().createUser(withEmail: email, password: password) { [unowned self] user, error in
-      guard let user = user else {
+    Auth.auth().createUser(withEmail: email, password: password) { [unowned self] result, error in
+      guard let result = result else {
         print("Error signing up: \(error!)")
         self.delegate?.emailLogin(self, failedWithError: error!)
         return
       }
 
-      print("Created new user: \(user.uid)!")
-      self.delegate?.emailLogin(self, signedInAs: user)
+      print("Created new user: \(result.user.uid)!")
+      self.delegate?.emailLogin(self, signedInAs: result.user)
     }
   }
 
   // MARK: - View Controller Lifecycle
 
-  override func viewDidLoad() {
-  }
+  override func viewDidLoad() {}
 
   // MARK: - Helper Methods
 

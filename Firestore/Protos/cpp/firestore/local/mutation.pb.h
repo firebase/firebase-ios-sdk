@@ -45,7 +45,7 @@
 #include <google/protobuf/repeated_field.h>  // IWYU pragma: export
 #include <google/protobuf/extension_set.h>  // IWYU pragma: export
 #include <google/protobuf/unknown_field_set.h>
-#include "google/firestore/v1beta1/write.pb.h"
+#include "google/firestore/v1/write.pb.h"
 #include <google/protobuf/timestamp.pb.h>
 // @@protoc_insertion_point(includes)
 
@@ -280,17 +280,29 @@ class WriteBatch : public ::google::protobuf::Message /* @@protoc_insertion_poin
 
   // accessors -------------------------------------------------------
 
-  // repeated .google.firestore.v1beta1.Write writes = 2;
+  // repeated .google.firestore.v1.Write writes = 2;
   int writes_size() const;
   void clear_writes();
   static const int kWritesFieldNumber = 2;
-  const ::google::firestore::v1beta1::Write& writes(int index) const;
-  ::google::firestore::v1beta1::Write* mutable_writes(int index);
-  ::google::firestore::v1beta1::Write* add_writes();
-  ::google::protobuf::RepeatedPtrField< ::google::firestore::v1beta1::Write >*
+  const ::google::firestore::v1::Write& writes(int index) const;
+  ::google::firestore::v1::Write* mutable_writes(int index);
+  ::google::firestore::v1::Write* add_writes();
+  ::google::protobuf::RepeatedPtrField< ::google::firestore::v1::Write >*
       mutable_writes();
-  const ::google::protobuf::RepeatedPtrField< ::google::firestore::v1beta1::Write >&
+  const ::google::protobuf::RepeatedPtrField< ::google::firestore::v1::Write >&
       writes() const;
+
+  // repeated .google.firestore.v1.Write base_writes = 4;
+  int base_writes_size() const;
+  void clear_base_writes();
+  static const int kBaseWritesFieldNumber = 4;
+  const ::google::firestore::v1::Write& base_writes(int index) const;
+  ::google::firestore::v1::Write* mutable_base_writes(int index);
+  ::google::firestore::v1::Write* add_base_writes();
+  ::google::protobuf::RepeatedPtrField< ::google::firestore::v1::Write >*
+      mutable_base_writes();
+  const ::google::protobuf::RepeatedPtrField< ::google::firestore::v1::Write >&
+      base_writes() const;
 
   // .google.protobuf.Timestamp local_write_time = 3;
   bool has_local_write_time() const;
@@ -311,7 +323,8 @@ class WriteBatch : public ::google::protobuf::Message /* @@protoc_insertion_poin
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
-  ::google::protobuf::RepeatedPtrField< ::google::firestore::v1beta1::Write > writes_;
+  ::google::protobuf::RepeatedPtrField< ::google::firestore::v1::Write > writes_;
+  ::google::protobuf::RepeatedPtrField< ::google::firestore::v1::Write > base_writes_;
   ::google::protobuf::Timestamp* local_write_time_;
   ::google::protobuf::int32 batch_id_;
   mutable int _cached_size_;
@@ -414,28 +427,28 @@ inline void WriteBatch::set_batch_id(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:firestore.client.WriteBatch.batch_id)
 }
 
-// repeated .google.firestore.v1beta1.Write writes = 2;
+// repeated .google.firestore.v1.Write writes = 2;
 inline int WriteBatch::writes_size() const {
   return writes_.size();
 }
-inline const ::google::firestore::v1beta1::Write& WriteBatch::writes(int index) const {
+inline const ::google::firestore::v1::Write& WriteBatch::writes(int index) const {
   // @@protoc_insertion_point(field_get:firestore.client.WriteBatch.writes)
   return writes_.Get(index);
 }
-inline ::google::firestore::v1beta1::Write* WriteBatch::mutable_writes(int index) {
+inline ::google::firestore::v1::Write* WriteBatch::mutable_writes(int index) {
   // @@protoc_insertion_point(field_mutable:firestore.client.WriteBatch.writes)
   return writes_.Mutable(index);
 }
-inline ::google::firestore::v1beta1::Write* WriteBatch::add_writes() {
+inline ::google::firestore::v1::Write* WriteBatch::add_writes() {
   // @@protoc_insertion_point(field_add:firestore.client.WriteBatch.writes)
   return writes_.Add();
 }
-inline ::google::protobuf::RepeatedPtrField< ::google::firestore::v1beta1::Write >*
+inline ::google::protobuf::RepeatedPtrField< ::google::firestore::v1::Write >*
 WriteBatch::mutable_writes() {
   // @@protoc_insertion_point(field_mutable_list:firestore.client.WriteBatch.writes)
   return &writes_;
 }
-inline const ::google::protobuf::RepeatedPtrField< ::google::firestore::v1beta1::Write >&
+inline const ::google::protobuf::RepeatedPtrField< ::google::firestore::v1::Write >&
 WriteBatch::writes() const {
   // @@protoc_insertion_point(field_list:firestore.client.WriteBatch.writes)
   return writes_;
@@ -484,6 +497,33 @@ inline void WriteBatch::set_allocated_local_write_time(::google::protobuf::Times
   }
   local_write_time_ = local_write_time;
   // @@protoc_insertion_point(field_set_allocated:firestore.client.WriteBatch.local_write_time)
+}
+
+// repeated .google.firestore.v1.Write base_writes = 4;
+inline int WriteBatch::base_writes_size() const {
+  return base_writes_.size();
+}
+inline const ::google::firestore::v1::Write& WriteBatch::base_writes(int index) const {
+  // @@protoc_insertion_point(field_get:firestore.client.WriteBatch.base_writes)
+  return base_writes_.Get(index);
+}
+inline ::google::firestore::v1::Write* WriteBatch::mutable_base_writes(int index) {
+  // @@protoc_insertion_point(field_mutable:firestore.client.WriteBatch.base_writes)
+  return base_writes_.Mutable(index);
+}
+inline ::google::firestore::v1::Write* WriteBatch::add_base_writes() {
+  // @@protoc_insertion_point(field_add:firestore.client.WriteBatch.base_writes)
+  return base_writes_.Add();
+}
+inline ::google::protobuf::RepeatedPtrField< ::google::firestore::v1::Write >*
+WriteBatch::mutable_base_writes() {
+  // @@protoc_insertion_point(field_mutable_list:firestore.client.WriteBatch.base_writes)
+  return &base_writes_;
+}
+inline const ::google::protobuf::RepeatedPtrField< ::google::firestore::v1::Write >&
+WriteBatch::base_writes() const {
+  // @@protoc_insertion_point(field_list:firestore.client.WriteBatch.base_writes)
+  return base_writes_;
 }
 
 #ifdef __GNUC__

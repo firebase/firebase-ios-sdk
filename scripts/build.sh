@@ -27,6 +27,8 @@ USAGE: $0 product [platform] [method]
 product can be one of:
   Firebase
   Firestore
+  InAppMessagingDisplay
+  SymbolCollision
 
 platform can be one of:
   iOS (default)
@@ -229,6 +231,46 @@ case "$product-$method-$platform" in
     fi
     ;;
 
+  InAppMessagingDisplay-xcodebuild-iOS)
+    # Run UI tests on both iPad and iPhone simulators
+    # TODO: Running two destinations from one xcodebuild command stopped working with Xcode 10.
+    # Consider separating static library tests to a separate job.
+    RunXcodebuild \
+        -workspace 'InAppMessagingDisplay/Example/InAppMessagingDisplay-Sample.xcworkspace'  \
+        -scheme 'FiamDisplaySwiftExample' \
+        "${xcb_flags[@]}" \
+        build \
+        test
+
+    RunXcodebuild \
+        -workspace 'InAppMessagingDisplay/Example/InAppMessagingDisplay-Sample.xcworkspace'  \
+        -scheme 'FiamDisplaySwiftExample' \
+        -sdk 'iphonesimulator' \
+        -destination 'platform=iOS Simulator,name=iPad Pro (9.7-inch)' \
+        build \
+        test
+
+    cd InAppMessagingDisplay/Example
+    sed -i -e 's/use_frameworks/\#use_frameworks/' Podfile
+    pod update --no-repo-update
+    cd ../..
+    # Run UI tests on both iPad and iPhone simulators
+    RunXcodebuild \
+        -workspace 'InAppMessagingDisplay/Example/InAppMessagingDisplay-Sample.xcworkspace'  \
+        -scheme 'FiamDisplaySwiftExample' \
+        "${xcb_flags[@]}" \
+        build \
+        test
+
+    RunXcodebuild \
+        -workspace 'InAppMessagingDisplay/Example/InAppMessagingDisplay-Sample.xcworkspace'  \
+        -scheme 'FiamDisplaySwiftExample' \
+        -sdk 'iphonesimulator' \
+        -destination 'platform=iOS Simulator,name=iPad Pro (9.7-inch)' \
+        build \
+        test
+    ;;
+
   Firestore-xcodebuild-iOS)
     RunXcodebuild \
         -workspace 'Firestore/Example/Firestore.xcworkspace' \
@@ -272,8 +314,16 @@ case "$product-$method-$platform" in
 
     echo "Building cmake build ..."
     cpus=$(sysctl -n hw.ncpu)
-    (cd build; env make -j $cpus all)
+    (cd build; env make -j $cpus all generate_protos)
     (cd build; env CTEST_OUTPUT_ON_FAILURE=1 make -j $cpus test)
+    ;;
+
+  SymbolCollision-xcodebuild-*)
+    RunXcodebuild \
+        -workspace 'SymbolCollisionTest/SymbolCollisionTest.xcworkspace' \
+        -scheme "SymbolCollisionTest" \
+        "${xcb_flags[@]}" \
+        build
     ;;
 
   *)

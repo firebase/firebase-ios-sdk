@@ -24,7 +24,6 @@
 #import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 #import "Firestore/Source/Local/FSTLevelDBMutationQueue.h"
 #import "Firestore/Source/Local/FSTLevelDBQueryCache.h"
-#import "Firestore/Source/Local/FSTLevelDBRemoteDocumentCache.h"
 #import "Firestore/Source/Local/FSTReferenceSet.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
@@ -33,8 +32,10 @@
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_migrations.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_util.h"
+#include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
@@ -60,7 +61,10 @@ using firebase::firestore::local::LevelDbDocumentMutationKey;
 using firebase::firestore::local::LevelDbDocumentTargetKey;
 using firebase::firestore::local::LevelDbMigrations;
 using firebase::firestore::local::LevelDbMutationKey;
+using firebase::firestore::local::LevelDbRemoteDocumentCache;
 using firebase::firestore::local::LevelDbTransaction;
+using firebase::firestore::local::LruParams;
+using firebase::firestore::local::RemoteDocumentCache;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::ListenSequenceNumber;
@@ -77,13 +81,21 @@ using leveldb::WriteOptions;
 
 static const char *kReservedPathComponent = "firestore";
 
+@interface FSTLevelDB ()
+
+- (size_t)byteSize;
+
+@property(nonatomic, assign, getter=isStarted) BOOL started;
+
+@end
+
 /**
  * Provides LRU functionality for leveldb persistence.
  *
  * Although this could implement FSTTransactional, it doesn't because it is not directly tied to
  * a transaction runner, it just happens to be called from FSTLevelDB, which is FSTTransactional.
  */
-@interface FSTLevelDBLRUDelegate : NSObject <FSTReferenceDelegate, FSTLRUDelegate>
+@interface FSTLevelDBLRUDelegate ()
 
 - (void)transactionWillStart;
 
@@ -103,10 +115,9 @@ static const char *kReservedPathComponent = "firestore";
   FSTListenSequence *_listenSequence;
 }
 
-- (instancetype)initWithPersistence:(FSTLevelDB *)persistence {
+- (instancetype)initWithPersistence:(FSTLevelDB *)persistence lruParams:(LruParams)lruParams {
   if (self = [super init]) {
-    _gc =
-        [[FSTLRUGarbageCollector alloc] initWithQueryCache:[persistence queryCache] delegate:self];
+    _gc = [[FSTLRUGarbageCollector alloc] initWithDelegate:self params:lruParams];
     _db = persistence;
     _currentSequenceNumber = kFSTListenSequenceNumberInvalid;
   }
@@ -202,11 +213,16 @@ static const char *kReservedPathComponent = "firestore";
     if (sequenceNumber <= upperBound) {
       if (![self isPinned:docKey]) {
         count++;
-        [self->_db.remoteDocumentCache removeEntryForKey:docKey];
+        self->_db.remoteDocumentCache->Remove(docKey);
+        [self removeSentinel:docKey];
       }
     }
   }];
   return count;
+}
+
+- (void)removeSentinel:(const DocumentKey &)key {
+  _db.currentTransaction->Delete(LevelDbDocumentTargetKey::SentinelKey(key));
 }
 
 - (int)removeTargetsThroughSequenceNumber:(ListenSequenceNumber)sequenceNumber
@@ -215,14 +231,23 @@ static const char *kReservedPathComponent = "firestore";
   return [queryCache removeQueriesThroughSequenceNumber:sequenceNumber liveQueries:liveQueries];
 }
 
+- (int32_t)sequenceNumberCount {
+  __block int32_t totalCount = [_db.queryCache count];
+  [self enumerateMutationsUsingBlock:^(const DocumentKey &key, ListenSequenceNumber sequenceNumber,
+                                       BOOL *stop) {
+    totalCount++;
+  }];
+  return totalCount;
+}
+
 - (FSTLRUGarbageCollector *)gc {
   return _gc;
 }
 
 - (void)writeSentinelForKey:(const DocumentKey &)key {
-  std::string encodedSequenceNumber;
-  OrderedCode::WriteSignedNumIncreasing(&encodedSequenceNumber, [self currentSequenceNumber]);
   std::string sentinelKey = LevelDbDocumentTargetKey::SentinelKey(key);
+  std::string encodedSequenceNumber =
+      LevelDbDocumentTargetKey::EncodeSentinelValue([self currentSequenceNumber]);
   _db.currentTransaction->Put(sentinelKey, encodedSequenceNumber);
 }
 
@@ -234,12 +259,9 @@ static const char *kReservedPathComponent = "firestore";
   [self writeSentinelForKey:key];
 }
 
-@end
-
-@interface FSTLevelDB ()
-
-@property(nonatomic, assign, getter=isStarted) BOOL started;
-@property(nonatomic, strong, readonly) FSTLocalSerializer *serializer;
+- (size_t)byteSize {
+  return [_db byteSize];
+}
 
 @end
 
@@ -247,6 +269,7 @@ static const char *kReservedPathComponent = "firestore";
   Path _directory;
   std::unique_ptr<LevelDbTransaction> _transaction;
   std::unique_ptr<leveldb::DB> _ptr;
+  std::unique_ptr<LevelDbRemoteDocumentCache> _documentCache;
   FSTTransactionRunner _transactionRunner;
   FSTLevelDBLRUDelegate *_referenceDelegate;
   FSTLevelDBQueryCache *_queryCache;
@@ -279,15 +302,67 @@ static const char *kReservedPathComponent = "firestore";
   return users;
 }
 
-- (instancetype)initWithDirectory:(Path)directory serializer:(FSTLocalSerializer *)serializer {
++ (firebase::firestore::util::Status)dbWithDirectory:(firebase::firestore::util::Path)directory
+                                          serializer:(FSTLocalSerializer *)serializer
+                                           lruParams:
+                                               (firebase::firestore::local::LruParams)lruParams
+                                                 ptr:(FSTLevelDB **)ptr {
+  Status status = [self ensureDirectory:directory];
+  if (!status.ok()) return status;
+
+  StatusOr<std::unique_ptr<DB>> database = [self createDBWithDirectory:directory];
+  if (!database.status().ok()) {
+    return database.status();
+  }
+
+  std::unique_ptr<DB> ldb = std::move(database.ValueOrDie());
+  LevelDbMigrations::RunMigrations(ldb.get());
+  LevelDbTransaction transaction(ldb.get(), "Start LevelDB");
+  std::set<std::string> users = [self collectUserSet:&transaction];
+  transaction.Commit();
+  FSTLevelDB *db = [[self alloc] initWithLevelDB:std::move(ldb)
+                                           users:users
+                                       directory:directory
+                                      serializer:serializer
+                                       lruParams:lruParams];
+  *ptr = db;
+  return Status::OK();
+}
+
+- (instancetype)initWithLevelDB:(std::unique_ptr<leveldb::DB>)db
+                          users:(std::set<std::string>)users
+                      directory:(firebase::firestore::util::Path)directory
+                     serializer:(FSTLocalSerializer *)serializer
+                      lruParams:(firebase::firestore::local::LruParams)lruParams {
   if (self = [super init]) {
+    self.started = YES;
+    _ptr = std::move(db);
     _directory = std::move(directory);
     _serializer = serializer;
     _queryCache = [[FSTLevelDBQueryCache alloc] initWithDB:self serializer:self.serializer];
-    _referenceDelegate = [[FSTLevelDBLRUDelegate alloc] initWithPersistence:self];
+    _documentCache = absl::make_unique<LevelDbRemoteDocumentCache>(self, _serializer);
+    _referenceDelegate =
+        [[FSTLevelDBLRUDelegate alloc] initWithPersistence:self lruParams:lruParams];
     _transactionRunner.SetBackingPersistence(self);
+    _users = std::move(users);
+    // TODO(gsoltis): set up a leveldb transaction for these operations.
+    [_queryCache start];
+    [_referenceDelegate start];
   }
   return self;
+}
+
+- (size_t)byteSize {
+  int64_t count = 0;
+  auto iter = util::DirectoryIterator::Create(_directory);
+  for (; iter->Valid(); iter->Next()) {
+    int64_t fileSize = util::FileSize(iter->file()).ValueOrDie();
+    count += fileSize;
+  }
+  HARD_ASSERT(iter->status().ok(), "Failed to iterate leveldb directory: %s",
+              iter->status().error_message().c_str());
+  HARD_ASSERT(count <= SIZE_MAX, "Overflowed counting bytes cached");
+  return count;
 }
 
 - (const std::set<std::string> &)users {
@@ -340,30 +415,8 @@ static const char *kReservedPathComponent = "firestore";
 
 #pragma mark - Startup
 
-- (Status)start {
-  HARD_ASSERT(!self.isStarted, "FSTLevelDB double-started!");
-  self.started = YES;
-
-  Status status = [self ensureDirectory:_directory];
-  if (!status.ok()) return status;
-
-  StatusOr<std::unique_ptr<DB>> database = [self createDBWithDirectory:_directory];
-  if (!database.status().ok()) {
-    return database.status();
-  }
-  _ptr = std::move(database).ValueOrDie();
-
-  LevelDbMigrations::RunMigrations(_ptr.get());
-  LevelDbTransaction transaction(_ptr.get(), "Start LevelDB");
-  _users = [FSTLevelDB collectUserSet:&transaction];
-  transaction.Commit();
-  [_queryCache start];
-  [_referenceDelegate start];
-  return Status::OK();
-}
-
 /** Creates the directory at @a directory and marks it as excluded from iCloud backup. */
-- (Status)ensureDirectory:(const Path &)directory {
++ (Status)ensureDirectory:(const Path &)directory {
   Status status = util::RecursivelyCreateDir(directory);
   if (!status.ok()) {
     return Status{FirestoreErrorCode::Internal, "Failed to create persistence directory"}.CausedBy(
@@ -382,7 +435,7 @@ static const char *kReservedPathComponent = "firestore";
 }
 
 /** Opens the database within the given directory. */
-- (StatusOr<std::unique_ptr<DB>>)createDBWithDirectory:(const Path &)directory {
++ (StatusOr<std::unique_ptr<DB>>)createDBWithDirectory:(const Path &)directory {
   Options options;
   options.create_if_missing = true;
 
@@ -413,8 +466,8 @@ static const char *kReservedPathComponent = "firestore";
   return _queryCache;
 }
 
-- (id<FSTRemoteDocumentCache>)remoteDocumentCache {
-  return [[FSTLevelDBRemoteDocumentCache alloc] initWithDB:self serializer:self.serializer];
+- (RemoteDocumentCache *)remoteDocumentCache {
+  return _documentCache.get();
 }
 
 - (void)startTransaction:(absl::string_view)label {

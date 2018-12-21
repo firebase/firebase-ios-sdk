@@ -26,6 +26,23 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
+enum class DocumentState {
+  /**
+   * Local mutations applied via the mutation queue. Document is potentially
+   * inconsistent.
+   */
+  kLocalMutations,
+
+  /**
+   * Mutations applied based on a write acknowledgment. Document is potentially
+   * inconsistent.
+   */
+  kCommittedMutations,
+
+  /** No mutations applied. Document was sent to us by Watch. */
+  kSynced,
+};
+
 /**
  * Represents a document in Firestore with a key, version, data and whether the
  * data has local mutations applied to it.
@@ -38,7 +55,7 @@ class Document : public MaybeDocument {
   Document(FieldValue&& data,
            DocumentKey key,
            SnapshotVersion version,
-           bool has_local_mutations);
+           DocumentState document_state);
 
   const FieldValue& data() const {
     return data_;
@@ -48,8 +65,16 @@ class Document : public MaybeDocument {
     return data_.Get(path);
   }
 
-  bool has_local_mutations() const {
-    return has_local_mutations_;
+  bool HasLocalMutations() const {
+    return document_state_ == DocumentState::kLocalMutations;
+  }
+
+  bool HasCommittedMutations() const {
+    return document_state_ == DocumentState::kCommittedMutations;
+  }
+
+  bool HasPendingWrites() const override {
+    return HasLocalMutations() || HasCommittedMutations();
   }
 
  protected:
@@ -57,13 +82,13 @@ class Document : public MaybeDocument {
 
  private:
   FieldValue data_;  // This is of type Object.
-  bool has_local_mutations_;
+  DocumentState document_state_;
 };
 
 /** Compares against another Document. */
 inline bool operator==(const Document& lhs, const Document& rhs) {
   return lhs.version() == rhs.version() && lhs.key() == rhs.key() &&
-         lhs.has_local_mutations() == rhs.has_local_mutations() &&
+         lhs.HasLocalMutations() == rhs.HasLocalMutations() &&
          lhs.data() == rhs.data();
 }
 

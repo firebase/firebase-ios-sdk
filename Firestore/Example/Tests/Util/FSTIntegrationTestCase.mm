@@ -22,11 +22,11 @@
 #import <FirebaseFirestore/FIRDocumentChange.h>
 #import <FirebaseFirestore/FIRDocumentReference.h>
 #import <FirebaseFirestore/FIRDocumentSnapshot.h>
+#import <FirebaseFirestore/FIRFirestore.h>
 #import <FirebaseFirestore/FIRFirestoreSettings.h>
 #import <FirebaseFirestore/FIRQuerySnapshot.h>
 #import <FirebaseFirestore/FIRSnapshotMetadata.h>
-#import <GRPCClient/GRPCCall+ChannelArg.h>
-#import <GRPCClient/GRPCCall+Tests.h>
+#import <FirebaseFirestore/FIRTransaction.h>
 
 #include <memory>
 #include <string>
@@ -34,6 +34,7 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
 #include "Firestore/core/src/firebase/firestore/util/autoid.h"
 #include "Firestore/core/src/firebase/firestore/util/filesystem.h"
 #include "Firestore/core/src/firebase/firestore/util/path.h"
@@ -46,24 +47,32 @@
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
-#import "Firestore/Source/Util/FSTDispatchQueue.h"
 
+#import "Firestore/Example/Tests/Util/FIRFirestore+Testing.h"
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
+
+#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
+#include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::testutil::AppForUnitTesting;
+using firebase::firestore::remote::GrpcConnection;
+using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::CreateAutoId;
 using firebase::firestore::util::Path;
 using firebase::firestore::util::Status;
+using firebase::firestore::util::ExecutorLibdispatch;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRFirestore (Testing)
-@property(nonatomic, strong) FSTDispatchQueue *workerDispatchQueue;
-@end
+/**
+ * Firestore databases can be subject to a ~30s "cold start" delay if they have not been used
+ * recently, so before any tests run we "prime" the backend.
+ */
+static const double kPrimingTimeout = 45.0;
 
 static NSString *defaultProjectId;
 static FIRFirestoreSettings *defaultSettings;
@@ -88,10 +97,6 @@ static FIRFirestoreSettings *defaultSettings;
       [self shutdownFirestore:firestore];
     }
   } @finally {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    [GRPCCall closeOpenConnections];
-#pragma clang diagnostic pop
     _firestores = nil;
     [super tearDown];
   }
@@ -155,7 +160,8 @@ static FIRFirestoreSettings *defaultSettings;
          "Alternatively, if you're a Googler with a Hexa preproduction environment, run "
          "setup_integration_tests.py to properly configure testing SSL certificates.");
   }
-  [GRPCCall useTestCertsPath:certsPath testName:@"test_cert_2" forHost:defaultSettings.host];
+  GrpcConnection::UseTestCertificate(util::MakeString(defaultSettings.host),
+                                     Path::FromNSString(certsPath), "test_cert_2");
 }
 
 + (NSString *)projectID {
@@ -176,8 +182,10 @@ static FIRFirestoreSettings *defaultSettings;
 - (FIRFirestore *)firestoreWithProjectID:(NSString *)projectID {
   NSString *persistenceKey = [NSString stringWithFormat:@"db%lu", (unsigned long)_firestores.count];
 
-  FSTDispatchQueue *workerDispatchQueue = [FSTDispatchQueue
-      queueWith:dispatch_queue_create("com.google.firebase.firestore", DISPATCH_QUEUE_SERIAL)];
+  dispatch_queue_t queue =
+      dispatch_queue_create("com.google.firebase.firestore", DISPATCH_QUEUE_SERIAL);
+  std::unique_ptr<AsyncQueue> workerQueue =
+      absl::make_unique<AsyncQueue>(absl::make_unique<ExecutorLibdispatch>(queue));
 
   FIRSetLoggerLevel(FIRLoggerLevelDebug);
 
@@ -189,13 +197,59 @@ static FIRFirestoreSettings *defaultSettings;
                                                            database:DatabaseId::kDefault
                                                      persistenceKey:persistenceKey
                                                 credentialsProvider:std::move(credentials_provider)
-                                                workerDispatchQueue:workerDispatchQueue
+                                                        workerQueue:std::move(workerQueue)
                                                         firebaseApp:app];
 
   firestore.settings = [FSTIntegrationTestCase settings];
 
   [_firestores addObject:firestore];
+
+  [self primeBackend:firestore];
+
   return firestore;
+}
+
+- (void)primeBackend:(FIRFirestore *)db {
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    XCTestExpectation *watchInitialized =
+        [self expectationWithDescription:@"Prime backend: Watch initialized"];
+    __block XCTestExpectation *watchUpdateReceived;
+    FIRDocumentReference *docRef = [db documentWithPath:[self documentPath]];
+    id<FIRListenerRegistration> listenerRegistration =
+        [docRef addSnapshotListener:^(FIRDocumentSnapshot *snapshot, NSError *error) {
+          if ([snapshot[@"value"] isEqual:@"done"]) {
+            [watchUpdateReceived fulfill];
+          } else {
+            [watchInitialized fulfill];
+          }
+        }];
+
+    // Wait for watch to initialize and deliver first event.
+    [self awaitExpectations];
+
+    watchUpdateReceived = [self expectationWithDescription:@"Prime backend: Watch update received"];
+
+    // Use a transaction to perform a write without triggering any local events.
+    [docRef.firestore
+        runTransactionWithBlock:^id(FIRTransaction *transaction, NSError **pError) {
+          [transaction setData:@{@"value" : @"done"} forDocument:docRef];
+          return nil;
+        }
+                     completion:^(id result, NSError *error){
+                     }];
+
+    // Wait to see the write on the watch stream.
+    [self waitForExpectationsWithTimeout:kPrimingTimeout
+                                 handler:^(NSError *_Nullable expectationError) {
+                                   if (expectationError) {
+                                     XCTFail(@"Error waiting for prime backend: %@",
+                                             expectationError);
+                                   }
+                                 }];
+
+    [listenerRegistration remove];
+  });
 }
 
 - (void)shutdownFirestore:(FIRFirestore *)firestore {
@@ -331,6 +385,15 @@ static FIRFirestoreSettings *defaultSettings;
   [self awaitExpectations];
 }
 
+- (void)mergeDocumentRef:(FIRDocumentReference *)ref
+                    data:(NSDictionary<NSString *, id> *)data
+                  fields:(NSArray<id> *)fields {
+  [ref setData:data
+      mergeFields:fields
+       completion:[self completionForExpectationWithName:@"setDataWithMerge"]];
+  [self awaitExpectations];
+}
+
 - (void)disableNetwork {
   [self.db.client
       disableNetworkWithCompletion:[self completionForExpectationWithName:@"Disable Network."]];
@@ -343,8 +406,8 @@ static FIRFirestoreSettings *defaultSettings;
   [self awaitExpectations];
 }
 
-- (FSTDispatchQueue *)queueForFirestore:(FIRFirestore *)firestore {
-  return firestore.workerDispatchQueue;
+- (AsyncQueue *)queueForFirestore:(FIRFirestore *)firestore {
+  return [firestore workerQueue];
 }
 
 - (void)waitUntil:(BOOL (^)())predicate {

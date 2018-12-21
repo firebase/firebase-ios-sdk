@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		5EACA9F21E16E885EEEA6AC5 /* Pods_FiamDisplaySwiftExample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E5AD224A78D3137046BB5AB /* Pods_FiamDisplaySwiftExample.framework */; };
+		4265DE16D92C99B9A6E56539 /* Pods_FiamDisplaySwiftExample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5C72088F73776B875CB106D8 /* Pods_FiamDisplaySwiftExample.framework */; };
 		AD7200B52124D19200AFD5F3 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD7200B42124D19200AFD5F3 /* AppDelegate.swift */; };
 		AD7200BA2124D19200AFD5F3 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AD7200B82124D19200AFD5F3 /* Main.storyboard */; };
 		AD7200BC2124D19400AFD5F3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AD7200BB2124D19400AFD5F3 /* Assets.xcassets */; };
@@ -34,8 +34,8 @@
 
 /* Begin PBXFileReference section */
 		0F66149C0079E8409F390CBE /* Pods-InAppMessagingDisplay-Sample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-InAppMessagingDisplay-Sample.release.xcconfig"; path = "Pods/Target Support Files/Pods-InAppMessagingDisplay-Sample/Pods-InAppMessagingDisplay-Sample.release.xcconfig"; sourceTree = "<group>"; };
-		1E5AD224A78D3137046BB5AB /* Pods_FiamDisplaySwiftExample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FiamDisplaySwiftExample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		46449F37C45EA76C97C32634 /* Pods-FiamDisplaySwiftExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FiamDisplaySwiftExample.release.xcconfig"; path = "Pods/Target Support Files/Pods-FiamDisplaySwiftExample/Pods-FiamDisplaySwiftExample.release.xcconfig"; sourceTree = "<group>"; };
+		5C72088F73776B875CB106D8 /* Pods_FiamDisplaySwiftExample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FiamDisplaySwiftExample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		8FF302EB136148B923534F2E /* Pods-FiamDisplaySwiftExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FiamDisplaySwiftExample.debug.xcconfig"; path = "Pods/Target Support Files/Pods-FiamDisplaySwiftExample/Pods-FiamDisplaySwiftExample.debug.xcconfig"; sourceTree = "<group>"; };
 		AD7200B22124D19200AFD5F3 /* FiamDisplaySwiftExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FiamDisplaySwiftExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AD7200B42124D19200AFD5F3 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -62,7 +62,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5EACA9F21E16E885EEEA6AC5 /* Pods_FiamDisplaySwiftExample.framework in Frameworks */,
+				4265DE16D92C99B9A6E56539 /* Pods_FiamDisplaySwiftExample.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -91,7 +91,7 @@
 			isa = PBXGroup;
 			children = (
 				C265D6A970BC7B345291115C /* Pods_InAppMessagingDisplay_Sample.framework */,
-				1E5AD224A78D3137046BB5AB /* Pods_FiamDisplaySwiftExample.framework */,
+				5C72088F73776B875CB106D8 /* Pods_FiamDisplaySwiftExample.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -155,8 +155,8 @@
 				AD7200AE2124D19200AFD5F3 /* Sources */,
 				AD7200AF2124D19200AFD5F3 /* Frameworks */,
 				AD7200B02124D19200AFD5F3 /* Resources */,
-				13AA512D7003940DF3593687 /* [CP] Embed Pods Frameworks */,
 				0B0EF24B15B4BCBCC06B5C35 /* [CP] Copy Pods Resources */,
+				4F123C68EFE3A41A52219FAA /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -280,7 +280,7 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-FiamDisplaySwiftExample/Pods-FiamDisplaySwiftExample-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		13AA512D7003940DF3593687 /* [CP] Embed Pods Frameworks */ = {
+		4F123C68EFE3A41A52219FAA /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -362,7 +362,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				"HEADER_SEARCH_PATHS[arch=*]" = "\"${PODS_ROOT}/../../../Firebase/InAppMessagingDisplay/\"/** \"${PODS_ROOT}/../../../Firebase/InAppMessaging/\"/**";
+				"HEADER_SEARCH_PATHS[arch=*]" = (
+					"\"${PODS_ROOT}/../../../Firebase/InAppMessagingDisplay/\"/**",
+					"\"${PODS_ROOT}/../../../Firebase/InAppMessaging/\"/**",
+				);
 				INFOPLIST_FILE = FiamDisplaySwiftExample/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -371,6 +374,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.experimental1.dev.FiamDisplaySwiftExample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				"SWIFT_OBJC_BRIDGING_HEADER[arch=*]" = ../../Firebase/InAppMessagingDisplay/Public/FirebaseInAppMessagingDisplay.h;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -391,6 +395,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.experimental1.dev.FiamDisplaySwiftExample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_COMPILATION_MODE = wholemodule;
+				"SWIFT_OBJC_BRIDGING_HEADER[arch=*]" = ../../Firebase/InAppMessagingDisplay/Public/FirebaseInAppMessagingDisplay.h;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

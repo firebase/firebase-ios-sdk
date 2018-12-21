@@ -36,21 +36,20 @@
 
 // ABSL_ARRAYSIZE()
 //
-// Returns the # of elements in an array as a compile-time constant, which can
-// be used in defining new arrays. If you use this macro on a pointer by
+// Returns the number of elements in an array as a compile-time constant, which
+// can be used in defining new arrays. If you use this macro on a pointer by
 // mistake, you will get a compile-time error.
-//
-// Note: this template function declaration is used in defining arraysize.
-// Note that the function doesn't need an implementation, as we only
-// use its type.
+#define ABSL_ARRAYSIZE(array) \
+  (sizeof(::absl::macros_internal::ArraySizeHelper(array)))
+
 namespace absl {
 namespace macros_internal {
+// Note: this internal template function declaration is used by ABSL_ARRAYSIZE.
+// The function doesn't need a definition, as we only use its type.
 template <typename T, size_t N>
 auto ArraySizeHelper(const T (&array)[N]) -> char (&)[N];
 }  // namespace macros_internal
 }  // namespace absl
-#define ABSL_ARRAYSIZE(array) \
-  (sizeof(::absl::macros_internal::ArraySizeHelper(array)))
 
 // kLinkerInitialized
 //
@@ -195,8 +194,19 @@ enum LinkerInitialized {
 #if defined(NDEBUG)
 #define ABSL_ASSERT(expr) (void) (false ? (void)(expr) : (void)0)
 #else
-#define ABSL_ASSERT(expr) \
-  (void) (ABSL_PREDICT_TRUE((expr)) ? (void)0 : [] { assert(false && #expr); }())
+#define ABSL_ASSERT(expr)              \
+  (void) (ABSL_PREDICT_TRUE((expr)) ? (void)0 \
+                                    : [] { assert(false && #expr); }())  // NOLINT
 #endif
+
+#ifdef ABSL_HAVE_EXCEPTIONS
+#define ABSL_INTERNAL_TRY try
+#define ABSL_INTERNAL_CATCH_ANY catch (...)
+#define ABSL_INTERNAL_RETHROW do { throw; } while (false)
+#else  // ABSL_HAVE_EXCEPTIONS
+#define ABSL_INTERNAL_TRY if (true)
+#define ABSL_INTERNAL_CATCH_ANY else if (false)
+#define ABSL_INTERNAL_RETHROW do {} while (false)
+#endif  // ABSL_HAVE_EXCEPTIONS
 
 #endif  // ABSL_BASE_MACROS_H_

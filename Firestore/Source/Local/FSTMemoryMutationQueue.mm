@@ -16,8 +16,11 @@
 
 #import "Firestore/Source/Local/FSTMemoryMutationQueue.h"
 
+#import <Protobuf/GPBProtocolBuffers.h>
+
 #include <set>
 
+#import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
 #import "Firestore/Source/Model/FSTMutation.h"
@@ -129,12 +132,12 @@ using DocumentReferenceSet = SortedSet<DocumentReference, DocumentReference::ByK
               "Mutation batchIDs must be acknowledged in order");
 
   NSInteger batchIndex = [self indexOfExistingBatchID:batchID action:@"acknowledged"];
+  HARD_ASSERT(batchIndex == 0, "Can only acknowledge the first batch in the mutation queue");
 
   // Verify that the batch in the queue is the one to be acknowledged.
   FSTMutationBatch *check = queue[(NSUInteger)batchIndex];
   HARD_ASSERT(batchID == check.batchID, "Queue ordering failure: expected batch %s, got batch %s",
               batchID, check.batchID);
-  HARD_ASSERT(![check isTombstone], "Can't acknowledge a previously removed batch");
 
   self.highestAcknowledgedBatchID = batchID;
   self.lastStreamToken = streamToken;
@@ -177,12 +180,11 @@ using DocumentReferenceSet = SortedSet<DocumentReference, DocumentReference::ByK
 
   FSTMutationBatch *batch = queue[(NSUInteger)index];
   HARD_ASSERT(batch.batchID == batchID, "If found batch must match");
-  return [batch isTombstone] ? nil : batch;
+  return batch;
 }
 
 - (nullable FSTMutationBatch *)nextMutationBatchAfterBatchID:(BatchId)batchID {
   NSMutableArray<FSTMutationBatch *> *queue = self.queue;
-  NSUInteger count = queue.count;
 
   // All batches with batchID <= self.highestAcknowledgedBatchID have been acknowledged so the
   // first unacknowledged batch after batchID will have a batchID larger than both of these values.
@@ -191,37 +193,11 @@ using DocumentReferenceSet = SortedSet<DocumentReference, DocumentReference::ByK
   // The requested batchID may still be out of range so normalize it to the start of the queue.
   NSInteger rawIndex = [self indexOfBatchID:nextBatchID];
   NSUInteger index = rawIndex < 0 ? 0 : (NSUInteger)rawIndex;
-
-  // Finally return the first non-tombstone batch.
-  for (; index < count; index++) {
-    FSTMutationBatch *batch = queue[index];
-    if (![batch isTombstone]) {
-      return batch;
-    }
-  }
-
-  return nil;
+  return queue.count > index ? queue[index] : nil;
 }
 
 - (NSArray<FSTMutationBatch *> *)allMutationBatches {
-  return [self allLiveMutationBatchesBeforeIndex:self.queue.count];
-}
-
-- (NSArray<FSTMutationBatch *> *)allMutationBatchesThroughBatchID:(BatchId)batchID {
-  NSMutableArray<FSTMutationBatch *> *queue = self.queue;
-  NSUInteger count = queue.count;
-
-  NSInteger endIndex = [self indexOfBatchID:batchID];
-  if (endIndex < 0) {
-    endIndex = 0;
-  } else if (endIndex >= count) {
-    endIndex = count;
-  } else {
-    // The endIndex is in the queue so increment to pull everything in the queue including it.
-    endIndex += 1;
-  }
-
-  return [self allLiveMutationBatchesBeforeIndex:(NSUInteger)endIndex];
+  return [[self queue] copy];
 }
 
 - (NSArray<FSTMutationBatch *> *)allMutationBatchesAffectingDocumentKey:
@@ -309,66 +285,24 @@ using DocumentReferenceSet = SortedSet<DocumentReference, DocumentReference::ByK
   return result;
 }
 
-- (void)removeMutationBatches:(NSArray<FSTMutationBatch *> *)batches {
-  NSUInteger batchCount = batches.count;
-  HARD_ASSERT(batchCount > 0, "Should not remove mutations when none exist.");
-
-  BatchId firstBatchID = batches[0].batchID;
-
+- (void)removeMutationBatch:(FSTMutationBatch *)batch {
   NSMutableArray<FSTMutationBatch *> *queue = self.queue;
-  NSUInteger queueCount = queue.count;
+  BatchId batchID = batch.batchID;
 
   // Find the position of the first batch for removal. This need not be the first entry in the
   // queue.
-  NSUInteger startIndex = [self indexOfExistingBatchID:firstBatchID action:@"removed"];
-  HARD_ASSERT(queue[startIndex].batchID == firstBatchID, "Removed batches must exist in the queue");
+  NSUInteger batchIndex = [self indexOfExistingBatchID:batchID action:@"removed"];
+  HARD_ASSERT(batchIndex == 0, "Can only remove the first entry of the mutation queue");
 
-  // Check that removed batches are contiguous (while excluding tombstones).
-  NSUInteger batchIndex = 1;
-  NSUInteger queueIndex = startIndex + 1;
-  while (batchIndex < batchCount && queueIndex < queueCount) {
-    FSTMutationBatch *batch = queue[queueIndex];
-    if ([batch isTombstone]) {
-      queueIndex++;
-      continue;
-    }
-
-    HARD_ASSERT(batch.batchID == batches[batchIndex].batchID,
-                "Removed batches must be contiguous in the queue");
-    batchIndex++;
-    queueIndex++;
-  }
-
-  // Only actually remove batches if removing at the front of the queue. Previously rejected batches
-  // may have left tombstones in the queue, so expand the removal range to include any tombstones.
-  if (startIndex == 0) {
-    for (; queueIndex < queueCount; queueIndex++) {
-      FSTMutationBatch *batch = queue[queueIndex];
-      if (![batch isTombstone]) {
-        break;
-      }
-    }
-
-    NSUInteger length = queueIndex - startIndex;
-    [queue removeObjectsInRange:NSMakeRange(startIndex, length)];
-
-  } else {
-    // Mark tombstones
-    for (NSUInteger i = startIndex; i < queueIndex; i++) {
-      queue[i] = [queue[i] toTombstone];
-    }
-  }
+  [queue removeObjectAtIndex:0];
 
   // Remove entries from the index too.
-  for (FSTMutationBatch *batch in batches) {
-    BatchId batchID = batch.batchID;
-    for (FSTMutation *mutation in batch.mutations) {
-      const DocumentKey &key = mutation.key;
-      [_persistence.referenceDelegate removeMutationReference:key];
+  for (FSTMutation *mutation in batch.mutations) {
+    const DocumentKey &key = mutation.key;
+    [_persistence.referenceDelegate removeMutationReference:key];
 
-      DocumentReference reference{key, batchID};
-      _batchesByDocumentKey = _batchesByDocumentKey.erase(reference);
-    }
+    DocumentReference reference{key, batchID};
+    _batchesByDocumentKey = _batchesByDocumentKey.erase(reference);
   }
 }
 
@@ -392,25 +326,6 @@ using DocumentReferenceSet = SortedSet<DocumentReference, DocumentReference::ByK
 }
 
 #pragma mark - Helpers
-
-/**
- * A private helper that collects all the mutation batches in the queue up to but not including
- * the given endIndex. All tombstones in the queue are excluded.
- */
-- (NSArray<FSTMutationBatch *> *)allLiveMutationBatchesBeforeIndex:(NSUInteger)endIndex {
-  NSMutableArray<FSTMutationBatch *> *result = [NSMutableArray arrayWithCapacity:endIndex];
-
-  NSUInteger index = 0;
-  for (FSTMutationBatch *batch in self.queue) {
-    if (index++ >= endIndex) break;
-
-    if (![batch isTombstone]) {
-      [result addObject:batch];
-    }
-  }
-
-  return result;
-}
 
 /**
  * Finds the index of the given batchID in the mutation queue. This operation is O(1).
@@ -447,6 +362,14 @@ using DocumentReferenceSet = SortedSet<DocumentReference, DocumentReference::ByK
   NSInteger index = [self indexOfBatchID:batchID];
   HARD_ASSERT(index >= 0 && index < self.queue.count, "Batches must exist to be %s", action);
   return (NSUInteger)index;
+}
+
+- (size_t)byteSizeWithSerializer:(FSTLocalSerializer *)serializer {
+  size_t count = 0;
+  for (FSTMutationBatch *batch in self.queue) {
+    count += [[serializer encodedMutationBatch:batch] serializedSize];
+  };
+  return count;
 }
 
 @end

@@ -168,3 +168,24 @@ cc_test(
     firebase_firestore_util
     GMock::GMock
 )
+
+# Helper utilities
+
+cc_library(
+  firebase_firestore_remote_test_util
+  SOURCES
+    create_noop_connectivity_monitor.h
+    create_noop_connectivity_monitor.cc
+    fake_credentials_provider.h
+    fake_credentials_provider.cc
+    grpc_stream_tester.h
+    grpc_stream_tester.cc
+  DEPENDS
+    absl_base
+    absl_strings
+    firebase_firestore_auth
+    firebase_firestore_core
+    firebase_firestore_remote
+    firebase_firestore_util
+    grpc++
+)

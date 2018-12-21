@@ -17,8 +17,8 @@
 #import <Foundation/Foundation.h>
 
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 
-@class FSTDispatchQueue;
 @protocol FSTOnlineStateDelegate;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -35,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FSTOnlineStateTracker : NSObject
 
-- (instancetype)initWithWorkerDispatchQueue:(FSTDispatchQueue *)queue;
+- (instancetype)initWithWorkerQueue:(firebase::firestore::util::AsyncQueue *)queue;
 
 - (instancetype)init NS_UNAVAILABLE;
 

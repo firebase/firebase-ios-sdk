@@ -16,16 +16,23 @@
 
 #import "Firestore/Source/Local/FSTMemoryQueryCache.h"
 
+#import <Protobuf/GPBProtocolBuffers.h>
+
+#include <memory>
 #include <utility>
 
+#import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Local/FSTReferenceSet.h"
 
+#include "Firestore/core/src/firebase/firestore/local/memory_query_cache.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "absl/memory/memory.h"
 
+using firebase::firestore::local::MemoryQueryCache;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::ListenSequenceNumber;
@@ -34,33 +41,13 @@ using firebase::firestore::model::TargetId;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FSTMemoryQueryCache ()
-
-/** Maps a query to the data about that query. */
-@property(nonatomic, strong, readonly) NSMutableDictionary<FSTQuery *, FSTQueryData *> *queries;
-
-/** A ordered bidirectional mapping between documents and the remote target IDs. */
-@property(nonatomic, strong, readonly) FSTReferenceSet *references;
-
-/** The highest numbered target ID encountered. */
-@property(nonatomic, assign) TargetId highestTargetID;
-
-@property(nonatomic, assign) ListenSequenceNumber highestListenSequenceNumber;
-
-@end
-
 @implementation FSTMemoryQueryCache {
-  FSTMemoryPersistence *_persistence;
-  /** The last received snapshot version. */
-  SnapshotVersion _lastRemoteSnapshotVersion;
+  std::unique_ptr<MemoryQueryCache> _cache;
 }
 
 - (instancetype)initWithPersistence:(FSTMemoryPersistence *)persistence {
   if (self = [super init]) {
-    _persistence = persistence;
-    _queries = [NSMutableDictionary dictionary];
-    _references = [[FSTReferenceSet alloc] init];
-    _lastRemoteSnapshotVersion = SnapshotVersion::None();
+    _cache = absl::make_unique<MemoryQueryCache>(persistence);
   }
   return self;
 }
@@ -69,103 +56,74 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark Query tracking
 
 - (TargetId)highestTargetID {
-  return _highestTargetID;
+  return _cache->highest_target_id();
 }
 
 - (ListenSequenceNumber)highestListenSequenceNumber {
-  return _highestListenSequenceNumber;
+  return _cache->highest_listen_sequence_number();
 }
 
 - (const SnapshotVersion &)lastRemoteSnapshotVersion {
-  return _lastRemoteSnapshotVersion;
+  return _cache->GetLastRemoteSnapshotVersion();
 }
 
 - (void)setLastRemoteSnapshotVersion:(SnapshotVersion)snapshotVersion {
-  _lastRemoteSnapshotVersion = std::move(snapshotVersion);
+  _cache->SetLastRemoteSnapshotVersion(std::move(snapshotVersion));
 }
 
 - (void)addQueryData:(FSTQueryData *)queryData {
-  self.queries[queryData.query] = queryData;
-  if (queryData.targetID > self.highestTargetID) {
-    self.highestTargetID = queryData.targetID;
-  }
-  if (queryData.sequenceNumber > self.highestListenSequenceNumber) {
-    self.highestListenSequenceNumber = queryData.sequenceNumber;
-  }
+  _cache->AddTarget(queryData);
 }
 
 - (void)updateQueryData:(FSTQueryData *)queryData {
-  self.queries[queryData.query] = queryData;
-  if (queryData.targetID > self.highestTargetID) {
-    self.highestTargetID = queryData.targetID;
-  }
-  if (queryData.sequenceNumber > self.highestListenSequenceNumber) {
-    self.highestListenSequenceNumber = queryData.sequenceNumber;
-  }
+  _cache->UpdateTarget(queryData);
 }
 
 - (int32_t)count {
-  return (int32_t)[self.queries count];
+  return _cache->size();
 }
 
 - (void)removeQueryData:(FSTQueryData *)queryData {
-  [self.queries removeObjectForKey:queryData.query];
-  [self.references removeReferencesForID:queryData.targetID];
+  _cache->RemoveTarget(queryData);
 }
 
 - (nullable FSTQueryData *)queryDataForQuery:(FSTQuery *)query {
-  return self.queries[query];
+  return _cache->GetTarget(query);
 }
 
 - (void)enumerateTargetsUsingBlock:(void (^)(FSTQueryData *queryData, BOOL *stop))block {
-  [self.queries
-      enumerateKeysAndObjectsUsingBlock:^(FSTQuery *key, FSTQueryData *queryData, BOOL *stop) {
-        block(queryData, stop);
-      }];
+  _cache->EnumerateTargets(block);
 }
 
 - (int)removeQueriesThroughSequenceNumber:(ListenSequenceNumber)sequenceNumber
                               liveQueries:(NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries {
-  NSMutableArray<FSTQuery *> *toRemove = [NSMutableArray array];
-  [self.queries
-      enumerateKeysAndObjectsUsingBlock:^(FSTQuery *query, FSTQueryData *queryData, BOOL *stop) {
-        if (queryData.sequenceNumber <= sequenceNumber) {
-          if (liveQueries[@(queryData.targetID)] == nil) {
-            [toRemove addObject:query];
-            [self.references removeReferencesForID:queryData.targetID];
-          }
-        }
-      }];
-  [self.queries removeObjectsForKeys:toRemove];
-  return (int)[toRemove count];
+  return _cache->RemoveTargets(sequenceNumber, liveQueries);
 }
 
 #pragma mark Reference tracking
 
 - (void)addMatchingKeys:(const DocumentKeySet &)keys forTargetID:(TargetId)targetID {
-  [self.references addReferencesToKeys:keys forID:targetID];
-  for (const DocumentKey &key : keys) {
-    [_persistence.referenceDelegate addReference:key];
-  }
+  _cache->AddMatchingKeys(keys, targetID);
 }
 
 - (void)removeMatchingKeys:(const DocumentKeySet &)keys forTargetID:(TargetId)targetID {
-  [self.references removeReferencesToKeys:keys forID:targetID];
-  for (const DocumentKey &key : keys) {
-    [_persistence.referenceDelegate removeReference:key];
-  }
+  _cache->RemoveMatchingKeys(keys, targetID);
 }
 
 - (void)removeMatchingKeysForTargetID:(TargetId)targetID {
-  [self.references removeReferencesForID:targetID];
+  _cache->RemoveAllKeysForTarget(targetID);
 }
 
 - (DocumentKeySet)matchingKeysForTargetID:(TargetId)targetID {
-  return [self.references referencedKeysForID:targetID];
+  return _cache->GetMatchingKeys(targetID);
 }
 
 - (BOOL)containsKey:(const firebase::firestore::model::DocumentKey &)key {
-  return [self.references containsKey:key];
+  return _cache->Contains(key);
+}
+
+- (size_t)byteSizeWithSerializer:(FSTLocalSerializer *)serializer {
+  return _cache->CalculateByteSize(serializer);
 }
 
 @end

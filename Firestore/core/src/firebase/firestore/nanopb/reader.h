@@ -60,6 +60,15 @@ class Reader {
   static Reader Wrap(const uint8_t* bytes, size_t length);
 
   /**
+   * Creates an input stream from bytes backing the string_view. Note that
+   * the backing buffer must remain valid for the lifetime of this Reader.
+   *
+   * (This is roughly equivalent to the nanopb function
+   * pb_istream_from_buffer())
+   */
+  static Reader Wrap(absl::string_view);
+
+  /**
    * Reads a message type from the input stream.
    *
    * This essentially wraps calls to nanopb's pb_decode_tag() method.

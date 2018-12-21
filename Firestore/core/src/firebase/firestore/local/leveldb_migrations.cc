@@ -19,8 +19,12 @@
 #include <string>
 #include <utility>
 
+#include "Firestore/Protos/nanopb/firestore/local/mutation.nanopb.h"
 #include "Firestore/Protos/nanopb/firestore/local/target.nanopb.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 #include "absl/strings/match.h"
 
@@ -32,6 +36,7 @@ using leveldb::Iterator;
 using leveldb::Slice;
 using leveldb::Status;
 using leveldb::WriteOptions;
+using nanopb::Reader;
 using nanopb::Writer;
 
 namespace {
@@ -52,8 +57,11 @@ namespace {
  *   * Migration 3 deletes the entire query cache to deal with cache corruption
  *     related to limbo resolution. Addresses
  *     https://github.com/firebase/firebase-ios-sdk/issues/1548.
+ *   * Migration 4 ensures that every document in the remote document cache
+ *     has a sentinel row with a sequence number.
+ *   * Migration 5 drops held write acks.
  */
-const LevelDbMigrations::SchemaVersion kSchemaVersion = 3;
+const LevelDbMigrations::SchemaVersion kSchemaVersion = 5;
 
 /**
  * Save the given version number as the current version of the schema of the
@@ -110,13 +118,137 @@ void ClearQueryCache(leveldb::DB* db) {
   transaction.Commit();
 }
 
+/**
+ * Removes document associations for the given user's mutation queue for
+ * any mutation with a `batch_id` less than or equal to
+ * `last_acknowledged_batch_id`.
+ */
+void RemoveMutationDocuments(LevelDbTransaction* transaction,
+                             absl::string_view user_id,
+                             int32_t last_acknowledged_batch_id) {
+  LevelDbDocumentMutationKey doc_key;
+  std::string prefix = LevelDbDocumentMutationKey::KeyPrefix(user_id);
+
+  auto it = transaction->NewIterator();
+  it->Seek(prefix);
+  for (; it->Valid() && absl::StartsWith(it->key(), prefix); it->Next()) {
+    HARD_ASSERT(doc_key.Decode(it->key()),
+                "Failed to decode document mutation key");
+    if (doc_key.batch_id() <= last_acknowledged_batch_id) {
+      transaction->Delete(it->key());
+    }
+  }
+}
+
+/**
+ * Removes mutation batches for the given user with a `batch_id` less than
+ * or equal to `last_acknowledged_batch_id`
+ */
+void RemoveMutationBatches(LevelDbTransaction* transaction,
+                           absl::string_view user_id,
+                           int32_t last_acknowledged_batch_id) {
+  std::string mutations_key = LevelDbMutationKey::KeyPrefix(user_id);
+  std::string last_key =
+      LevelDbMutationKey::Key(user_id, last_acknowledged_batch_id);
+  auto it = transaction->NewIterator();
+  it->Seek(mutations_key);
+  for (; it->Valid() && it->key() <= last_key; it->Next()) {
+    transaction->Delete(it->key());
+  }
+}
+
+/** Migration 5. */
+void RemoveAcknowledgedMutations(leveldb::DB* db) {
+  LevelDbTransaction transaction(db, "remove acknowledged mutations");
+  std::string mutation_queue_start = LevelDbMutationQueueKey::KeyPrefix();
+
+  LevelDbMutationQueueKey key;
+
+  auto it = transaction.NewIterator();
+  it->Seek(mutation_queue_start);
+  for (; it->Valid() && absl::StartsWith(it->key(), mutation_queue_start);
+       it->Next()) {
+    HARD_ASSERT(key.Decode(it->key()), "Failed to decode mutation queue key");
+    firestore_client_MutationQueue mutation_queue{};
+    Reader reader = Reader::Wrap(it->value());
+    reader.ReadNanopbMessage(firestore_client_MutationQueue_fields,
+                             &mutation_queue);
+    HARD_ASSERT(reader.status().ok(), "Failed to deserialize MutationQueue");
+    RemoveMutationBatches(&transaction, key.user_id(),
+                          mutation_queue.last_acknowledged_batch_id);
+    RemoveMutationDocuments(&transaction, key.user_id(),
+                            mutation_queue.last_acknowledged_batch_id);
+  }
+
+  SaveVersion(5, &transaction);
+  transaction.Commit();
+}
+
+/**
+ * Reads the highest sequence number from the target global row.
+ */
+model::ListenSequenceNumber GetHighestSequenceNumber(
+    LevelDbTransaction* transaction) {
+  std::string bytes;
+  transaction->Get(LevelDbTargetGlobalKey::Key(), &bytes);
+
+  firestore_client_TargetGlobal target_global{};
+  Reader reader = Reader::Wrap(bytes);
+  reader.ReadNanopbMessage(firestore_client_TargetGlobal_fields,
+                           &target_global);
+  return target_global.highest_listen_sequence_number;
+}
+
+/**
+ * Given a document key, ensure it has a sentinel row. If it doesn't have one,
+ * add it with the given value.
+ */
+void EnsureSentinelRow(LevelDbTransaction* transaction,
+                       const model::DocumentKey& key,
+                       const std::string& sentinel_value) {
+  std::string sentinel_key = LevelDbDocumentTargetKey::SentinelKey(key);
+  std::string unused_value;
+  if (transaction->Get(sentinel_key, &unused_value).IsNotFound()) {
+    transaction->Put(sentinel_key, sentinel_value);
+  }
+}
+
+/**
+ * Ensure each document in the remote document table has a corresponding
+ * sentinel row in the document target index.
+ */
+void EnsureSentinelRows(leveldb::DB* db) {
+  LevelDbTransaction transaction(db, "Ensure sentinel rows");
+
+  // Get the value we'll use for anything that's missing a row.
+  model::ListenSequenceNumber sequence_number =
+      GetHighestSequenceNumber(&transaction);
+  std::string sentinel_value =
+      LevelDbDocumentTargetKey::EncodeSentinelValue(sequence_number);
+
+  std::string documents_prefix = LevelDbRemoteDocumentKey::KeyPrefix();
+  auto it = transaction.NewIterator();
+  it->Seek(documents_prefix);
+  LevelDbRemoteDocumentKey document_key;
+  for (; it->Valid() && absl::StartsWith(it->key(), documents_prefix);
+       it->Next()) {
+    HARD_ASSERT(document_key.Decode(it->key()),
+                "Failed to decode document key");
+    EnsureSentinelRow(&transaction, document_key.document_key(),
+                      sentinel_value);
+  }
+  SaveVersion(4, &transaction);
+  transaction.Commit();
+}
+
 }  // namespace
 
 LevelDbMigrations::SchemaVersion LevelDbMigrations::ReadSchemaVersion(
-    LevelDbTransaction* transaction) {
+    leveldb::DB* db) {
+  LevelDbTransaction transaction(db, "Read schema version");
   std::string key = LevelDbVersionKey::Key();
   std::string version_string;
-  Status status = transaction->Get(key, &version_string);
+  Status status = transaction.Get(key, &version_string);
   if (status.IsNotFound()) {
     return 0;
   } else {
@@ -130,14 +262,30 @@ void LevelDbMigrations::RunMigrations(leveldb::DB* db) {
 
 void LevelDbMigrations::RunMigrations(leveldb::DB* db,
                                       SchemaVersion to_version) {
-  LevelDbTransaction transaction{db, "Read schema version"};
-  SchemaVersion from_version = ReadSchemaVersion(&transaction);
+  SchemaVersion from_version = ReadSchemaVersion(db);
+  // If this is a downgrade, just save the downgrade version so we can
+  // detect it when we go to upgrade again, allowing us to rerun the
+  // data migrations.
+  if (from_version > to_version) {
+    LevelDbTransaction transaction(db, "Save downgrade version");
+    SaveVersion(to_version, &transaction);
+    transaction.Commit();
+    return;
+  }
 
   // This must run unconditionally because schema migrations were added to iOS
   // after the first release. There may be clients that have never run any
   // migrations that have existing targets.
   if (from_version < 3 && to_version >= 3) {
     ClearQueryCache(db);
+  }
+
+  if (from_version < 4 && to_version >= 4) {
+    EnsureSentinelRows(db);
+  }
+
+  if (from_version < 5 && to_version >= 5) {
+    RemoveAcknowledgedMutations(db);
   }
 }
 

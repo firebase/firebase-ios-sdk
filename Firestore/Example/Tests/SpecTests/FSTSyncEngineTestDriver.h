@@ -20,12 +20,13 @@
 #include <unordered_map>
 
 #import "Firestore/Source/Remote/FSTRemoteStore.h"
-#import "Firestore/Source/Util/FSTDispatchQueue.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 
 @class FSTDocumentKey;
 @class FSTMutation;
@@ -227,9 +228,9 @@ typedef std::unordered_map<firebase::firestore::auth::User,
 - (void)enableNetwork;
 
 /**
- * Runs a pending timer callback on the FSTDispatchQueue.
+ * Runs a pending timer callback on the worker queue.
  */
-- (void)runTimer:(FSTTimerID)timerID;
+- (void)runTimer:(firebase::firestore::util::TimerId)timerID;
 
 /**
  * Switches the FSTSyncEngine to a new user. The test driver tracks the outstanding mutations for
@@ -265,6 +266,12 @@ typedef std::unordered_map<firebase::firestore::auth::User,
 - (std::map<firebase::firestore::model::DocumentKey, firebase::firestore::model::TargetId>)
     currentLimboDocuments;
 
+/** The expected set of documents in limbo. */
+- (const firebase::firestore::model::DocumentKeySet &)expectedLimboDocuments;
+
+/** Sets the expected set of documents in limbo. */
+- (void)setExpectedLimboDocuments:(firebase::firestore::model::DocumentKeySet)docs;
+
 /**
  * The writes that have been sent to the FSTSyncEngine via writeUserMutation: but not yet
  * acknowledged by calling receiveWriteAck/Error:. They are tracked per-user.
@@ -285,9 +292,6 @@ typedef std::unordered_map<firebase::firestore::auth::User,
 
 /** The current user for the FSTSyncEngine; determines which mutation queue is active. */
 @property(nonatomic, assign, readonly) const firebase::firestore::auth::User &currentUser;
-
-/** The expected set of documents in limbo. */
-@property(nonatomic, strong, readwrite) NSSet<FSTDocumentKey *> *expectedLimboDocuments;
 
 /** The set of active targets as observed on the watch stream. */
 @property(nonatomic, strong, readonly)

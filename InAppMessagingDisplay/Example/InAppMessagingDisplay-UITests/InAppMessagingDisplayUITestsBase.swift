@@ -19,13 +19,13 @@ import Foundation
 import XCTest
 
 class InAppMessagingDisplayUITestsBase: XCTestCase {
-  func waitForElementToAppear(_ element: XCUIElement, _ timeoutInSeconds: TimeInterval = 5) {
+  func waitForElementToAppear(_ element: XCUIElement, _ timeoutInSeconds: TimeInterval = 60) {
     let existsPredicate = NSPredicate(format: "exists == true")
     expectation(for: existsPredicate, evaluatedWith: element, handler: nil)
     waitForExpectations(timeout: timeoutInSeconds, handler: nil)
   }
 
-  func waitForElementToDisappear(_ element: XCUIElement, _ timeoutInSeconds: TimeInterval = 5) {
+  func waitForElementToDisappear(_ element: XCUIElement, _ timeoutInSeconds: TimeInterval = 60) {
     let existsPredicate = NSPredicate(format: "exists == false")
     expectation(for: existsPredicate, evaluatedWith: element, handler: nil)
     waitForExpectations(timeout: timeoutInSeconds, handler: nil)

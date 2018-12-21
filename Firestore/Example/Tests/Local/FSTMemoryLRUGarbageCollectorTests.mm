@@ -17,7 +17,13 @@
 #import "Firestore/Example/Tests/Local/FSTLRUGarbageCollectorTests.h"
 
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
+#import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+
+using firebase::firestore::model::DocumentKey;
+
+using firebase::firestore::local::LruParams;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -26,8 +32,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTMemoryLRUGarbageCollectionTests
 
-- (id<FSTPersistence>)newPersistence {
-  return [FSTPersistenceTestHelpers lruMemoryPersistence];
+- (id<FSTPersistence>)newPersistenceWithLruParams:(LruParams)lruParams {
+  return [FSTPersistenceTestHelpers lruMemoryPersistenceWithLruParams:lruParams];
+}
+
+- (BOOL)sentinelExists:(const DocumentKey &)key {
+  FSTMemoryLRUReferenceDelegate *delegate =
+      (FSTMemoryLRUReferenceDelegate *)self.persistence.referenceDelegate;
+  return [delegate isPinnedAtSequenceNumber:0 document:key];
 }
 
 @end

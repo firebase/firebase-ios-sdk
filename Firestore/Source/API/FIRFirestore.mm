@@ -35,7 +35,6 @@
 #import "Firestore/Source/API/FSTFirestoreComponent.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
-#import "Firestore/Source/Util/FSTDispatchQueue.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
@@ -43,12 +42,12 @@
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
+#include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "absl/memory/memory.h"
-
-#include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::auth::CredentialsProvider;
@@ -56,8 +55,9 @@ using firebase::firestore::auth::FirebaseCredentialsProvider;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::ResourcePath;
-using util::internal::Executor;
-using util::internal::ExecutorLibdispatch;
+using util::AsyncQueue;
+using util::Executor;
+using util::ExecutorLibdispatch;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -72,7 +72,6 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 }
 
 @property(nonatomic, strong) NSString *persistenceKey;
-@property(nonatomic, strong) FSTDispatchQueue *workerDispatchQueue;
 
 // Note that `client` is updated after initialization, but marking this readwrite would generate an
 // incorrect setter (since we make the assignment to `client` inside an `@synchronized` block.
@@ -82,9 +81,16 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 @end
 
 @implementation FIRFirestore {
+  // Ownership will be transferred to `FSTFirestoreClient` as soon as the client is created.
+  std::unique_ptr<AsyncQueue> _workerQueue;
+
   // All guarded by @synchronized(self)
   FIRFirestoreSettings *_settings;
   FSTFirestoreClient *_client;
+}
+
+- (AsyncQueue *)workerQueue {
+  return [_client workerQueue];
 }
 
 + (NSMutableDictionary<NSString *, FIRFirestore *> *)instances {
@@ -163,7 +169,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
                          database:(std::string)database
                    persistenceKey:(NSString *)persistenceKey
               credentialsProvider:(std::unique_ptr<CredentialsProvider>)credentialsProvider
-              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
+                      workerQueue:(std::unique_ptr<AsyncQueue>)workerQueue
                       firebaseApp:(FIRApp *)app {
   if (self = [super init]) {
     _databaseID = DatabaseId{std::move(projectID), std::move(database)};
@@ -180,7 +186,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
         [[FSTUserDataConverter alloc] initWithDatabaseID:&_databaseID preConverter:block];
     _persistenceKey = persistenceKey;
     _credentialsProvider = std::move(credentialsProvider);
-    _workerDispatchQueue = workerDispatchQueue;
+    _workerQueue = std::move(workerQueue);
     _app = app;
     _settings = [[FIRFirestoreSettings alloc] init];
   }
@@ -257,11 +263,12 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
       std::unique_ptr<Executor> userExecutor =
           absl::make_unique<ExecutorLibdispatch>(_settings.dispatchQueue);
 
+      HARD_ASSERT(_workerQueue, "Expected non-null _workerQueue");
       _client = [FSTFirestoreClient clientWithDatabaseInfo:database_info
-                                            usePersistence:_settings.persistenceEnabled
+                                                  settings:_settings
                                        credentialsProvider:_credentialsProvider.get()
                                               userExecutor:std::move(userExecutor)
-                                       workerDispatchQueue:_workerDispatchQueue];
+                                               workerQueue:std::move(_workerQueue)];
     }
   }
 }
@@ -344,18 +351,14 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 }
 
 - (void)shutdownWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
-  FSTFirestoreClient *client;
-  @synchronized(self) {
-    client = _client;
-    _client = nil;
-  }
-
-  if (!client) {
-    // We should be dispatching the callback on the user dispatch queue but if the client is nil
-    // here that queue was never created.
-    completion(nil);
+  if (!_client) {
+    if (completion) {
+      // We should be dispatching the callback on the user dispatch queue but if the client is nil
+      // here that queue was never created.
+      completion(nil);
+    }
   } else {
-    [client shutdownWithCompletion:completion];
+    [_client shutdownWithCompletion:completion];
   }
 }
 

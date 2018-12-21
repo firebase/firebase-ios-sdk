@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>en</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>$(PRODUCT_NAME)</string>
+	<key>CFBundlePackageType</key>
+	<string>BNDL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0</string>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;!DOCTYPE plist PUBLIC &quot;-//Apple//DTD PLIST 1.0//EN&quot; &quot;http://www.apple.com/DTDs/PropertyList-1.0.dtd&quot;&gt;
+&lt;plist version=&quot;1.0&quot;&gt;
+&lt;array&gt;
+	&lt;string&gt;https://mydomain.com&lt;/string&gt;
+	&lt;string&gt;https://mydomain2.com&lt;/string&gt;
+	&lt;string&gt;https://google.com&lt;/string&gt;
+	&lt;string&gt;https://google.com&lt;/string&gt;
+	&lt;string&gt;go&lt;/string&gt;
+	&lt;string&gt;g.co&lt;/string&gt;
+	&lt;string&gt;https://go&lt;/string&gt;
+	&lt;string&gt;https://g.co&lt;/string&gt;
+	&lt;string&gt;https://google.com/one&lt;/string&gt;
+	&lt;string&gt;https://custom.com/one/two&lt;/string&gt;
+	&lt;string&gt;https://custom1.com/one/&lt;/string&gt;
+&lt;/array&gt;
+&lt;/plist&gt;
+</key>
+	<string></string>
+</dict>
+</plist>

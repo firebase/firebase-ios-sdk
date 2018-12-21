@@ -46,7 +46,7 @@
 }
 
 - (FIRDataSnapshot *)snapshotFor:(id)jsonDict {
-    FIRDatabaseConfig *config = [FIRDatabaseConfig defaultConfig];
+    FIRDatabaseConfig *config = [FTestHelpers defaultConfig];
     FRepoInfo* repoInfo = [[FRepoInfo alloc] initWithHost:@"example.com" isSecure:NO withNamespace:@"default"];
     FIRDatabaseReference * dummyRef = [[FIRDatabaseReference alloc] initWithRepo:[FRepoManager getRepo:repoInfo config:config] path:[FPath empty]];
     FIndexedNode *indexed = [FIndexedNode indexedNodeWithNode:[FSnapshotUtilities nodeFrom:jsonDict]];

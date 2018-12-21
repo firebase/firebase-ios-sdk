@@ -18,43 +18,45 @@
 
 #import "GULNetworkLoggerProtocol.h"
 
-typedef void (^GULNetworkCompletionHandler)(NSHTTPURLResponse *response,
-                                            NSData *data,
-                                            NSError *error);
-typedef void (^GULNetworkURLSessionCompletionHandler)(NSHTTPURLResponse *response,
-                                                      NSData *data,
+NS_ASSUME_NONNULL_BEGIN
+
+typedef void (^GULNetworkCompletionHandler)(NSHTTPURLResponse *_Nullable response,
+                                            NSData *_Nullable data,
+                                            NSError *_Nullable error);
+typedef void (^GULNetworkURLSessionCompletionHandler)(NSHTTPURLResponse *_Nullable response,
+                                                      NSData *_Nullable data,
                                                       NSString *sessionID,
-                                                      NSError *error);
+                                                      NSError *_Nullable error);
 typedef void (^GULNetworkSystemCompletionHandler)(void);
 
 /// The protocol that uses NSURLSession for iOS >= 7.0 to handle requests and responses.
-@interface GULNetworkURLSession
-    : NSObject <NSURLSessionDelegate, NSURLSessionTaskDelegate, NSURLSessionDownloadDelegate>
+@interface GULNetworkURLSession : NSObject
 
 /// Indicates whether the background network is enabled. Default value is NO.
 @property(nonatomic, getter=isBackgroundNetworkEnabled) BOOL backgroundNetworkEnabled;
 
 /// The logger delegate to log message, errors or warnings that occur during the network operations.
-@property(nonatomic, weak) id<GULNetworkLoggerDelegate> loggerDelegate;
+@property(nonatomic, weak, nullable) id<GULNetworkLoggerDelegate> loggerDelegate;
 
 /// Calls the system provided completion handler after the background session is finished.
 + (void)handleEventsForBackgroundURLSessionID:(NSString *)sessionID
                             completionHandler:(GULNetworkSystemCompletionHandler)completionHandler;
 
 /// Initializes with logger delegate.
-- (instancetype)initWithNetworkLoggerDelegate:(id<GULNetworkLoggerDelegate>)networkLoggerDelegate
-    NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithNetworkLoggerDelegate:
+    (nullable id<GULNetworkLoggerDelegate>)networkLoggerDelegate NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)init NS_UNAVAILABLE;
 
 /// Sends an asynchronous POST request and calls the provided completion handler when the request
 /// completes or when errors occur, and returns an ID of the session/connection.
-- (NSString *)sessionIDFromAsyncPOSTRequest:(NSURLRequest *)request
-                          completionHandler:(GULNetworkURLSessionCompletionHandler)handler;
+- (nullable NSString *)sessionIDFromAsyncPOSTRequest:(NSURLRequest *)request
+                                   completionHandler:(GULNetworkURLSessionCompletionHandler)handler;
 
 /// Sends an asynchronous GET request and calls the provided completion handler when the request
 /// completes or when errors occur, and returns an ID of the session.
-- (NSString *)sessionIDFromAsyncGETRequest:(NSURLRequest *)request
-                         completionHandler:(GULNetworkURLSessionCompletionHandler)handler;
+- (nullable NSString *)sessionIDFromAsyncGETRequest:(NSURLRequest *)request
+                                  completionHandler:(GULNetworkURLSessionCompletionHandler)handler;
 
+NS_ASSUME_NONNULL_END
 @end

@@ -21,10 +21,6 @@
 #import <FirebaseCore/FIRApp.h>
 #import "FirebaseAuth.h"
 
-#ifdef NO_NETWORK
-#import "ioReplayer/IORTestCase.h"
-#endif
-
 /** The url for obtaining a valid custom token string used to test BYOAuth. */
 static NSString *const kCustomTokenUrl = @"https://fb-sa-1211.appspot.com/token";
 
@@ -38,15 +34,11 @@ static CGFloat const kShortScrollDistance = 100;
 
 static NSTimeInterval const kWaitForElementTimeOut = 5;
 
-#ifdef NO_NETWORK
-@interface BasicUITest : IORTestCase
-#else
 @interface BasicUITest :XCTestCase
-#endif
 @end
 
 /** Convenience function for EarlGrey tests. */
-id<GREYMatcher> grey_scrollView(void) {
+static id<GREYMatcher> grey_scrollView(void) {
   return [GREYMatchers matcherForKindOfClass:[UIScrollView class]];
 }
 
@@ -60,7 +52,7 @@ id<GREYMatcher> grey_scrollView(void) {
 
   [[EarlGrey selectElementWithMatcher:grey_allOf(grey_scrollView(),
                                                  grey_kindOfClass([UITableView class]), nil)]
-      performAction:grey_scrollToContentEdge(kGREYContentEdgeTop)];
+                        performAction:grey_scrollToContentEdge(kGREYContentEdgeTop)];
 }
 
 #pragma mark - Tests
@@ -156,8 +148,7 @@ id<GREYMatcher> grey_scrollView(void) {
 
   [[EarlGrey selectElementWithMatcher:grey_text(@"Done")] performAction:grey_tap()];
 
-  NSString *invalidTokenErrorMessage =
-      @"The custom token format is incorrect. Please check the documentation.";
+  NSString *invalidTokenErrorMessage = @"Sign-In Error";
 
   [self waitForElementWithText:invalidTokenErrorMessage withDelay:kWaitForElementTimeOut];
 
@@ -190,4 +181,5 @@ id<GREYMatcher> grey_scrollView(void) {
                                  }];
   GREYAssertTrue([displayed waitWithTimeout:maxDelay], @"Failed to wait for element '%@'.", text);
 }
+
 @end

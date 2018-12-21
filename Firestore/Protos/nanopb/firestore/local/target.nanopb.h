@@ -21,18 +21,18 @@
 #define PB_FIRESTORE_CLIENT_TARGET_NANOPB_H_INCLUDED
 #include <pb.h>
 
-#include "google/firestore/v1beta1/firestore.nanopb.h"
+#include "google/firestore/v1/firestore.nanopb.h"
 
 #include "google/protobuf/timestamp.nanopb.h"
+
+namespace firebase {
+namespace firestore {
 
 /* @@protoc_insertion_point(includes) */
 #if PB_PROTO_HEADER_VERSION != 30
 #error Regenerate this file with the current version of nanopb generator.
 #endif
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /* Struct definitions */
 typedef struct _firestore_client_Target {
@@ -42,8 +42,8 @@ typedef struct _firestore_client_Target {
     int64_t last_listen_sequence_number;
     pb_size_t which_target_type;
     union {
-        google_firestore_v1beta1_Target_QueryTarget query;
-        google_firestore_v1beta1_Target_DocumentsTarget documents;
+        google_firestore_v1_Target_QueryTarget query;
+        google_firestore_v1_Target_DocumentsTarget documents;
     };
 /* @@protoc_insertion_point(struct:firestore_client_Target) */
 } firestore_client_Target;
@@ -59,9 +59,9 @@ typedef struct _firestore_client_TargetGlobal {
 /* Default values for struct fields */
 
 /* Initializer values for message structs */
-#define firestore_client_Target_init_default     {0, google_protobuf_Timestamp_init_default, NULL, 0, 0, {google_firestore_v1beta1_Target_QueryTarget_init_default}}
+#define firestore_client_Target_init_default     {0, google_protobuf_Timestamp_init_default, NULL, 0, 0, {google_firestore_v1_Target_QueryTarget_init_default}}
 #define firestore_client_TargetGlobal_init_default {0, 0, google_protobuf_Timestamp_init_default, 0}
-#define firestore_client_Target_init_zero        {0, google_protobuf_Timestamp_init_zero, NULL, 0, 0, {google_firestore_v1beta1_Target_QueryTarget_init_zero}}
+#define firestore_client_Target_init_zero        {0, google_protobuf_Timestamp_init_zero, NULL, 0, 0, {google_firestore_v1_Target_QueryTarget_init_zero}}
 #define firestore_client_TargetGlobal_init_zero  {0, 0, google_protobuf_Timestamp_init_zero, 0}
 
 /* Field tags (for use in manual encoding/decoding) */
@@ -92,9 +92,9 @@ extern const pb_field_t firestore_client_TargetGlobal_fields[5];
 
 #endif
 
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
+}  // namespace firestore
+}  // namespace firebase
+
 /* @@protoc_insertion_point(eof) */
 
 #endif

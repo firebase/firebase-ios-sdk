@@ -22,11 +22,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-// Declares a private method of FIRInstanceID to work around a bug.
-@interface FIRInstanceID : NSObject
-+ (void)notifyTokenRefresh;
-@end
-
 @implementation AppManager {
   /** @var _createdAppNames
       @brief The set of names of live (created but not deleted) app, to avoid iCore warnings.
@@ -59,7 +54,6 @@ NS_ASSUME_NONNULL_BEGIN
                 completion:(void (^)())completion {
   [self deleteAppAtIndex:index completion:^() {
     if (index == 0) {
-      [FIRInstanceID notifyTokenRefresh];  // b/28967043
       if (options) {
         [FIRApp configureWithOptions:options];
       }

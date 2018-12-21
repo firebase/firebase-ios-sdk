@@ -34,7 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Serializer for values stored in the LocalStore.
  *
- * Note that FSTLocalSerializer currently delegates to the serializer for the Firestore v1beta1 RPC
+ * Note that FSTLocalSerializer currently delegates to the serializer for the Firestore v1 RPC
  * protocol to save implementation time and code duplication. We'll need to revisit this when the
  * RPC protocol we use diverges from local storage.
  */

@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #import "FIRTestCase.h"
+#import "FIRTestComponents.h"
 
 #import <FirebaseCore/FIRAnalyticsConfiguration+Internal.h>
 #import <FirebaseCore/FIRAppInternal.h>
@@ -22,9 +23,6 @@ NSString *const kFIRTestAppName1 = @"test_app_name_1";
 NSString *const kFIRTestAppName2 = @"test-app-name-2";
 
 @interface FIRApp (TestInternal)
-
-@property(nonatomic) BOOL alreadySentConfigureNotification;
-@property(nonatomic) BOOL alreadySentDeleteNotification;
 
 + (void)resetApps;
 - (instancetype)initInstanceWithName:(NSString *)name options:(FIROptions *)options;
@@ -51,9 +49,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 @interface FIRAppTest : FIRTestCase
 
 @property(nonatomic) id appClassMock;
-@property(nonatomic) id optionsInstanceMock;
 @property(nonatomic) id observerMock;
-@property(nonatomic) FIRApp *app;
 @property(nonatomic) NSNotificationCenter *notificationCenter;
 
 @end
@@ -65,7 +61,6 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   [FIROptions resetDefaultOptions];
   [FIRApp resetApps];
   _appClassMock = OCMClassMock([FIRApp class]);
-  _optionsInstanceMock = OCMPartialMock([FIROptions defaultOptions]);
   _observerMock = OCMObserverMock();
 
   // TODO: Remove all usages of defaultCenter in Core, then we can instantiate an instance here to
@@ -75,7 +70,6 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 
 - (void)tearDown {
   [_appClassMock stopMocking];
-  [_optionsInstanceMock stopMocking];
   [_notificationCenter removeObserver:_observerMock];
   _observerMock = nil;
   _notificationCenter = nil;
@@ -93,23 +87,23 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   XCTAssertNoThrow([FIRApp configure]);
   OCMVerifyAll(self.observerMock);
 
-  self.app = [FIRApp defaultApp];
-  XCTAssertNotNil(self.app);
-  XCTAssertEqualObjects(self.app.name, kFIRDefaultAppName);
-  XCTAssertEqualObjects(self.app.options.clientID, kClientID);
+  FIRApp *app = [FIRApp defaultApp];
+  XCTAssertNotNil(app);
+  XCTAssertEqualObjects(app.name, kFIRDefaultAppName);
+  XCTAssertEqualObjects(app.options.clientID, kClientID);
   XCTAssertTrue([FIRApp allApps].count == 1);
-  XCTAssertTrue(self.app.alreadySentConfigureNotification);
+}
 
-  // Test if options is nil
+- (void)testConfigureWithNoDefaultOptions {
   id optionsClassMock = OCMClassMock([FIROptions class]);
   OCMStub([optionsClassMock defaultOptions]).andReturn(nil);
   XCTAssertThrows([FIRApp configure]);
 }
 
 - (void)testConfigureWithOptions {
-// nil options
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnonnull"
+  // Test `nil` options.
   XCTAssertThrows([FIRApp configureWithOptions:nil]);
 #pragma clang diagnostic pop
   XCTAssertTrue([FIRApp allApps].count == 0);
@@ -120,50 +114,35 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
                      notificationName:kFIRAppReadyToConfigureSDKNotification
                                object:[FIRApp class]
                              userInfo:expectedUserInfo];
-  // default options
-  XCTAssertNoThrow([FIRApp configureWithOptions:[FIROptions defaultOptions]]);
-  OCMVerifyAll(self.observerMock);
 
-  self.app = [FIRApp defaultApp];
-  XCTAssertNotNil(self.app);
-  XCTAssertEqualObjects(self.app.name, kFIRDefaultAppName);
-  XCTAssertEqualObjects(self.app.options.clientID, kClientID);
-  XCTAssertTrue([FIRApp allApps].count == 1);
-}
-
-- (void)testConfigureWithCustomizedOptions {
-  // valid customized options
+  // Use a valid instance of options.
   FIROptions *options =
       [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
-  options.bundleID = kBundleID;
-  options.APIKey = kCustomizedAPIKey;
-  NSDictionary *expectedUserInfo =
-      [self expectedUserInfoWithAppName:kFIRDefaultAppName isDefaultApp:YES];
-  [self expectNotificationForObserver:self.observerMock
-                     notificationName:kFIRAppReadyToConfigureSDKNotification
-                               object:[FIRApp class]
-                             userInfo:expectedUserInfo];
-
+  options.clientID = kClientID;
   XCTAssertNoThrow([FIRApp configureWithOptions:options]);
   OCMVerifyAll(self.observerMock);
 
-  self.app = [FIRApp defaultApp];
-  XCTAssertNotNil(self.app);
-  XCTAssertEqualObjects(self.app.name, kFIRDefaultAppName);
-  XCTAssertEqualObjects(self.app.options.googleAppID, kGoogleAppID);
-  XCTAssertEqualObjects(self.app.options.APIKey, kCustomizedAPIKey);
+  // Verify the default app instance is created.
+  FIRApp *app = [FIRApp defaultApp];
+  XCTAssertNotNil(app);
+  XCTAssertEqualObjects(app.name, kFIRDefaultAppName);
+  XCTAssertEqualObjects(app.options.googleAppID, kGoogleAppID);
+  XCTAssertEqualObjects(app.options.GCMSenderID, kGCMSenderID);
+  XCTAssertEqualObjects(app.options.clientID, kClientID);
   XCTAssertTrue([FIRApp allApps].count == 1);
 }
 
 - (void)testConfigureWithNameAndOptions {
+  FIROptions *options =
+      [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
+  options.clientID = kClientID;
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnonnull"
-  XCTAssertThrows([FIRApp configureWithName:nil options:[FIROptions defaultOptions]]);
+  XCTAssertThrows([FIRApp configureWithName:nil options:options]);
   XCTAssertThrows([FIRApp configureWithName:kFIRTestAppName1 options:nil]);
 #pragma clang diagnostic pop
-  XCTAssertThrows([FIRApp configureWithName:@"" options:[FIROptions defaultOptions]]);
-  XCTAssertThrows(
-      [FIRApp configureWithName:kFIRDefaultAppName options:[FIROptions defaultOptions]]);
+  XCTAssertThrows([FIRApp configureWithName:@"" options:options]);
   XCTAssertTrue([FIRApp allApps].count == 0);
 
   NSDictionary *expectedUserInfo =
@@ -172,23 +151,23 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
                      notificationName:kFIRAppReadyToConfigureSDKNotification
                                object:[FIRApp class]
                              userInfo:expectedUserInfo];
-  XCTAssertNoThrow([FIRApp configureWithName:kFIRTestAppName1 options:[FIROptions defaultOptions]]);
+  XCTAssertNoThrow([FIRApp configureWithName:kFIRTestAppName1 options:options]);
   OCMVerifyAll(self.observerMock);
 
   XCTAssertTrue([FIRApp allApps].count == 1);
-  self.app = [FIRApp appNamed:kFIRTestAppName1];
-  XCTAssertNotNil(self.app);
-  XCTAssertEqualObjects(self.app.name, kFIRTestAppName1);
-  XCTAssertEqualObjects(self.app.options.clientID, kClientID);
+  FIRApp *app = [FIRApp appNamed:kFIRTestAppName1];
+  XCTAssertNotNil(app);
+  XCTAssertEqualObjects(app.name, kFIRTestAppName1);
+  XCTAssertEqualObjects(app.options.clientID, kClientID);
 
   // Configure the same app again should throw an exception.
-  XCTAssertThrows([FIRApp configureWithName:kFIRTestAppName1 options:[FIROptions defaultOptions]]);
+  XCTAssertThrows([FIRApp configureWithName:kFIRTestAppName1 options:options]);
 }
 
-- (void)testConfigureWithNameAndCustomizedOptions {
-  FIROptions *options = [FIROptions defaultOptions];
-  FIROptions *newOptions = [options copy];
-  newOptions.deepLinkURLScheme = kDeepLinkURLScheme;
+- (void)testConfigureWithMultipleApps {
+  FIROptions *options1 =
+      [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
+  options1.deepLinkURLScheme = kDeepLinkURLScheme;
 
   // Set up notification center observer for verifying notifications.
   [self.notificationCenter addMockObserver:self.observerMock
@@ -200,15 +179,14 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   [[self.observerMock expect] notificationWithName:kFIRAppReadyToConfigureSDKNotification
                                             object:[FIRApp class]
                                           userInfo:expectedUserInfo1];
-  XCTAssertNoThrow([FIRApp configureWithName:kFIRTestAppName1 options:newOptions]);
+  XCTAssertNoThrow([FIRApp configureWithName:kFIRTestAppName1 options:options1]);
   XCTAssertTrue([FIRApp allApps].count == 1);
-  self.app = [FIRApp appNamed:kFIRTestAppName1];
 
-  // Configure a different app with valid customized options
-  FIROptions *customizedOptions =
+  // Configure a different app with valid customized options.
+  FIROptions *options2 =
       [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
-  customizedOptions.bundleID = kBundleID;
-  customizedOptions.APIKey = kCustomizedAPIKey;
+  options2.bundleID = kBundleID;
+  options2.APIKey = kCustomizedAPIKey;
 
   NSDictionary *expectedUserInfo2 =
       [self expectedUserInfoWithAppName:kFIRTestAppName2 isDefaultApp:NO];
@@ -217,15 +195,15 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
                                           userInfo:expectedUserInfo2];
 
   [self.observerMock setExpectationOrderMatters:YES];
-  XCTAssertNoThrow([FIRApp configureWithName:kFIRTestAppName2 options:customizedOptions]);
+  XCTAssertNoThrow([FIRApp configureWithName:kFIRTestAppName2 options:options2]);
   OCMVerifyAll(self.observerMock);
 
   XCTAssertTrue([FIRApp allApps].count == 2);
-  self.app = [FIRApp appNamed:kFIRTestAppName2];
-  XCTAssertNotNil(self.app);
-  XCTAssertEqualObjects(self.app.name, kFIRTestAppName2);
-  XCTAssertEqualObjects(self.app.options.googleAppID, kGoogleAppID);
-  XCTAssertEqualObjects(self.app.options.APIKey, kCustomizedAPIKey);
+  FIRApp *app = [FIRApp appNamed:kFIRTestAppName2];
+  XCTAssertNotNil(app);
+  XCTAssertEqualObjects(app.name, kFIRTestAppName2);
+  XCTAssertEqualObjects(app.options.googleAppID, kGoogleAppID);
+  XCTAssertEqualObjects(app.options.APIKey, kCustomizedAPIKey);
 }
 
 - (void)testValidName {
@@ -236,39 +214,46 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 }
 
 - (void)testDefaultApp {
-  self.app = [FIRApp defaultApp];
-  XCTAssertNil(self.app);
+  FIRApp *app = [FIRApp defaultApp];
+  XCTAssertNil(app);
 
   [FIRApp configure];
-  self.app = [FIRApp defaultApp];
-  XCTAssertEqualObjects(self.app.name, kFIRDefaultAppName);
-  XCTAssertEqualObjects(self.app.options.clientID, kClientID);
+  app = [FIRApp defaultApp];
+  XCTAssertEqualObjects(app.name, kFIRDefaultAppName);
+  XCTAssertEqualObjects(app.options.clientID, kClientID);
 }
 
 - (void)testAppNamed {
-  self.app = [FIRApp appNamed:kFIRTestAppName1];
-  XCTAssertNil(self.app);
+  FIRApp *app = [FIRApp appNamed:kFIRTestAppName1];
+  XCTAssertNil(app);
 
   [FIRApp configureWithName:kFIRTestAppName1 options:[FIROptions defaultOptions]];
-  self.app = [FIRApp appNamed:kFIRTestAppName1];
-  XCTAssertEqualObjects(self.app.name, kFIRTestAppName1);
-  XCTAssertEqualObjects(self.app.options.clientID, kClientID);
+  app = [FIRApp appNamed:kFIRTestAppName1];
+  XCTAssertEqualObjects(app.name, kFIRTestAppName1);
+  XCTAssertEqualObjects(app.options.clientID, kClientID);
 }
 
 - (void)testDeleteApp {
-  [FIRApp configure];
-  self.app = [FIRApp defaultApp];
+  NSString *name = NSStringFromSelector(_cmd);
+  FIROptions *options =
+      [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
+  [FIRApp configureWithName:name options:options];
+  FIRApp *app = [FIRApp appNamed:name];
+  XCTAssertNotNil(app);
   XCTAssertTrue([FIRApp allApps].count == 1);
   [self expectNotificationForObserver:self.observerMock
                      notificationName:kFIRAppDeleteNotification
                                object:[FIRApp class]
                              userInfo:[OCMArg any]];
-  [self.app deleteApp:^(BOOL success) {
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"Deleting the app should succeed."];
+  [app deleteApp:^(BOOL success) {
     XCTAssertTrue(success);
+    [expectation fulfill];
   }];
 
+  [self waitForExpectations:@[ expectation ] timeout:1];
   OCMVerifyAll(self.observerMock);
-  XCTAssertTrue(self.app.alreadySentDeleteNotification);
   XCTAssertTrue([FIRApp allApps].count == 0);
 }
 
@@ -283,78 +268,6 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   XCTAssert([error.description containsString:@"Configuration failed for"]);
 }
 
-- (void)testGetTokenWithCallback {
-  [FIRApp configure];
-  FIRApp *app = [FIRApp defaultApp];
-
-  __block BOOL getTokenImplementationWasCalled = NO;
-  __block BOOL getTokenCallbackWasCalled = NO;
-  __block BOOL passedRefreshValue = NO;
-
-  [app getTokenForcingRefresh:YES
-                 withCallback:^(NSString *_Nullable token, NSError *_Nullable error) {
-                   getTokenCallbackWasCalled = YES;
-                 }];
-
-  XCTAssert(getTokenCallbackWasCalled,
-            @"The callback should be invoked by the base implementation when no block for "
-             "'getTokenImplementation' has been specified.");
-
-  getTokenCallbackWasCalled = NO;
-
-  app.getTokenImplementation = ^(BOOL refresh, FIRTokenCallback callback) {
-    getTokenImplementationWasCalled = YES;
-    passedRefreshValue = refresh;
-    callback(nil, nil);
-  };
-  [app getTokenForcingRefresh:YES
-                 withCallback:^(NSString *_Nullable token, NSError *_Nullable error) {
-                   getTokenCallbackWasCalled = YES;
-                 }];
-
-  XCTAssert(getTokenImplementationWasCalled,
-            @"The 'getTokenImplementation' block was never called.");
-  XCTAssert(passedRefreshValue,
-            @"The value for the 'refresh' parameter wasn't passed to the 'getTokenImplementation' "
-             "block correctly.");
-  XCTAssert(getTokenCallbackWasCalled,
-            @"The 'getTokenImplementation' should have invoked the callback. This could be an "
-             "error in this test, or the callback parameter may not have been passed to the "
-             "implementation correctly.");
-
-  getTokenImplementationWasCalled = NO;
-  getTokenCallbackWasCalled = NO;
-  passedRefreshValue = NO;
-
-  [app getTokenForcingRefresh:NO
-                 withCallback:^(NSString *_Nullable token, NSError *_Nullable error) {
-                   getTokenCallbackWasCalled = YES;
-                 }];
-
-  XCTAssertFalse(passedRefreshValue,
-                 @"The value for the 'refresh' parameter wasn't passed to the "
-                  "'getTokenImplementation' block correctly.");
-}
-
-- (void)testModifyingOptionsThrows {
-  [FIRApp configure];
-  FIROptions *options = [[FIRApp defaultApp] options];
-  XCTAssertTrue(options.isEditingLocked);
-
-  // Modification to every property should result in an exception.
-  XCTAssertThrows(options.androidClientID = @"should_throw");
-  XCTAssertThrows(options.APIKey = @"should_throw");
-  XCTAssertThrows(options.bundleID = @"should_throw");
-  XCTAssertThrows(options.clientID = @"should_throw");
-  XCTAssertThrows(options.databaseURL = @"should_throw");
-  XCTAssertThrows(options.deepLinkURLScheme = @"should_throw");
-  XCTAssertThrows(options.GCMSenderID = @"should_throw");
-  XCTAssertThrows(options.googleAppID = @"should_throw");
-  XCTAssertThrows(options.projectID = @"should_throw");
-  XCTAssertThrows(options.storageBucket = @"should_throw");
-  XCTAssertThrows(options.trackingID = @"should_throw");
-}
-
 - (void)testOptionsLocking {
   FIROptions *options =
       [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
@@ -365,8 +278,9 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   XCTAssertFalse(options.isEditingLocked);
 
   // The options returned should be locked after configuring `FIRApp`.
-  [FIRApp configureWithOptions:options];
-  FIROptions *optionsCopy = [[FIRApp defaultApp] options];
+  NSString *name = NSStringFromSelector(_cmd);
+  [FIRApp configureWithName:name options:options];
+  FIROptions *optionsCopy = [[FIRApp appNamed:name] options];
   XCTAssertTrue(optionsCopy.isEditingLocked);
 }
 
@@ -416,16 +330,18 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 
 - (void)testAppIDValidationTrue {
   // Ensure that isAppIDValid matches validateAppID.
-  [FIRApp configure];
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:@"" GCMSenderID:@""];
+  FIRApp *app = [[FIRApp alloc] initInstanceWithName:NSStringFromSelector(_cmd) options:options];
   OCMStub([self.appClassMock validateAppID:[OCMArg any]]).andReturn(YES);
-  XCTAssertTrue([[FIRApp defaultApp] isAppIDValid]);
+  XCTAssertTrue([app isAppIDValid]);
 }
 
 - (void)testAppIDValidationFalse {
   // Ensure that isAppIDValid matches validateAppID.
-  [FIRApp configure];
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:@"" GCMSenderID:@""];
+  FIRApp *app = [[FIRApp alloc] initInstanceWithName:NSStringFromSelector(_cmd) options:options];
   OCMStub([self.appClassMock validateAppID:[OCMArg any]]).andReturn(NO);
-  XCTAssertFalse([[FIRApp defaultApp] isAppIDValid]);
+  XCTAssertFalse([app isAppIDValid]);
 }
 
 - (void)testAppIDPrefix {
@@ -581,85 +497,108 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 
 - (void)testGlobalDataCollectionNoFlags {
   // Test: No flags set.
-  [FIRApp configure];
+  NSString *name = NSStringFromSelector(_cmd);
+  FIROptions *options =
+      [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
+  FIRApp *app = [[FIRApp alloc] initInstanceWithName:name options:options];
   OCMStub([self.appClassMock readDataCollectionSwitchFromPlist]).andReturn(nil);
   OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
       .andReturn(nil);
 
-  XCTAssertTrue([FIRApp defaultApp].isDataCollectionDefaultEnabled);
+  XCTAssertTrue(app.isDataCollectionDefaultEnabled);
 }
 
 - (void)testGlobalDataCollectionPlistSetEnabled {
   // Test: Plist set to enabled, no override.
-  [FIRApp configure];
+  NSString *name = NSStringFromSelector(_cmd);
+  FIROptions *options =
+      [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
+  FIRApp *app = [[FIRApp alloc] initInstanceWithName:name options:options];
   OCMStub([self.appClassMock readDataCollectionSwitchFromPlist]).andReturn(@YES);
   OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
       .andReturn(nil);
 
-  XCTAssertTrue([FIRApp defaultApp].isDataCollectionDefaultEnabled);
+  XCTAssertTrue(app.isDataCollectionDefaultEnabled);
 }
 
 - (void)testGlobalDataCollectionPlistSetDisabled {
   // Test: Plist set to disabled, no override.
-  [FIRApp configure];
+  NSString *name = NSStringFromSelector(_cmd);
+  FIROptions *options =
+      [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
+  FIRApp *app = [[FIRApp alloc] initInstanceWithName:name options:options];
   OCMStub([self.appClassMock readDataCollectionSwitchFromPlist]).andReturn(@NO);
   OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
       .andReturn(nil);
 
-  XCTAssertFalse([FIRApp defaultApp].isDataCollectionDefaultEnabled);
+  XCTAssertFalse(app.isDataCollectionDefaultEnabled);
 }
 
 - (void)testGlobalDataCollectionUserSpecifiedEnabled {
   // Test: User specified as enabled, no plist value.
-  [FIRApp configure];
+  NSString *name = NSStringFromSelector(_cmd);
+  FIROptions *options =
+      [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
+  FIRApp *app = [[FIRApp alloc] initInstanceWithName:name options:options];
   OCMStub([self.appClassMock readDataCollectionSwitchFromPlist]).andReturn(nil);
   OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
       .andReturn(@YES);
 
-  XCTAssertTrue([FIRApp defaultApp].isDataCollectionDefaultEnabled);
+  XCTAssertTrue(app.isDataCollectionDefaultEnabled);
 }
 
 - (void)testGlobalDataCollectionUserSpecifiedDisabled {
   // Test: User specified as disabled, no plist value.
-  [FIRApp configure];
+  NSString *name = NSStringFromSelector(_cmd);
+  FIROptions *options =
+      [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
+  FIRApp *app = [[FIRApp alloc] initInstanceWithName:name options:options];
   OCMStub([self.appClassMock readDataCollectionSwitchFromPlist]).andReturn(nil);
   OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
       .andReturn(@NO);
 
-  XCTAssertFalse([FIRApp defaultApp].isDataCollectionDefaultEnabled);
+  XCTAssertFalse(app.isDataCollectionDefaultEnabled);
 }
 
 - (void)testGlobalDataCollectionUserOverriddenEnabled {
   // Test: User specified as enabled, with plist set as disabled.
-  [FIRApp configure];
+  NSString *name = NSStringFromSelector(_cmd);
+  FIROptions *options =
+      [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
+  FIRApp *app = [[FIRApp alloc] initInstanceWithName:name options:options];
   OCMStub([self.appClassMock readDataCollectionSwitchFromPlist]).andReturn(@NO);
   OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
       .andReturn(@YES);
 
-  XCTAssertTrue([FIRApp defaultApp].isDataCollectionDefaultEnabled);
+  XCTAssertTrue(app.isDataCollectionDefaultEnabled);
 }
 
 - (void)testGlobalDataCollectionUserOverriddenDisabled {
   // Test: User specified as disabled, with plist set as enabled.
-  [FIRApp configure];
+  NSString *name = NSStringFromSelector(_cmd);
+  FIROptions *options =
+      [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
+  FIRApp *app = [[FIRApp alloc] initInstanceWithName:name options:options];
   OCMStub([self.appClassMock readDataCollectionSwitchFromPlist]).andReturn(@YES);
   OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
       .andReturn(@NO);
 
-  XCTAssertFalse([FIRApp defaultApp].isDataCollectionDefaultEnabled);
+  XCTAssertFalse(app.isDataCollectionDefaultEnabled);
 }
 
 - (void)testGlobalDataCollectionWriteToDefaults {
   id defaultsMock = OCMPartialMock([NSUserDefaults standardUserDefaults]);
-  [FIRApp configure];
-
-  FIRApp *app = [FIRApp defaultApp];
+  NSString *name = NSStringFromSelector(_cmd);
+  FIROptions *options =
+      [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
+  [FIRApp configureWithName:name options:options];
+  FIRApp *app = [FIRApp appNamed:name];
   app.dataCollectionDefaultEnabled = YES;
   NSString *key =
       [NSString stringWithFormat:kFIRGlobalAppDataCollectionEnabledDefaultsKeyFormat, app.name];
   OCMVerify([defaultsMock setObject:@YES forKey:key]);
 
-  [FIRApp defaultApp].dataCollectionDefaultEnabled = NO;
+  app.dataCollectionDefaultEnabled = NO;
   OCMVerify([defaultsMock setObject:@NO forKey:key]);
 
   [defaultsMock stopMocking];
@@ -667,8 +606,11 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 
 - (void)testGlobalDataCollectionClearedAfterDelete {
   // Configure and disable data collection for the default FIRApp.
-  [FIRApp configure];
-  FIRApp *app = [FIRApp defaultApp];
+  NSString *name = NSStringFromSelector(_cmd);
+  FIROptions *options =
+      [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
+  [FIRApp configureWithName:name options:options];
+  FIRApp *app = [FIRApp appNamed:name];
   app.dataCollectionDefaultEnabled = NO;
   XCTAssertFalse(app.isDataCollectionDefaultEnabled);
 
@@ -676,27 +618,26 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   XCTestExpectation *deleteFinished =
       [self expectationWithDescription:@"The app should successfully delete."];
   [app deleteApp:^(BOOL success) {
-    if (success) {
-      [deleteFinished fulfill];
-    }
+    XCTAssertTrue(success);
+    [deleteFinished fulfill];
   }];
 
   // Wait for the delete to complete.
   [self waitForExpectations:@[ deleteFinished ] timeout:1];
 
-  // Set up the default app again, and check the data collection flag.
-  [FIRApp configure];
-  XCTAssertTrue([FIRApp defaultApp].isDataCollectionDefaultEnabled);
+  // Set up an app with the same name again, and check the data collection flag.
+  [FIRApp configureWithName:name options:options];
+  XCTAssertTrue([FIRApp appNamed:name].isDataCollectionDefaultEnabled);
 }
 
 - (void)testGlobalDataCollectionNoDiagnosticsSent {
-  [FIRApp configure];
+  FIROptions *options =
+      [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
+  FIRApp *app = [[FIRApp alloc] initInstanceWithName:NSStringFromSelector(_cmd) options:options];
+  app.dataCollectionDefaultEnabled = NO;
 
-  // Add an observer for the diagnostics notification - both with and without an object to ensure it
-  // catches it either way. Currently no object is sent, but in the future that could change.
-  [self.notificationCenter addMockObserver:self.observerMock
-                                      name:kFIRAppDiagnosticsNotification
-                                    object:nil];
+  // Add an observer for the diagnostics notification. Currently no object is sent, but in the
+  // future that could change so leave it as OCMOCK_ANY.
   [self.notificationCenter addMockObserver:self.observerMock
                                       name:kFIRAppDiagnosticsNotification
                                     object:OCMOCK_ANY];
@@ -707,8 +648,11 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
       .andReturn(@NO);
 
+  // Ensure configure doesn't fire a notification.
+  [FIRApp configure];
+
   NSError *error = [NSError errorWithDomain:@"com.firebase" code:42 userInfo:nil];
-  [[FIRApp defaultApp] sendLogsWithServiceName:@"Service" version:@"Version" error:error];
+  [app sendLogsWithServiceName:@"Service" version:@"Version" error:error];
 
   // The observer mock is strict and will raise an exception when an unexpected notification is
   // received.
@@ -720,51 +664,45 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 - (void)testAnalyticsSetByGlobalDataCollectionSwitch {
   // Test that the global data collection switch triggers setting Analytics when no explicit flag is
   // set.
-  [FIRApp configure];
+  id optionsMock = OCMClassMock([FIROptions class]);
+  OCMStub([optionsMock isAnalyticsCollectionExpicitlySet]).andReturn(NO);
+
+  // We need to use the default app name since Analytics only associates with the default app.
+  FIRApp *defaultApp = [[FIRApp alloc] initInstanceWithName:kFIRDefaultAppName options:optionsMock];
 
   id configurationMock = OCMClassMock([FIRAnalyticsConfiguration class]);
   OCMStub([configurationMock sharedInstance]).andReturn(configurationMock);
   OCMStub([configurationMock setAnalyticsCollectionEnabled:OCMOCK_ANY persistSetting:OCMOCK_ANY]);
-  OCMStub([self.optionsInstanceMock isAnalyticsCollectionExpicitlySet]).andReturn(NO);
 
-  // Ensure Analytics is set after the global flag is set.
-  [[FIRApp defaultApp] setDataCollectionDefaultEnabled:YES];
+  // Ensure Analytics is set after the global flag is set. It needs to
+  [defaultApp setDataCollectionDefaultEnabled:YES];
   OCMVerify([configurationMock setAnalyticsCollectionEnabled:YES persistSetting:NO]);
 
-  [[FIRApp defaultApp] setDataCollectionDefaultEnabled:NO];
+  [defaultApp setDataCollectionDefaultEnabled:NO];
   OCMVerify([configurationMock setAnalyticsCollectionEnabled:NO persistSetting:NO]);
 }
 
 - (void)testAnalyticsNotSetByGlobalDataCollectionSwitch {
   // Test that the global data collection switch doesn't override an explicitly set Analytics flag.
-  [FIRApp configure];
+  id optionsMock = OCMClassMock([FIROptions class]);
+  OCMStub([optionsMock isAnalyticsCollectionExpicitlySet]).andReturn(YES);
+  FIRApp *app = [[FIRApp alloc] initInstanceWithName:@"testAnalyticsNotSet" options:optionsMock];
 
   id configurationMock = OCMClassMock([FIRAnalyticsConfiguration class]);
   OCMStub([configurationMock sharedInstance]).andReturn(configurationMock);
   OCMStub([configurationMock setAnalyticsCollectionEnabled:OCMOCK_ANY persistSetting:OCMOCK_ANY]);
-  OCMStub([self.optionsInstanceMock isAnalyticsCollectionExpicitlySet]).andReturn(YES);
 
   // Reject any changes to Analytics when the data collection changes.
-  [[FIRApp defaultApp] setDataCollectionDefaultEnabled:YES];
+  [app setDataCollectionDefaultEnabled:YES];
   OCMReject([configurationMock setAnalyticsCollectionEnabled:OCMOCK_ANY persistSetting:OCMOCK_ANY]);
 
-  [[FIRApp defaultApp] setDataCollectionDefaultEnabled:NO];
+  [app setDataCollectionDefaultEnabled:NO];
   OCMReject([configurationMock setAnalyticsCollectionEnabled:OCMOCK_ANY persistSetting:OCMOCK_ANY]);
 }
 
 #pragma mark - Internal Methods
 
-// TODO: Remove this test once the `getUIDImplementation` block doesn't need to be set in Core.
-- (void)testAuthGetUID {
-  [FIRApp configure];
-
-  [FIRApp defaultApp].getUIDImplementation = ^NSString * {
-    return @"highlander";
-  };
-  XCTAssertEqual([[FIRApp defaultApp] getUID], @"highlander");
-}
-
-- (void)testIsAppConfigured {
+- (void)testIsDefaultAppConfigured {
   // Ensure it's false before anything is configured.
   XCTAssertFalse([FIRApp isDefaultAppConfigured]);
 
@@ -777,25 +715,38 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   XCTAssertFalse([FIRApp isDefaultAppConfigured]);
 }
 
-- (void)testIllegalLibraryName {
+- (void)testInvalidLibraryName {
   [FIRApp registerLibrary:@"Oops>" withVersion:@"1.0.0"];
   XCTAssertTrue([[FIRApp firebaseUserAgent] isEqualToString:@""]);
 }
 
-- (void)testIllegalLibraryVersion {
-  [FIRApp registerLibrary:@"LegalName" withVersion:@"1.0.0+"];
+- (void)testInvalidLibraryVersion {
+  [FIRApp registerLibrary:@"ValidName" withVersion:@"1.0.0+"];
   XCTAssertTrue([[FIRApp firebaseUserAgent] isEqualToString:@""]);
 }
 
 - (void)testSingleLibrary {
-  [FIRApp registerLibrary:@"LegalName" withVersion:@"1.0.0"];
-  XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"LegalName/1.0.0"]);
+  [FIRApp registerLibrary:@"ValidName" withVersion:@"1.0.0"];
+  XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"ValidName/1.0.0"]);
 }
 
 - (void)testMultipleLibraries {
-  [FIRApp registerLibrary:@"LegalName" withVersion:@"1.0.0"];
-  [FIRApp registerLibrary:@"LegalName2" withVersion:@"2.0.0"];
-  XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"LegalName/1.0.0 LegalName2/2.0.0"]);
+  [FIRApp registerLibrary:@"ValidName" withVersion:@"1.0.0"];
+  [FIRApp registerLibrary:@"ValidName2" withVersion:@"2.0.0"];
+  XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"ValidName/1.0.0 ValidName2/2.0.0"]);
+}
+
+- (void)testRegisteringConformingLibrary {
+  Class testClass = [FIRTestClass class];
+  [FIRApp registerInternalLibrary:testClass withName:@"ValidName" withVersion:@"1.0.0"];
+  XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"ValidName/1.0.0"]);
+}
+
+- (void)testRegisteringNonConformingLibrary {
+  XCTAssertThrows([FIRApp registerInternalLibrary:[NSString class]
+                                         withName:@"InvalidLibrary"
+                                      withVersion:@"1.0.0"]);
+  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"InvalidLibrary`/1.0.0"]);
 }
 
 #pragma mark - private

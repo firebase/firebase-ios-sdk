@@ -18,6 +18,7 @@
 
 #include <utility>
 
+#import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
@@ -30,6 +31,7 @@
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::local::LruParams;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::util::Path;
 using firebase::firestore::util::Status;
@@ -37,6 +39,14 @@ using firebase::firestore::util::Status;
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTPersistenceTestHelpers
+
++ (FSTLocalSerializer *)localSerializer {
+  // This owns the DatabaseIds since we do not have FirestoreClient instance to own them.
+  static DatabaseId database_id{"p", "d"};
+
+  FSTSerializerBeta *remoteSerializer = [[FSTSerializerBeta alloc] initWithDatabaseID:&database_id];
+  return [[FSTLocalSerializer alloc] initWithRemoteSerializer:remoteSerializer];
+}
 
 + (Path)levelDBDir {
   Path dir = util::TempDir().AppendUtf8("FSTPersistenceTestHelpers");
@@ -53,20 +63,23 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (FSTLevelDB *)levelDBPersistenceWithDir:(Path)dir {
-  // This owns the DatabaseIds since we do not have FirestoreClient instance to own them.
-  static DatabaseId database_id{"p", "d"};
+  return [self levelDBPersistenceWithDir:dir lruParams:LruParams::Default()];
+}
 
-  FSTSerializerBeta *remoteSerializer = [[FSTSerializerBeta alloc] initWithDatabaseID:&database_id];
-  FSTLocalSerializer *serializer =
-      [[FSTLocalSerializer alloc] initWithRemoteSerializer:remoteSerializer];
-  FSTLevelDB *db = [[FSTLevelDB alloc] initWithDirectory:std::move(dir) serializer:serializer];
-  Status status = [db start];
++ (FSTLevelDB *)levelDBPersistenceWithDir:(Path)dir lruParams:(LruParams)params {
+  FSTLocalSerializer *serializer = [self localSerializer];
+  FSTLevelDB *ldb;
+  util::Status status =
+      [FSTLevelDB dbWithDirectory:std::move(dir) serializer:serializer lruParams:params ptr:&ldb];
   if (!status.ok()) {
     [NSException raise:NSInternalInconsistencyException
-                format:@"Failed to start leveldb persistence: %s", status.ToString().c_str()];
+                format:@"Failed to open DB: %s", status.ToString().c_str()];
   }
+  return ldb;
+}
 
-  return db;
++ (FSTLevelDB *)levelDBPersistenceWithLruParams:(LruParams)lruParams {
+  return [self levelDBPersistenceWithDir:[self levelDBDir] lruParams:lruParams];
 }
 
 + (FSTLevelDB *)levelDBPersistence {
@@ -74,25 +87,16 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (FSTMemoryPersistence *)eagerGCMemoryPersistence {
-  FSTMemoryPersistence *persistence = [FSTMemoryPersistence persistenceWithEagerGC];
-  Status status = [persistence start];
-  if (!status.ok()) {
-    [NSException raise:NSInternalInconsistencyException
-                format:@"Failed to start memory persistence: %s", status.ToString().c_str()];
-  }
-
-  return persistence;
+  return [FSTMemoryPersistence persistenceWithEagerGC];
 }
 
 + (FSTMemoryPersistence *)lruMemoryPersistence {
-  FSTMemoryPersistence *persistence = [FSTMemoryPersistence persistenceWithLRUGC];
-  Status status = [persistence start];
-  if (!status.ok()) {
-    [NSException raise:NSInternalInconsistencyException
-                format:@"Failed to start memory persistence: %s", status.ToString().c_str()];
-  }
+  return [self lruMemoryPersistenceWithLruParams:LruParams::Default()];
+}
 
-  return persistence;
++ (FSTMemoryPersistence *)lruMemoryPersistenceWithLruParams:(LruParams)lruParams {
+  FSTLocalSerializer *serializer = [self localSerializer];
+  return [FSTMemoryPersistence persistenceWithLruParams:lruParams serializer:serializer];
 }
 
 @end

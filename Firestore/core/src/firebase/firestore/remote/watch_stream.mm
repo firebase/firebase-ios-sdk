@@ -19,13 +19,14 @@
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Firestore.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Firestore.pbobjc.h"
 
 namespace firebase {
 namespace firestore {
 namespace remote {
 
 using auth::CredentialsProvider;
+using auth::Token;
 using model::TargetId;
 using util::AsyncQueue;
 using util::TimerId;
@@ -34,9 +35,9 @@ using util::Status;
 WatchStream::WatchStream(AsyncQueue* async_queue,
                          CredentialsProvider* credentials_provider,
                          FSTSerializerBeta* serializer,
-                         Datastore* datastore,
+                         GrpcConnection* grpc_connection,
                          id<FSTWatchStreamDelegate> delegate)
-    : Stream{async_queue, credentials_provider, datastore,
+    : Stream{async_queue, credentials_provider, grpc_connection,
              TimerId::ListenStreamConnectionBackoff, TimerId::ListenStreamIdle},
       serializer_bridge_{serializer},
       delegate_bridge_{delegate} {
@@ -62,13 +63,13 @@ void WatchStream::UnwatchTargetId(TargetId target_id) {
 }
 
 std::unique_ptr<GrpcStream> WatchStream::CreateGrpcStream(
-    Datastore* datastore, absl::string_view token) {
-  return datastore->CreateGrpcStream(
-      token, "/google.firestore.v1beta1.Firestore/Listen", this);
+    GrpcConnection* grpc_connection, const Token& token) {
+  return grpc_connection->CreateStream("/google.firestore.v1.Firestore/Listen",
+                                       token, this);
 }
 
 void WatchStream::TearDown(GrpcStream* grpc_stream) {
-  grpc_stream->Finish();
+  grpc_stream->FinishImmediately();
 }
 
 void WatchStream::NotifyStreamOpen() {
@@ -83,8 +84,10 @@ Status WatchStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
     return status;
   }
 
-  LOG_DEBUG("%s response: %s", GetDebugDescription(),
-            serializer_bridge_.Describe(response));
+  if (bridge::IsLoggingEnabled()) {
+    LOG_DEBUG("%s response: %s", GetDebugDescription(),
+              serializer_bridge_.Describe(response));
+  }
 
   // A successful response means the stream is healthy.
   backoff_.Reset();

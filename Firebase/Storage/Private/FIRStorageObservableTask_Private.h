@@ -14,10 +14,14 @@
  * limitations under the License.
  */
 
+#import <Foundation/Foundation.h>
+
+#import "FIRStorageObservableTask.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
+@class FIRStorageReference;
 @class FIRStorageTaskSnapshot;
-
 @class GTMSessionFetcherService;
 
 @interface FIRStorageObservableTask ()
@@ -27,10 +31,12 @@ NS_ASSUME_NONNULL_BEGIN
  * @param reference A FIRStorageReference the task will be performed on.
  * @param service A GTMSessionFetcherService which provides the fetchers and configuration for
  * requests.
+ * @param queue The shared queue to use for all Storage operations.
  * @return A new FIRStorageTask representing the current task.
  */
 - (instancetype)initWithReference:(FIRStorageReference *)reference
-                   fetcherService:(GTMSessionFetcherService *)service;
+                   fetcherService:(GTMSessionFetcherService *)service
+                    dispatchQueue:(dispatch_queue_t)queue;
 
 /**
  * Raise events for a given task status by passing along a snapshot of existing task state.

@@ -1,9 +1,56 @@
 # Unreleased
+
+# v0.16.1
+- [fixed] Offline persistence now properly records schema downgrades. This is a
+  forward-looking change that allows all subsequent versions to safely downgrade
+  to this version. Some other versions might be safe to downgrade to, if you can
+  determine there haven't been any schema migrations between them. For example,
+  downgrading from v0.16.1 to v0.15.0 is safe because there have been no schema
+  changes between these releases.
+- [fixed] Fixed an issue where gRPC would crash if shut down multiple times
+  (#2146).
+
+# v0.16.0
+- [changed] Added a garbage collection process to on-disk persistence that
+  removes older documents. This is enabled by default, and the SDK will attempt
+  to periodically clean up older, unused documents once the on-disk cache passes
+  a threshold size (default: 100 MB). This threshold can be configured by
+  setting `FIRFirestoreSettings.cacheSizeBytes`. It must be set to a minimum of
+  1 MB. The garbage collection process can be disabled entirely by setting
+  `FIRFirestoreSettings.cacheSizeBytes` to `kFIRFirestoreCacheSizeUnlimited`.
+
+# v0.15.0
+- [changed] Changed how the SDK handles locally-updated documents while syncing
+  those updates with Cloud Firestore servers. This can lead to slight behavior
+  changes and may affect the `SnapshotMetadata.hasPendingWrites` metadata flag.
+- [changed] Eliminated superfluous update events for locally cached documents
+  that are known to lag behind the server version. Instead, the SDK buffers
+  these events until the client has caught up with the server.
+- [changed] Moved from Objective-C gRPC framework to gRPC C++. If you're
+  manually tracking dependencies, the `gRPC`, `gRPC-ProtoRPC`, and
+  `gRPC-RxLibrary` frameworks have been replaced with `gRPC-C++`. While we
+  don't anticipate any issues, please [report any issues with network
+  behavior](https://github.com/firebase/firebase-ios-sdk/issues/new) you
+  experience. (#1968)
+
+# v0.14.0
+- [fixed] Fixed compilation in C99 and C++11 modes without GNU extensions.
+
+# v0.13.6
+- [changed] Internal improvements.
+
+# v0.13.5
+- [changed] Some SDK errors that represent common mistakes (such as permission
+  denied or a missing index) will automatically be logged as a warning in
+  addition to being surfaced via the API.
+
+# v0.13.4
 - [fixed] Fixed an issue where the first `get()` call made after being offline
   could incorrectly return cached data without attempting to reach the backend.
-- [changed] Changed `get()` to only make 1 attempt to reach the backend before
-  returning cached data, potentially reducing delays while offline. Previously
-  it would make 2 attempts, to work around a backend bug.
+- [changed] Changed `get()` to only make one attempt to reach the backend before
+  returning cached data, potentially reducing delays while offline.
+- [fixed] Fixed an issue that caused Firebase to drop empty objects from calls
+  to `setData(..., merge:true)`.
 
 # v0.13.3
 - [changed] Internal improvements.

@@ -25,9 +25,9 @@
 #include <memory>
 #include <string>
 
-#include "Firestore/core/src/firebase/firestore/remote/datastore.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
+#include "Firestore/core/src/firebase/firestore/remote/remote_objc_bridge.h"
 #include "Firestore/core/src/firebase/firestore/remote/stream.h"
-#include "Firestore/core/src/firebase/firestore/remote/stream_objc_bridge.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "absl/strings/string_view.h"
@@ -55,13 +55,16 @@ namespace remote {
  * request is received, all pending mutations may be submitted. When
  * submitting multiple batches of mutations at the same time, it's
  * okay to use the same stream token for the calls to `WriteMutations`.
+ *
+ * This class is not intended as a base class; all virtual methods exist only
+ * for the sake of tests.
  */
 class WriteStream : public Stream {
  public:
   WriteStream(util::AsyncQueue* async_queue,
               auth::CredentialsProvider* credentials_provider,
               FSTSerializerBeta* serializer,
-              Datastore* datastore,
+              GrpcConnection* grpc_connection,
               id<FSTWriteStreamDelegate> delegate);
 
   void SetLastStreamToken(NSData* token);
@@ -87,14 +90,20 @@ class WriteStream : public Stream {
    * Sends an initial stream token to the server, performing the handshake
    * required to make the StreamingWrite RPC work.
    */
-  void WriteHandshake();
+  virtual void WriteHandshake();
 
   /** Sends a group of mutations to the Firestore backend to apply. */
-  void WriteMutations(NSArray<FSTMutation*>* mutations);
+  virtual void WriteMutations(NSArray<FSTMutation*>* mutations);
+
+ protected:
+  // For tests only
+  void SetHandshakeComplete(bool value = true) {
+    handshake_complete_ = value;
+  }
 
  private:
   std::unique_ptr<GrpcStream> CreateGrpcStream(
-      Datastore* datastore, const absl::string_view token) override;
+      GrpcConnection* grpc_connection, const auth::Token& token) override;
   void TearDown(GrpcStream* call) override;
 
   void NotifyStreamOpen() override;

@@ -16,12 +16,13 @@
 
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 
+#include <atomic>
+
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 namespace firebase {
 namespace firestore {
 namespace util {
-namespace internal {
 
 namespace {
 
@@ -43,6 +44,8 @@ absl::string_view GetCurrentQueueLabel() {
 }
 
 }  // namespace
+
+namespace internal {
 
 void DispatchAsync(const dispatch_queue_t queue, std::function<void()>&& work) {
   // Dynamically allocate the function to make sure the object is valid by the
@@ -69,7 +72,12 @@ void DispatchSync(const dispatch_queue_t queue, std::function<void()> work) {
   });
 }
 
+}  // namespace internal
+
 namespace {
+
+using internal::DispatchAsync;
+using internal::DispatchSync;
 
 template <typename Work>
 void RunSynchronized(const ExecutorLibdispatch* const executor, Work&& work) {
@@ -140,10 +148,9 @@ class TimeSlot {
 
   // True if the operation has either been run or canceled.
   //
-  // Note on thread-safety: because the precondition is that all member
-  // functions of this class are executed on the dispatch queue, no
-  // synchronization is required for `done_`.
-  bool done_ = false;
+  // Note on thread-safety: this variable is accessed both from the dispatch
+  // queue and in the destructor, which may run on any queue.
+  std::atomic<bool> done_;
 };
 
 TimeSlot::TimeSlot(ExecutorLibdispatch* const executor,
@@ -154,6 +161,9 @@ TimeSlot::TimeSlot(ExecutorLibdispatch* const executor,
                        std::chrono::steady_clock::now()) +
                    delay},
       tagged_{std::move(operation)} {
+  // Only assignment of std::atomic is atomic; initialization in its constructor
+  // isn't
+  done_ = false;
 }
 
 Executor::TaggedOperation TimeSlot::Unschedule() {
@@ -199,11 +209,11 @@ ExecutorLibdispatch::~ExecutorLibdispatch() {
   // the queue is serial, by the time libdispatch gets to the newly-enqueued
   // work, the pending operations that might have been in progress would have
   // already finished.
-  RunSynchronized(this, [this] {
-    for (auto slot : schedule_) {
-      slot->MarkDone();
-    }
-  });
+  // Note: this is thread-safe, because the underlying variable `done_` is
+  // atomic. `RunSynchronized` may result in a deadlock.
+  for (auto slot : schedule_) {
+    slot->MarkDone();
+  }
 }
 
 bool ExecutorLibdispatch::IsCurrentExecutor() const {
@@ -293,7 +303,6 @@ ExecutorLibdispatch::PopFromSchedule() {
   return result;
 }
 
-}  // namespace internal
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase

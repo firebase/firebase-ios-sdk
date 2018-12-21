@@ -25,7 +25,6 @@
 #import "Firestore/Source/Local/FSTQueryCache.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
@@ -40,14 +39,26 @@
 #import "Firestore/third_party/Immutable/Tests/FSTImmutableSortedSet+Testing.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
 namespace testutil = firebase::firestore::testutil;
 using firebase::firestore::auth::User;
+using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::ListenSequenceNumber;
+using firebase::firestore::model::DocumentMap;
+using firebase::firestore::model::MaybeDocumentMap;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
+
+static NSArray<FSTDocument *> *docMapToArray(const DocumentMap &docs) {
+  NSMutableArray<FSTDocument *> *result = [NSMutableArray array];
+  for (const auto &kv : docs.underlying_map()) {
+    [result addObject:static_cast<FSTDocument *>(kv.second)];
+  }
+  return result;
+}
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -57,12 +68,13 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong, readwrite) FSTLocalStore *localStore;
 
 @property(nonatomic, strong, readonly) NSMutableArray<FSTMutationBatch *> *batches;
-@property(nonatomic, strong, readwrite, nullable) FSTMaybeDocumentDictionary *lastChanges;
 @property(nonatomic, assign, readwrite) TargetId lastTargetID;
 
 @end
 
-@implementation FSTLocalStoreTests
+@implementation FSTLocalStoreTests {
+  MaybeDocumentMap _lastChanges;
+}
 
 - (void)setUp {
   [super setUp];
@@ -78,7 +90,6 @@ NS_ASSUME_NONNULL_BEGIN
   [self.localStore start];
 
   _batches = [NSMutableArray array];
-  _lastChanges = nil;
   _lastTargetID = 0;
 }
 
@@ -115,11 +126,11 @@ NS_ASSUME_NONNULL_BEGIN
   [self.batches addObject:[[FSTMutationBatch alloc] initWithBatchID:result.batchID
                                                      localWriteTime:[FIRTimestamp timestamp]
                                                           mutations:mutations]];
-  self.lastChanges = result.changes;
+  _lastChanges = result.changes;
 }
 
 - (void)applyRemoteEvent:(FSTRemoteEvent *)event {
-  self.lastChanges = [self.localStore applyRemoteEvent:event];
+  _lastChanges = [self.localStore applyRemoteEvent:event];
 }
 
 - (void)notifyLocalViewChanges:(FSTLocalViewChanges *)changes {
@@ -137,13 +148,13 @@ NS_ASSUME_NONNULL_BEGIN
                                                              commitVersion:version
                                                            mutationResults:@[ mutationResult ]
                                                                streamToken:nil];
-  self.lastChanges = [self.localStore acknowledgeBatchWithResult:result];
+  _lastChanges = [self.localStore acknowledgeBatchWithResult:result];
 }
 
 - (void)rejectMutation {
   FSTMutationBatch *batch = [self.batches firstObject];
   [self.batches removeObjectAtIndex:0];
-  self.lastChanges = [self.localStore rejectBatchID:batch.batchID];
+  _lastChanges = [self.localStore rejectBatchID:batch.batchID];
 }
 
 - (TargetId)allocateQuery:(FSTQuery *)query {
@@ -159,34 +170,31 @@ NS_ASSUME_NONNULL_BEGIN
   } while (0)
 
 /** Asserts that a the lastChanges contain the docs in the given array. */
-#define FSTAssertChanged(documents)                                                             \
-  XCTAssertNotNil(self.lastChanges);                                                            \
-  do {                                                                                          \
-    FSTMaybeDocumentDictionary *actual = self.lastChanges;                                      \
-    NSArray<FSTMaybeDocument *> *expected = (documents);                                        \
-    XCTAssertEqual(actual.count, expected.count);                                               \
-    NSEnumerator<FSTMaybeDocument *> *enumerator = expected.objectEnumerator;                   \
-    [actual enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey * key, FSTMaybeDocument * value, \
-                                                BOOL * stop) {                                  \
-      XCTAssertEqualObjects(value, [enumerator nextObject]);                                    \
-    }];                                                                                         \
-    self.lastChanges = nil;                                                                     \
+#define FSTAssertChanged(documents)                                           \
+  do {                                                                        \
+    NSArray<FSTMaybeDocument *> *expected = (documents);                      \
+    XCTAssertEqual(_lastChanges.size(), expected.count);                      \
+    NSEnumerator<FSTMaybeDocument *> *enumerator = expected.objectEnumerator; \
+    for (const auto &kv : _lastChanges) {                                     \
+      FSTMaybeDocument *value = kv.second;                                    \
+      XCTAssertEqualObjects(value, [enumerator nextObject]);                  \
+    }                                                                         \
+    _lastChanges = MaybeDocumentMap{};                                        \
   } while (0)
 
 /** Asserts that the given keys were removed. */
-#define FSTAssertRemoved(keyPaths)                                                       \
-  XCTAssertNotNil(self.lastChanges);                                                     \
-  do {                                                                                   \
-    FSTMaybeDocumentDictionary *actual = self.lastChanges;                               \
-    XCTAssertEqual(actual.count, keyPaths.count);                                        \
-    NSEnumerator<NSString *> *keyPathEnumerator = keyPaths.objectEnumerator;             \
-    [actual enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey * actualKey,              \
-                                                FSTMaybeDocument * value, BOOL * stop) { \
-      FSTDocumentKey *expectedKey = FSTTestDocKey([keyPathEnumerator nextObject]);       \
-      XCTAssertEqualObjects(actualKey, expectedKey);                                     \
-      XCTAssertTrue([value isKindOfClass:[FSTDeletedDocument class]]);                   \
-    }];                                                                                  \
-    self.lastChanges = nil;                                                              \
+#define FSTAssertRemoved(keyPaths)                                             \
+  do {                                                                         \
+    XCTAssertEqual(_lastChanges.size(), keyPaths.count);                       \
+    NSEnumerator<NSString *> *keyPathEnumerator = keyPaths.objectEnumerator;   \
+    for (const auto &kv : _lastChanges) {                                      \
+      const DocumentKey &actualKey = kv.first;                                 \
+      FSTMaybeDocument *value = kv.second;                                     \
+      DocumentKey expectedKey = FSTTestDocKey([keyPathEnumerator nextObject]); \
+      XCTAssertEqual(actualKey, expectedKey);                                  \
+      XCTAssertTrue([value isKindOfClass:[FSTDeletedDocument class]]);         \
+    }                                                                          \
+    _lastChanges = MaybeDocumentMap{};                                         \
   } while (0)
 
 /** Asserts that the given local store contains the given document. */
@@ -200,7 +208,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** Asserts that the given local store does not contain the given document. */
 #define FSTAssertNotContains(keyPathString)                        \
   do {                                                             \
-    FSTDocumentKey *key = FSTTestDocKey(keyPathString);            \
+    DocumentKey key = FSTTestDocKey(keyPathString);                \
     FSTMaybeDocument *actual = [self.localStore readDocument:key]; \
     XCTAssertNil(actual);                                          \
   } while (0)
@@ -221,16 +229,19 @@ NS_ASSUME_NONNULL_BEGIN
   if ([self isTestBaseClass]) return;
 
   [self writeMutation:FSTTestSetMutation(@"foo/bar", @{@"foo" : @"bar"})];
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES) ]);
-  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES));
+  FSTAssertChanged(
+      @[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, FSTDocumentStateLocalMutations) ]);
+  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, FSTDocumentStateLocalMutations));
 
   [self acknowledgeMutationWithVersion:0];
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, NO) ]);
+  FSTAssertChanged(
+      @[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, FSTDocumentStateCommittedMutations) ]);
   if ([self gcIsEager]) {
     // Nothing is pinning this anymore, as it has been acknowledged and there are no targets active.
     FSTAssertNotContains(@"foo/bar");
   } else {
-    FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, NO));
+    FSTAssertContains(
+        FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, FSTDocumentStateCommittedMutations));
   }
 }
 
@@ -238,17 +249,19 @@ NS_ASSUME_NONNULL_BEGIN
   if ([self isTestBaseClass]) return;
 
   [self writeMutation:FSTTestSetMutation(@"foo/bar", @{@"foo" : @"bar"})];
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES) ]);
-  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES));
+  FSTAssertChanged(
+      @[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, FSTDocumentStateLocalMutations) ]);
+  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, FSTDocumentStateLocalMutations));
 
   FSTQuery *query = FSTTestQuery("foo");
   TargetId targetID = [self allocateQuery:query];
 
-  [self
-      applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 2, @{@"it" : @"changed"}, NO),
-                                                @[ @(targetID) ], @[])];
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, YES) ]);
-  FSTAssertContains(FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, YES));
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 2, @{@"it" : @"changed"},
+                                                             FSTDocumentStateSynced),
+                                                  @[ @(targetID) ], @[])];
+  FSTAssertChanged(
+      @[ FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, FSTDocumentStateLocalMutations) ]);
+  FSTAssertContains(FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, FSTDocumentStateLocalMutations));
 }
 
 - (void)testHandlesAckThenRejectThenRemoteEvent {
@@ -259,27 +272,38 @@ NS_ASSUME_NONNULL_BEGIN
   TargetId targetID = [self allocateQuery:query];
 
   [self writeMutation:FSTTestSetMutation(@"foo/bar", @{@"foo" : @"bar"})];
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES) ]);
-  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES));
+  FSTAssertChanged(
+      @[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, FSTDocumentStateLocalMutations) ]);
+  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, FSTDocumentStateLocalMutations));
 
   // The last seen version is zero, so this ack must be held.
   [self acknowledgeMutationWithVersion:1];
-  FSTAssertChanged(@[]);
-  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES));
+  FSTAssertChanged(
+      @[ FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, FSTDocumentStateCommittedMutations) ]);
+
+  // Under eager GC, there is no longer a reference for the document, and it should be
+  // deleted.
+  if ([self gcIsEager]) {
+    FSTAssertNotContains(@"foo/bar");
+  } else {
+    FSTAssertContains(
+        FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, FSTDocumentStateCommittedMutations));
+  }
 
   [self writeMutation:FSTTestSetMutation(@"bar/baz", @{@"bar" : @"baz"})];
-  FSTAssertChanged(@[ FSTTestDoc("bar/baz", 0, @{@"bar" : @"baz"}, YES) ]);
-  FSTAssertContains(FSTTestDoc("bar/baz", 0, @{@"bar" : @"baz"}, YES));
+  FSTAssertChanged(
+      @[ FSTTestDoc("bar/baz", 0, @{@"bar" : @"baz"}, FSTDocumentStateLocalMutations) ]);
+  FSTAssertContains(FSTTestDoc("bar/baz", 0, @{@"bar" : @"baz"}, FSTDocumentStateLocalMutations));
 
   [self rejectMutation];
   FSTAssertRemoved(@[ @"bar/baz" ]);
   FSTAssertNotContains(@"bar/baz");
 
-  [self
-      applyRemoteEvent:FSTTestAddedRemoteEvent(FSTTestDoc("foo/bar", 2, @{@"it" : @"changed"}, NO),
-                                               @[ @(targetID) ])];
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 2, @{@"it" : @"changed"}, NO) ]);
-  FSTAssertContains(FSTTestDoc("foo/bar", 2, @{@"it" : @"changed"}, NO));
+  [self applyRemoteEvent:FSTTestAddedRemoteEvent(FSTTestDoc("foo/bar", 2, @{@"it" : @"changed"},
+                                                            FSTDocumentStateSynced),
+                                                 @[ @(targetID) ])];
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 2, @{@"it" : @"changed"}, FSTDocumentStateSynced) ]);
+  FSTAssertContains(FSTTestDoc("foo/bar", 2, @{@"it" : @"changed"}, FSTDocumentStateSynced));
   FSTAssertNotContains(@"bar/baz");
 }
 
@@ -289,27 +313,29 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQuery *query = FSTTestQuery("foo");
   TargetId targetID = [self allocateQuery:query];
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDeletedDoc("foo/bar", 2), @[ @(targetID) ],
-                                                  @[])];
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDeletedDoc("foo/bar", 2, NO),
+                                                  @[ @(targetID) ], @[])];
   FSTAssertRemoved(@[ @"foo/bar" ]);
   // Under eager GC, there is no longer a reference for the document, and it should be
   // deleted.
   if (![self gcIsEager]) {
-    FSTAssertContains(FSTTestDeletedDoc("foo/bar", 2));
+    FSTAssertContains(FSTTestDeletedDoc("foo/bar", 2, NO));
   } else {
     FSTAssertNotContains(@"foo/bar");
   }
 
   [self writeMutation:FSTTestSetMutation(@"foo/bar", @{@"foo" : @"bar"})];
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES) ]);
-  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES));
+  FSTAssertChanged(
+      @[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, FSTDocumentStateLocalMutations) ]);
+  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, FSTDocumentStateLocalMutations));
   // Can now remove the target, since we have a mutation pinning the document
   [self.localStore releaseQuery:query];
   // Verify we didn't lose anything
-  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES));
+  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, FSTDocumentStateLocalMutations));
 
   [self acknowledgeMutationWithVersion:3];
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, NO) ]);
+  FSTAssertChanged(
+      @[ FSTTestDoc("foo/bar", 3, @{@"foo" : @"bar"}, FSTDocumentStateCommittedMutations) ]);
   // It has been acknowledged, and should no longer be retained as there is no target and mutation
   if ([self gcIsEager]) {
     FSTAssertNotContains(@"foo/bar");
@@ -323,12 +349,14 @@ NS_ASSUME_NONNULL_BEGIN
   TargetId targetID = [self allocateQuery:query];
 
   [self writeMutation:FSTTestSetMutation(@"foo/bar", @{@"foo" : @"bar"})];
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES) ]);
+  FSTAssertChanged(
+      @[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, FSTDocumentStateLocalMutations) ]);
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDeletedDoc("foo/bar", 2), @[ @(targetID) ],
-                                                  @[])];
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES) ]);
-  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES));
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDeletedDoc("foo/bar", 2, NO),
+                                                  @[ @(targetID) ], @[])];
+  FSTAssertChanged(
+      @[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, FSTDocumentStateLocalMutations) ]);
+  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, FSTDocumentStateLocalMutations));
 }
 
 - (void)testHandlesDocumentThenSetMutationThenAckThenDocument {
@@ -338,25 +366,29 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQuery *query = FSTTestQuery("foo");
   TargetId targetID = [self allocateQuery:query];
 
-  [self applyRemoteEvent:FSTTestAddedRemoteEvent(FSTTestDoc("foo/bar", 2, @{@"it" : @"base"}, NO),
-                                                 @[ @(targetID) ])];
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 2, @{@"it" : @"base"}, NO) ]);
-  FSTAssertContains(FSTTestDoc("foo/bar", 2, @{@"it" : @"base"}, NO));
+  [self applyRemoteEvent:FSTTestAddedRemoteEvent(
+                             FSTTestDoc("foo/bar", 2, @{@"it" : @"base"}, FSTDocumentStateSynced),
+                             @[ @(targetID) ])];
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 2, @{@"it" : @"base"}, FSTDocumentStateSynced) ]);
+  FSTAssertContains(FSTTestDoc("foo/bar", 2, @{@"it" : @"base"}, FSTDocumentStateSynced));
 
   [self writeMutation:FSTTestSetMutation(@"foo/bar", @{@"foo" : @"bar"})];
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, YES) ]);
-  FSTAssertContains(FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, YES));
+  FSTAssertChanged(
+      @[ FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, FSTDocumentStateLocalMutations) ]);
+  FSTAssertContains(FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, FSTDocumentStateLocalMutations));
 
   [self acknowledgeMutationWithVersion:3];
   // we haven't seen the remote event yet, so the write is still held.
-  FSTAssertChanged(@[]);
-  FSTAssertContains(FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, YES));
+  FSTAssertChanged(
+      @[ FSTTestDoc("foo/bar", 3, @{@"foo" : @"bar"}, FSTDocumentStateCommittedMutations) ]);
+  FSTAssertContains(
+      FSTTestDoc("foo/bar", 3, @{@"foo" : @"bar"}, FSTDocumentStateCommittedMutations));
 
-  [self
-      applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 3, @{@"it" : @"changed"}, NO),
-                                                @[ @(targetID) ], @[])];
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 3, @{@"it" : @"changed"}, NO) ]);
-  FSTAssertContains(FSTTestDoc("foo/bar", 3, @{@"it" : @"changed"}, NO));
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 3, @{@"it" : @"changed"},
+                                                             FSTDocumentStateSynced),
+                                                  @[ @(targetID) ], @[])];
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 3, @{@"it" : @"changed"}, FSTDocumentStateSynced) ]);
+  FSTAssertContains(FSTTestDoc("foo/bar", 3, @{@"it" : @"changed"}, FSTDocumentStateSynced));
 }
 
 - (void)testHandlesPatchWithoutPriorDocument {
@@ -367,8 +399,12 @@ NS_ASSUME_NONNULL_BEGIN
   FSTAssertNotContains(@"foo/bar");
 
   [self acknowledgeMutationWithVersion:1];
-  FSTAssertRemoved(@[ @"foo/bar" ]);
-  FSTAssertNotContains(@"foo/bar");
+  FSTAssertChanged(@[ FSTTestUnknownDoc("foo/bar", 1) ]);
+  if ([self gcIsEager]) {
+    FSTAssertNotContains(@"foo/bar");
+  } else {
+    FSTAssertContains(FSTTestUnknownDoc("foo/bar", 1));
+  }
 }
 
 - (void)testHandlesPatchMutationThenDocumentThenAck {
@@ -381,23 +417,31 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQuery *query = FSTTestQuery("foo");
   TargetId targetID = [self allocateQuery:query];
 
-  [self applyRemoteEvent:FSTTestAddedRemoteEvent(FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, NO),
-                                                 @[ @(targetID) ])];
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar", @"it" : @"base"}, YES) ]);
-  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar", @"it" : @"base"}, YES));
+  [self applyRemoteEvent:FSTTestAddedRemoteEvent(
+                             FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, FSTDocumentStateSynced),
+                             @[ @(targetID) ])];
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar", @"it" : @"base"},
+                                 FSTDocumentStateLocalMutations) ]);
+  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar", @"it" : @"base"},
+                               FSTDocumentStateLocalMutations));
 
   [self acknowledgeMutationWithVersion:2];
   // We still haven't seen the remote events for the patch, so the local changes remain, and there
   // are no changes
-  FSTAssertChanged(@[]);
-  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar", @"it" : @"base"}, YES));
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar", @"it" : @"base"},
+                                 FSTDocumentStateCommittedMutations) ]);
+  FSTAssertContains(FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar", @"it" : @"base"},
+                               FSTDocumentStateCommittedMutations));
 
   [self applyRemoteEvent:FSTTestUpdateRemoteEvent(
-                             FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar", @"it" : @"base"}, NO), @[],
-                             @[])];
+                             FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar", @"it" : @"base"},
+                                        FSTDocumentStateSynced),
+                             @[ @(targetID) ], @[])];
 
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar", @"it" : @"base"}, NO) ]);
-  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar", @"it" : @"base"}, NO));
+  FSTAssertChanged(
+      @[ FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar", @"it" : @"base"}, FSTDocumentStateSynced) ]);
+  FSTAssertContains(
+      FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar", @"it" : @"base"}, FSTDocumentStateSynced));
 }
 
 - (void)testHandlesPatchMutationThenAckThenDocument {
@@ -408,16 +452,23 @@ NS_ASSUME_NONNULL_BEGIN
   FSTAssertNotContains(@"foo/bar");
 
   [self acknowledgeMutationWithVersion:1];
-  FSTAssertRemoved(@[ @"foo/bar" ]);
-  FSTAssertNotContains(@"foo/bar");
+  FSTAssertChanged(@[ FSTTestUnknownDoc("foo/bar", 1) ]);
+
+  // There's no target pinning the doc, and we've ack'd the mutation.
+  if ([self gcIsEager]) {
+    FSTAssertNotContains(@"foo/bar");
+  } else {
+    FSTAssertContains(FSTTestUnknownDoc("foo/bar", 1));
+  }
 
   FSTQuery *query = FSTTestQuery("foo");
   TargetId targetID = [self allocateQuery:query];
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, NO),
-                                                  @[ @(targetID) ], @[])];
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, NO) ]);
-  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, NO));
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(
+                             FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, FSTDocumentStateSynced),
+                             @[ @(targetID) ], @[])];
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, FSTDocumentStateSynced) ]);
+  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, FSTDocumentStateSynced));
 }
 
 - (void)testHandlesDeleteMutationThenAck {
@@ -425,7 +476,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   [self writeMutation:FSTTestDeleteMutation(@"foo/bar")];
   FSTAssertRemoved(@[ @"foo/bar" ]);
-  FSTAssertContains(FSTTestDeletedDoc("foo/bar", 0));
+  FSTAssertContains(FSTTestDeletedDoc("foo/bar", 0, NO));
 
   [self acknowledgeMutationWithVersion:1];
   FSTAssertRemoved(@[ @"foo/bar" ]);
@@ -441,14 +492,15 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQuery *query = FSTTestQuery("foo");
   TargetId targetID = [self allocateQuery:query];
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, NO),
-                                                  @[ @(targetID) ], @[])];
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, NO) ]);
-  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, NO));
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(
+                             FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, FSTDocumentStateSynced),
+                             @[ @(targetID) ], @[])];
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, FSTDocumentStateSynced) ]);
+  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, FSTDocumentStateSynced));
 
   [self writeMutation:FSTTestDeleteMutation(@"foo/bar")];
   FSTAssertRemoved(@[ @"foo/bar" ]);
-  FSTAssertContains(FSTTestDeletedDoc("foo/bar", 0));
+  FSTAssertContains(FSTTestDeletedDoc("foo/bar", 0, NO));
 
   // Remove the target so only the mutation is pinning the document
   [self.localStore releaseQuery:query];
@@ -469,13 +521,14 @@ NS_ASSUME_NONNULL_BEGIN
 
   [self writeMutation:FSTTestDeleteMutation(@"foo/bar")];
   FSTAssertRemoved(@[ @"foo/bar" ]);
-  FSTAssertContains(FSTTestDeletedDoc("foo/bar", 0));
+  FSTAssertContains(FSTTestDeletedDoc("foo/bar", 0, NO));
 
   // Add the document to a target so it will remain in persistence even when ack'd
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, NO),
-                                                  @[ @(targetID) ], @[])];
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(
+                             FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, FSTDocumentStateSynced),
+                             @[ @(targetID) ], @[])];
   FSTAssertRemoved(@[ @"foo/bar" ]);
-  FSTAssertContains(FSTTestDeletedDoc("foo/bar", 0));
+  FSTAssertContains(FSTTestDeletedDoc("foo/bar", 0, NO));
 
   // Don't need to keep it pinned anymore
   [self.localStore releaseQuery:query];
@@ -495,54 +548,64 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQuery *query = FSTTestQuery("foo");
   TargetId targetID = [self allocateQuery:query];
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, NO),
-                                                  @[ @(targetID) ], @[])];
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, NO) ]);
-  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, NO));
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(
+                             FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, FSTDocumentStateSynced),
+                             @[ @(targetID) ], @[])];
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, FSTDocumentStateSynced) ]);
+  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, FSTDocumentStateSynced));
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDeletedDoc("foo/bar", 2), @[ @(targetID) ],
-                                                  @[])];
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDeletedDoc("foo/bar", 2, NO),
+                                                  @[ @(targetID) ], @[])];
   FSTAssertRemoved(@[ @"foo/bar" ]);
   if (![self gcIsEager]) {
-    FSTAssertContains(FSTTestDeletedDoc("foo/bar", 2));
+    FSTAssertContains(FSTTestDeletedDoc("foo/bar", 2, NO));
   }
 
-  [self
-      applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 3, @{@"it" : @"changed"}, NO),
-                                                @[ @(targetID) ], @[])];
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 3, @{@"it" : @"changed"}, NO) ]);
-  FSTAssertContains(FSTTestDoc("foo/bar", 3, @{@"it" : @"changed"}, NO));
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 3, @{@"it" : @"changed"},
+                                                             FSTDocumentStateSynced),
+                                                  @[ @(targetID) ], @[])];
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 3, @{@"it" : @"changed"}, FSTDocumentStateSynced) ]);
+  FSTAssertContains(FSTTestDoc("foo/bar", 3, @{@"it" : @"changed"}, FSTDocumentStateSynced));
 }
 
 - (void)testHandlesSetMutationThenPatchMutationThenDocumentThenAckThenAck {
   if ([self isTestBaseClass]) return;
 
   [self writeMutation:FSTTestSetMutation(@"foo/bar", @{@"foo" : @"old"})];
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"old"}, YES) ]);
-  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"old"}, YES));
+  FSTAssertChanged(
+      @[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"old"}, FSTDocumentStateLocalMutations) ]);
+  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"old"}, FSTDocumentStateLocalMutations));
 
   [self writeMutation:FSTTestPatchMutation("foo/bar", @{@"foo" : @"bar"}, {})];
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES) ]);
-  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES));
+  FSTAssertChanged(
+      @[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, FSTDocumentStateLocalMutations) ]);
+  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, FSTDocumentStateLocalMutations));
 
   FSTQuery *query = FSTTestQuery("foo");
   TargetId targetID = [self allocateQuery:query];
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, NO),
-                                                  @[ @(targetID) ], @[])];
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, YES) ]);
-  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, YES));
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(
+                             FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, FSTDocumentStateSynced),
+                             @[ @(targetID) ], @[])];
+  FSTAssertChanged(
+      @[ FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, FSTDocumentStateLocalMutations) ]);
+  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, FSTDocumentStateLocalMutations));
 
   [self.localStore releaseQuery:query];
   [self acknowledgeMutationWithVersion:2];  // delete mutation
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, YES) ]);
-  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, YES));
+  FSTAssertChanged(
+      @[ FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, FSTDocumentStateLocalMutations) ]);
+  FSTAssertContains(FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, FSTDocumentStateLocalMutations));
 
   [self acknowledgeMutationWithVersion:3];  // patch mutation
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, NO) ]);
+  FSTAssertChanged(
+      @[ FSTTestDoc("foo/bar", 3, @{@"foo" : @"bar"}, FSTDocumentStateCommittedMutations) ]);
   if ([self gcIsEager]) {
     // we've ack'd all of the mutations, nothing is keeping this pinned anymore
     FSTAssertNotContains(@"foo/bar");
+  } else {
+    FSTAssertContains(
+        FSTTestDoc("foo/bar", 3, @{@"foo" : @"bar"}, FSTDocumentStateCommittedMutations));
   }
 }
 
@@ -554,8 +617,9 @@ NS_ASSUME_NONNULL_BEGIN
     FSTTestPatchMutation("foo/bar", @{@"foo" : @"bar"}, {})
   ]];
 
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES) ]);
-  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES));
+  FSTAssertChanged(
+      @[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, FSTDocumentStateLocalMutations) ]);
+  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, FSTDocumentStateLocalMutations));
 }
 
 - (void)testHandlesSetMutationThenPatchMutationThenReject {
@@ -563,7 +627,7 @@ NS_ASSUME_NONNULL_BEGIN
   if (![self gcIsEager]) return;
 
   [self writeMutation:FSTTestSetMutation(@"foo/bar", @{@"foo" : @"old"})];
-  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"old"}, YES));
+  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"old"}, FSTDocumentStateLocalMutations));
   [self acknowledgeMutationWithVersion:1];
   FSTAssertNotContains(@"foo/bar");
 
@@ -585,11 +649,11 @@ NS_ASSUME_NONNULL_BEGIN
   ]];
 
   FSTAssertChanged((@[
-    FSTTestDoc("bar/baz", 0, @{@"bar" : @"baz"}, YES),
-    FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES)
+    FSTTestDoc("bar/baz", 0, @{@"bar" : @"baz"}, FSTDocumentStateLocalMutations),
+    FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, FSTDocumentStateLocalMutations)
   ]));
-  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES));
-  FSTAssertContains(FSTTestDoc("bar/baz", 0, @{@"bar" : @"baz"}, YES));
+  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, FSTDocumentStateLocalMutations));
+  FSTAssertContains(FSTTestDoc("bar/baz", 0, @{@"bar" : @"baz"}, FSTDocumentStateLocalMutations));
 }
 
 - (void)testHandlesDeleteMutationThenPatchMutationThenAckThenAck {
@@ -597,21 +661,23 @@ NS_ASSUME_NONNULL_BEGIN
 
   [self writeMutation:FSTTestDeleteMutation(@"foo/bar")];
   FSTAssertRemoved(@[ @"foo/bar" ]);
-  FSTAssertContains(FSTTestDeletedDoc("foo/bar", 0));
+  FSTAssertContains(FSTTestDeletedDoc("foo/bar", 0, NO));
 
   [self writeMutation:FSTTestPatchMutation("foo/bar", @{@"foo" : @"bar"}, {})];
   FSTAssertRemoved(@[ @"foo/bar" ]);
-  FSTAssertContains(FSTTestDeletedDoc("foo/bar", 0));
+  FSTAssertContains(FSTTestDeletedDoc("foo/bar", 0, NO));
 
   [self acknowledgeMutationWithVersion:2];  // delete mutation
   FSTAssertRemoved(@[ @"foo/bar" ]);
-  FSTAssertContains(FSTTestDeletedDoc("foo/bar", 0));
+  FSTAssertContains(FSTTestDeletedDoc("foo/bar", 2, YES));
 
   [self acknowledgeMutationWithVersion:3];  // patch mutation
-  FSTAssertRemoved(@[ @"foo/bar" ]);
+  FSTAssertChanged(@[ FSTTestUnknownDoc("foo/bar", 3) ]);
   if ([self gcIsEager]) {
     // There are no more pending mutations, the doc has been dropped
     FSTAssertNotContains(@"foo/bar");
+  } else {
+    FSTAssertContains(FSTTestUnknownDoc("foo/bar", 3));
   }
 }
 
@@ -619,12 +685,13 @@ NS_ASSUME_NONNULL_BEGIN
   if ([self isTestBaseClass]) return;
   if (![self gcIsEager]) return;
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEventWithLimboTargets(FSTTestDeletedDoc("foo/bar", 2),
-                                                                  @[], @[], @[ @1 ])];
+  [self applyRemoteEvent:FSTTestUpdateRemoteEventWithLimboTargets(
+                             FSTTestDeletedDoc("foo/bar", 2, NO), @[], @[], @[ @1 ])];
   FSTAssertNotContains(@"foo/bar");
 
   [self applyRemoteEvent:FSTTestUpdateRemoteEventWithLimboTargets(
-                             FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, NO), @[], @[], @[ @1 ])];
+                             FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, FSTDocumentStateSynced),
+                             @[], @[], @[ @1 ])];
   FSTAssertNotContains(@"foo/bar");
 }
 
@@ -635,12 +702,14 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQuery *query = FSTTestQuery("foo");
   TargetId targetID = [self allocateQuery:query];
 
-  [self applyRemoteEvent:FSTTestAddedRemoteEvent(FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, NO),
-                                                 @[ @(targetID) ])];
-  FSTAssertContains(FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, NO));
+  [self applyRemoteEvent:FSTTestAddedRemoteEvent(
+                             FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, FSTDocumentStateSynced),
+                             @[ @(targetID) ])];
+  FSTAssertContains(FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, FSTDocumentStateSynced));
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 2, @{@"foo" : @"baz"}, NO),
-                                                  @[], @[ @(targetID) ])];
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(
+                             FSTTestDoc("foo/bar", 2, @{@"foo" : @"baz"}, FSTDocumentStateSynced),
+                             @[], @[ @(targetID) ])];
 
   FSTAssertNotContains(@"foo/bar");
 }
@@ -652,27 +721,28 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQuery *query = FSTTestQuery("foo");
   TargetId targetID = [self allocateQuery:query];
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 0, @{@"foo" : @"old"}, NO),
-                                                  @[ @(targetID) ], @[])];
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(
+                             FSTTestDoc("foo/bar", 0, @{@"foo" : @"old"}, FSTDocumentStateSynced),
+                             @[ @(targetID) ], @[])];
   [self writeMutation:FSTTestPatchMutation("foo/bar", @{@"foo" : @"bar"}, {})];
   // Release the query so that our target count goes back to 0 and we are considered up-to-date.
   [self.localStore releaseQuery:query];
 
   [self writeMutation:FSTTestSetMutation(@"foo/bah", @{@"foo" : @"bah"})];
   [self writeMutation:FSTTestDeleteMutation(@"foo/baz")];
-  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES));
-  FSTAssertContains(FSTTestDoc("foo/bah", 0, @{@"foo" : @"bah"}, YES));
-  FSTAssertContains(FSTTestDeletedDoc("foo/baz", 0));
+  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, FSTDocumentStateLocalMutations));
+  FSTAssertContains(FSTTestDoc("foo/bah", 0, @{@"foo" : @"bah"}, FSTDocumentStateLocalMutations));
+  FSTAssertContains(FSTTestDeletedDoc("foo/baz", 0, NO));
 
   [self acknowledgeMutationWithVersion:3];
   FSTAssertNotContains(@"foo/bar");
-  FSTAssertContains(FSTTestDoc("foo/bah", 0, @{@"foo" : @"bah"}, YES));
-  FSTAssertContains(FSTTestDeletedDoc("foo/baz", 0));
+  FSTAssertContains(FSTTestDoc("foo/bah", 0, @{@"foo" : @"bah"}, FSTDocumentStateLocalMutations));
+  FSTAssertContains(FSTTestDeletedDoc("foo/baz", 0, NO));
 
   [self acknowledgeMutationWithVersion:4];
   FSTAssertNotContains(@"foo/bar");
   FSTAssertNotContains(@"foo/bah");
-  FSTAssertContains(FSTTestDeletedDoc("foo/baz", 0));
+  FSTAssertContains(FSTTestDeletedDoc("foo/baz", 0, NO));
 
   [self acknowledgeMutationWithVersion:5];
   FSTAssertNotContains(@"foo/bar");
@@ -687,27 +757,28 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQuery *query = FSTTestQuery("foo");
   TargetId targetID = [self allocateQuery:query];
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 0, @{@"foo" : @"old"}, NO),
-                                                  @[ @(targetID) ], @[])];
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(
+                             FSTTestDoc("foo/bar", 0, @{@"foo" : @"old"}, FSTDocumentStateSynced),
+                             @[ @(targetID) ], @[])];
   [self writeMutation:FSTTestPatchMutation("foo/bar", @{@"foo" : @"bar"}, {})];
   // Release the query so that our target count goes back to 0 and we are considered up-to-date.
   [self.localStore releaseQuery:query];
 
   [self writeMutation:FSTTestSetMutation(@"foo/bah", @{@"foo" : @"bah"})];
   [self writeMutation:FSTTestDeleteMutation(@"foo/baz")];
-  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES));
-  FSTAssertContains(FSTTestDoc("foo/bah", 0, @{@"foo" : @"bah"}, YES));
-  FSTAssertContains(FSTTestDeletedDoc("foo/baz", 0));
+  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, FSTDocumentStateLocalMutations));
+  FSTAssertContains(FSTTestDoc("foo/bah", 0, @{@"foo" : @"bah"}, FSTDocumentStateLocalMutations));
+  FSTAssertContains(FSTTestDeletedDoc("foo/baz", 0, NO));
 
   [self rejectMutation];  // patch mutation
   FSTAssertNotContains(@"foo/bar");
-  FSTAssertContains(FSTTestDoc("foo/bah", 0, @{@"foo" : @"bah"}, YES));
-  FSTAssertContains(FSTTestDeletedDoc("foo/baz", 0));
+  FSTAssertContains(FSTTestDoc("foo/bah", 0, @{@"foo" : @"bah"}, FSTDocumentStateLocalMutations));
+  FSTAssertContains(FSTTestDeletedDoc("foo/baz", 0, NO));
 
   [self rejectMutation];  // set mutation
   FSTAssertNotContains(@"foo/bar");
   FSTAssertNotContains(@"foo/bah");
-  FSTAssertContains(FSTTestDeletedDoc("foo/baz", 0));
+  FSTAssertContains(FSTTestDeletedDoc("foo/baz", 0, NO));
 
   [self rejectMutation];  // delete mutation
   FSTAssertNotContains(@"foo/bar");
@@ -722,23 +793,26 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQuery *query = FSTTestQuery("foo");
   TargetId targetID = [self allocateQuery:query];
 
-  [self applyRemoteEvent:FSTTestAddedRemoteEvent(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, NO),
-                                                 @[ @(targetID) ])];
+  [self applyRemoteEvent:FSTTestAddedRemoteEvent(
+                             FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, FSTDocumentStateSynced),
+                             @[ @(targetID) ])];
   [self writeMutation:FSTTestSetMutation(@"foo/baz", @{@"foo" : @"baz"})];
-  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, NO));
-  FSTAssertContains(FSTTestDoc("foo/baz", 0, @{@"foo" : @"baz"}, YES));
+  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, FSTDocumentStateSynced));
+  FSTAssertContains(FSTTestDoc("foo/baz", 0, @{@"foo" : @"baz"}, FSTDocumentStateLocalMutations));
 
   [self notifyLocalViewChanges:FSTTestViewChanges(targetID, @[ @"foo/bar", @"foo/baz" ], @[])];
-  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, NO));
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, NO),
-                                                  @[], @[ @(targetID) ])];
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/baz", 2, @{@"foo" : @"baz"}, NO),
-                                                  @[ @(targetID) ], @[])];
-  FSTAssertContains(FSTTestDoc("foo/baz", 2, @{@"foo" : @"baz"}, YES));
+  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, FSTDocumentStateSynced));
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(
+                             FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, FSTDocumentStateSynced),
+                             @[], @[ @(targetID) ])];
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(
+                             FSTTestDoc("foo/baz", 2, @{@"foo" : @"baz"}, FSTDocumentStateSynced),
+                             @[ @(targetID) ], @[])];
+  FSTAssertContains(FSTTestDoc("foo/baz", 2, @{@"foo" : @"baz"}, FSTDocumentStateLocalMutations));
   [self acknowledgeMutationWithVersion:2];
-  FSTAssertContains(FSTTestDoc("foo/baz", 2, @{@"foo" : @"baz"}, NO));
-  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, NO));
-  FSTAssertContains(FSTTestDoc("foo/baz", 2, @{@"foo" : @"baz"}, NO));
+  FSTAssertContains(FSTTestDoc("foo/baz", 2, @{@"foo" : @"baz"}, FSTDocumentStateSynced));
+  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, FSTDocumentStateSynced));
+  FSTAssertContains(FSTTestDoc("foo/baz", 2, @{@"foo" : @"baz"}, FSTDocumentStateSynced));
 
   [self notifyLocalViewChanges:FSTTestViewChanges(targetID, @[], @[ @"foo/bar", @"foo/baz" ])];
   [self.localStore releaseQuery:query];
@@ -752,8 +826,9 @@ NS_ASSUME_NONNULL_BEGIN
   if (![self gcIsEager]) return;
 
   TargetId targetID = 321;
-  [self applyRemoteEvent:FSTTestUpdateRemoteEventWithLimboTargets(FSTTestDoc("foo/bar", 1, @{}, NO),
-                                                                  @[], @[], @[ @(targetID) ])];
+  [self applyRemoteEvent:FSTTestUpdateRemoteEventWithLimboTargets(
+                             FSTTestDoc("foo/bar", 1, @{}, FSTDocumentStateSynced), @[], @[],
+                             @[ @(targetID) ])];
 
   FSTAssertNotContains(@"foo/bar");
 }
@@ -767,8 +842,9 @@ NS_ASSUME_NONNULL_BEGIN
     FSTTestSetMutation(@"foo/bar/Foo/Bar", @{@"Foo" : @"Bar"})
   ]];
   FSTQuery *query = FSTTestQuery("foo/bar");
-  FSTDocumentDictionary *docs = [self.localStore executeQuery:query];
-  XCTAssertEqualObjects([docs values], @[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES) ]);
+  DocumentMap docs = [self.localStore executeQuery:query];
+  XCTAssertEqualObjects(docMapToArray(docs), @[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"},
+                                                           FSTDocumentStateLocalMutations) ]);
 }
 
 - (void)testCanExecuteCollectionQueries {
@@ -782,11 +858,12 @@ NS_ASSUME_NONNULL_BEGIN
     FSTTestSetMutation(@"fooo/blah", @{@"fooo" : @"blah"})
   ]];
   FSTQuery *query = FSTTestQuery("foo");
-  FSTDocumentDictionary *docs = [self.localStore executeQuery:query];
-  XCTAssertEqualObjects([docs values], (@[
-                          FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES),
-                          FSTTestDoc("foo/baz", 0, @{@"foo" : @"baz"}, YES)
-                        ]));
+  DocumentMap docs = [self.localStore executeQuery:query];
+  XCTAssertEqualObjects(
+      docMapToArray(docs), (@[
+        FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, FSTDocumentStateLocalMutations),
+        FSTTestDoc("foo/baz", 0, @{@"foo" : @"baz"}, FSTDocumentStateLocalMutations)
+      ]));
 }
 
 - (void)testCanExecuteMixedCollectionQueries {
@@ -796,18 +873,20 @@ NS_ASSUME_NONNULL_BEGIN
   [self allocateQuery:query];
   FSTAssertTargetID(2);
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/baz", 10, @{@"a" : @"b"}, NO),
-                                                  @[ @2 ], @[])];
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 20, @{@"a" : @"b"}, NO),
-                                                  @[ @2 ], @[])];
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(
+                             FSTTestDoc("foo/baz", 10, @{@"a" : @"b"}, FSTDocumentStateSynced),
+                             @[ @2 ], @[])];
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(
+                             FSTTestDoc("foo/bar", 20, @{@"a" : @"b"}, FSTDocumentStateSynced),
+                             @[ @2 ], @[])];
 
   [self.localStore locallyWriteMutations:@[ FSTTestSetMutation(@"foo/bonk", @{@"a" : @"b"}) ]];
 
-  FSTDocumentDictionary *docs = [self.localStore executeQuery:query];
-  XCTAssertEqualObjects([docs values], (@[
-                          FSTTestDoc("foo/bar", 20, @{@"a" : @"b"}, NO),
-                          FSTTestDoc("foo/baz", 10, @{@"a" : @"b"}, NO),
-                          FSTTestDoc("foo/bonk", 0, @{@"a" : @"b"}, YES)
+  DocumentMap docs = [self.localStore executeQuery:query];
+  XCTAssertEqualObjects(docMapToArray(docs), (@[
+                          FSTTestDoc("foo/bar", 20, @{@"a" : @"b"}, FSTDocumentStateSynced),
+                          FSTTestDoc("foo/baz", 10, @{@"a" : @"b"}, FSTDocumentStateSynced),
+                          FSTTestDoc("foo/bonk", 0, @{@"a" : @"b"}, FSTDocumentStateLocalMutations)
                         ]));
 }
 
@@ -856,10 +935,12 @@ NS_ASSUME_NONNULL_BEGIN
   [self allocateQuery:query];
   FSTAssertTargetID(2);
 
-  [self applyRemoteEvent:FSTTestAddedRemoteEvent(FSTTestDoc("foo/baz", 10, @{@"a" : @"b"}, NO),
-                                                 @[ @2 ])];
-  [self applyRemoteEvent:FSTTestAddedRemoteEvent(FSTTestDoc("foo/bar", 20, @{@"a" : @"b"}, NO),
-                                                 @[ @2 ])];
+  [self applyRemoteEvent:FSTTestAddedRemoteEvent(
+                             FSTTestDoc("foo/baz", 10, @{@"a" : @"b"}, FSTDocumentStateSynced),
+                             @[ @2 ])];
+  [self applyRemoteEvent:FSTTestAddedRemoteEvent(
+                             FSTTestDoc("foo/bar", 20, @{@"a" : @"b"}, FSTDocumentStateSynced),
+                             @[ @2 ])];
 
   [self.localStore locallyWriteMutations:@[ FSTTestSetMutation(@"foo/bonk", @{@"a" : @"b"}) ]];
 

@@ -21,18 +21,17 @@
 #import <FirebaseFirestore/FIRFirestoreErrors.h>
 #import <FirebaseFirestore/FIRGeoPoint.h>
 #import <FirebaseFirestore/FIRTimestamp.h>
-#import <GRPCClient/GRPCCall.h>
 #import <XCTest/XCTest.h>
 
 #include <vector>
 
 #import "Firestore/Protos/objc/firestore/local/MaybeDocument.pbobjc.h"
 #import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Common.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Document.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Firestore.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Query.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Write.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Common.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Document.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Firestore.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Query.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Write.pbobjc.h"
 #import "Firestore/Protos/objc/google/rpc/Status.pbobjc.h"
 #import "Firestore/Protos/objc/google/type/Latlng.pbobjc.h"
 #import "Firestore/Source/API/FIRFieldValue+Internal.h"
@@ -439,23 +438,27 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testDecodesMutationResult {
+  SnapshotVersion commitVersion = testutil::Version(3000);
+  SnapshotVersion updateVersion = testutil::Version(4000);
   GCFSWriteResult *proto = [GCFSWriteResult message];
-  proto.updateTime = [self.serializer encodedTimestamp:Timestamp{0, 4000}];
+  proto.updateTime = [self.serializer encodedTimestamp:updateVersion.timestamp()];
   [proto.transformResultsArray addObject:[self.serializer encodedString:@"result"]];
 
-  FSTMutationResult *result = [self.serializer decodedMutationResult:proto];
+  FSTMutationResult *result =
+      [self.serializer decodedMutationResult:proto commitVersion:commitVersion];
 
-  XCTAssertEqual(result.version.value(), (SnapshotVersion{Timestamp{0, 4000}}));
+  XCTAssertEqual(result.version, updateVersion);
   XCTAssertEqualObjects(result.transformResults, @[ [FSTStringValue stringValue:@"result"] ]);
 }
 
 - (void)testDecodesDeleteMutationResult {
   GCFSWriteResult *proto = [GCFSWriteResult message];
-  // Deletes don't set updateTime (or transformResults).
+  SnapshotVersion commitVersion = testutil::Version(4000);
 
-  FSTMutationResult *result = [self.serializer decodedMutationResult:proto];
+  FSTMutationResult *result =
+      [self.serializer decodedMutationResult:proto commitVersion:commitVersion];
 
-  XCTAssertFalse(result.version.has_value());
+  XCTAssertEqual(result.version, commitVersion);
   XCTAssertEqual(result.transformResults.count, 0);
 }
 
@@ -828,7 +831,7 @@ NS_ASSUME_NONNULL_BEGIN
       initWithUpdatedTargetIDs:@[ @1, @2 ]
               removedTargetIDs:@[]
                    documentKey:FSTTestDocKey(@"coll/1")
-                      document:FSTTestDoc("coll/1", 5, @{@"foo" : @"bar"}, NO)];
+                      document:FSTTestDoc("coll/1", 5, @{@"foo" : @"bar"}, FSTDocumentStateSynced)];
   GCFSListenResponse *listenResponse = [GCFSListenResponse message];
   listenResponse.documentChange.document.name = @"projects/p/databases/d/documents/coll/1";
   listenResponse.documentChange.document.updateTime.nanos = 5000;
@@ -847,7 +850,7 @@ NS_ASSUME_NONNULL_BEGIN
       initWithUpdatedTargetIDs:@[ @2 ]
               removedTargetIDs:@[ @1 ]
                    documentKey:FSTTestDocKey(@"coll/1")
-                      document:FSTTestDoc("coll/1", 5, @{@"foo" : @"bar"}, NO)];
+                      document:FSTTestDoc("coll/1", 5, @{@"foo" : @"bar"}, FSTDocumentStateSynced)];
   GCFSListenResponse *listenResponse = [GCFSListenResponse message];
   listenResponse.documentChange.document.name = @"projects/p/databases/d/documents/coll/1";
   listenResponse.documentChange.document.updateTime.nanos = 5000;
@@ -866,7 +869,7 @@ NS_ASSUME_NONNULL_BEGIN
       [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[]
                                               removedTargetIDs:@[ @1, @2 ]
                                                    documentKey:FSTTestDocKey(@"coll/1")
-                                                      document:FSTTestDeletedDoc("coll/1", 5)];
+                                                      document:FSTTestDeletedDoc("coll/1", 5, NO)];
   GCFSListenResponse *listenResponse = [GCFSListenResponse message];
   listenResponse.documentDelete.document = @"projects/p/databases/d/documents/coll/1";
   listenResponse.documentDelete.readTime.nanos = 5000;

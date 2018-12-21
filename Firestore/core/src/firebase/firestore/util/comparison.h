@@ -82,8 +82,7 @@ struct Comparator {
 /** Compares two strings. */
 template <>
 struct Comparator<absl::string_view> {
-  bool operator()(const absl::string_view& left,
-                  const absl::string_view& right) const;
+  bool operator()(absl::string_view left, absl::string_view right) const;
 };
 
 template <>
@@ -179,6 +178,28 @@ bool DoubleBitwiseEquals(double left, double right);
  * use when using FSTDoublesAreBitwiseEqual for equality.
  */
 size_t DoubleBitwiseHash(double d);
+
+template <typename T>
+class Equatable {
+ public:
+  friend bool operator!=(const T& lhs, const T& rhs) {
+    return !(lhs == rhs);
+  }
+};
+
+template <typename T>
+class Comparable : public Equatable<T> {
+ public:
+  friend bool operator>(const T& lhs, const T& rhs) {
+    return rhs < lhs;
+  }
+  friend bool operator<=(const T& lhs, const T& rhs) {
+    return !(rhs < lhs);
+  }
+  friend bool operator>=(const T& lhs, const T& rhs) {
+    return !(lhs < rhs);
+  }
+};
 
 }  // namespace util
 }  // namespace firestore

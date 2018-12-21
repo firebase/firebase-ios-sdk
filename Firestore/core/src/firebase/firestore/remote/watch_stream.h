@@ -25,9 +25,9 @@
 #include <string>
 
 #include "Firestore/core/src/firebase/firestore/model/types.h"
-#include "Firestore/core/src/firebase/firestore/remote/datastore.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
+#include "Firestore/core/src/firebase/firestore/remote/remote_objc_bridge.h"
 #include "Firestore/core/src/firebase/firestore/remote/stream.h"
-#include "Firestore/core/src/firebase/firestore/remote/stream_objc_bridge.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "absl/strings/string_view.h"
@@ -53,7 +53,7 @@ class WatchStream : public Stream {
   WatchStream(util::AsyncQueue* async_queue,
               auth::CredentialsProvider* credentials_provider,
               FSTSerializerBeta* serializer,
-              Datastore* datastore,
+              GrpcConnection* grpc_connection,
               id<FSTWatchStreamDelegate> delegate);
 
   /**
@@ -62,17 +62,18 @@ class WatchStream : public Stream {
    * query will be streamed back as WatchChange messages that reference the
    * target ID included in `query`.
    */
-  void WatchQuery(FSTQueryData* query);
+  virtual /*virtual for tests only*/ void WatchQuery(FSTQueryData* query);
 
   /**
    * Unregisters interest in the results of the query associated with the given
    * `target_id`.
    */
-  void UnwatchTargetId(model::TargetId target_id);
+  virtual /*virtual for tests only*/ void UnwatchTargetId(
+      model::TargetId target_id);
 
  private:
   std::unique_ptr<GrpcStream> CreateGrpcStream(
-      Datastore* datastore, absl::string_view token) override;
+      GrpcConnection* grpc_connection, const auth::Token& token) override;
   void TearDown(GrpcStream* grpc_stream) override;
 
   void NotifyStreamOpen() override;

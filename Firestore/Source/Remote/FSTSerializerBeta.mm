@@ -16,18 +16,16 @@
 
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
-#import <GRPCClient/GRPCCall.h>
-
 #include <cinttypes>
 #include <string>
 #include <utility>
 #include <vector>
 
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Common.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Document.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Firestore.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Query.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Write.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Common.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Document.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Firestore.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Query.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Write.pbobjc.h"
 #import "Firestore/Protos/objc/google/rpc/Status.pbobjc.h"
 #import "Firestore/Protos/objc/google/type/Latlng.pbobjc.h"
 
@@ -218,7 +216,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   } else if (fieldClass == [FSTReferenceValue class]) {
     FSTReferenceValue *ref = (FSTReferenceValue *)fieldValue;
-    return [self encodedReferenceValueForDatabaseID:[ref databaseID] key:[ref value]];
+    DocumentKey key = [[ref value] key];
+    return [self encodedReferenceValueForDatabaseID:[ref databaseID] key:key];
 
   } else if (fieldClass == [FSTObjectValue class]) {
     GCFSValue *result = [GCFSValue message];
@@ -439,7 +438,11 @@ NS_ASSUME_NONNULL_BEGIN
   HARD_ASSERT(version != SnapshotVersion::None(),
               "Got a document response with no snapshot version");
 
-  return [FSTDocument documentWithData:value key:key version:version hasLocalMutations:NO];
+  return [FSTDocument documentWithData:value
+                                   key:key
+                               version:version
+                                 state:FSTDocumentStateSynced
+                                 proto:response.found];
 }
 
 - (FSTDeletedDocument *)decodedDeletedDocument:(GCFSBatchGetDocumentsResponse *)response {
@@ -448,7 +451,7 @@ NS_ASSUME_NONNULL_BEGIN
   SnapshotVersion version = [self decodedVersion:response.readTime];
   HARD_ASSERT(version != SnapshotVersion::None(),
               "Got a no document response with no snapshot version");
-  return [FSTDeletedDocument documentWithKey:key version:version];
+  return [FSTDeletedDocument documentWithKey:key version:version hasCommittedMutations:NO];
 }
 
 #pragma mark - FSTMutation => GCFSWrite proto
@@ -672,12 +675,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTMutationResult <= GCFSWriteResult proto
 
-- (FSTMutationResult *)decodedMutationResult:(GCFSWriteResult *)mutation {
-  // NOTE: Deletes don't have an updateTime.
-  absl::optional<SnapshotVersion> version;
-  if (mutation.hasUpdateTime) {
-    version = [self decodedVersion:mutation.updateTime];
-  }
+- (FSTMutationResult *)decodedMutationResult:(GCFSWriteResult *)mutation
+                               commitVersion:(const SnapshotVersion &)commitVersion {
+  // NOTE: Deletes don't have an updateTime. Use commitVersion instead.
+  SnapshotVersion version =
+      mutation.hasUpdateTime ? [self decodedVersion:mutation.updateTime] : commitVersion;
   NSMutableArray *_Nullable transformResults = nil;
   if (mutation.transformResultsArray.count > 0) {
     transformResults = [NSMutableArray array];
@@ -1146,8 +1148,13 @@ NS_ASSUME_NONNULL_BEGIN
   const DocumentKey key = [self decodedDocumentKey:change.document.name];
   SnapshotVersion version = [self decodedVersion:change.document.updateTime];
   HARD_ASSERT(version != SnapshotVersion::None(), "Got a document change with no snapshot version");
-  FSTMaybeDocument *document =
-      [FSTDocument documentWithData:value key:key version:version hasLocalMutations:NO];
+  // The document may soon be re-serialized back to protos in order to store it in local
+  // persistence. Memoize the encoded form to avoid encoding it again.
+  FSTMaybeDocument *document = [FSTDocument documentWithData:value
+                                                         key:key
+                                                     version:version
+                                                       state:FSTDocumentStateSynced
+                                                       proto:change.document];
 
   NSArray<NSNumber *> *updatedTargetIds = [self decodedIntegerArray:change.targetIdsArray];
   NSArray<NSNumber *> *removedTargetIds = [self decodedIntegerArray:change.removedTargetIdsArray];
@@ -1162,7 +1169,8 @@ NS_ASSUME_NONNULL_BEGIN
   const DocumentKey key = [self decodedDocumentKey:change.document];
   // Note that version might be unset in which case we use SnapshotVersion::None()
   SnapshotVersion version = [self decodedVersion:change.readTime];
-  FSTMaybeDocument *document = [FSTDeletedDocument documentWithKey:key version:version];
+  FSTMaybeDocument *document =
+      [FSTDeletedDocument documentWithKey:key version:version hasCommittedMutations:NO];
 
   NSArray<NSNumber *> *removedTargetIds = [self decodedIntegerArray:change.removedTargetIdsArray];
 

@@ -24,17 +24,26 @@ namespace firestore {
 namespace core {
 
 /** The set of all valid generators. */
-enum class TargetIdGeneratorId { LocalStore = 0, SyncEngine = 1 };
+enum class TargetIdGeneratorId { QueryCache = 0, SyncEngine = 1 };
 
 /**
- * Generates monotonically increasing integer IDs. There are separate generators
- * for different scopes. While these generators will operate independently of
- * each other, they are scoped, such that no two generators will ever produce
- * the same ID. This is useful, because sometimes the backend may group IDs from
- * separate parts of the client into the same ID space.
+ * Generates monotonically increasing target IDs for sending targets to the
+ * watch stream.
+ *
+ * The client constructs two generators, one for the query cache (via
+ * `QueryCacheTargetIdGenerator(int after)`), and one for limbo documents (via
+ * `SyncEngineTargetIdGenerator()`). These two generators produce
+ * non-overlapping IDs (by using even and odd IDs respectively).
+ *
+ * By separating the target ID space, the query cache can generate target IDs
+ * that persist across client restarts, while sync engine can independently
+ * generate in-memory target IDs that are transient and can be reused after a
+ * restart.
  *
  * Not thread-safe.
  */
+// TODO(mrschmidt): Explore removing this class in favor of generating these IDs
+// directly in SyncEngine and LocalStore.
 class TargetIdGenerator {
  public:
   // Makes Objective-C++ code happy to provide a default ctor.
@@ -48,18 +57,22 @@ class TargetIdGenerator {
    * @param after An ID to start at. Every call to NextId returns a larger id.
    * @return An instance of TargetIdGenerator.
    */
-  static TargetIdGenerator LocalStoreTargetIdGenerator(model::TargetId after) {
-    return TargetIdGenerator(TargetIdGeneratorId::LocalStore, after);
+  static TargetIdGenerator QueryCacheTargetIdGenerator(model::TargetId after) {
+    TargetIdGenerator generator(TargetIdGeneratorId::QueryCache, after);
+    // Make sure that the next call to `nextId()` returns the first value after
+    // 'after'.
+    generator.NextId();
+    return generator;
   }
 
   /**
    * Creates and returns the TargetIdGenerator for the sync engine.
    *
-   * @param after An ID to start at. Every call to NextId returns a larger id.
    * @return An instance of TargetIdGenerator.
    */
-  static TargetIdGenerator SyncEngineTargetIdGenerator(model::TargetId after) {
-    return TargetIdGenerator(TargetIdGeneratorId::SyncEngine, after);
+  static TargetIdGenerator SyncEngineTargetIdGenerator() {
+    // Sync engine assigns target IDs for limbo document detection.
+    return TargetIdGenerator(TargetIdGeneratorId::SyncEngine, 1);
   }
 
   TargetIdGeneratorId generator_id() {
@@ -69,9 +82,10 @@ class TargetIdGenerator {
   model::TargetId NextId();
 
  private:
-  TargetIdGenerator(TargetIdGeneratorId generator_id, model::TargetId after);
+  TargetIdGenerator(TargetIdGeneratorId generator_id, model::TargetId seed);
+  void seek(model::TargetId target_id);
   TargetIdGeneratorId generator_id_;
-  model::TargetId previous_id_;
+  model::TargetId next_id_;
 
   static const int kReservedBits = 1;
 };

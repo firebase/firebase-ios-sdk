@@ -35,7 +35,7 @@ class GrpcStreamObserver {
   // A message has been received from the server.
   virtual void OnStreamRead(const grpc::ByteBuffer& message) = 0;
   // Connection has been broken, perhaps by the server.
-  virtual void OnStreamError(const util::Status& status) = 0;
+  virtual void OnStreamFinish(const util::Status& status) = 0;
 };
 
 }  // namespace remote

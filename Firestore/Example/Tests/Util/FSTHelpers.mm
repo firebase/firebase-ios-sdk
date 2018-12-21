@@ -34,7 +34,6 @@
 #import "Firestore/Source/Local/FSTLocalViewChanges.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
@@ -64,6 +63,7 @@ using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::FieldTransform;
 using firebase::firestore::model::FieldValue;
+using firebase::firestore::model::MaybeDocumentMap;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::ServerTimestampTransform;
@@ -146,25 +146,34 @@ FSTObjectValue *FSTTestObjectValue(NSDictionary<NSString *, id> *data) {
   return (FSTObjectValue *)wrapped;
 }
 
-FSTDocumentKey *FSTTestDocKey(NSString *path) {
-  return [FSTDocumentKey keyWithPathString:path];
+DocumentKey FSTTestDocKey(NSString *path) {
+  return DocumentKey::FromPathString(util::MakeString(path));
 }
 
 FSTDocument *FSTTestDoc(const absl::string_view path,
                         FSTTestSnapshotVersion version,
                         NSDictionary<NSString *, id> *data,
-                        BOOL hasMutations) {
+                        FSTDocumentState documentState) {
   DocumentKey key = testutil::Key(path);
   return [FSTDocument documentWithData:FSTTestObjectValue(data)
                                    key:key
                                version:testutil::Version(version)
-                     hasLocalMutations:hasMutations];
+                                 state:documentState];
 }
 
 FSTDeletedDocument *FSTTestDeletedDoc(const absl::string_view path,
+                                      FSTTestSnapshotVersion version,
+                                      BOOL hasCommittedMutations) {
+  DocumentKey key = testutil::Key(path);
+  return [FSTDeletedDocument documentWithKey:key
+                                     version:testutil::Version(version)
+                       hasCommittedMutations:hasCommittedMutations];
+}
+
+FSTUnknownDocument *FSTTestUnknownDoc(const absl::string_view path,
                                       FSTTestSnapshotVersion version) {
   DocumentKey key = testutil::Key(path);
-  return [FSTDeletedDocument documentWithKey:key version:testutil::Version(version)];
+  return [FSTUnknownDocument documentWithKey:key version:testutil::Version(version)];
 }
 
 FSTDocumentKeyReference *FSTTestRef(std::string projectID, std::string database, NSString *path) {
@@ -262,7 +271,7 @@ FSTPatchMutation *FSTTestPatchMutation(const absl::string_view path,
 }
 
 FSTTransformMutation *FSTTestTransformMutation(NSString *path, NSDictionary<NSString *, id> *data) {
-  FSTDocumentKey *key = [FSTDocumentKey keyWithPath:testutil::Resource(util::MakeString(path))];
+  DocumentKey key{testutil::Resource(util::MakeString(path))};
   FSTUserDataConverter *converter = FSTTestUserDataConverter();
   ParsedUpdateData result = [converter parsedUpdateData:data];
   HARD_ASSERT(result.data().value.count == 0,
@@ -275,10 +284,10 @@ FSTDeleteMutation *FSTTestDeleteMutation(NSString *path) {
       [[FSTDeleteMutation alloc] initWithKey:FSTTestDocKey(path) precondition:Precondition::None()];
 }
 
-FSTMaybeDocumentDictionary *FSTTestDocUpdates(NSArray<FSTMaybeDocument *> *docs) {
-  FSTMaybeDocumentDictionary *updates = [FSTMaybeDocumentDictionary maybeDocumentDictionary];
+MaybeDocumentMap FSTTestDocUpdates(NSArray<FSTMaybeDocument *> *docs) {
+  MaybeDocumentMap updates;
   for (FSTMaybeDocument *doc in docs) {
-    updates = [updates dictionaryBySettingObject:doc forKey:doc.key];
+    updates = updates.insert(doc.key, doc);
   }
   return updates;
 }

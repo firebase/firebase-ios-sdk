@@ -80,7 +80,7 @@
     __strong id swizzledObject = object;
     if (swizzledObject) {
       _swizzledObject = swizzledObject;
-      _originalClass = [swizzledObject class];
+      _originalClass = object_getClass(object);
       NSString *newClassName = [NSString
           stringWithFormat:@"fir_%p_%@", swizzledObject, NSStringFromClass(_originalClass)];
       _generatedClass = objc_allocateClassPair(_originalClass, newClassName.UTF8String, 0);
@@ -134,7 +134,7 @@
 
     [GULSwizzledObject copyDonorSelectorsUsingObjectSwizzler:self];
 
-    NSAssert(_originalClass == [_swizzledObject class],
+    NSAssert(_originalClass == object_getClass(swizzledObject),
              @"The original class is not the reported class now.");
     NSAssert(class_getInstanceSize(_originalClass) == class_getInstanceSize(_generatedClass),
              @"The instance size of the generated class must be equal to the original class.");
@@ -152,6 +152,10 @@
 
 - (void)dealloc {
   objc_disposeClassPair(_generatedClass);
+}
+
+- (BOOL)isSwizzlingProxyObject {
+  return [_swizzledObject isProxy];
 }
 
 @end

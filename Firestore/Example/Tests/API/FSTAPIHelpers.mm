@@ -20,6 +20,8 @@
 #import <FirebaseFirestore/FIRDocumentReference.h>
 #import <FirebaseFirestore/FIRSnapshotMetadata.h>
 
+#include <string>
+
 #import "Firestore/Source/API/FIRCollectionReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
@@ -29,7 +31,6 @@
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTViewSnapshot.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
@@ -51,7 +52,7 @@ FIRFirestore *FSTTestFirestore() {
                                                     database:"abc"
                                               persistenceKey:@"db123"
                                          credentialsProvider:nil
-                                         workerDispatchQueue:nil
+                                                 workerQueue:nil
                                                  firebaseApp:nil];
   });
 #pragma clang diagnostic pop
@@ -63,11 +64,15 @@ FIRDocumentSnapshot *FSTTestDocSnapshot(const absl::string_view path,
                                         NSDictionary<NSString *, id> *_Nullable data,
                                         BOOL hasMutations,
                                         BOOL fromCache) {
-  FSTDocument *doc = data ? FSTTestDoc(path, version, data, hasMutations) : nil;
+  FSTDocument *doc =
+      data ? FSTTestDoc(path, version, data,
+                        hasMutations ? FSTDocumentStateLocalMutations : FSTDocumentStateSynced)
+           : nil;
   return [FIRDocumentSnapshot snapshotWithFirestore:FSTTestFirestore()
                                         documentKey:testutil::Key(path)
                                            document:doc
-                                          fromCache:fromCache];
+                                          fromCache:fromCache
+                                   hasPendingWrites:hasMutations];
 }
 
 FIRCollectionReference *FSTTestCollectionRef(const absl::string_view path) {
@@ -90,29 +95,42 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
   FIRSnapshotMetadata *metadata =
       [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:hasPendingWrites fromCache:fromCache];
   FSTDocumentSet *oldDocuments = FSTTestDocSet(FSTDocumentComparatorByKey, @[]);
+  DocumentKeySet mutatedKeys;
   for (NSString *key in oldDocs) {
-    oldDocuments =
-        [oldDocuments documentSetByAddingDocument:FSTTestDoc(util::StringFormat("%s/%s", path, key),
-                                                             1, oldDocs[key], hasPendingWrites)];
+    oldDocuments = [oldDocuments
+        documentSetByAddingDocument:FSTTestDoc(util::StringFormat("%s/%s", path, key), 1,
+                                               oldDocs[key],
+                                               hasPendingWrites ? FSTDocumentStateLocalMutations
+                                                                : FSTDocumentStateSynced)];
+    if (hasPendingWrites) {
+      const std::string documentKey = util::StringFormat("%s/%s", path, key);
+      mutatedKeys = mutatedKeys.insert(testutil::Key(documentKey));
+    }
   }
   FSTDocumentSet *newDocuments = oldDocuments;
   NSArray<FSTDocumentViewChange *> *documentChanges = [NSArray array];
   for (NSString *key in docsToAdd) {
     FSTDocument *docToAdd =
-        FSTTestDoc(util::StringFormat("%s/%s", path, key), 1, docsToAdd[key], hasPendingWrites);
+        FSTTestDoc(util::StringFormat("%s/%s", path, key), 1, docsToAdd[key],
+                   hasPendingWrites ? FSTDocumentStateLocalMutations : FSTDocumentStateSynced);
     newDocuments = [newDocuments documentSetByAddingDocument:docToAdd];
     documentChanges = [documentChanges
         arrayByAddingObject:[FSTDocumentViewChange
                                 changeWithDocument:docToAdd
                                               type:FSTDocumentViewChangeTypeAdded]];
+    if (hasPendingWrites) {
+      const std::string documentKey = util::StringFormat("%s/%s", path, key);
+      mutatedKeys = mutatedKeys.insert(testutil::Key(documentKey));
+    }
   }
   FSTViewSnapshot *viewSnapshot = [[FSTViewSnapshot alloc] initWithQuery:FSTTestQuery(path)
                                                                documents:newDocuments
                                                             oldDocuments:oldDocuments
                                                          documentChanges:documentChanges
                                                                fromCache:fromCache
-                                                        hasPendingWrites:hasPendingWrites
-                                                        syncStateChanged:YES];
+                                                             mutatedKeys:mutatedKeys
+                                                        syncStateChanged:YES
+                                                 excludesMetadataChanges:NO];
   return [FIRQuerySnapshot snapshotWithFirestore:FSTTestFirestore()
                                    originalQuery:FSTTestQuery(path)
                                         snapshot:viewSnapshot

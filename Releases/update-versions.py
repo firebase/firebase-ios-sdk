@@ -158,11 +158,15 @@ def UpdatePodfiles(git_root, version):
   """
   firebase_podfile = os.path.join(git_root, 'Example', 'Podfile')
   firestore_podfile = os.path.join(git_root, 'Firestore', 'Example', 'Podfile')
+  collision_podfile = os.path.join(git_root, 'SymbolCollisionTest', 'Podfile')
 
   sed_command = ("sed -i.bak -e \"s#\\(pod "
                  "'Firebase/CoreOnly',[[:space:]]*'\\).*'#\\1{}'#\" {}")
   os.system(sed_command.format(version, firebase_podfile))
   os.system(sed_command.format(version, firestore_podfile))
+  sed_command = ("sed -i.bak -e \"s#\\(pod "
+                 "'Firebase',[[:space:]]*'\\).*'#\\1{}'#\" {}")
+  os.system(sed_command.format(version, collision_podfile))
 
 
 def UpdateTags(version_data, firebase_version, first=False):
@@ -188,11 +192,11 @@ def UpdateTags(version_data, firebase_version, first=False):
 
 
 def GetCpdcInternal():
-  """Find the cpdc-internal repo.
+  """Find the firebase repo.
 
 """
   tmp_file = tempfile.mktemp()
-  os.system('pod repo list | grep -B2 sso://cpdc-internal | head -1 > {}'
+  os.system('pod repo list | grep -B2 sso://cpdc-internal/firebase | head -1 > {}'
             .format(tmp_file))
   with open(tmp_file,'r') as o:
     output_var = ''.join(o.readlines()).strip()
@@ -201,7 +205,7 @@ def GetCpdcInternal():
 
 
 def PushPodspecs(version_data):
-  """Push podspecs to cpdc-internal.
+  """Push podspecs to cpdc-firebase.
 
   Args:
     version_data: dictionary of versions to be updated.

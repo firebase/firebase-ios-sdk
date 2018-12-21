@@ -18,10 +18,19 @@
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_CONNECTION_H_
 
 #include <memory>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
+#include "Firestore/core/src/firebase/firestore/auth/token.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
+#include "Firestore/core/src/firebase/firestore/remote/connectivity_monitor.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_call.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream_observer.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_streaming_reader.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_unary_call.h"
+#include "Firestore/core/src/firebase/firestore/util/path.h"
 #include "absl/strings/string_view.h"
 #include "grpcpp/channel.h"
 #include "grpcpp/client_context.h"
@@ -44,7 +53,10 @@ class GrpcConnection {
  public:
   GrpcConnection(const core::DatabaseInfo& database_info,
                  util::AsyncQueue* worker_queue,
-                 grpc::CompletionQueue* grpc_queue);
+                 grpc::CompletionQueue* grpc_queue,
+                 ConnectivityMonitor* connectivity_monitor);
+
+  void Shutdown();
 
   /**
    * Creates a stream to the given stream RPC endpoint. The resulting stream
@@ -53,13 +65,43 @@ class GrpcConnection {
   // PORTING NOTE: unlike Web client, the created stream is not open and has to
   // be started manually.
   std::unique_ptr<GrpcStream> CreateStream(absl::string_view rpc_name,
-                                           absl::string_view token,
+                                           const auth::Token& token,
                                            GrpcStreamObserver* observer);
+
+  std::unique_ptr<GrpcUnaryCall> CreateUnaryCall(
+      absl::string_view rpc_name,
+      const auth::Token& token,
+      const grpc::ByteBuffer& message);
+
+  std::unique_ptr<GrpcStreamingReader> CreateStreamingReader(
+      absl::string_view rpc_name,
+      const auth::Token& token,
+      const grpc::ByteBuffer& message);
+
+  void Register(GrpcCall* call);
+  void Unregister(GrpcCall* call);
+
+  /**
+   * Don't use SSL, send all traffic unencrypted. Call before creating any
+   * streams or calls.
+   */
+  static void UseInsecureChannel(const std::string& host);
+
+  /**
+   * For tests only: use a custom root certificate file and the given SSL
+   * target name for all connections. Call before creating any streams or calls.
+   */
+  static void UseTestCertificate(const std::string& host,
+                                 const util::Path& certificate_path,
+                                 const std::string& target_name);
 
  private:
   std::unique_ptr<grpc::ClientContext> CreateContext(
-      absl::string_view token) const;
+      const auth::Token& credential) const;
+  std::shared_ptr<grpc::Channel> CreateChannel() const;
   void EnsureActiveStub();
+
+  void RegisterConnectivityMonitor();
 
   const core::DatabaseInfo* database_info_ = nullptr;
   util::AsyncQueue* worker_queue_ = nullptr;
@@ -67,6 +109,9 @@ class GrpcConnection {
 
   std::shared_ptr<grpc::Channel> grpc_channel_;
   std::unique_ptr<grpc::GenericStub> grpc_stub_;
+
+  ConnectivityMonitor* connectivity_monitor_ = nullptr;
+  std::vector<GrpcCall*> active_calls_;
 };
 
 }  // namespace remote

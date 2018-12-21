@@ -78,9 +78,6 @@ def main():
   parser.add_argument(
       '--include', '-I', action='append', default=[],
       help='Adds INCLUDE to the proto path.')
-  parser.add_argument(
-      '--protoc_gen_grpc',
-      help='Location of the gRPC generator executable.')
 
   args = parser.parse_args()
   if args.nanopb is None and args.cpp is None and args.objc is None:
@@ -121,8 +118,14 @@ class NanopbGenerator(object):
 
     self.__run_generator(nanopb_out)
 
-    sources = collect_files(nanopb_out, '.nanopb.h', '.nanopb.c')
-    post_process_files(sources, add_copyright, nanopb_rename_delete)
+    sources = collect_files(nanopb_out, '.nanopb.h', '.nanopb.cc')
+    post_process_files(
+        sources,
+        add_copyright,
+        nanopb_add_namespaces,
+        nanopb_remove_extern_c,
+        nanopb_rename_delete
+    )
 
   def __run_generator(self, out_dir):
     """Invokes protoc using the nanopb plugin."""
@@ -133,6 +136,7 @@ class NanopbGenerator(object):
 
     nanopb_flags = ' '.join([
         '--extension=.nanopb',
+        '--source-extension=.cc',
         '--no-timestamp',
     ])
     cmd.append('--nanopb_out=%s:%s' % (nanopb_flags, out_dir))
@@ -165,14 +169,10 @@ class ObjcProtobufGenerator(object):
     )
 
   def __run_generator(self, out_dir):
-    """Invokes protoc using the objc and grpc plugins."""
+    """Invokes protoc using the objc plugin."""
     cmd = protoc_command(self.args)
 
-    gen = self.args.protoc_gen_grpc
-    if gen is not None:
-      cmd.append('--plugin=protoc-gen-grpc=%s' % gen)
-
-    cmd.extend(['--objc_out=' + out_dir, '--grpc_out=' + out_dir])
+    cmd.extend(['--objc_out=' + out_dir])
     cmd.extend(self.proto_files)
     run_protoc(self.args, cmd)
 
@@ -283,6 +283,57 @@ def add_copyright(lines):
   """Adds a copyright notice to the lines."""
   result = [COPYRIGHT_NOTICE, '\n']
   result.extend(lines)
+  return result
+
+
+def nanopb_add_namespaces(lines):
+  """Adds C++ namespaces to the lines.
+
+  Args:
+    lines: The lines to fix.
+
+  Returns:
+    The lines, fixed.
+  """
+  result = []
+  for line in lines:
+    if '@@protoc_insertion_point(includes)' in line:
+      result.append('namespace firebase {\n')
+      result.append('namespace firestore {\n')
+      result.append('\n')
+
+    if '@@protoc_insertion_point(eof)' in line:
+      result.append('}  // namespace firestore\n')
+      result.append('}  // namespace firebase\n')
+      result.append('\n')
+
+    result.append(line)
+
+  return result
+
+
+def nanopb_remove_extern_c(lines):
+  """Removes extern "C" directives from nanopb code.
+
+  Args:
+    lines: A nanobp-generated source file, split into lines.
+  Returns:
+    A list of strings, similar to the input but modified to remove extern "C".
+  """
+  result = []
+  state = 'initial'
+  for line in lines:
+    if state == 'initial':
+      if '#ifdef __cplusplus' in line:
+        state = 'in-ifdef'
+        continue
+
+      result.append(line)
+
+    elif state == 'in-ifdef':
+      if '#endif' in line:
+        state = 'initial'
+
   return result
 
 

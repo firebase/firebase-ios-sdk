@@ -16,6 +16,7 @@
 #import <Foundation/Foundation.h>
 
 @class FIRApp;
+@protocol FIRAuthInterop;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -35,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (id)init NS_UNAVAILABLE;
 
-- (instancetype)initWithApp:(FIRApp *)app NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithAuth:(id<FIRAuthInterop>)auth NS_DESIGNATED_INITIALIZER;
 
 - (void)getContext:(void (^)(FUNContext *_Nullable context, NSError *_Nullable error))completion;
 

@@ -39,9 +39,9 @@ namespace local {
  * @brief Serializer for values stored in the LocalStore.
  *
  * Note that local::LocalSerializer currently delegates to the
- * remote::Serializer (for the Firestore v1beta1 RPC protocol) to save
- * implementation time and code duplication. We'll need to revisit this when the
- * RPC protocol we use diverges from local storage.
+ * remote::Serializer (for the Firestore v1 RPC protocol) to save implementation
+ * time and code duplication. We'll need to revisit this when the RPC protocol
+ * we use diverges from local storage.
  */
 class LocalSerializer {
  public:
@@ -104,7 +104,7 @@ class LocalSerializer {
 
  private:
   /**
-   * Encodes a Document for local storage. This differs from the v1beta1 RPC
+   * Encodes a Document for local storage. This differs from the v1 RPC
    * serializer for Documents in that it preserves the updateTime, which is
    * considered an output only value by the server.
    */

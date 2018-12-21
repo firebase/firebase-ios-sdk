@@ -102,6 +102,7 @@ typedef GPB_ENUM(FSTPBWriteBatch_FieldNumber) {
   FSTPBWriteBatch_FieldNumber_BatchId = 1,
   FSTPBWriteBatch_FieldNumber_WritesArray = 2,
   FSTPBWriteBatch_FieldNumber_LocalWriteTime = 3,
+  FSTPBWriteBatch_FieldNumber_BaseWritesArray = 4,
 };
 
 /**
@@ -126,6 +127,22 @@ typedef GPB_ENUM(FSTPBWriteBatch_FieldNumber) {
 @property(nonatomic, readwrite, strong, null_resettable) GPBTimestamp *localWriteTime;
 /** Test to see if @c localWriteTime has been set. */
 @property(nonatomic, readwrite) BOOL hasLocalWriteTime;
+
+/**
+ * A list of pseudo-writes that represent a partial base state from when this
+ * write batch was initially created. When computing the local view batch,
+ * these base_writes are applied prior to the real writes in order to
+ * override certain document fields from the remote document cache. This is
+ * necessary in the case of non-idempotent writes (e.g. numericAdd
+ * transforms) to make sure that the local view of the modified documents
+ * doesn't flicker if the remote document cache receives the result of the
+ * non-idempotent write before the write is removed from the queue.
+ *
+ * These writes are never sent to the backend.
+ **/
+@property(nonatomic, readwrite, strong, null_resettable) NSMutableArray<GCFSWrite*> *baseWritesArray;
+/** The number of items in @c baseWritesArray without causing the array to be created. */
+@property(nonatomic, readonly) NSUInteger baseWritesArray_Count;
 
 @end
 

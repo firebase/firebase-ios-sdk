@@ -17,6 +17,7 @@
 #import "MainViewController.h"
 
 #import <objc/runtime.h>
+#import <GameKit/GameKit.h>
 
 #import <FirebaseCore/FIRApp.h>
 #import <FirebaseCore/FIRAppInternal.h>
@@ -25,6 +26,7 @@
 #import "AppManager.h"
 #import "AuthCredentials.h"
 #import "FIRAdditionalUserInfo.h"
+#import "FIRGameCenterAuthProvider.h"
 #import "FIROAuthProvider.h"
 #import "FIRPhoneAuthCredential.h"
 #import "FIRPhoneAuthProvider.h"
@@ -38,6 +40,16 @@
 #import "UIViewController+Alerts.h"
 #import "UserInfoViewController.h"
 #import "UserTableViewCell.h"
+
+#import "FIRAuth_Internal.h"
+#import "FIRAuthAPNSToken.h"
+#import "FIRAuthAPNSTokenManager.h"
+#import "FIRAuthAppCredential.h"
+#import "FIRAuthAppCredentialManager.h"
+#import "FIRAuthBackend.h"
+#import "FIRVerifyClientRequest.h"
+#import "FIRVerifyClientResponse.h"
+#import "FIRSendVerificationCodeRequest.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -578,7 +590,42 @@ static NSString *const kPhoneAuthSectionTitle = @"Phone Auth";
  */
 static NSString *const kPhoneNumberSignInReCaptchaTitle = @"Sign in With Phone Number";
 
-/** @var kIsNewUserToggleTitle
+/** @var kVerifyIOSClientTitle
+    @brief The title for button to verify iOS client.
+ */
+static NSString *const kVerifyIOSClientTitle = @"Verify iOS client";
+
+/** @var kGameCenterAuthSectionTitle
+    @brief The title for the section of Game Center
+ */
+static NSString *const kGameCenterAuthSectionTitle = @"Game Center";
+
+/** @var kLogInWithSystemGameCenterTitle
+    @brief The title for the button to log into the Game Center account
+ */
+static NSString *const kLogInWithSystemGameCenterTitle = @"Log In System Game Center";
+
+/** @var kSignInWithGameCenterTitle
+    @brief The title for the button to sign in with Game Center
+ */
+static NSString *const kSignInWithGameCenterTitle = @"Sign in Game Center";
+
+/** @var kLinkWithGameCenterTitle
+    @brief The title for the button to link with Game Center
+ */
+static NSString *const kLinkWithGameCenterTitle = @"Link Game Center";
+
+/** @var kUnlinkWithGameCenterTitle
+    @brief The title for the button to unlink with Game Center
+ */
+static NSString *const kUnlinkWithGameCenterTitle = @"Unlink Game Center";
+
+/** @var kReauthenticateWithGameCenterTitle
+    @brief The title for the button to reauthenticate with Game Center
+ */
+static NSString *const kReauthenticateWithGameCenterTitle = @"Reauthenticate Game Center";
+
+/** @var kNewOrExistingUserToggleTitle
     @brief The title for button to enable new or existing user toggle.
  */
 static NSString *const kNewOrExistingUserToggleTitle = @"New or Existing User Toggle";
@@ -692,6 +739,8 @@ typedef enum {
 }
 
 - (void)viewDidLoad {
+  [super viewDidLoad];
+
   // Give us a circle for the image view:
   _userInfoTableViewCell.userInfoProfileURLImageView.layer.cornerRadius =
       _userInfoTableViewCell.userInfoProfileURLImageView.frame.size.width / 2.0f;
@@ -730,6 +779,20 @@ typedef enum {
                                              _isNewUserToggleOn = !_isNewUserToggleOn;
                                              [self updateTable]; }],
       ]],
+      [StaticContentTableViewSection sectionWithTitle:kGameCenterAuthSectionTitle cells:@[
+        [StaticContentTableViewCell cellWithTitle:kLogInWithSystemGameCenterTitle
+                                          action:^{ [weakSelf logInWithSystemGameCenter]; }],
+        [StaticContentTableViewCell cellWithTitle:kSignInWithGameCenterTitle
+                                          action:^{ [weakSelf signInWithGameCenter]; }],
+        [StaticContentTableViewCell cellWithTitle:kLinkWithGameCenterTitle
+                                          action:^{ [weakSelf linkWithGameCenter]; }],
+        [StaticContentTableViewCell cellWithTitle:kUnlinkWithGameCenterTitle
+                                          action:^{
+                                            [weakSelf unlinkFromProvider:FIRGameCenterAuthProviderID completion:nil];
+                                          }],
+        [StaticContentTableViewCell cellWithTitle:kReauthenticateWithGameCenterTitle
+                                          action:^{ [weakSelf reauthenticateWithGameCenter]; }],
+        ]],
       [StaticContentTableViewSection sectionWithTitle:kPhoneAuthSectionTitle cells:@[
         [StaticContentTableViewCell cellWithTitle:kPhoneNumberSignInReCaptchaTitle
                                            action:^{ [weakSelf signInWithPhoneNumberWithPrompt]; }],
@@ -741,6 +804,8 @@ typedef enum {
                                            action:^{
           [weakSelf unlinkFromProvider:FIRPhoneAuthProviderID completion:nil];
         }],
+        [StaticContentTableViewCell cellWithTitle:kVerifyIOSClientTitle
+                                           action:^{ [weakSelf verifyIOSClient]; }],
       ]],
       [StaticContentTableViewSection sectionWithTitle:kSectionTitleSignIn cells:@[
         [StaticContentTableViewCell cellWithTitle:kSwitchToInMemoryUserTitle
@@ -861,11 +926,11 @@ typedef enum {
         }],
         [StaticContentTableViewCell cellWithTitle:kUnlinkFromFacebook
                                            action:^{
-          [weakSelf unlinkFromProvider:FIRGoogleAuthProviderID completion:nil];
+          [weakSelf unlinkFromProvider:FIRFacebookAuthProviderID completion:nil];
         }],
         [StaticContentTableViewCell cellWithTitle:kUnlinkFromEmailPassword
                                            action:^{
-          [weakSelf unlinkFromProvider:FIRGoogleAuthProviderID completion:nil];
+          [weakSelf unlinkFromProvider:FIREmailAuthProviderID completion:nil];
         }]
       ]],
       [StaticContentTableViewSection sectionWithTitle:kSectionTitleApp cells:@[
@@ -1605,17 +1670,19 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
     @param string The string to add to the console.
  */
 - (void)log:(NSString *)string {
-  NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-  dateFormatter.dateFormat = @"yyyy-MM-dd HH:mm:ss";
-  NSString *date = [dateFormatter stringFromDate:[NSDate date]];
-  if (!_consoleString) {
-    _consoleString = [NSMutableString string];
-  }
-  [_consoleString appendString:[NSString stringWithFormat:@"%@  %@\n", date, string]];
-  _consoleTextView.text = _consoleString;
+  dispatch_async(dispatch_get_main_queue(), ^{
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    dateFormatter.dateFormat = @"yyyy-MM-dd HH:mm:ss";
+    NSString *date = [dateFormatter stringFromDate:[NSDate date]];
+    if (!_consoleString) {
+      _consoleString = [NSMutableString string];
+    }
+    [_consoleString appendString:[NSString stringWithFormat:@"%@  %@\n", date, string]];
+    _consoleTextView.text = _consoleString;
 
-  CGRect targetRect = CGRectMake(0, _consoleTextView.contentSize.height - 1, 1, 1);
-  [_consoleTextView scrollRectToVisible:targetRect animated:YES];
+    CGRect targetRect = CGRectMake(0, _consoleTextView.contentSize.height - 1, 1, 1);
+    [_consoleTextView scrollRectToVisible:targetRect animated:YES];
+  });
 }
 
 /** @fn logSuccess:
@@ -1658,7 +1725,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
   SettingsViewController *settingsViewController = [[SettingsViewController alloc]
       initWithNibName:NSStringFromClass([SettingsViewController class])
                bundle:nil];
-  [self presentViewController:settingsViewController animated:YES completion:nil];
+  [self showViewController:settingsViewController sender:self];
 }
 
 /** @fn presentUserInfo
@@ -1667,7 +1734,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
 - (void)presentUserInfo {
   UserInfoViewController *userInfoViewController =
       [[UserInfoViewController alloc] initWithUser:[AppManager auth].currentUser];
-  [self presentViewController:userInfoViewController animated:YES completion:nil];
+  [self showViewController:userInfoViewController sender:self];
 }
 
 /** @fn presentUserInMemoryInfo
@@ -1676,7 +1743,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
 - (void)presentUserInMemoryInfo {
   UserInfoViewController *userInfoViewController =
       [[UserInfoViewController alloc] initWithUser:_userInMemory];
-  [self presentViewController:userInfoViewController animated:YES completion:nil];
+  [self showViewController:userInfoViewController sender:self];
 }
 
 /** @fn signInGoogle
@@ -1707,6 +1774,83 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
   [self signinWithProvider:[AuthProviders facebook] retrieveData:YES];
 }
 
+- (void)logInWithSystemGameCenter {
+  GKLocalPlayer *localPlayer = [GKLocalPlayer localPlayer];
+  localPlayer.authenticateHandler = ^(UIViewController * _Nullable viewController,
+                                      NSError * _Nullable error) {
+    if (error) {
+      [self showTypicalUIForUserUpdateResultsWithTitle:@"Game Center Error" error:error];
+    } else if (viewController != nil) {
+      [self presentViewController:viewController animated:YES completion:nil];
+    }
+  };
+}
+
+- (void)signInWithGameCenter {
+  [FIRGameCenterAuthProvider getCredentialWithCompletion:
+   ^(FIRAuthCredential * _Nullable credential, NSError * _Nullable error) {
+     if (error) {
+       [self showTypicalUIForUserUpdateResultsWithTitle:@"Game Center Error" error:error];
+     } else {
+       [[AppManager auth] signInAndRetrieveDataWithCredential:credential
+                                                   completion:^(FIRAuthDataResult * _Nullable result,
+                                                                NSError * _Nullable error) {
+         [self hideSpinner:^{
+           if (error) {
+             [self logFailure:@"Sign in with Game Center failed" error:error];
+           } else {
+             [self logSuccess:@"Sign in with Game Center succeeded."];
+           }
+           [self showTypicalUIForUserUpdateResultsWithTitle:@"Sign In Error" error:error];
+         }];
+       }];
+     }
+   }];
+}
+
+- (void)linkWithGameCenter {
+  [FIRGameCenterAuthProvider getCredentialWithCompletion:
+   ^(FIRAuthCredential * _Nullable credential, NSError * _Nullable error) {
+     if (error) {
+       [self showTypicalUIForUserUpdateResultsWithTitle:@"Game Center Error" error:error];
+     } else {
+       [[self user] linkAndRetrieveDataWithCredential:credential
+                                           completion:^(FIRAuthDataResult * _Nullable result,
+                                                        NSError * _Nullable error) {
+                                             [self hideSpinner:^{
+                                               if (error) {
+                                                 [self logFailure:@"Link with Game Center failed" error:error];
+                                               } else {
+                                                 [self logSuccess:@"Link with Game Center succeeded."];
+                                               }
+                                               [self showTypicalUIForUserUpdateResultsWithTitle:@"Link Error" error:error];
+                                             }];
+                                           }];
+     }
+   }];
+}
+
+- (void)reauthenticateWithGameCenter {
+  [FIRGameCenterAuthProvider getCredentialWithCompletion:
+   ^(FIRAuthCredential * _Nullable credential, NSError * _Nullable error) {
+     if (error) {
+       [self showTypicalUIForUserUpdateResultsWithTitle:@"Game Center Error" error:error];
+     } else {
+       [[self user] reauthenticateAndRetrieveDataWithCredential:credential
+                                                     completion:^(FIRAuthDataResult * _Nullable result,
+                                                                  NSError * _Nullable error) {
+                                                       [self hideSpinner:^{
+                                                         if (error) {
+                                                           [self logFailure:@"Reauthenticate with Game Center failed" error:error];
+                                                         } else {
+                                                           [self logSuccess:@"Reauthenticate with Game Center succeeded."];
+                                                         }
+                                                         [self showTypicalUIForUserUpdateResultsWithTitle:@"Reauthenticate Error" error:error];
+                                                       }];
+                                                     }];
+     }
+   }];
+}
 /** @fn signInEmailPassword
     @brief Invoked when "Sign in with Email/Password" row is pressed.
  */
@@ -2881,6 +3025,59 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
           }
         }];
       }];
+    }];
+  }];
+}
+
+/** @fn verifyIOSClient
+    @brief Trigger verify iOS client by sending a verification code to the test number.
+ */
+- (void)verifyIOSClient {
+  [[AppManager auth].tokenManager getTokenWithCallback:^(FIRAuthAPNSToken *_Nullable token,
+                                                         NSError *_Nullable error) {
+    if (!token) {
+      [self logFailure:@"Verify iOS client failed." error:error];
+      return;
+    }
+    FIRVerifyClientRequest *request =
+        [[FIRVerifyClientRequest alloc] initWithAppToken:token.string
+                                               isSandbox:token.type == FIRAuthAPNSTokenTypeSandbox
+                                    requestConfiguration:[AppManager auth].requestConfiguration];
+    [FIRAuthBackend verifyClient:request callback:^(FIRVerifyClientResponse *_Nullable response,
+                                                    NSError *_Nullable error) {
+      if (error) {
+        [self logFailure:@"Verify iOS client failed." error:error];
+        return;
+      }
+      NSTimeInterval timeout = [response.suggestedTimeOutDate timeIntervalSinceNow];
+      [[AppManager auth].appCredentialManager
+       didStartVerificationWithReceipt:response.receipt
+       timeout:timeout
+       callback:^(FIRAuthAppCredential *credential) {
+         if (!credential.secret) {
+           [self logFailure:@"Failed to receive remote notification to verify app identity."
+                      error:error];
+           return;
+         }
+         NSString *testPhoneNumber = @"+16509964692";
+         FIRSendVerificationCodeRequest *request =
+             [[FIRSendVerificationCodeRequest alloc] initWithPhoneNumber:testPhoneNumber
+                                                           appCredential:credential
+                                                          reCAPTCHAToken:nil
+                                                    requestConfiguration:
+                                                      [AppManager auth].requestConfiguration];
+         [FIRAuthBackend sendVerificationCode:request
+                                     callback:^(FIRSendVerificationCodeResponse *_Nullable response,
+                                                NSError *_Nullable error) {
+           if (error) {
+             [self logFailure:@"Verify iOS client failed." error:error];
+             return;
+           } else {
+             [self logSuccess:@"Verify iOS client succeeded."];
+             [self showMessagePrompt:@"Verify iOS client succeed."];
+           }
+         }];
+       }];
     }];
   }];
 }

@@ -22,16 +22,15 @@
 #import "Firestore/Protos/objc/firestore/local/MaybeDocument.pbobjc.h"
 #import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Common.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Document.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Firestore.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Query.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Write.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Common.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Document.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Firestore.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Query.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Write.pbobjc.h"
 #import "Firestore/Protos/objc/google/type/Latlng.pbobjc.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
@@ -130,7 +129,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesDocumentAsMaybeDocument {
-  FSTDocument *doc = FSTTestDoc("some/path", 42, @{@"foo" : @"bar"}, NO);
+  FSTDocument *doc = FSTTestDoc("some/path", 42, @{@"foo" : @"bar"}, FSTDocumentStateSynced);
 
   FSTPBMaybeDocument *maybeDocProto = [FSTPBMaybeDocument message];
   maybeDocProto.document = [GCFSDocument message];
@@ -146,8 +145,23 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqualObjects(decoded, doc);
 }
 
+- (void)testEncodesUnknownDocumentAsMaybeDocument {
+  FSTUnknownDocument *doc = FSTTestUnknownDoc("some/path", 42);
+
+  FSTPBMaybeDocument *maybeDocProto = [FSTPBMaybeDocument message];
+  maybeDocProto.unknownDocument = [FSTPBUnknownDocument message];
+  maybeDocProto.unknownDocument.name = @"projects/p/databases/d/documents/some/path";
+  maybeDocProto.unknownDocument.version.seconds = 0;
+  maybeDocProto.unknownDocument.version.nanos = 42000;
+  maybeDocProto.hasCommittedMutations = true;
+
+  XCTAssertEqualObjects([self.serializer encodedMaybeDocument:doc], maybeDocProto);
+  FSTMaybeDocument *decoded = [self.serializer decodedMaybeDocument:maybeDocProto];
+  XCTAssertEqualObjects(decoded, doc);
+}
+
 - (void)testEncodesDeletedDocumentAsMaybeDocument {
-  FSTDeletedDocument *deletedDoc = FSTTestDeletedDoc("some/path", 42);
+  FSTDeletedDocument *deletedDoc = FSTTestDeletedDoc("some/path", 42, false);
 
   FSTPBMaybeDocument *maybeDocProto = [FSTPBMaybeDocument message];
   maybeDocProto.noDocument = [FSTPBNoDocument message];

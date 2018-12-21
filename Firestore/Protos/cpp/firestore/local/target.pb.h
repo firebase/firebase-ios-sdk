@@ -45,7 +45,7 @@
 #include <google/protobuf/repeated_field.h>  // IWYU pragma: export
 #include <google/protobuf/extension_set.h>  // IWYU pragma: export
 #include <google/protobuf/unknown_field_set.h>
-#include "google/firestore/v1beta1/firestore.pb.h"
+#include "google/firestore/v1/firestore.pb.h"
 #include <google/protobuf/timestamp.pb.h>
 // @@protoc_insertion_point(includes)
 
@@ -207,23 +207,23 @@ class Target : public ::google::protobuf::Message /* @@protoc_insertion_point(cl
   ::google::protobuf::int32 target_id() const;
   void set_target_id(::google::protobuf::int32 value);
 
-  // .google.firestore.v1beta1.Target.QueryTarget query = 5;
+  // .google.firestore.v1.Target.QueryTarget query = 5;
   bool has_query() const;
   void clear_query();
   static const int kQueryFieldNumber = 5;
-  const ::google::firestore::v1beta1::Target_QueryTarget& query() const;
-  ::google::firestore::v1beta1::Target_QueryTarget* release_query();
-  ::google::firestore::v1beta1::Target_QueryTarget* mutable_query();
-  void set_allocated_query(::google::firestore::v1beta1::Target_QueryTarget* query);
+  const ::google::firestore::v1::Target_QueryTarget& query() const;
+  ::google::firestore::v1::Target_QueryTarget* release_query();
+  ::google::firestore::v1::Target_QueryTarget* mutable_query();
+  void set_allocated_query(::google::firestore::v1::Target_QueryTarget* query);
 
-  // .google.firestore.v1beta1.Target.DocumentsTarget documents = 6;
+  // .google.firestore.v1.Target.DocumentsTarget documents = 6;
   bool has_documents() const;
   void clear_documents();
   static const int kDocumentsFieldNumber = 6;
-  const ::google::firestore::v1beta1::Target_DocumentsTarget& documents() const;
-  ::google::firestore::v1beta1::Target_DocumentsTarget* release_documents();
-  ::google::firestore::v1beta1::Target_DocumentsTarget* mutable_documents();
-  void set_allocated_documents(::google::firestore::v1beta1::Target_DocumentsTarget* documents);
+  const ::google::firestore::v1::Target_DocumentsTarget& documents() const;
+  ::google::firestore::v1::Target_DocumentsTarget* release_documents();
+  ::google::firestore::v1::Target_DocumentsTarget* mutable_documents();
+  void set_allocated_documents(::google::firestore::v1::Target_DocumentsTarget* documents);
 
   TargetTypeCase target_type_case() const;
   // @@protoc_insertion_point(class_scope:firestore.client.Target)
@@ -242,8 +242,8 @@ class Target : public ::google::protobuf::Message /* @@protoc_insertion_point(cl
   ::google::protobuf::int32 target_id_;
   union TargetTypeUnion {
     TargetTypeUnion() {}
-    ::google::firestore::v1beta1::Target_QueryTarget* query_;
-    ::google::firestore::v1beta1::Target_DocumentsTarget* documents_;
+    ::google::firestore::v1::Target_QueryTarget* query_;
+    ::google::firestore::v1::Target_DocumentsTarget* documents_;
   } target_type_;
   mutable int _cached_size_;
   ::google::protobuf::uint32 _oneof_case_[1];
@@ -511,69 +511,69 @@ inline void Target::set_last_listen_sequence_number(::google::protobuf::int64 va
   // @@protoc_insertion_point(field_set:firestore.client.Target.last_listen_sequence_number)
 }
 
-// .google.firestore.v1beta1.Target.QueryTarget query = 5;
+// .google.firestore.v1.Target.QueryTarget query = 5;
 inline bool Target::has_query() const {
   return target_type_case() == kQuery;
 }
 inline void Target::set_has_query() {
   _oneof_case_[0] = kQuery;
 }
-inline ::google::firestore::v1beta1::Target_QueryTarget* Target::release_query() {
+inline ::google::firestore::v1::Target_QueryTarget* Target::release_query() {
   // @@protoc_insertion_point(field_release:firestore.client.Target.query)
   if (has_query()) {
     clear_has_target_type();
-      ::google::firestore::v1beta1::Target_QueryTarget* temp = target_type_.query_;
+      ::google::firestore::v1::Target_QueryTarget* temp = target_type_.query_;
     target_type_.query_ = NULL;
     return temp;
   } else {
     return NULL;
   }
 }
-inline const ::google::firestore::v1beta1::Target_QueryTarget& Target::query() const {
+inline const ::google::firestore::v1::Target_QueryTarget& Target::query() const {
   // @@protoc_insertion_point(field_get:firestore.client.Target.query)
   return has_query()
       ? *target_type_.query_
-      : *reinterpret_cast< ::google::firestore::v1beta1::Target_QueryTarget*>(&::google::firestore::v1beta1::_Target_QueryTarget_default_instance_);
+      : *reinterpret_cast< ::google::firestore::v1::Target_QueryTarget*>(&::google::firestore::v1::_Target_QueryTarget_default_instance_);
 }
-inline ::google::firestore::v1beta1::Target_QueryTarget* Target::mutable_query() {
+inline ::google::firestore::v1::Target_QueryTarget* Target::mutable_query() {
   if (!has_query()) {
     clear_target_type();
     set_has_query();
-    target_type_.query_ = new ::google::firestore::v1beta1::Target_QueryTarget;
+    target_type_.query_ = new ::google::firestore::v1::Target_QueryTarget;
   }
   // @@protoc_insertion_point(field_mutable:firestore.client.Target.query)
   return target_type_.query_;
 }
 
-// .google.firestore.v1beta1.Target.DocumentsTarget documents = 6;
+// .google.firestore.v1.Target.DocumentsTarget documents = 6;
 inline bool Target::has_documents() const {
   return target_type_case() == kDocuments;
 }
 inline void Target::set_has_documents() {
   _oneof_case_[0] = kDocuments;
 }
-inline ::google::firestore::v1beta1::Target_DocumentsTarget* Target::release_documents() {
+inline ::google::firestore::v1::Target_DocumentsTarget* Target::release_documents() {
   // @@protoc_insertion_point(field_release:firestore.client.Target.documents)
   if (has_documents()) {
     clear_has_target_type();
-      ::google::firestore::v1beta1::Target_DocumentsTarget* temp = target_type_.documents_;
+      ::google::firestore::v1::Target_DocumentsTarget* temp = target_type_.documents_;
     target_type_.documents_ = NULL;
     return temp;
   } else {
     return NULL;
   }
 }
-inline const ::google::firestore::v1beta1::Target_DocumentsTarget& Target::documents() const {
+inline const ::google::firestore::v1::Target_DocumentsTarget& Target::documents() const {
   // @@protoc_insertion_point(field_get:firestore.client.Target.documents)
   return has_documents()
       ? *target_type_.documents_
-      : *reinterpret_cast< ::google::firestore::v1beta1::Target_DocumentsTarget*>(&::google::firestore::v1beta1::_Target_DocumentsTarget_default_instance_);
+      : *reinterpret_cast< ::google::firestore::v1::Target_DocumentsTarget*>(&::google::firestore::v1::_Target_DocumentsTarget_default_instance_);
 }
-inline ::google::firestore::v1beta1::Target_DocumentsTarget* Target::mutable_documents() {
+inline ::google::firestore::v1::Target_DocumentsTarget* Target::mutable_documents() {
   if (!has_documents()) {
     clear_target_type();
     set_has_documents();
-    target_type_.documents_ = new ::google::firestore::v1beta1::Target_DocumentsTarget;
+    target_type_.documents_ = new ::google::firestore::v1::Target_DocumentsTarget;
   }
   // @@protoc_insertion_point(field_mutable:firestore.client.Target.documents)
   return target_type_.documents_;

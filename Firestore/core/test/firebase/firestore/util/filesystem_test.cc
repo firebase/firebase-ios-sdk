@@ -45,6 +45,18 @@ static Path TestFilename() {
   return Path::FromUtf8("firestore-testing-" + CreateAutoId());
 }
 
+static void WriteStringToFile(const Path& path, const std::string& text) {
+  std::ofstream out{path.native_value()};
+  ASSERT_TRUE(out.good());
+  out << text;
+  out.close();
+  ASSERT_TRUE(out.good());
+}
+
+static void WriteBytesToFile(const Path& path, int byte_count) {
+  WriteStringToFile(path, std::string(byte_count, 'a'));
+}
+
 #define ASSERT_NOT_FOUND(expression)                              \
   do {                                                            \
     ASSERT_EQ(FirestoreErrorCode::NotFound, (expression).code()); \
@@ -234,6 +246,38 @@ TEST(FilesystemTest, RecursivelyDeletePreservesPeers) {
   ASSERT_OK(IsDirectory(child_suffix));
 
   EXPECT_OK(RecursivelyDelete(root_dir));
+}
+
+TEST(FilesystemTest, FileSize) {
+  Path file = Path::JoinUtf8(TempDir(), TestFilename());
+  ASSERT_NOT_FOUND(FileSize(file).status());
+  Touch(file);
+  StatusOr<int64_t> result = FileSize(file);
+  ASSERT_OK(result.status());
+  ASSERT_EQ(0, result.ValueOrDie());
+
+  WriteBytesToFile(file, 100);
+  result = FileSize(file);
+  ASSERT_OK(result.status());
+  ASSERT_EQ(100, result.ValueOrDie());
+
+  EXPECT_OK(RecursivelyDelete(file));
+}
+
+TEST(FilesystemTest, ReadFile) {
+  Path file = Path::JoinUtf8(TempDir(), TestFilename());
+  StatusOr<std::string> result = ReadFile(file);
+  ASSERT_FALSE(result.ok());
+
+  Touch(file);
+  result = ReadFile(file);
+  ASSERT_OK(result.status());
+  ASSERT_TRUE(result.ValueOrDie().empty());
+
+  WriteStringToFile(file, "foobar");
+  result = ReadFile(file);
+  ASSERT_OK(result.status());
+  ASSERT_EQ(result.ValueOrDie(), "foobar");
 }
 
 }  // namespace util

@@ -22,11 +22,11 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/auth/token.h"
-#include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 #include "Firestore/core/src/firebase/firestore/remote/exponential_backoff.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_completion.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
-#include "Firestore/core/src/firebase/firestore/remote/stream_objc_bridge.h"
+#include "Firestore/core/src/firebase/firestore/remote/remote_objc_bridge.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
@@ -57,6 +57,10 @@ namespace remote {
  *
  * Streams are stateful and need to be `Start`ed before messages can
  * be sent and received. A `Stream` can be started and stopped repeatedly.
+ *
+ * All public virtual methods exist only for the sake of tests; the methods that
+ * are expected to be implemented by "normal" derived classes are pure virtual
+ * and private.
  */
 class Stream : public GrpcStreamObserver,
                public std::enable_shared_from_this<Stream> {
@@ -117,7 +121,7 @@ class Stream : public GrpcStreamObserver,
 
   Stream(util::AsyncQueue* async_queue,
          auth::CredentialsProvider* credentials_provider,
-         Datastore* datastore,
+         GrpcConnection* grpc_connection,
          util::TimerId backoff_timer_id,
          util::TimerId idle_timer_id);
 
@@ -129,7 +133,7 @@ class Stream : public GrpcStreamObserver,
    *
    * When start returns, `IsStarted` will return true.
    */
-  void Start();
+  virtual void Start();
 
   /**
    * Stops the stream. This call is idempotent and allowed regardless of the
@@ -137,7 +141,7 @@ class Stream : public GrpcStreamObserver,
    *
    * When stop returns, `IsStarted` and `IsOpen` will both return false.
    */
-  void Stop();
+  virtual void Stop();
 
   /**
    * Returns true if `Start` has been called and no error has occurred. True
@@ -146,13 +150,13 @@ class Stream : public GrpcStreamObserver,
    * actual stream). Use `IsOpen` to determine if the stream is open and ready
    * for outbound requests.
    */
-  bool IsStarted() const;
+  virtual bool IsStarted() const;
 
   /**
    * Returns true if the underlying stream is open (`OnStreamStart` has been
    * called) and the stream is ready for outbound requests.
    */
-  bool IsOpen() const;
+  virtual bool IsOpen() const;
 
   /**
    * After an error, the stream will usually back off on the next attempt to
@@ -186,7 +190,7 @@ class Stream : public GrpcStreamObserver,
   // `GrpcStreamObserver` interface -- do not use.
   void OnStreamStart() override;
   void OnStreamRead(const grpc::ByteBuffer& message) override;
-  void OnStreamError(const util::Status& status) override;
+  void OnStreamFinish(const util::Status& status) override;
 
  protected:
   // `Stream` expects all its methods to be called on the worker queue.
@@ -200,7 +204,7 @@ class Stream : public GrpcStreamObserver,
   // The interface for the derived classes.
 
   virtual std::unique_ptr<GrpcStream> CreateGrpcStream(
-      Datastore* datastore, absl::string_view token) = 0;
+      GrpcConnection* grpc_connection, const auth::Token& token) = 0;
   virtual void TearDown(GrpcStream* stream) = 0;
   virtual void NotifyStreamOpen() = 0;
   virtual util::Status NotifyStreamResponse(
@@ -225,7 +229,7 @@ class Stream : public GrpcStreamObserver,
 
   auth::CredentialsProvider* credentials_provider_ = nullptr;
   util::AsyncQueue* worker_queue_ = nullptr;
-  Datastore* datastore_ = nullptr;
+  GrpcConnection* grpc_connection_ = nullptr;
 
   util::TimerId idle_timer_id_{};
   util::DelayedOperation idleness_timer_;
