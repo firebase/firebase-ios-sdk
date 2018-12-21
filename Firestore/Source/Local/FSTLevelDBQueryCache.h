@@ -57,9 +57,6 @@ NS_ASSUME_NONNULL_BEGIN
               firebase::firestore::model::ListenSequenceNumber sequenceNumber,
               BOOL *stop))block;
 
-// Visible for testing, will go away when this class is fully ported.
-@property(readonly, nonatomic) firebase::firestore::local::LevelDbQueryCache *cache;
-
 @end
 
 NS_ASSUME_NONNULL_END

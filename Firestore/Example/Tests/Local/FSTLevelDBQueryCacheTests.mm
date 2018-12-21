@@ -55,7 +55,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FSTLevelDBQueryCacheTests
 
 - (LevelDbQueryCache *)getCache:(id<FSTPersistence>)persistence {
-  return ((FSTLevelDBQueryCache *)([persistence queryCache])).cache;
+  return static_cast<LevelDbQueryCache *>(persistence.queryCache);
 }
 
 - (void)setUp {

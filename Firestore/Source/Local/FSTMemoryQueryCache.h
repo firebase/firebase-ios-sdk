@@ -36,9 +36,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (size_t)byteSizeWithSerializer:(FSTLocalSerializer *)serializer;
 
-// Visible for testing, will go away when this class is fully ported.
-@property(readonly, nonatomic) firebase::firestore::local::MemoryQueryCache *cache;
-
 @end
 
 NS_ASSUME_NONNULL_END

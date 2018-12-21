@@ -23,8 +23,6 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 
-@protocol FSTQueryCache;
-
 @class FSTLRUGarbageCollector;
 
 extern const firebase::firestore::model::ListenSequenceNumber kFSTListenSequenceNumberInvalid;
