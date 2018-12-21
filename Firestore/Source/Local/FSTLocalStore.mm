@@ -28,7 +28,6 @@
 #import "Firestore/Source/Local/FSTLocalWriteResult.h"
 #import "Firestore/Source/Local/FSTMutationQueue.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
-#import "Firestore/Source/Local/FSTQueryCache.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Local/FSTReferenceSet.h"
 #import "Firestore/Source/Model/FSTDocument.h"

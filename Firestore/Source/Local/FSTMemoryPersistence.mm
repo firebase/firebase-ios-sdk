@@ -23,7 +23,6 @@
 
 #import "Firestore/Source/Core/FSTListenSequence.h"
 #import "Firestore/Source/Local/FSTMemoryMutationQueue.h"
-#import "Firestore/Source/Local/FSTMemoryQueryCache.h"
 #import "Firestore/Source/Local/FSTReferenceSet.h"
 #include "absl/memory/memory.h"
 

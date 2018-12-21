@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/Local/FSTLevelDBQueryCache.h"
-
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
