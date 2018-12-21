@@ -38,6 +38,7 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
+#include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
@@ -47,6 +48,7 @@
 using firebase::firestore::auth::HashUser;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::TargetIdGenerator;
+using firebase::firestore::local::ReferenceSet;
 using firebase::firestore::model::BatchId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
@@ -157,9 +159,6 @@ class LimboResolution {
 @property(nonatomic, strong, readonly)
     NSMutableDictionary<NSNumber *, FSTQueryView *> *queryViewsByTarget;
 
-/** Used to track any documents that are currently in limbo. */
-@property(nonatomic, strong, readonly) FSTReferenceSet *limboDocumentRefs;
-
 @end
 
 @implementation FSTSyncEngine {
@@ -183,6 +182,9 @@ class LimboResolution {
   std::map<TargetId, LimboResolution> _limboResolutionsByTarget;
 
   User _currentUser;
+
+  /** Used to track any documents that are currently in limbo. */
+  ReferenceSet _limboDocumentRefs;
 }
 
 - (instancetype)initWithLocalStore:(FSTLocalStore *)localStore
@@ -195,7 +197,6 @@ class LimboResolution {
     _queryViewsByQuery = [NSMutableDictionary dictionary];
     _queryViewsByTarget = [NSMutableDictionary dictionary];
 
-    _limboDocumentRefs = [[FSTReferenceSet alloc] init];
     _targetIdGenerator = TargetIdGenerator::SyncEngineTargetIdGenerator();
     _currentUser = initialUser;
   }
@@ -468,10 +469,10 @@ class LimboResolution {
   [self.queryViewsByQuery removeObjectForKey:queryView.query];
   [self.queryViewsByTarget removeObjectForKey:@(queryView.targetID)];
 
-  DocumentKeySet limboKeys = [self.limboDocumentRefs referencedKeysForID:queryView.targetID];
-  [self.limboDocumentRefs removeReferencesForID:queryView.targetID];
+  DocumentKeySet limboKeys = _limboDocumentRefs.ReferencedKeys(queryView.targetID);
+  _limboDocumentRefs.RemoveReferences(queryView.targetID);
   for (const DocumentKey &key : limboKeys) {
-    if (![self.limboDocumentRefs containsKey:key]) {
+    if (!_limboDocumentRefs.ContainsKey(key)) {
       // We removed the last reference for this key.
       [self removeLimboTargetForKey:key];
     }
@@ -531,14 +532,14 @@ class LimboResolution {
   for (FSTLimboDocumentChange *limboChange in limboChanges) {
     switch (limboChange.type) {
       case FSTLimboDocumentChangeTypeAdded:
-        [self.limboDocumentRefs addReferenceToKey:limboChange.key forID:targetID];
+        _limboDocumentRefs.AddReference(limboChange.key, targetID);
         [self trackLimboChange:limboChange];
         break;
 
       case FSTLimboDocumentChangeTypeRemoved:
         LOG_DEBUG("Document no longer in limbo: %s", limboChange.key.ToString());
-        [self.limboDocumentRefs removeReferenceToKey:limboChange.key forID:targetID];
-        if (![self.limboDocumentRefs containsKey:limboChange.key]) {
+        _limboDocumentRefs.RemoveReference(limboChange.key, targetID);
+        if (!_limboDocumentRefs.ContainsKey(limboChange.key)) {
           // We removed the last reference for this key
           [self removeLimboTargetForKey:limboChange.key];
         }
