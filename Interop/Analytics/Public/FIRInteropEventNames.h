@@ -16,6 +16,8 @@
 
 /// @file FIRInteropEventNames.h
 
+#import <Foundation/Foundation.h>
+
 /// Notification open event name.
 static NSString *const kFIRIEventNotificationOpen = @"_no";
 

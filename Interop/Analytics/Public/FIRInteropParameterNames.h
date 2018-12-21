@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#import <Foundation/Foundation.h>
+
 /// @file FIRInteropParameterNames.h
 ///
 /// Predefined event parameter names used by Firebase. This file is a subset of the
