@@ -16,7 +16,35 @@
 
 #import <Foundation/Foundation.h>
 
-/** Manages the storage and prioritizing of logs. */
-@interface GDLLogStorage : NSObject
+@class GDLLogEvent;
+
+NS_ASSUME_NONNULL_BEGIN
+
+/** Manages the storage of logs. This class is thread-safe. */
+@interface GDLLogStorage : NSObject <NSSecureCoding>
+
+/** Creates and/or returns the storage singleton.
+ *
+ * @return The storage singleton.
+ */
++ (instancetype)sharedInstance;
+
+/** Stores log.extensionBytes into a shared on-device folder and tracks the log via its hash and
+ * logTarget properties.
+ *
+ * @note The log param is expected to be deallocated during this method.
+ *
+ * @param log The log to store.
+ */
+- (void)storeLog:(GDLLogEvent *)log;
+
+/** Removes the corresponding log file from disk.
+ *
+ * @param logHash The hash value of the original log.
+ * @param logTarget The logTarget of the original log.
+ */
+- (void)removeLog:(NSNumber *)logHash logTarget:(NSNumber *)logTarget;
 
 @end
+
+NS_ASSUME_NONNULL_END
