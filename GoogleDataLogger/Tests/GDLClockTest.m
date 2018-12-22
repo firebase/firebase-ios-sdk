@@ -14,10 +14,19 @@
  * limitations under the License.
  */
 
-#import "GDLLogBackend.h"
-#import "GDLLogEvent.h"
-#import "GDLLogPrioritizer.h"
-#import "GDLLogProto.h"
-#import "GDLLogTransformer.h"
-#import "GDLLogger.h"
-#import "GDLRegistrar.h"
+#import <XCTest/XCTest.h>
+
+#import "GDLClock.h"
+
+@interface GDLClockTest : XCTestCase
+
+@end
+
+@implementation GDLClockTest
+
+/** Tests the default initializer. */
+- (void)testInit {
+  XCTAssertNotNil([[GDLClockTest alloc] init]);
+}
+
+@end

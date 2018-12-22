@@ -16,11 +16,13 @@
 
 #import <Foundation/Foundation.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 /** A convenient typedef to define the block to be called upon completion of an upload to the
  * backend.
  */
-typedef void (^GDLBackendCompletionBlock)(NSSet<NSURL *> *successfulUploads,
-                                          NSSet<NSURL *> *unsuccessfulUploads);
+typedef void (^GDLBackendCompletionBlock)(NSSet<NSURL *> *_Nullable successfulUploads,
+                                          NSSet<NSURL *> *_Nullable unsuccessfulUploads);
 
 /** This protocol defines the common interface for logging backend implementations. */
 @protocol GDLLogBackend <NSObject>
@@ -37,3 +39,5 @@ typedef void (^GDLBackendCompletionBlock)(NSSet<NSURL *> *successfulUploads,
 - (void)uploadLogs:(NSSet<NSURL *> *)logFiles onComplete:(GDLBackendCompletionBlock)onComplete;
 
 @end
+
+NS_ASSUME_NONNULL_END
