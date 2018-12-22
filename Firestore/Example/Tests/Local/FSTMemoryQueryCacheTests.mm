@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/Local/FSTMemoryQueryCache.h"
-
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
 
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
@@ -43,7 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
   [super setUp];
 
   self.persistence = [FSTPersistenceTestHelpers eagerGCMemoryPersistence];
-  self.queryCache = [self.persistence queryCache];
+  self.queryCache = self.persistence.queryCache;
   [self.persistence.referenceDelegate addInMemoryPins:&_additionalReferences];
 }
 

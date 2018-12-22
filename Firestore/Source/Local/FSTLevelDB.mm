@@ -23,7 +23,6 @@
 #import "Firestore/Source/Core/FSTListenSequence.h"
 #import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 #import "Firestore/Source/Local/FSTLevelDBMutationQueue.h"
-#import "Firestore/Source/Local/FSTLevelDBQueryCache.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
@@ -31,6 +30,7 @@
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_migrations.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_query_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_util.h"
@@ -61,6 +61,7 @@ using firebase::firestore::local::LevelDbDocumentMutationKey;
 using firebase::firestore::local::LevelDbDocumentTargetKey;
 using firebase::firestore::local::LevelDbMigrations;
 using firebase::firestore::local::LevelDbMutationKey;
+using firebase::firestore::local::LevelDbQueryCache;
 using firebase::firestore::local::LevelDbRemoteDocumentCache;
 using firebase::firestore::local::LevelDbTransaction;
 using firebase::firestore::local::LruParams;
@@ -87,6 +88,8 @@ static const char *kReservedPathComponent = "firestore";
 - (size_t)byteSize;
 
 @property(nonatomic, assign, getter=isStarted) BOOL started;
+
+- (firebase::firestore::local::LevelDbQueryCache *)queryCache;
 
 @end
 
@@ -126,7 +129,7 @@ static const char *kReservedPathComponent = "firestore";
 }
 
 - (void)start {
-  ListenSequenceNumber highestSequenceNumber = _db.queryCache.highestListenSequenceNumber;
+  ListenSequenceNumber highestSequenceNumber = _db.queryCache->highest_listen_sequence_number();
   _listenSequence = [[FSTListenSequence alloc] initStartingAfter:highestSequenceNumber];
 }
 
@@ -157,7 +160,7 @@ static const char *kReservedPathComponent = "firestore";
       [queryData queryDataByReplacingSnapshotVersion:queryData.snapshotVersion
                                          resumeToken:queryData.resumeToken
                                       sequenceNumber:[self currentSequenceNumber]];
-  [_db.queryCache updateQueryData:updated];
+  _db.queryCache->UpdateTarget(updated);
 }
 
 - (void)addReference:(const DocumentKey &)key {
@@ -196,29 +199,26 @@ static const char *kReservedPathComponent = "firestore";
 }
 
 - (void)enumerateTargetsUsingBlock:(void (^)(FSTQueryData *queryData, BOOL *stop))block {
-  FSTLevelDBQueryCache *queryCache = _db.queryCache;
-  [queryCache enumerateTargetsUsingBlock:block];
+  _db.queryCache->EnumerateTargets(block);
 }
 
 - (void)enumerateMutationsUsingBlock:
     (void (^)(const DocumentKey &key, ListenSequenceNumber sequenceNumber, BOOL *stop))block {
-  FSTLevelDBQueryCache *queryCache = _db.queryCache;
-  [queryCache enumerateOrphanedDocumentsUsingBlock:block];
+  _db.queryCache->EnumerateOrphanedDocuments(block);
 }
 
 - (int)removeOrphanedDocumentsThroughSequenceNumber:(ListenSequenceNumber)upperBound {
-  FSTLevelDBQueryCache *queryCache = _db.queryCache;
   __block int count = 0;
-  [queryCache enumerateOrphanedDocumentsUsingBlock:^(
-                  const DocumentKey &docKey, ListenSequenceNumber sequenceNumber, BOOL *stop) {
-    if (sequenceNumber <= upperBound) {
-      if (![self isPinned:docKey]) {
-        count++;
-        self->_db.remoteDocumentCache->Remove(docKey);
-        [self removeSentinel:docKey];
-      }
-    }
-  }];
+  _db.queryCache->EnumerateOrphanedDocuments(
+      ^(const DocumentKey &docKey, ListenSequenceNumber sequenceNumber, BOOL *stop) {
+        if (sequenceNumber <= upperBound) {
+          if (![self isPinned:docKey]) {
+            count++;
+            self->_db.remoteDocumentCache->Remove(docKey);
+            [self removeSentinel:docKey];
+          }
+        }
+      });
   return count;
 }
 
@@ -228,12 +228,11 @@ static const char *kReservedPathComponent = "firestore";
 
 - (int)removeTargetsThroughSequenceNumber:(ListenSequenceNumber)sequenceNumber
                               liveQueries:(NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries {
-  FSTLevelDBQueryCache *queryCache = _db.queryCache;
-  return [queryCache removeQueriesThroughSequenceNumber:sequenceNumber liveQueries:liveQueries];
+  return _db.queryCache->RemoveTargets(sequenceNumber, liveQueries);
 }
 
-- (int32_t)sequenceNumberCount {
-  __block int32_t totalCount = [_db.queryCache count];
+- (size_t)sequenceNumberCount {
+  __block size_t totalCount = _db.queryCache->size();
   [self enumerateMutationsUsingBlock:^(const DocumentKey &key, ListenSequenceNumber sequenceNumber,
                                        BOOL *stop) {
     totalCount++;
@@ -273,7 +272,7 @@ static const char *kReservedPathComponent = "firestore";
   std::unique_ptr<LevelDbRemoteDocumentCache> _documentCache;
   FSTTransactionRunner _transactionRunner;
   FSTLevelDBLRUDelegate *_referenceDelegate;
-  FSTLevelDBQueryCache *_queryCache;
+  std::unique_ptr<LevelDbQueryCache> _queryCache;
   std::set<std::string> _users;
 }
 
@@ -340,14 +339,14 @@ static const char *kReservedPathComponent = "firestore";
     _ptr = std::move(db);
     _directory = std::move(directory);
     _serializer = serializer;
-    _queryCache = [[FSTLevelDBQueryCache alloc] initWithDB:self serializer:self.serializer];
+    _queryCache = absl::make_unique<LevelDbQueryCache>(self, _serializer);
     _documentCache = absl::make_unique<LevelDbRemoteDocumentCache>(self, _serializer);
     _referenceDelegate =
         [[FSTLevelDBLRUDelegate alloc] initWithPersistence:self lruParams:lruParams];
     _transactionRunner.SetBackingPersistence(self);
     _users = std::move(users);
     // TODO(gsoltis): set up a leveldb transaction for these operations.
-    [_queryCache start];
+    _queryCache->Start();
     [_referenceDelegate start];
   }
   return self;
@@ -463,8 +462,8 @@ static const char *kReservedPathComponent = "firestore";
   return [FSTLevelDBMutationQueue mutationQueueWithUser:user db:self serializer:self.serializer];
 }
 
-- (id<FSTQueryCache>)queryCache {
-  return _queryCache;
+- (LevelDbQueryCache *)queryCache {
+  return _queryCache.get();
 }
 
 - (RemoteDocumentCache *)remoteDocumentCache {

@@ -28,7 +28,6 @@
 #import "Firestore/Source/Local/FSTLocalWriteResult.h"
 #import "Firestore/Source/Local/FSTMutationQueue.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
-#import "Firestore/Source/Local/FSTQueryCache.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTMutation.h"
@@ -38,6 +37,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_set.h"
+#include "Firestore/core/src/firebase/firestore/local/query_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 #include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
@@ -47,6 +47,7 @@
 using firebase::firestore::auth::User;
 using firebase::firestore::core::TargetIdGenerator;
 using firebase::firestore::local::LruResults;
+using firebase::firestore::local::QueryCache;
 using firebase::firestore::local::ReferenceSet;
 using firebase::firestore::local::RemoteDocumentCache;
 using firebase::firestore::model::BatchId;
@@ -81,7 +82,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 @property(nonatomic, strong) FSTLocalDocumentsView *localDocuments;
 
 /** Maps a query to the data about that query. */
-@property(nonatomic, strong) id<FSTQueryCache> queryCache;
+@property(nonatomic) QueryCache *queryCache;
 
 /** Maps a targetID to data about its query. */
 @property(nonatomic, strong) NSMutableDictionary<NSNumber *, FSTQueryData *> *targetIDs;
@@ -93,6 +94,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
   TargetIdGenerator _targetIDGenerator;
   /** The set of all cached remote documents. */
   RemoteDocumentCache *_remoteDocumentCache;
+  QueryCache *_queryCache;
 
   /** The set of document references maintained by any local views. */
   ReferenceSet _localViewReferences;
@@ -118,7 +120,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 
 - (void)start {
   [self startMutationQueue];
-  TargetId targetID = [self.queryCache highestTargetID];
+  TargetId targetID = _queryCache->highest_target_id();
   _targetIDGenerator = TargetIdGenerator::QueryCacheTargetIdGenerator(targetID);
 }
 
@@ -207,14 +209,13 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 }
 
 - (const SnapshotVersion &)lastRemoteSnapshotVersion {
-  return [self.queryCache lastRemoteSnapshotVersion];
+  return self.queryCache->GetLastRemoteSnapshotVersion();
 }
 
 - (MaybeDocumentMap)applyRemoteEvent:(FSTRemoteEvent *)remoteEvent {
   return self.persistence.run("Apply remote event", [&]() -> MaybeDocumentMap {
     // TODO(gsoltis): move the sequence number into the reference delegate.
     ListenSequenceNumber sequenceNumber = self.persistence.currentSequenceNumber;
-    id<FSTQueryCache> queryCache = self.queryCache;
 
     DocumentKeySet authoritativeUpdates;
     for (const auto &entry : remoteEvent.targetChanges) {
@@ -243,8 +244,8 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
         authoritativeUpdates = authoritativeUpdates.insert(key);
       }
 
-      [queryCache removeMatchingKeys:change.removedDocuments forTargetID:targetID];
-      [queryCache addMatchingKeys:change.addedDocuments forTargetID:targetID];
+      _queryCache->RemoveMatchingKeys(change.removedDocuments, targetID);
+      _queryCache->AddMatchingKeys(change.addedDocuments, targetID);
 
       // Update the resume token if the change includes one. Don't clear any preexisting value.
       // Bump the sequence number as well, so that documents being removed now are ordered later
@@ -258,7 +259,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
         self.targetIDs[boxedTargetID] = queryData;
 
         if ([self shouldPersistQueryData:queryData oldQueryData:oldQueryData change:change]) {
-          [self.queryCache updateQueryData:queryData];
+          _queryCache->UpdateTarget(queryData);
         }
       }
     }
@@ -307,13 +308,13 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
     // HACK: The only reason we allow omitting snapshot version is so we can synthesize remote
     // events when we get permission denied errors while trying to resolve the state of a locally
     // cached document that is in limbo.
-    const SnapshotVersion &lastRemoteVersion = [self.queryCache lastRemoteSnapshotVersion];
+    const SnapshotVersion &lastRemoteVersion = _queryCache->GetLastRemoteSnapshotVersion();
     const SnapshotVersion &remoteVersion = remoteEvent.snapshotVersion;
     if (remoteVersion != SnapshotVersion::None()) {
       HARD_ASSERT(remoteVersion >= lastRemoteVersion,
                   "Watch stream reverted to previous snapshot?? (%s < %s)",
                   remoteVersion.timestamp().ToString(), lastRemoteVersion.timestamp().ToString());
-      [self.queryCache setLastRemoteSnapshotVersion:remoteVersion];
+      _queryCache->SetLastRemoteSnapshotVersion(remoteVersion);
     }
 
     return [self.localDocuments localViewsForDocuments:changedDocs];
@@ -385,14 +386,14 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 
 - (FSTQueryData *)allocateQuery:(FSTQuery *)query {
   FSTQueryData *queryData = self.persistence.run("Allocate query", [&]() -> FSTQueryData * {
-    FSTQueryData *cached = [self.queryCache queryDataForQuery:query];
+    FSTQueryData *cached = _queryCache->GetTarget(query);
     // TODO(mcg): freshen last accessed date if cached exists?
     if (!cached) {
       cached = [[FSTQueryData alloc] initWithQuery:query
                                           targetID:_targetIDGenerator.NextId()
                               listenSequenceNumber:self.persistence.currentSequenceNumber
                                            purpose:FSTQueryPurposeListen];
-      [self.queryCache addQueryData:cached];
+      _queryCache->AddTarget(cached);
     }
     return cached;
   });
@@ -406,7 +407,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 
 - (void)releaseQuery:(FSTQuery *)query {
   self.persistence.run("Release query", [&]() {
-    FSTQueryData *queryData = [self.queryCache queryDataForQuery:query];
+    FSTQueryData *queryData = _queryCache->GetTarget(query);
     HARD_ASSERT(queryData, "Tried to release nonexistent query: %s", query);
 
     TargetId targetID = queryData.targetID;
@@ -418,7 +419,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
       // conditions and rationale) we need to persist the token now because there will no
       // longer be an in-memory version to fall back on.
       queryData = cachedQueryData;
-      [self.queryCache updateQueryData:queryData];
+      _queryCache->UpdateTarget(queryData);
     }
 
     // References for documents sent via Watch are automatically removed when we delete a
@@ -442,7 +443,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 
 - (DocumentKeySet)remoteDocumentKeysForTarget:(TargetId)targetID {
   return self.persistence.run("RemoteDocumentKeysForTarget", [&]() -> DocumentKeySet {
-    return [self.queryCache matchingKeysForTargetID:targetID];
+    return _queryCache->GetMatchingKeys(targetID);
   });
 }
 

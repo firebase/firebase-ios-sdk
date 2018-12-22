@@ -25,12 +25,12 @@
 #import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 #import "Firestore/Source/Local/FSTMutationQueue.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
-#import "Firestore/Source/Local/FSTQueryCache.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/local/query_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 #include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
@@ -43,6 +43,7 @@ namespace testutil = firebase::firestore::testutil;
 using firebase::firestore::auth::User;
 using firebase::firestore::local::LruParams;
 using firebase::firestore::local::LruResults;
+using firebase::firestore::local::QueryCache;
 using firebase::firestore::local::ReferenceSet;
 using firebase::firestore::local::RemoteDocumentCache;
 using firebase::firestore::model::DocumentKey;
@@ -60,7 +61,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTObjectValue *_testValue;
   FSTObjectValue *_bigObjectValue;
   id<FSTPersistence> _persistence;
-  id<FSTQueryCache> _queryCache;
+  QueryCache *_queryCache;
   RemoteDocumentCache *_documentCache;
   id<FSTMutationQueue> _mutationQueue;
   id<FSTLRUDelegate> _lruDelegate;
@@ -155,7 +156,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FSTQueryData *)addNextQueryInTransaction {
   FSTQueryData *queryData = [self nextTestQuery];
-  [_queryCache addQueryData:queryData];
+  _queryCache->AddTarget(queryData);
   return queryData;
 }
 
@@ -165,7 +166,7 @@ NS_ASSUME_NONNULL_BEGIN
       [queryData queryDataByReplacingSnapshotVersion:queryData.snapshotVersion
                                          resumeToken:token
                                       sequenceNumber:_persistence.currentSequenceNumber];
-  [_queryCache updateQueryData:updated];
+  _queryCache->UpdateTarget(updated);
 }
 
 - (FSTQueryData *)addNextQuery {
@@ -199,11 +200,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)addDocument:(const DocumentKey &)docKey toTarget:(TargetId)targetId {
-  [_queryCache addMatchingKeys:DocumentKeySet{docKey} forTargetID:targetId];
+  _queryCache->AddMatchingKeys(DocumentKeySet{docKey}, targetId);
 }
 
 - (void)removeDocument:(const DocumentKey &)docKey fromTarget:(TargetId)targetId {
-  [_queryCache removeMatchingKeys:DocumentKeySet{docKey} forTargetID:targetId];
+  _queryCache->RemoveMatchingKeys(DocumentKeySet{docKey}, targetId);
 }
 
 /**
@@ -392,9 +393,9 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqual(10, removed);
   // Make sure we removed the even targets with targetID <= 20.
   _persistence.run("verify remaining targets are > 20 or odd", [&]() {
-    [_queryCache enumerateTargetsUsingBlock:^(FSTQueryData *queryData, BOOL *stop) {
+    _queryCache->EnumerateTargets(^(FSTQueryData *queryData, BOOL *stop) {
       XCTAssertTrue(queryData.targetID > 20 || queryData.targetID % 2 == 1);
-    }];
+    });
   });
   [_persistence shutdown];
 }
@@ -467,7 +468,7 @@ NS_ASSUME_NONNULL_BEGIN
   _persistence.run("verify", [&]() {
     for (const DocumentKey &key : toBeRemoved) {
       XCTAssertNil(_documentCache->Get(key));
-      XCTAssertFalse([_queryCache containsKey:key]);
+      XCTAssertFalse(_queryCache->Contains(key));
     }
     for (const DocumentKey &key : expectedRetained) {
       XCTAssertNotNil(_documentCache->Get(key), @"Missing document %s", key.ToString().c_str());
@@ -649,7 +650,7 @@ NS_ASSUME_NONNULL_BEGIN
     for (const DocumentKey &key : expectedRemoved) {
       XCTAssertNil(_documentCache->Get(key), @"Did not expect to find %s in document cache",
                    key.ToString().c_str());
-      XCTAssertFalse([_queryCache containsKey:key], @"Did not expect to find %s in queryCache",
+      XCTAssertFalse(_queryCache->Contains(key), @"Did not expect to find %s in queryCache",
                      key.ToString().c_str());
       [self expectSentinelRemoved:key];
     }

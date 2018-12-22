@@ -23,10 +23,10 @@
 
 #import "Firestore/Source/Core/FSTListenSequence.h"
 #import "Firestore/Source/Local/FSTMemoryMutationQueue.h"
-#import "Firestore/Source/Local/FSTMemoryQueryCache.h"
 #include "absl/memory/memory.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/local/memory_query_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/memory_remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -35,6 +35,7 @@
 using firebase::firestore::auth::HashUser;
 using firebase::firestore::auth::User;
 using firebase::firestore::local::LruParams;
+using firebase::firestore::local::MemoryQueryCache;
 using firebase::firestore::local::MemoryRemoteDocumentCache;
 using firebase::firestore::local::ReferenceSet;
 using firebase::firestore::model::DocumentKey;
@@ -48,7 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTMemoryPersistence ()
 
-- (FSTMemoryQueryCache *)queryCache;
+- (MemoryQueryCache *)queryCache;
 
 - (MemoryRemoteDocumentCache *)remoteDocumentCache;
 
@@ -63,14 +64,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTMemoryPersistence {
   /**
-   * The FSTQueryCache representing the persisted cache of queries.
+   * The QueryCache representing the persisted cache of queries.
    *
    * Note that this is retained here to make it easier to write tests affecting both the in-memory
    * and LevelDB-backed persistence layers. Tests can create a new FSTLocalStore wrapping this
    * FSTPersistence instance and this will make the in-memory persistence layer behave as if it
    * were actually persisting values.
    */
-  FSTMemoryQueryCache *_queryCache;
+  std::unique_ptr<MemoryQueryCache> _queryCache;
 
   /** The RemoteDocumentCache representing the persisted cache of remote documents. */
   MemoryRemoteDocumentCache _remoteDocumentCache;
@@ -99,7 +100,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init {
   if (self = [super init]) {
-    _queryCache = [[FSTMemoryQueryCache alloc] initWithPersistence:self];
+    _queryCache = absl::make_unique<MemoryQueryCache>(self);
     self.started = YES;
   }
   return self;
@@ -140,8 +141,8 @@ NS_ASSUME_NONNULL_BEGIN
   return queue;
 }
 
-- (FSTMemoryQueryCache *)queryCache {
-  return _queryCache;
+- (MemoryQueryCache *)queryCache {
+  return _queryCache.get();
 }
 
 - (MemoryRemoteDocumentCache *)remoteDocumentCache {
@@ -173,7 +174,7 @@ NS_ASSUME_NONNULL_BEGIN
     _currentSequenceNumber = kFSTListenSequenceNumberInvalid;
     // Theoretically this is always 0, since this is all in-memory...
     ListenSequenceNumber highestSequenceNumber =
-        _persistence.queryCache.highestListenSequenceNumber;
+        _persistence.queryCache->highest_listen_sequence_number();
     _listenSequence = [[FSTListenSequence alloc] initStartingAfter:highestSequenceNumber];
     _serializer = serializer;
   }
@@ -200,7 +201,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQueryData *updated = [queryData queryDataByReplacingSnapshotVersion:queryData.snapshotVersion
                                                              resumeToken:queryData.resumeToken
                                                           sequenceNumber:_currentSequenceNumber];
-  [_persistence.queryCache updateQueryData:updated];
+  _persistence.queryCache->UpdateTarget(updated);
 }
 
 - (void)limboDocumentUpdated:(const DocumentKey &)key {
@@ -216,7 +217,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)enumerateTargetsUsingBlock:(void (^)(FSTQueryData *queryData, BOOL *stop))block {
-  return [_persistence.queryCache enumerateTargetsUsingBlock:block];
+  return _persistence.queryCache->EnumerateTargets(block);
 }
 
 - (void)enumerateMutationsUsingBlock:
@@ -235,12 +236,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (int)removeTargetsThroughSequenceNumber:(ListenSequenceNumber)sequenceNumber
                               liveQueries:(NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries {
-  return [_persistence.queryCache removeQueriesThroughSequenceNumber:sequenceNumber
-                                                         liveQueries:liveQueries];
+  return _persistence.queryCache->RemoveTargets(sequenceNumber, liveQueries);
 }
 
-- (int32_t)sequenceNumberCount {
-  __block int32_t totalCount = [_persistence.queryCache count];
+- (size_t)sequenceNumberCount {
+  __block size_t totalCount = _persistence.queryCache->size();
   [self enumerateMutationsUsingBlock:^(const DocumentKey &key, ListenSequenceNumber sequenceNumber,
                                        BOOL *stop) {
     totalCount++;
@@ -287,7 +287,7 @@ NS_ASSUME_NONNULL_BEGIN
   if (_additionalReferences->ContainsKey(key)) {
     return YES;
   }
-  if ([_persistence.queryCache containsKey:key]) {
+  if (_persistence.queryCache->Contains(key)) {
     return YES;
   }
   auto it = _sequenceNumbers.find(key);
@@ -302,7 +302,7 @@ NS_ASSUME_NONNULL_BEGIN
   // used for testing. The algorithm here (loop through everything, serialize it
   // and count bytes) is inefficient and inexact, but won't run in production.
   size_t count = 0;
-  count += [_persistence.queryCache byteSizeWithSerializer:_serializer];
+  count += _persistence.queryCache->CalculateByteSize(_serializer);
   count += _persistence.remoteDocumentCache->CalculateByteSize(_serializer);
   const MutationQueues &queues = [_persistence mutationQueues];
   for (const auto &entry : queues) {
@@ -339,11 +339,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)removeTarget:(FSTQueryData *)queryData {
-  for (const DocumentKey &docKey :
-       [_persistence.queryCache matchingKeysForTargetID:queryData.targetID]) {
+  for (const DocumentKey &docKey : _persistence.queryCache->GetMatchingKeys(queryData.targetID)) {
     _orphaned->insert(docKey);
   }
-  [_persistence.queryCache removeQueryData:queryData];
+  _persistence.queryCache->RemoveTarget(queryData);
 }
 
 - (void)addReference:(const DocumentKey &)key {
@@ -359,7 +358,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (BOOL)isReferenced:(const DocumentKey &)key {
-  if ([[_persistence queryCache] containsKey:key]) {
+  if (_persistence.queryCache->Contains(key)) {
     return YES;
   }
   if ([self mutationQueuesContainKey:key]) {
