@@ -22,16 +22,18 @@
 
 #import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
 #import "Firestore/Source/Core/FSTQuery.h"
-#import "Firestore/Source/Local/FSTDocumentReference.h"
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
-#import "Firestore/third_party/Immutable/FSTImmutableSortedSet.h"
 
+#include "Firestore/core/src/firebase/firestore/immutable/sorted_set.h"
+#include "Firestore/core/src/firebase/firestore/local/document_reference.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
+using firebase::firestore::immutable::SortedSet;
+using firebase::firestore::local::DocumentReference;
 using firebase::firestore::model::BatchId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
@@ -63,9 +65,6 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
  */
 @property(nonatomic, strong, readonly) NSMutableArray<FSTMutationBatch *> *queue;
 
-/** An ordered mapping between documents and the mutation batch IDs. */
-@property(nonatomic, strong) FSTImmutableSortedSet<FSTDocumentReference *> *batchesByDocumentKey;
-
 /** The next value to use when assigning sequential IDs to each mutation batch. */
 @property(nonatomic, assign) BatchId nextBatchID;
 
@@ -81,16 +80,18 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
 
 @end
 
+using DocumentReferenceSet = SortedSet<DocumentReference, DocumentReference::ByKey>;
+
 @implementation FSTMemoryMutationQueue {
   FSTMemoryPersistence *_persistence;
+  /** An ordered mapping between documents and the mutation batch IDs. */
+  DocumentReferenceSet _batchesByDocumentKey;
 }
 
 - (instancetype)initWithPersistence:(FSTMemoryPersistence *)persistence {
   if (self = [super init]) {
     _persistence = persistence;
     _queue = [NSMutableArray array];
-    _batchesByDocumentKey =
-        [FSTImmutableSortedSet setWithComparator:FSTDocumentReferenceComparatorByKey];
 
     _nextBatchID = 1;
     _highestAcknowledgedBatchID = kFSTBatchIDUnknown;
@@ -162,12 +163,9 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
   [queue addObject:batch];
 
   // Track references by document key.
-  FSTImmutableSortedSet<FSTDocumentReference *> *references = self.batchesByDocumentKey;
   for (FSTMutation *mutation in batch.mutations) {
-    references = [references
-        setByAddingObject:[[FSTDocumentReference alloc] initWithKey:mutation.key ID:batchID]];
+    _batchesByDocumentKey = _batchesByDocumentKey.insert(DocumentReference{mutation.key, batchID});
   }
-  self.batchesByDocumentKey = references;
 
   return batch;
 }
@@ -204,41 +202,32 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
 
 - (NSArray<FSTMutationBatch *> *)allMutationBatchesAffectingDocumentKey:
     (const DocumentKey &)documentKey {
-  FSTDocumentReference *start = [[FSTDocumentReference alloc] initWithKey:documentKey ID:0];
-
   NSMutableArray<FSTMutationBatch *> *result = [NSMutableArray array];
-  FSTDocumentReferenceBlock block = ^(FSTDocumentReference *reference, BOOL *stop) {
-    if (documentKey != reference.key) {
-      *stop = YES;
-      return;
-    }
 
-    FSTMutationBatch *batch = [self lookupMutationBatch:reference.ID];
+  DocumentReference start{documentKey, 0};
+  for (const auto &reference : _batchesByDocumentKey.values_from(start)) {
+    if (documentKey != reference.key()) break;
+
+    FSTMutationBatch *batch = [self lookupMutationBatch:reference.ref_id()];
     HARD_ASSERT(batch, "Batches in the index must exist in the main table");
     [result addObject:batch];
-  };
+  }
 
-  [self.batchesByDocumentKey enumerateObjectsFrom:start to:nil usingBlock:block];
   return result;
 }
 
 - (NSArray<FSTMutationBatch *> *)allMutationBatchesAffectingDocumentKeys:
     (const DocumentKeySet &)documentKeys {
   // First find the set of affected batch IDs.
-  __block std::set<BatchId> batchIDs;
+  std::set<BatchId> batchIDs;
   for (const DocumentKey &key : documentKeys) {
-    FSTDocumentReference *start = [[FSTDocumentReference alloc] initWithKey:key ID:0];
+    DocumentReference start{key, 0};
 
-    FSTDocumentReferenceBlock block = ^(FSTDocumentReference *reference, BOOL *stop) {
-      if (key != reference.key) {
-        *stop = YES;
-        return;
-      }
+    for (const auto &reference : _batchesByDocumentKey.values_from(start)) {
+      if (key != reference.key()) break;
 
-      batchIDs.insert(reference.ID);
-    };
-
-    [self.batchesByDocumentKey enumerateObjectsFrom:start to:nil usingBlock:block];
+      batchIDs.insert(reference.ref_id());
+    }
   }
 
   return [self allMutationBatchesWithBatchIDs:batchIDs];
@@ -256,28 +245,25 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
   if (!DocumentKey::IsDocumentKey(startPath)) {
     startPath = startPath.Append("");
   }
-  FSTDocumentReference *start =
-      [[FSTDocumentReference alloc] initWithKey:DocumentKey{startPath} ID:0];
+  DocumentReference start{DocumentKey{startPath}, 0};
 
   // Find unique batchIDs referenced by all documents potentially matching the query.
-  __block std::set<BatchId> uniqueBatchIDs;
-  FSTDocumentReferenceBlock block = ^(FSTDocumentReference *reference, BOOL *stop) {
-    const ResourcePath &rowKeyPath = reference.key.path();
+  std::set<BatchId> uniqueBatchIDs;
+  for (const auto &reference : _batchesByDocumentKey.values_from(start)) {
+    const ResourcePath &rowKeyPath = reference.key().path();
     if (!prefix.IsPrefixOf(rowKeyPath)) {
-      *stop = YES;
-      return;
+      break;
     }
 
     // Rows with document keys more than one segment longer than the query path can't be matches.
     // For example, a query on 'rooms' can't match the document /rooms/abc/messages/xyx.
     // TODO(mcg): we'll need a different scanner when we implement ancestor queries.
     if (rowKeyPath.size() != immediateChildrenPathLength) {
-      return;
+      continue;
     }
 
-    uniqueBatchIDs.insert(reference.ID);
+    uniqueBatchIDs.insert(reference.ref_id());
   };
-  [self.batchesByDocumentKey enumerateObjectsFrom:start to:nil usingBlock:block];
 
   return [self allMutationBatchesWithBatchIDs:uniqueBatchIDs];
 }
@@ -311,20 +297,18 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
   [queue removeObjectAtIndex:0];
 
   // Remove entries from the index too.
-  FSTImmutableSortedSet<FSTDocumentReference *> *references = self.batchesByDocumentKey;
   for (FSTMutation *mutation in batch.mutations) {
     const DocumentKey &key = mutation.key;
     [_persistence.referenceDelegate removeMutationReference:key];
 
-    FSTDocumentReference *reference = [[FSTDocumentReference alloc] initWithKey:key ID:batchID];
-    references = [references setByRemovingObject:reference];
+    DocumentReference reference{key, batchID};
+    _batchesByDocumentKey = _batchesByDocumentKey.erase(reference);
   }
-  self.batchesByDocumentKey = references;
 }
 
 - (void)performConsistencyCheck {
   if (self.queue.count == 0) {
-    HARD_ASSERT([self.batchesByDocumentKey isEmpty],
+    HARD_ASSERT(_batchesByDocumentKey.empty(),
                 "Document leak -- detected dangling mutation references when queue is empty.");
   }
 }
@@ -334,12 +318,11 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
 - (BOOL)containsKey:(const DocumentKey &)key {
   // Create a reference with a zero ID as the start position to find any document reference with
   // this key.
-  FSTDocumentReference *reference = [[FSTDocumentReference alloc] initWithKey:key ID:0];
+  DocumentReference reference{key, 0};
 
-  NSEnumerator<FSTDocumentReference *> *enumerator =
-      [self.batchesByDocumentKey objectEnumeratorFrom:reference];
-  FSTDocumentReference *_Nullable firstReference = [enumerator nextObject];
-  return firstReference && firstReference.key == reference.key;
+  auto range = _batchesByDocumentKey.values_from(reference);
+  auto begin = range.begin();
+  return begin != range.end() && begin->key() == key;
 }
 
 #pragma mark - Helpers

@@ -17,6 +17,8 @@
 #ifndef FIRAuthInterop_h
 #define FIRAuthInterop_h
 
+#import <Foundation/Foundation.h>
+
 NS_ASSUME_NONNULL_BEGIN
 
 /** @typedef FIRTokenCallback

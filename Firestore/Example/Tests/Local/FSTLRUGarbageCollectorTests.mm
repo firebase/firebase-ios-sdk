@@ -31,6 +31,7 @@
 #import "Firestore/Source/Util/FSTClasses.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/local/query_cache.h"
+#include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 #include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
@@ -43,6 +44,7 @@ using firebase::firestore::auth::User;
 using firebase::firestore::local::LruParams;
 using firebase::firestore::local::LruResults;
 using firebase::firestore::local::QueryCache;
+using firebase::firestore::local::ReferenceSet;
 using firebase::firestore::local::RemoteDocumentCache;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeyHash;
@@ -66,6 +68,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTLRUGarbageCollector *_gc;
   ListenSequenceNumber _initialSequenceNumber;
   User _user;
+  ReferenceSet _additionalReferences;
 }
 
 - (void)setUp {
@@ -86,6 +89,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)newTestResourcesWithLruParams:(LruParams)lruParams {
   HARD_ASSERT(_persistence == nil, "Persistence already created");
   _persistence = [self newPersistenceWithLruParams:lruParams];
+  [_persistence.referenceDelegate addInMemoryPins:&_additionalReferences];
   _queryCache = [_persistence queryCache];
   _documentCache = [_persistence remoteDocumentCache];
   _mutationQueue = [_persistence mutationQueueForUser:_user];

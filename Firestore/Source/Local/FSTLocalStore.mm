@@ -29,7 +29,6 @@
 #import "Firestore/Source/Local/FSTMutationQueue.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
-#import "Firestore/Source/Local/FSTReferenceSet.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
@@ -39,6 +38,7 @@
 #include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_set.h"
 #include "Firestore/core/src/firebase/firestore/local/query_cache.h"
+#include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 #include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
@@ -48,6 +48,7 @@ using firebase::firestore::auth::User;
 using firebase::firestore::core::TargetIdGenerator;
 using firebase::firestore::local::LruResults;
 using firebase::firestore::local::QueryCache;
+using firebase::firestore::local::ReferenceSet;
 using firebase::firestore::local::RemoteDocumentCache;
 using firebase::firestore::model::BatchId;
 using firebase::firestore::model::DocumentKey;
@@ -80,9 +81,6 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 /** The "local" view of all documents (layering mutationQueue on top of remoteDocumentCache). */
 @property(nonatomic, strong) FSTLocalDocumentsView *localDocuments;
 
-/** The set of document references maintained by any local views. */
-@property(nonatomic, strong) FSTReferenceSet *localViewReferences;
-
 /** Maps a query to the data about that query. */
 @property(nonatomic) QueryCache *queryCache;
 
@@ -97,6 +95,9 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
   /** The set of all cached remote documents. */
   RemoteDocumentCache *_remoteDocumentCache;
   QueryCache *_queryCache;
+
+  /** The set of document references maintained by any local views. */
+  ReferenceSet _localViewReferences;
 }
 
 - (instancetype)initWithPersistence:(id<FSTPersistence>)persistence
@@ -108,8 +109,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
     _queryCache = [persistence queryCache];
     _localDocuments = [FSTLocalDocumentsView viewWithRemoteDocumentCache:_remoteDocumentCache
                                                            mutationQueue:_mutationQueue];
-    _localViewReferences = [[FSTReferenceSet alloc] init];
-    [_persistence.referenceDelegate addInMemoryPins:_localViewReferences];
+    [_persistence.referenceDelegate addInMemoryPins:&_localViewReferences];
 
     _targetIDs = [NSMutableDictionary dictionary];
 
@@ -360,13 +360,12 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 
 - (void)notifyLocalViewChanges:(NSArray<FSTLocalViewChanges *> *)viewChanges {
   self.persistence.run("NotifyLocalViewChanges", [&]() {
-    FSTReferenceSet *localViewReferences = self.localViewReferences;
     for (FSTLocalViewChanges *viewChange in viewChanges) {
       for (const DocumentKey &key : viewChange.removedKeys) {
         [self->_persistence.referenceDelegate removeReference:key];
       }
-      [localViewReferences addReferencesToKeys:viewChange.addedKeys forID:viewChange.targetID];
-      [localViewReferences removeReferencesToKeys:viewChange.removedKeys forID:viewChange.targetID];
+      _localViewReferences.AddReferences(viewChange.addedKeys, viewChange.targetID);
+      _localViewReferences.AddReferences(viewChange.removedKeys, viewChange.targetID);
     }
   });
 }
@@ -427,7 +426,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
     // query's target data from the reference delegate. Since this does not remove references
     // for locally mutated documents, we have to remove the target associations for these
     // documents manually.
-    DocumentKeySet removed = [self.localViewReferences removeReferencesForID:targetID];
+    DocumentKeySet removed = _localViewReferences.RemoveReferences(targetID);
     for (const DocumentKey &key : removed) {
       [self.persistence.referenceDelegate removeReference:key];
     }

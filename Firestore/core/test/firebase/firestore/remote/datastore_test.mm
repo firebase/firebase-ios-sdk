@@ -26,8 +26,8 @@
 #include "absl/memory/memory.h"
 #include "gtest/gtest.h"
 
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Document.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Firestore.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Document.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Firestore.pbobjc.h"
 
 namespace firebase {
 namespace firestore {

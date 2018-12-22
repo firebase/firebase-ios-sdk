@@ -23,6 +23,7 @@
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_query_cache.h"
+#include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
@@ -32,6 +33,7 @@
 namespace testutil = firebase::firestore::testutil;
 using firebase::Timestamp;
 using firebase::firestore::local::LevelDbQueryCache;
+using firebase::firestore::local::ReferenceSet;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::ListenSequenceNumber;
@@ -50,7 +52,9 @@ NS_ASSUME_NONNULL_BEGIN
  * FSTQueryCacheTests. This class is merely responsible for setting up and tearing down the
  * @a queryCache.
  */
-@implementation FSTLevelDBQueryCacheTests
+@implementation FSTLevelDBQueryCacheTests {
+  ReferenceSet _additionalReferences;
+}
 
 - (LevelDbQueryCache *)getCache:(id<FSTPersistence>)persistence {
   return static_cast<LevelDbQueryCache *>(persistence.queryCache);
@@ -61,6 +65,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   self.persistence = [FSTPersistenceTestHelpers levelDBPersistence];
   self.queryCache = [self getCache:self.persistence];
+  [self.persistence.referenceDelegate addInMemoryPins:&_additionalReferences];
 }
 
 - (void)tearDown {

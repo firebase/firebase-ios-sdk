@@ -21,7 +21,7 @@
 #define PB_FIRESTORE_CLIENT_MAYBE_DOCUMENT_NANOPB_H_INCLUDED
 #include <pb.h>
 
-#include "google/firestore/v1beta1/document.nanopb.h"
+#include "google/firestore/v1/document.nanopb.h"
 
 #include "google/protobuf/timestamp.nanopb.h"
 
@@ -51,7 +51,7 @@ typedef struct _firestore_client_MaybeDocument {
     pb_size_t which_document_type;
     union {
         firestore_client_NoDocument no_document;
-        google_firestore_v1beta1_Document document;
+        google_firestore_v1_Document document;
         firestore_client_UnknownDocument unknown_document;
     };
     bool has_committed_mutations;
@@ -86,7 +86,7 @@ extern const pb_field_t firestore_client_MaybeDocument_fields[5];
 /* Maximum encoded size of messages (where known) */
 /* firestore_client_NoDocument_size depends on runtime parameters */
 /* firestore_client_UnknownDocument_size depends on runtime parameters */
-#define firestore_client_MaybeDocument_size      (2 + (((firestore_client_NoDocument_size > firestore_client_UnknownDocument_size ? firestore_client_NoDocument_size : firestore_client_UnknownDocument_size) > google_firestore_v1beta1_Document_size ? (firestore_client_NoDocument_size > firestore_client_UnknownDocument_size ? firestore_client_NoDocument_size : firestore_client_UnknownDocument_size) : google_firestore_v1beta1_Document_size) > 0 ? ((firestore_client_NoDocument_size > firestore_client_UnknownDocument_size ? firestore_client_NoDocument_size : firestore_client_UnknownDocument_size) > google_firestore_v1beta1_Document_size ? (firestore_client_NoDocument_size > firestore_client_UnknownDocument_size ? firestore_client_NoDocument_size : firestore_client_UnknownDocument_size) : google_firestore_v1beta1_Document_size) : 0))
+#define firestore_client_MaybeDocument_size      (2 + (((firestore_client_NoDocument_size > firestore_client_UnknownDocument_size ? firestore_client_NoDocument_size : firestore_client_UnknownDocument_size) > google_firestore_v1_Document_size ? (firestore_client_NoDocument_size > firestore_client_UnknownDocument_size ? firestore_client_NoDocument_size : firestore_client_UnknownDocument_size) : google_firestore_v1_Document_size) > 0 ? ((firestore_client_NoDocument_size > firestore_client_UnknownDocument_size ? firestore_client_NoDocument_size : firestore_client_UnknownDocument_size) > google_firestore_v1_Document_size ? (firestore_client_NoDocument_size > firestore_client_UnknownDocument_size ? firestore_client_NoDocument_size : firestore_client_UnknownDocument_size) : google_firestore_v1_Document_size) : 0))
 
 /* Message IDs (where set with "msgid" option) */
 #ifdef PB_MSGID
