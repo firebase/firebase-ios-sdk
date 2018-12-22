@@ -16,6 +16,8 @@
 
 #import "GDLRegistrar.h"
 
+#import "GDLRegistrar_Private.h"
+
 @implementation GDLRegistrar
 
 + (instancetype)sharedInstance {
@@ -27,13 +29,22 @@
   return sharedInstance;
 }
 
+- (instancetype)init {
+  self = [super init];
+  if (self) {
+    _logTargetToPrioritizer = [[NSMutableDictionary alloc] init];
+    _logTargetToBackend = [[NSMutableDictionary alloc] init];
+  }
+  return self;
+}
+
 - (void)registerBackend:(id<GDLLogBackend>)backend forLogTarget:(NSInteger)logTarget {
-  // TODO
+  self.logTargetToBackend[@(logTarget)] = backend;
 }
 
 - (void)registerLogPrioritizer:(id<GDLLogPrioritizer>)prioritizer
                   forLogTarget:(NSInteger)logTarget {
-  // TODO
+  self.logTargetToPrioritizer[@(logTarget)] = prioritizer;
 }
 
 @end
