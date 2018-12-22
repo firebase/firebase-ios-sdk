@@ -43,8 +43,8 @@ struct Empty {
 }  // namespace impl
 
 template <typename K,
-          typename V = impl::Empty,
           typename C = util::Comparator<K>,
+          typename V = impl::Empty,
           typename M = SortedMap<K, V, C>>
 class SortedSet {
  public:
@@ -146,9 +146,9 @@ class SortedSet {
   M map_;
 };
 
-template <typename K, typename V, typename C>
-SortedSet<K, V, C> MakeSortedSet(const SortedMap<K, V, C>& map) {
-  return SortedSet<K, V, C>{map};
+template <typename K, typename C, typename V>
+SortedSet<K, C, V> MakeSortedSet(const SortedMap<K, V, C>& map) {
+  return SortedSet<K, C, V>{map};
 }
 
 }  // namespace immutable

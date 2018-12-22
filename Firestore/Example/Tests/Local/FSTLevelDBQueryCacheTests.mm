@@ -26,11 +26,13 @@
 #import "Firestore/Example/Tests/Local/FSTQueryCacheTests.h"
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
+#include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 
 using firebase::Timestamp;
+using firebase::firestore::local::ReferenceSet;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::ListenSequenceNumber;
 using firebase::firestore::model::ResourcePath;
@@ -48,13 +50,16 @@ NS_ASSUME_NONNULL_BEGIN
  * FSTQueryCacheTests. This class is merely responsible for setting up and tearing down the
  * @a queryCache.
  */
-@implementation FSTLevelDBQueryCacheTests
+@implementation FSTLevelDBQueryCacheTests {
+  ReferenceSet _additionalReferences;
+}
 
 - (void)setUp {
   [super setUp];
 
   self.persistence = [FSTPersistenceTestHelpers levelDBPersistence];
   self.queryCache = [self.persistence queryCache];
+  [self.persistence.referenceDelegate addInMemoryPins:&_additionalReferences];
 }
 
 - (void)tearDown {

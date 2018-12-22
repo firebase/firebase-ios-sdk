@@ -21,7 +21,6 @@
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
-#import "Firestore/Source/Local/FSTReferenceSet.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
 using firebase::firestore::model::DocumentKey;
@@ -41,8 +40,7 @@ MemoryQueryCache::MemoryQueryCache(FSTMemoryPersistence* persistence)
       highest_listen_sequence_number_(ListenSequenceNumber(0)),
       highest_target_id_(TargetId(0)),
       last_remote_snapshot_version_(SnapshotVersion::None()),
-      queries_([NSMutableDictionary dictionary]),
-      references_([[FSTReferenceSet alloc] init]) {
+      queries_([NSMutableDictionary dictionary]) {
 }
 
 void MemoryQueryCache::AddTarget(FSTQueryData* query_data) {
@@ -62,7 +60,7 @@ void MemoryQueryCache::UpdateTarget(FSTQueryData* query_data) {
 
 void MemoryQueryCache::RemoveTarget(FSTQueryData* query_data) {
   [queries_ removeObjectForKey:query_data.query];
-  [references_ removeReferencesForID:query_data.targetID];
+  references_.RemoveReferences(query_data.targetID);
 }
 
 FSTQueryData* _Nullable MemoryQueryCache::GetTarget(FSTQuery* query) {
@@ -85,7 +83,7 @@ int MemoryQueryCache::RemoveTargets(
     if (queryData.sequenceNumber <= upper_bound) {
       if (live_targets[@(queryData.targetID)] == nil) {
         [toRemove addObject:query];
-        [references_ removeReferencesForID:queryData.targetID];
+        references_.RemoveReferences(queryData.targetID);
       }
     }
   }];
@@ -95,7 +93,7 @@ int MemoryQueryCache::RemoveTargets(
 
 void MemoryQueryCache::AddMatchingKeys(const DocumentKeySet& keys,
                                        TargetId target_id) {
-  [references_ addReferencesToKeys:keys forID:target_id];
+  references_.AddReferences(keys, target_id);
   for (const DocumentKey& key : keys) {
     [persistence_.referenceDelegate addReference:key];
   }
@@ -103,22 +101,22 @@ void MemoryQueryCache::AddMatchingKeys(const DocumentKeySet& keys,
 
 void MemoryQueryCache::RemoveMatchingKeys(const DocumentKeySet& keys,
                                           TargetId target_id) {
-  [references_ removeReferencesToKeys:keys forID:target_id];
+  references_.RemoveReferences(keys, target_id);
   for (const DocumentKey& key : keys) {
     [persistence_.referenceDelegate removeReference:key];
   }
 }
 
 void MemoryQueryCache::RemoveAllKeysForTarget(TargetId target_id) {
-  [references_ removeReferencesForID:target_id];
+  references_.RemoveReferences(target_id);
 }
 
 DocumentKeySet MemoryQueryCache::GetMatchingKeys(TargetId target_id) {
-  return [references_ referencedKeysForID:target_id];
+  return references_.ReferencedKeys(target_id);
 }
 
 bool MemoryQueryCache::Contains(const DocumentKey& key) {
-  return [references_ containsKey:key];
+  return references_.ContainsKey(key);
 }
 
 size_t MemoryQueryCache::CalculateByteSize(FSTLocalSerializer* serializer) {

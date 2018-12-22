@@ -17,6 +17,7 @@
 #import <Foundation/Foundation.h>
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 #include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
@@ -24,7 +25,6 @@
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 
 @class FSTQueryData;
-@class FSTReferenceSet;
 @protocol FSTMutationQueue;
 @protocol FSTQueryCache;
 @protocol FSTReferenceDelegate;
@@ -122,7 +122,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Registers an FSTReferenceSet of documents that should be considered 'referenced' and not eligible
  * for removal during garbage collection.
  */
-- (void)addInMemoryPins:(FSTReferenceSet *)set;
+- (void)addInMemoryPins:(firebase::firestore::local::ReferenceSet *)set;
 
 /**
  * Notify the delegate that a target was removed.

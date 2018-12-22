@@ -28,6 +28,7 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
+#include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 #include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
 #include "absl/strings/string_view.h"
 #include "leveldb/db.h"
@@ -36,6 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 using firebase::firestore::auth::User;
 using firebase::firestore::local::LevelDbMutationKey;
+using firebase::firestore::local::ReferenceSet;
 using firebase::firestore::model::BatchId;
 using firebase::firestore::util::OrderedCode;
 using leveldb::DB;
@@ -68,11 +70,13 @@ std::string MutationLikeKey(absl::string_view table, absl::string_view userID, B
 
 @implementation FSTLevelDBMutationQueueTests {
   FSTLevelDB *_db;
+  ReferenceSet _additionalReferences;
 }
 
 - (void)setUp {
   [super setUp];
   _db = [FSTPersistenceTestHelpers levelDBPersistence];
+  [_db.referenceDelegate addInMemoryPins:&_additionalReferences];
   self.mutationQueue = [_db mutationQueueForUser:User("user")];
   self.persistence = _db;
 

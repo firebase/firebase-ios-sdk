@@ -24,7 +24,6 @@
 #import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 #import "Firestore/Source/Local/FSTLevelDBMutationQueue.h"
 #import "Firestore/Source/Local/FSTLevelDBQueryCache.h"
-#import "Firestore/Source/Local/FSTReferenceSet.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
@@ -35,6 +34,7 @@
 #include "Firestore/core/src/firebase/firestore/local/leveldb_remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_util.h"
+#include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 #include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -64,6 +64,7 @@ using firebase::firestore::local::LevelDbMutationKey;
 using firebase::firestore::local::LevelDbRemoteDocumentCache;
 using firebase::firestore::local::LevelDbTransaction;
 using firebase::firestore::local::LruParams;
+using firebase::firestore::local::ReferenceSet;
 using firebase::firestore::local::RemoteDocumentCache;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
@@ -110,7 +111,7 @@ static const char *kReservedPathComponent = "firestore";
   // This delegate should have the same lifetime as the persistence layer, but mark as
   // weak to avoid retain cycle.
   __weak FSTLevelDB *_db;
-  FSTReferenceSet *_additionalReferences;
+  ReferenceSet *_additionalReferences;
   ListenSequenceNumber _currentSequenceNumber;
   FSTListenSequence *_listenSequence;
 }
@@ -145,7 +146,7 @@ static const char *kReservedPathComponent = "firestore";
   return _currentSequenceNumber;
 }
 
-- (void)addInMemoryPins:(FSTReferenceSet *)set {
+- (void)addInMemoryPins:(ReferenceSet *)set {
   // We should be able to assert that _additionalReferences is nil, but due to restarts in spec
   // tests it would fail.
   _additionalReferences = set;
@@ -185,7 +186,7 @@ static const char *kReservedPathComponent = "firestore";
 }
 
 - (BOOL)isPinned:(const DocumentKey &)docKey {
-  if ([_additionalReferences containsKey:docKey]) {
+  if (_additionalReferences->ContainsKey(docKey)) {
     return YES;
   }
   if ([self mutationQueuesContainKey:docKey]) {
