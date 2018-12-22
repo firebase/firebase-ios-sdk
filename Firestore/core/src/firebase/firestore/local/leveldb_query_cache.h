@@ -102,7 +102,7 @@ class LevelDbQueryCache : public QueryCache {
   bool Contains(const model::DocumentKey& key) override;
 
   // Other methods and accessors
-  int32_t size() const override {
+  size_t size() const override {
     return metadata_.targetCount;
   }
 

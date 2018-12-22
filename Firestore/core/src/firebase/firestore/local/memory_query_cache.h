@@ -76,8 +76,8 @@ class MemoryQueryCache : public QueryCache {
   // Other methods and accessors
   size_t CalculateByteSize(FSTLocalSerializer* serializer);
 
-  int32_t size() const override {
-    return static_cast<int32_t>([queries_ count]);
+  size_t size() const override {
+    return [queries_ count];
   }
 
   model::ListenSequenceNumber highest_listen_sequence_number() const override {

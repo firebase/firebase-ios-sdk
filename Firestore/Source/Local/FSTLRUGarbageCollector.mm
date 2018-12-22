@@ -22,7 +22,6 @@
 
 #import "Firestore/Source/Local/FSTMutationQueue.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
-#import "Firestore/Source/Local/FSTQueryCache.h"
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
@@ -148,7 +147,7 @@ class RollingSequenceNumberBuffer {
 }
 
 - (int)queryCountForPercentile:(NSUInteger)percentile {
-  int totalCount = [_delegate sequenceNumberCount];
+  size_t totalCount = [_delegate sequenceNumberCount];
   int setSize = (int)((percentile / 100.0f) * totalCount);
   return setSize;
 }

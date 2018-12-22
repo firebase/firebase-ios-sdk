@@ -24,10 +24,10 @@
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLevelDBMutationQueue.h"
-#import "Firestore/Source/Local/FSTLevelDBQueryCache.h"
 
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_migrations.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_query_cache.h"
 #include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 #include "absl/strings/match.h"
@@ -43,6 +43,7 @@ using firebase::firestore::local::LevelDbDocumentTargetKey;
 using firebase::firestore::local::LevelDbMigrations;
 using firebase::firestore::local::LevelDbMutationKey;
 using firebase::firestore::local::LevelDbMutationQueueKey;
+using firebase::firestore::local::LevelDbQueryCache;
 using firebase::firestore::local::LevelDbQueryTargetKey;
 using firebase::firestore::local::LevelDbRemoteDocumentKey;
 using firebase::firestore::local::LevelDbTargetDocumentKey;
@@ -86,11 +87,11 @@ using SchemaVersion = LevelDbMigrations::SchemaVersion;
 }
 
 - (void)testAddsTargetGlobal {
-  FSTPBTargetGlobal *metadata = [FSTLevelDBQueryCache readTargetMetadataFromDB:_db.get()];
+  FSTPBTargetGlobal *metadata = LevelDbQueryCache::ReadMetadata(_db.get());
   XCTAssertNil(metadata, @"Not expecting metadata yet, we should have an empty db");
   LevelDbMigrations::RunMigrations(_db.get());
 
-  metadata = [FSTLevelDBQueryCache readTargetMetadataFromDB:_db.get()];
+  metadata = LevelDbQueryCache::ReadMetadata(_db.get());
   XCTAssertNotNil(metadata, @"Migrations should have added the metadata");
 }
 
@@ -166,7 +167,7 @@ using SchemaVersion = LevelDbMigrations::SchemaVersion;
       ASSERT_FOUND(transaction, key);
     }
 
-    FSTPBTargetGlobal *metadata = [FSTLevelDBQueryCache readTargetMetadataFromDB:_db.get()];
+    FSTPBTargetGlobal *metadata = LevelDbQueryCache::ReadMetadata(_db.get());
     XCTAssertNotNil(metadata, @"Metadata should have been added");
     XCTAssertEqual(metadata.targetCount, 0);
   }
@@ -209,7 +210,7 @@ using SchemaVersion = LevelDbMigrations::SchemaVersion;
     LevelDbTransaction transaction(_db.get(), "Setup");
 
     // Set up target global
-    FSTPBTargetGlobal *metadata = [FSTLevelDBQueryCache readTargetMetadataFromDB:_db.get()];
+    FSTPBTargetGlobal *metadata = LevelDbQueryCache::ReadMetadata(_db.get());
     // Expect that documents missing a row will get the new number
     metadata.highestListenSequenceNumber = new_sequence_number;
     transaction.Put(LevelDbTargetGlobalKey::Key(), metadata);

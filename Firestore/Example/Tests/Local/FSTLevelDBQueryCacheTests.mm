@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/Local/FSTLevelDBQueryCache.h"
-
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
@@ -55,7 +53,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FSTLevelDBQueryCacheTests
 
 - (LevelDbQueryCache *)getCache:(id<FSTPersistence>)persistence {
-  return ((FSTLevelDBQueryCache *)([persistence queryCache])).cache;
+  return static_cast<LevelDbQueryCache *>(persistence.queryCache);
 }
 
 - (void)setUp {
