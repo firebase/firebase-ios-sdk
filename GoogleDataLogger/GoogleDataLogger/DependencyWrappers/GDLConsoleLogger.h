@@ -24,6 +24,7 @@ static GULLoggerService kGDLConsoleLogger = @"[GoogleDataLogger]";
  *
  * Prefixes:
  * - MCW => MessageCodeWarning
+ * - MCE => MessageCodeError
  */
 typedef NS_ENUM(NSInteger, GDLMessageCode) {
 
@@ -31,7 +32,16 @@ typedef NS_ENUM(NSInteger, GDLMessageCode) {
   GDLMCWTransformerDoesntImplementTransform = 1,
 
   /** For warning messages concerning protoBytes: not being implemented by a log extension. */
-  GDLMCWExtensionMissingBytesImpl = 2
+  GDLMCWExtensionMissingBytesImpl = 2,
+
+  /** For error messages concerning a GDLLogEvent living past the storeLog: invocation. */
+  GDLMCELogEventWasIllegallyRetained = 1000,
+
+  /** For error messages concerning the creation of a directory failing. */
+  GDLMCEDirectoryCreationError = 1001,
+
+  /** For error messages concerning the writing of  a log file. */
+  GDLMCEFileWriteError = 1002
 };
 
 /** */
@@ -49,3 +59,9 @@ FOUNDATION_EXTERN void GDLLogWarning(GDLMessageCode messageCode,
 #define GDLLogWarning(MESSAGE_CODE, MESSAGE_FORMAT, ...)                                          \
   GULLogWarning(kGDLConsoleLogger, YES, GDLMessageCodeEnumToString(MESSAGE_CODE), MESSAGE_FORMAT, \
                 __VA_ARGS__);
+
+// A define to wrap GULLogError with slightly more convenient usage and a failing assert.
+#define GDLLogError(MESSAGE_CODE, MESSAGE_FORMAT, ...)                                          \
+  GULLogError(kGDLConsoleLogger, YES, GDLMessageCodeEnumToString(MESSAGE_CODE), MESSAGE_FORMAT, \
+              __VA_ARGS__);                                                                     \
+  NSAssert(NO, MESSAGE_FORMAT, __VA_ARGS__);
