@@ -38,7 +38,10 @@ typedef NS_ENUM(NSInteger, GDLMessageCode) {
   GDLMCELogEventWasIllegallyRetained = 1000,
 
   /** For error messages concerning the creation of a directory failing. */
-  GDLMCEDirectoryCreationError = 1001
+  GDLMCEDirectoryCreationError = 1001,
+
+  /** For error messages concerning the writing of  a log file. */
+  GDLMCEFileWriteError = 1002
 };
 
 /** */
@@ -60,6 +63,5 @@ FOUNDATION_EXTERN void GDLLogWarning(GDLMessageCode messageCode,
 // A define to wrap GULLogError with slightly more convenient usage and a failing assert.
 #define GDLLogError(MESSAGE_CODE, MESSAGE_FORMAT, ...)                                          \
   GULLogError(kGDLConsoleLogger, YES, GDLMessageCodeEnumToString(MESSAGE_CODE), MESSAGE_FORMAT, \
-                __VA_ARGS__); \
+              __VA_ARGS__);                                                                     \
   NSAssert(NO, MESSAGE_FORMAT, __VA_ARGS__);
-

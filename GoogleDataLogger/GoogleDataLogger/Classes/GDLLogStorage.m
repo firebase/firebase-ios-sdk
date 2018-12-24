@@ -96,7 +96,7 @@ static NSString *GDLStoragePath() {
     }
     if (weakShortLivedLog) {
       GDLLogError(GDLMCELogEventWasIllegallyRetained, @"%@",
-                    @"A LogEvent should not be retained outside of storage.");
+                  @"A LogEvent should not be retained outside of storage.");
     };
   });
 }
@@ -144,11 +144,13 @@ static NSString *GDLStoragePath() {
  */
 - (NSURL *)saveLogProtoToDisk:(NSData *)logProtoBytes logHash:(NSUInteger)logHash {
   NSString *storagePath = GDLStoragePath();
-  NSString *logFile = [NSString stringWithFormat:@"log-%ld", logHash];
+  NSString *logFile = [NSString stringWithFormat:@"log-%lu", (unsigned long)logHash];
   NSURL *logFilePath = [NSURL fileURLWithPath:[storagePath stringByAppendingPathComponent:logFile]];
 
   BOOL writingSuccess = [logProtoBytes writeToURL:logFilePath atomically:YES];
-  NSAssert(writingSuccess, @"A log file could not be written: %@", logFilePath);
+  if (!writingSuccess) {
+    GDLLogError(GDLMCEFileWriteError, @"A log file could not be written: %@", logFilePath);
+  }
 
   return logFilePath;
 }
