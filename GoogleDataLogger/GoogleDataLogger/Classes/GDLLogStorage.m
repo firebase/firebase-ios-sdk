@@ -24,7 +24,10 @@
 #import "GDLRegistrar_Private.h"
 #import "GDLUploader.h"
 
-/** */
+/** Creates and/or returns a singleton NSString that is the shared logging path.
+ *
+ * @return The SDK logging path.
+ */
 static NSString *GDLStoragePath() {
   static NSString *archivePath;
   static dispatch_once_t onceToken;
