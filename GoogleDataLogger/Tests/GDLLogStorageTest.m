@@ -116,7 +116,23 @@ static NSInteger logTarget = 1337;
 
 /** Tests encoding and decoding the storage singleton correctly. */
 - (void)testNSSecureCoding {
-  // TODO
+  GDLLogEvent *logEvent = [[GDLLogEvent alloc] initWithLogMapID:@"404" logTarget:logTarget];
+  logEvent.extensionBytes = [@"testString" dataUsingEncoding:NSUTF8StringEncoding];
+  NSUInteger logHash = logEvent.hash;
+  XCTAssertNoThrow([[GDLLogStorage sharedInstance] storeLog:logEvent]);
+  logEvent = nil;
+  NSData *storageData = [NSKeyedArchiver archivedDataWithRootObject:[GDLLogStorage sharedInstance]];
+  dispatch_sync([GDLLogStorage sharedInstance].storageQueue, ^{
+    XCTAssertNotNil([GDLLogStorage sharedInstance].logHashToLogFile[@(logHash)]);
+  });
+  [[GDLLogStorage sharedInstance] removeLog:@(logHash) logTarget:@(logTarget)];
+  dispatch_sync([GDLLogStorage sharedInstance].storageQueue, ^{
+    XCTAssertNil([GDLLogStorage sharedInstance].logHashToLogFile[@(logHash)]);
+  });
+
+  // TODO(mikehaney24): Ensure that the object created by alloc is discarded?
+  [NSKeyedUnarchiver unarchiveObjectWithData:storageData];
+  XCTAssertNotNil([GDLLogStorage sharedInstance].logHashToLogFile[@(logHash)]);
 }
 
 /** Tests logging a fast log causes an upload attempt. */
