@@ -184,7 +184,7 @@ static NSString *GDLStoragePath() {
 static NSString *const kGDLLogHashToLogFileKey = @"logHashToLogFileKey";
 
 /** The NSKeyedCoder key for the logTargetToLogFileSet property. */
-static NSString *const kGDLLogTargetToLogsKey = @"logTargetToLogFileSetKey";
+static NSString *const kGDLLogTargetToLogSetKey = @"logTargetToLogFileSetKey";
 
 + (BOOL)supportsSecureCoding {
   return YES;
@@ -198,7 +198,7 @@ static NSString *const kGDLLogTargetToLogsKey = @"logTargetToLogFileSetKey";
     sharedInstance->_logHashToLogFile =
         [aDecoder decodeObjectOfClass:NSMutableDictionaryClass forKey:kGDLLogHashToLogFileKey];
     sharedInstance->_logTargetToLogFileSet =
-        [aDecoder decodeObjectOfClass:NSMutableDictionaryClass forKey:kGDLLogTargetToLogsKey];
+        [aDecoder decodeObjectOfClass:NSMutableDictionaryClass forKey:kGDLLogTargetToLogSetKey];
   });
   return sharedInstance;
 }
@@ -207,7 +207,7 @@ static NSString *const kGDLLogTargetToLogsKey = @"logTargetToLogFileSetKey";
   GDLLogStorage *sharedInstance = [self.class sharedInstance];
   dispatch_sync(sharedInstance.storageQueue, ^{
     [aCoder encodeObject:sharedInstance->_logHashToLogFile forKey:kGDLLogHashToLogFileKey];
-    [aCoder encodeObject:sharedInstance->_logTargetToLogFileSet forKey:kGDLLogTargetToLogsKey];
+    [aCoder encodeObject:sharedInstance->_logTargetToLogFileSet forKey:kGDLLogTargetToLogSetKey];
   });
 }
 
