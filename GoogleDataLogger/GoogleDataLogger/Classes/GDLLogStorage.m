@@ -19,6 +19,7 @@
 
 #import <GoogleDataLogger/GDLLogPrioritizer.h>
 
+#import "GDLConsoleLogger.h"
 #import "GDLLogEvent_Private.h"
 #import "GDLRegistrar_Private.h"
 #import "GDLUploader.h"
@@ -59,17 +60,14 @@ static NSString *GDLStoragePath() {
 - (void)storeLog:(GDLLogEvent *)log {
   [self createLogDirectoryIfNotExists];
 
-  __weak GDLLogEvent *weakShortLivedLog = log;
-
   // This is done to ensure that log is deallocated at the end of the ensuing block.
   __block GDLLogEvent *shortLivedLog = log;
+  __weak GDLLogEvent *weakShortLivedLog = log;
   log = nil;
 
   dispatch_async(_storageQueue, ^{
     // Check that a backend implementation is available for this logTarget.
     NSInteger logTarget = shortLivedLog.logTarget;
-    id<GDLLogBackend> backend = [GDLRegistrar sharedInstance].logTargetToBackend[@(logTarget)];
-    NSAssert(backend, @"There's no backend registered for the given logTarget.");
 
     // Check that a log prioritizer is available for this logTarget.
     id<GDLLogPrioritizer> logPrioritizer =
@@ -96,7 +94,10 @@ static NSString *GDLStoragePath() {
       [logPrioritizer prioritizeLog:shortLivedLog];
       shortLivedLog = nil;
     }
-    NSAssert(weakShortLivedLog == nil, @"The log should not be retained by the scorer.");
+    if (weakShortLivedLog) {
+      GDLLogError(GDLMCELogEventWasIllegallyRetained, @"%@",
+                    @"A LogEvent should not be retained outside of storage.");
+    };
   });
 }
 
@@ -124,10 +125,12 @@ static NSString *GDLStoragePath() {
 - (void)createLogDirectoryIfNotExists {
   NSError *error;
   BOOL result = [[NSFileManager defaultManager] createDirectoryAtPath:GDLStoragePath()
-                                          withIntermediateDirectories:NO
-                                                           attributes:nil
+                                          withIntermediateDirectories:YES
+                                                           attributes:0
                                                                 error:&error];
-  NSAssert(!result || error, @"There was an error creating the directory: %@", error);
+  if (!result || error) {
+    GDLLogError(GDLMCEDirectoryCreationError, @"Error creating the directory: %@", error);
+  }
 }
 
 /** Saves the log's extensionBytes to a file using NSData mechanisms.
