@@ -18,6 +18,17 @@ import Foundation
 import FirebaseFirestore
 
 @available(swift 4.0.0)
+extension CollectionReference {
+  public func addDocument<T: Encodable>(data: T) -> DocumentReference {
+    do {
+      return addDocument(data: try Firestore.Encoder().encode(data))
+    } catch let error {
+      fatalError() // ("TODO - how should this be handled?")
+    }
+  }
+}
+
+@available(swift 4.0.0)
 extension DocumentReference {
   func set<T: Encodable>(_ value: T, _ completion: ((Error?) -> Void)?) {
     do {
@@ -28,11 +39,32 @@ extension DocumentReference {
   }
 }
 
+@available(swift 4.0.0)
+extension Transaction {
+  public func setData<T: Encodable>(_ value: T, forDocument: DocumentReference) {
+    do {
+      setData(try Firestore.Encoder().encode(value), forDocument:forDocument)
+    } catch let error {
+      print ("TODO - how should this be handled?")
+    }
+  }
+}
+
+@available(swift 4.0.0)
+extension WriteBatch {
+  public func setData<T: Encodable>(_ value: T, forDocument: DocumentReference) {
+    do {
+      setData(try Firestore.Encoder().encode(value), forDocument:forDocument)
+    } catch let error {
+      print ("TODO - how should this be handled?")
+    }
+  }
+}
+
 extension Firestore {
   @available(swift 4.0.0)
-  public struct Encoder {
-    public init() {}
-    public func encode<T: Encodable>(_ value: T) throws -> [String: Any] {
+  struct Encoder {
+    func encode<T: Encodable>(_ value: T) throws -> [String: Any] {
       guard let topLevel = try _FirestoreEncoder().box_(value) else {
         throw EncodingError.invalidValue(value,
                                          EncodingError.Context(codingPath: [],

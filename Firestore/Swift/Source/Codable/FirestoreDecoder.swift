@@ -19,20 +19,18 @@ import FirebaseFirestore
 
 @available(swift 4.0.0)
 extension DocumentSnapshot {
-  func data<T: Decodable>(as type: T.Type) throws -> T {
+  public func data<T: Decodable>(as type: T.Type) throws -> T {
     guard let dict = data() else {
       throw DecodingError.valueNotFound(T.self, DecodingError.Context(codingPath: [], debugDescription: "Data was empty"))
     }
-
     return try Firestore.Decoder().decode(T.self, from: dict)
   }
 }
 
 extension Firestore {
   @available(swift 4.0.0)
-  public struct Decoder {
-    public init() {}
-    public func decode<T: Decodable>(_ type: T.Type, from container: [String: Any]) throws -> T {
+  struct Decoder {
+    func decode<T: Decodable>(_ type: T.Type, from container: [String: Any]) throws -> T {
       let decoder = _FirestoreDecoder(referencing: container)
       guard let value = try decoder.unbox(container, as: T.self) else {
         throw DecodingError.valueNotFound(T.self, DecodingError.Context(codingPath: [], debugDescription: "The given dictionary was invalid"))
@@ -62,7 +60,7 @@ class _FirestoreDecoder: Decoder {
   // MARK: - Initialization
 
   /// Initializes `self` with the given top-level container and options.
-  public init(referencing container: Any, at codingPath: [CodingKey] = []) {
+  init(referencing container: Any, at codingPath: [CodingKey] = []) {
     storage = _FirestoreDecodingStorage()
     storage.push(container: container)
     self.codingPath = codingPath
