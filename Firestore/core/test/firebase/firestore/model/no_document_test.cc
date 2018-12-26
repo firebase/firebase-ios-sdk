@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
 
+#include "Firestore/core/src/firebase/firestore/model/unknown_document.h"
+
 #include "absl/strings/string_view.h"
 #include "gtest/gtest.h"
 
@@ -28,7 +30,8 @@ namespace {
 inline NoDocument MakeNoDocument(const absl::string_view path,
                                  const Timestamp& timestamp) {
   return NoDocument(DocumentKey::FromPathString(path.data()),
-                    SnapshotVersion(timestamp));
+                    SnapshotVersion(timestamp),
+                    /*has_committed_mutations=*/false);
 }
 
 }  // anonymous namespace
@@ -39,11 +42,12 @@ TEST(NoDocument, Getter) {
   EXPECT_EQ(DocumentKey::FromPathString("i/am/a/path"), doc.key());
   EXPECT_EQ(SnapshotVersion(Timestamp(123, 456)), doc.version());
 
-  // NoDocument and MaybeDocument will not equal.
+  // NoDocument and UnknownDocument will not equal.
   EXPECT_NE(NoDocument(DocumentKey::FromPathString("same/path"),
-                       SnapshotVersion(Timestamp())),
-            MaybeDocument(DocumentKey::FromPathString("same/path"),
-                          SnapshotVersion(Timestamp())));
+                       SnapshotVersion(Timestamp()),
+                       /*has_committed_mutations=*/false),
+            UnknownDocument(DocumentKey::FromPathString("same/path"),
+                            SnapshotVersion(Timestamp())));
 }
 
 }  // namespace model

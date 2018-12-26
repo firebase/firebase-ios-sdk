@@ -21,7 +21,7 @@
 #define PB_FIRESTORE_CLIENT_MUTATION_NANOPB_H_INCLUDED
 #include <pb.h>
 
-#include "google/firestore/v1beta1/write.nanopb.h"
+#include "google/firestore/v1/write.nanopb.h"
 
 #include "google/protobuf/timestamp.nanopb.h"
 
@@ -44,10 +44,10 @@ typedef struct _firestore_client_MutationQueue {
 typedef struct _firestore_client_WriteBatch {
     int32_t batch_id;
     pb_size_t writes_count;
-    struct _google_firestore_v1beta1_Write *writes;
+    struct _google_firestore_v1_Write *writes;
     google_protobuf_Timestamp local_write_time;
     pb_size_t base_writes_count;
-    struct _google_firestore_v1beta1_Write *base_writes;
+    struct _google_firestore_v1_Write *base_writes;
 /* @@protoc_insertion_point(struct:firestore_client_WriteBatch) */
 } firestore_client_WriteBatch;
 

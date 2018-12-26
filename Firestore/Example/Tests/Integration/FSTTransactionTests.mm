@@ -26,9 +26,7 @@
 
 @implementation FSTTransactionTests
 
-// We currently require every document read to also be written.
-// TODO(b/34879758): Re-enable this test once we fix it.
-- (void)xtestGetDocuments {
+- (void)testGetDocuments {
   FIRFirestore *firestore = [self firestore];
   FIRDocumentReference *doc = [[firestore collectionWithPath:@"spaces"] documentWithAutoID];
   [self writeDocumentRef:doc data:@{@"foo" : @1, @"desc" : @"Stuff", @"owner" : @"Jonny"}];
@@ -334,9 +332,7 @@
   XCTAssertEqualObjects(@"yes", snapshot[@"other"]);
 }
 
-// We currently require every document read to also be written.
-// TODO(b/34879758): Re-enable this test once we fix it.
-- (void)xtestHandleReadingOneDocAndWritingAnother {
+- (void)testHandleReadingOneDocAndWritingAnother {
   FIRFirestore *firestore = [self firestore];
   FIRDocumentReference *doc1 = [[firestore collectionWithPath:@"counters"] documentWithAutoID];
   FIRDocumentReference *doc2 = [[firestore collectionWithPath:@"counters"] documentWithAutoID];
@@ -423,9 +419,7 @@
   XCTAssertEqualObjects(@(1234.0), snapshot[@"count"]);
 }
 
-// We currently require every document read to also be written.
-// TODO(b/34879758): Add this test back once we fix that.
-- (void)xtestCannotHaveAGetWithoutMutations {
+- (void)testCannotHaveAGetWithoutMutations {
   FIRFirestore *firestore = [self firestore];
   FIRDocumentReference *doc = [[firestore collectionWithPath:@"foo"] documentWithAutoID];
   [self writeDocumentRef:doc data:@{@"foo" : @"bar"}];
@@ -438,6 +432,8 @@
         return nil;
       }
       completion:^(id _Nullable result, NSError *_Nullable error) {
+        // We currently require every document read to also be written.
+        // TODO(b/34879758): Fix this check once we drop that requirement.
         XCTAssertNotNil(error);
         [expectation fulfill];
       }];

@@ -184,6 +184,7 @@ cc_library(
     absl_base
     absl_strings
     firebase_firestore_auth
+    firebase_firestore_core
     firebase_firestore_remote
     firebase_firestore_util
     grpc++

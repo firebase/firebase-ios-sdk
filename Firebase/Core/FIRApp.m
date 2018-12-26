@@ -14,15 +14,15 @@
 
 #include <sys/utsname.h>
 
-#import "FIRApp.h"
-#import "FIRConfiguration.h"
 #import "Private/FIRAnalyticsConfiguration+Internal.h"
 #import "Private/FIRAppInternal.h"
 #import "Private/FIRBundleUtil.h"
 #import "Private/FIRComponentContainerInternal.h"
-#import "Private/FIRCoreConfigurable.h"
+#import "Private/FIRLibrary.h"
 #import "Private/FIRLogger.h"
 #import "Private/FIROptionsInternal.h"
+#import "Public/FIRApp.h"
+#import "Public/FIRConfiguration.h"
 
 NSString *const kFIRServiceAdMob = @"AdMob";
 NSString *const kFIRServiceAuth = @"Auth";
@@ -81,7 +81,7 @@ static NSString *const kPlistURL = @"https://console.firebase.google.com/";
  * An array of all classes that registered as `FIRCoreConfigurable` in order to receive lifecycle
  * events from Core.
  */
-static NSMutableArray<Class<FIRCoreConfigurable>> *gRegisteredAsConfigurable;
+static NSMutableArray<Class<FIRLibrary>> *sRegisteredAsConfigurable;
 
 @interface FIRApp ()
 
@@ -281,15 +281,6 @@ static NSMutableDictionary *sLibraryVersions;
   return self;
 }
 
-- (void)getTokenForcingRefresh:(BOOL)forceRefresh withCallback:(FIRTokenCallback)callback {
-  if (!_getTokenImplementation) {
-    callback(nil, nil);
-    return;
-  }
-
-  _getTokenImplementation(forceRefresh, callback);
-}
-
 - (BOOL)configureCore {
   [self checkExpectedBundleID];
   if (![self isAppIDValid]) {
@@ -431,7 +422,7 @@ static NSMutableDictionary *sLibraryVersions;
 
   // This is the new way of sending information to SDKs.
   // TODO: Do we want this on a background thread, maybe?
-  for (Class<FIRCoreConfigurable> library in gRegisteredAsConfigurable) {
+  for (Class<FIRLibrary> library in sRegisteredAsConfigurable) {
     [library configureWithApp:app];
   }
 }
@@ -471,41 +462,55 @@ static NSMutableDictionary *sLibraryVersions;
                          userInfo:errorDict];
 }
 
-+ (void)registerAsConfigurable:(Class<FIRCoreConfigurable>)klass {
-  // This is called at +load time, keep the work to a minimum.
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    gRegisteredAsConfigurable = [[NSMutableArray alloc] initWithCapacity:1];
-  });
-
-  NSAssert([(Class)klass conformsToProtocol:@protocol(FIRCoreConfigurable)],
-           @"The class being registered (%@) must conform to `FIRCoreConfigurable`.", klass);
-  [gRegisteredAsConfigurable addObject:klass];
-}
-
 + (BOOL)isDefaultAppConfigured {
   return (sDefaultApp != nil);
 }
 
-+ (void)registerLibrary:(nonnull NSString *)library withVersion:(nonnull NSString *)version {
++ (void)registerLibrary:(nonnull NSString *)name withVersion:(nonnull NSString *)version {
   // Create the set of characters which aren't allowed, only if this feature is used.
   NSMutableCharacterSet *allowedSet = [NSMutableCharacterSet alphanumericCharacterSet];
   [allowedSet addCharactersInString:@"-_."];
   NSCharacterSet *disallowedSet = [allowedSet invertedSet];
   // Make sure the library name and version strings do not contain unexpected characters, and
   // add the name/version pair to the dictionary.
-  if ([library rangeOfCharacterFromSet:disallowedSet].location == NSNotFound &&
+  if ([name rangeOfCharacterFromSet:disallowedSet].location == NSNotFound &&
       [version rangeOfCharacterFromSet:disallowedSet].location == NSNotFound) {
     if (!sLibraryVersions) {
       sLibraryVersions = [[NSMutableDictionary alloc] init];
     }
-    sLibraryVersions[library] = version;
+    sLibraryVersions[name] = version;
   } else {
     FIRLogError(kFIRLoggerCore, @"I-COR000027",
-                @"The library name (%@) or version number (%@) contain illegal characters. "
+                @"The library name (%@) or version number (%@) contain invalid characters. "
                 @"Only alphanumeric, dash, underscore and period characters are allowed.",
-                library, version);
+                name, version);
   }
+}
+
++ (void)registerInternalLibrary:(nonnull Class<FIRLibrary>)library
+                       withName:(nonnull NSString *)name
+                    withVersion:(nonnull NSString *)version {
+  // This is called at +load time, keep the work to a minimum.
+
+  // Ensure the class given conforms to the proper protocol.
+  if (![(Class)library conformsToProtocol:@protocol(FIRLibrary)] ||
+      ![(Class)library respondsToSelector:@selector(componentsToRegister)]) {
+    [NSException raise:NSInvalidArgumentException
+                format:
+                    @"Class %@ attempted to register components, but it does not conform to "
+                    @"`FIRLibrary or provide a `componentsToRegister:` method.",
+                    library];
+  }
+
+  [FIRComponentContainer registerAsComponentRegistrant:library];
+  if ([(Class)library respondsToSelector:@selector(configureWithApp:)]) {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+      sRegisteredAsConfigurable = [[NSMutableArray alloc] init];
+    });
+    [sRegisteredAsConfigurable addObject:library];
+  }
+  [self registerLibrary:name withVersion:version];
 }
 
 + (NSString *)firebaseUserAgent {
@@ -536,15 +541,6 @@ static NSMutableDictionary *sLibraryVersions;
                 @"and replace the current one.",
                 kServiceInfoFileName, kServiceInfoFileType, expectedBundleID, kPlistURL);
   }
-}
-
-// TODO: Remove once SDKs transition to Auth interop library.
-- (nullable NSString *)getUID {
-  if (!_getUIDImplementation) {
-    FIRLogWarning(kFIRLoggerCore, @"I-COR000025", @"FIRAuth getUID implementation wasn't set.");
-    return nil;
-  }
-  return _getUIDImplementation();
 }
 
 #pragma mark - private - App ID Validation

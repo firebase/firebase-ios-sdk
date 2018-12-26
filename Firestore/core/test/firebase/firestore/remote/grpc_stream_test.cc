@@ -43,6 +43,7 @@ using util::AsyncQueue;
 using util::ByteBufferToString;
 using util::CompletionEndState;
 using util::CreateNoOpConnectivityMonitor;
+using util::ExecutorStd;
 using util::GetFirestoreErrorCodeName;
 using util::GetGrpcErrorCodeName;
 using util::GrpcStreamTester;
@@ -51,7 +52,6 @@ using util::Status;
 using util::StringFormat;
 using util::CompletionResult::Error;
 using util::CompletionResult::Ok;
-using util::internal::ExecutorStd;
 using Type = GrpcCompletion::Type;
 
 namespace {
@@ -446,6 +446,54 @@ TEST_F(GrpcStreamTest, ObserverCanImmediatelyDestroyStreamOnFinishAndNotify) {
     EXPECT_NO_THROW(stream->FinishAndNotify(util::Status::OK()));
     EXPECT_EQ(stream, nullptr);
   });
+}
+
+// Double finish
+
+TEST_F(GrpcStreamTest, DoubleFinish_FailThenFinishImmediately) {
+  worker_queue.EnqueueBlocking([&] { stream->Start(); });
+
+  ForceFinish({{Type::Read, Error}});
+  KeepPollingGrpcQueue();
+  worker_queue.EnqueueBlocking(
+      [&] { EXPECT_NO_THROW(stream->FinishImmediately()); });
+}
+
+TEST_F(GrpcStreamTest, DoubleFinish_FailThenWriteAndFinish) {
+  worker_queue.EnqueueBlocking([&] { stream->Start(); });
+
+  ForceFinish({{Type::Read, Error}});
+  KeepPollingGrpcQueue();
+  worker_queue.EnqueueBlocking(
+      [&] { EXPECT_NO_THROW(stream->WriteAndFinish({})); });
+}
+
+TEST_F(GrpcStreamTest, DoubleFinish_FailThenFailAgain) {
+  worker_queue.EnqueueBlocking([&] {
+    stream->Start();
+    stream->Write({});
+  });
+
+  int failures_count = 0;
+  auto future = tester.ForceFinishAsync([&](GrpcCompletion* completion) {
+    switch (completion->type()) {
+      case Type::Read:
+      case Type::Write:
+        ++failures_count;
+        completion->Complete(false);
+        return failures_count == 2;
+      default:
+        UnexpectedType(completion);
+        return true;
+    }
+  });
+  future.wait();
+  worker_queue.EnqueueBlocking([] {});
+
+  // Normally, "Finish" never fails, but for the test it's easier to abuse the
+  // finish operation that has already been enqueued by `OnOperationFailed`
+  // rather than adding a new operation.
+  ForceFinish({{Type::Finish, Error}});
 }
 
 }  // namespace remote

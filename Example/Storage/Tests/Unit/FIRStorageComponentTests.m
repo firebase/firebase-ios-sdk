@@ -19,15 +19,15 @@
 
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
-#import <FirebaseCore/FIRComponentRegistrant.h>
+#import <FirebaseCore/FIRLibrary.h>
 #import <FirebaseCore/FIROptions.h>
 
 #import "FIRComponentTestUtilities.h"
 #import "FIRStorageComponent.h"
 
 // Make FIRComponentRegistrant conformance visible to the tests and expose the initializer.
-@interface FIRStorageComponent () <FIRComponentRegistrant>
-/// Internal intializer.
+@interface FIRStorageComponent () <FIRLibrary>
+/// Internal initializer.
 - (instancetype)initWithApp:(FIRApp *)app;
 @end
 

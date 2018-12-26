@@ -139,6 +139,6 @@ NSString *FIRDLMatchTypeStringFromServerString(NSString *_Nullable serverMatchTy
 /**
  Add custom domains from the info.plist to the internal whitelist.
  */
-void FIRDLAddToWhiteListForCustomDomainsArray(NSArray *_Nonnull customDomains);
+void FIRDLAddToAllowListForCustomDomainsArray(NSArray *customDomains);
 
 NS_ASSUME_NONNULL_END

@@ -26,13 +26,11 @@
 #import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Remote/FSTExistenceFilter.h"
 #import "Firestore/Source/Remote/FSTWatchChange.h"
 #import "Firestore/Source/Util/FSTClasses.h"
-#import "Firestore/Source/Util/FSTDispatchQueue.h"
 
 #import "Firestore/Example/Tests/Remote/FSTWatchChange+Testing.h"
 #import "Firestore/Example/Tests/SpecTests/FSTSyncEngineTestDriver.h"
@@ -40,7 +38,9 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
@@ -50,8 +50,10 @@ namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
 using firebase::firestore::auth::User;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::util::TimerId;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -271,7 +273,7 @@ static NSString *Describe(NSData *data) {
     }
   } else if (watchEntity[@"doc"]) {
     NSDictionary *docSpec = watchEntity[@"doc"];
-    FSTDocumentKey *key = FSTTestDocKey(docSpec[@"key"]);
+    DocumentKey key = FSTTestDocKey(docSpec[@"key"]);
     FSTObjectValue *_Nullable value = [docSpec[@"value"] isKindOfClass:[NSNull class]]
                                           ? nil
                                           : FSTTestObjectValue(docSpec[@"value"]);
@@ -290,7 +292,7 @@ static NSString *Describe(NSData *data) {
                                                         document:doc];
     [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
   } else if (watchEntity[@"key"]) {
-    FSTDocumentKey *docKey = FSTTestDocKey(watchEntity[@"key"]);
+    DocumentKey docKey = FSTTestDocKey(watchEntity[@"key"]);
     FSTWatchChange *change =
         [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[]
                                                 removedTargetIDs:watchEntity[@"removedTargets"]
@@ -373,19 +375,19 @@ static NSString *Describe(NSData *data) {
 }
 
 - (void)doRunTimer:(NSString *)timer {
-  FSTTimerID timerID;
+  TimerId timerID;
   if ([timer isEqualToString:@"all"]) {
-    timerID = FSTTimerIDAll;
+    timerID = TimerId::All;
   } else if ([timer isEqualToString:@"listen_stream_idle"]) {
-    timerID = FSTTimerIDListenStreamIdle;
+    timerID = TimerId::ListenStreamIdle;
   } else if ([timer isEqualToString:@"listen_stream_connection_backoff"]) {
-    timerID = FSTTimerIDListenStreamConnectionBackoff;
+    timerID = TimerId::ListenStreamConnectionBackoff;
   } else if ([timer isEqualToString:@"write_stream_idle"]) {
-    timerID = FSTTimerIDWriteStreamIdle;
+    timerID = TimerId::WriteStreamIdle;
   } else if ([timer isEqualToString:@"write_stream_connection_backoff"]) {
-    timerID = FSTTimerIDWriteStreamConnectionBackoff;
+    timerID = TimerId::WriteStreamConnectionBackoff;
   } else if ([timer isEqualToString:@"online_state_timeout"]) {
-    timerID = FSTTimerIDOnlineStateTimeout;
+    timerID = TimerId::OnlineStateTimeout;
   } else {
     HARD_FAIL("runTimer spec step specified unknown timer: %s", timer);
   }
@@ -573,13 +575,13 @@ static NSString *Describe(NSData *data) {
                      [expected[@"watchStreamRequestCount"] intValue]);
     }
     if (expected[@"limboDocs"]) {
-      NSMutableSet<FSTDocumentKey *> *expectedLimboDocuments = [NSMutableSet set];
+      DocumentKeySet expectedLimboDocuments;
       NSArray *docNames = expected[@"limboDocs"];
       for (NSString *name in docNames) {
-        [expectedLimboDocuments addObject:FSTTestDocKey(name)];
+        expectedLimboDocuments = expectedLimboDocuments.insert(FSTTestDocKey(name));
       }
       // Update the expected limbo documents
-      self.driver.expectedLimboDocuments = expectedLimboDocuments;
+      [self.driver setExpectedLimboDocuments:std::move(expectedLimboDocuments)];
     }
     if (expected[@"activeTargets"]) {
       NSMutableDictionary *expectedActiveTargets = [NSMutableDictionary dictionary];
@@ -637,9 +639,9 @@ static NSString *Describe(NSData *data) {
                     @"Found limbo doc without an expected active target");
   }
 
-  for (FSTDocumentKey *expectedLimboDoc in self.driver.expectedLimboDocuments) {
+  for (const DocumentKey &expectedLimboDoc : self.driver.expectedLimboDocuments) {
     XCTAssert(actualLimboDocs.find(expectedLimboDoc) != actualLimboDocs.end(),
-              @"Expected doc to be in limbo, but was not: %@", expectedLimboDoc);
+              @"Expected doc to be in limbo, but was not: %s", expectedLimboDoc.ToString().c_str());
     actualLimboDocs.erase(expectedLimboDoc);
   }
   XCTAssertTrue(actualLimboDocs.empty(), "%lu Unexpected docs in limbo, the first one is <%s, %d>",

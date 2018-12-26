@@ -31,7 +31,6 @@
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTViewSnapshot.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
@@ -53,7 +52,7 @@ FIRFirestore *FSTTestFirestore() {
                                                     database:"abc"
                                               persistenceKey:@"db123"
                                          credentialsProvider:nil
-                                         workerDispatchQueue:nil
+                                                 workerQueue:nil
                                                  firebaseApp:nil];
   });
 #pragma clang diagnostic pop

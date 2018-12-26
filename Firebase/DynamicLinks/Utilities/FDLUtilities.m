@@ -198,12 +198,28 @@ BOOL FIRDLIsURLForWhiteListedCustomDomain(NSURL *_Nullable URL) {
   for (NSURL *allowedCustomDomain in FIRDLCustomDomains) {
     // All custom domain host names should match at a minimum.
     if ([allowedCustomDomain.host isEqualToString:URL.host]) {
-      // Next, do a string compare to check if the full path matches as well.
+      NSString *urlStr = URL.absoluteString;
+      NSString *domainURIPrefixStr = allowedCustomDomain.absoluteString;
+
+      // Next, do a string compare to check if entire domainURIPrefix matches as well.
       if (([URL.absoluteString rangeOfString:allowedCustomDomain.absoluteString
                                      options:NSCaseInsensitiveSearch | NSAnchoredSearch]
                .location) == 0) {
-        customDomainMatchFound = true;
-        break;
+        // The (short) URL needs to be longer than the domainURIPrefix, it's first character after
+        // the domainURIPrefix needs to be '/' or '?' and should be followed by at-least one more
+        // character.
+        if (urlStr.length > domainURIPrefixStr.length + 1 &&
+            ([urlStr characterAtIndex:domainURIPrefixStr.length] == '/' ||
+             [urlStr characterAtIndex:domainURIPrefixStr.length] == '?')) {
+          // Check if there are any more '/' after the first '/' or '?' trailing the
+          // domainURIPrefix.
+          NSString *urlWithoutDomainURIPrefix =
+              [urlStr substringFromIndex:domainURIPrefixStr.length + 1];
+          if ([urlWithoutDomainURIPrefix rangeOfString:@"/"].location == NSNotFound) {
+            customDomainMatchFound = true;
+            break;
+          }
+        }
       }
     }
   }
@@ -226,8 +242,11 @@ BOOL FIRDLCanParseUniversalLinkURL(NSURL *_Nullable URL) {
 }
 
 BOOL FIRDLMatchesShortLinkFormat(NSURL *URL) {
-  // Short Durable Link URLs always have a path.
-  BOOL hasPath = URL.path.length > 0;
+  // Short Durable Link URLs always have a path, except for certain custom domain URLs e.g.
+  // 'https://google.com?link=abcd' will not have a path component.
+  // FIRDLIsURLForWhiteListedCustomDomain implicitely checks for path component in custom domain
+  // URLs.
+  BOOL hasPath = URL.path.length > 0 || FIRDLIsURLForWhiteListedCustomDomain(URL);
   // Must be able to parse (also checks if the URL conforms to *.app.goo.gl/* or goo.gl/app/*)
   BOOL canParse = FIRDLCanParseUniversalLinkURL(URL);
   // Path cannot be prefixed with /link/dismiss
@@ -249,12 +268,17 @@ NSString *FIRDLMatchTypeStringFromServerString(NSString *_Nullable serverMatchTy
   return matchMap[serverMatchTypeString] ?: @"none";
 }
 
-void FIRDLAddToWhiteListForCustomDomainsArray(NSArray *_Nonnull customDomains) {
+void FIRDLAddToAllowListForCustomDomainsArray(NSArray *_Nonnull customDomains) {
   // Duplicates will be weeded out when converting to a set.
   NSMutableArray *validCustomDomains =
       [[NSMutableArray alloc] initWithCapacity:customDomains.count];
   for (NSString *customDomainEntry in customDomains) {
-    NSURL *customDomainURL = [NSURL URLWithString:customDomainEntry];
+    // We remove trailing slashes in the path if present.
+    NSString *domainEntry =
+        [customDomainEntry hasSuffix:@"/"]
+            ? [customDomainEntry substringToIndex:[customDomainEntry length] - 1]
+            : customDomainEntry;
+    NSURL *customDomainURL = [NSURL URLWithString:domainEntry];
     // We require a valid scheme for each custom domain enumerated in the info.plist file.
     if (customDomainURL && customDomainURL.scheme) {
       [validCustomDomains addObject:customDomainURL];

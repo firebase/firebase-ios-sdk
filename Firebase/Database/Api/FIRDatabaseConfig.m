@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import <FirebaseCore/FIRApp.h>
 #import "FIRDatabaseConfig.h"
+
+#import "FAuthTokenProvider.h"
 #import "FIRDatabaseConfig_Private.h"
 #import "FIRNoopAuthTokenProvider.h"
-#import "FAuthTokenProvider.h"
 
 @interface FIRDatabaseConfig (Private)
 
@@ -79,39 +79,6 @@
 
 - (void)freeze {
     self->_isFrozen = YES;
-}
-
-// TODO: Only used for tests.  Migrate to FIRDatabase and remove.
-+ (FIRDatabaseConfig *)defaultConfig {
-    static dispatch_once_t onceToken;
-    static FIRDatabaseConfig *defaultConfig;
-    dispatch_once(&onceToken, ^{
-        defaultConfig = [FIRDatabaseConfig configForName:@"default"];
-    });
-    return defaultConfig;
-}
-
-// TODO: This is only used for tests.  We should fix them to go through FIRDatabase and remove
-// this method and the sessionsConfigs dictionary (FIRDatabase automatically creates one config per app).
-+ (FIRDatabaseConfig *)configForName:(NSString *)name {
-    NSRegularExpression *expression = [NSRegularExpression regularExpressionWithPattern:@"^[a-zA-Z0-9-_]+$" options:0 error:nil];
-    if ([expression numberOfMatchesInString:name options:0 range:NSMakeRange(0, name.length)] == 0) {
-        [NSException raise:NSInvalidArgumentException format:@"Name can only contain [a-zA-Z0-9-_]"];
-    }
-
-    static dispatch_once_t onceToken;
-    static NSMutableDictionary *sessionConfigs;
-    dispatch_once(&onceToken, ^{
-        sessionConfigs = [NSMutableDictionary dictionary];
-    });
-    @synchronized(sessionConfigs) {
-        if (!sessionConfigs[name]) {
-            id<FAuthTokenProvider> authTokenProvider = [FAuthTokenProvider authTokenProviderForApp:[FIRApp defaultApp]];
-            sessionConfigs[name] = [[FIRDatabaseConfig alloc] initWithSessionIdentifier:name
-                                                                      authTokenProvider:authTokenProvider];
-        }
-        return sessionConfigs[name];
-    }
 }
 
 @end

@@ -26,19 +26,8 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      language = ""
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "DE26D25C1F7049F1004AE1D3"
-               BuildableName = "Auth_ApiTests.xctest"
-               BlueprintName = "Auth_ApiTests"
-               ReferencedContainer = "container:Firebase.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
          <TestableReference
             skipped = "NO">
             <BuildableReference
@@ -46,6 +35,16 @@
                BlueprintIdentifier = "DE26D26C1F705C35004AE1D3"
                BuildableName = "Auth_EarlGreyTests.xctest"
                BlueprintName = "Auth_EarlGreyTests"
+               ReferencedContainer = "container:Firebase.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "DE26D25C1F7049F1004AE1D3"
+               BuildableName = "Auth_ApiTests.xctest"
+               BlueprintName = "Auth_ApiTests"
                ReferencedContainer = "container:Firebase.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -66,7 +65,6 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      language = ""
       launchStyle = "0"
       useCustomWorkingDirectory = "NO"
       ignoresPersistentStateOnLaunch = "NO"

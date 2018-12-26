@@ -59,6 +59,11 @@
   */
  @property(nonatomic, assign, readonly) BOOL androidInstallIfNotAvailable;
 
+ /** @property dynamicLinkDomain
+     @brief The Firebase Dynamic Link domain used for out of band code flow.
+  */
+ @property (copy, nonatomic, nullable) NSString *dynamicLinkDomain;
+
  /** @fn setIOSBundleID
      @brief Sets the iOS bundle Id.
      @param iOSBundleID The iOS bundle ID.

@@ -18,10 +18,9 @@
 
 #include <unordered_map>
 
-#import "Firestore/Source/Model/FSTDocumentDictionary.h"
-
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
+#include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 
@@ -94,7 +93,8 @@ extern const firebase::firestore::model::BatchId kFSTBatchIDUnknown;
              documentKey:(const firebase::firestore::model::DocumentKey &)documentKey;
 
 /** Computes the local view for all provided documents given the mutations in this batch. */
-- (FSTMaybeDocumentDictionary *)applyToLocalDocumentSet:(FSTMaybeDocumentDictionary *)documentSet;
+- (firebase::firestore::model::MaybeDocumentMap)applyToLocalDocumentSet:
+    (const firebase::firestore::model::MaybeDocumentMap &)documentSet;
 
 /** Returns the set of unique keys referenced by all mutations in the batch. */
 - (firebase::firestore::model::DocumentKeySet)keys;

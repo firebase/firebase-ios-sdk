@@ -21,11 +21,11 @@
 #include <utility>
 #include <vector>
 
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Common.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Document.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Firestore.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Query.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Write.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Common.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Document.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Firestore.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Query.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Write.pbobjc.h"
 #import "Firestore/Protos/objc/google/rpc/Status.pbobjc.h"
 #import "Firestore/Protos/objc/google/type/Latlng.pbobjc.h"
 
@@ -217,7 +217,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   } else if (fieldClass == [FSTReferenceValue class]) {
     FSTReferenceValue *ref = (FSTReferenceValue *)fieldValue;
-    return [self encodedReferenceValueForDatabaseID:[ref databaseID] key:[ref value]];
+    DocumentKey key = [[ref value] key];
+    return [self encodedReferenceValueForDatabaseID:[ref databaseID] key:key];
 
   } else if (fieldClass == [FSTObjectValue class]) {
     GCFSValue *result = [GCFSValue message];
@@ -438,7 +439,11 @@ NS_ASSUME_NONNULL_BEGIN
   HARD_ASSERT(version != SnapshotVersion::None(),
               "Got a document response with no snapshot version");
 
-  return [FSTDocument documentWithData:value key:key version:version state:FSTDocumentStateSynced];
+  return [FSTDocument documentWithData:value
+                                   key:key
+                               version:version
+                                 state:FSTDocumentStateSynced
+                                 proto:response.found];
 }
 
 - (FSTDeletedDocument *)decodedDeletedDocument:(GCFSBatchGetDocumentsResponse *)response {
@@ -601,7 +606,7 @@ NS_ASSUME_NONNULL_BEGIN
   } else if (fieldTransform.transformation().type() == TransformOperation::Type::Increment) {
     const NumericIncrementTransform &incrementTransform =
         static_cast<const NumericIncrementTransform &>(fieldTransform.transformation());
-    proto.numericAdd = [self encodedFieldValue:incrementTransform.operand()];
+    proto.increment = [self encodedFieldValue:incrementTransform.operand()];
   } else {
     HARD_FAIL("Unknown transform: %s type", fieldTransform.transformation().type());
   }
@@ -656,9 +661,9 @@ NS_ASSUME_NONNULL_BEGIN
         break;
       }
 
-      case GCFSDocumentTransform_FieldTransform_TransformType_OneOfCase_NumericAdd: {
+      case GCFSDocumentTransform_FieldTransform_TransformType_OneOfCase_Increment: {
         FSTNumberValue *operand =
-            static_cast<FSTNumberValue *>([self decodedFieldValue:proto.numericAdd]);
+            static_cast<FSTNumberValue *>([self decodedFieldValue:proto.increment]);
         fieldTransforms.emplace_back(FieldPath::FromServerFormat(util::MakeString(proto.fieldPath)),
                                      absl::make_unique<NumericIncrementTransform>(operand));
         break;
@@ -1155,8 +1160,13 @@ NS_ASSUME_NONNULL_BEGIN
   const DocumentKey key = [self decodedDocumentKey:change.document.name];
   SnapshotVersion version = [self decodedVersion:change.document.updateTime];
   HARD_ASSERT(version != SnapshotVersion::None(), "Got a document change with no snapshot version");
-  FSTMaybeDocument *document =
-      [FSTDocument documentWithData:value key:key version:version state:FSTDocumentStateSynced];
+  // The document may soon be re-serialized back to protos in order to store it in local
+  // persistence. Memoize the encoded form to avoid encoding it again.
+  FSTMaybeDocument *document = [FSTDocument documentWithData:value
+                                                         key:key
+                                                     version:version
+                                                       state:FSTDocumentStateSynced
+                                                       proto:change.document];
 
   NSArray<NSNumber *> *updatedTargetIds = [self decodedIntegerArray:change.targetIdsArray];
   NSArray<NSNumber *> *removedTargetIds = [self decodedIntegerArray:change.removedTargetIdsArray];

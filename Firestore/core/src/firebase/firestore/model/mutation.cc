@@ -19,6 +19,7 @@
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/model/document.h"
+#include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 namespace firebase {
@@ -64,7 +65,55 @@ std::shared_ptr<const MaybeDocument> SetMutation::ApplyToLocalView(
 
   SnapshotVersion version = GetPostMutationVersion(maybe_doc.get());
   return absl::make_unique<Document>(FieldValue(value_), key(), version,
-                                     /*has_local_mutations=*/true);
+                                     DocumentState::kLocalMutations);
+}
+
+PatchMutation::PatchMutation(DocumentKey&& key,
+                             FieldValue&& value,
+                             FieldMask&& mask,
+                             Precondition&& precondition)
+    : Mutation(std::move(key), std::move(precondition)),
+      value_(std::move(value)),
+      mask_(std::move(mask)) {
+}
+
+std::shared_ptr<const MaybeDocument> PatchMutation::ApplyToLocalView(
+    const std::shared_ptr<const MaybeDocument>& maybe_doc,
+    const MaybeDocument*,
+    const Timestamp&) const {
+  VerifyKeyMatches(maybe_doc.get());
+
+  if (!precondition().IsValidFor(maybe_doc.get())) {
+    return maybe_doc;
+  }
+
+  SnapshotVersion version = GetPostMutationVersion(maybe_doc.get());
+  FieldValue new_data = PatchDocument(maybe_doc.get());
+  return absl::make_unique<Document>(std::move(new_data), key(), version,
+                                     DocumentState::kLocalMutations);
+}
+
+FieldValue PatchMutation::PatchDocument(const MaybeDocument* maybe_doc) const {
+  if (maybe_doc && maybe_doc->type() == MaybeDocument::Type::Document) {
+    return PatchObject(static_cast<const Document*>(maybe_doc)->data());
+  } else {
+    return PatchObject(FieldValue::FromMap({}));
+  }
+}
+
+FieldValue PatchMutation::PatchObject(FieldValue obj) const {
+  HARD_ASSERT(obj.type() == FieldValue::Type::Object);
+  for (const FieldPath& path : mask_) {
+    if (!path.empty()) {
+      absl::optional<FieldValue> new_value = value_.Get(path);
+      if (!new_value) {
+        obj = obj.Delete(path);
+      } else {
+        obj = obj.Set(path, *new_value);
+      }
+    }
+  }
+  return obj;
 }
 
 }  // namespace model

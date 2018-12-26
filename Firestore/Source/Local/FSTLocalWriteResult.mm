@@ -16,26 +16,35 @@
 
 #import "Firestore/Source/Local/FSTLocalWriteResult.h"
 
+#include <utility>
+
 using firebase::firestore::model::BatchId;
+using firebase::firestore::model::MaybeDocumentMap;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTLocalWriteResult ()
 - (instancetype)initWithBatchID:(BatchId)batchID
-                        changes:(FSTMaybeDocumentDictionary *)changes NS_DESIGNATED_INITIALIZER;
+                        changes:(MaybeDocumentMap &&)changes NS_DESIGNATED_INITIALIZER;
 @end
 
-@implementation FSTLocalWriteResult
-
-+ (instancetype)resultForBatchID:(BatchId)batchID changes:(FSTMaybeDocumentDictionary *)changes {
-  return [[FSTLocalWriteResult alloc] initWithBatchID:batchID changes:changes];
+@implementation FSTLocalWriteResult {
+  MaybeDocumentMap _changes;
 }
 
-- (instancetype)initWithBatchID:(BatchId)batchID changes:(FSTMaybeDocumentDictionary *)changes {
+- (const MaybeDocumentMap &)changes {
+  return _changes;
+}
+
++ (instancetype)resultForBatchID:(BatchId)batchID changes:(MaybeDocumentMap &&)changes {
+  return [[FSTLocalWriteResult alloc] initWithBatchID:batchID changes:std::move(changes)];
+}
+
+- (instancetype)initWithBatchID:(BatchId)batchID changes:(MaybeDocumentMap &&)changes {
   self = [super init];
   if (self) {
     _batchID = batchID;
-    _changes = changes;
+    _changes = std::move(changes);
   }
   return self;
 }

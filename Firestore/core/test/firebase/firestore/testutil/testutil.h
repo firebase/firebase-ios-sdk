@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_TESTUTIL_TESTUTIL_H_
 #define FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_TESTUTIL_TESTUTIL_H_
 
+#include <algorithm>
 #include <chrono>  // NOLINT(build/c++11)
 #include <cstdint>
 #include <memory>
@@ -42,6 +43,12 @@
 namespace firebase {
 namespace firestore {
 namespace testutil {
+
+/**
+ * A string sentinel that can be used with PatchMutation() to mark a field for
+ * deletion.
+ */
+constexpr const char* kDeleteSentinel = "<DELETE>";
 
 // Below are convenience methods for creating instances for tests.
 
@@ -69,16 +76,18 @@ inline model::SnapshotVersion Version(int64_t version) {
   return model::SnapshotVersion{Timestamp::FromTimePoint(timepoint)};
 }
 
-inline model::Document Doc(absl::string_view key,
-                           int64_t version = 0,
-                           const model::ObjectValue::Map& data = {},
-                           bool has_local_mutations = false) {
+inline model::Document Doc(
+    absl::string_view key,
+    int64_t version = 0,
+    const model::ObjectValue::Map& data = {},
+    model::DocumentState document_state = model::DocumentState::kSynced) {
   return model::Document{model::FieldValue::FromMap(data), Key(key),
-                         Version(version), has_local_mutations};
+                         Version(version), document_state};
 }
 
 inline model::NoDocument DeletedDoc(absl::string_view key, int64_t version) {
-  return model::NoDocument{Key(key), Version(version)};
+  return model::NoDocument{Key(key), Version(version),
+                           /*has_committed_mutations=*/false};
 }
 
 inline core::RelationFilter::Operator OperatorFromString(absl::string_view s) {
@@ -131,6 +140,18 @@ inline std::unique_ptr<model::SetMutation> SetMutation(
       model::Precondition::None());
 }
 
+std::unique_ptr<model::PatchMutation> PatchMutation(
+    absl::string_view path,
+    const model::ObjectValue::Map& values = {},
+    const std::vector<model::FieldPath>* update_mask = nullptr);
+
+inline std::unique_ptr<model::PatchMutation> PatchMutation(
+    absl::string_view path,
+    const model::ObjectValue::Map& values,
+    const std::vector<model::FieldPath>& update_mask) {
+  return PatchMutation(path, values, &update_mask);
+}
+
 inline std::vector<uint8_t> ResumeToken(int64_t snapshot_version) {
   if (snapshot_version == 0) {
     // TODO(rsgowman): The other platforms return null here, though I'm not sure
@@ -144,10 +165,6 @@ inline std::vector<uint8_t> ResumeToken(int64_t snapshot_version) {
       std::string("snapshot-") + std::to_string(snapshot_version);
   return {snapshot_string.begin(), snapshot_string.end()};
 }
-
-// Add a non-inline function to make this library buildable.
-// TODO(zxu123): remove once there is non-inline function.
-void dummy();
 
 }  // namespace testutil
 }  // namespace firestore

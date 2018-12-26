@@ -34,8 +34,8 @@ const pb_field_t firestore_client_Target_fields[7] = {
     PB_FIELD(  2, MESSAGE , SINGULAR, STATIC  , OTHER, firestore_client_Target, snapshot_version, target_id, &google_protobuf_Timestamp_fields),
     PB_FIELD(  3, BYTES   , SINGULAR, POINTER , OTHER, firestore_client_Target, resume_token, snapshot_version, 0),
     PB_FIELD(  4, INT64   , SINGULAR, STATIC  , OTHER, firestore_client_Target, last_listen_sequence_number, resume_token, 0),
-    PB_ANONYMOUS_ONEOF_FIELD(target_type,   5, MESSAGE , ONEOF, STATIC  , OTHER, firestore_client_Target, query, last_listen_sequence_number, &google_firestore_v1beta1_Target_QueryTarget_fields),
-    PB_ANONYMOUS_ONEOF_FIELD(target_type,   6, MESSAGE , ONEOF, STATIC  , UNION, firestore_client_Target, documents, last_listen_sequence_number, &google_firestore_v1beta1_Target_DocumentsTarget_fields),
+    PB_ANONYMOUS_ONEOF_FIELD(target_type,   5, MESSAGE , ONEOF, STATIC  , OTHER, firestore_client_Target, query, last_listen_sequence_number, &google_firestore_v1_Target_QueryTarget_fields),
+    PB_ANONYMOUS_ONEOF_FIELD(target_type,   6, MESSAGE , ONEOF, STATIC  , UNION, firestore_client_Target, documents, last_listen_sequence_number, &google_firestore_v1_Target_DocumentsTarget_fields),
     PB_LAST_FIELD
 };
 

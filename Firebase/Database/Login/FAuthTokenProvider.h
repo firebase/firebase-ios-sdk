@@ -19,19 +19,20 @@
 #import "FTypedefs.h"
 #import "FTypedefs_Private.h"
 
-@class FIRApp;
+@protocol FIRAuthInterop;
 
 @protocol FAuthTokenProvider <NSObject>
 
-- (void) fetchTokenForcingRefresh:(BOOL)forceRefresh withCallback:(fbt_void_nsstring_nserror)callback;
+- (void)fetchTokenForcingRefresh:(BOOL)forceRefresh
+                    withCallback:(fbt_void_nsstring_nserror)callback;
 
-- (void) listenForTokenChanges:(fbt_void_nsstring)listener;
+- (void)listenForTokenChanges:(fbt_void_nsstring)listener;
 
 @end
 
 @interface FAuthTokenProvider : NSObject
 
-+ (id<FAuthTokenProvider>) authTokenProviderForApp:(FIRApp *)app;
++ (id<FAuthTokenProvider>)authTokenProviderWithAuth:(id<FIRAuthInterop>)auth;
 
 - (instancetype)init NS_UNAVAILABLE;
 

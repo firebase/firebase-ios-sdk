@@ -161,6 +161,9 @@ static void UnswizzleDynamicLinkNetworking() {
 
 - (void)setUp {
   [super setUp];
+  if (!(FIRApp.defaultApp)) {
+    [FIRApp configure];
+  }
   self.service = [[FIRDynamicLinks alloc] init];
   self.userDefaults = [[NSUserDefaults alloc] init];
   [self.userDefaults removePersistentDomainForName:[[NSBundle mainBundle] bundleIdentifier]];
@@ -223,7 +226,6 @@ static void UnswizzleDynamicLinkNetworking() {
 }
 
 - (void)testFactoryMethodReturnsProperClassObject {
-  [FIRApp configure];
   id service = [FIRDynamicLinks dynamicLinks];
 
   XCTAssertNotNil(service, @"Factory method returned nil");
@@ -1023,12 +1025,13 @@ static void UnswizzleDynamicLinkNetworking() {
   //  https://a.firebase.com/mypath
 
   NSArray<NSString *> *urlStrings = @[
-    @"https://google.com/1",                            // Valid domain. Any path.
-    @"https://google.com/2",                            // Valid domain. Any path.
-    @"https://google.com/one",                          // Valid domain. Specified path.
-    @"https://a.firebase.com/mypath/",                  // Valid subdomain.
-    @"https://a.firebase.com/mypath/abcd/efgh",         // Long path.
-    @"https://a.firebase.com/mypath?link=abcd&test=1",  // Long path.
+    @"https://google.com/mylink",             // Short FDL starting with 'https://google.com'
+    @"https://google.com/one",                // Short FDL starting with 'https://google.com'
+    @"https://google.com?link=abcd",          // Long FDL starting with  'https://google.com'
+    @"https://google.com/one/mylink",         // Long FDL starting with  'https://google.com/one'
+    @"https://a.firebase.com/mypath/mylink",  // Short FDL starting https://a.firebase.com/mypath
+    @"https://a.firebase.com/mypath?link=abcd&test=1",  // Long FDL starting with
+                                                        // https://a.firebase.com/mypath
   ];
 
   for (NSString *urlString in urlStrings) {
@@ -1047,14 +1050,17 @@ static void UnswizzleDynamicLinkNetworking() {
   //  https://a.firebase.com/mypath
 
   NSArray<NSString *> *urlStrings = @[
-    @"mydomain.com",                  // Domain not in plist. Also, no scheme.
-    @"http://mydomain",               // Domain not in plist. No path.
-    @"google.com",                    // Valid domain. No scheme.
-    @"https://google.com",            // Valid domain. No path.
-    @"http://google.com",             // Valid domain. Invalid scheme.
-    @"https://google.co.in/abc",      // Invalid domain starts with valid domain name.
-    @"https://firebase.com/mypath",   // Invalid (sub)domain.
-    @"https://b.firebase.com/mypath"  // Invalid subdomain.
+    @"google.com",                         // Valid domain. No scheme.
+    @"https://google.com",                 // Valid domain. No path after domainURIPrefix.
+    @"https://google.com/",                // Valid domain. No path after domainURIPrefix.
+    @"https://google.com/one/",            // Valid domain. No path after domainURIPrefix.
+    @"https://google.com/one/two/mylink",  // domainURIPrefix not exact match.
+    @"https://google.co.in/mylink",        // No matching domainURIPrefix.
+    @"https://firebase.com/mypath",        // No matching domainURIPrefix: Invalid (sub)domain.
+    @"https://b.firebase.com/mypath",      // No matching domainURIPrefix: Invalid subdomain.
+    @"https://a.firebase.com/mypathabc",   // No matching domainURIPrefix: Invalid subdomain.
+    @"mydomain.com",                       // https scheme not specified for domainURIPrefix.
+    @"http://mydomain",                    // Domain not in plist. No path after domainURIPrefix.
   ];
 
   for (NSString *urlString in urlStrings) {

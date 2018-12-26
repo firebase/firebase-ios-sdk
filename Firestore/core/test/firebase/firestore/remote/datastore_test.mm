@@ -26,8 +26,8 @@
 #include "absl/memory/memory.h"
 #include "gtest/gtest.h"
 
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Document.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Firestore.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Document.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Firestore.pbobjc.h"
 
 namespace firebase {
 namespace firestore {
@@ -43,10 +43,10 @@ using util::GrpcStreamTester;
 using util::FakeCredentialsProvider;
 using util::FakeGrpcQueue;
 using util::WrapNSString;
-using util::internal::ExecutorLibdispatch;
+using util::ExecutorLibdispatch;
 using util::CompletionResult::Error;
 using util::CompletionResult::Ok;
-using util::internal::ExecutorStd;
+using util::ExecutorStd;
 using Type = GrpcCompletion::Type;
 
 namespace {

@@ -25,8 +25,6 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-using internal::Executor;
-
 AsyncQueue::AsyncQueue(std::unique_ptr<Executor> executor)
     : executor_{std::move(executor)} {
   is_operation_in_progress_ = false;

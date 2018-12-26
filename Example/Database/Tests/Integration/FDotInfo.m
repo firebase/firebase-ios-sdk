@@ -51,7 +51,7 @@
 }
 
 - (void) testInfoConnectedGoesToFalseOnDisconnect {
-    FIRDatabaseConfig *cfg = [FIRDatabaseConfig configForName:@"test-config"];
+    FIRDatabaseConfig *cfg = [FTestHelpers configForName:@"test-config"];
     FIRDatabaseReference * rootRef = [[FIRDatabaseReference alloc] initWithConfig:cfg];
     __block BOOL everConnected = NO;
     __block NSMutableString *connectedHistory = [[NSMutableString alloc] init];
@@ -78,7 +78,7 @@
 }
 
 - (void) testInfoServerTimeOffset {
-    FIRDatabaseConfig *cfg = [FIRDatabaseConfig configForName:@"test-config"];
+    FIRDatabaseConfig *cfg = [FTestHelpers configForName:@"test-config"];
     FIRDatabaseReference * ref = [[FIRDatabaseReference alloc] initWithConfig:cfg];
 
     // make sure childByAutoId works
@@ -103,8 +103,8 @@
 }
 
 - (void) testManualConnectionManagement {
-    FIRDatabaseConfig *cfg = [FIRDatabaseConfig configForName:@"test-config"];
-    FIRDatabaseConfig *altCfg = [FIRDatabaseConfig configForName:@"alt-config"];
+    FIRDatabaseConfig *cfg = [FTestHelpers configForName:@"test-config"];
+    FIRDatabaseConfig *altCfg = [FTestHelpers configForName:@"alt-config"];
 
     FIRDatabaseReference * ref = [[FIRDatabaseReference alloc] initWithConfig:cfg];
     FIRDatabaseReference * refAlt = [[FIRDatabaseReference alloc] initWithConfig:altCfg];

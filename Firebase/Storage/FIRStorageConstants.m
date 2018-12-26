@@ -82,5 +82,4 @@ NSString *const kFIRStorageBundleIdentifier = @"com.google.firebase.storage";
 // with a -D to be treated as a string instead of an invalid floating point value.
 #define STR(x) STR_EXPAND(x)
 #define STR_EXPAND(x) #x
-const unsigned char *const FIRStorageVersionString =
-    (const unsigned char *const)STR(FIRStorage_VERSION);
+const char *const FIRStorageVersionString = (const char *const)STR(FIRStorage_VERSION);

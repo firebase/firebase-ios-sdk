@@ -109,7 +109,10 @@
 
 - (void)testChildByAppendingNilToRoot {
   FIRStoragePath *path = [[FIRStoragePath alloc] initWithBucket:@"bucket" object:nil];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
   FIRStoragePath *childPath = [path child:nil];
+#pragma clang diagnostic pop
   XCTAssertEqualObjects([childPath stringValue], @"gs://bucket/");
 }
 

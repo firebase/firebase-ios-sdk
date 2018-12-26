@@ -22,7 +22,8 @@
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
-#import "Firestore/Source/Util/FSTDispatchQueue.h"
+
+using firebase::firestore::util::TimerId;
 
 @interface FIRDatabaseTests : FSTIntegrationTestCase
 @end
@@ -593,7 +594,7 @@
           XCTAssertFalse(doc.exists);
           [snapshotCompletion fulfill];
 
-        } else if (callbacks == 2) {
+        } else {
           XCTFail("Should not have received this callback");
         }
       }];
@@ -624,7 +625,7 @@
           XCTAssertEqual(doc.metadata.hasPendingWrites, YES);
           [dataCompletion fulfill];
 
-        } else if (callbacks == 3) {
+        } else {
           XCTFail("Should not have received this callback");
         }
       }];
@@ -665,7 +666,7 @@
                                                XCTAssertEqual(doc.metadata.hasPendingWrites, NO);
                                                [dataCompletion fulfill];
 
-                                             } else if (callbacks == 4) {
+                                             } else {
                                                XCTFail("Should not have received this callback");
                                              }
                                            }];
@@ -705,7 +706,7 @@
           XCTAssertEqual(doc.metadata.hasPendingWrites, YES);
           [changeCompletion fulfill];
 
-        } else if (callbacks == 3) {
+        } else {
           XCTFail("Should not have received this callback");
         }
       }];
@@ -759,7 +760,7 @@
                                                XCTAssertEqual(doc.metadata.isFromCache, NO);
                                                [changeCompletion fulfill];
 
-                                             } else if (callbacks == 5) {
+                                             } else {
                                                XCTFail("Should not have received this callback");
                                              }
                                            }];
@@ -798,7 +799,7 @@
           XCTAssertFalse(doc.exists);
           [changeCompletion fulfill];
 
-        } else if (callbacks == 3) {
+        } else {
           XCTFail("Should not have received this callback");
         }
       }];
@@ -846,7 +847,7 @@
                                                XCTAssertEqual(doc.metadata.isFromCache, NO);
                                                [changeCompletion fulfill];
 
-                                             } else if (callbacks == 4) {
+                                             } else {
                                                XCTFail("Should not have received this callback");
                                              }
                                            }];
@@ -885,7 +886,7 @@
           XCTAssertEqual(docSet.documents[0].metadata.hasPendingWrites, YES);
           [changeCompletion fulfill];
 
-        } else if (callbacks == 3) {
+        } else {
           XCTFail("Should not have received a third callback");
         }
       }];
@@ -928,7 +929,7 @@
           XCTAssertEqual(docSet.documents[0].metadata.hasPendingWrites, YES);
           [changeCompletion fulfill];
 
-        } else if (callbacks == 3) {
+        } else {
           XCTFail("Should not have received a third callback");
         }
       }];
@@ -968,7 +969,7 @@
           XCTAssertEqual(docSet.count, 0);
           [changeCompletion fulfill];
 
-        } else if (callbacks == 4) {
+        } else {
           XCTFail("Should not have received a third callback");
         }
       }];
@@ -1204,7 +1205,7 @@
   FIRFirestore *firestore = doc.firestore;
 
   [self writeDocumentRef:doc data:@{@"foo" : @"bar"}];
-  [[self queueForFirestore:firestore] runDelayedCallbacksUntil:FSTTimerIDWriteStreamIdle];
+  [self queueForFirestore:firestore] -> RunScheduledOperationsUntil(TimerId::WriteStreamIdle);
   [self writeDocumentRef:doc data:@{@"foo" : @"bar"}];
 }
 
@@ -1213,7 +1214,7 @@
   FIRFirestore *firestore = doc.firestore;
 
   [self readSnapshotForRef:[self documentRef] requireOnline:YES];
-  [[self queueForFirestore:firestore] runDelayedCallbacksUntil:FSTTimerIDListenStreamIdle];
+  [self queueForFirestore:firestore] -> RunScheduledOperationsUntil(TimerId::ListenStreamIdle);
   [self readSnapshotForRef:[self documentRef] requireOnline:YES];
 }
 

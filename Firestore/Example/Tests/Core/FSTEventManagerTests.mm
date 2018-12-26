@@ -22,7 +22,6 @@
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSyncEngine.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
-#import "Firestore/Source/Util/FSTDispatchQueue.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
@@ -49,13 +48,7 @@ static NSNumber *ToNSNumber(OnlineState state) {
 @interface FSTEventManagerTests : XCTestCase
 @end
 
-@implementation FSTEventManagerTests {
-  FSTDispatchQueue *_testUserQueue;
-}
-
-- (void)setUp {
-  _testUserQueue = [FSTDispatchQueue queueWith:dispatch_get_main_queue()];
-}
+@implementation FSTEventManagerTests
 
 - (FSTQueryListener *)noopListenerForQuery:(FSTQuery *)query {
   return [[FSTQueryListener alloc]

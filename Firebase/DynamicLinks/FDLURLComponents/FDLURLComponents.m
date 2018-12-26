@@ -451,40 +451,27 @@ static NSString *const kFDLOtherPlatformParametersFallbackURLKey = @"ofl";
 
 #pragma mark Deprecated Initializers.
 + (instancetype)componentsWithLink:(NSURL *)link domain:(NSString *)domain {
-  NSURL *domainURL = [NSURL URLWithString:domain];
-  if (!domainURL.scheme) {
-    FDLLog(FDLLogLevelWarning, FDLLogIdentifierSetupWarnHTTPSScheme,
-           @"Only https scheme is allowed. The supplied domain's scheme will be treated as https.");
-  }
-  NSString *domainURIPrefix =
-      domainURL.scheme ? domain : [NSString stringWithFormat:@"https://%@", domain];
-  return [FIRDynamicLinkComponents componentsWithLink:link domainURIPrefix:domainURIPrefix];
+  return [[self alloc] initWithLink:link domain:domain];
 }
 
 - (instancetype)initWithLink:(NSURL *)link domain:(NSString *)domain {
   NSURL *domainURL = [NSURL URLWithString:domain];
-  if (!domainURL.scheme) {
+  if (domainURL.scheme) {
     FDLLog(FDLLogLevelWarning, FDLLogIdentifierSetupWarnHTTPSScheme,
-           @"Only https scheme is allowed. The supplied domain's scheme will be treated as https.");
+           @"You have supplied a domain with a scheme. Please enter a domain name without the "
+           @"scheme.");
   }
-  NSString *domainURIPrefix =
-      domainURL.scheme ? domain : [NSString stringWithFormat:@"https://%@", domain];
-  return [self initWithLink:link domainURIPrefix:domainURIPrefix];
+  NSString *domainURIPrefix = [NSString stringWithFormat:@"https://%@", domain];
+  self = [super init];
+  if (self) {
+    _link = link;
+    _domain = domainURIPrefix;
+  }
+  return self;
 }
 
 #pragma mark Initializers.
 + (instancetype)componentsWithLink:(NSURL *)link domainURIPrefix:(NSString *)domainURIPrefix {
-  NSURL *domainURIPrefixURL = [NSURL URLWithString:domainURIPrefix];
-  if (!domainURIPrefixURL) {
-    FDLLog(FDLLogLevelError, FDLLogIdentifierSetupInvalidDomainURIPrefix,
-           @"Invalid domainURIPrefix. Please input a valid URL.");
-    return nil;
-  }
-  if (![[domainURIPrefixURL.scheme lowercaseString] isEqualToString:@"https"]) {
-    FDLLog(FDLLogLevelError, FDLLogIdentifierSetupInvalidDomainURIPrefixScheme,
-           @"Invalid domainURIPrefix scheme. Scheme needs to be https");
-    return nil;
-  }
   return [[self alloc] initWithLink:link domainURIPrefix:domainURIPrefix];
 }
 

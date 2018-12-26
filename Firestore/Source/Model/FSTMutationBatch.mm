@@ -23,6 +23,7 @@
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 
+#include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 using firebase::firestore::model::BatchId;
@@ -30,6 +31,7 @@ using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeyHash;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentVersionMap;
+using firebase::firestore::model::MaybeDocumentMap;
 using firebase::firestore::model::SnapshotVersion;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -131,17 +133,19 @@ const BatchId kFSTBatchIDUnknown = -1;
   return maybeDoc;
 }
 
-- (FSTMaybeDocumentDictionary *)applyToLocalDocumentSet:(FSTMaybeDocumentDictionary *)documentSet {
+- (MaybeDocumentMap)applyToLocalDocumentSet:(const MaybeDocumentMap &)documentSet {
   // TODO(mrschmidt): This implementation is O(n^2). If we iterate through the mutations first (as
   // done in `applyToLocalDocument:documentKey:`), we can reduce the complexity to O(n).
 
-  FSTMaybeDocumentDictionary *mutatedDocuments = documentSet;
+  MaybeDocumentMap mutatedDocuments = documentSet;
   for (FSTMutation *mutation in self.mutations) {
     const DocumentKey &key = mutation.key;
-    FSTMaybeDocument *mutatedDocument =
-        [self applyToLocalDocument:[mutatedDocuments objectForKey:key] documentKey:key];
+    auto maybeDocument = mutatedDocuments.find(key);
+    FSTMaybeDocument *mutatedDocument = [self
+        applyToLocalDocument:(maybeDocument != mutatedDocuments.end() ? maybeDocument->second : nil)
+                 documentKey:key];
     if (mutatedDocument) {
-      mutatedDocuments = [mutatedDocuments dictionaryBySettingObject:mutatedDocument forKey:key];
+      mutatedDocuments = mutatedDocuments.insert(key, mutatedDocument);
     }
   }
   return mutatedDocuments;

@@ -28,8 +28,8 @@ namespace util {
 
 namespace {
 
-std::unique_ptr<internal::Executor> ExecutorFactory() {
-  return absl::make_unique<internal::ExecutorLibdispatch>(
+std::unique_ptr<Executor> ExecutorFactory() {
+  return absl::make_unique<ExecutorLibdispatch>(
       dispatch_queue_create("ExecutorLibdispatchTests", DISPATCH_QUEUE_SERIAL));
 }
 

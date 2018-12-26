@@ -21,8 +21,8 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 
-@class FSTDispatchQueue;
 @class FSTLocalStore;
 @class FSTMutation;
 @class FSTQuery;
@@ -58,7 +58,7 @@ NS_ASSUME_NONNULL_BEGIN
  *    sending to the backend.
  *
  * The SyncEngine’s methods should only ever be called by methods running on our own worker
- * dispatch queue.
+ * queue.
  */
 @interface FSTSyncEngine : NSObject <FSTRemoteSyncer>
 
@@ -97,12 +97,12 @@ NS_ASSUME_NONNULL_BEGIN
  * Runs the given transaction block up to retries times and then calls completion.
  *
  * @param retries The number of times to try before giving up.
- * @param workerDispatchQueue The queue to dispatch sync engine calls to.
+ * @param workerQueue The queue to dispatch sync engine calls to.
  * @param updateBlock The block to call to execute the user's transaction.
  * @param completion The block to call when the transaction is finished or failed.
  */
 - (void)transactionWithRetries:(int)retries
-           workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
+                   workerQueue:(firebase::firestore::util::AsyncQueue *)workerQueue
                    updateBlock:(FSTTransactionBlock)updateBlock
                     completion:(FSTVoidIDErrorBlock)completion;
 

@@ -45,7 +45,7 @@
 #include <google/protobuf/repeated_field.h>  // IWYU pragma: export
 #include <google/protobuf/extension_set.h>  // IWYU pragma: export
 #include <google/protobuf/unknown_field_set.h>
-#include "google/firestore/v1beta1/document.pb.h"
+#include "google/firestore/v1/document.pb.h"
 #include <google/protobuf/timestamp.pb.h>
 // @@protoc_insertion_point(includes)
 
@@ -428,14 +428,14 @@ class MaybeDocument : public ::google::protobuf::Message /* @@protoc_insertion_p
   ::firestore::client::NoDocument* mutable_no_document();
   void set_allocated_no_document(::firestore::client::NoDocument* no_document);
 
-  // .google.firestore.v1beta1.Document document = 2;
+  // .google.firestore.v1.Document document = 2;
   bool has_document() const;
   void clear_document();
   static const int kDocumentFieldNumber = 2;
-  const ::google::firestore::v1beta1::Document& document() const;
-  ::google::firestore::v1beta1::Document* release_document();
-  ::google::firestore::v1beta1::Document* mutable_document();
-  void set_allocated_document(::google::firestore::v1beta1::Document* document);
+  const ::google::firestore::v1::Document& document() const;
+  ::google::firestore::v1::Document* release_document();
+  ::google::firestore::v1::Document* mutable_document();
+  void set_allocated_document(::google::firestore::v1::Document* document);
 
   // .firestore.client.UnknownDocument unknown_document = 3;
   bool has_unknown_document() const;
@@ -462,7 +462,7 @@ class MaybeDocument : public ::google::protobuf::Message /* @@protoc_insertion_p
   union DocumentTypeUnion {
     DocumentTypeUnion() {}
     ::firestore::client::NoDocument* no_document_;
-    ::google::firestore::v1beta1::Document* document_;
+    ::google::firestore::v1::Document* document_;
     ::firestore::client::UnknownDocument* unknown_document_;
   } document_type_;
   mutable int _cached_size_;
@@ -726,35 +726,35 @@ inline ::firestore::client::NoDocument* MaybeDocument::mutable_no_document() {
   return document_type_.no_document_;
 }
 
-// .google.firestore.v1beta1.Document document = 2;
+// .google.firestore.v1.Document document = 2;
 inline bool MaybeDocument::has_document() const {
   return document_type_case() == kDocument;
 }
 inline void MaybeDocument::set_has_document() {
   _oneof_case_[0] = kDocument;
 }
-inline ::google::firestore::v1beta1::Document* MaybeDocument::release_document() {
+inline ::google::firestore::v1::Document* MaybeDocument::release_document() {
   // @@protoc_insertion_point(field_release:firestore.client.MaybeDocument.document)
   if (has_document()) {
     clear_has_document_type();
-      ::google::firestore::v1beta1::Document* temp = document_type_.document_;
+      ::google::firestore::v1::Document* temp = document_type_.document_;
     document_type_.document_ = NULL;
     return temp;
   } else {
     return NULL;
   }
 }
-inline const ::google::firestore::v1beta1::Document& MaybeDocument::document() const {
+inline const ::google::firestore::v1::Document& MaybeDocument::document() const {
   // @@protoc_insertion_point(field_get:firestore.client.MaybeDocument.document)
   return has_document()
       ? *document_type_.document_
-      : *reinterpret_cast< ::google::firestore::v1beta1::Document*>(&::google::firestore::v1beta1::_Document_default_instance_);
+      : *reinterpret_cast< ::google::firestore::v1::Document*>(&::google::firestore::v1::_Document_default_instance_);
 }
-inline ::google::firestore::v1beta1::Document* MaybeDocument::mutable_document() {
+inline ::google::firestore::v1::Document* MaybeDocument::mutable_document() {
   if (!has_document()) {
     clear_document_type();
     set_has_document();
-    document_type_.document_ = new ::google::firestore::v1beta1::Document;
+    document_type_.document_ = new ::google::firestore::v1::Document;
   }
   // @@protoc_insertion_point(field_mutable:firestore.client.MaybeDocument.document)
   return document_type_.document_;
