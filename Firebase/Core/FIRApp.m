@@ -21,8 +21,8 @@
 #import "Private/FIRLibrary.h"
 #import "Private/FIRLogger.h"
 #import "Private/FIROptionsInternal.h"
-#import "Public/FIRApp.h"
-#import "Public/FIRConfiguration.h"
+#import "FIRApp.h"
+#import "FIRConfiguration.h"
 
 NSString *const kFIRServiceAdMob = @"AdMob";
 NSString *const kFIRServiceAuth = @"Auth";
