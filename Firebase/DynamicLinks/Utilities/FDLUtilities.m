@@ -212,10 +212,12 @@ BOOL FIRDLIsURLForWhiteListedCustomDomain(NSURL *_Nullable URL) {
             ([urlStr characterAtIndex:domainURIPrefixStr.length] == '/' ||
              [urlStr characterAtIndex:domainURIPrefixStr.length] == '?')) {
           // Check if there are any more '/' after the first '/' or '?' trailing the
-          // domainURIPrefix.
+          // domainURIPrefix. This does not apply to unique match links copied from the clipboard.
+          // The clipboard links will have '?link=' after the domainURIPrefix.
           NSString *urlWithoutDomainURIPrefix =
               [urlStr substringFromIndex:domainURIPrefixStr.length + 1];
-          if ([urlWithoutDomainURIPrefix rangeOfString:@"/"].location == NSNotFound) {
+          if ([urlWithoutDomainURIPrefix rangeOfString:@"/"].location == NSNotFound ||
+              [urlWithoutDomainURIPrefix rangeOfString:@"?link="].location != NSNotFound) {
             customDomainMatchFound = true;
             break;
           }
