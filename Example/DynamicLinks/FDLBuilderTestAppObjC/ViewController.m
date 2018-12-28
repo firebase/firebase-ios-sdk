@@ -290,7 +290,7 @@ static NSArray *kParamsConfiguration;
   NSURL *link = [NSURL URLWithString:_paramValues[@"linkString"]];
   FIRDynamicLinkComponents *components =
       [FIRDynamicLinkComponents componentsWithLink:link
-                                   domainURIPrefix:_paramValues[@"https://domain"]];
+                                   domainURIPrefix:_paramValues[@"domainURIPrefix"]];
 
   FIRDynamicLinkGoogleAnalyticsParameters *analyticsParams =
       [FIRDynamicLinkGoogleAnalyticsParameters
