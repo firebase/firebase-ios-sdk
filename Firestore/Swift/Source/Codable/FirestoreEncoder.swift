@@ -43,9 +43,9 @@ extension DocumentReference {
 extension Transaction {
   public func setData<T: Encodable>(_ value: T, forDocument: DocumentReference) {
     do {
-      setData(try Firestore.Encoder().encode(value), forDocument:forDocument)
+      setData(try Firestore.Encoder().encode(value), forDocument: forDocument)
     } catch let error {
-      print ("TODO - how should this be handled?")
+      print("TODO - how should this be handled?")
     }
   }
 }
@@ -54,9 +54,9 @@ extension Transaction {
 extension WriteBatch {
   public func setData<T: Encodable>(_ value: T, forDocument: DocumentReference) {
     do {
-      setData(try Firestore.Encoder().encode(value), forDocument:forDocument)
+      setData(try Firestore.Encoder().encode(value), forDocument: forDocument)
     } catch let error {
-      print ("TODO - how should this be handled?")
+      print("TODO - how should this be handled?")
     }
   }
 }

@@ -20,7 +20,7 @@ import Foundation
 import XCTest
 
 class CodableDocumentTests: XCTestCase {
-  func roundTrip <X>(input: X, expected: [String:Any], doTest: Bool = true) -> X where X : Codable {
+  func roundTrip<X>(input: X, expected: [String: Any], doTest: Bool = true) -> X where X: Codable {
     var encoded = [String: Any]()
     do {
       encoded = try Firestore.Encoder().encode(input)
@@ -73,10 +73,10 @@ class CodableDocumentTests: XCTestCase {
       let opt: Int?
     }
     let dict = ["x": 42]
-    let model = Model(x:42, opt:nil)
+    let model = Model(x: 42, opt: nil)
     XCTAssertEqual(model.x, roundTrip(input: model, expected: dict).x)
 
-    let model2 = Model(x:42, opt:7)
+    let model2 = Model(x: 42, opt: 7)
     let expected = ["x": 42, "opt": 7]
     let encoded = try! Firestore.Encoder().encode(model2)
     XCTAssertEqual(encoded as NSDictionary, expected as NSDictionary)
@@ -107,7 +107,7 @@ class CodableDocumentTests: XCTestCase {
   }
 
   func testEnum() {
-    enum MyEnum : Codable, Equatable {
+    enum MyEnum: Codable, Equatable {
       case num(number: Int)
       case text(String)
       case timestamp(Timestamp)
@@ -117,9 +117,11 @@ class CodableDocumentTests: XCTestCase {
         case text
         case timestamp
       }
+
       private enum DecodingError: Error {
         case decoding(String)
       }
+
       init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         if let value = try? values.decode(Int.self, forKey: .num) {
@@ -136,14 +138,15 @@ class CodableDocumentTests: XCTestCase {
         }
         throw DecodingError.decoding("Decoding error: \(dump(values))")
       }
+
       func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         switch self {
-        case .num(let number):
+        case let .num(number):
           try container.encode(number, forKey: .num)
-        case .text(let value):
+        case let .text(value):
           try container.encode(value, forKey: .text)
-        case .timestamp(let stamp):
+        case let .timestamp(stamp):
           try container.encode(stamp, forKey: .timestamp)
         }
       }
@@ -217,7 +220,7 @@ class CodableDocumentTests: XCTestCase {
     do {
       _ = try Firestore.Decoder().decode(Model.self, from: dict)
     } catch {
-      didThrow = true;
+      didThrow = true
     }
     XCTAssertTrue(didThrow)
   }
@@ -336,6 +339,7 @@ class CodableDocumentTests: XCTestCase {
         case i
         case b
       }
+
       public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         s = try values.decode(String.self, forKey: .s)
@@ -347,7 +351,8 @@ class CodableDocumentTests: XCTestCase {
         mi = -9
         mb = false
       }
-      public init(ins:String, inms:String, ind:Double, inmd:Double, ini:Int, inmi:Int, inb:Bool, inmb:Bool)  {
+
+      public init(ins: String, inms: String, ind: Double, inmd: Double, ini: Int, inmi: Int, inb: Bool, inmb: Bool) {
         s = ins
         d = ind
         i = ini
@@ -373,7 +378,7 @@ class CodableDocumentTests: XCTestCase {
       "d": 123.3,
       "i": -4444,
       "b": true,
-      ] as [String: Any]
+    ] as [String: Any]
 
     let model2 = try! Firestore.Decoder().decode(Model.self, from: dict)
     XCTAssertEqual(model.s, model2.s)
