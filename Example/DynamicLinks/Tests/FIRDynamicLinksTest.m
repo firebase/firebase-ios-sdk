@@ -1032,10 +1032,12 @@ static void UnswizzleDynamicLinkNetworking() {
     @"https://a.firebase.com/mypath/mylink",  // Short FDL starting https://a.firebase.com/mypath
     @"https://a.firebase.com/mypath?link=abcd&test=1",  // Long FDL starting with
                                                         // https://a.firebase.com/mypath
-    @"https://a.firebase.com/mypath/?link=https://www.google.com&test=1"  // The long FDL coming
-                                                                          // from the pasteboard has
-                                                                          // an extra trailing
-                                                                          // slash.
+    @"https://a.firebase.com/mypath/?link=https://www.google.com&test=1"  // Long FDL coming from
+                                                                          // the app preview page.
+                                                                          // Note that the long FDL
+                                                                          // coming from the
+                                                                          // pasteboard has an extra
+                                                                          // trailing slash.
   ];
 
   for (NSString *urlString in urlStrings) {
