@@ -20,15 +20,18 @@ import Foundation
 import XCTest
 
 class CodableDocumentTests: XCTestCase {
-  func roundTrip <X>(input: X, expected: [String:Any]) -> X where X : Codable {
+  func roundTrip <X>(input: X, expected: [String:Any], doTest: Bool = true) -> X where X : Codable {
+    var encoded = [String: Any]()
     do {
-      let encoded = try Firestore.Encoder().encode(input)
-      XCTAssertEqual(encoded as NSDictionary, expected as NSDictionary)
+      encoded = try Firestore.Encoder().encode(input)
+      if doTest {
+        XCTAssertEqual(encoded as NSDictionary, expected as NSDictionary)
+      }
     } catch {
       XCTFail("Failed to encode \(X.self): error: \(error)")
     }
     do {
-      let decoded = try Firestore.Decoder().decode(X.self, from: expected)
+      let decoded = try Firestore.Decoder().decode(X.self, from: encoded)
       return decoded
     } catch {
       XCTFail("Failed to decode \(X.self): \(error)")
@@ -101,6 +104,68 @@ class CodableDocumentTests: XCTestCase {
     // Or, overriding custom field values:
     fs.setObject(c, fieldValues: [\Model.timestamp: FieldValue.serverTimestamp(),
                                   \Model.value: FieldValue.delete()])
+  }
+
+  func testEnum() {
+    enum MyEnum : Codable, Equatable {
+      case num(number: Int)
+      case text(String)
+      case timestamp(Timestamp)
+
+      private enum CodingKeys: String, CodingKey {
+        case num
+        case text
+        case timestamp
+      }
+      private enum DecodingError: Error {
+        case decoding(String)
+      }
+      init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        if let value = try? values.decode(Int.self, forKey: .num) {
+          self = .num(number: value)
+          return
+        }
+        if let value = try? values.decode(String.self, forKey: .text) {
+          self = .text(value)
+          return
+        }
+        if let value = try? values.decode(Timestamp.self, forKey: .timestamp) {
+          self = .timestamp(value)
+          return
+        }
+        throw DecodingError.decoding("Decoding error: \(dump(values))")
+      }
+      func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        switch self {
+        case .num(let number):
+          try container.encode(number, forKey: .num)
+        case .text(let value):
+          try container.encode(value, forKey: .text)
+        case .timestamp(let stamp):
+          try container.encode(stamp, forKey: .timestamp)
+        }
+      }
+    }
+    struct Model: Codable {
+      let x: Int
+      let e: MyEnum
+    }
+    let model = Model(x: 42, e: MyEnum.num(number: 4))
+    let output = roundTrip(input: model, expected: [:], doTest: false)
+    XCTAssertEqual(model.x, output.x)
+    XCTAssertEqual(model.e, output.e)
+
+    let model2 = Model(x: 43, e: MyEnum.text("abc"))
+    let output2 = roundTrip(input: model2, expected: [:], doTest: false)
+    XCTAssertEqual(model2.x, output2.x)
+    XCTAssertEqual(model2.e, output2.e)
+
+    let model3 = Model(x: 43, e: MyEnum.timestamp(Timestamp(date: Date())))
+    let output3 = roundTrip(input: model3, expected: [:], doTest: false)
+    XCTAssertEqual(model3.x, output3.x)
+    XCTAssertEqual(model3.e, output3.e)
   }
 
   func testGeoPoint() {

@@ -17,6 +17,8 @@
 import Foundation
 import FirebaseFirestore
 
+// Add CollectionReference?
+
 @available(swift 4.0.0)
 extension DocumentSnapshot {
   public func data<T: Decodable>(as type: T.Type) throws -> T {
