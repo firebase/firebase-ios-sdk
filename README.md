@@ -90,7 +90,7 @@ Travis will verify that any code changes are done in a style compliant way. Inst
 `clang-format` and `swiftformat`.
 This command will get the right `clang-format` version:
 
-`brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/c435aae81df87d826eed0158ffdbfa872a7cb1b7/Formula/clang-format.rb`
+`brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/773cb75d360b58f32048f5964038d09825a507c8/Formula/clang-format.rb`
 
 ### Running Unit Tests
 
