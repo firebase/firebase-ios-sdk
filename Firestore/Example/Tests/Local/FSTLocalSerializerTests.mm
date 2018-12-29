@@ -80,12 +80,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testEncodesMutationBatch {
   FSTMutation *set = FSTTestSetMutation(@"foo/bar", @{@"a" : @"b", @"num" : @1});
-  FSTMutation *patch = [[FSTPatchMutation alloc] initWithKey:FSTTestDocKey(@"bar/baz")
-                                                   fieldMask:FieldMask{testutil::Field("a")}
-                                                       value:FSTTestObjectValue(
-                                                                 @{@"a" : @"b",
-                                                                   @"num" : @1})
-                                                precondition:Precondition::Exists(true)];
+  FSTMutation *patch =
+      [[FSTPatchMutation alloc] initWithKey:FSTTestDocKey(@"bar/baz")
+                                  fieldMask:FieldMask{testutil::Field("a")}
+                                      value:FSTTestObjectValue(@{@"a" : @"b", @"num" : @1})
+                               precondition:Precondition::Exists(true)];
   FSTMutation *del = FSTTestDeleteMutation(@"baz/quux");
   FIRTimestamp *writeTime = [FIRTimestamp timestamp];
   FSTMutationBatch *model = [[FSTMutationBatch alloc] initWithBatchID:42

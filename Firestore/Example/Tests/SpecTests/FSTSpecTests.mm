@@ -357,8 +357,8 @@ static NSString *Describe(NSData *data) {
                 @"'keepInQueue=true' is not supported on iOS and should only be set in "
                 @"multi-client tests");
 
-  FSTMutationResult *mutationResult =
-      [[FSTMutationResult alloc] initWithVersion:version transformResults:nil];
+  FSTMutationResult *mutationResult = [[FSTMutationResult alloc] initWithVersion:version
+                                                                transformResults:nil];
   [self.driver receiveWriteAckWithVersion:version mutationResults:@[ mutationResult ]];
 }
 
@@ -479,9 +479,8 @@ static NSString *Describe(NSData *data) {
   } else if (step[@"restart"]) {
     [self doRestart];
   } else if (step[@"applyClientState"]) {
-    XCTFail(
-        @"'applyClientState' is not supported on iOS and should only be used in multi-client "
-        @"tests");
+    XCTFail(@"'applyClientState' is not supported on iOS and should only be used in multi-client "
+            @"tests");
   } else {
     XCTFail(@"Unknown step: %@", step);
   }
@@ -497,23 +496,23 @@ static NSString *Describe(NSData *data) {
     NSMutableArray *expectedChanges = [NSMutableArray array];
     NSMutableArray *removed = expected[@"removed"];
     for (NSDictionary *changeSpec in removed) {
-      [expectedChanges
-          addObject:[self parseChange:changeSpec ofType:FSTDocumentViewChangeTypeRemoved]];
+      [expectedChanges addObject:[self parseChange:changeSpec
+                                            ofType:FSTDocumentViewChangeTypeRemoved]];
     }
     NSMutableArray *added = expected[@"added"];
     for (NSDictionary *changeSpec in added) {
-      [expectedChanges
-          addObject:[self parseChange:changeSpec ofType:FSTDocumentViewChangeTypeAdded]];
+      [expectedChanges addObject:[self parseChange:changeSpec
+                                            ofType:FSTDocumentViewChangeTypeAdded]];
     }
     NSMutableArray *modified = expected[@"modified"];
     for (NSDictionary *changeSpec in modified) {
-      [expectedChanges
-          addObject:[self parseChange:changeSpec ofType:FSTDocumentViewChangeTypeModified]];
+      [expectedChanges addObject:[self parseChange:changeSpec
+                                            ofType:FSTDocumentViewChangeTypeModified]];
     }
     NSMutableArray *metadata = expected[@"metadata"];
     for (NSDictionary *changeSpec in metadata) {
-      [expectedChanges
-          addObject:[self parseChange:changeSpec ofType:FSTDocumentViewChangeTypeMetadata]];
+      [expectedChanges addObject:[self parseChange:changeSpec
+                                            ofType:FSTDocumentViewChangeTypeMetadata]];
     }
     XCTAssertEqualObjects(actual.viewSnapshot.documentChanges, expectedChanges);
 

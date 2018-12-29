@@ -60,8 +60,8 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - FIRComponentRegistrant
 
 + (nonnull NSArray<FIRComponent *> *)componentsToRegister {
-  FIRDependency *authDep =
-      [FIRDependency dependencyWithProtocol:@protocol(FIRAuthInterop) isRequired:NO];
+  FIRDependency *authDep = [FIRDependency dependencyWithProtocol:@protocol(FIRAuthInterop)
+                                                      isRequired:NO];
   FIRComponentCreationBlock creationBlock =
       ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
     return [[FIRStorageComponent alloc] initWithApp:container.app];

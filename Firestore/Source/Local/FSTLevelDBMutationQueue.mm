@@ -364,10 +364,10 @@ using leveldb::WriteOptions;
     std::string mutationKey = LevelDbMutationKey::Key(_userID, rowKey.batch_id());
     mutationIterator->Seek(mutationKey);
     if (!mutationIterator->Valid() || mutationIterator->key() != mutationKey) {
-      HARD_FAIL(
-          "Dangling document-mutation reference found: "
-          "%s points to %s; seeking there found %s",
-          DescribeKey(indexIterator), DescribeKey(mutationKey), DescribeKey(mutationIterator));
+      HARD_FAIL("Dangling document-mutation reference found: "
+                "%s points to %s; seeking there found %s",
+                DescribeKey(indexIterator), DescribeKey(mutationKey),
+                DescribeKey(mutationIterator));
     }
 
     [result addObject:[self decodedMutationBatch:mutationIterator->value()]];
@@ -474,10 +474,9 @@ using leveldb::WriteOptions;
     std::string mutationKey = LevelDbMutationKey::Key(_userID, batchID);
     mutationIterator->Seek(mutationKey);
     if (!mutationIterator->Valid() || mutationIterator->key() != mutationKey) {
-      HARD_FAIL(
-          "Dangling document-mutation reference found: "
-          "Missing batch %s; seeking there found %s",
-          DescribeKey(mutationKey), DescribeKey(mutationIterator));
+      HARD_FAIL("Dangling document-mutation reference found: "
+                "Missing batch %s; seeking there found %s",
+                DescribeKey(mutationKey), DescribeKey(mutationIterator));
     }
 
     [result addObject:[self decodedMutationBatch:mutationIterator->value()]];
@@ -558,8 +557,9 @@ using leveldb::WriteOptions;
 
 /** Parses the MutationQueue metadata from the given LevelDB row contents. */
 - (FSTPBMutationQueue *)parsedMetadata:(Slice)slice {
-  NSData *data =
-      [[NSData alloc] initWithBytesNoCopy:(void *)slice.data() length:slice.size() freeWhenDone:NO];
+  NSData *data = [[NSData alloc] initWithBytesNoCopy:(void *)slice.data()
+                                              length:slice.size()
+                                        freeWhenDone:NO];
 
   NSError *error;
   FSTPBMutationQueue *proto = [FSTPBMutationQueue parseFromData:data error:&error];

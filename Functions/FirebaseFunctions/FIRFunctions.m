@@ -85,8 +85,8 @@ NSString *const kFUNDefaultRegion = @"us-central1";
     *isCacheable = YES;
     return [self functionsForApp:container.app];
   };
-  FIRDependency *auth =
-      [FIRDependency dependencyWithProtocol:@protocol(FIRAuthInterop) isRequired:NO];
+  FIRDependency *auth = [FIRDependency dependencyWithProtocol:@protocol(FIRAuthInterop)
+                                                   isRequired:NO];
   FIRComponent *internalProvider =
       [FIRComponent componentWithProtocol:@protocol(FIRFunctionsInstanceProvider)
                       instantiationTiming:FIRInstantiationTimingLazy

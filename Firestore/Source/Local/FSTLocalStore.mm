@@ -163,8 +163,8 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 - (FSTLocalWriteResult *)locallyWriteMutations:(NSArray<FSTMutation *> *)mutations {
   return self.persistence.run("Locally write mutations", [&]() -> FSTLocalWriteResult * {
     FIRTimestamp *localWriteTime = [FIRTimestamp timestamp];
-    FSTMutationBatch *batch =
-        [self.mutationQueue addMutationBatchWithWriteTime:localWriteTime mutations:mutations];
+    FSTMutationBatch *batch = [self.mutationQueue addMutationBatchWithWriteTime:localWriteTime
+                                                                      mutations:mutations];
     DocumentKeySet keys = [batch keys];
     MaybeDocumentMap changedDocuments = [self.localDocuments documentsForKeys:keys];
     return [FSTLocalWriteResult resultForBatchID:batch.batchID changes:std::move(changedDocuments)];
@@ -292,11 +292,10 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
         _remoteDocumentCache->Add(doc);
         changedDocs = changedDocs.insert(key, doc);
       } else {
-        LOG_DEBUG(
-            "FSTLocalStore Ignoring outdated watch update for %s. "
-            "Current version: %s  Watch version: %s",
-            key.ToString(), existingDoc.version.timestamp().ToString(),
-            doc.version.timestamp().ToString());
+        LOG_DEBUG("FSTLocalStore Ignoring outdated watch update for %s. "
+                  "Current version: %s  Watch version: %s",
+                  key.ToString(), existingDoc.version.timestamp().ToString(),
+                  doc.version.timestamp().ToString());
       }
 
       // If this was a limbo resolution, make sure we mark when it was accessed.

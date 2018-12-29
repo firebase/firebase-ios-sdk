@@ -117,11 +117,10 @@ static NSMutableDictionary *sLibraryVersions;
     }
 
     [NSException raise:kFirebaseCoreErrorDomain
-                format:
-                    @"`[FIRApp configure];` (`FirebaseApp.configure()` in Swift) could not find "
-                    @"a valid GoogleService-Info.plist in your project. Please download one "
-                    @"from %@.",
-                    kPlistURL];
+                format:@"`[FIRApp configure];` (`FirebaseApp.configure()` in Swift) could not find "
+                       @"a valid GoogleService-Info.plist in your project. Please download one "
+                       @"from %@.",
+                       kPlistURL];
   }
   [FIRApp configureWithOptions:options];
 #if TARGET_OS_OSX || TARGET_OS_TV
@@ -162,9 +161,8 @@ static NSMutableDictionary *sLibraryVersions;
       if (!((character >= 'a' && character <= 'z') || (character >= 'A' && character <= 'Z') ||
             (character >= '0' && character <= '9') || character == '_' || character == '-')) {
         [NSException raise:kFirebaseCoreErrorDomain
-                    format:
-                        @"App name should only contain Letters, "
-                        @"Numbers, Underscores, and Dashes."];
+                    format:@"App name should only contain Letters, "
+                           @"Numbers, Underscores, and Dashes."];
       }
     }
 
@@ -263,9 +261,8 @@ static NSMutableDictionary *sLibraryVersions;
     sAllApps[app.name] = app;
   } else {
     [NSException raise:kFirebaseCoreErrorDomain
-                format:
-                    @"Configuration fails. It may be caused by an invalid GOOGLE_APP_ID in "
-                    @"GoogleService-Info.plist or set in the customized options."];
+                format:@"Configuration fails. It may be caused by an invalid GOOGLE_APP_ID in "
+                       @"GoogleService-Info.plist or set in the customized options."];
   }
 }
 
@@ -496,10 +493,9 @@ static NSMutableDictionary *sLibraryVersions;
   if (![(Class)library conformsToProtocol:@protocol(FIRLibrary)] ||
       ![(Class)library respondsToSelector:@selector(componentsToRegister)]) {
     [NSException raise:NSInvalidArgumentException
-                format:
-                    @"Class %@ attempted to register components, but it does not conform to "
-                    @"`FIRLibrary or provide a `componentsToRegister:` method.",
-                    library];
+                format:@"Class %@ attempted to register components, but it does not conform to "
+                       @"`FIRLibrary or provide a `componentsToRegister:` method.",
+                       library];
   }
 
   [FIRComponentContainer registerAsComponentRegistrant:library];
@@ -529,8 +525,8 @@ static NSMutableDictionary *sLibraryVersions;
   NSString *expectedBundleID = [self expectedBundleID];
   // The checking is only done when the bundle ID is provided in the serviceInfo dictionary for
   // backward compatibility.
-  if (expectedBundleID != nil &&
-      ![FIRBundleUtil hasBundleIdentifier:expectedBundleID inBundles:bundles]) {
+  if (expectedBundleID != nil && ![FIRBundleUtil hasBundleIdentifier:expectedBundleID
+                                                           inBundles:bundles]) {
     FIRLogError(kFIRLoggerCore, @"I-COR000008",
                 @"The project's Bundle ID is inconsistent with "
                 @"either the Bundle ID in '%@.%@', or the Bundle ID in the options if you are "
@@ -640,8 +636,9 @@ static NSMutableDictionary *sLibraryVersions;
   }
 
   NSString *const pattern = @"^\\d+:ios:[a-f0-9]+$";
-  NSRegularExpression *regex =
-      [NSRegularExpression regularExpressionWithPattern:pattern options:0 error:NULL];
+  NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:pattern
+                                                                         options:0
+                                                                           error:NULL];
   if (!regex) {
     return NO;
   }

@@ -128,8 +128,9 @@ NSString *const kGRPCErrorDomain = @"io.grpc";
   } else if ([error.domain isEqualToString:kGRPCErrorDomain]) {
     HARD_ASSERT(error.code >= grpc::CANCELLED && error.code <= grpc::UNAUTHENTICATED,
                 "Unknown GRPC error code: %s", error.code);
-    return
-        [NSError errorWithDomain:FIRFirestoreErrorDomain code:error.code userInfo:error.userInfo];
+    return [NSError errorWithDomain:FIRFirestoreErrorDomain
+                               code:error.code
+                           userInfo:error.userInfo];
   } else {
     return [NSError errorWithDomain:FIRFirestoreErrorDomain
                                code:FIRFirestoreErrorCodeUnknown

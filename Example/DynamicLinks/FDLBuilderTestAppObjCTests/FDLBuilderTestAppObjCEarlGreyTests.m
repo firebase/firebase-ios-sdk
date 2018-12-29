@@ -33,8 +33,9 @@
 - (void)testOpenFDLFromAppGeneratedLink {
   // On first launch, a null FDL Received alert is displayed (by design); in
   // this case, we need to dismiss it in order to proceed
-  BOOL hasFirstInstallAlertDisplayed =
-      [self confirmPresenceOfFDLAlertWithURL:@"(null)" matchType:@"0" minimumAppVersion:@"(null)"];
+  BOOL hasFirstInstallAlertDisplayed = [self confirmPresenceOfFDLAlertWithURL:@"(null)"
+                                                                    matchType:@"0"
+                                                            minimumAppVersion:@"(null)"];
   if (hasFirstInstallAlertDisplayed) {
     [[EarlGrey selectElementWithMatcher:[GREYMatchers matcherForText:@"Dismiss"]]
         performAction:grey_tap()];

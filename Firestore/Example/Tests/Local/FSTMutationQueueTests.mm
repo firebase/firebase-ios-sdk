@@ -213,18 +213,10 @@ NS_ASSUME_NONNULL_BEGIN
 
   self.persistence.run("testAllMutationBatchesAffectingDocumentKey", [&]() {
     NSArray<FSTMutation *> *mutations = @[
-      FSTTestSetMutation(@"foi/bar",
-                         @{@"a" : @1}),
-      FSTTestSetMutation(@"foo/bar",
-                         @{@"a" : @1}),
-      FSTTestPatchMutation("foo/bar",
-                           @{@"b" : @1}, {}),
-      FSTTestSetMutation(@"foo/bar/suffix/key",
-                         @{@"a" : @1}),
-      FSTTestSetMutation(@"foo/baz",
-                         @{@"a" : @1}),
-      FSTTestSetMutation(@"food/bar",
-                         @{@"a" : @1})
+      FSTTestSetMutation(@"foi/bar", @{@"a" : @1}), FSTTestSetMutation(@"foo/bar", @{@"a" : @1}),
+      FSTTestPatchMutation("foo/bar", @{@"b" : @1}, {}),
+      FSTTestSetMutation(@"foo/bar/suffix/key", @{@"a" : @1}),
+      FSTTestSetMutation(@"foo/baz", @{@"a" : @1}), FSTTestSetMutation(@"food/bar", @{@"a" : @1})
     ];
 
     // Store all the mutations.
@@ -249,18 +241,10 @@ NS_ASSUME_NONNULL_BEGIN
 
   self.persistence.run("testAllMutationBatchesAffectingDocumentKey", [&]() {
     NSArray<FSTMutation *> *mutations = @[
-      FSTTestSetMutation(@"fob/bar",
-                         @{@"a" : @1}),
-      FSTTestSetMutation(@"foo/bar",
-                         @{@"a" : @1}),
-      FSTTestPatchMutation("foo/bar",
-                           @{@"b" : @1}, {}),
-      FSTTestSetMutation(@"foo/bar/suffix/key",
-                         @{@"a" : @1}),
-      FSTTestSetMutation(@"foo/baz",
-                         @{@"a" : @1}),
-      FSTTestSetMutation(@"food/bar",
-                         @{@"a" : @1})
+      FSTTestSetMutation(@"fob/bar", @{@"a" : @1}), FSTTestSetMutation(@"foo/bar", @{@"a" : @1}),
+      FSTTestPatchMutation("foo/bar", @{@"b" : @1}, {}),
+      FSTTestSetMutation(@"foo/bar/suffix/key", @{@"a" : @1}),
+      FSTTestSetMutation(@"foo/baz", @{@"a" : @1}), FSTTestSetMutation(@"food/bar", @{@"a" : @1})
     ];
 
     // Store all the mutations.
@@ -290,10 +274,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   self.persistence.run("testAllMutationBatchesAffectingDocumentKeys_handlesOverlap", [&]() {
     NSArray<FSTMutation *> *group1 = @[
-      FSTTestSetMutation(@"foo/bar",
-                         @{@"a" : @1}),
-      FSTTestSetMutation(@"foo/baz",
-                         @{@"a" : @1}),
+      FSTTestSetMutation(@"foo/bar", @{@"a" : @1}),
+      FSTTestSetMutation(@"foo/baz", @{@"a" : @1}),
     ];
     FSTMutationBatch *batch1 =
         [self.mutationQueue addMutationBatchWithWriteTime:[FIRTimestamp timestamp]
@@ -303,8 +285,7 @@ NS_ASSUME_NONNULL_BEGIN
     [self.mutationQueue addMutationBatchWithWriteTime:[FIRTimestamp timestamp] mutations:group2];
 
     NSArray<FSTMutation *> *group3 = @[
-      FSTTestSetMutation(@"foo/bar",
-                         @{@"b" : @1}),
+      FSTTestSetMutation(@"foo/bar", @{@"b" : @1}),
     ];
     FSTMutationBatch *batch3 =
         [self.mutationQueue addMutationBatchWithWriteTime:[FIRTimestamp timestamp]
@@ -328,18 +309,10 @@ NS_ASSUME_NONNULL_BEGIN
 
   self.persistence.run("testAllMutationBatchesAffectingQuery", [&]() {
     NSArray<FSTMutation *> *mutations = @[
-      FSTTestSetMutation(@"fob/bar",
-                         @{@"a" : @1}),
-      FSTTestSetMutation(@"foo/bar",
-                         @{@"a" : @1}),
-      FSTTestPatchMutation("foo/bar",
-                           @{@"b" : @1}, {}),
-      FSTTestSetMutation(@"foo/bar/suffix/key",
-                         @{@"a" : @1}),
-      FSTTestSetMutation(@"foo/baz",
-                         @{@"a" : @1}),
-      FSTTestSetMutation(@"food/bar",
-                         @{@"a" : @1})
+      FSTTestSetMutation(@"fob/bar", @{@"a" : @1}), FSTTestSetMutation(@"foo/bar", @{@"a" : @1}),
+      FSTTestPatchMutation("foo/bar", @{@"b" : @1}, {}),
+      FSTTestSetMutation(@"foo/bar/suffix/key", @{@"a" : @1}),
+      FSTTestSetMutation(@"foo/baz", @{@"a" : @1}), FSTTestSetMutation(@"food/bar", @{@"a" : @1})
     ];
 
     // Store all the mutations.

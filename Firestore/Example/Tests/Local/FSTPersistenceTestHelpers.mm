@@ -69,8 +69,10 @@ NS_ASSUME_NONNULL_BEGIN
 + (FSTLevelDB *)levelDBPersistenceWithDir:(Path)dir lruParams:(LruParams)params {
   FSTLocalSerializer *serializer = [self localSerializer];
   FSTLevelDB *ldb;
-  util::Status status =
-      [FSTLevelDB dbWithDirectory:std::move(dir) serializer:serializer lruParams:params ptr:&ldb];
+  util::Status status = [FSTLevelDB dbWithDirectory:std::move(dir)
+                                         serializer:serializer
+                                          lruParams:params
+                                                ptr:&ldb];
   if (!status.ok()) {
     [NSException raise:NSInternalInconsistencyException
                 format:@"Failed to open DB: %s", status.ToString().c_str()];

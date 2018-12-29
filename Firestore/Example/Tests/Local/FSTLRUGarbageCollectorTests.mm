@@ -388,8 +388,8 @@ NS_ASSUME_NONNULL_BEGIN
   }
   // GC up through 20th query, which is 20%.
   // Expect to have GC'd 10 targets, since every other target is live
-  int removed =
-      [self removeQueriesThroughSequenceNumber:20 + _initialSequenceNumber liveQueries:liveQueries];
+  int removed = [self removeQueriesThroughSequenceNumber:20 + _initialSequenceNumber
+                                             liveQueries:liveQueries];
   XCTAssertEqual(10, removed);
   // Make sure we removed the even targets with targetID <= 20.
   _persistence.run("verify remaining targets are > 20 or odd", [&]() {

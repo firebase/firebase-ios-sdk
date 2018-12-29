@@ -28,14 +28,14 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRSnapshotMetadataTests
 
 - (void)testEquals {
-  FIRSnapshotMetadata *foo =
-      [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:YES fromCache:YES];
-  FIRSnapshotMetadata *fooDup =
-      [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:YES fromCache:YES];
-  FIRSnapshotMetadata *bar =
-      [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:YES fromCache:NO];
-  FIRSnapshotMetadata *baz =
-      [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:NO fromCache:YES];
+  FIRSnapshotMetadata *foo = [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:YES
+                                                                          fromCache:YES];
+  FIRSnapshotMetadata *fooDup = [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:YES
+                                                                             fromCache:YES];
+  FIRSnapshotMetadata *bar = [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:YES
+                                                                          fromCache:NO];
+  FIRSnapshotMetadata *baz = [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:NO
+                                                                          fromCache:YES];
   XCTAssertEqualObjects(foo, fooDup);
   XCTAssertNotEqualObjects(foo, bar);
   XCTAssertNotEqualObjects(foo, baz);
