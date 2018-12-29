@@ -104,6 +104,8 @@ else
   clang_options+=(-i)
 fi
 
+#TODO(#2223) - Find a way to handle spaces in filenames
+
 files=$(
 (
   if [[ $# -gt 0 ]]; then
