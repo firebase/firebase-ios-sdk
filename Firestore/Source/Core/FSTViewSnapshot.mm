@@ -117,8 +117,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   } else if (change.type == FSTDocumentViewChangeTypeMetadata &&
              oldChange.type != FSTDocumentViewChangeTypeRemoved) {
-    FSTDocumentViewChange *newChange =
-        [FSTDocumentViewChange changeWithDocument:change.document type:oldChange.type];
+    FSTDocumentViewChange *newChange = [FSTDocumentViewChange changeWithDocument:change.document
+                                                                            type:oldChange.type];
     _changeMap = _changeMap.insert(key, newChange);
 
   } else if (change.type == FSTDocumentViewChangeTypeModified &&
@@ -224,15 +224,15 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSString *)description {
-  return
-      [NSString stringWithFormat:
-                    @"<FSTViewSnapshot query:%@ documents:%@ oldDocument:%@ changes:%@ "
-                     "fromCache:%@ mutatedKeys:%zu syncStateChanged:%@ "
-                     "excludesMetadataChanges%@>",
-                    self.query, self.documents, self.oldDocuments, self.documentChanges,
-                    (self.fromCache ? @"YES" : @"NO"), static_cast<size_t>(self.mutatedKeys.size()),
-                    (self.syncStateChanged ? @"YES" : @"NO"),
-                    (self.excludesMetadataChanges ? @"YES" : @"NO")];
+  return [NSString
+      stringWithFormat:@"<FSTViewSnapshot query:%@ documents:%@ oldDocument:%@ changes:%@ "
+                        "fromCache:%@ mutatedKeys:%zu syncStateChanged:%@ "
+                        "excludesMetadataChanges%@>",
+                       self.query, self.documents, self.oldDocuments, self.documentChanges,
+                       (self.fromCache ? @"YES" : @"NO"),
+                       static_cast<size_t>(self.mutatedKeys.size()),
+                       (self.syncStateChanged ? @"YES" : @"NO"),
+                       (self.excludesMetadataChanges ? @"YES" : @"NO")];
 }
 
 - (BOOL)isEqual:(id)object {

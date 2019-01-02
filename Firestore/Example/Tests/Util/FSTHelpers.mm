@@ -282,8 +282,8 @@ FSTTransformMutation *FSTTestTransformMutation(NSString *path, NSDictionary<NSSt
 }
 
 FSTDeleteMutation *FSTTestDeleteMutation(NSString *path) {
-  return
-      [[FSTDeleteMutation alloc] initWithKey:FSTTestDocKey(path) precondition:Precondition::None()];
+  return [[FSTDeleteMutation alloc] initWithKey:FSTTestDocKey(path)
+                                   precondition:Precondition::None()];
 }
 
 MaybeDocumentMap FSTTestDocUpdates(NSArray<FSTMaybeDocument *> *docs) {

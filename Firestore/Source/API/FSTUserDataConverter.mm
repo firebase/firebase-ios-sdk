@@ -127,8 +127,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   ParseAccumulator accumulator{UserDataSource::MergeSet};
 
-  FSTObjectValue *updateData =
-      (FSTObjectValue *)[self parseData:input context:accumulator.RootContext()];
+  FSTObjectValue *updateData = (FSTObjectValue *)[self parseData:input
+                                                         context:accumulator.RootContext()];
 
   if (fieldMask) {
     std::set<FieldPath> validatedFieldPaths;
@@ -191,8 +191,8 @@ NS_ASSUME_NONNULL_BEGIN
       // Add it to the field mask, but don't add anything to updateData.
       context.AddToFieldMask(std::move(path));
     } else {
-      FSTFieldValue *_Nullable parsedValue =
-          [self parseData:value context:context.ChildContext(path)];
+      FSTFieldValue *_Nullable parsedValue = [self parseData:value
+                                                     context:context.ChildContext(path)];
       if (parsedValue) {
         context.AddToFieldMask(path);
         updateData = [updateData objectBySettingValue:parsedValue forPath:path];
@@ -313,10 +313,9 @@ NS_ASSUME_NONNULL_BEGIN
     } else if (context.data_source() == UserDataSource::Update) {
       HARD_ASSERT(context.path()->size() > 0,
                   "FieldValue.delete() at the top level should have already been handled.");
-      FSTThrowInvalidArgument(
-          @"FieldValue.delete() can only appear at the top level of your "
-           "update data%s",
-          context.FieldDescription().c_str());
+      FSTThrowInvalidArgument(@"FieldValue.delete() can only appear at the top level of your "
+                               "update data%s",
+                              context.FieldDescription().c_str());
     } else {
       // We shouldn't encounter delete sentinels for queries or non-merge setData calls.
       FSTThrowInvalidArgument(

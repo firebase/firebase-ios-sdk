@@ -31,8 +31,9 @@
 }
 
 - (void)testURLWithName {
-  FIRFunctions *functions =
-      [[FIRFunctions alloc] initWithProjectID:@"my-project" region:@"my-region" auth:nil];
+  FIRFunctions *functions = [[FIRFunctions alloc] initWithProjectID:@"my-project"
+                                                             region:@"my-region"
+                                                               auth:nil];
   NSString *url = [functions URLWithName:@"my-endpoint"];
   XCTAssertEqualObjects(@"https://my-region-my-project.cloudfunctions.net/my-endpoint", url);
 }

@@ -69,8 +69,8 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 30;
     XCTestExpectation *expectation = [self expectationWithDescription:@"setup"];
 
     FIRStorageReference *ref = [[FIRStorage storage].reference child:@"ios/public/1mb"];
-    NSData *data = [NSData
-        dataWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"1mb" ofType:@"dat"]];
+    NSData *data = [NSData dataWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"1mb"
+                                                                                  ofType:@"dat"]];
     XCTAssertNotNil(data, "Could not load bundled file");
     [ref putData:data
           metadata:nil

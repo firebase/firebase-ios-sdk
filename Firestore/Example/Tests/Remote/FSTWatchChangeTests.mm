@@ -46,8 +46,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testExistenceFilterChange {
   FSTExistenceFilter *filter = [FSTExistenceFilter filterWithCount:7];
-  FSTExistenceFilterWatchChange *change =
-      [FSTExistenceFilterWatchChange changeWithFilter:filter targetID:5];
+  FSTExistenceFilterWatchChange *change = [FSTExistenceFilterWatchChange changeWithFilter:filter
+                                                                                 targetID:5];
   XCTAssertEqual(change.filter.count, 7);
   XCTAssertEqual(change.targetID, 5);
 }

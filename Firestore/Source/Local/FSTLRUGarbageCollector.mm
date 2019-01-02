@@ -123,8 +123,8 @@ class RollingSequenceNumberBuffer {
   ListenSequenceNumber upperBound = [self sequenceNumberForQueryCount:sequenceNumbers];
   Timestamp foundUpperBound = Timestamp::Now();
 
-  int numTargetsRemoved =
-      [self removeQueriesUpThroughSequenceNumber:upperBound liveQueries:liveTargets];
+  int numTargetsRemoved = [self removeQueriesUpThroughSequenceNumber:upperBound
+                                                         liveQueries:liveTargets];
   Timestamp removedTargets = Timestamp::Now();
 
   int numDocumentsRemoved = [self removeOrphanedDocumentsThroughSequenceNumber:upperBound];

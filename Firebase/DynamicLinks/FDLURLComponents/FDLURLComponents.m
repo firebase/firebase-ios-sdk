@@ -512,8 +512,9 @@ static NSString *const kFDLOtherPlatformParametersFallbackURLKey = @"ofl";
   }
   NSURLRequest *request = [self shorteningRequestForLongURL:url options:options];
   if (!request) {
-    NSError *error =
-        [NSError errorWithDomain:kFirebaseDurableDeepLinkErrorDomain code:0 userInfo:nil];
+    NSError *error = [NSError errorWithDomain:kFirebaseDurableDeepLinkErrorDomain
+                                         code:0
+                                     userInfo:nil];
     completion(nil, nil, error);
     return;
   }

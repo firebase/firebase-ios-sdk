@@ -341,8 +341,8 @@ static const char *kReservedPathComponent = "firestore";
     _serializer = serializer;
     _queryCache = absl::make_unique<LevelDbQueryCache>(self, _serializer);
     _documentCache = absl::make_unique<LevelDbRemoteDocumentCache>(self, _serializer);
-    _referenceDelegate =
-        [[FSTLevelDBLRUDelegate alloc] initWithPersistence:self lruParams:lruParams];
+    _referenceDelegate = [[FSTLevelDBLRUDelegate alloc] initWithPersistence:self
+                                                                  lruParams:lruParams];
     _transactionRunner.SetBackingPersistence(self);
     _users = std::move(users);
     // TODO(gsoltis): set up a leveldb transaction for these operations.

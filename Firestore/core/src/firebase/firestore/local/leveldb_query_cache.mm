@@ -58,8 +58,8 @@ FSTPBTargetGlobal* LevelDbQueryCache::ReadMetadata(leveldb::DB* db) {
                                         freeWhenDone:NO];
 
   NSError* error;
-  FSTPBTargetGlobal* proto =
-      [FSTPBTargetGlobal parseFromData:data error:&error];
+  FSTPBTargetGlobal* proto = [FSTPBTargetGlobal parseFromData:data
+                                                        error:&error];
   if (!proto) {
     HARD_FAIL("FSTPBTargetGlobal failed to parse: %s", error);
   }
@@ -153,11 +153,10 @@ FSTQueryData* _Nullable LevelDbQueryCache::GetTarget(FSTQuery* query) {
     std::string target_key = LevelDbTargetKey::Key(row_key.target_id());
     target_iterator->Seek(target_key);
     if (!target_iterator->Valid() || target_iterator->key() != target_key) {
-      HARD_FAIL(
-          "Dangling query-target reference found: "
-          "%s points to %s; seeking there found %s",
-          DescribeKey(index_iterator), DescribeKey(target_key),
-          DescribeKey(target_iterator));
+      HARD_FAIL("Dangling query-target reference found: "
+                "%s points to %s; seeking there found %s",
+                DescribeKey(index_iterator), DescribeKey(target_key),
+                DescribeKey(target_iterator));
     }
 
     // Finally after finding a potential match, check that the query is actually

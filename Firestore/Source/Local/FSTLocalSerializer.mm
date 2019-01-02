@@ -87,8 +87,8 @@ using firebase::firestore::model::TargetId;
 - (FSTMaybeDocument *)decodedMaybeDocument:(FSTPBMaybeDocument *)proto {
   switch (proto.documentTypeOneOfCase) {
     case FSTPBMaybeDocument_DocumentType_OneOfCase_Document:
-      return
-          [self decodedDocument:proto.document withCommittedMutations:proto.hasCommittedMutations];
+      return [self decodedDocument:proto.document
+            withCommittedMutations:proto.hasCommittedMutations];
 
     case FSTPBMaybeDocument_DocumentType_OneOfCase_NoDocument:
       return [self decodedDeletedDocument:proto.noDocument

@@ -58,8 +58,8 @@ static struct {
 
 static SCNetworkReachabilityRef ReachabilityCreateWithName(CFAllocatorRef allocator,
                                                            const char *hostname) {
-  return (SCNetworkReachabilityRef)
-      [FakeReachabilityTest createReachabilityWithAllocator:allocator withName:hostname];
+  return (SCNetworkReachabilityRef)[FakeReachabilityTest createReachabilityWithAllocator:allocator
+                                                                                withName:hostname];
 }
 
 static Boolean ReachabilitySetCallback(SCNetworkReachabilityRef reachability,

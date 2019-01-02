@@ -1169,8 +1169,9 @@ NS_ASSUME_NONNULL_BEGIN
   const DocumentKey key = [self decodedDocumentKey:change.document];
   // Note that version might be unset in which case we use SnapshotVersion::None()
   SnapshotVersion version = [self decodedVersion:change.readTime];
-  FSTMaybeDocument *document =
-      [FSTDeletedDocument documentWithKey:key version:version hasCommittedMutations:NO];
+  FSTMaybeDocument *document = [FSTDeletedDocument documentWithKey:key
+                                                           version:version
+                                             hasCommittedMutations:NO];
 
   NSArray<NSNumber *> *removedTargetIds = [self decodedIntegerArray:change.removedTargetIdsArray];
 

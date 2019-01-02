@@ -128,12 +128,16 @@ NS_ASSUME_NONNULL_BEGIN
   if ([self isTestBaseClass]) return;
 
   self.persistence.run("testSetQueryToNewValue", [&]() {
-    FSTQueryData *queryData1 =
-        [self queryDataWithQuery:_queryRooms targetID:1 listenSequenceNumber:10 version:1];
+    FSTQueryData *queryData1 = [self queryDataWithQuery:_queryRooms
+                                               targetID:1
+                                   listenSequenceNumber:10
+                                                version:1];
     self.queryCache->AddTarget(queryData1);
 
-    FSTQueryData *queryData2 =
-        [self queryDataWithQuery:_queryRooms targetID:1 listenSequenceNumber:10 version:2];
+    FSTQueryData *queryData2 = [self queryDataWithQuery:_queryRooms
+                                               targetID:1
+                                   listenSequenceNumber:10
+                                                version:2];
     self.queryCache->AddTarget(queryData2);
 
     FSTQueryData *result = self.queryCache->GetTarget(_queryRooms);

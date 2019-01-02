@@ -78,8 +78,8 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 }
 
 - (void)testConfigure {
-  NSDictionary *expectedUserInfo =
-      [self expectedUserInfoWithAppName:kFIRDefaultAppName isDefaultApp:YES];
+  NSDictionary *expectedUserInfo = [self expectedUserInfoWithAppName:kFIRDefaultAppName
+                                                        isDefaultApp:YES];
   [self expectNotificationForObserver:self.observerMock
                      notificationName:kFIRAppReadyToConfigureSDKNotification
                                object:[FIRApp class]
@@ -108,16 +108,16 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 #pragma clang diagnostic pop
   XCTAssertTrue([FIRApp allApps].count == 0);
 
-  NSDictionary *expectedUserInfo =
-      [self expectedUserInfoWithAppName:kFIRDefaultAppName isDefaultApp:YES];
+  NSDictionary *expectedUserInfo = [self expectedUserInfoWithAppName:kFIRDefaultAppName
+                                                        isDefaultApp:YES];
   [self expectNotificationForObserver:self.observerMock
                      notificationName:kFIRAppReadyToConfigureSDKNotification
                                object:[FIRApp class]
                              userInfo:expectedUserInfo];
 
   // Use a valid instance of options.
-  FIROptions *options =
-      [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
+                                                    GCMSenderID:kGCMSenderID];
   options.clientID = kClientID;
   XCTAssertNoThrow([FIRApp configureWithOptions:options]);
   OCMVerifyAll(self.observerMock);
@@ -133,8 +133,8 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 }
 
 - (void)testConfigureWithNameAndOptions {
-  FIROptions *options =
-      [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
+                                                    GCMSenderID:kGCMSenderID];
   options.clientID = kClientID;
 
 #pragma clang diagnostic push
@@ -145,8 +145,8 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   XCTAssertThrows([FIRApp configureWithName:@"" options:options]);
   XCTAssertTrue([FIRApp allApps].count == 0);
 
-  NSDictionary *expectedUserInfo =
-      [self expectedUserInfoWithAppName:kFIRTestAppName1 isDefaultApp:NO];
+  NSDictionary *expectedUserInfo = [self expectedUserInfoWithAppName:kFIRTestAppName1
+                                                        isDefaultApp:NO];
   [self expectNotificationForObserver:self.observerMock
                      notificationName:kFIRAppReadyToConfigureSDKNotification
                                object:[FIRApp class]
@@ -165,8 +165,8 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 }
 
 - (void)testConfigureWithMultipleApps {
-  FIROptions *options1 =
-      [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
+  FIROptions *options1 = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
+                                                     GCMSenderID:kGCMSenderID];
   options1.deepLinkURLScheme = kDeepLinkURLScheme;
 
   // Set up notification center observer for verifying notifications.
@@ -174,8 +174,8 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
                                       name:kFIRAppReadyToConfigureSDKNotification
                                     object:[FIRApp class]];
 
-  NSDictionary *expectedUserInfo1 =
-      [self expectedUserInfoWithAppName:kFIRTestAppName1 isDefaultApp:NO];
+  NSDictionary *expectedUserInfo1 = [self expectedUserInfoWithAppName:kFIRTestAppName1
+                                                         isDefaultApp:NO];
   [[self.observerMock expect] notificationWithName:kFIRAppReadyToConfigureSDKNotification
                                             object:[FIRApp class]
                                           userInfo:expectedUserInfo1];
@@ -183,13 +183,13 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   XCTAssertTrue([FIRApp allApps].count == 1);
 
   // Configure a different app with valid customized options.
-  FIROptions *options2 =
-      [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
+  FIROptions *options2 = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
+                                                     GCMSenderID:kGCMSenderID];
   options2.bundleID = kBundleID;
   options2.APIKey = kCustomizedAPIKey;
 
-  NSDictionary *expectedUserInfo2 =
-      [self expectedUserInfoWithAppName:kFIRTestAppName2 isDefaultApp:NO];
+  NSDictionary *expectedUserInfo2 = [self expectedUserInfoWithAppName:kFIRTestAppName2
+                                                         isDefaultApp:NO];
   [[self.observerMock expect] notificationWithName:kFIRAppReadyToConfigureSDKNotification
                                             object:[FIRApp class]
                                           userInfo:expectedUserInfo2];
@@ -235,8 +235,8 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 
 - (void)testDeleteApp {
   NSString *name = NSStringFromSelector(_cmd);
-  FIROptions *options =
-      [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
+                                                    GCMSenderID:kGCMSenderID];
   [FIRApp configureWithName:name options:options];
   FIRApp *app = [FIRApp appNamed:name];
   XCTAssertNotNil(app);
@@ -269,8 +269,8 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 }
 
 - (void)testOptionsLocking {
-  FIROptions *options =
-      [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
+                                                    GCMSenderID:kGCMSenderID];
   options.projectID = kProjectID;
   options.databaseURL = kDatabaseURL;
 
@@ -418,14 +418,14 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   XCTAssertFalse([FIRApp validateAppIDFormat:@"01:1337:ios:deadbeef" withVersion:kGoodVersionV1]);
   XCTAssertFalse([FIRApp validateAppIDFormat:@"10:1337:ios:deadbeef" withVersion:kGoodVersionV1]);
   XCTAssertFalse([FIRApp validateAppIDFormat:@"11:1337:ios:deadbeef" withVersion:kGoodVersionV1]);
-  XCTAssertFalse(
-      [FIRApp validateAppIDFormat:@"21:1337:ios:5e18052ab54fbfec" withVersion:kGoodVersionV2]);
-  XCTAssertFalse(
-      [FIRApp validateAppIDFormat:@"22:1337:ios:5e18052ab54fbfec" withVersion:kGoodVersionV2]);
-  XCTAssertFalse(
-      [FIRApp validateAppIDFormat:@"02:1337:ios:5e18052ab54fbfec" withVersion:kGoodVersionV2]);
-  XCTAssertFalse(
-      [FIRApp validateAppIDFormat:@"20:1337:ios:5e18052ab54fbfec" withVersion:kGoodVersionV2]);
+  XCTAssertFalse([FIRApp validateAppIDFormat:@"21:1337:ios:5e18052ab54fbfec"
+                                 withVersion:kGoodVersionV2]);
+  XCTAssertFalse([FIRApp validateAppIDFormat:@"22:1337:ios:5e18052ab54fbfec"
+                                 withVersion:kGoodVersionV2]);
+  XCTAssertFalse([FIRApp validateAppIDFormat:@"02:1337:ios:5e18052ab54fbfec"
+                                 withVersion:kGoodVersionV2]);
+  XCTAssertFalse([FIRApp validateAppIDFormat:@"20:1337:ios:5e18052ab54fbfec"
+                                 withVersion:kGoodVersionV2]);
 
   // Extra fields.
   XCTAssertFalse([FIRApp validateAppIDFormat:@"ab:1:1337:ios:deadbeef" withVersion:kGoodVersionV1]);
@@ -466,31 +466,31 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   XCTAssertFalse([FIRApp validateAppIDFingerprint:kGoodAppIDV1 withVersion:kGoodAppIDV1]);
 
   // Versions digits that may make a partial match.
-  XCTAssertFalse(
-      [FIRApp validateAppIDFingerprint:@"01:1337:ios:deadbeef" withVersion:kGoodVersionV1]);
-  XCTAssertFalse(
-      [FIRApp validateAppIDFingerprint:@"10:1337:ios:deadbeef" withVersion:kGoodVersionV1]);
-  XCTAssertFalse(
-      [FIRApp validateAppIDFingerprint:@"11:1337:ios:deadbeef" withVersion:kGoodVersionV1]);
-  XCTAssertFalse(
-      [FIRApp validateAppIDFingerprint:@"21:1337:ios:5e18052ab54fbfec" withVersion:kGoodVersionV2]);
-  XCTAssertFalse(
-      [FIRApp validateAppIDFingerprint:@"22:1337:ios:5e18052ab54fbfec" withVersion:kGoodVersionV2]);
-  XCTAssertFalse(
-      [FIRApp validateAppIDFingerprint:@"02:1337:ios:5e18052ab54fbfec" withVersion:kGoodVersionV2]);
-  XCTAssertFalse(
-      [FIRApp validateAppIDFingerprint:@"20:1337:ios:5e18052ab54fbfec" withVersion:kGoodVersionV2]);
+  XCTAssertFalse([FIRApp validateAppIDFingerprint:@"01:1337:ios:deadbeef"
+                                      withVersion:kGoodVersionV1]);
+  XCTAssertFalse([FIRApp validateAppIDFingerprint:@"10:1337:ios:deadbeef"
+                                      withVersion:kGoodVersionV1]);
+  XCTAssertFalse([FIRApp validateAppIDFingerprint:@"11:1337:ios:deadbeef"
+                                      withVersion:kGoodVersionV1]);
+  XCTAssertFalse([FIRApp validateAppIDFingerprint:@"21:1337:ios:5e18052ab54fbfec"
+                                      withVersion:kGoodVersionV2]);
+  XCTAssertFalse([FIRApp validateAppIDFingerprint:@"22:1337:ios:5e18052ab54fbfec"
+                                      withVersion:kGoodVersionV2]);
+  XCTAssertFalse([FIRApp validateAppIDFingerprint:@"02:1337:ios:5e18052ab54fbfec"
+                                      withVersion:kGoodVersionV2]);
+  XCTAssertFalse([FIRApp validateAppIDFingerprint:@"20:1337:ios:5e18052ab54fbfec"
+                                      withVersion:kGoodVersionV2]);
   // Extra fields.
-  XCTAssertFalse(
-      [FIRApp validateAppIDFingerprint:@"ab:1:1337:ios:deadbeef" withVersion:kGoodVersionV1]);
-  XCTAssertFalse(
-      [FIRApp validateAppIDFingerprint:@"1:ab:1337:ios:deadbeef" withVersion:kGoodVersionV1]);
-  XCTAssertFalse(
-      [FIRApp validateAppIDFingerprint:@"1:1337:ab:ios:deadbeef" withVersion:kGoodVersionV1]);
-  XCTAssertFalse(
-      [FIRApp validateAppIDFingerprint:@"1:1337:ios:ab:deadbeef" withVersion:kGoodVersionV1]);
-  XCTAssertFalse(
-      [FIRApp validateAppIDFingerprint:@"1:1337:ios:deadbeef:ab" withVersion:kGoodVersionV1]);
+  XCTAssertFalse([FIRApp validateAppIDFingerprint:@"ab:1:1337:ios:deadbeef"
+                                      withVersion:kGoodVersionV1]);
+  XCTAssertFalse([FIRApp validateAppIDFingerprint:@"1:ab:1337:ios:deadbeef"
+                                      withVersion:kGoodVersionV1]);
+  XCTAssertFalse([FIRApp validateAppIDFingerprint:@"1:1337:ab:ios:deadbeef"
+                                      withVersion:kGoodVersionV1]);
+  XCTAssertFalse([FIRApp validateAppIDFingerprint:@"1:1337:ios:ab:deadbeef"
+                                      withVersion:kGoodVersionV1]);
+  XCTAssertFalse([FIRApp validateAppIDFingerprint:@"1:1337:ios:deadbeef:ab"
+                                      withVersion:kGoodVersionV1]);
 }
 
 #pragma mark - Automatic Data Collection Tests
@@ -498,8 +498,8 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 - (void)testGlobalDataCollectionNoFlags {
   // Test: No flags set.
   NSString *name = NSStringFromSelector(_cmd);
-  FIROptions *options =
-      [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
+                                                    GCMSenderID:kGCMSenderID];
   FIRApp *app = [[FIRApp alloc] initInstanceWithName:name options:options];
   OCMStub([self.appClassMock readDataCollectionSwitchFromPlist]).andReturn(nil);
   OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
@@ -511,8 +511,8 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 - (void)testGlobalDataCollectionPlistSetEnabled {
   // Test: Plist set to enabled, no override.
   NSString *name = NSStringFromSelector(_cmd);
-  FIROptions *options =
-      [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
+                                                    GCMSenderID:kGCMSenderID];
   FIRApp *app = [[FIRApp alloc] initInstanceWithName:name options:options];
   OCMStub([self.appClassMock readDataCollectionSwitchFromPlist]).andReturn(@YES);
   OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
@@ -524,8 +524,8 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 - (void)testGlobalDataCollectionPlistSetDisabled {
   // Test: Plist set to disabled, no override.
   NSString *name = NSStringFromSelector(_cmd);
-  FIROptions *options =
-      [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
+                                                    GCMSenderID:kGCMSenderID];
   FIRApp *app = [[FIRApp alloc] initInstanceWithName:name options:options];
   OCMStub([self.appClassMock readDataCollectionSwitchFromPlist]).andReturn(@NO);
   OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
@@ -537,8 +537,8 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 - (void)testGlobalDataCollectionUserSpecifiedEnabled {
   // Test: User specified as enabled, no plist value.
   NSString *name = NSStringFromSelector(_cmd);
-  FIROptions *options =
-      [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
+                                                    GCMSenderID:kGCMSenderID];
   FIRApp *app = [[FIRApp alloc] initInstanceWithName:name options:options];
   OCMStub([self.appClassMock readDataCollectionSwitchFromPlist]).andReturn(nil);
   OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
@@ -550,8 +550,8 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 - (void)testGlobalDataCollectionUserSpecifiedDisabled {
   // Test: User specified as disabled, no plist value.
   NSString *name = NSStringFromSelector(_cmd);
-  FIROptions *options =
-      [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
+                                                    GCMSenderID:kGCMSenderID];
   FIRApp *app = [[FIRApp alloc] initInstanceWithName:name options:options];
   OCMStub([self.appClassMock readDataCollectionSwitchFromPlist]).andReturn(nil);
   OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
@@ -563,8 +563,8 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 - (void)testGlobalDataCollectionUserOverriddenEnabled {
   // Test: User specified as enabled, with plist set as disabled.
   NSString *name = NSStringFromSelector(_cmd);
-  FIROptions *options =
-      [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
+                                                    GCMSenderID:kGCMSenderID];
   FIRApp *app = [[FIRApp alloc] initInstanceWithName:name options:options];
   OCMStub([self.appClassMock readDataCollectionSwitchFromPlist]).andReturn(@NO);
   OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
@@ -576,8 +576,8 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 - (void)testGlobalDataCollectionUserOverriddenDisabled {
   // Test: User specified as disabled, with plist set as enabled.
   NSString *name = NSStringFromSelector(_cmd);
-  FIROptions *options =
-      [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
+                                                    GCMSenderID:kGCMSenderID];
   FIRApp *app = [[FIRApp alloc] initInstanceWithName:name options:options];
   OCMStub([self.appClassMock readDataCollectionSwitchFromPlist]).andReturn(@YES);
   OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
@@ -589,8 +589,8 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 - (void)testGlobalDataCollectionWriteToDefaults {
   id defaultsMock = OCMPartialMock([NSUserDefaults standardUserDefaults]);
   NSString *name = NSStringFromSelector(_cmd);
-  FIROptions *options =
-      [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
+                                                    GCMSenderID:kGCMSenderID];
   [FIRApp configureWithName:name options:options];
   FIRApp *app = [FIRApp appNamed:name];
   app.dataCollectionDefaultEnabled = YES;
@@ -607,8 +607,8 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 - (void)testGlobalDataCollectionClearedAfterDelete {
   // Configure and disable data collection for the default FIRApp.
   NSString *name = NSStringFromSelector(_cmd);
-  FIROptions *options =
-      [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
+                                                    GCMSenderID:kGCMSenderID];
   [FIRApp configureWithName:name options:options];
   FIRApp *app = [FIRApp appNamed:name];
   app.dataCollectionDefaultEnabled = NO;
@@ -631,8 +631,8 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 }
 
 - (void)testGlobalDataCollectionNoDiagnosticsSent {
-  FIROptions *options =
-      [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
+                                                    GCMSenderID:kGCMSenderID];
   FIRApp *app = [[FIRApp alloc] initInstanceWithName:NSStringFromSelector(_cmd) options:options];
   app.dataCollectionDefaultEnabled = NO;
 

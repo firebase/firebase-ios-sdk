@@ -83,7 +83,7 @@ static const NSTimeInterval kGULTestCaseTimeoutInterval = 10;
   XCTAssertEqualObjects([userDefaults objectForKey:key3], array);
 
   NSString *key4 = @"DictionaryKey";
-  NSDictionary *dictionary = @{ @"testing" : @"Hi there!" };
+  NSDictionary *dictionary = @{@"testing" : @"Hi there!"};
   [newUserDefaults setObject:dictionary forKey:key4];
   XCTAssertEqualObjects([newUserDefaults objectForKey:key4], dictionary);
   XCTAssertEqualObjects([newUserDefaults dictionaryForKey:key4], dictionary);
@@ -115,8 +115,8 @@ static const NSTimeInterval kGULTestCaseTimeoutInterval = 10;
   XCTAssertNotNil([userDefaults objectForKey:key7]);
   XCTAssertEqualWithAccuracy([testDate timeIntervalSinceDate:[newUserDefaults objectForKey:key7]],
                              0.0, sEpsilon);
-  XCTAssertEqualWithAccuracy([testDate timeIntervalSinceDate:[userDefaults objectForKey:key7]],
-                             0.0, sEpsilon);
+  XCTAssertEqualWithAccuracy([testDate timeIntervalSinceDate:[userDefaults objectForKey:key7]], 0.0,
+                             sEpsilon);
 
   NSString *key8 = @"FloatKey";
   [newUserDefaults setFloat:0.99 forKey:key8];
@@ -146,7 +146,7 @@ static const NSTimeInterval kGULTestCaseTimeoutInterval = 10;
   XCTAssertEqualObjects([newUserDefaults arrayForKey:key3], array2);
   XCTAssertEqualObjects([userDefaults objectForKey:key3], array2);
 
-  NSDictionary *dictionary2 = @{ @"testing 2" : @3 };
+  NSDictionary *dictionary2 = @{@"testing 2" : @3};
   [newUserDefaults setObject:dictionary2 forKey:key4];
   XCTAssertEqualObjects([newUserDefaults objectForKey:key4], dictionary2);
   XCTAssertEqualObjects([newUserDefaults dictionaryForKey:key4], dictionary2);
@@ -202,7 +202,7 @@ static const NSTimeInterval kGULTestCaseTimeoutInterval = 10;
   XCTAssertEqualObjects([userDefaults objectForKey:key3], array);
 
   NSString *key4 = @"DictionaryKey";
-  NSDictionary *dictionary = @{ @"testing" : @"Hi there!" };
+  NSDictionary *dictionary = @{@"testing" : @"Hi there!"};
   [userDefaults setObject:dictionary forKey:key4];
   XCTAssertEqualObjects([newUserDefaults objectForKey:key4], dictionary);
   XCTAssertEqualObjects([newUserDefaults dictionaryForKey:key4], dictionary);
@@ -234,8 +234,8 @@ static const NSTimeInterval kGULTestCaseTimeoutInterval = 10;
   XCTAssertNotNil([userDefaults objectForKey:key7]);
   XCTAssertEqualWithAccuracy([testDate timeIntervalSinceDate:[newUserDefaults objectForKey:key7]],
                              0.0, sEpsilon);
-  XCTAssertEqualWithAccuracy([testDate timeIntervalSinceDate:[userDefaults objectForKey:key7]],
-                             0.0, sEpsilon);
+  XCTAssertEqualWithAccuracy([testDate timeIntervalSinceDate:[userDefaults objectForKey:key7]], 0.0,
+                             sEpsilon);
 
   NSString *key8 = @"FloatKey";
   [userDefaults setFloat:0.99 forKey:key8];
@@ -265,7 +265,7 @@ static const NSTimeInterval kGULTestCaseTimeoutInterval = 10;
   XCTAssertEqualObjects([newUserDefaults arrayForKey:key3], array2);
   XCTAssertEqualObjects([userDefaults objectForKey:key3], array2);
 
-  NSDictionary *dictionary2 = @{ @"testing 2" : @3 };
+  NSDictionary *dictionary2 = @{@"testing 2" : @3};
   [userDefaults setObject:dictionary2 forKey:key4];
   XCTAssertEqualObjects([newUserDefaults objectForKey:key4], dictionary2);
   XCTAssertEqualObjects([newUserDefaults dictionaryForKey:key4], dictionary2);
@@ -322,7 +322,7 @@ static const NSTimeInterval kGULTestCaseTimeoutInterval = 10;
   XCTAssertEqualObjects([userDefaults objectForKey:key3], array);
 
   NSString *key4 = @"DictionaryKey";
-  NSDictionary *dictionary = @{ @"testing" : @"Hi there!" };
+  NSDictionary *dictionary = @{@"testing" : @"Hi there!"};
   [userDefaults setObject:dictionary forKey:key4];
   XCTAssertEqualObjects([newUserDefaults objectForKey:key4], dictionary);
   XCTAssertEqualObjects([newUserDefaults dictionaryForKey:key4], dictionary);
@@ -354,8 +354,8 @@ static const NSTimeInterval kGULTestCaseTimeoutInterval = 10;
   XCTAssertNotNil([userDefaults objectForKey:key7]);
   XCTAssertEqualWithAccuracy([testDate timeIntervalSinceDate:[newUserDefaults objectForKey:key7]],
                              0.0, sEpsilon);
-  XCTAssertEqualWithAccuracy([testDate timeIntervalSinceDate:[userDefaults objectForKey:key7]],
-                             0.0, sEpsilon);
+  XCTAssertEqualWithAccuracy([testDate timeIntervalSinceDate:[userDefaults objectForKey:key7]], 0.0,
+                             sEpsilon);
 
   // Remove all of the objects from the normal NSUserDefaults. The values from the new user
   // defaults must also be cleared!
@@ -380,7 +380,7 @@ static const NSTimeInterval kGULTestCaseTimeoutInterval = 10;
   XCTAssertEqualObjects([newUserDefaults arrayForKey:key3], array2);
   XCTAssertEqualObjects([userDefaults objectForKey:key3], array2);
 
-  NSDictionary *dictionary2 = @{ @"testing 2" : @3 };
+  NSDictionary *dictionary2 = @{@"testing 2" : @3};
   [userDefaults setObject:dictionary2 forKey:key4];
   XCTAssertEqualObjects([newUserDefaults objectForKey:key4], dictionary2);
   XCTAssertEqualObjects([userDefaults objectForKey:key4], dictionary2);
@@ -413,10 +413,10 @@ static const NSTimeInterval kGULTestCaseTimeoutInterval = 10;
   };
 
   id observer =
-  [[NSNotificationCenter defaultCenter] addObserverForName:NSUserDefaultsDidChangeNotification
-                                                    object:nil
-                                                     queue:nil
-                                                usingBlock:callBlock];
+      [[NSNotificationCenter defaultCenter] addObserverForName:NSUserDefaultsDidChangeNotification
+                                                        object:nil
+                                                         queue:nil
+                                                    usingBlock:callBlock];
   NSString *suiteName = @"test_suite_notification";
   GULUserDefaults *newUserDefaults = [[GULUserDefaults alloc] initWithSuiteName:suiteName];
   [newUserDefaults setObject:@"134" forKey:@"test-another"];
@@ -453,7 +453,8 @@ static const NSTimeInterval kGULTestCaseTimeoutInterval = 10;
   [newUserDefaults setObject:@"134" forKey:@"test-another"];
   [newUserDefaults synchronize];
 
-  XCTAssertTrue([fileManager fileExistsAtPath:filePath], @"The user defaults file was not synchronized to disk.");
+  XCTAssertTrue([fileManager fileExistsAtPath:filePath],
+                @"The user defaults file was not synchronized to disk.");
 
   // Now get the file directly from disk.
   XCTAssertTrue([fileManager fileExistsAtPath:filePath]);
@@ -564,7 +565,7 @@ static const NSTimeInterval kGULTestCaseTimeoutInterval = 10;
   XCTestExpectation *expectation = [self expectationForPredicate:dictionarySize
                                              evaluatedWithObject:dictionary
                                                          handler:nil];
-  [self waitForExpectations:@[expectation] timeout:kGULTestCaseTimeoutInterval];
+  [self waitForExpectations:@[ expectation ] timeout:kGULTestCaseTimeoutInterval];
 
   for (int i = 0; i < itemCount; i++) {
     NSString *key = [NSString stringWithFormat:@"%d", i];
@@ -608,7 +609,7 @@ static const NSTimeInterval kGULTestCaseTimeoutInterval = 10;
   XCTestExpectation *expectation = [self expectationForPredicate:emptyDictionary
                                              evaluatedWithObject:dictionary
                                                          handler:nil];
-  [self waitForExpectations:@[expectation] timeout:kGULTestCaseTimeoutInterval];
+  [self waitForExpectations:@[ expectation ] timeout:kGULTestCaseTimeoutInterval];
 
   for (int i = 0; i < itemCount; i++) {
     NSString *key = [NSString stringWithFormat:@"%d", i];
@@ -649,7 +650,7 @@ static const NSTimeInterval kGULTestCaseTimeoutInterval = 10;
   XCTestExpectation *expectation = [self expectationForPredicate:dictionarySize
                                              evaluatedWithObject:dictionary
                                                          handler:nil];
-  [self waitForExpectations:@[expectation] timeout:kGULTestCaseTimeoutInterval];
+  [self waitForExpectations:@[ expectation ] timeout:kGULTestCaseTimeoutInterval];
 
   // Check the remaining of the user defaults.
   for (int i = 0; i < itemCount; i++) {
@@ -691,7 +692,7 @@ static const NSTimeInterval kGULTestCaseTimeoutInterval = 10;
   XCTestExpectation *expectation = [self expectationForPredicate:dictionarySize
                                              evaluatedWithObject:dictionary
                                                          handler:nil];
-  [self waitForExpectations:@[expectation] timeout:kGULTestCaseTimeoutInterval];
+  [self waitForExpectations:@[ expectation ] timeout:kGULTestCaseTimeoutInterval];
 
   for (int i = 0; i < itemCount; i++) {
     NSString *key = [NSString stringWithFormat:@"%d", i];
@@ -739,7 +740,7 @@ static const NSTimeInterval kGULTestCaseTimeoutInterval = 10;
   XCTestExpectation *expectation = [self expectationForPredicate:dictionarySize
                                              evaluatedWithObject:dictionary
                                                          handler:nil];
-  [self waitForExpectations:@[expectation] timeout:kGULTestCaseTimeoutInterval];
+  [self waitForExpectations:@[ expectation ] timeout:kGULTestCaseTimeoutInterval];
 
   // Check the remaining of the user defaults.
   for (int i = 0; i < itemCount; i++) {
@@ -828,10 +829,8 @@ static const NSTimeInterval kGULTestCaseTimeoutInterval = 10;
     XCTFail(@"Library directory not found - NSSearchPath results are empty.");
   }
   NSArray *components = @[
-                          paths.lastObject,
-                          @"Preferences",
-                          [preferencesName stringByAppendingPathExtension:@"plist"]
-                          ];
+    paths.lastObject, @"Preferences", [preferencesName stringByAppendingPathExtension:@"plist"]
+  ];
   return [NSString pathWithComponents:components];
 }
 

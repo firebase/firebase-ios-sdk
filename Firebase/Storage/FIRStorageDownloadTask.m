@@ -59,8 +59,8 @@
     NSMutableURLRequest *request = [strongSelf.baseRequest mutableCopy];
     request.HTTPMethod = @"GET";
     request.timeoutInterval = strongSelf.reference.storage.maxDownloadRetryTime;
-    NSURLComponents *components =
-        [NSURLComponents componentsWithURL:request.URL resolvingAgainstBaseURL:NO];
+    NSURLComponents *components = [NSURLComponents componentsWithURL:request.URL
+                                             resolvingAgainstBaseURL:NO];
     [components setQuery:@"alt=media"];
     request.URL = components.URL;
 
