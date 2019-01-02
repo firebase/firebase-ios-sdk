@@ -17,6 +17,7 @@
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 
 #include <memory>
+#include <set>
 #include <string>
 #include <utility>
 #include <vector>
@@ -130,7 +131,7 @@ NS_ASSUME_NONNULL_BEGIN
       (FSTObjectValue *)[self parseData:input context:accumulator.RootContext()];
 
   if (fieldMask) {
-    std::vector<FieldPath> validatedFieldPaths;
+    std::set<FieldPath> validatedFieldPaths;
     for (id fieldPath in fieldMask) {
       FieldPath path;
 
@@ -150,7 +151,7 @@ NS_ASSUME_NONNULL_BEGIN
             path.CanonicalString().c_str());
       }
 
-      validatedFieldPaths.push_back(path);
+      validatedFieldPaths.insert(path);
     }
 
     return std::move(accumulator).MergeData(updateData, FieldMask{std::move(validatedFieldPaths)});
