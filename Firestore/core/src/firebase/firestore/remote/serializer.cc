@@ -355,8 +355,9 @@ DocumentKey Serializer::DecodeKey(Reader* reader,
                               local_path.CanonicalString()));
   }
 
-  if (!reader->status().ok()) return DocumentKey();
-  return DocumentKey{local_path};
+  // Avoid assertion failures in DocumentKey if local_path is invalid.
+  if (!reader->status().ok()) return DocumentKey{};
+  return DocumentKey{std::move(local_path)};
 }
 
 google_firestore_v1beta1_Document Serializer::EncodeDocument(

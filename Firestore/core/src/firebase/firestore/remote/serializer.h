@@ -62,8 +62,8 @@ T* MakeArray(size_t count) {
  * protocol buffer, and methods starting with "Decode" convert from a nanopb
  * protocol buffer to a model object
  *
- * For encoded messages, pb_release() must be called on the returned nanopb
- * proto buffer or a memory leak will occur.
+ * For encoded messages, FreeNanopbMessage() must be called on the returned
+ * nanopb proto buffer or a memory leak will occur.
  */
 // TODO(rsgowman): Original docs also has this: "Throws an exception if a
 // protocol buffer is missing a critical field or has a value we can't
