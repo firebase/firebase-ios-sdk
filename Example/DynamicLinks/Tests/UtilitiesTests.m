@@ -29,10 +29,9 @@ static NSString *const kURLScheme = @"gindeeplinkurl";
   static NSString *const kCustomScheme = @"customscheme";
   static NSString *const kBundleID = @"com.My.Bundle.ID";
 
-  NSString *expectedURLString = [NSString stringWithFormat:
-                                              @"https://goo.gl/app/_/deeplink?fdl_ios_"
-                                               "bundle_id=%@&fdl_ios_url_scheme=%@",
-                                              kBundleID, kCustomScheme];
+  NSString *expectedURLString = [NSString stringWithFormat:@"https://goo.gl/app/_/deeplink?fdl_ios_"
+                                                            "bundle_id=%@&fdl_ios_url_scheme=%@",
+                                                           kBundleID, kCustomScheme];
 
   NSURL *url = FIRDLCookieRetrievalURL(kCustomScheme, kBundleID);
 
@@ -149,20 +148,19 @@ static NSString *const kURLScheme = @"gindeeplinkurl";
   NSString *matchType = @"unique";
 
   NSString *expectedURLString =
-      [NSString stringWithFormat:
-                    @"%@://google/link/?utm_campaign=%@"
-                    @"&deep_link_id=%@&utm_medium=%@&invitation_weakMatchEndpoint=%@"
-                    @"&utm_source=%@&invitation_id=%@&match_type=%@",
-                    kURLScheme, utmCampaign, encodedDeepLinkString, utmMedium, weakMatchEndpoint,
-                    utmSource, inviteID, matchType];
+      [NSString stringWithFormat:@"%@://google/link/?utm_campaign=%@"
+                                 @"&deep_link_id=%@&utm_medium=%@&invitation_weakMatchEndpoint=%@"
+                                 @"&utm_source=%@&invitation_id=%@&match_type=%@",
+                                 kURLScheme, utmCampaign, encodedDeepLinkString, utmMedium,
+                                 weakMatchEndpoint, utmSource, inviteID, matchType];
   NSURLComponents *expectedURLComponents = [NSURLComponents componentsWithString:expectedURLString];
 
   NSURL *actualURL =
       FIRDLDeepLinkURLWithInviteID(inviteID, deepLinkString, utmSource, utmMedium, utmCampaign, NO,
                                    weakMatchEndpoint, nil, kURLScheme, nil);
 
-  NSURLComponents *actualURLComponents =
-      [NSURLComponents componentsWithURL:actualURL resolvingAgainstBaseURL:NO];
+  NSURLComponents *actualURLComponents = [NSURLComponents componentsWithURL:actualURL
+                                                    resolvingAgainstBaseURL:NO];
 
   // Since the parameters are not guaranteed to be in any specific order, we must compare
   // arrays of properties of the URLs rather than the URLs themselves.

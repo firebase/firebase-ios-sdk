@@ -115,8 +115,8 @@
 
   FIRCollectionReference *coll = [self collectionRefWithDocuments:testDocs];
 
-  FIRQuery *query =
-      [[coll queryWhereField:@"filter" isEqualTo:@YES] queryOrderedByField:@"sort" descending:YES];
+  FIRQuery *query = [[coll queryWhereField:@"filter" isEqualTo:@YES] queryOrderedByField:@"sort"
+                                                                              descending:YES];
   FIRQuerySnapshot *result = [self readDocumentSetForRef:query];
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(result),
                         (@[ testDocs[@"2"], testDocs[@"3"], testDocs[@"1"] ]));

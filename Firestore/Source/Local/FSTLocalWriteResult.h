@@ -16,8 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Firestore/Source/Model/FSTDocumentDictionary.h"
-
+#include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -26,12 +25,13 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FSTLocalWriteResult : NSObject
 
 + (instancetype)resultForBatchID:(firebase::firestore::model::BatchId)batchID
-                         changes:(FSTMaybeDocumentDictionary *)changes;
+                         changes:(firebase::firestore::model::MaybeDocumentMap &&)changes;
 
 - (id)init __attribute__((unavailable("Use resultForBatchID:changes:")));
 
+- (const firebase::firestore::model::MaybeDocumentMap &)changes;
+
 @property(nonatomic, assign, readonly) firebase::firestore::model::BatchId batchID;
-@property(nonatomic, strong, readonly) FSTMaybeDocumentDictionary *changes;
 
 @end
 

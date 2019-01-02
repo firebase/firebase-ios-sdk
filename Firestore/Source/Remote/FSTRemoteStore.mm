@@ -195,7 +195,7 @@ static const int kMaxPendingWrites = 10;
   _writeStream->Stop();
 
   if (self.writePipeline.count > 0) {
-    LOG_DEBUG("Stopping write stream with %lu pending writes",
+    LOG_DEBUG("Stopping write stream with %s pending writes",
               (unsigned long)self.writePipeline.count);
     [self.writePipeline removeAllObjects];
   }

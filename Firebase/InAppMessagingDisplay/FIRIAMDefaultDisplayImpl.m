@@ -55,8 +55,8 @@
     // sourced
     NSBundle *containingBundle = [NSBundle mainBundle];
     // This is assuming the display resource bundle is contained in the main bundle
-    NSURL *bundleURL =
-        [containingBundle URLForResource:@"InAppMessagingDisplayResources" withExtension:@"bundle"];
+    NSURL *bundleURL = [containingBundle URLForResource:@"InAppMessagingDisplayResources"
+                                          withExtension:@"bundle"];
     resourceBundle = [NSBundle bundleWithURL:bundleURL];
 
     if (resourceBundle == nil) {

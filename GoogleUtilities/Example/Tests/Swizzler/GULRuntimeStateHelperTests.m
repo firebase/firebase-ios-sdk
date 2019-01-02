@@ -72,9 +72,8 @@
       }
     }
   }
-  XCTAssertTrue(found,
-                @"One of the classdiffs should contain the address of the original IMP of "
-                 "the method that was modified above");
+  XCTAssertTrue(found, @"One of the classdiffs should contain the address of the original IMP of "
+                        "the method that was modified above");
 }
 
 #pragma mark - Helper methods

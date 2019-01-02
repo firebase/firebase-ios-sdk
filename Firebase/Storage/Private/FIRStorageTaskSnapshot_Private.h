@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+#import <Foundation/Foundation.h>
+
+#import "FIRStorageTaskSnapshot.h"
+
 #import "FIRStorageConstants_Private.h"
 
 NS_ASSUME_NONNULL_BEGIN

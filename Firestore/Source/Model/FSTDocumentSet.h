@@ -16,9 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Firestore/Source/Model/FSTDocumentDictionary.h"
-
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/document_map.h"
 
 @class FSTDocument;
 
@@ -71,10 +70,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSArray<FSTDocument *> *)arrayValue;
 
 /**
- * Returns the documents as a FSTMaybeDocumentDictionary. This is O(1) as this leverages our
- * internal representation.
+ * Returns the documents as a `DocumentMap`. This is O(1) as this leverages
+ * our internal representation.
  */
-- (FSTMaybeDocumentDictionary *)dictionaryValue;
+- (const firebase::firestore::model::DocumentMap &)mapValue;
 
 /** Returns a new FSTDocumentSet that contains the given document. */
 - (instancetype)documentSetByAddingDocument:(FSTDocument *_Nullable)document;

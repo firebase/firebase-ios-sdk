@@ -16,6 +16,8 @@
 
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
+#include <set>
+
 namespace firebase {
 namespace firestore {
 namespace testutil {
@@ -23,13 +25,14 @@ namespace testutil {
 std::unique_ptr<model::PatchMutation> PatchMutation(
     absl::string_view path,
     const model::ObjectValue::Map& values,
+    // TODO(rsgowman): Investigate changing update_mask to a set.
     const std::vector<model::FieldPath>* update_mask) {
   model::FieldValue object_value = model::FieldValue::FromMap({});
-  std::vector<model::FieldPath> object_mask;
+  std::set<model::FieldPath> object_mask;
 
   for (const auto& kv : values) {
     model::FieldPath field_path = Field(kv.first);
-    object_mask.push_back(field_path);
+    object_mask.insert(field_path);
     if (kv.second.string_value() != kDeleteSentinel) {
       object_value = object_value.Set(field_path, kv.second);
     }
@@ -37,13 +40,16 @@ std::unique_ptr<model::PatchMutation> PatchMutation(
 
   bool merge = update_mask != nullptr;
 
-  // We sort the field_mask_paths to make the order deterministic in tests.
-  std::sort(object_mask.begin(), object_mask.end());
-
-  return absl::make_unique<model::PatchMutation>(
-      Key(path), std::move(object_value),
-      model::FieldMask(merge ? *update_mask : object_mask),
-      merge ? model::Precondition::None() : model::Precondition::Exists(true));
+  if (merge) {
+    return absl::make_unique<model::PatchMutation>(
+        Key(path), std::move(object_value),
+        model::FieldMask(update_mask->begin(), update_mask->end()),
+        model::Precondition::None());
+  } else {
+    return absl::make_unique<model::PatchMutation>(
+        Key(path), std::move(object_value), model::FieldMask(object_mask),
+        model::Precondition::Exists(true));
+  }
 }
 
 }  // namespace testutil

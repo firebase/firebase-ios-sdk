@@ -68,15 +68,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (FSTLevelDB *)levelDBPersistenceWithDir:(Path)dir lruParams:(LruParams)params {
   FSTLocalSerializer *serializer = [self localSerializer];
-  FSTLevelDB *db =
-      [[FSTLevelDB alloc] initWithDirectory:std::move(dir) serializer:serializer lruParams:params];
-  Status status = [db start];
+  FSTLevelDB *ldb;
+  util::Status status = [FSTLevelDB dbWithDirectory:std::move(dir)
+                                         serializer:serializer
+                                          lruParams:params
+                                                ptr:&ldb];
   if (!status.ok()) {
     [NSException raise:NSInternalInconsistencyException
-                format:@"Failed to start leveldb persistence: %s", status.ToString().c_str()];
+                format:@"Failed to open DB: %s", status.ToString().c_str()];
   }
-
-  return db;
+  return ldb;
 }
 
 + (FSTLevelDB *)levelDBPersistenceWithLruParams:(LruParams)lruParams {
@@ -88,14 +89,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (FSTMemoryPersistence *)eagerGCMemoryPersistence {
-  FSTMemoryPersistence *persistence = [FSTMemoryPersistence persistenceWithEagerGC];
-  Status status = [persistence start];
-  if (!status.ok()) {
-    [NSException raise:NSInternalInconsistencyException
-                format:@"Failed to start memory persistence: %s", status.ToString().c_str()];
-  }
-
-  return persistence;
+  return [FSTMemoryPersistence persistenceWithEagerGC];
 }
 
 + (FSTMemoryPersistence *)lruMemoryPersistence {
@@ -104,15 +98,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (FSTMemoryPersistence *)lruMemoryPersistenceWithLruParams:(LruParams)lruParams {
   FSTLocalSerializer *serializer = [self localSerializer];
-  FSTMemoryPersistence *persistence =
-      [FSTMemoryPersistence persistenceWithLruParams:lruParams serializer:serializer];
-  Status status = [persistence start];
-  if (!status.ok()) {
-    [NSException raise:NSInternalInconsistencyException
-                format:@"Failed to start memory persistence: %s", status.ToString().c_str()];
-  }
-
-  return persistence;
+  return [FSTMemoryPersistence persistenceWithLruParams:lruParams serializer:serializer];
 }
 
 @end

@@ -21,7 +21,7 @@
 #import <FirebaseAuthInterop/FIRAuthInterop.h>
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
-#import <FirebaseCore/FIRComponentRegistrant.h>
+#import <FirebaseCore/FIRLibrary.h>
 
 #import "FIRAdditionalUserInfo.h"
 #import "FIRAuth_Internal.h"
@@ -225,7 +225,7 @@ static const NSTimeInterval kExpectationTimeout = 2;
 static const NSTimeInterval kWaitInterval = .5;
 
 /** Category for FIRAuth to expose FIRComponentRegistrant conformance. */
-@interface FIRAuth () <FIRComponentRegistrant>
+@interface FIRAuth () <FIRLibrary>
 @end
 
 /** @class FIRAuthTests
@@ -363,20 +363,6 @@ static const NSTimeInterval kWaitInterval = .5;
   // i.e., the app is the sole owner of the auth.
   XCTAssertNil(app);
   XCTAssertNil(auth);
-}
-
-/** @fn testGetUID
-    @brief Verifies that FIRApp's getUIDImplementation is correctly set by FIRAuth.
- */
-- (void)testGetUID {
-  // TODO: Remove this test once Firestore, Database, and Storage move over to the new Auth interop
-  //       library.
-  FIRApp *app = [FIRApp defaultApp];
-  XCTAssertNotNil(app.getUIDImplementation);
-  [[FIRAuth auth] signOut:NULL];
-  XCTAssertNil(app.getUIDImplementation());
-  [self waitForSignIn];
-  XCTAssertEqualObjects(app.getUIDImplementation(), kLocalID);
 }
 
 #pragma mark - Server API Tests
@@ -2283,8 +2269,8 @@ static const NSTimeInterval kWaitInterval = .5;
  */
 - (void)enableAutoTokenRefresh {
   XCTestExpectation *expectation = [self expectationWithDescription:@"autoTokenRefreshcallback"];
-  [[FIRAuth auth].app getTokenForcingRefresh:NO withCallback:^(NSString *_Nullable token,
-                                                                NSError *_Nullable error) {
+  [[FIRAuth auth] getTokenForcingRefresh:NO withCallback:^(NSString *_Nullable token,
+                                                           NSError *_Nullable error) {
     [expectation fulfill];
   }];
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];

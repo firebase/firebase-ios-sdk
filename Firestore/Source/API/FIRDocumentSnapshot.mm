@@ -220,16 +220,15 @@ static FSTServerTimestampBehavior InternalServerTimestampBehavor(
     const DatabaseId *database = self.firestore.databaseID;
     if (*refDatabase != *database) {
       // TODO(b/32073923): Log this as a proper warning.
-      NSLog(
-          @"WARNING: Document %@ contains a document reference within a different database "
-           "(%s/%s) which is not supported. It will be treated as a reference within the "
-           "current database (%s/%s) instead.",
-          self.reference.path, refDatabase->project_id().c_str(),
-          refDatabase->database_id().c_str(), database->project_id().c_str(),
-          database->database_id().c_str());
+      NSLog(@"WARNING: Document %@ contains a document reference within a different database "
+             "(%s/%s) which is not supported. It will be treated as a reference within the "
+             "current database (%s/%s) instead.",
+            self.reference.path, refDatabase->project_id().c_str(),
+            refDatabase->database_id().c_str(), database->project_id().c_str(),
+            database->database_id().c_str());
     }
-    return [FIRDocumentReference referenceWithKey:[ref valueWithOptions:options]
-                                        firestore:self.firestore];
+    DocumentKey key = [[ref valueWithOptions:options] key];
+    return [FIRDocumentReference referenceWithKey:key firestore:self.firestore];
   } else {
     return [value valueWithOptions:options];
   }

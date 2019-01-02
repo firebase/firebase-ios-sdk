@@ -30,6 +30,7 @@
 
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::MaybeDocumentMap;
 using firebase::firestore::model::OnlineState;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -200,22 +201,21 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
   return _syncedDocuments;
 }
 
-- (FSTViewDocumentChanges *)computeChangesWithDocuments:(FSTMaybeDocumentDictionary *)docChanges {
+- (FSTViewDocumentChanges *)computeChangesWithDocuments:(const MaybeDocumentMap &)docChanges {
   return [self computeChangesWithDocuments:docChanges previousChanges:nil];
 }
 
-- (FSTViewDocumentChanges *)computeChangesWithDocuments:(FSTMaybeDocumentDictionary *)docChanges
+- (FSTViewDocumentChanges *)computeChangesWithDocuments:(const MaybeDocumentMap &)docChanges
                                         previousChanges:
                                             (nullable FSTViewDocumentChanges *)previousChanges {
   FSTDocumentViewChangeSet *changeSet =
       previousChanges ? previousChanges.changeSet : [FSTDocumentViewChangeSet changeSet];
   FSTDocumentSet *oldDocumentSet = previousChanges ? previousChanges.documentSet : self.documentSet;
 
-  __block DocumentKeySet newMutatedKeys =
-      previousChanges ? previousChanges.mutatedKeys : _mutatedKeys;
-  __block DocumentKeySet oldMutatedKeys = _mutatedKeys;
-  __block FSTDocumentSet *newDocumentSet = oldDocumentSet;
-  __block BOOL needsRefill = NO;
+  DocumentKeySet newMutatedKeys = previousChanges ? previousChanges.mutatedKeys : _mutatedKeys;
+  DocumentKeySet oldMutatedKeys = _mutatedKeys;
+  FSTDocumentSet *newDocumentSet = oldDocumentSet;
+  BOOL needsRefill = NO;
 
   // Track the last doc in a (full) limit. This is necessary, because some update (a delete, or an
   // update moving a doc past the old limit) might mean there is some other document in the local
@@ -229,15 +229,17 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
       (self.query.limit && oldDocumentSet.count == self.query.limit) ? oldDocumentSet.lastDocument
                                                                      : nil;
 
-  [docChanges enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key,
-                                                  FSTMaybeDocument *maybeNewDoc, BOOL *stop) {
+  for (const auto &kv : docChanges) {
+    const DocumentKey &key = kv.first;
+    FSTMaybeDocument *maybeNewDoc = kv.second;
+
     FSTDocument *_Nullable oldDoc = [oldDocumentSet documentForKey:key];
     FSTDocument *_Nullable newDoc = nil;
     if ([maybeNewDoc isKindOfClass:[FSTDocument class]]) {
       newDoc = (FSTDocument *)maybeNewDoc;
     }
     if (newDoc) {
-      HARD_ASSERT([key isEqual:newDoc.key], "Mismatching key in document changes: %s != %s", key,
+      HARD_ASSERT(key == newDoc.key, "Mismatching key in document changes: %s != %s", key,
                   newDoc.key.ToString());
       if (![self.query matchesDocument:newDoc]) {
         newDoc = nil;
@@ -307,7 +309,8 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
         newMutatedKeys = newMutatedKeys.erase(key);
       }
     }
-  }];
+  }
+
   if (self.query.limit) {
     for (long i = newDocumentSet.count - self.query.limit; i > 0; --i) {
       FSTDocument *oldDoc = [newDocumentSet lastDocument];

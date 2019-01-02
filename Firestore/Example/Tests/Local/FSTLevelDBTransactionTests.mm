@@ -206,8 +206,9 @@ using leveldb::WriteOptions;
 
   std::string value;
   Status status = transaction.Get("theKey", &value);
-  NSData *result =
-      [[NSData alloc] initWithBytesNoCopy:(void *)value.data() length:value.size() freeWhenDone:NO];
+  NSData *result = [[NSData alloc] initWithBytesNoCopy:(void *)value.data()
+                                                length:value.size()
+                                          freeWhenDone:NO];
   NSError *error;
   FSTPBTarget *parsed = [FSTPBTarget parseFromData:result error:&error];
   XCTAssertNil(error);
@@ -292,17 +293,15 @@ using leveldb::WriteOptions;
 
   transaction.Put(key, message);
   description = transaction.ToString();
-  XCTAssertEqual(description,
-                 "<LevelDbTransaction testToString: 1 changes (2 bytes):\n"
-                 "  - Put [mutation: user_id=user1 batch_id=42] (2 bytes)>");
+  XCTAssertEqual(description, "<LevelDbTransaction testToString: 1 changes (2 bytes):\n"
+                              "  - Put [mutation: user_id=user1 batch_id=42] (2 bytes)>");
 
   std::string key2 = LevelDbMutationKey::Key("user1", 43);
   transaction.Delete(key2);
   description = transaction.ToString();
-  XCTAssertEqual(description,
-                 "<LevelDbTransaction testToString: 2 changes (2 bytes):\n"
-                 "  - Delete [mutation: user_id=user1 batch_id=43]\n"
-                 "  - Put [mutation: user_id=user1 batch_id=42] (2 bytes)>");
+  XCTAssertEqual(description, "<LevelDbTransaction testToString: 2 changes (2 bytes):\n"
+                              "  - Delete [mutation: user_id=user1 batch_id=43]\n"
+                              "  - Put [mutation: user_id=user1 batch_id=42] (2 bytes)>");
 }
 
 @end

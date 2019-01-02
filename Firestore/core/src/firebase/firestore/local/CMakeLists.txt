@@ -46,10 +46,14 @@ endif()
 cc_library(
   firebase_firestore_local
   SOURCES
+    document_reference.h
+    document_reference.cc
     local_serializer.h
     local_serializer.cc
     query_data.cc
     query_data.h
+    reference_set.cc
+    reference_set.h
   DEPENDS
     # TODO(b/111328563) Force nanopb first to work around ODR violations
     protobuf-nanopb
