@@ -22,7 +22,7 @@
 
 #include "Firestore/Protos/nanopb/firestore/local/maybe_document.nanopb.h"
 #include "Firestore/Protos/nanopb/firestore/local/target.nanopb.h"
-#include "Firestore/Protos/nanopb/google/firestore/v1beta1/document.nanopb.h"
+#include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
@@ -64,8 +64,12 @@ void LocalSerializer::EncodeMaybeDocument(
       });
       return;
 
+    case MaybeDocument::Type::UnknownDocument:
+      // TODO(rsgowman): Implement
+      abort();
+
     case MaybeDocument::Type::Unknown:
-      // TODO(rsgowman)
+      // TODO(rsgowman): Error handling
       abort();
   }
 
@@ -109,7 +113,7 @@ std::unique_ptr<MaybeDocument> LocalSerializer::DecodeMaybeDocument(
 void LocalSerializer::EncodeDocument(Writer* writer,
                                      const Document& doc) const {
   // Encode Document.name
-  writer->WriteTag({PB_WT_STRING, google_firestore_v1beta1_Document_name_tag});
+  writer->WriteTag({PB_WT_STRING, google_firestore_v1_Document_name_tag});
   writer->WriteString(rpc_serializer_.EncodeKey(doc.key()));
 
   // Encode Document.fields (unless it's empty)
@@ -117,14 +121,14 @@ void LocalSerializer::EncodeDocument(Writer* writer,
   if (!object_value.internal_value.empty()) {
     rpc_serializer_.EncodeObjectMap(
         writer, object_value.internal_value,
-        google_firestore_v1beta1_Document_fields_tag,
-        google_firestore_v1beta1_Document_FieldsEntry_key_tag,
-        google_firestore_v1beta1_Document_FieldsEntry_value_tag);
+        google_firestore_v1_Document_fields_tag,
+        google_firestore_v1_Document_FieldsEntry_key_tag,
+        google_firestore_v1_Document_FieldsEntry_value_tag);
   }
 
   // Encode Document.update_time
   writer->WriteTag(
-      {PB_WT_STRING, google_firestore_v1beta1_Document_update_time_tag});
+      {PB_WT_STRING, google_firestore_v1_Document_update_time_tag});
   writer->WriteNestedMessage([&](Writer* writer) {
     rpc_serializer_.EncodeVersion(writer, doc.version());
   });
@@ -168,8 +172,12 @@ std::unique_ptr<NoDocument> LocalSerializer::DecodeNoDocument(
   }
 
   if (!reader->status().ok()) return nullptr;
+  // TODO(rsgowman): Fix hardcoding of has_committed_mutations.
+  // Instead, we should grab this from the proto (see other ports). However,
+  // we'll defer until the nanopb-master gets merged to master.
   return absl::make_unique<NoDocument>(rpc_serializer_.DecodeKey(name),
-                                       *std::move(version));
+                                       *std::move(version),
+                                       /*has_committed_mutations=*/false);
 }
 
 void LocalSerializer::EncodeQueryData(Writer* writer,

@@ -188,7 +188,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
     HARD_ASSERT(self.filterOperator != FSTRelationFilterOperatorArrayContains,
                 "arrayContains queries don't make sense on document keys.");
     FSTReferenceValue *refValue = (FSTReferenceValue *)self.value;
-    NSComparisonResult comparison = FSTDocumentKeyComparator(document.key, refValue.value);
+    NSComparisonResult comparison = CompareKeys(document.key, refValue.value.key);
     return [self matchesComparison:comparison];
   } else {
     return [self matchesValue:[document fieldForPath:self.field]];
@@ -381,7 +381,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 - (NSComparisonResult)compareDocument:(FSTDocument *)document1 toDocument:(FSTDocument *)document2 {
   NSComparisonResult result;
   if (_field == FieldPath::KeyFieldPath()) {
-    result = FSTDocumentKeyComparator(document1.key, document2.key);
+    result = CompareKeys(document1.key, document2.key);
   } else {
     FSTFieldValue *value1 = [document1 fieldForPath:self.field];
     FSTFieldValue *value2 = [document2 fieldForPath:self.field];
@@ -475,7 +475,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
       HARD_ASSERT([fieldValue isKindOfClass:[FSTReferenceValue class]],
                   "FSTBound has a non-key value where the key path is being used %s", fieldValue);
       FSTReferenceValue *refValue = (FSTReferenceValue *)fieldValue;
-      comparison = [refValue.value compare:document.key];
+      comparison = CompareKeys(refValue.value.key, document.key);
     } else {
       FSTFieldValue *docValue = [document fieldForPath:sortOrderComponent.field];
       HARD_ASSERT(docValue != nil,
@@ -623,8 +623,8 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
       // it to be a valid query. Note that the default inequality field and key ordering is
       // ascending.
       if (inequalityField->IsKeyFieldPath()) {
-        self.memoizedSortOrders =
-            @[ [FSTSortOrder sortOrderWithFieldPath:FieldPath::KeyFieldPath() ascending:YES] ];
+        self.memoizedSortOrders = @[ [FSTSortOrder sortOrderWithFieldPath:FieldPath::KeyFieldPath()
+                                                                ascending:YES] ];
       } else {
         self.memoizedSortOrders = @[
           [FSTSortOrder sortOrderWithFieldPath:*inequalityField ascending:YES],
@@ -666,7 +666,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 
   const FieldPath *newInequalityField = nullptr;
   if ([filter isKindOfClass:[FSTRelationFilter class]] &&
-      [((FSTRelationFilter *)filter)isInequality]) {
+      [((FSTRelationFilter *)filter) isInequality]) {
     newInequalityField = &filter.field;
   }
   const FieldPath *queryInequalityField = [self inequalityFilterField];

@@ -60,6 +60,8 @@ using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::local::LruParams;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::DocumentMap;
+using firebase::firestore::model::MaybeDocumentMap;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::util::Path;
 using firebase::firestore::util::Status;
@@ -197,25 +199,25 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
         [[FSTSerializerBeta alloc] initWithDatabaseID:&self.databaseInfo->database_id()];
     FSTLocalSerializer *serializer =
         [[FSTLocalSerializer alloc] initWithRemoteSerializer:remoteSerializer];
-    FSTLevelDB *ldb =
-        [[FSTLevelDB alloc] initWithDirectory:std::move(dir)
-                                   serializer:serializer
-                                    lruParams:LruParams::WithCacheSize(settings.cacheSizeBytes)];
+    FSTLevelDB *ldb;
+    Status levelDbStatus =
+        [FSTLevelDB dbWithDirectory:std::move(dir)
+                         serializer:serializer
+                          lruParams:LruParams::WithCacheSize(settings.cacheSizeBytes)
+                                ptr:&ldb];
+    if (!levelDbStatus.ok()) {
+      // If leveldb fails to start then just throw up our hands: the error is unrecoverable.
+      // There's nothing an end-user can do and nearly all failures indicate the developer is doing
+      // something grossly wrong so we should stop them cold in their tracks with a failure they
+      // can't ignore.
+      [NSException raise:NSInternalInconsistencyException
+                  format:@"Failed to open DB: %s", levelDbStatus.ToString().c_str()];
+    }
     _lruDelegate = ldb.referenceDelegate;
     _persistence = ldb;
     [self scheduleLruGarbageCollection];
   } else {
     _persistence = [FSTMemoryPersistence persistenceWithEagerGC];
-  }
-
-  Status status = [_persistence start];
-  if (!status.ok()) {
-    // If local storage fails to start then just throw up our hands: the error is unrecoverable.
-    // There's nothing an end-user can do and nearly all failures indicate the developer is doing
-    // something grossly wrong so we should stop them cold in their tracks with a failure they
-    // can't ignore.
-    [NSException raise:NSInternalInconsistencyException
-                format:@"Failed to open DB: %s", status.ToString().c_str()];
   }
 
   _localStore = [[FSTLocalStore alloc] initWithPersistence:_persistence initialUser:user];
@@ -362,10 +364,11 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
                         completion:(void (^)(FIRQuerySnapshot *_Nullable query,
                                              NSError *_Nullable error))completion {
   _workerQueue->Enqueue([self, query, completion] {
-    FSTDocumentDictionary *docs = [self.localStore executeQuery:query.query];
+    DocumentMap docs = [self.localStore executeQuery:query.query];
 
     FSTView *view = [[FSTView alloc] initWithQuery:query.query remoteDocuments:DocumentKeySet{}];
-    FSTViewDocumentChanges *viewDocChanges = [view computeChangesWithDocuments:docs];
+    FSTViewDocumentChanges *viewDocChanges =
+        [view computeChangesWithDocuments:docs.underlying_map()];
     FSTViewChange *viewChange = [view applyChangesToDocuments:viewDocChanges];
     HARD_ASSERT(viewChange.limboChanges.count == 0,
                 "View returned limbo documents during local-only query execution.");

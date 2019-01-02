@@ -154,11 +154,10 @@ static FIRFirestoreSettings *defaultSettings;
       [[[NSFileManager defaultManager] attributesOfItemAtPath:certsPath error:nil] fileSize];
 
   if (fileSize == 0) {
-    NSLog(
-        @"Please set up a GoogleServices-Info.plist for Firestore in Firestore/Example/App using "
-         "instructions at <https://github.com/firebase/firebase-ios-sdk#running-sample-apps>. "
-         "Alternatively, if you're a Googler with a Hexa preproduction environment, run "
-         "setup_integration_tests.py to properly configure testing SSL certificates.");
+    NSLog(@"Please set up a GoogleServices-Info.plist for Firestore in Firestore/Example/App using "
+           "instructions at <https://github.com/firebase/firebase-ios-sdk#running-sample-apps>. "
+           "Alternatively, if you're a Googler with a Hexa preproduction environment, run "
+           "setup_integration_tests.py to properly configure testing SSL certificates.");
   }
   GrpcConnection::UseTestCertificate(util::MakeString(defaultSettings.host),
                                      Path::FromNSString(certsPath), "test_cert_2");

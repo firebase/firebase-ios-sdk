@@ -98,8 +98,8 @@ dispatch_queue_t GetGULSwizzlingQueue() {
       method = class_getInstanceMethod(aClass, selector);
     }
     NSAssert(method, @"Couldn't find the method you're unswizzling in the runtime.");
-    IMP originalImp =
-        [[GULSwizzlingCache sharedInstance] cachedIMPForClass:resolvedClass withSelector:selector];
+    IMP originalImp = [[GULSwizzlingCache sharedInstance] cachedIMPForClass:resolvedClass
+                                                               withSelector:selector];
     NSAssert(originalImp, @"This class/selector combination hasn't been swizzled");
     IMP currentImp = method_setImplementation(method, originalImp);
     BOOL didRemoveBlock = imp_removeBlock(currentImp);
@@ -120,8 +120,8 @@ dispatch_queue_t GetGULSwizzlingQueue() {
   __block IMP originalImp = nil;
   dispatch_sync(GetGULSwizzlingQueue(), ^{
     Class resolvedClass = isClassSelector ? object_getClass(aClass) : aClass;
-    originalImp =
-        [[GULSwizzlingCache sharedInstance] cachedIMPForClass:resolvedClass withSelector:selector];
+    originalImp = [[GULSwizzlingCache sharedInstance] cachedIMPForClass:resolvedClass
+                                                           withSelector:selector];
     NSAssert(originalImp, @"The IMP for this class/selector combo doesn't exist (%@, %@).",
              NSStringFromClass(resolvedClass), NSStringFromSelector(selector));
   });

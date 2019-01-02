@@ -22,6 +22,7 @@
 
 #include <cinttypes>
 #include <list>
+#include <set>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -34,7 +35,6 @@
 #import "Firestore/Source/Local/FSTLocalViewChanges.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
@@ -64,6 +64,7 @@ using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::FieldTransform;
 using firebase::firestore::model::FieldValue;
+using firebase::firestore::model::MaybeDocumentMap;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::ServerTimestampTransform;
@@ -146,8 +147,8 @@ FSTObjectValue *FSTTestObjectValue(NSDictionary<NSString *, id> *data) {
   return (FSTObjectValue *)wrapped;
 }
 
-FSTDocumentKey *FSTTestDocKey(NSString *path) {
-  return [FSTDocumentKey keyWithPathString:path];
+DocumentKey FSTTestDocKey(NSString *path) {
+  return DocumentKey::FromPathString(util::MakeString(path));
 }
 
 FSTDocument *FSTTestDoc(const absl::string_view path,
@@ -252,10 +253,10 @@ FSTPatchMutation *FSTTestPatchMutation(const absl::string_view path,
   BOOL merge = !updateMask.empty();
 
   __block FSTObjectValue *objectValue = [FSTObjectValue objectValue];
-  __block std::vector<FieldPath> fieldMaskPaths;
+  __block std::set<FieldPath> fieldMaskPaths;
   [values enumerateKeysAndObjectsUsingBlock:^(NSString *key, id value, BOOL *stop) {
     const FieldPath path = testutil::Field(util::MakeString(key));
-    fieldMaskPaths.push_back(path);
+    fieldMaskPaths.insert(path);
     if (![value isEqual:kDeleteSentinel]) {
       FSTFieldValue *parsedValue = FSTTestFieldValue(value);
       objectValue = [objectValue objectBySettingValue:parsedValue forPath:path];
@@ -263,7 +264,8 @@ FSTPatchMutation *FSTTestPatchMutation(const absl::string_view path,
   }];
 
   DocumentKey key = testutil::Key(path);
-  FieldMask mask(merge ? updateMask : fieldMaskPaths);
+  FieldMask mask(merge ? std::set<FieldPath>(updateMask.begin(), updateMask.end())
+                       : fieldMaskPaths);
   return [[FSTPatchMutation alloc] initWithKey:key
                                      fieldMask:mask
                                          value:objectValue
@@ -271,7 +273,7 @@ FSTPatchMutation *FSTTestPatchMutation(const absl::string_view path,
 }
 
 FSTTransformMutation *FSTTestTransformMutation(NSString *path, NSDictionary<NSString *, id> *data) {
-  FSTDocumentKey *key = [FSTDocumentKey keyWithPath:testutil::Resource(util::MakeString(path))];
+  DocumentKey key{testutil::Resource(util::MakeString(path))};
   FSTUserDataConverter *converter = FSTTestUserDataConverter();
   ParsedUpdateData result = [converter parsedUpdateData:data];
   HARD_ASSERT(result.data().value.count == 0,
@@ -280,14 +282,14 @@ FSTTransformMutation *FSTTestTransformMutation(NSString *path, NSDictionary<NSSt
 }
 
 FSTDeleteMutation *FSTTestDeleteMutation(NSString *path) {
-  return
-      [[FSTDeleteMutation alloc] initWithKey:FSTTestDocKey(path) precondition:Precondition::None()];
+  return [[FSTDeleteMutation alloc] initWithKey:FSTTestDocKey(path)
+                                   precondition:Precondition::None()];
 }
 
-FSTMaybeDocumentDictionary *FSTTestDocUpdates(NSArray<FSTMaybeDocument *> *docs) {
-  FSTMaybeDocumentDictionary *updates = [FSTMaybeDocumentDictionary maybeDocumentDictionary];
+MaybeDocumentMap FSTTestDocUpdates(NSArray<FSTMaybeDocument *> *docs) {
+  MaybeDocumentMap updates;
   for (FSTMaybeDocument *doc in docs) {
-    updates = [updates dictionaryBySettingObject:doc forKey:doc.key];
+    updates = updates.insert(doc.key, doc);
   }
   return updates;
 }

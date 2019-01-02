@@ -29,7 +29,7 @@ namespace nanopb {
  * field_number is one of the field tags that nanopb generates based off of
  * the proto messages. They're typically named in the format:
  * <parentNameSpace>_<childNameSpace>_<message>_<field>_tag, e.g.
- * google_firestore_v1beta1_Document_name_tag.
+ * google_firestore_v1_Document_name_tag.
  */
 struct Tag {
   Tag() {

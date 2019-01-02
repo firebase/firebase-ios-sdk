@@ -16,7 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 
-#include <vector>
+#include <set>
 
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "gtest/gtest.h"
@@ -28,27 +28,30 @@ namespace model {
 TEST(FieldMask, ConstructorAndEqual) {
   FieldMask mask_a{FieldPath::FromServerFormat("foo"),
                    FieldPath::FromServerFormat("bar")};
-  std::vector<FieldPath> field_path_vector{FieldPath::FromServerFormat("foo"),
-                                           FieldPath::FromServerFormat("bar")};
-  FieldMask mask_b{field_path_vector};
-  FieldMask mask_c{std::vector<FieldPath>{FieldPath::FromServerFormat("foo"),
-                                          FieldPath::FromServerFormat("bar")}};
+  std::set<FieldPath> field_path_set{FieldPath::FromServerFormat("foo"),
+                                     FieldPath::FromServerFormat("bar")};
+  FieldMask mask_b{field_path_set};
+  FieldMask mask_c{std::set<FieldPath>{FieldPath::FromServerFormat("foo"),
+                                       FieldPath::FromServerFormat("bar")}};
+  FieldMask mask_d{field_path_set.begin(), field_path_set.end()};
+
   EXPECT_EQ(mask_a, mask_b);
   EXPECT_EQ(mask_b, mask_c);
+  EXPECT_EQ(mask_c, mask_d);
 }
 
 TEST(FieldMask, Getter) {
   FieldMask mask{FieldPath::FromServerFormat("foo"),
                  FieldPath::FromServerFormat("bar")};
-  EXPECT_EQ(std::vector<FieldPath>({FieldPath::FromServerFormat("foo"),
-                                    FieldPath::FromServerFormat("bar")}),
-            std::vector<FieldPath>(mask.begin(), mask.end()));
+  EXPECT_EQ(std::set<FieldPath>({FieldPath::FromServerFormat("foo"),
+                                 FieldPath::FromServerFormat("bar")}),
+            std::set<FieldPath>(mask.begin(), mask.end()));
 }
 
 TEST(FieldMask, ToString) {
   FieldMask mask{FieldPath::FromServerFormat("foo"),
                  FieldPath::FromServerFormat("bar")};
-  EXPECT_EQ("{ foo bar }", mask.ToString());
+  EXPECT_EQ("{ bar foo }", mask.ToString());
 }
 
 }  // namespace model

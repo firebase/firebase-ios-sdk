@@ -32,44 +32,18 @@ class DocumentKey;
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** FSTDocumentKey represents the location of a document in the Firestore database. */
+/**
+ * `FSTDocumentKey` is a thin wrapper over `DocumentKey`, necessary until full migration is
+ * possible. Use the underlying `DocumentKey` for any operations.
+ */
 @interface FSTDocumentKey : NSObject <NSCopying>
 
-/**
- * Creates and returns a new document key with the given path.
- *
- * @param path The path to the document.
- * @return A new instance of FSTDocumentKey.
- */
-+ (instancetype)keyWithPath:(firebase::firestore::model::ResourcePath)path;
-
 + (instancetype)keyWithDocumentKey:(const firebase::firestore::model::DocumentKey &)documentKey;
-/**
- * Creates and returns a new document key with a path with the given segments.
- *
- * @param segments The segments of the path to the document.
- * @return A new instance of FSTDocumentKey.
- */
-+ (instancetype)keyWithSegments:(std::initializer_list<std::string>)segments;
-/**
- * Creates and returns a new document key from the given resource path string.
- *
- * @param resourcePath The slash-separated segments of the resource's path.
- * @return A new instance of FSTDocumentKey.
- */
-+ (instancetype)keyWithPathString:(NSString *)resourcePath;
 
-/** Returns true iff the given path is a path to a document. */
-+ (BOOL)isDocumentKey:(const firebase::firestore::model::ResourcePath &)path;
-- (BOOL)isEqualToKey:(FSTDocumentKey *)other;
-- (NSComparisonResult)compare:(FSTDocumentKey *)other;
-
-/** The path to the document. */
-- (const firebase::firestore::model::ResourcePath &)path;
+/** Gets the underlying C++ representation. */
+- (const firebase::firestore::model::DocumentKey &)key;
 
 @end
-
-extern const NSComparator FSTDocumentKeyComparator;
 
 /** The field path string that represents the document's key. */
 extern NSString *const kDocumentKeyPath;

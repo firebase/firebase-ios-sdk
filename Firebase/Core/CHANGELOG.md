@@ -1,5 +1,8 @@
 # Unreleased
 
+# 2018-12-18 -- v5.1.10 -- M40
+- [changed] Removed some internal authentication methods on FIRApp which are no longer used thanks to the interop platform.
+
 # 2018-10-31 -- v5.1.7 -- M37
 - [fixed] Fixed static analysis warning for improper `nil` comparison. (#2034)
 - [changed] Assign the default app before posting notifications. (#2024)

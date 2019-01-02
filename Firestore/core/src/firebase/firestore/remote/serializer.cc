@@ -24,8 +24,8 @@
 #include <string>
 #include <utility>
 
-#include "Firestore/Protos/nanopb/google/firestore/v1beta1/document.nanopb.h"
-#include "Firestore/Protos/nanopb/google/firestore/v1beta1/firestore.nanopb.h"
+#include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
+#include "Firestore/Protos/nanopb/google/firestore/v1/firestore.nanopb.h"
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
@@ -48,6 +48,7 @@ using firebase::firestore::core::Query;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::DocumentState;
 using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::MaybeDocument;
 using firebase::firestore::model::NoDocument;
@@ -59,19 +60,19 @@ using firebase::firestore::nanopb::Tag;
 using firebase::firestore::nanopb::Writer;
 using firebase::firestore::util::Status;
 
-// Aliases for nanopb's equivalent of google::firestore::v1beta1. This shorten
+// Aliases for nanopb's equivalent of google::firestore::v1. This shorten
 // the symbols and allows them to fit on one line.
-namespace v1beta1 {
+namespace v1 {
 
 constexpr uint32_t StructuredQuery_CollectionSelector_collection_id_tag =
     // NOLINTNEXTLINE(whitespace/line_length)
-    google_firestore_v1beta1_StructuredQuery_CollectionSelector_collection_id_tag;
+    google_firestore_v1_StructuredQuery_CollectionSelector_collection_id_tag;
 
 constexpr uint32_t StructuredQuery_CollectionSelector_all_descendants_tag =
     // NOLINTNEXTLINE(whitespace/line_length)
-    google_firestore_v1beta1_StructuredQuery_CollectionSelector_all_descendants_tag;
+    google_firestore_v1_StructuredQuery_CollectionSelector_all_descendants_tag;
 
-}  // namespace v1beta1
+}  // namespace v1
 
 // TODO(rsgowman): Move this down below the anon namespace
 void Serializer::EncodeTimestamp(Writer* writer,
@@ -137,16 +138,16 @@ absl::optional<ObjectValue::Map::value_type> DecodeFieldsEntry(
 
 absl::optional<ObjectValue::Map::value_type> DecodeMapValueFieldsEntry(
     Reader* reader) {
-  return DecodeFieldsEntry(
-      reader, google_firestore_v1beta1_MapValue_FieldsEntry_key_tag,
-      google_firestore_v1beta1_MapValue_FieldsEntry_value_tag);
+  return DecodeFieldsEntry(reader,
+                           google_firestore_v1_MapValue_FieldsEntry_key_tag,
+                           google_firestore_v1_MapValue_FieldsEntry_value_tag);
 }
 
 absl::optional<ObjectValue::Map::value_type> DecodeDocumentFieldsEntry(
     Reader* reader) {
-  return DecodeFieldsEntry(
-      reader, google_firestore_v1beta1_Document_FieldsEntry_key_tag,
-      google_firestore_v1beta1_Document_FieldsEntry_value_tag);
+  return DecodeFieldsEntry(reader,
+                           google_firestore_v1_Document_FieldsEntry_key_tag,
+                           google_firestore_v1_Document_FieldsEntry_value_tag);
 }
 
 absl::optional<ObjectValue::Map> DecodeMapValue(Reader* reader) {
@@ -154,7 +155,7 @@ absl::optional<ObjectValue::Map> DecodeMapValue(Reader* reader) {
 
   while (reader->good()) {
     switch (reader->ReadTag()) {
-      case google_firestore_v1beta1_MapValue_fields_tag: {
+      case google_firestore_v1_MapValue_fields_tag: {
         absl::optional<ObjectValue::Map::value_type> fv =
             reader->ReadNestedMessage<ObjectValue::Map::value_type>(
                 DecodeMapValueFieldsEntry);
@@ -245,10 +246,10 @@ absl::optional<StructuredQuery::CollectionSelector> DecodeCollectionSelector(
 
   while (reader->good()) {
     switch (reader->ReadTag()) {
-      case v1beta1::StructuredQuery_CollectionSelector_collection_id_tag:
+      case v1::StructuredQuery_CollectionSelector_collection_id_tag:
         collection_selector.collection_id = reader->ReadString();
         break;
-      case v1beta1::StructuredQuery_CollectionSelector_all_descendants_tag:
+      case v1::StructuredQuery_CollectionSelector_all_descendants_tag:
         collection_selector.all_descendants = reader->ReadBool();
         break;
       default:
@@ -264,7 +265,7 @@ absl::optional<StructuredQuery> DecodeStructuredQuery(Reader* reader) {
 
   while (reader->good()) {
     switch (reader->ReadTag()) {
-      case google_firestore_v1beta1_StructuredQuery_from_tag: {
+      case google_firestore_v1_StructuredQuery_from_tag: {
         absl::optional<StructuredQuery::CollectionSelector>
             collection_selector =
                 reader->ReadNestedMessage<StructuredQuery::CollectionSelector>(
@@ -297,39 +298,38 @@ void Serializer::EncodeFieldValue(Writer* writer,
   switch (field_value.type()) {
     case FieldValue::Type::Null:
       writer->WriteTag(
-          {PB_WT_VARINT, google_firestore_v1beta1_Value_null_value_tag});
+          {PB_WT_VARINT, google_firestore_v1_Value_null_value_tag});
       writer->WriteNull();
       break;
 
     case FieldValue::Type::Boolean:
       writer->WriteTag(
-          {PB_WT_VARINT, google_firestore_v1beta1_Value_boolean_value_tag});
+          {PB_WT_VARINT, google_firestore_v1_Value_boolean_value_tag});
       writer->WriteBool(field_value.boolean_value());
       break;
 
     case FieldValue::Type::Integer:
       writer->WriteTag(
-          {PB_WT_VARINT, google_firestore_v1beta1_Value_integer_value_tag});
+          {PB_WT_VARINT, google_firestore_v1_Value_integer_value_tag});
       writer->WriteInteger(field_value.integer_value());
       break;
 
     case FieldValue::Type::String:
       writer->WriteTag(
-          {PB_WT_STRING, google_firestore_v1beta1_Value_string_value_tag});
+          {PB_WT_STRING, google_firestore_v1_Value_string_value_tag});
       writer->WriteString(field_value.string_value());
       break;
 
     case FieldValue::Type::Timestamp:
       writer->WriteTag(
-          {PB_WT_STRING, google_firestore_v1beta1_Value_timestamp_value_tag});
+          {PB_WT_STRING, google_firestore_v1_Value_timestamp_value_tag});
       writer->WriteNestedMessage([&field_value](Writer* writer) {
         EncodeTimestamp(writer, field_value.timestamp_value());
       });
       break;
 
     case FieldValue::Type::Object:
-      writer->WriteTag(
-          {PB_WT_STRING, google_firestore_v1beta1_Value_map_value_tag});
+      writer->WriteTag({PB_WT_STRING, google_firestore_v1_Value_map_value_tag});
       writer->WriteNestedMessage([&field_value](Writer* writer) {
         EncodeMapValue(writer, field_value.object_value());
       });
@@ -354,24 +354,24 @@ absl::optional<FieldValue> Serializer::DecodeFieldValue(Reader* reader) {
 
   while (reader->good()) {
     switch (reader->ReadTag()) {
-      case google_firestore_v1beta1_Value_null_value_tag:
+      case google_firestore_v1_Value_null_value_tag:
         reader->ReadNull();
         result = FieldValue::Null();
         break;
 
-      case google_firestore_v1beta1_Value_boolean_value_tag:
+      case google_firestore_v1_Value_boolean_value_tag:
         result = FieldValue::FromBoolean(reader->ReadBool());
         break;
 
-      case google_firestore_v1beta1_Value_integer_value_tag:
+      case google_firestore_v1_Value_integer_value_tag:
         result = FieldValue::FromInteger(reader->ReadInteger());
         break;
 
-      case google_firestore_v1beta1_Value_string_value_tag:
+      case google_firestore_v1_Value_string_value_tag:
         result = FieldValue::FromString(reader->ReadString());
         break;
 
-      case google_firestore_v1beta1_Value_timestamp_value_tag: {
+      case google_firestore_v1_Value_timestamp_value_tag: {
         absl::optional<Timestamp> timestamp =
             reader->ReadNestedMessage<Timestamp>(DecodeTimestamp);
         if (reader->status().ok())
@@ -379,7 +379,7 @@ absl::optional<FieldValue> Serializer::DecodeFieldValue(Reader* reader) {
         break;
       }
 
-      case google_firestore_v1beta1_Value_map_value_tag: {
+      case google_firestore_v1_Value_map_value_tag: {
         // TODO(rsgowman): We should merge the existing map (if any) with the
         // newly parsed map.
         absl::optional<ObjectValue::Map> optional_map =
@@ -388,11 +388,11 @@ absl::optional<FieldValue> Serializer::DecodeFieldValue(Reader* reader) {
         break;
       }
 
-      case google_firestore_v1beta1_Value_double_value_tag:
-      case google_firestore_v1beta1_Value_bytes_value_tag:
-      case google_firestore_v1beta1_Value_reference_value_tag:
-      case google_firestore_v1beta1_Value_geo_point_value_tag:
-      case google_firestore_v1beta1_Value_array_value_tag:
+      case google_firestore_v1_Value_double_value_tag:
+      case google_firestore_v1_Value_bytes_value_tag:
+      case google_firestore_v1_Value_reference_value_tag:
+      case google_firestore_v1_Value_geo_point_value_tag:
+      case google_firestore_v1_Value_array_value_tag:
         // TODO(b/74243929): Implement remaining types.
         HARD_FAIL("Unhandled message field number (tag): %i.",
                   reader->last_tag().field_number);
@@ -423,15 +423,15 @@ void Serializer::EncodeDocument(Writer* writer,
                                 const DocumentKey& key,
                                 const ObjectValue& object_value) const {
   // Encode Document.name
-  writer->WriteTag({PB_WT_STRING, google_firestore_v1beta1_Document_name_tag});
+  writer->WriteTag({PB_WT_STRING, google_firestore_v1_Document_name_tag});
   writer->WriteString(EncodeKey(key));
 
   // Encode Document.fields (unless it's empty)
   if (!object_value.internal_value.empty()) {
     EncodeObjectMap(writer, object_value.internal_value,
-                    google_firestore_v1beta1_Document_fields_tag,
-                    google_firestore_v1beta1_Document_FieldsEntry_key_tag,
-                    google_firestore_v1beta1_Document_FieldsEntry_value_tag);
+                    google_firestore_v1_Document_fields_tag,
+                    google_firestore_v1_Document_FieldsEntry_key_tag,
+                    google_firestore_v1_Document_FieldsEntry_value_tag);
   }
 
   // Skip Document.create_time and Document.update_time, since they're
@@ -460,7 +460,7 @@ std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
 
   while (reader->good()) {
     switch (reader->ReadTag()) {
-      case google_firestore_v1beta1_BatchGetDocumentsResponse_found_tag:
+      case google_firestore_v1_BatchGetDocumentsResponse_found_tag:
         // 'found' and 'missing' are part of a oneof. The proto docs claim that
         // if both are set on the wire, the last one wins.
         missing = "";
@@ -471,7 +471,7 @@ std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
             *this, &Serializer::DecodeDocument);
         break;
 
-      case google_firestore_v1beta1_BatchGetDocumentsResponse_missing_tag:
+      case google_firestore_v1_BatchGetDocumentsResponse_missing_tag:
         // 'found' and 'missing' are part of a oneof. The proto docs claim that
         // if both are set on the wire, the last one wins.
         found = nullptr;
@@ -479,12 +479,12 @@ std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
         missing = reader->ReadString();
         break;
 
-      case google_firestore_v1beta1_BatchGetDocumentsResponse_read_time_tag: {
+      case google_firestore_v1_BatchGetDocumentsResponse_read_time_tag: {
         read_time = reader->ReadNestedMessage<Timestamp>(DecodeTimestamp);
         break;
       }
 
-      case google_firestore_v1beta1_BatchGetDocumentsResponse_transaction_tag:
+      case google_firestore_v1_BatchGetDocumentsResponse_transaction_tag:
         // This field is ignored by the client sdk, but we still need to extract
         // it.
       default:
@@ -497,8 +497,9 @@ std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
   } else if (found != nullptr) {
     return found;
   } else if (!missing.empty()) {
-    return absl::make_unique<NoDocument>(
-        DecodeKey(missing), SnapshotVersion{*std::move(read_time)});
+    return absl::make_unique<NoDocument>(DecodeKey(missing),
+                                         SnapshotVersion{*std::move(read_time)},
+                                         /*has_committed_mutations=*/false);
   } else {
     reader->Fail(
         "Invalid BatchGetDocumentsReponse message: "
@@ -514,11 +515,11 @@ std::unique_ptr<Document> Serializer::DecodeDocument(Reader* reader) const {
 
   while (reader->good()) {
     switch (reader->ReadTag()) {
-      case google_firestore_v1beta1_Document_name_tag:
+      case google_firestore_v1_Document_name_tag:
         name = reader->ReadString();
         break;
 
-      case google_firestore_v1beta1_Document_fields_tag: {
+      case google_firestore_v1_Document_fields_tag: {
         absl::optional<ObjectValue::Map::value_type> fv =
             reader->ReadNestedMessage<ObjectValue::Map::value_type>(
                 DecodeDocumentFieldsEntry);
@@ -531,7 +532,7 @@ std::unique_ptr<Document> Serializer::DecodeDocument(Reader* reader) const {
         break;
       }
 
-      case google_firestore_v1beta1_Document_update_time_tag:
+      case google_firestore_v1_Document_update_time_tag:
         // TODO(rsgowman): Rather than overwriting, we should instead merge with
         // the existing SnapshotVersion (if any). Less relevant here, since it's
         // just two numbers which are both expected to be present, but if the
@@ -540,7 +541,7 @@ std::unique_ptr<Document> Serializer::DecodeDocument(Reader* reader) const {
             reader->ReadNestedMessage<SnapshotVersion>(DecodeSnapshotVersion);
         break;
 
-      case google_firestore_v1beta1_Document_create_time_tag:
+      case google_firestore_v1_Document_create_time_tag:
         // This field is ignored by the client sdk, but we still need to extract
         // it.
       default:
@@ -551,7 +552,7 @@ std::unique_ptr<Document> Serializer::DecodeDocument(Reader* reader) const {
   if (!reader->status().ok()) return nullptr;
   return absl::make_unique<Document>(FieldValue::FromMap(fields_internal),
                                      DecodeKey(name), *std::move(version),
-                                     /*has_local_modifications=*/false);
+                                     DocumentState::kSynced);
 }
 
 void Serializer::EncodeQueryTarget(Writer* writer,
@@ -560,14 +561,14 @@ void Serializer::EncodeQueryTarget(Writer* writer,
   std::string collection_id;
   if (query.path().empty()) {
     writer->WriteTag(
-        {PB_WT_STRING, google_firestore_v1beta1_Target_QueryTarget_parent_tag});
+        {PB_WT_STRING, google_firestore_v1_Target_QueryTarget_parent_tag});
     writer->WriteString(EncodeQueryPath(ResourcePath::Empty()));
   } else {
     ResourcePath path = query.path();
     HARD_ASSERT(path.size() % 2 != 0,
                 "Document queries with filters are not supported.");
     writer->WriteTag(
-        {PB_WT_STRING, google_firestore_v1beta1_Target_QueryTarget_parent_tag});
+        {PB_WT_STRING, google_firestore_v1_Target_QueryTarget_parent_tag});
     writer->WriteString(EncodeQueryPath(path.PopLast()));
 
     collection_id = path.last_segment();
@@ -575,15 +576,15 @@ void Serializer::EncodeQueryTarget(Writer* writer,
 
   writer->WriteTag(
       {PB_WT_STRING,
-       google_firestore_v1beta1_Target_QueryTarget_structured_query_tag});
+       google_firestore_v1_Target_QueryTarget_structured_query_tag});
   writer->WriteNestedMessage([&](Writer* writer) {
     if (!collection_id.empty()) {
       writer->WriteTag(
-          {PB_WT_STRING, google_firestore_v1beta1_StructuredQuery_from_tag});
+          {PB_WT_STRING, google_firestore_v1_StructuredQuery_from_tag});
       writer->WriteNestedMessage([&](Writer* writer) {
         writer->WriteTag(
             {PB_WT_STRING,
-             v1beta1::StructuredQuery_CollectionSelector_collection_id_tag});
+             v1::StructuredQuery_CollectionSelector_collection_id_tag});
         writer->WriteString(collection_id);
       });
     }
@@ -618,11 +619,11 @@ absl::optional<Query> Serializer::DecodeQueryTarget(nanopb::Reader* reader) {
 
   while (reader->good()) {
     switch (reader->ReadTag()) {
-      case google_firestore_v1beta1_Target_QueryTarget_parent_tag:
+      case google_firestore_v1_Target_QueryTarget_parent_tag:
         path = DecodeQueryPath(reader->ReadString());
         break;
 
-      case google_firestore_v1beta1_Target_QueryTarget_structured_query_tag:
+      case google_firestore_v1_Target_QueryTarget_structured_query_tag:
         query =
             reader->ReadNestedMessage<StructuredQuery>(DecodeStructuredQuery);
         break;
@@ -664,9 +665,9 @@ std::string Serializer::EncodeQueryPath(const ResourcePath& path) const {
 void Serializer::EncodeMapValue(Writer* writer,
                                 const ObjectValue& object_value) {
   EncodeObjectMap(writer, object_value.internal_value,
-                  google_firestore_v1beta1_MapValue_fields_tag,
-                  google_firestore_v1beta1_MapValue_FieldsEntry_key_tag,
-                  google_firestore_v1beta1_MapValue_FieldsEntry_value_tag);
+                  google_firestore_v1_MapValue_fields_tag,
+                  google_firestore_v1_MapValue_FieldsEntry_key_tag,
+                  google_firestore_v1_MapValue_FieldsEntry_value_tag);
 }
 
 void Serializer::EncodeObjectMap(

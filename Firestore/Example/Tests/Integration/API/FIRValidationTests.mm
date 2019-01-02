@@ -99,9 +99,8 @@
   NSArray *badAbsolutePaths = @[ @"foo/bar", @"foo/bar/baz/quu" ];
   NSArray *badRelativePaths = @[ @"", @"baz/quu" ];
   NSArray *badPathLengths = @[ @2, @4 ];
-  NSString *errorFormat =
-      @"Invalid collection reference. Collection references must have an odd "
-      @"number of segments, but %@ has %@";
+  NSString *errorFormat = @"Invalid collection reference. Collection references must have an odd "
+                          @"number of segments, but %@ has %@";
   for (NSUInteger i = 0; i < badAbsolutePaths.count; i++) {
     NSString *error =
         [NSString stringWithFormat:errorFormat, badAbsolutePaths[i], badPathLengths[i]];
@@ -122,9 +121,8 @@
   NSArray *badAbsolutePaths = @[ @"foo", @"foo/bar/baz" ];
   NSArray *badRelativePaths = @[ @"", @"bar/baz" ];
   NSArray *badPathLengths = @[ @1, @3 ];
-  NSString *errorFormat =
-      @"Invalid document reference. Document references must have an even "
-      @"number of segments, but %@ has %@";
+  NSString *errorFormat = @"Invalid document reference. Document references must have an even "
+                          @"number of segments, but %@ has %@";
   for (NSUInteger i = 0; i < badAbsolutePaths.count; i++) {
     NSString *error =
         [NSString stringWithFormat:errorFormat, badAbsolutePaths[i], badPathLengths[i]];
@@ -164,9 +162,7 @@
 }
 
 - (void)testWritesWithDirectlyNestedArraysFail {
-  [self expectWrite:@{
-    @"nested-array" : @[ @1, @[ @2 ] ]
-  }
+  [self expectWrite:@{@"nested-array" : @[ @1, @[ @2 ] ]}
       toFailWithReason:@"Nested arrays are not supported"];
 }
 
@@ -185,11 +181,11 @@
   [self awaitExpectations];
 
   expectation = [self expectationWithDescription:@"batch.setData"];
-  [[[ref.firestore batch] setData:data forDocument:ref]
-      commitWithCompletion:^(NSError *_Nullable error) {
-        XCTAssertNil(error);
-        [expectation fulfill];
-      }];
+  [[[ref.firestore batch] setData:data
+                      forDocument:ref] commitWithCompletion:^(NSError *_Nullable error) {
+    XCTAssertNil(error);
+    [expectation fulfill];
+  }];
   [self awaitExpectations];
 
   expectation = [self expectationWithDescription:@"updateData"];
@@ -201,11 +197,11 @@
   [self awaitExpectations];
 
   expectation = [self expectationWithDescription:@"batch.updateData"];
-  [[[ref.firestore batch] updateData:data forDocument:ref]
-      commitWithCompletion:^(NSError *_Nullable error) {
-        XCTAssertNil(error);
-        [expectation fulfill];
-      }];
+  [[[ref.firestore batch] updateData:data
+                         forDocument:ref] commitWithCompletion:^(NSError *_Nullable error) {
+    XCTAssertNil(error);
+    [expectation fulfill];
+  }];
   [self awaitExpectations];
 
   XCTestExpectation *transactionDone = [self expectationWithDescription:@"transaction done"];
@@ -225,9 +221,7 @@
 }
 
 - (void)testWritesWithInvalidTypesFail {
-  [self expectWrite:@{
-    @"foo" : @{@"bar" : self}
-  }
+  [self expectWrite:@{@"foo" : @{@"bar" : self}}
       toFailWithReason:@"Unsupported type: FIRValidationTests (found in field foo.bar)"];
 }
 
@@ -251,50 +245,34 @@
 }
 
 - (void)testWritesWithReservedFieldsFail {
-  [self expectWrite:@{
-    @"__baz__" : @1
-  }
+  [self expectWrite:@{@"__baz__" : @1}
       toFailWithReason:@"Document fields cannot begin and end with __ (found in field __baz__)"];
-  [self expectWrite:@{
-    @"foo" : @{@"__baz__" : @1}
-  }
+  [self expectWrite:@{@"foo" : @{@"__baz__" : @1}}
       toFailWithReason:
           @"Document fields cannot begin and end with __ (found in field foo.__baz__)"];
-  [self expectWrite:@{
-    @"__baz__" : @{@"foo" : @1}
-  }
+  [self expectWrite:@{@"__baz__" : @{@"foo" : @1}}
       toFailWithReason:@"Document fields cannot begin and end with __ (found in field __baz__)"];
 
-  [self expectUpdate:@{
-    @"foo.__baz__" : @1
-  }
+  [self expectUpdate:@{@"foo.__baz__" : @1}
       toFailWithReason:
           @"Document fields cannot begin and end with __ (found in field foo.__baz__)"];
-  [self expectUpdate:@{
-    @"__baz__.foo" : @1
-  }
+  [self expectUpdate:@{@"__baz__.foo" : @1}
       toFailWithReason:
           @"Document fields cannot begin and end with __ (found in field __baz__.foo)"];
-  [self expectUpdate:@{
-    @1 : @1
-  }
+  [self expectUpdate:@{@1 : @1}
       toFailWithReason:@"Dictionary keys in updateData: must be NSStrings or FIRFieldPaths."];
 }
 
 - (void)testSetsWithFieldValueDeleteFail {
   [self expectSet:@{@"foo" : [FIRFieldValue fieldValueForDelete]}
-      toFailWithReason:
-          @"FieldValue.delete() can only be used with updateData() and setData() with "
-          @"merge:true (found in field foo)"];
+      toFailWithReason:@"FieldValue.delete() can only be used with updateData() and setData() with "
+                       @"merge:true (found in field foo)"];
 }
 
 - (void)testUpdatesWithNestedFieldValueDeleteFail {
-  [self expectUpdate:@{
-    @"foo" : @{@"bar" : [FIRFieldValue fieldValueForDelete]}
-  }
-      toFailWithReason:
-          @"FieldValue.delete() can only appear at the top level of your update data "
-           "(found in field foo.bar)"];
+  [self expectUpdate:@{@"foo" : @{@"bar" : [FIRFieldValue fieldValueForDelete]}}
+      toFailWithReason:@"FieldValue.delete() can only appear at the top level of your update data "
+                        "(found in field foo.bar)"];
 }
 
 - (void)testBatchWritesWithIncorrectReferencesFail {
@@ -347,10 +325,9 @@
 
   for (NSString *fieldPath in badFieldPaths) {
     NSString *reason =
-        [NSString stringWithFormat:
-                      @"Invalid field path (%@). Paths must not be empty, begin with "
-                      @"'.', end with '.', or contain '..'",
-                      fieldPath];
+        [NSString stringWithFormat:@"Invalid field path (%@). Paths must not be empty, begin with "
+                                   @"'.', end with '.', or contain '..'",
+                                   fieldPath];
     [self expectFieldPath:fieldPath toFailWithReason:reason];
   }
 }
@@ -371,44 +348,34 @@
 
 - (void)testArrayTransformsInQueriesFail {
   FSTAssertThrows(
-      [[self collectionRef] queryWhereField:@"test"
-                                  isEqualTo:@{
-                                    @"test" : [FIRFieldValue fieldValueForArrayUnion:@[ @1 ]]
-                                  }],
+      [[self collectionRef]
+          queryWhereField:@"test"
+                isEqualTo:@{@"test" : [FIRFieldValue fieldValueForArrayUnion:@[ @1 ]]}],
       @"FieldValue.arrayUnion() can only be used with updateData() and setData() (found in field "
        "test)");
 
   FSTAssertThrows(
-      [[self collectionRef] queryWhereField:@"test"
-                                  isEqualTo:@{
-                                    @"test" : [FIRFieldValue fieldValueForArrayRemove:@[ @1 ]]
-                                  }],
+      [[self collectionRef]
+          queryWhereField:@"test"
+                isEqualTo:@{@"test" : [FIRFieldValue fieldValueForArrayRemove:@[ @1 ]]}],
       @"FieldValue.arrayRemove() can only be used with updateData() and setData() (found in field "
       @"test)");
 }
 
 - (void)testInvalidArrayTransformElementFails {
-  [self expectWrite:@{
-    @"foo" : [FIRFieldValue fieldValueForArrayUnion:@[ @1, self ]]
-  }
+  [self expectWrite:@{@"foo" : [FIRFieldValue fieldValueForArrayUnion:@[ @1, self ]]}
       toFailWithReason:@"Unsupported type: FIRValidationTests"];
 
-  [self expectWrite:@{
-    @"foo" : [FIRFieldValue fieldValueForArrayRemove:@[ @1, self ]]
-  }
+  [self expectWrite:@{@"foo" : [FIRFieldValue fieldValueForArrayRemove:@[ @1, self ]]}
       toFailWithReason:@"Unsupported type: FIRValidationTests"];
 }
 
 - (void)testArraysInArrayTransformsFail {
   // This would result in a directly nested array which is not supported.
-  [self expectWrite:@{
-    @"foo" : [FIRFieldValue fieldValueForArrayUnion:@[ @1, @[ @"nested" ] ]]
-  }
+  [self expectWrite:@{@"foo" : [FIRFieldValue fieldValueForArrayUnion:@[ @1, @[ @"nested" ] ]]}
       toFailWithReason:@"Nested arrays are not supported"];
 
-  [self expectWrite:@{
-    @"foo" : [FIRFieldValue fieldValueForArrayRemove:@[ @1, @[ @"nested" ] ]]
-  }
+  [self expectWrite:@{@"foo" : [FIRFieldValue fieldValueForArrayRemove:@[ @1, @[ @"nested" ] ]]}
       toFailWithReason:@"Nested arrays are not supported"];
 }
 
@@ -438,17 +405,15 @@
 }
 
 - (void)testQueryCannotBeCreatedFromDocumentsMissingSortValues {
-  FIRCollectionReference *testCollection = [self collectionRefWithDocuments:@{
-    @"f" : @{@"v" : @"f", @"nosort" : @1.0}
-  }];
+  FIRCollectionReference *testCollection =
+      [self collectionRefWithDocuments:@{@"f" : @{@"v" : @"f", @"nosort" : @1.0}}];
 
   FIRQuery *query = [testCollection queryOrderedByField:@"sort"];
   FIRDocumentSnapshot *snapshot = [self readDocumentForRef:[testCollection documentWithPath:@"f"]];
   XCTAssertTrue(snapshot.exists);
 
-  NSString *reason =
-      @"Invalid query. You are trying to start or end a query using a document for "
-       "which the field 'sort' (used as the order by) does not exist.";
+  NSString *reason = @"Invalid query. You are trying to start or end a query using a document for "
+                      "which the field 'sort' (used as the order by) does not exist.";
   FSTAssertThrows([query queryStartingAtDocument:snapshot], reason);
   FSTAssertThrows([query queryStartingAfterDocument:snapshot], reason);
   FSTAssertThrows([query queryEndingBeforeDocument:snapshot], reason);
@@ -459,9 +424,8 @@
   FIRCollectionReference *testCollection = [self collectionRef];
   FIRQuery *query = [testCollection queryOrderedByField:@"foo"];
 
-  NSString *reason =
-      @"Invalid query. You are trying to start or end a query using more values "
-       "than were specified in the order by.";
+  NSString *reason = @"Invalid query. You are trying to start or end a query using more values "
+                      "than were specified in the order by.";
   // More elements than order by
   FSTAssertThrows(([query queryStartingAtValues:@[ @1, @2 ]]), reason);
   FSTAssertThrows(([[query queryOrderedByField:@"bar"] queryStartingAtValues:@[ @1, @2, @3 ]]),
@@ -491,20 +455,17 @@
 
 - (void)testQueriesFilteredByDocumentIDMustUseStringsOrDocumentReferences {
   FIRCollectionReference *collection = [self collectionRef];
-  NSString *reason =
-      @"Invalid query. When querying by document ID you must provide a valid "
-       "document ID, but it was an empty string.";
+  NSString *reason = @"Invalid query. When querying by document ID you must provide a valid "
+                      "document ID, but it was an empty string.";
   FSTAssertThrows([collection queryWhereFieldPath:[FIRFieldPath documentID] isEqualTo:@""], reason);
 
-  reason =
-      @"Invalid query. When querying by document ID you must provide a valid document ID, "
-       "but 'foo/bar/baz' contains a '/' character.";
+  reason = @"Invalid query. When querying by document ID you must provide a valid document ID, "
+            "but 'foo/bar/baz' contains a '/' character.";
   FSTAssertThrows(
       [collection queryWhereFieldPath:[FIRFieldPath documentID] isEqualTo:@"foo/bar/baz"], reason);
 
-  reason =
-      @"Invalid query. When querying by document ID you must provide a valid string or "
-       "DocumentReference, but it was of type: __NSCFNumber";
+  reason = @"Invalid query. When querying by document ID you must provide a valid string or "
+            "DocumentReference, but it was of type: __NSCFNumber";
   FSTAssertThrows([collection queryWhereFieldPath:[FIRFieldPath documentID] isEqualTo:@1], reason);
 
   reason =
@@ -560,9 +521,9 @@
 
 - (void)testQueryMustNotHaveMultipleArrayContainsFilters {
   FIRCollectionReference *coll = [self.db collectionWithPath:@"collection"];
-  FSTAssertThrows(
-      [[coll queryWhereField:@"foo" arrayContains:@1] queryWhereField:@"foo" arrayContains:@2],
-      @"Invalid Query. Queries only support a single arrayContains filter.");
+  FSTAssertThrows([[coll queryWhereField:@"foo" arrayContains:@1] queryWhereField:@"foo"
+                                                                    arrayContains:@2],
+                  @"Invalid Query. Queries only support a single arrayContains filter.");
 }
 
 #pragma mark - GeoPoint Validation

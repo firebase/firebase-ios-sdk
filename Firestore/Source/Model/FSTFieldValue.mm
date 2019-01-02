@@ -24,6 +24,7 @@
 #import "Firestore/Source/Util/FSTClasses.h"
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
@@ -678,7 +679,7 @@ static NSComparisonResult CompareBytes(NSData *left, NSData *right) {
   }
 
   FSTReferenceValue *otherRef = (FSTReferenceValue *)other;
-  return [self.key isEqualToKey:otherRef.key] && *self.databaseID == *otherRef.databaseID;
+  return self.key.key == otherRef.key.key && *self.databaseID == *otherRef.databaseID;
 }
 
 - (NSUInteger)hash {
@@ -696,7 +697,7 @@ static NSComparisonResult CompareBytes(NSData *left, NSData *right) {
       return cmp;
     }
     cmp = WrapCompare(self.databaseID->database_id(), ref.databaseID->database_id());
-    return cmp != NSOrderedSame ? cmp : [self.key compare:ref.key];
+    return cmp != NSOrderedSame ? cmp : CompareKeys(self.key.key, ref.key.key);
   } else {
     return [self defaultCompare:other];
   }

@@ -65,8 +65,9 @@ int FuzzTestFieldPath(const uint8_t *data, size_t size) {
     // Try to parse the bytes as a string array and use it for initialization.
     // NSJSONReadingMutableContainers specifies that arrays and dictionaries are
     // created as mutable objects. Returns nil if there is a parsing error.
-    NSArray *str_arr3 =
-        [NSJSONSerialization JSONObjectWithData:d options:NSJSONReadingMutableContainers error:nil];
+    NSArray *str_arr3 = [NSJSONSerialization JSONObjectWithData:d
+                                                        options:NSJSONReadingMutableContainers
+                                                          error:nil];
     NSMutableArray *mutable_array = [[NSMutableArray alloc] initWithArray:str_arr3];
     if (str_arr3) {
       for (int i = 0; i < str_arr3.count; ++i) {

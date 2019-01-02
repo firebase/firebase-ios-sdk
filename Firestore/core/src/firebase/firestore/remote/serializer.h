@@ -131,7 +131,7 @@ class Serializer {
 
   /**
    * @brief Converts the Query into bytes, representing a
-   * firestore::v1beta1::Target::QueryTarget.
+   * firestore::v1::Target::QueryTarget.
    *
    * Any errors that occur during encoding are fatal.
    *

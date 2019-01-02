@@ -79,7 +79,7 @@ void InitDefaultsWriteBatchImpl() {
 #else
   ::google::protobuf::internal::InitProtobufDefaults();
 #endif  // GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  protobuf_google_2ffirestore_2fv1beta1_2fwrite_2eproto::InitDefaultsWrite();
+  protobuf_google_2ffirestore_2fv1_2fwrite_2eproto::InitDefaultsWrite();
   protobuf_google_2fprotobuf_2ftimestamp_2eproto::InitDefaultsTimestamp();
   {
     void* ptr = &::firestore::client::_WriteBatch_default_instance_;
@@ -147,23 +147,22 @@ void AddDescriptorsImpl() {
   InitDefaults();
   static const char descriptor[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
       "\n\036firestore/local/mutation.proto\022\020firest"
-      "ore.client\032$google/firestore/v1beta1/wri"
-      "te.proto\032\037google/protobuf/timestamp.prot"
-      "o\"N\n\rMutationQueue\022\"\n\032last_acknowledged_"
-      "batch_id\030\001 \001(\005\022\031\n\021last_stream_token\030\002 \001("
-      "\014\"\273\001\n\nWriteBatch\022\020\n\010batch_id\030\001 \001(\005\022/\n\006wr"
-      "ites\030\002 \003(\0132\037.google.firestore.v1beta1.Wr"
-      "ite\0224\n\020local_write_time\030\003 \001(\0132\032.google.p"
-      "rotobuf.Timestamp\0224\n\013base_writes\030\004 \003(\0132\037"
-      ".google.firestore.v1beta1.WriteB/\n#com.g"
-      "oogle.firebase.firestore.protoP\001\242\002\005FSTPB"
-      "b\006proto3"
+      "ore.client\032\037google/firestore/v1/write.pr"
+      "oto\032\037google/protobuf/timestamp.proto\"N\n\r"
+      "MutationQueue\022\"\n\032last_acknowledged_batch"
+      "_id\030\001 \001(\005\022\031\n\021last_stream_token\030\002 \001(\014\"\261\001\n"
+      "\nWriteBatch\022\020\n\010batch_id\030\001 \001(\005\022*\n\006writes\030"
+      "\002 \003(\0132\032.google.firestore.v1.Write\0224\n\020loc"
+      "al_write_time\030\003 \001(\0132\032.google.protobuf.Ti"
+      "mestamp\022/\n\013base_writes\030\004 \003(\0132\032.google.fi"
+      "restore.v1.WriteB/\n#com.google.firebase."
+      "firestore.protoP\001\242\002\005FSTPBb\006proto3"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 448);
+      descriptor, 433);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "firestore/local/mutation.proto", &protobuf_RegisterTypes);
-  ::protobuf_google_2ffirestore_2fv1beta1_2fwrite_2eproto::AddDescriptors();
+  ::protobuf_google_2ffirestore_2fv1_2fwrite_2eproto::AddDescriptors();
   ::protobuf_google_2fprotobuf_2ftimestamp_2eproto::AddDescriptors();
 }
 
@@ -592,7 +591,7 @@ bool WriteBatch::MergePartialFromCodedStream(
         break;
       }
 
-      // repeated .google.firestore.v1beta1.Write writes = 2;
+      // repeated .google.firestore.v1.Write writes = 2;
       case 2: {
         if (static_cast< ::google::protobuf::uint8>(tag) ==
             static_cast< ::google::protobuf::uint8>(18u /* 18 & 0xFF */)) {
@@ -615,7 +614,7 @@ bool WriteBatch::MergePartialFromCodedStream(
         break;
       }
 
-      // repeated .google.firestore.v1beta1.Write base_writes = 4;
+      // repeated .google.firestore.v1.Write base_writes = 4;
       case 4: {
         if (static_cast< ::google::protobuf::uint8>(tag) ==
             static_cast< ::google::protobuf::uint8>(34u /* 34 & 0xFF */)) {
@@ -657,7 +656,7 @@ void WriteBatch::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->batch_id(), output);
   }
 
-  // repeated .google.firestore.v1beta1.Write writes = 2;
+  // repeated .google.firestore.v1.Write writes = 2;
   for (unsigned int i = 0,
       n = static_cast<unsigned int>(this->writes_size()); i < n; i++) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
@@ -670,7 +669,7 @@ void WriteBatch::SerializeWithCachedSizes(
       3, *this->local_write_time_, output);
   }
 
-  // repeated .google.firestore.v1beta1.Write base_writes = 4;
+  // repeated .google.firestore.v1.Write base_writes = 4;
   for (unsigned int i = 0,
       n = static_cast<unsigned int>(this->base_writes_size()); i < n; i++) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
@@ -696,7 +695,7 @@ void WriteBatch::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->batch_id(), target);
   }
 
-  // repeated .google.firestore.v1beta1.Write writes = 2;
+  // repeated .google.firestore.v1.Write writes = 2;
   for (unsigned int i = 0,
       n = static_cast<unsigned int>(this->writes_size()); i < n; i++) {
     target = ::google::protobuf::internal::WireFormatLite::
@@ -711,7 +710,7 @@ void WriteBatch::SerializeWithCachedSizes(
         3, *this->local_write_time_, deterministic, target);
   }
 
-  // repeated .google.firestore.v1beta1.Write base_writes = 4;
+  // repeated .google.firestore.v1.Write base_writes = 4;
   for (unsigned int i = 0,
       n = static_cast<unsigned int>(this->base_writes_size()); i < n; i++) {
     target = ::google::protobuf::internal::WireFormatLite::
@@ -736,7 +735,7 @@ size_t WriteBatch::ByteSizeLong() const {
       ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
         (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()));
   }
-  // repeated .google.firestore.v1beta1.Write writes = 2;
+  // repeated .google.firestore.v1.Write writes = 2;
   {
     unsigned int count = static_cast<unsigned int>(this->writes_size());
     total_size += 1UL * count;
@@ -747,7 +746,7 @@ size_t WriteBatch::ByteSizeLong() const {
     }
   }
 
-  // repeated .google.firestore.v1beta1.Write base_writes = 4;
+  // repeated .google.firestore.v1.Write base_writes = 4;
   {
     unsigned int count = static_cast<unsigned int>(this->base_writes_size());
     total_size += 1UL * count;

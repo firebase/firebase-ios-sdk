@@ -22,5 +22,4 @@
 
 const double FirebaseAuthVersionNum = FIRAuth_MINOR_VERSION;
 
-const unsigned char *const FirebaseAuthVersionStr =
-    (const unsigned char *const)STR(FIRAuth_VERSION);
+const char *const FirebaseAuthVersionStr = (const char *const)STR(FIRAuth_VERSION);

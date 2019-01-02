@@ -14,12 +14,18 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/Local/FSTMemoryRemoteDocumentCache.h"
+#include <memory>
 
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
+#include "Firestore/core/src/firebase/firestore/local/memory_remote_document_cache.h"
+#include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
+#include "absl/memory/memory.h"
 
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 #import "Firestore/Example/Tests/Local/FSTRemoteDocumentCacheTests.h"
+
+using firebase::firestore::local::MemoryRemoteDocumentCache;
+using firebase::firestore::local::RemoteDocumentCache;
 
 @interface FSTMemoryRemoteDocumentCacheTests : FSTRemoteDocumentCacheTests
 @end
@@ -29,18 +35,25 @@
  * protocol in FSTRemoteDocumentCacheTests. This class is merely responsible for setting up and
  * tearing down the @a remoteDocumentCache.
  */
-@implementation FSTMemoryRemoteDocumentCacheTests
+@implementation FSTMemoryRemoteDocumentCacheTests {
+  std::unique_ptr<MemoryRemoteDocumentCache> _cache;
+}
 
 - (void)setUp {
   [super setUp];
 
   self.persistence = [FSTPersistenceTestHelpers eagerGCMemoryPersistence];
-  self.remoteDocumentCache = [self.persistence remoteDocumentCache];
+  HARD_ASSERT(!_cache, "Previous cache not torn down");
+  _cache = absl::make_unique<MemoryRemoteDocumentCache>();
+}
+
+- (RemoteDocumentCache *)remoteDocumentCache {
+  return _cache.get();
 }
 
 - (void)tearDown {
+  _cache.reset();
   self.persistence = nil;
-  self.remoteDocumentCache = nil;
 
   [super tearDown];
 }

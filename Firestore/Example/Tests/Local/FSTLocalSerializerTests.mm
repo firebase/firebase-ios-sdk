@@ -22,16 +22,15 @@
 #import "Firestore/Protos/objc/firestore/local/MaybeDocument.pbobjc.h"
 #import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Common.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Document.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Firestore.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Query.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Write.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Common.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Document.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Firestore.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Query.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Write.pbobjc.h"
 #import "Firestore/Protos/objc/google/type/Latlng.pbobjc.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
@@ -81,12 +80,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testEncodesMutationBatch {
   FSTMutation *set = FSTTestSetMutation(@"foo/bar", @{@"a" : @"b", @"num" : @1});
-  FSTMutation *patch = [[FSTPatchMutation alloc] initWithKey:FSTTestDocKey(@"bar/baz")
-                                                   fieldMask:FieldMask{testutil::Field("a")}
-                                                       value:FSTTestObjectValue(
-                                                                 @{@"a" : @"b",
-                                                                   @"num" : @1})
-                                                precondition:Precondition::Exists(true)];
+  FSTMutation *patch =
+      [[FSTPatchMutation alloc] initWithKey:FSTTestDocKey(@"bar/baz")
+                                  fieldMask:FieldMask{testutil::Field("a")}
+                                      value:FSTTestObjectValue(@{@"a" : @"b", @"num" : @1})
+                               precondition:Precondition::Exists(true)];
   FSTMutation *del = FSTTestDeleteMutation(@"baz/quux");
   FIRTimestamp *writeTime = [FIRTimestamp timestamp];
   FSTMutationBatch *model = [[FSTMutationBatch alloc] initWithBatchID:42
