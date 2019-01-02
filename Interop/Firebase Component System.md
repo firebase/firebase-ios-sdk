@@ -75,36 +75,42 @@ The Swift names are identical but dropping the `FIR` prefix.
     offered, dependencies, and a block for Core to instantiate it.
 - `@class FIRComponentContainer`
   - A container that holds different components that are registered with Core.
-- `@protocol FIRComponentRegistrant`
-  - Describes functionality for frameworks registering components in the `FIRComponentContainer`. It
-    allows Core to fetch components lazily from the implementing framework.
 - `#define FIR_COMPONENT(protocol, container)` (macro)
   - The macro to request an instance conforming to a given protocol from a container. Due to
     Objective-C's lightweight generic system, the safest and most readable API is provided by a
     macro that uses internal types to give compiler warnings if a developer tries to assign the
     result to a variable with the incorrect type.
+- `@protocol FIRLibrary`
+  - Describes functionality for frameworks registering components in the `FIRComponentContainer` as
+    well as other Core configuration functionality. It allows Core to fetch components lazily from
+    the implementing framework.
+
 
 ## Registering with Core
 
 Each Firebase framework should register with Core in the `+load` method of the class conforming to
-`FIRComponentRegistrant`. This needs to happen at `+load` time because Core needs to resolve any
+`FIRLibrary`. This needs to happen at `+load` time because Core needs to resolve any
 dependencies before a class has a chance to be called by a developer (if called at all).
 
 ```
+#import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponentContainer.h>
-#import <FirebaseCore/FIRComponentRegistrant.h>
+#import <FirebaseCore/FIRLibrary.h>
 
-@interface FIRFoo <FIRComponentRegistrant>
+@interface FIRFoo <FIRLibrary>
 @end
 
 @implementation FIRFoo
 
 + (void)load {
-  // Register with Core's container.
-  [FIRComponentContainer registerAsComponentRegistrant:self];
+  // Register with Core as a library. The version should be fetched from a constant defined
+  // elsewhere, but that's not covered or relevant for this example.
+  [FIRApp registerInternalLibrary:self
+                         withName:"fire-foo"
+                      withVersion:"1.0.0"];
 }
 
-// TODO: Conform to `FIRComponentRegistrant`. See later sections for more information.
+// TODO: Conform to `FIRLibrary`. See later sections for more information.
 
 @end
 ```
@@ -131,20 +137,21 @@ it. It has a private, empty protocol that it uses to register with the container
 an example:
 
 ```
-// FIRFunctions.h
+// FIRFunctions.m
 
 /// Empty protocol to register Functions as a component with Core.
 @protocol FIRFunctionsInstanceProvider
 @end
 
 /// Privately conform to the protocol for component registration.
-@interface FIRFunctions () <FIRFunctionsInstanceProvider, FIRComponentRegistrant>
+@interface FIRFunctions () <FIRFunctionsInstanceProvider, FIRLibrary>
 @end
 
 @implementation FIRFunctions
 
 + (void)load {
-  [FIRComponentContainer registerAsComponentRegistrant:self];
+  NSString *version = <# Fetch the version here #>;
+  [FIRApp registerInternalLibrary:self withName:"fire-fun" withVersion:version];
 }
 
 /// The array of components to register with Core. Since Functions is a leaf node and
@@ -207,8 +214,14 @@ could conform to and provide to other frameworks:
 // FIRAuth.m in the FirebaseAuth framework.
 
 /// Privately conform to the protocol for interop and component registration.
-@interface FIRAuth () <FIRAuthInteroperable, FIRComponentRegistrant>
+@interface FIRAuth () <FIRAuthInteroperable, FIRLibrary>
 @end
+
++ (void)load {
+  // Remember to register in +load!
+  NSString *version = <# Fetch the version here #>;
+  [FIRApp registerInternalLibrary:self withName:"fire-auth" withVersion:version];
+}
 
 /// The components to register with Core.
 + (NSArray<FIRComponent *> *)componentsToRegister {
@@ -258,8 +271,7 @@ separate class to keep `Firestore.m` cleaner.
 
 ```
 /// A concrete implementation for FSTFirestoreMultiDBProvider to create Firestore instances.
-@interface FSTFirestoreComponent : NSObject <FSTFirestoreMultiDBProvider,
-                                             FIRComponentRegistrant>
+@interface FSTFirestoreComponent : NSObject <FSTFirestoreMultiDBProvider, FIRLibrary>
 
 /// The `FIRApp` that instances will be set up with.
 @property(nonatomic, weak, readonly) FIRApp *app;
@@ -281,8 +293,9 @@ separate class to keep `Firestore.m` cleaner.
 @synthesize instances = _instances;
 
 + (void)load {
-  // Don't forget to register!
-  [FIRComponentContainer registerAsComponentRegistrant:self];
+  // Remember to register in +load!
+  NSString *version = <# Fetch the version here #>;
+  [FIRApp registerInternalLibrary:self withName:"fire-fst" withVersion:version];
 }
 
 - (instancetype)initWithApp:(FIRApp *)app {
@@ -299,7 +312,7 @@ separate class to keep `Firestore.m` cleaner.
   // Regular initialization code to create Firestore instances with required parameters...
 }
 
-// `FIRComponentRegistrant` conformance.
+// `FIRLibrary` conformance.
 + (NSArray<FIRComponent *> *)componentsToRegister {
   // Ignore any dependencies for simplicity in this example.
   FIRComponentCreationBlock creationBlock =
