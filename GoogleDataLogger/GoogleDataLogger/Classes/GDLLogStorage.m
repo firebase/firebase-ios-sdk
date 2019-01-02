@@ -80,8 +80,8 @@ static NSString *GDLStoragePath() {
     // Write the extension bytes to disk, get a filename.
     NSAssert(shortLivedLog.extensionBytes, @"The log should have been serialized to bytes");
     NSAssert(shortLivedLog.extension == nil, @"The original log proto should be removed");
-    NSURL *logFile =
-        [self saveLogProtoToDisk:shortLivedLog.extensionBytes logHash:shortLivedLog.hash];
+    NSURL *logFile = [self saveLogProtoToDisk:shortLivedLog.extensionBytes
+                                      logHash:shortLivedLog.hash];
 
     // Add log to tracking collections.
     [self addLogToTrackingCollections:shortLivedLog logFile:logFile];
@@ -195,8 +195,8 @@ static NSString *const kGDLLogTargetToLogSetKey = @"logTargetToLogFileSetKey";
   GDLLogStorage *sharedInstance = [self.class sharedInstance];
   dispatch_sync(sharedInstance.storageQueue, ^{
     Class NSMutableDictionaryClass = [NSMutableDictionary class];
-    sharedInstance->_logHashToLogFile =
-        [aDecoder decodeObjectOfClass:NSMutableDictionaryClass forKey:kGDLLogHashToLogFileKey];
+    sharedInstance->_logHashToLogFile = [aDecoder decodeObjectOfClass:NSMutableDictionaryClass
+                                                               forKey:kGDLLogHashToLogFileKey];
     sharedInstance->_logTargetToLogFileSet =
         [aDecoder decodeObjectOfClass:NSMutableDictionaryClass forKey:kGDLLogTargetToLogSetKey];
   });
