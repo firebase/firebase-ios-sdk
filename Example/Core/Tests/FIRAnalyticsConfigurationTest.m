@@ -99,9 +99,7 @@
   [self.observerMock setExpectationOrderMatters:YES];
   [[self.observerMock expect] notificationWithName:notificationName
                                             object:config
-                                          userInfo:@{
-                                            notificationName : @YES
-                                          }];
+                                          userInfo:@{notificationName : @YES}];
 
   // Test setting to enabled.
   [config setAnalyticsCollectionEnabled:YES];
@@ -109,9 +107,7 @@
   // Expect the second notification.
   [[self.observerMock expect] notificationWithName:notificationName
                                             object:config
-                                          userInfo:@{
-                                            notificationName : @NO
-                                          }];
+                                          userInfo:@{notificationName : @NO}];
 
   // Test setting to disabled.
   [config setAnalyticsCollectionEnabled:NO];

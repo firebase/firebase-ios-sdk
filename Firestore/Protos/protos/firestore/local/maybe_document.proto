@@ -21,7 +21,7 @@ option java_package = "com.google.firebase.firestore.proto";
 
 option objc_class_prefix = "FSTPB";
 
-import "google/firestore/v1beta1/document.proto";
+import "google/firestore/v1/document.proto";
 import "google/protobuf/timestamp.proto";
 
 // A message indicating that the document is known to not exist.
@@ -54,7 +54,7 @@ message MaybeDocument {
     NoDocument no_document = 1;
 
     // The document (if it exists).
-    google.firestore.v1beta1.Document document = 2;
+    google.firestore.v1.Document document = 2;
 
     // Used if the document is known to exist but its data is unknown.
     UnknownDocument unknown_document = 3;

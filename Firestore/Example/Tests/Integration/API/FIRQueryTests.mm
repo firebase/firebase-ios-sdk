@@ -47,15 +47,11 @@
 
   }];
   FIRQuerySnapshot *snapshot =
-      [self readDocumentSetForRef:[[collRef queryOrderedByField:@"sort" descending:YES]
-                                      queryLimitedTo:2]];
+      [self readDocumentSetForRef:[[collRef queryOrderedByField:@"sort"
+                                                     descending:YES] queryLimitedTo:2]];
 
-  XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[
-                          @{@"k" : @"d",
-                            @"sort" : @2},
-                          @{@"k" : @"c",
-                            @"sort" : @1}
-                        ]));
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot),
+                        (@[ @{@"k" : @"d", @"sort" : @2}, @{@"k" : @"c", @"sort" : @1} ]));
 }
 
 - (void)testKeyOrderIsDescendingForDescendingInequality {
@@ -69,9 +65,9 @@
     @"g" : @{@"foo" : @66.0},
   }];
   FIRQuerySnapshot *snapshot =
-      [self readDocumentSetForRef:[[collRef queryWhereField:@"foo" isGreaterThan:@21]
-                                      queryOrderedByField:@"foo"
-                                               descending:YES]];
+      [self readDocumentSetForRef:[[collRef queryWhereField:@"foo"
+                                              isGreaterThan:@21] queryOrderedByField:@"foo"
+                                                                          descending:YES]];
   XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(snapshot), (@[ @"g", @"f", @"c", @"b", @"a" ]));
 }
 
@@ -83,25 +79,20 @@
   }];
 
   FIRQuerySnapshot *results =
-      [self readDocumentSetForRef:[[collRef queryWhereField:@"null" isEqualTo:[NSNull null]]
-                                      queryWhereField:@"nan"
-                                            isEqualTo:@(NAN)]];
+      [self readDocumentSetForRef:[[collRef queryWhereField:@"null"
+                                                  isEqualTo:[NSNull null]] queryWhereField:@"nan"
+                                                                                 isEqualTo:@(NAN)]];
 
-  XCTAssertEqualObjects(FIRQuerySnapshotGetData(results), (@[
-                          @{@"null" : [NSNull null],
-                            @"nan" : @(NAN)}
-                        ]));
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(results),
+                        (@[ @{@"null" : [NSNull null], @"nan" : @(NAN)} ]));
 }
 
 - (void)testQueryWithFieldPaths {
-  FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
-    @"a" : @{@"a" : @1},
-    @"b" : @{@"a" : @2},
-    @"c" : @{@"a" : @3}
-  }];
+  FIRCollectionReference *collRef = [self
+      collectionRefWithDocuments:@{@"a" : @{@"a" : @1}, @"b" : @{@"a" : @2}, @"c" : @{@"a" : @3}}];
 
-  FIRQuery *query =
-      [collRef queryWhereFieldPath:[[FIRFieldPath alloc] initWithFields:@[ @"a" ]] isLessThan:@3];
+  FIRQuery *query = [collRef queryWhereFieldPath:[[FIRFieldPath alloc] initWithFields:@[ @"a" ]]
+                                      isLessThan:@3];
   query = [query queryOrderedByFieldPath:[[FIRFieldPath alloc] initWithFields:@[ @"a" ]]
                               descending:YES];
 
@@ -111,11 +102,8 @@
 }
 
 - (void)testQueryWithPredicate {
-  FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
-    @"a" : @{@"a" : @1},
-    @"b" : @{@"a" : @2},
-    @"c" : @{@"a" : @3}
-  }];
+  FIRCollectionReference *collRef = [self
+      collectionRefWithDocuments:@{@"a" : @{@"a" : @1}, @"b" : @{@"a" : @2}, @"c" : @{@"a" : @3}}];
 
   NSPredicate *predicate = [NSPredicate predicateWithFormat:@"a < 3"];
   FIRQuery *query = [collRef queryFilteredUsingPredicate:predicate];
@@ -133,8 +121,8 @@
     @"b" : @{@"inf" : @(-INFINITY)}
   }];
 
-  FIRQuerySnapshot *results =
-      [self readDocumentSetForRef:[collRef queryWhereField:@"inf" isEqualTo:@(INFINITY)]];
+  FIRQuerySnapshot *results = [self readDocumentSetForRef:[collRef queryWhereField:@"inf"
+                                                                         isEqualTo:@(INFINITY)]];
 
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(results), (@[ @{@"inf" : @(INFINITY)} ]));
 }
@@ -289,20 +277,17 @@
   NSDictionary *testDocs = @{
     @"a" : @{@"array" : @[ @42 ]},
     @"b" : @{@"array" : @[ @"a", @42, @"c" ]},
-    @"c" : @{@"array" : @[ @41.999, @"42",
-                           @{@"a" : @[ @42 ]} ]},
+    @"c" : @{@"array" : @[ @41.999, @"42", @{@"a" : @[ @42 ]} ]},
     @"d" : @{@"array" : @[ @42 ], @"array2" : @[ @"bingo" ]}
   };
   FIRCollectionReference *collection = [self collectionRefWithDocuments:testDocs];
 
   // Search for 42
-  FIRQuerySnapshot *snapshot =
-      [self readDocumentSetForRef:[collection queryWhereField:@"array" arrayContains:@42]];
+  FIRQuerySnapshot *snapshot = [self readDocumentSetForRef:[collection queryWhereField:@"array"
+                                                                         arrayContains:@42]];
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[
-                          @{@"array" : @[ @42 ]},
-                          @{@"array" : @[ @"a", @42, @"c" ]},
-                          @{@"array" : @[ @42 ],
-                            @"array2" : @[ @"bingo" ]}
+                          @{@"array" : @[ @42 ]}, @{@"array" : @[ @"a", @42, @"c" ]},
+                          @{@"array" : @[ @42 ], @"array2" : @[ @"bingo" ]}
                         ]));
 
   // NOTE: The backend doesn't currently support null, NaN, objects, or arrays, so there isn't much

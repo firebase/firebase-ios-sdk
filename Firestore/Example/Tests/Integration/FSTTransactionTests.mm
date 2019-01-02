@@ -221,10 +221,7 @@
 
   FIRDocumentSnapshot *snapshot = [self readDocumentForRef:doc];
   XCTAssertEqualObjects(snapshot.data,
-                        (
-                            @{@"a" : @"b",
-                              @"c" : @"d",
-                              @"nested" : @{@"a" : @"b", @"c" : @"d"}}));
+                        (@{@"a" : @"b", @"c" : @"d", @"nested" : @{@"a" : @"b", @"c" : @"d"}}));
 }
 
 - (void)testCannotUpdateNonExistentDocument {

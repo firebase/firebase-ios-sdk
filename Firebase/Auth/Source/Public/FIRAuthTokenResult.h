@@ -49,7 +49,7 @@ NS_SWIFT_NAME(AuthTokenResult)
 
 /** @property signInProvider
     @brief Stores sign-in provider through which the token was obtained.
-    @remarks This does not necesssarily map to provider IDs.
+    @remarks This does not necessarily map to provider IDs.
  */
 @property (nonatomic, readonly) NSString *signInProvider;
 

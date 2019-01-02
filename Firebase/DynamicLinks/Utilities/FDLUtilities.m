@@ -44,10 +44,10 @@ NSURL *FIRDLCookieRetrievalURL(NSString *urlScheme, NSString *bundleID) {
   components.path = @"/app/_/deeplink";
   NSMutableArray *queryItems = [NSMutableArray array];
 
-  [queryItems
-      addObject:[NSURLQueryItem queryItemWithName:kFDLBundleIDQueryParameterName value:bundleID]];
-  [queryItems
-      addObject:[NSURLQueryItem queryItemWithName:kFDLURLSchemeQueryParameterName value:urlScheme]];
+  [queryItems addObject:[NSURLQueryItem queryItemWithName:kFDLBundleIDQueryParameterName
+                                                    value:bundleID]];
+  [queryItems addObject:[NSURLQueryItem queryItemWithName:kFDLURLSchemeQueryParameterName
+                                                    value:urlScheme]];
   [components setQueryItems:queryItems];
 
   return [components URL];

@@ -23,8 +23,6 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 
-@protocol FSTQueryCache;
-
 @class FSTLRUGarbageCollector;
 
 extern const firebase::firestore::model::ListenSequenceNumber kFSTListenSequenceNumberInvalid;
@@ -108,7 +106,7 @@ struct LruResults {
 - (size_t)byteSize;
 
 /** Returns the number of targets and orphaned documents cached. */
-- (int32_t)sequenceNumberCount;
+- (size_t)sequenceNumberCount;
 
 /** Access to the underlying LRU Garbage collector instance. */
 @property(strong, nonatomic, readonly) FSTLRUGarbageCollector *gc;

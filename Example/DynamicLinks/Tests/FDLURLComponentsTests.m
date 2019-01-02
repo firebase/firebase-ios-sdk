@@ -104,8 +104,9 @@ static NSString *const kFDLURLCustomDomain = @"https://foo.com/path";
 }
 
 - (void)testAnalyticsParamsFactoryWithParamsReturnsInstanceOfCorrectClass {
-  id returnValue =
-      [FIRDynamicLinkGoogleAnalyticsParameters parametersWithSource:@"s" medium:@"m" campaign:@"c"];
+  id returnValue = [FIRDynamicLinkGoogleAnalyticsParameters parametersWithSource:@"s"
+                                                                          medium:@"m"
+                                                                        campaign:@"c"];
   XCTAssertTrue([returnValue isKindOfClass:[FIRDynamicLinkGoogleAnalyticsParameters class]]);
 }
 

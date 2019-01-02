@@ -149,15 +149,13 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 // TODO(b/62410906): make this public
 + (instancetype)firestoreForApp:(FIRApp *)app database:(NSString *)database {
   if (!app) {
-    FSTThrowInvalidArgument(
-        @"FirebaseApp instance may not be nil. Use FirebaseApp.app() if you'd "
-         "like to use the default FirebaseApp instance.");
+    FSTThrowInvalidArgument(@"FirebaseApp instance may not be nil. Use FirebaseApp.app() if you'd "
+                             "like to use the default FirebaseApp instance.");
   }
   if (!database) {
-    FSTThrowInvalidArgument(
-        @"database identifier may not be nil. Use '%s' if you want the default "
-         "database",
-        DatabaseId::kDefault);
+    FSTThrowInvalidArgument(@"database identifier may not be nil. Use '%s' if you want the default "
+                             "database",
+                            DatabaseId::kDefault);
   }
 
   id<FSTFirestoreMultiDBProvider> provider =
@@ -182,8 +180,8 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
         return input;
       }
     };
-    _dataConverter =
-        [[FSTUserDataConverter alloc] initWithDatabaseID:&_databaseID preConverter:block];
+    _dataConverter = [[FSTUserDataConverter alloc] initWithDatabaseID:&_databaseID
+                                                         preConverter:block];
     _persistenceKey = persistenceKey;
     _credentialsProvider = std::move(credentialsProvider);
     _workerQueue = std::move(workerQueue);

@@ -58,7 +58,7 @@ bool ParseAccumulator::Contains(const FieldPath& field_path) const {
 }
 
 void ParseAccumulator::AddToFieldMask(FieldPath field_path) {
-  field_mask_.push_back(std::move(field_path));
+  field_mask_.insert(std::move(field_path));
 }
 
 void ParseAccumulator::AddToFieldTransforms(

@@ -76,8 +76,8 @@ static CGFloat LandScapePaddingBetweenImageAndTextColumn = 24;
                                 displayDelegate:
                                     (id<FIRInAppMessagingDisplayDelegate>)displayDelegate
                                     timeFetcher:(id<FIDTimeFetcher>)timeFetcher {
-  UIStoryboard *storyboard =
-      [UIStoryboard storyboardWithName:@"FIRInAppMessageDisplayStoryboard" bundle:resourceBundle];
+  UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"FIRInAppMessageDisplayStoryboard"
+                                                       bundle:resourceBundle];
 
   if (storyboard == nil) {
     FIRLogError(kFIRLoggerInAppMessagingDisplay, @"I-FID300001",
@@ -183,12 +183,12 @@ struct TitleBodyButtonHeightInfo {
                                                             withMaxColumnHeight:(CGFloat)maxHeight {
   struct TitleBodyButtonHeightInfo resultHeightInfo;
 
-  CGFloat titleFitHeight =
-      [self determineTextAreaViewFitHeightForView:self.titleLabel withWidth:displayWidth];
-  CGFloat bodyFitHeight =
-      self.modalDisplayMessage.bodyText.length == 0
-          ? 0
-          : [self determineTextAreaViewFitHeightForView:self.bodyTextView withWidth:displayWidth];
+  CGFloat titleFitHeight = [self determineTextAreaViewFitHeightForView:self.titleLabel
+                                                             withWidth:displayWidth];
+  CGFloat bodyFitHeight = self.modalDisplayMessage.bodyText.length == 0
+                              ? 0
+                              : [self determineTextAreaViewFitHeightForView:self.bodyTextView
+                                                                  withWidth:displayWidth];
 
   CGFloat bodyFitHeightWithPadding = self.modalDisplayMessage.bodyText.length == 0
                                          ? 0
@@ -291,8 +291,8 @@ struct TitleBodyButtonHeightInfo {
                                             heightCalcReference - heights.totaColumnlHeight -
                                                 self.imageTopToTitleBottomInPortraitMode.constant);
 
-    CGSize imageDisplaySize =
-        [self fitImageInRegionSize:imageAvailableSpace withImageSize:image.size];
+    CGSize imageDisplaySize = [self fitImageInRegionSize:imageAvailableSpace
+                                           withImageSize:image.size];
 
     FIRLogDebug(kFIRLoggerInAppMessagingDisplay, @"I-FID300005",
                 @"Given actual image size %@ and available image display size %@, the actual"

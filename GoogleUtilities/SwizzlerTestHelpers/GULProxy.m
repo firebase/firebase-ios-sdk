@@ -64,11 +64,11 @@
   return [_delegateObject superclass];
 }
 
-- (Class) class {
+- (Class)class {
   return [_delegateObject class];
 }
 
-    - (BOOL)isKindOfClass : (Class)aClass {
+- (BOOL)isKindOfClass:(Class)aClass {
   return [_delegateObject isKindOfClass:aClass];
 }
 

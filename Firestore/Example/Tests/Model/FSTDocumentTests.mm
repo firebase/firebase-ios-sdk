@@ -40,8 +40,10 @@ NS_ASSUME_NONNULL_BEGIN
   DocumentKey key = testutil::Key("messages/first");
   SnapshotVersion version = testutil::Version(1);
   FSTObjectValue *data = FSTTestObjectValue(@{@"a" : @1});
-  FSTDocument *doc =
-      [FSTDocument documentWithData:data key:key version:version state:FSTDocumentStateSynced];
+  FSTDocument *doc = [FSTDocument documentWithData:data
+                                               key:key
+                                           version:version
+                                             state:FSTDocumentStateSynced];
 
   XCTAssertEqual(doc.key, FSTTestDocKey(@"messages/first"));
   XCTAssertEqual(doc.version, version);
@@ -56,8 +58,10 @@ NS_ASSUME_NONNULL_BEGIN
     @"desc" : @"Discuss all the project related stuff",
     @"owner" : @{@"name" : @"Jonny", @"title" : @"scallywag"}
   });
-  FSTDocument *doc =
-      [FSTDocument documentWithData:data key:key version:version state:FSTDocumentStateSynced];
+  FSTDocument *doc = [FSTDocument documentWithData:data
+                                               key:key
+                                           version:version
+                                             state:FSTDocumentStateSynced];
 
   XCTAssertEqualObjects([doc fieldForPath:testutil::Field("desc")],
                         [FSTStringValue stringValue:@"Discuss all the project related stuff"]);
@@ -66,31 +70,21 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testIsEqual {
-  XCTAssertEqualObjects(FSTTestDoc("messages/first", 1,
-                                   @{@"a" : @1}, FSTDocumentStateSynced),
-                        FSTTestDoc("messages/first", 1,
-                                   @{@"a" : @1}, FSTDocumentStateSynced));
-  XCTAssertNotEqualObjects(FSTTestDoc("messages/first", 1,
-                                      @{@"a" : @1}, FSTDocumentStateSynced),
-                           FSTTestDoc("messages/first", 1,
-                                      @{@"b" : @1}, FSTDocumentStateSynced));
-  XCTAssertNotEqualObjects(FSTTestDoc("messages/first", 1,
-                                      @{@"a" : @1}, FSTDocumentStateSynced),
-                           FSTTestDoc("messages/second", 1,
-                                      @{@"b" : @1}, FSTDocumentStateSynced));
-  XCTAssertNotEqualObjects(FSTTestDoc("messages/first", 1,
-                                      @{@"a" : @1}, FSTDocumentStateSynced),
-                           FSTTestDoc("messages/first", 2,
-                                      @{@"a" : @1}, FSTDocumentStateSynced));
-  XCTAssertNotEqualObjects(FSTTestDoc("messages/first", 1,
-                                      @{@"a" : @1}, FSTDocumentStateSynced),
-                           FSTTestDoc("messages/first", 1,
-                                      @{@"a" : @1}, FSTDocumentStateLocalMutations));
+  XCTAssertEqualObjects(FSTTestDoc("messages/first", 1, @{@"a" : @1}, FSTDocumentStateSynced),
+                        FSTTestDoc("messages/first", 1, @{@"a" : @1}, FSTDocumentStateSynced));
+  XCTAssertNotEqualObjects(FSTTestDoc("messages/first", 1, @{@"a" : @1}, FSTDocumentStateSynced),
+                           FSTTestDoc("messages/first", 1, @{@"b" : @1}, FSTDocumentStateSynced));
+  XCTAssertNotEqualObjects(FSTTestDoc("messages/first", 1, @{@"a" : @1}, FSTDocumentStateSynced),
+                           FSTTestDoc("messages/second", 1, @{@"b" : @1}, FSTDocumentStateSynced));
+  XCTAssertNotEqualObjects(FSTTestDoc("messages/first", 1, @{@"a" : @1}, FSTDocumentStateSynced),
+                           FSTTestDoc("messages/first", 2, @{@"a" : @1}, FSTDocumentStateSynced));
+  XCTAssertNotEqualObjects(
+      FSTTestDoc("messages/first", 1, @{@"a" : @1}, FSTDocumentStateSynced),
+      FSTTestDoc("messages/first", 1, @{@"a" : @1}, FSTDocumentStateLocalMutations));
 
-  XCTAssertEqualObjects(FSTTestDoc("messages/first", 1,
-                                   @{@"a" : @1}, FSTDocumentStateLocalMutations),
-                        FSTTestDoc("messages/first", 1,
-                                   @{@"a" : @1}, FSTDocumentStateLocalMutations));
+  XCTAssertEqualObjects(
+      FSTTestDoc("messages/first", 1, @{@"a" : @1}, FSTDocumentStateLocalMutations),
+      FSTTestDoc("messages/first", 1, @{@"a" : @1}, FSTDocumentStateLocalMutations));
 }
 
 @end

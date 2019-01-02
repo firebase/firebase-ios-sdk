@@ -75,9 +75,7 @@
 
 - (void)testCreateDocumentWithArrayUnion {
   [self writeDocumentRef:_docRef
-                    data:@{
-                      @"array" : [FIRFieldValue fieldValueForArrayUnion:@[ @1, @2 ]]
-                    }];
+                    data:@{@"array" : [FIRFieldValue fieldValueForArrayUnion:@[ @1, @2 ]]}];
   id expected = @{@"array" : @[ @1, @2 ]};
   XCTAssertEqualObjects([_accumulator awaitLocalEvent].data, expected);
   XCTAssertEqualObjects([_accumulator awaitRemoteEvent].data, expected);
@@ -87,9 +85,7 @@
   [self writeInitialData:@{@"array" : @[ @1, @3 ]}];
 
   [self updateDocumentRef:_docRef
-                     data:@{
-                       @"array" : [FIRFieldValue fieldValueForArrayUnion:@[ @2, @1, @4 ]]
-                     }];
+                     data:@{@"array" : [FIRFieldValue fieldValueForArrayUnion:@[ @2, @1, @4 ]]}];
 
   id expected = @{@"array" : @[ @1, @3, @2, @4 ]};
   XCTAssertEqualObjects([_accumulator awaitLocalEvent].data, expected);
@@ -100,9 +96,7 @@
   [self writeInitialData:@{@"array" : @[ @1, @3 ]}];
 
   [self mergeDocumentRef:_docRef
-                    data:@{
-                      @"array" : [FIRFieldValue fieldValueForArrayUnion:@[ @2, @1, @4 ]]
-                    }];
+                    data:@{@"array" : [FIRFieldValue fieldValueForArrayUnion:@[ @2, @1, @4 ]]}];
 
   id expected = @{@"array" : @[ @1, @3, @2, @4 ]};
   XCTAssertEqualObjects([_accumulator awaitLocalEvent].data, expected);
@@ -127,9 +121,7 @@
   [self writeInitialData:@{@"array" : @[ @1, @3, @1, @3 ]}];
 
   [self updateDocumentRef:_docRef
-                     data:@{
-                       @"array" : [FIRFieldValue fieldValueForArrayRemove:@[ @1, @4 ]]
-                     }];
+                     data:@{@"array" : [FIRFieldValue fieldValueForArrayRemove:@[ @1, @4 ]]}];
 
   id expected = @{@"array" : @[ @3, @3 ]};
   XCTAssertEqualObjects([_accumulator awaitLocalEvent].data, expected);
@@ -140,9 +132,7 @@
   [self writeInitialData:@{@"array" : @[ @1, @3, @1, @3 ]}];
 
   [self mergeDocumentRef:_docRef
-                    data:@{
-                      @"array" : [FIRFieldValue fieldValueForArrayRemove:@[ @1, @4 ]]
-                    }];
+                    data:@{@"array" : [FIRFieldValue fieldValueForArrayRemove:@[ @1, @4 ]]}];
 
   id expected = @{@"array" : @[ @3, @3 ]};
   XCTAssertEqualObjects([_accumulator awaitLocalEvent].data, expected);
@@ -203,9 +193,7 @@
 
 - (void)testServerApplicationOfSetWithNoCachedBaseDoc {
   [self writeDocumentRef:_docRef
-                    data:@{
-                      @"array" : [FIRFieldValue fieldValueForArrayUnion:@[ @1, @2 ]]
-                    }];
+                    data:@{@"array" : [FIRFieldValue fieldValueForArrayUnion:@[ @1, @2 ]]}];
   id expected = @{@"array" : @[ @1, @2 ]};
   XCTAssertEqualObjects([self getFromCache].data, expected);
 }
@@ -213,14 +201,10 @@
 - (void)testServerApplicationOfUpdateWithNoCachedBaseDoc {
   // Write an initial document out-of-band so it's not in our cache
   [self writeDocumentRef:[[self firestore] documentWithPath:_docRef.path]
-                    data:@{
-                      @"array" : @[ @42 ]
-                    }];
+                    data:@{@"array" : @[ @42 ]}];
 
   [self updateDocumentRef:_docRef
-                     data:@{
-                       @"array" : [FIRFieldValue fieldValueForArrayUnion:@[ @1, @2 ]]
-                     }];
+                     data:@{@"array" : [FIRFieldValue fieldValueForArrayUnion:@[ @1, @2 ]]}];
 
   // Nothing should be cached since it was an update and we had no base doc.
   XCTAssertNil([self getFromCache]);
@@ -229,14 +213,10 @@
 - (void)testServerApplicationOfMergeSetWithNoCachedBaseDoc {
   // Write an initial document out-of-band so it's not in our cache
   [self writeDocumentRef:[[self firestore] documentWithPath:_docRef.path]
-                    data:@{
-                      @"array" : @[ @42 ]
-                    }];
+                    data:@{@"array" : @[ @42 ]}];
 
   [self mergeDocumentRef:_docRef
-                    data:@{
-                      @"array" : [FIRFieldValue fieldValueForArrayUnion:@[ @1, @2 ]]
-                    }];
+                    data:@{@"array" : [FIRFieldValue fieldValueForArrayUnion:@[ @1, @2 ]]}];
 
   // Document will be cached but we'll be missing 42.
   id expected = @{@"array" : @[ @1, @2 ]};
@@ -248,9 +228,7 @@
   [self writeDocumentRef:_docRef data:@{@"array" : @[ @42 ]}];
 
   [self updateDocumentRef:_docRef
-                     data:@{
-                       @"array" : [FIRFieldValue fieldValueForArrayUnion:@[ @1, @2 ]]
-                     }];
+                     data:@{@"array" : [FIRFieldValue fieldValueForArrayUnion:@[ @1, @2 ]]}];
 
   // Should have merged the update with the cached doc.
   id expected = @{@"array" : @[ @42, @1, @2 ]};
@@ -262,9 +240,7 @@
   [self writeDocumentRef:_docRef data:@{@"array" : @[ @42, @1, @2 ]}];
 
   [self updateDocumentRef:_docRef
-                     data:@{
-                       @"array" : [FIRFieldValue fieldValueForArrayRemove:@[ @1, @2 ]]
-                     }];
+                     data:@{@"array" : [FIRFieldValue fieldValueForArrayRemove:@[ @1, @2 ]]}];
 
   // Should have merged the update with the cached doc.
   id expected = @{@"array" : @[ @42 ]};

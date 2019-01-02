@@ -23,8 +23,8 @@
 #include <string>
 #include <vector>
 
-#include "Firestore/Protos/nanopb/google/firestore/v1beta1/document.nanopb.h"
-#include "Firestore/Protos/nanopb/google/firestore/v1beta1/firestore.nanopb.h"
+#include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
+#include "Firestore/Protos/nanopb/google/firestore/v1/firestore.nanopb.h"
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
@@ -123,7 +123,7 @@ class Serializer {
    *
    * Any errors that occur during encoding are fatal.
    */
-  static google_firestore_v1beta1_Value EncodeFieldValue(
+  static google_firestore_v1_Value EncodeFieldValue(
       const model::FieldValue& field_value);
 
   /**
@@ -138,7 +138,7 @@ class Serializer {
   // rework error handling. Again. But we'll defer that for now and continue
   // just passing the reader object.
   static model::FieldValue DecodeFieldValue(
-      nanopb::Reader* reader, const google_firestore_v1beta1_Value& proto);
+      nanopb::Reader* reader, const google_firestore_v1_Value& proto);
 
   /**
    * Encodes the given document key as a fully qualified name. This includes the
@@ -158,7 +158,7 @@ class Serializer {
    *
    * Any errors that occur during encoding are fatal.
    */
-  google_firestore_v1beta1_Document EncodeDocument(
+  google_firestore_v1_Document EncodeDocument(
       const model::DocumentKey& key, const model::ObjectValue& value) const;
 
   /**
@@ -171,20 +171,19 @@ class Serializer {
    */
   std::unique_ptr<model::MaybeDocument> DecodeMaybeDocument(
       nanopb::Reader* reader,
-      const google_firestore_v1beta1_BatchGetDocumentsResponse& response) const;
+      const google_firestore_v1_BatchGetDocumentsResponse& response) const;
 
   /**
    * @brief Converts the Query into bytes, representing a
-   * firestore::v1beta1::Target::QueryTarget.
+   * firestore::v1::Target::QueryTarget.
    *
    * Any errors that occur during encoding are fatal.
    */
-  google_firestore_v1beta1_Target_QueryTarget EncodeQueryTarget(
+  google_firestore_v1_Target_QueryTarget EncodeQueryTarget(
       const core::Query& query) const;
 
   std::unique_ptr<model::Document> DecodeDocument(
-      nanopb::Reader* reader,
-      const google_firestore_v1beta1_Document& proto) const;
+      nanopb::Reader* reader, const google_firestore_v1_Document& proto) const;
 
   static void EncodeObjectMap(const model::ObjectValue::Map& object_value_map,
                               uint32_t map_tag,
@@ -205,15 +204,15 @@ class Serializer {
 
   static core::Query DecodeQueryTarget(
       nanopb::Reader* reader,
-      const google_firestore_v1beta1_Target_QueryTarget& proto);
+      const google_firestore_v1_Target_QueryTarget& proto);
 
  private:
   std::unique_ptr<model::Document> DecodeFoundDocument(
       nanopb::Reader* reader,
-      const google_firestore_v1beta1_BatchGetDocumentsResponse& response) const;
+      const google_firestore_v1_BatchGetDocumentsResponse& response) const;
   std::unique_ptr<model::NoDocument> DecodeMissingDocument(
       nanopb::Reader* reader,
-      const google_firestore_v1beta1_BatchGetDocumentsResponse& response) const;
+      const google_firestore_v1_BatchGetDocumentsResponse& response) const;
 
   static void EncodeFieldsEntry(const model::ObjectValue::Map::value_type& kv,
                                 uint32_t key_tag,

@@ -22,7 +22,7 @@
 
 #include "Firestore/Protos/nanopb/firestore/local/maybe_document.nanopb.h"
 #include "Firestore/Protos/nanopb/firestore/local/target.nanopb.h"
-#include "Firestore/Protos/nanopb/google/firestore/v1beta1/document.nanopb.h"
+#include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
@@ -63,8 +63,12 @@ firestore_client_MaybeDocument LocalSerializer::EncodeMaybeDocument(
           EncodeNoDocument(static_cast<const NoDocument&>(maybe_doc));
       return result;
 
+    case MaybeDocument::Type::UnknownDocument:
+      // TODO(rsgowman): Implement
+      abort();
+
     case MaybeDocument::Type::Unknown:
-      // TODO(rsgowman)
+      // TODO(rsgowman): Error handling
       abort();
   }
 
@@ -95,9 +99,9 @@ std::unique_ptr<MaybeDocument> LocalSerializer::DecodeMaybeDocument(
   UNREACHABLE();
 }
 
-google_firestore_v1beta1_Document LocalSerializer::EncodeDocument(
+google_firestore_v1_Document LocalSerializer::EncodeDocument(
     const Document& doc) const {
-  google_firestore_v1beta1_Document result{};
+  google_firestore_v1_Document result{};
 
   result.name =
       rpc_serializer_.EncodeString(rpc_serializer_.EncodeKey(doc.key()));
@@ -105,8 +109,7 @@ google_firestore_v1beta1_Document LocalSerializer::EncodeDocument(
   // Encode Document.fields (unless it's empty)
   size_t count = doc.data().object_value().internal_value.size();
   result.fields_count = count;
-  result.fields =
-      MakeArray<google_firestore_v1beta1_Document_FieldsEntry>(count);
+  result.fields = MakeArray<google_firestore_v1_Document_FieldsEntry>(count);
   int i = 0;
   for (const auto& kv : doc.data().object_value().internal_value) {
     result.fields[i].key = rpc_serializer_.EncodeString(kv.first);
@@ -138,12 +141,16 @@ std::unique_ptr<NoDocument> LocalSerializer::DecodeNoDocument(
 
   SnapshotVersion version =
       rpc_serializer_.DecodeSnapshotVersion(reader, proto.read_time);
-
   if (!reader->status().ok()) return nullptr;
+
+  // TODO(rsgowman): Fix hardcoding of has_committed_mutations.
+  // Instead, we should grab this from the proto (see other ports). However,
+  // we'll defer until the nanopb-master gets merged to master.
   return absl::make_unique<NoDocument>(
       rpc_serializer_.DecodeKey(reader,
                                 rpc_serializer_.DecodeString(proto.name)),
-      std::move(version));
+      std::move(version),
+      /*has_committed_mutations=*/false);
 }
 
 firestore_client_Target LocalSerializer::EncodeQueryData(

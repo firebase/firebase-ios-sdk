@@ -93,8 +93,8 @@
   XCTAssertNotNil(reachability);
 
   id reachabilityMock = OCMPartialMock(reachability);
-  [[[reachabilityMock stub] andCall:@selector(reachabilityStatus) onObject:self]
-      reachabilityStatus];
+  [[[reachabilityMock stub] andCall:@selector(reachabilityStatus)
+                           onObject:self] reachabilityStatus];
 
   // Fake scenario with connectivity.
   _fakeNetworkIsReachable = YES;
@@ -504,8 +504,8 @@
       usingBackgroundSession:NO
            completionHandler:^(NSHTTPURLResponse *response, NSData *data, NSError *error) {
              XCTAssertNotNil(data);
-             NSString *responseBody =
-                 [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+             NSString *responseBody = [[NSString alloc] initWithData:data
+                                                            encoding:NSUTF8StringEncoding];
              XCTAssertEqualObjects(responseBody, @"<html><body>Hello, World!</body></html>");
              XCTAssertNil(error);
              XCTAssertFalse(self->_network.hasUploadInProgress, "There must be no pending request");
@@ -601,8 +601,8 @@
       usingBackgroundSession:NO
            completionHandler:^(NSHTTPURLResponse *response, NSData *data, NSError *error) {
              XCTAssertNotNil(data);
-             NSString *responseBody =
-                 [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+             NSString *responseBody = [[NSString alloc] initWithData:data
+                                                            encoding:NSUTF8StringEncoding];
              XCTAssertEqualObjects(responseBody, @"<html><body>Hello, World!</body></html>");
              XCTAssertNil(error);
              XCTAssertFalse(self->_network.hasUploadInProgress, "There must be no pending request");
@@ -631,8 +631,8 @@
       usingBackgroundSession:NO
            completionHandler:^(NSHTTPURLResponse *response, NSData *data, NSError *error) {
              XCTAssertNotNil(data);
-             NSString *responseBody =
-                 [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+             NSString *responseBody = [[NSString alloc] initWithData:data
+                                                            encoding:NSUTF8StringEncoding];
              XCTAssertEqualObjects(responseBody, @"<html><body>Hello, World!</body></html>");
              XCTAssertNil(error);
              XCTAssertFalse(self->_network.hasUploadInProgress,
@@ -665,8 +665,8 @@
       usingBackgroundSession:NO
            completionHandler:^(NSHTTPURLResponse *response, NSData *data, NSError *error) {
              XCTAssertNotNil(data);
-             NSString *responseBody =
-                 [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+             NSString *responseBody = [[NSString alloc] initWithData:data
+                                                            encoding:NSUTF8StringEncoding];
              XCTAssertEqualObjects(responseBody, @"<html><body>Hello, World!</body></html>");
              XCTAssertNil(error);
 
@@ -700,8 +700,8 @@
       usingBackgroundSession:YES
            completionHandler:^(NSHTTPURLResponse *response, NSData *data, NSError *error) {
              XCTAssertNotNil(data);
-             NSString *responseBody =
-                 [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+             NSString *responseBody = [[NSString alloc] initWithData:data
+                                                            encoding:NSUTF8StringEncoding];
              XCTAssertEqualObjects(responseBody, @"<html><body>Hello, World!</body></html>");
              XCTAssertNil(error);
              XCTAssertFalse(self->_network.hasUploadInProgress, "There must be no pending request");
@@ -797,8 +797,8 @@
       usingBackgroundSession:YES
            completionHandler:^(NSHTTPURLResponse *response, NSData *data, NSError *error) {
              XCTAssertNotNil(data);
-             NSString *responseBody =
-                 [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+             NSString *responseBody = [[NSString alloc] initWithData:data
+                                                            encoding:NSUTF8StringEncoding];
              XCTAssertEqualObjects(responseBody, @"<html><body>Hello, World!</body></html>");
              XCTAssertNil(error);
              XCTAssertFalse(self->_network.hasUploadInProgress, "There must be no pending request");
@@ -827,8 +827,8 @@
       usingBackgroundSession:YES
            completionHandler:^(NSHTTPURLResponse *response, NSData *data, NSError *error) {
              XCTAssertNotNil(data);
-             NSString *responseBody =
-                 [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+             NSString *responseBody = [[NSString alloc] initWithData:data
+                                                            encoding:NSUTF8StringEncoding];
              XCTAssertEqualObjects(responseBody, @"<html><body>Hello, World!</body></html>");
              XCTAssertNil(error);
              XCTAssertFalse(self->_network.hasUploadInProgress,
@@ -861,8 +861,8 @@
       usingBackgroundSession:YES
            completionHandler:^(NSHTTPURLResponse *response, NSData *data, NSError *error) {
              XCTAssertNotNil(data);
-             NSString *responseBody =
-                 [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+             NSString *responseBody = [[NSString alloc] initWithData:data
+                                                            encoding:NSUTF8StringEncoding];
              XCTAssertEqualObjects(responseBody, @"<html><body>Hello, World!</body></html>");
              XCTAssertNil(error);
 
@@ -953,8 +953,8 @@
   // Test whether the request is compressed correctly.
   NSData *requestBody = [_request body];
   NSData *decompressedRequestData = [NSData gul_dataByInflatingGzippedData:requestBody error:NULL];
-  NSString *requestString =
-      [[NSString alloc] initWithData:decompressedRequestData encoding:NSUTF8StringEncoding];
+  NSString *requestString = [[NSString alloc] initWithData:decompressedRequestData
+                                                  encoding:NSUTF8StringEncoding];
   XCTAssertEqualObjects(requestString, @"Google", @"Request is not compressed correctly.");
 
   // The request has to be a POST.

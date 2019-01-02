@@ -74,10 +74,9 @@
 
   if (bucketName.length == 0) {
     [NSException raise:NSInternalInconsistencyException
-                format:
-                    @"URL must be in the form of "
-                    @"http[s]://firebasestorage.googleapis.com/v0/b/<bucket>/o/<path/to/"
-                    @"object>[?token=signed_url_params]"];
+                format:@"URL must be in the form of "
+                       @"http[s]://firebasestorage.googleapis.com/v0/b/<bucket>/o/<path/to/"
+                       @"object>[?token=signed_url_params]"];
     return nil;
   }
 

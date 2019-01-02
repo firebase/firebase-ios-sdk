@@ -90,10 +90,12 @@
 - (void)testCurrentImplementationReturnsDifferentIMPsForClassAndInstanceMethod {
   Class aClass = [NSObject class];
   SEL aSelector = @selector(description);
-  IMP descriptionClassIMP =
-      [GULSwizzler currentImplementationForClass:aClass selector:aSelector isClassSelector:NO];
-  IMP descriptionInstanceIMP =
-      [GULSwizzler currentImplementationForClass:aClass selector:aSelector isClassSelector:YES];
+  IMP descriptionClassIMP = [GULSwizzler currentImplementationForClass:aClass
+                                                              selector:aSelector
+                                                       isClassSelector:NO];
+  IMP descriptionInstanceIMP = [GULSwizzler currentImplementationForClass:aClass
+                                                                 selector:aSelector
+                                                          isClassSelector:YES];
   XCTAssertNotEqual(descriptionClassIMP, descriptionInstanceIMP);
 }
 
@@ -103,10 +105,12 @@
 - (void)testCurrentImplementationReturnsSameIMPsWhenNotSwizzledBetweenInvocations {
   Class aClass = [NSObject class];
   SEL aSelector = @selector(description);
-  IMP descriptionClassIMPOne =
-      [GULSwizzler currentImplementationForClass:aClass selector:aSelector isClassSelector:NO];
-  IMP descriptionClassIMPTwo =
-      [GULSwizzler currentImplementationForClass:aClass selector:aSelector isClassSelector:NO];
+  IMP descriptionClassIMPOne = [GULSwizzler currentImplementationForClass:aClass
+                                                                 selector:aSelector
+                                                          isClassSelector:NO];
+  IMP descriptionClassIMPTwo = [GULSwizzler currentImplementationForClass:aClass
+                                                                 selector:aSelector
+                                                          isClassSelector:NO];
   XCTAssertEqual(descriptionClassIMPOne, descriptionClassIMPTwo);
 }
 
@@ -116,8 +120,9 @@
 - (void)testCurrentImplementationReturnsDifferentIMPsWhenSwizzledBetweenInvocations {
   Class aClass = [NSObject class];
   SEL aSelector = @selector(description);
-  IMP originalIMP =
-      [GULSwizzler currentImplementationForClass:aClass selector:aSelector isClassSelector:NO];
+  IMP originalIMP = [GULSwizzler currentImplementationForClass:aClass
+                                                      selector:aSelector
+                                               isClassSelector:NO];
   NSString * (^newImplementation)(id) = ^NSString *(id _self) {
     return @"nonsense";
   };
@@ -125,8 +130,9 @@
                    selector:aSelector
             isClassSelector:NO
                   withBlock:newImplementation];
-  IMP newIMP =
-      [GULSwizzler currentImplementationForClass:aClass selector:aSelector isClassSelector:NO];
+  IMP newIMP = [GULSwizzler currentImplementationForClass:aClass
+                                                 selector:aSelector
+                                          isClassSelector:NO];
   XCTAssertNotEqual(newIMP, originalIMP);
   [GULSwizzler unswizzleClass:aClass selector:aSelector isClassSelector:NO];
 }
@@ -136,8 +142,9 @@
   SEL selector = @selector(description);
   Class aClass = [NSObject class];
   id newDescription = ^NSString *(id object) {
-    IMP originalImp =
-        [GULSwizzler originalImplementationForClass:aClass selector:selector isClassSelector:NO];
+    IMP originalImp = [GULSwizzler originalImplementationForClass:aClass
+                                                         selector:selector
+                                                  isClassSelector:NO];
     NSString *originalDescription =
         GUL_INVOKE_ORIGINAL_IMP0(object, selector, NSString *, originalImp);
 

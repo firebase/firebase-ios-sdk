@@ -55,16 +55,15 @@ NS_ASSUME_NONNULL_BEGIN
   FIRQuery *query = [FIRQuery referenceWithQuery:FSTTestQuery("foo") firestore:firestore];
   FIRQuery *query1 = [query queryWhereField:@"f" isLessThanOrEqualTo:@1];
   FIRQuery *query2 = [query queryFilteredUsingPredicate:[NSPredicate predicateWithFormat:@"f<=1"]];
-  FIRQuery *query3 =
-      [[query queryWhereField:@"f1" isLessThan:@2] queryWhereField:@"f2" isEqualTo:@3];
+  FIRQuery *query3 = [[query queryWhereField:@"f1" isLessThan:@2] queryWhereField:@"f2"
+                                                                        isEqualTo:@3];
   FIRQuery *query4 =
       [query queryFilteredUsingPredicate:[NSPredicate predicateWithFormat:@"f1<2 && f2==3"]];
-  FIRQuery *query5 =
-      [[[[[query queryWhereField:@"f1" isLessThan:@2] queryWhereField:@"f2" isEqualTo:@3]
-              queryWhereField:@"f1"
-          isLessThanOrEqualTo:@"four"] queryWhereField:@"f1"
-                                isGreaterThanOrEqualTo:@"five"] queryWhereField:@"f1"
-                                                                  isGreaterThan:@6];
+  FIRQuery *query5 = [[[[[query queryWhereField:@"f1" isLessThan:@2] queryWhereField:@"f2"
+                                                                           isEqualTo:@3]
+          queryWhereField:@"f1"
+      isLessThanOrEqualTo:@"four"] queryWhereField:@"f1"
+                            isGreaterThanOrEqualTo:@"five"] queryWhereField:@"f1" isGreaterThan:@6];
   FIRQuery *query6 = [query
       queryFilteredUsingPredicate:
           [NSPredicate predicateWithFormat:@"f1<2 && f2==3 && f1<='four' && f1>='five' && f1>6"]];

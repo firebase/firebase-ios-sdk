@@ -22,8 +22,10 @@
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 
 using firebase::firestore::auth::User;
+using firebase::firestore::local::ReferenceSet;
 
 @interface FSTMemoryMutationQueueTests : FSTMutationQueueTests
 @end
@@ -32,12 +34,15 @@ using firebase::firestore::auth::User;
  * The tests for FSTMemoryMutationQueue are performed on the FSTMutationQueue protocol in
  * FSTMutationQueueTests. This class is merely responsible for setting up the @a mutationQueue.
  */
-@implementation FSTMemoryMutationQueueTests
+@implementation FSTMemoryMutationQueueTests {
+  ReferenceSet _additionalReferences;
+}
 
 - (void)setUp {
   [super setUp];
 
   self.persistence = [FSTPersistenceTestHelpers eagerGCMemoryPersistence];
+  [self.persistence.referenceDelegate addInMemoryPins:&_additionalReferences];
   self.mutationQueue = [self.persistence mutationQueueForUser:User("user")];
 }
 

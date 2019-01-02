@@ -91,10 +91,7 @@
   FIRDocumentSnapshot *snapshot = [self readDocumentForRef:doc];
   XCTAssertTrue(snapshot.exists);
   XCTAssertEqualObjects(snapshot.data,
-                        (
-                            @{@"a" : @"b",
-                              @"c" : @"d",
-                              @"nested" : @{@"a" : @"b", @"c" : @"d"}}));
+                        (@{@"a" : @"b", @"c" : @"d", @"nested" : @{@"a" : @"b", @"c" : @"d"}}));
 }
 
 - (void)testUpdateDocuments {
@@ -251,10 +248,7 @@
   FIRWriteBatch *batch = [doc.firestore batch];
   [batch deleteDocument:doc];
   [batch setData:@{@"a" : @1, @"b" : @1, @"when" : @"when"} forDocument:doc];
-  [batch updateData:@{
-    @"b" : @2,
-    @"when" : [FIRFieldValue fieldValueForServerTimestamp]
-  }
+  [batch updateData:@{@"b" : @2, @"when" : [FIRFieldValue fieldValueForServerTimestamp]}
         forDocument:doc];
   [batch commitWithCompletion:^(NSError *_Nullable error) {
     XCTAssertNil(error);
@@ -296,17 +290,11 @@
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"testUpdateNestedFields"];
   FIRWriteBatch *batch = [doc.firestore batch];
-  [batch setData:@{
-    @"a" : @{@"b" : @"old"},
-    @"c" : @{@"d" : @"old"},
-    @"e" : @{@"f" : @"old"}
-  }
+  [batch setData:@{@"a" : @{@"b" : @"old"}, @"c" : @{@"d" : @"old"}, @"e" : @{@"f" : @"old"}}
       forDocument:doc];
-  [batch updateData:@{
-    @"a.b" : @"new",
-    [[FIRFieldPath alloc] initWithFields:@[ @"c", @"d" ]] : @"new"
-  }
-        forDocument:doc];
+  [batch
+       updateData:@{@"a.b" : @"new", [[FIRFieldPath alloc] initWithFields:@[ @"c", @"d" ]] : @"new"}
+      forDocument:doc];
   [batch commitWithCompletion:^(NSError *_Nullable error) {
     XCTAssertNil(error);
     [doc getDocumentWithCompletion:^(FIRDocumentSnapshot *snapshot, NSError *error) {

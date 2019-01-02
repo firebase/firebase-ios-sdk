@@ -127,8 +127,8 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Interoperability
 
 + (NSArray<FIRComponent *> *)componentsToRegister {
-  FIRDependency *auth =
-      [FIRDependency dependencyWithProtocol:@protocol(FIRAuthInterop) isRequired:NO];
+  FIRDependency *auth = [FIRDependency dependencyWithProtocol:@protocol(FIRAuthInterop)
+                                                   isRequired:NO];
   FIRComponent *firestoreProvider = [FIRComponent
       componentWithProtocol:@protocol(FSTFirestoreMultiDBProvider)
         instantiationTiming:FIRInstantiationTimingLazy

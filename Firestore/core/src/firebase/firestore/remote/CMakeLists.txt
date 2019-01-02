@@ -47,7 +47,7 @@ cc_select(
 # into the binary by converting it to a char array.
 add_custom_command(
     OUTPUT grpc_root_certificates_generated.h grpc_root_certificates_generated.cc
-    COMMAND ${FIREBASE_SOURCE_DIR}/scripts/binary_to_array.py
+    COMMAND python ${FIREBASE_SOURCE_DIR}/scripts/binary_to_array.py
         --output_header=grpc_root_certificates_generated.h
         --output_source=grpc_root_certificates_generated.cc
         --cpp_namespace=firebase::firestore::remote
