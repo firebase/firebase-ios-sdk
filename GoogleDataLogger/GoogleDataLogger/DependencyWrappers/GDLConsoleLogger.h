@@ -42,7 +42,7 @@ typedef NS_ENUM(NSInteger, GDLMessageCode) {
   /** For error messages concerning the creation of a directory failing. */
   GDLMCEDirectoryCreationError = 1002,
 
-  /** For error messages concerning the writing of  a log file. */
+  /** For error messages concerning the writing of a log file. */
   GDLMCEFileWriteError = 1003
 };
 
