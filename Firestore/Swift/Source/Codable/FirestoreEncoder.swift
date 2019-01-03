@@ -22,15 +22,16 @@ extension CollectionReference {
     do {
       return addDocument(data: try Firestore.Encoder().encode(item))
     } catch let error {
-      throw(error)
+      throw (error)
     }
   }
+
   public func addDocument<T: Encodable>(_ item: T, _ completion: ((Error?) -> Void)?) throws -> DocumentReference {
     do {
       let encoded = try Firestore.Encoder().encode(item)
       return addDocument(data: encoded, completion: completion)
     } catch let error {
-      throw(error)
+      throw (error)
     }
   }
 }
@@ -40,9 +41,10 @@ extension DocumentReference {
     do {
       setData(try Firestore.Encoder().encode(value))
     } catch let error {
-      throw(error)
+      throw (error)
     }
   }
+
   public func setData<T: Encodable>(value: T, _ completion: ((Error?) -> Void)?) throws {
     do {
       let encoded = try Firestore.Encoder().encode(value)
@@ -58,7 +60,7 @@ extension Transaction {
     do {
       setData(try Firestore.Encoder().encode(value), forDocument: forDocument)
     } catch let error {
-      throw(error)
+      throw (error)
     }
   }
 }
@@ -68,7 +70,7 @@ extension WriteBatch {
     do {
       setData(try Firestore.Encoder().encode(value), forDocument: forDocument)
     } catch let error {
-      throw(error)
+      throw (error)
     }
   }
 }
