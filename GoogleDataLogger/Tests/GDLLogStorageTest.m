@@ -30,6 +30,7 @@
 #import "GDLAssertHelper.h"
 #import "GDLLogStorage+Testing.h"
 #import "GDLRegistrar+Testing.h"
+#import "GDLUploaderFake.h"
 
 static NSInteger logTarget = 1337;
 
@@ -41,6 +42,8 @@ static NSInteger logTarget = 1337;
 /** The test prioritizer implementation. */
 @property(nullable, nonatomic) GDLTestPrioritizer *testPrioritizer;
 
+@property(nonatomic) GDLUploaderFake *uploaderFake;
+
 @end
 
 @implementation GDLLogStorageTest
@@ -51,6 +54,8 @@ static NSInteger logTarget = 1337;
   self.testPrioritizer = [[GDLTestPrioritizer alloc] init];
   [[GDLRegistrar sharedInstance] registerBackend:_testBackend forLogTarget:logTarget];
   [[GDLRegistrar sharedInstance] registerLogPrioritizer:_testPrioritizer forLogTarget:logTarget];
+  self.uploaderFake = [[GDLUploaderFake alloc] init];
+  [GDLLogStorage sharedInstance].uploader = self.uploaderFake;
 }
 
 - (void)tearDown {
@@ -60,6 +65,8 @@ static NSInteger logTarget = 1337;
   self.testPrioritizer = nil;
   [[GDLRegistrar sharedInstance] reset];
   [[GDLLogStorage sharedInstance] reset];
+  [GDLLogStorage sharedInstance].uploader = [GDLUploader sharedInstance];
+  self.uploaderFake = nil;
 }
 
 /** Tests the singleton pattern. */
@@ -194,6 +201,7 @@ static NSInteger logTarget = 1337;
 
 /** Tests encoding and decoding the storage singleton correctly. */
 - (void)testNSSecureCoding {
+  XCTAssertTrue([GDLLogStorage supportsSecureCoding]);
   GDLLogEvent *logEvent = [[GDLLogEvent alloc] initWithLogMapID:@"404" logTarget:logTarget];
   logEvent.extensionBytes = [@"testString" dataUsingEncoding:NSUTF8StringEncoding];
   NSUInteger logHash = logEvent.hash;
@@ -215,7 +223,27 @@ static NSInteger logTarget = 1337;
 
 /** Tests logging a fast log causes an upload attempt. */
 - (void)testQoSTierFast {
-  // TODO
+  NSUInteger logHash;
+  // logEvent is autoreleased, and the pool needs to drain.
+  @autoreleasepool {
+    GDLLogEvent *logEvent = [[GDLLogEvent alloc] initWithLogMapID:@"404" logTarget:logTarget];
+    logEvent.extensionBytes = [@"testString" dataUsingEncoding:NSUTF8StringEncoding];
+    logEvent.qosTier = GDLLogQoSFast;
+    logHash = logEvent.hash;
+    XCTAssertFalse(self.uploaderFake.forceUploadCalled);
+    XCTAssertNoThrow([[GDLLogStorage sharedInstance] storeLog:logEvent]);
+  }
+  dispatch_sync([GDLLogStorage sharedInstance].storageQueue, ^{
+    XCTAssertTrue(self.uploaderFake.forceUploadCalled);
+    XCTAssertEqual([GDLLogStorage sharedInstance].logHashToLogFile.count, 1);
+    XCTAssertEqual([GDLLogStorage sharedInstance].logTargetToLogFileSet[@(logTarget)].count, 1);
+    NSURL *logFile = [GDLLogStorage sharedInstance].logHashToLogFile[@(logHash)];
+    XCTAssertNotNil(logFile);
+    XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:logFile.path]);
+    NSError *error;
+    XCTAssertTrue([[NSFileManager defaultManager] removeItemAtURL:logFile error:&error]);
+    XCTAssertNil(error, @"There was an error deleting the logFile: %@", error);
+  });
 }
 
 @end
