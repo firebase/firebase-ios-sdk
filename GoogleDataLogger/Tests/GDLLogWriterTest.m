@@ -23,6 +23,8 @@
 #import "GDLLogWriter.h"
 #import "GDLLogWriter_Private.h"
 
+#import "GDLAssertHelper.h"
+
 @interface GDLLogWriterTestNilingTransformer : NSObject <GDLLogTransformer>
 
 @end
@@ -106,14 +108,22 @@
   GDLLogEvent *log = [[GDLLogEvent alloc] initWithLogMapID:@"2" logTarget:1];
   log.extension = [[GDLLogExtensionTesterSimple alloc] init];
   NSArray *transformers = @[ [[NSObject alloc] init] ];
-  @try {
-    dispatch_sync(writer.logWritingQueue, ^{
-      // TODO(mikehaney24): Assert that storage contains the new log.
-      [writer writeLog:log afterApplyingTransformers:transformers];
-    });
-  } @catch (NSException *exception) {
-    NSLog(@"");
-  }
+
+  XCTestExpectation *errorExpectation = [self expectationWithDescription:@"transform: is missing"];
+  [GDLAssertHelper setAssertionBlock:^{
+    [errorExpectation fulfill];
+  }];
+  [writer writeLog:log afterApplyingTransformers:transformers];
+  [self waitForExpectations:@[ errorExpectation ] timeout:5.0];
+  dispatch_sync(writer.logWritingQueue, ^{
+                    // TODO(mikehaney24): Assert that storage contains the new log.
+                });
+}
+
+/** Tests that writing a nil log throws. */
+- (void)testWritingANilLogThrows {
+  GDLLogWriter *writer = [GDLLogWriter sharedInstance];
+  XCTAssertThrows([writer writeLog:nil afterApplyingTransformers:nil]);
 }
 
 @end

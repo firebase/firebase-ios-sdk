@@ -27,6 +27,7 @@
 #import "GDLTestBackend.h"
 #import "GDLTestPrioritizer.h"
 
+#import "GDLAssertHelper.h"
 #import "GDLLogStorage+Testing.h"
 #import "GDLRegistrar+Testing.h"
 
@@ -45,6 +46,7 @@ static NSInteger logTarget = 1337;
 @implementation GDLLogStorageTest
 
 - (void)setUp {
+  [super setUp];
   self.testBackend = [[GDLTestBackend alloc] init];
   self.testPrioritizer = [[GDLTestPrioritizer alloc] init];
   [[GDLRegistrar sharedInstance] registerBackend:_testBackend forLogTarget:logTarget];
@@ -52,6 +54,7 @@ static NSInteger logTarget = 1337;
 }
 
 - (void)tearDown {
+  [super tearDown];
   // Destroy these objects before the next test begins.
   self.testBackend = nil;
   self.testPrioritizer = nil;
@@ -109,9 +112,84 @@ static NSInteger logTarget = 1337;
   });
 }
 
+/** Tests storing a few different logs. */
+- (void)testStoreMultipleLogs {
+  NSUInteger log1Hash, log2Hash, log3Hash;
+
+  // logEvents are autoreleased, and the pool needs to drain.
+  @autoreleasepool {
+    GDLLogEvent *logEvent = [[GDLLogEvent alloc] initWithLogMapID:@"404" logTarget:logTarget];
+    logEvent.extensionBytes = [@"testString1" dataUsingEncoding:NSUTF8StringEncoding];
+    log1Hash = logEvent.hash;
+    XCTAssertNoThrow([[GDLLogStorage sharedInstance] storeLog:logEvent]);
+
+    logEvent = [[GDLLogEvent alloc] initWithLogMapID:@"100" logTarget:logTarget];
+    logEvent.extensionBytes = [@"testString2" dataUsingEncoding:NSUTF8StringEncoding];
+    log2Hash = logEvent.hash;
+    XCTAssertNoThrow([[GDLLogStorage sharedInstance] storeLog:logEvent]);
+
+    logEvent = [[GDLLogEvent alloc] initWithLogMapID:@"404" logTarget:logTarget];
+    logEvent.extensionBytes = [@"testString3" dataUsingEncoding:NSUTF8StringEncoding];
+    log3Hash = logEvent.hash;
+    XCTAssertNoThrow([[GDLLogStorage sharedInstance] storeLog:logEvent]);
+  }
+  dispatch_sync([GDLLogStorage sharedInstance].storageQueue, ^{
+    XCTAssertEqual([GDLLogStorage sharedInstance].logHashToLogFile.count, 3);
+    XCTAssertEqual([GDLLogStorage sharedInstance].logTargetToLogFileSet[@(logTarget)].count, 3);
+
+    NSURL *log1File = [GDLLogStorage sharedInstance].logHashToLogFile[@(log1Hash)];
+    XCTAssertNotNil(log1File);
+    XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:log1File.path]);
+    NSError *error;
+    XCTAssertTrue([[NSFileManager defaultManager] removeItemAtURL:log1File error:&error]);
+    XCTAssertNil(error, @"There was an error deleting the logFile: %@", error);
+
+    NSURL *log2File = [GDLLogStorage sharedInstance].logHashToLogFile[@(log2Hash)];
+    XCTAssertNotNil(log2File);
+    XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:log2File.path]);
+    error = nil;
+    XCTAssertTrue([[NSFileManager defaultManager] removeItemAtURL:log2File error:&error]);
+    XCTAssertNil(error, @"There was an error deleting the logFile: %@", error);
+
+    NSURL *log3File = [GDLLogStorage sharedInstance].logHashToLogFile[@(log3Hash)];
+    XCTAssertNotNil(log3File);
+    XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:log3File.path]);
+    error = nil;
+    XCTAssertTrue([[NSFileManager defaultManager] removeItemAtURL:log3File error:&error]);
+    XCTAssertNil(error, @"There was an error deleting the logFile: %@", error);
+  });
+}
+
 /** Tests enforcing that a log prioritizer does not retain a log in memory. */
 - (void)testLogEventDeallocationIsEnforced {
-  // TODO
+  XCTestExpectation *errorExpectation = [self expectationWithDescription:@"log retain error"];
+  [GDLAssertHelper setAssertionBlock:^{
+    [errorExpectation fulfill];
+  }];
+
+  // logEvent is referenced past -storeLog, ensuring it's retained, which should assert.
+  GDLLogEvent *logEvent = [[GDLLogEvent alloc] initWithLogMapID:@"404" logTarget:logTarget];
+  logEvent.extensionBytes = [@"testString" dataUsingEncoding:NSUTF8StringEncoding];
+
+  // Store the log and wait for the expectation.
+  [[GDLLogStorage sharedInstance] storeLog:logEvent];
+  [self waitForExpectations:@[ errorExpectation ] timeout:5.0];
+
+  NSURL *logFile;
+  logFile = [GDLLogStorage sharedInstance].logHashToLogFile[@(logEvent.hash)];
+
+  // This isn't strictly necessary because of the -waitForExpectations above.
+  dispatch_sync([GDLLogStorage sharedInstance].storageQueue, ^{
+    XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:logFile.path]);
+  });
+
+  // Ensure log was removed.
+  [[GDLLogStorage sharedInstance] removeLog:@(logEvent.hash) logTarget:@(logTarget)];
+  dispatch_sync([GDLLogStorage sharedInstance].storageQueue, ^{
+    XCTAssertFalse([[NSFileManager defaultManager] fileExistsAtPath:logFile.path]);
+    XCTAssertEqual([GDLLogStorage sharedInstance].logHashToLogFile.count, 0);
+    XCTAssertEqual([GDLLogStorage sharedInstance].logTargetToLogFileSet[@(logTarget)].count, 0);
+  });
 }
 
 /** Tests encoding and decoding the storage singleton correctly. */
