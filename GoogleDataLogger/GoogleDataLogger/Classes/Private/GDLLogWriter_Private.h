@@ -16,9 +16,14 @@
 
 #import "GDLLogWriter.h"
 
+@class GDLLogStorage;
+
 @interface GDLLogWriter ()
 
 /** The queue on which all work will occur. */
 @property(nonatomic) dispatch_queue_t logWritingQueue;
+
+/** The log storage instance used to store logs. Should only be used to inject a testing fake. */
+@property(nonatomic) GDLLogStorage *storageInstance;
 
 @end

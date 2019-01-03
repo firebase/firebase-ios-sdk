@@ -41,6 +41,7 @@
   self = [super init];
   if (self) {
     _logWritingQueue = dispatch_queue_create("com.google.GDLLogWriter", DISPATCH_QUEUE_SERIAL);
+    _storageInstance = [GDLLogStorage sharedInstance];
   }
   return self;
 }
@@ -62,7 +63,7 @@
         return;
       }
     }
-    // TODO(mikehaney24): [[GDLLogStorage sharedInstance] storeLog:transformedLog];
+    [self.storageInstance storeLog:transformedLog];
   });
 }
 

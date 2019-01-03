@@ -20,10 +20,12 @@
 
 #import "GDLLogEvent.h"
 #import "GDLLogExtensionTesterClasses.h"
+#import "GDLLogStorage.h"
 #import "GDLLogWriter.h"
 #import "GDLLogWriter_Private.h"
 
 #import "GDLAssertHelper.h"
+#import "GDLLogStorageFake.h"
 
 @interface GDLLogWriterTestNilingTransformer : NSObject <GDLLogTransformer>
 
@@ -54,6 +56,20 @@
 @end
 
 @implementation GDLLogWriterTest
+
+- (void)setUp {
+  [super setUp];
+  dispatch_sync([GDLLogWriter sharedInstance].logWritingQueue, ^{
+    [GDLLogWriter sharedInstance].storageInstance = [[GDLLogStorageFake alloc] init];
+  });
+}
+
+- (void)tearDown {
+  [super tearDown];
+  dispatch_sync([GDLLogWriter sharedInstance].logWritingQueue, ^{
+    [GDLLogWriter sharedInstance].storageInstance = [GDLLogStorage sharedInstance];
+  });
+}
 
 /** Tests the default initializer. */
 - (void)testInit {
