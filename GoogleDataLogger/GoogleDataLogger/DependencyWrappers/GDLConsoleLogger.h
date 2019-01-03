@@ -30,20 +30,20 @@ static GULLoggerService kGDLConsoleLogger = @"[GoogleDataLogger]";
  */
 typedef NS_ENUM(NSInteger, GDLMessageCode) {
 
-  /** For warning messages concerning transform: not being implemented by a log transformer. */
-  GDLMCWTransformerDoesntImplementTransform = 1,
-
   /** For warning messages concerning protoBytes: not being implemented by a log extension. */
-  GDLMCWExtensionMissingBytesImpl = 2,
+  GDLMCWExtensionMissingBytesImpl = 1,
+
+  /** For error messages concerning transform: not being implemented by a log transformer. */
+  GDLMCETransformerDoesntImplementTransform = 1000,
 
   /** For error messages concerning a GDLLogEvent living past the storeLog: invocation. */
-  GDLMCELogEventWasIllegallyRetained = 1000,
+  GDLMCELogEventWasIllegallyRetained = 1001,
 
   /** For error messages concerning the creation of a directory failing. */
-  GDLMCEDirectoryCreationError = 1001,
+  GDLMCEDirectoryCreationError = 1002,
 
   /** For error messages concerning the writing of  a log file. */
-  GDLMCEFileWriteError = 1002
+  GDLMCEFileWriteError = 1003
 };
 
 /** */
