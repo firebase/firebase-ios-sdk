@@ -58,7 +58,7 @@ NS_SWIFT_NAME(Transaction)
  * @return This `FIRTransaction` instance. Used for chaining method calls.
  */
 // clang-format off
-- (FIRTransaction *) :(NSDictionary<NSString *, id> *)data
+- (FIRTransaction *)setData:(NSDictionary<NSString *, id> *)data
                 forDocument:(FIRDocumentReference *)document
                       merge:(BOOL)merge
     NS_SWIFT_NAME(setData(_:forDocument:merge:));
