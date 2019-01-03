@@ -19,7 +19,6 @@ import FirebaseFirestore
 
 // Add CollectionReference?
 
-@available(swift 4.0.0)
 extension DocumentSnapshot {
   public func data<T: Decodable>(as type: T.Type) throws -> T {
     guard let dict = data() else {
@@ -32,7 +31,6 @@ extension DocumentSnapshot {
 // Is there a better way to do this without the Firestore.Decoder wrapper?
 
 extension Firestore {
-  @available(swift 4.0.0)
   struct Decoder {
     func decode<T: Decodable>(_ type: T.Type, from container: [String: Any]) throws -> T {
       let decoder = _FirestoreDecoder(referencing: container)
@@ -45,7 +43,6 @@ extension Firestore {
   }
 }
 
-@available(swift 4.0.0)
 class _FirestoreDecoder: Decoder {
   /// Options set on the top-level encoder to pass down the decoding hierarchy.
 
@@ -108,7 +105,6 @@ class _FirestoreDecoder: Decoder {
   }
 }
 
-@available(swift 4.0.0)
 fileprivate struct _FirestoreDecodingStorage {
   // MARK: Properties
 
@@ -142,7 +138,6 @@ fileprivate struct _FirestoreDecodingStorage {
   }
 }
 
-@available(swift 4.0.0)
 fileprivate struct _FirestoreKeyedDecodingContainer<K: CodingKey>: KeyedDecodingContainerProtocol {
   typealias Key = K
 
@@ -404,7 +399,6 @@ fileprivate struct _FirestoreKeyedDecodingContainer<K: CodingKey>: KeyedDecoding
   }
 }
 
-@available(swift 4.0.0)
 fileprivate struct _FirestoreUnkeyedDecodingContainer: UnkeyedDecodingContainer {
   // MARK: Properties
 

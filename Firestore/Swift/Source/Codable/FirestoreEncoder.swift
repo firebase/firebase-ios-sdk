@@ -17,52 +17,63 @@
 import Foundation
 import FirebaseFirestore
 
-@available(swift 4.0.0)
 extension CollectionReference {
-  public func addDocument<T: Encodable>(data: T) -> DocumentReference {
+  public func addDocument<T: Encodable>(_ item: T) throws -> DocumentReference {
     do {
-      return addDocument(data: try Firestore.Encoder().encode(data))
+      return addDocument(data: try Firestore.Encoder().encode(item))
     } catch let error {
-      fatalError() // ("TODO - how should this be handled?")
+      throw(error)
+    }
+  }
+  public func addDocument<T: Encodable>(_ item: T, _ completion: ((Error?) -> Void)?) throws -> DocumentReference {
+    do {
+      let encoded = try Firestore.Encoder().encode(item)
+      return addDocument(data: encoded, completion: completion)
+    } catch let error {
+      throw(error)
     }
   }
 }
 
-@available(swift 4.0.0)
 extension DocumentReference {
-  func setData<T: Encodable>(_ value: T, _ completion: ((Error?) -> Void)?) {
+  public func setData<T: Encodable>(value: T) throws {
     do {
-      setData(try Firestore.Encoder().encode(value), completion: completion)
+      setData(try Firestore.Encoder().encode(value))
     } catch let error {
-      completion?(error)
+      throw(error)
+    }
+  }
+  public func setData<T: Encodable>(value: T, _ completion: ((Error?) -> Void)?) throws {
+    do {
+      let encoded = try Firestore.Encoder().encode(value)
+      setData(encoded, completion: completion)
+    } catch let error {
+      throw error
     }
   }
 }
 
-@available(swift 4.0.0)
 extension Transaction {
-  public func setData<T: Encodable>(_ value: T, forDocument: DocumentReference) {
+  public func setData<T: Encodable>(value: T, forDocument: DocumentReference) throws {
     do {
       setData(try Firestore.Encoder().encode(value), forDocument: forDocument)
     } catch let error {
-      print("TODO - how should this be handled?")
+      throw(error)
     }
   }
 }
 
-@available(swift 4.0.0)
 extension WriteBatch {
-  public func setData<T: Encodable>(_ value: T, forDocument: DocumentReference) {
+  public func setData<T: Encodable>(value: T, forDocument: DocumentReference) throws {
     do {
       setData(try Firestore.Encoder().encode(value), forDocument: forDocument)
     } catch let error {
-      print("TODO - how should this be handled?")
+      throw(error)
     }
   }
 }
 
 extension Firestore {
-  @available(swift 4.0.0)
   struct Encoder {
     func encode<T: Encodable>(_ value: T) throws -> [String: Any] {
       guard let topLevel = try _FirestoreEncoder().box_(value) else {
@@ -83,7 +94,6 @@ extension Firestore {
   }
 }
 
-@available(swift 4.0.0)
 fileprivate class _FirestoreEncoder: Encoder {
   fileprivate var storage: _FirestoreEncodingStorage
   public fileprivate(set) var codingPath: [CodingKey]
@@ -149,7 +159,6 @@ fileprivate class _FirestoreEncoder: Encoder {
   }
 }
 
-@available(swift 4.0.0)
 fileprivate struct _FirestoreEncodingStorage {
   // MARK: Properties
 
@@ -190,7 +199,6 @@ fileprivate struct _FirestoreEncodingStorage {
   }
 }
 
-@available(swift 4.0.0)
 fileprivate struct _FirestoreKeyedEncodingContainer<K: CodingKey>: KeyedEncodingContainerProtocol {
   typealias Key = K
 
@@ -267,7 +275,6 @@ fileprivate struct _FirestoreKeyedEncodingContainer<K: CodingKey>: KeyedEncoding
   }
 }
 
-@available(swift 4.0.0)
 fileprivate struct _FirestoreUnkeyedEncodingContainer: UnkeyedEncodingContainer {
   // MARK: Properties
 
@@ -343,7 +350,6 @@ fileprivate struct _FirestoreUnkeyedEncodingContainer: UnkeyedEncodingContainer 
   }
 }
 
-@available(swift 4.0.0)
 struct _FirestoreKey: CodingKey {
   public var stringValue: String
   public var intValue: Int?
@@ -511,7 +517,6 @@ extension _FirestoreEncoder: SingleValueEncodingContainer {
   }
 }
 
-@available(swift 4.0.0)
 fileprivate class _FirestoreReferencingEncoder: _FirestoreEncoder {
   // MARK: Reference types.
 
@@ -581,7 +586,6 @@ fileprivate class _FirestoreReferencingEncoder: _FirestoreEncoder {
   }
 }
 
-@available(swift 4.0.0)
 extension DecodingError {
   static func _typeMismatch(at path: [CodingKey], expectation: Any.Type, reality: Any) -> DecodingError {
     let description = "Expected to decode \(expectation) but found \(_typeDescription(of: reality)) instead."
