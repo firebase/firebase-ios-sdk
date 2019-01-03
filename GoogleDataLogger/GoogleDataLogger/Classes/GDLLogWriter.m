@@ -57,8 +57,8 @@
           return;
         }
       } else {
-        GDLLogWarning(GDLMCWTransformerDoesntImplementTransform,
-                      @"Transformer doesn't implement transform: %@", transformer);
+        GDLLogError(GDLMCETransformerDoesntImplementTransform,
+                    @"Transformer doesn't implement transform: %@", transformer);
         return;
       }
     }

@@ -50,6 +50,14 @@ typedef NS_ENUM(NSInteger, GDLLogQoS) {
  * the GDLLogProto protocol. */
 @property(nullable, nonatomic) id<GDLLogProto> extension;
 
+/** The quality of service tier this log belongs to. */
+@property(nonatomic) GDLLogQoS qosTier;
+
+/** A dictionary provided to aid prioritizers by allowing the passing of arbitrary data. It will be
+ * retained by a copy in -copy, but not used for -hash.
+ */
+@property(nullable, nonatomic) NSDictionary *customPrioritizationParams;
+
 // Please use the designated initializer.
 - (instancetype)init NS_UNAVAILABLE;
 

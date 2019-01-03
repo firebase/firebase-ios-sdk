@@ -28,6 +28,7 @@
   if (self) {
     _logMapID = logMapID;
     _logTarget = logTarget;
+    _qosTier = GDLLogQosDefault;
   }
   return self;
 }
@@ -38,6 +39,7 @@
   copy.extensionBytes = _extensionBytes;
   copy.qosTier = _qosTier;
   copy.clockSnapshot = _clockSnapshot;
+  copy.customPrioritizationParams = _customPrioritizationParams;
   return copy;
 }
 
