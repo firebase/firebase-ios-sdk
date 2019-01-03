@@ -52,11 +52,13 @@
 - (void)logTelemetryEvent:(GDLLogEvent *)logEvent {
   GDLAssert(logEvent, @"You can't log a nil event");
   GDLLogEvent *copiedLog = [logEvent copy];
+  copiedLog.qosTier = GDLLogQoSTelemetry;
   [[GDLLogWriter sharedInstance] writeLog:copiedLog afterApplyingTransformers:_logTransformers];
 }
 
 - (void)logDataEvent:(GDLLogEvent *)logEvent {
   GDLAssert(logEvent, @"You can't log a nil event");
+  GDLAssert(logEvent.qosTier != GDLLogQoSTelemetry, @"Use -logTelemetryEvent, please.");
   GDLLogEvent *copiedLog = [logEvent copy];
   [[GDLLogWriter sharedInstance] writeLog:copiedLog afterApplyingTransformers:_logTransformers];
 }
