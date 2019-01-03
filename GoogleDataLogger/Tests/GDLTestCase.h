@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,15 @@
  * limitations under the License.
  */
 
-#import "GDLTestCase.h"
+#import <XCTest/XCTest.h>
 
-#import "GDLClock.h"
+#import "GDLAssertHelper.h"
 
-@interface GDLClockTest : GDLTestCase
+NS_ASSUME_NONNULL_BEGIN
 
-@end
-
-@implementation GDLClockTest
-
-/** Tests the default initializer. */
-- (void)testInit {
-  XCTAssertNotNil([[GDLClockTest alloc] init]);
-}
+/** This class defines shared testing infrastructure across all unit tests in GoogleDataLogger. */
+@interface GDLTestCase : XCTestCase
 
 @end
+
+NS_ASSUME_NONNULL_END

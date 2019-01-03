@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-#import "GDLTestCase.h"
+#import "GDLAssertHelper.h"
 
-#import "GDLClock.h"
+@implementation GDLAssertHelper
 
-@interface GDLClockTest : GDLTestCase
+// The backing store for the class variable assertionBlock.
+static GDLAssertionBlock gSharedAssertionBlock;
 
-@end
++ (GDLAssertionBlock)assertionBlock {
+  return gSharedAssertionBlock;
+}
 
-@implementation GDLClockTest
-
-/** Tests the default initializer. */
-- (void)testInit {
-  XCTAssertNotNil([[GDLClockTest alloc] init]);
++ (void)setAssertionBlock:(GDLAssertionBlock)assertionBlock {
+  gSharedAssertionBlock = assertionBlock;
 }
 
 @end

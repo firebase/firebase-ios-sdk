@@ -19,6 +19,7 @@
 
 #import <GoogleDataLogger/GDLLogPrioritizer.h>
 
+#import "GDLAssert.h"
 #import "GDLConsoleLogger.h"
 #import "GDLLogEvent_Private.h"
 #import "GDLRegistrar_Private.h"
@@ -75,13 +76,13 @@ static NSString *GDLStoragePath() {
     // Check that a log prioritizer is available for this logTarget.
     id<GDLLogPrioritizer> logPrioritizer =
         [GDLRegistrar sharedInstance].logTargetToPrioritizer[@(logTarget)];
-    NSAssert(logPrioritizer, @"There's no scorer registered for the given logTarget.");
+    GDLAssert(logPrioritizer, @"There's no scorer registered for the given logTarget.");
 
     // Write the extension bytes to disk, get a filename.
-    NSAssert(shortLivedLog.extensionBytes, @"The log should have been serialized to bytes");
-    NSAssert(shortLivedLog.extension == nil, @"The original log proto should be removed");
-    NSURL *logFile =
-        [self saveLogProtoToDisk:shortLivedLog.extensionBytes logHash:shortLivedLog.hash];
+    GDLAssert(shortLivedLog.extensionBytes, @"The log should have been serialized to bytes");
+    GDLAssert(shortLivedLog.extension == nil, @"The original log proto should be removed");
+    NSURL *logFile = [self saveLogProtoToDisk:shortLivedLog.extensionBytes
+                                      logHash:shortLivedLog.hash];
 
     // Add log to tracking collections.
     [self addLogToTrackingCollections:shortLivedLog logFile:logFile];
@@ -111,12 +112,12 @@ static NSString *GDLStoragePath() {
     // Remove from disk, first and foremost.
     NSError *error;
     [[NSFileManager defaultManager] removeItemAtURL:logFile error:&error];
-    NSAssert(error == nil, @"There was an error removing a logFile: %@", error);
+    GDLAssert(error == nil, @"There was an error removing a logFile: %@", error);
 
     // Remove from the tracking collections.
     [self.logHashToLogFile removeObjectForKey:logHash];
     NSMutableSet<NSURL *> *logFiles = self.logTargetToLogFileSet[logTarget];
-    NSAssert(logFiles, @"There wasn't a logSet for this logTarget.");
+    GDLAssert(logFiles, @"There wasn't a logSet for this logTarget.");
     [logFiles removeObject:logFile];
     // It's fine to not remove the set if it's empty.
   });
@@ -195,8 +196,8 @@ static NSString *const kGDLLogTargetToLogSetKey = @"logTargetToLogFileSetKey";
   GDLLogStorage *sharedInstance = [self.class sharedInstance];
   dispatch_sync(sharedInstance.storageQueue, ^{
     Class NSMutableDictionaryClass = [NSMutableDictionary class];
-    sharedInstance->_logHashToLogFile =
-        [aDecoder decodeObjectOfClass:NSMutableDictionaryClass forKey:kGDLLogHashToLogFileKey];
+    sharedInstance->_logHashToLogFile = [aDecoder decodeObjectOfClass:NSMutableDictionaryClass
+                                                               forKey:kGDLLogHashToLogFileKey];
     sharedInstance->_logTargetToLogFileSet =
         [aDecoder decodeObjectOfClass:NSMutableDictionaryClass forKey:kGDLLogTargetToLogSetKey];
   });

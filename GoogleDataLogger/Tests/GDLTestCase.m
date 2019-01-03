@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,13 @@
 
 #import "GDLTestCase.h"
 
-#import "GDLClock.h"
+@implementation GDLTestCase
 
-@interface GDLClockTest : GDLTestCase
+- (void)setUp {
+}
 
-@end
-
-@implementation GDLClockTest
-
-/** Tests the default initializer. */
-- (void)testInit {
-  XCTAssertNotNil([[GDLClockTest alloc] init]);
+- (void)tearDown {
+  [GDLAssertHelper setAssertionBlock:nil];
 }
 
 @end

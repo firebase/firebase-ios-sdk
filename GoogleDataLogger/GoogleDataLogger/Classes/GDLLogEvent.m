@@ -16,13 +16,14 @@
 
 #import <GoogleDataLogger/GDLLogEvent.h>
 
+#import "GDLAssert.h"
 #import "GDLLogEvent_Private.h"
 
 @implementation GDLLogEvent
 
 - (instancetype)initWithLogMapID:(NSString *)logMapID logTarget:(NSInteger)logTarget {
-  NSAssert(logMapID.length > 0, @"Please give a valid log map ID");
-  NSAssert(logTarget > 0, @"A log target cannot be negative or 0");
+  GDLAssert(logMapID.length > 0, @"Please give a valid log map ID");
+  GDLAssert(logTarget > 0, @"A log target cannot be negative or 0");
   self = [super init];
   if (self) {
     _logMapID = logMapID;

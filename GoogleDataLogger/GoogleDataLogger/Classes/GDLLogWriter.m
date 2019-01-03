@@ -19,6 +19,7 @@
 
 #import <GoogleDataLogger/GDLLogTransformer.h>
 
+#import "GDLAssert.h"
 #import "GDLConsoleLogger.h"
 #import "GDLLogEvent_Private.h"
 #import "GDLLogStorage.h"
@@ -46,7 +47,7 @@
 
 - (void)writeLog:(GDLLogEvent *)log
     afterApplyingTransformers:(NSArray<id<GDLLogTransformer>> *)logTransformers {
-  NSAssert(log, @"You can't write a nil log");
+  GDLAssert(log, @"You can't write a nil log");
   dispatch_async(_logWritingQueue, ^{
     GDLLogEvent *transformedLog = log;
     for (id<GDLLogTransformer> transformer in logTransformers) {

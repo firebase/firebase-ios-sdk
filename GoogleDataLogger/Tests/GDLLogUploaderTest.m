@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import <XCTest/XCTest.h>
+#import "GDLTestCase.h"
 
 #import "GDLUploader.h"
 
-@interface GDLUploaderTest : XCTestCase
+@interface GDLUploaderTest : GDLTestCase
 
 @end
 

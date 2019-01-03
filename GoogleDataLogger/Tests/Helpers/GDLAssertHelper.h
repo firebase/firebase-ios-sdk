@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-#import "GDLTestCase.h"
+#import <Foundation/Foundation.h>
 
-#import "GDLClock.h"
+#import "GDLAssert.h"
 
-@interface GDLClockTest : GDLTestCase
+NS_ASSUME_NONNULL_BEGIN
 
-@end
+/** Allows the setting a block to be used in the GDLAssert macro instead of a call to NSAssert. */
+@interface GDLAssertHelper : NSObject
 
-@implementation GDLClockTest
-
-/** Tests the default initializer. */
-- (void)testInit {
-  XCTAssertNotNil([[GDLClockTest alloc] init]);
-}
+/** A class property that can be run instead of NSAssert. */
+@property(class, nullable, nonatomic) GDLAssertionBlock assertionBlock;
 
 @end
+
+NS_ASSUME_NONNULL_END

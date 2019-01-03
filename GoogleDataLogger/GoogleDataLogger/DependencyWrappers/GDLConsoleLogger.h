@@ -16,6 +16,8 @@
 
 #import "GULLogger.h"
 
+#import "GDLAssert.h"
+
 /** The console logger prefix. */
 static GULLoggerService kGDLConsoleLogger = @"[GoogleDataLogger]";
 
@@ -64,4 +66,4 @@ FOUNDATION_EXTERN void GDLLogWarning(GDLMessageCode messageCode,
 #define GDLLogError(MESSAGE_CODE, MESSAGE_FORMAT, ...)                                          \
   GULLogError(kGDLConsoleLogger, YES, GDLMessageCodeEnumToString(MESSAGE_CODE), MESSAGE_FORMAT, \
               __VA_ARGS__);                                                                     \
-  NSAssert(NO, MESSAGE_FORMAT, __VA_ARGS__);
+  GDLAssert(NO, MESSAGE_FORMAT, __VA_ARGS__);

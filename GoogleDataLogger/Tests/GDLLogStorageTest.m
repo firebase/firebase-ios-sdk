@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <XCTest/XCTest.h>
+#import "GDLTestCase.h"
 
 #import <GoogleDataLogger/GDLLogEvent.h>
 
@@ -32,7 +32,7 @@
 
 static NSInteger logTarget = 1337;
 
-@interface GDLLogStorageTest : XCTestCase
+@interface GDLLogStorageTest : GDLTestCase
 
 /** The test backend implementation. */
 @property(nullable, nonatomic) GDLTestBackend *testBackend;
