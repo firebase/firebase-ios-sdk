@@ -16,6 +16,7 @@
 
 #import "GDLLogger.h"
 
+#import "GDLAssert.h"
 #import "GDLLogEvent.h"
 #import "GDLLogWriter.h"
 
@@ -39,8 +40,8 @@
                        logTarget:(NSInteger)logTarget {
   self = [super init];
   if (self) {
-    NSAssert(logMapID.length > 0, @"A log mapping ID cannot be nil or empty");
-    NSAssert(logTarget > 0, @"A log target cannot be negative or 0");
+    GDLAssert(logMapID.length > 0, @"A log mapping ID cannot be nil or empty");
+    GDLAssert(logTarget > 0, @"A log target cannot be negative or 0");
     _logMapID = logMapID;
     _logTransformers = logTransformers;
     _logTarget = logTarget;
@@ -49,13 +50,13 @@
 }
 
 - (void)logTelemetryEvent:(GDLLogEvent *)logEvent {
-  NSAssert(logEvent, @"You can't log a nil event");
+  GDLAssert(logEvent, @"You can't log a nil event");
   GDLLogEvent *copiedLog = [logEvent copy];
   [[GDLLogWriter sharedInstance] writeLog:copiedLog afterApplyingTransformers:_logTransformers];
 }
 
 - (void)logDataEvent:(GDLLogEvent *)logEvent {
-  NSAssert(logEvent, @"You can't log a nil event");
+  GDLAssert(logEvent, @"You can't log a nil event");
   GDLLogEvent *copiedLog = [logEvent copy];
   [[GDLLogWriter sharedInstance] writeLog:copiedLog afterApplyingTransformers:_logTransformers];
 }
