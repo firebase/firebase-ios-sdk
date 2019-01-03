@@ -22,6 +22,7 @@
 
 #include <string>
 
+#import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Source/API/FIRCollectionReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
@@ -59,7 +60,7 @@ FIRFirestore *FSTTestFirestore() {
   return sharedInstance;
 }
 
-FIRDocumentSnapshot *FSTTestDocSnapshot(const absl::string_view path,
+FIRDocumentSnapshot *FSTTestDocSnapshot(const char *path,
                                         FSTTestSnapshotVersion version,
                                         NSDictionary<NSString *, id> *_Nullable data,
                                         BOOL hasMutations,
@@ -75,19 +76,19 @@ FIRDocumentSnapshot *FSTTestDocSnapshot(const absl::string_view path,
                                    hasPendingWrites:hasMutations];
 }
 
-FIRCollectionReference *FSTTestCollectionRef(const absl::string_view path) {
+FIRCollectionReference *FSTTestCollectionRef(const char *path) {
   return [FIRCollectionReference referenceWithPath:testutil::Resource(path)
                                          firestore:FSTTestFirestore()];
 }
 
-FIRDocumentReference *FSTTestDocRef(const absl::string_view path) {
+FIRDocumentReference *FSTTestDocRef(const char *path) {
   return [FIRDocumentReference referenceWithPath:testutil::Resource(path)
                                        firestore:FSTTestFirestore()];
 }
 
 /** A convenience method for creating a query snapshots for tests. */
 FIRQuerySnapshot *FSTTestQuerySnapshot(
-    const absl::string_view path,
+    const char *path,
     NSDictionary<NSString *, NSDictionary<NSString *, id> *> *oldDocs,
     NSDictionary<NSString *, NSDictionary<NSString *, id> *> *docsToAdd,
     BOOL hasPendingWrites,
