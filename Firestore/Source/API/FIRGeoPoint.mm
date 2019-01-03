@@ -31,16 +31,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithLatitude:(double)latitude longitude:(double)longitude {
   if (self = [super init]) {
     if (latitude < -90 || latitude > 90 || !isfinite(latitude)) {
-      FSTThrowInvalidArgument(
-          @"GeoPoint requires a latitude value in the range of [-90, 90], "
-           "but was %f",
-          latitude);
+      FSTThrowInvalidArgument(@"GeoPoint requires a latitude value in the range of [-90, 90], "
+                               "but was %f",
+                              latitude);
     }
     if (longitude < -180 || longitude > 180 || !isfinite(longitude)) {
-      FSTThrowInvalidArgument(
-          @"GeoPoint requires a longitude value in the range of [-180, 180], "
-           "but was %f",
-          longitude);
+      FSTThrowInvalidArgument(@"GeoPoint requires a longitude value in the range of [-180, 180], "
+                               "but was %f",
+                              longitude);
     }
 
     _latitude = latitude;

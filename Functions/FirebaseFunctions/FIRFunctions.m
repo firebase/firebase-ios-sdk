@@ -18,8 +18,8 @@
 #import <FirebaseAuthInterop/FIRAuthInterop.h>
 #import <FirebaseCore/FIRComponent.h>
 #import <FirebaseCore/FIRComponentContainer.h>
-#import <FirebaseCore/FIRComponentRegistrant.h>
 #import <FirebaseCore/FIRDependency.h>
+#import <FirebaseCore/FIRLibrary.h>
 
 #import "FIRError.h"
 #import "FIRHTTPSCallable+Internal.h"
@@ -34,6 +34,13 @@
 #import "FIROptions.h"
 #import "GTMSessionFetcherService.h"
 
+// The following two macros supply the incantation so that the C
+// preprocessor does not try to parse the version as a floating
+// point number. See
+// https://www.guyrutenberg.com/2008/12/20/expanding-macros-into-string-constants-in-c/
+#define STR(x) STR_EXPAND(x)
+#define STR_EXPAND(x) #x
+
 NS_ASSUME_NONNULL_BEGIN
 
 NSString *const kFUNInstanceIDTokenHeader = @"Firebase-Instance-ID-Token";
@@ -43,7 +50,7 @@ NSString *const kFUNDefaultRegion = @"us-central1";
 @protocol FIRFunctionsInstanceProvider
 @end
 
-@interface FIRFunctions () <FIRComponentRegistrant, FIRFunctionsInstanceProvider> {
+@interface FIRFunctions () <FIRLibrary, FIRFunctionsInstanceProvider> {
   // The network client to use for http requests.
   GTMSessionFetcherService *_fetcherService;
   // The projectID to use for all function references.
@@ -68,7 +75,8 @@ NSString *const kFUNDefaultRegion = @"us-central1";
 @implementation FIRFunctions
 
 + (void)load {
-  [FIRComponentContainer registerAsComponentRegistrant:self];
+  NSString *version = [NSString stringWithUTF8String:(const char *const)STR(FIRFunctions_VERSION)];
+  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self withName:@"fire-fun" withVersion:version];
 }
 
 + (NSArray<FIRComponent *> *)componentsToRegister {
@@ -77,8 +85,8 @@ NSString *const kFUNDefaultRegion = @"us-central1";
     *isCacheable = YES;
     return [self functionsForApp:container.app];
   };
-  FIRDependency *auth =
-      [FIRDependency dependencyWithProtocol:@protocol(FIRAuthInterop) isRequired:NO];
+  FIRDependency *auth = [FIRDependency dependencyWithProtocol:@protocol(FIRAuthInterop)
+                                                   isRequired:NO];
   FIRComponent *internalProvider =
       [FIRComponent componentWithProtocol:@protocol(FIRFunctionsInstanceProvider)
                       instantiationTiming:FIRInstantiationTimingLazy

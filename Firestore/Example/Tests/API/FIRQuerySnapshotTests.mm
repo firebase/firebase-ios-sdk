@@ -52,12 +52,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testEquals {
   FIRQuerySnapshot *foo = FSTTestQuerySnapshot("foo", @{}, @{@"a" : @{@"a" : @1}}, YES, NO);
   FIRQuerySnapshot *fooDup = FSTTestQuerySnapshot("foo", @{}, @{@"a" : @{@"a" : @1}}, YES, NO);
-  FIRQuerySnapshot *differentPath = FSTTestQuerySnapshot("bar", @{},
-                                                         @{@"a" : @{@"a" : @1}}, YES, NO);
-  FIRQuerySnapshot *differentDoc = FSTTestQuerySnapshot("foo",
-                                                        @{@"a" : @{@"b" : @1}}, @{}, YES, NO);
-  FIRQuerySnapshot *noPendingWrites = FSTTestQuerySnapshot("foo", @{},
-                                                           @{@"a" : @{@"a" : @1}}, NO, NO);
+  FIRQuerySnapshot *differentPath =
+      FSTTestQuerySnapshot("bar", @{}, @{@"a" : @{@"a" : @1}}, YES, NO);
+  FIRQuerySnapshot *differentDoc =
+      FSTTestQuerySnapshot("foo", @{@"a" : @{@"b" : @1}}, @{}, YES, NO);
+  FIRQuerySnapshot *noPendingWrites =
+      FSTTestQuerySnapshot("foo", @{}, @{@"a" : @{@"a" : @1}}, NO, NO);
   FIRQuerySnapshot *fromCache = FSTTestQuerySnapshot("foo", @{}, @{@"a" : @{@"a" : @1}}, YES, YES);
   XCTAssertEqualObjects(foo, fooDup);
   XCTAssertNotEqualObjects(foo, differentPath);
@@ -96,8 +96,8 @@ NS_ASSUME_NONNULL_BEGIN
                                                              mutatedKeys:DocumentKeySet {}
                                                         syncStateChanged:YES
                                                  excludesMetadataChanges:NO];
-  FIRSnapshotMetadata *metadata =
-      [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:NO fromCache:NO];
+  FIRSnapshotMetadata *metadata = [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:NO
+                                                                               fromCache:NO];
   FIRQuerySnapshot *snapshot = [FIRQuerySnapshot snapshotWithFirestore:firestore
                                                          originalQuery:query
                                                               snapshot:viewSnapshot

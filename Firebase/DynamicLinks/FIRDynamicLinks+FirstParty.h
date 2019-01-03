@@ -96,9 +96,8 @@ NS_ASSUME_NONNULL_BEGIN
  * @abstract Method for compatibility with old interface of the GINDurableDeepLinkService
  */
 - (BOOL)shouldHandleDeepLinkFromCustomSchemeURL:(NSURL *)url
-    DEPRECATED_MSG_ATTRIBUTE(
-        "Use [FIRDynamicLinks shouldHandleDynamicLinkFromCustomSchemeURL:]"
-        " instead.");
+    DEPRECATED_MSG_ATTRIBUTE("Use [FIRDynamicLinks shouldHandleDynamicLinkFromCustomSchemeURL:]"
+                             " instead.");
 
 @end
 

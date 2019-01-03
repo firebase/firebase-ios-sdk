@@ -42,9 +42,8 @@ namespace testutil = firebase::firestore::testutil;
   XCTAssertEqualObjects(firestore, [FIRFirestore firestoreForApp:app]);
 
   XCTestExpectation *defaultAppDeletedExpectation =
-      [self expectationWithDescription:
-                @"Deleting the default app should invalidate the default "
-                @"Firestore instance."];
+      [self expectationWithDescription:@"Deleting the default app should invalidate the default "
+                                       @"Firestore instance."];
   [app deleteApp:^(BOOL success) {
     // Recreate the FIRApp with the same name, fetch a new Firestore instance and make sure it's
     // different than the other one.

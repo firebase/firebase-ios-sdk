@@ -212,9 +212,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)validateUsage {
   // We could relax this if we found a reason to.
-  HARD_ASSERT(self.events.count == 0,
-              "You must clear all pending events by calling"
-              " capturedEventsSinceLastCall before calling shutdown.");
+  HARD_ASSERT(self.events.count == 0, "You must clear all pending events by calling"
+                                      " capturedEventsSinceLastCall before calling shutdown.");
 }
 
 - (void)shutdown {
@@ -285,8 +284,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTOutstandingWrite *)receiveWriteError:(int)errorCode
                                   userInfo:(NSDictionary<NSString *, id> *)userInfo
                                keepInQueue:(BOOL)keepInQueue {
-  NSError *error =
-      [NSError errorWithDomain:FIRFirestoreErrorDomain code:errorCode userInfo:userInfo];
+  NSError *error = [NSError errorWithDomain:FIRFirestoreErrorDomain
+                                       code:errorCode
+                                   userInfo:userInfo];
 
   FSTOutstandingWrite *write = [self currentOutstandingWrites].firstObject;
   [self validateNextWriteSent:write.write];
@@ -380,8 +380,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)receiveWatchStreamError:(int)errorCode userInfo:(NSDictionary<NSString *, id> *)userInfo {
-  NSError *error =
-      [NSError errorWithDomain:FIRFirestoreErrorDomain code:errorCode userInfo:userInfo];
+  NSError *error = [NSError errorWithDomain:FIRFirestoreErrorDomain
+                                       code:errorCode
+                                   userInfo:userInfo];
 
   _workerQueue->EnqueueBlocking([&] {
     [self.datastore failWatchStreamWithError:error];

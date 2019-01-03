@@ -54,8 +54,8 @@ NSArray *FSTWrapGroups(NSArray *groups) {
       } else if ([value isKindOfClass:[FSTDocumentKeyReference class]]) {
         // We directly convert these here so that the databaseIDs can be different.
         FSTDocumentKeyReference *reference = (FSTDocumentKeyReference *)value;
-        wrappedValue =
-            [FSTReferenceValue referenceValue:reference.key databaseID:reference.databaseID];
+        wrappedValue = [FSTReferenceValue referenceValue:reference.key
+                                              databaseID:reference.databaseID];
       } else {
         wrappedValue = FSTTestFieldValue(value);
       }
@@ -134,9 +134,9 @@ union DoubleBits {
 };
 
 - (void)testNormalizesNaNs {
-  // NOTE: With v1beta1 query semantics, it's no longer as important that our NaN representation
-  // matches the backend, since all NaNs are defined to sort as equal, but we preserve the
-  // normalization and this test regardless for now.
+  // NOTE: With v1 query semantics, it's no longer as important that our NaN representation matches
+  // the backend, since all NaNs are defined to sort as equal, but we preserve the normalization and
+  // this test regardless for now.
 
   // We use a canonical NaN bit pattern that's common for both Java and Objective-C. Specifically:
   //   - sign: 0
@@ -269,11 +269,8 @@ union DoubleBits {
 }
 
 - (void)testWrapsSimpleObjects {
-  FSTObjectValue *actual = FSTTestObjectValue(
-      @{@"a" : @"foo",
-        @"b" : @(1L),
-        @"c" : @YES,
-        @"d" : [NSNull null]});
+  FSTObjectValue *actual =
+      FSTTestObjectValue(@{@"a" : @"foo", @"b" : @(1L), @"c" : @YES, @"d" : [NSNull null]});
   FSTObjectValue *expected = [[FSTObjectValue alloc] initWithDictionary:@{
     @"a" : [FSTStringValue stringValue:@"foo"],
     @"b" : [FSTIntegerValue integerValue:1LL],
@@ -311,8 +308,8 @@ union DoubleBits {
 
 - (void)testOverwritesExistingFields {
   FSTObjectValue *old = FSTTestObjectValue(@{@"a" : @"old"});
-  FSTObjectValue *mod =
-      [old objectBySettingValue:FSTTestFieldValue(@"mod") forPath:testutil::Field("a")];
+  FSTObjectValue *mod = [old objectBySettingValue:FSTTestFieldValue(@"mod")
+                                          forPath:testutil::Field("a")];
 
   // Should return a new object, leaving the old one unmodified.
   XCTAssertNotEqual(old, mod);
@@ -322,8 +319,8 @@ union DoubleBits {
 
 - (void)testAddsNewFields {
   FSTObjectValue *empty = [FSTObjectValue objectValue];
-  FSTObjectValue *mod =
-      [empty objectBySettingValue:FSTTestFieldValue(@"mod") forPath:testutil::Field("a")];
+  FSTObjectValue *mod = [empty objectBySettingValue:FSTTestFieldValue(@"mod")
+                                            forPath:testutil::Field("a")];
   XCTAssertNotEqual(empty, mod);
   XCTAssertEqualObjects(empty, FSTTestFieldValue(@{}));
   XCTAssertEqualObjects(mod, FSTTestFieldValue(@{@"a" : @"mod"}));
@@ -337,19 +334,18 @@ union DoubleBits {
 
 - (void)testImplicitlyCreatesObjects {
   FSTObjectValue *old = FSTTestObjectValue(@{@"a" : @"old"});
-  FSTObjectValue *mod =
-      [old objectBySettingValue:FSTTestFieldValue(@"mod") forPath:testutil::Field("b.c.d")];
+  FSTObjectValue *mod = [old objectBySettingValue:FSTTestFieldValue(@"mod")
+                                          forPath:testutil::Field("b.c.d")];
   XCTAssertNotEqual(old, mod);
   XCTAssertEqualObjects(old, FSTTestFieldValue(@{@"a" : @"old"}));
-  XCTAssertEqualObjects(mod, FSTTestFieldValue(
-                                 @{@"a" : @"old",
-                                   @"b" : @{@"c" : @{@"d" : @"mod"}}}));
+  XCTAssertEqualObjects(mod,
+                        FSTTestFieldValue(@{@"a" : @"old", @"b" : @{@"c" : @{@"d" : @"mod"}}}));
 }
 
 - (void)testCanOverwritePrimitivesWithObjects {
   FSTObjectValue *old = FSTTestObjectValue(@{@"a" : @{@"b" : @"old"}});
-  FSTObjectValue *mod =
-      [old objectBySettingValue:FSTTestFieldValue(@{@"b" : @"mod"}) forPath:testutil::Field("a")];
+  FSTObjectValue *mod = [old objectBySettingValue:FSTTestFieldValue(@{@"b" : @"mod"})
+                                          forPath:testutil::Field("a")];
   XCTAssertNotEqual(old, mod);
   XCTAssertEqualObjects(old, FSTTestFieldValue(@{@"a" : @{@"b" : @"old"}}));
   XCTAssertEqualObjects(mod, FSTTestFieldValue(@{@"a" : @{@"b" : @"mod"}}));
@@ -357,8 +353,8 @@ union DoubleBits {
 
 - (void)testAddsToNestedObjects {
   FSTObjectValue *old = FSTTestObjectValue(@{@"a" : @{@"b" : @"old"}});
-  FSTObjectValue *mod =
-      [old objectBySettingValue:FSTTestFieldValue(@"mod") forPath:testutil::Field("a.c")];
+  FSTObjectValue *mod = [old objectBySettingValue:FSTTestFieldValue(@"mod")
+                                          forPath:testutil::Field("a.c")];
   XCTAssertNotEqual(old, mod);
   XCTAssertEqualObjects(old, FSTTestFieldValue(@{@"a" : @{@"b" : @"old"}}));
   XCTAssertEqualObjects(mod, FSTTestFieldValue(@{@"a" : @{@"b" : @"old", @"c" : @"mod"}}));
@@ -396,8 +392,8 @@ union DoubleBits {
   FSTObjectValue *old = FSTTestObjectValue(@{@"a" : @{@"b" : @1, @"c" : @{@"d" : @2, @"e" : @3}}});
   FSTObjectValue *mod = [old objectByDeletingPath:testutil::Field("a.c.d")];
   XCTAssertNotEqual(old, mod);
-  XCTAssertEqualObjects(old, FSTTestFieldValue(
-                                 @{@"a" : @{@"b" : @1, @"c" : @{@"d" : @2, @"e" : @3}}}));
+  XCTAssertEqualObjects(old,
+                        FSTTestFieldValue(@{@"a" : @{@"b" : @1, @"c" : @{@"d" : @2, @"e" : @3}}}));
   XCTAssertEqualObjects(mod, FSTTestFieldValue(@{@"a" : @{@"b" : @1, @"c" : @{@"e" : @3}}}));
 
   old = mod;
@@ -470,21 +466,10 @@ union DoubleBits {
     @[ FSTTestFieldValue(@[ @"foo", @"bar" ]), FSTTestFieldValue(@[ @"foo", @"bar" ]) ],
     @[ FSTTestFieldValue(@[ @"foo", @"bar", @"baz" ]) ], @[ FSTTestFieldValue(@[ @"foo" ]) ],
     @[
-      FSTTestFieldValue(
-          @{@"bar" : @1,
-            @"foo" : @2}),
-      FSTTestFieldValue(
-          @{@"foo" : @2,
-            @"bar" : @1})
+      FSTTestFieldValue(@{@"bar" : @1, @"foo" : @2}), FSTTestFieldValue(@{@"foo" : @2, @"bar" : @1})
     ],
-    @[ FSTTestFieldValue(
-        @{@"bar" : @2,
-          @"foo" : @1}) ],
-    @[ FSTTestFieldValue(
-        @{@"bar" : @1,
-          @"foo" : @1}) ],
-    @[ FSTTestFieldValue(
-        @{@"foo" : @1}) ]
+    @[ FSTTestFieldValue(@{@"bar" : @2, @"foo" : @1}) ],
+    @[ FSTTestFieldValue(@{@"bar" : @1, @"foo" : @1}) ], @[ FSTTestFieldValue(@{@"foo" : @1}) ]
   ];
 
   FSTAssertEqualityGroups(groups);
@@ -542,19 +527,7 @@ union DoubleBits {
     @[ @[ @"foo", @"0" ] ],
 
     // Objects
-    @[
-      @{@"bar" : @0}
-    ],
-    @[
-      @{@"bar" : @0,
-        @"foo" : @1}
-    ],
-    @[
-      @{@"foo" : @1}
-    ],
-    @[
-      @{@"foo" : @2}
-    ],
+    @[ @{@"bar" : @0} ], @[ @{@"bar" : @0, @"foo" : @1} ], @[ @{@"foo" : @1} ], @[ @{@"foo" : @2} ],
     @[ @{@"foo" : @"0"} ]
   ];
 

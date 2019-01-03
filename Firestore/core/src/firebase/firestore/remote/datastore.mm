@@ -52,9 +52,8 @@ using util::ExecutorLibdispatch;
 
 namespace {
 
-const auto kRpcNameCommit = "/google.firestore.v1beta1.Firestore/Commit";
-const auto kRpcNameLookup =
-    "/google.firestore.v1beta1.Firestore/BatchGetDocuments";
+const auto kRpcNameCommit = "/google.firestore.v1.Firestore/Commit";
+const auto kRpcNameLookup = "/google.firestore.v1.Firestore/BatchGetDocuments";
 
 std::unique_ptr<Executor> CreateExecutor() {
   auto queue = dispatch_queue_create("com.google.firebase.firestore.rpc",

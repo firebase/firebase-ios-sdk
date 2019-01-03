@@ -228,8 +228,7 @@ NSDictionary<NSString *, id> *testDataWithTimestamps(FIRTimestamp *timestamp) {
 - (FIRDocumentSnapshot *)snapshotWithTimestamps:(FIRTimestamp *)timestamp {
   FIRDocumentReference *doc = [self documentRef];
   NSDictionary<NSString *, id> *data =
-      @{@"timestamp" : timestamp,
-        @"nested" : @{@"timestamp2" : timestamp}};
+      @{@"timestamp" : timestamp, @"nested" : @{@"timestamp2" : timestamp}};
   [self writeDocumentRef:doc data:data];
   return [self readDocumentForRef:doc];
 }

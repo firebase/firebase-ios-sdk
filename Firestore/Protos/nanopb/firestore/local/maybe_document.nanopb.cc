@@ -43,7 +43,7 @@ const pb_field_t firestore_client_UnknownDocument_fields[3] = {
 
 const pb_field_t firestore_client_MaybeDocument_fields[5] = {
     PB_ANONYMOUS_ONEOF_FIELD(document_type,   1, MESSAGE , ONEOF, STATIC  , FIRST, firestore_client_MaybeDocument, no_document, no_document, &firestore_client_NoDocument_fields),
-    PB_ANONYMOUS_ONEOF_FIELD(document_type,   2, MESSAGE , ONEOF, STATIC  , UNION, firestore_client_MaybeDocument, document, document, &google_firestore_v1beta1_Document_fields),
+    PB_ANONYMOUS_ONEOF_FIELD(document_type,   2, MESSAGE , ONEOF, STATIC  , UNION, firestore_client_MaybeDocument, document, document, &google_firestore_v1_Document_fields),
     PB_ANONYMOUS_ONEOF_FIELD(document_type,   3, MESSAGE , ONEOF, STATIC  , UNION, firestore_client_MaybeDocument, unknown_document, unknown_document, &firestore_client_UnknownDocument_fields),
     PB_FIELD(  4, BOOL    , SINGULAR, STATIC  , OTHER, firestore_client_MaybeDocument, has_committed_mutations, unknown_document, 0),
     PB_LAST_FIELD

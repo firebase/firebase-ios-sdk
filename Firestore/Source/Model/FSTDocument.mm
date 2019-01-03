@@ -180,8 +180,8 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)documentWithKey:(DocumentKey)key
                         version:(SnapshotVersion)version
           hasCommittedMutations:(BOOL)committedMutations {
-  FSTDeletedDocument *deletedDocument =
-      [[FSTDeletedDocument alloc] initWithKey:std::move(key) version:std::move(version)];
+  FSTDeletedDocument *deletedDocument = [[FSTDeletedDocument alloc] initWithKey:std::move(key)
+                                                                        version:std::move(version)];
 
   if (deletedDocument) {
     deletedDocument->_hasCommittedMutations = committedMutations;

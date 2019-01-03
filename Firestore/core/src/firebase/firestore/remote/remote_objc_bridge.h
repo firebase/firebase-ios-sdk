@@ -31,7 +31,7 @@
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "grpcpp/support/byte_buffer.h"
 
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Firestore.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Firestore.pbobjc.h"
 #import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTMutation.h"
@@ -185,7 +185,7 @@ class WatchStreamDelegate {
   void NotifyDelegateOnClose(const util::Status& status);
 
  private:
-  id<FSTWatchStreamDelegate> delegate_;
+  __weak id<FSTWatchStreamDelegate> delegate_;
 };
 
 /** A C++ bridge that invokes methods on an `FSTWriteStreamDelegate`. */
@@ -202,7 +202,7 @@ class WriteStreamDelegate {
   void NotifyDelegateOnClose(const util::Status& status);
 
  private:
-  id<FSTWriteStreamDelegate> delegate_;
+  __weak id<FSTWriteStreamDelegate> delegate_;
 };
 
 }  // namespace bridge

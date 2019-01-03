@@ -52,7 +52,7 @@ class MaybeDocumentDefaultTypeInternal {
   ::google::protobuf::internal::ExplicitlyConstructed<MaybeDocument>
       _instance;
   const ::firestore::client::NoDocument* no_document_;
-  const ::google::firestore::v1beta1::Document* document_;
+  const ::google::firestore::v1::Document* document_;
   const ::firestore::client::UnknownDocument* unknown_document_;
 } _MaybeDocument_default_instance_;
 }  // namespace client
@@ -111,7 +111,7 @@ void InitDefaultsMaybeDocumentImpl() {
   ::google::protobuf::internal::InitProtobufDefaults();
 #endif  // GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
   protobuf_firestore_2flocal_2fmaybe_5fdocument_2eproto::InitDefaultsNoDocument();
-  protobuf_google_2ffirestore_2fv1beta1_2fdocument_2eproto::InitDefaultsDocument();
+  protobuf_google_2ffirestore_2fv1_2fdocument_2eproto::InitDefaultsDocument();
   protobuf_firestore_2flocal_2fmaybe_5fdocument_2eproto::InitDefaultsUnknownDocument();
   {
     void* ptr = &::firestore::client::_MaybeDocument_default_instance_;
@@ -189,26 +189,26 @@ void AddDescriptorsImpl() {
   InitDefaults();
   static const char descriptor[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
       "\n$firestore/local/maybe_document.proto\022\020"
-      "firestore.client\032\'google/firestore/v1bet"
-      "a1/document.proto\032\037google/protobuf/times"
-      "tamp.proto\"I\n\nNoDocument\022\014\n\004name\030\001 \001(\t\022-"
-      "\n\tread_time\030\002 \001(\0132\032.google.protobuf.Time"
-      "stamp\"L\n\017UnknownDocument\022\014\n\004name\030\001 \001(\t\022+"
-      "\n\007version\030\002 \001(\0132\032.google.protobuf.Timest"
-      "amp\"\355\001\n\rMaybeDocument\0223\n\013no_document\030\001 \001"
-      "(\0132\034.firestore.client.NoDocumentH\000\0226\n\010do"
-      "cument\030\002 \001(\0132\".google.firestore.v1beta1."
-      "DocumentH\000\022=\n\020unknown_document\030\003 \001(\0132!.f"
-      "irestore.client.UnknownDocumentH\000\022\037\n\027has"
-      "_committed_mutations\030\004 \001(\010B\017\n\rdocument_t"
-      "ypeB/\n#com.google.firebase.firestore.pro"
-      "toP\001\242\002\005FSTPBb\006proto3"
+      "firestore.client\032\"google/firestore/v1/do"
+      "cument.proto\032\037google/protobuf/timestamp."
+      "proto\"I\n\nNoDocument\022\014\n\004name\030\001 \001(\t\022-\n\trea"
+      "d_time\030\002 \001(\0132\032.google.protobuf.Timestamp"
+      "\"L\n\017UnknownDocument\022\014\n\004name\030\001 \001(\t\022+\n\007ver"
+      "sion\030\002 \001(\0132\032.google.protobuf.Timestamp\"\350"
+      "\001\n\rMaybeDocument\0223\n\013no_document\030\001 \001(\0132\034."
+      "firestore.client.NoDocumentH\000\0221\n\010documen"
+      "t\030\002 \001(\0132\035.google.firestore.v1.DocumentH\000"
+      "\022=\n\020unknown_document\030\003 \001(\0132!.firestore.c"
+      "lient.UnknownDocumentH\000\022\037\n\027has_committed"
+      "_mutations\030\004 \001(\010B\017\n\rdocument_typeB/\n#com"
+      ".google.firebase.firestore.protoP\001\242\002\005FST"
+      "PBb\006proto3"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 580);
+      descriptor, 570);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "firestore/local/maybe_document.proto", &protobuf_RegisterTypes);
-  ::protobuf_google_2ffirestore_2fv1beta1_2fdocument_2eproto::AddDescriptors();
+  ::protobuf_google_2ffirestore_2fv1_2fdocument_2eproto::AddDescriptors();
   ::protobuf_google_2fprotobuf_2ftimestamp_2eproto::AddDescriptors();
 }
 
@@ -855,8 +855,8 @@ void UnknownDocument::InternalSwap(UnknownDocument* other) {
 void MaybeDocument::InitAsDefaultInstance() {
   ::firestore::client::_MaybeDocument_default_instance_.no_document_ = const_cast< ::firestore::client::NoDocument*>(
       ::firestore::client::NoDocument::internal_default_instance());
-  ::firestore::client::_MaybeDocument_default_instance_.document_ = const_cast< ::google::firestore::v1beta1::Document*>(
-      ::google::firestore::v1beta1::Document::internal_default_instance());
+  ::firestore::client::_MaybeDocument_default_instance_.document_ = const_cast< ::google::firestore::v1::Document*>(
+      ::google::firestore::v1::Document::internal_default_instance());
   ::firestore::client::_MaybeDocument_default_instance_.unknown_document_ = const_cast< ::firestore::client::UnknownDocument*>(
       ::firestore::client::UnknownDocument::internal_default_instance());
 }
@@ -874,7 +874,7 @@ void MaybeDocument::set_allocated_no_document(::firestore::client::NoDocument* n
   }
   // @@protoc_insertion_point(field_set_allocated:firestore.client.MaybeDocument.no_document)
 }
-void MaybeDocument::set_allocated_document(::google::firestore::v1beta1::Document* document) {
+void MaybeDocument::set_allocated_document(::google::firestore::v1::Document* document) {
   ::google::protobuf::Arena* message_arena = GetArenaNoVirtual();
   clear_document_type();
   if (document) {
@@ -936,7 +936,7 @@ MaybeDocument::MaybeDocument(const MaybeDocument& from)
       break;
     }
     case kDocument: {
-      mutable_document()->::google::firestore::v1beta1::Document::MergeFrom(from.document());
+      mutable_document()->::google::firestore::v1::Document::MergeFrom(from.document());
       break;
     }
     case kUnknownDocument: {
@@ -1046,7 +1046,7 @@ bool MaybeDocument::MergePartialFromCodedStream(
         break;
       }
 
-      // .google.firestore.v1beta1.Document document = 2;
+      // .google.firestore.v1.Document document = 2;
       case 2: {
         if (static_cast< ::google::protobuf::uint8>(tag) ==
             static_cast< ::google::protobuf::uint8>(18u /* 18 & 0xFF */)) {
@@ -1116,7 +1116,7 @@ void MaybeDocument::SerializeWithCachedSizes(
       1, *document_type_.no_document_, output);
   }
 
-  // .google.firestore.v1beta1.Document document = 2;
+  // .google.firestore.v1.Document document = 2;
   if (has_document()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
       2, *document_type_.document_, output);
@@ -1154,7 +1154,7 @@ void MaybeDocument::SerializeWithCachedSizes(
         1, *document_type_.no_document_, deterministic, target);
   }
 
-  // .google.firestore.v1beta1.Document document = 2;
+  // .google.firestore.v1.Document document = 2;
   if (has_document()) {
     target = ::google::protobuf::internal::WireFormatLite::
       InternalWriteMessageToArray(
@@ -1203,7 +1203,7 @@ size_t MaybeDocument::ByteSizeLong() const {
           *document_type_.no_document_);
       break;
     }
-    // .google.firestore.v1beta1.Document document = 2;
+    // .google.firestore.v1.Document document = 2;
     case kDocument: {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSize(
@@ -1259,7 +1259,7 @@ void MaybeDocument::MergeFrom(const MaybeDocument& from) {
       break;
     }
     case kDocument: {
-      mutable_document()->::google::firestore::v1beta1::Document::MergeFrom(from.document());
+      mutable_document()->::google::firestore::v1::Document::MergeFrom(from.document());
       break;
     }
     case kUnknownDocument: {

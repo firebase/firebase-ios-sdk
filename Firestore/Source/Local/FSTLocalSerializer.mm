@@ -22,7 +22,7 @@
 #import "Firestore/Protos/objc/firestore/local/MaybeDocument.pbobjc.h"
 #import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Document.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Document.pbobjc.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
@@ -87,8 +87,8 @@ using firebase::firestore::model::TargetId;
 - (FSTMaybeDocument *)decodedMaybeDocument:(FSTPBMaybeDocument *)proto {
   switch (proto.documentTypeOneOfCase) {
     case FSTPBMaybeDocument_DocumentType_OneOfCase_Document:
-      return
-          [self decodedDocument:proto.document withCommittedMutations:proto.hasCommittedMutations];
+      return [self decodedDocument:proto.document
+            withCommittedMutations:proto.hasCommittedMutations];
 
     case FSTPBMaybeDocument_DocumentType_OneOfCase_NoDocument:
       return [self decodedDeletedDocument:proto.noDocument
@@ -103,9 +103,8 @@ using firebase::firestore::model::TargetId;
 }
 
 /**
- * Encodes a Document for local storage. This differs from the v1beta1 RPC serializer for
- * Documents in that it preserves the updateTime, which is considered an output only value by the
- * server.
+ * Encodes a Document for local storage. This differs from the v1 RPC serializer for Documents in
+ * that it preserves the updateTime, which is considered an output only value by the server.
  */
 - (GCFSDocument *)encodedDocument:(FSTDocument *)document {
   FSTSerializerBeta *remoteSerializer = self.remoteSerializer;

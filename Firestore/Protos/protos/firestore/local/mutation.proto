@@ -14,7 +14,7 @@
 
 syntax = "proto3";
 
-import "google/firestore/v1beta1/write.proto";
+import "google/firestore/v1/write.proto";
 import "google/protobuf/timestamp.proto";
 
 package firestore.client;
@@ -51,7 +51,7 @@ message WriteBatch {
   int32 batch_id = 1;
 
   // A list of writes to apply. All writes will be applied atomically.
-  repeated google.firestore.v1beta1.Write writes = 2;
+  repeated google.firestore.v1.Write writes = 2;
 
   // The local time at which the write batch was initiated.
   google.protobuf.Timestamp local_write_time = 3;
@@ -66,5 +66,5 @@ message WriteBatch {
   // non-idempotent write before the write is removed from the queue.
   //
   // These writes are never sent to the backend.
-  repeated google.firestore.v1beta1.Write base_writes = 4;
+  repeated google.firestore.v1.Write base_writes = 4;
 }

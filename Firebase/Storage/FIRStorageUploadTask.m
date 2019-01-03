@@ -92,8 +92,8 @@
         [NSString stringWithFormat:@"%zu", (unsigned long)[bodyData length]];
     [request setValue:contentLengthString forHTTPHeaderField:@"Content-Length"];
 
-    NSURLComponents *components =
-        [NSURLComponents componentsWithURL:request.URL resolvingAgainstBaseURL:NO];
+    NSURLComponents *components = [NSURLComponents componentsWithURL:request.URL
+                                             resolvingAgainstBaseURL:NO];
 
     if ([components.host isEqual:kGCSHost]) {
       [components setPercentEncodedPath:[@"/upload" stringByAppendingString:components.path]];
