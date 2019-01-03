@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <XCTest/XCTest.h>
+#import "GDLTestCase.h"
 
 #import <GoogleDataLogger/GDLLogTransformer.h>
 
@@ -47,7 +47,7 @@
 
 @end
 
-@interface GDLLogWriterTest : XCTestCase
+@interface GDLLogWriterTest : GDLTestCase
 
 @end
 

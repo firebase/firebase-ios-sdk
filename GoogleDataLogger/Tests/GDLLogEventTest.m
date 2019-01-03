@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#import <XCTest/XCTest.h>
+#import "GDLTestCase.h"
 
 #import <GoogleDataLogger/GDLLogEvent.h>
 
 #import "GDLLogEvent_Private.h"
 
-@interface GDLLogEventTest : XCTestCase
+@interface GDLLogEventTest : GDLTestCase
 
 @end
 

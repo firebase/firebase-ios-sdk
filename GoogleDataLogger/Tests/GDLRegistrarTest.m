@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import <XCTest/XCTest.h>
+#import "GDLTestCase.h"
 
 #import <GoogleDataLogger/GDLRegistrar.h>
 
-@interface GDLRegistrarTest : XCTestCase
+@interface GDLRegistrarTest : GDLTestCase
 
 @end
 

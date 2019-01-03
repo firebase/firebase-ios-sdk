@@ -16,17 +16,13 @@
 
 #import "GDLTestCase.h"
 
-#import "GDLClock.h"
+@implementation GDLTestCase
 
-@interface GDLClockTest : GDLTestCase
+- (void)setUp {
+}
 
-@end
-
-@implementation GDLClockTest
-
-/** Tests the default initializer. */
-- (void)testInit {
-  XCTAssertNotNil([[GDLClockTest alloc] init]);
+- (void)tearDown {
+  [GDLAssertHelper setAssertionBlock:nil];
 }
 
 @end
