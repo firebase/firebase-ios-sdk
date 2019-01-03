@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,13 +27,15 @@ typedef void (^GDLAssertionBlock)(void);
  */
 FOUNDATION_EXTERN GDLAssertionBlock _Nullable GDLAssertionBlockToRunInsteadOfNSAssert(void);
 
+#if !defined(NS_BLOCK_ASSERTIONS)
+
 /** Asserts using NSAssert, unless a block was specified to be run instead.
  *
  * @param condition The condition you'd expect to be YES.
  */
 #define GDLAssert(condition, ...)                                                   \
   do {                                                                              \
-    if (__builtin_expect(!(condition), 0)) {                                       \
+    if (__builtin_expect(!(condition), 0)) {                                        \
       GDLAssertionBlock assertionBlock = GDLAssertionBlockToRunInsteadOfNSAssert(); \
       if (assertionBlock) {                                                         \
         assertionBlock();                                                           \
@@ -42,3 +44,11 @@ FOUNDATION_EXTERN GDLAssertionBlock _Nullable GDLAssertionBlockToRunInsteadOfNSA
       }                                                                             \
     }                                                                               \
   } while (0);
+
+#else
+
+#define GDLAssert(condition, ...) \
+  do {                            \
+  } while (0);
+
+#endif  // !defined(NS_BLOCK_ASSERTIONS)
