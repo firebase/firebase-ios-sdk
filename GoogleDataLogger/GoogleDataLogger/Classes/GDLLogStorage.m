@@ -57,6 +57,7 @@ static NSString *GDLStoragePath() {
     _storageQueue = dispatch_queue_create("com.google.GDLLogStorage", DISPATCH_QUEUE_SERIAL);
     _logHashToLogFile = [[NSMutableDictionary alloc] init];
     _logTargetToLogFileSet = [[NSMutableDictionary alloc] init];
+    _uploader = [GDLUploader sharedInstance];
   }
   return self;
 }
@@ -90,7 +91,7 @@ static NSString *GDLStoragePath() {
     // Check the QoS, if it's high priority, notify the log target that it has a high priority log.
     if (shortLivedLog.qosTier == GDLLogQoSFast) {
       NSSet<NSURL *> *allLogsForLogTarget = self.logTargetToLogFileSet[@(logTarget)];
-      [[GDLUploader sharedInstance] forceUploadLogs:allLogsForLogTarget target:logTarget];
+      [self.uploader forceUploadLogs:allLogsForLogTarget target:logTarget];
     }
 
     // Have the prioritizer prioritize the log, enforcing that they do not retain it.

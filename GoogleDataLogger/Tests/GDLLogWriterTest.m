@@ -20,10 +20,12 @@
 
 #import "GDLLogEvent.h"
 #import "GDLLogExtensionTesterClasses.h"
+#import "GDLLogStorage.h"
 #import "GDLLogWriter.h"
 #import "GDLLogWriter_Private.h"
 
 #import "GDLAssertHelper.h"
+#import "GDLLogStorageFake.h"
 
 @interface GDLLogWriterTestNilingTransformer : NSObject <GDLLogTransformer>
 
@@ -55,6 +57,20 @@
 
 @implementation GDLLogWriterTest
 
+- (void)setUp {
+  [super setUp];
+  dispatch_sync([GDLLogWriter sharedInstance].logWritingQueue, ^{
+    [GDLLogWriter sharedInstance].storageInstance = [[GDLLogStorageFake alloc] init];
+  });
+}
+
+- (void)tearDown {
+  [super tearDown];
+  dispatch_sync([GDLLogWriter sharedInstance].logWritingQueue, ^{
+    [GDLLogWriter sharedInstance].storageInstance = [GDLLogStorage sharedInstance];
+  });
+}
+
 /** Tests the default initializer. */
 - (void)testInit {
   XCTAssertNotNil([[GDLLogWriter alloc] init]);
@@ -71,9 +87,6 @@
   GDLLogEvent *log = [[GDLLogEvent alloc] initWithLogMapID:@"1" logTarget:1];
   log.extension = [[GDLLogExtensionTesterSimple alloc] init];
   XCTAssertNoThrow([writer writeLog:log afterApplyingTransformers:nil]);
-  dispatch_sync(writer.logWritingQueue, ^{
-                    // TODO(mikehaney24): Assert that storage contains the log.
-                });
 }
 
 /** Tests writing a log with a transformer that nils out the log. */
@@ -84,9 +97,6 @@
   NSArray<id<GDLLogTransformer>> *transformers =
       @[ [[GDLLogWriterTestNilingTransformer alloc] init] ];
   XCTAssertNoThrow([writer writeLog:log afterApplyingTransformers:transformers]);
-  dispatch_sync(writer.logWritingQueue, ^{
-                    // TODO(mikehaney24): Assert that storage does not contain the log.
-                });
 }
 
 /** Tests writing a log with a transformer that creates a new log. */
@@ -97,9 +107,6 @@
   NSArray<id<GDLLogTransformer>> *transformers =
       @[ [[GDLLogWriterTestNewLogTransformer alloc] init] ];
   XCTAssertNoThrow([writer writeLog:log afterApplyingTransformers:transformers]);
-  dispatch_sync(writer.logWritingQueue, ^{
-                    // TODO(mikehaney24): Assert that storage contains the new log.
-                });
 }
 
 /** Tests that using a transformer without transform: implemented throws. */
@@ -115,9 +122,6 @@
   }];
   [writer writeLog:log afterApplyingTransformers:transformers];
   [self waitForExpectations:@[ errorExpectation ] timeout:5.0];
-  dispatch_sync(writer.logWritingQueue, ^{
-                    // TODO(mikehaney24): Assert that storage contains the new log.
-                });
 }
 
 /** Tests that writing a nil log throws. */

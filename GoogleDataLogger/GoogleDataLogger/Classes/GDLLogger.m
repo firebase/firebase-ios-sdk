@@ -15,23 +15,11 @@
  */
 
 #import "GDLLogger.h"
+#import "GDLLogger_Private.h"
 
 #import "GDLAssert.h"
 #import "GDLLogEvent.h"
 #import "GDLLogWriter.h"
-
-@interface GDLLogger ()
-
-/** The log mapping identifier that a GDLLogBackend will use to map the extension to proto. */
-@property(nonatomic) NSString *logMapID;
-
-/** The log transformers that will operate on logs logged by this logger. */
-@property(nonatomic) NSArray<id<GDLLogTransformer>> *logTransformers;
-
-/** The target backend of this logger. */
-@property(nonatomic) NSInteger logTarget;
-
-@end
 
 @implementation GDLLogger
 
@@ -45,6 +33,7 @@
     _logMapID = logMapID;
     _logTransformers = logTransformers;
     _logTarget = logTarget;
+    _logWriterInstance = [GDLLogWriter sharedInstance];
   }
   return self;
 }
@@ -53,14 +42,14 @@
   GDLAssert(logEvent, @"You can't log a nil event");
   GDLLogEvent *copiedLog = [logEvent copy];
   copiedLog.qosTier = GDLLogQoSTelemetry;
-  [[GDLLogWriter sharedInstance] writeLog:copiedLog afterApplyingTransformers:_logTransformers];
+  [self.logWriterInstance writeLog:copiedLog afterApplyingTransformers:_logTransformers];
 }
 
 - (void)logDataEvent:(GDLLogEvent *)logEvent {
   GDLAssert(logEvent, @"You can't log a nil event");
   GDLAssert(logEvent.qosTier != GDLLogQoSTelemetry, @"Use -logTelemetryEvent, please.");
   GDLLogEvent *copiedLog = [logEvent copy];
-  [[GDLLogWriter sharedInstance] writeLog:copiedLog afterApplyingTransformers:_logTransformers];
+  [self.logWriterInstance writeLog:copiedLog afterApplyingTransformers:_logTransformers];
 }
 
 - (GDLLogEvent *)newEvent {

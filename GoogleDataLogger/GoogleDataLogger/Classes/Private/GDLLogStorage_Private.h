@@ -16,6 +16,8 @@
 
 #import "GDLLogStorage.h"
 
+@class GDLUploader;
+
 @interface GDLLogStorage ()
 
 /** The queue on which all storage work will occur. */
@@ -27,5 +29,8 @@
 /** A map of logTargets to a set of log hash values. */
 @property(nonatomic)
     NSMutableDictionary<NSNumber *, NSMutableSet<NSURL *> *> *logTargetToLogFileSet;
+
+/** The log uploader instance to use. */
+@property(nonatomic) GDLUploader *uploader;
 
 @end

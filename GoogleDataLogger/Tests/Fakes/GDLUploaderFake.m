@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,12 @@
  * limitations under the License.
  */
 
-#import "GDLLogWriter.h"
+#import "GDLUploaderFake.h"
 
-@class GDLLogStorage;
+@implementation GDLUploaderFake
 
-@interface GDLLogWriter ()
-
-/** The queue on which all work will occur. */
-@property(nonatomic) dispatch_queue_t logWritingQueue;
-
-/** The log storage instance used to store logs. Should only be used to inject a testing fake. */
-@property(nonatomic) GDLLogStorage *storageInstance;
+- (void)forceUploadLogs:(NSSet<NSURL *> *)logFiles target:(NSInteger)logTarget {
+  self.forceUploadCalled = YES;
+}
 
 @end
