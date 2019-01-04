@@ -35,7 +35,7 @@ Shared library for iOS SDK data logging needs.
   }
 
   # Test specs
-  s.test_spec 'Tests' do |test_spec|
-    test_spec.source_files = 'GoogleDataLogger/Tests/**/*.{h,m}'
+  s.test_spec 'UnitTests' do |test_spec|
+    test_spec.source_files = 'GoogleDataLogger/Tests/Unit/**/*.{h,m}'
   end
 end
