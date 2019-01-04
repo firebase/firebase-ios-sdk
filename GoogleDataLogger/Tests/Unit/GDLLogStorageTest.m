@@ -42,6 +42,7 @@ static NSInteger logTarget = 1337;
 /** The test prioritizer implementation. */
 @property(nullable, nonatomic) GDLTestPrioritizer *testPrioritizer;
 
+/** The uploader fake. */
 @property(nonatomic) GDLUploaderFake *uploaderFake;
 
 @end
