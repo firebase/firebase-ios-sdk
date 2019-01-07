@@ -2492,6 +2492,7 @@
 					"\"${PODS_ROOT}/GoogleTest/googlemock/include\"",
 					"\"${PODS_ROOT}/GoogleTest/googletest/include\"",
 					"\"${PODS_ROOT}/leveldb-library/include\"",
+					"\"${PODS_ROOT}/../../../Firestore/Protos/nanopb\"",
 					"\"${PODS_ROOT}/../../../Firestore/Protos/cpp\"",
 					"\"${PODS_ROOT}/ProtobufCpp/src\"",
 				);
@@ -2569,6 +2570,7 @@
 					"\"${PODS_ROOT}/GoogleTest/googlemock/include\"",
 					"\"${PODS_ROOT}/GoogleTest/googletest/include\"",
 					"\"${PODS_ROOT}/leveldb-library/include\"",
+					"\"${PODS_ROOT}/../../../Firestore/Protos/nanopb\"",
 					"\"${PODS_ROOT}/../../../Firestore/Protos/cpp\"",
 					"\"${PODS_ROOT}/ProtobufCpp/src\"",
 				);
@@ -2640,6 +2642,7 @@
 					"\"${PODS_ROOT}/../../..\"",
 					"\"${PODS_ROOT}/../../../Firestore/third_party/abseil-cpp\"",
 					"\"${PODS_ROOT}/nanopb\"",
+					"\"${PODS_ROOT}/../../../Firestore/Protos/nanopb\"",
 				);
 				INFOPLIST_FILE = "FuzzTests/Firestore_FuzzTests_iOS-Info.plist";
 				OTHER_CFLAGS = (
@@ -2672,6 +2675,7 @@
 					"\"${PODS_ROOT}/../../..\"",
 					"\"${PODS_ROOT}/../../../Firestore/third_party/abseil-cpp\"",
 					"\"${PODS_ROOT}/nanopb\"",
+					"\"${PODS_ROOT}/../../../Firestore/Protos/nanopb\"",
 				);
 				INFOPLIST_FILE = "FuzzTests/Firestore_FuzzTests_iOS-Info.plist";
 				OTHER_CFLAGS = (
