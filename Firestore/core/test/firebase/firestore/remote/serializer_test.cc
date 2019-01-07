@@ -596,30 +596,22 @@ TEST_F(SerializerTest, BadNullValue) {
       Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
 }
 
-/* TODO(rsgowman): If the number (representing a bool) on the wire is not 1 or
- * 0, then nanopb happily drops the value into the bool anyways, but does so via
- * an integer pointer. Something like this:
- *   bool b;
- *   *(int*)b = 2;
- * Depending on the compiler, the resulting bool could be *both* true *and*
- * false. eg at least gcc does this. (Effectively, comparing to true is
- * implemented via != 0, and comparing to false is implemented via != 1.)
- *
- * We need to figure out what, if anything, we want to do about this. For now,
- * we'll just ignore this test.
- */
-#if 0
-TEST_F(SerializerTest, BadBoolValue) {
+TEST_F(SerializerTest, BadBoolValueInterpretedAsTrue) {
   std::vector<uint8_t> bytes =
       EncodeFieldValue(&serializer, FieldValue::FromBoolean(true));
 
   // Alter the bool value from 1 to 2. (Value values are 0,1)
   Mutate(&bytes[1], /*expected_initial_value=*/1, /*new_value=*/2);
 
-  ExpectFailedStatusDuringFieldValueDecode(
-      Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
+  Reader reader = Reader::Wrap(bytes.data(), bytes.size());
+  google_firestore_v1_Value nanopb_proto{};
+  reader.ReadNanopbMessage(google_firestore_v1_Value_fields, &nanopb_proto);
+  FieldValue model = serializer.DecodeFieldValue(&reader, nanopb_proto);
+  reader.FreeNanopbMessage(google_firestore_v1_Value_fields, &nanopb_proto);
+
+  ASSERT_OK(reader.status());
+  EXPECT_TRUE(model.boolean_value());
 }
-#endif
 
 TEST_F(SerializerTest, BadIntegerValue) {
   // Encode 'maxint'. This should result in 9 0xff bytes, followed by a 1.
@@ -741,39 +733,6 @@ TEST_F(SerializerTest, BadFieldValueTagWithOtherValidTagsPresent) {
   EXPECT_EQ(FieldValue::Type::Boolean, actual_model.type());
   EXPECT_EQ(expected_model, actual_model);
 }
-
-/* TODO(rsgowman): nanopb doesn't handle cases where the type as read on the
- * wire, and the type as defined by the tag disagree. In these cases, the type
- * defined by the tag "wins" and the corruption is ignored.
- *
- * We need to figure out what, if anything, we want to do about this. For now,
- * we'll just ignore these tests.
- */
-#if 0
-TEST_F(SerializerTest, TagVarintWiretypeStringMismatch) {
-  std::vector<uint8_t> bytes =
-      EncodeFieldValue(&serializer, FieldValue::FromBoolean(true));
-
-  // 0x0a represents a bool value encoded as a string. (We're using a
-  // boolean_value tag here, but any tag that would be represented by a varint
-  // would do.)
-  Mutate(&bytes[0], /*expected_initial_value=*/0x08, /*new_value=*/0x0a);
-
-  ExpectFailedStatusDuringFieldValueDecode(
-      Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
-}
-
-TEST_F(SerializerTest, TagStringWiretypeVarintMismatch) {
-  std::vector<uint8_t> bytes =
-      EncodeFieldValue(&serializer, FieldValue::FromString("foo"));
-
-  // 0x88 represents a string value encoded as a varint.
-  Mutate(&bytes[0], /*expected_initial_value=*/0x8a, /*new_value=*/0x88);
-
-  ExpectFailedStatusDuringFieldValueDecode(
-      Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
-}
-#endif
 
 TEST_F(SerializerTest, IncompleteFieldValue) {
   std::vector<uint8_t> bytes =
