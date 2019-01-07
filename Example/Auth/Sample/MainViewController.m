@@ -2310,11 +2310,11 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
 }
 
 /** @fn getAppTokenWithForce:
-    @brief Gets the token from @c FIRApp , optionally a refreshed one.
+    @brief Gets the token from @c FIRAuth , optionally a refreshed one.
     @param force Whether the refresh is forced or not.
  */
 - (void)getAppTokenWithForce:(BOOL)force {
-  [[FIRApp defaultApp] getTokenForcingRefresh:force withCallback:[self tokenCallback]];
+  [[FIRAuth auth] getTokenForcingRefresh:force withCallback:[self tokenCallback]];
 }
 
 /** @fn setDisplayName
