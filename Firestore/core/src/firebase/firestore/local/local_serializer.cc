@@ -27,6 +27,7 @@
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/model/unknown_document.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
 
@@ -40,6 +41,7 @@ using model::MaybeDocument;
 using model::NoDocument;
 using model::ObjectValue;
 using model::SnapshotVersion;
+using model::UnknownDocument;
 using nanopb::Reader;
 using nanopb::Writer;
 using remote::MakeArray;
@@ -54,6 +56,8 @@ firestore_client_MaybeDocument LocalSerializer::EncodeMaybeDocument(
     case MaybeDocument::Type::Document:
       result.which_document_type = firestore_client_MaybeDocument_document_tag;
       result.document = EncodeDocument(static_cast<const Document&>(maybe_doc));
+      // TODO(rsgowman): heldwriteacks:
+      // result.has_committed_mutations = existing_doc.HasCommittedMutations();
       return result;
 
     case MaybeDocument::Type::NoDocument:
@@ -61,11 +65,18 @@ firestore_client_MaybeDocument LocalSerializer::EncodeMaybeDocument(
           firestore_client_MaybeDocument_no_document_tag;
       result.no_document =
           EncodeNoDocument(static_cast<const NoDocument&>(maybe_doc));
+      // TODO(rsgowman): heldwriteacks:
+      // result.has_committed_mutations = no_doc.HasCommittedMutations();
       return result;
 
     case MaybeDocument::Type::UnknownDocument:
-      // TODO(rsgowman): Implement
-      abort();
+      result.which_document_type =
+          firestore_client_MaybeDocument_unknown_document_tag;
+      result.unknown_document =
+          EncodeUnknownDocument(static_cast<const UnknownDocument&>(maybe_doc));
+      // TODO(rsgowman): heldwriteacks:
+      // result.has_committed_mutations = true;
+      return result;
 
     case MaybeDocument::Type::Unknown:
       // TODO(rsgowman): Error handling
@@ -85,6 +96,9 @@ std::unique_ptr<MaybeDocument> LocalSerializer::DecodeMaybeDocument(
 
     case firestore_client_MaybeDocument_no_document_tag:
       return DecodeNoDocument(reader, proto.no_document);
+
+    case firestore_client_MaybeDocument_unknown_document_tag:
+      return DecodeUnknownDocument(reader, proto.unknown_document);
 
     default:
       reader->Fail(
@@ -137,11 +151,8 @@ firestore_client_NoDocument LocalSerializer::EncodeNoDocument(
 
 std::unique_ptr<NoDocument> LocalSerializer::DecodeNoDocument(
     Reader* reader, const firestore_client_NoDocument& proto) const {
-  if (!reader->status().ok()) return nullptr;
-
   SnapshotVersion version =
       rpc_serializer_.DecodeSnapshotVersion(reader, proto.read_time);
-  if (!reader->status().ok()) return nullptr;
 
   // TODO(rsgowman): Fix hardcoding of has_committed_mutations.
   // Instead, we should grab this from the proto (see other ports). However,
@@ -151,6 +162,28 @@ std::unique_ptr<NoDocument> LocalSerializer::DecodeNoDocument(
                                 rpc_serializer_.DecodeString(proto.name)),
       std::move(version),
       /*has_committed_mutations=*/false);
+}
+
+firestore_client_UnknownDocument LocalSerializer::EncodeUnknownDocument(
+    const UnknownDocument& unknown_doc) const {
+  firestore_client_UnknownDocument result{};
+
+  result.name = rpc_serializer_.EncodeString(
+      rpc_serializer_.EncodeKey(unknown_doc.key()));
+  result.version = rpc_serializer_.EncodeVersion(unknown_doc.version());
+
+  return result;
+}
+
+std::unique_ptr<UnknownDocument> LocalSerializer::DecodeUnknownDocument(
+    Reader* reader, const firestore_client_UnknownDocument& proto) const {
+  SnapshotVersion version =
+      rpc_serializer_.DecodeSnapshotVersion(reader, proto.version);
+
+  return absl::make_unique<UnknownDocument>(
+      rpc_serializer_.DecodeKey(reader,
+                                rpc_serializer_.DecodeString(proto.name)),
+      std::move(version));
 }
 
 firestore_client_Target LocalSerializer::EncodeQueryData(

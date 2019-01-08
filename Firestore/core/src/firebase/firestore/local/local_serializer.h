@@ -27,6 +27,7 @@
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/model/unknown_document.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 #include "Firestore/core/src/firebase/firestore/remote/serializer.h"
@@ -117,6 +118,12 @@ class LocalSerializer {
 
   std::unique_ptr<model::NoDocument> DecodeNoDocument(
       nanopb::Reader* reader, const firestore_client_NoDocument& proto) const;
+
+  firestore_client_UnknownDocument EncodeUnknownDocument(
+      const model::UnknownDocument& unknown_doc) const;
+  std::unique_ptr<model::UnknownDocument> DecodeUnknownDocument(
+      nanopb::Reader* reader,
+      const firestore_client_UnknownDocument& proto) const;
 
   const remote::Serializer& rpc_serializer_;
 };

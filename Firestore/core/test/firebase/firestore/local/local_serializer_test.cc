@@ -26,6 +26,7 @@
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/model/unknown_document.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 #include "Firestore/core/src/firebase/firestore/remote/serializer.h"
@@ -50,11 +51,13 @@ using model::MaybeDocument;
 using model::NoDocument;
 using model::SnapshotVersion;
 using model::TargetId;
+using model::UnknownDocument;
 using nanopb::Reader;
 using nanopb::Writer;
 using testutil::DeletedDoc;
 using testutil::Doc;
 using testutil::Query;
+using testutil::UnknownDoc;
 using util::Status;
 
 // TODO(rsgowman): This is copied from remote/serializer_tests.cc. Refactor.
@@ -240,9 +243,6 @@ TEST_F(LocalSerializerTest, EncodesNoDocumentAsMaybeDocument) {
   ExpectRoundTrip(no_doc, maybe_doc_proto, no_doc.type());
 }
 
-// TODO(rsgowman): Requires held write acks, which aren't fully ported yet. But
-// it should look something like this.
-#if 0
 TEST_F(LocalSerializerTest, EncodesUnknownDocumentAsMaybeDocument) {
   UnknownDocument unknown_doc = UnknownDoc("some/path", /*version=*/42);
 
@@ -250,12 +250,11 @@ TEST_F(LocalSerializerTest, EncodesUnknownDocumentAsMaybeDocument) {
   maybe_doc_proto.mutable_unknown_document()->set_name(
       "projects/p/databases/d/documents/some/path");
   maybe_doc_proto.mutable_unknown_document()->mutable_version()->set_seconds(0);
-  maybe_doc_proto.mutable_unknown_document()
-      ->mutable_version()->set_nanos(42000);
+  maybe_doc_proto.mutable_unknown_document()->mutable_version()->set_nanos(
+      42000);
 
   ExpectRoundTrip(unknown_doc, maybe_doc_proto, unknown_doc.type());
 }
-#endif
 
 TEST_F(LocalSerializerTest, EncodesQueryData) {
   core::Query query = testutil::Query("room");
