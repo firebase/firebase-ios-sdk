@@ -1,4 +1,9 @@
 # Unreleased
+- [changed] `Transaction.getDocument()` has been changed to return a non-nil
+  `DocumentSnapshot` with `exists` equal to `false` if the document does not
+  exist (instead of returning a nil DocumentSnapshot). Code that was previously
+  doing `if (snapshot) { ... }` must be changed to
+  `if (snapshot.exists) { ... }`.
 
 # v0.16.1
 - [fixed] Offline persistence now properly records schema downgrades. This is a
