@@ -22,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
     @brief Represents a credential.
  */
 NS_SWIFT_NAME(AuthCredential)
-@interface FIRAuthCredential : NSObject
+@interface FIRAuthCredential : NSObject <NSSecureCoding>
 
 /** @property provider
     @brief Gets the name of the identity provider for the credential.

@@ -59,6 +59,34 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
+#pragma mark - NSSecureCoding
+
++ (BOOL)supportsSecureCoding {
+  return YES;
+}
+
+- (nullable instancetype)initWithCoder:(NSCoder *)aDecoder {
+  NSString *verificationID = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"verificationID"];
+  NSString *verificationCode = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"verificationCode"];
+  NSString *temporaryProof = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"temporaryProof"];
+  NSString *phoneNumber = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"phoneNumber"];
+  if (temporaryProof.length && phoneNumber.length) {
+    self = [self initWithTemporaryProof:temporaryProof phoneNumber:phoneNumber providerID:self.provider];
+  } else if (verificationID.length && verificationCode.length) {
+    self = [self initWithProviderID:self.provider verificationID:verificationID verificationCode:verificationCode];
+  } else {
+    self = nil;
+  }
+  return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)aCoder {
+  [aCoder encodeObject:self.verificationID forKey:@"verificationID"];
+  [aCoder encodeObject:self.verificationCode forKey:@"verificationCode"];
+  [aCoder encodeObject:self.temporaryProof forKey:@"temporaryProof"];
+  [aCoder encodeObject:self.phoneNumber forKey:@"phoneNumber"];
+}
+
 @end
 
 NS_ASSUME_NONNULL_END
