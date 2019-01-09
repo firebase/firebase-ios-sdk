@@ -26,6 +26,12 @@
 
 extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 
+@interface FIRInstanceID (ExposedForTest)
+
++ (FIRInstanceID *)instanceIDForTests;
+
+@end
+
 @interface FIRMessaging ()
 + (FIRMessaging *)messagingForTests;
 
@@ -55,6 +61,7 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 - (void)setUp {
   [super setUp];
   _messaging = [FIRMessaging messagingForTests];
+  _messaging.instanceID = [FIRInstanceID instanceIDForTests];
   _mockFirebaseApp = OCMClassMock([FIRApp class]);
    OCMStub([_mockFirebaseApp defaultApp]).andReturn(_mockFirebaseApp);
   _mockInstanceID = OCMPartialMock(self.messaging.instanceID);
