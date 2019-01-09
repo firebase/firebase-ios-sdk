@@ -61,5 +61,5 @@ target 'macOS_example' do
 
   pod 'FirebaseAuth', :path => '../../'
   pod 'FirebaseCore', :path => '../../'
-  pod 'FirebaseFirestoreMacOS', :path => '../../'
+  pod 'FirebaseFirestore', :path => '../../'
 end

@@ -1621,7 +1621,7 @@
 			);
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-Firestore_Example_iOS/Pods-Firestore_Example_iOS-resources.sh",
-				"${PODS_CONFIGURATION_BUILD_DIR}/FirebaseFirestore/gRPCCertificates-Firestore.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/FirebaseFirestore-iOS/gRPCCertificates-Firestore.bundle",
 			);
 			name = "[CP] Copy Pods Resources";
 			outputPaths = (
@@ -1697,7 +1697,7 @@
 			);
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-macOS_example/Pods-macOS_example-resources.sh",
-				"${PODS_CONFIGURATION_BUILD_DIR}/FirebaseFirestoreMacOS/gRPCCertificates-Firestore.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/FirebaseFirestore-macOS/gRPCCertificates-Firestore.bundle",
 			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
@@ -1960,7 +1960,7 @@
 			);
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-Firestore_Example_iOS-Firestore_SwiftTests_iOS/Pods-Firestore_Example_iOS-Firestore_SwiftTests_iOS-resources.sh",
-				"${PODS_CONFIGURATION_BUILD_DIR}/FirebaseFirestore/gRPCCertificates-Firestore.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/FirebaseFirestore-iOS/gRPCCertificates-Firestore.bundle",
 			);
 			name = "[CP] Copy Pods Resources";
 			outputPaths = (
@@ -2929,7 +2929,7 @@
 					"-framework",
 					"\"FirebaseCore\"",
 					"-framework",
-					"\"FirebaseFirestoreMacOS\"",
+					"\"FirebaseFirestore\"",
 					"-framework",
 					"\"Foundation\"",
 					"-framework",
@@ -3005,7 +3005,7 @@
 					"-framework",
 					"\"FirebaseCore\"",
 					"-framework",
-					"\"FirebaseFirestoreMacOS\"",
+					"\"FirebaseFirestore\"",
 					"-framework",
 					"\"Foundation\"",
 					"-framework",

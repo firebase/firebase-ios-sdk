@@ -17,6 +17,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   }
 
   s.ios.deployment_target = '8.0'
+  s.osx.deployment_target = '10.10'
 
   s.cocoapods_version = '>= 1.4.0'
   s.static_framework = true
@@ -59,7 +60,9 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   s.dependency 'Protobuf', '~> 3.1'
   s.dependency 'nanopb', '~> 0.3.901'
 
-  s.frameworks = 'MobileCoreServices', 'SystemConfiguration'
+  s.ios.frameworks = 'MobileCoreServices', 'SystemConfiguration'
+  s.osx.frameworks = 'SystemConfiguration'
+
   s.library = 'c++'
   s.pod_target_xcconfig = {
     'CLANG_CXX_LANGUAGE_STANDARD' => 'c++0x',
