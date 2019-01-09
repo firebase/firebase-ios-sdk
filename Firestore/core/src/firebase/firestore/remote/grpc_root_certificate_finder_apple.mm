@@ -54,24 +54,24 @@ NSString* FindPathToCertificatesFile() {
     if (!bundle) {
       continue;
     }
-
-    NSString* resource = @"gRPCCertificates.bundle/roots";
-    NSString* path = [bundle pathForResource:resource ofType:@"pem"];
-    if (!path) {
-      resource = @"gRPCCertificates-Firestore.bundle/roots";
-      path = [bundle pathForResource:resource ofType:@"pem"];
-    }
-
-    if (path) {
-      LOG_DEBUG("%s.pem found in bundle %s", resource,
-                [bundle bundleIdentifier]);
-      return path;
-    } else {
-      LOG_DEBUG("%s.pem not found in bundle %s", resource,
-                [bundle bundleIdentifier]);
+    // search for the roots.pem file in each of these resource locations
+    NSArray* possibleResources = @[@"gRPCCertificates.bundle/roots",
+                                   @"gRPCCertificates-Firestore.bundle/roots",
+                                   @"roots"];
+      
+    for(NSString* resource in possibleResources){
+      NSString* path = [bundle pathForResource:resource ofType:@"pem"];
+      if(path){
+        LOG_DEBUG("%s.pem found in bundle %s", resource,
+                  [bundle bundleIdentifier]);
+        return path;
+      }
+      else{
+        LOG_DEBUG("%s.pem not found in bundle %s", resource,
+                  [bundle bundleIdentifier]);
+      }
     }
   }
-
   return nil;
 }
 
