@@ -58,7 +58,6 @@ NSString* FindPathToCertificatesFile() {
     NSArray* possibleResources = @[@"gRPCCertificates.bundle/roots",
                                    @"gRPCCertificates-Firestore.bundle/roots",
                                    @"roots"];
-      
     for(NSString* resource in possibleResources){
       NSString* path = [bundle pathForResource:resource ofType:@"pem"];
       if(path){
