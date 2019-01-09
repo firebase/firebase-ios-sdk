@@ -115,31 +115,13 @@ using leveldb::WriteOptions;
 }
 
 - (void)start {
-  BatchId nextBatchID = [FSTLevelDBMutationQueue loadNextBatchIDFromDB:_db.ptr];
+  self.nextBatchID = [FSTLevelDBMutationQueue loadNextBatchIDFromDB:_db.ptr];
 
-  // On restart, nextBatchId may end up lower than lastAcknowledgedBatchId since it's computed from
-  // the queue contents, and there may be no mutations in the queue. In this case, we need to reset
-  // lastAcknowledgedBatchId (which is safe since the queue must be empty).
   std::string key = [self keyForCurrentMutationQueue];
   FSTPBMutationQueue *metadata = [self metadataForKey:key];
   if (!metadata) {
     metadata = [FSTPBMutationQueue message];
-
-    // proto3's default value for lastAcknowledgedBatchId is zero, but that would consider the first
-    // entry in the queue to be acknowledged without that acknowledgement actually happening.
-    metadata.lastAcknowledgedBatchId = kFSTBatchIDUnknown;
-  } else {
-    BatchId lastAcked = metadata.lastAcknowledgedBatchId;
-    if (lastAcked >= nextBatchID) {
-      HARD_ASSERT([self isEmpty], "Reset nextBatchID is only possible when the queue is empty");
-      lastAcked = kFSTBatchIDUnknown;
-
-      metadata.lastAcknowledgedBatchId = lastAcked;
-      _db.currentTransaction->Put([self keyForCurrentMutationQueue], metadata);
-    }
   }
-
-  self.nextBatchID = nextBatchID;
   self.metadata = metadata;
 }
 
@@ -220,17 +202,8 @@ using leveldb::WriteOptions;
   return empty;
 }
 
-- (BatchId)highestAcknowledgedBatchID {
-  return self.metadata.lastAcknowledgedBatchId;
-}
-
 - (void)acknowledgeBatch:(FSTMutationBatch *)batch streamToken:(nullable NSData *)streamToken {
-  BatchId batchID = batch.batchID;
-  HARD_ASSERT(batchID > self.highestAcknowledgedBatchID,
-              "Mutation batchIDs must be acknowledged in order");
-
   FSTPBMutationQueue *metadata = self.metadata;
-  metadata.lastAcknowledgedBatchId = batchID;
   metadata.lastStreamToken = streamToken;
 
   _db.currentTransaction->Put([self keyForCurrentMutationQueue], metadata);
@@ -304,10 +277,7 @@ using leveldb::WriteOptions;
 }
 
 - (nullable FSTMutationBatch *)nextMutationBatchAfterBatchID:(BatchId)batchID {
-  // All batches with batchID <= self.metadata.lastAcknowledgedBatchId have been acknowledged so
-  // the first unacknowledged batch after batchID will have a batchID larger than both of these
-  // values.
-  BatchId nextBatchID = MAX(batchID, self.metadata.lastAcknowledgedBatchId) + 1;
+  BatchId nextBatchID = batchID + 1;
 
   std::string key = [self mutationKeyForBatchID:nextBatchID];
   auto it = _db.currentTransaction->NewIterator();

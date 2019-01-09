@@ -68,9 +68,6 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
 /** The next value to use when assigning sequential IDs to each mutation batch. */
 @property(nonatomic, assign) BatchId nextBatchID;
 
-/** The highest acknowledged mutation in the queue. */
-@property(nonatomic, assign) BatchId highestAcknowledgedBatchID;
-
 /**
  * The last received stream token from the server, used to acknowledge which responses the client
  * has processed. Stream tokens are opaque checkpoint markers whose only real value is their
@@ -94,7 +91,6 @@ using DocumentReferenceSet = SortedSet<DocumentReference, DocumentReference::ByK
     _queue = [NSMutableArray array];
 
     _nextBatchID = 1;
-    _highestAcknowledgedBatchID = kFSTBatchIDUnknown;
   }
   return self;
 }
@@ -105,13 +101,10 @@ using DocumentReferenceSet = SortedSet<DocumentReference, DocumentReference::ByK
   // Note: The queue may be shutdown / started multiple times, since we maintain the queue for the
   // duration of the app session in case a user logs out / back in. To behave like the
   // LevelDB-backed MutationQueue (and accommodate tests that expect as much), we reset nextBatchID
-  // and highestAcknowledgedBatchID if the queue is empty.
+  // if the queue is empty.
   if (self.isEmpty) {
     self.nextBatchID = 1;
-    self.highestAcknowledgedBatchID = kFSTBatchIDUnknown;
   }
-  HARD_ASSERT(self.highestAcknowledgedBatchID < self.nextBatchID,
-              "highestAcknowledgedBatchID must be less than the nextBatchID");
 }
 
 - (BOOL)isEmpty {
@@ -120,16 +113,10 @@ using DocumentReferenceSet = SortedSet<DocumentReference, DocumentReference::ByK
   return self.queue.count == 0;
 }
 
-- (BatchId)highestAcknowledgedBatchID {
-  return _highestAcknowledgedBatchID;
-}
-
 - (void)acknowledgeBatch:(FSTMutationBatch *)batch streamToken:(nullable NSData *)streamToken {
   NSMutableArray<FSTMutationBatch *> *queue = self.queue;
 
   BatchId batchID = batch.batchID;
-  HARD_ASSERT(batchID > self.highestAcknowledgedBatchID,
-              "Mutation batchIDs must be acknowledged in order");
 
   NSInteger batchIndex = [self indexOfExistingBatchID:batchID action:@"acknowledged"];
   HARD_ASSERT(batchIndex == 0, "Can only acknowledge the first batch in the mutation queue");
@@ -139,7 +126,6 @@ using DocumentReferenceSet = SortedSet<DocumentReference, DocumentReference::ByK
   HARD_ASSERT(batchID == check.batchID, "Queue ordering failure: expected batch %s, got batch %s",
               batchID, check.batchID);
 
-  self.highestAcknowledgedBatchID = batchID;
   self.lastStreamToken = streamToken;
 }
 
@@ -186,9 +172,7 @@ using DocumentReferenceSet = SortedSet<DocumentReference, DocumentReference::ByK
 - (nullable FSTMutationBatch *)nextMutationBatchAfterBatchID:(BatchId)batchID {
   NSMutableArray<FSTMutationBatch *> *queue = self.queue;
 
-  // All batches with batchID <= self.highestAcknowledgedBatchID have been acknowledged so the
-  // first unacknowledged batch after batchID will have a batchID larger than both of these values.
-  BatchId nextBatchID = MAX(batchID, self.highestAcknowledgedBatchID) + 1;
+  BatchId nextBatchID = batchID + 1;
 
   // The requested batchID may still be out of range so normalize it to the start of the queue.
   NSInteger rawIndex = [self indexOfBatchID:nextBatchID];

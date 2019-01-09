@@ -35,21 +35,11 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Starts the mutation queue, performing any initial reads that might be required to establish
  * invariants, etc.
- *
- * After starting, the mutation queue must guarantee that the highestAcknowledgedBatchID is less
- * than nextBatchID. This prevents the local store from creating new batches that the mutation
- * queue would consider erroneously acknowledged.
  */
 - (void)start;
 
 /** Returns YES if this queue contains no mutation batches. */
 - (BOOL)isEmpty;
-
-/**
- * Returns the highest batchID that has been acknowledged. If no batches have been acknowledged
- * or if there are no batches in the queue this can return kFSTBatchIDUnknown.
- */
-- (firebase::firestore::model::BatchId)highestAcknowledgedBatchID;
 
 /** Acknowledges the given batch. */
 - (void)acknowledgeBatch:(FSTMutationBatch *)batch streamToken:(nullable NSData *)streamToken;
