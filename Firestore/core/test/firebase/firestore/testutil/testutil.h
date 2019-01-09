@@ -152,6 +152,12 @@ inline std::unique_ptr<model::PatchMutation> PatchMutation(
   return PatchMutation(path, values, &update_mask);
 }
 
+inline std::unique_ptr<model::DeleteMutation> DeleteMutation(
+    absl::string_view path) {
+  return absl::make_unique<model::DeleteMutation>(Key(path),
+                                                  model::Precondition::None());
+}
+
 inline model::MutationResult MutationResult(int64_t version) {
   return model::MutationResult(Version(version), nullptr);
 }

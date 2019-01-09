@@ -20,6 +20,7 @@
 
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 namespace firebase {
@@ -157,6 +158,31 @@ FieldValue PatchMutation::PatchObject(FieldValue obj) const {
     }
   }
   return obj;
+}
+
+DeleteMutation::DeleteMutation(DocumentKey&& key, Precondition&& precondition)
+    : Mutation(std::move(key), std::move(precondition)) {
+}
+
+std::shared_ptr<const MaybeDocument> DeleteMutation::ApplyToRemoteDocument(
+    const std::shared_ptr<const MaybeDocument>& /*maybe_doc*/,
+    const MutationResult& /*mutation_result*/) const {
+  // TODO(rsgowman): Implement.
+  abort();
+}
+
+std::shared_ptr<const MaybeDocument> DeleteMutation::ApplyToLocalView(
+    const std::shared_ptr<const MaybeDocument>& maybe_doc,
+    const MaybeDocument*,
+    const Timestamp&) const {
+  VerifyKeyMatches(maybe_doc.get());
+
+  if (!precondition().IsValidFor(maybe_doc.get())) {
+    return maybe_doc;
+  }
+
+  return absl::make_unique<NoDocument>(key(), SnapshotVersion::None(),
+                                       /*hasCommittedMutations=*/false);
 }
 
 }  // namespace model

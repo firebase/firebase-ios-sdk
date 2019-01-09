@@ -221,7 +221,15 @@ TEST(Mutation, AppliesServerAckedArrayTransformsToDocuments) {
 }
 
 TEST(Mutation, DeleteDeletes) {
-  // TODO(rsgowman)
+  auto base_doc = std::make_shared<Document>(
+      Doc("collection/key", 0, {{"foo", FieldValue::FromString("bar")}}));
+
+  std::unique_ptr<Mutation> del = testutil::DeleteMutation("collection/key");
+  std::shared_ptr<const MaybeDocument> deleted_doc =
+      del->ApplyToLocalView(base_doc, base_doc.get(), Timestamp::Now());
+
+  ASSERT_TRUE(deleted_doc);
+  EXPECT_EQ(*deleted_doc.get(), testutil::DeletedDoc("collection/key", 0));
 }
 
 TEST(Mutation, SetWithMutationResult) {
