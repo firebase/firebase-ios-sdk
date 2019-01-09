@@ -38,6 +38,8 @@ namespace local {
 using core::Query;
 using model::Document;
 using model::MaybeDocument;
+using model::Mutation;
+using model::MutationBatch;
 using model::NoDocument;
 using model::ObjectValue;
 using model::SnapshotVersion;
@@ -246,6 +248,41 @@ QueryData LocalSerializer::DecodeQueryData(
   return QueryData(std::move(query), target_id, sequence_number,
                    QueryPurpose::kListen, std::move(version),
                    std::move(resume_token));
+}
+
+firestore_client_WriteBatch LocalSerializer::EncodeMutationBatch(
+    const MutationBatch& mutation_batch) const {
+  firestore_client_WriteBatch result{};
+
+  result.batch_id = mutation_batch.batch_id();
+  size_t count = mutation_batch.mutations().size();
+  result.writes_count = count;
+  result.writes = MakeArray<google_firestore_v1_Write>(count);
+  int i = 0;
+  for (const std::unique_ptr<Mutation>& mutation : mutation_batch.mutations()) {
+    HARD_ASSERT(mutation, "Null mutation encountered.");
+    result.writes[i] = rpc_serializer_.EncodeMutation(*mutation.get());
+    i++;
+  }
+  result.local_write_time =
+      rpc_serializer_.EncodeTimestamp(mutation_batch.local_write_time());
+
+  return result;
+}
+
+MutationBatch LocalSerializer::DecodeMutationBatch(
+    nanopb::Reader* reader, const firestore_client_WriteBatch& proto) const {
+  int batch_id = proto.batch_id;
+  Timestamp local_write_time =
+      rpc_serializer_.DecodeTimestamp(reader, proto.local_write_time);
+  std::vector<std::unique_ptr<Mutation>> mutations;
+  for (size_t i = 0; i < proto.writes_count; i++) {
+    mutations.push_back(
+        rpc_serializer_.DecodeMutation(reader, proto.writes[i]));
+  }
+
+  return MutationBatch(batch_id, std::move(local_write_time),
+                       std::move(mutations));
 }
 
 }  // namespace local

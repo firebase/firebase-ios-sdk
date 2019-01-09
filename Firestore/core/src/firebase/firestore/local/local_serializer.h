@@ -21,10 +21,12 @@
 #include <vector>
 
 #include "Firestore/Protos/nanopb/firestore/local/maybe_document.nanopb.h"
+#include "Firestore/Protos/nanopb/firestore/local/mutation.nanopb.h"
 #include "Firestore/Protos/nanopb/firestore/local/target.nanopb.h"
 #include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
+#include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/model/unknown_document.h"
@@ -104,6 +106,28 @@ class LocalSerializer {
    */
   QueryData DecodeQueryData(nanopb::Reader* reader,
                             const firestore_client_Target& proto) const;
+
+  /**
+   * @brief Encodes a MutationBatch to the equivalent nanopb proto, representing
+   * a ::firestore::client::WriteBatch, for local storage in the mutation queue.
+   *
+   * Any errors that occur during encoding are fatal.
+   */
+  firestore_client_WriteBatch EncodeMutationBatch(
+      const model::MutationBatch& mutation_batch) const;
+
+  /**
+   * @brief Decodes a nanopb proto representing a
+   * ::firestore::client::WriteBatch proto to the equivalent MutationBatch.
+   *
+   * Check reader->status() to determine if an error occurred while decoding.
+   *
+   * @param reader The Reader object. Used only for error handling.
+   * @return The MutationBatch equivalent of the bytes. On error, the return
+   * value is unspecified.
+   */
+  model::MutationBatch DecodeMutationBatch(
+      nanopb::Reader* reader, const firestore_client_WriteBatch& proto) const;
 
  private:
   /**
