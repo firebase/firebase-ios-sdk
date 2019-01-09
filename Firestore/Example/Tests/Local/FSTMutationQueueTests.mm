@@ -84,7 +84,7 @@ NS_ASSUME_NONNULL_BEGIN
   if ([self isTestBaseClass]) return;
 
   self.persistence.run("testAcknowledgeBatchID", [&]() {
-    XCTAssertTrue(self.mutationQueue.isEmpty);
+    XCTAssertTrue([self batchCount], 0);
 
     FSTMutationBatch *batch1 = [self addMutationBatch];
     FSTMutationBatch *batch2 = [self addMutationBatch];
@@ -93,21 +93,20 @@ NS_ASSUME_NONNULL_BEGIN
     XCTAssertGreaterThan(batch2.batchID, batch1.batchID);
     XCTAssertGreaterThan(batch3.batchID, batch2.batchID);
 
-    XCTAssertFalse(self.mutationQueue.isEmpty);
+    XCTAssertTrue([self batchCount], 3);
 
     [self.mutationQueue acknowledgeBatch:batch1 streamToken:nil];
     [self.mutationQueue removeMutationBatch:batch1];
-    XCTAssertFalse(self.mutationQueue.isEmpty);
+    XCTAssertTrue([self batchCount], 2);
 
     [self.mutationQueue acknowledgeBatch:batch2 streamToken:nil];
-    XCTAssertFalse(self.mutationQueue.isEmpty);
+    XCTAssertTrue([self batchCount], 2);
 
     [self.mutationQueue removeMutationBatch:batch2];
-    XCTAssertFalse(self.mutationQueue.isEmpty);
+    XCTAssertTrue([self batchCount], 1);
 
-    // Batch 3 never acknowledged.
     [self.mutationQueue removeMutationBatch:batch3];
-    XCTAssertTrue(self.mutationQueue.isEmpty);
+    XCTAssertTrue([self batchCount], 0);
   });
 }
 
@@ -121,7 +120,6 @@ NS_ASSUME_NONNULL_BEGIN
     [self.mutationQueue removeMutationBatch:batch1];
 
     XCTAssertEqual([self batchCount], 0);
-    // XCTAssertEqual([self.mutationQueue highestAcknowledgedBatchID], batch1.batchID);
   });
 }
 
@@ -383,7 +381,6 @@ NS_ASSUME_NONNULL_BEGIN
     XCTAssertEqualObjects([self.mutationQueue lastStreamToken], streamToken1);
 
     [self.mutationQueue acknowledgeBatch:batch1 streamToken:streamToken2];
-    // XCTAssertEqual(self.mutationQueue.highestAcknowledgedBatchID, batch1.batchID);
     XCTAssertEqualObjects([self.mutationQueue lastStreamToken], streamToken2);
   });
 }
