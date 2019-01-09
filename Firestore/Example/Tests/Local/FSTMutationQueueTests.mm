@@ -84,7 +84,7 @@ NS_ASSUME_NONNULL_BEGIN
   if ([self isTestBaseClass]) return;
 
   self.persistence.run("testAcknowledgeBatchID", [&]() {
-    XCTAssertTrue([self batchCount], 0);
+    XCTAssertEqual([self batchCount], 0);
 
     FSTMutationBatch *batch1 = [self addMutationBatch];
     FSTMutationBatch *batch2 = [self addMutationBatch];
@@ -93,20 +93,20 @@ NS_ASSUME_NONNULL_BEGIN
     XCTAssertGreaterThan(batch2.batchID, batch1.batchID);
     XCTAssertGreaterThan(batch3.batchID, batch2.batchID);
 
-    XCTAssertTrue([self batchCount], 3);
+    XCTAssertEqual([self batchCount], 3);
 
     [self.mutationQueue acknowledgeBatch:batch1 streamToken:nil];
     [self.mutationQueue removeMutationBatch:batch1];
-    XCTAssertTrue([self batchCount], 2);
+    XCTAssertEqual([self batchCount], 2);
 
     [self.mutationQueue acknowledgeBatch:batch2 streamToken:nil];
-    XCTAssertTrue([self batchCount], 2);
+    XCTAssertEqual([self batchCount], 2);
 
     [self.mutationQueue removeMutationBatch:batch2];
-    XCTAssertTrue([self batchCount], 1);
+    XCTAssertEqual([self batchCount], 1);
 
     [self.mutationQueue removeMutationBatch:batch3];
-    XCTAssertTrue([self batchCount], 0);
+    XCTAssertEqual([self batchCount], 0);
   });
 }
 
