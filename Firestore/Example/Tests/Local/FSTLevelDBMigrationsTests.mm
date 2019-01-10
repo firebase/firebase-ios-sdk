@@ -368,55 +368,54 @@ using SchemaVersion = LevelDbMigrations::SchemaVersion;
 }
 
 - (void)testSetsLastAcknowledgedBatchIdToUnknown {
-    LevelDbMigrations::RunMigrations(_db.get(), 5);
+  LevelDbMigrations::RunMigrations(_db.get(), 5);
 
-    {
-      LevelDbTransaction transaction(_db.get(), "Setup users");
+  {
+    LevelDbTransaction transaction(_db.get(), "Setup users");
 
-      FSTPBMutationQueue *fooQueue = [[FSTPBMutationQueue alloc] init];
-      fooQueue.lastAcknowledgedBatchId = 1;
-      transaction.Put(LevelDbMutationQueueKey::Key("foo1"), fooQueue);
+    FSTPBMutationQueue *fooQueue = [[FSTPBMutationQueue alloc] init];
+    fooQueue.lastAcknowledgedBatchId = 1;
+    transaction.Put(LevelDbMutationQueueKey::Key("foo1"), fooQueue);
 
-      FSTPBMutationQueue *barQueue = [[FSTPBMutationQueue alloc] init];
-      barQueue.lastAcknowledgedBatchId = 2;
-      transaction.Put(LevelDbMutationQueueKey::Key("foo2"), barQueue);
+    FSTPBMutationQueue *barQueue = [[FSTPBMutationQueue alloc] init];
+    barQueue.lastAcknowledgedBatchId = 2;
+    transaction.Put(LevelDbMutationQueueKey::Key("foo2"), barQueue);
 
-      FSTPBMutationQueue *bazQueue = [[FSTPBMutationQueue alloc] init];
-      bazQueue.lastAcknowledgedBatchId = -1;
-      transaction.Put(LevelDbMutationQueueKey::Key("foo3"), bazQueue);
-      
-      transaction.Commit();
+    FSTPBMutationQueue *bazQueue = [[FSTPBMutationQueue alloc] init];
+    bazQueue.lastAcknowledgedBatchId = -1;
+    transaction.Put(LevelDbMutationQueueKey::Key("foo3"), bazQueue);
+
+    transaction.Commit();
+  }
+
+  auto get_last_acked = [&] {
+    LevelDbTransaction transaction(_db.get(), "Verify");
+
+    NSMutableArray<NSNumber *> *results = [NSMutableArray array];
+
+    std::string mutation_queue_start = LevelDbMutationQueueKey::KeyPrefix();
+    LevelDbMutationQueueKey key;
+    auto it = transaction.NewIterator();
+
+    it->Seek(mutation_queue_start);
+    for (; it->Valid() && absl::StartsWith(it->key(), mutation_queue_start); it->Next()) {
+      HARD_ASSERT(key.Decode(it->key()), "Failed to decode mutation queue key");
+
+      firebase::firestore::firestore_client_MutationQueue mutation_queue{};
+      Reader reader = Reader::Wrap(it->value());
+      reader.ReadNanopbMessage(firebase::firestore::firestore_client_MutationQueue_fields,
+                               &mutation_queue);
+      HARD_ASSERT(reader.status().ok(), "Failed to deserialize MutationQueue");
+
+      [results addObject:@(mutation_queue.last_acknowledged_batch_id)];
     }
 
-    auto get_last_acked = [&]{
-      LevelDbTransaction transaction(_db.get(), "Verify");
+    return results;
+  };
 
-      NSMutableArray<NSNumber*> *results = [NSMutableArray array];
-
-      std::string mutation_queue_start = LevelDbMutationQueueKey::KeyPrefix();
-      LevelDbMutationQueueKey key;
-      auto it = transaction.NewIterator();
-
-      it->Seek(mutation_queue_start);
-      for (; it->Valid() && absl::StartsWith(it->key(), mutation_queue_start);
-          it->Next()) {
-        HARD_ASSERT(key.Decode(it->key()), "Failed to decode mutation queue key");
-
-        firebase::firestore::firestore_client_MutationQueue mutation_queue{};
-        Reader reader = Reader::Wrap(it->value());
-        reader.ReadNanopbMessage(firebase::firestore::firestore_client_MutationQueue_fields,
-            &mutation_queue);
-        HARD_ASSERT(reader.status().ok(), "Failed to deserialize MutationQueue");
-
-        [results addObject:@(mutation_queue.last_acknowledged_batch_id)];
-      }
-
-      return results;
-    };
-
-    XCTAssertEqualObjects(get_last_acked(), (@[@1, @2, @-1]));
-    LevelDbMigrations::RunMigrations(_db.get(), 6);
-    XCTAssertEqualObjects(get_last_acked(), (@[@-1, @-1, @-1]));
+  XCTAssertEqualObjects(get_last_acked(), (@[ @1, @2, @-1 ]));
+  LevelDbMigrations::RunMigrations(_db.get(), 6);
+  XCTAssertEqualObjects(get_last_acked(), (@[ @-1, @-1, @-1 ]));
 }
 
 - (void)testCanDowngrade {

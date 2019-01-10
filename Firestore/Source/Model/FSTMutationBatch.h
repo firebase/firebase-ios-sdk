@@ -42,7 +42,6 @@ using DocumentVersionMap = std::unordered_map<DocumentKey, SnapshotVersion, Docu
 
 NS_ASSUME_NONNULL_BEGIN
 
-
 /**
  * A batch of mutations that will be sent as one unit to the backend. Batches can be marked as a
  * tombstone if the mutation queue does not remove them immediately. When a batch is a tombstone
