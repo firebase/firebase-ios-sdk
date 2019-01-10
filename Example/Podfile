@@ -1,6 +1,10 @@
-# Uncomment the next two lines for pre-release testing
+# Uncomment the next two lines for pre-release testing on internal repo
 #source 'sso://cpdc-internal/firebase'
 #source 'https://github.com/CocoaPods/Specs.git'
+
+# Uncomment the next two lines for pre-release testing on public repo
+source 'https://github.com/Firebase/SpecsStaging.git'
+source 'https://github.com/CocoaPods/Specs.git'
 
 use_frameworks!
 
