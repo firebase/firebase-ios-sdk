@@ -1,5 +1,6 @@
 # Unreleased
-- Fix `pod lib lint GoogleUtilities.podspec --use-libraries` regression. (#2130)
+- Fixed `pod lib lint GoogleUtilities.podspec --use-libraries` regression. (#2130)
+- Fixed macOS conditional check in UserDefaults. (#2245)
 
 # 5.3.6
 - Fix nullability issues. (#2079)
