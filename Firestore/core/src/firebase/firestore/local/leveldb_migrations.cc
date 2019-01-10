@@ -213,7 +213,6 @@ void RemoveLastAcknowledgedBatchID(leveldb::DB* db) {
     Writer writer = Writer::Wrap(&bytes);
     writer.WriteNanopbMessage(firestore_client_MutationQueue_fields,
                               &mutation_queue);
-    // transaction.Delete(it->key());
     transaction.Put(LevelDbMutationQueueKey::Key(key.user_id()),
                     std::move(bytes));
   }
