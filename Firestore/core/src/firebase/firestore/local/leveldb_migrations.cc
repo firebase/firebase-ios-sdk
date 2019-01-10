@@ -23,6 +23,7 @@
 #include "Firestore/Protos/nanopb/firestore/local/target.nanopb.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
@@ -36,6 +37,7 @@ using leveldb::Iterator;
 using leveldb::Slice;
 using leveldb::Status;
 using leveldb::WriteOptions;
+using model::kBatchIdUnknown;
 using nanopb::Reader;
 using nanopb::Writer;
 
@@ -60,8 +62,10 @@ namespace {
  *   * Migration 4 ensures that every document in the remote document cache
  *     has a sentinel row with a sequence number.
  *   * Migration 5 drops held write acks.
+ *   * Migration 6 sets last acknowledged batch ID to an "unknown" value,
+ *     because it is no longer used by code.
  */
-const LevelDbMigrations::SchemaVersion kSchemaVersion = 5;
+const LevelDbMigrations::SchemaVersion kSchemaVersion = 6;
 
 /**
  * Save the given version number as the current version of the schema of the
@@ -174,6 +178,7 @@ void RemoveAcknowledgedMutations(leveldb::DB* db) {
     reader.ReadNanopbMessage(firestore_client_MutationQueue_fields,
                              &mutation_queue);
     HARD_ASSERT(reader.status().ok(), "Failed to deserialize MutationQueue");
+
     RemoveMutationBatches(&transaction, key.user_id(),
                           mutation_queue.last_acknowledged_batch_id);
     RemoveMutationDocuments(&transaction, key.user_id(),
@@ -181,6 +186,38 @@ void RemoveAcknowledgedMutations(leveldb::DB* db) {
   }
 
   SaveVersion(5, &transaction);
+  transaction.Commit();
+}
+
+/** Migration 6. */
+void RemoveLastAcknowledgedBatchID(leveldb::DB* db) {
+  LevelDbTransaction transaction(db, "remove highest acknowledged batch ID");
+
+  std::string mutation_queue_start = LevelDbMutationQueueKey::KeyPrefix();
+
+  LevelDbMutationQueueKey key;
+
+  auto it = transaction.NewIterator();
+  it->Seek(mutation_queue_start);
+  for (; it->Valid() && absl::StartsWith(it->key(), mutation_queue_start);
+       it->Next()) {
+    HARD_ASSERT(key.Decode(it->key()), "Failed to decode mutation queue key");
+    firestore_client_MutationQueue mutation_queue{};
+    Reader reader = Reader::Wrap(it->value());
+    reader.ReadNanopbMessage(firestore_client_MutationQueue_fields,
+                             &mutation_queue);
+    HARD_ASSERT(reader.status().ok(), "Failed to deserialize MutationQueue");
+
+    mutation_queue.last_acknowledged_batch_id = kBatchIdUnknown;
+    std::string bytes;
+    Writer writer = Writer::Wrap(&bytes);
+    writer.WriteNanopbMessage(firestore_client_MutationQueue_fields,
+                              &mutation_queue);
+    transaction.Delete(it->key());
+    transaction.Put(it->key().data(), std::move(bytes));
+  }
+
+  SaveVersion(6, &transaction);
   transaction.Commit();
 }
 
@@ -286,6 +323,10 @@ void LevelDbMigrations::RunMigrations(leveldb::DB* db,
 
   if (from_version < 5 && to_version >= 5) {
     RemoveAcknowledgedMutations(db);
+  }
+
+  if (from_version < 6 && to_version >= 6) {
+    RemoveLastAcknowledgedBatchID(db);
   }
 }
 

@@ -31,6 +31,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
+#include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
 namespace testutil = firebase::firestore::testutil;
@@ -89,7 +90,7 @@ NS_ASSUME_NONNULL_BEGIN
     FSTMutationBatch *batch1 = [self addMutationBatch];
     FSTMutationBatch *batch2 = [self addMutationBatch];
     FSTMutationBatch *batch3 = [self addMutationBatch];
-    XCTAssertGreaterThan(batch1.batchID, kFSTBatchIDUnknown);
+    XCTAssertGreaterThan(batch1.batchID, kBatchIdUnknown);
     XCTAssertGreaterThan(batch2.batchID, batch1.batchID);
     XCTAssertGreaterThan(batch3.batchID, batch2.batchID);
 

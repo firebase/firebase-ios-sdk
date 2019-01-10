@@ -61,7 +61,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Gets the first unacknowledged mutation batch after the passed in batchId in the mutation queue
  * or nil if empty.
  *
- * @param batchID The batch to search after, or kFSTBatchIDUnknown for the first mutation in the
+ * @param batchID The batch to search after, or kBatchIdUnknown for the first mutation in the
  * queue.
  *
  * @return the next mutation or nil if there wasn't one.

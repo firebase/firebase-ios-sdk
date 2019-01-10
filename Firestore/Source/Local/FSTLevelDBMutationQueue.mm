@@ -33,6 +33,7 @@
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_util.h"
+#include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
@@ -52,6 +53,7 @@ using firebase::firestore::local::LevelDbMutationQueueKey;
 using firebase::firestore::local::LevelDbTransaction;
 using firebase::firestore::local::MakeStringView;
 using firebase::firestore::model::BatchId;
+using firebase::firestore::model::kBatchIdUnknown;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::ResourcePath;
@@ -133,7 +135,7 @@ using leveldb::WriteOptions;
   auto tableKey = LevelDbMutationKey::KeyPrefix();
 
   LevelDbMutationKey rowKey;
-  BatchId maxBatchID = kFSTBatchIDUnknown;
+  BatchId maxBatchID = kBatchIdUnknown;
 
   BOOL moreUserIDs = NO;
   std::string nextUserID;
