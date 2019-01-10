@@ -38,6 +38,7 @@ namespace testutil = firebase::firestore::testutil;
 using firebase::firestore::auth::User;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::kBatchIdUnknown;
 using firebase::firestore::testutil::Key;
 
 NS_ASSUME_NONNULL_BEGIN

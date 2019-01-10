@@ -25,9 +25,13 @@
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLevelDBMutationQueue.h"
 
+#include "Firestore/Protos/nanopb/firestore/local/mutation.nanopb.h"
+
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_migrations.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_query_cache.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 #include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 #include "absl/strings/match.h"
@@ -54,6 +58,8 @@ using firebase::firestore::model::BatchId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::ListenSequenceNumber;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::nanopb::Reader;
+using firebase::firestore::nanopb::Writer;
 using firebase::firestore::testutil::Key;
 using firebase::firestore::util::OrderedCode;
 using firebase::firestore::util::Path;
@@ -359,6 +365,58 @@ using SchemaVersion = LevelDbMigrations::SchemaVersion;
     XCTAssertTrue(
         transaction.Get(LevelDbDocumentMutationKey::Key("bar", testWritePending, 4), &buffer).ok());
   }
+}
+
+- (void)testSetsLastAcknowledgedBatchIdToUnknown {
+    LevelDbMigrations::RunMigrations(_db.get(), 5);
+
+    {
+      LevelDbTransaction transaction(_db.get(), "Setup users");
+
+      FSTPBMutationQueue *fooQueue = [[FSTPBMutationQueue alloc] init];
+      fooQueue.lastAcknowledgedBatchId = 1;
+      transaction.Put(LevelDbMutationQueueKey::Key("foo1"), fooQueue);
+
+      FSTPBMutationQueue *barQueue = [[FSTPBMutationQueue alloc] init];
+      barQueue.lastAcknowledgedBatchId = 2;
+      transaction.Put(LevelDbMutationQueueKey::Key("foo2"), barQueue);
+
+      FSTPBMutationQueue *bazQueue = [[FSTPBMutationQueue alloc] init];
+      bazQueue.lastAcknowledgedBatchId = -1;
+      transaction.Put(LevelDbMutationQueueKey::Key("foo3"), bazQueue);
+      
+      transaction.Commit();
+    }
+
+    auto get_last_acked = [&]{
+      LevelDbTransaction transaction(_db.get(), "Verify");
+
+      NSMutableArray<NSNumber*> *results = [NSMutableArray array];
+
+      std::string mutation_queue_start = LevelDbMutationQueueKey::KeyPrefix();
+      LevelDbMutationQueueKey key;
+      auto it = transaction.NewIterator();
+
+      it->Seek(mutation_queue_start);
+      for (; it->Valid() && absl::StartsWith(it->key(), mutation_queue_start);
+          it->Next()) {
+        HARD_ASSERT(key.Decode(it->key()), "Failed to decode mutation queue key");
+
+        firebase::firestore::firestore_client_MutationQueue mutation_queue{};
+        Reader reader = Reader::Wrap(it->value());
+        reader.ReadNanopbMessage(firebase::firestore::firestore_client_MutationQueue_fields,
+            &mutation_queue);
+        HARD_ASSERT(reader.status().ok(), "Failed to deserialize MutationQueue");
+
+        [results addObject:@(mutation_queue.last_acknowledged_batch_id)];
+      }
+
+      return results;
+    };
+
+    XCTAssertEqualObjects(get_last_acked(), (@[@1, @2, @-1]));
+    LevelDbMigrations::RunMigrations(_db.get(), 6);
+    XCTAssertEqualObjects(get_last_acked(), (@[@-1, @-1, @-1]));
 }
 
 - (void)testCanDowngrade {

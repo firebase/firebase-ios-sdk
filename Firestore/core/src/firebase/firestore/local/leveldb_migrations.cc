@@ -191,7 +191,7 @@ void RemoveAcknowledgedMutations(leveldb::DB* db) {
 
 /** Migration 6. */
 void RemoveLastAcknowledgedBatchID(leveldb::DB* db) {
-  LevelDbTransaction transaction(db, "remove highest acknowledged batch ID");
+  LevelDbTransaction transaction(db, "remove last acknowledged batch ID");
 
   std::string mutation_queue_start = LevelDbMutationQueueKey::KeyPrefix();
 
@@ -213,8 +213,8 @@ void RemoveLastAcknowledgedBatchID(leveldb::DB* db) {
     Writer writer = Writer::Wrap(&bytes);
     writer.WriteNanopbMessage(firestore_client_MutationQueue_fields,
                               &mutation_queue);
-    transaction.Delete(it->key());
-    transaction.Put(it->key().data(), std::move(bytes));
+    // transaction.Delete(it->key());
+    transaction.Put(LevelDbMutationQueueKey::Key(key.user_id()), std::move(bytes));
   }
 
   SaveVersion(6, &transaction);

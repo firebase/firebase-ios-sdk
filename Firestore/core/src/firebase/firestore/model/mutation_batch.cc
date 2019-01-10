@@ -22,6 +22,6 @@ namespace model {
 
 const BatchId kBatchIdUnknown = -1;
 
-}
+}  // namespace model
 }  // namespace firestore
 }  // namespace firebase
