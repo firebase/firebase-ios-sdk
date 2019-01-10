@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** @class FIRGoogleAuthCredential
     @brief Internal implementation of FIRAuthCredential for the Google IdP.
  */
-@interface FIRGoogleAuthCredential : FIRAuthCredential
+@interface FIRGoogleAuthCredential : FIRAuthCredential <NSSecureCoding>
 
 /** @fn initWithIDToken:accessToken:
     @brief Designated initializer.
