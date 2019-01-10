@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ namespace model {
  * BatchId values from the local store are non-negative so this value is before
  * all batches.
  */
-extern const BatchId kBatchIdUnknown;
+constexpr BatchId kBatchIdUnknown = -1;
 
 }  // namespace model
 }  // namespace firestore
