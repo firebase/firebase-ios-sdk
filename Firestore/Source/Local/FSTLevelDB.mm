@@ -383,7 +383,7 @@ static const char *kReservedPathComponent = "firestore";
       NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
   return Path::FromNSString(directories[0]).AppendUtf8(kReservedPathComponent);
 
-#elif TARGET_OS_MAC
+#elif TARGET_OS_OSX
   std::string dotPrefixed = absl::StrCat(".", kReservedPathComponent);
   return Path::FromNSString(NSHomeDirectory()).AppendUtf8(dotPrefixed);
 
