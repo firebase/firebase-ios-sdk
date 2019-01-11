@@ -141,7 +141,7 @@ google_firestore_v1_MapValue EncodeMapValue(
 
   size_t count = object_value_map.size();
 
-  result.fields_count = count;
+  result.fields_count = static_cast<pb_size_t>(count);
   result.fields = MakeArray<google_firestore_v1_MapValue_FieldsEntry>(count);
 
   int i = 0;
@@ -406,7 +406,7 @@ google_firestore_v1_Document Serializer::EncodeDocument(
 
   // Encode Document.fields (unless it's empty)
   size_t count = object_value.internal_value.size();
-  result.fields_count = count;
+  result.fields_count = static_cast<pb_size_t>(count);
   result.fields = MakeArray<google_firestore_v1_Document_FieldsEntry>(count);
   int i = 0;
   for (const auto& kv : object_value.internal_value) {
@@ -512,7 +512,7 @@ google_firestore_v1_Target_QueryTarget Serializer::EncodeQueryTarget(
 
   if (!collection_id.empty()) {
     size_t count = 1;
-    result.structured_query.from_count = count;
+    result.structured_query.from_count = static_cast<pb_size_t>(count);
     result.structured_query.from =
         MakeArray<google_firestore_v1_StructuredQuery_CollectionSelector>(
             count);
