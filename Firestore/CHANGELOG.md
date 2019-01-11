@@ -1,4 +1,8 @@
 # Unreleased
+- [changed] The `areTimestampsInSnapshotsEnabled` setting is now enabled by
+  default so timestamp fields read from a FIRDocumentSnapshot will be returned
+  as FIRTimestamp objects instead of NSDate. Any code expecting to receive an
+  NSDate object must be updated.
 - [changed] `Transaction.getDocument()` has been changed to return a non-nil
   `DocumentSnapshot` with `exists` equal to `false` if the document does not
   exist (instead of returning a nil DocumentSnapshot). Code that was previously

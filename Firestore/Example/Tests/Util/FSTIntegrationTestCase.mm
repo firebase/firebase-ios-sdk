@@ -115,7 +115,6 @@ static FIRFirestoreSettings *defaultSettings;
 + (void)setUpDefaults {
   defaultSettings = [[FIRFirestoreSettings alloc] init];
   defaultSettings.persistenceEnabled = YES;
-  defaultSettings.timestampsInSnapshotsEnabled = YES;
 
   // Check for a MobileHarness configuration, running against nightly or prod, which have live
   // SSL certs.
