@@ -141,7 +141,7 @@ google_firestore_v1_MapValue EncodeMapValue(
 
   size_t count = object_value_map.size();
 
-  result.fields_count = count;
+  result.fields_count = static_cast<pb_size_t>(count);
   result.fields = MakeArray<google_firestore_v1_MapValue_FieldsEntry>(count);
 
   int i = 0;
@@ -406,7 +406,7 @@ google_firestore_v1_Document Serializer::EncodeDocument(
 
   // Encode Document.fields (unless it's empty)
   size_t count = object_value.internal_value.size();
-  result.fields_count = count;
+  result.fields_count = static_cast<pb_size_t>(count);
   result.fields = MakeArray<google_firestore_v1_Document_FieldsEntry>(count);
   int i = 0;
   for (const auto& kv : object_value.internal_value) {
@@ -512,7 +512,7 @@ google_firestore_v1_Target_QueryTarget Serializer::EncodeQueryTarget(
 
   if (!collection_id.empty()) {
     size_t count = 1;
-    result.structured_query.from_count = count;
+    result.structured_query.from_count = static_cast<pb_size_t>(count);
     result.structured_query.from =
         MakeArray<google_firestore_v1_StructuredQuery_CollectionSelector>(
             count);
@@ -538,8 +538,10 @@ google_firestore_v1_Target_QueryTarget Serializer::EncodeQueryTarget(
 ResourcePath DecodeQueryPath(Reader* reader, absl::string_view name) {
   ResourcePath resource = DecodeResourceName(reader, name);
   if (resource.size() == 4) {
-    // Path missing the trailing documents path segment, indicating an empty
-    // path.
+    // In v1beta1 queries for collections at the root did not have a trailing
+    // "/documents". In v1 all resource paths contain "/documents". Preserve the
+    // ability to read the v1beta1 form for compatibility with queries persisted
+    // in the local query cache.
     return ResourcePath::Empty();
   } else {
     return ExtractLocalPathFromResourceName(reader, resource);
@@ -581,11 +583,6 @@ Query Serializer::DecodeQueryTarget(
 }
 
 std::string Serializer::EncodeQueryPath(const ResourcePath& path) const {
-  if (path.empty()) {
-    // If the path is empty, the backend requires we leave off the /documents at
-    // the end.
-    return database_name_;
-  }
   return EncodeResourceName(database_id_, path);
 }
 

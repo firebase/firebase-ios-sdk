@@ -152,16 +152,15 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSString *)encodedQueryPath:(const ResourcePath &)path {
-  if (path.size() == 0) {
-    // If the path is empty, the backend requires we leave off the /documents at the end.
-    return [self encodedDatabaseID];
-  }
   return [self encodedResourcePathForDatabaseID:self.databaseID path:path];
 }
 
 - (ResourcePath)decodedQueryPath:(NSString *)name {
   const ResourcePath resource = [self decodedResourcePathWithDatabaseID:name];
   if (resource.size() == 4) {
+    // In v1beta1 queries for collections at the root did not have a trailing "/documents". In v1
+    // all resource paths contain "/documents". Preserve the ability to read the v1beta1 form for
+    // compatibility with queries persisted in the local query cache.
     return ResourcePath{};
   } else {
     return [self localResourcePathForQualifiedResourcePath:resource];
