@@ -63,7 +63,6 @@ func initializeDb() -> Firestore {
   let settings = FirestoreSettings()
   settings.host = "localhost"
   settings.isPersistenceEnabled = true
-  settings.areTimestampsInSnapshotsEnabled = true
   settings.cacheSizeBytes = FirestoreCacheSizeUnlimited
   firestore.settings = settings
 

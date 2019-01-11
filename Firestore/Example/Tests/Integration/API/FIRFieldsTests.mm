@@ -233,8 +233,6 @@ NSDictionary<NSString *, id> *testDataWithTimestamps(FIRTimestamp *timestamp) {
   return [self readDocumentForRef:doc];
 }
 
-// Note: timestampsInSnapshotsEnabled is set to "true" in FSTIntegrationTestCase, so this test is
-// not affected by the current default in FIRFirestoreSettings.
 - (void)testTimestampsInSnapshots {
   FIRTimestamp *originalTimestamp = [FIRTimestamp timestampWithSeconds:100 nanoseconds:123456789];
   FIRDocumentReference *doc = [self documentRef];
@@ -268,7 +266,10 @@ NSDictionary<NSString *, id> *testDataWithTimestamps(FIRTimestamp *timestamp) {
   [super setUp];
   // Settings can only be redefined before client is initialized, so this has to happen in setUp.
   FIRFirestoreSettings *settings = self.db.settings;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   settings.timestampsInSnapshotsEnabled = NO;
+#pragma clang diagnostic pop
   self.db.settings = settings;
 }
 
