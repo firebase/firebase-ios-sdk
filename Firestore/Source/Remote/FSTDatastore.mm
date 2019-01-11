@@ -144,9 +144,9 @@ NSString *const kGRPCErrorDomain = @"io.grpc";
   return error.code == FIRFirestoreErrorCodeAborted;
 }
 
-+ (BOOL)isPermanentWriteError:(NSError *)error {
++ (BOOL)isPermanentError:(NSError *)error {
   HARD_ASSERT([error.domain isEqualToString:FIRFirestoreErrorDomain],
-              "isPerminanteWriteError: only works with errors emitted by FSTDatastore.");
+              "isPermanentError: only works with errors emitted by FSTDatastore.");
   switch (error.code) {
     case FIRFirestoreErrorCodeCancelled:
     case FIRFirestoreErrorCodeUnknown:
@@ -154,8 +154,8 @@ NSString *const kGRPCErrorDomain = @"io.grpc";
     case FIRFirestoreErrorCodeResourceExhausted:
     case FIRFirestoreErrorCodeInternal:
     case FIRFirestoreErrorCodeUnavailable:
-    // Unauthenticated means something went wrong with our token and we need to retry with new
-    // credentials which will happen automatically.
+      // Unauthenticated means something went wrong with our token and we need to retry with new
+      // credentials which will happen automatically.
     case FIRFirestoreErrorCodeUnauthenticated:
       return NO;
     case FIRFirestoreErrorCodeInvalidArgument:
@@ -164,9 +164,9 @@ NSString *const kGRPCErrorDomain = @"io.grpc";
     case FIRFirestoreErrorCodePermissionDenied:
     case FIRFirestoreErrorCodeFailedPrecondition:
     case FIRFirestoreErrorCodeAborted:
-    // Aborted might be retried in some scenarios, but that is dependant on
-    // the context and should handled individually by the calling code.
-    // See https://cloud.google.com/apis/design/errors
+      // Aborted might be retried in some scenarios, but that is dependant on
+      // the context and should handled individually by the calling code.
+      // See https://cloud.google.com/apis/design/errors
     case FIRFirestoreErrorCodeOutOfRange:
     case FIRFirestoreErrorCodeUnimplemented:
     case FIRFirestoreErrorCodeDataLoss:
@@ -174,6 +174,10 @@ NSString *const kGRPCErrorDomain = @"io.grpc";
     default:
       return YES;
   }
+}
+
++ (BOOL)isPermanentWriteError:(NSError *)error {
+  return [self isPermanentError:error] && error.code != FIRFirestoreErrorCodeAborted;
 }
 
 - (void)commitMutations:(NSArray<FSTMutation *> *)mutations
