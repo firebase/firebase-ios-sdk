@@ -25,7 +25,6 @@ static const BOOL kDefaultSSLEnabled = YES;
 static const BOOL kDefaultPersistenceEnabled = YES;
 static const int64_t kDefaultCacheSizeBytes = 100 * 1024 * 1024;
 static const int64_t kMinimumCacheSizeBytes = 1 * 1024 * 1024;
-// TODO(b/73820332): flip the default.
 static const BOOL kDefaultTimestampsInSnapshotsEnabled = YES;
 
 @implementation FIRFirestoreSettings
