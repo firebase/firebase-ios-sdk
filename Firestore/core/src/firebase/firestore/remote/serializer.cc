@@ -538,8 +538,10 @@ google_firestore_v1_Target_QueryTarget Serializer::EncodeQueryTarget(
 ResourcePath DecodeQueryPath(Reader* reader, absl::string_view name) {
   ResourcePath resource = DecodeResourceName(reader, name);
   if (resource.size() == 4) {
-    // Path missing the trailing documents path segment, indicating an empty
-    // path.
+    // In v1beta1 queries for collections at the root did not have a trailing
+    // "/documents". In v1 all resource paths contain "/documents". Preserve the
+    // ability to read the v1beta1 form for compatibility with queries persisted
+    // in the local query cache.
     return ResourcePath::Empty();
   } else {
     return ExtractLocalPathFromResourceName(reader, resource);
@@ -581,11 +583,6 @@ Query Serializer::DecodeQueryTarget(
 }
 
 std::string Serializer::EncodeQueryPath(const ResourcePath& path) const {
-  if (path.empty()) {
-    // If the path is empty, the backend requires we leave off the /documents at
-    // the end.
-    return database_name_;
-  }
   return EncodeResourceName(database_id_, path);
 }
 
