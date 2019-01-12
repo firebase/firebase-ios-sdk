@@ -4,6 +4,8 @@
   exist (instead of returning a nil DocumentSnapshot). Code that was previously
   doing `if (snapshot) { ... }` must be changed to
   `if (snapshot.exists) { ... }`.
+- [fixed] Fixed a crash that could happen when the app is shut down in a state
+  where a write batch has been acknowledged by the server but not yet observed.
 
 # v0.16.1
 - [fixed] Offline persistence now properly records schema downgrades. This is a
