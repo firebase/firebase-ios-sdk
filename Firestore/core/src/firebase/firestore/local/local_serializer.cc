@@ -17,6 +17,7 @@
 #include "Firestore/core/src/firebase/firestore/local/local_serializer.h"
 
 #include <cstdlib>
+#include <limits>
 #include <string>
 #include <utility>
 
@@ -124,7 +125,9 @@ google_firestore_v1_Document LocalSerializer::EncodeDocument(
 
   // Encode Document.fields (unless it's empty)
   size_t count = doc.data().object_value().internal_value.size();
-  result.fields_count = count;
+  HARD_ASSERT(count <= std::numeric_limits<pb_size_t>::max(),
+              "Unable to encode specified document. Too many fields.");
+  result.fields_count = static_cast<pb_size_t>(count);
   result.fields = MakeArray<google_firestore_v1_Document_FieldsEntry>(count);
   int i = 0;
   for (const auto& kv : doc.data().object_value().internal_value) {
@@ -256,7 +259,9 @@ firestore_client_WriteBatch LocalSerializer::EncodeMutationBatch(
 
   result.batch_id = mutation_batch.batch_id();
   size_t count = mutation_batch.mutations().size();
-  result.writes_count = count;
+  HARD_ASSERT(count <= std::numeric_limits<pb_size_t>::max(),
+              "Unable to encode specified mutation batch. Too many mutations.");
+  result.writes_count = static_cast<pb_size_t>(count);
   result.writes = MakeArray<google_firestore_v1_Write>(count);
   int i = 0;
   for (const std::unique_ptr<Mutation>& mutation : mutation_batch.mutations()) {

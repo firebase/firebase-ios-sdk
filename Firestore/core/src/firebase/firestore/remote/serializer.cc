@@ -20,6 +20,7 @@
 #include <pb_encode.h>
 
 #include <functional>
+#include <limits>
 #include <map>
 #include <string>
 #include <utility>
@@ -667,7 +668,9 @@ google_firestore_v1_DocumentMask Serializer::EncodeDocumentMask(
   google_firestore_v1_DocumentMask result;
 
   size_t count = mask.size();
-  result.field_paths_count = count;
+  HARD_ASSERT(count <= std::numeric_limits<pb_size_t>::max(),
+              "Unable to encode specified document mask. Too many fields.");
+  result.field_paths_count = static_cast<pb_size_t>(count);
   result.field_paths = MakeArray<pb_bytes_array_t*>(count);
 
   int i = 0;
