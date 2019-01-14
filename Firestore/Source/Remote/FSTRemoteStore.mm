@@ -26,7 +26,6 @@
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
-#import "Firestore/Source/Remote/FSTDatastore.h"
 #import "Firestore/Source/Remote/FSTExistenceFilter.h"
 #import "Firestore/Source/Remote/FSTOnlineStateTracker.h"
 #import "Firestore/Source/Remote/FSTRemoteEvent.h"
@@ -53,6 +52,7 @@ using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::remote::Datastore;
 using firebase::firestore::remote::WatchStream;
 using firebase::firestore::remote::WriteStream;
 using util::AsyncQueue;
@@ -74,9 +74,6 @@ static const int kMaxPendingWrites = 10;
  * filter mismatches. Immutable after initialization.
  */
 @property(nonatomic, strong, readonly) FSTLocalStore *localStore;
-
-/** The client-side proxy for interacting with the backend. Immutable after initialization. */
-@property(nonatomic, strong, readonly) FSTDatastore *datastore;
 
 #pragma mark Watch Stream
 
@@ -113,6 +110,9 @@ static const int kMaxPendingWrites = 10;
 @end
 
 @implementation FSTRemoteStore {
+  /** The client-side proxy for interacting with the backend. */
+  std::unique_ptr<Datastore> _datastore;
+
   std::shared_ptr<WatchStream> _watchStream;
   std::shared_ptr<WriteStream> _writeStream;
   /**
@@ -123,19 +123,19 @@ static const int kMaxPendingWrites = 10;
 }
 
 - (instancetype)initWithLocalStore:(FSTLocalStore *)localStore
-                         datastore:(FSTDatastore *)datastore
+                         datastore:(std::unique_ptr<Datastore>)datastore
                        workerQueue:(AsyncQueue *)queue {
   if (self = [super init]) {
     _localStore = localStore;
-    _datastore = datastore;
+    _datastore = std::move(datastore);
     _listenTargets = [NSMutableDictionary dictionary];
 
     _writePipeline = [NSMutableArray array];
     _onlineStateTracker = [[FSTOnlineStateTracker alloc] initWithWorkerQueue:queue];
 
     // Create streams (but note they're not started yet)
-    _watchStream = [self.datastore createWatchStreamWithDelegate:self];
-    _writeStream = [self.datastore createWriteStreamWithDelegate:self];
+    _watchStream = _datastore->CreateWatchStream(self);
+    _writeStream = _datastore->CreateWriteStream(self);
 
     _isNetworkEnabled = NO;
   }
@@ -214,7 +214,7 @@ static const int kMaxPendingWrites = 10;
   // Set the OnlineState to Unknown (rather than Offline) to avoid potentially triggering
   // spurious listener events with cached data, etc.
   [self.onlineStateTracker updateState:OnlineState::Unknown];
-  [self.datastore shutdown];
+  _datastore->Shutdown();
 }
 
 - (void)credentialDidChange {
@@ -578,7 +578,7 @@ static const int kMaxPendingWrites = 10;
   // Reset the token if it's a permanent error, signaling the write stream is
   // no longer valid. Note that the handshake does not count as a write: see
   // comments on isPermanentWriteError for details.
-  if ([FSTDatastore isPermanentError:error]) {
+  if ([Datastore::IsPermanentError(error)]) {
     NSString *token = [_writeStream->GetLastStreamToken() base64EncodedStringWithOptions:0];
     LOG_DEBUG("FSTRemoteStore %s error before completed handshake; resetting stream token %s: %s",
               (__bridge void *)self, token, error);
@@ -593,7 +593,7 @@ static const int kMaxPendingWrites = 10;
 - (void)handleWriteError:(NSError *)error {
   HARD_ASSERT(error, "Handling write error with status OK.");
   // Only handle permanent errors here. If it's transient, just let the retry logic kick in.
-  if (![FSTDatastore isPermanentWriteError:error]) {
+  if (![Datastore::IsPermanentWriteError(error)]) {
     return;
   }
 
@@ -613,7 +613,7 @@ static const int kMaxPendingWrites = 10;
 }
 
 - (FSTTransaction *)transaction {
-  return [FSTTransaction transactionWithDatastore:self.datastore];
+  return [FSTTransaction transactionWithDatastore:_datastore.get()];
 }
 
 @end

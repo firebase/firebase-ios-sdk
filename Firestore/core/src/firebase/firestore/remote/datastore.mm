@@ -19,15 +19,21 @@
 #include <unordered_set>
 #include <utility>
 
+#import "Firestore/Source/Remote/FSTSerializerBeta.h"
+
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/auth/token.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
+#include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/remote/connectivity_monitor.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_completion.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_streaming_reader.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_unary_call.h"
+#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
@@ -61,6 +67,11 @@ std::unique_ptr<Executor> CreateExecutor() {
   return absl::make_unique<ExecutorLibdispatch>(queue);
 }
 
+FSTSerializerBeta* CreateSerializer(const DatabaseInfo& database_info) {
+  return [[FSTSerializerBeta alloc]
+      initWithDatabaseID:&database_info->database_id()];
+}
+
 std::string MakeString(grpc::string_ref grpc_str) {
   return {grpc_str.begin(), grpc_str.size()};
 }
@@ -85,15 +96,17 @@ void LogGrpcCallFinished(absl::string_view rpc_name,
 
 Datastore::Datastore(const DatabaseInfo& database_info,
                      AsyncQueue* worker_queue,
-                     CredentialsProvider* credentials,
-                     FSTSerializerBeta* serializer)
+                     CredentialsProvider* credentials)
     : worker_queue_{NOT_NULL(worker_queue)},
       credentials_{credentials},
       rpc_executor_{CreateExecutor()},
       connectivity_monitor_{ConnectivityMonitor::Create(worker_queue)},
       grpc_connection_{database_info, worker_queue, &grpc_queue_,
                        connectivity_monitor_.get()},
-      serializer_bridge_{NOT_NULL(serializer)} {
+      serializer_bridge_{CreateSerializer(database_info)} {
+  if (!database_info->ssl_enabled()) {
+    GrpcConnection::UseInsecureChannel(database_info->host());
+  }
 }
 
 void Datastore::Start() {
@@ -345,6 +358,12 @@ std::string Datastore::GetWhitelistedHeadersAsString(
   }
   return result;
 }
+
+// - (NSString *)description {
+//   return [NSString stringWithFormat:@"<FSTDatastore: <DatabaseInfo: database_id:%s host:%s>>",
+//                                     self.databaseInfo->database_id().database_id().c_str(),
+//                                     self.databaseInfo->host().c_str()];
+// }
 
 }  // namespace remote
 }  // namespace firestore
