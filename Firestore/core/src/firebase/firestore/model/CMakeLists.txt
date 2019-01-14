@@ -33,6 +33,8 @@ cc_library(
     maybe_document.h
     mutation.cc
     mutation.h
+    mutation_batch.cc
+    mutation_batch.h
     no_document.cc
     no_document.h
     precondition.cc
