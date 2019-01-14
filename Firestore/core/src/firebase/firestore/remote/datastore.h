@@ -45,7 +45,6 @@
 #include "grpcpp/support/status.h"
 
 #import "Firestore/Source/Core/FSTTypes.h"
-#import "Firestore/Source/Remote/FSTSerializerBeta.h"
 #import "Firestore/Source/Remote/FSTStream.h"
 
 namespace firebase {
@@ -69,8 +68,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
  public:
   Datastore(const core::DatabaseInfo& database_info,
             util::AsyncQueue* worker_queue,
-            auth::CredentialsProvider* credentials,
-            FSTSerializerBeta* serializer);
+            auth::CredentialsProvider* credentials);
 
   // To enable mocking
   virtual ~Datastore() {

@@ -48,6 +48,22 @@ inline NSError* MakeNSError(const util::Status& status) {
   return MakeNSError(status.code(), status.error_message());
 }
 
+inline util::Status MakeStatus(NSError* error) {
+  if (!error) {
+    return Status::OK();
+  }
+
+  HARD_ASSERT([error.domain isEqualToString:FIRFirestoreErrorDomain],
+              "Can only convert an NSError to a Firestore status for errors "
+              "emitted by Datastore.");
+
+  HARD_ASSERT(error.code >= FirestoreErrorCode::Cancelled &&
+                  error.code <= FirestoreErrorCode::Unauthenticated,
+              "Unknown Firestore error code: %s", error.code);
+  return {static_cast<FirestoreErrorCode>(error.code),
+          MakeString(error.localizedDescription)};
+}
+
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase

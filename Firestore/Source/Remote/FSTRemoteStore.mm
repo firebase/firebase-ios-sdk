@@ -37,6 +37,7 @@
 #include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/remote/stream.h"
+#include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
@@ -577,8 +578,8 @@ static const int kMaxPendingWrites = 10;
   HARD_ASSERT(error, "Handling write error with status OK.");
   // Reset the token if it's a permanent error, signaling the write stream is
   // no longer valid. Note that the handshake does not count as a write: see
-  // comments on isPermanentWriteError for details.
-  if ([Datastore::IsPermanentError(error)]) {
+  // comments on `Datastore::IsPermanentWriteError` for details.
+  if (Datastore::IsPermanentError(util::MakeStatus(error))) {
     NSString *token = [_writeStream->GetLastStreamToken() base64EncodedStringWithOptions:0];
     LOG_DEBUG("FSTRemoteStore %s error before completed handshake; resetting stream token %s: %s",
               (__bridge void *)self, token, error);
@@ -593,7 +594,7 @@ static const int kMaxPendingWrites = 10;
 - (void)handleWriteError:(NSError *)error {
   HARD_ASSERT(error, "Handling write error with status OK.");
   // Only handle permanent errors here. If it's transient, just let the retry logic kick in.
-  if (![Datastore::IsPermanentWriteError(error)]) {
+  if (!Datastore::IsPermanentWriteError(util::MakeStatus(error))) {
     return;
   }
 

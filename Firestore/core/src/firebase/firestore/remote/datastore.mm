@@ -69,7 +69,7 @@ std::unique_ptr<Executor> CreateExecutor() {
 
 FSTSerializerBeta* CreateSerializer(const DatabaseInfo& database_info) {
   return [[FSTSerializerBeta alloc]
-      initWithDatabaseID:&database_info->database_id()];
+      initWithDatabaseID:&database_info.database_id()];
 }
 
 std::string MakeString(grpc::string_ref grpc_str) {
@@ -104,8 +104,8 @@ Datastore::Datastore(const DatabaseInfo& database_info,
       grpc_connection_{database_info, worker_queue, &grpc_queue_,
                        connectivity_monitor_.get()},
       serializer_bridge_{CreateSerializer(database_info)} {
-  if (!database_info->ssl_enabled()) {
-    GrpcConnection::UseInsecureChannel(database_info->host());
+  if (!database_info.ssl_enabled()) {
+    GrpcConnection::UseInsecureChannel(database_info.host());
   }
 }
 
@@ -306,7 +306,7 @@ void Datastore::RemoveGrpcCall(GrpcCall* to_remove) {
 }
 
 bool Datastore::IsAbortedError(const Status& error) {
-  return error.code() == FIRFirestoreErrorCodeAborted;
+  return error.code() == FirestoreErrorCode::Aborted;
 }
 
 bool Datastore::IsPermanentError(const Status& error) {
