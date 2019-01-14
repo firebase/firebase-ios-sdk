@@ -39,8 +39,7 @@ version="${version/ (*)/}"
 version="${version/.*/}"
 
 case "$version" in
-  6 | 7)
-    # Allow an older clang-format to accommodate Travis version skew.
+  8)
     ;;
   google3-trunk)
     echo "Please use a publicly released clang-format; a recent LLVM release"
@@ -49,8 +48,9 @@ case "$version" in
     exit 1
     ;;
   *)
-    echo "Please upgrade to clang-format version 7."
-    echo "If it's installed via homebrew you can run: brew upgrade clang-format"
+    echo "Please upgrade to clang-format version 8."
+    echo "If it's installed via homebrew you can run:"
+    echo "brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/773cb75d360b58f32048f5964038d09825a507c8/Formula/clang-format.rb"
     exit 1
     ;;
 esac
@@ -104,6 +104,8 @@ else
   test_only=false
   clang_options+=(-i)
 fi
+
+#TODO(#2223) - Find a way to handle spaces in filenames
 
 files=$(
 (

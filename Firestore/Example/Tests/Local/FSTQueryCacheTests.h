@@ -14,18 +14,20 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/Local/FSTQueryCache.h"
-
 #import <XCTest/XCTest.h>
+
+#include "Firestore/core/src/firebase/firestore/local/query_cache.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/types.h"
 
 @protocol FSTPersistence;
 
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * These are tests for any implementation of the FSTQueryCache protocol.
+ * These are tests for any implementation of the QueryCache interface.
  *
- * To test a specific implementation of FSTQueryCache:
+ * To test a specific implementation of QueryCache:
  *
  * + Subclass FSTQueryCacheTests
  * + override -setUp, assigning to queryCache and persistence
@@ -33,8 +35,12 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FSTQueryCacheTests : XCTestCase
 
+/** Helper method to add a single document key to target association */
+- (void)addMatchingKey:(const firebase::firestore::model::DocumentKey&)key
+           forTargetID:(firebase::firestore::model::TargetId)targetID;
+
 /** The implementation of the query cache to test. */
-@property(nonatomic, strong, nullable) id<FSTQueryCache> queryCache;
+@property(nonatomic, nullable) firebase::firestore::local::QueryCache* queryCache;
 
 /**
  * The persistence implementation to use while testing the queryCache (e.g. for committing write

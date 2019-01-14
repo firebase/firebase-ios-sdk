@@ -15,6 +15,12 @@
 #import "FIRFunctions.h"
 #import "FIRFunctions+Internal.h"
 
+#import <FirebaseAuthInterop/FIRAuthInterop.h>
+#import <FirebaseCore/FIRComponent.h>
+#import <FirebaseCore/FIRComponentContainer.h>
+#import <FirebaseCore/FIRDependency.h>
+#import <FirebaseCore/FIRLibrary.h>
+
 #import "FIRError.h"
 #import "FIRHTTPSCallable+Internal.h"
 #import "FIRHTTPSCallable.h"
@@ -28,15 +34,27 @@
 #import "FIROptions.h"
 #import "GTMSessionFetcherService.h"
 
+// The following two macros supply the incantation so that the C
+// preprocessor does not try to parse the version as a floating
+// point number. See
+// https://www.guyrutenberg.com/2008/12/20/expanding-macros-into-string-constants-in-c/
+#define STR(x) STR_EXPAND(x)
+#define STR_EXPAND(x) #x
+
 NS_ASSUME_NONNULL_BEGIN
 
 NSString *const kFUNInstanceIDTokenHeader = @"Firebase-Instance-ID-Token";
+NSString *const kFUNDefaultRegion = @"us-central1";
 
-@interface FIRFunctions () {
+/// Empty protocol to register Functions as a component with Core.
+@protocol FIRFunctionsInstanceProvider
+@end
+
+@interface FIRFunctions () <FIRLibrary, FIRFunctionsInstanceProvider> {
   // The network client to use for http requests.
   GTMSessionFetcherService *_fetcherService;
   // The projectID to use for all function references.
-  FIRApp *_app;
+  NSString *_projectID;
   // The region to use for all function references.
   NSString *_region;
   // A serializer to encode/decode data and return values.
@@ -47,23 +65,42 @@ NSString *const kFUNInstanceIDTokenHeader = @"Firebase-Instance-ID-Token";
   NSString *_emulatorOrigin;
 }
 
-/**
- * Initialize the Cloud Functions client with the given app and region.
- * @param app The app for the Firebase project.
- * @param region The region for the http trigger, such as "us-central1".
- */
-- (id)initWithApp:(FIRApp *)app region:(NSString *)region NS_DESIGNATED_INITIALIZER;
+// Re-declare this initializer here in order to attribute it as the designated initializer.
+- (instancetype)initWithProjectID:(NSString *)projectID
+                           region:(NSString *)region
+                             auth:(nullable id<FIRAuthInterop>)auth NS_DESIGNATED_INITIALIZER;
 
 @end
 
 @implementation FIRFunctions
 
++ (void)load {
+  NSString *version = [NSString stringWithUTF8String:(const char *const)STR(FIRFunctions_VERSION)];
+  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self withName:@"fire-fun" withVersion:version];
+}
+
++ (NSArray<FIRComponent *> *)componentsToRegister {
+  FIRComponentCreationBlock creationBlock =
+      ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
+    *isCacheable = YES;
+    return [self functionsForApp:container.app];
+  };
+  FIRDependency *auth = [FIRDependency dependencyWithProtocol:@protocol(FIRAuthInterop)
+                                                   isRequired:NO];
+  FIRComponent *internalProvider =
+      [FIRComponent componentWithProtocol:@protocol(FIRFunctionsInstanceProvider)
+                      instantiationTiming:FIRInstantiationTimingLazy
+                             dependencies:@[ auth ]
+                            creationBlock:creationBlock];
+  return @[ internalProvider ];
+}
+
 + (instancetype)functions {
-  return [[self alloc] initWithApp:[FIRApp defaultApp] region:@"us-central1"];
+  return [[self alloc] initWithApp:[FIRApp defaultApp] region:kFUNDefaultRegion];
 }
 
 + (instancetype)functionsForApp:(FIRApp *)app {
-  return [[self alloc] initWithApp:app region:@"us-central1"];
+  return [[self alloc] initWithApp:app region:kFUNDefaultRegion];
 }
 
 + (instancetype)functionsForRegion:(NSString *)region {
@@ -75,16 +112,24 @@ NSString *const kFUNInstanceIDTokenHeader = @"Firebase-Instance-ID-Token";
 }
 
 - (instancetype)initWithApp:(FIRApp *)app region:(NSString *)region {
+  return [self initWithProjectID:app.options.projectID
+                          region:region
+                            auth:FIR_COMPONENT(FIRAuthInterop, app.container)];
+}
+
+- (instancetype)initWithProjectID:(NSString *)projectID
+                           region:(NSString *)region
+                             auth:(nullable id<FIRAuthInterop>)auth {
   self = [super init];
   if (self) {
     if (!region) {
       FUNThrowInvalidArgument(@"FIRFunctions region cannot be nil.");
     }
     _fetcherService = [[GTMSessionFetcherService alloc] init];
-    _app = app;
+    _projectID = [projectID copy];
     _region = [region copy];
     _serializer = [[FUNSerializer alloc] init];
-    _contextProvider = [[FUNContextProvider alloc] initWithApp:app];
+    _contextProvider = [[FUNContextProvider alloc] initWithAuth:auth];
     _emulatorOrigin = nil;
   }
   return self;
@@ -102,15 +147,14 @@ NSString *const kFUNInstanceIDTokenHeader = @"Firebase-Instance-ID-Token";
   if (!name) {
     FUNThrowInvalidArgument(@"FIRFunctions function name cannot be nil.");
   }
-  NSString *projectID = _app.options.projectID;
-  if (!projectID) {
+  if (!_projectID) {
     FUNThrowInvalidArgument(@"FIRFunctions app projectID cannot be nil.");
   }
   if (_emulatorOrigin) {
-    return [NSString stringWithFormat:@"%@/%@/%@/%@", _emulatorOrigin, projectID, _region, name];
+    return [NSString stringWithFormat:@"%@/%@/%@/%@", _emulatorOrigin, _projectID, _region, name];
   }
   return
-      [NSString stringWithFormat:@"https://%@-%@.cloudfunctions.net/%@", _region, projectID, name];
+      [NSString stringWithFormat:@"https://%@-%@.cloudfunctions.net/%@", _region, _projectID, name];
 }
 
 - (void)callFunction:(NSString *)name

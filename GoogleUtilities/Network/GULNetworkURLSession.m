@@ -37,6 +37,9 @@
 #pragma clang diagnostic ignored "-Wunguarded-availability"
   /// The session configuration. NSURLSessionConfiguration' is only available on iOS 7.0 or newer.
   NSURLSessionConfiguration *_sessionConfig;
+
+  /// The current NSURLSession.
+  NSURLSession *__weak _Nullable _URLSession;
 #pragma clang diagnostic pop
 
   /// The path to the directory where all temporary files are stored before uploading.
@@ -50,9 +53,6 @@
 
   /// The current request.
   NSURLRequest *_request;
-
-  /// The current NSURLSession.
-  NSURLSession *__weak _Nullable _URLSession;
 }
 
 #pragma mark - Init
@@ -413,9 +413,8 @@
     [_loggerDelegate
         GULNetwork_logWithLevel:kGULNetworkLogLevelError
                     messageCode:kGULNetworkMessageCodeURLSession010
-                        message:
-                            @"Cannot store system completion handler with empty network "
-                             "session identifier"];
+                        message:@"Cannot store system completion handler with empty network "
+                                 "session identifier"];
     return;
   }
 
@@ -517,8 +516,9 @@
   NSTimeInterval now = [NSDate date].timeIntervalSince1970;
   for (NSURL *tempFile in directoryContent) {
     NSDate *creationDate;
-    BOOL getCreationDate =
-        [tempFile getResourceValue:&creationDate forKey:NSURLCreationDateKey error:NULL];
+    BOOL getCreationDate = [tempFile getResourceValue:&creationDate
+                                               forKey:NSURLCreationDateKey
+                                                error:NULL];
     if (!getCreationDate) {
       continue;
     }

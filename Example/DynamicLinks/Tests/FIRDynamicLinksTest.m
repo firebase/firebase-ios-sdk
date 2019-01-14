@@ -161,6 +161,9 @@ static void UnswizzleDynamicLinkNetworking() {
 
 - (void)setUp {
   [super setUp];
+  if (!(FIRApp.defaultApp)) {
+    [FIRApp configure];
+  }
   self.service = [[FIRDynamicLinks alloc] init];
   self.userDefaults = [[NSUserDefaults alloc] init];
   [self.userDefaults removePersistentDomainForName:[[NSBundle mainBundle] bundleIdentifier]];
@@ -223,7 +226,6 @@ static void UnswizzleDynamicLinkNetworking() {
 }
 
 - (void)testFactoryMethodReturnsProperClassObject {
-  [FIRApp configure];
   id service = [FIRDynamicLinks dynamicLinks];
 
   XCTAssertNotNil(service, @"Factory method returned nil");
@@ -1013,6 +1015,67 @@ static void UnswizzleDynamicLinkNetworking() {
       }];
 
   [self waitForExpectationsWithTimeout:2.0 handler:nil];
+}
+
+#pragma mark - Custom domain tests
+- (void)testValidCustomDomainNames {
+  // Entries in plist file:
+  //  https://google.com
+  //  https://google.com/one
+  //  https://a.firebase.com/mypath
+
+  NSArray<NSString *> *urlStrings = @[
+    @"https://google.com/mylink",             // Short FDL starting with 'https://google.com'
+    @"https://google.com/one",                // Short FDL starting with 'https://google.com'
+    @"https://google.com?link=abcd",          // Long FDL starting with  'https://google.com'
+    @"https://google.com/one/mylink",         // Long FDL starting with  'https://google.com/one'
+    @"https://a.firebase.com/mypath/mylink",  // Short FDL starting https://a.firebase.com/mypath
+    @"https://a.firebase.com/mypath?link=abcd&test=1",  // Long FDL starting with
+                                                        // https://a.firebase.com/mypath
+    @"https://a.firebase.com/mypath/?link=https://www.google.com&test=1"  // Long FDL coming from
+                                                                          // the app preview page.
+                                                                          // Note that the long FDL
+                                                                          // coming from the
+                                                                          // pasteboard has an extra
+                                                                          // trailing slash.
+  ];
+
+  for (NSString *urlString in urlStrings) {
+    NSURL *url = [NSURL URLWithString:urlString];
+    BOOL matchesShortLinkFormat = [self.service matchesShortLinkFormat:url];
+
+    XCTAssertTrue(matchesShortLinkFormat,
+                  @"Non-DDL domain URL matched short link format with URL: %@", url);
+  }
+}
+
+- (void)testInvalidCustomDomainNames {
+  // Entries in plist file:
+  //  https://google.com
+  //  https://google.com/one
+  //  https://a.firebase.com/mypath
+
+  NSArray<NSString *> *urlStrings = @[
+    @"google.com",                         // Valid domain. No scheme.
+    @"https://google.com",                 // Valid domain. No path after domainURIPrefix.
+    @"https://google.com/",                // Valid domain. No path after domainURIPrefix.
+    @"https://google.com/one/",            // Valid domain. No path after domainURIPrefix.
+    @"https://google.com/one/two/mylink",  // domainURIPrefix not exact match.
+    @"https://google.co.in/mylink",        // No matching domainURIPrefix.
+    @"https://firebase.com/mypath",        // No matching domainURIPrefix: Invalid (sub)domain.
+    @"https://b.firebase.com/mypath",      // No matching domainURIPrefix: Invalid subdomain.
+    @"https://a.firebase.com/mypathabc",   // No matching domainURIPrefix: Invalid subdomain.
+    @"mydomain.com",                       // https scheme not specified for domainURIPrefix.
+    @"http://mydomain",                    // Domain not in plist. No path after domainURIPrefix.
+  ];
+
+  for (NSString *urlString in urlStrings) {
+    NSURL *url = [NSURL URLWithString:urlString];
+    BOOL matchesShortLinkFormat = [self.service matchesShortLinkFormat:url];
+
+    XCTAssertFalse(matchesShortLinkFormat,
+                   @"Non-DDL domain URL matched short link format with URL: %@", url);
+  }
 }
 
 #pragma mark - Private Helpers

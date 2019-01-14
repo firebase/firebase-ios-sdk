@@ -21,7 +21,6 @@ cc_test(
     field_mask_test.cc
     field_path_test.cc
     field_value_test.cc
-    maybe_document_test.cc
     mutation_test.cc
     no_document_test.cc
     precondition_test.cc
@@ -29,4 +28,5 @@ cc_test(
     snapshot_version_test.cc
   DEPENDS
     firebase_firestore_model
+    firebase_firestore_testutil
 )

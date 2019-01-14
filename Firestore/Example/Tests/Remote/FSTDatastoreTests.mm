@@ -24,12 +24,16 @@
 
 @implementation FSTDatastoreTests
 
-- (void)testIsPermanentWriteError {
+- (NSError *)errorForCode:(FIRFirestoreErrorCode)code {
+  return [NSError errorWithDomain:FIRFirestoreErrorDomain code:code userInfo:nil];
+}
+
+- (void)testIsPermanentError {
   // From GRPCCall -cancel
   NSError *error = [NSError errorWithDomain:FIRFirestoreErrorDomain
                                        code:FIRFirestoreErrorCodeCancelled
                                    userInfo:@{NSLocalizedDescriptionKey : @"Canceled by app"}];
-  XCTAssertFalse([FSTDatastore isPermanentWriteError:error]);
+  XCTAssertFalse([FSTDatastore isPermanentError:error]);
 
   // From GRPCCall -startNextRead
   error = [NSError errorWithDomain:FIRFirestoreErrorDomain
@@ -38,24 +42,37 @@
                             NSLocalizedDescriptionKey :
                                 @"Client does not have enough memory to hold the server response."
                           }];
-  XCTAssertFalse([FSTDatastore isPermanentWriteError:error]);
+  XCTAssertFalse([FSTDatastore isPermanentError:error]);
 
   // From GRPCCall -startWithWriteable
   error = [NSError errorWithDomain:FIRFirestoreErrorDomain
                               code:FIRFirestoreErrorCodeUnavailable
                           userInfo:@{NSLocalizedDescriptionKey : @"Connectivity lost."}];
-  XCTAssertFalse([FSTDatastore isPermanentWriteError:error]);
+  XCTAssertFalse([FSTDatastore isPermanentError:error]);
 
   // User info doesn't matter:
-  error = [NSError errorWithDomain:FIRFirestoreErrorDomain
-                              code:FIRFirestoreErrorCodeUnavailable
-                          userInfo:nil];
-  XCTAssertFalse([FSTDatastore isPermanentWriteError:error]);
+  error = [self errorForCode:FIRFirestoreErrorCodeUnavailable];
+  XCTAssertFalse([FSTDatastore isPermanentError:error]);
 
   // "unauthenticated" is considered a recoverable error due to expired token.
-  error = [NSError errorWithDomain:FIRFirestoreErrorDomain
-                              code:FIRFirestoreErrorCodeUnauthenticated
-                          userInfo:nil];
+  error = [self errorForCode:FIRFirestoreErrorCodeUnauthenticated];
+  XCTAssertFalse([FSTDatastore isPermanentError:error]);
+
+  error = [self errorForCode:FIRFirestoreErrorCodeDataLoss];
+  XCTAssertTrue([FSTDatastore isPermanentError:error]);
+
+  error = [self errorForCode:FIRFirestoreErrorCodeAborted];
+  XCTAssertTrue([FSTDatastore isPermanentError:error]);
+}
+
+- (void)testIsPermanentWriteError {
+  NSError *error = [self errorForCode:FIRFirestoreErrorCodeUnauthenticated];
+  XCTAssertFalse([FSTDatastore isPermanentWriteError:error]);
+
+  error = [self errorForCode:FIRFirestoreErrorCodeDataLoss];
+  XCTAssertTrue([FSTDatastore isPermanentWriteError:error]);
+
+  error = [self errorForCode:FIRFirestoreErrorCodeAborted];
   XCTAssertFalse([FSTDatastore isPermanentWriteError:error]);
 }
 

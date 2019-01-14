@@ -119,7 +119,15 @@ NS_ASSUME_NONNULL_BEGIN
                     HARD_ASSERT(documents.count == 1,
                                 "Mismatch in docs returned from document lookup.");
                     FSTMaybeDocument *internalDoc = documents.firstObject;
-                    if ([internalDoc isKindOfClass:[FSTDocument class]]) {
+                    if ([internalDoc isKindOfClass:[FSTDeletedDocument class]]) {
+                      FIRDocumentSnapshot *doc =
+                          [FIRDocumentSnapshot snapshotWithFirestore:self.firestore
+                                                         documentKey:document.key
+                                                            document:nil
+                                                           fromCache:NO
+                                                    hasPendingWrites:NO];
+                      completion(doc, nil);
+                    } else if ([internalDoc isKindOfClass:[FSTDocument class]]) {
                       FIRDocumentSnapshot *doc =
                           [FIRDocumentSnapshot snapshotWithFirestore:self.firestore
                                                          documentKey:internalDoc.key
@@ -127,8 +135,6 @@ NS_ASSUME_NONNULL_BEGIN
                                                            fromCache:NO
                                                     hasPendingWrites:NO];
                       completion(doc, nil);
-                    } else if ([internalDoc isKindOfClass:[FSTDeletedDocument class]]) {
-                      completion(nil, nil);
                     } else {
                       HARD_FAIL("BatchGetDocumentsRequest returned unexpected document type: %s",
                                 NSStringFromClass([internalDoc class]));

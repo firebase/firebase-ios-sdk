@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 
+#include "Firestore/core/src/firebase/firestore/model/unknown_document.h"
+
 #include "absl/strings/string_view.h"
 #include "gtest/gtest.h"
 
@@ -28,46 +30,55 @@ namespace {
 inline Document MakeDocument(const absl::string_view data,
                              const absl::string_view path,
                              const Timestamp& timestamp,
-                             bool has_local_mutations) {
+                             DocumentState document_state) {
   return Document(
       FieldValue::FromMap({{"field", FieldValue::FromString(data.data())}}),
       DocumentKey::FromPathString(path.data()), SnapshotVersion(timestamp),
-      has_local_mutations);
+      document_state);
 }
 
 }  // anonymous namespace
 
 TEST(Document, Getter) {
-  const Document& doc =
-      MakeDocument("foo", "i/am/a/path", Timestamp(123, 456), true);
+  const Document& doc = MakeDocument("foo", "i/am/a/path", Timestamp(123, 456),
+                                     DocumentState::kLocalMutations);
   EXPECT_EQ(MaybeDocument::Type::Document, doc.type());
   EXPECT_EQ(FieldValue::FromMap({{"field", FieldValue::FromString("foo")}}),
             doc.data());
   EXPECT_EQ(DocumentKey::FromPathString("i/am/a/path"), doc.key());
   EXPECT_EQ(SnapshotVersion(Timestamp(123, 456)), doc.version());
-  EXPECT_TRUE(doc.has_local_mutations());
+  EXPECT_TRUE(doc.HasLocalMutations());
 }
 
 TEST(Document, Comparison) {
-  EXPECT_EQ(MakeDocument("foo", "i/am/a/path", Timestamp(123, 456), true),
-            MakeDocument("foo", "i/am/a/path", Timestamp(123, 456), true));
-  EXPECT_NE(MakeDocument("foo", "i/am/a/path", Timestamp(123, 456), true),
-            MakeDocument("bar", "i/am/a/path", Timestamp(123, 456), true));
-  EXPECT_NE(
-      MakeDocument("foo", "i/am/a/path", Timestamp(123, 456), true),
-      MakeDocument("foo", "i/am/another/path", Timestamp(123, 456), true));
-  EXPECT_NE(MakeDocument("foo", "i/am/a/path", Timestamp(123, 456), true),
-            MakeDocument("foo", "i/am/a/path", Timestamp(456, 123), true));
-  EXPECT_NE(MakeDocument("foo", "i/am/a/path", Timestamp(123, 456), true),
-            MakeDocument("foo", "i/am/a/path", Timestamp(123, 456), false));
+  EXPECT_EQ(MakeDocument("foo", "i/am/a/path", Timestamp(123, 456),
+                         DocumentState::kLocalMutations),
+            MakeDocument("foo", "i/am/a/path", Timestamp(123, 456),
+                         DocumentState::kLocalMutations));
+  EXPECT_NE(MakeDocument("foo", "i/am/a/path", Timestamp(123, 456),
+                         DocumentState::kLocalMutations),
+            MakeDocument("bar", "i/am/a/path", Timestamp(123, 456),
+                         DocumentState::kLocalMutations));
+  EXPECT_NE(MakeDocument("foo", "i/am/a/path", Timestamp(123, 456),
+                         DocumentState::kLocalMutations),
+            MakeDocument("foo", "i/am/another/path", Timestamp(123, 456),
+                         DocumentState::kLocalMutations));
+  EXPECT_NE(MakeDocument("foo", "i/am/a/path", Timestamp(123, 456),
+                         DocumentState::kLocalMutations),
+            MakeDocument("foo", "i/am/a/path", Timestamp(456, 123),
+                         DocumentState::kLocalMutations));
+  EXPECT_NE(MakeDocument("foo", "i/am/a/path", Timestamp(123, 456),
+                         DocumentState::kLocalMutations),
+            MakeDocument("foo", "i/am/a/path", Timestamp(123, 456),
+                         DocumentState::kSynced));
 
   // Document and MaybeDocument will not equal. In particular, Document and
   // NoDocument will not equal, which I won't test here.
   EXPECT_NE(Document(FieldValue::FromMap({}),
                      DocumentKey::FromPathString("same/path"),
-                     SnapshotVersion(Timestamp()), false),
-            MaybeDocument(DocumentKey::FromPathString("same/path"),
-                          SnapshotVersion(Timestamp())));
+                     SnapshotVersion(Timestamp()), DocumentState::kSynced),
+            UnknownDocument(DocumentKey::FromPathString("same/path"),
+                            SnapshotVersion(Timestamp())));
 }
 
 }  // namespace model

@@ -18,6 +18,7 @@
 
 #include <utility>
 
+#import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
@@ -30,6 +31,7 @@
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::local::LruParams;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::util::Path;
 using firebase::firestore::util::Status;
@@ -61,15 +63,25 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (FSTLevelDB *)levelDBPersistenceWithDir:(Path)dir {
+  return [self levelDBPersistenceWithDir:dir lruParams:LruParams::Default()];
+}
+
++ (FSTLevelDB *)levelDBPersistenceWithDir:(Path)dir lruParams:(LruParams)params {
   FSTLocalSerializer *serializer = [self localSerializer];
-  FSTLevelDB *db = [[FSTLevelDB alloc] initWithDirectory:std::move(dir) serializer:serializer];
-  Status status = [db start];
+  FSTLevelDB *ldb;
+  util::Status status = [FSTLevelDB dbWithDirectory:std::move(dir)
+                                         serializer:serializer
+                                          lruParams:params
+                                                ptr:&ldb];
   if (!status.ok()) {
     [NSException raise:NSInternalInconsistencyException
-                format:@"Failed to start leveldb persistence: %s", status.ToString().c_str()];
+                format:@"Failed to open DB: %s", status.ToString().c_str()];
   }
+  return ldb;
+}
 
-  return db;
++ (FSTLevelDB *)levelDBPersistenceWithLruParams:(LruParams)lruParams {
+  return [self levelDBPersistenceWithDir:[self levelDBDir] lruParams:lruParams];
 }
 
 + (FSTLevelDB *)levelDBPersistence {
@@ -77,27 +89,16 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (FSTMemoryPersistence *)eagerGCMemoryPersistence {
-  FSTMemoryPersistence *persistence = [FSTMemoryPersistence persistenceWithEagerGC];
-  Status status = [persistence start];
-  if (!status.ok()) {
-    [NSException raise:NSInternalInconsistencyException
-                format:@"Failed to start memory persistence: %s", status.ToString().c_str()];
-  }
-
-  return persistence;
+  return [FSTMemoryPersistence persistenceWithEagerGC];
 }
 
 + (FSTMemoryPersistence *)lruMemoryPersistence {
-  FSTLocalSerializer *serializer = [self localSerializer];
-  FSTMemoryPersistence *persistence =
-      [FSTMemoryPersistence persistenceWithLRUGCAndSerializer:serializer];
-  Status status = [persistence start];
-  if (!status.ok()) {
-    [NSException raise:NSInternalInconsistencyException
-                format:@"Failed to start memory persistence: %s", status.ToString().c_str()];
-  }
+  return [self lruMemoryPersistenceWithLruParams:LruParams::Default()];
+}
 
-  return persistence;
++ (FSTMemoryPersistence *)lruMemoryPersistenceWithLruParams:(LruParams)lruParams {
+  FSTLocalSerializer *serializer = [self localSerializer];
+  return [FSTMemoryPersistence persistenceWithLruParams:lruParams serializer:serializer];
 }
 
 @end

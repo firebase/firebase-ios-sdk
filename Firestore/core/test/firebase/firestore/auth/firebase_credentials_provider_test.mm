@@ -18,10 +18,6 @@
 
 #import <FirebaseAuthInterop/FIRAuthInterop.h>
 #import <FirebaseCore/FIRApp.h>
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRComponent.h>
-#import <FirebaseCore/FIRComponentContainerInternal.h>
-#import <FirebaseCore/FIROptionsInternal.h>
 
 #include <chrono>  // NOLINT(build/c++11)
 #include <future>  // NOLINT(build/c++11)
@@ -116,8 +112,8 @@ TEST(FirebaseCredentialsProviderTest, GetTokenUnauthenticated) {
 
 TEST(FirebaseCredentialsProviderTest, GetToken) {
   FIRApp* app = testutil::AppForUnitTesting();
-  FSTAuthFake* auth =
-      [[FSTAuthFake alloc] initWithToken:@"token for fake uid" uid:@"fake uid"];
+  FSTAuthFake* auth = [[FSTAuthFake alloc] initWithToken:@"token for fake uid"
+                                                     uid:@"fake uid"];
   FirebaseCredentialsProvider credentials_provider(app, auth);
   credentials_provider.GetToken([](util::StatusOr<Token> result) {
     EXPECT_TRUE(result.ok());
@@ -131,8 +127,8 @@ TEST(FirebaseCredentialsProviderTest, GetToken) {
 
 TEST(FirebaseCredentialsProviderTest, SetListener) {
   FIRApp* app = testutil::AppForUnitTesting();
-  FSTAuthFake* auth =
-      [[FSTAuthFake alloc] initWithToken:@"default token" uid:@"fake uid"];
+  FSTAuthFake* auth = [[FSTAuthFake alloc] initWithToken:@"default token"
+                                                     uid:@"fake uid"];
   FirebaseCredentialsProvider credentials_provider(app, auth);
   credentials_provider.SetCredentialChangeListener([](User user) {
     EXPECT_EQ("fake uid", user.uid());
@@ -144,8 +140,8 @@ TEST(FirebaseCredentialsProviderTest, SetListener) {
 
 TEST(FirebaseCredentialsProviderTest, InvalidateToken) {
   FIRApp* app = testutil::AppForUnitTesting();
-  FSTAuthFake* auth =
-      [[FSTAuthFake alloc] initWithToken:@"token for fake uid" uid:@"fake uid"];
+  FSTAuthFake* auth = [[FSTAuthFake alloc] initWithToken:@"token for fake uid"
+                                                     uid:@"fake uid"];
   FirebaseCredentialsProvider credentials_provider(app, auth);
   credentials_provider.InvalidateToken();
   credentials_provider.GetToken([&auth](util::StatusOr<Token> result) {

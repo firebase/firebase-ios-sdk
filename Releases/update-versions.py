@@ -158,11 +158,15 @@ def UpdatePodfiles(git_root, version):
   """
   firebase_podfile = os.path.join(git_root, 'Example', 'Podfile')
   firestore_podfile = os.path.join(git_root, 'Firestore', 'Example', 'Podfile')
+  collision_podfile = os.path.join(git_root, 'SymbolCollisionTest', 'Podfile')
 
   sed_command = ("sed -i.bak -e \"s#\\(pod "
                  "'Firebase/CoreOnly',[[:space:]]*'\\).*'#\\1{}'#\" {}")
   os.system(sed_command.format(version, firebase_podfile))
   os.system(sed_command.format(version, firestore_podfile))
+  sed_command = ("sed -i.bak -e \"s#\\(pod "
+                 "'Firebase',[[:space:]]*'\\).*'#\\1{}'#\" {}")
+  os.system(sed_command.format(version, collision_podfile))
 
 
 def UpdateTags(version_data, firebase_version, first=False):

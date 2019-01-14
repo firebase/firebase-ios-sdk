@@ -57,8 +57,8 @@
 }
 
 - (void)testBucketEnforced {
-  FIRStorage *storage =
-      [FIRStorage storageForApp:self.app URL:@"gs://benwu-test1.storage.firebase.com"];
+  FIRStorage *storage = [FIRStorage storageForApp:self.app
+                                              URL:@"gs://benwu-test1.storage.firebase.com"];
   [storage referenceForURL:@"gs://benwu-test1.storage.firebase.com/child"];
   storage = [FIRStorage storageForApp:self.app URL:@"gs://benwu-test1.storage.firebase.com/"];
   [storage referenceForURL:@"gs://benwu-test1.storage.firebase.com/child"];

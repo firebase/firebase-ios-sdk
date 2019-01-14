@@ -20,7 +20,6 @@
 
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
@@ -174,44 +173,32 @@ NS_ASSUME_NONNULL_BEGIN
   // array without element (and make sure it doesn't match in a nested field or a different field).
   doc = FSTTestDoc(
       "collection/1", 0,
-      @{@"array" : @[ @41, @"42",
-                      @{@"a" : @42,
-                        @"b" : @[ @42 ]} ],
-        @"different" : @[ @42 ]},
+      @{@"array" : @[ @41, @"42", @{@"a" : @42, @"b" : @[ @42 ]} ], @"different" : @[ @42 ]},
       FSTDocumentStateSynced);
   XCTAssertFalse([query matchesDocument:doc]);
 
   // array with element.
-  doc = FSTTestDoc("collection/1", 0,
-                   @{@"array" : @[ @1, @"2", @42,
-                                   @{@"a" : @1} ]},
+  doc = FSTTestDoc("collection/1", 0, @{@"array" : @[ @1, @"2", @42, @{@"a" : @1} ]},
                    FSTDocumentStateSynced);
   XCTAssertTrue([query matchesDocument:doc]);
 }
 
 - (void)testArrayContainsFilterWithObjectValue {
   // Search for arrays containing the object { a: [42] }
-  FSTQuery *query =
-      [FSTTestQuery("collection") queryByAddingFilter:FSTTestFilter("array", @"array_contains",
-                                                                    @{@"a" : @[ @42 ]})];
+  FSTQuery *query = [FSTTestQuery("collection")
+      queryByAddingFilter:FSTTestFilter("array", @"array_contains", @{@"a" : @[ @42 ]})];
 
   // array without element.
   FSTDocument *doc = FSTTestDoc("collection/1", 0, @{
     @"array" : @[
-      @{@"a" : @42},
-      @{@"a" : @[ @42, @43 ]},
-      @{@"b" : @[ @42 ]},
-      @{@"a" : @[ @42 ],
-        @"b" : @42}
+      @{@"a" : @42}, @{@"a" : @[ @42, @43 ]}, @{@"b" : @[ @42 ]}, @{@"a" : @[ @42 ], @"b" : @42}
     ]
   },
                                 FSTDocumentStateSynced);
   XCTAssertFalse([query matchesDocument:doc]);
 
   // array with element.
-  doc = FSTTestDoc("collection/1", 0,
-                   @{@"array" : @[ @1, @"2", @42,
-                                   @{@"a" : @[ @42 ]} ]},
+  doc = FSTTestDoc("collection/1", 0, @{@"array" : @[ @1, @"2", @42, @{@"a" : @[ @42 ]} ]},
                    FSTDocumentStateSynced);
   XCTAssertTrue([query matchesDocument:doc]);
 }
@@ -258,14 +245,14 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocument *doc1 = FSTTestDoc("collection/1", 0, @{@"sort" : @2}, FSTDocumentStateSynced);
   FSTDocument *doc2 = FSTTestDoc("collection/2", 0, @{@"sort" : @[]}, FSTDocumentStateSynced);
   FSTDocument *doc3 = FSTTestDoc("collection/3", 0, @{@"sort" : @[ @1 ]}, FSTDocumentStateSynced);
-  FSTDocument *doc4 = FSTTestDoc("collection/4", 0,
-                                 @{@"sort" : @{@"foo" : @2}}, FSTDocumentStateSynced);
-  FSTDocument *doc5 = FSTTestDoc("collection/5", 0,
-                                 @{@"sort" : @{@"foo" : @"bar"}}, FSTDocumentStateSynced);
-  FSTDocument *doc6 = FSTTestDoc("collection/6", 0,
-                                 @{@"sort" : @{}}, FSTDocumentStateSynced);  // no sort field
-  FSTDocument *doc7 = FSTTestDoc("collection/7", 0,
-                                 @{@"sort" : @[ @3, @1 ]}, FSTDocumentStateSynced);
+  FSTDocument *doc4 =
+      FSTTestDoc("collection/4", 0, @{@"sort" : @{@"foo" : @2}}, FSTDocumentStateSynced);
+  FSTDocument *doc5 =
+      FSTTestDoc("collection/5", 0, @{@"sort" : @{@"foo" : @"bar"}}, FSTDocumentStateSynced);
+  FSTDocument *doc6 =
+      FSTTestDoc("collection/6", 0, @{@"sort" : @{}}, FSTDocumentStateSynced);  // no sort field
+  FSTDocument *doc7 =
+      FSTTestDoc("collection/7", 0, @{@"sort" : @[ @3, @1 ]}, FSTDocumentStateSynced);
 
   XCTAssertTrue([query1 matchesDocument:doc1]);
   XCTAssertFalse([query1 matchesDocument:doc2]);
@@ -292,10 +279,10 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocument *doc1 = FSTTestDoc("collection/1", 0, @{@"sort" : @2}, FSTDocumentStateSynced);
   FSTDocument *doc2 = FSTTestDoc("collection/2", 0, @{@"sort" : @[]}, FSTDocumentStateSynced);
   FSTDocument *doc3 = FSTTestDoc("collection/3", 0, @{@"sort" : @[ @1 ]}, FSTDocumentStateSynced);
-  FSTDocument *doc4 = FSTTestDoc("collection/4", 0,
-                                 @{@"sort" : @{@"foo" : @2}}, FSTDocumentStateSynced);
-  FSTDocument *doc5 = FSTTestDoc("collection/5", 0,
-                                 @{@"sort" : @{@"foo" : @"bar"}}, FSTDocumentStateSynced);
+  FSTDocument *doc4 =
+      FSTTestDoc("collection/4", 0, @{@"sort" : @{@"foo" : @2}}, FSTDocumentStateSynced);
+  FSTDocument *doc5 =
+      FSTTestDoc("collection/5", 0, @{@"sort" : @{@"foo" : @"bar"}}, FSTDocumentStateSynced);
   FSTDocument *doc6 = FSTTestDoc("collection/6", 0, @{}, FSTDocumentStateSynced);
 
   XCTAssertTrue([query1 matchesDocument:doc1]);
@@ -308,8 +295,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testFiltersBasedOnArrayValue {
   FSTQuery *baseQuery = FSTTestQuery("collection");
-  FSTDocument *doc1 = FSTTestDoc("collection/doc", 0,
-                                 @{@"tags" : @[ @"foo", @1, @YES ]}, FSTDocumentStateSynced);
+  FSTDocument *doc1 =
+      FSTTestDoc("collection/doc", 0, @{@"tags" : @[ @"foo", @1, @YES ]}, FSTDocumentStateSynced);
 
   NSArray<FSTFilter *> *matchingFilters = @[ FSTTestFilter("tags", @"==", @[ @"foo", @1, @YES ]) ];
 
@@ -330,22 +317,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testFiltersBasedOnObjectValue {
   FSTQuery *baseQuery = FSTTestQuery("collection");
-  FSTDocument *doc1 =
-      FSTTestDoc("collection/doc", 0,
-                 @{@"tags" : @{@"foo" : @"foo", @"a" : @0, @"b" : @YES, @"c" : @(NAN)}},
-                 FSTDocumentStateSynced);
+  FSTDocument *doc1 = FSTTestDoc(
+      "collection/doc", 0, @{@"tags" : @{@"foo" : @"foo", @"a" : @0, @"b" : @YES, @"c" : @(NAN)}},
+      FSTDocumentStateSynced);
 
   NSArray<FSTFilter *> *matchingFilters = @[
-    FSTTestFilter("tags", @"==",
-                  @{@"foo" : @"foo",
-                    @"a" : @0,
-                    @"b" : @YES,
-                    @"c" : @(NAN)}),
-    FSTTestFilter("tags", @"==",
-                  @{@"b" : @YES,
-                    @"a" : @0,
-                    @"foo" : @"foo",
-                    @"c" : @(NAN)}),
+    FSTTestFilter("tags", @"==", @{@"foo" : @"foo", @"a" : @0, @"b" : @YES, @"c" : @(NAN)}),
+    FSTTestFilter("tags", @"==", @{@"b" : @YES, @"a" : @0, @"foo" : @"foo", @"c" : @(NAN)}),
     FSTTestFilter("tags.foo", @"==", @"foo")
   ];
 

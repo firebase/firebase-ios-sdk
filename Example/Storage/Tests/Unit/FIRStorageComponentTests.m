@@ -19,15 +19,15 @@
 
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
-#import <FirebaseCore/FIRComponentRegistrant.h>
+#import <FirebaseCore/FIRLibrary.h>
 #import <FirebaseCore/FIROptions.h>
 
 #import "FIRComponentTestUtilities.h"
 #import "FIRStorageComponent.h"
 
 // Make FIRComponentRegistrant conformance visible to the tests and expose the initializer.
-@interface FIRStorageComponent () <FIRComponentRegistrant>
-/// Internal intializer.
+@interface FIRStorageComponent () <FIRLibrary>
+/// Internal initializer.
 - (instancetype)initWithApp:(FIRApp *)app;
 @end
 
@@ -64,8 +64,8 @@
   // App isn't used in any of this, so a simple class mock works for simplicity.
   id app = OCMClassMock([FIRApp class]);
   NSMutableSet *registrants = [NSMutableSet setWithObject:[FIRStorageComponent class]];
-  FIRComponentContainer *container =
-      [[FIRComponentContainer alloc] initWithApp:app registrants:registrants];
+  FIRComponentContainer *container = [[FIRComponentContainer alloc] initWithApp:app
+                                                                    registrants:registrants];
   id<FIRStorageMultiBucketProvider> provider1 =
       FIR_COMPONENT(FIRStorageMultiBucketProvider, container);
   XCTAssertNotNil(provider1);
@@ -84,8 +84,8 @@
   // implementation.
   id app = [self appMockWithOptions];
   NSMutableSet *registrants = [NSMutableSet setWithObject:[FIRStorageComponent class]];
-  FIRComponentContainer *container =
-      [[FIRComponentContainer alloc] initWithApp:app registrants:registrants];
+  FIRComponentContainer *container = [[FIRComponentContainer alloc] initWithApp:app
+                                                                    registrants:registrants];
   id<FIRStorageMultiBucketProvider> provider =
       FIR_COMPONENT(FIRStorageMultiBucketProvider, container);
   XCTAssertNotNil(provider);

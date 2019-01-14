@@ -17,15 +17,16 @@
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
 #include <cinttypes>
+#include <set>
 #include <string>
 #include <utility>
 #include <vector>
 
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Common.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Document.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Firestore.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Query.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Write.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Common.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Document.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Firestore.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Query.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Write.pbobjc.h"
 #import "Firestore/Protos/objc/google/rpc/Status.pbobjc.h"
 #import "Firestore/Protos/objc/google/type/Latlng.pbobjc.h"
 
@@ -151,16 +152,15 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSString *)encodedQueryPath:(const ResourcePath &)path {
-  if (path.size() == 0) {
-    // If the path is empty, the backend requires we leave off the /documents at the end.
-    return [self encodedDatabaseID];
-  }
   return [self encodedResourcePathForDatabaseID:self.databaseID path:path];
 }
 
 - (ResourcePath)decodedQueryPath:(NSString *)name {
   const ResourcePath resource = [self decodedResourcePathWithDatabaseID:name];
   if (resource.size() == 4) {
+    // In v1beta1 queries for collections at the root did not have a trailing "/documents". In v1
+    // all resource paths contain "/documents". Preserve the ability to read the v1beta1 form for
+    // compatibility with queries persisted in the local query cache.
     return ResourcePath{};
   } else {
     return [self localResourcePathForQualifiedResourcePath:resource];
@@ -216,7 +216,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   } else if (fieldClass == [FSTReferenceValue class]) {
     FSTReferenceValue *ref = (FSTReferenceValue *)fieldValue;
-    return [self encodedReferenceValueForDatabaseID:[ref databaseID] key:[ref value]];
+    DocumentKey key = [[ref value] key];
+    return [self encodedReferenceValueForDatabaseID:[ref databaseID] key:key];
 
   } else if (fieldClass == [FSTObjectValue class]) {
     GCFSValue *result = [GCFSValue message];
@@ -437,7 +438,11 @@ NS_ASSUME_NONNULL_BEGIN
   HARD_ASSERT(version != SnapshotVersion::None(),
               "Got a document response with no snapshot version");
 
-  return [FSTDocument documentWithData:value key:key version:version state:FSTDocumentStateSynced];
+  return [FSTDocument documentWithData:value
+                                   key:key
+                               version:version
+                                 state:FSTDocumentStateSynced
+                                 proto:response.found];
 }
 
 - (FSTDeletedDocument *)decodedDeletedDocument:(GCFSBatchGetDocumentsResponse *)response {
@@ -565,10 +570,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FieldMask)decodedFieldMask:(GCFSDocumentMask *)fieldMask {
-  std::vector<FieldPath> fields;
-  fields.reserve(fieldMask.fieldPathsArray_Count);
+  std::set<FieldPath> fields;
   for (NSString *path in fieldMask.fieldPathsArray) {
-    fields.push_back(FieldPath::FromServerFormat(util::MakeString(path)));
+    fields.insert(FieldPath::FromServerFormat(util::MakeString(path)));
   }
   return FieldMask(std::move(fields));
 }
@@ -1143,8 +1147,13 @@ NS_ASSUME_NONNULL_BEGIN
   const DocumentKey key = [self decodedDocumentKey:change.document.name];
   SnapshotVersion version = [self decodedVersion:change.document.updateTime];
   HARD_ASSERT(version != SnapshotVersion::None(), "Got a document change with no snapshot version");
-  FSTMaybeDocument *document =
-      [FSTDocument documentWithData:value key:key version:version state:FSTDocumentStateSynced];
+  // The document may soon be re-serialized back to protos in order to store it in local
+  // persistence. Memoize the encoded form to avoid encoding it again.
+  FSTMaybeDocument *document = [FSTDocument documentWithData:value
+                                                         key:key
+                                                     version:version
+                                                       state:FSTDocumentStateSynced
+                                                       proto:change.document];
 
   NSArray<NSNumber *> *updatedTargetIds = [self decodedIntegerArray:change.targetIdsArray];
   NSArray<NSNumber *> *removedTargetIds = [self decodedIntegerArray:change.removedTargetIdsArray];
@@ -1159,8 +1168,9 @@ NS_ASSUME_NONNULL_BEGIN
   const DocumentKey key = [self decodedDocumentKey:change.document];
   // Note that version might be unset in which case we use SnapshotVersion::None()
   SnapshotVersion version = [self decodedVersion:change.readTime];
-  FSTMaybeDocument *document =
-      [FSTDeletedDocument documentWithKey:key version:version hasCommittedMutations:NO];
+  FSTMaybeDocument *document = [FSTDeletedDocument documentWithKey:key
+                                                           version:version
+                                             hasCommittedMutations:NO];
 
   NSArray<NSNumber *> *removedTargetIds = [self decodedIntegerArray:change.removedTargetIdsArray];
 

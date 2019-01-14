@@ -18,7 +18,7 @@
 
 #include "Firestore/Protos/cpp/firestore/local/maybe_document.pb.h"
 #include "Firestore/Protos/cpp/firestore/local/target.pb.h"
-#include "Firestore/Protos/cpp/google/firestore/v1beta1/firestore.pb.h"
+#include "Firestore/Protos/cpp/google/firestore/v1/firestore.pb.h"
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
@@ -38,7 +38,7 @@ namespace firebase {
 namespace firestore {
 namespace local {
 
-namespace v1beta1 = google::firestore::v1beta1;
+namespace v1 = google::firestore::v1;
 using core::Query;
 using ::google::protobuf::util::MessageDifferencer;
 using model::DatabaseId;
@@ -141,11 +141,15 @@ class LocalSerializerTest : public ::testing::Test {
         proto.SerializeToArray(bytes.data(), static_cast<int>(bytes.size()));
     EXPECT_TRUE(status);
     Reader reader = Reader::Wrap(bytes.data(), bytes.size());
-    absl::optional<std::unique_ptr<MaybeDocument>> actual_model_optional =
-        serializer.DecodeMaybeDocument(&reader);
-    EXPECT_OK(reader.status());
+    firestore_client_MaybeDocument nanopb_proto =
+        firestore_client_MaybeDocument_init_zero;
+    reader.ReadNanopbMessage(firestore_client_MaybeDocument_fields,
+                             &nanopb_proto);
     std::unique_ptr<MaybeDocument> actual_model =
-        std::move(actual_model_optional).value();
+        serializer.DecodeMaybeDocument(&reader, nanopb_proto);
+    reader.FreeNanopbMessage(firestore_client_MaybeDocument_fields,
+                             &nanopb_proto);
+    EXPECT_OK(reader.status());
     EXPECT_EQ(type, actual_model->type());
     EXPECT_EQ(model, *actual_model);
   }
@@ -154,7 +158,11 @@ class LocalSerializerTest : public ::testing::Test {
                                            const MaybeDocument& maybe_doc) {
     std::vector<uint8_t> bytes;
     Writer writer = Writer::Wrap(&bytes);
-    serializer->EncodeMaybeDocument(&writer, maybe_doc);
+    firestore_client_MaybeDocument proto =
+        serializer->EncodeMaybeDocument(maybe_doc);
+    writer.WriteNanopbMessage(firestore_client_MaybeDocument_fields, &proto);
+    serializer->FreeNanopbMessage(firestore_client_MaybeDocument_fields,
+                                  &proto);
     return bytes;
   }
 
@@ -175,11 +183,14 @@ class LocalSerializerTest : public ::testing::Test {
         proto.SerializeToArray(bytes.data(), static_cast<int>(bytes.size()));
     EXPECT_TRUE(status);
     Reader reader = Reader::Wrap(bytes.data(), bytes.size());
-    absl::optional<QueryData> actual_query_data_optional =
-        serializer.DecodeQueryData(&reader);
-    EXPECT_OK(reader.status());
-    QueryData actual_query_data = std::move(actual_query_data_optional).value();
 
+    firestore_client_Target nanopb_proto = firestore_client_Target_init_zero;
+    reader.ReadNanopbMessage(firestore_client_Target_fields, &nanopb_proto);
+    QueryData actual_query_data =
+        serializer.DecodeQueryData(&reader, nanopb_proto);
+    reader.FreeNanopbMessage(firestore_client_Target_fields, &nanopb_proto);
+
+    EXPECT_OK(reader.status());
     EXPECT_EQ(query_data, actual_query_data);
   }
 
@@ -188,7 +199,9 @@ class LocalSerializerTest : public ::testing::Test {
     std::vector<uint8_t> bytes;
     EXPECT_EQ(query_data.purpose(), QueryPurpose::kListen);
     Writer writer = Writer::Wrap(&bytes);
-    serializer->EncodeQueryData(&writer, query_data);
+    firestore_client_Target proto = serializer->EncodeQueryData(query_data);
+    writer.WriteNanopbMessage(firestore_client_Target_fields, &proto);
+    serializer->FreeNanopbMessage(firestore_client_Target_fields, &proto);
     return bytes;
   }
 
@@ -205,7 +218,7 @@ TEST_F(LocalSerializerTest, EncodesDocumentAsMaybeDocument) {
   ::firestore::client::MaybeDocument maybe_doc_proto;
   maybe_doc_proto.mutable_document()->set_name(
       "projects/p/databases/d/documents/some/path");
-  ::google::firestore::v1beta1::Value value_proto;
+  ::google::firestore::v1::Value value_proto;
   value_proto.set_string_value("bar");
   maybe_doc_proto.mutable_document()->mutable_fields()->insert(
       {"foo", value_proto});
@@ -258,8 +271,13 @@ TEST_F(LocalSerializerTest, EncodesQueryData) {
   // Let the RPC serializer test various permutations of query serialization.
   std::vector<uint8_t> query_target_bytes;
   Writer writer = Writer::Wrap(&query_target_bytes);
-  remote_serializer.EncodeQueryTarget(&writer, query_data.query());
-  v1beta1::Target::QueryTarget queryTargetProto;
+  google_firestore_v1_Target_QueryTarget proto =
+      remote_serializer.EncodeQueryTarget(query_data.query());
+  writer.WriteNanopbMessage(google_firestore_v1_Target_QueryTarget_fields,
+                            &proto);
+  remote_serializer.FreeNanopbMessage(
+      google_firestore_v1_Target_QueryTarget_fields, &proto);
+  v1::Target::QueryTarget queryTargetProto;
   bool ok = queryTargetProto.ParseFromArray(
       query_target_bytes.data(), static_cast<int>(query_target_bytes.size()));
   EXPECT_TRUE(ok);
@@ -269,7 +287,7 @@ TEST_F(LocalSerializerTest, EncodesQueryData) {
   expected.set_last_listen_sequence_number(sequence_number);
   expected.mutable_snapshot_version()->set_nanos(1039000);
   expected.set_resume_token(resume_token.data(), resume_token.size());
-  v1beta1::Target::QueryTarget* query_proto = expected.mutable_query();
+  v1::Target::QueryTarget* query_proto = expected.mutable_query();
   query_proto->set_parent(queryTargetProto.parent());
   *query_proto->mutable_structured_query() =
       queryTargetProto.structured_query();

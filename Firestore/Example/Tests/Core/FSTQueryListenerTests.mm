@@ -77,8 +77,9 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocument *doc2prime = FSTTestDoc("rooms/Hades", 3, @{@"name" : @"Hades", @"owner" : @"Jonny"},
                                       FSTDocumentStateSynced);
 
-  FSTQueryListener *listener =
-      [self listenToQuery:query options:_includeMetadataChanges accumulatingSnapshots:accum];
+  FSTQueryListener *listener = [self listenToQuery:query
+                                           options:_includeMetadataChanges
+                             accumulatingSnapshots:accum];
   FSTQueryListener *otherListener = [self listenToQuery:query accumulatingSnapshots:otherAccum];
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
@@ -123,8 +124,9 @@ NS_ASSUME_NONNULL_BEGIN
                                              [accum addObject:error];
                                            }];
 
-  NSError *testError =
-      [NSError errorWithDomain:@"com.google.firestore.test" code:42 userInfo:@{@"some" : @"info"}];
+  NSError *testError = [NSError errorWithDomain:@"com.google.firestore.test"
+                                           code:42
+                                       userInfo:@{@"some" : @"info"}];
   [listener queryDidError:testError];
 
   XCTAssertEqualObjects(accum, @[ testError ]);
@@ -134,8 +136,9 @@ NS_ASSUME_NONNULL_BEGIN
   NSMutableArray<FSTViewSnapshot *> *accum = [NSMutableArray array];
   FSTQuery *query = FSTTestQuery("rooms");
 
-  FSTQueryListener *listener =
-      [self listenToQuery:query options:_includeMetadataChanges accumulatingSnapshots:accum];
+  FSTQueryListener *listener = [self listenToQuery:query
+                                           options:_includeMetadataChanges
+                             accumulatingSnapshots:accum];
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
   FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[], nil);
@@ -193,10 +196,11 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocument *doc1 = FSTTestDoc("rooms/Eros", 1, @{@"name" : @"Eros"}, FSTDocumentStateSynced);
   FSTDocument *doc2 = FSTTestDoc("rooms/Hades", 2, @{@"name" : @"Hades"}, FSTDocumentStateSynced);
 
-  FSTQueryListener *filteredListener =
-      [self listenToQuery:query accumulatingSnapshots:filteredAccum];
-  FSTQueryListener *fullListener =
-      [self listenToQuery:query options:_includeMetadataChanges accumulatingSnapshots:fullAccum];
+  FSTQueryListener *filteredListener = [self listenToQuery:query
+                                     accumulatingSnapshots:filteredAccum];
+  FSTQueryListener *fullListener = [self listenToQuery:query
+                                               options:_includeMetadataChanges
+                                 accumulatingSnapshots:fullAccum];
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
   FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[ doc1 ], nil);
@@ -236,10 +240,11 @@ NS_ASSUME_NONNULL_BEGIN
                                                              includeDocumentMetadataChanges:YES
                                                                       waitForSyncWhenOnline:NO];
 
-  FSTQueryListener *filteredListener =
-      [self listenToQuery:query accumulatingSnapshots:filteredAccum];
-  FSTQueryListener *fullListener =
-      [self listenToQuery:query options:options accumulatingSnapshots:fullAccum];
+  FSTQueryListener *filteredListener = [self listenToQuery:query
+                                     accumulatingSnapshots:filteredAccum];
+  FSTQueryListener *fullListener = [self listenToQuery:query
+                                               options:options
+                                 accumulatingSnapshots:fullAccum];
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
   FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[ doc1, doc2 ], nil);
@@ -292,8 +297,9 @@ NS_ASSUME_NONNULL_BEGIN
   FSTListenOptions *options = [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:YES
                                                              includeDocumentMetadataChanges:NO
                                                                       waitForSyncWhenOnline:NO];
-  FSTQueryListener *fullListener =
-      [self listenToQuery:query options:options accumulatingSnapshots:fullAccum];
+  FSTQueryListener *fullListener = [self listenToQuery:query
+                                               options:options
+                                 accumulatingSnapshots:fullAccum];
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
   FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[ doc1, doc2 ], nil);
@@ -332,8 +338,8 @@ NS_ASSUME_NONNULL_BEGIN
       FSTTestDoc("rooms/Eros", 1, @{@"name" : @"Eros"}, FSTDocumentStateSynced);
   FSTDocument *doc3 = FSTTestDoc("rooms/Other", 3, @{@"name" : @"Other"}, FSTDocumentStateSynced);
 
-  FSTQueryListener *filteredListener =
-      [self listenToQuery:query accumulatingSnapshots:filteredAccum];
+  FSTQueryListener *filteredListener = [self listenToQuery:query
+                                     accumulatingSnapshots:filteredAccum];
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
   FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[ doc1, doc2 ], nil);

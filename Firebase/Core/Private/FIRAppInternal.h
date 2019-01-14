@@ -18,7 +18,7 @@
 #import "FIRErrors.h"
 
 @class FIRComponentContainer;
-@protocol FIRCoreConfigurable;
+@protocol FIRLibrary;
 
 /**
  * The internal interface to FIRApp. This is meant for first-party integrators, who need to receive
@@ -109,41 +109,12 @@ extern NSString *const FIRAuthStateDidChangeInternalNotificationAppKey;
  */
 extern NSString *const FIRAuthStateDidChangeInternalNotificationUIDKey;
 
-/** @typedef FIRTokenCallback
-    @brief The type of block which gets called when a token is ready.
- */
-typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable error);
-
-/** @typedef FIRAppGetTokenImplementation
-    @brief The type of block which can provide an implementation for the @c getTokenWithCallback:
-        method.
-    @param forceRefresh Forces the token to be refreshed.
-    @param callback The block which should be invoked when the async call completes.
- */
-typedef void (^FIRAppGetTokenImplementation)(BOOL forceRefresh, FIRTokenCallback callback);
-
-/** @typedef FIRAppGetUID
-    @brief The type of block which can provide an implementation for the @c getUID method.
- */
-typedef NSString *_Nullable (^FIRAppGetUIDImplementation)(void);
-
 @interface FIRApp ()
 
 /**
  * A flag indicating if this is the default app (has the default app name).
  */
 @property(nonatomic, readonly) BOOL isDefaultApp;
-
-/** @property getTokenImplementation
-    @brief Gets or sets the block to use for the implementation of
-        @c getTokenForcingRefresh:withCallback:
- */
-@property(nonatomic, copy) FIRAppGetTokenImplementation getTokenImplementation;
-
-/** @property getUIDImplementation
-    @brief Gets or sets the block to use for the implementation of @c getUID.
- */
-@property(nonatomic, copy) FIRAppGetUIDImplementation getUIDImplementation;
 
 /*
  * The container of interop SDKs for this app.
@@ -164,23 +135,25 @@ typedef NSString *_Nullable (^FIRAppGetUIDImplementation)(void);
 + (BOOL)isDefaultAppConfigured;
 
 /**
- * Register a class that conforms to `FIRCoreConfigurable`. Each SDK should have one class that
- * registers in order to provide critical information for interoperability and lifecycle events.
- * TODO(wilsonryan): Write more documentation.
+ * Registers a given third-party library with the given version number to be reported for
+ * analytics.
+ *
+ * @param name Name of the library.
+ * @param version Version of the library.
  */
-+ (void)registerAsConfigurable:(Class<FIRCoreConfigurable>)klass;
++ (void)registerLibrary:(nonnull NSString *)name withVersion:(nonnull NSString *)version;
 
 /**
- * Registers a given third-party library with the given version number to be reported for
- * analyitcs.
+ * Registers a given internal library with the given version number to be reported for
+ * analytics.
  *
- * @param library Name of the library
- * @param version Version of the library
+ * @param library Optional parameter for component registration.
+ * @param name Name of the library.
+ * @param version Version of the library.
  */
-// clang-format off
-+ (void)registerLibrary:(NSString *)library
-            withVersion:(NSString *)version NS_SWIFT_NAME(registerLibrary(_:version:));
-// clang-format on
++ (void)registerInternalLibrary:(nonnull Class<FIRLibrary>)library
+                       withName:(nonnull NSString *)name
+                    withVersion:(nonnull NSString *)version;
 
 /**
  * A concatenated string representing all the third-party libraries and version numbers.
@@ -203,19 +176,6 @@ typedef NSString *_Nullable (^FIRAppGetUIDImplementation)(void);
  * Can be used by the unit tests in each SDK to set customized options.
  */
 - (instancetype)initInstanceWithName:(NSString *)name options:(FIROptions *)options;
-
-/** @fn getTokenForcingRefresh:withCallback:
-    @brief Retrieves the Firebase authentication token, possibly refreshing it.
-    @param forceRefresh Forces a token refresh. Useful if the token becomes invalid for some reason
-        other than an expiration.
-    @param callback The block to invoke when the token is available.
- */
-- (void)getTokenForcingRefresh:(BOOL)forceRefresh withCallback:(FIRTokenCallback)callback;
-
-/**
- * Expose the UID of the current user for Firestore.
- */
-- (nullable NSString *)getUID;
 
 @end
 

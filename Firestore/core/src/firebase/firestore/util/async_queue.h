@@ -54,6 +54,10 @@ enum class TimerId {
    * indefinitely for success or failure.
    */
   OnlineStateTimeout,
+  /**
+   * A timer used to periodically attempt LRU Garbage collection
+   */
+  GarbageCollectionDelay
 };
 
 // A serial queue that executes given operations asynchronously, one at a time.

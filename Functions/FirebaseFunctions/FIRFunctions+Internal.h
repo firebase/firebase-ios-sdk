@@ -16,6 +16,7 @@
 
 #import "FIRFunctions.h"
 
+@protocol FIRAuthInterop;
 @class FIRHTTPSCallableResult;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -44,6 +45,16 @@ NS_ASSUME_NONNULL_BEGIN
  * For testing only.
  */
 - (void)useLocalhost;
+
+/**
+ * Internal initializer for the Cloud Functions client.
+ * @param projectID The project ID for the Firebase project.
+ * @param region The region for the http trigger, such as "us-central1".
+ * @param auth The auth provider to use (optional).
+ */
+- (id)initWithProjectID:(NSString *)projectID
+                 region:(NSString *)region
+                   auth:(nullable id<FIRAuthInterop>)auth;
 
 @end
 

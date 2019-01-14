@@ -21,7 +21,7 @@ option java_package = "com.google.firebase.firestore.proto";
 
 option objc_class_prefix = "FSTPB";
 
-import "google/firestore/v1beta1/firestore.proto";
+import "google/firestore/v1/firestore.proto";
 import "google/protobuf/timestamp.proto";
 
 // A Target is a long-lived data structure representing a resumable listen on a
@@ -36,7 +36,7 @@ message Target {
   // The last snapshot version received from the Watch Service for this target.
   //
   // This is the same value as TargetChange.read_time
-  // https://github.com/googleapis/googleapis/blob/master/google/firestore/v1beta1/firestore.proto#L734
+  // https://github.com/googleapis/googleapis/blob/master/google/firestore/v1/firestore.proto#L734
   google.protobuf.Timestamp snapshot_version = 2;
 
   // An opaque, server-assigned token that allows watching a query to be
@@ -53,7 +53,7 @@ message Target {
   // the client should use the snapshot_version for its own purposes.
   //
   // This is the same value as TargetChange.resume_token
-  // https://github.com/googleapis/googleapis/blob/master/google/firestore/v1beta1/firestore.proto#L722
+  // https://github.com/googleapis/googleapis/blob/master/google/firestore/v1/firestore.proto#L722
   bytes resume_token = 3;
 
   // A sequence number representing the last time this query was listened to,
@@ -73,10 +73,10 @@ message Target {
   // The server-side type of target to listen to.
   oneof target_type {
     // A target specified by a query.
-    google.firestore.v1beta1.Target.QueryTarget query = 5;
+    google.firestore.v1.Target.QueryTarget query = 5;
 
     // A target specified by a set of document names.
-    google.firestore.v1beta1.Target.DocumentsTarget documents = 6;
+    google.firestore.v1.Target.DocumentsTarget documents = 6;
   }
 }
 

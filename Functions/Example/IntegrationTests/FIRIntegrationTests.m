@@ -14,12 +14,15 @@
 
 #import <XCTest/XCTest.h>
 
+#import "FIRAuthInteropFake.h"
 #import "FIRError.h"
 #import "FIRFunctions+Internal.h"
 #import "FIRFunctions.h"
 #import "FIRHTTPSCallable.h"
-#import "FUNFakeApp.h"
 #import "FUNFakeInstanceID.h"
+
+// Project ID used by these tests.
+static NSString *const kProjectID = @"functions-integration-test";
 
 @interface FIRIntegrationTests : XCTestCase {
   FIRFunctions *_functions;
@@ -30,8 +33,10 @@
 
 - (void)setUp {
   [super setUp];
-  id app = [[FUNFakeApp alloc] initWithProjectID:@"functions-integration-test"];
-  _functions = [FIRFunctions functionsForApp:app];
+  _functions = [[FIRFunctions alloc]
+      initWithProjectID:kProjectID
+                 region:@"us-central1"
+                   auth:[[FIRAuthInteropFake alloc] initWithToken:nil userID:nil error:nil]];
   [_functions useLocalhost];
 }
 
@@ -76,18 +81,20 @@
 
 - (void)testToken {
   // Recreate _functions with a token.
-  id app = [[FUNFakeApp alloc] initWithProjectID:@"functions-integration-test" token:@"token"];
-  FIRFunctions *functions = [FIRFunctions functionsForApp:app];
+  FIRFunctions *functions = [[FIRFunctions alloc]
+      initWithProjectID:kProjectID
+                 region:@"us-central1"
+                   auth:[[FIRAuthInteropFake alloc] initWithToken:@"token" userID:nil error:nil]];
   [functions useLocalhost];
 
   XCTestExpectation *expectation = [[XCTestExpectation alloc] init];
   FIRHTTPSCallable *function = [functions HTTPSCallableWithName:@"tokenTest"];
   [function callWithObject:@{}
-      completion:^(FIRHTTPSCallableResult *_Nullable result, NSError *_Nullable error) {
-        XCTAssertNil(error);
-        XCTAssertEqualObjects(@{}, result.data);
-        [expectation fulfill];
-      }];
+                completion:^(FIRHTTPSCallableResult *_Nullable result, NSError *_Nullable error) {
+                  XCTAssertNil(error);
+                  XCTAssertEqualObjects(@{}, result.data);
+                  [expectation fulfill];
+                }];
   [self waitForExpectations:@[ expectation ] timeout:10];
 }
 
@@ -95,11 +102,11 @@
   XCTestExpectation *expectation = [[XCTestExpectation alloc] init];
   FIRHTTPSCallable *function = [_functions HTTPSCallableWithName:@"instanceIdTest"];
   [function callWithObject:@{}
-      completion:^(FIRHTTPSCallableResult *_Nullable result, NSError *_Nullable error) {
-        XCTAssertNil(error);
-        XCTAssertEqualObjects(@{}, result.data);
-        [expectation fulfill];
-      }];
+                completion:^(FIRHTTPSCallableResult *_Nullable result, NSError *_Nullable error) {
+                  XCTAssertNil(error);
+                  XCTAssertEqualObjects(@{}, result.data);
+                  [expectation fulfill];
+                }];
   [self waitForExpectations:@[ expectation ] timeout:10];
 }
 
@@ -115,6 +122,7 @@
   [self waitForExpectations:@[ expectation ] timeout:10];
 
   // Test the version with no arguments.
+  expectation = [[XCTestExpectation alloc] init];
   [function
       callWithCompletion:^(FIRHTTPSCallableResult *_Nullable result, NSError *_Nullable error) {
         XCTAssertEqualObjects([NSNull null], result.data);
@@ -140,11 +148,11 @@
   XCTestExpectation *expectation = [[XCTestExpectation alloc] init];
   FIRHTTPSCallable *function = [_functions HTTPSCallableWithName:@"unhandledErrorTest"];
   [function callWithObject:@{}
-      completion:^(FIRHTTPSCallableResult *_Nullable result, NSError *_Nullable error) {
-        XCTAssertNotNil(error);
-        XCTAssertEqual(FIRFunctionsErrorCodeInternal, error.code);
-        [expectation fulfill];
-      }];
+                completion:^(FIRHTTPSCallableResult *_Nullable result, NSError *_Nullable error) {
+                  XCTAssertNotNil(error);
+                  XCTAssertEqual(FIRFunctionsErrorCodeInternal, error.code);
+                  [expectation fulfill];
+                }];
   [self waitForExpectations:@[ expectation ] timeout:10];
 }
 
@@ -152,26 +160,27 @@
   XCTestExpectation *expectation = [[XCTestExpectation alloc] init];
   FIRHTTPSCallable *function = [_functions HTTPSCallableWithName:@"unknownErrorTest"];
   [function callWithObject:@{}
-      completion:^(FIRHTTPSCallableResult *_Nullable result, NSError *_Nullable error) {
-        XCTAssertNotNil(error);
-        XCTAssertEqual(FIRFunctionsErrorCodeInternal, error.code);
-        [expectation fulfill];
-      }];
+                completion:^(FIRHTTPSCallableResult *_Nullable result, NSError *_Nullable error) {
+                  XCTAssertNotNil(error);
+                  XCTAssertEqual(FIRFunctionsErrorCodeInternal, error.code);
+                  [expectation fulfill];
+                }];
   [self waitForExpectations:@[ expectation ] timeout:10];
 }
 
 - (void)testExplicitError {
   XCTestExpectation *expectation = [[XCTestExpectation alloc] init];
   FIRHTTPSCallable *function = [_functions HTTPSCallableWithName:@"explicitErrorTest"];
-  [function callWithObject:@{}
-      completion:^(FIRHTTPSCallableResult *_Nullable result, NSError *_Nullable error) {
-        XCTAssertNotNil(error);
-        XCTAssertEqual(FIRFunctionsErrorCodeOutOfRange, error.code);
-        XCTAssertEqualObjects(@"explicit nope", error.userInfo[NSLocalizedDescriptionKey]);
-        NSDictionary *expectedDetails = @{@"start" : @10, @"end" : @20, @"long" : @30L};
-        XCTAssertEqualObjects(expectedDetails, error.userInfo[FIRFunctionsErrorDetailsKey]);
-        [expectation fulfill];
-      }];
+  [function
+      callWithObject:@{}
+          completion:^(FIRHTTPSCallableResult *_Nullable result, NSError *_Nullable error) {
+            XCTAssertNotNil(error);
+            XCTAssertEqual(FIRFunctionsErrorCodeOutOfRange, error.code);
+            XCTAssertEqualObjects(@"explicit nope", error.userInfo[NSLocalizedDescriptionKey]);
+            NSDictionary *expectedDetails = @{@"start" : @10, @"end" : @20, @"long" : @30L};
+            XCTAssertEqualObjects(expectedDetails, error.userInfo[FIRFunctionsErrorDetailsKey]);
+            [expectation fulfill];
+          }];
   [self waitForExpectations:@[ expectation ] timeout:10];
 }
 
@@ -179,11 +188,11 @@
   XCTestExpectation *expectation = [[XCTestExpectation alloc] init];
   FIRHTTPSCallable *function = [_functions HTTPSCallableWithName:@"httpErrorTest"];
   [function callWithObject:@{}
-      completion:^(FIRHTTPSCallableResult *_Nullable result, NSError *_Nullable error) {
-        XCTAssertNotNil(error);
-        XCTAssertEqual(FIRFunctionsErrorCodeInvalidArgument, error.code);
-        [expectation fulfill];
-      }];
+                completion:^(FIRHTTPSCallableResult *_Nullable result, NSError *_Nullable error) {
+                  XCTAssertNotNil(error);
+                  XCTAssertEqual(FIRFunctionsErrorCodeInvalidArgument, error.code);
+                  [expectation fulfill];
+                }];
   [self waitForExpectations:@[ expectation ] timeout:10];
 }
 

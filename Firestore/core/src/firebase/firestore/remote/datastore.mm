@@ -52,9 +52,8 @@ using util::ExecutorLibdispatch;
 
 namespace {
 
-const auto kRpcNameCommit = "/google.firestore.v1beta1.Firestore/Commit";
-const auto kRpcNameLookup =
-    "/google.firestore.v1beta1.Firestore/BatchGetDocuments";
+const auto kRpcNameCommit = "/google.firestore.v1.Firestore/Commit";
+const auto kRpcNameLookup = "/google.firestore.v1.Firestore/BatchGetDocuments";
 
 std::unique_ptr<Executor> CreateExecutor() {
   auto queue = dispatch_queue_create("com.google.firebase.firestore.rpc",
@@ -293,43 +292,42 @@ void Datastore::RemoveGrpcCall(GrpcCall* to_remove) {
   active_calls_.erase(found);
 }
 
-+ (BOOL)isAbortedError:(NSError *)error {
-bool Data
-  HARD_ASSERT([error.domain isEqualToString:FIRFirestoreErrorDomain],
-              "isAbortedError: only works with errors emitted by FSTDatastore.");
-  return error.code == FIRFirestoreErrorCodeAborted;
+bool Datastore::IsAbortedError(const Status& error) {
+  return error.code() == FIRFirestoreErrorCodeAborted;
 }
 
-+ (BOOL)isPermanentWriteError:(NSError *)error {
-  HARD_ASSERT([error.domain isEqualToString:FIRFirestoreErrorDomain],
-              "isPerminanteWriteError: only works with errors emitted by FSTDatastore.");
-  switch (error.code) {
-    case FIRFirestoreErrorCodeCancelled:
-    case FIRFirestoreErrorCodeUnknown:
-    case FIRFirestoreErrorCodeDeadlineExceeded:
-    case FIRFirestoreErrorCodeResourceExhausted:
-    case FIRFirestoreErrorCodeInternal:
-    case FIRFirestoreErrorCodeUnavailable:
-    // Unauthenticated means something went wrong with our token and we need to retry with new
-    // credentials which will happen automatically.
-    case FIRFirestoreErrorCodeUnauthenticated:
-      return NO;
-    case FIRFirestoreErrorCodeInvalidArgument:
-    case FIRFirestoreErrorCodeNotFound:
-    case FIRFirestoreErrorCodeAlreadyExists:
-    case FIRFirestoreErrorCodePermissionDenied:
-    case FIRFirestoreErrorCodeFailedPrecondition:
-    case FIRFirestoreErrorCodeAborted:
-    // Aborted might be retried in some scenarios, but that is dependant on
-    // the context and should handled individually by the calling code.
-    // See https://cloud.google.com/apis/design/errors
-    case FIRFirestoreErrorCodeOutOfRange:
-    case FIRFirestoreErrorCodeUnimplemented:
-    case FIRFirestoreErrorCodeDataLoss:
-      return YES;
+bool Datastore::IsPermanentError(const Status& error) {
+  switch (error.code()) {
+    case FirestoreErrorCode::Cancelled:
+    case FirestoreErrorCode::Unknown:
+    case FirestoreErrorCode::DeadlineExceeded:
+    case FirestoreErrorCode::ResourceExhausted:
+    case FirestoreErrorCode::Internal:
+    case FirestoreErrorCode::Unavailable:
+      // Unauthenticated means something went wrong with our token and we need
+      // to retry with new credentials which will happen automatically.
+    case FirestoreErrorCode::Unauthenticated:
+      return false;
+    case FirestoreErrorCode::InvalidArgument:
+    case FirestoreErrorCode::NotFound:
+    case FirestoreErrorCode::AlreadyExists:
+    case FirestoreErrorCode::PermissionDenied:
+    case FirestoreErrorCode::FailedPrecondition:
+    case FirestoreErrorCode::Aborted:
+      // Aborted might be retried in some scenarios, but that is dependant on
+      // the context and should handled individually by the calling code.
+      // See https://cloud.google.com/apis/design/errors
+    case FirestoreErrorCode::OutOfRange:
+    case FirestoreErrorCode::Unimplemented:
+    case FirestoreErrorCode::DataLoss:
+      return true;
     default:
-      return YES;
+      return true;
   }
+}
+
+bool Datastore::IsPermanentWriteError(const Status& error) {
+  return IsPermanentError(error) && !IsAbortedError(error);
 }
 
 std::string Datastore::GetWhitelistedHeadersAsString(

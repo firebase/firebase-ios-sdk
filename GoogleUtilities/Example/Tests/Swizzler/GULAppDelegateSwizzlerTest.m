@@ -98,8 +98,8 @@ static BOOL gRespondsToHandleBackgroundSession;
   gRespondsToOpenURLHandler_iOS9 =
       [self instancesRespondToSelector:@selector(application:openURL:options:)];
   gRespondsToHandleBackgroundSession =
-      [self instancesRespondToSelector:@selector
-            (application:handleEventsForBackgroundURLSession:completionHandler:)];
+      [self instancesRespondToSelector:@selector(application:
+                                           handleEventsForBackgroundURLSession:completionHandler:)];
   gRespondsToContinueUserActivity = [self
       instancesRespondToSelector:@selector(application:continueUserActivity:restorationHandler:)];
 #pragma clang diagnostic pop
@@ -181,7 +181,8 @@ static BOOL gRespondsToHandleBackgroundSession;
 
 - (BOOL)application:(UIApplication *)application
     continueUserActivity:(NSUserActivity *)userActivity
-      restorationHandler:(void (^)(NSArray *__nullable restorableObjects))restorationHandler {
+      restorationHandler:(void (^)(NSArray<id<UIUserActivityRestoring>> *__nullable
+                                       restorableObjects))restorationHandler {
   _userActivity = userActivity;
   return YES;
 }
@@ -235,12 +236,12 @@ static BOOL gRespondsToHandleBackgroundSession;
   // After being proxied, it should be able to respond to the required method selector.
   XCTAssertTrue([realAppDelegate
       respondsToSelector:@selector(application:openURL:sourceApplication:annotation:)]);
-  XCTAssertTrue([realAppDelegate
-      respondsToSelector:@selector(application:continueUserActivity:restorationHandler:)]);
+  XCTAssertTrue([realAppDelegate respondsToSelector:@selector(application:
+                                                        continueUserActivity:restorationHandler:)]);
   XCTAssertTrue([realAppDelegate respondsToSelector:@selector(application:openURL:options:)]);
-  XCTAssertTrue(
-      [realAppDelegate respondsToSelector:@selector
-                       (application:handleEventsForBackgroundURLSession:completionHandler:)]);
+  XCTAssertTrue([realAppDelegate
+      respondsToSelector:@selector(application:
+                             handleEventsForBackgroundURLSession:completionHandler:)]);
   // Make sure that the class has changed.
   XCTAssertNotEqualObjects([realAppDelegate class], realAppDelegateClassBefore);
 
@@ -261,7 +262,7 @@ static BOOL gRespondsToHandleBackgroundSession;
 
   UIApplication *currentApplication = [UIApplication sharedApplication];
   NSString *sessionID = @"123";
-  void (^nilHandler)() = nil;
+  void (^nilHandler)(void) = nil;
   [realAppDelegate application:currentApplication
       handleEventsForBackgroundURLSession:sessionID
                         completionHandler:nilHandler];
@@ -274,8 +275,11 @@ static BOOL gRespondsToHandleBackgroundSession;
 
 /** Tests registering and unregistering invalid interceptors. */
 - (void)testInvalidInterceptor {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
   XCTAssertThrows([GULAppDelegateSwizzler registerAppDelegateInterceptor:nil],
                   @"Should not register nil interceptor");
+#pragma clang diagnostic pop
   XCTAssertEqual([GULAppDelegateSwizzler interceptors].count, 0);
 
   // Try to register some random object that does not conform to UIApplicationDelegate.
@@ -303,6 +307,8 @@ static BOOL gRespondsToHandleBackgroundSession;
   XCTAssertEqual([GULAppDelegateSwizzler interceptors].count, 1);
 
   // Try to unregister an empty string. Should not remove anything.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
   XCTAssertThrows([GULAppDelegateSwizzler unregisterAppDelegateInterceptorWithID:nil],
                   @"Should not unregister nil interceptorID");
   XCTAssertEqual([GULAppDelegateSwizzler interceptors].count, 1);

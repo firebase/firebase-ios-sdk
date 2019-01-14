@@ -27,11 +27,11 @@
 
 #import "Firestore/Protos/objc/firestore/local/MaybeDocument.pbobjc.h"
 #import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Common.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Document.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Firestore.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Query.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Write.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Common.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Document.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Firestore.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Query.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1/Write.pbobjc.h"
 #import "Firestore/Protos/objc/google/rpc/Status.pbobjc.h"
 #import "Firestore/Protos/objc/google/type/Latlng.pbobjc.h"
 #import "Firestore/Source/API/FIRFieldValue+Internal.h"
@@ -287,8 +287,7 @@ NS_ASSUME_NONNULL_BEGIN
     @"i" : @1,
     @"n" : [NSNull null],
     @"s" : @"foo",
-    @"a" : @[ @2, @"bar",
-              @{@"b" : @NO} ],
+    @"a" : @[ @2, @"bar", @{@"b" : @NO} ],
     @"o" : @{
       @"d" : @100,
       @"nested" : @{@"e" : @(LLONG_MIN)},
@@ -346,12 +345,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesPatchMutation {
-  FSTPatchMutation *mutation =
-      FSTTestPatchMutation("docs/1",
-                           @{@"a" : @"b",
-                             @"num" : @1,
-                             @"some.de\\\\ep.th\\ing'" : @2},
-                           {});
+  FSTPatchMutation *mutation = FSTTestPatchMutation(
+      "docs/1", @{@"a" : @"b", @"num" : @1, @"some.de\\\\ep.th\\ing'" : @2}, {});
   GCFSWrite *proto = [GCFSWrite message];
   proto.update = [self.serializer encodedDocumentWithFields:mutation.value key:mutation.key];
   proto.updateMask = [self.serializer encodedFieldMask:mutation.fieldMask];
@@ -386,9 +381,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testEncodesArrayTransformMutations {
   FSTTransformMutation *mutation = FSTTestTransformMutation(@"docs/1", @{
     @"a" : [FIRFieldValue fieldValueForArrayUnion:@[ @"a", @2 ]],
-    @"bar.baz" : [FIRFieldValue fieldValueForArrayRemove:@[
-      @{@"x" : @1}
-    ]]
+    @"bar.baz" : [FIRFieldValue fieldValueForArrayRemove:@[ @{@"x" : @1} ]]
   });
   GCFSWrite *proto = [GCFSWrite message];
   proto.transform = [GCFSDocumentTransform message];
@@ -418,9 +411,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testEncodesSetMutationWithPrecondition {
   FSTSetMutation *mutation =
       [[FSTSetMutation alloc] initWithKey:FSTTestDocKey(@"foo/bar")
-                                    value:FSTTestObjectValue(
-                                              @{@"a" : @"b",
-                                                @"num" : @1})
+                                    value:FSTTestObjectValue(@{@"a" : @"b", @"num" : @1})
                              precondition:Precondition::UpdateTime(testutil::Version(4))];
   GCFSWrite *proto = [GCFSWrite message];
   proto.update = [self.serializer encodedDocumentWithFields:mutation.value key:mutation.key];
@@ -444,8 +435,8 @@ NS_ASSUME_NONNULL_BEGIN
   proto.updateTime = [self.serializer encodedTimestamp:updateVersion.timestamp()];
   [proto.transformResultsArray addObject:[self.serializer encodedString:@"result"]];
 
-  FSTMutationResult *result =
-      [self.serializer decodedMutationResult:proto commitVersion:commitVersion];
+  FSTMutationResult *result = [self.serializer decodedMutationResult:proto
+                                                       commitVersion:commitVersion];
 
   XCTAssertEqual(result.version, updateVersion);
   XCTAssertEqualObjects(result.transformResults, @[ [FSTStringValue stringValue:@"result"] ]);
@@ -455,8 +446,8 @@ NS_ASSUME_NONNULL_BEGIN
   GCFSWriteResult *proto = [GCFSWriteResult message];
   SnapshotVersion commitVersion = testutil::Version(4000);
 
-  FSTMutationResult *result =
-      [self.serializer decodedMutationResult:proto commitVersion:commitVersion];
+  FSTMutationResult *result = [self.serializer decodedMutationResult:proto
+                                                       commitVersion:commitVersion];
 
   XCTAssertEqual(result.version, commitVersion);
   XCTAssertEqual(result.transformResults.count, 0);
@@ -542,7 +533,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQueryData *model = [self queryDataForQuery:q];
 
   GCFSTarget *expected = [GCFSTarget message];
-  expected.query.parent = @"projects/p/databases/d";
+  expected.query.parent = @"projects/p/databases/d/documents";
   GCFSStructuredQuery_CollectionSelector *from = [GCFSStructuredQuery_CollectionSelector message];
   from.collectionId = @"messages";
   [expected.query.structuredQuery.fromArray addObject:from];
@@ -574,7 +565,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQueryData *model = [self queryDataForQuery:q];
 
   GCFSTarget *expected = [GCFSTarget message];
-  expected.query.parent = @"projects/p/databases/d";
+  expected.query.parent = @"projects/p/databases/d/documents";
   GCFSStructuredQuery_CollectionSelector *from = [GCFSStructuredQuery_CollectionSelector message];
   from.collectionId = @"docs";
   [expected.query.structuredQuery.fromArray addObject:from];
@@ -655,7 +646,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQueryData *model = [self queryDataForQuery:q];
 
   GCFSTarget *expected = [GCFSTarget message];
-  expected.query.parent = @"projects/p/databases/d";
+  expected.query.parent = @"projects/p/databases/d/documents";
   GCFSStructuredQuery_CollectionSelector *from = [GCFSStructuredQuery_CollectionSelector message];
   from.collectionId = @"docs";
   [expected.query.structuredQuery.fromArray addObject:from];
@@ -677,7 +668,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQueryData *model = [self queryDataForQuery:q];
 
   GCFSTarget *expected = [GCFSTarget message];
-  expected.query.parent = @"projects/p/databases/d";
+  expected.query.parent = @"projects/p/databases/d/documents";
   GCFSStructuredQuery_CollectionSelector *from = [GCFSStructuredQuery_CollectionSelector message];
   from.collectionId = @"docs";
   [expected.query.structuredQuery.fromArray addObject:from];
@@ -715,7 +706,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQueryData *model = [self queryDataForQuery:q];
 
   GCFSTarget *expected = [GCFSTarget message];
-  expected.query.parent = @"projects/p/databases/d";
+  expected.query.parent = @"projects/p/databases/d/documents";
   GCFSStructuredQuery_CollectionSelector *from = [GCFSStructuredQuery_CollectionSelector message];
   from.collectionId = @"docs";
   [expected.query.structuredQuery.fromArray addObject:from];
@@ -737,7 +728,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                 resumeToken:FSTTestData(1, 2, 3, -1)];
 
   GCFSTarget *expected = [GCFSTarget message];
-  expected.query.parent = @"projects/p/databases/d";
+  expected.query.parent = @"projects/p/databases/d/documents";
   GCFSStructuredQuery_CollectionSelector *from = [GCFSStructuredQuery_CollectionSelector message];
   from.collectionId = @"docs";
   [expected.query.structuredQuery.fromArray addObject:from];

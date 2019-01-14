@@ -35,6 +35,7 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/remote/stream.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
@@ -45,6 +46,7 @@
 namespace util = firebase::firestore::util;
 using firebase::firestore::auth::User;
 using firebase::firestore::model::BatchId;
+using firebase::firestore::model::kBatchIdUnknown;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::OnlineState;
@@ -195,7 +197,7 @@ static const int kMaxPendingWrites = 10;
   _writeStream->Stop();
 
   if (self.writePipeline.count > 0) {
-    LOG_DEBUG("Stopping write stream with %lu pending writes",
+    LOG_DEBUG("Stopping write stream with %s pending writes",
               (unsigned long)self.writePipeline.count);
     [self.writePipeline removeAllObjects];
   }
@@ -464,7 +466,7 @@ static const int kMaxPendingWrites = 10;
  */
 - (void)fillWritePipeline {
   BatchId lastBatchIDRetrieved =
-      self.writePipeline.count == 0 ? kFSTBatchIDUnknown : self.writePipeline.lastObject.batchID;
+      self.writePipeline.count == 0 ? kBatchIdUnknown : self.writePipeline.lastObject.batchID;
   while ([self canAddToWritePipeline]) {
     FSTMutationBatch *batch = [self.localStore nextMutationBatchAfterBatchID:lastBatchIDRetrieved];
     if (!batch) {
@@ -573,20 +575,24 @@ static const int kMaxPendingWrites = 10;
 
 - (void)handleHandshakeError:(NSError *)error {
   HARD_ASSERT(error, "Handling write error with status OK.");
-  // Reset the token if it's a permanent error or the error code is ABORTED, signaling the write
-  // stream is no longer valid.
-  if ([FSTDatastore isPermanentWriteError:error] || [FSTDatastore isAbortedError:error]) {
+  // Reset the token if it's a permanent error, signaling the write stream is
+  // no longer valid. Note that the handshake does not count as a write: see
+  // comments on isPermanentWriteError for details.
+  if ([FSTDatastore isPermanentError:error]) {
     NSString *token = [_writeStream->GetLastStreamToken() base64EncodedStringWithOptions:0];
     LOG_DEBUG("FSTRemoteStore %s error before completed handshake; resetting stream token %s: %s",
               (__bridge void *)self, token, error);
     _writeStream->SetLastStreamToken(nil);
     [self.localStore setLastStreamToken:nil];
+  } else {
+    // Some other error, don't reset stream token. Our stream logic will just retry with exponential
+    // backoff.
   }
 }
 
 - (void)handleWriteError:(NSError *)error {
   HARD_ASSERT(error, "Handling write error with status OK.");
-  // Only handle permanent error. If it's transient, just let the retry logic kick in.
+  // Only handle permanent errors here. If it's transient, just let the retry logic kick in.
   if (![FSTDatastore isPermanentWriteError:error]) {
     return;
   }

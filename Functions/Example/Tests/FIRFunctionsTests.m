@@ -17,8 +17,6 @@
 #import "FIRFunctions+Internal.h"
 #import "FIRFunctions.h"
 
-#import "FUNFakeApp.h"
-
 @interface FIRFunctionsTests : XCTestCase
 @end
 
@@ -33,14 +31,11 @@
 }
 
 - (void)testURLWithName {
-  id app = [[FUNFakeApp alloc] initWithProjectID:@"my-project"];
-  FIRFunctions *functions = [FIRFunctions functionsForApp:app region:@"my-region"];
+  FIRFunctions *functions = [[FIRFunctions alloc] initWithProjectID:@"my-project"
+                                                             region:@"my-region"
+                                                               auth:nil];
   NSString *url = [functions URLWithName:@"my-endpoint"];
   XCTAssertEqualObjects(@"https://my-region-my-project.cloudfunctions.net/my-endpoint", url);
-
-  functions = [FIRFunctions functionsForApp:app];
-  url = [functions URLWithName:@"my-endpoint"];
-  XCTAssertEqualObjects(@"https://us-central1-my-project.cloudfunctions.net/my-endpoint", url);
 }
 
 @end

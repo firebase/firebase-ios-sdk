@@ -102,7 +102,27 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
   /** Returns true if the given error is a gRPC ABORTED error. */
   static bool IsAbortedError(const util::Status& status);
 
-  /** Returns true if the given error indicates the RPC associated with it may not be retried. */
+  /**
+   * Determines whether an error code represents a permanent error when received
+   * in response to a non-write operation.
+   *
+   * See `IsPermanentWriteError` for classifying write errors.
+   */
+  static bool IsPermanentError(const util::Status& status);
+
+  /**
+   * Determines whether an error code represents a permanent error when received
+   * in response to a write operation.
+   *
+   * Write operations must be handled specially because as of b/119437764,
+   * ABORTED errors on the write stream should be retried too (even though
+   * ABORTED errors are not generally retryable).
+   *
+   * Note that during the initial handshake on the write stream an ABORTED error
+   * signals that we should discard our stream token (i.e. it is permanent).
+   * This means a handshake error should be classified with `IsPermanentError`,
+   * above.
+   */
   static bool IsPermanentWriteError(const util::Status& status);
 
   static std::string GetWhitelistedHeadersAsString(

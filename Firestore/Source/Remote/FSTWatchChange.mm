@@ -64,7 +64,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocumentWatchChange *otherChange = (FSTDocumentWatchChange *)other;
   return [_updatedTargetIDs isEqual:otherChange.updatedTargetIDs] &&
          [_removedTargetIDs isEqual:otherChange.removedTargetIDs] &&
-         [_documentKey isEqual:otherChange.documentKey] &&
+         _documentKey == otherChange.documentKey &&
          (_document == otherChange.document || [_document isEqual:otherChange.document]);
 }
 

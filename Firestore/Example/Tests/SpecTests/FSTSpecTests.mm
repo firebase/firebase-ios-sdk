@@ -26,7 +26,6 @@
 #import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Remote/FSTExistenceFilter.h"
@@ -39,6 +38,7 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
@@ -50,6 +50,7 @@ namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
 using firebase::firestore::auth::User;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::util::TimerId;
@@ -272,7 +273,7 @@ static NSString *Describe(NSData *data) {
     }
   } else if (watchEntity[@"doc"]) {
     NSDictionary *docSpec = watchEntity[@"doc"];
-    FSTDocumentKey *key = FSTTestDocKey(docSpec[@"key"]);
+    DocumentKey key = FSTTestDocKey(docSpec[@"key"]);
     FSTObjectValue *_Nullable value = [docSpec[@"value"] isKindOfClass:[NSNull class]]
                                           ? nil
                                           : FSTTestObjectValue(docSpec[@"value"]);
@@ -291,7 +292,7 @@ static NSString *Describe(NSData *data) {
                                                         document:doc];
     [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
   } else if (watchEntity[@"key"]) {
-    FSTDocumentKey *docKey = FSTTestDocKey(watchEntity[@"key"]);
+    DocumentKey docKey = FSTTestDocKey(watchEntity[@"key"]);
     FSTWatchChange *change =
         [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[]
                                                 removedTargetIDs:watchEntity[@"removedTargets"]
@@ -356,8 +357,8 @@ static NSString *Describe(NSData *data) {
                 @"'keepInQueue=true' is not supported on iOS and should only be set in "
                 @"multi-client tests");
 
-  FSTMutationResult *mutationResult =
-      [[FSTMutationResult alloc] initWithVersion:version transformResults:nil];
+  FSTMutationResult *mutationResult = [[FSTMutationResult alloc] initWithVersion:version
+                                                                transformResults:nil];
   [self.driver receiveWriteAckWithVersion:version mutationResults:@[ mutationResult ]];
 }
 
@@ -478,9 +479,8 @@ static NSString *Describe(NSData *data) {
   } else if (step[@"restart"]) {
     [self doRestart];
   } else if (step[@"applyClientState"]) {
-    XCTFail(
-        @"'applyClientState' is not supported on iOS and should only be used in multi-client "
-        @"tests");
+    XCTFail(@"'applyClientState' is not supported on iOS and should only be used in multi-client "
+            @"tests");
   } else {
     XCTFail(@"Unknown step: %@", step);
   }
@@ -496,23 +496,23 @@ static NSString *Describe(NSData *data) {
     NSMutableArray *expectedChanges = [NSMutableArray array];
     NSMutableArray *removed = expected[@"removed"];
     for (NSDictionary *changeSpec in removed) {
-      [expectedChanges
-          addObject:[self parseChange:changeSpec ofType:FSTDocumentViewChangeTypeRemoved]];
+      [expectedChanges addObject:[self parseChange:changeSpec
+                                            ofType:FSTDocumentViewChangeTypeRemoved]];
     }
     NSMutableArray *added = expected[@"added"];
     for (NSDictionary *changeSpec in added) {
-      [expectedChanges
-          addObject:[self parseChange:changeSpec ofType:FSTDocumentViewChangeTypeAdded]];
+      [expectedChanges addObject:[self parseChange:changeSpec
+                                            ofType:FSTDocumentViewChangeTypeAdded]];
     }
     NSMutableArray *modified = expected[@"modified"];
     for (NSDictionary *changeSpec in modified) {
-      [expectedChanges
-          addObject:[self parseChange:changeSpec ofType:FSTDocumentViewChangeTypeModified]];
+      [expectedChanges addObject:[self parseChange:changeSpec
+                                            ofType:FSTDocumentViewChangeTypeModified]];
     }
     NSMutableArray *metadata = expected[@"metadata"];
     for (NSDictionary *changeSpec in metadata) {
-      [expectedChanges
-          addObject:[self parseChange:changeSpec ofType:FSTDocumentViewChangeTypeMetadata]];
+      [expectedChanges addObject:[self parseChange:changeSpec
+                                            ofType:FSTDocumentViewChangeTypeMetadata]];
     }
     XCTAssertEqualObjects(actual.viewSnapshot.documentChanges, expectedChanges);
 
@@ -574,13 +574,13 @@ static NSString *Describe(NSData *data) {
                      [expected[@"watchStreamRequestCount"] intValue]);
     }
     if (expected[@"limboDocs"]) {
-      NSMutableSet<FSTDocumentKey *> *expectedLimboDocuments = [NSMutableSet set];
+      DocumentKeySet expectedLimboDocuments;
       NSArray *docNames = expected[@"limboDocs"];
       for (NSString *name in docNames) {
-        [expectedLimboDocuments addObject:FSTTestDocKey(name)];
+        expectedLimboDocuments = expectedLimboDocuments.insert(FSTTestDocKey(name));
       }
       // Update the expected limbo documents
-      self.driver.expectedLimboDocuments = expectedLimboDocuments;
+      [self.driver setExpectedLimboDocuments:std::move(expectedLimboDocuments)];
     }
     if (expected[@"activeTargets"]) {
       NSMutableDictionary *expectedActiveTargets = [NSMutableDictionary dictionary];
@@ -638,9 +638,9 @@ static NSString *Describe(NSData *data) {
                     @"Found limbo doc without an expected active target");
   }
 
-  for (FSTDocumentKey *expectedLimboDoc in self.driver.expectedLimboDocuments) {
+  for (const DocumentKey &expectedLimboDoc : self.driver.expectedLimboDocuments) {
     XCTAssert(actualLimboDocs.find(expectedLimboDoc) != actualLimboDocs.end(),
-              @"Expected doc to be in limbo, but was not: %@", expectedLimboDoc);
+              @"Expected doc to be in limbo, but was not: %s", expectedLimboDoc.ToString().c_str());
     actualLimboDocs.erase(expectedLimboDoc);
   }
   XCTAssertTrue(actualLimboDocs.empty(), "%lu Unexpected docs in limbo, the first one is <%s, %d>",

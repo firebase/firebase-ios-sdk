@@ -20,6 +20,8 @@
 #include <memory>
 #include <vector>
 
+#include "Firestore/Protos/nanopb/firestore/local/maybe_document.nanopb.h"
+#include "Firestore/Protos/nanopb/firestore/local/target.nanopb.h"
 #include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
@@ -29,7 +31,6 @@
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 #include "Firestore/core/src/firebase/firestore/remote/serializer.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
-#include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
@@ -39,9 +40,9 @@ namespace local {
  * @brief Serializer for values stored in the LocalStore.
  *
  * Note that local::LocalSerializer currently delegates to the
- * remote::Serializer (for the Firestore v1beta1 RPC protocol) to save
- * implementation time and code duplication. We'll need to revisit this when the
- * RPC protocol we use diverges from local storage.
+ * remote::Serializer (for the Firestore v1 RPC protocol) to save implementation
+ * time and code duplication. We'll need to revisit this when the RPC protocol
+ * we use diverges from local storage.
  */
 class LocalSerializer {
  public:
@@ -50,71 +51,72 @@ class LocalSerializer {
   }
 
   /**
-   * @brief Encodes a MaybeDocument model to the equivalent bytes for local
-   * storage.
+   * Release memory allocated by the Encode* methods that return protos.
    *
-   * Any errors that occur during encoding are fatal.
-   *
-   * @param writer The serialized output will be written to the provided writer.
-   * @param maybe_doc the model to convert.
+   * This essentially wraps calls to nanopb's pb_release() method.
    */
-  void EncodeMaybeDocument(nanopb::Writer* writer,
-                           const model::MaybeDocument& maybe_doc) const;
+  static void FreeNanopbMessage(const pb_field_t fields[], void* dest_struct) {
+    remote::Serializer::FreeNanopbMessage(fields, dest_struct);
+  }
 
   /**
-   * @brief Decodes bytes representing a MaybeDocument proto to the equivalent
-   * model.
+   * @brief Encodes a MaybeDocument model to the equivalent nanopb proto for
+   * local storage.
+   *
+   * Any errors that occur during encoding are fatal.
+   */
+  firestore_client_MaybeDocument EncodeMaybeDocument(
+      const model::MaybeDocument& maybe_doc) const;
+
+  /**
+   * @brief Decodes nanopb proto representing a MaybeDocument proto to the
+   * equivalent model.
    *
    * Check reader->status() to determine if an error occurred while decoding.
    *
-   * @param reader The reader object containing the bytes to convert. It's
-   * assumed that exactly all of the bytes will be used by this conversion.
+   * @param reader The Reader object. Used only for error handling.
    * @return The model equivalent of the bytes or nullopt if an error occurred.
    * @post (reader->status().ok() && result) ||
    * (!reader->status().ok() && !result)
    */
   std::unique_ptr<model::MaybeDocument> DecodeMaybeDocument(
-      nanopb::Reader* reader) const;
+      nanopb::Reader* reader,
+      const firestore_client_MaybeDocument& proto) const;
 
   /**
-   * @brief Encodes a QueryData to the equivalent bytes, representing a
+   * @brief Encodes a QueryData to the equivalent nanopb proto, representing a
    * ::firestore::proto::Target, for local storage.
    *
    * Any errors that occur during encoding are fatal.
-   *
-   * @param writer The serialized output will be written to the provided writer.
    */
-  void EncodeQueryData(nanopb::Writer* writer,
-                       const QueryData& query_data) const;
+  firestore_client_Target EncodeQueryData(const QueryData& query_data) const;
 
   /**
-   * @brief Decodes bytes representing a ::firestore::proto::Target proto to the
-   * equivalent QueryData.
+   * @brief Decodes nanopb proto representing a ::firestore::proto::Target proto
+   * to the equivalent QueryData.
    *
-   * Check writer->status() to determine if an error occurred while decoding.
+   * Check reader->status() to determine if an error occurred while decoding.
    *
-   * @param reader The reader object containing the bytes to convert. It's
-   * assumed that exactly all of the bytes will be used by this conversion.
-   * @return The QueryData equivalent of the bytes or nullopt if an error
-   * occurred.
-   * @post (reader->status().ok() && result.has_value()) ||
-   * (!reader->status().ok() && !result.has_value())
+   * @param reader The Reader object. Used only for error handling.
+   * @return The QueryData equivalent of the bytes. On error, the return value
+   * is unspecified.
    */
-  absl::optional<QueryData> DecodeQueryData(nanopb::Reader* reader) const;
+  QueryData DecodeQueryData(nanopb::Reader* reader,
+                            const firestore_client_Target& proto) const;
 
  private:
   /**
-   * Encodes a Document for local storage. This differs from the v1beta1 RPC
+   * Encodes a Document for local storage. This differs from the v1 RPC
    * serializer for Documents in that it preserves the updateTime, which is
    * considered an output only value by the server.
    */
-  void EncodeDocument(nanopb::Writer* writer, const model::Document& doc) const;
+  google_firestore_v1_Document EncodeDocument(const model::Document& doc) const;
 
-  void EncodeNoDocument(nanopb::Writer* writer,
-                        const model::NoDocument& no_doc) const;
+  firestore_client_NoDocument EncodeNoDocument(
+      const model::NoDocument& no_doc) const;
 
   std::unique_ptr<model::NoDocument> DecodeNoDocument(
-      nanopb::Reader* reader) const;
+      nanopb::Reader* reader, const firestore_client_NoDocument& proto) const;
 
   const remote::Serializer& rpc_serializer_;
 };
