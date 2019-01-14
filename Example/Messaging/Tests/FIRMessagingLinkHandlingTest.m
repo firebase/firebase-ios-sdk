@@ -16,15 +16,18 @@
 
 #import <XCTest/XCTest.h>
 
+#import <FirebaseInstanceID/FirebaseInstanceID.h>
 #import <OCMock/OCMock.h>
 
 #import "FIRMessaging.h"
 #import "FIRMessagingConstants.h"
 #import "FIRMessagingTestNotificationUtilities.h"
+#import "FIRMessagingTestUtilities.h"
+
+NSString *const kFIRMessagingTestsLinkHandlingSuiteName = @"com.messaging.test_linkhandling";
 
 @interface FIRMessaging ()
 
-+ (FIRMessaging *)messagingForTests;
 - (NSURL *)linkURLFromMessage:(NSDictionary *)message;
 
 @end
@@ -39,10 +42,13 @@
 
 - (void)setUp {
   [super setUp];
-  _messaging = [FIRMessaging messagingForTests];
+
+  NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingTestsLinkHandlingSuiteName];
+  _messaging = [FIRMessagingTestUtilities messagingForTestsWithUserDefaults:defaults];
 }
 
 - (void)tearDown {
+  [self.messaging.messagingUserDefaults removePersistentDomainForName:kFIRMessagingTestsLinkHandlingSuiteName];
   _messaging = nil;
   [super tearDown];
 }

@@ -18,14 +18,15 @@
 
 #import <OCMock/OCMock.h>
 
+#import <FirebaseCore/FIRAppInternal.h>
+#import <FirebaseCore/FIROptionsInternal.h>
 #import <FirebaseInstanceID/FirebaseInstanceID.h>
 
 #import "FIRMessaging.h"
 #import "FIRMessaging_Private.h"
+#import "FIRMessagingTestUtilities.h"
 
-@interface FIRMessaging ()
-+ (FIRMessaging *)messagingForTests;
-@end
+NSString *const kFIRMessagingTestsReceiverSuiteName = @"com.messaging.test_receivierTest";
 
 @interface FIRMessagingReceiverTest : XCTestCase
 @property(nonatomic, readonly, strong) FIRMessaging *messaging;
@@ -36,9 +37,15 @@
 - (void)setUp {
   [super setUp];
 
-  _messaging = [FIRMessaging messagingForTests];
-  [[NSUserDefaults standardUserDefaults]
-      removePersistentDomainForName:[NSBundle mainBundle].bundleIdentifier];
+  NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingTestsReceiverSuiteName];
+  _messaging = [FIRMessagingTestUtilities messagingForTestsWithUserDefaults:defaults];
+}
+
+- (void)tearDown {
+  [self.messaging.messagingUserDefaults removePersistentDomainForName:kFIRMessagingTestsReceiverSuiteName];
+  _messaging = nil;
+
+  [super tearDown];
 }
 
 - (void)testUseMessagingDelegate {
