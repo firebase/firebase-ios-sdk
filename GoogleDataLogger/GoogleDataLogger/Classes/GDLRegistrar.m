@@ -38,12 +38,12 @@
   return self;
 }
 
-- (void)registerBackend:(id<GDLLogBackend>)backend forLogTarget:(NSInteger)logTarget {
+- (void)registerBackend:(id<GDLLogUploader>)backend forLogTarget:(GDLLogTarget)logTarget {
   self.logTargetToBackend[@(logTarget)] = backend;
 }
 
 - (void)registerLogPrioritizer:(id<GDLLogPrioritizer>)prioritizer
-                  forLogTarget:(NSInteger)logTarget {
+                  forLogTarget:(GDLLogTarget)logTarget {
   self.logTargetToPrioritizer[@(logTarget)] = prioritizer;
 }
 

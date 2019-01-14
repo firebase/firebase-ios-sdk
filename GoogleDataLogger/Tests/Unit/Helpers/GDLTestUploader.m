@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2018 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,16 @@
  * limitations under the License.
  */
 
-#import "GDLUploaderFake.h"
+#import "GDLTestUploader.h"
 
-@implementation GDLUploaderFake
+@implementation GDLTestUploader
 
-- (void)forceUploadLogs:(NSSet<NSURL *> *)logFiles target:(NSInteger)logTarget {
-  self.forceUploadCalled = YES;
+- (void)uploadLogs:(NSSet<NSURL *> *)logFiles onComplete:(GDLBackendCompletionBlock)onComplete {
+  if (_uploadLogsBlock) {
+    _uploadLogsBlock(logFiles, onComplete);
+  } else if (onComplete) {
+    onComplete(nil, nil);
+  }
 }
 
 @end

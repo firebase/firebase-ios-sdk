@@ -16,23 +16,18 @@
 
 #import <Foundation/Foundation.h>
 
+#import "GDLLogUploader.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
-/** This class connects log storage and the backend implementations, providing logs to the uploaders
- * and informing the log storage what logs were successfully uploaded or not.
+/** This class implements the log backend protocol for testing purposes, providing APIs to allow
+ * tests to alter the uploader behavior without creating a bunch of specialized classes.
  */
-@interface GDLUploader : NSObject
+@interface GDLTestUploader : NSObject <GDLLogUploader>
 
-/** Creates and/or returrns the singleton.
- *
- * @return The singleton instance of this class.
- */
-+ (instancetype)sharedInstance;
-
-/** Forces the backend specified by the target to upload the provided set of logs. This should only
- * ever happen when the QoS tier of a log requires it.
- */
-- (void)forceUploadLogs:(NSSet<NSURL *> *)logFiles target:(NSInteger)logTarget;
+/** A block that can be ran in -uploadLogs:onComplete:. */
+@property(nullable, nonatomic) void (^uploadLogsBlock)
+    (NSSet<NSURL *> *logFiles, GDLBackendCompletionBlock completionBlock);
 
 @end
 

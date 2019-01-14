@@ -25,7 +25,7 @@ typedef void (^GDLBackendCompletionBlock)(NSSet<NSURL *> *_Nullable successfulUp
                                           NSSet<NSURL *> *_Nullable unsuccessfulUploads);
 
 /** This protocol defines the common interface for logging backend implementations. */
-@protocol GDLLogBackend <NSObject>
+@protocol GDLLogUploader <NSObject>
 
 @required
 

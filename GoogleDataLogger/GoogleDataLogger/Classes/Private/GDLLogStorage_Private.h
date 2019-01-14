@@ -16,7 +16,7 @@
 
 #import "GDLLogStorage.h"
 
-@class GDLUploader;
+@class GDLUploadCoordinator;
 
 @interface GDLLogStorage ()
 
@@ -31,6 +31,6 @@
     NSMutableDictionary<NSNumber *, NSMutableSet<NSURL *> *> *logTargetToLogFileSet;
 
 /** The log uploader instance to use. */
-@property(nonatomic) GDLUploader *uploader;
+@property(nonatomic) GDLUploadCoordinator *uploader;
 
 @end

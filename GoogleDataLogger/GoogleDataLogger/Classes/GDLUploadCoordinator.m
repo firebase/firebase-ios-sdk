@@ -14,21 +14,23 @@
  * limitations under the License.
  */
 
-#import "GDLUploader.h"
+#import "GDLUploadCoordinator.h"
 
-@implementation GDLUploader
+#import "GDLRegistrar_Private.h"
+
+@implementation GDLUploadCoordinator
 
 + (instancetype)sharedInstance {
-  static GDLUploader *sharedUploader;
+  static GDLUploadCoordinator *sharedUploader;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
-    sharedUploader = [[GDLUploader alloc] init];
+    sharedUploader = [[GDLUploadCoordinator alloc] init];
   });
   return sharedUploader;
 }
 
-- (void)forceUploadLogs:(NSSet<NSURL *> *)logFiles target:(NSInteger)logTarget {
-  // TODO
+- (void)forceUploadLogs:(NSSet<NSURL *> *)logFiles target:(GDLLogTarget)logTarget {
+  // Ask the prioritizer of the target for some logs
 }
 
 @end
