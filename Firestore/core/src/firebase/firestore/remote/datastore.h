@@ -63,6 +63,8 @@ namespace remote {
  * `Datastore` is generally not responsible for understanding the higher-level
  * protocol involved in actually making changes or reading data, and aside from
  * the connections it manages is otherwise stateless.
+
+ * All the virtual methods exist only for the sake of tests.
  */
 class Datastore : public std::enable_shared_from_this<Datastore> {
  public:
@@ -83,13 +85,13 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
    * Creates a new `WatchStream` that is still unstarted but uses a common
    * shared channel.
    */
-  std::shared_ptr<WatchStream> CreateWatchStream(
+  virtual std::shared_ptr<WatchStream> CreateWatchStream(
       id<FSTWatchStreamDelegate> delegate);
   /**
    * Creates a new `WriteStream` that is still unstarted but uses a common
    * shared channel.
    */
-  std::shared_ptr<WriteStream> CreateWriteStream(
+  virtual std::shared_ptr<WriteStream> CreateWriteStream(
       id<FSTWriteStreamDelegate> delegate);
 
   void CommitMutations(NSArray<FSTMutation*>* mutations,
@@ -132,6 +134,12 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
   Datastore& operator=(Datastore&& other) = delete;
 
  protected:
+  /** Test-only constructor */
+  Datastore(const core::DatabaseInfo& database_info,
+            util::AsyncQueue* worker_queue,
+            auth::CredentialsProvider* credentials,
+            std::unique_ptr<ConnectivityMonitor> connectivity_monitor);
+
   /** Test-only method */
   grpc::CompletionQueue* grpc_queue() {
     return &grpc_queue_;

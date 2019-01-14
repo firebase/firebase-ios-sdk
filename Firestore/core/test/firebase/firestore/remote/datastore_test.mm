@@ -353,6 +353,37 @@ TEST_F(DatastoreTest, AuthOutlivesDatastore) {
   EXPECT_NO_THROW(credentials.InvokeGetToken());
 }
 
+// Error classification
+
+TEST_F(DatastoreTest, IsPermanentError) {
+  EXPECT_FALSE(
+      Datastore::IsPermanentError(Status{FirestoreErrorCode::Cancelled, ""}));
+  EXPECT_FALSE(Datastore::IsPermanentError(
+      Status{FirestoreErrorCode::ResourceExhausted, ""}));
+  EXPECT_FALSE(
+      Datastore::IsPermanentError(Status{FirestoreErrorCode::Unavailable, ""}));
+  // User info doesn't matter:
+  EXPECT_FALSE(Datastore::IsPermanentError(
+      Status{FirestoreErrorCode::Unavailable, "Connectivity lost"}));
+  // "unauthenticated" is considered a recoverable error due to expired token.
+  EXPECT_FALSE(Datastore::IsPermanentError(
+      Status{FirestoreErrorCode::Unauthenticated, ""}));
+
+  EXPECT_TRUE(
+      Datastore::IsPermanentError(Status{FirestoreErrorCode::DataLoss, ""}));
+  EXPECT_TRUE(
+      Datastore::IsPermanentError(Status{FirestoreErrorCode::Aborted, ""}));
+}
+
+TEST_F(DatastoreTest, IsPermanentWriteError) {
+  EXPECT_TRUE(
+      Datastore::IsPermanentError(Status{FirestoreErrorCode::Unauthenticated, ""}));
+  EXPECT_TRUE(
+      Datastore::IsPermanentError(Status{FirestoreErrorCode::DataLoss, ""}));
+  EXPECT_FALSE(
+      Datastore::IsPermanentError(Status{FirestoreErrorCode::Aborted, ""}));
+}
+
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase

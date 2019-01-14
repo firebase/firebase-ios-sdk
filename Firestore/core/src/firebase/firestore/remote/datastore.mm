@@ -97,10 +97,18 @@ void LogGrpcCallFinished(absl::string_view rpc_name,
 Datastore::Datastore(const DatabaseInfo& database_info,
                      AsyncQueue* worker_queue,
                      CredentialsProvider* credentials)
+    : Datastore{database_info, worker_queue, credentials,
+                ConnectivityMonitor::Create(worker_queue)} {
+}
+
+Datastore::Datastore(const DatabaseInfo& database_info,
+                     AsyncQueue* worker_queue,
+                     CredentialsProvider* credentials,
+                     std::unique_ptr<ConnectivityMonitor> connectivity_monitor)
     : worker_queue_{NOT_NULL(worker_queue)},
       credentials_{credentials},
       rpc_executor_{CreateExecutor()},
-      connectivity_monitor_{ConnectivityMonitor::Create(worker_queue)},
+      connectivity_monitor_{std::move(connectivity_monito_)},
       grpc_connection_{database_info, worker_queue, &grpc_queue_,
                        connectivity_monitor_.get()},
       serializer_bridge_{CreateSerializer(database_info)} {
@@ -360,7 +368,8 @@ std::string Datastore::GetWhitelistedHeadersAsString(
 }
 
 // - (NSString *)description {
-//   return [NSString stringWithFormat:@"<FSTDatastore: <DatabaseInfo: database_id:%s host:%s>>",
+//   return [NSString stringWithFormat:@"<Datastore: <DatabaseInfo:
+//   database_id:%s host:%s>>",
 //                                     self.databaseInfo->database_id().database_id().c_str(),
 //                                     self.databaseInfo->host().c_str()];
 // }
