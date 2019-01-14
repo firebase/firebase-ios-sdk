@@ -1,6 +1,9 @@
 # Unreleased
+
+# 5.3.7
 - Fixed `pod lib lint GoogleUtilities.podspec --use-libraries` regression. (#2130)
 - Fixed macOS conditional check in UserDefaults. (#2245)
+- Migrate to clang-format 8.0.0. (#2222)
 
 # 5.3.6
 - Fix nullability issues. (#2079)
