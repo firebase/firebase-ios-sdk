@@ -16,10 +16,17 @@
 
 #import <Foundation/Foundation.h>
 
-#import <GoogleDataLogger/GDLLogBackend.h>
 #import <GoogleDataLogger/GDLLogPrioritizer.h>
+#import <GoogleDataLogger/GDLLogUploader.h>
 
 NS_ASSUME_NONNULL_BEGIN
+
+/** The list of targets supported by the shared logging infrastructure. */
+typedef NS_ENUM(NSInteger, GDLLogTarget) {
+
+  /** The CCT log target. */
+  kGDLLogTargetCCT = 1000
+};
 
 /** Manages the registration of log targets with the logging SDK. */
 @interface GDLRegistrar : NSObject
@@ -35,14 +42,15 @@ NS_ASSUME_NONNULL_BEGIN
  * @param backend The backend object to register.
  * @param logTarget The logTarget this backend object will be responsible for.
  */
-- (void)registerBackend:(id<GDLLogBackend>)backend forLogTarget:(NSInteger)logTarget;
+- (void)registerBackend:(id<GDLLogUploader>)backend forLogTarget:(GDLLogTarget)logTarget;
 
 /** Registers a log prioritizer implementation with the GoogleDataLogger infrastructure.
  *
  * @param prioritizer The prioritizer object to register.
  * @param logTarget The logTarget this prioritizer object will be responsible for.
  */
-- (void)registerLogPrioritizer:(id<GDLLogPrioritizer>)prioritizer forLogTarget:(NSInteger)logTarget;
+- (void)registerLogPrioritizer:(id<GDLLogPrioritizer>)prioritizer
+                  forLogTarget:(GDLLogTarget)logTarget;
 
 @end
 

@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "GDLLogBackend.h"
 #import "GDLLogEvent.h"
 #import "GDLLogPrioritizer.h"
 #import "GDLLogProto.h"
 #import "GDLLogTransformer.h"
+#import "GDLLogUploader.h"
 #import "GDLLogger.h"
 #import "GDLRegistrar.h"

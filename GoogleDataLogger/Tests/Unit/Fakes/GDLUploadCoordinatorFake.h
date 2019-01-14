@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,13 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-
-#import "GDLLogBackend.h"
+#import "GDLUploadCoordinator.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** This class implements the log backend protocol for testing purposes, providing APIs to allow
- * tests to alter the uploader behavior without creating a bunch of specialized classes.
- */
-@interface GDLTestBackend : NSObject <GDLLogBackend>
+@interface GDLUploadCoordinatorFake : GDLUploadCoordinator
 
-/** A block that can be ran in -uploadLogs:onComplete:. */
-@property(nullable, nonatomic) void (^uploadLogsBlock)
-    (NSSet<NSURL *> *logFiles, GDLBackendCompletionBlock completionBlock);
+@property(nonatomic) BOOL forceUploadCalled;
 
 @end
 

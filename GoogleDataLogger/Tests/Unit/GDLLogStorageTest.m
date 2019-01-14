@@ -24,26 +24,26 @@
 #import "GDLRegistrar.h"
 #import "GDLRegistrar_Private.h"
 
-#import "GDLTestBackend.h"
 #import "GDLTestPrioritizer.h"
+#import "GDLTestUploader.h"
 
 #import "GDLAssertHelper.h"
 #import "GDLLogStorage+Testing.h"
 #import "GDLRegistrar+Testing.h"
-#import "GDLUploaderFake.h"
+#import "GDLUploadCoordinatorFake.h"
 
 static NSInteger logTarget = 1337;
 
 @interface GDLLogStorageTest : GDLTestCase
 
 /** The test backend implementation. */
-@property(nullable, nonatomic) GDLTestBackend *testBackend;
+@property(nullable, nonatomic) GDLTestUploader *testBackend;
 
 /** The test prioritizer implementation. */
 @property(nullable, nonatomic) GDLTestPrioritizer *testPrioritizer;
 
 /** The uploader fake. */
-@property(nonatomic) GDLUploaderFake *uploaderFake;
+@property(nonatomic) GDLUploadCoordinatorFake *uploaderFake;
 
 @end
 
@@ -51,11 +51,11 @@ static NSInteger logTarget = 1337;
 
 - (void)setUp {
   [super setUp];
-  self.testBackend = [[GDLTestBackend alloc] init];
+  self.testBackend = [[GDLTestUploader alloc] init];
   self.testPrioritizer = [[GDLTestPrioritizer alloc] init];
   [[GDLRegistrar sharedInstance] registerBackend:_testBackend forLogTarget:logTarget];
   [[GDLRegistrar sharedInstance] registerLogPrioritizer:_testPrioritizer forLogTarget:logTarget];
-  self.uploaderFake = [[GDLUploaderFake alloc] init];
+  self.uploaderFake = [[GDLUploadCoordinatorFake alloc] init];
   [GDLLogStorage sharedInstance].uploader = self.uploaderFake;
 }
 
@@ -66,7 +66,7 @@ static NSInteger logTarget = 1337;
   self.testPrioritizer = nil;
   [[GDLRegistrar sharedInstance] reset];
   [[GDLLogStorage sharedInstance] reset];
-  [GDLLogStorage sharedInstance].uploader = [GDLUploader sharedInstance];
+  [GDLLogStorage sharedInstance].uploader = [GDLUploadCoordinator sharedInstance];
   self.uploaderFake = nil;
 }
 

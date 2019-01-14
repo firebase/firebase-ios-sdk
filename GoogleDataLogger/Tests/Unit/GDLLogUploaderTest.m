@@ -16,7 +16,7 @@
 
 #import "GDLTestCase.h"
 
-#import "GDLUploader.h"
+#import "GDLUploadCoordinator.h"
 
 @interface GDLUploaderTest : GDLTestCase
 
@@ -26,7 +26,7 @@
 
 /** Tests the default initializer. */
 - (void)testSharedInstance {
-  XCTAssertEqual([GDLUploader sharedInstance], [GDLUploader sharedInstance]);
+  XCTAssertEqual([GDLUploadCoordinator sharedInstance], [GDLUploadCoordinator sharedInstance]);
 }
 
 @end

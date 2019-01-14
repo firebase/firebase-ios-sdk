@@ -19,7 +19,7 @@
 @interface GDLRegistrar ()
 
 /** A map of logTargets to backend implementations. */
-@property(nonatomic) NSMutableDictionary<NSNumber *, id<GDLLogBackend>> *logTargetToBackend;
+@property(nonatomic) NSMutableDictionary<NSNumber *, id<GDLLogUploader>> *logTargetToBackend;
 
 /** A map of logTargets to prioritizer implementations. */
 @property(nonatomic) NSMutableDictionary<NSNumber *, id<GDLLogPrioritizer>> *logTargetToPrioritizer;

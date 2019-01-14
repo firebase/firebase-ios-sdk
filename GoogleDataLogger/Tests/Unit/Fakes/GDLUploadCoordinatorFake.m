@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,12 @@
  * limitations under the License.
  */
 
-#import "GDLTestBackend.h"
+#import "GDLUploadCoordinatorFake.h"
 
-@implementation GDLTestBackend
+@implementation GDLUploadCoordinatorFake
 
-- (void)uploadLogs:(NSSet<NSURL *> *)logFiles onComplete:(GDLBackendCompletionBlock)onComplete {
-  if (_uploadLogsBlock) {
-    _uploadLogsBlock(logFiles, onComplete);
-  } else if (onComplete) {
-    onComplete(nil, nil);
-  }
+- (void)forceUploadLogs:(NSSet<NSURL *> *)logFiles target:(GDLLogTarget)logTarget {
+  self.forceUploadCalled = YES;
 }
 
 @end

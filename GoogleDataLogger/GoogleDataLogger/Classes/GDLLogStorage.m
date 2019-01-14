@@ -23,7 +23,7 @@
 #import "GDLConsoleLogger.h"
 #import "GDLLogEvent_Private.h"
 #import "GDLRegistrar_Private.h"
-#import "GDLUploader.h"
+#import "GDLUploadCoordinator.h"
 
 /** Creates and/or returns a singleton NSString that is the shared logging path.
  *
@@ -57,7 +57,7 @@ static NSString *GDLStoragePath() {
     _storageQueue = dispatch_queue_create("com.google.GDLLogStorage", DISPATCH_QUEUE_SERIAL);
     _logHashToLogFile = [[NSMutableDictionary alloc] init];
     _logTargetToLogFileSet = [[NSMutableDictionary alloc] init];
-    _uploader = [GDLUploader sharedInstance];
+    _uploader = [GDLUploadCoordinator sharedInstance];
   }
   return self;
 }
