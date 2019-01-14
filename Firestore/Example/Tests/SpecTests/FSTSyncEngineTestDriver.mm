@@ -29,7 +29,6 @@
 #import "Firestore/Source/Local/FSTLocalStore.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Model/FSTMutation.h"
-#import "Firestore/Source/Remote/FSTDatastore.h"
 #import "Firestore/Source/Remote/FSTWatchChange.h"
 
 #import "Firestore/Example/Tests/Core/FSTSyncEngine+Testing.h"

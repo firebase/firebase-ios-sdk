@@ -68,7 +68,7 @@ class MockWatchStream : public WatchStream {
                   FSTSerializerBeta* serializer,
                   GrpcConnection* grpc_connection,
                   id<FSTWatchStreamDelegate> delegate,
-                  Datastore* datastore)
+                  MockDatastore* datastore)
       : WatchStream{worker_queue, credentials_provider, serializer, grpc_connection, delegate},
         datastore_{datastore},
         delegate_{delegate} {
@@ -105,7 +105,7 @@ class MockWatchStream : public WatchStream {
     FSTQueryData* sentQueryData = [query queryDataByReplacingSnapshotVersion:SnapshotVersion::None()
                                                                  resumeToken:query.resumeToken
                                                               sequenceNumber:query.sequenceNumber];
-    datastore_.IncrementWatchStreamRequests();
+    datastore_->IncrementWatchStreamRequests();
     active_targets_[@(query.targetID)] = sentQueryData;
   }
 
@@ -173,7 +173,7 @@ class MockWriteStream : public WriteStream {
   }
 
   void Stop() override {
-    datastore_.IncrementWriteStreamRequests();
+    datastore_->IncrementWriteStreamRequests();
     WriteStream::Stop();
 
     sent_mutations_ = {};
@@ -189,13 +189,13 @@ class MockWriteStream : public WriteStream {
   }
 
   void WriteHandshake() override {
-    datastore_.IncrementWriteStreamRequests();
+    datastore_->IncrementWriteStreamRequests();
     SetHandshakeComplete();
     [delegate_ writeStreamDidCompleteHandshake];
   }
 
   void WriteMutations(NSArray<FSTMutation*>* mutations) override {
-    datastore_.IncrementWriteStreamRequests();
+    datastore_->IncrementWriteStreamRequests();
     sent_mutations_.push(mutations);
   }
 
@@ -244,7 +244,7 @@ MockDatastore::MockDatastore(const core::DatabaseInfo& database_info,
 
 std::shared_ptr<WatchStream> MockDatastore::CreateWatchStream(id<FSTWatchStreamDelegate> delegate) {
   watch_stream_ = std::make_shared<MockWatchStream>(
-      worker_queue_, self.credentials,
+      worker_queue_, credentials_,
       [[FSTSerializerBeta alloc] initWithDatabaseID:&self.databaseInfo->database_id()],
       grpc_connection_.get(), delegate, self);
 

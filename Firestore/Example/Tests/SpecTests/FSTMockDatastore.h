@@ -18,6 +18,14 @@
 
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/remote/datastore.h"
+
+namespace firebase {
+namespace firestore {
+namespace remote {
+
+class MockWatchStream;
+class MockWriteStream;
 
 class MockDatastore : public Datastore {
  public:
@@ -51,7 +59,7 @@ class MockDatastore : public Datastore {
   }
 
   /** Injects a WatchChange as though it had come from the backend. */
-  void WriteWatchChange(FSTWatchChange* change, const SnapshotVersion& snap);
+  void WriteWatchChange(FSTWatchChange* change, const model::SnapshotVersion& snap);
   /** Injects a stream failure as though it had come from the backend. */
   void FailWatchStream(NSError* error);
 
@@ -68,7 +76,7 @@ class MockDatastore : public Datastore {
   int WritesSent() const;
 
   /** Injects a write ack as though it had come from the backend in response to a write. */
-  void AckWrite(const SnapshotVersion& version, NSArray<FSTMutationResult*>* results);
+  void AckWrite(const model::SnapshotVersion& version, NSArray<FSTMutationResult*>* results);
 
   /** Injects a stream failure as though it had come from the backend. */
   void FailWrite(NSError* error);
@@ -80,3 +88,7 @@ class MockDatastore : public Datastore {
   int watch_stream_request_count_ = 0;
   int write_stream_request_count_ = 0;
 };
+
+}  // namespace remote
+}  // namespace firestore
+}  // namespace firebase

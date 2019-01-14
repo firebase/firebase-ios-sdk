@@ -108,7 +108,7 @@ Datastore::Datastore(const DatabaseInfo& database_info,
     : worker_queue_{NOT_NULL(worker_queue)},
       credentials_{credentials},
       rpc_executor_{CreateExecutor()},
-      connectivity_monitor_{std::move(connectivity_monito_)},
+      connectivity_monitor_{std::move(connectivity_monitor)},
       grpc_connection_{database_info, worker_queue, &grpc_queue_,
                        connectivity_monitor_.get()},
       serializer_bridge_{CreateSerializer(database_info)} {
