@@ -75,7 +75,7 @@ class MockWatchStream : public WatchStream {
     active_targets_ = [NSMutableDictionary dictionary];
   }
 
-  NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *ActiveTargets() const {
+  NSDictionary<FSTBoxedTargetID*, FSTQueryData*>* ActiveTargets() const {
     return [active_targets_ copy];
   }
 
@@ -98,11 +98,11 @@ class MockWatchStream : public WatchStream {
     return open_;
   }
 
-  void WatchQuery(FSTQueryData *query) override {
+  void WatchQuery(FSTQueryData* query) override {
     LOG_DEBUG("WatchQuery: %s: %s, %s", query.targetID, query.query, query.resumeToken);
 
     // Snapshot version is ignored on the wire
-    FSTQueryData *sentQueryData = [query queryDataByReplacingSnapshotVersion:SnapshotVersion::None()
+    FSTQueryData* sentQueryData = [query queryDataByReplacingSnapshotVersion:SnapshotVersion::None()
                                                                  resumeToken:query.resumeToken
                                                               sequenceNumber:query.sequenceNumber];
     datastore_.IncrementWatchStreamRequests();
@@ -114,16 +114,16 @@ class MockWatchStream : public WatchStream {
     [active_targets_ removeObjectForKey:@(target_id)];
   }
 
-  void FailStream(NSError *error) {
+  void FailStream(NSError* error) {
     open_ = false;
     [delegate_ watchStreamWasInterruptedWithError:error];
   }
 
-  void WriteWatchChange(FSTWatchChange *change, SnapshotVersion snap) {
+  void WriteWatchChange(FSTWatchChange* change, SnapshotVersion snap) {
     if ([change isKindOfClass:[FSTWatchTargetChange class]]) {
-      FSTWatchTargetChange *targetChange = (FSTWatchTargetChange *)change;
+      FSTWatchTargetChange* targetChange = (FSTWatchTargetChange*)change;
       if (targetChange.cause) {
-        for (NSNumber *target_id in targetChange.targetIDs) {
+        for (NSNumber* target_id in targetChange.targetIDs) {
           if (!active_targets_[target_id]) {
             // Technically removing an unknown target is valid (e.g. it could race with a
             // server-side removal), but we want to pay extra careful attention in tests
@@ -147,7 +147,7 @@ class MockWatchStream : public WatchStream {
 
  private:
   bool open_ = false;
-  NSMutableDictionary<FSTBoxedTargetID *, FSTQueryData *> *active_targets_ = nullptr;
+  NSMutableDictionary<FSTBoxedTargetID*, FSTQueryData*>* active_targets_ = nullptr;
   MockDatastore* datastore_ = nullptr;
   id<FSTWatchStreamDelegate> delegate_ = nullptr;
 };
@@ -156,7 +156,7 @@ class MockWriteStream : public WriteStream {
  public:
   MockWriteStream(AsyncQueue* worker_queue,
                   CredentialsProvider* credentials_provider,
-                  FSTSerializerBeta  *serializer,
+                  FSTSerializerBeta* serializer,
                   GrpcConnection* grpc_connection,
                   id<FSTWriteStreamDelegate> delegate,
                   MockDatastore* datastore)
@@ -194,18 +194,18 @@ class MockWriteStream : public WriteStream {
     [delegate_ writeStreamDidCompleteHandshake];
   }
 
-  void WriteMutations(NSArray<FSTMutation *> *mutations) override {
+  void WriteMutations(NSArray<FSTMutation*>* mutations) override {
     datastore_.IncrementWriteStreamRequests();
     sent_mutations_.push(mutations);
   }
 
   /** Injects a write ack as though it had come from the backend in response to a write. */
-  void AckWrite(const SnapshotVersion &commitVersion, NSArray<FSTMutationResult *> *results) {
+  void AckWrite(const SnapshotVersion& commitVersion, NSArray<FSTMutationResult*>* results) {
     [delegate_ writeStreamDidReceiveResponseWithVersion:commitVersion mutationResults:results];
   }
 
   /** Injects a failed write response as though it had come from the backend. */
-  void FailStream(NSError *error) {
+  void FailStream(NSError* error) {
     open_ = false;
     [delegate_ writeStreamWasInterruptedWithError:error];
   }
@@ -213,10 +213,10 @@ class MockWriteStream : public WriteStream {
   /**
    * Returns the next write that was "sent to the backend", failing if there are no queued sent
    */
-  NSArray<FSTMutation *> *NextSentWrite() {
+  NSArray<FSTMutation*>* NextSentWrite() {
     HARD_ASSERT(!sent_mutations_.empty(),
                 "Writes need to happen before you can call NextSentWrite.");
-    NSArray<FSTMutation *> *result = std::move(sent_mutations_.front());
+    NSArray<FSTMutation*>* result = std::move(sent_mutations_.front());
     sent_mutations_.pop();
     return result;
   }
@@ -235,6 +235,62 @@ class MockWriteStream : public WriteStream {
   MockDatastore* datastore_ = nullptr;
   id<FSTWriteStreamDelegate> delegate_ = nullptr;
 };
+
+MockDatastore::MockDatastore(const core::DatabaseInfo& database_info,
+                             util::AsyncQueue* worker_queue,
+                             auth::CredentialsProvider* credentials)
+    : Datastore{database_info, worker_queue, credentials, CreateNoOpConnectivityMonitor()} {
+}
+
+std::shared_ptr<WatchStream> MockDatastore::CreateWatchStream(id<FSTWatchStreamDelegate> delegate) {
+  watch_stream_ = std::make_shared<MockWatchStream>(
+      worker_queue_, self.credentials,
+      [[FSTSerializerBeta alloc] initWithDatabaseID:&self.databaseInfo->database_id()],
+      grpc_connection_.get(), delegate, self);
+
+  return watch_stream_;
+}
+
+std::shared_ptr<WriteStream> MockDatastore::CreateWriteStream(id<FSTWriteStreamDelegate> delegate) {
+  write_stream_ = std::make_shared<MockWriteStream>(
+      worker_queue_, credentials_,
+      [[FSTSerializerBeta alloc] initWithDatabaseID:&self.databaseInfo->database_id()],
+      grpc_connection_.get(), delegate, self);
+
+  return write_stream_;
+}
+
+void MockDatastore::WriteWatchChange(FSTWatchChange* change, const SnapshotVersion& snap) {
+  watch_stream_->WriteWatchChange(change, snap);
+}
+
+void MockDatastore::FailWatchStream(NSError* error) {
+  watch_stream_->FailStream(error);
+}
+
+NSDictionary<FSTBoxedTargetID*, FSTQueryData*>* MockDatastore::ActiveTargets() const {
+  return watch_stream_->ActiveTargets();
+}
+
+bool MockDatastore::IsWatchStreamOpen() const {
+  return watch_stream_->IsOpen();
+}
+
+NSArray<FSTMutation*>* MockDatastore::NextSentWrite() {
+  return write_stream_->NextSentWrite();
+}
+
+int MockDatastore::WritesSent() const {
+  return write_stream_->sent_mutations_count();
+}
+
+void MockDatastore::AckWrite(const SnapshotVersion& version, NSArray<FSTMutationResult*>* results) {
+  write_stream_->AckWrite(version, results);
+}
+
+void MockDatastore::FailWrite(NSError* error) {
+  write_stream_->FailStream(error);
+}
 
 }  // namespace remote
 }  // namespace firestore

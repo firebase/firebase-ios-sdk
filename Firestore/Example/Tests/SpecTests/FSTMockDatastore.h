@@ -16,16 +16,14 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Firestore/Source/Remote/FSTDatastore.h"
-
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 
 class MockDatastore : public Datastore {
  public:
-  MockDatastore(const core::DatabaseInfo &database_info,
-                util::AsyncQueue *worker_queue,
-                auth::CredentialsProvider *credentials);
+  MockDatastore(const core::DatabaseInfo& database_info,
+                util::AsyncQueue* worker_queue,
+                auth::CredentialsProvider* credentials);
 
   std::shared_ptr<WatchStream> CreateWatchStream(id<FSTWatchStreamDelegate> delegate) override;
   std::shared_ptr<WriteStream> CreateWriteStream(id<FSTWriteStreamDelegate> delegate) override;
@@ -53,27 +51,27 @@ class MockDatastore : public Datastore {
   }
 
   /** Injects a WatchChange as though it had come from the backend. */
-  void WriteWatchChange(FSTWatchChange *change, const SnapshotVersion &snap);
+  void WriteWatchChange(FSTWatchChange* change, const SnapshotVersion& snap);
   /** Injects a stream failure as though it had come from the backend. */
-  void FailWatchStream(NSError *error);
+  void FailWatchStream(NSError* error);
 
   /** Returns the set of active targets on the watch stream. */
-  NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *ActiveTargets() const;
+  NSDictionary<FSTBoxedTargetID*, FSTQueryData*>* ActiveTargets() const;
   /** Helper method to expose watch stream state to verify in tests. */
   bool IsWatchStreamOpen() const;
 
   /**
    * Returns the next write that was "sent to the backend", failing if there are no queued sent
    */
-  NSArray<FSTMutation *> *NextSentWrite();
+  NSArray<FSTMutation*>* NextSentWrite();
   /** Returns the number of writes that have been sent to the backend but not waited on yet. */
   int WritesSent() const;
 
   /** Injects a write ack as though it had come from the backend in response to a write. */
-  void AckWrite(const SnapshotVersion &version, NSArray<FSTMutationResult *> *results);
+  void AckWrite(const SnapshotVersion& version, NSArray<FSTMutationResult*>* results);
 
   /** Injects a stream failure as though it had come from the backend. */
-  void FailWrite(NSError *_Nullable error);
+  void FailWrite(NSError* error);
 
  private:
   std::shared_ptr<MockWatchStream> watch_stream_;

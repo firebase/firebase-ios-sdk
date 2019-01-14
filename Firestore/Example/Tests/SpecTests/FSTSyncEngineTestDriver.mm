@@ -79,7 +79,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - Parts of the Firestore system that the spec tests need to control.
 
-@property(nonatomic, strong, readonly) FSTMockDatastore *datastore;
 @property(nonatomic, strong, readonly) FSTEventManager *eventManager;
 @property(nonatomic, strong, readonly) FSTRemoteStore *remoteStore;
 @property(nonatomic, strong, readonly) FSTLocalStore *localStore;
@@ -115,6 +114,8 @@ NS_ASSUME_NONNULL_BEGIN
   DatabaseInfo _databaseInfo;
   User _currentUser;
   EmptyCredentialsProvider _credentialProvider;
+
+  MockDatastore *_datastore;
 }
 
 - (instancetype)initWithPersistence:(id<FSTPersistence>)persistence {
@@ -142,12 +143,12 @@ NS_ASSUME_NONNULL_BEGIN
     _workerQueue = absl::make_unique<AsyncQueue>(absl::make_unique<ExecutorLibdispatch>(queue));
     _persistence = persistence;
     _localStore = [[FSTLocalStore alloc] initWithPersistence:persistence initialUser:initialUser];
-    _datastore = [[FSTMockDatastore alloc] initWithDatabaseInfo:&_databaseInfo
-                                                    workerQueue:_workerQueue.get()
-                                                    credentials:&_credentialProvider];
 
+    auto datastore =
+        absl::make_unique<MockDatastore>(_databaseInfo, _workerQueue.get(), _credentialProvider);
+    _datastore = datastore.get();
     _remoteStore = [[FSTRemoteStore alloc] initWithLocalStore:_localStore
-                                                    datastore:_datastore
+                                                    datastore:std::move(datastore)
                                                   workerQueue:_workerQueue.get()];
 
     _syncEngine = [[FSTSyncEngine alloc] initWithLocalStore:_localStore
@@ -224,7 +225,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)validateNextWriteSent:(FSTMutation *)expectedWrite {
-  NSArray<FSTMutation *> *request = [self.datastore nextSentWrite];
+  NSArray<FSTMutation *> *request = _datastore->NextSentWrite();
   // Make sure the write went through the pipe like we expected it to.
   HARD_ASSERT(request.count == 1, "Only single mutation requests are supported at the moment");
   FSTMutation *actualWrite = request[0];
@@ -235,15 +236,15 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (int)sentWritesCount {
-  return [self.datastore writesSent];
+  return _datastore->WritesSent();
 }
 
 - (int)writeStreamRequestCount {
-  return [self.datastore writeStreamRequestCount];
+  return _datastore->write_stream_request_count();
 }
 
 - (int)watchStreamRequestCount {
-  return [self.datastore watchStreamRequestCount];
+  return _datastore->watch_stream_request_count();
 }
 
 - (void)disableNetwork {
@@ -275,8 +276,7 @@ NS_ASSUME_NONNULL_BEGIN
   [[self currentOutstandingWrites] removeObjectAtIndex:0];
   [self validateNextWriteSent:write.write];
 
-  _workerQueue->EnqueueBlocking(
-      [&] { [self.datastore ackWriteWithVersion:commitVersion mutationResults:mutationResults]; });
+  _workerQueue->EnqueueBlocking([&] { _datastore->AckWrite(commitVersion, mutationResults); });
 
   return write;
 }
@@ -298,7 +298,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   LOG_DEBUG("Failing a write.");
-  _workerQueue->EnqueueBlocking([&] { [self.datastore failWriteWithError:error]; });
+  _workerQueue->EnqueueBlocking([&] { _datastore->FailWrite(error); });
 
   return write;
 }
@@ -375,8 +375,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)receiveWatchChange:(FSTWatchChange *)change
            snapshotVersion:(const SnapshotVersion &)snapshot {
-  _workerQueue->EnqueueBlocking(
-      [&] { [self.datastore writeWatchChange:change snapshotVersion:snapshot]; });
+  _workerQueue->EnqueueBlocking([&] { _datastore->WriteWatchChange(change, snapshot); });
 }
 
 - (void)receiveWatchStreamError:(int)errorCode userInfo:(NSDictionary<NSString *, id> *)userInfo {
@@ -385,10 +384,10 @@ NS_ASSUME_NONNULL_BEGIN
                                    userInfo:userInfo];
 
   _workerQueue->EnqueueBlocking([&] {
-    [self.datastore failWatchStreamWithError:error];
+    _datastore->FailWatchStream(error);
     // Unlike web, stream should re-open synchronously (if we have any listeners)
     if (self.queryListeners.count > 0) {
-      HARD_ASSERT(self.datastore.isWatchStreamOpen, "Watch stream is open");
+      HARD_ASSERT(_datastore->IsWatchStreamOpen(), "Watch stream is open");
     }
   });
 }
@@ -398,7 +397,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *)activeTargets {
-  return [[self.datastore activeTargets] copy];
+  return _datastore->ActiveTargets();
 }
 
 #pragma mark - Helper Methods
