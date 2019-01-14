@@ -57,20 +57,18 @@ using firebase::firestore::remote::WriteStream;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::CreateNoOpConnectivityMonitor;
 
-NS_ASSUME_NONNULL_BEGIN
-
 namespace firebase {
 namespace firestore {
 namespace remote {
 
 class MockWatchStream : public WatchStream {
  public:
-  MockWatchStream(AsyncQueue *worker_queue,
-                  CredentialsProvider *credentials_provider,
-                  FSTSerializerBeta *serializer,
-                  GrpcConnection *grpc_connection,
+  MockWatchStream(AsyncQueue* worker_queue,
+                  CredentialsProvider* credentials_provider,
+                  FSTSerializerBeta* serializer,
+                  GrpcConnection* grpc_connection,
                   id<FSTWatchStreamDelegate> delegate,
-                  FSTMockDatastore *datastore)
+                  Datastore* datastore)
       : WatchStream{worker_queue, credentials_provider, serializer, grpc_connection, delegate},
         datastore_{datastore},
         delegate_{delegate} {
@@ -107,7 +105,7 @@ class MockWatchStream : public WatchStream {
     FSTQueryData *sentQueryData = [query queryDataByReplacingSnapshotVersion:SnapshotVersion::None()
                                                                  resumeToken:query.resumeToken
                                                               sequenceNumber:query.sequenceNumber];
-    datastore_.watchStreamRequestCount += 1;
+    datastore_.IncrementWatchStreamRequests();
     active_targets_[@(query.targetID)] = sentQueryData;
   }
 
@@ -150,18 +148,18 @@ class MockWatchStream : public WatchStream {
  private:
   bool open_ = false;
   NSMutableDictionary<FSTBoxedTargetID *, FSTQueryData *> *active_targets_ = nullptr;
-  FSTMockDatastore *datastore_ = nullptr;
+  MockDatastore* datastore_ = nullptr;
   id<FSTWatchStreamDelegate> delegate_ = nullptr;
 };
 
 class MockWriteStream : public WriteStream {
  public:
-  MockWriteStream(AsyncQueue *worker_queue,
-                  CredentialsProvider *credentials_provider,
-                  FSTSerializerBeta *serializer,
-                  GrpcConnection *grpc_connection,
+  MockWriteStream(AsyncQueue* worker_queue,
+                  CredentialsProvider* credentials_provider,
+                  FSTSerializerBeta  *serializer,
+                  GrpcConnection* grpc_connection,
                   id<FSTWriteStreamDelegate> delegate,
-                  FSTMockDatastore *datastore)
+                  MockDatastore* datastore)
       : WriteStream{worker_queue, credentials_provider, serializer, grpc_connection, delegate},
         datastore_{datastore},
         delegate_{delegate} {
@@ -175,7 +173,7 @@ class MockWriteStream : public WriteStream {
   }
 
   void Stop() override {
-    datastore_.writeStreamRequestCount += 1;
+    datastore_.IncrementWriteStreamRequests();
     WriteStream::Stop();
 
     sent_mutations_ = {};
@@ -191,13 +189,13 @@ class MockWriteStream : public WriteStream {
   }
 
   void WriteHandshake() override {
-    datastore_.writeStreamRequestCount += 1;
+    datastore_.IncrementWriteStreamRequests();
     SetHandshakeComplete();
     [delegate_ writeStreamDidCompleteHandshake];
   }
 
   void WriteMutations(NSArray<FSTMutation *> *mutations) override {
-    datastore_.writeStreamRequestCount += 1;
+    datastore_.IncrementWriteStreamRequests();
     sent_mutations_.push(mutations);
   }
 
@@ -233,83 +231,11 @@ class MockWriteStream : public WriteStream {
 
  private:
   bool open_ = false;
-  std::queue<NSArray<FSTMutation *> *> sent_mutations_;
-  FSTMockDatastore *datastore_ = nullptr;
+  std::queue<NSArray<FSTMutation*>*> sent_mutations_;
+  MockDatastore* datastore_ = nullptr;
   id<FSTWriteStreamDelegate> delegate_ = nullptr;
-};
-
-class MockDatastore : public Datastore {
- public:
-  MockDatastore(const core::DatabaseInfo &database_info,
-                util::AsyncQueue *worker_queue,
-                auth::CredentialsProvider *credentials)
-      : Datastore{database_info, worker_queue, credentials, CreateNoOpConnectivityMonitor()} {
-  }
-
-  std::shared_ptr<WatchStream> CreateWatchStream(id<FSTWatchStreamDelegate> delegate) override {
-    watch_stream_ = std::make_shared<MockWatchStream>(
-        worker_queue_, self.credentials,
-        [[FSTSerializerBeta alloc] initWithDatabaseID:&self.databaseInfo->database_id()],
-        grpc_connection_.get(), delegate, self);
-
-    return watch_stream_;
-  }
-
-  std::shared_ptr<WriteStream> CreateWriteStream(id<FSTWriteStreamDelegate> delegate) override {
-    write_stream_ = std::make_shared<MockWriteStream>(
-        worker_queue_, credentials_,
-        [[FSTSerializerBeta alloc] initWithDatabaseID:&self.databaseInfo->database_id()],
-        grpc_connection_.get(), delegate, self);
-
-    return write_stream_;
-  }
-
-  NSArray<FSTMutation *> *NextSentWrite() {
-    return write_stream_->NextSentWrite();
-  }
-
-  int WritesSent() const {
-    return write_stream_->sent_mutations_count();
-  }
-
-  void AckWrite(const SnapshotVersion &version, NSArray<FSTMutationResult *> *results) {
-    write_stream_->AckWrite(version, results);
-  }
-
-  void FailWrite(NSError *_Nullable error) {
-    write_stream_->FailStream(error);
-  }
-
-  void WriteWatchChange(FSTWatchChange *change, const SnapshotVersion &snap) {
-    watch_stream_->WriteWatchChange(change, snap);
-  }
-
-  void FailWatchStream(NSError *error) {
-    watch_stream_->FailStream(error);
-  }
-
-  NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *ActiveTargets() const {
-    return watch_stream_->ActiveTargets();
-  }
-
-  bool IsWatchStreamOpen() const {
-    return watch_stream_->IsOpen();
-  }
-
- private:
-  AsyncQueue *worker_queue_;
-
-  std::shared_ptr<MockWatchStream> watch_stream_;
-  std::shared_ptr<MockWriteStream> write_stream_;
-
-  CredentialsProvider* credentials_;
-  std::unique_ptr<ConnectivityMonitor> connectivity_monitor_;
-  grpc::CompletionQueue grpc_queue_;
-  std::unique_ptr<GrpcConnection> grpc_connection_;
 };
 
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
-
-NS_ASSUME_NONNULL_END
