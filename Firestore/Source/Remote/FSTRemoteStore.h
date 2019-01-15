@@ -18,6 +18,8 @@
 
 #import "Firestore/Source/Remote/FSTRemoteEvent.h"
 
+#include <memory>
+
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
@@ -103,7 +105,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FSTRemoteStore : NSObject <FSTTargetMetadataProvider>
 
 - (instancetype)initWithLocalStore:(FSTLocalStore *)localStore
-                         datastore:(std::unique_ptr<firebase::firestore::remote::Datastore>)datastore
+                         datastore:(std::shared_ptr<firebase::firestore::remote::Datastore>)datastore
                        workerQueue:(firebase::firestore::util::AsyncQueue *)queue;
 
 - (instancetype)init NS_UNAVAILABLE;

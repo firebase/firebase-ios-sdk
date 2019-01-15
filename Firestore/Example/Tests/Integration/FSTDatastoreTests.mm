@@ -29,7 +29,6 @@
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
-#import "Firestore/Source/Remote/FSTDatastore.h"
 #import "Firestore/Source/Remote/FSTRemoteEvent.h"
 #import "Firestore/Source/Remote/FSTRemoteStore.h"
 
@@ -40,6 +39,7 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
+#include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
@@ -55,6 +55,7 @@ using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::remote::Datastore;
 using firebase::firestore::remote::GrpcConnection;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::ExecutorLibdispatch;
@@ -146,19 +147,19 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-#pragma mark - FSTDatastoreTests
+#pragma mark - DatastoreTests
 
-@interface FSTDatastoreTests : XCTestCase
+@interface DatastoreTests : XCTestCase
 
 @end
 
-@implementation FSTDatastoreTests {
+@implementation DatastoreTests {
   std::unique_ptr<AsyncQueue> _testWorkerQueue;
   FSTLocalStore *_localStore;
   EmptyCredentialsProvider _credentials;
 
   DatabaseInfo _databaseInfo;
-  FSTDatastore *_datastore;
+  std::shared_ptr<Datastore> _datastore;
   FSTRemoteStore *_remoteStore;
 }
 
@@ -179,9 +180,7 @@ NS_ASSUME_NONNULL_BEGIN
   dispatch_queue_t queue = dispatch_queue_create(
       "com.google.firestore.FSTDatastoreTestsWorkerQueue", DISPATCH_QUEUE_SERIAL);
   _testWorkerQueue = absl::make_unique<AsyncQueue>(absl::make_unique<ExecutorLibdispatch>(queue));
-  _datastore = [FSTDatastore datastoreWithDatabase:&_databaseInfo
-                                       workerQueue:_testWorkerQueue.get()
-                                       credentials:&_credentials];
+  _datastore = std::make_shared<Datastore>(_databaseInfo, _testWorkerQueue.get(), &_credentials);
 
   _remoteStore = [[FSTRemoteStore alloc] initWithLocalStore:_localStore
                                                   datastore:_datastore
@@ -204,11 +203,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testCommit {
   XCTestExpectation *expectation = [self expectationWithDescription:@"commitWithCompletion"];
 
-  [_datastore commitMutations:@[]
-                   completion:^(NSError *_Nullable error) {
-                     XCTAssertNil(error, @"Failed to commit");
-                     [expectation fulfill];
-                   }];
+  _datastore->CommitMutations(@[], ^(NSError *_Nullable error) {
+      XCTAssertNil(error, @"Failed to commit");
+      [expectation fulfill];
+    });
 
   [self awaitExpectations];
 }

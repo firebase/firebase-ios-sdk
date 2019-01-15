@@ -144,11 +144,10 @@ NS_ASSUME_NONNULL_BEGIN
     _persistence = persistence;
     _localStore = [[FSTLocalStore alloc] initWithPersistence:persistence initialUser:initialUser];
 
-    auto datastore =
-        absl::make_unique<MockDatastore>(_databaseInfo, _workerQueue.get(), &_credentialProvider);
-    _datastore = datastore.get();
+    _datastore =
+        std::make_shared<Datastore>(_databaseInfo, _workerQueue.get(), &_credentialProvider);
     _remoteStore = [[FSTRemoteStore alloc] initWithLocalStore:_localStore
-                                                    datastore:std::move(datastore)
+                                                    datastore:_datastore
                                                   workerQueue:_workerQueue.get()];
 
     _syncEngine = [[FSTSyncEngine alloc] initWithLocalStore:_localStore

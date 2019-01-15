@@ -112,7 +112,7 @@ static const int kMaxPendingWrites = 10;
 
 @implementation FSTRemoteStore {
   /** The client-side proxy for interacting with the backend. */
-  std::unique_ptr<Datastore> _datastore;
+  std::shared_ptr<Datastore> _datastore;
 
   std::shared_ptr<WatchStream> _watchStream;
   std::shared_ptr<WriteStream> _writeStream;
@@ -124,7 +124,7 @@ static const int kMaxPendingWrites = 10;
 }
 
 - (instancetype)initWithLocalStore:(FSTLocalStore *)localStore
-                         datastore:(std::unique_ptr<Datastore>)datastore
+                         datastore:(std::shared_ptr<Datastore>)datastore
                        workerQueue:(AsyncQueue *)queue {
   if (self = [super init]) {
     _localStore = localStore;
