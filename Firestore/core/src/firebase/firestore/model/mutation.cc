@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/model/mutation.h"
 
+#include <cstdlib>
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/model/document.h"
