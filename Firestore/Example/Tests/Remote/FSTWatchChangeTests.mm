@@ -23,6 +23,10 @@
 #import "Firestore/Example/Tests/Remote/FSTWatchChange+Testing.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
+#include "Firestore/core/src/firebase/firestore/remote/existence_filter.h"
+
+using firebase::firestore::remote::ExistenceFilter;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTWatchChangeTests : XCTestCase
@@ -44,10 +48,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testExistenceFilterChange {
-  ExistenceFilter filter = ExistenceFilter{7};
+  ExistenceFilter filter{7};
   FSTExistenceFilterWatchChange *change = [FSTExistenceFilterWatchChange changeWithFilter:filter
                                                                                  targetID:5];
-  XCTAssertEqual(change.filter.count, 7);
+  XCTAssertEqual(change.filter.count(), 7);
   XCTAssertEqual(change.targetID, 5);
 }
 

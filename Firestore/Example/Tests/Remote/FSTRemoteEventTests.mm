@@ -23,6 +23,7 @@
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Remote/FSTWatchChange.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/remote/existence_filter.h"
 
 #import "Firestore/Example/Tests/Remote/FSTWatchChange+Testing.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
@@ -33,6 +34,7 @@ namespace testutil = firebase::firestore::testutil;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::SnapshotVersion;
+using firebase::firestore::remote::ExistenceFilter;
 
 NS_ASSUME_NONNULL_BEGIN
 
