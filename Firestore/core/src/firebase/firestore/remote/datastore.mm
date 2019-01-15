@@ -367,13 +367,6 @@ std::string Datastore::GetWhitelistedHeadersAsString(
   return result;
 }
 
-// - (NSString *)description {
-//   return [NSString stringWithFormat:@"<Datastore: <DatabaseInfo:
-//   database_id:%s host:%s>>",
-//                                     self.databaseInfo->database_id().database_id().c_str(),
-//                                     self.databaseInfo->host().c_str()];
-// }
-
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
