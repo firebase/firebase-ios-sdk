@@ -7,21 +7,21 @@
 	<key>AD_UNIT_ID_FOR_INTERSTITIAL_TEST</key>
 	<string>ca-app-pub-3940256099942544/4411468910</string>
 	<key>CLIENT_ID</key>
-	<string>246171281465-5g3qv9pqscm9e3r2q6bsr9kokkm89ao1.apps.googleusercontent.com</string>
+	<string>460242573110-sr8kjjnjd8g5tvlq3tfkeh00njc2mfob.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.246171281465-5g3qv9pqscm9e3r2q6bsr9kokkm89ao1</string>
+	<string>com.googleusercontent.apps.460242573110-sr8kjjnjd8g5tvlq3tfkeh00njc2mfob</string>
 	<key>API_KEY</key>
-	<string>AIzaSyBpb8vjGL6K59ejLxr6oN4QE6L3b26IhmU</string>
+	<string>AIzaSyAZ0zFuYGCyKaruIrWcPM0bMzaHK65eBcs</string>
 	<key>GCM_SENDER_ID</key>
-	<string>246171281465</string>
+	<string>460242573110</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.firebase.FirestoreExample</string>
 	<key>PROJECT_ID</key>
-	<string>varconst1</string>
+	<string>varconst-10-fc2a1</string>
 	<key>STORAGE_BUCKET</key>
-	<string>varconst1.appspot.com</string>
+	<string>varconst-10-fc2a1.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
 	<true></true>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -33,8 +33,8 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:246171281465:ios:0459a01df1082630</string>
+	<string>1:460242573110:ios:0459a01df1082630</string>
 	<key>DATABASE_URL</key>
-	<string>https://varconst1.firebaseio.com</string>
+	<string>https://varconst-10-fc2a1.firebaseio.com</string>
 </dict>
 </plist>
