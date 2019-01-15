@@ -1,6 +1,6 @@
 # Unreleased
 
-# 2018-01-22 -- v5.2.0 -- M41
+# 2019-01-22 -- v5.2.0 -- M41
 - [changed] Added a registerInternalLibrary API. Now other Firebase libraries register with FirebaseCore
   instead of FirebaseCore needing all of its clients' versions built in.
   Firebase 5.16.0 makes this transition for FirebaseAnalytics, FirebaseAuth, FirebaseDatabase,

@@ -1,3 +1,6 @@
+# 2019-01-22 -- v3.3.0
+- Use the new registerInternalLibrary API to register with FirebaseCore. (#2137)
+
 # 2018-10-25 -- v3.2.1
 - Fixed an issue where messages failed to be delivered to the recipient's time zone. (#1946)
 - Internal code cleanup.
