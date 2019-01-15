@@ -39,7 +39,6 @@
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
-#import "Firestore/Source/Remote/FSTExistenceFilter.h"
 #import "Firestore/Source/Remote/FSTWatchChange.h"
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
@@ -50,6 +49,7 @@
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
+#include "Firestore/core/src/firebase/firestore/remote/existence_filter.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "absl/memory/memory.h"
@@ -69,6 +69,7 @@ using firebase::firestore::model::ServerTimestampTransform;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::model::TransformOperation;
+using firebase::firestore::remote::ExistenceFilter;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -1192,7 +1193,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FSTExistenceFilterWatchChange *)decodedExistenceFilterWatchChange:(GCFSExistenceFilter *)filter {
   // TODO(dimond): implement existence filter parsing
-  FSTExistenceFilter *existenceFilter = [FSTExistenceFilter filterWithCount:filter.count];
+  ExistenceFilter existenceFilter{filter.count};
   TargetId targetID = filter.targetId;
   return [FSTExistenceFilterWatchChange changeWithFilter:existenceFilter targetID:targetID];
 }

@@ -28,7 +28,6 @@
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
-#import "Firestore/Source/Remote/FSTExistenceFilter.h"
 #import "Firestore/Source/Remote/FSTWatchChange.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 
@@ -311,7 +310,7 @@ static NSString *Describe(NSData *data) {
   int keyCount = watchFilter.count == 0 ? 0 : (int)watchFilter.count - 1;
 
   // TODO(dimond): extend this with different existence filters over time.
-  FSTExistenceFilter *filter = [FSTExistenceFilter filterWithCount:keyCount];
+  ExistenceFilter filter{keyCount};
   FSTExistenceFilterWatchChange *change =
       [FSTExistenceFilterWatchChange changeWithFilter:filter targetID:targets[0].intValue];
   [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];

@@ -19,12 +19,12 @@
 #include <utility>
 
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Remote/FSTExistenceFilter.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::remote::ExistenceFilter;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -80,18 +80,20 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTExistenceFilterWatchChange ()
 
-- (instancetype)initWithFilter:(FSTExistenceFilter *)filter
+- (instancetype)initWithFilter:(ExistenceFilter)filter
                       targetID:(TargetId)targetID NS_DESIGNATED_INITIALIZER;
 
 @end
 
-@implementation FSTExistenceFilterWatchChange
+@implementation FSTExistenceFilterWatchChange {
+  ExistenceFilter _filter;
+}
 
-+ (instancetype)changeWithFilter:(FSTExistenceFilter *)filter targetID:(TargetId)targetID {
++ (instancetype)changeWithFilter:(ExistenceFilter)filter targetID:(TargetId)targetID {
   return [[FSTExistenceFilterWatchChange alloc] initWithFilter:filter targetID:targetID];
 }
 
-- (instancetype)initWithFilter:(FSTExistenceFilter *)filter targetID:(TargetId)targetID {
+- (instancetype)initWithFilter:(ExistenceFilter)filter targetID:(TargetId)targetID {
   self = [super init];
   if (self) {
     _filter = filter;
@@ -109,11 +111,11 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   FSTExistenceFilterWatchChange *otherChange = (FSTExistenceFilterWatchChange *)other;
-  return [_filter isEqual:otherChange->_filter] && _targetID == otherChange->_targetID;
+  return _filter == otherChange->_filter && _targetID == otherChange->_targetID;
 }
 
 - (NSUInteger)hash {
-  return self.filter.hash;
+  return _filter.count();
 }
 
 @end

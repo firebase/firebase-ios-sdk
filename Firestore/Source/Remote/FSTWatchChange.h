@@ -18,8 +18,8 @@
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/remote/existence_filter.h"
 
-@class FSTExistenceFilter;
 @class FSTMaybeDocument;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -69,12 +69,13 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FSTExistenceFilterWatchChange : FSTWatchChange
 
-+ (instancetype)changeWithFilter:(FSTExistenceFilter *)filter
++ (instancetype)changeWithFilter:(firebase::firestore::remote::ExistenceFilter)filter
                         targetID:(firebase::firestore::model::TargetId)targetID;
 
 - (instancetype)init NS_UNAVAILABLE;
 
-@property(nonatomic, strong, readonly) FSTExistenceFilter *filter;
+- (const firebase::firestore::remote::ExistenceFilter&) filter;
+
 @property(nonatomic, assign, readonly) firebase::firestore::model::TargetId targetID;
 @end
 

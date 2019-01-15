@@ -19,7 +19,6 @@
 #import <XCTest/XCTest.h>
 
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Remote/FSTExistenceFilter.h"
 
 #import "Firestore/Example/Tests/Remote/FSTWatchChange+Testing.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
@@ -45,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testExistenceFilterChange {
-  FSTExistenceFilter *filter = [FSTExistenceFilter filterWithCount:7];
+  ExistenceFilter filter = ExistenceFilter{7};
   FSTExistenceFilterWatchChange *change = [FSTExistenceFilterWatchChange changeWithFilter:filter
                                                                                  targetID:5];
   XCTAssertEqual(change.filter.count, 7);
