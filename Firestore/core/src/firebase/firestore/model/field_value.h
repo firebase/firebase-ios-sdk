@@ -137,9 +137,9 @@ class FieldValue {
     return string_value_;
   }
 
-  ObjectValue object_value() const {
+  const ObjectValue& object_value() const {
     HARD_ASSERT(tag_ == Type::Object);
-    return ObjectValue{object_value_};
+    return *object_value_;
   }
 
   /**
@@ -221,7 +221,7 @@ class FieldValue {
     firebase::firestore::model::ReferenceValue reference_value_;
     GeoPoint geo_point_value_;
     std::vector<FieldValue> array_value_;
-    ObjectValue object_value_;
+    std::unique_ptr<ObjectValue> object_value_;
   };
 };
 

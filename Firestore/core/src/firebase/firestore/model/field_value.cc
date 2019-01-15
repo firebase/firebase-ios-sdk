@@ -24,6 +24,7 @@
 
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "absl/memory/memory.h"
 
 using firebase::firestore::util::Comparator;
 
@@ -106,8 +107,8 @@ FieldValue& FieldValue::operator=(const FieldValue& value) {
     }
     case Type::Object: {
       // copy-and-swap
-      ObjectValue::Map tmp = value.object_value_.internal_value;
-      std::swap(object_value_.internal_value, tmp);
+      ObjectValue::Map tmp = value.object_value_->internal_value;
+      std::swap(object_value_->internal_value, tmp);
       break;
     }
     default:
@@ -167,7 +168,7 @@ FieldValue FieldValue::Set(const FieldPath& field_path,
               "Cannot set field for empty path on FieldValue");
   // Set the value by recursively calling on child object.
   const std::string& child_name = field_path.first_segment();
-  const ObjectValue::Map& object_map = object_value_.internal_value;
+  const ObjectValue::Map& object_map = object_value_->internal_value;
   if (field_path.size() == 1) {
     // TODO(zxu): Once immutable type is available, rewrite these.
     ObjectValue::Map copy = CopyExcept(object_map, child_name);
@@ -194,7 +195,7 @@ FieldValue FieldValue::Delete(const FieldPath& field_path) const {
               "Cannot delete field for empty path on FieldValue");
   // Delete the value by recursively calling on child object.
   const std::string& child_name = field_path.first_segment();
-  const ObjectValue::Map& object_map = object_value_.internal_value;
+  const ObjectValue::Map& object_map = object_value_->internal_value;
   if (field_path.size() == 1) {
     // TODO(zxu): Once immutable type is available, rewrite these.
     ObjectValue::Map copy = CopyExcept(object_map, child_name);
@@ -223,7 +224,7 @@ absl::optional<FieldValue> FieldValue::Get(const FieldPath& field_path) const {
     if (current->type() != Type::Object) {
       return absl::nullopt;
     }
-    const ObjectValue::Map& object_map = current->object_value_.internal_value;
+    const ObjectValue::Map& object_map = current->object_value_->internal_value;
     const auto iter = object_map.find(path);
     if (iter == object_map.end()) {
       return absl::nullopt;
@@ -368,7 +369,7 @@ FieldValue FieldValue::FromMap(const ObjectValue::Map& value) {
 FieldValue FieldValue::FromMap(ObjectValue::Map&& value) {
   FieldValue result;
   result.SwitchTo(Type::Object);
-  std::swap(result.object_value_.internal_value, value);
+  std::swap(result.object_value_->internal_value, value);
   return result;
 }
 
@@ -426,7 +427,7 @@ bool operator<(const FieldValue& lhs, const FieldValue& rhs) {
     case Type::Array:
       return lhs.array_value_ < rhs.array_value_;
     case Type::Object:
-      return lhs.object_value_ < rhs.object_value_;
+      return *lhs.object_value_ < *rhs.object_value_;
     default:
       HARD_FAIL("Unsupported type %s", lhs.type());
       // return false if assertion does not abort the program. We will say
@@ -464,9 +465,10 @@ void FieldValue::SwitchTo(const Type type) {
       array_value_.~vector();
       break;
     case Type::Object:
-      object_value_.internal_value.~map();
+      object_value_.~unique_ptr<ObjectValue>();
       break;
-    default: {}  // The other types where there is nothing to worry about.
+    default: {
+    }  // The other types where there is nothing to worry about.
   }
   tag_ = type;
   // Must call constructor explicitly for any non-POD type to initialize.
@@ -495,9 +497,11 @@ void FieldValue::SwitchTo(const Type type) {
       new (&array_value_) std::vector<FieldValue>();
       break;
     case Type::Object:
-      new (&object_value_) ObjectValue{};
+      new (&object_value_)
+          std::unique_ptr<ObjectValue>(absl::make_unique<ObjectValue>());
       break;
-    default: {}  // The other types where there is nothing to worry about.
+    default: {
+    }  // The other types where there is nothing to worry about.
   }
 }
 
