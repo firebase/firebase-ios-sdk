@@ -134,7 +134,7 @@ class FieldValue {
 
   const std::string& string_value() const {
     HARD_ASSERT(tag_ == Type::String);
-    return string_value_;
+    return *string_value_;
   }
 
   const ObjectValue& object_value() const {
@@ -215,7 +215,8 @@ class FieldValue {
     double double_value_;
     Timestamp timestamp_value_;
     std::unique_ptr<ServerTimestamp> server_timestamp_value_;
-    std::string string_value_;
+    // TODO(rsgowman): Change unique_ptr<std::string> to nanopb::String?
+    std::unique_ptr<std::string> string_value_;
     std::vector<uint8_t> blob_value_;
     // Qualified name to avoid conflict with the member function of same name.
     firebase::firestore::model::ReferenceValue reference_value_;

@@ -85,7 +85,7 @@ FieldValue& FieldValue::operator=(const FieldValue& value) {
       *server_timestamp_value_ = *value.server_timestamp_value_;
       break;
     case Type::String:
-      string_value_ = value.string_value_;
+      *string_value_ = *value.string_value_;
       break;
     case Type::Blob: {
       // copy-and-swap
@@ -121,7 +121,7 @@ FieldValue& FieldValue::operator=(FieldValue&& value) {
   switch (value.tag_) {
     case Type::String:
       SwitchTo(Type::String);
-      string_value_.swap(value.string_value_);
+      string_value_->swap(*value.string_value_);
       return *this;
     case Type::Blob:
       SwitchTo(Type::Blob);
@@ -310,7 +310,7 @@ FieldValue FieldValue::FromString(const std::string& value) {
 FieldValue FieldValue::FromString(std::string&& value) {
   FieldValue result;
   result.SwitchTo(Type::String);
-  result.string_value_.swap(value);
+  result.string_value_->swap(value);
   return result;
 }
 
@@ -413,7 +413,7 @@ bool operator<(const FieldValue& lhs, const FieldValue& rhs) {
         return false;
       }
     case Type::String:
-      return lhs.string_value_.compare(rhs.string_value_) < 0;
+      return lhs.string_value_->compare(*rhs.string_value_) < 0;
     case Type::Blob:
       return lhs.blob_value_ < rhs.blob_value_;
     case Type::Reference:
@@ -450,7 +450,7 @@ void FieldValue::SwitchTo(const Type type) {
       server_timestamp_value_.~unique_ptr<ServerTimestamp>();
       break;
     case Type::String:
-      string_value_.~basic_string();
+      string_value_.~unique_ptr<std::string>();
       break;
     case Type::Blob:
       blob_value_.~vector();
@@ -481,7 +481,8 @@ void FieldValue::SwitchTo(const Type type) {
           absl::make_unique<ServerTimestamp>());
       break;
     case Type::String:
-      new (&string_value_) std::string();
+      new (&string_value_)
+          std::unique_ptr<std::string>(absl::make_unique<std::string>());
       break;
     case Type::Blob:
       // Do not even bother to allocate a new array of size 0.
