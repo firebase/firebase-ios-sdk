@@ -18,6 +18,7 @@
 
 #include <cinttypes>
 #include <memory>
+#include <utility>
 
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTTransaction.h"

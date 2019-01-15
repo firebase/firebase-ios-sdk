@@ -240,10 +240,9 @@ MockDatastore::MockDatastore(const core::DatabaseInfo& database_info,
                              util::AsyncQueue* worker_queue,
                              auth::CredentialsProvider* credentials)
     : Datastore{database_info, worker_queue, credentials, CreateNoOpConnectivityMonitor()},
-    database_info_{&database_info},
-    worker_queue_{worker_queue},
-    credentials_{credentials}
-{
+      database_info_{&database_info},
+      worker_queue_{worker_queue},
+      credentials_{credentials} {
 }
 
 std::shared_ptr<WatchStream> MockDatastore::CreateWatchStream(id<FSTWatchStreamDelegate> delegate) {

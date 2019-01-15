@@ -92,8 +92,8 @@ std::shared_ptr<FakeDatastore> CreateDatastore(
     const DatabaseInfo& database_info,
     AsyncQueue* worker_queue,
     CredentialsProvider* credentials) {
-  return std::make_shared<FakeDatastore>(
-      database_info, worker_queue, credentials);
+  return std::make_shared<FakeDatastore>(database_info, worker_queue,
+                                         credentials);
 }
 
 }  // namespace
@@ -376,12 +376,12 @@ TEST_F(DatastoreTest, IsPermanentError) {
 }
 
 TEST_F(DatastoreTest, IsPermanentWriteError) {
-  EXPECT_FALSE(
-      Datastore::IsPermanentWriteError(Status{FirestoreErrorCode::Unauthenticated, ""}));
-  EXPECT_TRUE(
-      Datastore::IsPermanentWriteError(Status{FirestoreErrorCode::DataLoss, ""}));
-  EXPECT_FALSE(
-      Datastore::IsPermanentWriteError(Status{FirestoreErrorCode::Aborted, ""}));
+  EXPECT_FALSE(Datastore::IsPermanentWriteError(
+      Status{FirestoreErrorCode::Unauthenticated, ""}));
+  EXPECT_TRUE(Datastore::IsPermanentWriteError(
+      Status{FirestoreErrorCode::DataLoss, ""}));
+  EXPECT_FALSE(Datastore::IsPermanentWriteError(
+      Status{FirestoreErrorCode::Aborted, ""}));
 }
 
 }  // namespace remote

@@ -149,7 +149,9 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
   }
 
   /** Test-only getter for mocking */
-  GrpcConnection* grpc_connection() { return &grpc_connection_; }
+  GrpcConnection* grpc_connection() {
+    return &grpc_connection_;
+  }
 
  private:
   void PollGrpcQueue();

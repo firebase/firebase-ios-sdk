@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+#include <memory>
+
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
