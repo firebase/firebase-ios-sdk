@@ -102,7 +102,11 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
+- (const ExistenceFilter&) filter {
+  return _filter;
+}
 - (BOOL)isEqual:(id)other {
+
   if (other == self) {
     return YES;
   }
