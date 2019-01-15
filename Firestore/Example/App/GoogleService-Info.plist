@@ -2,39 +2,27 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>AD_UNIT_ID_FOR_BANNER_TEST</key>
-	<string>ca-app-pub-3940256099942544/2934735716</string>
-	<key>AD_UNIT_ID_FOR_INTERSTITIAL_TEST</key>
-	<string>ca-app-pub-3940256099942544/4411468910</string>
-	<key>CLIENT_ID</key>
-	<string>174583568604-o3a9bvdn9m31fcqcqha0svo555ekqh11.apps.googleusercontent.com</string>
-	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.174583568604-o3a9bvdn9m31fcqcqha0svo555ekqh11</string>
 	<key>API_KEY</key>
-	<string>AIzaSyB_QJO1AARQzdvEgzb-o8wQ9eag5V8ZVCI</string>
+	<string>correct_api_key</string>
+	<key>TRACKING_ID</key>
+	<string>correct_tracking_id</string>
+	<key>CLIENT_ID</key>
+	<string>correct_client_id</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>correct_reversed_client_id</string>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:123:ios:123abc</string>
 	<key>GCM_SENDER_ID</key>
-	<string>174583568604</string>
+	<string>correct_gcm_sender_id</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.firebase.FirestoreExample</string>
+	<string>com.google.FirebaseSDKTests</string>
 	<key>PROJECT_ID</key>
-	<string>varconst-9</string>
-	<key>STORAGE_BUCKET</key>
-	<string>varconst-9.appspot.com</string>
-	<key>IS_ADS_ENABLED</key>
-	<true></true>
-	<key>IS_ANALYTICS_ENABLED</key>
-	<false></false>
-	<key>IS_APPINVITE_ENABLED</key>
-	<false></false>
-	<key>IS_GCM_ENABLED</key>
-	<true></true>
-	<key>IS_SIGNIN_ENABLED</key>
-	<true></true>
-	<key>GOOGLE_APP_ID</key>
-	<string>1:174583568604:ios:0459a01df1082630</string>
+	<string>abc-xyz-123</string>
 	<key>DATABASE_URL</key>
-	<string>https://varconst-9.firebaseio.com</string>
+	<string>https://abc-xyz-123.firebaseio.com</string>
+	<key>STORAGE_BUCKET</key>
+	<string>project-id-123.storage.firebase.com</string>
 </dict>
 </plist>
