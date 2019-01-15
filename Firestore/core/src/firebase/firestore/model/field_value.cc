@@ -19,6 +19,7 @@
 #include <algorithm>
 #include <cmath>
 #include <memory>
+#include <new>
 #include <utility>
 #include <vector>
 
