@@ -101,8 +101,8 @@ FieldValue& FieldValue::operator=(const FieldValue& value) {
       break;
     case Type::Array: {
       // copy-and-swap
-      std::vector<FieldValue> tmp = value.array_value_;
-      std::swap(array_value_, tmp);
+      std::vector<FieldValue> tmp = *value.array_value_;
+      std::swap(*array_value_, tmp);
       break;
     }
     case Type::Object: {
@@ -356,7 +356,7 @@ FieldValue FieldValue::FromArray(const std::vector<FieldValue>& value) {
 FieldValue FieldValue::FromArray(std::vector<FieldValue>&& value) {
   FieldValue result;
   result.SwitchTo(Type::Array);
-  std::swap(result.array_value_, value);
+  std::swap(*result.array_value_, value);
   return result;
 }
 
@@ -425,7 +425,7 @@ bool operator<(const FieldValue& lhs, const FieldValue& rhs) {
     case Type::GeoPoint:
       return lhs.geo_point_value_ < rhs.geo_point_value_;
     case Type::Array:
-      return lhs.array_value_ < rhs.array_value_;
+      return *lhs.array_value_ < *rhs.array_value_;
     case Type::Object:
       return *lhs.object_value_ < *rhs.object_value_;
     default:
@@ -462,7 +462,7 @@ void FieldValue::SwitchTo(const Type type) {
       geo_point_value_.~GeoPoint();
       break;
     case Type::Array:
-      array_value_.~vector();
+      array_value_.~unique_ptr<std::vector<FieldValue>>();
       break;
     case Type::Object:
       object_value_.~unique_ptr<ObjectValue>();
@@ -497,7 +497,8 @@ void FieldValue::SwitchTo(const Type type) {
       new (&geo_point_value_) GeoPoint();
       break;
     case Type::Array:
-      new (&array_value_) std::vector<FieldValue>();
+      new (&array_value_) std::unique_ptr<std::vector<FieldValue>>(
+          absl::make_unique<std::vector<FieldValue>>());
       break;
     case Type::Object:
       new (&object_value_)

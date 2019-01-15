@@ -220,7 +220,7 @@ class FieldValue {
     std::unique_ptr<std::vector<uint8_t>> blob_value_;
     std::unique_ptr<ReferenceValue> reference_value_;
     GeoPoint geo_point_value_;
-    std::vector<FieldValue> array_value_;
+    std::unique_ptr<std::vector<FieldValue>> array_value_;
     std::unique_ptr<ObjectValue> object_value_;
   };
 };
