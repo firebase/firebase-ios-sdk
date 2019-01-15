@@ -97,7 +97,7 @@ FieldValue& FieldValue::operator=(const FieldValue& value) {
       *reference_value_ = *value.reference_value_;
       break;
     case Type::GeoPoint:
-      geo_point_value_ = value.geo_point_value_;
+      *geo_point_value_ = *value.geo_point_value_;
       break;
     case Type::Array: {
       // copy-and-swap
@@ -344,7 +344,7 @@ FieldValue FieldValue::FromReference(DocumentKey&& value,
 FieldValue FieldValue::FromGeoPoint(const GeoPoint& value) {
   FieldValue result;
   result.SwitchTo(Type::GeoPoint);
-  result.geo_point_value_ = value;
+  *result.geo_point_value_ = value;
   return result;
 }
 
@@ -423,7 +423,7 @@ bool operator<(const FieldValue& lhs, const FieldValue& rhs) {
               lhs.reference_value_->reference <
                   rhs.reference_value_->reference);
     case Type::GeoPoint:
-      return lhs.geo_point_value_ < rhs.geo_point_value_;
+      return *lhs.geo_point_value_ < *rhs.geo_point_value_;
     case Type::Array:
       return *lhs.array_value_ < *rhs.array_value_;
     case Type::Object:
@@ -459,7 +459,7 @@ void FieldValue::SwitchTo(const Type type) {
       reference_value_.~unique_ptr<ReferenceValue>();
       break;
     case Type::GeoPoint:
-      geo_point_value_.~GeoPoint();
+      geo_point_value_.~unique_ptr<GeoPoint>();
       break;
     case Type::Array:
       array_value_.~unique_ptr<std::vector<FieldValue>>();
@@ -495,7 +495,8 @@ void FieldValue::SwitchTo(const Type type) {
           std::unique_ptr<ReferenceValue>(absl::make_unique<ReferenceValue>());
       break;
     case Type::GeoPoint:
-      new (&geo_point_value_) GeoPoint();
+      new (&geo_point_value_)
+          std::unique_ptr<GeoPoint>(absl::make_unique<GeoPoint>());
       break;
     case Type::Array:
       new (&array_value_) std::unique_ptr<std::vector<FieldValue>>(
