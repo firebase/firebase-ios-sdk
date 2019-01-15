@@ -1,4 +1,6 @@
 # Unreleased
+
+# v1.0.0
 - [changed] The `areTimestampsInSnapshotsEnabled` setting is now enabled by
   default so timestamp fields read from a FIRDocumentSnapshot will be returned
   as FIRTimestamp objects instead of NSDate. Any code expecting to receive an
