@@ -22,6 +22,7 @@
 
 #include <cinttypes>
 #include <list>
+#include <set>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -252,10 +253,10 @@ FSTPatchMutation *FSTTestPatchMutation(const absl::string_view path,
   BOOL merge = !updateMask.empty();
 
   __block FSTObjectValue *objectValue = [FSTObjectValue objectValue];
-  __block std::vector<FieldPath> fieldMaskPaths;
+  __block std::set<FieldPath> fieldMaskPaths;
   [values enumerateKeysAndObjectsUsingBlock:^(NSString *key, id value, BOOL *stop) {
     const FieldPath path = testutil::Field(util::MakeString(key));
-    fieldMaskPaths.push_back(path);
+    fieldMaskPaths.insert(path);
     if (![value isEqual:kDeleteSentinel]) {
       FSTFieldValue *parsedValue = FSTTestFieldValue(value);
       objectValue = [objectValue objectBySettingValue:parsedValue forPath:path];
@@ -263,7 +264,8 @@ FSTPatchMutation *FSTTestPatchMutation(const absl::string_view path,
   }];
 
   DocumentKey key = testutil::Key(path);
-  FieldMask mask(merge ? updateMask : fieldMaskPaths);
+  FieldMask mask(merge ? std::set<FieldPath>(updateMask.begin(), updateMask.end())
+                       : fieldMaskPaths);
   return [[FSTPatchMutation alloc] initWithKey:key
                                      fieldMask:mask
                                          value:objectValue
@@ -280,8 +282,8 @@ FSTTransformMutation *FSTTestTransformMutation(NSString *path, NSDictionary<NSSt
 }
 
 FSTDeleteMutation *FSTTestDeleteMutation(NSString *path) {
-  return
-      [[FSTDeleteMutation alloc] initWithKey:FSTTestDocKey(path) precondition:Precondition::None()];
+  return [[FSTDeleteMutation alloc] initWithKey:FSTTestDocKey(path)
+                                   precondition:Precondition::None()];
 }
 
 MaybeDocumentMap FSTTestDocUpdates(NSArray<FSTMaybeDocument *> *docs) {

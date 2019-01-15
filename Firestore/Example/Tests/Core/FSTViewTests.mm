@@ -143,16 +143,16 @@ NS_ASSUME_NONNULL_BEGIN
   query = [query queryByAddingFilter:filter];
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
-  FSTDocument *doc1 = FSTTestDoc("rooms/eros/messages/1", 0,
-                                 @{@"sort" : @1}, FSTDocumentStateSynced);
-  FSTDocument *doc2 = FSTTestDoc("rooms/eros/messages/2", 0,
-                                 @{@"sort" : @2}, FSTDocumentStateSynced);
-  FSTDocument *doc3 = FSTTestDoc("rooms/eros/messages/3", 0,
-                                 @{@"sort" : @3}, FSTDocumentStateSynced);
+  FSTDocument *doc1 =
+      FSTTestDoc("rooms/eros/messages/1", 0, @{@"sort" : @1}, FSTDocumentStateSynced);
+  FSTDocument *doc2 =
+      FSTTestDoc("rooms/eros/messages/2", 0, @{@"sort" : @2}, FSTDocumentStateSynced);
+  FSTDocument *doc3 =
+      FSTTestDoc("rooms/eros/messages/3", 0, @{@"sort" : @3}, FSTDocumentStateSynced);
   FSTDocument *doc4 =
       FSTTestDoc("rooms/eros/messages/4", 0, @{}, FSTDocumentStateSynced);  // no sort, no match
-  FSTDocument *doc5 = FSTTestDoc("rooms/eros/messages/5", 0,
-                                 @{@"sort" : @1}, FSTDocumentStateSynced);
+  FSTDocument *doc5 =
+      FSTTestDoc("rooms/eros/messages/5", 0, @{@"sort" : @1}, FSTDocumentStateSynced);
 
   FSTViewSnapshot *snapshot = FSTTestApplyChanges(view, @[ doc1, doc2, doc3, doc4, doc5 ], nil);
 
@@ -180,12 +180,12 @@ NS_ASSUME_NONNULL_BEGIN
   query = [query queryByAddingFilter:filter];
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
-  FSTDocument *doc1 = FSTTestDoc("rooms/eros/messages/1", 0,
-                                 @{@"sort" : @1}, FSTDocumentStateSynced);
-  FSTDocument *doc2 = FSTTestDoc("rooms/eros/messages/2", 0,
-                                 @{@"sort" : @3}, FSTDocumentStateSynced);
-  FSTDocument *doc3 = FSTTestDoc("rooms/eros/messages/3", 0,
-                                 @{@"sort" : @2}, FSTDocumentStateSynced);
+  FSTDocument *doc1 =
+      FSTTestDoc("rooms/eros/messages/1", 0, @{@"sort" : @1}, FSTDocumentStateSynced);
+  FSTDocument *doc2 =
+      FSTTestDoc("rooms/eros/messages/2", 0, @{@"sort" : @3}, FSTDocumentStateSynced);
+  FSTDocument *doc3 =
+      FSTTestDoc("rooms/eros/messages/3", 0, @{@"sort" : @2}, FSTDocumentStateSynced);
   FSTDocument *doc4 = FSTTestDoc("rooms/eros/messages/4", 0, @{}, FSTDocumentStateSynced);
 
   FSTViewSnapshot *snapshot = FSTTestApplyChanges(view, @[ doc1, doc2, doc3, doc4 ], nil);
@@ -194,12 +194,12 @@ NS_ASSUME_NONNULL_BEGIN
 
   XCTAssertEqualObjects(snapshot.documents.arrayValue, (@[ doc1, doc3 ]));
 
-  FSTDocument *newDoc2 = FSTTestDoc("rooms/eros/messages/2", 1,
-                                    @{@"sort" : @2}, FSTDocumentStateSynced);
-  FSTDocument *newDoc3 = FSTTestDoc("rooms/eros/messages/3", 1,
-                                    @{@"sort" : @3}, FSTDocumentStateSynced);
-  FSTDocument *newDoc4 = FSTTestDoc("rooms/eros/messages/4", 1,
-                                    @{@"sort" : @0}, FSTDocumentStateSynced);
+  FSTDocument *newDoc2 =
+      FSTTestDoc("rooms/eros/messages/2", 1, @{@"sort" : @2}, FSTDocumentStateSynced);
+  FSTDocument *newDoc3 =
+      FSTTestDoc("rooms/eros/messages/3", 1, @{@"sort" : @3}, FSTDocumentStateSynced);
+  FSTDocument *newDoc4 =
+      FSTTestDoc("rooms/eros/messages/4", 1, @{@"sort" : @0}, FSTDocumentStateSynced);
 
   snapshot = FSTTestApplyChanges(view, @[ newDoc2, newDoc3, newDoc4 ], nil);
 
@@ -258,14 +258,14 @@ NS_ASSUME_NONNULL_BEGIN
   query = [query queryBySettingLimit:2];
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
 
-  FSTDocument *doc1 = FSTTestDoc("rooms/eros/messages/1", 0,
-                                 @{@"num" : @1}, FSTDocumentStateSynced);
-  FSTDocument *doc2 = FSTTestDoc("rooms/eros/messages/2", 0,
-                                 @{@"num" : @2}, FSTDocumentStateSynced);
-  FSTDocument *doc3 = FSTTestDoc("rooms/eros/messages/3", 0,
-                                 @{@"num" : @3}, FSTDocumentStateSynced);
-  FSTDocument *doc4 = FSTTestDoc("rooms/eros/messages/4", 0,
-                                 @{@"num" : @4}, FSTDocumentStateSynced);
+  FSTDocument *doc1 =
+      FSTTestDoc("rooms/eros/messages/1", 0, @{@"num" : @1}, FSTDocumentStateSynced);
+  FSTDocument *doc2 =
+      FSTTestDoc("rooms/eros/messages/2", 0, @{@"num" : @2}, FSTDocumentStateSynced);
+  FSTDocument *doc3 =
+      FSTTestDoc("rooms/eros/messages/3", 0, @{@"num" : @3}, FSTDocumentStateSynced);
+  FSTDocument *doc4 =
+      FSTTestDoc("rooms/eros/messages/4", 0, @{@"num" : @4}, FSTDocumentStateSynced);
 
   // initial state
   FSTTestApplyChanges(view, @[ doc1, doc2 ], nil);
@@ -315,15 +315,15 @@ NS_ASSUME_NONNULL_BEGIN
 
   change = [view applyChangesToDocuments:[view computeChangesWithDocuments:FSTTestDocUpdates(@[])]
                             targetChange:FSTTestTargetChangeMarkCurrent()];
-  XCTAssertEqualObjects(
-      change.limboChanges,
-      @[ [FSTLimboDocumentChange changeWithType:FSTLimboDocumentChangeTypeAdded key:doc1.key] ]);
+  XCTAssertEqualObjects(change.limboChanges,
+                        @[ [FSTLimboDocumentChange changeWithType:FSTLimboDocumentChangeTypeAdded
+                                                              key:doc1.key] ]);
 
   change = [view applyChangesToDocuments:[view computeChangesWithDocuments:FSTTestDocUpdates(@[])]
                             targetChange:FSTTestTargetChangeAckDocuments({doc1.key})];
-  XCTAssertEqualObjects(
-      change.limboChanges,
-      @[ [FSTLimboDocumentChange changeWithType:FSTLimboDocumentChangeTypeRemoved key:doc1.key] ]);
+  XCTAssertEqualObjects(change.limboChanges,
+                        @[ [FSTLimboDocumentChange changeWithType:FSTLimboDocumentChangeTypeRemoved
+                                                              key:doc1.key] ]);
 
   change =
       [view applyChangesToDocuments:[view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc2 ])]
@@ -332,16 +332,16 @@ NS_ASSUME_NONNULL_BEGIN
 
   change = [view
       applyChangesToDocuments:[view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc3 ])]];
-  XCTAssertEqualObjects(
-      change.limboChanges,
-      @[ [FSTLimboDocumentChange changeWithType:FSTLimboDocumentChangeTypeAdded key:doc3.key] ]);
+  XCTAssertEqualObjects(change.limboChanges,
+                        @[ [FSTLimboDocumentChange changeWithType:FSTLimboDocumentChangeTypeAdded
+                                                              key:doc3.key] ]);
 
   change = [view applyChangesToDocuments:[view computeChangesWithDocuments:FSTTestDocUpdates(@[
                                                  FSTTestDeletedDoc("rooms/eros/messages/2", 1, NO)
                                                ])]];  // remove
-  XCTAssertEqualObjects(
-      change.limboChanges,
-      @[ [FSTLimboDocumentChange changeWithType:FSTLimboDocumentChangeTypeRemoved key:doc3.key] ]);
+  XCTAssertEqualObjects(change.limboChanges,
+                        @[ [FSTLimboDocumentChange changeWithType:FSTLimboDocumentChangeTypeRemoved
+                                                              key:doc3.key] ]);
 }
 
 - (void)testResumingQueryCreatesNoLimbos {
@@ -352,12 +352,12 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Unlike other cases, here the view is initialized with a set of previously synced documents
   // which happens when listening to a previously listened-to query.
-  FSTView *view =
-      [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{doc1.key, doc2.key}];
+  FSTView *view = [[FSTView alloc] initWithQuery:query
+                                 remoteDocuments:DocumentKeySet{doc1.key, doc2.key}];
 
   FSTViewDocumentChanges *changes = [view computeChangesWithDocuments:FSTTestDocUpdates(@[])];
-  FSTViewChange *change =
-      [view applyChangesToDocuments:changes targetChange:FSTTestTargetChangeMarkCurrent()];
+  FSTViewChange *change = [view applyChangesToDocuments:changes
+                                           targetChange:FSTTestTargetChangeMarkCurrent()];
   XCTAssertEqualObjects(change.limboChanges, @[]);
 }
 
@@ -402,12 +402,12 @@ NS_ASSUME_NONNULL_BEGIN
       [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:testutil::Field("order")
                                                                ascending:YES]];
   query = [query queryBySettingLimit:2];
-  FSTDocument *doc1 = FSTTestDoc("rooms/eros/messages/0", 0,
-                                 @{@"order" : @1}, FSTDocumentStateSynced);
-  FSTDocument *doc2 = FSTTestDoc("rooms/eros/messages/1", 0,
-                                 @{@"order" : @2}, FSTDocumentStateSynced);
-  FSTDocument *doc3 = FSTTestDoc("rooms/eros/messages/2", 0,
-                                 @{@"order" : @3}, FSTDocumentStateSynced);
+  FSTDocument *doc1 =
+      FSTTestDoc("rooms/eros/messages/0", 0, @{@"order" : @1}, FSTDocumentStateSynced);
+  FSTDocument *doc2 =
+      FSTTestDoc("rooms/eros/messages/1", 0, @{@"order" : @2}, FSTDocumentStateSynced);
+  FSTDocument *doc3 =
+      FSTTestDoc("rooms/eros/messages/2", 0, @{@"order" : @3}, FSTDocumentStateSynced);
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
 
   // Start with a full view.
@@ -439,16 +439,16 @@ NS_ASSUME_NONNULL_BEGIN
       [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:testutil::Field("order")
                                                                ascending:YES]];
   query = [query queryBySettingLimit:3];
-  FSTDocument *doc1 = FSTTestDoc("rooms/eros/messages/0", 0,
-                                 @{@"order" : @1}, FSTDocumentStateSynced);
-  FSTDocument *doc2 = FSTTestDoc("rooms/eros/messages/1", 0,
-                                 @{@"order" : @2}, FSTDocumentStateSynced);
-  FSTDocument *doc3 = FSTTestDoc("rooms/eros/messages/2", 0,
-                                 @{@"order" : @3}, FSTDocumentStateSynced);
-  FSTDocument *doc4 = FSTTestDoc("rooms/eros/messages/3", 0,
-                                 @{@"order" : @4}, FSTDocumentStateSynced);
-  FSTDocument *doc5 = FSTTestDoc("rooms/eros/messages/4", 0,
-                                 @{@"order" : @5}, FSTDocumentStateSynced);
+  FSTDocument *doc1 =
+      FSTTestDoc("rooms/eros/messages/0", 0, @{@"order" : @1}, FSTDocumentStateSynced);
+  FSTDocument *doc2 =
+      FSTTestDoc("rooms/eros/messages/1", 0, @{@"order" : @2}, FSTDocumentStateSynced);
+  FSTDocument *doc3 =
+      FSTTestDoc("rooms/eros/messages/2", 0, @{@"order" : @3}, FSTDocumentStateSynced);
+  FSTDocument *doc4 =
+      FSTTestDoc("rooms/eros/messages/3", 0, @{@"order" : @4}, FSTDocumentStateSynced);
+  FSTDocument *doc5 =
+      FSTTestDoc("rooms/eros/messages/4", 0, @{@"order" : @5}, FSTDocumentStateSynced);
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
 
   // Start with a full view.
@@ -474,16 +474,16 @@ NS_ASSUME_NONNULL_BEGIN
       [query queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:testutil::Field("order")
                                                                ascending:YES]];
   query = [query queryBySettingLimit:3];
-  FSTDocument *doc1 = FSTTestDoc("rooms/eros/messages/0", 0,
-                                 @{@"order" : @1}, FSTDocumentStateSynced);
-  FSTDocument *doc2 = FSTTestDoc("rooms/eros/messages/1", 0,
-                                 @{@"order" : @2}, FSTDocumentStateSynced);
-  FSTDocument *doc3 = FSTTestDoc("rooms/eros/messages/2", 0,
-                                 @{@"order" : @3}, FSTDocumentStateSynced);
-  FSTDocument *doc4 = FSTTestDoc("rooms/eros/messages/3", 0,
-                                 @{@"order" : @4}, FSTDocumentStateSynced);
-  FSTDocument *doc5 = FSTTestDoc("rooms/eros/messages/4", 0,
-                                 @{@"order" : @5}, FSTDocumentStateSynced);
+  FSTDocument *doc1 =
+      FSTTestDoc("rooms/eros/messages/0", 0, @{@"order" : @1}, FSTDocumentStateSynced);
+  FSTDocument *doc2 =
+      FSTTestDoc("rooms/eros/messages/1", 0, @{@"order" : @2}, FSTDocumentStateSynced);
+  FSTDocument *doc3 =
+      FSTTestDoc("rooms/eros/messages/2", 0, @{@"order" : @3}, FSTDocumentStateSynced);
+  FSTDocument *doc4 =
+      FSTTestDoc("rooms/eros/messages/3", 0, @{@"order" : @4}, FSTDocumentStateSynced);
+  FSTDocument *doc5 =
+      FSTTestDoc("rooms/eros/messages/4", 0, @{@"order" : @5}, FSTDocumentStateSynced);
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
 
   // Start with a full view.
@@ -665,18 +665,18 @@ NS_ASSUME_NONNULL_BEGIN
   // up.
 
   FSTQuery *query = [self queryForMessages];
-  FSTDocument *doc1 = FSTTestDoc("rooms/eros/messages/1", 1,
-                                 @{@"time" : @1}, FSTDocumentStateLocalMutations);
-  FSTDocument *doc1Committed = FSTTestDoc("rooms/eros/messages/1", 2,
-                                          @{@"time" : @2}, FSTDocumentStateCommittedMutations);
-  FSTDocument *doc1Acknowledged = FSTTestDoc("rooms/eros/messages/1", 2,
-                                             @{@"time" : @2}, FSTDocumentStateSynced);
-  FSTDocument *doc2 = FSTTestDoc("rooms/eros/messages/2", 1,
-                                 @{@"time" : @1}, FSTDocumentStateLocalMutations);
-  FSTDocument *doc2Modified = FSTTestDoc("rooms/eros/messages/2", 2,
-                                         @{@"time" : @3}, FSTDocumentStateLocalMutations);
-  FSTDocument *doc2Acknowledged = FSTTestDoc("rooms/eros/messages/2", 2,
-                                             @{@"time" : @3}, FSTDocumentStateSynced);
+  FSTDocument *doc1 =
+      FSTTestDoc("rooms/eros/messages/1", 1, @{@"time" : @1}, FSTDocumentStateLocalMutations);
+  FSTDocument *doc1Committed =
+      FSTTestDoc("rooms/eros/messages/1", 2, @{@"time" : @2}, FSTDocumentStateCommittedMutations);
+  FSTDocument *doc1Acknowledged =
+      FSTTestDoc("rooms/eros/messages/1", 2, @{@"time" : @2}, FSTDocumentStateSynced);
+  FSTDocument *doc2 =
+      FSTTestDoc("rooms/eros/messages/2", 1, @{@"time" : @1}, FSTDocumentStateLocalMutations);
+  FSTDocument *doc2Modified =
+      FSTTestDoc("rooms/eros/messages/2", 2, @{@"time" : @3}, FSTDocumentStateLocalMutations);
+  FSTDocument *doc2Acknowledged =
+      FSTTestDoc("rooms/eros/messages/2", 2, @{@"time" : @3}, FSTDocumentStateSynced);
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
   FSTViewDocumentChanges *changes =
       [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1, doc2 ])];

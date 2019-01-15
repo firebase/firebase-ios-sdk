@@ -84,8 +84,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   id<FSTPersistence> persistence = [self persistence];
   self.localStorePersistence = persistence;
-  self.localStore =
-      [[FSTLocalStore alloc] initWithPersistence:persistence initialUser:User::Unauthenticated()];
+  self.localStore = [[FSTLocalStore alloc] initWithPersistence:persistence
+                                                   initialUser:User::Unauthenticated()];
   [self.localStore start];
 
   _batches = [NSMutableArray array];
@@ -141,8 +141,8 @@ NS_ASSUME_NONNULL_BEGIN
   [self.batches removeObjectAtIndex:0];
   XCTAssertEqual(batch.mutations.count, 1, @"Acknowledging more than one mutation not supported.");
   SnapshotVersion version = testutil::Version(documentVersion);
-  FSTMutationResult *mutationResult =
-      [[FSTMutationResult alloc] initWithVersion:version transformResults:nil];
+  FSTMutationResult *mutationResult = [[FSTMutationResult alloc] initWithVersion:version
+                                                                transformResults:nil];
   FSTMutationBatchResult *result = [FSTMutationBatchResult resultWithBatch:batch
                                                              commitVersion:version
                                                            mutationResults:@[ mutationResult ]

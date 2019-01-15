@@ -45,8 +45,8 @@ NSString *const kFIRStorageAppName = @"app";
   // correct contents.
   id app = OCMClassMock([FIRApp class]);
   NSMutableSet<Class> *registrants = [NSMutableSet setWithObject:[FIRStorageComponent class]];
-  FIRComponentContainer *container =
-      [[FIRComponentContainer alloc] initWithApp:app registrants:registrants];
+  FIRComponentContainer *container = [[FIRComponentContainer alloc] initWithApp:app
+                                                                    registrants:registrants];
   OCMStub([app container]).andReturn(container);
   return app;
 }

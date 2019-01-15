@@ -21,11 +21,8 @@
 #include <pb_encode.h>
 
 #include <cstdint>
-#include <functional>
 #include <string>
 #include <vector>
-
-#include "Firestore/core/src/firebase/firestore/nanopb/tag.h"
 
 namespace firebase {
 namespace firestore {
@@ -60,21 +57,6 @@ class Writer {
   static Writer Wrap(std::string* out_string);
 
   /**
-   * Creates a non-writing output stream used to calculate the size of
-   * the serialized output.
-   */
-  static Writer Sizing() {
-    return Writer(PB_OSTREAM_SIZING);
-  }
-
-  /**
-   * Writes a message type to the output stream.
-   *
-   * This essentially wraps calls to nanopb's pb_encode_tag() method.
-   */
-  void WriteTag(Tag tag);
-
-  /**
    * Writes a nanopb message to the output stream.
    *
    * This essentially wraps calls to nanopb's `pb_encode()` method. If we didn't
@@ -82,34 +64,6 @@ class Writer {
    * messages.
    */
   void WriteNanopbMessage(const pb_field_t fields[], const void* src_struct);
-
-  void WriteSize(size_t size);
-  void WriteNull();
-  void WriteBool(bool bool_value);
-  void WriteInteger(std::int64_t integer_value);
-
-  void WriteString(const std::string& string_value);
-  void WriteBytes(const std::vector<uint8_t>& bytes);
-
-  /**
-   * Writes a message and its length.
-   *
-   * When writing a top level message, protobuf doesn't include the length
-   * (since you can get that already from the length of the binary output.) But
-   * when writing a sub/nested message, you must include the length in the
-   * serialization.
-   *
-   * Call this method when writing a nested message. Provide a function to
-   * write the message itself. This method will calculate the size of the
-   * written message (using the provided function with a non-writing sizing
-   * stream), write out the size (and perform sanity checks), and then serialize
-   * the message by calling the provided function a second time.
-   */
-  void WriteNestedMessage(const std::function<void(Writer*)>& write_message_fn);
-
-  size_t bytes_written() const {
-    return stream_.bytes_written;
-  }
 
  private:
   /**
@@ -119,21 +73,6 @@ class Writer {
    */
   explicit Writer(const pb_ostream_t& stream) : stream_(stream) {
   }
-
-  /**
-   * Writes a "varint" to the output stream.
-   *
-   * This essentially wraps calls to nanopb's pb_encode_varint() method.
-   *
-   * Note that (despite the value parameter type) this works for bool, enum,
-   * int32, int64, uint32 and uint64 proto field types.
-   *
-   * Note: This is not expected to be called directly, but rather only
-   * via the other Write* methods (i.e. WriteBool, WriteLong, etc)
-   *
-   * @param value The value to write, represented as a uint64_t.
-   */
-  void WriteVarint(std::uint64_t value);
 
   pb_ostream_t stream_;
 };

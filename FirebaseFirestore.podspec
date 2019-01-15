@@ -53,11 +53,11 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   s.resource_bundles = { 'gRPCCertificates-Firestore' => ['Firestore/etc/roots.pem'] }
 
   s.dependency 'FirebaseAuthInterop', '~> 1.0'
-  s.dependency 'FirebaseCore', '~> 5.1'
+  s.dependency 'FirebaseCore', '~> 5.2'
   s.dependency 'gRPC-C++', '0.0.5'
   s.dependency 'leveldb-library', '~> 1.20'
   s.dependency 'Protobuf', '~> 3.1'
-  s.dependency 'nanopb', '~> 0.3.8'
+  s.dependency 'nanopb', '~> 0.3.901'
 
   s.frameworks = 'MobileCoreServices', 'SystemConfiguration'
   s.library = 'c++'

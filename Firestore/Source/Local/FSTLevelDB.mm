@@ -341,8 +341,8 @@ static const char *kReservedPathComponent = "firestore";
     _serializer = serializer;
     _queryCache = absl::make_unique<LevelDbQueryCache>(self, _serializer);
     _documentCache = absl::make_unique<LevelDbRemoteDocumentCache>(self, _serializer);
-    _referenceDelegate =
-        [[FSTLevelDBLRUDelegate alloc] initWithPersistence:self lruParams:lruParams];
+    _referenceDelegate = [[FSTLevelDBLRUDelegate alloc] initWithPersistence:self
+                                                                  lruParams:lruParams];
     _transactionRunner.SetBackingPersistence(self);
     _users = std::move(users);
     // TODO(gsoltis): set up a leveldb transaction for these operations.
@@ -383,7 +383,7 @@ static const char *kReservedPathComponent = "firestore";
       NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
   return Path::FromNSString(directories[0]).AppendUtf8(kReservedPathComponent);
 
-#elif TARGET_OS_MAC
+#elif TARGET_OS_OSX
   std::string dotPrefixed = absl::StrCat(".", kReservedPathComponent);
   return Path::FromNSString(NSHomeDirectory()).AppendUtf8(dotPrefixed);
 

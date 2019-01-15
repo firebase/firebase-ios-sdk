@@ -21,12 +21,11 @@
 @implementation FIRDynamicLink
 
 - (NSString *)description {
-  return [NSString stringWithFormat:
-                       @"<%@: %p, url [%@], match type: %@, minimumAppVersion: %@, "
-                        "match message: %@>",
-                       NSStringFromClass([self class]), self, self.url,
-                       [[self class] stringWithMatchType:_matchType],
-                       self.minimumAppVersion ?: @"N/A", self.matchMessage];
+  return [NSString stringWithFormat:@"<%@: %p, url [%@], match type: %@, minimumAppVersion: %@, "
+                                     "match message: %@>",
+                                    NSStringFromClass([self class]), self, self.url,
+                                    [[self class] stringWithMatchType:_matchType],
+                                    self.minimumAppVersion ?: @"N/A", self.matchMessage];
 }
 
 - (instancetype)initWithParametersDictionary:(NSDictionary *)parameters {

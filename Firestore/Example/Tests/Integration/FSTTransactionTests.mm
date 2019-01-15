@@ -81,6 +81,7 @@
       runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **error) {
         FIRDocumentSnapshot *snapshot = [transaction getDocument:doc error:error];
         XCTAssertNil(*error);
+        XCTAssertNotNil(snapshot);
         XCTAssertFalse(snapshot.exists);
         [transaction setData:@{@"foo" : @"bar"} forDocument:doc];
         return @YES;
@@ -221,10 +222,7 @@
 
   FIRDocumentSnapshot *snapshot = [self readDocumentForRef:doc];
   XCTAssertEqualObjects(snapshot.data,
-                        (
-                            @{@"a" : @"b",
-                              @"c" : @"d",
-                              @"nested" : @{@"a" : @"b", @"c" : @"d"}}));
+                        (@{@"a" : @"b", @"c" : @"d", @"nested" : @{@"a" : @"b", @"c" : @"d"}}));
 }
 
 - (void)testCannotUpdateNonExistentDocument {

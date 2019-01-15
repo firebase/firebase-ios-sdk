@@ -120,8 +120,8 @@ FSTMaybeDocument* LevelDbRemoteDocumentCache::DecodeMaybeDocument(
                                         freeWhenDone:NO];
 
   NSError* error;
-  FSTPBMaybeDocument* proto =
-      [FSTPBMaybeDocument parseFromData:data error:&error];
+  FSTPBMaybeDocument* proto = [FSTPBMaybeDocument parseFromData:data
+                                                          error:&error];
   if (!proto) {
     HARD_FAIL("FSTPBMaybeDocument failed to parse: %s", error);
   }

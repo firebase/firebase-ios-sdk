@@ -623,8 +623,8 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
       // it to be a valid query. Note that the default inequality field and key ordering is
       // ascending.
       if (inequalityField->IsKeyFieldPath()) {
-        self.memoizedSortOrders =
-            @[ [FSTSortOrder sortOrderWithFieldPath:FieldPath::KeyFieldPath() ascending:YES] ];
+        self.memoizedSortOrders = @[ [FSTSortOrder sortOrderWithFieldPath:FieldPath::KeyFieldPath()
+                                                                ascending:YES] ];
       } else {
         self.memoizedSortOrders = @[
           [FSTSortOrder sortOrderWithFieldPath:*inequalityField ascending:YES],
@@ -666,7 +666,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 
   const FieldPath *newInequalityField = nullptr;
   if ([filter isKindOfClass:[FSTRelationFilter class]] &&
-      [((FSTRelationFilter *)filter)isInequality]) {
+      [((FSTRelationFilter *)filter) isInequality]) {
     newInequalityField = &filter.field;
   }
   const FieldPath *queryInequalityField = [self inequalityFilterField];

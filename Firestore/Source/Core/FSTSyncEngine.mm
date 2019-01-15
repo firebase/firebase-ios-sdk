@@ -218,8 +218,8 @@ class LimboResolution {
   DocumentMap docs = [self.localStore executeQuery:queryData.query];
   DocumentKeySet remoteKeys = [self.localStore remoteDocumentKeysForTarget:queryData.targetID];
 
-  FSTView *view =
-      [[FSTView alloc] initWithQuery:queryData.query remoteDocuments:std::move(remoteKeys)];
+  FSTView *view = [[FSTView alloc] initWithQuery:queryData.query
+                                 remoteDocuments:std::move(remoteKeys)];
   FSTViewDocumentChanges *viewDocChanges = [view computeChangesWithDocuments:docs.underlying_map()];
   FSTViewChange *viewChange = [view applyChangesToDocuments:viewDocChanges];
   HARD_ASSERT(viewChange.limboChanges.count == 0,
@@ -506,8 +506,8 @@ class LimboResolution {
             targetChange = it->second;
           }
         }
-        FSTViewChange *viewChange =
-            [queryView.view applyChangesToDocuments:viewDocChanges targetChange:targetChange];
+        FSTViewChange *viewChange = [queryView.view applyChangesToDocuments:viewDocChanges
+                                                               targetChange:targetChange];
 
         [self updateTrackedLimboDocumentsWithChanges:viewChange.limboChanges
                                             targetID:queryView.targetID];

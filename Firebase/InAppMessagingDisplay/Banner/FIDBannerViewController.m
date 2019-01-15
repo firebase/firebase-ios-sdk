@@ -67,8 +67,8 @@ static const CGFloat kSwipeUpThreshold = -10.0f;
                                 displayDelegate:
                                     (id<FIRInAppMessagingDisplayDelegate>)displayDelegate
                                     timeFetcher:(id<FIDTimeFetcher>)timeFetcher {
-  UIStoryboard *storyboard =
-      [UIStoryboard storyboardWithName:@"FIRInAppMessageDisplayStoryboard" bundle:resourceBundle];
+  UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"FIRInAppMessageDisplayStoryboard"
+                                                       bundle:resourceBundle];
 
   if (storyboard == nil) {
     FIRLogError(kFIRLoggerInAppMessagingDisplay, @"I-FID300002",

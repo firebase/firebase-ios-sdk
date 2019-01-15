@@ -1,11 +1,9 @@
 os: osx
-osx_image: xcode10
+osx_image: xcode10.1
 language: objective-c
 cache:
   - bundler
   - cocoapods
-
-rvm: 2.3.1
 
 jobs:
   include:

@@ -17,6 +17,7 @@
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
 #include <cinttypes>
+#include <set>
 #include <string>
 #include <utility>
 #include <vector>
@@ -151,16 +152,15 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSString *)encodedQueryPath:(const ResourcePath &)path {
-  if (path.size() == 0) {
-    // If the path is empty, the backend requires we leave off the /documents at the end.
-    return [self encodedDatabaseID];
-  }
   return [self encodedResourcePathForDatabaseID:self.databaseID path:path];
 }
 
 - (ResourcePath)decodedQueryPath:(NSString *)name {
   const ResourcePath resource = [self decodedResourcePathWithDatabaseID:name];
   if (resource.size() == 4) {
+    // In v1beta1 queries for collections at the root did not have a trailing "/documents". In v1
+    // all resource paths contain "/documents". Preserve the ability to read the v1beta1 form for
+    // compatibility with queries persisted in the local query cache.
     return ResourcePath{};
   } else {
     return [self localResourcePathForQualifiedResourcePath:resource];
@@ -570,10 +570,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FieldMask)decodedFieldMask:(GCFSDocumentMask *)fieldMask {
-  std::vector<FieldPath> fields;
-  fields.reserve(fieldMask.fieldPathsArray_Count);
+  std::set<FieldPath> fields;
   for (NSString *path in fieldMask.fieldPathsArray) {
-    fields.push_back(FieldPath::FromServerFormat(util::MakeString(path)));
+    fields.insert(FieldPath::FromServerFormat(util::MakeString(path)));
   }
   return FieldMask(std::move(fields));
 }
@@ -1169,8 +1168,9 @@ NS_ASSUME_NONNULL_BEGIN
   const DocumentKey key = [self decodedDocumentKey:change.document];
   // Note that version might be unset in which case we use SnapshotVersion::None()
   SnapshotVersion version = [self decodedVersion:change.readTime];
-  FSTMaybeDocument *document =
-      [FSTDeletedDocument documentWithKey:key version:version hasCommittedMutations:NO];
+  FSTMaybeDocument *document = [FSTDeletedDocument documentWithKey:key
+                                                           version:version
+                                             hasCommittedMutations:NO];
 
   NSArray<NSNumber *> *removedTargetIds = [self decodedIntegerArray:change.removedTargetIdsArray];
 

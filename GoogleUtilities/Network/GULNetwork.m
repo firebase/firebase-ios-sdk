@@ -257,12 +257,12 @@ static NSString *const kGULNetworkLogTag = @"Google/Utilities/Network";
   // Explicitly check whether the delegate responds to the methods because conformsToProtocol does
   // not work correctly even though the delegate does respond to the methods.
   if (!loggerDelegate ||
-      ![loggerDelegate
-          respondsToSelector:@selector(GULNetwork_logWithLevel:messageCode:message:contexts:)] ||
-      ![loggerDelegate
-          respondsToSelector:@selector(GULNetwork_logWithLevel:messageCode:message:context:)] ||
-      !
-      [loggerDelegate respondsToSelector:@selector(GULNetwork_logWithLevel:messageCode:message:)]) {
+      ![loggerDelegate respondsToSelector:@selector(GULNetwork_logWithLevel:
+                                                                messageCode:message:contexts:)] ||
+      ![loggerDelegate respondsToSelector:@selector(GULNetwork_logWithLevel:
+                                                                messageCode:message:context:)] ||
+      ![loggerDelegate respondsToSelector:@selector(GULNetwork_logWithLevel:
+                                                                messageCode:message:)]) {
     GULLogError(kGULLoggerNetwork, NO,
                 [NSString stringWithFormat:@"I-NET%06ld", (long)kGULNetworkMessageCodeNetwork002],
                 @"Cannot set the network logger delegate: delegate does not conform to the network "
@@ -279,8 +279,9 @@ static NSString *const kGULNetworkLogTag = @"Google/Utilities/Network";
                       queue:(dispatch_queue_t)queue
                 withHandler:(GULNetworkCompletionHandler)handler {
   NSDictionary *userInfo = @{kGULNetworkErrorContext : @"Failed to create network request"};
-  NSError *error =
-      [[NSError alloc] initWithDomain:kGULNetworkErrorDomain code:code userInfo:userInfo];
+  NSError *error = [[NSError alloc] initWithDomain:kGULNetworkErrorDomain
+                                              code:code
+                                          userInfo:userInfo];
   [self GULNetwork_logWithLevel:kGULNetworkLogLevelWarning
                     messageCode:kGULNetworkMessageCodeNetwork002
                         message:@"Failed to create network request. Code, error"

@@ -161,13 +161,12 @@ TEST_F(DatastoreTest, WhitelistedHeaders) {
       {"x-google-service", "service 2"},  // Duplicate names are allowed
   };
   std::string result = Datastore::GetWhitelistedHeadersAsString(headers);
-  EXPECT_EQ(result,
-            "date: date value\n"
-            "x-google-backends: backend value\n"
-            "x-google-gfe-request-trace: request trace\n"
-            "x-google-netmon-label: netmon label\n"
-            "x-google-service: service 1\n"
-            "x-google-service: service 2\n");
+  EXPECT_EQ(result, "date: date value\n"
+                    "x-google-backends: backend value\n"
+                    "x-google-gfe-request-trace: request trace\n"
+                    "x-google-netmon-label: netmon label\n"
+                    "x-google-service: service 1\n"
+                    "x-google-service: service 2\n");
 }
 
 // Normal operation
