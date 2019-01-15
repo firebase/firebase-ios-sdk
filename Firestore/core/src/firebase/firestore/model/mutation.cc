@@ -55,8 +55,8 @@ SetMutation::SetMutation(DocumentKey&& key,
       value_(std::move(value)) {
 }
 
-std::shared_ptr<const MaybeDocument> SetMutation::ApplyToRemoteDocument(
-    const std::shared_ptr<const MaybeDocument>& maybe_doc,
+MaybeDocumentPtr SetMutation::ApplyToRemoteDocument(
+    const MaybeDocumentPtr& maybe_doc,
     const MutationResult& mutation_result) const {
   VerifyKeyMatches(maybe_doc.get());
 
@@ -71,8 +71,8 @@ std::shared_ptr<const MaybeDocument> SetMutation::ApplyToRemoteDocument(
                                      DocumentState::kCommittedMutations);
 }
 
-std::shared_ptr<const MaybeDocument> SetMutation::ApplyToLocalView(
-    const std::shared_ptr<const MaybeDocument>& maybe_doc,
+MaybeDocumentPtr SetMutation::ApplyToLocalView(
+    const MaybeDocumentPtr& maybe_doc,
     const MaybeDocument*,
     const Timestamp&) const {
   VerifyKeyMatches(maybe_doc.get());
@@ -95,8 +95,8 @@ PatchMutation::PatchMutation(DocumentKey&& key,
       mask_(std::move(mask)) {
 }
 
-std::shared_ptr<const MaybeDocument> PatchMutation::ApplyToRemoteDocument(
-    const std::shared_ptr<const MaybeDocument>& maybe_doc,
+MaybeDocumentPtr PatchMutation::ApplyToRemoteDocument(
+    const MaybeDocumentPtr& maybe_doc,
     const MutationResult& mutation_result) const {
   VerifyKeyMatches(maybe_doc.get());
   HARD_ASSERT(mutation_result.transform_results() == nullptr,
@@ -122,8 +122,8 @@ std::shared_ptr<const MaybeDocument> PatchMutation::ApplyToRemoteDocument(
                                      DocumentState::kCommittedMutations);
 }
 
-std::shared_ptr<const MaybeDocument> PatchMutation::ApplyToLocalView(
-    const std::shared_ptr<const MaybeDocument>& maybe_doc,
+MaybeDocumentPtr PatchMutation::ApplyToLocalView(
+    const MaybeDocumentPtr& maybe_doc,
     const MaybeDocument*,
     const Timestamp&) const {
   VerifyKeyMatches(maybe_doc.get());
@@ -165,15 +165,15 @@ DeleteMutation::DeleteMutation(DocumentKey&& key, Precondition&& precondition)
     : Mutation(std::move(key), std::move(precondition)) {
 }
 
-std::shared_ptr<const MaybeDocument> DeleteMutation::ApplyToRemoteDocument(
-    const std::shared_ptr<const MaybeDocument>& /*maybe_doc*/,
+MaybeDocumentPtr DeleteMutation::ApplyToRemoteDocument(
+    const MaybeDocumentPtr& /*maybe_doc*/,
     const MutationResult& /*mutation_result*/) const {
   // TODO(rsgowman): Implement.
   abort();
 }
 
-std::shared_ptr<const MaybeDocument> DeleteMutation::ApplyToLocalView(
-    const std::shared_ptr<const MaybeDocument>& maybe_doc,
+MaybeDocumentPtr DeleteMutation::ApplyToLocalView(
+    const MaybeDocumentPtr& maybe_doc,
     const MaybeDocument*,
     const Timestamp&) const {
   VerifyKeyMatches(maybe_doc.get());

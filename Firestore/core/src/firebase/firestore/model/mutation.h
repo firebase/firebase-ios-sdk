@@ -32,6 +32,8 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
+using MaybeDocumentPtr = std::shared_ptr<const MaybeDocument>;
+
 /**
  * The result of applying a mutation to the server. This is a model of the
  * WriteResult proto message.
@@ -150,8 +152,8 @@ class Mutation {
    *     UnknownDocument if the mutation could not be applied to the locally
    *     cached base document.
    */
-  virtual std::shared_ptr<const MaybeDocument> ApplyToRemoteDocument(
-      const std::shared_ptr<const MaybeDocument>& maybe_doc,
+  virtual MaybeDocumentPtr ApplyToRemoteDocument(
+      const MaybeDocumentPtr& maybe_doc,
       const MutationResult& mutation_result) const = 0;
 
   /**
@@ -171,8 +173,8 @@ class Mutation {
    *     only if maybe_doc was nullptr and the mutation would not create a new
    *     document.
    */
-  virtual std::shared_ptr<const MaybeDocument> ApplyToLocalView(
-      const std::shared_ptr<const MaybeDocument>& maybe_doc,
+  virtual MaybeDocumentPtr ApplyToLocalView(
+      const MaybeDocumentPtr& maybe_doc,
       const MaybeDocument* base_doc,
       const Timestamp& local_write_time) const = 0;
 
@@ -198,12 +200,12 @@ class SetMutation : public Mutation {
               FieldValue&& value,
               Precondition&& precondition);
 
-  std::shared_ptr<const MaybeDocument> ApplyToRemoteDocument(
-      const std::shared_ptr<const MaybeDocument>& maybe_doc,
+  MaybeDocumentPtr ApplyToRemoteDocument(
+      const MaybeDocumentPtr& maybe_doc,
       const MutationResult& mutation_result) const override;
 
-  std::shared_ptr<const MaybeDocument> ApplyToLocalView(
-      const std::shared_ptr<const MaybeDocument>& maybe_doc,
+  MaybeDocumentPtr ApplyToLocalView(
+      const MaybeDocumentPtr& maybe_doc,
       const MaybeDocument* base_doc,
       const Timestamp& local_write_time) const override;
 
@@ -231,12 +233,12 @@ class PatchMutation : public Mutation {
                 FieldMask&& mask,
                 Precondition&& precondition);
 
-  std::shared_ptr<const MaybeDocument> ApplyToRemoteDocument(
-      const std::shared_ptr<const MaybeDocument>& maybe_doc,
+  MaybeDocumentPtr ApplyToRemoteDocument(
+      const MaybeDocumentPtr& maybe_doc,
       const MutationResult& mutation_result) const override;
 
-  std::shared_ptr<const MaybeDocument> ApplyToLocalView(
-      const std::shared_ptr<const MaybeDocument>& maybe_doc,
+  MaybeDocumentPtr ApplyToLocalView(
+      const MaybeDocumentPtr& maybe_doc,
       const MaybeDocument* base_doc,
       const Timestamp& local_write_time) const override;
 
@@ -253,12 +255,12 @@ class DeleteMutation : public Mutation {
  public:
   DeleteMutation(DocumentKey&& key, Precondition&& precondition);
 
-  std::shared_ptr<const MaybeDocument> ApplyToRemoteDocument(
-      const std::shared_ptr<const MaybeDocument>& maybe_doc,
+  MaybeDocumentPtr ApplyToRemoteDocument(
+      const MaybeDocumentPtr& maybe_doc,
       const MutationResult& mutation_result) const override;
 
-  std::shared_ptr<const MaybeDocument> ApplyToLocalView(
-      const std::shared_ptr<const MaybeDocument>& maybe_doc,
+  MaybeDocumentPtr ApplyToLocalView(
+      const MaybeDocumentPtr& maybe_doc,
       const MaybeDocument* base_doc,
       const Timestamp& local_write_time) const override;
 };

@@ -42,7 +42,7 @@ TEST(Mutation, AppliesSetsToDocuments) {
 
   std::unique_ptr<Mutation> set = SetMutation(
       "collection/key", {{"bar", FieldValue::FromString("bar-value")}});
-  std::shared_ptr<const MaybeDocument> set_doc =
+  MaybeDocumentPtr set_doc =
       set->ApplyToLocalView(base_doc, base_doc.get(), Timestamp::Now());
   ASSERT_NE(set_doc, nullptr);
   ASSERT_EQ(set_doc->type(), MaybeDocument::Type::Document);
@@ -60,7 +60,7 @@ TEST(Mutation, AppliesPatchToDocuments) {
 
   std::unique_ptr<Mutation> patch = PatchMutation(
       "collection/key", {{"foo.bar", FieldValue::FromString("new-bar-value")}});
-  std::shared_ptr<const MaybeDocument> local =
+  MaybeDocumentPtr local =
       patch->ApplyToLocalView(base_doc, base_doc.get(), Timestamp::Now());
   ASSERT_NE(local, nullptr);
   EXPECT_EQ(
@@ -78,7 +78,7 @@ TEST(Mutation, AppliesPatchWithMergeToDocuments) {
   std::unique_ptr<Mutation> upsert = PatchMutation(
       "collection/key", {{"foo.bar", FieldValue::FromString("new-bar-value")}},
       {Field("foo.bar")});
-  std::shared_ptr<const MaybeDocument> new_doc =
+  MaybeDocumentPtr new_doc =
       upsert->ApplyToLocalView(base_doc, base_doc.get(), Timestamp::Now());
   ASSERT_NE(new_doc, nullptr);
   EXPECT_EQ(
@@ -95,7 +95,7 @@ TEST(Mutation, AppliesPatchToNullDocWithMergeToDocuments) {
   std::unique_ptr<Mutation> upsert = PatchMutation(
       "collection/key", {{"foo.bar", FieldValue::FromString("new-bar-value")}},
       {Field("foo.bar")});
-  std::shared_ptr<const MaybeDocument> new_doc =
+  MaybeDocumentPtr new_doc =
       upsert->ApplyToLocalView(base_doc, base_doc.get(), Timestamp::Now());
   ASSERT_NE(new_doc, nullptr);
   EXPECT_EQ(
@@ -116,7 +116,7 @@ TEST(Mutation, DeletesValuesFromTheFieldMask) {
   std::unique_ptr<Mutation> patch =
       PatchMutation("collection/key", {}, {Field("foo.bar")});
 
-  std::shared_ptr<const MaybeDocument> patch_doc =
+  MaybeDocumentPtr patch_doc =
       patch->ApplyToLocalView(base_doc, base_doc.get(), Timestamp::Now());
   ASSERT_NE(patch_doc, nullptr);
   EXPECT_EQ(*patch_doc.get(),
@@ -135,7 +135,7 @@ TEST(Mutation, PatchesPrimitiveValue) {
   std::unique_ptr<Mutation> patch = PatchMutation(
       "collection/key", {{"foo.bar", FieldValue::FromString("new-bar-value")}});
 
-  std::shared_ptr<const MaybeDocument> patched_doc =
+  MaybeDocumentPtr patched_doc =
       patch->ApplyToLocalView(base_doc, base_doc.get(), Timestamp::Now());
   ASSERT_NE(patched_doc, nullptr);
   EXPECT_EQ(
@@ -225,7 +225,7 @@ TEST(Mutation, DeleteDeletes) {
       Doc("collection/key", 0, {{"foo", FieldValue::FromString("bar")}}));
 
   std::unique_ptr<Mutation> del = testutil::DeleteMutation("collection/key");
-  std::shared_ptr<const MaybeDocument> deleted_doc =
+  MaybeDocumentPtr deleted_doc =
       del->ApplyToLocalView(base_doc, base_doc.get(), Timestamp::Now());
 
   ASSERT_NE(deleted_doc, nullptr);
@@ -238,7 +238,7 @@ TEST(Mutation, SetWithMutationResult) {
 
   std::unique_ptr<Mutation> set = SetMutation(
       "collection/key", {{"foo", FieldValue::FromString("new-bar")}});
-  std::shared_ptr<const MaybeDocument> set_doc =
+  MaybeDocumentPtr set_doc =
       set->ApplyToRemoteDocument(base_doc, MutationResult(4));
 
   ASSERT_NE(set_doc, nullptr);
@@ -253,7 +253,7 @@ TEST(Mutation, PatchWithMutationResult) {
 
   std::unique_ptr<Mutation> patch = PatchMutation(
       "collection/key", {{"foo", FieldValue::FromString("new-bar")}});
-  std::shared_ptr<const MaybeDocument> patch_doc =
+  MaybeDocumentPtr patch_doc =
       patch->ApplyToRemoteDocument(base_doc, MutationResult(4));
 
   ASSERT_NE(patch_doc, nullptr);
