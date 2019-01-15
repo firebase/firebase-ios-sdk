@@ -103,7 +103,7 @@ class DatastoreTest : public testing::Test {
   DatastoreTest()
       : worker_queue{absl::make_unique<ExecutorLibdispatch>(
             dispatch_queue_create("datastore_test", DISPATCH_QUEUE_SERIAL))},
-        database_info{DatabaseId{"p", "d"}, "", "", false},
+        database_info{DatabaseId{"p", "d"}, "", "some.host", false},
         datastore{CreateDatastore(database_info, &worker_queue, &credentials)},
         fake_grpc_queue{datastore->queue()} {
     // Deliberately don't `Start` the `Datastore` to prevent normal gRPC
@@ -376,12 +376,12 @@ TEST_F(DatastoreTest, IsPermanentError) {
 }
 
 TEST_F(DatastoreTest, IsPermanentWriteError) {
-  EXPECT_TRUE(
-      Datastore::IsPermanentError(Status{FirestoreErrorCode::Unauthenticated, ""}));
-  EXPECT_TRUE(
-      Datastore::IsPermanentError(Status{FirestoreErrorCode::DataLoss, ""}));
   EXPECT_FALSE(
-      Datastore::IsPermanentError(Status{FirestoreErrorCode::Aborted, ""}));
+      Datastore::IsPermanentWriteError(Status{FirestoreErrorCode::Unauthenticated, ""}));
+  EXPECT_TRUE(
+      Datastore::IsPermanentWriteError(Status{FirestoreErrorCode::DataLoss, ""}));
+  EXPECT_FALSE(
+      Datastore::IsPermanentWriteError(Status{FirestoreErrorCode::Aborted, ""}));
 }
 
 }  // namespace remote
