@@ -134,6 +134,7 @@ static const int kMaxPendingWrites = 10;
     _writePipeline = [NSMutableArray array];
     _onlineStateTracker = [[FSTOnlineStateTracker alloc] initWithWorkerQueue:queue];
 
+    _datastore->Start();
     // Create streams (but note they're not started yet)
     _watchStream = _datastore->CreateWatchStream(self);
     _writeStream = _datastore->CreateWriteStream(self);

@@ -72,7 +72,6 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
             util::AsyncQueue* worker_queue,
             auth::CredentialsProvider* credentials);
 
-  // To enable mocking
   virtual ~Datastore() {
   }
 
