@@ -82,7 +82,7 @@ FieldValue& FieldValue::operator=(const FieldValue& value) {
       timestamp_value_ = value.timestamp_value_;
       break;
     case Type::ServerTimestamp:
-      server_timestamp_value_ = value.server_timestamp_value_;
+      *server_timestamp_value_ = *value.server_timestamp_value_;
       break;
     case Type::String:
       string_value_ = value.string_value_;
@@ -284,16 +284,16 @@ FieldValue FieldValue::FromServerTimestamp(const Timestamp& local_write_time,
                                            const Timestamp& previous_value) {
   FieldValue result;
   result.SwitchTo(Type::ServerTimestamp);
-  result.server_timestamp_value_.local_write_time = local_write_time;
-  result.server_timestamp_value_.previous_value = previous_value;
+  result.server_timestamp_value_->local_write_time = local_write_time;
+  result.server_timestamp_value_->previous_value = previous_value;
   return result;
 }
 
 FieldValue FieldValue::FromServerTimestamp(const Timestamp& local_write_time) {
   FieldValue result;
   result.SwitchTo(Type::ServerTimestamp);
-  result.server_timestamp_value_.local_write_time = local_write_time;
-  result.server_timestamp_value_.previous_value = absl::nullopt;
+  result.server_timestamp_value_->local_write_time = local_write_time;
+  result.server_timestamp_value_->previous_value = absl::nullopt;
   return result;
 }
 
@@ -407,8 +407,8 @@ bool operator<(const FieldValue& lhs, const FieldValue& rhs) {
       }
     case Type::ServerTimestamp:
       if (rhs.type() == Type::ServerTimestamp) {
-        return lhs.server_timestamp_value_.local_write_time <
-               rhs.server_timestamp_value_.local_write_time;
+        return lhs.server_timestamp_value_->local_write_time <
+               rhs.server_timestamp_value_->local_write_time;
       } else {
         return false;
       }
@@ -447,7 +447,7 @@ void FieldValue::SwitchTo(const Type type) {
       timestamp_value_.~Timestamp();
       break;
     case Type::ServerTimestamp:
-      server_timestamp_value_.~ServerTimestamp();
+      server_timestamp_value_.~unique_ptr<ServerTimestamp>();
       break;
     case Type::String:
       string_value_.~basic_string();
@@ -477,7 +477,8 @@ void FieldValue::SwitchTo(const Type type) {
       new (&timestamp_value_) Timestamp(0, 0);
       break;
     case Type::ServerTimestamp:
-      new (&server_timestamp_value_) ServerTimestamp();
+      new (&server_timestamp_value_) std::unique_ptr<ServerTimestamp>(
+          absl::make_unique<ServerTimestamp>());
       break;
     case Type::String:
       new (&string_value_) std::string();

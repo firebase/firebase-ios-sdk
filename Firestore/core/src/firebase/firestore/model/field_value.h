@@ -214,7 +214,7 @@ class FieldValue {
     int64_t integer_value_;
     double double_value_;
     Timestamp timestamp_value_;
-    ServerTimestamp server_timestamp_value_;
+    std::unique_ptr<ServerTimestamp> server_timestamp_value_;
     std::string string_value_;
     std::vector<uint8_t> blob_value_;
     // Qualified name to avoid conflict with the member function of same name.
