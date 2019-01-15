@@ -74,7 +74,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init NS_UNAVAILABLE;
 
-- (const firebase::firestore::remote::ExistenceFilter&) filter;
+- (const firebase::firestore::remote::ExistenceFilter &)filter;
 
 @property(nonatomic, assign, readonly) firebase::firestore::model::TargetId targetID;
 @end

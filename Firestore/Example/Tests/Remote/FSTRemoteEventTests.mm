@@ -571,8 +571,7 @@ NS_ASSUME_NONNULL_BEGIN
   // The existence filter mismatch will remove the document from target 1,
   // but not synthesize a document delete.
   FSTExistenceFilterWatchChange *change4 =
-      [FSTExistenceFilterWatchChange changeWithFilter:ExistenceFilter{1}
-                                             targetID:1];
+      [FSTExistenceFilterWatchChange changeWithFilter:ExistenceFilter{1} targetID:1];
   [aggregator handleExistenceFilter:change4];
 
   event = [aggregator remoteEventAtSnapshotVersion:testutil::Version(4)];
@@ -610,8 +609,7 @@ NS_ASSUME_NONNULL_BEGIN
   // The existence filter mismatch will remove the document from target 1, but not synthesize a
   // document delete.
   FSTExistenceFilterWatchChange *existenceFilter =
-      [FSTExistenceFilterWatchChange changeWithFilter:ExistenceFilter{0}
-                                             targetID:1];
+      [FSTExistenceFilterWatchChange changeWithFilter:ExistenceFilter{0} targetID:1];
   [aggregator handleExistenceFilter:existenceFilter];
 
   FSTRemoteEvent *event = [aggregator remoteEventAtSnapshotVersion:testutil::Version(3)];
