@@ -20,6 +20,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/util/fake_credentials_provider.h"
 #include "Firestore/core/test/firebase/firestore/util/grpc_stream_tester.h"
@@ -47,6 +48,7 @@ using util::ExecutorLibdispatch;
 using util::CompletionResult::Error;
 using util::CompletionResult::Ok;
 using util::ExecutorStd;
+using util::Status;
 using Type = GrpcCompletion::Type;
 
 namespace {
@@ -91,9 +93,7 @@ std::shared_ptr<FakeDatastore> CreateDatastore(
     AsyncQueue* worker_queue,
     CredentialsProvider* credentials) {
   return std::make_shared<FakeDatastore>(
-      database_info, worker_queue, credentials,
-      [[FSTSerializerBeta alloc]
-          initWithDatabaseID:&database_info.database_id()]);
+      database_info, worker_queue, credentials);
 }
 
 }  // namespace

@@ -55,6 +55,7 @@ using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::remote::MockDatastore;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::TimerId;
 using firebase::firestore::util::ExecutorLibdispatch;
@@ -144,7 +145,7 @@ NS_ASSUME_NONNULL_BEGIN
     _localStore = [[FSTLocalStore alloc] initWithPersistence:persistence initialUser:initialUser];
 
     auto datastore =
-        absl::make_unique<MockDatastore>(_databaseInfo, _workerQueue.get(), _credentialProvider);
+        absl::make_unique<MockDatastore>(_databaseInfo, _workerQueue.get(), &_credentialProvider);
     _datastore = datastore.get();
     _remoteStore = [[FSTRemoteStore alloc] initWithLocalStore:_localStore
                                                     datastore:std::move(datastore)

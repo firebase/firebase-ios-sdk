@@ -82,6 +82,11 @@ class MockDatastore : public Datastore {
   void FailWrite(NSError* error);
 
  private:
+  const core::DatabaseInfo* database_info_ = nullptr;
+  util::AsyncQueue* worker_queue_ = nullptr;
+  auth::CredentialsProvider* credentials_ = nullptr;
+  GrpcConnection* grpc_connection_ = nullptr;
+
   std::shared_ptr<MockWatchStream> watch_stream_;
   std::shared_ptr<MockWriteStream> write_stream_;
 

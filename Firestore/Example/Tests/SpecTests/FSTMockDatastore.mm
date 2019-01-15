@@ -239,14 +239,18 @@ class MockWriteStream : public WriteStream {
 MockDatastore::MockDatastore(const core::DatabaseInfo& database_info,
                              util::AsyncQueue* worker_queue,
                              auth::CredentialsProvider* credentials)
-    : Datastore{database_info, worker_queue, credentials, CreateNoOpConnectivityMonitor()} {
+    : Datastore{database_info, worker_queue, credentials, CreateNoOpConnectivityMonitor()},
+    database_info_{&database_info},
+    worker_queue_{worker_queue},
+    credentials_{credentials}
+{
 }
 
 std::shared_ptr<WatchStream> MockDatastore::CreateWatchStream(id<FSTWatchStreamDelegate> delegate) {
   watch_stream_ = std::make_shared<MockWatchStream>(
       worker_queue_, credentials_,
-      [[FSTSerializerBeta alloc] initWithDatabaseID:&self.databaseInfo->database_id()],
-      grpc_connection_.get(), delegate, self);
+      [[FSTSerializerBeta alloc] initWithDatabaseID:&database_info_->database_id()],
+      grpc_connection(), delegate, this);
 
   return watch_stream_;
 }
@@ -254,8 +258,8 @@ std::shared_ptr<WatchStream> MockDatastore::CreateWatchStream(id<FSTWatchStreamD
 std::shared_ptr<WriteStream> MockDatastore::CreateWriteStream(id<FSTWriteStreamDelegate> delegate) {
   write_stream_ = std::make_shared<MockWriteStream>(
       worker_queue_, credentials_,
-      [[FSTSerializerBeta alloc] initWithDatabaseID:&self.databaseInfo->database_id()],
-      grpc_connection_.get(), delegate, self);
+      [[FSTSerializerBeta alloc] initWithDatabaseID:&database_info_->database_id()],
+      grpc_connection(), delegate, this);
 
   return write_stream_;
 }
