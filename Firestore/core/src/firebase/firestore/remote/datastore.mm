@@ -67,11 +67,6 @@ std::unique_ptr<Executor> CreateExecutor() {
   return absl::make_unique<ExecutorLibdispatch>(queue);
 }
 
-FSTSerializerBeta* CreateSerializer(const DatabaseInfo& database_info) {
-  return [[FSTSerializerBeta alloc]
-      initWithDatabaseID:&database_info.database_id()];
-}
-
 std::string MakeString(grpc::string_ref grpc_str) {
   return {grpc_str.begin(), grpc_str.size()};
 }
@@ -111,7 +106,7 @@ Datastore::Datastore(const DatabaseInfo& database_info,
       connectivity_monitor_{std::move(connectivity_monitor)},
       grpc_connection_{database_info, worker_queue, &grpc_queue_,
                        connectivity_monitor_.get()},
-      serializer_bridge_{CreateSerializer(database_info)} {
+      serializer_bridge_{database_info} {
   if (!database_info.ssl_enabled()) {
     GrpcConnection::UseInsecureChannel(database_info.host());
   }

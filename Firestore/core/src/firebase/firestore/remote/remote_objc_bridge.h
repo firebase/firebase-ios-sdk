@@ -26,6 +26,7 @@
 #include <string>
 #include <vector>
 
+#include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
@@ -142,9 +143,7 @@ class WriteStreamSerializer {
  */
 class DatastoreSerializer {
  public:
-  explicit DatastoreSerializer(FSTSerializerBeta* serializer)
-      : serializer_{serializer} {
-  }
+  explicit DatastoreSerializer(const core::DatabaseInfo& database_info);
 
   GCFSCommitRequest* CreateCommitRequest(
       NSArray<FSTMutation*>* mutations) const;

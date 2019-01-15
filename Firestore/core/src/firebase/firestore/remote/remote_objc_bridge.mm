@@ -34,6 +34,7 @@ namespace firestore {
 namespace remote {
 namespace bridge {
 
+using core::DatabaseInfo;
 using model::DocumentKey;
 using model::TargetId;
 using model::SnapshotVersion;
@@ -230,6 +231,11 @@ NSString* WriteStreamSerializer::Describe(GCFSWriteResponse* response) {
 }
 
 // DatastoreSerializer
+
+DatastoreSerializer::DatastoreSerializer(const DatabaseInfo& database_info)
+    : serializer_{[[FSTSerializerBeta alloc]
+          initWithDatabaseID:&database_info.database_id()]} {
+}
 
 GCFSCommitRequest* DatastoreSerializer::CreateCommitRequest(
     NSArray<FSTMutation*>* mutations) const {
