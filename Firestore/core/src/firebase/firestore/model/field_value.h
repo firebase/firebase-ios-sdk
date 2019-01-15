@@ -129,7 +129,7 @@ class FieldValue {
 
   Timestamp timestamp_value() const {
     HARD_ASSERT(tag_ == Type::Timestamp);
-    return timestamp_value_;
+    return *timestamp_value_;
   }
 
   const std::string& string_value() const {
@@ -213,7 +213,7 @@ class FieldValue {
     bool boolean_value_;
     int64_t integer_value_;
     double double_value_;
-    Timestamp timestamp_value_;
+    std::unique_ptr<Timestamp> timestamp_value_;
     std::unique_ptr<ServerTimestamp> server_timestamp_value_;
     // TODO(rsgowman): Change unique_ptr<std::string> to nanopb::String?
     std::unique_ptr<std::string> string_value_;

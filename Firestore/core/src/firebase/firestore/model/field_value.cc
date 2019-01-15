@@ -79,7 +79,7 @@ FieldValue& FieldValue::operator=(const FieldValue& value) {
       double_value_ = value.double_value_;
       break;
     case Type::Timestamp:
-      timestamp_value_ = value.timestamp_value_;
+      *timestamp_value_ = *value.timestamp_value_;
       break;
     case Type::ServerTimestamp:
       *server_timestamp_value_ = *value.server_timestamp_value_;
@@ -275,7 +275,7 @@ FieldValue FieldValue::FromDouble(double value) {
 FieldValue FieldValue::FromTimestamp(const Timestamp& value) {
   FieldValue result;
   result.SwitchTo(Type::Timestamp);
-  result.timestamp_value_ = value;
+  *result.timestamp_value_ = value;
   return result;
 }
 
@@ -400,7 +400,7 @@ bool operator<(const FieldValue& lhs, const FieldValue& rhs) {
       }
     case Type::Timestamp:
       if (rhs.type() == Type::Timestamp) {
-        return lhs.timestamp_value_ < rhs.timestamp_value_;
+        return *lhs.timestamp_value_ < *rhs.timestamp_value_;
       } else {
         return true;
       }
@@ -444,7 +444,7 @@ void FieldValue::SwitchTo(const Type type) {
   // Must call destructor explicitly for any non-POD type.
   switch (tag_) {
     case Type::Timestamp:
-      timestamp_value_.~Timestamp();
+      timestamp_value_.~unique_ptr<Timestamp>();
       break;
     case Type::ServerTimestamp:
       server_timestamp_value_.~unique_ptr<ServerTimestamp>();
@@ -474,7 +474,8 @@ void FieldValue::SwitchTo(const Type type) {
   // Must call constructor explicitly for any non-POD type to initialize.
   switch (tag_) {
     case Type::Timestamp:
-      new (&timestamp_value_) Timestamp(0, 0);
+      new (&timestamp_value_)
+          std::unique_ptr<Timestamp>(absl::make_unique<Timestamp>(0, 0));
       break;
     case Type::ServerTimestamp:
       new (&server_timestamp_value_) std::unique_ptr<ServerTimestamp>(
