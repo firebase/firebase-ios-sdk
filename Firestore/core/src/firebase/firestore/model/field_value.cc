@@ -89,8 +89,8 @@ FieldValue& FieldValue::operator=(const FieldValue& value) {
       break;
     case Type::Blob: {
       // copy-and-swap
-      std::vector<uint8_t> tmp = value.blob_value_;
-      std::swap(blob_value_, tmp);
+      std::vector<uint8_t> tmp = *value.blob_value_;
+      std::swap(*blob_value_, tmp);
       break;
     }
     case Type::Reference:
@@ -318,7 +318,7 @@ FieldValue FieldValue::FromBlob(const uint8_t* source, size_t size) {
   FieldValue result;
   result.SwitchTo(Type::Blob);
   std::vector<uint8_t> copy(source, source + size);
-  std::swap(result.blob_value_, copy);
+  std::swap(*result.blob_value_, copy);
   return result;
 }
 
@@ -415,7 +415,7 @@ bool operator<(const FieldValue& lhs, const FieldValue& rhs) {
     case Type::String:
       return lhs.string_value_->compare(*rhs.string_value_) < 0;
     case Type::Blob:
-      return lhs.blob_value_ < rhs.blob_value_;
+      return *lhs.blob_value_ < *rhs.blob_value_;
     case Type::Reference:
       return *lhs.reference_value_.database_id <
                  *rhs.reference_value_.database_id ||
@@ -453,7 +453,7 @@ void FieldValue::SwitchTo(const Type type) {
       string_value_.~unique_ptr<std::string>();
       break;
     case Type::Blob:
-      blob_value_.~vector();
+      blob_value_.~unique_ptr<std::vector<uint8_t>>();
       break;
     case Type::Reference:
       reference_value_.~ReferenceValue();
@@ -486,7 +486,8 @@ void FieldValue::SwitchTo(const Type type) {
       break;
     case Type::Blob:
       // Do not even bother to allocate a new array of size 0.
-      new (&blob_value_) std::vector<uint8_t>();
+      new (&blob_value_) std::unique_ptr<std::vector<uint8_t>>(
+          absl::make_unique<std::vector<uint8_t>>());
       break;
     case Type::Reference:
       // Qualified name to avoid conflict with the member function of same name.
