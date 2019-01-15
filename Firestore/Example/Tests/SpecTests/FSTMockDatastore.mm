@@ -44,6 +44,8 @@
 #include "absl/memory/memory.h"
 #include "grpcpp/completion_queue.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::core::DatabaseInfo;
@@ -291,10 +293,12 @@ void MockDatastore::AckWrite(const SnapshotVersion& version, NSArray<FSTMutation
   write_stream_->AckWrite(version, results);
 }
 
-void MockDatastore::FailWrite(NSError* error) {
+void MockDatastore::FailWrite(NSError* _Nullable error) {
   write_stream_->FailStream(error);
 }
 
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
+
+NS_ASSUME_NONNULL_END

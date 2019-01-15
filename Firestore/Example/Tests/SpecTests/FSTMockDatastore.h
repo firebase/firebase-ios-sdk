@@ -22,6 +22,8 @@
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 namespace firebase {
 namespace firestore {
 namespace remote {
@@ -81,13 +83,14 @@ class MockDatastore : public Datastore {
   void AckWrite(const model::SnapshotVersion& version, NSArray<FSTMutationResult*>* results);
 
   /** Injects a stream failure as though it had come from the backend. */
-  void FailWrite(NSError* error);
+  void FailWrite(NSError* _Nullable error);
 
  private:
+  // These are all passed to the base class; however, making `MockDatastore` store the pointers
+  // reduces the number of test-only methods in `Datastore`.
   const core::DatabaseInfo* database_info_ = nullptr;
   util::AsyncQueue* worker_queue_ = nullptr;
   auth::CredentialsProvider* credentials_ = nullptr;
-  GrpcConnection* grpc_connection_ = nullptr;
 
   std::shared_ptr<MockWatchStream> watch_stream_;
   std::shared_ptr<MockWriteStream> write_stream_;
@@ -99,3 +102,5 @@ class MockDatastore : public Datastore {
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
+
+NS_ASSUME_NONNULL_END
