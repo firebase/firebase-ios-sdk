@@ -1029,11 +1029,11 @@ static void UnswizzleDynamicLinkNetworking() {
   NSArray<NSString *> *urlStrings = @[
     @"https://google.com/mylink",             // Short FDL starting with 'https://google.com'
     @"https://google.com/one",                // Short FDL starting with 'https://google.com'
-    @"https://google.com?/link=abcd",          // Long FDL starting with  'https://google.com'
+    @"https://google.com?/link=abcd",         // Long FDL starting with  'https://google.com'
     @"https://google.com/one/mylink",         // Long FDL starting with  'https://google.com/one'
     @"https://a.firebase.com/mypath/mylink",  // Short FDL starting https://a.firebase.com/mypath
     @"https://a.firebase.com/mypath/?link=abcd&test=1",  // Long FDL starting with
-                                                        // https://a.firebase.com/mypath
+                                                         // https://a.firebase.com/mypath
   ];
 
   for (NSString *urlString in urlStrings) {
