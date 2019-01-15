@@ -94,7 +94,7 @@ FieldValue& FieldValue::operator=(const FieldValue& value) {
       break;
     }
     case Type::Reference:
-      reference_value_ = value.reference_value_;
+      *reference_value_ = *value.reference_value_;
       break;
     case Type::GeoPoint:
       geo_point_value_ = value.geo_point_value_;
@@ -129,8 +129,7 @@ FieldValue& FieldValue::operator=(FieldValue&& value) {
       return *this;
     case Type::Reference:
       SwitchTo(Type::Reference);
-      std::swap(reference_value_.reference, value.reference_value_.reference);
-      reference_value_.database_id = value.reference_value_.database_id;
+      std::swap(reference_value_, value.reference_value_);
       return *this;
     case Type::Array:
       SwitchTo(Type::Array);
@@ -327,8 +326,8 @@ FieldValue FieldValue::FromReference(const DocumentKey& value,
                                      const DatabaseId* database_id) {
   FieldValue result;
   result.SwitchTo(Type::Reference);
-  result.reference_value_.reference = value;
-  result.reference_value_.database_id = database_id;
+  result.reference_value_->reference = value;
+  result.reference_value_->database_id = database_id;
   return result;
 }
 
@@ -337,8 +336,8 @@ FieldValue FieldValue::FromReference(DocumentKey&& value,
                                      const DatabaseId* database_id) {
   FieldValue result;
   result.SwitchTo(Type::Reference);
-  std::swap(result.reference_value_.reference, value);
-  result.reference_value_.database_id = database_id;
+  std::swap(result.reference_value_->reference, value);
+  result.reference_value_->database_id = database_id;
   return result;
 }
 
@@ -417,11 +416,12 @@ bool operator<(const FieldValue& lhs, const FieldValue& rhs) {
     case Type::Blob:
       return *lhs.blob_value_ < *rhs.blob_value_;
     case Type::Reference:
-      return *lhs.reference_value_.database_id <
-                 *rhs.reference_value_.database_id ||
-             (*lhs.reference_value_.database_id ==
-                  *rhs.reference_value_.database_id &&
-              lhs.reference_value_.reference < rhs.reference_value_.reference);
+      return *lhs.reference_value_->database_id <
+                 *rhs.reference_value_->database_id ||
+             (*lhs.reference_value_->database_id ==
+                  *rhs.reference_value_->database_id &&
+              lhs.reference_value_->reference <
+                  rhs.reference_value_->reference);
     case Type::GeoPoint:
       return lhs.geo_point_value_ < rhs.geo_point_value_;
     case Type::Array:
@@ -456,7 +456,7 @@ void FieldValue::SwitchTo(const Type type) {
       blob_value_.~unique_ptr<std::vector<uint8_t>>();
       break;
     case Type::Reference:
-      reference_value_.~ReferenceValue();
+      reference_value_.~unique_ptr<ReferenceValue>();
       break;
     case Type::GeoPoint:
       geo_point_value_.~GeoPoint();
@@ -490,8 +490,8 @@ void FieldValue::SwitchTo(const Type type) {
           absl::make_unique<std::vector<uint8_t>>());
       break;
     case Type::Reference:
-      // Qualified name to avoid conflict with the member function of same name.
-      new (&reference_value_) firebase::firestore::model::ReferenceValue();
+      new (&reference_value_)
+          std::unique_ptr<ReferenceValue>(absl::make_unique<ReferenceValue>());
       break;
     case Type::GeoPoint:
       new (&geo_point_value_) GeoPoint();
