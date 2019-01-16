@@ -1192,7 +1192,6 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTExistenceFilterWatchChange *)decodedExistenceFilterWatchChange:(GCFSExistenceFilter *)filter {
-  // TODO(dimond): implement existence filter parsing
   ExistenceFilter existenceFilter{filter.count};
   TargetId targetID = filter.targetId;
   return [FSTExistenceFilterWatchChange changeWithFilter:existenceFilter targetID:targetID];

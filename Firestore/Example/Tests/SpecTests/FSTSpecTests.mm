@@ -311,7 +311,6 @@ static NSString *Describe(NSData *data) {
 
   int keyCount = watchFilter.count == 0 ? 0 : (int)watchFilter.count - 1;
 
-  // TODO(dimond): extend this with different existence filters over time.
   ExistenceFilter filter{keyCount};
   FSTExistenceFilterWatchChange *change =
       [FSTExistenceFilterWatchChange changeWithFilter:filter targetID:targets[0].intValue];

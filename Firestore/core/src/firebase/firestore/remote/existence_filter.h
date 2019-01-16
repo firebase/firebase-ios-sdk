@@ -21,7 +21,6 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-/** Simplest form of existence filter */
 class ExistenceFilter {
  public:
   ExistenceFilter() = default;
