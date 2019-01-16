@@ -147,13 +147,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-#pragma mark - DatastoreTests
+#pragma mark - FSTDatastoreTests
 
-@interface DatastoreTests : XCTestCase
+@interface FSTDatastoreTests : XCTestCase
 
 @end
 
-@implementation DatastoreTests {
+@implementation FSTDatastoreTests {
   std::unique_ptr<AsyncQueue> _testWorkerQueue;
   FSTLocalStore *_localStore;
   EmptyCredentialsProvider _credentials;
