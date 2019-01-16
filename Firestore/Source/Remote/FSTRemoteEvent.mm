@@ -26,12 +26,9 @@
 #import "Firestore/Source/Core/FSTViewSnapshot.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Remote/FSTExistenceFilter.h"
-#import "Firestore/Source/Remote/FSTRemoteStore.h"
 #import "Firestore/Source/Remote/FSTWatchChange.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 
-#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
@@ -415,7 +412,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)handleExistenceFilter:(FSTExistenceFilterWatchChange *)existenceFilter {
   TargetId targetID = existenceFilter.targetID;
-  int expectedCount = existenceFilter.filter.count;
+  int expectedCount = existenceFilter.filter.count();
 
   FSTQueryData *queryData = [self queryDataForActiveTarget:targetID];
   if (queryData) {
