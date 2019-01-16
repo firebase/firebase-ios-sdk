@@ -26,7 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic) NSData *extensionBytes;
 
 /** The clock snapshot at the time of logging. */
-@property(nonatomic) GDLLogClockSnapshot clockSnapshot;
+@property(nonatomic) GDLClock *clockSnapshot;
 
 @end
 

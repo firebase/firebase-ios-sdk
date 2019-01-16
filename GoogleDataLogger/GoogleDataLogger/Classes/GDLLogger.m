@@ -19,6 +19,7 @@
 
 #import "GDLAssert.h"
 #import "GDLLogEvent.h"
+#import "GDLLogEvent_Private.h"
 #import "GDLLogWriter.h"
 
 @implementation GDLLogger
@@ -39,16 +40,20 @@
 }
 
 - (void)logTelemetryEvent:(GDLLogEvent *)logEvent {
+  // TODO: Determine if logging an event before registration is allowed.
   GDLAssert(logEvent, @"You can't log a nil event");
   GDLLogEvent *copiedLog = [logEvent copy];
   copiedLog.qosTier = GDLLogQoSTelemetry;
+  copiedLog.clockSnapshot = [GDLClock snapshot];
   [self.logWriterInstance writeLog:copiedLog afterApplyingTransformers:_logTransformers];
 }
 
 - (void)logDataEvent:(GDLLogEvent *)logEvent {
+  // TODO: Determine if logging an event before registration is allowed.
   GDLAssert(logEvent, @"You can't log a nil event");
   GDLAssert(logEvent.qosTier != GDLLogQoSTelemetry, @"Use -logTelemetryEvent, please.");
   GDLLogEvent *copiedLog = [logEvent copy];
+  copiedLog.clockSnapshot = [GDLClock snapshot];
   [self.logWriterInstance writeLog:copiedLog afterApplyingTransformers:_logTransformers];
 }
 

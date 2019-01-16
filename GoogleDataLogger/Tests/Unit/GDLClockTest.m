@@ -29,4 +29,37 @@
   XCTAssertNotNil([[GDLClockTest alloc] init]);
 }
 
+/** Tests taking a snapshot. */
+- (void)testSnapshot {
+  GDLClock *snapshot;
+  XCTAssertNoThrow(snapshot = [GDLClock snapshot]);
+  XCTAssertGreaterThan(snapshot.timeMillis, 0);
+}
+
+/** Tests that the hash of two snapshots right after each other isn't equal. */
+- (void)testHash {
+  GDLClock *snapshot1 = [GDLClock snapshot];
+  GDLClock *snapshot2 = [GDLClock snapshot];
+  XCTAssertNotEqual([snapshot1 hash], [snapshot2 hash]);
+}
+
+/** Tests that the class supports NSSecureEncoding. */
+- (void)testSupportsSecureEncoding {
+  XCTAssertTrue([GDLClock supportsSecureCoding]);
+}
+
+- (void)testEncoding {
+  GDLClock *clock = [GDLClock snapshot];
+  NSData *clockData = [NSKeyedArchiver archivedDataWithRootObject:clock];
+  GDLClock *unarchivedClock = [NSKeyedUnarchiver unarchiveObjectWithData:clockData];
+  XCTAssertEqual([clock hash], [unarchivedClock hash]);
+  XCTAssertEqualObjects(clock, unarchivedClock);
+}
+
+- (void)testClockSnapshotInTheFuture {
+  GDLClock *clock1 = [GDLClock snapshot];
+  GDLClock *clock2 = [GDLClock clockSnapshotInTheFuture:1];
+  XCTAssertTrue([clock2 isAfter:clock1]);
+}
+
 @end

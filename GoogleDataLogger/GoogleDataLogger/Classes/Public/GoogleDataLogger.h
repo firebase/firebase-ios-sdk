@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#import "GDLClock.h"
 #import "GDLLogEvent.h"
 #import "GDLLogPrioritizer.h"
 #import "GDLLogProto.h"
