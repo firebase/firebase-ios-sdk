@@ -38,12 +38,9 @@ NSString* FindPathToCertificatesFile() {
   // Certificates file might be present in one of several bundles, based on
   // the environment.
   NSArray<NSBundle*>* bundles = @[
-    // First, try to load certificates bundled by gRPC-C++ if available
-    // (pod versions 0.0.6+).
+    // Try to load certificates bundled by gRPC-C++.
     [NSBundle bundleWithIdentifier:@"org.cocoapods.grpcpp"],
-    // Fall back to the certificates bundled with Firestore if necessary.
-    [NSBundle bundleForClass:FSTFirestoreClient.class],
-    // Finally, users manually adding resources to the project may add the
+    // Users manually adding resources to the project may add the
     // certificate to the main application bundle. Note that `mainBundle` is nil
     // for unit tests of library projects, so it cannot fully substitute for
     // checking framework bundles.
@@ -55,13 +52,8 @@ NSString* FindPathToCertificatesFile() {
       continue;
     }
 
-    NSString* resource = @"gRPCCertificates.bundle/roots";
-    NSString* path = [bundle pathForResource:resource ofType:@"pem"];
-    if (!path) {
-      resource = @"gRPCCertificates-Firestore.bundle/roots";
-      path = [bundle pathForResource:resource ofType:@"pem"];
-    }
-
+    NSString* path = [bundle pathForResource:@"gRPCCertificates.bundle/roots"
+                                      ofType:@"pem"];
     if (path) {
       LOG_DEBUG("%s.pem found in bundle %s", resource,
                 [bundle bundleIdentifier]);
