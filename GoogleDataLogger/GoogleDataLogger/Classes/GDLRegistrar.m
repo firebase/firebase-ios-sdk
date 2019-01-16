@@ -33,13 +33,13 @@
   self = [super init];
   if (self) {
     _logTargetToPrioritizer = [[NSMutableDictionary alloc] init];
-    _logTargetToBackend = [[NSMutableDictionary alloc] init];
+    _logTargetToUploader = [[NSMutableDictionary alloc] init];
   }
   return self;
 }
 
 - (void)registerBackend:(id<GDLLogUploader>)backend forLogTarget:(GDLLogTarget)logTarget {
-  self.logTargetToBackend[@(logTarget)] = backend;
+  self.logTargetToUploader[@(logTarget)] = backend;
 }
 
 - (void)registerLogPrioritizer:(id<GDLLogPrioritizer>)prioritizer

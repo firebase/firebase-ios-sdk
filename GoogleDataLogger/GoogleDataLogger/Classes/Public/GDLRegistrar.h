@@ -18,15 +18,9 @@
 
 #import <GoogleDataLogger/GDLLogPrioritizer.h>
 #import <GoogleDataLogger/GDLLogUploader.h>
+#import <GoogleDataLogger/GDLLogTargets.h>
 
 NS_ASSUME_NONNULL_BEGIN
-
-/** The list of targets supported by the shared logging infrastructure. */
-typedef NS_ENUM(NSInteger, GDLLogTarget) {
-
-  /** The CCT log target. */
-  kGDLLogTargetCCT = 1000
-};
 
 /** Manages the registration of log targets with the logging SDK. */
 @interface GDLRegistrar : NSObject

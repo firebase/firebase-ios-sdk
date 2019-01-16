@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** A block that can be ran in -uploadLogs:onComplete:. */
 @property(nullable, nonatomic) void (^uploadLogsBlock)
-    (NSSet<NSURL *> *logFiles, GDLBackendCompletionBlock completionBlock);
+    (NSSet<NSURL *> *logFiles, GDLUploaderCompletionBlock completionBlock);
 
 @end
 

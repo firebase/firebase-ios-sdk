@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-#import "GDLTestUploader.h"
+#import <Foundation/Foundation.h>
 
-@implementation GDLTestUploader
+/** The list of targets supported by the shared logging infrastructure. If adding a new target,
+ * please use the previous value +1, and increment GDLLogTargetLast by 1.
+ */
+typedef NS_ENUM(NSInteger, GDLLogTarget) {
 
-- (void)uploadLogs:(NSSet<NSURL *> *)logFiles onComplete:(GDLUploaderCompletionBlock)onComplete {
-  if (_uploadLogsBlock) {
-    _uploadLogsBlock(logFiles, onComplete);
-  } else if (onComplete) {
-    onComplete(kGDLLogTargetCCT, [GDLClock snapshot], nil);
-  }
-}
+  /** The CCT log target. */
+  kGDLLogTargetCCT = 1000,
 
-@end
+  GDLLogTargetLast = 1001
+};
