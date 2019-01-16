@@ -468,8 +468,7 @@ void FieldValue::SwitchTo(const Type type) {
     case Type::Object:
       object_value_.~unique_ptr<ObjectValue>();
       break;
-    default: {
-    }  // The other types where there is nothing to worry about.
+    default: {}  // The other types where there is nothing to worry about.
   }
   tag_ = type;
   // Must call constructor explicitly for any non-POD type to initialize.
@@ -507,8 +506,7 @@ void FieldValue::SwitchTo(const Type type) {
       new (&object_value_)
           std::unique_ptr<ObjectValue>(absl::make_unique<ObjectValue>());
       break;
-    default: {
-    }  // The other types where there is nothing to worry about.
+    default: {}  // The other types where there is nothing to worry about.
   }
 }
 
