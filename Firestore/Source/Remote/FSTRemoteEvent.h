@@ -26,10 +26,7 @@
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 
-@class FSTDocument;
-@class FSTExistenceFilter;
 @class FSTMaybeDocument;
-@class FSTWatchChange;
 @class FSTQueryData;
 @class FSTDocumentWatchChange;
 @class FSTWatchTargetChange;

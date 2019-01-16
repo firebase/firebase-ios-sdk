@@ -1,5 +1,12 @@
 # Unreleased
 
+# 2019-01-22 -- v5.2.0 -- M41
+- [changed] Added a registerInternalLibrary API. Now other Firebase libraries register with FirebaseCore
+  instead of FirebaseCore needing all of its clients' versions built in.
+  Firebase 5.16.0 makes this transition for FirebaseAnalytics, FirebaseAuth, FirebaseDatabase,
+  FirebaseDynamicLinks, FirebaseFirestore, FirebaseFunctions, FirebaseInstanceID, FirebaseMessaging,
+  and FirebaseStorage.
+
 # 2018-12-18 -- v5.1.10 -- M40
 - [changed] Removed some internal authentication methods on FIRApp which are no longer used thanks to the interop platform.
 
