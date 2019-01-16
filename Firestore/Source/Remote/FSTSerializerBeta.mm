@@ -39,7 +39,6 @@
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
-#import "Firestore/Source/Remote/FSTWatchChange.h"
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -50,7 +49,9 @@
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
 #include "Firestore/core/src/firebase/firestore/remote/existence_filter.h"
+#include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "absl/memory/memory.h"
 #include "absl/types/optional.h"
@@ -1058,9 +1059,9 @@ NS_ASSUME_NONNULL_BEGIN
   return [FSTBound boundWithPosition:indexComponents isBefore:proto.before];
 }
 
-#pragma mark - FSTWatchChange <= GCFSListenResponse proto
+#pragma mark - WatchChange <= GCFSListenResponse proto
 
-- (FSTWatchChange *)decodedWatchChange:(GCFSListenResponse *)watchChange {
+- (std::unique_ptr<WatchChange>)decodedWatchChange:(GCFSListenResponse *)watchChange {
   switch (watchChange.responseTypeOneOfCase) {
     case GCFSListenResponse_ResponseType_OneOfCase_TargetChange:
       return [self decodedTargetChangeFromWatchChange:watchChange.targetChange];
@@ -1095,41 +1096,38 @@ NS_ASSUME_NONNULL_BEGIN
   return [self decodedVersion:watchChange.targetChange.readTime];
 }
 
-- (FSTWatchTargetChange *)decodedTargetChangeFromWatchChange:(GCFSTargetChange *)change {
-  FSTWatchTargetChangeState state = [self decodedWatchTargetChangeState:change.targetChangeType];
-  NSMutableArray<NSNumber *> *targetIDs =
-      [NSMutableArray arrayWithCapacity:change.targetIdsArray_Count];
+- (std::unique_ptr<WatchTargetChange>)decodedTargetChangeFromWatchChange:
+    (GCFSTargetChange *)change {
+  WatchTargetChangeState state = [self decodedWatchTargetChangeState:change.targetChangeType];
+  std::vector<int> targetIDs;
 
   [change.targetIdsArray enumerateValuesWithBlock:^(int32_t value, NSUInteger idx, BOOL *stop) {
-    [targetIDs addObject:@(value)];
+    target_ids.push_back(value);
   }];
 
-  NSError *cause = nil;
+  std::string resumeToken = util::MakeString(change.resumeToken);
+
+  util::Status cause;
   if (change.hasCause) {
-    cause = [NSError errorWithDomain:FIRFirestoreErrorDomain
-                                code:change.cause.code
-                            userInfo:@{NSLocalizedDescriptionKey : change.cause.message}];
+    cause = util::Status{code : change.cause.code, change.cause.message};
   }
 
-  return [[FSTWatchTargetChange alloc] initWithState:state
-                                           targetIDs:targetIDs
-                                         resumeToken:change.resumeToken
-                                               cause:cause];
+  return absl::make_unique<WatchTargetChange>(state, std::move(targetIDs), std::move(resumeToken),
+                                              std::move(cause));
 }
 
-- (FSTWatchTargetChangeState)decodedWatchTargetChangeState:
-    (GCFSTargetChange_TargetChangeType)state {
+- (WatchTargetChangeState)decodedWatchTargetChangeState:(GCFSTargetChange_TargetChangeType)state {
   switch (state) {
     case GCFSTargetChange_TargetChangeType_NoChange:
-      return FSTWatchTargetChangeStateNoChange;
+      return WatchTargetChangeState::NoChange;
     case GCFSTargetChange_TargetChangeType_Add:
-      return FSTWatchTargetChangeStateAdded;
+      return WatchTargetChangeState::Added;
     case GCFSTargetChange_TargetChangeType_Remove:
-      return FSTWatchTargetChangeStateRemoved;
+      return WatchTargetChangeState::Removed;
     case GCFSTargetChange_TargetChangeType_Current:
-      return FSTWatchTargetChangeStateCurrent;
+      return WatchTargetChangeState::Current;
     case GCFSTargetChange_TargetChangeType_Reset:
-      return FSTWatchTargetChangeStateReset;
+      return WatchTargetChangeState::Reset;
     default:
       HARD_FAIL("Unexpected TargetChange.state: %s", state);
   }
