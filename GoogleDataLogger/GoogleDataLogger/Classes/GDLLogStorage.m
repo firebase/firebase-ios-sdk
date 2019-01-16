@@ -124,6 +124,32 @@ static NSString *GDLStoragePath() {
   });
 }
 
+- (void)removeLogFiles:(NSSet<NSURL *> *)logFiles logTarget:(NSNumber *)logTarget {
+  NSMutableSet<NSNumber *> *logHashes = [[NSMutableSet alloc] init];
+  [_logHashToLogFile enumerateKeysAndObjectsUsingBlock:^(NSNumber * _Nonnull key,
+                                                         NSURL * _Nonnull obj,
+                                                         BOOL * _Nonnull stop) {
+    if ([logFiles containsObject:obj]) {
+      [logHashes addObject:key];
+    }
+  }];
+  for (NSNumber *logHash in logHashes) {
+    [self removeLog:logHash logTarget:logTarget];
+  }
+}
+
+- (NSSet<NSURL *> *)logHashesToFiles:(NSSet<NSNumber *> *)logHashes {
+  NSMutableSet<NSURL *> *logFiles = [[NSMutableSet alloc] init];
+  dispatch_sync(_storageQueue, ^{
+    for (NSNumber *hashNumber in logHashes) {
+      NSURL *logURL = self.logHashToLogFile[hashNumber];
+      GDLAssert(logURL, @"A log file URL couldn't be found for the given hash");
+      [logFiles addObject:logURL];
+    }
+  });
+  return logFiles;
+}
+
 #pragma mark - Private helper methods
 
 /** Creates the log directory if it does not exist. */
