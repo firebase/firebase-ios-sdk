@@ -115,7 +115,7 @@ NS_ASSUME_NONNULL_BEGIN
   User _currentUser;
   EmptyCredentialsProvider _credentialProvider;
 
-  MockDatastore *_datastore;
+  std::shared_ptr<MockDatastore> _datastore;
 }
 
 - (instancetype)initWithPersistence:(id<FSTPersistence>)persistence {
@@ -145,7 +145,7 @@ NS_ASSUME_NONNULL_BEGIN
     _localStore = [[FSTLocalStore alloc] initWithPersistence:persistence initialUser:initialUser];
 
     _datastore =
-        std::make_shared<Datastore>(_databaseInfo, _workerQueue.get(), &_credentialProvider);
+        std::make_shared<MockDatastore>(_databaseInfo, _workerQueue.get(), &_credentialProvider);
     _remoteStore = [[FSTRemoteStore alloc] initWithLocalStore:_localStore
                                                     datastore:_datastore
                                                   workerQueue:_workerQueue.get()];
