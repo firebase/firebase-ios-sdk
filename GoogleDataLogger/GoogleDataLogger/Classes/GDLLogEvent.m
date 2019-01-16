@@ -45,8 +45,10 @@
 
 - (NSUInteger)hash {
   // This loses some precision, but it's probably fine.
-  NSUInteger timeHash = (NSUInteger)(_clockSnapshot.timeMillis ^ _clockSnapshot.uptimeMillis);
-  return [_logMapID hash] ^ _logTarget ^ [_extensionBytes hash] ^ _qosTier ^ timeHash;
+  NSUInteger logMapIDHash = [_logMapID hash];
+  NSUInteger timeHash = [_clockSnapshot hash];
+  NSUInteger extensionBytesHash = [_extensionBytes hash];
+  return logMapIDHash ^ _logTarget ^ extensionBytesHash ^ _qosTier ^ timeHash;
 }
 
 - (void)setExtension:(id<GDLLogProto>)extension {
@@ -73,14 +75,8 @@ static NSString *extensionBytesKey = @"_extensionBytes";
 /** NSCoding key for qosTier property. */
 static NSString *qosTierKey = @"_qosTier";
 
-/** NSCoding key for clockSnapshot.timeMillis property. */
-static NSString *clockSnapshotTimeMillisKey = @"_clockSnapshotTimeMillis";
-
-/** NSCoding key for clockSnapshot.uptimeMillis property. */
-static NSString *clockSnapshotUpTimeMillis = @"_clockSnapshotUpTimeMillis";
-
-/** NSCoding key for clockSnapshot.timezoneOffsetMillis property. */
-static NSString *clockSnapshotTimezoneOffsetMillis = @"_clockSnapshotTimezoneOffsetMillis";
+/** NSCoding key for clockSnapshot property. */
+static NSString *clockSnapshotKey = @"_clockSnapshot";
 
 + (BOOL)supportsSecureCoding {
   return YES;
@@ -93,10 +89,7 @@ static NSString *clockSnapshotTimezoneOffsetMillis = @"_clockSnapshotTimezoneOff
   if (self) {
     _extensionBytes = [aDecoder decodeObjectOfClass:[NSData class] forKey:extensionBytesKey];
     _qosTier = [aDecoder decodeIntegerForKey:qosTierKey];
-    _clockSnapshot.timeMillis = [aDecoder decodeInt64ForKey:clockSnapshotTimeMillisKey];
-    _clockSnapshot.uptimeMillis = [aDecoder decodeInt64ForKey:clockSnapshotUpTimeMillis];
-    _clockSnapshot.timezoneOffsetMillis =
-        [aDecoder decodeInt64ForKey:clockSnapshotTimezoneOffsetMillis];
+    _clockSnapshot = [aDecoder decodeObjectOfClass:[GDLClock class] forKey:clockSnapshotKey];
   }
   return self;
 }
@@ -106,9 +99,7 @@ static NSString *clockSnapshotTimezoneOffsetMillis = @"_clockSnapshotTimezoneOff
   [aCoder encodeInteger:_logTarget forKey:logTargetKey];
   [aCoder encodeObject:_extensionBytes forKey:extensionBytesKey];
   [aCoder encodeInteger:_qosTier forKey:qosTierKey];
-  [aCoder encodeInt64:_clockSnapshot.timeMillis forKey:clockSnapshotTimeMillisKey];
-  [aCoder encodeInt64:_clockSnapshot.uptimeMillis forKey:clockSnapshotUpTimeMillis];
-  [aCoder encodeInt64:_clockSnapshot.timezoneOffsetMillis forKey:clockSnapshotTimezoneOffsetMillis];
+  [aCoder encodeObject:_clockSnapshot forKey:clockSnapshotKey];
 }
 
 @end

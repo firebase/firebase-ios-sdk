@@ -35,7 +35,9 @@
 /** Tests NSKeyedArchiver encoding and decoding. */
 - (void)testArchiving {
   XCTAssertTrue([GDLLogEvent supportsSecureCoding]);
-  GDLLogClockSnapshot clockSnapshot = {10, 100, 1000};
+  GDLClock *clockSnapshot = [GDLClock snapshot];
+  int64_t timeMillis = clockSnapshot.timeMillis;
+  int64_t timezoneOffsetSeconds = clockSnapshot.timezoneOffsetSeconds;
   GDLLogEvent *logEvent = [[GDLLogEvent alloc] initWithLogMapID:@"testID" logTarget:42];
   logEvent.extensionBytes = [@"someData" dataUsingEncoding:NSUTF8StringEncoding];
   logEvent.qosTier = GDLLogQoSTelemetry;
@@ -52,9 +54,8 @@
   XCTAssertEqualObjects(decodedLogEvent.extensionBytes,
                         [@"someData" dataUsingEncoding:NSUTF8StringEncoding]);
   XCTAssertEqual(decodedLogEvent.qosTier, GDLLogQoSTelemetry);
-  XCTAssertEqual(decodedLogEvent.clockSnapshot.timeMillis, 10);
-  XCTAssertEqual(decodedLogEvent.clockSnapshot.uptimeMillis, 100);
-  XCTAssertEqual(decodedLogEvent.clockSnapshot.timezoneOffsetMillis, 1000);
+  XCTAssertEqual(decodedLogEvent.clockSnapshot.timeMillis, timeMillis);
+  XCTAssertEqual(decodedLogEvent.clockSnapshot.timezoneOffsetSeconds, timezoneOffsetSeconds);
 }
 
 @end
