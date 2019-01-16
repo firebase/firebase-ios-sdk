@@ -75,7 +75,6 @@ static int64_t UptimeInNanoseconds() {
 
 // TODO: Consider adding a 'trustedTime' property that can be populated by the response from a BE.
 @implementation GDLClock {
-
   /** The kernel boot time when this clock was created. */
   int64_t _kernelBootTime;
 
@@ -148,7 +147,8 @@ static NSString *const kGDLClockUptime = @"GDLClockUptime";
 - (instancetype)initWithCoder:(NSCoder *)aDecoder {
   self = [super init];
   if (self) {
-    // TODO: If the kernelBootTime is more recent, we need to change the kernel boot time and uptimeMillis ivars
+    // TODO: If the kernelBootTime is more recent, we need to change the kernel boot time and
+    // uptimeMillis ivars
     _timeMillis = [aDecoder decodeInt64ForKey:kGDLClockTimeMillisKey];
     _timezoneOffsetSeconds = [aDecoder decodeInt64ForKey:kGDLClockTimezoneOffsetSeconds];
     _kernelBootTime = [aDecoder decodeInt64ForKey:kGDLClockKernelBootTime];
