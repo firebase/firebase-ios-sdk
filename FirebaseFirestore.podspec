@@ -48,13 +48,9 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   ]
   s.public_header_files = 'Firestore/Source/Public/*.h'
 
-  # TODO(varconst): remove once https://github.com/grpc/grpc/pull/16962 makes it
-  # into a release.
-  s.resource_bundles = { 'gRPCCertificates-Firestore' => ['Firestore/etc/roots.pem'] }
-
   s.dependency 'FirebaseAuthInterop', '~> 1.0'
   s.dependency 'FirebaseCore', '~> 5.2'
-  s.dependency 'gRPC-C++', '0.0.5'
+  s.dependency 'gRPC-C++', '0.0.6'
   s.dependency 'leveldb-library', '~> 1.20'
   s.dependency 'Protobuf', '~> 3.1'
   s.dependency 'nanopb', '~> 0.3.901'
