@@ -63,8 +63,8 @@ namespace remote {
  * `Datastore` is generally not responsible for understanding the higher-level
  * protocol involved in actually making changes or reading data, and aside from
  * the connections it manages is otherwise stateless.
-
- * All the virtual methods exist only for the sake of tests.
+ *
+ * This class is only intended to be inherited from by test mocks.
  */
 class Datastore : public std::enable_shared_from_this<Datastore> {
  public:

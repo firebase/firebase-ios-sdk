@@ -314,6 +314,9 @@ bool Datastore::IsAbortedError(const Status& error) {
 
 bool Datastore::IsPermanentError(const Status& error) {
   switch (error.code()) {
+    case FirestoreErrorCode::Ok:
+      HARD_FAIL("Treated status OK as error");
+      return true;
     case FirestoreErrorCode::Cancelled:
     case FirestoreErrorCode::Unknown:
     case FirestoreErrorCode::DeadlineExceeded:
@@ -337,9 +340,10 @@ bool Datastore::IsPermanentError(const Status& error) {
     case FirestoreErrorCode::Unimplemented:
     case FirestoreErrorCode::DataLoss:
       return true;
-    default:
-      return true;
   }
+
+  HARD_FAIL("Unknown status code: %s", error.code());
+  UNREACHABLE();
 }
 
 bool Datastore::IsPermanentWriteError(const Status& error) {
