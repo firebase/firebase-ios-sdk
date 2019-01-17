@@ -23,8 +23,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** A convenient typedef to define the block to be called upon completion of an upload to the
  * backend.
+ *
+ * target: The log target that was uploading.
+ * nextUploadAttemptUTC: The desired next upload attempt time.
+ * uploadError: Populated with any upload error. If non-nil, a retry will be attempted.
  */
-typedef void (^GDLUploaderCompletionBlock)(GDLLogTarget target, GDLClock *nextUploadAttemptUTC, NSSet<NSURL *> *_Nullable successfulUploads);
+typedef void (^GDLUploaderCompletionBlock)(GDLLogTarget target,
+                                           GDLClock *nextUploadAttemptUTC,
+                                           NSError *_Nullable uploadError);
 
 /** This protocol defines the common interface for logging backend implementations. */
 @protocol GDLLogUploader <NSObject>

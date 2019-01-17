@@ -17,8 +17,8 @@
 #import <Foundation/Foundation.h>
 
 #import <GoogleDataLogger/GDLLogPrioritizer.h>
-#import <GoogleDataLogger/GDLLogUploader.h>
 #import <GoogleDataLogger/GDLLogTargets.h>
+#import <GoogleDataLogger/GDLLogUploader.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
