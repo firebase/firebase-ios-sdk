@@ -37,7 +37,7 @@ using util::StringFormat;
 NSString* FindPathToCertificatesFile() {
   // Certificates file might be present in either the gRPC-C++ bundle or (for
   // some projects) in the main bundle.
-  NSArray<NSBundle*>* bundles = @[
+  NSBundle* bundles[] = {
     // Try to load certificates bundled by gRPC-C++.
     [NSBundle bundleWithIdentifier:@"org.cocoapods.grpcpp"],
     // Users manually adding resources to the project may add the
@@ -45,23 +45,32 @@ NSString* FindPathToCertificatesFile() {
     // for unit tests of library projects, so it cannot fully substitute for
     // checking the framework bundle.
     [NSBundle mainBundle],
-  ];
+  };
 
-  for (NSBundle* bundle in bundles) {
+  // search for the roots.pem file in each of these resource locations
+  NSString* possibleResources[] = {
+    @"gRPCCertificates.bundle/roots",
+    @"gRPCCertificates-Firestore.bundle/roots",
+    @"roots"
+  };
+
+  for (NSBundle* bundle : bundles) {
     if (!bundle) {
       continue;
     }
 
-    NSString* path = [bundle pathForResource:@"gRPCCertificates.bundle/roots"
-                                      ofType:@"pem"];
-    if (path) {
-      LOG_DEBUG("roots.pem found in bundle %s", [bundle bundleIdentifier]);
-      return path;
-    } else {
-      LOG_DEBUG("roots.pem not found in bundle %s", [bundle bundleIdentifier]);
+    for (NSString* resource : possibleResources) {
+      NSString* path = [bundle pathForResource:resource ofType:@"pem"];
+      if (path) {
+        LOG_DEBUG("%s.pem found in bundle %s", resource,
+                  [bundle bundleIdentifier]);
+        return path;
+      } else {
+        LOG_DEBUG("%s.pem not found in bundle %s", resource,
+                  [bundle bundleIdentifier]);
+      }
     }
   }
-
   return nil;
 }
 
