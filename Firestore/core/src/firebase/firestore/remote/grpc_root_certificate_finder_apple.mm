@@ -37,17 +37,18 @@ using util::StringFormat;
 NSString* FindPathToCertificatesFile() {
   // Certificates file might be present in either the gRPC-C++ bundle or (for
   // some projects) in the main bundle.
-  NSArray<NSBundle*>* bundles = @[
-    // Try to load certificates bundled by gRPC-C++.
-    [NSBundle bundleWithIdentifier:@"org.cocoapods.grpcpp"],
-    // Users manually adding resources to the project may add the
-    // certificate to the main application bundle. Note that `mainBundle` is nil
-    // for unit tests of library projects, so it cannot fully substitute for
-    // checking the framework bundle.
-    [NSBundle mainBundle],
-  ];
+  NSBundle* bundles[] = {
+      // Try to load certificates bundled by gRPC-C++.
+      [NSBundle bundleWithIdentifier:@"org.cocoapods.grpcpp"],
+      // Users manually adding resources to the project may add the
+      // certificate to the main application bundle. Note that `mainBundle` is
+      // nil
+      // for unit tests of library projects, so it cannot fully substitute for
+      // checking the framework bundle.
+      [NSBundle mainBundle],
+  };
 
-  for (NSBundle* bundle in bundles) {
+  for (NSBundle* bundle : bundles) {
     if (!bundle) {
       continue;
     }
