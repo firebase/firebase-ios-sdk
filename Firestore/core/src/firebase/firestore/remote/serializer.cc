@@ -510,12 +510,13 @@ google_firestore_v1_Write Serializer::EncodeMutation(
   }
 
   switch (mutation.type()) {
-    case Mutation::Type::kSet:
+    case Mutation::Type::kSet: {
       result.which_operation = google_firestore_v1_Write_update_tag;
       result.update = EncodeDocument(
           mutation.key(),
           static_cast<const SetMutation&>(mutation).value().object_value());
       return result;
+    }
 
     case Mutation::Type::kPatch: {
       result.which_operation = google_firestore_v1_Write_update_tag;
@@ -545,10 +546,11 @@ google_firestore_v1_Write Serializer::EncodeMutation(
         return result;
       */
 
-    case Mutation::Type::kDelete:
+    case Mutation::Type::kDelete: {
       result.which_operation = google_firestore_v1_Write_delete_tag;
       result.delete_ = EncodeString(EncodeKey(mutation.key()));
       return result;
+    }
   }
 
   UNREACHABLE();
@@ -561,19 +563,13 @@ std::unique_ptr<model::Mutation> Serializer::DecodeMutation(
 
   switch (mutation.which_operation) {
     case google_firestore_v1_Write_update_tag: {
+      DocumentKey key = DecodeKey(reader, DecodeString(mutation.update.name));
+      FieldValue value = FieldValue::FromMap(DecodeFields(reader, mutation.update.fields_count, mutation.update.fields));
       FieldMask mask = DecodeDocumentMask(mutation.update_mask);
       if (mask.size() > 0) {
-        return absl::make_unique<PatchMutation>(
-            DecodeKey(reader, DecodeString(mutation.update.name)),
-            FieldValue::FromMap(DecodeFields(
-                reader, mutation.update.fields_count, mutation.update.fields)),
-            DecodeDocumentMask(mutation.update_mask), std::move(precondition));
+        return absl::make_unique<PatchMutation>(std::move(key), std::move(value), std::move(mask), std::move(precondition));
       } else {
-        return absl::make_unique<SetMutation>(
-            DecodeKey(reader, DecodeString(mutation.update.name)),
-            FieldValue::FromMap(DecodeFields(
-                reader, mutation.update.fields_count, mutation.update.fields)),
-            std::move(precondition));
+        return absl::make_unique<SetMutation>(std::move(key), std::move(value), std::move(precondition));
       }
       UNREACHABLE();
     }
@@ -612,7 +608,7 @@ std::unique_ptr<model::Mutation> Serializer::DecodeMutation(
 /* static */
 google_firestore_v1_Precondition Serializer::EncodePrecondition(
     const Precondition& precondition) {
-  google_firestore_v1_Precondition result;
+  google_firestore_v1_Precondition result{};
 
   switch (precondition.type()) {
     case Precondition::Type::None:
@@ -666,7 +662,7 @@ Precondition Serializer::DecodePrecondition(
 /* static */
 google_firestore_v1_DocumentMask Serializer::EncodeDocumentMask(
     const FieldMask& mask) {
-  google_firestore_v1_DocumentMask result;
+  google_firestore_v1_DocumentMask result{};
 
   size_t count = mask.size();
   HARD_ASSERT(count <= std::numeric_limits<pb_size_t>::max(),
@@ -688,10 +684,10 @@ model::FieldMask Serializer::DecodeDocumentMask(
     const google_firestore_v1_DocumentMask& mask) {
   std::set<FieldPath> fields;
   for (size_t i = 0; i < mask.field_paths_count; i++) {
-    fields.insert(
-        FieldPath::FromServerFormat(DecodeString(mask.field_paths[i])));
+    auto path = DecodeString(mask.field_paths[i]);
+    fields.insert(FieldPath::FromServerFormat(path));
   }
-  return model::FieldMask(fields);
+  return model::FieldMask(std::move(fields));
 }
 
 google_firestore_v1_Target_QueryTarget Serializer::EncodeQueryTarget(

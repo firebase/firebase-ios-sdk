@@ -128,7 +128,7 @@ class MutationResult {
 class Mutation {
  public:
   /**
-   * Represents the mutation type. This is used to provide RTTI for mutations.
+   * Represents the mutation type. This is used in place of dynamic_cast.
    */
   enum class Type { kSet, kPatch, kDelete };
 
@@ -186,9 +186,7 @@ class Mutation {
       const MaybeDocument* base_doc,
       const Timestamp& local_write_time) const = 0;
 
-  friend bool operator==(const Mutation& lhs, const Mutation& rhs) {
-    return lhs.equal_to(rhs);
-  }
+  friend bool operator==(const Mutation& lhs, const Mutation& rhs);
 
  protected:
   Mutation(DocumentKey&& key, Precondition&& precondition);
@@ -203,6 +201,10 @@ class Mutation {
   const DocumentKey key_;
   const Precondition precondition_;
 };
+
+inline bool operator==(const Mutation& lhs, const Mutation& rhs) {
+  return lhs.equal_to(rhs);
+}
 
 inline bool operator!=(const Mutation& lhs, const Mutation& rhs) {
   return !(lhs == rhs);
