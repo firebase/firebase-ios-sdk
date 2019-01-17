@@ -55,12 +55,10 @@ NSString* FindPathToCertificatesFile() {
     NSString* path = [bundle pathForResource:@"gRPCCertificates.bundle/roots"
                                       ofType:@"pem"];
     if (path) {
-      LOG_DEBUG("roots.pem found in bundle %s",
-                [bundle bundleIdentifier]);
+      LOG_DEBUG("roots.pem found in bundle %s", [bundle bundleIdentifier]);
       return path;
     } else {
-      LOG_DEBUG("roots.pem not found in bundle %s",
-                [bundle bundleIdentifier]);
+      LOG_DEBUG("roots.pem not found in bundle %s", [bundle bundleIdentifier]);
     }
   }
 
