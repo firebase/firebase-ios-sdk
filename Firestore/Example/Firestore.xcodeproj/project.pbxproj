@@ -227,9 +227,7 @@
 		DAFF0CFB21E64AC40062958F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DAFF0CFA21E64AC40062958F /* Assets.xcassets */; };
 		DAFF0CFE21E64AC40062958F /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = DAFF0CFC21E64AC40062958F /* MainMenu.xib */; };
 		DAFF0D0121E64AC40062958F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = DAFF0D0021E64AC40062958F /* main.m */; };
-		DAFF0D0821E653460062958F /* roots.pem in Resources */ = {isa = PBXBuildFile; fileRef = DAFF0D0721E653460062958F /* roots.pem */; };
 		DAFF0D0921E653A00062958F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 54D400D32148BACE001D2BCC /* GoogleService-Info.plist */; };
-		DAFF0D0A21E653AD0062958F /* roots.pem in Resources */ = {isa = PBXBuildFile; fileRef = DAFF0D0721E653460062958F /* roots.pem */; };
 		DD213F68A6F79E1D4924BD95 /* Pods_macOS_example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E42355285B9EF55ABD785792 /* Pods_macOS_example.framework */; };
 		DD5976A45071455FF3FE74B8 /* string_win_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 79507DF8378D3C42F5B36268 /* string_win_test.cc */; };
 		DE03B2D41F2149D600A30B9C /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F5AF195388D20070C39A /* XCTest.framework */; };
@@ -1551,7 +1549,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DAFF0D0821E653460062958F /* roots.pem in Resources */,
 				54D400D42148BACE001D2BCC /* GoogleService-Info.plist in Resources */,
 				6003F5A9195388D20070C39A /* Images.xcassets in Resources */,
 				873B8AEB1B1F5CCA007FD442 /* Main.storyboard in Resources */,
@@ -1592,7 +1589,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DAFF0D0A21E653AD0062958F /* roots.pem in Resources */,
 				DAFF0D0921E653A00062958F /* GoogleService-Info.plist in Resources */,
 				DAFF0CFB21E64AC40062958F /* Assets.xcassets in Resources */,
 				DAFF0CFE21E64AC40062958F /* MainMenu.xib in Resources */,
