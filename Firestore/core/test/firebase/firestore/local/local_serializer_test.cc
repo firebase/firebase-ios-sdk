@@ -87,47 +87,17 @@ class LocalSerializerTest : public ::testing::Test {
   remote::Serializer remote_serializer;
   local::LocalSerializer serializer;
 
-  void ExpectRoundTrip(const MaybeDocument& model,
-                       const ::firestore::client::MaybeDocument& proto,
-                       MaybeDocument::Type type) {
+  template <typename ...Args>
+  void ExpectRoundTrip(const Args& ...args) {
     // First, serialize model with our (nanopb based) serializer, then
     // deserialize the resulting bytes with libprotobuf and ensure the result is
     // the same as the expected proto.
-    ExpectSerializationRoundTrip(model, proto, type);
+    ExpectSerializationRoundTrip(args...);
 
     // Next, serialize proto with libprotobuf, then deserialize the resulting
     // bytes with our (nanopb based) deserializer and ensure the result is the
     // same as the expected model.
-    ExpectDeserializationRoundTrip(model, proto, type);
-  }
-
-  void ExpectRoundTrip(const QueryData& query_data,
-                       const ::firestore::client::Target& proto) {
-    // First, serialize model with our (nanopb based) serializer, then
-    // deserialize the resulting bytes with libprotobuf and ensure the result is
-    // the same as the expected proto.
-    ExpectSerializationRoundTrip(query_data, proto);
-
-    // Next, serialize proto with libprotobuf, then deserialize the resulting
-    // bytes with our (nanopb based) deserializer and ensure the result is the
-    // same as the expected model.
-    ExpectDeserializationRoundTrip(query_data, proto);
-  }
-
-  void ExpectRoundTrip(const MutationBatch& model,
-                       const ::firestore::client::WriteBatch& proto) {
-    // TODO(rsgowman): Refactor this (and other ExpectRoundTrip methods).
-    // Similar to the remote serializer test.
-
-    // First, serialize model with our (nanopb based) serializer, then
-    // deserialize the resulting bytes with libprotobuf and ensure the result is
-    // the same as the expected proto.
-    ExpectSerializationRoundTrip(model, proto);
-
-    // Next, serialize proto with libprotobuf, then deserialize the resulting
-    // bytes with our (nanopb based) deserializer and ensure the result is the
-    // same as the expected model.
-    ExpectDeserializationRoundTrip(model, proto);
+    ExpectDeserializationRoundTrip(args...);
   }
 
   /**

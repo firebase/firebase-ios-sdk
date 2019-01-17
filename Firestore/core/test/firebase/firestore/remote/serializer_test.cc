@@ -96,26 +96,17 @@ class SerializerTest : public ::testing::Test {
   const DatabaseId kDatabaseId{"p", "d"};
   Serializer serializer;
 
-  void ExpectRoundTrip(const FieldValue& model,
-                       const v1::Value& proto,
-                       FieldValue::Type type) {
+  template <typename ...Args>
+  void ExpectRoundTrip(const Args& ...args) {
     // First, serialize model with our (nanopb based) serializer, then
     // deserialize the resulting bytes with libprotobuf and ensure the result is
     // the same as the expected proto.
-    ExpectSerializationRoundTrip(model, proto, type);
+    ExpectSerializationRoundTrip(args...);
 
     // Next, serialize proto with libprotobuf, then deserialize the resulting
     // bytes with our (nanopb based) deserializer and ensure the result is the
     // same as the expected model.
-    ExpectDeserializationRoundTrip(model, proto, type);
-  }
-
-  void ExpectRoundTrip(const DocumentKey& key,
-                       const FieldValue& value,
-                       const SnapshotVersion& update_time,
-                       const v1::BatchGetDocumentsResponse& proto) {
-    ExpectSerializationRoundTrip(key, value, update_time, proto);
-    ExpectDeserializationRoundTrip(key, value, update_time, proto);
+    ExpectDeserializationRoundTrip(args...);
   }
 
   void ExpectNoDocumentDeserializationRoundTrip(
