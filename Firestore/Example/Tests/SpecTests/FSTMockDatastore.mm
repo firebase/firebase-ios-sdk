@@ -58,6 +58,7 @@ using firebase::firestore::remote::WatchStream;
 using firebase::firestore::remote::WriteStream;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::CreateNoOpConnectivityMonitor;
+using firebase::firestore::util::Status;
 
 namespace firebase {
 namespace firestore {
@@ -116,7 +117,7 @@ class MockWatchStream : public WatchStream {
     [active_targets_ removeObjectForKey:@(target_id)];
   }
 
-  void FailStream(NSError* error) {
+  void FailStream(const Status& error) {
     open_ = false;
     [delegate_ watchStreamWasInterruptedWithError:error];
   }
@@ -207,7 +208,7 @@ class MockWriteStream : public WriteStream {
   }
 
   /** Injects a failed write response as though it had come from the backend. */
-  void FailStream(NSError* error) {
+  void FailStream(const Status& error) {
     open_ = false;
     [delegate_ writeStreamWasInterruptedWithError:error];
   }
@@ -269,7 +270,7 @@ void MockDatastore::WriteWatchChange(FSTWatchChange* change, const SnapshotVersi
   watch_stream_->WriteWatchChange(change, snap);
 }
 
-void MockDatastore::FailWatchStream(NSError* error) {
+void MockDatastore::FailWatchStream(const Status& error) {
   watch_stream_->FailStream(error);
 }
 
@@ -293,7 +294,7 @@ void MockDatastore::AckWrite(const SnapshotVersion& version, NSArray<FSTMutation
   write_stream_->AckWrite(version, results);
 }
 
-void MockDatastore::FailWrite(NSError* _Nullable error) {
+void MockDatastore::FailWrite(const Status& error) {
   write_stream_->FailStream(error);
 }
 

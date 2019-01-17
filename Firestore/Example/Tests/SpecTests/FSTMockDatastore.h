@@ -21,6 +21,7 @@
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -65,7 +66,7 @@ class MockDatastore : public Datastore {
   /** Injects a WatchChange as though it had come from the backend. */
   void WriteWatchChange(FSTWatchChange* change, const model::SnapshotVersion& snap);
   /** Injects a stream failure as though it had come from the backend. */
-  void FailWatchStream(NSError* error);
+  void FailWatchStream(const util::Status& error);
 
   /** Returns the set of active targets on the watch stream. */
   NSDictionary<FSTBoxedTargetID*, FSTQueryData*>* ActiveTargets() const;
@@ -83,7 +84,7 @@ class MockDatastore : public Datastore {
   void AckWrite(const model::SnapshotVersion& version, NSArray<FSTMutationResult*>* results);
 
   /** Injects a stream failure as though it had come from the backend. */
-  void FailWrite(NSError* _Nullable error);
+  void FailWrite(const util::Status& error);
 
  private:
   // These are all passed to the base class; however, making `MockDatastore` store the pointers

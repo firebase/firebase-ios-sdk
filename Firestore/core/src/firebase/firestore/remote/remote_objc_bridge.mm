@@ -312,7 +312,7 @@ void WatchStreamDelegate::NotifyDelegateOnChange(
 }
 
 void WatchStreamDelegate::NotifyDelegateOnClose(const Status& status) {
-  [delegate_ watchStreamWasInterruptedWithError:MakeNSError(status)];
+  [delegate_ watchStreamWasInterruptedWithError:status];
 }
 
 // WriteStreamDelegate
@@ -333,7 +333,7 @@ void WriteStreamDelegate::NotifyDelegateOnCommit(
 }
 
 void WriteStreamDelegate::NotifyDelegateOnClose(const Status& status) {
-  [delegate_ writeStreamWasInterruptedWithError:MakeNSError(status)];
+  [delegate_ writeStreamWasInterruptedWithError:status];
 }
 
 }  // namespace bridge
