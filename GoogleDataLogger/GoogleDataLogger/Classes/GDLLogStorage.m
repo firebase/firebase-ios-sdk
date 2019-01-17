@@ -125,7 +125,7 @@ static NSString *GDLStoragePath() {
 }
 
 - (void)removeLogs:(NSSet<NSNumber *> *)logHashes logTarget:(NSNumber *)logTarget {
-  dispatch_async(_storageQueue, ^{
+  dispatch_sync(_storageQueue, ^{
     for (NSNumber *logHash in logHashes) {
       [self removeLog:logHash logTarget:logTarget];
     }
