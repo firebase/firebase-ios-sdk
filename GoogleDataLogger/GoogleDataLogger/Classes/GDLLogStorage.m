@@ -56,7 +56,7 @@ static NSString *GDLStoragePath() {
   if (self) {
     _storageQueue = dispatch_queue_create("com.google.GDLLogStorage", DISPATCH_QUEUE_SERIAL);
     _logHashToLogFile = [[NSMutableDictionary alloc] init];
-    _logTargetToLogFileSet = [[NSMutableDictionary alloc] init];
+    _logTargetToLogHashSet = [[NSMutableDictionary alloc] init];
     _uploader = [GDLUploadCoordinator sharedInstance];
   }
   return self;
@@ -90,7 +90,7 @@ static NSString *GDLStoragePath() {
 
     // Check the QoS, if it's high priority, notify the log target that it has a high priority log.
     if (shortLivedLog.qosTier == GDLLogQoSFast) {
-      NSSet<NSURL *> *allLogsForLogTarget = self.logTargetToLogFileSet[@(logTarget)];
+      NSSet<NSNumber *> *allLogsForLogTarget = self.logTargetToLogHashSet[@(logTarget)];
       [self.uploader forceUploadLogs:allLogsForLogTarget target:logTarget];
     }
 
@@ -117,11 +117,31 @@ static NSString *GDLStoragePath() {
 
     // Remove from the tracking collections.
     [self.logHashToLogFile removeObjectForKey:logHash];
-    NSMutableSet<NSURL *> *logFiles = self.logTargetToLogFileSet[logTarget];
-    GDLAssert(logFiles, @"There wasn't a logSet for this logTarget.");
-    [logFiles removeObject:logFile];
+    NSMutableSet<NSNumber *> *logHashes = self.logTargetToLogHashSet[logTarget];
+    GDLAssert(logHashes, @"There wasn't a logSet for this logTarget.");
+    [logHashes removeObject:logHash];
     // It's fine to not remove the set if it's empty.
   });
+}
+
+- (void)removeLogs:(NSSet<NSNumber *> *)logHashes logTarget:(NSNumber *)logTarget {
+  dispatch_sync(_storageQueue, ^{
+    for (NSNumber *logHash in logHashes) {
+      [self removeLog:logHash logTarget:logTarget];
+    }
+  });
+}
+
+- (NSSet<NSURL *> *)logHashesToFiles:(NSSet<NSNumber *> *)logHashes {
+  NSMutableSet<NSURL *> *logFiles = [[NSMutableSet alloc] init];
+  dispatch_sync(_storageQueue, ^{
+    for (NSNumber *hashNumber in logHashes) {
+      NSURL *logURL = self.logHashToLogFile[hashNumber];
+      GDLAssert(logURL, @"A log file URL couldn't be found for the given hash");
+      [logFiles addObject:logURL];
+    }
+  });
+  return logFiles;
 }
 
 #pragma mark - Private helper methods
@@ -170,13 +190,15 @@ static NSString *GDLStoragePath() {
  */
 - (void)addLogToTrackingCollections:(GDLLogEvent *)log logFile:(NSURL *)logFile {
   NSInteger logTarget = log.logTarget;
-  self.logHashToLogFile[@(log.hash)] = logFile;
-  NSMutableSet<NSURL *> *logs = self.logTargetToLogFileSet[@(logTarget)];
+  NSNumber *logHash = @(log.hash);
+  NSNumber *logTargetNumber = @(logTarget);
+  self.logHashToLogFile[logHash] = logFile;
+  NSMutableSet<NSNumber *> *logs = self.logTargetToLogHashSet[logTargetNumber];
   if (logs) {
-    [logs addObject:logFile];
+    [logs addObject:logHash];
   } else {
-    NSMutableSet<NSURL *> *logSet = [NSMutableSet setWithObject:logFile];
-    self.logTargetToLogFileSet[@(logTarget)] = logSet;
+    NSMutableSet<NSNumber *> *logSet = [NSMutableSet setWithObject:logHash];
+    self.logTargetToLogHashSet[logTargetNumber] = logSet;
   }
 }
 
@@ -185,8 +207,8 @@ static NSString *GDLStoragePath() {
 /** The NSKeyedCoder key for the logHashToFile property. */
 static NSString *const kGDLLogHashToLogFileKey = @"logHashToLogFileKey";
 
-/** The NSKeyedCoder key for the logTargetToLogFileSet property. */
-static NSString *const kGDLLogTargetToLogSetKey = @"logTargetToLogFileSetKey";
+/** The NSKeyedCoder key for the logTargetToLogHashSet property. */
+static NSString *const kGDLLogTargetToLogHashSetKey = @"logTargetToLogHashSetKey";
 
 + (BOOL)supportsSecureCoding {
   return YES;
@@ -199,8 +221,8 @@ static NSString *const kGDLLogTargetToLogSetKey = @"logTargetToLogFileSetKey";
     Class NSMutableDictionaryClass = [NSMutableDictionary class];
     sharedInstance->_logHashToLogFile = [aDecoder decodeObjectOfClass:NSMutableDictionaryClass
                                                                forKey:kGDLLogHashToLogFileKey];
-    sharedInstance->_logTargetToLogFileSet =
-        [aDecoder decodeObjectOfClass:NSMutableDictionaryClass forKey:kGDLLogTargetToLogSetKey];
+    sharedInstance->_logTargetToLogHashSet =
+        [aDecoder decodeObjectOfClass:NSMutableDictionaryClass forKey:kGDLLogTargetToLogHashSetKey];
   });
   return sharedInstance;
 }
@@ -209,7 +231,8 @@ static NSString *const kGDLLogTargetToLogSetKey = @"logTargetToLogFileSetKey";
   GDLLogStorage *sharedInstance = [self.class sharedInstance];
   dispatch_sync(sharedInstance.storageQueue, ^{
     [aCoder encodeObject:sharedInstance->_logHashToLogFile forKey:kGDLLogHashToLogFileKey];
-    [aCoder encodeObject:sharedInstance->_logTargetToLogFileSet forKey:kGDLLogTargetToLogSetKey];
+    [aCoder encodeObject:sharedInstance->_logTargetToLogHashSet
+                  forKey:kGDLLogTargetToLogHashSetKey];
   });
 }
 

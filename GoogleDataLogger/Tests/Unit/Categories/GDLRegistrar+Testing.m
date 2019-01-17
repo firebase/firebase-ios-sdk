@@ -22,7 +22,7 @@
 
 - (void)reset {
   [self.logTargetToPrioritizer removeAllObjects];
-  [self.logTargetToBackend removeAllObjects];
+  [self.logTargetToUploader removeAllObjects];
 }
 
 @end

@@ -29,7 +29,7 @@
   return sharedUploader;
 }
 
-- (void)forceUploadLogs:(NSSet<NSURL *> *)logFiles target:(GDLLogTarget)logTarget {
+- (void)forceUploadLogs:(NSSet<NSNumber *> *)logHashes target:(GDLLogTarget)logTarget {
   // Ask the prioritizer of the target for some logs
 }
 

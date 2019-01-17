@@ -33,8 +33,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Forces the backend specified by the target to upload the provided set of logs. This should only
  * ever happen when the QoS tier of a log requires it.
+ *
+ * @param logHashes The set of log hashes to force upload.
+ * @param logTarget The log target that should force an upload.
  */
-- (void)forceUploadLogs:(NSSet<NSURL *> *)logFiles target:(GDLLogTarget)logTarget;
+- (void)forceUploadLogs:(NSSet<NSNumber *> *)logHashes target:(GDLLogTarget)logTarget;
 
 @end
 

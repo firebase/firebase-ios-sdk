@@ -16,13 +16,21 @@
 
 #import <Foundation/Foundation.h>
 
+#import <GoogleDataLogger/GDLClock.h>
+#import <GoogleDataLogger/GDLLogTargets.h>
+
 NS_ASSUME_NONNULL_BEGIN
 
 /** A convenient typedef to define the block to be called upon completion of an upload to the
  * backend.
+ *
+ * target: The log target that was uploading.
+ * nextUploadAttemptUTC: The desired next upload attempt time.
+ * uploadError: Populated with any upload error. If non-nil, a retry will be attempted.
  */
-typedef void (^GDLBackendCompletionBlock)(NSSet<NSURL *> *_Nullable successfulUploads,
-                                          NSSet<NSURL *> *_Nullable unsuccessfulUploads);
+typedef void (^GDLUploaderCompletionBlock)(GDLLogTarget target,
+                                           GDLClock *nextUploadAttemptUTC,
+                                           NSError *_Nullable uploadError);
 
 /** This protocol defines the common interface for logging backend implementations. */
 @protocol GDLLogUploader <NSObject>
@@ -36,7 +44,7 @@ typedef void (^GDLBackendCompletionBlock)(NSSet<NSURL *> *_Nullable successfulUp
  *   - successfulUploads: The set of filenames uploaded successfully.
  *   - unsuccessfulUploads: The set of filenames not uploaded successfully.
  */
-- (void)uploadLogs:(NSSet<NSURL *> *)logFiles onComplete:(GDLBackendCompletionBlock)onComplete;
+- (void)uploadLogs:(NSSet<NSURL *> *)logFiles onComplete:(GDLUploaderCompletionBlock)onComplete;
 
 @end
 

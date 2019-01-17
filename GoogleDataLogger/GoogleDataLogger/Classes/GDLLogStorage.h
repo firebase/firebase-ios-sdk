@@ -45,6 +45,20 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)removeLog:(NSNumber *)logHash logTarget:(NSNumber *)logTarget;
 
+/** Removes a set of log fields specified by their filenames.
+ *
+ * @param logHashes The set of log files to remove.
+ * @param logTarget The log target the log files correspond to.
+ */
+- (void)removeLogs:(NSSet<NSNumber *> *)logHashes logTarget:(NSNumber *)logTarget;
+
+/** Converts a set of log hashes to a set of log files.
+ *
+ * @param logHashes A set of log hashes to get the files of.
+ * @return A set of equivalent length, containing all the filenames corresponding to the hashes.
+ */
+- (NSSet<NSURL *> *)logHashesToFiles:(NSSet<NSNumber *> *)logHashes;
+
 @end
 
 NS_ASSUME_NONNULL_END

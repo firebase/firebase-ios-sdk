@@ -87,7 +87,7 @@ static NSInteger logTarget = 1337;
   }
   dispatch_sync([GDLLogStorage sharedInstance].storageQueue, ^{
     XCTAssertEqual([GDLLogStorage sharedInstance].logHashToLogFile.count, 1);
-    XCTAssertEqual([GDLLogStorage sharedInstance].logTargetToLogFileSet[@(logTarget)].count, 1);
+    XCTAssertEqual([GDLLogStorage sharedInstance].logTargetToLogHashSet[@(logTarget)].count, 1);
     NSURL *logFile = [GDLLogStorage sharedInstance].logHashToLogFile[@(logHash)];
     XCTAssertNotNil(logFile);
     XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:logFile.path]);
@@ -116,7 +116,43 @@ static NSInteger logTarget = 1337;
   dispatch_sync([GDLLogStorage sharedInstance].storageQueue, ^{
     XCTAssertFalse([[NSFileManager defaultManager] fileExistsAtPath:logFile.path]);
     XCTAssertEqual([GDLLogStorage sharedInstance].logHashToLogFile.count, 0);
-    XCTAssertEqual([GDLLogStorage sharedInstance].logTargetToLogFileSet[@(logTarget)].count, 0);
+    XCTAssertEqual([GDLLogStorage sharedInstance].logTargetToLogHashSet[@(logTarget)].count, 0);
+  });
+}
+
+/** Tests removing a set of logs */
+- (void)testRemoveLogs {
+  GDLLogStorage *storage = [GDLLogStorage sharedInstance];
+  NSUInteger log1Hash, log2Hash, log3Hash;
+
+  // logEvents are autoreleased, and the pool needs to drain.
+  @autoreleasepool {
+    GDLLogEvent *logEvent = [[GDLLogEvent alloc] initWithLogMapID:@"404" logTarget:logTarget];
+    logEvent.extensionBytes = [@"testString1" dataUsingEncoding:NSUTF8StringEncoding];
+    log1Hash = logEvent.hash;
+    XCTAssertNoThrow([storage storeLog:logEvent]);
+
+    logEvent = [[GDLLogEvent alloc] initWithLogMapID:@"100" logTarget:logTarget];
+    logEvent.extensionBytes = [@"testString2" dataUsingEncoding:NSUTF8StringEncoding];
+    log2Hash = logEvent.hash;
+    XCTAssertNoThrow([storage storeLog:logEvent]);
+
+    logEvent = [[GDLLogEvent alloc] initWithLogMapID:@"404" logTarget:logTarget];
+    logEvent.extensionBytes = [@"testString3" dataUsingEncoding:NSUTF8StringEncoding];
+    log3Hash = logEvent.hash;
+    XCTAssertNoThrow([storage storeLog:logEvent]);
+  }
+  NSSet<NSNumber *> *logHashSet = [NSSet setWithObjects:@(log1Hash), @(log2Hash), @(log3Hash), nil];
+  NSSet<NSURL *> *logFiles = [storage logHashesToFiles:logHashSet];
+  [storage removeLogs:logHashSet logTarget:@(logTarget)];
+  dispatch_sync(storage.storageQueue, ^{
+    XCTAssertNil(storage.logHashToLogFile[@(log1Hash)]);
+    XCTAssertNil(storage.logHashToLogFile[@(log2Hash)]);
+    XCTAssertNil(storage.logHashToLogFile[@(log3Hash)]);
+    XCTAssertEqual(storage.logTargetToLogHashSet[@(logTarget)].count, 0);
+    for (NSURL *logFile in logFiles) {
+      XCTAssertFalse([[NSFileManager defaultManager] fileExistsAtPath:logFile.path]);
+    }
   });
 }
 
@@ -143,7 +179,7 @@ static NSInteger logTarget = 1337;
   }
   dispatch_sync([GDLLogStorage sharedInstance].storageQueue, ^{
     XCTAssertEqual([GDLLogStorage sharedInstance].logHashToLogFile.count, 3);
-    XCTAssertEqual([GDLLogStorage sharedInstance].logTargetToLogFileSet[@(logTarget)].count, 3);
+    XCTAssertEqual([GDLLogStorage sharedInstance].logTargetToLogHashSet[@(logTarget)].count, 3);
 
     NSURL *log1File = [GDLLogStorage sharedInstance].logHashToLogFile[@(log1Hash)];
     XCTAssertNotNil(log1File);
@@ -196,7 +232,7 @@ static NSInteger logTarget = 1337;
   dispatch_sync([GDLLogStorage sharedInstance].storageQueue, ^{
     XCTAssertFalse([[NSFileManager defaultManager] fileExistsAtPath:logFile.path]);
     XCTAssertEqual([GDLLogStorage sharedInstance].logHashToLogFile.count, 0);
-    XCTAssertEqual([GDLLogStorage sharedInstance].logTargetToLogFileSet[@(logTarget)].count, 0);
+    XCTAssertEqual([GDLLogStorage sharedInstance].logTargetToLogHashSet[@(logTarget)].count, 0);
   });
 }
 
@@ -237,13 +273,45 @@ static NSInteger logTarget = 1337;
   dispatch_sync([GDLLogStorage sharedInstance].storageQueue, ^{
     XCTAssertTrue(self.uploaderFake.forceUploadCalled);
     XCTAssertEqual([GDLLogStorage sharedInstance].logHashToLogFile.count, 1);
-    XCTAssertEqual([GDLLogStorage sharedInstance].logTargetToLogFileSet[@(logTarget)].count, 1);
+    XCTAssertEqual([GDLLogStorage sharedInstance].logTargetToLogHashSet[@(logTarget)].count, 1);
     NSURL *logFile = [GDLLogStorage sharedInstance].logHashToLogFile[@(logHash)];
     XCTAssertNotNil(logFile);
     XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:logFile.path]);
     NSError *error;
     XCTAssertTrue([[NSFileManager defaultManager] removeItemAtURL:logFile error:&error]);
     XCTAssertNil(error, @"There was an error deleting the logFile: %@", error);
+  });
+}
+
+/** Tests convert a set of log hashes to a set of log file URLS. */
+- (void)testLogHashesToFiles {
+  GDLLogStorage *storage = [GDLLogStorage sharedInstance];
+  NSUInteger log1Hash, log2Hash, log3Hash;
+
+  // logEvents are autoreleased, and the pool needs to drain.
+  @autoreleasepool {
+    GDLLogEvent *logEvent = [[GDLLogEvent alloc] initWithLogMapID:@"404" logTarget:logTarget];
+    logEvent.extensionBytes = [@"testString1" dataUsingEncoding:NSUTF8StringEncoding];
+    log1Hash = logEvent.hash;
+    XCTAssertNoThrow([storage storeLog:logEvent]);
+
+    logEvent = [[GDLLogEvent alloc] initWithLogMapID:@"100" logTarget:logTarget];
+    logEvent.extensionBytes = [@"testString2" dataUsingEncoding:NSUTF8StringEncoding];
+    log2Hash = logEvent.hash;
+    XCTAssertNoThrow([storage storeLog:logEvent]);
+
+    logEvent = [[GDLLogEvent alloc] initWithLogMapID:@"404" logTarget:logTarget];
+    logEvent.extensionBytes = [@"testString3" dataUsingEncoding:NSUTF8StringEncoding];
+    log3Hash = logEvent.hash;
+    XCTAssertNoThrow([storage storeLog:logEvent]);
+  }
+  NSSet<NSNumber *> *logHashSet = [NSSet setWithObjects:@(log1Hash), @(log2Hash), @(log3Hash), nil];
+  NSSet<NSURL *> *logFiles = [storage logHashesToFiles:logHashSet];
+  dispatch_sync(storage.storageQueue, ^{
+    XCTAssertEqual(logFiles.count, 3);
+    XCTAssertTrue([logFiles containsObject:storage.logHashToLogFile[@(log1Hash)]]);
+    XCTAssertTrue([logFiles containsObject:storage.logHashToLogFile[@(log2Hash)]]);
+    XCTAssertTrue([logFiles containsObject:storage.logHashToLogFile[@(log3Hash)]]);
   });
 }
 
