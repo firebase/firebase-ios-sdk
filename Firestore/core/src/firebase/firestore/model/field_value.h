@@ -46,18 +46,7 @@ struct ReferenceValue {
   const DatabaseId* database_id;
 };
 
-// TODO(rsgowman): Expand this to roughly match the java class
-// c.g.f.f.model.value.ObjectValue. Probably move it to a similar namespace as
-// well. (FieldValue itself is also in the value package in java.) Also do the
-// same with the other FooValue values that FieldValue can return.
-class FieldValue;
-struct ObjectValue {
-  // TODO(rsgowman): These will eventually be private. We do want the serializer
-  // to be able to directly access these (possibly implying 'friend' usage, or a
-  // getInternalValue() like java has.)
-  using Map = std::map<std::string, FieldValue>;
-  Map internal_value;
-};
+struct ObjectValue;
 
 /**
  * tagged-union class representing an immutable data value as stored in
@@ -193,8 +182,8 @@ class FieldValue {
   static FieldValue FromGeoPoint(const GeoPoint& value);
   static FieldValue FromArray(const std::vector<FieldValue>& value);
   static FieldValue FromArray(std::vector<FieldValue>&& value);
-  static FieldValue FromMap(const ObjectValue::Map& value);
-  static FieldValue FromMap(ObjectValue::Map&& value);
+  static FieldValue FromMap(const std::map<std::string, FieldValue>& value);
+  static FieldValue FromMap(std::map<std::string, FieldValue>&& value);
 
   friend bool operator<(const FieldValue& lhs, const FieldValue& rhs);
 
@@ -223,6 +212,18 @@ class FieldValue {
     std::unique_ptr<std::vector<FieldValue>> array_value_;
     std::unique_ptr<ObjectValue> object_value_;
   };
+};
+
+// TODO(rsgowman): Expand this to roughly match the java class
+// c.g.f.f.model.value.ObjectValue. Probably move it to a similar namespace as
+// well. (FieldValue itself is also in the value package in java.) Also do the
+// same with the other FooValue values that FieldValue can return.
+struct ObjectValue {
+  // TODO(rsgowman): These will eventually be private. We do want the serializer
+  // to be able to directly access these (possibly implying 'friend' usage, or a
+  // getInternalValue() like java has.)
+  using Map = std::map<std::string, FieldValue>;
+  Map internal_value;
 };
 
 /** Compares against another FieldValue. */
