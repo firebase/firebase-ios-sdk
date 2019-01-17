@@ -197,7 +197,7 @@ jobs:
       script:
         # Eliminate the one warning from BoringSSL when CocoaPods 1.6.0 is available.
         # The travis_wait is necessary because the command takes more than 10 minutes.
-        - travis_wait ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseFirestore.podspec --allow-warnings --no-subspecs
+        - travis_wait 45 ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseFirestore.podspec --allow-warnings --no-subspecs
 
     # Community-supported platforms
 
