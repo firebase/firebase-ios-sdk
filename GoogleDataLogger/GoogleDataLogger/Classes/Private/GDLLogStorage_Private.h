@@ -28,7 +28,7 @@
 
 /** A map of logTargets to a set of log hash values. */
 @property(nonatomic)
-    NSMutableDictionary<NSNumber *, NSMutableSet<NSURL *> *> *logTargetToLogFileSet;
+    NSMutableDictionary<NSNumber *, NSMutableSet<NSNumber *> *> *logTargetToLogHashSet;
 
 /** The log uploader instance to use. */
 @property(nonatomic) GDLUploadCoordinator *uploader;

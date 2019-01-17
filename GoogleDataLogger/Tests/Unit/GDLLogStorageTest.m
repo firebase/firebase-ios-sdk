@@ -87,7 +87,7 @@ static NSInteger logTarget = 1337;
   }
   dispatch_sync([GDLLogStorage sharedInstance].storageQueue, ^{
     XCTAssertEqual([GDLLogStorage sharedInstance].logHashToLogFile.count, 1);
-    XCTAssertEqual([GDLLogStorage sharedInstance].logTargetToLogFileSet[@(logTarget)].count, 1);
+    XCTAssertEqual([GDLLogStorage sharedInstance].logTargetToLogHashSet[@(logTarget)].count, 1);
     NSURL *logFile = [GDLLogStorage sharedInstance].logHashToLogFile[@(logHash)];
     XCTAssertNotNil(logFile);
     XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:logFile.path]);
@@ -116,7 +116,7 @@ static NSInteger logTarget = 1337;
   dispatch_sync([GDLLogStorage sharedInstance].storageQueue, ^{
     XCTAssertFalse([[NSFileManager defaultManager] fileExistsAtPath:logFile.path]);
     XCTAssertEqual([GDLLogStorage sharedInstance].logHashToLogFile.count, 0);
-    XCTAssertEqual([GDLLogStorage sharedInstance].logTargetToLogFileSet[@(logTarget)].count, 0);
+    XCTAssertEqual([GDLLogStorage sharedInstance].logTargetToLogHashSet[@(logTarget)].count, 0);
   });
 }
 
@@ -143,7 +143,7 @@ static NSInteger logTarget = 1337;
   }
   dispatch_sync([GDLLogStorage sharedInstance].storageQueue, ^{
     XCTAssertEqual([GDLLogStorage sharedInstance].logHashToLogFile.count, 3);
-    XCTAssertEqual([GDLLogStorage sharedInstance].logTargetToLogFileSet[@(logTarget)].count, 3);
+    XCTAssertEqual([GDLLogStorage sharedInstance].logTargetToLogHashSet[@(logTarget)].count, 3);
 
     NSURL *log1File = [GDLLogStorage sharedInstance].logHashToLogFile[@(log1Hash)];
     XCTAssertNotNil(log1File);
@@ -196,7 +196,7 @@ static NSInteger logTarget = 1337;
   dispatch_sync([GDLLogStorage sharedInstance].storageQueue, ^{
     XCTAssertFalse([[NSFileManager defaultManager] fileExistsAtPath:logFile.path]);
     XCTAssertEqual([GDLLogStorage sharedInstance].logHashToLogFile.count, 0);
-    XCTAssertEqual([GDLLogStorage sharedInstance].logTargetToLogFileSet[@(logTarget)].count, 0);
+    XCTAssertEqual([GDLLogStorage sharedInstance].logTargetToLogHashSet[@(logTarget)].count, 0);
   });
 }
 
@@ -237,7 +237,7 @@ static NSInteger logTarget = 1337;
   dispatch_sync([GDLLogStorage sharedInstance].storageQueue, ^{
     XCTAssertTrue(self.uploaderFake.forceUploadCalled);
     XCTAssertEqual([GDLLogStorage sharedInstance].logHashToLogFile.count, 1);
-    XCTAssertEqual([GDLLogStorage sharedInstance].logTargetToLogFileSet[@(logTarget)].count, 1);
+    XCTAssertEqual([GDLLogStorage sharedInstance].logTargetToLogHashSet[@(logTarget)].count, 1);
     NSURL *logFile = [GDLLogStorage sharedInstance].logHashToLogFile[@(logHash)];
     XCTAssertNotNil(logFile);
     XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:logFile.path]);

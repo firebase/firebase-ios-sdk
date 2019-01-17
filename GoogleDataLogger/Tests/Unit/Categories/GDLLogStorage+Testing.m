@@ -20,7 +20,7 @@
 
 - (void)reset {
   dispatch_sync(self.storageQueue, ^{
-    [self.logTargetToLogFileSet removeAllObjects];
+    [self.logTargetToLogHashSet removeAllObjects];
     [self.logHashToLogFile removeAllObjects];
   });
 }
