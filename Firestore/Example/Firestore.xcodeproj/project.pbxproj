@@ -660,8 +660,8 @@
 		543B4F0520A91E4B001F506D /* App */ = {
 			isa = PBXGroup;
 			children = (
-				DAFF0CF621E64AC30062958F /* macOS_example */,
 				6003F593195388D20070C39A /* iOS */,
+				DAFF0CF621E64AC30062958F /* macOS_example */,
 				54D400D32148BACE001D2BCC /* GoogleService-Info.plist */,
 			);
 			path = App;
@@ -882,9 +882,9 @@
 				B79CA87A1A01FC5329031C9B /* Pods_Firestore_FuzzTests_iOS.framework */,
 				ECEBABC7E7B693BE808A1052 /* Pods_Firestore_IntegrationTests_iOS.framework */,
 				2B50B3A0DF77100EEE887891 /* Pods_Firestore_Tests_iOS.framework */,
+				E42355285B9EF55ABD785792 /* Pods_macOS_example.framework */,
 				6003F591195388D20070C39A /* UIKit.framework */,
 				6003F5AF195388D20070C39A /* XCTest.framework */,
-				E42355285B9EF55ABD785792 /* Pods_macOS_example.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -1111,10 +1111,10 @@
 				DAFF0CF721E64AC30062958F /* AppDelegate.h */,
 				DAFF0CF821E64AC30062958F /* AppDelegate.m */,
 				DAFF0CFA21E64AC40062958F /* Assets.xcassets */,
-				DAFF0CFC21E64AC40062958F /* MainMenu.xib */,
 				DAFF0CFF21E64AC40062958F /* Info.plist */,
-				DAFF0D0021E64AC40062958F /* main.m */,
+				DAFF0CFC21E64AC40062958F /* MainMenu.xib */,
 				DAFF0D0221E64AC40062958F /* macOS_example.entitlements */,
+				DAFF0D0021E64AC40062958F /* main.m */,
 			);
 			path = macOS_example;
 			sourceTree = "<group>";
@@ -1589,8 +1589,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DAFF0D0921E653A00062958F /* GoogleService-Info.plist in Resources */,
 				DAFF0CFB21E64AC40062958F /* Assets.xcassets in Resources */,
+				DAFF0D0921E653A00062958F /* GoogleService-Info.plist in Resources */,
 				DAFF0CFE21E64AC40062958F /* MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2088,6 +2088,7 @@
 				549CCA5920A36E1F00BCEB75 /* precondition_test.cc in Sources */,
 				544129DC21C2DDC800EFB9CC /* query.pb.cc in Sources */,
 				6F3CAC76D918D6B0917EDF92 /* query_test.cc in Sources */,
+				132E3483789344640A52F223 /* reference_set_test.cc in Sources */,
 				B686F2B22025000D0028D6BE /* resource_path_test.cc in Sources */,
 				54740A571FC914BA00713A1A /* secure_random_test.cc in Sources */,
 				61F72C5620BC48FD001A68CB /* serializer_test.cc in Sources */,
@@ -2114,7 +2115,6 @@
 				C80B10E79CDD7EF7843C321E /* type_traits_apple_test.mm in Sources */,
 				ABC1D7DE2023A05300BA84F0 /* user_test.cc in Sources */,
 				544129DE21C2DDC800EFB9CC /* write.pb.cc in Sources */,
-				132E3483789344640A52F223 /* reference_set_test.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2132,8 +2132,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DAFF0D0121E64AC40062958F /* main.m in Sources */,
 				DAFF0CF921E64AC30062958F /* AppDelegate.m in Sources */,
+				DAFF0D0121E64AC40062958F /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
