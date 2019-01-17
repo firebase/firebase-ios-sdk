@@ -564,12 +564,16 @@ std::unique_ptr<model::Mutation> Serializer::DecodeMutation(
   switch (mutation.which_operation) {
     case google_firestore_v1_Write_update_tag: {
       DocumentKey key = DecodeKey(reader, DecodeString(mutation.update.name));
-      FieldValue value = FieldValue::FromMap(DecodeFields(reader, mutation.update.fields_count, mutation.update.fields));
+      FieldValue value = FieldValue::FromMap(DecodeFields(
+          reader, mutation.update.fields_count, mutation.update.fields));
       FieldMask mask = DecodeDocumentMask(mutation.update_mask);
       if (mask.size() > 0) {
-        return absl::make_unique<PatchMutation>(std::move(key), std::move(value), std::move(mask), std::move(precondition));
+        return absl::make_unique<PatchMutation>(
+            std::move(key), std::move(value), std::move(mask),
+            std::move(precondition));
       } else {
-        return absl::make_unique<SetMutation>(std::move(key), std::move(value), std::move(precondition));
+        return absl::make_unique<SetMutation>(std::move(key), std::move(value),
+                                              std::move(precondition));
       }
       UNREACHABLE();
     }

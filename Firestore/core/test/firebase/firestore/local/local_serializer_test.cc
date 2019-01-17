@@ -87,8 +87,8 @@ class LocalSerializerTest : public ::testing::Test {
   remote::Serializer remote_serializer;
   local::LocalSerializer serializer;
 
-  template <typename ...Args>
-  void ExpectRoundTrip(const Args& ...args) {
+  template <typename... Args>
+  void ExpectRoundTrip(const Args&... args) {
     // First, serialize model with our (nanopb based) serializer, then
     // deserialize the resulting bytes with libprotobuf and ensure the result is
     // the same as the expected proto.

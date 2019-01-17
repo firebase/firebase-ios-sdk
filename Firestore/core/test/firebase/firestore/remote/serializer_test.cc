@@ -96,8 +96,8 @@ class SerializerTest : public ::testing::Test {
   const DatabaseId kDatabaseId{"p", "d"};
   Serializer serializer;
 
-  template <typename ...Args>
-  void ExpectRoundTrip(const Args& ...args) {
+  template <typename... Args>
+  void ExpectRoundTrip(const Args&... args) {
     // First, serialize model with our (nanopb based) serializer, then
     // deserialize the resulting bytes with libprotobuf and ensure the result is
     // the same as the expected proto.
