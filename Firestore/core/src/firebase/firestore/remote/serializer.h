@@ -29,8 +29,10 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
+#include "Firestore/core/src/firebase/firestore/model/mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
@@ -64,10 +66,16 @@ T* MakeArray(size_t count) {
  *
  * For encoded messages, FreeNanopbMessage() must be called on the returned
  * nanopb proto buffer or a memory leak will occur.
+ *
+ * All errors that occur during serialization are fatal.
+ *
+ * All deserialization methods (that can fail) take a nanopb::Reader parameter
+ * whose status will be set to failed upon an error. Callers must check this
+ * before using the returned value via `reader->status()`. A deserialization
+ * method might fail if a protocol buffer is missing a critical field or has a
+ * value we can't interpret. On error, the return value from a deserialization
+ * method is unspecified.
  */
-// TODO(rsgowman): Original docs also has this: "Throws an exception if a
-// protocol buffer is missing a critical field or has a value we can't
-// interpret." Adjust for C++.
 class Serializer {
  public:
   /**
@@ -120,18 +128,12 @@ class Serializer {
 
   /**
    * @brief Converts the FieldValue model passed into bytes.
-   *
-   * Any errors that occur during encoding are fatal.
    */
   static google_firestore_v1_Value EncodeFieldValue(
       const model::FieldValue& field_value);
 
   /**
    * @brief Converts from nanopb proto to the model FieldValue format.
-   *
-   * @param reader The Reader object. Used only for error handling.
-   * @return The model equivalent of the bytes. On error, the return value is
-   * unspecified.
    */
   // TODO(rsgowman): Once the proto is read, the only thing the reader object is
   // used for is error handling. This seems questionable. We probably need to
@@ -155,29 +157,36 @@ class Serializer {
 
   /**
    * @brief Converts the Document (i.e. key/value) into bytes.
-   *
-   * Any errors that occur during encoding are fatal.
    */
   google_firestore_v1_Document EncodeDocument(
       const model::DocumentKey& key, const model::ObjectValue& value) const;
 
   /**
    * @brief Converts from nanopb proto to the model Document format.
-   *
-   * @param reader The Reader object. Used only for error handling.
-   * @return The model equivalent of the bytes or nullopt if an error occurred.
-   * @post (reader->status().ok() && result) ||
-   * (!reader->status().ok() && !result)
    */
   std::unique_ptr<model::MaybeDocument> DecodeMaybeDocument(
       nanopb::Reader* reader,
       const google_firestore_v1_BatchGetDocumentsResponse& response) const;
 
+  google_firestore_v1_Write EncodeMutation(
+      const model::Mutation& mutation) const;
+  std::unique_ptr<model::Mutation> DecodeMutation(
+      nanopb::Reader* reader, const google_firestore_v1_Write& mutation) const;
+
+  static google_firestore_v1_Precondition EncodePrecondition(
+      const model::Precondition& precondition);
+  static model::Precondition DecodePrecondition(
+      nanopb::Reader* reader,
+      const google_firestore_v1_Precondition& precondition);
+
+  static google_firestore_v1_DocumentMask EncodeDocumentMask(
+      const model::FieldMask& mask);
+  static model::FieldMask DecodeDocumentMask(
+      const google_firestore_v1_DocumentMask& mask);
+
   /**
    * @brief Converts the Query into bytes, representing a
    * firestore::v1::Target::QueryTarget.
-   *
-   * Any errors that occur during encoding are fatal.
    */
   google_firestore_v1_Target_QueryTarget EncodeQueryTarget(
       const core::Query& query) const;
