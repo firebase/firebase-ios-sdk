@@ -42,6 +42,15 @@ namespace local {
 /**
  * @brief Serializer for values stored in the LocalStore.
  *
+ * All errors that occur during serialization are fatal.
+ *
+ * All deserialization methods (that can fail) take a nanopb::Reader parameter
+ * whose status will be set to failed upon an error. Callers must check this
+ * before using the returned value via `reader->status()`. A deserialization
+ * method might fail if a protocol buffer is missing a critical field or has a
+ * value we can't interpret. On error, the return value from a deserialization
+ * method is unspecified.
+ *
  * Note that local::LocalSerializer currently delegates to the
  * remote::Serializer (for the Firestore v1 RPC protocol) to save implementation
  * time and code duplication. We'll need to revisit this when the RPC protocol
@@ -65,8 +74,6 @@ class LocalSerializer {
   /**
    * @brief Encodes a MaybeDocument model to the equivalent nanopb proto for
    * local storage.
-   *
-   * Any errors that occur during encoding are fatal.
    */
   firestore_client_MaybeDocument EncodeMaybeDocument(
       const model::MaybeDocument& maybe_doc) const;
@@ -74,13 +81,6 @@ class LocalSerializer {
   /**
    * @brief Decodes nanopb proto representing a MaybeDocument proto to the
    * equivalent model.
-   *
-   * Check reader->status() to determine if an error occurred while decoding.
-   *
-   * @param reader The Reader object. Used only for error handling.
-   * @return The model equivalent of the bytes or nullopt if an error occurred.
-   * @post (reader->status().ok() && result) ||
-   * (!reader->status().ok() && !result)
    */
   std::unique_ptr<model::MaybeDocument> DecodeMaybeDocument(
       nanopb::Reader* reader,
@@ -89,20 +89,12 @@ class LocalSerializer {
   /**
    * @brief Encodes a QueryData to the equivalent nanopb proto, representing a
    * ::firestore::proto::Target, for local storage.
-   *
-   * Any errors that occur during encoding are fatal.
    */
   firestore_client_Target EncodeQueryData(const QueryData& query_data) const;
 
   /**
    * @brief Decodes nanopb proto representing a ::firestore::proto::Target proto
    * to the equivalent QueryData.
-   *
-   * Check reader->status() to determine if an error occurred while decoding.
-   *
-   * @param reader The Reader object. Used only for error handling.
-   * @return The QueryData equivalent of the bytes. On error, the return value
-   * is unspecified.
    */
   QueryData DecodeQueryData(nanopb::Reader* reader,
                             const firestore_client_Target& proto) const;
@@ -110,8 +102,6 @@ class LocalSerializer {
   /**
    * @brief Encodes a MutationBatch to the equivalent nanopb proto, representing
    * a ::firestore::client::WriteBatch, for local storage in the mutation queue.
-   *
-   * Any errors that occur during encoding are fatal.
    */
   firestore_client_WriteBatch EncodeMutationBatch(
       const model::MutationBatch& mutation_batch) const;
@@ -119,12 +109,6 @@ class LocalSerializer {
   /**
    * @brief Decodes a nanopb proto representing a
    * ::firestore::client::WriteBatch proto to the equivalent MutationBatch.
-   *
-   * Check reader->status() to determine if an error occurred while decoding.
-   *
-   * @param reader The Reader object. Used only for error handling.
-   * @return The MutationBatch equivalent of the bytes. On error, the return
-   * value is unspecified.
    */
   model::MutationBatch DecodeMutationBatch(
       nanopb::Reader* reader, const firestore_client_WriteBatch& proto) const;
