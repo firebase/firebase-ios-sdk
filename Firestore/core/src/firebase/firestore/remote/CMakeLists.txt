@@ -51,8 +51,8 @@ add_custom_command(
         --output_header=grpc_root_certificates_generated.h
         --output_source=grpc_root_certificates_generated.cc
         --cpp_namespace=firebase::firestore::remote
-        --array=grpc_root_certificates
-        --array_size=grpc_root_certificates_size
+        --array=grpc_root_certificates_generated_data
+        --array_size=grpc_root_certificates_generated_size
         ${FIREBASE_EXTERNAL_SOURCE_DIR}/grpc/etc/roots.pem
     DEPENDS
     ${FIREBASE_EXTERNAL_SOURCE_DIR}/grpc/etc/roots.pem
