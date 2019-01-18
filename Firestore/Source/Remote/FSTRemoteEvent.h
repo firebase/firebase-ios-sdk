@@ -186,7 +186,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Increment the number of acks needed from watch before we can consider the server to be 'in-sync'
  * with the client's active targets.
  */
-- (void)recordTargetRequest:(FSTBoxedTargetID *)targetID;
+- (void)recordTargetRequest:(firebase::firestore::model::TargetId)targetID;
 
 /**
  * Converts the current state into a remote event with the snapshot version taken from the
