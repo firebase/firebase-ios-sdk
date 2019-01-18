@@ -111,6 +111,8 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FSTSyncEngineTestDriver {
   std::unique_ptr<AsyncQueue> _workerQueue;
 
+  std::unordered_map<TargetId, FSTQueryData *> _expectedActiveTargets;
+
   // ivar is declared as mutable.
   std::unordered_map<User, NSMutableArray<FSTOutstandingWrite *> *, HashUser> _outstandingWrites;
   DocumentKeySet _expectedLimboDocuments;
@@ -170,8 +172,6 @@ NS_ASSUME_NONNULL_BEGIN
     _events = events;
 
     _queryListeners = [NSMutableDictionary dictionary];
-
-    _expectedActiveTargets = [NSDictionary dictionary];
 
     _currentUser = initialUser;
 
@@ -395,8 +395,16 @@ NS_ASSUME_NONNULL_BEGIN
   return [self.syncEngine currentLimboDocuments];
 }
 
-- (NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *)activeTargets {
+- (const std::unordered_map<TargetId, FSTQueryData*>&)activeTargets {
   return _datastore->ActiveTargets();
+}
+
+- (const std::unordered_map<TargetId, FSTQueryData*>&)expectedActiveTargets {
+  return _expectedActiveTargets;
+}
+
+- (void)setExpectedActiveTargets:(const std::unordered_map<TargetId, FSTQueryData*>&)targets {
+  _expectedActiveTargets = targets;
 }
 
 #pragma mark - Helper Methods

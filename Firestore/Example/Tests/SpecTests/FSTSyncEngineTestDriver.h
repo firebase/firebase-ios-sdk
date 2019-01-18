@@ -294,12 +294,12 @@ typedef std::unordered_map<firebase::firestore::auth::User,
 @property(nonatomic, assign, readonly) const firebase::firestore::auth::User &currentUser;
 
 /** The set of active targets as observed on the watch stream. */
-@property(nonatomic, strong, readonly)
-    NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *activeTargets;
+- (const std::unordered_map<firebase::firestore::model::TargetId, FSTQueryData *> &)activeTargets;
 
 /** The expected set of active targets, keyed by target ID. */
-@property(nonatomic, strong, readwrite)
-    NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *expectedActiveTargets;
+- (const std::unordered_map<firebase::firestore::model::TargetId, FSTQueryData *> &)expectedActiveTargets;
+
+- (void)setExpectedActiveTargets:(const std::unordered_map<firebase::firestore::model::TargetId, FSTQueryData *> &)targets;
 
 @end
 

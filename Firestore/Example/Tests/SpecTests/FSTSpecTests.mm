@@ -19,6 +19,7 @@
 #import <FirebaseFirestore/FIRFirestoreErrors.h>
 
 #include <map>
+#include <unordered_map>
 #include <utility>
 
 #import "Firestore/Source/Core/FSTEventManager.h"
@@ -39,6 +40,7 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/remote/existence_filter.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
@@ -583,7 +585,7 @@ static NSString *Describe(NSData *data) {
       [self.driver setExpectedLimboDocuments:std::move(expectedLimboDocuments)];
     }
     if (expected[@"activeTargets"]) {
-      NSMutableDictionary *expectedActiveTargets = [NSMutableDictionary dictionary];
+      std::unordered_map<TargetId, FSTQueryData*> expectedActiveTargets;
       [expected[@"activeTargets"] enumerateKeysAndObjectsUsingBlock:^(NSString *targetIDString,
                                                                       NSDictionary *queryData,
                                                                       BOOL *stop) {
@@ -593,7 +595,7 @@ static NSString *Describe(NSData *data) {
         // TODO(mcg): populate the purpose of the target once it's possible to encode that in the
         // spec tests. For now, hard-code that it's a listen despite the fact that it's not always
         // the right value.
-        expectedActiveTargets[@(targetID)] =
+        expectedActiveTargets[targetID] =
             [[FSTQueryData alloc] initWithQuery:query
                                        targetID:targetID
                            listenSequenceNumber:0
@@ -601,7 +603,7 @@ static NSString *Describe(NSData *data) {
                                 snapshotVersion:SnapshotVersion::None()
                                     resumeToken:resumeToken];
       }];
-      self.driver.expectedActiveTargets = expectedActiveTargets;
+      self.driver.setExpectedActiveTargets:expectedActiveTargets;
     }
   }
 
@@ -634,7 +636,7 @@ static NSString *Describe(NSData *data) {
 
   // Validate that each limbo doc has an expected active target
   for (const auto &kv : actualLimboDocs) {
-    XCTAssertNotNil(self.driver.expectedActiveTargets[@(kv.second)],
+    XCTAssertNotNil([self.driver expectedActiveTargets][kv.second],
                     @"Found limbo doc without an expected active target");
   }
 
@@ -654,12 +656,11 @@ static NSString *Describe(NSData *data) {
   }
 
   // Create a copy so we can modify it in tests
-  NSMutableDictionary<FSTBoxedTargetID *, FSTQueryData *> *actualTargets =
-      [NSMutableDictionary dictionaryWithDictionary:self.driver.activeTargets];
+  std::unordered_map<TargetId, FSTQueryData*> actualTargets = [self.driver activeTargets];
 
-  [self.driver.expectedActiveTargets enumerateKeysAndObjectsUsingBlock:^(FSTBoxedTargetID *targetID,
-                                                                         FSTQueryData *queryData,
-                                                                         BOOL *stop) {
+  for (const auto& kv : [self.driver activeTargets]) {
+    TargetId targetID = kv.first;
+    FSTQueryData* queryData = kv.second;
     XCTAssertNotNil(actualTargets[targetID], @"Expected active target not found: %@", queryData);
 
     // TODO(mcg): validate the purpose of the target once it's possible to encode that in the
@@ -675,9 +676,16 @@ static NSString *Describe(NSData *data) {
       XCTAssertEqualObjects(Describe(actual.resumeToken), Describe(queryData.resumeToken));
     }
 
-    [actualTargets removeObjectForKey:targetID];
-  }];
-  XCTAssertTrue(actualTargets.count == 0, "Unexpected active targets: %@", actualTargets);
+    actualTargets.erase(targetID);
+  }
+
+  if (!actualTargets.empty()) {
+    NSMutableDictionary *actualTargetsDictionary = [NSMutableDictionary dictionary];
+    for (const auto& kv : actualTargets) {
+      actualTargetsDictionary[@(kv.first)] = kv.second;
+    }
+    XCTAssertTrue(actualTargets.empty(), "Unexpected active targets: %@", [actualTargetsDictionary description]);
+  }
 }
 
 - (void)runSpecTestSteps:(NSArray *)steps config:(NSDictionary *)config {

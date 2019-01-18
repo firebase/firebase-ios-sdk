@@ -109,7 +109,6 @@
 		5492E0BD2021555100B64F25 /* FSTDocumentTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E0B62021555100B64F25 /* FSTDocumentTests.mm */; };
 		5492E0BE2021555100B64F25 /* FSTMutationTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E0B72021555100B64F25 /* FSTMutationTests.mm */; };
 		5492E0BF2021555100B64F25 /* FSTFieldValueTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E0B82021555100B64F25 /* FSTFieldValueTests.mm */; };
-		5492E0C62021557E00B64F25 /* FSTWatchChange+Testing.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E0C02021557E00B64F25 /* FSTWatchChange+Testing.mm */; };
 		5492E0C72021557E00B64F25 /* FSTSerializerBetaTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E0C12021557E00B64F25 /* FSTSerializerBetaTests.mm */; };
 		5492E0C92021557E00B64F25 /* FSTRemoteEventTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E0C32021557E00B64F25 /* FSTRemoteEventTests.mm */; };
 		5492E0CA2021557E00B64F25 /* FSTWatchChangeTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E0C52021557E00B64F25 /* FSTWatchChangeTests.mm */; };
@@ -401,10 +400,8 @@
 		5492E0B62021555100B64F25 /* FSTDocumentTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTDocumentTests.mm; sourceTree = "<group>"; };
 		5492E0B72021555100B64F25 /* FSTMutationTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTMutationTests.mm; sourceTree = "<group>"; };
 		5492E0B82021555100B64F25 /* FSTFieldValueTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTFieldValueTests.mm; sourceTree = "<group>"; };
-		5492E0C02021557E00B64F25 /* FSTWatchChange+Testing.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "FSTWatchChange+Testing.mm"; sourceTree = "<group>"; };
 		5492E0C12021557E00B64F25 /* FSTSerializerBetaTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTSerializerBetaTests.mm; sourceTree = "<group>"; };
 		5492E0C32021557E00B64F25 /* FSTRemoteEventTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTRemoteEventTests.mm; sourceTree = "<group>"; };
-		5492E0C42021557E00B64F25 /* FSTWatchChange+Testing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "FSTWatchChange+Testing.h"; sourceTree = "<group>"; };
 		5492E0C52021557E00B64F25 /* FSTWatchChangeTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTWatchChangeTests.mm; sourceTree = "<group>"; };
 		5495EB022040E90200EBA509 /* CodableGeoPointTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CodableGeoPointTests.swift; sourceTree = "<group>"; };
 		54995F6E205B6E12004EFFA0 /* leveldb_key_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = leveldb_key_test.cc; sourceTree = "<group>"; };
@@ -1275,8 +1272,6 @@
 			children = (
 				5492E0C32021557E00B64F25 /* FSTRemoteEventTests.mm */,
 				5492E0C12021557E00B64F25 /* FSTSerializerBetaTests.mm */,
-				5492E0C42021557E00B64F25 /* FSTWatchChange+Testing.h */,
-				5492E0C02021557E00B64F25 /* FSTWatchChange+Testing.mm */,
 				5492E0C52021557E00B64F25 /* FSTWatchChangeTests.mm */,
 			);
 			path = Remote;
@@ -2025,7 +2020,6 @@
 				DE2EF0881F3D0B6E003D0CDC /* FSTTreeSortedDictionaryTests.m in Sources */,
 				5492E063202154B900B64F25 /* FSTViewSnapshotTest.mm in Sources */,
 				5492E065202154B900B64F25 /* FSTViewTests.mm in Sources */,
-				5492E0C62021557E00B64F25 /* FSTWatchChange+Testing.mm in Sources */,
 				5492E0CA2021557E00B64F25 /* FSTWatchChangeTests.mm in Sources */,
 				5492E03C2021401F00B64F25 /* XCTestCase+Await.mm in Sources */,
 				618BBEAF20B89AAC00B5BCE7 /* annotations.pb.cc in Sources */,
