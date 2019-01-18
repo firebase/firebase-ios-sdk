@@ -45,7 +45,6 @@
 #include "grpcpp/support/status.h"
 
 #import "Firestore/Source/Core/FSTTypes.h"
-#import "Firestore/Source/Remote/FSTSerializerBeta.h"
 #import "Firestore/Source/Remote/FSTStream.h"
 
 namespace firebase {
@@ -64,13 +63,14 @@ namespace remote {
  * `Datastore` is generally not responsible for understanding the higher-level
  * protocol involved in actually making changes or reading data, and aside from
  * the connections it manages is otherwise stateless.
+ *
+ * This class is only intended to be inherited from by test mocks.
  */
 class Datastore : public std::enable_shared_from_this<Datastore> {
  public:
   Datastore(const core::DatabaseInfo& database_info,
             util::AsyncQueue* worker_queue,
-            auth::CredentialsProvider* credentials,
-            FSTSerializerBeta* serializer);
+            auth::CredentialsProvider* credentials);
 
   virtual ~Datastore() {
   }
@@ -84,19 +84,45 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
    * Creates a new `WatchStream` that is still unstarted but uses a common
    * shared channel.
    */
-  std::shared_ptr<WatchStream> CreateWatchStream(
+  virtual std::shared_ptr<WatchStream> CreateWatchStream(
       id<FSTWatchStreamDelegate> delegate);
   /**
    * Creates a new `WriteStream` that is still unstarted but uses a common
    * shared channel.
    */
-  std::shared_ptr<WriteStream> CreateWriteStream(
+  virtual std::shared_ptr<WriteStream> CreateWriteStream(
       id<FSTWriteStreamDelegate> delegate);
 
   void CommitMutations(NSArray<FSTMutation*>* mutations,
                        FSTVoidErrorBlock completion);
   void LookupDocuments(const std::vector<model::DocumentKey>& keys,
                        FSTVoidMaybeDocumentArrayErrorBlock completion);
+
+  /** Returns true if the given error is a gRPC ABORTED error. */
+  static bool IsAbortedError(const util::Status& status);
+
+  /**
+   * Determines whether an error code represents a permanent error when received
+   * in response to a non-write operation.
+   *
+   * See `IsPermanentWriteError` for classifying write errors.
+   */
+  static bool IsPermanentError(const util::Status& status);
+
+  /**
+   * Determines whether an error code represents a permanent error when received
+   * in response to a write operation.
+   *
+   * Write operations must be handled specially because as of b/119437764,
+   * ABORTED errors on the write stream should be retried too (even though
+   * ABORTED errors are not generally retryable).
+   *
+   * Note that during the initial handshake on the write stream an ABORTED error
+   * signals that we should discard our stream token (i.e. it is permanent).
+   * This means a handshake error should be classified with `IsPermanentError`,
+   * above.
+   */
+  static bool IsPermanentWriteError(const util::Status& status);
 
   static std::string GetWhitelistedHeadersAsString(
       const GrpcCall::Metadata& headers);
@@ -107,6 +133,12 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
   Datastore& operator=(Datastore&& other) = delete;
 
  protected:
+  /** Test-only constructor */
+  Datastore(const core::DatabaseInfo& database_info,
+            util::AsyncQueue* worker_queue,
+            auth::CredentialsProvider* credentials,
+            std::unique_ptr<ConnectivityMonitor> connectivity_monitor);
+
   /** Test-only method */
   grpc::CompletionQueue* grpc_queue() {
     return &grpc_queue_;
@@ -114,6 +146,11 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
   /** Test-only method */
   GrpcCall* LastCall() {
     return !active_calls_.empty() ? active_calls_.back().get() : nullptr;
+  }
+
+  /** Test-only getter for mocking */
+  GrpcConnection* grpc_connection() {
+    return &grpc_connection_;
   }
 
  private:

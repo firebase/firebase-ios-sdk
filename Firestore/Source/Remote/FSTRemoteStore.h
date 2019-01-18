@@ -16,13 +16,15 @@
 
 #import <Foundation/Foundation.h>
 
+#include <memory>
+
 #import "Firestore/Source/Remote/FSTRemoteEvent.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 
-@class FSTDatastore;
 @class FSTLocalStore;
 @class FSTMutationBatch;
 @class FSTMutationBatchResult;
@@ -103,7 +105,8 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FSTRemoteStore : NSObject <FSTTargetMetadataProvider>
 
 - (instancetype)initWithLocalStore:(FSTLocalStore *)localStore
-                         datastore:(FSTDatastore *)datastore
+                         datastore:
+                             (std::shared_ptr<firebase::firestore::remote::Datastore>)datastore
                        workerQueue:(firebase::firestore::util::AsyncQueue *)queue;
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -144,7 +147,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * In response the remote store will pull mutations from the local store until the datastore
  * instance reports that it cannot accept further in-progress writes. This mechanism serves to
- * maintain a pipeline of in-flight requests between the FSTDatastore and the server that
+ * maintain a pipeline of in-flight requests between the `Datastore` and the server that
  * applies them.
  */
 - (void)fillWritePipeline;
