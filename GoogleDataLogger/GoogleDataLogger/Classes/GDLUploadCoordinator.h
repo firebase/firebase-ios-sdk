@@ -20,7 +20,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** This class connects log storage and the backend implementations, providing logs to the uploaders
+/** This class connects log storage and the uploader implementations, providing logs to an uploader
  * and informing the log storage what logs were successfully uploaded or not.
  */
 @interface GDLUploadCoordinator : NSObject

@@ -16,9 +16,12 @@
 
 #import "GDLTestCase.h"
 
+#import "GDLUploadCoordinator+Testing.h"
+
 @implementation GDLTestCase
 
 - (void)setUp {
+  [[GDLUploadCoordinator sharedInstance] stopTimer];
 }
 
 - (void)tearDown {
