@@ -74,7 +74,6 @@ function RunXcodebuild() {
   #       necessary devices and skipping for macOS.
   xcrun simctl shutdown all
   xcrun simctl erase all
-  xcrun simctl boot all
 
   xcodebuild "$@" | xcpretty; result=$?
   if [[ $result == 65 ]]; then
