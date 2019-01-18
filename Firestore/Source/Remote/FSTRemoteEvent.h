@@ -40,7 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Returns the set of remote document keys for the given target ID as of the last raised snapshot.
  */
-- (firebase::firestore::model::DocumentKeySet)remoteKeysForTarget:(FSTBoxedTargetID *)targetID;
+- (firebase::firestore::model::DocumentKeySet)remoteKeysForTarget:(firebase::firestore::model::TargetId)targetID;
 
 /**
  * Returns the FSTQueryData for an active target ID or 'null' if this query has become inactive

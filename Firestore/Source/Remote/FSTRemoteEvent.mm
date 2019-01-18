@@ -448,7 +448,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (int)currentDocumentCountForTarget:(TargetId)targetID {
   FSTTargetState *targetState = [self ensureTargetStateForTarget:targetID];
   FSTTargetChange *targetChange = [targetState toTargetChange];
-  return ([_targetMetadataProvider remoteKeysForTarget:@(targetID)].size() +
+  return ([_targetMetadataProvider remoteKeysForTarget:targetID].size() +
           targetChange.addedDocuments.size() - targetChange.removedDocuments.size());
 }
 
@@ -465,7 +465,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Trigger removal for any documents currently mapped to this target. These removals will be part
   // of the initial snapshot if Watch does not resend these documents.
-  DocumentKeySet existingKeys = [_targetMetadataProvider remoteKeysForTarget:@(targetID)];
+  DocumentKeySet existingKeys = [_targetMetadataProvider remoteKeysForTarget:targetID];
 
   for (const DocumentKey &key : existingKeys) {
     [self removeDocument:nil withKey:key fromTarget:targetID];
@@ -525,7 +525,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Returns whether the LocalStore considers the document to be part of the specified target.
  */
 - (BOOL)containsDocument:(const DocumentKey &)key inTarget:(TargetId)targetID {
-  const DocumentKeySet &existingKeys = [_targetMetadataProvider remoteKeysForTarget:@(targetID)];
+  const DocumentKeySet &existingKeys = [_targetMetadataProvider remoteKeysForTarget:targetID];
   return existingKeys.contains(key);
 }
 

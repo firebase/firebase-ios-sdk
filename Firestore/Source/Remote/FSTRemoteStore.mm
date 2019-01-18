@@ -442,8 +442,8 @@ static const int kMaxPendingWrites = 10;
   }
 }
 
-- (firebase::firestore::model::DocumentKeySet)remoteKeysForTarget:(FSTBoxedTargetID *)targetID {
-  return [self.syncEngine remoteKeysForTarget:targetID];
+- (DocumentKeySet)remoteKeysForTarget:(TargetId)targetID {
+  return [self.syncEngine remoteKeysForTarget:@(targetID)];
 }
 
 - (nullable FSTQueryData *)queryDataForTarget:(TargetId)targetID {
