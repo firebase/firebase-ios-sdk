@@ -18,9 +18,12 @@
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_WATCH_CHANGE_H_
 
 #if !defined(__OBJC__)
-// TODO(varconst): the only dependency is `FSTMaybeDocument`.
+// TODO(varconst): the only dependencies are `FSTMaybeDocument` and `NSData`
+// (the latter is used to represent the resume token).
 #error "This header only supports Objective-C++"
 #endif  // !defined(__OBJC__)
+
+#import <Foundation/Foundation.h>
 
 #include <utility>
 
@@ -42,8 +45,19 @@ namespace remote {
  */
 class WatchChange {
  public:
+  enum class Type {
+    Document,
+    ExistenceFilter,
+    TargetChange,
+  };
+
+  explicit WatchChange(Type type) : type_{type} {}
   virtual ~WatchChange() {
   }
+
+  Type type() const { return type_; }
+
+  const Type type_;
 };
 
 /**
@@ -54,23 +68,24 @@ class WatchChange {
  */
 class DocumentWatchChange : public WatchChange {
  public:
-  DocumentWatchChange(std::vector<int>&& updated_target_ids,
-                      std::vector<int>&& removed_target_ids,
+  DocumentWatchChange(std::vector<model::TargetId>&& updated_target_ids,
+                      std::vector<model::TargetId>&& removed_target_ids,
                       model::DocumentKey&& document_key,
                       FSTMaybeDocument* new_document)
-      : updated_target_ids_{std::move(updated_target_ids)},
+      : WatchChange{Type::Document},
+    updated_target_ids_{std::move(updated_target_ids)},
         removed_target_ids_{std::move(removed_target_ids)},
         document_key_{std::move(document_key)},
         new_document_{new_document} {
   }
 
   /** The new document applies to all of these targets. */
-  const std::vector<int>& updated_target_ids_() const {
+  const std::vector<model::TargetId>& updated_target_ids() const {
     return updated_target_ids_;
   }
 
   /** The new document is removed from all of these targets. */
-  const std::vector<int>& removed_target_ids_() const {
+  const std::vector<model::TargetId>& removed_target_ids() const {
     return removed_target_ids_;
   }
 
@@ -79,7 +94,7 @@ class DocumentWatchChange : public WatchChange {
    * document went out of view without the server sending a new document.
    */
   FSTMaybeDocument* new_document() const {
-    return new_document;
+    return new_document_;
   }
 
   /** The key of the document for this change. */
@@ -88,8 +103,8 @@ class DocumentWatchChange : public WatchChange {
   }
 
  private:
-  std::vector<int> updated_target_ids_;
-  std::vector<int> removed_target_ids_;
+  std::vector<model::TargetId> updated_target_ids_;
+  std::vector<model::TargetId> removed_target_ids_;
   model::DocumentKey document_key_;
   FSTMaybeDocument* new_document_;
 };
@@ -103,8 +118,12 @@ bool operator==(const DocumentWatchChange& lhs, const DocumentWatchChange& rhs);
 class ExistenceFilterWatchChange : public WatchChange {
  public:
   ExistenceFilterWatchChange(ExistenceFilter filter, model::TargetId target_id)
-      : filter_{filter}, target_id_{target_id} {
+      : WatchChange{Type::ExistenceFilter},
+      filter_{filter}, target_id_{target_id} {
   }
+
+  const ExistenceFilter& filter() const { return filter_; }
+  model::TargetId target_id() const { return target_id_; }
 
  private:
   ExistenceFilter filter_;
@@ -119,12 +138,13 @@ enum class WatchTargetChangeState { NoChange, Added, Removed, Current, Reset };
 class WatchTargetChange : public WatchChange {
  public:
   WatchTargetChange(WatchTargetChangeState state,
-                    std::vector<int>&& target_ids,
-                    std::string&& resume_token,
+                    std::vector<model::TargetId>&& target_ids,
+                    NSData* resume_token,
                     util::Status&& cause)
-      : state_{state},
+      : WatchChange{Type::ExistenceFilter},
+      state_{state},
         target_ids_{std::move(target_ids)},
-        resume_token_{std::move(resume_token)},
+        resume_token_{resume_token},
         cause_{std::move(cause)} {
   }
 
@@ -134,7 +154,7 @@ class WatchTargetChange : public WatchChange {
   }
 
   /** The target IDs that were added/removed/set. */
-  const std::vector<int>& target_ids() const {
+  const std::vector<model::TargetId>& target_ids() const {
     return target_ids_;
   }
 
@@ -144,7 +164,7 @@ class WatchTargetChange : public WatchChange {
    * matches the query. The resume token essentially identifies a point in
    * time from which the server should resume sending results.
    */
-  const std::string& resume_token() const {
+  NSData* resume_token() const {
     return resume_token_;
   }
 
@@ -152,19 +172,16 @@ class WatchTargetChange : public WatchChange {
    * An RPC error indicating why the watch failed. Only valid if
    * WatchChangeState == Removed.
    */
-  const util::Status& status() const {
-    return status_;
+  const util::Status& cause() const {
+    return cause_;
   }
 
  private:
   WatchTargetChangeState state_;
-  std::vector<int> target_ids_;
-  std::string resume_token_;
+  std::vector<model::TargetId> target_ids_;
+  std::vector<unsigned char> resume_token_;
   util::Status cause_;
 };
-
-inline bool operator==(const WatchTargetChange& lhs, const WatchTargetChange& rhs) {
-}
 
 }  // namespace remote
 }  // namespace firestore

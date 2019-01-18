@@ -40,6 +40,7 @@
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 
+#include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
@@ -58,6 +59,7 @@
 
 namespace util = firebase::firestore::util;
 using firebase::Timestamp;
+using firebase::firestore::FirestoreErrorCode;
 using firebase::firestore::model::ArrayTransform;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
@@ -70,7 +72,12 @@ using firebase::firestore::model::ServerTimestampTransform;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::model::TransformOperation;
+using firebase::firestore::remote::DocumentWatchChange;
 using firebase::firestore::remote::ExistenceFilter;
+using firebase::firestore::remote::ExistenceFilterWatchChange;
+using firebase::firestore::remote::WatchChange;
+using firebase::firestore::remote::WatchTargetChange;
+using firebase::firestore::remote::WatchTargetChangeState;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -731,8 +738,8 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   result.targetId = queryData.targetID;
-  if (queryData.resumeToken.length > 0) {
-    result.resumeToken = queryData.resumeToken;
+  if (!queryData.resumeToken.empty()) {
+    result.resumeToken = [NSData dataWithBytes: queryData.resumeToken.data() length: queryData.resumeToken.size()];
   }
 
   return result;
@@ -1096,20 +1103,20 @@ NS_ASSUME_NONNULL_BEGIN
   return [self decodedVersion:watchChange.targetChange.readTime];
 }
 
-- (std::unique_ptr<WatchTargetChange>)decodedTargetChangeFromWatchChange:
-    (GCFSTargetChange *)change {
+- (std::unique_ptr<WatchChange>)decodedTargetChangeFromWatchChange:(GCFSTargetChange *)change {
   WatchTargetChangeState state = [self decodedWatchTargetChangeState:change.targetChangeType];
-  std::vector<int> targetIDs;
+  __block std::vector<int> targetIDs;
 
   [change.targetIdsArray enumerateValuesWithBlock:^(int32_t value, NSUInteger idx, BOOL *stop) {
-    target_ids.push_back(value);
+    targetIDs.push_back(value);
   }];
 
-  std::string resumeToken = util::MakeString(change.resumeToken);
+  auto tokenData = static_cast<const unsigned char *>([change.resumeToken bytes]);
+  std::vector<unsigned char> resumeToken{tokenData, tokenData + [change.resumeToken length]};
 
   util::Status cause;
   if (change.hasCause) {
-    cause = util::Status{code : change.cause.code, change.cause.message};
+    cause = util::Status{static_cast<FirestoreErrorCode>(change.cause.code), util::MakeString(change.cause.message)};
   }
 
   return absl::make_unique<WatchTargetChange>(state, std::move(targetIDs), std::move(resumeToken),
@@ -1133,17 +1140,17 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-- (NSArray<NSNumber *> *)decodedIntegerArray:(GPBInt32Array *)values {
-  NSMutableArray<NSNumber *> *result = [NSMutableArray arrayWithCapacity:values.count];
+- (std::vector<TargetId>)decodedIntegerArray:(GPBInt32Array *)values {
+  __block std::vector<TargetId> result;
   [values enumerateValuesWithBlock:^(int32_t value, NSUInteger idx, BOOL *stop) {
-    [result addObject:@(value)];
+    result.push_back(value);
   }];
   return result;
 }
 
-- (FSTDocumentWatchChange *)decodedDocumentChange:(GCFSDocumentChange *)change {
+- (std::unique_ptr<WatchChange>)decodedDocumentChange:(GCFSDocumentChange *)change {
   FSTObjectValue *value = [self decodedFields:change.document.fields];
-  const DocumentKey key = [self decodedDocumentKey:change.document.name];
+  DocumentKey key = [self decodedDocumentKey:change.document.name];
   SnapshotVersion version = [self decodedVersion:change.document.updateTime];
   HARD_ASSERT(version != SnapshotVersion::None(), "Got a document change with no snapshot version");
   // The document may soon be re-serialized back to protos in order to store it in local
@@ -1154,46 +1161,40 @@ NS_ASSUME_NONNULL_BEGIN
                                                        state:FSTDocumentStateSynced
                                                        proto:change.document];
 
-  NSArray<NSNumber *> *updatedTargetIds = [self decodedIntegerArray:change.targetIdsArray];
-  NSArray<NSNumber *> *removedTargetIds = [self decodedIntegerArray:change.removedTargetIdsArray];
+  std::vector<TargetId> updatedTargetIDs = [self decodedIntegerArray:change.targetIdsArray];
+  std::vector<TargetId> removedTargetIDs = [self decodedIntegerArray:change.removedTargetIdsArray];
 
-  return [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:updatedTargetIds
-                                                 removedTargetIDs:removedTargetIds
-                                                      documentKey:document.key
-                                                         document:document];
+  return absl::make_unique<DocumentWatchChange>(
+      std::move(updatedTargetIDs), std::move(removedTargetIDs), std::move(key), document);
 }
 
-- (FSTDocumentWatchChange *)decodedDocumentDelete:(GCFSDocumentDelete *)change {
-  const DocumentKey key = [self decodedDocumentKey:change.document];
+- (std::unique_ptr<WatchChange>)decodedDocumentDelete:(GCFSDocumentDelete *)change {
+  DocumentKey key = [self decodedDocumentKey:change.document];
   // Note that version might be unset in which case we use SnapshotVersion::None()
   SnapshotVersion version = [self decodedVersion:change.readTime];
   FSTMaybeDocument *document = [FSTDeletedDocument documentWithKey:key
                                                            version:version
                                              hasCommittedMutations:NO];
 
-  NSArray<NSNumber *> *removedTargetIds = [self decodedIntegerArray:change.removedTargetIdsArray];
+  std::vector<TargetId> removedTargetIDs = [self decodedIntegerArray:change.removedTargetIdsArray];
 
-  return [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[]
-                                                 removedTargetIDs:removedTargetIds
-                                                      documentKey:document.key
-                                                         document:document];
+  return absl::make_unique<DocumentWatchChange>(
+      std::vector<TargetId>{}, std::move(removedTargetIDs), std::move(key), document);
 }
 
-- (FSTDocumentWatchChange *)decodedDocumentRemove:(GCFSDocumentRemove *)change {
-  const DocumentKey key = [self decodedDocumentKey:change.document];
-  NSArray<NSNumber *> *removedTargetIds = [self decodedIntegerArray:change.removedTargetIdsArray];
+- (std::unique_ptr<WatchChange>)decodedDocumentRemove:(GCFSDocumentRemove *)change {
+  DocumentKey key = [self decodedDocumentKey:change.document];
+  std::vector<TargetId> removedTargetIDs = [self decodedIntegerArray:change.removedTargetIdsArray];
 
-  return [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[]
-                                                 removedTargetIDs:removedTargetIds
-                                                      documentKey:key
-                                                         document:nil];
+  return absl::make_unique<DocumentWatchChange>(
+      std::vector<TargetId>{}, std::move(removedTargetIDs), std::move(key), nil);
 }
 
-- (FSTExistenceFilterWatchChange *)decodedExistenceFilterWatchChange:(GCFSExistenceFilter *)filter {
+- (std::unique_ptr<WatchChange>)decodedExistenceFilterWatchChange:(GCFSExistenceFilter *)filter {
   // TODO(dimond): implement existence filter parsing
   ExistenceFilter existenceFilter{filter.count};
   TargetId targetID = filter.targetId;
-  return [FSTExistenceFilterWatchChange changeWithFilter:existenceFilter targetID:targetID];
+  return absl::make_unique<ExistenceFilterWatchChange>(existenceFilter, targetID);
 }
 
 @end

@@ -36,7 +36,6 @@
 @class FSTMutationResult;
 @class FSTQueryData;
 @class FSTSerializerBeta;
-@class FSTWatchChange;
 
 NS_ASSUME_NONNULL_BEGIN
 

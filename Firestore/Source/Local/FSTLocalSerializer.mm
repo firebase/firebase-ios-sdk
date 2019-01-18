@@ -217,7 +217,7 @@ using firebase::firestore::model::TargetId;
   proto.targetId = queryData.targetID;
   proto.lastListenSequenceNumber = queryData.sequenceNumber;
   proto.snapshotVersion = [remoteSerializer encodedVersion:queryData.snapshotVersion];
-  proto.resumeToken = queryData.resumeToken;
+  proto.resumeToken = [NSData dataWithBytes:queryData.resumeToken.data() length:queryData.resumeToken.size()];
 
   FSTQuery *query = queryData.query;
   if ([query isDocumentQuery]) {
@@ -235,7 +235,8 @@ using firebase::firestore::model::TargetId;
   TargetId targetID = target.targetId;
   ListenSequenceNumber sequenceNumber = target.lastListenSequenceNumber;
   SnapshotVersion version = [remoteSerializer decodedVersion:target.snapshotVersion];
-  NSData *resumeToken = target.resumeToken;
+  auto tokenData = static_cast<const unsigned char*>(target.resumeToken.bytes);
+  std::vector<unsigned char> resumeToken{tokenData, tokenData + target.resumeToken.length};
 
   FSTQuery *query;
   switch (target.targetTypeOneOfCase) {

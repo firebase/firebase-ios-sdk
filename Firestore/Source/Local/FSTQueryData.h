@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+#include <vector>
+
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 
@@ -43,7 +45,7 @@ typedef NS_ENUM(NSInteger, FSTQueryPurpose) {
          listenSequenceNumber:(firebase::firestore::model::ListenSequenceNumber)sequenceNumber
                       purpose:(FSTQueryPurpose)purpose
               snapshotVersion:(firebase::firestore::model::SnapshotVersion)snapshotVersion
-                  resumeToken:(NSData *)resumeToken NS_DESIGNATED_INITIALIZER;
+                  resumeToken:(const std::vector<unsigned char>&)resumeToken NS_DESIGNATED_INITIALIZER;
 
 /** Convenience initializer for use when creating an FSTQueryData for the first time. */
 - (instancetype)initWithQuery:(FSTQuery *)query
@@ -59,7 +61,7 @@ typedef NS_ENUM(NSInteger, FSTQueryPurpose) {
  */
 - (instancetype)
     queryDataByReplacingSnapshotVersion:(firebase::firestore::model::SnapshotVersion)snapshotVersion
-                            resumeToken:(NSData *)resumeToken
+                            resumeToken:(const std::vector<unsigned char>&)resumeToken
                          sequenceNumber:
                              (firebase::firestore::model::ListenSequenceNumber)sequenceNumber;
 
@@ -86,7 +88,7 @@ typedef NS_ENUM(NSInteger, FSTQueryPurpose) {
  * without retransmitting all the data that matches the query. The resume token essentially
  * identifies a point in time from which the server should resume sending results.
  */
-@property(nonatomic, copy, readonly) NSData *resumeToken;
+- (const std::vector<unsigned char>&) resumeToken;
 
 @end
 

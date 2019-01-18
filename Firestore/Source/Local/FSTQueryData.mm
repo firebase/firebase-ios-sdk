@@ -32,6 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTQueryData {
   SnapshotVersion _snapshotVersion;
+  std::vector<unsigned char> _resumeToken;
 }
 
 - (instancetype)initWithQuery:(FSTQuery *)query
@@ -39,7 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
          listenSequenceNumber:(ListenSequenceNumber)sequenceNumber
                       purpose:(FSTQueryPurpose)purpose
               snapshotVersion:(SnapshotVersion)snapshotVersion
-                  resumeToken:(NSData *)resumeToken {
+                  resumeToken:(const std::vector<unsigned char>&)resumeToken {
   self = [super init];
   if (self) {
     _query = query;
@@ -47,7 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
     _sequenceNumber = sequenceNumber;
     _purpose = purpose;
     _snapshotVersion = std::move(snapshotVersion);
-    _resumeToken = [resumeToken copy];
+    _resumeToken = resumeToken;
   }
   return self;
 }
@@ -61,10 +62,14 @@ NS_ASSUME_NONNULL_BEGIN
         listenSequenceNumber:sequenceNumber
                      purpose:purpose
              snapshotVersion:SnapshotVersion::None()
-                 resumeToken:[NSData data]];
+                 resumeToken:{}];
 }
 
-- (const firebase::firestore::model::SnapshotVersion &)snapshotVersion {
+- (const std::vector<unsigned char>&) resumeToken {
+  return _resumeToken;
+}
+
+- (const SnapshotVersion &)snapshotVersion {
   return _snapshotVersion;
 }
 
@@ -80,24 +85,25 @@ NS_ASSUME_NONNULL_BEGIN
   return [self.query isEqual:other.query] && self.targetID == other.targetID &&
          self.sequenceNumber == other.sequenceNumber && self.purpose == other.purpose &&
          self.snapshotVersion == other.snapshotVersion &&
-         [self.resumeToken isEqual:other.resumeToken];
+         _resumeToken == other->_resumeToken;
 }
 
 - (NSUInteger)hash {
   return util::Hash([self.query hash], self.targetID, self.sequenceNumber,
                     static_cast<NSInteger>(self.purpose), self.snapshotVersion.Hash(),
-                    [self.resumeToken hash]);
+                    _resumeToken);
 }
 
 - (NSString *)description {
+  NSData *token = [NSData dataWithBytes:_resumeToken.data() length:_resumeToken.size()];
   return [NSString
       stringWithFormat:@"<FSTQueryData: query:%@ target:%d purpose:%lu version:%s resumeToken:%@)>",
                        self.query, self.targetID, (unsigned long)self.purpose,
-                       self.snapshotVersion.timestamp().ToString().c_str(), self.resumeToken];
+                       self.snapshotVersion.timestamp().ToString().c_str(), token];
 }
 
 - (instancetype)queryDataByReplacingSnapshotVersion:(SnapshotVersion)snapshotVersion
-                                        resumeToken:(NSData *)resumeToken
+                                        resumeToken:(const std::vector<unsigned char>&)resumeToken
                                      sequenceNumber:(ListenSequenceNumber)sequenceNumber {
   return [[FSTQueryData alloc] initWithQuery:self.query
                                     targetID:self.targetID

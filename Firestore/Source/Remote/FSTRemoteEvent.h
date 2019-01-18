@@ -18,6 +18,7 @@
 
 #include <map>
 #include <set>
+#include <vector>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -25,12 +26,10 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 
 @class FSTMaybeDocument;
 @class FSTQueryData;
-@class FSTDocumentWatchChange;
-@class FSTWatchTargetChange;
-@class FSTExistenceFilterWatchChange;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -66,7 +65,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Creates a new target change with the given SnapshotVersion.
  */
-- (instancetype)initWithResumeToken:(NSData *)resumeToken
+- (instancetype)initWithResumeToken:(const std::vector<unsigned char>&)resumeToken
                             current:(BOOL)current
                      addedDocuments:(firebase::firestore::model::DocumentKeySet)addedDocuments
                   modifiedDocuments:(firebase::firestore::model::DocumentKeySet)modifiedDocuments
@@ -80,7 +79,7 @@ NS_ASSUME_NONNULL_BEGIN
  * disconnecting without retransmitting all the data that matches the query. The resume token
  * essentially identifies a point in time from which the server should resume sending results.
  */
-@property(nonatomic, strong, readonly) NSData *resumeToken;
+- (const std::vector<unsigned char>&) resumeToken;
 
 /**
  * The "current" (synced) status of this target. Note that "current" has special meaning in the RPC
@@ -169,11 +168,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init NS_UNAVAILABLE;
 
-/** Processes and adds the FSTDocumentWatchChange to the current set of changes. */
-- (void)handleDocumentChange:(FSTDocumentWatchChange *)documentChange;
+/** Processes and adds the DocumentWatchChange to the current set of changes. */
+- (void)handleDocumentChange:(const firebase::firestore::remote::DocumentWatchChange&)documentChange;
 
 /** Processes and adds the WatchTargetChange to the current set of changes. */
-- (void)handleTargetChange:(FSTWatchTargetChange *)targetChange;
+- (void)handleTargetChange:(const firebase::firestore::remote::WatchTargetChange&)targetChange;
 
 /** Removes the in-memory state for the provided target. */
 - (void)removeTarget:(firebase::firestore::model::TargetId)targetID;
@@ -182,7 +181,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Handles existence filters and synthesizes deletes for filter mismatches. Targets that are
  * invalidated by filter mismatches are added to `targetMismatches`.
  */
-- (void)handleExistenceFilter:(FSTExistenceFilterWatchChange *)existenceFilter;
+- (void)handleExistenceFilter:(const firebase::firestore::remote::ExistenceFilterWatchChange&)existenceFilter;
 
 /**
  * Increment the number of acks needed from watch before we can consider the server to be 'in-sync'

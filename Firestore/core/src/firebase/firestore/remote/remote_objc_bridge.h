@@ -23,11 +23,13 @@
 
 #import <Foundation/Foundation.h>
 
+#include <memory>
 #include <string>
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "grpcpp/support/byte_buffer.h"
 
@@ -37,7 +39,6 @@
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 #import "Firestore/Source/Remote/FSTStream.h"
-#import "Firestore/Source/Remote/FSTWatchChange.h"
 
 namespace firebase {
 namespace firestore {
@@ -78,7 +79,7 @@ class WatchStreamSerializer {
    */
   GCFSListenResponse* ParseResponse(const grpc::ByteBuffer& message,
                                     util::Status* out_status) const;
-  FSTWatchChange* ToWatchChange(GCFSListenResponse* proto) const;
+  std::unique_ptr<WatchChange> ToWatchChange(GCFSListenResponse* proto) const;
   model::SnapshotVersion ToSnapshotVersion(GCFSListenResponse* proto) const;
 
   /** Creates a pretty-printed description of the proto for debugging. */
@@ -180,7 +181,7 @@ class WatchStreamDelegate {
   }
 
   void NotifyDelegateOnOpen();
-  void NotifyDelegateOnChange(FSTWatchChange* change,
+  void NotifyDelegateOnChange(const WatchChange& change,
                               const model::SnapshotVersion& snapshot_version);
   void NotifyDelegateOnClose(const util::Status& status);
 
