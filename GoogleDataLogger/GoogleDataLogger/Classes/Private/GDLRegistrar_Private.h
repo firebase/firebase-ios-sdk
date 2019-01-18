@@ -19,7 +19,7 @@
 @interface GDLRegistrar ()
 
 /** The concurrent queue on which all registration occurs. */
-@property(nonatomic) dispatch_queue_t registrarQueue;
+@property(nonatomic, readonly) dispatch_queue_t registrarQueue;
 
 /** A map of logTargets to backend implementations. */
 @property(atomic, readonly)
