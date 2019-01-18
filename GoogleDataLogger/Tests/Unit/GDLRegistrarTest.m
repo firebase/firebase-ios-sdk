@@ -18,15 +18,41 @@
 
 #import <GoogleDataLogger/GDLRegistrar.h>
 
+#import "GDLRegistrar_Private.h"
+#import "GDLTestPrioritizer.h"
+#import "GDLTestUploader.h"
+
 @interface GDLRegistrarTest : GDLTestCase
+
+@property(nonatomic) GDLLogTarget logTarget;
 
 @end
 
 @implementation GDLRegistrarTest
 
+- (void)setUp {
+  _logTarget = 23;
+}
+
 /** Tests the default initializer. */
 - (void)testInit {
   XCTAssertNotNil([[GDLRegistrarTest alloc] init]);
+}
+
+/** Test registering an uploader. */
+- (void)testRegisterUpload {
+  GDLRegistrar *registrar = [GDLRegistrar sharedInstance];
+  GDLTestUploader *uploader = [[GDLTestUploader alloc] init];
+  XCTAssertNoThrow([registrar registerUploader:uploader logTarget:self.logTarget]);
+  XCTAssertEqual(uploader, registrar.logTargetToUploader[@(_logTarget)]);
+}
+
+/** Test registering a prioritizer. */
+- (void)testRegisterPrioritizer {
+  GDLRegistrar *registrar = [GDLRegistrar sharedInstance];
+  GDLTestPrioritizer *prioritizer = [[GDLTestPrioritizer alloc] init];
+  XCTAssertNoThrow([registrar registerPrioritizer:prioritizer logTarget:self.logTarget]);
+  XCTAssertEqual(prioritizer, registrar.logTargetToPrioritizer[@(_logTarget)]);
 }
 
 @end
