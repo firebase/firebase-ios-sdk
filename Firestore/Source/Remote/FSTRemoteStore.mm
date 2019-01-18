@@ -27,11 +27,6 @@
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
-<<<<<<< HEAD
-#import "Firestore/Source/Remote/FSTExistenceFilter.h"
-=======
-#import "Firestore/Source/Remote/FSTDatastore.h"
->>>>>>> master
 #import "Firestore/Source/Remote/FSTOnlineStateTracker.h"
 #import "Firestore/Source/Remote/FSTRemoteEvent.h"
 #import "Firestore/Source/Remote/FSTStream.h"
@@ -45,6 +40,7 @@
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "absl/memory/memory.h"
 
@@ -62,6 +58,7 @@ using firebase::firestore::remote::Datastore;
 using firebase::firestore::remote::WatchStream;
 using firebase::firestore::remote::WriteStream;
 using util::AsyncQueue;
+using util::Status;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -341,8 +338,8 @@ static const int kMaxPendingWrites = 10;
   }
 }
 
-- (void)watchStreamWasInterruptedWithError:(nullable NSError *)error {
-  if (!error) {
+- (void)watchStreamWasInterruptedWithError:(const Status &)error {
+  if (error.ok()) {
     // Graceful stop (due to Stop() or idle timeout). Make sure that's desirable.
     HARD_ASSERT(![self shouldStartWatchStream],
                 "Watch stream was stopped gracefully while still needed.");
@@ -352,7 +349,7 @@ static const int kMaxPendingWrites = 10;
 
   // If we still need the watch stream, retry the connection.
   if ([self shouldStartWatchStream]) {
-    [self.onlineStateTracker handleWatchStreamFailure:error];
+    [self.onlineStateTracker handleWatchStreamFailure:util::MakeNSError(error)];
 
     [self startWatchStream];
   } else {
@@ -554,8 +551,8 @@ static const int kMaxPendingWrites = 10;
  * Handles the closing of the StreamingWrite RPC, either because of an error or because the RPC
  * has been terminated by the client or the server.
  */
-- (void)writeStreamWasInterruptedWithError:(nullable NSError *)error {
-  if (!error) {
+- (void)writeStreamWasInterruptedWithError:(const Status &)error {
+  if (error.ok()) {
     // Graceful stop (due to Stop() or idle timeout). Make sure that's desirable.
     HARD_ASSERT(![self shouldStartWriteStream],
                 "Write stream was stopped gracefully while still needed.");
@@ -563,7 +560,7 @@ static const int kMaxPendingWrites = 10;
 
   // If the write stream closed due to an error, invoke the error callbacks if there are pending
   // writes.
-  if (error != nil && self.writePipeline.count > 0) {
+  if (!error.ok() && self.writePipeline.count > 0) {
     if (_writeStream->handshake_complete()) {
       // This error affects the actual writes.
       [self handleWriteError:error];
@@ -580,15 +577,16 @@ static const int kMaxPendingWrites = 10;
   }
 }
 
-- (void)handleHandshakeError:(NSError *)error {
-  HARD_ASSERT(error, "Handling write error with status OK.");
+- (void)handleHandshakeError:(const Status &)error {
+  HARD_ASSERT(!error.ok(), "Handling write error with status OK.");
   // Reset the token if it's a permanent error, signaling the write stream is
   // no longer valid. Note that the handshake does not count as a write: see
   // comments on `Datastore::IsPermanentWriteError` for details.
-  if (Datastore::IsPermanentError(util::MakeStatus(error))) {
+  if (Datastore::IsPermanentError(error)) {
     NSString *token = [_writeStream->GetLastStreamToken() base64EncodedStringWithOptions:0];
-    LOG_DEBUG("FSTRemoteStore %s error before completed handshake; resetting stream token %s: %s",
-              (__bridge void *)self, token, error);
+    LOG_DEBUG("FSTRemoteStore %s error before completed handshake; resetting stream token %s: "
+              "error code: '%s', details: '%s'",
+              (__bridge void *)self, token, error.code(), error.error_message());
     _writeStream->SetLastStreamToken(nil);
     [self.localStore setLastStreamToken:nil];
   } else {
@@ -597,10 +595,10 @@ static const int kMaxPendingWrites = 10;
   }
 }
 
-- (void)handleWriteError:(NSError *)error {
-  HARD_ASSERT(error, "Handling write error with status OK.");
+- (void)handleWriteError:(const Status &)error {
+  HARD_ASSERT(!error.ok(), "Handling write error with status OK.");
   // Only handle permanent errors here. If it's transient, just let the retry logic kick in.
-  if (!Datastore::IsPermanentWriteError(util::MakeStatus(error))) {
+  if (!Datastore::IsPermanentWriteError(error)) {
     return;
   }
 
@@ -613,7 +611,7 @@ static const int kMaxPendingWrites = 10;
   // bad request so inhibit backoff on the next restart.
   _writeStream->InhibitBackoff();
 
-  [self.syncEngine rejectFailedWriteWithBatchID:batch.batchID error:error];
+  [self.syncEngine rejectFailedWriteWithBatchID:batch.batchID error:util::MakeNSError(error)];
 
   // It's possible that with the completion of this mutation another slot has freed up.
   [self fillWritePipeline];
