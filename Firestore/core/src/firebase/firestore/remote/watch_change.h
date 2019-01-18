@@ -51,11 +51,14 @@ class WatchChange {
     TargetChange,
   };
 
-  explicit WatchChange(Type type) : type_{type} {}
+  explicit WatchChange(Type type) : type_{type} {
+  }
   virtual ~WatchChange() {
   }
 
-  Type type() const { return type_; }
+  Type type() const {
+    return type_;
+  }
 
   const Type type_;
 };
@@ -68,12 +71,12 @@ class WatchChange {
  */
 class DocumentWatchChange : public WatchChange {
  public:
-  DocumentWatchChange(std::vector<model::TargetId>&& updated_target_ids,
-                      std::vector<model::TargetId>&& removed_target_ids,
-                      model::DocumentKey&& document_key,
+  DocumentWatchChange(std::vector<model::TargetId> updated_target_ids,
+                      std::vector<model::TargetId> removed_target_ids,
+                      model::DocumentKey document_key,
                       FSTMaybeDocument* new_document)
       : WatchChange{Type::Document},
-    updated_target_ids_{std::move(updated_target_ids)},
+        updated_target_ids_{std::move(updated_target_ids)},
         removed_target_ids_{std::move(removed_target_ids)},
         document_key_{std::move(document_key)},
         new_document_{new_document} {
@@ -109,7 +112,7 @@ class DocumentWatchChange : public WatchChange {
   FSTMaybeDocument* new_document_;
 };
 
-bool operator==(const DocumentWatchChange& lhs, const DocumentWatchChange& rhs);
+// bool operator==(const DocumentWatchChange& lhs, const DocumentWatchChange& rhs);
 
 /**
  * An `ExistenceFilterWatchChange` applies to the targets and is required to
@@ -119,30 +122,35 @@ class ExistenceFilterWatchChange : public WatchChange {
  public:
   ExistenceFilterWatchChange(ExistenceFilter filter, model::TargetId target_id)
       : WatchChange{Type::ExistenceFilter},
-      filter_{filter}, target_id_{target_id} {
+        filter_{filter},
+        target_id_{target_id} {
   }
 
-  const ExistenceFilter& filter() const { return filter_; }
-  model::TargetId target_id() const { return target_id_; }
+  const ExistenceFilter& filter() const {
+    return filter_;
+  }
+  model::TargetId target_id() const {
+    return target_id_;
+  }
 
  private:
   ExistenceFilter filter_;
   model::TargetId target_id_;
 };
 
-bool operator==(const ExistenceFilterWatchChange& lhs,
-                const ExistenceFilterWatchChange& rhs);
+// bool operator==(const ExistenceFilterWatchChange& lhs,
+//                 const ExistenceFilterWatchChange& rhs);
 
 enum class WatchTargetChangeState { NoChange, Added, Removed, Current, Reset };
 
 class WatchTargetChange : public WatchChange {
  public:
   WatchTargetChange(WatchTargetChangeState state,
-                    std::vector<model::TargetId>&& target_ids,
+                    std::vector<model::TargetId> target_ids,
                     NSData* resume_token,
-                    util::Status&& cause)
+                    util::Status cause)
       : WatchChange{Type::ExistenceFilter},
-      state_{state},
+        state_{state},
         target_ids_{std::move(target_ids)},
         resume_token_{resume_token},
         cause_{std::move(cause)} {

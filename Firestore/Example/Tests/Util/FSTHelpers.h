@@ -147,12 +147,17 @@ inline NSString *FSTRemoveExceptionPrefix(NSString *exception) {
  * the documentKey and that the provided targets will be returned as active from the
  * `queryDataForTarget` target.
  */
-+ (instancetype)providerWithSingleResultForKey:(firebase::firestore::model::DocumentKey)documentKey
-                                       targets:(NSArray<FSTBoxedTargetID *> *)targets;
++ (instancetype)
+    providerWithSingleResultForKey:(firebase::firestore::model::DocumentKey)documentKey
+                           targets:
+                               (const std::vector<firebase::firestore::model::TargetId> &)targets;
 
-+ (instancetype)providerWithSingleResultForKey:(firebase::firestore::model::DocumentKey)documentKey
-                                 listenTargets:(NSArray<FSTBoxedTargetID *> *)listenTargets
-                                  limboTargets:(NSArray<FSTBoxedTargetID *> *)limboTargets;
++ (instancetype)
+    providerWithSingleResultForKey:(firebase::firestore::model::DocumentKey)documentKey
+                     listenTargets:
+                         (const std::vector<firebase::firestore::model::TargetId >&)listenTargets
+                      limboTargets:
+                          (const std::vector<firebase::firestore::model::TargetId >&)limboTargets;
 
 /**
  * Creates an FSTTestTargetMetadataProvider that behaves as if there's an established listen for
@@ -162,8 +167,10 @@ inline NSString *FSTRemoveExceptionPrefix(NSString *exception) {
  * empty set of document keys and that the provided targets will be returned as active from the
  * `queryDataForTarget` target.
  */
-+ (instancetype)providerWithEmptyResultForKey:(firebase::firestore::model::DocumentKey)documentKey
-                                      targets:(NSArray<FSTBoxedTargetID *> *)targets;
++ (instancetype)
+    providerWithEmptyResultForKey:(firebase::firestore::model::DocumentKey)documentKey
+                          targets:
+                              (const std::vector<firebase::firestore::model::TargetId> &)targets;
 
 /** Sets or replaces the local state for the provided query data. */
 - (void)setSyncedKeys:(firebase::firestore::model::DocumentKeySet)keys
@@ -276,18 +283,21 @@ FSTDeleteMutation *FSTTestDeleteMutation(NSString *path);
 firebase::firestore::model::MaybeDocumentMap FSTTestDocUpdates(NSArray<FSTMaybeDocument *> *docs);
 
 /** Creates a remote event that inserts a new document. */
-FSTRemoteEvent *FSTTestAddedRemoteEvent(FSTMaybeDocument *doc, NSArray<NSNumber *> *addedToTargets);
+FSTRemoteEvent *FSTTestAddedRemoteEvent(
+    FSTMaybeDocument *doc, const std::vector<firebase::firestore::model::TargetId> &addedToTargets);
 
 /** Creates a remote event with changes to a document. */
-FSTRemoteEvent *FSTTestUpdateRemoteEvent(FSTMaybeDocument *doc,
-                                         NSArray<NSNumber *> *updatedInTargets,
-                                         NSArray<NSNumber *> *removedFromTargets);
+FSTRemoteEvent *FSTTestUpdateRemoteEvent(
+    FSTMaybeDocument *doc,
+    const std::vector<firebase::firestore::model::TargetId> &updatedInTargets,
+    const std::vector<firebase::firestore::model::TargetId> &removedFromTargets);
 
 /** Creates a remote event with changes to a document. Allows for identifying limbo targets */
-FSTRemoteEvent *FSTTestUpdateRemoteEventWithLimboTargets(FSTMaybeDocument *doc,
-                                                         NSArray<NSNumber *> *updatedInTargets,
-                                                         NSArray<NSNumber *> *removedFromTargets,
-                                                         NSArray<NSNumber *> *limboTargets);
+FSTRemoteEvent *FSTTestUpdateRemoteEventWithLimboTargets(
+    FSTMaybeDocument *doc,
+    const std::vector<firebase::firestore::model::TargetId>& updatedInTargets,
+    const std::vector<firebase::firestore::model::TargetId>& removedFromTargets,
+    const std::vector<firebase::firestore::model::TargetId>& limboTargets);
 
 /** Creates a test view changes. */
 FSTLocalViewChanges *FSTTestViewChanges(firebase::firestore::model::TargetId targetID,
