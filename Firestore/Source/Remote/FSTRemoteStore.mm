@@ -133,7 +133,6 @@ static const int kMaxPendingWrites = 10;
   if (self = [super init]) {
     _localStore = localStore;
     _datastore = std::move(datastore);
-    _listenTargets = [NSMutableDictionary dictionary];
 
     _writePipeline = [NSMutableArray array];
     _onlineStateTracker = [[FSTOnlineStateTracker alloc] initWithWorkerQueue:queue];
@@ -441,7 +440,6 @@ static const int kMaxPendingWrites = 10;
       [self.syncEngine rejectListenWithTargetID:targetID error:util::MakeNSError(change.cause())];
     }
   }
-}
 }
 
 - (firebase::firestore::model::DocumentKeySet)remoteKeysForTarget:(FSTBoxedTargetID *)targetID {
