@@ -40,8 +40,6 @@
   if (self) {
     _coordinationQueue =
         dispatch_queue_create("com.google.GDLUploadCoordinator", DISPATCH_QUEUE_SERIAL);
-    //    _timer =
-    //      dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, _coordinationQueue);
     _registrar = [GDLRegistrar sharedInstance];
     _logTargetToNextUploadTimes = [[NSMutableDictionary alloc] init];
     _logTargetToInFlightLogSet = [[NSMutableDictionary alloc] init];
