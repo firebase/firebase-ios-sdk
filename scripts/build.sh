@@ -72,6 +72,7 @@ function RunXcodebuild() {
   # Workaround simulator flake introduced with Xcode 10.1.
   # TODO: Investigate performance implications and impact of only resetting
   #       necessary devices and skipping for macOS.
+  xcrun simctl shutdown all
   xcrun simctl erase all
   xcrun simctl boot all
 
