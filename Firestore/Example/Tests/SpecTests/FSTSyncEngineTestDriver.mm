@@ -34,6 +34,7 @@
 #import "Firestore/Example/Tests/Core/FSTSyncEngine+Testing.h"
 #import "Firestore/Example/Tests/SpecTests/FSTMockDatastore.h"
 
+#include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
@@ -46,6 +47,7 @@
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "absl/memory/memory.h"
 
+using firebase::firestore::FirestoreErrorCode;
 using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::auth::HashUser;
 using firebase::firestore::auth::User;
@@ -60,6 +62,7 @@ using firebase::firestore::remote::MockDatastore;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::TimerId;
 using firebase::firestore::util::ExecutorLibdispatch;
+using firebase::firestore::util::MakeString;
 using firebase::firestore::util::Status;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -285,7 +288,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTOutstandingWrite *)receiveWriteError:(int)errorCode
                                   userInfo:(NSDictionary<NSString *, id> *)userInfo
                                keepInQueue:(BOOL)keepInQueue {
-  Status error{errorCode, util::MakeString([userInfo description])};
+  Status error{static_cast<FirestoreErrorCode>(errorCode), MakeString([userInfo description])};
 
   FSTOutstandingWrite *write = [self currentOutstandingWrites].firstObject;
   [self validateNextWriteSent:write.write];
@@ -378,7 +381,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)receiveWatchStreamError:(int)errorCode userInfo:(NSDictionary<NSString *, id> *)userInfo {
-  Status error{errorCode, util::MakeString([userInfo description])};
+  Status error{static_cast<FirestoreErrorCode>(errorCode), MakeString([userInfo description])};
 
   _workerQueue->EnqueueBlocking([&] {
     _datastore->FailWatchStream(error);
