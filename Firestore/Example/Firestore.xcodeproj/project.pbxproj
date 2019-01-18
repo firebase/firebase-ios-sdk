@@ -635,7 +635,6 @@
 			isa = PBXGroup;
 			children = (
 				6003F593195388D20070C39A /* iOS */,
-				DAFF0CF621E64AC30062958F /* macOS_example */,
 				54D400D32148BACE001D2BCC /* GoogleService-Info.plist */,
 			);
 			path = App;
@@ -855,7 +854,6 @@
 				B79CA87A1A01FC5329031C9B /* Pods_Firestore_FuzzTests_iOS.framework */,
 				ECEBABC7E7B693BE808A1052 /* Pods_Firestore_IntegrationTests_iOS.framework */,
 				2B50B3A0DF77100EEE887891 /* Pods_Firestore_Tests_iOS.framework */,
-				E42355285B9EF55ABD785792 /* Pods_macOS_example.framework */,
 				6003F591195388D20070C39A /* UIKit.framework */,
 				6003F5AF195388D20070C39A /* XCTest.framework */,
 			);
