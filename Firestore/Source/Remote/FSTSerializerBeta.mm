@@ -738,8 +738,8 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   result.targetId = queryData.targetID;
-  if (!queryData.resumeToken.empty()) {
-    result.resumeToken = [NSData dataWithBytes: queryData.resumeToken.data() length: queryData.resumeToken.size()];
+  if (queryData.resumeToken.length > 0) {
+    result.resumeToken = queryData.resumeToken;
   }
 
   return result;
@@ -1111,15 +1111,14 @@ NS_ASSUME_NONNULL_BEGIN
     targetIDs.push_back(value);
   }];
 
-  auto tokenData = static_cast<const unsigned char *>([change.resumeToken bytes]);
-  std::vector<unsigned char> resumeToken{tokenData, tokenData + [change.resumeToken length]};
+  NSData *resumeToken = change.resumeToken;
 
   util::Status cause;
   if (change.hasCause) {
     cause = util::Status{static_cast<FirestoreErrorCode>(change.cause.code), util::MakeString(change.cause.message)};
   }
 
-  return absl::make_unique<WatchTargetChange>(state, std::move(targetIDs), std::move(resumeToken),
+  return absl::make_unique<WatchTargetChange>(state, std::move(targetIDs), resumeToken,
                                               std::move(cause));
 }
 

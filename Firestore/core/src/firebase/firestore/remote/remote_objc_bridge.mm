@@ -146,7 +146,7 @@ GCFSListenResponse* WatchStreamSerializer::ParseResponse(
   return ToProto<GCFSListenResponse>(message, out_status);
 }
 
-FSTWatchChange* WatchStreamSerializer::ToWatchChange(
+std::unique_ptr<WatchChange> WatchStreamSerializer::ToWatchChange(
     GCFSListenResponse* proto) const {
   return [serializer_ decodedWatchChange:proto];
 }
@@ -301,7 +301,7 @@ void WatchStreamDelegate::NotifyDelegateOnOpen() {
 }
 
 void WatchStreamDelegate::NotifyDelegateOnChange(
-    FSTWatchChange* change, const model::SnapshotVersion& snapshot_version) {
+    const WatchChange& change, const SnapshotVersion& snapshot_version) {
   [delegate_ watchStreamDidChange:change snapshotVersion:snapshot_version];
 }
 

@@ -18,7 +18,6 @@
 
 #include <map>
 #include <set>
-#include <vector>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -46,7 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Returns the FSTQueryData for an active target ID or 'null' if this query has become inactive
  */
-- (nullable FSTQueryData *)queryDataForTarget:(FSTBoxedTargetID *)targetID;
+- (nullable FSTQueryData *)queryDataForTarget:(firebase::firestore::model::TargetId)targetID;
 
 @end
 
@@ -65,7 +64,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Creates a new target change with the given SnapshotVersion.
  */
-- (instancetype)initWithResumeToken:(const std::vector<unsigned char>&)resumeToken
+- (instancetype)initWithResumeToken:(NSData *)resumeToken
                             current:(BOOL)current
                      addedDocuments:(firebase::firestore::model::DocumentKeySet)addedDocuments
                   modifiedDocuments:(firebase::firestore::model::DocumentKeySet)modifiedDocuments
@@ -79,7 +78,7 @@ NS_ASSUME_NONNULL_BEGIN
  * disconnecting without retransmitting all the data that matches the query. The resume token
  * essentially identifies a point in time from which the server should resume sending results.
  */
-- (const std::vector<unsigned char>&) resumeToken;
+@property(nonatomic, strong, readonly) NSData *resumeToken;
 
 /**
  * The "current" (synced) status of this target. Note that "current" has special meaning in the RPC

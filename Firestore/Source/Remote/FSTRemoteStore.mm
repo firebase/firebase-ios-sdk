@@ -38,6 +38,7 @@
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/remote/stream.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
+#include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
@@ -55,6 +56,11 @@ using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::remote::WatchStream;
 using firebase::firestore::remote::WriteStream;
+using firebase::firestore::remote::DocumentWatchChange;
+using firebase::firestore::remote::ExistenceFilterWatchChange;
+using firebase::firestore::remote::WatchChange;
+using firebase::firestore::remote::WatchTargetChange;
+using firebase::firestore::remote::WatchTargetChangeState;
 using util::AsyncQueue;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -264,7 +270,7 @@ static const int kMaxPendingWrites = 10;
 
   _listenTargets.erase(found);
   if (_watchStream->IsOpen()) {
-    [self sendUnwatchRequestForTargetID:targetID];
+    [self sendUnwatchRequestForTargetID:@(targetID)];
   }
   if (_listenTargets.empty()) {
     if (_watchStream->IsOpen()) {
@@ -316,6 +322,7 @@ static const int kMaxPendingWrites = 10;
     } else {
       [self.watchChangeAggregator handleTargetChange:watchTargetChange];
     }
+  }
     else if (change.type() == WatchChange::Type::Document) {
       [self.watchChangeAggregator
           handleDocumentChange:static_cast<const DocumentWatchChange &>(change)];
@@ -324,7 +331,7 @@ static const int kMaxPendingWrites = 10;
       HARD_ASSERT(change.type() == WatchChange::Type::ExistenceFilter,
                   "Expected watchChange to be an instance of ExistenceFilterWatchChange");
       [self.watchChangeAggregator
-          handleDocumentChange:static_cast<const ExistenceFilterWatchChange &>(change)];
+          handleExistenceFilter:static_cast<const ExistenceFilterWatchChange &>(change)];
     }
 
     if (snapshotVersion != SnapshotVersion::None() &&
@@ -372,8 +379,9 @@ static const int kMaxPendingWrites = 10;
     for (const auto &entry : remoteEvent.targetChanges) {
       NSData *resumeToken = entry.second.resumeToken;
       if (resumeToken.length > 0) {
-        FSTBoxedTargetID *targetID = @(entry.first);
-        FSTQueryData *queryData = _listenTargets[targetID];
+        TargetId targetID = entry.first;
+        auto found = _listenTargets.find(targetID);
+        FSTQueryData *queryData = found != _listenTargets.end() ? found->second : nil;
         // A watched target might have been removed already.
         if (queryData) {
           _listenTargets[targetID] =
@@ -387,10 +395,12 @@ static const int kMaxPendingWrites = 10;
     // Re-establish listens for the targets that have been invalidated by existence filter
     // mismatches.
     for (TargetId targetID : remoteEvent.targetMismatches) {
-      if (_listenTargets.find(targetID) == _listenTargets.end()) {
+      auto found = _listenTargets.find(targetID);
+      if (found == _listenTargets.end()) {
         // A watched target might have been removed already.
         continue;
       }
+      FSTQueryData* queryData = found->second;
 
       // Clear the resume token for the query, since we're in a known mismatch state.
       queryData = [[FSTQueryData alloc] initWithQuery:queryData.query
@@ -420,14 +430,14 @@ static const int kMaxPendingWrites = 10;
 
   /** Process a target error and passes the error along to SyncEngine. */
   -(void)processTargetErrorForWatchChange : (const WatchTargetChange &)change {
-    HARD_ASSERT(!change.cause.ok(), "Handling target error without a cause");
+    HARD_ASSERT(!change.cause().ok(), "Handling target error without a cause");
     // Ignore targets that have been removed already.
     for (TargetId targetID : change.target_ids()) {
       auto found = _listenTargets.find(targetID);
       if (found !=  _listenTargets.end()) {
         _listenTargets.erase(found);
         [self.watchChangeAggregator removeTarget:targetID];
-        [self.syncEngine rejectListenWithTargetID:targetID error:change.cause()];
+        [self.syncEngine rejectListenWithTargetID:targetID error:util::MakeNSError(change.cause())];
       }
     }
   }

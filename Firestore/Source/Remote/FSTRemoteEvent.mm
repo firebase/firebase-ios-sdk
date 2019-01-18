@@ -48,29 +48,24 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - FSTTargetChange
 
 @implementation FSTTargetChange {
-  std::vector<unsigned char> _resumeToken;
   DocumentKeySet _addedDocuments;
   DocumentKeySet _modifiedDocuments;
   DocumentKeySet _removedDocuments;
 }
 
-- (instancetype)initWithResumeToken:(const std::vector<unsigned char>&)resumeToken
+- (instancetype)initWithResumeToken:(NSData *)resumeToken
                             current:(BOOL)current
                      addedDocuments:(DocumentKeySet)addedDocuments
                   modifiedDocuments:(DocumentKeySet)modifiedDocuments
                    removedDocuments:(DocumentKeySet)removedDocuments {
   if (self = [super init]) {
-    _resumeToken = resumeToken;
+    _resumeToken = [resumeToken copy];
     _current = current;
     _addedDocuments = std::move(addedDocuments);
     _modifiedDocuments = std::move(modifiedDocuments);
     _removedDocuments = std::move(removedDocuments);
   }
   return self;
-}
-
-- (const std::vector<unsigned char>&) resumeToken {
-  return _resumeToken;
 }
 
 - (const DocumentKeySet &)addedDocuments {
@@ -94,7 +89,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   return [self current] == [other current] &&
-         _resumeToken == static_cast<FSTTargetChange*>(other)->_resumeToken &&
+         [[self resumeToken] isEqualToData:[other resumeToken]] &&
          [self addedDocuments] == [other addedDocuments] &&
          [self modifiedDocuments] == [other modifiedDocuments] &&
          [self removedDocuments] == [other removedDocuments];
@@ -117,7 +112,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic) BOOL current;
 
 /** The last resume token sent to us for this target. */
-- (const std::vector<unsigned char>&) resumeToken;
+@property(nonatomic, readonly, strong) NSData *resumeToken;
 
 /** Whether we have modified any state that should trigger a snapshot. */
 @property(nonatomic, readonly) BOOL hasPendingChanges;
@@ -129,7 +124,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Applies the resume token to the TargetChange, but only when it has a new value. Empty
  * resumeTokens are discarded.
  */
-- (void)updateResumeToken:(const std::vector<unsigned char>&)resumeToken;
+- (void)updateResumeToken:(NSData *)resumeToken;
 
 /** Resets the document changes and sets `hasPendingChanges` to false. */
 - (void)clearPendingChanges;
@@ -150,7 +145,6 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @implementation FSTTargetState {
-  std::vector<unsigned char> _resumeToken;
   /**
    * The number of outstanding responses (adds or removes) that we are waiting on. We only consider
    * targets active that have no outstanding responses.
@@ -168,6 +162,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init {
   if (self = [super init]) {
+    _resumeToken = [NSData data];
     _outstandingResponses = 0;
 
     // We initialize to 'true' so that newly-added targets are included in the next RemoteEvent.
@@ -180,14 +175,10 @@ NS_ASSUME_NONNULL_BEGIN
   return _outstandingResponses != 0;
 }
 
-- (const std::vector<unsigned char>&) resumeToken {
-  return _resumeToken;
-}
-
-- (void)updateResumeToken:(const std::vector<unsigned char>&)resumeToken {
-  if (!resumeToken.empty()) {
+- (void)updateResumeToken:(NSData *)resumeToken {
+  if (resumeToken.length > 0) {
     _hasPendingChanges = YES;
-    _resumeToken = resumeToken;
+    _resumeToken = [resumeToken copy];
   }
 }
 
@@ -562,7 +553,7 @@ NS_ASSUME_NONNULL_BEGIN
   auto targetState = _targetStates.find(targetID);
   return targetState != _targetStates.end() && targetState->second.isPending
              ? nil
-             : [_targetMetadataProvider queryDataForTarget:@(targetID)];
+             : [_targetMetadataProvider queryDataForTarget:targetID];
 }
 
 - (FSTRemoteEvent *)remoteEventAtSnapshotVersion:(const SnapshotVersion &)snapshotVersion {

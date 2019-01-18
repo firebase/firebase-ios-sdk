@@ -179,7 +179,7 @@ class WatchTargetChange : public WatchChange {
  private:
   WatchTargetChangeState state_;
   std::vector<model::TargetId> target_ids_;
-  std::vector<unsigned char> resume_token_;
+  NSData* resume_token_;
   util::Status cause_;
 };
 

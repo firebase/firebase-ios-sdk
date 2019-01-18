@@ -247,7 +247,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
       // Update the resume token if the change includes one. Don't clear any preexisting value.
       // Bump the sequence number as well, so that documents being removed now are ordered later
       // than documents that were previously removed from this target.
-      if (!change.resumeToken.empty()) {
+      if (change.resumeToken.length > 0) {
         FSTQueryData *oldQueryData = queryData;
         queryData = [queryData queryDataByReplacingSnapshotVersion:remoteEvent.snapshotVersion
                                                        resumeToken:change.resumeToken
@@ -330,10 +330,10 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
                   oldQueryData:(FSTQueryData *)oldQueryData
                         change:(FSTTargetChange *)change {
   // Avoid clearing any existing value
-  if (newQueryData.resumeToken.empty()) return NO;
+  if (newQueryData.resumeToken.length == 0) return NO;
 
   // Any resume token is interesting if there isn't one already.
-  if (oldQueryData.resumeToken.empty()) return YES;
+  if (oldQueryData.resumeToken.length == 0) return YES;
 
   // Don't allow resume token changes to be buffered indefinitely. This allows us to be reasonably
   // up-to-date after a crash and avoids needing to loop over all active queries on shutdown.
