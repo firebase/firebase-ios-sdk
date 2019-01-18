@@ -69,17 +69,6 @@ fi
 # Runs xcodebuild with the given flags, piping output to xcpretty
 # If xcodebuild fails with known error codes, retries once.
 function RunXcodebuild() {
-  # Workaround simulator flake introduced with Xcode 10.1.
-  # TODO: Investigate performance implications and impact of only resetting
-  #       necessary devices and skipping for macOS.
-  killall Simulator >/dev/null 2>&1 || echo "No Simulator.app running."
-  xcrun simctl shutdown booted
-  CORE_SIM_PROCESS_NAME="com.apple.CoreSimulator.CoreSimulatorService"
-  launchctl kickstart -k "user/$(id -u)/${CORE_SIM_PROCESS_NAME}"
-  killall -9 SimStreamProcessorService >/dev/null 2>&1 || true
-  killall -9 SimAudioProcessorService >/dev/null 2>&1 || true
-  xcrun simctl shutdown all
-  xcrun simctl erase all
 
   xcodebuild "$@" | xcpretty; result=$?
   if [[ $result == 65 ]]; then
