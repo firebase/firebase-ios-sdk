@@ -21,12 +21,6 @@
 
 bundle install
 
-# Workaround simulator flake introduced with Xcode 10.1.
-# TODO: Investigate performance implications and impact of only resetting
-#       necessary devices and skipping for macOS.
-xcrun simctl erase all
-xcrun simctl boot all
-
 case "$PROJECT-$PLATFORM-$METHOD" in
   Firebase-iOS-xcodebuild)
     gem install xcpretty
