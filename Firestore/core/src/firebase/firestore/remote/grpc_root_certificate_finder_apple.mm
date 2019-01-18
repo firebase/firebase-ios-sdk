@@ -35,31 +35,30 @@ using util::StatusOr;
 using util::StringFormat;
 
 NSString* FindPathToCertificatesFile() {
-  // Certificates file might be present in one of several bundles, based on
-  // the environment.
-  NSArray<NSBundle*>* bundles = @[
-    // First, try to load certificates bundled by gRPC-C++ if available
-    // (pod versions 0.0.6+).
-    [NSBundle bundleWithIdentifier:@"org.cocoapods.grpcpp"],
-    // Fall back to the certificates bundled with Firestore if necessary.
-    [NSBundle bundleForClass:FSTFirestoreClient.class],
-    // Finally, users manually adding resources to the project may add the
-    // certificate to the main application bundle. Note that `mainBundle` is nil
-    // for unit tests of library projects, so it cannot fully substitute for
-    // checking framework bundles.
-    [NSBundle mainBundle],
-  ];
+  // Certificates file might be present in either the gRPC-C++ bundle or (for
+  // some projects) in the main bundle.
+  NSBundle* bundles[] = {
+      // Try to load certificates bundled by gRPC-C++.
+      [NSBundle bundleWithIdentifier:@"org.cocoapods.grpcpp"],
+      // Users manually adding resources to the project may add the
+      // certificate to the main application bundle. Note that `mainBundle` is
+      // nil for unit tests of library projects, so it cannot fully substitute
+      // for checking the framework bundle.
+      [NSBundle mainBundle],
+  };
 
-  for (NSBundle* bundle in bundles) {
+  // search for the roots.pem file in each of these resource locations
+  NSString* possibleResources[] = {
+      @"gRPCCertificates.bundle/roots",
+      @"roots",
+  };
+
+  for (NSBundle* bundle : bundles) {
     if (!bundle) {
       continue;
     }
-    // search for the roots.pem file in each of these resource locations
-    NSArray* possibleResources = @[
-      @"gRPCCertificates.bundle/roots",
-      @"gRPCCertificates-Firestore.bundle/roots", @"roots"
-    ];
-    for (NSString* resource in possibleResources) {
+
+    for (NSString* resource : possibleResources) {
       NSString* path = [bundle pathForResource:resource ofType:@"pem"];
       if (path) {
         LOG_DEBUG("%s.pem found in bundle %s", resource,
