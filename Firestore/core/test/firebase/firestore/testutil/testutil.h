@@ -36,6 +36,7 @@
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/model/unknown_document.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/memory/memory.h"
 #include "absl/strings/string_view.h"
@@ -88,6 +89,11 @@ inline model::Document Doc(
 inline model::NoDocument DeletedDoc(absl::string_view key, int64_t version) {
   return model::NoDocument{Key(key), Version(version),
                            /*has_committed_mutations=*/false};
+}
+
+inline model::UnknownDocument UnknownDoc(absl::string_view key,
+                                         int64_t version) {
+  return model::UnknownDocument{Key(key), Version(version)};
 }
 
 inline core::RelationFilter::Operator OperatorFromString(absl::string_view s) {
@@ -150,6 +156,16 @@ inline std::unique_ptr<model::PatchMutation> PatchMutation(
     const model::ObjectValue::Map& values,
     const std::vector<model::FieldPath>& update_mask) {
   return PatchMutation(path, values, &update_mask);
+}
+
+inline std::unique_ptr<model::DeleteMutation> DeleteMutation(
+    absl::string_view path) {
+  return absl::make_unique<model::DeleteMutation>(Key(path),
+                                                  model::Precondition::None());
+}
+
+inline model::MutationResult MutationResult(int64_t version) {
+  return model::MutationResult(Version(version), nullptr);
 }
 
 inline std::vector<uint8_t> ResumeToken(int64_t snapshot_version) {

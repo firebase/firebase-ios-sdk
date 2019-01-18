@@ -22,8 +22,8 @@
 
 #include "Firestore/core/src/firebase/firestore/core/user_data.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 
-@class FSTDatastore;
 @class FSTMaybeDocument;
 @class FSTObjectValue;
 @class FSTParsedUpdateData;
@@ -36,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FSTTransaction : NSObject
 
 /** Creates a new transaction object, which can only be used for one transaction attempt. **/
-+ (instancetype)transactionWithDatastore:(FSTDatastore *)datastore;
++ (instancetype)transactionWithDatastore:(firebase::firestore::remote::Datastore *)datastore;
 
 /**
  * Takes a set of keys and asynchronously attempts to fetch all the documents from the backend,

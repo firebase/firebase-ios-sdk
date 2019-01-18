@@ -1190,7 +1190,6 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (std::unique_ptr<WatchChange>)decodedExistenceFilterWatchChange:(GCFSExistenceFilter *)filter {
-  // TODO(dimond): implement existence filter parsing
   ExistenceFilter existenceFilter{filter.count};
   TargetId targetID = filter.targetId;
   return absl::make_unique<ExistenceFilterWatchChange>(existenceFilter, targetID);

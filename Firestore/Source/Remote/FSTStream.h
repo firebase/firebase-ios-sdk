@@ -18,6 +18,7 @@
 
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
 
 @class FSTMutationResult;
 
@@ -46,7 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
  * NOTE: This will not be called after `stop` is called on the stream. See "Starting and Stopping"
  * on FSTStream for details.
  */
-- (void)watchStreamWasInterruptedWithError:(nullable NSError *)error;
+- (void)watchStreamWasInterruptedWithError:(const firebase::firestore::util::Status &)error;
 
 @end
 
@@ -79,7 +80,7 @@ NS_ASSUME_NONNULL_BEGIN
  * NOTE: This will not be called after `stop` is called on the stream. See "Starting and Stopping"
  * on FSTStream for details.
  */
-- (void)writeStreamWasInterruptedWithError:(nullable NSError *)error;
+- (void)writeStreamWasInterruptedWithError:(const firebase::firestore::util::Status &)error;
 
 @end
 

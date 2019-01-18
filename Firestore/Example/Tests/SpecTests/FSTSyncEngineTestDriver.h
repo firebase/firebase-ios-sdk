@@ -72,8 +72,8 @@ typedef std::unordered_map<firebase::firestore::auth::User,
  *
  * FSTSyncEngineTestDriver:
  *
- * + constructs an FSTSyncEngine using a mocked FSTDatastore for the backend;
- * + allows the caller to trigger events (user API calls and incoming FSTDatastore messages);
+ * + constructs an FSTSyncEngine using a mocked Datastore for the backend;
+ * + allows the caller to trigger events (user API calls and incoming Datastore messages);
  * + performs sequencing validation internally (e.g. that when a user mutation is initiated, the
  *   FSTSyncEngine correctly sends it to the remote store); and
  * + exposes the set of FSTQueryEvents generated for the caller to verify.

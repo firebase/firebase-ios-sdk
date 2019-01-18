@@ -14,13 +14,8 @@
  * limitations under the License.
  */
 
-//#include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
+#import <Cocoa/Cocoa.h>
 
-namespace firebase {
-namespace firestore {
-namespace remote {
+@interface AppDelegate : NSObject <NSApplicationDelegate>
 
-
-}  // namespace remote
-}  // namespace firestore
-}  // namespace firebase
+@end

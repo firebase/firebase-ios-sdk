@@ -34,6 +34,7 @@ namespace firestore {
 namespace remote {
 namespace bridge {
 
+using core::DatabaseInfo;
 using model::DocumentKey;
 using model::TargetId;
 using model::SnapshotVersion;
@@ -231,6 +232,11 @@ NSString* WriteStreamSerializer::Describe(GCFSWriteResponse* response) {
 
 // DatastoreSerializer
 
+DatastoreSerializer::DatastoreSerializer(const DatabaseInfo& database_info)
+    : serializer_{[[FSTSerializerBeta alloc]
+          initWithDatabaseID:&database_info.database_id()]} {
+}
+
 GCFSCommitRequest* DatastoreSerializer::CreateCommitRequest(
     NSArray<FSTMutation*>* mutations) const {
   GCFSCommitRequest* request = [GCFSCommitRequest message];
@@ -306,7 +312,7 @@ void WatchStreamDelegate::NotifyDelegateOnChange(
 }
 
 void WatchStreamDelegate::NotifyDelegateOnClose(const Status& status) {
-  [delegate_ watchStreamWasInterruptedWithError:MakeNSError(status)];
+  [delegate_ watchStreamWasInterruptedWithError:status];
 }
 
 // WriteStreamDelegate
@@ -327,7 +333,7 @@ void WriteStreamDelegate::NotifyDelegateOnCommit(
 }
 
 void WriteStreamDelegate::NotifyDelegateOnClose(const Status& status) {
-  [delegate_ writeStreamWasInterruptedWithError:MakeNSError(status)];
+  [delegate_ writeStreamWasInterruptedWithError:status];
 }
 
 }  // namespace bridge
