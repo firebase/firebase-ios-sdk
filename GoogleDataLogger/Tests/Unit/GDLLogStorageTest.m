@@ -53,8 +53,8 @@ static NSInteger logTarget = 1337;
   [super setUp];
   self.testBackend = [[GDLTestUploader alloc] init];
   self.testPrioritizer = [[GDLTestPrioritizer alloc] init];
-  [[GDLRegistrar sharedInstance] registerBackend:_testBackend forLogTarget:logTarget];
-  [[GDLRegistrar sharedInstance] registerLogPrioritizer:_testPrioritizer forLogTarget:logTarget];
+  [[GDLRegistrar sharedInstance] registerUploader:_testBackend logTarget:logTarget];
+  [[GDLRegistrar sharedInstance] registerPrioritizer:_testPrioritizer logTarget:logTarget];
   self.uploaderFake = [[GDLUploadCoordinatorFake alloc] init];
   [GDLLogStorage sharedInstance].uploader = self.uploaderFake;
 }

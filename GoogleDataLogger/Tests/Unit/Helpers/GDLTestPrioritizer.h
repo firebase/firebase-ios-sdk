@@ -31,6 +31,9 @@ NS_ASSUME_NONNULL_BEGIN
 /** Allows the running of a block of code during -prioritizeLog. */
 @property(nullable, nonatomic) void (^prioritizeLogBlock)(GDLLogEvent *logEvent);
 
+/** A block that can run before -logsForNextUpload completes. */
+@property(nullable, nonatomic) void (^logsForNextUploadBlock)(void);
+
 @end
 
 NS_ASSUME_NONNULL_END

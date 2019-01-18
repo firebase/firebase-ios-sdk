@@ -27,6 +27,9 @@
 }
 
 - (NSSet<NSNumber *> *)logsForNextUpload {
+  if (_logsForNextUploadBlock) {
+    _logsForNextUploadBlock();
+  }
   return _logsForNextUploadFake;
 }
 

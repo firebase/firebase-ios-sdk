@@ -21,8 +21,10 @@
 @implementation GDLRegistrar (Testing)
 
 - (void)reset {
-  [self.logTargetToPrioritizer removeAllObjects];
-  [self.logTargetToUploader removeAllObjects];
+  dispatch_sync(self.registrarQueue, ^{
+    [self.logTargetToPrioritizer removeAllObjects];
+    [self.logTargetToUploader removeAllObjects];
+  });
 }
 
 @end

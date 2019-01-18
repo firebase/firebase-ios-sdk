@@ -18,7 +18,13 @@
 
 #import "GDLRegistrar_Private.h"
 
-@implementation GDLRegistrar
+@implementation GDLRegistrar {
+  /** Backing ivar for logTargetToUploader property. */
+  NSMutableDictionary<NSNumber *, id<GDLLogUploader>> *_logTargetToUploader;
+
+  /** Backing ivar for logTargetToPrioritizer property. */
+  NSMutableDictionary<NSNumber *, id<GDLLogPrioritizer>> *_logTargetToPrioritizer;
+}
 
 + (instancetype)sharedInstance {
   static GDLRegistrar *sharedInstance;
@@ -32,19 +38,55 @@
 - (instancetype)init {
   self = [super init];
   if (self) {
+    _registrarQueue = dispatch_queue_create("com.google.GDLRegistrar", DISPATCH_QUEUE_CONCURRENT);
     _logTargetToPrioritizer = [[NSMutableDictionary alloc] init];
     _logTargetToUploader = [[NSMutableDictionary alloc] init];
   }
   return self;
 }
 
-- (void)registerBackend:(id<GDLLogUploader>)backend forLogTarget:(GDLLogTarget)logTarget {
-  self.logTargetToUploader[@(logTarget)] = backend;
+- (void)registerUploader:(id<GDLLogUploader>)backend logTarget:(GDLLogTarget)logTarget {
+  __weak GDLRegistrar *weakSelf = self;
+  dispatch_barrier_async(_registrarQueue, ^{
+    GDLRegistrar *strongSelf = weakSelf;
+    if (strongSelf) {
+      strongSelf->_logTargetToUploader[@(logTarget)] = backend;
+    }
+  });
 }
 
-- (void)registerLogPrioritizer:(id<GDLLogPrioritizer>)prioritizer
-                  forLogTarget:(GDLLogTarget)logTarget {
-  self.logTargetToPrioritizer[@(logTarget)] = prioritizer;
+- (void)registerPrioritizer:(id<GDLLogPrioritizer>)prioritizer logTarget:(GDLLogTarget)logTarget {
+  __weak GDLRegistrar *weakSelf = self;
+  dispatch_barrier_async(_registrarQueue, ^{
+    GDLRegistrar *strongSelf = weakSelf;
+    if (strongSelf) {
+      strongSelf->_logTargetToPrioritizer[@(logTarget)] = prioritizer;
+    }
+  });
+}
+
+- (NSMutableDictionary<NSNumber *, id<GDLLogUploader>> *)logTargetToUploader {
+  __block NSMutableDictionary<NSNumber *, id<GDLLogUploader>> *logTargetToUploader;
+  __weak GDLRegistrar *weakSelf = self;
+  dispatch_sync(_registrarQueue, ^{
+    GDLRegistrar *strongSelf = weakSelf;
+    if (strongSelf) {
+      logTargetToUploader = strongSelf->_logTargetToUploader;
+    }
+  });
+  return logTargetToUploader;
+}
+
+- (NSMutableDictionary<NSNumber *, id<GDLLogPrioritizer>> *)logTargetToPrioritizer {
+  __block NSMutableDictionary<NSNumber *, id<GDLLogPrioritizer>> *logTargetToPrioritizer;
+  __weak GDLRegistrar *weakSelf = self;
+  dispatch_sync(_registrarQueue, ^{
+    GDLRegistrar *strongSelf = weakSelf;
+    if (strongSelf) {
+      logTargetToPrioritizer = strongSelf->_logTargetToPrioritizer;
+    }
+  });
+  return logTargetToPrioritizer;
 }
 
 @end

@@ -36,15 +36,14 @@ NS_ASSUME_NONNULL_BEGIN
  * @param backend The backend object to register.
  * @param logTarget The logTarget this backend object will be responsible for.
  */
-- (void)registerBackend:(id<GDLLogUploader>)backend forLogTarget:(GDLLogTarget)logTarget;
+- (void)registerUploader:(id<GDLLogUploader>)backend logTarget:(GDLLogTarget)logTarget;
 
 /** Registers a log prioritizer implementation with the GoogleDataLogger infrastructure.
  *
  * @param prioritizer The prioritizer object to register.
  * @param logTarget The logTarget this prioritizer object will be responsible for.
  */
-- (void)registerLogPrioritizer:(id<GDLLogPrioritizer>)prioritizer
-                  forLogTarget:(GDLLogTarget)logTarget;
+- (void)registerPrioritizer:(id<GDLLogPrioritizer>)prioritizer logTarget:(GDLLogTarget)logTarget;
 
 @end
 

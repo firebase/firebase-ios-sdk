@@ -33,6 +33,9 @@ typedef NS_ENUM(NSInteger, GDLMessageCode) {
   /** For warning messages concerning protoBytes: not being implemented by a log extension. */
   GDLMCWExtensionMissingBytesImpl = 1,
 
+  /** For warning message concerning a failed log upload. */
+  GDLMCWUploadFailed = 2,
+
   /** For error messages concerning transform: not being implemented by a log transformer. */
   GDLMCETransformerDoesntImplementTransform = 1000,
 

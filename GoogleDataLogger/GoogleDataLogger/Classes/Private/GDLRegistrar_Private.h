@@ -18,10 +18,15 @@
 
 @interface GDLRegistrar ()
 
+/** The concurrent queue on which all registration occurs. */
+@property(nonatomic, readonly) dispatch_queue_t registrarQueue;
+
 /** A map of logTargets to backend implementations. */
-@property(nonatomic) NSMutableDictionary<NSNumber *, id<GDLLogUploader>> *logTargetToUploader;
+@property(atomic, readonly)
+    NSMutableDictionary<NSNumber *, id<GDLLogUploader>> *logTargetToUploader;
 
 /** A map of logTargets to prioritizer implementations. */
-@property(nonatomic) NSMutableDictionary<NSNumber *, id<GDLLogPrioritizer>> *logTargetToPrioritizer;
+@property(atomic, readonly)
+    NSMutableDictionary<NSNumber *, id<GDLLogPrioritizer>> *logTargetToPrioritizer;
 
 @end
