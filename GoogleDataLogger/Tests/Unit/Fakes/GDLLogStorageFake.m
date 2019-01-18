@@ -21,4 +21,18 @@
 - (void)storeLog:(GDLLogEvent *)log {
 }
 
+- (NSSet<NSURL *> *)logHashesToFiles:(NSSet<NSNumber *> *)logHashes {
+  if (_logsToReturnFromLogHashesToFiles) {
+    return _logsToReturnFromLogHashesToFiles;
+  } else {
+    return [[NSSet alloc] init];
+  }
+}
+
+- (void)removeLog:(NSNumber *)logHash logTarget:(NSNumber *)logTarget {
+}
+
+- (void)removeLogs:(NSSet<NSNumber *> *)logHashes logTarget:(NSNumber *)logTarget {
+}
+
 @end

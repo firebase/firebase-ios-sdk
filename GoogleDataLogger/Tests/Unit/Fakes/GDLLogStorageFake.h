@@ -21,6 +21,9 @@ NS_ASSUME_NONNULL_BEGIN
 /** A functionless fake that can be injected into classes that need it. */
 @interface GDLLogStorageFake : GDLLogStorage
 
+/** The logs to return from -logHashesToFiles. */
+@property(nonatomic) NSSet<NSURL *> *logsToReturnFromLogHashesToFiles;
+
 @end
 
 NS_ASSUME_NONNULL_END
