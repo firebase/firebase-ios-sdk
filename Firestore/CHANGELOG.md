@@ -2,13 +2,15 @@
 
 # v1.0.0
 - [changed] The `areTimestampsInSnapshotsEnabled` setting is now enabled by
-  default so timestamp fields read from a FIRDocumentSnapshot will be returned
-  as FIRTimestamp objects instead of NSDate. Any code expecting to receive an
-  NSDate object must be updated.
-- [changed] `Transaction.getDocument()` has been changed to return a non-nil
-  `DocumentSnapshot` with `exists` equal to `false` if the document does not
-  exist (instead of returning a nil DocumentSnapshot). Code that was previously
-  doing `if (snapshot) { ... }` must be changed to
+  default. Timestamp fields that read from a `FIRDocumentSnapshot` are now
+  returned as `FIRTimestamp` objects instead of `NSDate` objects. This is a
+  breaking change; developers must update any code that expects to receive a
+  `NSDate` object. See https://firebase.google.com/docs/reference/ios/firebasefirestore/api/reference/Classes/FIRFirestoreSettings#/c:objc(cs)FIRFirestoreSettings(py)timestampsInSnapshotsEnabled
+  for more details.
+- [changed] `FIRTransaction.getDocument()` has been changed to return a non-nil
+  `FIRDocumentSnapshot` with `exists` equal to `false` if the document does not
+  exist (instead of returning a nil `FIRDocumentSnapshot`). Code that was
+  previously doing `if (snapshot) { ... }` must be changed to
   `if (snapshot.exists) { ... }`.
 - [fixed] Fixed a crash that could happen when the app is shut down after
   a write has been sent to the server but before it has been received on
