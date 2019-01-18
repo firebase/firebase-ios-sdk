@@ -58,6 +58,7 @@ using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::remote::MockDatastore;
+using firebase::firestore::remote::WatchChange;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::TimerId;
 using firebase::firestore::util::ExecutorLibdispatch;
@@ -374,7 +375,7 @@ NS_ASSUME_NONNULL_BEGIN
   });
 }
 
-- (void)receiveWatchChange:(FSTWatchChange *)change
+- (void)receiveWatchChange:(const WatchChange&)change
            snapshotVersion:(const SnapshotVersion &)snapshot {
   _workerQueue->EnqueueBlocking([&] { _datastore->WriteWatchChange(change, snapshot); });
 }

@@ -89,7 +89,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 /**
- * Creates an aggregator initialized with the set of provided FSTWatchChanges. Tests can add further
+ * Creates an aggregator initialized with the set of provided `WatchChange`s. Tests can add further
  * changes via `handleDocumentChange`, `handleTargetChange` and `handleExistenceFilterChange`.
  *
  * @param targetMap A map of query data for all active targets. The map must include an entry for
@@ -100,7 +100,7 @@ NS_ASSUME_NONNULL_BEGIN
  * part of a previous listen. To modify this set during test execution, invoke
  * `[_targetMetadataProvider setSyncedKeys:forQueryData:]`.
  * @param watchChanges The watch changes to apply before returning the aggregator. Supported
- * changes are FSTDocumentWatchChange and FSTWatchTargetChange.
+ * changes are `DocumentWatchChange` and `WatchTargetChange`.
  */
 - (FSTWatchChangeAggregator *)
     aggregatorWithTargetMap:(NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *)targetMap

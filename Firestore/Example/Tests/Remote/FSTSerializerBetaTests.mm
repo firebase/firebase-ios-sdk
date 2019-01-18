@@ -51,6 +51,7 @@
 #include "Firestore/core/src/firebase/firestore/model/field_transform.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
@@ -62,6 +63,11 @@ using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldTransform;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::SnapshotVersion;
+using firebase::firestore::remote::DocumentWatchChange;
+using firebase::firestore::remote::WatchChange;
+using firebase::firestore::remote::WatchTargetChange;
+using firebase::firestore::remote::WatchTargetChangeState;
+using firebase::firestore::util::Status;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -766,21 +772,20 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testConvertsTargetChangeWithAdded {
-  FSTWatchChange *expected =
-      [[FSTWatchTargetChange alloc] initWithState:FSTWatchTargetChangeStateAdded
-                                        targetIDs:@[ @1, @4 ]
-                                      resumeToken:[NSData data]
-                                            cause:nil];
+  WatchTargetChange expected{WatchTargetChangeState::Added, {1, 4}};
   GCFSListenResponse *listenResponse = [GCFSListenResponse message];
   listenResponse.targetChange.targetChangeType = GCFSTargetChange_TargetChangeType_Add;
   [listenResponse.targetChange.targetIdsArray addValue:1];
   [listenResponse.targetChange.targetIdsArray addValue:4];
-  FSTWatchChange *actual = [self.serializer decodedWatchChange:listenResponse];
 
-  XCTAssertEqualObjects(actual, expected);
+  std::unique_ptr<WatchChange> actual = [self.serializer decodedWatchChange:listenResponse];
+  XCTAssertEqual(actual->type(), WatchChange::Type::TargetChange);
+  XCTAssertEqual(static_cast<WatchTargetChange>*actual, expected);
 }
 
 - (void)testConvertsTargetChangeWithRemoved {
+  WatchTargetChange expected{WatchTargetChangeState::Removed, {1, 4}};
+
   FSTWatchChange *expected = [[FSTWatchTargetChange alloc]
       initWithState:FSTWatchTargetChangeStateRemoved
           targetIDs:@[ @1, @4 ]

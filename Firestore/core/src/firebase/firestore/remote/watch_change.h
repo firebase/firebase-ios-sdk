@@ -146,10 +146,27 @@ enum class WatchTargetChangeState { NoChange, Added, Removed, Current, Reset };
 class WatchTargetChange : public WatchChange {
  public:
   WatchTargetChange(WatchTargetChangeState state,
+                    std::vector<model::TargetId> target_ids)
+      : WatchTargetChange{state, std::move(target_ids), [NSData data], util::Status::OK()} {
+      }
+
+  WatchTargetChange(WatchTargetChangeState state,
+                    std::vector<model::TargetId> target_ids,
+                    NSData* resume_token)
+      : WatchTargetChange{state, std::move(target_ids), resume_token, util::Status::OK()} {
+      }
+
+  WatchTargetChange(WatchTargetChangeState state,
+                    std::vector<model::TargetId> target_ids,
+                    util::Status cause)
+      : WatchTargetChange{state, std::move(target_ids), [NSData data], cause} {
+      }
+
+  WatchTargetChange(WatchTargetChangeState state,
                     std::vector<model::TargetId> target_ids,
                     NSData* resume_token,
                     util::Status cause)
-      : WatchChange{Type::ExistenceFilter},
+      : WatchChange{Type::TargetChange},
         state_{state},
         target_ids_{std::move(target_ids)},
         resume_token_{resume_token},
