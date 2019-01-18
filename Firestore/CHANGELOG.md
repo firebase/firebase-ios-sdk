@@ -7,9 +7,9 @@
   breaking change; developers must update any code that expects to receive a
   `NSDate` object. See https://firebase.google.com/docs/reference/ios/firebasefirestore/api/reference/Classes/FIRFirestoreSettings#/c:objc(cs)FIRFirestoreSettings(py)timestampsInSnapshotsEnabled
   for more details.
-- [changed] `Transaction.getDocument()` has been changed to return a non-nil
-  `DocumentSnapshot` with `exists` equal to `false` if the document does not
-  exist (instead of returning a nil `DocumentSnapshot`). Code that was
+- [changed] `FIRTransaction.getDocument()` has been changed to return a non-nil
+  `FIRDocumentSnapshot` with `exists` equal to `false` if the document does not
+  exist (instead of returning a nil `FIRDocumentSnapshot`). Code that was
   previously doing `if (snapshot) { ... }` must be changed to
   `if (snapshot.exists) { ... }`.
 - [fixed] Fixed a crash that could happen when the app is shut down after
