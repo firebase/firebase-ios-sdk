@@ -36,14 +36,13 @@ namespace remote {
 using util::AsyncQueue;
 using util::ByteBufferToString;
 using util::CompletionEndState;
+using util::CompletionResult;
 using util::CreateNoOpConnectivityMonitor;
 using util::ExecutorStd;
 using util::GrpcStreamTester;
 using util::MakeByteBuffer;
 using util::Status;
 using util::StatusOr;
-using util::CompletionResult::Error;
-using util::CompletionResult::Ok;
 using Type = GrpcCompletion::Type;
 
 class GrpcUnaryCallTest : public testing::Test {
@@ -133,7 +132,7 @@ TEST_F(GrpcUnaryCallDeathTest, CannotStartTwice) {
 
 TEST_F(GrpcUnaryCallDeathTest, CannotRestart) {
   StartCall();
-  ForceFinish({{Type::Finish, Ok}});
+  ForceFinish({{Type::Finish, CompletionResult::Ok}});
   EXPECT_DEATH_IF_SUPPORTED(StartCall(), "");
 }
 
