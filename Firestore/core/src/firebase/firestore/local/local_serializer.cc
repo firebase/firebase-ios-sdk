@@ -108,7 +108,7 @@ google_firestore_v1_Document LocalSerializer::EncodeDocument(
 
   // Encode Document.fields (unless it's empty)
   size_t count = doc.data().object_value().internal_value.size();
-  result.fields_count = count;
+  result.fields_count = static_cast<pb_size_t>(count);
   result.fields = MakeArray<google_firestore_v1_Document_FieldsEntry>(count);
   int i = 0;
   for (const auto& kv : doc.data().object_value().internal_value) {
