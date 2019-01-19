@@ -112,7 +112,13 @@ class DocumentWatchChange : public WatchChange {
   FSTMaybeDocument* new_document_;
 };
 
-// bool operator==(const DocumentWatchChange& lhs, const DocumentWatchChange& rhs);
+inline bool operator==(const DocumentWatchChange& lhs,
+                       const DocumentWatchChange& rhs) {
+  return lhs.updated_target_ids() == rhs.updated_target_ids() &&
+         lhs.removed_target_ids() == rhs.removed_target_ids() &&
+         lhs.document_key() == rhs.document_key() &&
+         [lhs.new_document_ isEqual:rhs.new_document_];
+}
 
 /**
  * An `ExistenceFilterWatchChange` applies to the targets and is required to
@@ -138,8 +144,10 @@ class ExistenceFilterWatchChange : public WatchChange {
   model::TargetId target_id_;
 };
 
-// bool operator==(const ExistenceFilterWatchChange& lhs,
-//                 const ExistenceFilterWatchChange& rhs);
+inline bool operator==(const ExistenceFilterWatchChange& lhs,
+                       const ExistenceFilterWatchChange& rhs) {
+  return lhs.filter_ == rhs.filter_ && lhs.target_id_ == rhs.target_is_;
+}
 
 enum class WatchTargetChangeState { NoChange, Added, Removed, Current, Reset };
 
@@ -147,20 +155,22 @@ class WatchTargetChange : public WatchChange {
  public:
   WatchTargetChange(WatchTargetChangeState state,
                     std::vector<model::TargetId> target_ids)
-      : WatchTargetChange{state, std::move(target_ids), [NSData data], util::Status::OK()} {
-      }
+      : WatchTargetChange{state, std::move(target_ids), [NSData data],
+                          util::Status::OK()} {
+  }
 
   WatchTargetChange(WatchTargetChangeState state,
                     std::vector<model::TargetId> target_ids,
                     NSData* resume_token)
-      : WatchTargetChange{state, std::move(target_ids), resume_token, util::Status::OK()} {
-      }
+      : WatchTargetChange{state, std::move(target_ids), resume_token,
+                          util::Status::OK()} {
+  }
 
   WatchTargetChange(WatchTargetChangeState state,
                     std::vector<model::TargetId> target_ids,
                     util::Status cause)
       : WatchTargetChange{state, std::move(target_ids), [NSData data], cause} {
-      }
+  }
 
   WatchTargetChange(WatchTargetChangeState state,
                     std::vector<model::TargetId> target_ids,
@@ -207,6 +217,13 @@ class WatchTargetChange : public WatchChange {
   NSData* resume_token_;
   util::Status cause_;
 };
+
+inline bool operator==(const WatchTargetChangeState& lhs,
+                       const WatchTargetChangeState& rhs) {
+  return lhs.state() == rhs.state() && lhs.target_ids() == rhs.target_ids() &&
+         [lhs.resume_token() isEqual:rhs.resume_token()] &&
+         lhs.cause() == rhs.cause();
+}
 
 }  // namespace remote
 }  // namespace firestore

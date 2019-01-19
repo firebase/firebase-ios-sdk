@@ -51,6 +51,7 @@
 #include "Firestore/core/src/firebase/firestore/model/field_transform.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
@@ -68,6 +69,31 @@ using firebase::firestore::remote::WatchChange;
 using firebase::firestore::remote::WatchTargetChange;
 using firebase::firestore::remote::WatchTargetChangeState;
 using firebase::firestore::util::Status;
+
+namespace {
+
+template <typename T>
+bool Equals(const WatchChange &lhs, const WatchChange &rhs) {
+  return *static_cast<T>(lhs) == *static_cast<T>(rhs);
+}
+
+bool operator==(const WatchChange &lhs, const WatchChange &rhs) {
+  if (lhs.type() != rhs.type()) {
+    return false;
+  }
+
+  switch (lhs.type()) {
+    case WatchChange::Type::Document:
+      return Equals<DocumentWatchChange>(lhs, rhs);
+    case WatchChange::Type::ExistenceFilter:
+      return Equals<ExistenceFilterWatchChange>(lhs, rhs);
+    case WatchChange::Type::TargetChange:
+      return Equals<WatchTargetChange>(lhs, rhs);
+  }
+  UNREACHABLE();
+}
+
+}  // namespace
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -778,23 +804,18 @@ NS_ASSUME_NONNULL_BEGIN
   [listenResponse.targetChange.targetIdsArray addValue:1];
   [listenResponse.targetChange.targetIdsArray addValue:4];
 
-  std::unique_ptr<WatchChange> actual = [self.serializer decodedWatchChange:listenResponse];
-  XCTAssertEqual(actual->type(), WatchChange::Type::TargetChange);
-  XCTAssertEqual(static_cast<WatchTargetChange>*actual, expected);
+  std::unique_ptr<WatchChange> actualBase = [self.serializer decodedWatchChange:listenResponse];
+  XCTAssertEqual(actualBase->type(), WatchChange::Type::TargetChange);
+  auto actual = static_cast<WatchTargetChange *>(actualBase.get());
+  XCTAssertTrue(*actual == expected);
 }
 
 - (void)testConvertsTargetChangeWithRemoved {
-  WatchTargetChange expected{WatchTargetChangeState::Removed, {1, 4}};
+  WatchTargetChange expected{WatchTargetChangeState::Removed,
+                             {1, 4},
+                             FSTTestData(0, 1, 2, -1),
+                             Status{FirestoreErrorCode::PermissionDenied, "Error message"}};
 
-  FSTWatchChange *expected = [[FSTWatchTargetChange alloc]
-      initWithState:FSTWatchTargetChangeStateRemoved
-          targetIDs:@[ @1, @4 ]
-        resumeToken:FSTTestData(0, 1, 2, -1)
-              cause:[NSError errorWithDomain:FIRFirestoreErrorDomain
-                                        code:FIRFirestoreErrorCodePermissionDenied
-                                    userInfo:@{
-                                      NSLocalizedDescriptionKey : @"Error message",
-                                    }]];
   GCFSListenResponse *listenResponse = [GCFSListenResponse message];
   listenResponse.targetChange.targetChangeType = GCFSTargetChange_TargetChangeType_Remove;
   listenResponse.targetChange.cause.code = FIRFirestoreErrorCodePermissionDenied;
@@ -802,33 +823,31 @@ NS_ASSUME_NONNULL_BEGIN
   listenResponse.targetChange.resumeToken = FSTTestData(0, 1, 2, -1);
   [listenResponse.targetChange.targetIdsArray addValue:1];
   [listenResponse.targetChange.targetIdsArray addValue:4];
-  FSTWatchChange *actual = [self.serializer decodedWatchChange:listenResponse];
 
-  XCTAssertEqualObjects(actual, expected);
+  std::unique_ptr<WatchChange> actualBase = [self.serializer decodedWatchChange:listenResponse];
+  XCTAssertEqual(actualBase->type(), WatchChange::Type::TargetChange);
+  auto actual = static_cast<WatchTargetChange *>(actualBase.get());
+  XCTAssertTrue(*actual == expected);
 }
 
 - (void)testConvertsTargetChangeWithNoChange {
-  FSTWatchChange *expected =
-      [[FSTWatchTargetChange alloc] initWithState:FSTWatchTargetChangeStateNoChange
-                                        targetIDs:@[ @1, @4 ]
-                                      resumeToken:[NSData data]
-                                            cause:nil];
+  WatchTargetChange expected{WatchTargetChangeState::NoChange, {1, 4}};
   GCFSListenResponse *listenResponse = [GCFSListenResponse message];
   listenResponse.targetChange.targetChangeType = GCFSTargetChange_TargetChangeType_NoChange;
   [listenResponse.targetChange.targetIdsArray addValue:1];
   [listenResponse.targetChange.targetIdsArray addValue:4];
-  FSTWatchChange *actual = [self.serializer decodedWatchChange:listenResponse];
 
-  XCTAssertEqualObjects(actual, expected);
+  std::unique_ptr<WatchChange> actualBase = [self.serializer decodedWatchChange:listenResponse];
+  XCTAssertEqual(actualBase->type(), WatchChange::Type::TargetChange);
+  auto actual = static_cast<WatchTargetChange *>(actualBase.get());
+  XCTAssertTrue(*actual == expected);
 }
 
 - (void)testConvertsDocumentChangeWithTargetIds {
-  FSTWatchChange *expected = [[FSTDocumentWatchChange alloc]
-      initWithUpdatedTargetIDs:@[ @1, @2 ]
-              removedTargetIDs:@[]
-                   documentKey:FSTTestDocKey(@"coll/1")
-                      document:FSTTestDoc("coll/1", 5, @{@"foo" : @"bar"}, FSTDocumentStateSynced)];
-  GCFSListenResponse *listenResponse = [GCFSListenResponse message];
+  DocumentWatchChange expected {
+    {1, 2}, {}, FSTTestDocKey(@"coll/1"),
+        FSTTestDoc("coll/1", 5, @{@"foo" : @"bar"}, FSTDocumentStateSynced)
+  };
   listenResponse.documentChange.document.name = @"projects/p/databases/d/documents/coll/1";
   listenResponse.documentChange.document.updateTime.nanos = 5000;
   GCFSValue *fooValue = [GCFSValue message];
@@ -836,17 +855,19 @@ NS_ASSUME_NONNULL_BEGIN
   [listenResponse.documentChange.document.fields setObject:fooValue forKey:@"foo"];
   [listenResponse.documentChange.targetIdsArray addValue:1];
   [listenResponse.documentChange.targetIdsArray addValue:2];
-  FSTWatchChange *actual = [self.serializer decodedWatchChange:listenResponse];
 
-  XCTAssertEqualObjects(actual, expected);
+  std::unique_ptr<WatchChange> actualBase = [self.serializer decodedWatchChange:listenResponse];
+  XCTAssertEqual(actualBase->type(), WatchChange::Type::Document);
+  auto actual = static_cast<WatchTargetChange *>(actualBase.get());
+  XCTAssertTrue(*actual == expected);
 }
 
 - (void)testConvertsDocumentChangeWithRemovedTargetIds {
-  FSTWatchChange *expected = [[FSTDocumentWatchChange alloc]
-      initWithUpdatedTargetIDs:@[ @2 ]
-              removedTargetIDs:@[ @1 ]
-                   documentKey:FSTTestDocKey(@"coll/1")
-                      document:FSTTestDoc("coll/1", 5, @{@"foo" : @"bar"}, FSTDocumentStateSynced)];
+  DocumentWatchChange expected {
+    {2}, {1}, FSTTestDocKey(@"coll/1"),
+        FSTTestDoc("coll/1", 5, @{@"foo" : @"bar"}, FSTDocumentStateSynced)
+  };
+
   GCFSListenResponse *listenResponse = [GCFSListenResponse message];
   listenResponse.documentChange.document.name = @"projects/p/databases/d/documents/coll/1";
   listenResponse.documentChange.document.updateTime.nanos = 5000;
@@ -855,40 +876,40 @@ NS_ASSUME_NONNULL_BEGIN
   [listenResponse.documentChange.document.fields setObject:fooValue forKey:@"foo"];
   [listenResponse.documentChange.removedTargetIdsArray addValue:1];
   [listenResponse.documentChange.targetIdsArray addValue:2];
-  FSTWatchChange *actual = [self.serializer decodedWatchChange:listenResponse];
 
-  XCTAssertEqualObjects(actual, expected);
+  std::unique_ptr<WatchChange> actualBase = [self.serializer decodedWatchChange:listenResponse];
+  XCTAssertEqual(actualBase->type(), WatchChange::Type::Document);
+  auto actual = static_cast<WatchTargetChange *>(actualBase.get());
+  XCTAssertTrue(*actual == expected);
 }
 
 - (void)testConvertsDocumentChangeWithDeletions {
-  FSTWatchChange *expected =
-      [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[]
-                                              removedTargetIDs:@[ @1, @2 ]
-                                                   documentKey:FSTTestDocKey(@"coll/1")
-                                                      document:FSTTestDeletedDoc("coll/1", 5, NO)];
+  DocumentWatchChange expected{{}, {1, 2}, FSTTestDocKey(@"coll/1"), FSTTestDoc("coll/1", 5, NO)};
+
   GCFSListenResponse *listenResponse = [GCFSListenResponse message];
   listenResponse.documentDelete.document = @"projects/p/databases/d/documents/coll/1";
   listenResponse.documentDelete.readTime.nanos = 5000;
   [listenResponse.documentDelete.removedTargetIdsArray addValue:1];
   [listenResponse.documentDelete.removedTargetIdsArray addValue:2];
-  FSTWatchChange *actual = [self.serializer decodedWatchChange:listenResponse];
 
-  XCTAssertEqualObjects(actual, expected);
+  std::unique_ptr<WatchChange> actualBase = [self.serializer decodedWatchChange:listenResponse];
+  XCTAssertEqual(actualBase->type(), WatchChange::Type::Document);
+  auto actual = static_cast<WatchTargetChange *>(actualBase.get());
+  XCTAssertTrue(*actual == expected);
 }
 
 - (void)testConvertsDocumentChangeWithRemoves {
-  FSTWatchChange *expected =
-      [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[]
-                                              removedTargetIDs:@[ @1, @2 ]
-                                                   documentKey:FSTTestDocKey(@"coll/1")
-                                                      document:nil];
+  DocumentWatchChange expected{{}, {1, 2}, FSTTestDocKey(@"coll/1"), nil};
+
   GCFSListenResponse *listenResponse = [GCFSListenResponse message];
   listenResponse.documentRemove.document = @"projects/p/databases/d/documents/coll/1";
   [listenResponse.documentRemove.removedTargetIdsArray addValue:1];
   [listenResponse.documentRemove.removedTargetIdsArray addValue:2];
-  FSTWatchChange *actual = [self.serializer decodedWatchChange:listenResponse];
 
-  XCTAssertEqualObjects(actual, expected);
+  std::unique_ptr<WatchChange> actualBase = [self.serializer decodedWatchChange:listenResponse];
+  XCTAssertEqual(actualBase->type(), WatchChange::Type::Document);
+  auto actual = static_cast<WatchTargetChange *>(actualBase.get());
+  XCTAssertTrue(*actual == expected);
 }
 
 @end
