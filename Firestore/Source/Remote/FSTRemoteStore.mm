@@ -261,7 +261,7 @@ static const int kMaxPendingWrites = 10;
 }
 
 - (void)sendWatchRequestWithQueryData:(FSTQueryData *)queryData {
-  [self.watchChangeAggregator recordTargetRequest:@(queryData.targetID)];
+  [self.watchChangeAggregator recordTargetRequest:queryData.targetID];
   _watchStream->WatchQuery(queryData);
 }
 
@@ -287,7 +287,7 @@ static const int kMaxPendingWrites = 10;
 }
 
 - (void)sendUnwatchRequestForTargetID:(FSTBoxedTargetID *)targetID {
-  [self.watchChangeAggregator recordTargetRequest:targetID];
+  [self.watchChangeAggregator recordTargetRequest:targetID.intValue];
   _watchStream->UnwatchTargetId([targetID intValue]);
 }
 

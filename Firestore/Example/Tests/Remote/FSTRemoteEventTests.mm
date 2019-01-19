@@ -43,7 +43,9 @@ using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::remote::ExistenceFilter;
+using firebase::firestore::remote::DocumentWatchChange;
 using firebase::firestore::remote::WatchChange;
+using firebase::firestore::remote::WatchTargetChange;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -133,7 +135,7 @@ NS_ASSUME_NONNULL_BEGIN
   [outstandingResponses
       enumerateKeysAndObjectsUsingBlock:^(FSTBoxedTargetID *targetID, NSNumber *count, BOOL *stop) {
         for (int i = 0; i < count.intValue; ++i) {
-          [aggregator recordTargetRequest:@(targetID)];
+          [aggregator recordTargetRequest:targetID.intValue];
         }
       }];
 
@@ -143,8 +145,8 @@ NS_ASSUME_NONNULL_BEGIN
         [aggregator handleDocumentChange:*static_cast<DocumentWatchChange *>(change.get())];
         break;
       }
-      case WatchChange::Type::WatchTargetChange: {
-        [aggregator handleDocumentChange:*static_cast<WatchTargetChange *>(change.get())];
+      case WatchChange::Type::TargetChange: {
+        [aggregator handleTargetChange:*static_cast<WatchTargetChange *>(change.get())];
         break;
       }
       default:
@@ -153,7 +155,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   [aggregator handleTargetChange:WatchTargetChange{WatchTargetChangeState::NoChange, targetIDs,
-                                                   _resumeToken1}]
+                                                   _resumeToken1}];
 
       return aggregator;
 }
@@ -199,7 +201,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocument *newDoc = FSTTestDoc("docs/2", 2, @{@"value" : @2}, FSTDocumentStateSynced);
   auto change2 = absl::make_unique<DocumentWatchChange>({1, 4}, {2, 6}, newDoc.key, newDoc);
 
-  std::vector<std::unique_ptr<WatchChange> changes;
+  std::vector<std::unique_ptr<WatchChange>> changes;
   changes.push_back(std::move(change1));
   changes.push_back(std::move(change2));
 
@@ -257,7 +259,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocument *doc2 = FSTTestDoc("docs/2", 2, @{@"value" : @2}, FSTDocumentStateSynced);
   auto change4 = absl::make_unique<DocumentWatchChange>({1}, {}, doc2.key, doc2);
 
-  std::vector<std::unique_ptr<WatchChange> changes;
+  std::vector<std::unique_ptr<WatchChange>> changes;
   changes.push_back(std::move(change1));
   changes.push_back(std::move(change2));
   changes.push_back(std::move(change3));
@@ -288,7 +290,7 @@ NS_ASSUME_NONNULL_BEGIN
   auto change1 = absl::make_unique<DocumentWatchChange>({1}, {}, doc1.key, doc1);
   auto change2 = absl::make_unique<WatchTargetChange>(WatchTargetChangeState::Removed, {1});
 
-  std::vector<std::unique_ptr<WatchChange> changes;
+  std::vector<std::unique_ptr<WatchChange>> changes;
   changes.push_back(std::move(change1));
   changes.push_back(std::move(change2));
 
@@ -327,7 +329,7 @@ NS_ASSUME_NONNULL_BEGIN
   // Remove doc2 again, should not show up in reset mapping
   auto change5 = absl::make_unique<DocumentWatchChange>({}, {1}, doc2.key, doc2);
 
-  std::vector<std::unique_ptr<WatchChange> changes;
+  std::vector<std::unique_ptr<WatchChange>> changes;
   changes.push_back(std::move(change1));
   changes.push_back(std::move(change2));
   changes.push_back(std::move(change3));
@@ -388,7 +390,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocument *doc1b = FSTTestDoc("docs/1", 1, @{@"value" : @2}, FSTDocumentStateSynced);
   auto change2 = absl::make_unique<DocumentWatchChange>({2}, {1}, doc1b.key, doc1b);
 
-  std::vector<std::unique_ptr<WatchChange> changes;
+  std::vector<std::unique_ptr<WatchChange>> changes;
   changes.push_back(std::move(change1));
   changes.push_back(std::move(change2));
 
@@ -416,7 +418,7 @@ NS_ASSUME_NONNULL_BEGIN
   NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *targetMap = [self queryDataForTargets:@[ @1 ]];
 
   auto change = absl::make_unique<WatchTargetChange>(WatchTargetChangeState::Current, {1}, _resumeToken1);
-  std::vector<std::unique_ptr<WatchChange> changes;
+  std::vector<std::unique_ptr<WatchChange>> changes;
   changes.push_back(std::move(change));
 
   FSTRemoteEvent *event = [self remoteEventAtSnapshotVersion:3
@@ -447,7 +449,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocument *doc2 = FSTTestDoc("docs/2", 2, @{@"value" : @2}, FSTDocumentStateSynced);
   auto change6 = absl::make_unique<DocumentWatchChange>({1}, {3}, doc2.key, doc2);
 
-  std::vector<std::unique_ptr<WatchChange> changes;
+  std::vector<std::unique_ptr<WatchChange>> changes;
   changes.push_back(std::move(change1));
   changes.push_back(std::move(change2));
   changes.push_back(std::move(change3));
@@ -517,7 +519,7 @@ NS_ASSUME_NONNULL_BEGIN
   auto change2 = absl::make_unique<DocumentWatchChange>({1}, {}, doc2.key, doc2);
   auto change3 = absl::make_unique<WatchTargetChange>(WatchTargetChangeState::Current, {1}, _resumeToken1);
 
-  std::vector<std::unique_ptr<WatchChange> changes;
+  std::vector<std::unique_ptr<WatchChange>> changes;
   changes.push_back(std::move(change1));
   changes.push_back(std::move(change2));
   changes.push_back(std::move(change3));
@@ -603,7 +605,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocument *doc2 = FSTTestDoc("docs/2", 2, @{@"value" : @2}, FSTDocumentStateSynced);
   auto change2 = absl::make_unique<DocumentWatchChange>({1}, {}, doc2.key, doc2);
 
-  std::vector<std::unique_ptr<WatchChange> changes;
+  std::vector<std::unique_ptr<WatchChange>> changes;
   changes.push_back(std::move(change1));
   changes.push_back(std::move(change2));
 
@@ -723,7 +725,7 @@ NS_ASSUME_NONNULL_BEGIN
   DocumentKey limboKey = testutil::Key("coll/limbo");
 
   auto resolveLimboTarget = absl::make_unique<WatchTargetChange>(WatchTargetChangeState::Current, {1});
-  std::vector<std::unique_ptr<WatchChange> changes;
+  std::vector<std::unique_ptr<WatchChange>> changes;
   changes.push_back(std::move(resolveLimboTarget));
 
   FSTRemoteEvent *event = [self remoteEventAtSnapshotVersion:3
@@ -744,7 +746,7 @@ NS_ASSUME_NONNULL_BEGIN
       [self queryDataForLimboTargets:@[ @1 ]];
 
   auto wrongState = absl::make_unique<WatchTargetChange>(WatchTargetChangeState::NoChange, {1});
-  std::vector<std::unique_ptr<WatchChange> changes;
+  std::vector<std::unique_ptr<WatchChange>> changes;
   changes.push_back(std::move(wrongState));
 
   FSTRemoteEvent *event = [self remoteEventAtSnapshotVersion:3
@@ -762,7 +764,7 @@ NS_ASSUME_NONNULL_BEGIN
       [self queryDataForLimboTargets:@[ @3 ]];
 
   auto hasDocument = absl::make_unique<WatchTargetChange>(WatchTargetChangeState::Current, {3});
-  std::vector<std::unique_ptr<WatchChange> changes;
+  std::vector<std::unique_ptr<WatchChange>> changes;
   changes.push_back(std::move(hasDocument));
 
   FSTRemoteEvent *event =
@@ -793,7 +795,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDeletedDocument *missingDoc = FSTTestDeletedDoc("docs/missing", 1, NO);
   auto missingDocChange = absl::make_unique<DocumentWatchChange>({}, {1}, missingDoc.key, missingDoc);
 
-  std::vector<std::unique_ptr<WatchChange> changes;
+  std::vector<std::unique_ptr<WatchChange>> changes;
   changes.push_back(std::move(newDocChange));
   changes.push_back(std::move(existingDocChange));
   changes.push_back(std::move(deletedDocChange));
@@ -830,7 +832,7 @@ NS_ASSUME_NONNULL_BEGIN
   auto docChange3 = absl::make_unique<DocumentWatchChange>({1}, {}, doc3.key, doc3);
   auto targetsChange = absl::make_unique<WatchTargetChange>(WatchTargetChangeState::Current, {1, 2});
 
-  std::vector<std::unique_ptr<WatchChange> changes;
+  std::vector<std::unique_ptr<WatchChange>> changes;
   changes.push_back(std::move(docChange1));
   changes.push_back(std::move(docChange2));
   changes.push_back(std::move(docChange3));

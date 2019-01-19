@@ -624,9 +624,9 @@ NS_ASSUME_NONNULL_BEGIN
   return remoteEvent;
 }
 
-- (void)recordTargetRequest:(FSTBoxedTargetID *)targetID {
+- (void)recordTargetRequest:(TargetId)targetID {
   // For each request we get we need to record we need a response for it.
-  FSTTargetState *targetState = [self ensureTargetStateForTarget:targetID.intValue];
+  FSTTargetState *targetState = [self ensureTargetStateForTarget:targetID];
   [targetState recordTargetRequest];
 }
 @end
