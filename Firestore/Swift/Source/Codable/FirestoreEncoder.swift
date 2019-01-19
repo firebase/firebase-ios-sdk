@@ -18,59 +18,69 @@ import Foundation
 import FirebaseFirestore
 
 extension CollectionReference {
-  public func addDocument<T: Encodable>(_ item: T) throws -> DocumentReference {
+  public func addDocument<T: Encodable>(_ item: T) -> DocumentReference {
     do {
       return addDocument(data: try Firestore.Encoder().encode(item))
     } catch let error {
-      throw (error)
+      Firestore.firestore().settings.dispatchQueue.sync {
+        fatalError("Encoding error \(error)")
+      }
     }
   }
 
-  public func addDocument<T: Encodable>(_ item: T, _ completion: ((Error?) -> Void)?) throws -> DocumentReference {
+  public func addDocument<T: Encodable>(_ item: T, _ completion: ((Error?) -> Void)?) -> DocumentReference {
     do {
       let encoded = try Firestore.Encoder().encode(item)
       return addDocument(data: encoded, completion: completion)
     } catch let error {
-      throw (error)
+      Firestore.firestore().settings.dispatchQueue.sync {
+        fatalError("Encoding error \(error)")
+      }
     }
   }
 }
 
 extension DocumentReference {
-  public func setData<T: Encodable>(value: T) throws {
+  public func setData<T: Encodable>(_ value: T) {
     do {
       setData(try Firestore.Encoder().encode(value))
     } catch let error {
-      throw (error)
+      fatalError("TODO \(error)")
     }
   }
 
-  public func setData<T: Encodable>(value: T, _ completion: ((Error?) -> Void)?) throws {
+  public func setData<T: Encodable>(_ value: T, _ completion: ((Error?) -> Void)?) {
     do {
       let encoded = try Firestore.Encoder().encode(value)
       setData(encoded, completion: completion)
     } catch let error {
-      throw error
+      Firestore.firestore().settings.dispatchQueue.sync {
+        fatalError("Encoding error \(error)")
+      }
     }
   }
 }
 
 extension Transaction {
-  public func setData<T: Encodable>(value: T, forDocument: DocumentReference) throws {
+  public func setData<T: Encodable>(_ value: T, forDocument: DocumentReference) {
     do {
       setData(try Firestore.Encoder().encode(value), forDocument: forDocument)
     } catch let error {
-      throw (error)
+      Firestore.firestore().settings.dispatchQueue.sync {
+        fatalError("Encoding error \(error)")
+      }
     }
   }
 }
 
 extension WriteBatch {
-  public func setData<T: Encodable>(value: T, forDocument: DocumentReference) throws {
+  public func setData<T: Encodable>(_ value: T, forDocument: DocumentReference) {
     do {
       setData(try Firestore.Encoder().encode(value), forDocument: forDocument)
     } catch let error {
-      throw (error)
+      Firestore.firestore().settings.dispatchQueue.sync {
+        fatalError("Encoding error \(error)")
+      }
     }
   }
 }

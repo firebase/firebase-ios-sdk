@@ -22,7 +22,9 @@ import FirebaseFirestore
 extension DocumentSnapshot {
   public func data<T: Decodable>(as type: T.Type) throws -> T {
     guard let dict = data() else {
-      throw DecodingError.valueNotFound(T.self, DecodingError.Context(codingPath: [], debugDescription: "Data was empty"))
+      throw DecodingError.valueNotFound(T.self,
+                                        DecodingError.Context(codingPath: [],
+                                                              debugDescription: "Data was empty"))
     }
     return try Firestore.Decoder().decode(T.self, from: dict)
   }
