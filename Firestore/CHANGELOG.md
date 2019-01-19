@@ -13,6 +13,11 @@
 - [fixed] Fixed a crash that could happen when the app is shut down after
   a write has been sent to the server but before it has been received on
   a listener (#2237).
+- [changed] Firestore no longer bundles a copy of the gRPC certificates, now
+  that the gRPC-C++ CocoaPod includes them. CocoaPods users should be updated
+  automatically. Carthage users should follow the [updated
+  instructions](https://github.com/firebase/firebase-ios-sdk/blob/master/Carthage.md)
+  to get `gRPCCertificates.bundle` from the correct location.
 
 # v0.16.1
 - [fixed] Offline persistence now properly records schema downgrades. This is a
