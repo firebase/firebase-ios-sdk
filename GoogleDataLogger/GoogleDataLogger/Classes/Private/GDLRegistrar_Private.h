@@ -18,6 +18,8 @@
 
 @interface GDLRegistrar ()
 
+NS_ASSUME_NONNULL_BEGIN
+
 /** The concurrent queue on which all registration occurs. */
 @property(nonatomic, readonly) dispatch_queue_t registrarQueue;
 
@@ -30,3 +32,5 @@
     NSMutableDictionary<NSNumber *, id<GDLLogPrioritizer>> *logTargetToPrioritizer;
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -48,6 +48,7 @@
   XCTAssertTrue([GDLClock supportsSecureCoding]);
 }
 
+/** Tests encoding and decoding a clock using a keyed archiver. */
 - (void)testEncoding {
   GDLClock *clock = [GDLClock snapshot];
   NSData *clockData = [NSKeyedArchiver archivedDataWithRootObject:clock];
@@ -56,6 +57,7 @@
   XCTAssertEqualObjects(clock, unarchivedClock);
 }
 
+/** Tests creating a clock that represents a future time. */
 - (void)testClockSnapshotInTheFuture {
   GDLClock *clock1 = [GDLClock snapshot];
   GDLClock *clock2 = [GDLClock clockSnapshotInTheFuture:1];

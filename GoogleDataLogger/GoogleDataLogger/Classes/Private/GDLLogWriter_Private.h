@@ -18,6 +18,8 @@
 
 @class GDLLogStorage;
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface GDLLogWriter ()
 
 /** The queue on which all work will occur. */
@@ -27,3 +29,5 @@
 @property(nonatomic) GDLLogStorage *storageInstance;
 
 @end
+
+NS_ASSUME_NONNULL_END

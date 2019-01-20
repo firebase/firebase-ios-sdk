@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 /** This protocol defines the common interface that log protos should implement regardless of the
  * underlying transport technology (protobuf, nanopb, etc).
  */
@@ -28,3 +30,5 @@
 - (NSData *)protoBytes;
 
 @end
+
+NS_ASSUME_NONNULL_END
