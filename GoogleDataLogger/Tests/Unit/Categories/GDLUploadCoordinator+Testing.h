@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,24 @@
  * limitations under the License.
  */
 
-#import "GDLTestCase.h"
-
 #import "GDLUploadCoordinator.h"
 
-@interface GDLUploaderTest : GDLTestCase
+NS_ASSUME_NONNULL_BEGIN
+
+@interface GDLUploadCoordinator (Testing)
+
+/** Resets the properties of the singleton, but does not reallocate a new singleton. */
+- (void)reset;
+
+/** Stops the upload timer from running. */
+- (void)stopTimer;
+
+/** The time interval, in nanoseconds, that the time should be called on. */
+@property(nonatomic, readwrite) uint64_t timerInterval;
+
+/** The time interval, in nanoseconds, that should be given as leeway to the timer callbacks. */
+@property(nonatomic, readwrite) uint64_t timerLeeway;
 
 @end
 
-@implementation GDLUploaderTest
-
-/** Tests the default initializer. */
-- (void)testSharedInstance {
-  XCTAssertEqual([GDLUploadCoordinator sharedInstance], [GDLUploadCoordinator sharedInstance]);
-}
-
-@end
+NS_ASSUME_NONNULL_END
