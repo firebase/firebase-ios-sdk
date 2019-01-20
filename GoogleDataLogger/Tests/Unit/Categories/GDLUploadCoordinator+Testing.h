@@ -20,7 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface GDLUploadCoordinator (Testing)
 
-/** Resets the properties of the singleon, but does not reallocate a new singleton. */
+/** Resets the properties of the singleton, but does not reallocate a new singleton. */
 - (void)reset;
 
 /** Stops the upload timer from running. */
