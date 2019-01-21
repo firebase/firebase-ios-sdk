@@ -67,9 +67,7 @@ void AddChanges(std::vector<std::unique_ptr<WatchChange>> *result) {
 }
 
 template <typename Head, typename... Tail>
-void AddChanges(std::vector<std::unique_ptr<WatchChange>> *result,
-                Head head,
-                Tail... tail) {
+void AddChanges(std::vector<std::unique_ptr<WatchChange>> *result, Head head, Tail... tail) {
   result->push_back(std::move(head));
   AddChanges(result, std::move(tail)...);
 }
@@ -148,8 +146,7 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
     aggregatorWithTargetMap:(const std::unordered_map<TargetId, FSTQueryData *> &)targetMap
        outstandingResponses:(const std::unordered_map<TargetId, int> &)outstandingResponses
                existingKeys:(DocumentKeySet)existingKeys
-                    changes:(const std::vector<std::unique_ptr<WatchChange>> &)watchChanges {
-  FSTWatchChangeAggregator *aggregator =
+                    changes:(const std::vector<std::unique_ptr<WatchChange>> &)watchChanges { FSTWatchChangeAggregator *aggregator =
       [[FSTWatchChangeAggregator alloc] initWithTargetMetadataProvider:_targetMetadataProvider];
 
   std::vector<TargetId> targetIDs;
@@ -290,20 +287,16 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
   FSTDocument *doc2 = FSTTestDoc("docs/2", 2, @{@"value" : @2}, FSTDocumentStateSynced);
   auto change4 = absl::make_unique<DocumentWatchChange>(ids{1}, ids{}, doc2.key, doc2);
 
-  std::vector<std::unique_ptr<WatchChange>> changes;
-  changes.push_back(std::move(change1));
-  changes.push_back(std::move(change2));
-  changes.push_back(std::move(change3));
-  changes.push_back(std::move(change4));
-
   // We're waiting for the unwatch and watch ack
   std::unordered_map<TargetId, int> outstandingResponses{{1, 2}};
 
-  FSTRemoteEvent *event = [self remoteEventAtSnapshotVersion:3
-                                                   targetMap:targetMap
-                                        outstandingResponses:outstandingResponses
-                                                existingKeys:DocumentKeySet {}
-                                                     changes:changes];
+  FSTRemoteEvent *event =
+      [self remoteEventAtSnapshotVersion:3
+                               targetMap:targetMap
+                    outstandingResponses:outstandingResponses
+                            existingKeys:DocumentKeySet {}
+                                 changes:Changes(std::move(change1), std::move(change2),
+                                                 std::move(change3), std::move(change4))];
   XCTAssertEqual(event.snapshotVersion, testutil::Version(3));
   // doc1 is ignored because it was part of an inactive target, but doc2 is in the changes
   // because it become active.
@@ -320,18 +313,15 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
   auto change1 = absl::make_unique<DocumentWatchChange>(ids{1}, ids{}, doc1.key, doc1);
   auto change2 = absl::make_unique<WatchTargetChange>(WatchTargetChangeState::Removed, ids{1});
 
-  std::vector<std::unique_ptr<WatchChange>> changes;
-  changes.push_back(std::move(change1));
-  changes.push_back(std::move(change2));
-
   // We're waiting for the unwatch ack
   std::unordered_map<TargetId, int> outstandingResponses{{1, 1}};
 
-  FSTRemoteEvent *event = [self remoteEventAtSnapshotVersion:3
-                                                   targetMap:targetMap
-                                        outstandingResponses:outstandingResponses
-                                                existingKeys:DocumentKeySet {}
-                                                     changes:changes];
+  FSTRemoteEvent *event =
+      [self remoteEventAtSnapshotVersion:3
+                               targetMap:targetMap
+                    outstandingResponses:outstandingResponses
+                            existingKeys:DocumentKeySet {}
+                                 changes:Changes(std::move(change1), std::move(change2))];
   XCTAssertEqual(event.snapshotVersion, testutil::Version(3));
   // doc1 is ignored because it was part of an inactive target
   XCTAssertEqual(event.documentUpdates.size(), 0);
@@ -359,18 +349,14 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
   // Remove doc2 again, should not show up in reset mapping
   auto change5 = absl::make_unique<DocumentWatchChange>(ids{}, ids{1}, doc2.key, doc2);
 
-  std::vector<std::unique_ptr<WatchChange>> changes;
-  changes.push_back(std::move(change1));
-  changes.push_back(std::move(change2));
-  changes.push_back(std::move(change3));
-  changes.push_back(std::move(change4));
-  changes.push_back(std::move(change5));
-
-  FSTRemoteEvent *event = [self remoteEventAtSnapshotVersion:3
-                                                   targetMap:targetMap
-                                        outstandingResponses:NoOutstandingResponses()
-                                                existingKeys:DocumentKeySet{doc1.key}
-                                                     changes:changes];
+  FSTRemoteEvent *event =
+      [self remoteEventAtSnapshotVersion:3
+                               targetMap:targetMap
+                    outstandingResponses:NoOutstandingResponses()
+                            existingKeys:DocumentKeySet{doc1.key}
+                                 changes:Changes(std::move(change1), std::move(change2),
+                                                 std::move(change3), std::move(change4),
+                                                 std::move(change5))];
   XCTAssertEqual(event.snapshotVersion, testutil::Version(3));
   XCTAssertEqual(event.documentUpdates.size(), 3);
   XCTAssertEqualObjects(event.documentUpdates.at(doc1.key), doc1);
@@ -418,15 +404,12 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
   FSTDocument *doc1b = FSTTestDoc("docs/1", 1, @{@"value" : @2}, FSTDocumentStateSynced);
   auto change2 = absl::make_unique<DocumentWatchChange>(ids{2}, ids{1}, doc1b.key, doc1b);
 
-  std::vector<std::unique_ptr<WatchChange>> changes;
-  changes.push_back(std::move(change1));
-  changes.push_back(std::move(change2));
-
-  FSTRemoteEvent *event = [self remoteEventAtSnapshotVersion:3
-                                                   targetMap:targetMap
-                                        outstandingResponses:NoOutstandingResponses()
-                                                existingKeys:DocumentKeySet{doc1a.key}
-                                                     changes:changes];
+  FSTRemoteEvent *event =
+      [self remoteEventAtSnapshotVersion:3
+                               targetMap:targetMap
+                    outstandingResponses:NoOutstandingResponses()
+                            existingKeys:DocumentKeySet{doc1a.key}
+                                 changes:Changes(std::move(change1), std::move(change2))];
   XCTAssertEqual(event.snapshotVersion, testutil::Version(3));
   XCTAssertEqual(event.documentUpdates.size(), 1);
   XCTAssertEqualObjects(event.documentUpdates.at(doc1b.key), doc1b);
@@ -447,14 +430,12 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
 
   auto change =
       absl::make_unique<WatchTargetChange>(WatchTargetChangeState::Current, ids{1}, _resumeToken1);
-  std::vector<std::unique_ptr<WatchChange>> changes;
-  changes.push_back(std::move(change));
 
   FSTRemoteEvent *event = [self remoteEventAtSnapshotVersion:3
                                                    targetMap:targetMap
                                         outstandingResponses:NoOutstandingResponses()
                                                 existingKeys:DocumentKeySet {}
-                                                     changes:changes];
+                                                     changes:Changes(std::move(change))];
 
   XCTAssertEqual(event.snapshotVersion, testutil::Version(3));
   XCTAssertEqual(event.documentUpdates.size(), 0);
@@ -478,21 +459,16 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
   FSTDocument *doc2 = FSTTestDoc("docs/2", 2, @{@"value" : @2}, FSTDocumentStateSynced);
   auto change6 = absl::make_unique<DocumentWatchChange>(ids{1}, ids{3}, doc2.key, doc2);
 
-  std::vector<std::unique_ptr<WatchChange>> changes;
-  changes.push_back(std::move(change1));
-  changes.push_back(std::move(change2));
-  changes.push_back(std::move(change3));
-  changes.push_back(std::move(change4));
-  changes.push_back(std::move(change5));
-  changes.push_back(std::move(change6));
-
   std::unordered_map<TargetId, int> outstandingResponses{{1, 2}, {2, 1}};
 
-  FSTRemoteEvent *event = [self remoteEventAtSnapshotVersion:3
-                                                   targetMap:targetMap
-                                        outstandingResponses:outstandingResponses
-                                                existingKeys:DocumentKeySet{doc2.key}
-                                                     changes:changes];
+  FSTRemoteEvent *event =
+      [self remoteEventAtSnapshotVersion:3
+                               targetMap:targetMap
+                    outstandingResponses:outstandingResponses
+                            existingKeys:DocumentKeySet{doc2.key}
+                                 changes:Changes(std::move(change1), std::move(change2),
+                                                 std::move(change3), std::move(change4),
+                                                 std::move(change5), std::move(change6))];
 
   XCTAssertEqual(event.snapshotVersion, testutil::Version(3));
   XCTAssertEqual(event.documentUpdates.size(), 2);
@@ -547,16 +523,11 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
   auto change3 =
       absl::make_unique<WatchTargetChange>(WatchTargetChangeState::Current, ids{1}, _resumeToken1);
 
-  std::vector<std::unique_ptr<WatchChange>> changes;
-  changes.push_back(std::move(change1));
-  changes.push_back(std::move(change2));
-  changes.push_back(std::move(change3));
-
-  FSTWatchChangeAggregator *aggregator =
-      [self aggregatorWithTargetMap:targetMap
-               outstandingResponses:NoOutstandingResponses()
-                       existingKeys:DocumentKeySet{doc1.key, doc2.key}
-                            changes:changes];
+  FSTWatchChangeAggregator *aggregator = [self
+      aggregatorWithTargetMap:targetMap
+         outstandingResponses:NoOutstandingResponses()
+                 existingKeys:DocumentKeySet{doc1.key, doc2.key}
+                      changes:Changes(std::move(change1), std::move(change2), std::move(change3))];
 
   FSTRemoteEvent *event = [aggregator remoteEventAtSnapshotVersion:testutil::Version(3)];
 
@@ -633,14 +604,11 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
   FSTDocument *doc2 = FSTTestDoc("docs/2", 2, @{@"value" : @2}, FSTDocumentStateSynced);
   auto change2 = absl::make_unique<DocumentWatchChange>(ids{1}, ids{}, doc2.key, doc2);
 
-  std::vector<std::unique_ptr<WatchChange>> changes;
-  changes.push_back(std::move(change1));
-  changes.push_back(std::move(change2));
-
-  FSTWatchChangeAggregator *aggregator = [self aggregatorWithTargetMap:targetMap
-                                                  outstandingResponses:NoOutstandingResponses()
-                                                          existingKeys:DocumentKeySet {}
-                                                               changes:changes];
+  FSTWatchChangeAggregator *aggregator =
+      [self aggregatorWithTargetMap:targetMap
+               outstandingResponses:NoOutstandingResponses()
+                       existingKeys:DocumentKeySet {}
+                            changes:Changes(std::move(change1), std::move(change2))];
 
   FSTRemoteEvent *event = [aggregator remoteEventAtSnapshotVersion:testutil::Version(3)];
 
@@ -749,16 +717,12 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
 
   DocumentKey limboKey = testutil::Key("coll/limbo");
 
-  auto resolveLimboTarget =
-      absl::make_unique<WatchTargetChange>(WatchTargetChangeState::Current, ids{1});
-  std::vector<std::unique_ptr<WatchChange>> changes;
-  changes.push_back(std::move(resolveLimboTarget));
-
-  FSTRemoteEvent *event = [self remoteEventAtSnapshotVersion:3
-                                                   targetMap:targetMap
-                                        outstandingResponses:NoOutstandingResponses()
-                                                existingKeys:DocumentKeySet {}
-                                                     changes:changes];
+  FSTRemoteEvent *event =
+      [self remoteEventAtSnapshotVersion:3
+                               targetMap:targetMap
+                    outstandingResponses:NoOutstandingResponses()
+                            existingKeys:DocumentKeySet {}
+                                 changes:Changes(std::move(resolveLimboTarget))];
 
   FSTDeletedDocument *expected = [FSTDeletedDocument documentWithKey:limboKey
                                                              version:event.snapshotVersion
@@ -771,14 +735,12 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
   std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1}]};
 
   auto wrongState = absl::make_unique<WatchTargetChange>(WatchTargetChangeState::NoChange, ids{1});
-  std::vector<std::unique_ptr<WatchChange>> changes;
-  changes.push_back(std::move(wrongState));
 
   FSTRemoteEvent *event = [self remoteEventAtSnapshotVersion:3
                                                    targetMap:targetMap
                                         outstandingResponses:NoOutstandingResponses()
                                                 existingKeys:DocumentKeySet {}
-                                                     changes:changes];
+                                                     changes:Changes(std::move(wrongState))];
 
   XCTAssertEqual(event.documentUpdates.size(), 0);
   XCTAssertEqual(event.limboDocumentChanges.size(), 0);
@@ -788,15 +750,13 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
   std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{3}]};
 
   auto hasDocument = absl::make_unique<WatchTargetChange>(WatchTargetChangeState::Current, ids{3});
-  std::vector<std::unique_ptr<WatchChange>> changes;
-  changes.push_back(std::move(hasDocument));
 
   FSTRemoteEvent *event =
       [self remoteEventAtSnapshotVersion:3
                                targetMap:targetMap
                     outstandingResponses:NoOutstandingResponses()
                             existingKeys:DocumentKeySet{FSTTestDocKey(@"coll/limbo")}
-                                 changes:changes];
+                                 changes:Changes(std::move(hasDocument))];
 
   XCTAssertEqual(event.documentUpdates.size(), 0);
   XCTAssertEqual(event.limboDocumentChanges.size(), 0);
@@ -821,18 +781,14 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
   auto missingDocChange =
       absl::make_unique<DocumentWatchChange>(ids{}, ids{1}, missingDoc.key, missingDoc);
 
-  std::vector<std::unique_ptr<WatchChange>> changes;
-  changes.push_back(std::move(newDocChange));
-  changes.push_back(std::move(existingDocChange));
-  changes.push_back(std::move(deletedDocChange));
-  changes.push_back(std::move(missingDocChange));
-
-  FSTRemoteEvent *event =
-      [self remoteEventAtSnapshotVersion:3
-                               targetMap:targetMap
-                    outstandingResponses:NoOutstandingResponses()
-                            existingKeys:DocumentKeySet{existingDoc.key, deletedDoc.key}
-                                 changes:changes];
+  FSTRemoteEvent *event = [self
+      remoteEventAtSnapshotVersion:3
+                         targetMap:targetMap
+              outstandingResponses:NoOutstandingResponses()
+                      existingKeys:DocumentKeySet{existingDoc.key, deletedDoc.key}
+                           changes:Changes(std::move(newDocChange), std::move(existingDocChange),
+                                           std::move(deletedDocChange),
+                                           std::move(missingDocChange))];
 
   FSTTargetChange *targetChange =
       FSTTestTargetChange(DocumentKeySet{newDoc.key}, DocumentKeySet{existingDoc.key},
@@ -858,17 +814,13 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
   auto targetsChange =
       absl::make_unique<WatchTargetChange>(WatchTargetChangeState::Current, ids{1, 2});
 
-  std::vector<std::unique_ptr<WatchChange>> changes;
-  changes.push_back(std::move(docChange1));
-  changes.push_back(std::move(docChange2));
-  changes.push_back(std::move(docChange3));
-  changes.push_back(std::move(targetsChange));
-
-  FSTRemoteEvent *event = [self remoteEventAtSnapshotVersion:3
-                                                   targetMap:targetMap
-                                        outstandingResponses:NoOutstandingResponses()
-                                                existingKeys:DocumentKeySet {}
-                                                     changes:changes];
+  FSTRemoteEvent *event =
+      [self remoteEventAtSnapshotVersion:3
+                               targetMap:targetMap
+                    outstandingResponses:NoOutstandingResponses()
+                            existingKeys:DocumentKeySet {}
+                                 changes:Changes(std::move(docChange1), std::move(docChange2),
+                                                 std::move(docChange3), std::move(targetsChange))];
 
   DocumentKeySet limboDocChanges = event.limboDocumentChanges;
   // Doc1 is in both limbo and non-limbo targets, therefore not tracked as limbo
