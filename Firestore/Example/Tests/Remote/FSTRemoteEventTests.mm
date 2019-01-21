@@ -46,6 +46,7 @@ using firebase::firestore::remote::ExistenceFilter;
 using firebase::firestore::remote::DocumentWatchChange;
 using firebase::firestore::remote::WatchChange;
 using firebase::firestore::remote::WatchTargetChange;
+using firebase::firestore::remote::WatchTargetChangeState;
 // `make_unique` cannot deduce that the template parameter is intended to
 // resolve to a vector of target ids when given an initialization list (e.g.,
 // {1, 2}). The type alias is deliberately very short to minimize boilderplate.
@@ -53,18 +54,24 @@ using ids = std::vector<TargetId>;
 
 NS_ASSUME_NONNULL_BEGIN
 
+namespace {
+
+std::unordered_map<TargetId, int> NoOutstandingResponses() {
+  return {};
+}
+
+}  // namespace
+
 @interface FSTRemoteEventTests : XCTestCase
 @end
 
 @implementation FSTRemoteEventTests {
   NSData *_resumeToken1;
-  NSMutableDictionary<NSNumber *, NSNumber *> *_noOutstandingResponses;
   FSTTestTargetMetadataProvider *_targetMetadataProvider;
 }
 
 - (void)setUp {
   _resumeToken1 = [@"resume1" dataUsingEncoding:NSUTF8StringEncoding];
-  _noOutstandingResponses = [NSMutableDictionary dictionary];
   _targetMetadataProvider = [FSTTestTargetMetadataProvider new];
 }
 
@@ -72,11 +79,10 @@ NS_ASSUME_NONNULL_BEGIN
  * Creates a map with query data for the provided target IDs. All targets are considered active
  * and query a collection named "coll".
  */
-- (NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *)queryDataForTargets:
-    (NSArray<FSTBoxedTargetID *> *)targetIDs {
-  NSMutableDictionary<FSTBoxedTargetID *, FSTQueryData *> *targets =
-      [NSMutableDictionary dictionary];
-  for (FSTBoxedTargetID *targetID in targetIDs) {
+- (std::unordered_map<TargetId, FSTQueryData *>)queryDataForTargets:
+    (std::initializer_list<TargetId>)targetIDs {
+  std::unordered_map<TargetId, FSTQueryData *> targets;
+  for (TargetId targetID : targetIDs) {
     FSTQuery *query = FSTTestQuery("coll");
     targets[targetID] = [[FSTQueryData alloc] initWithQuery:query
                                                    targetID:targetID.intValue
@@ -90,11 +96,10 @@ NS_ASSUME_NONNULL_BEGIN
  * Creates a map with query data for the provided target IDs. All targets are marked as limbo
  * queries for the document at "coll/limbo".
  */
-- (NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *)queryDataForLimboTargets:
-    (NSArray<FSTBoxedTargetID *> *)targetIDs {
-  NSMutableDictionary<FSTBoxedTargetID *, FSTQueryData *> *targets =
-      [NSMutableDictionary dictionary];
-  for (FSTBoxedTargetID *targetID in targetIDs) {
+- (std::unordered_map<TargetId, FSTQueryData *>)queryDataForLimboTargets:
+    (std::initializer_list<TargetId>)targetIDs {
+  std::unordered_map<TargetId, FSTQueryData *> targets;
+  for (TargetId targetID : targetIDs) {
     FSTQuery *query = FSTTestQuery("coll/limbo");
     targets[targetID] = [[FSTQueryData alloc] initWithQuery:query
                                                    targetID:targetID.intValue
@@ -111,7 +116,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param targetMap A map of query data for all active targets. The map must include an entry for
  * every target referenced by any of the watch changes.
  * @param outstandingResponses The number of outstanding ACKs a target has to receive before it is
- * considered active, or `_noOutstandingResponses` if all targets are already active.
+ * considered active, or `NoOutstandingResponses` if all targets are already active.
  * @param existingKeys The set of documents that are considered synced with the test targets as
  * part of a previous listen. To modify this set during test execution, invoke
  * `[_targetMetadataProvider setSyncedKeys:forQueryData:]`.
@@ -120,8 +125,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (FSTWatchChangeAggregator *)
     aggregatorWithTargetMap:(const std::unordered_map<TargetId, FSTQueryData *> &)targetMap
-       outstandingResponses:
-           (nullable NSDictionary<FSTBoxedTargetID *, NSNumber *> *)outstandingResponses
+       outstandingResponses:(const std::unordered_map<TargetId, int> &)outstandingResponses
                existingKeys:(DocumentKeySet)existingKeys
                     changes:(const std::vector<std::unique_ptr<WatchChange>> &)watchChanges {
   FSTWatchChangeAggregator *aggregator =
@@ -136,21 +140,22 @@ NS_ASSUME_NONNULL_BEGIN
     [_targetMetadataProvider setSyncedKeys:existingKeys forQueryData:queryData];
   };
 
-  [outstandingResponses
-      enumerateKeysAndObjectsUsingBlock:^(FSTBoxedTargetID *targetID, NSNumber *count, BOOL *stop) {
-        for (int i = 0; i < count.intValue; ++i) {
-          [aggregator recordTargetRequest:targetID.intValue];
-        }
-      }];
+  for (const auto &kv : outstandingResponses) {
+    TargetId targetID = kv.first;
+    int count = kv.second;
+    for (int i = 0; i < count; ++i) {
+      [aggregator recordTargetRequest:targetID];
+    }
+  }
 
   for (const std::unique_ptr<WatchChange> &change : watchChanges) {
     switch (change->type()) {
       case WatchChange::Type::Document: {
-        [aggregator handleDocumentChange:*static_cast<DocumentWatchChange *>(change.get())];
+        [aggregator handleDocumentChange:*static_cast<const DocumentWatchChange *>(change.get())];
         break;
       }
       case WatchChange::Type::TargetChange: {
-        [aggregator handleTargetChange:*static_cast<WatchTargetChange *>(change.get())];
+        [aggregator handleTargetChange:*static_cast<const WatchTargetChange *>(change.get())];
         break;
       }
       default:
@@ -172,7 +177,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param targetMap A map of query data for all active targets. The map must include an entry for
  * every target referenced by any of the watch changes.
  * @param outstandingResponses The number of outstanding ACKs a target has to receive before it is
- * considered active, or `_noOutstandingResponses` if all targets are already active.
+ * considered active, or `NoOutstandingResponses` if all targets are already active.
  * @param existingKeys The set of documents that are considered synced with the test targets as
  * part of a previous listen.
  * @param watchChanges The watch changes to apply before creating the remote event. Supported
@@ -180,9 +185,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (FSTRemoteEvent *)
     remoteEventAtSnapshotVersion:(FSTTestSnapshotVersion)snapshotVersion
-                       targetMap:(NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *)targetMap
-            outstandingResponses:
-                (nullable NSDictionary<FSTBoxedTargetID *, NSNumber *> *)outstandingResponses
+                       targetMap:(std::unordered_map<TargetId, FSTQueryData *>)targetMap
+            outstandingResponses:(const std::unordered_map<TargetId, int> &)outstandingResponses
                     existingKeys:(DocumentKeySet)existingKeys
                          changes:(const std::vector<std::unique_ptr<WatchChange>> &)watchChanges {
   FSTWatchChangeAggregator *aggregator = [self aggregatorWithTargetMap:targetMap
@@ -196,8 +200,9 @@ NS_ASSUME_NONNULL_BEGIN
   // The target map that contains an entry for every target in this test. If a target ID is
   // omitted, the target is considered inactive and FSTTestTargetMetadataProvider will fail on
   // access.
-  NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *targetMap =
-      [self queryDataForTargets:@[ @1, @2, @3, @4, @5, @6 ]];
+  std::unordered_map<TargetId, FSTQueryData *> targetMap {
+    [self queryDataForTargets:{1, 2, 3, 4, 5, 6}]
+  };
 
   FSTDocument *existingDoc = FSTTestDoc("docs/1", 1, @{@"value" : @1}, FSTDocumentStateSynced);
   auto change1 = absl::make_unique<DocumentWatchChange>(ids{1, 2, 3}, ids{4, 5, 6}, existingDoc.key,
@@ -216,7 +221,7 @@ NS_ASSUME_NONNULL_BEGIN
   // as modifications rather than adds.
   FSTRemoteEvent *event = [self remoteEventAtSnapshotVersion:3
                                                    targetMap:targetMap
-                                        outstandingResponses:_noOutstandingResponses
+                                        outstandingResponses:NoOutstandingResponses()
                                                 existingKeys:DocumentKeySet{existingDoc.key}
                                                      changes:changes];
   XCTAssertEqual(event.snapshotVersion, testutil::Version(3));
@@ -255,7 +260,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testWillIgnoreEventsForPendingTargets {
-  NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *targetMap = [self queryDataForTargets:@[ @1 ]];
+  std::unordered_map<TargetId, FSTQueryData *> targetMap {
+    [self queryDataForTargets:{1}]
+  };
 
   FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{@"value" : @1}, FSTDocumentStateSynced);
   auto change1 = absl::make_unique<DocumentWatchChange>(ids{1}, ids{}, doc1.key, doc1);
@@ -271,7 +278,7 @@ NS_ASSUME_NONNULL_BEGIN
   changes.push_back(std::move(change4));
 
   // We're waiting for the unwatch and watch ack
-  NSDictionary<NSNumber *, NSNumber *> *outstandingResponses = @{@1 : @2};
+  std::unordered_map<TargetId, int> outstandingResponses{{1, 2}};
 
   FSTRemoteEvent *event = [self remoteEventAtSnapshotVersion:3
                                                    targetMap:targetMap
@@ -288,7 +295,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testWillIgnoreEventsForRemovedTargets {
-  NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *targetMap = [self queryDataForTargets:@[]];
+  std::unordered_map<TargetId, FSTQueryData *> targetMap {
+    [self queryDataForTargets:{}]
+  };
 
   FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{@"value" : @1}, FSTDocumentStateSynced);
   auto change1 = absl::make_unique<DocumentWatchChange>(ids{1}, ids{}, doc1.key, doc1);
@@ -299,7 +308,7 @@ NS_ASSUME_NONNULL_BEGIN
   changes.push_back(std::move(change2));
 
   // We're waiting for the unwatch ack
-  NSDictionary<NSNumber *, NSNumber *> *outstandingResponses = @{@1 : @1};
+  std::unordered_map<TargetId, int> outstandingResponses{{1, 1}};
 
   FSTRemoteEvent *event = [self remoteEventAtSnapshotVersion:3
                                                    targetMap:targetMap
@@ -315,7 +324,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testWillKeepResetMappingEvenWithUpdates {
-  NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *targetMap = [self queryDataForTargets:@[ @1 ]];
+  std::unordered_map<TargetId, FSTQueryData *> targetMap {
+    [self queryDataForTargets:{1}]
+  };
 
   FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{@"value" : @1}, FSTDocumentStateSynced);
   auto change1 = absl::make_unique<DocumentWatchChange>(ids{1}, ids{}, doc1.key, doc1);
@@ -342,7 +353,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTRemoteEvent *event = [self remoteEventAtSnapshotVersion:3
                                                    targetMap:targetMap
-                                        outstandingResponses:_noOutstandingResponses
+                                        outstandingResponses:NoOutstandingResponses()
                                                 existingKeys:DocumentKeySet{doc1.key}
                                                      changes:changes];
   XCTAssertEqual(event.snapshotVersion, testutil::Version(3));
@@ -360,13 +371,15 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testWillHandleSingleReset {
-  NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *targetMap = [self queryDataForTargets:@[ @1 ]];
+  std::unordered_map<TargetId, FSTQueryData *> targetMap {
+    [self queryDataForTargets:{1}]
+  };
 
   // Reset target
   WatchTargetChange change{WatchTargetChangeState::Reset, {1}};
 
   FSTWatchChangeAggregator *aggregator = [self aggregatorWithTargetMap:targetMap
-                                                  outstandingResponses:_noOutstandingResponses
+                                                  outstandingResponses:NoOutstandingResponses()
                                                           existingKeys:DocumentKeySet {}
                                                                changes:{}];
   [aggregator handleTargetChange:change];
@@ -384,8 +397,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testWillHandleTargetAddAndRemovalInSameBatch {
-  NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *targetMap =
-      [self queryDataForTargets:@[ @1, @2 ]];
+  std::unordered_map<TargetId, FSTQueryData *> targetMap {
+    [self queryDataForTargets:{1, 2}]
+  };
 
   FSTDocument *doc1a = FSTTestDoc("docs/1", 1, @{@"value" : @1}, FSTDocumentStateSynced);
   auto change1 = absl::make_unique<DocumentWatchChange>(ids{1}, ids{2}, doc1a.key, doc1a);
@@ -399,7 +413,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTRemoteEvent *event = [self remoteEventAtSnapshotVersion:3
                                                    targetMap:targetMap
-                                        outstandingResponses:_noOutstandingResponses
+                                        outstandingResponses:NoOutstandingResponses()
                                                 existingKeys:DocumentKeySet{doc1a.key}
                                                      changes:changes];
   XCTAssertEqual(event.snapshotVersion, testutil::Version(3));
@@ -418,7 +432,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testTargetCurrentChangeWillMarkTheTargetCurrent {
-  NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *targetMap = [self queryDataForTargets:@[ @1 ]];
+  std::unordered_map<TargetId, FSTQueryData *> targetMap {
+    [self queryDataForTargets:{1]}
+  };
 
   auto change =
       absl::make_unique<WatchTargetChange>(WatchTargetChangeState::Current, ids{1}, _resumeToken1);
@@ -427,7 +443,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTRemoteEvent *event = [self remoteEventAtSnapshotVersion:3
                                                    targetMap:targetMap
-                                        outstandingResponses:_noOutstandingResponses
+                                        outstandingResponses:NoOutstandingResponses()
                                                 existingKeys:DocumentKeySet {}
                                                      changes:changes];
 
@@ -441,8 +457,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testTargetAddedChangeWillResetPreviousState {
-  NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *targetMap =
-      [self queryDataForTargets:@[ @1, @3 ]];
+  std::unordered_map<TargetId, FSTQueryData *> targetMap {
+    [self queryDataForTargets:{1, 3}]
+  };
 
   FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{@"value" : @1}, FSTDocumentStateSynced);
   auto change1 = absl::make_unique<DocumentWatchChange>(ids{1, 3}, ids{2}, doc1.key, doc1);
@@ -462,7 +479,7 @@ NS_ASSUME_NONNULL_BEGIN
   changes.push_back(std::move(change5));
   changes.push_back(std::move(change6));
 
-  NSDictionary<NSNumber *, NSNumber *> *outstandingResponses = @{@1 : @2, @2 : @1};
+  std::unordered_map<TargetId, int> outstandingResponses{{1, 2}, {2, 1}};
 
   FSTRemoteEvent *event = [self remoteEventAtSnapshotVersion:3
                                                    targetMap:targetMap
@@ -492,10 +509,12 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testNoChangeWillStillMarkTheAffectedTargets {
-  NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *targetMap = [self queryDataForTargets:@[ @1 ]];
+  std::unordered_map<TargetId, FSTQueryData *> targetMap {
+    [self queryDataForTargets:{1}]
+  };
 
   FSTWatchChangeAggregator *aggregator = [self aggregatorWithTargetMap:targetMap
-                                                  outstandingResponses:_noOutstandingResponses
+                                                  outstandingResponses:NoOutstandingResponses()
                                                           existingKeys:DocumentKeySet {}
                                                                changes:@[]];
 
@@ -514,8 +533,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testExistenceFilterMismatchClearsTarget {
-  NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *targetMap =
-      [self queryDataForTargets:@[ @1, @2 ]];
+  std::unordered_map<TargetId, FSTQueryData *> targetMap {
+    [self queryDataForTargets:{1, 2}]
+  };
 
   FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{@"value" : @1}, FSTDocumentStateSynced);
   auto change1 = absl::make_unique<DocumentWatchChange>(ids{1}, ids{}, doc1.key, doc1);
@@ -531,7 +551,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTWatchChangeAggregator *aggregator =
       [self aggregatorWithTargetMap:targetMap
-               outstandingResponses:_noOutstandingResponses
+               outstandingResponses:NoOutstandingResponses()
                        existingKeys:DocumentKeySet{doc1.key, doc2.key}
                             changes:changes];
 
@@ -569,10 +589,12 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testExistenceFilterMismatchRemovesCurrentChanges {
-  NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *targetMap = [self queryDataForTargets:@[ @1 ]];
+  std::unordered_map<TargetId, FSTQueryData *> targetMap {
+    [self queryDataForTargets:{1}]
+  };
 
   FSTWatchChangeAggregator *aggregator = [self aggregatorWithTargetMap:targetMap
-                                                  outstandingResponses:_noOutstandingResponses
+                                                  outstandingResponses:NoOutstandingResponses()
                                                           existingKeys:DocumentKeySet {}
                                                                changes:@[]];
 
@@ -603,7 +625,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testDocumentUpdate {
-  NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *targetMap = [self queryDataForTargets:@[ @1 ]];
+  std::unordered_map<TargetId, FSTQueryData *> targetMap {
+    [self queryDataForTargets:{1}]
+  };
 
   FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{@"value" : @1}, FSTDocumentStateSynced);
   auto change1 = absl::make_unique<DocumentWatchChange>(ids{1}, ids{}, doc1.key, doc1);
@@ -615,7 +639,7 @@ NS_ASSUME_NONNULL_BEGIN
   changes.push_back(std::move(change2));
 
   FSTWatchChangeAggregator *aggregator = [self aggregatorWithTargetMap:targetMap
-                                                  outstandingResponses:_noOutstandingResponses
+                                                  outstandingResponses:NoOutstandingResponses()
                                                           existingKeys:DocumentKeySet {}
                                                                changes:changes];
 
@@ -664,11 +688,12 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testResumeTokensHandledPerTarget {
-  NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *targetMap =
-      [self queryDataForTargets:@[ @1, @2 ]];
+  std::unordered_map<TargetId, FSTQueryData *> targetMap {
+    [self queryDataForTargets:{1, 2}]
+  };
 
   FSTWatchChangeAggregator *aggregator = [self aggregatorWithTargetMap:targetMap
-                                                  outstandingResponses:_noOutstandingResponses
+                                                  outstandingResponses:NoOutstandingResponses()
                                                           existingKeys:DocumentKeySet {}
                                                                changes:@[]];
 
@@ -692,11 +717,12 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testLastResumeTokenWins {
-  NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *targetMap =
-      [self queryDataForTargets:@[ @1, @2 ]];
+  std::unordered_map<TargetId, FSTQueryData *> targetMap {
+    [self queryDataForTargets:{1, 2}]
+  };
 
   FSTWatchChangeAggregator *aggregator = [self aggregatorWithTargetMap:targetMap
-                                                  outstandingResponses:_noOutstandingResponses
+                                                  outstandingResponses:NoOutstandingResponses()
                                                           existingKeys:DocumentKeySet {}
                                                                changes:@[]];
 
@@ -724,8 +750,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testSynthesizeDeletes {
-  NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *targetMap =
-      [self queryDataForLimboTargets:@[ @1 ]];
+  std::unordered_map<TargetId, FSTQueryData *> targetMap {
+    [self queryDataForTargets:{1}]
+  };
 
   DocumentKey limboKey = testutil::Key("coll/limbo");
 
@@ -736,7 +763,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTRemoteEvent *event = [self remoteEventAtSnapshotVersion:3
                                                    targetMap:targetMap
-                                        outstandingResponses:_noOutstandingResponses
+                                        outstandingResponses:NoOutstandingResponses()
                                                 existingKeys:DocumentKeySet {}
                                                      changes:changes];
 
@@ -748,8 +775,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testDoesntSynthesizeDeletesForWrongState {
-  NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *targetMap =
-      [self queryDataForLimboTargets:@[ @1 ]];
+  std::unordered_map<TargetId, FSTQueryData *> targetMap {
+    [self queryDataForTargets:{1}]
+  };
 
   auto wrongState = absl::make_unique<WatchTargetChange>(WatchTargetChangeState::NoChange, ids{1});
   std::vector<std::unique_ptr<WatchChange>> changes;
@@ -757,7 +785,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTRemoteEvent *event = [self remoteEventAtSnapshotVersion:3
                                                    targetMap:targetMap
-                                        outstandingResponses:_noOutstandingResponses
+                                        outstandingResponses:NoOutstandingResponses()
                                                 existingKeys:DocumentKeySet {}
                                                      changes:changes];
 
@@ -766,8 +794,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testDoesntSynthesizeDeletesForExistingDoc {
-  NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *targetMap =
-      [self queryDataForLimboTargets:@[ @3 ]];
+  std::unordered_map<TargetId, FSTQueryData *> targetMap {
+    [self queryDataForTargets:{3}]
+  };
 
   auto hasDocument = absl::make_unique<WatchTargetChange>(WatchTargetChangeState::Current, ids{3});
   std::vector<std::unique_ptr<WatchChange>> changes;
@@ -776,7 +805,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTRemoteEvent *event =
       [self remoteEventAtSnapshotVersion:3
                                targetMap:targetMap
-                    outstandingResponses:_noOutstandingResponses
+                    outstandingResponses:NoOutstandingResponses()
                             existingKeys:DocumentKeySet{FSTTestDocKey(@"coll/limbo")}
                                  changes:changes];
 
@@ -785,8 +814,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testSeparatesDocumentUpdates {
-  NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *targetMap =
-      [self queryDataForLimboTargets:@[ @1 ]];
+  std::unordered_map<TargetId, FSTQueryData *> targetMap {
+    [self queryDataForLimboTargets:{1}]
+  };
 
   FSTDocument *newDoc = FSTTestDoc("docs/new", 1, @{@"key" : @"value"}, FSTDocumentStateSynced);
   auto newDocChange = absl::make_unique<DocumentWatchChange>(ids{1}, ids{}, newDoc.key, newDoc);
@@ -813,7 +843,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTRemoteEvent *event =
       [self remoteEventAtSnapshotVersion:3
                                targetMap:targetMap
-                    outstandingResponses:_noOutstandingResponses
+                    outstandingResponses:NoOutstandingResponses()
                             existingKeys:DocumentKeySet{existingDoc.key, deletedDoc.key}
                                  changes:changes];
 
@@ -825,10 +855,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testTracksLimboDocuments {
-  NSMutableDictionary<FSTBoxedTargetID *, FSTQueryData *> *targetMap =
-      [NSMutableDictionary dictionary];
-  [targetMap addEntriesFromDictionary:[self queryDataForTargets:@[ @1 ]]];
-  [targetMap addEntriesFromDictionary:[self queryDataForLimboTargets:@[ @2 ]]];
+  std::unordered_map<TargetId, FSTQueryData *> targetMap;
+  auto additionalTargets = [self queryDataForTargets:{1}];
+  auto additionalLimboTargets = [self queryDataForLimboTargets:{2}];
+  targetMap.insert(targetMap.end(), additionalTargets.begin(), additionalTargets.end());
+  targetMap.insert(targetMap.end(), additionalLimboTargets.begin(), additionalLimboTargets.end());
 
   // Add 3 docs: 1 is limbo and non-limbo, 2 is limbo-only, 3 is non-limbo
   FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{@"key" : @"value"}, FSTDocumentStateSynced);
@@ -850,7 +881,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTRemoteEvent *event = [self remoteEventAtSnapshotVersion:3
                                                    targetMap:targetMap
-                                        outstandingResponses:_noOutstandingResponses
+                                        outstandingResponses:NoOutstandingResponses()
                                                 existingKeys:DocumentKeySet {}
                                                      changes:changes];
 
