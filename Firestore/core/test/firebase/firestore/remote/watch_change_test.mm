@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-#import <XCTest/XCTest.h>
-
 #import "Firestore/Source/Model/FSTDocument.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 #include "Firestore/core/src/firebase/firestore/remote/existence_filter.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
+#include "gtest/gtest.h"
 
 using firebase::firestore::remote::DocumentWatchChange;
 using firebase::firestore::remote::ExistenceFilter;
@@ -31,38 +30,39 @@ using firebase::firestore::remote::WatchTargetChangeState;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FSTWatchChangeTests : XCTestCase
-@end
+namespace firebase {
+namespace firestore {
+namespace remote {
 
-@implementation FSTWatchChangeTests
-
-- (void)testDocumentChange {
+TEST(WatchChangeTest, CanCreateDocumentWatchChange) {
   FSTMaybeDocument *doc = FSTTestDoc("a/b", 1, @{}, FSTDocumentStateSynced);
   DocumentWatchChange change{{1, 2, 3}, {4, 5}, doc.key, doc};
 
-  XCTAssertEqual(change.updated_target_ids().size(), 3);
-  XCTAssertEqual(change.removed_target_ids().size(), 2);
+  EXPECT_EQ(change.updated_target_ids().size(), 3);
+  EXPECT_EQ(change.removed_target_ids().size(), 2);
   // Testing object identity here is fine.
-  XCTAssertEqual(change.new_document(), doc);
+  EXPECT_EQ(change.new_document(), doc);
 }
 
-- (void)testExistenceFilterChange {
+TEST(WatchChangeTest, CanCreateExistenceFilterWatchChange) {
   ExistenceFilter filter{7};
   ExistenceFilterWatchChange change{filter, 5};
-  XCTAssertEqual(change.filter().count(), 7);
-  XCTAssertEqual(change.target_id(), 5);
+  EXPECT_EQ(change.filter().count(), 7);
+  EXPECT_EQ(change.target_id(), 5);
 }
 
-- (void)testWatchTargetChange {
+TEST(WatchChangeTest, CanCreateWatchTargetChange) {
   WatchTargetChange change{WatchTargetChangeState::Reset,
                            {
                                1,
                                2,
                            }};
-  XCTAssertEqual(change.state(), WatchTargetChangeState::Reset);
-  XCTAssertEqual(change.target_ids().size(), 2);
+  EXPECT_EQ(change.state(), WatchTargetChangeState::Reset);
+  EXPECT_EQ(change.target_ids().size(), 2);
 }
 
-@end
+}  // namespace remote
+}  // namespace firestore
+}  // namespace firebase
 
 NS_ASSUME_NONNULL_END

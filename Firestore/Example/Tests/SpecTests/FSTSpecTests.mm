@@ -683,6 +683,8 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
   }
 
   if (!actualTargets.empty()) {
+    // Converting to an Objective-C class is a quick-and-dirty way to get
+    // a readable debug description of the context of the map.
     NSMutableDictionary *actualTargetsDictionary = [NSMutableDictionary dictionary];
     for (const auto &kv : actualTargets) {
       actualTargetsDictionary[@(kv.first)] = kv.second;

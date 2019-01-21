@@ -247,10 +247,11 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
       // Update the resume token if the change includes one. Don't clear any preexisting value.
       // Bump the sequence number as well, so that documents being removed now are ordered later
       // than documents that were previously removed from this target.
-      if (change.resumeToken.length > 0) {
+      NSData *resumeToken = change.resumeToken;
+      if (resumeToken.length > 0) {
         FSTQueryData *oldQueryData = queryData;
         queryData = [queryData queryDataByReplacingSnapshotVersion:remoteEvent.snapshotVersion
-                                                       resumeToken:change.resumeToken
+                                                       resumeToken:resumeToken
                                                     sequenceNumber:sequenceNumber];
         self.targetIDs[boxedTargetID] = queryData;
 
@@ -374,10 +375,9 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 }
 
 - (nullable FSTMaybeDocument *)readDocument:(const DocumentKey &)key {
-  return self.persistence.run(
-      "ReadDocument", [&]() -> FSTMaybeDocument *_Nullable {
-        return [self.localDocuments documentForKey:key];
-      });
+  return self.persistence.run("ReadDocument", [&]() -> FSTMaybeDocument *_Nullable {
+    return [self.localDocuments documentForKey:key];
+  });
 }
 
 - (FSTQueryData *)allocateQuery:(FSTQuery *)query {

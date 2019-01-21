@@ -808,9 +808,7 @@ NS_ASSUME_NONNULL_BEGIN
   [listenResponse.targetChange.targetIdsArray addValue:1];
   [listenResponse.targetChange.targetIdsArray addValue:4];
 
-  std::unique_ptr<WatchChange> actualBase = [self.serializer decodedWatchChange:listenResponse];
-  XCTAssertEqual(actualBase->type(), WatchChange::Type::TargetChange);
-  auto actual = static_cast<WatchTargetChange *>(actualBase.get());
+  std::unique_ptr<WatchChange> actual = [self.serializer decodedWatchChange:listenResponse];
   XCTAssertTrue(*actual == expected);
 }
 
@@ -828,9 +826,7 @@ NS_ASSUME_NONNULL_BEGIN
   [listenResponse.targetChange.targetIdsArray addValue:1];
   [listenResponse.targetChange.targetIdsArray addValue:4];
 
-  std::unique_ptr<WatchChange> actualBase = [self.serializer decodedWatchChange:listenResponse];
-  XCTAssertEqual(actualBase->type(), WatchChange::Type::TargetChange);
-  auto actual = static_cast<WatchTargetChange *>(actualBase.get());
+  std::unique_ptr<WatchChange> actual = [self.serializer decodedWatchChange:listenResponse];
   XCTAssertTrue(*actual == expected);
 }
 
@@ -841,9 +837,7 @@ NS_ASSUME_NONNULL_BEGIN
   [listenResponse.targetChange.targetIdsArray addValue:1];
   [listenResponse.targetChange.targetIdsArray addValue:4];
 
-  std::unique_ptr<WatchChange> actualBase = [self.serializer decodedWatchChange:listenResponse];
-  XCTAssertEqual(actualBase->type(), WatchChange::Type::TargetChange);
-  auto actual = static_cast<WatchTargetChange *>(actualBase.get());
+  std::unique_ptr<WatchChange> actual = [self.serializer decodedWatchChange:listenResponse];
   XCTAssertTrue(*actual == expected);
 }
 
@@ -861,9 +855,7 @@ NS_ASSUME_NONNULL_BEGIN
   [listenResponse.documentChange.targetIdsArray addValue:1];
   [listenResponse.documentChange.targetIdsArray addValue:2];
 
-  std::unique_ptr<WatchChange> actualBase = [self.serializer decodedWatchChange:listenResponse];
-  XCTAssertEqual(actualBase->type(), WatchChange::Type::Document);
-  auto actual = static_cast<WatchTargetChange *>(actualBase.get());
+  std::unique_ptr<WatchChange> actual = [self.serializer decodedWatchChange:listenResponse];
   XCTAssertTrue(*actual == expected);
 }
 
@@ -882,9 +874,7 @@ NS_ASSUME_NONNULL_BEGIN
   [listenResponse.documentChange.removedTargetIdsArray addValue:1];
   [listenResponse.documentChange.targetIdsArray addValue:2];
 
-  std::unique_ptr<WatchChange> actualBase = [self.serializer decodedWatchChange:listenResponse];
-  XCTAssertEqual(actualBase->type(), WatchChange::Type::Document);
-  auto actual = static_cast<WatchTargetChange *>(actualBase.get());
+  std::unique_ptr<WatchChange> actual = [self.serializer decodedWatchChange:listenResponse];
   XCTAssertTrue(*actual == expected);
 }
 
@@ -898,9 +888,7 @@ NS_ASSUME_NONNULL_BEGIN
   [listenResponse.documentDelete.removedTargetIdsArray addValue:1];
   [listenResponse.documentDelete.removedTargetIdsArray addValue:2];
 
-  std::unique_ptr<WatchChange> actualBase = [self.serializer decodedWatchChange:listenResponse];
-  XCTAssertEqual(actualBase->type(), WatchChange::Type::Document);
-  auto actual = static_cast<WatchTargetChange *>(actualBase.get());
+  std::unique_ptr<WatchChange> actual = [self.serializer decodedWatchChange:listenResponse];
   XCTAssertTrue(*actual == expected);
 }
 
@@ -912,9 +900,7 @@ NS_ASSUME_NONNULL_BEGIN
   [listenResponse.documentRemove.removedTargetIdsArray addValue:1];
   [listenResponse.documentRemove.removedTargetIdsArray addValue:2];
 
-  std::unique_ptr<WatchChange> actualBase = [self.serializer decodedWatchChange:listenResponse];
-  XCTAssertEqual(actualBase->type(), WatchChange::Type::Document);
-  auto actual = static_cast<WatchTargetChange *>(actualBase.get());
+  std::unique_ptr<WatchChange> actual = [self.serializer decodedWatchChange:listenResponse];
   XCTAssertTrue(*actual == expected);
 }
 

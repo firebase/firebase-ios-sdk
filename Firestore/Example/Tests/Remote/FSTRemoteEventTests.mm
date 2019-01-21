@@ -56,12 +56,18 @@ std::unique_ptr<DocumentWatchChange> MakeDocChange(std::vector<TargetId> updated
                                                    DocumentKey key,
                                                    FSTMaybeDocument *doc) {
   return absl::make_unique<DocumentWatchChange>(std::move(updated), std::move(removed),
-                                                std::move(key), existingDoc);
+                                                std::move(key), doc);
 }
 
 std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state,
                                                     std::vector<TargetId> target_ids) {
-  return MakeTargetChange(state, std::move(target_ids));
+  return absl::make_unique<WatchTargetChange>(state, std::move(target_ids));
+}
+
+std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state,
+                                                    std::vector<TargetId> target_ids,
+                                                    NSData *token) {
+  return absl::make_unique<WatchTargetChange>(state, std::move(target_ids), token);
 }
 
 NS_ASSUME_NONNULL_BEGIN
