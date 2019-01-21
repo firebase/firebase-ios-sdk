@@ -161,7 +161,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
  * @param targetMap A map of query data for all active targets. The map must include an entry for
  * every target referenced by any of the watch changes.
  * @param outstandingResponses The number of outstanding ACKs a target has to receive before it is
- * considered active, or an empty map if all targets are already active.
+ * considered active, or `_noOutstandingResponses` if all targets are already active.
  * @param existingKeys The set of documents that are considered synced with the test targets as
  * part of a previous listen. To modify this set during test execution, invoke
  * `[_targetMetadataProvider setSyncedKeys:forQueryData:]`.
@@ -222,7 +222,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
  * @param targetMap A map of query data for all active targets. The map must include an entry for
  * every target referenced by any of the watch changes.
  * @param outstandingResponses The number of outstanding ACKs a target has to receive before it is
- * considered active, or an empty map if all targets are already active.
+ * considered active, or an `_noOutstandingResponses` all targets are already active.
  * @param existingKeys The set of documents that are considered synced with the test targets as
  * part of a previous listen.
  * @param watchChanges The watch changes to apply before creating the remote event. Supported

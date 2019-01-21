@@ -46,22 +46,18 @@ namespace remote {
  */
 class WatchChange {
  public:
+  // PORTING NOTE: `WatchChange` is expected to be downcast, but on C++ we can't
+  // rely on RTTI to be available.
   enum class Type {
     Document,
     ExistenceFilter,
     TargetChange,
   };
 
-  explicit WatchChange(Type type) : type_{type} {
-  }
   virtual ~WatchChange() {
   }
 
-  Type type() const {
-    return type_;
-  }
-
-  const Type type_;
+  virtual Type type() const = 0;
 };
 
 /**
@@ -76,12 +72,14 @@ class DocumentWatchChange : public WatchChange {
                       std::vector<model::TargetId> removed_target_ids,
                       model::DocumentKey document_key,
                       FSTMaybeDocument* new_document)
-      : WatchChange{Type::Document},
+    :
         updated_target_ids_{std::move(updated_target_ids)},
         removed_target_ids_{std::move(removed_target_ids)},
         document_key_{std::move(document_key)},
         new_document_{new_document} {
   }
+
+  Type type() const override { return Type::Document; }
 
   /** The new document applies to all of these targets. */
   const std::vector<model::TargetId>& updated_target_ids() const {
@@ -122,10 +120,11 @@ bool operator==(const DocumentWatchChange& lhs, const DocumentWatchChange& rhs);
 class ExistenceFilterWatchChange : public WatchChange {
  public:
   ExistenceFilterWatchChange(ExistenceFilter filter, model::TargetId target_id)
-      : WatchChange{Type::ExistenceFilter},
-        filter_{filter},
+        : filter_{filter},
         target_id_{target_id} {
   }
+
+  Type type() const override { return Type::ExistenceFilter; }
 
   const ExistenceFilter& filter() const {
     return filter_;
@@ -169,12 +168,13 @@ class WatchTargetChange : public WatchChange {
                     std::vector<model::TargetId> target_ids,
                     NSData* resume_token,
                     util::Status cause)
-      : WatchChange{Type::TargetChange},
-        state_{state},
+        : state_{state},
         target_ids_{std::move(target_ids)},
         resume_token_{resume_token},
         cause_{std::move(cause)} {
   }
+
+  Type type() const override { return Type::TargetChange; }
 
   /** What kind of change occurred to the watch target. */
   WatchTargetChangeState state() const {
