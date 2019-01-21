@@ -713,8 +713,7 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
 }
 
 - (void)testSynthesizeDeletes {
-  std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1}]};
-
+  std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForLimboTargets:{1}]};
   DocumentKey limboKey = testutil::Key("coll/limbo");
 
   auto resolveLimboTarget =

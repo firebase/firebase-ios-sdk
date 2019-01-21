@@ -23,25 +23,26 @@ namespace firestore {
 namespace remote {
 
 bool operator==(const DocumentWatchChange& lhs,
-                       const DocumentWatchChange& rhs) {
+                const DocumentWatchChange& rhs) {
+  auto docs_equal = [](FSTMaybeDocument* lhs, FSTMaybeDocument* rhs) {
+    return (lhs == nil && rhs == nil) || [lhs isEqual:rhs];
+  };
   return lhs.updated_target_ids() == rhs.updated_target_ids() &&
          lhs.removed_target_ids() == rhs.removed_target_ids() &&
          lhs.document_key() == rhs.document_key() &&
-         [lhs.new_document() isEqual:rhs.new_document()];
+         docs_equal(lhs.new_document(), rhs.new_document());
 }
 
 bool operator==(const ExistenceFilterWatchChange& lhs,
-                       const ExistenceFilterWatchChange& rhs) {
+                const ExistenceFilterWatchChange& rhs) {
   return lhs.filter() == rhs.filter() && lhs.target_id() == rhs.target_id();
 }
 
-bool operator==(const WatchTargetChange& lhs,
-                       const WatchTargetChange& rhs) {
+bool operator==(const WatchTargetChange& lhs, const WatchTargetChange& rhs) {
   return lhs.state() == rhs.state() && lhs.target_ids() == rhs.target_ids() &&
          [lhs.resume_token() isEqual:rhs.resume_token()] &&
          lhs.cause() == rhs.cause();
 }
-
 
 }  // namespace remote
 }  // namespace firestore
