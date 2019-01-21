@@ -46,6 +46,7 @@
 #import "Firestore/Example/Tests/API/FSTAPIHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
+#include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_transform.h"
@@ -59,12 +60,14 @@
 namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
 using firebase::Timestamp;
+using firebase::firestore::FirestoreErrorCode;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldTransform;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::remote::DocumentWatchChange;
+using firebase::firestore::remote::ExistenceFilterWatchChange;
 using firebase::firestore::remote::WatchChange;
 using firebase::firestore::remote::WatchTargetChange;
 using firebase::firestore::remote::WatchTargetChangeState;
@@ -74,7 +77,7 @@ namespace {
 
 template <typename T>
 bool Equals(const WatchChange &lhs, const WatchChange &rhs) {
-  return *static_cast<T>(lhs) == *static_cast<T>(rhs);
+  return static_cast<const T&>(lhs) == static_cast<const T&>(rhs);
 }
 
 bool operator==(const WatchChange &lhs, const WatchChange &rhs) {
@@ -848,6 +851,7 @@ NS_ASSUME_NONNULL_BEGIN
     {1, 2}, {}, FSTTestDocKey(@"coll/1"),
         FSTTestDoc("coll/1", 5, @{@"foo" : @"bar"}, FSTDocumentStateSynced)
   };
+  GCFSListenResponse *listenResponse = [GCFSListenResponse message];
   listenResponse.documentChange.document.name = @"projects/p/databases/d/documents/coll/1";
   listenResponse.documentChange.document.updateTime.nanos = 5000;
   GCFSValue *fooValue = [GCFSValue message];
@@ -884,7 +888,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testConvertsDocumentChangeWithDeletions {
-  DocumentWatchChange expected{{}, {1, 2}, FSTTestDocKey(@"coll/1"), FSTTestDoc("coll/1", 5, NO)};
+  DocumentWatchChange expected{{}, {1, 2}, FSTTestDocKey(@"coll/1"), FSTTestDeletedDoc("coll/1", 5, NO)};
 
   GCFSListenResponse *listenResponse = [GCFSListenResponse message];
   listenResponse.documentDelete.document = @"projects/p/databases/d/documents/coll/1";
