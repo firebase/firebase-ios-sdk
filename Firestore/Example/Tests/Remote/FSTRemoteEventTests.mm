@@ -60,7 +60,7 @@ std::unique_ptr<DocumentWatchChange> MakeDocChange(std::vector<TargetId> updated
 }
 
 std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state,
-                                                   std::vector<TargetId> target_ids) {
+                                                    std::vector<TargetId> target_ids) {
   return MakeTargetChange(state, std::move(target_ids));
 }
 
@@ -243,8 +243,7 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
       [self queryDataForTargets:{1, 2, 3, 4, 5, 6}]};
 
   FSTDocument *existingDoc = FSTTestDoc("docs/1", 1, @{@"value" : @1}, FSTDocumentStateSynced);
-  auto change1 = MakeDocChange({1, 2, 3}, {4, 5, 6}, existingDoc.key,
-                                                        existingDoc);
+  auto change1 = MakeDocChange({1, 2, 3}, {4, 5, 6}, existingDoc.key, existingDoc);
 
   FSTDocument *newDoc = FSTTestDoc("docs/2", 2, @{@"value" : @2}, FSTDocumentStateSynced);
   auto change2 = MakeDocChange({1, 4}, {2, 6}, newDoc.key, newDoc);
@@ -445,8 +444,7 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
 - (void)testTargetCurrentChangeWillMarkTheTargetCurrent {
   std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1}]};
 
-  auto change =
-      MakeTargetChange(WatchTargetChangeState::Current, {1}, _resumeToken1);
+  auto change = MakeTargetChange(WatchTargetChangeState::Current, {1}, _resumeToken1);
 
   FSTRemoteEvent *event = [self remoteEventAtSnapshotVersion:3
                                                    targetMap:targetMap
@@ -468,8 +466,7 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
 
   FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{@"value" : @1}, FSTDocumentStateSynced);
   auto change1 = MakeDocChange({1, 3}, {2}, doc1.key, doc1);
-  auto change2 = MakeTargetChange(WatchTargetChangeState::Current, {1, 2, 3},
-                                                      _resumeToken1);
+  auto change2 = MakeTargetChange(WatchTargetChangeState::Current, {1, 2, 3}, _resumeToken1);
   auto change3 = MakeTargetChange(WatchTargetChangeState::Removed, {1});
   auto change4 = MakeTargetChange(WatchTargetChangeState::Removed, {2});
   auto change5 = MakeTargetChange(WatchTargetChangeState::Added, {1});
@@ -537,8 +534,7 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
   auto change1 = MakeDocChange({1}, {}, doc1.key, doc1);
   FSTDocument *doc2 = FSTTestDoc("docs/2", 2, @{@"value" : @2}, FSTDocumentStateSynced);
   auto change2 = MakeDocChange({1}, {}, doc2.key, doc2);
-  auto change3 =
-      MakeTargetChange(WatchTargetChangeState::Current, {1}, _resumeToken1);
+  auto change3 = MakeTargetChange(WatchTargetChangeState::Current, {1}, _resumeToken1);
 
   FSTWatchChangeAggregator *aggregator = [self
       aggregatorWithTargetMap:targetMap
@@ -733,8 +729,7 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
   std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForLimboTargets:{1}]};
   DocumentKey limboKey = testutil::Key("coll/limbo");
 
-  auto resolveLimboTarget =
-      MakeTargetChange(WatchTargetChangeState::Current, {1});
+  auto resolveLimboTarget = MakeTargetChange(WatchTargetChangeState::Current, {1});
   FSTRemoteEvent *event =
       [self remoteEventAtSnapshotVersion:3
                                targetMap:targetMap
@@ -788,16 +783,13 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
 
   FSTDocument *existingDoc =
       FSTTestDoc("docs/existing", 1, @{@"some" : @"data"}, FSTDocumentStateSynced);
-  auto existingDocChange =
-      MakeDocChange({1}, {}, existingDoc.key, existingDoc);
+  auto existingDocChange = MakeDocChange({1}, {}, existingDoc.key, existingDoc);
 
   FSTDeletedDocument *deletedDoc = FSTTestDeletedDoc("docs/deleted", 1, NO);
-  auto deletedDocChange =
-      MakeDocChange({}, {1}, deletedDoc.key, deletedDoc);
+  auto deletedDocChange = MakeDocChange({}, {1}, deletedDoc.key, deletedDoc);
 
   FSTDeletedDocument *missingDoc = FSTTestDeletedDoc("docs/missing", 1, NO);
-  auto missingDocChange =
-      MakeDocChange({}, {1}, missingDoc.key, missingDoc);
+  auto missingDocChange = MakeDocChange({}, {1}, missingDoc.key, missingDoc);
 
   FSTRemoteEvent *event = [self
       remoteEventAtSnapshotVersion:3
@@ -829,8 +821,7 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
   auto docChange1 = MakeDocChange({1, 2}, {}, doc1.key, doc1);
   auto docChange2 = MakeDocChange({2}, {}, doc2.key, doc2);
   auto docChange3 = MakeDocChange({1}, {}, doc3.key, doc3);
-  auto targetsChange =
-      MakeTargetChange(WatchTargetChangeState::Current, {1, 2});
+  auto targetsChange = MakeTargetChange(WatchTargetChangeState::Current, {1, 2});
 
   FSTRemoteEvent *event =
       [self remoteEventAtSnapshotVersion:3
