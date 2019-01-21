@@ -26,7 +26,7 @@
   FIRAuthInteropFake *auth = [[FIRAuthInteropFake alloc] initWithToken:@"token"
                                                                 userID:@"userID"
                                                                  error:nil];
-  FUNContextProvider *provider = [[FUNContextProvider alloc] initWithAuth:auth];
+  FUNContextProvider *provider = [[FUNContextProvider alloc] initWithAuth:(id<FIRAuthInterop>)auth];
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"Context should have auth keys."];
   [provider getContext:^(FUNContext *_Nullable context, NSError *_Nullable error) {
@@ -44,7 +44,7 @@
   FIRAuthInteropFake *auth = [[FIRAuthInteropFake alloc] initWithToken:nil
                                                                 userID:nil
                                                                  error:authError];
-  FUNContextProvider *provider = [[FUNContextProvider alloc] initWithAuth:auth];
+  FUNContextProvider *provider = [[FUNContextProvider alloc] initWithAuth:(id<FIRAuthInterop>)auth];
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"Completion handler should fail with Auth error."];
   [provider getContext:^(FUNContext *_Nullable context, NSError *_Nullable error) {
