@@ -42,8 +42,9 @@ using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
-using firebase::firestore::remote::ExistenceFilter;
 using firebase::firestore::remote::DocumentWatchChange;
+using firebase::firestore::remote::ExistenceFilter;
+using firebase::firestore::remote::ExistenceFilterWatchChange;
 using firebase::firestore::remote::WatchChange;
 using firebase::firestore::remote::WatchTargetChange;
 using firebase::firestore::remote::WatchTargetChangeState;
@@ -58,6 +59,24 @@ namespace {
 
 std::unordered_map<TargetId, int> NoOutstandingResponses() {
   return {};
+}
+
+void AddChanges(std::vector<std::unique_ptr<WatchChange>> *result) {
+}
+
+template <typename... Args>
+void AddChanges(std::vector<std::unique_ptr<WatchChange>> *result,
+                std::unique_ptr<WatchChange> head,
+                Args... tail) {
+  result->push_back(std::move(head));
+  AddChanges(result, tail);
+}
+
+template <typename... Args>
+std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
+  std::vector<std::unique_ptr<WatchChange>> result;
+  AddChanges(&result, args...);
+  return result;
 }
 
 }  // namespace
@@ -85,7 +104,7 @@ std::unordered_map<TargetId, int> NoOutstandingResponses() {
   for (TargetId targetID : targetIDs) {
     FSTQuery *query = FSTTestQuery("coll");
     targets[targetID] = [[FSTQueryData alloc] initWithQuery:query
-                                                   targetID:targetID.intValue
+                                                   targetID:targetID
                                        listenSequenceNumber:0
                                                     purpose:FSTQueryPurposeListen];
   }
@@ -102,7 +121,7 @@ std::unordered_map<TargetId, int> NoOutstandingResponses() {
   for (TargetId targetID : targetIDs) {
     FSTQuery *query = FSTTestQuery("coll/limbo");
     targets[targetID] = [[FSTQueryData alloc] initWithQuery:query
-                                                   targetID:targetID.intValue
+                                                   targetID:targetID
                                        listenSequenceNumber:0
                                                     purpose:FSTQueryPurposeLimboResolution];
   }
@@ -200,9 +219,8 @@ std::unordered_map<TargetId, int> NoOutstandingResponses() {
   // The target map that contains an entry for every target in this test. If a target ID is
   // omitted, the target is considered inactive and FSTTestTargetMetadataProvider will fail on
   // access.
-  std::unordered_map<TargetId, FSTQueryData *> targetMap {
-    [self queryDataForTargets:{1, 2, 3, 4, 5, 6}]
-  };
+  std::unordered_map<TargetId, FSTQueryData *> targetMap{
+      [self queryDataForTargets:{1, 2, 3, 4, 5, 6}]};
 
   FSTDocument *existingDoc = FSTTestDoc("docs/1", 1, @{@"value" : @1}, FSTDocumentStateSynced);
   auto change1 = absl::make_unique<DocumentWatchChange>(ids{1, 2, 3}, ids{4, 5, 6}, existingDoc.key,
@@ -211,19 +229,20 @@ std::unordered_map<TargetId, int> NoOutstandingResponses() {
   FSTDocument *newDoc = FSTTestDoc("docs/2", 2, @{@"value" : @2}, FSTDocumentStateSynced);
   auto change2 = absl::make_unique<DocumentWatchChange>(ids{1, 4}, ids{2, 6}, newDoc.key, newDoc);
 
-  std::vector<std::unique_ptr<WatchChange>> changes;
-  changes.push_back(std::move(change1));
-  changes.push_back(std::move(change2));
+  // std::vector<std::unique_ptr<WatchChange>> changes;
+  // changes.push_back(std::move(change1));
+  // changes.push_back(std::move(change2));
 
   // Create a remote event that includes both `change1` and `change2` as well as a NO_CHANGE event
   // with the default resume token (`_resumeToken1`).
   // As `existingDoc` is provided as an existing key, any updates to this document will be treated
   // as modifications rather than adds.
-  FSTRemoteEvent *event = [self remoteEventAtSnapshotVersion:3
-                                                   targetMap:targetMap
-                                        outstandingResponses:NoOutstandingResponses()
-                                                existingKeys:DocumentKeySet{existingDoc.key}
-                                                     changes:changes];
+  FSTRemoteEvent *event =
+      [self remoteEventAtSnapshotVersion:3
+                               targetMap:targetMap
+                    outstandingResponses:NoOutstandingResponses()
+                            existingKeys:DocumentKeySet{existingDoc.key}
+                                 changes:Changes(std::move(change1), std::move(change2))];
   XCTAssertEqual(event.snapshotVersion, testutil::Version(3));
   XCTAssertEqual(event.documentUpdates.size(), 2);
   XCTAssertEqualObjects(event.documentUpdates.at(existingDoc.key), existingDoc);
@@ -260,9 +279,7 @@ std::unordered_map<TargetId, int> NoOutstandingResponses() {
 }
 
 - (void)testWillIgnoreEventsForPendingTargets {
-  std::unordered_map<TargetId, FSTQueryData *> targetMap {
-    [self queryDataForTargets:{1}]
-  };
+  std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1}]};
 
   FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{@"value" : @1}, FSTDocumentStateSynced);
   auto change1 = absl::make_unique<DocumentWatchChange>(ids{1}, ids{}, doc1.key, doc1);
@@ -295,9 +312,7 @@ std::unordered_map<TargetId, int> NoOutstandingResponses() {
 }
 
 - (void)testWillIgnoreEventsForRemovedTargets {
-  std::unordered_map<TargetId, FSTQueryData *> targetMap {
-    [self queryDataForTargets:{}]
-  };
+  std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{}]};
 
   FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{@"value" : @1}, FSTDocumentStateSynced);
   auto change1 = absl::make_unique<DocumentWatchChange>(ids{1}, ids{}, doc1.key, doc1);
@@ -324,9 +339,7 @@ std::unordered_map<TargetId, int> NoOutstandingResponses() {
 }
 
 - (void)testWillKeepResetMappingEvenWithUpdates {
-  std::unordered_map<TargetId, FSTQueryData *> targetMap {
-    [self queryDataForTargets:{1}]
-  };
+  std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1}]};
 
   FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{@"value" : @1}, FSTDocumentStateSynced);
   auto change1 = absl::make_unique<DocumentWatchChange>(ids{1}, ids{}, doc1.key, doc1);
@@ -371,9 +384,7 @@ std::unordered_map<TargetId, int> NoOutstandingResponses() {
 }
 
 - (void)testWillHandleSingleReset {
-  std::unordered_map<TargetId, FSTQueryData *> targetMap {
-    [self queryDataForTargets:{1}]
-  };
+  std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1}]};
 
   // Reset target
   WatchTargetChange change{WatchTargetChangeState::Reset, {1}};
@@ -397,9 +408,7 @@ std::unordered_map<TargetId, int> NoOutstandingResponses() {
 }
 
 - (void)testWillHandleTargetAddAndRemovalInSameBatch {
-  std::unordered_map<TargetId, FSTQueryData *> targetMap {
-    [self queryDataForTargets:{1, 2}]
-  };
+  std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1, 2}]};
 
   FSTDocument *doc1a = FSTTestDoc("docs/1", 1, @{@"value" : @1}, FSTDocumentStateSynced);
   auto change1 = absl::make_unique<DocumentWatchChange>(ids{1}, ids{2}, doc1a.key, doc1a);
@@ -432,9 +441,7 @@ std::unordered_map<TargetId, int> NoOutstandingResponses() {
 }
 
 - (void)testTargetCurrentChangeWillMarkTheTargetCurrent {
-  std::unordered_map<TargetId, FSTQueryData *> targetMap {
-    [self queryDataForTargets:{1]}
-  };
+  std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1}]};
 
   auto change =
       absl::make_unique<WatchTargetChange>(WatchTargetChangeState::Current, ids{1}, _resumeToken1);
@@ -457,9 +464,7 @@ std::unordered_map<TargetId, int> NoOutstandingResponses() {
 }
 
 - (void)testTargetAddedChangeWillResetPreviousState {
-  std::unordered_map<TargetId, FSTQueryData *> targetMap {
-    [self queryDataForTargets:{1, 3}]
-  };
+  std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1, 3}]};
 
   FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{@"value" : @1}, FSTDocumentStateSynced);
   auto change1 = absl::make_unique<DocumentWatchChange>(ids{1, 3}, ids{2}, doc1.key, doc1);
@@ -509,9 +514,7 @@ std::unordered_map<TargetId, int> NoOutstandingResponses() {
 }
 
 - (void)testNoChangeWillStillMarkTheAffectedTargets {
-  std::unordered_map<TargetId, FSTQueryData *> targetMap {
-    [self queryDataForTargets:{1}]
-  };
+  std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1}]};
 
   FSTWatchChangeAggregator *aggregator = [self aggregatorWithTargetMap:targetMap
                                                   outstandingResponses:NoOutstandingResponses()
@@ -533,9 +536,7 @@ std::unordered_map<TargetId, int> NoOutstandingResponses() {
 }
 
 - (void)testExistenceFilterMismatchClearsTarget {
-  std::unordered_map<TargetId, FSTQueryData *> targetMap {
-    [self queryDataForTargets:{1, 2}]
-  };
+  std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1, 2}]};
 
   FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{@"value" : @1}, FSTDocumentStateSynced);
   auto change1 = absl::make_unique<DocumentWatchChange>(ids{1}, ids{}, doc1.key, doc1);
@@ -589,9 +590,7 @@ std::unordered_map<TargetId, int> NoOutstandingResponses() {
 }
 
 - (void)testExistenceFilterMismatchRemovesCurrentChanges {
-  std::unordered_map<TargetId, FSTQueryData *> targetMap {
-    [self queryDataForTargets:{1}]
-  };
+  std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1}]};
 
   FSTWatchChangeAggregator *aggregator = [self aggregatorWithTargetMap:targetMap
                                                   outstandingResponses:NoOutstandingResponses()
@@ -625,9 +624,7 @@ std::unordered_map<TargetId, int> NoOutstandingResponses() {
 }
 
 - (void)testDocumentUpdate {
-  std::unordered_map<TargetId, FSTQueryData *> targetMap {
-    [self queryDataForTargets:{1}]
-  };
+  std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1}]};
 
   FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{@"value" : @1}, FSTDocumentStateSynced);
   auto change1 = absl::make_unique<DocumentWatchChange>(ids{1}, ids{}, doc1.key, doc1);
@@ -688,9 +685,7 @@ std::unordered_map<TargetId, int> NoOutstandingResponses() {
 }
 
 - (void)testResumeTokensHandledPerTarget {
-  std::unordered_map<TargetId, FSTQueryData *> targetMap {
-    [self queryDataForTargets:{1, 2}]
-  };
+  std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1, 2}]};
 
   FSTWatchChangeAggregator *aggregator = [self aggregatorWithTargetMap:targetMap
                                                   outstandingResponses:NoOutstandingResponses()
@@ -717,9 +712,7 @@ std::unordered_map<TargetId, int> NoOutstandingResponses() {
 }
 
 - (void)testLastResumeTokenWins {
-  std::unordered_map<TargetId, FSTQueryData *> targetMap {
-    [self queryDataForTargets:{1, 2}]
-  };
+  std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1, 2}]};
 
   FSTWatchChangeAggregator *aggregator = [self aggregatorWithTargetMap:targetMap
                                                   outstandingResponses:NoOutstandingResponses()
@@ -750,9 +743,7 @@ std::unordered_map<TargetId, int> NoOutstandingResponses() {
 }
 
 - (void)testSynthesizeDeletes {
-  std::unordered_map<TargetId, FSTQueryData *> targetMap {
-    [self queryDataForTargets:{1}]
-  };
+  std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1}]};
 
   DocumentKey limboKey = testutil::Key("coll/limbo");
 
@@ -775,9 +766,7 @@ std::unordered_map<TargetId, int> NoOutstandingResponses() {
 }
 
 - (void)testDoesntSynthesizeDeletesForWrongState {
-  std::unordered_map<TargetId, FSTQueryData *> targetMap {
-    [self queryDataForTargets:{1}]
-  };
+  std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1}]};
 
   auto wrongState = absl::make_unique<WatchTargetChange>(WatchTargetChangeState::NoChange, ids{1});
   std::vector<std::unique_ptr<WatchChange>> changes;
@@ -794,9 +783,7 @@ std::unordered_map<TargetId, int> NoOutstandingResponses() {
 }
 
 - (void)testDoesntSynthesizeDeletesForExistingDoc {
-  std::unordered_map<TargetId, FSTQueryData *> targetMap {
-    [self queryDataForTargets:{3}]
-  };
+  std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{3}]};
 
   auto hasDocument = absl::make_unique<WatchTargetChange>(WatchTargetChangeState::Current, ids{3});
   std::vector<std::unique_ptr<WatchChange>> changes;
@@ -814,9 +801,7 @@ std::unordered_map<TargetId, int> NoOutstandingResponses() {
 }
 
 - (void)testSeparatesDocumentUpdates {
-  std::unordered_map<TargetId, FSTQueryData *> targetMap {
-    [self queryDataForLimboTargets:{1}]
-  };
+  std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForLimboTargets:{1}]};
 
   FSTDocument *newDoc = FSTTestDoc("docs/new", 1, @{@"key" : @"value"}, FSTDocumentStateSynced);
   auto newDocChange = absl::make_unique<DocumentWatchChange>(ids{1}, ids{}, newDoc.key, newDoc);

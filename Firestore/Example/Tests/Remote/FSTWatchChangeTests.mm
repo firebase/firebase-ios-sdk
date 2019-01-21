@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/Remote/FSTWatchChange.h"
-
 #import <XCTest/XCTest.h>
 
 #import "Firestore/Source/Model/FSTDocument.h"
 
-#import "Firestore/Example/Tests/Remote/FSTWatchChange+Testing.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 #include "Firestore/core/src/firebase/firestore/remote/existence_filter.h"
+#include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 
 using firebase::firestore::remote::ExistenceFilter;
 
