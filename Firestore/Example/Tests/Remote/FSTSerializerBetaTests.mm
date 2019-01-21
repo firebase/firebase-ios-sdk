@@ -533,7 +533,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQueryData *model = [self queryDataForQuery:q];
 
   GCFSTarget *expected = [GCFSTarget message];
-  expected.query.parent = @"projects/p/databases/d";
+  expected.query.parent = @"projects/p/databases/d/documents";
   GCFSStructuredQuery_CollectionSelector *from = [GCFSStructuredQuery_CollectionSelector message];
   from.collectionId = @"messages";
   [expected.query.structuredQuery.fromArray addObject:from];
@@ -565,7 +565,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQueryData *model = [self queryDataForQuery:q];
 
   GCFSTarget *expected = [GCFSTarget message];
-  expected.query.parent = @"projects/p/databases/d";
+  expected.query.parent = @"projects/p/databases/d/documents";
   GCFSStructuredQuery_CollectionSelector *from = [GCFSStructuredQuery_CollectionSelector message];
   from.collectionId = @"docs";
   [expected.query.structuredQuery.fromArray addObject:from];
@@ -646,7 +646,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQueryData *model = [self queryDataForQuery:q];
 
   GCFSTarget *expected = [GCFSTarget message];
-  expected.query.parent = @"projects/p/databases/d";
+  expected.query.parent = @"projects/p/databases/d/documents";
   GCFSStructuredQuery_CollectionSelector *from = [GCFSStructuredQuery_CollectionSelector message];
   from.collectionId = @"docs";
   [expected.query.structuredQuery.fromArray addObject:from];
@@ -668,7 +668,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQueryData *model = [self queryDataForQuery:q];
 
   GCFSTarget *expected = [GCFSTarget message];
-  expected.query.parent = @"projects/p/databases/d";
+  expected.query.parent = @"projects/p/databases/d/documents";
   GCFSStructuredQuery_CollectionSelector *from = [GCFSStructuredQuery_CollectionSelector message];
   from.collectionId = @"docs";
   [expected.query.structuredQuery.fromArray addObject:from];
@@ -706,7 +706,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQueryData *model = [self queryDataForQuery:q];
 
   GCFSTarget *expected = [GCFSTarget message];
-  expected.query.parent = @"projects/p/databases/d";
+  expected.query.parent = @"projects/p/databases/d/documents";
   GCFSStructuredQuery_CollectionSelector *from = [GCFSStructuredQuery_CollectionSelector message];
   from.collectionId = @"docs";
   [expected.query.structuredQuery.fromArray addObject:from];
@@ -728,7 +728,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                 resumeToken:FSTTestData(1, 2, 3, -1)];
 
   GCFSTarget *expected = [GCFSTarget message];
-  expected.query.parent = @"projects/p/databases/d";
+  expected.query.parent = @"projects/p/databases/d/documents";
   GCFSStructuredQuery_CollectionSelector *from = [GCFSStructuredQuery_CollectionSelector message];
   from.collectionId = @"docs";
   [expected.query.structuredQuery.fromArray addObject:from];

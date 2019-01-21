@@ -69,6 +69,12 @@ fi
 # Runs xcodebuild with the given flags, piping output to xcpretty
 # If xcodebuild fails with known error codes, retries once.
 function RunXcodebuild() {
+  # Workaround simulator flake introduced with Xcode 10.1.
+  # TODO: Investigate performance implications and impact of only resetting
+  #       necessary devices and skipping for macOS.
+  xcrun simctl shutdown all
+  xcrun simctl erase all
+
   xcodebuild "$@" | xcpretty; result=$?
   if [[ $result == 65 ]]; then
     echo "xcodebuild exited with 65, retrying" 1>&2

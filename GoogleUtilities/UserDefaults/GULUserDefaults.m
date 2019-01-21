@@ -201,7 +201,7 @@ typedef NS_ENUM(NSInteger, GULUDMessageCode) {
 - (void)clearAllData {
   // On macOS, using `kCFPreferencesCurrentHost` will not set all the keys necessary to match
   // `NSUserDefaults`.
-#if TARGET_OS_MAC
+#if TARGET_OS_OSX
   CFStringRef host = kCFPreferencesAnyHost;
 #else
   CFStringRef host = kCFPreferencesCurrentHost;

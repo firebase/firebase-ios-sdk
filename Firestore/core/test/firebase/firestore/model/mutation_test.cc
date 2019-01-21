@@ -30,6 +30,7 @@ namespace model {
 using testutil::DeletedDoc;
 using testutil::Doc;
 using testutil::Field;
+using testutil::MutationResult;
 using testutil::PatchMutation;
 using testutil::SetMutation;
 
@@ -41,9 +42,9 @@ TEST(Mutation, AppliesSetsToDocuments) {
 
   std::unique_ptr<Mutation> set = SetMutation(
       "collection/key", {{"bar", FieldValue::FromString("bar-value")}});
-  std::shared_ptr<const MaybeDocument> set_doc =
+  MaybeDocumentPtr set_doc =
       set->ApplyToLocalView(base_doc, base_doc.get(), Timestamp::Now());
-  ASSERT_TRUE(set_doc);
+  ASSERT_NE(set_doc, nullptr);
   ASSERT_EQ(set_doc->type(), MaybeDocument::Type::Document);
   EXPECT_EQ(*set_doc.get(), Doc("collection/key", 0,
                                 {{"bar", FieldValue::FromString("bar-value")}},
@@ -59,9 +60,9 @@ TEST(Mutation, AppliesPatchToDocuments) {
 
   std::unique_ptr<Mutation> patch = PatchMutation(
       "collection/key", {{"foo.bar", FieldValue::FromString("new-bar-value")}});
-  std::shared_ptr<const MaybeDocument> local =
+  MaybeDocumentPtr local =
       patch->ApplyToLocalView(base_doc, base_doc.get(), Timestamp::Now());
-  ASSERT_TRUE(local);
+  ASSERT_NE(local, nullptr);
   EXPECT_EQ(
       *local.get(),
       Doc("collection/key", 0,
@@ -77,9 +78,9 @@ TEST(Mutation, AppliesPatchWithMergeToDocuments) {
   std::unique_ptr<Mutation> upsert = PatchMutation(
       "collection/key", {{"foo.bar", FieldValue::FromString("new-bar-value")}},
       {Field("foo.bar")});
-  std::shared_ptr<const MaybeDocument> new_doc =
+  MaybeDocumentPtr new_doc =
       upsert->ApplyToLocalView(base_doc, base_doc.get(), Timestamp::Now());
-  ASSERT_TRUE(new_doc);
+  ASSERT_NE(new_doc, nullptr);
   EXPECT_EQ(
       *new_doc.get(),
       Doc("collection/key", 0,
@@ -94,9 +95,9 @@ TEST(Mutation, AppliesPatchToNullDocWithMergeToDocuments) {
   std::unique_ptr<Mutation> upsert = PatchMutation(
       "collection/key", {{"foo.bar", FieldValue::FromString("new-bar-value")}},
       {Field("foo.bar")});
-  std::shared_ptr<const MaybeDocument> new_doc =
+  MaybeDocumentPtr new_doc =
       upsert->ApplyToLocalView(base_doc, base_doc.get(), Timestamp::Now());
-  ASSERT_TRUE(new_doc);
+  ASSERT_NE(new_doc, nullptr);
   EXPECT_EQ(
       *new_doc.get(),
       Doc("collection/key", 0,
@@ -115,9 +116,9 @@ TEST(Mutation, DeletesValuesFromTheFieldMask) {
   std::unique_ptr<Mutation> patch =
       PatchMutation("collection/key", {}, {Field("foo.bar")});
 
-  std::shared_ptr<const MaybeDocument> patch_doc =
+  MaybeDocumentPtr patch_doc =
       patch->ApplyToLocalView(base_doc, base_doc.get(), Timestamp::Now());
-  ASSERT_TRUE(patch_doc);
+  ASSERT_NE(patch_doc, nullptr);
   EXPECT_EQ(*patch_doc.get(),
             Doc("collection/key", 0,
                 {{"foo", FieldValue::FromMap(
@@ -134,9 +135,9 @@ TEST(Mutation, PatchesPrimitiveValue) {
   std::unique_ptr<Mutation> patch = PatchMutation(
       "collection/key", {{"foo.bar", FieldValue::FromString("new-bar-value")}});
 
-  std::shared_ptr<const MaybeDocument> patched_doc =
+  MaybeDocumentPtr patched_doc =
       patch->ApplyToLocalView(base_doc, base_doc.get(), Timestamp::Now());
-  ASSERT_TRUE(patched_doc);
+  ASSERT_NE(patched_doc, nullptr);
   EXPECT_EQ(
       *patched_doc.get(),
       Doc("collection/key", 0,
@@ -144,6 +145,125 @@ TEST(Mutation, PatchesPrimitiveValue) {
                        {{"bar", FieldValue::FromString("new-bar-value")}})},
            {"baz", FieldValue::FromString("baz-value")}},
           DocumentState::kLocalMutations));
+}
+
+TEST(Mutation, PatchingDeletedDocumentsDoesNothing) {
+  // TODO(rsgowman)
+}
+
+TEST(Mutation, AppliesLocalServerTimestampTransformsToDocuments) {
+  // TODO(rsgowman)
+}
+
+TEST(Mutation, CreatesArrayUnionTransform) {
+  // TODO(rsgowman)
+}
+
+TEST(Mutation, AppliesLocalArrayUnionTransformToMissingField) {
+  // TODO(rsgowman)
+}
+
+TEST(Mutation, AppliesLocalArrayUnionTransformToNonArrayField) {
+  // TODO(rsgowman)
+}
+
+TEST(Mutation, AppliesLocalArrayUnionTransformWithNonExistingElements) {
+  // TODO(rsgowman)
+}
+
+TEST(Mutation, AppliesLocalArrayUnionTransformWithExistingElements) {
+  // TODO(rsgowman)
+}
+
+TEST(Mutation, AppliesLocalArrayUnionTransformWithDuplicateExistingElements) {
+  // TODO(rsgowman)
+}
+
+TEST(Mutation, AppliesLocalArrayUnionTransformWithDuplicateUnionElements) {
+  // TODO(rsgowman)
+}
+
+TEST(Mutation, AppliesLocalArrayUnionTransformWithNonPrimitiveElements) {
+  // TODO(rsgowman)
+}
+
+TEST(Mutation,
+     AppliesLocalArrayUnionTransformWithPartiallyOverlappingElements) {
+  // TODO(rsgowman)
+}
+
+TEST(Mutation, AppliesLocalArrayRemoveTransformToMissingField) {
+  // TODO(rsgowman)
+}
+
+TEST(Mutation, AppliesLocalArrayRemoveTransformToNonArrayField) {
+  // TODO(rsgowman)
+}
+
+TEST(Mutation, AppliesLocalArrayRemoveTransformWithNonExistingElements) {
+  // TODO(rsgowman)
+}
+
+TEST(Mutation, AppliesLocalArrayRemoveTransformWithExistingElements) {
+  // TODO(rsgowman)
+}
+
+TEST(Mutation, AppliesLocalArrayRemoveTransformWithNonPrimitiveElements) {
+  // TODO(rsgowman)
+}
+
+TEST(Mutation, AppliesServerAckedServerTimestampTransformsToDocuments) {
+  // TODO(rsgowman)
+}
+
+TEST(Mutation, AppliesServerAckedArrayTransformsToDocuments) {
+  // TODO(rsgowman)
+}
+
+TEST(Mutation, DeleteDeletes) {
+  auto base_doc = std::make_shared<Document>(
+      Doc("collection/key", 0, {{"foo", FieldValue::FromString("bar")}}));
+
+  std::unique_ptr<Mutation> del = testutil::DeleteMutation("collection/key");
+  MaybeDocumentPtr deleted_doc =
+      del->ApplyToLocalView(base_doc, base_doc.get(), Timestamp::Now());
+
+  ASSERT_NE(deleted_doc, nullptr);
+  EXPECT_EQ(*deleted_doc.get(), testutil::DeletedDoc("collection/key", 0));
+}
+
+TEST(Mutation, SetWithMutationResult) {
+  auto base_doc = std::make_shared<Document>(
+      Doc("collection/key", 0, {{"foo", FieldValue::FromString("bar")}}));
+
+  std::unique_ptr<Mutation> set = SetMutation(
+      "collection/key", {{"foo", FieldValue::FromString("new-bar")}});
+  MaybeDocumentPtr set_doc =
+      set->ApplyToRemoteDocument(base_doc, MutationResult(4));
+
+  ASSERT_NE(set_doc, nullptr);
+  EXPECT_EQ(*set_doc.get(), Doc("collection/key", 4,
+                                {{"foo", FieldValue::FromString("new-bar")}},
+                                DocumentState::kCommittedMutations));
+}
+
+TEST(Mutation, PatchWithMutationResult) {
+  auto base_doc = std::make_shared<Document>(
+      Doc("collection/key", 0, {{"foo", FieldValue::FromString("bar")}}));
+
+  std::unique_ptr<Mutation> patch = PatchMutation(
+      "collection/key", {{"foo", FieldValue::FromString("new-bar")}});
+  MaybeDocumentPtr patch_doc =
+      patch->ApplyToRemoteDocument(base_doc, MutationResult(4));
+
+  ASSERT_NE(patch_doc, nullptr);
+  EXPECT_EQ(*patch_doc.get(), Doc("collection/key", 4,
+                                  {{"foo", FieldValue::FromString("new-bar")}},
+                                  DocumentState::kCommittedMutations));
+}
+
+TEST(Mutation, Transitions) {
+  // TODO(rsgowman)
 }
 
 }  // namespace model

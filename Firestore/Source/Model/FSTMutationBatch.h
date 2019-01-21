@@ -43,14 +43,6 @@ using DocumentVersionMap = std::unordered_map<DocumentKey, SnapshotVersion, Docu
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * A BatchID that was searched for and not found or a batch ID value known to be before all known
- * batches.
- *
- * BatchId values from the local store are non-negative so this value is before all batches.
- */
-extern const firebase::firestore::model::BatchId kFSTBatchIDUnknown;
-
-/**
  * A batch of mutations that will be sent as one unit to the backend. Batches can be marked as a
  * tombstone if the mutation queue does not remove them immediately. When a batch is a tombstone
  * it has no mutations.

@@ -18,6 +18,7 @@
 
 #include <cinttypes>
 #include <memory>
+#include <utility>
 
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTTransaction.h"
@@ -26,8 +27,6 @@
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
-#import "Firestore/Source/Remote/FSTDatastore.h"
-#import "Firestore/Source/Remote/FSTExistenceFilter.h"
 #import "Firestore/Source/Remote/FSTOnlineStateTracker.h"
 #import "Firestore/Source/Remote/FSTRemoteEvent.h"
 #import "Firestore/Source/Remote/FSTStream.h"
@@ -35,25 +34,31 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/remote/stream.h"
+#include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "absl/memory/memory.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::auth::User;
 using firebase::firestore::model::BatchId;
+using firebase::firestore::model::kBatchIdUnknown;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::remote::Datastore;
 using firebase::firestore::remote::WatchStream;
 using firebase::firestore::remote::WriteStream;
 using util::AsyncQueue;
+using util::Status;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -72,9 +77,6 @@ static const int kMaxPendingWrites = 10;
  * filter mismatches. Immutable after initialization.
  */
 @property(nonatomic, strong, readonly) FSTLocalStore *localStore;
-
-/** The client-side proxy for interacting with the backend. Immutable after initialization. */
-@property(nonatomic, strong, readonly) FSTDatastore *datastore;
 
 #pragma mark Watch Stream
 
@@ -111,6 +113,9 @@ static const int kMaxPendingWrites = 10;
 @end
 
 @implementation FSTRemoteStore {
+  /** The client-side proxy for interacting with the backend. */
+  std::shared_ptr<Datastore> _datastore;
+
   std::shared_ptr<WatchStream> _watchStream;
   std::shared_ptr<WriteStream> _writeStream;
   /**
@@ -121,19 +126,20 @@ static const int kMaxPendingWrites = 10;
 }
 
 - (instancetype)initWithLocalStore:(FSTLocalStore *)localStore
-                         datastore:(FSTDatastore *)datastore
+                         datastore:(std::shared_ptr<Datastore>)datastore
                        workerQueue:(AsyncQueue *)queue {
   if (self = [super init]) {
     _localStore = localStore;
-    _datastore = datastore;
+    _datastore = std::move(datastore);
     _listenTargets = [NSMutableDictionary dictionary];
 
     _writePipeline = [NSMutableArray array];
     _onlineStateTracker = [[FSTOnlineStateTracker alloc] initWithWorkerQueue:queue];
 
+    _datastore->Start();
     // Create streams (but note they're not started yet)
-    _watchStream = [self.datastore createWatchStreamWithDelegate:self];
-    _writeStream = [self.datastore createWriteStreamWithDelegate:self];
+    _watchStream = _datastore->CreateWatchStream(self);
+    _writeStream = _datastore->CreateWriteStream(self);
 
     _isNetworkEnabled = NO;
   }
@@ -212,7 +218,7 @@ static const int kMaxPendingWrites = 10;
   // Set the OnlineState to Unknown (rather than Offline) to avoid potentially triggering
   // spurious listener events with cached data, etc.
   [self.onlineStateTracker updateState:OnlineState::Unknown];
-  [self.datastore shutdown];
+  _datastore->Shutdown();
 }
 
 - (void)credentialDidChange {
@@ -332,8 +338,8 @@ static const int kMaxPendingWrites = 10;
   }
 }
 
-- (void)watchStreamWasInterruptedWithError:(nullable NSError *)error {
-  if (!error) {
+- (void)watchStreamWasInterruptedWithError:(const Status &)error {
+  if (error.ok()) {
     // Graceful stop (due to Stop() or idle timeout). Make sure that's desirable.
     HARD_ASSERT(![self shouldStartWatchStream],
                 "Watch stream was stopped gracefully while still needed.");
@@ -343,7 +349,7 @@ static const int kMaxPendingWrites = 10;
 
   // If we still need the watch stream, retry the connection.
   if ([self shouldStartWatchStream]) {
-    [self.onlineStateTracker handleWatchStreamFailure:error];
+    [self.onlineStateTracker handleWatchStreamFailure:util::MakeNSError(error)];
 
     [self startWatchStream];
   } else {
@@ -464,7 +470,7 @@ static const int kMaxPendingWrites = 10;
  */
 - (void)fillWritePipeline {
   BatchId lastBatchIDRetrieved =
-      self.writePipeline.count == 0 ? kFSTBatchIDUnknown : self.writePipeline.lastObject.batchID;
+      self.writePipeline.count == 0 ? kBatchIdUnknown : self.writePipeline.lastObject.batchID;
   while ([self canAddToWritePipeline]) {
     FSTMutationBatch *batch = [self.localStore nextMutationBatchAfterBatchID:lastBatchIDRetrieved];
     if (!batch) {
@@ -545,8 +551,8 @@ static const int kMaxPendingWrites = 10;
  * Handles the closing of the StreamingWrite RPC, either because of an error or because the RPC
  * has been terminated by the client or the server.
  */
-- (void)writeStreamWasInterruptedWithError:(nullable NSError *)error {
-  if (!error) {
+- (void)writeStreamWasInterruptedWithError:(const Status &)error {
+  if (error.ok()) {
     // Graceful stop (due to Stop() or idle timeout). Make sure that's desirable.
     HARD_ASSERT(![self shouldStartWriteStream],
                 "Write stream was stopped gracefully while still needed.");
@@ -554,7 +560,7 @@ static const int kMaxPendingWrites = 10;
 
   // If the write stream closed due to an error, invoke the error callbacks if there are pending
   // writes.
-  if (error != nil && self.writePipeline.count > 0) {
+  if (!error.ok() && self.writePipeline.count > 0) {
     if (_writeStream->handshake_complete()) {
       // This error affects the actual writes.
       [self handleWriteError:error];
@@ -571,23 +577,28 @@ static const int kMaxPendingWrites = 10;
   }
 }
 
-- (void)handleHandshakeError:(NSError *)error {
-  HARD_ASSERT(error, "Handling write error with status OK.");
-  // Reset the token if it's a permanent error or the error code is ABORTED, signaling the write
-  // stream is no longer valid.
-  if ([FSTDatastore isPermanentWriteError:error] || [FSTDatastore isAbortedError:error]) {
+- (void)handleHandshakeError:(const Status &)error {
+  HARD_ASSERT(!error.ok(), "Handling write error with status OK.");
+  // Reset the token if it's a permanent error, signaling the write stream is
+  // no longer valid. Note that the handshake does not count as a write: see
+  // comments on `Datastore::IsPermanentWriteError` for details.
+  if (Datastore::IsPermanentError(error)) {
     NSString *token = [_writeStream->GetLastStreamToken() base64EncodedStringWithOptions:0];
-    LOG_DEBUG("FSTRemoteStore %s error before completed handshake; resetting stream token %s: %s",
-              (__bridge void *)self, token, error);
+    LOG_DEBUG("FSTRemoteStore %s error before completed handshake; resetting stream token %s: "
+              "error code: '%s', details: '%s'",
+              (__bridge void *)self, token, error.code(), error.error_message());
     _writeStream->SetLastStreamToken(nil);
     [self.localStore setLastStreamToken:nil];
+  } else {
+    // Some other error, don't reset stream token. Our stream logic will just retry with exponential
+    // backoff.
   }
 }
 
-- (void)handleWriteError:(NSError *)error {
-  HARD_ASSERT(error, "Handling write error with status OK.");
-  // Only handle permanent error. If it's transient, just let the retry logic kick in.
-  if (![FSTDatastore isPermanentWriteError:error]) {
+- (void)handleWriteError:(const Status &)error {
+  HARD_ASSERT(!error.ok(), "Handling write error with status OK.");
+  // Only handle permanent errors here. If it's transient, just let the retry logic kick in.
+  if (!Datastore::IsPermanentWriteError(error)) {
     return;
   }
 
@@ -600,14 +611,14 @@ static const int kMaxPendingWrites = 10;
   // bad request so inhibit backoff on the next restart.
   _writeStream->InhibitBackoff();
 
-  [self.syncEngine rejectFailedWriteWithBatchID:batch.batchID error:error];
+  [self.syncEngine rejectFailedWriteWithBatchID:batch.batchID error:util::MakeNSError(error)];
 
   // It's possible that with the completion of this mutation another slot has freed up.
   [self fillWritePipeline];
 }
 
 - (FSTTransaction *)transaction {
-  return [FSTTransaction transactionWithDatastore:self.datastore];
+  return [FSTTransaction transactionWithDatastore:_datastore.get()];
 }
 
 @end

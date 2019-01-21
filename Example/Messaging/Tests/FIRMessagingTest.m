@@ -26,6 +26,12 @@
 
 extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 
+@interface FIRInstanceID (ExposedForTest)
+
++ (FIRInstanceID *)instanceIDForTests;
+
+@end
+
 @interface FIRMessaging ()
 + (FIRMessaging *)messagingForTests;
 
@@ -45,7 +51,6 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 @property(nonatomic, readonly, strong) FIRMessaging *messaging;
 @property(nonatomic, readwrite, strong) id mockMessaging;
 @property(nonatomic, readwrite, strong) id mockInstanceID;
-@property(nonatomic, readwrite, strong) id realInstanceID;
 @property(nonatomic, readwrite, strong) id mockFirebaseApp;
 
 @end
@@ -55,11 +60,10 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 - (void)setUp {
   [super setUp];
   _messaging = [FIRMessaging messagingForTests];
+  _messaging.instanceID = [FIRInstanceID instanceIDForTests];
   _mockFirebaseApp = OCMClassMock([FIRApp class]);
    OCMStub([_mockFirebaseApp defaultApp]).andReturn(_mockFirebaseApp);
   _mockInstanceID = OCMPartialMock(self.messaging.instanceID);
-  _realInstanceID = self.messaging.instanceID;
-  self.messaging.instanceID = self.mockInstanceID;
   [[NSUserDefaults standardUserDefaults]
       removePersistentDomainForName:[NSBundle mainBundle].bundleIdentifier];
 }
@@ -67,7 +71,6 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 - (void)tearDown {
   self.messaging.shouldEstablishDirectChannel = NO;
   self.messaging.defaultFcmToken = nil;
-  self.messaging.instanceID = self.realInstanceID;
   self.messaging.apnsTokenData = nil;
   [_mockMessaging stopMocking];
   [_mockInstanceID stopMocking];

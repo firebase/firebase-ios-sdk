@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,8 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import <Cocoa/Cocoa.h>
 
-#import <GoogleDataLogger/GDLLogProto.h>
-
-NS_ASSUME_NONNULL_BEGIN
-
-/** A class to represent a simple log proto. */
-@interface GDLLogExtensionTesterSimple : NSObject <GDLLogProto>
-
-/** A string that will be turned into bytes. */
-@property(nonatomic) NSString *aString;
+@interface AppDelegate : NSObject <NSApplicationDelegate>
 
 @end
-
-NS_ASSUME_NONNULL_END

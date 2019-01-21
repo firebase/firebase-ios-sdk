@@ -28,7 +28,6 @@
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
-#import "Firestore/Source/Remote/FSTExistenceFilter.h"
 #import "Firestore/Source/Remote/FSTWatchChange.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 
@@ -40,6 +39,7 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/remote/existence_filter.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
@@ -53,6 +53,7 @@ using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::remote::ExistenceFilter;
 using firebase::firestore::util::TimerId;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -310,8 +311,7 @@ static NSString *Describe(NSData *data) {
 
   int keyCount = watchFilter.count == 0 ? 0 : (int)watchFilter.count - 1;
 
-  // TODO(dimond): extend this with different existence filters over time.
-  FSTExistenceFilter *filter = [FSTExistenceFilter filterWithCount:keyCount];
+  ExistenceFilter filter{keyCount};
   FSTExistenceFilterWatchChange *change =
       [FSTExistenceFilterWatchChange changeWithFilter:filter targetID:targets[0].intValue];
   [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];

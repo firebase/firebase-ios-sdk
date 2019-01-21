@@ -21,9 +21,9 @@
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Remote/FSTExistenceFilter.h"
 #import "Firestore/Source/Remote/FSTWatchChange.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/remote/existence_filter.h"
 
 #import "Firestore/Example/Tests/Remote/FSTWatchChange+Testing.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
@@ -34,6 +34,7 @@ namespace testutil = firebase::firestore::testutil;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::SnapshotVersion;
+using firebase::firestore::remote::ExistenceFilter;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -572,8 +573,7 @@ NS_ASSUME_NONNULL_BEGIN
   // The existence filter mismatch will remove the document from target 1,
   // but not synthesize a document delete.
   FSTExistenceFilterWatchChange *change4 =
-      [FSTExistenceFilterWatchChange changeWithFilter:[FSTExistenceFilter filterWithCount:1]
-                                             targetID:1];
+      [FSTExistenceFilterWatchChange changeWithFilter:ExistenceFilter{1} targetID:1];
   [aggregator handleExistenceFilter:change4];
 
   event = [aggregator remoteEventAtSnapshotVersion:testutil::Version(4)];
@@ -611,8 +611,7 @@ NS_ASSUME_NONNULL_BEGIN
   // The existence filter mismatch will remove the document from target 1, but not synthesize a
   // document delete.
   FSTExistenceFilterWatchChange *existenceFilter =
-      [FSTExistenceFilterWatchChange changeWithFilter:[FSTExistenceFilter filterWithCount:0]
-                                             targetID:1];
+      [FSTExistenceFilterWatchChange changeWithFilter:ExistenceFilter{0} targetID:1];
   [aggregator handleExistenceFilter:existenceFilter];
 
   FSTRemoteEvent *event = [aggregator remoteEventAtSnapshotVersion:testutil::Version(3)];
