@@ -34,6 +34,7 @@
 #import "Firestore/Example/Tests/SpecTests/FSTSyncEngineTestDriver.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
+#include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
@@ -50,6 +51,7 @@
 
 namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
+using firebase::firestore::FirestoreErrorCode;
 using firebase::firestore::auth::User;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
@@ -60,6 +62,7 @@ using firebase::firestore::remote::DocumentWatchChange;
 using firebase::firestore::remote::ExistenceFilterWatchChange;
 using firebase::firestore::remote::WatchTargetChange;
 using firebase::firestore::remote::WatchTargetChangeState;
+using firebase::firestore::util::MakeString;
 using firebase::firestore::util::Status;
 using firebase::firestore::util::TimerId;
 
@@ -95,15 +98,15 @@ NSString *Describe(NSData *data) {
   return [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
 }
 
-std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber*>* from) {
+std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
   std::vector<TargetId> result;
-  for (NSNumber* targetID in from) {
+  for (NSNumber *targetID in from) {
     result.push_back(targetID.intValue);
   }
   return result;
 }
 
-} // namespace
+}  // namespace
 
 @interface FSTSpecTests ()
 @property(nonatomic, strong) FSTSyncEngineTestDriver *driver;
@@ -247,21 +250,23 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber*>* from) {
 - (void)doWatchCurrent:(NSArray<id> *)currentSpec {
   NSArray<NSNumber *> *currentTargets = currentSpec[0];
   NSData *resumeToken = [currentSpec[1] dataUsingEncoding:NSUTF8StringEncoding];
-  WatchTargetChange change{WatchTargetChangeState::Current, ConvertTargetsArray(currentTargets), resumeToken};
+  WatchTargetChange change{WatchTargetChangeState::Current, ConvertTargetsArray(currentTargets),
+                           resumeToken};
   [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
 }
 
 - (void)doWatchRemove:(NSDictionary *)watchRemoveSpec {
-  NSError *error = nil;
+  Status error;
   NSDictionary *cause = watchRemoveSpec[@"cause"];
   if (cause) {
     int code = ((NSNumber *)cause[@"code"]).intValue;
     NSDictionary *userInfo = @{
       NSLocalizedDescriptionKey : @"Error from watchRemove.",
     };
-    error = [NSError errorWithDomain:FIRFirestoreErrorDomain code:code userInfo:userInfo];
+    error = Status{static_cast<FirestoreErrorCode>(code), MakeString([userInfo description])};
   }
-  WatchTargetChange change{WatchTargetChangeState::Removed, ConvertTargetsArray(watchRemoveSpec[@"targetIds"]), error};
+  WatchTargetChange change{WatchTargetChangeState::Removed,
+                           ConvertTargetsArray(watchRemoveSpec[@"targetIds"]), error};
   [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
   // Unlike web, the FSTMockDatastore detects a watch removal with cause and will remove active
   // targets
@@ -296,13 +301,13 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber*>* from) {
                                   : [FSTDeletedDocument documentWithKey:key
                                                                 version:std::move(version)
                                                   hasCommittedMutations:NO];
-    DocumentWatchChange change{ConvertTargetsArray(watchEntity[@"targets"]), ConvertTargetsArray(watchEntity[@"removedTargets"]), doc.key,
-                               doc};
+    DocumentWatchChange change{ConvertTargetsArray(watchEntity[@"targets"]),
+                               ConvertTargetsArray(watchEntity[@"removedTargets"]), doc.key, doc};
     [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
   } else if (watchEntity[@"key"]) {
     DocumentKey docKey = FSTTestDocKey(watchEntity[@"key"]);
-    DocumentWatchChange change{{}, ConvertTargetsArray(watchEntity[@"removedTargets"]), doc.key,
-                               nil};
+    DocumentWatchChange change{
+        {}, ConvertTargetsArray(watchEntity[@"removedTargets"]), docKey, nil};
     [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
   } else {
     HARD_FAIL("Either key, doc or docs must be set.");
@@ -316,7 +321,7 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber*>* from) {
   int keyCount = watchFilter.count == 0 ? 0 : (int)watchFilter.count - 1;
 
   ExistenceFilter filter{keyCount};
-  ExistenceFilterWatchChange change{filter, targets[0]};
+  ExistenceFilterWatchChange change{filter, targets[0].intValue};
   [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
 }
 
@@ -331,7 +336,8 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber*>* from) {
   NSArray<NSNumber *> *targetIDs =
       watchSnapshot[@"targetIds"] ? watchSnapshot[@"targetIds"] : [NSArray array];
   NSData *resumeToken = [watchSnapshot[@"resumeToken"] dataUsingEncoding:NSUTF8StringEncoding];
-  WatchTargetChange change{WatchTargetChangeState::NoChange, ConvertTargetsArray(targetIDs), resumeToken};
+  WatchTargetChange change{WatchTargetChangeState::NoChange, ConvertTargetsArray(targetIDs),
+                           resumeToken};
   [self.driver receiveWatchChange:change
                   snapshotVersion:[self parseVersion:watchSnapshot[@"version"]]];
 }
@@ -580,7 +586,7 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber*>* from) {
       [self.driver setExpectedLimboDocuments:std::move(expectedLimboDocuments)];
     }
     if (expected[@"activeTargets"]) {
-      std::unordered_map<TargetId, FSTQueryData *> expectedActiveTargets;
+      __block std::unordered_map<TargetId, FSTQueryData *> expectedActiveTargets;
       [expected[@"activeTargets"] enumerateKeysAndObjectsUsingBlock:^(NSString *targetIDString,
                                                                       NSDictionary *queryData,
                                                                       BOOL *stop) {
@@ -598,7 +604,7 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber*>* from) {
                                 snapshotVersion:SnapshotVersion::None()
                                     resumeToken:resumeToken];
       }];
-      self.driver.setExpectedActiveTargets : expectedActiveTargets;
+      [self.driver setExpectedActiveTargets: expectedActiveTargets];
     }
   }
 
@@ -631,7 +637,8 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber*>* from) {
 
   // Validate that each limbo doc has an expected active target
   for (const auto &kv : actualLimboDocs) {
-    XCTAssertNotNil([self.driver expectedActiveTargets][kv.second],
+    const auto& expected = [self.driver expectedActiveTargets];
+    XCTAssertTrue(expected.find(kv.second) != expected.end(),
                     @"Found limbo doc without an expected active target");
   }
 

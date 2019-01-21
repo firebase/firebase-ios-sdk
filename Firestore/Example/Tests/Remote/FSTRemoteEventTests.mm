@@ -48,6 +48,8 @@ using firebase::firestore::remote::ExistenceFilterWatchChange;
 using firebase::firestore::remote::WatchChange;
 using firebase::firestore::remote::WatchTargetChange;
 using firebase::firestore::remote::WatchTargetChangeState;
+using firebase::firestore::util::MakeString;
+using firebase::firestore::util::Status;
 // `make_unique` cannot deduce that the template parameter is intended to
 // resolve to a vector of target ids when given an initialization list (e.g.,
 // {1, 2}). The type alias is deliberately very short to minimize boilderplate.
