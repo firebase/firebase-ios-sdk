@@ -51,32 +51,9 @@ using firebase::firestore::remote::WatchTargetChangeState;
 using firebase::firestore::util::MakeString;
 using firebase::firestore::util::Status;
 
-std::unique_ptr<DocumentWatchChange> MakeDocChange(std::vector<TargetId> updated,
-                                                   std::vector<TargetId> removed,
-                                                   DocumentKey key,
-                                                   FSTMaybeDocument *doc) {
-  return absl::make_unique<DocumentWatchChange>(std::move(updated), std::move(removed),
-                                                std::move(key), doc);
-}
-
-std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state,
-                                                    std::vector<TargetId> target_ids) {
-  return absl::make_unique<WatchTargetChange>(state, std::move(target_ids));
-}
-
-std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state,
-                                                    std::vector<TargetId> target_ids,
-                                                    NSData *token) {
-  return absl::make_unique<WatchTargetChange>(state, std::move(target_ids), token);
-}
-
 NS_ASSUME_NONNULL_BEGIN
 
 namespace {
-
-std::unordered_map<TargetId, int> NoOutstandingResponses() {
-  return {};
-}
 
 // Degenerate case to end recursion.
 void AddChanges(std::vector<std::unique_ptr<WatchChange>> *result) {
@@ -105,6 +82,28 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
   return result;
 }
 
+// These helpers work around the fact that `make_unique` cannot deduce the
+// desired type (`vector<TargetId>` in this case) from an initialization list
+// (e.g., `{1,2}`).
+std::unique_ptr<DocumentWatchChange> MakeDocChange(std::vector<TargetId> updated,
+                                                   std::vector<TargetId> removed,
+                                                   DocumentKey key,
+                                                   FSTMaybeDocument *doc) {
+  return absl::make_unique<DocumentWatchChange>(std::move(updated), std::move(removed),
+                                                std::move(key), doc);
+}
+
+std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state,
+                                                    std::vector<TargetId> target_ids) {
+  return absl::make_unique<WatchTargetChange>(state, std::move(target_ids));
+}
+
+std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state,
+                                                    std::vector<TargetId> target_ids,
+                                                    NSData *token) {
+  return absl::make_unique<WatchTargetChange>(state, std::move(target_ids), token);
+}
+
 }  // namespace
 
 @interface FSTRemoteEventTests : XCTestCase
@@ -113,6 +112,7 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
 @implementation FSTRemoteEventTests {
   NSData *_resumeToken1;
   FSTTestTargetMetadataProvider *_targetMetadataProvider;
+  std::unordered_map<TargetId, int> _noOutstandingResponses;
 }
 
 - (void)setUp {
@@ -261,7 +261,7 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
   FSTRemoteEvent *event =
       [self remoteEventAtSnapshotVersion:3
                                targetMap:targetMap
-                    outstandingResponses:NoOutstandingResponses()
+                    outstandingResponses:_noOutstandingResponses
                             existingKeys:DocumentKeySet{existingDoc.key}
                                  changes:Changes(std::move(change1), std::move(change2))];
   XCTAssertEqual(event.snapshotVersion, testutil::Version(3));
@@ -374,7 +374,7 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
   FSTRemoteEvent *event =
       [self remoteEventAtSnapshotVersion:3
                                targetMap:targetMap
-                    outstandingResponses:NoOutstandingResponses()
+                    outstandingResponses:_noOutstandingResponses
                             existingKeys:DocumentKeySet{doc1.key}
                                  changes:Changes(std::move(change1), std::move(change2),
                                                  std::move(change3), std::move(change4),
@@ -400,7 +400,7 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
   WatchTargetChange change{WatchTargetChangeState::Reset, {1}};
 
   FSTWatchChangeAggregator *aggregator = [self aggregatorWithTargetMap:targetMap
-                                                  outstandingResponses:NoOutstandingResponses()
+                                                  outstandingResponses:_noOutstandingResponses
                                                           existingKeys:DocumentKeySet {}
                                                                changes:{}];
   [aggregator handleTargetChange:change];
@@ -429,7 +429,7 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
   FSTRemoteEvent *event =
       [self remoteEventAtSnapshotVersion:3
                                targetMap:targetMap
-                    outstandingResponses:NoOutstandingResponses()
+                    outstandingResponses:_noOutstandingResponses
                             existingKeys:DocumentKeySet{doc1a.key}
                                  changes:Changes(std::move(change1), std::move(change2))];
   XCTAssertEqual(event.snapshotVersion, testutil::Version(3));
@@ -454,7 +454,7 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
 
   FSTRemoteEvent *event = [self remoteEventAtSnapshotVersion:3
                                                    targetMap:targetMap
-                                        outstandingResponses:NoOutstandingResponses()
+                                        outstandingResponses:_noOutstandingResponses
                                                 existingKeys:DocumentKeySet {}
                                                      changes:Changes(std::move(change))];
 
@@ -515,7 +515,7 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
   std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1}]};
 
   FSTWatchChangeAggregator *aggregator = [self aggregatorWithTargetMap:targetMap
-                                                  outstandingResponses:NoOutstandingResponses()
+                                                  outstandingResponses:_noOutstandingResponses
                                                           existingKeys:DocumentKeySet {}
                                                                changes:{}];
 
@@ -544,7 +544,7 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
 
   FSTWatchChangeAggregator *aggregator = [self
       aggregatorWithTargetMap:targetMap
-         outstandingResponses:NoOutstandingResponses()
+         outstandingResponses:_noOutstandingResponses
                  existingKeys:DocumentKeySet{doc1.key, doc2.key}
                       changes:Changes(std::move(change1), std::move(change2), std::move(change3))];
 
@@ -585,7 +585,7 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
   std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1}]};
 
   FSTWatchChangeAggregator *aggregator = [self aggregatorWithTargetMap:targetMap
-                                                  outstandingResponses:NoOutstandingResponses()
+                                                  outstandingResponses:_noOutstandingResponses
                                                           existingKeys:DocumentKeySet {}
                                                                changes:{}];
 
@@ -625,7 +625,7 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
 
   FSTWatchChangeAggregator *aggregator =
       [self aggregatorWithTargetMap:targetMap
-               outstandingResponses:NoOutstandingResponses()
+               outstandingResponses:_noOutstandingResponses
                        existingKeys:DocumentKeySet {}
                             changes:Changes(std::move(change1), std::move(change2))];
 
@@ -677,7 +677,7 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
   std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1, 2}]};
 
   FSTWatchChangeAggregator *aggregator = [self aggregatorWithTargetMap:targetMap
-                                                  outstandingResponses:NoOutstandingResponses()
+                                                  outstandingResponses:_noOutstandingResponses
                                                           existingKeys:DocumentKeySet {}
                                                                changes:{}];
 
@@ -704,7 +704,7 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
   std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1, 2}]};
 
   FSTWatchChangeAggregator *aggregator = [self aggregatorWithTargetMap:targetMap
-                                                  outstandingResponses:NoOutstandingResponses()
+                                                  outstandingResponses:_noOutstandingResponses
                                                           existingKeys:DocumentKeySet {}
                                                                changes:{}];
 
@@ -739,7 +739,7 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
   FSTRemoteEvent *event =
       [self remoteEventAtSnapshotVersion:3
                                targetMap:targetMap
-                    outstandingResponses:NoOutstandingResponses()
+                    outstandingResponses:_noOutstandingResponses
                             existingKeys:DocumentKeySet {}
                                  changes:Changes(std::move(resolveLimboTarget))];
 
@@ -757,7 +757,7 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
 
   FSTRemoteEvent *event = [self remoteEventAtSnapshotVersion:3
                                                    targetMap:targetMap
-                                        outstandingResponses:NoOutstandingResponses()
+                                        outstandingResponses:_noOutstandingResponses
                                                 existingKeys:DocumentKeySet {}
                                                      changes:Changes(std::move(wrongState))];
 
@@ -773,7 +773,7 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
   FSTRemoteEvent *event =
       [self remoteEventAtSnapshotVersion:3
                                targetMap:targetMap
-                    outstandingResponses:NoOutstandingResponses()
+                    outstandingResponses:_noOutstandingResponses
                             existingKeys:DocumentKeySet{FSTTestDocKey(@"coll/limbo")}
                                  changes:Changes(std::move(hasDocument))];
 
@@ -800,7 +800,7 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
   FSTRemoteEvent *event = [self
       remoteEventAtSnapshotVersion:3
                          targetMap:targetMap
-              outstandingResponses:NoOutstandingResponses()
+              outstandingResponses:_noOutstandingResponses
                       existingKeys:DocumentKeySet{existingDoc.key, deletedDoc.key}
                            changes:Changes(std::move(newDocChange), std::move(existingDocChange),
                                            std::move(deletedDocChange),
@@ -832,7 +832,7 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
   FSTRemoteEvent *event =
       [self remoteEventAtSnapshotVersion:3
                                targetMap:targetMap
-                    outstandingResponses:NoOutstandingResponses()
+                    outstandingResponses:_noOutstandingResponses
                             existingKeys:DocumentKeySet {}
                                  changes:Changes(std::move(docChange1), std::move(docChange2),
                                                  std::move(docChange3), std::move(targetsChange))];
