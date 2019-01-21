@@ -18,6 +18,8 @@
 
 @class GDLLogWriter;
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface GDLLogger ()
 
 /** The log mapping identifier that a GDLLogBackend will use to map the extension to proto. */
@@ -33,3 +35,5 @@
 @property(nonatomic) GDLLogWriter *logWriterInstance;
 
 @end
+
+NS_ASSUME_NONNULL_END

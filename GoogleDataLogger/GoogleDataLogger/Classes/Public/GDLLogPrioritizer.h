@@ -18,6 +18,8 @@
 
 @class GDLLogEvent;
 
+NS_ASSUME_NONNULL_BEGIN
+
 /** This protocol defines the common interface of a log prioritization. Log prioritizers are
  * stateful objects that prioritize logs upon insertion into storage and remain prepared to return a
  * set of log filenames to the storage system.
@@ -45,3 +47,5 @@
 - (NSSet<NSNumber *> *)logsForNextUpload;
 
 @end
+
+NS_ASSUME_NONNULL_END

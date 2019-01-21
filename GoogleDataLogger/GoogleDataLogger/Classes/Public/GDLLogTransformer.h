@@ -18,6 +18,8 @@
 
 @class GDLLogEvent;
 
+NS_ASSUME_NONNULL_BEGIN
+
 /** Defines the API that log transformers must adopt. */
 @protocol GDLLogTransformer <NSObject>
 
@@ -32,3 +34,5 @@
 - (GDLLogEvent *)transform:(GDLLogEvent *)logEvent;
 
 @end
+
+NS_ASSUME_NONNULL_END

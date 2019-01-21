@@ -20,6 +20,8 @@
 
 @protocol GDLLogTransformer;
 
+NS_ASSUME_NONNULL_BEGIN
+
 /** Manages the writing and log-time transforming of logs. */
 @interface GDLLogWriter : NSObject
 
@@ -38,3 +40,5 @@
     afterApplyingTransformers:(nullable NSArray<id<GDLLogTransformer>> *)logTransformers;
 
 @end
+
+NS_ASSUME_NONNULL_END

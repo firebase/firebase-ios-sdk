@@ -18,6 +18,8 @@
 
 @class GDLUploadCoordinator;
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface GDLLogStorage ()
 
 /** The queue on which all storage work will occur. */
@@ -34,3 +36,5 @@
 @property(nonatomic) GDLUploadCoordinator *uploader;
 
 @end
+
+NS_ASSUME_NONNULL_END

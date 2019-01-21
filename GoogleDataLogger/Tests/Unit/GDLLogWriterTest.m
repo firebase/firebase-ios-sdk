@@ -124,10 +124,4 @@
   [self waitForExpectations:@[ errorExpectation ] timeout:5.0];
 }
 
-/** Tests that writing a nil log throws. */
-- (void)testWritingANilLogThrows {
-  GDLLogWriter *writer = [GDLLogWriter sharedInstance];
-  XCTAssertThrows([writer writeLog:nil afterApplyingTransformers:nil]);
-}
-
 @end

@@ -31,6 +31,7 @@
 @implementation GDLRegistrarTest
 
 - (void)setUp {
+  [super setUp];
   _logTarget = 23;
 }
 
