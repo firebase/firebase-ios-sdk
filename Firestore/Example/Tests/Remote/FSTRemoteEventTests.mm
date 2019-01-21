@@ -64,18 +64,18 @@ std::unordered_map<TargetId, int> NoOutstandingResponses() {
 void AddChanges(std::vector<std::unique_ptr<WatchChange>> *result) {
 }
 
-template <typename... Args>
+template <typename Head, typename... Tail>
 void AddChanges(std::vector<std::unique_ptr<WatchChange>> *result,
-                std::unique_ptr<WatchChange> head,
-                Args... tail) {
+                Head head,
+                Tail... tail) {
   result->push_back(std::move(head));
-  AddChanges(result, tail...);
+  AddChanges(result, std::move(tail)...);
 }
 
 template <typename... Args>
 std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
   std::vector<std::unique_ptr<WatchChange>> result;
-  AddChanges(&result, args...);
+  AddChanges(&result, std::move(args)...);
   return result;
 }
 
@@ -519,7 +519,7 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
   FSTWatchChangeAggregator *aggregator = [self aggregatorWithTargetMap:targetMap
                                                   outstandingResponses:NoOutstandingResponses()
                                                           existingKeys:DocumentKeySet {}
-                                                               changes:@[]];
+                                                               changes:{}];
 
   WatchTargetChange change{WatchTargetChangeState::NoChange, {1}, _resumeToken1};
   [aggregator handleTargetChange:change];
@@ -595,7 +595,7 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
   FSTWatchChangeAggregator *aggregator = [self aggregatorWithTargetMap:targetMap
                                                   outstandingResponses:NoOutstandingResponses()
                                                           existingKeys:DocumentKeySet {}
-                                                               changes:@[]];
+                                                               changes:{}];
 
   WatchTargetChange markCurrent{WatchTargetChangeState::Current, {1}, _resumeToken1};
   [aggregator handleTargetChange:markCurrent];
@@ -648,7 +648,7 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
   XCTAssertEqualObjects(event.documentUpdates.at(doc2.key), doc2);
 
   [_targetMetadataProvider setSyncedKeys:DocumentKeySet{doc1.key, doc2.key}
-                            forQueryData:targetMap[@1]];
+                            forQueryData:targetMap[1]];
 
   FSTDeletedDocument *deletedDoc1 = [FSTDeletedDocument documentWithKey:doc1.key
                                                                 version:testutil::Version(3)
@@ -690,7 +690,7 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
   FSTWatchChangeAggregator *aggregator = [self aggregatorWithTargetMap:targetMap
                                                   outstandingResponses:NoOutstandingResponses()
                                                           existingKeys:DocumentKeySet {}
-                                                               changes:@[]];
+                                                               changes:{}];
 
   WatchTargetChange change1{WatchTargetChangeState::Current, {1}, _resumeToken1};
   [aggregator handleTargetChange:change1];
@@ -717,7 +717,7 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
   FSTWatchChangeAggregator *aggregator = [self aggregatorWithTargetMap:targetMap
                                                   outstandingResponses:NoOutstandingResponses()
                                                           existingKeys:DocumentKeySet {}
-                                                               changes:@[]];
+                                                               changes:{}];
 
   WatchTargetChange change1{WatchTargetChangeState::Current, {1}, _resumeToken1};
   [aggregator handleTargetChange:change1];
@@ -840,11 +840,9 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
 }
 
 - (void)testTracksLimboDocuments {
-  std::unordered_map<TargetId, FSTQueryData *> targetMap;
-  auto additionalTargets = [self queryDataForTargets:{1}];
-  auto additionalLimboTargets = [self queryDataForLimboTargets:{2}];
-  targetMap.insert(targetMap.end(), additionalTargets.begin(), additionalTargets.end());
-  targetMap.insert(targetMap.end(), additionalLimboTargets.begin(), additionalLimboTargets.end());
+  std::unordered_map<TargetId, FSTQueryData *> targetMap = [self queryDataForTargets:{1}];
+  auto additionalTargets = [self queryDataForLimboTargets:{2}];
+  targetMap.insert(additionalTargets.begin(), additionalTargets.end());
 
   // Add 3 docs: 1 is limbo and non-limbo, 2 is limbo-only, 3 is non-limbo
   FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{@"key" : @"value"}, FSTDocumentStateSynced);
