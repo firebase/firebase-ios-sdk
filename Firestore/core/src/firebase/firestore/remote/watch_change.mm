@@ -33,7 +33,7 @@ bool operator==(const DocumentWatchChange& lhs,
   return lhs.updated_target_ids() == rhs.updated_target_ids() &&
          lhs.removed_target_ids() == rhs.removed_target_ids() &&
          lhs.document_key() == rhs.document_key() &&
-         objc_equal(lhs.new_document(), rhs.new_document());
+         objc_equals(lhs.new_document(), rhs.new_document());
 }
 
 bool operator==(const ExistenceFilterWatchChange& lhs,

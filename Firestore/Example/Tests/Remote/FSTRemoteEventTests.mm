@@ -50,10 +50,19 @@ using firebase::firestore::remote::WatchTargetChange;
 using firebase::firestore::remote::WatchTargetChangeState;
 using firebase::firestore::util::MakeString;
 using firebase::firestore::util::Status;
-// `make_unique` cannot deduce that the template parameter is intended to
-// resolve to a vector of target ids when given an initialization list (e.g.,
-// {1, 2}). The type alias is deliberately very short to minimize boilderplate.
-using ids = std::vector<TargetId>;
+
+std::unique_ptr<DocumentWatchChange> MakeDocChange(std::vector<TargetId> updated,
+                                                   std::vector<TargetId> removed,
+                                                   DocumentKey key,
+                                                   FSTMaybeDocument *doc) {
+  return absl::make_unique<DocumentWatchChange>(std::move(updated), std::move(removed),
+                                                std::move(key), existingDoc);
+}
+
+std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state,
+                                                   std::vector<TargetId> target_ids) {
+  return MakeTargetChange(state, std::move(target_ids));
+}
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -73,8 +82,8 @@ void AddChanges(std::vector<std::unique_ptr<WatchChange>> *result, Head head, Ta
   AddChanges(result, std::move(tail)...);
 }
 
-// Works around the fact that move-only types (in this case, `unique_ptr`) don't work with `initialzer_list`.
-// Desired (doesn't work):
+// Works around the fact that move-only types (in this case, `unique_ptr`) don't work with
+// `initialzer_list`. Desired (doesn't work):
 //
 //   std::unique_ptr<int> x, y;
 //   std::vector<std::unique_ptr>> foo{std::move(x), std::move(y)};
@@ -234,11 +243,11 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
       [self queryDataForTargets:{1, 2, 3, 4, 5, 6}]};
 
   FSTDocument *existingDoc = FSTTestDoc("docs/1", 1, @{@"value" : @1}, FSTDocumentStateSynced);
-  auto change1 = absl::make_unique<DocumentWatchChange>(ids{1, 2, 3}, ids{4, 5, 6}, existingDoc.key,
+  auto change1 = MakeDocChange({1, 2, 3}, {4, 5, 6}, existingDoc.key,
                                                         existingDoc);
 
   FSTDocument *newDoc = FSTTestDoc("docs/2", 2, @{@"value" : @2}, FSTDocumentStateSynced);
-  auto change2 = absl::make_unique<DocumentWatchChange>(ids{1, 4}, ids{2, 6}, newDoc.key, newDoc);
+  auto change2 = MakeDocChange({1, 4}, {2, 6}, newDoc.key, newDoc);
 
   // Create a remote event that includes both `change1` and `change2` as well as a NO_CHANGE event
   // with the default resume token (`_resumeToken1`).
@@ -289,11 +298,11 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
   std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1}]};
 
   FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{@"value" : @1}, FSTDocumentStateSynced);
-  auto change1 = absl::make_unique<DocumentWatchChange>(ids{1}, ids{}, doc1.key, doc1);
-  auto change2 = absl::make_unique<WatchTargetChange>(WatchTargetChangeState::Removed, ids{1});
-  auto change3 = absl::make_unique<WatchTargetChange>(WatchTargetChangeState::Added, ids{1});
+  auto change1 = MakeDocChange({1}, {}, doc1.key, doc1);
+  auto change2 = MakeTargetChange(WatchTargetChangeState::Removed, {1});
+  auto change3 = MakeTargetChange(WatchTargetChangeState::Added, {1});
   FSTDocument *doc2 = FSTTestDoc("docs/2", 2, @{@"value" : @2}, FSTDocumentStateSynced);
-  auto change4 = absl::make_unique<DocumentWatchChange>(ids{1}, ids{}, doc2.key, doc2);
+  auto change4 = MakeDocChange({1}, {}, doc2.key, doc2);
 
   // We're waiting for the unwatch and watch ack
   std::unordered_map<TargetId, int> outstandingResponses{{1, 2}};
@@ -318,8 +327,8 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
   std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{}]};
 
   FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{@"value" : @1}, FSTDocumentStateSynced);
-  auto change1 = absl::make_unique<DocumentWatchChange>(ids{1}, ids{}, doc1.key, doc1);
-  auto change2 = absl::make_unique<WatchTargetChange>(WatchTargetChangeState::Removed, ids{1});
+  auto change1 = MakeDocChange({1}, {}, doc1.key, doc1);
+  auto change2 = MakeTargetChange(WatchTargetChangeState::Removed, {1});
 
   // We're waiting for the unwatch ack
   std::unordered_map<TargetId, int> outstandingResponses{{1, 1}};
@@ -342,20 +351,20 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
   std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1}]};
 
   FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{@"value" : @1}, FSTDocumentStateSynced);
-  auto change1 = absl::make_unique<DocumentWatchChange>(ids{1}, ids{}, doc1.key, doc1);
+  auto change1 = MakeDocChange({1}, {}, doc1.key, doc1);
 
   // Reset stream, ignoring doc1
-  auto change2 = absl::make_unique<WatchTargetChange>(WatchTargetChangeState::Reset, ids{1});
+  auto change2 = MakeTargetChange(WatchTargetChangeState::Reset, {1});
 
   // Add doc2, doc3
   FSTDocument *doc2 = FSTTestDoc("docs/2", 2, @{@"value" : @2}, FSTDocumentStateSynced);
-  auto change3 = absl::make_unique<DocumentWatchChange>(ids{1}, ids{}, doc2.key, doc2);
+  auto change3 = MakeDocChange({1}, {}, doc2.key, doc2);
 
   FSTDocument *doc3 = FSTTestDoc("docs/3", 3, @{@"value" : @3}, FSTDocumentStateSynced);
-  auto change4 = absl::make_unique<DocumentWatchChange>(ids{1}, ids{}, doc3.key, doc3);
+  auto change4 = MakeDocChange({1}, {}, doc3.key, doc3);
 
   // Remove doc2 again, should not show up in reset mapping
-  auto change5 = absl::make_unique<DocumentWatchChange>(ids{}, ids{1}, doc2.key, doc2);
+  auto change5 = MakeDocChange({}, {1}, doc2.key, doc2);
 
   FSTRemoteEvent *event =
       [self remoteEventAtSnapshotVersion:3
@@ -407,10 +416,10 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
   std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1, 2}]};
 
   FSTDocument *doc1a = FSTTestDoc("docs/1", 1, @{@"value" : @1}, FSTDocumentStateSynced);
-  auto change1 = absl::make_unique<DocumentWatchChange>(ids{1}, ids{2}, doc1a.key, doc1a);
+  auto change1 = MakeDocChange({1}, {2}, doc1a.key, doc1a);
 
   FSTDocument *doc1b = FSTTestDoc("docs/1", 1, @{@"value" : @2}, FSTDocumentStateSynced);
-  auto change2 = absl::make_unique<DocumentWatchChange>(ids{2}, ids{1}, doc1b.key, doc1b);
+  auto change2 = MakeDocChange({2}, {1}, doc1b.key, doc1b);
 
   FSTRemoteEvent *event =
       [self remoteEventAtSnapshotVersion:3
@@ -437,7 +446,7 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
   std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1}]};
 
   auto change =
-      absl::make_unique<WatchTargetChange>(WatchTargetChangeState::Current, ids{1}, _resumeToken1);
+      MakeTargetChange(WatchTargetChangeState::Current, {1}, _resumeToken1);
 
   FSTRemoteEvent *event = [self remoteEventAtSnapshotVersion:3
                                                    targetMap:targetMap
@@ -458,14 +467,14 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
   std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1, 3}]};
 
   FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{@"value" : @1}, FSTDocumentStateSynced);
-  auto change1 = absl::make_unique<DocumentWatchChange>(ids{1, 3}, ids{2}, doc1.key, doc1);
-  auto change2 = absl::make_unique<WatchTargetChange>(WatchTargetChangeState::Current, ids{1, 2, 3},
+  auto change1 = MakeDocChange({1, 3}, {2}, doc1.key, doc1);
+  auto change2 = MakeTargetChange(WatchTargetChangeState::Current, {1, 2, 3},
                                                       _resumeToken1);
-  auto change3 = absl::make_unique<WatchTargetChange>(WatchTargetChangeState::Removed, ids{1});
-  auto change4 = absl::make_unique<WatchTargetChange>(WatchTargetChangeState::Removed, ids{2});
-  auto change5 = absl::make_unique<WatchTargetChange>(WatchTargetChangeState::Added, ids{1});
+  auto change3 = MakeTargetChange(WatchTargetChangeState::Removed, {1});
+  auto change4 = MakeTargetChange(WatchTargetChangeState::Removed, {2});
+  auto change5 = MakeTargetChange(WatchTargetChangeState::Added, {1});
   FSTDocument *doc2 = FSTTestDoc("docs/2", 2, @{@"value" : @2}, FSTDocumentStateSynced);
-  auto change6 = absl::make_unique<DocumentWatchChange>(ids{1}, ids{3}, doc2.key, doc2);
+  auto change6 = MakeDocChange({1}, {3}, doc2.key, doc2);
 
   std::unordered_map<TargetId, int> outstandingResponses{{1, 2}, {2, 1}};
 
@@ -525,11 +534,11 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
   std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1, 2}]};
 
   FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{@"value" : @1}, FSTDocumentStateSynced);
-  auto change1 = absl::make_unique<DocumentWatchChange>(ids{1}, ids{}, doc1.key, doc1);
+  auto change1 = MakeDocChange({1}, {}, doc1.key, doc1);
   FSTDocument *doc2 = FSTTestDoc("docs/2", 2, @{@"value" : @2}, FSTDocumentStateSynced);
-  auto change2 = absl::make_unique<DocumentWatchChange>(ids{1}, ids{}, doc2.key, doc2);
+  auto change2 = MakeDocChange({1}, {}, doc2.key, doc2);
   auto change3 =
-      absl::make_unique<WatchTargetChange>(WatchTargetChangeState::Current, ids{1}, _resumeToken1);
+      MakeTargetChange(WatchTargetChangeState::Current, {1}, _resumeToken1);
 
   FSTWatchChangeAggregator *aggregator = [self
       aggregatorWithTargetMap:targetMap
@@ -608,9 +617,9 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
   std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1}]};
 
   FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{@"value" : @1}, FSTDocumentStateSynced);
-  auto change1 = absl::make_unique<DocumentWatchChange>(ids{1}, ids{}, doc1.key, doc1);
+  auto change1 = MakeDocChange({1}, {}, doc1.key, doc1);
   FSTDocument *doc2 = FSTTestDoc("docs/2", 2, @{@"value" : @2}, FSTDocumentStateSynced);
-  auto change2 = absl::make_unique<DocumentWatchChange>(ids{1}, ids{}, doc2.key, doc2);
+  auto change2 = MakeDocChange({1}, {}, doc2.key, doc2);
 
   FSTWatchChangeAggregator *aggregator =
       [self aggregatorWithTargetMap:targetMap
@@ -725,7 +734,7 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
   DocumentKey limboKey = testutil::Key("coll/limbo");
 
   auto resolveLimboTarget =
-      absl::make_unique<WatchTargetChange>(WatchTargetChangeState::Current, ids{1});
+      MakeTargetChange(WatchTargetChangeState::Current, {1});
   FSTRemoteEvent *event =
       [self remoteEventAtSnapshotVersion:3
                                targetMap:targetMap
@@ -743,7 +752,7 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
 - (void)testDoesntSynthesizeDeletesForWrongState {
   std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1}]};
 
-  auto wrongState = absl::make_unique<WatchTargetChange>(WatchTargetChangeState::NoChange, ids{1});
+  auto wrongState = MakeTargetChange(WatchTargetChangeState::NoChange, {1});
 
   FSTRemoteEvent *event = [self remoteEventAtSnapshotVersion:3
                                                    targetMap:targetMap
@@ -758,7 +767,7 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
 - (void)testDoesntSynthesizeDeletesForExistingDoc {
   std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{3}]};
 
-  auto hasDocument = absl::make_unique<WatchTargetChange>(WatchTargetChangeState::Current, ids{3});
+  auto hasDocument = MakeTargetChange(WatchTargetChangeState::Current, {3});
 
   FSTRemoteEvent *event =
       [self remoteEventAtSnapshotVersion:3
@@ -775,20 +784,20 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
   std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForLimboTargets:{1}]};
 
   FSTDocument *newDoc = FSTTestDoc("docs/new", 1, @{@"key" : @"value"}, FSTDocumentStateSynced);
-  auto newDocChange = absl::make_unique<DocumentWatchChange>(ids{1}, ids{}, newDoc.key, newDoc);
+  auto newDocChange = MakeDocChange({1}, {}, newDoc.key, newDoc);
 
   FSTDocument *existingDoc =
       FSTTestDoc("docs/existing", 1, @{@"some" : @"data"}, FSTDocumentStateSynced);
   auto existingDocChange =
-      absl::make_unique<DocumentWatchChange>(ids{1}, ids{}, existingDoc.key, existingDoc);
+      MakeDocChange({1}, {}, existingDoc.key, existingDoc);
 
   FSTDeletedDocument *deletedDoc = FSTTestDeletedDoc("docs/deleted", 1, NO);
   auto deletedDocChange =
-      absl::make_unique<DocumentWatchChange>(ids{}, ids{1}, deletedDoc.key, deletedDoc);
+      MakeDocChange({}, {1}, deletedDoc.key, deletedDoc);
 
   FSTDeletedDocument *missingDoc = FSTTestDeletedDoc("docs/missing", 1, NO);
   auto missingDocChange =
-      absl::make_unique<DocumentWatchChange>(ids{}, ids{1}, missingDoc.key, missingDoc);
+      MakeDocChange({}, {1}, missingDoc.key, missingDoc);
 
   FSTRemoteEvent *event = [self
       remoteEventAtSnapshotVersion:3
@@ -817,11 +826,11 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
   FSTDocument *doc3 = FSTTestDoc("docs/3", 1, @{@"key" : @"value"}, FSTDocumentStateSynced);
 
   // Target 2 is a limbo target
-  auto docChange1 = absl::make_unique<DocumentWatchChange>(ids{1, 2}, ids{}, doc1.key, doc1);
-  auto docChange2 = absl::make_unique<DocumentWatchChange>(ids{2}, ids{}, doc2.key, doc2);
-  auto docChange3 = absl::make_unique<DocumentWatchChange>(ids{1}, ids{}, doc3.key, doc3);
+  auto docChange1 = MakeDocChange({1, 2}, {}, doc1.key, doc1);
+  auto docChange2 = MakeDocChange({2}, {}, doc2.key, doc2);
+  auto docChange3 = MakeDocChange({1}, {}, doc3.key, doc3);
   auto targetsChange =
-      absl::make_unique<WatchTargetChange>(WatchTargetChangeState::Current, ids{1, 2});
+      MakeTargetChange(WatchTargetChangeState::Current, {1, 2});
 
   FSTRemoteEvent *event =
       [self remoteEventAtSnapshotVersion:3
