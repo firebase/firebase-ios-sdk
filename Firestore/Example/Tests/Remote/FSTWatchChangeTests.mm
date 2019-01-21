@@ -23,7 +23,11 @@
 #include "Firestore/core/src/firebase/firestore/remote/existence_filter.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 
+using firebase::firestore::remote::DocumentWatchChange;
 using firebase::firestore::remote::ExistenceFilter;
+using firebase::firestore::remote::ExistenceFilterWatchChange;
+using firebase::firestore::remote::WatchTargetChange;
+using firebase::firestore::remote::WatchTargetChangeState;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -34,32 +38,25 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testDocumentChange {
   FSTMaybeDocument *doc = FSTTestDoc("a/b", 1, @{}, FSTDocumentStateSynced);
-  FSTDocumentWatchChange *change =
-      [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[ @1, @2, @3 ]
-                                              removedTargetIDs:@[ @4, @5 ]
-                                                   documentKey:doc.key
-                                                      document:doc];
-  XCTAssertEqual(change.updatedTargetIDs.count, 3);
-  XCTAssertEqual(change.removedTargetIDs.count, 2);
+  DocumentWatchChange change{{1, 2, 3}, {4, 5}, doc.key, doc};
+
+  XCTAssertEqual(change.updated_target_ids().size(), 3);
+  XCTAssertEqual(change.removed_target_ids().size(), 2);
   // Testing object identity here is fine.
-  XCTAssertEqual(change.document, doc);
+  XCTAssertEqual(change.new_document(), doc);
 }
 
 - (void)testExistenceFilterChange {
   ExistenceFilter filter{7};
-  FSTExistenceFilterWatchChange *change = [FSTExistenceFilterWatchChange changeWithFilter:filter
-                                                                                 targetID:5];
-  XCTAssertEqual(change.filter.count(), 7);
-  XCTAssertEqual(change.targetID, 5);
+  ExistenceFilterWatchChange change{filter, 5};
+  XCTAssertEqual(change.filter().count(), 7);
+  XCTAssertEqual(change.target_id(), 5);
 }
 
 - (void)testWatchTargetChange {
-  FSTWatchTargetChange *change =
-      [FSTWatchTargetChange changeWithState:FSTWatchTargetChangeStateReset
-                                  targetIDs:@[ @1, @2 ]
-                                      cause:nil];
-  XCTAssertEqual(change.state, FSTWatchTargetChangeStateReset);
-  XCTAssertEqual(change.targetIDs.count, 2);
+  WatchTargetChange change{WatchTargetChangeState::Reset, {1, 2,}};
+  XCTAssertEqual(change.state(), WatchTargetChangeState::Reset);
+  XCTAssertEqual(change.target_ids().size(), 2);
 }
 
 @end

@@ -69,7 +69,7 @@ void AddChanges(std::vector<std::unique_ptr<WatchChange>> *result,
                 std::unique_ptr<WatchChange> head,
                 Args... tail) {
   result->push_back(std::move(head));
-  AddChanges(result, tail);
+  AddChanges(result, tail...);
 }
 
 template <typename... Args>
