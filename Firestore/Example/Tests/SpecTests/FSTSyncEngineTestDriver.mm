@@ -375,7 +375,7 @@ NS_ASSUME_NONNULL_BEGIN
   });
 }
 
-- (void)receiveWatchChange:(const WatchChange&)change
+- (void)receiveWatchChange:(const WatchChange &)change
            snapshotVersion:(const SnapshotVersion &)snapshot {
   _workerQueue->EnqueueBlocking([&] { _datastore->WriteWatchChange(change, snapshot); });
 }
@@ -396,15 +396,15 @@ NS_ASSUME_NONNULL_BEGIN
   return [self.syncEngine currentLimboDocuments];
 }
 
-- (const std::unordered_map<TargetId, FSTQueryData*>&)activeTargets {
+- (const std::unordered_map<TargetId, FSTQueryData *> &)activeTargets {
   return _datastore->ActiveTargets();
 }
 
-- (const std::unordered_map<TargetId, FSTQueryData*>&)expectedActiveTargets {
+- (const std::unordered_map<TargetId, FSTQueryData *> &)expectedActiveTargets {
   return _expectedActiveTargets;
 }
 
-- (void)setExpectedActiveTargets:(const std::unordered_map<TargetId, FSTQueryData*>&)targets {
+- (void)setExpectedActiveTargets:(const std::unordered_map<TargetId, FSTQueryData *> &)targets {
   _expectedActiveTargets = targets;
 }
 

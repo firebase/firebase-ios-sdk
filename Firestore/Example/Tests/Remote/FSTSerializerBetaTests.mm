@@ -23,6 +23,7 @@
 #import <FirebaseFirestore/FIRTimestamp.h>
 #import <XCTest/XCTest.h>
 
+#include <memory>
 #include <vector>
 
 #import "Firestore/Protos/objc/firestore/local/MaybeDocument.pbobjc.h"
@@ -77,7 +78,7 @@ namespace {
 
 template <typename T>
 bool Equals(const WatchChange &lhs, const WatchChange &rhs) {
-  return static_cast<const T&>(lhs) == static_cast<const T&>(rhs);
+  return static_cast<const T &>(lhs) == static_cast<const T &>(rhs);
 }
 
 bool operator==(const WatchChange &lhs, const WatchChange &rhs) {
@@ -888,7 +889,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testConvertsDocumentChangeWithDeletions {
-  DocumentWatchChange expected{{}, {1, 2}, FSTTestDocKey(@"coll/1"), FSTTestDeletedDoc("coll/1", 5, NO)};
+  DocumentWatchChange expected{
+      {}, {1, 2}, FSTTestDocKey(@"coll/1"), FSTTestDeletedDoc("coll/1", 5, NO)};
 
   GCFSListenResponse *listenResponse = [GCFSListenResponse message];
   listenResponse.documentDelete.document = @"projects/p/databases/d/documents/coll/1";

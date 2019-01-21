@@ -423,8 +423,7 @@ FSTRemoteEvent *FSTTestUpdateRemoteEventWithLimboTargets(
   DocumentWatchChange change{updatedInTargets, removedFromTargets, doc.key, doc};
 
   std::vector<TargetId> listens = updatedInTargets;
-  listens.insert(listens.end(), removedFromTargets.begin(),
-                          removedFromTargets.end());
+  listens.insert(listens.end(), removedFromTargets.begin(), removedFromTargets.end());
 
   FSTWatchChangeAggregator *aggregator = [[FSTWatchChangeAggregator alloc]
       initWithTargetMetadataProvider:[FSTTestTargetMetadataProvider

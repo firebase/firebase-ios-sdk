@@ -147,7 +147,7 @@ typedef std::unordered_map<firebase::firestore::auth::User,
  * @param snapshot A snapshot version to attach, if applicable. This should be sent when
  *      simulating the server having sent a complete snapshot.
  */
-- (void)receiveWatchChange:(const firebase::firestore::remote::WatchChange&)change
+- (void)receiveWatchChange:(const firebase::firestore::remote::WatchChange &)change
            snapshotVersion:(const firebase::firestore::model::SnapshotVersion &)snapshot;
 
 /**
@@ -297,9 +297,11 @@ typedef std::unordered_map<firebase::firestore::auth::User,
 - (const std::unordered_map<firebase::firestore::model::TargetId, FSTQueryData *> &)activeTargets;
 
 /** The expected set of active targets, keyed by target ID. */
-- (const std::unordered_map<firebase::firestore::model::TargetId, FSTQueryData *> &)expectedActiveTargets;
+- (const std::unordered_map<firebase::firestore::model::TargetId, FSTQueryData *> &)
+    expectedActiveTargets;
 
-- (void)setExpectedActiveTargets:(const std::unordered_map<firebase::firestore::model::TargetId, FSTQueryData *> &)targets;
+- (void)setExpectedActiveTargets:
+    (const std::unordered_map<firebase::firestore::model::TargetId, FSTQueryData *> &)targets;
 
 @end
 

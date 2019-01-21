@@ -54,7 +54,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testWatchTargetChange {
-  WatchTargetChange change{WatchTargetChangeState::Reset, {1, 2,}};
+  WatchTargetChange change{WatchTargetChangeState::Reset,
+                           {
+                               1,
+                               2,
+                           }};
   XCTAssertEqual(change.state(), WatchTargetChangeState::Reset);
   XCTAssertEqual(change.target_ids().size(), 2);
 }

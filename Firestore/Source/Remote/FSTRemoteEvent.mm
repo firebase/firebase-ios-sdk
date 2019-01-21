@@ -321,7 +321,7 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-- (void)handleDocumentChange:(const DocumentWatchChange&)documentChange {
+- (void)handleDocumentChange:(const DocumentWatchChange &)documentChange {
   for (TargetId targetID : documentChange.updated_target_ids()) {
     if ([documentChange.new_document() isKindOfClass:[FSTDocument class]]) {
       [self addDocument:documentChange.new_document() toTarget:targetID];
@@ -339,7 +339,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-- (void)handleTargetChange:(const WatchTargetChange&)targetChange {
+- (void)handleTargetChange:(const WatchTargetChange &)targetChange {
   for (TargetId targetID : [self targetIdsForChange:targetChange]) {
     FSTTargetState *targetState = [self ensureTargetStateForTarget:targetID];
     switch (targetChange.state()) {
@@ -365,7 +365,8 @@ NS_ASSUME_NONNULL_BEGIN
         if (!targetState.isPending) {
           [self removeTarget:targetID];
         }
-        HARD_ASSERT(targetChange.cause().ok(), "WatchChangeAggregator does not handle errored targets");
+        HARD_ASSERT(targetChange.cause().ok(),
+                    "WatchChangeAggregator does not handle errored targets");
         break;
       case WatchTargetChangeState::Current:
         if ([self isActiveTarget:targetID]) {
@@ -392,7 +393,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Returns all targetIds that the watch change applies to: either the targetIds explicitly listed
  * in the change or the targetIds of all currently active targets.
  */
-- (std::vector<TargetId>)targetIdsForChange:(const WatchTargetChange&)targetChange {
+- (std::vector<TargetId>)targetIdsForChange:(const WatchTargetChange &)targetChange {
   if (!targetChange.target_ids().empty()) {
     return targetChange.target_ids();
   }
@@ -410,7 +411,7 @@ NS_ASSUME_NONNULL_BEGIN
   _targetStates.erase(targetID);
 }
 
-- (void)handleExistenceFilter:(const ExistenceFilterWatchChange&)existenceFilter {
+- (void)handleExistenceFilter:(const ExistenceFilterWatchChange &)existenceFilter {
   TargetId targetID = existenceFilter.target_id();
   int expectedCount = existenceFilter.filter().count();
 

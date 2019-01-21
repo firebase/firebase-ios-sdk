@@ -21,6 +21,7 @@
 #include <map>
 #include <unordered_map>
 #include <utility>
+#include <vector>
 
 #import "Firestore/Source/Core/FSTEventManager.h"
 #import "Firestore/Source/Core/FSTQuery.h"
@@ -604,7 +605,7 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
                                 snapshotVersion:SnapshotVersion::None()
                                     resumeToken:resumeToken];
       }];
-      [self.driver setExpectedActiveTargets: expectedActiveTargets];
+      [self.driver setExpectedActiveTargets:expectedActiveTargets];
     }
   }
 
@@ -637,9 +638,9 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
 
   // Validate that each limbo doc has an expected active target
   for (const auto &kv : actualLimboDocs) {
-    const auto& expected = [self.driver expectedActiveTargets];
+    const auto &expected = [self.driver expectedActiveTargets];
     XCTAssertTrue(expected.find(kv.second) != expected.end(),
-                    @"Found limbo doc without an expected active target");
+                  @"Found limbo doc without an expected active target");
   }
 
   for (const DocumentKey &expectedLimboDoc : self.driver.expectedLimboDocuments) {

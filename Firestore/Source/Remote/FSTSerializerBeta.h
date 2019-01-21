@@ -100,7 +100,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (GCFSTarget_QueryTarget *)encodedQueryTarget:(FSTQuery *)query;
 - (FSTQuery *)decodedQueryFromQueryTarget:(GCFSTarget_QueryTarget *)target;
 
-- (std::unique_ptr<firebase::firestore::remote::WatchChange> )decodedWatchChange:(GCFSListenResponse *)watchChange;
+- (std::unique_ptr<firebase::firestore::remote::WatchChange>)decodedWatchChange:
+    (GCFSListenResponse *)watchChange;
 - (firebase::firestore::model::SnapshotVersion)versionFromListenResponse:
     (GCFSListenResponse *)watchChange;
 

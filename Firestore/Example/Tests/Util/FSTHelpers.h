@@ -155,9 +155,9 @@ inline NSString *FSTRemoveExceptionPrefix(NSString *exception) {
 + (instancetype)
     providerWithSingleResultForKey:(firebase::firestore::model::DocumentKey)documentKey
                      listenTargets:
-                         (const std::vector<firebase::firestore::model::TargetId >&)listenTargets
+                         (const std::vector<firebase::firestore::model::TargetId> &)listenTargets
                       limboTargets:
-                          (const std::vector<firebase::firestore::model::TargetId >&)limboTargets;
+                          (const std::vector<firebase::firestore::model::TargetId> &)limboTargets;
 
 /**
  * Creates an FSTTestTargetMetadataProvider that behaves as if there's an established listen for
@@ -295,9 +295,9 @@ FSTRemoteEvent *FSTTestUpdateRemoteEvent(
 /** Creates a remote event with changes to a document. Allows for identifying limbo targets */
 FSTRemoteEvent *FSTTestUpdateRemoteEventWithLimboTargets(
     FSTMaybeDocument *doc,
-    const std::vector<firebase::firestore::model::TargetId>& updatedInTargets,
-    const std::vector<firebase::firestore::model::TargetId>& removedFromTargets,
-    const std::vector<firebase::firestore::model::TargetId>& limboTargets);
+    const std::vector<firebase::firestore::model::TargetId> &updatedInTargets,
+    const std::vector<firebase::firestore::model::TargetId> &removedFromTargets,
+    const std::vector<firebase::firestore::model::TargetId> &limboTargets);
 
 /** Creates a test view changes. */
 FSTLocalViewChanges *FSTTestViewChanges(firebase::firestore::model::TargetId targetID,

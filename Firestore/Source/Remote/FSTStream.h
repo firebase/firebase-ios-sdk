@@ -36,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Called by the FSTWatchStream with changes and the snapshot versions included in in the
  * WatchChange responses sent back by the server.
  */
-- (void)watchStreamDidChange:(const firebase::firestore::remote::WatchChange&)change
+- (void)watchStreamDidChange:(const firebase::firestore::remote::WatchChange &)change
              snapshotVersion:(const firebase::firestore::model::SnapshotVersion &)snapshotVersion;
 
 /**

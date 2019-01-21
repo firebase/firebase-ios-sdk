@@ -146,7 +146,8 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
     aggregatorWithTargetMap:(const std::unordered_map<TargetId, FSTQueryData *> &)targetMap
        outstandingResponses:(const std::unordered_map<TargetId, int> &)outstandingResponses
                existingKeys:(DocumentKeySet)existingKeys
-                    changes:(const std::vector<std::unique_ptr<WatchChange>> &)watchChanges { FSTWatchChangeAggregator *aggregator =
+                    changes:(const std::vector<std::unique_ptr<WatchChange>> &)watchChanges {
+  FSTWatchChangeAggregator *aggregator =
       [[FSTWatchChangeAggregator alloc] initWithTargetMetadataProvider:_targetMetadataProvider];
 
   std::vector<TargetId> targetIDs;

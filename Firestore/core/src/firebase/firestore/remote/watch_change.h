@@ -26,6 +26,7 @@
 #import <Foundation/Foundation.h>
 
 #include <utility>
+#include <vector>
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
@@ -112,8 +113,7 @@ class DocumentWatchChange : public WatchChange {
   FSTMaybeDocument* new_document_;
 };
 
-bool operator==(const DocumentWatchChange& lhs,
-                       const DocumentWatchChange& rhs);
+bool operator==(const DocumentWatchChange& lhs, const DocumentWatchChange& rhs);
 
 /**
  * An `ExistenceFilterWatchChange` applies to the targets and is required to
@@ -140,7 +140,7 @@ class ExistenceFilterWatchChange : public WatchChange {
 };
 
 bool operator==(const ExistenceFilterWatchChange& lhs,
-                       const ExistenceFilterWatchChange& rhs);
+                const ExistenceFilterWatchChange& rhs);
 
 enum class WatchTargetChangeState { NoChange, Added, Removed, Current, Reset };
 
@@ -211,8 +211,7 @@ class WatchTargetChange : public WatchChange {
   util::Status cause_;
 };
 
-bool operator==(const WatchTargetChange& lhs,
-                       const WatchTargetChange& rhs);
+bool operator==(const WatchTargetChange& lhs, const WatchTargetChange& rhs);
 
 }  // namespace remote
 }  // namespace firestore

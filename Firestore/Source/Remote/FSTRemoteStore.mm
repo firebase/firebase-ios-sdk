@@ -18,6 +18,7 @@
 
 #include <cinttypes>
 #include <memory>
+#include <unordered_map>
 #include <utility>
 
 #import "Firestore/Source/Core/FSTQuery.h"

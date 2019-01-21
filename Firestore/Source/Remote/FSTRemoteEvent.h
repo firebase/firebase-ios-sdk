@@ -40,7 +40,8 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Returns the set of remote document keys for the given target ID as of the last raised snapshot.
  */
-- (firebase::firestore::model::DocumentKeySet)remoteKeysForTarget:(firebase::firestore::model::TargetId)targetID;
+- (firebase::firestore::model::DocumentKeySet)remoteKeysForTarget:
+    (firebase::firestore::model::TargetId)targetID;
 
 /**
  * Returns the FSTQueryData for an active target ID or 'null' if this query has become inactive
@@ -168,10 +169,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init NS_UNAVAILABLE;
 
 /** Processes and adds the DocumentWatchChange to the current set of changes. */
-- (void)handleDocumentChange:(const firebase::firestore::remote::DocumentWatchChange&)documentChange;
+- (void)handleDocumentChange:
+    (const firebase::firestore::remote::DocumentWatchChange &)documentChange;
 
 /** Processes and adds the WatchTargetChange to the current set of changes. */
-- (void)handleTargetChange:(const firebase::firestore::remote::WatchTargetChange&)targetChange;
+- (void)handleTargetChange:(const firebase::firestore::remote::WatchTargetChange &)targetChange;
 
 /** Removes the in-memory state for the provided target. */
 - (void)removeTarget:(firebase::firestore::model::TargetId)targetID;
@@ -180,7 +182,8 @@ NS_ASSUME_NONNULL_BEGIN
  * Handles existence filters and synthesizes deletes for filter mismatches. Targets that are
  * invalidated by filter mismatches are added to `targetMismatches`.
  */
-- (void)handleExistenceFilter:(const firebase::firestore::remote::ExistenceFilterWatchChange&)existenceFilter;
+- (void)handleExistenceFilter:
+    (const firebase::firestore::remote::ExistenceFilterWatchChange &)existenceFilter;
 
 /**
  * Increment the number of acks needed from watch before we can consider the server to be 'in-sync'

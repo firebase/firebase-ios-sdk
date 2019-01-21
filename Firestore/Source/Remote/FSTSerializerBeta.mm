@@ -1115,7 +1115,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   util::Status cause;
   if (change.hasCause) {
-    cause = util::Status{static_cast<FirestoreErrorCode>(change.cause.code), util::MakeString(change.cause.message)};
+    cause = util::Status{static_cast<FirestoreErrorCode>(change.cause.code),
+                         util::MakeString(change.cause.message)};
   }
 
   return absl::make_unique<WatchTargetChange>(state, std::move(targetIDs), resumeToken,
@@ -1185,8 +1186,8 @@ NS_ASSUME_NONNULL_BEGIN
   DocumentKey key = [self decodedDocumentKey:change.document];
   std::vector<TargetId> removedTargetIDs = [self decodedIntegerArray:change.removedTargetIdsArray];
 
-  return absl::make_unique<DocumentWatchChange>(
-      std::vector<TargetId>{}, std::move(removedTargetIDs), std::move(key), nil);
+  return absl::make_unique<DocumentWatchChange>(std::vector<TargetId>{},
+                                                std::move(removedTargetIDs), std::move(key), nil);
 }
 
 - (std::unique_ptr<WatchChange>)decodedExistenceFilterWatchChange:(GCFSExistenceFilter *)filter {
