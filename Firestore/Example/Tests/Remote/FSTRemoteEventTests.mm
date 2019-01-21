@@ -717,6 +717,8 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
 
   DocumentKey limboKey = testutil::Key("coll/limbo");
 
+  auto resolveLimboTarget =
+      absl::make_unique<WatchTargetChange>(WatchTargetChangeState::Current, ids{1});
   FSTRemoteEvent *event =
       [self remoteEventAtSnapshotVersion:3
                                targetMap:targetMap
