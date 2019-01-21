@@ -63,6 +63,7 @@ std::unordered_map<TargetId, int> NoOutstandingResponses() {
   return {};
 }
 
+// Degenerate case to end recursion.
 void AddChanges(std::vector<std::unique_ptr<WatchChange>> *result) {
 }
 
@@ -72,6 +73,16 @@ void AddChanges(std::vector<std::unique_ptr<WatchChange>> *result, Head head, Ta
   AddChanges(result, std::move(tail)...);
 }
 
+// Works around the fact that move-only types (in this case, `unique_ptr`) don't work with `initialzer_list`.
+// Desired (doesn't work):
+//
+//   std::unique_ptr<int> x, y;
+//   std::vector<std::unique_ptr>> foo{std::move(x), std::move(y)};
+//
+// Actual:
+//
+//   std::unique_ptr<int> x, y;
+//   std::vector<std::unique_ptr>> foo = Changes(std::move(x), std::move(y));
 template <typename... Args>
 std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
   std::vector<std::unique_ptr<WatchChange>> result;
@@ -135,7 +146,7 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
  * @param targetMap A map of query data for all active targets. The map must include an entry for
  * every target referenced by any of the watch changes.
  * @param outstandingResponses The number of outstanding ACKs a target has to receive before it is
- * considered active, or `NoOutstandingResponses` if all targets are already active.
+ * considered active, or an empty map if all targets are already active.
  * @param existingKeys The set of documents that are considered synced with the test targets as
  * part of a previous listen. To modify this set during test execution, invoke
  * `[_targetMetadataProvider setSyncedKeys:forQueryData:]`.
@@ -196,7 +207,7 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
  * @param targetMap A map of query data for all active targets. The map must include an entry for
  * every target referenced by any of the watch changes.
  * @param outstandingResponses The number of outstanding ACKs a target has to receive before it is
- * considered active, or `NoOutstandingResponses` if all targets are already active.
+ * considered active, or an empty map if all targets are already active.
  * @param existingKeys The set of documents that are considered synced with the test targets as
  * part of a previous listen.
  * @param watchChanges The watch changes to apply before creating the remote event. Supported
@@ -228,10 +239,6 @@ std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
 
   FSTDocument *newDoc = FSTTestDoc("docs/2", 2, @{@"value" : @2}, FSTDocumentStateSynced);
   auto change2 = absl::make_unique<DocumentWatchChange>(ids{1, 4}, ids{2, 6}, newDoc.key, newDoc);
-
-  // std::vector<std::unique_ptr<WatchChange>> changes;
-  // changes.push_back(std::move(change1));
-  // changes.push_back(std::move(change2));
 
   // Create a remote event that includes both `change1` and `change2` as well as a NO_CHANGE event
   // with the default resume token (`_resumeToken1`).

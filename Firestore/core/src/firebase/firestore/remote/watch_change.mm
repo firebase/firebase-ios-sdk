@@ -22,15 +22,18 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
+template <typename T>
+bool objc_equals(T* lhs, T* rhs) {
+  // `isEqual:` will return false if both objects are nil.
+  return (lhs == nil && rhs == nil) || [lhs isEqual:rhs];
+}
+
 bool operator==(const DocumentWatchChange& lhs,
                 const DocumentWatchChange& rhs) {
-  auto docs_equal = [](FSTMaybeDocument* lhs, FSTMaybeDocument* rhs) {
-    return (lhs == nil && rhs == nil) || [lhs isEqual:rhs];
-  };
   return lhs.updated_target_ids() == rhs.updated_target_ids() &&
          lhs.removed_target_ids() == rhs.removed_target_ids() &&
          lhs.document_key() == rhs.document_key() &&
-         docs_equal(lhs.new_document(), rhs.new_document());
+         objc_equal(lhs.new_document(), rhs.new_document());
 }
 
 bool operator==(const ExistenceFilterWatchChange& lhs,
@@ -40,7 +43,7 @@ bool operator==(const ExistenceFilterWatchChange& lhs,
 
 bool operator==(const WatchTargetChange& lhs, const WatchTargetChange& rhs) {
   return lhs.state() == rhs.state() && lhs.target_ids() == rhs.target_ids() &&
-         [lhs.resume_token() isEqual:rhs.resume_token()] &&
+         objc_equals(lhs.resume_token(), rhs.resume_token()) &&
          lhs.cause() == rhs.cause();
 }
 

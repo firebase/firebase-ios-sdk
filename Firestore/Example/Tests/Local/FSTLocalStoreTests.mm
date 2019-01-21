@@ -904,7 +904,7 @@ NS_ASSUME_NONNULL_BEGIN
   NSData *resumeToken = FSTTestResumeTokenFromSnapshotVersion(1000);
 
   WatchTargetChange watchChange{
-      WatchTargetChangeState::Current, {targetID}, resumeToken, Status::OK()};
+      WatchTargetChangeState::Current, {targetID}, resumeToken};
   FSTWatchChangeAggregator *aggregator = [[FSTWatchChangeAggregator alloc]
       initWithTargetMetadataProvider:[FSTTestTargetMetadataProvider
                                          providerWithSingleResultForKey:testutil::Key("foo/bar")

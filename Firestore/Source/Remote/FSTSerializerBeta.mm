@@ -1105,7 +1105,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (std::unique_ptr<WatchChange>)decodedTargetChangeFromWatchChange:(GCFSTargetChange *)change {
   WatchTargetChangeState state = [self decodedWatchTargetChangeState:change.targetChangeType];
-  __block std::vector<int> targetIDs;
+  __block std::vector<TargetId> targetIDs;
 
   [change.targetIdsArray enumerateValuesWithBlock:^(int32_t value, NSUInteger idx, BOOL *stop) {
     targetIDs.push_back(value);
@@ -1142,6 +1142,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (std::vector<TargetId>)decodedIntegerArray:(GPBInt32Array *)values {
   __block std::vector<TargetId> result;
+  result.reserve(values.count);
   [values enumerateValuesWithBlock:^(int32_t value, NSUInteger idx, BOOL *stop) {
     result.push_back(value);
   }];
