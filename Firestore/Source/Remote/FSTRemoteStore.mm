@@ -267,11 +267,10 @@ static const int kMaxPendingWrites = 10;
 }
 
 - (void)stopListeningToTargetID:(TargetId)targetID {
-  auto found = _listenTargets.find(targetID);
-  HARD_ASSERT(found != _listenTargets.end(),
-              "stopListeningToTargetID: target not currently watched: %s", targetID);
+  size_t num_erased = _listenTargets.erase(targetID);
+  HARD_ASSERT(num_erased == 1, "stopListeningToTargetID: target not currently watched: %s",
+              targetID);
 
-  _listenTargets.erase(found);
   if (_watchStream->IsOpen()) {
     [self sendUnwatchRequestForTargetID:@(targetID)];
   }

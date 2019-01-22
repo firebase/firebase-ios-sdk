@@ -55,31 +55,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 namespace {
 
-// Degenerate case to end recursion.
-void AddChanges(std::vector<std::unique_ptr<WatchChange>> *result) {
-}
-
-template <typename Head, typename... Tail>
-void AddChanges(std::vector<std::unique_ptr<WatchChange>> *result, Head head, Tail... tail) {
-  result->push_back(std::move(head));
-  AddChanges(result, std::move(tail)...);
-}
-
-// Works around the fact that move-only types (in this case, `unique_ptr`) don't work with
-// `initialzer_list`. Desired (doesn't work):
-//
-//   std::unique_ptr<int> x, y;
-//   std::vector<std::unique_ptr>> foo{std::move(x), std::move(y)};
-//
-// Actual:
-//
-//   std::unique_ptr<int> x, y;
-//   std::vector<std::unique_ptr>> foo = Changes(std::move(x), std::move(y));
-template <typename... Args>
-std::vector<std::unique_ptr<WatchChange>> Changes(Args... args) {
-  std::vector<std::unique_ptr<WatchChange>> result;
-  AddChanges(&result, std::move(args)...);
-  return result;
+template <typename... Elems>
+std::vector<std::unique_ptr<WatchChange>> Changes(Elems... elems) {
+  return VectorOfUniquePtrs<WatchChange>(std::move(elems)...);
 }
 
 // These helpers work around the fact that `make_unique` cannot deduce the
@@ -222,7 +200,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
  * @param targetMap A map of query data for all active targets. The map must include an entry for
  * every target referenced by any of the watch changes.
  * @param outstandingResponses The number of outstanding ACKs a target has to receive before it is
- * considered active, or an `_noOutstandingResponses` all targets are already active.
+ * considered active, or `_noOutstandingResponses` if all targets are already active.
  * @param existingKeys The set of documents that are considered synced with the test targets as
  * part of a previous listen.
  * @param watchChanges The watch changes to apply before creating the remote event. Supported
