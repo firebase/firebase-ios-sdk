@@ -23,6 +23,8 @@
 
 #import <Foundation/Foundation.h>
 
+#include <unordered_map>
+
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
 #include "Firestore/core/src/firebase/firestore/local/query_cache.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -77,7 +79,7 @@ class LevelDbQueryCache : public QueryCache {
 
   int RemoveTargets(
       model::ListenSequenceNumber upper_bound,
-      NSDictionary<NSNumber*, FSTQueryData*>* live_targets) override;
+      const std::unordered_map<model::TargetId, FSTQueryData*>& live_targets) override;
 
   // Key-related methods
 

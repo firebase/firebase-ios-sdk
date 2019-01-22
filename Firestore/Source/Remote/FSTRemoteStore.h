@@ -80,7 +80,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Returns the set of remote document keys for the given target ID. This list includes the
  * documents that were assigned to the target when we received the last snapshot.
  */
-- (firebase::firestore::model::DocumentKeySet)remoteKeysForTarget:(FSTBoxedTargetID *)targetId;
+- (firebase::firestore::model::DocumentKeySet)remoteKeysForTarget:(firebase::firestore::model::TargetId)targetId;
 
 @end
 

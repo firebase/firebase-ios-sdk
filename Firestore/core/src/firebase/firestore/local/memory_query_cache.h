@@ -24,6 +24,7 @@
 #import <Foundation/Foundation.h>
 
 #include <cstdint>
+#include <unordered_map>
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/local/query_cache.h"
@@ -60,7 +61,7 @@ class MemoryQueryCache : public QueryCache {
 
   int RemoveTargets(
       model::ListenSequenceNumber upper_bound,
-      NSDictionary<NSNumber*, FSTQueryData*>* live_targets) override;
+      const std::unordered_map<model::TargetId, FSTQueryData*>& live_targets) override;
 
   // Key-related methods
   void AddMatchingKeys(const model::DocumentKeySet& keys,

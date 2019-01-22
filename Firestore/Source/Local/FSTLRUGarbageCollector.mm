@@ -32,6 +32,7 @@ using firebase::firestore::local::LruParams;
 using firebase::firestore::local::LruResults;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::ListenSequenceNumber;
+using firebase::firestore::model::TargetId;
 
 const int64_t kFIRFirestoreCacheSizeUnlimited = LruParams::CacheSizeUnlimited;
 const ListenSequenceNumber kFSTListenSequenceNumberInvalid = -1;
@@ -93,7 +94,7 @@ class RollingSequenceNumberBuffer {
   return self;
 }
 
-- (LruResults)collectWithLiveTargets:(NSDictionary<NSNumber *, FSTQueryData *> *)liveTargets {
+- (LruResults)collectWithLiveTargets:(const std::unordered_map<TargetId, FSTQueryData*>&)liveTargets {
   if (_params.minBytesThreshold == kFIRFirestoreCacheSizeUnlimited) {
     LOG_DEBUG("Garbage collection skipped; disabled");
     return LruResults::DidNotRun();
@@ -111,7 +112,7 @@ class RollingSequenceNumberBuffer {
   }
 }
 
-- (LruResults)runGCWithLiveTargets:(NSDictionary<NSNumber *, FSTQueryData *> *)liveTargets {
+- (LruResults)runGCWithLiveTargets:(const std::unordered_map<TargetId, FSTQueryData*>&)liveTargets {
   Timestamp start = Timestamp::Now();
   int sequenceNumbers = [self queryCountForPercentile:_params.percentileToCollect];
   // Cap at the configured max
@@ -171,7 +172,7 @@ class RollingSequenceNumberBuffer {
 
 - (int)removeQueriesUpThroughSequenceNumber:(ListenSequenceNumber)sequenceNumber
                                 liveQueries:
-                                    (NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries {
+                                    (const std::unordered_map<TargetId, FSTQueryData*>&)liveQueries {
   return [_delegate removeTargetsThroughSequenceNumber:sequenceNumber liveQueries:liveQueries];
 }
 

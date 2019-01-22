@@ -17,6 +17,7 @@
 #import "Firestore/Source/Local/FSTLevelDB.h"
 
 #include <memory>
+#include <unordered_map>
 #include <utility>
 
 #import "FIRFirestoreErrors.h"
@@ -39,6 +40,7 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/util/filesystem.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
@@ -71,6 +73,7 @@ using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::ListenSequenceNumber;
 using firebase::firestore::model::ResourcePath;
+using firebase::firestore::model::TargetId;
 using firebase::firestore::util::OrderedCode;
 using firebase::firestore::util::Path;
 using firebase::firestore::util::Status;
@@ -227,7 +230,7 @@ static const char *kReservedPathComponent = "firestore";
 }
 
 - (int)removeTargetsThroughSequenceNumber:(ListenSequenceNumber)sequenceNumber
-                              liveQueries:(NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries {
+                              liveQueries:(const std::unordered_map<TargetId, FSTQueryData*>&)liveQueries {
   return _db.queryCache->RemoveTargets(sequenceNumber, liveQueries);
 }
 
