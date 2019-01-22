@@ -184,7 +184,7 @@ inline std::vector<uint8_t> ResumeToken(int64_t snapshot_version) {
 
 // Degenerate case to end recursion of `MoveIntoVector`.
 template <typename T>
-void MoveIntoVector(std::vector<std::unique_ptr<T>>* result) {
+void MoveIntoVector(std::vector<std::unique_ptr<T>>*) {
 }
 
 template <typename T, typename Head, typename... Tail>
