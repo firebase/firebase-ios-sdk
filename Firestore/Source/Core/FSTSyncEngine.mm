@@ -165,7 +165,7 @@ class LimboResolution {
       _mutationCompletionBlocks;
 
   /** FSTQueryViews for all active queries, indexed by target ID. */
-  std::unordered_map<TargetId, FSTQueryView*> _queryViewsByTarget;
+  std::unordered_map<TargetId, FSTQueryView *> _queryViewsByTarget;
 
   /**
    * When a document is in limbo, we create a special listen to resolve it. This maps the

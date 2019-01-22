@@ -93,7 +93,8 @@ class QueryCache {
 
   virtual int RemoveTargets(
       model::ListenSequenceNumber upper_bound,
-      const std::unordered_map<model::TargetId, FSTQueryData*>& live_targets) = 0;
+      const std::unordered_map<model::TargetId, FSTQueryData*>&
+          live_targets) = 0;
 
   // Key-related methods
   virtual void AddMatchingKeys(const model::DocumentKeySet& keys,

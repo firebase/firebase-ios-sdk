@@ -230,7 +230,8 @@ static const char *kReservedPathComponent = "firestore";
 }
 
 - (int)removeTargetsThroughSequenceNumber:(ListenSequenceNumber)sequenceNumber
-                              liveQueries:(const std::unordered_map<TargetId, FSTQueryData*>&)liveQueries {
+                              liveQueries:(const std::unordered_map<TargetId, FSTQueryData *> &)
+                                              liveQueries {
   return _db.queryCache->RemoveTargets(sequenceNumber, liveQueries);
 }
 

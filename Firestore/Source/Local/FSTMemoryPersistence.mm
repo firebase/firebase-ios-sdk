@@ -236,7 +236,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (int)removeTargetsThroughSequenceNumber:(ListenSequenceNumber)sequenceNumber
-                              liveQueries:(const std::unordered_map<TargetId, FSTQueryData*> &)liveQueries {
+                              liveQueries:(const std::unordered_map<TargetId, FSTQueryData *> &)
+                                              liveQueries {
   return _persistence.queryCache->RemoveTargets(sequenceNumber, liveQueries);
 }
 

@@ -94,7 +94,8 @@ class RollingSequenceNumberBuffer {
   return self;
 }
 
-- (LruResults)collectWithLiveTargets:(const std::unordered_map<TargetId, FSTQueryData*>&)liveTargets {
+- (LruResults)collectWithLiveTargets:
+    (const std::unordered_map<TargetId, FSTQueryData *> &)liveTargets {
   if (_params.minBytesThreshold == kFIRFirestoreCacheSizeUnlimited) {
     LOG_DEBUG("Garbage collection skipped; disabled");
     return LruResults::DidNotRun();
@@ -112,7 +113,8 @@ class RollingSequenceNumberBuffer {
   }
 }
 
-- (LruResults)runGCWithLiveTargets:(const std::unordered_map<TargetId, FSTQueryData*>&)liveTargets {
+- (LruResults)runGCWithLiveTargets:
+    (const std::unordered_map<TargetId, FSTQueryData *> &)liveTargets {
   Timestamp start = Timestamp::Now();
   int sequenceNumbers = [self queryCountForPercentile:_params.percentileToCollect];
   // Cap at the configured max
@@ -171,8 +173,8 @@ class RollingSequenceNumberBuffer {
 }
 
 - (int)removeQueriesUpThroughSequenceNumber:(ListenSequenceNumber)sequenceNumber
-                                liveQueries:
-                                    (const std::unordered_map<TargetId, FSTQueryData*>&)liveQueries {
+                                liveQueries:(const std::unordered_map<TargetId, FSTQueryData *> &)
+                                                liveQueries {
   return [_delegate removeTargetsThroughSequenceNumber:sequenceNumber liveQueries:liveQueries];
 }
 

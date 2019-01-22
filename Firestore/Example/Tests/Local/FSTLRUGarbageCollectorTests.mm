@@ -131,7 +131,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (int)removeQueriesThroughSequenceNumber:(ListenSequenceNumber)sequenceNumber
-                              liveQueries:(const std::unordered_map<TargetId, FSTQueryData*>&)liveQueries {
+                              liveQueries:(const std::unordered_map<TargetId, FSTQueryData *> &)
+                                              liveQueries {
   return _persistence.run("gc", [&]() -> int {
     return [_gc removeQueriesUpThroughSequenceNumber:sequenceNumber liveQueries:liveQueries];
   });
@@ -379,7 +380,7 @@ NS_ASSUME_NONNULL_BEGIN
   if ([self isTestBaseClass]) return;
 
   [self newTestResources];
-  std::unordered_map<TargetId, FSTQueryData*> liveQueries;
+  std::unordered_map<TargetId, FSTQueryData *> liveQueries;
   for (int i = 0; i < 100; i++) {
     FSTQueryData *queryData = [self addNextQuery];
     // Mark odd queries as live so we can test filtering out live queries.
@@ -640,7 +641,7 @@ NS_ASSUME_NONNULL_BEGIN
   });
 
   // Finally, do the garbage collection, up to but not including the removal of middleTarget
-  std::unordered_map<TargetId, FSTQueryData*> liveQueries{{oldestTarget.targetID, oldestTarget}};
+  std::unordered_map<TargetId, FSTQueryData *> liveQueries{{oldestTarget.targetID, oldestTarget}};
 
   int queriesRemoved = [self removeQueriesThroughSequenceNumber:upperBound liveQueries:liveQueries];
   XCTAssertEqual(1, queriesRemoved, @"Expected to remove newest target");
