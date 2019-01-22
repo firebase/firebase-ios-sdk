@@ -81,6 +81,7 @@ bool Equals(const WatchChange &lhs, const WatchChange &rhs) {
   return static_cast<const T &>(lhs) == static_cast<const T &>(rhs);
 }
 
+// Compares two `WatchChange`s taking into account their actual derived type.
 bool IsWatchChangeEqual(const WatchChange &lhs, const WatchChange &rhs) {
   if (lhs.type() != rhs.type()) {
     return false;
