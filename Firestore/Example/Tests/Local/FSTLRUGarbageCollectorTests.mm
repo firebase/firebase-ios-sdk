@@ -18,6 +18,7 @@
 
 #import <XCTest/XCTest.h>
 
+#include <unordered_map>
 #include <unordered_set>
 
 #import "FIRTimestamp.h"
@@ -130,7 +131,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (int)removeQueriesThroughSequenceNumber:(ListenSequenceNumber)sequenceNumber
-                              liveQueries:(NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries {
+                              liveQueries:(const std::unordered_map<TargetId, FSTQueryData*>&)liveQueries {
   return _persistence.run("gc", [&]() -> int {
     return [_gc removeQueriesUpThroughSequenceNumber:sequenceNumber liveQueries:liveQueries];
   });
@@ -378,12 +379,12 @@ NS_ASSUME_NONNULL_BEGIN
   if ([self isTestBaseClass]) return;
 
   [self newTestResources];
-  NSMutableDictionary<NSNumber *, FSTQueryData *> *liveQueries = [[NSMutableDictionary alloc] init];
+  std::unordered_map<TargetId, FSTQueryData*> liveQueries;
   for (int i = 0; i < 100; i++) {
     FSTQueryData *queryData = [self addNextQuery];
     // Mark odd queries as live so we can test filtering out live queries.
     if (queryData.targetID % 2 == 1) {
-      liveQueries[@(queryData.targetID)] = queryData;
+      liveQueries[queryData.targetID] = queryData;
     }
   }
   // GC up through 20th query, which is 20%.
@@ -639,8 +640,7 @@ NS_ASSUME_NONNULL_BEGIN
   });
 
   // Finally, do the garbage collection, up to but not including the removal of middleTarget
-  NSDictionary<NSNumber *, FSTQueryData *> *liveQueries =
-      @{@(oldestTarget.targetID) : oldestTarget};
+  std::unordered_map<TargetId, FSTQueryData*> liveQueries{{oldestTarget.targetID, oldestTarget}};
 
   int queriesRemoved = [self removeQueriesThroughSequenceNumber:upperBound liveQueries:liveQueries];
   XCTAssertEqual(1, queriesRemoved, @"Expected to remove newest target");
@@ -699,7 +699,7 @@ NS_ASSUME_NONNULL_BEGIN
   });
 
   LruResults results =
-      _persistence.run("GC", [&]() -> LruResults { return [_gc collectWithLiveTargets:@{}]; });
+      _persistence.run("GC", [&]() -> LruResults { return [_gc collectWithLiveTargets:{}]; });
   XCTAssertFalse(results.didRun);
 
   [_persistence shutdown];
@@ -725,7 +725,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Try collection and verify that it didn't run
   LruResults results =
-      _persistence.run("GC", [&]() -> LruResults { return [_gc collectWithLiveTargets:@{}]; });
+      _persistence.run("GC", [&]() -> LruResults { return [_gc collectWithLiveTargets:{}]; });
   XCTAssertFalse(results.didRun);
 
   [_persistence shutdown];
@@ -754,7 +754,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Mark nothing as live, so everything is eligible.
   LruResults results =
-      _persistence.run("GC", [&]() -> LruResults { return [_gc collectWithLiveTargets:@{}]; });
+      _persistence.run("GC", [&]() -> LruResults { return [_gc collectWithLiveTargets:{}]; });
 
   // By default, we collect 10% of the sequence numbers. Since we added 100 targets,
   // that should be 10 targets with 10 documents each, for a total of 100 documents.
