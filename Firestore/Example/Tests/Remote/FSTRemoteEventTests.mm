@@ -48,6 +48,7 @@ using firebase::firestore::remote::ExistenceFilterWatchChange;
 using firebase::firestore::remote::WatchChange;
 using firebase::firestore::remote::WatchTargetChange;
 using firebase::firestore::remote::WatchTargetChangeState;
+using firebase::firestore::testutil::VectorOfUniquePtrs;
 using firebase::firestore::util::MakeString;
 using firebase::firestore::util::Status;
 
