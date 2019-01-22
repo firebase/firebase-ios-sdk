@@ -81,7 +81,8 @@ bool Equals(const WatchChange &lhs, const WatchChange &rhs) {
   return static_cast<const T &>(lhs) == static_cast<const T &>(rhs);
 }
 
-bool operator==(const WatchChange &lhs, const WatchChange &rhs) {
+// Compares two `WatchChange`s taking into account their actual derived type.
+bool IsWatchChangeEqual(const WatchChange &lhs, const WatchChange &rhs) {
   if (lhs.type() != rhs.type()) {
     return false;
   }
@@ -809,7 +810,7 @@ NS_ASSUME_NONNULL_BEGIN
   [listenResponse.targetChange.targetIdsArray addValue:4];
 
   std::unique_ptr<WatchChange> actual = [self.serializer decodedWatchChange:listenResponse];
-  XCTAssertTrue(*actual == expected);
+  XCTAssertTrue(IsWatchChangeEqual(*actual, expected));
 }
 
 - (void)testConvertsTargetChangeWithRemoved {
@@ -827,7 +828,7 @@ NS_ASSUME_NONNULL_BEGIN
   [listenResponse.targetChange.targetIdsArray addValue:4];
 
   std::unique_ptr<WatchChange> actual = [self.serializer decodedWatchChange:listenResponse];
-  XCTAssertTrue(*actual == expected);
+  XCTAssertTrue(IsWatchChangeEqual(*actual, expected));
 }
 
 - (void)testConvertsTargetChangeWithNoChange {
@@ -838,7 +839,7 @@ NS_ASSUME_NONNULL_BEGIN
   [listenResponse.targetChange.targetIdsArray addValue:4];
 
   std::unique_ptr<WatchChange> actual = [self.serializer decodedWatchChange:listenResponse];
-  XCTAssertTrue(*actual == expected);
+  XCTAssertTrue(IsWatchChangeEqual(*actual, expected));
 }
 
 - (void)testConvertsDocumentChangeWithTargetIds {
@@ -856,7 +857,7 @@ NS_ASSUME_NONNULL_BEGIN
   [listenResponse.documentChange.targetIdsArray addValue:2];
 
   std::unique_ptr<WatchChange> actual = [self.serializer decodedWatchChange:listenResponse];
-  XCTAssertTrue(*actual == expected);
+  XCTAssertTrue(IsWatchChangeEqual(*actual, expected));
 }
 
 - (void)testConvertsDocumentChangeWithRemovedTargetIds {
@@ -875,7 +876,7 @@ NS_ASSUME_NONNULL_BEGIN
   [listenResponse.documentChange.targetIdsArray addValue:2];
 
   std::unique_ptr<WatchChange> actual = [self.serializer decodedWatchChange:listenResponse];
-  XCTAssertTrue(*actual == expected);
+  XCTAssertTrue(IsWatchChangeEqual(*actual, expected));
 }
 
 - (void)testConvertsDocumentChangeWithDeletions {
@@ -889,7 +890,7 @@ NS_ASSUME_NONNULL_BEGIN
   [listenResponse.documentDelete.removedTargetIdsArray addValue:2];
 
   std::unique_ptr<WatchChange> actual = [self.serializer decodedWatchChange:listenResponse];
-  XCTAssertTrue(*actual == expected);
+  XCTAssertTrue(IsWatchChangeEqual(*actual, expected));
 }
 
 - (void)testConvertsDocumentChangeWithRemoves {
@@ -901,7 +902,7 @@ NS_ASSUME_NONNULL_BEGIN
   [listenResponse.documentRemove.removedTargetIdsArray addValue:2];
 
   std::unique_ptr<WatchChange> actual = [self.serializer decodedWatchChange:listenResponse];
-  XCTAssertTrue(*actual == expected);
+  XCTAssertTrue(IsWatchChangeEqual(*actual, expected));
 }
 
 @end
