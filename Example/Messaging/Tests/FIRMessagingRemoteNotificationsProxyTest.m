@@ -112,6 +112,8 @@ void FCM_swizzle_didReceiveNotificationResponseWithHandler(
 @interface FIRMessagingRemoteNotificationsProxyTest : XCTestCase
 
 @property(nonatomic, strong) FIRMessagingRemoteNotificationsProxy *proxy;
+@property(nonatomic, strong) id mockProxy;
+@property(nonatomic, strong) id mockProxyClass;
 @property(nonatomic, strong) id mockMessagingClass;
 
 @end
@@ -121,6 +123,10 @@ void FCM_swizzle_didReceiveNotificationResponseWithHandler(
 - (void)setUp {
   [super setUp];
   _proxy = [[FIRMessagingRemoteNotificationsProxy alloc] init];
+  _mockProxy = OCMPartialMock(_proxy);
+  _mockProxyClass = OCMClassMock([FIRMessagingRemoteNotificationsProxy class]);
+  // Update +sharedProxy to always return our partial mock of FIRMessagingRemoteNotificationsProxy
+  OCMStub([_mockProxyClass sharedProxy]).andReturn(_mockProxy);
   // Many of our swizzled methods call [FIRMessaging messaging], but we don't need it,
   // so just stub it to return nil
   _mockMessagingClass = OCMClassMock([FIRMessaging class]);
@@ -130,6 +136,12 @@ void FCM_swizzle_didReceiveNotificationResponseWithHandler(
 - (void)tearDown {
   [_mockMessagingClass stopMocking];
   _mockMessagingClass = nil;
+
+  [_mockProxyClass stopMocking];
+  _mockProxyClass = nil;
+
+  [_mockProxy stopMocking];
+  _mockProxy = nil;
 
   _proxy = nil;
   [super tearDown];
@@ -151,7 +163,7 @@ void FCM_swizzle_didReceiveNotificationResponseWithHandler(
 
 - (void)testSwizzledIncompleteAppDelegateRemoteNotificationMethod {
     IncompleteAppDelegate *incompleteAppDelegate = [[IncompleteAppDelegate alloc] init];
-    [self.proxy swizzleAppDelegateMethods:incompleteAppDelegate];
+    [self.mockProxy swizzleAppDelegateMethods:incompleteAppDelegate];
 
     [incompleteAppDelegate application:OCMClassMock([UIApplication class])
           didReceiveRemoteNotification:@{}];
@@ -161,7 +173,7 @@ void FCM_swizzle_didReceiveNotificationResponseWithHandler(
 
 - (void)testIncompleteAppDelegateRemoteNotificationWithFetchHandlerMethod {
   IncompleteAppDelegate *incompleteAppDelegate = [[IncompleteAppDelegate alloc] init];
-  [self.proxy swizzleAppDelegateMethods:incompleteAppDelegate];
+  [self.mockProxy swizzleAppDelegateMethods:incompleteAppDelegate];
   SEL remoteNotificationWithFetchHandler =
   @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:);
   XCTAssertFalse([incompleteAppDelegate respondsToSelector:remoteNotificationWithFetchHandler]);
@@ -171,7 +183,7 @@ void FCM_swizzle_didReceiveNotificationResponseWithHandler(
 
 - (void)testSwizzledAppDelegateRemoteNotificationMethods {
   FakeAppDelegate *appDelegate = [[FakeAppDelegate alloc] init];
-  [self.proxy swizzleAppDelegateMethods:appDelegate];
+  [self.mockProxy swizzleAppDelegateMethods:appDelegate];
   [appDelegate application:OCMClassMock([UIApplication class]) didReceiveRemoteNotification:@{}];
   // Verify our swizzled method was called
   OCMVerify(FCM_swizzle_appDidReceiveRemoteNotification);
@@ -218,7 +230,7 @@ void FCM_swizzle_didReceiveNotificationResponseWithHandler(
   }
   IncompleteUserNotificationCenterDelegate *delegate =
       [[IncompleteUserNotificationCenterDelegate alloc] init];
-  [self.proxy swizzleUserNotificationCenterDelegate:delegate];
+  [self.mockProxy swizzleUserNotificationCenterDelegate:delegate];
   // Because the incomplete delete does not implement either of the optional delegate methods, we
   // should swizzle nothing. If we had swizzled them, then respondsToSelector: would return YES
   // even though the delegate does not implement the methods.
@@ -236,7 +248,7 @@ void FCM_swizzle_didReceiveNotificationResponseWithHandler(
     return;
   }
   FakeUserNotificationCenterDelegate *delegate = [[FakeUserNotificationCenterDelegate alloc] init];
-  [self.proxy swizzleUserNotificationCenterDelegate:delegate];
+  [self.mockProxy swizzleUserNotificationCenterDelegate:delegate];
   // Invoking delegate method should also invoke our swizzled method
   // The swizzled method uses the +sharedProxy, which should be
   // returning our mocked proxy.

@@ -26,7 +26,7 @@
 #import "FIRMessaging_Private.h"
 #import "FIRMessagingTestUtilities.h"
 
-NSString *const kFIRMessagingTestsReceiverSuiteName = @"com.messaging.test_receivierTest";
+NSString *const kFIRMessagingTestsReceiverSuiteName = @"com.messaging.test_receiverTest";
 
 @interface FIRMessagingReceiverTest : XCTestCase
 @property(nonatomic, readonly, strong) FIRMessaging *messaging;
