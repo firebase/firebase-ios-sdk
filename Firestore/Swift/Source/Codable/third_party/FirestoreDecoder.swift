@@ -1,23 +1,22 @@
-/*
- * Copyright 2018 Google
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// This file is derived from swift/stdlib/public/SDK/Foundation/JSONEncoder.swift
+// and swift/stdlib/public/SDK/Foundation/PlistEncoder.swift
+
+//===----------------------------------------------------------------------===//
+//
+// This source file is part of the Swift.org open source project
+//
+// Copyright (c) 2014 - 2017 Apple Inc. and the Swift project authors
+// Licensed under Apache License v2.0 with Runtime Library Exception
+//
+// See https://swift.org/LICENSE.txt for license information
+// See https://swift.org/CONTRIBUTORS.txt for the list of Swift project authors
+//
+//===----------------------------------------------------------------------===//
 
 import Foundation
 import FirebaseFirestore
 
-// Add CollectionReference?
+// TODO: Consider adding CollectionReference
 
 extension DocumentSnapshot {
   public func data<T: Decodable>(as type: T.Type) throws -> T {
@@ -51,7 +50,6 @@ class _FirestoreDecoder: Decoder {
   // MARK: Properties
 
   /// The decoder's storage.
-
   fileprivate var storage: _FirestoreDecodingStorage
 
   /// The path to the current point in encoding.
@@ -772,11 +770,6 @@ extension _FirestoreDecoder {
       } else if number === kCFBooleanFalse as NSNumber {
         return false
       }
-
-      /* FIXME: If swift-corelibs-foundation doesn't change to use NSNumber, this code path will need to be included and tested:
-       } else if let bool = value as? Bool {
-       return bool
-       */
     }
 
     throw DecodingError._typeMismatch(at: codingPath, expectation: type, reality: value)
@@ -948,19 +941,6 @@ extension _FirestoreDecoder {
       }
 
       return Float(double)
-
-      /* FIXME: If swift-corelibs-foundation doesn't change to use NSNumber, this code path will need to be included and tested:
-       } else if let double = value as? Double {
-       if abs(double) <= Double(Float.max) {
-       return Float(double)
-       }
-       overflow = true
-       } else if let int = value as? Int {
-       if let float = Float(exactly: int) {
-       return float
-       }
-       overflow = true
-       */
     }
 
     throw DecodingError._typeMismatch(at: codingPath, expectation: type, reality: value)
@@ -975,16 +955,6 @@ extension _FirestoreDecoder {
       // * If it was a Float or Double, you will get back the precise value
       // * If it was Decimal, you will get back the nearest approximation
       return number.doubleValue
-
-      /* FIXME: If swift-corelibs-foundation doesn't change to use NSNumber, this code path will need to be included and tested:
-       } else if let double = value as? Double {
-       return double
-       } else if let int = value as? Int {
-       if let double = Double(exactly: int) {
-       return double
-       }
-       overflow = true
-       */
     }
 
     throw DecodingError._typeMismatch(at: codingPath, expectation: type, reality: value)

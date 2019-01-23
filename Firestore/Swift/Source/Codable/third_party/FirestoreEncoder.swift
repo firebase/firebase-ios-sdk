@@ -1,18 +1,17 @@
-/*
- * Copyright 2018 Google
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// This file is derived from swift/stdlib/public/SDK/Foundation/JSONEncoder.swift
+// and swift/stdlib/public/SDK/Foundation/PlistEncoder.swift
+
+//===----------------------------------------------------------------------===//
+//
+// This source file is part of the Swift.org open source project
+//
+// Copyright (c) 2014 - 2017 Apple Inc. and the Swift project authors
+// Licensed under Apache License v2.0 with Runtime Library Exception
+//
+// See https://swift.org/LICENSE.txt for license information
+// See https://swift.org/CONTRIBUTORS.txt for the list of Swift project authors
+//
+//===----------------------------------------------------------------------===//
 
 import Foundation
 import FirebaseFirestore
@@ -22,9 +21,7 @@ extension CollectionReference {
     do {
       return addDocument(data: try Firestore.Encoder().encode(item))
     } catch let error {
-      Firestore.firestore().settings.dispatchQueue.sync {
-        fatalError("Encoding error \(error)")
-      }
+      fatalError("Unable to encode data with Firestore encoder: \(error)")
     }
   }
 
@@ -34,8 +31,9 @@ extension CollectionReference {
       return addDocument(data: encoded, completion: completion)
     } catch let error {
       Firestore.firestore().settings.dispatchQueue.sync {
-        fatalError("Encoding error \(error)")
+        completion!(error)
       }
+      return document() // Is there something better to return after the error?
     }
   }
 }
@@ -45,7 +43,7 @@ extension DocumentReference {
     do {
       setData(try Firestore.Encoder().encode(value))
     } catch let error {
-      fatalError("TODO \(error)")
+      fatalError("Unable to encode data with Firestore encoder: \(error)")
     }
   }
 
@@ -55,7 +53,7 @@ extension DocumentReference {
       setData(encoded, completion: completion)
     } catch let error {
       Firestore.firestore().settings.dispatchQueue.sync {
-        fatalError("Encoding error \(error)")
+        completion!(error)
       }
     }
   }
@@ -66,9 +64,7 @@ extension Transaction {
     do {
       setData(try Firestore.Encoder().encode(value), forDocument: forDocument)
     } catch let error {
-      Firestore.firestore().settings.dispatchQueue.sync {
-        fatalError("Encoding error \(error)")
-      }
+      fatalError("Unable to encode data with Firestore encoder: \(error)")
     }
   }
 }
@@ -78,9 +74,7 @@ extension WriteBatch {
     do {
       setData(try Firestore.Encoder().encode(value), forDocument: forDocument)
     } catch let error {
-      Firestore.firestore().settings.dispatchQueue.sync {
-        fatalError("Encoding error \(error)")
-      }
+      fatalError("Unable to encode data with Firestore encoder: \(error)")
     }
   }
 }
@@ -94,7 +88,7 @@ extension Firestore {
                                                                debugDescription: "Top-level \(T.self) did not encode any values."))
       }
 
-      // This is O(n) check. We might get rid of it once we refactor to internal
+      // This is O(n) check. Consider refactorking box_ to return [String: Any].
       guard let dict = topLevel as? [String: Any] else {
         throw EncodingError.invalidValue(value,
                                          EncodingError.Context(codingPath: [],
