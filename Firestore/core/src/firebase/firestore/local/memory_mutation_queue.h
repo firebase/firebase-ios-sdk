@@ -47,34 +47,44 @@ namespace firestore {
 namespace local {
 
 class MemoryMutationQueue {
-  using DocumentReferenceSet = immutable::SortedSet<DocumentReference, DocumentReference::ByKey>;
+  using DocumentReferenceSet =
+      immutable::SortedSet<DocumentReference, DocumentReference::ByKey>;
+
  public:
   explicit MemoryMutationQueue(FSTMemoryPersistence* persistence);
 
   void Start();
 
   bool is_empty() {
-    // If the queue has any entries at all, the first entry must not be a tombstone (otherwise it
-    // would have been removed already).
+    // If the queue has any entries at all, the first entry must not be a
+    // tombstone (otherwise it would have been removed already).
     return queue_.size() == 0;
   }
 
-  void AcknowledgeBatch(FSTMutationBatch* batch, NSData*_Nullable stream_token);
-  FSTMutationBatch* AddMutationBatch(FIRTimestamp* local_write_time, NSArray<FSTMutation *>* mutations);
+  void AcknowledgeBatch(FSTMutationBatch* batch,
+                        NSData* _Nullable stream_token);
+  FSTMutationBatch* AddMutationBatch(FIRTimestamp* local_write_time,
+                                     NSArray<FSTMutation*>* mutations);
 
   void RemoveMutationBatch(FSTMutationBatch* batch);
 
-  const std::vector<FSTMutationBatch *>& AllMutationBatches() { return queue_; }
+  const std::vector<FSTMutationBatch*>& AllMutationBatches() {
+    return queue_;
+  }
 
-  std::vector<FSTMutationBatch *> AllMutationBatchesAffectingDocumentKeys(const model::DocumentKeySet& document_keys);
+  std::vector<FSTMutationBatch*> AllMutationBatchesAffectingDocumentKeys(
+      const model::DocumentKeySet& document_keys);
 
-  std::vector<FSTMutationBatch *> AllMutationBatchesAffectingDocumentKey(const model::DocumentKey& key);
+  std::vector<FSTMutationBatch*> AllMutationBatchesAffectingDocumentKey(
+      const model::DocumentKey& key);
 
-  std::vector<FSTMutationBatch *> AllMutationBatchesAffectingQuery(FSTQuery* query);
+  std::vector<FSTMutationBatch*> AllMutationBatchesAffectingQuery(
+      FSTQuery* query);
 
-  FSTMutationBatch*_Nullable LookupMutationBatch(model::BatchId batch_id);
+  FSTMutationBatch* _Nullable LookupMutationBatch(model::BatchId batch_id);
 
-  FSTMutationBatch*_Nullable NextMutationBatchAfterBatchId(model::BatchId batch_id);
+  FSTMutationBatch* _Nullable NextMutationBatchAfterBatchId(
+      model::BatchId batch_id);
 
   void PerformConsistencyCheck();
 
@@ -82,48 +92,59 @@ class MemoryMutationQueue {
 
   size_t CalculateByteSize(FSTLocalSerializer* serializer);
 
-  NSData*_Nullable last_stream_token() { return last_stream_token_; }
-  void set_last_stream_token(NSData* token) { last_stream_token_ = token; }
+  NSData* _Nullable last_stream_token() {
+    return last_stream_token_;
+  }
+  void set_last_stream_token(NSData* token) {
+    last_stream_token_ = token;
+  }
+
  private:
-  std::vector<FSTMutationBatch *> AllMutationBatchesWithIds(const std::set<model::BatchId>& batch_ids);
+  std::vector<FSTMutationBatch*> AllMutationBatchesWithIds(
+      const std::set<model::BatchId>& batch_ids);
 
   /**
-   * Finds the index of the given batchID in the mutation queue. This operation is O(1).
+   * Finds the index of the given batchID in the mutation queue. This operation
+   * is O(1).
    *
-   * @return The computed index of the batch with the given BatchID, based on the state of the
-   *     queue. Note this index can negative if the requested BatchID has already been removed from
-   *     the queue or past the end of the queue if the BatchID is larger than the last added batch.
+   * @return The computed index of the batch with the given BatchID, based on
+   * the state of the queue. Note this index can negative if the requested
+   * BatchID has already been removed from the queue or past the end of the
+   * queue if the BatchID is larger than the last added batch.
    */
   int IndexOfBatchId(model::BatchId batch_id);
 
   FSTMemoryPersistence* persistence_;
   /**
-   * A FIFO queue of all mutations to apply to the backend. Mutations are added to the end of the
-   * queue as they're written, and removed from the front of the queue as the mutations become
-   * visible or are rejected.
+   * A FIFO queue of all mutations to apply to the backend. Mutations are added
+   * to the end of the queue as they're written, and removed from the front of
+   * the queue as the mutations become visible or are rejected.
    *
-   * When successfully applied, mutations must be acknowledged by the write stream and made visible
-   * on the watch stream. It's possible for the watch stream to fall behind in which case the batches
-   * at the head of the queue will be acknowledged but held until the watch stream sees the changes.
+   * When successfully applied, mutations must be acknowledged by the write
+   * stream and made visible on the watch stream. It's possible for the watch
+   * stream to fall behind in which case the batches at the head of the queue
+   * will be acknowledged but held until the watch stream sees the changes.
    *
-   * If a batch is rejected while there are held write acknowledgements at the head of the queue
-   * the rejected batch is converted to a tombstone: its mutations are removed but the batch remains
-   * in the queue. This maintains a simple consecutive ordering of batches in the queue.
+   * If a batch is rejected while there are held write acknowledgements at the
+   * head of the queue the rejected batch is converted to a tombstone: its
+   * mutations are removed but the batch remains in the queue. This maintains a
+   * simple consecutive ordering of batches in the queue.
    *
-   * Once the held write acknowledgements become visible they are removed from the head of the queue
-   * along with any tombstones that follow.
+   * Once the held write acknowledgements become visible they are removed from
+   * the head of the queue along with any tombstones that follow.
    */
   // TODO(gsoltis): more efficient data structure?
-  std::vector<FSTMutationBatch *> queue_;
+  std::vector<FSTMutationBatch*> queue_;
 
-  /** The next value to use when assigning sequential IDs to each mutation batch. */
+  /** The next value to use when assigning sequential IDs to each mutation
+   * batch. */
   model::BatchId next_batch_id_;
   /**
-   * The last received stream token from the server, used to acknowledge which responses the client
-   * has processed. Stream tokens are opaque checkpoint markers whose only real value is their
-   * inclusion in the next request.
+   * The last received stream token from the server, used to acknowledge which
+   * responses the client has processed. Stream tokens are opaque checkpoint
+   * markers whose only real value is their inclusion in the next request.
    */
-  NSData*_Nullable last_stream_token_;
+  NSData* _Nullable last_stream_token_;
   /** An ordered mapping between documents and the mutation batch IDs. */
   DocumentReferenceSet batches_by_document_key_;
 };
