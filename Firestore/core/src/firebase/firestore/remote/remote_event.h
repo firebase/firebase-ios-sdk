@@ -27,16 +27,43 @@
 
 #include <set>
 #include <unordered_map>
+#include <unordered_set>
 
+#include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
+#include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 
 @class FSTMaybeDocument;
+@class FSTQueryData;
 @class FSTRemoteEvent;
 @class FSTTargetChange;
 
 NS_ASSUME_NONNULL_BEGIN
+
+/**
+ * Interface implemented by RemoteStore to expose target metadata to the
+ * FSTWatchChangeAggregator.
+ */
+@protocol FSTTargetMetadataProvider
+
+/**
+ * Returns the set of remote document keys for the given target ID as of the
+ * last raised snapshot.
+ */
+- (firebase::firestore::model::DocumentKeySet)remoteKeysForTarget:
+    (firebase::firestore::model::TargetId)targetID;
+
+/**
+ * Returns the FSTQueryData for an active target ID or 'null' if this query has
+ * become inactive
+ */
+- (nullable FSTQueryData*)queryDataForTarget:
+    (firebase::firestore::model::TargetId)targetID;
+
+@end
 
 namespace firebase {
 namespace firestore {
@@ -60,7 +87,7 @@ class TargetState {
   }
 
   /** The last resume token sent to us for this target. */
-  NSData* resume_token() {
+  NSData* resume_token() const {
     return resume_token_;
   }
 
@@ -94,11 +121,13 @@ class TargetState {
   void RecordTargetRequest();
   void RecordTargetResponse();
   void MarkCurrent();
-  void AddDocumentChange((const DocumentKey& document_key, FSTDocumentViewChangeType type);
-  void RemoveDocumentChange(const DocumentKey& document_key);
+  void AddDocumentChange(const model::DocumentKey& document_key,
+                         core::DocumentViewChangeType type);
+  void RemoveDocumentChange(const model::DocumentKey& document_key);
 
  private:
-    // We initialize to 'true' so that newly-added targets are included in the next RemoteEvent.
+  // We initialize to 'true' so that newly-added targets are included in the
+  // next RemoteEvent.
   bool has_pending_changes_ = true;
 
   bool is_current_ = false;
@@ -115,7 +144,9 @@ class TargetState {
    * These changes are continuously updated as we receive document updates and
    * always reflect the current set of changes against the last issued snapshot.
    */
-  std::unordered_map<model::DocumentKey, FSTDocumentViewChangeType, model::DocumentKeyHash>
+  std::unordered_map<model::DocumentKey,
+                     core::DocumentViewChangeType,
+                     model::DocumentKeyHash>
       document_changes_;
 
   NSData* resume_token_;
@@ -146,7 +177,8 @@ class WatchChangeAggregator {
    * Converts the current state into a remote event with the snapshot version
    * taken from the initializer.
    */
-  FSTRemoteEvent* CreateRemoteEvent(const SnapshotVersion& snapshot_version);
+  FSTRemoteEvent* CreateRemoteEvent(
+      const model::SnapshotVersion& snapshot_version);
 
   /** Removes the in-memory state for the provided target. */
   void RemoveTarget(model::TargetId target_id);
@@ -158,19 +190,46 @@ class WatchChangeAggregator {
   void RecordTargetRequest(model::TargetId target_id);
 
  private:
+  void AddDocumentToTarget(model::TargetId target_id,
+                           FSTMaybeDocument* document);
+  void RemoveDocumentFromTarget(model::TargetId target_id,
+                                const model::DocumentKey& key,
+                                FSTMaybeDocument* _Nullable updated_document);
+  bool TargetContainsDocument(model::TargetId target_id,
+                              const model::DocumentKey& key);
+
+  /**
+  * Returns true if the given target_id is active. Active targets are those for which there are no
+  * pending requests to add a listen and are in the current list of targets the client cares about.
+  *
+  * Clients can repeatedly listen and stop listening to targets, so this check is useful in
+  * preventing in preventing race conditions for a target where events arrive but the server hasn't
+  * yet acknowledged the intended change in state.
+  */
+  bool IsActiveTarget(model::TargetId target_id) const;
+  FSTQueryData* QueryDataForActiveTarget(model::TargetId target_id) const;
+
+  TargetState& EnsureTargetState(model::TargetId target_id);
+
   /** The internal state of all tracked targets. */
-  std::unordered_map<model::TargetId, FSTTargetState *> target_states_;
+  std::unordered_map<model::TargetId, TargetState> target_states_;
 
   /** Keeps track of document to update */
-  std::unordered_map<model::DocumentKey, FSTMaybeDocument *, model::DocumentKeyHash> pending_document_updates_;
+  std::unordered_map<model::DocumentKey,
+                     FSTMaybeDocument*,
+                     model::DocumentKeyHash>
+      pending_document_updates_;
 
   /** A mapping of document keys to their set of target IDs. */
-  std::unordered_map<model::DocumentKey, std::set<model::TargetId>, model::DocumentKeyHash>
+  std::unordered_map<model::DocumentKey,
+                     std::set<model::TargetId>,
+                     model::DocumentKeyHash>
       pending_document_target_mappings_;
 
   /**
-   * A list of targets with existence filter mismatches. These targets are known to be inconsistent
-   * and their listens needs to be re-established by `RemoteStore`.
+   * A list of targets with existence filter mismatches. These targets are known
+   * to be inconsistent and their listens needs to be re-established by
+   * `RemoteStore`.
    */
   std::unordered_set<model::TargetId> pending_target_resets_;
 

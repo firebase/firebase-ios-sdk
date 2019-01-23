@@ -21,8 +21,9 @@
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Remote/FSTRemoteEvent.h"
 
-#include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
-
+using firebase::firestore::core::DocumentViewChangeType;
+using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 
@@ -50,18 +51,18 @@ FSTTargetChange* TargetState::ToTargetChange() const {
   DocumentKeySet modified_documents;
   DocumentKeySet removed_documents;
 
-  for (const auto& entry : document_changes) {
+  for (const auto& entry : document_changes_) {
     const DocumentKey& document_key = entry.first;
-    FSTDocumentViewChangeType change_type = entry.second;
+    DocumentViewChangeType change_type = entry.second;
 
     switch (change_type) {
-      case FSTDocumentViewChangeTypeAdded:
+      case DocumentViewChangeType::Added:
         added_documents = added_documents.insert(document_key);
         break;
-      case FSTDocumentViewChangeTypeModified:
+      case DocumentViewChangeType::Modified:
         modified_documents = modified_documents.insert(document_key);
         break;
-      case FSTDocumentViewChangeTypeRemoved:
+      case DocumentViewChangeType::Removed:
         removed_documents = removed_documents.insert(document_key);
         break;
       default:
@@ -87,11 +88,11 @@ void TargetState::RecordTargetResponse() {
 
 void TargetState::MarkCurrent() {
   has_pending_changes_ = true;
-  current_ = true;
+  is_current_ = true;
 }
 
 void TargetState::AddDocumentChange(const DocumentKey& document_key,
-                                    FSTDocumentViewChangeType type) {
+                                    DocumentViewChangeType type) {
   has_pending_changes_ = true;
   document_changes_[document_key] = type;
 }
@@ -108,7 +109,7 @@ void WatchChangeAggregator::HandleDocumentChange(
   for (TargetId target_id : document_change.updated_target_ids()) {
     if ([document_change.new_document() isKindOfClass:[FSTDocument class]]) {
       AddDocumentToTarget(target_id, document_change.new_document());
-    } else if ([documentChange.new_document()
+    } else if ([document_change.new_document()
                    isKindOfClass:[FSTDeletedDocument class]]) {
       RemoveDocumentFromTarget(target_id, document_change.document_key(),
                                document_change.new_document());
@@ -147,16 +148,16 @@ void WatchChangeAggregator::RemoveTarget(TargetId target_id) {
   target_states_.erase(target_id);
 }
 
-void WatchChangeAggregator::AddDocumentToTarget(FSTMaybeDocument* document,
-                                                TargetId target_id) {
+void WatchChangeAggregator::AddDocumentToTarget(TargetId target_id, FSTMaybeDocument* document
+                                                ) {
   if (!IsActiveTarget(target_id)) {
     return;
   }
 
-  FSTDocumentViewChangeType change_type =
-      ContainsDocument(document.key, target_id)
-          ? FSTDocumentViewChangeTypeModified
-          : FSTDocumentViewChangeTypeAdded;
+  DocumentViewChangeType change_type =
+      TargetContainsDocument(target_id, document.key)
+          ? DocumentViewChangeType::Modified
+          : DocumentViewChangeType::Added;
 
   TargetState& target_state = EnsureTargetState(target_id);
   target_state.AddDocumentChange(document.key, change_type);
@@ -165,14 +166,48 @@ void WatchChangeAggregator::AddDocumentToTarget(FSTMaybeDocument* document,
   pending_document_target_mappings_[document.key].insert(target_id);
 }
 
+void WatchChangeAggregator::RemoveDocumentFromTarget(
+    TargetId target_id,
+    const DocumentKey& key,
+    FSTMaybeDocument* _Nullable updated_document) {
+  if (!IsActiveTarget(target_id)) {
+    return;
+  }
+
+  TargetState& target_state = EnsureTargetState(target_id);
+  if (TargetContainsDocument(target_id, key)) {
+    target_state.AddDocumentChange(key, DocumentViewChangeType::Removed);
+  } else {
+    // The document may have entered and left the target before we raised a
+    // snapshot, so we can just ignore the change.
+    target_state.RemoveDocumentChange(key);
+  }
+  pending_document_target_mappings_[key].insert(target_id);
+
+  if (updated_document) {
+    pending_document_updates_[key] = updated_document;
+  }
+}
+
 bool WatchChangeAggregator::TargetContainsDocument(TargetId target_id,
                                                    const DocumentKey& key) {
   const DocumentKeySet& existing_keys =
-      [_targetMetadataProvider remoteKeysForTarget:targetID];
+      [target_metadata_provider_ remoteKeysForTarget:target_id];
   return existing_keys.contains(key);
 }
 
-TargetState& EnsureTargetState(TargetId target_id) {
+bool WatchChangeAggregator::IsActiveTarget(TargetId target_id) const {
+  return QueryDataForActiveTarget(target_id) != nil;
+}
+
+FSTQueryData* WatchChangeAggregator::QueryDataForActiveTarget(TargetId target_id) const {
+  auto target_state = target_states_.find(target_id);
+  return target_state != target_states_.end() && target_state->second.IsPending()
+             ? nil
+             : [target_metadata_provider_ queryDataForTarget:target_id];
+}
+
+TargetState& WatchChangeAggregator::EnsureTargetState(TargetId target_id) {
   return target_states_[target_id];
 }
 
