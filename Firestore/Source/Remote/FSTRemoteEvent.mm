@@ -18,7 +18,6 @@
 
 #include <map>
 #include <set>
-#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -26,9 +25,9 @@
 #import "Firestore/Source/Core/FSTViewSnapshot.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Remote/FSTWatchChange.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 
+#include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
@@ -38,6 +37,10 @@ using firebase::firestore::model::DocumentKeyHash;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::remote::DocumentWatchChange;
+using firebase::firestore::remote::ExistenceFilterWatchChange;
+using firebase::firestore::remote::WatchTargetChange;
+using firebase::firestore::remote::WatchTargetChangeState;
 using firebase::firestore::util::Hash;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -318,34 +321,34 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-- (void)handleDocumentChange:(FSTDocumentWatchChange *)documentChange {
-  for (FSTBoxedTargetID *targetID in documentChange.updatedTargetIDs) {
-    if ([documentChange.document isKindOfClass:[FSTDocument class]]) {
-      [self addDocument:documentChange.document toTarget:targetID.intValue];
-    } else if ([documentChange.document isKindOfClass:[FSTDeletedDocument class]]) {
-      [self removeDocument:documentChange.document
-                   withKey:documentChange.documentKey
-                fromTarget:targetID.intValue];
+- (void)handleDocumentChange:(const DocumentWatchChange &)documentChange {
+  for (TargetId targetID : documentChange.updated_target_ids()) {
+    if ([documentChange.new_document() isKindOfClass:[FSTDocument class]]) {
+      [self addDocument:documentChange.new_document() toTarget:targetID];
+    } else if ([documentChange.new_document() isKindOfClass:[FSTDeletedDocument class]]) {
+      [self removeDocument:documentChange.new_document()
+                   withKey:documentChange.document_key()
+                fromTarget:targetID];
     }
   }
 
-  for (FSTBoxedTargetID *targetID in documentChange.removedTargetIDs) {
-    [self removeDocument:documentChange.document
-                 withKey:documentChange.documentKey
-              fromTarget:targetID.intValue];
+  for (TargetId targetID : documentChange.removed_target_ids()) {
+    [self removeDocument:documentChange.new_document()
+                 withKey:documentChange.document_key()
+              fromTarget:targetID];
   }
 }
 
-- (void)handleTargetChange:(FSTWatchTargetChange *)targetChange {
+- (void)handleTargetChange:(const WatchTargetChange &)targetChange {
   for (TargetId targetID : [self targetIdsForChange:targetChange]) {
     FSTTargetState *targetState = [self ensureTargetStateForTarget:targetID];
-    switch (targetChange.state) {
-      case FSTWatchTargetChangeStateNoChange:
+    switch (targetChange.state()) {
+      case WatchTargetChangeState::NoChange:
         if ([self isActiveTarget:targetID]) {
-          [targetState updateResumeToken:targetChange.resumeToken];
+          [targetState updateResumeToken:targetChange.resume_token()];
         }
         break;
-      case FSTWatchTargetChangeStateAdded:
+      case WatchTargetChangeState::Added:
         // We need to decrement the number of pending acks needed from watch for this targetId.
         [targetState recordTargetResponse];
         if (!targetState.isPending) {
@@ -353,34 +356,35 @@ NS_ASSUME_NONNULL_BEGIN
           // This can happen e.g. when remove and add back a target for existence filter mismatches.
           [targetState clearPendingChanges];
         }
-        [targetState updateResumeToken:targetChange.resumeToken];
+        [targetState updateResumeToken:targetChange.resume_token()];
         break;
-      case FSTWatchTargetChangeStateRemoved:
+      case WatchTargetChangeState::Removed:
         // We need to keep track of removed targets to we can post-filter and remove any target
         // changes.
         [targetState recordTargetResponse];
         if (!targetState.isPending) {
           [self removeTarget:targetID];
         }
-        HARD_ASSERT(!targetChange.cause, "WatchChangeAggregator does not handle errored targets");
+        HARD_ASSERT(targetChange.cause().ok(),
+                    "WatchChangeAggregator does not handle errored targets");
         break;
-      case FSTWatchTargetChangeStateCurrent:
+      case WatchTargetChangeState::Current:
         if ([self isActiveTarget:targetID]) {
           [targetState markCurrent];
-          [targetState updateResumeToken:targetChange.resumeToken];
+          [targetState updateResumeToken:targetChange.resume_token()];
         }
         break;
-      case FSTWatchTargetChangeStateReset:
+      case WatchTargetChangeState::Reset:
         if ([self isActiveTarget:targetID]) {
           // Reset the target and synthesizes removes for all existing documents. The backend will
           // re-add any documents that still match the target before it sends the next global
           // snapshot.
           [self resetTarget:targetID];
-          [targetState updateResumeToken:targetChange.resumeToken];
+          [targetState updateResumeToken:targetChange.resume_token()];
         }
         break;
       default:
-        HARD_FAIL("Unknown target watch change state: %s", targetChange.state);
+        HARD_FAIL("Unknown target watch change state: %s", targetChange.state());
     }
   }
 }
@@ -389,20 +393,17 @@ NS_ASSUME_NONNULL_BEGIN
  * Returns all targetIds that the watch change applies to: either the targetIds explicitly listed
  * in the change or the targetIds of all currently active targets.
  */
-- (std::vector<TargetId>)targetIdsForChange:(FSTWatchTargetChange *)targetChange {
-  NSArray<NSNumber *> *targetIDs = targetChange.targetIDs;
-  std::vector<TargetId> result;
-  if (targetIDs.count > 0) {
-    result.reserve(targetIDs.count);
-    for (NSNumber *targetID in targetIDs) {
-      result.push_back(targetID.intValue);
-    }
-  } else {
-    result.reserve(_targetStates.size());
-    for (const auto &entry : _targetStates) {
-      result.push_back(entry.first);
-    }
+- (std::vector<TargetId>)targetIdsForChange:(const WatchTargetChange &)targetChange {
+  if (!targetChange.target_ids().empty()) {
+    return targetChange.target_ids();
   }
+
+  std::vector<TargetId> result;
+  result.reserve(_targetStates.size());
+  for (const auto &entry : _targetStates) {
+    result.push_back(entry.first);
+  }
+
   return result;
 }
 
@@ -410,9 +411,9 @@ NS_ASSUME_NONNULL_BEGIN
   _targetStates.erase(targetID);
 }
 
-- (void)handleExistenceFilter:(FSTExistenceFilterWatchChange *)existenceFilter {
-  TargetId targetID = existenceFilter.targetID;
-  int expectedCount = existenceFilter.filter.count();
+- (void)handleExistenceFilter:(const ExistenceFilterWatchChange &)existenceFilter {
+  TargetId targetID = existenceFilter.target_id();
+  int expectedCount = existenceFilter.filter().count();
 
   FSTQueryData *queryData = [self queryDataForActiveTarget:targetID];
   if (queryData) {
@@ -448,7 +449,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (int)currentDocumentCountForTarget:(TargetId)targetID {
   FSTTargetState *targetState = [self ensureTargetStateForTarget:targetID];
   FSTTargetChange *targetChange = [targetState toTargetChange];
-  return ([_targetMetadataProvider remoteKeysForTarget:@(targetID)].size() +
+  return ([_targetMetadataProvider remoteKeysForTarget:targetID].size() +
           targetChange.addedDocuments.size() - targetChange.removedDocuments.size());
 }
 
@@ -465,7 +466,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Trigger removal for any documents currently mapped to this target. These removals will be part
   // of the initial snapshot if Watch does not resend these documents.
-  DocumentKeySet existingKeys = [_targetMetadataProvider remoteKeysForTarget:@(targetID)];
+  DocumentKeySet existingKeys = [_targetMetadataProvider remoteKeysForTarget:targetID];
 
   for (const DocumentKey &key : existingKeys) {
     [self removeDocument:nil withKey:key fromTarget:targetID];
@@ -525,7 +526,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Returns whether the LocalStore considers the document to be part of the specified target.
  */
 - (BOOL)containsDocument:(const DocumentKey &)key inTarget:(TargetId)targetID {
-  const DocumentKeySet &existingKeys = [_targetMetadataProvider remoteKeysForTarget:@(targetID)];
+  const DocumentKeySet &existingKeys = [_targetMetadataProvider remoteKeysForTarget:targetID];
   return existingKeys.contains(key);
 }
 
@@ -553,7 +554,7 @@ NS_ASSUME_NONNULL_BEGIN
   auto targetState = _targetStates.find(targetID);
   return targetState != _targetStates.end() && targetState->second.isPending
              ? nil
-             : [_targetMetadataProvider queryDataForTarget:@(targetID)];
+             : [_targetMetadataProvider queryDataForTarget:targetID];
 }
 
 - (FSTRemoteEvent *)remoteEventAtSnapshotVersion:(const SnapshotVersion &)snapshotVersion {
@@ -624,9 +625,9 @@ NS_ASSUME_NONNULL_BEGIN
   return remoteEvent;
 }
 
-- (void)recordTargetRequest:(FSTBoxedTargetID *)targetID {
+- (void)recordTargetRequest:(TargetId)targetID {
   // For each request we get we need to record we need a response for it.
-  FSTTargetState *targetState = [self ensureTargetStateForTarget:targetID.intValue];
+  FSTTargetState *targetState = [self ensureTargetStateForTarget:targetID];
   [targetState recordTargetRequest];
 }
 @end

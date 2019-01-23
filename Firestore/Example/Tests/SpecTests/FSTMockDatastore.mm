@@ -27,8 +27,6 @@
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 #import "Firestore/Source/Remote/FSTStream.h"
 
-#import "Firestore/Example/Tests/Remote/FSTWatchChange+Testing.h"
-
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
@@ -54,7 +52,9 @@ using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::remote::ConnectivityMonitor;
 using firebase::firestore::remote::GrpcConnection;
+using firebase::firestore::remote::WatchChange;
 using firebase::firestore::remote::WatchStream;
+using firebase::firestore::remote::WatchTargetChange;
 using firebase::firestore::remote::WriteStream;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::CreateNoOpConnectivityMonitor;
@@ -75,11 +75,10 @@ class MockWatchStream : public WatchStream {
       : WatchStream{worker_queue, credentials_provider, serializer, grpc_connection, delegate},
         datastore_{datastore},
         delegate_{delegate} {
-    active_targets_ = [NSMutableDictionary dictionary];
   }
 
-  NSDictionary<FSTBoxedTargetID*, FSTQueryData*>* ActiveTargets() const {
-    return [active_targets_ copy];
+  const std::unordered_map<TargetId, FSTQueryData*>& ActiveTargets() const {
+    return active_targets_;
   }
 
   void Start() override {
@@ -91,7 +90,7 @@ class MockWatchStream : public WatchStream {
   void Stop() override {
     WatchStream::Stop();
     open_ = false;
-    [active_targets_ removeAllObjects];
+    active_targets_.clear();
   }
 
   bool IsStarted() const override {
@@ -109,12 +108,12 @@ class MockWatchStream : public WatchStream {
                                                                  resumeToken:query.resumeToken
                                                               sequenceNumber:query.sequenceNumber];
     datastore_->IncrementWatchStreamRequests();
-    active_targets_[@(query.targetID)] = sentQueryData;
+    active_targets_[query.targetID] = sentQueryData;
   }
 
   void UnwatchTargetId(model::TargetId target_id) override {
     LOG_DEBUG("UnwatchTargetId: %s", target_id);
-    [active_targets_ removeObjectForKey:@(target_id)];
+    active_targets_.erase(target_id);
   }
 
   void FailStream(const Status& error) {
@@ -122,23 +121,24 @@ class MockWatchStream : public WatchStream {
     [delegate_ watchStreamWasInterruptedWithError:error];
   }
 
-  void WriteWatchChange(FSTWatchChange* change, SnapshotVersion snap) {
-    if ([change isKindOfClass:[FSTWatchTargetChange class]]) {
-      FSTWatchTargetChange* targetChange = (FSTWatchTargetChange*)change;
-      if (targetChange.cause) {
-        for (NSNumber* target_id in targetChange.targetIDs) {
-          if (!active_targets_[target_id]) {
+  void WriteWatchChange(const WatchChange& change, SnapshotVersion snap) {
+    if (change.type() == WatchChange::Type::TargetChange) {
+      const auto& targetChange = static_cast<const WatchTargetChange&>(change);
+      if (!targetChange.cause().ok()) {
+        for (TargetId target_id : targetChange.target_ids()) {
+          auto found = active_targets_.find(target_id);
+          if (found == active_targets_.end()) {
             // Technically removing an unknown target is valid (e.g. it could race with a
             // server-side removal), but we want to pay extra careful attention in tests
             // that we only remove targets we listened to.
             HARD_FAIL("Removing a non-active target");
           }
 
-          [active_targets_ removeObjectForKey:target_id];
+          active_targets_.erase(found);
         }
       }
 
-      if ([targetChange.targetIDs count] != 0) {
+      if (!targetChange.target_ids().empty()) {
         // If the list of target IDs is not empty, we reset the snapshot version to NONE as
         // done in `FSTSerializerBeta.versionFromListenResponse:`.
         snap = SnapshotVersion::None();
@@ -150,7 +150,7 @@ class MockWatchStream : public WatchStream {
 
  private:
   bool open_ = false;
-  NSMutableDictionary<FSTBoxedTargetID*, FSTQueryData*>* active_targets_ = nullptr;
+  std::unordered_map<TargetId, FSTQueryData*> active_targets_;
   MockDatastore* datastore_ = nullptr;
   id<FSTWatchStreamDelegate> delegate_ = nullptr;
 };
@@ -266,7 +266,7 @@ std::shared_ptr<WriteStream> MockDatastore::CreateWriteStream(id<FSTWriteStreamD
   return write_stream_;
 }
 
-void MockDatastore::WriteWatchChange(FSTWatchChange* change, const SnapshotVersion& snap) {
+void MockDatastore::WriteWatchChange(const WatchChange& change, const SnapshotVersion& snap) {
   watch_stream_->WriteWatchChange(change, snap);
 }
 
@@ -274,7 +274,7 @@ void MockDatastore::FailWatchStream(const Status& error) {
   watch_stream_->FailStream(error);
 }
 
-NSDictionary<FSTBoxedTargetID*, FSTQueryData*>* MockDatastore::ActiveTargets() const {
+const std::unordered_map<TargetId, FSTQueryData*>& MockDatastore::ActiveTargets() const {
   return watch_stream_->ActiveTargets();
 }
 

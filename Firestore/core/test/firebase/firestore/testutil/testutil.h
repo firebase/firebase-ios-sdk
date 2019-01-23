@@ -182,6 +182,37 @@ inline std::vector<uint8_t> ResumeToken(int64_t snapshot_version) {
   return {snapshot_string.begin(), snapshot_string.end()};
 }
 
+// Degenerate case to end recursion of `MoveIntoVector`.
+template <typename T>
+void MoveIntoVector(std::vector<std::unique_ptr<T>>*) {
+}
+
+template <typename T, typename Head, typename... Tail>
+void MoveIntoVector(std::vector<std::unique_ptr<T>>* result,
+                    Head head,
+                    Tail... tail) {
+  result->push_back(std::move(head));
+  MoveIntoVector(result, std::move(tail)...);
+}
+
+// Works around the fact that move-only types (in this case, `unique_ptr`) don't
+// work with `initialzer_list`. Desired (doesn't work):
+//
+//   std::unique_ptr<int> x, y;
+//   std::vector<std::unique_ptr>> foo{std::move(x), std::move(y)};
+//
+// Actual:
+//
+//   std::unique_ptr<int> x, y;
+//   std::vector<std::unique_ptr<int>> foo = Changes(std::move(x),
+//   std::move(y));
+template <typename T, typename... Elems>
+std::vector<std::unique_ptr<T>> VectorOfUniquePtrs(Elems... elems) {
+  std::vector<std::unique_ptr<T>> result;
+  MoveIntoVector<T>(&result, std::move(elems)...);
+  return result;
+}
+
 }  // namespace testutil
 }  // namespace firestore
 }  // namespace firebase
