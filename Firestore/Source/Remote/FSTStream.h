@@ -17,10 +17,10 @@
 #import <Foundation/Foundation.h>
 
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 
 @class FSTMutationResult;
-@class FSTWatchChange;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -36,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Called by the FSTWatchStream with changes and the snapshot versions included in in the
  * WatchChange responses sent back by the server.
  */
-- (void)watchStreamDidChange:(FSTWatchChange *)change
+- (void)watchStreamDidChange:(const firebase::firestore::remote::WatchChange &)change
              snapshotVersion:(const firebase::firestore::model::SnapshotVersion &)snapshotVersion;
 
 /**

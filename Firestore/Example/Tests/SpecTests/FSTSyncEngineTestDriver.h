@@ -26,6 +26,7 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 
 @class FSTDocumentKey;
@@ -34,7 +35,6 @@
 @class FSTQuery;
 @class FSTQueryData;
 @class FSTViewSnapshot;
-@class FSTWatchChange;
 @protocol FSTPersistence;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -147,7 +147,7 @@ typedef std::unordered_map<firebase::firestore::auth::User,
  * @param snapshot A snapshot version to attach, if applicable. This should be sent when
  *      simulating the server having sent a complete snapshot.
  */
-- (void)receiveWatchChange:(FSTWatchChange *)change
+- (void)receiveWatchChange:(const firebase::firestore::remote::WatchChange &)change
            snapshotVersion:(const firebase::firestore::model::SnapshotVersion &)snapshot;
 
 /**
@@ -294,12 +294,14 @@ typedef std::unordered_map<firebase::firestore::auth::User,
 @property(nonatomic, assign, readonly) const firebase::firestore::auth::User &currentUser;
 
 /** The set of active targets as observed on the watch stream. */
-@property(nonatomic, strong, readonly)
-    NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *activeTargets;
+- (const std::unordered_map<firebase::firestore::model::TargetId, FSTQueryData *> &)activeTargets;
 
 /** The expected set of active targets, keyed by target ID. */
-@property(nonatomic, strong, readwrite)
-    NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *expectedActiveTargets;
+- (const std::unordered_map<firebase::firestore::model::TargetId, FSTQueryData *> &)
+    expectedActiveTargets;
+
+- (void)setExpectedActiveTargets:
+    (const std::unordered_map<firebase::firestore::model::TargetId, FSTQueryData *> &)targets;
 
 @end
 

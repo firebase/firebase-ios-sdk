@@ -25,12 +25,10 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 
 @class FSTMaybeDocument;
 @class FSTQueryData;
-@class FSTDocumentWatchChange;
-@class FSTWatchTargetChange;
-@class FSTExistenceFilterWatchChange;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -42,12 +40,13 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Returns the set of remote document keys for the given target ID as of the last raised snapshot.
  */
-- (firebase::firestore::model::DocumentKeySet)remoteKeysForTarget:(FSTBoxedTargetID *)targetID;
+- (firebase::firestore::model::DocumentKeySet)remoteKeysForTarget:
+    (firebase::firestore::model::TargetId)targetID;
 
 /**
  * Returns the FSTQueryData for an active target ID or 'null' if this query has become inactive
  */
-- (nullable FSTQueryData *)queryDataForTarget:(FSTBoxedTargetID *)targetID;
+- (nullable FSTQueryData *)queryDataForTarget:(firebase::firestore::model::TargetId)targetID;
 
 @end
 
@@ -169,11 +168,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init NS_UNAVAILABLE;
 
-/** Processes and adds the FSTDocumentWatchChange to the current set of changes. */
-- (void)handleDocumentChange:(FSTDocumentWatchChange *)documentChange;
+/** Processes and adds the DocumentWatchChange to the current set of changes. */
+- (void)handleDocumentChange:
+    (const firebase::firestore::remote::DocumentWatchChange &)documentChange;
 
 /** Processes and adds the WatchTargetChange to the current set of changes. */
-- (void)handleTargetChange:(FSTWatchTargetChange *)targetChange;
+- (void)handleTargetChange:(const firebase::firestore::remote::WatchTargetChange &)targetChange;
 
 /** Removes the in-memory state for the provided target. */
 - (void)removeTarget:(firebase::firestore::model::TargetId)targetID;
@@ -182,13 +182,14 @@ NS_ASSUME_NONNULL_BEGIN
  * Handles existence filters and synthesizes deletes for filter mismatches. Targets that are
  * invalidated by filter mismatches are added to `targetMismatches`.
  */
-- (void)handleExistenceFilter:(FSTExistenceFilterWatchChange *)existenceFilter;
+- (void)handleExistenceFilter:
+    (const firebase::firestore::remote::ExistenceFilterWatchChange &)existenceFilter;
 
 /**
  * Increment the number of acks needed from watch before we can consider the server to be 'in-sync'
  * with the client's active targets.
  */
-- (void)recordTargetRequest:(FSTBoxedTargetID *)targetID;
+- (void)recordTargetRequest:(firebase::firestore::model::TargetId)targetID;
 
 /**
  * Converts the current state into a remote event with the snapshot version taken from the

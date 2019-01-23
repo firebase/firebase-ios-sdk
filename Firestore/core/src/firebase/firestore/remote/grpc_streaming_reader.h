@@ -27,7 +27,10 @@
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "grpcpp/client_context.h"
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdocumentation"
 #include "grpcpp/generic/generic_stub.h"
+#pragma clang diagnostic pop
 #include "grpcpp/support/byte_buffer.h"
 
 namespace firebase {

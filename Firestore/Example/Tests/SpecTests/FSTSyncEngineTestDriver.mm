@@ -29,7 +29,6 @@
 #import "Firestore/Source/Local/FSTLocalStore.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Model/FSTMutation.h"
-#import "Firestore/Source/Remote/FSTWatchChange.h"
 
 #import "Firestore/Example/Tests/Core/FSTSyncEngine+Testing.h"
 #import "Firestore/Example/Tests/SpecTests/FSTMockDatastore.h"
@@ -59,6 +58,7 @@ using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::remote::MockDatastore;
+using firebase::firestore::remote::WatchChange;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::TimerId;
 using firebase::firestore::util::ExecutorLibdispatch;
@@ -111,6 +111,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTSyncEngineTestDriver {
   std::unique_ptr<AsyncQueue> _workerQueue;
+
+  std::unordered_map<TargetId, FSTQueryData *> _expectedActiveTargets;
 
   // ivar is declared as mutable.
   std::unordered_map<User, NSMutableArray<FSTOutstandingWrite *> *, HashUser> _outstandingWrites;
@@ -171,8 +173,6 @@ NS_ASSUME_NONNULL_BEGIN
     _events = events;
 
     _queryListeners = [NSMutableDictionary dictionary];
-
-    _expectedActiveTargets = [NSDictionary dictionary];
 
     _currentUser = initialUser;
 
@@ -375,7 +375,7 @@ NS_ASSUME_NONNULL_BEGIN
   });
 }
 
-- (void)receiveWatchChange:(FSTWatchChange *)change
+- (void)receiveWatchChange:(const WatchChange &)change
            snapshotVersion:(const SnapshotVersion &)snapshot {
   _workerQueue->EnqueueBlocking([&] { _datastore->WriteWatchChange(change, snapshot); });
 }
@@ -396,8 +396,16 @@ NS_ASSUME_NONNULL_BEGIN
   return [self.syncEngine currentLimboDocuments];
 }
 
-- (NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *)activeTargets {
+- (const std::unordered_map<TargetId, FSTQueryData *> &)activeTargets {
   return _datastore->ActiveTargets();
+}
+
+- (const std::unordered_map<TargetId, FSTQueryData *> &)expectedActiveTargets {
+  return _expectedActiveTargets;
+}
+
+- (void)setExpectedActiveTargets:(const std::unordered_map<TargetId, FSTQueryData *> &)targets {
+  _expectedActiveTargets = targets;
 }
 
 #pragma mark - Helper Methods

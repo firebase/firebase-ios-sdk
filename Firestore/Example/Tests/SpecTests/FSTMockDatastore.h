@@ -17,6 +17,7 @@
 #import <Foundation/Foundation.h>
 
 #include <memory>
+#include <unordered_map>
 
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
@@ -64,12 +65,12 @@ class MockDatastore : public Datastore {
   }
 
   /** Injects a WatchChange as though it had come from the backend. */
-  void WriteWatchChange(FSTWatchChange* change, const model::SnapshotVersion& snap);
+  void WriteWatchChange(const WatchChange& change, const model::SnapshotVersion& snap);
   /** Injects a stream failure as though it had come from the backend. */
   void FailWatchStream(const util::Status& error);
 
   /** Returns the set of active targets on the watch stream. */
-  NSDictionary<FSTBoxedTargetID*, FSTQueryData*>* ActiveTargets() const;
+  const std::unordered_map<model::TargetId, FSTQueryData*>& ActiveTargets() const;
   /** Helper method to expose watch stream state to verify in tests. */
   bool IsWatchStreamOpen() const;
 
