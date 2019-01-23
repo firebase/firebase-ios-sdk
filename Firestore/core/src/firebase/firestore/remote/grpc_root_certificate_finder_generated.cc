@@ -29,8 +29,8 @@ namespace firestore {
 namespace remote {
 
 std::string LoadGrpcRootCertificate() {
-  return {reinterpret_cast<const char*>(grpc_root_certificates),
-          grpc_root_certificates_size};
+  return {reinterpret_cast<const char*>(grpc_root_certificates_generated_data),
+          grpc_root_certificates_generated_size};
 }
 
 }  // namespace remote

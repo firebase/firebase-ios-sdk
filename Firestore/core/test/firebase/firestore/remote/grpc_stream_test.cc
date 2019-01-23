@@ -42,6 +42,7 @@ namespace remote {
 using util::AsyncQueue;
 using util::ByteBufferToString;
 using util::CompletionEndState;
+using util::CompletionResult;
 using util::CreateNoOpConnectivityMonitor;
 using util::ExecutorStd;
 using util::GetFirestoreErrorCodeName;
@@ -50,8 +51,6 @@ using util::GrpcStreamTester;
 using util::MakeByteBuffer;
 using util::Status;
 using util::StringFormat;
-using util::CompletionResult::Error;
-using util::CompletionResult::Ok;
 using Type = GrpcCompletion::Type;
 
 namespace {
@@ -270,7 +269,7 @@ TEST_F(GrpcStreamTest, ObserverReceivesOnStart) {
 TEST_F(GrpcStreamTest, ObserverReceivesOnError) {
   worker_queue.EnqueueBlocking([&] { stream->Start(); });
 
-  ForceFinish({{Type::Read, Error},
+  ForceFinish({{Type::Read, CompletionResult::Error},
                {Type::Finish, grpc::Status{grpc::RESOURCE_EXHAUSTED, ""}}});
 
   EXPECT_EQ(observed_states(),
@@ -426,9 +425,9 @@ TEST_F(GrpcStreamTest, ObserverCanImmediatelyDestroyStreamOnError) {
 
   worker_queue.EnqueueBlocking([&] { stream->Start(); });
 
-  ForceFinish({{Type::Read, Error}});
+  ForceFinish({{Type::Read, CompletionResult::Error}});
   EXPECT_NE(stream, nullptr);
-  EXPECT_NO_THROW(ForceFinish({{Type::Finish, Ok}}));
+  EXPECT_NO_THROW(ForceFinish({{Type::Finish, CompletionResult::Ok}}));
   EXPECT_EQ(stream, nullptr);
 }
 
@@ -453,7 +452,7 @@ TEST_F(GrpcStreamTest, ObserverCanImmediatelyDestroyStreamOnFinishAndNotify) {
 TEST_F(GrpcStreamTest, DoubleFinish_FailThenFinishImmediately) {
   worker_queue.EnqueueBlocking([&] { stream->Start(); });
 
-  ForceFinish({{Type::Read, Error}});
+  ForceFinish({{Type::Read, CompletionResult::Error}});
   KeepPollingGrpcQueue();
   worker_queue.EnqueueBlocking(
       [&] { EXPECT_NO_THROW(stream->FinishImmediately()); });
@@ -462,7 +461,7 @@ TEST_F(GrpcStreamTest, DoubleFinish_FailThenFinishImmediately) {
 TEST_F(GrpcStreamTest, DoubleFinish_FailThenWriteAndFinish) {
   worker_queue.EnqueueBlocking([&] { stream->Start(); });
 
-  ForceFinish({{Type::Read, Error}});
+  ForceFinish({{Type::Read, CompletionResult::Error}});
   KeepPollingGrpcQueue();
   worker_queue.EnqueueBlocking(
       [&] { EXPECT_NO_THROW(stream->WriteAndFinish({})); });
@@ -493,7 +492,7 @@ TEST_F(GrpcStreamTest, DoubleFinish_FailThenFailAgain) {
   // Normally, "Finish" never fails, but for the test it's easier to abuse the
   // finish operation that has already been enqueued by `OnOperationFailed`
   // rather than adding a new operation.
-  ForceFinish({{Type::Finish, Error}});
+  ForceFinish({{Type::Finish, CompletionResult::Error}});
 }
 
 }  // namespace remote
