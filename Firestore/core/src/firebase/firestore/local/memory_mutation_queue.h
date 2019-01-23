@@ -47,9 +47,6 @@ namespace firestore {
 namespace local {
 
 class MemoryMutationQueue {
-  using DocumentReferenceSet =
-      immutable::SortedSet<DocumentReference, DocumentReference::ByKey>;
-
  public:
   explicit MemoryMutationQueue(FSTMemoryPersistence* persistence);
 
@@ -58,11 +55,12 @@ class MemoryMutationQueue {
   bool is_empty() {
     // If the queue has any entries at all, the first entry must not be a
     // tombstone (otherwise it would have been removed already).
-    return queue_.size() == 0;
+    return queue_.empty();
   }
 
   void AcknowledgeBatch(FSTMutationBatch* batch,
                         NSData* _Nullable stream_token);
+
   FSTMutationBatch* AddMutationBatch(FIRTimestamp* local_write_time,
                                      NSArray<FSTMutation*>* mutations);
 
@@ -100,6 +98,9 @@ class MemoryMutationQueue {
   }
 
  private:
+  using DocumentReferenceSet =
+      immutable::SortedSet<DocumentReference, DocumentReference::ByKey>;
+
   std::vector<FSTMutationBatch*> AllMutationBatchesWithIds(
       const std::set<model::BatchId>& batch_ids);
 
@@ -133,18 +134,21 @@ class MemoryMutationQueue {
    * Once the held write acknowledgements become visible they are removed from
    * the head of the queue along with any tombstones that follow.
    */
-  // TODO(gsoltis): more efficient data structure?
   std::vector<FSTMutationBatch*> queue_;
 
-  /** The next value to use when assigning sequential IDs to each mutation
-   * batch. */
-  model::BatchId next_batch_id_;
+  /**
+   * The next value to use when assigning sequential IDs to each mutation
+   * batch.
+   */
+  model::BatchId next_batch_id_ = 1;
+
   /**
    * The last received stream token from the server, used to acknowledge which
    * responses the client has processed. Stream tokens are opaque checkpoint
    * markers whose only real value is their inclusion in the next request.
    */
   NSData* _Nullable last_stream_token_;
+
   /** An ordered mapping between documents and the mutation batch IDs. */
   DocumentReferenceSet batches_by_document_key_;
 };
