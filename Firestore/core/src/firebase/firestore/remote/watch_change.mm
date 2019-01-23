@@ -22,11 +22,15 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
+namespace {
+
 template <typename T>
 bool objc_equals(T* lhs, T* rhs) {
   // `isEqual:` will return false if both objects are nil.
   return (lhs == nil && rhs == nil) || [lhs isEqual:rhs];
 }
+
+}  // namespace
 
 bool operator==(const DocumentWatchChange& lhs,
                 const DocumentWatchChange& rhs) {

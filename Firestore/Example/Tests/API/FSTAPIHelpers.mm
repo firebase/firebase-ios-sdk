@@ -38,6 +38,7 @@
 
 namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
+using firebase::firestore::core::DocumentViewChangeType;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -114,10 +115,10 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
         FSTTestDoc(util::StringFormat("%s/%s", path, key), 1, docsToAdd[key],
                    hasPendingWrites ? FSTDocumentStateLocalMutations : FSTDocumentStateSynced);
     newDocuments = [newDocuments documentSetByAddingDocument:docToAdd];
-    documentChanges = [documentChanges
-        arrayByAddingObject:[FSTDocumentViewChange
-                                changeWithDocument:docToAdd
-                                              type:FSTDocumentViewChangeTypeAdded]];
+    documentChanges =
+        [documentChanges arrayByAddingObject:[FSTDocumentViewChange
+                                                 changeWithDocument:docToAdd
+                                                               type:DocumentViewChangeType::Added]];
     if (hasPendingWrites) {
       const std::string documentKey = util::StringFormat("%s/%s", path, key);
       mutatedKeys = mutatedKeys.insert(testutil::Key(documentKey));

@@ -28,6 +28,7 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
+using firebase::firestore::core::DocumentViewChangeType;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::MaybeDocumentMap;
@@ -156,8 +157,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTView
 
-static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChangeType c1,
-                                                            FSTDocumentViewChangeType c2);
+static NSComparisonResult FSTCompareDocumentViewChangeTypes(
+    firebase::firestore::core::DocumentViewChangeType c1,
+    firebase::firestore::core::DocumentViewChangeType c2);
 
 @interface FSTView ()
 
@@ -262,7 +264,7 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
         if (![self shouldWaitForSyncedDocument:newDoc oldDocument:oldDoc]) {
           [changeSet addChange:[FSTDocumentViewChange
                                    changeWithDocument:newDoc
-                                                 type:FSTDocumentViewChangeTypeModified]];
+                                                 type:DocumentViewChangeType::Modified]];
           changeApplied = YES;
 
           if (lastDocInLimit && self.query.comparator(newDoc, lastDocInLimit) > 0) {
@@ -274,19 +276,19 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
       } else if (oldDocHadPendingMutations != newDocHasPendingMutations) {
         [changeSet
             addChange:[FSTDocumentViewChange changeWithDocument:newDoc
-                                                           type:FSTDocumentViewChangeTypeMetadata]];
+                                                           type:DocumentViewChangeType::Metadata]];
         changeApplied = YES;
       }
 
     } else if (!oldDoc && newDoc) {
       [changeSet
           addChange:[FSTDocumentViewChange changeWithDocument:newDoc
-                                                         type:FSTDocumentViewChangeTypeAdded]];
+                                                         type:DocumentViewChangeType::Added]];
       changeApplied = YES;
     } else if (oldDoc && !newDoc) {
       [changeSet
           addChange:[FSTDocumentViewChange changeWithDocument:oldDoc
-                                                         type:FSTDocumentViewChangeTypeRemoved]];
+                                                         type:DocumentViewChangeType::Removed]];
       changeApplied = YES;
 
       if (lastDocInLimit) {
@@ -318,7 +320,7 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
       newMutatedKeys = newMutatedKeys.erase(oldDoc.key);
       [changeSet
           addChange:[FSTDocumentViewChange changeWithDocument:oldDoc
-                                                         type:FSTDocumentViewChangeTypeRemoved]];
+                                                         type:DocumentViewChangeType::Removed]];
     }
   }
 
@@ -485,26 +487,26 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
 
 @end
 
-static inline int DocumentViewChangeTypePosition(FSTDocumentViewChangeType changeType) {
+static inline int DocumentViewChangeTypePosition(DocumentViewChangeType changeType) {
   switch (changeType) {
-    case FSTDocumentViewChangeTypeRemoved:
+    case DocumentViewChangeType::Removed:
       return 0;
-    case FSTDocumentViewChangeTypeAdded:
+    case DocumentViewChangeType::Added:
       return 1;
-    case FSTDocumentViewChangeTypeModified:
+    case DocumentViewChangeType::Modified:
       return 2;
-    case FSTDocumentViewChangeTypeMetadata:
+    case DocumentViewChangeType::Metadata:
       // A metadata change is converted to a modified change at the public API layer. Since we sort
       // by document key and then change type, metadata and modified changes must be sorted
       // equivalently.
       return 2;
     default:
-      HARD_FAIL("Unknown FSTDocumentViewChangeType %s", changeType);
+      HARD_FAIL("Unknown DocumentViewChangeType %s", changeType);
   }
 }
 
-static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChangeType c1,
-                                                            FSTDocumentViewChangeType c2) {
+static NSComparisonResult FSTCompareDocumentViewChangeTypes(DocumentViewChangeType c1,
+                                                            DocumentViewChangeType c2) {
   int pos1 = DocumentViewChangeTypePosition(c1);
   int pos2 = DocumentViewChangeTypePosition(c2);
   if (pos1 == pos2) {

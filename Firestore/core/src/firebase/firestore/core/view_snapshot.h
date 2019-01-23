@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,17 @@
  * limitations under the License.
  */
 
-/**
- * This implementation presumes that `roots.pem` has been embedded into the
- * binary during the build and is accessible as a char array named
- * `grpc_root_certificates`.
- */
-
-#include "Firestore/core/src/firebase/firestore/remote/grpc_root_certificate_finder.h"
-
-#include "Firestore/core/src/firebase/firestore/remote/grpc_root_certificates_generated.h"
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_VIEW_SNAPSHOT_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_VIEW_SNAPSHOT_H_
 
 namespace firebase {
 namespace firestore {
-namespace remote {
+namespace core {
 
-std::string LoadGrpcRootCertificate() {
-  return {reinterpret_cast<const char*>(grpc_root_certificates_generated_data),
-          grpc_root_certificates_generated_size};
-}
+enum class DocumentViewChangeType { Removed, Added, Modified, Metadata };
 
-}  // namespace remote
+}  // namespace core
 }  // namespace firestore
 }  // namespace firebase
+
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_VIEW_SNAPSHOT_H_
