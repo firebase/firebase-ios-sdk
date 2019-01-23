@@ -49,6 +49,7 @@
 namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
 using firebase::firestore::auth::User;
+using firebase::firestore::core::DocumentViewChangeType;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::SnapshotVersion;
@@ -177,7 +178,7 @@ static NSString *Describe(NSData *data) {
 }
 
 - (FSTDocumentViewChange *)parseChange:(NSDictionary *)jsonDoc
-                                ofType:(FSTDocumentViewChangeType)type {
+                                ofType:(DocumentViewChangeType)type {
   NSNumber *version = jsonDoc[@"version"];
   NSDictionary *options = jsonDoc[@"options"];
   FSTDocumentState documentState = [options[@"hasLocalMutations"] isEqualToNumber:@YES]
@@ -497,22 +498,22 @@ static NSString *Describe(NSData *data) {
     NSMutableArray *removed = expected[@"removed"];
     for (NSDictionary *changeSpec in removed) {
       [expectedChanges addObject:[self parseChange:changeSpec
-                                            ofType:FSTDocumentViewChangeTypeRemoved]];
+                                            ofType:DocumentViewChangeType::Removed]];
     }
     NSMutableArray *added = expected[@"added"];
     for (NSDictionary *changeSpec in added) {
       [expectedChanges addObject:[self parseChange:changeSpec
-                                            ofType:FSTDocumentViewChangeTypeAdded]];
+                                            ofType:DocumentViewChangeType::Added]];
     }
     NSMutableArray *modified = expected[@"modified"];
     for (NSDictionary *changeSpec in modified) {
       [expectedChanges addObject:[self parseChange:changeSpec
-                                            ofType:FSTDocumentViewChangeTypeModified]];
+                                            ofType:DocumentViewChangeType::Modified]];
     }
     NSMutableArray *metadata = expected[@"metadata"];
     for (NSDictionary *changeSpec in metadata) {
       [expectedChanges addObject:[self parseChange:changeSpec
-                                            ofType:FSTDocumentViewChangeTypeMetadata]];
+                                            ofType:DocumentViewChangeType::Metadata]];
     }
     XCTAssertEqualObjects(actual.viewSnapshot.documentChanges, expectedChanges);
 
