@@ -88,7 +88,7 @@ extension Firestore {
                                                                debugDescription: "Top-level \(T.self) did not encode any values."))
       }
 
-      // This is O(n) check. Consider refactorking box_ to return [String: Any].
+      // This is O(n) check. Consider refactoring box_ to return [String: Any].
       guard let dict = topLevel as? [String: Any] else {
         throw EncodingError.invalidValue(value,
                                          EncodingError.Context(codingPath: [],
