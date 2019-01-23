@@ -24,29 +24,14 @@
 
 #import "FIRMessaging.h"
 #import "FIRMessaging_Private.h"
+#import "FIRMessagingTestUtilities.h"
 
 extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 
 /// The NSUserDefaults domain for testing.
 NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 
-@interface FIRInstanceID (ExposedForTest)
-
-/// Private initializer to avoid singleton usage.
-- (FIRInstanceID *)initPrivately;
-
-/// Starts fetching and configuration of InstanceID. This is necessary after the `initPrivately`
-/// call.
-- (void)start;
-
-@end
-
 @interface FIRMessaging ()
-
-/// Surface internal initializer to avoid singleton usage during tests.
-- (instancetype)initWithAnalytics:(nullable id<FIRAnalyticsInterop>)analytics
-                   withInstanceID:(FIRInstanceID *)instanceID
-                 withUserDefaults:(NSUserDefaults *)defaults;
 
 @property(nonatomic, readwrite, strong) NSString *defaultFcmToken;
 @property(nonatomic, readwrite, strong) NSData *apnsTokenData;
@@ -61,7 +46,6 @@ NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 @interface FIRMessagingTest : XCTestCase
 
 @property(nonatomic, readonly, strong) FIRMessaging *messaging;
-@property(nonatomic, strong) NSUserDefaults *messagingDefaults;
 @property(nonatomic, readwrite, strong) id mockMessaging;
 @property(nonatomic, readwrite, strong) id mockInstanceID;
 @property(nonatomic, readwrite, strong) id mockFirebaseApp;
@@ -74,16 +58,9 @@ NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
   [super setUp];
 
   // Create the messaging instance with all the necessary dependencies.
-  FIRInstanceID *instanceID = [[FIRInstanceID alloc] initPrivately];
-  [instanceID start];
-
-  // Use custom defaults so we can empty it accordingly.
   NSUserDefaults *defaults =
       [[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingDefaultsTestDomain];
-  _messagingDefaults = defaults;
-  _messaging = [[FIRMessaging alloc] initWithAnalytics:nil
-                                        withInstanceID:instanceID
-                                      withUserDefaults:_messagingDefaults];
+  _messaging = [FIRMessagingTestUtilities messagingForTestsWithUserDefaults:defaults];
 
   _mockFirebaseApp = OCMClassMock([FIRApp class]);
    OCMStub([_mockFirebaseApp defaultApp]).andReturn(_mockFirebaseApp);
@@ -93,14 +70,14 @@ NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 }
 
 - (void)tearDown {
-  [self.messagingDefaults removePersistentDomainForName:kFIRMessagingDefaultsTestDomain];
-  self.messagingDefaults = nil;
+  [self.messaging.messagingUserDefaults removePersistentDomainForName:kFIRMessagingDefaultsTestDomain];
   self.messaging.shouldEstablishDirectChannel = NO;
   self.messaging.defaultFcmToken = nil;
   self.messaging.apnsTokenData = nil;
   [_mockMessaging stopMocking];
   [_mockInstanceID stopMocking];
   [_mockFirebaseApp stopMocking];
+  _messaging = nil;
   [super tearDown];
 }
 

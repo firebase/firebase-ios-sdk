@@ -16,7 +16,6 @@
 
 #import <XCTest/XCTest.h>
 
-#import <FirebaseInstanceID/FirebaseInstanceID.h>
 #import <OCMock/OCMock.h>
 
 #import "FIRMessaging.h"
