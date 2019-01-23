@@ -35,7 +35,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (id)init __attribute__((unavailable("Use a static constructor method.")));
 
-+ (instancetype)changeWithDocument:(FSTDocument *)document type:(firebase::firestore::core::DocumentViewChangeType)type;
++ (instancetype)changeWithDocument:(FSTDocument *)document
+                              type:(firebase::firestore::core::DocumentViewChangeType)type;
 
 /** The type of change for the document. */
 @property(nonatomic, assign, readonly) firebase::firestore::core::DocumentViewChangeType type;

@@ -483,8 +483,8 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   DocumentViewChangeType changeType = [self containsDocument:document.key inTarget:targetID]
-                                             ? DocumentViewChangeType::Modified
-                                             : DocumentViewChangeType::Added;
+                                          ? DocumentViewChangeType::Modified
+                                          : DocumentViewChangeType::Added;
 
   FSTTargetState *targetState = [self ensureTargetStateForTarget:targetID];
   [targetState addDocumentChangeWithType:changeType forKey:document.key];

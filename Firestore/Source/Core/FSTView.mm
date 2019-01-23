@@ -157,8 +157,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTView
 
-static NSComparisonResult FSTCompareDocumentViewChangeTypes(firebase::firestore::core::DocumentViewChangeType c1,
-                                                            firebase::firestore::core::DocumentViewChangeType c2);
+static NSComparisonResult FSTCompareDocumentViewChangeTypes(
+    firebase::firestore::core::DocumentViewChangeType c1,
+    firebase::firestore::core::DocumentViewChangeType c2);
 
 @interface FSTView ()
 

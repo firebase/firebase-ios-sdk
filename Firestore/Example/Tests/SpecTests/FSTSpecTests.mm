@@ -177,8 +177,7 @@ static NSString *Describe(NSData *data) {
   return testutil::Version(version.longLongValue);
 }
 
-- (FSTDocumentViewChange *)parseChange:(NSDictionary *)jsonDoc
-                                ofType:(DocumentViewChangeType)type {
+- (FSTDocumentViewChange *)parseChange:(NSDictionary *)jsonDoc ofType:(DocumentViewChangeType)type {
   NSNumber *version = jsonDoc[@"version"];
   NSDictionary *options = jsonDoc[@"options"];
   FSTDocumentState documentState = [options[@"hasLocalMutations"] isEqualToNumber:@YES]
