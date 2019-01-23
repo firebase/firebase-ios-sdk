@@ -18,6 +18,8 @@
 
 #include <utility>
 
+#import "Firestore/Source/Core/FSTQuery.h"
+#import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Remote/FSTRemoteEvent.h"
 
@@ -134,8 +136,72 @@ void WatchChangeAggregator::HandleExistenceFilter(
 
 FSTRemoteEvent* WatchChangeAggregator::CreateRemoteEvent(
     const SnapshotVersion& snapshot_version) {
-  // TODO
-  return nil;
+  std::unordered_map<TargetId, FSTTargetChange*> target_changes;
+
+  for (auto& entry : target_states_) {
+    TargetId target_id = entry.first;
+    TargetState& target_state = entry.second;
+
+    FSTQueryData* queryData = QueryDataForActiveTarget(target_id);
+    if (queryData) {
+      if (target_state.IsCurrent() && [queryData.query isDocumentQuery]) {
+        // Document queries for document that don't exist can produce an empty
+        // result set. To update our local cache, we synthesize a document
+        // delete if we have not previously received the document. This resolves
+        // the limbo state of the document, removing it from limboDocumentRefs.
+        DocumentKey key{queryData.query.path};
+        if (pending_document_updates_.find(key) ==
+                pending_document_updates_.end() &&
+            !TargetContainsDocument(target_id, key)) {
+          RemoveDocumentFromTarget(
+              target_id, key,
+              [FSTDeletedDocument documentWithKey:key
+                                          version:snapshot_version
+                            hasCommittedMutations:NO]);
+        }
+      }
+
+      if (target_state.HasPendingChanges()) {
+        target_changes[target_id] = target_state.ToTargetChange();
+        target_state.ClearPendingChanges();
+      }
+    }
+  }
+
+  DocumentKeySet resolved_limbo_documents;
+
+  // We extract the set of limbo-only document updates as the GC logic
+  // special-cases documents that do not appear in the query cache.
+  //
+  // TODO(gsoltis): Expand on this comment.
+  for (const auto& entry : pending_document_target_mappings_) {
+    bool is_only_limbo_target = true;
+
+    for (TargetId target_id : entry.second) {
+      FSTQueryData* queryData = QueryDataForActiveTarget(target_id);
+      if (queryData && queryData.purpose != FSTQueryPurposeLimboResolution) {
+        is_only_limbo_target = false;
+        break;
+      }
+    }
+
+    if (is_only_limbo_target) {
+      resolved_limbo_documents = resolved_limbo_documents.insert(entry.first);
+    }
+  }
+
+  FSTRemoteEvent* remote_event =
+      [[FSTRemoteEvent alloc] initWithSnapshotVersion:snapshot_version
+                                        targetChanges:target_changes
+                                     targetMismatches:pending_target_resets_
+                                      documentUpdates:pending_document_updates_
+                                       limboDocuments:resolved_limbo_documents];
+
+  pending_document_updates_.clear();
+  pending_document_target_mappings_.clear();
+  pending_target_resets_.clear();
+
+  return remote_event;
 }
 
 void WatchChangeAggregator::RecordTargetRequest(TargetId target_id) {
@@ -148,8 +214,8 @@ void WatchChangeAggregator::RemoveTarget(TargetId target_id) {
   target_states_.erase(target_id);
 }
 
-void WatchChangeAggregator::AddDocumentToTarget(TargetId target_id, FSTMaybeDocument* document
-                                                ) {
+void WatchChangeAggregator::AddDocumentToTarget(TargetId target_id,
+                                                FSTMaybeDocument* document) {
   if (!IsActiveTarget(target_id)) {
     return;
   }
@@ -200,9 +266,11 @@ bool WatchChangeAggregator::IsActiveTarget(TargetId target_id) const {
   return QueryDataForActiveTarget(target_id) != nil;
 }
 
-FSTQueryData* WatchChangeAggregator::QueryDataForActiveTarget(TargetId target_id) const {
+FSTQueryData* WatchChangeAggregator::QueryDataForActiveTarget(
+    TargetId target_id) const {
   auto target_state = target_states_.find(target_id);
-  return target_state != target_states_.end() && target_state->second.IsPending()
+  return target_state != target_states_.end() &&
+                 target_state->second.IsPending()
              ? nil
              : [target_metadata_provider_ queryDataForTarget:target_id];
 }
