@@ -134,6 +134,7 @@ void WatchChangeAggregator::HandleExistenceFilter(
 FSTRemoteEvent* WatchChangeAggregator::CreateRemoteEvent(
     const SnapshotVersion& snapshot_version) {
   // TODO
+  return nil;
 }
 
 void WatchChangeAggregator::RecordTargetRequest(TargetId target_id) {

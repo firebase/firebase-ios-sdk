@@ -34,7 +34,7 @@
 
 @class FSTMaybeDocument;
 @class FSTRemoteEvent;
-@class FSTTargetState;
+@class FSTTargetChange;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -115,7 +115,7 @@ class TargetState {
    * These changes are continuously updated as we receive document updates and
    * always reflect the current set of changes against the last issued snapshot.
    */
-  std::unordered_map<DocumentKey, FSTDocumentViewChangeType, DocumentKeyHash>
+  std::unordered_map<model::DocumentKey, FSTDocumentViewChangeType, model::DocumentKeyHash>
       document_changes_;
 
   NSData* resume_token_;
