@@ -154,7 +154,9 @@ class TargetState {
 
 class WatchChangeAggregator {
  public:
-  WatchChangeAggregator() {
+  explicit WatchChangeAggregator(
+      id<FSTTargetMetadataProvider> target_metadata_provider)
+      : target_metadata_provider_{target_metadata_provider} {
   }
 
   /**

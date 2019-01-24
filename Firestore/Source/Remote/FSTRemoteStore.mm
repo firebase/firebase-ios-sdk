@@ -108,8 +108,8 @@ static const int kMaxPendingWrites = 10;
 
 @implementation FSTRemoteStore {
   std::unique_ptr<WatchChangeAggregator> _watchChangeAggregator;
-
   /** The client-side proxy for interacting with the backend. */
+
   std::shared_ptr<Datastore> _datastore;
   /**
    * A mapping of watched targets that the client cares about tracking and the
@@ -289,7 +289,7 @@ static const int kMaxPendingWrites = 10;
 }
 
 - (void)sendUnwatchRequestForTargetID:(FSTBoxedTargetID *)targetID {
-  _watchChangeAggregator->RecordTargetRequest(queryData.targetID);
+  _watchChangeAggregator->RecordTargetRequest(targetID);
   _watchStream->UnwatchTargetId([targetID intValue]);
 }
 
@@ -302,7 +302,7 @@ static const int kMaxPendingWrites = 10;
 }
 
 - (void)cleanUpWatchStreamState {
-  _watchChangeAggregator = nil;
+  _watchChangeAggregator.reset();
 }
 
 - (void)watchStreamDidOpen {
@@ -324,16 +324,14 @@ static const int kMaxPendingWrites = 10;
       // There was an error on a target, don't wait for a consistent snapshot to raise events
       return [self processTargetErrorForWatchChange:watchTargetChange];
     } else {
-      [self.watchChangeAggregator handleTargetChange:watchTargetChange];
+      _watchChangeAggregator->HandleTargetChange(watchTargetChange);
     }
   } else if (change.type() == WatchChange::Type::Document) {
-    [self.watchChangeAggregator
-        handleDocumentChange:static_cast<const DocumentWatchChange &>(change)];
+      _watchChangeAggregator->HandleDocumentChange(static_cast<const DocumentWatchChange &>(change));
   } else {
     HARD_ASSERT(change.type() == WatchChange::Type::ExistenceFilter,
                 "Expected watchChange to be an instance of ExistenceFilterWatchChange");
-    [self.watchChangeAggregator
-        handleExistenceFilter:static_cast<const ExistenceFilterWatchChange &>(change)];
+    _watchChangeAggregator->HandleExistenceFilter(static_cast<const ExistenceFilterWatchChange &>(change));
   }
 
   if (snapshotVersion != SnapshotVersion::None() &&
@@ -374,7 +372,7 @@ static const int kMaxPendingWrites = 10;
               "Can't raise event for unknown SnapshotVersion");
 
   FSTRemoteEvent *remoteEvent =
-      [self.watchChangeAggregator remoteEventAtSnapshotVersion:snapshotVersion];
+    _watchChangeAggregator->CreateRemoteEvent(snapshotVersion);
 
   // Update in-memory resume tokens. FSTLocalStore will update the persistent view of these when
   // applying the completed FSTRemoteEvent.
@@ -438,7 +436,7 @@ static const int kMaxPendingWrites = 10;
     auto found = _listenTargets.find(targetID);
     if (found != _listenTargets.end()) {
       _listenTargets.erase(found);
-      [self.watchChangeAggregator removeTarget:targetID];
+      _watchChangeAggregator->RemoveTarget(targetID);
       [self.syncEngine rejectListenWithTargetID:targetID error:util::MakeNSError(change.cause())];
     }
   }
