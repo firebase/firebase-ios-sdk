@@ -126,7 +126,74 @@ void WatchChangeAggregator::HandleDocumentChange(
 
 void WatchChangeAggregator::HandleTargetChange(
     const WatchTargetChange& target_change) {
-  // TODO
+  for (TargetId target_id : GetTargetIds(target_change)) {
+    TargetState& target_state = EnsureTargetState(target_id);
+    switch (target_change.state()) {
+      case WatchTargetChangeState::NoChange:
+        if (IsActiveTarget(target_id)) {
+          target_state.UpdateResumeToken(target_change.resume_token());
+        }
+        break;
+      case WatchTargetChangeState::Added:
+        // We need to decrement the number of pending acks needed from watch for
+        // this target_id.
+        target_state.RecordTargetResponse();
+        if (!target_state.IsPending()) {
+          // We have a freshly added target, so we need to reset any state that
+          // we had previously. This can happen e.g. when remove and add back a
+          // target for existence filter mismatches.
+          target_state.ClearPendingChanges();
+        }
+        target_state.UpdateResumeToken(target_change.resume_token());
+        break;
+      case WatchTargetChangeState::Removed:
+        // We need to keep track of removed targets to we can post-filter and
+        // remove any target changes.
+        target_state.RecordTargetResponse();
+        if (!target_state.IsPending()) {
+          RemoveTarget(target_id);
+        }
+        HARD_ASSERT(target_change.cause().ok(),
+                    "WatchChangeAggregator does not handle errored targets");
+        break;
+      case WatchTargetChangeState::Current:
+        if (IsActiveTarget(target_id)) {
+          target_state.MarkCurrent();
+          target_state.UpdateResumeToken(target_change.resume_token());
+        }
+        break;
+      case WatchTargetChangeState::Reset:
+        if (IsActiveTarget(target_id)) {
+          // Reset the target and synthesizes removes for all existing
+          // documents. The backend will re-add any documents that still match
+          // the target before it sends the next global snapshot.
+          ResetTarget(target_id);
+          target_state.UpdateResumeToken(target_change.resume_token());
+        }
+        break;
+      default:
+        HARD_FAIL("Unknown target watch change state: %s",
+                  target_change.state());
+    }
+  }
+}
+
+std::vector<TargetId> WatchChangeAggregator::GetTargetIds(const WatchTargetChange& target_change) const {
+  if (!target_change.target_ids().empty()) {
+    return target_change.target_ids();
+  }
+
+  std::vector<TargetId> result;
+  result.reserve(target_states_.size());
+  for (const auto& entry : target_states_) {
+    result.push_back(entry.first);
+  }
+
+  return result;
+}
+
+void WatchChangeAggregator::RemoveTarget(TargetId target_id) {
+  target_states_.erase(target_id);
 }
 
 void WatchChangeAggregator::HandleExistenceFilter(
@@ -270,10 +337,6 @@ void WatchChangeAggregator::RecordTargetRequest(TargetId target_id) {
   // For each request we get we need to record we need a response for it.
   TargetState& target_state = EnsureTargetState(target_id);
   target_state.RecordTargetRequest();
-}
-
-void WatchChangeAggregator::RemoveTarget(TargetId target_id) {
-  target_states_.erase(target_id);
 }
 
 void WatchChangeAggregator::AddDocumentToTarget(TargetId target_id,

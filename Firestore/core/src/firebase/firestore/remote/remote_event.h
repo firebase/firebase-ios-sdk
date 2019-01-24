@@ -180,6 +180,9 @@ class WatchChangeAggregator {
   FSTRemoteEvent* CreateRemoteEvent(
       const model::SnapshotVersion& snapshot_version);
 
+  std::vector<model::TargetId> GetTargetIds(
+      const WatchTargetChange& target_change) const;
+
   /** Removes the in-memory state for the provided target. */
   void RemoveTarget(model::TargetId target_id);
 
