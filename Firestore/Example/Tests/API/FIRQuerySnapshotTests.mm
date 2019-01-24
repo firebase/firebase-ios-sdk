@@ -31,6 +31,7 @@
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::core::DocumentViewChangeType;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -82,8 +83,8 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocumentSet *oldDocuments = FSTTestDocSet(FSTDocumentComparatorByKey, @[ doc1Old, doc2Old ]);
   FSTDocumentSet *newDocuments = FSTTestDocSet(FSTDocumentComparatorByKey, @[ doc2New, doc2New ]);
   NSArray<FSTDocumentViewChange *> *documentChanges = @[
-    [FSTDocumentViewChange changeWithDocument:doc1New type:FSTDocumentViewChangeTypeMetadata],
-    [FSTDocumentViewChange changeWithDocument:doc2New type:FSTDocumentViewChangeTypeModified],
+    [FSTDocumentViewChange changeWithDocument:doc1New type:DocumentViewChangeType::kMetadata],
+    [FSTDocumentViewChange changeWithDocument:doc2New type:DocumentViewChangeType::kModified],
   ];
 
   FIRFirestore *firestore = FSTTestFirestore();

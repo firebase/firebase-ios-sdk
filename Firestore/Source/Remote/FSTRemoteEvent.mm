@@ -32,6 +32,7 @@
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 
+using firebase::firestore::core::DocumentViewChangeType;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeyHash;
 using firebase::firestore::model::DocumentKeySet;
@@ -138,7 +139,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)recordTargetRequest;
 - (void)recordTargetResponse;
 - (void)markCurrent;
-- (void)addDocumentChangeWithType:(FSTDocumentViewChangeType)type
+- (void)addDocumentChangeWithType:(DocumentViewChangeType)type
                            forKey:(const DocumentKey &)documentKey;
 - (void)removeDocumentChangeForKey:(const DocumentKey &)documentKey;
 
@@ -157,7 +158,7 @@ NS_ASSUME_NONNULL_BEGIN
    * These changes are continuously updated as we receive document updates and always reflect the
    * current set of changes against the last issued snapshot.
    */
-  std::unordered_map<DocumentKey, FSTDocumentViewChangeType, DocumentKeyHash> _documentChanges;
+  std::unordered_map<DocumentKey, DocumentViewChangeType, DocumentKeyHash> _documentChanges;
 }
 
 - (instancetype)init {
@@ -200,7 +201,7 @@ NS_ASSUME_NONNULL_BEGIN
   _current = true;
 }
 
-- (void)addDocumentChangeWithType:(FSTDocumentViewChangeType)type
+- (void)addDocumentChangeWithType:(DocumentViewChangeType)type
                            forKey:(const DocumentKey &)documentKey {
   _hasPendingChanges = YES;
   _documentChanges[documentKey] = type;
@@ -218,13 +219,13 @@ NS_ASSUME_NONNULL_BEGIN
 
   for (const auto &entry : _documentChanges) {
     switch (entry.second) {
-      case FSTDocumentViewChangeTypeAdded:
+      case DocumentViewChangeType::kAdded:
         addedDocuments = addedDocuments.insert(entry.first);
         break;
-      case FSTDocumentViewChangeTypeModified:
+      case DocumentViewChangeType::kModified:
         modifiedDocuments = modifiedDocuments.insert(entry.first);
         break;
-      case FSTDocumentViewChangeTypeRemoved:
+      case DocumentViewChangeType::kRemoved:
         removedDocuments = removedDocuments.insert(entry.first);
         break;
       default:
@@ -482,9 +483,9 @@ NS_ASSUME_NONNULL_BEGIN
     return;
   }
 
-  FSTDocumentViewChangeType changeType = [self containsDocument:document.key inTarget:targetID]
-                                             ? FSTDocumentViewChangeTypeModified
-                                             : FSTDocumentViewChangeTypeAdded;
+  DocumentViewChangeType changeType = [self containsDocument:document.key inTarget:targetID]
+                                          ? DocumentViewChangeType::kModified
+                                          : DocumentViewChangeType::kAdded;
 
   FSTTargetState *targetState = [self ensureTargetStateForTarget:targetID];
   [targetState addDocumentChangeWithType:changeType forKey:document.key];
@@ -509,7 +510,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTTargetState *targetState = [self ensureTargetStateForTarget:targetID];
 
   if ([self containsDocument:key inTarget:targetID]) {
-    [targetState addDocumentChangeWithType:FSTDocumentViewChangeTypeRemoved forKey:key];
+    [targetState addDocumentChangeWithType:DocumentViewChangeType::kRemoved forKey:key];
   } else {
     // The document may have entered and left the target before we raised a snapshot, so we can just
     // ignore the change.
