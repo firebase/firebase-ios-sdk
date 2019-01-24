@@ -178,7 +178,8 @@ void WatchChangeAggregator::HandleTargetChange(
   }
 }
 
-std::vector<TargetId> WatchChangeAggregator::GetTargetIds(const WatchTargetChange& target_change) const {
+std::vector<TargetId> WatchChangeAggregator::GetTargetIds(
+    const WatchTargetChange& target_change) const {
   if (!target_change.target_ids().empty()) {
     return target_change.target_ids();
   }

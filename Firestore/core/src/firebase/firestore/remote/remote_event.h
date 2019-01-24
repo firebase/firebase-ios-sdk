@@ -45,7 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Interface implemented by RemoteStore to expose target metadata to the
- * FSTWatchChangeAggregator.
+ * `WatchChangeAggregator`.
  */
 @protocol FSTTargetMetadataProvider
 

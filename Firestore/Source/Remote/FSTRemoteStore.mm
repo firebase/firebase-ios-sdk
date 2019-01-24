@@ -36,6 +36,7 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
 #include "Firestore/core/src/firebase/firestore/remote/stream.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
@@ -60,6 +61,7 @@ using firebase::firestore::remote::WriteStream;
 using firebase::firestore::remote::DocumentWatchChange;
 using firebase::firestore::remote::ExistenceFilterWatchChange;
 using firebase::firestore::remote::WatchChange;
+using firebase::firestore::remote::WatchChangeAggregator;
 using firebase::firestore::remote::WatchTargetChange;
 using firebase::firestore::remote::WatchTargetChangeState;
 using util::AsyncQueue;
@@ -87,8 +89,6 @@ static const int kMaxPendingWrites = 10;
 
 @property(nonatomic, strong, readonly) FSTOnlineStateTracker *onlineStateTracker;
 
-@property(nonatomic, strong, nullable) FSTWatchChangeAggregator *watchChangeAggregator;
-
 /**
  * A list of up to kMaxPendingWrites writes that we have fetched from the LocalStore via
  * fillWritePipeline and have or will send to the write stream.
@@ -107,6 +107,8 @@ static const int kMaxPendingWrites = 10;
 @end
 
 @implementation FSTRemoteStore {
+  std::unique_ptr<WatchChangeAggregator> _watchChangeAggregator;
+
   /** The client-side proxy for interacting with the backend. */
   std::shared_ptr<Datastore> _datastore;
   /**
@@ -241,7 +243,7 @@ static const int kMaxPendingWrites = 10;
 - (void)startWatchStream {
   HARD_ASSERT([self shouldStartWatchStream],
               "startWatchStream: called when shouldStartWatchStream: is false.");
-  _watchChangeAggregator = [[FSTWatchChangeAggregator alloc] initWithTargetMetadataProvider:self];
+  _watchChangeAggregator = absl::make_unique<WatchChangeAggregator>(self);
   _watchStream->Start();
 
   [self.onlineStateTracker handleWatchStreamStart];
@@ -262,7 +264,7 @@ static const int kMaxPendingWrites = 10;
 }
 
 - (void)sendWatchRequestWithQueryData:(FSTQueryData *)queryData {
-  [self.watchChangeAggregator recordTargetRequest:queryData.targetID];
+  _watchChangeAggregator->RecordTargetRequest(queryData.targetID);
   _watchStream->WatchQuery(queryData);
 }
 
@@ -287,7 +289,7 @@ static const int kMaxPendingWrites = 10;
 }
 
 - (void)sendUnwatchRequestForTargetID:(FSTBoxedTargetID *)targetID {
-  [self.watchChangeAggregator recordTargetRequest:targetID.intValue];
+  _watchChangeAggregator->RecordTargetRequest(queryData.targetID);
   _watchStream->UnwatchTargetId([targetID intValue]);
 }
 
