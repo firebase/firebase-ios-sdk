@@ -83,8 +83,8 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocumentSet *oldDocuments = FSTTestDocSet(FSTDocumentComparatorByKey, @[ doc1Old, doc2Old ]);
   FSTDocumentSet *newDocuments = FSTTestDocSet(FSTDocumentComparatorByKey, @[ doc2New, doc2New ]);
   NSArray<FSTDocumentViewChange *> *documentChanges = @[
-    [FSTDocumentViewChange changeWithDocument:doc1New type:DocumentViewChangeType::Metadata],
-    [FSTDocumentViewChange changeWithDocument:doc2New type:DocumentViewChangeType::Modified],
+    [FSTDocumentViewChange changeWithDocument:doc1New type:DocumentViewChangeType::kMetadata],
+    [FSTDocumentViewChange changeWithDocument:doc2New type:DocumentViewChangeType::kModified],
   ];
 
   FIRFirestore *firestore = FSTTestFirestore();

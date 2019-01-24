@@ -112,42 +112,42 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocumentViewChange *oldChange = oldChangeIter->second;
 
   // Merge the new change with the existing change.
-  if (change.type != DocumentViewChangeType::Added &&
-      oldChange.type == DocumentViewChangeType::Metadata) {
+  if (change.type != DocumentViewChangeType::kAdded &&
+      oldChange.type == DocumentViewChangeType::kMetadata) {
     _changeMap = _changeMap.insert(key, change);
 
-  } else if (change.type == DocumentViewChangeType::Metadata &&
-             oldChange.type != DocumentViewChangeType::Removed) {
+  } else if (change.type == DocumentViewChangeType::kMetadata &&
+             oldChange.type != DocumentViewChangeType::kRemoved) {
     FSTDocumentViewChange *newChange = [FSTDocumentViewChange changeWithDocument:change.document
                                                                             type:oldChange.type];
     _changeMap = _changeMap.insert(key, newChange);
 
-  } else if (change.type == DocumentViewChangeType::Modified &&
-             oldChange.type == DocumentViewChangeType::Modified) {
+  } else if (change.type == DocumentViewChangeType::kModified &&
+             oldChange.type == DocumentViewChangeType::kModified) {
     FSTDocumentViewChange *newChange =
         [FSTDocumentViewChange changeWithDocument:change.document
-                                             type:DocumentViewChangeType::Modified];
+                                             type:DocumentViewChangeType::kModified];
     _changeMap = _changeMap.insert(key, newChange);
-  } else if (change.type == DocumentViewChangeType::Modified &&
-             oldChange.type == DocumentViewChangeType::Added) {
+  } else if (change.type == DocumentViewChangeType::kModified &&
+             oldChange.type == DocumentViewChangeType::kAdded) {
     FSTDocumentViewChange *newChange =
         [FSTDocumentViewChange changeWithDocument:change.document
-                                             type:DocumentViewChangeType::Added];
+                                             type:DocumentViewChangeType::kAdded];
     _changeMap = _changeMap.insert(key, newChange);
-  } else if (change.type == DocumentViewChangeType::Removed &&
-             oldChange.type == DocumentViewChangeType::Added) {
+  } else if (change.type == DocumentViewChangeType::kRemoved &&
+             oldChange.type == DocumentViewChangeType::kAdded) {
     _changeMap = _changeMap.erase(key);
-  } else if (change.type == DocumentViewChangeType::Removed &&
-             oldChange.type == DocumentViewChangeType::Modified) {
+  } else if (change.type == DocumentViewChangeType::kRemoved &&
+             oldChange.type == DocumentViewChangeType::kModified) {
     FSTDocumentViewChange *newChange =
         [FSTDocumentViewChange changeWithDocument:oldChange.document
-                                             type:DocumentViewChangeType::Removed];
+                                             type:DocumentViewChangeType::kRemoved];
     _changeMap = _changeMap.insert(key, newChange);
-  } else if (change.type == DocumentViewChangeType::Added &&
-             oldChange.type == DocumentViewChangeType::Removed) {
+  } else if (change.type == DocumentViewChangeType::kAdded &&
+             oldChange.type == DocumentViewChangeType::kRemoved) {
     FSTDocumentViewChange *newChange =
         [FSTDocumentViewChange changeWithDocument:change.document
-                                             type:DocumentViewChangeType::Modified];
+                                             type:DocumentViewChangeType::kModified];
     _changeMap = _changeMap.insert(key, newChange);
   } else {
     // This includes these cases, which don't make sense:
@@ -207,7 +207,7 @@ NS_ASSUME_NONNULL_BEGIN
   for (FSTDocument *doc in documents.documentEnumerator) {
     [viewChanges
         addObject:[FSTDocumentViewChange changeWithDocument:doc
-                                                       type:DocumentViewChangeType::Added]];
+                                                       type:DocumentViewChangeType::kAdded]];
   }
   return [[FSTViewSnapshot alloc]
                 initWithQuery:query

@@ -128,7 +128,7 @@ NS_ASSUME_NONNULL_BEGIN
     // Remove the metadata-only changes.
     NSMutableArray<FSTDocumentViewChange *> *changes = [NSMutableArray array];
     for (FSTDocumentViewChange *change in snapshot.documentChanges) {
-      if (change.type != DocumentViewChangeType::Metadata) {
+      if (change.type != DocumentViewChangeType::kMetadata) {
         [changes addObject:change];
       }
     }

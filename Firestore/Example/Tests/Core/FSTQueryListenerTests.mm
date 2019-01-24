@@ -88,13 +88,13 @@ NS_ASSUME_NONNULL_BEGIN
   FSTViewSnapshot *snap2 = FSTTestApplyChanges(view, @[ doc2prime ], nil);
 
   FSTDocumentViewChange *change1 =
-      [FSTDocumentViewChange changeWithDocument:doc1 type:DocumentViewChangeType::Added];
+      [FSTDocumentViewChange changeWithDocument:doc1 type:DocumentViewChangeType::kAdded];
   FSTDocumentViewChange *change2 =
-      [FSTDocumentViewChange changeWithDocument:doc2 type:DocumentViewChangeType::Added];
+      [FSTDocumentViewChange changeWithDocument:doc2 type:DocumentViewChangeType::kAdded];
   FSTDocumentViewChange *change3 =
-      [FSTDocumentViewChange changeWithDocument:doc2prime type:DocumentViewChangeType::Modified];
+      [FSTDocumentViewChange changeWithDocument:doc2prime type:DocumentViewChangeType::kModified];
   FSTDocumentViewChange *change4 =
-      [FSTDocumentViewChange changeWithDocument:doc2prime type:DocumentViewChangeType::Added];
+      [FSTDocumentViewChange changeWithDocument:doc2prime type:DocumentViewChangeType::kAdded];
 
   [listener queryDidChangeViewSnapshot:snap1];
   [listener queryDidChangeViewSnapshot:snap2];
@@ -253,13 +253,13 @@ NS_ASSUME_NONNULL_BEGIN
   FSTViewSnapshot *snap3 = FSTTestApplyChanges(view, @[ doc3 ], nil);
 
   FSTDocumentViewChange *change1 =
-      [FSTDocumentViewChange changeWithDocument:doc1 type:DocumentViewChangeType::Added];
+      [FSTDocumentViewChange changeWithDocument:doc1 type:DocumentViewChangeType::kAdded];
   FSTDocumentViewChange *change2 =
-      [FSTDocumentViewChange changeWithDocument:doc2 type:DocumentViewChangeType::Added];
+      [FSTDocumentViewChange changeWithDocument:doc2 type:DocumentViewChangeType::kAdded];
   FSTDocumentViewChange *change3 =
-      [FSTDocumentViewChange changeWithDocument:doc1Prime type:DocumentViewChangeType::Metadata];
+      [FSTDocumentViewChange changeWithDocument:doc1Prime type:DocumentViewChangeType::kMetadata];
   FSTDocumentViewChange *change4 =
-      [FSTDocumentViewChange changeWithDocument:doc3 type:DocumentViewChangeType::Added];
+      [FSTDocumentViewChange changeWithDocument:doc3 type:DocumentViewChangeType::kAdded];
 
   [filteredListener queryDidChangeViewSnapshot:snap1];
   [filteredListener queryDidChangeViewSnapshot:snap2];
@@ -347,7 +347,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTViewSnapshot *snap2 = FSTTestApplyChanges(view, @[ doc1Prime, doc3 ], nil);
 
   FSTDocumentViewChange *change3 =
-      [FSTDocumentViewChange changeWithDocument:doc3 type:DocumentViewChangeType::Added];
+      [FSTDocumentViewChange changeWithDocument:doc3 type:DocumentViewChangeType::kAdded];
 
   [filteredListener queryDidChangeViewSnapshot:snap1];
   [filteredListener queryDidChangeViewSnapshot:snap2];
@@ -391,9 +391,9 @@ NS_ASSUME_NONNULL_BEGIN
   [listener queryDidChangeViewSnapshot:snap3];
 
   FSTDocumentViewChange *change1 =
-      [FSTDocumentViewChange changeWithDocument:doc1 type:DocumentViewChangeType::Added];
+      [FSTDocumentViewChange changeWithDocument:doc1 type:DocumentViewChangeType::kAdded];
   FSTDocumentViewChange *change2 =
-      [FSTDocumentViewChange changeWithDocument:doc2 type:DocumentViewChangeType::Added];
+      [FSTDocumentViewChange changeWithDocument:doc2 type:DocumentViewChangeType::kAdded];
   FSTViewSnapshot *expectedSnap = [[FSTViewSnapshot alloc]
                 initWithQuery:snap3.query
                     documents:snap3.documents
@@ -431,9 +431,9 @@ NS_ASSUME_NONNULL_BEGIN
   [listener queryDidChangeViewSnapshot:snap2];              // another event
 
   FSTDocumentViewChange *change1 =
-      [FSTDocumentViewChange changeWithDocument:doc1 type:DocumentViewChangeType::Added];
+      [FSTDocumentViewChange changeWithDocument:doc1 type:DocumentViewChangeType::kAdded];
   FSTDocumentViewChange *change2 =
-      [FSTDocumentViewChange changeWithDocument:doc2 type:DocumentViewChangeType::Added];
+      [FSTDocumentViewChange changeWithDocument:doc2 type:DocumentViewChangeType::kAdded];
   FSTViewSnapshot *expectedSnap1 = [[FSTViewSnapshot alloc]
                 initWithQuery:query
                     documents:snap1.documents

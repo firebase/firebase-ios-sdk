@@ -40,16 +40,17 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRDocumentChange (Internal)
 
 + (FIRDocumentChangeType)documentChangeTypeForChange:(FSTDocumentViewChange *)change {
-  if (change.type == DocumentViewChangeType::Added) {
-    return FIRDocumentChangeTypeAdded;
-  } else if (change.type == DocumentViewChangeType::Modified ||
-             change.type == DocumentViewChangeType::Metadata) {
-    return FIRDocumentChangeTypeModified;
-  } else if (change.type == DocumentViewChangeType::Removed) {
-    return FIRDocumentChangeTypeRemoved;
-  } else {
-    HARD_FAIL("Unknown FSTDocumentViewChange: %s", change.type);
+  switch (change.type) {
+    case DocumentViewChangeType::kAdded:
+      return FIRDocumentChangeTypeAdded;
+    case DocumentViewChangeType::kModified:
+    case DocumentViewChangeType::kMetadata:
+      return FIRDocumentChangeTypeModified;
+    case DocumentViewChangeType::kRemoved:
+      return FIRDocumentChangeTypeRemoved;
   }
+
+  HARD_FAIL("Unknown DocumentViewChangeTyp: %s", change.type);
 }
 
 + (NSArray<FIRDocumentChange *> *)documentChangesForSnapshot:(FSTViewSnapshot *)snapshot
@@ -68,7 +69,7 @@ NS_ASSUME_NONNULL_BEGIN
                        document:change.document
                       fromCache:snapshot.isFromCache
                hasPendingWrites:snapshot.mutatedKeys.contains(change.document.key)];
-      HARD_ASSERT(change.type == DocumentViewChangeType::Added,
+      HARD_ASSERT(change.type == DocumentViewChangeType::kAdded,
                   "Invalid event type for first snapshot");
       HARD_ASSERT(!lastDocument || snapshot.query.comparator(lastDocument, change.document) ==
                                        NSOrderedAscending,
@@ -85,7 +86,7 @@ NS_ASSUME_NONNULL_BEGIN
     FSTDocumentSet *indexTracker = snapshot.oldDocuments;
     NSMutableArray<FIRDocumentChange *> *changes = [NSMutableArray array];
     for (FSTDocumentViewChange *change in snapshot.documentChanges) {
-      if (!includeMetadataChanges && change.type == DocumentViewChangeType::Metadata) {
+      if (!includeMetadataChanges && change.type == DocumentViewChangeType::kMetadata) {
         continue;
       }
 
@@ -98,12 +99,12 @@ NS_ASSUME_NONNULL_BEGIN
 
       NSUInteger oldIndex = NSNotFound;
       NSUInteger newIndex = NSNotFound;
-      if (change.type != DocumentViewChangeType::Added) {
+      if (change.type != DocumentViewChangeType::kAdded) {
         oldIndex = [indexTracker indexOfKey:change.document.key];
         HARD_ASSERT(oldIndex != NSNotFound, "Index for document not found");
         indexTracker = [indexTracker documentSetByRemovingKey:change.document.key];
       }
-      if (change.type != DocumentViewChangeType::Removed) {
+      if (change.type != DocumentViewChangeType::kRemoved) {
         indexTracker = [indexTracker documentSetByAddingDocument:change.document];
         newIndex = [indexTracker indexOfKey:change.document.key];
       }

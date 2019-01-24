@@ -45,11 +45,11 @@ NS_ASSUME_NONNULL_BEGIN
 
   for (FSTDocumentViewChange *docChange in viewSnapshot.documentChanges) {
     switch (docChange.type) {
-      case DocumentViewChangeType::Added:
+      case DocumentViewChangeType::kAdded:
         addedKeys = addedKeys.insert(docChange.document.key);
         break;
 
-      case DocumentViewChangeType::Removed:
+      case DocumentViewChangeType::kRemoved:
         removedKeys = removedKeys.insert(docChange.document.key);
         break;
 

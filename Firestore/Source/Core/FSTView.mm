@@ -157,9 +157,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTView
 
-static NSComparisonResult FSTCompareDocumentViewChangeTypes(
-    firebase::firestore::core::DocumentViewChangeType c1,
-    firebase::firestore::core::DocumentViewChangeType c2);
+static NSComparisonResult FSTCompareDocumentViewChangeTypes(DocumentViewChangeType c1,
+                                                            DocumentViewChangeType c2);
 
 @interface FSTView ()
 
@@ -264,7 +263,7 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(
         if (![self shouldWaitForSyncedDocument:newDoc oldDocument:oldDoc]) {
           [changeSet addChange:[FSTDocumentViewChange
                                    changeWithDocument:newDoc
-                                                 type:DocumentViewChangeType::Modified]];
+                                                 type:DocumentViewChangeType::kModified]];
           changeApplied = YES;
 
           if (lastDocInLimit && self.query.comparator(newDoc, lastDocInLimit) > 0) {
@@ -276,19 +275,19 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(
       } else if (oldDocHadPendingMutations != newDocHasPendingMutations) {
         [changeSet
             addChange:[FSTDocumentViewChange changeWithDocument:newDoc
-                                                           type:DocumentViewChangeType::Metadata]];
+                                                           type:DocumentViewChangeType::kMetadata]];
         changeApplied = YES;
       }
 
     } else if (!oldDoc && newDoc) {
       [changeSet
           addChange:[FSTDocumentViewChange changeWithDocument:newDoc
-                                                         type:DocumentViewChangeType::Added]];
+                                                         type:DocumentViewChangeType::kAdded]];
       changeApplied = YES;
     } else if (oldDoc && !newDoc) {
       [changeSet
           addChange:[FSTDocumentViewChange changeWithDocument:oldDoc
-                                                         type:DocumentViewChangeType::Removed]];
+                                                         type:DocumentViewChangeType::kRemoved]];
       changeApplied = YES;
 
       if (lastDocInLimit) {
@@ -320,7 +319,7 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(
       newMutatedKeys = newMutatedKeys.erase(oldDoc.key);
       [changeSet
           addChange:[FSTDocumentViewChange changeWithDocument:oldDoc
-                                                         type:DocumentViewChangeType::Removed]];
+                                                         type:DocumentViewChangeType::kRemoved]];
     }
   }
 
@@ -489,13 +488,13 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(
 
 static inline int DocumentViewChangeTypePosition(DocumentViewChangeType changeType) {
   switch (changeType) {
-    case DocumentViewChangeType::Removed:
+    case DocumentViewChangeType::kRemoved:
       return 0;
-    case DocumentViewChangeType::Added:
+    case DocumentViewChangeType::kAdded:
       return 1;
-    case DocumentViewChangeType::Modified:
+    case DocumentViewChangeType::kModified:
       return 2;
-    case DocumentViewChangeType::Metadata:
+    case DocumentViewChangeType::kMetadata:
       // A metadata change is converted to a modified change at the public API layer. Since we sort
       // by document key and then change type, metadata and modified changes must be sorted
       // equivalently.

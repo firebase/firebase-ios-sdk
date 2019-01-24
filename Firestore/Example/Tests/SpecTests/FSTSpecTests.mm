@@ -501,22 +501,22 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
     NSMutableArray *removed = expected[@"removed"];
     for (NSDictionary *changeSpec in removed) {
       [expectedChanges addObject:[self parseChange:changeSpec
-                                            ofType:DocumentViewChangeType::Removed]];
+                                            ofType:DocumentViewChangeType::kRemoved]];
     }
     NSMutableArray *added = expected[@"added"];
     for (NSDictionary *changeSpec in added) {
       [expectedChanges addObject:[self parseChange:changeSpec
-                                            ofType:DocumentViewChangeType::Added]];
+                                            ofType:DocumentViewChangeType::kAdded]];
     }
     NSMutableArray *modified = expected[@"modified"];
     for (NSDictionary *changeSpec in modified) {
       [expectedChanges addObject:[self parseChange:changeSpec
-                                            ofType:DocumentViewChangeType::Modified]];
+                                            ofType:DocumentViewChangeType::kModified]];
     }
     NSMutableArray *metadata = expected[@"metadata"];
     for (NSDictionary *changeSpec in metadata) {
       [expectedChanges addObject:[self parseChange:changeSpec
-                                            ofType:DocumentViewChangeType::Metadata]];
+                                            ofType:DocumentViewChangeType::kMetadata]];
     }
     XCTAssertEqualObjects(actual.viewSnapshot.documentChanges, expectedChanges);
 
