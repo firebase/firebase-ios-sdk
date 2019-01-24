@@ -30,6 +30,7 @@
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
 #include "absl/strings/str_join.h"
 
+using firebase::firestore::core::DocumentViewChangeType;
 using firebase::firestore::immutable::SortedMap;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::util::WrapNSString;
@@ -41,20 +42,20 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTDocumentViewChange ()
 
-+ (instancetype)changeWithDocument:(FSTDocument *)document type:(FSTDocumentViewChangeType)type;
++ (instancetype)changeWithDocument:(FSTDocument *)document type:(DocumentViewChangeType)type;
 
 - (instancetype)initWithDocument:(FSTDocument *)document
-                            type:(FSTDocumentViewChangeType)type NS_DESIGNATED_INITIALIZER;
+                            type:(DocumentViewChangeType)type NS_DESIGNATED_INITIALIZER;
 
 @end
 
 @implementation FSTDocumentViewChange
 
-+ (instancetype)changeWithDocument:(FSTDocument *)document type:(FSTDocumentViewChangeType)type {
++ (instancetype)changeWithDocument:(FSTDocument *)document type:(DocumentViewChangeType)type {
   return [[FSTDocumentViewChange alloc] initWithDocument:document type:type];
 }
 
-- (instancetype)initWithDocument:(FSTDocument *)document type:(FSTDocumentViewChangeType)type {
+- (instancetype)initWithDocument:(FSTDocument *)document type:(DocumentViewChangeType)type {
   self = [super init];
   if (self) {
     _document = document;
@@ -111,42 +112,42 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocumentViewChange *oldChange = oldChangeIter->second;
 
   // Merge the new change with the existing change.
-  if (change.type != FSTDocumentViewChangeTypeAdded &&
-      oldChange.type == FSTDocumentViewChangeTypeMetadata) {
+  if (change.type != DocumentViewChangeType::kAdded &&
+      oldChange.type == DocumentViewChangeType::kMetadata) {
     _changeMap = _changeMap.insert(key, change);
 
-  } else if (change.type == FSTDocumentViewChangeTypeMetadata &&
-             oldChange.type != FSTDocumentViewChangeTypeRemoved) {
+  } else if (change.type == DocumentViewChangeType::kMetadata &&
+             oldChange.type != DocumentViewChangeType::kRemoved) {
     FSTDocumentViewChange *newChange = [FSTDocumentViewChange changeWithDocument:change.document
                                                                             type:oldChange.type];
     _changeMap = _changeMap.insert(key, newChange);
 
-  } else if (change.type == FSTDocumentViewChangeTypeModified &&
-             oldChange.type == FSTDocumentViewChangeTypeModified) {
+  } else if (change.type == DocumentViewChangeType::kModified &&
+             oldChange.type == DocumentViewChangeType::kModified) {
     FSTDocumentViewChange *newChange =
         [FSTDocumentViewChange changeWithDocument:change.document
-                                             type:FSTDocumentViewChangeTypeModified];
+                                             type:DocumentViewChangeType::kModified];
     _changeMap = _changeMap.insert(key, newChange);
-  } else if (change.type == FSTDocumentViewChangeTypeModified &&
-             oldChange.type == FSTDocumentViewChangeTypeAdded) {
+  } else if (change.type == DocumentViewChangeType::kModified &&
+             oldChange.type == DocumentViewChangeType::kAdded) {
     FSTDocumentViewChange *newChange =
         [FSTDocumentViewChange changeWithDocument:change.document
-                                             type:FSTDocumentViewChangeTypeAdded];
+                                             type:DocumentViewChangeType::kAdded];
     _changeMap = _changeMap.insert(key, newChange);
-  } else if (change.type == FSTDocumentViewChangeTypeRemoved &&
-             oldChange.type == FSTDocumentViewChangeTypeAdded) {
+  } else if (change.type == DocumentViewChangeType::kRemoved &&
+             oldChange.type == DocumentViewChangeType::kAdded) {
     _changeMap = _changeMap.erase(key);
-  } else if (change.type == FSTDocumentViewChangeTypeRemoved &&
-             oldChange.type == FSTDocumentViewChangeTypeModified) {
+  } else if (change.type == DocumentViewChangeType::kRemoved &&
+             oldChange.type == DocumentViewChangeType::kModified) {
     FSTDocumentViewChange *newChange =
         [FSTDocumentViewChange changeWithDocument:oldChange.document
-                                             type:FSTDocumentViewChangeTypeRemoved];
+                                             type:DocumentViewChangeType::kRemoved];
     _changeMap = _changeMap.insert(key, newChange);
-  } else if (change.type == FSTDocumentViewChangeTypeAdded &&
-             oldChange.type == FSTDocumentViewChangeTypeRemoved) {
+  } else if (change.type == DocumentViewChangeType::kAdded &&
+             oldChange.type == DocumentViewChangeType::kRemoved) {
     FSTDocumentViewChange *newChange =
         [FSTDocumentViewChange changeWithDocument:change.document
-                                             type:FSTDocumentViewChangeTypeModified];
+                                             type:DocumentViewChangeType::kModified];
     _changeMap = _changeMap.insert(key, newChange);
   } else {
     // This includes these cases, which don't make sense:
@@ -206,7 +207,7 @@ NS_ASSUME_NONNULL_BEGIN
   for (FSTDocument *doc in documents.documentEnumerator) {
     [viewChanges
         addObject:[FSTDocumentViewChange changeWithDocument:doc
-                                                       type:FSTDocumentViewChangeTypeAdded]];
+                                                       type:DocumentViewChangeType::kAdded]];
   }
   return [[FSTViewSnapshot alloc]
                 initWithQuery:query

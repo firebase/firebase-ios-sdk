@@ -32,6 +32,7 @@
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
 namespace testutil = firebase::firestore::testutil;
+using firebase::firestore::core::DocumentViewChangeType;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::DocumentKeySet;
 
@@ -67,8 +68,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   XCTAssertEqualObjects(
       snapshot.documentChanges, (@[
-        [FSTDocumentViewChange changeWithDocument:doc1 type:FSTDocumentViewChangeTypeAdded],
-        [FSTDocumentViewChange changeWithDocument:doc2 type:FSTDocumentViewChangeTypeAdded]
+        [FSTDocumentViewChange changeWithDocument:doc1 type:DocumentViewChangeType::kAdded],
+        [FSTDocumentViewChange changeWithDocument:doc2 type:DocumentViewChangeType::kAdded]
       ]));
 
   XCTAssertFalse(snapshot.isFromCache);
@@ -101,8 +102,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   XCTAssertEqualObjects(
       snapshot.documentChanges, (@[
-        [FSTDocumentViewChange changeWithDocument:doc2 type:FSTDocumentViewChangeTypeRemoved],
-        [FSTDocumentViewChange changeWithDocument:doc3 type:FSTDocumentViewChangeTypeAdded]
+        [FSTDocumentViewChange changeWithDocument:doc2 type:DocumentViewChangeType::kRemoved],
+        [FSTDocumentViewChange changeWithDocument:doc3 type:DocumentViewChangeType::kAdded]
       ]));
 
   XCTAssertFalse(snapshot.isFromCache);
@@ -162,9 +163,9 @@ NS_ASSUME_NONNULL_BEGIN
 
   XCTAssertEqualObjects(
       snapshot.documentChanges, (@[
-        [FSTDocumentViewChange changeWithDocument:doc1 type:FSTDocumentViewChangeTypeAdded],
-        [FSTDocumentViewChange changeWithDocument:doc5 type:FSTDocumentViewChangeTypeAdded],
-        [FSTDocumentViewChange changeWithDocument:doc2 type:FSTDocumentViewChangeTypeAdded]
+        [FSTDocumentViewChange changeWithDocument:doc1 type:DocumentViewChangeType::kAdded],
+        [FSTDocumentViewChange changeWithDocument:doc5 type:DocumentViewChangeType::kAdded],
+        [FSTDocumentViewChange changeWithDocument:doc2 type:DocumentViewChangeType::kAdded]
       ]));
 
   XCTAssertTrue(snapshot.isFromCache);
@@ -209,9 +210,9 @@ NS_ASSUME_NONNULL_BEGIN
 
   XCTAssertEqualObjects(
       snapshot.documentChanges, (@[
-        [FSTDocumentViewChange changeWithDocument:doc3 type:FSTDocumentViewChangeTypeRemoved],
-        [FSTDocumentViewChange changeWithDocument:newDoc4 type:FSTDocumentViewChangeTypeAdded],
-        [FSTDocumentViewChange changeWithDocument:newDoc2 type:FSTDocumentViewChangeTypeAdded]
+        [FSTDocumentViewChange changeWithDocument:doc3 type:DocumentViewChangeType::kRemoved],
+        [FSTDocumentViewChange changeWithDocument:newDoc4 type:DocumentViewChangeType::kAdded],
+        [FSTDocumentViewChange changeWithDocument:newDoc2 type:DocumentViewChangeType::kAdded]
       ]));
 
   XCTAssertTrue(snapshot.isFromCache);
@@ -243,8 +244,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   XCTAssertEqualObjects(
       snapshot.documentChanges, (@[
-        [FSTDocumentViewChange changeWithDocument:doc3 type:FSTDocumentViewChangeTypeRemoved],
-        [FSTDocumentViewChange changeWithDocument:doc2 type:FSTDocumentViewChangeTypeAdded]
+        [FSTDocumentViewChange changeWithDocument:doc3 type:DocumentViewChangeType::kRemoved],
+        [FSTDocumentViewChange changeWithDocument:doc2 type:DocumentViewChangeType::kAdded]
       ]));
 
   XCTAssertFalse(snapshot.isFromCache);
@@ -293,8 +294,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   XCTAssertEqualObjects(
       snapshot.documentChanges, (@[
-        [FSTDocumentViewChange changeWithDocument:doc2 type:FSTDocumentViewChangeTypeRemoved],
-        [FSTDocumentViewChange changeWithDocument:doc3 type:FSTDocumentViewChangeTypeAdded]
+        [FSTDocumentViewChange changeWithDocument:doc2 type:DocumentViewChangeType::kRemoved],
+        [FSTDocumentViewChange changeWithDocument:doc3 type:DocumentViewChangeType::kAdded]
       ]));
 
   XCTAssertFalse(snapshot.isFromCache);
@@ -684,8 +685,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   XCTAssertEqualObjects(
       (@[
-        [FSTDocumentViewChange changeWithDocument:doc1 type:FSTDocumentViewChangeTypeAdded],
-        [FSTDocumentViewChange changeWithDocument:doc2 type:FSTDocumentViewChangeTypeAdded]
+        [FSTDocumentViewChange changeWithDocument:doc1 type:DocumentViewChangeType::kAdded],
+        [FSTDocumentViewChange changeWithDocument:doc2 type:DocumentViewChangeType::kAdded]
       ]),
       viewChange.snapshot.documentChanges);
 
@@ -694,7 +695,7 @@ NS_ASSUME_NONNULL_BEGIN
   // The 'doc1Committed' update is suppressed
   XCTAssertEqualObjects(
       (@[ [FSTDocumentViewChange changeWithDocument:doc2Modified
-                                               type:FSTDocumentViewChangeTypeModified] ]),
+                                               type:DocumentViewChangeType::kModified] ]),
       viewChange.snapshot.documentChanges);
 
   changes =
@@ -703,9 +704,9 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqualObjects(
       (@[
         [FSTDocumentViewChange changeWithDocument:doc1Acknowledged
-                                             type:FSTDocumentViewChangeTypeModified],
+                                             type:DocumentViewChangeType::kModified],
         [FSTDocumentViewChange changeWithDocument:doc2Acknowledged
-                                             type:FSTDocumentViewChangeTypeMetadata]
+                                             type:DocumentViewChangeType::kMetadata]
       ]),
       viewChange.snapshot.documentChanges);
 }
