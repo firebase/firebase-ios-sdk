@@ -17,6 +17,7 @@
 #import "Firestore/Source/Local/FSTLocalStore.h"
 
 #include <set>
+#include <unordered_map>
 #include <utility>
 
 #import "FIRTimestamp.h"
@@ -84,9 +85,6 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 /** Maps a query to the data about that query. */
 @property(nonatomic) QueryCache *queryCache;
 
-/** Maps a targetID to data about its query. */
-@property(nonatomic, strong) NSMutableDictionary<NSNumber *, FSTQueryData *> *targetIDs;
-
 @end
 
 @implementation FSTLocalStore {
@@ -98,6 +96,9 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 
   /** The set of document references maintained by any local views. */
   ReferenceSet _localViewReferences;
+
+  /** Maps a targetID to data about its query. */
+  std::unordered_map<TargetId, FSTQueryData *> _targetIDs;
 }
 
 - (instancetype)initWithPersistence:(id<FSTPersistence>)persistence
@@ -110,8 +111,6 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
     _localDocuments = [FSTLocalDocumentsView viewWithRemoteDocumentCache:_remoteDocumentCache
                                                            mutationQueue:_mutationQueue];
     [_persistence.referenceDelegate addInMemoryPins:&_localViewReferences];
-
-    _targetIDs = [NSMutableDictionary dictionary];
 
     _targetIDGenerator = TargetIdGenerator::QueryCacheTargetIdGenerator(0);
   }
@@ -217,14 +216,14 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
     DocumentKeySet authoritativeUpdates;
     for (const auto &entry : remoteEvent.targetChanges) {
       TargetId targetID = entry.first;
-      FSTBoxedTargetID *boxedTargetID = @(targetID);
       FSTTargetChange *change = entry.second;
 
       // Do not ref/unref unassigned targetIDs - it may lead to leaks.
-      FSTQueryData *queryData = self.targetIDs[boxedTargetID];
-      if (!queryData) {
+      auto found = _targetIDs.find(targetID);
+      if (found == _targetIDs.end()) {
         continue;
       }
+      FSTQueryData *queryData = found->second;
 
       // When a global snapshot contains updates (either add or modify) we can completely trust
       // these updates as authoritative and blindly apply them to our cache (as a defensive measure
@@ -253,7 +252,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
         queryData = [queryData queryDataByReplacingSnapshotVersion:remoteEvent.snapshotVersion
                                                        resumeToken:resumeToken
                                                     sequenceNumber:sequenceNumber];
-        self.targetIDs[boxedTargetID] = queryData;
+        _targetIDs[targetID] = queryData;
 
         if ([self shouldPersistQueryData:queryData oldQueryData:oldQueryData change:change]) {
           _queryCache->UpdateTarget(queryData);
@@ -394,10 +393,10 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
     return cached;
   });
   // Sanity check to ensure that even when resuming a query it's not currently active.
-  FSTBoxedTargetID *boxedTargetID = @(queryData.targetID);
-  HARD_ASSERT(!self.targetIDs[boxedTargetID], "Tried to allocate an already allocated query: %s",
-              query);
-  self.targetIDs[boxedTargetID] = queryData;
+  TargetId targetID = queryData.targetID;
+  HARD_ASSERT(_targetIDs.find(targetID) == _targetIDs.end(),
+              "Tried to allocate an already allocated query: %s", query);
+  _targetIDs[targetID] = queryData;
   return queryData;
 }
 
@@ -407,9 +406,9 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
     HARD_ASSERT(queryData, "Tried to release nonexistent query: %s", query);
 
     TargetId targetID = queryData.targetID;
-    FSTBoxedTargetID *boxedTargetID = @(targetID);
 
-    FSTQueryData *cachedQueryData = self.targetIDs[boxedTargetID];
+    auto found = _targetIDs.find(targetID);
+    FSTQueryData *cachedQueryData = found != _targetIDs.end() ? found->second : nil;
     if (cachedQueryData.snapshotVersion > queryData.snapshotVersion) {
       // If we've been avoiding persisting the resumeToken (see shouldPersistQueryData for
       // conditions and rationale) we need to persist the token now because there will no
@@ -426,7 +425,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
     for (const DocumentKey &key : removed) {
       [self.persistence.referenceDelegate removeReference:key];
     }
-    [self.targetIDs removeObjectForKey:boxedTargetID];
+    _targetIDs.erase(targetID);
     [self.persistence.referenceDelegate removeTarget:queryData];
   });
 }

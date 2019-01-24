@@ -81,8 +81,4 @@ enum class OnlineState {
 }  // namespace firestore
 }  // namespace firebase
 
-#if defined(__OBJC__)
-using FSTBoxedTargetID = NSNumber;
-#endif
-
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_TYPES_H_

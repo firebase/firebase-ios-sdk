@@ -274,7 +274,7 @@ static const int kMaxPendingWrites = 10;
               targetID);
 
   if (_watchStream->IsOpen()) {
-    [self sendUnwatchRequestForTargetID:@(targetID)];
+    [self sendUnwatchRequestForTargetID:targetID];
   }
   if (_listenTargets.empty()) {
     if (_watchStream->IsOpen()) {
@@ -288,9 +288,9 @@ static const int kMaxPendingWrites = 10;
   }
 }
 
-- (void)sendUnwatchRequestForTargetID:(FSTBoxedTargetID *)targetID {
+- (void)sendUnwatchRequestForTargetID:(TargetId)targetID {
   _watchChangeAggregator->RecordTargetRequest(targetID);
-  _watchStream->UnwatchTargetId([targetID intValue]);
+  _watchStream->UnwatchTargetId(targetID);
 }
 
 /**
@@ -411,7 +411,7 @@ static const int kMaxPendingWrites = 10;
 
     // Cause a hard reset by unwatching and rewatching immediately, but deliberately don't send a
     // resume token so that we get a full update.
-    [self sendUnwatchRequestForTargetID:@(targetID)];
+    [self sendUnwatchRequestForTargetID:targetID];
 
     // Mark the query we send as being on behalf of an existence filter mismatch, but don't
     // actually retain that in _listenTargets. This ensures that we flag the first re-listen this
@@ -443,7 +443,7 @@ static const int kMaxPendingWrites = 10;
 }
 
 - (DocumentKeySet)remoteKeysForTarget:(TargetId)targetID {
-  return [self.syncEngine remoteKeysForTarget:@(targetID)];
+  return [self.syncEngine remoteKeysForTarget:targetID];
 }
 
 - (nullable FSTQueryData *)queryDataForTarget:(TargetId)targetID {
