@@ -188,8 +188,8 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
     }
   }
 
-  aggregator.HandleTargetChange(WatchTargetChange{WatchTargetChangeState::NoChange, targetIDs,
-    _resumeToken1});
+  aggregator.HandleTargetChange(
+      WatchTargetChange{WatchTargetChangeState::NoChange, targetIDs, _resumeToken1});
 
   return aggregator;
 }
@@ -215,9 +215,9 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
                     existingKeys:(DocumentKeySet)existingKeys
                          changes:(const std::vector<std::unique_ptr<WatchChange>> &)watchChanges {
   WatchChangeAggregator aggregator = [self aggregatorWithTargetMap:targetMap
-                                                  outstandingResponses:outstandingResponses
-                                                          existingKeys:existingKeys
-                                                               changes:watchChanges];
+                                              outstandingResponses:outstandingResponses
+                                                      existingKeys:existingKeys
+                                                           changes:watchChanges];
   return aggregator.CreateRemoteEvent(testutil::Version(snapshotVersion));
 }
 
@@ -380,9 +380,9 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
   WatchTargetChange change{WatchTargetChangeState::Reset, {1}};
 
   WatchChangeAggregator aggregator = [self aggregatorWithTargetMap:targetMap
-                                                  outstandingResponses:_noOutstandingResponses
-                                                          existingKeys:DocumentKeySet {}
-                                                               changes:{}];
+                                              outstandingResponses:_noOutstandingResponses
+                                                      existingKeys:DocumentKeySet {}
+                                                           changes:{}];
   aggregator.HandleTargetChange(change);
 
   FSTRemoteEvent *event = aggregator.CreateRemoteEvent(testutil::Version(3));
@@ -495,9 +495,9 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
   std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1}]};
 
   WatchChangeAggregator aggregator = [self aggregatorWithTargetMap:targetMap
-                                                  outstandingResponses:_noOutstandingResponses
-                                                          existingKeys:DocumentKeySet {}
-                                                               changes:{}];
+                                              outstandingResponses:_noOutstandingResponses
+                                                      existingKeys:DocumentKeySet {}
+                                                           changes:{}];
 
   WatchTargetChange change{WatchTargetChangeState::NoChange, {1}, _resumeToken1};
   aggregator.HandleTargetChange(change);
@@ -565,9 +565,9 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
   std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1}]};
 
   WatchChangeAggregator aggregator = [self aggregatorWithTargetMap:targetMap
-                                                  outstandingResponses:_noOutstandingResponses
-                                                          existingKeys:DocumentKeySet {}
-                                                               changes:{}];
+                                              outstandingResponses:_noOutstandingResponses
+                                                      existingKeys:DocumentKeySet {}
+                                                           changes:{}];
 
   WatchTargetChange markCurrent{WatchTargetChangeState::Current, {1}, _resumeToken1};
   aggregator.HandleTargetChange(markCurrent);
@@ -657,9 +657,9 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
   std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1, 2}]};
 
   WatchChangeAggregator aggregator = [self aggregatorWithTargetMap:targetMap
-                                                  outstandingResponses:_noOutstandingResponses
-                                                          existingKeys:DocumentKeySet {}
-                                                               changes:{}];
+                                              outstandingResponses:_noOutstandingResponses
+                                                      existingKeys:DocumentKeySet {}
+                                                           changes:{}];
 
   WatchTargetChange change1{WatchTargetChangeState::Current, {1}, _resumeToken1};
   aggregator.HandleTargetChange(change1);
@@ -684,9 +684,9 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
   std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1, 2}]};
 
   WatchChangeAggregator aggregator = [self aggregatorWithTargetMap:targetMap
-                                                  outstandingResponses:_noOutstandingResponses
-                                                          existingKeys:DocumentKeySet {}
-                                                               changes:{}];
+                                              outstandingResponses:_noOutstandingResponses
+                                                      existingKeys:DocumentKeySet {}
+                                                           changes:{}];
 
   WatchTargetChange change1{WatchTargetChangeState::Current, {1}, _resumeToken1};
   aggregator.HandleTargetChange(change1);

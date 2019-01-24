@@ -327,11 +327,12 @@ static const int kMaxPendingWrites = 10;
       _watchChangeAggregator->HandleTargetChange(watchTargetChange);
     }
   } else if (change.type() == WatchChange::Type::Document) {
-      _watchChangeAggregator->HandleDocumentChange(static_cast<const DocumentWatchChange &>(change));
+    _watchChangeAggregator->HandleDocumentChange(static_cast<const DocumentWatchChange &>(change));
   } else {
     HARD_ASSERT(change.type() == WatchChange::Type::ExistenceFilter,
                 "Expected watchChange to be an instance of ExistenceFilterWatchChange");
-    _watchChangeAggregator->HandleExistenceFilter(static_cast<const ExistenceFilterWatchChange &>(change));
+    _watchChangeAggregator->HandleExistenceFilter(
+        static_cast<const ExistenceFilterWatchChange &>(change));
   }
 
   if (snapshotVersion != SnapshotVersion::None() &&
@@ -371,8 +372,7 @@ static const int kMaxPendingWrites = 10;
   HARD_ASSERT(snapshotVersion != SnapshotVersion::None(),
               "Can't raise event for unknown SnapshotVersion");
 
-  FSTRemoteEvent *remoteEvent =
-    _watchChangeAggregator->CreateRemoteEvent(snapshotVersion);
+  FSTRemoteEvent *remoteEvent = _watchChangeAggregator->CreateRemoteEvent(snapshotVersion);
 
   // Update in-memory resume tokens. FSTLocalStore will update the persistent view of these when
   // applying the completed FSTRemoteEvent.

@@ -28,6 +28,7 @@
 #include <set>
 #include <unordered_map>
 #include <unordered_set>
+#include <vector>
 
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -256,6 +257,6 @@ class WatchChangeAggregator {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_REMOTE_EVENT_H_
-
 NS_ASSUME_NONNULL_END
+
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_REMOTE_EVENT_H_

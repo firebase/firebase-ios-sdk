@@ -380,9 +380,7 @@ FSTRemoteEvent *FSTTestAddedRemoteEvent(FSTMaybeDocument *doc,
               "Docs from remote updates shouldn't have local changes.");
   DocumentWatchChange change{addedToTargets, {}, doc.key, doc};
   WatchChangeAggregator aggregator{
-      [FSTTestTargetMetadataProvider
-                                         providerWithEmptyResultForKey:doc.key
-                                                               targets:addedToTargets]};
+      [FSTTestTargetMetadataProvider providerWithEmptyResultForKey:doc.key targets:addedToTargets]};
   aggregator.HandleDocumentChange(change);
   return aggregator.CreateRemoteEvent(doc.version);
 }
@@ -427,11 +425,10 @@ FSTRemoteEvent *FSTTestUpdateRemoteEventWithLimboTargets(
   std::vector<TargetId> listens = updatedInTargets;
   listens.insert(listens.end(), removedFromTargets.begin(), removedFromTargets.end());
 
-  WatchChangeAggregator aggregator{
-      [FSTTestTargetMetadataProvider
-                                         providerWithSingleResultForKey:doc.key
-                                                          listenTargets:listens
-                                                           limboTargets:limboTargets]};
+  WatchChangeAggregator aggregator{[FSTTestTargetMetadataProvider
+      providerWithSingleResultForKey:doc.key
+                       listenTargets:listens
+                        limboTargets:limboTargets]};
   aggregator.HandleDocumentChange(change);
   return aggregator.CreateRemoteEvent(doc.version);
 }
