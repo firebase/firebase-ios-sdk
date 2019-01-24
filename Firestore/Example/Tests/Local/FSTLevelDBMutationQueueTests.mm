@@ -38,6 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 using firebase::firestore::auth::User;
 using firebase::firestore::local::LevelDbMutationKey;
+using firebase::firestore::local::LevelDbMutationQueue;
 using firebase::firestore::local::LoadNextBatchIdFromDb;
 using firebase::firestore::local::ReferenceSet;
 using firebase::firestore::model::BatchId;
@@ -79,10 +80,15 @@ std::string MutationLikeKey(absl::string_view table, absl::string_view userID, B
   [super setUp];
   _db = [FSTPersistenceTestHelpers levelDBPersistence];
   [_db.referenceDelegate addInMemoryPins:&_additionalReferences];
-  self.mutationQueue = [_db mutationQueueForUser:User("user")];
+
+  // Cast should go away when FSTLevelDB is ported and contains a strongly typed method to get the
+  // mutation queue.
+  LevelDbMutationQueue *queue =
+      static_cast<LevelDbMutationQueue *>([[_db mutationQueueForUser:User("user")] mutationQueue]);
+  self.mutationQueue = queue;
   self.persistence = _db;
 
-  self.persistence.run("Setup", [&]() { [self.mutationQueue start]; });
+  self.persistence.run("Setup", [&]() { queue->Start(); });
 }
 
 - (void)testLoadNextBatchID_zeroWhenTotallyEmpty {

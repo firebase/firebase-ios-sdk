@@ -31,6 +31,7 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
+#include "Firestore/core/src/firebase/firestore/local/mutation_queue.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
@@ -56,7 +57,7 @@ namespace local {
  */
 model::BatchId LoadNextBatchIdFromDb(leveldb::DB* db);
 
-class LevelDbMutationQueue {
+class LevelDbMutationQueue : public MutationQueue {
  public:
   LevelDbMutationQueue(const auth::User& user,
                        FSTLevelDB* db,
@@ -64,37 +65,38 @@ class LevelDbMutationQueue {
 
   void Start();
 
-  bool IsEmpty();
+  bool IsEmpty() override;
 
   void AcknowledgeBatch(FSTMutationBatch* batch,
-                        NSData* _Nullable stream_token);
+                        NSData* _Nullable stream_token) override;
 
   FSTMutationBatch* AddMutationBatch(FIRTimestamp* local_write_time,
-                                     NSArray<FSTMutation*>* mutations);
+                                     NSArray<FSTMutation*>* mutations) override;
 
-  void RemoveMutationBatch(FSTMutationBatch* batch);
+  void RemoveMutationBatch(FSTMutationBatch* batch) override;
 
   std::vector<FSTMutationBatch*> AllMutationBatches();
 
   std::vector<FSTMutationBatch*> AllMutationBatchesAffectingDocumentKeys(
-      const model::DocumentKeySet& document_keys);
+      const model::DocumentKeySet& document_keys) override;
 
   std::vector<FSTMutationBatch*> AllMutationBatchesAffectingDocumentKey(
-      const model::DocumentKey& key);
+      const model::DocumentKey& key) override;
 
   std::vector<FSTMutationBatch*> AllMutationBatchesAffectingQuery(
-      FSTQuery* query);
+      FSTQuery* query) override;
 
-  FSTMutationBatch* _Nullable LookupMutationBatch(model::BatchId batch_id);
+  FSTMutationBatch* _Nullable LookupMutationBatch(
+      model::BatchId batch_id) override;
 
   FSTMutationBatch* _Nullable NextMutationBatchAfterBatchId(
-      model::BatchId batch_id);
+      model::BatchId batch_id) override;
 
-  void PerformConsistencyCheck();
+  void PerformConsistencyCheck() override;
 
-  NSData* _Nullable GetLastStreamToken();
+  NSData* _Nullable GetLastStreamToken() override;
 
-  void SetLastStreamToken(NSData* _Nullable stream_token);
+  void SetLastStreamToken(NSData* _Nullable stream_token) override;
 
  private:
   /**

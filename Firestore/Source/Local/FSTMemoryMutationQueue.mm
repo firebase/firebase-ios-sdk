@@ -137,6 +137,10 @@ static NSArray<FSTMutationBatch *> *toNSArray(const std::vector<FSTMutationBatch
   return _delegate->CalculateByteSize(serializer);
 }
 
+- (MemoryMutationQueue *)mutationQueue {
+  return _delegate.get();
+}
+
 @end
 
 NS_ASSUME_NONNULL_END
