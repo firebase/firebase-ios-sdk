@@ -264,7 +264,7 @@ static const int kMaxPendingWrites = 10;
 }
 
 - (void)sendWatchRequestWithQueryData:(FSTQueryData *)queryData {
-  _watchChangeAggregator->RecordTargetRequest(queryData.targetID);
+  _watchChangeAggregator->RecordPendingTargetRequest(queryData.targetID);
   _watchStream->WatchQuery(queryData);
 }
 
@@ -289,7 +289,7 @@ static const int kMaxPendingWrites = 10;
 }
 
 - (void)sendUnwatchRequestForTargetID:(TargetId)targetID {
-  _watchChangeAggregator->RecordTargetRequest(targetID);
+  _watchChangeAggregator->RecordPendingTargetRequest(targetID);
   _watchStream->UnwatchTargetId(targetID);
 }
 

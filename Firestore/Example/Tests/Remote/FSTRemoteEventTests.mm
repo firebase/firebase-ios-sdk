@@ -169,7 +169,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
     TargetId targetID = kv.first;
     int count = kv.second;
     for (int i = 0; i < count; ++i) {
-      aggregator.RecordTargetRequest(targetID);
+      aggregator.RecordPendingTargetRequest(targetID);
     }
   }
 

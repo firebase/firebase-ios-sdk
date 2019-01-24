@@ -128,6 +128,7 @@ void WatchChangeAggregator::HandleTargetChange(
     const WatchTargetChange& target_change) {
   for (TargetId target_id : GetTargetIds(target_change)) {
     TargetState& target_state = EnsureTargetState(target_id);
+
     switch (target_change.state()) {
       case WatchTargetChangeState::NoChange:
         if (IsActiveTarget(target_id)) {
@@ -149,6 +150,7 @@ void WatchChangeAggregator::HandleTargetChange(
       case WatchTargetChangeState::Removed:
         // We need to keep track of removed targets to we can post-filter and
         // remove any target changes.
+          // We need to decrement the number of pending acks needed from watch for this targetId.
         target_state.RecordTargetResponse();
         if (!target_state.IsPending()) {
           RemoveTarget(target_id);
@@ -193,10 +195,6 @@ std::vector<TargetId> WatchChangeAggregator::GetTargetIds(
   return result;
 }
 
-void WatchChangeAggregator::RemoveTarget(TargetId target_id) {
-  target_states_.erase(target_id);
-}
-
 void WatchChangeAggregator::HandleExistenceFilter(
     const ExistenceFilterWatchChange& existence_filter) {
   TargetId target_id = existence_filter.target_id();
@@ -233,34 +231,6 @@ void WatchChangeAggregator::HandleExistenceFilter(
         pending_target_resets_.insert(target_id);
       }
     }
-  }
-}
-
-int WatchChangeAggregator::GetCurrentDocumentCountForTarget(
-    TargetId target_id) {
-  TargetState& target_state = EnsureTargetState(target_id);
-  FSTTargetChange* target_change = target_state.ToTargetChange();
-  return ([target_metadata_provider_ remoteKeysForTarget:target_id].size() +
-          target_change.addedDocuments.size() -
-          target_change.removedDocuments.size());
-}
-
-void WatchChangeAggregator::ResetTarget(TargetId target_id) {
-  auto current_target_state = target_states_.find(target_id);
-  HARD_ASSERT(current_target_state != target_states_.end() &&
-                  !(current_target_state->second.IsPending()),
-              "Should only reset active targets");
-
-  target_states_[target_id] = {};
-
-  // Trigger removal for any documents currently mapped to this target. These
-  // removals will be part of the initial snapshot if Watch does not resend
-  // these documents.
-  DocumentKeySet existingKeys =
-      [target_metadata_provider_ remoteKeysForTarget:target_id];
-
-  for (const DocumentKey& key : existingKeys) {
-    RemoveDocumentFromTarget(target_id, key, nil);
   }
 }
 
@@ -327,17 +297,13 @@ FSTRemoteEvent* WatchChangeAggregator::CreateRemoteEvent(
                                       documentUpdates:pending_document_updates_
                                        limboDocuments:resolved_limbo_documents];
 
+  // Re-initialize the current state to ensure that we do not modify the
+  // generated `RemoteEvent`.
   pending_document_updates_.clear();
   pending_document_target_mappings_.clear();
   pending_target_resets_.clear();
 
   return remote_event;
-}
-
-void WatchChangeAggregator::RecordTargetRequest(TargetId target_id) {
-  // For each request we get we need to record we need a response for it.
-  TargetState& target_state = EnsureTargetState(target_id);
-  target_state.RecordTargetRequest();
 }
 
 void WatchChangeAggregator::AddDocumentToTarget(TargetId target_id,
@@ -381,11 +347,27 @@ void WatchChangeAggregator::RemoveDocumentFromTarget(
   }
 }
 
-bool WatchChangeAggregator::TargetContainsDocument(TargetId target_id,
-                                                   const DocumentKey& key) {
-  const DocumentKeySet& existing_keys =
-      [target_metadata_provider_ remoteKeysForTarget:target_id];
-  return existing_keys.contains(key);
+void WatchChangeAggregator::RemoveTarget(TargetId target_id) {
+  target_states_.erase(target_id);
+}
+
+int WatchChangeAggregator::GetCurrentDocumentCountForTarget(
+    TargetId target_id) {
+  TargetState& target_state = EnsureTargetState(target_id);
+  FSTTargetChange* target_change = target_state.ToTargetChange();
+  return ([target_metadata_provider_ remoteKeysForTarget:target_id].size() +
+          target_change.addedDocuments.size() -
+          target_change.removedDocuments.size());
+}
+
+void WatchChangeAggregator::RecordPendingTargetRequest(TargetId target_id) {
+  // For each request we get we need to record we need a response for it.
+  TargetState& target_state = EnsureTargetState(target_id);
+  target_state.RecordTargetRequest();
+}
+
+TargetState& WatchChangeAggregator::EnsureTargetState(TargetId target_id) {
+  return target_states_[target_id];
 }
 
 bool WatchChangeAggregator::IsActiveTarget(TargetId target_id) const {
@@ -401,8 +383,30 @@ FSTQueryData* WatchChangeAggregator::QueryDataForActiveTarget(
              : [target_metadata_provider_ queryDataForTarget:target_id];
 }
 
-TargetState& WatchChangeAggregator::EnsureTargetState(TargetId target_id) {
-  return target_states_[target_id];
+void WatchChangeAggregator::ResetTarget(TargetId target_id) {
+  auto current_target_state = target_states_.find(target_id);
+  HARD_ASSERT(current_target_state != target_states_.end() &&
+                  !(current_target_state->second.IsPending()),
+              "Should only reset active targets");
+
+  target_states_[target_id] = {};
+
+  // Trigger removal for any documents currently mapped to this target. These
+  // removals will be part of the initial snapshot if Watch does not resend
+  // these documents.
+  DocumentKeySet existingKeys =
+      [target_metadata_provider_ remoteKeysForTarget:target_id];
+
+  for (const DocumentKey& key : existingKeys) {
+    RemoveDocumentFromTarget(target_id, key, nil);
+  }
+}
+
+bool WatchChangeAggregator::TargetContainsDocument(TargetId target_id,
+                                                   const DocumentKey& key) {
+  const DocumentKeySet& existing_keys =
+      [target_metadata_provider_ remoteKeysForTarget:target_id];
+  return existing_keys.contains(key);
 }
 
 }  // namespace remote

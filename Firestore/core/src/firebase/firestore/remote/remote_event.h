@@ -153,6 +153,10 @@ class TargetState {
   NSData* resume_token_;
 };
 
+/**
+ * A helper class to accumulate watch changes into a `RemoteEvent` and other
+ * target information.
+ */
 class WatchChangeAggregator {
  public:
   explicit WatchChangeAggregator(
@@ -161,30 +165,30 @@ class WatchChangeAggregator {
   }
 
   /**
-   * Processes and adds the DocumentWatchChange to the current set of changes.
+   * Processes and adds the `DocumentWatchChange` to the current set of changes.
    */
   void HandleDocumentChange(const DocumentWatchChange& document_change);
 
-  /** Processes and adds the WatchTargetChange to the current set of changes. */
+  /**
+   * Processes and adds the `WatchTargetChange` to the current set of changes.
+   */
   void HandleTargetChange(const WatchTargetChange& target_change);
 
   /**
    * Handles existence filters and synthesizes deletes for filter mismatches.
    * Targets that are invalidated by filter mismatches are added to
-   * `targetMismatches`.
+   * `pending_target_resets_`.
    */
   void HandleExistenceFilter(
       const ExistenceFilterWatchChange& existence_filter);
 
   /**
    * Converts the current state into a remote event with the snapshot version
-   * taken from the initializer.
+   * taken from the initializer. Resets the accumulated changes before
+   * returning.
    */
   FSTRemoteEvent* CreateRemoteEvent(
       const model::SnapshotVersion& snapshot_version);
-
-  std::vector<model::TargetId> GetTargetIds(
-      const WatchTargetChange& target_change) const;
 
   /** Removes the in-memory state for the provided target. */
   void RemoveTarget(model::TargetId target_id);
@@ -193,31 +197,63 @@ class WatchChangeAggregator {
    * Increment the number of acks needed from watch before we can consider the
    * server to be 'in-sync' with the client's active targets.
    */
-  void RecordTargetRequest(model::TargetId target_id);
+  void RecordPendingTargetRequest(model::TargetId target_id);
 
  private:
+  /**
+   * Returns all `targetId`s that the watch change applies to: either the
+   * `targetId`s explicitly listed in the change or the `targetId`s of all
+   * currently active targets.
+   */
+  std::vector<model::TargetId> GetTargetIds(
+      const WatchTargetChange& target_change) const;
+
+  /**
+   * Adds the provided document to the internal list of document updates and its
+   * document key to the given target's mapping.
+   */
   void AddDocumentToTarget(model::TargetId target_id,
                            FSTMaybeDocument* document);
+
+  /**
+   * Removes the provided document from the target mapping. If the document no
+   * longer matches the target, but the document's state is still known (e.g. we
+   * know that the document was deleted or we received the change that caused
+   * the filter mismatch), the new document can be provided to update the remote
+   * document cache.
+   */
   void RemoveDocumentFromTarget(model::TargetId target_id,
                                 const model::DocumentKey& key,
                                 FSTMaybeDocument* _Nullable updated_document);
-  bool TargetContainsDocument(model::TargetId target_id,
-                              const model::DocumentKey& key);
 
   /**
-   * Returns true if the given target_id is active. Active targets are those for
-   * which there are no pending requests to add a listen and are in the current
-   * list of targets the client cares about.
+   * Returns the current count of documents in the target. This includes both
+   * the number of documents that the LocalStore considers to be part of the
+   * target as well as any accumulated changes.
+   */
+  int GetCurrentDocumentCountForTarget(model::TargetId target_id);
+
+  // PORTING NOTE: this method exists only for consistency with other platforms;
+  // in C++, it's pretty much unnecessary.
+  TargetState& EnsureTargetState(model::TargetId target_id);
+
+  /**
+   * Returns true if the given `target_id` is active. Active targets are those
+   * for which there are no pending requests to add a listen and are in the
+   * current list of targets the client cares about.
    *
    * Clients can repeatedly listen and stop listening to targets, so this check
-   * is useful in preventing in preventing race conditions for a target where
-   * events arrive but the server hasn't yet acknowledged the intended change in
-   * state.
+   * is useful in preventing race conditions for a target where events arrive
+   * but the server hasn't yet acknowledged the intended change in state.
    */
   bool IsActiveTarget(model::TargetId target_id) const;
-  FSTQueryData* QueryDataForActiveTarget(model::TargetId target_id) const;
 
-  int GetCurrentDocumentCountForTarget(model::TargetId target_id);
+  /**
+   * Returns the `FSTQueryData` for an active target (i.e., a target that the
+   * user is still interested in that has no outstanding target change
+   * requests).
+   */
+  FSTQueryData* QueryDataForActiveTarget(model::TargetId target_id) const;
 
   /**
    * Resets the state of a Watch target to its initial state (e.g. sets
@@ -226,12 +262,15 @@ class WatchChangeAggregator {
    */
   void ResetTarget(model::TargetId target_id);
 
-  TargetState& EnsureTargetState(model::TargetId target_id);
+  /** Returns whether the local store considers the document to be part of the
+   * specified target. */
+  bool TargetContainsDocument(model::TargetId target_id,
+                              const model::DocumentKey& key);
 
   /** The internal state of all tracked targets. */
   std::unordered_map<model::TargetId, TargetState> target_states_;
 
-  /** Keeps track of document to update */
+  /** Keeps track of the documents to update since the last raised snapshot. */
   std::unordered_map<model::DocumentKey,
                      FSTMaybeDocument*,
                      model::DocumentKeyHash>
