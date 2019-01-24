@@ -83,8 +83,8 @@ class TargetState {
    * was added and that the target is consistent with the rest of the watch
    * stream.
    */
-  bool IsCurrent() const {
-    return is_current_;
+  bool Current() const {
+    return current_;
   }
 
   /** The last resume token sent to us for this target. */
@@ -92,14 +92,14 @@ class TargetState {
     return resume_token_;
   }
 
-  /** Whether we have modified any state that should trigger a snapshot. */
-  bool HasPendingChanges() const {
-    return has_pending_changes_;
-  }
-
   /** Whether this target has pending target adds or target removes. */
   bool IsPending() const {
     return outstanding_responses_ != 0;
+  }
+
+  /** Whether we have modified any state that should trigger a snapshot. */
+  bool HasPendingChanges() const {
+    return has_pending_changes_;
   }
 
   /**
@@ -107,9 +107,6 @@ class TargetState {
    * value. Empty resume tokens are discarded.
    */
   void UpdateResumeToken(NSData* resume_token);
-
-  /** Resets the document changes and sets `HasPendingChanges` to false. */
-  void ClearPendingChanges();
 
   /**
    * Creates a target change from the current set of changes.
@@ -119,20 +116,17 @@ class TargetState {
    */
   FSTTargetChange* ToTargetChange() const;
 
-  void RecordTargetRequest();
-  void RecordTargetResponse();
-  void MarkCurrent();
+  /** Resets the document changes and sets `HasPendingChanges` to false. */
+  void ClearPendingChanges();
+
   void AddDocumentChange(const model::DocumentKey& document_key,
                          core::DocumentViewChangeType type);
   void RemoveDocumentChange(const model::DocumentKey& document_key);
+  void RecordPendingTargetRequest();
+  void RecordTargetResponse();
+  void MarkCurrent();
 
  private:
-  // We initialize to 'true' so that newly-added targets are included in the
-  // next RemoteEvent.
-  bool has_pending_changes_ = true;
-
-  bool is_current_ = false;
-
   /**
    * The number of outstanding responses (adds or removes) that we are waiting
    * on. We only consider targets active that have no outstanding responses.
@@ -151,6 +145,15 @@ class TargetState {
       document_changes_;
 
   NSData* resume_token_;
+
+  bool current_ = false;
+
+  /**
+   * Whether this target state should be included in the next snapshot. We
+   * initialize to true so that newly-added targets are included in the next
+   * RemoteEvent.
+   */
+  bool has_pending_changes_ = true;
 };
 
 /**

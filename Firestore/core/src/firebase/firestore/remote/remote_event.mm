@@ -33,6 +33,8 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
+// TargetState
+
 TargetState::TargetState() : resume_token_{[NSData data]} {
 }
 
@@ -41,11 +43,6 @@ void TargetState::UpdateResumeToken(NSData* resume_token) {
     has_pending_changes_ = true;
     resume_token_ = [resume_token copy];
   }
-}
-
-void TargetState::ClearPendingChanges() {
-  has_pending_changes_ = false;
-  document_changes_.clear();
 }
 
 FSTTargetChange* TargetState::ToTargetChange() const {
@@ -74,13 +71,18 @@ FSTTargetChange* TargetState::ToTargetChange() const {
 
   return [[FSTTargetChange alloc]
       initWithResumeToken:resume_token()
-                  current:IsCurrent()
+                  current:Current()
            addedDocuments:std::move(added_documents)
         modifiedDocuments:std::move(modified_documents)
          removedDocuments:std::move(removed_documents)];
 }
 
-void TargetState::RecordTargetRequest() {
+void TargetState::ClearPendingChanges() {
+  has_pending_changes_ = false;
+  document_changes_.clear();
+}
+
+void TargetState::RecordPendingTargetRequest() {
   ++outstanding_responses_;
 }
 
@@ -90,7 +92,7 @@ void TargetState::RecordTargetResponse() {
 
 void TargetState::MarkCurrent() {
   has_pending_changes_ = true;
-  is_current_ = true;
+  current_ = true;
 }
 
 void TargetState::AddDocumentChange(const DocumentKey& document_key,
@@ -150,7 +152,8 @@ void WatchChangeAggregator::HandleTargetChange(
       case WatchTargetChangeState::Removed:
         // We need to keep track of removed targets to we can post-filter and
         // remove any target changes.
-          // We need to decrement the number of pending acks needed from watch for this targetId.
+        // We need to decrement the number of pending acks needed from watch for
+        // this targetId.
         target_state.RecordTargetResponse();
         if (!target_state.IsPending()) {
           RemoveTarget(target_id);
@@ -244,7 +247,7 @@ FSTRemoteEvent* WatchChangeAggregator::CreateRemoteEvent(
 
     FSTQueryData* query_data = QueryDataForActiveTarget(target_id);
     if (query_data) {
-      if (target_state.IsCurrent() && [query_data.query isDocumentQuery]) {
+      if (target_state.Current() && [query_data.query isDocumentQuery]) {
         // Document queries for document that don't exist can produce an empty
         // result set. To update our local cache, we synthesize a document
         // delete if we have not previously received the document. This resolves
@@ -363,7 +366,7 @@ int WatchChangeAggregator::GetCurrentDocumentCountForTarget(
 void WatchChangeAggregator::RecordPendingTargetRequest(TargetId target_id) {
   // For each request we get we need to record we need a response for it.
   TargetState& target_state = EnsureTargetState(target_id);
-  target_state.RecordTargetRequest();
+  target_state.RecordPendingTargetRequest();
 }
 
 TargetState& WatchChangeAggregator::EnsureTargetState(TargetId target_id) {
