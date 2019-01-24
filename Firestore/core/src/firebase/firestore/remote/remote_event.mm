@@ -58,13 +58,13 @@ FSTTargetChange* TargetState::ToTargetChange() const {
     DocumentViewChangeType change_type = entry.second;
 
     switch (change_type) {
-      case DocumentViewChangeType::Added:
+      case DocumentViewChangeType::kAdded:
         added_documents = added_documents.insert(document_key);
         break;
-      case DocumentViewChangeType::Modified:
+      case DocumentViewChangeType::kModified:
         modified_documents = modified_documents.insert(document_key);
         break;
-      case DocumentViewChangeType::Removed:
+      case DocumentViewChangeType::kRemoved:
         removed_documents = removed_documents.insert(document_key);
         break;
       default:
@@ -284,8 +284,8 @@ void WatchChangeAggregator::AddDocumentToTarget(TargetId target_id,
 
   DocumentViewChangeType change_type =
       TargetContainsDocument(target_id, document.key)
-          ? DocumentViewChangeType::Modified
-          : DocumentViewChangeType::Added;
+          ? DocumentViewChangeType::kModified
+          : DocumentViewChangeType::kAdded;
 
   TargetState& target_state = EnsureTargetState(target_id);
   target_state.AddDocumentChange(document.key, change_type);
@@ -304,7 +304,7 @@ void WatchChangeAggregator::RemoveDocumentFromTarget(
 
   TargetState& target_state = EnsureTargetState(target_id);
   if (TargetContainsDocument(target_id, key)) {
-    target_state.AddDocumentChange(key, DocumentViewChangeType::Removed);
+    target_state.AddDocumentChange(key, DocumentViewChangeType::kRemoved);
   } else {
     // The document may have entered and left the target before we raised a
     // snapshot, so we can just ignore the change.

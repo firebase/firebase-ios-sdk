@@ -219,13 +219,13 @@ NS_ASSUME_NONNULL_BEGIN
 
   for (const auto &entry : _documentChanges) {
     switch (entry.second) {
-      case DocumentViewChangeType::Added:
+      case DocumentViewChangeType::kAdded:
         addedDocuments = addedDocuments.insert(entry.first);
         break;
-      case DocumentViewChangeType::Modified:
+      case DocumentViewChangeType::kModified:
         modifiedDocuments = modifiedDocuments.insert(entry.first);
         break;
-      case DocumentViewChangeType::Removed:
+      case DocumentViewChangeType::kRemoved:
         removedDocuments = removedDocuments.insert(entry.first);
         break;
       default:
@@ -484,8 +484,8 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   DocumentViewChangeType changeType = [self containsDocument:document.key inTarget:targetID]
-                                          ? DocumentViewChangeType::Modified
-                                          : DocumentViewChangeType::Added;
+                                          ? DocumentViewChangeType::kModified
+                                          : DocumentViewChangeType::kAdded;
 
   FSTTargetState *targetState = [self ensureTargetStateForTarget:targetID];
   [targetState addDocumentChangeWithType:changeType forKey:document.key];
@@ -510,7 +510,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTTargetState *targetState = [self ensureTargetStateForTarget:targetID];
 
   if ([self containsDocument:key inTarget:targetID]) {
-    [targetState addDocumentChangeWithType:DocumentViewChangeType::Removed forKey:key];
+    [targetState addDocumentChangeWithType:DocumentViewChangeType::kRemoved forKey:key];
   } else {
     // The document may have entered and left the target before we raised a snapshot, so we can just
     // ignore the change.

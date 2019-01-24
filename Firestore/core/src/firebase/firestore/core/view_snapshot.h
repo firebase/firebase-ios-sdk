@@ -21,7 +21,17 @@ namespace firebase {
 namespace firestore {
 namespace core {
 
-enum class DocumentViewChangeType { Removed, Added, Modified, Metadata };
+/**
+ * The types of changes that can happen to a document with respect to a view.
+ * NOTE: We sort document changes by their type, so the ordering of this enum is
+ * significant.
+ */
+enum class DocumentViewChangeType {
+  kRemoved = 0,
+  kAdded,
+  kModified,
+  kMetadata
+};
 
 }  // namespace core
 }  // namespace firestore

@@ -35,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testDocumentChangeConstructor {
   FSTDocument *doc = FSTTestDoc("a/b", 0, @{}, FSTDocumentStateSynced);
-  DocumentViewChangeType type = DocumentViewChangeType::Modified;
+  DocumentViewChangeType type = DocumentViewChangeType::kModified;
   FSTDocumentViewChange *change = [FSTDocumentViewChange changeWithDocument:doc type:type];
   XCTAssertEqual(change.document, doc);
   XCTAssertEqual(change.type, type);
@@ -55,56 +55,56 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocument *docModifiedThenModified = FSTTestDoc("b/5", 0, @{}, FSTDocumentStateSynced);
 
   [set addChange:[FSTDocumentViewChange changeWithDocument:docAdded
-                                                      type:DocumentViewChangeType::Added]];
+                                                      type:DocumentViewChangeType::kAdded]];
   [set addChange:[FSTDocumentViewChange changeWithDocument:docRemoved
-                                                      type:DocumentViewChangeType::Removed]];
+                                                      type:DocumentViewChangeType::kRemoved]];
   [set addChange:[FSTDocumentViewChange changeWithDocument:docModified
-                                                      type:DocumentViewChangeType::Modified]];
+                                                      type:DocumentViewChangeType::kModified]];
 
   [set addChange:[FSTDocumentViewChange changeWithDocument:docAddedThenModified
-                                                      type:DocumentViewChangeType::Added]];
+                                                      type:DocumentViewChangeType::kAdded]];
   [set addChange:[FSTDocumentViewChange changeWithDocument:docAddedThenModified
-                                                      type:DocumentViewChangeType::Modified]];
+                                                      type:DocumentViewChangeType::kModified]];
   [set addChange:[FSTDocumentViewChange changeWithDocument:docAddedThenRemoved
-                                                      type:DocumentViewChangeType::Added]];
+                                                      type:DocumentViewChangeType::kAdded]];
   [set addChange:[FSTDocumentViewChange changeWithDocument:docAddedThenRemoved
-                                                      type:DocumentViewChangeType::Removed]];
+                                                      type:DocumentViewChangeType::kRemoved]];
   [set addChange:[FSTDocumentViewChange changeWithDocument:docRemovedThenAdded
-                                                      type:DocumentViewChangeType::Removed]];
+                                                      type:DocumentViewChangeType::kRemoved]];
   [set addChange:[FSTDocumentViewChange changeWithDocument:docRemovedThenAdded
-                                                      type:DocumentViewChangeType::Added]];
+                                                      type:DocumentViewChangeType::kAdded]];
   [set addChange:[FSTDocumentViewChange changeWithDocument:docModifiedThenRemoved
-                                                      type:DocumentViewChangeType::Modified]];
+                                                      type:DocumentViewChangeType::kModified]];
   [set addChange:[FSTDocumentViewChange changeWithDocument:docModifiedThenRemoved
-                                                      type:DocumentViewChangeType::Removed]];
+                                                      type:DocumentViewChangeType::kRemoved]];
   [set addChange:[FSTDocumentViewChange changeWithDocument:docModifiedThenModified
-                                                      type:DocumentViewChangeType::Modified]];
+                                                      type:DocumentViewChangeType::kModified]];
   [set addChange:[FSTDocumentViewChange changeWithDocument:docModifiedThenModified
-                                                      type:DocumentViewChangeType::Modified]];
+                                                      type:DocumentViewChangeType::kModified]];
 
   NSArray<FSTDocumentViewChange *> *changes = [set changes];
   XCTAssertEqual(changes.count, 7);
 
   XCTAssertEqual(changes[0].document, docAdded);
-  XCTAssertEqual(changes[0].type, DocumentViewChangeType::Added);
+  XCTAssertEqual(changes[0].type, DocumentViewChangeType::kAdded);
 
   XCTAssertEqual(changes[1].document, docRemoved);
-  XCTAssertEqual(changes[1].type, DocumentViewChangeType::Removed);
+  XCTAssertEqual(changes[1].type, DocumentViewChangeType::kRemoved);
 
   XCTAssertEqual(changes[2].document, docModified);
-  XCTAssertEqual(changes[2].type, DocumentViewChangeType::Modified);
+  XCTAssertEqual(changes[2].type, DocumentViewChangeType::kModified);
 
   XCTAssertEqual(changes[3].document, docAddedThenModified);
-  XCTAssertEqual(changes[3].type, DocumentViewChangeType::Added);
+  XCTAssertEqual(changes[3].type, DocumentViewChangeType::kAdded);
 
   XCTAssertEqual(changes[4].document, docRemovedThenAdded);
-  XCTAssertEqual(changes[4].type, DocumentViewChangeType::Modified);
+  XCTAssertEqual(changes[4].type, DocumentViewChangeType::kModified);
 
   XCTAssertEqual(changes[5].document, docModifiedThenRemoved);
-  XCTAssertEqual(changes[5].type, DocumentViewChangeType::Removed);
+  XCTAssertEqual(changes[5].type, DocumentViewChangeType::kRemoved);
 
   XCTAssertEqual(changes[6].document, docModifiedThenModified);
-  XCTAssertEqual(changes[6].type, DocumentViewChangeType::Modified);
+  XCTAssertEqual(changes[6].type, DocumentViewChangeType::kModified);
 }
 
 - (void)testViewSnapshotConstructor {
@@ -115,7 +115,7 @@ NS_ASSUME_NONNULL_BEGIN
       [documents documentSetByAddingDocument:FSTTestDoc("c/a", 1, @{}, FSTDocumentStateSynced)];
   NSArray<FSTDocumentViewChange *> *documentChanges =
       @[ [FSTDocumentViewChange changeWithDocument:FSTTestDoc("c/a", 1, @{}, FSTDocumentStateSynced)
-                                              type:DocumentViewChangeType::Added] ];
+                                              type:DocumentViewChangeType::kAdded] ];
 
   BOOL fromCache = YES;
   DocumentKeySet mutatedKeys;

@@ -115,10 +115,10 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
         FSTTestDoc(util::StringFormat("%s/%s", path, key), 1, docsToAdd[key],
                    hasPendingWrites ? FSTDocumentStateLocalMutations : FSTDocumentStateSynced);
     newDocuments = [newDocuments documentSetByAddingDocument:docToAdd];
-    documentChanges =
-        [documentChanges arrayByAddingObject:[FSTDocumentViewChange
-                                                 changeWithDocument:docToAdd
-                                                               type:DocumentViewChangeType::Added]];
+    documentChanges = [documentChanges
+        arrayByAddingObject:[FSTDocumentViewChange
+                                changeWithDocument:docToAdd
+                                              type:DocumentViewChangeType::kAdded]];
     if (hasPendingWrites) {
       const std::string documentKey = util::StringFormat("%s/%s", path, key);
       mutatedKeys = mutatedKeys.insert(testutil::Key(documentKey));
