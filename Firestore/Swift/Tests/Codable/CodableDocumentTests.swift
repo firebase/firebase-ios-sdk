@@ -24,8 +24,8 @@ class CodableDocumentTests: XCTestCase {
     var encoded = [String: Any]()
     do {
       encoded = try Firestore.Encoder().encode(input)
-      if expected != nil {
-        XCTAssertEqual(encoded as NSDictionary, expected! as NSDictionary)
+      if let expected = expected {
+        XCTAssertEqual(encoded as NSDictionary, expected as NSDictionary)
       }
     } catch {
       XCTFail("Failed to encode \(X.self): error: \(error)")
