@@ -130,7 +130,7 @@ NS_ASSUME_NONNULL_BEGIN
   HARD_FAIL("Not implemented");
 }
 
-- (DocumentKeySet)remoteKeysForTarget:(FSTBoxedTargetID *)targetId {
+- (DocumentKeySet)remoteKeysForTarget:(TargetId)targetId {
   return DocumentKeySet{};
 }
 
