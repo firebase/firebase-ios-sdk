@@ -50,11 +50,10 @@ NS_ASSUME_NONNULL_BEGIN
   [super tearDown];
 }
 
-- (void)assertEqualVectors:(std::vector<FSTMutationBatch *>)
-                      left:(std::vector<FSTMutationBatch *>)right {
-  XCTAssertEqual(left.size(), right.size(), @"Vector length mismatch");
-  for (int i = 0; i < left.size(); i++) {
-    XCTAssertEqualObjects(left[i], right[i]);
+- (void)assertVector:(std::vector<FSTMutationBatch *>)actual matchesExpected:(std::vector<FSTMutationBatch *>)expected {
+  XCTAssertEqual(actual.size(), expected.size(), @"Vector length mismatch");
+  for (int i = 0; i < expected.size(); i++) {
+    XCTAssertEqualObjects(actual[i], expected[i]);
   }
 }
 
@@ -216,7 +215,7 @@ NS_ASSUME_NONNULL_BEGIN
     std::vector<FSTMutationBatch *> matches =
         self.mutationQueue->AllMutationBatchesAffectingDocumentKey(testutil::Key("foo/bar"));
 
-    [self assertEqualVectors:matches:expected];
+    [self assertVector:matches matchesExpected:expected];
   });
 }
 
@@ -248,7 +247,7 @@ NS_ASSUME_NONNULL_BEGIN
     std::vector<FSTMutationBatch *> matches =
         self.mutationQueue->AllMutationBatchesAffectingDocumentKeys(keys);
 
-    [self assertEqualVectors:matches:expected];
+    [self assertVector:matches matchesExpected:expected];
   });
 }
 
@@ -281,14 +280,14 @@ NS_ASSUME_NONNULL_BEGIN
     std::vector<FSTMutationBatch *> matches =
         self.mutationQueue->AllMutationBatchesAffectingDocumentKeys(keys);
 
-    [self assertEqualVectors:matches:expected];
+    [self assertVector:matches matchesExpected:expected];
   });
 }
 
 - (void)testAllMutationBatchesAffectingQuery {
   if ([self isTestBaseClass]) return;
 
-  self.persistence.run("testAllMutationBatchesAffectingQuery", [&]() {
+  self.persistence.run("testAllMutationBa˛tchesAffectingQuery", [&]() {
     NSArray<FSTMutation *> *mutations = @[
       FSTTestSetMutation(@"fob/bar", @{@"a" : @1}), FSTTestSetMutation(@"foo/bar", @{@"a" : @1}),
       FSTTestPatchMutation("foo/bar", @{@"b" : @1}, {}),
@@ -309,7 +308,7 @@ NS_ASSUME_NONNULL_BEGIN
     std::vector<FSTMutationBatch *> matches =
         self.mutationQueue->AllMutationBatchesAffectingQuery(query);
 
-    [self assertEqualVectors:matches:expected];
+    [self assertVector:matches matchesExpected:expected];
   });
 }
 
@@ -327,7 +326,7 @@ NS_ASSUME_NONNULL_BEGIN
     std::vector<FSTMutationBatch *> found;
 
     found = self.mutationQueue->AllMutationBatches();
-    [self assertEqualVectors:found:batches];
+    [self assertVector:found matchesExpected:batches];
     XCTAssertEqual(found.size(), 9);
 
     self.mutationQueue->RemoveMutationBatch(batches[0]);
@@ -339,7 +338,7 @@ NS_ASSUME_NONNULL_BEGIN
     XCTAssertEqual([self batchCount], 6);
 
     found = self.mutationQueue->AllMutationBatches();
-    [self assertEqualVectors:found:batches];
+    [self assertVector:found matchesExpected:batches];
     XCTAssertEqual(found.size(), 6);
 
     self.mutationQueue->RemoveMutationBatch(batches[0]);
@@ -347,7 +346,7 @@ NS_ASSUME_NONNULL_BEGIN
     XCTAssertEqual([self batchCount], 5);
 
     found = self.mutationQueue->AllMutationBatches();
-    [self assertEqualVectors:found:batches];
+    [self assertVector:found matchesExpected:batches];
     XCTAssertEqual(found.size(), 5);
 
     self.mutationQueue->RemoveMutationBatch(batches[0]);
@@ -359,7 +358,7 @@ NS_ASSUME_NONNULL_BEGIN
     XCTAssertEqual([self batchCount], 3);
 
     found = self.mutationQueue->AllMutationBatches();
-    [self assertEqualVectors:found:batches];
+    [self assertVector:found matchesExpected:batches];
     XCTAssertEqual(found.size(), 3);
     XCTAssertFalse(self.mutationQueue->IsEmpty());
 

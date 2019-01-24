@@ -118,7 +118,7 @@ class MutationQueue {
   virtual std::vector<FSTMutationBatch*> AllMutationBatchesAffectingQuery(
       FSTQuery* query) = 0;
 
-  /** Loads the mutation batch with the given batchID. */
+  /** Loads the mutation batch with the given batch_id. */
   virtual FSTMutationBatch* _Nullable LookupMutationBatch(
       model::BatchId batch_id) = 0;
 
@@ -126,7 +126,7 @@ class MutationQueue {
    * Gets the first unacknowledged mutation batch after the passed in batchId in
    * the mutation queue or nil if empty.
    *
-   * @param batchID The batch to search after, or kBatchIdUnknown for the first
+   * @param batch_id The batch to search after, or kBatchIdUnknown for the first
    * mutation in the queue.
    *
    * @return the next mutation or nil if there wasn't one.
