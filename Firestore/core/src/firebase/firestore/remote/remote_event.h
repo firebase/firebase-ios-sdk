@@ -199,15 +199,26 @@ class WatchChangeAggregator {
                               const model::DocumentKey& key);
 
   /**
-  * Returns true if the given target_id is active. Active targets are those for which there are no
-  * pending requests to add a listen and are in the current list of targets the client cares about.
-  *
-  * Clients can repeatedly listen and stop listening to targets, so this check is useful in
-  * preventing in preventing race conditions for a target where events arrive but the server hasn't
-  * yet acknowledged the intended change in state.
-  */
+   * Returns true if the given target_id is active. Active targets are those for
+   * which there are no pending requests to add a listen and are in the current
+   * list of targets the client cares about.
+   *
+   * Clients can repeatedly listen and stop listening to targets, so this check
+   * is useful in preventing in preventing race conditions for a target where
+   * events arrive but the server hasn't yet acknowledged the intended change in
+   * state.
+   */
   bool IsActiveTarget(model::TargetId target_id) const;
   FSTQueryData* QueryDataForActiveTarget(model::TargetId target_id) const;
+
+  int GetCurrentDocumentCountForTarget(model::TargetId target_id);
+
+  /**
+   * Resets the state of a Watch target to its initial state (e.g. sets
+   * 'current' to false, clears the resume token and removes its target mapping
+   * from all documents).
+   */
+  void ResetTarget(model::TargetId target_id);
 
   TargetState& EnsureTargetState(model::TargetId target_id);
 

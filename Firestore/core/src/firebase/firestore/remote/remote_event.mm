@@ -131,7 +131,69 @@ void WatchChangeAggregator::HandleTargetChange(
 
 void WatchChangeAggregator::HandleExistenceFilter(
     const ExistenceFilterWatchChange& existence_filter) {
-  // TODO
+  TargetId target_id = existence_filter.target_id();
+  int expected_count = existence_filter.filter().count();
+
+  FSTQueryData* query_data = QueryDataForActiveTarget(target_id);
+  if (query_data) {
+    FSTQuery* query = query_data.query;
+    if ([query isDocumentQuery]) {
+      if (expected_count == 0) {
+        // The existence filter told us the document does not exist. We deduce
+        // that this document does not exist and apply a deleted document to our
+        // updates. Without applying this deleted document there might be
+        // another query that will raise this document as part of a snapshot
+        // until it is resolved, essentially exposing inconsistency between
+        // queries.
+        DocumentKey key{query.path};
+        RemoveDocumentFromTarget(
+            target_id, key,
+            [FSTDeletedDocument documentWithKey:key
+                                        version:SnapshotVersion::None()
+                          hasCommittedMutations:NO]);
+      } else {
+        HARD_ASSERT(expected_count == 1,
+                    "Single document existence filter with count: %s",
+                    expected_count);
+      }
+    } else {
+      int current_size = GetCurrentDocumentCountForTarget(target_id);
+      if (current_size != expected_count) {
+        // Existence filter mismatch: We reset the mapping and raise a new
+        // snapshot with `isFromCache:true`.
+        ResetTarget(target_id);
+        pending_target_resets_.insert(target_id);
+      }
+    }
+  }
+}
+
+int WatchChangeAggregator::GetCurrentDocumentCountForTarget(
+    TargetId target_id) {
+  TargetState& target_state = EnsureTargetState(target_id);
+  FSTTargetChange* target_change = target_state.ToTargetChange();
+  return ([target_metadata_provider_ remoteKeysForTarget:target_id].size() +
+          target_change.addedDocuments.size() -
+          target_change.removedDocuments.size());
+}
+
+void WatchChangeAggregator::ResetTarget(TargetId target_id) {
+  auto current_target_state = target_states_.find(target_id);
+  HARD_ASSERT(current_target_state != target_states_.end() &&
+                  !(current_target_state->second.IsPending()),
+              "Should only reset active targets");
+
+  target_states_[target_id] = {};
+
+  // Trigger removal for any documents currently mapped to this target. These
+  // removals will be part of the initial snapshot if Watch does not resend
+  // these documents.
+  DocumentKeySet existingKeys =
+      [target_metadata_provider_ remoteKeysForTarget:target_id];
+
+  for (const DocumentKey& key : existingKeys) {
+    RemoveDocumentFromTarget(target_id, key, nil);
+  }
 }
 
 FSTRemoteEvent* WatchChangeAggregator::CreateRemoteEvent(
@@ -142,14 +204,14 @@ FSTRemoteEvent* WatchChangeAggregator::CreateRemoteEvent(
     TargetId target_id = entry.first;
     TargetState& target_state = entry.second;
 
-    FSTQueryData* queryData = QueryDataForActiveTarget(target_id);
-    if (queryData) {
-      if (target_state.IsCurrent() && [queryData.query isDocumentQuery]) {
+    FSTQueryData* query_data = QueryDataForActiveTarget(target_id);
+    if (query_data) {
+      if (target_state.IsCurrent() && [query_data.query isDocumentQuery]) {
         // Document queries for document that don't exist can produce an empty
         // result set. To update our local cache, we synthesize a document
         // delete if we have not previously received the document. This resolves
         // the limbo state of the document, removing it from limboDocumentRefs.
-        DocumentKey key{queryData.query.path};
+        DocumentKey key{query_data.query.path};
         if (pending_document_updates_.find(key) ==
                 pending_document_updates_.end() &&
             !TargetContainsDocument(target_id, key)) {
@@ -178,8 +240,8 @@ FSTRemoteEvent* WatchChangeAggregator::CreateRemoteEvent(
     bool is_only_limbo_target = true;
 
     for (TargetId target_id : entry.second) {
-      FSTQueryData* queryData = QueryDataForActiveTarget(target_id);
-      if (queryData && queryData.purpose != FSTQueryPurposeLimboResolution) {
+      FSTQueryData* query_data = QueryDataForActiveTarget(target_id);
+      if (query_data && query_data.purpose != FSTQueryPurposeLimboResolution) {
         is_only_limbo_target = false;
         break;
       }
