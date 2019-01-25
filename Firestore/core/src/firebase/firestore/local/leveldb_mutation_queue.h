@@ -74,7 +74,7 @@ class LevelDbMutationQueue {
 
   void RemoveMutationBatch(FSTMutationBatch* batch);
 
-  const std::vector<FSTMutationBatch*> AllMutationBatches();
+  std::vector<FSTMutationBatch*> AllMutationBatches();
 
   std::vector<FSTMutationBatch*> AllMutationBatchesAffectingDocumentKeys(
       const model::DocumentKeySet& document_keys);
