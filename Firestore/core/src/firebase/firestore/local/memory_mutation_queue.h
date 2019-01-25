@@ -51,7 +51,7 @@ class MemoryMutationQueue : public MutationQueue {
  public:
   explicit MemoryMutationQueue(FSTMemoryPersistence* persistence);
 
-  void Start();
+  void Start() override;
 
   bool IsEmpty() override;
 
@@ -63,7 +63,7 @@ class MemoryMutationQueue : public MutationQueue {
 
   void RemoveMutationBatch(FSTMutationBatch* batch) override;
 
-  const std::vector<FSTMutationBatch*> AllMutationBatches() override {
+  std::vector<FSTMutationBatch*> AllMutationBatches() override {
     return queue_;
   }
 

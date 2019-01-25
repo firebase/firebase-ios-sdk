@@ -81,14 +81,10 @@ std::string MutationLikeKey(absl::string_view table, absl::string_view userID, B
   _db = [FSTPersistenceTestHelpers levelDBPersistence];
   [_db.referenceDelegate addInMemoryPins:&_additionalReferences];
 
-  // Cast should go away when FSTLevelDB is ported and contains a strongly typed method to get the
-  // mutation queue.
-  LevelDbMutationQueue *queue =
-      static_cast<LevelDbMutationQueue *>([[_db mutationQueueForUser:User("user")] mutationQueue]);
-  self.mutationQueue = queue;
+  self.mutationQueue = [_db mutationQueueForUser:User("user")].mutationQueue;
   self.persistence = _db;
 
-  self.persistence.run("Setup", [&]() { queue->Start(); });
+  self.persistence.run("Setup", [&]() { self.mutationQueue->Start(); });
 }
 
 - (void)testLoadNextBatchID_zeroWhenTotallyEmpty {

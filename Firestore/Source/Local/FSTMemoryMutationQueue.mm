@@ -53,6 +53,12 @@ static NSArray<FSTMutationBatch *> *toNSArray(const std::vector<FSTMutationBatch
   return copy;
 }
 
+@interface FSTMemoryMutationQueue ()
+
+- (MemoryMutationQueue *)mutationQueue;
+
+@end
+
 @implementation FSTMemoryMutationQueue {
   std::unique_ptr<MemoryMutationQueue> _delegate;
 }

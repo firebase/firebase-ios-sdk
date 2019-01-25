@@ -63,7 +63,7 @@ class LevelDbMutationQueue : public MutationQueue {
                        FSTLevelDB* db,
                        FSTLocalSerializer* serializer);
 
-  void Start();
+  void Start() override;
 
   bool IsEmpty() override;
 
@@ -75,7 +75,7 @@ class LevelDbMutationQueue : public MutationQueue {
 
   void RemoveMutationBatch(FSTMutationBatch* batch) override;
 
-  std::vector<FSTMutationBatch*> AllMutationBatches();
+  std::vector<FSTMutationBatch*> AllMutationBatches() override;
 
   std::vector<FSTMutationBatch*> AllMutationBatchesAffectingDocumentKeys(
       const model::DocumentKeySet& document_keys) override;

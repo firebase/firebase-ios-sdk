@@ -46,6 +46,12 @@ class MutationQueue {
   virtual ~MutationQueue() {
   }
 
+  /**
+   * Starts the mutation queue, performing any initial reads that might be required to establish
+   * invariants, etc.
+   */
+  virtual void Start() = 0;
+
   /** Returns true if this queue contains no mutation batches. */
   virtual bool IsEmpty() = 0;
 
@@ -69,7 +75,7 @@ class MutationQueue {
   /** Gets all mutation batches in the mutation queue. */
   // TODO(mikelehen): PERF: Current consumer only needs mutated keys; if we can
   // provide that cheaply, we should replace this.
-  virtual const std::vector<FSTMutationBatch*> AllMutationBatches() = 0;
+  virtual std::vector<FSTMutationBatch*> AllMutationBatches() = 0;
 
   /**
    * Finds all mutation batches that could @em possibly affect the given
@@ -134,8 +140,10 @@ class MutationQueue {
   virtual FSTMutationBatch* _Nullable NextMutationBatchAfterBatchId(
       model::BatchId batch_id) = 0;
 
-  /** Performs a consistency check, examining the mutation queue for any leaks,
-   * if possible. */
+  /**
+   * Performs a consistency check, examining the mutation queue for any leaks,
+   * if possible.
+   */
   virtual void PerformConsistencyCheck() = 0;
 
   /** Returns the current stream token for this mutation queue. */
