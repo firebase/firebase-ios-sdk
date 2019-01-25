@@ -17,10 +17,12 @@
 #include <asl.h>
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
+
+#import "Private/GULASLLogger.h"
 #import "Public/GULLoggerLevel.h"
 
 /// ASL client facility name used by GULLogger.
-const char *kGULLoggerASLClientFacilityName = "com.google.utilities.logger";
+extern const char *kGULLoggerASLClientFacilityName;
 
 static dispatch_once_t sGULLoggerOnceToken;
 
@@ -194,16 +196,16 @@ GUL_LOGGING_FUNCTION(Debug)
 
 #undef GUL_MAKE_LOGGER
 
-#pragma mark - GULLoggerWrapper
+@implementation GULLogger
 
-@implementation GULLoggerWrapper
-
-+ (void)logWithLevel:(GULLoggerLevel)level
-         withService:(GULLoggerService)service
-            withCode:(NSString *)messageCode
-         withMessage:(NSString *)message
-            withArgs:(va_list)args {
-  GULLogBasic(level, service, NO, messageCode, message, args);
++ (id<GULLoggerSystem>)logger {
+  static dispatch_once_t onceToken;
+  static id<GULLoggerSystem> logger;
+  dispatch_once(&onceToken, ^{
+    // TODO(bstpierre): Determine which iOS version we are running.
+    logger = [[GULASLLogger alloc] init];
+  });
+  return logger;
 }
 
 @end

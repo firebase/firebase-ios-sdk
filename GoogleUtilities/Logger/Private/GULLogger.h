@@ -18,12 +18,9 @@
 
 #import <GoogleUtilities/GULLoggerLevel.h>
 
-NS_ASSUME_NONNULL_BEGIN
+#import "GULLoggerSystem.h"
 
-/**
- * The services used in the logger.
- */
-typedef NSString *const GULLoggerService;
+NS_ASSUME_NONNULL_BEGIN
 
 #ifdef __cplusplus
 extern "C" {
@@ -133,26 +130,9 @@ extern void GULLogDebug(GULLoggerService service,
 }  // extern "C"
 #endif  // __cplusplus
 
-@interface GULLoggerWrapper : NSObject
+@interface GULLogger : NSObject
 
-/**
- * Objective-C wrapper for GULLogBasic to allow weak linking to GULLogger
- * (required) log level (one of the GULLoggerLevel enum values).
- * (required) service name of type GULLoggerService.
- * (required) message code starting with "I-" which means iOS, followed by a capitalized
- *            three-character service identifier and a six digit integer message ID that is unique
- *            within the service.
- *            An example of the message code is @"I-COR000001".
- * (required) message string which can be a format string.
- * (optional) variable arguments list obtained from calling va_start, used when message is a format
- *            string.
- */
-
-+ (void)logWithLevel:(GULLoggerLevel)level
-         withService:(GULLoggerService)service
-            withCode:(NSString *)messageCode
-         withMessage:(NSString *)message
-            withArgs:(va_list)args;
+@property(nonatomic, class, readonly) id<GULLoggerSystem>logger;
 
 @end
 
