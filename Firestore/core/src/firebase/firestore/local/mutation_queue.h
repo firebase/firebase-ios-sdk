@@ -47,8 +47,8 @@ class MutationQueue {
   }
 
   /**
-   * Starts the mutation queue, performing any initial reads that might be required to establish
-   * invariants, etc.
+   * Starts the mutation queue, performing any initial reads that might be
+   * required to establish invariants, etc.
    */
   virtual void Start() = 0;
 

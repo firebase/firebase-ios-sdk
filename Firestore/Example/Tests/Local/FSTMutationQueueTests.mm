@@ -50,7 +50,8 @@ NS_ASSUME_NONNULL_BEGIN
   [super tearDown];
 }
 
-- (void)assertVector:(std::vector<FSTMutationBatch *>)actual matchesExpected:(std::vector<FSTMutationBatch *>)expected {
+- (void)assertVector:(std::vector<FSTMutationBatch *>)actual
+     matchesExpected:(std::vector<FSTMutationBatch *>)expected {
   XCTAssertEqual(actual.size(), expected.size(), @"Vector length mismatch");
   for (int i = 0; i < expected.size(); i++) {
     XCTAssertEqualObjects(actual[i], expected[i]);
