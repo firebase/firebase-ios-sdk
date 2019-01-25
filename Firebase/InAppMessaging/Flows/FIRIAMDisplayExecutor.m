@@ -64,10 +64,10 @@
                 withCampaignName:_currentMsgBeingDisplayed.renderData.name
                    eventTimeInMs:nil
                       completion:^(BOOL success) {
-                    FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400036",
-                                @"Logging analytics event for url following %@",
-                                success ? @"succeeded" : @"failed");
-                  }];
+                        FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400036",
+                                    @"Logging analytics event for url following %@",
+                                    success ? @"succeeded" : @"failed");
+                      }];
 
     [self.analyticsEventLogger
         logAnalyticsEventForType:FIRIAMAnalyticsEventTestMessageClick
@@ -75,10 +75,10 @@
                 withCampaignName:_currentMsgBeingDisplayed.renderData.name
                    eventTimeInMs:nil
                       completion:^(BOOL success) {
-                    FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400039",
-                                @"Logging analytics event for url following %@",
-                                success ? @"succeeded" : @"failed");
-                  }];
+                        FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400039",
+                                    @"Logging analytics event for url following %@",
+                                    success ? @"succeeded" : @"failed");
+                      }];
   } else {
     // Logging the impression
     [self recordValidImpression:_currentMsgBeingDisplayed.renderData.messageID
@@ -90,10 +90,10 @@
                 withCampaignName:_currentMsgBeingDisplayed.renderData.name
                    eventTimeInMs:nil
                       completion:^(BOOL success) {
-                    FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400032",
-                                @"Logging analytics event for url following %@",
-                                success ? @"succeeded" : @"failed");
-                  }];
+                        FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400032",
+                                    @"Logging analytics event for url following %@",
+                                    success ? @"succeeded" : @"failed");
+                      }];
   }
 
   NSURL *actionURL = _currentMsgBeingDisplayed.renderData.contentData.actionURL;
@@ -142,10 +142,10 @@
                 withCampaignName:_currentMsgBeingDisplayed.renderData.name
                    eventTimeInMs:nil
                       completion:^(BOOL success) {
-                    FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400038",
-                                @"Logging analytics event for url following %@",
-                                success ? @"succeeded" : @"failed");
-                  }];
+                        FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400038",
+                                    @"Logging analytics event for url following %@",
+                                    success ? @"succeeded" : @"failed");
+                      }];
 
     return;
   }
@@ -164,10 +164,10 @@
               withCampaignName:_currentMsgBeingDisplayed.renderData.name
                  eventTimeInMs:nil
                     completion:^(BOOL success) {
-                  FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400004",
-                              @"Logging analytics event for message dismiss %@",
-                              success ? @"succeeded" : @"failed");
-                }];
+                      FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400004",
+                                  @"Logging analytics event for message dismiss %@",
+                                  success ? @"succeeded" : @"failed");
+                    }];
 }
 
 - (void)impressionDetected {
@@ -224,10 +224,10 @@
                 withCampaignName:messageName
                    eventTimeInMs:nil
                       completion:^(BOOL success) {
-                    FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400010",
-                                @"Logging analytics event for image fetch error %@",
-                                success ? @"succeeded" : @"failed");
-                  }];
+                        FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400010",
+                                    @"Logging analytics event for image fetch error %@",
+                                    success ? @"succeeded" : @"failed");
+                      }];
   } else if (error.code == FIRIAMSDKRuntimeErrorNonImageMimetypeFromImageURL) {
     [self.analyticsEventLogger
         logAnalyticsEventForType:FIRIAMAnalyticsEventImageFormatUnsupported
@@ -235,10 +235,10 @@
                 withCampaignName:messageName
                    eventTimeInMs:nil
                       completion:^(BOOL success) {
-                    FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400013",
-                                @"Logging analytics event for image format error %@",
-                                success ? @"succeeded" : @"failed");
-                  }];
+                        FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400013",
+                                    @"Logging analytics event for image format error %@",
+                                    success ? @"succeeded" : @"failed");
+                      }];
   }
 }
 
@@ -249,15 +249,16 @@
     self.impressionRecorded = YES;
     [self.messageCache removeMessageWithId:messageID];
     // Log an impression analytics event as well.
-    [self.analyticsEventLogger logAnalyticsEventForType:FIRIAMAnalyticsEventMessageImpression
-                                          forCampaignID:messageID
-                                       withCampaignName:messageName
-                                          eventTimeInMs:nil
-                                             completion:^(BOOL success) {
-                                           FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400007",
-                                                       @"Logging analytics event for impression %@",
-                                                       success ? @"succeeded" : @"failed");
-                                         }];
+    [self.analyticsEventLogger
+        logAnalyticsEventForType:FIRIAMAnalyticsEventMessageImpression
+                   forCampaignID:messageID
+                withCampaignName:messageName
+                   eventTimeInMs:nil
+                      completion:^(BOOL success) {
+                        FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400007",
+                                    @"Logging analytics event for impression %@",
+                                    success ? @"succeeded" : @"failed");
+                      }];
   }
 }
 

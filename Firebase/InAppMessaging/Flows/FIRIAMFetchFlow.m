@@ -90,7 +90,7 @@ NSString *const kFIRIAMFetchIsDoneNotification = @"FIRIAMFetchIsDoneNotification
 
 - (void)handleSuccessullyFetchedMessages:(NSArray<FIRIAMMessageDefinition *> *)messagesInResponse
                        withFetchWaitTime:(NSNumber *_Nullable)fetchWaitTime
-                  requestImpressions:(NSArray<FIRIAMImpressionRecord *> *)requestImpressions {
+                      requestImpressions:(NSArray<FIRIAMImpressionRecord *> *)requestImpressions {
   FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM700004", @"%lu messages were fetched successfully.",
               (unsigned long)messagesInResponse.count);
 
@@ -183,8 +183,8 @@ NSString *const kFIRIAMFetchIsDoneNotification = @"FIRIAMFetchIsDoneNotification
                                                                 withCampaignName:@"all"
                                                                    eventTimeInMs:nil
                                                                       completion:^(BOOL success){
-                                                                      // nothing to do
-                                                                  }];
+                                                                          // nothing to do
+                                                                      }];
 
                              FIRIAMActivityRecord *record = [[FIRIAMActivityRecord alloc]
                                  initWithActivityType:FIRIAMActivityTypeFetchMessage

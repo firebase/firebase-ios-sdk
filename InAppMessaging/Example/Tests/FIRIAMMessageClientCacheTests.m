@@ -121,17 +121,17 @@
                                          renderingEffect:renderSetting];
 
   m4 = [[FIRIAMMessageDefinition alloc]
-         initWithRenderData:renderData4
-                startTime:activeStartTime
-                  endTime:activeEndTime
-        triggerDefinition:@[ contextualTriggerDefinition, contextualTriggerDefinition2 ]];
+      initWithRenderData:renderData4
+               startTime:activeStartTime
+                 endTime:activeEndTime
+       triggerDefinition:@[ contextualTriggerDefinition, contextualTriggerDefinition2 ]];
 
   // m5 is of mixture of both app-foreground and contextual triggers
   m5 = [[FIRIAMMessageDefinition alloc]
-         initWithRenderData:renderData5
-                  startTime:activeStartTime
-                    endTime:activeEndTime
-          triggerDefinition:@[ contextualTriggerDefinition, appOpentriggerDefinition ]];
+      initWithRenderData:renderData5
+               startTime:activeStartTime
+                 endTime:activeEndTime
+       triggerDefinition:@[ contextualTriggerDefinition, appOpentriggerDefinition ]];
 }
 
 - (void)tearDown {
@@ -281,10 +281,10 @@
 
   // m1 has not started yet
   FIRIAMMessageDefinition *unstartedMessage = [[FIRIAMMessageDefinition alloc]
-         initWithRenderData:renderData1
-                  startTime:[[NSDate date] timeIntervalSince1970] + 10000
-                    endTime:[[NSDate date] timeIntervalSince1970] + 20000
-          triggerDefinition:@[ appOpentriggerDefinition ]];
+      initWithRenderData:renderData1
+               startTime:[[NSDate date] timeIntervalSince1970] + 10000
+                 endTime:[[NSDate date] timeIntervalSince1970] + 20000
+       triggerDefinition:@[ appOpentriggerDefinition ]];
 
   FIRIAMMessageRenderData *renderData2 =
       [[FIRIAMMessageRenderData alloc] initWithMessageID:@"m2"
@@ -294,10 +294,10 @@
 
   // m2 has ended
   FIRIAMMessageDefinition *endedMessage = [[FIRIAMMessageDefinition alloc]
-         initWithRenderData:renderData2
-                  startTime:[[NSDate date] timeIntervalSince1970] - 20000
-                    endTime:[[NSDate date] timeIntervalSince1970] - 10000
-          triggerDefinition:@[ appOpentriggerDefinition ]];
+      initWithRenderData:renderData2
+               startTime:[[NSDate date] timeIntervalSince1970] - 20000
+                 endTime:[[NSDate date] timeIntervalSince1970] - 10000
+       triggerDefinition:@[ appOpentriggerDefinition ]];
 
   // m3, m4 are campaigns with good start/end time
   [self.clientCache setMessageData:@[ unstartedMessage, endedMessage, m3, m4 ]];

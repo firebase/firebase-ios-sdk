@@ -82,9 +82,9 @@
                                      response:(NSURLResponse *)response
                                         error:(NSError *)error
                                    completion:
-                                     (nonnull void (^)(BOOL success,
-                                                       BOOL shouldRetryLogs,
-                                                       int64_t waitTimeInMills))completion {
+                                       (nonnull void (^)(BOOL success,
+                                                         BOOL shouldRetryLogs,
+                                                         int64_t waitTimeInMills))completion {
   if (error) {
     FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM250003",
                   @"Internal error: encountered error in uploading clearcut message"

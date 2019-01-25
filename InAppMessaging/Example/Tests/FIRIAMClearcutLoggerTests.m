@@ -102,7 +102,8 @@ NSString *sdkVersion = @"SDK version";
                      forCampaignID:campaignID
                   withCampaignName:@"name"
                      eventTimeInMs:[NSNumber numberWithInteger:eventMoment * 1000]
-                        completion:^(BOOL success){}];
+                        completion:^(BOOL success){
+                        }];
 
   OCMVerifyAll((id)self.mockCtUploader);
 
@@ -135,7 +136,8 @@ NSString *sdkVersion = @"SDK version";
                      forCampaignID:@"test campaign"
                   withCampaignName:@"name"
                      eventTimeInMs:nil
-                        completion:^(BOOL success){}];
+                        completion:^(BOOL success){
+                        }];
 
   OCMVerifyAll((id)self.mockCtUploader);
 }
