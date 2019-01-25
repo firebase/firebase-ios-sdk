@@ -53,17 +53,17 @@ BatchId LoadNextBatchIdFromDb(DB* db) {
   std::unique_ptr<Iterator> it(
       db->NewIterator(LevelDbTransaction::DefaultReadOptions()));
 
-  auto table_key = LevelDbMutationKey::KeyPrefix();
+  std::string table_key = LevelDbMutationKey::KeyPrefix();
 
   LevelDbMutationKey row_key;
   BatchId max_batch_id = kBatchIdUnknown;
 
-  BOOL more_user_ids = NO;
+  bool more_user_ids = false;
   std::string next_user_id;
 
   it->Seek(table_key);
   if (it->Valid() && row_key.Decode(MakeStringView(it->key()))) {
-    more_user_ids = YES;
+    more_user_ids = true;
     next_user_id = row_key.user_id();
   }
 
@@ -71,7 +71,7 @@ BatchId LoadNextBatchIdFromDb(DB* db) {
   // of the iteration.
   while (more_user_ids) {
     // Compute the first key after the last mutation for next_user_id.
-    auto user_end = LevelDbMutationKey::KeyPrefix(next_user_id);
+    std::string user_end = LevelDbMutationKey::KeyPrefix(next_user_id);
     user_end = util::PrefixSuccessor(user_end);
 
     // Seek to that key with the intent of finding the boundary between
@@ -86,7 +86,7 @@ BatchId LoadNextBatchIdFromDb(DB* db) {
       // The iterator is past the last row altogether (there are no additional
       // userIDs and now rows in any table after mutations). The last row will
       // have the highest batchID.
-      more_user_ids = NO;
+      more_user_ids = false;
       it->SeekToLast();
 
     } else if (row_key.Decode(MakeStringView(it->key()))) {
@@ -98,7 +98,7 @@ BatchId LoadNextBatchIdFromDb(DB* db) {
     } else {
       // The iterator is past the end of the mutations table but there are other
       // rows.
-      more_user_ids = NO;
+      more_user_ids = false;
       it->Prev();
     }
 
@@ -259,54 +259,7 @@ LevelDbMutationQueue::AllMutationBatchesAffectingDocumentKeys(
 std::vector<FSTMutationBatch*>
 LevelDbMutationQueue::AllMutationBatchesAffectingDocumentKey(
     const DocumentKey& key) {
-  // Scan the document-mutation index starting with a prefix starting with the
-  // given documentKey.
-  std::string index_prefix =
-      LevelDbDocumentMutationKey::KeyPrefix(user_id_, key.path());
-  auto index_iterator = db_.currentTransaction->NewIterator();
-  index_iterator->Seek(index_prefix);
-
-  // Simultaneously scan the mutation queue. This works because each (key,
-  // batchID) pair is unique and ordered, so when scanning a table prefixed by
-  // exactly key, all the batchIDs encountered will be unique and in order.
-  std::string mutations_prefix = LevelDbMutationKey::KeyPrefix(user_id_);
-  auto mutation_iterator = db_.currentTransaction->NewIterator();
-
-  std::vector<FSTMutationBatch*> result;
-  LevelDbDocumentMutationKey row_key;
-  for (; index_iterator->Valid(); index_iterator->Next()) {
-    // Only consider rows matching exactly the specific key of interest. Index
-    // rows have this form (with markers in brackets):
-    //
-    // <User>user <Path>collection <Path>doc <BatchId>2 <Terminator>
-    // <User>user <Path>collection <Path>doc <BatchId>3 <Terminator>
-    // <User>user <Path>collection <Path>doc <Path>sub <Path>doc <BatchId>3
-    // <Terminator>
-    //
-    // Note that Path markers sort after BatchId markers so this means that when
-    // searching for collection/doc, all the entries for it will be contiguous
-    // in the table, allowing a break after any mismatch.
-    if (!absl::StartsWith(index_iterator->key(), index_prefix) ||
-        !row_key.Decode(index_iterator->key()) ||
-        row_key.document_key() != key) {
-      break;
-    }
-
-    // Each row is a unique combination of key and batchID, so this foreign key
-    // reference can only occur once.
-    std::string mutation_key = mutation_batch_key(row_key.batch_id());
-    mutation_iterator->Seek(mutation_key);
-    if (!mutation_iterator->Valid() ||
-        mutation_iterator->key() != mutation_key) {
-      HARD_FAIL("Dangling document-mutation reference found: "
-                "%s points to %s; seeking there found %s",
-                DescribeKey(index_iterator), DescribeKey(mutation_key),
-                DescribeKey(mutation_iterator));
-    }
-
-    result.push_back(ParseMutationBatch(mutation_iterator->value()));
-  }
-  return result;
+  return AllMutationBatchesAffectingDocumentKeys(DocumentKeySet{key});
 }
 
 std::vector<FSTMutationBatch*>

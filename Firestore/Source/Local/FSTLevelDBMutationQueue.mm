@@ -88,12 +88,6 @@ static NSArray<FSTMutationBatch *> *toNSArray(const std::vector<FSTMutationBatch
 @end
 
 @implementation FSTLevelDBMutationQueue {
-  // This instance is owned by FSTLevelDB; avoid a retain cycle.
-  //__weak FSTLevelDB *_db;
-
-  /** The normalized userID (e.g. nil UID => @"" userID) used in our LevelDB keys. */
-  // std::string _userID;
-
   std::unique_ptr<LevelDbMutationQueue> _delegate;
 }
 
