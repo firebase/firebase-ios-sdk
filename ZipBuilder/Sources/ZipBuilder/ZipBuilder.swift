@@ -10,8 +10,8 @@ private struct Constants {
     public static let readme = "README.md"
     public static let infoPlist = "Info.plist"
 
-    // All required files for Xcode to integrate with CocoaPods and to package the Zip file.
-    public static let allPaths: [String] = [notices, projectFile, readme, infoPlist]
+    /// All required files for building the Zip file.
+    public static let requiredFilesForBuilding: [String] = [projectFile, infoPlist]
 
     // Make the struct un-initializable.
     @available(*, unavailable)
@@ -75,13 +75,13 @@ struct ZipBuilder {
     self.useCache = useCache
   }
 
-  /// Try to build the zip file. This will throw an error as soon as it encounters an error, or will
-  /// quit due to a fatal error with the appropriate log.
+  /// Try to build and package the contents of the Zip file. This will throw an error as soon as it
+  /// encounters an error, or will quit due to a fatal error with the appropriate log.
   ///
-  /// - Returns: A path to the built Zip file.
+  /// - Returns: A URL to the folder that should be compressed and distributed.
   /// - Throws: One of many errors that could have happened during the build phase.
-  func build() throws -> URL {
-    let projectDir = FileManager.default.temporaryDirectory(withName: "Project")
+  func buildAndAssembleZipDir() throws -> URL {
+    let projectDir = FileManager.default.temporaryDirectory(withName: "project")
 
     // If it exists, remove it before we re-create it. This is simpler than removing all objects.
     if FileManager.default.directoryExists(at: projectDir) {
@@ -97,7 +97,6 @@ struct ZipBuilder {
       // Use `do/catch` instead of `guard let tempDir = try?` so we can print the error thrown.
       fatalError("Cannot create temporary directory at beginning of script: \(error)")
     }
-
 
     // Copy the Xcode project needed in order to be able to install Pods there.
     let templateFiles = projectTemplatePaths(withRoot: self.templateDir)
@@ -138,8 +137,10 @@ struct ZipBuilder {
     // throw a fatalError if any versions are mismatched.
     validateExpectedVersions(inProjectDir: projectDir)
 
-    let installedPods = installedPodsInfo(inProjectDir: projectDir)
-    let frameworks = generateFrameworks(fromPods: installedPods, inProjectDir: projectDir, useCache: useCache)
+    let installedPods = CocoaPodUtils.installedPodsInfo(inProjectDir: projectDir)
+    let frameworks = generateFrameworks(fromPods: installedPods,
+                                        inProjectDir: projectDir,
+                                        useCache: useCache)
 
     for (framework, paths) in frameworks {
       print("Frameworks for pod: \(framework) were compiled at \(paths)")
@@ -220,13 +221,11 @@ struct ZipBuilder {
       fatalError("Could not write README to Zip directory: \(error)")
     }
 
-    // TODO: Copy modulemap and Firebase.h over to the zip directory.
+    // Copy all the other required files to the Zip directory.
+    // TODO: modulemap, Firebase.h, NOTICES
 
-    // TODO: Compress the folder containing everything.
-    print("ZipDir was assembled at: \(zipDir)")
-
-    // TODO: Return a URL to the zip file created.
-    return URL(fileURLWithPath: "TODO:FIXME")
+    print("Contents of the Zip file were assembled at: \(zipDir)")
+    return zipDir
   }
 
   // MARK: - Private Helpers
@@ -273,7 +272,7 @@ struct ZipBuilder {
   ///
   /// - Parameter pods: All pods that were installed, with their versions.
   /// - Returns: A String to be added to the README.
-  private func versionsString(for pods: [InstalledPod]) -> String {
+  private func versionsString(for pods: [CocoaPodUtils.PodInfo]) -> String {
     // Get the longest name in order to generate padding with spaces so it looks nicer.
     let maxLength: Int = {
       guard let pod = pods.max(by: { $0.name.count < $1.name.count }) else {
@@ -347,8 +346,7 @@ struct ZipBuilder {
                                 rootZipDir: URL,
                                 builtFrameworks: [String: [URL]],
                                 ignoreFrameworks: [String] = []) throws -> (output: URL, frameworks: [String]) {
-    CocoaPodUtils.installSubspecs([subspec], inDir: projectDir)
-    let installedPods = installedPodsInfo(inProjectDir: projectDir)
+    let installedPods = CocoaPodUtils.installSubspecs([subspec], inDir: projectDir)
     let productDir = rootZipDir.appendingPathComponent(subspec.rawValue)
     try copyFrameworks(fromPods: installedPods,
                        toDirectory: productDir,
@@ -377,7 +375,7 @@ struct ZipBuilder {
   ///                         the compiled frameworks.
   /// - Throws: Various FileManager errors in case the copying fails, or an error if the framework
   //            doesn't exist in `frameworkLocations`.
-  private func copyFrameworks(fromPods installedPods: [InstalledPod],
+  private func copyFrameworks(fromPods installedPods: [CocoaPodUtils.PodInfo],
                               toDirectory dir: URL,
                               frameworkLocations: [String: [URL]],
                               ignoreFrameworks: [String]) throws {
@@ -397,7 +395,6 @@ struct ZipBuilder {
       }
 
       guard let frameworks = frameworkLocations[pod.name] else {
-        // TODO: Throw error
         let reason = "Unable to find frameworks for \(pod.name) in cache of frameworks built to " +
                      "include in the Zip file for that framework's folder."
         let error = NSError(domain: "com.firebase.zipbuilder",
@@ -447,11 +444,11 @@ struct ZipBuilder {
     return releasingVersions
   }
 
-  /// Get the paths for the Xcode project template required to build with CocoaPods, given the
-  /// root template folder.
+  /// Get the paths for the Xcode project template required to build with CocoaPods given the root
+  /// template folder.
   private func projectTemplatePaths(withRoot templateDir: URL) -> [URL] {
     // Map the relative paths to the absolute paths for all required files and folders.
-    let fullPaths = Constants.ProjectPath.allPaths.map { (relativePath) -> URL in
+    let fullPaths = Constants.ProjectPath.requiredFilesForBuilding.map { (relativePath) -> URL in
       return templateDir.appendingPathComponent(relativePath)
     }
 
@@ -503,59 +500,12 @@ struct ZipBuilder {
     }
   }
 
-
-  /// TODO: Should this be in CocoaPodUtilities?
-  /// Gets metadata from installed Pods.
-  private func installedPodsInfo(inProjectDir projectDir: URL) -> [InstalledPod] {
-    // Read from the Podfile.lock to get the installed versions and names.
-    let podfileLock: String
-    do {
-      podfileLock = try String(contentsOf: projectDir.appendingPathComponent("Podfile.lock"))
-    } catch {
-      fatalError("Could not read contents of `Podfile.lock` to get installed Pod info in " +
-        "\(projectDir): \(error)")
-    }
-
-    // Get the versions in the format of [PodName: VersionString].
-    let versions = CocoaPodUtils.loadVersionsFromPodfileLock(contents: podfileLock)
-
-    // Generate an InstalledPod for each Pod found.
-    let podsDir = projectDir.appendingPathComponent("Pods")
-    var installedPods: [InstalledPod] = []
-    for (podName, version) in versions {
-      let podDir = podsDir.appendingPathComponent(podName)
-      guard FileManager.default.directoryExists(at: podDir) else {
-        fatalError("Directory for \(podName) doesn't exist at \(podDir) - failed while getting " +
-          "information for installed Pods.")
-      }
-
-      // Generate the cache key for this framework. We will use the list of subspecs used in the Pod
-      // to generate this, since a Pod like GoogleUtilities could build different sources based on
-      // what subspecs are included.
-      let cacheKey = CocoaPodUtils.cacheKey(forPod: podName, fromPodfileLock: podfileLock)
-      let installedPod = InstalledPod(name: podName,
-                                      version: version,
-                                      installedPath: podDir,
-                                      cacheKey: cacheKey)
-      installedPods.append(installedPod)
-    }
-
-    return installedPods
-  }
-
-  private struct InstalledPod {
-    var name: String
-    var version: String
-    var installedPath: URL
-    var cacheKey: String?
-  }
-
   // MARK: - Framework Generation
 
   /// Generates all the .framework files from a Pods directory. This will go through the contents of
   /// the directory, copy the .frameworks to a temporary directory and compile any source based
   /// CocoaPods. Returns a dictionary with the framework name for the key and path as the value.
-  private func generateFrameworks(fromPods pods: [InstalledPod],
+  private func generateFrameworks(fromPods pods: [CocoaPodUtils.PodInfo],
                                   inProjectDir projectDir: URL,
                                   useCache: Bool = false) -> [String: [URL]] {
     // Verify the Pods folder exists and we can get the contents of it.
@@ -585,10 +535,10 @@ struct ZipBuilder {
       var foundFrameworks: [URL]
       do {
         foundFrameworks = try fileManager.recursivelySearch(for: .frameworks,
-                                                            in: pod.installedPath)
+                                                            in: pod.installedLocation)
       } catch {
         fatalError("Cannot search for .framework files in Pods directory " +
-                   "\(pod.installedPath): \(error)")
+                   "\(pod.installedLocation): \(error)")
       }
 
       // If there are no frameworks, it's an open source pod and we need to compile the source to

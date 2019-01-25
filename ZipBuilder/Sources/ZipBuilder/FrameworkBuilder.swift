@@ -1,11 +1,10 @@
-import CommonCrypto
+//import CommonCrypto
 import Foundation
 
 /// Extra URL utilities.
 fileprivate extension URL {
   func appendingPathComponents(_ components: [String]) -> URL {
-    // Append multiple path components in a single call to prevent really long lines of multiple
-    // calls.
+    // Append multiple path components in a single call to prevent long lines of multiple calls.
     var result = self
     components.forEach({ result.appendPathComponent($0) })
     return result
@@ -93,7 +92,7 @@ struct FrameworkBuilder {
     }
 
     // TODO: Figure out if we need the MD5 at all.
-    let md5 = Shell.calculateMD5(for: podInfo.location)
+    let md5 = Shell.calculateMD5(for: podInfo.installedLocation)
 
     // Get (or create) the cache directory for storing built frameworks.
     let fileManager = FileManager.default
@@ -138,7 +137,6 @@ struct FrameworkBuilder {
     }
   }
 
-
   // MARK: - Private Helpers
 
   /// This runs a command and immediately returns a Shell result.
@@ -161,7 +159,7 @@ struct FrameworkBuilder {
     return .success(output: output)
   }
 
-  /// Uses xcodebuild to build a framework for a specific architecture slice.
+  /// Uses `xcodebuild` to build a framework for a specific architecture slice.
   ///
   /// - Parameters:
   ///   - framework: Name of the framework being built.

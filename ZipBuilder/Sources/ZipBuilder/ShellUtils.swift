@@ -1,10 +1,3 @@
-//
-//  ShellUtils.swift
-//  ZipBuilder
-//
-//  Created by Ryan Wilson on 11/19/18.
-//
-
 import Foundation
 
 /// Convenience function for calling functions in the Shell. This should be used sparingly and only
