@@ -52,11 +52,7 @@ class MemoryMutationQueue {
 
   void Start();
 
-  bool is_empty() {
-    // If the queue has any entries at all, the first entry must not be a
-    // tombstone (otherwise it would have been removed already).
-    return queue_.empty();
-  }
+  bool IsEmpty();
 
   void AcknowledgeBatch(FSTMutationBatch* batch,
                         NSData* _Nullable stream_token);
@@ -90,12 +86,8 @@ class MemoryMutationQueue {
 
   size_t CalculateByteSize(FSTLocalSerializer* serializer);
 
-  NSData* _Nullable last_stream_token() {
-    return last_stream_token_;
-  }
-  void set_last_stream_token(NSData* token) {
-    last_stream_token_ = token;
-  }
+  NSData* _Nullable GetLastStreamToken();
+  void SetLastStreamToken(NSData* _Nullable token);
 
  private:
   using DocumentReferenceSet =

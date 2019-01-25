@@ -44,12 +44,6 @@ NS_ASSUME_NONNULL_BEGIN
                                    db:(FSTLevelDB *)db
                            serializer:(FSTLocalSerializer *)serializer;
 
-/**
- * Returns one larger than the largest batch ID that has been stored. If there are no mutations
- * returns 0. Note that batch IDs are global.
- */
-+ (firebase::firestore::model::BatchId)loadNextBatchIDFromDB:(leveldb::DB *)db;
-
 @end
 
 NS_ASSUME_NONNULL_END
