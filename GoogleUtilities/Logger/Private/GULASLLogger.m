@@ -33,15 +33,15 @@ static NSString *const kMessageCodePattern = @"^I-[A-Z]{3}[0-9]{6}$";
 static NSRegularExpression *sMessageCodeRegex;
 #endif
 
-@interface GULASLLogger() {
+@interface GULASLLogger () {
   // Internal storage for properties declared in the GULLoggerSystem
   GULLoggerLevel _logLevel;
-  const char * _version;
+  const char *_version;
   BOOL _forcedDebug;
 }
 
-@property (nonatomic) aslclient aslClient;
-@property (nonatomic) dispatch_queue_t dispatchQueue;
+@property(nonatomic) aslclient aslClient;
+@property(nonatomic) dispatch_queue_t dispatchQueue;
 
 @end
 

@@ -23,13 +23,13 @@ typedef NSString *const GULLoggerService;
 @protocol GULLoggerSystem <NSObject>
 
 /// The current log level of this logger. Defaults to GULLoggerLevelNotice.
-@property (nonatomic) GULLoggerLevel logLevel;
+@property(nonatomic) GULLoggerLevel logLevel;
 
 /// The version to report in the logs. Defaults to the empty string.
-@property (nonatomic) const char * version;
+@property(nonatomic) const char *version;
 
 /// Forces the current log level to be set to debug. Defaults to NO.
-@property (nonatomic) BOOL forcedDebug;
+@property(nonatomic) BOOL forcedDebug;
 
 /// Initializes the logger before use.
 - (void)initializeLogger;

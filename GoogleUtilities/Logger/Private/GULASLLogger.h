@@ -20,7 +20,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface GULASLLogger : NSObject<GULLoggerSystem>
+@interface GULASLLogger : NSObject <GULLoggerSystem>
 @end
 
 NS_ASSUME_NONNULL_END

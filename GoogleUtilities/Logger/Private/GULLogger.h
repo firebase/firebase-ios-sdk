@@ -132,7 +132,7 @@ extern void GULLogDebug(GULLoggerService service,
 
 @interface GULLogger : NSObject
 
-@property(nonatomic, class, readonly) id<GULLoggerSystem>logger;
+@property(nonatomic, class, readonly) id<GULLoggerSystem> logger;
 
 @end
 
