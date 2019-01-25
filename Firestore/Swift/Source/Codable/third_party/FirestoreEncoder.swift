@@ -16,69 +16,6 @@
 import Foundation
 import FirebaseFirestore
 
-extension CollectionReference {
-  public func addDocument<T: Encodable>(_ item: T) -> DocumentReference {
-    do {
-      return addDocument(data: try Firestore.Encoder().encode(item))
-    } catch let error {
-      fatalError("Unable to encode data with Firestore encoder: \(error)")
-    }
-  }
-
-  public func addDocument<T: Encodable>(_ item: T, _ completion: ((Error?) -> Void)?) -> DocumentReference {
-    do {
-      let encoded = try Firestore.Encoder().encode(item)
-      return addDocument(data: encoded, completion: completion)
-    } catch let error {
-      Firestore.firestore().settings.dispatchQueue.sync {
-        completion!(error)
-      }
-      return document() // Is there something better to return after the error?
-    }
-  }
-}
-
-extension DocumentReference {
-  public func setData<T: Encodable>(_ value: T) {
-    do {
-      setData(try Firestore.Encoder().encode(value))
-    } catch let error {
-      fatalError("Unable to encode data with Firestore encoder: \(error)")
-    }
-  }
-
-  public func setData<T: Encodable>(_ value: T, _ completion: ((Error?) -> Void)?) {
-    do {
-      let encoded = try Firestore.Encoder().encode(value)
-      setData(encoded, completion: completion)
-    } catch let error {
-      Firestore.firestore().settings.dispatchQueue.sync {
-        completion!(error)
-      }
-    }
-  }
-}
-
-extension Transaction {
-  public func setData<T: Encodable>(_ value: T, forDocument: DocumentReference) {
-    do {
-      setData(try Firestore.Encoder().encode(value), forDocument: forDocument)
-    } catch let error {
-      fatalError("Unable to encode data with Firestore encoder: \(error)")
-    }
-  }
-}
-
-extension WriteBatch {
-  public func setData<T: Encodable>(_ value: T, forDocument: DocumentReference) {
-    do {
-      setData(try Firestore.Encoder().encode(value), forDocument: forDocument)
-    } catch let error {
-      fatalError("Unable to encode data with Firestore encoder: \(error)")
-    }
-  }
-}
-
 extension Firestore {
   struct Encoder {
     func encode<T: Encodable>(_ value: T) throws -> [String: Any] {
@@ -94,7 +31,6 @@ extension Firestore {
                                          EncodingError.Context(codingPath: [],
                                                                debugDescription: "Top-level \(T.self) encoded not as dictionary."))
       }
-
       return dict
     }
   }
@@ -408,7 +344,10 @@ extension _FirestoreEncoder {
       return box((value as! URL).absoluteString)
     } else if T.self == Decimal.self || T.self == NSDecimalNumber.self {
       return (value as! NSDecimalNumber)
-    } else if T.self == GeoPoint.self || T.self == DocumentReference.self || T.self == FieldValue.self {
+    } else if T.self == GeoPoint.self ||
+              T.self == DocumentReference.self ||
+              T.self == FieldValue.self ||
+              T.self == Timestamp.self {
       // These are all native _Firestore types that we don't need to Encode
       return (value as! NSObject)
     }

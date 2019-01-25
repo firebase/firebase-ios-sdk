@@ -19,31 +19,31 @@ import FirebaseFirestoreSwift
 import Foundation
 import XCTest
 
-class CodableGeoPointTests: XCTestCase {
-  func testGeoPointEncodes() {
-    let geoPoint = GeoPoint(latitude: 37.77493, longitude: -122.41942)
+class CodableTimestampTests: XCTestCase {
+  func testTimestampEncodes() {
+    let timestamp = Timestamp(seconds: 37, nanoseconds: 123)
 
-    let jsonData = try! JSONEncoder().encode(geoPoint)
+    let jsonData = try! JSONEncoder().encode(timestamp)
     let json = String(data: jsonData, encoding: .utf8)!
 
     // The ordering of attributes in the JSON output is not guaranteed, nor is the rounding of
     // the values so just verify that each required property is present and that the value
     // starts as expected.
-    XCTAssert(json.contains("\"latitude\":37."))
-    XCTAssert(json.contains("\"longitude\":-122."))
+    XCTAssert(json.contains("\"seconds\":37"))
+    XCTAssert(json.contains("\"nanoseconds\":123"))
   }
 
-  func testGeoPointDecodes() {
+  func testTimestampDecodes() {
     let json = """
     {
-      "latitude": 37.77493,
-      "longitude": -122.41942
+      "seconds": 37,
+      "nanoseconds": 122
     }
     """
     let jsonData: Data = json.data(using: .utf8)!
 
-    let geoPoint = try! JSONDecoder().decode(GeoPoint.self, from: jsonData)
-    XCTAssertEqual(37.77493, geoPoint.latitude, accuracy: 0.0001)
-    XCTAssertEqual(-122.41942, geoPoint.longitude, accuracy: 0.0001)
+    let timestamp = try! JSONDecoder().decode(Timestamp.self, from: jsonData)
+    XCTAssertEqual(37, timestamp.seconds)
+    XCTAssertEqual(122, timestamp.nanoseconds)
   }
 }

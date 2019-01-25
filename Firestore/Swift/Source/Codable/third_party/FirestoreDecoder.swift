@@ -16,21 +16,6 @@
 import Foundation
 import FirebaseFirestore
 
-// TODO: Consider adding CollectionReference
-
-extension DocumentSnapshot {
-  public func data<T: Decodable>(as type: T.Type) throws -> T {
-    guard let dict = data() else {
-      throw DecodingError.valueNotFound(T.self,
-                                        DecodingError.Context(codingPath: [],
-                                                              debugDescription: "Data was empty"))
-    }
-    return try Firestore.Decoder().decode(T.self, from: dict)
-  }
-}
-
-// Is there a better way to do this without the Firestore.Decoder wrapper?
-
 extension Firestore {
   struct Decoder {
     func decode<T: Decodable>(_ type: T.Type, from container: [String: Any]) throws -> T {

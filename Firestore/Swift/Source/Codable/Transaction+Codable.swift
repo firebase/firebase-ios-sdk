@@ -14,10 +14,14 @@
  * limitations under the License.
  */
 
-enum FirestoreDecodingError: Error {
-  case decodingIsNotSupported
-}
+import FirebaseFirestore
 
-enum FirestoreEncodingError: Error {
-  case encodingIsNotSupported
+extension Transaction {
+  public func setData<T: Encodable>(_ value: T, forDocument: DocumentReference) {
+    do {
+      setData(try Firestore.Encoder().encode(value), forDocument: forDocument)
+    } catch let error {
+      fatalError("Unable to encode data with Firestore encoder: \(error)")
+    }
+  }
 }

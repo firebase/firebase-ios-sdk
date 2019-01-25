@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,4 +36,21 @@ extension CodableDocumentReference {
   }
 }
 
-extension DocumentReference: CodableDocumentReference {}
+extension DocumentReference: CodableDocumentReference {
+  public func setData<T: Encodable>(_ value: T) {
+    do {
+      setData(try Firestore.Encoder().encode(value))
+    } catch let error {
+      fatalError("Unable to encode data with Firestore encoder: \(error)")
+    }
+  }
+
+  public func setData<T: Encodable>(_ value: T, _ completion: ((Error?) -> Void)?) {
+    do {
+      let encoded = try Firestore.Encoder().encode(value)
+      setData(encoded, completion: completion)
+    } catch let error {
+      fatalError("Unable to encode data with Firestore encoder: \(error)")
+    }
+  }
+}
