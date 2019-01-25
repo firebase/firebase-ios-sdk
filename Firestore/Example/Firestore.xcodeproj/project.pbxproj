@@ -236,6 +236,7 @@
 		DE2EF0881F3D0B6E003D0CDC /* FSTTreeSortedDictionaryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE2EF0841F3D0B6E003D0CDC /* FSTTreeSortedDictionaryTests.m */; };
 		DE84BBB421C18F060048A176 /* FSTAPIHelpers.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E04E202154AA00B64F25 /* FSTAPIHelpers.mm */; };
 		DE84BBB921C1A6ED0048A176 /* FSTHelpers.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E03A2021401F00B64F25 /* FSTHelpers.mm */; };
+		DE958C0521FA82D200E6C1C5 /* CodableTimestampTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE958C0421FA82D200E6C1C5 /* CodableTimestampTests.swift */; };
 		EBFC611B1BF195D0EC710AF4 /* app_testing.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5467FB07203E6A44009C9584 /* app_testing.mm */; };
 /* End PBXBuildFile section */
 
@@ -549,7 +550,6 @@
 		DE03B3621F215E1600A30B9C /* CAcert.pem */ = {isa = PBXFileReference; lastKnownFileType = text; path = CAcert.pem; sourceTree = "<group>"; };
 		DE0761F61F2FE68D003233AF /* BasicCompileTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BasicCompileTests.swift; sourceTree = "<group>"; };
 		DE26C61521C15FCC00DE141A /* CodableDocumentTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CodableDocumentTests.swift; sourceTree = "<group>"; };
-
 		DE2EF07E1F3D0B6E003D0CDC /* FSTArraySortedDictionaryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FSTArraySortedDictionaryTests.m; path = ../../third_party/Immutable/Tests/FSTArraySortedDictionaryTests.m; sourceTree = "<group>"; };
 		DE2EF07F1F3D0B6E003D0CDC /* FSTImmutableSortedDictionary+Testing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "FSTImmutableSortedDictionary+Testing.h"; path = "../../third_party/Immutable/Tests/FSTImmutableSortedDictionary+Testing.h"; sourceTree = "<group>"; };
 		DE2EF0801F3D0B6E003D0CDC /* FSTImmutableSortedDictionary+Testing.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "FSTImmutableSortedDictionary+Testing.m"; path = "../../third_party/Immutable/Tests/FSTImmutableSortedDictionary+Testing.m"; sourceTree = "<group>"; };
@@ -563,6 +563,7 @@
 		DE51B19A1F0D48AC0013853F /* FSTSyncEngineTestDriver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FSTSyncEngineTestDriver.h; sourceTree = "<group>"; };
 		DE51B1A71F0D48AC0013853F /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		DE84BBB821C1951E0048A176 /* BridgingHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BridgingHeader.h; sourceTree = "<group>"; };
+		DE958C0421FA82D200E6C1C5 /* CodableTimestampTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CodableTimestampTests.swift; sourceTree = "<group>"; };
 		E592181BFD7C53C305123739 /* Pods-Firestore_Tests_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Tests_iOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Tests_iOS/Pods-Firestore_Tests_iOS.debug.xcconfig"; sourceTree = "<group>"; };
 		ECEBABC7E7B693BE808A1052 /* Pods_Firestore_IntegrationTests_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_IntegrationTests_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED4B3E3EA0EBF3ED19A07060 /* grpc_stream_tester.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = grpc_stream_tester.h; sourceTree = "<group>"; };
@@ -765,6 +766,7 @@
 			children = (
 				DE26C61521C15FCC00DE141A /* CodableDocumentTests.swift */,
 				5495EB022040E90200EBA509 /* CodableGeoPointTests.swift */,
+				DE958C0421FA82D200E6C1C5 /* CodableTimestampTests.swift */,
 			);
 			path = Codable;
 			sourceTree = "<group>";
@@ -1845,6 +1847,7 @@
 				5495EB032040E90200EBA509 /* CodableGeoPointTests.swift in Sources */,
 				DE84BBB421C18F060048A176 /* FSTAPIHelpers.mm in Sources */,
 				DE26C61621C15FCC00DE141A /* CodableDocumentTests.swift in Sources */,
+				DE958C0521FA82D200E6C1C5 /* CodableTimestampTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
