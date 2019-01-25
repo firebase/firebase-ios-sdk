@@ -37,11 +37,11 @@ static NSRegularExpression *sMessageCodeRegex;
   // Internal storage for properties declared in the GULLoggerSystem
   GULLoggerLevel _logLevel;
   const char * _version;
+  BOOL _forcedDebug;
 }
 
 @property (nonatomic) aslclient aslClient;
 @property (nonatomic) dispatch_queue_t dispatchQueue;
-@property (nonatomic) BOOL forcedDebug;
 
 @end
 
@@ -96,6 +96,7 @@ static NSRegularExpression *sMessageCodeRegex;
 }
 
 @synthesize version = _version;
+@synthesize forcedDebug = _forcedDebug;
 
 - (void)setLogLevel:(GULLoggerLevel)logLevel {
   if (logLevel < GULLoggerLevelMin || logLevel > GULLoggerLevelMax) {

@@ -28,11 +28,11 @@ typedef NSString *const GULLoggerService;
 /// The version to report in the logs. Defaults to the empty string.
 @property (nonatomic) const char * version;
 
+/// Forces the current log level to be set to debug. Defaults to NO.
+@property (nonatomic) BOOL forcedDebug;
+
 /// Initializes the logger before use.
 - (void)initializeLogger;
-
-/// Forces the current log level to be set to debug.
-- (void)forceDebug;
 
 /// Enables output to STDERR. Not enabled by default.
 - (void)printToSTDERR;
