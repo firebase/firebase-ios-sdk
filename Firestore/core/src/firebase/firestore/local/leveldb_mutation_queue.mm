@@ -204,8 +204,7 @@ void LevelDbMutationQueue::RemoveMutationBatch(FSTMutationBatch* batch) {
   }
 }
 
-const std::vector<FSTMutationBatch*>
-LevelDbMutationQueue::AllMutationBatches() {
+std::vector<FSTMutationBatch*> LevelDbMutationQueue::AllMutationBatches() {
   std::string user_key = LevelDbMutationKey::KeyPrefix(user_id_);
 
   auto it = db_.currentTransaction->NewIterator();
