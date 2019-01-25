@@ -155,18 +155,9 @@ static NSString *const kMessageCode = @"I-COR000001";
 
 // Helper functions.
 - (BOOL)logExists {
-  [self drainGULClientQueue];
   NSString *correctMsg =
       [NSString stringWithFormat:@"%@[%@] %@", @"my service", kMessageCode, self.randomLogString];
   return [self messageWasLogged:correctMsg];
-}
-
-- (void)drainGULClientQueue {
-  dispatch_semaphore_t workerSemaphore = dispatch_semaphore_create(0);
-  dispatch_async(getGULClientQueue(), ^{
-    dispatch_semaphore_signal(workerSemaphore);
-  });
-  dispatch_semaphore_wait(workerSemaphore, DISPATCH_TIME_FOREVER);
 }
 
 - (BOOL)messageWasLogged:(NSString *)message {
