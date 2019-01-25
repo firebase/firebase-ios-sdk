@@ -33,62 +33,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-#pragma mark - FSTTargetChange
-
-/**
- * An FSTTargetChange specifies the set of changes for a specific target as part of an
- * FSTRemoteEvent. These changes track which documents are added, modified or emoved, as well as the
- * target's resume token and whether the target is marked CURRENT.
- *
- * The actual changes *to* documents are not part of the FSTTargetChange since documents may be part
- * of multiple targets.
- */
-@interface FSTTargetChange : NSObject
-
-/**
- * Creates a new target change with the given SnapshotVersion.
- */
-- (instancetype)initWithResumeToken:(NSData *)resumeToken
-                            current:(BOOL)current
-                     addedDocuments:(firebase::firestore::model::DocumentKeySet)addedDocuments
-                  modifiedDocuments:(firebase::firestore::model::DocumentKeySet)modifiedDocuments
-                   removedDocuments:(firebase::firestore::model::DocumentKeySet)removedDocuments
-    NS_DESIGNATED_INITIALIZER;
-
-- (instancetype)init NS_UNAVAILABLE;
-
-/**
- * An opaque, server-assigned token that allows watching a query to be resumed after
- * disconnecting without retransmitting all the data that matches the query. The resume token
- * essentially identifies a point in time from which the server should resume sending results.
- */
-@property(nonatomic, strong, readonly) NSData *resumeToken;
-
-/**
- * The "current" (synced) status of this target. Note that "current" has special meaning in the RPC
- * protocol that implies that a target is both up-to-date and consistent with the rest of the watch
- * stream.
- */
-@property(nonatomic, assign, readonly) BOOL current;
-
-/**
- * The set of documents that were newly assigned to this target as part of this remote event.
- */
-- (const firebase::firestore::model::DocumentKeySet &)addedDocuments;
-
-/**
- * The set of documents that were already assigned to this target but received an update during this
- * remote event.
- */
-- (const firebase::firestore::model::DocumentKeySet &)modifiedDocuments;
-
-/**
- * The set of documents that were removed from this target as part of this remote event.
- */
-- (const firebase::firestore::model::DocumentKeySet &)removedDocuments;
-
-@end
-
 #pragma mark - FSTRemoteEvent
 
 /**
@@ -100,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)
     initWithSnapshotVersion:(firebase::firestore::model::SnapshotVersion)snapshotVersion
               targetChanges:
-                  (std::unordered_map<firebase::firestore::model::TargetId, FSTTargetChange *>)
+                  (std::unordered_map<firebase::firestore::model::TargetId, firebase::firestore::remote::TargetChange>)
                       targetChanges
            targetMismatches:
                (std::unordered_set<firebase::firestore::model::TargetId>)targetMismatches
@@ -119,7 +63,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (const firebase::firestore::model::DocumentKeySet &)limboDocumentChanges;
 
 /** A map from target to changes to the target. See TargetChange. */
-- (const std::unordered_map<firebase::firestore::model::TargetId, FSTTargetChange *> &)
+- (const std::unordered_map<firebase::firestore::model::TargetId, firebase::firestore::remote::TargetChange> &)
     targetChanges;
 
 /**

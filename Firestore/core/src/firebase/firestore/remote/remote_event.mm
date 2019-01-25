@@ -45,7 +45,7 @@ void TargetState::UpdateResumeToken(NSData* resume_token) {
   }
 }
 
-FSTTargetChange* TargetState::ToTargetChange() const {
+TargetChange TargetState::ToTargetChange() const {
   DocumentKeySet added_documents;
   DocumentKeySet modified_documents;
   DocumentKeySet removed_documents;
@@ -69,12 +69,9 @@ FSTTargetChange* TargetState::ToTargetChange() const {
     }
   }
 
-  return [[FSTTargetChange alloc]
-      initWithResumeToken:resume_token()
-                  current:Current()
-           addedDocuments:std::move(added_documents)
-        modifiedDocuments:std::move(modified_documents)
-         removedDocuments:std::move(removed_documents)];
+  return TargetChange{resume_token(), current(), std::move(added_documents),
+                      std::move(modified_documents),
+                      std::move(removed_documents)};
 }
 
 void TargetState::ClearPendingChanges() {
@@ -239,7 +236,7 @@ void WatchChangeAggregator::HandleExistenceFilter(
 
 FSTRemoteEvent* WatchChangeAggregator::CreateRemoteEvent(
     const SnapshotVersion& snapshot_version) {
-  std::unordered_map<TargetId, FSTTargetChange*> target_changes;
+  std::unordered_map<TargetId, TargetChange> target_changes;
 
   for (auto& entry : target_states_) {
     TargetId target_id = entry.first;
@@ -247,7 +244,7 @@ FSTRemoteEvent* WatchChangeAggregator::CreateRemoteEvent(
 
     FSTQueryData* query_data = QueryDataForActiveTarget(target_id);
     if (query_data) {
-      if (target_state.Current() && [query_data.query isDocumentQuery]) {
+      if (target_state.current() && [query_data.query isDocumentQuery]) {
         // Document queries for document that don't exist can produce an empty
         // result set. To update our local cache, we synthesize a document
         // delete if we have not previously received the document. This resolves
@@ -296,9 +293,9 @@ FSTRemoteEvent* WatchChangeAggregator::CreateRemoteEvent(
   FSTRemoteEvent* remote_event =
       [[FSTRemoteEvent alloc] initWithSnapshotVersion:snapshot_version
                                         targetChanges:target_changes
-                                     targetMismatches:pending_target_resets_
-                                      documentUpdates:pending_document_updates_
-                                       limboDocuments:resolved_limbo_documents];
+                                     targetMismatches:std::move(pending_target_resets_)
+                                      documentUpdates:std::move(pending_document_updates_)
+                                       limboDocuments:std::move(resolved_limbo_documents)];
 
   // Re-initialize the current state to ensure that we do not modify the
   // generated `RemoteEvent`.
@@ -357,10 +354,10 @@ void WatchChangeAggregator::RemoveTarget(TargetId target_id) {
 int WatchChangeAggregator::GetCurrentDocumentCountForTarget(
     TargetId target_id) {
   TargetState& target_state = EnsureTargetState(target_id);
-  FSTTargetChange* target_change = target_state.ToTargetChange();
+  TargetChange target_change = target_state.ToTargetChange();
   return ([target_metadata_provider_ remoteKeysForTarget:target_id].size() +
-          target_change.addedDocuments.size() -
-          target_change.removedDocuments.size());
+          target_change.added_documents().size() -
+          target_change.removed_documents().size());
 }
 
 void WatchChangeAggregator::RecordPendingTargetRequest(TargetId target_id) {

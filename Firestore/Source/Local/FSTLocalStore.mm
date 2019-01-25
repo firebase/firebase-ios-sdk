@@ -42,6 +42,7 @@
 #include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 #include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 
@@ -60,6 +61,7 @@ using firebase::firestore::model::MaybeDocumentMap;
 using firebase::firestore::model::ListenSequenceNumber;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::remote::TargetChange;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -216,7 +218,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
     DocumentKeySet authoritativeUpdates;
     for (const auto &entry : remoteEvent.targetChanges) {
       TargetId targetID = entry.first;
-      FSTTargetChange *change = entry.second;
+      const TargetChange& change = entry.second;
 
       // Do not ref/unref unassigned targetIDs - it may lead to leaks.
       auto found = _targetIDs.find(targetID);
@@ -233,20 +235,20 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
       // If the document is only updated while removing it from a target then watch isn't obligated
       // to send the absolute latest version: it can send the first version that caused the document
       // not to match.
-      for (const DocumentKey &key : change.addedDocuments) {
+      for (const DocumentKey &key : change.added_documents()) {
         authoritativeUpdates = authoritativeUpdates.insert(key);
       }
-      for (const DocumentKey &key : change.modifiedDocuments) {
+      for (const DocumentKey &key : change.modified_documents()) {
         authoritativeUpdates = authoritativeUpdates.insert(key);
       }
 
-      _queryCache->RemoveMatchingKeys(change.removedDocuments, targetID);
-      _queryCache->AddMatchingKeys(change.addedDocuments, targetID);
+      _queryCache->RemoveMatchingKeys(change.removed_documents(), targetID);
+      _queryCache->AddMatchingKeys(change.added_documents(), targetID);
 
       // Update the resume token if the change includes one. Don't clear any preexisting value.
       // Bump the sequence number as well, so that documents being removed now are ordered later
       // than documents that were previously removed from this target.
-      NSData *resumeToken = change.resumeToken;
+      NSData *resumeToken = change.resume_token();
       if (resumeToken.length > 0) {
         FSTQueryData *oldQueryData = queryData;
         queryData = [queryData queryDataByReplacingSnapshotVersion:remoteEvent.snapshotVersion
@@ -328,7 +330,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
  */
 - (BOOL)shouldPersistQueryData:(FSTQueryData *)newQueryData
                   oldQueryData:(FSTQueryData *)oldQueryData
-                        change:(FSTTargetChange *)change {
+                        change:(const TargetChange&)change {
   // Avoid clearing any existing value
   if (newQueryData.resumeToken.length == 0) return NO;
 
@@ -348,8 +350,8 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
   // worth persisting. Note that the RemoteStore keeps an in-memory view of the currently active
   // targets which includes the current resume token, so stream failure or user changes will still
   // use an up-to-date resume token regardless of what we do here.
-  size_t changes = change.addedDocuments.size() + change.modifiedDocuments.size() +
-                   change.removedDocuments.size();
+  size_t changes = change.added_documents().size() + change.modified_documents().size() +
+                   change.removed_documents().size();
   return changes > 0;
 }
 

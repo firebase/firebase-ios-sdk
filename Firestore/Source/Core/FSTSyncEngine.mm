@@ -43,6 +43,7 @@
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
+#include "absl/types/optional.h"
 
 using firebase::firestore::auth::HashUser;
 using firebase::firestore::auth::User;
@@ -57,6 +58,7 @@ using firebase::firestore::model::ListenSequenceNumber;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::remote::TargetChange;
 using firebase::firestore::util::AsyncQueue;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -324,23 +326,23 @@ class LimboResolution {
   // Update `receivedDocument` as appropriate for any limbo targets.
   for (const auto &entry : remoteEvent.targetChanges) {
     TargetId targetID = entry.first;
-    FSTTargetChange *change = entry.second;
+    const TargetChange &change = entry.second;
     const auto iter = _limboResolutionsByTarget.find(targetID);
     if (iter != _limboResolutionsByTarget.end()) {
       LimboResolution &limboResolution = iter->second;
       // Since this is a limbo resolution lookup, it's for a single document and it could be
       // added, modified, or removed, but not a combination.
-      HARD_ASSERT(change.addedDocuments.size() + change.modifiedDocuments.size() +
-                          change.removedDocuments.size() <=
+      HARD_ASSERT(change.added_documents().size() + change.modified_documents().size() +
+                          change.removed_documents().size() <=
                       1,
                   "Limbo resolution for single document contains multiple changes.");
 
-      if (change.addedDocuments.size() > 0) {
+      if (change.added_documents().size() > 0) {
         limboResolution.document_received = true;
-      } else if (change.modifiedDocuments.size() > 0) {
+      } else if (change.modified_documents().size() > 0) {
         HARD_ASSERT(limboResolution.document_received,
                     "Received change for limbo target document without add.");
-      } else if (change.removedDocuments.size() > 0) {
+      } else if (change.removed_documents().size() > 0) {
         HARD_ASSERT(limboResolution.document_received,
                     "Received remove for limbo target document without add.");
         limboResolution.document_received = false;
@@ -498,7 +500,7 @@ class LimboResolution {
                                              previousChanges:viewDocChanges];
         }
 
-        FSTTargetChange *_Nullable targetChange = nil;
+        absl::optional<TargetChange> targetChange;
         if (remoteEvent) {
           auto it = remoteEvent.targetChanges.find(queryView.targetID);
           if (it != remoteEvent.targetChanges.end()) {

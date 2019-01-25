@@ -40,69 +40,16 @@ using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::remote::DocumentWatchChange;
 using firebase::firestore::remote::ExistenceFilterWatchChange;
+using firebase::firestore::remote::TargetChange;
 using firebase::firestore::remote::WatchTargetChange;
 using firebase::firestore::remote::WatchTargetChangeState;
 using firebase::firestore::util::Hash;
 
 NS_ASSUME_NONNULL_BEGIN
 
-#pragma mark - FSTTargetChange
-
-@implementation FSTTargetChange {
-  DocumentKeySet _addedDocuments;
-  DocumentKeySet _modifiedDocuments;
-  DocumentKeySet _removedDocuments;
-}
-
-- (instancetype)initWithResumeToken:(NSData *)resumeToken
-                            current:(BOOL)current
-                     addedDocuments:(DocumentKeySet)addedDocuments
-                  modifiedDocuments:(DocumentKeySet)modifiedDocuments
-                   removedDocuments:(DocumentKeySet)removedDocuments {
-  if (self = [super init]) {
-    _resumeToken = [resumeToken copy];
-    _current = current;
-    _addedDocuments = std::move(addedDocuments);
-    _modifiedDocuments = std::move(modifiedDocuments);
-    _removedDocuments = std::move(removedDocuments);
-  }
-  return self;
-}
-
-- (const DocumentKeySet &)addedDocuments {
-  return _addedDocuments;
-}
-
-- (const DocumentKeySet &)modifiedDocuments {
-  return _modifiedDocuments;
-}
-
-- (const DocumentKeySet &)removedDocuments {
-  return _removedDocuments;
-}
-
-- (BOOL)isEqual:(id)other {
-  if (other == self) {
-    return YES;
-  }
-  if (![other isMemberOfClass:[FSTTargetChange class]]) {
-    return NO;
-  }
-
-  return [self current] == [other current] &&
-         [[self resumeToken] isEqualToData:[other resumeToken]] &&
-         [self addedDocuments] == [other addedDocuments] &&
-         [self modifiedDocuments] == [other modifiedDocuments] &&
-         [self removedDocuments] == [other removedDocuments];
-}
-
-@end
-
-#pragma mark - FSTRemoteEvent
-
 @implementation FSTRemoteEvent {
   SnapshotVersion _snapshotVersion;
-  std::unordered_map<TargetId, FSTTargetChange *> _targetChanges;
+  std::unordered_map<TargetId, TargetChange> _targetChanges;
   std::unordered_set<TargetId> _targetMismatches;
   std::unordered_map<DocumentKey, FSTMaybeDocument *, DocumentKeyHash> _documentUpdates;
   DocumentKeySet _limboDocumentChanges;
@@ -110,7 +57,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)
     initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
-              targetChanges:(std::unordered_map<TargetId, FSTTargetChange *>)targetChanges
+              targetChanges:(std::unordered_map<TargetId, TargetChange>)targetChanges
            targetMismatches:(std::unordered_set<TargetId>)targetMismatches
             documentUpdates:(std::unordered_map<DocumentKey, FSTMaybeDocument *, DocumentKeyHash>)
                                 documentUpdates
@@ -134,7 +81,7 @@ NS_ASSUME_NONNULL_BEGIN
   return _limboDocumentChanges;
 }
 
-- (const std::unordered_map<TargetId, FSTTargetChange *> &)targetChanges {
+- (const std::unordered_map<TargetId, TargetChange> &)targetChanges {
   return _targetChanges;
 }
 

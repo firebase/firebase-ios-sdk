@@ -60,6 +60,7 @@ using firebase::firestore::remote::WatchStream;
 using firebase::firestore::remote::WriteStream;
 using firebase::firestore::remote::DocumentWatchChange;
 using firebase::firestore::remote::ExistenceFilterWatchChange;
+using firebase::firestore::remote::TargetChange;
 using firebase::firestore::remote::WatchChange;
 using firebase::firestore::remote::WatchChangeAggregator;
 using firebase::firestore::remote::WatchTargetChange;
@@ -377,7 +378,8 @@ static const int kMaxPendingWrites = 10;
   // Update in-memory resume tokens. FSTLocalStore will update the persistent view of these when
   // applying the completed FSTRemoteEvent.
   for (const auto &entry : remoteEvent.targetChanges) {
-    NSData *resumeToken = entry.second.resumeToken;
+    const TargetChange& target_change = entry.second;
+    NSData *resumeToken = target_change.resume_token();
     if (resumeToken.length > 0) {
       TargetId targetID = entry.first;
       auto found = _listenTargets.find(targetID);
