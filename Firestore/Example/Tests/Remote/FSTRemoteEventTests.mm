@@ -486,7 +486,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
   // Doc1 was before the remove
   // Current was before the remove
   TargetChange targetChange3{_resumeToken1, true, DocumentKeySet{doc1.key}, DocumentKeySet{},
-    DocumentKeySet{doc2.key}};
+                             DocumentKeySet{doc2.key}};
   XCTAssertTrue(event.targetChanges.at(3) == targetChange3);
 }
 
@@ -536,8 +536,8 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
 
   XCTAssertEqual(event.targetChanges.size(), 2);
 
-  TargetChange targetChange1{_resumeToken1, true, DocumentKeySet{doc1.key, doc2.key},
-                             DocumentKeySet{}, DocumentKeySet{}};
+  TargetChange targetChange1{_resumeToken1, true, DocumentKeySet{},
+                             DocumentKeySet{doc1.key, doc2.key}, DocumentKeySet{}};
   XCTAssertTrue(event.targetChanges.at(1) == targetChange1);
 
   TargetChange targetChange2{_resumeToken1, false, DocumentKeySet{}, DocumentKeySet{},
