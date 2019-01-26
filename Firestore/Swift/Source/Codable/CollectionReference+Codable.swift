@@ -19,7 +19,7 @@ import FirebaseFirestore
 extension CollectionReference {
   public func addDocument<T: Encodable>(data: T) -> DocumentReference {
     do {
-      return addDocument(data: try Firestore.Encoder().encode(data))
+      return addDocument(data: try Firestore.encode(data))
     } catch let error {
       fatalError("Unable to encode data with Firestore encoder: \(error)")
     }
@@ -27,7 +27,7 @@ extension CollectionReference {
 
   public func addDocument<T: Encodable>(data: T, _ completion: ((Error?) -> Void)?) -> DocumentReference {
     do {
-      let encoded = try Firestore.Encoder().encode(data)
+      let encoded = try Firestore.encode(data)
       return addDocument(data: encoded, completion: completion)
     } catch let error {
       fatalError("Unable to encode data with Firestore encoder: \(error)")

@@ -23,6 +23,6 @@ extension DocumentSnapshot {
                                         DecodingError.Context(codingPath: [],
                                                               debugDescription: "Data was empty"))
     }
-    return try Firestore.Decoder().decode(T.self, from: dict)
+    return try Firestore.decode(T.self, from: dict)
   }
 }

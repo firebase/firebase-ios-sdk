@@ -39,7 +39,7 @@ extension CodableDocumentReference {
 extension DocumentReference: CodableDocumentReference {
   public func setData<T: Encodable>(_ value: T) {
     do {
-      setData(try Firestore.Encoder().encode(value))
+      setData(try Firestore.encode(value))
     } catch let error {
       fatalError("Unable to encode data with Firestore encoder: \(error)")
     }
@@ -47,7 +47,7 @@ extension DocumentReference: CodableDocumentReference {
 
   public func setData<T: Encodable>(_ value: T, _ completion: ((Error?) -> Void)?) {
     do {
-      let encoded = try Firestore.Encoder().encode(value)
+      let encoded = try Firestore.encode(value)
       setData(encoded, completion: completion)
     } catch let error {
       fatalError("Unable to encode data with Firestore encoder: \(error)")

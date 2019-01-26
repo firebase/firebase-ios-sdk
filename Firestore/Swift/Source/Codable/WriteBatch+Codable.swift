@@ -19,7 +19,7 @@ import FirebaseFirestore
 extension WriteBatch {
   public func setData<T: Encodable>(_ value: T, forDocument: DocumentReference) {
     do {
-      setData(try Firestore.Encoder().encode(value), forDocument: forDocument)
+      setData(try Firestore.encode(value), forDocument: forDocument)
     } catch let error {
       fatalError("Unable to encode data with Firestore encoder: \(error)")
     }

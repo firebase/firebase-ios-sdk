@@ -17,15 +17,13 @@ import Foundation
 import FirebaseFirestore
 
 extension Firestore {
-  struct Decoder {
-    func decode<T: Decodable>(_ type: T.Type, from container: [String: Any]) throws -> T {
-      let decoder = _FirestoreDecoder(referencing: container)
-      guard let value = try decoder.unbox(container, as: T.self) else {
-        throw DecodingError.valueNotFound(T.self, DecodingError.Context(codingPath: [], debugDescription: "The given dictionary was invalid"))
-      }
-
-      return value
+  public static func decode<T: Decodable>(_ type: T.Type, from container: [String: Any]) throws -> T {
+    let decoder = _FirestoreDecoder(referencing: container)
+    guard let value = try decoder.unbox(container, as: T.self) else {
+      throw DecodingError.valueNotFound(T.self, DecodingError.Context(codingPath: [], debugDescription: "The given dictionary was invalid"))
     }
+
+    return value
   }
 }
 
@@ -1005,7 +1003,10 @@ extension _FirestoreDecoder {
     } else if T.self == Decimal.self || T.self == NSDecimalNumber.self {
       guard let decimal = try self.unbox(value, as: Decimal.self) else { return nil }
       decoded = decimal as! T
-    } else if T.self == GeoPoint.self || T.self == DocumentReference.self {
+    } else if T.self == GeoPoint.self ||
+              T.self == DocumentReference.self ||
+              T.self == FieldValue.self ||
+              T.self == Timestamp.self {
       // All the native types that should not be encoded
       decoded = value as! T
     } else {

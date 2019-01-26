@@ -23,7 +23,7 @@ class CodableDocumentTests: XCTestCase {
   func roundTrip<X>(input: X, expected: [String: Any]? = nil) -> X where X: Codable {
     var encoded = [String: Any]()
     do {
-      encoded = try Firestore.Encoder().encode(input)
+      encoded = try Firestore.encode(input)
       if let expected = expected {
         XCTAssertEqual(encoded as NSDictionary, expected as NSDictionary)
       }
@@ -31,7 +31,7 @@ class CodableDocumentTests: XCTestCase {
       XCTFail("Failed to encode \(X.self): error: \(error)")
     }
     do {
-      let decoded = try Firestore.Decoder().decode(X.self, from: encoded)
+      let decoded = try Firestore.decode(X.self, from: encoded)
       return decoded
     } catch {
       XCTFail("Failed to decode \(X.self): \(error)")
@@ -52,7 +52,7 @@ class CodableDocumentTests: XCTestCase {
     struct Model: Codable {}
     let model = Model()
     let dict = [String: Any]() as NSDictionary
-    let encoded = try! Firestore.Encoder().encode(model) as NSDictionary
+    let encoded = try! Firestore.encode(model) as NSDictionary
     XCTAssertEqual(encoded, dict)
   }
 
@@ -62,9 +62,9 @@ class CodableDocumentTests: XCTestCase {
     }
     let model = Model(x: nil)
     let dict = ["x": nil] as [String: Int?]
-    let encodedDict = try! Firestore.Encoder().encode(model)
+    let encodedDict = try! Firestore.encode(model)
     XCTAssertNil(encodedDict["x"])
-    let model2 = try? Firestore.Decoder().decode(Model.self, from: dict as [String: Any])
+    let model2 = try? Firestore.decode(Model.self, from: dict as [String: Any])
     XCTAssertNil(model2)
   }
 
@@ -79,9 +79,9 @@ class CodableDocumentTests: XCTestCase {
 
     let model2 = Model(x: 42, opt: 7)
     let expected = ["x": 42, "opt": 7]
-    let encoded = try! Firestore.Encoder().encode(model2)
+    let encoded = try! Firestore.encode(model2)
     XCTAssertEqual(encoded as NSDictionary, expected as NSDictionary)
-    let decoded = try! Firestore.Decoder().decode(Model.self, from: expected)
+    let decoded = try! Firestore.decode(Model.self, from: expected)
     XCTAssertEqual(decoded.x, model2.x)
     XCTAssertEqual(decoded.opt, model2.opt)
   }
@@ -211,8 +211,8 @@ class CodableDocumentTests: XCTestCase {
     }
     let t = Timestamp(date: Date())
     let model = Model(timestamp: t)
-    let encoded = try! Firestore.Encoder().encode(model)
-    let model2 = try! Firestore.Decoder().decode(Model.self, from: encoded)
+    let encoded = try! Firestore.encode(model)
+    let model2 = try! Firestore.decode(Model.self, from: encoded)
     XCTAssertEqual(model.timestamp, model2.timestamp)
   }
 
@@ -221,7 +221,7 @@ class CodableDocumentTests: XCTestCase {
       let x: Int
     }
     let dict = ["x": "abc"] // Wrong type;
-    XCTAssertThrowsError(try Firestore.Decoder().decode(Model.self, from: dict))
+    XCTAssertThrowsError(try Firestore.decode(Model.self, from: dict))
   }
 
   func testValueTooBig() {
@@ -229,10 +229,10 @@ class CodableDocumentTests: XCTestCase {
       let x: CChar
     }
     let dict = ["x": 12345] // Overflow
-    XCTAssertThrowsError(try Firestore.Decoder().decode(Model.self, from: dict))
+    XCTAssertThrowsError(try Firestore.decode(Model.self, from: dict))
 
     let dict2 = ["x": 12]
-    let model2 = try? Firestore.Decoder().decode(Model.self, from: dict2)
+    let model2 = try? Firestore.decode(Model.self, from: dict2)
     XCTAssertNotNil(model2)
   }
 
@@ -287,7 +287,7 @@ class CodableDocumentTests: XCTestCase {
       "casESensitivE": "ccc",
     ] as [String: Any]
 
-    let model2 = try! Firestore.Decoder().decode(Model.self, from: dict)
+    let model2 = try! Firestore.decode(Model.self, from: dict)
     XCTAssertEqual(model.s, model2.s)
     XCTAssertEqual(model.d, model2.d)
     XCTAssertEqual(model.f, model2.f)
@@ -303,7 +303,7 @@ class CodableDocumentTests: XCTestCase {
     XCTAssertEqual(model.casESensitive, model2.casESensitive)
     XCTAssertEqual(model.casESensitivE, model2.casESensitivE)
 
-    let encodedDict = try! Firestore.Encoder().encode(model)
+    let encodedDict = try! Firestore.encode(model)
     XCTAssertEqual(encodedDict["s"] as! String, "abc")
     XCTAssertEqual(encodedDict["d"] as! Double, 123)
     XCTAssertEqual(encodedDict["f"] as! Float, -4.321)
@@ -319,7 +319,7 @@ class CodableDocumentTests: XCTestCase {
     XCTAssertEqual(encodedDict["casESensitive"] as! String, "bbb")
     XCTAssertEqual(encodedDict["casESensitivE"] as! String, "ccc")
 
-    let model3 = try? Firestore.Decoder().decode(Model.self, from: encodedDict as [String: Any])
+    let model3 = try? Firestore.decode(Model.self, from: encodedDict as [String: Any])
     XCTAssertNotNil(model3)
   }
 
@@ -382,7 +382,7 @@ class CodableDocumentTests: XCTestCase {
       "b": true,
     ] as [String: Any]
 
-    let model2 = try! Firestore.Decoder().decode(Model.self, from: dict)
+    let model2 = try! Firestore.decode(Model.self, from: dict)
     XCTAssertEqual(model.s, model2.s)
     XCTAssertEqual(model.d, model2.d)
     XCTAssertEqual(model.i, model2.i)
@@ -392,7 +392,7 @@ class CodableDocumentTests: XCTestCase {
     XCTAssertEqual(model2.mi, -9)
     XCTAssertEqual(model2.mb, false)
 
-    let encodedDict = try! Firestore.Encoder().encode(model)
+    let encodedDict = try! Firestore.encode(model)
     XCTAssertEqual(encodedDict["s"] as! String, "abc")
     XCTAssertEqual(encodedDict["d"] as! Double, 123.3)
     XCTAssertEqual(encodedDict["i"] as! Int, -4444)
