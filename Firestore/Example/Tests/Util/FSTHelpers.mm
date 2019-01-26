@@ -73,6 +73,7 @@ using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::model::TransformOperation;
 using firebase::firestore::remote::DocumentWatchChange;
+using firebase::firestore::remote::TargetChange;
 using firebase::firestore::remote::WatchChangeAggregator;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -299,7 +300,7 @@ MaybeDocumentMap FSTTestDocUpdates(NSArray<FSTMaybeDocument *> *docs) {
 
 FSTViewSnapshot *_Nullable FSTTestApplyChanges(FSTView *view,
                                                NSArray<FSTMaybeDocument *> *docs,
-                                               FSTTargetChange *_Nullable targetChange) {
+                                               const absl::optional<TargetChange>& targetChange) {
   return [view applyChangesToDocuments:[view computeChangesWithDocuments:FSTTestDocUpdates(docs)]
                           targetChange:targetChange]
       .snapshot;
@@ -385,32 +386,12 @@ FSTRemoteEvent *FSTTestAddedRemoteEvent(FSTMaybeDocument *doc,
   return aggregator.CreateRemoteEvent(doc.version);
 }
 
-FSTTargetChange *FSTTestTargetChangeMarkCurrent() {
-  return [[FSTTargetChange alloc] initWithResumeToken:[NSData data]
-      current:YES
-      addedDocuments:DocumentKeySet {}
-      modifiedDocuments:DocumentKeySet {}
-      removedDocuments:DocumentKeySet{}];
+TargetChange FSTTestTargetChangeMarkCurrent() {
+  return {[NSData data], true, DocumentKeySet{}, DocumentKeySet{}, DocumentKeySet{}};
 }
 
-FSTTargetChange *FSTTestTargetChangeAckDocuments(DocumentKeySet docs) {
-  return [[FSTTargetChange alloc] initWithResumeToken:[NSData data]
-                                              current:YES
-                                       addedDocuments:docs
-                                    modifiedDocuments:DocumentKeySet {}
-                                     removedDocuments:DocumentKeySet{}];
-}
-
-FSTTargetChange *FSTTestTargetChange(DocumentKeySet added,
-                                     DocumentKeySet modified,
-                                     DocumentKeySet removed,
-                                     NSData *resumeToken,
-                                     BOOL current) {
-  return [[FSTTargetChange alloc] initWithResumeToken:resumeToken
-                                              current:current
-                                       addedDocuments:added
-                                    modifiedDocuments:modified
-                                     removedDocuments:removed];
+TargetChange FSTTestTargetChangeAckDocuments(DocumentKeySet docs) {
+  return {[NSData data], true, std::move(docs), DocumentKeySet{}, DocumentKeySet{}};
 }
 
 FSTRemoteEvent *FSTTestUpdateRemoteEventWithLimboTargets(

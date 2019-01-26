@@ -33,6 +33,16 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
+// TargetChange
+
+bool operator==(const TargetChange& lhs, const TargetChange& rhs) {
+  return [lhs.resume_token() isEqualToData:rhs.resume_token()] &&
+         lhs.current() == rhs.current() &&
+         lhs.added_documents() == rhs.added_documents() &&
+         lhs.modified_documents() == rhs.modified_documents() &&
+         lhs.removed_documents() == rhs.removed_documents();
+}
+
 // TargetState
 
 TargetState::TargetState() : resume_token_{[NSData data]} {
@@ -290,12 +300,12 @@ FSTRemoteEvent* WatchChangeAggregator::CreateRemoteEvent(
     }
   }
 
-  FSTRemoteEvent* remote_event =
-      [[FSTRemoteEvent alloc] initWithSnapshotVersion:snapshot_version
-                                        targetChanges:target_changes
-                                     targetMismatches:std::move(pending_target_resets_)
-                                      documentUpdates:std::move(pending_document_updates_)
-                                       limboDocuments:std::move(resolved_limbo_documents)];
+  FSTRemoteEvent* remote_event = [[FSTRemoteEvent alloc]
+      initWithSnapshotVersion:snapshot_version
+                targetChanges:target_changes
+             targetMismatches:std::move(pending_target_resets_)
+              documentUpdates:std::move(pending_document_updates_)
+               limboDocuments:std::move(resolved_limbo_documents)];
 
   // Re-initialize the current state to ensure that we do not modify the
   // generated `RemoteEvent`.
