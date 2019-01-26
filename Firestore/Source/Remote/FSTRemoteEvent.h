@@ -44,8 +44,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)
     initWithSnapshotVersion:(firebase::firestore::model::SnapshotVersion)snapshotVersion
               targetChanges:
-                  (std::unordered_map<firebase::firestore::model::TargetId, firebase::firestore::remote::TargetChange>)
-                      targetChanges
+                  (std::unordered_map<firebase::firestore::model::TargetId,
+                                      firebase::firestore::remote::TargetChange>)targetChanges
            targetMismatches:
                (std::unordered_set<firebase::firestore::model::TargetId>)targetMismatches
             documentUpdates:
@@ -63,8 +63,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (const firebase::firestore::model::DocumentKeySet &)limboDocumentChanges;
 
 /** A map from target to changes to the target. See TargetChange. */
-- (const std::unordered_map<firebase::firestore::model::TargetId, firebase::firestore::remote::TargetChange> &)
-    targetChanges;
+- (const std::unordered_map<firebase::firestore::model::TargetId,
+                            firebase::firestore::remote::TargetChange> &)targetChanges;
 
 /**
  * A set of targets that is known to be inconsistent. Listens for these targets should be

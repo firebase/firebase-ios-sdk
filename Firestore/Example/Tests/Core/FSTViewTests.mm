@@ -156,7 +156,8 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocument *doc5 =
       FSTTestDoc("rooms/eros/messages/5", 0, @{@"sort" : @1}, FSTDocumentStateSynced);
 
-  FSTViewSnapshot *snapshot = FSTTestApplyChanges(view, @[ doc1, doc2, doc3, doc4, doc5 ], absl::nullopt);
+  FSTViewSnapshot *snapshot =
+      FSTTestApplyChanges(view, @[ doc1, doc2, doc3, doc4, doc5 ], absl::nullopt);
 
   XCTAssertEqual(snapshot.query, query);
 

@@ -257,9 +257,10 @@ NSComparator FSTTestDocComparator(const absl::string_view fieldPath);
 FSTDocumentSet *FSTTestDocSet(NSComparator comp, NSArray<FSTDocument *> *docs);
 
 /** Computes changes to the view with the docs and then applies them and returns the snapshot. */
-FSTViewSnapshot *_Nullable FSTTestApplyChanges(FSTView *view,
-                                               NSArray<FSTMaybeDocument *> *docs,
-                                               const absl::optional<firebase::firestore::remote::TargetChange> & targetChange);
+FSTViewSnapshot *_Nullable FSTTestApplyChanges(
+    FSTView *view,
+    NSArray<FSTMaybeDocument *> *docs,
+    const absl::optional<firebase::firestore::remote::TargetChange> &targetChange);
 
 /** Creates a set mutation for the document key at the given path. */
 FSTSetMutation *FSTTestSetMutation(NSString *path, NSDictionary<NSString *, id> *values);
@@ -306,7 +307,8 @@ FSTLocalViewChanges *FSTTestViewChanges(firebase::firestore::model::TargetId tar
                                         NSArray<NSString *> *removedKeys);
 
 /** Creates a test target change that acks all 'docs' and  marks the target as CURRENT  */
-firebase::firestore::remote::TargetChange FSTTestTargetChangeAckDocuments(firebase::firestore::model::DocumentKeySet docs);
+firebase::firestore::remote::TargetChange FSTTestTargetChangeAckDocuments(
+    firebase::firestore::model::DocumentKeySet docs);
 
 /** Creates a test target change that marks the target as CURRENT  */
 firebase::firestore::remote::TargetChange FSTTestTargetChangeMarkCurrent();

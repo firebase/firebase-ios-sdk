@@ -300,7 +300,7 @@ MaybeDocumentMap FSTTestDocUpdates(NSArray<FSTMaybeDocument *> *docs) {
 
 FSTViewSnapshot *_Nullable FSTTestApplyChanges(FSTView *view,
                                                NSArray<FSTMaybeDocument *> *docs,
-                                               const absl::optional<TargetChange>& targetChange) {
+                                               const absl::optional<TargetChange> &targetChange) {
   return [view applyChangesToDocuments:[view computeChangesWithDocuments:FSTTestDocUpdates(docs)]
                           targetChange:targetChange]
       .snapshot;

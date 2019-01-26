@@ -349,7 +349,7 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(DocumentViewChangeTy
 }
 
 - (FSTViewChange *)applyChangesToDocuments:(FSTViewDocumentChanges *)docChanges
-                              targetChange:(const absl::optional<TargetChange>&)targetChange {
+                              targetChange:(const absl::optional<TargetChange> &)targetChange {
   HARD_ASSERT(!docChanges.needsRefill, "Cannot apply changes that need a refill");
 
   FSTDocumentSet *oldDocuments = self.documentSet;
@@ -435,9 +435,9 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(DocumentViewChangeTy
 /**
  * Updates syncedDocuments and current based on the given change.
  */
-- (void)applyTargetChange:(const absl::optional<TargetChange>&)maybeTargetChange {
+- (void)applyTargetChange:(const absl::optional<TargetChange> &)maybeTargetChange {
   if (maybeTargetChange.has_value()) {
-    const TargetChange& target_change = maybeTargetChange.value();
+    const TargetChange &target_change = maybeTargetChange.value();
 
     for (const DocumentKey &key : target_change.added_documents()) {
       _syncedDocuments = _syncedDocuments.insert(key);

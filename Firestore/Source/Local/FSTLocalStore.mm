@@ -218,7 +218,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
     DocumentKeySet authoritativeUpdates;
     for (const auto &entry : remoteEvent.targetChanges) {
       TargetId targetID = entry.first;
-      const TargetChange& change = entry.second;
+      const TargetChange &change = entry.second;
 
       // Do not ref/unref unassigned targetIDs - it may lead to leaks.
       auto found = _targetIDs.find(targetID);
@@ -330,7 +330,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
  */
 - (BOOL)shouldPersistQueryData:(FSTQueryData *)newQueryData
                   oldQueryData:(FSTQueryData *)oldQueryData
-                        change:(const TargetChange&)change {
+                        change:(const TargetChange &)change {
   // Avoid clearing any existing value
   if (newQueryData.resumeToken.length == 0) return NO;
 
@@ -376,9 +376,10 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 }
 
 - (nullable FSTMaybeDocument *)readDocument:(const DocumentKey &)key {
-  return self.persistence.run("ReadDocument", [&]() -> FSTMaybeDocument *_Nullable {
-    return [self.localDocuments documentForKey:key];
-  });
+  return self.persistence.run(
+      "ReadDocument", [&]() -> FSTMaybeDocument *_Nullable {
+        return [self.localDocuments documentForKey:key];
+      });
 }
 
 - (FSTQueryData *)allocateQuery:(FSTQuery *)query {

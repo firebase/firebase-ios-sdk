@@ -378,7 +378,7 @@ static const int kMaxPendingWrites = 10;
   // Update in-memory resume tokens. FSTLocalStore will update the persistent view of these when
   // applying the completed FSTRemoteEvent.
   for (const auto &entry : remoteEvent.targetChanges) {
-    const TargetChange& target_change = entry.second;
+    const TargetChange &target_change = entry.second;
     NSData *resumeToken = target_change.resume_token();
     if (resumeToken.length > 0) {
       TargetId targetID = entry.first;

@@ -28,7 +28,7 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-//class TargetChange;
+// class TargetChange;
 
 }  // namespace remote
 }  // namespace firestore
@@ -151,8 +151,10 @@ typedef NS_ENUM(NSInteger, FSTLimboDocumentChangeType) {
  * @param targetChange A target change to apply for computing limbo docs and sync state.
  * @return A new FSTViewChange with the given docs, changes, and sync state.
  */
-- (FSTViewChange *)applyChangesToDocuments:(FSTViewDocumentChanges *)docChanges
-                              targetChange:(const absl::optional<firebase::firestore::remote::TargetChange>&)targetChange;
+- (FSTViewChange *)
+    applyChangesToDocuments:(FSTViewDocumentChanges *)docChanges
+               targetChange:
+                   (const absl::optional<firebase::firestore::remote::TargetChange> &)targetChange;
 
 /**
  * Applies an OnlineState change to the view, potentially generating an FSTViewChange if the
