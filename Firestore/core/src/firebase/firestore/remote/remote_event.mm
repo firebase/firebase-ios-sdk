@@ -176,10 +176,8 @@ void WatchChangeAggregator::HandleTargetChange(
           target_state.UpdateResumeToken(target_change.resume_token());
         }
         break;
-      default:
-        HARD_FAIL("Unknown target watch change state: %s",
-                  target_change.state());
     }
+    HARD_FAIL("Unknown target watch change state: %s", target_change.state());
   }
 }
 
