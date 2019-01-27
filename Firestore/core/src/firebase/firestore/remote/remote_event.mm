@@ -143,7 +143,7 @@ void WatchChangeAggregator::HandleTargetChange(
         if (IsActiveTarget(target_id)) {
           target_state.UpdateResumeToken(target_change.resume_token());
         }
-        break;
+        continue;
       case WatchTargetChangeState::Added:
         // We need to decrement the number of pending acks needed from watch for
         // this target_id.
@@ -155,7 +155,7 @@ void WatchChangeAggregator::HandleTargetChange(
           target_state.ClearPendingChanges();
         }
         target_state.UpdateResumeToken(target_change.resume_token());
-        break;
+        continue;
       case WatchTargetChangeState::Removed:
         // We need to keep track of removed targets to we can post-filter and
         // remove any target changes.
@@ -167,13 +167,13 @@ void WatchChangeAggregator::HandleTargetChange(
         }
         HARD_ASSERT(target_change.cause().ok(),
                     "WatchChangeAggregator does not handle errored targets");
-        break;
+        continue;
       case WatchTargetChangeState::Current:
         if (IsActiveTarget(target_id)) {
           target_state.MarkCurrent();
           target_state.UpdateResumeToken(target_change.resume_token());
         }
-        break;
+        continue;
       case WatchTargetChangeState::Reset:
         if (IsActiveTarget(target_id)) {
           // Reset the target and synthesizes removes for all existing
@@ -182,7 +182,7 @@ void WatchChangeAggregator::HandleTargetChange(
           ResetTarget(target_id);
           target_state.UpdateResumeToken(target_change.resume_token());
         }
-        break;
+        continue;
     }
     HARD_FAIL("Unknown target watch change state: %s", target_change.state());
   }
