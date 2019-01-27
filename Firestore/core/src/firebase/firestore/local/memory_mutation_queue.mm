@@ -42,6 +42,12 @@ MemoryMutationQueue::MemoryMutationQueue(FSTMemoryPersistence* persistence)
     : persistence_(persistence) {
 }
 
+bool MemoryMutationQueue::IsEmpty() {
+  // If the queue has any entries at all, the first entry must not be a
+  // tombstone (otherwise it would have been removed already).
+  return queue_.empty();
+}
+
 void MemoryMutationQueue::AcknowledgeBatch(FSTMutationBatch* batch,
                                            NSData* _Nullable stream_token) {
   HARD_ASSERT(!queue_.empty(), "Cannot acknowledge batch on an empty queue");
@@ -60,7 +66,7 @@ void MemoryMutationQueue::Start() {
   // the queue for the duration of the app session in case a user logs out /
   // back in. To behave like the LevelDB-backed MutationQueue (and accommodate
   // tests that expect as much), we reset nextBatchID if the queue is empty.
-  if (is_empty()) {
+  if (IsEmpty()) {
     next_batch_id_ = 1;
   }
 }
@@ -236,6 +242,14 @@ size_t MemoryMutationQueue::CalculateByteSize(FSTLocalSerializer* serializer) {
     count += [[serializer encodedMutationBatch:batch] serializedSize];
   };
   return count;
+}
+
+NSData* _Nullable MemoryMutationQueue::GetLastStreamToken() {
+  return last_stream_token_;
+}
+
+void MemoryMutationQueue::SetLastStreamToken(NSData* _Nullable token) {
+  last_stream_token_ = token;
 }
 
 std::vector<FSTMutationBatch*> MemoryMutationQueue::AllMutationBatchesWithIds(

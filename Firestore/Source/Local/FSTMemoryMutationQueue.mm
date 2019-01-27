@@ -65,11 +65,11 @@ static NSArray<FSTMutationBatch *> *toNSArray(const std::vector<FSTMutationBatch
 }
 
 - (void)setLastStreamToken:(NSData *_Nullable)streamToken {
-  _delegate->set_last_stream_token(streamToken);
+  _delegate->SetLastStreamToken(streamToken);
 }
 
 - (NSData *_Nullable)lastStreamToken {
-  return _delegate->last_stream_token();
+  return _delegate->GetLastStreamToken();
 }
 
 #pragma mark - FSTMutationQueue implementation
@@ -79,7 +79,7 @@ static NSArray<FSTMutationBatch *> *toNSArray(const std::vector<FSTMutationBatch
 }
 
 - (BOOL)isEmpty {
-  return _delegate->is_empty();
+  return _delegate->IsEmpty();
 }
 
 - (void)acknowledgeBatch:(FSTMutationBatch *)batch streamToken:(nullable NSData *)streamToken {
