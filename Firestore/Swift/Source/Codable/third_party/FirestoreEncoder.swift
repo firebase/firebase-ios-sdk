@@ -342,10 +342,7 @@ extension _FirestoreEncoder {
       return box((value as! URL).absoluteString)
     } else if T.self == Decimal.self || T.self == NSDecimalNumber.self {
       return (value as! NSDecimalNumber)
-    } else if T.self == GeoPoint.self ||
-              T.self == DocumentReference.self ||
-              T.self == FieldValue.self ||
-              T.self == Timestamp.self {
+    } else if isCodablePassThroughType(value) {
       // These are all native _Firestore types that we don't need to Encode
       return (value as! NSObject)
     }

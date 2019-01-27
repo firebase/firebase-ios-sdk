@@ -982,39 +982,37 @@ extension _FirestoreDecoder {
   }
 
   func unbox<T: Decodable>(_ value: Any, as type: T.Type) throws -> T? {
-    let decoded: T
     if T.self == Date.self || T.self == NSDate.self {
       guard let date = try self.unbox(value, as: Date.self) else { return nil }
-      decoded = date as! T
-    } else if T.self == Data.self || T.self == NSData.self {
+      return (date as! T)
+    }
+    if T.self == Data.self || T.self == NSData.self {
       guard let data = try self.unbox(value, as: Data.self) else { return nil }
-      decoded = data as! T
-    } else if T.self == URL.self || T.self == NSURL.self {
+      return (data as! T)
+    }
+    if T.self == URL.self || T.self == NSURL.self {
       guard let urlString = try self.unbox(value, as: String.self) else {
         return nil
       }
-
       guard let url = URL(string: urlString) else {
         throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: codingPath,
                                                                 debugDescription: "Invalid URL string."))
       }
-
-      decoded = (url as! T)
-    } else if T.self == Decimal.self || T.self == NSDecimalNumber.self {
-      guard let decimal = try self.unbox(value, as: Decimal.self) else { return nil }
-      decoded = decimal as! T
-    } else if T.self == GeoPoint.self ||
-              T.self == DocumentReference.self ||
-              T.self == FieldValue.self ||
-              T.self == Timestamp.self {
-      // All the native types that should not be encoded
-      decoded = value as! T
-    } else {
-      storage.push(container: value)
-      decoded = try T(from: self)
-      storage.popContainer()
+      return (url as! T)
     }
-
+    if T.self == Decimal.self || T.self == NSDecimalNumber.self {
+      guard let decimal = try self.unbox(value, as: Decimal.self) else { return nil }
+      return (decimal as! T)
+    }
+    if let _ = value as? Codable {
+      if isCodablePassThroughType(value as! T) {
+        // All the native Firestore types that should not be encoded
+        return (value as! T)
+      }
+    }
+    storage.push(container: value)
+    let decoded = try T(from: self)
+    storage.popContainer()
     return decoded
   }
 }
