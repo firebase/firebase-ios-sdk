@@ -20,7 +20,6 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
-#include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
 
 #include "absl/types/optional.h"
 
@@ -28,7 +27,7 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-// class TargetChange;
+class TargetChange;
 
 }  // namespace remote
 }  // namespace firestore
