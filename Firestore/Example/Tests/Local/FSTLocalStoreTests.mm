@@ -37,6 +37,7 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
+#include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
@@ -50,6 +51,7 @@ using firebase::firestore::model::DocumentMap;
 using firebase::firestore::model::MaybeDocumentMap;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::remote::WatchChangeAggregator;
 using firebase::firestore::remote::WatchTargetChange;
 using firebase::firestore::remote::WatchTargetChangeState;
 using firebase::firestore::util::Status;
@@ -904,12 +906,11 @@ NS_ASSUME_NONNULL_BEGIN
   NSData *resumeToken = FSTTestResumeTokenFromSnapshotVersion(1000);
 
   WatchTargetChange watchChange{WatchTargetChangeState::Current, {targetID}, resumeToken};
-  FSTWatchChangeAggregator *aggregator = [[FSTWatchChangeAggregator alloc]
-      initWithTargetMetadataProvider:[FSTTestTargetMetadataProvider
-                                         providerWithSingleResultForKey:testutil::Key("foo/bar")
-                                                                targets:{targetID}]];
-  [aggregator handleTargetChange:watchChange];
-  FSTRemoteEvent *remoteEvent = [aggregator remoteEventAtSnapshotVersion:testutil::Version(1000)];
+  WatchChangeAggregator aggregator{[FSTTestTargetMetadataProvider
+      providerWithSingleResultForKey:testutil::Key("foo/bar")
+                             targets:{targetID}]};
+  aggregator.HandleTargetChange(watchChange);
+  FSTRemoteEvent *remoteEvent = aggregator.CreateRemoteEvent(testutil::Version(1000));
   [self applyRemoteEvent:remoteEvent];
 
   // Stop listening so that the query should become inactive (but persistent)

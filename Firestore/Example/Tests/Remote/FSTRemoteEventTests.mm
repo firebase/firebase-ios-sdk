@@ -30,6 +30,7 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/remote/existence_filter.h"
+#include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
@@ -46,6 +47,7 @@ using firebase::firestore::remote::DocumentWatchChange;
 using firebase::firestore::remote::ExistenceFilter;
 using firebase::firestore::remote::ExistenceFilterWatchChange;
 using firebase::firestore::remote::WatchChange;
+using firebase::firestore::remote::WatchChangeAggregator;
 using firebase::firestore::remote::WatchTargetChange;
 using firebase::firestore::remote::WatchTargetChangeState;
 using firebase::firestore::testutil::VectorOfUniquePtrs;
@@ -135,7 +137,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
 
 /**
  * Creates an aggregator initialized with the set of provided `WatchChange`s. Tests can add further
- * changes via `handleDocumentChange`, `handleTargetChange` and `handleExistenceFilterChange`.
+ * changes via `HandleDocumentChange`, `HandleTargetChange` and `HandleExistenceFilterChange`.
  *
  * @param targetMap A map of query data for all active targets. The map must include an entry for
  * every target referenced by any of the watch changes.
@@ -147,13 +149,12 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
  * @param watchChanges The watch changes to apply before returning the aggregator. Supported
  * changes are `DocumentWatchChange` and `WatchTargetChange`.
  */
-- (FSTWatchChangeAggregator *)
+- (WatchChangeAggregator)
     aggregatorWithTargetMap:(const std::unordered_map<TargetId, FSTQueryData *> &)targetMap
        outstandingResponses:(const std::unordered_map<TargetId, int> &)outstandingResponses
                existingKeys:(DocumentKeySet)existingKeys
                     changes:(const std::vector<std::unique_ptr<WatchChange>> &)watchChanges {
-  FSTWatchChangeAggregator *aggregator =
-      [[FSTWatchChangeAggregator alloc] initWithTargetMetadataProvider:_targetMetadataProvider];
+  WatchChangeAggregator aggregator{_targetMetadataProvider};
 
   std::vector<TargetId> targetIDs;
   for (const auto &kv : targetMap) {
@@ -168,18 +169,18 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
     TargetId targetID = kv.first;
     int count = kv.second;
     for (int i = 0; i < count; ++i) {
-      [aggregator recordTargetRequest:targetID];
+      aggregator.RecordPendingTargetRequest(targetID);
     }
   }
 
   for (const std::unique_ptr<WatchChange> &change : watchChanges) {
     switch (change->type()) {
       case WatchChange::Type::Document: {
-        [aggregator handleDocumentChange:*static_cast<const DocumentWatchChange *>(change.get())];
+        aggregator.HandleDocumentChange(*static_cast<const DocumentWatchChange *>(change.get()));
         break;
       }
       case WatchChange::Type::TargetChange: {
-        [aggregator handleTargetChange:*static_cast<const WatchTargetChange *>(change.get())];
+        aggregator.HandleTargetChange(*static_cast<const WatchTargetChange *>(change.get()));
         break;
       }
       default:
@@ -187,8 +188,8 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
     }
   }
 
-  [aggregator handleTargetChange:WatchTargetChange{WatchTargetChangeState::NoChange, targetIDs,
-                                                   _resumeToken1}];
+  aggregator.HandleTargetChange(
+      WatchTargetChange{WatchTargetChangeState::NoChange, targetIDs, _resumeToken1});
 
   return aggregator;
 }
@@ -213,11 +214,11 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
             outstandingResponses:(const std::unordered_map<TargetId, int> &)outstandingResponses
                     existingKeys:(DocumentKeySet)existingKeys
                          changes:(const std::vector<std::unique_ptr<WatchChange>> &)watchChanges {
-  FSTWatchChangeAggregator *aggregator = [self aggregatorWithTargetMap:targetMap
-                                                  outstandingResponses:outstandingResponses
-                                                          existingKeys:existingKeys
-                                                               changes:watchChanges];
-  return [aggregator remoteEventAtSnapshotVersion:testutil::Version(snapshotVersion)];
+  WatchChangeAggregator aggregator = [self aggregatorWithTargetMap:targetMap
+                                              outstandingResponses:outstandingResponses
+                                                      existingKeys:existingKeys
+                                                           changes:watchChanges];
+  return aggregator.CreateRemoteEvent(testutil::Version(snapshotVersion));
 }
 
 - (void)testWillAccumulateDocumentAddedAndRemovedEvents {
@@ -378,13 +379,13 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
   // Reset target
   WatchTargetChange change{WatchTargetChangeState::Reset, {1}};
 
-  FSTWatchChangeAggregator *aggregator = [self aggregatorWithTargetMap:targetMap
-                                                  outstandingResponses:_noOutstandingResponses
-                                                          existingKeys:DocumentKeySet {}
-                                                               changes:{}];
-  [aggregator handleTargetChange:change];
+  WatchChangeAggregator aggregator = [self aggregatorWithTargetMap:targetMap
+                                              outstandingResponses:_noOutstandingResponses
+                                                      existingKeys:DocumentKeySet {}
+                                                           changes:{}];
+  aggregator.HandleTargetChange(change);
 
-  FSTRemoteEvent *event = [aggregator remoteEventAtSnapshotVersion:testutil::Version(3)];
+  FSTRemoteEvent *event = aggregator.CreateRemoteEvent(testutil::Version(3));
 
   XCTAssertEqual(event.snapshotVersion, testutil::Version(3));
   XCTAssertEqual(event.documentUpdates.size(), 0);
@@ -493,15 +494,15 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
 - (void)testNoChangeWillStillMarkTheAffectedTargets {
   std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1}]};
 
-  FSTWatchChangeAggregator *aggregator = [self aggregatorWithTargetMap:targetMap
-                                                  outstandingResponses:_noOutstandingResponses
-                                                          existingKeys:DocumentKeySet {}
-                                                               changes:{}];
+  WatchChangeAggregator aggregator = [self aggregatorWithTargetMap:targetMap
+                                              outstandingResponses:_noOutstandingResponses
+                                                      existingKeys:DocumentKeySet {}
+                                                           changes:{}];
 
   WatchTargetChange change{WatchTargetChangeState::NoChange, {1}, _resumeToken1};
-  [aggregator handleTargetChange:change];
+  aggregator.HandleTargetChange(change);
 
-  FSTRemoteEvent *event = [aggregator remoteEventAtSnapshotVersion:testutil::Version(3)];
+  FSTRemoteEvent *event = aggregator.CreateRemoteEvent(testutil::Version(3));
 
   XCTAssertEqual(event.snapshotVersion, testutil::Version(3));
   XCTAssertEqual(event.documentUpdates.size(), 0);
@@ -521,13 +522,13 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
   auto change2 = MakeDocChange({1}, {}, doc2.key, doc2);
   auto change3 = MakeTargetChange(WatchTargetChangeState::Current, {1}, _resumeToken1);
 
-  FSTWatchChangeAggregator *aggregator = [self
+  WatchChangeAggregator aggregator = [self
       aggregatorWithTargetMap:targetMap
          outstandingResponses:_noOutstandingResponses
                  existingKeys:DocumentKeySet{doc1.key, doc2.key}
                       changes:Changes(std::move(change1), std::move(change2), std::move(change3))];
 
-  FSTRemoteEvent *event = [aggregator remoteEventAtSnapshotVersion:testutil::Version(3)];
+  FSTRemoteEvent *event = aggregator.CreateRemoteEvent(testutil::Version(3));
 
   XCTAssertEqual(event.snapshotVersion, testutil::Version(3));
   XCTAssertEqual(event.documentUpdates.size(), 2);
@@ -547,9 +548,9 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
   // The existence filter mismatch will remove the document from target 1,
   // but not synthesize a document delete.
   ExistenceFilterWatchChange change4{ExistenceFilter{1}, 1};
-  [aggregator handleExistenceFilter:change4];
+  aggregator.HandleExistenceFilter(change4);
 
-  event = [aggregator remoteEventAtSnapshotVersion:testutil::Version(4)];
+  event = aggregator.CreateRemoteEvent(testutil::Version(4));
 
   FSTTargetChange *targetChange3 = FSTTestTargetChange(
       DocumentKeySet{}, DocumentKeySet{}, DocumentKeySet{doc1.key, doc2.key}, [NSData data], NO);
@@ -563,24 +564,24 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
 - (void)testExistenceFilterMismatchRemovesCurrentChanges {
   std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1}]};
 
-  FSTWatchChangeAggregator *aggregator = [self aggregatorWithTargetMap:targetMap
-                                                  outstandingResponses:_noOutstandingResponses
-                                                          existingKeys:DocumentKeySet {}
-                                                               changes:{}];
+  WatchChangeAggregator aggregator = [self aggregatorWithTargetMap:targetMap
+                                              outstandingResponses:_noOutstandingResponses
+                                                      existingKeys:DocumentKeySet {}
+                                                           changes:{}];
 
   WatchTargetChange markCurrent{WatchTargetChangeState::Current, {1}, _resumeToken1};
-  [aggregator handleTargetChange:markCurrent];
+  aggregator.HandleTargetChange(markCurrent);
 
   FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{@"value" : @1}, FSTDocumentStateSynced);
   DocumentWatchChange addDoc{{1}, {}, doc1.key, doc1};
-  [aggregator handleDocumentChange:addDoc];
+  aggregator.HandleDocumentChange(addDoc);
 
   // The existence filter mismatch will remove the document from target 1, but not synthesize a
   // document delete.
   ExistenceFilterWatchChange existenceFilter{ExistenceFilter{0}, 1};
-  [aggregator handleExistenceFilter:existenceFilter];
+  aggregator.HandleExistenceFilter(existenceFilter);
 
-  FSTRemoteEvent *event = [aggregator remoteEventAtSnapshotVersion:testutil::Version(3)];
+  FSTRemoteEvent *event = aggregator.CreateRemoteEvent(testutil::Version(3));
 
   XCTAssertEqual(event.snapshotVersion, testutil::Version(3));
   XCTAssertEqual(event.documentUpdates.size(), 1);
@@ -602,13 +603,13 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
   FSTDocument *doc2 = FSTTestDoc("docs/2", 2, @{@"value" : @2}, FSTDocumentStateSynced);
   auto change2 = MakeDocChange({1}, {}, doc2.key, doc2);
 
-  FSTWatchChangeAggregator *aggregator =
+  WatchChangeAggregator aggregator =
       [self aggregatorWithTargetMap:targetMap
                outstandingResponses:_noOutstandingResponses
                        existingKeys:DocumentKeySet {}
                             changes:Changes(std::move(change1), std::move(change2))];
 
-  FSTRemoteEvent *event = [aggregator remoteEventAtSnapshotVersion:testutil::Version(3)];
+  FSTRemoteEvent *event = aggregator.CreateRemoteEvent(testutil::Version(3));
 
   XCTAssertEqual(event.snapshotVersion, testutil::Version(3));
   XCTAssertEqual(event.documentUpdates.size(), 2);
@@ -622,17 +623,17 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
                                                                 version:testutil::Version(3)
                                                   hasCommittedMutations:NO];
   DocumentWatchChange change3{{}, {1}, deletedDoc1.key, deletedDoc1};
-  [aggregator handleDocumentChange:change3];
+  aggregator.HandleDocumentChange(change3);
 
   FSTDocument *updatedDoc2 = FSTTestDoc("docs/2", 3, @{@"value" : @2}, FSTDocumentStateSynced);
   DocumentWatchChange change4{{1}, {}, updatedDoc2.key, updatedDoc2};
-  [aggregator handleDocumentChange:change4];
+  aggregator.HandleDocumentChange(change4);
 
   FSTDocument *doc3 = FSTTestDoc("docs/3", 3, @{@"value" : @3}, FSTDocumentStateSynced);
   DocumentWatchChange change5{{1}, {}, doc3.key, doc3};
-  [aggregator handleDocumentChange:change5];
+  aggregator.HandleDocumentChange(change5);
 
-  event = [aggregator remoteEventAtSnapshotVersion:testutil::Version(3)];
+  event = aggregator.CreateRemoteEvent(testutil::Version(3));
 
   XCTAssertEqual(event.snapshotVersion, testutil::Version(3));
   XCTAssertEqual(event.documentUpdates.size(), 3);
@@ -655,19 +656,19 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
 - (void)testResumeTokensHandledPerTarget {
   std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1, 2}]};
 
-  FSTWatchChangeAggregator *aggregator = [self aggregatorWithTargetMap:targetMap
-                                                  outstandingResponses:_noOutstandingResponses
-                                                          existingKeys:DocumentKeySet {}
-                                                               changes:{}];
+  WatchChangeAggregator aggregator = [self aggregatorWithTargetMap:targetMap
+                                              outstandingResponses:_noOutstandingResponses
+                                                      existingKeys:DocumentKeySet {}
+                                                           changes:{}];
 
   WatchTargetChange change1{WatchTargetChangeState::Current, {1}, _resumeToken1};
-  [aggregator handleTargetChange:change1];
+  aggregator.HandleTargetChange(change1);
 
   NSData *resumeToken2 = [@"resume2" dataUsingEncoding:NSUTF8StringEncoding];
   WatchTargetChange change2{WatchTargetChangeState::Current, {2}, resumeToken2};
-  [aggregator handleTargetChange:change2];
+  aggregator.HandleTargetChange(change2);
 
-  FSTRemoteEvent *event = [aggregator remoteEventAtSnapshotVersion:testutil::Version(3)];
+  FSTRemoteEvent *event = aggregator.CreateRemoteEvent(testutil::Version(3));
   XCTAssertEqual(event.targetChanges.size(), 2);
 
   FSTTargetChange *targetChange1 =
@@ -682,23 +683,23 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
 - (void)testLastResumeTokenWins {
   std::unordered_map<TargetId, FSTQueryData *> targetMap{[self queryDataForTargets:{1, 2}]};
 
-  FSTWatchChangeAggregator *aggregator = [self aggregatorWithTargetMap:targetMap
-                                                  outstandingResponses:_noOutstandingResponses
-                                                          existingKeys:DocumentKeySet {}
-                                                               changes:{}];
+  WatchChangeAggregator aggregator = [self aggregatorWithTargetMap:targetMap
+                                              outstandingResponses:_noOutstandingResponses
+                                                      existingKeys:DocumentKeySet {}
+                                                           changes:{}];
 
   WatchTargetChange change1{WatchTargetChangeState::Current, {1}, _resumeToken1};
-  [aggregator handleTargetChange:change1];
+  aggregator.HandleTargetChange(change1);
 
   NSData *resumeToken2 = [@"resume2" dataUsingEncoding:NSUTF8StringEncoding];
   WatchTargetChange change2{WatchTargetChangeState::NoChange, {1}, resumeToken2};
-  [aggregator handleTargetChange:change2];
+  aggregator.HandleTargetChange(change2);
 
   NSData *resumeToken3 = [@"resume3" dataUsingEncoding:NSUTF8StringEncoding];
   WatchTargetChange change3{WatchTargetChangeState::NoChange, {2}, resumeToken3};
-  [aggregator handleTargetChange:change3];
+  aggregator.HandleTargetChange(change3);
 
-  FSTRemoteEvent *event = [aggregator remoteEventAtSnapshotVersion:testutil::Version(3)];
+  FSTRemoteEvent *event = aggregator.CreateRemoteEvent(testutil::Version(3));
   XCTAssertEqual(event.targetChanges.size(), 2);
 
   FSTTargetChange *targetChange1 =

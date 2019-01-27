@@ -25,30 +25,13 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 
 @class FSTMaybeDocument;
 @class FSTQueryData;
 
 NS_ASSUME_NONNULL_BEGIN
-
-/**
- * Interface implemented by RemoteStore to expose target metadata to the FSTWatchChangeAggregator.
- */
-@protocol FSTTargetMetadataProvider
-
-/**
- * Returns the set of remote document keys for the given target ID as of the last raised snapshot.
- */
-- (firebase::firestore::model::DocumentKeySet)remoteKeysForTarget:
-    (firebase::firestore::model::TargetId)targetID;
-
-/**
- * Returns the FSTQueryData for an active target ID or 'null' if this query has become inactive
- */
-- (nullable FSTQueryData *)queryDataForTarget:(firebase::firestore::model::TargetId)targetID;
-
-@end
 
 #pragma mark - FSTTargetChange
 
@@ -152,51 +135,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (const std::unordered_map<firebase::firestore::model::DocumentKey,
                             FSTMaybeDocument *,
                             firebase::firestore::model::DocumentKeyHash> &)documentUpdates;
-
-@end
-
-#pragma mark - FSTWatchChangeAggregator
-
-/**
- * A helper class to accumulate watch changes into a FSTRemoteEvent and other target
- * information.
- */
-@interface FSTWatchChangeAggregator : NSObject
-
-- (instancetype)initWithTargetMetadataProvider:(id<FSTTargetMetadataProvider>)targetMetadataProvider
-    NS_DESIGNATED_INITIALIZER;
-
-- (instancetype)init NS_UNAVAILABLE;
-
-/** Processes and adds the DocumentWatchChange to the current set of changes. */
-- (void)handleDocumentChange:
-    (const firebase::firestore::remote::DocumentWatchChange &)documentChange;
-
-/** Processes and adds the WatchTargetChange to the current set of changes. */
-- (void)handleTargetChange:(const firebase::firestore::remote::WatchTargetChange &)targetChange;
-
-/** Removes the in-memory state for the provided target. */
-- (void)removeTarget:(firebase::firestore::model::TargetId)targetID;
-
-/**
- * Handles existence filters and synthesizes deletes for filter mismatches. Targets that are
- * invalidated by filter mismatches are added to `targetMismatches`.
- */
-- (void)handleExistenceFilter:
-    (const firebase::firestore::remote::ExistenceFilterWatchChange &)existenceFilter;
-
-/**
- * Increment the number of acks needed from watch before we can consider the server to be 'in-sync'
- * with the client's active targets.
- */
-- (void)recordTargetRequest:(firebase::firestore::model::TargetId)targetID;
-
-/**
- * Converts the current state into a remote event with the snapshot version taken from the
- * initializer.
- */
-- (FSTRemoteEvent *)remoteEventAtSnapshotVersion:
-    (const firebase::firestore::model::SnapshotVersion &)snapshotVersion;
 
 @end
 

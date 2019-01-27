@@ -49,6 +49,7 @@
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
+#include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
@@ -72,6 +73,7 @@ using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::model::TransformOperation;
 using firebase::firestore::remote::DocumentWatchChange;
+using firebase::firestore::remote::WatchChangeAggregator;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -377,12 +379,10 @@ FSTRemoteEvent *FSTTestAddedRemoteEvent(FSTMaybeDocument *doc,
   HARD_ASSERT(![doc isKindOfClass:[FSTDocument class]] || ![(FSTDocument *)doc hasLocalMutations],
               "Docs from remote updates shouldn't have local changes.");
   DocumentWatchChange change{addedToTargets, {}, doc.key, doc};
-  FSTWatchChangeAggregator *aggregator = [[FSTWatchChangeAggregator alloc]
-      initWithTargetMetadataProvider:[FSTTestTargetMetadataProvider
-                                         providerWithEmptyResultForKey:doc.key
-                                                               targets:addedToTargets]];
-  [aggregator handleDocumentChange:change];
-  return [aggregator remoteEventAtSnapshotVersion:doc.version];
+  WatchChangeAggregator aggregator{
+      [FSTTestTargetMetadataProvider providerWithEmptyResultForKey:doc.key targets:addedToTargets]};
+  aggregator.HandleDocumentChange(change);
+  return aggregator.CreateRemoteEvent(doc.version);
 }
 
 FSTTargetChange *FSTTestTargetChangeMarkCurrent() {
@@ -425,13 +425,12 @@ FSTRemoteEvent *FSTTestUpdateRemoteEventWithLimboTargets(
   std::vector<TargetId> listens = updatedInTargets;
   listens.insert(listens.end(), removedFromTargets.begin(), removedFromTargets.end());
 
-  FSTWatchChangeAggregator *aggregator = [[FSTWatchChangeAggregator alloc]
-      initWithTargetMetadataProvider:[FSTTestTargetMetadataProvider
-                                         providerWithSingleResultForKey:doc.key
-                                                          listenTargets:listens
-                                                           limboTargets:limboTargets]];
-  [aggregator handleDocumentChange:change];
-  return [aggregator remoteEventAtSnapshotVersion:doc.version];
+  WatchChangeAggregator aggregator{[FSTTestTargetMetadataProvider
+      providerWithSingleResultForKey:doc.key
+                       listenTargets:listens
+                        limboTargets:limboTargets]};
+  aggregator.HandleDocumentChange(change);
+  return aggregator.CreateRemoteEvent(doc.version);
 }
 
 FSTRemoteEvent *FSTTestUpdateRemoteEvent(FSTMaybeDocument *doc,
