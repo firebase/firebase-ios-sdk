@@ -21,7 +21,6 @@
 #include <utility>
 
 #import "FIRFirestoreErrors.h"
-#import "Firestore/Source/Core/FSTListenSequence.h"
 #import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 #import "Firestore/Source/Local/FSTLevelDBMutationQueue.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
@@ -35,6 +34,7 @@
 #include "Firestore/core/src/firebase/firestore/local/leveldb_remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_util.h"
+#include "Firestore/core/src/firebase/firestore/local/listen_sequence.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 #include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
@@ -66,6 +66,7 @@ using firebase::firestore::local::LevelDbMutationKey;
 using firebase::firestore::local::LevelDbQueryCache;
 using firebase::firestore::local::LevelDbRemoteDocumentCache;
 using firebase::firestore::local::LevelDbTransaction;
+using firebase::firestore::local::ListenSequence;
 using firebase::firestore::local::LruParams;
 using firebase::firestore::local::ReferenceSet;
 using firebase::firestore::local::RemoteDocumentCache;
@@ -119,7 +120,8 @@ static const char *kReservedPathComponent = "firestore";
   __weak FSTLevelDB *_db;
   ReferenceSet *_additionalReferences;
   ListenSequenceNumber _currentSequenceNumber;
-  FSTListenSequence *_listenSequence;
+  // PORTING NOTE: doesn't need to be a pointer once this class is ported to C++.
+  std::unique_ptr<ListenSequence> _listenSequence;
 }
 
 - (instancetype)initWithPersistence:(FSTLevelDB *)persistence lruParams:(LruParams)lruParams {
@@ -133,13 +135,13 @@ static const char *kReservedPathComponent = "firestore";
 
 - (void)start {
   ListenSequenceNumber highestSequenceNumber = _db.queryCache->highest_listen_sequence_number();
-  _listenSequence = [[FSTListenSequence alloc] initStartingAfter:highestSequenceNumber];
+  _listenSequence = absl::make_unique<ListenSequence>(highestSequenceNumber);
 }
 
 - (void)transactionWillStart {
   HARD_ASSERT(_currentSequenceNumber == kFSTListenSequenceNumberInvalid,
               "Previous sequence number is still in effect");
-  _currentSequenceNumber = [_listenSequence next];
+  _currentSequenceNumber = _listenSequence->Next();
 }
 
 - (void)transactionWillCommit {

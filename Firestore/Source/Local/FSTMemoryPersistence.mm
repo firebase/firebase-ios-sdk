@@ -21,11 +21,11 @@
 #include <unordered_set>
 #include <vector>
 
-#import "Firestore/Source/Core/FSTListenSequence.h"
 #import "Firestore/Source/Local/FSTMemoryMutationQueue.h"
 #include "absl/memory/memory.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/local/listen_sequence.h"
 #include "Firestore/core/src/firebase/firestore/local/memory_query_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/memory_remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_set.h"
@@ -34,6 +34,7 @@
 
 using firebase::firestore::auth::HashUser;
 using firebase::firestore::auth::User;
+using firebase::firestore::local::ListenSequence;
 using firebase::firestore::local::LruParams;
 using firebase::firestore::local::MemoryQueryCache;
 using firebase::firestore::local::MemoryRemoteDocumentCache;
@@ -161,7 +162,8 @@ NS_ASSUME_NONNULL_BEGIN
   std::unordered_map<DocumentKey, ListenSequenceNumber, DocumentKeyHash> _sequenceNumbers;
   ReferenceSet *_additionalReferences;
   FSTLRUGarbageCollector *_gc;
-  FSTListenSequence *_listenSequence;
+  // PORTING NOTE: when this class is ported to C++, this does not need to be a pointer
+  std::unique_ptr<ListenSequence> _listenSequence;
   ListenSequenceNumber _currentSequenceNumber;
   FSTLocalSerializer *_serializer;
 }
@@ -176,7 +178,7 @@ NS_ASSUME_NONNULL_BEGIN
     // Theoretically this is always 0, since this is all in-memory...
     ListenSequenceNumber highestSequenceNumber =
         _persistence.queryCache->highest_listen_sequence_number();
-    _listenSequence = [[FSTListenSequence alloc] initStartingAfter:highestSequenceNumber];
+    _listenSequence = absl::make_unique<ListenSequence>(highestSequenceNumber);
     _serializer = serializer;
   }
   return self;
@@ -210,7 +212,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)startTransaction:(absl::string_view)label {
-  _currentSequenceNumber = [_listenSequence next];
+  _currentSequenceNumber = _listenSequence->Next();
 }
 
 - (void)commitTransaction {
