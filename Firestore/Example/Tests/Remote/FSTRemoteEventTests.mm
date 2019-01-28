@@ -208,7 +208,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
  * @param watchChanges The watch changes to apply before creating the remote event. Supported
  * changes are `DocumentWatchChange` and `WatchTargetChange`.
  */
-- (FSTRemoteEvent *)
+- (RemoteEvent)
     remoteEventAtSnapshotVersion:(FSTTestSnapshotVersion)snapshotVersion
                        targetMap:(std::unordered_map<TargetId, FSTQueryData *>)targetMap
             outstandingResponses:(const std::unordered_map<TargetId, int> &)outstandingResponses
@@ -238,43 +238,43 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
   // with the default resume token (`_resumeToken1`).
   // As `existingDoc` is provided as an existing key, any updates to this document will be treated
   // as modifications rather than adds.
-  FSTRemoteEvent *event =
+  RemoteEvent event =
       [self remoteEventAtSnapshotVersion:3
                                targetMap:targetMap
                     outstandingResponses:_noOutstandingResponses
                             existingKeys:DocumentKeySet{existingDoc.key}
                                  changes:Changes(std::move(change1), std::move(change2))];
-  XCTAssertEqual(event.snapshotVersion, testutil::Version(3));
-  XCTAssertEqual(event.documentUpdates.size(), 2);
-  XCTAssertEqualObjects(event.documentUpdates.at(existingDoc.key), existingDoc);
-  XCTAssertEqualObjects(event.documentUpdates.at(newDoc.key), newDoc);
+  XCTAssertEqual(event.snapshot_version(), testutil::Version(3));
+  XCTAssertEqual(event.document_updates().size(), 2);
+  XCTAssertEqualObjects(event.document_updates().at(existingDoc.key), existingDoc);
+  XCTAssertEqualObjects(event.document_updates().at(newDoc.key), newDoc);
 
   // 'change1' and 'change2' affect six different targets
-  XCTAssertEqual(event.targetChanges.size(), 6);
+  XCTAssertEqual(event.target_changes().size(), 6);
 
   TargetChange targetChange1{_resumeToken1, false, DocumentKeySet{newDoc.key},
                              DocumentKeySet{existingDoc.key}, DocumentKeySet{}};
-  XCTAssertTrue(event.targetChanges.at(1) == targetChange1);
+  XCTAssertTrue(event.target_changes().at(1) == targetChange1);
 
   TargetChange targetChange2{_resumeToken1, false, DocumentKeySet{},
                              DocumentKeySet{existingDoc.key}, DocumentKeySet{}};
-  XCTAssertTrue(event.targetChanges.at(2) == targetChange2);
+  XCTAssertTrue(event.target_changes().at(2) == targetChange2);
 
   TargetChange targetChange3{_resumeToken1, false, DocumentKeySet{},
                              DocumentKeySet{existingDoc.key}, DocumentKeySet{}};
-  XCTAssertTrue(event.targetChanges.at(3) == targetChange3);
+  XCTAssertTrue(event.target_changes().at(3) == targetChange3);
 
   TargetChange targetChange4{_resumeToken1, false, DocumentKeySet{newDoc.key}, DocumentKeySet{},
                              DocumentKeySet{existingDoc.key}};
-  XCTAssertTrue(event.targetChanges.at(4) == targetChange4);
+  XCTAssertTrue(event.target_changes().at(4) == targetChange4);
 
   TargetChange targetChange5{_resumeToken1, false, DocumentKeySet{}, DocumentKeySet{},
                              DocumentKeySet{existingDoc.key}};
-  XCTAssertTrue(event.targetChanges.at(5) == targetChange5);
+  XCTAssertTrue(event.target_changes().at(5) == targetChange5);
 
   TargetChange targetChange6{_resumeToken1, false, DocumentKeySet{}, DocumentKeySet{},
                              DocumentKeySet{existingDoc.key}};
-  XCTAssertTrue(event.targetChanges.at(6) == targetChange6);
+  XCTAssertTrue(event.target_changes().at(6) == targetChange6);
 }
 
 - (void)testWillIgnoreEventsForPendingTargets {
@@ -290,20 +290,20 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
   // We're waiting for the unwatch and watch ack
   std::unordered_map<TargetId, int> outstandingResponses{{1, 2}};
 
-  FSTRemoteEvent *event =
+  RemoteEvent event =
       [self remoteEventAtSnapshotVersion:3
                                targetMap:targetMap
                     outstandingResponses:outstandingResponses
                             existingKeys:DocumentKeySet {}
                                  changes:Changes(std::move(change1), std::move(change2),
                                                  std::move(change3), std::move(change4))];
-  XCTAssertEqual(event.snapshotVersion, testutil::Version(3));
+  XCTAssertEqual(event.snapshot_version(), testutil::Version(3));
   // doc1 is ignored because it was part of an inactive target, but doc2 is in the changes
   // because it become active.
-  XCTAssertEqual(event.documentUpdates.size(), 1);
-  XCTAssertEqualObjects(event.documentUpdates.at(doc2.key), doc2);
+  XCTAssertEqual(event.document_updates().size(), 1);
+  XCTAssertEqualObjects(event.document_updates().at(doc2.key), doc2);
 
-  XCTAssertEqual(event.targetChanges.size(), 1);
+  XCTAssertEqual(event.target_changes().size(), 1);
 }
 
 - (void)testWillIgnoreEventsForRemovedTargets {
@@ -316,18 +316,18 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
   // We're waiting for the unwatch ack
   std::unordered_map<TargetId, int> outstandingResponses{{1, 1}};
 
-  FSTRemoteEvent *event =
+  RemoteEvent event =
       [self remoteEventAtSnapshotVersion:3
                                targetMap:targetMap
                     outstandingResponses:outstandingResponses
                             existingKeys:DocumentKeySet {}
                                  changes:Changes(std::move(change1), std::move(change2))];
-  XCTAssertEqual(event.snapshotVersion, testutil::Version(3));
+  XCTAssertEqual(event.snapshot_version(), testutil::Version(3));
   // doc1 is ignored because it was part of an inactive target
-  XCTAssertEqual(event.documentUpdates.size(), 0);
+  XCTAssertEqual(event.document_updates().size(), 0);
 
   // Target 1 is ignored because it was removed
-  XCTAssertEqual(event.targetChanges.size(), 0);
+  XCTAssertEqual(event.target_changes().size(), 0);
 }
 
 - (void)testWillKeepResetMappingEvenWithUpdates {
@@ -349,7 +349,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
   // Remove doc2 again, should not show up in reset mapping
   auto change5 = MakeDocChange({}, {1}, doc2.key, doc2);
 
-  FSTRemoteEvent *event =
+  RemoteEvent event =
       [self remoteEventAtSnapshotVersion:3
                                targetMap:targetMap
                     outstandingResponses:_noOutstandingResponses
@@ -357,18 +357,18 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
                                  changes:Changes(std::move(change1), std::move(change2),
                                                  std::move(change3), std::move(change4),
                                                  std::move(change5))];
-  XCTAssertEqual(event.snapshotVersion, testutil::Version(3));
-  XCTAssertEqual(event.documentUpdates.size(), 3);
-  XCTAssertEqualObjects(event.documentUpdates.at(doc1.key), doc1);
-  XCTAssertEqualObjects(event.documentUpdates.at(doc2.key), doc2);
-  XCTAssertEqualObjects(event.documentUpdates.at(doc3.key), doc3);
+  XCTAssertEqual(event.snapshot_version(), testutil::Version(3));
+  XCTAssertEqual(event.document_updates().size(), 3);
+  XCTAssertEqualObjects(event.document_updates().at(doc1.key), doc1);
+  XCTAssertEqualObjects(event.document_updates().at(doc2.key), doc2);
+  XCTAssertEqualObjects(event.document_updates().at(doc3.key), doc3);
 
-  XCTAssertEqual(event.targetChanges.size(), 1);
+  XCTAssertEqual(event.target_changes().size(), 1);
 
   // Only doc3 is part of the new mapping
   TargetChange expectedChange{_resumeToken1, false, DocumentKeySet{doc3.key}, DocumentKeySet{},
                               DocumentKeySet{doc1.key}};
-  XCTAssertTrue(event.targetChanges.at(1) == expectedChange);
+  XCTAssertTrue(event.target_changes().at(1) == expectedChange);
 }
 
 - (void)testWillHandleSingleReset {
@@ -383,16 +383,16 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
                                                            changes:{}];
   aggregator.HandleTargetChange(change);
 
-  FSTRemoteEvent *event = aggregator.CreateRemoteEvent(testutil::Version(3));
+  RemoteEvent event = aggregator.CreateRemoteEvent(testutil::Version(3));
 
-  XCTAssertEqual(event.snapshotVersion, testutil::Version(3));
-  XCTAssertEqual(event.documentUpdates.size(), 0);
-  XCTAssertEqual(event.targetChanges.size(), 1);
+  XCTAssertEqual(event.snapshot_version(), testutil::Version(3));
+  XCTAssertEqual(event.document_updates().size(), 0);
+  XCTAssertEqual(event.target_changes().size(), 1);
 
   // Reset mapping is empty
   TargetChange expectedChange{
       [NSData data], false, DocumentKeySet{}, DocumentKeySet{}, DocumentKeySet{}};
-  XCTAssertTrue(event.targetChanges.at(1) == expectedChange);
+  XCTAssertTrue(event.target_changes().at(1) == expectedChange);
 }
 
 - (void)testWillHandleTargetAddAndRemovalInSameBatch {
@@ -404,25 +404,25 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
   FSTDocument *doc1b = FSTTestDoc("docs/1", 1, @{@"value" : @2}, FSTDocumentStateSynced);
   auto change2 = MakeDocChange({2}, {1}, doc1b.key, doc1b);
 
-  FSTRemoteEvent *event =
+  RemoteEvent event =
       [self remoteEventAtSnapshotVersion:3
                                targetMap:targetMap
                     outstandingResponses:_noOutstandingResponses
                             existingKeys:DocumentKeySet{doc1a.key}
                                  changes:Changes(std::move(change1), std::move(change2))];
-  XCTAssertEqual(event.snapshotVersion, testutil::Version(3));
-  XCTAssertEqual(event.documentUpdates.size(), 1);
-  XCTAssertEqualObjects(event.documentUpdates.at(doc1b.key), doc1b);
+  XCTAssertEqual(event.snapshot_version(), testutil::Version(3));
+  XCTAssertEqual(event.document_updates().size(), 1);
+  XCTAssertEqualObjects(event.document_updates().at(doc1b.key), doc1b);
 
-  XCTAssertEqual(event.targetChanges.size(), 2);
+  XCTAssertEqual(event.target_changes().size(), 2);
 
   TargetChange targetChange1{_resumeToken1, false, DocumentKeySet{}, DocumentKeySet{},
                              DocumentKeySet{doc1b.key}};
-  XCTAssertTrue(event.targetChanges.at(1) == targetChange1);
+  XCTAssertTrue(event.target_changes().at(1) == targetChange1);
 
   TargetChange targetChange2{_resumeToken1, false, DocumentKeySet{}, DocumentKeySet{doc1b.key},
                              DocumentKeySet{}};
-  XCTAssertTrue(event.targetChanges.at(2) == targetChange2);
+  XCTAssertTrue(event.target_changes().at(2) == targetChange2);
 }
 
 - (void)testTargetCurrentChangeWillMarkTheTargetCurrent {
@@ -430,19 +430,19 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
 
   auto change = MakeTargetChange(WatchTargetChangeState::Current, {1}, _resumeToken1);
 
-  FSTRemoteEvent *event = [self remoteEventAtSnapshotVersion:3
+  RemoteEvent event = [self remoteEventAtSnapshotVersion:3
                                                    targetMap:targetMap
                                         outstandingResponses:_noOutstandingResponses
                                                 existingKeys:DocumentKeySet {}
                                                      changes:Changes(std::move(change))];
 
-  XCTAssertEqual(event.snapshotVersion, testutil::Version(3));
-  XCTAssertEqual(event.documentUpdates.size(), 0);
-  XCTAssertEqual(event.targetChanges.size(), 1);
+  XCTAssertEqual(event.snapshot_version(), testutil::Version(3));
+  XCTAssertEqual(event.document_updates().size(), 0);
+  XCTAssertEqual(event.target_changes().size(), 1);
 
   TargetChange targetChange1{_resumeToken1, true, DocumentKeySet{}, DocumentKeySet{},
                              DocumentKeySet{}};
-  XCTAssertTrue(event.targetChanges.at(1) == targetChange1);
+  XCTAssertTrue(event.target_changes().at(1) == targetChange1);
 }
 
 - (void)testTargetAddedChangeWillResetPreviousState {
@@ -459,7 +459,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
 
   std::unordered_map<TargetId, int> outstandingResponses{{1, 2}, {2, 1}};
 
-  FSTRemoteEvent *event =
+  RemoteEvent event =
       [self remoteEventAtSnapshotVersion:3
                                targetMap:targetMap
                     outstandingResponses:outstandingResponses
@@ -468,25 +468,25 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
                                                  std::move(change3), std::move(change4),
                                                  std::move(change5), std::move(change6))];
 
-  XCTAssertEqual(event.snapshotVersion, testutil::Version(3));
-  XCTAssertEqual(event.documentUpdates.size(), 2);
-  XCTAssertEqualObjects(event.documentUpdates.at(doc1.key), doc1);
-  XCTAssertEqualObjects(event.documentUpdates.at(doc2.key), doc2);
+  XCTAssertEqual(event.snapshot_version(), testutil::Version(3));
+  XCTAssertEqual(event.document_updates().size(), 2);
+  XCTAssertEqualObjects(event.document_updates().at(doc1.key), doc1);
+  XCTAssertEqualObjects(event.document_updates().at(doc2.key), doc2);
 
   // target 1 and 3 are affected (1 because of re-add), target 2 is not because of remove
-  XCTAssertEqual(event.targetChanges.size(), 2);
+  XCTAssertEqual(event.target_changes().size(), 2);
 
   // doc1 was before the remove, so it does not show up in the mapping.
   // Current was before the remove.
   TargetChange targetChange1{_resumeToken1, false, DocumentKeySet{}, DocumentKeySet{doc2.key},
                              DocumentKeySet{}};
-  XCTAssertTrue(event.targetChanges.at(1) == targetChange1);
+  XCTAssertTrue(event.target_changes().at(1) == targetChange1);
 
   // Doc1 was before the remove
   // Current was before the remove
   TargetChange targetChange3{_resumeToken1, true, DocumentKeySet{doc1.key}, DocumentKeySet{},
                              DocumentKeySet{doc2.key}};
-  XCTAssertTrue(event.targetChanges.at(3) == targetChange3);
+  XCTAssertTrue(event.target_changes().at(3) == targetChange3);
 }
 
 - (void)testNoChangeWillStillMarkTheAffectedTargets {
@@ -500,15 +500,15 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
   WatchTargetChange change{WatchTargetChangeState::NoChange, {1}, _resumeToken1};
   aggregator.HandleTargetChange(change);
 
-  FSTRemoteEvent *event = aggregator.CreateRemoteEvent(testutil::Version(3));
+  RemoteEvent event = aggregator.CreateRemoteEvent(testutil::Version(3));
 
-  XCTAssertEqual(event.snapshotVersion, testutil::Version(3));
-  XCTAssertEqual(event.documentUpdates.size(), 0);
-  XCTAssertEqual(event.targetChanges.size(), 1);
+  XCTAssertEqual(event.snapshot_version(), testutil::Version(3));
+  XCTAssertEqual(event.document_updates().size(), 0);
+  XCTAssertEqual(event.target_changes().size(), 1);
 
   TargetChange targetChange{_resumeToken1, false, DocumentKeySet{}, DocumentKeySet{},
                             DocumentKeySet{}};
-  XCTAssertTrue(event.targetChanges.at(1) == targetChange);
+  XCTAssertTrue(event.target_changes().at(1) == targetChange);
 }
 
 - (void)testExistenceFilterMismatchClearsTarget {
@@ -526,22 +526,22 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
                  existingKeys:DocumentKeySet{doc1.key, doc2.key}
                       changes:Changes(std::move(change1), std::move(change2), std::move(change3))];
 
-  FSTRemoteEvent *event = aggregator.CreateRemoteEvent(testutil::Version(3));
+  RemoteEvent event = aggregator.CreateRemoteEvent(testutil::Version(3));
 
-  XCTAssertEqual(event.snapshotVersion, testutil::Version(3));
-  XCTAssertEqual(event.documentUpdates.size(), 2);
-  XCTAssertEqualObjects(event.documentUpdates.at(doc1.key), doc1);
-  XCTAssertEqualObjects(event.documentUpdates.at(doc2.key), doc2);
+  XCTAssertEqual(event.snapshot_version(), testutil::Version(3));
+  XCTAssertEqual(event.document_updates().size(), 2);
+  XCTAssertEqualObjects(event.document_updates().at(doc1.key), doc1);
+  XCTAssertEqualObjects(event.document_updates().at(doc2.key), doc2);
 
-  XCTAssertEqual(event.targetChanges.size(), 2);
+  XCTAssertEqual(event.target_changes().size(), 2);
 
   TargetChange targetChange1{_resumeToken1, true, DocumentKeySet{},
                              DocumentKeySet{doc1.key, doc2.key}, DocumentKeySet{}};
-  XCTAssertTrue(event.targetChanges.at(1) == targetChange1);
+  XCTAssertTrue(event.target_changes().at(1) == targetChange1);
 
   TargetChange targetChange2{_resumeToken1, false, DocumentKeySet{}, DocumentKeySet{},
                              DocumentKeySet{}};
-  XCTAssertTrue(event.targetChanges.at(2) == targetChange2);
+  XCTAssertTrue(event.target_changes().at(2) == targetChange2);
 
   // The existence filter mismatch will remove the document from target 1,
   // but not synthesize a document delete.
@@ -552,11 +552,11 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
 
   TargetChange targetChange3{
       [NSData data], false, DocumentKeySet{}, DocumentKeySet{}, DocumentKeySet{doc1.key, doc2.key}};
-  XCTAssertTrue(event.targetChanges.at(1) == targetChange3);
+  XCTAssertTrue(event.target_changes().at(1) == targetChange3);
 
-  XCTAssertEqual(event.targetChanges.size(), 1);
+  XCTAssertEqual(event.target_changes().size(), 1);
   XCTAssertEqual(event.targetMismatches.size(), 1);
-  XCTAssertEqual(event.documentUpdates.size(), 0);
+  XCTAssertEqual(event.document_updates().size(), 0);
 }
 
 - (void)testExistenceFilterMismatchRemovesCurrentChanges {
@@ -579,18 +579,18 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
   ExistenceFilterWatchChange existenceFilter{ExistenceFilter{0}, 1};
   aggregator.HandleExistenceFilter(existenceFilter);
 
-  FSTRemoteEvent *event = aggregator.CreateRemoteEvent(testutil::Version(3));
+  RemoteEvent event = aggregator.CreateRemoteEvent(testutil::Version(3));
 
-  XCTAssertEqual(event.snapshotVersion, testutil::Version(3));
-  XCTAssertEqual(event.documentUpdates.size(), 1);
+  XCTAssertEqual(event.snapshot_version(), testutil::Version(3));
+  XCTAssertEqual(event.document_updates().size(), 1);
   XCTAssertEqual(event.targetMismatches.size(), 1);
-  XCTAssertEqualObjects(event.documentUpdates.at(doc1.key), doc1);
+  XCTAssertEqualObjects(event.document_updates().at(doc1.key), doc1);
 
-  XCTAssertEqual(event.targetChanges.size(), 1);
+  XCTAssertEqual(event.target_changes().size(), 1);
 
   TargetChange targetChange1{
       [NSData data], false, DocumentKeySet{}, DocumentKeySet{}, DocumentKeySet{}};
-  XCTAssertTrue(event.targetChanges.at(1) == targetChange1);
+  XCTAssertTrue(event.target_changes().at(1) == targetChange1);
 }
 
 - (void)testDocumentUpdate {
@@ -607,12 +607,12 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
                        existingKeys:DocumentKeySet {}
                             changes:Changes(std::move(change1), std::move(change2))];
 
-  FSTRemoteEvent *event = aggregator.CreateRemoteEvent(testutil::Version(3));
+  RemoteEvent event = aggregator.CreateRemoteEvent(testutil::Version(3));
 
-  XCTAssertEqual(event.snapshotVersion, testutil::Version(3));
-  XCTAssertEqual(event.documentUpdates.size(), 2);
-  XCTAssertEqualObjects(event.documentUpdates.at(doc1.key), doc1);
-  XCTAssertEqualObjects(event.documentUpdates.at(doc2.key), doc2);
+  XCTAssertEqual(event.snapshot_version(), testutil::Version(3));
+  XCTAssertEqual(event.document_updates().size(), 2);
+  XCTAssertEqualObjects(event.document_updates().at(doc1.key), doc1);
+  XCTAssertEqualObjects(event.document_updates().at(doc2.key), doc2);
 
   [_targetMetadataProvider setSyncedKeys:DocumentKeySet{doc1.key, doc2.key}
                             forQueryData:targetMap[1]];
@@ -633,21 +633,21 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
 
   event = aggregator.CreateRemoteEvent(testutil::Version(3));
 
-  XCTAssertEqual(event.snapshotVersion, testutil::Version(3));
-  XCTAssertEqual(event.documentUpdates.size(), 3);
+  XCTAssertEqual(event.snapshot_version(), testutil::Version(3));
+  XCTAssertEqual(event.document_updates().size(), 3);
   // doc1 is replaced
-  XCTAssertEqualObjects(event.documentUpdates.at(doc1.key), deletedDoc1);
+  XCTAssertEqualObjects(event.document_updates().at(doc1.key), deletedDoc1);
   // doc2 is updated
-  XCTAssertEqualObjects(event.documentUpdates.at(doc2.key), updatedDoc2);
+  XCTAssertEqualObjects(event.document_updates().at(doc2.key), updatedDoc2);
   // doc3 is new
-  XCTAssertEqualObjects(event.documentUpdates.at(doc3.key), doc3);
+  XCTAssertEqualObjects(event.document_updates().at(doc3.key), doc3);
 
   // Target is unchanged
-  XCTAssertEqual(event.targetChanges.size(), 1);
+  XCTAssertEqual(event.target_changes().size(), 1);
 
   TargetChange targetChange1{_resumeToken1, false, DocumentKeySet{doc3.key},
                              DocumentKeySet{updatedDoc2.key}, DocumentKeySet{deletedDoc1.key}};
-  XCTAssertTrue(event.targetChanges.at(1) == targetChange1);
+  XCTAssertTrue(event.target_changes().at(1) == targetChange1);
 }
 
 - (void)testResumeTokensHandledPerTarget {
@@ -665,16 +665,16 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
   WatchTargetChange change2{WatchTargetChangeState::Current, {2}, resumeToken2};
   aggregator.HandleTargetChange(change2);
 
-  FSTRemoteEvent *event = aggregator.CreateRemoteEvent(testutil::Version(3));
-  XCTAssertEqual(event.targetChanges.size(), 2);
+  RemoteEvent event = aggregator.CreateRemoteEvent(testutil::Version(3));
+  XCTAssertEqual(event.target_changes().size(), 2);
 
   TargetChange targetChange1{_resumeToken1, true, DocumentKeySet{}, DocumentKeySet{},
                              DocumentKeySet{}};
-  XCTAssertTrue(event.targetChanges.at(1) == targetChange1);
+  XCTAssertTrue(event.target_changes().at(1) == targetChange1);
 
   TargetChange targetChange2{resumeToken2, true, DocumentKeySet{}, DocumentKeySet{},
                              DocumentKeySet{}};
-  XCTAssertTrue(event.targetChanges.at(2) == targetChange2);
+  XCTAssertTrue(event.target_changes().at(2) == targetChange2);
 }
 
 - (void)testLastResumeTokenWins {
@@ -696,16 +696,16 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
   WatchTargetChange change3{WatchTargetChangeState::NoChange, {2}, resumeToken3};
   aggregator.HandleTargetChange(change3);
 
-  FSTRemoteEvent *event = aggregator.CreateRemoteEvent(testutil::Version(3));
-  XCTAssertEqual(event.targetChanges.size(), 2);
+  RemoteEvent event = aggregator.CreateRemoteEvent(testutil::Version(3));
+  XCTAssertEqual(event.target_changes().size(), 2);
 
   TargetChange targetChange1{resumeToken2, true, DocumentKeySet{}, DocumentKeySet{},
                              DocumentKeySet{}};
-  XCTAssertTrue(event.targetChanges.at(1) == targetChange1);
+  XCTAssertTrue(event.target_changes().at(1) == targetChange1);
 
   TargetChange targetChange2{resumeToken3, false, DocumentKeySet{}, DocumentKeySet{},
                              DocumentKeySet{}};
-  XCTAssertTrue(event.targetChanges.at(2) == targetChange2);
+  XCTAssertTrue(event.target_changes().at(2) == targetChange2);
 }
 
 - (void)testSynthesizeDeletes {
@@ -713,7 +713,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
   DocumentKey limboKey = testutil::Key("coll/limbo");
 
   auto resolveLimboTarget = MakeTargetChange(WatchTargetChangeState::Current, {1});
-  FSTRemoteEvent *event =
+  RemoteEvent event =
       [self remoteEventAtSnapshotVersion:3
                                targetMap:targetMap
                     outstandingResponses:_noOutstandingResponses
@@ -721,10 +721,10 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
                                  changes:Changes(std::move(resolveLimboTarget))];
 
   FSTDeletedDocument *expected = [FSTDeletedDocument documentWithKey:limboKey
-                                                             version:event.snapshotVersion
+                                                             version:event.snapshot_version()
                                                hasCommittedMutations:NO];
-  XCTAssertEqualObjects(event.documentUpdates.at(limboKey), expected);
-  XCTAssertTrue(event.limboDocumentChanges.contains(limboKey));
+  XCTAssertEqualObjects(event.document_updates().at(limboKey), expected);
+  XCTAssertTrue(event.limbo_document_changes().contains(limboKey));
 }
 
 - (void)testDoesntSynthesizeDeletesForWrongState {
@@ -732,14 +732,14 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
 
   auto wrongState = MakeTargetChange(WatchTargetChangeState::NoChange, {1});
 
-  FSTRemoteEvent *event = [self remoteEventAtSnapshotVersion:3
+  RemoteEvent event = [self remoteEventAtSnapshotVersion:3
                                                    targetMap:targetMap
                                         outstandingResponses:_noOutstandingResponses
                                                 existingKeys:DocumentKeySet {}
                                                      changes:Changes(std::move(wrongState))];
 
-  XCTAssertEqual(event.documentUpdates.size(), 0);
-  XCTAssertEqual(event.limboDocumentChanges.size(), 0);
+  XCTAssertEqual(event.document_updates().size(), 0);
+  XCTAssertEqual(event.limbo_document_changes().size(), 0);
 }
 
 - (void)testDoesntSynthesizeDeletesForExistingDoc {
@@ -747,15 +747,15 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
 
   auto hasDocument = MakeTargetChange(WatchTargetChangeState::Current, {3});
 
-  FSTRemoteEvent *event =
+  RemoteEvent event =
       [self remoteEventAtSnapshotVersion:3
                                targetMap:targetMap
                     outstandingResponses:_noOutstandingResponses
                             existingKeys:DocumentKeySet{FSTTestDocKey(@"coll/limbo")}
                                  changes:Changes(std::move(hasDocument))];
 
-  XCTAssertEqual(event.documentUpdates.size(), 0);
-  XCTAssertEqual(event.limboDocumentChanges.size(), 0);
+  XCTAssertEqual(event.document_updates().size(), 0);
+  XCTAssertEqual(event.limbo_document_changes().size(), 0);
 }
 
 - (void)testSeparatesDocumentUpdates {
@@ -774,7 +774,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
   FSTDeletedDocument *missingDoc = FSTTestDeletedDoc("docs/missing", 1, NO);
   auto missingDocChange = MakeDocChange({}, {1}, missingDoc.key, missingDoc);
 
-  FSTRemoteEvent *event = [self
+  RemoteEvent event = [self
       remoteEventAtSnapshotVersion:3
                          targetMap:targetMap
               outstandingResponses:_noOutstandingResponses
@@ -786,7 +786,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
   TargetChange targetChange2{_resumeToken1, false, DocumentKeySet{newDoc.key},
                              DocumentKeySet{existingDoc.key}, DocumentKeySet{deletedDoc.key}};
 
-  XCTAssertTrue(event.targetChanges.at(1) == targetChange2);
+  XCTAssertTrue(event.target_changes().at(1) == targetChange2);
 }
 
 - (void)testTracksLimboDocuments {
@@ -805,7 +805,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
   auto docChange3 = MakeDocChange({1}, {}, doc3.key, doc3);
   auto targetsChange = MakeTargetChange(WatchTargetChangeState::Current, {1, 2});
 
-  FSTRemoteEvent *event =
+  RemoteEvent event =
       [self remoteEventAtSnapshotVersion:3
                                targetMap:targetMap
                     outstandingResponses:_noOutstandingResponses
@@ -813,7 +813,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
                                  changes:Changes(std::move(docChange1), std::move(docChange2),
                                                  std::move(docChange3), std::move(targetsChange))];
 
-  DocumentKeySet limboDocChanges = event.limboDocumentChanges;
+  DocumentKeySet limboDocChanges = event.limbo_document_changes();
   // Doc1 is in both limbo and non-limbo targets, therefore not tracked as limbo
   XCTAssertFalse(limboDocChanges.contains(doc1.key));
   // Doc2 is only in the limbo target, so is tracked as a limbo document
