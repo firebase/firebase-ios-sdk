@@ -259,14 +259,7 @@ class RemoteEvent {
     return snapshot_version_;
   }
 
-  /**
-   * A set of which document updates are due only to limbo resolution targets.
-   */
-  const model::DocumentKeySet& limbo_document_changes() const {
-    return limbo_document_changes_;
-  }
-
-  /** A map from target to changes to the target. See TargetChange. */
+  /** A map from target to changes to the target. See `TargetChange`. */
   const std::unordered_map<model::TargetId, TargetChange>& target_changes()
       const {
     return target_changes_;
@@ -289,6 +282,13 @@ class RemoteEvent {
                            model::DocumentKeyHash>&
   document_updates() const {
     return document_updates_;
+  }
+
+  /**
+   * A set of which document updates are due only to limbo resolution targets.
+   */
+  const model::DocumentKeySet& limbo_document_changes() const {
+    return limbo_document_changes_;
   }
 
  private:
