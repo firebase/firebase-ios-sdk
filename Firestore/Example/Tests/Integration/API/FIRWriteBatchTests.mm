@@ -124,6 +124,52 @@
   XCTAssertFalse(result.exists);
 }
 
+- (void)testUpdateFieldsWithDots {
+  FIRDocumentReference *doc = [self documentRef];
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"testUpdateFieldsWithDots"];
+  FIRWriteBatch *batch = [doc.firestore batch];
+  [batch setData:@{@"a.b" : @"old", @"c.d" : @"old"} forDocument:doc];
+  [batch updateData:@{[[FIRFieldPath alloc] initWithFields:@[ @"a.b" ]] : @"new"} forDocument:doc];
+
+  [batch commitWithCompletion:^(NSError *_Nullable error) {
+    XCTAssertNil(error);
+    [doc getDocumentWithCompletion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
+      XCTAssertNil(error);
+      XCTAssertEqualObjects(snapshot.data, (@{@"a.b" : @"new", @"c.d" : @"old"}));
+    }];
+    [expectation fulfill];
+  }];
+
+  [self awaitExpectations];
+}
+
+- (void)testUpdateNestedFields {
+  FIRDocumentReference *doc = [self documentRef];
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"testUpdateNestedFields"];
+  FIRWriteBatch *batch = [doc.firestore batch];
+  [batch setData:@{@"a" : @{@"b" : @"old"}, @"c" : @{@"d" : @"old"}, @"e" : @{@"f" : @"old"}}
+      forDocument:doc];
+  [batch
+       updateData:@{@"a.b" : @"new", [[FIRFieldPath alloc] initWithFields:@[ @"c", @"d" ]] : @"new"}
+      forDocument:doc];
+  [batch commitWithCompletion:^(NSError *_Nullable error) {
+    XCTAssertNil(error);
+    [doc getDocumentWithCompletion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
+      XCTAssertNil(error);
+      XCTAssertEqualObjects(snapshot.data, (@{
+                              @"a" : @{@"b" : @"new"},
+                              @"c" : @{@"d" : @"new"},
+                              @"e" : @{@"f" : @"old"}
+                            }));
+    }];
+    [expectation fulfill];
+  }];
+
+  [self awaitExpectations];
+}
+
 - (void)testDeleteDocuments {
   FIRDocumentReference *doc = [self documentRef];
   [self writeDocumentRef:doc data:@{@"foo" : @"bar"}];
@@ -263,52 +309,6 @@
   XCTAssertFalse(serverSnap.metadata.hasPendingWrites);
   NSDate *when = serverSnap[@"when"];
   XCTAssertEqualObjects(serverSnap.data, (@{@"a" : @1, @"b" : @2, @"when" : when}));
-}
-
-- (void)testUpdateFieldsWithDots {
-  FIRDocumentReference *doc = [self documentRef];
-
-  XCTestExpectation *expectation = [self expectationWithDescription:@"testUpdateFieldsWithDots"];
-  FIRWriteBatch *batch = [doc.firestore batch];
-  [batch setData:@{@"a.b" : @"old", @"c.d" : @"old"} forDocument:doc];
-  [batch updateData:@{[[FIRFieldPath alloc] initWithFields:@[ @"a.b" ]] : @"new"} forDocument:doc];
-
-  [batch commitWithCompletion:^(NSError *_Nullable error) {
-    XCTAssertNil(error);
-    [doc getDocumentWithCompletion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
-      XCTAssertNil(error);
-      XCTAssertEqualObjects(snapshot.data, (@{@"a.b" : @"new", @"c.d" : @"old"}));
-    }];
-    [expectation fulfill];
-  }];
-
-  [self awaitExpectations];
-}
-
-- (void)testUpdateNestedFields {
-  FIRDocumentReference *doc = [self documentRef];
-
-  XCTestExpectation *expectation = [self expectationWithDescription:@"testUpdateNestedFields"];
-  FIRWriteBatch *batch = [doc.firestore batch];
-  [batch setData:@{@"a" : @{@"b" : @"old"}, @"c" : @{@"d" : @"old"}, @"e" : @{@"f" : @"old"}}
-      forDocument:doc];
-  [batch
-       updateData:@{@"a.b" : @"new", [[FIRFieldPath alloc] initWithFields:@[ @"c", @"d" ]] : @"new"}
-      forDocument:doc];
-  [batch commitWithCompletion:^(NSError *_Nullable error) {
-    XCTAssertNil(error);
-    [doc getDocumentWithCompletion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
-      XCTAssertNil(error);
-      XCTAssertEqualObjects(snapshot.data, (@{
-                              @"a" : @{@"b" : @"new"},
-                              @"c" : @{@"d" : @"new"},
-                              @"e" : @{@"f" : @"old"}
-                            }));
-    }];
-    [expectation fulfill];
-  }];
-
-  [self awaitExpectations];
 }
 
 // Returns how much memory the test application is currently using, in megabytes (fractional part is
