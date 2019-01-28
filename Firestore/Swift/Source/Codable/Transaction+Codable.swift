@@ -17,8 +17,8 @@
 import FirebaseFirestore
 
 extension Transaction {
-  public func setData<T: Encodable>(_ value: T, forDocument: DocumentReference) {
-    let encoded = encodeOrDie(value)
+  public func setData<T: Encodable>(encoderInput: T, forDocument: DocumentReference) {
+    let encoded = encodeOrDie(encoderInput)
     setData(encoded, forDocument: forDocument)
   }
 }
