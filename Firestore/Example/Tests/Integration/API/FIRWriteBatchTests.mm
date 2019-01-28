@@ -24,6 +24,12 @@
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
+#include "Firestore/core/src/firebase/firestore/util/autoid.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+
+using firebase::firestore::util::CreateAutoId;
+using firebase::firestore::util::WrapNSString;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRWriteBatchTests : FSTIntegrationTestCase
@@ -315,6 +321,41 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertFalse(serverSnap.metadata.hasPendingWrites);
   NSDate *when = serverSnap[@"when"];
   XCTAssertEqualObjects(serverSnap.data, (@{@"a" : @1, @"b" : @2, @"when" : when}));
+}
+
+- (void)testCanWriteVeryLargeBatches {
+  // On Android, SQLite Cursors are limited reading no more than 2 MB per row (despite being able
+  // to write very large values). This test verifies that the local MutationQueue is not subject
+  // to this limitation.
+
+  // Create a map containing nearly 1 MB of data. Note that if you use 1024 below this will create
+  // a document larger than 1 MB, which will be rejected by the backend as too large.
+  NSString *kb = [@"" stringByPaddingToLength:1000 withString:@"a" startingAtIndex:0];
+  NSMutableDictionary<NSString *, id> *values = [NSMutableDictionary dictionary];
+  for (int i = 0; i < 1000; i++) {
+    values[WrapNSString(CreateAutoId())] = kb;
+  }
+
+  FIRDocumentReference *doc = [self documentRef];
+  FIRWriteBatch *batch = [doc.firestore batch];
+
+  // Write a batch containing 3 copies of the data, creating a ~3 MB batch. Writing to the same
+  // document in a batch is allowed and so long as the net size of the document is under 1 MB the
+  // batch is allowed.
+  [batch setData:values forDocument:doc];
+  for (int i = 0; i < 2; i++) {
+    [batch updateData:values forDocument:doc];
+  }
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"batch written"];
+  [batch commitWithCompletion:^(NSError *_Nullable error) {
+    XCTAssertNil(error);
+    [expectation fulfill];
+  }];
+  [self awaitExpectations];
+
+  FIRDocumentSnapshot *snap = [self readDocumentForRef:doc];
+  XCTAssertEqualObjects(values, snap.data);
 }
 
 // Returns how much memory the test application is currently using, in megabytes (fractional part is
