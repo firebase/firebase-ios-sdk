@@ -555,7 +555,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
   XCTAssertTrue(event.target_changes().at(1) == targetChange3);
 
   XCTAssertEqual(event.target_changes().size(), 1);
-  XCTAssertEqual(event.targetMismatches.size(), 1);
+  XCTAssertEqual(event.target_mismatches().size(), 1);
   XCTAssertEqual(event.document_updates().size(), 0);
 }
 
@@ -583,7 +583,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
 
   XCTAssertEqual(event.snapshot_version(), testutil::Version(3));
   XCTAssertEqual(event.document_updates().size(), 1);
-  XCTAssertEqual(event.targetMismatches.size(), 1);
+  XCTAssertEqual(event.target_mismatches().size(), 1);
   XCTAssertEqualObjects(event.document_updates().at(doc1.key), doc1);
 
   XCTAssertEqual(event.target_changes().size(), 1);
