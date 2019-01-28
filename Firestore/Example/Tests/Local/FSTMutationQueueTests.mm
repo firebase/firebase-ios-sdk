@@ -50,8 +50,8 @@ NS_ASSUME_NONNULL_BEGIN
   [super tearDown];
 }
 
-- (void)assertVector:(std::vector<FSTMutationBatch *>)actual
-     matchesExpected:(std::vector<FSTMutationBatch *>)expected {
+- (void)assertVector:(const std::vector<FSTMutationBatch *> &)actual
+     matchesExpected:(const std::vector<FSTMutationBatch *> &)expected {
   XCTAssertEqual(actual.size(), expected.size(), @"Vector length mismatch");
   for (int i = 0; i < expected.size(); i++) {
     XCTAssertEqualObjects(actual[i], expected[i]);
@@ -145,7 +145,7 @@ NS_ASSUME_NONNULL_BEGIN
     std::vector<FSTMutationBatch *> removed = [self removeFirstBatches:3 inBatches:&batches];
 
     // After removing, a batch should not be found
-    for (NSUInteger i = 0; i < removed.size(); i++) {
+    for (size_t i = 0; i < removed.size(); i++) {
       notFound = self.mutationQueue->LookupMutationBatch(removed[i].batchID);
       XCTAssertNil(notFound);
     }
@@ -169,14 +169,14 @@ NS_ASSUME_NONNULL_BEGIN
     std::vector<FSTMutationBatch *> batches = [self createBatches:10];
     std::vector<FSTMutationBatch *> removed = [self removeFirstBatches:3 inBatches:&batches];
 
-    for (NSUInteger i = 0; i < batches.size() - 1; i++) {
+    for (size_t i = 0; i < batches.size() - 1; i++) {
       FSTMutationBatch *current = batches[i];
       FSTMutationBatch *next = batches[i + 1];
       FSTMutationBatch *found = self.mutationQueue->NextMutationBatchAfterBatchId(current.batchID);
       XCTAssertEqual(found.batchID, next.batchID);
     }
 
-    for (NSUInteger i = 0; i < removed.size(); i++) {
+    for (size_t i = 0; i < removed.size(); i++) {
       FSTMutationBatch *current = removed[i];
       FSTMutationBatch *next = batches[0];
       FSTMutationBatch *found = self.mutationQueue->NextMutationBatchAfterBatchId(current.batchID);
@@ -288,7 +288,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testAllMutationBatchesAffectingQuery {
   if ([self isTestBaseClass]) return;
 
-  self.persistence.run("testAllMutationBa˛tchesAffectingQuery", [&]() {
+  self.persistence.run("testAllMutationBatchesAffectingQuery", [&]() {
     NSArray<FSTMutation *> *mutations = @[
       FSTTestSetMutation(@"fob/bar", @{@"a" : @1}), FSTTestSetMutation(@"foo/bar", @{@"a" : @1}),
       FSTTestPatchMutation("foo/bar", @{@"b" : @1}, {}),
@@ -333,9 +333,7 @@ NS_ASSUME_NONNULL_BEGIN
     self.mutationQueue->RemoveMutationBatch(batches[0]);
     self.mutationQueue->RemoveMutationBatch(batches[1]);
     self.mutationQueue->RemoveMutationBatch(batches[2]);
-    for (int i = 0; i < 3; i++) {
-      batches.erase(batches.begin());
-    }
+    batches.erase(batches.begin(), batches.begin() + 3);
     XCTAssertEqual([self batchCount], 6);
 
     found = self.mutationQueue->AllMutationBatches();
@@ -408,7 +406,6 @@ NS_ASSUME_NONNULL_BEGIN
   FSTMutationBatch *batch =
       self.mutationQueue->AddMutationBatch([FIRTimestamp timestamp], @[ mutation ]);
   return batch;
-  return nil;
 }
 
 /**
@@ -427,7 +424,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 /** Returns the number of mutation batches in the mutation queue. */
-- (NSUInteger)batchCount {
+- (size_t)batchCount {
   return self.mutationQueue->AllMutationBatches().size();
 }
 
@@ -438,13 +435,12 @@ NS_ASSUME_NONNULL_BEGIN
  * @param batches The array to mutate, removing entries from it.
  * @return A new array containing all the entries that were removed from @a batches.
  */
-- (std::vector<FSTMutationBatch *>)removeFirstBatches:(NSUInteger)n
+- (std::vector<FSTMutationBatch *>)removeFirstBatches:(size_t)n
                                             inBatches:(std::vector<FSTMutationBatch *> *)batches {
-  std::vector<FSTMutationBatch *> removed;
-  for (int i = 0; i < n; i++) {
-    FSTMutationBatch *batch = *batches->begin();
-    removed.push_back(batch);
-    batches->erase(batches->begin());
+  std::vector<FSTMutationBatch *> removed(batches->begin(), batches->begin() + n);
+  batches->erase(batches->begin(), batches->begin() + n);
+
+  for (FSTMutationBatch *batch : removed) {
     self.mutationQueue->RemoveMutationBatch(batch);
   }
   return removed;
