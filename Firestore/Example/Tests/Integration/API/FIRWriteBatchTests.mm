@@ -209,6 +209,7 @@ NS_ASSUME_NONNULL_BEGIN
     XCTAssertNil(error);
     [expectation fulfill];
   }];
+  [self awaitExpectations];
 
   FIRQuerySnapshot *localSnap = [accumulator awaitEventWithName:@"local event"];
   XCTAssertTrue(localSnap.metadata.hasPendingWrites);
@@ -240,6 +241,7 @@ NS_ASSUME_NONNULL_BEGIN
     XCTAssertEqual(error.code, FIRFirestoreErrorCodeNotFound);
     [expectation fulfill];
   }];
+  [self awaitExpectations];
 
   // Local event with the set document.
   FIRQuerySnapshot *localSnap = [accumulator awaitEventWithName:@"local event"];
@@ -271,6 +273,7 @@ NS_ASSUME_NONNULL_BEGIN
     XCTAssertNil(error);
     [expectation fulfill];
   }];
+  [self awaitExpectations];
 
   FIRQuerySnapshot *localSnap = [accumulator awaitEventWithName:@"local event"];
   XCTAssertTrue(localSnap.metadata.hasPendingWrites);
@@ -302,6 +305,7 @@ NS_ASSUME_NONNULL_BEGIN
     XCTAssertNil(error);
     [expectation fulfill];
   }];
+  [self awaitExpectations];
 
   FIRDocumentSnapshot *localSnap = [accumulator awaitEventWithName:@"local event"];
   XCTAssertTrue(localSnap.metadata.hasPendingWrites);
