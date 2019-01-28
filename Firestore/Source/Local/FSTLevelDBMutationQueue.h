@@ -21,6 +21,7 @@
 #import "Firestore/Source/Local/FSTMutationQueue.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_mutation_queue.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "leveldb/db.h"
 
@@ -43,6 +44,8 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)mutationQueueWithUser:(const firebase::firestore::auth::User &)user
                                    db:(FSTLevelDB *)db
                            serializer:(FSTLocalSerializer *)serializer;
+
+- (firebase::firestore::local::LevelDbMutationQueue *)mutationQueue;
 
 @end
 
