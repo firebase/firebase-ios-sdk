@@ -24,6 +24,8 @@
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface FIRWriteBatchTests : FSTIntegrationTestCase
 @end
 
@@ -363,3 +365,5 @@ int64_t GetCurrentMemoryUsedInMb() {
 }
 
 @end
+
+NS_ASSUME_NONNULL_END
