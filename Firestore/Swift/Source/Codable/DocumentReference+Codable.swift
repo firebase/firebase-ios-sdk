@@ -37,7 +37,7 @@ extension CodableDocumentReference {
 }
 
 extension DocumentReference: CodableDocumentReference {
-  public func setData<T: Encodable>(encoderInput : T) {
+  public func setData<T: Encodable>(encoderInput: T) {
     let encoded = encodeOrDie(encoderInput)
     setData(encoded)
   }

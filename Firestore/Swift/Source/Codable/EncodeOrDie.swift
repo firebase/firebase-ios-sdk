@@ -17,7 +17,7 @@
 import Foundation
 import FirebaseFirestore
 
-internal func encodeOrDie<T: Encodable>(_ value: T) -> [String : Any] {
+internal func encodeOrDie<T: Encodable>(_ value: T) -> [String: Any] {
   do {
     return try Firestore.encode(value)
   } catch let error {
