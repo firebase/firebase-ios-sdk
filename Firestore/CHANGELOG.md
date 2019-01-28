@@ -1,5 +1,27 @@
 # Unreleased
 
+# v1.0.0
+- [changed] **Breaking change:** The `areTimestampsInSnapshotsEnabled` setting
+  is now enabled by default. Timestamp fields that read from a
+  `FIRDocumentSnapshot` will be returned as `FIRTimestamp` objects instead of
+  `NSDate` objects. Update any code that expects to recive a `NSDate` object.
+  See [the reference
+  documentation](https://firebase.google.com/docs/reference/ios/firebasefirestore/api/reference/Classes/FIRFirestoreSettings#/c:objc(cs)FIRFirestoreSettings(py)timestampsInSnapshotsEnabled)
+  for more details.
+- [changed] **Breaking change:** `FIRTransaction.getDocument()` has been changed
+  to return a non-nil `FIRDocumentSnapshot` with `exists` equal to `false` if
+  the document does not exist (instead of returning a nil
+  `FIRDocumentSnapshot`).  Code that includes `if (snapshot) { ... }` must be
+  changed to `if (snapshot.exists) { ... }`.
+- [fixed] Fixed a crash that could happen when the app is shut down after
+  a write has been sent to the server but before it has been received on
+  a listener (#2237).
+- [changed] Firestore no longer bundles a copy of the gRPC certificates, now
+  that the gRPC-C++ CocoaPod includes them. CocoaPods users should be updated
+  automatically. Carthage users should follow the [updated
+  instructions](https://github.com/firebase/firebase-ios-sdk/blob/master/Carthage.md)
+  to get `gRPCCertificates.bundle` from the correct location.
+
 # v0.16.1
 - [fixed] Offline persistence now properly records schema downgrades. This is a
   forward-looking change that allows all subsequent versions to safely downgrade

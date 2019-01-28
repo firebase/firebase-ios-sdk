@@ -185,7 +185,7 @@ void LevelDbQueryCache::EnumerateTargets(TargetEnumerator block) {
 
 int LevelDbQueryCache::RemoveTargets(
     ListenSequenceNumber upper_bound,
-    NSDictionary<NSNumber*, FSTQueryData*>* live_targets) {
+    const std::unordered_map<model::TargetId, FSTQueryData*>& live_targets) {
   int count = 0;
   std::string target_prefix = LevelDbTargetKey::KeyPrefix();
   auto it = db_.currentTransaction->NewIterator();
@@ -194,7 +194,7 @@ int LevelDbQueryCache::RemoveTargets(
        it->Next()) {
     FSTQueryData* query_data = DecodeTarget(it->value());
     if (query_data.sequenceNumber <= upper_bound &&
-        !live_targets[@(query_data.targetID)]) {
+        live_targets.find(query_data.targetID) == live_targets.end()) {
       RemoveTarget(query_data);
       count++;
     }

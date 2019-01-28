@@ -28,6 +28,7 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_mutation_queue.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 #include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
 #include "absl/strings/string_view.h"
@@ -37,6 +38,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 using firebase::firestore::auth::User;
 using firebase::firestore::local::LevelDbMutationKey;
+using firebase::firestore::local::LevelDbMutationQueue;
+using firebase::firestore::local::LoadNextBatchIdFromDb;
 using firebase::firestore::local::ReferenceSet;
 using firebase::firestore::model::BatchId;
 using firebase::firestore::util::OrderedCode;
@@ -77,29 +80,30 @@ std::string MutationLikeKey(absl::string_view table, absl::string_view userID, B
   [super setUp];
   _db = [FSTPersistenceTestHelpers levelDBPersistence];
   [_db.referenceDelegate addInMemoryPins:&_additionalReferences];
-  self.mutationQueue = [_db mutationQueueForUser:User("user")];
+
+  self.mutationQueue = [_db mutationQueueForUser:User("user")].mutationQueue;
   self.persistence = _db;
 
-  self.persistence.run("Setup", [&]() { [self.mutationQueue start]; });
+  self.persistence.run("Setup", [&]() { self.mutationQueue->Start(); });
 }
 
 - (void)testLoadNextBatchID_zeroWhenTotallyEmpty {
   // Initial seek is invalid
-  XCTAssertEqual([FSTLevelDBMutationQueue loadNextBatchIDFromDB:_db.ptr], 0);
+  XCTAssertEqual(LoadNextBatchIdFromDb(_db.ptr), 0);
 }
 
 - (void)testLoadNextBatchID_zeroWhenNoMutations {
   // Initial seek finds no mutations
   [self setDummyValueForKey:MutationLikeKey("mutationr", "foo", 20)];
   [self setDummyValueForKey:MutationLikeKey("mutationsa", "foo", 10)];
-  XCTAssertEqual([FSTLevelDBMutationQueue loadNextBatchIDFromDB:_db.ptr], 0);
+  XCTAssertEqual(LoadNextBatchIdFromDb(_db.ptr), 0);
 }
 
 - (void)testLoadNextBatchID_findsSingleRow {
   // Seeks off the end of the table altogether
   [self setDummyValueForKey:LevelDbMutationKey::Key("foo", 6)];
 
-  XCTAssertEqual([FSTLevelDBMutationQueue loadNextBatchIDFromDB:_db.ptr], 7);
+  XCTAssertEqual(LoadNextBatchIdFromDb(_db.ptr), 7);
 }
 
 - (void)testLoadNextBatchID_findsSingleRowAmongNonMutations {
@@ -107,7 +111,7 @@ std::string MutationLikeKey(absl::string_view table, absl::string_view userID, B
   [self setDummyValueForKey:LevelDbMutationKey::Key("foo", 6)];
   [self setDummyValueForKey:MutationLikeKey("mutationsa", "foo", 10)];
 
-  XCTAssertEqual([FSTLevelDBMutationQueue loadNextBatchIDFromDB:_db.ptr], 7);
+  XCTAssertEqual(LoadNextBatchIdFromDb(_db.ptr), 7);
 }
 
 - (void)testLoadNextBatchID_findsMaxAcrossUsers {
@@ -118,7 +122,7 @@ std::string MutationLikeKey(absl::string_view table, absl::string_view userID, B
   [self setDummyValueForKey:LevelDbMutationKey::Key("foo", 2)];
   [self setDummyValueForKey:LevelDbMutationKey::Key("foo", 1)];
 
-  XCTAssertEqual([FSTLevelDBMutationQueue loadNextBatchIDFromDB:_db.ptr], 7);
+  XCTAssertEqual(LoadNextBatchIdFromDb(_db.ptr), 7);
 }
 
 - (void)testLoadNextBatchID_onlyFindsMutations {
@@ -135,7 +139,7 @@ std::string MutationLikeKey(absl::string_view table, absl::string_view userID, B
 
   // None of the higher tables should match -- this is the only entry that's in the mutations
   // table
-  XCTAssertEqual([FSTLevelDBMutationQueue loadNextBatchIDFromDB:_db.ptr], 4);
+  XCTAssertEqual(LoadNextBatchIdFromDb(_db.ptr), 4);
 }
 
 - (void)testEmptyProtoCanBeUpgraded {

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseDatabase'
-  s.version          = '5.0.4'
+  s.version          = '5.1.0'
   s.summary          = 'Firebase Open Source Libraries for iOS (plus community support for macOS and tvOS)'
 
   s.description      = <<-DESC
@@ -33,7 +33,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.frameworks = 'CFNetwork', 'Security', 'SystemConfiguration'
   s.dependency 'leveldb-library', '~> 1.18'
   s.dependency 'FirebaseAuthInterop', '~> 1.0'
-  s.dependency 'FirebaseCore', '~> 5.1'
+  s.dependency 'FirebaseCore', '~> 5.2'
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' =>

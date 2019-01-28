@@ -134,7 +134,7 @@ class LimboResolution {
 
   /**
    * Set to true once we've received a document. This is used in remoteKeysForTarget and
-   * ultimately used by FSTWatchChangeAggregator to decide whether it needs to manufacture a delete
+   * ultimately used by `WatchChangeAggregator` to decide whether it needs to manufacture a delete
    * event for the target once the target is CURRENT.
    */
   bool document_received = false;
@@ -154,10 +154,6 @@ class LimboResolution {
 @property(nonatomic, strong, readonly)
     NSMutableDictionary<FSTQuery *, FSTQueryView *> *queryViewsByQuery;
 
-/** FSTQueryViews for all active queries, indexed by target ID. */
-@property(nonatomic, strong, readonly)
-    NSMutableDictionary<NSNumber *, FSTQueryView *> *queryViewsByTarget;
-
 @end
 
 @implementation FSTSyncEngine {
@@ -167,6 +163,9 @@ class LimboResolution {
   /** Stores user completion blocks, indexed by user and BatchId. */
   std::unordered_map<User, NSMutableDictionary<NSNumber *, FSTVoidErrorBlock> *, HashUser>
       _mutationCompletionBlocks;
+
+  /** FSTQueryViews for all active queries, indexed by target ID. */
+  std::unordered_map<TargetId, FSTQueryView *> _queryViewsByTarget;
 
   /**
    * When a document is in limbo, we create a special listen to resolve it. This maps the
@@ -194,7 +193,6 @@ class LimboResolution {
     _remoteStore = remoteStore;
 
     _queryViewsByQuery = [NSMutableDictionary dictionary];
-    _queryViewsByTarget = [NSMutableDictionary dictionary];
 
     _targetIdGenerator = TargetIdGenerator::SyncEngineTargetIdGenerator();
     _currentUser = initialUser;
@@ -230,7 +228,7 @@ class LimboResolution {
                                                     resumeToken:queryData.resumeToken
                                                            view:view];
   self.queryViewsByQuery[queryData.query] = queryView;
-  self.queryViewsByTarget[@(queryData.targetID)] = queryView;
+  _queryViewsByTarget[queryData.targetID] = queryView;
 
   return viewChange.snapshot;
 }
@@ -401,8 +399,9 @@ class LimboResolution {
         limboDocuments:std::move(limboDocuments)];
     [self applyRemoteEvent:event];
   } else {
-    FSTQueryView *queryView = self.queryViewsByTarget[@(targetID)];
-    HARD_ASSERT(queryView, "Unknown targetId: %s", targetID);
+    auto found = _queryViewsByTarget.find(targetID);
+    HARD_ASSERT(found != _queryViewsByTarget.end(), "Unknown targetId: %s", targetID);
+    FSTQueryView *queryView = found->second;
     FSTQuery *query = queryView.query;
     [self.localStore releaseQuery:query];
     [self removeAndCleanupQuery:queryView];
@@ -466,7 +465,7 @@ class LimboResolution {
 
 - (void)removeAndCleanupQuery:(FSTQueryView *)queryView {
   [self.queryViewsByQuery removeObjectForKey:queryView.query];
-  [self.queryViewsByTarget removeObjectForKey:@(queryView.targetID)];
+  _queryViewsByTarget.erase(queryView.targetID);
 
   DocumentKeySet limboKeys = _limboDocumentRefs.ReferencedKeys(queryView.targetID);
   _limboDocumentRefs.RemoveReferences(queryView.targetID);
@@ -599,12 +598,13 @@ class LimboResolution {
   [self.remoteStore credentialDidChange];
 }
 
-- (firebase::firestore::model::DocumentKeySet)remoteKeysForTarget:(FSTBoxedTargetID *)targetId {
-  const auto iter = _limboResolutionsByTarget.find([targetId intValue]);
+- (DocumentKeySet)remoteKeysForTarget:(TargetId)targetId {
+  const auto iter = _limboResolutionsByTarget.find(targetId);
   if (iter != _limboResolutionsByTarget.end() && iter->second.document_received) {
     return DocumentKeySet{iter->second.key};
   } else {
-    FSTQueryView *queryView = self.queryViewsByTarget[targetId];
+    auto found = _queryViewsByTarget.find(targetId);
+    FSTQueryView *queryView = found != _queryViewsByTarget.end() ? found->second : nil;
     return queryView ? queryView.view.syncedDocuments : DocumentKeySet{};
   }
 }

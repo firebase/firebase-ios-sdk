@@ -41,6 +41,7 @@ using firebase::firestore::local::ReferenceSet;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeyHash;
 using firebase::firestore::model::ListenSequenceNumber;
+using firebase::firestore::model::TargetId;
 using firebase::firestore::util::Status;
 
 using MutationQueues = std::unordered_map<User, FSTMemoryMutationQueue *, HashUser>;
@@ -235,7 +236,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (int)removeTargetsThroughSequenceNumber:(ListenSequenceNumber)sequenceNumber
-                              liveQueries:(NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries {
+                              liveQueries:(const std::unordered_map<TargetId, FSTQueryData *> &)
+                                              liveQueries {
   return _persistence.queryCache->RemoveTargets(sequenceNumber, liveQueries);
 }
 

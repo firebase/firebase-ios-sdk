@@ -44,6 +44,24 @@ NS_ASSUME_NONNULL_BEGIN
   request.providerAccessToken = _accessToken;
 }
 
+#pragma mark - NSSecureCoding
+
++ (BOOL)supportsSecureCoding {
+  return YES;
+}
+
+- (nullable instancetype)initWithCoder:(NSCoder *)aDecoder {
+  NSString *IDToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"IDToken"];
+  NSString *accessToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"accessToken"];
+  self = [self initWithProviderID:self.provider IDToken:IDToken accessToken:accessToken];
+  return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)aCoder {
+  [aCoder encodeObject:self.IDToken forKey:@"IDToken"];
+  [aCoder encodeObject:self.accessToken forKey:@"accessToken"];
+}
+
 NS_ASSUME_NONNULL_END
 
 @end

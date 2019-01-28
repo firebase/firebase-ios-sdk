@@ -36,6 +36,7 @@
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/model/unknown_document.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/memory/memory.h"
 #include "absl/strings/string_view.h"
@@ -88,6 +89,11 @@ inline model::Document Doc(
 inline model::NoDocument DeletedDoc(absl::string_view key, int64_t version) {
   return model::NoDocument{Key(key), Version(version),
                            /*has_committed_mutations=*/false};
+}
+
+inline model::UnknownDocument UnknownDoc(absl::string_view key,
+                                         int64_t version) {
+  return model::UnknownDocument{Key(key), Version(version)};
 }
 
 inline core::RelationFilter::Operator OperatorFromString(absl::string_view s) {
@@ -152,6 +158,16 @@ inline std::unique_ptr<model::PatchMutation> PatchMutation(
   return PatchMutation(path, values, &update_mask);
 }
 
+inline std::unique_ptr<model::DeleteMutation> DeleteMutation(
+    absl::string_view path) {
+  return absl::make_unique<model::DeleteMutation>(Key(path),
+                                                  model::Precondition::None());
+}
+
+inline model::MutationResult MutationResult(int64_t version) {
+  return model::MutationResult(Version(version), nullptr);
+}
+
 inline std::vector<uint8_t> ResumeToken(int64_t snapshot_version) {
   if (snapshot_version == 0) {
     // TODO(rsgowman): The other platforms return null here, though I'm not sure
@@ -164,6 +180,37 @@ inline std::vector<uint8_t> ResumeToken(int64_t snapshot_version) {
   std::string snapshot_string =
       std::string("snapshot-") + std::to_string(snapshot_version);
   return {snapshot_string.begin(), snapshot_string.end()};
+}
+
+// Degenerate case to end recursion of `MoveIntoVector`.
+template <typename T>
+void MoveIntoVector(std::vector<std::unique_ptr<T>>*) {
+}
+
+template <typename T, typename Head, typename... Tail>
+void MoveIntoVector(std::vector<std::unique_ptr<T>>* result,
+                    Head head,
+                    Tail... tail) {
+  result->push_back(std::move(head));
+  MoveIntoVector(result, std::move(tail)...);
+}
+
+// Works around the fact that move-only types (in this case, `unique_ptr`) don't
+// work with `initialzer_list`. Desired (doesn't work):
+//
+//   std::unique_ptr<int> x, y;
+//   std::vector<std::unique_ptr>> foo{std::move(x), std::move(y)};
+//
+// Actual:
+//
+//   std::unique_ptr<int> x, y;
+//   std::vector<std::unique_ptr<int>> foo = Changes(std::move(x),
+//   std::move(y));
+template <typename T, typename... Elems>
+std::vector<std::unique_ptr<T>> VectorOfUniquePtrs(Elems... elems) {
+  std::vector<std::unique_ptr<T>> result;
+  MoveIntoVector<T>(&result, std::move(elems)...);
+  return result;
 }
 
 }  // namespace testutil

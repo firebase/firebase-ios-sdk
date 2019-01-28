@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** @class FIRGameCenterAuthCredential
     @brief Internal implementation of FIRAuthCredential for Game Center credentials.
  */
-@interface FIRGameCenterAuthCredential : FIRAuthCredential
+@interface FIRGameCenterAuthCredential : FIRAuthCredential <NSSecureCoding>
 
 /** @property playerID
     @brief The ID of the Game Center local player.

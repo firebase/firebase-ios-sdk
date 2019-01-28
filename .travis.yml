@@ -33,7 +33,7 @@ jobs:
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
-        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
+        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
 
     - stage: test
       env:
@@ -41,7 +41,7 @@ jobs:
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
-        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
+        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
 
     - stage: test
       env:
@@ -49,7 +49,7 @@ jobs:
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
-        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
     # pod lib lint to check build and warnings for dynamic framework build (use_frameworks!)
     - stage: test
@@ -58,17 +58,17 @@ jobs:
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
-        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh GoogleUtilities.podspec
-        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseCore.podspec
-        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseAnalyticsInterop.podspec
-        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseAuth.podspec
-        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseAuthInterop.podspec
-        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseDatabase.podspec
-        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseDynamicLinks.podspec
-        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseMessaging.podspec
-        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseStorage.podspec
-        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseFunctions.podspec
-        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseInAppMessagingDisplay.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh GoogleUtilities.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseCore.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseAnalyticsInterop.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseAuth.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseAuthInterop.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseDatabase.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseDynamicLinks.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseMessaging.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseStorage.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseFunctions.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseInAppMessagingDisplay.podspec
 
     - stage: test
       env:
@@ -78,7 +78,7 @@ jobs:
       script:
         # Eliminate the one warning from BoringSSL when CocoaPods 1.6.0 is available.
         # The travis_wait is necessary because the command takes more than 10 minutes.
-        - travis_wait ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseFirestore.podspec --allow-warnings --no-subspecs
+        - travis_wait 45 ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseFirestore.podspec --allow-warnings --no-subspecs
 
     # pod lib lint to check build and warnings for static library build - only on cron jobs
     - stage: test
@@ -87,18 +87,18 @@ jobs:
       before_install:
         - ./scripts/if_cron.sh ./scripts/install_prereqs.sh
       script:
-        - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh GoogleUtilities.podspec --use-libraries
-        - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseCore.podspec --use-libraries
-        - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseAnalyticsInterop.podspec --use-libraries
-        - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseAuth.podspec --use-libraries
-        - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseAuthInterop.podspec --use-libraries
-        - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseDatabase.podspec --use-libraries
-        - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseDynamicLinks.podspec --use-libraries
+        - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh GoogleUtilities.podspec --use-libraries
+        - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseCore.podspec --use-libraries
+        - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseAnalyticsInterop.podspec --use-libraries
+        - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseAuth.podspec --use-libraries
+        - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseAuthInterop.podspec --use-libraries
+        - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseDatabase.podspec --use-libraries
+        - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseDynamicLinks.podspec --use-libraries
         # The Protobuf dependency of FirebaseMessaging has warnings with --use-libraries
-        - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseMessaging.podspec --use-libraries --allow-warnings
-        - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseStorage.podspec --use-libraries
-        - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseFunctions.podspec --use-libraries
-        - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseInAppMessagingDisplay.podspec --use-libraries
+        - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseMessaging.podspec --use-libraries --allow-warnings
+        - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseStorage.podspec --use-libraries
+        - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseFunctions.podspec --use-libraries
+        - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseInAppMessagingDisplay.podspec --use-libraries
 
     - stage: test
       env:
@@ -108,7 +108,7 @@ jobs:
       script:
         # TBD - non-portable path warnings
         # The travis_wait is necessary because the command takes more than 10 minutes.
-        - travis_wait ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseFirestore.podspec --use-libraries --allow-warnings --no-subspecs
+        - travis_wait 45 ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseFirestore.podspec --use-libraries --allow-warnings --no-subspecs
 
     # Daily test for symbol collisions between Firebase and CocoaPods.
     - stage: test
@@ -117,7 +117,7 @@ jobs:
       before_install:
         - ./scripts/if_cron.sh ./scripts/install_prereqs.sh
       script:
-        - ./scripts/if_cron.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+        - travis_retry ./scripts/if_cron.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
     # Alternative platforms
 
@@ -131,7 +131,7 @@ jobs:
         - ios-sim start --devicetypeid "com.apple.CoreSimulator.SimDeviceType.iPhone-8-Plus, 11.3"
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
-        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
+        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
 
     - stage: test
       osx_image: xcode9.4
@@ -140,7 +140,7 @@ jobs:
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
-        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
+        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
 
     - stage: test
       osx_image: xcode9.4
@@ -149,7 +149,7 @@ jobs:
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
-        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
     - stage: test
       env:
@@ -157,7 +157,7 @@ jobs:
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
-        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
     - stage: test
       osx_image: xcode8.3
@@ -166,7 +166,7 @@ jobs:
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
-        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
     # Xcode 9 may find lint errors that don't show up in Xcode 10 (#2081)
     - stage: test
@@ -176,17 +176,17 @@ jobs:
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
-        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh GoogleUtilities.podspec
-        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseCore.podspec
-        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseAnalyticsInterop.podspec
-        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseAuth.podspec
-        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseAuthInterop.podspec
-        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseDatabase.podspec
-        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseDynamicLinks.podspec
-        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseMessaging.podspec
-        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseStorage.podspec
-        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseFunctions.podspec
-        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseInAppMessagingDisplay.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh GoogleUtilities.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseCore.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseAnalyticsInterop.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseAuth.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseAuthInterop.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseDatabase.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseDynamicLinks.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseMessaging.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseStorage.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseFunctions.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseInAppMessagingDisplay.podspec
 
     - stage: test
       osx_image: xcode9.4
@@ -197,7 +197,7 @@ jobs:
       script:
         # Eliminate the one warning from BoringSSL when CocoaPods 1.6.0 is available.
         # The travis_wait is necessary because the command takes more than 10 minutes.
-        - travis_wait ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseFirestore.podspec --allow-warnings --no-subspecs
+        - travis_wait 45 ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseFirestore.podspec --allow-warnings --no-subspecs
 
     # Community-supported platforms
 
@@ -207,7 +207,7 @@ jobs:
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
-        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
+        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
 
     - stage: test
       env:
@@ -215,7 +215,7 @@ jobs:
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
-        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
+        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
 
     # Firestore sanitizers
 
@@ -225,7 +225,7 @@ jobs:
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
-        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
     - stage: test
       env:
@@ -233,7 +233,7 @@ jobs:
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
-        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
     # TODO(varconst): enable UBSan in xcodebuild. Right now if fails during
     # linkage (it works if enabled together with ASan, but it's supposed to be
@@ -245,7 +245,7 @@ jobs:
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
-        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
     - stage: test
       env:
@@ -253,7 +253,7 @@ jobs:
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
-        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
   allow_failures:
     # Run fuzz tests only on cron jobs.
