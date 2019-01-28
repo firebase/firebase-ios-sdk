@@ -40,7 +40,6 @@
 
 @class FSTMaybeDocument;
 @class FSTQueryData;
-@class FSTRemoteEvent;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -72,8 +71,8 @@ namespace remote {
 
 /**
  * A `TargetChange` specifies the set of changes for a specific target as part
- * of an `FSTRemoteEvent`. These changes track which documents are added,
- * modified or emoved, as well as the target's resume token and whether the
+ * of an `RemoteEvent`. These changes track which documents are added,
+ * modified or removed, as well as the target's resume token and whether the
  * target is marked CURRENT.
  *
  * The actual changes *to* documents are not part of the `TargetChange` since
@@ -240,6 +239,7 @@ class TargetState {
  * `DocumentUpdates` (changes to the actual documents).
  */
 class RemoteEvent {
+ public:
   RemoteEvent(model::SnapshotVersion snapshot_version,
               std::unordered_map<model::TargetId, TargetChange> target_changes,
               std::unordered_set<model::TargetId> target_mismatches,
@@ -336,8 +336,7 @@ class WatchChangeAggregator {
    * taken from the initializer. Resets the accumulated changes before
    * returning.
    */
-  FSTRemoteEvent* CreateRemoteEvent(
-      const model::SnapshotVersion& snapshot_version);
+  RemoteEvent CreateRemoteEvent(const model::SnapshotVersion& snapshot_version);
 
   /** Removes the in-memory state for the provided target. */
   void RemoveTarget(model::TargetId target_id);

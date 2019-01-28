@@ -29,7 +29,6 @@
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 #import "Firestore/Source/Remote/FSTOnlineStateTracker.h"
-#import "Firestore/Source/Remote/FSTRemoteEvent.h"
 #import "Firestore/Source/Remote/FSTStream.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
@@ -60,6 +59,7 @@ using firebase::firestore::remote::WatchStream;
 using firebase::firestore::remote::WriteStream;
 using firebase::firestore::remote::DocumentWatchChange;
 using firebase::firestore::remote::ExistenceFilterWatchChange;
+using firebase::firestore::remote::RemoteEvent;
 using firebase::firestore::remote::TargetChange;
 using firebase::firestore::remote::WatchChange;
 using firebase::firestore::remote::WatchChangeAggregator;
@@ -366,18 +366,18 @@ static const int kMaxPendingWrites = 10;
 }
 
 /**
- * Takes a batch of changes from the Datastore, repackages them as a RemoteEvent, and passes that
+ * Takes a batch of changes from the Datastore, repackages them as a `RemoteEvent`, and passes that
  * on to the SyncEngine.
  */
 - (void)raiseWatchSnapshotWithSnapshotVersion:(const SnapshotVersion &)snapshotVersion {
   HARD_ASSERT(snapshotVersion != SnapshotVersion::None(),
               "Can't raise event for unknown SnapshotVersion");
 
-  FSTRemoteEvent *remoteEvent = _watchChangeAggregator->CreateRemoteEvent(snapshotVersion);
+  RemoteEvent remoteEvent = _watchChangeAggregator->CreateRemoteEvent(snapshotVersion);
 
-  // Update in-memory resume tokens. FSTLocalStore will update the persistent view of these when
-  // applying the completed FSTRemoteEvent.
-  for (const auto &entry : remoteEvent.targetChanges) {
+  // Update in-memory resume tokens. `FSTLocalStore` will update the persistent view of these when
+  // applying the completed `RemoteEvent`.
+  for (const auto &entry : remoteEvent.target_changes()) {
     const TargetChange &target_change = entry.second;
     NSData *resumeToken = target_change.resume_token();
     if (resumeToken.length > 0) {
@@ -396,7 +396,7 @@ static const int kMaxPendingWrites = 10;
 
   // Re-establish listens for the targets that have been invalidated by existence filter
   // mismatches.
-  for (TargetId targetID : remoteEvent.targetMismatches) {
+  for (TargetId targetID : remoteEvent.target_mismatches()) {
     auto found = _listenTargets.find(targetID);
     if (found == _listenTargets.end()) {
       // A watched target might have been removed already.

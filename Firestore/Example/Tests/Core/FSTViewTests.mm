@@ -24,7 +24,6 @@
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
-#import "Firestore/Source/Remote/FSTRemoteEvent.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 

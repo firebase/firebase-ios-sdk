@@ -20,7 +20,6 @@
 #include <vector>
 
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Remote/FSTRemoteEvent.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
@@ -42,7 +41,6 @@
 @class FSTLocalViewChanges;
 @class FSTPatchMutation;
 @class FSTQuery;
-@class FSTRemoteEvent;
 @class FSTSetMutation;
 @class FSTSortOrder;
 @class FIRTimestamp;
@@ -50,6 +48,16 @@
 @class FSTView;
 @class FSTViewSnapshot;
 @class FSTObjectValue;
+
+namespace firebase {
+namespace firestore {
+namespace remote {
+
+class RemoteEvent;
+
+}  // namespace remote
+}  // namespace firestore
+}  // namespace firebase
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -285,17 +293,17 @@ FSTDeleteMutation *FSTTestDeleteMutation(NSString *path);
 firebase::firestore::model::MaybeDocumentMap FSTTestDocUpdates(NSArray<FSTMaybeDocument *> *docs);
 
 /** Creates a remote event that inserts a new document. */
-FSTRemoteEvent *FSTTestAddedRemoteEvent(
+firebase::firestore::remote::RemoteEvent FSTTestAddedRemoteEvent(
     FSTMaybeDocument *doc, const std::vector<firebase::firestore::model::TargetId> &addedToTargets);
 
 /** Creates a remote event with changes to a document. */
-FSTRemoteEvent *FSTTestUpdateRemoteEvent(
+firebase::firestore::remote::RemoteEvent FSTTestUpdateRemoteEvent(
     FSTMaybeDocument *doc,
     const std::vector<firebase::firestore::model::TargetId> &updatedInTargets,
     const std::vector<firebase::firestore::model::TargetId> &removedFromTargets);
 
 /** Creates a remote event with changes to a document. Allows for identifying limbo targets */
-FSTRemoteEvent *FSTTestUpdateRemoteEventWithLimboTargets(
+firebase::firestore::remote::RemoteEvent FSTTestUpdateRemoteEventWithLimboTargets(
     FSTMaybeDocument *doc,
     const std::vector<firebase::firestore::model::TargetId> &updatedInTargets,
     const std::vector<firebase::firestore::model::TargetId> &removedFromTargets,

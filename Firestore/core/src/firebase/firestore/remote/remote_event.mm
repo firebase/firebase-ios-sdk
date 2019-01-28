@@ -21,7 +21,6 @@
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Remote/FSTRemoteEvent.h"
 
 using firebase::firestore::core::DocumentViewChangeType;
 using firebase::firestore::model::DocumentKey;
@@ -242,7 +241,7 @@ void WatchChangeAggregator::HandleExistenceFilter(
   }
 }
 
-FSTRemoteEvent* WatchChangeAggregator::CreateRemoteEvent(
+RemoteEvent WatchChangeAggregator::CreateRemoteEvent(
     const SnapshotVersion& snapshot_version) {
   std::unordered_map<TargetId, TargetChange> target_changes;
 
@@ -298,12 +297,10 @@ FSTRemoteEvent* WatchChangeAggregator::CreateRemoteEvent(
     }
   }
 
-  FSTRemoteEvent* remote_event = [[FSTRemoteEvent alloc]
-      initWithSnapshotVersion:snapshot_version
-                targetChanges:target_changes
-             targetMismatches:std::move(pending_target_resets_)
-              documentUpdates:std::move(pending_document_updates_)
-               limboDocuments:std::move(resolved_limbo_documents)];
+  RemoteEvent remote_event{snapshot_version, std::move(target_changes),
+                           std::move(pending_target_resets_),
+                           std::move(pending_document_updates_),
+                           std::move(resolved_limbo_documents)};
 
   // Re-initialize the current state to ensure that we do not modify the
   // generated `RemoteEvent`.

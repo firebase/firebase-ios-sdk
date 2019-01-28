@@ -18,18 +18,16 @@
 
 #include <memory>
 
-#import "Firestore/Source/Remote/FSTRemoteEvent.h"
-
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
+#include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 
 @class FSTLocalStore;
 @class FSTMutationBatch;
 @class FSTMutationBatchResult;
 @class FSTQueryData;
-@class FSTRemoteEvent;
 @class FSTTransaction;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -47,7 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
  * any pending mutation batches that would become visible because of the snapshot version the
  * remote event contains.
  */
-- (void)applyRemoteEvent:(FSTRemoteEvent *)remoteEvent;
+- (void)applyRemoteEvent:(const firebase::firestore::remote::RemoteEvent &)remoteEvent;
 
 /**
  * Rejects the listen for the given targetID. This can be triggered by the backend for any active
