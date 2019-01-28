@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
+import Foundation
 import FirebaseFirestore
 
-extension Transaction {
-  public func setData<T: Encodable>(_ value: T, forDocument: DocumentReference) {
-    let encoded = encodeOrDie(value)
-    setData(encoded, forDocument: forDocument)
+internal func encodeOrDie<T: Encodable>(_ value: T) -> [String : Any] {
+  do {
+    return try Firestore.encode(value)
+  } catch let error {
+    fatalError("Unable to encode data with Firestore encoder: \(error)")
   }
 }
