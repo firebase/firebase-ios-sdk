@@ -235,6 +235,74 @@ class TargetState {
 };
 
 /**
+ * An event from the RemoteStore. It is split into `TargetChanges` (changes to
+ * the state or the set of documents in our watched targets) and
+ * `DocumentUpdates` (changes to the actual documents).
+ */
+class RemoteEvent {
+  RemoteEvent(model::SnapshotVersion snapshot_version,
+              std::unordered_map<model::TargetId, TargetChange> target_changes,
+              std::unordered_set<model::TargetId> target_mismatches,
+              std::unordered_map<model::DocumentKey,
+                                 FSTMaybeDocument*,
+                                 model::DocumentKeyHash> document_updates,
+              model::DocumentKeySet limbo_document_changes)
+      : snapshot_version_{snapshot_version},
+        target_changes_{std::move(target_changes)},
+        target_mismatches_{std::move(target_mismatches)},
+        document_updates_{std::move(document_updates)},
+        limbo_document_changes_{std::move(limbo_document_changes)} {
+  }
+
+  /** The snapshot version this event brings us up to. */
+  const model::SnapshotVersion& snapshot_version() const {
+    return snapshot_version_;
+  }
+
+  /**
+   * A set of which document updates are due only to limbo resolution targets.
+   */
+  const model::DocumentKeySet& limbo_document_changes() const {
+    return limbo_document_changes_;
+  }
+
+  /** A map from target to changes to the target. See TargetChange. */
+  const std::unordered_map<model::TargetId, TargetChange>& target_changes()
+      const {
+    return target_changes_;
+  }
+
+  /**
+   * A set of targets that is known to be inconsistent. Listens for these
+   * targets should be re-established without resume tokens.
+   */
+  const std::unordered_set<model::TargetId>& target_mismatches() const {
+    return target_mismatches_;
+  }
+
+  /**
+   * A set of which documents have changed or been deleted, along with the doc's
+   * new values (if not deleted).
+   */
+  const std::unordered_map<model::DocumentKey,
+                           FSTMaybeDocument*,
+                           model::DocumentKeyHash>&
+  document_updates() const {
+    return document_updates_;
+  }
+
+ private:
+  model::SnapshotVersion snapshot_version_;
+  std::unordered_map<model::TargetId, TargetChange> target_changes_;
+  std::unordered_set<model::TargetId> target_mismatches_;
+  std::unordered_map<model::DocumentKey,
+                     FSTMaybeDocument*,
+                     model::DocumentKeyHash>
+      document_updates_;
+  model::DocumentKeySet limbo_document_changes_;
+};
+
+/**
  * A helper class to accumulate watch changes into a `RemoteEvent` and other
  * target information.
  */
