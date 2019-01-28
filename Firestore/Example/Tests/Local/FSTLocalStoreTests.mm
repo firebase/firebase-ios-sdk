@@ -133,7 +133,7 @@ NS_ASSUME_NONNULL_BEGIN
   _lastChanges = result.changes;
 }
 
-- (void)applyRemoteEvent:(const RemoteEvent&)event {
+- (void)applyRemoteEvent:(const RemoteEvent &)event {
   _lastChanges = [self.localStore applyRemoteEvent:event];
 }
 

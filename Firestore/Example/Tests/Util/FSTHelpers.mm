@@ -376,7 +376,7 @@ FSTViewSnapshot *_Nullable FSTTestApplyChanges(FSTView *view,
 @end
 
 RemoteEvent FSTTestAddedRemoteEvent(FSTMaybeDocument *doc,
-                                        const std::vector<TargetId> &addedToTargets) {
+                                    const std::vector<TargetId> &addedToTargets) {
   HARD_ASSERT(![doc isKindOfClass:[FSTDocument class]] || ![(FSTDocument *)doc hasLocalMutations],
               "Docs from remote updates shouldn't have local changes.");
   DocumentWatchChange change{addedToTargets, {}, doc.key, doc};
@@ -415,8 +415,8 @@ RemoteEvent FSTTestUpdateRemoteEventWithLimboTargets(
 }
 
 RemoteEvent FSTTestUpdateRemoteEvent(FSTMaybeDocument *doc,
-                                         const std::vector<TargetId> &updatedInTargets,
-                                         const std::vector<TargetId> &removedFromTargets) {
+                                     const std::vector<TargetId> &updatedInTargets,
+                                     const std::vector<TargetId> &removedFromTargets) {
   return FSTTestUpdateRemoteEventWithLimboTargets(doc, updatedInTargets, removedFromTargets, {});
 }
 

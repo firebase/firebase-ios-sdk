@@ -20,6 +20,7 @@
 #import <XCTest/XCTest.h>
 
 #include <memory>
+#include <vector>
 
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
@@ -135,7 +136,7 @@ NS_ASSUME_NONNULL_BEGIN
   return DocumentKeySet{};
 }
 
-- (void)applyRemoteEvent:(const RemoteEvent&)remoteEvent {
+- (void)applyRemoteEvent:(const RemoteEvent &)remoteEvent {
   _listenEvents.push_back(remoteEvent);
   XCTestExpectation *expectation = [self.listenEventExpectations objectAtIndex:0];
   [self.listenEventExpectations removeObjectAtIndex:0];

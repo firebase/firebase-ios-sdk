@@ -431,10 +431,10 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
   auto change = MakeTargetChange(WatchTargetChangeState::Current, {1}, _resumeToken1);
 
   RemoteEvent event = [self remoteEventAtSnapshotVersion:3
-                                                   targetMap:targetMap
-                                        outstandingResponses:_noOutstandingResponses
-                                                existingKeys:DocumentKeySet {}
-                                                     changes:Changes(std::move(change))];
+                                               targetMap:targetMap
+                                    outstandingResponses:_noOutstandingResponses
+                                            existingKeys:DocumentKeySet {}
+                                                 changes:Changes(std::move(change))];
 
   XCTAssertEqual(event.snapshot_version(), testutil::Version(3));
   XCTAssertEqual(event.document_updates().size(), 0);
@@ -713,12 +713,11 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
   DocumentKey limboKey = testutil::Key("coll/limbo");
 
   auto resolveLimboTarget = MakeTargetChange(WatchTargetChangeState::Current, {1});
-  RemoteEvent event =
-      [self remoteEventAtSnapshotVersion:3
-                               targetMap:targetMap
-                    outstandingResponses:_noOutstandingResponses
-                            existingKeys:DocumentKeySet {}
-                                 changes:Changes(std::move(resolveLimboTarget))];
+  RemoteEvent event = [self remoteEventAtSnapshotVersion:3
+                                               targetMap:targetMap
+                                    outstandingResponses:_noOutstandingResponses
+                                            existingKeys:DocumentKeySet {}
+                                                 changes:Changes(std::move(resolveLimboTarget))];
 
   FSTDeletedDocument *expected = [FSTDeletedDocument documentWithKey:limboKey
                                                              version:event.snapshot_version()
@@ -733,10 +732,10 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
   auto wrongState = MakeTargetChange(WatchTargetChangeState::NoChange, {1});
 
   RemoteEvent event = [self remoteEventAtSnapshotVersion:3
-                                                   targetMap:targetMap
-                                        outstandingResponses:_noOutstandingResponses
-                                                existingKeys:DocumentKeySet {}
-                                                     changes:Changes(std::move(wrongState))];
+                                               targetMap:targetMap
+                                    outstandingResponses:_noOutstandingResponses
+                                            existingKeys:DocumentKeySet {}
+                                                 changes:Changes(std::move(wrongState))];
 
   XCTAssertEqual(event.document_updates().size(), 0);
   XCTAssertEqual(event.limbo_document_changes().size(), 0);

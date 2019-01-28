@@ -210,7 +210,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
   return self.queryCache->GetLastRemoteSnapshotVersion();
 }
 
-- (MaybeDocumentMap)applyRemoteEvent:(const RemoteEvent&)remoteEvent {
+- (MaybeDocumentMap)applyRemoteEvent:(const RemoteEvent &)remoteEvent {
   return self.persistence.run("Apply remote event", [&]() -> MaybeDocumentMap {
     // TODO(gsoltis): move the sequence number into the reference delegate.
     ListenSequenceNumber sequenceNumber = self.persistence.currentSequenceNumber;
@@ -376,9 +376,10 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 }
 
 - (nullable FSTMaybeDocument *)readDocument:(const DocumentKey &)key {
-  return self.persistence.run("ReadDocument", [&]() -> FSTMaybeDocument *_Nullable {
-    return [self.localDocuments documentForKey:key];
-  });
+  return self.persistence.run(
+      "ReadDocument", [&]() -> FSTMaybeDocument *_Nullable {
+        return [self.localDocuments documentForKey:key];
+      });
 }
 
 - (FSTQueryData *)allocateQuery:(FSTQuery *)query {

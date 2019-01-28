@@ -156,7 +156,8 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * LocalDocuments are re-calculated if there are remaining mutations in the queue.
  */
-- (firebase::firestore::model::MaybeDocumentMap)applyRemoteEvent:(const firebase::firestore::remote::RemoteEvent&)remoteEvent;
+- (firebase::firestore::model::MaybeDocumentMap)applyRemoteEvent:
+    (const firebase::firestore::remote::RemoteEvent &)remoteEvent;
 
 /**
  * Returns the keys of the documents that are associated with the given targetID in the remote
