@@ -59,6 +59,7 @@ using firebase::firestore::remote::WatchStream;
 using firebase::firestore::remote::WriteStream;
 using firebase::firestore::remote::DocumentWatchChange;
 using firebase::firestore::remote::ExistenceFilterWatchChange;
+using firebase::firestore::remote::OnlineStateTracker;
 using firebase::firestore::remote::RemoteEvent;
 using firebase::firestore::remote::TargetChange;
 using firebase::firestore::remote::WatchChange;
@@ -134,8 +135,7 @@ static const int kMaxPendingWrites = 10;
 - (instancetype)initWithLocalStore:(FSTLocalStore *)localStore
                          datastore:(std::shared_ptr<Datastore>)datastore
                        workerQueue:(AsyncQueue *)queue
-                       onlineStateDelegate:(id<FSTOnlineStateDelegate>) onlineStateDelegate
-{
+               onlineStateDelegate:(id<FSTOnlineStateDelegate> _Nullable)onlineStateDelegate {
   if (self = [super init]) {
     _localStore = localStore;
     _datastore = std::move(datastore);
@@ -214,7 +214,7 @@ static const int kMaxPendingWrites = 10;
   [self disableNetworkInternal];
   // Set the OnlineState to Unknown (rather than Offline) to avoid potentially triggering
   // spurious listener events with cached data, etc.
-  [self.onlineStateTracker updateState:OnlineState::Unknown];
+  _onlineStateTracker.UpdateState(OnlineState::Unknown);
   _datastore->Shutdown();
 }
 
@@ -308,7 +308,7 @@ static const int kMaxPendingWrites = 10;
 - (void)watchStreamDidChange:(const WatchChange &)change
              snapshotVersion:(const SnapshotVersion &)snapshotVersion {
   // Mark the connection as Online because we got a message from the server.
-    _onlineStateTracker.UpdateState(OnlineState::Online);
+  _onlineStateTracker.UpdateState(OnlineState::Online);
 
   if (change.type() == WatchChange::Type::TargetChange) {
     const WatchTargetChange &watchTargetChange = static_cast<const WatchTargetChange &>(change);

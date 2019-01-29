@@ -155,15 +155,14 @@ NS_ASSUME_NONNULL_BEGIN
         std::make_shared<MockDatastore>(_databaseInfo, _workerQueue.get(), &_credentialProvider);
     _remoteStore = [[FSTRemoteStore alloc] initWithLocalStore:_localStore
                                                     datastore:_datastore
-                                                  workerQueue:_workerQueue.get()];
+                                                  workerQueue:_workerQueue.get()
+                                                  onlineStateDelegate:self];
 
     _syncEngine = [[FSTSyncEngine alloc] initWithLocalStore:_localStore
                                                 remoteStore:_remoteStore
                                                 initialUser:initialUser];
     _remoteStore.syncEngine = _syncEngine;
     _eventManager = [FSTEventManager eventManagerWithSyncEngine:_syncEngine];
-
-    _remoteStore.onlineStateDelegate = self;
 
     // Set up internal event tracking for the spec tests.
     NSMutableArray<FSTQueryEvent *> *events = [NSMutableArray array];

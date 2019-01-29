@@ -228,7 +228,8 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
 
   _remoteStore = [[FSTRemoteStore alloc] initWithLocalStore:_localStore
                                                   datastore:std::move(datastore)
-                                                workerQueue:_workerQueue.get()];
+                                                workerQueue:_workerQueue.get()
+                                        onlineStateDelegate:self];
 
   _syncEngine = [[FSTSyncEngine alloc] initWithLocalStore:_localStore
                                               remoteStore:_remoteStore
@@ -238,8 +239,6 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
 
   // Setup wiring for remote store.
   _remoteStore.syncEngine = _syncEngine;
-
-  _remoteStore.onlineStateDelegate = self;
 
   // NOTE: RemoteStore depends on LocalStore (for persisting stream tokens, refilling mutation
   // queue, etc.) so must be started after LocalStore.

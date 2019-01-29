@@ -186,7 +186,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   _remoteStore = [[FSTRemoteStore alloc] initWithLocalStore:_localStore
                                                   datastore:_datastore
-                                                workerQueue:_testWorkerQueue.get()];
+                                                workerQueue:_testWorkerQueue.get()
+                                        onlineStateDelegate:nil];
 
   _testWorkerQueue->Enqueue([=] { [_remoteStore start]; });
 }

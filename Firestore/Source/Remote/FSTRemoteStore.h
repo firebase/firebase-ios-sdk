@@ -107,7 +107,7 @@ NS_ASSUME_NONNULL_BEGIN
                          datastore:
                              (std::shared_ptr<firebase::firestore::remote::Datastore>)datastore
                        workerQueue:(firebase::firestore::util::AsyncQueue *)queue
-                       onlineStateDelegate:(id<FSTOnlineStateDelegate>) onlineStateDelegate;
+               onlineStateDelegate:(id<FSTOnlineStateDelegate> _Nullable)onlineStateDelegate;
 
 - (instancetype)init NS_UNAVAILABLE;
 
