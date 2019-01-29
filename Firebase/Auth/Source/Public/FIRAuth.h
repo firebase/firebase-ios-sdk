@@ -23,6 +23,10 @@
 #import "FIRAuthAPNSTokenType.h"
 #endif
 
+#if TARGET_OS_TV
+#import "FIRAuthTVDelegate.h"
+#endif
+
 @class FIRActionCodeSettings;
 @class FIRApp;
 @class FIRAuth;
@@ -248,6 +252,15 @@ typedef NS_ENUM(NSInteger, FIRActionCodeOperation) {
 typedef void (^FIRCheckActionCodeCallBack)(FIRActionCodeInfo *_Nullable info,
                                            NSError *_Nullable error)
     NS_SWIFT_NAME(CheckActionCodeCallback);
+
+/** @typedef FIRAuthTVCodeCallback
+ @brief The type of block which returns a URL and
+
+ @param verificationURL The URL to be presented to the user.
+ @param userCode The code to be presented to the user and input at the URL.
+ */
+typedef void(^FIRAuthTVCodeCallback)(NSURL *verificationURL, NSString *userCode)
+    NS_SWIFT_NAME(AuthTVCodeCallback);
 
 /** @class FIRAuth
     @brief Manages authentication for Firebase apps.
@@ -570,6 +583,18 @@ NS_SWIFT_NAME(Auth)
                                       "Please use signInWithCustomToken:completion:"
                                       "for Objective-C or signIn(withCustomToken:completion:) for"
                                       " Swift instead.");
+
+#if TARGET_OS_TV
+
+/** @fn generateSignInCodeWithCompletion:
+ @brief Start the sign in process for tvOS, providing a delegate for all lifecycle methods.
+
+ @param delegate The delegate to handle events related to the sign in process for tvOS.
+ */
+// TODO(wilsonryan): Return something that will allow the developer to cancel the request.
+- (void)startSignInForTVWithDelegate:(id<FIRAuthTVDelegate>)delegate;
+
+#endif  // TARGET_OS_TV
 
 /** @fn createUserWithEmail:password:completion:
     @brief Creates and, on success, signs in a user with the given email address and password.

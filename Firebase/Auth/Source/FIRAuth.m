@@ -82,6 +82,13 @@
 #import "FIRAuthURLPresenter.h"
 #endif
 
+#if TARGET_OS_TV
+#import "FIRAuthTVCode.h"
+#import "FIRAuthTVDelegate.h"
+#import "FIRAuthTVPollResult.h"
+#import "FIRAuthTVService.h"
+#endif
+
 #pragma mark - Constants
 
 #if defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
@@ -958,6 +965,51 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     }];
   });
 }
+
+#if TARGET_OS_TV
+
+- (void)startSignInForTVWithDelegate:(id<FIRAuthTVDelegate>)delegate {
+  dispatch_async(FIRAuthGlobalWorkQueue(), ^{
+    // TODO: Trigger a sign in to start, passing along the delegate.
+    FIRAuthTVService *service = [[FIRAuthTVService alloc] init];
+    __weak FIRAuth *weakSelf = self;
+    [service requestAuthorizationCodeWithCompletion:^(FIRAuthTVCode * _Nonnull tvCode,
+                                                      NSError * _Nonnull error) {
+      // If Auth is nil, there are bigger issues so don't worry about it.
+      FIRAuth *strongSelf = weakSelf;
+      if (!strongSelf) { return; }
+
+      if (error) {
+        [delegate auth:strongSelf failedToGetVerificationURL:error];
+      } else if (tvCode) {
+        [delegate auth:strongSelf
+            presentVerificationURL:tvCode.verificationURL
+                      withUserCode:tvCode.userCode];
+
+        // Continue on by starting to poll the server to see if the user logged in!
+        [service pollServersWithCode:tvCode
+                     successCallback:^(FIRAuthTVPollResult * _Nonnull result) {
+                       FIRAuthCredential *cred =
+                           [FIROAuthProvider credentialWithProviderID:FIRGoogleAuthProviderID
+                                                          accessToken:result.accessToken];
+                       [self signInWithCredential:cred
+                                         callback:^(FIRUser * _Nullable user, NSError * _Nullable error) {
+                         if (user) {
+                           [delegate auth: self retrievedUser: user];
+                         } else {
+                           NSLog(@"WHY IS THERE AN ERROR: %@", error.localizedDescription);
+                         }
+                       }];
+                     }
+                     failureCallback:^(NSError * _Nonnull error) {
+                       NSLog(@"Something went wrong.. timeout? %@", error);
+                     }];
+      }
+    }];
+  });
+}
+
+#endif  // TARGET_OS_TV
 
 - (void)createUserAndRetrieveDataWithEmail:(NSString *)email
                                   password:(NSString *)password

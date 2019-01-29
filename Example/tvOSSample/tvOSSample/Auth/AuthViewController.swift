@@ -49,6 +49,8 @@ class AuthViewController: UIViewController {
     let destination = segue.destination
     if let emailVC = destination as? EmailLoginViewController {
       emailVC.delegate = self
+    } else if let oauthVC = destination as? OAuthLoginViewController {
+      oauthVC.delegate = self
     }
   }
 
@@ -81,5 +83,14 @@ extension AuthViewController: EmailLoginDelegate {
     DispatchQueue.main.async {
       controller.presentError(with: "There was an issue logging in. Please try again.")
     }
+  }
+}
+
+// MARK: - OAuthLoginDelegate conformance.
+
+extension AuthViewController: OAuthLoginDelegate {
+  func oauthLogin(_ controller: OAuthLoginViewController, signedInAs user: User) {
+    setUserSignedIn(user)
+    dismiss(animated: true)
   }
 }

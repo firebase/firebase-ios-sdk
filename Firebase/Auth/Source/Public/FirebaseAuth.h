@@ -42,3 +42,7 @@
 #import "FIRAuthAPNSTokenType.h"
 #import "FIRAuthSettings.h"
 #endif
+
+#if TARGET_OS_TV
+#import "FIRAuthTVDelegate.h"
+#endif
