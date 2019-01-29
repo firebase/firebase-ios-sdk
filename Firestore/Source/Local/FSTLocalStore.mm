@@ -148,14 +148,11 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 
     // Union the old/new changed keys.
     DocumentKeySet changedKeys;
-    for (FSTMutationBatch *batch : oldBatches) {
-      for (FSTMutation *mutation in batch.mutations) {
-        changedKeys = changedKeys.insert(mutation.key);
-      }
-    }
-    for (FSTMutationBatch *batch : newBatches) {
-      for (FSTMutation *mutation in batch.mutations) {
-        changedKeys = changedKeys.insert(mutation.key);
+    for (const std::vector<FSTMutationBatch *> &batches : {oldBatches, newBatches}) {
+      for (FSTMutationBatch *batch : batches) {
+        for (FSTMutation *mutation in batch.mutations) {
+          changedKeys = changedKeys.insert(mutation.key);
+        }
       }
     }
 

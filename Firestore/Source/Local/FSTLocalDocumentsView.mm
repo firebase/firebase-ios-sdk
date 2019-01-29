@@ -16,7 +16,6 @@
 
 #import "Firestore/Source/Local/FSTLocalDocumentsView.h"
 
-#include <utility>
 #include <vector>
 
 #import "Firestore/Source/Core/FSTQuery.h"
@@ -73,12 +72,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable FSTMaybeDocument *)documentForKey:(const DocumentKey &)key {
   std::vector<FSTMutationBatch *> batches =
       _mutationQueue->AllMutationBatchesAffectingDocumentKey(key);
-  return [self documentForKey:key inBatches:std::move(batches)];
+  return [self documentForKey:key inBatches:batches];
 }
 
 // Internal version of documentForKey: which allows reusing `batches`.
 - (nullable FSTMaybeDocument *)documentForKey:(const DocumentKey &)key
-                                    inBatches:(std::vector<FSTMutationBatch *>)batches {
+                                    inBatches:(const std::vector<FSTMutationBatch *> &)batches {
   FSTMaybeDocument *_Nullable document = _remoteDocumentCache->Get(key);
   for (FSTMutationBatch *batch : batches) {
     document = [batch applyToLocalDocument:document documentKey:key];
@@ -90,7 +89,8 @@ NS_ASSUME_NONNULL_BEGIN
 // Returns the view of the given `docs` as they would appear after applying all
 // mutations in the given `batches`.
 - (MaybeDocumentMap)applyLocalMutationsToDocuments:(const MaybeDocumentMap &)docs
-                                       fromBatches:(std::vector<FSTMutationBatch *>)batches {
+                                       fromBatches:
+                                           (const std::vector<FSTMutationBatch *> &)batches {
   MaybeDocumentMap results;
 
   for (const auto &kv : docs) {
@@ -123,8 +123,7 @@ NS_ASSUME_NONNULL_BEGIN
   std::vector<FSTMutationBatch *> batches =
       _mutationQueue->AllMutationBatchesAffectingDocumentKeys(allKeys);
 
-  MaybeDocumentMap docs = [self applyLocalMutationsToDocuments:baseDocs
-                                                   fromBatches:std::move(batches)];
+  MaybeDocumentMap docs = [self applyLocalMutationsToDocuments:baseDocs fromBatches:batches];
 
   for (const auto &kv : docs) {
     const DocumentKey &key = kv.first;
