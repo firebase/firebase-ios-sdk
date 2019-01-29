@@ -1,17 +1,32 @@
 import Foundation
 
+fileprivate extension URL {
+  /// Generates an array of URLs by calling `appendingPathComponent` for each item in `strings`.
+  func appendEach(_ strings: [String]) -> [URL] {
+    return strings.map{ self.appendingPathComponent($0) }
+  }
+}
+
 /// Misc. constants used in the script.
 private struct Constants {
   /// Constants related to the Xcode project template.
   public struct ProjectPath {
-    // Individual files required.
-    public static let notices = "NOTICES"
-    public static let projectFile = "FrameworkMaker.xcodeproj"
-    public static let readme = "README.md"
+    // Required for building.
     public static let infoPlist = "Info.plist"
+    public static let projectFile = "FrameworkMaker.xcodeproj"
 
     /// All required files for building the Zip file.
     public static let requiredFilesForBuilding: [String] = [projectFile, infoPlist]
+
+    // Required for distribution.
+    public static let firebaseHeader = "Firebase.h"
+    public static let readmeTemplate = "README.md"
+    public static let modulemap = "module.modulemap"
+    public static let notices = "NOTICES"
+
+    /// All required files for distribution. Note: the readmeTemplate is also needed for
+    /// distribution but is copied separately since it's modified.
+    public static let requiredFilesForDistribution: [String] = [firebaseHeader, modulemap, notices]
 
     // Make the struct un-initializable.
     @available(*, unavailable)
@@ -49,6 +64,7 @@ struct ZipBuilder {
   /// based frameworks.
   private let templateDir: URL
 
+  /// Determines if the cache should be used or not.
   private let useCache: Bool
 
   /// Default initializer. If allSDKsPath and currentReleasePath are provided, it will also verify
@@ -99,7 +115,9 @@ struct ZipBuilder {
     }
 
     // Copy the Xcode project needed in order to be able to install Pods there.
-    let templateFiles = projectTemplatePaths(withRoot: self.templateDir)
+    let templateFiles = Constants.ProjectPath.requiredFilesForBuilding.map {
+      return templateDir.appendingPathComponent($0)
+    }
     for file in templateFiles {
       // Each file should be copied to the temporary project directory with the same name.
       let destination = projectDir.appendingPathComponent(file.lastPathComponent)
@@ -116,7 +134,7 @@ struct ZipBuilder {
 
     // Get the README template ready (before attempting to build everything in case this fails,
     // otherwise debugging it will take a long time).
-    let readmePath = self.templateDir.appendingPathComponent(Constants.ProjectPath.readme)
+    let readmePath = self.templateDir.appendingPathComponent(Constants.ProjectPath.readmeTemplate)
     let readmeTemplate: String
     do {
       readmeTemplate = try String(contentsOf: readmePath)
@@ -214,7 +232,7 @@ struct ZipBuilder {
     let readmeText = readmeTemplate.replacingOccurrences(of: "__INTEGRATION__", with: readmeDeps)
                                    .replacingOccurrences(of: "__VERSIONS__", with: versionsText)
     do {
-      try readmeText.write(to: zipDir.appendingPathComponent(Constants.ProjectPath.readme),
+      try readmeText.write(to: zipDir.appendingPathComponent(Constants.ProjectPath.readmeTemplate),
                            atomically: true,
                            encoding: .utf8)
     } catch {
@@ -222,7 +240,22 @@ struct ZipBuilder {
     }
 
     // Copy all the other required files to the Zip directory.
-    // TODO: modulemap, Firebase.h, NOTICES
+    let distributionFiles = Constants.ProjectPath.requiredFilesForDistribution.map {
+      return templateDir.appendingPathComponent($0)
+    }
+    for file in distributionFiles {
+      // Each file should be copied to the destination project directory with the same name.
+      let destination = zipDir.appendingPathComponent(file.lastPathComponent)
+      do {
+        if !FileManager.default.fileExists(atPath: destination.path) {
+          print("Copying final distribution file \(file) to \(destination)...")
+          try FileManager.default.copyItem(at: file, to: destination)
+        }
+      } catch {
+        fatalError("Could not copy final distribution files to temporary directory before " +
+          "packaging. Failed while attempting to copy \(file) to \(destination). \(error)")
+      }
+    }
 
     print("Contents of the Zip file were assembled at: \(zipDir)")
     return zipDir
@@ -443,18 +476,6 @@ struct ZipBuilder {
 
     return releasingVersions
   }
-
-  /// Get the paths for the Xcode project template required to build with CocoaPods given the root
-  /// template folder.
-  private func projectTemplatePaths(withRoot templateDir: URL) -> [URL] {
-    // Map the relative paths to the absolute paths for all required files and folders.
-    let fullPaths = Constants.ProjectPath.requiredFilesForBuilding.map { (relativePath) -> URL in
-      return templateDir.appendingPathComponent(relativePath)
-    }
-
-    return fullPaths
-  }
-
 
   /// Validates that the expected versions (based on the release manifest passed in, if there was
   /// one) match the expected versions installed and listed in the Podfile.lock in a project
