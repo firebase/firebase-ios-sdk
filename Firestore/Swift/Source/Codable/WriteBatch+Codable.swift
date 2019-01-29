@@ -17,8 +17,8 @@
 import FirebaseFirestore
 
 extension WriteBatch {
-  public func setData<T: Encodable>(encoderInput: T, forDocument: DocumentReference) {
-    let encoded = encodeOrDie(encoderInput)
+  public func setData<T: Encodable>(from encodable: T, forDocument: DocumentReference) {
+    let encoded = encodeOrDie(encodable)
     setData(encoded, forDocument: forDocument)
   }
 }

@@ -17,13 +17,13 @@
 import FirebaseFirestore
 
 extension CollectionReference {
-  public func addDocument<T: Encodable>(encoderInput: T) -> DocumentReference {
-    let encoded = encodeOrDie(encoderInput)
+  public func addDocument<T: Encodable>(from encodable: T) -> DocumentReference {
+    let encoded = encodeOrDie(encodable)
     return addDocument(data: encoded)
   }
 
-  public func addDocument<T: Encodable>(encoderInput: T, _ completion: ((Error?) -> Void)?) -> DocumentReference {
-    let encoded = encodeOrDie(encoderInput)
+  public func addDocument<T: Encodable>(from encodable: T, _ completion: ((Error?) -> Void)?) -> DocumentReference {
+    let encoded = encodeOrDie(encodable)
     return addDocument(data: encoded, completion: completion)
   }
 }
