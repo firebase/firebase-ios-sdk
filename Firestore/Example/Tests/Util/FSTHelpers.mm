@@ -387,11 +387,19 @@ RemoteEvent FSTTestAddedRemoteEvent(FSTMaybeDocument *doc,
 }
 
 TargetChange FSTTestTargetChangeMarkCurrent() {
-  return {[NSData data], true, DocumentKeySet{}, DocumentKeySet{}, DocumentKeySet{}};
+  return {[NSData data],
+          /*current=*/true,
+          /*added_documents=*/DocumentKeySet{},
+          /*modified_documents=*/DocumentKeySet{},
+          /*removed_documents=*/DocumentKeySet{}};
 }
 
 TargetChange FSTTestTargetChangeAckDocuments(DocumentKeySet docs) {
-  return {[NSData data], true, std::move(docs), DocumentKeySet{}, DocumentKeySet{}};
+  return {[NSData data],
+          /*current=*/true,
+          /*added_documents*/ std::move(docs),
+          /*modified_documents*/ DocumentKeySet{},
+          /*removed_documents*/ DocumentKeySet{}};
 }
 
 RemoteEvent FSTTestUpdateRemoteEventWithLimboTargets(
