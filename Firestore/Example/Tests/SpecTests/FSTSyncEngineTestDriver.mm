@@ -156,7 +156,7 @@ NS_ASSUME_NONNULL_BEGIN
     _remoteStore = [[FSTRemoteStore alloc] initWithLocalStore:_localStore
                                                     datastore:_datastore
                                                   workerQueue:_workerQueue.get()
-                                                  onlineStateDelegate:self];
+                                          onlineStateDelegate:self];
 
     _syncEngine = [[FSTSyncEngine alloc] initWithLocalStore:_localStore
                                                 remoteStore:_remoteStore
