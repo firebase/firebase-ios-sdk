@@ -28,6 +28,7 @@
 #include <set>
 #include <unordered_map>
 #include <unordered_set>
+#include <utility>
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
@@ -40,7 +41,6 @@
 @class FSTMaybeDocument;
 @class FSTQueryData;
 @class FSTRemoteEvent;
-@class FSTTargetChange;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -70,6 +70,84 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
+/**
+ * A `TargetChange` specifies the set of changes for a specific target as part
+ * of an `FSTRemoteEvent`. These changes track which documents are added,
+ * modified or emoved, as well as the target's resume token and whether the
+ * target is marked CURRENT.
+ *
+ * The actual changes *to* documents are not part of the `TargetChange` since
+ * documents may be part of multiple targets.
+ */
+class TargetChange {
+ public:
+  TargetChange() = default;
+
+  TargetChange(NSData* resume_token,
+               bool current,
+               model::DocumentKeySet added_documents,
+               model::DocumentKeySet modified_documents,
+               model::DocumentKeySet removed_documents)
+      : resume_token_{resume_token},
+        current_{current},
+        added_documents_{std::move(added_documents)},
+        modified_documents_{std::move(modified_documents)},
+        removed_documents_{std::move(removed_documents)} {
+  }
+
+  /**
+   * An opaque, server-assigned token that allows watching a query to be resumed
+   * after disconnecting without retransmitting all the data that matches the
+   * query. The resume token essentially identifies a point in time from which
+   * the server should resume sending results.
+   */
+  NSData* resume_token() const {
+    return resume_token_;
+  }
+
+  /**
+   * The "current" (synced) status of this target. Note that "current" has
+   * special meaning in the RPC protocol that implies that a target is both
+   * up-to-date and consistent with the rest of the watch stream.
+   */
+  bool current() const {
+    return current_;
+  }
+
+  /**
+   * The set of documents that were newly assigned to this target as part of
+   * this remote event.
+   */
+  const model::DocumentKeySet& added_documents() const {
+    return added_documents_;
+  }
+
+  /**
+   * The set of documents that were already assigned to this target but received
+   * an update during this remote event.
+   */
+  const model::DocumentKeySet& modified_documents() const {
+    return modified_documents_;
+  }
+
+  /**
+   * The set of documents that were removed from this target as part of this
+   * remote event.
+   */
+  const model::DocumentKeySet& removed_documents() const {
+    return removed_documents_;
+  }
+
+ private:
+  NSData* resume_token_ = nil;
+  bool current_ = false;
+  model::DocumentKeySet added_documents_;
+  model::DocumentKeySet modified_documents_;
+  model::DocumentKeySet removed_documents_;
+};
+
+bool operator==(const TargetChange& lhs, const TargetChange& rhs);
+
 /** Tracks the internal state of a Watch target. */
 class TargetState {
  public:
@@ -78,12 +156,12 @@ class TargetState {
   /**
    * Whether this target has been marked 'current'.
    *
-   * 'Current' has special meaning in the RPC protocol: It implies that the
+   * 'current' has special meaning in the RPC protocol: It implies that the
    * Watch backend has sent us all changes up to the point at which the target
    * was added and that the target is consistent with the rest of the watch
    * stream.
    */
-  bool Current() const {
+  bool current() const {
     return current_;
   }
 
@@ -114,7 +192,7 @@ class TargetState {
    * To reset the document changes after raising this snapshot, call
    * `ClearPendingChanges()`.
    */
-  FSTTargetChange* ToTargetChange() const;
+  TargetChange ToTargetChange() const;
 
   /** Resets the document changes and sets `HasPendingChanges` to false. */
   void ClearPendingChanges();

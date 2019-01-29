@@ -27,7 +27,9 @@
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
 #include "absl/strings/string_view.h"
+#include "absl/types/optional.h"
 
 @class FIRGeoPoint;
 @class FSTDeleteMutation;
@@ -43,7 +45,6 @@
 @class FSTRemoteEvent;
 @class FSTSetMutation;
 @class FSTSortOrder;
-@class FSTTargetChange;
 @class FIRTimestamp;
 @class FSTTransformMutation;
 @class FSTView;
@@ -256,9 +257,10 @@ NSComparator FSTTestDocComparator(const absl::string_view fieldPath);
 FSTDocumentSet *FSTTestDocSet(NSComparator comp, NSArray<FSTDocument *> *docs);
 
 /** Computes changes to the view with the docs and then applies them and returns the snapshot. */
-FSTViewSnapshot *_Nullable FSTTestApplyChanges(FSTView *view,
-                                               NSArray<FSTMaybeDocument *> *docs,
-                                               FSTTargetChange *_Nullable targetChange);
+FSTViewSnapshot *_Nullable FSTTestApplyChanges(
+    FSTView *view,
+    NSArray<FSTMaybeDocument *> *docs,
+    const absl::optional<firebase::firestore::remote::TargetChange> &targetChange);
 
 /** Creates a set mutation for the document key at the given path. */
 FSTSetMutation *FSTTestSetMutation(NSString *path, NSDictionary<NSString *, id> *values);
@@ -305,17 +307,11 @@ FSTLocalViewChanges *FSTTestViewChanges(firebase::firestore::model::TargetId tar
                                         NSArray<NSString *> *removedKeys);
 
 /** Creates a test target change that acks all 'docs' and  marks the target as CURRENT  */
-FSTTargetChange *FSTTestTargetChangeAckDocuments(firebase::firestore::model::DocumentKeySet docs);
+firebase::firestore::remote::TargetChange FSTTestTargetChangeAckDocuments(
+    firebase::firestore::model::DocumentKeySet docs);
 
 /** Creates a test target change that marks the target as CURRENT  */
-FSTTargetChange *FSTTestTargetChangeMarkCurrent();
-
-/** Creates a test target change. */
-FSTTargetChange *FSTTestTargetChange(firebase::firestore::model::DocumentKeySet added,
-                                     firebase::firestore::model::DocumentKeySet modified,
-                                     firebase::firestore::model::DocumentKeySet removed,
-                                     NSData *resumeToken,
-                                     BOOL current);
+firebase::firestore::remote::TargetChange FSTTestTargetChangeMarkCurrent();
 
 /** Creates a resume token to match the given snapshot version. */
 NSData *_Nullable FSTTestResumeTokenFromSnapshotVersion(FSTTestSnapshotVersion watchSnapshot);
