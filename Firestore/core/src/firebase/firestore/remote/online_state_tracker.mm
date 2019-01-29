@@ -60,7 +60,7 @@ void OnlineStateTracker::HandleWatchStreamStart() {
     return;
   }
 
-  SetAndBroadcastState(OnlineState::Unknown);
+  SetAndBroadcast(OnlineState::Unknown);
 
   HARD_ASSERT(!online_state_timer_,
               "online_state_timer_ shouldn't be started yet");
@@ -74,7 +74,7 @@ void OnlineStateTracker::HandleWatchStreamStart() {
         LogClientOfflineWarningIfNecessary(StringFormat(
             "Backend didn't respond within %s seconds.",
             chr::duration_cast<chr::seconds>(kOnlineStateTimeout).count()));
-        SetAndBroadcastState(OnlineState::Offline);
+        SetAndBroadcast(OnlineState::Offline);
 
         // NOTE: `HandleWatchStreamFailure` will continue to increment
         // `watch_stream_failures_` even though we are already marked `Offline`
@@ -84,7 +84,7 @@ void OnlineStateTracker::HandleWatchStreamStart() {
 
 void OnlineStateTracker::HandleWatchStreamFailure(const Status& error) {
   if (state_ == OnlineState::Online) {
-    SetAndBroadcastState(OnlineState::Unknown);
+    SetAndBroadcast(OnlineState::Unknown);
 
     // To get to `OnlineState`::Online, `UpdateState` must have been called
     // which would have reset our heuristics.
@@ -102,7 +102,7 @@ void OnlineStateTracker::HandleWatchStreamFailure(const Status& error) {
           StringFormat("Connection failed %s times. Most recent error: %s",
                        kMaxWatchStreamFailures, error.error_message()));
 
-      SetAndBroadcastState(OnlineState::Offline);
+      SetAndBroadcast(OnlineState::Offline);
     }
   }
 }
@@ -117,10 +117,10 @@ void OnlineStateTracker::UpdateState(OnlineState new_state) {
     should_warn_client_is_offline_ = false;
   }
 
-  SetAndBroadcastState(new_state);
+  SetAndBroadcast(new_state);
 }
 
-void OnlineStateTracker::SetAndBroadcastState(OnlineState new_state) {
+void OnlineStateTracker::SetAndBroadcast(OnlineState new_state) {
   if (new_state != state_) {
     state_ = new_state;
     [online_state_delegate_ applyChangedOnlineState:new_state];

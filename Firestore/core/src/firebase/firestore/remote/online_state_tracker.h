@@ -89,7 +89,7 @@ class OnlineStateTracker {
   void UpdateState(model::OnlineState new_state);
 
  private:
-  void SetAndBroadcastState(model::OnlineState new_state);
+  void SetAndBroadcast(model::OnlineState new_state);
   void LogClientOfflineWarningIfNecessary(const std::string& reason);
   void ClearOnlineStateTimer();
 
@@ -104,18 +104,18 @@ class OnlineStateTracker {
   int watch_stream_failures_ = 0;
 
   /**
-   * Whether the client should log a warning message if it fails to connect to
-   * the backend (initially true, cleared after a successful stream, or if we've
-   * logged the message already).
-   */
-  bool should_warn_client_is_offline_ = true;
-
-  /**
    * A timer that elapses after `kOnlineStateTimeout`, at which point we
    * transition from `OnlineState` `Unknown` to `Offline` without waiting for
    * the stream to actually fail (`kMaxWatchStreamFailures` times).
    */
   util::DelayedOperation online_state_timer_;
+
+  /**
+   * Whether the client should log a warning message if it fails to connect to
+   * the backend (initially true, cleared after a successful stream, or if we've
+   * logged the message already).
+   */
+  bool should_warn_client_is_offline_ = true;
 
   /**
    * The worker queue to use for running timers (and to call
