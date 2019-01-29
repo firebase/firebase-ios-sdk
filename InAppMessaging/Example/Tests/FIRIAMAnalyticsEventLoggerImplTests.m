@@ -153,7 +153,6 @@ typedef void (^FakeAnalyticsLastNotificationHandler)(NSString *origin, LastNotif
       [[FIRIAMAnalyticsEventLoggerImpl alloc] initWithClearcutLogger:self.mockClearcutLogger
                                                     usingTimeFetcher:self.mockTimeFetcher
                                                    usingUserDefaults:nil
-                                                   conversionExpires:10000l
                                                            analytics:analytics];
 
   NSTimeInterval currentMoment = 10000;
@@ -191,14 +190,10 @@ typedef void (^FakeAnalyticsLastNotificationHandler)(NSString *origin, LastNotif
         [expectation1 fulfill];
       }];
 
-  OCMStub([self.mockUserDefaults doubleForKey:[OCMArg any]]).andReturn(0);
-
-  long conversionExpiresInSeconds = 100l;
   FIRIAMAnalyticsEventLoggerImpl *logger =
       [[FIRIAMAnalyticsEventLoggerImpl alloc] initWithClearcutLogger:self.mockClearcutLogger
                                                     usingTimeFetcher:self.mockTimeFetcher
                                                    usingUserDefaults:self.mockUserDefaults
-                                                   conversionExpires:conversionExpiresInSeconds
                                                            analytics:analytics];
 
   NSTimeInterval currentMoment = 10000;
@@ -210,10 +205,6 @@ typedef void (^FakeAnalyticsLastNotificationHandler)(NSString *origin, LastNotif
               withCampaignName:[OCMArg isEqual:campaignName]
                  eventTimeInMs:[OCMArg isNil]
                     completion:([OCMArg invokeBlockWithArgs:@YES, nil])]);
-
-  OCMExpect([self.mockUserDefaults
-      setDouble:(double)currentMoment + conversionExpiresInSeconds
-         forKey:@"firebase-iam-conversion-tracking-expires-in-seconds"]);
 
   XCTestExpectation *expectation2 =
       [self expectationWithDescription:@"Completion Callback Triggered"];
@@ -228,38 +219,6 @@ typedef void (^FakeAnalyticsLastNotificationHandler)(NSString *origin, LastNotif
 
   [self waitForExpectationsWithTimeout:2.0 handler:nil];
   OCMVerifyAll((id)self.mockClearcutLogger);
-
-  // verify that we persisted the conversion tracking expiration time
-  OCMVerifyAll((id)self.mockUserDefaults);
 }
 
-- (void)testConversionUserPropertyOnStartup {
-  XCTestExpectation *expectation =
-      [self expectationWithDescription:@"Triggers user property callback"];
-  FakeAnalytics *analytics = [[FakeAnalytics alloc]
-      initWithUserPropertyHandler:^(NSString *origin, NSString *name, id property) {
-        XCTAssertEqualObjects(origin, @"fiam");
-        XCTAssertEqualObjects(name, @"_ln");
-        XCTAssertEqualObjects(property, @"empty");
-        [expectation fulfill];
-      }];
-
-  analytics.lastNotificationHandler = ^(NSString *origin, LastNotificationCallback callback) {
-    XCTAssertEqualObjects(origin, @"fiam");
-    callback(origin);
-  };
-
-  NSTimeInterval currentMoment = 10000;
-  OCMStub([self.mockTimeFetcher currentTimestampInSeconds]).andReturn(currentMoment);
-  // so the stored expiration time is before currentMoment
-  OCMStub([self.mockUserDefaults doubleForKey:[OCMArg any]]).andReturn(currentMoment - 100);
-
-  (void)[[FIRIAMAnalyticsEventLoggerImpl alloc] initWithClearcutLogger:self.mockClearcutLogger
-                                                      usingTimeFetcher:self.mockTimeFetcher
-                                                     usingUserDefaults:self.mockUserDefaults
-                                                     conversionExpires:100l
-                                                             analytics:analytics];
-
-  [self waitForExpectationsWithTimeout:2.0 handler:nil];
-}
 @end

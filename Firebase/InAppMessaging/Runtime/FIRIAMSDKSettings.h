@@ -43,9 +43,6 @@ NS_ASSUME_NONNULL_BEGIN
 // clearcut strategy
 @property(nonatomic, strong) FIRIAMClearcutStrategy *clearcutStrategy;
 
-// how long, in seconds, we stop attributing conversions for a clicked message
-@property(nonatomic) long conversionTrackingExpiresInSeconds;
-
 // The global flag at whole Firebase level for automatic data collection. On FIAM SDK startup,
 // it would be retreived from FIRApp's corresponding setting.
 @property(nonatomic, getter=isFirebaseAutoDataCollectionEnabled)
