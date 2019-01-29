@@ -617,6 +617,7 @@
 		EDD53E2A211B08A300376BFF /* FIRComponentTestUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E28211B08A300376BFF /* FIRComponentTestUtilities.m */; };
 		EDD53E2B211B08A300376BFF /* FIRComponentTestUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E28211B08A300376BFF /* FIRComponentTestUtilities.m */; };
 		EDD53E2C211B08A300376BFF /* FIRComponentTestUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E28211B08A300376BFF /* FIRComponentTestUtilities.m */; };
+		EDF5242C21EA37AA00BB24C6 /* FIRMessagingTestUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = EDF5242B21EA364600BB24C6 /* FIRMessagingTestUtilities.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1345,6 +1346,8 @@
 		EDD53E24211A442D00376BFF /* FIRAuthInteropFake.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAuthInteropFake.m; path = Shared/FIRAuthInteropFake.m; sourceTree = "<group>"; };
 		EDD53E28211B08A300376BFF /* FIRComponentTestUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRComponentTestUtilities.m; path = Shared/FIRComponentTestUtilities.m; sourceTree = "<group>"; };
 		EDD53E29211B08A300376BFF /* FIRComponentTestUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FIRComponentTestUtilities.h; path = Shared/FIRComponentTestUtilities.h; sourceTree = "<group>"; };
+		EDF5242A21EA364600BB24C6 /* FIRMessagingTestUtilities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FIRMessagingTestUtilities.h; sourceTree = "<group>"; };
+		EDF5242B21EA364600BB24C6 /* FIRMessagingTestUtilities.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FIRMessagingTestUtilities.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2340,6 +2343,8 @@
 				DE9315D71E8738B70083EDBF /* FIRMessagingTestNotificationUtilities.m */,
 				DE37C63A2163D5F30025D03E /* FIRMessagingAnalyticsTest.m */,
 				DE9315D81E8738B70083EDBF /* Info.plist */,
+				EDF5242A21EA364600BB24C6 /* FIRMessagingTestUtilities.h */,
+				EDF5242B21EA364600BB24C6 /* FIRMessagingTestUtilities.m */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -4419,6 +4424,7 @@
 				DE9315F91E8738E60083EDBF /* FIRMessagingFakeConnection.m in Sources */,
 				DE9316021E8738E60083EDBF /* FIRMessagingServiceTest.m in Sources */,
 				DE9315FE1E8738E60083EDBF /* FIRMessagingRegistrarTest.m in Sources */,
+				EDF5242C21EA37AA00BB24C6 /* FIRMessagingTestUtilities.m in Sources */,
 				DE9316031E8738E60083EDBF /* FIRMessagingSyncMessageManagerTest.m in Sources */,
 				DE9315FF1E8738E60083EDBF /* FIRMessagingRemoteNotificationsProxyTest.m in Sources */,
 				DEF61BFD216E8B1100A738D4 /* FIRMessagingReceiverTest.m in Sources */,
