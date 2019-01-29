@@ -25,6 +25,16 @@
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 
+namespace firebase {
+namespace firestore {
+namespace remote {
+
+class RemoteEvent;
+
+}  // namespace remote
+}  // namespace firestore
+}  // namespace firebase
+
 @class FSTLocalViewChanges;
 @class FSTLocalWriteResult;
 @class FSTMutation;
@@ -32,7 +42,6 @@
 @class FSTMutationBatchResult;
 @class FSTQuery;
 @class FSTQueryData;
-@class FSTRemoteEvent;
 @protocol FSTPersistence;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -147,7 +156,8 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * LocalDocuments are re-calculated if there are remaining mutations in the queue.
  */
-- (firebase::firestore::model::MaybeDocumentMap)applyRemoteEvent:(FSTRemoteEvent *)remoteEvent;
+- (firebase::firestore::model::MaybeDocumentMap)applyRemoteEvent:
+    (const firebase::firestore::remote::RemoteEvent &)remoteEvent;
 
 /**
  * Returns the keys of the documents that are associated with the given targetID in the remote

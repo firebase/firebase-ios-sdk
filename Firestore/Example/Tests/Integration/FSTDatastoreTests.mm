@@ -20,6 +20,7 @@
 #import <XCTest/XCTest.h>
 
 #include <memory>
+#include <vector>
 
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
@@ -29,7 +30,6 @@
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
-#import "Firestore/Source/Remote/FSTRemoteEvent.h"
 #import "Firestore/Source/Remote/FSTRemoteStore.h"
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
@@ -40,6 +40,7 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
+#include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
@@ -57,6 +58,7 @@ using firebase::firestore::model::Precondition;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::remote::Datastore;
 using firebase::firestore::remote::GrpcConnection;
+using firebase::firestore::remote::RemoteEvent;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::ExecutorLibdispatch;
 
@@ -79,17 +81,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic, weak, nullable) XCTestCase *testCase;
 @property(nonatomic, strong) NSMutableArray<NSObject *> *writeEvents;
-@property(nonatomic, strong) NSMutableArray<NSObject *> *listenEvents;
 @property(nonatomic, strong) NSMutableArray<XCTestExpectation *> *writeEventExpectations;
 @property(nonatomic, strong) NSMutableArray<XCTestExpectation *> *listenEventExpectations;
 @end
 
-@implementation FSTRemoteStoreEventCapture
+@implementation FSTRemoteStoreEventCapture {
+  std::vector<RemoteEvent> _listenEvents;
+}
 
 - (instancetype)initWithTestCase:(XCTestCase *_Nullable)testCase {
   if (self = [super init]) {
     _writeEvents = [NSMutableArray array];
-    _listenEvents = [NSMutableArray array];
     _testCase = testCase;
     _writeEventExpectations = [NSMutableArray array];
     _listenEventExpectations = [NSMutableArray array];
@@ -134,8 +136,8 @@ NS_ASSUME_NONNULL_BEGIN
   return DocumentKeySet{};
 }
 
-- (void)applyRemoteEvent:(FSTRemoteEvent *)remoteEvent {
-  [self.listenEvents addObject:remoteEvent];
+- (void)applyRemoteEvent:(const RemoteEvent &)remoteEvent {
+  _listenEvents.push_back(remoteEvent);
   XCTestExpectation *expectation = [self.listenEventExpectations objectAtIndex:0];
   [self.listenEventExpectations removeObjectAtIndex:0];
   [expectation fulfill];

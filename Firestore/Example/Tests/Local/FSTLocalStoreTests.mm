@@ -27,7 +27,6 @@
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
-#import "Firestore/Source/Remote/FSTRemoteEvent.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 
 #import "Firestore/Example/Tests/Local/FSTLocalStoreTests.h"
@@ -51,6 +50,7 @@ using firebase::firestore::model::DocumentMap;
 using firebase::firestore::model::MaybeDocumentMap;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::remote::RemoteEvent;
 using firebase::firestore::remote::WatchChangeAggregator;
 using firebase::firestore::remote::WatchTargetChange;
 using firebase::firestore::remote::WatchTargetChangeState;
@@ -133,7 +133,7 @@ NS_ASSUME_NONNULL_BEGIN
   _lastChanges = result.changes;
 }
 
-- (void)applyRemoteEvent:(FSTRemoteEvent *)event {
+- (void)applyRemoteEvent:(const RemoteEvent &)event {
   _lastChanges = [self.localStore applyRemoteEvent:event];
 }
 
@@ -910,7 +910,7 @@ NS_ASSUME_NONNULL_BEGIN
       providerWithSingleResultForKey:testutil::Key("foo/bar")
                              targets:{targetID}]};
   aggregator.HandleTargetChange(watchChange);
-  FSTRemoteEvent *remoteEvent = aggregator.CreateRemoteEvent(testutil::Version(1000));
+  RemoteEvent remoteEvent = aggregator.CreateRemoteEvent(testutil::Version(1000));
   [self applyRemoteEvent:remoteEvent];
 
   // Stop listening so that the query should become inactive (but persistent)

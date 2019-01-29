@@ -38,7 +38,6 @@
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
-#import "Firestore/Source/Remote/FSTRemoteEvent.h"
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -73,6 +72,7 @@ using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::model::TransformOperation;
 using firebase::firestore::remote::DocumentWatchChange;
+using firebase::firestore::remote::RemoteEvent;
 using firebase::firestore::remote::TargetChange;
 using firebase::firestore::remote::WatchChangeAggregator;
 
@@ -375,8 +375,8 @@ FSTViewSnapshot *_Nullable FSTTestApplyChanges(FSTView *view,
 
 @end
 
-FSTRemoteEvent *FSTTestAddedRemoteEvent(FSTMaybeDocument *doc,
-                                        const std::vector<TargetId> &addedToTargets) {
+RemoteEvent FSTTestAddedRemoteEvent(FSTMaybeDocument *doc,
+                                    const std::vector<TargetId> &addedToTargets) {
   HARD_ASSERT(![doc isKindOfClass:[FSTDocument class]] || ![(FSTDocument *)doc hasLocalMutations],
               "Docs from remote updates shouldn't have local changes.");
   DocumentWatchChange change{addedToTargets, {}, doc.key, doc};
@@ -402,7 +402,7 @@ TargetChange FSTTestTargetChangeAckDocuments(DocumentKeySet docs) {
           /*removed_documents*/ DocumentKeySet{}};
 }
 
-FSTRemoteEvent *FSTTestUpdateRemoteEventWithLimboTargets(
+RemoteEvent FSTTestUpdateRemoteEventWithLimboTargets(
     FSTMaybeDocument *doc,
     const std::vector<TargetId> &updatedInTargets,
     const std::vector<TargetId> &removedFromTargets,
@@ -422,9 +422,9 @@ FSTRemoteEvent *FSTTestUpdateRemoteEventWithLimboTargets(
   return aggregator.CreateRemoteEvent(doc.version);
 }
 
-FSTRemoteEvent *FSTTestUpdateRemoteEvent(FSTMaybeDocument *doc,
-                                         const std::vector<TargetId> &updatedInTargets,
-                                         const std::vector<TargetId> &removedFromTargets) {
+RemoteEvent FSTTestUpdateRemoteEvent(FSTMaybeDocument *doc,
+                                     const std::vector<TargetId> &updatedInTargets,
+                                     const std::vector<TargetId> &removedFromTargets) {
   return FSTTestUpdateRemoteEventWithLimboTargets(doc, updatedInTargets, removedFromTargets, {});
 }
 

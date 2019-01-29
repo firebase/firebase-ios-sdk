@@ -32,7 +32,6 @@
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
-#import "Firestore/Source/Remote/FSTRemoteEvent.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
@@ -60,6 +59,7 @@ using firebase::firestore::model::MaybeDocumentMap;
 using firebase::firestore::model::ListenSequenceNumber;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::remote::RemoteEvent;
 using firebase::firestore::remote::TargetChange;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -209,13 +209,13 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
   return self.queryCache->GetLastRemoteSnapshotVersion();
 }
 
-- (MaybeDocumentMap)applyRemoteEvent:(FSTRemoteEvent *)remoteEvent {
+- (MaybeDocumentMap)applyRemoteEvent:(const RemoteEvent &)remoteEvent {
   return self.persistence.run("Apply remote event", [&]() -> MaybeDocumentMap {
     // TODO(gsoltis): move the sequence number into the reference delegate.
     ListenSequenceNumber sequenceNumber = self.persistence.currentSequenceNumber;
 
     DocumentKeySet authoritativeUpdates;
-    for (const auto &entry : remoteEvent.targetChanges) {
+    for (const auto &entry : remoteEvent.target_changes()) {
       TargetId targetID = entry.first;
       const TargetChange &change = entry.second;
 
@@ -250,7 +250,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
       NSData *resumeToken = change.resume_token();
       if (resumeToken.length > 0) {
         FSTQueryData *oldQueryData = queryData;
-        queryData = [queryData queryDataByReplacingSnapshotVersion:remoteEvent.snapshotVersion
+        queryData = [queryData queryDataByReplacingSnapshotVersion:remoteEvent.snapshot_version()
                                                        resumeToken:resumeToken
                                                     sequenceNumber:sequenceNumber];
         _targetIDs[targetID] = queryData;
@@ -262,16 +262,16 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
     }
 
     MaybeDocumentMap changedDocs;
-    const DocumentKeySet &limboDocuments = remoteEvent.limboDocumentChanges;
+    const DocumentKeySet &limboDocuments = remoteEvent.limbo_document_changes();
     DocumentKeySet updatedKeys;
-    for (const auto &kv : remoteEvent.documentUpdates) {
+    for (const auto &kv : remoteEvent.document_updates()) {
       updatedKeys = updatedKeys.insert(kv.first);
     }
     // Each loop iteration only affects its "own" doc, so it's safe to get all the remote
     // documents in advance in a single call.
     MaybeDocumentMap existingDocs = _remoteDocumentCache->GetAll(updatedKeys);
 
-    for (const auto &kv : remoteEvent.documentUpdates) {
+    for (const auto &kv : remoteEvent.document_updates()) {
       const DocumentKey &key = kv.first;
       FSTMaybeDocument *doc = kv.second;
       FSTMaybeDocument *existingDoc = nil;
@@ -305,7 +305,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
     // events when we get permission denied errors while trying to resolve the state of a locally
     // cached document that is in limbo.
     const SnapshotVersion &lastRemoteVersion = _queryCache->GetLastRemoteSnapshotVersion();
-    const SnapshotVersion &remoteVersion = remoteEvent.snapshotVersion;
+    const SnapshotVersion &remoteVersion = remoteEvent.snapshot_version();
     if (remoteVersion != SnapshotVersion::None()) {
       HARD_ASSERT(remoteVersion >= lastRemoteVersion,
                   "Watch stream reverted to previous snapshot?? (%s < %s)",
