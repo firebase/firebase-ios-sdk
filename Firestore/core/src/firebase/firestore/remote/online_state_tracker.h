@@ -52,6 +52,8 @@ namespace remote {
  */
 class OnlineStateTracker {
  public:
+  OnlineStateTracker() = default;
+
   explicit OnlineStateTracker(util::AsyncQueue* worker_queue,
                               id<FSTOnlineStateDelegate> online_state_delegate)
       : worker_queue_{worker_queue},

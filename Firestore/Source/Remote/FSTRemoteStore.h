@@ -106,13 +106,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithLocalStore:(FSTLocalStore *)localStore
                          datastore:
                              (std::shared_ptr<firebase::firestore::remote::Datastore>)datastore
-                       workerQueue:(firebase::firestore::util::AsyncQueue *)queue;
+                       workerQueue:(firebase::firestore::util::AsyncQueue *)queue
+                       onlineStateDelegate:(id<FSTOnlineStateDelegate>) onlineStateDelegate;
 
 - (instancetype)init NS_UNAVAILABLE;
 
 @property(nonatomic, weak) id<FSTRemoteSyncer> syncEngine;
-
-@property(nonatomic, weak) id<FSTOnlineStateDelegate> onlineStateDelegate;
 
 /** Starts up the remote store, creating streams, restoring state from LocalStore, etc. */
 - (void)start;

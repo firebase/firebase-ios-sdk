@@ -28,13 +28,13 @@
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
-#import "Firestore/Source/Remote/FSTOnlineStateTracker.h"
 #import "Firestore/Source/Remote/FSTStream.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/remote/online_state_tracker.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
 #include "Firestore/core/src/firebase/firestore/remote/stream.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
@@ -88,8 +88,6 @@ static const int kMaxPendingWrites = 10;
 
 #pragma mark Watch Stream
 
-@property(nonatomic, strong, readonly) FSTOnlineStateTracker *onlineStateTracker;
-
 /**
  * A list of up to kMaxPendingWrites writes that we have fetched from the LocalStore via
  * fillWritePipeline and have or will send to the write stream.
@@ -108,9 +106,11 @@ static const int kMaxPendingWrites = 10;
 @end
 
 @implementation FSTRemoteStore {
-  std::unique_ptr<WatchChangeAggregator> _watchChangeAggregator;
-  /** The client-side proxy for interacting with the backend. */
+  OnlineStateTracker _onlineStateTracker;
 
+  std::unique_ptr<WatchChangeAggregator> _watchChangeAggregator;
+
+  /** The client-side proxy for interacting with the backend. */
   std::shared_ptr<Datastore> _datastore;
   /**
    * A mapping of watched targets that the client cares about tracking and the
@@ -133,13 +133,15 @@ static const int kMaxPendingWrites = 10;
 
 - (instancetype)initWithLocalStore:(FSTLocalStore *)localStore
                          datastore:(std::shared_ptr<Datastore>)datastore
-                       workerQueue:(AsyncQueue *)queue {
+                       workerQueue:(AsyncQueue *)queue
+                       onlineStateDelegate:(id<FSTOnlineStateDelegate>) onlineStateDelegate
+{
   if (self = [super init]) {
     _localStore = localStore;
     _datastore = std::move(datastore);
 
     _writePipeline = [NSMutableArray array];
-    _onlineStateTracker = [[FSTOnlineStateTracker alloc] initWithWorkerQueue:queue];
+    _onlineStateTracker = OnlineStateTracker{queue, onlineStateDelegate};
 
     _datastore->Start();
     // Create streams (but note they're not started yet)
@@ -154,16 +156,6 @@ static const int kMaxPendingWrites = 10;
 - (void)start {
   // For now, all setup is handled by enableNetwork(). We might expand on this in the future.
   [self enableNetwork];
-}
-
-@dynamic onlineStateDelegate;
-
-- (nullable id<FSTOnlineStateDelegate>)onlineStateDelegate {
-  return self.onlineStateTracker.onlineStateDelegate;
-}
-
-- (void)setOnlineStateDelegate:(nullable id<FSTOnlineStateDelegate>)delegate {
-  self.onlineStateTracker.onlineStateDelegate = delegate;
 }
 
 #pragma mark Online/Offline state
@@ -184,7 +176,7 @@ static const int kMaxPendingWrites = 10;
     if ([self shouldStartWatchStream]) {
       [self startWatchStream];
     } else {
-      [self.onlineStateTracker updateState:OnlineState::Unknown];
+      _onlineStateTracker.UpdateState(OnlineState::Unknown);
     }
 
     // This will start the write stream if necessary.
@@ -197,7 +189,7 @@ static const int kMaxPendingWrites = 10;
   [self disableNetworkInternal];
 
   // Set the OnlineState to Offline so get()s return from cache, etc.
-  [self.onlineStateTracker updateState:OnlineState::Offline];
+  _onlineStateTracker.UpdateState(OnlineState::Offline);
 }
 
 /** Disables the network, setting the OnlineState to the specified targetOnlineState. */
@@ -234,7 +226,7 @@ static const int kMaxPendingWrites = 10;
     LOG_DEBUG("FSTRemoteStore %s restarting streams for new credential", (__bridge void *)self);
     _isNetworkEnabled = NO;
     [self disableNetworkInternal];
-    [self.onlineStateTracker updateState:OnlineState::Unknown];
+    _onlineStateTracker.UpdateState(OnlineState::Unknown);
     [self enableNetwork];
   }
 }
@@ -247,7 +239,7 @@ static const int kMaxPendingWrites = 10;
   _watchChangeAggregator = absl::make_unique<WatchChangeAggregator>(self);
   _watchStream->Start();
 
-  [self.onlineStateTracker handleWatchStreamStart];
+  _onlineStateTracker.HandleWatchStreamStart();
 }
 
 - (void)listenToTargetWithQueryData:(FSTQueryData *)queryData {
@@ -284,7 +276,7 @@ static const int kMaxPendingWrites = 10;
       // Revert to OnlineState::Unknown if the watch stream is not open and we have no listeners,
       // since without any listens to send we cannot confirm if the stream is healthy and upgrade
       // to OnlineState::Online.
-      [self.onlineStateTracker updateState:OnlineState::Unknown];
+      _onlineStateTracker.UpdateState(OnlineState::Unknown);
     }
   }
 }
@@ -316,7 +308,7 @@ static const int kMaxPendingWrites = 10;
 - (void)watchStreamDidChange:(const WatchChange &)change
              snapshotVersion:(const SnapshotVersion &)snapshotVersion {
   // Mark the connection as Online because we got a message from the server.
-  [self.onlineStateTracker updateState:OnlineState::Online];
+    _onlineStateTracker.UpdateState(OnlineState::Online);
 
   if (change.type() == WatchChange::Type::TargetChange) {
     const WatchTargetChange &watchTargetChange = static_cast<const WatchTargetChange &>(change);
@@ -355,13 +347,13 @@ static const int kMaxPendingWrites = 10;
 
   // If we still need the watch stream, retry the connection.
   if ([self shouldStartWatchStream]) {
-    [self.onlineStateTracker handleWatchStreamFailure:util::MakeNSError(error)];
+    _onlineStateTracker.HandleWatchStreamFailure(error);
 
     [self startWatchStream];
   } else {
     // We don't need to restart the watch stream because there are no active targets. The online
     // state is set to unknown because there is no active attempt at establishing a connection.
-    [self.onlineStateTracker updateState:OnlineState::Unknown];
+    _onlineStateTracker.UpdateState(OnlineState::Unknown);
   }
 }
 
