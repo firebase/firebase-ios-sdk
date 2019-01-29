@@ -24,6 +24,14 @@
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
+#include "Firestore/core/src/firebase/firestore/util/autoid.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+
+using firebase::firestore::util::CreateAutoId;
+using firebase::firestore::util::WrapNSString;
+
+NS_ASSUME_NONNULL_BEGIN
+
 @interface FIRWriteBatchTests : FSTIntegrationTestCase
 @end
 
@@ -124,147 +132,6 @@
   XCTAssertFalse(result.exists);
 }
 
-- (void)testDeleteDocuments {
-  FIRDocumentReference *doc = [self documentRef];
-  [self writeDocumentRef:doc data:@{@"foo" : @"bar"}];
-  FIRDocumentSnapshot *snapshot = [self readDocumentForRef:doc];
-
-  XCTAssertTrue(snapshot.exists);
-  XCTestExpectation *batchExpectation = [self expectationWithDescription:@"batch written"];
-  FIRWriteBatch *batch = [doc.firestore batch];
-  [batch deleteDocument:doc];
-  [batch commitWithCompletion:^(NSError *error) {
-    XCTAssertNil(error);
-    [batchExpectation fulfill];
-  }];
-  [self awaitExpectations];
-  snapshot = [self readDocumentForRef:doc];
-  XCTAssertFalse(snapshot.exists);
-}
-
-- (void)testBatchesCommitAtomicallyRaisingCorrectEvents {
-  FIRCollectionReference *collection = [self collectionRef];
-  FIRDocumentReference *docA = [collection documentWithPath:@"a"];
-  FIRDocumentReference *docB = [collection documentWithPath:@"b"];
-  FSTEventAccumulator *accumulator = [FSTEventAccumulator accumulatorForTest:self];
-  [collection addSnapshotListenerWithIncludeMetadataChanges:YES
-                                                   listener:accumulator.valueEventHandler];
-  FIRQuerySnapshot *initialSnap = [accumulator awaitEventWithName:@"initial event"];
-  XCTAssertEqual(initialSnap.count, 0);
-
-  // Atomically write two documents.
-  XCTestExpectation *expectation = [self expectationWithDescription:@"batch written"];
-  FIRWriteBatch *batch = [collection.firestore batch];
-  [batch setData:@{@"a" : @1} forDocument:docA];
-  [batch setData:@{@"b" : @2} forDocument:docB];
-  [batch commitWithCompletion:^(NSError *_Nullable error) {
-    XCTAssertNil(error);
-    [expectation fulfill];
-  }];
-
-  FIRQuerySnapshot *localSnap = [accumulator awaitEventWithName:@"local event"];
-  XCTAssertTrue(localSnap.metadata.hasPendingWrites);
-  XCTAssertEqualObjects(FIRQuerySnapshotGetData(localSnap), (@[ @{@"a" : @1}, @{@"b" : @2} ]));
-
-  FIRQuerySnapshot *serverSnap = [accumulator awaitEventWithName:@"server event"];
-  XCTAssertFalse(serverSnap.metadata.hasPendingWrites);
-  XCTAssertEqualObjects(FIRQuerySnapshotGetData(serverSnap), (@[ @{@"a" : @1}, @{@"b" : @2} ]));
-}
-
-- (void)testBatchesFailAtomicallyRaisingCorrectEvents {
-  FIRCollectionReference *collection = [self collectionRef];
-  FIRDocumentReference *docA = [collection documentWithPath:@"a"];
-  FIRDocumentReference *docB = [collection documentWithPath:@"b"];
-  FSTEventAccumulator *accumulator = [FSTEventAccumulator accumulatorForTest:self];
-  [collection addSnapshotListenerWithIncludeMetadataChanges:YES
-                                                   listener:accumulator.valueEventHandler];
-  FIRQuerySnapshot *initialSnap = [accumulator awaitEventWithName:@"initial event"];
-  XCTAssertEqual(initialSnap.count, 0);
-
-  // Atomically write 1 document and update a nonexistent document.
-  XCTestExpectation *expectation = [self expectationWithDescription:@"batch failed"];
-  FIRWriteBatch *batch = [collection.firestore batch];
-  [batch setData:@{@"a" : @1} forDocument:docA];
-  [batch updateData:@{@"b" : @2} forDocument:docB];
-  [batch commitWithCompletion:^(NSError *_Nullable error) {
-    XCTAssertNotNil(error);
-    XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
-    XCTAssertEqual(error.code, FIRFirestoreErrorCodeNotFound);
-    [expectation fulfill];
-  }];
-
-  // Local event with the set document.
-  FIRQuerySnapshot *localSnap = [accumulator awaitEventWithName:@"local event"];
-  XCTAssertTrue(localSnap.metadata.hasPendingWrites);
-  XCTAssertEqualObjects(FIRQuerySnapshotGetData(localSnap), (@[ @{@"a" : @1} ]));
-
-  // Server event with the set reverted.
-  FIRQuerySnapshot *serverSnap = [accumulator awaitEventWithName:@"server event"];
-  XCTAssertFalse(serverSnap.metadata.hasPendingWrites);
-  XCTAssertEqual(serverSnap.count, 0);
-}
-
-- (void)testWriteTheSameServerTimestampAcrossWrites {
-  FIRCollectionReference *collection = [self collectionRef];
-  FIRDocumentReference *docA = [collection documentWithPath:@"a"];
-  FIRDocumentReference *docB = [collection documentWithPath:@"b"];
-  FSTEventAccumulator *accumulator = [FSTEventAccumulator accumulatorForTest:self];
-  [collection addSnapshotListenerWithIncludeMetadataChanges:YES
-                                                   listener:accumulator.valueEventHandler];
-  FIRQuerySnapshot *initialSnap = [accumulator awaitEventWithName:@"initial event"];
-  XCTAssertEqual(initialSnap.count, 0);
-
-  // Atomically write 2 documents with server timestamps.
-  XCTestExpectation *expectation = [self expectationWithDescription:@"batch written"];
-  FIRWriteBatch *batch = [collection.firestore batch];
-  [batch setData:@{@"when" : [FIRFieldValue fieldValueForServerTimestamp]} forDocument:docA];
-  [batch setData:@{@"when" : [FIRFieldValue fieldValueForServerTimestamp]} forDocument:docB];
-  [batch commitWithCompletion:^(NSError *_Nullable error) {
-    XCTAssertNil(error);
-    [expectation fulfill];
-  }];
-
-  FIRQuerySnapshot *localSnap = [accumulator awaitEventWithName:@"local event"];
-  XCTAssertTrue(localSnap.metadata.hasPendingWrites);
-  XCTAssertEqualObjects(FIRQuerySnapshotGetData(localSnap),
-                        (@[ @{@"when" : [NSNull null]}, @{@"when" : [NSNull null]} ]));
-
-  FIRQuerySnapshot *serverSnap = [accumulator awaitEventWithName:@"server event"];
-  XCTAssertFalse(serverSnap.metadata.hasPendingWrites);
-  XCTAssertEqual(serverSnap.count, 2);
-  NSDate *when = serverSnap.documents[0][@"when"];
-  XCTAssertEqualObjects(FIRQuerySnapshotGetData(serverSnap),
-                        (@[ @{@"when" : when}, @{@"when" : when} ]));
-}
-
-- (void)testCanWriteTheSameDocumentMultipleTimes {
-  FIRDocumentReference *doc = [self documentRef];
-  FSTEventAccumulator *accumulator = [FSTEventAccumulator accumulatorForTest:self];
-  [doc addSnapshotListenerWithIncludeMetadataChanges:YES listener:accumulator.valueEventHandler];
-  FIRDocumentSnapshot *initialSnap = [accumulator awaitEventWithName:@"initial event"];
-  XCTAssertFalse(initialSnap.exists);
-
-  XCTestExpectation *expectation = [self expectationWithDescription:@"batch written"];
-  FIRWriteBatch *batch = [doc.firestore batch];
-  [batch deleteDocument:doc];
-  [batch setData:@{@"a" : @1, @"b" : @1, @"when" : @"when"} forDocument:doc];
-  [batch updateData:@{@"b" : @2, @"when" : [FIRFieldValue fieldValueForServerTimestamp]}
-        forDocument:doc];
-  [batch commitWithCompletion:^(NSError *_Nullable error) {
-    XCTAssertNil(error);
-    [expectation fulfill];
-  }];
-
-  FIRDocumentSnapshot *localSnap = [accumulator awaitEventWithName:@"local event"];
-  XCTAssertTrue(localSnap.metadata.hasPendingWrites);
-  XCTAssertEqualObjects(localSnap.data, (@{@"a" : @1, @"b" : @2, @"when" : [NSNull null]}));
-
-  FIRDocumentSnapshot *serverSnap = [accumulator awaitEventWithName:@"server event"];
-  XCTAssertFalse(serverSnap.metadata.hasPendingWrites);
-  NSDate *when = serverSnap[@"when"];
-  XCTAssertEqualObjects(serverSnap.data, (@{@"a" : @1, @"b" : @2, @"when" : when}));
-}
-
 - (void)testUpdateFieldsWithDots {
   FIRDocumentReference *doc = [self documentRef];
 
@@ -309,6 +176,186 @@
   }];
 
   [self awaitExpectations];
+}
+
+- (void)testDeleteDocuments {
+  FIRDocumentReference *doc = [self documentRef];
+  [self writeDocumentRef:doc data:@{@"foo" : @"bar"}];
+  FIRDocumentSnapshot *snapshot = [self readDocumentForRef:doc];
+
+  XCTAssertTrue(snapshot.exists);
+  XCTestExpectation *batchExpectation = [self expectationWithDescription:@"batch written"];
+  FIRWriteBatch *batch = [doc.firestore batch];
+  [batch deleteDocument:doc];
+  [batch commitWithCompletion:^(NSError *error) {
+    XCTAssertNil(error);
+    [batchExpectation fulfill];
+  }];
+  [self awaitExpectations];
+  snapshot = [self readDocumentForRef:doc];
+  XCTAssertFalse(snapshot.exists);
+}
+
+- (void)testBatchesCommitAtomicallyRaisingCorrectEvents {
+  FIRCollectionReference *collection = [self collectionRef];
+  FIRDocumentReference *docA = [collection documentWithPath:@"a"];
+  FIRDocumentReference *docB = [collection documentWithPath:@"b"];
+  FSTEventAccumulator *accumulator = [FSTEventAccumulator accumulatorForTest:self];
+  [collection addSnapshotListenerWithIncludeMetadataChanges:YES
+                                                   listener:accumulator.valueEventHandler];
+  FIRQuerySnapshot *initialSnap = [accumulator awaitEventWithName:@"initial event"];
+  XCTAssertEqual(initialSnap.count, 0);
+
+  // Atomically write two documents.
+  XCTestExpectation *expectation = [self expectationWithDescription:@"batch written"];
+  FIRWriteBatch *batch = [collection.firestore batch];
+  [batch setData:@{@"a" : @1} forDocument:docA];
+  [batch setData:@{@"b" : @2} forDocument:docB];
+  [batch commitWithCompletion:^(NSError *_Nullable error) {
+    XCTAssertNil(error);
+    [expectation fulfill];
+  }];
+  [self awaitExpectations];
+
+  FIRQuerySnapshot *localSnap = [accumulator awaitEventWithName:@"local event"];
+  XCTAssertTrue(localSnap.metadata.hasPendingWrites);
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(localSnap), (@[ @{@"a" : @1}, @{@"b" : @2} ]));
+
+  FIRQuerySnapshot *serverSnap = [accumulator awaitEventWithName:@"server event"];
+  XCTAssertFalse(serverSnap.metadata.hasPendingWrites);
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(serverSnap), (@[ @{@"a" : @1}, @{@"b" : @2} ]));
+}
+
+- (void)testBatchesFailAtomicallyRaisingCorrectEvents {
+  FIRCollectionReference *collection = [self collectionRef];
+  FIRDocumentReference *docA = [collection documentWithPath:@"a"];
+  FIRDocumentReference *docB = [collection documentWithPath:@"b"];
+  FSTEventAccumulator *accumulator = [FSTEventAccumulator accumulatorForTest:self];
+  [collection addSnapshotListenerWithIncludeMetadataChanges:YES
+                                                   listener:accumulator.valueEventHandler];
+  FIRQuerySnapshot *initialSnap = [accumulator awaitEventWithName:@"initial event"];
+  XCTAssertEqual(initialSnap.count, 0);
+
+  // Atomically write 1 document and update a nonexistent document.
+  XCTestExpectation *expectation = [self expectationWithDescription:@"batch failed"];
+  FIRWriteBatch *batch = [collection.firestore batch];
+  [batch setData:@{@"a" : @1} forDocument:docA];
+  [batch updateData:@{@"b" : @2} forDocument:docB];
+  [batch commitWithCompletion:^(NSError *_Nullable error) {
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
+    XCTAssertEqual(error.code, FIRFirestoreErrorCodeNotFound);
+    [expectation fulfill];
+  }];
+  [self awaitExpectations];
+
+  // Local event with the set document.
+  FIRQuerySnapshot *localSnap = [accumulator awaitEventWithName:@"local event"];
+  XCTAssertTrue(localSnap.metadata.hasPendingWrites);
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(localSnap), (@[ @{@"a" : @1} ]));
+
+  // Server event with the set reverted.
+  FIRQuerySnapshot *serverSnap = [accumulator awaitEventWithName:@"server event"];
+  XCTAssertFalse(serverSnap.metadata.hasPendingWrites);
+  XCTAssertEqual(serverSnap.count, 0);
+}
+
+- (void)testWriteTheSameServerTimestampAcrossWrites {
+  FIRCollectionReference *collection = [self collectionRef];
+  FIRDocumentReference *docA = [collection documentWithPath:@"a"];
+  FIRDocumentReference *docB = [collection documentWithPath:@"b"];
+  FSTEventAccumulator *accumulator = [FSTEventAccumulator accumulatorForTest:self];
+  [collection addSnapshotListenerWithIncludeMetadataChanges:YES
+                                                   listener:accumulator.valueEventHandler];
+  FIRQuerySnapshot *initialSnap = [accumulator awaitEventWithName:@"initial event"];
+  XCTAssertEqual(initialSnap.count, 0);
+
+  // Atomically write 2 documents with server timestamps.
+  XCTestExpectation *expectation = [self expectationWithDescription:@"batch written"];
+  FIRWriteBatch *batch = [collection.firestore batch];
+  [batch setData:@{@"when" : [FIRFieldValue fieldValueForServerTimestamp]} forDocument:docA];
+  [batch setData:@{@"when" : [FIRFieldValue fieldValueForServerTimestamp]} forDocument:docB];
+  [batch commitWithCompletion:^(NSError *_Nullable error) {
+    XCTAssertNil(error);
+    [expectation fulfill];
+  }];
+  [self awaitExpectations];
+
+  FIRQuerySnapshot *localSnap = [accumulator awaitEventWithName:@"local event"];
+  XCTAssertTrue(localSnap.metadata.hasPendingWrites);
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(localSnap),
+                        (@[ @{@"when" : [NSNull null]}, @{@"when" : [NSNull null]} ]));
+
+  FIRQuerySnapshot *serverSnap = [accumulator awaitEventWithName:@"server event"];
+  XCTAssertFalse(serverSnap.metadata.hasPendingWrites);
+  XCTAssertEqual(serverSnap.count, 2);
+  NSDate *when = serverSnap.documents[0][@"when"];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(serverSnap),
+                        (@[ @{@"when" : when}, @{@"when" : when} ]));
+}
+
+- (void)testCanWriteTheSameDocumentMultipleTimes {
+  FIRDocumentReference *doc = [self documentRef];
+  FSTEventAccumulator *accumulator = [FSTEventAccumulator accumulatorForTest:self];
+  [doc addSnapshotListenerWithIncludeMetadataChanges:YES listener:accumulator.valueEventHandler];
+  FIRDocumentSnapshot *initialSnap = [accumulator awaitEventWithName:@"initial event"];
+  XCTAssertFalse(initialSnap.exists);
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"batch written"];
+  FIRWriteBatch *batch = [doc.firestore batch];
+  [batch deleteDocument:doc];
+  [batch setData:@{@"a" : @1, @"b" : @1, @"when" : @"when"} forDocument:doc];
+  [batch updateData:@{@"b" : @2, @"when" : [FIRFieldValue fieldValueForServerTimestamp]}
+        forDocument:doc];
+  [batch commitWithCompletion:^(NSError *_Nullable error) {
+    XCTAssertNil(error);
+    [expectation fulfill];
+  }];
+  [self awaitExpectations];
+
+  FIRDocumentSnapshot *localSnap = [accumulator awaitEventWithName:@"local event"];
+  XCTAssertTrue(localSnap.metadata.hasPendingWrites);
+  XCTAssertEqualObjects(localSnap.data, (@{@"a" : @1, @"b" : @2, @"when" : [NSNull null]}));
+
+  FIRDocumentSnapshot *serverSnap = [accumulator awaitEventWithName:@"server event"];
+  XCTAssertFalse(serverSnap.metadata.hasPendingWrites);
+  NSDate *when = serverSnap[@"when"];
+  XCTAssertEqualObjects(serverSnap.data, (@{@"a" : @1, @"b" : @2, @"when" : when}));
+}
+
+- (void)testCanWriteVeryLargeBatches {
+  // On Android, SQLite Cursors are limited reading no more than 2 MB per row (despite being able
+  // to write very large values). This test verifies that the local MutationQueue is not subject
+  // to this limitation.
+
+  // Create a map containing nearly 1 MB of data. Note that if you use 1024 below this will create
+  // a document larger than 1 MB, which will be rejected by the backend as too large.
+  NSString *kb = [@"" stringByPaddingToLength:1000 withString:@"a" startingAtIndex:0];
+  NSMutableDictionary<NSString *, id> *values = [NSMutableDictionary dictionary];
+  for (int i = 0; i < 1000; i++) {
+    values[WrapNSString(CreateAutoId())] = kb;
+  }
+
+  FIRDocumentReference *doc = [self documentRef];
+  FIRWriteBatch *batch = [doc.firestore batch];
+
+  // Write a batch containing 3 copies of the data, creating a ~3 MB batch. Writing to the same
+  // document in a batch is allowed and so long as the net size of the document is under 1 MB the
+  // batch is allowed.
+  [batch setData:values forDocument:doc];
+  for (int i = 0; i < 2; i++) {
+    [batch updateData:values forDocument:doc];
+  }
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"batch written"];
+  [batch commitWithCompletion:^(NSError *_Nullable error) {
+    XCTAssertNil(error);
+    [expectation fulfill];
+  }];
+  [self awaitExpectations];
+
+  FIRDocumentSnapshot *snap = [self readDocumentForRef:doc];
+  XCTAssertEqualObjects(values, snap.data);
 }
 
 // Returns how much memory the test application is currently using, in megabytes (fractional part is
@@ -363,3 +410,5 @@ int64_t GetCurrentMemoryUsedInMb() {
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -53,6 +53,12 @@ static NSArray<FSTMutationBatch *> *toNSArray(const std::vector<FSTMutationBatch
   return copy;
 }
 
+@interface FSTMemoryMutationQueue ()
+
+- (MemoryMutationQueue *)mutationQueue;
+
+@end
+
 @implementation FSTMemoryMutationQueue {
   std::unique_ptr<MemoryMutationQueue> _delegate;
 }
@@ -135,6 +141,10 @@ static NSArray<FSTMutationBatch *> *toNSArray(const std::vector<FSTMutationBatch
 
 - (size_t)byteSizeWithSerializer:(FSTLocalSerializer *)serializer {
   return _delegate->CalculateByteSize(serializer);
+}
+
+- (MemoryMutationQueue *)mutationQueue {
+  return _delegate.get();
 }
 
 @end

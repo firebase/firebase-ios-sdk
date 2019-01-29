@@ -172,6 +172,10 @@ static NSArray<FSTMutationBatch *> *toNSArray(const std::vector<FSTMutationBatch
   _delegate->PerformConsistencyCheck();
 }
 
+- (LevelDbMutationQueue *)mutationQueue {
+  return _delegate.get();
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

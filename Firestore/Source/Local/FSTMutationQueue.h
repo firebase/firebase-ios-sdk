@@ -16,6 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
+#include "Firestore/core/src/firebase/firestore/local/mutation_queue.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
@@ -123,6 +124,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Performs a consistency check, examining the mutation queue for any leaks, if possible. */
 - (void)performConsistencyCheck;
+
+// Visible for testing
+- (firebase::firestore::local::MutationQueue *)mutationQueue;
 
 @end
 
