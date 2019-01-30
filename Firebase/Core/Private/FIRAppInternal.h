@@ -135,15 +135,6 @@ extern NSString *const FIRAuthStateDidChangeInternalNotificationUIDKey;
 + (BOOL)isDefaultAppConfigured;
 
 /**
- * Registers a given third-party library with the given version number to be reported for
- * analytics.
- *
- * @param name Name of the library.
- * @param version Version of the library.
- */
-+ (void)registerLibrary:(nonnull NSString *)name withVersion:(nonnull NSString *)version;
-
-/**
  * Registers a given internal library with the given version number to be reported for
  * analytics.
  *
