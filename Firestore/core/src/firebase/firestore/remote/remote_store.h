@@ -104,9 +104,9 @@ namespace remote {
 class RemoteStore : public TargetMetadataProvider, public WatchStreamCallback {
  public:
   RemoteStore(FSTLocalStore* local_store,
-      Datastore* datastore,
+              Datastore* datastore,
               util::AsyncQueue* worker_queue,
-              std::function<void (model::OnlineState)> online_state_handler);
+              std::function<void(model::OnlineState)> online_state_handler);
 
   // TODO(varconst): remove the getters and setters
   id<FSTRemoteSyncer> sync_engine() {
@@ -120,25 +120,29 @@ class RemoteStore : public TargetMetadataProvider, public WatchStreamCallback {
     return local_store_;
   }
 
-  OnlineStateTracker& online_state_tracker() { return online_state_tracker_; }
+  OnlineStateTracker& online_state_tracker() {
+    return online_state_tracker_;
+  }
 
   void set_is_network_enabled(bool value) {
     is_network_enabled_ = value;
   }
 
-  WatchStream& watch_stream() { return *watch_stream_;}
+  WatchStream& watch_stream() {
+    return *watch_stream_;
+  }
 
   void ListenToTarget(FSTQueryData* query_data);
   void StopListening(model::TargetId target_id);
 
   model::DocumentKeySet GetRemoteKeysForTarget(
       model::TargetId target_id) const override;
-  FSTQueryData* GetQueryDataForTarget(
-      model::TargetId target_id) const override;
+  FSTQueryData* GetQueryDataForTarget(model::TargetId target_id) const override;
 
   void OnWatchStreamOpen() override;
-  void OnWatchStreamChange(const WatchChange& change,
-                           const model::SnapshotVersion& snapshot_version) override;
+  void OnWatchStreamChange(
+      const WatchChange& change,
+      const model::SnapshotVersion& snapshot_version) override;
   void OnWatchStreamClose(const util::Status& status) override;
 
   // TODO(varconst): make the following methods private.
@@ -148,9 +152,9 @@ class RemoteStore : public TargetMetadataProvider, public WatchStreamCallback {
   void StartWatchStream();
 
   /**
-  * Returns true if the network is enabled, the watch stream has not yet been started and there are
-  * active watch targets.
-  */
+   * Returns true if the network is enabled, the watch stream has not yet been
+   * started and there are active watch targets.
+   */
   bool ShouldStartWatchStream() const;
 
   void CleanUpWatchStreamState();

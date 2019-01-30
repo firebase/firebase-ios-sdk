@@ -74,9 +74,9 @@ class WatchStreamCallback {
 /**
  * A `Stream` that implements the StreamingWatch RPC.
  *
- * Once the `WatchStream` has called the `OnWatchStreamOpen` method on the callback,
- * any number of `WatchQuery` and `UnwatchTargetId` calls can be sent to control
- * what changes will be sent from the server for WatchChanges.
+ * Once the `WatchStream` has called the `OnWatchStreamOpen` method on the
+ * callback, any number of `WatchQuery` and `UnwatchTargetId` calls can be sent
+ * to control what changes will be sent from the server for WatchChanges.
  */
 class WatchStream : public Stream {
  public:

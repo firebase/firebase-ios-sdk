@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/remote_store.h"
 
+#include <utility>
+
 #import "Firestore/Source/Local/FSTLocalStore.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 
@@ -50,7 +52,7 @@ RemoteStore::RemoteStore(
     FSTLocalStore* local_store,
     Datastore* datastore,
     AsyncQueue* worker_queue,
-    std::function<void (model::OnlineState)> online_state_handler)
+    std::function<void(model::OnlineState)> online_state_handler)
     : local_store_{local_store},
       online_state_tracker_{worker_queue, std::move(online_state_handler)} {
   // Create streams (but note they're not started yet)
@@ -208,8 +210,8 @@ void RemoteStore::RaiseWatchSnapshot(const SnapshotVersion& snapshot_version) {
       if (query_data) {
         listen_targets_[target_id] = [query_data
             queryDataByReplacingSnapshotVersion:snapshot_version
-                                     resumeToken:resumeToken
-                                  sequenceNumber:query_data.sequenceNumber];
+                                    resumeToken:resumeToken
+                                 sequenceNumber:query_data.sequenceNumber];
       }
     }
   }
@@ -227,7 +229,7 @@ void RemoteStore::RaiseWatchSnapshot(const SnapshotVersion& snapshot_version) {
     // Clear the resume token for the query, since we're in a known mismatch
     // state.
     query_data = [[FSTQueryData alloc] initWithQuery:query_data.query
-                                           targetID:target_id
+                                            targetID:target_id
                                 listenSequenceNumber:query_data.sequenceNumber
                                              purpose:query_data.purpose];
     listen_targets_[target_id] = query_data;
@@ -242,7 +244,7 @@ void RemoteStore::RaiseWatchSnapshot(const SnapshotVersion& snapshot_version) {
     // listens of this target (that might happen e.g. on reconnect).
     FSTQueryData* request_query_data = [[FSTQueryData alloc]
                initWithQuery:query_data.query
-                   targetID:target_id
+                    targetID:target_id
         listenSequenceNumber:query_data.sequenceNumber
                      purpose:FSTQueryPurposeExistenceFilterMismatch];
     SendWatchRequest(request_query_data);

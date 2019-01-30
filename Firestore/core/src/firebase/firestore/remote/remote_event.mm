@@ -361,8 +361,8 @@ int WatchChangeAggregator::GetCurrentDocumentCountForTarget(
   TargetState& target_state = EnsureTargetState(target_id);
   TargetChange target_change = target_state.ToTargetChange();
   return target_metadata_provider_->GetRemoteKeysForTarget(target_id).size() +
-          target_change.added_documents().size() -
-          target_change.removed_documents().size();
+         target_change.added_documents().size() -
+         target_change.removed_documents().size();
 }
 
 void WatchChangeAggregator::RecordPendingTargetRequest(TargetId target_id) {
