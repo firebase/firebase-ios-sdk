@@ -18,8 +18,6 @@
 
 #include <chrono>  // NOLINT(build/c++11)
 
-#import "Firestore/Source/Remote/FSTRemoteStore.h"
-
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
@@ -32,8 +30,6 @@ using firebase::firestore::util::DelayedOperation;
 using firebase::firestore::util::Status;
 using firebase::firestore::util::StringFormat;
 using firebase::firestore::util::TimerId;
-
-NS_ASSUME_NONNULL_BEGIN
 
 namespace {
 
@@ -152,5 +148,3 @@ void OnlineStateTracker::ClearOnlineStateTimer() {
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
-
-NS_ASSUME_NONNULL_END
