@@ -111,7 +111,7 @@ static const int kMaxPendingWrites = 10;
 - (instancetype)initWithLocalStore:(FSTLocalStore *)localStore
                          datastore:(std::shared_ptr<Datastore>)datastore
                        workerQueue:(AsyncQueue *)queue
-               onlineStateDelegate:(id<FSTOnlineStateDelegate> _Nullable)onlineStateDelegate {
+                onlineStateHandler:(std::function<void(OnlineState)>)onlineStateHandler {
   if (self = [super init]) {
     _datastore = std::move(datastore);
 

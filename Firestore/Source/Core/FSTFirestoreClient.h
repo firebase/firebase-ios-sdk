@@ -49,7 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
  * SDK architecture. It is responsible for creating the worker queue that is shared by all of the
  * other components in the system.
  */
-@interface FSTFirestoreClient : NSObject <FSTOnlineStateDelegate>
+@interface FSTFirestoreClient : NSObject
 
 /**
  * Creates and returns a FSTFirestoreClient with the given parameters.

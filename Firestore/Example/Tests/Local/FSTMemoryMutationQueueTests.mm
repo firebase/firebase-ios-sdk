@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/Local/FSTMemoryMutationQueue.h"
-
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
 
 #import "Firestore/Example/Tests/Local/FSTMutationQueueTests.h"

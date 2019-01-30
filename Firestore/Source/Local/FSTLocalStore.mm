@@ -19,15 +19,14 @@
 #include <set>
 #include <unordered_map>
 #include <utility>
+#include <vector>
 
 #import "FIRTimestamp.h"
-#import "Firestore/Source/Core/FSTListenSequence.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 #import "Firestore/Source/Local/FSTLocalDocumentsView.h"
 #import "Firestore/Source/Local/FSTLocalViewChanges.h"
 #import "Firestore/Source/Local/FSTLocalWriteResult.h"
-#import "Firestore/Source/Local/FSTMutationQueue.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
@@ -37,6 +36,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_set.h"
+#include "Firestore/core/src/firebase/firestore/local/mutation_queue.h"
 #include "Firestore/core/src/firebase/firestore/local/query_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 #include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
@@ -48,6 +48,7 @@
 using firebase::firestore::auth::User;
 using firebase::firestore::core::TargetIdGenerator;
 using firebase::firestore::local::LruResults;
+using firebase::firestore::local::MutationQueue;
 using firebase::firestore::local::QueryCache;
 using firebase::firestore::local::ReferenceSet;
 using firebase::firestore::local::RemoteDocumentCache;
@@ -78,11 +79,8 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 /** Manages our in-memory or durable persistence. */
 @property(nonatomic, strong, readonly) id<FSTPersistence> persistence;
 
-/** The set of all mutations that have been sent but not yet been applied to the backend. */
-@property(nonatomic, strong) id<FSTMutationQueue> mutationQueue;
-
 /** The "local" view of all documents (layering mutationQueue on top of remoteDocumentCache). */
-@property(nonatomic, strong) FSTLocalDocumentsView *localDocuments;
+@property(nonatomic, nullable, strong) FSTLocalDocumentsView *localDocuments;
 
 /** Maps a query to the data about that query. */
 @property(nonatomic) QueryCache *queryCache;
@@ -95,6 +93,8 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
   /** The set of all cached remote documents. */
   RemoteDocumentCache *_remoteDocumentCache;
   QueryCache *_queryCache;
+  /** The set of all mutations that have been sent but not yet been applied to the backend. */
+  MutationQueue *_mutationQueue;
 
   /** The set of document references maintained by any local views. */
   ReferenceSet _localViewReferences;
@@ -126,30 +126,32 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 }
 
 - (void)startMutationQueue {
-  self.persistence.run("Start MutationQueue", [&]() { [self.mutationQueue start]; });
+  self.persistence.run("Start MutationQueue", [&]() { _mutationQueue->Start(); });
 }
 
 - (MaybeDocumentMap)userDidChange:(const User &)user {
   // Swap out the mutation queue, grabbing the pending mutation batches before and after.
-  NSArray<FSTMutationBatch *> *oldBatches = self.persistence.run(
+  std::vector<FSTMutationBatch *> oldBatches = self.persistence.run(
       "OldBatches",
-      [&]() -> NSArray<FSTMutationBatch *> * { return [self.mutationQueue allMutationBatches]; });
+      [&]() -> std::vector<FSTMutationBatch *> { return _mutationQueue->AllMutationBatches(); });
 
-  self.mutationQueue = [self.persistence mutationQueueForUser:user];
+  // The old one has a reference to the mutation queue, so nil it out first.
+  self.localDocuments = nil;
+  _mutationQueue = [self.persistence mutationQueueForUser:user];
 
   [self startMutationQueue];
 
   return self.persistence.run("NewBatches", [&]() -> MaybeDocumentMap {
-    NSArray<FSTMutationBatch *> *newBatches = [self.mutationQueue allMutationBatches];
+    std::vector<FSTMutationBatch *> newBatches = _mutationQueue->AllMutationBatches();
 
     // Recreate our LocalDocumentsView using the new MutationQueue.
     self.localDocuments = [FSTLocalDocumentsView viewWithRemoteDocumentCache:_remoteDocumentCache
-                                                               mutationQueue:self.mutationQueue];
+                                                               mutationQueue:_mutationQueue];
 
     // Union the old/new changed keys.
     DocumentKeySet changedKeys;
-    for (NSArray<FSTMutationBatch *> *batches in @[ oldBatches, newBatches ]) {
-      for (FSTMutationBatch *batch in batches) {
+    for (const std::vector<FSTMutationBatch *> &batches : {oldBatches, newBatches}) {
+      for (FSTMutationBatch *batch : batches) {
         for (FSTMutation *mutation in batch.mutations) {
           changedKeys = changedKeys.insert(mutation.key);
         }
@@ -164,8 +166,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 - (FSTLocalWriteResult *)locallyWriteMutations:(NSArray<FSTMutation *> *)mutations {
   return self.persistence.run("Locally write mutations", [&]() -> FSTLocalWriteResult * {
     FIRTimestamp *localWriteTime = [FIRTimestamp timestamp];
-    FSTMutationBatch *batch = [self.mutationQueue addMutationBatchWithWriteTime:localWriteTime
-                                                                      mutations:mutations];
+    FSTMutationBatch *batch = _mutationQueue->AddMutationBatch(localWriteTime, mutations);
     DocumentKeySet keys = [batch keys];
     MaybeDocumentMap changedDocuments = [self.localDocuments documentsForKeys:keys];
     return [FSTLocalWriteResult resultForBatchID:batch.batchID changes:std::move(changedDocuments)];
@@ -174,12 +175,10 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 
 - (MaybeDocumentMap)acknowledgeBatchWithResult:(FSTMutationBatchResult *)batchResult {
   return self.persistence.run("Acknowledge batch", [&]() -> MaybeDocumentMap {
-    id<FSTMutationQueue> mutationQueue = self.mutationQueue;
-
     FSTMutationBatch *batch = batchResult.batch;
-    [mutationQueue acknowledgeBatch:batch streamToken:batchResult.streamToken];
+    _mutationQueue->AcknowledgeBatch(batch, batchResult.streamToken);
     [self applyBatchResult:batchResult];
-    [self.mutationQueue performConsistencyCheck];
+    _mutationQueue->PerformConsistencyCheck();
 
     return [self.localDocuments documentsForKeys:batch.keys];
   });
@@ -187,23 +186,23 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 
 - (MaybeDocumentMap)rejectBatchID:(BatchId)batchID {
   return self.persistence.run("Reject batch", [&]() -> MaybeDocumentMap {
-    FSTMutationBatch *toReject = [self.mutationQueue lookupMutationBatch:batchID];
+    FSTMutationBatch *toReject = _mutationQueue->LookupMutationBatch(batchID);
     HARD_ASSERT(toReject, "Attempt to reject nonexistent batch!");
 
-    [self.mutationQueue removeMutationBatch:toReject];
-    [self.mutationQueue performConsistencyCheck];
+    _mutationQueue->RemoveMutationBatch(toReject);
+    _mutationQueue->PerformConsistencyCheck();
 
     return [self.localDocuments documentsForKeys:toReject.keys];
   });
 }
 
 - (nullable NSData *)lastStreamToken {
-  return [self.mutationQueue lastStreamToken];
+  return _mutationQueue->GetLastStreamToken();
 }
 
 - (void)setLastStreamToken:(nullable NSData *)streamToken {
   self.persistence.run("Set stream token",
-                       [&]() { [self.mutationQueue setLastStreamToken:streamToken]; });
+                       [&]() { _mutationQueue->SetLastStreamToken(streamToken); });
 }
 
 - (const SnapshotVersion &)lastRemoteSnapshotVersion {
@@ -370,16 +369,15 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 - (nullable FSTMutationBatch *)nextMutationBatchAfterBatchID:(BatchId)batchID {
   FSTMutationBatch *result =
       self.persistence.run("NextMutationBatchAfterBatchID", [&]() -> FSTMutationBatch * {
-        return [self.mutationQueue nextMutationBatchAfterBatchID:batchID];
+        return _mutationQueue->NextMutationBatchAfterBatchId(batchID);
       });
   return result;
 }
 
 - (nullable FSTMaybeDocument *)readDocument:(const DocumentKey &)key {
-  return self.persistence.run(
-      "ReadDocument", [&]() -> FSTMaybeDocument *_Nullable {
-        return [self.localDocuments documentForKey:key];
-      });
+  return self.persistence.run("ReadDocument", [&]() -> FSTMaybeDocument *_Nullable {
+    return [self.localDocuments documentForKey:key];
+  });
 }
 
 - (FSTQueryData *)allocateQuery:(FSTQuery *)query {
@@ -468,7 +466,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
     }
   }
 
-  [self.mutationQueue removeMutationBatch:batch];
+  _mutationQueue->RemoveMutationBatch(batch);
 }
 
 - (LruResults)collectGarbage:(FSTLRUGarbageCollector *)garbageCollector {

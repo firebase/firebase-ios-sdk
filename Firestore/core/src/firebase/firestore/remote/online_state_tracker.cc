@@ -18,8 +18,6 @@
 
 #include <chrono>  // NOLINT(build/c++11)
 
-#import "Firestore/Source/Remote/FSTRemoteStore.h"
-
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
@@ -32,8 +30,6 @@ using firebase::firestore::util::DelayedOperation;
 using firebase::firestore::util::Status;
 using firebase::firestore::util::StringFormat;
 using firebase::firestore::util::TimerId;
-
-NS_ASSUME_NONNULL_BEGIN
 
 namespace {
 
@@ -123,19 +119,19 @@ void OnlineStateTracker::UpdateState(OnlineState new_state) {
 void OnlineStateTracker::SetAndBroadcast(OnlineState new_state) {
   if (new_state != state_) {
     state_ = new_state;
-    [online_state_delegate_ applyChangedOnlineState:new_state];
+    online_state_handler_(new_state);
   }
 }
 
 void OnlineStateTracker::LogClientOfflineWarningIfNecessary(
     const std::string& reason) {
-  std::string message =
-      StringFormat("Could not reach Cloud Firestore backend. %s\n This "
-                   "typically indicates that your device does not have a "
-                   "healthy Internet connection at the moment. The client will "
-                   "operate in offline mode until it is able to successfully "
-                   "connect to the backend.",
-                   reason);
+  std::string message = StringFormat(
+      "Could not reach Cloud Firestore backend. %s\n This "
+      "typically indicates that your device does not have a "
+      "healthy Internet connection at the moment. The client will "
+      "operate in offline mode until it is able to successfully "
+      "connect to the backend.",
+      reason);
 
   if (should_warn_client_is_offline_) {
     LOG_WARN("%s", message);
@@ -152,5 +148,3 @@ void OnlineStateTracker::ClearOnlineStateTimer() {
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
-
-NS_ASSUME_NONNULL_END

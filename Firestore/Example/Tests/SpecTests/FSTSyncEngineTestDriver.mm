@@ -153,10 +153,14 @@ NS_ASSUME_NONNULL_BEGIN
 
     _datastore =
         std::make_shared<MockDatastore>(_databaseInfo, _workerQueue.get(), &_credentialProvider);
-    _remoteStore = [[FSTRemoteStore alloc] initWithLocalStore:_localStore
-                                                    datastore:_datastore
-                                                  workerQueue:_workerQueue.get()
-                                          onlineStateDelegate:self];
+    _remoteStore =
+        [[FSTRemoteStore alloc] initWithLocalStore:_localStore
+                                         datastore:_datastore
+                                       workerQueue:_workerQueue.get()
+                                onlineStateHandler:[self](OnlineState onlineState) {
+                                  [self.syncEngine applyChangedOnlineState:onlineState];
+                                  [self.eventManager applyChangedOnlineState:onlineState];
+                                }];
 
     _syncEngine = [[FSTSyncEngine alloc] initWithLocalStore:_localStore
                                                 remoteStore:_remoteStore
@@ -200,11 +204,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (const User &)currentUser {
   return _currentUser;
-}
-
-- (void)applyChangedOnlineState:(OnlineState)onlineState {
-  [self.syncEngine applyChangedOnlineState:onlineState];
-  [self.eventManager applyChangedOnlineState:onlineState];
 }
 
 - (void)start {

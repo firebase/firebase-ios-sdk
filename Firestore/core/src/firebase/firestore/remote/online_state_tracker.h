@@ -17,23 +17,12 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_ONLINE_STATE_TRACKER_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_ONLINE_STATE_TRACKER_H_
 
-#if !defined(__OBJC__)
-// TODO(varconst): make it a pure C++ file when it no longer needs to rely on
-// `FSTOnlineStateDelegate`.
-#error "This header only supports Objective-C++"
-#endif  // !defined(__OBJC__)
-
-#import <Foundation/Foundation.h>
-
+#include <functional>
 #include <string>
 
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
-
-@protocol FSTOnlineStateDelegate;
-
-NS_ASSUME_NONNULL_BEGIN
 
 namespace firebase {
 namespace firestore {
@@ -54,10 +43,11 @@ class OnlineStateTracker {
  public:
   OnlineStateTracker() = default;
 
-  explicit OnlineStateTracker(util::AsyncQueue* worker_queue,
-                              id<FSTOnlineStateDelegate> online_state_delegate)
+  OnlineStateTracker(
+      util::AsyncQueue* worker_queue,
+      std::function<void(model::OnlineState)> online_state_handler)
       : worker_queue_{worker_queue},
-        online_state_delegate_{online_state_delegate} {
+        online_state_handler_{online_state_handler} {
   }
 
   /**
@@ -119,18 +109,16 @@ class OnlineStateTracker {
 
   /**
    * The worker queue to use for running timers (and to call
-   * `OnlineStateDelegate`).
+   * `online_state_handler_`).
    */
   util::AsyncQueue* worker_queue_ = nullptr;
 
-  /** A delegate to be notified on `OnlineState` changes. */
-  id<FSTOnlineStateDelegate> online_state_delegate_ = nil;
+  /** A callback to be notified on `OnlineState` changes. */
+  std::function<void(model::OnlineState)> online_state_handler_;
 };
 
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
-
-NS_ASSUME_NONNULL_END
 
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_ONLINE_STATE_TRACKER_H_
