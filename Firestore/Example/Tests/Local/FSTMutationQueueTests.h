@@ -16,22 +16,23 @@
 
 #import <XCTest/XCTest.h>
 
-@protocol FSTMutationQueue;
+#include "Firestore/core/src/firebase/firestore/local/mutation_queue.h"
+
 @protocol FSTPersistence;
 
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * These are tests for any implementation of the FSTMutationQueue protocol.
+ * These are tests for any implementation of the MutationQueue interface.
  *
- * To test a specific implementation of FSTMutationQueue:
+ * To test a specific implementation of MutationQueue:
  *
  * + Subclass FSTMutationQueueTests
  * + override -setUp, assigning to mutationQueue and persistence
  * + override -tearDown, cleaning up mutationQueue and persistence
  */
 @interface FSTMutationQueueTests : XCTestCase
-@property(nonatomic, strong, nullable) id<FSTMutationQueue> mutationQueue;
+@property(nonatomic, nullable) firebase::firestore::local::MutationQueue *mutationQueue;
 @property(nonatomic, strong, nullable) id<FSTPersistence> persistence;
 @end
 

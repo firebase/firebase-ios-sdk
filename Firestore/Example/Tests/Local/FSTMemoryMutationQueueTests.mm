@@ -43,7 +43,7 @@ using firebase::firestore::local::ReferenceSet;
 
   self.persistence = [FSTPersistenceTestHelpers eagerGCMemoryPersistence];
   [self.persistence.referenceDelegate addInMemoryPins:&_additionalReferences];
-  self.mutationQueue = [self.persistence mutationQueueForUser:User("user")];
+  self.mutationQueue = [self.persistence mutationQueueForUser:User("user")].mutationQueue;
 }
 
 @end

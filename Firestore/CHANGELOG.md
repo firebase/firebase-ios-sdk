@@ -1,5 +1,8 @@
 # Unreleased
 
+# v1.0.1
+- [changed] Internal improvements.
+
 # v1.0.0
 - [changed] **Breaking change:** The `areTimestampsInSnapshotsEnabled` setting
   is now enabled by default. Timestamp fields that read from a
