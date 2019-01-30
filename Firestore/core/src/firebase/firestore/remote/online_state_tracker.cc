@@ -125,13 +125,13 @@ void OnlineStateTracker::SetAndBroadcast(OnlineState new_state) {
 
 void OnlineStateTracker::LogClientOfflineWarningIfNecessary(
     const std::string& reason) {
-  std::string message =
-      StringFormat("Could not reach Cloud Firestore backend. %s\n This "
-                   "typically indicates that your device does not have a "
-                   "healthy Internet connection at the moment. The client will "
-                   "operate in offline mode until it is able to successfully "
-                   "connect to the backend.",
-                   reason);
+  std::string message = StringFormat(
+      "Could not reach Cloud Firestore backend. %s\n This "
+      "typically indicates that your device does not have a "
+      "healthy Internet connection at the moment. The client will "
+      "operate in offline mode until it is able to successfully "
+      "connect to the backend.",
+      reason);
 
   if (should_warn_client_is_offline_) {
     LOG_WARN("%s", message);
