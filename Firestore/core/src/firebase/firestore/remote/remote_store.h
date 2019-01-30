@@ -26,61 +26,70 @@
 #include <memory>
 #include <unordered_map>
 
+#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/remote/online_state_tracker_.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
+#include "Firestore/core/src/firebase/firestore/remote/watch_stream.h"
+#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 
+@class FSTLocalStore;
 @class FSTMutationBatchResult;
 @class FSTQueryData;
 
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * A protocol that describes the actions the FSTRemoteStore needs to perform on a cooperating
- * synchronization engine.
+ * A protocol that describes the actions the FSTRemoteStore needs to perform on
+ * a cooperating synchronization engine.
  */
 @protocol FSTRemoteSyncer
 
 /**
- * Applies one remote event to the sync engine, notifying any views of the changes, and releasing
- * any pending mutation batches that would become visible because of the snapshot version the
- * remote event contains.
+ * Applies one remote event to the sync engine, notifying any views of the
+ * changes, and releasing any pending mutation batches that would become visible
+ * because of the snapshot version the remote event contains.
  */
-- (void)applyRemoteEvent:(const firebase::firestore::remote::RemoteEvent &)remoteEvent;
+- (void)applyRemoteEvent:
+    (const firebase::firestore::remote::RemoteEvent&)remoteEvent;
 
 /**
- * Rejects the listen for the given targetID. This can be triggered by the backend for any active
- * target.
+ * Rejects the listen for the given targetID. This can be triggered by the
+ * backend for any active target.
  *
  * @param targetID The targetID corresponding to a listen initiated via
  *     -listenToTargetWithQueryData: on FSTRemoteStore.
- * @param error A description of the condition that has forced the rejection. Nearly always this
- *     will be an indication that the user is no longer authorized to see the data matching the
- *     target.
+ * @param error A description of the condition that has forced the rejection.
+ * Nearly always this will be an indication that the user is no longer
+ * authorized to see the data matching the target.
  */
-- (void)rejectListenWithTargetID:(const firebase::firestore::model::TargetId)targetID
-                           error:(NSError *)error;
+- (void)rejectListenWithTargetID:
+            (const firebase::firestore::model::TargetId)targetID
+                           error:(NSError*)error;
 
 /**
- * Applies the result of a successful write of a mutation batch to the sync engine, emitting
- * snapshots in any views that the mutation applies to, and removing the batch from the mutation
- * queue.
+ * Applies the result of a successful write of a mutation batch to the sync
+ * engine, emitting snapshots in any views that the mutation applies to, and
+ * removing the batch from the mutation queue.
  */
-- (void)applySuccessfulWriteWithResult:(FSTMutationBatchResult *)batchResult;
+- (void)applySuccessfulWriteWithResult:(FSTMutationBatchResult*)batchResult;
 
 /**
- * Rejects the batch, removing the batch from the mutation queue, recomputing the local view of
- * any documents affected by the batch and then, emitting snapshots with the reverted value.
+ * Rejects the batch, removing the batch from the mutation queue, recomputing
+ * the local view of any documents affected by the batch and then, emitting
+ * snapshots with the reverted value.
  */
-- (void)rejectFailedWriteWithBatchID:(firebase::firestore::model::BatchId)batchID
-                               error:(NSError *)error;
+- (void)rejectFailedWriteWithBatchID:
+            (firebase::firestore::model::BatchId)batchID
+                               error:(NSError*)error;
 
 /**
- * Returns the set of remote document keys for the given target ID. This list includes the
- * documents that were assigned to the target when we received the last snapshot.
+ * Returns the set of remote document keys for the given target ID. This list
+ * includes the documents that were assigned to the target when we received the
+ * last snapshot.
  */
 - (firebase::firestore::model::DocumentKeySet)remoteKeysForTarget:
     (firebase::firestore::model::TargetId)targetId;
@@ -91,50 +100,72 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-class RemoteStore {
+class RemoteStore : public TargetMetadataProvider, public WatchStreamObserver {
  public:
-  RemoteStore();
+  RemoteStore(FSTLocalStore* local_store,
+              Util::AsyncQueue* worker_queue,
+              id<FSTOnlineStateDelegate> _Nullable online_state_delegate);
 
-  // TODO(varconst): remove
-  id<FSTRemoteSyncer> sync_engine() { return sync_engine_; }
-
+  // TODO(varconst): remove the getters and setters
+  id<FSTRemoteSyncer> sync_engine() {
+    return sync_engine_;
+  }
+  void sync_engine(id<FSTRemoteSyncer> sync_engine) {
+    sync_engine_ = sync_engine;
+  }
+  FSTLocalStore* local_store() {
+    return local_store_;
+  }
+  OnlineStateTracker& online_state_tracker() { return online_state_tracker_; }
+  void set_is_network_enabled(bool value) {
+    is_network_enabled_ = value;
+  }
 
   void ListenToTarget(FSTQueryData* query_data);
   void StopListening(model::TargetId target_id);
 
-  // TODO(varconst): all the following member functions should be private.
+  model::DocumentKeySet GetRemoteKeysForTarget(
+      model::TargetId target_id) const override;
+  nullable FSTQueryData* GetQueryDataForTarget(
+      model::TargetId target_id) const override;
+
+  void OnWatchStreamOpen() override;
+  void OnWatchStreamChange(const WatchChange& change,
+                           const model::SnapshotVersion& snapshot_version) override;
+  void OnWatchStreamClose(const util::Status& status) override;
+
+  // TODO(varconst): make private.
+  bool CanUseNetwork() const;
+
+ private:
+  void StartWatchStream();
+
+  /**
+  * Returns true if the network is enabled, the watch stream has not yet been started and there are
+  * active watch targets.
+  */
+  bool ShouldStartWatchStream() const;
 
   void SendWatchRequest(FSTQueryData* query_data);
   void SendUnwatchRequest(model::TargetId target_id);
 
-  void StartWatchStream();
-  bool ShouldStartWatchStream() const;
-
   void CleanUpWatchStreamState();
 
-  void OnWatchStreamOpen();
-
-  void OnWatchStreamChange(const WatchChange& change, const model::SnapshotVersion& snapshot_version);
-  void OnWatchStreamError(const util::Status& error);
-
   /**
-  * Takes a batch of changes from the `Datastore`, repackages them as a `RemoteEvent`, and passes that
-  * on to the `SyncEngine`.
-  */
+   * Takes a batch of changes from the `Datastore`, repackages them as a
+   * `RemoteEvent`, and passes that on to the `SyncEngine`.
+   */
   void RaiseWatchSnapshot(const model::SnapshotVersion& snapshot_version);
 
   /** Process a target error and passes the error along to `SyncEngine`. */
   void ProcessTargetError(const WatchTargetChange& change);
 
-  bool CanUseNetwork() const;
-
- private:
   id<FSTRemoteSyncer> sync_engine_ = nil;
 
   /**
-  * The local store, used to fill the write pipeline with outbound mutations and resolve existence
-  * filter mismatches. Immutable after initialization.
-  */
+   * The local store, used to fill the write pipeline with outbound mutations
+   * and resolve existence filter mismatches. Immutable after initialization.
+   */
   FSTLocalStore* local_store_ = nil;
 
   OnlineStateTracker online_state_tracker_;
@@ -150,7 +181,7 @@ class RemoteStore {
    * to the server. The targets removed with unlistens are removed eagerly
    * without waiting for confirmation from the listen stream.
    */
-  std::unordered_map<model::TargetId, FSTQueryData *> listen_targets_;
+  std::unordered_map<model::TargetId, FSTQueryData*> listen_targets_;
 
   std::shared_ptr<WatchStream> watch_stream_;
 

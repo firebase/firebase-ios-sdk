@@ -49,7 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init NS_UNAVAILABLE;
 
-@property(nonatomic, weak) id<FSTRemoteSyncer> syncEngine;
+- (void)setSyncEngine:(id<FSTRemoteSyncer>)syncEngine;
 
 /** Starts up the remote store, creating streams, restoring state from LocalStore, etc. */
 - (void)start;

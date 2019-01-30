@@ -18,9 +18,39 @@
 
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
+using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::OnlineState;
+using firebase::firestore::model::SnapshotVersion;
+using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::TargetId;
+using firebase::firestore::remote::Datastore;
+using firebase::firestore::remote::WatchStream;
+using firebase::firestore::remote::DocumentWatchChange;
+using firebase::firestore::remote::ExistenceFilterWatchChange;
+using firebase::firestore::remote::OnlineStateTracker;
+using firebase::firestore::remote::RemoteEvent;
+using firebase::firestore::remote::TargetChange;
+using firebase::firestore::remote::WatchChange;
+using firebase::firestore::remote::WatchChangeAggregator;
+using firebase::firestore::remote::WatchTargetChange;
+using firebase::firestore::remote::WatchTargetChangeState;
+using util::AsyncQueue;
+using util::Status;
+
 namespace firebase {
 namespace firestore {
 namespace remote {
+
+RemoteStore::RemoteStore(
+    FSTLocalStore* local_store,
+    Datastore* datastore,
+    AsyncQueue* worker_queue,
+    id<FSTOnlineStateDelegate> _Nullable online_state_delegate)
+    : local_store_{local_store},
+      online_state_tracker_{worker_queue, online_state_delegate} {
+  // Create streams (but note they're not started yet)
+  watch_stream_ = datastore->CreateWatchStream(this);
+}
 
 void RemoteStore::StartWatchStream() {
   HARD_ASSERT(ShouldStartWatchStream(),
@@ -127,8 +157,8 @@ void RemoteStore::OnWatchStreamChange(const WatchChange& change,
   }
 }
 
-void RemoteStore::OnWatchStreamError(const Status& error) {
-  if (error.ok()) {
+void RemoteStore::OnWatchStreamClose(const Status& status) {
+  if (status.ok()) {
     // Graceful stop (due to Stop() or idle timeout). Make sure that's
     // desirable.
     HARD_ASSERT(!ShouldStartWatchStream(),
@@ -139,7 +169,7 @@ void RemoteStore::OnWatchStreamError(const Status& error) {
 
   // If we still need the watch stream, retry the connection.
   if (ShouldStartWatchStream()) {
-    online_state_tracker_.HandleWatchStreamFailure(error);
+    online_state_tracker_.HandleWatchStreamFailure(status);
 
     StartWatchStream();
   } else {
@@ -162,11 +192,13 @@ void RemoteStore::RaiseWatchSnapshot(const SnapshotVersion& snapshot_version) {
   for (const auto& entry : remote_event.target_changes()) {
     const TargetChange& target_change = entry.second;
     NSData* resumeToken = target_change.resume_token();
+
     if (resumeToken.length > 0) {
       TargetId target_id = entry.first;
       auto found = listen_targets_.find(target_id);
       FSTQueryData* query_data =
           found != listen_targets_.end() ? found->second : nil;
+
       // A watched target might have been removed already.
       if (query_data) {
         listen_targets_[target_id] = [query_data
@@ -234,6 +266,15 @@ bool RemoteStore::CanUseNetwork() const {
   // PORTING NOTE: This method exists mostly because web also has to take into
   // account primary vs. secondary state.
   return is_network_enabled_;
+}
+
+DocumentKeySet RemoteStore::GetRemoteKeysForTarget:(TargetId target_id) const {
+  return [sync_engine_ remoteKeysForTarget:target_id];
+}
+
+nullable FSTQueryData* RemoteStore::GetQueryDataForTarget:(TargetId target_id) const {
+  auto found = listen_targets_.find(target_id);
+  return found != listen_targets_.end() ? found->second : nil;
 }
 
 }  // namespace remote

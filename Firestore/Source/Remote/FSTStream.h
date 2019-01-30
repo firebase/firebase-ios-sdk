@@ -24,33 +24,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-#pragma mark - FSTWatchStreamDelegate
-
-/** A protocol defining the events that can be emitted by the FSTWatchStream. */
-@protocol FSTWatchStreamDelegate <NSObject>
-
-/** Called by the FSTWatchStream when it is ready to accept outbound request messages. */
-- (void)watchStreamDidOpen;
-
-/**
- * Called by the FSTWatchStream with changes and the snapshot versions included in in the
- * WatchChange responses sent back by the server.
- */
-- (void)watchStreamDidChange:(const firebase::firestore::remote::WatchChange &)change
-             snapshotVersion:(const firebase::firestore::model::SnapshotVersion &)snapshotVersion;
-
-/**
- * Called by the FSTWatchStream when the underlying streaming RPC is interrupted for whatever
- * reason, usually because of an error, but possibly due to an idle timeout. The error passed to
- * this method may be nil, in which case the stream was closed without attributable fault.
- *
- * NOTE: This will not be called after `stop` is called on the stream. See "Starting and Stopping"
- * on FSTStream for details.
- */
-- (void)watchStreamWasInterruptedWithError:(const firebase::firestore::util::Status &)error;
-
-@end
-
 #pragma mark - FSTWriteStreamDelegate
 
 @protocol FSTWriteStreamDelegate <NSObject>
