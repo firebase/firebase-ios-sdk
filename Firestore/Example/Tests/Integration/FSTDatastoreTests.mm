@@ -55,6 +55,7 @@ using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::Precondition;
+using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::remote::Datastore;
 using firebase::firestore::remote::GrpcConnection;
@@ -187,7 +188,7 @@ NS_ASSUME_NONNULL_BEGIN
   _remoteStore = [[FSTRemoteStore alloc] initWithLocalStore:_localStore
                                                   datastore:_datastore
                                                 workerQueue:_testWorkerQueue.get()
-                                        onlineStateDelegate:nil];
+                                         onlineStateHandler:[](OnlineState) {}];
 
   _testWorkerQueue->Enqueue([=] { [_remoteStore start]; });
 }

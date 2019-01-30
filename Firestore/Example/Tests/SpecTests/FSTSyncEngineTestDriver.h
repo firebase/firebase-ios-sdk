@@ -86,7 +86,7 @@ typedef std::unordered_map<firebase::firestore::auth::User,
  *
  * Each method on the driver injects a different event into the system.
  */
-@interface FSTSyncEngineTestDriver : NSObject <FSTOnlineStateDelegate>
+@interface FSTSyncEngineTestDriver : NSObject
 
 /**
  * Initializes the underlying FSTSyncEngine with the given local persistence implementation and

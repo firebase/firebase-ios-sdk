@@ -123,7 +123,7 @@ void OnlineStateTracker::UpdateState(OnlineState new_state) {
 void OnlineStateTracker::SetAndBroadcast(OnlineState new_state) {
   if (new_state != state_) {
     state_ = new_state;
-    [online_state_delegate_ applyChangedOnlineState:new_state];
+    online_state_handler_(new_state);
   }
 }
 

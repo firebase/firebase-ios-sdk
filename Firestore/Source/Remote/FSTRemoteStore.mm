@@ -135,13 +135,13 @@ static const int kMaxPendingWrites = 10;
 - (instancetype)initWithLocalStore:(FSTLocalStore *)localStore
                          datastore:(std::shared_ptr<Datastore>)datastore
                        workerQueue:(AsyncQueue *)queue
-               onlineStateDelegate:(id<FSTOnlineStateDelegate> _Nullable)onlineStateDelegate {
+                onlineStateHandler:(std::function<void(OnlineState)>)onlineStateHandler {
   if (self = [super init]) {
     _localStore = localStore;
     _datastore = std::move(datastore);
 
     _writePipeline = [NSMutableArray array];
-    _onlineStateTracker = OnlineStateTracker{queue, onlineStateDelegate};
+    _onlineStateTracker = OnlineStateTracker{queue, std::move(onlineStateHandler)};
 
     _datastore->Start();
     // Create streams (but note they're not started yet)
