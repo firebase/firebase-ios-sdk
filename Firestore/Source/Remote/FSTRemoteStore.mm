@@ -81,12 +81,6 @@ static const int kMaxPendingWrites = 10;
 
 @interface FSTRemoteStore () <FSTWatchStreamDelegate, FSTWriteStreamDelegate>
 
-/**
- * The local store, used to fill the write pipeline with outbound mutations and resolve existence
- * filter mismatches. Immutable after initialization.
- */
-@property(nonatomic, strong, readonly) FSTLocalStore *localStore;
-
 #pragma mark Watch Stream
 
 /**
@@ -107,29 +101,10 @@ static const int kMaxPendingWrites = 10;
 @end
 
 @implementation FSTRemoteStore {
-  OnlineStateTracker _onlineStateTracker;
-
-  std::unique_ptr<WatchChangeAggregator> _watchChangeAggregator;
-
   /** The client-side proxy for interacting with the backend. */
   std::shared_ptr<Datastore> _datastore;
-  /**
-   * A mapping of watched targets that the client cares about tracking and the
-   * user has explicitly called a 'listen' for this target.
-   *
-   * These targets may or may not have been sent to or acknowledged by the
-   * server. On re-establishing the listen stream, these targets should be sent
-   * to the server. The targets removed with unlistens are removed eagerly
-   * without waiting for confirmation from the listen stream. */
-  std::unordered_map<TargetId, FSTQueryData *> _listenTargets;
 
-  std::shared_ptr<WatchStream> _watchStream;
   std::shared_ptr<WriteStream> _writeStream;
-  /**
-   * Set to YES by 'enableNetwork:' and NO by 'disableNetworkInternal:' and
-   * indicates the user-preferred network state.
-   */
-  BOOL _isNetworkEnabled;
 }
 
 - (instancetype)initWithLocalStore:(FSTLocalStore *)localStore

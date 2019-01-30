@@ -16,218 +16,226 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/remote_store.h"
 
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+
 namespace firebase {
 namespace firestore {
 namespace remote {
 
 void RemoteStore::StartWatchStream() {
-  HARD_ASSERT([self shouldStartWatchStream],
-              "startWatchStream: called when shouldStartWatchStream: is false.");
-  _watchChangeAggregator = absl::make_unique<WatchChangeAggregator>(self);
-  _watchStream->Start();
+  HARD_ASSERT(ShouldStartWatchStream(),
+              "StartWatchStream called when ShouldStartWatchStream: is false.");
+  watch_change_aggregator_ = absl::make_unique<WatchChangeAggregator>(this);
+  watch_stream_->Start();
 
-  _onlineStateTracker.HandleWatchStreamStart();
+  online_state_tracker_.HandleWatchStreamStart();
 }
 
 void RemoteStore::ListenToTarget(FSTQueryData* query_data) {
-  TargetId targetKey = queryData.targetID;
-  HARD_ASSERT(_listenTargets.find(targetKey) == _listenTargets.end(),
+  TargetId targetKey = query_data.target_id;
+  HARD_ASSERT(listen_targets_.find(targetKey) == listen_targets_.end(),
               "listenToQuery called with duplicate target id: %s", targetKey);
 
-  _listenTargets[targetKey] = queryData;
+  listen_targets_[targetKey] = query_data;
 
-  if ([self shouldStartWatchStream]) {
-    [self startWatchStream];
-  } else if (_watchStream->IsOpen()) {
-    [self sendWatchRequestWithQueryData:queryData];
+  if (ShouldStartWatchStream()) {
+    StartWatchStream();
+  } else if (watch_stream_->IsOpen()) {
+    SendWatchRequest(query_data);
   }
 }
 
 void RemoteStore::SendWatchRequest(FSTQueryData* query_data) {
-  _watchChangeAggregator->RecordPendingTargetRequest(queryData.targetID);
-  _watchStream->WatchQuery(queryData);
+  watch_change_aggregator_->RecordPendingTargetRequest(query_data.target_id);
+  watch_stream_->WatchQuery(query_data);
 }
 
 void RemoteStore::StopListening(TargetId target_id) {
-  size_t num_erased = _listenTargets.erase(targetID);
-  HARD_ASSERT(num_erased == 1, "stopListeningToTargetID: target not currently watched: %s",
-              targetID);
+  size_t num_erased = listen_targets_.erase(target_id);
+  HARD_ASSERT(num_erased == 1,
+              "stopListeningToTargetID: target not currently watched: %s",
+              target_id);
 
-  if (_watchStream->IsOpen()) {
-    [self sendUnwatchRequestForTargetID:targetID];
+  if (watch_stream_->IsOpen()) {
+    SendUnwatchRequest(target_id);
   }
-  if (_listenTargets.empty()) {
-    if (_watchStream->IsOpen()) {
-      _watchStream->MarkIdle();
-    } else if ([self canUseNetwork]) {
-      // Revert to OnlineState::Unknown if the watch stream is not open and we have no listeners,
-      // since without any listens to send we cannot confirm if the stream is healthy and upgrade
-      // to OnlineState::Online.
-      _onlineStateTracker.UpdateState(OnlineState::Unknown);
+  if (listen_targets_.empty()) {
+    if (watch_stream_->IsOpen()) {
+      watch_stream_->MarkIdle();
+    } else if (CanUseNetwork()) {
+      // Revert to OnlineState::Unknown if the watch stream is not open and we
+      // have no listeners, since without any listens to send we cannot confirm
+      // if the stream is healthy and upgrade to OnlineState::Online.
+      online_state_tracker_.UpdateState(OnlineState::Unknown);
     }
   }
 }
 
 void RemoteStore::SendUnwatchRequest(TargetId target_id) {
-  _watchChangeAggregator->RecordPendingTargetRequest(targetID);
-  _watchStream->UnwatchTargetId(targetID);
+  watch_change_aggregator_->RecordPendingTargetRequest(target_id);
+  watch_stream_->UnwatchTargetId(target_id);
 }
 
 bool RemoteStore::ShouldStartWatchStream() const {
-  return [self canUseNetwork] && !_watchStream->IsStarted() && !_listenTargets.empty();
+  return CanUseNetwork() && !watch_stream_->IsStarted() &&
+         !listen_targets_.empty();
 }
 
 void RemoteStore::CleanUpWatchStreamState() {
-  _watchChangeAggregator.reset();
+  watch_change_aggregator_.reset();
 }
 
 void RemoteStore::OnWatchStreamOpen() {
   // Restore any existing watches.
-  for (const auto &kv : _listenTargets) {
-    [self sendWatchRequestWithQueryData:kv.second];
+  for (const auto& kv : listen_targets_) {
+    SendWatchRequest(kv.second);
   }
 }
 
-void RemoteStore::OnWatchStreamChange(const WatchChange& change, const SnapshotVersion& snapshot_version) {
+void RemoteStore::OnWatchStreamChange(const WatchChange& change,
+                                      const SnapshotVersion& snapshot_version) {
   // Mark the connection as Online because we got a message from the server.
-  _onlineStateTracker.UpdateState(OnlineState::Online);
+  online_state_tracker_.UpdateState(OnlineState::Online);
 
   if (change.type() == WatchChange::Type::TargetChange) {
-    const WatchTargetChange &watchTargetChange = static_cast<const WatchTargetChange &>(change);
-    if (watchTargetChange.state() == WatchTargetChangeState::Removed &&
-        !watchTargetChange.cause().ok()) {
-      // There was an error on a target, don't wait for a consistent snapshot to raise events
-      return [self processTargetErrorForWatchChange:watchTargetChange];
+    const WatchTargetChange& watch_target_change =
+        static_cast<const WatchTargetChange&>(change);
+    if (watch_target_change.state() == WatchTargetChangeState::Removed &&
+        !watch_target_change.cause().ok()) {
+      // There was an error on a target, don't wait for a consistent snapshot to
+      // raise events
+      return ProcessTargetError(watch_target_change);
     } else {
-      _watchChangeAggregator->HandleTargetChange(watchTargetChange);
+      watch_change_aggregator_->HandleTargetChange(watch_target_change);
     }
   } else if (change.type() == WatchChange::Type::Document) {
-    _watchChangeAggregator->HandleDocumentChange(static_cast<const DocumentWatchChange &>(change));
+    watch_change_aggregator_->HandleDocumentChange(
+        static_cast<const DocumentWatchChange&>(change));
   } else {
-    HARD_ASSERT(change.type() == WatchChange::Type::ExistenceFilter,
-                "Expected watchChange to be an instance of ExistenceFilterWatchChange");
-    _watchChangeAggregator->HandleExistenceFilter(
-        static_cast<const ExistenceFilterWatchChange &>(change));
+    HARD_ASSERT(
+        change.type() == WatchChange::Type::ExistenceFilter,
+        "Expected watchChange to be an instance of ExistenceFilterWatchChange");
+    watch_change_aggregator_->HandleExistenceFilter(
+        static_cast<const ExistenceFilterWatchChange&>(change));
   }
 
-  if (snapshotVersion != SnapshotVersion::None() &&
-      snapshotVersion >= [self.localStore lastRemoteSnapshotVersion]) {
-    // We have received a target change with a global snapshot if the snapshot version is not
-    // equal to SnapshotVersion.None().
-    [self raiseWatchSnapshotWithSnapshotVersion:snapshotVersion];
+  if (snapshot_version != SnapshotVersion::None() &&
+      snapshot_version >= [local_store_ lastRemoteSnapshotVersion]) {
+    // We have received a target change with a global snapshot if the snapshot
+    // version is not equal to SnapshotVersion.None().
+    RaiseWatchSnapshot(snapshot_version);
   }
 }
 
 void RemoteStore::OnWatchStreamError(const Status& error) {
   if (error.ok()) {
-    // Graceful stop (due to Stop() or idle timeout). Make sure that's desirable.
-    HARD_ASSERT(![self shouldStartWatchStream],
+    // Graceful stop (due to Stop() or idle timeout). Make sure that's
+    // desirable.
+    HARD_ASSERT(!ShouldStartWatchStream(),
                 "Watch stream was stopped gracefully while still needed.");
   }
 
-  [self cleanUpWatchStreamState];
+  CleanUpWatchStreamState();
 
   // If we still need the watch stream, retry the connection.
-  if ([self shouldStartWatchStream]) {
-    _onlineStateTracker.HandleWatchStreamFailure(error);
+  if (ShouldStartWatchStream()) {
+    online_state_tracker_.HandleWatchStreamFailure(error);
 
-    [self startWatchStream];
+    StartWatchStream();
   } else {
-    // We don't need to restart the watch stream because there are no active targets. The online
-    // state is set to unknown because there is no active attempt at establishing a connection.
-    _onlineStateTracker.UpdateState(OnlineState::Unknown);
+    // We don't need to restart the watch stream because there are no active
+    // targets. The online state is set to unknown because there is no active
+    // attempt at establishing a connection.
+    online_state_tracker_.UpdateState(OnlineState::Unknown);
   }
 }
 
-/**
- * Takes a batch of changes from the Datastore, repackages them as a `RemoteEvent`, and passes that
- * on to the SyncEngine.
- */
 void RemoteStore::RaiseWatchSnapshot(const SnapshotVersion& snapshot_version) {
-  HARD_ASSERT(snapshotVersion != SnapshotVersion::None(),
+  HARD_ASSERT(snapshot_version != SnapshotVersion::None(),
               "Can't raise event for unknown SnapshotVersion");
 
-  RemoteEvent remoteEvent = _watchChangeAggregator->CreateRemoteEvent(snapshotVersion);
+  RemoteEvent remote_event =
+      watch_change_aggregator_->CreateRemoteEvent(snapshot_version);
 
-  // Update in-memory resume tokens. `FSTLocalStore` will update the persistent view of these when
-  // applying the completed `RemoteEvent`.
-  for (const auto &entry : remoteEvent.target_changes()) {
-    const TargetChange &target_change = entry.second;
-    NSData *resumeToken = target_change.resume_token();
+  // Update in-memory resume tokens. `FSTLocalStore` will update the persistent
+  // view of these when applying the completed `RemoteEvent`.
+  for (const auto& entry : remote_event.target_changes()) {
+    const TargetChange& target_change = entry.second;
+    NSData* resumeToken = target_change.resume_token();
     if (resumeToken.length > 0) {
-      TargetId targetID = entry.first;
-      auto found = _listenTargets.find(targetID);
-      FSTQueryData *queryData = found != _listenTargets.end() ? found->second : nil;
+      TargetId target_id = entry.first;
+      auto found = listen_targets_.find(target_id);
+      FSTQueryData* query_data =
+          found != listen_targets_.end() ? found->second : nil;
       // A watched target might have been removed already.
-      if (queryData) {
-        _listenTargets[targetID] =
-            [queryData queryDataByReplacingSnapshotVersion:snapshotVersion
-                                               resumeToken:resumeToken
-                                            sequenceNumber:queryData.sequenceNumber];
+      if (query_data) {
+        listen_targets_[target_id] = [query_data
+            query_dataByReplacingSnapshotVersion:snapshot_version
+                                     resumeToken:resumeToken
+                                  sequenceNumber:query_data.sequenceNumber];
       }
     }
   }
 
-  // Re-establish listens for the targets that have been invalidated by existence filter
-  // mismatches.
-  for (TargetId targetID : remoteEvent.target_mismatches()) {
-    auto found = _listenTargets.find(targetID);
-    if (found == _listenTargets.end()) {
+  // Re-establish listens for the targets that have been invalidated by
+  // existence filter mismatches.
+  for (TargetId target_id : remote_event.target_mismatches()) {
+    auto found = listen_targets_.find(target_id);
+    if (found == listen_targets_.end()) {
       // A watched target might have been removed already.
       continue;
     }
-    FSTQueryData *queryData = found->second;
+    FSTQueryData* query_data = found->second;
 
-    // Clear the resume token for the query, since we're in a known mismatch state.
-    queryData = [[FSTQueryData alloc] initWithQuery:queryData.query
-                                           targetID:targetID
-                               listenSequenceNumber:queryData.sequenceNumber
-                                            purpose:queryData.purpose];
-    _listenTargets[targetID] = queryData;
+    // Clear the resume token for the query, since we're in a known mismatch
+    // state.
+    query_data = [[FSTQueryData alloc] initWithQuery:query_data.query
+                                           target_id:target_id
+                                listenSequenceNumber:query_data.sequenceNumber
+                                             purpose:query_data.purpose];
+    listen_targets_[target_id] = query_data;
 
-    // Cause a hard reset by unwatching and rewatching immediately, but deliberately don't send a
-    // resume token so that we get a full update.
-    [self sendUnwatchRequestForTargetID:targetID];
+    // Cause a hard reset by unwatching and rewatching immediately, but
+    // deliberately don't send a resume token so that we get a full update.
+    SendUnwatchRequest(target_id);
 
-    // Mark the query we send as being on behalf of an existence filter mismatch, but don't
-    // actually retain that in _listenTargets. This ensures that we flag the first re-listen this
-    // way without impacting future listens of this target (that might happen e.g. on reconnect).
-    FSTQueryData *requestQueryData =
-        [[FSTQueryData alloc] initWithQuery:queryData.query
-                                   targetID:targetID
-                       listenSequenceNumber:queryData.sequenceNumber
-                                    purpose:FSTQueryPurposeExistenceFilterMismatch];
-    [self sendWatchRequestWithQueryData:requestQueryData];
+    // Mark the query we send as being on behalf of an existence filter
+    // mismatch, but don't actually retain that in listen_targets_. This ensures
+    // that we flag the first re-listen this way without impacting future
+    // listens of this target (that might happen e.g. on reconnect).
+    FSTQueryData* request_query_data = [[FSTQueryData alloc]
+               initWithQuery:query_data.query
+                   target_id:target_id
+        listenSequenceNumber:query_data.sequenceNumber
+                     purpose:FSTQueryPurposeExistenceFilterMismatch];
+    SendWatchRequest(request_query_data);
   }
 
   // Finally handle remote event
-  [self.syncEngine applyRemoteEvent:remoteEvent];
+  [sync_engine_ applyRemoteEvent:remoteEvent];
 }
 
-/** Process a target error and passes the error along to SyncEngine. */
 void RemoteStore::ProcessTargetError(const WatchTargetChange& change) {
   HARD_ASSERT(!change.cause().ok(), "Handling target error without a cause");
+
   // Ignore targets that have been removed already.
-  for (TargetId targetID : change.target_ids()) {
-    auto found = _listenTargets.find(targetID);
-    if (found != _listenTargets.end()) {
-      _listenTargets.erase(found);
-      _watchChangeAggregator->RemoveTarget(targetID);
-      [self.syncEngine rejectListenWithTargetID:targetID error:util::MakeNSError(change.cause())];
+  for (TargetId target_id : change.target_ids()) {
+    auto found = listen_targets_.find(target_id);
+    if (found != listen_targets_.end()) {
+      listen_targets_.erase(found);
+      watch_change_aggregator_->RemoveTarget(target_id);
+      [sync_engine_ rejectListenWithTargetID:target_id
+                                       error:util::MakeNSError(change.cause())];
     }
   }
 }
 
-/*
-_watchChangeAggregator
-_watchStream
-_onlineStateTracker
-_listenTargets
-_syncEngine
+bool RemoteStore::CanUseNetwork() const {
+  // PORTING NOTE: This method exists mostly because web also has to take into
+  // account primary vs. secondary state.
+  return is_network_enabled_;
+}
 
-[canUseNetwork]
-
- */
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
