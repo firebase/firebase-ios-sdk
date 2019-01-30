@@ -26,6 +26,8 @@
 #include <memory>
 #include <unordered_map>
 
+#import "Firestore/Source/Remote/FSTOnlineStateDelegate.h"
+
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"

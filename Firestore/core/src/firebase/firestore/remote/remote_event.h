@@ -67,7 +67,7 @@ class TargetMetadataProvider {
    * Returns the FSTQueryData for an active target ID or 'null' if this query
    * has become inactive
    */
-  virtual nullable FSTQueryData* GetQueryDataForTarget(
+  virtual FSTQueryData* GetQueryDataForTarget(
       model::TargetId target_id) const = 0;
 };
 
@@ -311,7 +311,7 @@ class RemoteEvent {
 class WatchChangeAggregator {
  public:
   explicit WatchChangeAggregator(
-      id<FSTTargetMetadataProvider> target_metadata_provider)
+      TargetMetadataProvider* target_metadata_provider)
       : target_metadata_provider_{target_metadata_provider} {
   }
 
@@ -439,7 +439,7 @@ class WatchChangeAggregator {
    */
   std::unordered_set<model::TargetId> pending_target_resets_;
 
-  id<FSTTargetMetadataProvider> target_metadata_provider_;
+  TargetMetadataProvider* target_metadata_provider_ = nullptr;
 };
 
 }  // namespace remote

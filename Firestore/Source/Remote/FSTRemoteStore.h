@@ -22,6 +22,7 @@
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
+#include "Firestore/core/src/firebase/firestore/remote/remote_store.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 
 @class FSTLocalStore;
@@ -39,7 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
  * FSTRemoteStore handles all interaction with the backend through a simple, clean interface. This
  * class is not thread safe and should be only called from the worker dispatch queue.
  */
-@interface FSTRemoteStore : NSObject <FSTTargetMetadataProvider>
+@interface FSTRemoteStore : NSObject
 
 - (instancetype)initWithLocalStore:(FSTLocalStore *)localStore
                          datastore:
