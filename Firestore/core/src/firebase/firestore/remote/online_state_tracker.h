@@ -43,7 +43,7 @@ class OnlineStateTracker {
  public:
   OnlineStateTracker() = default;
 
-  explicit OnlineStateTracker(
+  OnlineStateTracker(
       util::AsyncQueue* worker_queue,
       std::function<void(model::OnlineState)> online_state_handler)
       : worker_queue_{worker_queue},
