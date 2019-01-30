@@ -319,7 +319,6 @@ static NSString *const kFirebaseInAppMessagingAutoDataCollectionKey =
       initWithClearcutLogger:clearcutLogger
             usingTimeFetcher:timeFetcher
            usingUserDefaults:nil
-           conversionExpires:settings.conversionTrackingExpiresInSeconds
                    analytics:[FIRInAppMessaging inAppMessaging].analytics];
 
   FIRIAMSDKModeManager *sdkModeManager =

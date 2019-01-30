@@ -96,9 +96,6 @@ static NSString *_fiamServerHostName = @"firebaseinappmessaging.googleapis.com";
   _sdkSetting.loggerSizeAfterReduce = 50;
   _sdkSetting.appFGRenderMinIntervalInMinutes = 24 * 60;  // render at most one message from
                                                           // app-foreground trigger every 24 hours
-  _sdkSetting.conversionTrackingExpiresInSeconds =
-      7 * 24 * 3600;  // conversion attribution
-                      // for a message click expires in 7 days
   _sdkSetting.loggerInVerboseMode = NO;
 
   // TODO: once Firebase Core supports sending notifications at global Firebase level setting

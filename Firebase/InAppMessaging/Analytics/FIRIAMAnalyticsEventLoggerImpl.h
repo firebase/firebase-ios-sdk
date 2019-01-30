@@ -36,13 +36,10 @@ NS_ASSUME_NONNULL_BEGIN
  *  @param userDefaults needed for tracking upload timing info persistently.If nil, using
  *    NSUserDefaults standardUserDefaults. It's defined as a parameter to help with
  *    unit testing mocking
- *  @param conversionExpiresInSeconds specifies the time-length in seconds when we stop
- *    attribution conversions for a prior fiam message click from analytics perspective
  */
 - (instancetype)initWithClearcutLogger:(FIRIAMClearcutLogger *)ctLogger
                       usingTimeFetcher:(id<FIRIAMTimeFetcher>)timeFetcher
                      usingUserDefaults:(nullable NSUserDefaults *)userDefaults
-                     conversionExpires:(long)conversionExpiresInSeconds
                              analytics:(nullable id<FIRAnalyticsInterop>)analytics;
 @end
 NS_ASSUME_NONNULL_END

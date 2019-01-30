@@ -48,12 +48,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// Sets user property.
 - (void)setUserPropertyWithOrigin:(NSString *)origin name:(NSString *)name value:(id)value;
 
-// Get the lastNotification if it's associated with origin.
-- (void)checkLastNotificationForOrigin:(NSString *)origin
-                                 queue:(dispatch_queue_t)queue
-                              callback:
-                                  (void (^)(NSString *_Nullable))currentLastNotificationProperty;
-
 /// Registers an Analytics listener for the given origin.
 - (void)registerAnalyticsListener:(id<FIRAnalyticsInteropListener>)listener
                        withOrigin:(NSString *)origin;

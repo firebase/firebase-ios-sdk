@@ -21,16 +21,15 @@
 - (NSString *)description {
   return
       [NSString stringWithFormat:@"APIServer:%@;ProjectNumber:%@; API_Key:%@;Clearcut Server:%@; "
-                                  "Fetch Minimal Internval:%lu seconds; Activity Logger Max:%lu; "
-                                  "Foreground Display Trigger Minimal Interval:%lu seconds; "
-                                  "Stop conversion tracking in %ld seconds;\n"
+                                  "Fetch Minimal Interval:%lu seconds; Activity Logger Max:%lu; "
+                                  "Foreground Display Trigger Minimal Interval:%lu seconds;\n"
                                   "Clearcut strategy:%@;Global Firebase auto data collection %@\n",
                                  self.apiServerHost, self.firebaseProjectNumber, self.apiKey,
                                  self.clearcutServerHost,
                                  (unsigned long)(self.fetchMinIntervalInMinutes * 60),
                                  (unsigned long)self.loggerMaxCountBeforeReduce,
                                  (unsigned long)(self.appFGRenderMinIntervalInMinutes * 60),
-                                 self.conversionTrackingExpiresInSeconds, self.clearcutStrategy,
+                                 self.clearcutStrategy,
                                  self.firebaseAutoDataCollectionEnabled ? @"enabled" : @"disabled"];
 }
 @end

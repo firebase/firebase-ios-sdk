@@ -26,7 +26,6 @@ typedef void (^FIRAUserPropertiesCallback)(NSDictionary *userProperties);
 @interface FIRIAMAnalyticsEventLoggerImpl ()
 @property(readonly, nonatomic) FIRIAMClearcutLogger *clearCutLogger;
 @property(readonly, nonatomic) id<FIRIAMTimeFetcher> timeFetcher;
-@property(readonly, nonatomic) long conversionTrackingExpiresInSeconds;
 @property(nonatomic, readonly) NSUserDefaults *userDefaults;
 @end
 
@@ -59,7 +58,6 @@ static NSString *const kFIAMUserDefaualtsKeyForRemoveUserPropertyTimeInSeconds =
 - (instancetype)initWithClearcutLogger:(FIRIAMClearcutLogger *)ctLogger
                       usingTimeFetcher:(id<FIRIAMTimeFetcher>)timeFetcher
                      usingUserDefaults:(nullable NSUserDefaults *)userDefaults
-                     conversionExpires:(long)conversionExpiresInSeconds
                              analytics:(nullable id<FIRAnalyticsInterop>)analytics {
   if (self = [super init]) {
     _clearCutLogger = ctLogger;
@@ -71,40 +69,8 @@ static NSString *const kFIAMUserDefaualtsKeyForRemoveUserPropertyTimeInSeconds =
       FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM280002",
                     @"Firebase In App Messaging was not configured with FirebaseAnalytics.");
     }
-    _conversionTrackingExpiresInSeconds = conversionExpiresInSeconds;
-    FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM280003",
-                @"Conversion tracking from a click expires in %ld seconds",
-                conversionExpiresInSeconds);
-
-    // On startup, we make a check for conversion tracking expiration
-    [self checkOnConversionTrackingExpiration];
   }
   return self;
-}
-
-- (void)checkOnConversionTrackingExpiration {
-  double expireTimeInSeconds =
-      [_userDefaults doubleForKey:kFIAMUserDefaualtsKeyForRemoveUserPropertyTimeInSeconds];
-
-  double nowInSeconds = (double)[self.timeFetcher currentTimestampInSeconds];
-
-  if (expireTimeInSeconds < nowInSeconds) {
-    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-    [_analytics
-        checkLastNotificationForOrigin:kFIREventOriginFIAM
-                                 queue:queue
-                              callback:^(NSString *_Nullable currentLastNotificationProperty) {
-                                if (currentLastNotificationProperty) {
-                                  if ([self setAnalyticsUserPropertyForKey:
-                                                kFAUserPropertyForLastNotification
-                                                                 withValue:@"empty"]) {
-                                    FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM280005",
-                                                @"User property for conversion tracking has "
-                                                @"expired, set to be empty");
-                                  }
-                                }
-                              }];
-  }
 }
 
 - (NSDictionary *)constructFAEventParamsWithCampaignID:(NSString *)campaignID
@@ -160,17 +126,8 @@ static NSString *const kFIAMUserDefaualtsKeyForRemoveUserPropertyTimeInSeconds =
 
   if ([self setAnalyticsUserPropertyForKey:kFAUserPropertyForLastNotification
                                  withValue:conversionTrackingUserPropertyValue]) {
-    // reset the user property expiration time
-    long expirationTime = (long)[self.timeFetcher currentTimestampInSeconds] +
-                          self.conversionTrackingExpiresInSeconds;
-
-    [_userDefaults setDouble:expirationTime
-                      forKey:kFIAMUserDefaualtsKeyForRemoveUserPropertyTimeInSeconds];
-
     FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM280009",
-                @"User property for conversion tracking was set for campaign %@ "
-                 "and expires at epoch time in seconds %ld",
-                campaignID, expirationTime);
+                @"User property for conversion tracking was set for campaign %@", campaignID);
   }
 }
 
