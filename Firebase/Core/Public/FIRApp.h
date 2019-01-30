@@ -81,8 +81,8 @@ NS_SWIFT_NAME(FirebaseApp)
  * @param name Name of the library.
  * @param version Version of the library.
  */
-+ (void)registerLibrary:(NSString *)name withVersion:(NSString *)version
-NS_SWIFT_NAME(registerLibrary(_:version:));
++ (void)registerLibrary:(NSString *)name
+            withVersion:(NSString *)version NS_SWIFT_NAME(registerLibrary(_:version:));
 
 /**
  * Returns the default app, or nil if the default app does not exist.
