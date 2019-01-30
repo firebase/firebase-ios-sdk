@@ -300,21 +300,6 @@ FSTMaybeDocument* DatastoreSerializer::ToMaybeDocument(
   return [serializer_ decodedMaybeDocumentFromBatch:response];
 }
 
-// WatchStreamDelegate
-
-void WatchStreamDelegate::NotifyDelegateOnOpen() {
-  [delegate_ watchStreamDidOpen];
-}
-
-void WatchStreamDelegate::NotifyDelegateOnChange(
-    const WatchChange& change, const SnapshotVersion& snapshot_version) {
-  [delegate_ watchStreamDidChange:change snapshotVersion:snapshot_version];
-}
-
-void WatchStreamDelegate::NotifyDelegateOnClose(const Status& status) {
-  [delegate_ watchStreamWasInterruptedWithError:status];
-}
-
 // WriteStreamDelegate
 
 void WriteStreamDelegate::NotifyDelegateOnOpen() {

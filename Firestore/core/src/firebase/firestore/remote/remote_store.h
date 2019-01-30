@@ -26,12 +26,11 @@
 #include <memory>
 #include <unordered_map>
 
-#import "Firestore/Source/Remote/FSTOnlineStateDelegate.h"
-
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
-#include "Firestore/core/src/firebase/firestore/remote/online_state_tracker_.h"
+#include "Firestore/core/src/firebase/firestore/remote/datastore.h"
+#include "Firestore/core/src/firebase/firestore/remote/online_state_tracker.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_stream.h"
@@ -102,33 +101,39 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-class RemoteStore : public TargetMetadataProvider, public WatchStreamObserver {
+class RemoteStore : public TargetMetadataProvider, public WatchStreamCallback {
  public:
   RemoteStore(FSTLocalStore* local_store,
-              Util::AsyncQueue* worker_queue,
-              id<FSTOnlineStateDelegate> _Nullable online_state_delegate);
+      Datastore* datastore,
+              util::AsyncQueue* worker_queue,
+              std::function<void (model::OnlineState)> online_state_handler);
 
   // TODO(varconst): remove the getters and setters
   id<FSTRemoteSyncer> sync_engine() {
     return sync_engine_;
   }
-  void sync_engine(id<FSTRemoteSyncer> sync_engine) {
+  void set_sync_engine(id<FSTRemoteSyncer> sync_engine) {
     sync_engine_ = sync_engine;
   }
+
   FSTLocalStore* local_store() {
     return local_store_;
   }
+
   OnlineStateTracker& online_state_tracker() { return online_state_tracker_; }
+
   void set_is_network_enabled(bool value) {
     is_network_enabled_ = value;
   }
+
+  WatchStream& watch_stream() { return *watch_stream_;}
 
   void ListenToTarget(FSTQueryData* query_data);
   void StopListening(model::TargetId target_id);
 
   model::DocumentKeySet GetRemoteKeysForTarget(
       model::TargetId target_id) const override;
-  nullable FSTQueryData* GetQueryDataForTarget(
+  FSTQueryData* GetQueryDataForTarget(
       model::TargetId target_id) const override;
 
   void OnWatchStreamOpen() override;
@@ -136,10 +141,10 @@ class RemoteStore : public TargetMetadataProvider, public WatchStreamObserver {
                            const model::SnapshotVersion& snapshot_version) override;
   void OnWatchStreamClose(const util::Status& status) override;
 
-  // TODO(varconst): make private.
+  // TODO(varconst): make the following methods private.
+
   bool CanUseNetwork() const;
 
- private:
   void StartWatchStream();
 
   /**
@@ -148,10 +153,11 @@ class RemoteStore : public TargetMetadataProvider, public WatchStreamObserver {
   */
   bool ShouldStartWatchStream() const;
 
+  void CleanUpWatchStreamState();
+
+ private:
   void SendWatchRequest(FSTQueryData* query_data);
   void SendUnwatchRequest(model::TargetId target_id);
-
-  void CleanUpWatchStreamState();
 
   /**
    * Takes a batch of changes from the `Datastore`, repackages them as a

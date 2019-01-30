@@ -36,6 +36,7 @@
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/remote/online_state_tracker.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
+#include "Firestore/core/src/firebase/firestore/remote/remote_store.h"
 #include "Firestore/core/src/firebase/firestore/remote/stream.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
@@ -61,6 +62,7 @@ using firebase::firestore::remote::DocumentWatchChange;
 using firebase::firestore::remote::ExistenceFilterWatchChange;
 using firebase::firestore::remote::OnlineStateTracker;
 using firebase::firestore::remote::RemoteEvent;
+using firebase::firestore::remote::RemoteStore;
 using firebase::firestore::remote::TargetChange;
 using firebase::firestore::remote::WatchChange;
 using firebase::firestore::remote::WatchChangeAggregator;
@@ -79,7 +81,7 @@ static const int kMaxPendingWrites = 10;
 
 #pragma mark - FSTRemoteStore
 
-@interface FSTRemoteStore () <FSTWatchStreamDelegate, FSTWriteStreamDelegate>
+@interface FSTRemoteStore () <FSTWriteStreamDelegate>
 
 #pragma mark Watch Stream
 
@@ -119,10 +121,11 @@ static const int kMaxPendingWrites = 10;
 
     _datastore->Start();
 
-    _remoteStore = absl::make_unique<RemoteStore>(localStore, datastore.get(), queue, onlineStateDelegate);
+    _remoteStore = absl::make_unique<RemoteStore>(localStore, _datastore.get(), queue,
+                                                  std::move(onlineStateHandler));
     _writeStream = _datastore->CreateWriteStream(self);
 
-    _isNetworkEnabled = NO;
+    _remoteStore->set_is_network_enabled(false);
   }
   return self;
 }
@@ -139,7 +142,7 @@ static const int kMaxPendingWrites = 10;
 #pragma mark Online/Offline state
 
 - (void)enableNetwork {
-  _isNetworkEnabled = YES;
+  _remoteStore->set_is_network_enabled(true);
 
   if (_remoteStore->CanUseNetwork()) {
     // Load any saved stream token from persistent storage
@@ -148,7 +151,7 @@ static const int kMaxPendingWrites = 10;
     if (_remoteStore->ShouldStartWatchStream()) {
       _remoteStore->StartWatchStream();
     } else {
-      _onlineStateTracker.UpdateState(OnlineState::Unknown);
+      _remoteStore->online_state_tracker().UpdateState(OnlineState::Unknown);
     }
 
     // This will start the write stream if necessary.
@@ -157,16 +160,16 @@ static const int kMaxPendingWrites = 10;
 }
 
 - (void)disableNetwork {
-  _isNetworkEnabled = NO;
+  _remoteStore->set_is_network_enabled(false);
   [self disableNetworkInternal];
 
   // Set the OnlineState to Offline so get()s return from cache, etc.
-  _onlineStateTracker.UpdateState(OnlineState::Offline);
+  _remoteStore->online_state_tracker().UpdateState(OnlineState::Offline);
 }
 
 /** Disables the network, setting the OnlineState to the specified targetOnlineState. */
 - (void)disableNetworkInternal {
-  _watchStream->Stop();
+  _remoteStore->watch_stream().Stop();
   _writeStream->Stop();
 
   if (self.writePipeline.count > 0) {
@@ -182,12 +185,11 @@ static const int kMaxPendingWrites = 10;
 
 - (void)shutdown {
   LOG_DEBUG("FSTRemoteStore %s shutting down", (__bridge void *)self);
-  _remoteStore->Shutdown();
+  _remoteStore->set_is_network_enabled(false);
   [self disableNetworkInternal];
-  _remoteStore.set_is_network_enabled(false);
   // Set the OnlineState to Unknown (rather than Offline) to avoid potentially triggering
   // spurious listener events with cached data, etc.
-  _remoteStore.online_state_tracker().UpdateState(OnlineState::Unknown);
+  _remoteStore->online_state_tracker().UpdateState(OnlineState::Unknown);
   _datastore->Shutdown();
 }
 
@@ -197,9 +199,9 @@ static const int kMaxPendingWrites = 10;
     // for the new user and re-fill the write pipeline with new mutations from the LocalStore
     // (since mutations are per-user).
     LOG_DEBUG("FSTRemoteStore %s restarting streams for new credential", (__bridge void *)self);
-    _remoteStore.set_is_network_enabled(false);
+    _remoteStore->set_is_network_enabled(false);
     [self disableNetworkInternal];
-    _remoteStore.online_state_tracker().UpdateState(OnlineState::Unknown);
+    _remoteStore->online_state_tracker().UpdateState(OnlineState::Unknown);
     [self enableNetwork];
   }
 }
@@ -221,7 +223,8 @@ static const int kMaxPendingWrites = 10;
  * pending writes.
  */
 - (BOOL)shouldStartWriteStream {
-  return _remoteStore->CanUseNetwork() && !_writeStream->IsStarted() && self.writePipeline.count > 0;
+  return _remoteStore->CanUseNetwork() && !_writeStream->IsStarted() &&
+         self.writePipeline.count > 0;
 }
 
 - (void)startWriteStream {
@@ -242,7 +245,8 @@ static const int kMaxPendingWrites = 10;
   BatchId lastBatchIDRetrieved =
       self.writePipeline.count == 0 ? kBatchIdUnknown : self.writePipeline.lastObject.batchID;
   while ([self canAddToWritePipeline]) {
-    FSTMutationBatch *batch = [_remoteStore->local_store() nextMutationBatchAfterBatchID:lastBatchIDRetrieved];
+    FSTMutationBatch *batch =
+        [_remoteStore->local_store() nextMutationBatchAfterBatchID:lastBatchIDRetrieved];
     if (!batch) {
       if (self.writePipeline.count == 0) {
         _writeStream->MarkIdle();
@@ -311,7 +315,7 @@ static const int kMaxPendingWrites = 10;
                                 commitVersion:commitVersion
                               mutationResults:results
                                   streamToken:_writeStream->GetLastStreamToken()];
-  [self.syncEngine applySuccessfulWriteWithResult:batchResult];
+  [_remoteStore->sync_engine() applySuccessfulWriteWithResult:batchResult];
 
   // It's possible that with the completion of this mutation another slot has freed up.
   [self fillWritePipeline];
@@ -381,7 +385,8 @@ static const int kMaxPendingWrites = 10;
   // bad request so inhibit backoff on the next restart.
   _writeStream->InhibitBackoff();
 
-  [self.syncEngine rejectFailedWriteWithBatchID:batch.batchID error:util::MakeNSError(error)];
+  [_remoteStore->sync_engine() rejectFailedWriteWithBatchID:batch.batchID
+                                                      error:util::MakeNSError(error)];
 
   // It's possible that with the completion of this mutation another slot has freed up.
   [self fillWritePipeline];

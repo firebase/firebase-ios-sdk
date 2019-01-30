@@ -16,7 +16,12 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/remote_store.h"
 
+#import "Firestore/Source/Local/FSTLocalStore.h"
+#import "Firestore/Source/Local/FSTQueryData.h"
+
+#include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "absl/memory/memory.h"
 
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::OnlineState;
@@ -34,8 +39,8 @@ using firebase::firestore::remote::WatchChange;
 using firebase::firestore::remote::WatchChangeAggregator;
 using firebase::firestore::remote::WatchTargetChange;
 using firebase::firestore::remote::WatchTargetChangeState;
-using util::AsyncQueue;
-using util::Status;
+using firebase::firestore::util::AsyncQueue;
+using firebase::firestore::util::Status;
 
 namespace firebase {
 namespace firestore {
@@ -45,9 +50,9 @@ RemoteStore::RemoteStore(
     FSTLocalStore* local_store,
     Datastore* datastore,
     AsyncQueue* worker_queue,
-    id<FSTOnlineStateDelegate> _Nullable online_state_delegate)
+    std::function<void (model::OnlineState)> online_state_handler)
     : local_store_{local_store},
-      online_state_tracker_{worker_queue, online_state_delegate} {
+      online_state_tracker_{worker_queue, std::move(online_state_handler)} {
   // Create streams (but note they're not started yet)
   watch_stream_ = datastore->CreateWatchStream(this);
 }
@@ -62,7 +67,7 @@ void RemoteStore::StartWatchStream() {
 }
 
 void RemoteStore::ListenToTarget(FSTQueryData* query_data) {
-  TargetId targetKey = query_data.target_id;
+  TargetId targetKey = query_data.targetID;
   HARD_ASSERT(listen_targets_.find(targetKey) == listen_targets_.end(),
               "listenToQuery called with duplicate target id: %s", targetKey);
 
@@ -76,7 +81,7 @@ void RemoteStore::ListenToTarget(FSTQueryData* query_data) {
 }
 
 void RemoteStore::SendWatchRequest(FSTQueryData* query_data) {
-  watch_change_aggregator_->RecordPendingTargetRequest(query_data.target_id);
+  watch_change_aggregator_->RecordPendingTargetRequest(query_data.targetID);
   watch_stream_->WatchQuery(query_data);
 }
 
@@ -202,7 +207,7 @@ void RemoteStore::RaiseWatchSnapshot(const SnapshotVersion& snapshot_version) {
       // A watched target might have been removed already.
       if (query_data) {
         listen_targets_[target_id] = [query_data
-            query_dataByReplacingSnapshotVersion:snapshot_version
+            queryDataByReplacingSnapshotVersion:snapshot_version
                                      resumeToken:resumeToken
                                   sequenceNumber:query_data.sequenceNumber];
       }
@@ -222,7 +227,7 @@ void RemoteStore::RaiseWatchSnapshot(const SnapshotVersion& snapshot_version) {
     // Clear the resume token for the query, since we're in a known mismatch
     // state.
     query_data = [[FSTQueryData alloc] initWithQuery:query_data.query
-                                           target_id:target_id
+                                           targetID:target_id
                                 listenSequenceNumber:query_data.sequenceNumber
                                              purpose:query_data.purpose];
     listen_targets_[target_id] = query_data;
@@ -237,14 +242,14 @@ void RemoteStore::RaiseWatchSnapshot(const SnapshotVersion& snapshot_version) {
     // listens of this target (that might happen e.g. on reconnect).
     FSTQueryData* request_query_data = [[FSTQueryData alloc]
                initWithQuery:query_data.query
-                   target_id:target_id
+                   targetID:target_id
         listenSequenceNumber:query_data.sequenceNumber
                      purpose:FSTQueryPurposeExistenceFilterMismatch];
     SendWatchRequest(request_query_data);
   }
 
   // Finally handle remote event
-  [sync_engine_ applyRemoteEvent:remoteEvent];
+  [sync_engine_ applyRemoteEvent:remote_event];
 }
 
 void RemoteStore::ProcessTargetError(const WatchTargetChange& change) {
@@ -268,11 +273,11 @@ bool RemoteStore::CanUseNetwork() const {
   return is_network_enabled_;
 }
 
-DocumentKeySet RemoteStore::GetRemoteKeysForTarget:(TargetId target_id) const {
+DocumentKeySet RemoteStore::GetRemoteKeysForTarget(TargetId target_id) const {
   return [sync_engine_ remoteKeysForTarget:target_id];
 }
 
-nullable FSTQueryData* RemoteStore::GetQueryDataForTarget:(TargetId target_id) const {
+FSTQueryData* RemoteStore::GetQueryDataForTarget(TargetId target_id) const {
   auto found = listen_targets_.find(target_id);
   return found != listen_targets_.end() ? found->second : nil;
 }
