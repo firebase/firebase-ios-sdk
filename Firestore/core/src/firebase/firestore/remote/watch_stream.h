@@ -43,7 +43,8 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-/** An interface defining the events that can be emitted by the `WatchStream`.
+/**
+ * An interface defining the events that can be emitted by the `WatchStream`.
  */
 class WatchStreamCallback {
  public:

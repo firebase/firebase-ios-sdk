@@ -59,40 +59,28 @@ RemoteStore::RemoteStore(
   watch_stream_ = datastore->CreateWatchStream(this);
 }
 
-void RemoteStore::StartWatchStream() {
-  HARD_ASSERT(ShouldStartWatchStream(),
-              "StartWatchStream called when ShouldStartWatchStream: is false.");
-  watch_change_aggregator_ = absl::make_unique<WatchChangeAggregator>(this);
-  watch_stream_->Start();
-
-  online_state_tracker_.HandleWatchStreamStart();
-}
-
-void RemoteStore::ListenToTarget(FSTQueryData* query_data) {
+void RemoteStore::Listen(FSTQueryData* query_data) {
   TargetId targetKey = query_data.targetID;
   HARD_ASSERT(listen_targets_.find(targetKey) == listen_targets_.end(),
-              "listenToQuery called with duplicate target id: %s", targetKey);
+              "Listen called with duplicate target id: %s", targetKey);
 
+  // Mark this as something the client is currently listening for.
   listen_targets_[targetKey] = query_data;
 
   if (ShouldStartWatchStream()) {
+    // The listen will be sent in `OnWatchStreamOpen`
     StartWatchStream();
   } else if (watch_stream_->IsOpen()) {
     SendWatchRequest(query_data);
   }
 }
 
-void RemoteStore::SendWatchRequest(FSTQueryData* query_data) {
-  watch_change_aggregator_->RecordPendingTargetRequest(query_data.targetID);
-  watch_stream_->WatchQuery(query_data);
-}
-
 void RemoteStore::StopListening(TargetId target_id) {
   size_t num_erased = listen_targets_.erase(target_id);
   HARD_ASSERT(num_erased == 1,
-              "stopListeningToTargetID: target not currently watched: %s",
-              target_id);
+              "StopListening: target not currently watched: %s", target_id);
 
+  // The watch stream might not be started if we're in a disconnected state
   if (watch_stream_->IsOpen()) {
     SendUnwatchRequest(target_id);
   }
@@ -100,22 +88,56 @@ void RemoteStore::StopListening(TargetId target_id) {
     if (watch_stream_->IsOpen()) {
       watch_stream_->MarkIdle();
     } else if (CanUseNetwork()) {
-      // Revert to OnlineState::Unknown if the watch stream is not open and we
+      // Revert to `OnlineState::Unknown` if the watch stream is not open and we
       // have no listeners, since without any listens to send we cannot confirm
-      // if the stream is healthy and upgrade to OnlineState::Online.
+      // if the stream is healthy and upgrade to `OnlineState::Online`.
       online_state_tracker_.UpdateState(OnlineState::Unknown);
     }
   }
 }
 
+FSTQueryData* RemoteStore::GetQueryDataForTarget(TargetId target_id) const {
+  auto found = listen_targets_.find(target_id);
+  return found != listen_targets_.end() ? found->second : nil;
+}
+
+DocumentKeySet RemoteStore::GetRemoteKeysForTarget(TargetId target_id) const {
+  return [sync_engine_ remoteKeysForTarget:target_id];
+}
+
+void RemoteStore::SendWatchRequest(FSTQueryData* query_data) {
+  // We need to increment the the expected number of pending responses we're due
+  // from watch so we wait for the ack to process any messages from this target.
+  watch_change_aggregator_->RecordPendingTargetRequest(query_data.targetID);
+  watch_stream_->WatchQuery(query_data);
+}
+
 void RemoteStore::SendUnwatchRequest(TargetId target_id) {
+  // We need to increment the expected number of pending responses we're due
+  // from watch so we wait for the removal on the server before we process any
+  // messages from this target.
   watch_change_aggregator_->RecordPendingTargetRequest(target_id);
   watch_stream_->UnwatchTargetId(target_id);
+}
+
+void RemoteStore::StartWatchStream() {
+  HARD_ASSERT(ShouldStartWatchStream(),
+              "StartWatchStream called when ShouldStartWatchStream is false.");
+  watch_change_aggregator_ = absl::make_unique<WatchChangeAggregator>(this);
+  watch_stream_->Start();
+
+  online_state_tracker_.HandleWatchStreamStart();
 }
 
 bool RemoteStore::ShouldStartWatchStream() const {
   return CanUseNetwork() && !watch_stream_->IsStarted() &&
          !listen_targets_.empty();
+}
+
+bool RemoteStore::CanUseNetwork() const {
+  // PORTING NOTE: This method exists mostly because web also has to take into
+  // account primary vs. secondary state.
+  return is_network_enabled_;
 }
 
 void RemoteStore::CleanUpWatchStreamState() {
@@ -126,6 +148,29 @@ void RemoteStore::OnWatchStreamOpen() {
   // Restore any existing watches.
   for (const auto& kv : listen_targets_) {
     SendWatchRequest(kv.second);
+  }
+}
+
+void RemoteStore::OnWatchStreamClose(const Status& status) {
+  if (status.ok()) {
+    // Graceful stop (due to Stop() or idle timeout). Make sure that's
+    // desirable.
+    HARD_ASSERT(!ShouldStartWatchStream(),
+                "Watch stream was stopped gracefully while still needed.");
+  }
+
+  CleanUpWatchStreamState();
+
+  // If we still need the watch stream, retry the connection.
+  if (ShouldStartWatchStream()) {
+    online_state_tracker_.HandleWatchStreamFailure(status);
+
+    StartWatchStream();
+  } else {
+    // We don't need to restart the watch stream because there are no active
+    // targets. The online state is set to unknown because there is no active
+    // attempt at establishing a connection.
+    online_state_tracker_.UpdateState(OnlineState::Unknown);
   }
 }
 
@@ -159,31 +204,8 @@ void RemoteStore::OnWatchStreamChange(const WatchChange& change,
   if (snapshot_version != SnapshotVersion::None() &&
       snapshot_version >= [local_store_ lastRemoteSnapshotVersion]) {
     // We have received a target change with a global snapshot if the snapshot
-    // version is not equal to SnapshotVersion.None().
+    // version is not equal to `SnapshotVersion::None()`.
     RaiseWatchSnapshot(snapshot_version);
-  }
-}
-
-void RemoteStore::OnWatchStreamClose(const Status& status) {
-  if (status.ok()) {
-    // Graceful stop (due to Stop() or idle timeout). Make sure that's
-    // desirable.
-    HARD_ASSERT(!ShouldStartWatchStream(),
-                "Watch stream was stopped gracefully while still needed.");
-  }
-
-  CleanUpWatchStreamState();
-
-  // If we still need the watch stream, retry the connection.
-  if (ShouldStartWatchStream()) {
-    online_state_tracker_.HandleWatchStreamFailure(status);
-
-    StartWatchStream();
-  } else {
-    // We don't need to restart the watch stream because there are no active
-    // targets. The online state is set to unknown because there is no active
-    // attempt at establishing a connection.
-    online_state_tracker_.UpdateState(OnlineState::Unknown);
   }
 }
 
@@ -267,21 +289,6 @@ void RemoteStore::ProcessTargetError(const WatchTargetChange& change) {
                                        error:util::MakeNSError(change.cause())];
     }
   }
-}
-
-bool RemoteStore::CanUseNetwork() const {
-  // PORTING NOTE: This method exists mostly because web also has to take into
-  // account primary vs. secondary state.
-  return is_network_enabled_;
-}
-
-DocumentKeySet RemoteStore::GetRemoteKeysForTarget(TargetId target_id) const {
-  return [sync_engine_ remoteKeysForTarget:target_id];
-}
-
-FSTQueryData* RemoteStore::GetQueryDataForTarget(TargetId target_id) const {
-  auto found = listen_targets_.find(target_id);
-  return found != listen_targets_.end() ? found->second : nil;
 }
 
 }  // namespace remote

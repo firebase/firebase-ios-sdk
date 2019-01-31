@@ -135,7 +135,10 @@ class RemoteStore : public TargetMetadataProvider, public WatchStreamCallback {
     return *watch_stream_;
   }
 
-  void ListenToTarget(FSTQueryData* query_data);
+  /** Listens to the target identified by the given `FSTQueryData`. */
+  void Listen(FSTQueryData* query_data);
+
+  /** Stops listening to the target with the given target ID. */
   void StopListening(model::TargetId target_id);
 
   model::DocumentKeySet GetRemoteKeysForTarget(
@@ -183,10 +186,6 @@ class RemoteStore : public TargetMetadataProvider, public WatchStreamCallback {
    */
   FSTLocalStore* local_store_ = nil;
 
-  OnlineStateTracker online_state_tracker_;
-
-  std::unique_ptr<WatchChangeAggregator> watch_change_aggregator_;
-
   /**
    * A mapping of watched targets that the client cares about tracking and the
    * user has explicitly called a 'listen' for this target.
@@ -198,13 +197,16 @@ class RemoteStore : public TargetMetadataProvider, public WatchStreamCallback {
    */
   std::unordered_map<model::TargetId, FSTQueryData*> listen_targets_;
 
-  std::shared_ptr<WatchStream> watch_stream_;
+  OnlineStateTracker online_state_tracker_;
 
   /**
    * Set to true by `EnableNetwork` and false by `DisableNetworkInternal` and
    * indicates the user-preferred network state.
    */
   bool is_network_enabled_ = false;
+
+  std::shared_ptr<WatchStream> watch_stream_;
+  std::unique_ptr<WatchChangeAggregator> watch_change_aggregator_;
 };
 
 }  // namespace remote
