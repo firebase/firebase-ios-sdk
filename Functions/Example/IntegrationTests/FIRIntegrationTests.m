@@ -196,4 +196,18 @@ static NSString *const kProjectID = @"functions-integration-test";
   [self waitForExpectations:@[ expectation ] timeout:10];
 }
 
+- (void)testTimeout {
+    XCTestExpectation *expectation = [[XCTestExpectation alloc] init];
+    FIRHTTPSCallable *function = [_functions HTTPSCallableWithName:@"timeoutTest"];
+    function.timeoutInterval = 0.05;
+    [function callWithCompletion:^(FIRHTTPSCallableResult *_Nullable result, NSError *_Nullable error) {
+        XCTAssertNotNil(error);
+        XCTAssertEqual(FIRFunctionsErrorCodeDeadlineExceeded, error.code);
+        XCTAssertEqualObjects(@"DEADLINE EXCEEDED", error.userInfo[NSLocalizedDescriptionKey]);
+        XCTAssertNil(error.userInfo[FIRFunctionsErrorDetailsKey]);
+        [expectation fulfill];
+    }];
+    [self waitForExpectations:@[ expectation ] timeout:10];
+}
+
 @end

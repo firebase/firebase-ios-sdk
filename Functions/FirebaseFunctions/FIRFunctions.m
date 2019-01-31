@@ -159,6 +159,7 @@ NSString *const kFUNDefaultRegion = @"us-central1";
 
 - (void)callFunction:(NSString *)name
           withObject:(nullable id)data
+             timeout:(NSTimeInterval)timeout
           completion:(void (^)(FIRHTTPSCallableResult *_Nullable result,
                                NSError *_Nullable error))completion {
   [_contextProvider getContext:^(FUNContext *_Nullable context, NSError *_Nullable error) {
@@ -168,16 +169,21 @@ NSString *const kFUNDefaultRegion = @"us-central1";
       }
       return;
     }
-    return [self callFunction:name withObject:data context:context completion:completion];
+    return [self callFunction:name withObject:data timeout:timeout context:context completion:completion];
   }];
 }
 
 - (void)callFunction:(NSString *)name
           withObject:(nullable id)data
+             timeout:(NSTimeInterval)timeout
              context:(FUNContext *)context
           completion:(void (^)(FIRHTTPSCallableResult *_Nullable result,
                                NSError *_Nullable error))completion {
-  GTMSessionFetcher *fetcher = [_fetcherService fetcherWithURLString:[self URLWithName:name]];
+  NSURL *url = [NSURL URLWithString:[self URLWithName:name]];
+  NSURLRequest *request = [NSURLRequest requestWithURL:url
+                                           cachePolicy:NSURLRequestUseProtocolCachePolicy
+                                       timeoutInterval:timeout];
+  GTMSessionFetcher *fetcher = [_fetcherService fetcherWithRequest:request];
 
   NSMutableDictionary *body = [NSMutableDictionary dictionary];
   // Encode the data in the body.
@@ -224,6 +230,11 @@ NSString *const kFUNDefaultRegion = @"us-central1";
     if (error) {
       if ([error.domain isEqualToString:kGTMSessionFetcherStatusDomain]) {
         error = FUNErrorForResponse(error.code, data, serializer);
+      }
+      if ([error.domain isEqualToString:NSURLErrorDomain]) {
+        if (error.code == NSURLErrorTimedOut) {
+          error = FUNErrorForCode(FIRFunctionsErrorCodeDeadlineExceeded);
+        }
       }
     } else {
       // If there wasn't an HTTP error, see if there was an error in the body.
