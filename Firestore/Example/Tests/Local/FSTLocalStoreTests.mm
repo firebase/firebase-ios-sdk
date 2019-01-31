@@ -906,9 +906,8 @@ NS_ASSUME_NONNULL_BEGIN
   NSData *resumeToken = FSTTestResumeTokenFromSnapshotVersion(1000);
 
   WatchTargetChange watchChange{WatchTargetChangeState::Current, {targetID}, resumeToken};
-  WatchChangeAggregator aggregator{[FSTTestTargetMetadataProvider
-      providerWithSingleResultForKey:testutil::Key("foo/bar")
-                             targets:{targetID}]};
+  WatchChangeAggregator aggregator{FSTTestTargetMetadataProvider::CreateSingleResultProvider(
+      testutil::Key("foo/bar"), std::vector<TargetId>{target_id})};
   aggregator.HandleTargetChange(watchChange);
   RemoteEvent remoteEvent = aggregator.CreateRemoteEvent(testutil::Version(1000));
   [self applyRemoteEvent:remoteEvent];

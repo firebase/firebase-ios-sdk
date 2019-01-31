@@ -23,9 +23,7 @@
 #include <cinttypes>
 #include <list>
 #include <set>
-#include <unordered_map>
 #include <utility>
-#include <vector>
 
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
@@ -306,74 +304,77 @@ FSTViewSnapshot *_Nullable FSTTestApplyChanges(FSTView *view,
       .snapshot;
 }
 
-@implementation FSTTestTargetMetadataProvider {
-  std::unordered_map<TargetId, DocumentKeySet> _syncedKeys;
-  std::unordered_map<TargetId, FSTQueryData *> _queryData;
-}
+namespace firebase {
+namespace firestore {
+namespace remote {
 
-+ (instancetype)providerWithSingleResultForKey:(DocumentKey)documentKey
-                                 listenTargets:(const std::vector<TargetId> &)listenTargets
-                                  limboTargets:(const std::vector<TargetId> &)limboTargets {
-  FSTTestTargetMetadataProvider *metadataProvider = [FSTTestTargetMetadataProvider new];
-  FSTQuery *query = [FSTQuery queryWithPath:documentKey.path()];
+TestTargetMetadataProvider CreateSingleResultProvider(DocumentKey document_key,
+                                                      const std::vector<TargetId> &listen_targets,
+                                                      const std::vector<TargetId> &limbo_targets) {
+  TestTargetMetadataProvider metadata_provider;
+  FSTQuery *query = [FSTQuery queryWithPath:document_key.path()];
 
-  for (TargetId targetID : listenTargets) {
-    FSTQueryData *queryData = [[FSTQueryData alloc] initWithQuery:query
-                                                         targetID:targetID
-                                             listenSequenceNumber:0
-                                                          purpose:FSTQueryPurposeListen];
-    [metadataProvider setSyncedKeys:DocumentKeySet{documentKey} forQueryData:queryData];
+  for (TargetId target_id : listen_targets) {
+    FSTQueryData *query_data = [[FSTQueryData alloc] initWithQuery:query
+                                                          targetID:target_id
+                                              listenSequenceNumber:0
+                                                           purpose:FSTQueryPurposeListen];
+    metadata_provider.SetSyncedKeys(DocumentKeySet{document_key}, query_data);
   }
-  for (TargetId targetID : limboTargets) {
-    FSTQueryData *queryData = [[FSTQueryData alloc] initWithQuery:query
-                                                         targetID:targetID
-                                             listenSequenceNumber:0
-                                                          purpose:FSTQueryPurposeLimboResolution];
-    [metadataProvider setSyncedKeys:DocumentKeySet{documentKey} forQueryData:queryData];
-  }
-
-  return metadataProvider;
-}
-
-+ (instancetype)providerWithSingleResultForKey:(DocumentKey)documentKey
-                                       targets:(const std::vector<TargetId> &)targets {
-  return [self providerWithSingleResultForKey:documentKey listenTargets:targets limboTargets:{}];
-}
-
-+ (instancetype)providerWithEmptyResultForKey:(DocumentKey)documentKey
-                                      targets:(const std::vector<TargetId> &)targets {
-  FSTTestTargetMetadataProvider *metadataProvider = [FSTTestTargetMetadataProvider new];
-  FSTQuery *query = [FSTQuery queryWithPath:documentKey.path()];
-
-  for (TargetId targetID : targets) {
-    FSTQueryData *queryData = [[FSTQueryData alloc] initWithQuery:query
-                                                         targetID:targetID
-                                             listenSequenceNumber:0
-                                                          purpose:FSTQueryPurposeListen];
-    [metadataProvider setSyncedKeys:DocumentKeySet {} forQueryData:queryData];
+  for (TargetId target_id : limbo_targets) {
+    FSTQueryData *query_data = [[FSTQueryData alloc] initWithQuery:query
+                                                          targetID:target_id
+                                              listenSequenceNumber:0
+                                                           purpose:FSTQueryPurposeLimboResolution];
+    metadata_provider.SetSyncedKeys(DocumentKeySet{document_key}, query_data);
   }
 
-  return metadataProvider;
+  return metadata_provider;
 }
 
-- (void)setSyncedKeys:(DocumentKeySet)keys forQueryData:(FSTQueryData *)queryData {
-  _syncedKeys[queryData.targetID] = keys;
-  _queryData[queryData.targetID] = queryData;
+TestTargetMetadataProvider CreateSingleResultProvider(DocumentKey document_key,
+                                                      const std::vector<TargetId> &targets) {
+  return CreateSingleResultProvider(document_key, targets, /*limbo_targets=*/{});
 }
 
-- (DocumentKeySet)remoteKeysForTarget:(TargetId)targetID {
-  auto it = _syncedKeys.find(targetID);
-  HARD_ASSERT(it != _syncedKeys.end(), "Cannot process unknown target %s", targetID);
+TestTargetMetadataProvider CreateEmptyResultProvider(DocumentKey document_key,
+                                                     const std::vector<TargetId> &targets) {
+  TestTargetMetadataProvider metadata_provider;
+  FSTQuery *query = [FSTQuery queryWithPath:document_key.path()];
+
+  for (TargetId target_id : targets) {
+    FSTQueryData *query_data = [[FSTQueryData alloc] initWithQuery:query
+                                                          targetID:target_id
+                                              listenSequenceNumber:0
+                                                           purpose:FSTQueryPurposeListen];
+    metadata_provider.SetSyncedKeys(DocumentKeySet{}, query_data);
+  }
+
+  return metadata_provider;
+}
+
+void TestTargetMetadataProvider::SetSyncedKeys(DocumentKeySet keys, FSTQueryData *query_data) {
+  synced_keys_[query_data.targetID] = keys;
+  query_data_[query_data.targetID] = query_data;
+}
+
+DocumentKeySet TestTargetMetadataProvider::GetRemoteKeysForTarget(TargetId target_id) const {
+  auto it = synced_keys_.find(target_id);
+  HARD_ASSERT(it != synced_keys_.end(), "Cannot process unknown target %s", target_id);
   return it->second;
 }
 
-- (nullable FSTQueryData *)queryDataForTarget:(TargetId)targetID {
-  auto it = _queryData.find(targetID);
-  HARD_ASSERT(it != _queryData.end(), "Cannot process unknown target %s", targetID);
+FSTQueryData *TestTargetMetadataProvider::GetQueryDataForTarget(TargetId target_id) const {
+  auto it = query_data_.find(target_id);
+  HARD_ASSERT(it != query_data_.end(), "Cannot process unknown target %s", target_id);
   return it->second;
 }
 
-@end
+}  // namespace remote
+}  // namespace firestore
+}  // namespace firebase
+
+using firebase::firestore::remote::TestTargetMetadataProvider;
 
 RemoteEvent FSTTestAddedRemoteEvent(FSTMaybeDocument *doc,
                                     const std::vector<TargetId> &addedToTargets) {
@@ -381,7 +382,7 @@ RemoteEvent FSTTestAddedRemoteEvent(FSTMaybeDocument *doc,
               "Docs from remote updates shouldn't have local changes.");
   DocumentWatchChange change{addedToTargets, {}, doc.key, doc};
   WatchChangeAggregator aggregator{
-      [FSTTestTargetMetadataProvider providerWithEmptyResultForKey:doc.key targets:addedToTargets]};
+      TestTargetMetadataProvider::CreateEmptyResultProvider(doc.key, addedToTargets)};
   aggregator.HandleDocumentChange(change);
   return aggregator.CreateRemoteEvent(doc.version);
 }
@@ -414,10 +415,8 @@ RemoteEvent FSTTestUpdateRemoteEventWithLimboTargets(
   std::vector<TargetId> listens = updatedInTargets;
   listens.insert(listens.end(), removedFromTargets.begin(), removedFromTargets.end());
 
-  WatchChangeAggregator aggregator{[FSTTestTargetMetadataProvider
-      providerWithSingleResultForKey:doc.key
-                       listenTargets:listens
-                        limboTargets:limboTargets]};
+  WatchChangeAggregator aggregator{
+      TestTargetMetadataProvider::CreateSingleResultProvider(doc.key, listens, limboTargets)};
   aggregator.HandleDocumentChange(change);
   return aggregator.CreateRemoteEvent(doc.version);
 }
