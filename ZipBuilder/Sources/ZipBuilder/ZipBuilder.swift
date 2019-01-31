@@ -20,7 +20,7 @@ private struct Constants {
 
     // Required for distribution.
     public static let firebaseHeader = "Firebase.h"
-    public static let readmeTemplate = "README.md"
+    public static let readmeName = "README.md"
     public static let modulemap = "module.modulemap"
     public static let notices = "NOTICES"
 
@@ -134,7 +134,7 @@ struct ZipBuilder {
 
     // Get the README template ready (before attempting to build everything in case this fails,
     // otherwise debugging it will take a long time).
-    let readmePath = self.templateDir.appendingPathComponent(Constants.ProjectPath.readmeTemplate)
+    let readmePath = self.templateDir.appendingPathComponent(Constants.ProjectPath.readmeName)
     let readmeTemplate: String
     do {
       readmeTemplate = try String(contentsOf: readmePath)
@@ -168,12 +168,13 @@ struct ZipBuilder {
     // required, we will `pod install` only those subspecs and then fetch the information for all
     // the frameworks that were installed, copying the frameworks from our list of compiled
     // frameworks. The whole process is:
-    // 1. Get the frameworks required for Analytics, copy them to the Analytics folder.
-    // 2. Go through the rest of the subspecs (excluding those included in Analytics) and copy them
+    // 1. Copy any required files (headers, modulemap, etc) over beforehand to fail fast if anything
+    //    is misconfigured.
+    // 2. Get the frameworks required for Analytics, copy them to the Analytics folder.
+    // 3. Go through the rest of the subspecs (excluding those included in Analytics) and copy them
     //    to a folder with the name of the subspec.
-    // 3. Assemble the `README` file based off the template.
-    // 4. Copy the `modulemap`, `Firebase.h`, and the assembled `README` file to the directory.
-    // 5. Compress the contents and return the URL of the newly compressed Zip file.
+    // 4. Assemble the `README` file based off the template and copy it to the directory.
+    // 5. Return the URL of the folder containing the contents of the Zip file.
 
     // Create the directory that will hold all the contents of the Zip file.
     let zipDir = FileManager.default.temporaryDirectory(withName: "ZipContents")
@@ -185,6 +186,24 @@ struct ZipBuilder {
       try FileManager.default.createDirectory(at: zipDir,
                                               withIntermediateDirectories: true,
                                               attributes: nil)
+    }
+
+    // Copy all the other required files to the Zip directory.
+    let distributionFiles = Constants.ProjectPath.requiredFilesForDistribution.map {
+      return templateDir.appendingPathComponent($0)
+    }
+    for file in distributionFiles {
+      // Each file should be copied to the destination project directory with the same name.
+      let destination = zipDir.appendingPathComponent(file.lastPathComponent)
+      do {
+        if !FileManager.default.fileExists(atPath: destination.path) {
+          print("Copying final distribution file \(file) to \(destination)...")
+          try FileManager.default.copyItem(at: file, to: destination)
+        }
+      } catch {
+        fatalError("Could not copy final distribution files to temporary directory before " +
+          "building. Failed while attempting to copy \(file) to \(destination). \(error)")
+      }
     }
 
     // Start with installing Analytics, since we'll need to exclude those frameworks from the rest
@@ -232,29 +251,11 @@ struct ZipBuilder {
     let readmeText = readmeTemplate.replacingOccurrences(of: "__INTEGRATION__", with: readmeDeps)
                                    .replacingOccurrences(of: "__VERSIONS__", with: versionsText)
     do {
-      try readmeText.write(to: zipDir.appendingPathComponent(Constants.ProjectPath.readmeTemplate),
+      try readmeText.write(to: zipDir.appendingPathComponent(Constants.ProjectPath.readmeName),
                            atomically: true,
                            encoding: .utf8)
     } catch {
       fatalError("Could not write README to Zip directory: \(error)")
-    }
-
-    // Copy all the other required files to the Zip directory.
-    let distributionFiles = Constants.ProjectPath.requiredFilesForDistribution.map {
-      return templateDir.appendingPathComponent($0)
-    }
-    for file in distributionFiles {
-      // Each file should be copied to the destination project directory with the same name.
-      let destination = zipDir.appendingPathComponent(file.lastPathComponent)
-      do {
-        if !FileManager.default.fileExists(atPath: destination.path) {
-          print("Copying final distribution file \(file) to \(destination)...")
-          try FileManager.default.copyItem(at: file, to: destination)
-        }
-      } catch {
-        fatalError("Could not copy final distribution files to temporary directory before " +
-          "packaging. Failed while attempting to copy \(file) to \(destination). \(error)")
-      }
     }
 
     print("Contents of the Zip file were assembled at: \(zipDir)")

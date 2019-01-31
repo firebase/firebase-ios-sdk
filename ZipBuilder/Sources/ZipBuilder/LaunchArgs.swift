@@ -1,5 +1,4 @@
 import Foundation
-import Utility
 
 /// Describes an object that can check if a file eists in the filesystem. Used to allow for better
 /// testing with FileManager.
@@ -62,6 +61,7 @@ struct LaunchArgs {
     /// All the subspecs to parse.
     static func allCases() -> [Key] {
       return [.cacheEnabled,
+              .coreDiagnosticsPath,
               .customSpecRepos,
               .debugMode,
               .deleteCache,
@@ -74,19 +74,22 @@ struct LaunchArgs {
 
   /// A file URL to a textproto with the contents of a `ZipBuilder_FirebaseSDKs` object. Used to
   /// verify expected version numbers.
-  let allSDKsPath: Foundation.URL?
+  let allSDKsPath: URL?
+
+  /// The path to the `CoreDiagnostics.framework` file built with the Zip flag enabled.
+  let coreDiagnosticsPath: URL?
 
   /// A file URL to a textproto with the contents of a `ZipBuilder_Release` object. Used to verify
   /// expected version numbers.
-  let currentReleasePath: Foundation.URL?
+  let currentReleasePath: URL?
 
   /// Custom CocoaPods spec repos to be used. If not provided, the tool will only use the CocoaPods
   /// master repo.
-  let customSpecRepos: [Foundation.URL]?
+  let customSpecRepos: [URL]?
 
   /// The path to the directory containing the blank xcodeproj and Info.plist for building source
   /// based frameworks.
-  let templateDir: Foundation.URL
+  let templateDir: URL
 
   /// A flag to control using the cache for frameworks.
   let cacheEnabled: Bool
@@ -112,6 +115,14 @@ struct LaunchArgs {
     }
 
     templateDir = URL(fileURLWithPath: templatePath)
+
+    // Parse the path to CoreDiagnostics.framework.
+    guard let diagnosticsPath = defaults.string(forKey: Key.coreDiagnosticsPath.rawValue) else {
+      LaunchArgs.exitWithUsageAndLog("Missing required \(Key.coreDiagnosticsPath) key for the " +
+        "path to the CoreDiagnostics framework.")
+    }
+
+    coreDiagnosticsPath = URL(fileURLWithPath: diagnosticsPath)
 
     // Parse the existing versions key.
     if let existingVersions = defaults.string(forKey: Key.existingVersions.rawValue) {
@@ -145,8 +156,8 @@ struct LaunchArgs {
     if let customSpecs = defaults.string(forKey: Key.customSpecRepos.rawValue) {
       // Custom specs are passed in as a comma separated list of URLs. Split the String by each
       // comma and map it to URLs. If any URL is invalid, fail immediately.
-      let specs = customSpecs.split(separator: ",").map { (specStr: Substring) -> Foundation.URL in
-        guard let spec = Foundation.URL(string: String(specStr)) else {
+      let specs = customSpecs.split(separator: ",").map { (specStr: Substring) -> URL in
+        guard let spec = URL(string: String(specStr)) else {
           LaunchArgs.exitWithUsageAndLog("Error parsing specs: \(specStr) is not a valid URL.")
         }
 
