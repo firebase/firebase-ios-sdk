@@ -48,21 +48,39 @@ private struct Constants {
 
 /// A zip file builder. The zip file can be built with the `build()` function.
 struct ZipBuilder {
-  /// A file URL to a textproto with the contents of a `ZipBuilder_FirebaseSDKs` object. Used to
-  /// verify expected version numbers.
-  private let allSDKsPath: URL?
+  struct FilesystemPaths {
+    // MARK: - Required Paths
 
-  /// A file URL to a textproto with the contents of a `ZipBuilder_Release` object. Used to verify
-  /// expected version numbers.
-  private let currentReleasePath: URL?
+    /// The path to the CoreDiagnostics.framework directory with the Zip flag enabled.
+    var coreDiagnosticsDir: URL
+
+    /// The path to the directory containing the blank xcodeproj and Info.plist for building source
+    /// based frameworks.
+    var templateDir: URL
+
+    // MARK: - Optional Paths
+
+    /// A file URL to a textproto with the contents of a `ZipBuilder_FirebaseSDKs` object. Used to
+    /// verify expected version numbers.
+    var allSDKsPath: URL?
+
+    /// A file URL to a textproto with the contents of a `ZipBuilder_Release` object. Used to verify
+    /// expected version numbers.
+    var currentReleasePath: URL?
+
+    /// Default initializer with all required paths.
+    init(templateDir: URL, coreDiagnosticsDir: URL) {
+      self.templateDir = templateDir
+      self.coreDiagnosticsDir = coreDiagnosticsDir
+    }
+  }
 
   /// Custom CocoaPods spec repos to be used. If not provided, the tool will only use the CocoaPods
   /// master repo.
   private let customSpecRepos: [URL]?
 
-  /// The path to the directory containing the blank xcodeproj and Info.plist for building source
-  /// based frameworks.
-  private let templateDir: URL
+  /// Paths needed throughout the process of packaging the Zip file.
+  private let paths: FilesystemPaths
 
   /// Determines if the cache should be used or not.
   private let useCache: Bool
@@ -71,22 +89,13 @@ struct ZipBuilder {
   /// that the
   ///
   /// - Parameters:
-  ///   - templateDir: A folder containing the necessary files to package the Zip file.
-  ///   - allSDKsPath: A file URL to a textproto with the contents of a `ZipBuilder_FirebaseSDKs`
-  ///                  object. If provided, it will verify the versions in this object with the
-  ///                  versions pulled from CocoaPods.
-  ///   - currentReleasePath: A file URL to a textproto with the contents of a `ZipBuilder_Release`
-  ///                  object. If provided, it will verify the versions in this object with the
-  ///                  versions pulled from CocoaPods.
-  ///   - customSpecRepo: A custom spec repo to be used
-  init(templateDir: URL,
-       allSDKsPath: URL? = nil,
-       currentReleasePath: URL? = nil,
+  ///   - paths: Paths that are needed throughout the process of packaging the Zip file.
+  ///   - customSpecRepo: A custom spec repo to be used for fetching CocoaPods from.
+  ///   - useCache: Enables or disables the cache.
+  init(paths: FilesystemPaths,
        customSpecRepos: [URL]? = nil,
        useCache: Bool = false) {
-    self.templateDir = templateDir
-    self.allSDKsPath = allSDKsPath
-    self.currentReleasePath = currentReleasePath
+    self.paths = paths
     self.customSpecRepos = customSpecRepos
     self.useCache = useCache
   }
@@ -116,7 +125,7 @@ struct ZipBuilder {
 
     // Copy the Xcode project needed in order to be able to install Pods there.
     let templateFiles = Constants.ProjectPath.requiredFilesForBuilding.map {
-      return templateDir.appendingPathComponent($0)
+      return paths.templateDir.appendingPathComponent($0)
     }
     for file in templateFiles {
       // Each file should be copied to the temporary project directory with the same name.
@@ -134,7 +143,7 @@ struct ZipBuilder {
 
     // Get the README template ready (before attempting to build everything in case this fails,
     // otherwise debugging it will take a long time).
-    let readmePath = self.templateDir.appendingPathComponent(Constants.ProjectPath.readmeName)
+    let readmePath = paths.templateDir.appendingPathComponent(Constants.ProjectPath.readmeName)
     let readmeTemplate: String
     do {
       readmeTemplate = try String(contentsOf: readmePath)
@@ -190,7 +199,7 @@ struct ZipBuilder {
 
     // Copy all the other required files to the Zip directory.
     let distributionFiles = Constants.ProjectPath.requiredFilesForDistribution.map {
-      return templateDir.appendingPathComponent($0)
+      return paths.templateDir.appendingPathComponent($0)
     }
     for file in distributionFiles {
       // Each file should be copied to the destination project directory with the same name.
@@ -451,7 +460,7 @@ struct ZipBuilder {
     var releasingVersions: [String: String] = [:]
 
     // Check the existing expected versions and build a dictionary out of the expected versions.
-    if let sdksPath = allSDKsPath {
+    if let sdksPath = paths.allSDKsPath {
       let allSDKs = ManifestReader.loadAllReleasedSDKs(fromTextproto: sdksPath)
       print("Parsed the following SDKs from the public release manifest:")
 
@@ -462,7 +471,7 @@ struct ZipBuilder {
     }
 
     // Override any of the expected versions with the current release manifest, if it exists.
-    if let releasePath = currentReleasePath {
+    if let releasePath = paths.currentReleasePath {
       let currentRelease = ManifestReader.loadCurrentRelease(fromTextproto: releasePath)
       print("Overriding the following SDKs, taken from the current release manifest:")
       for sdk in currentRelease.sdk {

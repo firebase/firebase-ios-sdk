@@ -20,7 +20,7 @@ struct LaunchArgs {
   private enum Key: String {
     case cacheEnabled
     case customSpecRepos
-    case coreDiagnosticsPath
+    case coreDiagnosticsDir
     case debugMode
     case deleteCache
     case existingVersions
@@ -33,7 +33,7 @@ struct LaunchArgs {
       switch self {
       case .cacheEnabled:
         return "A flag to control using the cache for frameworks."
-      case .coreDiagnosticsPath:
+      case .coreDiagnosticsDir:
         return "The path to the `CoreDiagnostics.framework` file built with the Zip flag enabled."
       case .customSpecRepos:
         return "A comma separated list of custom CocoaPod Spec repos."
@@ -61,7 +61,7 @@ struct LaunchArgs {
     /// All the subspecs to parse.
     static func allCases() -> [Key] {
       return [.cacheEnabled,
-              .coreDiagnosticsPath,
+              .coreDiagnosticsDir,
               .customSpecRepos,
               .debugMode,
               .deleteCache,
@@ -77,7 +77,7 @@ struct LaunchArgs {
   let allSDKsPath: URL?
 
   /// The path to the `CoreDiagnostics.framework` file built with the Zip flag enabled.
-  let coreDiagnosticsPath: URL?
+  let coreDiagnosticsDir: URL
 
   /// A file URL to a textproto with the contents of a `ZipBuilder_Release` object. Used to verify
   /// expected version numbers.
@@ -117,12 +117,12 @@ struct LaunchArgs {
     templateDir = URL(fileURLWithPath: templatePath)
 
     // Parse the path to CoreDiagnostics.framework.
-    guard let diagnosticsPath = defaults.string(forKey: Key.coreDiagnosticsPath.rawValue) else {
-      LaunchArgs.exitWithUsageAndLog("Missing required \(Key.coreDiagnosticsPath) key for the " +
+    guard let diagnosticsPath = defaults.string(forKey: Key.coreDiagnosticsDir.rawValue) else {
+      LaunchArgs.exitWithUsageAndLog("Missing required \(Key.coreDiagnosticsDir) key for the " +
         "path to the CoreDiagnostics framework.")
     }
 
-    coreDiagnosticsPath = URL(fileURLWithPath: diagnosticsPath)
+    coreDiagnosticsDir = URL(fileURLWithPath: diagnosticsPath)
 
     // Parse the existing versions key.
     if let existingVersions = defaults.string(forKey: Key.existingVersions.rawValue) {

@@ -24,9 +24,11 @@ if args.updatePodRepo {
   cocoaPodsUpdateMessage = "CocoaPods took \(-buildStart.timeIntervalSinceNow) seconds to update."
 }
 
-let builder = ZipBuilder(templateDir: args.templateDir,
-                         allSDKsPath: args.allSDKsPath,
-                         currentReleasePath: args.currentReleasePath,
+var paths = ZipBuilder.FilesystemPaths(templateDir: args.templateDir,
+                                       coreDiagnosticsDir: args.coreDiagnosticsDir)
+paths.allSDKsPath = args.allSDKsPath
+paths.currentReleasePath = args.currentReleasePath
+let builder = ZipBuilder(paths: paths,
                          customSpecRepos: args.customSpecRepos,
                          useCache: args.cacheEnabled)
 
