@@ -69,23 +69,26 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)rejectListenWithTargetID:
             (const firebase::firestore::model::TargetId)targetID
-                           error:(NSError*)error;
+                           error:
+                               (NSError*)error;  // NOLINT(readability/casting)
 
 /**
  * Applies the result of a successful write of a mutation batch to the sync
  * engine, emitting snapshots in any views that the mutation applies to, and
  * removing the batch from the mutation queue.
  */
-- (void)applySuccessfulWriteWithResult:(FSTMutationBatchResult*)batchResult;
+- (void)applySuccessfulWriteWithResult:
+    (FSTMutationBatchResult*)batchResult;  // NOLINT(readability/casting)
 
 /**
  * Rejects the batch, removing the batch from the mutation queue, recomputing
  * the local view of any documents affected by the batch and then, emitting
  * snapshots with the reverted value.
  */
-- (void)rejectFailedWriteWithBatchID:
-            (firebase::firestore::model::BatchId)batchID
-                               error:(NSError*)error;
+- (void)
+    rejectFailedWriteWithBatchID:(firebase::firestore::model::BatchId)batchID
+                           error:
+                               (NSError*)error;  // NOLINT(readability/casting)
 
 /**
  * Returns the set of remote document keys for the given target ID. This list

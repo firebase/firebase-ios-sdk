@@ -151,7 +151,7 @@ namespace firestore {
 namespace remote {
 
 class TestTargetMetadataProvider : public TargetMetadataProvider {
-  public:
+ public:
   /**
    * Creates a `TestTargetMetadataProvider` that behaves as if there's an established listen for
    * each of the given targets, where each target has previously seen query results containing just
@@ -161,32 +161,31 @@ class TestTargetMetadataProvider : public TargetMetadataProvider {
    * just the `document_key` and that the provided targets will be returned as active from the
    * `GetQueryDataForTarget` target.
    */
-  static TestTargetMetadataProvider CreateSingleResultProvider(model::DocumentKey document_key,
-                                    const std::vector<model::TargetId> &targets);
-  static TestTargetMetadataProvider CreateSingleResultProvider(model::DocumentKey document_key,
-                                    const std::vector<model::TargetId> &targets,
-                                    const std::vector<model::TargetId> &limbo_targets);
+  static TestTargetMetadataProvider CreateSingleResultProvider(
+      model::DocumentKey document_key, const std::vector<model::TargetId> &targets);
+  static TestTargetMetadataProvider CreateSingleResultProvider(
+      model::DocumentKey document_key,
+      const std::vector<model::TargetId> &targets,
+      const std::vector<model::TargetId> &limbo_targets);
 
   /**
    * Creates an `TestTargetMetadataProvider` that behaves as if there's an established listen for
    * each of the given targets, where each target has not seen any previous document.
    *
-   * Internally this means that the `GetRemoteKeysForTarget` callback for these targets will return an
-   * empty set of document keys and that the provided targets will be returned as active from the
+   * Internally this means that the `GetRemoteKeysForTarget` callback for these targets will return
+   * an empty set of document keys and that the provided targets will be returned as active from the
    * `GetQueryDataForTarget` target.
    */
-  static TestTargetMetadataProvider CreateEmptyResultProvider(const model::DocumentKey& document_key,
-                                    const std::vector<model::TargetId> &targets);
+  static TestTargetMetadataProvider CreateEmptyResultProvider(
+      const model::DocumentKey &document_key, const std::vector<model::TargetId> &targets);
 
   /** Sets or replaces the local state for the provided query data. */
-  void SetSyncedKeys(model::DocumentKeySet keys, FSTQueryData* query_data);
+  void SetSyncedKeys(model::DocumentKeySet keys, FSTQueryData *query_data);
 
-  model::DocumentKeySet GetRemoteKeysForTarget(
-      model::TargetId target_id) const override;
-  FSTQueryData* GetQueryDataForTarget(
-      model::TargetId target_id) const override;
+  model::DocumentKeySet GetRemoteKeysForTarget(model::TargetId target_id) const override;
+  FSTQueryData *GetQueryDataForTarget(model::TargetId target_id) const override;
 
-  private:
+ private:
   std::unordered_map<model::TargetId, model::DocumentKeySet> synced_keys_;
   std::unordered_map<model::TargetId, FSTQueryData *> query_data_;
 };

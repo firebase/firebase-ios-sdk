@@ -308,9 +308,10 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-TestTargetMetadataProvider TestTargetMetadataProvider::CreateSingleResultProvider(DocumentKey document_key,
-                                                      const std::vector<TargetId> &listen_targets,
-                                                      const std::vector<TargetId> &limbo_targets) {
+TestTargetMetadataProvider TestTargetMetadataProvider::CreateSingleResultProvider(
+    DocumentKey document_key,
+    const std::vector<TargetId> &listen_targets,
+    const std::vector<TargetId> &limbo_targets) {
   TestTargetMetadataProvider metadata_provider;
   FSTQuery *query = [FSTQuery queryWithPath:document_key.path()];
 
@@ -332,13 +333,13 @@ TestTargetMetadataProvider TestTargetMetadataProvider::CreateSingleResultProvide
   return metadata_provider;
 }
 
-TestTargetMetadataProvider TestTargetMetadataProvider::CreateSingleResultProvider(DocumentKey document_key,
-                                                      const std::vector<TargetId> &targets) {
+TestTargetMetadataProvider TestTargetMetadataProvider::CreateSingleResultProvider(
+    DocumentKey document_key, const std::vector<TargetId> &targets) {
   return CreateSingleResultProvider(document_key, targets, /*limbo_targets=*/{});
 }
 
-TestTargetMetadataProvider TestTargetMetadataProvider::CreateEmptyResultProvider(const DocumentKey& document_key,
-                                                     const std::vector<TargetId> &targets) {
+TestTargetMetadataProvider TestTargetMetadataProvider::CreateEmptyResultProvider(
+    const DocumentKey &document_key, const std::vector<TargetId> &targets) {
   TestTargetMetadataProvider metadata_provider;
   FSTQuery *query = [FSTQuery queryWithPath:document_key.path()];
 
