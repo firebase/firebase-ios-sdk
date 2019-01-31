@@ -46,6 +46,7 @@ using firebase::firestore::remote::ExistenceFilter;
 using firebase::firestore::remote::ExistenceFilterWatchChange;
 using firebase::firestore::remote::RemoteEvent;
 using firebase::firestore::remote::TargetChange;
+using firebase::firestore::remote::TestTargetMetadataProvider;
 using firebase::firestore::remote::WatchChange;
 using firebase::firestore::remote::WatchChangeAggregator;
 using firebase::firestore::remote::WatchTargetChange;
@@ -153,7 +154,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
        outstandingResponses:(const std::unordered_map<TargetId, int> &)outstandingResponses
                existingKeys:(DocumentKeySet)existingKeys
                     changes:(const std::vector<std::unique_ptr<WatchChange>> &)watchChanges {
-  WatchChangeAggregator aggregator{_targetMetadataProvider};
+  WatchChangeAggregator aggregator{&_targetMetadataProvider};
 
   std::vector<TargetId> targetIDs;
   for (const auto &kv : targetMap) {

@@ -39,7 +39,7 @@ class MockDatastore : public Datastore {
                 util::AsyncQueue* worker_queue,
                 auth::CredentialsProvider* credentials);
 
-  std::shared_ptr<WatchStream> CreateWatchStream(id<FSTWatchStreamDelegate> delegate) override;
+  std::shared_ptr<WatchStream> CreateWatchStream(WatchStreamCallback* callback) override;
   std::shared_ptr<WriteStream> CreateWriteStream(id<FSTWriteStreamDelegate> delegate) override;
 
   /**

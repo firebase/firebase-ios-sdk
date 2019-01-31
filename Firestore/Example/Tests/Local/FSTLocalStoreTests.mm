@@ -51,6 +51,7 @@ using firebase::firestore::model::MaybeDocumentMap;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::remote::RemoteEvent;
+using firebase::firestore::remote::TestTargetMetadataProvider;
 using firebase::firestore::remote::WatchChangeAggregator;
 using firebase::firestore::remote::WatchTargetChange;
 using firebase::firestore::remote::WatchTargetChangeState;
@@ -906,8 +907,9 @@ NS_ASSUME_NONNULL_BEGIN
   NSData *resumeToken = FSTTestResumeTokenFromSnapshotVersion(1000);
 
   WatchTargetChange watchChange{WatchTargetChangeState::Current, {targetID}, resumeToken};
-  WatchChangeAggregator aggregator{FSTTestTargetMetadataProvider::CreateSingleResultProvider(
-      testutil::Key("foo/bar"), std::vector<TargetId>{target_id})};
+  auto metadataProvider = TestTargetMetadataProvider::CreateSingleResultProvider(
+      testutil::Key("foo/bar"), std::vector<TargetId>{targetID});
+  WatchChangeAggregator aggregator{&metadataProvider};
   aggregator.HandleTargetChange(watchChange);
   RemoteEvent remoteEvent = aggregator.CreateRemoteEvent(testutil::Version(1000));
   [self applyRemoteEvent:remoteEvent];

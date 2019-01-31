@@ -308,7 +308,7 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-TestTargetMetadataProvider CreateSingleResultProvider(DocumentKey document_key,
+TestTargetMetadataProvider TestTargetMetadataProvider::CreateSingleResultProvider(DocumentKey document_key,
                                                       const std::vector<TargetId> &listen_targets,
                                                       const std::vector<TargetId> &limbo_targets) {
   TestTargetMetadataProvider metadata_provider;
@@ -332,12 +332,12 @@ TestTargetMetadataProvider CreateSingleResultProvider(DocumentKey document_key,
   return metadata_provider;
 }
 
-TestTargetMetadataProvider CreateSingleResultProvider(DocumentKey document_key,
+TestTargetMetadataProvider TestTargetMetadataProvider::CreateSingleResultProvider(DocumentKey document_key,
                                                       const std::vector<TargetId> &targets) {
   return CreateSingleResultProvider(document_key, targets, /*limbo_targets=*/{});
 }
 
-TestTargetMetadataProvider CreateEmptyResultProvider(DocumentKey document_key,
+TestTargetMetadataProvider TestTargetMetadataProvider::CreateEmptyResultProvider(const DocumentKey& document_key,
                                                      const std::vector<TargetId> &targets) {
   TestTargetMetadataProvider metadata_provider;
   FSTQuery *query = [FSTQuery queryWithPath:document_key.path()];
@@ -381,8 +381,9 @@ RemoteEvent FSTTestAddedRemoteEvent(FSTMaybeDocument *doc,
   HARD_ASSERT(![doc isKindOfClass:[FSTDocument class]] || ![(FSTDocument *)doc hasLocalMutations],
               "Docs from remote updates shouldn't have local changes.");
   DocumentWatchChange change{addedToTargets, {}, doc.key, doc};
-  WatchChangeAggregator aggregator{
-      TestTargetMetadataProvider::CreateEmptyResultProvider(doc.key, addedToTargets)};
+  auto metadataProvider =
+      TestTargetMetadataProvider::CreateEmptyResultProvider(doc.key, addedToTargets);
+  WatchChangeAggregator aggregator{&metadataProvider};
   aggregator.HandleDocumentChange(change);
   return aggregator.CreateRemoteEvent(doc.version);
 }
@@ -415,8 +416,9 @@ RemoteEvent FSTTestUpdateRemoteEventWithLimboTargets(
   std::vector<TargetId> listens = updatedInTargets;
   listens.insert(listens.end(), removedFromTargets.begin(), removedFromTargets.end());
 
-  WatchChangeAggregator aggregator{
-      TestTargetMetadataProvider::CreateSingleResultProvider(doc.key, listens, limboTargets)};
+  auto metadataProvider =
+      TestTargetMetadataProvider::CreateSingleResultProvider(doc.key, listens, limboTargets);
+  WatchChangeAggregator aggregator{&metadataProvider};
   aggregator.HandleDocumentChange(change);
   return aggregator.CreateRemoteEvent(doc.version);
 }
