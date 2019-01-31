@@ -433,7 +433,7 @@ class WatchChangeAggregator {
   /**
    * A list of targets with existence filter mismatches. These targets are known
    * to be inconsistent and their listens needs to be re-established by
-   * `RemoteStore`.
+   * the `RemoteStore`.
    */
   std::unordered_set<model::TargetId> pending_target_resets_;
 
@@ -447,4 +447,3 @@ class WatchChangeAggregator {
 NS_ASSUME_NONNULL_END
 
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_REMOTE_EVENT_H_
-
