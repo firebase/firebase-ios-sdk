@@ -432,7 +432,7 @@ static const NSTimeInterval kGULTestCaseTimeoutInterval = 10;
 }
 
 - (void)testSynchronizeToDisk {
-#if TARGET_OS_MAC
+#if TARGET_OS_OSX
   // `NSFileManager` has trouble reading the files in `~/Library` even though the
   // `removeItemAtPath:` call works. Watching Finder while stepping through this test shows that the
   // file does get created and removed properly. When using LLDB to call `fileExistsAtPath:` the
@@ -440,7 +440,7 @@ static const NSTimeInterval kGULTestCaseTimeoutInterval = 10;
   // test app is sandboxed and `NSFileManager` is refusing to read the directory.
   // TODO: Investigate the failure and re-enable this test.
   return;
-#endif  // TARGET_OS_MAC
+#endif  // TARGET_OS_OSX
   NSString *suiteName = [NSString stringWithFormat:@"another_test_suite"];
   NSString *filePath = [self filePathForPreferencesName:suiteName];
   NSFileManager *fileManager = [NSFileManager defaultManager];

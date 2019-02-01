@@ -69,6 +69,7 @@ fi
 # Runs xcodebuild with the given flags, piping output to xcpretty
 # If xcodebuild fails with known error codes, retries once.
 function RunXcodebuild() {
+
   xcodebuild "$@" | xcpretty; result=$?
   if [[ $result == 65 ]]; then
     echo "xcodebuild exited with 65, retrying" 1>&2
@@ -295,16 +296,6 @@ case "$product-$method-$platform" in
         "${xcb_flags[@]}" \
         build
 
-    # Firestore_FuzzTests_iOS require a Clang that supports -fsanitize-coverage=trace-pc-guard
-    # and cannot run with thread sanitizer.
-    if [[ "$xcode_major" -ge 9 ]] && ! [[ -n "${SANITIZERS:-}" && "$SANITIZERS" = *"tsan"* ]]; then
-      RunXcodebuild \
-          -workspace 'Firestore/Example/Firestore.xcworkspace' \
-          -scheme "Firestore_FuzzTests_iOS" \
-          "${xcb_flags[@]}" \
-          FUZZING_TARGET="NONE" \
-          test
-    fi
     ;;
 
   Firestore-cmake-macOS)

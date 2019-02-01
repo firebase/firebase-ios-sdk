@@ -40,7 +40,6 @@
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
-#import "Firestore/Source/Remote/FSTDatastore.h"
 #import "Firestore/Source/Remote/FSTRemoteStore.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 #import "Firestore/Source/Util/FSTClasses.h"
@@ -48,6 +47,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
@@ -63,6 +63,7 @@ using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentMap;
 using firebase::firestore::model::MaybeDocumentMap;
 using firebase::firestore::model::OnlineState;
+using firebase::firestore::remote::Datastore;
 using firebase::firestore::util::Path;
 using firebase::firestore::util::Status;
 using firebase::firestore::util::AsyncQueue;
@@ -222,13 +223,15 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
 
   _localStore = [[FSTLocalStore alloc] initWithPersistence:_persistence initialUser:user];
 
-  FSTDatastore *datastore = [FSTDatastore datastoreWithDatabase:self.databaseInfo
-                                                    workerQueue:_workerQueue.get()
-                                                    credentials:_credentialsProvider];
+  auto datastore =
+      std::make_shared<Datastore>(*self.databaseInfo, _workerQueue.get(), _credentialsProvider);
 
   _remoteStore = [[FSTRemoteStore alloc] initWithLocalStore:_localStore
-                                                  datastore:datastore
-                                                workerQueue:_workerQueue.get()];
+                                                  datastore:std::move(datastore)
+                                                workerQueue:_workerQueue.get()
+                                         onlineStateHandler:[self](OnlineState onlineState) {
+                                           [self.syncEngine applyChangedOnlineState:onlineState];
+                                         }];
 
   _syncEngine = [[FSTSyncEngine alloc] initWithLocalStore:_localStore
                                               remoteStore:_remoteStore
@@ -238,8 +241,6 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
 
   // Setup wiring for remote store.
   _remoteStore.syncEngine = _syncEngine;
-
-  _remoteStore.onlineStateDelegate = self;
 
   // NOTE: RemoteStore depends on LocalStore (for persisting stream tokens, refilling mutation
   // queue, etc.) so must be started after LocalStore.
@@ -265,10 +266,6 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
 
   LOG_DEBUG("Credential Changed. Current user: %s", user.uid());
   [self.syncEngine credentialDidChangeWithUser:user];
-}
-
-- (void)applyChangedOnlineState:(OnlineState)onlineState {
-  [self.syncEngine applyChangedOnlineState:onlineState];
 }
 
 - (void)disableNetworkWithCompletion:(nullable FSTVoidErrorBlock)completion {

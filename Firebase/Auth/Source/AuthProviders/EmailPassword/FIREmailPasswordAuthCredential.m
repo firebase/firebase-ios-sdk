@@ -57,4 +57,30 @@
       @"Attempt to call prepareVerifyAssertionRequest: on a FIREmailPasswordAuthCredential."];
 }
 
+#pragma mark - NSSecureCoding
+
++ (BOOL)supportsSecureCoding {
+  return YES;
+}
+
+- (nullable instancetype)initWithCoder:(NSCoder *)aDecoder {
+  NSString *email = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"email"];
+  NSString *password = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"password"];
+  NSString *link = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"link"];
+  if (email.length && password.length) {
+    self = [self initWithEmail:email password:password];
+  } else if (email.length && link.length) {
+    self = [self initWithEmail:email link:link];
+  } else {
+    self = nil;
+  }
+  return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)aCoder {
+  [aCoder encodeObject:self.email forKey:@"email"];
+  [aCoder encodeObject:self.password forKey:@"password"];
+  [aCoder encodeObject:self.link forKey:@"link"];
+}
+
 @end

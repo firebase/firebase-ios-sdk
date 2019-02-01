@@ -58,11 +58,17 @@ esac
 system=$(uname -s)
 if [[ "$system" == "Darwin" ]]; then
   version=$(swiftformat --version)
+  # Log the version in non-interactive use as it can be useful in travis logs.
+  if [[ ! -t 1 ]]; then
+    echo "Found: $version"
+  fi
   version="${version/*version /}"
-  # Allow an older swiftformat because travis isn't running High Sierra yet
-  # and the formula hasn't been updated in a while on Sierra :-/.
-  if [[ "$version" != "0.32.0" && "$version" != "0.33"* && "$version" != "0.35"* ]]; then
-    echo "Version $version installed. Please upgrade to at least swiftformat 0.33.8"
+  # Ensure the swiftformat version is at least 0.35.x since (as of 2019-02-01)
+  # travis runs 0.35.7. We may need to be more strict about version checks in
+  # the future if we run into different versions making incompatible format
+  # changes.
+  if [[ ! "$version" =~ ^0.3[5-9] && ! "$version" =~ ^0.[4-9] ]]; then
+    echo "Version $version installed. Please upgrade to at least swiftformat 0.35.0"
     echo "If it's installed via homebrew you can run: brew upgrade swiftformat"
     exit 1
   fi

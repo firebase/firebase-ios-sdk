@@ -29,12 +29,11 @@
 #import "Firestore/Source/Local/FSTLocalStore.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Model/FSTMutation.h"
-#import "Firestore/Source/Remote/FSTDatastore.h"
-#import "Firestore/Source/Remote/FSTWatchChange.h"
 
 #import "Firestore/Example/Tests/Core/FSTSyncEngine+Testing.h"
 #import "Firestore/Example/Tests/SpecTests/FSTMockDatastore.h"
 
+#include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
@@ -44,8 +43,10 @@
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "absl/memory/memory.h"
 
+using firebase::firestore::FirestoreErrorCode;
 using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::auth::HashUser;
 using firebase::firestore::auth::User;
@@ -56,9 +57,13 @@ using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::remote::MockDatastore;
+using firebase::firestore::remote::WatchChange;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::TimerId;
 using firebase::firestore::util::ExecutorLibdispatch;
+using firebase::firestore::util::MakeString;
+using firebase::firestore::util::Status;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -79,7 +84,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - Parts of the Firestore system that the spec tests need to control.
 
-@property(nonatomic, strong, readonly) FSTMockDatastore *datastore;
 @property(nonatomic, strong, readonly) FSTEventManager *eventManager;
 @property(nonatomic, strong, readonly) FSTRemoteStore *remoteStore;
 @property(nonatomic, strong, readonly) FSTLocalStore *localStore;
@@ -108,6 +112,8 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FSTSyncEngineTestDriver {
   std::unique_ptr<AsyncQueue> _workerQueue;
 
+  std::unordered_map<TargetId, FSTQueryData *> _expectedActiveTargets;
+
   // ivar is declared as mutable.
   std::unordered_map<User, NSMutableArray<FSTOutstandingWrite *> *, HashUser> _outstandingWrites;
   DocumentKeySet _expectedLimboDocuments;
@@ -115,6 +121,8 @@ NS_ASSUME_NONNULL_BEGIN
   DatabaseInfo _databaseInfo;
   User _currentUser;
   EmptyCredentialsProvider _credentialProvider;
+
+  std::shared_ptr<MockDatastore> _datastore;
 }
 
 - (instancetype)initWithPersistence:(id<FSTPersistence>)persistence {
@@ -142,21 +150,23 @@ NS_ASSUME_NONNULL_BEGIN
     _workerQueue = absl::make_unique<AsyncQueue>(absl::make_unique<ExecutorLibdispatch>(queue));
     _persistence = persistence;
     _localStore = [[FSTLocalStore alloc] initWithPersistence:persistence initialUser:initialUser];
-    _datastore = [[FSTMockDatastore alloc] initWithDatabaseInfo:&_databaseInfo
-                                                    workerQueue:_workerQueue.get()
-                                                    credentials:&_credentialProvider];
 
-    _remoteStore = [[FSTRemoteStore alloc] initWithLocalStore:_localStore
-                                                    datastore:_datastore
-                                                  workerQueue:_workerQueue.get()];
+    _datastore =
+        std::make_shared<MockDatastore>(_databaseInfo, _workerQueue.get(), &_credentialProvider);
+    _remoteStore =
+        [[FSTRemoteStore alloc] initWithLocalStore:_localStore
+                                         datastore:_datastore
+                                       workerQueue:_workerQueue.get()
+                                onlineStateHandler:[self](OnlineState onlineState) {
+                                  [self.syncEngine applyChangedOnlineState:onlineState];
+                                  [self.eventManager applyChangedOnlineState:onlineState];
+                                }];
 
     _syncEngine = [[FSTSyncEngine alloc] initWithLocalStore:_localStore
                                                 remoteStore:_remoteStore
                                                 initialUser:initialUser];
     _remoteStore.syncEngine = _syncEngine;
     _eventManager = [FSTEventManager eventManagerWithSyncEngine:_syncEngine];
-
-    _remoteStore.onlineStateDelegate = self;
 
     // Set up internal event tracking for the spec tests.
     NSMutableArray<FSTQueryEvent *> *events = [NSMutableArray array];
@@ -166,8 +176,6 @@ NS_ASSUME_NONNULL_BEGIN
     _events = events;
 
     _queryListeners = [NSMutableDictionary dictionary];
-
-    _expectedActiveTargets = [NSDictionary dictionary];
 
     _currentUser = initialUser;
 
@@ -198,11 +206,6 @@ NS_ASSUME_NONNULL_BEGIN
   return _currentUser;
 }
 
-- (void)applyChangedOnlineState:(OnlineState)onlineState {
-  [self.syncEngine applyChangedOnlineState:onlineState];
-  [self.eventManager applyChangedOnlineState:onlineState];
-}
-
 - (void)start {
   _workerQueue->EnqueueBlocking([&] {
     [self.localStore start];
@@ -224,7 +227,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)validateNextWriteSent:(FSTMutation *)expectedWrite {
-  NSArray<FSTMutation *> *request = [self.datastore nextSentWrite];
+  NSArray<FSTMutation *> *request = _datastore->NextSentWrite();
   // Make sure the write went through the pipe like we expected it to.
   HARD_ASSERT(request.count == 1, "Only single mutation requests are supported at the moment");
   FSTMutation *actualWrite = request[0];
@@ -235,15 +238,15 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (int)sentWritesCount {
-  return [self.datastore writesSent];
+  return _datastore->WritesSent();
 }
 
 - (int)writeStreamRequestCount {
-  return [self.datastore writeStreamRequestCount];
+  return _datastore->write_stream_request_count();
 }
 
 - (int)watchStreamRequestCount {
-  return [self.datastore watchStreamRequestCount];
+  return _datastore->watch_stream_request_count();
 }
 
 - (void)disableNetwork {
@@ -275,8 +278,7 @@ NS_ASSUME_NONNULL_BEGIN
   [[self currentOutstandingWrites] removeObjectAtIndex:0];
   [self validateNextWriteSent:write.write];
 
-  _workerQueue->EnqueueBlocking(
-      [&] { [self.datastore ackWriteWithVersion:commitVersion mutationResults:mutationResults]; });
+  _workerQueue->EnqueueBlocking([&] { _datastore->AckWrite(commitVersion, mutationResults); });
 
   return write;
 }
@@ -284,9 +286,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTOutstandingWrite *)receiveWriteError:(int)errorCode
                                   userInfo:(NSDictionary<NSString *, id> *)userInfo
                                keepInQueue:(BOOL)keepInQueue {
-  NSError *error = [NSError errorWithDomain:FIRFirestoreErrorDomain
-                                       code:errorCode
-                                   userInfo:userInfo];
+  Status error{static_cast<FirestoreErrorCode>(errorCode), MakeString([userInfo description])};
 
   FSTOutstandingWrite *write = [self currentOutstandingWrites].firstObject;
   [self validateNextWriteSent:write.write];
@@ -298,7 +298,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   LOG_DEBUG("Failing a write.");
-  _workerQueue->EnqueueBlocking([&] { [self.datastore failWriteWithError:error]; });
+  _workerQueue->EnqueueBlocking([&] { _datastore->FailWrite(error); });
 
   return write;
 }
@@ -373,22 +373,19 @@ NS_ASSUME_NONNULL_BEGIN
   });
 }
 
-- (void)receiveWatchChange:(FSTWatchChange *)change
+- (void)receiveWatchChange:(const WatchChange &)change
            snapshotVersion:(const SnapshotVersion &)snapshot {
-  _workerQueue->EnqueueBlocking(
-      [&] { [self.datastore writeWatchChange:change snapshotVersion:snapshot]; });
+  _workerQueue->EnqueueBlocking([&] { _datastore->WriteWatchChange(change, snapshot); });
 }
 
 - (void)receiveWatchStreamError:(int)errorCode userInfo:(NSDictionary<NSString *, id> *)userInfo {
-  NSError *error = [NSError errorWithDomain:FIRFirestoreErrorDomain
-                                       code:errorCode
-                                   userInfo:userInfo];
+  Status error{static_cast<FirestoreErrorCode>(errorCode), MakeString([userInfo description])};
 
   _workerQueue->EnqueueBlocking([&] {
-    [self.datastore failWatchStreamWithError:error];
+    _datastore->FailWatchStream(error);
     // Unlike web, stream should re-open synchronously (if we have any listeners)
     if (self.queryListeners.count > 0) {
-      HARD_ASSERT(self.datastore.isWatchStreamOpen, "Watch stream is open");
+      HARD_ASSERT(_datastore->IsWatchStreamOpen(), "Watch stream is open");
     }
   });
 }
@@ -397,8 +394,16 @@ NS_ASSUME_NONNULL_BEGIN
   return [self.syncEngine currentLimboDocuments];
 }
 
-- (NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *)activeTargets {
-  return [[self.datastore activeTargets] copy];
+- (const std::unordered_map<TargetId, FSTQueryData *> &)activeTargets {
+  return _datastore->ActiveTargets();
+}
+
+- (const std::unordered_map<TargetId, FSTQueryData *> &)expectedActiveTargets {
+  return _expectedActiveTargets;
+}
+
+- (void)setExpectedActiveTargets:(const std::unordered_map<TargetId, FSTQueryData *> &)targets {
+  _expectedActiveTargets = targets;
 }
 
 #pragma mark - Helper Methods

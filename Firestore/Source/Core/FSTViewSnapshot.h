@@ -16,6 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
+#include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 
 using firebase::firestore::model::DocumentKeySet;
@@ -29,26 +30,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTDocumentViewChange
 
-/**
- * The types of changes that can happen to a document with respect to a view.
- * NOTE: We sort document changes by their type, so the ordering of this enum is significant.
- */
-typedef NS_ENUM(NSInteger, FSTDocumentViewChangeType) {
-  FSTDocumentViewChangeTypeRemoved = 0,
-  FSTDocumentViewChangeTypeAdded,
-  FSTDocumentViewChangeTypeModified,
-  FSTDocumentViewChangeTypeMetadata,
-};
-
 /** A change to a single document's state within a view. */
 @interface FSTDocumentViewChange : NSObject
 
 - (id)init __attribute__((unavailable("Use a static constructor method.")));
 
-+ (instancetype)changeWithDocument:(FSTDocument *)document type:(FSTDocumentViewChangeType)type;
++ (instancetype)changeWithDocument:(FSTDocument *)document
+                              type:(firebase::firestore::core::DocumentViewChangeType)type;
 
 /** The type of change for the document. */
-@property(nonatomic, assign, readonly) FSTDocumentViewChangeType type;
+@property(nonatomic, assign, readonly) firebase::firestore::core::DocumentViewChangeType type;
 /** The document whose status changed. */
 @property(nonatomic, strong, readonly) FSTDocument *document;
 

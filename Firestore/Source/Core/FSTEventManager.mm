@@ -22,6 +22,7 @@
 
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
+using firebase::firestore::core::DocumentViewChangeType;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::TargetId;
 
@@ -127,7 +128,7 @@ NS_ASSUME_NONNULL_BEGIN
     // Remove the metadata-only changes.
     NSMutableArray<FSTDocumentViewChange *> *changes = [NSMutableArray array];
     for (FSTDocumentViewChange *change in snapshot.documentChanges) {
-      if (change.type != FSTDocumentViewChangeTypeMetadata) {
+      if (change.type != DocumentViewChangeType::kMetadata) {
         [changes addObject:change];
       }
     }

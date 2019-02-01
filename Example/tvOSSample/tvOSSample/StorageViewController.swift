@@ -42,7 +42,7 @@ class StorageViewController: UIViewController {
     }
   }
 
-  /// MARK: - Properties
+  // MARK: - Properties
 
   /// The current internal state of the view controller.
   private var state: UIState = .cleared {

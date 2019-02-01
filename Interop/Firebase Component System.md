@@ -429,7 +429,7 @@ with the same instance. For example, Auth could provide `FIRAuthUserInterop` and
 `FIRAuthSignInInterop`. If a single Auth instance should be shared between those two protocols, the
 system currently doesn't work.
 
-In order to alleviate this, Auth could create a third (internal only) protocol
+In order to alleviate this, Auth could create a third private protocol
 (`FIRAuthCombinedInterop`) that conforms to both `FIRAuthUserInterop` and `FIRAuthSignInInterop` and
 becomes a dependency for each of those two components and returned in the component creation block.
 An abbreviated code sample:

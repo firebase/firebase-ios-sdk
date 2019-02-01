@@ -16,18 +16,19 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Firestore/Source/Remote/FSTRemoteEvent.h"
+#include <functional>
+#include <memory>
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/remote/datastore.h"
+#include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 
-@class FSTDatastore;
 @class FSTLocalStore;
 @class FSTMutationBatch;
 @class FSTMutationBatchResult;
 @class FSTQueryData;
-@class FSTRemoteEvent;
 @class FSTTransaction;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -45,7 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
  * any pending mutation batches that would become visible because of the snapshot version the
  * remote event contains.
  */
-- (void)applyRemoteEvent:(FSTRemoteEvent *)remoteEvent;
+- (void)applyRemoteEvent:(const firebase::firestore::remote::RemoteEvent &)remoteEvent;
 
 /**
  * Rejects the listen for the given targetID. This can be triggered by the backend for any active
@@ -78,19 +79,8 @@ NS_ASSUME_NONNULL_BEGIN
  * Returns the set of remote document keys for the given target ID. This list includes the
  * documents that were assigned to the target when we received the last snapshot.
  */
-- (firebase::firestore::model::DocumentKeySet)remoteKeysForTarget:(FSTBoxedTargetID *)targetId;
-
-@end
-
-/**
- * A protocol for the FSTRemoteStore online state delegate, called whenever the state of the
- * online streams of the FSTRemoteStore changes.
- * Note that this protocol only supports the watch stream for now.
- */
-@protocol FSTOnlineStateDelegate <NSObject>
-
-/** Called whenever the online state of the watch stream changes */
-- (void)applyChangedOnlineState:(firebase::firestore::model::OnlineState)onlineState;
+- (firebase::firestore::model::DocumentKeySet)remoteKeysForTarget:
+    (firebase::firestore::model::TargetId)targetId;
 
 @end
 
@@ -102,15 +92,16 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FSTRemoteStore : NSObject <FSTTargetMetadataProvider>
 
-- (instancetype)initWithLocalStore:(FSTLocalStore *)localStore
-                         datastore:(FSTDatastore *)datastore
-                       workerQueue:(firebase::firestore::util::AsyncQueue *)queue;
+- (instancetype)
+    initWithLocalStore:(FSTLocalStore *)localStore
+             datastore:(std::shared_ptr<firebase::firestore::remote::Datastore>)datastore
+           workerQueue:(firebase::firestore::util::AsyncQueue *)queue
+    onlineStateHandler:
+        (std::function<void(firebase::firestore::model::OnlineState)>)onlineStateHandler;
 
 - (instancetype)init NS_UNAVAILABLE;
 
 @property(nonatomic, weak) id<FSTRemoteSyncer> syncEngine;
-
-@property(nonatomic, weak) id<FSTOnlineStateDelegate> onlineStateDelegate;
 
 /** Starts up the remote store, creating streams, restoring state from LocalStore, etc. */
 - (void)start;
@@ -144,7 +135,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * In response the remote store will pull mutations from the local store until the datastore
  * instance reports that it cannot accept further in-progress writes. This mechanism serves to
- * maintain a pipeline of in-flight requests between the FSTDatastore and the server that
+ * maintain a pipeline of in-flight requests between the `Datastore` and the server that
  * applies them.
  */
 - (void)fillWritePipeline;

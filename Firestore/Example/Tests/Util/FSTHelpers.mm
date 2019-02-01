@@ -38,8 +38,6 @@
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
-#import "Firestore/Source/Remote/FSTRemoteEvent.h"
-#import "Firestore/Source/Remote/FSTWatchChange.h"
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -50,6 +48,8 @@
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
+#include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
+#include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 #include "absl/memory/memory.h"
@@ -71,6 +71,10 @@ using firebase::firestore::model::ServerTimestampTransform;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::model::TransformOperation;
+using firebase::firestore::remote::DocumentWatchChange;
+using firebase::firestore::remote::RemoteEvent;
+using firebase::firestore::remote::TargetChange;
+using firebase::firestore::remote::WatchChangeAggregator;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -296,7 +300,7 @@ MaybeDocumentMap FSTTestDocUpdates(NSArray<FSTMaybeDocument *> *docs) {
 
 FSTViewSnapshot *_Nullable FSTTestApplyChanges(FSTView *view,
                                                NSArray<FSTMaybeDocument *> *docs,
-                                               FSTTargetChange *_Nullable targetChange) {
+                                               const absl::optional<TargetChange> &targetChange) {
   return [view applyChangesToDocuments:[view computeChangesWithDocuments:FSTTestDocUpdates(docs)]
                           targetChange:targetChange]
       .snapshot;
@@ -308,21 +312,21 @@ FSTViewSnapshot *_Nullable FSTTestApplyChanges(FSTView *view,
 }
 
 + (instancetype)providerWithSingleResultForKey:(DocumentKey)documentKey
-                                 listenTargets:(NSArray<FSTBoxedTargetID *> *)listenTargets
-                                  limboTargets:(NSArray<FSTBoxedTargetID *> *)limboTargets {
+                                 listenTargets:(const std::vector<TargetId> &)listenTargets
+                                  limboTargets:(const std::vector<TargetId> &)limboTargets {
   FSTTestTargetMetadataProvider *metadataProvider = [FSTTestTargetMetadataProvider new];
   FSTQuery *query = [FSTQuery queryWithPath:documentKey.path()];
 
-  for (FSTBoxedTargetID *targetID in listenTargets) {
+  for (TargetId targetID : listenTargets) {
     FSTQueryData *queryData = [[FSTQueryData alloc] initWithQuery:query
-                                                         targetID:targetID.intValue
+                                                         targetID:targetID
                                              listenSequenceNumber:0
                                                           purpose:FSTQueryPurposeListen];
     [metadataProvider setSyncedKeys:DocumentKeySet{documentKey} forQueryData:queryData];
   }
-  for (FSTBoxedTargetID *targetID in limboTargets) {
+  for (TargetId targetID : limboTargets) {
     FSTQueryData *queryData = [[FSTQueryData alloc] initWithQuery:query
-                                                         targetID:targetID.intValue
+                                                         targetID:targetID
                                              listenSequenceNumber:0
                                                           purpose:FSTQueryPurposeLimboResolution];
     [metadataProvider setSyncedKeys:DocumentKeySet{documentKey} forQueryData:queryData];
@@ -332,18 +336,18 @@ FSTViewSnapshot *_Nullable FSTTestApplyChanges(FSTView *view,
 }
 
 + (instancetype)providerWithSingleResultForKey:(DocumentKey)documentKey
-                                       targets:(NSArray<FSTBoxedTargetID *> *)targets {
-  return [self providerWithSingleResultForKey:documentKey listenTargets:targets limboTargets:@[]];
+                                       targets:(const std::vector<TargetId> &)targets {
+  return [self providerWithSingleResultForKey:documentKey listenTargets:targets limboTargets:{}];
 }
 
 + (instancetype)providerWithEmptyResultForKey:(DocumentKey)documentKey
-                                      targets:(NSArray<FSTBoxedTargetID *> *)targets {
+                                      targets:(const std::vector<TargetId> &)targets {
   FSTTestTargetMetadataProvider *metadataProvider = [FSTTestTargetMetadataProvider new];
   FSTQuery *query = [FSTQuery queryWithPath:documentKey.path()];
 
-  for (FSTBoxedTargetID *targetID in targets) {
+  for (TargetId targetID : targets) {
     FSTQueryData *queryData = [[FSTQueryData alloc] initWithQuery:query
-                                                         targetID:targetID.intValue
+                                                         targetID:targetID
                                              listenSequenceNumber:0
                                                           purpose:FSTQueryPurposeListen];
     [metadataProvider setSyncedKeys:DocumentKeySet {} forQueryData:queryData];
@@ -357,92 +361,71 @@ FSTViewSnapshot *_Nullable FSTTestApplyChanges(FSTView *view,
   _queryData[queryData.targetID] = queryData;
 }
 
-- (DocumentKeySet)remoteKeysForTarget:(FSTBoxedTargetID *)targetID {
-  auto it = _syncedKeys.find(targetID.intValue);
-  HARD_ASSERT(it != _syncedKeys.end(), "Cannot process unknown target %s", targetID.intValue);
+- (DocumentKeySet)remoteKeysForTarget:(TargetId)targetID {
+  auto it = _syncedKeys.find(targetID);
+  HARD_ASSERT(it != _syncedKeys.end(), "Cannot process unknown target %s", targetID);
   return it->second;
 }
 
-- (nullable FSTQueryData *)queryDataForTarget:(FSTBoxedTargetID *)targetID {
-  auto it = _queryData.find(targetID.intValue);
-  HARD_ASSERT(it != _queryData.end(), "Cannot process unknown target %s", targetID.intValue);
+- (nullable FSTQueryData *)queryDataForTarget:(TargetId)targetID {
+  auto it = _queryData.find(targetID);
+  HARD_ASSERT(it != _queryData.end(), "Cannot process unknown target %s", targetID);
   return it->second;
 }
 
 @end
 
-FSTRemoteEvent *FSTTestAddedRemoteEvent(FSTMaybeDocument *doc,
-                                        NSArray<FSTBoxedTargetID *> *addedToTargets) {
+RemoteEvent FSTTestAddedRemoteEvent(FSTMaybeDocument *doc,
+                                    const std::vector<TargetId> &addedToTargets) {
   HARD_ASSERT(![doc isKindOfClass:[FSTDocument class]] || ![(FSTDocument *)doc hasLocalMutations],
               "Docs from remote updates shouldn't have local changes.");
-  FSTDocumentWatchChange *change =
-      [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:addedToTargets
-                                              removedTargetIDs:{}
-                                                   documentKey:doc.key
-                                                      document:doc];
-  FSTWatchChangeAggregator *aggregator = [[FSTWatchChangeAggregator alloc]
-      initWithTargetMetadataProvider:[FSTTestTargetMetadataProvider
-                                         providerWithEmptyResultForKey:doc.key
-                                                               targets:addedToTargets]];
-  [aggregator handleDocumentChange:change];
-  return [aggregator remoteEventAtSnapshotVersion:doc.version];
+  DocumentWatchChange change{addedToTargets, {}, doc.key, doc};
+  WatchChangeAggregator aggregator{
+      [FSTTestTargetMetadataProvider providerWithEmptyResultForKey:doc.key targets:addedToTargets]};
+  aggregator.HandleDocumentChange(change);
+  return aggregator.CreateRemoteEvent(doc.version);
 }
 
-FSTTargetChange *FSTTestTargetChangeMarkCurrent() {
-  return [[FSTTargetChange alloc] initWithResumeToken:[NSData data]
-      current:YES
-      addedDocuments:DocumentKeySet {}
-      modifiedDocuments:DocumentKeySet {}
-      removedDocuments:DocumentKeySet{}];
+TargetChange FSTTestTargetChangeMarkCurrent() {
+  return {[NSData data],
+          /*current=*/true,
+          /*added_documents=*/DocumentKeySet{},
+          /*modified_documents=*/DocumentKeySet{},
+          /*removed_documents=*/DocumentKeySet{}};
 }
 
-FSTTargetChange *FSTTestTargetChangeAckDocuments(DocumentKeySet docs) {
-  return [[FSTTargetChange alloc] initWithResumeToken:[NSData data]
-                                              current:YES
-                                       addedDocuments:docs
-                                    modifiedDocuments:DocumentKeySet {}
-                                     removedDocuments:DocumentKeySet{}];
+TargetChange FSTTestTargetChangeAckDocuments(DocumentKeySet docs) {
+  return {[NSData data],
+          /*current=*/true,
+          /*added_documents*/ std::move(docs),
+          /*modified_documents*/ DocumentKeySet{},
+          /*removed_documents*/ DocumentKeySet{}};
 }
 
-FSTTargetChange *FSTTestTargetChange(DocumentKeySet added,
-                                     DocumentKeySet modified,
-                                     DocumentKeySet removed,
-                                     NSData *resumeToken,
-                                     BOOL current) {
-  return [[FSTTargetChange alloc] initWithResumeToken:resumeToken
-                                              current:current
-                                       addedDocuments:added
-                                    modifiedDocuments:modified
-                                     removedDocuments:removed];
-}
-
-FSTRemoteEvent *FSTTestUpdateRemoteEventWithLimboTargets(
+RemoteEvent FSTTestUpdateRemoteEventWithLimboTargets(
     FSTMaybeDocument *doc,
-    NSArray<FSTBoxedTargetID *> *updatedInTargets,
-    NSArray<FSTBoxedTargetID *> *removedFromTargets,
-    NSArray<FSTBoxedTargetID *> *limboTargets) {
+    const std::vector<TargetId> &updatedInTargets,
+    const std::vector<TargetId> &removedFromTargets,
+    const std::vector<TargetId> &limboTargets) {
   HARD_ASSERT(![doc isKindOfClass:[FSTDocument class]] || ![(FSTDocument *)doc hasLocalMutations],
               "Docs from remote updates shouldn't have local changes.");
-  FSTDocumentWatchChange *change =
-      [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:updatedInTargets
-                                              removedTargetIDs:removedFromTargets
-                                                   documentKey:doc.key
-                                                      document:doc];
-  NSArray<FSTBoxedTargetID *> *listens =
-      [updatedInTargets arrayByAddingObjectsFromArray:removedFromTargets];
-  FSTWatchChangeAggregator *aggregator = [[FSTWatchChangeAggregator alloc]
-      initWithTargetMetadataProvider:[FSTTestTargetMetadataProvider
-                                         providerWithSingleResultForKey:doc.key
-                                                          listenTargets:listens
-                                                           limboTargets:limboTargets]];
-  [aggregator handleDocumentChange:change];
-  return [aggregator remoteEventAtSnapshotVersion:doc.version];
+  DocumentWatchChange change{updatedInTargets, removedFromTargets, doc.key, doc};
+
+  std::vector<TargetId> listens = updatedInTargets;
+  listens.insert(listens.end(), removedFromTargets.begin(), removedFromTargets.end());
+
+  WatchChangeAggregator aggregator{[FSTTestTargetMetadataProvider
+      providerWithSingleResultForKey:doc.key
+                       listenTargets:listens
+                        limboTargets:limboTargets]};
+  aggregator.HandleDocumentChange(change);
+  return aggregator.CreateRemoteEvent(doc.version);
 }
 
-FSTRemoteEvent *FSTTestUpdateRemoteEvent(FSTMaybeDocument *doc,
-                                         NSArray<NSNumber *> *updatedInTargets,
-                                         NSArray<NSNumber *> *removedFromTargets) {
-  return FSTTestUpdateRemoteEventWithLimboTargets(doc, updatedInTargets, removedFromTargets, @[]);
+RemoteEvent FSTTestUpdateRemoteEvent(FSTMaybeDocument *doc,
+                                     const std::vector<TargetId> &updatedInTargets,
+                                     const std::vector<TargetId> &removedFromTargets) {
+  return FSTTestUpdateRemoteEventWithLimboTargets(doc, updatedInTargets, removedFromTargets, {});
 }
 
 /** Creates a resume token to match the given snapshot version. */

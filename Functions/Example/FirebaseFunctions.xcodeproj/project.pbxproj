@@ -30,6 +30,8 @@
 		7CF3BEC21F97EE2F00B16B6E /* FUNFakeInstanceID.m in Sources */ = {isa = PBXBuildFile; fileRef = 7CF3BEC01F97EE2F00B16B6E /* FUNFakeInstanceID.m */; };
 		873B8AEB1B1F5CCA007FD442 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 873B8AEA1B1F5CCA007FD442 /* Main.storyboard */; };
 		C8AEC40B21B7EE440051C01E /* FIRAuthInteropFake.m in Sources */ = {isa = PBXBuildFile; fileRef = C8AEC40A21B7EE440051C01E /* FIRAuthInteropFake.m */; };
+		EDF5244421F6163100BB24C6 /* FUNContextProviderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = EDF5244321F6163100BB24C6 /* FUNContextProviderTests.m */; };
+		EDF5244521F61AA900BB24C6 /* FIRAuthInteropFake.m in Sources */ = {isa = PBXBuildFile; fileRef = C8AEC40A21B7EE440051C01E /* FIRAuthInteropFake.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -78,6 +80,7 @@
 		C8AEC40921B7EE440051C01E /* FIRAuthInteropFake.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FIRAuthInteropFake.h; path = ../../../Example/Shared/FIRAuthInteropFake.h; sourceTree = "<group>"; };
 		C8AEC40A21B7EE440051C01E /* FIRAuthInteropFake.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAuthInteropFake.m; path = ../../../Example/Shared/FIRAuthInteropFake.m; sourceTree = "<group>"; };
 		E0A8D570636E99E7C3396DF8 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
+		EDF5244321F6163100BB24C6 /* FUNContextProviderTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FUNContextProviderTests.m; sourceTree = "<group>"; };
 		F1F2A7C03C10A3A03F9502B8 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -179,6 +182,7 @@
 			isa = PBXGroup;
 			children = (
 				6003F5BB195388D20070C39A /* FIRFunctionsTests.m */,
+				EDF5244321F6163100BB24C6 /* FUNContextProviderTests.m */,
 				7C58B0391F1441F0005ED954 /* FUNSerializerTests.m */,
 				6003F5B6195388D20070C39A /* Supporting Files */,
 			);
@@ -361,6 +365,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				7C58B03A1F1441F0005ED954 /* FUNSerializerTests.m in Sources */,
+				EDF5244421F6163100BB24C6 /* FUNContextProviderTests.m in Sources */,
+				EDF5244521F61AA900BB24C6 /* FIRAuthInteropFake.m in Sources */,
 				6003F5BC195388D20070C39A /* FIRFunctionsTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

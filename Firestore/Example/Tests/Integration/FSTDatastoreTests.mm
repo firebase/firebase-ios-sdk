@@ -20,6 +20,7 @@
 #import <XCTest/XCTest.h>
 
 #include <memory>
+#include <vector>
 
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
@@ -29,8 +30,6 @@
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
-#import "Firestore/Source/Remote/FSTDatastore.h"
-#import "Firestore/Source/Remote/FSTRemoteEvent.h"
 #import "Firestore/Source/Remote/FSTRemoteStore.h"
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
@@ -40,6 +39,8 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
+#include "Firestore/core/src/firebase/firestore/remote/datastore.h"
+#include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
@@ -54,8 +55,11 @@ using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::Precondition;
+using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::remote::Datastore;
 using firebase::firestore::remote::GrpcConnection;
+using firebase::firestore::remote::RemoteEvent;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::ExecutorLibdispatch;
 
@@ -78,17 +82,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic, weak, nullable) XCTestCase *testCase;
 @property(nonatomic, strong) NSMutableArray<NSObject *> *writeEvents;
-@property(nonatomic, strong) NSMutableArray<NSObject *> *listenEvents;
 @property(nonatomic, strong) NSMutableArray<XCTestExpectation *> *writeEventExpectations;
 @property(nonatomic, strong) NSMutableArray<XCTestExpectation *> *listenEventExpectations;
 @end
 
-@implementation FSTRemoteStoreEventCapture
+@implementation FSTRemoteStoreEventCapture {
+  std::vector<RemoteEvent> _listenEvents;
+}
 
 - (instancetype)initWithTestCase:(XCTestCase *_Nullable)testCase {
   if (self = [super init]) {
     _writeEvents = [NSMutableArray array];
-    _listenEvents = [NSMutableArray array];
     _testCase = testCase;
     _writeEventExpectations = [NSMutableArray array];
     _listenEventExpectations = [NSMutableArray array];
@@ -129,12 +133,12 @@ NS_ASSUME_NONNULL_BEGIN
   HARD_FAIL("Not implemented");
 }
 
-- (DocumentKeySet)remoteKeysForTarget:(FSTBoxedTargetID *)targetId {
+- (DocumentKeySet)remoteKeysForTarget:(TargetId)targetId {
   return DocumentKeySet{};
 }
 
-- (void)applyRemoteEvent:(FSTRemoteEvent *)remoteEvent {
-  [self.listenEvents addObject:remoteEvent];
+- (void)applyRemoteEvent:(const RemoteEvent &)remoteEvent {
+  _listenEvents.push_back(remoteEvent);
   XCTestExpectation *expectation = [self.listenEventExpectations objectAtIndex:0];
   [self.listenEventExpectations removeObjectAtIndex:0];
   [expectation fulfill];
@@ -158,7 +162,7 @@ NS_ASSUME_NONNULL_BEGIN
   EmptyCredentialsProvider _credentials;
 
   DatabaseInfo _databaseInfo;
-  FSTDatastore *_datastore;
+  std::shared_ptr<Datastore> _datastore;
   FSTRemoteStore *_remoteStore;
 }
 
@@ -179,13 +183,12 @@ NS_ASSUME_NONNULL_BEGIN
   dispatch_queue_t queue = dispatch_queue_create(
       "com.google.firestore.FSTDatastoreTestsWorkerQueue", DISPATCH_QUEUE_SERIAL);
   _testWorkerQueue = absl::make_unique<AsyncQueue>(absl::make_unique<ExecutorLibdispatch>(queue));
-  _datastore = [FSTDatastore datastoreWithDatabase:&_databaseInfo
-                                       workerQueue:_testWorkerQueue.get()
-                                       credentials:&_credentials];
+  _datastore = std::make_shared<Datastore>(_databaseInfo, _testWorkerQueue.get(), &_credentials);
 
   _remoteStore = [[FSTRemoteStore alloc] initWithLocalStore:_localStore
                                                   datastore:_datastore
-                                                workerQueue:_testWorkerQueue.get()];
+                                                workerQueue:_testWorkerQueue.get()
+                                         onlineStateHandler:[](OnlineState) {}];
 
   _testWorkerQueue->Enqueue([=] { [_remoteStore start]; });
 }
@@ -204,11 +207,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testCommit {
   XCTestExpectation *expectation = [self expectationWithDescription:@"commitWithCompletion"];
 
-  [_datastore commitMutations:@[]
-                   completion:^(NSError *_Nullable error) {
-                     XCTAssertNil(error, @"Failed to commit");
-                     [expectation fulfill];
-                   }];
+  _datastore->CommitMutations(@[], ^(NSError *_Nullable error) {
+    XCTAssertNil(error, @"Failed to commit");
+    [expectation fulfill];
+  });
 
   [self awaitExpectations];
 }
