@@ -26,7 +26,7 @@
   return self;
 }
 
-- (NSSet<NSNumber *> *)logsForNextUpload {
+- (NSSet<NSNumber *> *)logsToUploadGivenConditions:(GDLUploadConditions)conditions {
   if (_logsForNextUploadBlock) {
     _logsForNextUploadBlock();
   }
@@ -37,6 +37,9 @@
   if (_prioritizeLogBlock) {
     _prioritizeLogBlock(logEvent);
   }
+}
+
+- (void)unprioritizeLog:(nonnull NSNumber *)logHash {
 }
 
 @end

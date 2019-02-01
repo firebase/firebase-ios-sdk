@@ -20,6 +20,18 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/** Options that define a set of upload conditions. This is used to help minimize end user data
+ * consumption impact.
+ */
+typedef NS_OPTIONS(NSInteger, GDLUploadConditions) {
+
+  /** An upload would likely use mobile data. */
+  GDLUploadConditionMobileData,
+
+  /** An upload would likely use wifi data. */
+  GDLUploadConditionWifiData,
+};
+
 /** This protocol defines the common interface of a log prioritization. Log prioritizers are
  * stateful objects that prioritize logs upon insertion into storage and remain prepared to return a
  * set of log filenames to the storage system.
@@ -40,11 +52,17 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)prioritizeLog:(GDLLogEvent *)logEvent;
 
-/** Returns a set of logs based on the logic of the prioritizer.
- *
- * @return A set of log hashes to upload, presumably based on the logs' priority.
+/** Unprioritizes a log. This method is called when a log has been removed from storage and should
+ * no longer be given as a log to upload.
  */
-- (NSSet<NSNumber *> *)logsForNextUpload;
+- (void)unprioritizeLog:(NSNumber *)logHash;
+
+/** Returns a set of logs to upload given a set of conditions.
+ *
+ * @param conditions A bit mask specifying the current upload conditions.
+ * @return A set of logs to upload with respect to the current conditions.
+ */
+- (NSSet<NSNumber *> *)logsToUploadGivenConditions:(GDLUploadConditions)conditions;
 
 @end
 
