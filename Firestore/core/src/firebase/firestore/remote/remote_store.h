@@ -43,6 +43,7 @@
 @class FSTMutationBatch;
 @class FSTMutationBatchResult;
 @class FSTQueryData;
+@class FSTTransaction;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -112,47 +113,29 @@ class RemoteStore : public TargetMetadataProvider,
                     public WriteStreamCallback {
  public:
   RemoteStore(FSTLocalStore* local_store,
-              Datastore* datastore,
+              std::shared_ptr<Datastore> datastore,
               util::AsyncQueue* worker_queue,
               std::function<void(model::OnlineState)> online_state_handler);
 
-  // TODO(varconst): remove the getters and setters
-
-  id<FSTRemoteSyncer> sync_engine() {
-    return sync_engine_;
-  }
   void set_sync_engine(id<FSTRemoteSyncer> sync_engine) {
     sync_engine_ = sync_engine;
   }
 
-  FSTLocalStore* local_store() {
-    return local_store_;
-  }
+  void Start();
+  void Shutdown();
 
-  OnlineStateTracker& online_state_tracker() {
-    return online_state_tracker_;
-  }
+  void EnableNetwork();
+  void DisableNetwork();
 
-  void set_is_network_enabled(bool value) {
-    is_network_enabled_ = value;
-  }
-
-  WatchStream& watch_stream() {
-    return *watch_stream_;
-  }
-  WriteStream& write_stream() {
-    return *write_stream_;
-  }
-
-  std::vector<FSTMutationBatch*>& write_pipeline() {
-    return write_pipeline_;
-  }
+  void OnCredentialChange();
 
   /** Listens to the target identified by the given `FSTQueryData`. */
   void Listen(FSTQueryData* query_data);
 
   /** Stops listening to the target with the given target ID. */
   void StopListening(model::TargetId target_id);
+
+  FSTTransaction* Transaction();
 
   model::DocumentKeySet GetRemoteKeysForTarget(
       model::TargetId target_id) const override;
@@ -217,6 +200,8 @@ class RemoteStore : public TargetMetadataProvider,
   void AddToWritePipeline(FSTMutationBatch* batch);
 
  private:
+  void DisableNetworkInternal();
+
   void SendWatchRequest(FSTQueryData* query_data);
   void SendUnwatchRequest(model::TargetId target_id);
 
@@ -253,6 +238,9 @@ class RemoteStore : public TargetMetadataProvider,
    * and resolve existence filter mismatches. Immutable after initialization.
    */
   FSTLocalStore* local_store_ = nil;
+
+  /** The client-side proxy for interacting with the backend. */
+  std::shared_ptr<Datastore> datastore_;
 
   /**
    * A mapping of watched targets that the client cares about tracking and the

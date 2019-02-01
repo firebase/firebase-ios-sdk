@@ -75,9 +75,6 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - FSTRemoteStore
 
 @implementation FSTRemoteStore {
-  /** The client-side proxy for interacting with the backend. */
-  std::shared_ptr<Datastore> _datastore;
-
   std::unique_ptr<RemoteStore> _remoteStore;
 }
 
@@ -86,12 +83,8 @@ NS_ASSUME_NONNULL_BEGIN
                        workerQueue:(AsyncQueue *)queue
                 onlineStateHandler:(std::function<void(OnlineState)>)onlineStateHandler {
   if (self = [super init]) {
-    _datastore = std::move(datastore);
-    _datastore->Start();
-
-    _remoteStore = absl::make_unique<RemoteStore>(localStore, _datastore.get(), queue,
+    _remoteStore = absl::make_unique<RemoteStore>(localStore, std::move(datastore), queue,
                                                   std::move(onlineStateHandler));
-    _remoteStore->set_is_network_enabled(false);
   }
   return self;
 }
@@ -101,75 +94,27 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)start {
-  // For now, all setup is handled by enableNetwork(). We might expand on this in the future.
-  [self enableNetwork];
+  _remoteStore->Start();
 }
 
 #pragma mark Online/Offline state
 
 - (void)enableNetwork {
-  _remoteStore->set_is_network_enabled(true);
-
-  if (_remoteStore->CanUseNetwork()) {
-    // Load any saved stream token from persistent storage
-    _remoteStore->write_stream().SetLastStreamToken([_remoteStore->local_store() lastStreamToken]);
-
-    if (_remoteStore->ShouldStartWatchStream()) {
-      _remoteStore->StartWatchStream();
-    } else {
-      _remoteStore->online_state_tracker().UpdateState(OnlineState::Unknown);
-    }
-
-    // This will start the write stream if necessary.
-    [self fillWritePipeline];
-  }
+  _remoteStore->EnableNetwork();
 }
 
 - (void)disableNetwork {
-  _remoteStore->set_is_network_enabled(false);
-  [self disableNetworkInternal];
-
-  // Set the OnlineState to Offline so get()s return from cache, etc.
-  _remoteStore->online_state_tracker().UpdateState(OnlineState::Offline);
-}
-
-/** Disables the network, setting the OnlineState to the specified targetOnlineState. */
-- (void)disableNetworkInternal {
-  _remoteStore->watch_stream().Stop();
-  _remoteStore->write_stream().Stop();
-
-  if (!_remoteStore->write_pipeline().empty()) {
-    LOG_DEBUG("Stopping write stream with %s pending writes",
-              _remoteStore->write_pipeline().size());
-    _remoteStore->write_pipeline().clear();
-  }
-
-  _remoteStore->CleanUpWatchStreamState();
+  _remoteStore->DisableNetwork();
 }
 
 #pragma mark Shutdown
 
 - (void)shutdown {
-  LOG_DEBUG("FSTRemoteStore %s shutting down", (__bridge void *)self);
-  _remoteStore->set_is_network_enabled(false);
-  [self disableNetworkInternal];
-  // Set the OnlineState to Unknown (rather than Offline) to avoid potentially triggering
-  // spurious listener events with cached data, etc.
-  _remoteStore->online_state_tracker().UpdateState(OnlineState::Unknown);
-  _datastore->Shutdown();
+  _remoteStore->Shutdown();
 }
 
 - (void)credentialDidChange {
-  if (_remoteStore->CanUseNetwork()) {
-    // Tear down and re-create our network streams. This will ensure we get a fresh auth token
-    // for the new user and re-fill the write pipeline with new mutations from the LocalStore
-    // (since mutations are per-user).
-    LOG_DEBUG("FSTRemoteStore %s restarting streams for new credential", (__bridge void *)self);
-    _remoteStore->set_is_network_enabled(false);
-    [self disableNetworkInternal];
-    _remoteStore->online_state_tracker().UpdateState(OnlineState::Unknown);
-    [self enableNetwork];
-  }
+  _remoteStore->OnCredentialChange();
 }
 
 #pragma mark Watch Stream
@@ -201,7 +146,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTTransaction *)transaction {
-  return [FSTTransaction transactionWithDatastore:_datastore.get()];
+  return _remoteStore->Transaction();
 }
 
 @end

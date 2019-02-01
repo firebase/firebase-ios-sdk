@@ -18,6 +18,7 @@
 
 #include <utility>
 
+#import "Firestore/Source/Core/FSTTransaction.h"
 #import "Firestore/Source/Local/FSTLocalStore.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
@@ -60,14 +61,89 @@ constexpr int kMaxPendingWrites = 10;
 
 RemoteStore::RemoteStore(
     FSTLocalStore* local_store,
-    Datastore* datastore,
+    std::shared_ptr<Datastore> datastore,
     AsyncQueue* worker_queue,
     std::function<void(model::OnlineState)> online_state_handler)
     : local_store_{local_store},
+      datastore_{std::move(datastore)},
       online_state_tracker_{worker_queue, std::move(online_state_handler)} {
+  datastore_->Start();
+
   // Create streams (but note they're not started yet)
   watch_stream_ = datastore->CreateWatchStream(this);
   write_stream_ = datastore->CreateWriteStream(this);
+}
+
+void RemoteStore::Start() {
+  // For now, all setup is handled by `EnableNetwork`. We might expand on this
+  // in the future.
+  EnableNetwork();
+}
+
+// Online/Offline state
+
+void RemoteStore::EnableNetwork() {
+  is_network_enabled_ = true;
+
+  if (CanUseNetwork()) {
+    // Load any saved stream token from persistent storage
+    write_stream_->SetLastStreamToken([local_store_ lastStreamToken]);
+
+    if (ShouldStartWatchStream()) {
+      StartWatchStream();
+    } else {
+      online_state_tracker_.UpdateState(OnlineState::Unknown);
+    }
+
+    // This will start the write stream if necessary.
+    FillWritePipeline();
+  }
+}
+
+void RemoteStore::DisableNetwork() {
+  is_network_enabled_ = false;
+  DisableNetworkInternal();
+
+  // Set the OnlineState to Offline so get()s return from cache, etc.
+  online_state_tracker_.UpdateState(OnlineState::Offline);
+}
+
+void RemoteStore::DisableNetworkInternal() {
+  watch_stream_->Stop();
+  write_stream_->Stop();
+
+  if (!write_pipeline_.empty()) {
+    LOG_DEBUG("Stopping write stream with %s pending writes",
+              write_pipeline_.size());
+    write_pipeline_.clear();
+  }
+
+  CleanUpWatchStreamState();
+}
+
+// Shutdown
+
+void RemoteStore::Shutdown() {
+  LOG_DEBUG("RemoteStore %s shutting down", this);
+  is_network_enabled_ = false;
+  DisableNetworkInternal();
+  // Set the `OnlineState` to `Unknown` (rather than `Offline`) to avoid
+  // potentially triggering spurious listener events with cached data, etc.
+  online_state_tracker_.UpdateState(OnlineState::Unknown);
+  datastore_->Shutdown();
+}
+
+void RemoteStore::OnCredentialChange() {
+  if (CanUseNetwork()) {
+    // Tear down and re-create our network streams. This will ensure we get a
+    // fresh auth token for the new user and re-fill the write pipeline with new
+    // mutations from the `FSTLocalStore` (since mutations are per-user).
+    LOG_DEBUG("RemoteStore %s restarting streams for new credential", this);
+    is_network_enabled_ = false;
+    DisableNetworkInternal();
+    online_state_tracker_.UpdateState(OnlineState::Unknown);
+    EnableNetwork();
+  }
 }
 
 // Watch Stream
@@ -468,6 +544,10 @@ DocumentKeySet RemoteStore::GetRemoteKeysForTarget(TargetId target_id) const {
 FSTQueryData* RemoteStore::GetQueryDataForTarget(TargetId target_id) const {
   auto found = listen_targets_.find(target_id);
   return found != listen_targets_.end() ? found->second : nil;
+}
+
+FSTTransaction* RemoteStore::Transaction() {
+  return [FSTTransaction transactionWithDatastore:datastore_.get()];
 }
 
 }  // namespace remote
