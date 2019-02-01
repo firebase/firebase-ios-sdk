@@ -77,11 +77,10 @@ static NSString *GDLStoragePath() {
     // Check that a log prioritizer is available for this logTarget.
     id<GDLLogPrioritizer> logPrioritizer =
         [GDLRegistrar sharedInstance].logTargetToPrioritizer[@(logTarget)];
-    GDLAssert(logPrioritizer, @"There's no scorer registered for the given logTarget.");
+    GDLAssert(logPrioritizer, @"There's no prioritizer registered for the given logTarget.");
 
     // Write the extension bytes to disk, get a filename.
     GDLAssert(shortLivedLog.extensionBytes, @"The log should have been serialized to bytes");
-    GDLAssert(shortLivedLog.extension == nil, @"The original log proto should be removed");
     NSURL *logFile = [self saveLogProtoToDisk:shortLivedLog.extensionBytes
                                       logHash:shortLivedLog.hash];
 
@@ -121,6 +120,12 @@ static NSString *GDLStoragePath() {
     GDLAssert(logHashes, @"There wasn't a logSet for this logTarget.");
     [logHashes removeObject:logHash];
     // It's fine to not remove the set if it's empty.
+
+    // Check that a log prioritizer is available for this logTarget.
+    id<GDLLogPrioritizer> logPrioritizer =
+        [GDLRegistrar sharedInstance].logTargetToPrioritizer[logTarget];
+    GDLAssert(logPrioritizer, @"There's no prioritizer registered for the given logTarget.");
+    [logPrioritizer unprioritizeLog:logHash];
   });
 }
 
