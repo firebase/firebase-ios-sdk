@@ -59,6 +59,7 @@ system=$(uname -s)
 if [[ "$system" == "Darwin" ]]; then
   version=$(swiftformat --version)
   version="${version/*version /}"
+  echo "YOUR SWIFT FORMAT VERSION IS: ${version}"
   # Allow an older swiftformat because travis isn't running High Sierra yet
   # and the formula hasn't been updated in a while on Sierra :-/.
   if [[ "$version" != "0.32.0" && "$version" != "0.33"* && "$version" != "0.35"* && "$version" != "0.36"* && "$version" != "0.37"* && "$version" != "0.38"* && "$version" != "0.39"* && "$version" != "0.4"* ]]; then
