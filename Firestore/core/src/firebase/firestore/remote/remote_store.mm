@@ -124,18 +124,9 @@ void RemoteStore::SendUnwatchRequest(TargetId target_id) {
   watch_stream_->UnwatchTargetId(target_id);
 }
 
-bool RemoteStore::ShouldStartWriteStream() const {
-  return CanUseNetwork() && !write_stream_->IsStarted() &&
-         !write_pipeline_.empty();
-}
-
 bool RemoteStore::ShouldStartWatchStream() const {
   return CanUseNetwork() && !watch_stream_->IsStarted() &&
          !listen_targets_.empty();
-}
-
-void RemoteStore::CleanUpWatchStreamState() {
-  watch_change_aggregator_.reset();
 }
 
 void RemoteStore::StartWatchStream() {
@@ -147,10 +138,37 @@ void RemoteStore::StartWatchStream() {
   online_state_tracker_.HandleWatchStreamStart();
 }
 
+void RemoteStore::CleanUpWatchStreamState() {
+  watch_change_aggregator_.reset();
+}
+
 void RemoteStore::OnWatchStreamOpen() {
   // Restore any existing watches.
   for (const auto& kv : listen_targets_) {
     SendWatchRequest(kv.second);
+  }
+}
+
+void RemoteStore::OnWatchStreamClose(const Status& status) {
+  if (status.ok()) {
+    // Graceful stop (due to Stop() or idle timeout). Make sure that's
+    // desirable.
+    HARD_ASSERT(!ShouldStartWatchStream(),
+                "Watch stream was stopped gracefully while still needed.");
+  }
+
+  CleanUpWatchStreamState();
+
+  // If we still need the watch stream, retry the connection.
+  if (ShouldStartWatchStream()) {
+    online_state_tracker_.HandleWatchStreamFailure(status);
+
+    StartWatchStream();
+  } else {
+    // We don't need to restart the watch stream because there are no active
+    // targets. The online state is set to unknown because there is no active
+    // attempt at establishing a connection.
+    online_state_tracker_.UpdateState(OnlineState::Unknown);
   }
 }
 
@@ -189,34 +207,6 @@ void RemoteStore::OnWatchStreamChange(const WatchChange& change,
   }
 }
 
-void RemoteStore::OnWatchStreamClose(const Status& status) {
-  if (status.ok()) {
-    // Graceful stop (due to Stop() or idle timeout). Make sure that's
-    // desirable.
-    HARD_ASSERT(!ShouldStartWatchStream(),
-                "Watch stream was stopped gracefully while still needed.");
-  }
-
-  CleanUpWatchStreamState();
-
-  // If we still need the watch stream, retry the connection.
-  if (ShouldStartWatchStream()) {
-    online_state_tracker_.HandleWatchStreamFailure(status);
-
-    StartWatchStream();
-  } else {
-    // We don't need to restart the watch stream because there are no active
-    // targets. The online state is set to unknown because there is no active
-    // attempt at establishing a connection.
-    online_state_tracker_.UpdateState(OnlineState::Unknown);
-  }
-}
-
-bool RemoteStore::CanUseNetwork() const {
-  // PORTING NOTE: This method exists mostly because web also has to take into
-  // account primary vs. secondary state.
-  return is_network_enabled_;
-}
 void RemoteStore::RaiseWatchSnapshot(const SnapshotVersion& snapshot_version) {
   HARD_ASSERT(snapshot_version != SnapshotVersion::None(),
               "Can't raise event for unknown SnapshotVersion");
@@ -338,6 +328,11 @@ void RemoteStore::AddToWritePipeline(FSTMutationBatch* batch) {
   }
 }
 
+bool RemoteStore::ShouldStartWriteStream() const {
+  return CanUseNetwork() && !write_stream_->IsStarted() &&
+         !write_pipeline_.empty();
+}
+
 void RemoteStore::StartWriteStream() {
   HARD_ASSERT(ShouldStartWriteStream(), "StartWriteStream called when "
                                         "ShouldStartWriteStream is false.");
@@ -363,6 +358,8 @@ void RemoteStore::OnWriteStreamResponse(
     std::vector<FSTMutationResult*> mutation_results) {
   // This is a response to a write containing mutations and should be correlated
   // to the first write in our write pipeline.
+  HARD_ASSERT(!write_pipeline_.empty(), "Got result for empty write pipeline");
+
   FSTMutationBatch* batch = write_pipeline_.front();
   write_pipeline_.erase(write_pipeline_.begin());
 
@@ -456,6 +453,12 @@ void RemoteStore::HandleWriteError(const Status& status) {
   // It's possible that with the completion of this mutation another slot has
   // freed up.
   FillWritePipeline();
+}
+
+bool RemoteStore::CanUseNetwork() const {
+  // PORTING NOTE: This method exists mostly because web also has to take into
+  // account primary vs. secondary state.
+  return is_network_enabled_;
 }
 
 DocumentKeySet RemoteStore::GetRemoteKeysForTarget(TargetId target_id) const {
