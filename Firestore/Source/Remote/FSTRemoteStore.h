@@ -16,6 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
+#include <functional>
 #include <memory>
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
@@ -83,18 +84,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-/**
- * A protocol for the FSTRemoteStore online state delegate, called whenever the state of the
- * online streams of the FSTRemoteStore changes.
- * Note that this protocol only supports the watch stream for now.
- */
-@protocol FSTOnlineStateDelegate <NSObject>
-
-/** Called whenever the online state of the watch stream changes */
-- (void)applyChangedOnlineState:(firebase::firestore::model::OnlineState)onlineState;
-
-@end
-
 #pragma mark - FSTRemoteStore
 
 /**
@@ -103,16 +92,16 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FSTRemoteStore : NSObject <FSTTargetMetadataProvider>
 
-- (instancetype)initWithLocalStore:(FSTLocalStore *)localStore
-                         datastore:
-                             (std::shared_ptr<firebase::firestore::remote::Datastore>)datastore
-                       workerQueue:(firebase::firestore::util::AsyncQueue *)queue;
+- (instancetype)
+    initWithLocalStore:(FSTLocalStore *)localStore
+             datastore:(std::shared_ptr<firebase::firestore::remote::Datastore>)datastore
+           workerQueue:(firebase::firestore::util::AsyncQueue *)queue
+    onlineStateHandler:
+        (std::function<void(firebase::firestore::model::OnlineState)>)onlineStateHandler;
 
 - (instancetype)init NS_UNAVAILABLE;
 
 @property(nonatomic, weak) id<FSTRemoteSyncer> syncEngine;
-
-@property(nonatomic, weak) id<FSTOnlineStateDelegate> onlineStateDelegate;
 
 /** Starts up the remote store, creating streams, restoring state from LocalStore, etc. */
 - (void)start;
