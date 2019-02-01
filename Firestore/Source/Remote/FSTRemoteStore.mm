@@ -75,7 +75,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTRemoteStore
 
-@interface FSTRemoteStore () <FSTWriteStreamDelegate>
+@interface FSTRemoteStore ()
 
 @implementation FSTRemoteStore {
   /** The client-side proxy for interacting with the backend. */
@@ -115,7 +115,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   if (_remoteStore->CanUseNetwork()) {
     // Load any saved stream token from persistent storage
-    _writeStream->SetLastStreamToken([_remoteStore->local_store() lastStreamToken]);
+    _remoteStore->write_stream().SetLastStreamToken([_remoteStore->local_store() lastStreamToken]);
 
     if (_remoteStore->ShouldStartWatchStream()) {
       _remoteStore->StartWatchStream();
@@ -139,12 +139,12 @@ NS_ASSUME_NONNULL_BEGIN
 /** Disables the network, setting the OnlineState to the specified targetOnlineState. */
 - (void)disableNetworkInternal {
   _remoteStore->watch_stream().Stop();
-  _writeStream->Stop();
+  _remoteStore->write_stream().Stop();
 
-  if (self.writePipeline.count > 0) {
+  if (!_remoteStore->write_pipeline().empty()) {
     LOG_DEBUG("Stopping write stream with %s pending writes",
-              (unsigned long)self.writePipeline.count);
-    [self.writePipeline removeAllObjects];
+              _remoteStore->write_pipeline().size());
+    _remoteStore->write_pipeline().clear();
   }
 
   _remoteStore->CleanUpWatchStreamState();

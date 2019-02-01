@@ -114,6 +114,7 @@ class RemoteStore : public TargetMetadataProvider, public WatchStreamCallback {
               std::function<void(model::OnlineState)> online_state_handler);
 
   // TODO(varconst): remove the getters and setters
+
   id<FSTRemoteSyncer> sync_engine() {
     return sync_engine_;
   }
@@ -136,6 +137,11 @@ class RemoteStore : public TargetMetadataProvider, public WatchStreamCallback {
   WatchStream& watch_stream() {
     return *watch_stream_;
   }
+  WriteStream& write_stream() {
+    return *write_stream_;
+  }
+
+  std::vector<FSTMutationBatch*>& write_pipeline() { return write_pipeline_; }
 
   /** Listens to the target identified by the given `FSTQueryData`. */
   void Listen(FSTQueryData* query_data);
@@ -154,23 +160,26 @@ class RemoteStore : public TargetMetadataProvider, public WatchStreamCallback {
   void OnWatchStreamClose(const util::Status& status) override;
 
   void OnWriteStreamOpen() override;
-/**
- * Handles the closing of the StreamingWrite RPC, either because of an error or
- * because the RPC has been terminated by the client or the server.
- */
+
+  /**
+   * Handles the closing of the StreamingWrite RPC, either because of an error
+   * or because the RPC has been terminated by the client or the server.
+   */
   void OnWriteStreamClose(const util::Status& status) override;
 
   /**
-  * Handles a successful handshake response from the server, which is our cue to
-  * send any pending writes.
-  */
+   * Handles a successful handshake response from the server, which is our cue
+   * to send any pending writes.
+   */
   void OnWriteStreamHandshakeComplete() override;
 
   /**
    * Handles a successful StreamingWriteResponse from the server that contains a
    * mutation result.
    */
-  void OnWriteStreamResponse(model::SnapshotVersion commit_version, std::vector<FSTMutationResult*> mutation_results) override;
+  void OnWriteStreamResponse(
+      model::SnapshotVersion commit_version,
+      std::vector<FSTMutationResult*> mutation_results) override;
 
   // TODO(varconst): make the following methods private.
 
@@ -186,12 +195,6 @@ class RemoteStore : public TargetMetadataProvider, public WatchStreamCallback {
 
   void CleanUpWatchStreamState();
 
-  /**
-   * Returns true if the network is enabled, the write stream has not yet been
-   * started and there are pending writes.
-   */
-  bool ShouldStartWriteStream() const;
-
  private:
   void SendWatchRequest(FSTQueryData* query_data);
   void SendUnwatchRequest(model::TargetId target_id);
@@ -206,25 +209,31 @@ class RemoteStore : public TargetMetadataProvider, public WatchStreamCallback {
   void ProcessTargetError(const WatchTargetChange& change);
 
   /**
-  * Attempts to fill our write pipeline with writes from the `FSTLocalStore`.
-  *
-  * Called internally to bootstrap or refill the write pipeline and by `FSTSyncEngine`
-  * whenever there are new mutations to process.
-  *
-  * Starts the write stream if necessary.
-  */
+   * Returns true if the network is enabled, the write stream has not yet been
+   * started and there are pending writes.
+   */
+  bool ShouldStartWriteStream() const;
+
+  /**
+   * Attempts to fill our write pipeline with writes from the `FSTLocalStore`.
+   *
+   * Called internally to bootstrap or refill the write pipeline and by
+   * `FSTSyncEngine` whenever there are new mutations to process.
+   *
+   * Starts the write stream if necessary.
+   */
   void FillWritePipeline();
 
   /**
-  * Returns true if we can add to the write pipeline (i.e. it is not full and the
-  * network is enabled).
-  */
+   * Returns true if we can add to the write pipeline (i.e. it is not full and
+   * the network is enabled).
+   */
   bool CanAddToWritePipeline() const;
 
   /**
-  * Queues additional writes to be sent to the write stream, sending them
-  * immediately if the write stream is established.
-  */
+   * Queues additional writes to be sent to the write stream, sending them
+   * immediately if the write stream is established.
+   */
   void AddToWritePipeline(FSTMutationBatch* batch);
 
   void HandleHandshakeError(const util::Status& status);
