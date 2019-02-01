@@ -182,7 +182,7 @@ class RemoteStore : public TargetMetadataProvider,
    * Handles a successful StreamingWriteResponse from the server that contains a
    * mutation result.
    */
-  void OnWriteStreamResponse(
+  void OnWriteStreamMutationResult(
       model::SnapshotVersion commit_version,
       std::vector<FSTMutationResult*> mutation_results) override;
 

@@ -63,7 +63,7 @@ class WriteStreamCallback {
    * Called by the `WriteStream` upon receiving a StreamingWriteResponse from
    * the server that contains mutation results.
    */
-  virtual void OnWriteStreamResponse(
+  virtual void OnWriteStreamMutationResult(
       model::SnapshotVersion commit_version,
       std::vector<FSTMutationResult*> results) = 0;
 

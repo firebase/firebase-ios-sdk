@@ -353,7 +353,7 @@ void RemoteStore::OnWriteStreamHandshakeComplete() {
   }
 }
 
-void RemoteStore::OnWriteStreamResponse(
+void RemoteStore::OnWriteStreamMutationResult(
     SnapshotVersion commit_version,
     std::vector<FSTMutationResult*> mutation_results) {
   // This is a response to a write containing mutations and should be correlated

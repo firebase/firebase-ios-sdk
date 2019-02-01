@@ -203,7 +203,7 @@ class MockWriteStream : public WriteStream {
 
   /** Injects a write ack as though it had come from the backend in response to a write. */
   void AckWrite(const SnapshotVersion& commitVersion, std::vector<FSTMutationResult*> results) {
-    callback_->OnWriteStreamResponse(commitVersion, std::move(results));
+    callback_->OnWriteStreamMutationResult(commitVersion, std::move(results));
   }
 
   /** Injects a failed write response as though it had come from the backend. */
