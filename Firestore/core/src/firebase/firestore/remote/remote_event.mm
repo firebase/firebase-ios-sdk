@@ -114,6 +114,11 @@ void TargetState::RemoveDocumentChange(const DocumentKey& document_key) {
 
 // WatchChangeAggregator
 
+WatchChangeAggregator::WatchChangeAggregator(
+      TargetMetadataProvider* target_metadata_provider)
+      : target_metadata_provider_{NOT_NULL(target_metadata_provider)} {
+  }
+
 void WatchChangeAggregator::HandleDocumentChange(
     const DocumentWatchChange& document_change) {
   for (TargetId target_id : document_change.updated_target_ids()) {
