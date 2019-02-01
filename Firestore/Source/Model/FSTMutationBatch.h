@@ -103,11 +103,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (instancetype)resultWithBatch:(FSTMutationBatch *)batch
                   commitVersion:(firebase::firestore::model::SnapshotVersion)commitVersion
-                mutationResults:(std::vector<FSTMutationResult*>)mutationResults
+                mutationResults:(std::vector<FSTMutationResult *>)mutationResults
                     streamToken:(nullable NSData *)streamToken;
 
 - (const firebase::firestore::model::SnapshotVersion &)commitVersion;
-- (const std::vector<FSTMutationResult *>&) mutationResults;
+- (const std::vector<FSTMutationResult *> &)mutationResults;
 
 @property(nonatomic, strong, readonly) FSTMutationBatch *batch;
 @property(nonatomic, strong, readonly, nullable) NSData *streamToken;

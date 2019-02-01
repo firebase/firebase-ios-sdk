@@ -278,7 +278,8 @@ NS_ASSUME_NONNULL_BEGIN
   [[self currentOutstandingWrites] removeObjectAtIndex:0];
   [self validateNextWriteSent:write.write];
 
-  _workerQueue->EnqueueBlocking([&] { _datastore->AckWrite(commitVersion, std::move(mutationResults)); });
+  _workerQueue->EnqueueBlocking(
+      [&] { _datastore->AckWrite(commitVersion, std::move(mutationResults)); });
 
   return write;
 }

@@ -153,7 +153,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                                 transformResults:nil];
   FSTMutationBatchResult *result = [FSTMutationBatchResult resultWithBatch:batch
                                                              commitVersion:version
-                                                           mutationResults:{ mutationResult}
+                                                           mutationResults:{mutationResult}
                                                                streamToken:nil];
   _lastChanges = [self.localStore acknowledgeBatchWithResult:result];
 }

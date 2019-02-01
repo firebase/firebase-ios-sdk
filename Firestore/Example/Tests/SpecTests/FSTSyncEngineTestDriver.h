@@ -196,9 +196,9 @@ typedef std::unordered_map<firebase::firestore::auth::User,
  *     the mutation. Snapshot versions must be monotonically increasing.
  * @param mutationResults The mutation results for the write that is being acked.
  */
-- (FSTOutstandingWrite *)receiveWriteAckWithVersion:
-                             (const firebase::firestore::model::SnapshotVersion &)commitVersion
-                                    mutationResults:(std::vector<FSTMutationResult *> )mutationResults;
+- (FSTOutstandingWrite *)
+    receiveWriteAckWithVersion:(const firebase::firestore::model::SnapshotVersion &)commitVersion
+               mutationResults:(std::vector<FSTMutationResult *>)mutationResults;
 
 /**
  * A count of the mutations written to the write stream by the FSTSyncEngine, but not yet

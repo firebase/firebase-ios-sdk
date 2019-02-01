@@ -130,20 +130,20 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FSTMutationBatchResult ()
 - (instancetype)initWithBatch:(FSTMutationBatch *)batch
                 commitVersion:(SnapshotVersion)commitVersion
-              mutationResults:(std::vector<FSTMutationResult*>)mutationResults
+              mutationResults:(std::vector<FSTMutationResult *>)mutationResults
                   streamToken:(nullable NSData *)streamToken
                   docVersions:(DocumentVersionMap)docVersions NS_DESIGNATED_INITIALIZER;
 @end
 
 @implementation FSTMutationBatchResult {
   SnapshotVersion _commitVersion;
-  std::vector<FSTMutationResult*> _mutationResults;
+  std::vector<FSTMutationResult *> _mutationResults;
   DocumentVersionMap _docVersions;
 }
 
 - (instancetype)initWithBatch:(FSTMutationBatch *)batch
                 commitVersion:(SnapshotVersion)commitVersion
-              mutationResults:(std::vector<FSTMutationResult*>)mutationResults
+              mutationResults:(std::vector<FSTMutationResult *>)mutationResults
                   streamToken:(nullable NSData *)streamToken
                   docVersions:(DocumentVersionMap)docVersions {
   if (self = [super init]) {
@@ -160,7 +160,7 @@ NS_ASSUME_NONNULL_BEGIN
   return _commitVersion;
 }
 
-- (const std::vector<FSTMutationResult *>&)mutationResults {
+- (const std::vector<FSTMutationResult *> &)mutationResults {
   return _mutationResults;
 }
 
@@ -170,7 +170,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (instancetype)resultWithBatch:(FSTMutationBatch *)batch
                   commitVersion:(SnapshotVersion)commitVersion
-                mutationResults:(std::vector<FSTMutationResult*>)mutationResults
+                mutationResults:(std::vector<FSTMutationResult *>)mutationResults
                     streamToken:(nullable NSData *)streamToken {
   HARD_ASSERT(batch.mutations.count == mutationResults.size(),
               "Mutations sent %s must equal results received %s", batch.mutations.count,

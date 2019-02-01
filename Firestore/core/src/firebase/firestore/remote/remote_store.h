@@ -107,7 +107,9 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-class RemoteStore : public TargetMetadataProvider, public WatchStreamCallback, public WriteStreamCallback {
+class RemoteStore : public TargetMetadataProvider,
+                    public WatchStreamCallback,
+                    public WriteStreamCallback {
  public:
   RemoteStore(FSTLocalStore* local_store,
               Datastore* datastore,
@@ -142,7 +144,9 @@ class RemoteStore : public TargetMetadataProvider, public WatchStreamCallback, p
     return *write_stream_;
   }
 
-  std::vector<FSTMutationBatch*>& write_pipeline() { return write_pipeline_; }
+  std::vector<FSTMutationBatch*>& write_pipeline() {
+    return write_pipeline_;
+  }
 
   /** Listens to the target identified by the given `FSTQueryData`. */
   void Listen(FSTQueryData* query_data);

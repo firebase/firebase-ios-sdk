@@ -289,7 +289,8 @@ int MockDatastore::WritesSent() const {
   return write_stream_->sent_mutations_count();
 }
 
-void MockDatastore::AckWrite(const SnapshotVersion& version, std::vector<FSTMutationResult*> results) {
+void MockDatastore::AckWrite(const SnapshotVersion& version,
+                             std::vector<FSTMutationResult*> results) {
   write_stream_->AckWrite(version, std::move(results));
 }
 

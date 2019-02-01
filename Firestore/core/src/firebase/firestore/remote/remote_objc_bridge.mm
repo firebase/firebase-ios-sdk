@@ -217,7 +217,7 @@ std::vector<FSTMutationResult*> WriteStreamSerializer::ToMutationResults(
   const model::SnapshotVersion commitVersion = ToCommitVersion(response);
   for (GCFSWriteResult* proto in responses) {
     results.push_back([serializer_ decodedMutationResult:proto
-                                            commitVersion:commitVersion]);
+                                           commitVersion:commitVersion]);
   };
   return results;
 }

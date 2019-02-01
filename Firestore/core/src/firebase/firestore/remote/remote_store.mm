@@ -309,7 +309,7 @@ bool RemoteStore::ShouldStartWriteStream() const {
 
 void RemoteStore::StartWriteStream() {
   HARD_ASSERT(ShouldStartWriteStream(), "StartWriteStream called when "
-                                       "ShouldStartWriteStream is false.");
+                                        "ShouldStartWriteStream is false.");
   write_stream_->Start();
 }
 
@@ -388,7 +388,7 @@ void RemoteStore::OnWriteStreamResponse(
  * Handles the closing of the StreamingWrite RPC, either because of an error or
  * because the RPC has been terminated by the client or the server.
  */
-  void RemoteStore::OnWriteStreamClose(const Status& status) {
+void RemoteStore::OnWriteStreamClose(const Status& status) {
   if (status.ok()) {
     // Graceful stop (due to Stop() or idle timeout). Make sure that's
     // desirable.
@@ -456,9 +456,8 @@ void RemoteStore::HandleWriteError(const Status& status) {
   // down--this was just a bad request so inhibit backoff on the next restart.
   write_stream_->InhibitBackoff();
 
-  [sync_engine_
-      rejectFailedWriteWithBatchID:batch.batchID
-                             error:util::MakeNSError(status)];
+  [sync_engine_ rejectFailedWriteWithBatchID:batch.batchID
+                                       error:util::MakeNSError(status)];
 
   // It's possible that with the completion of this mutation another slot has
   // freed up.
