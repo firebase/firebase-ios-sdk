@@ -167,16 +167,16 @@ class RemoteStore : public TargetMetadataProvider,
   void OnWriteStreamOpen() override;
 
   /**
-   * Handles the closing of the StreamingWrite RPC, either because of an error
-   * or because the RPC has been terminated by the client or the server.
-   */
-  void OnWriteStreamClose(const util::Status& status) override;
-
-  /**
    * Handles a successful handshake response from the server, which is our cue
    * to send any pending writes.
    */
   void OnWriteStreamHandshakeComplete() override;
+
+  /**
+   * Handles the closing of the StreamingWrite RPC, either because of an error
+   * or because the RPC has been terminated by the client or the server.
+   */
+  void OnWriteStreamClose(const util::Status& status) override;
 
   /**
    * Handles a successful StreamingWriteResponse from the server that contains a
@@ -229,6 +229,12 @@ class RemoteStore : public TargetMetadataProvider,
   /** Process a target error and passes the error along to `SyncEngine`. */
   void ProcessTargetError(const WatchTargetChange& change);
 
+  /**
+   * Returns true if we can add to the write pipeline (i.e. it is not full and
+   * the network is enabled).
+   */
+  bool CanAddToWritePipeline() const;
+
   void StartWriteStream();
 
   /**
@@ -236,12 +242,6 @@ class RemoteStore : public TargetMetadataProvider,
    * started and there are pending writes.
    */
   bool ShouldStartWriteStream() const;
-
-  /**
-   * Returns true if we can add to the write pipeline (i.e. it is not full and
-   * the network is enabled).
-   */
-  bool CanAddToWritePipeline() const;
 
   void HandleHandshakeError(const util::Status& status);
   void HandleWriteError(const util::Status& status);
