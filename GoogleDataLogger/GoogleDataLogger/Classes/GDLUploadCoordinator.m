@@ -92,25 +92,27 @@
     onCompleteBlock = ^(GDLLogTarget target, GDLClock *nextUploadAttemptUTC, NSError *error) {
       GDLUploadCoordinator *strongSelf = weakSelf;
       if (strongSelf) {
-        NSNumber *logTarget = @(target);
-        if (error) {
-          GDLLogWarning(GDLMCWUploadFailed, @"Error during upload: %@", error);
-          [strongSelf->_logTargetToInFlightLogSet removeObjectForKey:logTarget];
-          return;
-        }
-        strongSelf->_logTargetToNextUploadTimes[logTarget] = nextUploadAttemptUTC;
-        NSSet<NSNumber *> *logHashSet =
-            [strongSelf->_logTargetToInFlightLogSet objectForKey:logTarget];
-        [strongSelf.logStorage removeLogs:logHashSet logTarget:logTarget];
-        [strongSelf->_logTargetToInFlightLogSet removeObjectForKey:logTarget];
-        if (strongSelf->_forcedUploadQueue.count) {
-          GDLUploadCoordinatorForceUploadBlock queuedBlock =
-              [strongSelf->_forcedUploadQueue lastObject];
-          if (queuedBlock) {
-            queuedBlock();
+        dispatch_async(strongSelf.coordinationQueue, ^{
+          NSNumber *logTarget = @(target);
+          if (error) {
+            GDLLogWarning(GDLMCWUploadFailed, @"Error during upload: %@", error);
+            [strongSelf->_logTargetToInFlightLogSet removeObjectForKey:logTarget];
+            return;
           }
-          [strongSelf->_forcedUploadQueue removeLastObject];
-        }
+          strongSelf->_logTargetToNextUploadTimes[logTarget] = nextUploadAttemptUTC;
+          NSSet<NSNumber *> *logHashSet =
+              [strongSelf->_logTargetToInFlightLogSet objectForKey:logTarget];
+          [strongSelf.logStorage removeLogs:logHashSet logTarget:logTarget];
+          [strongSelf->_logTargetToInFlightLogSet removeObjectForKey:logTarget];
+          if (strongSelf->_forcedUploadQueue.count) {
+            GDLUploadCoordinatorForceUploadBlock queuedBlock =
+                [strongSelf->_forcedUploadQueue lastObject];
+            if (queuedBlock) {
+              queuedBlock();
+            }
+            [strongSelf->_forcedUploadQueue removeLastObject];
+          }
+        });
       }
     };
   });
@@ -144,6 +146,8 @@
 - (void)checkPrioritizersAndUploadLogs {
   __weak GDLUploadCoordinator *weakSelf = self;
   dispatch_async(_coordinationQueue, ^{
+    static int count = 0;
+    count++;
     GDLUploadCoordinator *strongSelf = weakSelf;
     if (strongSelf) {
       NSArray<NSNumber *> *logTargetsReadyForUpload = [self logTargetsReadyForUpload];
@@ -153,16 +157,26 @@
         id<GDLLogUploader> uploader = strongSelf->_registrar.logTargetToUploader[logTarget];
         GDLAssert(prioritizer && uploader, @"log target '%@' is missing an implementation",
                   logTarget);
-        NSSet<NSNumber *> *logHashesToUpload = [prioritizer logsForNextUpload];
+        GDLUploadConditions conds = [self uploadConditions];
+        NSSet<NSNumber *> *logHashesToUpload = [prioritizer logsToUploadGivenConditions:conds];
         if (logHashesToUpload && logHashesToUpload.count > 0) {
+          NSAssert(logHashesToUpload.count > 0, @"");
           NSSet<NSURL *> *logFilesToUpload =
               [strongSelf.logStorage logHashesToFiles:logHashesToUpload];
+          NSAssert(logFilesToUpload.count == logHashesToUpload.count,
+                   @"There should be the same number of files to logs");
           [uploader uploadLogs:logFilesToUpload onComplete:self.onCompleteBlock];
           strongSelf->_logTargetToInFlightLogSet[logTarget] = logHashesToUpload;
         }
       }
     }
   });
+}
+
+/** */
+- (GDLUploadConditions)uploadConditions {
+  // TODO: Compute the real upload conditions.
+  return GDLUploadConditionMobileData;
 }
 
 /** Checks the next upload time for each log target and returns an array of log targets that are
@@ -174,6 +188,10 @@
   NSMutableArray *logTargetsReadyForUpload = [[NSMutableArray alloc] init];
   GDLClock *currentTime = [GDLClock snapshot];
   for (NSNumber *logTarget in self.registrar.logTargetToPrioritizer) {
+    // Log targets in flight are not ready.
+    if (_logTargetToInFlightLogSet[logTarget]) {
+      continue;
+    }
     GDLClock *nextUploadTime = _logTargetToNextUploadTimes[logTarget];
 
     // If no next upload time was specified or if the currentTime > nextUpload time, mark as ready.
