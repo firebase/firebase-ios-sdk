@@ -80,8 +80,6 @@ void RemoteStore::Start() {
   EnableNetwork();
 }
 
-// Online/Offline state
-
 void RemoteStore::EnableNetwork() {
   is_network_enabled_ = true;
 
@@ -121,29 +119,16 @@ void RemoteStore::DisableNetworkInternal() {
   CleanUpWatchStreamState();
 }
 
-// Shutdown
-
 void RemoteStore::Shutdown() {
   LOG_DEBUG("RemoteStore %s shutting down", this);
   is_network_enabled_ = false;
   DisableNetworkInternal();
+
   // Set the `OnlineState` to `Unknown` (rather than `Offline`) to avoid
   // potentially triggering spurious listener events with cached data, etc.
   online_state_tracker_.UpdateState(OnlineState::Unknown);
-  datastore_->Shutdown();
-}
 
-void RemoteStore::OnCredentialChange() {
-  if (CanUseNetwork()) {
-    // Tear down and re-create our network streams. This will ensure we get a
-    // fresh auth token for the new user and re-fill the write pipeline with new
-    // mutations from the `FSTLocalStore` (since mutations are per-user).
-    LOG_DEBUG("RemoteStore %s restarting streams for new credential", this);
-    is_network_enabled_ = false;
-    DisableNetworkInternal();
-    online_state_tracker_.UpdateState(OnlineState::Unknown);
-    EnableNetwork();
-  }
+  datastore_->Shutdown();
 }
 
 // Watch Stream
@@ -537,6 +522,10 @@ bool RemoteStore::CanUseNetwork() const {
   return is_network_enabled_;
 }
 
+FSTTransaction* RemoteStore::CreateTransaction() {
+  return [FSTTransaction transactionWithDatastore:datastore_.get()];
+}
+
 DocumentKeySet RemoteStore::GetRemoteKeysForTarget(TargetId target_id) const {
   return [sync_engine_ remoteKeysForTarget:target_id];
 }
@@ -546,8 +535,17 @@ FSTQueryData* RemoteStore::GetQueryDataForTarget(TargetId target_id) const {
   return found != listen_targets_.end() ? found->second : nil;
 }
 
-FSTTransaction* RemoteStore::Transaction() {
-  return [FSTTransaction transactionWithDatastore:datastore_.get()];
+void RemoteStore::HandleCredentialChange() {
+  if (CanUseNetwork()) {
+    // Tear down and re-create our network streams. This will ensure we get a
+    // fresh auth token for the new user and re-fill the write pipeline with new
+    // mutations from the `FSTLocalStore` (since mutations are per-user).
+    LOG_DEBUG("RemoteStore %s restarting streams for new credential", this);
+    is_network_enabled_ = false;
+    DisableNetworkInternal();
+    online_state_tracker_.UpdateState(OnlineState::Unknown);
+    EnableNetwork();
+  }
 }
 
 }  // namespace remote
