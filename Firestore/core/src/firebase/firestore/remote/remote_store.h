@@ -48,7 +48,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * A protocol that describes the actions the FSTRemoteStore needs to perform on
+ * A protocol that describes the actions the `RemoteStore` needs to perform on
  * a cooperating synchronization engine.
  */
 @protocol FSTRemoteSyncer
@@ -66,7 +66,7 @@ NS_ASSUME_NONNULL_BEGIN
  * backend for any active target.
  *
  * @param targetID The targetID corresponding to a listen initiated via
- *     -listenToTargetWithQueryData: on FSTRemoteStore.
+ *     a `Listen` on `RemoteStore`.
  * @param error A description of the condition that has forced the rejection.
  * Nearly always this will be an indication that the user is no longer
  * authorized to see the data matching the target.
@@ -165,7 +165,7 @@ class RemoteStore : public TargetMetadataProvider,
   void FillWritePipeline();
 
   /** Returns a new transaction backed by this remote store. */
-  FSTTransaction* Transaction();
+  FSTTransaction* CreateTransaction();
 
   model::DocumentKeySet GetRemoteKeysForTarget(
       model::TargetId target_id) const override;
