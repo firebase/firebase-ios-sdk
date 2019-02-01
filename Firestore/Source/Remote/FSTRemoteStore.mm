@@ -209,7 +209,7 @@ static const int kMaxPendingWrites = 10;
 #pragma mark Watch Stream
 
 - (void)listenToTargetWithQueryData:(FSTQueryData *)queryData {
-  _remoteStore->ListenToTarget(queryData);
+  _remoteStore->Listen(queryData);
 }
 
 - (void)stopListeningToTargetID:(TargetId)targetID {
