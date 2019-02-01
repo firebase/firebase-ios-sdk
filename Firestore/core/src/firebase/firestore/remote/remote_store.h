@@ -25,6 +25,7 @@
 
 #include <memory>
 #include <unordered_map>
+#include <vector>
 
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
@@ -38,6 +39,7 @@
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 
 @class FSTLocalStore;
+@class FSTMutationBatch;
 @class FSTMutationBatchResult;
 @class FSTQueryData;
 
@@ -151,6 +153,25 @@ class RemoteStore : public TargetMetadataProvider, public WatchStreamCallback {
       const model::SnapshotVersion& snapshot_version) override;
   void OnWatchStreamClose(const util::Status& status) override;
 
+  void OnWriteStreamOpen() override;
+/**
+ * Handles the closing of the StreamingWrite RPC, either because of an error or
+ * because the RPC has been terminated by the client or the server.
+ */
+  void OnWriteStreamClose(const util::Status& status) override;
+
+  /**
+  * Handles a successful handshake response from the server, which is our cue to
+  * send any pending writes.
+  */
+  void OnWriteStreamHandshakeComplete() override;
+
+  /**
+   * Handles a successful StreamingWriteResponse from the server that contains a
+   * mutation result.
+   */
+  void OnWriteStreamResponse(model::SnapshotVersion commit_version, std::vector<FSTMutationResult*> mutation_results) override;
+
   // TODO(varconst): make the following methods private.
 
   bool CanUseNetwork() const;
@@ -165,6 +186,12 @@ class RemoteStore : public TargetMetadataProvider, public WatchStreamCallback {
 
   void CleanUpWatchStreamState();
 
+  /**
+   * Returns true if the network is enabled, the write stream has not yet been
+   * started and there are pending writes.
+   */
+  bool ShouldStartWriteStream() const;
+
  private:
   void SendWatchRequest(FSTQueryData* query_data);
   void SendUnwatchRequest(model::TargetId target_id);
@@ -177,6 +204,31 @@ class RemoteStore : public TargetMetadataProvider, public WatchStreamCallback {
 
   /** Process a target error and passes the error along to `SyncEngine`. */
   void ProcessTargetError(const WatchTargetChange& change);
+
+  /**
+  * Attempts to fill our write pipeline with writes from the `FSTLocalStore`.
+  *
+  * Called internally to bootstrap or refill the write pipeline and by `FSTSyncEngine`
+  * whenever there are new mutations to process.
+  *
+  * Starts the write stream if necessary.
+  */
+  void FillWritePipeline();
+
+  /**
+  * Returns true if we can add to the write pipeline (i.e. it is not full and the
+  * network is enabled).
+  */
+  bool CanAddToWritePipeline() const;
+
+  /**
+  * Queues additional writes to be sent to the write stream, sending them
+  * immediately if the write stream is established.
+  */
+  void AddToWritePipeline(FSTMutationBatch* batch);
+
+  void HandleHandshakeError(const util::Status& status);
+  void HandleWriteError(const util::Status& status);
 
   id<FSTRemoteSyncer> sync_engine_ = nil;
 
@@ -206,7 +258,27 @@ class RemoteStore : public TargetMetadataProvider, public WatchStreamCallback {
   bool is_network_enabled_ = false;
 
   std::shared_ptr<WatchStream> watch_stream_;
+  std::shared_ptr<WriteStream> write_stream_;
   std::unique_ptr<WatchChangeAggregator> watch_change_aggregator_;
+
+  /**
+   * A list of up to `kMaxPendingWrites` writes that we have fetched from the
+   * `LocalStore` via `FillWritePipeline` and have or will send to the write
+   * stream.
+   *
+   * Whenever `write_pipeline_` is not empty, the `RemoteStore` will attempt to
+   * start or restart the write stream. When the stream is established, the
+   * writes in the pipeline will be sent in order.
+   *
+   * Writes remain in `write_pipeline_` until they are acknowledged by the
+   * backend and thus will automatically be re-sent if the stream is interrupted
+   * / restarted before they're acknowledged.
+   *
+   * Write responses from the backend are linked to their originating request
+   * purely based on order, and so we can just remove writes from the front of
+   * the `write_pipeline_` as we receive responses.
+   */
+  std::vector<FSTMutationBatch*> write_pipeline_;
 };
 
 }  // namespace remote

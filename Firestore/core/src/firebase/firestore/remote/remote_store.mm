@@ -48,6 +48,16 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
+namespace {
+
+/**
+ * The maximum number of pending writes to allow.
+ * TODO(bjornick): Negotiate this value with the backend.
+ */
+constexpr int kMaxPendingWrites = 10;
+
+}  // namespace
+
 RemoteStore::RemoteStore(
     FSTLocalStore* local_store,
     Datastore* datastore,
@@ -57,6 +67,7 @@ RemoteStore::RemoteStore(
       online_state_tracker_{worker_queue, std::move(online_state_handler)} {
   // Create streams (but note they're not started yet)
   watch_stream_ = datastore->CreateWatchStream(this);
+  write_stream_ = datastore->CreateWriteStream(this);
 }
 
 void RemoteStore::Listen(FSTQueryData* query_data) {
@@ -289,6 +300,169 @@ void RemoteStore::ProcessTargetError(const WatchTargetChange& change) {
                                        error:util::MakeNSError(change.cause())];
     }
   }
+}
+
+bool RemoteStore::ShouldStartWriteStream() const {
+  return CanUseNetwork() && !write_stream_->IsStarted() &&
+         !write_pipeline_.empty();
+}
+
+void RemoteStore::StartWriteStream() {
+  HARD_ASSERT(ShouldStartWriteStream() "StartWriteStream called when "
+                                       "ShouldStartWriteStream is false.");
+  write_stream_->Start();
+}
+
+void RemoteStore::FillWritePipeline() {
+  BatchId last_batch_id_retrieved = write_pipeline_.empty()
+                                        ? kBatchIdUnknown
+                                        : write_pipeline_.back().batchID;
+  while (CanAddToWritePipeline()) {
+    FSTMutationBatch* batch =
+        [local_store_ nextMutationBatchAfterBatchID:last_batch_id_retrieved];
+    if (!batch) {
+      if (write_pipeline_.empty()) {
+        write_stream_->MarkIdle();
+      }
+      break;
+    }
+    AddBatchToWritePipeline(batch);
+    last_batch_id_retrieved = batch.batchID;
+  }
+
+  if (ShouldStartWriteStream()) {
+    StartWriteStream();
+  }
+}
+
+bool RemoteStore::CanAddToWritePipeline() const {
+  return CanUseNetwork() && write_pipeline_.size() < kMaxPendingWrites;
+}
+
+void RemoteStore::AddToWritePipeline(FSTMutationBatch* batch) {
+  HARD_ASSERT(CanAddToWritePipeline(),
+              "AddToWritePipeline called when pipeline is full");
+
+  write_pipeline_.push_back(batch);
+
+  if (write_stream_->IsOpen() && write_stream_->handshake_complete()) {
+    write_stream_->WriteMutations(batch.mutations);
+  }
+}
+
+void RemoteStore::OnWriteStreamOpen() {
+  write_stream_->WriteHandshake();
+}
+
+void RemoteStore::OnWriteStreamHandshakeComplete() {
+  // Record the stream token.
+  [local_store_ setLastStreamToken:write_stream_->GetLastStreamToken()];
+
+  // Send the write pipeline now that the stream is established.
+  for (FSTMutationBatch* write : write_pipeline_) {
+    write_stream_->WriteMutations(write.mutations);
+  }
+}
+
+void RemoteStore::OnWriteStreamResponse(
+    SnapshotVersion commit_version,
+    std::vector<FSTMutationResult*> mutation_results) {
+  // This is a response to a write containing mutations and should be correlated
+  // to the first write in our write pipeline.
+  FSTMutationBatch* batch = write_pipeline_.front();
+  write_pipeline_.erase(write_pipeline_.begin());
+
+  FSTMutationBatchResult* batchResult = [FSTMutationBatchResult
+      resultWithBatch:batch
+        commitVersion:commit_version
+      mutationResults:std::move(mutation_results)
+          streamToken:write_stream_->GetLastStreamToken()];
+  [sync_engine_ applySuccessfulWriteWithResult:batchResult];
+
+  // It's possible that with the completion of this mutation another slot has
+  // freed up.
+  FillWritePipeline();
+}
+
+/**
+ * Handles the closing of the StreamingWrite RPC, either because of an error or
+ * because the RPC has been terminated by the client or the server.
+ */
+  void RemoteStore::OnWriteStreamClose(const Status& status) {
+  if (status.ok()) {
+    // Graceful stop (due to Stop() or idle timeout). Make sure that's
+    // desirable.
+    HARD_ASSERT(!ShouldStartWriteStream(),
+                "Write stream was stopped gracefully while still needed.");
+  }
+
+  // If the write stream closed due to an error, invoke the error callbacks if
+  // there are pending writes.
+  if (!status.ok() && !write_pipeline_.empty()) {
+    if (write_stream_->handshake_complete()) {
+      // This error affects the actual writes.
+      HandleWriteError(status);
+    } else {
+      // If there was an error before the handshake finished, it's possible that
+      // the server is unable to process the stream token we're sending.
+      // (Perhaps it's too old?)
+      HandleHandshakeError(status);
+    }
+  }
+
+  // The write stream might have been started by refilling the write pipeline
+  // for failed writes
+  if (ShouldStartWriteStream()) {
+    StartWriteStream();
+  }
+}
+
+void RemoteStore::HandleHandshakeError(const Status& status) {
+  HARD_ASSERT(!error.ok(), "Handling write error with status OK.");
+
+  // Reset the token if it's a permanent error, signaling the write stream is
+  // no longer valid. Note that the handshake does not count as a write: see
+  // comments on `Datastore::IsPermanentWriteError` for details.
+  if (Datastore::IsPermanentError(error)) {
+    NSString* token =
+        [write_stream_->GetLastStreamToken() base64EncodedStringWithOptions:0];
+    LOG_DEBUG("RemoteStore %s error before completed handshake; resetting "
+              "stream token %s: "
+              "error code: '%s', details: '%s'",
+              (__bridge void*)self, token, error.code(), error.error_message());
+    write_stream_->SetLastStreamToken(nil);
+    [local_store_ setLastStreamToken:nil];
+  } else {
+    // Some other error, don't reset stream token. Our stream logic will just
+    // retry with exponential backoff.
+  }
+}
+
+void RemoteStore::HandleWriteError(const Status& status) {
+  HARD_ASSERT(!error.ok(), "Handling write error with status OK.");
+
+  // Only handle permanent errors here. If it's transient, just let the retry
+  // logic kick in.
+  if (!Datastore::IsPermanentWriteError(error)) {
+    return;
+  }
+
+  // If this was a permanent error, the request itself was the problem so it's
+  // not going to succeed if we resend it.
+  FSTMutationBatch* batch = write_pipeline_.front()
+  write_pipeline_.erase(write_pipeline_.front());
+
+  // In this case it's also unlikely that the server itself is melting
+  // down--this was just a bad request so inhibit backoff on the next restart.
+  write_stream_->InhibitBackoff();
+
+  [sync_engine_
+      rejectFailedWriteWithBatchID:batch.batchID
+                             error:util::MakeNSError(error)];
+
+  // It's possible that with the completion of this mutation another slot has
+  // freed up.
+  FillWritePipeline();
 }
 
 }  // namespace remote
