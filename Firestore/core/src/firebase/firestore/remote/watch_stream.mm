@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/watch_stream.h"
 
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 
@@ -40,7 +41,7 @@ WatchStream::WatchStream(AsyncQueue* async_queue,
     : Stream{async_queue, credentials_provider, grpc_connection,
              TimerId::ListenStreamConnectionBackoff, TimerId::ListenStreamIdle},
       serializer_bridge_{serializer},
-      callback_{callback} {
+      callback_{NOT_NULL(callback)} {
 }
 
 void WatchStream::WatchQuery(FSTQueryData* query) {

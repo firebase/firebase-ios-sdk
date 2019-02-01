@@ -311,9 +311,7 @@ class RemoteEvent {
 class WatchChangeAggregator {
  public:
   explicit WatchChangeAggregator(
-      TargetMetadataProvider* target_metadata_provider)
-      : target_metadata_provider_{target_metadata_provider} {
-  }
+      TargetMetadataProvider* target_metadata_provider);
 
   /**
    * Processes and adds the `DocumentWatchChange` to the current set of changes.
