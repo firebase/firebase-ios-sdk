@@ -196,6 +196,10 @@ NS_ASSUME_NONNULL_BEGIN
   _remoteStore->FillWritePipeline();
 }
 
+- (void)addBatchToWritePipeline:(FSTMutationBatch *)batch {
+  _remoteStore->AddToWritePipeline(batch);
+}
+
 - (FSTTransaction *)transaction {
   return [FSTTransaction transactionWithDatastore:_datastore.get()];
 }

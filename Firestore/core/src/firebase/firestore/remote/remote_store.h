@@ -206,6 +206,12 @@ class RemoteStore : public TargetMetadataProvider, public WatchStreamCallback, p
    */
   void FillWritePipeline();
 
+  /**
+   * Queues additional writes to be sent to the write stream, sending them
+   * immediately if the write stream is established.
+   */
+  void AddToWritePipeline(FSTMutationBatch* batch);
+
  private:
   void SendWatchRequest(FSTQueryData* query_data);
   void SendUnwatchRequest(model::TargetId target_id);
@@ -232,12 +238,6 @@ class RemoteStore : public TargetMetadataProvider, public WatchStreamCallback, p
    * the network is enabled).
    */
   bool CanAddToWritePipeline() const;
-
-  /**
-   * Queues additional writes to be sent to the write stream, sending them
-   * immediately if the write stream is established.
-   */
-  void AddToWritePipeline(FSTMutationBatch* batch);
 
   void HandleHandshakeError(const util::Status& status);
   void HandleWriteError(const util::Status& status);
