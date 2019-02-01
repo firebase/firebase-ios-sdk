@@ -18,6 +18,7 @@
 
 #include <map>
 #include <unordered_map>
+#include <vector>
 
 #import "Firestore/Source/Remote/FSTRemoteStore.h"
 
@@ -197,7 +198,7 @@ typedef std::unordered_map<firebase::firestore::auth::User,
  */
 - (FSTOutstandingWrite *)receiveWriteAckWithVersion:
                              (const firebase::firestore::model::SnapshotVersion &)commitVersion
-                                    mutationResults:(NSArray<FSTMutationResult *> *)mutationResults;
+                                    mutationResults:(std::vector<FSTMutationResult *> )mutationResults;
 
 /**
  * A count of the mutations written to the write stream by the FSTSyncEngine, but not yet

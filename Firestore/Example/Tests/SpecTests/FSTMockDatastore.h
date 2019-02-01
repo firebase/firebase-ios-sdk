@@ -40,7 +40,7 @@ class MockDatastore : public Datastore {
                 auth::CredentialsProvider* credentials);
 
   std::shared_ptr<WatchStream> CreateWatchStream(WatchStreamCallback* callback) override;
-  std::shared_ptr<WriteStream> CreateWriteStream(id<FSTWriteStreamDelegate> delegate) override;
+  std::shared_ptr<WriteStream> CreateWriteStream(WriteStreamCallback* callback) override;
 
   /**
    * A count of the total number of requests sent to the watch stream since the beginning of the
@@ -82,7 +82,7 @@ class MockDatastore : public Datastore {
   int WritesSent() const;
 
   /** Injects a write ack as though it had come from the backend in response to a write. */
-  void AckWrite(const model::SnapshotVersion& version, NSArray<FSTMutationResult*>* results);
+  void AckWrite(const model::SnapshotVersion& version, std::vector<FSTMutationResult*> results);
 
   /** Injects a stream failure as though it had come from the backend. */
   void FailWrite(const util::Status& error);

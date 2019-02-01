@@ -28,7 +28,6 @@
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
-#import "Firestore/Source/Remote/FSTStream.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -74,8 +73,6 @@ using util::Status;
 NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTRemoteStore
-
-@interface FSTRemoteStore ()
 
 @implementation FSTRemoteStore {
   /** The client-side proxy for interacting with the backend. */
@@ -178,7 +175,7 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark Watch Stream
 
 - (void)listenToTargetWithQueryData:(FSTQueryData *)queryData {
-  _remoteStore->ListenToTarget(queryData);
+  _remoteStore->Listen(queryData);
 }
 
 - (void)stopListeningToTargetID:(TargetId)targetID {

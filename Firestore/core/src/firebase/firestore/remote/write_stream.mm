@@ -36,11 +36,11 @@ WriteStream::WriteStream(AsyncQueue* async_queue,
                          CredentialsProvider* credentials_provider,
                          FSTSerializerBeta* serializer,
                          GrpcConnection* grpc_connection,
-                         id<FSTWriteStreamDelegate> delegate)
+                         WriteStreamCallback* callback)
     : Stream{async_queue, credentials_provider, grpc_connection,
              TimerId::WriteStreamConnectionBackoff, TimerId::WriteStreamIdle},
       serializer_bridge_{serializer},
-      delegate_bridge_{delegate} {
+      callback_{callback} {
 }
 
 void WriteStream::SetLastStreamToken(NSData* token) {
@@ -97,11 +97,11 @@ void WriteStream::TearDown(GrpcStream* grpc_stream) {
 }
 
 void WriteStream::NotifyStreamOpen() {
-  delegate_bridge_.NotifyDelegateOnOpen();
+  callback_->OnWriteStreamOpen();
 }
 
 void WriteStream::NotifyStreamClose(const Status& status) {
-  delegate_bridge_.NotifyDelegateOnClose(status);
+  callback_->OnWriteStreamClose(status);
   // Delegate's logic might depend on whether handshake was completed, so only
   // reset it after notifying.
   handshake_complete_ = false;
@@ -124,14 +124,14 @@ Status WriteStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
   if (!handshake_complete()) {
     // The first response is the handshake response
     handshake_complete_ = true;
-    delegate_bridge_.NotifyDelegateOnHandshakeComplete();
+    callback_->OnWriteStreamHandshakeComplete();
   } else {
     // A successful first write response means the stream is healthy.
     // Note that we could consider a successful handshake healthy, however, the
     // write itself might be causing an error we want to back off from.
     backoff_.Reset();
 
-    delegate_bridge_.NotifyDelegateOnCommit(
+    callback_->OnWriteStreamResponse(
         serializer_bridge_.ToCommitVersion(response),
         serializer_bridge_.ToMutationResults(response));
   }

@@ -273,12 +273,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FSTOutstandingWrite *)receiveWriteAckWithVersion:(const SnapshotVersion &)commitVersion
                                     mutationResults:
-                                        (NSArray<FSTMutationResult *> *)mutationResults {
+                                        (std::vector<FSTMutationResult *>)mutationResults {
   FSTOutstandingWrite *write = [self currentOutstandingWrites].firstObject;
   [[self currentOutstandingWrites] removeObjectAtIndex:0];
   [self validateNextWriteSent:write.write];
 
-  _workerQueue->EnqueueBlocking([&] { _datastore->AckWrite(commitVersion, mutationResults); });
+  _workerQueue->EnqueueBlocking([&] { _datastore->AckWrite(commitVersion, std::move(mutationResults)); });
 
   return write;
 }

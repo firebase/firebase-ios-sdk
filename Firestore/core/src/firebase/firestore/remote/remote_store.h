@@ -35,6 +35,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_stream.h"
+#include "Firestore/core/src/firebase/firestore/remote/write_stream.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 
@@ -106,7 +107,7 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-class RemoteStore : public TargetMetadataProvider, public WatchStreamCallback {
+class RemoteStore : public TargetMetadataProvider, public WatchStreamCallback, public WriteStreamCallback {
  public:
   RemoteStore(FSTLocalStore* local_store,
               Datastore* datastore,
@@ -195,6 +196,16 @@ class RemoteStore : public TargetMetadataProvider, public WatchStreamCallback {
 
   void CleanUpWatchStreamState();
 
+  /**
+   * Attempts to fill our write pipeline with writes from the `FSTLocalStore`.
+   *
+   * Called internally to bootstrap or refill the write pipeline and by
+   * `FSTSyncEngine` whenever there are new mutations to process.
+   *
+   * Starts the write stream if necessary.
+   */
+  void FillWritePipeline();
+
  private:
   void SendWatchRequest(FSTQueryData* query_data);
   void SendUnwatchRequest(model::TargetId target_id);
@@ -208,21 +219,13 @@ class RemoteStore : public TargetMetadataProvider, public WatchStreamCallback {
   /** Process a target error and passes the error along to `SyncEngine`. */
   void ProcessTargetError(const WatchTargetChange& change);
 
+  void StartWriteStream();
+
   /**
    * Returns true if the network is enabled, the write stream has not yet been
    * started and there are pending writes.
    */
   bool ShouldStartWriteStream() const;
-
-  /**
-   * Attempts to fill our write pipeline with writes from the `FSTLocalStore`.
-   *
-   * Called internally to bootstrap or refill the write pipeline and by
-   * `FSTSyncEngine` whenever there are new mutations to process.
-   *
-   * Starts the write stream if necessary.
-   */
-  void FillWritePipeline();
 
   /**
    * Returns true if we can add to the write pipeline (i.e. it is not full and

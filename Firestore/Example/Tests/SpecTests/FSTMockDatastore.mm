@@ -25,7 +25,6 @@
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
-#import "Firestore/Source/Remote/FSTStream.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
@@ -161,18 +160,18 @@ class MockWriteStream : public WriteStream {
                   CredentialsProvider* credentials_provider,
                   FSTSerializerBeta* serializer,
                   GrpcConnection* grpc_connection,
-                  id<FSTWriteStreamDelegate> delegate,
+                  WriteStreamCallback* callback,
                   MockDatastore* datastore)
-      : WriteStream{worker_queue, credentials_provider, serializer, grpc_connection, delegate},
+      : WriteStream{worker_queue, credentials_provider, serializer, grpc_connection, callback},
         datastore_{datastore},
-        delegate_{delegate} {
+        callback_{callback} {
   }
 
   void Start() override {
     HARD_ASSERT(!open_, "Trying to start already started write stream");
     open_ = true;
     sent_mutations_ = {};
-    [delegate_ writeStreamDidOpen];
+    callback_->OnWriteStreamOpen();
   }
 
   void Stop() override {
@@ -194,7 +193,7 @@ class MockWriteStream : public WriteStream {
   void WriteHandshake() override {
     datastore_->IncrementWriteStreamRequests();
     SetHandshakeComplete();
-    [delegate_ writeStreamDidCompleteHandshake];
+    callback_->OnWriteStreamHandshakeComplete();
   }
 
   void WriteMutations(NSArray<FSTMutation*>* mutations) override {
@@ -203,14 +202,14 @@ class MockWriteStream : public WriteStream {
   }
 
   /** Injects a write ack as though it had come from the backend in response to a write. */
-  void AckWrite(const SnapshotVersion& commitVersion, NSArray<FSTMutationResult*>* results) {
-    [delegate_ writeStreamDidReceiveResponseWithVersion:commitVersion mutationResults:results];
+  void AckWrite(const SnapshotVersion& commitVersion, std::vector<FSTMutationResult*> results) {
+    callback_->OnWriteStreamResponse(commitVersion, std::move(results));
   }
 
   /** Injects a failed write response as though it had come from the backend. */
   void FailStream(const Status& error) {
     open_ = false;
-    [delegate_ writeStreamWasInterruptedWithError:error];
+    callback_->OnWriteStreamClose(error);
   }
 
   /**
@@ -236,7 +235,7 @@ class MockWriteStream : public WriteStream {
   bool open_ = false;
   std::queue<NSArray<FSTMutation*>*> sent_mutations_;
   MockDatastore* datastore_ = nullptr;
-  id<FSTWriteStreamDelegate> delegate_ = nullptr;
+  WriteStreamCallback* callback_ = nullptr;
 };
 
 MockDatastore::MockDatastore(const core::DatabaseInfo& database_info,
@@ -257,11 +256,11 @@ std::shared_ptr<WatchStream> MockDatastore::CreateWatchStream(WatchStreamCallbac
   return watch_stream_;
 }
 
-std::shared_ptr<WriteStream> MockDatastore::CreateWriteStream(id<FSTWriteStreamDelegate> delegate) {
+std::shared_ptr<WriteStream> MockDatastore::CreateWriteStream(WriteStreamCallback* callback) {
   write_stream_ = std::make_shared<MockWriteStream>(
       worker_queue_, credentials_,
       [[FSTSerializerBeta alloc] initWithDatabaseID:&database_info_->database_id()],
-      grpc_connection(), delegate, this);
+      grpc_connection(), callback, this);
 
   return write_stream_;
 }
@@ -290,8 +289,8 @@ int MockDatastore::WritesSent() const {
   return write_stream_->sent_mutations_count();
 }
 
-void MockDatastore::AckWrite(const SnapshotVersion& version, NSArray<FSTMutationResult*>* results) {
-  write_stream_->AckWrite(version, results);
+void MockDatastore::AckWrite(const SnapshotVersion& version, std::vector<FSTMutationResult*> results) {
+  write_stream_->AckWrite(version, std::move(results));
 }
 
 void MockDatastore::FailWrite(const Status& error) {

@@ -82,9 +82,9 @@ NS_ASSUME_NONNULL_BEGIN
               "applyTo: key %s doesn't match maybeDoc key %s", documentKey.ToString(),
               maybeDoc.key.ToString());
 
-  HARD_ASSERT(mutationBatchResult.mutationResults.count == self.mutations.count,
+  HARD_ASSERT(mutationBatchResult.mutationResults.size() == self.mutations.count,
               "Mismatch between mutations length (%s) and results length (%s)",
-              self.mutations.count, mutationBatchResult.mutationResults.count);
+              self.mutations.count, mutationBatchResult.mutationResults.size());
 
   for (NSUInteger i = 0; i < self.mutations.count; i++) {
     FSTMutation *mutation = self.mutations[i];
@@ -130,25 +130,26 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FSTMutationBatchResult ()
 - (instancetype)initWithBatch:(FSTMutationBatch *)batch
                 commitVersion:(SnapshotVersion)commitVersion
-              mutationResults:(NSArray<FSTMutationResult *> *)mutationResults
+              mutationResults:(std::vector<FSTMutationResult*>)mutationResults
                   streamToken:(nullable NSData *)streamToken
                   docVersions:(DocumentVersionMap)docVersions NS_DESIGNATED_INITIALIZER;
 @end
 
 @implementation FSTMutationBatchResult {
   SnapshotVersion _commitVersion;
+  std::vector<FSTMutationResult*> _mutationResults;
   DocumentVersionMap _docVersions;
 }
 
 - (instancetype)initWithBatch:(FSTMutationBatch *)batch
                 commitVersion:(SnapshotVersion)commitVersion
-              mutationResults:(NSArray<FSTMutationResult *> *)mutationResults
+              mutationResults:(std::vector<FSTMutationResult*>)mutationResults
                   streamToken:(nullable NSData *)streamToken
                   docVersions:(DocumentVersionMap)docVersions {
   if (self = [super init]) {
     _batch = batch;
     _commitVersion = std::move(commitVersion);
-    _mutationResults = mutationResults;
+    _mutationResults = std::move(mutationResults);
     _streamToken = streamToken;
     _docVersions = std::move(docVersions);
   }
@@ -159,17 +160,21 @@ NS_ASSUME_NONNULL_BEGIN
   return _commitVersion;
 }
 
+- (const std::vector<FSTMutationResult *>&)mutationResults {
+  return _mutationResults;
+}
+
 - (const DocumentVersionMap &)docVersions {
   return _docVersions;
 }
 
 + (instancetype)resultWithBatch:(FSTMutationBatch *)batch
                   commitVersion:(SnapshotVersion)commitVersion
-                mutationResults:(NSArray<FSTMutationResult *> *)mutationResults
+                mutationResults:(std::vector<FSTMutationResult*>)mutationResults
                     streamToken:(nullable NSData *)streamToken {
-  HARD_ASSERT(batch.mutations.count == mutationResults.count,
+  HARD_ASSERT(batch.mutations.count == mutationResults.size(),
               "Mutations sent %s must equal results received %s", batch.mutations.count,
-              mutationResults.count);
+              mutationResults.size());
 
   DocumentVersionMap docVersions;
   NSArray<FSTMutation *> *mutations = batch.mutations;
@@ -186,7 +191,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   return [[FSTMutationBatchResult alloc] initWithBatch:batch
                                          commitVersion:std::move(commitVersion)
-                                       mutationResults:mutationResults
+                                       mutationResults:std::move(mutationResults)
                                            streamToken:streamToken
                                            docVersions:std::move(docVersions)];
 }

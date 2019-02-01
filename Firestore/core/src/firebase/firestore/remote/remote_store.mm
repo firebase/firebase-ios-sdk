@@ -20,16 +20,20 @@
 
 #import "Firestore/Source/Local/FSTLocalStore.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
+#import "Firestore/Source/Model/FSTMutationBatch.h"
 
+#include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "absl/memory/memory.h"
 
+using firebase::firestore::model::BatchId;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::SnapshotVersion;
-using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::model::kBatchIdUnknown;
 using firebase::firestore::remote::Datastore;
 using firebase::firestore::remote::WatchStream;
 using firebase::firestore::remote::DocumentWatchChange;
@@ -48,15 +52,11 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-namespace {
-
 /**
  * The maximum number of pending writes to allow.
  * TODO(bjornick): Negotiate this value with the backend.
  */
 constexpr int kMaxPendingWrites = 10;
-
-}  // namespace
 
 RemoteStore::RemoteStore(
     FSTLocalStore* local_store,
@@ -308,7 +308,7 @@ bool RemoteStore::ShouldStartWriteStream() const {
 }
 
 void RemoteStore::StartWriteStream() {
-  HARD_ASSERT(ShouldStartWriteStream() "StartWriteStream called when "
+  HARD_ASSERT(ShouldStartWriteStream(), "StartWriteStream called when "
                                        "ShouldStartWriteStream is false.");
   write_stream_->Start();
 }
@@ -326,7 +326,7 @@ void RemoteStore::FillWritePipeline() {
       }
       break;
     }
-    AddBatchToWritePipeline(batch);
+    AddToWritePipeline(batch);
     last_batch_id_retrieved = batch.batchID;
   }
 
@@ -418,18 +418,18 @@ void RemoteStore::OnWriteStreamResponse(
 }
 
 void RemoteStore::HandleHandshakeError(const Status& status) {
-  HARD_ASSERT(!error.ok(), "Handling write error with status OK.");
+  HARD_ASSERT(!status.ok(), "Handling write error with status OK.");
 
   // Reset the token if it's a permanent error, signaling the write stream is
   // no longer valid. Note that the handshake does not count as a write: see
   // comments on `Datastore::IsPermanentWriteError` for details.
-  if (Datastore::IsPermanentError(error)) {
+  if (Datastore::IsPermanentError(status)) {
     NSString* token =
         [write_stream_->GetLastStreamToken() base64EncodedStringWithOptions:0];
     LOG_DEBUG("RemoteStore %s error before completed handshake; resetting "
               "stream token %s: "
               "error code: '%s', details: '%s'",
-              (__bridge void*)self, token, error.code(), error.error_message());
+              this, token, status.code(), status.error_message());
     write_stream_->SetLastStreamToken(nil);
     [local_store_ setLastStreamToken:nil];
   } else {
@@ -439,18 +439,18 @@ void RemoteStore::HandleHandshakeError(const Status& status) {
 }
 
 void RemoteStore::HandleWriteError(const Status& status) {
-  HARD_ASSERT(!error.ok(), "Handling write error with status OK.");
+  HARD_ASSERT(!status.ok(), "Handling write error with status OK.");
 
   // Only handle permanent errors here. If it's transient, just let the retry
   // logic kick in.
-  if (!Datastore::IsPermanentWriteError(error)) {
+  if (!Datastore::IsPermanentWriteError(status)) {
     return;
   }
 
   // If this was a permanent error, the request itself was the problem so it's
   // not going to succeed if we resend it.
-  FSTMutationBatch* batch = write_pipeline_.front()
-  write_pipeline_.erase(write_pipeline_.front());
+  FSTMutationBatch* batch = write_pipeline_.front();
+  write_pipeline_.erase(write_pipeline_.begin());
 
   // In this case it's also unlikely that the server itself is melting
   // down--this was just a bad request so inhibit backoff on the next restart.
@@ -458,7 +458,7 @@ void RemoteStore::HandleWriteError(const Status& status) {
 
   [sync_engine_
       rejectFailedWriteWithBatchID:batch.batchID
-                             error:util::MakeNSError(error)];
+                             error:util::MakeNSError(status)];
 
   // It's possible that with the completion of this mutation another slot has
   // freed up.

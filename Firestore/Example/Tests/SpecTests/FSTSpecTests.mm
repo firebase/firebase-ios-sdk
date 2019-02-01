@@ -363,7 +363,7 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
 
   FSTMutationResult *mutationResult = [[FSTMutationResult alloc] initWithVersion:version
                                                                 transformResults:nil];
-  [self.driver receiveWriteAckWithVersion:version mutationResults:@[ mutationResult ]];
+  [self.driver receiveWriteAckWithVersion:version mutationResults:{ mutationResult}];
 }
 
 - (void)doFailWrite:(NSDictionary *)spec {
