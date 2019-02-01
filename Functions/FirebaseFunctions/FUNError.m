@@ -141,7 +141,7 @@ NSString *FUNDescriptionForErrorCode(FIRFunctionsErrorCode code) {
 }
 
 NSError *_Nullable FUNErrorForCode(FIRFunctionsErrorCode code) {
-  NSDictionary *userInfo = @{ NSLocalizedDescriptionKey : FUNDescriptionForErrorCode(code) };
+  NSDictionary *userInfo = @{NSLocalizedDescriptionKey : FUNDescriptionForErrorCode(code)};
   return [NSError errorWithDomain:FIRFunctionsErrorDomain code:code userInfo:userInfo];
 }
 

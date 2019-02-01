@@ -169,7 +169,11 @@ NSString *const kFUNDefaultRegion = @"us-central1";
       }
       return;
     }
-    return [self callFunction:name withObject:data timeout:timeout context:context completion:completion];
+    return [self callFunction:name
+                   withObject:data
+                      timeout:timeout
+                      context:context
+                   completion:completion];
   }];
 }
 
