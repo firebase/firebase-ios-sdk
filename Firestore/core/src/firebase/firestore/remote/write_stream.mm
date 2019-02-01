@@ -40,7 +40,7 @@ WriteStream::WriteStream(AsyncQueue* async_queue,
     : Stream{async_queue, credentials_provider, grpc_connection,
              TimerId::WriteStreamConnectionBackoff, TimerId::WriteStreamIdle},
       serializer_bridge_{serializer},
-      callback_{callback} {
+      callback_{NOT_NULL(callback)} {
 }
 
 void WriteStream::SetLastStreamToken(NSData* token) {
