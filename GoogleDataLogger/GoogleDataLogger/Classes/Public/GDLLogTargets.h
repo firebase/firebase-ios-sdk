@@ -23,6 +23,4 @@ typedef NS_ENUM(NSInteger, GDLLogTarget) {
 
   /** The CCT log target. */
   kGDLLogTargetCCT = 1000,
-
-  GDLLogTargetLast = 1001
 };
