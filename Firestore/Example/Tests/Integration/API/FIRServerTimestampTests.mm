@@ -222,7 +222,7 @@
 
   // include b=1 to ensure there's a change resulting in a new snapshot.
   [_docRef updateData:@{@"a" : [FIRFieldValue fieldValueForServerTimestamp], @"b" : @1}];
-  localSnapshol = [_accumulator awaitLocalEvent];
+  localSnapshot = [_accumulator awaitLocalEvent];
   XCTAssertEqualObjects([localSnapshot valueForField:@"a"
                              serverTimestampBehavior:FIRServerTimestampBehaviorPrevious],
                         @42);
