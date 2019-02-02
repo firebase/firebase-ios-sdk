@@ -67,7 +67,7 @@
 
 - (BOOL)application:(UIApplication *)application
     continueUserActivity:(NSUserActivity *)userActivity
-      restorationHandler:(void (^)(NSArray<id<UIUserActivityRestoring>> *))restorationHandler {
+      restorationHandler:(void (^)(NSArray *))restorationHandler {
   NSLog(@"handle page url %@", userActivity.webpageURL);
   BOOL handled = [[FIRDynamicLinks dynamicLinks]
       handleUniversalLink:userActivity.webpageURL
