@@ -31,6 +31,7 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/remote/online_state_tracker.h"
@@ -52,7 +53,6 @@ using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::SnapshotVersion;
-using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::remote::Datastore;
 using firebase::firestore::remote::WatchStream;
@@ -114,7 +114,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)credentialDidChange {
-  _remoteStore->OnCredentialChange();
+  _remoteStore->HandleCredentialChange();
 }
 
 #pragma mark Watch Stream
@@ -146,7 +146,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTTransaction *)transaction {
-  return _remoteStore->Transaction();
+  return _remoteStore->CreateTransaction();
 }
 
 @end
