@@ -19,33 +19,49 @@ import FirebaseFirestore
 @testable import FirebaseFirestoreSwift
 import XCTest
 
-class CodableDocumentTests: XCTestCase {
-  func roundTrip<X>(input: X, expected: [String: Any]? = nil) -> X where X: Codable {
-    var encoded = [String: Any]()
-    do {
-      encoded = try Firestore.encode(input)
-      if let expected = expected {
-        XCTAssertEqual(encoded as NSDictionary, expected as NSDictionary)
-      }
-    } catch {
-      XCTFail("Failed to encode \(X.self): error: \(error)")
-    }
-    do {
-      let decoded = try Firestore.decode(X.self, from: encoded)
-      return decoded
-    } catch {
-      XCTFail("Failed to decode \(X.self): \(error)")
-    }
-    return input // After failure
+fileprivate func assertRoundTrip<X: Equatable & Codable>(model: X, encoded: [String: Any]) -> Void {
+  let enc = assertEncodes(model, encoded: encoded)
+  assertDecodes(enc, encoded: model)
+}
+
+fileprivate func assertEncodes<X: Equatable & Codable>(_ model: X, encoded: [String: Any]) -> [String: Any] {
+  do {
+    let enc = try Firestore.encode(model)
+    XCTAssertEqual(enc as NSDictionary, encoded as NSDictionary)
+    return enc
+  } catch {
+    XCTFail("Failed to encode \(X.self): error: \(error)")
   }
+  return ["" : -1]
+}
+
+fileprivate func assertDecodes<X: Equatable & Codable>(_ model: [String: Any], encoded: X) -> Void {
+  do {
+    let decoded = try Firestore.decode(X.self, from: model)
+    XCTAssertEqual(decoded, encoded)
+  } catch {
+    XCTFail("Failed to decode \(X.self): \(error)")
+  }
+}
+
+fileprivate func assertDecodingThrows<X: Equatable & Codable>(_ model: [String: Any], encoded: X) -> Void {
+  do {
+    let _ = try Firestore.decode(X.self, from: model)
+  } catch {
+    return
+  }
+  XCTFail("Failed to throw")
+}
+
+class CodableDocumentTests: XCTestCase {
 
   func testInt() {
-    struct Model: Codable {
+    struct Model: Codable, Equatable {
       let x: Int
     }
     let model = Model(x: 42)
     let dict = ["x": 42]
-    XCTAssertEqual(model.x, roundTrip(input: model, expected: dict).x)
+    assertRoundTrip(model: model, encoded: dict)
   }
 
   func testEmpty() {
@@ -69,21 +85,17 @@ class CodableDocumentTests: XCTestCase {
   }
 
   func testOptional() {
-    struct Model: Codable {
+    struct Model: Codable, Equatable {
       let x: Int
       let opt: Int?
     }
-    let dict = ["x": 42]
-    let model = Model(x: 42, opt: nil)
-    XCTAssertEqual(model.x, roundTrip(input: model, expected: dict).x)
-
-    let model2 = Model(x: 42, opt: 7)
-    let expected = ["x": 42, "opt": 7]
-    let encoded = try! Firestore.encode(model2)
-    XCTAssertEqual(encoded as NSDictionary, expected as NSDictionary)
-    let decoded = try! Firestore.decode(Model.self, from: expected)
-    XCTAssertEqual(decoded.x, model2.x)
-    XCTAssertEqual(decoded.opt, model2.opt)
+    assertRoundTrip(model: Model(x: 42, opt: nil), encoded: ["x": 42])
+    assertRoundTrip(model: Model(x: 42, opt: 7), encoded: ["x": 42, "opt": 7])
+    assertDecodes(["x": 42, "opt": 5], encoded: Model(x: 42, opt: 5))
+    assertDecodingThrows(["x": 42, "opt": true], encoded: Model(x: 42, opt: nil))
+    assertDecodingThrows(["x": 42, "opt": "abc"], encoded: Model(x: 42, opt: nil))
+    assertDecodingThrows(["x": 45.55, "opt": 5], encoded: Model(x: 42, opt: nil))
+    assertDecodingThrows(["opt": 5], encoded: Model(x: 42, opt: nil))
   }
 
   func testOptionalTimestamp() {
@@ -156,64 +168,54 @@ class CodableDocumentTests: XCTestCase {
         }
       }
     }
-    struct Model: Codable {
+    struct Model: Codable, Equatable {
       let x: Int
       let e: MyEnum
     }
+
     let model = Model(x: 42, e: MyEnum.num(number: 4))
-    let output = roundTrip(input: model)
-    XCTAssertEqual(model.x, output.x)
-    XCTAssertEqual(model.e, output.e)
-
+    assertRoundTrip(model: model, encoded: ["x" : 42, "e": [ "num" : 4] ])
     let model2 = Model(x: 43, e: MyEnum.text("abc"))
-    let output2 = roundTrip(input: model2)
-    XCTAssertEqual(model2.x, output2.x)
-    XCTAssertEqual(model2.e, output2.e)
-
-    let model3 = Model(x: 43, e: MyEnum.timestamp(Timestamp(date: Date())))
-    let output3 = roundTrip(input: model3)
-    XCTAssertEqual(model3.x, output3.x)
-    XCTAssertEqual(model3.e, output3.e)
+    assertRoundTrip(model: model2, encoded: ["x" : 43, "e": [ "text" : "abc"] ])
+    let timestamp = Timestamp(date: Date())
+    let model3 = Model(x: 43, e: MyEnum.timestamp(timestamp))
+    assertRoundTrip(model: model3, encoded: ["x" : 43, "e": [ "timestamp" : timestamp] ])
   }
 
   func testGeoPoint() {
-    struct Model: Codable {
+    struct Model: Codable, Equatable {
       let p: GeoPoint
     }
-    let model = Model(p: GeoPoint(latitude: 1, longitude: -2))
-    let dict = ["p": GeoPoint(latitude: 1, longitude: -2)]
-    XCTAssertEqual(model.p, roundTrip(input: model, expected: dict).p)
+    let geopoint = GeoPoint(latitude: 1, longitude: -2)
+    let model = Model(p: geopoint)
+    assertRoundTrip(model: model, encoded: ["p": geopoint])
   }
 
   func testDate() {
-    struct Model: Codable {
+    struct Model: Codable, Equatable {
       let date: Date
     }
-    let d = Date(timeIntervalSinceReferenceDate: 0)
-    let model = Model(date: d)
-    let dict = ["date": d]
-    XCTAssertEqual(model.date, roundTrip(input: model, expected: dict).date)
+    let date = Date(timeIntervalSinceReferenceDate: 0)
+    let model = Model(date: date)
+    assertRoundTrip(model: model, encoded: ["date": date])
   }
 
   func testDocumentReference() {
-    struct Model: Codable {
+    struct Model: Codable, Equatable {
       let doc: DocumentReference
     }
     let d = FSTTestDocRef("abc/xyz")
     let model = Model(doc: d)
-    let dict = ["doc": d]
-    XCTAssertEqual(model.doc, roundTrip(input: model, expected: dict).doc)
+    assertRoundTrip(model: model, encoded: ["doc": d])
   }
 
   func testTimestamp() {
-    struct Model: Codable {
+    struct Model: Codable, Equatable {
       let timestamp: Timestamp
     }
     let t = Timestamp(date: Date())
     let model = Model(timestamp: t)
-    let encoded = try! Firestore.encode(model)
-    let model2 = try! Firestore.decode(Model.self, from: encoded)
-    XCTAssertEqual(model.timestamp, model2.timestamp)
+    assertRoundTrip(model: model, encoded: ["timestamp": t])
   }
 
   func testBadValue() {
@@ -225,7 +227,7 @@ class CodableDocumentTests: XCTestCase {
   }
 
   func testValueTooBig() {
-    struct Model: Codable {
+    struct Model: Codable, Equatable {
       let x: CChar
     }
     let dict = ["x": 12345] // Overflow
@@ -233,6 +235,7 @@ class CodableDocumentTests: XCTestCase {
 
     let dict2 = ["x": 12]
     let model2 = try? Firestore.decode(Model.self, from: dict2)
+    assertRoundTrip(model: model2, encoded: ["x" : 12])
     XCTAssertNotNil(model2)
   }
 

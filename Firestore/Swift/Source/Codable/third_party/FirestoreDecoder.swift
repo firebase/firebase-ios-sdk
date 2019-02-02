@@ -1004,8 +1004,8 @@ extension _FirestoreDecoder {
       guard let decimal = try self.unbox(value, as: Decimal.self) else { return nil }
       return (decimal as! T)
     }
-    if let _ = value as? Codable {
-      if isFirestorePassthroughType(value as! T) {
+    if let v = value as? T {
+      if isFirestorePassthroughType(v) {
         // All the native Firestore types that should not be encoded
         return (value as! T)
       }
