@@ -17,7 +17,7 @@
 import Foundation
 import FirebaseFirestore
 
-func isCodablePassThroughType<T: Any>(_ value: T) -> Bool {
+internal func isFirestorePassthroughType<T: Any>(_ value: T) -> Bool {
   return
     T.self == GeoPoint.self ||
     T.self == DocumentReference.self ||

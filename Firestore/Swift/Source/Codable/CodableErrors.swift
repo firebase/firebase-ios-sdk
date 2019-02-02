@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-enum FirestoreDecodingError: Error {
+internal enum FirestoreDecodingError: Error {
   case decodingIsNotSupported
 }
 
-enum FirestoreEncodingError: Error {
+internal enum FirestoreEncodingError: Error {
   case encodingIsNotSupported
 }

@@ -16,6 +16,14 @@
 import Foundation
 import FirebaseFirestore
 
+internal func encodeOrDie<T: Encodable>(_ value: T) -> [String: Any] {
+  do {
+    return try Firestore.encode(value)
+  } catch let error {
+    fatalError("Unable to encode data with Firestore encoder: \(error)")
+  }
+}
+
 extension Firestore {
   public static func encode<T: Encodable>(_ value: T) throws -> [String: Any] {
     guard let topLevel = try _FirestoreEncoder().box_(value) else {
@@ -342,7 +350,7 @@ extension _FirestoreEncoder {
       return box((value as! URL).absoluteString)
     } else if T.self == Decimal.self || T.self == NSDecimalNumber.self {
       return (value as! NSDecimalNumber)
-    } else if isCodablePassThroughType(value) {
+    } else if isFirestorePassthroughType(value) {
       // These are all native _Firestore types that we don't need to Encode
       return (value as! NSObject)
     }

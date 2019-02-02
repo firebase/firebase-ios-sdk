@@ -1005,7 +1005,7 @@ extension _FirestoreDecoder {
       return (decimal as! T)
     }
     if let _ = value as? Codable {
-      if isCodablePassThroughType(value as! T) {
+      if isFirestorePassthroughType(value as! T) {
         // All the native Firestore types that should not be encoded
         return (value as! T)
       }
