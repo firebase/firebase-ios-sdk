@@ -127,16 +127,22 @@ class RemoteStore : public TargetMetadataProvider,
    */
   void Start();
 
-  /** Shuts down the remote store, tearing down connections and otherwise
-   * cleaning up. */
+  /**
+   * Shuts down the remote store, tearing down connections and otherwise
+   * cleaning up.
+   */
   void Shutdown();
 
-  /** Temporarily disables the network. The network can be re-enabled using
-   * 'EnableNetwork'. */
+  /**
+   * Temporarily disables the network. The network can be re-enabled using
+   * 'EnableNetwork'.
+   */
   void DisableNetwork();
 
-  /** Re-enables the network. Only to be called as the counterpart to
-   * 'DisableNetwork'. */
+  /**
+   * Re-enables the network. Only to be called as the counterpart to
+   * 'DisableNetwork'.
+   */
   void EnableNetwork();
 
   /**
@@ -163,6 +169,12 @@ class RemoteStore : public TargetMetadataProvider,
    * Starts the write stream if necessary.
    */
   void FillWritePipeline();
+
+  /**
+   * Queues additional writes to be sent to the write stream, sending them
+   * immediately if the write stream is established.
+   */
+  void AddToWritePipeline(FSTMutationBatch* batch);
 
   /** Returns a new transaction backed by this remote store. */
   FSTTransaction* CreateTransaction();
@@ -242,12 +254,6 @@ class RemoteStore : public TargetMetadataProvider,
   bool ShouldStartWatchStream() const;
 
   void CleanUpWatchStreamState();
-
-  /**
-   * Queues additional writes to be sent to the write stream, sending them
-   * immediately if the write stream is established.
-   */
-  void AddToWritePipeline(FSTMutationBatch* batch);
 
   id<FSTRemoteSyncer> sync_engine_ = nil;
 
