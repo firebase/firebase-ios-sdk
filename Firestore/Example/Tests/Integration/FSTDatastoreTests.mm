@@ -219,7 +219,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTRemoteStoreEventCapture *capture = [[FSTRemoteStoreEventCapture alloc] initWithTestCase:self];
   [capture expectWriteEventWithDescription:@"write mutations"];
 
-  _remoteStore.syncEngine = capture;
+  [_remoteStore setSyncEngine:capture];
 
   FSTSetMutation *mutation = [self setMutation];
   FSTMutationBatch *batch = [[FSTMutationBatch alloc] initWithBatchID:23
