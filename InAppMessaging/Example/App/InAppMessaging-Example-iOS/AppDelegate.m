@@ -53,7 +53,6 @@
   sdkSetting.loggerSizeAfterReduce = 600;
   sdkSetting.appFGRenderMinIntervalInMinutes = 0.1;
   sdkSetting.loggerInVerboseMode = YES;
-  sdkSetting.conversionTrackingExpiresInSeconds = 180;
   sdkSetting.firebaseAutoDataCollectionEnabled = NO;
 
   sdkSetting.clearcutStrategy =
@@ -68,7 +67,7 @@
 
 - (BOOL)application:(UIApplication *)application
     continueUserActivity:(NSUserActivity *)userActivity
-      restorationHandler:(void (^)(NSArray *))restorationHandler {
+      restorationHandler:(void (^)(NSArray<id<UIUserActivityRestoring>> *))restorationHandler {
   NSLog(@"handle page url %@", userActivity.webpageURL);
   BOOL handled = [[FIRDynamicLinks dynamicLinks]
       handleUniversalLink:userActivity.webpageURL
