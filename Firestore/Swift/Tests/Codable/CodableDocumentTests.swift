@@ -32,7 +32,7 @@ fileprivate func assertEncodes<X: Equatable & Codable>(_ model: X, encoded: [Str
   } catch {
     XCTFail("Failed to encode \(X.self): error: \(error)")
   }
-  return ["" : -1]
+  return ["": -1]
 }
 
 fileprivate func assertDecodes<X: Equatable & Codable>(_ model: [String: Any], encoded: X) -> Void {
@@ -46,7 +46,7 @@ fileprivate func assertDecodes<X: Equatable & Codable>(_ model: [String: Any], e
 
 fileprivate func assertDecodingThrows<X: Equatable & Codable>(_ model: [String: Any], encoded: X) -> Void {
   do {
-    let _ = try Firestore.decode(X.self, from: model)
+    _ = try Firestore.decode(X.self, from: model)
   } catch {
     return
   }
@@ -54,7 +54,6 @@ fileprivate func assertDecodingThrows<X: Equatable & Codable>(_ model: [String: 
 }
 
 class CodableDocumentTests: XCTestCase {
-
   func testInt() {
     struct Model: Codable, Equatable {
       let x: Int
@@ -174,12 +173,12 @@ class CodableDocumentTests: XCTestCase {
     }
 
     let model = Model(x: 42, e: MyEnum.num(number: 4))
-    assertRoundTrip(model: model, encoded: ["x" : 42, "e": [ "num" : 4] ])
+    assertRoundTrip(model: model, encoded: ["x": 42, "e": ["num": 4]])
     let model2 = Model(x: 43, e: MyEnum.text("abc"))
-    assertRoundTrip(model: model2, encoded: ["x" : 43, "e": [ "text" : "abc"] ])
+    assertRoundTrip(model: model2, encoded: ["x": 43, "e": ["text": "abc"]])
     let timestamp = Timestamp(date: Date())
     let model3 = Model(x: 43, e: MyEnum.timestamp(timestamp))
-    assertRoundTrip(model: model3, encoded: ["x" : 43, "e": [ "timestamp" : timestamp] ])
+    assertRoundTrip(model: model3, encoded: ["x": 43, "e": ["timestamp": timestamp]])
   }
 
   func testGeoPoint() {
@@ -235,7 +234,7 @@ class CodableDocumentTests: XCTestCase {
 
     let dict2 = ["x": 12]
     let model2 = try? Firestore.decode(Model.self, from: dict2)
-    assertRoundTrip(model: model2, encoded: ["x" : 12])
+    assertRoundTrip(model: model2, encoded: ["x": 12])
     XCTAssertNotNil(model2)
   }
 
