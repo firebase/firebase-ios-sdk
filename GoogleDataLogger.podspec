@@ -42,5 +42,4 @@ Shared library for iOS SDK data logging needs.
     test_spec.requires_app_host = false
     test_spec.source_files = ['GoogleDataLogger/Tests/Unit/**/*.{h,m}'] + common_test_sources
   end
-  end
 end
