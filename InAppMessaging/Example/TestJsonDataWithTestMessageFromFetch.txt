@@ -1,0 +1,71 @@
+{
+  "messages": [
+    {
+      "vanillaPayload": {
+        "campaignId": "2108810525516234752"
+      },
+      "content": {
+        "modal": {
+          "title": {
+            "text": "FAST",
+            "hexColor": "#000000"
+          },
+          "body": {
+            "hexColor": "#000000"
+          },
+          "backgroundHexColor": "#ffffff"
+        }
+      },
+      "triggeringConditions": [
+        {
+          "fiamTrigger": "ON_FOREGROUND"
+        }
+      ],
+      "isTestCampaign": true
+    },
+    {
+      "vanillaPayload": {
+        "campaignId": "13313766398414028800",
+        "campaignStartTimeMillis": "1523986039000",
+        "campaignEndTimeMillis": "9223372036854775807",
+        "campaignName": "copy of Inception1"
+      },
+      "content": {
+        "modal": {
+          "title": {
+            "text": "I heard you like In-App Messages",
+            "hexColor": "#000000"
+          },
+          "body": {
+            "hexColor": "#000000"
+          },
+          "imageUrl": "https://google.com/an_image",
+          "actionButton": {
+            "text": {
+              "text": "Learn More",
+              "hexColor": "#ffffff"
+            },
+            "buttonHexColor": "#000000"
+          },
+          "action": {
+            "actionUrl": "https://www.google.com"
+          },
+          "backgroundHexColor": "#ffffff"
+        }
+      },
+      "priority": {
+        "value": 1
+      },
+      "triggeringConditions": [
+        {
+          "fiamTrigger": "ON_FOREGROUND"
+        },
+        {
+          "event": {
+            "name": "jackpot"
+          }
+        }
+      ]
+    }
+  ]
+}

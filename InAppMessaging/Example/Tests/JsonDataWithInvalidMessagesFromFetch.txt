@@ -1,0 +1,64 @@
+{
+  "messages": [
+    {
+      "vanillaPayload": {
+        "campaignId": "2108810525516234752"
+      },
+      "content": {
+        "modal": {
+          "body": {
+            "hexColor": "#000000"
+          },
+          "backgroundHexColor": "#ffffff"
+        }
+      },
+      "triggeringConditions": [
+        {
+          "fiamTrigger": "ON_FOREGROUND"
+        }
+      ],
+      "isTestCampaign": true
+    },
+
+    {
+      "vanillaPayload": {
+        "campaignId": "2108810525516234752"
+      },
+      "content": {
+        "modal": {
+          "title": {
+            "text": "FAST",
+            "hexColor": "#000000"
+          },
+          "body": {
+            "hexColor": "#000000"
+          },
+          "backgroundHexColor": "#ffffff"
+        }
+      },
+    },
+    {
+      "vanillaPayload": {
+        "campaignId": "2108810525516234752"
+      },
+      "content": {
+        "unknown-type": {
+          "title": {
+            "text": "FAST",
+            "hexColor": "#000000"
+          },
+          "body": {
+            "hexColor": "#000000"
+          },
+          "backgroundHexColor": "#ffffff"
+        }
+      },
+      "triggeringConditions": [
+        {
+          "fiamTrigger": "ON_FOREGROUND"
+        }
+      ],
+      "isTestCampaign": true
+    },
+  ]
+}

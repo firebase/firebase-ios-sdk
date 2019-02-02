@@ -17,6 +17,7 @@
 #import <Foundation/Foundation.h>
 
 @class FIRAConditionalUserProperty;
+@protocol FIRAnalyticsInteropListener;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -46,6 +47,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Sets user property.
 - (void)setUserPropertyWithOrigin:(NSString *)origin name:(NSString *)name value:(id)value;
+
+/// Registers an Analytics listener for the given origin.
+- (void)registerAnalyticsListener:(id<FIRAnalyticsInteropListener>)listener
+                       withOrigin:(NSString *)origin;
+
+/// Unregisters an Analytics listener for the given origin.
+- (void)unregisterAnalyticsListenerWithOrigin:(NSString *)origin;
 
 @end
 
