@@ -165,7 +165,7 @@ NS_ASSUME_NONNULL_BEGIN
     _syncEngine = [[FSTSyncEngine alloc] initWithLocalStore:_localStore
                                                 remoteStore:_remoteStore
                                                 initialUser:initialUser];
-    _remoteStore.syncEngine = _syncEngine;
+    [_remoteStore setSyncEngine:_syncEngine];
     _eventManager = [FSTEventManager eventManagerWithSyncEngine:_syncEngine];
 
     // Set up internal event tracking for the spec tests.
