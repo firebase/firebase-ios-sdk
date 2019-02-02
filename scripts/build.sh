@@ -235,7 +235,7 @@ case "$product-$method-$platform" in
   InAppMessagingDisplay-xcodebuild-iOS)
     RunXcodebuild \
         -workspace 'InAppMessaging/Example/InAppMessaging-Example-iOS.xcworkspace'  \
-        -scheme 'InAppMessaging-Example-iOS' \
+        -scheme 'InAppMessaging_Example_iOS' \
         "${xcb_flags[@]}" \
         build \
         test
