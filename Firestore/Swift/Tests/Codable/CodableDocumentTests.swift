@@ -184,7 +184,7 @@ class CodableDocumentTests: XCTestCase {
   func testDocumentReferenceEncodes() {
     let doc = FSTTestDocRef("abc/xyz")
     do {
-      let _ = try JSONEncoder().encode(doc)
+      _ = try JSONEncoder().encode(doc)
       XCTFail("Failed to throw")
     } catch FirebaseFirestoreSwift.FirestoreEncodingError.encodingIsNotSupported {
       return
