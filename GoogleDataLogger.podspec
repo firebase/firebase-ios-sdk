@@ -38,7 +38,7 @@ Shared library for iOS SDK data logging needs.
   common_test_sources = ['GoogleDataLogger/Tests/Common/**/*.{h,m}']
 
   # Unit test specs
-  s.test_spec 'TestsUnit' do |test_spec|
+  s.test_spec do |test_spec|
     test_spec.requires_app_host = false
     test_spec.source_files = ['GoogleDataLogger/Tests/Unit/**/*.{h,m}'] + common_test_sources
   end
