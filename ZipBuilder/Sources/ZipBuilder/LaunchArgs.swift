@@ -110,7 +110,7 @@ struct LaunchArgs {
        fileChecker: FileChecker = FileManager.default) {
     // Get the project template directory, and fail if it doesn't exist.
     guard let templatePath = defaults.string(forKey: Key.templateDir.rawValue) else {
-      LaunchArgs.exitWithUsageAndLog("Missing required \(Key.templateDir) key for the folder " +
+      LaunchArgs.exitWithUsageAndLog("Missing required key: `\(Key.templateDir)` for the folder " +
         "containing all required files to build frameworks.")
     }
 
@@ -118,7 +118,7 @@ struct LaunchArgs {
 
     // Parse the path to CoreDiagnostics.framework.
     guard let diagnosticsPath = defaults.string(forKey: Key.coreDiagnosticsDir.rawValue) else {
-      LaunchArgs.exitWithUsageAndLog("Missing required \(Key.coreDiagnosticsDir) key for the " +
+      LaunchArgs.exitWithUsageAndLog("Missing required key: `\(Key.coreDiagnosticsDir)` for the " +
         "path to the CoreDiagnostics framework.")
     }
 

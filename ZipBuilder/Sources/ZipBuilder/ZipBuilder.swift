@@ -151,12 +151,12 @@ struct ZipBuilder {
       fatalError("Could not get contents of the README template: \(error)")
     }
 
-    // We need to install all the subpsecs in order to get every single framework that we'll need for
-    // the zip file. We can't install each one individually since some pods depend on different
+    // We need to install all the subpsecs in order to get every single framework that we'll need
+    // for the zip file. We can't install each one individually since some pods depend on different
     // subspecs from the same pod (ex: GoogleUtilities, GoogleToolboxForMac, etc). All of the code
     // wouldn't be included so we need to install all of the subspecs to catch the superset of all
-    // required frameworks, then use that as the source of frameworks to pull from when including the
-    // folders in each product directory.
+    // required frameworks, then use that as the source of frameworks to pull from when including
+    // the folders in each product directory.
     CocoaPodUtils.installSubspecs(Subspec.allCases(), inDir: projectDir)
 
     // If any expected versions were passed in, we should verify that those were actually installed
@@ -172,6 +172,9 @@ struct ZipBuilder {
     for (framework, paths) in frameworks {
       print("Frameworks for pod: \(framework) were compiled at \(paths)")
     }
+
+    // TODO: Overwrite the `CoreDiagnostics.framework` in the generated framework.
+
 
     // Time to assemble the folder structure of the Zip file. In order to get the frameworks
     // required, we will `pod install` only those subspecs and then fetch the information for all
@@ -273,6 +276,52 @@ struct ZipBuilder {
 
   // MARK: - Private Helpers
 
+  /// Copies all frameworks from the `InstalledPod` (pulling from the `frameworkLocations`) and copy
+  /// them to the destination directory.
+  ///
+  /// - Parameters:
+  ///   - installedPods: All the Pods installed for a given set of subspecs, which will be used as a
+  ///               list to find out what frameworks to copy to the destination.
+  ///   - dir: Destination directory for all the frameworks.
+  ///   - frameworkLocations: A dictionary containing the pod name as the key and a location to
+  ///                         the compiled frameworks.
+  /// - Throws: Various FileManager errors in case the copying fails, or an error if the framework
+  //            doesn't exist in `frameworkLocations`.
+  private func copyFrameworks(fromPods installedPods: [CocoaPodUtils.PodInfo],
+                              toDirectory dir: URL,
+                              frameworkLocations: [String: [URL]],
+                              ignoreFrameworks: [String]) throws {
+    let fileManager = FileManager.default
+    if !fileManager.directoryExists(at: dir) {
+      try fileManager.createDirectory(at: dir,withIntermediateDirectories: false, attributes: nil)
+    }
+
+    // Loop through each InstalledPod item and get the name so we can fetch the framework and copy
+    // it to the destination directory.
+    for pod in installedPods {
+      // Skip the Firebase pod, any Interop pods, and specifically ignored frameworks.
+      guard pod.name != "Firebase",
+        !pod.name.contains("Interop"),
+        !ignoreFrameworks.contains(pod.name) else {
+          continue
+      }
+
+      guard let frameworks = frameworkLocations[pod.name] else {
+        let reason = "Unable to find frameworks for \(pod.name) in cache of frameworks built to " +
+        "include in the Zip file for that framework's folder."
+        let error = NSError(domain: "com.firebase.zipbuilder",
+                            code: 1,
+                            userInfo: [NSLocalizedDescriptionKey: reason])
+        throw error
+      }
+
+      for framework in frameworks {
+        let destination = dir.appendingPathComponent(framework.lastPathComponent)
+        try fileManager.copyItem(at: framework, to: destination)
+      }
+    }
+  }
+
   /// Creates the String required for this subspec to be added to the README. Creates a header and
   /// lists each framework in alphabetical order with the appropriate indentation, as well as a
   /// message about resources if they exist.
@@ -309,6 +358,124 @@ struct ZipBuilder {
     }
 
     return result
+  }
+
+  /// Assembles the expected versions based on the release manifests passed in, if they were.
+  /// Returns an array with the SDK name as the key and version as the value,
+  private func expectedVersions() -> [String: String] {
+    // Merge the versions from the current release and the known public versions.
+    var releasingVersions: [String: String] = [:]
+
+    // Check the existing expected versions and build a dictionary out of the expected versions.
+    if let sdksPath = paths.allSDKsPath {
+      let allSDKs = ManifestReader.loadAllReleasedSDKs(fromTextproto: sdksPath)
+      print("Parsed the following SDKs from the public release manifest:")
+
+      for sdk in allSDKs.sdk {
+        releasingVersions[sdk.name] = sdk.publicVersion
+        print("\(sdk.name): \(sdk.publicVersion)")
+      }
+    }
+
+    // Override any of the expected versions with the current release manifest, if it exists.
+    if let releasePath = paths.currentReleasePath {
+      let currentRelease = ManifestReader.loadCurrentRelease(fromTextproto: releasePath)
+      print("Overriding the following SDKs, taken from the current release manifest:")
+      for sdk in currentRelease.sdk {
+        releasingVersions[sdk.sdkName] = sdk.sdkVersion
+        print("\(sdk.sdkName): \(sdk.sdkVersion)")
+      }
+    }
+
+    if !releasingVersions.isEmpty {
+      print("Final expected versions for the Zip file: \(releasingVersions)")
+    }
+
+    return releasingVersions
+  }
+
+  /// Installs a subspec and attempts to copy all the frameworks required for it from
+  /// `buildFrameworks` and puts them into a new directory in the `rootZipDir` matching the
+  /// subspec's name. This also will move any Resources directory outside of the frameworks and
+  /// place them in the same directory as the rest of the frameworks.
+  ///
+  /// - Parameters:
+  ///   - subspec: The subspec to install and get the dependencies list.
+  ///   - projectDir: Root of the project containing the Podfile.
+  ///   - rootZipDir: The root directory to be turned into the Zip file.
+  ///   - builtFrameworks: All frameworks that have been built, with the framework name as the key
+  ///                      and the framework's location as the value.
+  ///   - ignoreFrameworks: Frameworks to avoid copying, if any.
+  /// - Throws: Throws various errors from copying frameworks.
+  /// - Returns: The directory containing all the frameworks and the names of the frameworks that
+  ///            were copied for this subspec.
+  @discardableResult
+  func installAndCopyFrameworks(forSubspec subspec: Subspec,
+                                projectDir: URL,
+                                rootZipDir: URL,
+                                builtFrameworks: [String: [URL]],
+                                ignoreFrameworks: [String] = []) throws -> (output: URL, frameworks: [String]) {
+    let installedPods = CocoaPodUtils.installSubspecs([subspec], inDir: projectDir)
+    let productDir = rootZipDir.appendingPathComponent(subspec.rawValue)
+    try copyFrameworks(fromPods: installedPods,
+                       toDirectory: productDir,
+                       frameworkLocations: builtFrameworks,
+                       ignoreFrameworks: ignoreFrameworks)
+
+    // Return the names of all the installed frameworks.
+    let namedFrameworks = installedPods.map { $0.name }
+    let copiedFrameworks = namedFrameworks.filter {
+      // Only return the frameworks that aren't contained in the "ignoreFrameworks" array and aren't
+      // an interop framework (since they don't compile to frameworks).
+      return !(ignoreFrameworks.contains($0) || $0.hasSuffix("Interop"))
+    }
+
+    return (productDir, copiedFrameworks)
+  }
+
+
+  /// Validates that the expected versions (based on the release manifest passed in, if there was
+  /// one) match the expected versions installed and listed in the Podfile.lock in a project
+  /// directory.
+  ///
+  /// - Parameter projectDir: The directory containing the Podfile.lock file of installed pods.
+  private func validateExpectedVersions(inProjectDir projectDir: URL) {
+    // Get the expected versions based on the release manifests, if there are any. We'll use this to
+    // validate the versions pulled from CocoaPods. Expected versions could be empty, in which case
+    // validation succeeds.
+    let expected = expectedVersions()
+    if !expected.isEmpty {
+      // There are some expected versions, read from the CocoaPods Podfile.lock and grab the
+      // installed versions.
+      let podfileLock: String
+      do {
+        podfileLock = try String(contentsOf: projectDir.appendingPathComponent("Podfile.lock"))
+      } catch {
+        fatalError("Could not read contents of `Podfile.lock` to validate versions in " +
+          "\(projectDir): \(error)")
+      }
+
+      // Get the versions in the format of [PodName: VersionString].
+      let actual = CocoaPodUtils.loadVersionsFromPodfileLock(contents: podfileLock)
+
+      // Loop through the expected versions and verify the actual versions match.
+      for podName in expected.keys {
+        guard let actualVersion = actual[podName],
+              let expectedVersion = expected[podName],
+              actualVersion == expectedVersion else {
+          fatalError("""
+            Version mismatch from expected versions and version installed in CocoaPods:
+            Pod Name: \(podName)
+            Expected Version: \(String(describing: expected[podName]))
+            Actual Version: \(String(describing: actual[podName]))
+            Please verify that the expected version is correct, and the Podspec dependencies are
+            appropriately versioned.
+            """)
+        }
+
+        debugPrint("Successfully verified version of \(podName) is \(actualVersion)")
+      }
+    }
   }
 
   /// Creates the String that displays all the versions of each pod, in alphabetical order.
@@ -368,166 +535,29 @@ struct ZipBuilder {
     return header + podVersions
   }
 
-  /// Installs a subspec and attempts to copy all the frameworks required for it from
-  /// `buildFrameworks` and puts them into a new directory in the `rootZipDir` matching the
-  /// subspec's name. This also will move any Resources directory outside of the frameworks and
-  /// place them in the same directory as the rest of the frameworks.
+  /// Compresses the contents of the directory into a Zip file that resides beside the directory
+  /// being compressed and has the same name as the directory with a `.zip` suffix.
   ///
-  /// - Parameters:
-  ///   - subspec: The subspec to install and get the dependencies list.
-  ///   - projectDir: Root of the project containing the Podfile.
-  ///   - rootZipDir: The root directory to be turned into the Zip file.
-  ///   - builtFrameworks: All frameworks that have been built, with the framework name as the key
-  ///                      and the framework's location as the value.
-  ///   - ignoreFrameworks: Frameworks to avoid copying, if any.
-  /// - Throws: Throws various errors from copying frameworks.
-  /// - Returns: The directory containing all the frameworks and the names of the frameworks that
-  ///            were copied for this subspec.
-  @discardableResult
-  func installAndCopyFrameworks(forSubspec subspec: Subspec,
-                                projectDir: URL,
-                                rootZipDir: URL,
-                                builtFrameworks: [String: [URL]],
-                                ignoreFrameworks: [String] = []) throws -> (output: URL, frameworks: [String]) {
-    let installedPods = CocoaPodUtils.installSubspecs([subspec], inDir: projectDir)
-    let productDir = rootZipDir.appendingPathComponent(subspec.rawValue)
-    try copyFrameworks(fromPods: installedPods,
-                       toDirectory: productDir,
-                       frameworkLocations: builtFrameworks,
-                       ignoreFrameworks: ignoreFrameworks)
-
-    // Return the names of all the installed frameworks.
-    let namedFrameworks = installedPods.map { $0.name }
-    let copiedFrameworks = namedFrameworks.filter {
-      // Only return the frameworks that aren't contained in the "ignoreFrameworks" array and aren't
-      // an interop framework (since they don't compile to frameworks).
-      return !(ignoreFrameworks.contains($0) || $0.hasSuffix("Interop"))
+  /// - Parameter directory: The directory to compress.
+  /// - Returns: A URL to the zip file created.
+  private func zipContents(ofDir directory: URL) -> URL {
+    // Ensure the directory being compressed exists.
+    guard FileManager.default.directoryExists(at: directory) else {
+      fatalError("Attempted to compress contents of \(directory) but the directory does not exist.")
     }
 
-    return (productDir, copiedFrameworks)
-  }
+    // Generate the path of the Zip file.
+    let parentDir = directory.deletingLastPathComponent()
+    let zip = parentDir.appendingPathComponent("Firebase.zip")
 
-  /// Copies all frameworks from the `InstalledPod` (pulling from the `frameworkLocations`) and copy
-  /// them to the destination directory.
-  ///
-  /// - Parameters:
-  ///   - installedPods: All the Pods installed for a given set of subspecs, which will be used as a
-  ///               list to find out what frameworks to copy to the destination.
-  ///   - dir: Destination directory for all the frameworks.
-  ///   - frameworkLocations: A dictionary containing the pod name as the key and a location to
-  ///                         the compiled frameworks.
-  /// - Throws: Various FileManager errors in case the copying fails, or an error if the framework
-  //            doesn't exist in `frameworkLocations`.
-  private func copyFrameworks(fromPods installedPods: [CocoaPodUtils.PodInfo],
-                              toDirectory dir: URL,
-                              frameworkLocations: [String: [URL]],
-                              ignoreFrameworks: [String]) throws {
-    let fileManager = FileManager.default
-    if !fileManager.directoryExists(at: dir) {
-      try fileManager.createDirectory(at: dir,withIntermediateDirectories: false, attributes: nil)
-    }
-
-    // Loop through each InstalledPod item and get the name so we can fetch the framework and copy
-    // it to the destination directory.
-    for pod in installedPods {
-      // Skip the Firebase pod, any Interop pods, and specifically ignored frameworks.
-      guard pod.name != "Firebase",
-          !pod.name.contains("Interop"),
-          !ignoreFrameworks.contains(pod.name) else {
-        continue
-      }
-
-      guard let frameworks = frameworkLocations[pod.name] else {
-        let reason = "Unable to find frameworks for \(pod.name) in cache of frameworks built to " +
-                     "include in the Zip file for that framework's folder."
-        let error = NSError(domain: "com.firebase.zipbuilder",
-                            code: 1,
-                            userInfo: [NSLocalizedDescriptionKey: reason])
-        throw error
-      }
-
-      for framework in frameworks {
-        let destination = dir.appendingPathComponent(framework.lastPathComponent)
-        try fileManager.copyItem(at: framework, to: destination)
-      }
-    }
-  }
-
-  /// Assembles the expected versions based on the release manifests passed in, if they were.
-  /// Returns an array with the SDK name as the key and version as the value,
-  private func expectedVersions() -> [String: String] {
-    // Merge the versions from the current release and the known public versions.
-    var releasingVersions: [String: String] = [:]
-
-    // Check the existing expected versions and build a dictionary out of the expected versions.
-    if let sdksPath = paths.allSDKsPath {
-      let allSDKs = ManifestReader.loadAllReleasedSDKs(fromTextproto: sdksPath)
-      print("Parsed the following SDKs from the public release manifest:")
-
-      for sdk in allSDKs.sdk {
-        releasingVersions[sdk.name] = sdk.publicVersion
-        print("\(sdk.name): \(sdk.publicVersion)")
-      }
-    }
-
-    // Override any of the expected versions with the current release manifest, if it exists.
-    if let releasePath = paths.currentReleasePath {
-      let currentRelease = ManifestReader.loadCurrentRelease(fromTextproto: releasePath)
-      print("Overriding the following SDKs, taken from the current release manifest:")
-      for sdk in currentRelease.sdk {
-        releasingVersions[sdk.sdkName] = sdk.sdkVersion
-        print("\(sdk.sdkName): \(sdk.sdkVersion)")
-      }
-    }
-
-    if !releasingVersions.isEmpty {
-      print("Final expected versions for the Zip file: \(releasingVersions)")
-    }
-
-    return releasingVersions
-  }
-
-  /// Validates that the expected versions (based on the release manifest passed in, if there was
-  /// one) match the expected versions installed and listed in the Podfile.lock in a project
-  /// directory.
-  ///
-  /// - Parameter projectDir: The directory containing the Podfile.lock file of installed pods.
-  private func validateExpectedVersions(inProjectDir projectDir: URL) {
-    // Get the expected versions based on the release manifests, if there are any. We'll use this to
-    // validate the versions pulled from CocoaPods. Expected versions could be empty, in which case
-    // validation succeeds.
-    let expected = expectedVersions()
-    if !expected.isEmpty {
-      // There are some expected versions, read from the CocoaPods Podfile.lock and grab the
-      // installed versions.
-      let podfileLock: String
-      do {
-        podfileLock = try String(contentsOf: projectDir.appendingPathComponent("Podfile.lock"))
-      } catch {
-        fatalError("Could not read contents of `Podfile.lock` to validate versions in " +
-          "\(projectDir): \(error)")
-      }
-
-      // Get the versions in the format of [PodName: VersionString].
-      let actual = CocoaPodUtils.loadVersionsFromPodfileLock(contents: podfileLock)
-
-      // Loop through the expected versions and verify the actual versions match.
-      for podName in expected.keys {
-        guard let actualVersion = actual[podName],
-              let expectedVersion = expected[podName],
-              actualVersion == expectedVersion else {
-          fatalError("""
-            Version mismatch from expected versions and version installed in CocoaPods:
-            Pod Name: \(podName)
-            Expected Version: \(String(describing: expected[podName]))
-            Actual Version: \(String(describing: actual[podName]))
-            Please verify that the expected version is correct, and the Podspec dependencies are
-            appropriately versioned.
-            """)
-        }
-
-        debugPrint("Successfully verified version of \(podName) is \(actualVersion)")
-      }
+    // Run the Zip command. This could be replaced with a proper Zip library in the future.
+    let result = Shell.executeCommandFromScript("zip -q -r -dg \(zip) \(directory)")
+    switch result {
+    case .success(_):
+      print("Successfully built Zip file.")
+      return zip
+    case let .error(code, output):
+      fatalError("Error \(code) building zip file: \(output)")
     }
   }
 
