@@ -240,7 +240,7 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
   _eventManager = [FSTEventManager eventManagerWithSyncEngine:_syncEngine];
 
   // Setup wiring for remote store.
-  _remoteStore.syncEngine = _syncEngine;
+  [_remoteStore setSyncEngine:_syncEngine];
 
   // NOTE: RemoteStore depends on LocalStore (for persisting stream tokens, refilling mutation
   // queue, etc.) so must be started after LocalStore.

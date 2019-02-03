@@ -19,6 +19,8 @@
 #import <FirebaseFirestore/FIRTimestamp.h>
 #import <XCTest/XCTest.h>
 
+#include <vector>
+
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTLocalWriteResult.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
@@ -51,6 +53,7 @@ using firebase::firestore::model::MaybeDocumentMap;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::remote::RemoteEvent;
+using firebase::firestore::remote::TestTargetMetadataProvider;
 using firebase::firestore::remote::WatchChangeAggregator;
 using firebase::firestore::remote::WatchTargetChange;
 using firebase::firestore::remote::WatchTargetChangeState;
@@ -906,9 +909,9 @@ NS_ASSUME_NONNULL_BEGIN
   NSData *resumeToken = FSTTestResumeTokenFromSnapshotVersion(1000);
 
   WatchTargetChange watchChange{WatchTargetChangeState::Current, {targetID}, resumeToken};
-  WatchChangeAggregator aggregator{[FSTTestTargetMetadataProvider
-      providerWithSingleResultForKey:testutil::Key("foo/bar")
-                             targets:{targetID}]};
+  auto metadataProvider = TestTargetMetadataProvider::CreateSingleResultProvider(
+      testutil::Key("foo/bar"), std::vector<TargetId>{targetID});
+  WatchChangeAggregator aggregator{&metadataProvider};
   aggregator.HandleTargetChange(watchChange);
   RemoteEvent remoteEvent = aggregator.CreateRemoteEvent(testutil::Version(1000));
   [self applyRemoteEvent:remoteEvent];

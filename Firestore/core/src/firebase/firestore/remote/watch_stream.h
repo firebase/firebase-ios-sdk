@@ -24,10 +24,12 @@
 #include <memory>
 #include <string>
 
+#include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_objc_bridge.h"
 #include "Firestore/core/src/firebase/firestore/remote/stream.h"
+#include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "absl/strings/string_view.h"
@@ -42,11 +44,40 @@ namespace firestore {
 namespace remote {
 
 /**
+ * An interface defining the events that can be emitted by the `WatchStream`.
+ */
+class WatchStreamCallback {
+ public:
+  /** Called by the `WatchStream` when it is ready to accept outbound request
+   * messages. */
+  virtual void OnWatchStreamOpen() = 0;
+
+  /**
+   * Called by the `WatchStream` with changes and the snapshot versions
+   * included in in the `WatchChange` responses sent back by the server.
+   */
+  virtual void OnWatchStreamChange(
+      const WatchChange& change,
+      const model::SnapshotVersion& snapshot_version) = 0;
+
+  /**
+   * Called by the `WatchStream` when the underlying streaming RPC is
+   * interrupted for whatever reason, usually because of an error, but possibly
+   * due to an idle timeout. The status passed to this method may be ok, in
+   * which case the stream was closed without attributable fault.
+   *
+   * NOTE: This will not be called after `Stop` is called on the stream. See
+   * "Starting and Stopping" on `Stream` for details.
+   */
+  virtual void OnWatchStreamClose(const util::Status& status) = 0;
+};
+
+/**
  * A `Stream` that implements the StreamingWatch RPC.
  *
- * Once the `WatchStream` has called the `streamDidOpen` method on the delegate,
- * any number of `WatchQuery` and `UnwatchTargetId` calls can be sent to control
- * what changes will be sent from the server for WatchChanges.
+ * Once the `WatchStream` has called the `OnWatchStreamOpen` method on the
+ * callback, any number of `WatchQuery` and `UnwatchTargetId` calls can be sent
+ * to control what changes will be sent from the server for WatchChanges.
  */
 class WatchStream : public Stream {
  public:
@@ -54,7 +85,7 @@ class WatchStream : public Stream {
               auth::CredentialsProvider* credentials_provider,
               FSTSerializerBeta* serializer,
               GrpcConnection* grpc_connection,
-              id<FSTWatchStreamDelegate> delegate);
+              WatchStreamCallback* callback);
 
   /**
    * Registers interest in the results of the given query. If the query includes
@@ -85,7 +116,7 @@ class WatchStream : public Stream {
   }
 
   bridge::WatchStreamSerializer serializer_bridge_;
-  bridge::WatchStreamDelegate delegate_bridge_;
+  WatchStreamCallback* callback_;
 };
 
 }  // namespace remote
