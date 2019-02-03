@@ -32,7 +32,8 @@ NS_ASSUME_NONNULL_BEGIN
 // @param fetchWaitTime would be non nil if fetch wait time data is found in the api response.
 - (NSArray<FIRIAMMessageDefinition *> *)parseAPIResponseDictionary:(NSDictionary *)responseDict
                                                  discardedMsgCount:(NSInteger *)discardCount
-                                            fetchWaitTimeInSeconds:(NSNumber **)fetchWaitTime;
+                                            fetchWaitTimeInSeconds:
+                                                (NSNumber *_Nullable *_Nonnull)fetchWaitTime;
 
 - (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithTimeFetcher:(id<FIRIAMTimeFetcher>)timeFetcher;
