@@ -64,15 +64,12 @@ class CodableDocumentTests: XCTestCase {
   }
 
   func testEmpty() {
-    struct Model: Codable {}
-    let model = Model()
-    let dict = [String: Any]() as NSDictionary
-    let encoded = try! Firestore.encode(model) as NSDictionary
-    XCTAssertEqual(encoded, dict)
+    struct Model: Codable, Equatable {}
+    _ = assertEncodes(Model(), encoded: [String: Any]())
   }
 
   func testNil() {
-    struct Model: Codable {
+    struct Model: Codable, Equatable {
       let x: Int?
     }
     let model = Model(x: nil)
@@ -95,31 +92,6 @@ class CodableDocumentTests: XCTestCase {
     assertDecodingThrows(["x": 42, "opt": "abc"], encoded: Model(x: 42, opt: nil))
     assertDecodingThrows(["x": 45.55, "opt": 5], encoded: Model(x: 42, opt: nil))
     assertDecodingThrows(["opt": 5], encoded: Model(x: 42, opt: nil))
-  }
-
-  func testOptionalTimestamp() {
-    struct Model: Codable {
-      let value: Int
-      let timestamp: Timestamp?
-    }
-    class FirestoreDummy {
-      var visited = 0
-      func setObject<T: Codable>(_ object: T, fieldValues: [PartialKeyPath<T>: FieldValue] = [:]) {
-        let obj = object as! Model
-        XCTAssertEqual(obj.value, 10)
-        XCTAssertNil(obj.timestamp)
-        visited += 1
-      }
-    }
-    let c = Model(value: 10, timestamp: nil)
-    let fs = FirestoreDummy()
-    // If no custom field values need to be set:
-    fs.setObject(c)
-
-    // Or, overriding custom field values:
-    fs.setObject(c, fieldValues: [\Model.timestamp: FieldValue.serverTimestamp(),
-                                  \Model.value: FieldValue.delete()])
-    XCTAssert(fs.visited == 2)
   }
 
   func testEnum() {
@@ -208,6 +180,19 @@ class CodableDocumentTests: XCTestCase {
     assertRoundTrip(model: model, encoded: ["doc": d])
   }
 
+  // DocumentReference is not Codable unless embedded in a Firestore object.
+  func testDocumentReferenceEncodes() {
+    let doc = FSTTestDocRef("abc/xyz")
+    do {
+      let _ = try JSONEncoder().encode(doc)
+      XCTFail("Failed to throw")
+    } catch FirebaseFirestoreSwift.FirestoreEncodingError.encodingIsNotSupported {
+      return
+    } catch {
+      XCTFail("Unrecognized error: \(error)")
+    }
+  }
+
   func testTimestamp() {
     struct Model: Codable, Equatable {
       let timestamp: Timestamp
@@ -218,11 +203,12 @@ class CodableDocumentTests: XCTestCase {
   }
 
   func testBadValue() {
-    struct Model: Codable {
+    struct Model: Codable, Equatable {
       let x: Int
     }
     let dict = ["x": "abc"] // Wrong type;
-    XCTAssertThrowsError(try Firestore.decode(Model.self, from: dict))
+    let model = Model(x: 42)
+    assertDecodingThrows(dict, encoded: model)
   }
 
   func testValueTooBig() {
@@ -230,17 +216,14 @@ class CodableDocumentTests: XCTestCase {
       let x: CChar
     }
     let dict = ["x": 12345] // Overflow
-    XCTAssertThrowsError(try Firestore.decode(Model.self, from: dict))
-
-    let dict2 = ["x": 12]
-    let model2 = try? Firestore.decode(Model.self, from: dict2)
-    assertRoundTrip(model: model2, encoded: ["x": 12])
-    XCTAssertNotNil(model2)
+    let model = Model(x: 42)
+    assertDecodingThrows(dict, encoded: model)
+    assertRoundTrip(model: model, encoded: ["x": 42])
   }
 
   // Inspired by https://github.com/firebase/firebase-android-sdk/blob/master/firebase-firestore/src/test/java/com/google/firebase/firestore/util/MapperTest.java
   func testBeans() {
-    struct Model: Codable {
+    struct Model: Codable, Equatable {
       let s: String
       let d: Double
       let f: Float
@@ -259,7 +242,7 @@ class CodableDocumentTests: XCTestCase {
     let model = Model(
       s: "abc",
       d: 123,
-      f: -4.321,
+      f: -4,
       l: 1_234_567_890_123,
       i: -4444,
       b: false,
@@ -275,7 +258,7 @@ class CodableDocumentTests: XCTestCase {
     let dict = [
       "s": "abc",
       "d": 123,
-      "f": -4.321,
+      "f": -4,
       "l": 1_234_567_890_123,
       "i": -4444,
       "b": false,
@@ -289,44 +272,11 @@ class CodableDocumentTests: XCTestCase {
       "casESensitivE": "ccc",
     ] as [String: Any]
 
-    let model2 = try! Firestore.decode(Model.self, from: dict)
-    XCTAssertEqual(model.s, model2.s)
-    XCTAssertEqual(model.d, model2.d)
-    XCTAssertEqual(model.f, model2.f)
-    XCTAssertEqual(model.l, model2.l)
-    XCTAssertEqual(model.i, model2.i)
-    XCTAssertEqual(model.b, model2.b)
-    XCTAssertEqual(model.sh, model2.sh)
-    XCTAssertEqual(model.byte, model2.byte)
-    XCTAssertEqual(model.uchar, model2.uchar)
-    XCTAssertEqual(model.ai, model2.ai)
-    XCTAssertEqual(model.si, model2.si)
-    XCTAssertEqual(model.caseSensitive, model2.caseSensitive)
-    XCTAssertEqual(model.casESensitive, model2.casESensitive)
-    XCTAssertEqual(model.casESensitivE, model2.casESensitivE)
-
-    let encodedDict = try! Firestore.encode(model)
-    XCTAssertEqual(encodedDict["s"] as! String, "abc")
-    XCTAssertEqual(encodedDict["d"] as! Double, 123)
-    XCTAssertEqual(encodedDict["f"] as! Float, -4.321)
-    XCTAssertEqual(encodedDict["l"] as! CLongLong, 1_234_567_890_123)
-    XCTAssertEqual(encodedDict["i"] as! Int, -4444)
-    XCTAssertEqual(encodedDict["b"] as! Bool, false)
-    XCTAssertEqual(encodedDict["sh"] as! CShort, 123)
-    XCTAssertEqual(encodedDict["byte"] as! CChar, 45)
-    XCTAssertEqual(encodedDict["uchar"] as! CUnsignedChar, 44)
-    XCTAssertEqual(encodedDict["ai"] as! [Int], [1, 2, 3, 4])
-    XCTAssertEqual(encodedDict["si"] as! [String], ["abc", "def"])
-    XCTAssertEqual(encodedDict["caseSensitive"] as! String, "aaa")
-    XCTAssertEqual(encodedDict["casESensitive"] as! String, "bbb")
-    XCTAssertEqual(encodedDict["casESensitivE"] as! String, "ccc")
-
-    let model3 = try? Firestore.decode(Model.self, from: encodedDict as [String: Any])
-    XCTAssertNotNil(model3)
+    assertRoundTrip(model: model, encoded: dict)
   }
 
   func testCodingKeys() {
-    struct Model: Codable {
+    struct Model: Codable, Equatable {
       var s: String
       var ms: String
       var d: Double
