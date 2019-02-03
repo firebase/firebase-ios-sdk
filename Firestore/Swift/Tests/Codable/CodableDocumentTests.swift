@@ -80,6 +80,23 @@ class CodableDocumentTests: XCTestCase {
     XCTAssertNil(model2)
   }
 
+  func testIntNilString() {
+    struct Model: Codable, Equatable {
+      let i: Int
+      let x: Int?
+      let s: String
+    }
+    let model = Model(i: 7, x: nil, s: "abc")
+    let encodedDict = try! Firestore.encode(model)
+    XCTAssertNil(encodedDict["x"])
+    XCTAssertTrue(encodedDict.keys.contains("i"))
+
+    // TODO: - handle encoding keys with nil values
+    // See https://stackoverflow.com/questions/47266862/encode-nil-value-as-null-with-jsonencoder
+    // and https://bugs.swift.org/browse/SR-9232
+    // XCTAssertTrue(encodedDict.keys.contains("x"))
+  }
+
   func testOptional() {
     struct Model: Codable, Equatable {
       let x: Int

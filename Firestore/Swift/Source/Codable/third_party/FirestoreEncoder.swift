@@ -351,7 +351,7 @@ extension _FirestoreEncoder {
     } else if T.self == Decimal.self || T.self == NSDecimalNumber.self {
       return (value as! NSDecimalNumber)
     } else if isFirestorePassthroughType(value) {
-      // These are all native _Firestore types that we don't need to Encode
+      // This is a native Firestore types that we don't need to encode.
       return (value as! NSObject)
     }
 
