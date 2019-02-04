@@ -53,7 +53,6 @@
   sdkSetting.loggerSizeAfterReduce = 600;
   sdkSetting.appFGRenderMinIntervalInMinutes = 0.1;
   sdkSetting.loggerInVerboseMode = YES;
-  sdkSetting.conversionTrackingExpiresInSeconds = 180;
   sdkSetting.firebaseAutoDataCollectionEnabled = NO;
 
   sdkSetting.clearcutStrategy =

@@ -1,9 +1,8 @@
-
 use_frameworks!
 
 # Uncomment the next two lines for pre-release testing on public repo
-source 'https://github.com/Firebase/SpecsStaging.git'
-source 'https://github.com/CocoaPods/Specs.git'
+# source 'https://github.com/Firebase/SpecsStaging.git'
+# source 'https://github.com/CocoaPods/Specs.git'
 
 pod 'FirebaseCore', :path => '../..'
 
