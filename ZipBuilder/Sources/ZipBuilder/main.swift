@@ -1,5 +1,4 @@
 import Foundation
-import Utility
 
 // Get the launch arguments, parsed by user defaults.
 let args = LaunchArgs()
