@@ -21,7 +21,6 @@ struct LaunchArgs {
     case cacheEnabled
     case customSpecRepos
     case coreDiagnosticsDir
-    case debugMode
     case deleteCache
     case existingVersions
     case releasingSDKs
@@ -37,8 +36,6 @@ struct LaunchArgs {
         return "The path to the `CoreDiagnostics.framework` file built with the Zip flag enabled."
       case .customSpecRepos:
         return "A comma separated list of custom CocoaPod Spec repos."
-      case .debugMode:
-        return "A flag to enable debug mode. Pass in `true/false`, `YES/NO`, or `1/0`."
       case .deleteCache:
         return "A flag to empty the cache. Note: if this flag and the `cacheEnabled` flag is " +
         "set, it will fail since that's probably unintended."
@@ -63,7 +60,6 @@ struct LaunchArgs {
       return [.cacheEnabled,
               .coreDiagnosticsDir,
               .customSpecRepos,
-              .debugMode,
               .deleteCache,
               .existingVersions,
               .releasingSDKs,

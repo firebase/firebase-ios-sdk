@@ -473,7 +473,7 @@ struct ZipBuilder {
             """)
         }
 
-        debugPrint("Successfully verified version of \(podName) is \(actualVersion)")
+        print("Successfully verified version of \(podName) is \(actualVersion)")
       }
     }
   }
