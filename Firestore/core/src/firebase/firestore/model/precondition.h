@@ -73,6 +73,10 @@ class Precondition {
     return update_time_;
   }
 
+  bool exists() const {
+    return exists_;
+  }
+
   bool operator==(const Precondition& other) const {
     return type_ == other.type_ && update_time_ == other.update_time_ &&
            exists_ == other.exists_;

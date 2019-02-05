@@ -574,6 +574,13 @@ TEST(FieldValue, GetNothing) {
   EXPECT_EQ(absl::nullopt, value.Get(testutil::Field("a.a")));
 }
 
+TEST(FieldValue, IsSmallish) {
+  // We expect the FV to use 4 bytes to track the type of the union, plus 8
+  // bytes for the union contents themselves. The other 4 is for padding. We
+  // want to keep FV as small as possible.
+  EXPECT_LE(sizeof(FieldValue), 2 * sizeof(void*));
+}
+
 }  //  namespace model
 }  //  namespace firestore
 }  //  namespace firebase

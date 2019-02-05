@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** @class FIREmailPasswordAuthCredential
     @brief Internal implementation of FIRAuthCredential for Email/Password credentials.
  */
-@interface FIREmailPasswordAuthCredential : FIRAuthCredential
+@interface FIREmailPasswordAuthCredential : FIRAuthCredential <NSSecureCoding>
 
 /** @property email
     @brief The user's email address.

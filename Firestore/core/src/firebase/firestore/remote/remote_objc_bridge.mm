@@ -34,6 +34,7 @@ namespace firestore {
 namespace remote {
 namespace bridge {
 
+using core::DatabaseInfo;
 using model::DocumentKey;
 using model::TargetId;
 using model::SnapshotVersion;
@@ -146,7 +147,7 @@ GCFSListenResponse* WatchStreamSerializer::ParseResponse(
   return ToProto<GCFSListenResponse>(message, out_status);
 }
 
-FSTWatchChange* WatchStreamSerializer::ToWatchChange(
+std::unique_ptr<WatchChange> WatchStreamSerializer::ToWatchChange(
     GCFSListenResponse* proto) const {
   return [serializer_ decodedWatchChange:proto];
 }
@@ -231,6 +232,11 @@ NSString* WriteStreamSerializer::Describe(GCFSWriteResponse* response) {
 
 // DatastoreSerializer
 
+DatastoreSerializer::DatastoreSerializer(const DatabaseInfo& database_info)
+    : serializer_{[[FSTSerializerBeta alloc]
+          initWithDatabaseID:&database_info.database_id()]} {
+}
+
 GCFSCommitRequest* DatastoreSerializer::CreateCommitRequest(
     NSArray<FSTMutation*>* mutations) const {
   GCFSCommitRequest* request = [GCFSCommitRequest message];
@@ -294,21 +300,6 @@ FSTMaybeDocument* DatastoreSerializer::ToMaybeDocument(
   return [serializer_ decodedMaybeDocumentFromBatch:response];
 }
 
-// WatchStreamDelegate
-
-void WatchStreamDelegate::NotifyDelegateOnOpen() {
-  [delegate_ watchStreamDidOpen];
-}
-
-void WatchStreamDelegate::NotifyDelegateOnChange(
-    FSTWatchChange* change, const model::SnapshotVersion& snapshot_version) {
-  [delegate_ watchStreamDidChange:change snapshotVersion:snapshot_version];
-}
-
-void WatchStreamDelegate::NotifyDelegateOnClose(const Status& status) {
-  [delegate_ watchStreamWasInterruptedWithError:MakeNSError(status)];
-}
-
 // WriteStreamDelegate
 
 void WriteStreamDelegate::NotifyDelegateOnOpen() {
@@ -327,7 +318,7 @@ void WriteStreamDelegate::NotifyDelegateOnCommit(
 }
 
 void WriteStreamDelegate::NotifyDelegateOnClose(const Status& status) {
-  [delegate_ writeStreamWasInterruptedWithError:MakeNSError(status)];
+  [delegate_ writeStreamWasInterruptedWithError:status];
 }
 
 }  // namespace bridge

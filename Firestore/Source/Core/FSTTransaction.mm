@@ -24,13 +24,13 @@
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTMutation.h"
-#import "Firestore/Source/Remote/FSTDatastore.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 using firebase::firestore::core::ParsedSetData;
@@ -39,13 +39,13 @@ using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::remote::Datastore;
 
 NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTTransaction
 
 @interface FSTTransaction ()
-@property(nonatomic, strong, readonly) FSTDatastore *datastore;
 @property(nonatomic, strong, readonly) NSMutableArray *mutations;
 @property(nonatomic, assign) BOOL commitCalled;
 /**
@@ -56,14 +56,15 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @implementation FSTTransaction {
+  Datastore *_datastore;
   std::map<DocumentKey, SnapshotVersion> _readVersions;
 }
 
-+ (instancetype)transactionWithDatastore:(FSTDatastore *)datastore {
++ (instancetype)transactionWithDatastore:(Datastore *)datastore {
   return [[FSTTransaction alloc] initWithDatastore:datastore];
 }
 
-- (instancetype)initWithDatastore:(FSTDatastore *)datastore {
+- (instancetype)initWithDatastore:(Datastore *)datastore {
   self = [super init];
   if (self) {
     _datastore = datastore;
@@ -116,22 +117,21 @@ NS_ASSUME_NONNULL_BEGIN
     FSTThrowInvalidUsage(@"FIRIllegalStateException",
                          @"All reads in a transaction must be done before any writes.");
   }
-  [self.datastore lookupDocuments:keys
-                       completion:^(NSArray<FSTMaybeDocument *> *_Nullable documents,
-                                    NSError *_Nullable error) {
-                         if (error) {
-                           completion(nil, error);
-                           return;
-                         }
-                         for (FSTMaybeDocument *doc in documents) {
-                           NSError *recordError = nil;
-                           if (![self recordVersionForDocument:doc error:&recordError]) {
-                             completion(nil, recordError);
-                             return;
-                           }
-                         }
-                         completion(documents, nil);
-                       }];
+  _datastore->LookupDocuments(
+      keys, ^(NSArray<FSTMaybeDocument *> *_Nullable documents, NSError *_Nullable error) {
+        if (error) {
+          completion(nil, error);
+          return;
+        }
+        for (FSTMaybeDocument *doc in documents) {
+          NSError *recordError = nil;
+          if (![self recordVersionForDocument:doc error:&recordError]) {
+            completion(nil, recordError);
+            return;
+          }
+        }
+        completion(documents, nil);
+      });
 }
 
 /** Stores mutations to be written when commitWithCompletion is called. */
@@ -239,14 +239,13 @@ NS_ASSUME_NONNULL_BEGIN
                                              @"written in that transaction."
                }]);
   } else {
-    [self.datastore commitMutations:self.mutations
-                         completion:^(NSError *_Nullable error) {
-                           if (error) {
-                             completion(error);
-                           } else {
-                             completion(nil);
-                           }
-                         }];
+    _datastore->CommitMutations(self.mutations, ^(NSError *_Nullable error) {
+      if (error) {
+        completion(error);
+      } else {
+        completion(nil);
+      }
+    });
   }
 }
 

@@ -20,19 +20,22 @@
 
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseInstanceID/FirebaseInstanceID.h>
+#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 
 #import "FIRMessaging.h"
 #import "FIRMessaging_Private.h"
+#import "FIRMessagingTestUtilities.h"
 
 extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 
+/// The NSUserDefaults domain for testing.
+NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
+
 @interface FIRMessaging ()
-+ (FIRMessaging *)messagingForTests;
 
 @property(nonatomic, readwrite, strong) NSString *defaultFcmToken;
 @property(nonatomic, readwrite, strong) NSData *apnsTokenData;
 @property(nonatomic, readwrite, strong) FIRInstanceID *instanceID;
-@property(nonatomic, readwrite, strong) NSUserDefaults *messagingUserDefaults;
 
 // Direct Channel Methods
 - (void)updateAutomaticClientConnection;
@@ -45,7 +48,6 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 @property(nonatomic, readonly, strong) FIRMessaging *messaging;
 @property(nonatomic, readwrite, strong) id mockMessaging;
 @property(nonatomic, readwrite, strong) id mockInstanceID;
-@property(nonatomic, readwrite, strong) id realInstanceID;
 @property(nonatomic, readwrite, strong) id mockFirebaseApp;
 
 @end
@@ -54,24 +56,28 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 
 - (void)setUp {
   [super setUp];
-  _messaging = [FIRMessaging messagingForTests];
+
+  // Create the messaging instance with all the necessary dependencies.
+  NSUserDefaults *defaults =
+      [[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingDefaultsTestDomain];
+  _messaging = [FIRMessagingTestUtilities messagingForTestsWithUserDefaults:defaults];
+
   _mockFirebaseApp = OCMClassMock([FIRApp class]);
    OCMStub([_mockFirebaseApp defaultApp]).andReturn(_mockFirebaseApp);
   _mockInstanceID = OCMPartialMock(self.messaging.instanceID);
-  _realInstanceID = self.messaging.instanceID;
-  self.messaging.instanceID = self.mockInstanceID;
   [[NSUserDefaults standardUserDefaults]
       removePersistentDomainForName:[NSBundle mainBundle].bundleIdentifier];
 }
 
 - (void)tearDown {
+  [self.messaging.messagingUserDefaults removePersistentDomainForName:kFIRMessagingDefaultsTestDomain];
   self.messaging.shouldEstablishDirectChannel = NO;
   self.messaging.defaultFcmToken = nil;
-  self.messaging.instanceID = self.realInstanceID;
   self.messaging.apnsTokenData = nil;
   [_mockMessaging stopMocking];
   [_mockInstanceID stopMocking];
   [_mockFirebaseApp stopMocking];
+  _messaging = nil;
   [super tearDown];
 }
 

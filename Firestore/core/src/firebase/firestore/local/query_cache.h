@@ -23,6 +23,8 @@
 
 #import <Foundation/Foundation.h>
 
+#include <unordered_map>
+
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
@@ -91,7 +93,8 @@ class QueryCache {
 
   virtual int RemoveTargets(
       model::ListenSequenceNumber upper_bound,
-      NSDictionary<NSNumber*, FSTQueryData*>* live_targets) = 0;
+      const std::unordered_map<model::TargetId, FSTQueryData*>&
+          live_targets) = 0;
 
   // Key-related methods
   virtual void AddMatchingKeys(const model::DocumentKeySet& keys,

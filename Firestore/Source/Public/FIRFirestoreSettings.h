@@ -48,21 +48,24 @@ NS_SWIFT_NAME(FirestoreSettings)
 @property(nonatomic, getter=isPersistenceEnabled) BOOL persistenceEnabled;
 
 /**
- * Enables the use of FIRTimestamps for timestamp fields in FIRDocumentSnapshots.
+ * Specifies whether to use FIRTimestamps for timestamp fields in FIRDocumentSnapshots. This is
+ * now enabled by default and should not be disabled.
  *
- * Currently, Firestore returns timestamp fields as an NSDate but NSDate is implemented as a double
- * which loses precision and causes unexpected behavior when using a timestamp from a snapshot as
- * a part of a subsequent query.
+ * Previously, Firestore returned timestamp fields as NSDate but NSDate is implemented as a double
+ * which loses precision and causes unexpected behavior when using a timestamp from a snapshot as a
+ * part of a subsequent query.
  *
- * Setting timestampsInSnapshotsEnabled to true will cause Firestore to return FIRTimestamp values
- * instead of NSDate, avoiding this kind of problem. To make this work you must also change any code
- * that uses NSDate to use FIRTimestamp instead.
+ * So now Firestore returns FIRTimestamp values instead of NSDate, avoiding this kind of problem.
  *
- * NOTE: in the future timestampsInSnapshotsEnabled = true will become the default and this option
- * will be removed so you should change your code to use FIRTimestamp now and opt-in to this new
- * behavior as soon as you can.
+ * To opt into the old behavior of returning NSDate objects, you can temporarily set
+ * areTimestampsInSnapshotsEnabled to false.
+ *
+ * @deprecated This setting now defaults to true and will be removed in a future release. If you are
+ * already setting it to true, just remove the setting. If you are setting it to false, you should
+ * update your code to expect FIRTimestamp objects instead of NSDate and then remove the setting.
  */
-@property(nonatomic, getter=areTimestampsInSnapshotsEnabled) BOOL timestampsInSnapshotsEnabled;
+@property(nonatomic, getter=areTimestampsInSnapshotsEnabled) BOOL timestampsInSnapshotsEnabled
+    __attribute__((deprecated));
 
 /**
  * Sets the cache size threshold above which the SDK will attempt to collect least-recently-used

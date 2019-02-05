@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** @class FIROAuthCredential
     @brief Internal implementation of FIRAuthCredential for generic credentials.
  */
-@interface FIROAuthCredential : FIRAuthCredential
+@interface FIROAuthCredential : FIRAuthCredential <NSSecureCoding>
 
 /** @property IDToken
     @brief The ID Token associated with this credential.

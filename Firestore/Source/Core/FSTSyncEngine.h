@@ -26,7 +26,6 @@
 @class FSTLocalStore;
 @class FSTMutation;
 @class FSTQuery;
-@class FSTRemoteEvent;
 @class FSTRemoteStore;
 @class FSTViewSnapshot;
 

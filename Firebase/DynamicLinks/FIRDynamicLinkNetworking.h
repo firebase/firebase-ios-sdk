@@ -91,7 +91,9 @@ FOUNDATION_EXPORT NSString *const kApiaryRestBaseUrl;
  * @param url A Short Dynamic Link.
  * @param completion Block to be run upon completion.
  */
-- (void)resolveShortLink:(NSURL *)url completion:(FIRDynamicLinkResolverHandler)completion;
+- (void)resolveShortLink:(NSURL *)url
+           FDLSDKVersion:(NSString *)FDLSDKVersion
+              completion:(FIRDynamicLinkResolverHandler)completion;
 
 /**
  * @method

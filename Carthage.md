@@ -43,6 +43,8 @@ binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseInAppMessagingDis
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseInvitesBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMessagingBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMLModelInterpreterBinary.json"
+binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMLNLLanguageIDBinary.json"
+binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMLNaturalLanguageBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMLVisionBarcodeModelBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMLVisionBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMLVisionFaceModelBinary.json"

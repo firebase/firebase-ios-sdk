@@ -76,19 +76,19 @@ void MemoryQueryCache::EnumerateTargets(TargetEnumerator block) {
 
 int MemoryQueryCache::RemoveTargets(
     model::ListenSequenceNumber upper_bound,
-    NSDictionary<NSNumber*, FSTQueryData*>* live_targets) {
+    const std::unordered_map<TargetId, FSTQueryData*>& live_targets) {
   NSMutableArray<FSTQuery*>* toRemove = [NSMutableArray array];
   [queries_ enumerateKeysAndObjectsUsingBlock:^(
                 FSTQuery* query, FSTQueryData* queryData, BOOL* stop) {
     if (queryData.sequenceNumber <= upper_bound) {
-      if (live_targets[@(queryData.targetID)] == nil) {
+      if (live_targets.find(queryData.targetID) == live_targets.end()) {
         [toRemove addObject:query];
         references_.RemoveReferences(queryData.targetID);
       }
     }
   }];
   [queries_ removeObjectsForKeys:toRemove];
-  return (int)[toRemove count];
+  return static_cast<int>([toRemove count]);
 }
 
 void MemoryQueryCache::AddMatchingKeys(const DocumentKeySet& keys,

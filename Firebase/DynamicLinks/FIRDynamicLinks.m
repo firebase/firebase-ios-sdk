@@ -408,6 +408,7 @@ NS_ASSUME_NONNULL_BEGIN
           // TODO: Create dedicated logging function to prevent this.
           [self.dynamicLinkNetworking
               resolveShortLink:url
+                 FDLSDKVersion:kFIRDLVersion
                     completion:^(NSURL *_Nullable resolverURL, NSError *_Nullable resolverError){
                         // Nothing to do
                     }];
@@ -453,7 +454,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)resolveShortLink:(NSURL *)url completion:(FIRDynamicLinkResolverHandler)completion {
-  [self.dynamicLinkNetworking resolveShortLink:url completion:completion];
+  [self.dynamicLinkNetworking resolveShortLink:url
+                                 FDLSDKVersion:kFIRDLVersion
+                                    completion:completion];
 }
 
 - (BOOL)matchesShortLinkFormat:(NSURL *)url {

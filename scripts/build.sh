@@ -69,6 +69,7 @@ fi
 # Runs xcodebuild with the given flags, piping output to xcpretty
 # If xcodebuild fails with known error codes, retries once.
 function RunXcodebuild() {
+
   xcodebuild "$@" | xcpretty; result=$?
   if [[ $result == 65 ]]; then
     echo "xcodebuild exited with 65, retrying" 1>&2
@@ -232,6 +233,13 @@ case "$product-$method-$platform" in
     ;;
 
   InAppMessagingDisplay-xcodebuild-iOS)
+    RunXcodebuild \
+        -workspace 'InAppMessaging/Example/InAppMessaging-Example-iOS.xcworkspace'  \
+        -scheme 'InAppMessaging_Example_iOS' \
+        "${xcb_flags[@]}" \
+        build \
+        test
+
     # Run UI tests on both iPad and iPhone simulators
     # TODO: Running two destinations from one xcodebuild command stopped working with Xcode 10.
     # Consider separating static library tests to a separate job.
@@ -295,16 +303,6 @@ case "$product-$method-$platform" in
         "${xcb_flags[@]}" \
         build
 
-    # Firestore_FuzzTests_iOS require a Clang that supports -fsanitize-coverage=trace-pc-guard
-    # and cannot run with thread sanitizer.
-    if [[ "$xcode_major" -ge 9 ]] && ! [[ -n "${SANITIZERS:-}" && "$SANITIZERS" = *"tsan"* ]]; then
-      RunXcodebuild \
-          -workspace 'Firestore/Example/Firestore.xcworkspace' \
-          -scheme "Firestore_FuzzTests_iOS" \
-          "${xcb_flags[@]}" \
-          FUZZING_TARGET="NONE" \
-          test
-    fi
     ;;
 
   Firestore-cmake-macOS)

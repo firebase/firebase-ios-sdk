@@ -33,7 +33,6 @@
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
-#import "Firestore/Source/Remote/FSTRemoteEvent.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
@@ -41,8 +40,10 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
+#include "absl/types/optional.h"
 
 using firebase::firestore::auth::HashUser;
 using firebase::firestore::auth::User;
@@ -57,6 +58,8 @@ using firebase::firestore::model::ListenSequenceNumber;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::remote::RemoteEvent;
+using firebase::firestore::remote::TargetChange;
 using firebase::firestore::util::AsyncQueue;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -134,7 +137,7 @@ class LimboResolution {
 
   /**
    * Set to true once we've received a document. This is used in remoteKeysForTarget and
-   * ultimately used by FSTWatchChangeAggregator to decide whether it needs to manufacture a delete
+   * ultimately used by `WatchChangeAggregator` to decide whether it needs to manufacture a delete
    * event for the target once the target is CURRENT.
    */
   bool document_received = false;
@@ -154,10 +157,6 @@ class LimboResolution {
 @property(nonatomic, strong, readonly)
     NSMutableDictionary<FSTQuery *, FSTQueryView *> *queryViewsByQuery;
 
-/** FSTQueryViews for all active queries, indexed by target ID. */
-@property(nonatomic, strong, readonly)
-    NSMutableDictionary<NSNumber *, FSTQueryView *> *queryViewsByTarget;
-
 @end
 
 @implementation FSTSyncEngine {
@@ -167,6 +166,9 @@ class LimboResolution {
   /** Stores user completion blocks, indexed by user and BatchId. */
   std::unordered_map<User, NSMutableDictionary<NSNumber *, FSTVoidErrorBlock> *, HashUser>
       _mutationCompletionBlocks;
+
+  /** FSTQueryViews for all active queries, indexed by target ID. */
+  std::unordered_map<TargetId, FSTQueryView *> _queryViewsByTarget;
 
   /**
    * When a document is in limbo, we create a special listen to resolve it. This maps the
@@ -194,7 +196,6 @@ class LimboResolution {
     _remoteStore = remoteStore;
 
     _queryViewsByQuery = [NSMutableDictionary dictionary];
-    _queryViewsByTarget = [NSMutableDictionary dictionary];
 
     _targetIdGenerator = TargetIdGenerator::SyncEngineTargetIdGenerator();
     _currentUser = initialUser;
@@ -230,7 +231,7 @@ class LimboResolution {
                                                     resumeToken:queryData.resumeToken
                                                            view:view];
   self.queryViewsByQuery[queryData.query] = queryView;
-  self.queryViewsByTarget[@(queryData.targetID)] = queryView;
+  _queryViewsByTarget[queryData.targetID] = queryView;
 
   return viewChange.snapshot;
 }
@@ -253,7 +254,7 @@ class LimboResolution {
   FSTLocalWriteResult *result = [self.localStore locallyWriteMutations:mutations];
   [self addMutationCompletionBlock:completion batchID:result.batchID];
 
-  [self emitNewSnapshotsAndNotifyLocalStoreWithChanges:result.changes remoteEvent:nil];
+  [self emitNewSnapshotsAndNotifyLocalStoreWithChanges:result.changes remoteEvent:absl::nullopt];
   [self.remoteStore fillWritePipeline];
 }
 
@@ -320,29 +321,29 @@ class LimboResolution {
   });
 }
 
-- (void)applyRemoteEvent:(FSTRemoteEvent *)remoteEvent {
+- (void)applyRemoteEvent:(const RemoteEvent &)remoteEvent {
   [self assertDelegateExistsForSelector:_cmd];
 
   // Update `receivedDocument` as appropriate for any limbo targets.
-  for (const auto &entry : remoteEvent.targetChanges) {
+  for (const auto &entry : remoteEvent.target_changes()) {
     TargetId targetID = entry.first;
-    FSTTargetChange *change = entry.second;
+    const TargetChange &change = entry.second;
     const auto iter = _limboResolutionsByTarget.find(targetID);
     if (iter != _limboResolutionsByTarget.end()) {
       LimboResolution &limboResolution = iter->second;
       // Since this is a limbo resolution lookup, it's for a single document and it could be
       // added, modified, or removed, but not a combination.
-      HARD_ASSERT(change.addedDocuments.size() + change.modifiedDocuments.size() +
-                          change.removedDocuments.size() <=
+      HARD_ASSERT(change.added_documents().size() + change.modified_documents().size() +
+                          change.removed_documents().size() <=
                       1,
                   "Limbo resolution for single document contains multiple changes.");
 
-      if (change.addedDocuments.size() > 0) {
+      if (change.added_documents().size() > 0) {
         limboResolution.document_received = true;
-      } else if (change.modifiedDocuments.size() > 0) {
+      } else if (change.modified_documents().size() > 0) {
         HARD_ASSERT(limboResolution.document_received,
                     "Received change for limbo target document without add.");
-      } else if (change.removedDocuments.size() > 0) {
+      } else if (change.removed_documents().size() > 0) {
         HARD_ASSERT(limboResolution.document_received,
                     "Received remove for limbo target document without add.");
         limboResolution.document_received = false;
@@ -392,17 +393,13 @@ class LimboResolution {
                                                           version:SnapshotVersion::None()
                                             hasCommittedMutations:NO];
     DocumentKeySet limboDocuments = DocumentKeySet{doc.key};
-    FSTRemoteEvent *event = [[FSTRemoteEvent alloc] initWithSnapshotVersion:SnapshotVersion::None()
-        targetChanges:{}
-        targetMismatches:{}
-        documentUpdates:{
-          { limboKey, doc }
-        }
-        limboDocuments:std::move(limboDocuments)];
+    RemoteEvent event{SnapshotVersion::None(), /*target_changes=*/{}, /*target_mismatches=*/{},
+                      /*document_updates=*/{{limboKey, doc}}, std::move(limboDocuments)};
     [self applyRemoteEvent:event];
   } else {
-    FSTQueryView *queryView = self.queryViewsByTarget[@(targetID)];
-    HARD_ASSERT(queryView, "Unknown targetId: %s", targetID);
+    auto found = _queryViewsByTarget.find(targetID);
+    HARD_ASSERT(found != _queryViewsByTarget.end(), "Unknown targetId: %s", targetID);
+    FSTQueryView *queryView = found->second;
     FSTQuery *query = queryView.query;
     [self.localStore releaseQuery:query];
     [self removeAndCleanupQuery:queryView];
@@ -423,7 +420,7 @@ class LimboResolution {
   [self processUserCallbacksForBatchID:batchResult.batch.batchID error:nil];
 
   MaybeDocumentMap changes = [self.localStore acknowledgeBatchWithResult:batchResult];
-  [self emitNewSnapshotsAndNotifyLocalStoreWithChanges:changes remoteEvent:nil];
+  [self emitNewSnapshotsAndNotifyLocalStoreWithChanges:changes remoteEvent:absl::nullopt];
 }
 
 - (void)rejectFailedWriteWithBatchID:(BatchId)batchID error:(NSError *)error {
@@ -440,7 +437,7 @@ class LimboResolution {
   // consistently happen before listen events.
   [self processUserCallbacksForBatchID:batchID error:error];
 
-  [self emitNewSnapshotsAndNotifyLocalStoreWithChanges:changes remoteEvent:nil];
+  [self emitNewSnapshotsAndNotifyLocalStoreWithChanges:changes remoteEvent:absl::nullopt];
 }
 
 - (void)processUserCallbacksForBatchID:(BatchId)batchID error:(NSError *_Nullable)error {
@@ -466,7 +463,7 @@ class LimboResolution {
 
 - (void)removeAndCleanupQuery:(FSTQueryView *)queryView {
   [self.queryViewsByQuery removeObjectForKey:queryView.query];
-  [self.queryViewsByTarget removeObjectForKey:@(queryView.targetID)];
+  _queryViewsByTarget.erase(queryView.targetID);
 
   DocumentKeySet limboKeys = _limboDocumentRefs.ReferencedKeys(queryView.targetID);
   _limboDocumentRefs.RemoveReferences(queryView.targetID);
@@ -482,7 +479,8 @@ class LimboResolution {
  * Computes a new snapshot from the changes and calls the registered callback with the new snapshot.
  */
 - (void)emitNewSnapshotsAndNotifyLocalStoreWithChanges:(const MaybeDocumentMap &)changes
-                                           remoteEvent:(FSTRemoteEvent *_Nullable)remoteEvent {
+                                           remoteEvent:(const absl::optional<RemoteEvent> &)
+                                                           maybeRemoteEvent {
   NSMutableArray<FSTViewSnapshot *> *newSnapshots = [NSMutableArray array];
   NSMutableArray<FSTLocalViewChanges *> *documentChangesInAllViews = [NSMutableArray array];
 
@@ -499,10 +497,11 @@ class LimboResolution {
                                              previousChanges:viewDocChanges];
         }
 
-        FSTTargetChange *_Nullable targetChange = nil;
-        if (remoteEvent) {
-          auto it = remoteEvent.targetChanges.find(queryView.targetID);
-          if (it != remoteEvent.targetChanges.end()) {
+        absl::optional<TargetChange> targetChange;
+        if (maybeRemoteEvent.has_value()) {
+          const RemoteEvent &remoteEvent = maybeRemoteEvent.value();
+          auto it = remoteEvent.target_changes().find(queryView.targetID);
+          if (it != remoteEvent.target_changes().end()) {
             targetChange = it->second;
           }
         }
@@ -592,19 +591,20 @@ class LimboResolution {
   if (userChanged) {
     // Notify local store and emit any resulting events from swapping out the mutation queue.
     MaybeDocumentMap changes = [self.localStore userDidChange:user];
-    [self emitNewSnapshotsAndNotifyLocalStoreWithChanges:changes remoteEvent:nil];
+    [self emitNewSnapshotsAndNotifyLocalStoreWithChanges:changes remoteEvent:absl::nullopt];
   }
 
   // Notify remote store so it can restart its streams.
   [self.remoteStore credentialDidChange];
 }
 
-- (firebase::firestore::model::DocumentKeySet)remoteKeysForTarget:(FSTBoxedTargetID *)targetId {
-  const auto iter = _limboResolutionsByTarget.find([targetId intValue]);
+- (DocumentKeySet)remoteKeysForTarget:(TargetId)targetId {
+  const auto iter = _limboResolutionsByTarget.find(targetId);
   if (iter != _limboResolutionsByTarget.end() && iter->second.document_received) {
     return DocumentKeySet{iter->second.key};
   } else {
-    FSTQueryView *queryView = self.queryViewsByTarget[targetId];
+    auto found = _queryViewsByTarget.find(targetId);
+    FSTQueryView *queryView = found != _queryViewsByTarget.end() ? found->second : nil;
     return queryView ? queryView.view.syncedDocuments : DocumentKeySet{};
   }
 }

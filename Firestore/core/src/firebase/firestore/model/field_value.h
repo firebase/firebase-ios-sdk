@@ -129,17 +129,17 @@ class FieldValue {
 
   Timestamp timestamp_value() const {
     HARD_ASSERT(tag_ == Type::Timestamp);
-    return timestamp_value_;
+    return *timestamp_value_;
   }
 
   const std::string& string_value() const {
     HARD_ASSERT(tag_ == Type::String);
-    return string_value_;
+    return *string_value_;
   }
 
-  ObjectValue object_value() const {
+  const ObjectValue& object_value() const {
     HARD_ASSERT(tag_ == Type::Object);
-    return ObjectValue{object_value_};
+    return *object_value_;
   }
 
   /**
@@ -213,15 +213,15 @@ class FieldValue {
     bool boolean_value_;
     int64_t integer_value_;
     double double_value_;
-    Timestamp timestamp_value_;
-    ServerTimestamp server_timestamp_value_;
-    std::string string_value_;
-    std::vector<uint8_t> blob_value_;
-    // Qualified name to avoid conflict with the member function of same name.
-    firebase::firestore::model::ReferenceValue reference_value_;
-    GeoPoint geo_point_value_;
-    std::vector<FieldValue> array_value_;
-    ObjectValue object_value_;
+    std::unique_ptr<Timestamp> timestamp_value_;
+    std::unique_ptr<ServerTimestamp> server_timestamp_value_;
+    // TODO(rsgowman): Change unique_ptr<std::string> to nanopb::String?
+    std::unique_ptr<std::string> string_value_;
+    std::unique_ptr<std::vector<uint8_t>> blob_value_;
+    std::unique_ptr<ReferenceValue> reference_value_;
+    std::unique_ptr<GeoPoint> geo_point_value_;
+    std::unique_ptr<std::vector<FieldValue>> array_value_;
+    std::unique_ptr<ObjectValue> object_value_;
   };
 };
 

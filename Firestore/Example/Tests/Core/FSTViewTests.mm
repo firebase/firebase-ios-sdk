@@ -24,14 +24,15 @@
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
-#import "Firestore/Source/Remote/FSTRemoteEvent.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
+#include "absl/types/optional.h"
 
 namespace testutil = firebase::firestore::testutil;
+using firebase::firestore::core::DocumentViewChangeType;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::DocumentKeySet;
 
@@ -67,8 +68,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   XCTAssertEqualObjects(
       snapshot.documentChanges, (@[
-        [FSTDocumentViewChange changeWithDocument:doc1 type:FSTDocumentViewChangeTypeAdded],
-        [FSTDocumentViewChange changeWithDocument:doc2 type:FSTDocumentViewChangeTypeAdded]
+        [FSTDocumentViewChange changeWithDocument:doc1 type:DocumentViewChangeType::kAdded],
+        [FSTDocumentViewChange changeWithDocument:doc2 type:DocumentViewChangeType::kAdded]
       ]));
 
   XCTAssertFalse(snapshot.isFromCache);
@@ -88,7 +89,7 @@ NS_ASSUME_NONNULL_BEGIN
       FSTTestDoc("rooms/eros/messages/3", 0, @{@"text" : @"msg3"}, FSTDocumentStateSynced);
 
   // initial state
-  FSTTestApplyChanges(view, @[ doc1, doc2 ], nil);
+  FSTTestApplyChanges(view, @[ doc1, doc2 ], absl::nullopt);
 
   // delete doc2, add doc3
   FSTViewSnapshot *snapshot =
@@ -101,8 +102,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   XCTAssertEqualObjects(
       snapshot.documentChanges, (@[
-        [FSTDocumentViewChange changeWithDocument:doc2 type:FSTDocumentViewChangeTypeRemoved],
-        [FSTDocumentViewChange changeWithDocument:doc3 type:FSTDocumentViewChangeTypeAdded]
+        [FSTDocumentViewChange changeWithDocument:doc2 type:DocumentViewChangeType::kRemoved],
+        [FSTDocumentViewChange changeWithDocument:doc3 type:DocumentViewChangeType::kAdded]
       ]));
 
   XCTAssertFalse(snapshot.isFromCache);
@@ -119,10 +120,10 @@ NS_ASSUME_NONNULL_BEGIN
       FSTTestDoc("rooms/eros/messages/2", 0, @{@"text" : @"msg2"}, FSTDocumentStateSynced);
 
   // initial state
-  FSTTestApplyChanges(view, @[ doc1, doc2 ], nil);
+  FSTTestApplyChanges(view, @[ doc1, doc2 ], absl::nullopt);
 
   // reapply same docs, no changes
-  FSTViewSnapshot *snapshot = FSTTestApplyChanges(view, @[ doc1, doc2 ], nil);
+  FSTViewSnapshot *snapshot = FSTTestApplyChanges(view, @[ doc1, doc2 ], absl::nullopt);
   XCTAssertNil(snapshot);
 }
 
@@ -130,7 +131,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQuery *query = [self queryForMessages];
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
 
-  FSTViewSnapshot *snapshot = FSTTestApplyChanges(view, @[], nil);
+  FSTViewSnapshot *snapshot = FSTTestApplyChanges(view, @[], absl::nullopt);
   XCTAssertNotNil(snapshot);
 }
 
@@ -154,7 +155,8 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocument *doc5 =
       FSTTestDoc("rooms/eros/messages/5", 0, @{@"sort" : @1}, FSTDocumentStateSynced);
 
-  FSTViewSnapshot *snapshot = FSTTestApplyChanges(view, @[ doc1, doc2, doc3, doc4, doc5 ], nil);
+  FSTViewSnapshot *snapshot =
+      FSTTestApplyChanges(view, @[ doc1, doc2, doc3, doc4, doc5 ], absl::nullopt);
 
   XCTAssertEqual(snapshot.query, query);
 
@@ -162,9 +164,9 @@ NS_ASSUME_NONNULL_BEGIN
 
   XCTAssertEqualObjects(
       snapshot.documentChanges, (@[
-        [FSTDocumentViewChange changeWithDocument:doc1 type:FSTDocumentViewChangeTypeAdded],
-        [FSTDocumentViewChange changeWithDocument:doc5 type:FSTDocumentViewChangeTypeAdded],
-        [FSTDocumentViewChange changeWithDocument:doc2 type:FSTDocumentViewChangeTypeAdded]
+        [FSTDocumentViewChange changeWithDocument:doc1 type:DocumentViewChangeType::kAdded],
+        [FSTDocumentViewChange changeWithDocument:doc5 type:DocumentViewChangeType::kAdded],
+        [FSTDocumentViewChange changeWithDocument:doc2 type:DocumentViewChangeType::kAdded]
       ]));
 
   XCTAssertTrue(snapshot.isFromCache);
@@ -188,7 +190,7 @@ NS_ASSUME_NONNULL_BEGIN
       FSTTestDoc("rooms/eros/messages/3", 0, @{@"sort" : @2}, FSTDocumentStateSynced);
   FSTDocument *doc4 = FSTTestDoc("rooms/eros/messages/4", 0, @{}, FSTDocumentStateSynced);
 
-  FSTViewSnapshot *snapshot = FSTTestApplyChanges(view, @[ doc1, doc2, doc3, doc4 ], nil);
+  FSTViewSnapshot *snapshot = FSTTestApplyChanges(view, @[ doc1, doc2, doc3, doc4 ], absl::nullopt);
 
   XCTAssertEqual(snapshot.query, query);
 
@@ -201,7 +203,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocument *newDoc4 =
       FSTTestDoc("rooms/eros/messages/4", 1, @{@"sort" : @0}, FSTDocumentStateSynced);
 
-  snapshot = FSTTestApplyChanges(view, @[ newDoc2, newDoc3, newDoc4 ], nil);
+  snapshot = FSTTestApplyChanges(view, @[ newDoc2, newDoc3, newDoc4 ], absl::nullopt);
 
   XCTAssertEqual(snapshot.query, query);
 
@@ -209,9 +211,9 @@ NS_ASSUME_NONNULL_BEGIN
 
   XCTAssertEqualObjects(
       snapshot.documentChanges, (@[
-        [FSTDocumentViewChange changeWithDocument:doc3 type:FSTDocumentViewChangeTypeRemoved],
-        [FSTDocumentViewChange changeWithDocument:newDoc4 type:FSTDocumentViewChangeTypeAdded],
-        [FSTDocumentViewChange changeWithDocument:newDoc2 type:FSTDocumentViewChangeTypeAdded]
+        [FSTDocumentViewChange changeWithDocument:doc3 type:DocumentViewChangeType::kRemoved],
+        [FSTDocumentViewChange changeWithDocument:newDoc4 type:DocumentViewChangeType::kAdded],
+        [FSTDocumentViewChange changeWithDocument:newDoc2 type:DocumentViewChangeType::kAdded]
       ]));
 
   XCTAssertTrue(snapshot.isFromCache);
@@ -231,7 +233,7 @@ NS_ASSUME_NONNULL_BEGIN
       FSTTestDoc("rooms/eros/messages/3", 0, @{@"text" : @"msg3"}, FSTDocumentStateSynced);
 
   // initial state
-  FSTTestApplyChanges(view, @[ doc1, doc3 ], nil);
+  FSTTestApplyChanges(view, @[ doc1, doc3 ], absl::nullopt);
 
   // add doc2, which should push out doc3
   FSTViewSnapshot *snapshot = FSTTestApplyChanges(
@@ -243,8 +245,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   XCTAssertEqualObjects(
       snapshot.documentChanges, (@[
-        [FSTDocumentViewChange changeWithDocument:doc3 type:FSTDocumentViewChangeTypeRemoved],
-        [FSTDocumentViewChange changeWithDocument:doc2 type:FSTDocumentViewChangeTypeAdded]
+        [FSTDocumentViewChange changeWithDocument:doc3 type:DocumentViewChangeType::kRemoved],
+        [FSTDocumentViewChange changeWithDocument:doc2 type:DocumentViewChangeType::kAdded]
       ]));
 
   XCTAssertFalse(snapshot.isFromCache);
@@ -268,7 +270,7 @@ NS_ASSUME_NONNULL_BEGIN
       FSTTestDoc("rooms/eros/messages/4", 0, @{@"num" : @4}, FSTDocumentStateSynced);
 
   // initial state
-  FSTTestApplyChanges(view, @[ doc1, doc2 ], nil);
+  FSTTestApplyChanges(view, @[ doc1, doc2 ], absl::nullopt);
 
   // change doc2 to 5, and add doc3 and doc4.
   // doc2 will be modified + removed = removed
@@ -293,8 +295,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   XCTAssertEqualObjects(
       snapshot.documentChanges, (@[
-        [FSTDocumentViewChange changeWithDocument:doc2 type:FSTDocumentViewChangeTypeRemoved],
-        [FSTDocumentViewChange changeWithDocument:doc3 type:FSTDocumentViewChangeTypeAdded]
+        [FSTDocumentViewChange changeWithDocument:doc2 type:DocumentViewChangeType::kRemoved],
+        [FSTDocumentViewChange changeWithDocument:doc3 type:DocumentViewChangeType::kAdded]
       ]));
 
   XCTAssertFalse(snapshot.isFromCache);
@@ -684,8 +686,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   XCTAssertEqualObjects(
       (@[
-        [FSTDocumentViewChange changeWithDocument:doc1 type:FSTDocumentViewChangeTypeAdded],
-        [FSTDocumentViewChange changeWithDocument:doc2 type:FSTDocumentViewChangeTypeAdded]
+        [FSTDocumentViewChange changeWithDocument:doc1 type:DocumentViewChangeType::kAdded],
+        [FSTDocumentViewChange changeWithDocument:doc2 type:DocumentViewChangeType::kAdded]
       ]),
       viewChange.snapshot.documentChanges);
 
@@ -694,7 +696,7 @@ NS_ASSUME_NONNULL_BEGIN
   // The 'doc1Committed' update is suppressed
   XCTAssertEqualObjects(
       (@[ [FSTDocumentViewChange changeWithDocument:doc2Modified
-                                               type:FSTDocumentViewChangeTypeModified] ]),
+                                               type:DocumentViewChangeType::kModified] ]),
       viewChange.snapshot.documentChanges);
 
   changes =
@@ -703,9 +705,9 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqualObjects(
       (@[
         [FSTDocumentViewChange changeWithDocument:doc1Acknowledged
-                                             type:FSTDocumentViewChangeTypeModified],
+                                             type:DocumentViewChangeType::kModified],
         [FSTDocumentViewChange changeWithDocument:doc2Acknowledged
-                                             type:FSTDocumentViewChangeTypeMetadata]
+                                             type:DocumentViewChangeType::kMetadata]
       ]),
       viewChange.snapshot.documentChanges);
 }

@@ -200,9 +200,12 @@ static FSTServerTimestampBehavior InternalServerTimestampBehavor(
     (FIRServerTimestampBehavior)serverTimestampBehavior {
   FSTServerTimestampBehavior internalBehavior =
       InternalServerTimestampBehavor(serverTimestampBehavior);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   return [[FSTFieldValueOptions alloc]
       initWithServerTimestampBehavior:internalBehavior
          timestampsInSnapshotsEnabled:self.firestore.settings.timestampsInSnapshotsEnabled];
+#pragma clang diagnostic pop
 }
 
 - (nullable id)objectForKeyedSubscript:(id)key {
