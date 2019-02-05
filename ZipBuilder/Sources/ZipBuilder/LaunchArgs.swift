@@ -1,13 +1,34 @@
+/*
+ * Copyright 2019 Google
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import Foundation
 
 /// Describes an object that can check if a file eists in the filesystem. Used to allow for better
 /// testing with FileManager.
 protocol FileChecker {
   /// Returns a Boolean value that indicates whether a file or directory exists at a specified path.
+  /// This matches the `FileManager` API.
   func fileExists(atPath: String) -> Bool
+
+  /// Returns a Boolean value that indicates whether a directory exists at a specified path.
+  func directoryExists(at url: URL) -> Bool
 }
 
-// Make FileManager a FileChecker. This is empty since FileManager already provides this function.
+// Make FileManager a FileChecker. This is empty since FileManager already provides this
+// functionality (natively and through our extensions).
 extension FileManager: FileChecker {}
 
 // TODO: Evaluate if we should switch to Swift Package Manager's internal `Utility` module that
@@ -23,6 +44,7 @@ struct LaunchArgs {
     case coreDiagnosticsDir
     case deleteCache
     case existingVersions
+    case outputDir
     case releasingSDKs
     case templateDir
     case updatePodRepo
@@ -42,6 +64,8 @@ struct LaunchArgs {
       case .existingVersions:
         return "The file path to a textproto file containing the existing released SDK versions, " +
         "of type `ZipBuilder_FirebaseSDKs`."
+      case .outputDir:
+        return "The directory to copy the built Zip file to."
       case .releasingSDKs:
         return "The file path to a textproto file containing all the releasing SDKs, of type " +
         "`ZipBuilder_Release`."
@@ -62,6 +86,7 @@ struct LaunchArgs {
               .customSpecRepos,
               .deleteCache,
               .existingVersions,
+              .outputDir,
               .releasingSDKs,
               .templateDir,
               .updatePodRepo]
@@ -82,6 +107,10 @@ struct LaunchArgs {
   /// Custom CocoaPods spec repos to be used. If not provided, the tool will only use the CocoaPods
   /// master repo.
   let customSpecRepos: [URL]?
+
+  /// The directory to copy the built Zip file to. If this is not set, the path to the Zip file will
+  /// just be logged to the console.
+  let outputDir: URL?
 
   /// The path to the directory containing the blank xcodeproj and Info.plist for building source
   /// based frameworks.
@@ -146,6 +175,20 @@ struct LaunchArgs {
     } else {
       // No argument was passed in.
       currentReleasePath =  nil
+    }
+
+    // Parse the output directory key.
+    if let outputPath = defaults.string(forKey: Key.outputDir.rawValue) {
+      let url = URL(fileURLWithPath: outputPath)
+      guard fileChecker.directoryExists(at: url) else {
+        LaunchArgs.exitWithUsageAndLog("Could not parse \(Key.outputDir) key: value " +
+          "passed in is not a file URL or the directory does not exist. Value: \(outputPath)")
+      }
+
+      outputDir = url.standardizedFileURL
+    } else {
+      // No argument was passed in.
+      outputDir = nil
     }
 
     // Parse the custom specs key.
