@@ -333,6 +333,13 @@ case "$product-$method-$platform" in
         "${xcb_flags[@]}" \
         build \
         test
+
+    RunXcodebuild \
+        -workspace 'GoogleDataLogger/gen/GoogleDataLogger/GoogleDataLogger.xcworkspace' \
+        -scheme "GoogleDataLogger-Unit-EndToEnd" \
+        "${xcb_flags[@]}" \
+        build \
+        test
     ;;
 
   *)
