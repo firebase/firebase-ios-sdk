@@ -35,7 +35,10 @@ typedef NS_ENUM(NSInteger, GDLLogQoS) {
   GDLLogQosDefault = 3,
 
   /** This log should be sent immediately along with any other data that can be batched. */
-  GDLLogQoSFast = 4
+  GDLLogQoSFast = 4,
+
+  /** This log should only be uploaded on wifi. */
+  GDLLogQoSWifiOnly = 5,
 };
 
 @interface GDLLogEvent : NSObject <NSSecureCoding>
