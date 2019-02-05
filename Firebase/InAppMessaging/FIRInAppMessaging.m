@@ -50,7 +50,7 @@ static BOOL _autoBootstrapOnFIRAppInit = YES;
 + (void)load {
   [FIRApp
       registerInternalLibrary:(Class<FIRLibrary>)self
-                     withName:@"fire-iam"
+                     withName:@"fire-fiam"
                   withVersion:[NSString stringWithUTF8String:STR(FIRInAppMessaging_LIB_VERSION)]];
 }
 
