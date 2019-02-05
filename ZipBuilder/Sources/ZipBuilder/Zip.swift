@@ -22,19 +22,20 @@ struct Zip {
   /// being compressed and has the same name as the directory with a `.zip` suffix.
   ///
   /// - Parameter directory: The directory to compress.
-  /// - Returns: A URL to the zip file created.
+  /// - Returns: A URL to the Zip file created.
   static func zipContents(ofDir directory: URL) -> URL {
     // Ensure the directory being compressed exists.
     guard FileManager.default.directoryExists(at: directory) else {
       fatalError("Attempted to compress contents of \(directory) but the directory does not exist.")
     }
 
-    // Generate the path of the Zip file.
+    // This `zip` command needs to be run in the parent directory.
     let parentDir = directory.deletingLastPathComponent()
     let zip = parentDir.appendingPathComponent("Firebase.zip")
 
-    // Run the Zip command. This could be replaced with a proper Zip library in the future.
-    let result = Shell.executeCommandFromScript("zip -q -r -dg \(zip) \(directory)")
+    // Run the `zip` command. This could be replaced with a proper Zip library in the future.
+    let command = "zip -q -r -dg \(zip.lastPathComponent) \(directory.lastPathComponent)"
+    let result = Shell.executeCommandFromScript(command, workingDir: parentDir)
     switch result {
     case .success(_):
       print("Successfully built Zip file.")
