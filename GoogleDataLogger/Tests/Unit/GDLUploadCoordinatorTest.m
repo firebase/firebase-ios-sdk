@@ -112,7 +112,6 @@
                                                                    target:_logTarget]);
   dispatch_sync([GDLUploadCoordinator sharedInstance].coordinationQueue, ^{
     XCTAssertEqual([GDLUploadCoordinator sharedInstance].forcedUploadQueue.count, 1);
-    [[GDLUploadCoordinator sharedInstance].logTargetToInFlightLogSet removeAllObjects];
     [GDLUploadCoordinator sharedInstance].onCompleteBlock(
         self.logTarget, [GDLClock clockSnapshotInTheFuture:1000], nil);
   });
