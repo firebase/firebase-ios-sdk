@@ -126,7 +126,7 @@
   // Confirm logs were sent and received.
   [self waitForExpectations:@[ expectation ] timeout:10.0];
 
-  // Generate logs for a big.
+  // Generate logs for a bit.
   NSUInteger lengthOfTestToRunInSeconds = 30;
   [GDLUploadCoordinator sharedInstance].timerInterval = NSEC_PER_SEC * 5;
   [GDLUploadCoordinator sharedInstance].timerLeeway = NSEC_PER_SEC * 1;
