@@ -107,8 +107,8 @@
   self.uploader = [[GDLIntegrationTestUploader alloc] initWithServerURL:testServer.serverURL];
 
   // Set the interval to be much shorter than the standard timer.
-  [GDLUploadCoordinator sharedInstance].timerInterval = NSEC_PER_SEC / 100;
-  [GDLUploadCoordinator sharedInstance].timerLeeway = NSEC_PER_SEC / 1000;
+  [GDLUploadCoordinator sharedInstance].timerInterval = NSEC_PER_SEC * 0.1;
+  [GDLUploadCoordinator sharedInstance].timerLeeway = NSEC_PER_SEC * 0.01;
 
   // Confirm no logs are in disk.
   XCTAssertEqual([GDLLogStorage sharedInstance].logHashToLogFile.count, 0);
@@ -128,8 +128,8 @@
 
   // Generate logs for a big.
   NSUInteger lengthOfTestToRunInSeconds = 30;
-  [GDLUploadCoordinator sharedInstance].timerInterval = NSEC_PER_SEC / 5000;
-  [GDLUploadCoordinator sharedInstance].timerLeeway = NSEC_PER_SEC / 100;
+  [GDLUploadCoordinator sharedInstance].timerInterval = NSEC_PER_SEC * 5;
+  [GDLUploadCoordinator sharedInstance].timerLeeway = NSEC_PER_SEC * 1;
   dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
   dispatch_source_t timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
   dispatch_source_set_timer(timer, DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC, 0.1 * NSEC_PER_SEC);
