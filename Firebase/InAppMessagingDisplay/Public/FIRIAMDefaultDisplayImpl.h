@@ -25,7 +25,7 @@ NS_SWIFT_NAME(InAppMessagingDefaultDisplayImpl)
  * to help UI Testing app access the UI layer directly.
  */
 @interface FIRIAMDefaultDisplayImpl : NSObject <FIRInAppMessagingDisplay>
-- (void)displayMessage:(FIRInAppMessagingDisplayMessageBase *)messageForDisplay
+- (void)displayMessage:(FIRInAppMessagingDisplayMessage *)messageForDisplay
        displayDelegate:(id<FIRInAppMessagingDisplayDelegate>)displayDelegate;
 @end
 NS_ASSUME_NONNULL_END
