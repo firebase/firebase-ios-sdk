@@ -313,6 +313,10 @@ typedef NS_ENUM(NSInteger, FIRAuthErrorCode) {
      */
     FIRAuthErrorCodeInvalidDynamicLinkDomain = 17074,
 
+    /** Indicates that the GameKit framework is not linked prior to attempting Game Center signin.
+     */
+    FIRAuthErrorCodeGameKitNotLinked = 17076,
+
     /** Indicates an error occurred while attempting to access the keychain.
      */
     FIRAuthErrorCodeKeychainError = 17995,
