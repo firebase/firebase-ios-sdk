@@ -21,13 +21,14 @@ class ImageOnlyMessageViewController: CommonMessageTestVC {
 
   @IBOutlet var verifyLabel: UILabel!
 
-  override func messageClicked() {
-    super.messageClicked()
+  override func messageClicked(_ inAppMessage: InAppMessagingDisplayMessage) {
+    super.messageClicked(inAppMessage)
     verifyLabel.text = "message clicked!"
   }
 
-  override func messageDismissed(dismissType dimissType: FIRInAppMessagingDismissType) {
-    super.messageClicked()
+  override func messageDismissed(_ inAppMessage: InAppMessagingDisplayMessage,
+                                 dismissType: FIRInAppMessagingDismissType) {
+    super.messageClicked(inAppMessage)
     verifyLabel.text = "message dismissed!"
   }
 
@@ -37,9 +38,11 @@ class ImageOnlyMessageViewController: CommonMessageTestVC {
     let fiamImageData = InAppMessagingImageData(imageURL: "url not important", imageData: imageRawData!)
 
     let modalMessage = InAppMessagingImageOnlyDisplay(messageID: "messageId",
+                                                      campaignName: "testCampaign",
                                                       renderAsTestMessage: false,
-                                                      imageData: fiamImageData)
-
+                                                      triggerType: .onAnalyticsEvent,
+                                                      imageData: fiamImageData,
+                                                      actionURL: URL(string: "http://firebase.com"))
     displayImpl.displayMessage(modalMessage, displayDelegate: self)
   }
 
@@ -49,9 +52,11 @@ class ImageOnlyMessageViewController: CommonMessageTestVC {
     let fiamImageData = InAppMessagingImageData(imageURL: "url not important", imageData: imageRawData!)
 
     let modalMessage = InAppMessagingImageOnlyDisplay(messageID: "messageId",
+                                                      campaignName: "testCampaign",
                                                       renderAsTestMessage: false,
-                                                      imageData: fiamImageData)
-
+                                                      triggerType: .onAnalyticsEvent,
+                                                      imageData: fiamImageData,
+                                                      actionURL: URL(string: "http://firebase.com"))
     displayImpl.displayMessage(modalMessage, displayDelegate: self)
   }
 
@@ -61,9 +66,11 @@ class ImageOnlyMessageViewController: CommonMessageTestVC {
     let fiamImageData = InAppMessagingImageData(imageURL: "url not important", imageData: imageRawData!)
 
     let modalMessage = InAppMessagingImageOnlyDisplay(messageID: "messageId",
+                                                      campaignName: "testCampaign",
                                                       renderAsTestMessage: false,
-                                                      imageData: fiamImageData)
-
+                                                      triggerType: .onAnalyticsEvent,
+                                                      imageData: fiamImageData,
+                                                      actionURL: URL(string: "http://firebase.com"))
     displayImpl.displayMessage(modalMessage, displayDelegate: self)
   }
 
@@ -73,9 +80,11 @@ class ImageOnlyMessageViewController: CommonMessageTestVC {
     let fiamImageData = InAppMessagingImageData(imageURL: "url not important", imageData: imageRawData!)
 
     let modalMessage = InAppMessagingImageOnlyDisplay(messageID: "messageId",
+                                                      campaignName: "testCampaign",
                                                       renderAsTestMessage: false,
-                                                      imageData: fiamImageData)
-
+                                                      triggerType: .onAnalyticsEvent,
+                                                      imageData: fiamImageData,
+                                                      actionURL: URL(string: "http://firebase.com"))
     displayImpl.displayMessage(modalMessage, displayDelegate: self)
   }
 
@@ -84,9 +93,11 @@ class ImageOnlyMessageViewController: CommonMessageTestVC {
     let fiamImageData = InAppMessagingImageData(imageURL: "url not important", imageData: imageRawData!)
 
     let modalMessage = InAppMessagingImageOnlyDisplay(messageID: "messageId",
+                                                      campaignName: "testCampaign",
                                                       renderAsTestMessage: false,
-                                                      imageData: fiamImageData)
-
+                                                      triggerType: .onAnalyticsEvent,
+                                                      imageData: fiamImageData,
+                                                      actionURL: URL(string: "http://firebase.com"))
     displayImpl.displayMessage(modalMessage, displayDelegate: self)
   }
 }
