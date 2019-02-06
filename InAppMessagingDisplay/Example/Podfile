@@ -4,5 +4,6 @@ use_frameworks!
 target 'FiamDisplaySwiftExample' do
   platform :ios, '8.0'
   pod 'FirebaseInAppMessagingDisplay', :path => '../..'
+  pod 'FirebaseInAppMessaging', :path => '../..'
 end
 
