@@ -87,7 +87,7 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDelegateInteraction) {
 @property FIRInAppMessagingDelegateInteraction delegateInteraction;
 
 // used for interaction verificatio
-@property FIRInAppMessagingDisplayMessageBase *message;
+@property FIRInAppMessagingDisplayMessage *message;
 - (instancetype)initWithDelegateInteraction:(FIRInAppMessagingDelegateInteraction)interaction;
 @end
 
@@ -99,24 +99,26 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDelegateInteraction) {
   return self;
 }
 
-- (void)displayMessage:(FIRInAppMessagingDisplayMessageBase *)messageForDisplay
+- (void)displayMessage:(FIRInAppMessagingDisplayMessage *)messageForDisplay
        displayDelegate:(id<FIRInAppMessagingDisplayDelegate>)displayDelegate {
   self.message = messageForDisplay;
 
   switch (self.delegateInteraction) {
     case FIRInAppMessagingDelegateInteractionClick:
-      [displayDelegate messageClicked];
+      [displayDelegate messageClicked:messageForDisplay];
       break;
     case FIRInAppMessagingDelegateInteractionDismiss:
-      [displayDelegate messageDismissedWithType:FIRInAppMessagingDismissTypeAuto];
+      [displayDelegate messageDismissed:messageForDisplay
+                            dismissType:FIRInAppMessagingDismissTypeAuto];
       break;
     case FIRInAppMessagingDelegateInteractionError:
-      [displayDelegate displayErrorEncountered:[NSError errorWithDomain:NSURLErrorDomain
-                                                                   code:0
-                                                               userInfo:nil]];
+      [displayDelegate displayErrorForMessage:messageForDisplay
+                                        error:[NSError errorWithDomain:NSURLErrorDomain
+                                                                  code:0
+                                                              userInfo:nil]];
       break;
     case FIRInAppMessagingDelegateInteractionImpressionDetected:
-      [displayDelegate impressionDetected];
+      [displayDelegate impressionDetectedForMessage:messageForDisplay];
       break;
   }
 }
@@ -305,7 +307,7 @@ NSTimeInterval DISPLAY_MIN_INTERVALS = 1;
   XCTAssertEqual(1, remainingMsgCount);
 
   // Verify that the message content handed to display component is expected
-  XCTAssertEqualObjects(self.m2.renderData.messageID, display.message.messageID);
+  XCTAssertEqualObjects(self.m2.renderData.messageID, display.message.campaignInfo.messageID);
 }
 
 - (void)testFollowingActionURL {
@@ -389,7 +391,7 @@ NSTimeInterval DISPLAY_MIN_INTERVALS = 1;
   [self.displayExecutor checkAndDisplayNextAppForegroundMessage];
 
   // m2 is being rendered
-  XCTAssertEqualObjects(self.m2.renderData.messageID, display.message.messageID);
+  XCTAssertEqualObjects(self.m2.renderData.messageID, display.message.campaignInfo.messageID);
 
   NSInteger remainingMsgCount = [self.clientMessageCache allRegularMessages].count;
   XCTAssertEqual(1, remainingMsgCount);
@@ -398,7 +400,7 @@ NSTimeInterval DISPLAY_MIN_INTERVALS = 1;
   [self.displayExecutor checkAndDisplayNextAppForegroundMessage];
 
   // Verify that the message in display component is still m2
-  XCTAssertEqualObjects(self.m2.renderData.messageID, display.message.messageID);
+  XCTAssertEqualObjects(self.m2.renderData.messageID, display.message.campaignInfo.messageID);
 
   // message in cache remain unchanged for the second checkAndDisplayNext call
   remainingMsgCount = [self.clientMessageCache allRegularMessages].count;
@@ -691,7 +693,7 @@ NSTimeInterval DISPLAY_MIN_INTERVALS = 1;
   // from cache
   [self.displayExecutor checkAndDisplayNextContextualMessageForAnalyticsEvent:@"test_event"];
   // Expecting the m1 being used for display
-  XCTAssertEqualObjects(self.m1.renderData.messageID, display.message.messageID);
+  XCTAssertEqualObjects(self.m1.renderData.messageID, display.message.campaignInfo.messageID);
 
   remainingMsgCount = [self.clientMessageCache allRegularMessages].count;
 
