@@ -86,6 +86,10 @@ static const CGFloat kSwipeUpThreshold = -10.0f;
   return bannerVC;
 }
 
+- (FIRInAppMessagingDisplayMessage *)inAppMessage {
+  return self.bannerDisplayMessage;
+}
+
 - (void)setupRecognizers {
   UIPanGestureRecognizer *panSwipeRecognizer =
       [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePanSwipe:)];

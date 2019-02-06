@@ -95,6 +95,10 @@ static CGFloat LandScapePaddingBetweenImageAndTextColumn = 24;
   return modalVC;
 }
 
+- (FIRInAppMessagingDisplayMessage *)inAppMessage {
+  return self.modalDisplayMessage;
+}
+
 - (IBAction)closeButtonClicked:(id)sender {
   [self dismissView:FIRInAppMessagingDismissTypeUserTapClose];
 }
@@ -428,7 +432,7 @@ struct TitleBodyButtonHeightInfo {
                                            from:nil
                                        forEvent:nil];
 
-  if (self.modalDisplayMessage.renderAsTestMessage) {
+  if (self.modalDisplayMessage.campaignInfo.renderAsTestMessage) {
     FIRLogDebug(kFIRLoggerInAppMessagingDisplay, @"I-FID300011",
                 @"Flushing the close button since this is a test message.");
     [self flashCloseButton:self.closeButton];

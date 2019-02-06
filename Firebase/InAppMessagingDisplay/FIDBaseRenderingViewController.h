@@ -43,5 +43,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 // Call this when end user wants to follow the action url
 - (void)followActionURL;
+
+// Returns the in-app message being displayed. Overridden by message type subclasses.
+- (nullable FIRInAppMessagingDisplayMessage *)inAppMessage;
+
 @end
 NS_ASSUME_NONNULL_END

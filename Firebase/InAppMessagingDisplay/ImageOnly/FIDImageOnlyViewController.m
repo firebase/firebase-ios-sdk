@@ -56,6 +56,10 @@
   return imageOnlyVC;
 }
 
+- (FIRInAppMessagingDisplayMessage *)inAppMessage {
+  return self.imageOnlyMessage;
+}
+
 - (IBAction)closeButtonClicked:(id)sender {
   [self dismissView:FIRInAppMessagingDismissTypeUserTapClose];
 }
@@ -151,7 +155,7 @@
                                              to:nil
                                            from:nil
                                        forEvent:nil];
-  if (self.imageOnlyMessage.renderAsTestMessage) {
+  if (self.imageOnlyMessage.campaignInfo.renderAsTestMessage) {
     FIRLogDebug(kFIRLoggerInAppMessagingDisplay, @"I-FID110004",
                 @"Flashing the close button since this is a test message.");
     [self flashCloseButton:self.closeButton];
