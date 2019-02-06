@@ -20,6 +20,8 @@
 
 #include <unordered_map>
 #include <unordered_set>
+#include <utility>
+#include <vector>
 
 #import "FIRTimestamp.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
@@ -412,7 +414,7 @@ NS_ASSUME_NONNULL_BEGIN
   // as any documents with pending mutations.
   std::unordered_set<DocumentKey, DocumentKeyHash> expectedRetained;
   // we add two mutations later, for now track them in an array.
-  NSMutableArray *mutations = [NSMutableArray arrayWithCapacity:2];
+  std::vector<FSTMutation *> mutations;
 
   // Add a target and add two documents to it. The documents are expected to be
   // retained, since their membership in the target keeps them alive.
@@ -426,7 +428,7 @@ NS_ASSUME_NONNULL_BEGIN
     FSTDocument *doc2 = [self cacheADocumentInTransaction];
     [self addDocument:doc2.key toTarget:queryData.targetID];
     expectedRetained.insert(doc2.key);
-    [mutations addObject:[self mutationForDocument:doc2.key]];
+    mutations.push_back([self mutationForDocument:doc2.key]);
   });
 
   // Add a second query and register a third document on it
@@ -440,7 +442,7 @@ NS_ASSUME_NONNULL_BEGIN
   // cache another document and prepare a mutation on it.
   _persistence.run("queue a mutation", [&]() {
     FSTDocument *doc4 = [self cacheADocumentInTransaction];
-    [mutations addObject:[self mutationForDocument:doc4.key]];
+    mutations.push_back([self mutationForDocument:doc4.key]);
     expectedRetained.insert(doc4.key);
   });
 
@@ -448,7 +450,7 @@ NS_ASSUME_NONNULL_BEGIN
   // serve to keep the mutated documents from being GC'd while the mutations are outstanding.
   _persistence.run("actually register the mutations", [&]() {
     FIRTimestamp *writeTime = [FIRTimestamp timestamp];
-    _mutationQueue->AddMutationBatch(writeTime, mutations);
+    _mutationQueue->AddMutationBatch(writeTime, std::move(mutations));
   });
 
   // Mark 5 documents eligible for GC. This simulates documents that were mutated then ack'd.

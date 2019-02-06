@@ -61,7 +61,8 @@ class MutationQueue {
 
   /** Creates a new mutation batch and adds it to this mutation queue. */
   virtual FSTMutationBatch* AddMutationBatch(
-      FIRTimestamp* local_write_time, NSArray<FSTMutation*>* mutations) = 0;
+      FIRTimestamp* local_write_time,
+      std::vector<FSTMutation*>&& mutations) = 0;
 
   /**
    * Removes the given mutation batch from the queue. This is useful in two

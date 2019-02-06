@@ -506,7 +506,7 @@ static const int kMaxPendingWrites = 10;
   [self.writePipeline addObject:batch];
 
   if (_writeStream->IsOpen() && _writeStream->handshake_complete()) {
-    _writeStream->WriteMutations(batch.mutations);
+    _writeStream->WriteMutations([batch mutations]);
   }
 }
 
@@ -524,7 +524,7 @@ static const int kMaxPendingWrites = 10;
 
   // Send the write pipeline now that the stream is established.
   for (FSTMutationBatch *write in self.writePipeline) {
-    _writeStream->WriteMutations(write.mutations);
+    _writeStream->WriteMutations([write mutations]);
   }
 }
 

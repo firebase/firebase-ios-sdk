@@ -58,8 +58,9 @@ class MemoryMutationQueue : public MutationQueue {
   void AcknowledgeBatch(FSTMutationBatch* batch,
                         NSData* _Nullable stream_token) override;
 
-  FSTMutationBatch* AddMutationBatch(FIRTimestamp* local_write_time,
-                                     NSArray<FSTMutation*>* mutations) override;
+  FSTMutationBatch* AddMutationBatch(
+      FIRTimestamp* local_write_time,
+      std::vector<FSTMutation*>&& mutations) override;
 
   void RemoveMutationBatch(FSTMutationBatch* batch) override;
 

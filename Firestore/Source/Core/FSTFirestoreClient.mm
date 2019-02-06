@@ -386,15 +386,16 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
   });
 }
 
-- (void)writeMutations:(NSArray<FSTMutation *> *)mutations
+- (void)writeMutations:(std::vector<FSTMutation *> &&)mutations
             completion:(nullable FSTVoidErrorBlock)completion {
-  _workerQueue->Enqueue([self, mutations, completion] {
-    if (mutations.count == 0) {
+  // TODO(c++14): move `mutations` into lambda (C++14).
+  _workerQueue->Enqueue([self, mutations, completion]() mutable {
+    if (mutations.empty()) {
       if (completion) {
         self->_userExecutor->Execute([=] { completion(nil); });
       }
     } else {
-      [self.syncEngine writeMutations:mutations
+      [self.syncEngine writeMutations:std::move(mutations)
                            completion:^(NSError *error) {
                              // Dispatch the result back onto the user dispatch queue.
                              if (completion) {

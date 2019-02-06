@@ -16,17 +16,16 @@
 
 #import "Firestore/Source/Core/FSTTransaction.h"
 
+#include <algorithm>
 #include <map>
 #include <utility>
 #include <vector>
 
 #import "FIRFirestoreErrors.h"
-#import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
-#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
@@ -46,7 +45,6 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - FSTTransaction
 
 @interface FSTTransaction ()
-@property(nonatomic, strong, readonly) NSMutableArray *mutations;
 @property(nonatomic, assign) BOOL commitCalled;
 /**
  * An error that may have occurred as a consequence of a write. If set, needs to be raised in the
@@ -57,6 +55,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTTransaction {
   Datastore *_datastore;
+  std::vector<FSTMutation *> _mutations;
   std::map<DocumentKey, SnapshotVersion> _readVersions;
 }
 
@@ -68,7 +67,6 @@ NS_ASSUME_NONNULL_BEGIN
   self = [super init];
   if (self) {
     _datastore = datastore;
-    _mutations = [NSMutableArray array];
     _commitCalled = NO;
   }
   return self;
@@ -113,7 +111,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)lookupDocumentsForKeys:(const std::vector<DocumentKey> &)keys
                     completion:(FSTVoidMaybeDocumentArrayErrorBlock)completion {
   [self ensureCommitNotCalled];
-  if (self.mutations.count) {
+  if (!_mutations.empty()) {
     FSTThrowInvalidUsage(@"FIRIllegalStateException",
                          @"All reads in a transaction must be done before any writes.");
   }
@@ -135,9 +133,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 /** Stores mutations to be written when commitWithCompletion is called. */
-- (void)writeMutations:(NSArray<FSTMutation *> *)mutations {
+- (void)writeMutations:(const std::vector<FSTMutation *> &)mutations {
   [self ensureCommitNotCalled];
-  [self.mutations addObjectsFromArray:mutations];
+  std::move(mutations.begin(), mutations.end(), std::back_inserter(_mutations));
 }
 
 /**
@@ -201,9 +199,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)deleteDocument:(const DocumentKey &)key {
-  [self writeMutations:@[ [[FSTDeleteMutation alloc]
+  [self writeMutations:{[[FSTDeleteMutation alloc]
                             initWithKey:key
-                           precondition:[self preconditionForDocumentKey:key]] ]];
+                           precondition:[self preconditionForDocumentKey:key]]}];
   // Since the delete will be applied before all following writes, we need to ensure that the
   // precondition for the next write will be exists without timestamp.
   _readVersions[key] = SnapshotVersion::None();
@@ -226,7 +224,7 @@ NS_ASSUME_NONNULL_BEGIN
     unwritten = unwritten.insert(kv.first);
   };
   // For each mutation, note that the doc was written.
-  for (FSTMutation *mutation in self.mutations) {
+  for (FSTMutation *mutation : _mutations) {
     unwritten = unwritten.erase(mutation.key);
   }
   if (!unwritten.empty()) {
@@ -239,7 +237,7 @@ NS_ASSUME_NONNULL_BEGIN
                                              @"written in that transaction."
                }]);
   } else {
-    _datastore->CommitMutations(self.mutations, ^(NSError *_Nullable error) {
+    _datastore->CommitMutations(_mutations, ^(NSError *_Nullable error) {
       if (error) {
         completion(error);
       } else {

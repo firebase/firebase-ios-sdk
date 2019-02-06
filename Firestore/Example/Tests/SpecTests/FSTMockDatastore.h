@@ -18,6 +18,7 @@
 
 #include <memory>
 #include <unordered_map>
+#include <vector>
 
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
@@ -77,7 +78,7 @@ class MockDatastore : public Datastore {
   /**
    * Returns the next write that was "sent to the backend", failing if there are no queued sent
    */
-  NSArray<FSTMutation*>* NextSentWrite();
+  std::vector<FSTMutation*> NextSentWrite();
   /** Returns the number of writes that have been sent to the backend but not waited on yet. */
   int WritesSent() const;
 

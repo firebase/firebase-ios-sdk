@@ -19,6 +19,9 @@
 #import <FirebaseFirestore/FIRTimestamp.h>
 #import <XCTest/XCTest.h>
 
+#include <utility>
+#include <vector>
+
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTLocalWriteResult.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
@@ -121,15 +124,16 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)writeMutation:(FSTMutation *)mutation {
-  [self writeMutations:@[ mutation ]];
+  [self writeMutations:{mutation}];
 }
 
-- (void)writeMutations:(NSArray<FSTMutation *> *)mutations {
-  FSTLocalWriteResult *result = [self.localStore locallyWriteMutations:mutations];
+- (void)writeMutations:(std::vector<FSTMutation *> &&)mutations {
+  auto mutationsCopy = mutations;
+  FSTLocalWriteResult *result = [self.localStore locallyWriteMutations:std::move(mutationsCopy)];
   XCTAssertNotNil(result);
   [self.batches addObject:[[FSTMutationBatch alloc] initWithBatchID:result.batchID
                                                      localWriteTime:[FIRTimestamp timestamp]
-                                                          mutations:mutations]];
+                                                          mutations:std::move(mutations)]];
   _lastChanges = result.changes;
 }
 
@@ -144,7 +148,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)acknowledgeMutationWithVersion:(FSTTestSnapshotVersion)documentVersion {
   FSTMutationBatch *batch = [self.batches firstObject];
   [self.batches removeObjectAtIndex:0];
-  XCTAssertEqual(batch.mutations.count, 1, @"Acknowledging more than one mutation not supported.");
+  XCTAssertEqual(batch.mutations.size(), 1, @"Acknowledging more than one mutation not supported.");
   SnapshotVersion version = testutil::Version(documentVersion);
   FSTMutationResult *mutationResult = [[FSTMutationResult alloc] initWithVersion:version
                                                                 transformResults:nil];
@@ -224,7 +228,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTMutation *set2 = FSTTestSetMutation(@"bar/baz", @{@"bar" : @"baz"});
   FSTMutationBatch *batch = [[FSTMutationBatch alloc] initWithBatchID:1
                                                        localWriteTime:[FIRTimestamp timestamp]
-                                                            mutations:@[ set1, set2 ]];
+                                                            mutations:{set1, set2}];
   DocumentKeySet keys = [batch keys];
   XCTAssertEqual(keys.size(), 2u);
 }
@@ -616,10 +620,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testHandlesSetMutationAndPatchMutationTogether {
   if ([self isTestBaseClass]) return;
 
-  [self writeMutations:@[
+  [self writeMutations:{
     FSTTestSetMutation(@"foo/bar", @{@"foo" : @"old"}),
-    FSTTestPatchMutation("foo/bar", @{@"foo" : @"bar"}, {})
-  ]];
+        FSTTestPatchMutation("foo/bar", @{@"foo" : @"bar"}, {})
+  }];
 
   FSTAssertChanged(
       @[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, FSTDocumentStateLocalMutations) ]);
@@ -646,11 +650,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testHandlesSetMutationsAndPatchMutationOfJustOneTogether {
   if ([self isTestBaseClass]) return;
 
-  [self writeMutations:@[
+  [self writeMutations:{
     FSTTestSetMutation(@"foo/bar", @{@"foo" : @"old"}),
-    FSTTestSetMutation(@"bar/baz", @{@"bar" : @"baz"}),
-    FSTTestPatchMutation("foo/bar", @{@"foo" : @"bar"}, {})
-  ]];
+        FSTTestSetMutation(@"bar/baz", @{@"bar" : @"baz"}),
+        FSTTestPatchMutation("foo/bar", @{@"foo" : @"bar"}, {})
+  }];
 
   FSTAssertChanged((@[
     FSTTestDoc("bar/baz", 0, @{@"bar" : @"baz"}, FSTDocumentStateLocalMutations),
@@ -840,11 +844,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testCanExecuteDocumentQueries {
   if ([self isTestBaseClass]) return;
 
-  [self.localStore locallyWriteMutations:@[
+  [self.localStore locallyWriteMutations:{
     FSTTestSetMutation(@"foo/bar", @{@"foo" : @"bar"}),
-    FSTTestSetMutation(@"foo/baz", @{@"foo" : @"baz"}),
-    FSTTestSetMutation(@"foo/bar/Foo/Bar", @{@"Foo" : @"Bar"})
-  ]];
+        FSTTestSetMutation(@"foo/baz", @{@"foo" : @"baz"}),
+        FSTTestSetMutation(@"foo/bar/Foo/Bar", @{@"Foo" : @"Bar"})
+  }];
   FSTQuery *query = FSTTestQuery("foo/bar");
   DocumentMap docs = [self.localStore executeQuery:query];
   XCTAssertEqualObjects(docMapToArray(docs), @[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"},
@@ -854,13 +858,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testCanExecuteCollectionQueries {
   if ([self isTestBaseClass]) return;
 
-  [self.localStore locallyWriteMutations:@[
+  [self.localStore locallyWriteMutations:{
     FSTTestSetMutation(@"fo/bar", @{@"fo" : @"bar"}),
-    FSTTestSetMutation(@"foo/bar", @{@"foo" : @"bar"}),
-    FSTTestSetMutation(@"foo/baz", @{@"foo" : @"baz"}),
-    FSTTestSetMutation(@"foo/bar/Foo/Bar", @{@"Foo" : @"Bar"}),
-    FSTTestSetMutation(@"fooo/blah", @{@"fooo" : @"blah"})
-  ]];
+        FSTTestSetMutation(@"foo/bar", @{@"foo" : @"bar"}),
+        FSTTestSetMutation(@"foo/baz", @{@"foo" : @"baz"}),
+        FSTTestSetMutation(@"foo/bar/Foo/Bar", @{@"Foo" : @"Bar"}),
+        FSTTestSetMutation(@"fooo/blah", @{@"fooo" : @"blah"})
+  }];
   FSTQuery *query = FSTTestQuery("foo");
   DocumentMap docs = [self.localStore executeQuery:query];
   XCTAssertEqualObjects(
@@ -884,7 +888,7 @@ NS_ASSUME_NONNULL_BEGIN
                              FSTTestDoc("foo/bar", 20, @{@"a" : @"b"}, FSTDocumentStateSynced), {2},
                              {})];
 
-  [self.localStore locallyWriteMutations:@[ FSTTestSetMutation(@"foo/bonk", @{@"a" : @"b"}) ]];
+  [self.localStore locallyWriteMutations:{ FSTTestSetMutation(@"foo/bonk", @{@"a" : @"b"}) }];
 
   DocumentMap docs = [self.localStore executeQuery:query];
   XCTAssertEqualObjects(docMapToArray(docs), (@[
@@ -939,7 +943,7 @@ NS_ASSUME_NONNULL_BEGIN
       applyRemoteEvent:FSTTestAddedRemoteEvent(
                            FSTTestDoc("foo/bar", 20, @{@"a" : @"b"}, FSTDocumentStateSynced), {2})];
 
-  [self.localStore locallyWriteMutations:@[ FSTTestSetMutation(@"foo/bonk", @{@"a" : @"b"}) ]];
+  [self.localStore locallyWriteMutations:{ FSTTestSetMutation(@"foo/bonk", @{@"a" : @"b"}) }];
 
   DocumentKeySet keys = [self.localStore remoteDocumentKeysForTarget:2];
   DocumentKeySet expected{testutil::Key("foo/bar"), testutil::Key("foo/baz")};

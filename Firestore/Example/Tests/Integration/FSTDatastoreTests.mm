@@ -207,7 +207,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testCommit {
   XCTestExpectation *expectation = [self expectationWithDescription:@"commitWithCompletion"];
 
-  _datastore->CommitMutations(@[], ^(NSError *_Nullable error) {
+  _datastore->CommitMutations({}, ^(NSError *_Nullable error) {
     XCTAssertNil(error, @"Failed to commit");
     [expectation fulfill];
   });
@@ -224,7 +224,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTSetMutation *mutation = [self setMutation];
   FSTMutationBatch *batch = [[FSTMutationBatch alloc] initWithBatchID:23
                                                        localWriteTime:[FIRTimestamp timestamp]
-                                                            mutations:@[ mutation ]];
+                                                            mutations:{mutation}];
   _testWorkerQueue->Enqueue([=] {
     [_remoteStore addBatchToWritePipeline:batch];
     // The added batch won't be written immediately because write stream wasn't yet open --

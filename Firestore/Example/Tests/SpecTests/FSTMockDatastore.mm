@@ -197,7 +197,7 @@ class MockWriteStream : public WriteStream {
     [delegate_ writeStreamDidCompleteHandshake];
   }
 
-  void WriteMutations(NSArray<FSTMutation*>* mutations) override {
+  void WriteMutations(const std::vector<FSTMutation*>& mutations) override {
     datastore_->IncrementWriteStreamRequests();
     sent_mutations_.push(mutations);
   }
@@ -216,10 +216,10 @@ class MockWriteStream : public WriteStream {
   /**
    * Returns the next write that was "sent to the backend", failing if there are no queued sent
    */
-  NSArray<FSTMutation*>* NextSentWrite() {
+  std::vector<FSTMutation*> NextSentWrite() {
     HARD_ASSERT(!sent_mutations_.empty(),
                 "Writes need to happen before you can call NextSentWrite.");
-    NSArray<FSTMutation*>* result = std::move(sent_mutations_.front());
+    std::vector<FSTMutation*> result = std::move(sent_mutations_.front());
     sent_mutations_.pop();
     return result;
   }
@@ -234,7 +234,7 @@ class MockWriteStream : public WriteStream {
 
  private:
   bool open_ = false;
-  std::queue<NSArray<FSTMutation*>*> sent_mutations_;
+  std::queue<std::vector<FSTMutation*>> sent_mutations_;
   MockDatastore* datastore_ = nullptr;
   id<FSTWriteStreamDelegate> delegate_ = nullptr;
 };
@@ -282,7 +282,7 @@ bool MockDatastore::IsWatchStreamOpen() const {
   return watch_stream_->IsOpen();
 }
 
-NSArray<FSTMutation*>* MockDatastore::NextSentWrite() {
+std::vector<FSTMutation*> MockDatastore::NextSentWrite() {
   return write_stream_->NextSentWrite();
 }
 
