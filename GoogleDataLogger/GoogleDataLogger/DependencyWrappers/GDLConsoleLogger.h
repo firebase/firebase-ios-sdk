@@ -30,7 +30,7 @@ static GULLoggerService kGDLConsoleLogger = @"[GoogleDataLogger]";
  */
 typedef NS_ENUM(NSInteger, GDLMessageCode) {
 
-  /** For warning messages concerning protoBytes: not being implemented by a log extension. */
+  /** For warning messages concerning transportBytes: not being implemented by a log extension. */
   GDLMCWExtensionMissingBytesImpl = 1,
 
   /** For warning message concerning a failed log upload. */

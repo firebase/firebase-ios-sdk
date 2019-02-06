@@ -171,16 +171,16 @@ static NSString *GDLStoragePath() {
  * @note This method should only be called from a method within a block on _storageQueue to maintain
  * thread safety.
  *
- * @param logProtoBytes The extensionBytes of the log, presumably proto bytes.
+ * @param logTransportBytes The extensionBytes of the log, presumably proto bytes.
  * @param logHash The hash value of the log.
  * @return The filename
  */
-- (NSURL *)saveLogProtoToDisk:(NSData *)logProtoBytes logHash:(NSUInteger)logHash {
+- (NSURL *)saveLogProtoToDisk:(NSData *)logTransportBytes logHash:(NSUInteger)logHash {
   NSString *storagePath = GDLStoragePath();
   NSString *logFile = [NSString stringWithFormat:@"log-%lu", (unsigned long)logHash];
   NSURL *logFilePath = [NSURL fileURLWithPath:[storagePath stringByAppendingPathComponent:logFile]];
 
-  BOOL writingSuccess = [logProtoBytes writeToURL:logFilePath atomically:YES];
+  BOOL writingSuccess = [logTransportBytes writeToURL:logFilePath atomically:YES];
   if (!writingSuccess) {
     GDLLogError(GDLMCEFileWriteError, @"A log file could not be written: %@", logFilePath);
   }

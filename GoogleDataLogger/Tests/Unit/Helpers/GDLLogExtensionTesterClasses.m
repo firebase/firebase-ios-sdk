@@ -26,7 +26,7 @@
   return self;
 }
 
-- (NSData *)protoBytes {
+- (NSData *)transportBytes {
   return [_aString dataUsingEncoding:NSUTF8StringEncoding];
 }
 

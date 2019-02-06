@@ -32,7 +32,7 @@
 
 @implementation GDLIntegrationTestLog
 
-- (NSData *)protoBytes {
+- (NSData *)transportBytes {
   // In real usage, protobuf's -data method or a custom implementation using nanopb are used.
   return [[NSString stringWithFormat:@"%@", [NSDate date]] dataUsingEncoding:NSUTF8StringEncoding];
 }

@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @return the serialized proto bytes of the implementing log proto.
  */
-- (NSData *)protoBytes;
+- (NSData *)transportBytes;
 
 @end
 
