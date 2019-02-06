@@ -38,13 +38,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)storeLog:(GDLLogEvent *)log;
 
-/** Removes the corresponding log file from disk.
- *
- * @param logHash The hash value of the original log.
- * @param logTarget The logTarget of the original log.
- */
-- (void)removeLog:(NSNumber *)logHash logTarget:(NSNumber *)logTarget;
-
 /** Removes a set of log fields specified by their filenames.
  *
  * @param logHashes The set of log files to remove.
