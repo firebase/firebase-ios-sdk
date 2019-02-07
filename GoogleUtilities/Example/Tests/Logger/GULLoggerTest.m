@@ -20,6 +20,24 @@
 
 #import <GoogleUtilities/GULLogger.h>
 
+@interface GULLoggerTest : XCTestCase
+@end
+
+@implementation GULLoggerTest
+
+- (void)setUp {
+  // Clear out any logger state as though the app just launched.
+}
+
+// TODO(bstpierre): Write Tests
+
+@end
+
+#pragma mark - Old Tests
+
+// TODO(bstpierre): Move all following tests to GULLASLLoggerTest
+/**
+
 #import <asl.h>
 
 extern const char *kGULLoggerASLClientFacilityName;
@@ -34,7 +52,7 @@ extern BOOL getGULLoggerDebugMode(void);
 
 static NSString *const kMessageCode = @"I-COR000001";
 
-@interface GULLoggerTest : XCTestCase
+@interface GULOldLoggerTest : XCTestCase
 
 @property(nonatomic) NSString *randomLogString;
 
@@ -42,7 +60,7 @@ static NSString *const kMessageCode = @"I-COR000001";
 
 @end
 
-@implementation GULLoggerTest
+@implementation GULOldLoggerTest
 
 - (void)setUp {
   [super setUp];
@@ -182,5 +200,5 @@ static NSString *const kMessageCode = @"I-COR000001";
 #pragma clang pop
 }
 
-@end
+@end */
 #endif

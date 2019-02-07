@@ -22,55 +22,42 @@
 static dispatch_once_t sGULLoggerOnceToken;
 static id<GULLoggerSystem> sGULLogger;
 
-void GULLoggerInitializeASL(void) {
-  [[GULLogger logger] initializeLogger];
+void GULLoggerInitialize(void) {
+  [GULLogger.logger initializeLogger];
 }
 
 void GULLoggerEnableSTDERR(void) {
-  [[GULLogger logger] printToSTDERR];
+  [GULLogger.logger printToSTDERR];
 }
 
 void GULLoggerForceDebug(void) {
-  [GULLogger logger].forcedDebug = YES;
+  GULLogger.logger.forcedDebug = YES;
 }
 
 void GULSetLoggerLevel(GULLoggerLevel loggerLevel) {
-  [GULLogger logger].logLevel = loggerLevel;
+  GULLogger.logger.logLevel = loggerLevel;
 }
 
 BOOL GULIsLoggableLevel(GULLoggerLevel loggerLevel) {
-  return [[GULLogger logger] isLoggableLevel:loggerLevel];
+  return [GULLogger.logger isLoggableLevel:loggerLevel];
 }
-
-#ifdef DEBUG
-void GULResetLogger() {
-  sGULLoggerOnceToken = 0;
-  sGULLogger = nil;
-}
-
-id<GULLoggerSystem> getGULLoggerClient() {
-  return sGULLogger;
-}
-
-BOOL getGULLoggerDebugMode() {
-  return [GULLogger logger].forcedDebug;
-}
-#endif
 
 void GULLoggerRegisterVersion(const char *version) {
-  [GULLogger logger].version = version;
+  GULLogger.logger.version = version;
 }
 
 void GULLogBasic(GULLoggerLevel level,
                  GULLoggerService service,
                  BOOL forceLog,
                  NSString *messageCode,
-                 NSString *message,
-                 va_list args_ptr) {
-  [[GULLogger logger] logWithLevel:level
-                       withService:service
-                          withCode:messageCode
-                       withMessage:messageCode, args_ptr];
+                 NSString *message, ...) {
+  va_list formatArgs;
+  va_start(formatArgs, message);
+  [GULLogger.logger logWithLevel:level
+                     withService:service
+                        withCode:messageCode
+                     withMessage:messageCode, formatArgs];
+  va_end(formatArgs);
 }
 #pragma clang diagnostic pop
 

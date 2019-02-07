@@ -27,9 +27,9 @@ extern "C" {
 #endif  // __cplusplus
 
 /**
- * Initialize GULLogger.
+ * Initialize the default GULLogger.
  */
-extern void GULLoggerInitializeASL(void);
+extern void GULLoggerInitialize(void);
 
 /**
  * Override log level to Debug.
@@ -44,27 +44,28 @@ extern void GULLoggerEnableSTDERR(void);
 /**
  * Changes the default logging level of GULLoggerLevelNotice to a user-specified level.
  * The default level cannot be set above GULLoggerLevelNotice if the app is running from App Store.
- * (required) log level (one of the GULLoggerLevel enum values).
+ * @param loggerLevel Log level (one of the GULLoggerLevel enum values).
  */
 extern void GULSetLoggerLevel(GULLoggerLevel loggerLevel);
 
 /**
  * Checks if the specified logger level is loggable given the current settings.
- * (required) log level (one of the GULLoggerLevel enum values).
+ * @param loggerLevel Log level (one of the GULLoggerLevel enum values).
  */
 extern BOOL GULIsLoggableLevel(GULLoggerLevel loggerLevel);
 
 /**
  * Register version to include in logs.
- * (required) version
+ * @param version The version to register with the logger.
  */
 extern void GULLoggerRegisterVersion(const char *version);
 
 /**
  * Logs a message to the Xcode console and the device log. If running from AppStore, will
  * not log any messages with a level higher than GULLoggerLevelNotice to avoid log spamming.
- * (required) log level (one of the GULLoggerLevel enum values).
- * (required) service name of type GULLoggerService.
+ * @param level Log level (one of the GULLoggerLevel enum values).
+ * @param service Service name of type GULLoggerService.
+ * @param forceLog
  * (required) message code starting with "I-" which means iOS, followed by a capitalized
  *            three-character service identifier and a six digit integer message ID that is unique
  *            within the service.
@@ -77,15 +78,7 @@ extern void GULLogBasic(GULLoggerLevel level,
                         GULLoggerService service,
                         BOOL forceLog,
                         NSString *messageCode,
-                        NSString *message,
-// On 64-bit simulators, va_list is not a pointer, so cannot be marked nullable
-// See: http://stackoverflow.com/q/29095469
-#if __LP64__ && TARGET_OS_SIMULATOR || TARGET_OS_OSX
-                        va_list args_ptr
-#else
-                        va_list _Nullable args_ptr
-#endif
-);
+                        NSString *message, ...);
 
 /**
  * The following functions accept the following parameters in order:

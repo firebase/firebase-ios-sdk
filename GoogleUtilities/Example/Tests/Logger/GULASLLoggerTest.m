@@ -1,4 +1,4 @@
-// Copyright 2017 Google
+// Copyright 2019 Google
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,13 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <FirebaseCore/FIRLogger.h>
+#import <OCMock/OCMock.h>
+#import <XCTest/XCTest.h>
 
-#import "FIRTestCase.h"
+#import <GoogleUtilities/GULLogger.h>
 
-@interface FIRLoggerTest : FIRTestCase
+#import <asl.h>
+
+@interface GULASLLoggerTest : XCTestCase
 @end
 
-@implementation FIRLoggerTest
-// TODO(bstpierre):Create FIRLogger tests which do not depend on GULLogger implementation details.
+@implementation GULASLLoggerTest
+
+- (void)setUp {
+  // Clear out any logger state as though the app just launched.
+}
+
+// TODO(bstpierre): Write Tests
+
 @end
