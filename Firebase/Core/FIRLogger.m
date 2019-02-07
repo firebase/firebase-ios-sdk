@@ -64,7 +64,7 @@ static NSString *const kMessageCodePattern = @"^I-[A-Z]{3}[0-9]{6}$";
 static NSRegularExpression *sMessageCodeRegex;
 #endif
 
-void FIRLoggerInitializeASL() {
+void FIRLoggerInitialize() {
   dispatch_once(&sFIRLoggerOnceToken, ^{
     // Register Firebase Version with GULLogger.
     GULLoggerRegisterVersion(FIRVersionString);
@@ -102,7 +102,7 @@ __attribute__((no_sanitize("thread"))) void FIRSetAnalyticsDebugMode(BOOL analyt
 }
 
 void FIRSetLoggerLevel(FIRLoggerLevel loggerLevel) {
-  FIRLoggerInitializeASL();
+  FIRLoggerInitialize();
   GULSetLoggerLevel((GULLoggerLevel)loggerLevel);
 }
 
@@ -114,7 +114,7 @@ void FIRSetLoggerLevel(FIRLoggerLevel loggerLevel) {
  */
 __attribute__((no_sanitize("thread"))) BOOL FIRIsLoggableLevel(FIRLoggerLevel loggerLevel,
                                                                BOOL analyticsComponent) {
-  FIRLoggerInitializeASL();
+  FIRLoggerInitialize();
   if (sFIRAnalyticsDebugMode && analyticsComponent) {
     return YES;
   }
@@ -126,7 +126,7 @@ void FIRLogBasic(FIRLoggerLevel level,
                  NSString *messageCode,
                  NSString *message,
                  va_list args_ptr) {
-  FIRLoggerInitializeASL();
+  FIRLoggerInitialize();
   GULLogBasic((GULLoggerLevel)level, service,
               sFIRAnalyticsDebugMode && [kFIRLoggerAnalytics isEqualToString:service], messageCode,
               message, args_ptr);
