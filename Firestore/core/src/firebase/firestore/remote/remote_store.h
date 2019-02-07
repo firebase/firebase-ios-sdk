@@ -165,23 +165,8 @@ class RemoteStore : public TargetMetadataProvider,
   void OnWatchStreamClose(const util::Status& status) override;
 
   void OnWriteStreamOpen() override;
-
-  /**
-   * Handles a successful handshake response from the server, which is our cue
-   * to send any pending writes.
-   */
   void OnWriteStreamHandshakeComplete() override;
-
-  /**
-   * Handles the closing of the StreamingWrite RPC, either because of an error
-   * or because the RPC has been terminated by the client or the server.
-   */
   void OnWriteStreamClose(const util::Status& status) override;
-
-  /**
-   * Handles a successful StreamingWriteResponse from the server that contains a
-   * mutation result.
-   */
   void OnWriteStreamMutationResult(
       model::SnapshotVersion commit_version,
       std::vector<FSTMutationResult*> mutation_results) override;

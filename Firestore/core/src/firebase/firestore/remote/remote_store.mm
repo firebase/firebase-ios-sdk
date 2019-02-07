@@ -54,7 +54,7 @@ namespace remote {
 
 /**
  * The maximum number of pending writes to allow.
- * TODO(bjornick): Negotiate this value with the backend.
+ * TODO(b/35853402): Negotiate this value with the backend.
  */
 constexpr int kMaxPendingWrites = 10;
 
@@ -375,10 +375,6 @@ void RemoteStore::OnWriteStreamMutationResult(
   FillWritePipeline();
 }
 
-/**
- * Handles the closing of the StreamingWrite RPC, either because of an error or
- * because the RPC has been terminated by the client or the server.
- */
 void RemoteStore::OnWriteStreamClose(const Status& status) {
   if (status.ok()) {
     // Graceful stop (due to Stop() or idle timeout). Make sure that's
@@ -390,6 +386,7 @@ void RemoteStore::OnWriteStreamClose(const Status& status) {
   // If the write stream closed due to an error, invoke the error callbacks if
   // there are pending writes.
   if (!status.ok() && !write_pipeline_.empty()) {
+    // TODO: handle UNAUTHENTICATED status, see go/firestore-client-errors
     if (write_stream_->handshake_complete()) {
       // This error affects the actual writes.
       HandleWriteError(status);
