@@ -20,16 +20,20 @@
 
 #import "Firestore/Source/Local/FSTLocalStore.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
+#import "Firestore/Source/Model/FSTMutationBatch.h"
 
+#include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "absl/memory/memory.h"
 
+using firebase::firestore::model::BatchId;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::SnapshotVersion;
-using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::model::kBatchIdUnknown;
 using firebase::firestore::remote::Datastore;
 using firebase::firestore::remote::WatchStream;
 using firebase::firestore::remote::DocumentWatchChange;
@@ -48,6 +52,12 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
+/**
+ * The maximum number of pending writes to allow.
+ * TODO(b/35853402): Negotiate this value with the backend.
+ */
+constexpr int kMaxPendingWrites = 10;
+
 RemoteStore::RemoteStore(
     FSTLocalStore* local_store,
     Datastore* datastore,
@@ -57,7 +67,10 @@ RemoteStore::RemoteStore(
       online_state_tracker_{worker_queue, std::move(online_state_handler)} {
   // Create streams (but note they're not started yet)
   watch_stream_ = datastore->CreateWatchStream(this);
+  write_stream_ = datastore->CreateWriteStream(this);
 }
+
+// Watch Stream
 
 void RemoteStore::Listen(FSTQueryData* query_data) {
   TargetId targetKey = query_data.targetID;
@@ -96,15 +109,6 @@ void RemoteStore::StopListening(TargetId target_id) {
   }
 }
 
-FSTQueryData* RemoteStore::GetQueryDataForTarget(TargetId target_id) const {
-  auto found = listen_targets_.find(target_id);
-  return found != listen_targets_.end() ? found->second : nil;
-}
-
-DocumentKeySet RemoteStore::GetRemoteKeysForTarget(TargetId target_id) const {
-  return [sync_engine_ remoteKeysForTarget:target_id];
-}
-
 void RemoteStore::SendWatchRequest(FSTQueryData* query_data) {
   // We need to increment the the expected number of pending responses we're due
   // from watch so we wait for the ack to process any messages from this target.
@@ -120,6 +124,11 @@ void RemoteStore::SendUnwatchRequest(TargetId target_id) {
   watch_stream_->UnwatchTargetId(target_id);
 }
 
+bool RemoteStore::ShouldStartWatchStream() const {
+  return CanUseNetwork() && !watch_stream_->IsStarted() &&
+         !listen_targets_.empty();
+}
+
 void RemoteStore::StartWatchStream() {
   HARD_ASSERT(ShouldStartWatchStream(),
               "StartWatchStream called when ShouldStartWatchStream is false.");
@@ -127,17 +136,6 @@ void RemoteStore::StartWatchStream() {
   watch_stream_->Start();
 
   online_state_tracker_.HandleWatchStreamStart();
-}
-
-bool RemoteStore::ShouldStartWatchStream() const {
-  return CanUseNetwork() && !watch_stream_->IsStarted() &&
-         !listen_targets_.empty();
-}
-
-bool RemoteStore::CanUseNetwork() const {
-  // PORTING NOTE: This method exists mostly because web also has to take into
-  // account primary vs. secondary state.
-  return is_network_enabled_;
 }
 
 void RemoteStore::CleanUpWatchStreamState() {
@@ -289,6 +287,185 @@ void RemoteStore::ProcessTargetError(const WatchTargetChange& change) {
                                        error:util::MakeNSError(change.cause())];
     }
   }
+}
+
+// Write Stream
+
+void RemoteStore::FillWritePipeline() {
+  BatchId last_batch_id_retrieved = write_pipeline_.empty()
+                                        ? kBatchIdUnknown
+                                        : write_pipeline_.back().batchID;
+  while (CanAddToWritePipeline()) {
+    FSTMutationBatch* batch =
+        [local_store_ nextMutationBatchAfterBatchID:last_batch_id_retrieved];
+    if (!batch) {
+      if (write_pipeline_.empty()) {
+        write_stream_->MarkIdle();
+      }
+      break;
+    }
+    AddToWritePipeline(batch);
+    last_batch_id_retrieved = batch.batchID;
+  }
+
+  if (ShouldStartWriteStream()) {
+    StartWriteStream();
+  }
+}
+
+bool RemoteStore::CanAddToWritePipeline() const {
+  return CanUseNetwork() && write_pipeline_.size() < kMaxPendingWrites;
+}
+
+void RemoteStore::AddToWritePipeline(FSTMutationBatch* batch) {
+  HARD_ASSERT(CanAddToWritePipeline(),
+              "AddToWritePipeline called when pipeline is full");
+
+  write_pipeline_.push_back(batch);
+
+  if (write_stream_->IsOpen() && write_stream_->handshake_complete()) {
+    write_stream_->WriteMutations(batch.mutations);
+  }
+}
+
+bool RemoteStore::ShouldStartWriteStream() const {
+  return CanUseNetwork() && !write_stream_->IsStarted() &&
+         !write_pipeline_.empty();
+}
+
+void RemoteStore::StartWriteStream() {
+  HARD_ASSERT(ShouldStartWriteStream(), "StartWriteStream called when "
+                                        "ShouldStartWriteStream is false.");
+  write_stream_->Start();
+}
+
+void RemoteStore::OnWriteStreamOpen() {
+  write_stream_->WriteHandshake();
+}
+
+void RemoteStore::OnWriteStreamHandshakeComplete() {
+  // Record the stream token.
+  [local_store_ setLastStreamToken:write_stream_->GetLastStreamToken()];
+
+  // Send the write pipeline now that the stream is established.
+  for (FSTMutationBatch* write : write_pipeline_) {
+    write_stream_->WriteMutations(write.mutations);
+  }
+}
+
+void RemoteStore::OnWriteStreamMutationResult(
+    SnapshotVersion commit_version,
+    std::vector<FSTMutationResult*> mutation_results) {
+  // This is a response to a write containing mutations and should be correlated
+  // to the first write in our write pipeline.
+  HARD_ASSERT(!write_pipeline_.empty(), "Got result for empty write pipeline");
+
+  FSTMutationBatch* batch = write_pipeline_.front();
+  write_pipeline_.erase(write_pipeline_.begin());
+
+  FSTMutationBatchResult* batchResult = [FSTMutationBatchResult
+      resultWithBatch:batch
+        commitVersion:commit_version
+      mutationResults:std::move(mutation_results)
+          streamToken:write_stream_->GetLastStreamToken()];
+  [sync_engine_ applySuccessfulWriteWithResult:batchResult];
+
+  // It's possible that with the completion of this mutation another slot has
+  // freed up.
+  FillWritePipeline();
+}
+
+void RemoteStore::OnWriteStreamClose(const Status& status) {
+  if (status.ok()) {
+    // Graceful stop (due to Stop() or idle timeout). Make sure that's
+    // desirable.
+    HARD_ASSERT(!ShouldStartWriteStream(),
+                "Write stream was stopped gracefully while still needed.");
+  }
+
+  // If the write stream closed due to an error, invoke the error callbacks if
+  // there are pending writes.
+  if (!status.ok() && !write_pipeline_.empty()) {
+    // TODO(varconst): handle UNAUTHENTICATED status, see
+    // go/firestore-client-errors
+    if (write_stream_->handshake_complete()) {
+      // This error affects the actual writes.
+      HandleWriteError(status);
+    } else {
+      // If there was an error before the handshake finished, it's possible that
+      // the server is unable to process the stream token we're sending.
+      // (Perhaps it's too old?)
+      HandleHandshakeError(status);
+    }
+  }
+
+  // The write stream might have been started by refilling the write pipeline
+  // for failed writes
+  if (ShouldStartWriteStream()) {
+    StartWriteStream();
+  }
+}
+
+void RemoteStore::HandleHandshakeError(const Status& status) {
+  HARD_ASSERT(!status.ok(), "Handling write error with status OK.");
+
+  // Reset the token if it's a permanent error, signaling the write stream is
+  // no longer valid. Note that the handshake does not count as a write: see
+  // comments on `Datastore::IsPermanentWriteError` for details.
+  if (Datastore::IsPermanentError(status)) {
+    NSString* token =
+        [write_stream_->GetLastStreamToken() base64EncodedStringWithOptions:0];
+    LOG_DEBUG("RemoteStore %s error before completed handshake; resetting "
+              "stream token %s: "
+              "error code: '%s', details: '%s'",
+              this, token, status.code(), status.error_message());
+    write_stream_->SetLastStreamToken(nil);
+    [local_store_ setLastStreamToken:nil];
+  } else {
+    // Some other error, don't reset stream token. Our stream logic will just
+    // retry with exponential backoff.
+  }
+}
+
+void RemoteStore::HandleWriteError(const Status& status) {
+  HARD_ASSERT(!status.ok(), "Handling write error with status OK.");
+
+  // Only handle permanent errors here. If it's transient, just let the retry
+  // logic kick in.
+  if (!Datastore::IsPermanentWriteError(status)) {
+    return;
+  }
+
+  // If this was a permanent error, the request itself was the problem so it's
+  // not going to succeed if we resend it.
+  FSTMutationBatch* batch = write_pipeline_.front();
+  write_pipeline_.erase(write_pipeline_.begin());
+
+  // In this case it's also unlikely that the server itself is melting
+  // down--this was just a bad request so inhibit backoff on the next restart.
+  write_stream_->InhibitBackoff();
+
+  [sync_engine_ rejectFailedWriteWithBatchID:batch.batchID
+                                       error:util::MakeNSError(status)];
+
+  // It's possible that with the completion of this mutation another slot has
+  // freed up.
+  FillWritePipeline();
+}
+
+bool RemoteStore::CanUseNetwork() const {
+  // PORTING NOTE: This method exists mostly because web also has to take into
+  // account primary vs. secondary state.
+  return is_network_enabled_;
+}
+
+DocumentKeySet RemoteStore::GetRemoteKeysForTarget(TargetId target_id) const {
+  return [sync_engine_ remoteKeysForTarget:target_id];
+}
+
+FSTQueryData* RemoteStore::GetQueryDataForTarget(TargetId target_id) const {
+  auto found = listen_targets_.find(target_id);
+  return found != listen_targets_.end() ? found->second : nil;
 }
 
 }  // namespace remote
