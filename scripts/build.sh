@@ -233,6 +233,13 @@ case "$product-$method-$platform" in
     ;;
 
   InAppMessagingDisplay-xcodebuild-iOS)
+    RunXcodebuild \
+        -workspace 'InAppMessaging/Example/InAppMessaging-Example-iOS.xcworkspace'  \
+        -scheme 'InAppMessaging_Example_iOS' \
+        "${xcb_flags[@]}" \
+        build \
+        test
+
     # Run UI tests on both iPad and iPhone simulators
     # TODO: Running two destinations from one xcodebuild command stopped working with Xcode 10.
     # Consider separating static library tests to a separate job.
