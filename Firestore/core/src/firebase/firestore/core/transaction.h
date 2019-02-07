@@ -45,10 +45,13 @@ namespace core {
 
 class Transaction {
  public:
+   // TODO(varconst): once `FSTMaybeDocument` is replaced with a C++ equivalent,
+   // this function could take a single `StatusOr` parameter.
   using LookupCallback = std::function <
-                         void(const std::vector<FSTMaybeDocument*>&)>;
+                         void(const std::vector<FSTMaybeDocument*>&, const util::Status&)>;
   using CommitCallback = std::function<void(const util::Status&)>;
 
+  Transaction() = default;
   explicit Transaction(remote::Datastore* transaction);
 
   /**
