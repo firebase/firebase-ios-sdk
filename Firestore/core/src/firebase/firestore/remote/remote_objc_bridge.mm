@@ -287,7 +287,11 @@ std::vector<FSTMaybeDocument*> DatastoreSerializer::MergeLookupResponses(
     results[doc.key] = doc;
   }
 
-  std::vector<FSTMaybeDocument*> docs{results.begin(), results.end()};
+  std::vector<FSTMaybeDocument*> docs;
+  docs.reserve(results.size());
+  for (const auto& kv : results) {
+    docs.push_back(kv.second);
+  }
   return docs;
 }
 

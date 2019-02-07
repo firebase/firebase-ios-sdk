@@ -245,7 +245,7 @@ void Datastore::LookupDocumentsWithCredentials(
 
 void Datastore::OnLookupDocumentsResponse(
     const StatusOr<std::vector<grpc::ByteBuffer>>& result,
-    LookupCallback&& callback) {
+    const LookupCallback& callback) {
   if (!result.ok()) {
     callback({}, result.status());
     return;

@@ -16,10 +16,13 @@
 
 #import <Foundation/Foundation.h>
 
+#include <memory>
+
+namespace firebase { namespace firestore { namespace core { class Transaction; } } }
+
 NS_ASSUME_NONNULL_BEGIN
 
 @class FSTMaybeDocument;
-@class FSTTransaction;
 
 /**
  * FSTVoidBlock is a block that's called when a specific event happens but that otherwise has
@@ -53,7 +56,7 @@ typedef void (^FSTVoidMaybeDocumentArrayErrorBlock)(
  *                    transaction.
  * @param completion To be called by the block once the user's code is finished.
  */
-typedef void (^FSTTransactionBlock)(FSTTransaction *transaction,
+typedef void (^FSTTransactionBlock)(std::shared_ptr<firebase::firestore::core::Transaction> transaction,
                                     void (^completion)(id _Nullable, NSError *_Nullable));
 
 NS_ASSUME_NONNULL_END

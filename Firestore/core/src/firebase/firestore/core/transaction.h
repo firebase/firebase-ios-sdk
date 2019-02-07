@@ -37,7 +37,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class FSTMaybeDocument;
-@class FSTMutations;
+@class FSTMutation;
 
 namespace firebase {
 namespace firestore {
@@ -58,7 +58,7 @@ class Transaction {
    * Takes a set of keys and asynchronously attempts to fetch all the documents
    * from the backend, ignoring any local changes.
    */
-  void Lookup(const std::vector<model::DocumentKey>& key, LookupCallback&& callback);
+  void Lookup(const std::vector<model::DocumentKey>& keys, LookupCallback&& callback);
 
   /**
    * Stores mutation for the given key and set data, to be committed when
@@ -70,7 +70,7 @@ class Transaction {
    * Stores mutations for the given key and update data, to be committed when
    * `Commit` is called.
    */
-  void Update(const model::DocumentKey& key, ParsedSetData&& data);
+  void Update(const model::DocumentKey& key, ParsedUpdateData&& data);
 
   /**
    * Stores a delete mutation for the given key, to be committed when `Commit`

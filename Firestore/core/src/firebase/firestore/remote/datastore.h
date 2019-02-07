@@ -173,7 +173,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
       LookupCallback&& callback);
   void OnLookupDocumentsResponse(
       const util::StatusOr<std::vector<grpc::ByteBuffer>>& result,
-      LookupCallback&& callback);
+      const LookupCallback& callback);
 
   using OnCredentials = std::function<void(const util::StatusOr<auth::Token>&)>;
   void ResumeRpcWithCredentials(const OnCredentials& on_token);

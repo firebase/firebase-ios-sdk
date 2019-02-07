@@ -90,7 +90,7 @@ void Transaction::Lookup(const std::vector<DocumentKey>& keys,
           }
         }
 
-        callback(documents, Status::OK);
+        callback(documents, Status::OK());
       });
 }
 
@@ -131,7 +131,7 @@ void Transaction::Set(const DocumentKey& key, ParsedSetData&& data) {
   WriteMutations(std::move(data).ToMutations(key, CreatePrecondition(key)));
 }
 
-void Transaction::Update(const DocumentKey& key, ParsedSetData&& data) {
+void Transaction::Update(const DocumentKey& key, ParsedUpdateData&& data) {
   StatusOr<Precondition> maybe_precondition = CreateUpdatePrecondition(key);
   if (!maybe_precondition.ok()) {
     last_write_error_ = maybe_precondition.status();
@@ -145,7 +145,7 @@ void Transaction::Delete(const DocumentKey& key) {
   FSTMutation* mutation =
       [[FSTDeleteMutation alloc] initWithKey:key
                                 precondition:CreatePrecondition(key)];
-  WriteMutations({mutations});
+  WriteMutations({mutation});
 
   // Since the delete will be applied before all following writes, we need to
   // ensure that the precondition for the next write will be exists without
@@ -177,11 +177,11 @@ void Transaction::Commit(CommitCallback&& callback) {
   if (!unwritten.empty()) {
     // TODO(klimt): This is a temporary restriction, until "verify" is supported
     // on the backend.
-    callback(FirestoreErrorCode::FailedPrecondition,
+    callback(Status{FirestoreErrorCode::FailedPrecondition,
              "Every document read in a transaction must also be written in "
-             "that transaction.");
+             "that transaction."});
   } else {
-    datastore_->CommitMutations(mutations_, callback);
+    datastore_->CommitMutations(mutations_, std::move(callback));
   }
 }
 

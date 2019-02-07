@@ -178,7 +178,9 @@ class RemoteStore : public TargetMetadataProvider,
   void AddToWritePipeline(FSTMutationBatch* batch);
 
   /** Returns a new transaction backed by this remote store. */
-  core::Transaction CreateTransaction();
+  // TODO(c++14): return a plain value when it becomes possible to move
+  // `Transaction` into lambdas.
+  std::shared_ptr<core::Transaction> CreateTransaction();
 
   model::DocumentKeySet GetRemoteKeysForTarget(
       model::TargetId target_id) const override;

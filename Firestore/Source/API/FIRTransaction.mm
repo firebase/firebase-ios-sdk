@@ -16,6 +16,7 @@
 
 #import "FIRTransaction.h"
 
+#include <memory>
 #include <utility>
 
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
@@ -29,10 +30,13 @@
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
 
 using firebase::firestore::core::ParsedSetData;
 using firebase::firestore::core::ParsedUpdateData;
 using firebase::firestore::core::Transaction;
+using firebase::firestore::util::MakeNSError;
+using firebase::firestore::util::Status;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -40,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRTransaction ()
 
-- (instancetype)initWithTransaction:(FSTTransaction *)transaction
+- (instancetype)initWithTransaction:(std::shared_ptr<Transaction>)transaction
                           firestore:(FIRFirestore *)firestore NS_DESIGNATED_INITIALIZER;
 
 @property(nonatomic, strong, readonly) FIRFirestore *firestore;
@@ -48,18 +52,18 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRTransaction (Internal)
 
-+ (instancetype)transactionWithFSTTransaction:(FSTTransaction *)transaction
++ (instancetype)transactionWithInternalTransaction:(std::shared_ptr<Transaction>)transaction
                                     firestore:(FIRFirestore *)firestore {
-  return [[FIRTransaction alloc] initWithTransaction:transaction firestore:firestore];
+  return [[FIRTransaction alloc] initWithTransaction:std::move(transaction) firestore:firestore];
 }
 
 @end
 
 @implementation FIRTransaction {
-  Transaction _internalTransaction;
+  std::shared_ptr<Transaction> _internalTransaction;
 }
 
-- (instancetype)initWithTransaction:(Transaction &&)transaction
+- (instancetype)initWithTransaction:(std::shared_ptr<Transaction>)transaction
                           firestore:(FIRFirestore *)firestore {
   self = [super init];
   if (self) {
@@ -80,7 +84,7 @@ NS_ASSUME_NONNULL_BEGIN
   [self validateReference:document];
   ParsedSetData parsed = merge ? [self.firestore.dataConverter parsedMergeData:data fieldMask:nil]
                                : [self.firestore.dataConverter parsedSetData:data];
-  _internalTransaction.Set(document.key, std::move(parsed));
+  _internalTransaction->Set(document.key, std::move(parsed));
   return self;
 }
 
@@ -89,7 +93,7 @@ NS_ASSUME_NONNULL_BEGIN
                 mergeFields:(NSArray<id> *)mergeFields {
   [self validateReference:document];
   ParsedSetData parsed = [self.firestore.dataConverter parsedMergeData:data fieldMask:mergeFields];
-  _internalTransaction.Set(document.key, std::move(parsed));
+  _internalTransaction->Set(document.key, std::move(parsed));
   return self;
 }
 
@@ -97,13 +101,13 @@ NS_ASSUME_NONNULL_BEGIN
                    forDocument:(FIRDocumentReference *)document {
   [self validateReference:document];
   ParsedUpdateData parsed = [self.firestore.dataConverter parsedUpdateData:fields];
-  _internalTransaction.Update(document.key, std::move(parsed));
+  _internalTransaction->Update(document.key, std::move(parsed));
   return self;
 }
 
 - (FIRTransaction *)deleteDocument:(FIRDocumentReference *)document {
   [self validateReference:document];
-  _internalTransaction.Delete(document.key);
+  _internalTransaction->Delete(document.key);
   return self;
 }
 
@@ -111,11 +115,11 @@ NS_ASSUME_NONNULL_BEGIN
          completion:(void (^)(FIRDocumentSnapshot *_Nullable document,
                               NSError *_Nullable error))completion {
   [self validateReference:document];
-  _internalTransaction.Lookup(
+  _internalTransaction->Lookup(
       {document.key},
-      [completion](const std::vector<FSTMaybeDocument *> &documents, const util::Status &status) {
+      [self, document, completion](const std::vector<FSTMaybeDocument *> &documents, const Status &status) {
         if (!status.ok()) {
-          completion(nil, util::MakeNSError(status));
+          completion(nil, MakeNSError(status));
           return;
         }
 
