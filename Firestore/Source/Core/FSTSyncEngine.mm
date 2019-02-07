@@ -286,7 +286,7 @@ class LimboResolution {
                     completion:(FSTVoidIDErrorBlock)completion {
   workerQueue->VerifyIsCurrentQueue();
   HARD_ASSERT(retries >= 0, "Got negative number of retries for transaction");
-  FSTTransaction *transaction = _remoteStore->CreateTransaction();
+  Transaction transaction = _remoteStore->CreateTransaction();
   updateBlock(transaction, ^(id _Nullable result, NSError *_Nullable error) {
     workerQueue->Enqueue(
         [self, retries, workerQueue, updateBlock, completion, transaction, result, error] {
