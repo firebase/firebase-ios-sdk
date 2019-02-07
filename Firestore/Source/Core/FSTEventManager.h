@@ -17,7 +17,6 @@
 #import <Foundation/Foundation.h>
 
 #import "Firestore/Source/Core/FSTViewSnapshot.h"
-#import "Firestore/Source/Remote/FSTRemoteStore.h"
 
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 

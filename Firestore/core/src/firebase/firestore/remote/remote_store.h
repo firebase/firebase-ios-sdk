@@ -43,11 +43,12 @@
 @class FSTMutationBatch;
 @class FSTMutationBatchResult;
 @class FSTQueryData;
+@class FSTTransaction;
 
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * A protocol that describes the actions the FSTRemoteStore needs to perform on
+ * A protocol that describes the actions the `RemoteStore` needs to perform on
  * a cooperating synchronization engine.
  */
 @protocol FSTRemoteSyncer
@@ -65,7 +66,7 @@ NS_ASSUME_NONNULL_BEGIN
  * backend for any active target.
  *
  * @param targetID The targetID corresponding to a listen initiated via
- *     -listenToTargetWithQueryData: on FSTRemoteStore.
+ *     a `Listen` on `RemoteStore`.
  * @param error A description of the condition that has forced the rejection.
  * Nearly always this will be an indication that the user is no longer
  * authorized to see the data matching the target.
@@ -112,47 +113,71 @@ class RemoteStore : public TargetMetadataProvider,
                     public WriteStreamCallback {
  public:
   RemoteStore(FSTLocalStore* local_store,
-              Datastore* datastore,
+              std::shared_ptr<Datastore> datastore,
               util::AsyncQueue* worker_queue,
               std::function<void(model::OnlineState)> online_state_handler);
 
-  // TODO(varconst): remove the getters and setters
-
-  id<FSTRemoteSyncer> sync_engine() {
-    return sync_engine_;
-  }
   void set_sync_engine(id<FSTRemoteSyncer> sync_engine) {
     sync_engine_ = sync_engine;
   }
 
-  FSTLocalStore* local_store() {
-    return local_store_;
-  }
+  /**
+   * Starts up the remote store, creating streams, restoring state from
+   * `FSTLocalStore`, etc.
+   */
+  void Start();
 
-  OnlineStateTracker& online_state_tracker() {
-    return online_state_tracker_;
-  }
+  /**
+   * Shuts down the remote store, tearing down connections and otherwise
+   * cleaning up.
+   */
+  void Shutdown();
 
-  void set_is_network_enabled(bool value) {
-    is_network_enabled_ = value;
-  }
+  /**
+   * Temporarily disables the network. The network can be re-enabled using
+   * 'EnableNetwork'.
+   */
+  void DisableNetwork();
 
-  WatchStream& watch_stream() {
-    return *watch_stream_;
-  }
-  WriteStream& write_stream() {
-    return *write_stream_;
-  }
+  /**
+   * Re-enables the network. Only to be called as the counterpart to
+   * 'DisableNetwork'.
+   */
+  void EnableNetwork();
 
-  std::vector<FSTMutationBatch*>& write_pipeline() {
-    return write_pipeline_;
-  }
+  /**
+   * Tells the `RemoteStore` that the currently authenticated user has changed.
+   *
+   * In response the remote store tears down streams and clears up any tracked
+   * operations that should not persist across users. Restarts the streams if
+   * appropriate.
+   */
+  void HandleCredentialChange();
 
   /** Listens to the target identified by the given `FSTQueryData`. */
   void Listen(FSTQueryData* query_data);
 
   /** Stops listening to the target with the given target ID. */
   void StopListening(model::TargetId target_id);
+
+  /**
+   * Attempts to fill our write pipeline with writes from the `FSTLocalStore`.
+   *
+   * Called internally to bootstrap or refill the write pipeline and by
+   * `FSTSyncEngine` whenever there are new mutations to process.
+   *
+   * Starts the write stream if necessary.
+   */
+  void FillWritePipeline();
+
+  /**
+   * Queues additional writes to be sent to the write stream, sending them
+   * immediately if the write stream is established.
+   */
+  void AddToWritePipeline(FSTMutationBatch* batch);
+
+  /** Returns a new transaction backed by this remote store. */
+  FSTTransaction* CreateTransaction();
 
   model::DocumentKeySet GetRemoteKeysForTarget(
       model::TargetId target_id) const override;
@@ -171,37 +196,9 @@ class RemoteStore : public TargetMetadataProvider,
       model::SnapshotVersion commit_version,
       std::vector<FSTMutationResult*> mutation_results) override;
 
-  // TODO(varconst): make the following methods private.
-
-  bool CanUseNetwork() const;
-
-  void StartWatchStream();
-
-  /**
-   * Returns true if the network is enabled, the watch stream has not yet been
-   * started and there are active watch targets.
-   */
-  bool ShouldStartWatchStream() const;
-
-  void CleanUpWatchStreamState();
-
-  /**
-   * Attempts to fill our write pipeline with writes from the `FSTLocalStore`.
-   *
-   * Called internally to bootstrap or refill the write pipeline and by
-   * `FSTSyncEngine` whenever there are new mutations to process.
-   *
-   * Starts the write stream if necessary.
-   */
-  void FillWritePipeline();
-
-  /**
-   * Queues additional writes to be sent to the write stream, sending them
-   * immediately if the write stream is established.
-   */
-  void AddToWritePipeline(FSTMutationBatch* batch);
-
  private:
+  void DisableNetworkInternal();
+
   void SendWatchRequest(FSTQueryData* query_data);
   void SendUnwatchRequest(model::TargetId target_id);
 
@@ -231,13 +228,28 @@ class RemoteStore : public TargetMetadataProvider,
   void HandleHandshakeError(const util::Status& status);
   void HandleWriteError(const util::Status& status);
 
+  bool CanUseNetwork() const;
+
+  void StartWatchStream();
+
+  /**
+   * Returns true if the network is enabled, the watch stream has not yet been
+   * started and there are active watch targets.
+   */
+  bool ShouldStartWatchStream() const;
+
+  void CleanUpWatchStreamState();
+
   id<FSTRemoteSyncer> sync_engine_ = nil;
 
   /**
    * The local store, used to fill the write pipeline with outbound mutations
-   * and resolve existence filter mismatches. Immutable after initialization.
+   * and resolve existence filter mismatches.
    */
   FSTLocalStore* local_store_ = nil;
+
+  /** The client-side proxy for interacting with the backend. */
+  std::shared_ptr<Datastore> datastore_;
 
   /**
    * A mapping of watched targets that the client cares about tracking and the
@@ -253,8 +265,8 @@ class RemoteStore : public TargetMetadataProvider,
   OnlineStateTracker online_state_tracker_;
 
   /**
-   * Set to true by `EnableNetwork` and false by `DisableNetworkInternal` and
-   * indicates the user-preferred network state.
+   * Set to true by `EnableNetwork` and false by `DisableNetwork` and indicates
+   * the user-preferred network state.
    */
   bool is_network_enabled_ = false;
 
