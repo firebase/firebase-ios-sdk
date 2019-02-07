@@ -66,7 +66,7 @@ NS_ASSUME_NONNULL_BEGIN
  * backend for any active target.
  *
  * @param targetID The targetID corresponding to a listen initiated via
- *     a `Listen` on `RemoteStore`.
+ *     `RemoteStore::Listen`.
  * @param error A description of the condition that has forced the rejection.
  * Nearly always this will be an indication that the user is no longer
  * authorized to see the data matching the target.
