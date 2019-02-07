@@ -102,6 +102,7 @@
           strongSelf->_logTargetToNextUploadTimes[logTarget] = nextUploadAttemptUTC;
           NSSet<NSNumber *> *logHashSet =
               [strongSelf->_logTargetToInFlightLogSet objectForKey:logTarget];
+          GDLAssert(logHashSet, @"There should be an in-flight log set to remove.");
           [strongSelf.logStorage removeLogs:logHashSet logTarget:logTarget];
           [strongSelf->_logTargetToInFlightLogSet removeObjectForKey:logTarget];
           if (strongSelf->_forcedUploadQueue.count) {
@@ -158,15 +159,16 @@
         GDLAssert(prioritizer && uploader, @"log target '%@' is missing an implementation",
                   logTarget);
         GDLUploadConditions conds = [self uploadConditions];
-        NSSet<NSNumber *> *logHashesToUpload = [prioritizer logsToUploadGivenConditions:conds];
+        NSSet<NSNumber *> *logHashesToUpload =
+            [[prioritizer logsToUploadGivenConditions:conds] copy];
         if (logHashesToUpload && logHashesToUpload.count > 0) {
           NSAssert(logHashesToUpload.count > 0, @"");
           NSSet<NSURL *> *logFilesToUpload =
               [strongSelf.logStorage logHashesToFiles:logHashesToUpload];
           NSAssert(logFilesToUpload.count == logHashesToUpload.count,
                    @"There should be the same number of files to logs");
-          [uploader uploadLogs:logFilesToUpload onComplete:self.onCompleteBlock];
           strongSelf->_logTargetToInFlightLogSet[logTarget] = logHashesToUpload;
+          [uploader uploadLogs:logFilesToUpload onComplete:self.onCompleteBlock];
         }
       }
     }

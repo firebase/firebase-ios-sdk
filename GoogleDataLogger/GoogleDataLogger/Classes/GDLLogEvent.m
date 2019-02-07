@@ -52,12 +52,12 @@
 }
 
 - (void)setExtension:(id<GDLLogProto>)extension {
-  // If you're looking here because of a performance issue in -protoBytes slowing the assignment
+  // If you're looking here because of a performance issue in -transportBytes slowing the assignment
   // of extension, one way to address this is to add a queue to this class,
   // dispatch_(barrier_ if concurrent)async here, and implement the getter with a dispatch_sync.
   if (extension != _extension) {
     _extension = extension;
-    _extensionBytes = [extension protoBytes];
+    _extensionBytes = [extension transportBytes];
   }
 }
 

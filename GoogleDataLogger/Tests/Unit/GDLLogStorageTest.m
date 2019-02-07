@@ -112,7 +112,8 @@ static NSInteger logTarget = 1337;
     logFile = [GDLLogStorage sharedInstance].logHashToLogFile[@(logHash)];
     XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:logFile.path]);
   });
-  [[GDLLogStorage sharedInstance] removeLog:@(logHash) logTarget:@(logTarget)];
+  [[GDLLogStorage sharedInstance] removeLogs:[NSSet setWithObject:@(logHash)]
+                                   logTarget:@(logTarget)];
   dispatch_sync([GDLLogStorage sharedInstance].storageQueue, ^{
     XCTAssertFalse([[NSFileManager defaultManager] fileExistsAtPath:logFile.path]);
     XCTAssertEqual([GDLLogStorage sharedInstance].logHashToLogFile.count, 0);
@@ -228,7 +229,8 @@ static NSInteger logTarget = 1337;
   });
 
   // Ensure log was removed.
-  [[GDLLogStorage sharedInstance] removeLog:@(logEvent.hash) logTarget:@(logTarget)];
+  NSNumber *logHash = @(logEvent.hash);
+  [[GDLLogStorage sharedInstance] removeLogs:[NSSet setWithObject:logHash] logTarget:@(logTarget)];
   dispatch_sync([GDLLogStorage sharedInstance].storageQueue, ^{
     XCTAssertFalse([[NSFileManager defaultManager] fileExistsAtPath:logFile.path]);
     XCTAssertEqual([GDLLogStorage sharedInstance].logHashToLogFile.count, 0);
@@ -248,7 +250,8 @@ static NSInteger logTarget = 1337;
   dispatch_sync([GDLLogStorage sharedInstance].storageQueue, ^{
     XCTAssertNotNil([GDLLogStorage sharedInstance].logHashToLogFile[@(logHash)]);
   });
-  [[GDLLogStorage sharedInstance] removeLog:@(logHash) logTarget:@(logTarget)];
+  [[GDLLogStorage sharedInstance] removeLogs:[NSSet setWithObject:@(logHash)]
+                                   logTarget:@(logTarget)];
   dispatch_sync([GDLLogStorage sharedInstance].storageQueue, ^{
     XCTAssertNil([GDLLogStorage sharedInstance].logHashToLogFile[@(logHash)]);
   });

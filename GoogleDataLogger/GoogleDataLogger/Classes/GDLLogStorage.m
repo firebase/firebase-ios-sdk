@@ -105,30 +105,6 @@ static NSString *GDLStoragePath() {
   });
 }
 
-- (void)removeLog:(NSNumber *)logHash logTarget:(NSNumber *)logTarget {
-  dispatch_async(_storageQueue, ^{
-    NSURL *logFile = self.logHashToLogFile[logHash];
-
-    // Remove from disk, first and foremost.
-    NSError *error;
-    [[NSFileManager defaultManager] removeItemAtURL:logFile error:&error];
-    GDLAssert(error == nil, @"There was an error removing a logFile: %@", error);
-
-    // Remove from the tracking collections.
-    [self.logHashToLogFile removeObjectForKey:logHash];
-    NSMutableSet<NSNumber *> *logHashes = self.logTargetToLogHashSet[logTarget];
-    GDLAssert(logHashes, @"There wasn't a logSet for this logTarget.");
-    [logHashes removeObject:logHash];
-    // It's fine to not remove the set if it's empty.
-
-    // Check that a log prioritizer is available for this logTarget.
-    id<GDLLogPrioritizer> logPrioritizer =
-        [GDLRegistrar sharedInstance].logTargetToPrioritizer[logTarget];
-    GDLAssert(logPrioritizer, @"There's no prioritizer registered for the given logTarget.");
-    [logPrioritizer unprioritizeLog:logHash];
-  });
-}
-
 - (void)removeLogs:(NSSet<NSNumber *> *)logHashes logTarget:(NSNumber *)logTarget {
   dispatch_sync(_storageQueue, ^{
     for (NSNumber *logHash in logHashes) {
@@ -151,6 +127,33 @@ static NSString *GDLStoragePath() {
 
 #pragma mark - Private helper methods
 
+/** Removes the corresponding log file from disk.
+ *
+ * @param logHash The hash value of the original log.
+ * @param logTarget The logTarget of the original log.
+ */
+- (void)removeLog:(NSNumber *)logHash logTarget:(NSNumber *)logTarget {
+  NSURL *logFile = self.logHashToLogFile[logHash];
+
+  // Remove from disk, first and foremost.
+  NSError *error;
+  [[NSFileManager defaultManager] removeItemAtURL:logFile error:&error];
+  GDLAssert(error == nil, @"There was an error removing a logFile: %@", error);
+
+  // Remove from the tracking collections.
+  [self.logHashToLogFile removeObjectForKey:logHash];
+  NSMutableSet<NSNumber *> *logHashes = self.logTargetToLogHashSet[logTarget];
+  GDLAssert(logHashes, @"There wasn't a logSet for this logTarget.");
+  [logHashes removeObject:logHash];
+  // It's fine to not remove the set if it's empty.
+
+  // Check that a log prioritizer is available for this logTarget.
+  id<GDLLogPrioritizer> logPrioritizer =
+      [GDLRegistrar sharedInstance].logTargetToPrioritizer[logTarget];
+  GDLAssert(logPrioritizer, @"There's no prioritizer registered for the given logTarget.");
+  [logPrioritizer unprioritizeLog:logHash];
+}
+
 /** Creates the log directory if it does not exist. */
 - (void)createLogDirectoryIfNotExists {
   NSError *error;
@@ -168,16 +171,16 @@ static NSString *GDLStoragePath() {
  * @note This method should only be called from a method within a block on _storageQueue to maintain
  * thread safety.
  *
- * @param logProtoBytes The extensionBytes of the log, presumably proto bytes.
+ * @param logTransportBytes The extensionBytes of the log, presumably proto bytes.
  * @param logHash The hash value of the log.
  * @return The filename
  */
-- (NSURL *)saveLogProtoToDisk:(NSData *)logProtoBytes logHash:(NSUInteger)logHash {
+- (NSURL *)saveLogProtoToDisk:(NSData *)logTransportBytes logHash:(NSUInteger)logHash {
   NSString *storagePath = GDLStoragePath();
   NSString *logFile = [NSString stringWithFormat:@"log-%lu", (unsigned long)logHash];
   NSURL *logFilePath = [NSURL fileURLWithPath:[storagePath stringByAppendingPathComponent:logFile]];
 
-  BOOL writingSuccess = [logProtoBytes writeToURL:logFilePath atomically:YES];
+  BOOL writingSuccess = [logTransportBytes writeToURL:logFilePath atomically:YES];
   if (!writingSuccess) {
     GDLLogError(GDLMCEFileWriteError, @"A log file could not be written: %@", logFilePath);
   }

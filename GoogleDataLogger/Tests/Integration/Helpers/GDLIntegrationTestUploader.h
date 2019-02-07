@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-#import "GDLLogExtensionTesterClasses.h"
+#import <Foundation/Foundation.h>
 
-@implementation GDLLogExtensionTesterSimple
+#import <GoogleDataLogger/GoogleDataLogger.h>
 
-- (instancetype)init {
-  self = [super init];
-  if (self) {
-    _aString = @"test";
-  }
-  return self;
-}
+#import "GDLIntegrationTestPrioritizer.h"
 
-- (NSData *)transportBytes {
-  return [_aString dataUsingEncoding:NSUTF8StringEncoding];
-}
+/** An integration test uploader. */
+@interface GDLIntegrationTestUploader : NSObject <GDLLogUploader>
+
+/** Instantiates an instance of this uploader with the given server URL.
+ *
+ * @param serverURL The server URL this uploader should upload to.
+ * @return An instance of this class.
+ */
+- (instancetype)initWithServerURL:(NSURL *)serverURL;
 
 @end

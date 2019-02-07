@@ -3,7 +3,6 @@ Pod::Spec.new do |s|
   s.version          = '0.1.0'
   s.summary          = 'Google Data Logging iOS SDK.'
 
-
   s.description      = <<-DESC
 Shared library for iOS SDK data logging needs.
                        DESC
@@ -38,8 +37,16 @@ Shared library for iOS SDK data logging needs.
   common_test_sources = ['GoogleDataLogger/Tests/Common/**/*.{h,m}']
 
   # Unit test specs
-  s.test_spec do |test_spec|
+  s.test_spec 'Tests-Unit' do |test_spec|
     test_spec.requires_app_host = false
     test_spec.source_files = ['GoogleDataLogger/Tests/Unit/**/*.{h,m}'] + common_test_sources
+  end
+
+  # Integration test specs
+  s.test_spec 'Tests-Integration' do |test_spec|
+    test_spec.requires_app_host = false
+    test_spec.source_files = ['GoogleDataLogger/Tests/Integration/**/*.{h,m}'] + common_test_sources
+    test_spec.compiler_flags = '-DGDL_LOG_TRACE_ENABLED=1'
+    test_spec.dependency 'GCDWebServer'
   end
 end
