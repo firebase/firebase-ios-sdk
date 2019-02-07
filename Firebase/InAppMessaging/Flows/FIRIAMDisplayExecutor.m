@@ -33,6 +33,7 @@
 // YES if a message is being rendered at this time
 @property(nonatomic) BOOL isMsgBeingDisplayed;
 @property(nonatomic) NSTimeInterval lastDisplayTime;
+@property(nonatomic, nonnull, readonly) FIRInAppMessaging *inAppMessaging;
 @property(nonatomic, nonnull, readonly) FIRIAMDisplaySetting *setting;
 @property(nonatomic, nonnull, readonly) FIRIAMMessageClientCache *messageCache;
 @property(nonatomic, nonnull, readonly) id<FIRIAMBookKeeper> displayBookKeeper;
@@ -48,8 +49,7 @@
 #pragma mark - FIRInAppMessagingDisplayDelegate methods
 - (void)messageClicked:(FIRInAppMessagingDisplayMessage *)inAppMessage {
   // Call through to app-side delegate.
-  __weak id<FIRInAppMessagingDisplayDelegate> appSideDelegate =
-      [FIRInAppMessaging inAppMessaging].delegate;
+  __weak id<FIRInAppMessagingDisplayDelegate> appSideDelegate = self.inAppMessaging.delegate;
   if ([appSideDelegate respondsToSelector:@selector(messageClicked:)]) {
     [appSideDelegate messageClicked:inAppMessage];
   }
@@ -135,8 +135,7 @@
 - (void)messageDismissed:(FIRInAppMessagingDisplayMessage *)inAppMessage
              dismissType:(FIRInAppMessagingDismissType)dismissType {
   // Call through to app-side delegate.
-  __weak id<FIRInAppMessagingDisplayDelegate> appSideDelegate =
-      [FIRInAppMessaging inAppMessaging].delegate;
+  __weak id<FIRInAppMessagingDisplayDelegate> appSideDelegate = self.inAppMessaging.delegate;
   if ([appSideDelegate respondsToSelector:@selector(messageDismissed:dismissType:)]) {
     [appSideDelegate messageDismissed:inAppMessage dismissType:dismissType];
   }
@@ -187,8 +186,7 @@
 }
 
 - (void)impressionDetectedForMessage:(FIRInAppMessagingDisplayMessage *)inAppMessage {
-  __weak id<FIRInAppMessagingDisplayDelegate> appSideDelegate =
-      [FIRInAppMessaging inAppMessaging].delegate;
+  __weak id<FIRInAppMessagingDisplayDelegate> appSideDelegate = self.inAppMessaging.delegate;
   if ([appSideDelegate respondsToSelector:@selector(impressionDetectedForMessage:)]) {
     [appSideDelegate impressionDetectedForMessage:inAppMessage];
   }
@@ -213,8 +211,7 @@
 
 - (void)displayErrorForMessage:(FIRInAppMessagingDisplayMessage *)inAppMessage
                          error:(NSError *)error {
-  __weak id<FIRInAppMessagingDisplayDelegate> appSideDelegate =
-      [FIRInAppMessaging inAppMessaging].delegate;
+  __weak id<FIRInAppMessagingDisplayDelegate> appSideDelegate = self.inAppMessaging.delegate;
   if ([appSideDelegate respondsToSelector:@selector(displayErrorForMessage:error:)]) {
     [appSideDelegate displayErrorForMessage:inAppMessage error:error];
   }
@@ -312,14 +309,16 @@
                                                                              completion:nil];
 }
 
-- (instancetype)initWithSetting:(FIRIAMDisplaySetting *)setting
-                   messageCache:(FIRIAMMessageClientCache *)cache
-                    timeFetcher:(id<FIRIAMTimeFetcher>)timeFetcher
-                     bookKeeper:(id<FIRIAMBookKeeper>)displayBookKeeper
-              actionURLFollower:(FIRIAMActionURLFollower *)actionURLFollower
-                 activityLogger:(FIRIAMActivityLogger *)activityLogger
-           analyticsEventLogger:(id<FIRIAMAnalyticsEventLogger>)analyticsEventLogger {
+- (instancetype)initWithInAppMessaging:(FIRInAppMessaging *)inAppMessaging
+                               setting:(FIRIAMDisplaySetting *)setting
+                          messageCache:(FIRIAMMessageClientCache *)cache
+                           timeFetcher:(id<FIRIAMTimeFetcher>)timeFetcher
+                            bookKeeper:(id<FIRIAMBookKeeper>)displayBookKeeper
+                     actionURLFollower:(FIRIAMActionURLFollower *)actionURLFollower
+                        activityLogger:(FIRIAMActivityLogger *)activityLogger
+                  analyticsEventLogger:(id<FIRIAMAnalyticsEventLogger>)analyticsEventLogger {
   if (self = [super init]) {
+    _inAppMessaging = inAppMessaging;
     _timeFetcher = timeFetcher;
     _lastDisplayTime = displayBookKeeper.lastDisplayTime;
     _setting = setting;
