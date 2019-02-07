@@ -66,10 +66,6 @@ using firebase::firestore::util::ExecutorLibdispatch;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FSTRemoteStore (Tests)
-- (void)addBatchToWritePipeline:(FSTMutationBatch *)batch;
-@end
-
 #pragma mark - FSTRemoteStoreEventCapture
 
 @interface FSTRemoteStoreEventCapture : NSObject <FSTRemoteSyncer>
