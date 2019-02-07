@@ -29,6 +29,7 @@
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "absl/memory/memory.h"
 
+using firebase::firestore::core::Transaction;
 using firebase::firestore::model::BatchId;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::OnlineState;
@@ -520,8 +521,8 @@ bool RemoteStore::CanUseNetwork() const {
   return is_network_enabled_;
 }
 
-FSTTransaction* RemoteStore::CreateTransaction() {
-  return [FSTTransaction transactionWithDatastore:datastore_.get()];
+Transaction RemoteStore::CreateTransaction() {
+  return Transaction{datastore_.get()};
 }
 
 DocumentKeySet RemoteStore::GetRemoteKeysForTarget(TargetId target_id) const {
