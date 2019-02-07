@@ -158,10 +158,10 @@ std::shared_ptr<WatchStream> Datastore::CreateWatchStream(
 }
 
 std::shared_ptr<WriteStream> Datastore::CreateWriteStream(
-    id<FSTWriteStreamDelegate> delegate) {
+    WriteStreamCallback* callback) {
   return std::make_shared<WriteStream>(worker_queue_, credentials_,
                                        serializer_bridge_.GetSerializer(),
-                                       &grpc_connection_, delegate);
+                                       &grpc_connection_, callback);
 }
 
 void Datastore::CommitMutations(NSArray<FSTMutation*>* mutations,

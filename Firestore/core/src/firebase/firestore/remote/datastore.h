@@ -45,7 +45,6 @@
 #include "grpcpp/support/status.h"
 
 #import "Firestore/Source/Core/FSTTypes.h"
-#import "Firestore/Source/Remote/FSTStream.h"
 
 namespace firebase {
 namespace firestore {
@@ -91,7 +90,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
    * shared channel.
    */
   virtual std::shared_ptr<WriteStream> CreateWriteStream(
-      id<FSTWriteStreamDelegate> delegate);
+      WriteStreamCallback* callback);
 
   void CommitMutations(NSArray<FSTMutation*>* mutations,
                        FSTVoidErrorBlock completion);
