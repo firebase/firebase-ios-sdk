@@ -22,6 +22,8 @@
 #import "FIRAuthExceptionUtils.h"
 #import "FIRGameCenterAuthCredential.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @implementation FIRGameCenterAuthProvider
 
 - (instancetype)init {
@@ -82,3 +84,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END
