@@ -17,7 +17,7 @@ Shared library for iOS SDK data logging needs.
 
   s.ios.deployment_target = '8.0'
 
-  s.cocoapods_version = '>= 1.6.0.rc.2'
+  s.cocoapods_version = '>= 1.6.0'
 
   s.static_framework = true
   s.prefix_header_file = false
