@@ -43,31 +43,33 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/**
- * Interface implemented by RemoteStore to expose target metadata to the
- * `WatchChangeAggregator`.
- */
-@protocol FSTTargetMetadataProvider
-
-/**
- * Returns the set of remote document keys for the given target ID as of the
- * last raised snapshot.
- */
-- (firebase::firestore::model::DocumentKeySet)remoteKeysForTarget:
-    (firebase::firestore::model::TargetId)targetID;
-
-/**
- * Returns the FSTQueryData for an active target ID or 'null' if this query has
- * become inactive
- */
-- (nullable FSTQueryData*)queryDataForTarget:
-    (firebase::firestore::model::TargetId)targetID;
-
-@end
-
 namespace firebase {
 namespace firestore {
 namespace remote {
+
+/**
+ * Interface implemented by `RemoteStore` to expose target metadata to the
+ * `WatchChangeAggregator`.
+ */
+class TargetMetadataProvider {
+ public:
+  virtual ~TargetMetadataProvider() {
+  }
+
+  /**
+   * Returns the set of remote document keys for the given target ID as of the
+   * last raised snapshot.
+   */
+  virtual model::DocumentKeySet GetRemoteKeysForTarget(
+      model::TargetId target_id) const = 0;
+
+  /**
+   * Returns the FSTQueryData for an active target ID or 'null' if this query
+   * has become inactive
+   */
+  virtual FSTQueryData* GetQueryDataForTarget(
+      model::TargetId target_id) const = 0;
+};
 
 /**
  * A `TargetChange` specifies the set of changes for a specific target as part
@@ -309,9 +311,7 @@ class RemoteEvent {
 class WatchChangeAggregator {
  public:
   explicit WatchChangeAggregator(
-      id<FSTTargetMetadataProvider> target_metadata_provider)
-      : target_metadata_provider_{target_metadata_provider} {
-  }
+      TargetMetadataProvider* target_metadata_provider);
 
   /**
    * Processes and adds the `DocumentWatchChange` to the current set of changes.
@@ -437,7 +437,7 @@ class WatchChangeAggregator {
    */
   std::unordered_set<model::TargetId> pending_target_resets_;
 
-  id<FSTTargetMetadataProvider> target_metadata_provider_;
+  TargetMetadataProvider* target_metadata_provider_ = nullptr;
 };
 
 }  // namespace remote

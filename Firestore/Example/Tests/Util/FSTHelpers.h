@@ -17,6 +17,7 @@
 #import <Foundation/Foundation.h>
 
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #import "Firestore/Source/Model/FSTDocument.h"
@@ -150,51 +151,57 @@ inline NSString *FSTRemoveExceptionPrefix(NSString *exception) {
   } while (0)
 
 /**
- * An implementation of FSTTargetMetadataProvider that provides controlled access to the
- * `FSTTargetMetadataProvider` callbacks. Any target accessed via these callbacks must be
+ * An implementation of `TargetMetadataProvider` that provides controlled access to the
+ * `TargetMetadataProvider` callbacks. Any target accessed via these callbacks must be
  * registered beforehand via the factory methods or via `setSyncedKeys:forQueryData:`.
  */
-@interface FSTTestTargetMetadataProvider : NSObject <FSTTargetMetadataProvider>
+namespace firebase {
+namespace firestore {
+namespace remote {
 
-/**
- * Creates an FSTTestTargetMetadataProvider that behaves as if there's an established listen for
- * each of the given targets, where each target has previously seen query results containing just
- * the given documentKey.
- *
- * Internally this means that the `remoteKeysForTarget` callback for these targets will return just
- * the documentKey and that the provided targets will be returned as active from the
- * `queryDataForTarget` target.
- */
-+ (instancetype)
-    providerWithSingleResultForKey:(firebase::firestore::model::DocumentKey)documentKey
-                           targets:
-                               (const std::vector<firebase::firestore::model::TargetId> &)targets;
+class TestTargetMetadataProvider : public TargetMetadataProvider {
+ public:
+  /**
+   * Creates a `TestTargetMetadataProvider` that behaves as if there's an established listen for
+   * each of the given targets, where each target has previously seen query results containing just
+   * the given `document_key`.
+   *
+   * Internally this means that the `GetRemoteKeysForTarget` callback for these targets will return
+   * just the `document_key` and that the provided targets will be returned as active from the
+   * `GetQueryDataForTarget` target.
+   */
+  static TestTargetMetadataProvider CreateSingleResultProvider(
+      model::DocumentKey document_key, const std::vector<model::TargetId> &targets);
+  static TestTargetMetadataProvider CreateSingleResultProvider(
+      model::DocumentKey document_key,
+      const std::vector<model::TargetId> &targets,
+      const std::vector<model::TargetId> &limbo_targets);
 
-+ (instancetype)
-    providerWithSingleResultForKey:(firebase::firestore::model::DocumentKey)documentKey
-                     listenTargets:
-                         (const std::vector<firebase::firestore::model::TargetId> &)listenTargets
-                      limboTargets:
-                          (const std::vector<firebase::firestore::model::TargetId> &)limboTargets;
+  /**
+   * Creates an `TestTargetMetadataProvider` that behaves as if there's an established listen for
+   * each of the given targets, where each target has not seen any previous document.
+   *
+   * Internally this means that the `GetRemoteKeysForTarget` callback for these targets will return
+   * an empty set of document keys and that the provided targets will be returned as active from the
+   * `GetQueryDataForTarget` target.
+   */
+  static TestTargetMetadataProvider CreateEmptyResultProvider(
+      const model::DocumentKey &document_key, const std::vector<model::TargetId> &targets);
 
-/**
- * Creates an FSTTestTargetMetadataProvider that behaves as if there's an established listen for
- * each of the given targets, where each target has not seen any previous document.
- *
- * Internally this means that the `remoteKeysForTarget` callback for these targets will return an
- * empty set of document keys and that the provided targets will be returned as active from the
- * `queryDataForTarget` target.
- */
-+ (instancetype)
-    providerWithEmptyResultForKey:(firebase::firestore::model::DocumentKey)documentKey
-                          targets:
-                              (const std::vector<firebase::firestore::model::TargetId> &)targets;
+  /** Sets or replaces the local state for the provided query data. */
+  void SetSyncedKeys(model::DocumentKeySet keys, FSTQueryData *query_data);
 
-/** Sets or replaces the local state for the provided query data. */
-- (void)setSyncedKeys:(firebase::firestore::model::DocumentKeySet)keys
-         forQueryData:(FSTQueryData *)queryData;
+  model::DocumentKeySet GetRemoteKeysForTarget(model::TargetId target_id) const override;
+  FSTQueryData *GetQueryDataForTarget(model::TargetId target_id) const override;
 
-@end
+ private:
+  std::unordered_map<model::TargetId, model::DocumentKeySet> synced_keys_;
+  std::unordered_map<model::TargetId, FSTQueryData *> query_data_;
+};
+
+}  // namespace remote
+}  // namespace firestore
+}  // namespace firebase
 
 /** Creates a new FIRTimestamp from components. Note that year, month, and day are all one-based. */
 FIRTimestamp *FSTTestTimestamp(int year, int month, int day, int hour, int minute, int second);

@@ -36,6 +36,7 @@
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/remote/online_state_tracker.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
+#include "Firestore/core/src/firebase/firestore/remote/remote_store.h"
 #include "Firestore/core/src/firebase/firestore/remote/stream.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
@@ -61,6 +62,7 @@ using firebase::firestore::remote::DocumentWatchChange;
 using firebase::firestore::remote::ExistenceFilterWatchChange;
 using firebase::firestore::remote::OnlineStateTracker;
 using firebase::firestore::remote::RemoteEvent;
+using firebase::firestore::remote::RemoteStore;
 using firebase::firestore::remote::TargetChange;
 using firebase::firestore::remote::WatchChange;
 using firebase::firestore::remote::WatchChangeAggregator;
@@ -79,13 +81,7 @@ static const int kMaxPendingWrites = 10;
 
 #pragma mark - FSTRemoteStore
 
-@interface FSTRemoteStore () <FSTWatchStreamDelegate, FSTWriteStreamDelegate>
-
-/**
- * The local store, used to fill the write pipeline with outbound mutations and resolve existence
- * filter mismatches. Immutable after initialization.
- */
-@property(nonatomic, strong, readonly) FSTLocalStore *localStore;
+@interface FSTRemoteStore () <FSTWriteStreamDelegate>
 
 #pragma mark Watch Stream
 
@@ -107,29 +103,11 @@ static const int kMaxPendingWrites = 10;
 @end
 
 @implementation FSTRemoteStore {
-  OnlineStateTracker _onlineStateTracker;
-
-  std::unique_ptr<WatchChangeAggregator> _watchChangeAggregator;
-
   /** The client-side proxy for interacting with the backend. */
   std::shared_ptr<Datastore> _datastore;
-  /**
-   * A mapping of watched targets that the client cares about tracking and the
-   * user has explicitly called a 'listen' for this target.
-   *
-   * These targets may or may not have been sent to or acknowledged by the
-   * server. On re-establishing the listen stream, these targets should be sent
-   * to the server. The targets removed with unlistens are removed eagerly
-   * without waiting for confirmation from the listen stream. */
-  std::unordered_map<TargetId, FSTQueryData *> _listenTargets;
 
-  std::shared_ptr<WatchStream> _watchStream;
+  std::unique_ptr<RemoteStore> _remoteStore;
   std::shared_ptr<WriteStream> _writeStream;
-  /**
-   * Set to YES by 'enableNetwork:' and NO by 'disableNetworkInternal:' and
-   * indicates the user-preferred network state.
-   */
-  BOOL _isNetworkEnabled;
 }
 
 - (instancetype)initWithLocalStore:(FSTLocalStore *)localStore
@@ -137,20 +115,23 @@ static const int kMaxPendingWrites = 10;
                        workerQueue:(AsyncQueue *)queue
                 onlineStateHandler:(std::function<void(OnlineState)>)onlineStateHandler {
   if (self = [super init]) {
-    _localStore = localStore;
     _datastore = std::move(datastore);
 
     _writePipeline = [NSMutableArray array];
-    _onlineStateTracker = OnlineStateTracker{queue, std::move(onlineStateHandler)};
 
     _datastore->Start();
-    // Create streams (but note they're not started yet)
-    _watchStream = _datastore->CreateWatchStream(self);
+
+    _remoteStore = absl::make_unique<RemoteStore>(localStore, _datastore.get(), queue,
+                                                  std::move(onlineStateHandler));
     _writeStream = _datastore->CreateWriteStream(self);
 
-    _isNetworkEnabled = NO;
+    _remoteStore->set_is_network_enabled(false);
   }
   return self;
+}
+
+- (void)setSyncEngine:(id<FSTRemoteSyncer>)syncEngine {
+  _remoteStore->set_sync_engine(syncEngine);
 }
 
 - (void)start {
@@ -160,23 +141,17 @@ static const int kMaxPendingWrites = 10;
 
 #pragma mark Online/Offline state
 
-- (BOOL)canUseNetwork {
-  // PORTING NOTE: This method exists mostly because web also has to take into
-  // account primary vs. secondary state.
-  return _isNetworkEnabled;
-}
-
 - (void)enableNetwork {
-  _isNetworkEnabled = YES;
+  _remoteStore->set_is_network_enabled(true);
 
-  if ([self canUseNetwork]) {
+  if (_remoteStore->CanUseNetwork()) {
     // Load any saved stream token from persistent storage
-    _writeStream->SetLastStreamToken([self.localStore lastStreamToken]);
+    _writeStream->SetLastStreamToken([_remoteStore->local_store() lastStreamToken]);
 
-    if ([self shouldStartWatchStream]) {
-      [self startWatchStream];
+    if (_remoteStore->ShouldStartWatchStream()) {
+      _remoteStore->StartWatchStream();
     } else {
-      _onlineStateTracker.UpdateState(OnlineState::Unknown);
+      _remoteStore->online_state_tracker().UpdateState(OnlineState::Unknown);
     }
 
     // This will start the write stream if necessary.
@@ -185,16 +160,16 @@ static const int kMaxPendingWrites = 10;
 }
 
 - (void)disableNetwork {
-  _isNetworkEnabled = NO;
+  _remoteStore->set_is_network_enabled(false);
   [self disableNetworkInternal];
 
   // Set the OnlineState to Offline so get()s return from cache, etc.
-  _onlineStateTracker.UpdateState(OnlineState::Offline);
+  _remoteStore->online_state_tracker().UpdateState(OnlineState::Offline);
 }
 
 /** Disables the network, setting the OnlineState to the specified targetOnlineState. */
 - (void)disableNetworkInternal {
-  _watchStream->Stop();
+  _remoteStore->watch_stream().Stop();
   _writeStream->Stop();
 
   if (self.writePipeline.count > 0) {
@@ -203,246 +178,42 @@ static const int kMaxPendingWrites = 10;
     [self.writePipeline removeAllObjects];
   }
 
-  [self cleanUpWatchStreamState];
+  _remoteStore->CleanUpWatchStreamState();
 }
 
 #pragma mark Shutdown
 
 - (void)shutdown {
   LOG_DEBUG("FSTRemoteStore %s shutting down", (__bridge void *)self);
-  _isNetworkEnabled = NO;
+  _remoteStore->set_is_network_enabled(false);
   [self disableNetworkInternal];
   // Set the OnlineState to Unknown (rather than Offline) to avoid potentially triggering
   // spurious listener events with cached data, etc.
-  _onlineStateTracker.UpdateState(OnlineState::Unknown);
+  _remoteStore->online_state_tracker().UpdateState(OnlineState::Unknown);
   _datastore->Shutdown();
 }
 
 - (void)credentialDidChange {
-  if ([self canUseNetwork]) {
+  if (_remoteStore->CanUseNetwork()) {
     // Tear down and re-create our network streams. This will ensure we get a fresh auth token
     // for the new user and re-fill the write pipeline with new mutations from the LocalStore
     // (since mutations are per-user).
     LOG_DEBUG("FSTRemoteStore %s restarting streams for new credential", (__bridge void *)self);
-    _isNetworkEnabled = NO;
+    _remoteStore->set_is_network_enabled(false);
     [self disableNetworkInternal];
-    _onlineStateTracker.UpdateState(OnlineState::Unknown);
+    _remoteStore->online_state_tracker().UpdateState(OnlineState::Unknown);
     [self enableNetwork];
   }
 }
 
 #pragma mark Watch Stream
 
-- (void)startWatchStream {
-  HARD_ASSERT([self shouldStartWatchStream],
-              "startWatchStream: called when shouldStartWatchStream: is false.");
-  _watchChangeAggregator = absl::make_unique<WatchChangeAggregator>(self);
-  _watchStream->Start();
-
-  _onlineStateTracker.HandleWatchStreamStart();
-}
-
 - (void)listenToTargetWithQueryData:(FSTQueryData *)queryData {
-  TargetId targetKey = queryData.targetID;
-  HARD_ASSERT(_listenTargets.find(targetKey) == _listenTargets.end(),
-              "listenToQuery called with duplicate target id: %s", targetKey);
-
-  _listenTargets[targetKey] = queryData;
-
-  if ([self shouldStartWatchStream]) {
-    [self startWatchStream];
-  } else if (_watchStream->IsOpen()) {
-    [self sendWatchRequestWithQueryData:queryData];
-  }
-}
-
-- (void)sendWatchRequestWithQueryData:(FSTQueryData *)queryData {
-  _watchChangeAggregator->RecordPendingTargetRequest(queryData.targetID);
-  _watchStream->WatchQuery(queryData);
+  _remoteStore->Listen(queryData);
 }
 
 - (void)stopListeningToTargetID:(TargetId)targetID {
-  size_t num_erased = _listenTargets.erase(targetID);
-  HARD_ASSERT(num_erased == 1, "stopListeningToTargetID: target not currently watched: %s",
-              targetID);
-
-  if (_watchStream->IsOpen()) {
-    [self sendUnwatchRequestForTargetID:targetID];
-  }
-  if (_listenTargets.empty()) {
-    if (_watchStream->IsOpen()) {
-      _watchStream->MarkIdle();
-    } else if ([self canUseNetwork]) {
-      // Revert to OnlineState::Unknown if the watch stream is not open and we have no listeners,
-      // since without any listens to send we cannot confirm if the stream is healthy and upgrade
-      // to OnlineState::Online.
-      _onlineStateTracker.UpdateState(OnlineState::Unknown);
-    }
-  }
-}
-
-- (void)sendUnwatchRequestForTargetID:(TargetId)targetID {
-  _watchChangeAggregator->RecordPendingTargetRequest(targetID);
-  _watchStream->UnwatchTargetId(targetID);
-}
-
-/**
- * Returns YES if the network is enabled, the watch stream has not yet been started and there are
- * active watch targets.
- */
-- (BOOL)shouldStartWatchStream {
-  return [self canUseNetwork] && !_watchStream->IsStarted() && !_listenTargets.empty();
-}
-
-- (void)cleanUpWatchStreamState {
-  _watchChangeAggregator.reset();
-}
-
-- (void)watchStreamDidOpen {
-  // Restore any existing watches.
-  for (const auto &kv : _listenTargets) {
-    [self sendWatchRequestWithQueryData:kv.second];
-  }
-}
-
-- (void)watchStreamDidChange:(const WatchChange &)change
-             snapshotVersion:(const SnapshotVersion &)snapshotVersion {
-  // Mark the connection as Online because we got a message from the server.
-  _onlineStateTracker.UpdateState(OnlineState::Online);
-
-  if (change.type() == WatchChange::Type::TargetChange) {
-    const WatchTargetChange &watchTargetChange = static_cast<const WatchTargetChange &>(change);
-    if (watchTargetChange.state() == WatchTargetChangeState::Removed &&
-        !watchTargetChange.cause().ok()) {
-      // There was an error on a target, don't wait for a consistent snapshot to raise events
-      return [self processTargetErrorForWatchChange:watchTargetChange];
-    } else {
-      _watchChangeAggregator->HandleTargetChange(watchTargetChange);
-    }
-  } else if (change.type() == WatchChange::Type::Document) {
-    _watchChangeAggregator->HandleDocumentChange(static_cast<const DocumentWatchChange &>(change));
-  } else {
-    HARD_ASSERT(change.type() == WatchChange::Type::ExistenceFilter,
-                "Expected watchChange to be an instance of ExistenceFilterWatchChange");
-    _watchChangeAggregator->HandleExistenceFilter(
-        static_cast<const ExistenceFilterWatchChange &>(change));
-  }
-
-  if (snapshotVersion != SnapshotVersion::None() &&
-      snapshotVersion >= [self.localStore lastRemoteSnapshotVersion]) {
-    // We have received a target change with a global snapshot if the snapshot version is not
-    // equal to SnapshotVersion.None().
-    [self raiseWatchSnapshotWithSnapshotVersion:snapshotVersion];
-  }
-}
-
-- (void)watchStreamWasInterruptedWithError:(const Status &)error {
-  if (error.ok()) {
-    // Graceful stop (due to Stop() or idle timeout). Make sure that's desirable.
-    HARD_ASSERT(![self shouldStartWatchStream],
-                "Watch stream was stopped gracefully while still needed.");
-  }
-
-  [self cleanUpWatchStreamState];
-
-  // If we still need the watch stream, retry the connection.
-  if ([self shouldStartWatchStream]) {
-    _onlineStateTracker.HandleWatchStreamFailure(error);
-
-    [self startWatchStream];
-  } else {
-    // We don't need to restart the watch stream because there are no active targets. The online
-    // state is set to unknown because there is no active attempt at establishing a connection.
-    _onlineStateTracker.UpdateState(OnlineState::Unknown);
-  }
-}
-
-/**
- * Takes a batch of changes from the Datastore, repackages them as a `RemoteEvent`, and passes that
- * on to the SyncEngine.
- */
-- (void)raiseWatchSnapshotWithSnapshotVersion:(const SnapshotVersion &)snapshotVersion {
-  HARD_ASSERT(snapshotVersion != SnapshotVersion::None(),
-              "Can't raise event for unknown SnapshotVersion");
-
-  RemoteEvent remoteEvent = _watchChangeAggregator->CreateRemoteEvent(snapshotVersion);
-
-  // Update in-memory resume tokens. `FSTLocalStore` will update the persistent view of these when
-  // applying the completed `RemoteEvent`.
-  for (const auto &entry : remoteEvent.target_changes()) {
-    const TargetChange &target_change = entry.second;
-    NSData *resumeToken = target_change.resume_token();
-    if (resumeToken.length > 0) {
-      TargetId targetID = entry.first;
-      auto found = _listenTargets.find(targetID);
-      FSTQueryData *queryData = found != _listenTargets.end() ? found->second : nil;
-      // A watched target might have been removed already.
-      if (queryData) {
-        _listenTargets[targetID] =
-            [queryData queryDataByReplacingSnapshotVersion:snapshotVersion
-                                               resumeToken:resumeToken
-                                            sequenceNumber:queryData.sequenceNumber];
-      }
-    }
-  }
-
-  // Re-establish listens for the targets that have been invalidated by existence filter
-  // mismatches.
-  for (TargetId targetID : remoteEvent.target_mismatches()) {
-    auto found = _listenTargets.find(targetID);
-    if (found == _listenTargets.end()) {
-      // A watched target might have been removed already.
-      continue;
-    }
-    FSTQueryData *queryData = found->second;
-
-    // Clear the resume token for the query, since we're in a known mismatch state.
-    queryData = [[FSTQueryData alloc] initWithQuery:queryData.query
-                                           targetID:targetID
-                               listenSequenceNumber:queryData.sequenceNumber
-                                            purpose:queryData.purpose];
-    _listenTargets[targetID] = queryData;
-
-    // Cause a hard reset by unwatching and rewatching immediately, but deliberately don't send a
-    // resume token so that we get a full update.
-    [self sendUnwatchRequestForTargetID:targetID];
-
-    // Mark the query we send as being on behalf of an existence filter mismatch, but don't
-    // actually retain that in _listenTargets. This ensures that we flag the first re-listen this
-    // way without impacting future listens of this target (that might happen e.g. on reconnect).
-    FSTQueryData *requestQueryData =
-        [[FSTQueryData alloc] initWithQuery:queryData.query
-                                   targetID:targetID
-                       listenSequenceNumber:queryData.sequenceNumber
-                                    purpose:FSTQueryPurposeExistenceFilterMismatch];
-    [self sendWatchRequestWithQueryData:requestQueryData];
-  }
-
-  // Finally handle remote event
-  [self.syncEngine applyRemoteEvent:remoteEvent];
-}
-
-/** Process a target error and passes the error along to SyncEngine. */
-- (void)processTargetErrorForWatchChange:(const WatchTargetChange &)change {
-  HARD_ASSERT(!change.cause().ok(), "Handling target error without a cause");
-  // Ignore targets that have been removed already.
-  for (TargetId targetID : change.target_ids()) {
-    auto found = _listenTargets.find(targetID);
-    if (found != _listenTargets.end()) {
-      _listenTargets.erase(found);
-      _watchChangeAggregator->RemoveTarget(targetID);
-      [self.syncEngine rejectListenWithTargetID:targetID error:util::MakeNSError(change.cause())];
-    }
-  }
-}
-
-- (DocumentKeySet)remoteKeysForTarget:(TargetId)targetID {
-  return [self.syncEngine remoteKeysForTarget:targetID];
-}
-
-- (nullable FSTQueryData *)queryDataForTarget:(TargetId)targetID {
-  auto found = _listenTargets.find(targetID);
-  return found != _listenTargets.end() ? found->second : nil;
+  _remoteStore->StopListening(targetID);
 }
 
 #pragma mark Write Stream
@@ -452,7 +223,8 @@ static const int kMaxPendingWrites = 10;
  * pending writes.
  */
 - (BOOL)shouldStartWriteStream {
-  return [self canUseNetwork] && !_writeStream->IsStarted() && self.writePipeline.count > 0;
+  return _remoteStore->CanUseNetwork() && !_writeStream->IsStarted() &&
+         self.writePipeline.count > 0;
 }
 
 - (void)startWriteStream {
@@ -473,7 +245,8 @@ static const int kMaxPendingWrites = 10;
   BatchId lastBatchIDRetrieved =
       self.writePipeline.count == 0 ? kBatchIdUnknown : self.writePipeline.lastObject.batchID;
   while ([self canAddToWritePipeline]) {
-    FSTMutationBatch *batch = [self.localStore nextMutationBatchAfterBatchID:lastBatchIDRetrieved];
+    FSTMutationBatch *batch =
+        [_remoteStore->local_store() nextMutationBatchAfterBatchID:lastBatchIDRetrieved];
     if (!batch) {
       if (self.writePipeline.count == 0) {
         _writeStream->MarkIdle();
@@ -493,7 +266,7 @@ static const int kMaxPendingWrites = 10;
  * Returns YES if we can add to the write pipeline (i.e. it is not full and the network is enabled).
  */
 - (BOOL)canAddToWritePipeline {
-  return [self canUseNetwork] && self.writePipeline.count < kMaxPendingWrites;
+  return _remoteStore->CanUseNetwork() && self.writePipeline.count < kMaxPendingWrites;
 }
 
 /**
@@ -520,7 +293,7 @@ static const int kMaxPendingWrites = 10;
  */
 - (void)writeStreamDidCompleteHandshake {
   // Record the stream token.
-  [self.localStore setLastStreamToken:_writeStream->GetLastStreamToken()];
+  [_remoteStore->local_store() setLastStreamToken:_writeStream->GetLastStreamToken()];
 
   // Send the write pipeline now that the stream is established.
   for (FSTMutationBatch *write in self.writePipeline) {
@@ -542,7 +315,7 @@ static const int kMaxPendingWrites = 10;
                                 commitVersion:commitVersion
                               mutationResults:results
                                   streamToken:_writeStream->GetLastStreamToken()];
-  [self.syncEngine applySuccessfulWriteWithResult:batchResult];
+  [_remoteStore->sync_engine() applySuccessfulWriteWithResult:batchResult];
 
   // It's possible that with the completion of this mutation another slot has freed up.
   [self fillWritePipeline];
@@ -589,7 +362,7 @@ static const int kMaxPendingWrites = 10;
               "error code: '%s', details: '%s'",
               (__bridge void *)self, token, error.code(), error.error_message());
     _writeStream->SetLastStreamToken(nil);
-    [self.localStore setLastStreamToken:nil];
+    [_remoteStore->local_store() setLastStreamToken:nil];
   } else {
     // Some other error, don't reset stream token. Our stream logic will just retry with exponential
     // backoff.
@@ -612,7 +385,8 @@ static const int kMaxPendingWrites = 10;
   // bad request so inhibit backoff on the next restart.
   _writeStream->InhibitBackoff();
 
-  [self.syncEngine rejectFailedWriteWithBatchID:batch.batchID error:util::MakeNSError(error)];
+  [_remoteStore->sync_engine() rejectFailedWriteWithBatchID:batch.batchID
+                                                      error:util::MakeNSError(error)];
 
   // It's possible that with the completion of this mutation another slot has freed up.
   [self fillWritePipeline];

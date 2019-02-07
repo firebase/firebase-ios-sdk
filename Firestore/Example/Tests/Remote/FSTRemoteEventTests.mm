@@ -46,6 +46,7 @@ using firebase::firestore::remote::ExistenceFilter;
 using firebase::firestore::remote::ExistenceFilterWatchChange;
 using firebase::firestore::remote::RemoteEvent;
 using firebase::firestore::remote::TargetChange;
+using firebase::firestore::remote::TestTargetMetadataProvider;
 using firebase::firestore::remote::WatchChange;
 using firebase::firestore::remote::WatchChangeAggregator;
 using firebase::firestore::remote::WatchTargetChange;
@@ -92,13 +93,12 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
 
 @implementation FSTRemoteEventTests {
   NSData *_resumeToken1;
-  FSTTestTargetMetadataProvider *_targetMetadataProvider;
+  TestTargetMetadataProvider _targetMetadataProvider;
   std::unordered_map<TargetId, int> _noOutstandingResponses;
 }
 
 - (void)setUp {
   _resumeToken1 = [@"resume1" dataUsingEncoding:NSUTF8StringEncoding];
-  _targetMetadataProvider = [FSTTestTargetMetadataProvider new];
 }
 
 /**
@@ -145,7 +145,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
  * considered active, or `_noOutstandingResponses` if all targets are already active.
  * @param existingKeys The set of documents that are considered synced with the test targets as
  * part of a previous listen. To modify this set during test execution, invoke
- * `[_targetMetadataProvider setSyncedKeys:forQueryData:]`.
+ * `_targetMetadataProvider.SetSyncedKeys()`.
  * @param watchChanges The watch changes to apply before returning the aggregator. Supported
  * changes are `DocumentWatchChange` and `WatchTargetChange`.
  */
@@ -154,7 +154,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
        outstandingResponses:(const std::unordered_map<TargetId, int> &)outstandingResponses
                existingKeys:(DocumentKeySet)existingKeys
                     changes:(const std::vector<std::unique_ptr<WatchChange>> &)watchChanges {
-  WatchChangeAggregator aggregator{_targetMetadataProvider};
+  WatchChangeAggregator aggregator{&_targetMetadataProvider};
 
   std::vector<TargetId> targetIDs;
   for (const auto &kv : targetMap) {
@@ -162,7 +162,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
     FSTQueryData *queryData = kv.second;
 
     targetIDs.push_back(targetID);
-    [_targetMetadataProvider setSyncedKeys:existingKeys forQueryData:queryData];
+    _targetMetadataProvider.SetSyncedKeys(existingKeys, queryData);
   };
 
   for (const auto &kv : outstandingResponses) {
@@ -223,7 +223,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
 
 - (void)testWillAccumulateDocumentAddedAndRemovedEvents {
   // The target map that contains an entry for every target in this test. If a target ID is
-  // omitted, the target is considered inactive and FSTTestTargetMetadataProvider will fail on
+  // omitted, the target is considered inactive and `TestTargetMetadataProvider` will fail on
   // access.
   std::unordered_map<TargetId, FSTQueryData *> targetMap{
       [self queryDataForTargets:{1, 2, 3, 4, 5, 6}]};
@@ -614,8 +614,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(WatchTargetChangeState state
   XCTAssertEqualObjects(event.document_updates().at(doc1.key), doc1);
   XCTAssertEqualObjects(event.document_updates().at(doc2.key), doc2);
 
-  [_targetMetadataProvider setSyncedKeys:DocumentKeySet{doc1.key, doc2.key}
-                            forQueryData:targetMap[1]];
+  _targetMetadataProvider.SetSyncedKeys(DocumentKeySet{doc1.key, doc2.key}, targetMap[1]);
 
   FSTDeletedDocument *deletedDoc1 = [FSTDeletedDocument documentWithKey:doc1.key
                                                                 version:testutil::Version(3)

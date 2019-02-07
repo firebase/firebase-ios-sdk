@@ -151,10 +151,10 @@ void Datastore::PollGrpcQueue() {
 }
 
 std::shared_ptr<WatchStream> Datastore::CreateWatchStream(
-    id<FSTWatchStreamDelegate> delegate) {
+    WatchStreamCallback* callback) {
   return std::make_shared<WatchStream>(worker_queue_, credentials_,
                                        serializer_bridge_.GetSerializer(),
-                                       &grpc_connection_, delegate);
+                                       &grpc_connection_, callback);
 }
 
 std::shared_ptr<WriteStream> Datastore::CreateWriteStream(

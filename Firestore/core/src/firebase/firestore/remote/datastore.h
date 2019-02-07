@@ -85,7 +85,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
    * shared channel.
    */
   virtual std::shared_ptr<WatchStream> CreateWatchStream(
-      id<FSTWatchStreamDelegate> delegate);
+      WatchStreamCallback* callback);
   /**
    * Creates a new `WriteStream` that is still unstarted but uses a common
    * shared channel.

@@ -172,22 +172,6 @@ class DatastoreSerializer {
   FSTSerializerBeta* serializer_;
 };
 
-/** A C++ bridge that invokes methods on an `FSTWatchStreamDelegate`. */
-class WatchStreamDelegate {
- public:
-  explicit WatchStreamDelegate(id<FSTWatchStreamDelegate> delegate)
-      : delegate_{delegate} {
-  }
-
-  void NotifyDelegateOnOpen();
-  void NotifyDelegateOnChange(const WatchChange& change,
-                              const model::SnapshotVersion& snapshot_version);
-  void NotifyDelegateOnClose(const util::Status& status);
-
- private:
-  __weak id<FSTWatchStreamDelegate> delegate_;
-};
-
 /** A C++ bridge that invokes methods on an `FSTWriteStreamDelegate`. */
 class WriteStreamDelegate {
  public:

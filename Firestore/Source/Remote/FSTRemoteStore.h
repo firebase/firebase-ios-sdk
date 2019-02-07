@@ -23,6 +23,7 @@
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
+#include "Firestore/core/src/firebase/firestore/remote/remote_store.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 
 @class FSTLocalStore;
@@ -33,64 +34,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-#pragma mark - FSTRemoteSyncer
-
-/**
- * A protocol that describes the actions the FSTRemoteStore needs to perform on a cooperating
- * synchronization engine.
- */
-@protocol FSTRemoteSyncer
-
-/**
- * Applies one remote event to the sync engine, notifying any views of the changes, and releasing
- * any pending mutation batches that would become visible because of the snapshot version the
- * remote event contains.
- */
-- (void)applyRemoteEvent:(const firebase::firestore::remote::RemoteEvent &)remoteEvent;
-
-/**
- * Rejects the listen for the given targetID. This can be triggered by the backend for any active
- * target.
- *
- * @param targetID The targetID corresponding to a listen initiated via
- *     -listenToTargetWithQueryData: on FSTRemoteStore.
- * @param error A description of the condition that has forced the rejection. Nearly always this
- *     will be an indication that the user is no longer authorized to see the data matching the
- *     target.
- */
-- (void)rejectListenWithTargetID:(const firebase::firestore::model::TargetId)targetID
-                           error:(NSError *)error;
-
-/**
- * Applies the result of a successful write of a mutation batch to the sync engine, emitting
- * snapshots in any views that the mutation applies to, and removing the batch from the mutation
- * queue.
- */
-- (void)applySuccessfulWriteWithResult:(FSTMutationBatchResult *)batchResult;
-
-/**
- * Rejects the batch, removing the batch from the mutation queue, recomputing the local view of
- * any documents affected by the batch and then, emitting snapshots with the reverted value.
- */
-- (void)rejectFailedWriteWithBatchID:(firebase::firestore::model::BatchId)batchID
-                               error:(NSError *)error;
-
-/**
- * Returns the set of remote document keys for the given target ID. This list includes the
- * documents that were assigned to the target when we received the last snapshot.
- */
-- (firebase::firestore::model::DocumentKeySet)remoteKeysForTarget:
-    (firebase::firestore::model::TargetId)targetId;
-
-@end
-
 #pragma mark - FSTRemoteStore
 
 /**
  * FSTRemoteStore handles all interaction with the backend through a simple, clean interface. This
  * class is not thread safe and should be only called from the worker dispatch queue.
  */
-@interface FSTRemoteStore : NSObject <FSTTargetMetadataProvider>
+@interface FSTRemoteStore : NSObject
 
 - (instancetype)
     initWithLocalStore:(FSTLocalStore *)localStore
@@ -101,7 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init NS_UNAVAILABLE;
 
-@property(nonatomic, weak) id<FSTRemoteSyncer> syncEngine;
+- (void)setSyncEngine:(id<FSTRemoteSyncer>)syncEngine;
 
 /** Starts up the remote store, creating streams, restoring state from LocalStore, etc. */
 - (void)start;

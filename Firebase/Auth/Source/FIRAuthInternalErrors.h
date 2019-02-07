@@ -375,6 +375,11 @@ typedef NS_ENUM(NSInteger, FIRAuthInternalErrorCode) {
   FIRAuthInternalErrorCodeLocalPlayerNotAuthenticated =
       FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeLocalPlayerNotAuthenticated,
 
+  /** Indicates that the Game Center local player was not authenticated.
+   */
+  FIRAuthInternalErrorCodeGameKitNotLinked =
+      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeGameKitNotLinked,
+
   /** Indicates that a non-null user was expected as an argmument to the operation but a null
         user was provided.
    */

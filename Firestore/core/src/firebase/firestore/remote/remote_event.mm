@@ -114,6 +114,11 @@ void TargetState::RemoveDocumentChange(const DocumentKey& document_key) {
 
 // WatchChangeAggregator
 
+WatchChangeAggregator::WatchChangeAggregator(
+    TargetMetadataProvider* target_metadata_provider)
+    : target_metadata_provider_{NOT_NULL(target_metadata_provider)} {
+}
+
 void WatchChangeAggregator::HandleDocumentChange(
     const DocumentWatchChange& document_change) {
   for (TargetId target_id : document_change.updated_target_ids()) {
@@ -360,9 +365,9 @@ int WatchChangeAggregator::GetCurrentDocumentCountForTarget(
     TargetId target_id) {
   TargetState& target_state = EnsureTargetState(target_id);
   TargetChange target_change = target_state.ToTargetChange();
-  return ([target_metadata_provider_ remoteKeysForTarget:target_id].size() +
-          target_change.added_documents().size() -
-          target_change.removed_documents().size());
+  return target_metadata_provider_->GetRemoteKeysForTarget(target_id).size() +
+         target_change.added_documents().size() -
+         target_change.removed_documents().size();
 }
 
 void WatchChangeAggregator::RecordPendingTargetRequest(TargetId target_id) {
@@ -385,7 +390,7 @@ FSTQueryData* WatchChangeAggregator::QueryDataForActiveTarget(
   return target_state != target_states_.end() &&
                  target_state->second.IsPending()
              ? nil
-             : [target_metadata_provider_ queryDataForTarget:target_id];
+             : target_metadata_provider_->GetQueryDataForTarget(target_id);
 }
 
 void WatchChangeAggregator::ResetTarget(TargetId target_id) {
@@ -400,7 +405,7 @@ void WatchChangeAggregator::ResetTarget(TargetId target_id) {
   // removals will be part of the initial snapshot if Watch does not resend
   // these documents.
   DocumentKeySet existingKeys =
-      [target_metadata_provider_ remoteKeysForTarget:target_id];
+      target_metadata_provider_->GetRemoteKeysForTarget(target_id);
 
   for (const DocumentKey& key : existingKeys) {
     RemoveDocumentFromTarget(target_id, key, nil);
@@ -410,7 +415,7 @@ void WatchChangeAggregator::ResetTarget(TargetId target_id) {
 bool WatchChangeAggregator::TargetContainsDocument(TargetId target_id,
                                                    const DocumentKey& key) {
   const DocumentKeySet& existing_keys =
-      [target_metadata_provider_ remoteKeysForTarget:target_id];
+      target_metadata_provider_->GetRemoteKeysForTarget(target_id);
   return existing_keys.contains(key);
 }
 
