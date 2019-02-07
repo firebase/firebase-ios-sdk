@@ -376,9 +376,10 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 }
 
 - (nullable FSTMaybeDocument *)readDocument:(const DocumentKey &)key {
-  return self.persistence.run("ReadDocument", [&]() -> FSTMaybeDocument *_Nullable {
-    return [self.localDocuments documentForKey:key];
-  });
+  return self.persistence.run(
+      "ReadDocument", [&]() -> FSTMaybeDocument *_Nullable {
+        return [self.localDocuments documentForKey:key];
+      });
 }
 
 - (FSTQueryData *)allocateQuery:(FSTQuery *)query {

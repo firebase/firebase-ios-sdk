@@ -45,10 +45,10 @@ namespace core {
 
 class Transaction {
  public:
-   // TODO(varconst): once `FSTMaybeDocument` is replaced with a C++ equivalent,
-   // this function could take a single `StatusOr` parameter.
-  using LookupCallback = std::function <
-                         void(const std::vector<FSTMaybeDocument*>&, const util::Status&)>;
+  // TODO(varconst): once `FSTMaybeDocument` is replaced with a C++ equivalent,
+  // this function could take a single `StatusOr` parameter.
+  using LookupCallback = std::function<void(
+      const std::vector<FSTMaybeDocument*>&, const util::Status&)>;
   using CommitCallback = std::function<void(const util::Status&)>;
 
   Transaction() = default;
@@ -58,7 +58,8 @@ class Transaction {
    * Takes a set of keys and asynchronously attempts to fetch all the documents
    * from the backend, ignoring any local changes.
    */
-  void Lookup(const std::vector<model::DocumentKey>& keys, LookupCallback&& callback);
+  void Lookup(const std::vector<model::DocumentKey>& keys,
+              LookupCallback&& callback);
 
   /**
    * Stores mutation for the given key and set data, to be committed when
@@ -86,29 +87,31 @@ class Transaction {
   void Commit(CommitCallback&& callback);
 
  private:
-/**
- * Every time a document is read, this should be called to record its version. If we read two
- * different versions of the same document, this will return an error through its out parameter.
- * When the transaction is committed, the versions recorded will be set as preconditions on the
- * writes sent to the backend.
- */
+  /**
+   * Every time a document is read, this should be called to record its version.
+   * If we read two different versions of the same document, this will return an
+   * error through its out parameter. When the transaction is committed, the
+   * versions recorded will be set as preconditions on the writes sent to the
+   * backend.
+   */
   util::Status RecordVersion(FSTMaybeDocument* doc);
 
   /** Stores mutations to be written when `Commit` is called. */
   void WriteMutations(std::vector<FSTMutation*>&& mutations);
 
-/**
- * Returns version of this doc when it was read in this transaction as a
- * precondition, or no precondition if it was not read.
- */
+  /**
+   * Returns version of this doc when it was read in this transaction as a
+   * precondition, or no precondition if it was not read.
+   */
   model::Precondition CreatePrecondition(const model::DocumentKey& key);
 
-/**
- * Returns the precondition for a document if the operation is an update, based
- * on the provided UpdateOptions. Will return none precondition if an error
- * occurred, in which case it sets the error parameter.
- */
-  util::StatusOr<model::Precondition> CreateUpdatePrecondition(const model::DocumentKey& key);
+  /**
+   * Returns the precondition for a document if the operation is an update,
+   * based on the provided UpdateOptions. Will return none precondition if an
+   * error occurred, in which case it sets the error parameter.
+   */
+  util::StatusOr<model::Precondition> CreateUpdatePrecondition(
+      const model::DocumentKey& key);
 
   void EnsureCommitNotCalled();
 
@@ -117,10 +120,10 @@ class Transaction {
   std::vector<FSTMutation*> mutations_;
   bool commit_called_ = false;
 
-/**
- * An error that may have occurred as a consequence of a write. If set, needs to be raised in the
- * completion handler instead of trying to commit.
- */
+  /**
+   * An error that may have occurred as a consequence of a write. If set, needs
+   * to be raised in the completion handler instead of trying to commit.
+   */
   util::Status last_write_error_;
 
   std::map<model::DocumentKey, model::SnapshotVersion> read_versions_;

@@ -110,7 +110,8 @@ Precondition Transaction::CreatePrecondition(const DocumentKey& key) {
   }
 }
 
-StatusOr<Precondition> Transaction::CreateUpdatePrecondition(const DocumentKey& key) {
+StatusOr<Precondition> Transaction::CreateUpdatePrecondition(
+    const DocumentKey& key) {
   const auto iter = read_versions_.find(key);
   if (iter == read_versions_.end()) {
     // Document was not read, so we just use the preconditions for an update.
@@ -177,9 +178,10 @@ void Transaction::Commit(CommitCallback&& callback) {
   if (!unwritten.empty()) {
     // TODO(klimt): This is a temporary restriction, until "verify" is supported
     // on the backend.
-    callback(Status{FirestoreErrorCode::FailedPrecondition,
-             "Every document read in a transaction must also be written in "
-             "that transaction."});
+    callback(
+        Status{FirestoreErrorCode::FailedPrecondition,
+               "Every document read in a transaction must also be written in "
+               "that transaction."});
   } else {
     datastore_->CommitMutations(mutations_, std::move(callback));
   }

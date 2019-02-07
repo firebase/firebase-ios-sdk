@@ -24,7 +24,8 @@
 
 @interface FIRTransaction (Internal)
 
-+ (instancetype)transactionWithInternalTransaction:(std::shared_ptr<firebase::firestore::core::Transaction>)transaction
-                                    firestore:(FIRFirestore *)firestore;
++ (instancetype)transactionWithInternalTransaction:
+                    (std::shared_ptr<firebase::firestore::core::Transaction>)transaction
+                                         firestore:(FIRFirestore *)firestore;
 
 @end

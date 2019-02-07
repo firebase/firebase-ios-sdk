@@ -168,7 +168,8 @@ void Datastore::CommitMutations(const std::vector<FSTMutation*>& mutations,
                                 CommitCallback&& callback) {
   ResumeRpcWithCredentials(
       // TODO(c++14): move into lambda.
-      [this, mutations, callback](const StatusOr<Token>& maybe_credentials) mutable {
+      [this, mutations,
+       callback](const StatusOr<Token>& maybe_credentials) mutable {
         if (!maybe_credentials.ok()) {
           callback(maybe_credentials.status());
           return;
@@ -203,9 +204,8 @@ void Datastore::CommitMutationsWithCredentials(
       });
 }
 
-void Datastore::LookupDocuments(
-    const std::vector<DocumentKey>& keys,
-    LookupCallback&& callback) {
+void Datastore::LookupDocuments(const std::vector<DocumentKey>& keys,
+                                LookupCallback&& callback) {
   ResumeRpcWithCredentials(
       // TODO(c++14): move into lambda.
       [this, keys, callback](const StatusOr<Token>& maybe_credentials) mutable {

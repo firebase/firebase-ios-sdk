@@ -16,6 +16,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
@@ -191,13 +192,13 @@ TEST_F(DatastoreTest, LookupDocumentsOneSuccessfulRead) {
   bool done = false;
   std::vector<FSTMaybeDocument*> resulting_docs;
   Status resulting_status;
-  datastore->LookupDocuments({},
-                             [&](const std::vector<FSTMaybeDocument*>& documents,
-                               const Status& status) {
-                               done = true;
-                               resulting_docs = documents;
-                               resulting_status = status;
-                             });
+  datastore->LookupDocuments(
+      {}, [&](const std::vector<FSTMaybeDocument*>& documents,
+              const Status& status) {
+        done = true;
+        resulting_docs = documents;
+        resulting_status = status;
+      });
   // Make sure Auth has a chance to run.
   worker_queue.EnqueueBlocking([] {});
 
@@ -216,13 +217,13 @@ TEST_F(DatastoreTest, LookupDocumentsTwoSuccessfulReads) {
   bool done = false;
   std::vector<FSTMaybeDocument*> resulting_docs;
   Status resulting_status;
-  datastore->LookupDocuments({},
-                             [&](const std::vector<FSTMaybeDocument*>& documents,
-                               const Status& status) {
-                               done = true;
-                               resulting_docs = documents;
-                               resulting_status = status;
-                             });
+  datastore->LookupDocuments(
+      {}, [&](const std::vector<FSTMaybeDocument*>& documents,
+              const Status& status) {
+        done = true;
+        resulting_docs = documents;
+        resulting_status = status;
+      });
   // Make sure Auth has a chance to run.
   worker_queue.EnqueueBlocking([] {});
 
@@ -260,12 +261,12 @@ TEST_F(DatastoreTest, CommitMutationsError) {
 TEST_F(DatastoreTest, LookupDocumentsErrorBeforeFirstRead) {
   bool done = false;
   Status resulting_status;
-  datastore->LookupDocuments({},
-                             [&](const std::vector<FSTMaybeDocument*>& documents,
-                               const Status& status) {
-                               done = true;
-                               resulting_status = status;
-                             });
+  datastore->LookupDocuments(
+      {}, [&](const std::vector<FSTMaybeDocument*>& documents,
+              const Status& status) {
+        done = true;
+        resulting_status = status;
+      });
   // Make sure Auth has a chance to run.
   worker_queue.EnqueueBlocking([] {});
 
@@ -280,12 +281,12 @@ TEST_F(DatastoreTest, LookupDocumentsErrorAfterFirstRead) {
   bool done = false;
   std::vector<FSTMaybeDocument*> resulting_docs;
   Status resulting_status;
-  datastore->LookupDocuments({},
-                             [&](const std::vector<FSTMaybeDocument*>& documents,
-                               const Status& status) {
-                               done = true;
-                               resulting_status = status;
-                             });
+  datastore->LookupDocuments(
+      {}, [&](const std::vector<FSTMaybeDocument*>& documents,
+              const Status& status) {
+        done = true;
+        resulting_status = status;
+      });
   // Make sure Auth has a chance to run.
   worker_queue.EnqueueBlocking([] {});
 
@@ -305,9 +306,8 @@ TEST_F(DatastoreTest, CommitMutationsAuthFailure) {
   credentials.FailGetToken();
 
   Status resulting_status;
-  datastore->CommitMutations({}, [&](const Status& status) {
-    resulting_status = status;
-  });
+  datastore->CommitMutations(
+      {}, [&](const Status& status) { resulting_status = status; });
   worker_queue.EnqueueBlocking([] {});
   EXPECT_FALSE(resulting_status.ok());
 }
@@ -317,8 +317,7 @@ TEST_F(DatastoreTest, LookupDocumentsAuthFailure) {
 
   Status resulting_status;
   datastore->LookupDocuments(
-      {}, [&](const std::vector<FSTMaybeDocument*>& ,
-                               const Status& status) {
+      {}, [&](const std::vector<FSTMaybeDocument*>&, const Status& status) {
         resulting_status = status;
       });
   worker_queue.EnqueueBlocking([] {});

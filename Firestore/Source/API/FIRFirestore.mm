@@ -288,7 +288,8 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
       ^(std::shared_ptr<Transaction> internalTransaction,
         void (^internalCompletion)(id _Nullable, NSError *_Nullable)) {
         FIRTransaction *transaction =
-            [FIRTransaction transactionWithInternalTransaction:std::move(internalTransaction) firestore:self];
+            [FIRTransaction transactionWithInternalTransaction:std::move(internalTransaction)
+                                                     firestore:self];
         dispatch_async(queue, ^{
           NSError *_Nullable error = nil;
           id _Nullable result = updateBlock(transaction, &error);

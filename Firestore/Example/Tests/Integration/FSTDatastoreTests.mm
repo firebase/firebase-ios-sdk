@@ -204,7 +204,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testCommit {
   XCTestExpectation *expectation = [self expectationWithDescription:@"commitWithCompletion"];
 
-  _datastore->CommitMutations({}, [self, expectation](const Status& status) {
+  _datastore->CommitMutations({}, [self, expectation](const Status &status) {
     XCTAssertTrue(status.ok(), @"Failed to commit");
     [expectation fulfill];
   });

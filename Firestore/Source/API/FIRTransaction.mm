@@ -18,6 +18,7 @@
 
 #include <memory>
 #include <utility>
+#include <vector>
 
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
@@ -53,7 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRTransaction (Internal)
 
 + (instancetype)transactionWithInternalTransaction:(std::shared_ptr<Transaction>)transaction
-                                    firestore:(FIRFirestore *)firestore {
+                                         firestore:(FIRFirestore *)firestore {
   return [[FIRTransaction alloc] initWithTransaction:std::move(transaction) firestore:firestore];
 }
 
@@ -116,8 +117,8 @@ NS_ASSUME_NONNULL_BEGIN
                               NSError *_Nullable error))completion {
   [self validateReference:document];
   _internalTransaction->Lookup(
-      {document.key},
-      [self, document, completion](const std::vector<FSTMaybeDocument *> &documents, const Status &status) {
+      {document.key}, [self, document, completion](const std::vector<FSTMaybeDocument *> &documents,
+                                                   const Status &status) {
         if (!status.ok()) {
           completion(nil, MakeNSError(status));
           return;

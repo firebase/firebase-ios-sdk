@@ -302,7 +302,8 @@ class LimboResolution {
             completion(nil, error);
             return;
           }
-          transaction->Commit([self, retries, workerQueue, updateBlock, completion, result](const Status& status) {
+          transaction->Commit([self, retries, workerQueue, updateBlock, completion,
+                               result](const Status &status) {
             if (status.ok()) {
               completion(result, nil);
               return;
