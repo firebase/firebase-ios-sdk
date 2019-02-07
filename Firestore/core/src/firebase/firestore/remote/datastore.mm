@@ -165,22 +165,23 @@ std::shared_ptr<WriteStream> Datastore::CreateWriteStream(
 }
 
 void Datastore::CommitMutations(const std::vector<FSTMutation*>& mutations,
-                                FSTVoidErrorBlock completion) {
+                                CommitCallback&& callback) {
   ResumeRpcWithCredentials(
-      [this, mutations, completion](const StatusOr<Token>& maybe_credentials) {
+      // TODO(c++14): move into lambda.
+      [this, mutations, callback](const StatusOr<Token>& maybe_credentials) mutable {
         if (!maybe_credentials.ok()) {
-          completion(util::MakeNSError(maybe_credentials.status()));
+          callback(maybe_credentials.status());
           return;
         }
         CommitMutationsWithCredentials(maybe_credentials.ValueOrDie(),
-                                       mutations, completion);
+                                       mutations, std::move(callback));
       });
 }
 
 void Datastore::CommitMutationsWithCredentials(
     const Token& token,
     const std::vector<FSTMutation*>& mutations,
-    FSTVoidErrorBlock completion) {
+    CommitCallback&& callback) {
   grpc::ByteBuffer message = serializer_bridge_.ToByteBuffer(
       serializer_bridge_.CreateCommitRequest(mutations));
 
@@ -190,43 +191,37 @@ void Datastore::CommitMutationsWithCredentials(
   active_calls_.push_back(std::move(call_owning));
 
   call->Start(
-      [this, call, completion](const StatusOr<grpc::ByteBuffer>& result) {
+      // TODO(c++14): move into lambda.
+      [this, call, callback](const StatusOr<grpc::ByteBuffer>& result) {
         LogGrpcCallFinished("CommitRequest", call, result.status());
         HandleCallStatus(result.status());
 
-        OnCommitMutationsResponse(result, completion);
+        // Response is deliberately ignored
+        callback(result.status());
 
         RemoveGrpcCall(call);
       });
 }
 
-void Datastore::OnCommitMutationsResponse(
-    const StatusOr<grpc::ByteBuffer>& result, FSTVoidErrorBlock completion) {
-  if (result.ok()) {
-    completion(/*Response is deliberately ignored*/ nil);
-  } else {
-    completion(util::MakeNSError(result.status()));
-  }
-}
-
 void Datastore::LookupDocuments(
     const std::vector<DocumentKey>& keys,
-    FSTVoidMaybeDocumentArrayErrorBlock completion) {
+    LookupCallback&& callback) {
   ResumeRpcWithCredentials(
-      [this, keys, completion](const StatusOr<Token>& maybe_credentials) {
+      // TODO(c++14): move into lambda.
+      [this, keys, callback](const StatusOr<Token>& maybe_credentials) mutable {
         if (!maybe_credentials.ok()) {
-          completion(nil, util::MakeNSError(maybe_credentials.status()));
+          callback({}, maybe_credentials.status());
           return;
         }
         LookupDocumentsWithCredentials(maybe_credentials.ValueOrDie(), keys,
-                                       completion);
+                                       std::move(callback));
       });
 }
 
 void Datastore::LookupDocumentsWithCredentials(
     const Token& token,
     const std::vector<DocumentKey>& keys,
-    FSTVoidMaybeDocumentArrayErrorBlock completion) {
+    LookupCallback&& callback) {
   grpc::ByteBuffer message = serializer_bridge_.ToByteBuffer(
       serializer_bridge_.CreateLookupRequest(keys));
 
@@ -236,12 +231,13 @@ void Datastore::LookupDocumentsWithCredentials(
   GrpcStreamingReader* call = call_owning.get();
   active_calls_.push_back(std::move(call_owning));
 
-  call->Start([this, call, completion](
+  // TODO(c++14): move into lambda.
+  call->Start([this, call, callback](
                   const StatusOr<std::vector<grpc::ByteBuffer>>& result) {
     LogGrpcCallFinished("BatchGetDocuments", call, result.status());
     HandleCallStatus(result.status());
 
-    OnLookupDocumentsResponse(result, completion);
+    OnLookupDocumentsResponse(result, callback);
 
     RemoveGrpcCall(call);
   });
@@ -249,21 +245,17 @@ void Datastore::LookupDocumentsWithCredentials(
 
 void Datastore::OnLookupDocumentsResponse(
     const StatusOr<std::vector<grpc::ByteBuffer>>& result,
-    FSTVoidMaybeDocumentArrayErrorBlock completion) {
+    LookupCallback&& callback) {
   if (!result.ok()) {
-    completion(nil, util::MakeNSError(result.status()));
+    callback({}, result.status());
     return;
   }
 
   Status parse_status;
   std::vector<grpc::ByteBuffer> responses = std::move(result).ValueOrDie();
-  NSArray<FSTMaybeDocument*>* docs =
+  std::vector<FSTMaybeDocument*> docs =
       serializer_bridge_.MergeLookupResponses(responses, &parse_status);
-  if (parse_status.ok()) {
-    completion(docs, nil);
-  } else {
-    completion(nil, util::MakeNSError(parse_status));
-  }
+  callback(docs, parse_status);
 }
 
 void Datastore::ResumeRpcWithCredentials(const OnCredentials& on_credentials) {
