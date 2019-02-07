@@ -49,7 +49,7 @@
 - (void)messageClicked:(FIRInAppMessagingDisplayMessage *)inAppMessage {
   // Call through to app-side delegate.
   __weak id<FIRInAppMessagingDisplayDelegate> appSideDelegate =
-  [FIRInAppMessaging inAppMessaging].delegate;
+      [FIRInAppMessaging inAppMessaging].delegate;
   if ([appSideDelegate respondsToSelector:@selector(messageClicked:)]) {
     [appSideDelegate messageClicked:inAppMessage];
   }
@@ -136,7 +136,7 @@
              dismissType:(FIRInAppMessagingDismissType)dismissType {
   // Call through to app-side delegate.
   __weak id<FIRInAppMessagingDisplayDelegate> appSideDelegate =
-  [FIRInAppMessaging inAppMessaging].delegate;
+      [FIRInAppMessaging inAppMessaging].delegate;
   if ([appSideDelegate respondsToSelector:@selector(messageDismissed:dismissType:)]) {
     [appSideDelegate messageDismissed:inAppMessage dismissType:dismissType];
   }
@@ -188,7 +188,7 @@
 
 - (void)impressionDetectedForMessage:(FIRInAppMessagingDisplayMessage *)inAppMessage {
   __weak id<FIRInAppMessagingDisplayDelegate> appSideDelegate =
-  [FIRInAppMessaging inAppMessaging].delegate;
+      [FIRInAppMessaging inAppMessaging].delegate;
   if ([appSideDelegate respondsToSelector:@selector(impressionDetectedForMessage:)]) {
     [appSideDelegate impressionDetectedForMessage:inAppMessage];
   }
@@ -214,7 +214,7 @@
 - (void)displayErrorForMessage:(FIRInAppMessagingDisplayMessage *)inAppMessage
                          error:(NSError *)error {
   __weak id<FIRInAppMessagingDisplayDelegate> appSideDelegate =
-  [FIRInAppMessaging inAppMessaging].delegate;
+      [FIRInAppMessaging inAppMessaging].delegate;
   if ([appSideDelegate respondsToSelector:@selector(displayErrorForMessage:error:)]) {
     [appSideDelegate displayErrorForMessage:inAppMessage error:error];
   }
@@ -395,13 +395,13 @@
     imageOnlyMessageWithMessageDefinition:(FIRIAMMessageDefinition *)definition
                                 imageData:(FIRInAppMessagingImageData *)imageData
                               triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType {
-  FIRInAppMessagingImageOnlyDisplay *imageOnlyMessage =
-      [[FIRInAppMessagingImageOnlyDisplay alloc] initWithMessageID:definition.renderData.messageID
-                                                      campaignName:definition.renderData.name
-                                               renderAsTestMessage:definition.isTestMessage
-                                                       triggerType:triggerType
-                                                         imageData:imageData
-                                                         actionURL:definition.renderData.contentData.actionURL];
+  FIRInAppMessagingImageOnlyDisplay *imageOnlyMessage = [[FIRInAppMessagingImageOnlyDisplay alloc]
+        initWithMessageID:definition.renderData.messageID
+             campaignName:definition.renderData.name
+      renderAsTestMessage:definition.isTestMessage
+              triggerType:triggerType
+                imageData:imageData
+                actionURL:definition.renderData.contentData.actionURL];
 
   return imageOnlyMessage;
 }

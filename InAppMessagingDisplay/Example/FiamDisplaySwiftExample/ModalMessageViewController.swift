@@ -37,7 +37,7 @@ class ModalMessageViewController: CommonMessageTestVC {
     verifyLabel.text = "Verification Label"
     let imageRawData = produceImageOfSize(size: CGSize(width: 200, height: 200))
     let fiamImageData = InAppMessagingImageData(imageURL: "url not important", imageData: imageRawData!)
-    
+
     let modalMessage = InAppMessagingModalDisplay(messageID: "messageId",
                                                   campaignName: "testCampaign",
                                                   renderAsTestMessage: false,

@@ -24,7 +24,6 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDisplayMessageType) {
   FIRInAppMessagingDisplayMessageTypeImageOnly
 };
 
-
 typedef NS_ENUM(NSInteger, FIRInAppMessagingDisplayTriggerType) {
   FIRInAppMessagingDisplayTriggerTypeOnAppForeground,
   FIRInAppMessagingDisplayTriggerTypeOnAnalyticsEvent
@@ -156,8 +155,7 @@ NS_SWIFT_NAME(InAppMessagingModalDisplay)
                   backgroundColor:(UIColor *)backgroundColor
                         imageData:(nullable FIRInAppMessagingImageData *)imageData
                      actionButton:(nullable FIRInAppMessagingActionButton *)actionButton
-                        actionURL:(nullable NSURL *)actionURL
-    NS_DESIGNATED_INITIALIZER;
+                        actionURL:(nullable NSURL *)actionURL NS_DESIGNATED_INITIALIZER;
 @end
 
 /** Class for defining a banner message for display.
@@ -196,8 +194,7 @@ NS_SWIFT_NAME(InAppMessagingBannerDisplay)
                         textColor:(UIColor *)textColor
                   backgroundColor:(UIColor *)backgroundColor
                         imageData:(nullable FIRInAppMessagingImageData *)imageData
-                        actionURL:(nullable NSURL *)actionURL
-    NS_DESIGNATED_INITIALIZER;
+                        actionURL:(nullable NSURL *)actionURL NS_DESIGNATED_INITIALIZER;
 @end
 
 /** Class for defining a image-only message for display.

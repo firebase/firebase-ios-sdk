@@ -21,6 +21,7 @@
 #import "FIRIAMDisplayExecutor.h"
 #import "FIRIAMDisplayTriggerDefinition.h"
 #import "FIRIAMMessageContentData.h"
+#import "FIRInAppMessaging.h"
 
 // A class implementing protocol FIRIAMMessageContentData to be used for unit testing
 @interface FIRIAMMessageContentDataForTesting : NSObject <FIRIAMMessageContentData>
@@ -122,6 +123,33 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDelegateInteraction) {
       break;
   }
 }
+@end
+
+@interface FIRInAppMessagingDisplayTestDelegate : NSObject <FIRInAppMessagingDisplayDelegate>
+
+@property(nonatomic) BOOL receivedMessageImpressionCallback;
+@property(nonatomic) BOOL receivedMessageClickedCallback;
+
+@end
+
+@implementation FIRInAppMessagingDisplayTestDelegate
+
+- (void)displayErrorForMessage:(nonnull FIRInAppMessagingDisplayMessage *)inAppMessage
+                         error:(nonnull NSError *)error {
+}
+
+- (void)impressionDetectedForMessage:(nonnull FIRInAppMessagingDisplayMessage *)inAppMessage {
+  self.receivedMessageImpressionCallback = YES;
+}
+
+- (void)messageClicked:(nonnull FIRInAppMessagingDisplayMessage *)inAppMessage {
+  self.receivedMessageClickedCallback = YES;
+}
+
+- (void)messageDismissed:(nonnull FIRInAppMessagingDisplayMessage *)inAppMessage
+             dismissType:(FIRInAppMessagingDismissType)dismissType {
+}
+
 @end
 
 @interface FIRIAMDisplayExecutorTests : XCTestCase
@@ -288,8 +316,7 @@ NSTimeInterval DISPLAY_MIN_INTERVALS = 1;
 }
 
 - (void)tearDown {
-  // Put teardown code here. This method is called after the invocation of each test method in the
-  // class.
+  [FIRInAppMessaging inAppMessaging].delegate = nil;
   [super tearDown];
 }
 
@@ -760,4 +787,28 @@ NSTimeInterval DISPLAY_MIN_INTERVALS = 1;
   // one message was rendered and removed from the cache
   XCTAssertEqual(1, remainingMsgCount2);
 }
+
+- (void)testRegularMessageRegistersImpression {
+  FIRInAppMessagingDisplayTestDelegate *delegate =
+      [[FIRInAppMessagingDisplayTestDelegate alloc] init];
+  [FIRInAppMessaging inAppMessaging].delegate = delegate;
+
+  // This setup allows next message to be displayed from display interval perspective.
+  OCMStub([self.mockTimeFetcher currentTimestampInSeconds])
+      .andReturn(DISPLAY_MIN_INTERVALS * 60 + 100);
+
+  FIRIAMMessageDisplayForTesting *display = [[FIRIAMMessageDisplayForTesting alloc]
+      initWithDelegateInteraction:FIRInAppMessagingDelegateInteractionClick];
+  self.displayExecutor.messageDisplayComponent = display;
+  [self.clientMessageCache setMessageData:@[ self.m2, self.m4 ]];
+  [self.displayExecutor checkAndDisplayNextAppForegroundMessage];
+  NSInteger remainingMsgCount = [self.clientMessageCache allRegularMessages].count;
+  XCTAssertEqual(1, remainingMsgCount);
+
+  // Verify that the message content handed to display component is expected
+  XCTAssertEqualObjects(self.m2.renderData.messageID, display.message.campaignInfo.messageID);
+
+  XCTAssertTrue(delegate.receivedMessageClickedCallback);
+}
+
 @end

@@ -32,7 +32,7 @@ class CommonMessageTestVC: UIViewController, InAppMessagingDisplayDelegate {
   func impressionDetected(for inAppMessage: InAppMessagingDisplayMessage) {
     print("valid impression detected")
   }
-  
+
   func displayError(for inAppMessage: InAppMessagingDisplayMessage, error: Error) {
     print("error encountered \(error)")
   }
