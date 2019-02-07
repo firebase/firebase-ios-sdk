@@ -47,6 +47,9 @@ static NSRegularExpression *sMessageCodeRegex;
 
 @implementation GULASLLogger
 
+@synthesize version = _version;
+@synthesize forcedDebug = _forcedDebug;
+
 - (instancetype)init {
   self = [super init];
   if (self) {
@@ -95,8 +98,13 @@ static NSRegularExpression *sMessageCodeRegex;
   });
 }
 
-@synthesize version = _version;
-@synthesize forcedDebug = _forcedDebug;
+- (void)dealloc {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"  // asl is deprecated
+  asl_release(self.aslClient);
+  self.aslClient = nil;
+#pragma clang diagnostic pop
+}
 
 - (void)setLogLevel:(GULLoggerLevel)logLevel {
   if (logLevel < GULLoggerLevelMin || logLevel > GULLoggerLevelMax) {
@@ -140,10 +148,12 @@ static NSRegularExpression *sMessageCodeRegex;
 
 - (void)logWithLevel:(GULLoggerLevel)level
          withService:(GULLoggerService)service
+            isForced:(BOOL)forced
             withCode:(NSString *)messageCode
          withMessage:(NSString *)message, ... {
   [self initializeLogger];
-  if (![self isLoggableLevel:level]) {
+  // Skip logging this if the level isn't to be logged unless it's forced.
+  if (![self isLoggableLevel:level] && !(self.forcedDebug || forced)) {
     return;
   }
 
