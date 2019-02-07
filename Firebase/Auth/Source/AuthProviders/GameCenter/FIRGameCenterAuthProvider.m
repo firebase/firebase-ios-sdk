@@ -39,7 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
    checking whether the APP that consuming our SDK has linked GameKit.framework. If not, a
    `GameKitNotLinkedError` will be raised.
    **/
-  GKLocalPlayer *optionalLocalPlayer = [[NSClassFromString(@"GKLocalPlayer") alloc] init];
+  GKLocalPlayer * _Nullable optionalLocalPlayer = [[NSClassFromString(@"GKLocalPlayer") alloc] init];
 
   if (!optionalLocalPlayer) {
     if (completion) {
