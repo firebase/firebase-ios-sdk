@@ -301,4 +301,3 @@ class RemoteStore : public TargetMetadataProvider,
 NS_ASSUME_NONNULL_END
 
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_REMOTE_STORE_H_
-
