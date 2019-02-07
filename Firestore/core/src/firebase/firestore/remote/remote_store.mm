@@ -70,8 +70,8 @@ RemoteStore::RemoteStore(
   datastore_->Start();
 
   // Create streams (but note they're not started yet)
-  watch_stream_ = datastore->CreateWatchStream(this);
-  write_stream_ = datastore->CreateWriteStream(this);
+  watch_stream_ = datastore_->CreateWatchStream(this);
+  write_stream_ = datastore_->CreateWriteStream(this);
 }
 
 void RemoteStore::Start() {
