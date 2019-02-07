@@ -208,16 +208,16 @@ model::SnapshotVersion WriteStreamSerializer::ToCommitVersion(
   return [serializer_ decodedVersion:proto.commitTime];
 }
 
-NSArray<FSTMutationResult*>* WriteStreamSerializer::ToMutationResults(
+std::vector<FSTMutationResult*> WriteStreamSerializer::ToMutationResults(
     GCFSWriteResponse* response) const {
   NSMutableArray<GCFSWriteResult*>* responses = response.writeResultsArray;
-  NSMutableArray<FSTMutationResult*>* results =
-      [NSMutableArray arrayWithCapacity:responses.count];
+  std::vector<FSTMutationResult*> results;
+  results.reserve(responses.count);
 
   const model::SnapshotVersion commitVersion = ToCommitVersion(response);
   for (GCFSWriteResult* proto in responses) {
-    [results addObject:[serializer_ decodedMutationResult:proto
-                                            commitVersion:commitVersion]];
+    results.push_back([serializer_ decodedMutationResult:proto
+                                           commitVersion:commitVersion]);
   };
   return results;
 }
@@ -298,27 +298,6 @@ NSArray<FSTMaybeDocument*>* DatastoreSerializer::MergeLookupResponses(
 FSTMaybeDocument* DatastoreSerializer::ToMaybeDocument(
     GCFSBatchGetDocumentsResponse* response) const {
   return [serializer_ decodedMaybeDocumentFromBatch:response];
-}
-
-// WriteStreamDelegate
-
-void WriteStreamDelegate::NotifyDelegateOnOpen() {
-  [delegate_ writeStreamDidOpen];
-}
-
-void WriteStreamDelegate::NotifyDelegateOnHandshakeComplete() {
-  [delegate_ writeStreamDidCompleteHandshake];
-}
-
-void WriteStreamDelegate::NotifyDelegateOnCommit(
-    const SnapshotVersion& commit_version,
-    NSArray<FSTMutationResult*>* results) {
-  [delegate_ writeStreamDidReceiveResponseWithVersion:commit_version
-                                      mutationResults:results];
-}
-
-void WriteStreamDelegate::NotifyDelegateOnClose(const Status& status) {
-  [delegate_ writeStreamWasInterruptedWithError:status];
 }
 
 }  // namespace bridge

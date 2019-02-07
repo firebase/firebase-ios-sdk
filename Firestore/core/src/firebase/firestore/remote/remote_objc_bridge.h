@@ -39,7 +39,6 @@
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
-#import "Firestore/Source/Remote/FSTStream.h"
 
 namespace firebase {
 namespace firestore {
@@ -125,7 +124,7 @@ class WriteStreamSerializer {
   GCFSWriteResponse* ParseResponse(const grpc::ByteBuffer& message,
                                    util::Status* out_status) const;
   model::SnapshotVersion ToCommitVersion(GCFSWriteResponse* proto) const;
-  NSArray<FSTMutationResult*>* ToMutationResults(
+  std::vector<FSTMutationResult*> ToMutationResults(
       GCFSWriteResponse* proto) const;
 
   /** Creates a pretty-printed description of the proto for debugging. */
@@ -170,23 +169,6 @@ class DatastoreSerializer {
 
  private:
   FSTSerializerBeta* serializer_;
-};
-
-/** A C++ bridge that invokes methods on an `FSTWriteStreamDelegate`. */
-class WriteStreamDelegate {
- public:
-  explicit WriteStreamDelegate(id<FSTWriteStreamDelegate> delegate)
-      : delegate_{delegate} {
-  }
-
-  void NotifyDelegateOnOpen();
-  void NotifyDelegateOnHandshakeComplete();
-  void NotifyDelegateOnCommit(const model::SnapshotVersion& commit_version,
-                              NSArray<FSTMutationResult*>* results);
-  void NotifyDelegateOnClose(const util::Status& status);
-
- private:
-  __weak id<FSTWriteStreamDelegate> delegate_;
 };
 
 }  // namespace bridge
