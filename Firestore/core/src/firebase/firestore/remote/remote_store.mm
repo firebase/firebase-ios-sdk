@@ -70,8 +70,8 @@ RemoteStore::RemoteStore(
   datastore_->Start();
 
   // Create streams (but note they're not started yet)
-  watch_stream_ = datastore->CreateWatchStream(this);
-  write_stream_ = datastore->CreateWriteStream(this);
+  watch_stream_ = datastore_->CreateWatchStream(this);
+  write_stream_ = datastore_->CreateWriteStream(this);
 }
 
 void RemoteStore::Start() {
@@ -447,7 +447,8 @@ void RemoteStore::OnWriteStreamClose(const Status& status) {
   // If the write stream closed due to an error, invoke the error callbacks if
   // there are pending writes.
   if (!status.ok() && !write_pipeline_.empty()) {
-    // TODO: handle UNAUTHENTICATED status, see go/firestore-client-errors
+    // TODO(varconst): handle UNAUTHENTICATED status, see
+    // go/firestore-client-errors
     if (write_stream_->handshake_complete()) {
       // This error affects the actual writes.
       HandleWriteError(status);
