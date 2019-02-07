@@ -19,7 +19,6 @@
 #import "Private/GULASLLogger.h"
 #import "Public/GULLoggerLevel.h"
 
-static dispatch_once_t sGULLoggerOnceToken;
 static id<GULLoggerSystem> sGULLogger;
 
 void GULLoggerInitialize(void) {
@@ -43,7 +42,7 @@ BOOL GULIsLoggableLevel(GULLoggerLevel loggerLevel) {
 }
 
 void GULLoggerRegisterVersion(const char *version) {
-  GULLogger.logger.version = version;
+  GULLogger.logger.version = [NSString stringWithUTF8String:version];
 }
 
 void GULLogBasic(GULLoggerLevel level,
@@ -56,6 +55,7 @@ void GULLogBasic(GULLoggerLevel level,
   va_start(formatArgs, message);
   [GULLogger.logger logWithLevel:level
                      withService:service
+                        isForced:forceLog
                         withCode:messageCode
                      withMessage:messageCode, formatArgs];
   va_end(formatArgs);
@@ -87,14 +87,31 @@ GUL_LOGGING_FUNCTION(Debug)
 
 #undef GUL_MAKE_LOGGER
 
+// Redefine logger property as readwrite as a form of dependency injection.
+@interface GULLogger ()
+@property(nonatomic, class, readwrite) id<GULLoggerSystem> logger;
+@end
+
 @implementation GULLogger
 
 + (id<GULLoggerSystem>)logger {
-  dispatch_once(&sGULLoggerOnceToken, ^{
-    // TODO(bstpierre): Determine which iOS version we are running.
-    sGULLogger = [[GULASLLogger alloc] init];
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    // Synchronize here to avoid undefined behaviour if a setLogger: call happened before the
+    // first get.
+    @synchronized(self) {
+      if (!sGULLogger) {
+        sGULLogger = [[GULASLLogger alloc] init];
+      }
+    }
   });
   return sGULLogger;
+}
+
++ (void)setLogger:(id<GULLoggerSystem>)logger {
+  @synchronized(self) {
+    sGULLogger = logger;
+  }
 }
 
 @end

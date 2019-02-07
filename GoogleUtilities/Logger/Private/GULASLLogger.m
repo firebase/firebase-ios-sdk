@@ -36,7 +36,7 @@ static NSRegularExpression *sMessageCodeRegex;
 @interface GULASLLogger () {
   // Internal storage for properties declared in the GULLoggerSystem
   GULLoggerLevel _logLevel;
-  const char *_version;
+  NSString *_version;
   BOOL _forcedDebug;
 }
 
@@ -55,7 +55,7 @@ static NSRegularExpression *sMessageCodeRegex;
   if (self) {
     _forcedDebug = NO;
     _logLevel = GULLoggerLevelNotice;
-    _version = "";
+    _version = @"";
     _dispatchQueue = dispatch_queue_create("GULLoggerQueue", DISPATCH_QUEUE_SERIAL);
     dispatch_set_target_queue(_dispatchQueue,
                               dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0));
@@ -102,7 +102,6 @@ static NSRegularExpression *sMessageCodeRegex;
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"  // asl is deprecated
   asl_release(self.aslClient);
-  self.aslClient = nil;
 #pragma clang diagnostic pop
 }
 
@@ -171,9 +170,12 @@ static NSRegularExpression *sMessageCodeRegex;
   NSString *logMsg = [[NSString alloc] initWithFormat:message arguments:formatArgs];
   va_end(formatArgs);
   logMsg =
-      [NSString stringWithFormat:@"%s - %@[%@] %@", self.version, service, messageCode, logMsg];
+      [NSString stringWithFormat:@"%@ - %@[%@] %@", self.version, service, messageCode, logMsg];
   dispatch_async(self.dispatchQueue, ^{
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"  // asl is deprecated
     asl_log(self.aslClient, NULL, level, "%s", logMsg.UTF8String);
+#pragma clang diagnostic pop
   });
 }
 

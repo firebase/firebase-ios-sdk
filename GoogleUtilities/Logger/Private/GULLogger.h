@@ -65,13 +65,13 @@ extern void GULLoggerRegisterVersion(const char *version);
  * not log any messages with a level higher than GULLoggerLevelNotice to avoid log spamming.
  * @param level Log level (one of the GULLoggerLevel enum values).
  * @param service Service name of type GULLoggerService.
- * @param forceLog
- * (required) message code starting with "I-" which means iOS, followed by a capitalized
+ * @param forceLog If this message should be output regardless of its level.
+ * @param messageCode starting with "I-" which means iOS, followed by a capitalized
  *            three-character service identifier and a six digit integer message ID that is unique
  *            within the service.
  *            An example of the message code is @"I-COR000001".
- * (required) message string which can be a format string.
- * (optional) variable arguments list obtained from calling va_start, used when message is a format
+ * @param message string which can be a format string.
+ * @param ... variable arguments list obtained from calling va_start, used when message is a format
  *            string.
  */
 extern void GULLogBasic(GULLoggerLevel level,
@@ -83,14 +83,16 @@ extern void GULLogBasic(GULLoggerLevel level,
 
 /**
  * The following functions accept the following parameters in order:
- * (required) service name of type GULLoggerService.
- * (required) message code starting from "I-" which means iOS, followed by a capitalized
+ * @param service Name of type GULLoggerService.
+ * @param messageCode Starting from "I-" which means iOS, followed by a capitalized
  *            three-character service identifier and a six digit integer message ID that is unique
  *            within the service.
  *            An example of the message code is @"I-COR000001".
  *            See go/firebase-log-proposal for details.
- * (required) message string which can be a format string.
- * (optional) the list of arguments to substitute into the format string.
+ * @param message String which can be a format string.
+ * @param ... The list of arguments to substitute into the format string.
+ *
+ * @discussion
  * Example usage:
  * GULLogError(kGULLoggerCore, @"I-COR000001", @"Configuration of %@ failed.", app.name);
  */
@@ -126,6 +128,7 @@ extern void GULLogDebug(GULLoggerService service,
 
 @interface GULLogger : NSObject
 
+/// The current default logger.
 @property(nonatomic, class, readonly) id<GULLoggerSystem> logger;
 
 @end
