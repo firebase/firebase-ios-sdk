@@ -50,7 +50,8 @@ void GULLogBasic(GULLoggerLevel level,
                  GULLoggerService service,
                  BOOL forceLog,
                  NSString *messageCode,
-                 NSString *message, ...) {
+                 NSString *message,
+                 ...) {
   va_list formatArgs;
   va_start(formatArgs, message);
   [GULLogger.logger logWithLevel:level
