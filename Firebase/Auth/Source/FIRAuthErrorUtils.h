@@ -451,6 +451,12 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (NSError *)localPlayerNotAuthenticatedError;
 
+/** @fn gameKitNotLinkedError
+   @brief Constructs an @c NSError with the @c FIRAuthErrorCodeGameKitNotLinked code.
+   @return The NSError instance associated with the given FIRAuthError.
+ */
++ (NSError *)gameKitNotLinkedError;
+
 /** @fn notificationNotForwardedError
     @brief Constructs an @c NSError with the @c FIRAuthErrorCodeNotificationNotForwarded code.
     @return The NSError instance associated with the given FIRAuthError.

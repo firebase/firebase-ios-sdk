@@ -68,6 +68,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseMessaging.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseStorage.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseFunctions.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseInAppMessaging.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseInAppMessagingDisplay.podspec
 
     - stage: test
@@ -98,6 +99,7 @@ jobs:
         - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseMessaging.podspec --use-libraries --allow-warnings
         - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseStorage.podspec --use-libraries
         - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseFunctions.podspec --use-libraries
+        - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseInAppMessaging.podspec --use-libraries
         - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseInAppMessagingDisplay.podspec --use-libraries
 
     - stage: test
@@ -186,6 +188,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseMessaging.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseStorage.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseFunctions.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseInAppMessaging.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseInAppMessagingDisplay.podspec
 
     - stage: test
