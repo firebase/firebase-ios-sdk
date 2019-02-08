@@ -22,6 +22,8 @@
 #import "FIRAuthExceptionUtils.h"
 #import "FIRGameCenterAuthCredential.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @implementation FIRGameCenterAuthProvider
 
 - (instancetype)init {
@@ -37,7 +39,7 @@
    checking whether the APP that consuming our SDK has linked GameKit.framework. If not, a
    `GameKitNotLinkedError` will be raised.
    **/
-  GKLocalPlayer *optionalLocalPlayer = [[NSClassFromString(@"GKLocalPlayer") alloc] init];
+  GKLocalPlayer * _Nullable optionalLocalPlayer = [[NSClassFromString(@"GKLocalPlayer") alloc] init];
 
   if (!optionalLocalPlayer) {
     if (completion) {
@@ -82,3 +84,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END
