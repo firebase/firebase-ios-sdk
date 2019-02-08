@@ -116,7 +116,8 @@ class Transaction {
 
   void EnsureCommitNotCalled();
 
-  absl::optional<model::SnapshotVersion> GetVersion(const model::DocumentKey& key) const;
+  absl::optional<model::SnapshotVersion> GetVersion(
+      const model::DocumentKey& key) const;
 
   remote::Datastore* datastore_ = nullptr;
 

@@ -192,7 +192,7 @@ void Transaction::Commit(CommitCallback&& callback) {
 
 void Transaction::EnsureCommitNotCalled() {
   HARD_ASSERT(!committed_, "A transaction object cannot be used after its "
-                               "update callback has been invoked.");
+                           "update callback has been invoked.");
 }
 
 absl::optional<SnapshotVersion> Transaction::GetVersion(
