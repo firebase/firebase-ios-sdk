@@ -44,7 +44,6 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
-#include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_store.h"
@@ -58,7 +57,6 @@ namespace util = firebase::firestore::util;
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
-using firebase::firestore::core::Transaction;
 using firebase::firestore::local::LruParams;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKeySet;

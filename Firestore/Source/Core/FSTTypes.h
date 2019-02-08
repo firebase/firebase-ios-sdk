@@ -21,7 +21,9 @@
 namespace firebase {
 namespace firestore {
 namespace core {
+
 class Transaction;
+
 }
 }
 }
