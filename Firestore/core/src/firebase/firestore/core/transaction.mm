@@ -66,6 +66,7 @@ Status Transaction::RecordVersion(FSTMaybeDocument* doc) {
                     FirestoreErrorCode::Aborted,
                     "Document version changed between two reads."};
     }
+    return Status::OK();
   } else {
     read_versions_[doc.key] = doc_version;
     return Status::OK();
