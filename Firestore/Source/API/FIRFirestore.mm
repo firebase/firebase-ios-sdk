@@ -277,7 +277,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
                      completion:
                          (void (^)(id _Nullable result, NSError *_Nullable error))completion {
   // We wrap the function they provide in order to use internal implementation classes for
-  // ransaction, and to run the user callback block on the proper queue.
+  // transaction, and to run the user callback block on the proper queue.
   if (!updateBlock) {
     FSTThrowInvalidArgument(@"Transaction block cannot be nil.");
   } else if (!completion) {
