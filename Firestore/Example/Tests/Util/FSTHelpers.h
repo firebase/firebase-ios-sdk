@@ -141,6 +141,15 @@ inline NSString *FSTRemoveExceptionPrefix(NSString *exception) {
     XCTAssertTrue(didThrow, ##__VA_ARGS__);                             \
   } while (0)
 
+// Helper to compare vectors containing Objective-C objects.
+#define FSTAssertEqualVectors(v1, v2)                                \
+  do {                                                               \
+    XCTAssertEqual(v1.size(), v2.size(), @"Vector length mismatch"); \
+    for (int i = 0; i < v1.size(); i++) {                            \
+      XCTAssertEqualObjects(v1[i], v2[i]);                           \
+    }                                                                \
+  } while (0)
+
 /**
  * An implementation of `TargetMetadataProvider` that provides controlled access to the
  * `TargetMetadataProvider` callbacks. Any target accessed via these callbacks must be

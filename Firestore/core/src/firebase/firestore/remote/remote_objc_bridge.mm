@@ -179,10 +179,10 @@ GCFSWriteRequest* WriteStreamSerializer::CreateHandshake() const {
 }
 
 GCFSWriteRequest* WriteStreamSerializer::CreateWriteMutationsRequest(
-    NSArray<FSTMutation*>* mutations) const {
+    const std::vector<FSTMutation*>& mutations) const {
   NSMutableArray<GCFSWrite*>* protos =
-      [NSMutableArray arrayWithCapacity:mutations.count];
-  for (FSTMutation* mutation in mutations) {
+      [NSMutableArray arrayWithCapacity:mutations.size()];
+  for (FSTMutation* mutation : mutations) {
     [protos addObject:[serializer_ encodedMutation:mutation]];
   };
 
@@ -238,12 +238,12 @@ DatastoreSerializer::DatastoreSerializer(const DatabaseInfo& database_info)
 }
 
 GCFSCommitRequest* DatastoreSerializer::CreateCommitRequest(
-    NSArray<FSTMutation*>* mutations) const {
+    const std::vector<FSTMutation*>& mutations) const {
   GCFSCommitRequest* request = [GCFSCommitRequest message];
   request.database = [serializer_ encodedDatabaseID];
 
   NSMutableArray<GCFSWrite*>* mutationProtos = [NSMutableArray array];
-  for (FSTMutation* mutation in mutations) {
+  for (FSTMutation* mutation : mutations) {
     [mutationProtos addObject:[serializer_ encodedMutation:mutation]];
   }
   request.writesArray = mutationProtos;
@@ -273,7 +273,7 @@ grpc::ByteBuffer DatastoreSerializer::ToByteBuffer(
   return ConvertToByteBuffer([request data]);
 }
 
-NSArray<FSTMaybeDocument*>* DatastoreSerializer::MergeLookupResponses(
+std::vector<FSTMaybeDocument*> DatastoreSerializer::MergeLookupResponses(
     const std::vector<grpc::ByteBuffer>& responses, Status* out_status) const {
   // Sort by key.
   std::map<DocumentKey, FSTMaybeDocument*> results;
@@ -281,17 +281,17 @@ NSArray<FSTMaybeDocument*>* DatastoreSerializer::MergeLookupResponses(
   for (const auto& response : responses) {
     auto* proto = ToProto<GCFSBatchGetDocumentsResponse>(response, out_status);
     if (!out_status->ok()) {
-      return nil;
+      return {};
     }
     FSTMaybeDocument* doc = [serializer_ decodedMaybeDocumentFromBatch:proto];
     results[doc.key] = doc;
   }
-  NSMutableArray<FSTMaybeDocument*>* docs =
-      [NSMutableArray arrayWithCapacity:results.size()];
-  for (const auto& kv : results) {
-    [docs addObject:kv.second];
-  }
 
+  std::vector<FSTMaybeDocument*> docs;
+  docs.reserve(results.size());
+  for (const auto& kv : results) {
+    docs.push_back(kv.second);
+  }
   return docs;
 }
 

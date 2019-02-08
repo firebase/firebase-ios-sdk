@@ -22,6 +22,7 @@
 #include <memory>
 #include <unordered_map>
 #include <utility>
+#include <vector>
 
 #import "Firestore/Source/Core/FSTEventManager.h"
 #import "Firestore/Source/Core/FSTQuery.h"
@@ -39,6 +40,7 @@
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/remote/remote_store.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
@@ -58,6 +60,7 @@ using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::remote::MockDatastore;
+using firebase::firestore::remote::RemoteStore;
 using firebase::firestore::remote::WatchChange;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::TimerId;
@@ -85,7 +88,6 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Parts of the Firestore system that the spec tests need to control.
 
 @property(nonatomic, strong, readonly) FSTEventManager *eventManager;
-@property(nonatomic, strong, readonly) FSTRemoteStore *remoteStore;
 @property(nonatomic, strong, readonly) FSTLocalStore *localStore;
 @property(nonatomic, strong, readonly) FSTSyncEngine *syncEngine;
 @property(nonatomic, strong, readonly) id<FSTPersistence> persistence;
@@ -111,6 +113,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTSyncEngineTestDriver {
   std::unique_ptr<AsyncQueue> _workerQueue;
+
+  std::unique_ptr<RemoteStore> _remoteStore;
 
   std::unordered_map<TargetId, FSTQueryData *> _expectedActiveTargets;
 
@@ -153,19 +157,17 @@ NS_ASSUME_NONNULL_BEGIN
 
     _datastore =
         std::make_shared<MockDatastore>(_databaseInfo, _workerQueue.get(), &_credentialProvider);
-    _remoteStore =
-        [[FSTRemoteStore alloc] initWithLocalStore:_localStore
-                                         datastore:_datastore
-                                       workerQueue:_workerQueue.get()
-                                onlineStateHandler:[self](OnlineState onlineState) {
-                                  [self.syncEngine applyChangedOnlineState:onlineState];
-                                  [self.eventManager applyChangedOnlineState:onlineState];
-                                }];
+    _remoteStore = absl::make_unique<RemoteStore>(
+        _localStore, _datastore, _workerQueue.get(), [self](OnlineState onlineState) {
+          [self.syncEngine applyChangedOnlineState:onlineState];
+          [self.eventManager applyChangedOnlineState:onlineState];
+        });
+    ;
 
     _syncEngine = [[FSTSyncEngine alloc] initWithLocalStore:_localStore
-                                                remoteStore:_remoteStore
+                                                remoteStore:_remoteStore.get()
                                                 initialUser:initialUser];
-    [_remoteStore setSyncEngine:_syncEngine];
+    _remoteStore->set_sync_engine(_syncEngine);
     _eventManager = [FSTEventManager eventManagerWithSyncEngine:_syncEngine];
 
     // Set up internal event tracking for the spec tests.
@@ -209,7 +211,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)start {
   _workerQueue->EnqueueBlocking([&] {
     [self.localStore start];
-    [self.remoteStore start];
+    _remoteStore->Start();
   });
 }
 
@@ -221,15 +223,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)shutdown {
   _workerQueue->EnqueueBlocking([&] {
-    [self.remoteStore shutdown];
+    _remoteStore->Shutdown();
     [self.persistence shutdown];
   });
 }
 
 - (void)validateNextWriteSent:(FSTMutation *)expectedWrite {
-  NSArray<FSTMutation *> *request = _datastore->NextSentWrite();
+  std::vector<FSTMutation *> request = _datastore->NextSentWrite();
   // Make sure the write went through the pipe like we expected it to.
-  HARD_ASSERT(request.count == 1, "Only single mutation requests are supported at the moment");
+  HARD_ASSERT(request.size() == 1, "Only single mutation requests are supported at the moment");
   FSTMutation *actualWrite = request[0];
   HARD_ASSERT([actualWrite isEqual:expectedWrite],
               "Mock datastore received write %s but first outstanding mutation was %s", actualWrite,
@@ -253,13 +255,13 @@ NS_ASSUME_NONNULL_BEGIN
   _workerQueue->EnqueueBlocking([&] {
     // Make sure to execute all writes that are currently queued. This allows us
     // to assert on the total number of requests sent before shutdown.
-    [self.remoteStore fillWritePipeline];
-    [self.remoteStore disableNetwork];
+    _remoteStore->FillWritePipeline();
+    _remoteStore->DisableNetwork();
   });
 }
 
 - (void)enableNetwork {
-  _workerQueue->EnqueueBlocking([&] { [self.remoteStore enableNetwork]; });
+  _workerQueue->EnqueueBlocking([&] { _remoteStore->EnableNetwork(); });
 }
 
 - (void)runTimer:(TimerId)timerID {
@@ -356,7 +358,7 @@ NS_ASSUME_NONNULL_BEGIN
   [[self currentOutstandingWrites] addObject:write];
   LOG_DEBUG("sending a user write.");
   _workerQueue->EnqueueBlocking([=] {
-    [self.syncEngine writeMutations:@[ mutation ]
+    [self.syncEngine writeMutations:{mutation}
                          completion:^(NSError *_Nullable error) {
                            LOG_DEBUG("A callback was called with error: %s", error);
                            write.done = YES;

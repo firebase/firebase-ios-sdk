@@ -17,13 +17,13 @@
 #import "Firestore/Source/Core/FSTSyncEngine.h"
 
 #include <map>
+#include <memory>
 #include <set>
 #include <unordered_map>
 #include <utility>
 
 #import "FIRFirestoreErrors.h"
 #import "Firestore/Source/Core/FSTQuery.h"
-#import "Firestore/Source/Core/FSTTransaction.h"
 #import "Firestore/Source/Core/FSTView.h"
 #import "Firestore/Source/Core/FSTViewSnapshot.h"
 #import "Firestore/Source/Local/FSTLocalStore.h"
@@ -36,18 +36,22 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
+#include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
+#include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "absl/types/optional.h"
 
 using firebase::firestore::auth::HashUser;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::TargetIdGenerator;
+using firebase::firestore::core::Transaction;
 using firebase::firestore::local::ReferenceSet;
 using firebase::firestore::model::BatchId;
 using firebase::firestore::model::DocumentKey;
@@ -59,8 +63,11 @@ using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::remote::RemoteEvent;
+using firebase::firestore::remote::RemoteStore;
 using firebase::firestore::remote::TargetChange;
 using firebase::firestore::util::AsyncQueue;
+using firebase::firestore::util::MakeNSError;
+using firebase::firestore::util::Status;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -150,9 +157,6 @@ class LimboResolution {
 /** The local store, used to persist mutations and cached documents. */
 @property(nonatomic, strong, readonly) FSTLocalStore *localStore;
 
-/** The remote store for sending writes, watches, etc. to the backend. */
-@property(nonatomic, strong, readonly) FSTRemoteStore *remoteStore;
-
 /** FSTQueryViews for all active queries, indexed by query. */
 @property(nonatomic, strong, readonly)
     NSMutableDictionary<FSTQuery *, FSTQueryView *> *queryViewsByQuery;
@@ -160,6 +164,9 @@ class LimboResolution {
 @end
 
 @implementation FSTSyncEngine {
+  /** The remote store for sending writes, watches, etc. to the backend. */
+  RemoteStore *_remoteStore;
+
   /** Used for creating the TargetId for the listens used to resolve limbo documents. */
   TargetIdGenerator _targetIdGenerator;
 
@@ -189,7 +196,7 @@ class LimboResolution {
 }
 
 - (instancetype)initWithLocalStore:(FSTLocalStore *)localStore
-                       remoteStore:(FSTRemoteStore *)remoteStore
+                       remoteStore:(RemoteStore *)remoteStore
                        initialUser:(const User &)initialUser {
   if (self = [super init]) {
     _localStore = localStore;
@@ -211,7 +218,7 @@ class LimboResolution {
   FSTViewSnapshot *viewSnapshot = [self initializeViewAndComputeSnapshotForQueryData:queryData];
   [self.syncEngineDelegate handleViewSnapshots:@[ viewSnapshot ]];
 
-  [self.remoteStore listenToTargetWithQueryData:queryData];
+  _remoteStore->Listen(queryData);
   return queryData.targetID;
 }
 
@@ -243,19 +250,19 @@ class LimboResolution {
   HARD_ASSERT(queryView, "Trying to stop listening to a query not found");
 
   [self.localStore releaseQuery:query];
-  [self.remoteStore stopListeningToTargetID:queryView.targetID];
+  _remoteStore->StopListening(queryView.targetID);
   [self removeAndCleanupQuery:queryView];
 }
 
-- (void)writeMutations:(NSArray<FSTMutation *> *)mutations
+- (void)writeMutations:(std::vector<FSTMutation *> &&)mutations
             completion:(FSTVoidErrorBlock)completion {
   [self assertDelegateExistsForSelector:_cmd];
 
-  FSTLocalWriteResult *result = [self.localStore locallyWriteMutations:mutations];
+  FSTLocalWriteResult *result = [self.localStore locallyWriteMutations:std::move(mutations)];
   [self addMutationCompletionBlock:completion batchID:result.batchID];
 
   [self emitNewSnapshotsAndNotifyLocalStoreWithChanges:result.changes remoteEvent:absl::nullopt];
-  [self.remoteStore fillWritePipeline];
+  _remoteStore->FillWritePipeline();
 }
 
 - (void)addMutationCompletionBlock:(FSTVoidErrorBlock)completion batchID:(BatchId)batchID {
@@ -286,7 +293,8 @@ class LimboResolution {
                     completion:(FSTVoidIDErrorBlock)completion {
   workerQueue->VerifyIsCurrentQueue();
   HARD_ASSERT(retries >= 0, "Got negative number of retries for transaction");
-  FSTTransaction *transaction = [self.remoteStore transaction];
+
+  std::shared_ptr<Transaction> transaction = _remoteStore->CreateTransaction();
   updateBlock(transaction, ^(id _Nullable result, NSError *_Nullable error) {
     workerQueue->Enqueue(
         [self, retries, workerQueue, updateBlock, completion, transaction, result, error] {
@@ -294,11 +302,13 @@ class LimboResolution {
             completion(nil, error);
             return;
           }
-          [transaction commitWithCompletion:^(NSError *_Nullable transactionError) {
-            if (!transactionError) {
+          transaction->Commit([self, retries, workerQueue, updateBlock, completion,
+                               result](const Status &status) {
+            if (status.ok()) {
               completion(result, nil);
               return;
             }
+
             // TODO(b/35201829): Only retry on real transaction failures.
             if (retries == 0) {
               NSError *wrappedError =
@@ -306,7 +316,7 @@ class LimboResolution {
                                       code:FIRFirestoreErrorCodeFailedPrecondition
                                   userInfo:@{
                                     NSLocalizedDescriptionKey : @"Transaction failed all retries.",
-                                    NSUnderlyingErrorKey : transactionError
+                                    NSUnderlyingErrorKey : MakeNSError(status)
                                   }];
               completion(nil, wrappedError);
               return;
@@ -316,7 +326,7 @@ class LimboResolution {
                                     workerQueue:workerQueue
                                     updateBlock:updateBlock
                                      completion:completion];
-          }];
+          });
         });
   });
 }
@@ -561,7 +571,7 @@ class LimboResolution {
                                              listenSequenceNumber:kIrrelevantSequenceNumber
                                                           purpose:FSTQueryPurposeLimboResolution];
     _limboResolutionsByTarget.emplace(limboTargetID, LimboResolution{key});
-    [self.remoteStore listenToTargetWithQueryData:queryData];
+    _remoteStore->Listen(queryData);
     _limboTargetsByKey[key] = limboTargetID;
   }
 }
@@ -573,7 +583,7 @@ class LimboResolution {
     return;
   }
   TargetId limboTargetID = iter->second;
-  [self.remoteStore stopListeningToTargetID:limboTargetID];
+  _remoteStore->StopListening(limboTargetID);
   _limboTargetsByKey.erase(key);
   _limboResolutionsByTarget.erase(limboTargetID);
 }
@@ -595,7 +605,7 @@ class LimboResolution {
   }
 
   // Notify remote store so it can restart its streams.
-  [self.remoteStore credentialDidChange];
+  _remoteStore->HandleCredentialChange();
 }
 
 - (DocumentKeySet)remoteKeysForTarget:(TargetId)targetId {

@@ -152,7 +152,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
     DocumentKeySet changedKeys;
     for (const std::vector<FSTMutationBatch *> &batches : {oldBatches, newBatches}) {
       for (FSTMutationBatch *batch : batches) {
-        for (FSTMutation *mutation in batch.mutations) {
+        for (FSTMutation *mutation : [batch mutations]) {
           changedKeys = changedKeys.insert(mutation.key);
         }
       }
@@ -163,10 +163,11 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
   });
 }
 
-- (FSTLocalWriteResult *)locallyWriteMutations:(NSArray<FSTMutation *> *)mutations {
+- (FSTLocalWriteResult *)locallyWriteMutations:(std::vector<FSTMutation *> &&)mutations {
   return self.persistence.run("Locally write mutations", [&]() -> FSTLocalWriteResult * {
     FIRTimestamp *localWriteTime = [FIRTimestamp timestamp];
-    FSTMutationBatch *batch = _mutationQueue->AddMutationBatch(localWriteTime, mutations);
+    FSTMutationBatch *batch =
+        _mutationQueue->AddMutationBatch(localWriteTime, std::move(mutations));
     DocumentKeySet keys = [batch keys];
     MaybeDocumentMap changedDocuments = [self.localDocuments documentsForKeys:keys];
     return [FSTLocalWriteResult resultForBatchID:batch.batchID changes:std::move(changedDocuments)];
@@ -375,9 +376,10 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 }
 
 - (nullable FSTMaybeDocument *)readDocument:(const DocumentKey &)key {
-  return self.persistence.run("ReadDocument", [&]() -> FSTMaybeDocument *_Nullable {
-    return [self.localDocuments documentForKey:key];
-  });
+  return self.persistence.run(
+      "ReadDocument", [&]() -> FSTMaybeDocument *_Nullable {
+        return [self.localDocuments documentForKey:key];
+      });
 }
 
 - (FSTQueryData *)allocateQuery:(FSTQuery *)query {

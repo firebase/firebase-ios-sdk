@@ -17,10 +17,10 @@
 #import <Foundation/Foundation.h>
 
 #include <memory>
+#include <vector>
 
 #import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Core/FSTViewSnapshot.h"
-#import "Firestore/Source/Remote/FSTRemoteStore.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
@@ -100,7 +100,7 @@ NS_ASSUME_NONNULL_BEGIN
                                              NSError *_Nullable error))completion;
 
 /** Write mutations. completion will be notified when it's written to the backend. */
-- (void)writeMutations:(NSArray<FSTMutation *> *)mutations
+- (void)writeMutations:(std::vector<FSTMutation *> &&)mutations
             completion:(nullable FSTVoidErrorBlock)completion;
 
 /** Tries to execute the transaction in updateBlock up to retries times. */
