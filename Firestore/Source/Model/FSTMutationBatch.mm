@@ -103,7 +103,7 @@ NS_ASSUME_NONNULL_BEGIN
               "Mismatch between mutations length (%s) and results length (%s)", _mutations.size(),
               mutationBatchResult.mutationResults.size());
 
-  for (int i = 0; i < _mutations.size(); i++) {
+  for (size_t i = 0; i < _mutations.size(); i++) {
     FSTMutation *mutation = _mutations[i];
     FSTMutationResult *mutationResult = mutationBatchResult.mutationResults[i];
     if (mutation.key == documentKey) {
@@ -193,7 +193,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   DocumentVersionMap docVersions;
   std::vector<FSTMutation *> mutations = batch.mutations;
-  for (int i = 0; i < mutations.size(); i++) {
+  for (size_t i = 0; i < mutations.size(); i++) {
     absl::optional<SnapshotVersion> version = mutationResults[i].version;
     if (!version) {
       // deletes don't have a version, so we substitute the commitVersion

@@ -145,7 +145,7 @@ inline NSString *FSTRemoveExceptionPrefix(NSString *exception) {
 #define FSTAssertEqualVectors(v1, v2)                                \
   do {                                                               \
     XCTAssertEqual(v1.size(), v2.size(), @"Vector length mismatch"); \
-    for (int i = 0; i < v1.size(); i++) {                            \
+    for (size_t i = 0; i < v1.size(); i++) {                            \
       XCTAssertEqualObjects(v1[i], v2[i]);                           \
     }                                                                \
   } while (0)
