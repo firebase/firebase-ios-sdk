@@ -17,6 +17,7 @@
 #import <Foundation/Foundation.h>
 
 #include <unordered_map>
+#include <vector>
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
@@ -52,7 +53,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** Initializes a mutation batch with the given batchID, localWriteTime, and mutations. */
 - (instancetype)initWithBatchID:(firebase::firestore::model::BatchId)batchID
                  localWriteTime:(FIRTimestamp *)localWriteTime
-                      mutations:(NSArray<FSTMutation *> *)mutations NS_DESIGNATED_INITIALIZER;
+                      mutations:(std::vector<FSTMutation *> &&)mutations NS_DESIGNATED_INITIALIZER;
 
 - (id)init NS_UNAVAILABLE;
 
@@ -82,9 +83,10 @@ NS_ASSUME_NONNULL_BEGIN
 /** Returns the set of unique keys referenced by all mutations in the batch. */
 - (firebase::firestore::model::DocumentKeySet)keys;
 
+- (const std::vector<FSTMutation *> &)mutations;
+
 @property(nonatomic, assign, readonly) firebase::firestore::model::BatchId batchID;
 @property(nonatomic, strong, readonly) FIRTimestamp *localWriteTime;
-@property(nonatomic, strong, readonly) NSArray<FSTMutation *> *mutations;
 
 @end
 
@@ -102,13 +104,13 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (instancetype)resultWithBatch:(FSTMutationBatch *)batch
                   commitVersion:(firebase::firestore::model::SnapshotVersion)commitVersion
-                mutationResults:(NSArray<FSTMutationResult *> *)mutationResults
+                mutationResults:(std::vector<FSTMutationResult *>)mutationResults
                     streamToken:(nullable NSData *)streamToken;
 
 - (const firebase::firestore::model::SnapshotVersion &)commitVersion;
+- (const std::vector<FSTMutationResult *> &)mutationResults;
 
 @property(nonatomic, strong, readonly) FSTMutationBatch *batch;
-@property(nonatomic, strong, readonly) NSArray<FSTMutationResult *> *mutationResults;
 @property(nonatomic, strong, readonly, nullable) NSData *streamToken;
 
 - (const firebase::firestore::model::DocumentVersionMap &)docVersions;

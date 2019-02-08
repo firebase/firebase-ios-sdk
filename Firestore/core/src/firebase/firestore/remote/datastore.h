@@ -45,7 +45,6 @@
 #include "grpcpp/support/status.h"
 
 #import "Firestore/Source/Core/FSTTypes.h"
-#import "Firestore/Source/Remote/FSTStream.h"
 
 namespace firebase {
 namespace firestore {
@@ -85,15 +84,15 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
    * shared channel.
    */
   virtual std::shared_ptr<WatchStream> CreateWatchStream(
-      id<FSTWatchStreamDelegate> delegate);
+      WatchStreamCallback* callback);
   /**
    * Creates a new `WriteStream` that is still unstarted but uses a common
    * shared channel.
    */
   virtual std::shared_ptr<WriteStream> CreateWriteStream(
-      id<FSTWriteStreamDelegate> delegate);
+      WriteStreamCallback* callback);
 
-  void CommitMutations(NSArray<FSTMutation*>* mutations,
+  void CommitMutations(const std::vector<FSTMutation*>& mutations,
                        FSTVoidErrorBlock completion);
   void LookupDocuments(const std::vector<model::DocumentKey>& keys,
                        FSTVoidMaybeDocumentArrayErrorBlock completion);
@@ -156,9 +155,10 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
  private:
   void PollGrpcQueue();
 
-  void CommitMutationsWithCredentials(const auth::Token& token,
-                                      NSArray<FSTMutation*>* mutations,
-                                      FSTVoidErrorBlock completion);
+  void CommitMutationsWithCredentials(
+      const auth::Token& token,
+      const std::vector<FSTMutation*>& mutations,
+      FSTVoidErrorBlock completion);
   void OnCommitMutationsResponse(const util::StatusOr<grpc::ByteBuffer>& result,
                                  FSTVoidErrorBlock completion);
 

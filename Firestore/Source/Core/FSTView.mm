@@ -23,9 +23,9 @@
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
-#import "Firestore/Source/Remote/FSTRemoteEvent.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 using firebase::firestore::core::DocumentViewChangeType;
@@ -33,6 +33,7 @@ using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::MaybeDocumentMap;
 using firebase::firestore::model::OnlineState;
+using firebase::firestore::remote::TargetChange;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -343,11 +344,11 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(DocumentViewChangeTy
 }
 
 - (FSTViewChange *)applyChangesToDocuments:(FSTViewDocumentChanges *)docChanges {
-  return [self applyChangesToDocuments:docChanges targetChange:nil];
+  return [self applyChangesToDocuments:docChanges targetChange:{}];
 }
 
 - (FSTViewChange *)applyChangesToDocuments:(FSTViewDocumentChanges *)docChanges
-                              targetChange:(nullable FSTTargetChange *)targetChange {
+                              targetChange:(const absl::optional<TargetChange> &)targetChange {
   HARD_ASSERT(!docChanges.needsRefill, "Cannot apply changes that need a refill");
 
   FSTDocumentSet *oldDocuments = self.documentSet;
@@ -392,7 +393,7 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(DocumentViewChangeTy
 - (FSTViewChange *)applyChangedOnlineState:(OnlineState)onlineState {
   if (self.isCurrent && onlineState == OnlineState::Offline) {
     // If we're offline, set `current` to NO and then call applyChanges to refresh our syncState
-    // and generate an FSTViewChange as appropriate. We are guaranteed to get a new FSTTargetChange
+    // and generate an FSTViewChange as appropriate. We are guaranteed to get a new `TargetChange`
     // that sets `current` back to YES once the client is back online.
     self.current = NO;
     return
@@ -433,20 +434,22 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(DocumentViewChangeTy
 /**
  * Updates syncedDocuments and current based on the given change.
  */
-- (void)applyTargetChange:(nullable FSTTargetChange *)targetChange {
-  if (targetChange) {
-    for (const DocumentKey &key : targetChange.addedDocuments) {
+- (void)applyTargetChange:(const absl::optional<TargetChange> &)maybeTargetChange {
+  if (maybeTargetChange.has_value()) {
+    const TargetChange &target_change = maybeTargetChange.value();
+
+    for (const DocumentKey &key : target_change.added_documents()) {
       _syncedDocuments = _syncedDocuments.insert(key);
     }
-    for (const DocumentKey &key : targetChange.modifiedDocuments) {
+    for (const DocumentKey &key : target_change.modified_documents()) {
       HARD_ASSERT(_syncedDocuments.find(key) != _syncedDocuments.end(),
                   "Modified document %s not found in view.", key.ToString());
     }
-    for (const DocumentKey &key : targetChange.removedDocuments) {
+    for (const DocumentKey &key : target_change.removed_documents()) {
       _syncedDocuments = _syncedDocuments.erase(key);
     }
 
-    self.current = targetChange.current;
+    self.current = target_change.current();
   }
 }
 

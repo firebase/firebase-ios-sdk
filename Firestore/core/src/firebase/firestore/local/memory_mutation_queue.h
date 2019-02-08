@@ -30,6 +30,7 @@
 
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_set.h"
 #include "Firestore/core/src/firebase/firestore/local/document_reference.h"
+#include "Firestore/core/src/firebase/firestore/local/mutation_queue.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
@@ -46,56 +47,50 @@ namespace firebase {
 namespace firestore {
 namespace local {
 
-class MemoryMutationQueue {
+class MemoryMutationQueue : public MutationQueue {
  public:
   explicit MemoryMutationQueue(FSTMemoryPersistence* persistence);
 
-  void Start();
+  void Start() override;
 
-  bool is_empty() {
-    // If the queue has any entries at all, the first entry must not be a
-    // tombstone (otherwise it would have been removed already).
-    return queue_.empty();
-  }
+  bool IsEmpty() override;
 
   void AcknowledgeBatch(FSTMutationBatch* batch,
-                        NSData* _Nullable stream_token);
+                        NSData* _Nullable stream_token) override;
 
-  FSTMutationBatch* AddMutationBatch(FIRTimestamp* local_write_time,
-                                     NSArray<FSTMutation*>* mutations);
+  FSTMutationBatch* AddMutationBatch(
+      FIRTimestamp* local_write_time,
+      std::vector<FSTMutation*>&& mutations) override;
 
-  void RemoveMutationBatch(FSTMutationBatch* batch);
+  void RemoveMutationBatch(FSTMutationBatch* batch) override;
 
-  const std::vector<FSTMutationBatch*>& AllMutationBatches() {
+  std::vector<FSTMutationBatch*> AllMutationBatches() override {
     return queue_;
   }
 
   std::vector<FSTMutationBatch*> AllMutationBatchesAffectingDocumentKeys(
-      const model::DocumentKeySet& document_keys);
+      const model::DocumentKeySet& document_keys) override;
 
   std::vector<FSTMutationBatch*> AllMutationBatchesAffectingDocumentKey(
-      const model::DocumentKey& key);
+      const model::DocumentKey& key) override;
 
   std::vector<FSTMutationBatch*> AllMutationBatchesAffectingQuery(
-      FSTQuery* query);
+      FSTQuery* query) override;
 
-  FSTMutationBatch* _Nullable LookupMutationBatch(model::BatchId batch_id);
+  FSTMutationBatch* _Nullable LookupMutationBatch(
+      model::BatchId batch_id) override;
 
   FSTMutationBatch* _Nullable NextMutationBatchAfterBatchId(
-      model::BatchId batch_id);
+      model::BatchId batch_id) override;
 
-  void PerformConsistencyCheck();
+  void PerformConsistencyCheck() override;
 
   bool ContainsKey(const model::DocumentKey& key);
 
   size_t CalculateByteSize(FSTLocalSerializer* serializer);
 
-  NSData* _Nullable last_stream_token() {
-    return last_stream_token_;
-  }
-  void set_last_stream_token(NSData* token) {
-    last_stream_token_ = token;
-  }
+  NSData* _Nullable GetLastStreamToken() override;
+  void SetLastStreamToken(NSData* _Nullable token) override;
 
  private:
   using DocumentReferenceSet =

@@ -22,6 +22,7 @@
 #include <memory>
 #include <unordered_map>
 #include <utility>
+#include <vector>
 
 #import "Firestore/Source/Core/FSTEventManager.h"
 #import "Firestore/Source/Core/FSTQuery.h"
@@ -153,17 +154,20 @@ NS_ASSUME_NONNULL_BEGIN
 
     _datastore =
         std::make_shared<MockDatastore>(_databaseInfo, _workerQueue.get(), &_credentialProvider);
-    _remoteStore = [[FSTRemoteStore alloc] initWithLocalStore:_localStore
-                                                    datastore:_datastore
-                                                  workerQueue:_workerQueue.get()];
+    _remoteStore =
+        [[FSTRemoteStore alloc] initWithLocalStore:_localStore
+                                         datastore:_datastore
+                                       workerQueue:_workerQueue.get()
+                                onlineStateHandler:[self](OnlineState onlineState) {
+                                  [self.syncEngine applyChangedOnlineState:onlineState];
+                                  [self.eventManager applyChangedOnlineState:onlineState];
+                                }];
 
     _syncEngine = [[FSTSyncEngine alloc] initWithLocalStore:_localStore
                                                 remoteStore:_remoteStore
                                                 initialUser:initialUser];
-    _remoteStore.syncEngine = _syncEngine;
+    [_remoteStore setSyncEngine:_syncEngine];
     _eventManager = [FSTEventManager eventManagerWithSyncEngine:_syncEngine];
-
-    _remoteStore.onlineStateDelegate = self;
 
     // Set up internal event tracking for the spec tests.
     NSMutableArray<FSTQueryEvent *> *events = [NSMutableArray array];
@@ -203,11 +207,6 @@ NS_ASSUME_NONNULL_BEGIN
   return _currentUser;
 }
 
-- (void)applyChangedOnlineState:(OnlineState)onlineState {
-  [self.syncEngine applyChangedOnlineState:onlineState];
-  [self.eventManager applyChangedOnlineState:onlineState];
-}
-
 - (void)start {
   _workerQueue->EnqueueBlocking([&] {
     [self.localStore start];
@@ -229,9 +228,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)validateNextWriteSent:(FSTMutation *)expectedWrite {
-  NSArray<FSTMutation *> *request = _datastore->NextSentWrite();
+  std::vector<FSTMutation *> request = _datastore->NextSentWrite();
   // Make sure the write went through the pipe like we expected it to.
-  HARD_ASSERT(request.count == 1, "Only single mutation requests are supported at the moment");
+  HARD_ASSERT(request.size() == 1, "Only single mutation requests are supported at the moment");
   FSTMutation *actualWrite = request[0];
   HARD_ASSERT([actualWrite isEqual:expectedWrite],
               "Mock datastore received write %s but first outstanding mutation was %s", actualWrite,
@@ -275,12 +274,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FSTOutstandingWrite *)receiveWriteAckWithVersion:(const SnapshotVersion &)commitVersion
                                     mutationResults:
-                                        (NSArray<FSTMutationResult *> *)mutationResults {
+                                        (std::vector<FSTMutationResult *>)mutationResults {
   FSTOutstandingWrite *write = [self currentOutstandingWrites].firstObject;
   [[self currentOutstandingWrites] removeObjectAtIndex:0];
   [self validateNextWriteSent:write.write];
 
-  _workerQueue->EnqueueBlocking([&] { _datastore->AckWrite(commitVersion, mutationResults); });
+  _workerQueue->EnqueueBlocking(
+      [&] { _datastore->AckWrite(commitVersion, std::move(mutationResults)); });
 
   return write;
 }
@@ -357,7 +357,7 @@ NS_ASSUME_NONNULL_BEGIN
   [[self currentOutstandingWrites] addObject:write];
   LOG_DEBUG("sending a user write.");
   _workerQueue->EnqueueBlocking([=] {
-    [self.syncEngine writeMutations:@[ mutation ]
+    [self.syncEngine writeMutations:{mutation}
                          completion:^(NSError *_Nullable error) {
                            LOG_DEBUG("A callback was called with error: %s", error);
                            write.done = YES;

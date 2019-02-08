@@ -16,12 +16,14 @@
 
 #import "Firestore/Source/Local/FSTLocalDocumentsView.h"
 
+#include <vector>
+
 #import "Firestore/Source/Core/FSTQuery.h"
-#import "Firestore/Source/Local/FSTMutationQueue.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 
+#include "Firestore/core/src/firebase/firestore/local/mutation_queue.h"
 #include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
@@ -29,6 +31,7 @@
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
+using firebase::firestore::local::MutationQueue;
 using firebase::firestore::local::RemoteDocumentCache;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
@@ -41,24 +44,24 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTLocalDocumentsView ()
 - (instancetype)initWithRemoteDocumentCache:(RemoteDocumentCache *)remoteDocumentCache
-                              mutationQueue:(id<FSTMutationQueue>)mutationQueue
+                              mutationQueue:(MutationQueue *)mutationQueue
     NS_DESIGNATED_INITIALIZER;
 
-@property(nonatomic, strong, readonly) id<FSTMutationQueue> mutationQueue;
 @end
 
 @implementation FSTLocalDocumentsView {
   RemoteDocumentCache *_remoteDocumentCache;
+  MutationQueue *_mutationQueue;
 }
 
 + (instancetype)viewWithRemoteDocumentCache:(RemoteDocumentCache *)remoteDocumentCache
-                              mutationQueue:(id<FSTMutationQueue>)mutationQueue {
+                              mutationQueue:(MutationQueue *)mutationQueue {
   return [[FSTLocalDocumentsView alloc] initWithRemoteDocumentCache:remoteDocumentCache
                                                       mutationQueue:mutationQueue];
 }
 
 - (instancetype)initWithRemoteDocumentCache:(RemoteDocumentCache *)remoteDocumentCache
-                              mutationQueue:(id<FSTMutationQueue>)mutationQueue {
+                              mutationQueue:(MutationQueue *)mutationQueue {
   if (self = [super init]) {
     _remoteDocumentCache = remoteDocumentCache;
     _mutationQueue = mutationQueue;
@@ -67,16 +70,16 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (nullable FSTMaybeDocument *)documentForKey:(const DocumentKey &)key {
-  NSArray<FSTMutationBatch *> *batches =
-      [self.mutationQueue allMutationBatchesAffectingDocumentKey:key];
+  std::vector<FSTMutationBatch *> batches =
+      _mutationQueue->AllMutationBatchesAffectingDocumentKey(key);
   return [self documentForKey:key inBatches:batches];
 }
 
 // Internal version of documentForKey: which allows reusing `batches`.
 - (nullable FSTMaybeDocument *)documentForKey:(const DocumentKey &)key
-                                    inBatches:(NSArray<FSTMutationBatch *> *)batches {
+                                    inBatches:(const std::vector<FSTMutationBatch *> &)batches {
   FSTMaybeDocument *_Nullable document = _remoteDocumentCache->Get(key);
-  for (FSTMutationBatch *batch in batches) {
+  for (FSTMutationBatch *batch : batches) {
     document = [batch applyToLocalDocument:document documentKey:key];
   }
 
@@ -86,13 +89,14 @@ NS_ASSUME_NONNULL_BEGIN
 // Returns the view of the given `docs` as they would appear after applying all
 // mutations in the given `batches`.
 - (MaybeDocumentMap)applyLocalMutationsToDocuments:(const MaybeDocumentMap &)docs
-                                       fromBatches:(NSArray<FSTMutationBatch *> *)batches {
+                                       fromBatches:
+                                           (const std::vector<FSTMutationBatch *> &)batches {
   MaybeDocumentMap results;
 
   for (const auto &kv : docs) {
     const DocumentKey &key = kv.first;
     FSTMaybeDocument *localView = kv.second;
-    for (FSTMutationBatch *batch in batches) {
+    for (FSTMutationBatch *batch : batches) {
       localView = [batch applyToLocalDocument:localView documentKey:key];
     }
     results = results.insert(key, localView);
@@ -116,8 +120,8 @@ NS_ASSUME_NONNULL_BEGIN
   for (const auto &kv : baseDocs) {
     allKeys = allKeys.insert(kv.first);
   }
-  NSArray<FSTMutationBatch *> *batches =
-      [self.mutationQueue allMutationBatchesAffectingDocumentKeys:allKeys];
+  std::vector<FSTMutationBatch *> batches =
+      _mutationQueue->AllMutationBatchesAffectingDocumentKeys(allKeys);
 
   MaybeDocumentMap docs = [self applyLocalMutationsToDocuments:baseDocs fromBatches:batches];
 
@@ -158,11 +162,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (DocumentMap)documentsMatchingCollectionQuery:(FSTQuery *)query {
   DocumentMap results = _remoteDocumentCache->GetMatching(query);
   // Get locally persisted mutation batches.
-  NSArray<FSTMutationBatch *> *matchingBatches =
-      [self.mutationQueue allMutationBatchesAffectingQuery:query];
+  std::vector<FSTMutationBatch *> matchingBatches =
+      _mutationQueue->AllMutationBatchesAffectingQuery(query);
 
-  for (FSTMutationBatch *batch in matchingBatches) {
-    for (FSTMutation *mutation in batch.mutations) {
+  for (FSTMutationBatch *batch : matchingBatches) {
+    for (FSTMutation *mutation : [batch mutations]) {
       // Only process documents belonging to the collection.
       if (!query.path.IsImmediateParentOf(mutation.key.path())) {
         continue;

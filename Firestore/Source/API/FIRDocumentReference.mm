@@ -174,7 +174,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)deleteDocumentWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
   FSTDeleteMutation *mutation = [[FSTDeleteMutation alloc] initWithKey:self.key
                                                           precondition:Precondition::None()];
-  return [self.firestore.client writeMutations:@[ mutation ] completion:completion];
+  return [self.firestore.client writeMutations:{mutation} completion:completion];
 }
 
 - (void)getDocumentWithCompletion:(void (^)(FIRDocumentSnapshot *_Nullable document,

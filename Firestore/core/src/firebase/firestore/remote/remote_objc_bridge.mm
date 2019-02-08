@@ -179,10 +179,10 @@ GCFSWriteRequest* WriteStreamSerializer::CreateHandshake() const {
 }
 
 GCFSWriteRequest* WriteStreamSerializer::CreateWriteMutationsRequest(
-    NSArray<FSTMutation*>* mutations) const {
+    const std::vector<FSTMutation*>& mutations) const {
   NSMutableArray<GCFSWrite*>* protos =
-      [NSMutableArray arrayWithCapacity:mutations.count];
-  for (FSTMutation* mutation in mutations) {
+      [NSMutableArray arrayWithCapacity:mutations.size()];
+  for (FSTMutation* mutation : mutations) {
     [protos addObject:[serializer_ encodedMutation:mutation]];
   };
 
@@ -208,16 +208,16 @@ model::SnapshotVersion WriteStreamSerializer::ToCommitVersion(
   return [serializer_ decodedVersion:proto.commitTime];
 }
 
-NSArray<FSTMutationResult*>* WriteStreamSerializer::ToMutationResults(
+std::vector<FSTMutationResult*> WriteStreamSerializer::ToMutationResults(
     GCFSWriteResponse* response) const {
   NSMutableArray<GCFSWriteResult*>* responses = response.writeResultsArray;
-  NSMutableArray<FSTMutationResult*>* results =
-      [NSMutableArray arrayWithCapacity:responses.count];
+  std::vector<FSTMutationResult*> results;
+  results.reserve(responses.count);
 
   const model::SnapshotVersion commitVersion = ToCommitVersion(response);
   for (GCFSWriteResult* proto in responses) {
-    [results addObject:[serializer_ decodedMutationResult:proto
-                                            commitVersion:commitVersion]];
+    results.push_back([serializer_ decodedMutationResult:proto
+                                           commitVersion:commitVersion]);
   };
   return results;
 }
@@ -238,12 +238,12 @@ DatastoreSerializer::DatastoreSerializer(const DatabaseInfo& database_info)
 }
 
 GCFSCommitRequest* DatastoreSerializer::CreateCommitRequest(
-    NSArray<FSTMutation*>* mutations) const {
+    const std::vector<FSTMutation*>& mutations) const {
   GCFSCommitRequest* request = [GCFSCommitRequest message];
   request.database = [serializer_ encodedDatabaseID];
 
   NSMutableArray<GCFSWrite*>* mutationProtos = [NSMutableArray array];
-  for (FSTMutation* mutation in mutations) {
+  for (FSTMutation* mutation : mutations) {
     [mutationProtos addObject:[serializer_ encodedMutation:mutation]];
   }
   request.writesArray = mutationProtos;
@@ -298,42 +298,6 @@ NSArray<FSTMaybeDocument*>* DatastoreSerializer::MergeLookupResponses(
 FSTMaybeDocument* DatastoreSerializer::ToMaybeDocument(
     GCFSBatchGetDocumentsResponse* response) const {
   return [serializer_ decodedMaybeDocumentFromBatch:response];
-}
-
-// WatchStreamDelegate
-
-void WatchStreamDelegate::NotifyDelegateOnOpen() {
-  [delegate_ watchStreamDidOpen];
-}
-
-void WatchStreamDelegate::NotifyDelegateOnChange(
-    const WatchChange& change, const SnapshotVersion& snapshot_version) {
-  [delegate_ watchStreamDidChange:change snapshotVersion:snapshot_version];
-}
-
-void WatchStreamDelegate::NotifyDelegateOnClose(const Status& status) {
-  [delegate_ watchStreamWasInterruptedWithError:status];
-}
-
-// WriteStreamDelegate
-
-void WriteStreamDelegate::NotifyDelegateOnOpen() {
-  [delegate_ writeStreamDidOpen];
-}
-
-void WriteStreamDelegate::NotifyDelegateOnHandshakeComplete() {
-  [delegate_ writeStreamDidCompleteHandshake];
-}
-
-void WriteStreamDelegate::NotifyDelegateOnCommit(
-    const SnapshotVersion& commit_version,
-    NSArray<FSTMutationResult*>* results) {
-  [delegate_ writeStreamDidReceiveResponseWithVersion:commit_version
-                                      mutationResults:results];
-}
-
-void WriteStreamDelegate::NotifyDelegateOnClose(const Status& status) {
-  [delegate_ writeStreamWasInterruptedWithError:status];
 }
 
 }  // namespace bridge

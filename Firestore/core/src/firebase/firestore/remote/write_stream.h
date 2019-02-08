@@ -24,7 +24,9 @@
 #import <Foundation/Foundation.h>
 #include <memory>
 #include <string>
+#include <vector>
 
+#include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_objc_bridge.h"
 #include "Firestore/core/src/firebase/firestore/remote/stream.h"
@@ -37,9 +39,45 @@
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
+@class FSTMutationResult;
+
 namespace firebase {
 namespace firestore {
 namespace remote {
+
+class WriteStreamCallback {
+ public:
+  /**
+   * Called by the `WriteStream` when it is ready to accept outbound request
+   * messages.
+   */
+  virtual void OnWriteStreamOpen() = 0;
+
+  /**
+   * Called by the `WriteStream` upon a successful handshake response from the
+   * server, which is the receiver's cue to send any pending writes.
+   */
+  virtual void OnWriteStreamHandshakeComplete() = 0;
+
+  /**
+   * Called by the `WriteStream` upon receiving a StreamingWriteResponse from
+   * the server that contains mutation results.
+   */
+  virtual void OnWriteStreamMutationResult(
+      model::SnapshotVersion commit_version,
+      std::vector<FSTMutationResult*> results) = 0;
+
+  /**
+   * Called when the `WriteStream`'s underlying RPC is interrupted for whatever
+   * reason, usually because of an error, but possibly due to an idle timeout.
+   * The status passed to this method may be "ok", in which case the stream was
+   * closed without attributable fault.
+   *
+   * NOTE: This will not be called after `Stop` is called on the stream. See
+   * "Starting and Stopping" on `Stream` for details.
+   */
+  virtual void OnWriteStreamClose(const util::Status& status) = 0;
+};
 
 /**
  * A Stream that implements the Write RPC.
@@ -65,7 +103,7 @@ class WriteStream : public Stream {
               auth::CredentialsProvider* credentials_provider,
               FSTSerializerBeta* serializer,
               GrpcConnection* grpc_connection,
-              id<FSTWriteStreamDelegate> delegate);
+              WriteStreamCallback* callback);
 
   void SetLastStreamToken(NSData* token);
   /**
@@ -93,7 +131,7 @@ class WriteStream : public Stream {
   virtual void WriteHandshake();
 
   /** Sends a group of mutations to the Firestore backend to apply. */
-  virtual void WriteMutations(NSArray<FSTMutation*>* mutations);
+  virtual void WriteMutations(const std::vector<FSTMutation*>& mutations);
 
  protected:
   // For tests only
@@ -115,7 +153,7 @@ class WriteStream : public Stream {
   }
 
   bridge::WriteStreamSerializer serializer_bridge_;
-  bridge::WriteStreamDelegate delegate_bridge_;
+  WriteStreamCallback* callback_ = nullptr;
   bool handshake_complete_ = false;
 };
 

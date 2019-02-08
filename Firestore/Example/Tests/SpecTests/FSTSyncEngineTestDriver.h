@@ -18,6 +18,7 @@
 
 #include <map>
 #include <unordered_map>
+#include <vector>
 
 #import "Firestore/Source/Remote/FSTRemoteStore.h"
 
@@ -86,7 +87,7 @@ typedef std::unordered_map<firebase::firestore::auth::User,
  *
  * Each method on the driver injects a different event into the system.
  */
-@interface FSTSyncEngineTestDriver : NSObject <FSTOnlineStateDelegate>
+@interface FSTSyncEngineTestDriver : NSObject
 
 /**
  * Initializes the underlying FSTSyncEngine with the given local persistence implementation and
@@ -195,9 +196,9 @@ typedef std::unordered_map<firebase::firestore::auth::User,
  *     the mutation. Snapshot versions must be monotonically increasing.
  * @param mutationResults The mutation results for the write that is being acked.
  */
-- (FSTOutstandingWrite *)receiveWriteAckWithVersion:
-                             (const firebase::firestore::model::SnapshotVersion &)commitVersion
-                                    mutationResults:(NSArray<FSTMutationResult *> *)mutationResults;
+- (FSTOutstandingWrite *)
+    receiveWriteAckWithVersion:(const firebase::firestore::model::SnapshotVersion &)commitVersion
+               mutationResults:(std::vector<FSTMutationResult *>)mutationResults;
 
 /**
  * A count of the mutations written to the write stream by the FSTSyncEngine, but not yet

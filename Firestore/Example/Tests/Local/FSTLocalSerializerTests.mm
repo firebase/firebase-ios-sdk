@@ -19,6 +19,9 @@
 #import <FirebaseFirestore/FIRTimestamp.h>
 #import <XCTest/XCTest.h>
 
+#include <utility>
+#include <vector>
+
 #import "Firestore/Protos/objc/firestore/local/MaybeDocument.pbobjc.h"
 #import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
@@ -89,7 +92,7 @@ NS_ASSUME_NONNULL_BEGIN
   FIRTimestamp *writeTime = [FIRTimestamp timestamp];
   FSTMutationBatch *model = [[FSTMutationBatch alloc] initWithBatchID:42
                                                        localWriteTime:writeTime
-                                                            mutations:@[ set, patch, del ]];
+                                                            mutations:{set, patch, del}];
 
   GCFSWrite *setProto = [GCFSWrite message];
   setProto.update.name = @"projects/p/databases/d/documents/foo/bar";
@@ -123,7 +126,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTMutationBatch *decoded = [self.serializer decodedMutationBatch:batchProto];
   XCTAssertEqual(decoded.batchID, model.batchID);
   XCTAssertEqualObjects(decoded.localWriteTime, model.localWriteTime);
-  XCTAssertEqualObjects(decoded.mutations, model.mutations);
+  FSTAssertEqualVectors(decoded.mutations, model.mutations);
   XCTAssertEqual([decoded keys], [model keys]);
 }
 

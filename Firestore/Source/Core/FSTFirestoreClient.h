@@ -17,6 +17,7 @@
 #import <Foundation/Foundation.h>
 
 #include <memory>
+#include <vector>
 
 #import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Core/FSTViewSnapshot.h"
@@ -49,7 +50,7 @@ NS_ASSUME_NONNULL_BEGIN
  * SDK architecture. It is responsible for creating the worker queue that is shared by all of the
  * other components in the system.
  */
-@interface FSTFirestoreClient : NSObject <FSTOnlineStateDelegate>
+@interface FSTFirestoreClient : NSObject
 
 /**
  * Creates and returns a FSTFirestoreClient with the given parameters.
@@ -100,7 +101,7 @@ NS_ASSUME_NONNULL_BEGIN
                                              NSError *_Nullable error))completion;
 
 /** Write mutations. completion will be notified when it's written to the backend. */
-- (void)writeMutations:(NSArray<FSTMutation *> *)mutations
+- (void)writeMutations:(std::vector<FSTMutation *> &&)mutations
             completion:(nullable FSTVoidErrorBlock)completion;
 
 /** Tries to execute the transaction in updateBlock up to retries times. */

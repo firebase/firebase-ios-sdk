@@ -228,7 +228,10 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
 
   _remoteStore = [[FSTRemoteStore alloc] initWithLocalStore:_localStore
                                                   datastore:std::move(datastore)
-                                                workerQueue:_workerQueue.get()];
+                                                workerQueue:_workerQueue.get()
+                                         onlineStateHandler:[self](OnlineState onlineState) {
+                                           [self.syncEngine applyChangedOnlineState:onlineState];
+                                         }];
 
   _syncEngine = [[FSTSyncEngine alloc] initWithLocalStore:_localStore
                                               remoteStore:_remoteStore
@@ -237,9 +240,7 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
   _eventManager = [FSTEventManager eventManagerWithSyncEngine:_syncEngine];
 
   // Setup wiring for remote store.
-  _remoteStore.syncEngine = _syncEngine;
-
-  _remoteStore.onlineStateDelegate = self;
+  [_remoteStore setSyncEngine:_syncEngine];
 
   // NOTE: RemoteStore depends on LocalStore (for persisting stream tokens, refilling mutation
   // queue, etc.) so must be started after LocalStore.
@@ -265,10 +266,6 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
 
   LOG_DEBUG("Credential Changed. Current user: %s", user.uid());
   [self.syncEngine credentialDidChangeWithUser:user];
-}
-
-- (void)applyChangedOnlineState:(OnlineState)onlineState {
-  [self.syncEngine applyChangedOnlineState:onlineState];
 }
 
 - (void)disableNetworkWithCompletion:(nullable FSTVoidErrorBlock)completion {
@@ -389,15 +386,16 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
   });
 }
 
-- (void)writeMutations:(NSArray<FSTMutation *> *)mutations
+- (void)writeMutations:(std::vector<FSTMutation *> &&)mutations
             completion:(nullable FSTVoidErrorBlock)completion {
-  _workerQueue->Enqueue([self, mutations, completion] {
-    if (mutations.count == 0) {
+  // TODO(c++14): move `mutations` into lambda (C++14).
+  _workerQueue->Enqueue([self, mutations, completion]() mutable {
+    if (mutations.empty()) {
       if (completion) {
         self->_userExecutor->Execute([=] { completion(nil); });
       }
     } else {
-      [self.syncEngine writeMutations:mutations
+      [self.syncEngine writeMutations:std::move(mutations)
                            completion:^(NSError *error) {
                              // Dispatch the result back onto the user dispatch queue.
                              if (completion) {

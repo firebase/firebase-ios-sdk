@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/local/memory_mutation_queue.h"
 
+#include <utility>
+
 #import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
@@ -42,6 +44,12 @@ MemoryMutationQueue::MemoryMutationQueue(FSTMemoryPersistence* persistence)
     : persistence_(persistence) {
 }
 
+bool MemoryMutationQueue::IsEmpty() {
+  // If the queue has any entries at all, the first entry must not be a
+  // tombstone (otherwise it would have been removed already).
+  return queue_.empty();
+}
+
 void MemoryMutationQueue::AcknowledgeBatch(FSTMutationBatch* batch,
                                            NSData* _Nullable stream_token) {
   HARD_ASSERT(!queue_.empty(), "Cannot acknowledge batch on an empty queue");
@@ -60,14 +68,14 @@ void MemoryMutationQueue::Start() {
   // the queue for the duration of the app session in case a user logs out /
   // back in. To behave like the LevelDB-backed MutationQueue (and accommodate
   // tests that expect as much), we reset nextBatchID if the queue is empty.
-  if (is_empty()) {
+  if (IsEmpty()) {
     next_batch_id_ = 1;
   }
 }
 
 FSTMutationBatch* MemoryMutationQueue::AddMutationBatch(
-    FIRTimestamp* local_write_time, NSArray<FSTMutation*>* mutations) {
-  HARD_ASSERT(mutations.count > 0, "Mutation batches should not be empty");
+    FIRTimestamp* local_write_time, std::vector<FSTMutation*>&& mutations) {
+  HARD_ASSERT(!mutations.empty(), "Mutation batches should not be empty");
 
   BatchId batch_id = next_batch_id_;
   next_batch_id_++;
@@ -81,11 +89,11 @@ FSTMutationBatch* MemoryMutationQueue::AddMutationBatch(
   FSTMutationBatch* batch =
       [[FSTMutationBatch alloc] initWithBatchID:batch_id
                                  localWriteTime:local_write_time
-                                      mutations:mutations];
+                                      mutations:std::move(mutations)];
   queue_.push_back(batch);
 
   // Track references by document key.
-  for (FSTMutation* mutation in batch.mutations) {
+  for (FSTMutation* mutation : [batch mutations]) {
     batches_by_document_key_ = batches_by_document_key_.insert(
         DocumentReference{mutation.key, batch_id});
   }
@@ -103,7 +111,7 @@ void MemoryMutationQueue::RemoveMutationBatch(FSTMutationBatch* batch) {
   queue_.erase(queue_.begin());
 
   // Remove entries from the index too.
-  for (FSTMutation* mutation in batch.mutations) {
+  for (FSTMutation* mutation : [batch mutations]) {
     const DocumentKey& key = mutation.key;
     [persistence_.referenceDelegate removeMutationReference:key];
 
@@ -236,6 +244,14 @@ size_t MemoryMutationQueue::CalculateByteSize(FSTLocalSerializer* serializer) {
     count += [[serializer encodedMutationBatch:batch] serializedSize];
   };
   return count;
+}
+
+NSData* _Nullable MemoryMutationQueue::GetLastStreamToken() {
+  return last_stream_token_;
+}
+
+void MemoryMutationQueue::SetLastStreamToken(NSData* _Nullable token) {
+  last_stream_token_ = token;
 }
 
 std::vector<FSTMutationBatch*> MemoryMutationQueue::AllMutationBatchesWithIds(

@@ -22,18 +22,19 @@
 #import "Firestore/Source/Core/FSTView.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
-#import "Firestore/Source/Remote/FSTRemoteEvent.h"
 #import "Firestore/Source/Util/FSTAsyncQueryListener.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 #include "absl/memory/memory.h"
 
 using firebase::firestore::core::DocumentViewChangeType;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::OnlineState;
+using firebase::firestore::remote::TargetChange;
 using firebase::firestore::util::ExecutorLibdispatch;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -84,8 +85,8 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQueryListener *otherListener = [self listenToQuery:query accumulatingSnapshots:otherAccum];
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
-  FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[ doc1, doc2 ], nil);
-  FSTViewSnapshot *snap2 = FSTTestApplyChanges(view, @[ doc2prime ], nil);
+  FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[ doc1, doc2 ], absl::nullopt);
+  FSTViewSnapshot *snap2 = FSTTestApplyChanges(view, @[ doc2prime ], absl::nullopt);
 
   FSTDocumentViewChange *change1 =
       [FSTDocumentViewChange changeWithDocument:doc1 type:DocumentViewChangeType::kAdded];
@@ -142,7 +143,7 @@ NS_ASSUME_NONNULL_BEGIN
                              accumulatingSnapshots:accum];
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
-  FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[], nil);
+  FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[], absl::nullopt);
   FSTViewSnapshot *snap2 = FSTTestApplyChanges(view, @[], FSTTestTargetChangeMarkCurrent());
 
   [listener queryDidChangeViewSnapshot:snap1];
@@ -167,8 +168,8 @@ NS_ASSUME_NONNULL_BEGIN
                                       }];
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
-  FSTViewSnapshot *viewSnapshot1 = FSTTestApplyChanges(view, @[ doc1 ], nil);
-  FSTViewSnapshot *viewSnapshot2 = FSTTestApplyChanges(view, @[ doc2 ], nil);
+  FSTViewSnapshot *viewSnapshot1 = FSTTestApplyChanges(view, @[ doc1 ], absl::nullopt);
+  FSTViewSnapshot *viewSnapshot2 = FSTTestApplyChanges(view, @[ doc2 ], absl::nullopt);
 
   FSTViewSnapshotHandler handler = listener.asyncSnapshotHandler;
   handler(viewSnapshot1, nil);
@@ -204,11 +205,11 @@ NS_ASSUME_NONNULL_BEGIN
                                  accumulatingSnapshots:fullAccum];
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
-  FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[ doc1 ], nil);
+  FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[ doc1 ], absl::nullopt);
 
-  FSTTargetChange *ackTarget = FSTTestTargetChangeAckDocuments({doc1.key});
+  TargetChange ackTarget = FSTTestTargetChangeAckDocuments({doc1.key});
   FSTViewSnapshot *snap2 = FSTTestApplyChanges(view, @[], ackTarget);
-  FSTViewSnapshot *snap3 = FSTTestApplyChanges(view, @[ doc2 ], nil);
+  FSTViewSnapshot *snap3 = FSTTestApplyChanges(view, @[ doc2 ], absl::nullopt);
 
   [filteredListener queryDidChangeViewSnapshot:snap1];  // local event
   [filteredListener queryDidChangeViewSnapshot:snap2];  // no event
@@ -248,9 +249,9 @@ NS_ASSUME_NONNULL_BEGIN
                                  accumulatingSnapshots:fullAccum];
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
-  FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[ doc1, doc2 ], nil);
-  FSTViewSnapshot *snap2 = FSTTestApplyChanges(view, @[ doc1Prime ], nil);
-  FSTViewSnapshot *snap3 = FSTTestApplyChanges(view, @[ doc3 ], nil);
+  FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[ doc1, doc2 ], absl::nullopt);
+  FSTViewSnapshot *snap2 = FSTTestApplyChanges(view, @[ doc1Prime ], absl::nullopt);
+  FSTViewSnapshot *snap3 = FSTTestApplyChanges(view, @[ doc3 ], absl::nullopt);
 
   FSTDocumentViewChange *change1 =
       [FSTDocumentViewChange changeWithDocument:doc1 type:DocumentViewChangeType::kAdded];
@@ -303,10 +304,10 @@ NS_ASSUME_NONNULL_BEGIN
                                  accumulatingSnapshots:fullAccum];
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
-  FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[ doc1, doc2 ], nil);
-  FSTViewSnapshot *snap2 = FSTTestApplyChanges(view, @[ doc1Prime ], nil);
-  FSTViewSnapshot *snap3 = FSTTestApplyChanges(view, @[ doc3 ], nil);
-  FSTViewSnapshot *snap4 = FSTTestApplyChanges(view, @[ doc2Prime ], nil);
+  FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[ doc1, doc2 ], absl::nullopt);
+  FSTViewSnapshot *snap2 = FSTTestApplyChanges(view, @[ doc1Prime ], absl::nullopt);
+  FSTViewSnapshot *snap3 = FSTTestApplyChanges(view, @[ doc3 ], absl::nullopt);
+  FSTViewSnapshot *snap4 = FSTTestApplyChanges(view, @[ doc2Prime ], absl::nullopt);
 
   [fullListener queryDidChangeViewSnapshot:snap1];
   [fullListener queryDidChangeViewSnapshot:snap2];  // Emits no events.
@@ -343,8 +344,8 @@ NS_ASSUME_NONNULL_BEGIN
                                      accumulatingSnapshots:filteredAccum];
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
-  FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[ doc1, doc2 ], nil);
-  FSTViewSnapshot *snap2 = FSTTestApplyChanges(view, @[ doc1Prime, doc3 ], nil);
+  FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[ doc1, doc2 ], absl::nullopt);
+  FSTViewSnapshot *snap2 = FSTTestApplyChanges(view, @[ doc1Prime, doc3 ], absl::nullopt);
 
   FSTDocumentViewChange *change3 =
       [FSTDocumentViewChange changeWithDocument:doc3 type:DocumentViewChangeType::kAdded];
@@ -378,8 +379,8 @@ NS_ASSUME_NONNULL_BEGIN
           accumulatingSnapshots:events];
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
-  FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[ doc1 ], nil);
-  FSTViewSnapshot *snap2 = FSTTestApplyChanges(view, @[ doc2 ], nil);
+  FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[ doc1 ], absl::nullopt);
+  FSTViewSnapshot *snap2 = FSTTestApplyChanges(view, @[ doc2 ], absl::nullopt);
   FSTViewSnapshot *snap3 =
       FSTTestApplyChanges(view, @[], FSTTestTargetChangeAckDocuments({doc1.key, doc2.key}));
 
@@ -420,8 +421,8 @@ NS_ASSUME_NONNULL_BEGIN
           accumulatingSnapshots:events];
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
-  FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[ doc1 ], nil);
-  FSTViewSnapshot *snap2 = FSTTestApplyChanges(view, @[ doc2 ], nil);
+  FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[ doc1 ], absl::nullopt);
+  FSTViewSnapshot *snap2 = FSTTestApplyChanges(view, @[ doc2 ], absl::nullopt);
 
   [listener applyChangedOnlineState:OnlineState::Online];   // no event
   [listener queryDidChangeViewSnapshot:snap1];              // no event
@@ -463,7 +464,7 @@ NS_ASSUME_NONNULL_BEGIN
                              accumulatingSnapshots:events];
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
-  FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[], nil);
+  FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[], absl::nullopt);
 
   [listener applyChangedOnlineState:OnlineState::Online];   // no event
   [listener queryDidChangeViewSnapshot:snap1];              // no event
@@ -490,7 +491,7 @@ NS_ASSUME_NONNULL_BEGIN
                              accumulatingSnapshots:events];
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
-  FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[], nil);
+  FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[], absl::nullopt);
 
   [listener applyChangedOnlineState:OnlineState::Offline];  // no event
   [listener queryDidChangeViewSnapshot:snap1];              // event
