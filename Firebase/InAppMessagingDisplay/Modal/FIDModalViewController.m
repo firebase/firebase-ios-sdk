@@ -16,10 +16,9 @@
 
 #import <UIKit/UIKit.h>
 
-#import <FirebaseInAppMessaging/FIRInAppMessagingRendering.h>
-
 #import "FIDModalViewController.h"
 #import "FIRCore+InAppMessagingDisplay.h"
+#import "FIRInAppMessagingRendering.h"
 
 @interface FIDModalViewController ()
 
@@ -93,6 +92,10 @@ static CGFloat LandScapePaddingBetweenImageAndTextColumn = 24;
   modalVC.timeFetcher = timeFetcher;
 
   return modalVC;
+}
+
+- (FIRInAppMessagingDisplayMessage *)inAppMessage {
+  return self.modalDisplayMessage;
 }
 
 - (IBAction)closeButtonClicked:(id)sender {
@@ -428,7 +431,7 @@ struct TitleBodyButtonHeightInfo {
                                            from:nil
                                        forEvent:nil];
 
-  if (self.modalDisplayMessage.renderAsTestMessage) {
+  if (self.modalDisplayMessage.campaignInfo.renderAsTestMessage) {
     FIRLogDebug(kFIRLoggerInAppMessagingDisplay, @"I-FID300011",
                 @"Flushing the close button since this is a test message.");
     [self flashCloseButton:self.closeButton];

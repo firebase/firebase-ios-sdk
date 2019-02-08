@@ -18,6 +18,17 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef NS_ENUM(NSInteger, FIRInAppMessagingDisplayMessageType) {
+  FIRInAppMessagingDisplayMessageTypeModal,
+  FIRInAppMessagingDisplayMessageTypeBanner,
+  FIRInAppMessagingDisplayMessageTypeImageOnly
+};
+
+typedef NS_ENUM(NSInteger, FIRInAppMessagingDisplayTriggerType) {
+  FIRInAppMessagingDisplayTriggerTypeOnAppForeground,
+  FIRInAppMessagingDisplayTriggerTypeOnAnalyticsEvent
+};
+
 /** Contains the display information for an action button.
  */
 NS_SWIFT_NAME(InAppMessagingActionButton)
@@ -60,24 +71,43 @@ NS_SWIFT_NAME(InAppMessagingImageData)
                        imageData:(NSData *)imageData NS_DESIGNATED_INITIALIZER;
 @end
 
-/**
- * Base class representing a FIAM message to be displayed. Don't create instance
- * of this class directly. Instantiate one of its subclasses instead.
+/** Defines the metadata for the campaign to which a FIAM message belongs.
  */
-NS_SWIFT_NAME(InAppMessagingDisplayMessageBase)
-@interface FIRInAppMessagingDisplayMessageBase : NSObject
-@property(nonatomic, copy, nonnull, readonly) NSString *messageID;
+@interface FIRInAppMessagingCampaignInfo : NSObject
+
+@property(nonatomic, nonnull, copy, readonly) NSString *messageID;
+@property(nonatomic, nonnull, copy, readonly) NSString *campaignName;
 @property(nonatomic, readonly) BOOL renderAsTestMessage;
 
 - (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithMessageID:(NSString *)messageID
+                     campaignName:(NSString *)campaignName
               renderAsTestMessage:(BOOL)renderAsTestMessage;
+
+@end
+
+/**
+ * Base class representing a FIAM message to be displayed. Don't create instance
+ * of this class directly. Instantiate one of its subclasses instead.
+ */
+NS_SWIFT_NAME(InAppMessagingDisplayMessage)
+@interface FIRInAppMessagingDisplayMessage : NSObject
+@property(nonatomic, copy, nonnull, readonly) FIRInAppMessagingCampaignInfo *campaignInfo;
+@property(nonatomic, readonly) FIRInAppMessagingDisplayMessageType type;
+@property(nonatomic, readonly) FIRInAppMessagingDisplayTriggerType triggerType;
+
+- (instancetype)init NS_UNAVAILABLE;
+- (instancetype)initWithMessageID:(NSString *)messageID
+                     campaignName:(NSString *)campaignName
+              renderAsTestMessage:(BOOL)renderAsTestMessage
+                      messageType:(FIRInAppMessagingDisplayMessageType)messageType
+                      triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType;
 @end
 
 /** Class for defining a modal message for display.
  */
 NS_SWIFT_NAME(InAppMessagingModalDisplay)
-@interface FIRInAppMessagingModalDisplay : FIRInAppMessagingDisplayMessageBase
+@interface FIRInAppMessagingModalDisplay : FIRInAppMessagingDisplayMessage
 
 /**
  * Gets the title for a modal fiam message.
@@ -100,6 +130,11 @@ NS_SWIFT_NAME(InAppMessagingModalDisplay)
 @property(nonatomic, nullable, readonly) FIRInAppMessagingActionButton *actionButton;
 
 /**
+ * Gets the action URL for a modal fiam message.
+ */
+@property(nonatomic, nullable, readonly) NSURL *actionURL;
+
+/**
  * Gets the background color for a modal fiam message.
  */
 @property(nonatomic, copy, nonnull) UIColor *displayBackgroundColor;
@@ -111,20 +146,22 @@ NS_SWIFT_NAME(InAppMessagingModalDisplay)
 
 - (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithMessageID:(NSString *)messageID
+                     campaignName:(NSString *)campaignName
               renderAsTestMessage:(BOOL)renderAsTestMessage
+                      triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
                         titleText:(NSString *)title
                          bodyText:(NSString *)bodyText
                         textColor:(UIColor *)textColor
                   backgroundColor:(UIColor *)backgroundColor
                         imageData:(nullable FIRInAppMessagingImageData *)imageData
                      actionButton:(nullable FIRInAppMessagingActionButton *)actionButton
-    NS_DESIGNATED_INITIALIZER;
+                        actionURL:(nullable NSURL *)actionURL NS_DESIGNATED_INITIALIZER;
 @end
 
 /** Class for defining a banner message for display.
  */
 NS_SWIFT_NAME(InAppMessagingBannerDisplay)
-@interface FIRInAppMessagingBannerDisplay : FIRInAppMessagingDisplayMessageBase
+@interface FIRInAppMessagingBannerDisplay : FIRInAppMessagingDisplayMessage
 // Title is always required for modal messages.
 @property(nonatomic, nonnull, copy, readonly) NSString *title;
 
@@ -142,30 +179,46 @@ NS_SWIFT_NAME(InAppMessagingBannerDisplay)
  */
 @property(nonatomic, copy, nonnull) UIColor *textColor;
 
+/**
+ * Gets the action URL for a banner fiam message.
+ */
+@property(nonatomic, nullable, readonly) NSURL *actionURL;
+
 - (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithMessageID:(NSString *)messageID
+                     campaignName:(NSString *)campaignName
               renderAsTestMessage:(BOOL)renderAsTestMessage
+                      triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
                         titleText:(NSString *)title
                          bodyText:(NSString *)bodyText
                         textColor:(UIColor *)textColor
                   backgroundColor:(UIColor *)backgroundColor
                         imageData:(nullable FIRInAppMessagingImageData *)imageData
-    NS_DESIGNATED_INITIALIZER;
+                        actionURL:(nullable NSURL *)actionURL NS_DESIGNATED_INITIALIZER;
 @end
 
 /** Class for defining a image-only message for display.
  */
 NS_SWIFT_NAME(InAppMessagingImageOnlyDisplay)
-@interface FIRInAppMessagingImageOnlyDisplay : FIRInAppMessagingDisplayMessageBase
+@interface FIRInAppMessagingImageOnlyDisplay : FIRInAppMessagingDisplayMessage
 
 /**
  * Gets the image for this message
  */
 @property(nonatomic, nonnull, copy, readonly) FIRInAppMessagingImageData *imageData;
+
+/**
+ * Gets the action URL for an image-only fiam message.
+ */
+@property(nonatomic, nullable, readonly) NSURL *actionURL;
+
 - (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithMessageID:(NSString *)messageID
+                     campaignName:(NSString *)campaignName
               renderAsTestMessage:(BOOL)renderAsTestMessage
-                        imageData:(FIRInAppMessagingImageData *)imageData NS_DESIGNATED_INITIALIZER;
+                      triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
+                        imageData:(FIRInAppMessagingImageData *)imageData
+                        actionURL:(nullable NSURL *)actionURL NS_DESIGNATED_INITIALIZER;
 @end
 
 typedef NS_ENUM(NSInteger, FIRInAppMessagingDismissType) {
@@ -192,15 +245,17 @@ NS_SWIFT_NAME(InAppMessagingDisplayDelegate)
 @protocol FIRInAppMessagingDisplayDelegate <NSObject>
 /**
  * Called when the message is dismissed. Should be called from main thread.
+ * @param inAppMessage the message that was dismissed.
  * @param dismissType specifies how the message is closed.
  */
-- (void)messageDismissedWithType:(FIRInAppMessagingDismissType)dismissType
-    NS_SWIFT_NAME(messageDismissed(dismissType:));
+- (void)messageDismissed:(FIRInAppMessagingDisplayMessage *)inAppMessage
+             dismissType:(FIRInAppMessagingDismissType)dismissType;
 
 /**
  * Called when the message's action button is followed by the user.
+ * @param inAppMessage the message that was clicked.
  */
-- (void)messageClicked;
+- (void)messageClicked:(FIRInAppMessagingDisplayMessage *)inAppMessage;
 
 /**
  * Use this to mark a message as having gone through enough impression so that
@@ -217,8 +272,9 @@ NS_SWIFT_NAME(InAppMessagingDisplayDelegate)
  * in this case. But if the app regards this as a valid impression and does not
  * want the user to see the same message again, call impressionDetected to mark
  * a valid impression.
+ * @param inAppMessage the message for which an impression was detected.
  */
-- (void)impressionDetected;
+- (void)impressionDetectedForMessage:(FIRInAppMessagingDisplayMessage *)inAppMessage;
 
 /**
  * Called when the display component could not render the message due to various reason.
@@ -228,8 +284,10 @@ NS_SWIFT_NAME(InAppMessagingDisplayDelegate)
  * met. Missing this callback in failed rendering attempt would make headless
  * component think a fiam message is still being rendered and therefore suppress any
  * future message rendering.
+ * @param inAppMessage the message that encountered a display error.
  */
-- (void)displayErrorEncountered:(NSError *)error;
+- (void)displayErrorForMessage:(FIRInAppMessagingDisplayMessage *)inAppMessage
+                         error:(NSError *)error;
 @end
 
 /**
@@ -245,7 +303,7 @@ NS_SWIFT_NAME(InAppMessagingDisplay)
  * @param displayDelegate the callback object used to trigger notifications about certain
  *        conditions related to message rendering.
  */
-- (void)displayMessage:(FIRInAppMessagingDisplayMessageBase *)messageForDisplay
+- (void)displayMessage:(FIRInAppMessagingDisplayMessage *)messageForDisplay
        displayDelegate:(id<FIRInAppMessagingDisplayDelegate>)displayDelegate;
 @end
 NS_ASSUME_NONNULL_END

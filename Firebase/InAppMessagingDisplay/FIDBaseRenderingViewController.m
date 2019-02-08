@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-#import <FirebaseInAppMessaging/FIRInAppMessagingRendering.h>
-
 #import "FIDBaseRenderingViewController.h"
 #import "FIDTimeFetcher.h"
 #import "FIRCore+InAppMessagingDisplay.h"
+#import "FIRInAppMessagingRendering.h"
 
 @interface FIDBaseRenderingViewController ()
 // For fiam messages, it's required to be kMinValidImpressionTime to
@@ -34,6 +33,10 @@
 static const NSTimeInterval kMinValidImpressionTime = 3.0;
 
 @implementation FIDBaseRenderingViewController
+
+- (nullable FIRInAppMessagingDisplayMessage *)inAppMessage {
+  return nil;
+}
 
 - (void)viewDidLoad {
   [super viewDidLoad];
@@ -102,8 +105,8 @@ static const NSTimeInterval kMinValidImpressionTime = 3.0;
   FIRLogDebug(kFIRLoggerInAppMessagingDisplay, @"I-FID200004",
               @"Min impression time has been reached.");
 
-  if ([self.displayDelegate respondsToSelector:@selector(impressionDetected)]) {
-    [self.displayDelegate impressionDetected];
+  if ([self.displayDelegate respondsToSelector:@selector(impressionDetectedForMessage:)]) {
+    [self.displayDelegate impressionDetectedForMessage:[self inAppMessage]];
   }
 
   [NSNotificationCenter.defaultCenter removeObserver:self];
@@ -133,7 +136,7 @@ static const NSTimeInterval kMinValidImpressionTime = 3.0;
   self.view.window.rootViewController = nil;
 
   if (self.displayDelegate) {
-    [self.displayDelegate messageDismissedWithType:dismissType];
+    [self.displayDelegate messageDismissed:[self inAppMessage] dismissType:dismissType];
   } else {
     FIRLogWarning(kFIRLoggerInAppMessagingDisplay, @"I-FID200007",
                   @"Display delegate is nil while message is being dismissed.");
@@ -147,7 +150,7 @@ static const NSTimeInterval kMinValidImpressionTime = 3.0;
   self.view.window.rootViewController = nil;
 
   if (self.displayDelegate) {
-    [self.displayDelegate messageClicked];
+    [self.displayDelegate messageClicked:[self inAppMessage]];
   } else {
     FIRLogWarning(kFIRLoggerInAppMessagingDisplay, @"I-FID200008",
                   @"Display delegate is nil while trying to follow action URL.");

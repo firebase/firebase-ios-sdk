@@ -76,5 +76,11 @@ NS_SWIFT_NAME(InAppMessaging)
  * property so that it can be used for rendering fiam message UIs.
  */
 @property(nonatomic) id<FIRInAppMessagingDisplay> messageDisplayComponent;
+
+/**
+ * This delegate should be set on the app side to receive message lifecycle events in app runtime.
+ */
+@property(nonatomic, weak) id<FIRInAppMessagingDisplayDelegate> delegate;
+
 @end
 NS_ASSUME_NONNULL_END

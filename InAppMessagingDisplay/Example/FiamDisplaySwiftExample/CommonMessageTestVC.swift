@@ -16,22 +16,27 @@
 
 import Foundation
 
-import FirebaseInAppMessaging
-
 class CommonMessageTestVC: UIViewController, InAppMessagingDisplayDelegate {
   var messageClosedWithClick = false
 
   var messageClosedDismiss = false
 
   // start of InAppMessagingDisplayDelegate functions
-  func messageClicked() {
+  func messageClicked(_ inAppMessage: InAppMessagingDisplayMessage) {
     print("message clicked to follow action url")
     messageClosedWithClick = true
   }
 
-  func impressionDetected() { print("valid impression detected") }
-  func displayErrorEncountered(_ error: Error) { print("error encountered \(error)") }
-  func messageDismissed(dismissType: FIRInAppMessagingDismissType) {
+  func impressionDetected(for inAppMessage: InAppMessagingDisplayMessage) {
+    print("valid impression detected")
+  }
+
+  func displayError(for inAppMessage: InAppMessagingDisplayMessage, error: Error) {
+    print("error encountered \(error)")
+  }
+
+  func messageDismissed(_ inAppMessage: InAppMessagingDisplayMessage,
+                        dismissType: FIRInAppMessagingDismissType) {
     print("message dimissed with type \(dismissType)")
     messageClosedDismiss = true
   }

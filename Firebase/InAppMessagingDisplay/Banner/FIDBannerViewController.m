@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-#import <FirebaseInAppMessaging/FIRInAppMessagingRendering.h>
-
 #import "FIDBannerViewController.h"
 #import "FIRCore+InAppMessagingDisplay.h"
+#import "FIRInAppMessagingRendering.h"
 
 @interface FIDBannerViewController ()
 
@@ -84,6 +83,10 @@ static const CGFloat kSwipeUpThreshold = -10.0f;
   bannerVC.timeFetcher = timeFetcher;
 
   return bannerVC;
+}
+
+- (FIRInAppMessagingDisplayMessage *)inAppMessage {
+  return self.bannerDisplayMessage;
 }
 
 - (void)setupRecognizers {
