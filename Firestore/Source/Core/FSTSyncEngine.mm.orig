@@ -293,8 +293,12 @@ class LimboResolution {
                     completion:(FSTVoidIDErrorBlock)completion {
   workerQueue->VerifyIsCurrentQueue();
   HARD_ASSERT(retries >= 0, "Got negative number of retries for transaction");
+<<<<<<< HEAD
 
   std::shared_ptr<Transaction> transaction = _remoteStore->CreateTransaction();
+=======
+  FSTTransaction *transaction = _remoteStore->CreateTransaction();
+>>>>>>> varconst/fst-remote-store4
   updateBlock(transaction, ^(id _Nullable result, NSError *_Nullable error) {
     workerQueue->Enqueue(
         [self, retries, workerQueue, updateBlock, completion, transaction, result, error] {
@@ -308,8 +312,6 @@ class LimboResolution {
               completion(result, nil);
               return;
             }
-
-            LOG_WARN("OBC retrying transaction, %s: %s", status.code(), status.error_message());
 
             // TODO(b/35201829): Only retry on real transaction failures.
             if (retries == 0) {
