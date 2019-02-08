@@ -647,7 +647,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                          callback:^(FIREmailLinkSignInResponse *_Nullable response,
                                     NSError *_Nullable error) {
     if (error) {
-      callback(nil, error);
+      if (callback) {
+        callback(nil, error);
+      }
       return;
     }
     [self completeSignInWithAccessToken:response.IDToken
@@ -656,7 +658,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                               anonymous:NO
                                callback:^(FIRUser *_Nullable user, NSError *_Nullable error) {
       if (error) {
-        callback(nil, error);
+        if (callback) {
+          callback(nil, error);
+        }
         return;
       }
       FIRAdditionalUserInfo *additionalUserInfo =
@@ -667,7 +671,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       FIRAuthDataResult *result = user ?
           [[FIRAuthDataResult alloc] initWithUser:user
                                additionalUserInfo:additionalUserInfo] : nil;
-      callback(result, error);
+      if (callback) {
+        callback(result, error);
+      }
     }];
   }];
 }
