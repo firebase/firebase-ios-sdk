@@ -16,10 +16,9 @@
 
 #import <UIKit/UIKit.h>
 
-#import <FirebaseInAppMessaging/FIRInAppMessagingRendering.h>
-
 #import "FIDModalViewController.h"
 #import "FIRCore+InAppMessagingDisplay.h"
+#import "FIRInAppMessagingRendering.h"
 
 @interface FIDModalViewController ()
 

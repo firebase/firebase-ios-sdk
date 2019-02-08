@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-#import <FirebaseInAppMessaging/FIRInAppMessagingRendering.h>
-
 #import "FIDImageOnlyViewController.h"
 #import "FIRCore+InAppMessagingDisplay.h"
+#import "FIRInAppMessagingRendering.h"
 
 @interface FIDImageOnlyViewController ()
 
