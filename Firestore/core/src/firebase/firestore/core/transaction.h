@@ -18,7 +18,6 @@
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_TRANSACTION_H_
 
 #if !defined(__OBJC__)
-// TODO(varconst): the only dependency is `FSTMaybeDocument`.
 #error "This header only supports Objective-C++"
 #endif  // !defined(__OBJC__)
 
