@@ -59,6 +59,7 @@ using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::remote::RemoteEvent;
+using firebase::firestore::remote::RemoteStore;
 using firebase::firestore::remote::TargetChange;
 using firebase::firestore::util::AsyncQueue;
 
@@ -150,9 +151,6 @@ class LimboResolution {
 /** The local store, used to persist mutations and cached documents. */
 @property(nonatomic, strong, readonly) FSTLocalStore *localStore;
 
-/** The remote store for sending writes, watches, etc. to the backend. */
-@property(nonatomic, strong, readonly) FSTRemoteStore *remoteStore;
-
 /** FSTQueryViews for all active queries, indexed by query. */
 @property(nonatomic, strong, readonly)
     NSMutableDictionary<FSTQuery *, FSTQueryView *> *queryViewsByQuery;
@@ -160,6 +158,9 @@ class LimboResolution {
 @end
 
 @implementation FSTSyncEngine {
+  /** The remote store for sending writes, watches, etc. to the backend. */
+  RemoteStore *_remoteStore;
+
   /** Used for creating the TargetId for the listens used to resolve limbo documents. */
   TargetIdGenerator _targetIdGenerator;
 
@@ -189,7 +190,7 @@ class LimboResolution {
 }
 
 - (instancetype)initWithLocalStore:(FSTLocalStore *)localStore
-                       remoteStore:(FSTRemoteStore *)remoteStore
+                       remoteStore:(RemoteStore *)remoteStore
                        initialUser:(const User &)initialUser {
   if (self = [super init]) {
     _localStore = localStore;
@@ -211,7 +212,7 @@ class LimboResolution {
   FSTViewSnapshot *viewSnapshot = [self initializeViewAndComputeSnapshotForQueryData:queryData];
   [self.syncEngineDelegate handleViewSnapshots:@[ viewSnapshot ]];
 
-  [self.remoteStore listenToTargetWithQueryData:queryData];
+  _remoteStore->Listen(queryData);
   return queryData.targetID;
 }
 
@@ -243,7 +244,7 @@ class LimboResolution {
   HARD_ASSERT(queryView, "Trying to stop listening to a query not found");
 
   [self.localStore releaseQuery:query];
-  [self.remoteStore stopListeningToTargetID:queryView.targetID];
+  _remoteStore->StopListening(queryView.targetID);
   [self removeAndCleanupQuery:queryView];
 }
 
@@ -255,7 +256,7 @@ class LimboResolution {
   [self addMutationCompletionBlock:completion batchID:result.batchID];
 
   [self emitNewSnapshotsAndNotifyLocalStoreWithChanges:result.changes remoteEvent:absl::nullopt];
-  [self.remoteStore fillWritePipeline];
+  _remoteStore->FillWritePipeline();
 }
 
 - (void)addMutationCompletionBlock:(FSTVoidErrorBlock)completion batchID:(BatchId)batchID {
@@ -286,7 +287,7 @@ class LimboResolution {
                     completion:(FSTVoidIDErrorBlock)completion {
   workerQueue->VerifyIsCurrentQueue();
   HARD_ASSERT(retries >= 0, "Got negative number of retries for transaction");
-  FSTTransaction *transaction = [self.remoteStore transaction];
+  FSTTransaction *transaction = _remoteStore->CreateTransaction();
   updateBlock(transaction, ^(id _Nullable result, NSError *_Nullable error) {
     workerQueue->Enqueue(
         [self, retries, workerQueue, updateBlock, completion, transaction, result, error] {
@@ -561,7 +562,7 @@ class LimboResolution {
                                              listenSequenceNumber:kIrrelevantSequenceNumber
                                                           purpose:FSTQueryPurposeLimboResolution];
     _limboResolutionsByTarget.emplace(limboTargetID, LimboResolution{key});
-    [self.remoteStore listenToTargetWithQueryData:queryData];
+    _remoteStore->Listen(queryData);
     _limboTargetsByKey[key] = limboTargetID;
   }
 }
@@ -573,7 +574,7 @@ class LimboResolution {
     return;
   }
   TargetId limboTargetID = iter->second;
-  [self.remoteStore stopListeningToTargetID:limboTargetID];
+  _remoteStore->StopListening(limboTargetID);
   _limboTargetsByKey.erase(key);
   _limboResolutionsByTarget.erase(limboTargetID);
 }
@@ -595,7 +596,7 @@ class LimboResolution {
   }
 
   // Notify remote store so it can restart its streams.
-  [self.remoteStore credentialDidChange];
+  _remoteStore->HandleCredentialChange();
 }
 
 - (DocumentKeySet)remoteKeysForTarget:(TargetId)targetId {

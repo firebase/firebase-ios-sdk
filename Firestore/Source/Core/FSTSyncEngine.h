@@ -19,16 +19,15 @@
 #include <vector>
 
 #import "Firestore/Source/Core/FSTTypes.h"
-#import "Firestore/Source/Remote/FSTRemoteStore.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/remote/remote_store.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 
 @class FSTLocalStore;
 @class FSTMutation;
 @class FSTQuery;
-@class FSTRemoteStore;
 @class FSTViewSnapshot;
 
 using firebase::firestore::model::OnlineState;
@@ -65,7 +64,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithLocalStore:(FSTLocalStore *)localStore
-                       remoteStore:(FSTRemoteStore *)remoteStore
+                       remoteStore:(firebase::firestore::remote::RemoteStore *)remoteStore
                        initialUser:(const firebase::firestore::auth::User &)user
     NS_DESIGNATED_INITIALIZER;
 
@@ -76,7 +75,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Initiates a new listen. The FSTLocalStore will be queried for initial data and the listen will
- * be sent to the FSTRemoteStore to get remote data. The registered FSTSyncEngineDelegate will be
+ * be sent to the `RemoteStore` to get remote data. The registered FSTSyncEngineDelegate will be
  * notified of resulting view snapshots and/or listen errors.
  *
  * @return the target ID assigned to the query.
