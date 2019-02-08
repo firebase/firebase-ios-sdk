@@ -25,6 +25,10 @@ void GULLoggerInitialize(void) {
   [GULLogger.logger initializeLogger];
 }
 
+void GULLoggerInitializeASL(void) {
+  GULLoggerInitialize();
+}
+
 void GULLoggerEnableSTDERR(void) {
   [GULLogger.logger printToSTDERR];
 }

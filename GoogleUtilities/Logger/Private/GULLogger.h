@@ -28,8 +28,19 @@ extern "C" {
 
 /**
  * Initialize the default GULLogger.
+ *
+ * @discussion On iOS 9 and earlier. GULLogger will use ASL. For iOS 10 and later, os_log is used.
  */
 extern void GULLoggerInitialize(void);
+
+/**
+ * Initialize GULLogger.
+ *
+ * @discussion This version should no longer be used. ASL is deprecated by Apple to be replaced by
+ *             os_log. Calls to this function are redirected to GULLoggerInitialize to ensure
+ *             functionality on all iOS versions.
+ */
+extern void GULLoggerInitializeASL(void);
 
 /**
  * Override log level to Debug.

@@ -20,5 +20,6 @@
 @end
 
 @implementation FIRLoggerTest
-// TODO(bstpierre):Create FIRLogger tests which do not depend on GULLogger implementation details.
+
+// TODO(bstpierre): Test FIRLogger functionality separate from GULLogger.
 @end
