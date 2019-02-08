@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 import UIKit
-import FirebaseInAppMessaging
 
 class ImageOnlyMessageViewController: CommonMessageTestVC {
   let displayImpl = InAppMessagingDefaultDisplayImpl()

@@ -16,8 +16,6 @@
 
 import Foundation
 
-import FirebaseInAppMessaging
-
 class CommonMessageTestVC: UIViewController, InAppMessagingDisplayDelegate {
   var messageClosedWithClick = false
 

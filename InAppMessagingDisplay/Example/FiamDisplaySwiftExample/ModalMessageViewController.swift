@@ -15,7 +15,6 @@
  */
 
 import UIKit
-import FirebaseInAppMessaging
 
 class ModalMessageViewController: CommonMessageTestVC {
   let displayImpl = InAppMessagingDefaultDisplayImpl()
