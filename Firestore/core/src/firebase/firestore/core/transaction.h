@@ -23,7 +23,7 @@
 #endif  // !defined(__OBJC__)
 
 #include <functional>
-#include <map>
+#include <unordered_map>
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/core/user_data.h"
@@ -33,6 +33,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
+#include "absl/types/optional.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -115,10 +116,12 @@ class Transaction {
 
   void EnsureCommitNotCalled();
 
+  absl::optional<model::SnapshotVersion> GetVersion(const model::DocumentKey& key) const;
+
   remote::Datastore* datastore_ = nullptr;
 
   std::vector<FSTMutation*> mutations_;
-  bool commit_called_ = false;
+  bool committed_ = false;
 
   /**
    * An error that may have occurred as a consequence of a write. If set, needs
@@ -126,7 +129,10 @@ class Transaction {
    */
   util::Status last_write_error_;
 
-  std::map<model::DocumentKey, model::SnapshotVersion> read_versions_;
+  std::unordered_map<model::DocumentKey,
+                     model::SnapshotVersion,
+                     model::DocumentKeyHash>
+      read_versions_;
 };
 
 }  // namespace core

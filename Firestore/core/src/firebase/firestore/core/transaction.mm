@@ -17,20 +17,20 @@
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
 
 #include <algorithm>
+#include <unordered_set>
 #include <utility>
 
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
-#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 using firebase::firestore::FirestoreErrorCode;
 using firebase::firestore::core::ParsedSetData;
 using firebase::firestore::core::ParsedUpdateData;
 using firebase::firestore::model::DocumentKey;
-using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::DocumentKeyHash;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::remote::Datastore;
@@ -47,6 +47,7 @@ Transaction::Transaction(Datastore* datastore)
 
 Status Transaction::RecordVersion(FSTMaybeDocument* doc) {
   SnapshotVersion doc_version;
+
   if ([doc isKindOfClass:[FSTDocument class]]) {
     doc_version = doc.version;
   } else if ([doc isKindOfClass:[FSTDeletedDocument class]]) {
@@ -58,13 +59,16 @@ Status Transaction::RecordVersion(FSTMaybeDocument* doc) {
               NSStringFromClass([doc class]));
   }
 
-  if (read_versions_.find(doc.key) == read_versions_.end()) {
+  absl::optional<SnapshotVersion> existing_version = GetVersion(doc.key);
+  if (existing_version.has_value()) {
+    if (doc_version != existing_version.value()) {
+      return Status{// This transaction will fail no matter what.
+                    FirestoreErrorCode::Aborted,
+                    "Document version changed between two reads."};
+    }
+  } else {
     read_versions_[doc.key] = doc_version;
     return Status::OK();
-  } else {
-    return Status{
-        FirestoreErrorCode::FailedPrecondition,
-        "A document cannot be read twice within a single transaction."};
   }
 }
 
@@ -73,7 +77,7 @@ void Transaction::Lookup(const std::vector<DocumentKey>& keys,
   EnsureCommitNotCalled();
 
   HARD_ASSERT(mutations_.empty(),
-              "All reads in a transaction must be done before any writes.");
+              "Transactions lookups are invalid after writes.");
 
   datastore_->LookupDocuments(
       keys, [this, callback](const std::vector<FSTMaybeDocument*>& documents,
@@ -103,29 +107,29 @@ void Transaction::WriteMutations(std::vector<FSTMutation*>&& mutations) {
 }
 
 Precondition Transaction::CreatePrecondition(const DocumentKey& key) {
-  const auto iter = read_versions_.find(key);
-  if (iter == read_versions_.end()) {
-    return Precondition::None();
+  absl::optional<SnapshotVersion> version = GetVersion(key);
+  if (version.has_value()) {
+    return Precondition::UpdateTime(version.value());
   } else {
-    return Precondition::UpdateTime(iter->second);
+    return Precondition::None();
   }
 }
 
 StatusOr<Precondition> Transaction::CreateUpdatePrecondition(
     const DocumentKey& key) {
-  const auto iter = read_versions_.find(key);
-  if (iter == read_versions_.end()) {
-    // Document was not read, so we just use the preconditions for an update.
-    return Precondition::Exists(true);
-  }
+  absl::optional<SnapshotVersion> version = GetVersion(key);
 
-  const SnapshotVersion& version = iter->second;
-  if (version == SnapshotVersion::None()) {
+  if (version.has_value() && version.value() == SnapshotVersion::None()) {
+    // The document to update doesn't exist, so fail the transaction.
     return Status{FirestoreErrorCode::Aborted,
                   "Can't update a document that doesn't exist."};
-  } else {
+  } else if (version.has_value()) {
     // Document exists, just base precondition on document update time.
-    return Precondition::UpdateTime(version);
+    return Precondition::UpdateTime(version.value());
+  } else {
+    // Document was not read, so we just use the preconditions for a blind
+    // update.
+    return Precondition::Exists(true);
   }
 }
 
@@ -150,15 +154,12 @@ void Transaction::Delete(const DocumentKey& key) {
   WriteMutations({mutation});
 
   // Since the delete will be applied before all following writes, we need to
-  // ensure that the precondition for the next write will be exists without
-  // timestamp.
+  // ensure that the precondition for the next write will be exists: false.
   read_versions_[key] = SnapshotVersion::None();
 }
 
 void Transaction::Commit(CommitCallback&& callback) {
   EnsureCommitNotCalled();
-  // Once `Commit` is called once, mark this object so it can't be used again.
-  commit_called_ = true;
 
   // If there was an error writing, raise that error now
   if (!last_write_error_.ok()) {
@@ -167,13 +168,13 @@ void Transaction::Commit(CommitCallback&& callback) {
   }
 
   // Make a list of read documents that haven't been written.
-  DocumentKeySet unwritten;
+  std::unordered_set<DocumentKey, DocumentKeyHash> unwritten;
   for (const auto& kv : read_versions_) {
-    unwritten = unwritten.insert(kv.first);
+    unwritten.insert(kv.first);
   };
   // For each mutation, note that the doc was written.
   for (FSTMutation* mutation : mutations_) {
-    unwritten = unwritten.erase(mutation.key);
+    unwritten.erase(mutation.key);
   }
 
   if (!unwritten.empty()) {
@@ -184,13 +185,23 @@ void Transaction::Commit(CommitCallback&& callback) {
                "Every document read in a transaction must also be written in "
                "that transaction."});
   } else {
+    committed_ = true;
     datastore_->CommitMutations(mutations_, std::move(callback));
   }
 }
 
 void Transaction::EnsureCommitNotCalled() {
-  HARD_ASSERT(!commit_called_, "A transaction object cannot be used after its "
+  HARD_ASSERT(!committed_, "A transaction object cannot be used after its "
                                "update callback has been invoked.");
+}
+
+absl::optional<SnapshotVersion> Transaction::GetVersion(
+    const DocumentKey& key) const {
+  auto found = read_versions_.find(key);
+  if (found != read_versions_.end()) {
+    return found->second;
+  }
+  return absl::nullopt;
 }
 
 }  // namespace core
