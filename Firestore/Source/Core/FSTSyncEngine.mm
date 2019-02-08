@@ -309,8 +309,6 @@ class LimboResolution {
               return;
             }
 
-            LOG_WARN("OBC retrying transaction, %s: %s", status.code(), status.error_message());
-
             // TODO(b/35201829): Only retry on real transaction failures.
             if (retries == 0) {
               NSError *wrappedError =

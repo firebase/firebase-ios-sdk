@@ -87,6 +87,7 @@ void Transaction::Lookup(const std::vector<DocumentKey>& keys,
           Status record_error = RecordVersion(doc);
           if (!record_error.ok()) {
             callback({}, record_error);
+            return;
           }
         }
 
