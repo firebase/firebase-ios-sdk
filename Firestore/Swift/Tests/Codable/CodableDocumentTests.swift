@@ -188,7 +188,7 @@ class CodableDocumentTests: XCTestCase {
     assertRoundTrip(model: model, encoded: ["date": date])
   }
 
-// Uncomment if we decide to reenable embedded DocumentReference's
+  // Uncomment if we decide to reenable embedded DocumentReference's
 //
 //  func testDocumentReference() {
 //    struct Model: Codable, Equatable {
