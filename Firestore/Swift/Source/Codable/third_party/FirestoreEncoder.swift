@@ -16,29 +16,24 @@
 import Foundation
 import FirebaseFirestore
 
-internal func encodeOrDie<T: Encodable>(_ value: T) -> [String: Any] {
-  do {
-    return try Firestore.encode(value)
-  } catch let error {
-    fatalError("Unable to encode data with Firestore encoder: \(error)")
-  }
-}
-
 extension Firestore {
-  public static func encode<T: Encodable>(_ value: T) throws -> [String: Any] {
-    guard let topLevel = try _FirestoreEncoder().box_(value) else {
-      throw EncodingError.invalidValue(value,
-                                       EncodingError.Context(codingPath: [],
-                                                             debugDescription: "Top-level \(T.self) did not encode any values."))
-    }
+  public struct Encoder {
+    public init() {}
+    public func encode<T: Encodable>(_ value: T) throws -> [String: Any] {
+      guard let topLevel = try _FirestoreEncoder().box_(value) else {
+        throw EncodingError.invalidValue(value,
+                                         EncodingError.Context(codingPath: [],
+                                                               debugDescription: "Top-level \(T.self) did not encode any values."))
+      }
 
-    // This is O(n) check. Consider refactoring box_ to return [String: Any].
-    guard let dict = topLevel as? [String: Any] else {
-      throw EncodingError.invalidValue(value,
-                                       EncodingError.Context(codingPath: [],
-                                                             debugDescription: "Top-level \(T.self) encoded not as dictionary."))
+      // This is O(n) check. Consider refactoring box_ to return [String: Any].
+      guard let dict = topLevel as? [String: Any] else {
+        throw EncodingError.invalidValue(value,
+                                         EncodingError.Context(codingPath: [],
+                                                               debugDescription: "Top-level \(T.self) encoded not as dictionary."))
+      }
+      return dict
     }
-    return dict
   }
 }
 
