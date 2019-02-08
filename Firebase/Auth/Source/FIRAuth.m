@@ -582,14 +582,14 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                            callback:completion];
 }
 
-/** @fn signInWithGameCenterCredential:callback:
+/** @fn signInAndRetrieveDataWithGameCenterCredential:callback:
     @brief Signs in using a game center credential.
     @param credential The Game Center Auth Credential used to sign in.
     @param callback A block which is invoked when the sign in finished (or is cancelled). Invoked
         asynchronously on the global auth work queue in the future.
  */
-- (void)signInWithGameCenterCredential:(FIRGameCenterAuthCredential *)credential
-                              callback:(FIRAuthResultCallback)callback {
+- (void)signInAndRetrieveDataWithGameCenterCredential:(FIRGameCenterAuthCredential *)credential
+                                             callback:(FIRAuthDataResultCallback)callback {
   FIRSignInWithGameCenterRequest *request =
     [[FIRSignInWithGameCenterRequest alloc] initWithPlayerID:credential.playerID
                                                 publicKeyURL:credential.publicKeyURL
@@ -601,19 +601,31 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   [FIRAuthBackend signInWithGameCenter:request
                               callback:^(FIRSignInWithGameCenterResponse *_Nullable response,
                                          NSError *_Nullable error) {
-                                if (error) {
-                                  if (callback) {
-                                    callback(nil, error);
-                                  }
-                                  return;
-                                }
+    if (error) {
+      if (callback) {
+        callback(nil, error);
+      }
+      return;
+    }
 
-                                [self completeSignInWithAccessToken:response.IDToken
-                                          accessTokenExpirationDate:response.approximateExpirationDate
-                                                       refreshToken:response.refreshToken
-                                                          anonymous:NO
-                                                           callback:callback];
-                              }];
+    [self completeSignInWithAccessToken:response.IDToken
+              accessTokenExpirationDate:response.approximateExpirationDate
+                           refreshToken:response.refreshToken
+                              anonymous:NO
+                               callback:^(FIRUser *_Nullable user, NSError *_Nullable error) {
+      FIRAdditionalUserInfo *additionalUserInfo =
+      [[FIRAdditionalUserInfo alloc] initWithProviderID:FIRGameCenterAuthProviderID
+                                                profile:nil
+                                               username:nil
+                                              isNewUser:response.isNewUser];
+      FIRAuthDataResult *result = user ?
+      [[FIRAuthDataResult alloc] initWithUser:user
+                           additionalUserInfo:additionalUserInfo] : nil;
+      if (callback) {
+        callback(result, error);
+      }
+    }];
+  }];
 }
 
 /** @fn internalSignInAndRetrieveDataWithEmail:link:completion:
@@ -749,16 +761,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 
   if ([credential isKindOfClass:[FIRGameCenterAuthCredential class]]) {
     // Special case for Game Center credentials.
-    [self signInWithGameCenterCredential:(FIRGameCenterAuthCredential *)credential
-                                callback:^(FIRUser *_Nullable user, NSError *_Nullable error) {
-      if (callback) {
-        FIRAuthDataResult *result;
-        if (user) {
-          result = [[FIRAuthDataResult alloc] initWithUser:user additionalUserInfo:nil];
-        }
-        callback(result, error);
-      }
-    }];
+    [self signInAndRetrieveDataWithGameCenterCredential:(FIRGameCenterAuthCredential *)credential
+                                               callback:callback];
     return;
   }
 
