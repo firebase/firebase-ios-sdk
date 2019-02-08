@@ -110,9 +110,9 @@ class WriteStreamSerializer {
 
   GCFSWriteRequest* CreateHandshake() const;
   GCFSWriteRequest* CreateWriteMutationsRequest(
-      NSArray<FSTMutation*>* mutations) const;
+      const std::vector<FSTMutation*>& mutations) const;
   GCFSWriteRequest* CreateEmptyMutationsList() {
-    return CreateWriteMutationsRequest(@[]);
+    return CreateWriteMutationsRequest({});
   }
   static grpc::ByteBuffer ToByteBuffer(GCFSWriteRequest* request);
 
@@ -146,7 +146,7 @@ class DatastoreSerializer {
   explicit DatastoreSerializer(const core::DatabaseInfo& database_info);
 
   GCFSCommitRequest* CreateCommitRequest(
-      NSArray<FSTMutation*>* mutations) const;
+      const std::vector<FSTMutation*>& mutations) const;
   static grpc::ByteBuffer ToByteBuffer(GCFSCommitRequest* request);
 
   GCFSBatchGetDocumentsRequest* CreateLookupRequest(

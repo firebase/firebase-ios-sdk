@@ -18,15 +18,9 @@
 
 #include <vector>
 
-#import "Firestore/Source/Core/FSTTypes.h"
-
 #include "Firestore/core/src/firebase/firestore/core/user_data.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
-
-@class FSTMaybeDocument;
-@class FSTObjectValue;
-@class FSTParsedUpdateData;
 
 NS_ASSUME_NONNULL_BEGIN
 

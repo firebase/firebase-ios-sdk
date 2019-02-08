@@ -22,6 +22,7 @@
 #include <memory>
 #include <unordered_map>
 #include <utility>
+#include <vector>
 
 #import "Firestore/Source/Core/FSTEventManager.h"
 #import "Firestore/Source/Core/FSTQuery.h"
@@ -227,9 +228,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)validateNextWriteSent:(FSTMutation *)expectedWrite {
-  NSArray<FSTMutation *> *request = _datastore->NextSentWrite();
+  std::vector<FSTMutation *> request = _datastore->NextSentWrite();
   // Make sure the write went through the pipe like we expected it to.
-  HARD_ASSERT(request.count == 1, "Only single mutation requests are supported at the moment");
+  HARD_ASSERT(request.size() == 1, "Only single mutation requests are supported at the moment");
   FSTMutation *actualWrite = request[0];
   HARD_ASSERT([actualWrite isEqual:expectedWrite],
               "Mock datastore received write %s but first outstanding mutation was %s", actualWrite,
@@ -356,7 +357,7 @@ NS_ASSUME_NONNULL_BEGIN
   [[self currentOutstandingWrites] addObject:write];
   LOG_DEBUG("sending a user write.");
   _workerQueue->EnqueueBlocking([=] {
-    [self.syncEngine writeMutations:@[ mutation ]
+    [self.syncEngine writeMutations:{mutation}
                          completion:^(NSError *_Nullable error) {
                            LOG_DEBUG("A callback was called with error: %s", error);
                            write.done = YES;

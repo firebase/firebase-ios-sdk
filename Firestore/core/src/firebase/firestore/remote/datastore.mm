@@ -164,7 +164,7 @@ std::shared_ptr<WriteStream> Datastore::CreateWriteStream(
                                        &grpc_connection_, callback);
 }
 
-void Datastore::CommitMutations(NSArray<FSTMutation*>* mutations,
+void Datastore::CommitMutations(const std::vector<FSTMutation*>& mutations,
                                 FSTVoidErrorBlock completion) {
   ResumeRpcWithCredentials(
       [this, mutations, completion](const StatusOr<Token>& maybe_credentials) {
@@ -177,9 +177,10 @@ void Datastore::CommitMutations(NSArray<FSTMutation*>* mutations,
       });
 }
 
-void Datastore::CommitMutationsWithCredentials(const Token& token,
-                                               NSArray<FSTMutation*>* mutations,
-                                               FSTVoidErrorBlock completion) {
+void Datastore::CommitMutationsWithCredentials(
+    const Token& token,
+    const std::vector<FSTMutation*>& mutations,
+    FSTVoidErrorBlock completion) {
   grpc::ByteBuffer message = serializer_bridge_.ToByteBuffer(
       serializer_bridge_.CreateCommitRequest(mutations));
 

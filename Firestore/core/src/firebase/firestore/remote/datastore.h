@@ -92,7 +92,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
   virtual std::shared_ptr<WriteStream> CreateWriteStream(
       WriteStreamCallback* callback);
 
-  void CommitMutations(NSArray<FSTMutation*>* mutations,
+  void CommitMutations(const std::vector<FSTMutation*>& mutations,
                        FSTVoidErrorBlock completion);
   void LookupDocuments(const std::vector<model::DocumentKey>& keys,
                        FSTVoidMaybeDocumentArrayErrorBlock completion);
@@ -155,9 +155,10 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
  private:
   void PollGrpcQueue();
 
-  void CommitMutationsWithCredentials(const auth::Token& token,
-                                      NSArray<FSTMutation*>* mutations,
-                                      FSTVoidErrorBlock completion);
+  void CommitMutationsWithCredentials(
+      const auth::Token& token,
+      const std::vector<FSTMutation*>& mutations,
+      FSTVoidErrorBlock completion);
   void OnCommitMutationsResponse(const util::StatusOr<grpc::ByteBuffer>& result,
                                  FSTVoidErrorBlock completion);
 

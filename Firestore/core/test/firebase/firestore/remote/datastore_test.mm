@@ -174,7 +174,7 @@ TEST_F(DatastoreTest, WhitelistedHeaders) {
 TEST_F(DatastoreTest, CommitMutationsSuccess) {
   __block bool done = false;
   __block NSError* resulting_error = nullptr;
-  datastore->CommitMutations(@[], ^(NSError* _Nullable error) {
+  datastore->CommitMutations({}, ^(NSError* _Nullable error) {
     done = true;
     resulting_error = error;
   });
@@ -246,7 +246,7 @@ TEST_F(DatastoreTest, LookupDocumentsTwoSuccessfulReads) {
 TEST_F(DatastoreTest, CommitMutationsError) {
   __block bool done = false;
   __block NSError* resulting_error = nullptr;
-  datastore->CommitMutations(@[], ^(NSError* _Nullable error) {
+  datastore->CommitMutations({}, ^(NSError* _Nullable error) {
     done = true;
     resulting_error = error;
   });
@@ -307,7 +307,7 @@ TEST_F(DatastoreTest, CommitMutationsAuthFailure) {
   credentials.FailGetToken();
 
   __block NSError* resulting_error = nullptr;
-  datastore->CommitMutations(@[], ^(NSError* _Nullable error) {
+  datastore->CommitMutations({}, ^(NSError* _Nullable error) {
     resulting_error = error;
   });
   worker_queue.EnqueueBlocking([] {});
@@ -330,7 +330,7 @@ TEST_F(DatastoreTest, AuthAfterDatastoreHasBeenShutDown) {
   credentials.DelayGetToken();
 
   worker_queue.EnqueueBlocking([&] {
-    datastore->CommitMutations(@[], ^(NSError* _Nullable error) {
+    datastore->CommitMutations({}, ^(NSError* _Nullable error) {
       FAIL() << "Callback shouldn't be invoked";
     });
   });
@@ -343,7 +343,7 @@ TEST_F(DatastoreTest, AuthOutlivesDatastore) {
   credentials.DelayGetToken();
 
   worker_queue.EnqueueBlocking([&] {
-    datastore->CommitMutations(@[], ^(NSError* _Nullable error) {
+    datastore->CommitMutations({}, ^(NSError* _Nullable error) {
       FAIL() << "Callback shouldn't be invoked";
     });
   });

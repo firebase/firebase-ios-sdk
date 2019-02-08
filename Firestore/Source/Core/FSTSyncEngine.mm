@@ -247,11 +247,11 @@ class LimboResolution {
   [self removeAndCleanupQuery:queryView];
 }
 
-- (void)writeMutations:(NSArray<FSTMutation *> *)mutations
+- (void)writeMutations:(std::vector<FSTMutation *> &&)mutations
             completion:(FSTVoidErrorBlock)completion {
   [self assertDelegateExistsForSelector:_cmd];
 
-  FSTLocalWriteResult *result = [self.localStore locallyWriteMutations:mutations];
+  FSTLocalWriteResult *result = [self.localStore locallyWriteMutations:std::move(mutations)];
   [self addMutationCompletionBlock:completion batchID:result.batchID];
 
   [self emitNewSnapshotsAndNotifyLocalStoreWithChanges:result.changes remoteEvent:absl::nullopt];
