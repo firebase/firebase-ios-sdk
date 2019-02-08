@@ -92,18 +92,21 @@ struct FrameworkBuilder {
   ///               be used.
   ///   - cacheEnabled: Flag for enabling the cache. Defaults to false.
   /// - Returns: A URL to the framework that was built (or pulled from the cache).
-  public func buildFramework(withName framework: String, version: String, cacheKey: String?, cacheEnabled: Bool = false) -> URL {
-    print("Building \(framework)")
+  public func buildFramework(withName podName: String,
+                             version: String,
+                             cacheKey: String?,
+                             cacheEnabled: Bool = false) -> URL {
+    print("Building \(podName)")
 
     // Get the CocoaPods cache to see if we can pull from any frameworks already built.
     let podsCache = CocoaPodUtils.listPodCache(inDir: projectDir)
 
-    guard let cachedVersions = podsCache[framework] else {
-      fatalError("Cannot find a pod cache for framework \(framework).")
+    guard let cachedVersions = podsCache[podName] else {
+      fatalError("Cannot find a pod cache for framework \(podName).")
     }
 
     guard let podInfo = cachedVersions[version] else {
-      fatalError("Cannot find a pod cache for framework \(framework) at version \(version).")
+      fatalError("Cannot find a pod cache for framework \(podName) at version \(version).")
     }
 
     // TODO: Figure out if we need the MD5 at all.
@@ -114,7 +117,7 @@ struct FrameworkBuilder {
     var cachedFrameworkRoot: URL
     do {
       let cacheDir = try fileManager.firebaseCacheDirectory()
-      cachedFrameworkRoot = cacheDir.appendingPathComponents([framework, version, md5])
+      cachedFrameworkRoot = cacheDir.appendingPathComponents([podName, version, md5])
       if let cacheKey = cacheKey {
         cachedFrameworkRoot.appendPathComponent(cacheKey)
       }
@@ -123,14 +126,14 @@ struct FrameworkBuilder {
     }
 
     // Build the full cached framework path.
-    let cachedFrameworkDir = cachedFrameworkRoot.appendingPathComponent("\(framework).framework")
+    let cachedFrameworkDir = cachedFrameworkRoot.appendingPathComponent("\(podName).framework")
     let cachedFrameworkExists = fileManager.directoryExists(at: cachedFrameworkDir)
     if cachedFrameworkExists && cacheEnabled {
-      print("Framework \(framework) version \(version) has already been built and cached at " +
+      print("Framework \(podName) version \(version) has already been built and cached at " +
             "\(cachedFrameworkDir)")
       return cachedFrameworkDir
     } else {
-      let frameworkDir = compileFramework(withName: framework)
+      let frameworkDir = compileFramework(withName: podName)
       do {
         // Remove the previously cached framework, if it exists, otherwise the `moveItem` call will
         // fail.
@@ -163,6 +166,10 @@ struct FrameworkBuilder {
     task.arguments = args
     task.launch()
     task.waitUntilExit()
+//
+//    var pipe = Pipe()
+//    task.standardOutput = pipe
+//    let handle = pipe.fileHandleForReading
 
     // Normally we'd use a pipe to retrieve the output, but for whatever reason it slows things down
     // tremendously for xcodebuild.
@@ -300,8 +307,8 @@ struct FrameworkBuilder {
   }
 
 
-  /// Compiles the framework passed in in a temporary directory and writes the build logs to file.
-  /// This will compile all architectures and use the lipo command to create a "fat archive".
+  /// Compiles the specified framework in a temporary directory and writes the build logs to file.
+  /// This will compile all architectures and use the lipo command to create a "fat" archive.
   ///
   /// - Parameter framework: The name of the framework to be built.
   /// - Returns: A path to the newly compiled framework.
@@ -351,7 +358,7 @@ struct FrameworkBuilder {
 
     // Build the fat archive using the `lipo` command. We need the full archive path and the list of
     // thin paths (as Strings, not URLs).
-    let thinPaths = thinArchives.map({ $0.path })
+    let thinPaths = thinArchives.map { $0.path }
     let fatArchive = frameworkDir.appendingPathComponent(framework)
     let result = syncExec(command:"/usr/bin/lipo", args:["-create", "-output", fatArchive.path] + thinPaths)
     switch result {
@@ -367,20 +374,20 @@ struct FrameworkBuilder {
     // Remove the temporary thin archives.
     for thinArchive in thinArchives {
       do {
-        try FileManager.default.removeItem(at: thinArchive)
+        try fileManager.removeItem(at: thinArchive)
       } catch {
         // Just log a warning instead of failing, since this doesn't actually affect the build
         // itself. This should only be shown to help users clean up their disk afterwards.
         print("""
-          WARNING: Failed to remove temporary thin archive at \(thinArchive). This should be
+          WARNING: Failed to remove temporary thin archive at \(thinArchive.path). This should be
           removed from your system to save disk space. \(error). You should be able to remove the
           archive from Terminal with:
-          rm \(thinArchive)
+          rm \(thinArchive.path)
           """)
       }
     }
 
-    // Verify Firebase headers include an explicit umbrella header for Firebase.h
+    // Verify Firebase headers include an explicit umbrella header for Firebase.h.
     let headersDir = podsDir.appendingPathComponents(["Headers", "Public", framework])
     if framework.hasPrefix("Firebase") {
       let frameworkHeader = headersDir.appendingPathComponent("\(framework).h")
@@ -389,19 +396,22 @@ struct FrameworkBuilder {
       }
     }
 
-    // Copy the public headers into the new framework.
+    // Copy the Headers over. Pass in the prefix to remove in order to generate the relative paths
+    // for some frameworks that have nested folders in their public headers.
+    let headersDestination = frameworkDir.appendingPathComponent("Headers")
     do {
-      try fileManager.copyItem(at: headersDir, to: frameworkDir.appendingPathComponent("Headers"))
+      try recursivelyCopyHeaders(from: headersDir, to: headersDestination)
     } catch {
       fatalError("Could not copy headers from \(headersDir) to Headers directory in " +
-        "\(frameworkDir): \(error)")
-    }
+                 "\(headersDestination): \(error)")
+  }
 
     // Move all the .bundle directories in the contentsDir to the Resources directory.
-    let contentsDir = thinArchives[0].deletingLastPathComponent()
+    // Move all the resources into .bundle directories in the destination Resources dir.
+    let contentsDir = podsDir.appendingPathComponent(framework)
     let resourceDir = frameworkDir.appendingPathComponent("Resources")
     do {
-      try ResourcesManager.moveAllBundles(inDirectory: contentsDir, to: resourceDir)
+      try ResourcesManager.createBundleFromResources(inDirectory: contentsDir, to: resourceDir)
     } catch {
       fatalError("Could not move bundles into Resources directory while building \(framework): " +
                  "\(error)")
@@ -409,5 +419,55 @@ struct FrameworkBuilder {
 
     makeModuleMap(baseDir: outputDir, framework: framework, dir: frameworkDir)
     return frameworkDir
+  }
+
+  /// Recrusively copies headers from the given directory to the destination directory. This does a
+  /// deep copy and resolves and symlinks (which CocoaPods uses in the Public headers folder).
+  /// Throws FileManager errors if something goes wrong during the operations.
+  /// Note: This is only needed now because the `cp` command has a flag that did this for us, but
+  /// FileManager does not.
+  private func recursivelyCopyHeaders(from headersDir: URL,
+                                      to destinationDir: URL,
+                                      fileManager: FileManager = FileManager.default) throws {
+    // Copy the public headers into the new framework. Unfortunately we can't just copy the
+    // `Headers` directory since it uses aliases, so we'll recursively search the public Headers
+    // directory from CocoaPods and resolve all the aliases manually.
+    let fileManager = FileManager.default
+
+    // Create the Headers directory if it doesn't exist.
+    try fileManager.createDirectory(at: destinationDir,
+                                    withIntermediateDirectories: true,
+                                    attributes: nil)
+
+    // Get all the header aliases from the CocoaPods directory and get their real path as well as
+    // their relative path to the Headers directory they are in. This is needed to preserve proper
+    // imports for nested folders.
+    let aliasedHeaders = try fileManager.recursivelySearch(for: .headers, in: headersDir)
+    let mappedHeaders: [(relativePath: String, resolvedLocation: URL)] = aliasedHeaders.map {
+      // Standardize the URL because the aliasedHeaders could be at `/private/var` or `/var` which
+      // are symlinked to each other on macOS. This will let us remove the `headersDir` prefix and
+      // be left with just the relative path we need.
+      let standardized = $0.standardizedFileURL
+      let relativePath = standardized.path.replacingOccurrences(of: "\(headersDir.path)/", with: "")
+      let resolvedLocation = standardized.resolvingSymlinksInPath()
+      return (relativePath, resolvedLocation)
+    }
+
+    // Copy all the headers into the Headers directory created above.
+    for (relativePath, location) in mappedHeaders {
+      // Append the proper filename to our Headers directory, then try copying it over.
+      let finalPath = destinationDir.appendingPathComponent(relativePath)
+
+      // Create the destination folder if it doesn't exist.
+      let parentDir = finalPath.deletingLastPathComponent()
+      if !fileManager.directoryExists(at: parentDir) {
+        try fileManager.createDirectory(at: parentDir,
+                                        withIntermediateDirectories: true,
+                                        attributes: nil)
+      }
+
+      print("Attempting to copy \(location) to \(finalPath)")
+      try fileManager.copyItem(at: location, to: finalPath)
+    }
   }
 }

@@ -33,6 +33,8 @@ public enum Subspec: String {
   case invites = "Invites"
   case messaging = "Messaging"
   case mlModelInterpreter = "MLModelInterpreter"
+  case mlNaturalLanguage = "MLNaturalLanguage"
+  case mlNLLanguageID = "MLNLLanguageID"
   case mlVision = "MLVision"
   case mlVisionBarcodeModel = "MLVisionBarcodeModel"
   case mlVisionFaceModel = "MLVisionFaceModel"
@@ -62,6 +64,8 @@ public enum Subspec: String {
       .invites,
       .messaging,
       .mlModelInterpreter,
+      .mlNaturalLanguage,
+      .mlNLLanguageID,
       .mlVision,
       .mlVisionBarcodeModel,
       .mlVisionFaceModel,
@@ -71,6 +75,16 @@ public enum Subspec: String {
       .remoteConfig,
       .storage
     ]
+  }
+
+  /// The minimum supported iOS version.
+  public func minSupportedIOSVersion() -> OperatingSystemVersion {
+    // All ML pods have a minimum iOS version of 9.0.
+    if rawValue.hasPrefix("ML") {
+      return OperatingSystemVersion(majorVersion: 9, minorVersion: 0, patchVersion: 0)
+    } else {
+      return OperatingSystemVersion(majorVersion: 8, minorVersion: 0, patchVersion: 0)
+    }
   }
 
   /// Describes the dependency on other frameworks for the README file.
@@ -83,13 +97,54 @@ public enum Subspec: String {
     return header
   }
 
-  /// The minimum supported iOS version.
-  public func minSupportedIOSVersion() -> OperatingSystemVersion {
-    // All ML pods have a minimum iOS version of 9.0.
-    if rawValue.hasPrefix("ML") {
-      return OperatingSystemVersion(majorVersion: 9, minorVersion: 0, patchVersion: 0)
-    } else {
-      return OperatingSystemVersion(majorVersion: 8, minorVersion: 0, patchVersion: 0)
+  // TODO: Evaluate if there's a way to do this that doesn't require the hardcoded values to be
+  //   maintained.
+  /// Returns folders to remove from the Zip file from a specific subspec for de-duplication. This
+  /// is necessary for the MLKit frameworks because of their unique structure, an unnecessary amount
+  /// of frameworks get pulled in.
+  public func duplicateFoldersToRemove() -> [String] {
+    switch self {
+    case .mlVision:
+      return ["BarcodeDetector.framework",
+              "FaceDetector.framework",
+              "LabelDetector.framework",
+              "TextDetector.framework",
+              "Resources"]
+    case .mlVisionBarcodeModel:
+      return ["FaceDetector.framework",
+              "GTMSessionFetcher.framework",
+              "GoogleMobileVision.framework",
+              "LabelDetector.framework",
+              "Protobuf.framework",
+              "TextDetector.framework",
+              "Resources"]
+    case .mlVisionFaceModel:
+      return ["BarcodeDetector.framework",
+              "GTMSessionFetcher.framework",
+              "GoogleMobileVision.framework",
+              "LabelDetector.framework",
+              "Protobuf.framework",
+              "TextDetector.framework",
+              "Resources/GoogleMVTextDetectorResources.bundle"]
+    case .mlVisionLabelModel:
+      return ["BarcodeDetector.framework",
+              "FaceDetector.framework",
+              "GTMSessionFetcher.framework",
+              "GoogleMobileVision.framework",
+              "Protobuf.framework",
+              "TextDetector.framework",
+              "Resources"]
+    case .mlVisionTextModel:
+      return ["BarcodeDetector.framework",
+              "FaceDetector.framework",
+              "GTMSessionFetcher.framework",
+              "GoogleMobileVision.framework",
+              "LabelDetector.framework",
+              "Protobuf.framework",
+              "Resources/GoogleMVFaceDetectorResources.bundle"]
+    default:
+      // By default, no folders need to be removed.
+      return []
     }
   }
 }

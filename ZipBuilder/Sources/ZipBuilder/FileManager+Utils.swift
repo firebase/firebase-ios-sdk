@@ -22,17 +22,20 @@ public extension FileManager {
 
   /// Describes a type of file to be searched for.
   public enum SearchFileType {
-    /// All files with the `.storyboard` extension.
-    case storyboards
-
     /// All folders with a `.bundle` extension.
     case bundles
+
+    /// A directory with an optional name. If name is `nil`, all directories will be matched.
+    case directories(name: String?)
 
     /// All folders with a `.framework` extension.
     case frameworks
 
-    /// A directory with an optional name. If name is `nil`, all directories will be matched.
-    case directories(name: String?)
+    /// All headers with a `.h` extension.
+    case headers
+
+    /// All files with the `.storyboard` extension.
+    case storyboards
   }
 
   // MARK: - Error Declarations
@@ -149,6 +152,10 @@ public extension FileManager {
       case .bundles:
         // The only thing of interest is the path extension being ".bundle".
         if fileURL.pathExtension == "bundle" {
+          matches.append(fileURL)
+        }
+      case .headers:
+        if fileURL.pathExtension == "h" {
           matches.append(fileURL)
         }
       case .storyboards:

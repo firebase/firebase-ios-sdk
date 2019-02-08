@@ -167,13 +167,18 @@ struct ZipBuilder {
       fatalError("Could not get contents of the README template: \(error)")
     }
 
+
+    // Break the `subspecsToInstall` into a variable since it's helpful when debugging non-cache
+    // builds to just install a subset: `[.core, .analytics, .storage, .firestore]` for example.
+    let subspecsToInstall = Subspec.allCases()
+
     // We need to install all the subpsecs in order to get every single framework that we'll need
     // for the zip file. We can't install each one individually since some pods depend on different
     // subspecs from the same pod (ex: GoogleUtilities, GoogleToolboxForMac, etc). All of the code
     // wouldn't be included so we need to install all of the subspecs to catch the superset of all
     // required frameworks, then use that as the source of frameworks to pull from when including
     // the folders in each product directory.
-    CocoaPodUtils.installSubspecs(Subspec.allCases(), inDir: projectDir)
+    CocoaPodUtils.installSubspecs(subspecsToInstall, inDir: projectDir)
 
     // If any expected versions were passed in, we should verify that those were actually installed
     // and get the list of actual versions we'll be using to build the Zip file. This method will
@@ -205,7 +210,7 @@ struct ZipBuilder {
     // 5. Return the URL of the folder containing the contents of the Zip file.
 
     // Create the directory that will hold all the contents of the Zip file.
-    let zipDir = FileManager.default.temporaryDirectory(withName: "ZipContents")
+    let zipDir = FileManager.default.temporaryDirectory(withName: "Firebase")
     do {
       if FileManager.default.directoryExists(at: zipDir) {
         try FileManager.default.removeItem(at: zipDir)
@@ -258,14 +263,16 @@ struct ZipBuilder {
 
     // Loop through all the other subspecs that aren't Core and Analytics and write them to their
     // final destination.
-    let remainingSubspecs = Subspec.allCases().filter { $0 != .analytics && $0 != .core }
+    let remainingSubspecs = subspecsToInstall.filter { $0 != .analytics && $0 != .core }
     for spec in remainingSubspecs {
       do {
-        let (specDir, podFrameworks) = try installAndCopyFrameworks(forSubspec: spec,
-                                                                    projectDir: projectDir,
-                                                                    rootZipDir: zipDir,
-                                                                    builtFrameworks: frameworks,
-                                                                    ignoreFrameworks: analyticsFrameworks)
+        let (specDir, podFrameworks) =
+            try installAndCopyFrameworks(forSubspec: spec,
+                                         projectDir: projectDir,
+                                         rootZipDir: zipDir,
+                                         builtFrameworks: frameworks,
+                                         podsToIgnore: analyticsFrameworks,
+                                         foldersToIgnore: spec.duplicateFoldersToRemove())
 
         readmeDeps += dependencyString(for: spec, in: specDir, frameworks: podFrameworks)
       } catch {
@@ -301,12 +308,14 @@ struct ZipBuilder {
   ///   - dir: Destination directory for all the frameworks.
   ///   - frameworkLocations: A dictionary containing the pod name as the key and a location to
   ///                         the compiled frameworks.
+  ///   - ignoreFrameworks: A list of Pod
   /// - Throws: Various FileManager errors in case the copying fails, or an error if the framework
   //            doesn't exist in `frameworkLocations`.
   private func copyFrameworks(fromPods installedPods: [CocoaPodUtils.PodInfo],
                               toDirectory dir: URL,
                               frameworkLocations: [String: [URL]],
-                              ignoreFrameworks: [String]) throws {
+                              podsToIgnore: [String],
+                              foldersToIgnore: [String]) throws {
     let fileManager = FileManager.default
     if !fileManager.directoryExists(at: dir) {
       try fileManager.createDirectory(at: dir,withIntermediateDirectories: false, attributes: nil)
@@ -318,7 +327,7 @@ struct ZipBuilder {
       // Skip the Firebase pod, any Interop pods, and specifically ignored frameworks.
       guard pod.name != "Firebase",
         !pod.name.contains("Interop"),
-        !ignoreFrameworks.contains(pod.name) else {
+        !podsToIgnore.contains(pod.name) else {
           continue
       }
 
@@ -331,8 +340,14 @@ struct ZipBuilder {
         throw error
       }
 
+      // Copy each of the frameworks over, unless it's explicitly ignored.
       for framework in frameworks {
-        let destination = dir.appendingPathComponent(framework.lastPathComponent)
+        let frameworkName = framework.lastPathComponent
+        if foldersToIgnore.contains(frameworkName) {
+          continue
+        }
+
+        let destination = dir.appendingPathComponent(frameworkName)
         try fileManager.copyItem(at: framework, to: destination)
       }
     }
@@ -345,7 +360,7 @@ struct ZipBuilder {
   /// - Parameters:
   ///   - subspec: The subspec that requires documentation.
   ///   - dir: The directory where everything lives. Used to check if the spec has resources.
-  ///   - frameworks: All the frameworks required by the subspec -
+  ///   - frameworks: All the frameworks required by the subspec.
   /// - Returns: A string with a header for the subspec name, and a list of frameworks required to
   ///            integrate for the product to work. Formatted and ready for insertion into the
   ///            README.
@@ -421,29 +436,34 @@ struct ZipBuilder {
   ///   - rootZipDir: The root directory to be turned into the Zip file.
   ///   - builtFrameworks: All frameworks that have been built, with the framework name as the key
   ///                      and the framework's location as the value.
-  ///   - ignoreFrameworks: Frameworks to avoid copying, if any.
+  ///   - podsToIgnore: Pods to avoid copying, if any.
+  ///   - foldersToIgnore: Specific folders to avoid copying, if any.
   /// - Throws: Throws various errors from copying frameworks.
   /// - Returns: The directory containing all the frameworks and the names of the frameworks that
   ///            were copied for this subspec.
   @discardableResult
-  func installAndCopyFrameworks(forSubspec subspec: Subspec,
-                                projectDir: URL,
-                                rootZipDir: URL,
-                                builtFrameworks: [String: [URL]],
-                                ignoreFrameworks: [String] = []) throws -> (output: URL, frameworks: [String]) {
+  func installAndCopyFrameworks(
+    forSubspec subspec: Subspec,
+    projectDir: URL,
+    rootZipDir: URL,
+    builtFrameworks: [String: [URL]],
+    podsToIgnore: [String] = [],
+    foldersToIgnore: [String] = []
+  ) throws -> (output: URL, frameworks: [String]) {
     let installedPods = CocoaPodUtils.installSubspecs([subspec], inDir: projectDir)
     let productDir = rootZipDir.appendingPathComponent(subspec.rawValue)
     try copyFrameworks(fromPods: installedPods,
                        toDirectory: productDir,
                        frameworkLocations: builtFrameworks,
-                       ignoreFrameworks: ignoreFrameworks)
+                       podsToIgnore: podsToIgnore,
+                       foldersToIgnore: foldersToIgnore)
 
     // Return the names of all the installed frameworks.
     let namedFrameworks = installedPods.map { $0.name }
     let copiedFrameworks = namedFrameworks.filter {
-      // Only return the frameworks that aren't contained in the "ignoreFrameworks" array and aren't
+      // Only return the frameworks that aren't contained in the "podsToIgnore" array and aren't
       // an interop framework (since they don't compile to frameworks).
-      return !(ignoreFrameworks.contains($0) || $0.hasSuffix("Interop"))
+      return !(podsToIgnore.contains($0) || $0.hasSuffix("Interop"))
     }
 
     return (productDir, copiedFrameworks)

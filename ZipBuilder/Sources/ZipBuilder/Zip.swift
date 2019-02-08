@@ -33,6 +33,11 @@ struct Zip {
     let parentDir = directory.deletingLastPathComponent()
     let zip = parentDir.appendingPathComponent("Firebase.zip")
 
+    // If it exists already, try to remove it.
+    if FileManager.default.fileExists(atPath: zip.path) {
+      try? FileManager.default.removeItem(at: zip)
+    }
+
     // Run the `zip` command. This could be replaced with a proper Zip library in the future.
     let command = "zip -q -r -dg \(zip.lastPathComponent) \(directory.lastPathComponent)"
     let result = Shell.executeCommandFromScript(command, workingDir: parentDir)

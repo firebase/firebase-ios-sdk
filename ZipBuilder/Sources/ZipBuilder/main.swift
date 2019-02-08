@@ -65,7 +65,7 @@ do {
       fatalError("Could not copy Zip file to output directory: \(error)")
     }
   } else {
-    print("Success! Zip file can be found at \(zipped)")
+    print("Success! Zip file can be found at \(zipped.path)")
   }
 
   // Get the time since the start of the build to get the full time.
