@@ -21,19 +21,6 @@
 			name = AllUnitTests_macOS;
 			productName = AllTests;
 		};
-		DE26D2971F70668F004AE1D3 /* Auth_AllTests */ = {
-			isa = PBXAggregateTarget;
-			buildConfigurationList = DE26D2981F70668F004AE1D3 /* Build configuration list for PBXAggregateTarget "Auth_AllTests" */;
-			buildPhases = (
-			);
-			dependencies = (
-				DE26D29E1F7066B0004AE1D3 /* PBXTargetDependency */,
-				DE26D2A01F7066B0004AE1D3 /* PBXTargetDependency */,
-				DE26D29C1F7066A7004AE1D3 /* PBXTargetDependency */,
-			);
-			name = Auth_AllTests;
-			productName = Auth_AllTests;
-		};
 		DE3373891E73773400881891 /* AllUnitTests_iOS */ = {
 			isa = PBXAggregateTarget;
 			buildConfigurationList = DE33738A1E73773400881891 /* Build configuration list for PBXAggregateTarget "AllUnitTests_iOS" */;
@@ -738,27 +725,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = DE26D22D1F70398A004AE1D3;
 			remoteInfo = Auth_Sample;
-		};
-		DE26D29B1F7066A7004AE1D3 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 6003F582195388D10070C39A /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = DE9314DD1E86C6BE0083EDBF;
-			remoteInfo = Auth_Tests_iOS;
-		};
-		DE26D29D1F7066B0004AE1D3 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 6003F582195388D10070C39A /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = DE26D25C1F7049F1004AE1D3;
-			remoteInfo = Auth_ApiTests;
-		};
-		DE26D29F1F7066B0004AE1D3 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 6003F582195388D10070C39A /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = DE26D26C1F705C35004AE1D3;
-			remoteInfo = Auth_EarlGreyTests;
 		};
 		DE3373971E73776F00881891 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -3239,11 +3205,6 @@
 						ProvisioningStyle = Automatic;
 						TestTargetID = DE26D22D1F70398A004AE1D3;
 					};
-					DE26D2971F70668F004AE1D3 = {
-						CreatedOnToolsVersion = 9.0;
-						DevelopmentTeam = EQHXZ8M8AV;
-						ProvisioningStyle = Automatic;
-					};
 					DE3373891E73773400881891 = {
 						CreatedOnToolsVersion = 8.2.1;
 						DevelopmentTeam = EQHXZ8M8AV;
@@ -3360,7 +3321,6 @@
 				DE26D22D1F70398A004AE1D3 /* Auth_Sample */,
 				DE26D25C1F7049F1004AE1D3 /* Auth_ApiTests */,
 				DE26D26C1F705C35004AE1D3 /* Auth_EarlGreyTests */,
-				DE26D2971F70668F004AE1D3 /* Auth_AllTests */,
 				DEE14D401E84464D006FA992 /* Core_Example_iOS */,
 				DEE14D581E84464D006FA992 /* Core_Tests_iOS */,
 				D064E6951ED9B1BF001956DF /* Core_Example_macOS */,
@@ -4553,21 +4513,6 @@
 			isa = PBXTargetDependency;
 			target = DE26D22D1F70398A004AE1D3 /* Auth_Sample */;
 			targetProxy = DE26D2721F705C35004AE1D3 /* PBXContainerItemProxy */;
-		};
-		DE26D29C1F7066A7004AE1D3 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = DE9314DD1E86C6BE0083EDBF /* Auth_Tests_iOS */;
-			targetProxy = DE26D29B1F7066A7004AE1D3 /* PBXContainerItemProxy */;
-		};
-		DE26D29E1F7066B0004AE1D3 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = DE26D25C1F7049F1004AE1D3 /* Auth_ApiTests */;
-			targetProxy = DE26D29D1F7066B0004AE1D3 /* PBXContainerItemProxy */;
-		};
-		DE26D2A01F7066B0004AE1D3 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = DE26D26C1F705C35004AE1D3 /* Auth_EarlGreyTests */;
-			targetProxy = DE26D29F1F7066B0004AE1D3 /* PBXContainerItemProxy */;
 		};
 		DE3373981E73776F00881891 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -6144,24 +6089,6 @@
 			};
 			name = Release;
 		};
-		DE26D2991F70668F004AE1D3 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = EQHXZ8M8AV;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Debug;
-		};
-		DE26D29A1F70668F004AE1D3 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = EQHXZ8M8AV;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Release;
-		};
 		DE33738B1E73773400881891 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -7429,15 +7356,6 @@
 			buildConfigurations = (
 				DE26D2751F705C35004AE1D3 /* Debug */,
 				DE26D2761F705C35004AE1D3 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		DE26D2981F70668F004AE1D3 /* Build configuration list for PBXAggregateTarget "Auth_AllTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				DE26D2991F70668F004AE1D3 /* Debug */,
-				DE26D29A1F70668F004AE1D3 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
