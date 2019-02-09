@@ -62,8 +62,8 @@ Status Transaction::RecordVersion(FSTMaybeDocument* doc) {
   absl::optional<SnapshotVersion> existing_version = GetVersion(doc.key);
   if (existing_version.has_value()) {
     if (doc_version != existing_version.value()) {
-      return Status{// This transaction will fail no matter what.
-                    FirestoreErrorCode::Aborted,
+      // This transaction will fail no matter what.
+      return Status{FirestoreErrorCode::Aborted,
                     "Document version changed between two reads."};
     }
     return Status::OK();
