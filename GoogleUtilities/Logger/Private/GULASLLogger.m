@@ -53,24 +53,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)initializeLogger {
   dispatch_sync(self.dispatchQueue, ^{
     if (!self.aslClient) {
-      // TODO(bstpierre): Omit this check once os_log is used for these cases.
-      NSInteger majorOSVersion = [[GULAppEnvironmentUtil systemVersion] integerValue];
-      uint32_t aslOptions = ASL_OPT_STDERR;  // Older iOS versions need this flag.
-#if TARGET_OS_SIMULATOR
-      // The iOS 11 simulator doesn't need the ASL_OPT_STDERR flag.
-      if (majorOSVersion >= 11) {
-        aslOptions = 0;
-      }
-#else
-      // Devices running iOS 10 or higher don't need the ASL_OPT_STDERR flag.
-      if (majorOSVersion >= 10) {
-        aslOptions = 0;
-      }
-#endif  // TARGET_OS_SIMULATOR
-
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"  // asl is deprecated
-      self.aslClient = asl_open(NULL, kGULLoggerClientFacilityName, aslOptions);
+      self.aslClient = asl_open(NULL, kGULLoggerClientFacilityName, ASL_OPT_STDERR);
       asl_set_filter(self.aslClient, ASL_FILTER_MASK_UPTO(ASL_LEVEL_NOTICE));
 #pragma clang diagnostic pop
     }
