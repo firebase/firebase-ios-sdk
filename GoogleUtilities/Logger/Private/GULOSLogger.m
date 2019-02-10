@@ -96,8 +96,7 @@ NS_ASSUME_NONNULL_BEGIN
     os_log_t osLog = self.categoryLoggers[service];
     if (!osLog) {
       if (@available(iOS 9.0, *)) {
-        osLog =
-          os_log_create(kGULLoggerClientFacilityName, service.UTF8String);
+        osLog = os_log_create(kGULLoggerClientFacilityName, service.UTF8String);
         self.categoryLoggers[service] = osLog;
       } else {
 #ifdef DEBUG
@@ -106,11 +105,12 @@ NS_ASSUME_NONNULL_BEGIN
       }
     }
     if (@available(iOS 9.0, *)) {
-      os_log_with_type(osLog, [[self class] osLogTypeForGULLoggerLevel:level],
-                       "%s", [GULLogger messageFromLogger:self
-                                              withService:service
-                                                     code:messageCode
-                                                  message:message].UTF8String);
+      os_log_with_type(osLog, [[self class] osLogTypeForGULLoggerLevel:level], "%s",
+                       [GULLogger messageFromLogger:self
+                                        withService:service
+                                               code:messageCode
+                                            message:message]
+                           .UTF8String);
     } else {
 #ifdef DEBUG
       NSCAssert(NO, @"Attempting to use os_log on iOS version prior to 9.");

@@ -14,8 +14,8 @@
 
 #import "GULLogger.h"
 
-#import "GULAppEnvironmentUtil.h"
 #import "GULASLLogger.h"
+#import "GULAppEnvironmentUtil.h"
 #import "GULLoggerLevel.h"
 #import "GULOSLogger.h"
 

@@ -118,7 +118,8 @@ NS_ASSUME_NONNULL_BEGIN
   const char *logMsg = [GULLogger messageFromLogger:self
                                         withService:service
                                                code:messageCode
-                                            message:message].UTF8String;
+                                            message:message]
+                           .UTF8String;
   dispatch_async(self.dispatchQueue, ^{
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"  // asl is deprecated

@@ -56,7 +56,7 @@ static NSString *const kGULLoggerMessageCodePattern = @"^I-[A-Z]{3}[0-9]{6}$";
   NSString *completeMessage = [[NSString alloc] initWithFormat:message arguments:formatArgs];
   va_end(formatArgs);
   return
-      [NSString stringWithFormat:@"%@ - %@[%@] %@",logger.version, service, code, completeMessage];
+      [NSString stringWithFormat:@"%@ - %@[%@] %@", logger.version, service, code, completeMessage];
 }
 
 @end
