@@ -12,14 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Private/GULLogger.h"
+#import "GULLogger.h"
 
-#import <GoogleUtilities/GULAppEnvironmentUtil.h>
-
-#import "Private/GULASLLogger.h"
-#import "Public/GULLoggerLevel.h"
+#import "GULAppEnvironmentUtil.h"
+#import "GULASLLogger.h"
+#import "GULLoggerLevel.h"
+#import "GULOSLogger.h"
 
 static id<GULLoggerSystem> sGULLogger;
+
+NSString *const kGULLoggerInvalidLoggerLevelCore = @"I-COR000023";
+NSString *const kGULLoggerInvalidLoggerLevelMessage = @"Invalid logger level, %ld";
+GULLoggerService const kGULLoggerName = @"[GULLogger]";
+const char *const kGULLoggerClientFacilityName = "com.google.utilities.logger";
+
+#ifdef DEBUG
+NSString *const kGULLoggerMessageCodePattern = @"^I-[A-Z]{3}[0-9]{6}$";
+#endif
 
 void GULLoggerInitialize(void) {
   [GULLogger.logger initializeLogger];
@@ -105,7 +114,11 @@ GUL_LOGGING_FUNCTION(Debug)
     // first get.
     @synchronized(self) {
       if (!sGULLogger) {
-        sGULLogger = [[GULASLLogger alloc] init];
+        if (@available(iOS 9.0, *)) {
+          sGULLogger = [[GULOSLogger alloc] init];
+        } else {
+          sGULLogger = [[GULASLLogger alloc] init];
+        }
       }
     }
   });

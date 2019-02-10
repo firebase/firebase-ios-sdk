@@ -23,7 +23,6 @@ static NSString *const kCode = @"I-COR000001";
 static NSString *const kLogMessage = @"Log Message";
 static NSString *const kVersionString = @"2";
 static char *const kVersionChar = "2";
-static const BOOL kForced = NO;
 
 // Redefine class property as readwrite for testing.
 @interface GULLogger (ForTesting)

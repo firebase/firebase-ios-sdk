@@ -16,8 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import <GoogleUtilities/GULLoggerLevel.h>
-
+#import "GULLogger.h"
 #import "GULLoggerSystem.h"
 
 NS_ASSUME_NONNULL_BEGIN

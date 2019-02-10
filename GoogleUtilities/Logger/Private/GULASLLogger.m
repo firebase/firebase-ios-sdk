@@ -18,26 +18,13 @@
 
 #import <asl.h>
 
-#import <GoogleUtilities/GULAppEnvironmentUtil.h>
-
-#import "GULLogger.h"
+#import "GULAppEnvironmentUtil.h"
+#import "GULLogger+Internal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-static GULLoggerService kGULLoggerName = @"[GULLogger]";
-
-const char *kGULLoggerASLClientFacilityName = "com.google.utilities.logger";
-
-#ifdef DEBUG
-static NSString *const kMessageCodePattern = @"^I-[A-Z]{3}[0-9]{6}$";
-static NSRegularExpression *sMessageCodeRegex;
-#endif
-
 @interface GULASLLogger () {
-  // Internal storage for properties declared in the GULLoggerSystem
   GULLoggerLevel _logLevel;
-  NSString *_version;
-  BOOL _forcedDebug;
 }
 
 @property(nonatomic) aslclient aslClient;
@@ -66,6 +53,7 @@ static NSRegularExpression *sMessageCodeRegex;
 - (void)initializeLogger {
   dispatch_sync(self.dispatchQueue, ^{
     if (!self.aslClient) {
+      // TODO(bstpierre): Omit this check once os_log is used for these cases.
       NSInteger majorOSVersion = [[GULAppEnvironmentUtil systemVersion] integerValue];
       uint32_t aslOptions = ASL_OPT_STDERR;  // Older iOS versions need this flag.
 #if TARGET_OS_SIMULATOR
@@ -82,18 +70,9 @@ static NSRegularExpression *sMessageCodeRegex;
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"  // asl is deprecated
-      self.aslClient = asl_open(NULL, kGULLoggerASLClientFacilityName, aslOptions);
+      self.aslClient = asl_open(NULL, kGULLoggerClientFacilityName, aslOptions);
       asl_set_filter(self.aslClient, ASL_FILTER_MASK_UPTO(ASL_LEVEL_NOTICE));
 #pragma clang diagnostic pop
-
-#ifdef DEBUG
-      static dispatch_once_t onceToken;
-      dispatch_once(&onceToken, ^{
-        sMessageCodeRegex = [NSRegularExpression regularExpressionWithPattern:kMessageCodePattern
-                                                                      options:0
-                                                                        error:NULL];
-      });
-#endif
     }
   });
 }
@@ -130,12 +109,7 @@ static NSRegularExpression *sMessageCodeRegex;
 }
 
 - (BOOL)isLoggableLevel:(GULLoggerLevel)logLevel {
-  if (self.forcedDebug) {
-    return YES;
-  } else if (logLevel < GULLoggerLevelMin || logLevel > GULLoggerLevelMax) {
-    return NO;
-  }
-  return logLevel <= self.logLevel;
+  return [GULLogger loggerSystem:self shouldLogMessageOfLevel:logLevel];
 }
 
 - (void)printToSTDERR {
@@ -152,29 +126,18 @@ static NSRegularExpression *sMessageCodeRegex;
          withMessage:(NSString *)message, ... {
   [self initializeLogger];
   // Skip logging this if the level isn't to be logged unless it's forced.
-  if (![self isLoggableLevel:level] && !(self.forcedDebug || forced)) {
+  if (![self isLoggableLevel:level] && !forced) {
     return;
   }
 
-#ifdef DEBUG
-  NSCAssert(messageCode.length == 11, @"Incorrect message code length.");
-  NSRange messageCodeRange = NSMakeRange(0, messageCode.length);
-  NSUInteger numberOfMatches = [sMessageCodeRegex numberOfMatchesInString:messageCode
-                                                                  options:0
-                                                                    range:messageCodeRange];
-  NSCAssert(numberOfMatches == 1, @"Incorrect message code format.");
-#endif
-
-  va_list formatArgs;
-  va_start(formatArgs, message);
-  NSString *logMsg = [[NSString alloc] initWithFormat:message arguments:formatArgs];
-  va_end(formatArgs);
-  logMsg =
-      [NSString stringWithFormat:@"%@ - %@[%@] %@", self.version, service, messageCode, logMsg];
+  const char *logMsg = [GULLogger messageFromLogger:self
+                                        withService:service
+                                               code:messageCode
+                                            message:message].UTF8String;
   dispatch_async(self.dispatchQueue, ^{
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"  // asl is deprecated
-    asl_log(self.aslClient, NULL, level, "%s", logMsg.UTF8String);
+    asl_log(self.aslClient, NULL, level, "%s", logMsg);
 #pragma clang diagnostic pop
   });
 }
