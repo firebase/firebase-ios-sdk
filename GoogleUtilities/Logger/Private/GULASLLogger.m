@@ -114,7 +114,7 @@ static NSRegularExpression *sMessageCodeRegex;
   if (logLevel >= GULLoggerLevelNotice && [GULAppEnvironmentUtil isFromAppStore]) {
     return;
   }
-  self.logLevel = logLevel;
+  _logLevel = logLevel;
 }
 
 - (GULLoggerLevel)logLevel {
