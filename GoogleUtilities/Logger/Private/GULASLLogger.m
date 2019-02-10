@@ -78,7 +78,7 @@ NS_ASSUME_NONNULL_BEGIN
   if (logLevel >= GULLoggerLevelNotice && [GULAppEnvironmentUtil isFromAppStore]) {
     return;
   }
-  self.logLevel = logLevel;
+  _logLevel = logLevel;
 }
 
 - (GULLoggerLevel)logLevel {
