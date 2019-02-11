@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14313.18" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
-    <device id="retina5_9" orientation="landscape">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina6_5" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14283.14"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14460.20"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -18,7 +18,7 @@
                         <viewControllerLayoutGuide type="bottom" id="8Ta-Lb-9Rg"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="ef6-R8-q1S">
-                        <rect key="frame" x="0.0" y="0.0" width="812" height="375"/>
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="rA8-LH-EYm">
@@ -59,11 +59,11 @@
                         <viewControllerLayoutGuide type="bottom" id="K7E-8I-Yw5"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="vRb-yf-OWE">
-                        <rect key="frame" x="0.0" y="0.0" width="812" height="375"/>
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="VfB-vw-7up">
-                                <rect key="frame" x="5" y="3" width="60" height="60"/>
+                                <rect key="frame" x="5" y="47" width="60" height="60"/>
                                 <accessibility key="accessibilityConfiguration" identifier="banner-image-view">
                                     <bool key="isElement" value="YES"/>
                                 </accessibility>
@@ -73,14 +73,14 @@
                                 </constraints>
                             </imageView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Messaging Title" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rzo-9i-rXZ">
-                                <rect key="frame" x="70" y="3" width="678" height="20.333333333333332"/>
+                                <rect key="frame" x="70" y="47" width="324" height="20.333333333333329"/>
                                 <accessibility key="accessibilityConfiguration" identifier="banner-message-title-view"/>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" text="message body" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="GOK-vx-mU8">
-                                <rect key="frame" x="70" y="31.333333333333329" width="678" height="22.666666666666671"/>
+                                <rect key="frame" x="70" y="75.333333333333343" width="324" height="286.66666666666663"/>
                                 <accessibility key="accessibilityConfiguration" identifier="banner-body-label"/>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                 <nil key="textColor"/>
@@ -129,14 +129,14 @@
                         <viewControllerLayoutGuide type="bottom" id="1nT-S0-O8H"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="1pz-BP-O6T">
-                        <rect key="frame" x="0.0" y="0.0" width="812" height="375"/>
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="jER-Re-ODh">
-                                <rect key="frame" x="20" y="52" width="772" height="271"/>
+                                <rect key="frame" x="30" y="187.66666666666669" width="354" height="520.66666666666652"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="1000" text="Message Title" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Edi-DJ-cR8">
-                                        <rect key="frame" x="318" y="20" width="430" height="34"/>
+                                        <rect key="frame" x="24" y="24" width="306" height="34"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="34" identifier="Title Label Height Constraint" id="Gzz-dd-hYn" userLabel="Title Label Height Constraint"/>
                                         </constraints>
@@ -145,7 +145,7 @@
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="700" translatesAutoresizingMaskIntoConstraints="NO" id="c7x-Lf-M58">
-                                        <rect key="frame" x="24" y="20" width="270" height="231"/>
+                                        <rect key="frame" x="24" y="82.000000000000043" width="306" height="230.66666666666663"/>
                                         <accessibility key="accessibilityConfiguration" identifier="modal-image-view">
                                             <bool key="isElement" value="YES"/>
                                         </accessibility>
@@ -172,7 +172,7 @@
                                         </variation>
                                     </imageView>
                                     <button opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="252" verticalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="VmW-ue-K1q">
-                                        <rect key="frame" x="470" y="202" width="126" height="36"/>
+                                        <rect key="frame" x="114" y="460.66666666666674" width="126" height="36"/>
                                         <accessibility key="accessibilityConfiguration" identifier="message-action-button"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="36" identifier="Max Action Button Height" id="6T1-on-oWM"/>
@@ -184,7 +184,7 @@
                                         </connections>
                                     </button>
                                     <textView clipsSubviews="YES" clearsContextBeforeDrawing="NO" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" text="Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor " textAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="24j-6H-N9j">
-                                        <rect key="frame" x="318" y="78" width="430" height="100"/>
+                                        <rect key="frame" x="24" y="336.66666666666674" width="306" height="100"/>
                                         <accessibility key="accessibilityConfiguration" identifier="message-body-textview"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="100" identifier="Body Text View Height Constraint" id="h2w-ub-tEc"/>
@@ -301,7 +301,7 @@
                                 </variation>
                             </view>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="akA-AE-VPc">
-                                <rect key="frame" x="772" y="32" width="40" height="40"/>
+                                <rect key="frame" x="364" y="167.66666666666666" width="40" height="40"/>
                                 <accessibility key="accessibilityConfiguration" identifier="close-button"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="40" identifier="Close button width = 40" id="Dwi-In-x47"/>
@@ -371,6 +371,160 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="bBr-eC-fVz" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="916" y="-177.66116941529236"/>
+        </scene>
+        <!--View Controller-->
+        <scene sceneID="5eQ-Ln-que">
+            <objects>
+                <viewController id="oTF-1C-LZP" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="1Sy-cb-zoy"/>
+                        <viewControllerLayoutGuide type="bottom" id="I6y-sz-UcT"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="SM1-hn-m3n">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Aft-rr-icV" userLabel="Card view" customClass="RoundedCornersView">
+                                <rect key="frame" x="87" y="284.33333333333337" width="240" height="327.33333333333337"/>
+                                <subviews>
+                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="gB0-8W-G9z">
+                                        <rect key="frame" x="0.0" y="0.0" width="240" height="160"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="240" identifier="Image view width placeholder" id="27L-b0-QJJ" userLabel="Image view width placeholder"/>
+                                            <constraint firstAttribute="height" constant="160" identifier="Image view height placeholder" id="e4D-Ay-89r" userLabel="Image view height placeholder">
+                                                <variation key="heightClass=compact" constant="240"/>
+                                                <variation key="widthClass=regular" constant="240"/>
+                                            </constraint>
+                                        </constraints>
+                                    </imageView>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="Title" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oVh-9O-yfC" userLabel="Title label">
+                                        <rect key="frame" x="24" y="184" width="192" height="21"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="prz-tD-IhN" userLabel="Body label">
+                                        <rect key="frame" x="24" y="229.00000000000006" width="192" height="20.333333333333343"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" horizontalCompressionResistancePriority="251" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aZE-3x-WHk" userLabel="Primary action button">
+                                        <rect key="frame" x="163" y="273.33333333333331" width="53" height="30"/>
+                                        <state key="normal" title="Primary"/>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" horizontalCompressionResistancePriority="250" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Feg-VM-jUf" userLabel="Secondary action button">
+                                        <rect key="frame" x="65" y="273.33333333333331" width="74" height="30"/>
+                                        <state key="normal" title="Secondary"/>
+                                    </button>
+                                </subviews>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstItem="oVh-9O-yfC" firstAttribute="top" secondItem="Aft-rr-icV" secondAttribute="top" constant="24" identifier="Title label top padding - landscape" id="4aZ-wP-20V" userLabel="Title label top padding - landscape"/>
+                                    <constraint firstItem="oVh-9O-yfC" firstAttribute="leading" secondItem="gB0-8W-G9z" secondAttribute="trailing" constant="24" identifier="Title label spacing after image view - landscape" id="7IV-jj-DjU" userLabel="Title label spacing after image view - landscape"/>
+                                    <constraint firstAttribute="trailing" secondItem="aZE-3x-WHk" secondAttribute="trailing" constant="24" identifier="Primary action button right padding" id="9lx-l9-3We" userLabel="Primary action button right padding"/>
+                                    <constraint firstItem="prz-tD-IhN" firstAttribute="top" secondItem="oVh-9O-yfC" secondAttribute="bottom" constant="24" identifier="Body label spacing below title label" id="B8E-7U-tt9" userLabel="Body label spacing below title label"/>
+                                    <constraint firstItem="Feg-VM-jUf" firstAttribute="centerY" secondItem="aZE-3x-WHk" secondAttribute="centerY" identifier="Align action buttons vertically" id="PaU-zW-YCD" userLabel="Align action buttons vertically"/>
+                                    <constraint firstAttribute="width" priority="750" constant="650" identifier="Fixed card width - tablet" id="RO2-VY-bNA" userLabel="Fixed card width - tablet"/>
+                                    <constraint firstItem="oVh-9O-yfC" firstAttribute="leading" secondItem="Aft-rr-icV" secondAttribute="leading" constant="24" identifier="Title label left padding - portrait" id="RVJ-ts-fU5" userLabel="Title label left padding - portrait"/>
+                                    <constraint firstItem="oVh-9O-yfC" firstAttribute="top" secondItem="gB0-8W-G9z" secondAttribute="bottom" constant="24" identifier="Title label top spacing under image view - portrait" id="T6F-Mi-UaM" userLabel="Title label top spacing under image view - portrait"/>
+                                    <constraint firstAttribute="bottom" secondItem="aZE-3x-WHk" secondAttribute="bottom" constant="24" identifier="Primary action button bottom padding" id="THz-Qq-7VQ" userLabel="Primary action button bottom padding"/>
+                                    <constraint firstItem="aZE-3x-WHk" firstAttribute="top" relation="greaterThanOrEqual" secondItem="prz-tD-IhN" secondAttribute="bottom" constant="24" identifier="Primary action button minimum spacing below body label - landscape" id="UG6-HW-gkT" userLabel="Primary action button minimum spacing below body label - landscape"/>
+                                    <constraint firstAttribute="bottom" secondItem="gB0-8W-G9z" secondAttribute="bottom" identifier="Image view no bottom padding in card view - landscape" id="Voc-mp-Yh8" userLabel="Image view no bottom padding in card view - landscape"/>
+                                    <constraint firstItem="aZE-3x-WHk" firstAttribute="leading" secondItem="Feg-VM-jUf" secondAttribute="trailing" constant="24" identifier="Secondary action button left spacing before primary action button" id="WOx-4M-WHo" userLabel="Secondary action button left spacing before primary action button"/>
+                                    <constraint firstItem="Feg-VM-jUf" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="gB0-8W-G9z" secondAttribute="trailing" constant="24" identifier="Secondary action button minimum spacing after image view - landscape" id="dN2-Ih-eEj" userLabel="Secondary action button minimum spacing after image view - landscape"/>
+                                    <constraint firstItem="prz-tD-IhN" firstAttribute="leading" secondItem="gB0-8W-G9z" secondAttribute="trailing" constant="24" identifier="Body label spacing after image view - landscape" id="iKI-gR-2Sb" userLabel="Body label spacing after image view - landscape"/>
+                                    <constraint firstItem="Feg-VM-jUf" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="Aft-rr-icV" secondAttribute="leading" constant="24" identifier="Secondary button minimum left padding - portrait" id="jgB-Ie-frE" userLabel="Secondary button minimum left padding - portrait"/>
+                                    <constraint firstItem="gB0-8W-G9z" firstAttribute="top" secondItem="Aft-rr-icV" secondAttribute="top" identifier="Image view no top padding in card view" id="nIg-YC-8uR" userLabel="Image view no top padding in card view"/>
+                                    <constraint firstItem="aZE-3x-WHk" firstAttribute="top" secondItem="prz-tD-IhN" secondAttribute="bottom" constant="24" identifier="Primary action button spacing below body label - portrait" id="nIn-Nt-VYq" userLabel="Primary action button spacing below body label - portrait"/>
+                                    <constraint firstAttribute="trailing" secondItem="prz-tD-IhN" secondAttribute="trailing" constant="24" identifier="Body label right padding in card view" id="oOX-W2-HfU" userLabel="Body label right padding in card view"/>
+                                    <constraint firstAttribute="trailing" secondItem="oVh-9O-yfC" secondAttribute="trailing" constant="24" identifier="Title label right padding" id="pnO-B6-iqg" userLabel="Title label right padding"/>
+                                    <constraint firstItem="prz-tD-IhN" firstAttribute="leading" secondItem="Aft-rr-icV" secondAttribute="leading" constant="24" identifier="Body label left padding in card view - portrait" id="rgl-jH-1fe" userLabel="Body label left padding in card view - portrait"/>
+                                    <constraint firstItem="gB0-8W-G9z" firstAttribute="leading" secondItem="Aft-rr-icV" secondAttribute="leading" identifier="Image view no left padding in card view" id="wTO-Mi-2vr" userLabel="Image view no left padding in card view"/>
+                                    <constraint firstAttribute="trailing" secondItem="gB0-8W-G9z" secondAttribute="trailing" identifier="Image view no right padding in card view - portrait" id="xX5-sm-qJG" userLabel="Image view no right padding in card view - portrait"/>
+                                </constraints>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                                        <real key="value" value="16"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
+                                <variation key="default">
+                                    <mask key="constraints">
+                                        <exclude reference="RO2-VY-bNA"/>
+                                        <exclude reference="Voc-mp-Yh8"/>
+                                        <exclude reference="xX5-sm-qJG"/>
+                                        <exclude reference="4aZ-wP-20V"/>
+                                        <exclude reference="RVJ-ts-fU5"/>
+                                        <exclude reference="T6F-Mi-UaM"/>
+                                        <exclude reference="7IV-jj-DjU"/>
+                                        <exclude reference="iKI-gR-2Sb"/>
+                                        <exclude reference="rgl-jH-1fe"/>
+                                        <exclude reference="dN2-Ih-eEj"/>
+                                        <exclude reference="jgB-Ie-frE"/>
+                                        <exclude reference="UG6-HW-gkT"/>
+                                        <exclude reference="nIn-Nt-VYq"/>
+                                    </mask>
+                                </variation>
+                                <variation key="heightClass=compact">
+                                    <mask key="constraints">
+                                        <include reference="Voc-mp-Yh8"/>
+                                        <include reference="4aZ-wP-20V"/>
+                                        <include reference="7IV-jj-DjU"/>
+                                        <include reference="iKI-gR-2Sb"/>
+                                        <include reference="dN2-Ih-eEj"/>
+                                        <include reference="UG6-HW-gkT"/>
+                                    </mask>
+                                </variation>
+                                <variation key="widthClass=regular">
+                                    <mask key="constraints">
+                                        <include reference="Voc-mp-Yh8"/>
+                                        <include reference="4aZ-wP-20V"/>
+                                        <include reference="7IV-jj-DjU"/>
+                                        <include reference="iKI-gR-2Sb"/>
+                                        <include reference="dN2-Ih-eEj"/>
+                                        <include reference="UG6-HW-gkT"/>
+                                    </mask>
+                                </variation>
+                                <variation key="heightClass=regular-widthClass=compact">
+                                    <mask key="constraints">
+                                        <include reference="xX5-sm-qJG"/>
+                                        <include reference="RVJ-ts-fU5"/>
+                                        <include reference="T6F-Mi-UaM"/>
+                                        <include reference="rgl-jH-1fe"/>
+                                        <include reference="jgB-Ie-frE"/>
+                                        <include reference="nIn-Nt-VYq"/>
+                                    </mask>
+                                </variation>
+                                <variation key="heightClass=regular-widthClass=regular">
+                                    <mask key="constraints">
+                                        <include reference="RO2-VY-bNA"/>
+                                    </mask>
+                                </variation>
+                            </view>
+                        </subviews>
+                        <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="Aft-rr-icV" firstAttribute="centerX" secondItem="SM1-hn-m3n" secondAttribute="centerX" identifier="Center card view horizontally" id="5rk-YP-Qx8" userLabel="Center card view horizontally"/>
+                            <constraint firstItem="Aft-rr-icV" firstAttribute="centerY" secondItem="SM1-hn-m3n" secondAttribute="centerY" identifier="Center card view vertically" id="N6p-hW-l6v" userLabel="Center card view vertically"/>
+                            <constraint firstItem="Aft-rr-icV" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="SM1-hn-m3n" secondAttribute="leadingMargin" constant="10" identifier="Card view left padding of at least 10 in super view" id="UPX-5a-akO" userLabel="Card view left padding of at least 10 in super view"/>
+                            <constraint firstItem="Aft-rr-icV" firstAttribute="leading" secondItem="SM1-hn-m3n" secondAttribute="leadingMargin" constant="20" identifier="Card view left padding of 20 in superview - landscape phone" id="f2U-O8-7pI" userLabel="Card view left padding of 20 in superview - landscape phone"/>
+                            <constraint firstItem="Aft-rr-icV" firstAttribute="top" relation="greaterThanOrEqual" secondItem="1Sy-cb-zoy" secondAttribute="bottom" constant="10" identifier="Card view top padding of at least 10 in super view" id="rYP-c9-NxX" userLabel="Card view top padding of at least 10 in super view"/>
+                        </constraints>
+                        <variation key="default">
+                            <mask key="constraints">
+                                <exclude reference="f2U-O8-7pI"/>
+                            </mask>
+                        </variation>
+                        <variation key="heightClass=compact">
+                            <mask key="constraints">
+                                <include reference="f2U-O8-7pI"/>
+                            </mask>
+                        </variation>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="gTd-sb-y8u" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="426.08695652173918" y="633.48214285714278"/>
         </scene>
     </scenes>
     <resources>
