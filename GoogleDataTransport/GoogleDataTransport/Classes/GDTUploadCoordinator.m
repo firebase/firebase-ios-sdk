@@ -20,8 +20,8 @@
 #import "GDTAssert.h"
 #import "GDTClock.h"
 #import "GDTConsoleLogger.h"
-#import "GDTStorage.h"
 #import "GDTRegistrar_Private.h"
+#import "GDTStorage.h"
 
 @implementation GDTUploadCoordinator
 
@@ -153,11 +153,9 @@
     if (strongSelf) {
       NSArray<NSNumber *> *targetsReadyForUpload = [self targetsReadyForUpload];
       for (NSNumber *target in targetsReadyForUpload) {
-        id<GDTPrioritizer> prioritizer =
-            strongSelf->_registrar.targetToPrioritizer[target];
+        id<GDTPrioritizer> prioritizer = strongSelf->_registrar.targetToPrioritizer[target];
         id<GDTUploader> uploader = strongSelf->_registrar.targetToUploader[target];
-        GDTAssert(prioritizer && uploader, @"Target '%@' is missing an implementation",
-                  target);
+        GDTAssert(prioritizer && uploader, @"Target '%@' is missing an implementation", target);
         GDTUploadConditions conds = [self uploadConditions];
         NSSet<NSNumber *> *eventHashesToUpload =
             [[prioritizer eventsToUploadGivenConditions:conds] copy];

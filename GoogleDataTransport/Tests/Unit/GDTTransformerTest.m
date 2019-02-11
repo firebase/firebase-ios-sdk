@@ -18,8 +18,8 @@
 
 #import <GoogleDataTransport/GDTEventTransformer.h>
 
-#import "GDTEvent.h"
 #import "GDTDataObjectTesterClasses.h"
+#import "GDTEvent.h"
 #import "GDTStorage.h"
 #import "GDTTransformer.h"
 #import "GDTTransformer_Private.h"

@@ -19,7 +19,7 @@
 @implementation GDTTransformerFake
 
 - (void)transformEvent:(GDTEvent *)event
-    withTransformers:(NSArray<id<GDTEventTransformer>> *)transformers {
+      withTransformers:(NSArray<id<GDTEventTransformer>> *)transformers {
 }
 
 @end

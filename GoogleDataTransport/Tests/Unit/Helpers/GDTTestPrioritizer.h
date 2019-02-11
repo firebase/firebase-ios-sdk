@@ -20,8 +20,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** This class implements the event prioritizer protocol for testing purposes, providing APIs to allow
- * tests to alter the prioritizer behavior without creating a bunch of specialized classes.
+/** This class implements the event prioritizer protocol for testing purposes, providing APIs to
+ * allow tests to alter the prioritizer behavior without creating a bunch of specialized classes.
  */
 @interface GDTTestPrioritizer : NSObject <GDTPrioritizer>
 

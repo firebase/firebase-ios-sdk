@@ -33,27 +33,27 @@ typedef NS_OPTIONS(NSInteger, GDTUploadConditions) {
 };
 
 /** This protocol defines the common interface of event prioritization. Prioritizers are
- * stateful objects that prioritize events upon insertion into storage and remain prepared to return a
- * set of filenames to the storage system.
+ * stateful objects that prioritize events upon insertion into storage and remain prepared to return
+ * a set of filenames to the storage system.
  */
 @protocol GDTPrioritizer <NSObject>
 
 @required
 
-/** Accepts an event and uses the event metadata to make choices on how to prioritize the event. This
- * method exists as a way to help prioritize which events should be sent, which is dependent on the
- * request proto structure of your backend.
+/** Accepts an event and uses the event metadata to make choices on how to prioritize the event.
+ * This method exists as a way to help prioritize which events should be sent, which is dependent on
+ * the request proto structure of your backend.
  *
- * @note Three things: 1. the event cannot be retained for longer than the execution time of
- * this method. 2. The extension should be nil by this point and should not be used to prioritize
- * events. 3. You should retain the event hashes, because those are returned in -eventsForNextUpload.
+ * @note A couple of things: 1. The event cannot be retained for longer than the execution time of
+ * this method. 2. You should retain the event hashes, because those are returned in
+ * -eventsForNextUpload.
  *
  * @param event The event to prioritize.
  */
 - (void)prioritizeEvent:(GDTEvent *)event;
 
-/** Unprioritizes an event. This method is called when an event has been removed from storage and should
- * no longer be given to an uploader.
+/** Unprioritizes an event. This method is called when an event has been removed from storage and
+ * should no longer be given to an uploader.
  */
 - (void)unprioritizeEvent:(NSNumber *)eventHash;
 

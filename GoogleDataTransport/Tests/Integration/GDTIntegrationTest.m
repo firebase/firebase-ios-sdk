@@ -95,12 +95,12 @@
 
   // Create eventgers.
   self.transport1 = [[GDTTransport alloc] initWithMappingID:@"eventMap1"
-                                     transformers:nil
-                                           target:kGDTIntegrationTestTarget];
+                                               transformers:nil
+                                                     target:kGDTIntegrationTestTarget];
 
   self.transport2 = [[GDTTransport alloc] initWithMappingID:@"eventMap2"
-                                     transformers:nil
-                                           target:kGDTIntegrationTestTarget];
+                                               transformers:nil
+                                                     target:kGDTIntegrationTestTarget];
 
   // Create a prioritizer and uploader.
   self.prioritizer = [[GDTIntegrationTestPrioritizer alloc] init];

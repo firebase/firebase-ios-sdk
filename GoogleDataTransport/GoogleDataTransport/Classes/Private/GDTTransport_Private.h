@@ -22,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface GDTTransport ()
 
-/** The mapping identifier that the target backend will use to map the extension to proto. */
+/** The mapping identifier that the target backend will use to map the transport bytes to proto. */
 @property(nonatomic) NSString *mappingID;
 
 /** The transformers that will operate on events sent by this transport. */

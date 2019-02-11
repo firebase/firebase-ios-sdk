@@ -25,8 +25,8 @@
 @implementation GDTTransport
 
 - (instancetype)initWithMappingID:(NSString *)mappingID
-                 transformers:(nullable NSArray<id<GDTEventTransformer>> *)transformers
-                       target:(NSInteger)target {
+                     transformers:(nullable NSArray<id<GDTEventTransformer>> *)transformers
+                           target:(NSInteger)target {
   self = [super init];
   if (self) {
     GDTAssert(mappingID.length > 0, @"A mapping ID cannot be nil or empty");

@@ -37,7 +37,8 @@
   return self;
 }
 
-- (void)uploadEvents:(NSSet<NSURL *> *)eventFiles onComplete:(GDTUploaderCompletionBlock)onComplete {
+- (void)uploadEvents:(NSSet<NSURL *> *)eventFiles
+          onComplete:(GDTUploaderCompletionBlock)onComplete {
   NSAssert(!_currentUploadTask, @"An upload shouldn't be initiated with another in progress.");
   NSURL *serverURL = arc4random_uniform(2) ? [_serverURL URLByAppendingPathComponent:@"log"]
                                            : [_serverURL URLByAppendingPathComponent:@"logBatch"];

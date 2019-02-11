@@ -19,17 +19,17 @@
 #import <GoogleDataTransport/GDTEvent.h>
 
 #import "GDTEvent_Private.h"
-#import "GDTStorage.h"
-#import "GDTStorage_Private.h"
 #import "GDTRegistrar.h"
 #import "GDTRegistrar_Private.h"
+#import "GDTStorage.h"
+#import "GDTStorage_Private.h"
 
 #import "GDTTestPrioritizer.h"
 #import "GDTTestUploader.h"
 
 #import "GDTAssertHelper.h"
-#import "GDTStorage+Testing.h"
 #import "GDTRegistrar+Testing.h"
+#import "GDTStorage+Testing.h"
 #import "GDTUploadCoordinatorFake.h"
 
 static NSInteger target = 1337;
@@ -112,8 +112,7 @@ static NSInteger target = 1337;
     eventFile = [GDTStorage sharedInstance].eventHashToFile[@(eventHash)];
     XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:eventFile.path]);
   });
-  [[GDTStorage sharedInstance] removeEvents:[NSSet setWithObject:@(eventHash)]
-                                   target:@(target)];
+  [[GDTStorage sharedInstance] removeEvents:[NSSet setWithObject:@(eventHash)] target:@(target)];
   dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
     XCTAssertFalse([[NSFileManager defaultManager] fileExistsAtPath:eventFile.path]);
     XCTAssertEqual([GDTStorage sharedInstance].eventHashToFile.count, 0);
@@ -143,7 +142,8 @@ static NSInteger target = 1337;
     event3Hash = event.hash;
     XCTAssertNoThrow([storage storeEvent:event]);
   }
-  NSSet<NSNumber *> *eventHashSet = [NSSet setWithObjects:@(event1Hash), @(event2Hash), @(event3Hash), nil];
+  NSSet<NSNumber *> *eventHashSet =
+      [NSSet setWithObjects:@(event1Hash), @(event2Hash), @(event3Hash), nil];
   NSSet<NSURL *> *eventFiles = [storage eventHashesToFiles:eventHashSet];
   [storage removeEvents:eventHashSet target:@(target)];
   dispatch_sync(storage.storageQueue, ^{
@@ -250,8 +250,7 @@ static NSInteger target = 1337;
   dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
     XCTAssertNotNil([GDTStorage sharedInstance].eventHashToFile[@(eventHash)]);
   });
-  [[GDTStorage sharedInstance] removeEvents:[NSSet setWithObject:@(eventHash)]
-                                   target:@(target)];
+  [[GDTStorage sharedInstance] removeEvents:[NSSet setWithObject:@(eventHash)] target:@(target)];
   dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
     XCTAssertNil([GDTStorage sharedInstance].eventHashToFile[@(eventHash)]);
   });
@@ -308,7 +307,8 @@ static NSInteger target = 1337;
     event3Hash = event.hash;
     XCTAssertNoThrow([storage storeEvent:event]);
   }
-  NSSet<NSNumber *> *eventHashSet = [NSSet setWithObjects:@(event1Hash), @(event2Hash), @(event3Hash), nil];
+  NSSet<NSNumber *> *eventHashSet =
+      [NSSet setWithObjects:@(event1Hash), @(event2Hash), @(event3Hash), nil];
   NSSet<NSURL *> *eventFiles = [storage eventHashesToFiles:eventHashSet];
   dispatch_sync(storage.storageQueue, ^{
     XCTAssertEqual(eventFiles.count, 3);

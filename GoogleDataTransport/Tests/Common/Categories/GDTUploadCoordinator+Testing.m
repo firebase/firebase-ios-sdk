@@ -18,8 +18,8 @@
 
 #import <objc/runtime.h>
 
-#import "GDTStorage.h"
 #import "GDTRegistrar.h"
+#import "GDTStorage.h"
 #import "GDTUploadCoordinator_Private.h"
 
 @implementation GDTUploadCoordinator (Testing)

@@ -53,7 +53,7 @@
 
 - (void)setDataObject:(id<GDTEventDataObject>)dataObject {
   // If you're looking here because of a performance issue in -transportBytes slowing the assignment
-  // of extension, one way to address this is to add a queue to this class,
+  // of -dataObject, one way to address this is to add a queue to this class,
   // dispatch_(barrier_ if concurrent)async here, and implement the getter with a dispatch_sync.
   if (dataObject != _dataObject) {
     _dataObject = dataObject;
@@ -69,8 +69,8 @@ static NSString *mappingIDKey = @"_mappingID";
 /** NSCoding key for target property. */
 static NSString *targetKey = @"_target";
 
-/** NSCoding key for extensionBytes property. */
-static NSString *extensionBytesKey = @"_extensionBytes";
+/** NSCoding key for dataObjectTransportBytes property. */
+static NSString *dataObjectTransportBytesKey = @"_dataObjectTransportBytesKey";
 
 /** NSCoding key for qosTier property. */
 static NSString *qosTierKey = @"_qosTier";
@@ -87,7 +87,8 @@ static NSString *clockSnapshotKey = @"_clockSnapshot";
   NSInteger target = [aDecoder decodeIntegerForKey:targetKey];
   self = [self initWithMappingID:mappingID target:target];
   if (self) {
-    _dataObjectTransportBytes = [aDecoder decodeObjectOfClass:[NSData class] forKey:extensionBytesKey];
+    _dataObjectTransportBytes = [aDecoder decodeObjectOfClass:[NSData class]
+                                                       forKey:dataObjectTransportBytesKey];
     _qosTier = [aDecoder decodeIntegerForKey:qosTierKey];
     _clockSnapshot = [aDecoder decodeObjectOfClass:[GDTClock class] forKey:clockSnapshotKey];
   }
@@ -97,7 +98,7 @@ static NSString *clockSnapshotKey = @"_clockSnapshot";
 - (void)encodeWithCoder:(NSCoder *)aCoder {
   [aCoder encodeObject:_mappingID forKey:mappingIDKey];
   [aCoder encodeInteger:_target forKey:targetKey];
-  [aCoder encodeObject:_dataObjectTransportBytes forKey:extensionBytesKey];
+  [aCoder encodeObject:_dataObjectTransportBytes forKey:dataObjectTransportBytesKey];
   [aCoder encodeInteger:_qosTier forKey:qosTierKey];
   [aCoder encodeObject:_clockSnapshot forKey:clockSnapshotKey];
 }

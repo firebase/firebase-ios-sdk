@@ -24,9 +24,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Manages the transforming of events. It's desirable for this to be its own class
  * because running all events through a single instance ensures that transformers are thread-safe.
- * Having a per-transport queue to run on isn't sufficient because transformer objects could maintain
- * state (or at least, there's nothing to stop them from doing that) and the same instances may be
- * used across multiple instances.
+ * Having a per-transport queue to run on isn't sufficient because transformer objects could
+ * maintain state (or at least, there's nothing to stop them from doing that) and the same instances
+ * may be used across multiple instances.
  */
 @interface GDTTransformer : NSObject
 
@@ -42,7 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param transformers The list of transformers to apply.
  */
 - (void)transformEvent:(GDTEvent *)event
-    withTransformers:(nullable NSArray<id<GDTEventTransformer>> *)transformers;
+      withTransformers:(nullable NSArray<id<GDTEventTransformer>> *)transformers;
 
 @end
 

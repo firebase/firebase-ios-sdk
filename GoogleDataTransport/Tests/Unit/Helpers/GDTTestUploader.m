@@ -18,7 +18,8 @@
 
 @implementation GDTTestUploader
 
-- (void)uploadEvents:(NSSet<NSURL *> *)eventFiles onComplete:(GDTUploaderCompletionBlock)onComplete {
+- (void)uploadEvents:(NSSet<NSURL *> *)eventFiles
+          onComplete:(GDTUploaderCompletionBlock)onComplete {
   if (_uploadEventsBlock) {
     _uploadEventsBlock(eventFiles, onComplete);
   } else if (onComplete) {

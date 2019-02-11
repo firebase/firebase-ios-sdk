@@ -45,7 +45,7 @@
 }
 
 - (void)transformEvent:(GDTEvent *)event
-    withTransformers:(NSArray<id<GDTEventTransformer>> *)transformers {
+      withTransformers:(NSArray<id<GDTEventTransformer>> *)transformers {
   GDTAssert(event, @"You can't write a nil event");
   dispatch_async(_eventWritingQueue, ^{
     GDTEvent *transformedEvent = event;

@@ -29,8 +29,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (instancetype)sharedInstance;
 
-/** Stores event.extensionBytes into a shared on-device folder and tracks the event via its hash and
- * target properties.
+/** Stores event.dataObjectTransportBytes into a shared on-device folder and tracks the event via
+ * its hash and target properties.
  *
  * @note The event param is expected to be deallocated during this method.
  *

@@ -20,7 +20,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** This class defines shared testing infrastructure across all unit tests in GoogleDataTransport. */
+/** This class defines shared testing infrastructure across all unit tests in GoogleDataTransport.
+ */
 @interface GDTTestCase : XCTestCase
 
 @end

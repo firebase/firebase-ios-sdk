@@ -75,14 +75,14 @@ static NSString *GDTStoragePath() {
     NSInteger target = shortLivedEvent.target;
 
     // Check that a prioritizer is available for this target.
-    id<GDTPrioritizer> prioritizer =
-        [GDTRegistrar sharedInstance].targetToPrioritizer[@(target)];
+    id<GDTPrioritizer> prioritizer = [GDTRegistrar sharedInstance].targetToPrioritizer[@(target)];
     GDTAssert(prioritizer, @"There's no prioritizer registered for the given target.");
 
-    // Write the extension bytes to disk, get a filename.
-    GDTAssert(shortLivedEvent.dataObjectTransportBytes, @"The event should have been serialized to bytes");
+    // Write the transport bytes to disk, get a filename.
+    GDTAssert(shortLivedEvent.dataObjectTransportBytes,
+              @"The event should have been serialized to bytes");
     NSURL *eventFile = [self saveEventBytesToDisk:shortLivedEvent.dataObjectTransportBytes
-                                      eventHash:shortLivedEvent.hash];
+                                        eventHash:shortLivedEvent.hash];
 
     // Add event to tracking collections.
     [self addEventToTrackingCollections:shortLivedEvent eventFile:eventFile];
@@ -148,8 +148,7 @@ static NSString *GDTStoragePath() {
   // It's fine to not remove the set if it's empty.
 
   // Check that a prioritizer is available for this target.
-  id<GDTPrioritizer> prioritizer =
-      [GDTRegistrar sharedInstance].targetToPrioritizer[target];
+  id<GDTPrioritizer> prioritizer = [GDTRegistrar sharedInstance].targetToPrioritizer[target];
   GDTAssert(prioritizer, @"There's no prioritizer registered for the given target.");
   [prioritizer unprioritizeEvent:eventHash];
 }
@@ -166,12 +165,12 @@ static NSString *GDTStoragePath() {
   }
 }
 
-/** Saves the event's extensionBytes to a file using NSData mechanisms.
+/** Saves the event's dataObjectTransportBytes to a file using NSData mechanisms.
  *
  * @note This method should only be called from a method within a block on _storageQueue to maintain
  * thread safety.
  *
- * @param transportBytes The extensionBytes of the event, presumably proto bytes.
+ * @param transportBytes The transport bytes of the event.
  * @param eventHash The hash value of the event.
  * @return The filename
  */
@@ -228,7 +227,7 @@ static NSString *const kGDTTargetToEventHashSetKey = @"targetToEventHashSetKey";
   dispatch_sync(sharedInstance.storageQueue, ^{
     Class NSMutableDictionaryClass = [NSMutableDictionary class];
     sharedInstance->_eventHashToFile = [aDecoder decodeObjectOfClass:NSMutableDictionaryClass
-                                                               forKey:kGDTEventHashToFileKey];
+                                                              forKey:kGDTEventHashToFileKey];
     sharedInstance->_targetToEventHashSet =
         [aDecoder decodeObjectOfClass:NSMutableDictionaryClass forKey:kGDTTargetToEventHashSetKey];
   });
@@ -239,8 +238,7 @@ static NSString *const kGDTTargetToEventHashSetKey = @"targetToEventHashSetKey";
   GDTStorage *sharedInstance = [self.class sharedInstance];
   dispatch_sync(sharedInstance.storageQueue, ^{
     [aCoder encodeObject:sharedInstance->_eventHashToFile forKey:kGDTEventHashToFileKey];
-    [aCoder encodeObject:sharedInstance->_targetToEventHashSet
-                  forKey:kGDTTargetToEventHashSetKey];
+    [aCoder encodeObject:sharedInstance->_targetToEventHashSet forKey:kGDTTargetToEventHashSetKey];
   });
 }
 

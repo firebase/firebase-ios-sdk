@@ -19,8 +19,8 @@
 #import "GDTUploadCoordinator.h"
 #import "GDTUploadCoordinator_Private.h"
 
-#import "GDTStorageFake.h"
 #import "GDTRegistrar+Testing.h"
+#import "GDTStorageFake.h"
 #import "GDTTestPrioritizer.h"
 #import "GDTTestUploader.h"
 #import "GDTUploadCoordinator+Testing.h"
@@ -86,7 +86,7 @@
   self.storageFake.eventsToReturnFromEventHashesToFiles = fakeEventSet;
   NSSet<NSNumber *> *eventSet = [NSSet setWithObjects:@(1234), nil];
   XCTAssertNoThrow([[GDTUploadCoordinator sharedInstance] forceUploadEvents:eventSet
-                                                                   target:_target]);
+                                                                     target:_target]);
   dispatch_sync([GDTUploadCoordinator sharedInstance].coordinationQueue, ^{
     [self waitForExpectations:@[ expectation ] timeout:0.1];
   });
@@ -109,7 +109,7 @@
         [[NSSet alloc] init];
   });
   XCTAssertNoThrow([[GDTUploadCoordinator sharedInstance] forceUploadEvents:eventSet
-                                                                   target:_target]);
+                                                                     target:_target]);
   dispatch_sync([GDTUploadCoordinator sharedInstance].coordinationQueue, ^{
     XCTAssertEqual([GDTUploadCoordinator sharedInstance].forcedUploadQueue.count, 1);
     [GDTUploadCoordinator sharedInstance].onCompleteBlock(

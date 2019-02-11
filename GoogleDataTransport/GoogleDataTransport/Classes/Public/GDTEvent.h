@@ -43,7 +43,7 @@ typedef NS_ENUM(NSInteger, GDTEventQoS) {
 
 @interface GDTEvent : NSObject <NSSecureCoding>
 
-/** The mapping identifier, to allow backends to map the extension property to a proto. */
+/** The mapping identifier, to allow backends to map the transport bytes to a proto. */
 @property(readonly, nonatomic) NSString *mappingID;
 
 /** The identifier for the backend this event will eventually be sent to. */
@@ -71,7 +71,7 @@ typedef NS_ENUM(NSInteger, GDTEventQoS) {
  * @return An instance of this class.
  */
 - (instancetype)initWithMappingID:(NSString *)mappingID
-                       target:(NSInteger)target NS_DESIGNATED_INITIALIZER;
+                           target:(NSInteger)target NS_DESIGNATED_INITIALIZER;
 
 @end
 

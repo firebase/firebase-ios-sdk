@@ -31,8 +31,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (instancetype)sharedInstance;
 
-/** Forces the backend specified by the target to upload the provided set of events. This should only
- * ever happen when the QoS tier of an event requires it.
+/** Forces the backend specified by the target to upload the provided set of events. This should
+ * only ever happen when the QoS tier of an event requires it.
  *
  * @param eventHashes The set of event hashes to force upload.
  * @param target The target that should force an upload.

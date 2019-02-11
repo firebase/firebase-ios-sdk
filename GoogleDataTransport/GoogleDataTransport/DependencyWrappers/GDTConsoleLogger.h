@@ -30,13 +30,13 @@ static GULLoggerService kGDTConsoleLogger = @"[GoogleDataTransport]";
  */
 typedef NS_ENUM(NSInteger, GDTMessageCode) {
 
-  /** For warning messages concerning transportBytes: not being implemented by a log extension. */
-  GDTMCWExtensionMissingBytesImpl = 1,
+  /** For warning messages concerning transportBytes: not being implemented by a data object. */
+  GDTMCWDataObjectMissingBytesImpl = 1,
 
   /** For warning message concerning a failed event upload. */
   GDTMCWUploadFailed = 2,
 
-  /** For error messages concerning transform: not being implemented by a log transformer. */
+  /** For error messages concerning transform: not being implemented by an event transformer. */
   GDTMCETransformerDoesntImplementTransform = 1000,
 
   /** For error messages concerning a GDTEvent living past the storeLog: invocation. */

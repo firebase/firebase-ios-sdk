@@ -33,8 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, readonly) GDTUploaderCompletionBlock onCompleteBlock;
 
 /** A map of targets to their desired next upload time, if they have one. */
-@property(nonatomic, readonly)
-    NSMutableDictionary<NSNumber *, GDTClock *> *targetToNextUploadTimes;
+@property(nonatomic, readonly) NSMutableDictionary<NSNumber *, GDTClock *> *targetToNextUploadTimes;
 
 /** A map of targets to a set of event hashes that has been handed off to the uploader. */
 @property(nonatomic, readonly)

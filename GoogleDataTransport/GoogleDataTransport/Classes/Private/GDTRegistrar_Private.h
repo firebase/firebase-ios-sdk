@@ -24,8 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, readonly) dispatch_queue_t registrarQueue;
 
 /** A map of targets to backend implementations. */
-@property(atomic, readonly)
-    NSMutableDictionary<NSNumber *, id<GDTUploader>> *targetToUploader;
+@property(atomic, readonly) NSMutableDictionary<NSNumber *, id<GDTUploader>> *targetToUploader;
 
 /** A map of targets to prioritizer implementations. */
 @property(atomic, readonly)
