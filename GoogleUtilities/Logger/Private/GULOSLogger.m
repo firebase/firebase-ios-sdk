@@ -20,21 +20,40 @@
 
 #import "GULAppEnvironmentUtil.h"
 #import "GULLogger+Internal.h"
+#import "GULLoggerLevel.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface GULOSLogger () {
-  GULLoggerLevel _logLevel;
+// Function which calls the macro so that this can be substituted for testing.
+// Since the macro enforces built-in constant-ness of the format string, it is replaced by "s"
+// and the va_list should only contain one argument, a full message with format substitutions
+// already filled.
+static void __gul_os_log_with_type(os_log_t log, os_log_type_t type, char* s, ...) {
+  if (@available(iOS 9.0, macOS 10.11, *)) {
+    va_list args;
+    va_start(args, s);
+    os_log_with_type(log, type, "s", args);
+    va_end(args);
+  } else {
+#ifdef DEBUG
+    NSCAssert(NO, @"Attempting to use os_log on iOS version prior to 9.");
+#endif
+  }
 }
+
+@interface GULOSLogger ()
 
 @property(nonatomic) NSMutableDictionary<NSString *, os_log_t> *categoryLoggers;
 @property(nonatomic) dispatch_queue_t dispatchQueue;
+@property(nonatomic, unsafe_unretained) void (*logFunction)(os_log_t, os_log_type_t, char*, ...);
 
 @end
 
 @implementation GULOSLogger
 
 @synthesize forcedDebug = _forcedDebug;
+@synthesize logFunction = _logFunction;
+@synthesize logLevel = _logLevel;
 @synthesize version = _version;
 
 - (instancetype)init {
@@ -44,6 +63,7 @@ NS_ASSUME_NONNULL_BEGIN
     _logLevel = GULLoggerLevelNotice;
     _version = @"";
     _dispatchQueue = dispatch_queue_create("GULLoggerQueue", DISPATCH_QUEUE_SERIAL);
+    _logFunction = &__gul_os_log_with_type;
     dispatch_set_target_queue(_dispatchQueue,
                               dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0));
   }
@@ -95,7 +115,7 @@ NS_ASSUME_NONNULL_BEGIN
   dispatch_async(self.dispatchQueue, ^{
     os_log_t osLog = self.categoryLoggers[service];
     if (!osLog) {
-      if (@available(iOS 9.0, *)) {
+      if (@available(iOS 9.0, macOS 10.11, *)) {
         osLog = os_log_create(kGULLoggerClientFacilityName, service.UTF8String);
         self.categoryLoggers[service] = osLog;
       } else {
@@ -104,18 +124,12 @@ NS_ASSUME_NONNULL_BEGIN
 #endif
       }
     }
-    if (@available(iOS 9.0, *)) {
-      os_log_with_type(osLog, [[self class] osLogTypeForGULLoggerLevel:level], "%s",
-                       [GULLogger messageFromLogger:self
-                                        withService:service
-                                               code:messageCode
-                                            message:message]
-                           .UTF8String);
-    } else {
-#ifdef DEBUG
-      NSCAssert(NO, @"Attempting to use os_log on iOS version prior to 9.");
-#endif
-    }
+    (*self.logFunction)(osLog, [[self class] osLogTypeForGULLoggerLevel:level],"%s",
+                        [GULLogger messageFromLogger:self
+                                         withService:service
+                                                code:messageCode
+                                             message:message]
+                        .UTF8String);
   });
 }
 

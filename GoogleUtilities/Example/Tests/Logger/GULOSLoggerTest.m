@@ -14,10 +14,14 @@
 
 #import <XCTest/XCTest.h>
 
+#import <os/log.h>
+
 #import <GoogleUtilities/GULLogger.h>
 #import <GoogleUtilities/GULOSLogger.h>
 
-#import <os/log.h>
+void __gul_test_os_log_with_type(os_log_t log, os_log_type_t type, char* s, ...) {
+  // TODO(bstpierre): Verify that the params are as expected.
+}
 
 // Redefine class property as readwrite for testing.
 @interface GULLogger (ForTesting)
@@ -28,11 +32,24 @@
 @interface GULOSLogger (ForTesting)
 @property(nonatomic) NSMutableDictionary<NSString *, os_log_t> *categoryLoggers;
 @property(nonatomic) dispatch_queue_t dispatchQueue;
+@property(nonatomic) void (*logFunction)(os_log_t, os_log_type_t, char*, ...);
 @end
 
 @interface GULOSLoggerTest : XCTestCase
+@property(nonatomic) GULOSLogger *osLogger;
 @end
 
 @implementation GULOSLoggerTest
-// TODO(bstpierre): Tests
+
+- (void)setUp {
+  self.osLogger = [[GULOSLogger alloc] init];
+  self.osLogger.logFunction = &__gul_test_os_log_with_type;
+}
+
+- (void)tearDown {
+  self.osLogger = nil;
+}
+
+// TODO(bstpierre): Write tests.
+
 @end
