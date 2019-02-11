@@ -17,7 +17,7 @@
 #import "GDTUploadCoordinator.h"
 
 @class GDTClock;
-@class GDTLogStorage;
+@class GDTStorage;
 
 /** A convenience typedef to define the a block containing a force upload attempt. */
 typedef void (^GDTUploadCoordinatorForceUploadBlock)(void);
@@ -32,19 +32,19 @@ NS_ASSUME_NONNULL_BEGIN
 /** The completion block to run after an uploader completes. */
 @property(nonatomic, readonly) GDTUploaderCompletionBlock onCompleteBlock;
 
-/** A map of log targets to their desired next upload time, if they have one. */
+/** A map of targets to their desired next upload time, if they have one. */
 @property(nonatomic, readonly)
-    NSMutableDictionary<NSNumber *, GDTClock *> *logTargetToNextUploadTimes;
+    NSMutableDictionary<NSNumber *, GDTClock *> *targetToNextUploadTimes;
 
-/** A map of log targets to a set of log hashes that has been handed off to the uploader. */
+/** A map of targets to a set of event hashes that has been handed off to the uploader. */
 @property(nonatomic, readonly)
-    NSMutableDictionary<NSNumber *, NSSet<NSNumber *> *> *logTargetToInFlightLogSet;
+    NSMutableDictionary<NSNumber *, NSSet<NSNumber *> *> *targetToInFlightEventSet;
 
-/** A queue of forced uploads. Only populated if the log target already had in-flight logs. */
+/** A queue of forced uploads. Only populated if the target already had in-flight events. */
 @property(nonatomic, readonly)
     NSMutableArray<GDTUploadCoordinatorForceUploadBlock> *forcedUploadQueue;
 
-/** A timer that will causes regular checks for logs to upload. */
+/** A timer that will causes regular checks for events to upload. */
 @property(nonatomic, readonly) dispatch_source_t timer;
 
 /** The interval the timer will fire. */
@@ -53,8 +53,8 @@ NS_ASSUME_NONNULL_BEGIN
 /** Some leeway given to libdispatch for the timer interval event. */
 @property(nonatomic, readonly) uint64_t timerLeeway;
 
-/** The log storage object the coordinator will use. Generally used for testing. */
-@property(nonatomic) GDTLogStorage *logStorage;
+/** The storage object the coordinator will use. Generally used for testing. */
+@property(nonatomic) GDTStorage *storage;
 
 /** The registrar object the coordinator will use. Generally used for testing. */
 @property(nonatomic) GDTRegistrar *registrar;

@@ -15,10 +15,10 @@
  */
 
 #import "GDTClock.h"
-#import "GDTLogEvent.h"
-#import "GDTLogPrioritizer.h"
-#import "GDTLogProto.h"
-#import "GDTLogTransformer.h"
-#import "GDTLogUploader.h"
-#import "GDTLogger.h"
+#import "GDTEvent.h"
+#import "GDTPrioritizer.h"
+#import "GDTEventDataObject.h"
+#import "GDTEventTransformer.h"
+#import "GDTUploader.h"
+#import "GDTTransport.h"
 #import "GDTRegistrar.h"

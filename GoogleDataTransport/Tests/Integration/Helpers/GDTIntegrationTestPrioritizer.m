@@ -18,11 +18,11 @@
 
 @interface GDTIntegrationTestPrioritizer ()
 
-/** Logs that are only supposed to be uploaded whilst on wifi. */
-@property(nonatomic) NSMutableSet *wifiOnlyLogs;
+/** Events that are only supposed to be uploaded whilst on wifi. */
+@property(nonatomic) NSMutableSet *wifiOnlyEvents;
 
-/** Logs that can be uploaded on any type of connection. */
-@property(nonatomic) NSMutableSet *nonWifiLogs;
+/** Events that can be uploaded on any type of connection. */
+@property(nonatomic) NSMutableSet *nonWifiEvents;
 
 /** The queue on which this prioritizer operates. */
 @property(nonatomic) dispatch_queue_t queue;
@@ -36,40 +36,40 @@
   if (self) {
     _queue =
         dispatch_queue_create("com.google.GDTIntegrationTestPrioritizer", DISPATCH_QUEUE_SERIAL);
-    _wifiOnlyLogs = [[NSMutableSet alloc] init];
-    _nonWifiLogs = [[NSMutableSet alloc] init];
-    [[GDTRegistrar sharedInstance] registerPrioritizer:self logTarget:kGDTIntegrationTestTarget];
+    _wifiOnlyEvents = [[NSMutableSet alloc] init];
+    _nonWifiEvents = [[NSMutableSet alloc] init];
+    [[GDTRegistrar sharedInstance] registerPrioritizer:self target:kGDTIntegrationTestTarget];
   }
   return self;
 }
 
-- (void)prioritizeLog:(GDTLogEvent *)logEvent {
+- (void)prioritizeEvent:(GDTEvent *)event {
   dispatch_sync(_queue, ^{
-    if (logEvent.qosTier == GDTLogQoSWifiOnly) {
-      [self.wifiOnlyLogs addObject:@(logEvent.hash)];
+    if (event.qosTier == GDTEventQoSWifiOnly) {
+      [self.wifiOnlyEvents addObject:@(event.hash)];
     } else {
-      [self.nonWifiLogs addObject:@(logEvent.hash)];
+      [self.nonWifiEvents addObject:@(event.hash)];
     }
   });
 }
 
-- (void)unprioritizeLog:(NSNumber *)logHash {
+- (void)unprioritizeEvent:(NSNumber *)eventHash {
   dispatch_sync(_queue, ^{
-    [self.wifiOnlyLogs removeObject:logHash];
-    [self.nonWifiLogs removeObject:logHash];
+    [self.wifiOnlyEvents removeObject:eventHash];
+    [self.nonWifiEvents removeObject:eventHash];
   });
 }
 
-- (nonnull NSSet<NSNumber *> *)logsToUploadGivenConditions:(GDTUploadConditions)conditions {
-  __block NSSet<NSNumber *> *logs;
+- (nonnull NSSet<NSNumber *> *)eventsToUploadGivenConditions:(GDTUploadConditions)conditions {
+  __block NSSet<NSNumber *> *events;
   dispatch_sync(_queue, ^{
     if ((conditions & GDTUploadConditionWifiData) == GDTUploadConditionWifiData) {
-      logs = self.wifiOnlyLogs;
+      events = self.wifiOnlyEvents;
     } else {
-      logs = self.nonWifiLogs;
+      events = self.nonWifiEvents;
     }
   });
-  return logs;
+  return events;
 }
 
 @end

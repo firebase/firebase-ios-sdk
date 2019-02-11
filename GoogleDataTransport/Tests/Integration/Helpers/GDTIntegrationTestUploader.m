@@ -32,12 +32,12 @@
   self = [super init];
   if (self) {
     _serverURL = serverURL;
-    [[GDTRegistrar sharedInstance] registerUploader:self logTarget:kGDTIntegrationTestTarget];
+    [[GDTRegistrar sharedInstance] registerUploader:self target:kGDTIntegrationTestTarget];
   }
   return self;
 }
 
-- (void)uploadLogs:(NSSet<NSURL *> *)logFiles onComplete:(GDTUploaderCompletionBlock)onComplete {
+- (void)uploadEvents:(NSSet<NSURL *> *)eventFiles onComplete:(GDTUploaderCompletionBlock)onComplete {
   NSAssert(!_currentUploadTask, @"An upload shouldn't be initiated with another in progress.");
   NSURL *serverURL = arc4random_uniform(2) ? [_serverURL URLByAppendingPathComponent:@"log"]
                                            : [_serverURL URLByAppendingPathComponent:@"logBatch"];
@@ -46,12 +46,12 @@
   request.HTTPMethod = @"POST";
   NSMutableData *uploadData = [[NSMutableData alloc] init];
 
-  NSLog(@"Uploading batch of %lu logs: ", (unsigned long)logFiles.count);
+  NSLog(@"Uploading batch of %lu events: ", (unsigned long)eventFiles.count);
 
   // In real usage, you'd create an instance of whatever request proto your server needs.
-  for (NSURL *logFile in logFiles) {
-    NSData *fileData = [NSData dataWithContentsOfURL:logFile];
-    NSAssert(fileData, @"A log file shouldn't be empty");
+  for (NSURL *eventFile in eventFiles) {
+    NSData *fileData = [NSData dataWithContentsOfURL:eventFile];
+    NSAssert(fileData, @"A event file shouldn't be empty");
     [uploadData appendData:fileData];
   }
   NSURLSessionUploadTask *uploadTask =
@@ -61,7 +61,7 @@
                                        NSError *_Nullable error) {
                      NSLog(@"Batch upload complete.");
                      // Remove from the prioritizer if there were no errors.
-                     NSAssert(!error, @"There should be no errors uploading logs: %@", error);
+                     NSAssert(!error, @"There should be no errors uploading events: %@", error);
                      if (onComplete) {
                        // In real usage, the server would/should return a desired next upload time.
                        GDTClock *nextUploadTime = [GDTClock clockSnapshotInTheFuture:1000];

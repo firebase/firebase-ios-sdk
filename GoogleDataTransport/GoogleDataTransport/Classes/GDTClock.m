@@ -21,7 +21,7 @@
 // Using a monotonic clock is necessary because CFAbsoluteTimeGetCurrent(), NSDate, and related all
 // are subject to drift. That it to say, multiple consecutive calls do not always result in a
 // time that is in the future. Clocks may be adjusted by the user, NTP, or any number of external
-// factors. This class attempts to determine the wall-clock time at the time of log by capturing
+// factors. This class attempts to determine the wall-clock time at the time of the event by capturing
 // the kernel start and time since boot to determine a wallclock time in UTC.
 //
 // Timezone offsets at the time of a snapshot are also captured in order to provide local-time

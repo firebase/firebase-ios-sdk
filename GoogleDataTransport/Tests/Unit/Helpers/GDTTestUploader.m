@@ -18,11 +18,11 @@
 
 @implementation GDTTestUploader
 
-- (void)uploadLogs:(NSSet<NSURL *> *)logFiles onComplete:(GDTUploaderCompletionBlock)onComplete {
-  if (_uploadLogsBlock) {
-    _uploadLogsBlock(logFiles, onComplete);
+- (void)uploadEvents:(NSSet<NSURL *> *)eventFiles onComplete:(GDTUploaderCompletionBlock)onComplete {
+  if (_uploadEventsBlock) {
+    _uploadEventsBlock(eventFiles, onComplete);
   } else if (onComplete) {
-    onComplete(kGDTLogTargetCCT, [GDTClock snapshot], nil);
+    onComplete(kGDTTargetCCT, [GDTClock snapshot], nil);
   }
 }
 

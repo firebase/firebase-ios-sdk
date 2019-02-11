@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,22 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import "GDTStorageFake.h"
 
-@class GDTLogEvent;
+@implementation GDTStorageFake
 
-NS_ASSUME_NONNULL_BEGIN
+- (void)storeEvent:(GDTEvent *)event {
+}
 
-/** Defines the API that log transformers must adopt. */
-@protocol GDTLogTransformer <NSObject>
+- (NSSet<NSURL *> *)eventHashesToFiles:(NSSet<NSNumber *> *)eventHashes {
+  if (_eventsToReturnFromEventHashesToFiles) {
+    return _eventsToReturnFromEventHashesToFiles;
+  } else {
+    return [[NSSet alloc] init];
+  }
+}
 
-@required
-
-/** Transforms a log by applying some logic to it. Logs returned can be nil, for example, in
- *  instances where the log should be sampled.
- *
- * @param logEvent The log event to transform.
- * @return A transformed log event, or nil if the transformation removed the log event.
- */
-- (GDTLogEvent *)transform:(GDTLogEvent *)logEvent;
+- (void)removeEvents:(NSSet<NSNumber *> *)eventHashes target:(NSNumber *)target {
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

@@ -33,19 +33,19 @@ typedef NS_ENUM(NSInteger, GDTMessageCode) {
   /** For warning messages concerning transportBytes: not being implemented by a log extension. */
   GDTMCWExtensionMissingBytesImpl = 1,
 
-  /** For warning message concerning a failed log upload. */
+  /** For warning message concerning a failed event upload. */
   GDTMCWUploadFailed = 2,
 
   /** For error messages concerning transform: not being implemented by a log transformer. */
   GDTMCETransformerDoesntImplementTransform = 1000,
 
-  /** For error messages concerning a GDTLogEvent living past the storeLog: invocation. */
-  GDTMCELogEventWasIllegallyRetained = 1001,
+  /** For error messages concerning a GDTEvent living past the storeLog: invocation. */
+  GDTMCEEventWasIllegallyRetained = 1001,
 
   /** For error messages concerning the creation of a directory failing. */
   GDTMCEDirectoryCreationError = 1002,
 
-  /** For error messages concerning the writing of a log file. */
+  /** For error messages concerning the writing of a event file. */
   GDTMCEFileWriteError = 1003
 };
 

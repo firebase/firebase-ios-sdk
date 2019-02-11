@@ -1,10 +1,10 @@
 Pod::Spec.new do |s|
   s.name             = 'GoogleDataTransport'
   s.version          = '0.1.0'
-  s.summary          = 'Google Data Logging iOS SDK.'
+  s.summary          = 'Google iOS SDK data transport.'
 
   s.description      = <<-DESC
-Shared library for iOS SDK data logging needs.
+Shared library for iOS SDK data transport needs.
                        DESC
 
   s.homepage         = 'https://developers.google.com/'

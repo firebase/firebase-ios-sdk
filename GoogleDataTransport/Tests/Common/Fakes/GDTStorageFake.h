@@ -14,25 +14,16 @@
  * limitations under the License.
  */
 
-#import "GDTLogStorageFake.h"
+#import "GDTStorage.h"
 
-@implementation GDTLogStorageFake
+NS_ASSUME_NONNULL_BEGIN
 
-- (void)storeLog:(GDTLogEvent *)log {
-}
+/** A functionless fake that can be injected into classes that need it. */
+@interface GDTStorageFake : GDTStorage
 
-- (NSSet<NSURL *> *)logHashesToFiles:(NSSet<NSNumber *> *)logHashes {
-  if (_logsToReturnFromLogHashesToFiles) {
-    return _logsToReturnFromLogHashesToFiles;
-  } else {
-    return [[NSSet alloc] init];
-  }
-}
-
-- (void)removeLog:(NSNumber *)logHash logTarget:(NSNumber *)logTarget {
-}
-
-- (void)removeLogs:(NSSet<NSNumber *> *)logHashes logTarget:(NSNumber *)logTarget {
-}
+/** The events to return from -eventHashesToFiles. */
+@property(nonatomic) NSSet<NSURL *> *eventsToReturnFromEventHashesToFiles;
 
 @end
+
+NS_ASSUME_NONNULL_END

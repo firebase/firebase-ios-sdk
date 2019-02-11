@@ -14,47 +14,45 @@
  * limitations under the License.
  */
 
-#import "GDTLogWriter.h"
-#import "GDTLogWriter_Private.h"
+#import "GDTTransformer.h"
+#import "GDTTransformer_Private.h"
 
-#import <GoogleDataTransport/GDTLogTransformer.h>
+#import <GoogleDataTransport/GDTEventTransformer.h>
 
 #import "GDTAssert.h"
 #import "GDTConsoleLogger.h"
-#import "GDTLogEvent_Private.h"
-#import "GDTLogStorage.h"
+#import "GDTEvent_Private.h"
+#import "GDTStorage.h"
 
-@implementation GDTLogWriter
+@implementation GDTTransformer
 
-// This class doesn't have to be a singleton, but allocating an instance for every logger could be
-// wasteful.
 + (instancetype)sharedInstance {
-  static GDTLogWriter *logWriter;
+  static GDTTransformer *eventTransformer;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
-    logWriter = [[self alloc] init];
+    eventTransformer = [[self alloc] init];
   });
-  return logWriter;
+  return eventTransformer;
 }
 
 - (instancetype)init {
   self = [super init];
   if (self) {
-    _logWritingQueue = dispatch_queue_create("com.google.GDTLogWriter", DISPATCH_QUEUE_SERIAL);
-    _storageInstance = [GDTLogStorage sharedInstance];
+    _eventWritingQueue = dispatch_queue_create("com.google.GDTTransformer", DISPATCH_QUEUE_SERIAL);
+    _storageInstance = [GDTStorage sharedInstance];
   }
   return self;
 }
 
-- (void)writeLog:(GDTLogEvent *)log
-    afterApplyingTransformers:(NSArray<id<GDTLogTransformer>> *)logTransformers {
-  GDTAssert(log, @"You can't write a nil log");
-  dispatch_async(_logWritingQueue, ^{
-    GDTLogEvent *transformedLog = log;
-    for (id<GDTLogTransformer> transformer in logTransformers) {
+- (void)transformEvent:(GDTEvent *)event
+    withTransformers:(NSArray<id<GDTEventTransformer>> *)transformers {
+  GDTAssert(event, @"You can't write a nil event");
+  dispatch_async(_eventWritingQueue, ^{
+    GDTEvent *transformedEvent = event;
+    for (id<GDTEventTransformer> transformer in transformers) {
       if ([transformer respondsToSelector:@selector(transform:)]) {
-        transformedLog = [transformer transform:transformedLog];
-        if (!transformedLog) {
+        transformedEvent = [transformer transform:transformedEvent];
+        if (!transformedEvent) {
           return;
         }
       } else {
@@ -63,7 +61,7 @@
         return;
       }
     }
-    [self.storageInstance storeLog:transformedLog];
+    [self.storageInstance storeEvent:transformedEvent];
   });
 }
 

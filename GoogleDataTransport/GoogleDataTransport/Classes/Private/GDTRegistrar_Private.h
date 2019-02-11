@@ -23,13 +23,13 @@ NS_ASSUME_NONNULL_BEGIN
 /** The concurrent queue on which all registration occurs. */
 @property(nonatomic, readonly) dispatch_queue_t registrarQueue;
 
-/** A map of logTargets to backend implementations. */
+/** A map of targets to backend implementations. */
 @property(atomic, readonly)
-    NSMutableDictionary<NSNumber *, id<GDTLogUploader>> *logTargetToUploader;
+    NSMutableDictionary<NSNumber *, id<GDTUploader>> *targetToUploader;
 
-/** A map of logTargets to prioritizer implementations. */
+/** A map of targets to prioritizer implementations. */
 @property(atomic, readonly)
-    NSMutableDictionary<NSNumber *, id<GDTLogPrioritizer>> *logTargetToPrioritizer;
+    NSMutableDictionary<NSNumber *, id<GDTPrioritizer>> *targetToPrioritizer;
 
 @end
 

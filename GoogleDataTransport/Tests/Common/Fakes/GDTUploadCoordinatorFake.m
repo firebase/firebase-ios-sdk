@@ -18,7 +18,7 @@
 
 @implementation GDTUploadCoordinatorFake
 
-- (void)forceUploadLogs:(NSSet<NSURL *> *)logFiles target:(GDTLogTarget)logTarget {
+- (void)forceUploadEvents:(NSSet<NSURL *> *)eventFiles target:(GDTTarget)target {
   self.forceUploadCalled = YES;
 }
 

@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-#import "GDTLogWriter.h"
+#import "GDTDataObjectTesterClasses.h"
 
-@class GDTLogStorage;
+@implementation GDTDataObjectTesterSimple
 
-NS_ASSUME_NONNULL_BEGIN
+- (instancetype)init {
+  self = [super init];
+  if (self) {
+    _aString = @"test";
+  }
+  return self;
+}
 
-@interface GDTLogWriter ()
-
-/** The queue on which all work will occur. */
-@property(nonatomic) dispatch_queue_t logWritingQueue;
-
-/** The log storage instance used to store logs. Should only be used to inject a testing fake. */
-@property(nonatomic) GDTLogStorage *storageInstance;
+- (NSData *)transportBytes {
+  return [_aString dataUsingEncoding:NSUTF8StringEncoding];
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

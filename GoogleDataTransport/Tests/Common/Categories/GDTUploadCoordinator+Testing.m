@@ -18,17 +18,17 @@
 
 #import <objc/runtime.h>
 
-#import "GDTLogStorage.h"
+#import "GDTStorage.h"
 #import "GDTRegistrar.h"
 #import "GDTUploadCoordinator_Private.h"
 
 @implementation GDTUploadCoordinator (Testing)
 
 - (void)reset {
-  [self.logTargetToNextUploadTimes removeAllObjects];
-  [self.logTargetToInFlightLogSet removeAllObjects];
+  [self.targetToNextUploadTimes removeAllObjects];
+  [self.targetToInFlightEventSet removeAllObjects];
   [self.forcedUploadQueue removeAllObjects];
-  self.logStorage = [GDTLogStorage sharedInstance];
+  self.storage = [GDTStorage sharedInstance];
   self.registrar = [GDTRegistrar sharedInstance];
 }
 

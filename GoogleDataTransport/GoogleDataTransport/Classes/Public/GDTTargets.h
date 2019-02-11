@@ -16,11 +16,11 @@
 
 #import <Foundation/Foundation.h>
 
-/** The list of targets supported by the shared logging infrastructure. If adding a new target,
- * please use the previous value +1, and increment GDTLogTargetLast by 1.
+/** The list of targets supported by the shared transport infrastructure. If adding a new target,
+ * please use the previous value +1.
  */
-typedef NS_ENUM(NSInteger, GDTLogTarget) {
+typedef NS_ENUM(NSInteger, GDTTarget) {
 
-  /** The CCT log target. */
-  kGDTLogTargetCCT = 1000,
+  /** The CCT target. */
+  kGDTTargetCCT = 1000,
 };

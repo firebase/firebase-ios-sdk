@@ -24,7 +24,7 @@
 
 @interface GDTRegistrarTest : GDTTestCase
 
-@property(nonatomic) GDTLogTarget logTarget;
+@property(nonatomic) GDTTarget target;
 
 @end
 
@@ -32,7 +32,7 @@
 
 - (void)setUp {
   [super setUp];
-  _logTarget = 23;
+  _target = 23;
 }
 
 /** Tests the default initializer. */
@@ -44,16 +44,16 @@
 - (void)testRegisterUpload {
   GDTRegistrar *registrar = [GDTRegistrar sharedInstance];
   GDTTestUploader *uploader = [[GDTTestUploader alloc] init];
-  XCTAssertNoThrow([registrar registerUploader:uploader logTarget:self.logTarget]);
-  XCTAssertEqual(uploader, registrar.logTargetToUploader[@(_logTarget)]);
+  XCTAssertNoThrow([registrar registerUploader:uploader target:self.target]);
+  XCTAssertEqual(uploader, registrar.targetToUploader[@(_target)]);
 }
 
 /** Test registering a prioritizer. */
 - (void)testRegisterPrioritizer {
   GDTRegistrar *registrar = [GDTRegistrar sharedInstance];
   GDTTestPrioritizer *prioritizer = [[GDTTestPrioritizer alloc] init];
-  XCTAssertNoThrow([registrar registerPrioritizer:prioritizer logTarget:self.logTarget]);
-  XCTAssertEqual(prioritizer, registrar.logTargetToPrioritizer[@(_logTarget)]);
+  XCTAssertNoThrow([registrar registerPrioritizer:prioritizer target:self.target]);
+  XCTAssertEqual(prioritizer, registrar.targetToPrioritizer[@(_target)]);
 }
 
 @end

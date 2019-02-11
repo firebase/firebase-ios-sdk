@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,13 @@
  * limitations under the License.
  */
 
-#import "GDTLogExtensionTesterClasses.h"
+#import "GDTTransformer.h"
 
-@implementation GDTLogExtensionTesterSimple
+NS_ASSUME_NONNULL_BEGIN
 
-- (instancetype)init {
-  self = [super init];
-  if (self) {
-    _aString = @"test";
-  }
-  return self;
-}
-
-- (NSData *)transportBytes {
-  return [_aString dataUsingEncoding:NSUTF8StringEncoding];
-}
+/** A functionless fake that can be injected into classes that need it. */
+@interface GDTTransformerFake : GDTTransformer
 
 @end
+
+NS_ASSUME_NONNULL_END

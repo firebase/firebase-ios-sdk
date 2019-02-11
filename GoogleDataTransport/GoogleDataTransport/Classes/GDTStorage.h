@@ -16,12 +16,12 @@
 
 #import <Foundation/Foundation.h>
 
-@class GDTLogEvent;
+@class GDTEvent;
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** Manages the storage of logs. This class is thread-safe. */
-@interface GDTLogStorage : NSObject <NSSecureCoding>
+/** Manages the storage of events. This class is thread-safe. */
+@interface GDTStorage : NSObject <NSSecureCoding>
 
 /** Creates and/or returns the storage singleton.
  *
@@ -29,28 +29,28 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (instancetype)sharedInstance;
 
-/** Stores log.extensionBytes into a shared on-device folder and tracks the log via its hash and
- * logTarget properties.
+/** Stores event.extensionBytes into a shared on-device folder and tracks the event via its hash and
+ * target properties.
  *
- * @note The log param is expected to be deallocated during this method.
+ * @note The event param is expected to be deallocated during this method.
  *
- * @param log The log to store.
+ * @param event The event to store.
  */
-- (void)storeLog:(GDTLogEvent *)log;
+- (void)storeEvent:(GDTEvent *)event;
 
-/** Removes a set of log fields specified by their filenames.
+/** Removes a set of event from storage specified by their hash.
  *
- * @param logHashes The set of log files to remove.
- * @param logTarget The log target the log files correspond to.
+ * @param eventHashes The set of event hashes to remove.
+ * @param target The upload target the event files correspond to.
  */
-- (void)removeLogs:(NSSet<NSNumber *> *)logHashes logTarget:(NSNumber *)logTarget;
+- (void)removeEvents:(NSSet<NSNumber *> *)eventHashes target:(NSNumber *)target;
 
-/** Converts a set of log hashes to a set of log files.
+/** Converts a set of event hashes to a set of event files.
  *
- * @param logHashes A set of log hashes to get the files of.
+ * @param eventHashes A set of event hashes to get the files of.
  * @return A set of equivalent length, containing all the filenames corresponding to the hashes.
  */
-- (NSSet<NSURL *> *)logHashesToFiles:(NSSet<NSNumber *> *)logHashes;
+- (NSSet<NSURL *> *)eventHashesToFiles:(NSSet<NSNumber *> *)eventHashes;
 
 @end
 

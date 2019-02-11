@@ -14,29 +14,29 @@
  * limitations under the License.
  */
 
-#import <GoogleDataTransport/GDTLogEvent.h>
+#import <GoogleDataTransport/GDTEvent.h>
 
 #import "GDTAssert.h"
-#import "GDTLogEvent_Private.h"
+#import "GDTEvent_Private.h"
 
-@implementation GDTLogEvent
+@implementation GDTEvent
 
-- (instancetype)initWithLogMapID:(NSString *)logMapID logTarget:(NSInteger)logTarget {
-  GDTAssert(logMapID.length > 0, @"Please give a valid log map ID");
-  GDTAssert(logTarget > 0, @"A log target cannot be negative or 0");
+- (instancetype)initWithMappingID:(NSString *)mappingID target:(NSInteger)target {
+  GDTAssert(mappingID.length > 0, @"Please give a valid mapping ID");
+  GDTAssert(target > 0, @"A target cannot be negative or 0");
   self = [super init];
   if (self) {
-    _logMapID = logMapID;
-    _logTarget = logTarget;
-    _qosTier = GDTLogQosDefault;
+    _mappingID = mappingID;
+    _target = target;
+    _qosTier = GDTEventQosDefault;
   }
   return self;
 }
 
 - (instancetype)copy {
-  GDTLogEvent *copy = [[GDTLogEvent alloc] initWithLogMapID:_logMapID logTarget:_logTarget];
-  copy.extension = _extension;
-  copy.extensionBytes = _extensionBytes;
+  GDTEvent *copy = [[GDTEvent alloc] initWithMappingID:_mappingID target:_target];
+  copy.dataObject = _dataObject;
+  copy.dataObjectTransportBytes = _dataObjectTransportBytes;
   copy.qosTier = _qosTier;
   copy.clockSnapshot = _clockSnapshot;
   copy.customPrioritizationParams = _customPrioritizationParams;
@@ -45,29 +45,29 @@
 
 - (NSUInteger)hash {
   // This loses some precision, but it's probably fine.
-  NSUInteger logMapIDHash = [_logMapID hash];
+  NSUInteger mappingIDHash = [_mappingID hash];
   NSUInteger timeHash = [_clockSnapshot hash];
-  NSUInteger extensionBytesHash = [_extensionBytes hash];
-  return logMapIDHash ^ _logTarget ^ extensionBytesHash ^ _qosTier ^ timeHash;
+  NSUInteger dataObjectTransportBytesHash = [_dataObjectTransportBytes hash];
+  return mappingIDHash ^ _target ^ dataObjectTransportBytesHash ^ _qosTier ^ timeHash;
 }
 
-- (void)setExtension:(id<GDTLogProto>)extension {
+- (void)setDataObject:(id<GDTEventDataObject>)dataObject {
   // If you're looking here because of a performance issue in -transportBytes slowing the assignment
   // of extension, one way to address this is to add a queue to this class,
   // dispatch_(barrier_ if concurrent)async here, and implement the getter with a dispatch_sync.
-  if (extension != _extension) {
-    _extension = extension;
-    _extensionBytes = [extension transportBytes];
+  if (dataObject != _dataObject) {
+    _dataObject = dataObject;
+    _dataObjectTransportBytes = [dataObject transportBytes];
   }
 }
 
 #pragma mark - NSSecureCoding and NSCoding Protocols
 
-/** NSCoding key for logMapID property. */
-static NSString *logMapIDKey = @"_logMapID";
+/** NSCoding key for mappingID property. */
+static NSString *mappingIDKey = @"_mappingID";
 
-/** NSCoding key for logTarget property. */
-static NSString *logTargetKey = @"_logTarget";
+/** NSCoding key for target property. */
+static NSString *targetKey = @"_target";
 
 /** NSCoding key for extensionBytes property. */
 static NSString *extensionBytesKey = @"_extensionBytes";
@@ -83,11 +83,11 @@ static NSString *clockSnapshotKey = @"_clockSnapshot";
 }
 
 - (id)initWithCoder:(NSCoder *)aDecoder {
-  NSString *logMapID = [aDecoder decodeObjectOfClass:[NSObject class] forKey:logMapIDKey];
-  NSInteger logTarget = [aDecoder decodeIntegerForKey:logTargetKey];
-  self = [self initWithLogMapID:logMapID logTarget:logTarget];
+  NSString *mappingID = [aDecoder decodeObjectOfClass:[NSObject class] forKey:mappingIDKey];
+  NSInteger target = [aDecoder decodeIntegerForKey:targetKey];
+  self = [self initWithMappingID:mappingID target:target];
   if (self) {
-    _extensionBytes = [aDecoder decodeObjectOfClass:[NSData class] forKey:extensionBytesKey];
+    _dataObjectTransportBytes = [aDecoder decodeObjectOfClass:[NSData class] forKey:extensionBytesKey];
     _qosTier = [aDecoder decodeIntegerForKey:qosTierKey];
     _clockSnapshot = [aDecoder decodeObjectOfClass:[GDTClock class] forKey:clockSnapshotKey];
   }
@@ -95,9 +95,9 @@ static NSString *clockSnapshotKey = @"_clockSnapshot";
 }
 
 - (void)encodeWithCoder:(NSCoder *)aCoder {
-  [aCoder encodeObject:_logMapID forKey:logMapIDKey];
-  [aCoder encodeInteger:_logTarget forKey:logTargetKey];
-  [aCoder encodeObject:_extensionBytes forKey:extensionBytesKey];
+  [aCoder encodeObject:_mappingID forKey:mappingIDKey];
+  [aCoder encodeInteger:_target forKey:targetKey];
+  [aCoder encodeObject:_dataObjectTransportBytes forKey:extensionBytesKey];
   [aCoder encodeInteger:_qosTier forKey:qosTierKey];
   [aCoder encodeObject:_clockSnapshot forKey:clockSnapshotKey];
 }

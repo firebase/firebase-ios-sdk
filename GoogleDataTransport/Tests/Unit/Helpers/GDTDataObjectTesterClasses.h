@@ -14,26 +14,17 @@
  * limitations under the License.
  */
 
-#import "GDTLogStorage.h"
+#import <Foundation/Foundation.h>
 
-@class GDTUploadCoordinator;
+#import <GoogleDataTransport/GDTEventDataObject.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface GDTLogStorage ()
+/** A class to represent a simple data object proto. */
+@interface GDTDataObjectTesterSimple : NSObject <GDTEventDataObject>
 
-/** The queue on which all storage work will occur. */
-@property(nonatomic) dispatch_queue_t storageQueue;
-
-/** A map of log hash values to log file on-disk URLs. */
-@property(nonatomic) NSMutableDictionary<NSNumber *, NSURL *> *logHashToLogFile;
-
-/** A map of logTargets to a set of log hash values. */
-@property(nonatomic)
-    NSMutableDictionary<NSNumber *, NSMutableSet<NSNumber *> *> *logTargetToLogHashSet;
-
-/** The log uploader instance to use. */
-@property(nonatomic) GDTUploadCoordinator *uploader;
+/** A string that will be turned into bytes. */
+@property(nonatomic) NSString *aString;
 
 @end
 

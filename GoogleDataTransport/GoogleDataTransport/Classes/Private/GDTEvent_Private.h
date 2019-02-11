@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2018 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,20 @@
  * limitations under the License.
  */
 
-#import "GDTLogWriterFake.h"
+#import "GDTEvent.h"
 
-@implementation GDTLogWriterFake
+#import "GDTClock.h"
 
-- (void)writeLog:(GDTLogEvent *)log
-    afterApplyingTransformers:(NSArray<id<GDTLogTransformer>> *)logTransformers {
-}
+NS_ASSUME_NONNULL_BEGIN
+
+@interface GDTEvent ()
+
+/** The serialized bytes of the event data object. */
+@property(nonatomic) NSData *dataObjectTransportBytes;
+
+/** The clock snapshot at the time of the event. */
+@property(nonatomic) GDTClock *clockSnapshot;
 
 @end
+
+NS_ASSUME_NONNULL_END

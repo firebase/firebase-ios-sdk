@@ -22,15 +22,15 @@
 #import "GDTIntegrationTestUploader.h"
 #import "GDTTestServer.h"
 
-#import "GDTLogStorage_Private.h"
+#import "GDTStorage_Private.h"
 #import "GDTUploadCoordinator+Testing.h"
 
-/** A test-only log object used in this integration test. */
-@interface GDTIntegrationTestLog : NSObject <GDTLogProto>
+/** A test-only event data object used in this integration test. */
+@interface GDTIntegrationTestEvent : NSObject <GDTEventDataObject>
 
 @end
 
-@implementation GDTIntegrationTestLog
+@implementation GDTIntegrationTestEvent
 
 - (NSData *)transportBytes {
   // In real usage, protobuf's -data method or a custom implementation using nanopb are used.
@@ -39,19 +39,19 @@
 
 @end
 
-/** A test-only log transformer. */
-@interface GDTIntegrationTestTransformer : NSObject <GDTLogTransformer>
+/** A test-only event transformer. */
+@interface GDTIntegrationTestTransformer : NSObject <GDTEventTransformer>
 
 @end
 
 @implementation GDTIntegrationTestTransformer
 
-- (GDTLogEvent *)transform:(GDTLogEvent *)logEvent {
-  // drop half the logs during transforming.
+- (GDTEvent *)transform:(GDTEvent *)event {
+  // drop half the events during transforming.
   if (arc4random_uniform(2) == 1) {
-    logEvent = nil;
+    event = nil;
   }
-  return logEvent;
+  return event;
 }
 
 @end
@@ -64,23 +64,23 @@
 /** A test uploader. */
 @property(nonatomic) GDTIntegrationTestUploader *uploader;
 
-/** The first test logger. */
-@property(nonatomic) GDTLogger *logger1;
+/** The first test transport. */
+@property(nonatomic) GDTTransport *transport1;
 
-/** The second test logger. */
-@property(nonatomic) GDTLogger *logger2;
+/** The second test transport. */
+@property(nonatomic) GDTTransport *transport2;
 
 @end
 
 @implementation GDTIntegrationTest
 
 - (void)tearDown {
-  dispatch_sync([GDTLogStorage sharedInstance].storageQueue, ^{
-    XCTAssertEqual([GDTLogStorage sharedInstance].logHashToLogFile.count, 0);
+  dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
+    XCTAssertEqual([GDTStorage sharedInstance].eventHashToFile.count, 0);
   });
 }
 
-- (void)testEndToEndLog {
+- (void)testEndToEndEvent {
   XCTestExpectation *expectation = [self expectationWithDescription:@"server got the request"];
   expectation.assertForOverFulfill = NO;
 
@@ -93,14 +93,14 @@
   [testServer registerTestPaths];
   [testServer start];
 
-  // Create loggers.
-  self.logger1 = [[GDTLogger alloc] initWithLogMapID:@"logMap1"
-                                     logTransformers:nil
-                                           logTarget:kGDTIntegrationTestTarget];
+  // Create eventgers.
+  self.transport1 = [[GDTTransport alloc] initWithMappingID:@"eventMap1"
+                                     transformers:nil
+                                           target:kGDTIntegrationTestTarget];
 
-  self.logger2 = [[GDTLogger alloc] initWithLogMapID:@"logMap2"
-                                     logTransformers:nil
-                                           logTarget:kGDTIntegrationTestTarget];
+  self.transport2 = [[GDTTransport alloc] initWithMappingID:@"eventMap2"
+                                     transformers:nil
+                                           target:kGDTIntegrationTestTarget];
 
   // Create a prioritizer and uploader.
   self.prioritizer = [[GDTIntegrationTestPrioritizer alloc] init];
@@ -110,23 +110,23 @@
   [GDTUploadCoordinator sharedInstance].timerInterval = NSEC_PER_SEC * 0.1;
   [GDTUploadCoordinator sharedInstance].timerLeeway = NSEC_PER_SEC * 0.01;
 
-  // Confirm no logs are in disk.
-  XCTAssertEqual([GDTLogStorage sharedInstance].logHashToLogFile.count, 0);
-  XCTAssertEqual([GDTLogStorage sharedInstance].logTargetToLogHashSet.count, 0);
+  // Confirm no events are in disk.
+  XCTAssertEqual([GDTStorage sharedInstance].eventHashToFile.count, 0);
+  XCTAssertEqual([GDTStorage sharedInstance].targetToEventHashSet.count, 0);
 
-  // Generate some logs data.
-  [self generateLogs];
+  // Generate some events data.
+  [self generateEvents];
 
-  // Confirm logs are on disk.
-  dispatch_sync([GDTLogStorage sharedInstance].storageQueue, ^{
-    XCTAssertGreaterThan([GDTLogStorage sharedInstance].logHashToLogFile.count, 0);
-    XCTAssertGreaterThan([GDTLogStorage sharedInstance].logTargetToLogHashSet.count, 0);
+  // Confirm events are on disk.
+  dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
+    XCTAssertGreaterThan([GDTStorage sharedInstance].eventHashToFile.count, 0);
+    XCTAssertGreaterThan([GDTStorage sharedInstance].targetToEventHashSet.count, 0);
   });
 
-  // Confirm logs were sent and received.
+  // Confirm events were sent and received.
   [self waitForExpectations:@[ expectation ] timeout:10.0];
 
-  // Generate logs for a bit.
+  // Generate events for a bit.
   NSUInteger lengthOfTestToRunInSeconds = 30;
   [GDTUploadCoordinator sharedInstance].timerInterval = NSEC_PER_SEC * 5;
   [GDTUploadCoordinator sharedInstance].timerLeeway = NSEC_PER_SEC * 1;
@@ -137,7 +137,7 @@
     static int numberOfTimesCalled = 0;
     numberOfTimesCalled++;
     if (numberOfTimesCalled < lengthOfTestToRunInSeconds) {
-      [self generateLogs];
+      [self generateEvents];
     } else {
       dispatch_source_cancel(timer);
     }
@@ -151,21 +151,21 @@
   [testServer stop];
 }
 
-/** Generates and logs a bunch of random logs. */
-- (void)generateLogs {
+/** Generates and events a bunch of random events. */
+- (void)generateEvents {
   for (int i = 0; i < 50; i++) {
-    // Choose a random logger, and randomly choose if it's a telemetry log.
-    GDTLogger *logger = arc4random_uniform(2) ? self.logger1 : self.logger2;
-    BOOL isTelemetryLog = arc4random_uniform(2);
+    // Choose a random eventger, and randomly choose if it's a telemetry event.
+    GDTTransport *transport = arc4random_uniform(2) ? self.transport1 : self.transport2;
+    BOOL isTelemetryEvent = arc4random_uniform(2);
 
-    // Create a log
-    GDTLogEvent *logEvent = [logger newEvent];
-    logEvent.extension = [[GDTIntegrationTestLog alloc] init];
+    // Create an event.
+    GDTEvent *event = [transport eventForTransport];
+    event.dataObject = [[GDTIntegrationTestEvent alloc] init];
 
-    if (isTelemetryLog) {
-      [logger logTelemetryEvent:logEvent];
+    if (isTelemetryEvent) {
+      [transport sendTelemetryEvent:event];
     } else {
-      [logger logDataEvent:logEvent];
+      [transport sendDataEvent:event];
     }
   }
 }

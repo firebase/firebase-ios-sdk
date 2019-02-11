@@ -16,18 +16,18 @@
 
 #import <Foundation/Foundation.h>
 
-#import "GDTLogUploader.h"
+#import "GDTUploader.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** This class implements the log backend protocol for testing purposes, providing APIs to allow
+/** This class implements a backend uploader protocol for testing purposes, providing APIs to allow
  * tests to alter the uploader behavior without creating a bunch of specialized classes.
  */
-@interface GDTTestUploader : NSObject <GDTLogUploader>
+@interface GDTTestUploader : NSObject <GDTUploader>
 
-/** A block that can be ran in -uploadLogs:onComplete:. */
-@property(nullable, nonatomic) void (^uploadLogsBlock)
-    (NSSet<NSURL *> *logFiles, GDTUploaderCompletionBlock completionBlock);
+/** A block that can be ran in -uploadEvents:onComplete:. */
+@property(nullable, nonatomic) void (^uploadEventsBlock)
+    (NSSet<NSURL *> *eventFiles, GDTUploaderCompletionBlock completionBlock);
 
 @end
 

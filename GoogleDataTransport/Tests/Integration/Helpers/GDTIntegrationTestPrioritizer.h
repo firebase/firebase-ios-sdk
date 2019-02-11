@@ -18,10 +18,10 @@
 
 #import <GoogleDataTransport/GoogleDataTransport.h>
 
-/** The integration test log target. Normally, you should use a value in GDTLogTargets.h. */
-static GDTLogTarget kGDTIntegrationTestTarget = 100;
+/** The integration test target. Normally, you should use a value in GDTTargets.h. */
+static GDTTarget kGDTIntegrationTestTarget = 100;
 
 /** An integration test prioritization class. */
-@interface GDTIntegrationTestPrioritizer : NSObject <GDTLogPrioritizer>
+@interface GDTIntegrationTestPrioritizer : NSObject <GDTPrioritizer>
 
 @end

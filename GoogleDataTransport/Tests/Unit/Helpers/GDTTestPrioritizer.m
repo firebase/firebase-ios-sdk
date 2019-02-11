@@ -21,25 +21,25 @@
 - (instancetype)init {
   self = [super init];
   if (self) {
-    _logsForNextUploadFake = [[NSSet alloc] init];
+    _eventsForNextUploadFake = [[NSSet alloc] init];
   }
   return self;
 }
 
-- (NSSet<NSNumber *> *)logsToUploadGivenConditions:(GDTUploadConditions)conditions {
-  if (_logsForNextUploadBlock) {
-    _logsForNextUploadBlock();
+- (NSSet<NSNumber *> *)eventsToUploadGivenConditions:(GDTUploadConditions)conditions {
+  if (_eventsForNextUploadBlock) {
+    _eventsForNextUploadBlock();
   }
-  return _logsForNextUploadFake;
+  return _eventsForNextUploadFake;
 }
 
-- (void)prioritizeLog:(GDTLogEvent *)logEvent {
-  if (_prioritizeLogBlock) {
-    _prioritizeLogBlock(logEvent);
+- (void)prioritizeEvent:(GDTEvent *)event {
+  if (_prioritizeEventBlock) {
+    _prioritizeEventBlock(event);
   }
 }
 
-- (void)unprioritizeLog:(nonnull NSNumber *)logHash {
+- (void)unprioritizeEvent:(nonnull NSNumber *)eventHash {
 }
 
 @end

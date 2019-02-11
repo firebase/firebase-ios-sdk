@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2018 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,20 @@
  * limitations under the License.
  */
 
-#import "GDTLogWriter.h"
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** A functionless fake that can be injected into classes that need it. */
-@interface GDTLogWriterFake : GDTLogWriter
+/** This protocol defines the common interface that event protos should implement regardless of the
+ * underlying transport technology (protobuf, nanopb, etc).
+ */
+@protocol GDTEventDataObject <NSObject>
+
+/** Returns the serialized proto bytes of the implementing event proto.
+ *
+ * @return the serialized proto bytes of the implementing event proto.
+ */
+- (NSData *)transportBytes;
 
 @end
 

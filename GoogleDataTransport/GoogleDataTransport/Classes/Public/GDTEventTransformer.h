@@ -16,18 +16,22 @@
 
 #import <Foundation/Foundation.h>
 
+@class GDTEvent;
+
 NS_ASSUME_NONNULL_BEGIN
 
-/** This protocol defines the common interface that log protos should implement regardless of the
- * underlying transport technology (protobuf, nanopb, etc).
- */
-@protocol GDTLogProto <NSObject>
+/** Defines the API that event transformers must adopt. */
+@protocol GDTEventTransformer <NSObject>
 
-/** Returns the serialized proto bytes of the implementing log proto.
+@required
+
+/** Transforms an event by applying some logic to it. Events returned can be nil, for example, in
+ *  instances where the event should be sampled.
  *
- * @return the serialized proto bytes of the implementing log proto.
+ * @param event The event to transform.
+ * @return A transformed event, or nil if the transformation dropped the event.
  */
-- (NSData *)transportBytes;
+- (GDTEvent *)transform:(GDTEvent *)event;
 
 @end
 

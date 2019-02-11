@@ -19,7 +19,7 @@
 #import "GDTUploadCoordinator.h"
 #import "GDTUploadCoordinator_Private.h"
 
-#import "GDTLogStorageFake.h"
+#import "GDTStorageFake.h"
 #import "GDTRegistrar+Testing.h"
 #import "GDTTestPrioritizer.h"
 #import "GDTTestUploader.h"
@@ -27,8 +27,8 @@
 
 @interface GDTUploadCoordinatorTest : GDTTestCase
 
-/** A log storage fake to inject into GDTUploadCoordinator. */
-@property(nonatomic) GDTLogStorageFake *storageFake;
+/** A storage fake to inject into GDTUploadCoordinator. */
+@property(nonatomic) GDTStorageFake *storageFake;
 
 /** A test prioritizer. */
 @property(nonatomic) GDTTestPrioritizer *prioritizer;
@@ -36,8 +36,8 @@
 /** A test uploader. */
 @property(nonatomic) GDTTestUploader *uploader;
 
-/** A log target for the prioritizer and uploader to use. */
-@property(nonatomic) GDTLogTarget logTarget;
+/** A target for the prioritizer and uploader to use. */
+@property(nonatomic) GDTTarget target;
 
 @end
 
@@ -45,16 +45,16 @@
 
 - (void)setUp {
   [super setUp];
-  self.storageFake = [[GDTLogStorageFake alloc] init];
-  self.logTarget = 42;
+  self.storageFake = [[GDTStorageFake alloc] init];
+  self.target = 42;
   self.prioritizer = [[GDTTestPrioritizer alloc] init];
   self.uploader = [[GDTTestUploader alloc] init];
 
-  [[GDTRegistrar sharedInstance] registerPrioritizer:_prioritizer logTarget:_logTarget];
-  [[GDTRegistrar sharedInstance] registerUploader:_uploader logTarget:_logTarget];
+  [[GDTRegistrar sharedInstance] registerPrioritizer:_prioritizer target:_target];
+  [[GDTRegistrar sharedInstance] registerUploader:_uploader target:_target];
 
   GDTUploadCoordinator *uploadCoordinator = [GDTUploadCoordinator sharedInstance];
-  uploadCoordinator.logStorage = self.storageFake;
+  uploadCoordinator.storage = self.storageFake;
   uploadCoordinator.timerInterval = NSEC_PER_SEC;
   uploadCoordinator.timerLeeway = 0;
 }
@@ -75,45 +75,45 @@
   XCTAssertEqual([GDTUploadCoordinator sharedInstance], [GDTUploadCoordinator sharedInstance]);
 }
 
-/** Tests that forcing a log upload works. */
-- (void)testForceUploadLogs {
+/** Tests that forcing a event upload works. */
+- (void)testForceUploadEvents {
   XCTestExpectation *expectation = [self expectationWithDescription:@"uploader will upload"];
-  self.uploader.uploadLogsBlock =
-      ^(NSSet<NSURL *> *_Nonnull logFiles, GDTUploaderCompletionBlock _Nonnull completionBlock) {
+  self.uploader.uploadEventsBlock =
+      ^(NSSet<NSURL *> *_Nonnull eventFiles, GDTUploaderCompletionBlock _Nonnull completionBlock) {
         [expectation fulfill];
       };
-  NSSet<NSURL *> *fakeLogSet = [NSSet setWithObjects:[NSURL URLWithString:@"file:///fake"], nil];
-  self.storageFake.logsToReturnFromLogHashesToFiles = fakeLogSet;
-  NSSet<NSNumber *> *logSet = [NSSet setWithObjects:@(1234), nil];
-  XCTAssertNoThrow([[GDTUploadCoordinator sharedInstance] forceUploadLogs:logSet
-                                                                   target:_logTarget]);
+  NSSet<NSURL *> *fakeEventSet = [NSSet setWithObjects:[NSURL URLWithString:@"file:///fake"], nil];
+  self.storageFake.eventsToReturnFromEventHashesToFiles = fakeEventSet;
+  NSSet<NSNumber *> *eventSet = [NSSet setWithObjects:@(1234), nil];
+  XCTAssertNoThrow([[GDTUploadCoordinator sharedInstance] forceUploadEvents:eventSet
+                                                                   target:_target]);
   dispatch_sync([GDTUploadCoordinator sharedInstance].coordinationQueue, ^{
     [self waitForExpectations:@[ expectation ] timeout:0.1];
   });
 }
 
-/** Tests forcing an upload while that log target currently has a request in flight queues. */
-- (void)testForceUploadLogsEnqueuesIfLogTargetAlreadyHasLogsInFlight {
+/** Tests forcing an upload while that target currently has a request in flight queues. */
+- (void)testForceUploadEventsEnqueuesIftargetAlreadyHasEventsInFlight {
   [GDTUploadCoordinator sharedInstance].timerInterval = NSEC_PER_SEC / 100;
   [GDTUploadCoordinator sharedInstance].timerLeeway = NSEC_PER_SEC / 1000;
   XCTestExpectation *expectation = [self expectationWithDescription:@"uploader will upload"];
-  self.uploader.uploadLogsBlock =
-      ^(NSSet<NSURL *> *_Nonnull logFiles, GDTUploaderCompletionBlock _Nonnull completionBlock) {
+  self.uploader.uploadEventsBlock =
+      ^(NSSet<NSURL *> *_Nonnull eventFiles, GDTUploaderCompletionBlock _Nonnull completionBlock) {
         [expectation fulfill];
       };
-  NSSet<NSURL *> *fakeLogSet = [NSSet setWithObjects:[NSURL URLWithString:@"file:///fake"], nil];
-  self.storageFake.logsToReturnFromLogHashesToFiles = fakeLogSet;
-  NSSet<NSNumber *> *logSet = [NSSet setWithObjects:@(1234), nil];
+  NSSet<NSURL *> *fakeEventSet = [NSSet setWithObjects:[NSURL URLWithString:@"file:///fake"], nil];
+  self.storageFake.eventsToReturnFromEventHashesToFiles = fakeEventSet;
+  NSSet<NSNumber *> *eventSet = [NSSet setWithObjects:@(1234), nil];
   dispatch_sync([GDTUploadCoordinator sharedInstance].coordinationQueue, ^{
-    [GDTUploadCoordinator sharedInstance].logTargetToInFlightLogSet[@(self->_logTarget)] =
+    [GDTUploadCoordinator sharedInstance].targetToInFlightEventSet[@(self->_target)] =
         [[NSSet alloc] init];
   });
-  XCTAssertNoThrow([[GDTUploadCoordinator sharedInstance] forceUploadLogs:logSet
-                                                                   target:_logTarget]);
+  XCTAssertNoThrow([[GDTUploadCoordinator sharedInstance] forceUploadEvents:eventSet
+                                                                   target:_target]);
   dispatch_sync([GDTUploadCoordinator sharedInstance].coordinationQueue, ^{
     XCTAssertEqual([GDTUploadCoordinator sharedInstance].forcedUploadQueue.count, 1);
     [GDTUploadCoordinator sharedInstance].onCompleteBlock(
-        self.logTarget, [GDTClock clockSnapshotInTheFuture:1000], nil);
+        self.target, [GDTClock clockSnapshotInTheFuture:1000], nil);
   });
   dispatch_sync([GDTUploadCoordinator sharedInstance].coordinationQueue, ^{
     [self waitForExpectations:@[ expectation ] timeout:0.1];
@@ -123,7 +123,7 @@
 /** Tests the timer is running at the desired frequency. */
 - (void)testTimerIsRunningAtDesiredFrequency {
   __block int numberOfTimesCalled = 0;
-  self.prioritizer.logsForNextUploadBlock = ^{
+  self.prioritizer.eventsForNextUploadBlock = ^{
     numberOfTimesCalled++;
   };
   dispatch_sync([GDTUploadCoordinator sharedInstance].coordinationQueue, ^{
@@ -143,17 +143,17 @@
   });
 }
 
-/** Tests uploading logs via the coordinator timer. */
-- (void)testUploadingLogsViaTimer {
-  NSSet<NSURL *> *fakeLogSet = [NSSet setWithObjects:[NSURL URLWithString:@"file:///fake"], nil];
-  self.storageFake.logsToReturnFromLogHashesToFiles = fakeLogSet;
+/** Tests uploading events via the coordinator timer. */
+- (void)testUploadingEventsViaTimer {
+  NSSet<NSURL *> *fakeEventSet = [NSSet setWithObjects:[NSURL URLWithString:@"file:///fake"], nil];
+  self.storageFake.eventsToReturnFromEventHashesToFiles = fakeEventSet;
   __block int uploadAttempts = 0;
   __weak GDTUploadCoordinatorTest *weakSelf = self;
-  self.prioritizer.logsForNextUploadFake = [NSSet setWithObjects:@(1234), nil];
-  self.uploader.uploadLogsBlock =
-      ^(NSSet<NSURL *> *_Nonnull logFiles, GDTUploaderCompletionBlock _Nonnull completionBlock) {
+  self.prioritizer.eventsForNextUploadFake = [NSSet setWithObjects:@(1234), nil];
+  self.uploader.uploadEventsBlock =
+      ^(NSSet<NSURL *> *_Nonnull eventFiles, GDTUploaderCompletionBlock _Nonnull completionBlock) {
         GDTUploadCoordinatorTest *strongSelf = weakSelf;
-        completionBlock(strongSelf->_logTarget, [GDTClock clockSnapshotInTheFuture:100], nil);
+        completionBlock(strongSelf->_target, [GDTClock clockSnapshotInTheFuture:100], nil);
         uploadAttempts++;
       };
   [GDTUploadCoordinator sharedInstance].timerInterval = NSEC_PER_SEC / 10;
@@ -168,18 +168,18 @@
   });
 }
 
-/** Tests the situation in which the uploader failed to upload the logs for some reason. */
+/** Tests the situation in which the uploader failed to upload the events for some reason. */
 - (void)testThatAFailedUploadResultsInAnEventualRetry {
-  NSSet<NSURL *> *fakeLogSet = [NSSet setWithObjects:[NSURL URLWithString:@"file:///fake"], nil];
-  self.storageFake.logsToReturnFromLogHashesToFiles = fakeLogSet;
+  NSSet<NSURL *> *fakeEventSet = [NSSet setWithObjects:[NSURL URLWithString:@"file:///fake"], nil];
+  self.storageFake.eventsToReturnFromEventHashesToFiles = fakeEventSet;
   __block int uploadAttempts = 0;
   __weak GDTUploadCoordinatorTest *weakSelf = self;
-  self.prioritizer.logsForNextUploadFake = [NSSet setWithObjects:@(1234), nil];
-  self.uploader.uploadLogsBlock =
-      ^(NSSet<NSURL *> *_Nonnull logFiles, GDTUploaderCompletionBlock _Nonnull completionBlock) {
+  self.prioritizer.eventsForNextUploadFake = [NSSet setWithObjects:@(1234), nil];
+  self.uploader.uploadEventsBlock =
+      ^(NSSet<NSURL *> *_Nonnull eventFiles, GDTUploaderCompletionBlock _Nonnull completionBlock) {
         GDTUploadCoordinatorTest *strongSelf = weakSelf;
         NSError *error = [NSError errorWithDomain:NSURLErrorDomain code:1337 userInfo:nil];
-        completionBlock(strongSelf->_logTarget, [GDTClock clockSnapshotInTheFuture:100], error);
+        completionBlock(strongSelf->_target, [GDTClock clockSnapshotInTheFuture:100], error);
         uploadAttempts++;
       };
   [GDTUploadCoordinator sharedInstance].timerInterval = NSEC_PER_SEC / 10;

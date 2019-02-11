@@ -16,23 +16,23 @@
 
 #import <Foundation/Foundation.h>
 
-#import <GoogleDataTransport/GDTLogPrioritizer.h>
+#import <GoogleDataTransport/GDTPrioritizer.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** This class implements the log prioritizer protocol for testing purposes, providing APIs to allow
+/** This class implements the event prioritizer protocol for testing purposes, providing APIs to allow
  * tests to alter the prioritizer behavior without creating a bunch of specialized classes.
  */
-@interface GDTTestPrioritizer : NSObject <GDTLogPrioritizer>
+@interface GDTTestPrioritizer : NSObject <GDTPrioritizer>
 
-/** The return value of -logsForNextUpload. */
-@property(nullable, nonatomic) NSSet<NSNumber *> *logsForNextUploadFake;
+/** The return value of -eventsForNextUpload. */
+@property(nullable, nonatomic) NSSet<NSNumber *> *eventsForNextUploadFake;
 
-/** Allows the running of a block of code during -prioritizeLog. */
-@property(nullable, nonatomic) void (^prioritizeLogBlock)(GDTLogEvent *logEvent);
+/** Allows the running of a block of code during -prioritizeEvent. */
+@property(nullable, nonatomic) void (^prioritizeEventBlock)(GDTEvent *event);
 
-/** A block that can run before -logsForNextUpload completes. */
-@property(nullable, nonatomic) void (^logsForNextUploadBlock)(void);
+/** A block that can run before -eventsForNextUpload completes. */
+@property(nullable, nonatomic) void (^eventsForNextUploadBlock)(void);
 
 @end
 

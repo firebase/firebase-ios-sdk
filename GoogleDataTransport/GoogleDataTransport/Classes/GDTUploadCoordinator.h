@@ -20,8 +20,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** This class connects log storage and the uploader implementations, providing logs to an uploader
- * and informing the log storage what logs were successfully uploaded or not.
+/** This class connects storage and uploader implementations, providing events to an uploader
+ * and informing the storage what events were successfully uploaded or not.
  */
 @interface GDTUploadCoordinator : NSObject
 
@@ -31,13 +31,13 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (instancetype)sharedInstance;
 
-/** Forces the backend specified by the target to upload the provided set of logs. This should only
- * ever happen when the QoS tier of a log requires it.
+/** Forces the backend specified by the target to upload the provided set of events. This should only
+ * ever happen when the QoS tier of an event requires it.
  *
- * @param logHashes The set of log hashes to force upload.
- * @param logTarget The log target that should force an upload.
+ * @param eventHashes The set of event hashes to force upload.
+ * @param target The target that should force an upload.
  */
-- (void)forceUploadLogs:(NSSet<NSNumber *> *)logHashes target:(GDTLogTarget)logTarget;
+- (void)forceUploadEvents:(NSSet<NSNumber *> *)eventHashes target:(GDTTarget)target;
 
 @end
 

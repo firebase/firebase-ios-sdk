@@ -17,34 +17,34 @@
 #import <Foundation/Foundation.h>
 
 #import <GoogleDataTransport/GDTClock.h>
-#import <GoogleDataTransport/GDTLogTargets.h>
+#import <GoogleDataTransport/GDTTargets.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 /** A convenient typedef to define the block to be called upon completion of an upload to the
  * backend.
  *
- * target: The log target that was uploading.
+ * target: The target that was uploading.
  * nextUploadAttemptUTC: The desired next upload attempt time.
  * uploadError: Populated with any upload error. If non-nil, a retry will be attempted.
  */
-typedef void (^GDTUploaderCompletionBlock)(GDTLogTarget target,
+typedef void (^GDTUploaderCompletionBlock)(GDTTarget target,
                                            GDTClock *nextUploadAttemptUTC,
                                            NSError *_Nullable uploadError);
 
-/** This protocol defines the common interface for logging backend implementations. */
-@protocol GDTLogUploader <NSObject>
+/** This protocol defines the common interface for uploader implementations. */
+@protocol GDTUploader <NSObject>
 
 @required
 
-/** Uploads logs to the backend using this specific backend's chosen format.
+/** Uploads events to the backend using this specific backend's chosen format.
  *
- * @param logFiles The set of log files to upload.
+ * @param eventFiles The set of event files to upload.
  * @param onComplete A block to invoke upon completing the upload. Has two arguments:
  *   - successfulUploads: The set of filenames uploaded successfully.
  *   - unsuccessfulUploads: The set of filenames not uploaded successfully.
  */
-- (void)uploadLogs:(NSSet<NSURL *> *)logFiles onComplete:(GDTUploaderCompletionBlock)onComplete;
+- (void)uploadEvents:(NSSet<NSURL *> *)eventFiles onComplete:(GDTUploaderCompletionBlock)onComplete;
 
 @end
 

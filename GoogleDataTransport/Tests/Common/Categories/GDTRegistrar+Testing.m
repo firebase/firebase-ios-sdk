@@ -22,8 +22,8 @@
 
 - (void)reset {
   dispatch_sync(self.registrarQueue, ^{
-    [self.logTargetToPrioritizer removeAllObjects];
-    [self.logTargetToUploader removeAllObjects];
+    [self.targetToPrioritizer removeAllObjects];
+    [self.targetToUploader removeAllObjects];
   });
 }
 

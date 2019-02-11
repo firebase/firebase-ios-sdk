@@ -16,28 +16,18 @@
 
 #import <Foundation/Foundation.h>
 
-@class GDTLogEvent;
-
-@protocol GDTLogTransformer;
+#import "GDTStorage.h"
+#import "GDTStorage_Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** Manages the writing and log-time transforming of logs. */
-@interface GDTLogWriter : NSObject
+/** Testing-only methods for GDTStorage. */
+@interface GDTStorage (Testing)
 
-/** Instantiates or returns the log writer singleton.
- *
- * @return The singleton instance of the log writer.
+/** Resets the properties of the singleon, but does not reallocate a new singleton. This also
+ * doesn't remove stored files from disk.
  */
-+ (instancetype)sharedInstance;
-
-/** Writes the result of applying the given transformers' -transform method on the given log.
- *
- * @param log The log to apply transformers on.
- * @param logTransformers The list of transformers to apply.
- */
-- (void)writeLog:(GDTLogEvent *)log
-    afterApplyingTransformers:(nullable NSArray<id<GDTLogTransformer>> *)logTransformers;
+- (void)reset;
 
 @end
 

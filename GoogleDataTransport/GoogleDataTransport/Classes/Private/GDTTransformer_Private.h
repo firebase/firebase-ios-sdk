@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-#import "GDTLogEvent.h"
+#import "GDTTransformer.h"
 
-#import "GDTClock.h"
+@class GDTStorage;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface GDTLogEvent ()
+@interface GDTTransformer ()
 
-/** The serialized bytes of the log object. */
-@property(nonatomic) NSData *extensionBytes;
+/** The queue on which all work will occur. */
+@property(nonatomic) dispatch_queue_t eventWritingQueue;
 
-/** The clock snapshot at the time of logging. */
-@property(nonatomic) GDTClock *clockSnapshot;
+/** The storage instance used to store events. Should only be used to inject a testing fake. */
+@property(nonatomic) GDTStorage *storageInstance;
 
 @end
 

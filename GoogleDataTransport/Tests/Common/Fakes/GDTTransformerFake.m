@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-#import "GDTLogStorage+Testing.h"
+#import "GDTTransformerFake.h"
 
-@implementation GDTLogStorage (Testing)
+@implementation GDTTransformerFake
 
-- (void)reset {
-  dispatch_sync(self.storageQueue, ^{
-    [self.logTargetToLogHashSet removeAllObjects];
-    [self.logHashToLogFile removeAllObjects];
-  });
+- (void)transformEvent:(GDTEvent *)event
+    withTransformers:(NSArray<id<GDTEventTransformer>> *)transformers {
 }
 
 @end

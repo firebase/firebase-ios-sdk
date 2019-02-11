@@ -14,18 +14,15 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import "GDTStorage+Testing.h"
 
-#import <GoogleDataTransport/GDTLogProto.h>
+@implementation GDTStorage (Testing)
 
-NS_ASSUME_NONNULL_BEGIN
-
-/** A class to represent a simple log proto. */
-@interface GDTLogExtensionTesterSimple : NSObject <GDTLogProto>
-
-/** A string that will be turned into bytes. */
-@property(nonatomic) NSString *aString;
+- (void)reset {
+  dispatch_sync(self.storageQueue, ^{
+    [self.targetToEventHashSet removeAllObjects];
+    [self.eventHashToFile removeAllObjects];
+  });
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

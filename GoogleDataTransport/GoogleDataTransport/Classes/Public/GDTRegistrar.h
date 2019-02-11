@@ -16,13 +16,13 @@
 
 #import <Foundation/Foundation.h>
 
-#import <GoogleDataTransport/GDTLogPrioritizer.h>
-#import <GoogleDataTransport/GDTLogTargets.h>
-#import <GoogleDataTransport/GDTLogUploader.h>
+#import <GoogleDataTransport/GDTPrioritizer.h>
+#import <GoogleDataTransport/GDTTargets.h>
+#import <GoogleDataTransport/GDTUploader.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** Manages the registration of log targets with the logging SDK. */
+/** Manages the registration of targets with the transport SDK. */
 @interface GDTRegistrar : NSObject
 
 /** Creates and/or returns the singleton instance.
@@ -34,16 +34,16 @@ NS_ASSUME_NONNULL_BEGIN
 /** Registers a backend implementation with the GoogleDataTransport infrastructure.
  *
  * @param backend The backend object to register.
- * @param logTarget The logTarget this backend object will be responsible for.
+ * @param target The target this backend object will be responsible for.
  */
-- (void)registerUploader:(id<GDTLogUploader>)backend logTarget:(GDTLogTarget)logTarget;
+- (void)registerUploader:(id<GDTUploader>)backend target:(GDTTarget)target;
 
-/** Registers a log prioritizer implementation with the GoogleDataTransport infrastructure.
+/** Registers a event prioritizer implementation with the GoogleDataTransport infrastructure.
  *
  * @param prioritizer The prioritizer object to register.
- * @param logTarget The logTarget this prioritizer object will be responsible for.
+ * @param target The target this prioritizer object will be responsible for.
  */
-- (void)registerPrioritizer:(id<GDTLogPrioritizer>)prioritizer logTarget:(GDTLogTarget)logTarget;
+- (void)registerPrioritizer:(id<GDTPrioritizer>)prioritizer target:(GDTTarget)target;
 
 @end
 

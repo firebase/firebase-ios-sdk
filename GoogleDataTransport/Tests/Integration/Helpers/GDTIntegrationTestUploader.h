@@ -21,7 +21,7 @@
 #import "GDTIntegrationTestPrioritizer.h"
 
 /** An integration test uploader. */
-@interface GDTIntegrationTestUploader : NSObject <GDTLogUploader>
+@interface GDTIntegrationTestUploader : NSObject <GDTUploader>
 
 /** Instantiates an instance of this uploader with the given server URL.
  *

@@ -14,25 +14,25 @@
  * limitations under the License.
  */
 
-#import <GoogleDataTransport/GDTLogger.h>
+#import <GoogleDataTransport/GDTTransport.h>
 
-@class GDTLogWriter;
+@class GDTTransformer;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface GDTLogger ()
+@interface GDTTransport ()
 
-/** The log mapping identifier that a GDTLogBackend will use to map the extension to proto. */
-@property(nonatomic) NSString *logMapID;
+/** The mapping identifier that the target backend will use to map the extension to proto. */
+@property(nonatomic) NSString *mappingID;
 
-/** The log transformers that will operate on logs logged by this logger. */
-@property(nonatomic) NSArray<id<GDTLogTransformer>> *logTransformers;
+/** The transformers that will operate on events sent by this transport. */
+@property(nonatomic) NSArray<id<GDTEventTransformer>> *transformers;
 
-/** The target backend of this logger. */
-@property(nonatomic) NSInteger logTarget;
+/** The target backend of this transport. */
+@property(nonatomic) NSInteger target;
 
-/** The log writer instance to used to write logs. Allows injecting a fake during testing. */
-@property(nonatomic) GDTLogWriter *logWriterInstance;
+/** The transformer instance to used to transform events. Allows injecting a fake during testing. */
+@property(nonatomic) GDTTransformer *transformerInstance;
 
 @end
 
