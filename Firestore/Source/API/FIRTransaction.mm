@@ -125,7 +125,7 @@ NS_ASSUME_NONNULL_BEGIN
         }
 
         HARD_ASSERT(documents.size() == 1, "Mismatch in docs returned from document lookup.");
-        FSTMaybeDocument *internalDoc = documents.back();
+        FSTMaybeDocument *internalDoc = documents.front();
         if ([internalDoc isKindOfClass:[FSTDeletedDocument class]]) {
           FIRDocumentSnapshot *doc = [FIRDocumentSnapshot snapshotWithFirestore:self.firestore
                                                                     documentKey:document.key

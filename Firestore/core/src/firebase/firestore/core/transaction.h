@@ -90,9 +90,8 @@ class Transaction {
   /**
    * Every time a document is read, this should be called to record its version.
    * If we read two different versions of the same document, this will return an
-   * error through its out parameter. When the transaction is committed, the
-   * versions recorded will be set as preconditions on the writes sent to the
-   * backend.
+   * error. When the transaction is committed, the versions recorded will be set
+   * as preconditions on the writes sent to the backend.
    */
   util::Status RecordVersion(FSTMaybeDocument* doc);
 
@@ -106,9 +105,8 @@ class Transaction {
   model::Precondition CreatePrecondition(const model::DocumentKey& key);
 
   /**
-   * Returns the precondition for a document if the operation is an update,
-   * based on the provided UpdateOptions. Will return none precondition if an
-   * error occurred, in which case it sets the error parameter.
+   * Returns the precondition for a document if the operation is an update. Will
+   * return a failed status if an error occurred.
    */
   util::StatusOr<model::Precondition> CreateUpdatePrecondition(
       const model::DocumentKey& key);
