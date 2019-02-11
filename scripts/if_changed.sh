@@ -66,8 +66,8 @@ else
       check_changes '^(Firestore/(core|third_party)|cmake)'
       ;;
 
-    GoogleDataLogger-*)
-      check_changes '^(GoogleDataLogger|GoogleDataLogger.podspec)'
+    GoogleDataTransport-*)
+      check_changes '^(GoogleDataTransport|GoogleDataTransport.podspec)'
       ;;
 
     *)
