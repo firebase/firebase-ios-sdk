@@ -107,6 +107,10 @@ static void GULLOSLogWithType(os_log_t log, os_log_type_t type, char* s, ...) {
   _logLevel = logLevel;
 }
 
+- (GULLoggerLevel)logLevel {
+  return _logLevel;
+}
+
 - (void)setForcedDebug:(BOOL)forcedDebug {
   // We should not enable debug mode if we're running from App Store.
   if (![GULAppEnvironmentUtil isFromAppStore]) {
