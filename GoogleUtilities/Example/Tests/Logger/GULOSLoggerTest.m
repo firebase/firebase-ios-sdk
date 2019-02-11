@@ -19,7 +19,7 @@
 #import <GoogleUtilities/GULLogger.h>
 #import <GoogleUtilities/GULOSLogger.h>
 
-void __gul_test_os_log_with_type(os_log_t log, os_log_type_t type, char* s, ...) {
+void GULTestOSLogWithType(os_log_t log, os_log_type_t type, char* s, ...) {
   // TODO(bstpierre): Verify that the params are as expected.
 }
 
@@ -43,7 +43,7 @@ void __gul_test_os_log_with_type(os_log_t log, os_log_type_t type, char* s, ...)
 
 - (void)setUp {
   self.osLogger = [[GULOSLogger alloc] init];
-  self.osLogger.logFunction = &__gul_test_os_log_with_type;
+  self.osLogger.logFunction = &GULTestOSLogWithType;
 }
 
 - (void)tearDown {

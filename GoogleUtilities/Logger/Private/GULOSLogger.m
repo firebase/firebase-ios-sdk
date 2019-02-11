@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 // Since the macro enforces built-in constant-ness of the format string, it is replaced by "s"
 // and the va_list should only contain one argument, a full message with format substitutions
 // already filled.
-static void __gul_os_log_with_type(os_log_t log, os_log_type_t type, char* s, ...) {
+static void GULLOSLogWithType(os_log_t log, os_log_type_t type, char* s, ...) {
   if (@available(iOS 9.0, macOS 10.11, *)) {
     va_list args;
     va_start(args, s);
@@ -63,7 +63,7 @@ static void __gul_os_log_with_type(os_log_t log, os_log_type_t type, char* s, ..
     _logLevel = GULLoggerLevelNotice;
     _version = @"";
     _dispatchQueue = dispatch_queue_create("GULLoggerQueue", DISPATCH_QUEUE_SERIAL);
-    _logFunction = &__gul_os_log_with_type;
+    _logFunction = &GULLOSLogWithType;
     dispatch_set_target_queue(_dispatchQueue,
                               dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0));
   }
