@@ -43,16 +43,22 @@ static void GULLOSLogWithType(os_log_t log, os_log_type_t type, char* s, ...) {
 
 @interface GULOSLogger ()
 
+//
 @property(nonatomic) NSMutableDictionary<NSString *, os_log_t> *categoryLoggers;
+
+// The dispatch queue used to asynchronously call to os_log.
 @property(nonatomic) dispatch_queue_t dispatchQueue;
+
+// This property is a function pointer to the method that logs messages to os_log.
+// This indirection allows us to inject a different function pointer for denpendency injection.
 @property(nonatomic, unsafe_unretained) void (*logFunction)(os_log_t, os_log_type_t, char*, ...);
 
 @end
 
 @implementation GULOSLogger
 
+// Auto-synthesis not available for these since they are defined in the protocol.
 @synthesize forcedDebug = _forcedDebug;
-@synthesize logFunction = _logFunction;
 @synthesize logLevel = _logLevel;
 @synthesize version = _version;
 
@@ -80,6 +86,11 @@ static void GULLOSLogWithType(os_log_t log, os_log_type_t type, char* s, ...) {
 
 - (void)setLogLevel:(GULLoggerLevel)logLevel {
   if (logLevel < GULLoggerLevelMin || logLevel > GULLoggerLevelMax) {
+    GULLogError(kGULLoggerName,
+                NO,
+                kGULLoggerInvalidLoggerLevelCore,
+                kGULLoggerInvalidLoggerLevelMessage,
+                (long)logLevel);
   }
 
   // We should not raise the logger level if we are running from App Store.
@@ -91,6 +102,14 @@ static void GULLOSLogWithType(os_log_t log, os_log_type_t type, char* s, ...) {
 
 - (GULLoggerLevel)logLevel {
   return _logLevel;
+}
+
+- (void)forceDebug {
+  // We should not enable debug mode if we're running from App Store.
+  if (![GULAppEnvironmentUtil isFromAppStore]) {
+    _forcedDebug = YES;
+    self.logLevel = GULLoggerLevelDebug;
+  }
 }
 
 - (void)printToSTDERR {
@@ -107,11 +126,11 @@ static void GULLOSLogWithType(os_log_t log, os_log_type_t type, char* s, ...) {
             isForced:(BOOL)forced
             withCode:(NSString *)messageCode
          withMessage:(NSString *)message, ... {
-  [self initializeLogger];
   // Skip logging this if the level isn't to be logged unless it's forced.
   if (![self isLoggableLevel:level] && !forced) {
     return;
   }
+  [self initializeLogger];
   dispatch_async(self.dispatchQueue, ^{
     os_log_t osLog = self.categoryLoggers[service];
     if (!osLog) {
@@ -124,6 +143,7 @@ static void GULLOSLogWithType(os_log_t log, os_log_type_t type, char* s, ...) {
 #endif
       }
     }
+    // Call the function pointer using the message constructed by GULLogger.
     (*self.logFunction)(osLog, [[self class] osLogTypeForGULLoggerLevel:level],"%s",
                         [GULLogger messageFromLogger:self
                                          withService:service

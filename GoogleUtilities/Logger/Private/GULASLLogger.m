@@ -71,7 +71,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)setLogLevel:(GULLoggerLevel)logLevel {
   if (logLevel < GULLoggerLevelMin || logLevel > GULLoggerLevelMax) {
-    GULLogError(kGULLoggerName, NO, @"I-COR000023", @"Invalid logger level, %ld", (long)logLevel);
+    GULLogError(kGULLoggerName,
+                NO,
+                kGULLoggerInvalidLoggerLevelCore,
+                kGULLoggerInvalidLoggerLevelMessage,
+                (long)logLevel);
   }
 
   // We should not raise the logger level if we are running from App Store.
@@ -88,7 +92,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)forceDebug {
   // We should not enable debug mode if we're running from App Store.
   if (![GULAppEnvironmentUtil isFromAppStore]) {
-    self.forcedDebug = YES;
+    _forcedDebug = YES;
     self.logLevel = GULLoggerLevelDebug;
   }
 }
