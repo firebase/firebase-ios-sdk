@@ -12,18 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <XCTest/XCTest.h>
+#import <GoogleUtilities/GULOSLogger.h>
+
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
+#import <GoogleUtilities/GULLogger.h>
+#import <GoogleUtilities/GULSwizzler.h>
 
 #import <os/log.h>
 
-#import <GoogleUtilities/GULLogger.h>
-#import <GoogleUtilities/GULOSLogger.h>
+#import <OCMock/OCMock.h>
+#import <XCTest/XCTest.h>
 
 NS_ASSUME_NONNULL_BEGIN
-
-// Function that will be called by GULOSLogger instead of os_log_with_type.
-void GULTestOSLogWithType(os_log_t log, os_log_type_t type, char *s, ...) {
-}
 
 // Expectation that contains the information needed to see if the correct parameters were used in an
 // os_log_with_type call.
@@ -39,7 +39,6 @@ void GULTestOSLogWithType(os_log_t log, os_log_type_t type, char *s, ...) {
 @end
 
 @implementation GULOSLoggerExpectation
-
 - (instancetype)initWithLog:(nullable os_log_t)log
                        type:(os_log_type_t)type
                     message:(NSString *)message {
@@ -51,25 +50,35 @@ void GULTestOSLogWithType(os_log_t log, os_log_type_t type, char *s, ...) {
   }
   return self;
 }
-
-- (BOOL)isEqual:(id)object {
-  if ([object isKindOfClass:[self class]]) {
-    return NO;
-  }
-  GULOSLoggerExpectation *other = (GULOSLoggerExpectation *)object;
-  return self.log == other.log && self.type == other.type &&
-         [self.message isEqualToString:other.message];
-}
 @end
 
 // List of expectations that may be fulfilled in the current test.
 static NSMutableArray<GULOSLoggerExpectation *> *sExpectations;
 
+// Function that will be called by GULOSLogger instead of os_log_with_type.
+void GULTestOSLogWithType(os_log_t log, os_log_type_t type, char *s, ...) {
+  // Grab the first variable argument.
+  va_list args;
+  va_start(args, s);
+  NSString *message = [NSString stringWithUTF8String:va_arg(args, char *)];
+  va_end(args);
+
+  // Look for an expectation that meets these parameters.
+  for (GULOSLoggerExpectation *expectation in sExpectations) {
+    if (expectation.log == log && expectation.type == type &&
+        [expectation.message isEqualToString:message]) {
+      [expectation fulfill];
+      [sExpectations removeObject:expectation];
+      return;  // Only fulfill one expectation per call.
+    }
+  }
+}
+
 #pragma mark -
 
 // Redefine class property as readwrite for testing.
 @interface GULLogger (ForTesting)
-@property(nonatomic, class, readwrite) id<GULLoggerSystem> logger;
+@property(nonatomic, nullable, class, readwrite) id<GULLoggerSystem> logger;
 @end
 
 // Surface osLog and dispatchQueues for tests.
@@ -82,17 +91,130 @@ static NSMutableArray<GULOSLoggerExpectation *> *sExpectations;
 #pragma mark -
 
 @interface GULOSLoggerTest : XCTestCase
-@property(nonatomic) GULOSLogger *osLogger;
+@property(nonatomic, nullable) GULOSLogger *osLogger;
+@property(nonatomic, nullable) id mock;
+@property(nonatomic) BOOL appStoreWasSwizzled;
 @end
 
 @implementation GULOSLoggerTest
 
-- (void)setUp {
-  self.osLogger = [[GULOSLogger alloc] init];
-  self.osLogger.logFunction = &GULTestOSLogWithType;
+- (void)setAppStoreTo:(BOOL)fromAppStore {
+  [GULSwizzler swizzleClass:[GULAppEnvironmentUtil class]
+                   selector:@selector(isFromAppStore)
+            isClassSelector:YES
+                  withBlock:^BOOL() {
+    return fromAppStore;
+  }];
+  self.appStoreWasSwizzled = YES;
 }
 
-// TODO(bstpierre): Write tests.
+- (void)setUp {
+  // Setup globals and create the instance under test.
+  sExpectations = [[NSMutableArray<GULOSLoggerExpectation *> alloc] init];
+  self.osLogger = [[GULOSLogger alloc] init];
+  self.osLogger.logFunction = &GULTestOSLogWithType;
+
+  // Add the ability to intercept calls to the instance under test
+  self.mock = OCMPartialMock(self.osLogger);
+  GULLogger.logger = self.mock;
+}
+
+- (void)tearDown {
+  // Clear globals
+  sExpectations = nil;
+  GULLogger.logger = nil;
+  if (self.appStoreWasSwizzled) {
+    [GULSwizzler unswizzleClass:[GULAppEnvironmentUtil class]
+                       selector:@selector(isFromAppStore)
+                isClassSelector:YES];
+  }
+}
+
+#pragma mark Tests
+
+- (void)testInit {
+  // First, there are no loggers created.
+  XCTAssertNil(self.osLogger.categoryLoggers);
+
+  // After initializeLogger, there should be an empty dictionary ready, for loggers.
+  [self.osLogger initializeLogger];
+  NSDictionary *loggers = self.osLogger.categoryLoggers;
+  XCTAssertNotNil(loggers);
+
+  // Calling initializeLogger logger again, should change the dictionary instance.
+  [self.osLogger initializeLogger];
+  XCTAssertEqual(loggers, self.osLogger.categoryLoggers);
+}
+
+- (void)testSetLogLevelValid {
+  // Setting the log level to something valid should not result in an error message.
+  OCMReject([self.mock logWithLevel:GULLoggerLevelError
+                        withService:OCMOCK_ANY
+                           isForced:OCMOCK_ANY
+                           withCode:OCMOCK_ANY
+                        withMessage:OCMOCK_ANY]);
+  self.osLogger.logLevel = GULLoggerLevelWarning;
+  OCMVerifyAll(self.mock);
+}
+
+- (void)testSetLogLevelInvalid {
+  // The logger should log an error for invalid levels.
+  OCMExpect([[self.mock stub] logWithLevel:GULLoggerLevelError
+                               withService:OCMOCK_ANY
+                                  isForced:YES
+                                  withCode:OCMOCK_ANY
+                               withMessage:OCMOCK_ANY]);
+  self.osLogger.logLevel = GULLoggerLevelMin - 1;
+
+  OCMExpect([[self.mock stub] logWithLevel:GULLoggerLevelError
+                               withService:OCMOCK_ANY
+                                  isForced:YES
+                                  withCode:OCMOCK_ANY
+                               withMessage:OCMOCK_ANY]);
+  self.osLogger.logLevel = GULLoggerLevelMax + 1;
+  OCMVerifyAll(self.mock);
+}
+
+- (void)testLogLevelAppStore {
+  // When not from the App Store, all log levels should be allowed.
+  [self setAppStoreTo:NO];
+  self.osLogger.logLevel = GULLoggerLevelMin;
+  XCTAssertEqual(self.osLogger.logLevel, GULLoggerLevelMin);
+  self.osLogger.logLevel = GULLoggerLevelMax;
+  XCTAssertEqual(self.osLogger.logLevel, GULLoggerLevelMax);
+
+  // When from the App store, levels that are Notice or above, should be silently ignored.
+  [self setAppStoreTo:YES];
+  self.osLogger.logLevel = GULLoggerLevelError;
+  XCTAssertEqual(self.osLogger.logLevel, GULLoggerLevelError);
+  self.osLogger.logLevel = GULLoggerLevelWarning;
+  XCTAssertEqual(self.osLogger.logLevel, GULLoggerLevelWarning);
+  self.osLogger.logLevel = GULLoggerLevelNotice;
+  XCTAssertEqual(self.osLogger.logLevel, GULLoggerLevelWarning);
+  self.osLogger.logLevel = GULLoggerLevelInfo;
+  XCTAssertEqual(self.osLogger.logLevel, GULLoggerLevelWarning);
+  self.osLogger.logLevel = GULLoggerLevelDebug;
+  XCTAssertEqual(self.osLogger.logLevel, GULLoggerLevelWarning);
+}
+
+- (void)testForceDebug {
+  [self setAppStoreTo:NO];
+  XCTAssertFalse(self.osLogger.forcedDebug);
+  GULLoggerForceDebug();
+  XCTAssertTrue(self.osLogger.forcedDebug);
+  XCTAssertEqual(self.osLogger.logLevel, GULLoggerLevelDebug);
+}
+
+- (void)testForceDebugAppStore {
+  [self setAppStoreTo:YES];
+  self.osLogger.logLevel = GULLoggerLevelWarning;
+  XCTAssertFalse(self.osLogger.forcedDebug);
+  GULLoggerForceDebug();
+  XCTAssertFalse(self.osLogger.forcedDebug);
+  XCTAssertEqual(self.osLogger.logLevel, GULLoggerLevelWarning);
+}
+
+// TODO(bstpierre): Add tests for logWithLevel:withService:isForced:withCode:withMessage:
 
 @end
 

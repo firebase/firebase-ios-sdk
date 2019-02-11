@@ -12,12 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <XCTest/XCTest.h>
-
 #import <GoogleUtilities/GULASLLogger.h>
 #import <GoogleUtilities/GULLogger.h>
 
 #import <asl.h>
+
+#import <XCTest/XCTest.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+// TODO(bstpierre): Use a C function redirect to mock asl_* methods like GULOSLoggerTest.
 
 static NSString *const kService = @"my service";
 static NSString *const kCode = @"I-COR000001";
@@ -43,6 +47,7 @@ static NSString *const kCode = @"I-COR000001";
 
 #pragma mark Helper Methods
 
+// TODO(bstpierre): Replace this with a XCTestExpectation like GULOSLoggerTest.
 - (BOOL)messageWasLogged:(NSString *)message {
   // Format the message as it's expected.
   message = [NSString stringWithFormat:@"%@[%@] %@", kService, kCode, message];
@@ -73,11 +78,6 @@ static NSString *const kCode = @"I-COR000001";
 - (void)setUp {
   self.logger = [[GULASLLogger alloc] init];
   GULLogger.logger = self.logger;
-}
-
-- (void)tearDown {
-  self.logger = nil;
-  GULLogger.logger = nil;
 }
 
 - (void)testMessageCodeFormat {
@@ -136,3 +136,5 @@ static NSString *const kCode = @"I-COR000001";
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

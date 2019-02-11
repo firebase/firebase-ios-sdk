@@ -85,15 +85,13 @@ NS_ASSUME_NONNULL_BEGIN
   _logLevel = logLevel;
 }
 
-- (GULLoggerLevel)logLevel {
-  return _logLevel;
-}
-
-- (void)forceDebug {
+- (void)setForcedDebug:(BOOL)forcedDebug {
   // We should not enable debug mode if we're running from App Store.
   if (![GULAppEnvironmentUtil isFromAppStore]) {
-    _forcedDebug = YES;
-    self.logLevel = GULLoggerLevelDebug;
+    if (forcedDebug) {
+      self.logLevel = GULLoggerLevelDebug;
+    }
+    _forcedDebug = forcedDebug;
   }
 }
 

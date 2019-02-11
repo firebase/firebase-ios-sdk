@@ -43,7 +43,7 @@ static void GULLOSLogWithType(os_log_t log, os_log_type_t type, char* s, ...) {
 
 @interface GULOSLogger ()
 
-//
+// Dictionary of Category -> os_log instances.
 @property(nonatomic) NSMutableDictionary<NSString *, os_log_t> *categoryLoggers;
 
 // The dispatch queue used to asynchronously call to os_log.
@@ -66,7 +66,8 @@ static void GULLOSLogWithType(os_log_t log, os_log_type_t type, char* s, ...) {
   self = [super init];
   if (self) {
     _forcedDebug = NO;
-    _logLevel = GULLoggerLevelNotice;
+    _logLevel =
+        [GULAppEnvironmentUtil isFromAppStore] ? GULLoggerLevelWarning : GULLoggerLevelNotice;
     _version = @"";
     _dispatchQueue = dispatch_queue_create("GULLoggerQueue", DISPATCH_QUEUE_SERIAL);
     _logFunction = &GULLOSLogWithType;
@@ -87,7 +88,7 @@ static void GULLOSLogWithType(os_log_t log, os_log_type_t type, char* s, ...) {
 - (void)setLogLevel:(GULLoggerLevel)logLevel {
   if (logLevel < GULLoggerLevelMin || logLevel > GULLoggerLevelMax) {
     GULLogError(kGULLoggerName,
-                NO,
+                YES,
                 kGULLoggerInvalidLoggerLevelCore,
                 kGULLoggerInvalidLoggerLevelMessage,
                 (long)logLevel);
@@ -97,18 +98,22 @@ static void GULLOSLogWithType(os_log_t log, os_log_type_t type, char* s, ...) {
   if (logLevel >= GULLoggerLevelNotice && [GULAppEnvironmentUtil isFromAppStore]) {
     return;
   }
+
+  // Ignore setting the level if forcedDebug is on.
+  if (self.forcedDebug) {
+    return;
+  }
+
   _logLevel = logLevel;
 }
 
-- (GULLoggerLevel)logLevel {
-  return _logLevel;
-}
-
-- (void)forceDebug {
+- (void)setForcedDebug:(BOOL)forcedDebug {
   // We should not enable debug mode if we're running from App Store.
   if (![GULAppEnvironmentUtil isFromAppStore]) {
-    _forcedDebug = YES;
-    self.logLevel = GULLoggerLevelDebug;
+    if (forcedDebug) {
+      self.logLevel = GULLoggerLevelDebug;
+    }
+    _forcedDebug = forcedDebug;
   }
 }
 

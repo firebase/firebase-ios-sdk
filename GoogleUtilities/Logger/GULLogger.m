@@ -102,7 +102,7 @@ GUL_LOGGING_FUNCTION(Debug)
 
 // Redefine logger property as readwrite as a form of dependency injection.
 @interface GULLogger ()
-@property(nonatomic, class, readwrite) id<GULLoggerSystem> logger;
+@property(nonatomic, nullable, class, readwrite) id<GULLoggerSystem> logger;
 @end
 
 @implementation GULLogger
@@ -125,7 +125,7 @@ GUL_LOGGING_FUNCTION(Debug)
   return sGULLogger;
 }
 
-+ (void)setLogger:(id<GULLoggerSystem>)logger {
++ (void)setLogger:(nullable id<GULLoggerSystem>)logger {
   @synchronized(self) {
     sGULLogger = logger;
   }
