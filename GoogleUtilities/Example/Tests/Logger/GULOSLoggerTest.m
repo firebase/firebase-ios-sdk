@@ -25,6 +25,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+static NSString *const kService = @"my service";
+static NSString *const kCode = @"I-COR000001";
+static NSTimeInterval const kTimeout = 0.1f;
+
 // Expectation that contains the information needed to see if the correct parameters were used in an
 // os_log_with_type call.
 @interface GULOSLoggerExpectation : XCTestExpectation
@@ -65,10 +69,9 @@ void GULTestOSLogWithType(os_log_t log, os_log_type_t type, char *s, ...) {
 
   // Look for an expectation that meets these parameters.
   for (GULOSLoggerExpectation *expectation in sExpectations) {
-    if (expectation.log == log && expectation.type == type &&
-        [expectation.message isEqualToString:message]) {
+    if ((expectation.log == nil || expectation.log == log) && expectation.type == type &&
+        [message containsString:expectation.message]) {
       [expectation fulfill];
-      [sExpectations removeObject:expectation];
       return;  // Only fulfill one expectation per call.
     }
   }
@@ -103,9 +106,15 @@ void GULTestOSLogWithType(os_log_t log, os_log_type_t type, char *s, ...) {
                    selector:@selector(isFromAppStore)
             isClassSelector:YES
                   withBlock:^BOOL() {
-    return fromAppStore;
-  }];
+                    return fromAppStore;
+                  }];
   self.appStoreWasSwizzled = YES;
+}
+
+- (void)partialMockLogger {
+  // Add the ability to intercept calls to the instance under test
+  self.mock = OCMPartialMock(self.osLogger);
+  GULLogger.logger = self.mock;
 }
 
 - (void)setUp {
@@ -113,10 +122,6 @@ void GULTestOSLogWithType(os_log_t log, os_log_type_t type, char *s, ...) {
   sExpectations = [[NSMutableArray<GULOSLoggerExpectation *> alloc] init];
   self.osLogger = [[GULOSLogger alloc] init];
   self.osLogger.logFunction = &GULTestOSLogWithType;
-
-  // Add the ability to intercept calls to the instance under test
-  self.mock = OCMPartialMock(self.osLogger);
-  GULLogger.logger = self.mock;
 }
 
 - (void)tearDown {
@@ -198,6 +203,7 @@ void GULTestOSLogWithType(os_log_t log, os_log_type_t type, char *s, ...) {
 }
 
 - (void)testForceDebug {
+  [self partialMockLogger];
   [self setAppStoreTo:NO];
   XCTAssertFalse(self.osLogger.forcedDebug);
   GULLoggerForceDebug();
@@ -206,6 +212,7 @@ void GULTestOSLogWithType(os_log_t log, os_log_type_t type, char *s, ...) {
 }
 
 - (void)testForceDebugAppStore {
+  [self partialMockLogger];
   [self setAppStoreTo:YES];
   self.osLogger.logLevel = GULLoggerLevelWarning;
   XCTAssertFalse(self.osLogger.forcedDebug);
@@ -214,7 +221,35 @@ void GULTestOSLogWithType(os_log_t log, os_log_type_t type, char *s, ...) {
   XCTAssertEqual(self.osLogger.logLevel, GULLoggerLevelWarning);
 }
 
-// TODO(bstpierre): Add tests for logWithLevel:withService:isForced:withCode:withMessage:
+- (void)testLoggingValidNoVarArgs {
+  [self.osLogger initializeLogger];
+  XCTAssert(self.osLogger.categoryLoggers.count == 0);
+  NSString *message = [NSUUID UUID].UUIDString;
+  GULOSLoggerExpectation *expectation =
+      [[GULOSLoggerExpectation alloc] initWithLog:nil type:OS_LOG_TYPE_DEFAULT message:message];
+  [sExpectations addObject:expectation];
+  [self.osLogger logWithLevel:GULLoggerLevelNotice
+                  withService:kService
+                     isForced:NO
+                     withCode:kCode
+                  withMessage:message];
+  [self waitForExpectations:sExpectations timeout:kTimeout];
+}
+
+- (void)testLoggingValidWithVarArgs {
+  [self.osLogger initializeLogger];
+  XCTAssert(self.osLogger.categoryLoggers.count == 0);
+  NSString *message = [NSUUID UUID].UUIDString;
+  GULOSLoggerExpectation *expectation =
+      [[GULOSLoggerExpectation alloc] initWithLog:nil type:OS_LOG_TYPE_DEFAULT message:message];
+  [sExpectations addObject:expectation];
+  [self.osLogger logWithLevel:GULLoggerLevelNotice
+                  withService:kService
+                     isForced:NO
+                     withCode:kCode
+                  withMessage:@"%@", message];
+  [self waitForExpectations:sExpectations timeout:kTimeout];
+}
 
 @end
 

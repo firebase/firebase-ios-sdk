@@ -49,7 +49,7 @@ static const char *const kGULLoggerClientFacilityName = "com.google.utilities.lo
 + (NSString *)messageFromLogger:(id<GULLoggerSystem>)logger
                     withService:(GULLoggerService)service
                            code:(NSString *)code
-                        message:(NSString *)message, ...;
+                        message:(NSString *)message;
 
 @end
 

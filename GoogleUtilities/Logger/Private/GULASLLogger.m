@@ -92,6 +92,10 @@ NS_ASSUME_NONNULL_BEGIN
   _logLevel = logLevel;
 }
 
+- (GULLoggerLevel)logLevel {
+  return _logLevel;
+}
+
 - (void)setForcedDebug:(BOOL)forcedDebug {
   // We should not enable debug mode if we're running from App Store.
   if (![GULAppEnvironmentUtil isFromAppStore]) {
@@ -100,6 +104,10 @@ NS_ASSUME_NONNULL_BEGIN
     }
     _forcedDebug = forcedDebug;
   }
+}
+
+- (BOOL)forcedDebug {
+  return _forcedDebug;
 }
 
 - (BOOL)isLoggableLevel:(GULLoggerLevel)logLevel {
@@ -124,6 +132,11 @@ NS_ASSUME_NONNULL_BEGIN
     return;
   }
 
+  // Process the va_list here, while the parameters are on the stack.
+  va_list args;
+  va_start(args, message);
+  message = [[NSString alloc] initWithFormat:message arguments:args];
+  va_end(args);
   const char *logMsg = [GULLogger messageFromLogger:self
                                         withService:service
                                                code:messageCode

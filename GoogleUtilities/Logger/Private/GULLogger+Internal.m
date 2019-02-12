@@ -35,7 +35,7 @@ static NSString *const kGULLoggerMessageCodePattern = @"^I-[A-Z]{3}[0-9]{6}$";
 + (NSString *)messageFromLogger:(id<GULLoggerSystem>)logger
                     withService:(GULLoggerService)service
                            code:(NSString *)code
-                        message:(NSString *)message, ... {
+                        message:(NSString *)message {
 #ifdef DEBUG
   NSCAssert(code.length == 11, @"Incorrect message code length.");
   static dispatch_once_t onceToken;
@@ -51,12 +51,8 @@ static NSString *const kGULLoggerMessageCodePattern = @"^I-[A-Z]{3}[0-9]{6}$";
                                                                     range:messageCodeRange];
   NSCAssert(numberOfMatches == 1, @"Incorrect message code format.");
 #endif
-  va_list formatArgs;
-  va_start(formatArgs, message);
-  NSString *completeMessage = [[NSString alloc] initWithFormat:message arguments:formatArgs];
-  va_end(formatArgs);
   return
-      [NSString stringWithFormat:@"%@ - %@[%@] %@", logger.version, service, code, completeMessage];
+      [NSString stringWithFormat:@"%@ - %@[%@] %@", logger.version, service, code, message];
 }
 
 @end

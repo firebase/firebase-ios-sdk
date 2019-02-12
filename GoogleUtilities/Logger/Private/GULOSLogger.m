@@ -121,6 +121,10 @@ static void GULLOSLogWithType(os_log_t log, os_log_type_t type, char* s, ...) {
   }
 }
 
+- (BOOL)forcedDebug {
+  return _forcedDebug;
+}
+
 - (void)printToSTDERR {
   // NO-OP - os_log always outputs to STDERR and cannot be turned off.
   //         See http://www.openradar.me/36919139
@@ -140,6 +144,18 @@ static void GULLOSLogWithType(os_log_t log, os_log_type_t type, char* s, ...) {
     return;
   }
   [self initializeLogger];
+
+  // Process the va_list here, while the parameters are on the stack.
+  va_list args;
+  va_start(args, message);
+  message = [[NSString alloc] initWithFormat:message arguments:args];
+  va_end(args);
+  NSString *completeMessage = [GULLogger messageFromLogger:self
+                                               withService:service
+                                                      code:messageCode
+                                                   message:message];
+
+  // Avoid blocking during logging.
   dispatch_async(self.dispatchQueue, ^{
     os_log_t osLog = self.categoryLoggers[service];
     if (!osLog) {
@@ -153,12 +169,8 @@ static void GULLOSLogWithType(os_log_t log, os_log_type_t type, char* s, ...) {
       }
     }
     // Call the function pointer using the message constructed by GULLogger.
-    (*self.logFunction)(osLog, [[self class] osLogTypeForGULLoggerLevel:level],"%s",
-                        [GULLogger messageFromLogger:self
-                                         withService:service
-                                                code:messageCode
-                                             message:message]
-                        .UTF8String);
+    (*self.logFunction)(osLog, [[self class] osLogTypeForGULLoggerLevel:level],
+                        "%s", completeMessage.UTF8String);
   });
 }
 
