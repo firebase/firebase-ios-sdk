@@ -46,7 +46,10 @@ static NSTimeInterval const kTimeout = 0.1f;
 - (instancetype)initWithLog:(nullable os_log_t)log
                        type:(os_log_type_t)type
                     message:(NSString *)message {
-  self = [super init];
+  self = [super
+      initWithDescription:[NSString
+                              stringWithFormat:@"os_log_with_type(%@, %iu, %@) was not called.",
+                                               log, type, message]];
   if (self) {
     _log = log;
     _type = type;
@@ -222,6 +225,7 @@ void GULTestOSLogWithType(os_log_t log, os_log_type_t type, char *s, ...) {
 }
 
 - (void)testLoggingValidNoVarArgs {
+  [self partialMockLogger];
   [self.osLogger initializeLogger];
   XCTAssert(self.osLogger.categoryLoggers.count == 0);
   NSString *message = [NSUUID UUID].UUIDString;
