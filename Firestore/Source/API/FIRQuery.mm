@@ -578,7 +578,7 @@ NS_ASSUME_NONNULL_BEGIN
 
       if ([value isKindOfClass:[FSTServerTimestampValue class]]) {
         FSTThrowInvalidUsage(@"InvalidQueryException",
-                             @"Invalid query. Your are trying to start or end a query using a "
+                             @"Invalid query. You are trying to start or end a query using a "
                               "document for which the field '%s' is an uncommitted server "
                               "timestamp. (Since the value of this field is unknown, you cannot "
                               "start/end a query with it.)",

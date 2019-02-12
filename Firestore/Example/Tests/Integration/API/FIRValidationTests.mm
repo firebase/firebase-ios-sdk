@@ -438,13 +438,13 @@
     if (snapshot.empty) return;
 
     XCTAssertEqual(snapshot.count, 1);
-    FIRQueryDocumentSnapshot *docSnap = [snapshot documents][0];
+    FIRQueryDocumentSnapshot *docSnap = snapshot.documents[0];
 
-    if ([snapshot metadata].pendingWrites) {
+    if (snapshot.metadata.pendingWrites) {
       // Offline snapshot. Since the server timestamp is uncommitted, we
       // shouldn't be able to query by it.
       NSString *reason =
-          @"Invalid query. Your are trying to start or end a query using a document for which the "
+          @"Invalid query. You are trying to start or end a query using a document for which the "
           @"field 'timestamp' is an uncommitted server timestamp. (Since the value of this field "
           @"is unknown, you cannot start/end a query with it.)";
       FSTAssertThrows([[[collection queryOrderedByField:@"timestamp"] queryEndingAtDocument:docSnap]
