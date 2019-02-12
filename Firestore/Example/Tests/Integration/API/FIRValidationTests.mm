@@ -420,6 +420,55 @@
   FSTAssertThrows([query queryEndingAtDocument:snapshot], reason);
 }
 
+- (void)testQueriesCannotBeSortedByAnUncommittedServerTimestamp {
+  __weak FIRCollectionReference *collection = [self collectionRef];
+  FIRFirestore *db = [self firestore];
+
+  [db disableNetworkWithCompletion:[self completionForExpectationWithName:@"Disable network"]];
+  [self awaitExpectations];
+
+  XCTestExpectation *offlineCallbackDone =
+      [self expectationWithDescription:@"offline callback done"];
+  XCTestExpectation *onlineCallbackDone = [self expectationWithDescription:@"online callback done"];
+
+  [collection addSnapshotListener:^(FIRQuerySnapshot *snapshot, NSError *error) {
+    XCTAssertNil(error);
+
+    // Skip the initial empty snapshot.
+    if (snapshot.empty) return;
+
+    XCTAssertEqual(snapshot.count, 1);
+    FIRQueryDocumentSnapshot *docSnap = [snapshot documents][0];
+
+    if ([snapshot metadata].pendingWrites) {
+      // Offline snapshot. Since the server timestamp is uncommitted, we
+      // shouldn't be able to query by it.
+      NSString *reason =
+          @"Invalid query. Your are trying to start or end a query using a document for which the "
+          @"field 'timestamp' is an uncommitted server timestamp. (Since the value of this field "
+          @"is unknown, you cannot start/end a query with it.)";
+      FSTAssertThrows([[[collection queryOrderedByField:@"timestamp"] queryEndingAtDocument:docSnap]
+                          addSnapshotListener:^(FIRQuerySnapshot *, NSError *){
+                          }],
+                      reason);
+      [offlineCallbackDone fulfill];
+    } else {
+      // Online snapshot. Since the server timestamp is committed, we should be able to query by it.
+      [[[collection queryOrderedByField:@"timestamp"] queryEndingAtDocument:docSnap]
+          addSnapshotListener:^(FIRQuerySnapshot *, NSError *){
+          }];
+      [onlineCallbackDone fulfill];
+    }
+  }];
+
+  FIRDocumentReference *document = [collection documentWithAutoID];
+  [document setData:@{@"timestamp" : [FIRFieldValue fieldValueForServerTimestamp]}];
+  [self awaitExpectations];
+
+  [db enableNetworkWithCompletion:[self completionForExpectationWithName:@"Enable network"]];
+  [self awaitExpectations];
+}
+
 - (void)testQueryBoundMustNotHaveMoreComponentsThanSortOrders {
   FIRCollectionReference *testCollection = [self collectionRef];
   FIRQuery *query = [testCollection queryOrderedByField:@"foo"];
