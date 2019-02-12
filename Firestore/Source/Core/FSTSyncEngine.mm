@@ -17,13 +17,13 @@
 #import "Firestore/Source/Core/FSTSyncEngine.h"
 
 #include <map>
+#include <memory>
 #include <set>
 #include <unordered_map>
 #include <utility>
 
 #import "FIRFirestoreErrors.h"
 #import "Firestore/Source/Core/FSTQuery.h"
-#import "Firestore/Source/Core/FSTTransaction.h"
 #import "Firestore/Source/Core/FSTView.h"
 #import "Firestore/Source/Core/FSTViewSnapshot.h"
 #import "Firestore/Source/Local/FSTLocalStore.h"
@@ -36,18 +36,22 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
+#include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
+#include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "absl/types/optional.h"
 
 using firebase::firestore::auth::HashUser;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::TargetIdGenerator;
+using firebase::firestore::core::Transaction;
 using firebase::firestore::local::ReferenceSet;
 using firebase::firestore::model::BatchId;
 using firebase::firestore::model::DocumentKey;
@@ -62,6 +66,8 @@ using firebase::firestore::remote::RemoteEvent;
 using firebase::firestore::remote::RemoteStore;
 using firebase::firestore::remote::TargetChange;
 using firebase::firestore::util::AsyncQueue;
+using firebase::firestore::util::MakeNSError;
+using firebase::firestore::util::Status;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -287,7 +293,8 @@ class LimboResolution {
                     completion:(FSTVoidIDErrorBlock)completion {
   workerQueue->VerifyIsCurrentQueue();
   HARD_ASSERT(retries >= 0, "Got negative number of retries for transaction");
-  FSTTransaction *transaction = _remoteStore->CreateTransaction();
+
+  std::shared_ptr<Transaction> transaction = _remoteStore->CreateTransaction();
   updateBlock(transaction, ^(id _Nullable result, NSError *_Nullable error) {
     workerQueue->Enqueue(
         [self, retries, workerQueue, updateBlock, completion, transaction, result, error] {
@@ -295,11 +302,13 @@ class LimboResolution {
             completion(nil, error);
             return;
           }
-          [transaction commitWithCompletion:^(NSError *_Nullable transactionError) {
-            if (!transactionError) {
+          transaction->Commit([self, retries, workerQueue, updateBlock, completion,
+                               result](const Status &status) {
+            if (status.ok()) {
               completion(result, nil);
               return;
             }
+
             // TODO(b/35201829): Only retry on real transaction failures.
             if (retries == 0) {
               NSError *wrappedError =
@@ -307,7 +316,7 @@ class LimboResolution {
                                       code:FIRFirestoreErrorCodeFailedPrecondition
                                   userInfo:@{
                                     NSLocalizedDescriptionKey : @"Transaction failed all retries.",
-                                    NSUnderlyingErrorKey : transactionError
+                                    NSUnderlyingErrorKey : MakeNSError(status)
                                   }];
               completion(nil, wrappedError);
               return;
@@ -317,7 +326,7 @@ class LimboResolution {
                                     workerQueue:workerQueue
                                     updateBlock:updateBlock
                                      completion:completion];
-          }];
+          });
         });
   });
 }
