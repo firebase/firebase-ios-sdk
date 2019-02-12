@@ -153,7 +153,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSUInteger)hash {
-  NSUInteger result = [self.key hash];
+  NSUInteger result = self.key.Hash();
   result = result * 31 + self.version.Hash();
   result = result * 31 + [self.data hash];
   result = result * 31 + _documentState;
@@ -212,7 +212,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSUInteger)hash {
-  NSUInteger result = [self.key hash];
+  NSUInteger result = self.key.Hash();
   result = result * 31 + self.version.Hash();
   result = result * 31 + (_hasCommittedMutations ? 1 : 0);
   return result;
@@ -250,7 +250,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSUInteger)hash {
-  NSUInteger result = [self.key hash];
+  NSUInteger result = self.key.Hash();
   result = result * 31 + self.version.Hash();
   return result;
 }

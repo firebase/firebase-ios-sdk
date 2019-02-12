@@ -51,10 +51,6 @@ class DocumentKey {
   explicit DocumentKey(ResourcePath&& path);
 
 #if defined(__OBJC__)
-  explicit operator FSTDocumentKey*() const {
-    return [FSTDocumentKey keyWithDocumentKey:*this];
-  }
-
   NSUInteger Hash() const {
     return util::Hash(ToString());
   }

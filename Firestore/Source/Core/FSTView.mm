@@ -143,7 +143,7 @@ int GetDocumentViewChangeTypePosition(DocumentViewChangeType changeType) {
 
 - (NSUInteger)hash {
   NSUInteger hash = self.type;
-  hash = hash * 31u + [self.key hash];
+  hash = hash * 31u + self.key.Hash();
   return hash;
 }
 
