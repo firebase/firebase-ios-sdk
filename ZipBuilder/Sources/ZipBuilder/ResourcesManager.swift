@@ -61,6 +61,34 @@ extension ResourcesManager {
     }
   }
 
+  /// Recursively searches for bundles in `dir` and moves them to the Resources directory
+  /// `resourceDir`.
+  ///
+  /// - Parameters:
+  ///   - dir: The directory to search for Resource bundles.
+  ///   - resourceDir: The destination Resources directory. This function will create the Resources
+  ///                  directory if it doesn't exist.
+  public static func moveAllBundles(inDirectory dir: URL, to resourceDir: URL) throws {
+    let allBundles: [URL]
+    let fileManager = FileManager.default
+    allBundles = try fileManager.recursivelySearch(for: .bundles, in: dir)
+
+    // Find the bundle directories and move them into a Resources directory.
+    if !allBundles.isEmpty && !fileManager.directoryExists(at: resourceDir) {
+      // Create a Resources directory if there is at least one bundle and the directory doesn't
+      // already exist.
+      try fileManager.createDirectory(at: resourceDir,
+                                      withIntermediateDirectories: true,
+                                      attributes: nil)
+    }
+
+    // Move each bundle to the Resources/ directory.
+    for bundle in allBundles {
+      let newLocation = resourceDir.appendingPathComponent(bundle.lastPathComponent)
+      try fileManager.moveItem(at: bundle, to: newLocation)
+    }
+  }
+
   /// Searches for and attempts to remove all empty "Resources" directories in a given directory.
   /// This is a recrusive search.
   ///

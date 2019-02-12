@@ -170,7 +170,8 @@ struct ZipBuilder {
 
     // Break the `subspecsToInstall` into a variable since it's helpful when debugging non-cache
     // builds to just install a subset: `[.core, .analytics, .storage, .firestore]` for example.
-    let subspecsToInstall = Subspec.allCases()
+//    let subspecsToInstall = Subspec.allCases()
+    let subspecsToInstall: [Subspec] = [.core, .analytics, .mlVisionTextModel]
 
     // We need to install all the subpsecs in order to get every single framework that we'll need
     // for the zip file. We can't install each one individually since some pods depend on different
@@ -624,26 +625,27 @@ struct ZipBuilder {
       } else {
         // Create an empty array so we can populate it below with the frameworks that were found.
         frameworks[pod.name] = []
-      }
 
-      // Copy newly found/compiled frameworks to a known temporary directory, and store that location.
-      for framework in foundFrameworks {
-        // Copy it to the temporary directory and save it to our list of frameworks.
-        let copiedLocation = tempDir.appendingPathComponent(framework.lastPathComponent)
-        if fileManager.directoryExists(at: copiedLocation) {
-          // The framework exists, remove it since it could be out of date. It's okay to force try!
-          // here since we know the directory exists.
-          try! fileManager.removeItem(at: copiedLocation)
-        }
-        do {
-          try fileManager.copyItem(at: framework, to: copiedLocation)
-        } catch {
-          fatalError("Cannot copy framework at \(framework) to \(copiedLocation) while " +
-            "attempting to generate frameworks. \(error)")
-        }
+        // Copy found frameworks to a known temporary directory, and store that location. Also move
+        // the resources inside the .framework to be consistent with the compiled frameworks, which
+        // they'll be moved out afterwards.
+        for framework in foundFrameworks {
+          // Copy it to the temporary directory and save it to our list of frameworks.
+          let copiedLocation = tempDir.appendingPathComponent(framework.lastPathComponent)
+          if fileManager.directoryExists(at: copiedLocation) {
+            // The framework exists, remove it since it could be out of date. It's okay to force try!
+            // here since we know the directory exists.
+            try! fileManager.removeItem(at: copiedLocation)
+          }
+          do {
+            try fileManager.copyItem(at: framework, to: copiedLocation)
+          } catch {
+            fatalError("Cannot copy framework at \(framework) to \(copiedLocation) while " +
+              "attempting to generate frameworks. \(error)")
+          }
 
-        frameworks[pod.name]?.append(copiedLocation)
-      }
+          frameworks[pod.name]?.append(copiedLocation)
+        }
     }
 
     return frameworks
