@@ -54,6 +54,7 @@ namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
 using firebase::firestore::FirestoreErrorCode;
 using firebase::firestore::auth::User;
+using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::DocumentViewChangeType;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
@@ -200,7 +201,7 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
   return testutil::Version(version.longLongValue);
 }
 
-- (FSTDocumentViewChange *)parseChange:(NSDictionary *)jsonDoc ofType:(DocumentViewChangeType)type {
+- (DocumentViewChange )parseChange:(NSDictionary *)jsonDoc ofType:(DocumentViewChangeType)type {
   NSNumber *version = jsonDoc[@"version"];
   NSDictionary *options = jsonDoc[@"options"];
   FSTDocumentState documentState = [options[@"hasLocalMutations"] isEqualToNumber:@YES]
@@ -212,7 +213,7 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
   XCTAssert([jsonDoc[@"key"] isKindOfClass:[NSString class]]);
   FSTDocument *doc = FSTTestDoc(util::MakeString((NSString *)jsonDoc[@"key"]),
                                 version.longLongValue, jsonDoc[@"value"], documentState);
-  return [FSTDocumentViewChange changeWithDocument:doc type:type];
+  return DocumentViewChange{doc, type};
 }
 
 #pragma mark - Methods for doing the steps of the spec test.
@@ -497,28 +498,28 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
     XCTAssertNotNil(actual.error);
     XCTAssertEqual(actual.error.code, [expected[@"errorCode"] integerValue]);
   } else {
-    NSMutableArray *expectedChanges = [NSMutableArray array];
+    std::vector<DocumentViewChange> expectedChanges;
     NSMutableArray *removed = expected[@"removed"];
     for (NSDictionary *changeSpec in removed) {
-      [expectedChanges addObject:[self parseChange:changeSpec
-                                            ofType:DocumentViewChangeType::kRemoved]];
+      expectedChanges.push_back([self parseChange:changeSpec ofType:DocumentViewChangeType::kRemoved]);
     }
     NSMutableArray *added = expected[@"added"];
     for (NSDictionary *changeSpec in added) {
-      [expectedChanges addObject:[self parseChange:changeSpec
-                                            ofType:DocumentViewChangeType::kAdded]];
+      expectedChanges.push_back([self parseChange:changeSpec ofType:DocumentViewChangeType::kAdded]);
     }
     NSMutableArray *modified = expected[@"modified"];
     for (NSDictionary *changeSpec in modified) {
-      [expectedChanges addObject:[self parseChange:changeSpec
-                                            ofType:DocumentViewChangeType::kModified]];
+      expectedChanges.push_back([self parseChange:changeSpec ofType:DocumentViewChangeType::kModified]);
     }
     NSMutableArray *metadata = expected[@"metadata"];
     for (NSDictionary *changeSpec in metadata) {
-      [expectedChanges addObject:[self parseChange:changeSpec
-                                            ofType:DocumentViewChangeType::kMetadata]];
+      expectedChanges.push_back([self parseChange:changeSpec ofType:DocumentViewChangeType::kMetadata]);
     }
-    XCTAssertEqualObjects(actual.viewSnapshot.documentChanges, expectedChanges);
+
+    XCTAssertEqual(actual.viewSnapshot.documentChanges.size(), expectedChanges.size());
+    for (size_t i = 0; i != expectedChanges.size(); ++i) {
+      XCTAssertTrue((actual.viewSnapshot.documentChanges[i] == expectedChanges[i]));
+    }
 
     BOOL expectedHasPendingWrites =
         expected[@"hasPendingWrites"] ? [expected[@"hasPendingWrites"] boolValue] : NO;

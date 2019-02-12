@@ -133,7 +133,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithQuery:(FSTQuery *)query
                     documents:(FSTDocumentSet *)documents
                  oldDocuments:(FSTDocumentSet *)oldDocuments
-              documentChanges:(std::vector<DocumentViewChange> &&)documentChanges
+              documentChanges:(std::vector<DocumentViewChange>)documentChanges
                     fromCache:(BOOL)fromCache
                   mutatedKeys:(DocumentKeySet)mutatedKeys
              syncStateChanged:(BOOL)syncStateChanged

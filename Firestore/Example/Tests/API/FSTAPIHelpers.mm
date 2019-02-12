@@ -35,14 +35,15 @@
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 
+#include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
 namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
-using firebase::firestore::core::DocumentKeySet;
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::DocumentViewChangeType;
+using firebase::firestore::model::DocumentKeySet;
 
 NS_ASSUME_NONNULL_BEGIN
 

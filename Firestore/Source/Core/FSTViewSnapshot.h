@@ -62,7 +62,7 @@ typedef void (^FSTViewSnapshotHandler)(FSTViewSnapshot *_Nullable snapshot,
 - (instancetype)initWithQuery:(FSTQuery *)query
                     documents:(FSTDocumentSet *)documents
                  oldDocuments:(FSTDocumentSet *)oldDocuments
-              documentChanges:(std::vector<firebase::firestore::core::DocumentViewChange>&&)documentChanges
+              documentChanges:(std::vector<firebase::firestore::core::DocumentViewChange>)documentChanges
                     fromCache:(BOOL)fromCache
                   mutatedKeys:(firebase::firestore::model::DocumentKeySet)mutatedKeys
              syncStateChanged:(BOOL)syncStateChanged
