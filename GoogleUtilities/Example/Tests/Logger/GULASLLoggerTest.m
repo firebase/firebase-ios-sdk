@@ -135,6 +135,8 @@ static NSString *const kCode = @"I-COR000001";
   XCTAssertEqual(GULLoggerLevelDebug, ASL_LEVEL_DEBUG);
 }
 
+// TODO(bstpierre): Add tests for logWithLevel:withService:isForced:withCode:withMessage:
+
 @end
 
 NS_ASSUME_NONNULL_END

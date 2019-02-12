@@ -66,7 +66,7 @@ static void GULLOSLogWithType(os_log_t log, os_log_type_t type, char* s, ...) {
   self = [super init];
   if (self) {
     _forcedDebug = NO;
-    _logLevel =
+    _logLevel =  // When running from an App Store build, avoid noisy levels below Warning.
         [GULAppEnvironmentUtil isFromAppStore] ? GULLoggerLevelWarning : GULLoggerLevelNotice;
     _version = @"";
     _dispatchQueue = dispatch_queue_create("GULLoggerQueue", DISPATCH_QUEUE_SERIAL);

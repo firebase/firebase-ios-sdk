@@ -34,8 +34,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation GULASLLogger
 
-@synthesize version = _version;
 @synthesize forcedDebug = _forcedDebug;
+@synthesize logLevel = _logLevel;
+@synthesize version = _version;
 
 - (instancetype)init {
   self = [super init];
@@ -72,7 +73,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setLogLevel:(GULLoggerLevel)logLevel {
   if (logLevel < GULLoggerLevelMin || logLevel > GULLoggerLevelMax) {
     GULLogError(kGULLoggerName,
-                NO,
+                YES,
                 kGULLoggerInvalidLoggerLevelCore,
                 kGULLoggerInvalidLoggerLevelMessage,
                 (long)logLevel);
@@ -82,11 +83,13 @@ NS_ASSUME_NONNULL_BEGIN
   if (logLevel >= GULLoggerLevelNotice && [GULAppEnvironmentUtil isFromAppStore]) {
     return;
   }
-  _logLevel = logLevel;
-}
 
-- (GULLoggerLevel)logLevel {
-  return _logLevel;
+  // Ignore setting the level if forcedDebug is on.
+  if (self.forcedDebug) {
+    return;
+  }
+
+  _logLevel = logLevel;
 }
 
 - (void)setForcedDebug:(BOOL)forcedDebug {
