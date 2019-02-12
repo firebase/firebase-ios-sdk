@@ -69,11 +69,10 @@ NS_ASSUME_NONNULL_BEGIN
 
   XCTAssertEqualObjects(snapshot.documents.arrayValue, (@[ doc1, doc2 ]));
 
-  XCTAssertTrue((
-      snapshot.documentChanges == std::vector<DocumentViewChange>{
-        DocumentViewChange{doc1, DocumentViewChangeType::kAdded},
-        DocumentViewChange{doc2, DocumentViewChangeType::kAdded}
-  }));
+  XCTAssertTrue(
+      (snapshot.documentChanges ==
+       std::vector<DocumentViewChange>{DocumentViewChange{doc1, DocumentViewChangeType::kAdded},
+                                       DocumentViewChange{doc2, DocumentViewChangeType::kAdded}}));
 
   XCTAssertFalse(snapshot.isFromCache);
   XCTAssertFalse(snapshot.hasPendingWrites);
@@ -103,11 +102,10 @@ NS_ASSUME_NONNULL_BEGIN
 
   XCTAssertEqualObjects(snapshot.documents.arrayValue, (@[ doc1, doc3 ]));
 
-  XCTAssertTrue((
-      snapshot.documentChanges == std::vector<DocumentViewChange>{
-        DocumentViewChange{doc2, DocumentViewChangeType::kRemoved},
-        DocumentViewChange{doc3, DocumentViewChangeType::kAdded}
-  }));
+  XCTAssertTrue(
+      (snapshot.documentChanges ==
+       std::vector<DocumentViewChange>{DocumentViewChange{doc2, DocumentViewChangeType::kRemoved},
+                                       DocumentViewChange{doc3, DocumentViewChangeType::kAdded}}));
 
   XCTAssertFalse(snapshot.isFromCache);
   XCTAssertTrue(snapshot.syncStateChanged);
@@ -165,12 +163,11 @@ NS_ASSUME_NONNULL_BEGIN
 
   XCTAssertEqualObjects(snapshot.documents.arrayValue, (@[ doc1, doc5, doc2 ]));
 
-  XCTAssertTrue((
-      snapshot.documentChanges == std::vector<DocumentViewChange>{
-        DocumentViewChange{doc1, DocumentViewChangeType::kAdded},
-        DocumentViewChange{doc5, DocumentViewChangeType::kAdded},
-        DocumentViewChange{doc2, DocumentViewChangeType::kAdded}
-  }));
+  XCTAssertTrue(
+      (snapshot.documentChanges ==
+       std::vector<DocumentViewChange>{DocumentViewChange{doc1, DocumentViewChangeType::kAdded},
+                                       DocumentViewChange{doc5, DocumentViewChangeType::kAdded},
+                                       DocumentViewChange{doc2, DocumentViewChangeType::kAdded}}));
 
   XCTAssertTrue(snapshot.isFromCache);
   XCTAssertTrue(snapshot.syncStateChanged);
@@ -212,12 +209,11 @@ NS_ASSUME_NONNULL_BEGIN
 
   XCTAssertEqualObjects(snapshot.documents.arrayValue, (@[ newDoc4, doc1, newDoc2 ]));
 
-  XCTAssertTrue((
-      snapshot.documentChanges == std::vector<DocumentViewChange>{
-        DocumentViewChange{doc3, DocumentViewChangeType::kRemoved},
-        DocumentViewChange{newDoc4, DocumentViewChangeType::kAdded},
-        DocumentViewChange{newDoc2, DocumentViewChangeType::kAdded}
-  }));
+  XCTAssertTrue((snapshot.documentChanges ==
+                 std::vector<DocumentViewChange>{
+                     DocumentViewChange{doc3, DocumentViewChangeType::kRemoved},
+                     DocumentViewChange{newDoc4, DocumentViewChangeType::kAdded},
+                     DocumentViewChange{newDoc2, DocumentViewChangeType::kAdded}}));
 
   XCTAssertTrue(snapshot.isFromCache);
   XCTAssertFalse(snapshot.syncStateChanged);
@@ -246,11 +242,10 @@ NS_ASSUME_NONNULL_BEGIN
 
   XCTAssertEqualObjects(snapshot.documents.arrayValue, (@[ doc1, doc2 ]));
 
-  XCTAssertTrue((
-      snapshot.documentChanges == std::vector<DocumentViewChange>{
-        DocumentViewChange{doc3, DocumentViewChangeType::kRemoved},
-        DocumentViewChange{doc2, DocumentViewChangeType::kAdded}
-  }));
+  XCTAssertTrue(
+      (snapshot.documentChanges ==
+       std::vector<DocumentViewChange>{DocumentViewChange{doc3, DocumentViewChangeType::kRemoved},
+                                       DocumentViewChange{doc2, DocumentViewChangeType::kAdded}}));
 
   XCTAssertFalse(snapshot.isFromCache);
   XCTAssertTrue(snapshot.syncStateChanged);
@@ -296,11 +291,11 @@ NS_ASSUME_NONNULL_BEGIN
 
   XCTAssertEqualObjects(snapshot.documents.arrayValue, (@[ doc1, doc3 ]));
 
-  XCTAssertTrue((
-      snapshot.documentChanges == std::vector<DocumentViewChange>{
-        DocumentViewChange{doc2, DocumentViewChangeType::kRemoved},
-        DocumentViewChange{doc3, DocumentViewChangeType::kAdded},
-  }));
+  XCTAssertTrue(
+      (snapshot.documentChanges == std::vector<DocumentViewChange>{
+                                       DocumentViewChange{doc2, DocumentViewChangeType::kRemoved},
+                                       DocumentViewChange{doc3, DocumentViewChangeType::kAdded},
+                                   }));
 
   XCTAssertFalse(snapshot.isFromCache);
   XCTAssertTrue(snapshot.syncStateChanged);
@@ -687,28 +682,28 @@ NS_ASSUME_NONNULL_BEGIN
       [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1, doc2 ])];
   FSTViewChange *viewChange = [view applyChangesToDocuments:changes];
 
-  XCTAssertTrue((
-      viewChange.snapshot.documentChanges == std::vector<DocumentViewChange>{
-        DocumentViewChange{doc1, DocumentViewChangeType::kAdded},
-        DocumentViewChange{doc2, DocumentViewChangeType::kAdded},
-  }));
+  XCTAssertTrue((viewChange.snapshot.documentChanges ==
+                 std::vector<DocumentViewChange>{
+                     DocumentViewChange{doc1, DocumentViewChangeType::kAdded},
+                     DocumentViewChange{doc2, DocumentViewChangeType::kAdded},
+                 }));
 
   changes = [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1Committed, doc2Modified ])];
   viewChange = [view applyChangesToDocuments:changes];
   // The 'doc1Committed' update is suppressed
-  XCTAssertTrue((
-      viewChange.snapshot.documentChanges == std::vector<DocumentViewChange>{
-        DocumentViewChange{doc2Modified, DocumentViewChangeType::kModified},
-  }));
+  XCTAssertTrue((viewChange.snapshot.documentChanges ==
+                 std::vector<DocumentViewChange>{
+                     DocumentViewChange{doc2Modified, DocumentViewChangeType::kModified},
+                 }));
 
   changes =
       [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1Acknowledged, doc2Acknowledged ])];
   viewChange = [view applyChangesToDocuments:changes];
-  XCTAssertTrue((
-      viewChange.snapshot.documentChanges == std::vector<DocumentViewChange>{
-        DocumentViewChange{doc1Acknowledged, DocumentViewChangeType::kModified},
-        DocumentViewChange{doc2Acknowledged, DocumentViewChangeType::kMetadata},
-  }));
+  XCTAssertTrue((viewChange.snapshot.documentChanges ==
+                 std::vector<DocumentViewChange>{
+                     DocumentViewChange{doc1Acknowledged, DocumentViewChangeType::kModified},
+                     DocumentViewChange{doc2Acknowledged, DocumentViewChangeType::kMetadata},
+                 }));
 }
 
 @end

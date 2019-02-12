@@ -109,7 +109,7 @@ NS_ASSUME_NONNULL_BEGIN
                 initWithQuery:snap2.query
                     documents:snap2.documents
                  oldDocuments:[FSTDocumentSet documentSetWithComparator:snap2.query.comparator]
-              documentChanges:{ change1, change4 }
+              documentChanges:{change1, change4}
                     fromCache:snap2.fromCache
                   mutatedKeys:snap2.mutatedKeys
              syncStateChanged:YES
@@ -269,11 +269,13 @@ NS_ASSUME_NONNULL_BEGIN
                           [self setExcludesMetadataChanges:YES snapshot:snap1],
                           [self setExcludesMetadataChanges:YES snapshot:snap3]
                         ]));
-  XCTAssertTrue((filteredAccum[0].documentChanges == std::vector<DocumentViewChange>{change1, change2}));
+  XCTAssertTrue(
+      (filteredAccum[0].documentChanges == std::vector<DocumentViewChange>{change1, change2}));
   XCTAssertTrue((filteredAccum[1].documentChanges == std::vector<DocumentViewChange>{change4}));
 
   XCTAssertEqualObjects(fullAccum, (@[ snap1, snap2, snap3 ]));
-  XCTAssertTrue((fullAccum[0].documentChanges == std::vector<DocumentViewChange>{change1, change2}));
+  XCTAssertTrue(
+      (fullAccum[0].documentChanges == std::vector<DocumentViewChange>{change1, change2}));
   XCTAssertTrue((fullAccum[1].documentChanges == std::vector<DocumentViewChange>{change3}));
   XCTAssertTrue((fullAccum[2].documentChanges == std::vector<DocumentViewChange>{change4}));
 }
@@ -351,7 +353,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTViewSnapshot *expectedSnap2 = [[FSTViewSnapshot alloc] initWithQuery:snap2.query
                                                                 documents:snap2.documents
                                                              oldDocuments:snap1.documents
-                                                          documentChanges:{ change3 }
+                                                          documentChanges:{change3}
                                                                 fromCache:snap2.isFromCache
                                                               mutatedKeys:snap2.mutatedKeys
                                                          syncStateChanged:snap2.syncStateChanged
@@ -392,7 +394,7 @@ NS_ASSUME_NONNULL_BEGIN
                 initWithQuery:snap3.query
                     documents:snap3.documents
                  oldDocuments:[FSTDocumentSet documentSetWithComparator:snap3.query.comparator]
-              documentChanges:{ change1, change2 }
+              documentChanges:{change1, change2}
                     fromCache:NO
                   mutatedKeys:snap3.mutatedKeys
              syncStateChanged:YES
@@ -430,7 +432,7 @@ NS_ASSUME_NONNULL_BEGIN
                 initWithQuery:query
                     documents:snap1.documents
                  oldDocuments:[FSTDocumentSet documentSetWithComparator:snap1.query.comparator]
-              documentChanges:{ change1 }
+              documentChanges:{change1}
                     fromCache:YES
                   mutatedKeys:snap1.mutatedKeys
              syncStateChanged:YES
@@ -438,7 +440,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTViewSnapshot *expectedSnap2 = [[FSTViewSnapshot alloc] initWithQuery:query
                                                                 documents:snap2.documents
                                                              oldDocuments:snap1.documents
-                                                          documentChanges:{ change2 }
+                                                          documentChanges:{change2}
                                                                 fromCache:YES
                                                               mutatedKeys:snap2.mutatedKeys
                                                          syncStateChanged:NO

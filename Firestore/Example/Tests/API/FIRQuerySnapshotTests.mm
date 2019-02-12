@@ -18,6 +18,7 @@
 
 #import <XCTest/XCTest.h>
 
+#include <utility>
 #include <vector>
 
 #import "Firestore/Example/Tests/API/FSTAPIHelpers.h"
@@ -87,8 +88,8 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocumentSet *oldDocuments = FSTTestDocSet(FSTDocumentComparatorByKey, @[ doc1Old, doc2Old ]);
   FSTDocumentSet *newDocuments = FSTTestDocSet(FSTDocumentComparatorByKey, @[ doc2New, doc2New ]);
   std::vector<DocumentViewChange> documentChanges{
-    DocumentViewChange{doc1New, DocumentViewChangeType::kMetadata},
-    DocumentViewChange{doc2New, DocumentViewChangeType::kModified},
+      DocumentViewChange{doc1New, DocumentViewChangeType::kMetadata},
+      DocumentViewChange{doc2New, DocumentViewChangeType::kModified},
   };
 
   FIRFirestore *firestore = FSTTestFirestore();
@@ -98,7 +99,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                             oldDocuments:oldDocuments
                                                          documentChanges:std::move(documentChanges)
                                                                fromCache:NO
-                                                             mutatedKeys:DocumentKeySet{}
+                                                             mutatedKeys:DocumentKeySet {}
                                                         syncStateChanged:YES
                                                  excludesMetadataChanges:NO];
   FIRSnapshotMetadata *metadata = [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:NO

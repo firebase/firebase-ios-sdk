@@ -72,7 +72,7 @@ NS_ASSUME_NONNULL_BEGIN
   [set addChange:DocumentViewChange{docModifiedThenModified, DocumentViewChangeType::kModified}];
   [set addChange:DocumentViewChange{docModifiedThenModified, DocumentViewChangeType::kModified}];
 
-  std::vector<DocumentViewChange > changes = [set changes];
+  std::vector<DocumentViewChange> changes = [set changes];
   XCTAssertEqual(changes.size(), 7);
 
   XCTAssertEqual(changes[0].document(), docAdded);

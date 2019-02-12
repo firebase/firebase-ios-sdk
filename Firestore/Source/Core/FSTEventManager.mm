@@ -16,12 +16,12 @@
 
 #import "Firestore/Source/Core/FSTEventManager.h"
 
+#include <utility>
+#include <vector>
+
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSyncEngine.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
-
-#include <utility>
-#include <vector>
 
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
@@ -131,7 +131,7 @@ NS_ASSUME_NONNULL_BEGIN
   if (!self.options.includeDocumentMetadataChanges) {
     // Remove the metadata-only changes.
     std::vector<DocumentViewChange> changes;
-    for (const DocumentViewChange& change : snapshot.documentChanges) {
+    for (const DocumentViewChange &change : snapshot.documentChanges) {
       if (change.type() != DocumentViewChangeType::kMetadata) {
         changes.push_back(change);
       }

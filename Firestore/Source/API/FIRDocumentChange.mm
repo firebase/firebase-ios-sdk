@@ -40,7 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRDocumentChange (Internal)
 
-+ (FIRDocumentChangeType)documentChangeTypeForChange:(const DocumentViewChange&)change {
++ (FIRDocumentChangeType)documentChangeTypeForChange:(const DocumentViewChange &)change {
   switch (change.type()) {
     case DocumentViewChangeType::kAdded:
       return FIRDocumentChangeTypeAdded;

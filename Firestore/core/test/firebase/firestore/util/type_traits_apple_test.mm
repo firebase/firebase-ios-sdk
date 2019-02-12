@@ -29,9 +29,7 @@ namespace firestore {
 namespace util {
 
 template <typename T>
-struct is_objective_c_pointer3 : std::is_convertible<T, id> {
-};
-
+struct is_objective_c_pointer3 : std::is_convertible<T, id> {};
 
 TEST(TypeTraitsTest, IsObjectiveCPointer) {
   static_assert(is_objective_c_pointer3<NSObject*>{}, "NSObject");

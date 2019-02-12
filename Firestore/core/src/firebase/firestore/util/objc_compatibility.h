@@ -76,28 +76,26 @@ size_t Hash(const T& container) {
 ////////////////////////////////////////////////////////////////////////////////
 
 template <typename T, typename = absl::void_t<>>
-struct is_associative_container : std::false_type {
-};
+struct is_associative_container : std::false_type {};
 template <typename T>
-struct is_associative_container<T, absl::void_t<
-    decltype(std::declval<typename T::mapped_type>())>>
-  : std::true_type {
-};
+struct is_associative_container<
+    T,
+    absl::void_t<decltype(std::declval<typename T::mapped_type>())>>
+    : std::true_type {};
 
 template <typename T, typename = absl::void_t<>>
-struct has_to_string : std::false_type {
-};
+struct has_to_string : std::false_type {};
 template <typename T>
-struct has_to_string<T, absl::void_t<decltype(std::declval<T>().ToString())>> : std::true_type {
-};
+struct has_to_string<T, absl::void_t<decltype(std::declval<T>().ToString())>>
+    : std::true_type {};
 
 template <typename T, typename = absl::void_t<>>
-struct is_iterable : std::false_type {
-};
+struct is_iterable : std::false_type {};
 template <typename T>
-struct is_iterable<T, absl::void_t<decltype(std::declval<T>().begin(),
-   std::declval<T>().end() )>> : std::true_type {
-};
+struct is_iterable<
+    T,
+    absl::void_t<decltype(std::declval<T>().begin(), std::declval<T>().end())>>
+    : std::true_type {};
 
 // template <typename T, typename = absl::void_t<>>
 // struct is_objective_c_pointer2 : std::false_type {
@@ -108,9 +106,7 @@ struct is_iterable<T, absl::void_t<decltype(std::declval<T>().begin(),
 // };
 
 template <typename T>
-struct is_objective_c_pointer2 : std::is_convertible<T, id> {
-};
-
+struct is_objective_c_pointer2 : std::is_convertible<T, id> {};
 
 template <typename T>
 std::string ToString(const T& value);
@@ -148,8 +144,8 @@ std::string ContainerToString(const T& value, std::false_type) {
 
 template <typename T>
 std::string ContainerToString(const T& value, std::true_type) {
-  std::string contents =
-      absl::StrJoin(value, ",", [](std::string* out, const typename T::value_type& element) {
+  std::string contents = absl::StrJoin(
+      value, ",", [](std::string* out, const typename T::value_type& element) {
         out->append(ToString(element));
       });
   return std::string{"["} + contents + "]";
@@ -165,9 +161,9 @@ std::string MapToString(const T& value, std::false_type) {
 template <typename T>
 std::string MapToString(const T& value, std::true_type) {
   std::string contents = absl::StrJoin(
-      value, ",",
-      [](std::string* out, const typename T::value_type& kv) {
-        out->append(StringFormat("%s: %s", ToString(kv.first), ToString(kv.second)));
+      value, ",", [](std::string* out, const typename T::value_type& kv) {
+        out->append(
+            StringFormat("%s: %s", ToString(kv.first), ToString(kv.second)));
       });
   return std::string{"{"} + contents + "}";
 }
@@ -185,17 +181,6 @@ template <typename T>
 NSString* Description(const T& value) {
   return WrapNSString(ToString(value));
 }
-
-
-
-
-
-
-
-
-
-
-
 
 /**
  * Creates a description of C++ container of Objective-C objects, as if it were
@@ -259,13 +244,11 @@ std::string ToString(T* objc_ptr) {
 }
 */
 
-
-
-// template <typename T, typename = absl::enable_if_t<is_associative_container<T>>>
-// std::string ToString(const T& map) {
+// template <typename T, typename =
+// absl::enable_if_t<is_associative_container<T>>> std::string ToString(const T&
+// map) {
 //   return value.ToString();
 // }
-
 
 // template <typename T, typename Fn, typename =
 // absl::enable_if_t<is_associative_container<T>>> NSString* Description(const

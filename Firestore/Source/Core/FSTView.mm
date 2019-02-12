@@ -16,7 +16,9 @@
 
 #import "Firestore/Source/Core/FSTView.h"
 
+#include <algorithm>
 #include <utility>
+#include <vector>
 
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTViewSnapshot.h"

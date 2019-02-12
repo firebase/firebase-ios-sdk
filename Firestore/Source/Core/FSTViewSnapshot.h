@@ -44,7 +44,7 @@ typedef NS_ENUM(NSInteger, FSTSyncState) {
 + (instancetype)changeSet;
 
 /** Takes a new change and applies it to the set. */
-- (void)addChange:(firebase::firestore::core::DocumentViewChange&&)change;
+- (void)addChange:(firebase::firestore::core::DocumentViewChange &&)change;
 
 /** Returns the set of all changes tracked in this set. */
 - (std::vector<firebase::firestore::core::DocumentViewChange>)changes;
@@ -62,7 +62,8 @@ typedef void (^FSTViewSnapshotHandler)(FSTViewSnapshot *_Nullable snapshot,
 - (instancetype)initWithQuery:(FSTQuery *)query
                     documents:(FSTDocumentSet *)documents
                  oldDocuments:(FSTDocumentSet *)oldDocuments
-              documentChanges:(std::vector<firebase::firestore::core::DocumentViewChange>)documentChanges
+              documentChanges:
+                  (std::vector<firebase::firestore::core::DocumentViewChange>)documentChanges
                     fromCache:(BOOL)fromCache
                   mutatedKeys:(firebase::firestore::model::DocumentKeySet)mutatedKeys
              syncStateChanged:(BOOL)syncStateChanged
@@ -87,7 +88,7 @@ typedef void (^FSTViewSnapshotHandler)(FSTViewSnapshot *_Nullable snapshot,
 @property(nonatomic, strong, readonly) FSTDocumentSet *oldDocuments;
 
 /** The set of changes that have been applied to the documents. */
-- (const std::vector<firebase::firestore::core::DocumentViewChange>&) documentChanges;
+- (const std::vector<firebase::firestore::core::DocumentViewChange> &)documentChanges;
 
 /** Whether any document in the snapshot was served from the local cache. */
 @property(nonatomic, assign, readonly, getter=isFromCache) BOOL fromCache;

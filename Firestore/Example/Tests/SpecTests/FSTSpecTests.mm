@@ -201,7 +201,7 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
   return testutil::Version(version.longLongValue);
 }
 
-- (DocumentViewChange )parseChange:(NSDictionary *)jsonDoc ofType:(DocumentViewChangeType)type {
+- (DocumentViewChange)parseChange:(NSDictionary *)jsonDoc ofType:(DocumentViewChangeType)type {
   NSNumber *version = jsonDoc[@"version"];
   NSDictionary *options = jsonDoc[@"options"];
   FSTDocumentState documentState = [options[@"hasLocalMutations"] isEqualToNumber:@YES]
@@ -501,19 +501,23 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
     std::vector<DocumentViewChange> expectedChanges;
     NSMutableArray *removed = expected[@"removed"];
     for (NSDictionary *changeSpec in removed) {
-      expectedChanges.push_back([self parseChange:changeSpec ofType:DocumentViewChangeType::kRemoved]);
+      expectedChanges.push_back([self parseChange:changeSpec
+                                           ofType:DocumentViewChangeType::kRemoved]);
     }
     NSMutableArray *added = expected[@"added"];
     for (NSDictionary *changeSpec in added) {
-      expectedChanges.push_back([self parseChange:changeSpec ofType:DocumentViewChangeType::kAdded]);
+      expectedChanges.push_back([self parseChange:changeSpec
+                                           ofType:DocumentViewChangeType::kAdded]);
     }
     NSMutableArray *modified = expected[@"modified"];
     for (NSDictionary *changeSpec in modified) {
-      expectedChanges.push_back([self parseChange:changeSpec ofType:DocumentViewChangeType::kModified]);
+      expectedChanges.push_back([self parseChange:changeSpec
+                                           ofType:DocumentViewChangeType::kModified]);
     }
     NSMutableArray *metadata = expected[@"metadata"];
     for (NSDictionary *changeSpec in metadata) {
-      expectedChanges.push_back([self parseChange:changeSpec ofType:DocumentViewChangeType::kMetadata]);
+      expectedChanges.push_back([self parseChange:changeSpec
+                                           ofType:DocumentViewChangeType::kMetadata]);
     }
 
     XCTAssertEqual(actual.viewSnapshot.documentChanges.size(), expectedChanges.size());

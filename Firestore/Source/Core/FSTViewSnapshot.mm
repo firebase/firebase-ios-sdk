@@ -25,8 +25,8 @@
 
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_map.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
-#include "Firestore/core/src/firebase/firestore/util/hashing.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/hashing.h"
 #include "Firestore/core/src/firebase/firestore/util/objc_compatibility.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
@@ -126,7 +126,7 @@ NS_ASSUME_NONNULL_BEGIN
   std::vector<DocumentViewChange> _documentChanges;
 }
 
-- (const std::vector<DocumentViewChange>&) documentChanges {
+- (const std::vector<DocumentViewChange> &)documentChanges {
   return _documentChanges;
 }
 
@@ -198,9 +198,8 @@ NS_ASSUME_NONNULL_BEGIN
   FSTViewSnapshot *other = object;
   return [self.query isEqual:other.query] && [self.documents isEqual:other.documents] &&
          [self.oldDocuments isEqual:other.oldDocuments] &&
-         _documentChanges == other.documentChanges &&
-         self.fromCache == other.fromCache && self.mutatedKeys == other.mutatedKeys &&
-         self.syncStateChanged == other.syncStateChanged &&
+         _documentChanges == other.documentChanges && self.fromCache == other.fromCache &&
+         self.mutatedKeys == other.mutatedKeys && self.syncStateChanged == other.syncStateChanged &&
          self.excludesMetadataChanges == other.excludesMetadataChanges;
 }
 
