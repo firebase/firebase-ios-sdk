@@ -43,7 +43,6 @@ static const char *const kGULLoggerClientFacilityName = "com.google.utilities.lo
  * @param service The service sending the message to the logger
  * @param code The code for this message
  * @param message The log message, optionally a format string
- * @param ... The argumnents of the format string
  * @return A completed string, ready to be output by a logger system.
  */
 + (NSString *)messageFromLogger:(id<GULLoggerSystem>)logger

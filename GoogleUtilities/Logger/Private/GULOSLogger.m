@@ -32,7 +32,7 @@ static void GULLOSLogWithType(os_log_t log, os_log_type_t type, char *s, ...) {
   if (@available(iOS 9.0, macOS 10.11, *)) {
     va_list args;
     va_start(args, s);
-    os_log_with_type(log, type, "s", args);
+    os_log_with_type(log, type, "%s", args);
     va_end(args);
   } else {
 #ifdef DEBUG
