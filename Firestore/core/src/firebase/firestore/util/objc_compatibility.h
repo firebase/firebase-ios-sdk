@@ -25,6 +25,8 @@
 
 #include <algorithm>
 #include <numeric>
+#include <string>
+#include <type_traits>
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
@@ -125,8 +127,20 @@ std::string ContainerToString(const T& value, std::true_type) {
 // Fallback
 
 template <typename T>
-std::string MapToString(const T& value, std::false_type) {
+std::string StringToString(const T& value, std::false_type) {
   return ContainerToString(value, is_iterable<T>{});
+}
+
+template <typename T>
+std::string StringToString(const T& value, std::true_type) {
+  return value;
+}
+
+// Fallback
+
+template <typename T>
+std::string MapToString(const T& value, std::false_type) {
+  return StringToString(value, std::is_convertible<T, std::string>{});
 }
 
 template <typename T>
