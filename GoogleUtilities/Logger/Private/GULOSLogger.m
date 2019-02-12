@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 // Since the macro enforces built-in constant-ness of the format string, it is replaced by "s"
 // and the va_list should only contain one argument, a full message with format substitutions
 // already filled.
-static void GULLOSLogWithType(os_log_t log, os_log_type_t type, char* s, ...) {
+static void GULLOSLogWithType(os_log_t log, os_log_type_t type, char *s, ...) {
   if (@available(iOS 9.0, macOS 10.11, *)) {
     va_list args;
     va_start(args, s);
@@ -51,7 +51,7 @@ static void GULLOSLogWithType(os_log_t log, os_log_type_t type, char* s, ...) {
 
 // This property is a function pointer to the method that logs messages to os_log.
 // This indirection allows us to inject a different function pointer for denpendency injection.
-@property(nonatomic, unsafe_unretained) void (*logFunction)(os_log_t, os_log_type_t, char*, ...);
+@property(nonatomic, unsafe_unretained) void (*logFunction)(os_log_t, os_log_type_t, char *, ...);
 
 @end
 
@@ -87,11 +87,8 @@ static void GULLOSLogWithType(os_log_t log, os_log_type_t type, char* s, ...) {
 
 - (void)setLogLevel:(GULLoggerLevel)logLevel {
   if (logLevel < GULLoggerLevelMin || logLevel > GULLoggerLevelMax) {
-    GULLogError(kGULLoggerName,
-                YES,
-                kGULLoggerInvalidLoggerLevelCore,
-                kGULLoggerInvalidLoggerLevelMessage,
-                (long)logLevel);
+    GULLogError(kGULLoggerName, YES, kGULLoggerInvalidLoggerLevelCore,
+                kGULLoggerInvalidLoggerLevelMessage, (long)logLevel);
   }
 
   // We should not raise the logger level if we are running from App Store.
@@ -169,8 +166,8 @@ static void GULLOSLogWithType(os_log_t log, os_log_type_t type, char* s, ...) {
       }
     }
     // Call the function pointer using the message constructed by GULLogger.
-    (*self.logFunction)(osLog, [[self class] osLogTypeForGULLoggerLevel:level],
-                        "%s", completeMessage.UTF8String);
+    (*self.logFunction)(osLog, [[self class] osLogTypeForGULLoggerLevel:level], "%s",
+                        completeMessage.UTF8String);
   });
 }
 

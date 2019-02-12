@@ -72,11 +72,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)setLogLevel:(GULLoggerLevel)logLevel {
   if (logLevel < GULLoggerLevelMin || logLevel > GULLoggerLevelMax) {
-    GULLogError(kGULLoggerName,
-                YES,
-                kGULLoggerInvalidLoggerLevelCore,
-                kGULLoggerInvalidLoggerLevelMessage,
-                (long)logLevel);
+    GULLogError(kGULLoggerName, YES, kGULLoggerInvalidLoggerLevelCore,
+                kGULLoggerInvalidLoggerLevelMessage, (long)logLevel);
   }
 
   // We should not raise the logger level if we are running from App Store.

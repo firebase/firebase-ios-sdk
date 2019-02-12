@@ -51,8 +51,7 @@ static NSString *const kGULLoggerMessageCodePattern = @"^I-[A-Z]{3}[0-9]{6}$";
                                                                     range:messageCodeRange];
   NSCAssert(numberOfMatches == 1, @"Incorrect message code format.");
 #endif
-  return
-      [NSString stringWithFormat:@"%@ - %@[%@] %@", logger.version, service, code, message];
+  return [NSString stringWithFormat:@"%@ - %@[%@] %@", logger.version, service, code, message];
 }
 
 @end
