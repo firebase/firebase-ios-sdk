@@ -201,6 +201,7 @@
 		B67BF449216EB43000CA9097 /* create_noop_connectivity_monitor.cc in Sources */ = {isa = PBXBuildFile; fileRef = B67BF448216EB43000CA9097 /* create_noop_connectivity_monitor.cc */; };
 		B686F2AF2023DDEE0028D6BE /* field_path_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B686F2AD2023DDB20028D6BE /* field_path_test.cc */; };
 		B686F2B22025000D0028D6BE /* resource_path_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B686F2B02024FFD70028D6BE /* resource_path_test.cc */; };
+		B68B1DFD2213845A008977EF /* objc_compatibility_apple_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = B68B1DFC2213845A008977EF /* objc_compatibility_apple_test.mm */; };
 		B68FC0E521F6848700A7055C /* watch_change_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = B68FC0E421F6848700A7055C /* watch_change_test.mm */; };
 		B6BBE43121262CF400C6A53E /* grpc_stream_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6BBE42F21262CF400C6A53E /* grpc_stream_test.cc */; };
 		B6D1B68520E2AB1B00B35856 /* exponential_backoff_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6D1B68420E2AB1A00B35856 /* exponential_backoff_test.cc */; };
@@ -522,6 +523,7 @@
 		B67BF448216EB43000CA9097 /* create_noop_connectivity_monitor.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = create_noop_connectivity_monitor.cc; sourceTree = "<group>"; };
 		B686F2AD2023DDB20028D6BE /* field_path_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = field_path_test.cc; sourceTree = "<group>"; };
 		B686F2B02024FFD70028D6BE /* resource_path_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = resource_path_test.cc; sourceTree = "<group>"; };
+		B68B1DFC2213845A008977EF /* objc_compatibility_apple_test.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = objc_compatibility_apple_test.mm; sourceTree = "<group>"; };
 		B68FC0E421F6848700A7055C /* watch_change_test.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = watch_change_test.mm; sourceTree = "<group>"; };
 		B69CF05A219B9105004C434D /* FIRFirestore+Testing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "FIRFirestore+Testing.h"; sourceTree = "<group>"; };
 		B6BBE42F21262CF400C6A53E /* grpc_stream_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = grpc_stream_test.cc; sourceTree = "<group>"; };
@@ -717,6 +719,7 @@
 		54740A561FC913EB00713A1A /* util */ = {
 			isa = PBXGroup;
 			children = (
+				B68B1DFC2213845A008977EF /* objc_compatibility_apple_test.mm */,
 				B6FB4680208EA0BE00554BA2 /* async_queue_libdispatch_test.mm */,
 				B6FB4681208EA0BE00554BA2 /* async_queue_std_test.cc */,
 				B6FB467B208E9A8200554BA2 /* async_queue_test.cc */,
@@ -2004,6 +2007,7 @@
 				5492E0A12021552D00B64F25 /* FSTMemoryLocalStoreTests.mm in Sources */,
 				5492E0AD2021552D00B64F25 /* FSTMemoryMutationQueueTests.mm in Sources */,
 				5492E0A42021552D00B64F25 /* FSTMemoryQueryCacheTests.mm in Sources */,
+				B68B1DFD2213845A008977EF /* objc_compatibility_apple_test.mm in Sources */,
 				5492E0A52021552D00B64F25 /* FSTMemoryRemoteDocumentCacheTests.mm in Sources */,
 				5492E03420213FFC00B64F25 /* FSTMemorySpecTests.mm in Sources */,
 				5492E03220213FFC00B64F25 /* FSTMockDatastore.mm in Sources */,

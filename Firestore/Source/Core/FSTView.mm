@@ -263,7 +263,7 @@ int GetDocumentViewChangeTypePosition(DocumentViewChangeType changeType) {
       newDoc = (FSTDocument *)maybeNewDoc;
     }
     if (newDoc) {
-      HARD_ASSERT(key == newDoc.key, "Mismatching key in document changes: %s != %s", key,
+      HARD_ASSERT(key == newDoc.key, "Mismatching key in document changes: %s != %s", key.ToString(),
                   newDoc.key.ToString());
       if (![self.query matchesDocument:newDoc]) {
         newDoc = nil;

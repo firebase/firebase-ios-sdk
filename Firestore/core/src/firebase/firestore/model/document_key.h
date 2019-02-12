@@ -51,7 +51,7 @@ class DocumentKey {
   explicit DocumentKey(ResourcePath&& path);
 
 #if defined(__OBJC__)
-  operator FSTDocumentKey*() const {
+  explicit operator FSTDocumentKey*() const {
     return [FSTDocumentKey keyWithDocumentKey:*this];
   }
 

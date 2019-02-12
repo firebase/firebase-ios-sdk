@@ -54,7 +54,7 @@ NSArray *FSTWrapGroups(NSArray *groups) {
       } else if ([value isKindOfClass:[FSTDocumentKeyReference class]]) {
         // We directly convert these here so that the databaseIDs can be different.
         FSTDocumentKeyReference *reference = (FSTDocumentKeyReference *)value;
-        wrappedValue = [FSTReferenceValue referenceValue:reference.key
+        wrappedValue = [FSTReferenceValue referenceValue:[FSTDocumentKey keyWithDocumentKey:reference.key]
                                               databaseID:reference.databaseID];
       } else {
         wrappedValue = FSTTestFieldValue(value);
@@ -258,7 +258,7 @@ union DoubleBits {
   for (FSTDocumentKeyReference *value in values) {
     FSTFieldValue *wrapped = FSTTestFieldValue(value);
     XCTAssertEqualObjects([wrapped class], [FSTReferenceValue class]);
-    XCTAssertEqualObjects([wrapped value], value.key);
+    XCTAssertEqualObjects([wrapped value], [FSTDocumentKey keyWithDocumentKey:value.key]);
     XCTAssertTrue(*((FSTReferenceValue *)wrapped).databaseID ==
                   *(const DatabaseId *)(value.databaseID));
   }
@@ -459,7 +459,7 @@ union DoubleBits {
     ],
     @[ FSTTestFieldValue(FSTTestGeoPoint(1, 0)) ],
     @[
-      [FSTReferenceValue referenceValue:FSTTestDocKey(@"coll/doc1") databaseID:&database_id],
+      [FSTReferenceValue referenceValue:[FSTDocumentKey keyWithDocumentKey:FSTTestDocKey(@"coll/doc1")] databaseID:&database_id],
       FSTTestFieldValue(FSTTestRef("project", DatabaseId::kDefault, @"coll/doc1"))
     ],
     @[ FSTTestRef("project", "(default)", @"coll/doc2") ],
