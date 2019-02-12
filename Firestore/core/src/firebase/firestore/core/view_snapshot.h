@@ -43,6 +43,8 @@ enum class DocumentViewChangeType {
 
 class DocumentViewChange {
  public:
+  DocumentViewChange() = default;
+
   DocumentViewChange(FSTDocument* document, DocumentViewChangeType type)
       : document_{document}, type_{type} {
   }
@@ -54,10 +56,12 @@ class DocumentViewChange {
     return type_;
   }
 
-  std::string Description() const;
+  std::string ToString() const;
+
+  bool operator==(const DocumentViewChange& rhs) const;
 
  private:
-  FSTDocument* document_ = nil;
+  FSTDocument* document_ = nullptr;
   DocumentViewChangeType type_{};
 };
 

@@ -47,7 +47,7 @@ typedef NS_ENUM(NSInteger, FSTSyncState) {
 - (void)addChange:(firebase::firestore::core::DocumentViewChange&&)change;
 
 /** Returns the set of all changes tracked in this set. */
-- (const std::vector<firebase::firestore::core::DocumentViewChange>&)changes;
+- (std::vector<firebase::firestore::core::DocumentViewChange>)changes;
 
 @end
 

@@ -20,6 +20,8 @@
 
 #include "Firestore/core/src/firebase/firestore/util/objc_compatibility.h"
 
+namespace objc = firebase::firestore::util::objc;
+
 namespace firebase {
 namespace firestore {
 namespace remote {
@@ -39,7 +41,7 @@ bool operator==(const ExistenceFilterWatchChange& lhs,
 
 bool operator==(const WatchTargetChange& lhs, const WatchTargetChange& rhs) {
   return lhs.state() == rhs.state() && lhs.target_ids() == rhs.target_ids() &&
-         objc_equals(lhs.resume_token(), rhs.resume_token()) &&
+         objc::Equals(lhs.resume_token(), rhs.resume_token()) &&
          lhs.cause() == rhs.cause();
 }
 

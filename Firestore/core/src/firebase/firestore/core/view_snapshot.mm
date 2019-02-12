@@ -16,18 +16,29 @@
 
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 
+#import "Firestore/Source/Model/FSTDocument.h"
+
+#include "Firestore/core/src/firebase/firestore/util/objc_compatibility.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
 
 namespace firebase {
 namespace firestore {
 namespace core {
 
-std::string DocumentViewChange::Description() const {
-  std::string doc_description = MakeString([change.document description]);
-  return StringFormat("<DocumentViewChange type:%s doc:%s>", change.type(),
+namespace objc = util::objc;
+using util::MakeString;
+using util::StringFormat;
+
+std::string DocumentViewChange::ToString() const {
+  std::string doc_description = MakeString([document() description]);
+  return StringFormat("<DocumentViewChange type:%s doc:%s>", type(),
                       doc_description);
 }
 
-}  // core
-}  // firestore
-}  // firebase
+bool DocumentViewChange::operator==(const DocumentViewChange& rhs) const {
+  return objc::Equals(document_, rhs.document_) && type_ == rhs.type_;
+}
+
+}  // namespace core
+}  // namespace firestore
+}  // namespace firebase
