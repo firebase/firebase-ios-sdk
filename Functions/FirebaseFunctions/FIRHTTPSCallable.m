@@ -51,7 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
     _name = [name copy];
     _functions = functions;
-    _timeoutInterval = 60.0;
+    _timeoutInterval = 70.0;
   }
   return self;
 }
