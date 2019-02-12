@@ -16,7 +16,6 @@
 
 #import "FIDBannerViewController.h"
 #import "FIRCore+InAppMessagingDisplay.h"
-#import "FIRInAppMessagingRendering.h"
 
 @interface FIDBannerViewController ()
 
