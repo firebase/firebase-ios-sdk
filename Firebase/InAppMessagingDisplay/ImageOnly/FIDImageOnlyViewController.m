@@ -16,7 +16,6 @@
 
 #import "FIDImageOnlyViewController.h"
 #import "FIRCore+InAppMessagingDisplay.h"
-#import "FIRInAppMessagingRendering.h"
 
 @interface FIDImageOnlyViewController ()
 
