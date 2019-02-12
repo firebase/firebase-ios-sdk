@@ -26,7 +26,6 @@
 #import "FIRCore+InAppMessagingDisplay.h"
 #import "FIRIAMDefaultDisplayImpl.h"
 #import "FIRInAppMessaging.h"
-#import "FIRInAppMessagingRendering.h"
 
 @implementation FIRIAMDefaultDisplayImpl
 
