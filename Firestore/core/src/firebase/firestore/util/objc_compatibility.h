@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_OBJC_COMPAITBILITY_H_
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_OBJC_COMPAITBILITY_H_
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_OBJC_COMPATIBILITY_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_OBJC_COMPATIBILITY_H_
 
 #if !defined(__OBJC__)
 #error "This header only supports Objective-C++"
@@ -24,16 +24,13 @@
 #import <Foundation/Foundation.h>
 
 #include <algorithm>
-#include <numeric>
 #include <string>
 #include <type_traits>
-#include <utility>
 
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
-#include "Firestore/core/src/firebase/firestore/util/string_format.h"
+#include "Firestore/core/src/firebase/firestore/util/to_string.h"
 #include "Firestore/core/src/firebase/firestore/util/type_traits.h"
 #include "absl/meta/type_traits.h"
-#include "absl/strings/str_join.h"
 
 namespace firebase {
 namespace firestore {
@@ -61,107 +58,19 @@ bool Equals(const T& lhs, const T& rhs) {
                     [](Ptr o1, Ptr o2) { return Equals(o1, o2); });
 }
 
-template <typename T>
-std::string ToString(const T& value);
-
-// Fallback
-
-template <typename T>
-std::string ToStringDefault(const T& value) {
-  return std::to_string(value);
-}
-
-// Fallback
-
-template <typename T>
-std::string ToStringCustom(const T& value, std::false_type) {
-  return ToStringDefault(value);
-}
-
-template <typename T>
-std::string ToStringCustom(const T& value, std::true_type) {
-  return value.ToString();
-}
-
-// Fallback
-
-template <typename T>
-std::string ObjCToString(const T& value, std::false_type) {
-  return ToStringCustom(value, has_to_string<T>{});
-}
-
-template <typename T>
-std::string ObjCToString(const T& value, std::true_type) {
-  return MakeString([value description]);
-}
-
-// Fallback
-
-template <typename T>
-std::string ContainerToString(const T& value, std::false_type) {
-  return ObjCToString(value, is_objective_c_pointer<T>{});
-}
-
-template <typename T>
-std::string ContainerToString(const T& value, std::true_type) {
-  std::string contents = absl::StrJoin(
-      value, ", ", [](std::string* out, const typename T::value_type& element) {
-        out->append(ToString(element));
-      });
-  return std::string{"["} + contents + "]";
-}
-
-// Fallback
-
-template <typename T>
-std::string StringToString(const T& value, std::false_type) {
-  return ContainerToString(value, is_iterable<T>{});
-}
-
-template <typename T>
-std::string StringToString(const T& value, std::true_type) {
-  return value;
-}
-
-// Fallback
-
-template <typename T>
-std::string MapToString(const T& value, std::false_type) {
-  return StringToString(value, std::is_convertible<T, std::string>{});
-}
-
-template <typename T>
-std::string MapToString(const T& value, std::true_type) {
-  std::string contents = absl::StrJoin(
-      value, ", ", [](std::string* out, const typename T::value_type& kv) {
-        out->append(
-            StringFormat("%s: %s", ToString(kv.first), ToString(kv.second)));
-      });
-  return std::string{"{"} + contents + "}";
-}
-
-// Fallback
-
-template <typename T>
-std::string ToString(const T& value) {
-  return MapToString(value, is_associative_container<T>{});
-}
-
-//////
-
+/**
+ * Creates a debug description of the given `value` by calling `ToString` on it,
+ * converting the result to an `NSString`. Exists mainly to simplify writing
+ * `description:` method for Objective-C classes.
+ */
 template <typename T>
 NSString* Description(const T& value) {
   return WrapNSString(ToString(value));
 }
-
-/**
- * Creates a description of C++ container of Objective-C objects, as if it were
- * an NSArray.
- */
 
 }  // namespace objc
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_OBJC_COMPAITBILITY_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_OBJC_COMPATIBILITY_H_

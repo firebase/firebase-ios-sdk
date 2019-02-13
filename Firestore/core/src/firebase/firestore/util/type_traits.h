@@ -52,25 +52,19 @@ struct is_objective_c_pointer : std::is_convertible<T, id> {};
 #endif  // __OBJC__
 
 template <typename T, typename = absl::void_t<>>
-struct is_associative_container : std::false_type {};
-template <typename T>
-struct is_associative_container<
-    T,
-    absl::void_t<decltype(std::declval<typename T::mapped_type>())>>
-    : std::true_type {};
-
-template <typename T, typename = absl::void_t<>>
-struct has_to_string : std::false_type {};
-template <typename T>
-struct has_to_string<T, absl::void_t<decltype(std::declval<T>().ToString())>>
-    : std::true_type {};
-
-template <typename T, typename = absl::void_t<>>
 struct is_iterable : std::false_type {};
 template <typename T>
 struct is_iterable<
     T,
     absl::void_t<decltype(std::declval<T>().begin(), std::declval<T>().end())>>
+    : std::true_type {};
+
+template <typename T, typename = absl::void_t<>>
+struct is_associative_container : std::false_type {};
+template <typename T>
+struct is_associative_container<
+    T,
+    absl::void_t<decltype(std::declval<typename T::mapped_type>())>>
     : std::true_type {};
 
 }  // namespace util
