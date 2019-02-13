@@ -32,6 +32,7 @@
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
 #include "Firestore/core/src/firebase/firestore/util/type_traits.h"
+#include "absl/meta/type_traits.h"
 #include "absl/strings/str_join.h"
 
 namespace firebase {
@@ -43,15 +44,13 @@ namespace objc {
  * Checks two Objective-C objects for equality using `isEqual`. Two nil objects
  * are considered equal, unlike the behavior of `isEqual`.
  */
-template <typename T>
+template <typename T, typename = absl::enable_if_t<is_objective_c_pointer<T*>::value>>
 bool Equals(T* lhs, T* rhs) {
-  static_assert(is_objective_c_pointer<T*>::value,
-                "Can only compare Objective-C objects");
   return (lhs == nil && rhs == nil) || [lhs isEqual:rhs];
 }
 
 /** Checks two C++ containers of Objective-C objects for "deep" equality. */
-template <typename T>
+template <typename T, typename = absl::enable_if_t<is_iterable<T>::value>>
 bool Equals(const T& lhs, const T& rhs) {
   using Ptr = typename T::value_type;
   static_assert(is_objective_c_pointer<Ptr>{}(),
@@ -63,7 +62,7 @@ bool Equals(const T& lhs, const T& rhs) {
 }
 
 /** Hashes a C++ container of Objective-C objects. */
-template <typename T>
+template <typename T, typename = absl::enable_if_t<is_iterable<T>::value>>
 size_t Hash(const T& container) {
   using Ptr = typename T::value_type;
   static_assert(is_objective_c_pointer<Ptr>{}(),

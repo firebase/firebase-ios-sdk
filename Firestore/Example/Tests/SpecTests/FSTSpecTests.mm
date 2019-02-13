@@ -44,6 +44,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/existence_filter.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
+#include "Firestore/core/src/firebase/firestore/util/objc_compatibility.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
@@ -52,6 +53,7 @@
 
 namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
+namespace objc = util::objc;
 using firebase::firestore::FirestoreErrorCode;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::DocumentViewChange;
@@ -695,7 +697,7 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
       actualTargetsDictionary[@(kv.first)] = kv.second;
     }
     XCTAssertTrue(actualTargets.empty(), "Unexpected active targets: %@",
-                  [actualTargetsDictionary description]);
+        objc::Description(actualTargets));
   }
 }
 

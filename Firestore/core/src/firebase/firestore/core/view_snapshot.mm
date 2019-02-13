@@ -18,6 +18,7 @@
 
 #import "Firestore/Source/Model/FSTDocument.h"
 
+#include "Firestore/core/src/firebase/firestore/util/hashing.h"
 #include "Firestore/core/src/firebase/firestore/util/objc_compatibility.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
 
@@ -38,6 +39,15 @@ std::string DocumentViewChange::ToString() const {
 bool DocumentViewChange::operator==(const DocumentViewChange& rhs) const {
   return objc::Equals(document_, rhs.document_) && type_ == rhs.type_;
 }
+
+#if __OBJC__
+
+size_t DocumentViewChange::Hash() const {
+  size_t document_hash = static_cast<size_t>([document() hash]);
+  return util::Hash(document_hash, static_cast<int>(type()));
+}
+
+#endif  // __OBJC__
 
 }  // namespace core
 }  // namespace firestore

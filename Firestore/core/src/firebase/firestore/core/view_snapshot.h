@@ -60,6 +60,10 @@ class DocumentViewChange {
 
   bool operator==(const DocumentViewChange& rhs) const;
 
+#if __OBJC__
+  size_t Hash() const;
+#endif  // __OBJC__
+
  private:
   FSTDocument* document_ = nullptr;
   DocumentViewChangeType type_{};

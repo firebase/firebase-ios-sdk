@@ -211,7 +211,7 @@ NS_ASSUME_NONNULL_BEGIN
   NSUInteger result = [self.query hash];
   result = 31 * result + [self.documents hash];
   result = 31 * result + [self.oldDocuments hash];
-  // OBC result = 31 * result + Hash(_documentChanges);
+  result = 31 * result + Hash(_documentChanges);
   result = 31 * result + (self.fromCache ? 1231 : 1237);
   result = 31 * result + (self.syncStateChanged ? 1231 : 1237);
   result = 31 * result + (self.excludesMetadataChanges ? 1231 : 1237);
