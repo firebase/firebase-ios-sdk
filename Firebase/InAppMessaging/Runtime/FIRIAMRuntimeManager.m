@@ -337,13 +337,15 @@ static NSString *const kFirebaseInAppMessagingAutoDataCollectionKey =
 
   FIRIAMActionURLFollower *actionFollower = [FIRIAMActionURLFollower actionURLFollower];
 
-  self.displayExecutor = [[FIRIAMDisplayExecutor alloc] initWithSetting:appForegroundDisplaysetting
-                                                           messageCache:self.messageCache
-                                                            timeFetcher:timeFetcher
-                                                             bookKeeper:self.bookKeeper
-                                                      actionURLFollower:actionFollower
-                                                         activityLogger:self.activityLogger
-                                                   analyticsEventLogger:analyticsEventLogger];
+  self.displayExecutor =
+      [[FIRIAMDisplayExecutor alloc] initWithInAppMessaging:[FIRInAppMessaging inAppMessaging]
+                                                    setting:appForegroundDisplaysetting
+                                               messageCache:self.messageCache
+                                                timeFetcher:timeFetcher
+                                                 bookKeeper:self.bookKeeper
+                                          actionURLFollower:actionFollower
+                                             activityLogger:self.activityLogger
+                                       analyticsEventLogger:analyticsEventLogger];
 
   // Setting the display component. It's needed in case headless SDK is initialized after
   // the display component is already set on FIRInAppMessaging.
