@@ -95,7 +95,7 @@ std::string ContainerToString(const T& value, std::true_type) {
       value, ", ", [](std::string* out, const typename T::value_type& element) {
         out->append(ToString(element));
       });
-  return std::string{"["} + contents + "]";
+  return std::string{"["} + contents + "]";  // NOLINT(whitespace/braces)
 }
 
 // std::string
@@ -124,7 +124,7 @@ std::string MapToString(const T& value, std::true_type) {
         out->append(
             StringFormat("%s: %s", ToString(kv.first), ToString(kv.second)));
       });
-  return std::string{"{"} + contents + "}";
+  return std::string{"{"} + contents + "}";  // NOLINT(whitespace/braces)
 }
 
 }  // namespace impl
