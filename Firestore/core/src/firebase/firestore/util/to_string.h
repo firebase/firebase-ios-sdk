@@ -17,11 +17,9 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_TO_STRING_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_TO_STRING_H_
 
-#if !defined(__OBJC__)
-#error "This header only supports Objective-C++"
-#endif  // !defined(__OBJC__)
-
+#if __OBJC__
 #import <Foundation/Foundation.h>
+#endif  // __OBJC__
 
 #include <algorithm>
 #include <numeric>
@@ -103,6 +101,8 @@ std::string StringToString(const T& value, std::true_type) {
   return value;
 }
 
+#if __OBJC__
+
 // Objective-C class
 
 template <typename T>
@@ -121,6 +121,17 @@ template <typename T>
 std::string ToStringCustom(const T& value, std::false_type) {
   return ObjCToString(value, is_objective_c_pointer<T>{});
 }
+
+#else
+
+// Member function `ToString`
+
+template <typename T>
+std::string ToStringCustom(const T& value, std::false_type) {
+  return StringToString(value, std::is_convertible<T, std::string>{});
+}
+
+#endif  // __OBJC__
 
 template <typename T>
 std::string ToStringCustom(const T& value, std::true_type) {
@@ -157,9 +168,9 @@ std::string ToStringCustom(const T& value, std::true_type) {
  *  - if `value` defines a member function called `ToString`, the description is
  *    created by invoking the function;
  *
- *  - otherwise, if `value` is an Objective-C class, the description is created
- *    by calling `[value description]`and converting the result to an
- *    `std::string`;
+ *  - (in Objective-C++ only) otherwise, if `value` is an Objective-C class, the
+ *    description is created by calling `[value description]`and converting the
+ *    result to an `std::string`;
  *
  *  - otherwise, if `value` is convertible to `std::string`, the conversion is
  *    used;
