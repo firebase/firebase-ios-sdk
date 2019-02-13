@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_IMMUTABLE_SORTED_MAP_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_IMMUTABLE_SORTED_MAP_H_
 
+#include <type_traits>
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/immutable/array_sorted_map.h"
@@ -38,6 +39,8 @@ namespace immutable {
 template <typename K, typename V, typename C = util::Comparator<K>>
 class SortedMap : public impl::SortedMapBase {
  public:
+  using key_type = K;
+  using mapped_type = V;
   /** The type of the entries stored in the map. */
   using value_type = std::pair<K, V>;
   using array_type = impl::ArraySortedMap<K, V, C>;
