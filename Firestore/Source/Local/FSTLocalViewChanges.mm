@@ -21,6 +21,9 @@
 #import "Firestore/Source/Core/FSTViewSnapshot.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 
+#include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
+
+using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::DocumentViewChangeType;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::TargetId;
@@ -43,14 +46,14 @@ NS_ASSUME_NONNULL_BEGIN
   DocumentKeySet addedKeys;
   DocumentKeySet removedKeys;
 
-  for (FSTDocumentViewChange *docChange in viewSnapshot.documentChanges) {
-    switch (docChange.type) {
+  for (const DocumentViewChange &docChange : viewSnapshot.documentChanges) {
+    switch (docChange.type()) {
       case DocumentViewChangeType::kAdded:
-        addedKeys = addedKeys.insert(docChange.document.key);
+        addedKeys = addedKeys.insert(docChange.document().key);
         break;
 
       case DocumentViewChangeType::kRemoved:
-        removedKeys = removedKeys.insert(docChange.document.key);
+        removedKeys = removedKeys.insert(docChange.document().key);
         break;
 
       default:

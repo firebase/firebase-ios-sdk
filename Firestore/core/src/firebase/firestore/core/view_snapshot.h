@@ -17,6 +17,14 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_VIEW_SNAPSHOT_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_VIEW_SNAPSHOT_H_
 
+#if !defined(__OBJC__)
+#error "This header only supports Objective-C++"
+#endif  // !defined(__OBJC__)
+
+#include <string>
+
+@class FSTDocument;
+
 namespace firebase {
 namespace firestore {
 namespace core {
@@ -31,6 +39,31 @@ enum class DocumentViewChangeType {
   kAdded,
   kModified,
   kMetadata
+};
+
+/** A change to a single document's state within a view. */
+class DocumentViewChange {
+ public:
+  DocumentViewChange() = default;
+
+  DocumentViewChange(FSTDocument* document, DocumentViewChangeType type)
+      : document_{document}, type_{type} {
+  }
+
+  FSTDocument* document() const {
+    return document_;
+  }
+  DocumentViewChangeType type() const {
+    return type_;
+  }
+
+  std::string ToString() const;
+  size_t Hash() const;
+  bool operator==(const DocumentViewChange& rhs) const;
+
+ private:
+  FSTDocument* document_ = nullptr;
+  DocumentViewChangeType type_{};
 };
 
 }  // namespace core

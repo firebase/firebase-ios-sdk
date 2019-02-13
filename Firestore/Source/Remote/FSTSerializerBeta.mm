@@ -355,7 +355,8 @@ NS_ASSUME_NONNULL_BEGIN
   HARD_ASSERT(database_id == *self.databaseID, "Database %s:%s cannot encode reference from %s:%s",
               self.databaseID->project_id(), self.databaseID->database_id(),
               database_id.project_id(), database_id.database_id());
-  return [FSTReferenceValue referenceValue:key databaseID:self.databaseID];
+  return [FSTReferenceValue referenceValue:[FSTDocumentKey keyWithDocumentKey:key]
+                                databaseID:self.databaseID];
 }
 
 - (GCFSArrayValue *)encodedArrayValue:(FSTArrayValue *)arrayValue {
