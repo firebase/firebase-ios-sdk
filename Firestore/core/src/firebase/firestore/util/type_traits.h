@@ -22,6 +22,7 @@
 #endif
 
 #include <type_traits>
+#include <utility>
 
 #include "absl/meta/type_traits.h"
 
@@ -47,20 +48,26 @@ namespace util {
  * is_objective_c_pointer<std::unique_ptr<int>>::value == false
  */
 template <typename T>
-struct is_objective_c_pointer : std::is_convertible<T, id> {};
+using is_objective_c_pointer = std::is_convertible<T, id>;
 
 #endif  // __OBJC__
 
+// is_iterable
+
 template <typename T, typename = absl::void_t<>>
 struct is_iterable : std::false_type {};
+
 template <typename T>
 struct is_iterable<
     T,
     absl::void_t<decltype(std::declval<T>().begin(), std::declval<T>().end())>>
     : std::true_type {};
 
+// is_associative_container
+
 template <typename T, typename = absl::void_t<>>
 struct is_associative_container : std::false_type {};
+
 template <typename T>
 struct is_associative_container<
     T,

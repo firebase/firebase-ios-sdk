@@ -17,11 +17,9 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_TO_STRING_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_TO_STRING_H_
 
-#if !defined(__OBJC__)
-#error "This header only supports Objective-C++"
-#endif  // !defined(__OBJC__)
-
+#if __OBJC__
 #import <Foundation/Foundation.h>
+#endif  // __OBJC__
 
 #include <algorithm>
 #include <numeric>
@@ -45,8 +43,10 @@ std::string ToString(const T& value);
 namespace impl {
 
 // Checks whether the given type `T` defines a member function `ToString`
+
 template <typename T, typename = absl::void_t<>>
 struct has_to_string : std::false_type {};
+
 template <typename T>
 struct has_to_string<T, absl::void_t<decltype(std::declval<T>().ToString())>>
     : std::true_type {};
@@ -54,39 +54,15 @@ struct has_to_string<T, absl::void_t<decltype(std::declval<T>().ToString())>>
 // Fallback
 
 template <typename T>
-std::string ToStringDefault(const T& value) {
+std::string DefaultToString(const T& value) {
   return std::to_string(value);
-}
-
-// Member function `ToString`
-
-template <typename T>
-std::string ToStringCustom(const T& value, std::false_type) {
-  return ToStringDefault(value);
-}
-
-template <typename T>
-std::string ToStringCustom(const T& value, std::true_type) {
-  return value.ToString();
-}
-
-// Objective-C class
-
-template <typename T>
-std::string ObjCToString(const T& value, std::false_type) {
-  return ToStringCustom(value, has_to_string<T>{});
-}
-
-template <typename T>
-std::string ObjCToString(const T& value, std::true_type) {
-  return MakeString([value description]);
 }
 
 // Container
 
 template <typename T>
 std::string ContainerToString(const T& value, std::false_type) {
-  return ObjCToString(value, is_objective_c_pointer<T>{});
+  return DefaultToString(value);
 }
 
 template <typename T>
@@ -98,23 +74,11 @@ std::string ContainerToString(const T& value, std::true_type) {
   return std::string{"["} + contents + "]";  // NOLINT(whitespace/braces)
 }
 
-// std::string
-
-template <typename T>
-std::string StringToString(const T& value, std::false_type) {
-  return ContainerToString(value, is_iterable<T>{});
-}
-
-template <typename T>
-std::string StringToString(const T& value, std::true_type) {
-  return value;
-}
-
 // Associative container
 
 template <typename T>
 std::string MapToString(const T& value, std::false_type) {
-  return StringToString(value, std::is_convertible<T, std::string>{});
+  return ContainerToString(value, is_iterable<T>{});
 }
 
 template <typename T>
@@ -125,6 +89,55 @@ std::string MapToString(const T& value, std::true_type) {
             StringFormat("%s: %s", ToString(kv.first), ToString(kv.second)));
       });
   return std::string{"{"} + contents + "}";  // NOLINT(whitespace/braces)
+}
+
+// std::string
+
+template <typename T>
+std::string StringToString(const T& value, std::false_type) {
+  return MapToString(value, is_associative_container<T>{});
+}
+
+template <typename T>
+std::string StringToString(const T& value, std::true_type) {
+  return value;
+}
+
+#if __OBJC__
+
+// Objective-C class
+
+template <typename T>
+std::string ObjCToString(const T& value, std::false_type) {
+  return StringToString(value, std::is_convertible<T, std::string>{});
+}
+
+template <typename T>
+std::string ObjCToString(const T& value, std::true_type) {
+  return MakeString([value description]);
+}
+
+// Member function `ToString`
+
+template <typename T>
+std::string CustomToString(const T& value, std::false_type) {
+  return ObjCToString(value, is_objective_c_pointer<T>{});
+}
+
+#else
+
+// Member function `ToString`
+
+template <typename T>
+std::string CustomToString(const T& value, std::false_type) {
+  return StringToString(value, std::is_convertible<T, std::string>{});
+}
+
+#endif  // __OBJC__
+
+template <typename T>
+std::string CustomToString(const T& value, std::true_type) {
+  return value.ToString();
 }
 
 }  // namespace impl
@@ -153,15 +166,25 @@ std::string MapToString(const T& value, std::true_type) {
  * assert(ToString(m) == "{1: foo, 2: bar}");
  *
  * The following algorithm is used:
- * - if `value` is an associative container (`std::map`, `std::unordered_map`,
- *   `f:f:immutable::SortedMap`, etc.), the description is of the form:
+ *
+ *  - if `value` defines a member function called `ToString`, the description is
+ *    created by invoking the function;
+ *
+ *  - (in Objective-C++ only) otherwise, if `value` is an Objective-C class, the
+ *    description is created by calling `[value description]`and converting the
+ *    result to an `std::string`;
+ *
+ *  - otherwise, if `value` is convertible to `std::string`, the conversion is
+ *    used;
+ *
+ * - otherwise, if `value` is an associative container (`std::map`,
+ *   `std::unordered_map`, `f:f:immutable::SortedMap`, etc.), the description is
+ *   of the form:
  *
  *     {key1: value1, key2: value2}
  *
  *    where the description of each key and value is created by running
  *    `ToString` recursively;
- *
- *  - otherwise, if `value` is (convertible to) `std::string`, it's used as is;
  *
  *  - otherwise, if `value` is a container, the description is of the form:
  *
@@ -169,13 +192,6 @@ std::string MapToString(const T& value, std::true_type) {
  *
  *    where the description of each element is created by running `ToString`
  *    recursively;
- *
- *  - otherwise, if `value` is an Objective-C class, the description is created
- *    by calling `[value description]`and converting the result to an
- *    `std::string`;
- *
- *  - otherwise, if `value` defines a member function called `ToString`, the
- *    description is created by invoking the function;
  *
  * - otherwise, `std::to_string` is used as a fallback. If `std::to_string` is
  *   not defined for the class, a compilation error will be produced.
@@ -192,7 +208,7 @@ std::string MapToString(const T& value, std::true_type) {
 
 template <typename T>
 std::string ToString(const T& value) {
-  return impl::MapToString(value, is_associative_container<T>{});
+  return impl::CustomToString(value, impl::has_to_string<T>{});
 }
 
 }  // namespace util

@@ -20,9 +20,6 @@
 #include <string>
 #include <vector>
 
-#include "Firestore/core/src/firebase/firestore/immutable/sorted_map.h"
-#include "Firestore/core/src/firebase/firestore/model/document_key.h"
-#include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/util/to_string.h"
 
 #include "gtest/gtest.h"
@@ -31,15 +28,7 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-using model::DocumentKey;
-using immutable::SortedMap;
-
-TEST(ToStringTest, StdToString) {
-  EXPECT_EQ(ToString(123), "123");
-  EXPECT_EQ(ToString(std::string{"foo"}), "foo");
-}
-
-TEST(ToStringTest, ObjCTypes) {
+TEST(ToStringAppleTest, ObjCTypes) {
   EXPECT_EQ(ToString(@123), "123");
   EXPECT_EQ(ToString(@"foo"), "foo");
 
@@ -47,34 +36,7 @@ TEST(ToStringTest, ObjCTypes) {
   EXPECT_EQ(ToString(objc_array), "(\n    1,\n    2,\n    3\n)");
 }
 
-TEST(ToStringTest, CustomToString) {
-  DocumentKey key({"rooms", "firestore"});
-  EXPECT_EQ(ToString(key), "rooms/firestore");
-}
-
-TEST(ToStringTest, Container) {
-  std::vector<DocumentKey> keys{
-      DocumentKey({"foo", "bar"}),
-      DocumentKey({"foo", "baz"}),
-  };
-  EXPECT_EQ(ToString(keys), "[foo/bar, foo/baz]");
-}
-
-TEST(ToStringTest, StdMap) {
-  std::map<int, DocumentKey> key_map{
-      {1, DocumentKey({"foo", "bar"})},
-      {2, DocumentKey({"foo", "baz"})},
-  };
-  EXPECT_EQ(ToString(key_map), "{1: foo/bar, 2: foo/baz}");
-}
-
-TEST(ToStringTest, CustomMap) {
-  using MapT = SortedMap<int, std::string>;
-  MapT sorted_map = MapT{}.insert(1, "foo").insert(2, "bar");
-  EXPECT_EQ(ToString(sorted_map), "{1: foo, 2: bar}");
-}
-
-TEST(ToStringTest, Nested) {
+TEST(ToStringAppleTest, Nested) {
   using Nested = std::map<int, NSArray<NSNumber*>*>;
   Nested foo1{
       {100, @[ @1, @2, @3 ]},
@@ -101,15 +63,6 @@ TEST(ToStringTest, Nested) {
     1
 )}]})!";
   EXPECT_EQ(ToString(nested), expected);
-}
-
-class Foo {};
-std::string ToString(const Foo&) {
-  return "Foo";
-}
-
-TEST(ToStringTest, FreeFunctionToStringIsConsidered) {
-  EXPECT_EQ(ToString(Foo{}), "Foo");
 }
 
 }  // namespace util
