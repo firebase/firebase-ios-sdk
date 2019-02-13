@@ -17,7 +17,6 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_IMMUTABLE_SORTED_MAP_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_IMMUTABLE_SORTED_MAP_H_
 
-#include <type_traits>
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/immutable/array_sorted_map.h"

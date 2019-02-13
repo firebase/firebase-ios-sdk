@@ -705,7 +705,6 @@
 		546854A720A3681B004BDBD5 /* remote */ = {
 			isa = PBXGroup;
 			children = (
-				B68FC0E421F6848700A7055C /* watch_change_test.mm */,
 				546854A820A36867004BDBD5 /* datastore_test.mm */,
 				B6D1B68420E2AB1A00B35856 /* exponential_backoff_test.cc */,
 				B6D9649021544D4F00EB9CFB /* grpc_connection_test.cc */,
@@ -714,6 +713,7 @@
 				B6D964942163E63900EB9CFB /* grpc_unary_call_test.cc */,
 				61F72C5520BC48FD001A68CB /* serializer_test.cc */,
 				B66D8995213609EE0086DA0C /* stream_test.mm */,
+				B68FC0E421F6848700A7055C /* watch_change_test.mm */,
 			);
 			path = remote;
 			sourceTree = "<group>";
@@ -721,8 +721,6 @@
 		54740A561FC913EB00713A1A /* util */ = {
 			isa = PBXGroup;
 			children = (
-				B696858D2214B53900271095 /* to_string_test.cc */,
-				B68B1E002213A764008977EF /* to_string_apple_test.mm */,
 				B6FB4680208EA0BE00554BA2 /* async_queue_libdispatch_test.mm */,
 				B6FB4681208EA0BE00554BA2 /* async_queue_std_test.cc */,
 				B6FB467B208E9A8200554BA2 /* async_queue_test.cc */,
@@ -758,6 +756,8 @@
 				54131E9620ADE678001DF3FF /* string_format_test.cc */,
 				AB380CFC201A2EE200D97691 /* string_util_test.cc */,
 				79507DF8378D3C42F5B36268 /* string_win_test.cc */,
+				B68B1E002213A764008977EF /* to_string_apple_test.mm */,
+				B696858D2214B53900271095 /* to_string_test.cc */,
 				2A0CF41BA5AED6049B0BEB2C /* type_traits_apple_test.mm */,
 			);
 			path = util;
@@ -1684,8 +1684,6 @@
 			buildActionMask = 2147483647;
 			files = (
 			);
-			inputFileListPaths = (
-			);
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-macOS_example/Pods-macOS_example-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/BoringSSL-GRPC-macOS/openssl_grpc.framework",
@@ -1698,8 +1696,6 @@
 				"${BUILT_PRODUCTS_DIR}/nanopb-macOS/nanopb.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-			);
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/openssl_grpc.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMSessionFetcher.framework",
@@ -1775,15 +1771,11 @@
 			buildActionMask = 2147483647;
 			files = (
 			);
-			inputFileListPaths = (
-			);
 			inputPaths = (
 				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
 				"${PODS_ROOT}/Manifest.lock",
 			);
 			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
 			outputPaths = (
 				"$(DERIVED_FILE_DIR)/Pods-macOS_example-checkManifestLockResult.txt",
 			);
@@ -1987,7 +1979,6 @@
 				5492E0BA2021555100B64F25 /* FSTDocumentSetTests.mm in Sources */,
 				5492E0BD2021555100B64F25 /* FSTDocumentTests.mm in Sources */,
 				5492E03E2021401F00B64F25 /* FSTEventAccumulator.mm in Sources */,
-				B68FC0E521F6848700A7055C /* watch_change_test.mm in Sources */,
 				5492E067202154B900B64F25 /* FSTEventManagerTests.mm in Sources */,
 				5492E0BF2021555100B64F25 /* FSTFieldValueTests.mm in Sources */,
 				54764FAF1FAA21B90085E60A /* FSTGoogleTestTests.mm in Sources */,
@@ -2008,7 +1999,6 @@
 				5492E09D2021552D00B64F25 /* FSTLocalStoreTests.mm in Sources */,
 				5CC9650520A0E9BD00A2D6A1 /* FSTMemoryLRUGarbageCollectorTests.mm in Sources */,
 				5492E0A12021552D00B64F25 /* FSTMemoryLocalStoreTests.mm in Sources */,
-				B68B1E012213A765008977EF /* to_string_apple_test.mm in Sources */,
 				5492E0AD2021552D00B64F25 /* FSTMemoryMutationQueueTests.mm in Sources */,
 				5492E0A42021552D00B64F25 /* FSTMemoryQueryCacheTests.mm in Sources */,
 				5492E0A52021552D00B64F25 /* FSTMemoryRemoteDocumentCacheTests.mm in Sources */,
@@ -2048,7 +2038,6 @@
 				B6152AD7202A53CB000E5744 /* document_key_test.cc in Sources */,
 				AB6B908420322E4D00CC290A /* document_test.cc in Sources */,
 				ABC1D7DD2023A04F00BA84F0 /* empty_credentials_provider_test.cc in Sources */,
-				B696858E2214B53900271095 /* to_string_test.cc in Sources */,
 				B6FB468E208F9BAB00554BA2 /* executor_libdispatch_test.mm in Sources */,
 				B6FB468F208F9BAE00554BA2 /* executor_std_test.cc in Sources */,
 				B6FB4690208F9BB300554BA2 /* executor_test.cc in Sources */,
@@ -2107,11 +2096,14 @@
 				AB380CFB2019388600D97691 /* target_id_generator_test.cc in Sources */,
 				54A0352A20A3B3BD003E0143 /* testutil.cc in Sources */,
 				ABF6506C201131F8005F2C74 /* timestamp_test.cc in Sources */,
+				B68B1E012213A765008977EF /* to_string_apple_test.mm in Sources */,
+				B696858E2214B53900271095 /* to_string_test.cc in Sources */,
 				ABC1D7E12023A40C00BA84F0 /* token_test.cc in Sources */,
 				54A0352720A3AED0003E0143 /* transform_operations_test.mm in Sources */,
 				549CCA5120A36DBC00BCEB75 /* tree_sorted_map_test.cc in Sources */,
 				C80B10E79CDD7EF7843C321E /* type_traits_apple_test.mm in Sources */,
 				ABC1D7DE2023A05300BA84F0 /* user_test.cc in Sources */,
+				B68FC0E521F6848700A7055C /* watch_change_test.mm in Sources */,
 				544129DE21C2DDC800EFB9CC /* write.pb.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -43,8 +43,10 @@ std::string ToString(const T& value);
 namespace impl {
 
 // Checks whether the given type `T` defines a member function `ToString`
+
 template <typename T, typename = absl::void_t<>>
 struct has_to_string : std::false_type {};
+
 template <typename T>
 struct has_to_string<T, absl::void_t<decltype(std::declval<T>().ToString())>>
     : std::true_type {};
@@ -52,7 +54,7 @@ struct has_to_string<T, absl::void_t<decltype(std::declval<T>().ToString())>>
 // Fallback
 
 template <typename T>
-std::string ToStringDefault(const T& value) {
+std::string DefaultToString(const T& value) {
   return std::to_string(value);
 }
 
@@ -60,7 +62,7 @@ std::string ToStringDefault(const T& value) {
 
 template <typename T>
 std::string ContainerToString(const T& value, std::false_type) {
-  return ToStringDefault(value);
+  return DefaultToString(value);
 }
 
 template <typename T>
@@ -118,7 +120,7 @@ std::string ObjCToString(const T& value, std::true_type) {
 // Member function `ToString`
 
 template <typename T>
-std::string ToStringCustom(const T& value, std::false_type) {
+std::string CustomToString(const T& value, std::false_type) {
   return ObjCToString(value, is_objective_c_pointer<T>{});
 }
 
@@ -127,14 +129,14 @@ std::string ToStringCustom(const T& value, std::false_type) {
 // Member function `ToString`
 
 template <typename T>
-std::string ToStringCustom(const T& value, std::false_type) {
+std::string CustomToString(const T& value, std::false_type) {
   return StringToString(value, std::is_convertible<T, std::string>{});
 }
 
 #endif  // __OBJC__
 
 template <typename T>
-std::string ToStringCustom(const T& value, std::true_type) {
+std::string CustomToString(const T& value, std::true_type) {
   return value.ToString();
 }
 
@@ -206,7 +208,7 @@ std::string ToStringCustom(const T& value, std::true_type) {
 
 template <typename T>
 std::string ToString(const T& value) {
-  return impl::ToStringCustom(value, impl::has_to_string<T>{});
+  return impl::CustomToString(value, impl::has_to_string<T>{});
 }
 
 }  // namespace util
