@@ -97,7 +97,7 @@ NS_ASSUME_NONNULL_BEGIN
   std::string result = absl::StrJoin(
       _changeMap, ",",
       [](std::string *out, const std::pair<DocumentKey, FSTDocumentViewChange *> &kv) {
-        out->append(StringFormat("%s: %s", kv.first, kv.second));
+        out->append(StringFormat("%s: %s", kv.first.ToString(), kv.second));
       });
   return WrapNSString(std::string{"{"} + result + "}");
 }
