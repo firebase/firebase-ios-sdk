@@ -28,7 +28,10 @@ namespace firestore {
 namespace core {
 
 namespace objc = util::objc;
+using model::DocumentKey;
 using util::StringFormat;
+
+// DocumentViewChange
 
 std::string DocumentViewChange::ToString() const {
   return StringFormat("<DocumentViewChange doc:%s type:%s>",
@@ -42,6 +45,81 @@ size_t DocumentViewChange::Hash() const {
 
 bool DocumentViewChange::operator==(const DocumentViewChange& rhs) const {
   return objc::Equals(document_, rhs.document_) && type_ == rhs.type_;
+}
+
+// DocumentViewChangeSet
+
+void DocumentViewChangeSet::AddChange(DocumentViewChange&& change) {
+  const DocumentKey& key = change.document().key;
+  auto old_change_iter = change_map_.find(key);
+  if (old_change_iter == change_map_.end()) {
+    change_map_ = change_map_.insert(key, change);
+    return;
+  }
+  const DocumentViewChange& old_change = old_change_iter->second;
+
+  // Merge the new change with the existing change.
+  if (change.type() != DocumentViewChangeType::kAdded &&
+      old_change.type() == DocumentViewChangeType::kMetadata) {
+    change_map_ = change_map_.insert(key, change);
+
+  } else if (change.type() == DocumentViewChangeType::kMetadata &&
+             old_change.type() != DocumentViewChangeType::kRemoved) {
+    DocumentViewChange new_change{change.document(), old_change.type()};
+    change_map_ = change_map_.insert(key, new_change);
+
+  } else if (change.type() == DocumentViewChangeType::kModified &&
+             old_change.type() == DocumentViewChangeType::kModified) {
+    DocumentViewChange new_change{change.document(),
+                                  DocumentViewChangeType::kModified};
+    change_map_ = change_map_.insert(key, new_change);
+
+  } else if (change.type() == DocumentViewChangeType::kModified &&
+             old_change.type() == DocumentViewChangeType::kAdded) {
+    DocumentViewChange new_change{change.document(),
+                                  DocumentViewChangeType::kAdded};
+    change_map_ = change_map_.insert(key, new_change);
+
+  } else if (change.type() == DocumentViewChangeType::kRemoved &&
+             old_change.type() == DocumentViewChangeType::kAdded) {
+    change_map_ = change_map_.erase(key);
+
+  } else if (change.type() == DocumentViewChangeType::kRemoved &&
+             old_change.type() == DocumentViewChangeType::kModified) {
+    DocumentViewChange new_change{old_change.document(),
+                                  DocumentViewChangeType::kRemoved};
+    change_map_ = change_map_.insert(key, new_change);
+
+  } else if (change.type() == DocumentViewChangeType::kAdded &&
+             old_change.type() == DocumentViewChangeType::kRemoved) {
+    DocumentViewChange new_change{change.document(),
+                                  DocumentViewChangeType::kModified};
+    change_map_ = change_map_.insert(key, new_change);
+
+  } else {
+    // This includes these cases, which don't make sense:
+    // Added -> Added
+    // Removed -> Removed
+    // Modified -> Added
+    // Removed -> Modified
+    // Metadata -> Added
+    // Removed -> Metadata
+    HARD_FAIL("Unsupported combination of changes: %s after %s", change.type(),
+              old_change.type());
+  }
+}
+
+std::vector<DocumentViewChange> DocumentViewChangeSet::GetChanges() const {
+  std::vector<DocumentViewChange> changes;
+  for (const auto& kv : change_map_) {
+    const DocumentViewChange& change = kv.second;
+    changes.push_back(change);
+  }
+  return changes;
+}
+
+std::string DocumentViewChangeSet::ToString() const {
+  return util::ToString(change_map_);
 }
 
 }  // namespace core

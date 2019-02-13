@@ -22,6 +22,10 @@
 #endif  // !defined(__OBJC__)
 
 #include <string>
+#include <vector>
+
+#include "Firestore/core/src/firebase/firestore/immutable/sorted_map.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
 @class FSTDocument;
 
@@ -73,19 +77,21 @@ enum class SyncState {
   Synced
 };
 
-// /** A set of changes to documents with respect to a view. This set is mutable. */
-// @interface FSTDocumentViewChangeSet : NSObject
+/** A set of changes to documents with respect to a view. This set is mutable. */
+class DocumentViewChangeSet {
+  public:
+    /** Takes a new change and applies it to the set. */
+    void AddChange(DocumentViewChange&& change);
 
-// /** Returns a new empty change set. */
-// + (instancetype)changeSet;
+  /** Returns the set of all changes tracked in this set. */
+    std::vector<DocumentViewChange> GetChanges() const;
 
-// /** Takes a new change and applies it to the set. */
-// - (void)addChange:(firebase::firestore::core::DocumentViewChange &&)change;
+    std::string ToString() const;
 
-// /** Returns the set of all changes tracked in this set. */
-// - (std::vector<firebase::firestore::core::DocumentViewChange>)changes;
-
-// @end
+  private:
+    /** The set of all changes tracked so far, with redundant changes merged. */
+    immutable::SortedMap<model::DocumentKey, DocumentViewChange> change_map_;
+};
 
 }  // namespace core
 }  // namespace firestore

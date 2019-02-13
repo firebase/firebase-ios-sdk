@@ -28,24 +28,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-#pragma mark - FSTDocumentChangeSet
-
-/** A set of changes to documents with respect to a view. This set is mutable. */
-@interface FSTDocumentViewChangeSet : NSObject
-
-/** Returns a new empty change set. */
-+ (instancetype)changeSet;
-
-/** Takes a new change and applies it to the set. */
-- (void)addChange:(firebase::firestore::core::DocumentViewChange &&)change;
-
-/** Returns the set of all changes tracked in this set. */
-- (std::vector<firebase::firestore::core::DocumentViewChange>)changes;
-
-@end
-
-#pragma mark - FSTViewSnapshot
-
 typedef void (^FSTViewSnapshotHandler)(FSTViewSnapshot *_Nullable snapshot,
                                        NSError *_Nullable error);
 

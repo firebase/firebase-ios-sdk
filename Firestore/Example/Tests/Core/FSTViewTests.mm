@@ -379,7 +379,7 @@ NS_ASSUME_NONNULL_BEGIN
       [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1, doc2 ])];
   [self assertDocSet:changes.documentSet containsDocs:@[ doc1, doc2 ]];
   XCTAssertFalse(changes.needsRefill);
-  XCTAssertEqual(2, [changes.changeSet changes].size());
+  XCTAssertEqual(2, changes.changeSet.GetChanges().size());
   [view applyChangesToDocuments:changes];
 
   // Remove one of the docs.
@@ -387,12 +387,12 @@ NS_ASSUME_NONNULL_BEGIN
                                                   "rooms/eros/messages/0", 0, NO) ])];
   [self assertDocSet:changes.documentSet containsDocs:@[ doc2 ]];
   XCTAssertTrue(changes.needsRefill);
-  XCTAssertEqual(1, [changes.changeSet changes].size());
+  XCTAssertEqual(1, changes.changeSet.GetChanges().size());
   // Refill it with just the one doc remaining.
   changes = [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc2 ]) previousChanges:changes];
   [self assertDocSet:changes.documentSet containsDocs:@[ doc2 ]];
   XCTAssertFalse(changes.needsRefill);
-  XCTAssertEqual(1, [changes.changeSet changes].size());
+  XCTAssertEqual(1, changes.changeSet.GetChanges().size());
   [view applyChangesToDocuments:changes];
 }
 
@@ -415,7 +415,7 @@ NS_ASSUME_NONNULL_BEGIN
       [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1, doc2, doc3 ])];
   [self assertDocSet:changes.documentSet containsDocs:@[ doc1, doc2 ]];
   XCTAssertFalse(changes.needsRefill);
-  XCTAssertEqual(2, [changes.changeSet changes].size());
+  XCTAssertEqual(2, changes.changeSet.GetChanges().size());
   [view applyChangesToDocuments:changes];
 
   // Move one of the docs.
@@ -423,13 +423,13 @@ NS_ASSUME_NONNULL_BEGIN
   changes = [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc2 ])];
   [self assertDocSet:changes.documentSet containsDocs:@[ doc1, doc2 ]];
   XCTAssertTrue(changes.needsRefill);
-  XCTAssertEqual(1, [changes.changeSet changes].size());
+  XCTAssertEqual(1, changes.changeSet.GetChanges().size());
   // Refill it with all three current docs.
   changes = [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1, doc2, doc3 ])
                               previousChanges:changes];
   [self assertDocSet:changes.documentSet containsDocs:@[ doc1, doc3 ]];
   XCTAssertFalse(changes.needsRefill);
-  XCTAssertEqual(2, [changes.changeSet changes].size());
+  XCTAssertEqual(2, changes.changeSet.GetChanges().size());
   [view applyChangesToDocuments:changes];
 }
 
@@ -456,7 +456,7 @@ NS_ASSUME_NONNULL_BEGIN
       [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1, doc2, doc3, doc4, doc5 ])];
   [self assertDocSet:changes.documentSet containsDocs:@[ doc1, doc2, doc3 ]];
   XCTAssertFalse(changes.needsRefill);
-  XCTAssertEqual(3, [changes.changeSet changes].size());
+  XCTAssertEqual(3, changes.changeSet.GetChanges().size());
   [view applyChangesToDocuments:changes];
 
   // Move one of the docs.
@@ -464,7 +464,7 @@ NS_ASSUME_NONNULL_BEGIN
   changes = [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1 ])];
   [self assertDocSet:changes.documentSet containsDocs:@[ doc2, doc3, doc1 ]];
   XCTAssertFalse(changes.needsRefill);
-  XCTAssertEqual(1, [changes.changeSet changes].size());
+  XCTAssertEqual(1, changes.changeSet.GetChanges().size());
   [view applyChangesToDocuments:changes];
 }
 
@@ -491,7 +491,7 @@ NS_ASSUME_NONNULL_BEGIN
       [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1, doc2, doc3, doc4, doc5 ])];
   [self assertDocSet:changes.documentSet containsDocs:@[ doc1, doc2, doc3 ]];
   XCTAssertFalse(changes.needsRefill);
-  XCTAssertEqual(3, [changes.changeSet changes].size());
+  XCTAssertEqual(3, changes.changeSet.GetChanges().size());
   [view applyChangesToDocuments:changes];
 
   // Move one of the docs.
@@ -499,7 +499,7 @@ NS_ASSUME_NONNULL_BEGIN
   changes = [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc4 ])];
   [self assertDocSet:changes.documentSet containsDocs:@[ doc1, doc2, doc3 ]];
   XCTAssertFalse(changes.needsRefill);
-  XCTAssertEqual(0, [changes.changeSet changes].size());
+  XCTAssertEqual(0, changes.changeSet.GetChanges().size());
   [view applyChangesToDocuments:changes];
 }
 
@@ -514,7 +514,7 @@ NS_ASSUME_NONNULL_BEGIN
       [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1, doc2 ])];
   [self assertDocSet:changes.documentSet containsDocs:@[ doc1, doc2 ]];
   XCTAssertFalse(changes.needsRefill);
-  XCTAssertEqual(2, [changes.changeSet changes].size());
+  XCTAssertEqual(2, changes.changeSet.GetChanges().size());
   [view applyChangesToDocuments:changes];
 
   // Add a doc that is past the limit.
@@ -522,7 +522,7 @@ NS_ASSUME_NONNULL_BEGIN
   changes = [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc3 ])];
   [self assertDocSet:changes.documentSet containsDocs:@[ doc1, doc2 ]];
   XCTAssertFalse(changes.needsRefill);
-  XCTAssertEqual(0, [changes.changeSet changes].size());
+  XCTAssertEqual(0, changes.changeSet.GetChanges().size());
   [view applyChangesToDocuments:changes];
 }
 
@@ -536,7 +536,7 @@ NS_ASSUME_NONNULL_BEGIN
       [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1, doc2 ])];
   [self assertDocSet:changes.documentSet containsDocs:@[ doc1, doc2 ]];
   XCTAssertFalse(changes.needsRefill);
-  XCTAssertEqual(2, [changes.changeSet changes].size());
+  XCTAssertEqual(2, changes.changeSet.GetChanges().size());
   [view applyChangesToDocuments:changes];
 
   // Remove one of the docs.
@@ -544,7 +544,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                   "rooms/eros/messages/1", 0, NO) ])];
   [self assertDocSet:changes.documentSet containsDocs:@[ doc1 ]];
   XCTAssertFalse(changes.needsRefill);
-  XCTAssertEqual(1, [changes.changeSet changes].size());
+  XCTAssertEqual(1, changes.changeSet.GetChanges().size());
   [view applyChangesToDocuments:changes];
 }
 
@@ -559,7 +559,7 @@ NS_ASSUME_NONNULL_BEGIN
       [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1, doc2 ])];
   [self assertDocSet:changes.documentSet containsDocs:@[ doc1, doc2 ]];
   XCTAssertFalse(changes.needsRefill);
-  XCTAssertEqual(2, [changes.changeSet changes].size());
+  XCTAssertEqual(2, changes.changeSet.GetChanges().size());
   [view applyChangesToDocuments:changes];
 
   // Remove a doc that isn't even in the results.
@@ -567,7 +567,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                   "rooms/eros/messages/2", 0, NO) ])];
   [self assertDocSet:changes.documentSet containsDocs:@[ doc1, doc2 ]];
   XCTAssertFalse(changes.needsRefill);
-  XCTAssertEqual(0, [changes.changeSet changes].size());
+  XCTAssertEqual(0, changes.changeSet.GetChanges().size());
   [view applyChangesToDocuments:changes];
 }
 

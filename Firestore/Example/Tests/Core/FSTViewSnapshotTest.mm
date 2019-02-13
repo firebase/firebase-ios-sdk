@@ -26,7 +26,10 @@
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
+#include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
+
 using firebase::firestore::core::DocumentViewChange;
+using firebase::firestore::core::DocumentViewChangeSet;
 using firebase::firestore::core::DocumentViewChangeType;
 using firebase::firestore::model::DocumentKeySet;
 
@@ -46,7 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testTrack {
-  FSTDocumentViewChangeSet *set = [FSTDocumentViewChangeSet changeSet];
+  DocumentViewChangeSet set;
 
   FSTDocument *docAdded = FSTTestDoc("a/1", 0, @{}, FSTDocumentStateSynced);
   FSTDocument *docRemoved = FSTTestDoc("a/2", 0, @{}, FSTDocumentStateSynced);
@@ -58,21 +61,21 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocument *docModifiedThenRemoved = FSTTestDoc("b/4", 0, @{}, FSTDocumentStateSynced);
   FSTDocument *docModifiedThenModified = FSTTestDoc("b/5", 0, @{}, FSTDocumentStateSynced);
 
-  [set addChange:DocumentViewChange{docAdded, DocumentViewChangeType::kAdded}];
-  [set addChange:DocumentViewChange{docRemoved, DocumentViewChangeType::kRemoved}];
-  [set addChange:DocumentViewChange{docModified, DocumentViewChangeType::kModified}];
-  [set addChange:DocumentViewChange{docAddedThenModified, DocumentViewChangeType::kAdded}];
-  [set addChange:DocumentViewChange{docAddedThenModified, DocumentViewChangeType::kModified}];
-  [set addChange:DocumentViewChange{docAddedThenRemoved, DocumentViewChangeType::kAdded}];
-  [set addChange:DocumentViewChange{docAddedThenRemoved, DocumentViewChangeType::kRemoved}];
-  [set addChange:DocumentViewChange{docRemovedThenAdded, DocumentViewChangeType::kRemoved}];
-  [set addChange:DocumentViewChange{docRemovedThenAdded, DocumentViewChangeType::kAdded}];
-  [set addChange:DocumentViewChange{docModifiedThenRemoved, DocumentViewChangeType::kModified}];
-  [set addChange:DocumentViewChange{docModifiedThenRemoved, DocumentViewChangeType::kRemoved}];
-  [set addChange:DocumentViewChange{docModifiedThenModified, DocumentViewChangeType::kModified}];
-  [set addChange:DocumentViewChange{docModifiedThenModified, DocumentViewChangeType::kModified}];
+  set.AddChange(DocumentViewChange{docAdded, DocumentViewChangeType::kAdded});
+  set.AddChange(DocumentViewChange{docRemoved, DocumentViewChangeType::kRemoved});
+  set.AddChange(DocumentViewChange{docModified, DocumentViewChangeType::kModified});
+  set.AddChange(DocumentViewChange{docAddedThenModified, DocumentViewChangeType::kAdded});
+  set.AddChange(DocumentViewChange{docAddedThenModified, DocumentViewChangeType::kModified});
+  set.AddChange(DocumentViewChange{docAddedThenRemoved, DocumentViewChangeType::kAdded});
+  set.AddChange(DocumentViewChange{docAddedThenRemoved, DocumentViewChangeType::kRemoved});
+  set.AddChange(DocumentViewChange{docRemovedThenAdded, DocumentViewChangeType::kRemoved});
+  set.AddChange(DocumentViewChange{docRemovedThenAdded, DocumentViewChangeType::kAdded});
+  set.AddChange(DocumentViewChange{docModifiedThenRemoved, DocumentViewChangeType::kModified});
+  set.AddChange(DocumentViewChange{docModifiedThenRemoved, DocumentViewChangeType::kRemoved});
+  set.AddChange(DocumentViewChange{docModifiedThenModified, DocumentViewChangeType::kModified});
+  set.AddChange(DocumentViewChange{docModifiedThenModified, DocumentViewChangeType::kModified});
 
-  std::vector<DocumentViewChange> changes = [set changes];
+  std::vector<DocumentViewChange> changes = set.GetChanges();
   XCTAssertEqual(changes.size(), 7);
 
   XCTAssertEqual(changes[0].document(), docAdded);
