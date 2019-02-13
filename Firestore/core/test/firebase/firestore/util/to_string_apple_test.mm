@@ -16,14 +16,19 @@
 
 #import <Foundation/NSArray.h>
 
+#include <deque>
 #include <map>
+#include <set>
 #include <string>
+#include <unordered_map>
+#include <utility>
 #include <vector>
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_map.h"
+#include "Firestore/core/src/firebase/firestore/immutable/sorted_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/util/to_string.h"
@@ -36,6 +41,7 @@ namespace util {
 
 using model::DocumentKey;
 using immutable::SortedMap;
+using immutable::SortedSet;
 
 TEST(ToStringTest, StdToString) {
   EXPECT_EQ(ToString(123), "123");
@@ -77,6 +83,24 @@ TEST(ToStringTest, CustomMap) {
   EXPECT_EQ(ToString(sorted_map), "{1: foo, 2: bar}");
 }
 
+TEST(ToStringTest, CustomSet) {
+  using SetT = SortedSet<std::string>;
+  SetT sorted_set = SetT{}.insert("foo").insert("bar");
+  EXPECT_EQ(ToString(sorted_set), "[bar, foo]");
+}
+
+TEST(ToStringTest, MoreStdContainers) {
+  std::deque<int> d{1, 2, 3, 4};
+  EXPECT_EQ(ToString(d), "[1, 2, 3, 4]");
+
+  std::set<int> s{5, 6, 7};
+  EXPECT_EQ(ToString(s), "[5, 6, 7]");
+
+  // Multimap with the same duplicate element twice to avoid dealing with order.
+  std::unordered_multimap<int, std::string> mm{{3, "abc"}, {3, "abc"}};
+  EXPECT_EQ(ToString(mm), "{3: abc, 3: abc}");
+}
+
 TEST(ToStringTest, Nested) {
   using Nested = std::map<int, NSArray<NSNumber*>*>;
   Nested foo1{
@@ -113,6 +137,42 @@ std::string ToString(const Foo&) {
 
 TEST(ToStringTest, FreeFunctionToStringIsConsidered) {
   EXPECT_EQ(ToString(Foo{}), "Foo");
+}
+
+TEST(ToStringTest, Ordering) {
+  struct Container {
+    using value_type = int;
+
+    explicit Container(std::vector<int>&& v) : v{std::move(v)} {
+    }
+
+    std::vector<int>::const_iterator begin() const {
+      return v.begin();
+    }
+    std::vector<int>::const_iterator end() const {
+      return v.end();
+    }
+
+    std::vector<int> v;
+  };
+
+  struct Conversion : public Container {
+    using Container::Container;
+    operator std::string() const {
+      return "Conversion";
+    }
+  };
+
+  struct CustomToString : public Conversion {
+    using Conversion::Conversion;
+    std::string ToString() const {
+      return "CustomToString";
+    }
+  };
+
+  EXPECT_EQ(ToString(Container{{1, 2, 3}}), "[1, 2, 3]");
+  EXPECT_EQ(ToString(Conversion{{1, 2, 3}}), "Conversion");
+  EXPECT_EQ(ToString(CustomToString{{1, 2, 3}}), "CustomToString");
 }
 
 }  // namespace util
