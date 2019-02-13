@@ -22,6 +22,7 @@
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
+#import "Firestore/Source/API/FIRFieldValue+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRListenerRegistration+Internal.h"
 #import "Firestore/Source/API/FIRQuery+Internal.h"
@@ -550,7 +551,9 @@ NS_ASSUME_NONNULL_BEGIN
  * Note that the FSTBound will always include the key of the document and the position will be
  * unambiguous.
  *
- * Will throw if the document does not contain all fields of the order by of the query.
+ * Will throw if the document does not contain all fields of the order by of
+ * the query or if any of the fields in the order by are an uncommitted server
+ * timestamp.
  */
 - (FSTBound *)boundFromSnapshot:(FIRDocumentSnapshot *)snapshot isBefore:(BOOL)isBefore {
   if (![snapshot exists]) {
@@ -572,7 +575,15 @@ NS_ASSUME_NONNULL_BEGIN
                                                    databaseID:self.firestore.databaseID]];
     } else {
       FSTFieldValue *value = [document fieldForPath:sortOrder.field];
-      if (value != nil) {
+
+      if ([value isKindOfClass:[FSTServerTimestampValue class]]) {
+        FSTThrowInvalidUsage(@"InvalidQueryException",
+                             @"Invalid query. You are trying to start or end a query using a "
+                              "document for which the field '%s' is an uncommitted server "
+                              "timestamp. (Since the value of this field is unknown, you cannot "
+                              "start/end a query with it.)",
+                             sortOrder.field.CanonicalString().c_str());
+      } else if (value != nil) {
         [components addObject:value];
       } else {
         FSTThrowInvalidUsage(@"InvalidQueryException",
