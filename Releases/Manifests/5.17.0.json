@@ -1,0 +1,10 @@
+{
+  "FirebaseAnalyticsInterop":"1.2.0",
+  "FirebaseAuth":"5.3.1",
+  "FirebaseCore":"5.2.1",
+  "FirebaseFirestore":"1.0.1",
+  "FirebaseFunctions":"2.2.1",
+  "FirebaseInAppMessaging":"0.13.0",
+  "FirebaseInAppMessagingDisplay":"0.13.0",
+  "FirebaseMessaging":"3.3.1"
+}
