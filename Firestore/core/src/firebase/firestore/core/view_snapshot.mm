@@ -56,42 +56,45 @@ void DocumentViewChangeSet::AddChange(DocumentViewChange&& change) {
     change_map_ = change_map_.insert(key, change);
     return;
   }
-  const DocumentViewChange& old_change = old_change_iter->second;
+
+  const DocumentViewChange& old = old_change_iter->second;
+  DocumentViewChangeType old_type = old.type();
+  DocumentViewChangeType new_type = change.type();
 
   // Merge the new change with the existing change.
-  if (change.type() != DocumentViewChangeType::kAdded &&
-      old_change.type() == DocumentViewChangeType::kMetadata) {
+  if (new_type != DocumentViewChangeType::kAdded &&
+      old_type == DocumentViewChangeType::kMetadata) {
     change_map_ = change_map_.insert(key, change);
 
-  } else if (change.type() == DocumentViewChangeType::kMetadata &&
-             old_change.type() != DocumentViewChangeType::kRemoved) {
-    DocumentViewChange new_change{change.document(), old_change.type()};
+  } else if (new_type == DocumentViewChangeType::kMetadata &&
+             old_type != DocumentViewChangeType::kRemoved) {
+    DocumentViewChange new_change{change.document(), old_type};
     change_map_ = change_map_.insert(key, new_change);
 
-  } else if (change.type() == DocumentViewChangeType::kModified &&
-             old_change.type() == DocumentViewChangeType::kModified) {
+  } else if (new_type == DocumentViewChangeType::kModified &&
+             old_type == DocumentViewChangeType::kModified) {
     DocumentViewChange new_change{change.document(),
                                   DocumentViewChangeType::kModified};
     change_map_ = change_map_.insert(key, new_change);
 
-  } else if (change.type() == DocumentViewChangeType::kModified &&
-             old_change.type() == DocumentViewChangeType::kAdded) {
+  } else if (new_type == DocumentViewChangeType::kModified &&
+             old_type == DocumentViewChangeType::kAdded) {
     DocumentViewChange new_change{change.document(),
                                   DocumentViewChangeType::kAdded};
     change_map_ = change_map_.insert(key, new_change);
 
-  } else if (change.type() == DocumentViewChangeType::kRemoved &&
-             old_change.type() == DocumentViewChangeType::kAdded) {
+  } else if (new_type == DocumentViewChangeType::kRemoved &&
+             old_type == DocumentViewChangeType::kAdded) {
     change_map_ = change_map_.erase(key);
 
-  } else if (change.type() == DocumentViewChangeType::kRemoved &&
-             old_change.type() == DocumentViewChangeType::kModified) {
-    DocumentViewChange new_change{old_change.document(),
+  } else if (new_type == DocumentViewChangeType::kRemoved &&
+             old_type == DocumentViewChangeType::kModified) {
+    DocumentViewChange new_change{old.document(),
                                   DocumentViewChangeType::kRemoved};
     change_map_ = change_map_.insert(key, new_change);
 
-  } else if (change.type() == DocumentViewChangeType::kAdded &&
-             old_change.type() == DocumentViewChangeType::kRemoved) {
+  } else if (new_type == DocumentViewChangeType::kAdded &&
+             old_type == DocumentViewChangeType::kRemoved) {
     DocumentViewChange new_change{change.document(),
                                   DocumentViewChangeType::kModified};
     change_map_ = change_map_.insert(key, new_change);
@@ -104,8 +107,8 @@ void DocumentViewChangeSet::AddChange(DocumentViewChange&& change) {
     // Removed -> Modified
     // Metadata -> Added
     // Removed -> Metadata
-    HARD_FAIL("Unsupported combination of changes: %s after %s", change.type(),
-              old_change.type());
+    HARD_FAIL("Unsupported combination of changes: %s after %s", new_type,
+              old_type);
   }
 }
 

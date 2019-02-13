@@ -77,7 +77,10 @@ enum class SyncState {
   Synced
 };
 
-/** A set of changes to documents with respect to a view. This set is mutable. */
+/**
+ * A set of changes to docs in a query, merging duplicate events for the same
+ * doc.
+ */
 class DocumentViewChangeSet {
   public:
     /** Takes a new change and applies it to the set. */
