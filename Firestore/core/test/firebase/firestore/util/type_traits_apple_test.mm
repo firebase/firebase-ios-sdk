@@ -22,6 +22,8 @@
 
 #include "gtest/gtest.h"
 
+#include <type_traits>
+
 namespace firebase {
 namespace firestore {
 namespace util {
