@@ -61,18 +61,6 @@ bool Equals(const T& lhs, const T& rhs) {
                     [](Ptr o1, Ptr o2) { return Equals(o1, o2); });
 }
 
-/** Hashes a C++ container of Objective-C objects. */
-template <typename T, typename = absl::enable_if_t<is_iterable<T>::value>>
-size_t Hash(const T& container) {
-  using Ptr = typename T::value_type;
-  static_assert(is_objective_c_pointer<Ptr>{}(),
-                "Can only hash containers of Objective-C objects");
-
-  return std::accumulate(
-      container.begin(), container.end(), 0u,
-      [](size_t state, Ptr ptr) { return 31 * state + [ptr hash]; });
-}
-
 template <typename T>
 std::string ToString(const T& value);
 
