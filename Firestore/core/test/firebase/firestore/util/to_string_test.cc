@@ -63,6 +63,14 @@ TEST(ToStringTest, StdMap) {
   EXPECT_EQ(ToString(key_map), "{1: foo/bar, 2: foo/baz}");
 }
 
+TEST(ToStringTest, EmptyContainer) {
+  std::vector<int> v;
+  EXPECT_EQ(ToString(v), "[]");
+
+  std::map<int> m;
+  EXPECT_EQ(ToString(m), "{}");
+}
+
 TEST(ToStringTest, CustomMap) {
   using MapT = SortedMap<int, std::string>;
   MapT sorted_map = MapT{}.insert(1, "foo").insert(2, "bar");

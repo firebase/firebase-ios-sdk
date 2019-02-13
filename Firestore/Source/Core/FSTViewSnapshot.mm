@@ -91,7 +91,7 @@ NS_ASSUME_NONNULL_BEGIN
     _changeMap = _changeMap.erase(key);
   } else if (change.type() == DocumentViewChangeType::kRemoved &&
              oldChange.type() == DocumentViewChangeType::kModified) {
-    DocumentViewChange newChange{change.document(), DocumentViewChangeType::kRemoved};
+    DocumentViewChange newChange{oldChange.document(), DocumentViewChangeType::kRemoved};
     _changeMap = _changeMap.insert(key, newChange);
   } else if (change.type() == DocumentViewChangeType::kAdded &&
              oldChange.type() == DocumentViewChangeType::kRemoved) {
