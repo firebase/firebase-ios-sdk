@@ -126,7 +126,7 @@ NS_ASSUME_NONNULL_BEGIN
                                    oldIndex:1
                                    newIndex:1],
   ];
-  XCTAssertTrue(snapshot.documentChanges == changesWithoutMetadata);
+  XCTAssertEqualObjects(snapshot.documentChanges, changesWithoutMetadata);
 
   NSArray<FIRDocumentChange *> *changesWithMetadata = @[
     [[FIRDocumentChange alloc] initWithType:FIRDocumentChangeTypeModified
