@@ -67,7 +67,7 @@ TEST(ToStringTest, EmptyContainer) {
   std::vector<int> v;
   EXPECT_EQ(ToString(v), "[]");
 
-  std::map<int> m;
+  std::map<int, int> m;
   EXPECT_EQ(ToString(m), "{}");
 }
 

@@ -26,12 +26,14 @@
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 
+#include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::DocumentViewChangeType;
+using firebase::firestore::core::SyncState;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::MaybeDocumentMap;
@@ -187,7 +189,7 @@ int GetDocumentViewChangeTypePosition(DocumentViewChangeType changeType) {
 
 @property(nonatomic, strong, readonly) FSTQuery *query;
 
-@property(nonatomic, assign) FSTSyncState syncState;
+@property(nonatomic, assign) firebase::firestore::core::SyncState syncState;
 
 /**
  * A flag whether the view is current with the backend. A view is considered current after it
@@ -382,7 +384,7 @@ int GetDocumentViewChangeTypePosition(DocumentViewChangeType changeType) {
   [self applyTargetChange:targetChange];
   NSArray<FSTLimboDocumentChange *> *limboChanges = [self updateLimboDocuments];
   BOOL synced = _limboDocuments.empty() && self.isCurrent;
-  FSTSyncState newSyncState = synced ? FSTSyncStateSynced : FSTSyncStateLocal;
+  SyncState newSyncState = synced ? SyncState::Synced : SyncState::Local;
   BOOL syncStateChanged = newSyncState != self.syncState;
   self.syncState = newSyncState;
 
@@ -395,7 +397,7 @@ int GetDocumentViewChangeTypePosition(DocumentViewChangeType changeType) {
                                      documents:docChanges.documentSet
                                   oldDocuments:oldDocuments
                                documentChanges:std::move(changes)
-                                     fromCache:newSyncState == FSTSyncStateLocal
+                                     fromCache:newSyncState == SyncState::Local
                                    mutatedKeys:docChanges.mutatedKeys
                               syncStateChanged:syncStateChanged
                        excludesMetadataChanges:NO];

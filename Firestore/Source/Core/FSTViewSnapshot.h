@@ -30,13 +30,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTDocumentChangeSet
 
-/** The possibly states a document can be in w.r.t syncing from local storage to the backend. */
-typedef NS_ENUM(NSInteger, FSTSyncState) {
-  FSTSyncStateNone = 0,
-  FSTSyncStateLocal,
-  FSTSyncStateSynced,
-};
-
 /** A set of changes to documents with respect to a view. This set is mutable. */
 @interface FSTDocumentViewChangeSet : NSObject
 
