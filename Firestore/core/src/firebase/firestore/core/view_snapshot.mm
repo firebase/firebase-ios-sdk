@@ -21,33 +21,28 @@
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
 #include "Firestore/core/src/firebase/firestore/util/objc_compatibility.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
+#include "Firestore/core/src/firebase/firestore/util/to_string.h"
 
 namespace firebase {
 namespace firestore {
 namespace core {
 
 namespace objc = util::objc;
-using util::MakeString;
 using util::StringFormat;
 
 std::string DocumentViewChange::ToString() const {
-  std::string doc_description = MakeString([document() description]);
-  return StringFormat("<DocumentViewChange type:%s doc:%s>", type(),
-                      doc_description);
+  return StringFormat("<DocumentViewChange doc:%s type:%s>",
+                      util::ToString(document()), type());
 }
-
-bool DocumentViewChange::operator==(const DocumentViewChange& rhs) const {
-  return objc::Equals(document_, rhs.document_) && type_ == rhs.type_;
-}
-
-#if __OBJC__
 
 size_t DocumentViewChange::Hash() const {
   size_t document_hash = static_cast<size_t>([document() hash]);
   return util::Hash(document_hash, static_cast<int>(type()));
 }
 
-#endif  // __OBJC__
+bool DocumentViewChange::operator==(const DocumentViewChange& rhs) const {
+  return objc::Equals(document_, rhs.document_) && type_ == rhs.type_;
+}
 
 }  // namespace core
 }  // namespace firestore

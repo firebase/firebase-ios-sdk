@@ -44,9 +44,9 @@
 #include "Firestore/core/src/firebase/firestore/remote/existence_filter.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
-#include "Firestore/core/src/firebase/firestore/util/objc_compatibility.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
+#include "Firestore/core/src/firebase/firestore/util/objc_compatibility.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
@@ -697,7 +697,7 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
       actualTargetsDictionary[@(kv.first)] = kv.second;
     }
     XCTAssertTrue(actualTargets.empty(), "Unexpected active targets: %@",
-        objc::Description(actualTargets));
+                  objc::Description(actualTargets));
   }
 }
 

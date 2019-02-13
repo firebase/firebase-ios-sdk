@@ -41,7 +41,8 @@ namespace objc {
  * Checks two Objective-C objects for equality using `isEqual`. Two nil objects
  * are considered equal, unlike the behavior of `isEqual`.
  */
-template <typename T, typename = absl::enable_if_t<is_objective_c_pointer<T*>::value>>
+template <typename T,
+          typename = absl::enable_if_t<is_objective_c_pointer<T*>::value>>
 bool Equals(T* lhs, T* rhs) {
   return (lhs == nil && rhs == nil) || [lhs isEqual:rhs];
 }
@@ -50,7 +51,7 @@ bool Equals(T* lhs, T* rhs) {
 template <typename T, typename = absl::enable_if_t<is_iterable<T>::value>>
 bool Equals(const T& lhs, const T& rhs) {
   using Ptr = typename T::value_type;
-  static_assert(is_objective_c_pointer<Ptr>{}(),
+  static_assert(is_objective_c_pointer<Ptr>::value,
                 "Can only compare containers of Objective-C objects");
 
   return lhs.size() == rhs.size() &&
@@ -61,7 +62,7 @@ bool Equals(const T& lhs, const T& rhs) {
 /**
  * Creates a debug description of the given `value` by calling `ToString` on it,
  * converting the result to an `NSString`. Exists mainly to simplify writing
- * `description:` method for Objective-C classes.
+ * `description:` methods for Objective-C classes.
  */
 template <typename T>
 NSString* Description(const T& value) {

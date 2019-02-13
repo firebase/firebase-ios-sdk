@@ -41,6 +41,7 @@ enum class DocumentViewChangeType {
   kMetadata
 };
 
+/** A change to a single document's state within a view. */
 class DocumentViewChange {
  public:
   DocumentViewChange() = default;
@@ -57,12 +58,8 @@ class DocumentViewChange {
   }
 
   std::string ToString() const;
-
-  bool operator==(const DocumentViewChange& rhs) const;
-
-#if __OBJC__
   size_t Hash() const;
-#endif  // __OBJC__
+  bool operator==(const DocumentViewChange& rhs) const;
 
  private:
   FSTDocument* document_ = nullptr;

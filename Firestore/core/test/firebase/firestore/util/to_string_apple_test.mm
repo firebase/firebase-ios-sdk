@@ -17,10 +17,8 @@
 #import <Foundation/NSArray.h>
 
 #include <map>
+#include <string>
 #include <vector>
-
-#import "Firestore/Example/Tests/Util/FSTHelpers.h"
-#import "Firestore/Source/Model/FSTDocument.h"
 
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_map.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -79,16 +77,16 @@ TEST(ToStringTest, CustomMap) {
 TEST(ToStringTest, Nested) {
   using Nested = std::map<int, NSArray<NSNumber*>*>;
   Nested foo1{
-    {100, @[@1, @2, @3]},
-    {200, @[@4, @5, @6]},
+      {100, @[ @1, @2, @3 ]},
+      {200, @[ @4, @5, @6 ]},
   };
   Nested foo2{
-    {300, @[@3, @2, @1]},
+      {300, @[ @3, @2, @1 ]},
   };
   std::map<std::string, std::vector<Nested>> nested{
-        {"bar", std::vector<Nested>{foo1}},
-        {"baz", std::vector<Nested>{foo2}},
-      };
+      {"bar", std::vector<Nested>{foo1}},
+      {"baz", std::vector<Nested>{foo2}},
+  };
   std::string expected = R"!({bar: [{100: (
     1,
     2,

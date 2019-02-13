@@ -84,8 +84,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSString *)description {
-  return [NSString stringWithFormat:@"<FSTMutationBatch: id=%d, localWriteTime=%@, mutations=%@>",
-                                    self.batchID, self.localWriteTime, objc::Description(_mutations)];
+  return
+      [NSString stringWithFormat:@"<FSTMutationBatch: id=%d, localWriteTime=%@, mutations=%@>",
+                                 self.batchID, self.localWriteTime, objc::Description(_mutations)];
 }
 
 - (FSTMaybeDocument *_Nullable)applyToRemoteDocument:(FSTMaybeDocument *_Nullable)maybeDoc
