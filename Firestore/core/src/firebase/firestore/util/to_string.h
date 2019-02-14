@@ -140,9 +140,9 @@ std::string ToStringImpl(const T& value, Choice<5>) {
  *  - if `value` defines a member function called `ToString`, the description is
  *    created by invoking the function;
  *
- *  - (in Objective-C++ only) otherwise, if `value` is an Objective-C class, the
- *    description is created by calling `[value description]`and converting the
- *    result to an `std::string`;
+ *  - (in Objective-C++ only) otherwise, if `value` is an Objective-C object,
+ *    the description is created by calling `[value description]`and converting
+ *    the result to an `std::string`;
  *
  *  - otherwise, if `value` is an `std::string`, it's used as is;
  *
