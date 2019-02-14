@@ -141,7 +141,7 @@ TEST(ToStringTest, Ordering) {
 
     std::vector<int> v;
   };
-  
+
   struct CustomToString : public Container {
     using Container::Container;
     std::string ToString() const {
