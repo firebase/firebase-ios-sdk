@@ -175,8 +175,7 @@ std::string CustomToString(const T& value, std::true_type) {
  *    description is created by calling `[value description]`and converting the
  *    result to an `std::string`;
  *
- *  - otherwise, if `value` is convertible to `std::string`, the conversion is
- *    used;
+ *  - otherwise, if `value` is an `std::string`, it's used as is;
  *
  * - otherwise, if `value` is an associative container (`std::map`,
  *   `std::unordered_map`, `f:f:immutable::SortedMap`, etc.), the description is
@@ -204,7 +203,7 @@ std::string CustomToString(const T& value, std::true_type) {
  * and passes the value to the next function by the rank. When passing to the
  * next function, some trait corresponding to the function is given in place of
  * the tag; for example, `StringToString`, which can handle `std::string`s, is
- * invoked with `std::is_convertible<T, std::string>` as the tag.
+ * invoked with `std::is_same<T, std::string>` as the tag.
  */
 
 template <typename T>
