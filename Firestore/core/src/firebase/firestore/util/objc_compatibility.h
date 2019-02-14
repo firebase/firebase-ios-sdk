@@ -32,10 +32,24 @@
 #include "Firestore/core/src/firebase/firestore/util/type_traits.h"
 #include "absl/meta/type_traits.h"
 
+/**
+ * Utility functions that help C++ code interoperate with Objective-C while
+ * migration is in progress
+ */
+
 namespace firebase {
 namespace firestore {
 namespace util {
 namespace objc {
+
+namespace internal {
+
+template <typename T>
+using is_container_of_objc = absl::conjunction<
+    typename is_iterable<T>::value,
+    typename is_objective_c_pointer<typename T::value_type>::value>;
+
+}
 
 /**
  * Checks two Objective-C objects for equality using `isEqual`. Two nil objects
@@ -48,11 +62,11 @@ bool Equals(T* lhs, T* rhs) {
 }
 
 /** Checks two C++ containers of Objective-C objects for "deep" equality. */
-template <typename T, typename = absl::enable_if_t<is_iterable<T>::value>>
+template <
+    typename T,
+    typename = absl::enable_if_t<internal::is_container_of_objc<T>::value>>
 bool Equals(const T& lhs, const T& rhs) {
   using Ptr = typename T::value_type;
-  static_assert(is_objective_c_pointer<Ptr>::value,
-                "Can only compare containers of Objective-C objects");
 
   return lhs.size() == rhs.size() &&
          std::equal(lhs.begin(), lhs.end(), rhs.begin(),

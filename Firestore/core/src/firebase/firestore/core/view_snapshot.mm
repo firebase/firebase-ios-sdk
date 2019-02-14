@@ -40,8 +40,9 @@ size_t DocumentViewChange::Hash() const {
   return util::Hash(document_hash, static_cast<int>(type()));
 }
 
-bool DocumentViewChange::operator==(const DocumentViewChange& rhs) const {
-  return objc::Equals(document_, rhs.document_) && type_ == rhs.type_;
+bool operator==(const DocumentViewChange& lhs, const DocumentViewChange& rhs) {
+  return objc::Equals(lhs.document(), rhs.document()) &&
+         lhs.type() == rhs.type();
 }
 
 }  // namespace core

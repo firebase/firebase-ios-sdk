@@ -59,12 +59,13 @@ class DocumentViewChange {
 
   std::string ToString() const;
   size_t Hash() const;
-  bool operator==(const DocumentViewChange& rhs) const;
 
  private:
   FSTDocument* document_ = nullptr;
   DocumentViewChangeType type_{};
 };
+
+bool operator==(const DocumentViewChange& lhs, const DocumentViewChange& rhs);
 
 }  // namespace core
 }  // namespace firestore

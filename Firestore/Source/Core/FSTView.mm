@@ -55,9 +55,8 @@ int GetDocumentViewChangeTypePosition(DocumentViewChangeType changeType) {
       // by document key and then change type, metadata and modified changes must be sorted
       // equivalently.
       return 2;
-    default:
-      HARD_FAIL("Unknown DocumentViewChangeType %s", changeType);
   }
+  HARD_FAIL("Unknown DocumentViewChangeType %s", changeType);
 }
 
 }  // namespace
