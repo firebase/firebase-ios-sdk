@@ -174,12 +174,6 @@ class Reader {
    * Reads component labels and strings from the key until it finds a component
    * label other than ComponentLabel::PathSegment (or the key is exhausted).
    * All matched path segments are assembled into a ResourcePath.
-   *
-   * If the read is unsuccessful, returns a default ResourcePath and fails the
-   * Reader.
-   *
-   * Otherwise returns the decoded ResourcePath and the Reader advances to the
-   * next unread byte.
    */
   ResourcePath ReadResourcePath();
 
@@ -399,16 +393,13 @@ ResourcePath Reader::ReadResourcePath() {
     path_segments.push_back(std::move(segment));
   }
 
-  if (ok_) {
-    return ResourcePath{std::move(path_segments)};
-  } else {
-    return ResourcePath{};
-  }
+  return ResourcePath{std::move(path_segments)};
 }
 
 DocumentKey Reader::ReadDocumentKey() {
   ResourcePath path = ReadResourcePath();
 
+  // Avoid assertion failures in DocumentKey if path is invalid.
   if (ok_ && !path.empty() && DocumentKey::IsDocumentKey(path)) {
     return DocumentKey{std::move(path)};
   }

@@ -37,6 +37,7 @@ using leveldb::Iterator;
 using leveldb::Slice;
 using leveldb::Status;
 using leveldb::WriteOptions;
+using model::DocumentKey;
 using model::ResourcePath;
 using nanopb::Reader;
 using nanopb::Writer;
@@ -250,10 +251,11 @@ void EnsureSentinelRows(leveldb::DB* db) {
 // by the provided cache).
 void EnsureCollectionParentRow(LevelDbTransaction* transaction,
                                MemoryCollectionParentIndex* cache,
-                               const ResourcePath& path) {
-  if (cache->Add(path)) {
-    std::string collection_id = path.last_segment();
-    ResourcePath parent_path = path.PopLast();
+                               const DocumentKey& key) {
+  const ResourcePath& collection_path = key.path().PopLast();
+  if (cache->Add(collection_path)) {
+    std::string collection_id = collection_path.last_segment();
+    ResourcePath parent_path = collection_path.PopLast();
 
     std::string key =
         LevelDbCollectionParentKey::Key(collection_id, parent_path);
@@ -268,7 +270,7 @@ void EnsureCollectionParentRow(LevelDbTransaction* transaction,
  * Creates appropriate LevelDbCollectionParentKey rows for all collections
  * of documents in the remote document cache and mutation queue.
  */
-void EnsureCollectionParentIndex(leveldb::DB* db) {
+void EnsureCollectionParentsIndex(leveldb::DB* db) {
   LevelDbTransaction transaction(db, "Ensure Collection Parents Index");
 
   MemoryCollectionParentIndex cache;
@@ -277,14 +279,14 @@ void EnsureCollectionParentIndex(leveldb::DB* db) {
   std::string documents_prefix = LevelDbRemoteDocumentKey::KeyPrefix();
   auto it = transaction.NewIterator();
   it->Seek(documents_prefix);
-  LevelDbRemoteDocumentKey documents_key;
+  LevelDbRemoteDocumentKey document_key;
   for (; it->Valid() && absl::StartsWith(it->key(), documents_prefix);
        it->Next()) {
-    HARD_ASSERT(documents_key.Decode(it->key()),
+    HARD_ASSERT(document_key.Decode(it->key()),
                 "Failed to decode document key");
 
-    const ResourcePath& path = documents_key.document_key().path();
-    EnsureCollectionParentRow(&transaction, &cache, path.PopLast());
+    EnsureCollectionParentRow(&transaction, &cache,
+                              document_key.document_key());
   }
 
   // Index existing mutations.
@@ -297,8 +299,7 @@ void EnsureCollectionParentIndex(leveldb::DB* db) {
     HARD_ASSERT(key.Decode(it->key()),
                 "Failed to decode document-mutation key");
 
-    const ResourcePath& path = key.document_key().path();
-    EnsureCollectionParentRow(&transaction, &cache, path.PopLast());
+    EnsureCollectionParentRow(&transaction, &cache, key.document_key());
   }
 
   SaveVersion(6, &transaction);
@@ -353,7 +354,7 @@ void LevelDbMigrations::RunMigrations(leveldb::DB* db,
   }
 
   if (from_version < 6 && to_version >= 6) {
-    EnsureCollectionParentIndex(db);
+    EnsureCollectionParentsIndex(db);
   }
 }
 

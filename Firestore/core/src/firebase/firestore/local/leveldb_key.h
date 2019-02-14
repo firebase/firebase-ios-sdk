@@ -529,7 +529,8 @@ class LevelDbRemoteDocumentKey {
  * A key in the collection parents index, which stores an association between a
  * Collection ID (e.g. 'messages') to a parent path (e.g. '/chats/123') that
  * contains it as a (sub)collection. This is used to efficiently find all
- * collections to query when performing a Collection Group query.
+ * collections to query when performing a Collection Group query. Note that the
+ * parent path will be an empty path in the case of root-level collections.
  */
 class LevelDbCollectionParentKey {
  public:
