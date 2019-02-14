@@ -43,6 +43,12 @@ TEST(ArraySortedMap, ChecksSize) {
   ASSERT_ANY_THROW(map.insert(next, next));
 }
 
+TEST(ArraySortedMap, InitializerIsSorted) {
+  IntMap map{{3, 0}, {2, 0}, {1, 0}};
+
+  EXPECT_EQ(map.begin()->first, 1);
+}
+
 }  // namespace impl
 }  // namespace immutable
 }  // namespace firestore
