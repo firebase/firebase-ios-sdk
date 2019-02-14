@@ -18,6 +18,7 @@ if(HAVE_LEVELDB)
     SOURCES
       leveldb_key.cc
       leveldb_key.h
+      #leveldb_index_manager.mm
       leveldb_migrations.cc
       leveldb_migrations.h
       leveldb_transaction.cc
@@ -50,6 +51,7 @@ cc_library(
     document_reference.cc
     local_serializer.h
     local_serializer.cc
+    memory_index_manager.cc
     query_data.cc
     query_data.h
     reference_set.cc

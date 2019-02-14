@@ -1,4 +1,7 @@
 # Unreleased
+- [feature] You can now query across all collections in your database with a
+  given collection ID using the `Firestore.collectionGroup()` method.
+
 
 # v1.0.1
 - [changed] Internal improvements.

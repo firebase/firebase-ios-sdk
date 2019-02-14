@@ -20,6 +20,7 @@
 @class FIRCollectionReference;
 @class FIRDocumentReference;
 @class FIRFirestoreSettings;
+@class FIRQuery;
 @class FIRTransaction;
 @class FIRWriteBatch;
 
@@ -90,6 +91,17 @@ NS_SWIFT_NAME(Firestore)
  * @return The `FIRDocumentReference` for the specified _documentPath_.
  */
 - (FIRDocumentReference *)documentWithPath:(NSString *)documentPath NS_SWIFT_NAME(document(_:));
+
+#pragma mark - Collection Group Queries
+/**
+ * Creates and returns a new `Query` that includes all documents in the database that are contained
+ * in a collection or subcollection with the given collectionId.
+ *
+ * @param collectionID Identifies the collections to query over. Every collection or subcollection
+ *     with this ID as the last segment of its path will be included. Cannot contain a slash.
+ * @return The created `Query`.
+ */
+- (FIRQuery *)collectionGroupWithID:(NSString *)collectionID NS_SWIFT_NAME(collectionGroup(_:));
 
 #pragma mark - Transactions and Write Batches
 

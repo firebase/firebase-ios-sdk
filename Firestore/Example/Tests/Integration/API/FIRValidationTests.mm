@@ -482,12 +482,19 @@
 }
 
 - (void)testQueryOrderedByKeyBoundMustBeAStringWithoutSlashes {
-  FIRCollectionReference *testCollection = [self collectionRef];
-  FIRQuery *query = [testCollection queryOrderedByFieldPath:[FIRFieldPath documentID]];
+  FIRQuery *query = [[self.db collectionWithPath:@"collection"]
+      queryOrderedByFieldPath:[FIRFieldPath documentID]];
+  FIRQuery *cgQuery = [[self.db collectionGroupWithID:@"collection"]
+      queryOrderedByFieldPath:[FIRFieldPath documentID]];
   FSTAssertThrows([query queryStartingAtValues:@[ @1 ]],
                   @"Invalid query. Expected a string for the document ID.");
   FSTAssertThrows([query queryStartingAtValues:@[ @"foo/bar" ]],
-                  @"Invalid query. Document ID 'foo/bar' contains a slash.");
+                  @"Invalid query. When querying a collection and ordering by document "
+                   "ID, you must pass a plain document ID, but 'foo/bar' contains a slash.");
+  FSTAssertThrows([cgQuery queryStartingAtValues:@[ @"foo" ]],
+                  @"Invalid query. When querying a collection group and ordering by "
+                   "document ID, you must pass a value that results in a valid document path, "
+                   "but 'foo' is not because it contains an odd number of segments.");
 }
 
 - (void)testQueryMustNotSpecifyStartingOrEndingPointAfterOrder {
@@ -508,14 +515,22 @@
                       "document ID, but it was an empty string.";
   FSTAssertThrows([collection queryWhereFieldPath:[FIRFieldPath documentID] isEqualTo:@""], reason);
 
-  reason = @"Invalid query. When querying by document ID you must provide a valid document ID, "
-            "but 'foo/bar/baz' contains a '/' character.";
+  reason = @"Invalid query. When querying a collection by document ID you must provide a "
+            "plain document ID, but 'foo/bar/baz' contains a '/' character.";
   FSTAssertThrows(
       [collection queryWhereFieldPath:[FIRFieldPath documentID] isEqualTo:@"foo/bar/baz"], reason);
 
   reason = @"Invalid query. When querying by document ID you must provide a valid string or "
             "DocumentReference, but it was of type: __NSCFNumber";
   FSTAssertThrows([collection queryWhereFieldPath:[FIRFieldPath documentID] isEqualTo:@1], reason);
+
+  reason = @"Invalid query. When querying a collection group by document ID, the value "
+            "provided must result in a valid document path, but 'foo/bar/baz' is not because it "
+            "has an odd number of segments.";
+  FSTAssertThrows(
+      [[self.db collectionGroupWithID:@"collection"] queryWhereFieldPath:[FIRFieldPath documentID]
+                                                               isEqualTo:@"foo/bar/baz"],
+      reason);
 
   reason =
       @"Invalid query. You can't perform arrayContains queries on document ID since document IDs "

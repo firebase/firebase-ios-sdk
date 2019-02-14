@@ -90,6 +90,11 @@ class DocumentKey {
     return path_ ? *path_ : Empty().path();
   }
 
+  /** Returns true if the document is in the specified collectionId. */
+  bool HasCollectionID(const absl::string_view collectionID) const {
+    return path().size() >= 2 && path()[path().size() - 2] == collectionID;
+  }
+
  private:
   // This is an optimization to make passing DocumentKey around cheaper (it's
   // copied often).
