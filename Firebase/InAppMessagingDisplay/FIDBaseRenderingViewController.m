@@ -33,7 +33,7 @@ static const NSTimeInterval kMinValidImpressionTime = 3.0;
 
 @implementation FIDBaseRenderingViewController
 
-- (nullable FIRInAppMessagingDisplayMessage *)inAppMessage {
+- (FIRInAppMessagingDisplayMessage *)inAppMessage {
   return nil;
 }
 

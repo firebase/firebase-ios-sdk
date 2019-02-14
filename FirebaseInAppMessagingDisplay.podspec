@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseInAppMessagingDisplay'
-  s.version          = '0.12.2'
+  s.version          = '0.13.0'
   s.summary          = 'Firebase In-App Messaging UI for iOS'
 
   s.description      = <<-DESC
@@ -41,5 +41,5 @@ Firebase In-App Messaging SDK.
   }
 
   s.dependency 'FirebaseCore'
-  s.dependency 'FirebaseInAppMessaging', '>=0.12.0'
+  s.dependency 'FirebaseInAppMessaging', '>= 0.13.0'
 end
