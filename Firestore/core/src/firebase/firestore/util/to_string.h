@@ -55,7 +55,8 @@ struct has_to_string<T, absl::void_t<decltype(std::declval<T>().ToString())>>
 
 template <typename T>
 std::string DefaultToString(const T& value) {
-  return std::to_string(value);
+  FormatArg arg{value};
+  return std::string{arg.data(), arg.data() + arg.size()};
 }
 
 // Container
@@ -109,7 +110,7 @@ std::string StringToString(const T& value, std::true_type) {
 
 template <typename T>
 std::string ObjCToString(const T& value, std::false_type) {
-  return StringToString(value, std::is_convertible<T, std::string>{});
+  return StringToString(value, std::is_same<T, std::string>{});
 }
 
 template <typename T>
@@ -130,7 +131,7 @@ std::string CustomToString(const T& value, std::false_type) {
 
 template <typename T>
 std::string CustomToString(const T& value, std::false_type) {
-  return StringToString(value, std::is_convertible<T, std::string>{});
+  return StringToString(value, std::is_same<T, std::string>{});
 }
 
 #endif  // __OBJC__
