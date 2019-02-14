@@ -35,10 +35,14 @@
 #include "grpcpp/channel.h"
 #include "grpcpp/client_context.h"
 #include "grpcpp/completion_queue.h"
+#ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdocumentation"
+#endif  // __clang__
 #include "grpcpp/generic/generic_stub.h"
+#ifdef __clang__
 #pragma clang diagnostic pop
+#endif  // __clang__
 
 namespace firebase {
 namespace firestore {
