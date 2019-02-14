@@ -41,7 +41,6 @@ TEST(ToStringTest, SimpleTypes) {
   EXPECT_EQ(ToString(123), "123");
   EXPECT_EQ(ToString(1.5), "1.5");
 
-  EXPECT_EQ(ToString('f'), "f");
   EXPECT_EQ(ToString("foo"), "foo");
   EXPECT_EQ(ToString(std::string{"foo"}), "foo");
 
