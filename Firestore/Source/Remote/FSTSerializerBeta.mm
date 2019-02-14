@@ -767,7 +767,7 @@ NS_ASSUME_NONNULL_BEGIN
   const ResourcePath &path = query.path;
   if (query.collectionGroup) {
     HARD_ASSERT(path.size() % 2 == 0,
-                "Collection Group queries should be within a document path or root.");
+                "Collection group queries should be within a document path or root.");
     queryTarget.parent = [self encodedQueryPath:path];
     GCFSStructuredQuery_CollectionSelector *from = [GCFSStructuredQuery_CollectionSelector message];
     from.collectionId = query.collectionGroup;

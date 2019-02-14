@@ -256,9 +256,9 @@ typedef NS_ENUM(NSInteger, FSTRelationFilterOperator) {
 - (instancetype)queryByAddingEndAt:(FSTBound *)bound;
 
 /**
- * Helper to convert a Collection Group query into a collection query at a specific path. This is
- * used when executing Collection Group queries, since we have to split the query into a set of
- * Collection queries at multiple paths.
+ * Helper to convert a collection group query into a collection query at a specific path. This is
+ * used when executing collection group queries, since we have to split the query into a set of
+ * collection queries at multiple paths.
  */
 - (instancetype)collectionQueryAtPath:(firebase::firestore::model::ResourcePath)path;
 

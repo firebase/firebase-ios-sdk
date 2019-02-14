@@ -710,7 +710,6 @@
 		546854A720A3681B004BDBD5 /* remote */ = {
 			isa = PBXGroup;
 			children = (
-				B68FC0E421F6848700A7055C /* watch_change_test.mm */,
 				546854A820A36867004BDBD5 /* datastore_test.mm */,
 				B6D1B68420E2AB1A00B35856 /* exponential_backoff_test.cc */,
 				B6D9649021544D4F00EB9CFB /* grpc_connection_test.cc */,
@@ -719,6 +718,7 @@
 				B6D964942163E63900EB9CFB /* grpc_unary_call_test.cc */,
 				61F72C5520BC48FD001A68CB /* serializer_test.cc */,
 				B66D8995213609EE0086DA0C /* stream_test.mm */,
+				B68FC0E421F6848700A7055C /* watch_change_test.mm */,
 			);
 			path = remote;
 			sourceTree = "<group>";
@@ -797,13 +797,13 @@
 		54995F70205B6E1A004EFFA0 /* local */ = {
 			isa = PBXGroup;
 			children = (
-				73F1F7402211FEF300E1F692 /* leveldb_index_manager_test.mm */,
 				73F1F73A2210F3D800E1F692 /* index_manager_test.h */,
 				73F1F73B2210F3D800E1F692 /* index_manager_test.mm */,
-				73F1F7392210F3D800E1F692 /* memory_index_manager_test.mm */,
+				73F1F7402211FEF300E1F692 /* leveldb_index_manager_test.mm */,
 				54995F6E205B6E12004EFFA0 /* leveldb_key_test.cc */,
 				332485C4DCC6BA0DBB5E31B7 /* leveldb_util_test.cc */,
 				F8043813A5D16963EC02B182 /* local_serializer_test.cc */,
+				73F1F7392210F3D800E1F692 /* memory_index_manager_test.mm */,
 				132E32997D781B896672D30A /* reference_set_test.cc */,
 			);
 			path = local;
@@ -1251,7 +1251,6 @@
 		DE51B19C1F0D48AC0013853F /* json */ = {
 			isa = PBXGroup;
 			children = (
-				731541602214AFFA0037F4DC /* query_spec_test.json */,
 				DE51B1A71F0D48AC0013853F /* README.md */,
 				54DA129C1F315EE100DD57A1 /* collection_spec_test.json */,
 				54DA129D1F315EE100DD57A1 /* existence_filter_spec_test.json */,
@@ -1262,6 +1261,7 @@
 				54DA12A21F315EE100DD57A1 /* orderby_spec_test.json */,
 				D5B2593BCB52957D62F1C9D3 /* perf_spec_test.json */,
 				54DA12A31F315EE100DD57A1 /* persistence_spec_test.json */,
+				731541602214AFFA0037F4DC /* query_spec_test.json */,
 				3B843E4A1F3930A400548890 /* remote_store_spec_test.json */,
 				54DA12A41F315EE100DD57A1 /* resume_token_spec_test.json */,
 				54DA12A51F315EE100DD57A1 /* write_spec_test.json */,
@@ -1577,10 +1577,10 @@
 				54DA12AC1F315EE100DD57A1 /* orderby_spec_test.json in Resources */,
 				D5B25CBF07F65E885C9D68AB /* perf_spec_test.json in Resources */,
 				54DA12AD1F315EE100DD57A1 /* persistence_spec_test.json in Resources */,
+				731541612214AFFA0037F4DC /* query_spec_test.json in Resources */,
 				3B843E4C1F3A182900548890 /* remote_store_spec_test.json in Resources */,
 				54DA12AE1F315EE100DD57A1 /* resume_token_spec_test.json in Resources */,
 				54DA12AF1F315EE100DD57A1 /* write_spec_test.json in Resources */,
-				731541612214AFFA0037F4DC /* query_spec_test.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1693,8 +1693,6 @@
 			buildActionMask = 2147483647;
 			files = (
 			);
-			inputFileListPaths = (
-			);
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-macOS_example/Pods-macOS_example-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/BoringSSL-GRPC-macOS/openssl_grpc.framework",
@@ -1707,8 +1705,6 @@
 				"${BUILT_PRODUCTS_DIR}/nanopb-macOS/nanopb.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-			);
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/openssl_grpc.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMSessionFetcher.framework",
@@ -1784,15 +1780,11 @@
 			buildActionMask = 2147483647;
 			files = (
 			);
-			inputFileListPaths = (
-			);
 			inputPaths = (
 				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
 				"${PODS_ROOT}/Manifest.lock",
 			);
 			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
 			outputPaths = (
 				"$(DERIVED_FILE_DIR)/Pods-macOS_example-checkManifestLockResult.txt",
 			);
@@ -1994,11 +1986,8 @@
 				DE2EF0851F3D0B6E003D0CDC /* FSTArraySortedDictionaryTests.m in Sources */,
 				5492E0B92021555100B64F25 /* FSTDocumentKeyTests.mm in Sources */,
 				5492E0BA2021555100B64F25 /* FSTDocumentSetTests.mm in Sources */,
-				73F1F73C2210F3D800E1F692 /* memory_index_manager_test.mm in Sources */,
 				5492E0BD2021555100B64F25 /* FSTDocumentTests.mm in Sources */,
 				5492E03E2021401F00B64F25 /* FSTEventAccumulator.mm in Sources */,
-				B68FC0E521F6848700A7055C /* watch_change_test.mm in Sources */,
-				73F1F7412211FEF300E1F692 /* leveldb_index_manager_test.mm in Sources */,
 				5492E067202154B900B64F25 /* FSTEventManagerTests.mm in Sources */,
 				5492E0BF2021555100B64F25 /* FSTFieldValueTests.mm in Sources */,
 				54764FAF1FAA21B90085E60A /* FSTGoogleTestTests.mm in Sources */,
@@ -2013,7 +2002,6 @@
 				5492E0A02021552D00B64F25 /* FSTLevelDBMutationQueueTests.mm in Sources */,
 				5492E0AE2021552D00B64F25 /* FSTLevelDBQueryCacheTests.mm in Sources */,
 				5492E0AA2021552D00B64F25 /* FSTLevelDBRemoteDocumentCacheTests.mm in Sources */,
-				73F1F73D2210F3D800E1F692 /* index_manager_test.mm in Sources */,
 				5492E03120213FFC00B64F25 /* FSTLevelDBSpecTests.mm in Sources */,
 				132E3E53179DE287D875F3F2 /* FSTLevelDBTransactionTests.mm in Sources */,
 				5492E0A32021552D00B64F25 /* FSTLocalSerializerTests.mm in Sources */,
@@ -2080,13 +2068,16 @@
 				73FE5066020EF9B2892C86BF /* hard_assert_test.cc in Sources */,
 				54511E8E209805F8005BD28F /* hashing_test.cc in Sources */,
 				618BBEB020B89AAC00B5BCE7 /* http.pb.cc in Sources */,
+				73F1F73D2210F3D800E1F692 /* index_manager_test.mm in Sources */,
 				54A0353520A3D8CB003E0143 /* iterator_adaptors_test.cc in Sources */,
 				618BBEAE20B89AAC00B5BCE7 /* latlng.pb.cc in Sources */,
+				73F1F7412211FEF300E1F692 /* leveldb_index_manager_test.mm in Sources */,
 				54995F6F205B6E12004EFFA0 /* leveldb_key_test.cc in Sources */,
 				BEE0294A23AB993E5DE0E946 /* leveldb_util_test.cc in Sources */,
 				020AFD89BB40E5175838BB76 /* local_serializer_test.cc in Sources */,
 				54C2294F1FECABAE007D065B /* log_test.cc in Sources */,
 				618BBEA720B89AAC00B5BCE7 /* maybe_document.pb.cc in Sources */,
+				73F1F73C2210F3D800E1F692 /* memory_index_manager_test.mm in Sources */,
 				618BBEA820B89AAC00B5BCE7 /* mutation.pb.cc in Sources */,
 				32F022CB75AEE48CDDAF2982 /* mutation_test.cc in Sources */,
 				84DBE646DCB49305879D3500 /* nanopb_string_test.cc in Sources */,
@@ -2122,6 +2113,7 @@
 				549CCA5120A36DBC00BCEB75 /* tree_sorted_map_test.cc in Sources */,
 				C80B10E79CDD7EF7843C321E /* type_traits_apple_test.mm in Sources */,
 				ABC1D7DE2023A05300BA84F0 /* user_test.cc in Sources */,
+				B68FC0E521F6848700A7055C /* watch_change_test.mm in Sources */,
 				544129DE21C2DDC800EFB9CC /* write.pb.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
