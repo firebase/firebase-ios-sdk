@@ -169,7 +169,7 @@ NSString *FIRDLDeviceModelName() {
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
     size_t size;
-      
+
     // compute string size
     if (sysctlbyname("hw.machine", NULL, &size, NULL, 0) == 0) {
 
