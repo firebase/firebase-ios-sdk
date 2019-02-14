@@ -100,7 +100,7 @@ func makeQuery(collection collectionRef: CollectionReference) -> Query {
     .limit(to: 10)
 
   // collectionGroup query.
-  query = collectionRef.db.collectionGroup("collection")
+  query = collectionRef.firestore.collectionGroup("collection")
 
   return query
 }
