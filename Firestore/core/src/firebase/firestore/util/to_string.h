@@ -51,39 +51,40 @@ template <typename T>
 struct has_to_string<T, absl::void_t<decltype(std::declval<T>().ToString())>>
     : std::true_type {};
 
-// Fallback
+template <int I>
+struct Choice : Choice<I + 1> {};
 
-template <typename T>
-std::string DefaultToString(const T& value) {
-  FormatArg arg{value};
-  return std::string{arg.data(), arg.data() + arg.size()};
+template <>
+struct Choice<5> {};
+
+#if __OBJC__
+
+// Objective-C class
+template <typename T,
+          typename = absl::enable_if_t<is_objective_c_pointer<T>::value>>
+std::string ToStringImpl(T value, Choice<0>) {
+  return MakeString([value description]);
 }
 
-// Container
+#endif  // __OBJC__
 
-template <typename T>
-std::string ContainerToString(const T& value, std::false_type) {
-  return DefaultToString(value);
+// Has `ToString` member function
+template <typename T, typename = absl::enable_if_t<has_to_string<T>::value>>
+std::string ToStringImpl(const T& value, Choice<1>) {
+  return value.ToString();
 }
 
-template <typename T>
-std::string ContainerToString(const T& value, std::true_type) {
-  std::string contents = absl::StrJoin(
-      value, ", ", [](std::string* out, const typename T::value_type& element) {
-        out->append(ToString(element));
-      });
-  return std::string{"["} + contents + "]";  // NOLINT(whitespace/braces)
+// `std::string`
+template <typename T,
+          typename = absl::enable_if_t<std::is_same<std::string, T>::value>>
+std::string ToStringImpl(const T& value, Choice<2>) {
+  return value;
 }
 
 // Associative container
-
-template <typename T>
-std::string MapToString(const T& value, std::false_type) {
-  return ContainerToString(value, is_iterable<T>{});
-}
-
-template <typename T>
-std::string MapToString(const T& value, std::true_type) {
+template <typename T,
+          typename = absl::enable_if_t<is_associative_container<T>::value>>
+std::string ToStringImpl(const T& value, Choice<3>) {
   std::string contents = absl::StrJoin(
       value, ", ", [](std::string* out, const typename T::value_type& kv) {
         out->append(
@@ -92,53 +93,21 @@ std::string MapToString(const T& value, std::true_type) {
   return std::string{"{"} + contents + "}";  // NOLINT(whitespace/braces)
 }
 
-// std::string
-
-template <typename T>
-std::string StringToString(const T& value, std::false_type) {
-  return MapToString(value, is_associative_container<T>{});
+// Container
+template <typename T, typename = absl::enable_if_t<is_iterable<T>::value>>
+std::string ToStringImpl(const T& value, Choice<4>) {
+  std::string contents = absl::StrJoin(
+      value, ", ", [](std::string* out, const typename T::value_type& element) {
+        out->append(ToString(element));
+      });
+  return std::string{"["} + contents + "]";  // NOLINT(whitespace/braces)
 }
 
+// Fallback
 template <typename T>
-std::string StringToString(const T& value, std::true_type) {
-  return value;
-}
-
-#if __OBJC__
-
-// Objective-C class
-
-template <typename T>
-std::string ObjCToString(const T& value, std::false_type) {
-  return StringToString(value, std::is_same<T, std::string>{});
-}
-
-template <typename T>
-std::string ObjCToString(const T& value, std::true_type) {
-  return MakeString([value description]);
-}
-
-// Member function `ToString`
-
-template <typename T>
-std::string CustomToString(const T& value, std::false_type) {
-  return ObjCToString(value, is_objective_c_pointer<T>{});
-}
-
-#else
-
-// Member function `ToString`
-
-template <typename T>
-std::string CustomToString(const T& value, std::false_type) {
-  return StringToString(value, std::is_same<T, std::string>{});
-}
-
-#endif  // __OBJC__
-
-template <typename T>
-std::string CustomToString(const T& value, std::true_type) {
-  return value.ToString();
+std::string ToStringImpl(const T& value, Choice<5>) {
+  FormatArg arg{value};
+  return std::string{arg.data(), arg.data() + arg.size()};
 }
 
 }  // namespace impl
@@ -208,7 +177,7 @@ std::string CustomToString(const T& value, std::true_type) {
 
 template <typename T>
 std::string ToString(const T& value) {
-  return impl::CustomToString(value, impl::has_to_string<T>{});
+  return impl::ToStringImpl(value, impl::Choice<0>{});
 }
 
 }  // namespace util
