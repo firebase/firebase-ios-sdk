@@ -100,11 +100,11 @@ This command will get the right `clang-format` version:
 
 Select a scheme and press Command-u to build a component and run its unit tests.
 
-#### Viewing Unit Test Code Coverage
+#### Viewing Code Coverage
 
 First, make sure that [slather](https://github.com/SlatherOrg/slather) is installed with `gem install slather`.
 
-After running the tests in Xcode, execute
+After running the `AllUnitTests_iOS` scheme in Xcode, execute
 `slather coverage --html --scheme AllUnitTests_iOS --configuration=Debug --workspace Firebase.xcworkspace/ Firebase.xcodeproj/`
 at Example/ in the terminal. This will aggregate the coverage and provide instructions to view the code coverage in the browser.
 
