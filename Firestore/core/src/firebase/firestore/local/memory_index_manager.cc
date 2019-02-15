@@ -17,8 +17,8 @@
 #include "Firestore/core/src/firebase/firestore/local/memory_index_manager.h"
 
 #include <algorithm>
-#include <map>
 #include <set>
+#include <unordered_map>
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
@@ -30,36 +30,36 @@ namespace local {
 
 using model::ResourcePath;
 
-void MemoryIndexManager::AddToCollectionParentIndex(
-    const ResourcePath &collection_path) {
-  collection_parents_index_.Add(collection_path);
-}
-
-std::vector<ResourcePath> MemoryIndexManager::GetCollectionParents(
-    const std::string &collection_id) {
-  return collection_parents_index_.GetEntries(collection_id);
-}
-
-bool MemoryCollectionParentIndex::Add(const ResourcePath &collection_path) {
+bool MemoryCollectionParentIndex::Add(const ResourcePath& collection_path) {
   HARD_ASSERT(collection_path.size() % 2 == 1, "Expected a collection path.");
 
   std::string collection_id = collection_path.last_segment();
-  ResourcePath parentPath = collection_path.PopLast();
-  std::set<ResourcePath> &existingParents = index_[collection_id];
-  bool inserted = existingParents.insert(parentPath).second;
+  ResourcePath parent_path = collection_path.PopLast();
+  std::set<ResourcePath>& existingParents = index_[collection_id];
+  bool inserted = existingParents.insert(parent_path).second;
   return inserted;
 }
 
 std::vector<ResourcePath> MemoryCollectionParentIndex::GetEntries(
-    const std::string &collection_id) const {
+    const std::string& collection_id) const {
   std::vector<ResourcePath> result;
   auto found = index_.find(collection_id);
   if (found != index_.end()) {
-    const std::set<ResourcePath> &parentPaths = found->second;
-    std::copy(parentPaths.begin(), parentPaths.end(),
+    const std::set<ResourcePath>& parent_paths = found->second;
+    std::copy(parent_paths.begin(), parent_paths.end(),
               std::back_inserter(result));
   }
   return result;
+}
+
+void MemoryIndexManager::AddToCollectionParentIndex(
+    const ResourcePath& collection_path) {
+  collection_parents_index_.Add(collection_path);
+}
+
+std::vector<ResourcePath> MemoryIndexManager::GetCollectionParents(
+    const std::string& collection_id) {
+  return collection_parents_index_.GetEntries(collection_id);
 }
 
 }  // namespace local

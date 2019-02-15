@@ -49,9 +49,10 @@ class IndexManagerTest : public ::testing::TestWithParam<FactoryFunc> {
   virtual ~IndexManagerTest();
 
  protected:
-  void AssertParents(std::string collection_id,
+  void AssertParents(const std::string &collection_id,
                      std::vector<std::string> expected);
 };
+
 }  // namespace local
 }  // namespace firestore
 }  // namespace firebase

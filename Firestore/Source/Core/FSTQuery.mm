@@ -548,7 +548,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 #pragma mark - Constructors
 
 + (instancetype)queryWithPath:(ResourcePath)path {
-  return [FSTQuery queryWithPath:path collectionGroup:nil];
+  return [FSTQuery queryWithPath:std::move(path) collectionGroup:nil];
 }
 
 + (instancetype)queryWithPath:(ResourcePath)path

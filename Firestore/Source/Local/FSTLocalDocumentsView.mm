@@ -174,9 +174,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (DocumentMap)documentsMatchingCollectionGroupQuery:(FSTQuery *)query {
   HARD_ASSERT(query.path.empty(),
               "Currently we only support collection group queries at the root.");
+
   std::string collection_id = MakeString(query.collectionGroup);
   std::vector<ResourcePath> parents = _indexManager->GetCollectionParents(collection_id);
   DocumentMap results;
+
   // Perform a collection query against each parent that contains the collection_id and
   // aggregate the results.
   for (const ResourcePath &parent : parents) {

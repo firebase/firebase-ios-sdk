@@ -41,13 +41,13 @@ class IndexManager {
    * Creates an index entry mapping the collectionId (last segment of the path)
    * to the parent path (either the containing document location or the empty
    * path for root-level collections). Index entries can be retrieved via
-   * getCollectionParents().
+   * GetCollectionParents().
    *
    * NOTE: Currently we don't remove index entries. If this ends up being an
    * issue we can devise some sort of GC strategy.
    */
   virtual void AddToCollectionParentIndex(
-      const model::ResourcePath &collection_path) = 0;
+      const model::ResourcePath& collection_path) = 0;
 
   /**
    * Retrieves all parent locations containing the given collectionId, as a set
@@ -55,7 +55,7 @@ class IndexManager {
    * a root-level collection).
    */
   virtual std::vector<model::ResourcePath> GetCollectionParents(
-      const std::string &collection_id) = 0;
+      const std::string& collection_id) = 0;
 };
 
 }  // namespace local

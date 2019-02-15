@@ -31,7 +31,7 @@ namespace local {
 
 namespace {
 
-inline id<FSTPersistence> PersistenceFactory() {
+id<FSTPersistence> PersistenceFactory() {
   return static_cast<id<FSTPersistence>>(
       [FSTPersistenceTestHelpers levelDBPersistence]);
 }

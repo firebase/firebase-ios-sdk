@@ -17,9 +17,9 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_MEMORY_INDEX_MANAGER_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_MEMORY_INDEX_MANAGER_H_
 
-#include <map>
 #include <set>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/local/index_manager.h"
@@ -37,23 +37,23 @@ namespace local {
 class MemoryCollectionParentIndex {
  public:
   // Returns false if the entry already existed.
-  bool Add(const model::ResourcePath &collection_path);
+  bool Add(const model::ResourcePath& collection_path);
 
   std::vector<model::ResourcePath> GetEntries(
-      const std::string &collection_id) const;
+      const std::string& collection_id) const;
 
  private:
-  std::map<std::string, std::set<model::ResourcePath>> index_;
+  std::unordered_map<std::string, std::set<model::ResourcePath>> index_;
 };
 
 /** An in-memory implementation of IndexManager. */
 class MemoryIndexManager : public IndexManager {
  public:
   void AddToCollectionParentIndex(
-      const model::ResourcePath &collection_path) override;
+      const model::ResourcePath& collection_path) override;
 
   std::vector<model::ResourcePath> GetCollectionParents(
-      const std::string &collection_id) override;
+      const std::string& collection_id) override;
 
  private:
   MemoryCollectionParentIndex collection_parents_index_;

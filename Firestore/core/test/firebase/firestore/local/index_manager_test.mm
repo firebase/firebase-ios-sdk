@@ -29,18 +29,21 @@ namespace firebase {
 namespace firestore {
 namespace local {
 
-void IndexManagerTest::AssertParents(std::string collection_id,
+using model::ResourcePath;
+
+void IndexManagerTest::AssertParents(const std::string &collection_id,
                                      std::vector<std::string> expected) {
   IndexManager *index_manager = persistence.indexManager;
-  std::vector<model::ResourcePath> actual_paths =
+  std::vector<ResourcePath> actual_paths =
       index_manager->GetCollectionParents(collection_id);
   std::vector<std::string> actual;
-  for (model::ResourcePath actual_path : actual_paths) {
+  for (const ResourcePath &actual_path : actual_paths) {
     actual.push_back(actual_path.CanonicalString());
   }
   std::sort(expected.begin(), expected.end());
   std::sort(actual.begin(), actual.end());
 
+  SCOPED_TRACE("AssertParents(\"" + collection_id + "\", ...)");
   EXPECT_EQ(actual, expected);
 }
 
@@ -51,16 +54,14 @@ IndexManagerTest::~IndexManagerTest() {
 TEST_P(IndexManagerTest, AddAndReadCollectionParentIndexEntries) {
   IndexManager *index_manager = persistence.indexManager;
   persistence.run("AddAndReadCollectionParentIndexEntries", [&]() {
+    index_manager->AddToCollectionParentIndex(ResourcePath{"messages"});
+    index_manager->AddToCollectionParentIndex(ResourcePath{"messages"});
     index_manager->AddToCollectionParentIndex(
-        model::ResourcePath{{"messages"}});
+        ResourcePath{"rooms", "foo", "messages"});
     index_manager->AddToCollectionParentIndex(
-        model::ResourcePath{{"messages"}});
+        ResourcePath{"rooms", "bar", "messages"});
     index_manager->AddToCollectionParentIndex(
-        model::ResourcePath{{"rooms", "foo", "messages"}});
-    index_manager->AddToCollectionParentIndex(
-        model::ResourcePath{{"rooms", "bar", "messages"}});
-    index_manager->AddToCollectionParentIndex(
-        model::ResourcePath{{"rooms", "foo", "messages2"}});
+        ResourcePath{"rooms", "foo", "messages2"});
 
     AssertParents("messages",
                   std::vector<std::string>{"", "rooms/bar", "rooms/foo"});

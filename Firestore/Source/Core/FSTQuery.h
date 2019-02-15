@@ -192,8 +192,10 @@ typedef NS_ENUM(NSInteger, FSTRelationFilterOperator) {
 /**
  * Creates and returns a new FSTQuery.
  *
- * @param path The path to the collection to be queried over.
- * @param collectionGroup The collection group to be queried over.
+ * @param path The path to the location to be queried over. Must currently be
+ *     empty in the case of a collection group query.
+ * @param collectionGroup The collection group to be queried over. nil if this
+ *     is not a collection group query.
  * @return A new instance of FSTQuery.
  */
 + (instancetype)queryWithPath:(firebase::firestore::model::ResourcePath)path

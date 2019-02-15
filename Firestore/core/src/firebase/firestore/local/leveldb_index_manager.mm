@@ -35,12 +35,13 @@ namespace local {
 
 using model::ResourcePath;
 
-LevelDbIndexManager::LevelDbIndexManager(FSTLevelDB *db) : db_(db) {
+LevelDbIndexManager::LevelDbIndexManager(FSTLevelDB* db) : db_(db) {
 }
 
 void LevelDbIndexManager::AddToCollectionParentIndex(
-    const ResourcePath &collection_path) {
+    const ResourcePath& collection_path) {
   HARD_ASSERT(collection_path.size() % 2 == 1, "Expected a collection path.");
+
   if (collection_parents_cache_.Add(collection_path)) {
     std::string collection_id = collection_path.last_segment();
     ResourcePath parent_path = collection_path.PopLast();
@@ -53,7 +54,7 @@ void LevelDbIndexManager::AddToCollectionParentIndex(
 }
 
 std::vector<ResourcePath> LevelDbIndexManager::GetCollectionParents(
-    const std::string &collection_id) {
+    const std::string& collection_id) {
   std::vector<ResourcePath> results;
 
   auto index_iterator = db_.currentTransaction->NewIterator();

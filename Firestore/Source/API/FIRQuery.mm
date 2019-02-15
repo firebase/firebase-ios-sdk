@@ -633,8 +633,7 @@ NS_ASSUME_NONNULL_BEGIN
              "you must pass a plain document ID, but '%@' contains a slash.",
             documentID);
       }
-      const ResourcePath path =
-          self.query.path.Append(ResourcePath::FromString([documentID UTF8String]));
+      ResourcePath path = self.query.path.Append(ResourcePath::FromString([documentID UTF8String]));
       if (!DocumentKey::IsDocumentKey(path)) {
         FSTThrowInvalidUsage(
             @"InvalidQueryException",
@@ -643,7 +642,7 @@ NS_ASSUME_NONNULL_BEGIN
              "is not because it contains an odd number of segments.",
             path.CanonicalString().c_str());
       }
-      const DocumentKey key{path};
+      DocumentKey key{path};
       [components addObject:[FSTReferenceValue referenceValue:key
                                                    databaseID:self.firestore.databaseID]];
     } else {

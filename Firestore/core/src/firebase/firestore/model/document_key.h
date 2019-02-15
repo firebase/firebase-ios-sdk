@@ -68,7 +68,7 @@ class DocumentKey {
    * Creates and returns a new document key using '/' to split the string into
    * segments.
    */
-  static DocumentKey FromPathString(const absl::string_view path) {
+  static DocumentKey FromPathString(absl::string_view path) {
     return DocumentKey{ResourcePath::FromString(path)};
   }
 
@@ -91,8 +91,9 @@ class DocumentKey {
   }
 
   /** Returns true if the document is in the specified collectionId. */
-  bool HasCollectionID(const absl::string_view collectionID) const {
-    return path().size() >= 2 && path()[path().size() - 2] == collectionID;
+  bool HasCollectionID(absl::string_view collectionID) const {
+    size_t size = path().size();
+    return size >= 2 && path()[size - 2] == collectionID;
   }
 
  private:
