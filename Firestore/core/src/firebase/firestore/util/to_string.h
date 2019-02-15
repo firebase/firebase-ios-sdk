@@ -149,8 +149,9 @@ template <typename T,
 std::string ToStringImpl(const T& value, ToStringChoice<3>) {
   std::string contents = absl::StrJoin(
       value, ", ", [](std::string* out, const typename T::value_type& kv) {
-        out->append(
-            StringFormat("%s: %s", ToString(kv.first), ToString(kv.second)));
+        out->append(ToString(kv.first));
+        out->append(": ");
+        out->append(ToString(kv.second));
       });
   return std::string{"{"} + contents + "}";  // NOLINT(whitespace/braces)
 }
