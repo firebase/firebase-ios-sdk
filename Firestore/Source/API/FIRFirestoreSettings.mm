@@ -56,9 +56,8 @@ static const BOOL kDefaultTimestampsInSnapshotsEnabled = YES;
          self.dispatchQueue == otherSettings.dispatchQueue &&
          self.isPersistenceEnabled == otherSettings.isPersistenceEnabled &&
          SUPPRESS_DEPRECATED_DECLARATIONS_BEGIN()
-         self.timestampsInSnapshotsEnabled == otherSettings.timestampsInSnapshotsEnabled &&
-         SUPPRESS_END()
-         self.cacheSizeBytes == otherSettings.cacheSizeBytes;
+                 self.timestampsInSnapshotsEnabled == otherSettings.timestampsInSnapshotsEnabled &&
+         SUPPRESS_END() self.cacheSizeBytes == otherSettings.cacheSizeBytes;
 }
 
 - (NSUInteger)hash {
