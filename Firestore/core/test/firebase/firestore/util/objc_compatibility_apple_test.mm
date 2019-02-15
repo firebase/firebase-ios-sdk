@@ -52,7 +52,7 @@ TEST(ObjCCompatibilityTest, ContainerEquals) {
 
   std::vector<FSTDocument*> v1{doc1a, doc2a};
   std::vector<FSTDocument*> v2{doc1b, doc2b};
-  std::vector<FSTDocument*> v3{doc1a, doc2a};
+  std::vector<FSTDocument*> v3{doc1a, doc1b};
   EXPECT_TRUE(Equals(v1, v2));
   EXPECT_FALSE(Equals(v1, v3));
   EXPECT_FALSE(Equals(v2, v3));
