@@ -31,7 +31,6 @@
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 using firebase::firestore::core::DocumentViewChange;
-using firebase::firestore::core::DocumentViewChangeType;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::MaybeDocumentMap;
@@ -42,21 +41,21 @@ NS_ASSUME_NONNULL_BEGIN
 
 namespace {
 
-int GetDocumentViewChangeTypePosition(DocumentViewChangeType changeType) {
+int GetDocumentViewChangeTypePosition(DocumentViewChange::Type changeType) {
   switch (changeType) {
-    case DocumentViewChangeType::kRemoved:
+    case DocumentViewChange::Type::kRemoved:
       return 0;
-    case DocumentViewChangeType::kAdded:
+    case DocumentViewChange::Type::kAdded:
       return 1;
-    case DocumentViewChangeType::kModified:
+    case DocumentViewChange::Type::kModified:
       return 2;
-    case DocumentViewChangeType::kMetadata:
+    case DocumentViewChange::Type::kMetadata:
       // A metadata change is converted to a modified change at the public API layer. Since we sort
       // by document key and then change type, metadata and modified changes must be sorted
       // equivalently.
       return 2;
   }
-  HARD_FAIL("Unknown DocumentViewChangeType %s", changeType);
+  HARD_FAIL("Unknown DocumentViewChange::Type %s", changeType);
 }
 
 }  // namespace
@@ -283,7 +282,7 @@ int GetDocumentViewChangeTypePosition(DocumentViewChangeType changeType) {
       BOOL docsEqual = [oldDoc.data isEqual:newDoc.data];
       if (!docsEqual) {
         if (![self shouldWaitForSyncedDocument:newDoc oldDocument:oldDoc]) {
-          [changeSet addChange:DocumentViewChange{newDoc, DocumentViewChangeType::kModified}];
+          [changeSet addChange:DocumentViewChange{newDoc, DocumentViewChange::Type::kModified}];
           changeApplied = YES;
 
           if (lastDocInLimit && self.query.comparator(newDoc, lastDocInLimit) > 0) {
@@ -293,15 +292,15 @@ int GetDocumentViewChangeTypePosition(DocumentViewChangeType changeType) {
           }
         }
       } else if (oldDocHadPendingMutations != newDocHasPendingMutations) {
-        [changeSet addChange:DocumentViewChange{newDoc, DocumentViewChangeType::kMetadata}];
+        [changeSet addChange:DocumentViewChange{newDoc, DocumentViewChange::Type::kMetadata}];
         changeApplied = YES;
       }
 
     } else if (!oldDoc && newDoc) {
-      [changeSet addChange:DocumentViewChange{newDoc, DocumentViewChangeType::kAdded}];
+      [changeSet addChange:DocumentViewChange{newDoc, DocumentViewChange::Type::kAdded}];
       changeApplied = YES;
     } else if (oldDoc && !newDoc) {
-      [changeSet addChange:DocumentViewChange{oldDoc, DocumentViewChangeType::kRemoved}];
+      [changeSet addChange:DocumentViewChange{oldDoc, DocumentViewChange::Type::kRemoved}];
       changeApplied = YES;
 
       if (lastDocInLimit) {
@@ -331,7 +330,7 @@ int GetDocumentViewChangeTypePosition(DocumentViewChangeType changeType) {
       FSTDocument *oldDoc = [newDocumentSet lastDocument];
       newDocumentSet = [newDocumentSet documentSetByRemovingKey:oldDoc.key];
       newMutatedKeys = newMutatedKeys.erase(oldDoc.key);
-      [changeSet addChange:DocumentViewChange{oldDoc, DocumentViewChangeType::kRemoved}];
+      [changeSet addChange:DocumentViewChange{oldDoc, DocumentViewChange::Type::kRemoved}];
     }
   }
 

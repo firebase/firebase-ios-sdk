@@ -35,7 +35,6 @@
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::core::DocumentViewChange;
-using firebase::firestore::core::DocumentViewChangeType;
 using firebase::firestore::model::DocumentKeySet;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -88,8 +87,8 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocumentSet *oldDocuments = FSTTestDocSet(FSTDocumentComparatorByKey, @[ doc1Old, doc2Old ]);
   FSTDocumentSet *newDocuments = FSTTestDocSet(FSTDocumentComparatorByKey, @[ doc2New, doc2New ]);
   std::vector<DocumentViewChange> documentChanges{
-      DocumentViewChange{doc1New, DocumentViewChangeType::kMetadata},
-      DocumentViewChange{doc2New, DocumentViewChangeType::kModified},
+      DocumentViewChange{doc1New, DocumentViewChange::Type::kMetadata},
+      DocumentViewChange{doc2New, DocumentViewChange::Type::kModified},
   };
 
   FIRFirestore *firestore = FSTTestFirestore();

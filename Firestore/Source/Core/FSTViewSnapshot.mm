@@ -34,7 +34,6 @@
 
 namespace objc = firebase::firestore::util::objc;
 using firebase::firestore::core::DocumentViewChange;
-using firebase::firestore::core::DocumentViewChangeType;
 using firebase::firestore::immutable::SortedMap;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
@@ -69,33 +68,33 @@ NS_ASSUME_NONNULL_BEGIN
   const DocumentViewChange &oldChange = oldChangeIter->second;
 
   // Merge the new change with the existing change.
-  if (change.type() != DocumentViewChangeType::kAdded &&
-      oldChange.type() == DocumentViewChangeType::kMetadata) {
+  if (change.type() != DocumentViewChange::Type::kAdded &&
+      oldChange.type() == DocumentViewChange::Type::kMetadata) {
     _changeMap = _changeMap.insert(key, change);
 
-  } else if (change.type() == DocumentViewChangeType::kMetadata &&
-             oldChange.type() != DocumentViewChangeType::kRemoved) {
+  } else if (change.type() == DocumentViewChange::Type::kMetadata &&
+             oldChange.type() != DocumentViewChange::Type::kRemoved) {
     DocumentViewChange newChange{change.document(), oldChange.type()};
     _changeMap = _changeMap.insert(key, newChange);
 
-  } else if (change.type() == DocumentViewChangeType::kModified &&
-             oldChange.type() == DocumentViewChangeType::kModified) {
-    DocumentViewChange newChange{change.document(), DocumentViewChangeType::kModified};
+  } else if (change.type() == DocumentViewChange::Type::kModified &&
+             oldChange.type() == DocumentViewChange::Type::kModified) {
+    DocumentViewChange newChange{change.document(), DocumentViewChange::Type::kModified};
     _changeMap = _changeMap.insert(key, newChange);
-  } else if (change.type() == DocumentViewChangeType::kModified &&
-             oldChange.type() == DocumentViewChangeType::kAdded) {
-    DocumentViewChange newChange{change.document(), DocumentViewChangeType::kAdded};
+  } else if (change.type() == DocumentViewChange::Type::kModified &&
+             oldChange.type() == DocumentViewChange::Type::kAdded) {
+    DocumentViewChange newChange{change.document(), DocumentViewChange::Type::kAdded};
     _changeMap = _changeMap.insert(key, newChange);
-  } else if (change.type() == DocumentViewChangeType::kRemoved &&
-             oldChange.type() == DocumentViewChangeType::kAdded) {
+  } else if (change.type() == DocumentViewChange::Type::kRemoved &&
+             oldChange.type() == DocumentViewChange::Type::kAdded) {
     _changeMap = _changeMap.erase(key);
-  } else if (change.type() == DocumentViewChangeType::kRemoved &&
-             oldChange.type() == DocumentViewChangeType::kModified) {
-    DocumentViewChange newChange{oldChange.document(), DocumentViewChangeType::kRemoved};
+  } else if (change.type() == DocumentViewChange::Type::kRemoved &&
+             oldChange.type() == DocumentViewChange::Type::kModified) {
+    DocumentViewChange newChange{oldChange.document(), DocumentViewChange::Type::kRemoved};
     _changeMap = _changeMap.insert(key, newChange);
-  } else if (change.type() == DocumentViewChangeType::kAdded &&
-             oldChange.type() == DocumentViewChangeType::kRemoved) {
-    DocumentViewChange newChange{change.document(), DocumentViewChangeType::kModified};
+  } else if (change.type() == DocumentViewChange::Type::kAdded &&
+             oldChange.type() == DocumentViewChange::Type::kRemoved) {
+    DocumentViewChange newChange{change.document(), DocumentViewChange::Type::kModified};
     _changeMap = _changeMap.insert(key, newChange);
   } else {
     // This includes these cases, which don't make sense:
@@ -159,7 +158,7 @@ NS_ASSUME_NONNULL_BEGIN
                     excludesMetadataChanges:(BOOL)excludesMetadataChanges {
   std::vector<DocumentViewChange> viewChanges;
   for (FSTDocument *doc in documents.documentEnumerator) {
-    viewChanges.emplace_back(doc, DocumentViewChangeType::kAdded);
+    viewChanges.emplace_back(doc, DocumentViewChange::Type::kAdded);
   }
   return [[FSTViewSnapshot alloc]
                 initWithQuery:query

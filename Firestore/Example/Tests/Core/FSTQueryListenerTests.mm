@@ -35,7 +35,6 @@
 #include "absl/memory/memory.h"
 
 using firebase::firestore::core::DocumentViewChange;
-using firebase::firestore::core::DocumentViewChangeType;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::remote::TargetChange;
@@ -92,10 +91,10 @@ NS_ASSUME_NONNULL_BEGIN
   FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[ doc1, doc2 ], absl::nullopt);
   FSTViewSnapshot *snap2 = FSTTestApplyChanges(view, @[ doc2prime ], absl::nullopt);
 
-  DocumentViewChange change1{doc1, DocumentViewChangeType::kAdded};
-  DocumentViewChange change2{doc2, DocumentViewChangeType::kAdded};
-  DocumentViewChange change3{doc2prime, DocumentViewChangeType::kModified};
-  DocumentViewChange change4{doc2prime, DocumentViewChangeType::kAdded};
+  DocumentViewChange change1{doc1, DocumentViewChange::Type::kAdded};
+  DocumentViewChange change2{doc2, DocumentViewChange::Type::kAdded};
+  DocumentViewChange change3{doc2prime, DocumentViewChange::Type::kModified};
+  DocumentViewChange change4{doc2prime, DocumentViewChange::Type::kAdded};
 
   [listener queryDidChangeViewSnapshot:snap1];
   [listener queryDidChangeViewSnapshot:snap2];
@@ -253,10 +252,10 @@ NS_ASSUME_NONNULL_BEGIN
   FSTViewSnapshot *snap2 = FSTTestApplyChanges(view, @[ doc1Prime ], absl::nullopt);
   FSTViewSnapshot *snap3 = FSTTestApplyChanges(view, @[ doc3 ], absl::nullopt);
 
-  DocumentViewChange change1{doc1, DocumentViewChangeType::kAdded};
-  DocumentViewChange change2{doc2, DocumentViewChangeType::kAdded};
-  DocumentViewChange change3{doc1Prime, DocumentViewChangeType::kMetadata};
-  DocumentViewChange change4{doc3, DocumentViewChangeType::kAdded};
+  DocumentViewChange change1{doc1, DocumentViewChange::Type::kAdded};
+  DocumentViewChange change2{doc2, DocumentViewChange::Type::kAdded};
+  DocumentViewChange change3{doc1Prime, DocumentViewChange::Type::kMetadata};
+  DocumentViewChange change4{doc3, DocumentViewChange::Type::kAdded};
 
   [filteredListener queryDidChangeViewSnapshot:snap1];
   [filteredListener queryDidChangeViewSnapshot:snap2];
@@ -345,7 +344,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[ doc1, doc2 ], absl::nullopt);
   FSTViewSnapshot *snap2 = FSTTestApplyChanges(view, @[ doc1Prime, doc3 ], absl::nullopt);
 
-  DocumentViewChange change3{doc3, DocumentViewChangeType::kAdded};
+  DocumentViewChange change3{doc3, DocumentViewChange::Type::kAdded};
 
   [filteredListener queryDidChangeViewSnapshot:snap1];
   [filteredListener queryDidChangeViewSnapshot:snap2];
@@ -388,8 +387,8 @@ NS_ASSUME_NONNULL_BEGIN
   [listener queryDidChangeViewSnapshot:snap2];
   [listener queryDidChangeViewSnapshot:snap3];
 
-  DocumentViewChange change1{doc1, DocumentViewChangeType::kAdded};
-  DocumentViewChange change2{doc2, DocumentViewChangeType::kAdded};
+  DocumentViewChange change1{doc1, DocumentViewChange::Type::kAdded};
+  DocumentViewChange change2{doc2, DocumentViewChange::Type::kAdded};
   FSTViewSnapshot *expectedSnap = [[FSTViewSnapshot alloc]
                 initWithQuery:snap3.query
                     documents:snap3.documents
@@ -426,8 +425,8 @@ NS_ASSUME_NONNULL_BEGIN
   [listener applyChangedOnlineState:OnlineState::Offline];  // no event
   [listener queryDidChangeViewSnapshot:snap2];              // another event
 
-  DocumentViewChange change1{doc1, DocumentViewChangeType::kAdded};
-  DocumentViewChange change2{doc2, DocumentViewChangeType::kAdded};
+  DocumentViewChange change1{doc1, DocumentViewChange::Type::kAdded};
+  DocumentViewChange change2{doc2, DocumentViewChange::Type::kAdded};
   FSTViewSnapshot *expectedSnap1 = [[FSTViewSnapshot alloc]
                 initWithQuery:query
                     documents:snap1.documents
