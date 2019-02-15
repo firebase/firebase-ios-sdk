@@ -458,7 +458,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-InAppMessaging_Tests_iOS/Pods-InAppMessaging_Tests_iOS-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-InAppMessaging_Tests_iOS/Pods-InAppMessaging_Tests_iOS-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/GoogleUtilities/GoogleUtilities.framework",
 				"${BUILT_PRODUCTS_DIR}/nanopb/nanopb.framework",
 				"${BUILT_PRODUCTS_DIR}/OCMock/OCMock.framework",
@@ -471,7 +471,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-InAppMessaging_Tests_iOS/Pods-InAppMessaging_Tests_iOS-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-InAppMessaging_Tests_iOS/Pods-InAppMessaging_Tests_iOS-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		B3566055E1E8BBB4417DE800 /* [CP] Check Pods Manifest.lock */ = {
@@ -497,7 +497,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-InAppMessaging_Example_iOS/Pods-InAppMessaging_Example_iOS-resources.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-InAppMessaging_Example_iOS/Pods-InAppMessaging_Example_iOS-resources.sh",
 				"${PODS_CONFIGURATION_BUILD_DIR}/FirebaseInAppMessagingDisplay/InAppMessagingDisplayResources.bundle",
 			);
 			name = "[CP] Copy Pods Resources";
@@ -506,7 +506,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-InAppMessaging_Example_iOS/Pods-InAppMessaging_Example_iOS-resources.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-InAppMessaging_Example_iOS/Pods-InAppMessaging_Example_iOS-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		EB73238A9A185D6764A4067A /* [CP] Embed Pods Frameworks */ = {
@@ -515,7 +515,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-InAppMessaging_Example_iOS/Pods-InAppMessaging_Example_iOS-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-InAppMessaging_Example_iOS/Pods-InAppMessaging_Example_iOS-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/GoogleUtilities/GoogleUtilities.framework",
 				"${BUILT_PRODUCTS_DIR}/nanopb/nanopb.framework",
 			);
@@ -526,7 +526,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-InAppMessaging_Example_iOS/Pods-InAppMessaging_Example_iOS-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-InAppMessaging_Example_iOS/Pods-InAppMessaging_Example_iOS-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
