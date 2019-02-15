@@ -69,7 +69,7 @@ static NSString *const kNewTestingPasswordToSignIn = @"password_new";
 
 /** Error message for invalid custom token sign in. */
 NSString *kInvalidTokenErrorMessage =
-    @"The custom token format is incorrect. Please check the documentation.";
+    @"Invalid assertion format. 3 dot separated segments required.";
 
 NSString *kGoogleCliendId = KGOOGLE_CLIENT_ID;
 
