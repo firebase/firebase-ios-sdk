@@ -241,6 +241,7 @@ void GULTestOSLogWithType(os_log_t log, os_log_type_t type, char *s, ...) {
 }
 
 - (void)testLoggingValidWithVarArgs {
+  [self partialMockLogger];
   [self.osLogger initializeLogger];
   XCTAssert(self.osLogger.categoryLoggers.count == 0);
   NSString *message = [NSUUID UUID].UUIDString;

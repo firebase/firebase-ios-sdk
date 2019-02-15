@@ -123,11 +123,11 @@ NS_ASSUME_NONNULL_BEGIN
             isForced:(BOOL)forced
             withCode:(NSString *)messageCode
          withMessage:(NSString *)message, ... {
-  [self initializeLogger];
   // Skip logging this if the level isn't to be logged unless it's forced.
   if (![self isLoggableLevel:level] && !forced) {
     return;
   }
+  [self initializeLogger];
 
   // Process the va_list here, while the parameters are on the stack.
   va_list args;

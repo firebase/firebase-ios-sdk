@@ -145,12 +145,12 @@ static void GULLOSLogWithType(os_log_t log, os_log_type_t type, char *s, ...) {
   // Process the va_list here, while the parameters are on the stack.
   va_list args;
   va_start(args, message);
-  message = [[NSString alloc] initWithFormat:message arguments:args];
+  NSString *completeMessage = [[NSString alloc] initWithFormat:message arguments:args];
   va_end(args);
-  NSString *completeMessage = [GULLogger messageFromLogger:self
-                                               withService:service
-                                                      code:messageCode
-                                                   message:message];
+  completeMessage = [GULLogger messageFromLogger:self
+                                     withService:service
+                                            code:messageCode
+                                         message:message];
 
   // Avoid blocking during logging.
   dispatch_async(self.dispatchQueue, ^{
