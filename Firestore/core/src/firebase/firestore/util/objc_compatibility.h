@@ -45,9 +45,9 @@ namespace objc {
 namespace internal {
 
 template <typename T>
-using is_container_of_objc = absl::conjunction<
-    typename is_iterable<T>::value,
-    typename is_objective_c_pointer<typename T::value_type>::value>;
+using is_container_of_objc =
+    absl::conjunction<is_iterable<T>,
+                      is_objective_c_pointer<typename T::value_type>>;
 
 }
 
