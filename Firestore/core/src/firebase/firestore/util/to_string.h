@@ -37,111 +37,6 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-template <typename T>
-std::string ToString(const T& value);
-
-namespace impl {
-
-// Checks whether the given type `T` defines a member function `ToString`
-
-template <typename T, typename = absl::void_t<>>
-struct has_to_string : std::false_type {};
-
-template <typename T>
-struct has_to_string<T, absl::void_t<decltype(std::declval<T>().ToString())>>
-    : std::true_type {};
-
-// Fallback
-
-template <typename T>
-std::string DefaultToString(const T& value) {
-  return std::to_string(value);
-}
-
-// Container
-
-template <typename T>
-std::string ContainerToString(const T& value, std::false_type) {
-  return DefaultToString(value);
-}
-
-template <typename T>
-std::string ContainerToString(const T& value, std::true_type) {
-  std::string contents = absl::StrJoin(
-      value, ", ", [](std::string* out, const typename T::value_type& element) {
-        out->append(ToString(element));
-      });
-  return std::string{"["} + contents + "]";  // NOLINT(whitespace/braces)
-}
-
-// Associative container
-
-template <typename T>
-std::string MapToString(const T& value, std::false_type) {
-  return ContainerToString(value, is_iterable<T>{});
-}
-
-template <typename T>
-std::string MapToString(const T& value, std::true_type) {
-  std::string contents = absl::StrJoin(
-      value, ", ", [](std::string* out, const typename T::value_type& kv) {
-        out->append(
-            StringFormat("%s: %s", ToString(kv.first), ToString(kv.second)));
-      });
-  return std::string{"{"} + contents + "}";  // NOLINT(whitespace/braces)
-}
-
-// std::string
-
-template <typename T>
-std::string StringToString(const T& value, std::false_type) {
-  return MapToString(value, is_associative_container<T>{});
-}
-
-template <typename T>
-std::string StringToString(const T& value, std::true_type) {
-  return value;
-}
-
-#if __OBJC__
-
-// Objective-C class
-
-template <typename T>
-std::string ObjCToString(const T& value, std::false_type) {
-  return StringToString(value, std::is_convertible<T, std::string>{});
-}
-
-template <typename T>
-std::string ObjCToString(const T& value, std::true_type) {
-  return MakeString([value description]);
-}
-
-// Member function `ToString`
-
-template <typename T>
-std::string CustomToString(const T& value, std::false_type) {
-  return ObjCToString(value, is_objective_c_pointer<T>{});
-}
-
-#else
-
-// Member function `ToString`
-
-template <typename T>
-std::string CustomToString(const T& value, std::false_type) {
-  return StringToString(value, std::is_convertible<T, std::string>{});
-}
-
-#endif  // __OBJC__
-
-template <typename T>
-std::string CustomToString(const T& value, std::true_type) {
-  return value.ToString();
-}
-
-}  // namespace impl
-
 /**
  * Creates a human-readable description of the given `value`. The representation
  * is loosely inspired by Python.
@@ -170,12 +65,11 @@ std::string CustomToString(const T& value, std::true_type) {
  *  - if `value` defines a member function called `ToString`, the description is
  *    created by invoking the function;
  *
- *  - (in Objective-C++ only) otherwise, if `value` is an Objective-C class, the
- *    description is created by calling `[value description]`and converting the
- *    result to an `std::string`;
+ *  - (in Objective-C++ only) otherwise, if `value` is an Objective-C object,
+ *    the description is created by calling `[value description]`and converting
+ *    the result to an `std::string`;
  *
- *  - otherwise, if `value` is convertible to `std::string`, the conversion is
- *    used;
+ *  - otherwise, if `value` is an `std::string`, it's used as is;
  *
  * - otherwise, if `value` is an associative container (`std::map`,
  *   `std::unordered_map`, `f:f:immutable::SortedMap`, etc.), the description is
@@ -203,12 +97,87 @@ std::string CustomToString(const T& value, std::true_type) {
  * and passes the value to the next function by the rank. When passing to the
  * next function, some trait corresponding to the function is given in place of
  * the tag; for example, `StringToString`, which can handle `std::string`s, is
- * invoked with `std::is_convertible<T, std::string>` as the tag.
+ * invoked with `std::is_same<T, std::string>` as the tag.
  */
+template <typename T>
+std::string ToString(const T& value);
+
+namespace impl {
+
+// Checks whether the given type `T` defines a member function `ToString`
+
+template <typename T, typename = absl::void_t<>>
+struct has_to_string : std::false_type {};
+
+template <typename T>
+struct has_to_string<T, absl::void_t<decltype(std::declval<T>().ToString())>>
+    : std::true_type {};
+
+template <int I>
+struct ToStringChoice : ToStringChoice<I + 1> {};
+
+template <>
+struct ToStringChoice<5> {};
+
+#if __OBJC__
+
+// Objective-C class
+template <typename T,
+          typename = absl::enable_if_t<is_objective_c_pointer<T>::value>>
+std::string ToStringImpl(T value, ToStringChoice<0>) {
+  return MakeString([value description]);
+}
+
+#endif  // __OBJC__
+
+// Has `ToString` member function
+template <typename T, typename = absl::enable_if_t<has_to_string<T>::value>>
+std::string ToStringImpl(const T& value, ToStringChoice<1>) {
+  return value.ToString();
+}
+
+// `std::string`
+template <typename T,
+          typename = absl::enable_if_t<std::is_same<std::string, T>::value>>
+std::string ToStringImpl(const T& value, ToStringChoice<2>) {
+  return value;
+}
+
+// Associative container
+template <typename T,
+          typename = absl::enable_if_t<is_associative_container<T>::value>>
+std::string ToStringImpl(const T& value, ToStringChoice<3>) {
+  std::string contents = absl::StrJoin(
+      value, ", ", [](std::string* out, const typename T::value_type& kv) {
+        out->append(ToString(kv.first));
+        out->append(": ");
+        out->append(ToString(kv.second));
+      });
+  return std::string{"{"} + contents + "}";  // NOLINT(whitespace/braces)
+}
+
+// Container
+template <typename T, typename = absl::enable_if_t<is_iterable<T>::value>>
+std::string ToStringImpl(const T& value, ToStringChoice<4>) {
+  std::string contents = absl::StrJoin(
+      value, ", ", [](std::string* out, const typename T::value_type& element) {
+        out->append(ToString(element));
+      });
+  return std::string{"["} + contents + "]";  // NOLINT(whitespace/braces)
+}
+
+// Fallback
+template <typename T>
+std::string ToStringImpl(const T& value, ToStringChoice<5>) {
+  FormatArg arg{value};
+  return std::string{arg.data(), arg.data() + arg.size()};
+}
+
+}  // namespace impl
 
 template <typename T>
 std::string ToString(const T& value) {
-  return impl::CustomToString(value, impl::has_to_string<T>{});
+  return impl::ToStringImpl(value, impl::ToStringChoice<0>{});
 }
 
 }  // namespace util
