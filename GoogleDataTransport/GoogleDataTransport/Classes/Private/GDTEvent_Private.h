@@ -25,9 +25,6 @@ NS_ASSUME_NONNULL_BEGIN
 /** The serialized bytes of the event data object. */
 @property(nonatomic) NSData *dataObjectTransportBytes;
 
-/** The clock snapshot at the time of the event. */
-@property(nonatomic) GDTClock *clockSnapshot;
-
 @end
 
 NS_ASSUME_NONNULL_END
