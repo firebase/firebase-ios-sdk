@@ -96,6 +96,14 @@ This command will get the right `clang-format` version:
 
 Select a scheme and press Command-u to build a component and run its unit tests.
 
+#### Viewing Unit Test Code Coverage
+
+First, make sure that [slather](https://github.com/SlatherOrg/slather) is installed with `gem install slather`.
+
+After running the tests in Xcode, execute
+`slather coverage --html --scheme AllUnitTests_iOS --configuration=Debug --workspace Firebase.xcworkspace/ Firebase.xcodeproj/`
+at Example/ in the terminal. This will aggregate the coverage and provide instructions to view the code coverage in the browser.
+
 ### Running Sample Apps
 In order to run the sample apps and integration tests, you'll need valid
 `GoogleService-Info.plist` files for those samples. The Firebase Xcode project contains dummy plist
