@@ -7,7 +7,9 @@ source 'https://github.com/CocoaPods/Specs.git'
 target 'FiamDisplaySwiftExample' do
   platform :ios, '8.0'
   pod 'FirebaseInAppMessagingDisplay', :path => '../..'
-  pod 'FirebaseInAppMessaging', :path => '../..'
   pod 'FirebaseAnalyticsInterop', :path => '../..'
+# For local development of features from FIAM, comment this line out and use the one below.
+  pod 'FirebaseInAppMessaging'
+#  pod 'FirebaseInAppMessaging', :path => '../..'
 end
 
