@@ -37,81 +37,6 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-template <typename T>
-std::string ToString(const T& value);
-
-namespace impl {
-
-// Checks whether the given type `T` defines a member function `ToString`
-
-template <typename T, typename = absl::void_t<>>
-struct has_to_string : std::false_type {};
-
-template <typename T>
-struct has_to_string<T, absl::void_t<decltype(std::declval<T>().ToString())>>
-    : std::true_type {};
-
-template <int I>
-struct Choice : Choice<I + 1> {};
-
-template <>
-struct Choice<5> {};
-
-#if __OBJC__
-
-// Objective-C class
-template <typename T,
-          typename = absl::enable_if_t<is_objective_c_pointer<T>::value>>
-std::string ToStringImpl(T value, Choice<0>) {
-  return MakeString([value description]);
-}
-
-#endif  // __OBJC__
-
-// Has `ToString` member function
-template <typename T, typename = absl::enable_if_t<has_to_string<T>::value>>
-std::string ToStringImpl(const T& value, Choice<1>) {
-  return value.ToString();
-}
-
-// `std::string`
-template <typename T,
-          typename = absl::enable_if_t<std::is_same<std::string, T>::value>>
-std::string ToStringImpl(const T& value, Choice<2>) {
-  return value;
-}
-
-// Associative container
-template <typename T,
-          typename = absl::enable_if_t<is_associative_container<T>::value>>
-std::string ToStringImpl(const T& value, Choice<3>) {
-  std::string contents = absl::StrJoin(
-      value, ", ", [](std::string* out, const typename T::value_type& kv) {
-        out->append(
-            StringFormat("%s: %s", ToString(kv.first), ToString(kv.second)));
-      });
-  return std::string{"{"} + contents + "}";  // NOLINT(whitespace/braces)
-}
-
-// Container
-template <typename T, typename = absl::enable_if_t<is_iterable<T>::value>>
-std::string ToStringImpl(const T& value, Choice<4>) {
-  std::string contents = absl::StrJoin(
-      value, ", ", [](std::string* out, const typename T::value_type& element) {
-        out->append(ToString(element));
-      });
-  return std::string{"["} + contents + "]";  // NOLINT(whitespace/braces)
-}
-
-// Fallback
-template <typename T>
-std::string ToStringImpl(const T& value, Choice<5>) {
-  FormatArg arg{value};
-  return std::string{arg.data(), arg.data() + arg.size()};
-}
-
-}  // namespace impl
-
 /**
  * Creates a human-readable description of the given `value`. The representation
  * is loosely inspired by Python.
@@ -174,10 +99,84 @@ std::string ToStringImpl(const T& value, Choice<5>) {
  * the tag; for example, `StringToString`, which can handle `std::string`s, is
  * invoked with `std::is_same<T, std::string>` as the tag.
  */
+template <typename T>
+std::string ToString(const T& value);
+
+namespace impl {
+
+// Checks whether the given type `T` defines a member function `ToString`
+
+template <typename T, typename = absl::void_t<>>
+struct has_to_string : std::false_type {};
+
+template <typename T>
+struct has_to_string<T, absl::void_t<decltype(std::declval<T>().ToString())>>
+    : std::true_type {};
+
+template <int I>
+struct ToStringChoice : ToStringChoice<I + 1> {};
+
+template <>
+struct ToStringChoice<5> {};
+
+#if __OBJC__
+
+// Objective-C class
+template <typename T,
+          typename = absl::enable_if_t<is_objective_c_pointer<T>::value>>
+std::string ToStringImpl(T value, ToStringChoice<0>) {
+  return MakeString([value description]);
+}
+
+#endif  // __OBJC__
+
+// Has `ToString` member function
+template <typename T, typename = absl::enable_if_t<has_to_string<T>::value>>
+std::string ToStringImpl(const T& value, ToStringChoice<1>) {
+  return value.ToString();
+}
+
+// `std::string`
+template <typename T,
+          typename = absl::enable_if_t<std::is_same<std::string, T>::value>>
+std::string ToStringImpl(const T& value, ToStringChoice<2>) {
+  return value;
+}
+
+// Associative container
+template <typename T,
+          typename = absl::enable_if_t<is_associative_container<T>::value>>
+std::string ToStringImpl(const T& value, ToStringChoice<3>) {
+  std::string contents = absl::StrJoin(
+      value, ", ", [](std::string* out, const typename T::value_type& kv) {
+        out->append(
+            StringFormat("%s: %s", ToString(kv.first), ToString(kv.second)));
+      });
+  return std::string{"{"} + contents + "}";  // NOLINT(whitespace/braces)
+}
+
+// Container
+template <typename T, typename = absl::enable_if_t<is_iterable<T>::value>>
+std::string ToStringImpl(const T& value, ToStringChoice<4>) {
+  std::string contents = absl::StrJoin(
+      value, ", ", [](std::string* out, const typename T::value_type& element) {
+        out->append(ToString(element));
+      });
+  return std::string{"["} + contents + "]";  // NOLINT(whitespace/braces)
+}
+
+// Fallback
+template <typename T>
+std::string ToStringImpl(const T& value, ToStringChoice<5>) {
+  FormatArg arg{value};
+  return std::string{arg.data(), arg.data() + arg.size()};
+}
+
+}  // namespace impl
 
 template <typename T>
 std::string ToString(const T& value) {
-  return impl::ToStringImpl(value, impl::Choice<0>{});
+  return impl::ToStringImpl(value, impl::ToStringChoice<0>{});
 }
 
 }  // namespace util
