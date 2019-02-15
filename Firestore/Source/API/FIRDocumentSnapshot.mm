@@ -18,6 +18,8 @@
 
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/util/suppress_warnings.h"
+
 #import "FIRFirestoreSettings.h"
 
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
@@ -200,12 +202,11 @@ static FSTServerTimestampBehavior InternalServerTimestampBehavor(
     (FIRServerTimestampBehavior)serverTimestampBehavior {
   FSTServerTimestampBehavior internalBehavior =
       InternalServerTimestampBehavor(serverTimestampBehavior);
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+  SUPPRESS_DEPRECATED_DECLARATIONS_BEGIN()
   return [[FSTFieldValueOptions alloc]
       initWithServerTimestampBehavior:internalBehavior
          timestampsInSnapshotsEnabled:self.firestore.settings.timestampsInSnapshotsEnabled];
-#pragma clang diagnostic pop
+  SUPPRESS_END()
 }
 
 - (nullable id)objectForKeyedSubscript:(id)key {
