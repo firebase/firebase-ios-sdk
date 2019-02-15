@@ -108,6 +108,12 @@
 		405EEF4E2216518B00B08FF4 /* FIRAuthLifeCycleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 405EEF4B2216518A00B08FF4 /* FIRAuthLifeCycleTests.m */; };
 		408870AB21AE0218008AAE73 /* FIRSignInWithGameCenterTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 408870AA21AE0218008AAE73 /* FIRSignInWithGameCenterTests.m */; };
 		409E1130219FA260000E6CFC /* FIRVerifyIOSClientTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 409E112F219FA260000E6CFC /* FIRVerifyIOSClientTests.m */; };
+		40D73A4B22174D0700491209 /* FIRAuthApiTestsBase.m in Sources */ = {isa = PBXBuildFile; fileRef = 40D73A4A22174D0700491209 /* FIRAuthApiTestsBase.m */; };
+		40D73A4D2217501300491209 /* GoogleAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 40D73A4C2217501300491209 /* GoogleAuthTests.m */; };
+		40D73A502217519900491209 /* FacebookAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 40D73A4F2217519900491209 /* FacebookAuthTests.m */; };
+		40D73A522217530A00491209 /* CustomAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 40D73A512217530A00491209 /* CustomAuthTests.m */; };
+		40D73A5522175F6B00491209 /* AnonymousAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 40D73A5422175F6B00491209 /* AnonymousAuthTests.m */; };
+		40D73A572217605600491209 /* AccountInfoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 40D73A562217605600491209 /* AccountInfoTests.m */; };
 		7E9485421F578AC4005A3939 /* FIRAuthURLPresenterTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7E94853F1F578A9D005A3939 /* FIRAuthURLPresenterTests.m */; };
 		7EE21F7A1FE89193009B1370 /* FIREmailLinkRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7EE21F791FE89193009B1370 /* FIREmailLinkRequestTests.m */; };
 		7EE21F7C1FE8919E009B1370 /* FIREmailLinkSignInResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7EE21F7B1FE8919D009B1370 /* FIREmailLinkSignInResponseTests.m */; };
@@ -331,7 +337,7 @@
 		DE26D2561F7040B2004AE1D3 /* UserInfoViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = DE26D1F51F70333E004AE1D3 /* UserInfoViewController.xib */; };
 		DE26D2571F7040E0004AE1D3 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = DE26D1DA1F70333E004AE1D3 /* Localizable.strings */; };
 		DE26D2581F7040E4004AE1D3 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DE26D1E41F70333E004AE1D3 /* Images.xcassets */; };
-		DE26D2681F704A0C004AE1D3 /* FirebaseAuthApiTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE26D1C91F70330A004AE1D3 /* FirebaseAuthApiTests.m */; };
+		DE26D2681F704A0C004AE1D3 /* EmailPasswordAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE26D1C91F70330A004AE1D3 /* EmailPasswordAuthTests.m */; };
 		DE26D2771F705CB5004AE1D3 /* FirebaseAuthEarlGreyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE26D1FA1F70333E004AE1D3 /* FirebaseAuthEarlGreyTests.m */; };
 		DE37C63B2163D5F30025D03E /* FIRMessagingAnalyticsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE37C63A2163D5F30025D03E /* FIRMessagingAnalyticsTest.m */; };
 		DE47C0E2207AC87D00B1AEDF /* FIRSampleAppUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = AFC8BAA31EC257D800B8EEAE /* FIRSampleAppUtilities.m */; };
@@ -920,6 +926,13 @@
 		405EEF4B2216518A00B08FF4 /* FIRAuthLifeCycleTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRAuthLifeCycleTests.m; sourceTree = "<group>"; };
 		408870AA21AE0218008AAE73 /* FIRSignInWithGameCenterTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRSignInWithGameCenterTests.m; sourceTree = "<group>"; };
 		409E112F219FA260000E6CFC /* FIRVerifyIOSClientTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRVerifyIOSClientTests.m; sourceTree = "<group>"; };
+		40D73A4922174D0700491209 /* FIRAuthApiTestsBase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FIRAuthApiTestsBase.h; sourceTree = "<group>"; };
+		40D73A4A22174D0700491209 /* FIRAuthApiTestsBase.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FIRAuthApiTestsBase.m; sourceTree = "<group>"; };
+		40D73A4C2217501300491209 /* GoogleAuthTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GoogleAuthTests.m; sourceTree = "<group>"; };
+		40D73A4F2217519900491209 /* FacebookAuthTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FacebookAuthTests.m; sourceTree = "<group>"; };
+		40D73A512217530A00491209 /* CustomAuthTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CustomAuthTests.m; sourceTree = "<group>"; };
+		40D73A5422175F6B00491209 /* AnonymousAuthTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AnonymousAuthTests.m; sourceTree = "<group>"; };
+		40D73A562217605600491209 /* AccountInfoTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AccountInfoTests.m; sourceTree = "<group>"; };
 		6003F58D195388D20070C39A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		6003F58F195388D20070C39A /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		6003F591195388D20070C39A /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -1007,7 +1020,7 @@
 		DE1FAE901FBCF5E100897AAA /* Auth_Example_tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Auth_Example_tvOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE26D1C71F70330A004AE1D3 /* AuthCredentials.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AuthCredentials.h; sourceTree = "<group>"; };
 		DE26D1C81F70330A004AE1D3 /* AuthCredentialsTemplate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AuthCredentialsTemplate.h; sourceTree = "<group>"; };
-		DE26D1C91F70330A004AE1D3 /* FirebaseAuthApiTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FirebaseAuthApiTests.m; sourceTree = "<group>"; };
+		DE26D1C91F70330A004AE1D3 /* EmailPasswordAuthTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EmailPasswordAuthTests.m; sourceTree = "<group>"; };
 		DE26D1CA1F70330A004AE1D3 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		DE26D1CE1F70333E004AE1D3 /* Application.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Application.plist; sourceTree = "<group>"; };
 		DE26D1CF1F70333E004AE1D3 /* ApplicationDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ApplicationDelegate.h; sourceTree = "<group>"; };
@@ -1645,6 +1658,13 @@
 			path = third_party;
 			sourceTree = "<group>";
 		};
+		2F87577E179939017EF2EE41 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
 		6003F581195388D10070C39A = {
 			isa = PBXGroup;
 			children = (
@@ -1658,6 +1678,7 @@
 				DEB139B31E734D9D00AC236D /* Storage */,
 				6003F58C195388D20070C39A /* Frameworks */,
 				6003F58B195388D20070C39A /* Products */,
+				2F87577E179939017EF2EE41 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -1914,9 +1935,16 @@
 		DE26D1C61F70330A004AE1D3 /* ApiTests */ = {
 			isa = PBXGroup;
 			children = (
+				40D73A562217605600491209 /* AccountInfoTests.m */,
+				40D73A5422175F6B00491209 /* AnonymousAuthTests.m */,
 				DE26D1C71F70330A004AE1D3 /* AuthCredentials.h */,
 				DE26D1C81F70330A004AE1D3 /* AuthCredentialsTemplate.h */,
-				DE26D1C91F70330A004AE1D3 /* FirebaseAuthApiTests.m */,
+				40D73A512217530A00491209 /* CustomAuthTests.m */,
+				DE26D1C91F70330A004AE1D3 /* EmailPasswordAuthTests.m */,
+				40D73A4F2217519900491209 /* FacebookAuthTests.m */,
+				40D73A4922174D0700491209 /* FIRAuthApiTestsBase.h */,
+				40D73A4A22174D0700491209 /* FIRAuthApiTestsBase.m */,
+				40D73A4C2217501300491209 /* GoogleAuthTests.m */,
 				DE26D1CA1F70330A004AE1D3 /* Info.plist */,
 			);
 			path = ApiTests;
@@ -4078,7 +4106,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DE26D2681F704A0C004AE1D3 /* FirebaseAuthApiTests.m in Sources */,
+				40D73A502217519900491209 /* FacebookAuthTests.m in Sources */,
+				40D73A572217605600491209 /* AccountInfoTests.m in Sources */,
+				40D73A4D2217501300491209 /* GoogleAuthTests.m in Sources */,
+				40D73A522217530A00491209 /* CustomAuthTests.m in Sources */,
+				40D73A4B22174D0700491209 /* FIRAuthApiTestsBase.m in Sources */,
+				DE26D2681F704A0C004AE1D3 /* EmailPasswordAuthTests.m in Sources */,
+				40D73A5522175F6B00491209 /* AnonymousAuthTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5621,7 +5655,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 4ANB9W7R3P;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = $SRCROOT/DynamicLinks/FDLBuilderTestAppObjC/Info.plist;
+				INFOPLIST_FILE = "$SRCROOT/DynamicLinks/FDLBuilderTestAppObjC/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.4;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
@@ -5655,7 +5689,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 4ANB9W7R3P;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = $SRCROOT/DynamicLinks/FDLBuilderTestAppObjC/Info.plist;
+				INFOPLIST_FILE = "$SRCROOT/DynamicLinks/FDLBuilderTestAppObjC/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.4;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
