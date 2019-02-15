@@ -32,7 +32,11 @@ static void GULLOSLogWithType(os_log_t log, os_log_type_t type, char *s, ...) {
   if (@available(iOS 9.0, macOS 10.11, *)) {
     va_list args;
     va_start(args, s);
+#if TARGET_OS_TV
+    os_log_with_type(log, type, "%s", (char *)args);
+#else
     os_log_with_type(log, type, "%s", args);
+#endif
     va_end(args);
   } else {
 #ifdef DEBUG
