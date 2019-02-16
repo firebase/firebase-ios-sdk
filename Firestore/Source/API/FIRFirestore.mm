@@ -40,6 +40,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/auth/firebase_credentials_provider_apple.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
+#include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
@@ -53,6 +54,7 @@ namespace util = firebase::firestore::util;
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::FirebaseCredentialsProvider;
 using firebase::firestore::core::DatabaseInfo;
+using firebase::firestore::core::Transaction;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::ResourcePath;
 using util::AsyncQueue;
@@ -275,7 +277,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
                      completion:
                          (void (^)(id _Nullable result, NSError *_Nullable error))completion {
   // We wrap the function they provide in order to use internal implementation classes for
-  // FSTTransaction, and to run the user callback block on the proper queue.
+  // transaction, and to run the user callback block on the proper queue.
   if (!updateBlock) {
     FSTThrowInvalidArgument(@"Transaction block cannot be nil.");
   } else if (!completion) {
@@ -283,10 +285,11 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
   }
 
   FSTTransactionBlock wrappedUpdate =
-      ^(FSTTransaction *internalTransaction,
+      ^(std::shared_ptr<Transaction> internalTransaction,
         void (^internalCompletion)(id _Nullable, NSError *_Nullable)) {
         FIRTransaction *transaction =
-            [FIRTransaction transactionWithFSTTransaction:internalTransaction firestore:self];
+            [FIRTransaction transactionWithInternalTransaction:std::move(internalTransaction)
+                                                     firestore:self];
         dispatch_async(queue, ^{
           NSError *_Nullable error = nil;
           id _Nullable result = updateBlock(transaction, &error);

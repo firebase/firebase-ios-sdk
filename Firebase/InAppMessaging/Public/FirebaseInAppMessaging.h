@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,5 @@
  * limitations under the License.
  */
 
-#import "FIRTransaction.h"
-
-#include <memory>
-
-#include "Firestore/core/src/firebase/firestore/core/transaction.h"
-
-@class FIRFirestore;
-
-@interface FIRTransaction (Internal)
-
-+ (instancetype)transactionWithInternalTransaction:
-                    (std::shared_ptr<firebase::firestore::core::Transaction>)transaction
-                                         firestore:(FIRFirestore *)firestore;
-
-@end
+#import "FIRInAppMessaging.h"
+#import "FIRInAppMessagingRendering.h"

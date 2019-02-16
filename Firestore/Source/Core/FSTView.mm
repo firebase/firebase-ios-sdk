@@ -118,7 +118,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSUInteger)hash {
   NSUInteger hash = self.type;
-  hash = hash * 31u + [self.key hash];
+  hash = hash * 31u + self.key.Hash();
   return hash;
 }
 
@@ -241,8 +241,8 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(DocumentViewChangeTy
       newDoc = (FSTDocument *)maybeNewDoc;
     }
     if (newDoc) {
-      HARD_ASSERT(key == newDoc.key, "Mismatching key in document changes: %s != %s", key,
-                  newDoc.key.ToString());
+      HARD_ASSERT(key == newDoc.key, "Mismatching key in document changes: %s != %s",
+                  key.ToString(), newDoc.key.ToString());
       if (![self.query matchesDocument:newDoc]) {
         newDoc = nil;
       }

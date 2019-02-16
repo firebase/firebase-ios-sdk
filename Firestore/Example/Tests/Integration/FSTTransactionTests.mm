@@ -404,7 +404,7 @@
         // The get itself will fail, because we already read an earlier version of this document.
         // TODO(klimt): Perhaps we shouldn't fail reads for this, but should wait and fail the
         // whole transaction? It's an edge-case anyway, as developers shouldn't be reading the same
-        // do multiple times. But they need to handle read errors anyway.
+        // doc multiple times. But they need to handle read errors anyway.
         XCTAssertNotNil(*error);
         return nil;
       }

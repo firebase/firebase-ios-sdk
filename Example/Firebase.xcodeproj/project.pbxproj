@@ -21,19 +21,6 @@
 			name = AllUnitTests_macOS;
 			productName = AllTests;
 		};
-		DE26D2971F70668F004AE1D3 /* Auth_AllTests */ = {
-			isa = PBXAggregateTarget;
-			buildConfigurationList = DE26D2981F70668F004AE1D3 /* Build configuration list for PBXAggregateTarget "Auth_AllTests" */;
-			buildPhases = (
-			);
-			dependencies = (
-				DE26D29E1F7066B0004AE1D3 /* PBXTargetDependency */,
-				DE26D2A01F7066B0004AE1D3 /* PBXTargetDependency */,
-				DE26D29C1F7066A7004AE1D3 /* PBXTargetDependency */,
-			);
-			name = Auth_AllTests;
-			productName = Auth_AllTests;
-		};
 		DE3373891E73773400881891 /* AllUnitTests_iOS */ = {
 			isa = PBXAggregateTarget;
 			buildConfigurationList = DE33738A1E73773400881891 /* Build configuration list for PBXAggregateTarget "AllUnitTests_iOS" */;
@@ -116,6 +103,9 @@
 		0672F2F31EBBA7D900818E87 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0672F2F11EBBA7D900818E87 /* GoogleService-Info.plist */; };
 		069428831EC3B38C00F7BC69 /* 1mb.dat in Resources */ = {isa = PBXBuildFile; fileRef = 069428801EC3B35A00F7BC69 /* 1mb.dat */; };
 		06C24A061EC39BCB005208CA /* FIRStorageIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 06121ECA1EC39A0B0008D70E /* FIRStorageIntegrationTests.m */; };
+		405EEF4C2216518B00B08FF4 /* FIRAuthLifeCycleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 405EEF4B2216518A00B08FF4 /* FIRAuthLifeCycleTests.m */; };
+		405EEF4D2216518B00B08FF4 /* FIRAuthLifeCycleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 405EEF4B2216518A00B08FF4 /* FIRAuthLifeCycleTests.m */; };
+		405EEF4E2216518B00B08FF4 /* FIRAuthLifeCycleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 405EEF4B2216518A00B08FF4 /* FIRAuthLifeCycleTests.m */; };
 		408870AB21AE0218008AAE73 /* FIRSignInWithGameCenterTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 408870AA21AE0218008AAE73 /* FIRSignInWithGameCenterTests.m */; };
 		409E1130219FA260000E6CFC /* FIRVerifyIOSClientTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 409E112F219FA260000E6CFC /* FIRVerifyIOSClientTests.m */; };
 		7E9485421F578AC4005A3939 /* FIRAuthURLPresenterTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7E94853F1F578A9D005A3939 /* FIRAuthURLPresenterTests.m */; };
@@ -343,13 +333,6 @@
 		DE26D2581F7040E4004AE1D3 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DE26D1E41F70333E004AE1D3 /* Images.xcassets */; };
 		DE26D2681F704A0C004AE1D3 /* FirebaseAuthApiTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE26D1C91F70330A004AE1D3 /* FirebaseAuthApiTests.m */; };
 		DE26D2771F705CB5004AE1D3 /* FirebaseAuthEarlGreyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE26D1FA1F70333E004AE1D3 /* FirebaseAuthEarlGreyTests.m */; };
-		DE26D28F1F705F34004AE1D3 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DE26D2001F70333E004AE1D3 /* GoogleService-Info.plist */; };
-		DE26D2901F705F39004AE1D3 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DE26D2041F70333E004AE1D3 /* Main.storyboard */; };
-		DE26D2911F705F3E004AE1D3 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DE26D2031F70333E004AE1D3 /* LaunchScreen.storyboard */; };
-		DE26D2921F705F4A004AE1D3 /* Stubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE26D2061F70333E004AE1D3 /* Stubs.swift */; };
-		DE26D2931F705F4D004AE1D3 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE26D2071F70333E004AE1D3 /* ViewController.swift */; };
-		DE26D2941F705F51004AE1D3 /* AuthCredentials.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE26D1FE1F70333E004AE1D3 /* AuthCredentials.swift */; };
-		DE26D2951F705F53004AE1D3 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE26D1FD1F70333E004AE1D3 /* AppDelegate.swift */; };
 		DE37C63B2163D5F30025D03E /* FIRMessagingAnalyticsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE37C63A2163D5F30025D03E /* FIRMessagingAnalyticsTest.m */; };
 		DE47C0E2207AC87D00B1AEDF /* FIRSampleAppUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = AFC8BAA31EC257D800B8EEAE /* FIRSampleAppUtilities.m */; };
 		DE47C0E7207AC87D00B1AEDF /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
@@ -553,7 +536,6 @@
 		DEE14D931E84468D006FA992 /* FIROptionsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE14D7A1E844677006FA992 /* FIROptionsTest.m */; };
 		DEE14D941E84468D006FA992 /* FIRTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE14D7C1E844677006FA992 /* FIRTestCase.m */; };
 		DEF288411F9AB6E100D480CF /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = DEF288401F9AB6E100D480CF /* Default-568h@2x.png */; };
-		DEF288421F9AB6E100D480CF /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = DEF288401F9AB6E100D480CF /* Default-568h@2x.png */; };
 		DEF61BFD216E8B1100A738D4 /* FIRMessagingReceiverTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DEF61BFC216E8B1000A738D4 /* FIRMessagingReceiverTest.m */; };
 		DEF6C30D1FBCE72F005D0740 /* FIRAuthDispatcherTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9314FF1E86C6FF0083EDBF /* FIRAuthDispatcherTests.m */; };
 		DEF6C30F1FBCE775005D0740 /* FIRAdditionalUserInfoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9314FA1E86C6FF0083EDBF /* FIRAdditionalUserInfoTests.m */; };
@@ -747,27 +729,6 @@
 			remoteGlobalIDString = DE26D22D1F70398A004AE1D3;
 			remoteInfo = Auth_Sample;
 		};
-		DE26D29B1F7066A7004AE1D3 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 6003F582195388D10070C39A /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = DE9314DD1E86C6BE0083EDBF;
-			remoteInfo = Auth_Tests_iOS;
-		};
-		DE26D29D1F7066B0004AE1D3 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 6003F582195388D10070C39A /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = DE26D25C1F7049F1004AE1D3;
-			remoteInfo = Auth_ApiTests;
-		};
-		DE26D29F1F7066B0004AE1D3 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 6003F582195388D10070C39A /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = DE26D26C1F705C35004AE1D3;
-			remoteInfo = Auth_EarlGreyTests;
-		};
 		DE3373971E73776F00881891 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 6003F582195388D10070C39A /* Project object */;
@@ -956,6 +917,7 @@
 		069428801EC3B35A00F7BC69 /* 1mb.dat */ = {isa = PBXFileReference; lastKnownFileType = file; path = 1mb.dat; sourceTree = "<group>"; };
 		0697B1201EC13D8A00542174 /* Base64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Base64.h; sourceTree = "<group>"; };
 		0697B1211EC13D8A00542174 /* Base64.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Base64.m; sourceTree = "<group>"; };
+		405EEF4B2216518A00B08FF4 /* FIRAuthLifeCycleTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRAuthLifeCycleTests.m; sourceTree = "<group>"; };
 		408870AA21AE0218008AAE73 /* FIRSignInWithGameCenterTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRSignInWithGameCenterTests.m; sourceTree = "<group>"; };
 		409E112F219FA260000E6CFC /* FIRVerifyIOSClientTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRVerifyIOSClientTests.m; sourceTree = "<group>"; };
 		6003F58D195388D20070C39A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -1091,21 +1053,9 @@
 		DE26D1F81F70333E004AE1D3 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		DE26D1FA1F70333E004AE1D3 /* FirebaseAuthEarlGreyTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FirebaseAuthEarlGreyTests.m; sourceTree = "<group>"; };
 		DE26D1FB1F70333E004AE1D3 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		DE26D1FD1F70333E004AE1D3 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		DE26D1FE1F70333E004AE1D3 /* AuthCredentials.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AuthCredentials.swift; sourceTree = "<group>"; };
-		DE26D1FF1F70333E004AE1D3 /* AuthCredentialsTemplate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AuthCredentialsTemplate.swift; sourceTree = "<group>"; };
-		DE26D2001F70333E004AE1D3 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
-		DE26D2011F70333E004AE1D3 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		DE26D2021F70333E004AE1D3 /* InfoTemplate.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = InfoTemplate.plist; sourceTree = "<group>"; };
-		DE26D2031F70333E004AE1D3 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
-		DE26D2041F70333E004AE1D3 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
-		DE26D2051F70333E004AE1D3 /* Sample.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = Sample.entitlements; sourceTree = "<group>"; };
-		DE26D2061F70333E004AE1D3 /* Stubs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Stubs.swift; sourceTree = "<group>"; };
-		DE26D2071F70333E004AE1D3 /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		DE26D22E1F70398A004AE1D3 /* Sample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE26D25D1F7049F1004AE1D3 /* Auth_ApiTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Auth_ApiTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE26D26D1F705C35004AE1D3 /* Auth_EarlGreyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Auth_EarlGreyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		DE26D27D1F705EC7004AE1D3 /* SwiftSample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwiftSample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE37C63A2163D5F30025D03E /* FIRMessagingAnalyticsTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FIRMessagingAnalyticsTest.m; sourceTree = "<group>"; };
 		DE45C6641E7DA8CB009E6ACD /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		DE47C0ED207AC87D00B1AEDF /* Messaging_Sample_iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Messaging_Sample_iOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1508,13 +1458,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		DE26D27A1F705EC7004AE1D3 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		DE47C0E4207AC87D00B1AEDF /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -1746,7 +1689,6 @@
 				DE26D22E1F70398A004AE1D3 /* Sample.app */,
 				DE26D25D1F7049F1004AE1D3 /* Auth_ApiTests.xctest */,
 				DE26D26D1F705C35004AE1D3 /* Auth_EarlGreyTests.xctest */,
-				DE26D27D1F705EC7004AE1D3 /* SwiftSample.app */,
 				DEAAD3811FBA11270053BF48 /* Core_Example_tvOS.app */,
 				DEAAD3951FBA11270053BF48 /* Core_Tests_tvOS.xctest */,
 				DEAAD3E11FBA46AA0053BF48 /* Storage_Example_tvOS.app */,
@@ -2036,24 +1978,6 @@
 			path = EarlGreyTests;
 			sourceTree = "<group>";
 		};
-		DE26D1FC1F70333E004AE1D3 /* SwiftSample */ = {
-			isa = PBXGroup;
-			children = (
-				DE26D2051F70333E004AE1D3 /* Sample.entitlements */,
-				DE26D2001F70333E004AE1D3 /* GoogleService-Info.plist */,
-				DE26D2011F70333E004AE1D3 /* Info.plist */,
-				DE26D2021F70333E004AE1D3 /* InfoTemplate.plist */,
-				DE26D2031F70333E004AE1D3 /* LaunchScreen.storyboard */,
-				DE26D2041F70333E004AE1D3 /* Main.storyboard */,
-				DE26D1FD1F70333E004AE1D3 /* AppDelegate.swift */,
-				DE26D1FE1F70333E004AE1D3 /* AuthCredentials.swift */,
-				DE26D1FF1F70333E004AE1D3 /* AuthCredentialsTemplate.swift */,
-				DE26D2061F70333E004AE1D3 /* Stubs.swift */,
-				DE26D2071F70333E004AE1D3 /* ViewController.swift */,
-			);
-			path = SwiftSample;
-			sourceTree = "<group>";
-		};
 		DE47C106207AC94A00B1AEDF /* Sample */ = {
 			isa = PBXGroup;
 			children = (
@@ -2218,12 +2142,11 @@
 		DE9314EB1E86C6FF0083EDBF /* Auth */ = {
 			isa = PBXGroup;
 			children = (
-				DE26D1F91F70333E004AE1D3 /* EarlGreyTests */,
 				DE26D1CD1F70333E004AE1D3 /* Sample */,
-				DE26D1FC1F70333E004AE1D3 /* SwiftSample */,
-				DE26D1C61F70330A004AE1D3 /* ApiTests */,
-				DE9314EC1E86C6FF0083EDBF /* App */,
 				DE9314F91E86C6FF0083EDBF /* Tests */,
+				DE26D1C61F70330A004AE1D3 /* ApiTests */,
+				DE26D1F91F70333E004AE1D3 /* EarlGreyTests */,
+				DE9314EC1E86C6FF0083EDBF /* App */,
 			);
 			path = Auth;
 			sourceTree = "<group>";
@@ -2255,6 +2178,7 @@
 				DE9314FF1E86C6FF0083EDBF /* FIRAuthDispatcherTests.m */,
 				DE9315001E86C6FF0083EDBF /* FIRAuthGlobalWorkQueueTests.m */,
 				DE9315011E86C6FF0083EDBF /* FIRAuthKeychainTests.m */,
+				405EEF4B2216518A00B08FF4 /* FIRAuthLifeCycleTests.m */,
 				DE750DB81EB3DD4000A75E47 /* FIRAuthNotificationManagerTests.m */,
 				DE9315021E86C6FF0083EDBF /* FIRAuthSerialTaskQueueTests.m */,
 				DE9315031E86C6FF0083EDBF /* FIRAuthTests.m */,
@@ -2872,23 +2796,6 @@
 			productReference = DE26D26D1F705C35004AE1D3 /* Auth_EarlGreyTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		DE26D27C1F705EC7004AE1D3 /* Auth_SwiftSample */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = DE26D28C1F705EC7004AE1D3 /* Build configuration list for PBXNativeTarget "Auth_SwiftSample" */;
-			buildPhases = (
-				DE26D2791F705EC7004AE1D3 /* Sources */,
-				DE26D27A1F705EC7004AE1D3 /* Frameworks */,
-				DE26D27B1F705EC7004AE1D3 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = Auth_SwiftSample;
-			productName = Auth_SwiftSample;
-			productReference = DE26D27D1F705EC7004AE1D3 /* SwiftSample.app */;
-			productType = "com.apple.product-type.application";
-		};
 		DE47C0DC207AC87D00B1AEDF /* Messaging_Sample_iOS */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = DE47C0EA207AC87D00B1AEDF /* Build configuration list for PBXNativeTarget "Messaging_Sample_iOS" */;
@@ -3303,16 +3210,6 @@
 						ProvisioningStyle = Automatic;
 						TestTargetID = DE26D22D1F70398A004AE1D3;
 					};
-					DE26D27C1F705EC7004AE1D3 = {
-						CreatedOnToolsVersion = 9.0;
-						DevelopmentTeam = EQHXZ8M8AV;
-						ProvisioningStyle = Automatic;
-					};
-					DE26D2971F70668F004AE1D3 = {
-						CreatedOnToolsVersion = 9.0;
-						DevelopmentTeam = EQHXZ8M8AV;
-						ProvisioningStyle = Automatic;
-					};
 					DE3373891E73773400881891 = {
 						CreatedOnToolsVersion = 8.2.1;
 						DevelopmentTeam = EQHXZ8M8AV;
@@ -3427,10 +3324,8 @@
 				DE1FAE8F1FBCF5E100897AAA /* Auth_Example_tvOS */,
 				DE53893D1FBB62E100199FC2 /* Auth_Tests_tvOS */,
 				DE26D22D1F70398A004AE1D3 /* Auth_Sample */,
-				DE26D27C1F705EC7004AE1D3 /* Auth_SwiftSample */,
 				DE26D25C1F7049F1004AE1D3 /* Auth_ApiTests */,
 				DE26D26C1F705C35004AE1D3 /* Auth_EarlGreyTests */,
-				DE26D2971F70668F004AE1D3 /* Auth_AllTests */,
 				DEE14D401E84464D006FA992 /* Core_Example_iOS */,
 				DEE14D581E84464D006FA992 /* Core_Tests_iOS */,
 				D064E6951ED9B1BF001956DF /* Core_Example_macOS */,
@@ -3657,17 +3552,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		DE26D27B1F705EC7004AE1D3 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				DE26D28F1F705F34004AE1D3 /* GoogleService-Info.plist in Resources */,
-				DEF288421F9AB6E100D480CF /* Default-568h@2x.png in Resources */,
-				DE26D2901F705F39004AE1D3 /* Main.storyboard in Resources */,
-				DE26D2911F705F3E004AE1D3 /* LaunchScreen.storyboard in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		DE47C0E5207AC87D00B1AEDF /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -3884,6 +3768,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D018538D1EDAD364003A645C /* FIRGetOOBConfirmationCodeResponseTests.m in Sources */,
+				405EEF4D2216518B00B08FF4 /* FIRAuthLifeCycleTests.m in Sources */,
 				D018538E1EDAD364003A645C /* FIRGetAccountInfoRequestTests.m in Sources */,
 				D018538F1EDAD364003A645C /* FIRSignUpNewUserResponseTests.m in Sources */,
 				D01853901EDAD364003A645C /* FIRGetOOBConfirmationCodeRequestTests.m in Sources */,
@@ -4206,17 +4091,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		DE26D2791F705EC7004AE1D3 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				DE26D2921F705F4A004AE1D3 /* Stubs.swift in Sources */,
-				DE26D2941F705F51004AE1D3 /* AuthCredentials.swift in Sources */,
-				DE26D2951F705F53004AE1D3 /* AppDelegate.swift in Sources */,
-				DE26D2931F705F4D004AE1D3 /* ViewController.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		DE47C0DD207AC87D00B1AEDF /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -4258,6 +4132,7 @@
 				DEF6C3191FBCE775005D0740 /* FIRAuthKeychainTests.m in Sources */,
 				DEF6C32A1FBCE775005D0740 /* FIRGitHubAuthProviderTests.m in Sources */,
 				DEF6C3321FBCE775005D0740 /* FIRSignUpNewUserRequestTests.m in Sources */,
+				405EEF4E2216518B00B08FF4 /* FIRAuthLifeCycleTests.m in Sources */,
 				DEF6C30F1FBCE775005D0740 /* FIRAdditionalUserInfoTests.m in Sources */,
 				DEF6C31B1FBCE775005D0740 /* FIRAuthSerialTaskQueueTests.m in Sources */,
 				DEF6C3251FBCE775005D0740 /* FIRGetAccountInfoResponseTests.m in Sources */,
@@ -4367,6 +4242,7 @@
 				DE9315741E86C71C0083EDBF /* FIRTwitterAuthProviderTests.m in Sources */,
 				DE750DC01EB3DD6F00A75E47 /* FIRAuthNotificationManagerTests.m in Sources */,
 				DE93156A1E86C71C0083EDBF /* FIRGitHubAuthProviderTests.m in Sources */,
+				405EEF4C2216518B00B08FF4 /* FIRAuthLifeCycleTests.m in Sources */,
 				DE9315761E86C71C0083EDBF /* FIRVerifyAssertionRequestTests.m in Sources */,
 				DE9315781E86C71C0083EDBF /* FIRVerifyCustomTokenRequestTests.m in Sources */,
 				DE93157C1E86C71C0083EDBF /* FIRVerifyPhoneNumberRequestTests.m in Sources */,
@@ -4645,21 +4521,6 @@
 			isa = PBXTargetDependency;
 			target = DE26D22D1F70398A004AE1D3 /* Auth_Sample */;
 			targetProxy = DE26D2721F705C35004AE1D3 /* PBXContainerItemProxy */;
-		};
-		DE26D29C1F7066A7004AE1D3 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = DE9314DD1E86C6BE0083EDBF /* Auth_Tests_iOS */;
-			targetProxy = DE26D29B1F7066A7004AE1D3 /* PBXContainerItemProxy */;
-		};
-		DE26D29E1F7066B0004AE1D3 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = DE26D25C1F7049F1004AE1D3 /* Auth_ApiTests */;
-			targetProxy = DE26D29D1F7066B0004AE1D3 /* PBXContainerItemProxy */;
-		};
-		DE26D2A01F7066B0004AE1D3 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = DE26D26C1F705C35004AE1D3 /* Auth_EarlGreyTests */;
-			targetProxy = DE26D29F1F7066B0004AE1D3 /* PBXContainerItemProxy */;
 		};
 		DE3373981E73776F00881891 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -5760,7 +5621,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 4ANB9W7R3P;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = "$SRCROOT/DynamicLinks/FDLBuilderTestAppObjC/Info.plist";
+				INFOPLIST_FILE = $SRCROOT/DynamicLinks/FDLBuilderTestAppObjC/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.4;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
@@ -5794,7 +5655,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 4ANB9W7R3P;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = "$SRCROOT/DynamicLinks/FDLBuilderTestAppObjC/Info.plist";
+				INFOPLIST_FILE = $SRCROOT/DynamicLinks/FDLBuilderTestAppObjC/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.4;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -6233,90 +6094,6 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Sample.app/Sample";
-			};
-			name = Release;
-		};
-		DE26D28D1F705EC7004AE1D3 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
-				CLANG_WARN_COMMA = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
-				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
-				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
-				CLANG_WARN_STRICT_PROTOTYPES = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CODE_SIGN_STYLE = Automatic;
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = EQHXZ8M8AV;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = Auth/SwiftSample/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MTL_ENABLE_DEBUG_INFO = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.google.FirebaseExperimental2.dev;
-				PRODUCT_NAME = SwiftSample;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 3.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
-		DE26D28E1F705EC7004AE1D3 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
-				CLANG_WARN_COMMA = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
-				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
-				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
-				CLANG_WARN_STRICT_PROTOTYPES = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CODE_SIGN_STYLE = Automatic;
-				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = EQHXZ8M8AV;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = Auth/SwiftSample/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = com.google.FirebaseExperimental2.dev;
-				PRODUCT_NAME = SwiftSample;
-				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
-				SWIFT_VERSION = 3.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
-		DE26D2991F70668F004AE1D3 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = EQHXZ8M8AV;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Debug;
-		};
-		DE26D29A1F70668F004AE1D3 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = EQHXZ8M8AV;
-				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
 		};
@@ -7587,24 +7364,6 @@
 			buildConfigurations = (
 				DE26D2751F705C35004AE1D3 /* Debug */,
 				DE26D2761F705C35004AE1D3 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		DE26D28C1F705EC7004AE1D3 /* Build configuration list for PBXNativeTarget "Auth_SwiftSample" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				DE26D28D1F705EC7004AE1D3 /* Debug */,
-				DE26D28E1F705EC7004AE1D3 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		DE26D2981F70668F004AE1D3 /* Build configuration list for PBXAggregateTarget "Auth_AllTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				DE26D2991F70668F004AE1D3 /* Debug */,
-				DE26D29A1F70668F004AE1D3 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -157,7 +157,7 @@ class DatastoreSerializer {
    * Merges results of the streaming read together. The array is sorted by the
    * document key.
    */
-  NSArray<FSTMaybeDocument*>* MergeLookupResponses(
+  std::vector<FSTMaybeDocument*> MergeLookupResponses(
       const std::vector<grpc::ByteBuffer>& responses,
       util::Status* out_status) const;
   FSTMaybeDocument* ToMaybeDocument(

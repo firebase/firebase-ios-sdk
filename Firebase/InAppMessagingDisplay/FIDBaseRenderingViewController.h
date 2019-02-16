@@ -16,8 +16,8 @@
 
 #import <UIKit/UIKit.h>
 
+#import <FirebaseInAppMessaging/FIRInAppMessagingRendering.h>
 #import "FIDTimeFetcher.h"
-#import "FIRInAppMessagingRendering.h"
 
 @protocol FIRInAppMessagingDisplayDelegate;
 

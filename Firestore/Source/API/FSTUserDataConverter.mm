@@ -455,7 +455,8 @@ NS_ASSUME_NONNULL_BEGIN
           self.databaseID->project_id().c_str(), self.databaseID->database_id().c_str(),
           context.FieldDescription().c_str());
     }
-    return [FSTReferenceValue referenceValue:reference.key databaseID:self.databaseID];
+    return [FSTReferenceValue referenceValue:[FSTDocumentKey keyWithDocumentKey:reference.key]
+                                  databaseID:self.databaseID];
 
   } else {
     FSTThrowInvalidArgument(@"Unsupported type: %@%s", NSStringFromClass([input class]),

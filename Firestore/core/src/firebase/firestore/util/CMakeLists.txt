@@ -252,8 +252,9 @@ cc_library(
     range.h
     string_util.cc
     string_util.h
-    warnings.h
+    to_string.h
     type_traits.h
+    warnings.h
   DEPENDS
     absl_base
     firebase_firestore_util_async
