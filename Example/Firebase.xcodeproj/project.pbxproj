@@ -1661,13 +1661,6 @@
 			path = third_party;
 			sourceTree = "<group>";
 		};
-		2F87577E179939017EF2EE41 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Pods;
-			sourceTree = "<group>";
-		};
 		6003F581195388D10070C39A = {
 			isa = PBXGroup;
 			children = (
@@ -1681,7 +1674,6 @@
 				DEB139B31E734D9D00AC236D /* Storage */,
 				6003F58C195388D20070C39A /* Frameworks */,
 				6003F58B195388D20070C39A /* Products */,
-				2F87577E179939017EF2EE41 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
