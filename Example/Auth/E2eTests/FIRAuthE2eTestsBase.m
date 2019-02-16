@@ -16,7 +16,7 @@
 
 #import "FIRAuthE2eTestsBase.h"
 
-CGFloat const kShortScrollDistance = 100;
+CGFloat const kShortScrollDistance = 400;
 
 NSTimeInterval const kWaitForElementTimeOut = 15;
 
