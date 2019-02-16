@@ -2000,7 +2000,7 @@
 			path = Sample;
 			sourceTree = "<group>";
 		};
-		DE26D1F91F70333E004AE1D3 /* EarlGreyTests */ = {
+		DE26D1F91F70333E004AE1D3 /* E2eTests */ = {
 			isa = PBXGroup;
 			children = (
 				4090ADFE2217978300547281 /* BYOAuthTests.m */,
@@ -2010,7 +2010,7 @@
 				409E112F219FA260000E6CFC /* VerifyIOSClientTests.m */,
 				DE26D1FB1F70333E004AE1D3 /* Info.plist */,
 			);
-			path = EarlGreyTests;
+			path = E2eTests;
 			sourceTree = "<group>";
 		};
 		DE47C106207AC94A00B1AEDF /* Sample */ = {
@@ -2180,7 +2180,7 @@
 				DE26D1CD1F70333E004AE1D3 /* Sample */,
 				DE9314F91E86C6FF0083EDBF /* Tests */,
 				DE26D1C61F70330A004AE1D3 /* ApiTests */,
-				DE26D1F91F70333E004AE1D3 /* EarlGreyTests */,
+				DE26D1F91F70333E004AE1D3 /* E2eTests */,
 				DE9314EC1E86C6FF0083EDBF /* App */,
 			);
 			path = Auth;
@@ -6106,11 +6106,11 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = EQHXZ8M8AV;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = Auth/EarlGreyTests/Info.plist;
+				INFOPLIST_FILE = Auth/E2eTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Auth-EarlGreyTests";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Auth-E2eTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Sample.app/Sample";
@@ -6138,11 +6138,11 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = EQHXZ8M8AV;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = Auth/EarlGreyTests/Info.plist;
+				INFOPLIST_FILE = Auth/E2eTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Auth-EarlGreyTests";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Auth-E2eTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Sample.app/Sample";
