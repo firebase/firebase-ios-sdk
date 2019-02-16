@@ -40,7 +40,7 @@ static NSString *const kExistingPasswordToSignIn = @"password";
     XCTFail(@"Could not obtain auth object.");
   }
   XCTestExpectation *expectation =
-  [self expectationWithDescription:@"Created account with email and password."];
+      [self expectationWithDescription:@"Created account with email and password."];
   [auth createUserWithEmail:kNewEmailToCreateUser
                    password:@"password"
                  completion:^(FIRAuthDataResult *result, NSError *error) {
@@ -69,7 +69,7 @@ static NSString *const kExistingPasswordToSignIn = @"password";
     XCTFail(@"Could not obtain auth object.");
   }
   XCTestExpectation *expectation =
-  [self expectationWithDescription:@"Signed in existing account with email and password."];
+      [self expectationWithDescription:@"Signed in existing account with email and password."];
   [auth signInWithEmail:kExistingEmailToSignIn
                password:kExistingPasswordToSignIn
              completion:^(FIRAuthDataResult *user, NSError *error) {

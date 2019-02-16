@@ -33,7 +33,7 @@ static NSString *const kInvalidCustomToken = @"invalid token.";
 
 /** Error message for invalid custom token sign in. */
 NSString *kInvalidTokenErrorMessage =
-@"Invalid assertion format. 3 dot separated segments required.";
+    @"Invalid assertion format. 3 dot separated segments required.";
 
 @interface CustomAuthTests : FIRAuthApiTestsBase
 
@@ -46,7 +46,7 @@ NSString *kInvalidTokenErrorMessage =
   if (!auth) {
     XCTFail(@"Could not obtain auth object.");
   }
-  
+
   NSError *error;
   NSString *customToken = [NSString stringWithContentsOfURL:[NSURL URLWithString:kCustomTokenUrl]
                                                    encoding:NSUTF8StringEncoding
@@ -55,10 +55,10 @@ NSString *kInvalidTokenErrorMessage =
     XCTFail(@"There was an error retrieving the custom token: %@", error);
   }
   NSLog(@"The valid token is: %@", customToken);
-  
+
   XCTestExpectation *expectation =
-  [self expectationWithDescription:@"CustomAuthToken sign-in finished."];
-  
+      [self expectationWithDescription:@"CustomAuthToken sign-in finished."];
+
   [auth signInWithCustomToken:customToken
                    completion:^(FIRAuthDataResult *_Nullable result, NSError *_Nullable error) {
                      if (error) {
@@ -74,7 +74,7 @@ NSString *kInvalidTokenErrorMessage =
                                            error.localizedDescription);
                                  }
                                }];
-  
+
   XCTAssertEqualObjects(auth.currentUser.uid, kCustomAuthTestingAccountUserID);
 }
 
@@ -83,18 +83,18 @@ NSString *kInvalidTokenErrorMessage =
   if (!auth) {
     XCTFail(@"Could not obtain auth object.");
   }
-  
+
   NSError *error;
   NSString *customToken =
-  [NSString stringWithContentsOfURL:[NSURL URLWithString:kExpiredCustomTokenUrl]
-                           encoding:NSUTF8StringEncoding
-                              error:&error];
+      [NSString stringWithContentsOfURL:[NSURL URLWithString:kExpiredCustomTokenUrl]
+                               encoding:NSUTF8StringEncoding
+                                  error:&error];
   if (!customToken) {
     XCTFail(@"There was an error retrieving the custom token: %@", error);
   }
   XCTestExpectation *expectation =
-  [self expectationWithDescription:@"CustomAuthToken sign-in finished."];
-  
+      [self expectationWithDescription:@"CustomAuthToken sign-in finished."];
+
   __block NSError *apiError;
   [auth signInWithCustomToken:customToken
                    completion:^(FIRAuthDataResult *_Nullable result, NSError *_Nullable error) {
@@ -111,7 +111,7 @@ NSString *kInvalidTokenErrorMessage =
                                            error.localizedDescription);
                                  }
                                }];
-  
+
   XCTAssertNil(auth.currentUser);
   XCTAssertEqual(apiError.code, FIRAuthErrorCodeInvalidCustomToken);
 }
@@ -122,11 +122,10 @@ NSString *kInvalidTokenErrorMessage =
     XCTFail(@"Could not obtain auth object.");
   }
   XCTestExpectation *expectation =
-  [self expectationWithDescription:@"Invalid CustomAuthToken sign-in finished."];
-  
+      [self expectationWithDescription:@"Invalid CustomAuthToken sign-in finished."];
+
   [auth signInWithCustomToken:kInvalidCustomToken
                    completion:^(FIRAuthDataResult *_Nullable result, NSError *_Nullable error) {
-                     
                      XCTAssertEqualObjects(error.localizedDescription, kInvalidTokenErrorMessage);
                      [expectation fulfill];
                    }];
@@ -153,7 +152,7 @@ NSString *kInvalidTokenErrorMessage =
     XCTFail(@"There was an error retrieving the custom token: %@", error);
   }
   XCTestExpectation *expectation =
-  [self expectationWithDescription:@"CustomAuthToken sign-in finished."];
+      [self expectationWithDescription:@"CustomAuthToken sign-in finished."];
   __block NSError *rpcError;
   [auth signInWithCustomToken:customToken
                    completion:^(FIRAuthDataResult *_Nullable result, NSError *_Nullable error) {
@@ -178,10 +177,11 @@ NSString *kInvalidTokenErrorMessage =
   rpcError = nil;
   NSString *newEmailAddress = [self fakeRandomEmail];
   XCTAssertNotEqualObjects(newEmailAddress, inMemoryUser.email);
-  [inMemoryUser updateEmail:newEmailAddress completion:^(NSError *_Nullable error) {
-    rpcError = error;
-    [expectation1 fulfill];
-  }];
+  [inMemoryUser updateEmail:newEmailAddress
+                 completion:^(NSError *_Nullable error) {
+                   rpcError = error;
+                   [expectation1 fulfill];
+                 }];
   [self waitForExpectationsWithTimeout:kExpectationsTimeout handler:nil];
   XCTAssertEqualObjects(inMemoryUser.email, newEmailAddress);
   XCTAssertNil(rpcError);

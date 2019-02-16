@@ -17,8 +17,8 @@
 #import <XCTest/XCTest.h>
 
 #import <FirebaseCore/FIRApp.h>
-#import "FirebaseAuth.h"
 #import "AuthCredentials.h"
+#import "FirebaseAuth.h"
 
 #ifdef NO_NETWORK
 #import "ITUIOSTestUtil.h"
@@ -30,11 +30,11 @@
 NS_ASSUME_NONNULL_BEGIN
 
 #ifdef NO_NETWORK
-#define SKIP_IF_ON_MOBILE_HARNESS \
-if ([ITUIOSTestUtil isOnMobileHarness]) { \
-NSLog(@"Skipping '%@' on mobile harness", NSStringFromSelector(_cmd)); \
-return; \
-}
+#define SKIP_IF_ON_MOBILE_HARNESS                                          \
+  if ([ITUIOSTestUtil isOnMobileHarness]) {                                \
+    NSLog(@"Skipping '%@' on mobile harness", NSStringFromSelector(_cmd)); \
+    return;                                                                \
+  }
 #else
 #define SKIP_IF_ON_MOBILE_HARNESS
 #endif

@@ -17,16 +17,15 @@
 import XCTest
 
 class GoogleAuthTestsSwift: FIRAuthApiTestsBase {
+  let kGoogleCliendId = KGOOGLE_CLIENT_ID
 
-  let kGoogleCliendId = KGOOGLE_CLIENT_ID;
+  let kGoogleTestAccountName = KGOOGLE_USER_NAME
 
-  let kGoogleTestAccountName = KGOOGLE_USER_NAME;
-
-  let kGoogleTestAccountRefreshToken = KGOOGLE_TEST_ACCOUNT_REFRESH_TOKEN;
+  let kGoogleTestAccountRefreshToken = KGOOGLE_TEST_ACCOUNT_REFRESH_TOKEN
 
   func testSignInWithGoogle() {
     let auth = Auth.auth()
-    let userInfoDictOptional = self.getGoogleAccessToken()
+    let userInfoDictOptional = getGoogleAccessToken()
     if userInfoDictOptional == nil {
       XCTFail("Could not obtain Google access token.")
     }
@@ -36,14 +35,14 @@ class GoogleAuthTestsSwift: FIRAuthApiTestsBase {
     let credential = GoogleAuthProvider.credential(withIDToken: googleIdToken, accessToken: googleAccessToken)
 
     let expectation = self.expectation(description: "Signing in with Google finished.")
-    auth.signInAndRetrieveData(with: credential) { (result, error) in
+    auth.signInAndRetrieveData(with: credential) { _, error in
       if error != nil {
         print("Signing in with Google had error: %@", error!)
       }
       expectation.fulfill()
     }
 
-    self.waitForExpectations(timeout: kExpectationsTimeout) { (error) in
+    waitForExpectations(timeout: kExpectationsTimeout) { error in
       if error != nil {
         XCTFail(String(format: "Failed to wait for expectations in Signing in with Google. Error: %@", error!.localizedDescription))
       }
@@ -51,7 +50,7 @@ class GoogleAuthTestsSwift: FIRAuthApiTestsBase {
 
     XCTAssertEqual(auth.currentUser?.displayName, kGoogleTestAccountName)
 
-    self.deleteCurrentUser()
+    deleteCurrentUser()
   }
 
   func getGoogleAccessToken() -> [String: Any]? {
@@ -64,8 +63,8 @@ class GoogleAuthTestsSwift: FIRAuthApiTestsBase {
     fetcher.setRequestValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
 
     let expectation = self.expectation(description: "Exchanging Google account tokens finished.")
-    var data : Data?
-    fetcher.beginFetch { (receivedData, error) in
+    var data: Data?
+    fetcher.beginFetch { receivedData, error in
       if error != nil {
         print("Exchanging Google account tokens finished with error: %@", error!)
         return
@@ -73,8 +72,8 @@ class GoogleAuthTestsSwift: FIRAuthApiTestsBase {
       data = receivedData
       expectation.fulfill()
     }
-
-    self.waitForExpectations(timeout: kExpectationsTimeout) { (error) in
+    
+    waitForExpectations(timeout: kExpectationsTimeout) { error in
       if error != nil {
         XCTFail(String(format: "Failed to wait for expectations in exchanging Google account tokens. Error: %@", error!.localizedDescription))
       }
@@ -89,5 +88,4 @@ class GoogleAuthTestsSwift: FIRAuthApiTestsBase {
       return nil
     }
   }
-
 }

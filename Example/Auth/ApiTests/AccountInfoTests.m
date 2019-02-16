@@ -39,7 +39,7 @@ static NSString *const kNewUserEmail = @"newuseremail@iosapitests.com";
 
   __block NSError *apiError;
   XCTestExpectation *expectation =
-  [self expectationWithDescription:@"Created account with email and password."];
+      [self expectationWithDescription:@"Created account with email and password."];
   [auth createUserWithEmail:kOldUserEmail
                    password:@"password"
                  completion:^(FIRAuthDataResult *user, NSError *error) {

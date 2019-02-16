@@ -49,7 +49,7 @@ static NSString *const kFacebookTestAccountName = KFACEBOOK_USER_NAME;
   NSLog(@"Facebook testing account id is: %@", facebookAccountId);
 
   FIRAuthCredential *credential =
-  [FIRFacebookAuthProvider credentialWithAccessToken:facebookAccessToken];
+      [FIRFacebookAuthProvider credentialWithAccessToken:facebookAccessToken];
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"Facebook sign-in finished."];
 
@@ -90,7 +90,7 @@ static NSString *const kFacebookTestAccountName = KFACEBOOK_USER_NAME;
   NSLog(@"Facebook testing account id is: %@", facebookAccountId);
 
   FIRAuthCredential *credential =
-  [FIRFacebookAuthProvider credentialWithAccessToken:facebookAccessToken];
+      [FIRFacebookAuthProvider credentialWithAccessToken:facebookAccessToken];
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"Facebook linking finished."];
   [auth.currentUser linkWithCredential:credential
@@ -124,12 +124,12 @@ static NSString *const kFacebookTestAccountName = KFACEBOOK_USER_NAME;
 - (NSDictionary *)createFacebookTestingAccount {
   // Build the URL.
   NSString *urltoCreateTestUser =
-  [NSString stringWithFormat:@"https://%@/%@/accounts/test-users", kFacebookGraphApiAuthority,
-   kFacebookAppID];
+      [NSString stringWithFormat:@"https://%@/%@/accounts/test-users", kFacebookGraphApiAuthority,
+                                 kFacebookAppID];
   // Build the POST request.
   NSString *bodyString =
-  [NSString stringWithFormat:@"installed=true&name=%@&permissions=read_stream&access_token=%@",
-   kFacebookTestAccountName, kFacebookAppAccessToken];
+      [NSString stringWithFormat:@"installed=true&name=%@&permissions=read_stream&access_token=%@",
+                                 kFacebookTestAccountName, kFacebookAppAccessToken];
   NSData *postData = [bodyString dataUsingEncoding:NSUTF8StringEncoding];
   GTMSessionFetcherService *service = [[GTMSessionFetcherService alloc] init];
   GTMSessionFetcher *fetcher = [service fetcherWithURLString:urltoCreateTestUser];
@@ -137,7 +137,7 @@ static NSString *const kFacebookTestAccountName = KFACEBOOK_USER_NAME;
   [fetcher setRequestValue:@"text/plain" forHTTPHeaderField:@"Content-Type"];
 
   XCTestExpectation *expectation =
-  [self expectationWithDescription:@"Creating Facebook account finished."];
+      [self expectationWithDescription:@"Creating Facebook account finished."];
   __block NSData *data = nil;
   [fetcher beginFetchWithCompletionHandler:^(NSData *receivedData, NSError *error) {
     if (error) {
@@ -158,8 +158,9 @@ static NSString *const kFacebookTestAccountName = KFACEBOOK_USER_NAME;
   NSString *userInfo = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
   NSLog(@"The info of created Facebook testing account is: %@", userInfo);
   // Parses the access token from the JSON data.
-  NSDictionary *userInfoDict =
-  [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:nil];
+  NSDictionary *userInfoDict = [NSJSONSerialization JSONObjectWithData:data
+                                                               options:kNilOptions
+                                                                 error:nil];
   return userInfoDict;
 }
 
@@ -167,11 +168,11 @@ static NSString *const kFacebookTestAccountName = KFACEBOOK_USER_NAME;
 - (void)deleteFacebookTestingAccountbyId:(NSString *)accountId {
   // Build the URL.
   NSString *urltoDeleteTestUser =
-  [NSString stringWithFormat:@"https://%@/%@", kFacebookGraphApiAuthority, accountId];
+      [NSString stringWithFormat:@"https://%@/%@", kFacebookGraphApiAuthority, accountId];
 
   // Build the POST request.
   NSString *bodyString =
-  [NSString stringWithFormat:@"method=delete&access_token=%@", kFacebookAppAccessToken];
+      [NSString stringWithFormat:@"method=delete&access_token=%@", kFacebookAppAccessToken];
   NSData *postData = [bodyString dataUsingEncoding:NSUTF8StringEncoding];
   GTMSessionFetcherService *service = [[GTMSessionFetcherService alloc] init];
   GTMSessionFetcher *fetcher = [service fetcherWithURLString:urltoDeleteTestUser];
@@ -179,10 +180,10 @@ static NSString *const kFacebookTestAccountName = KFACEBOOK_USER_NAME;
   [fetcher setRequestValue:@"text/plain" forHTTPHeaderField:@"Content-Type"];
 
   XCTestExpectation *expectation =
-  [self expectationWithDescription:@"Deleting Facebook account finished."];
+      [self expectationWithDescription:@"Deleting Facebook account finished."];
   [fetcher beginFetchWithCompletionHandler:^(NSData *receivedData, NSError *error) {
-    NSString *deleteResult =
-    [[NSString alloc] initWithData:receivedData encoding:NSUTF8StringEncoding];
+    NSString *deleteResult = [[NSString alloc] initWithData:receivedData
+                                                   encoding:NSUTF8StringEncoding];
     NSLog(@"The result of deleting Facebook account is: %@", deleteResult);
     if (error) {
       NSLog(@"Deleting Facebook account finished with error: %@", error);

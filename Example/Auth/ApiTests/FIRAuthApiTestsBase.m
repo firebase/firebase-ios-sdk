@@ -20,6 +20,7 @@
 
 - (void)setUp {
   [super setUp];
+
   [self signOut];
 }
 
@@ -34,7 +35,7 @@
   }
 
   XCTestExpectation *expectation =
-  [self expectationWithDescription:@"Anonymousy sign-in finished."];
+      [self expectationWithDescription:@"Anonymousy sign-in finished."];
   [auth signInAnonymouslyWithCompletion:^(FIRAuthDataResult *result, NSError *error) {
     if (error) {
       NSLog(@"Anonymousy sign in error: %@", error);
@@ -69,7 +70,7 @@
   }
 
   XCTestExpectation *expectation =
-  [self expectationWithDescription:@"Delete current user finished."];
+      [self expectationWithDescription:@"Delete current user finished."];
   [auth.currentUser deleteWithCompletion:^(NSError *_Nullable error) {
     if (error) {
       XCTFail(@"Failed to delete user. Error: %@.", error);
@@ -88,9 +89,9 @@
 
 - (NSString *)fakeRandomEmail {
   NSMutableString *fakeEmail = [[NSMutableString alloc] init];
-  for (int i=0; i<10; i++) {
-    [fakeEmail appendString:
-     [NSString stringWithFormat:@"%c", 'a' + arc4random_uniform('z' - 'a' + 1)]];
+  for (int i = 0; i < 10; i++) {
+    [fakeEmail
+        appendString:[NSString stringWithFormat:@"%c", 'a' + arc4random_uniform('z' - 'a' + 1)]];
   }
   [fakeEmail appendString:@"@gmail.com"];
   return fakeEmail;

@@ -42,11 +42,11 @@ NSString *kGoogleTestAccountRefreshToken = KGOOGLE_TEST_ACCOUNT_REFRESH_TOKEN;
   NSDictionary *userInfoDict = [self getGoogleAccessToken];
   NSString *googleAccessToken = userInfoDict[@"access_token"];
   NSString *googleIdToken = userInfoDict[@"id_token"];
-  FIRAuthCredential *credential =
-  [FIRGoogleAuthProvider credentialWithIDToken:googleIdToken accessToken:googleAccessToken];
+  FIRAuthCredential *credential = [FIRGoogleAuthProvider credentialWithIDToken:googleIdToken
+                                                                   accessToken:googleAccessToken];
 
   XCTestExpectation *expectation =
-  [self expectationWithDescription:@"Signing in with Google finished."];
+      [self expectationWithDescription:@"Signing in with Google finished."];
   [auth signInWithCredential:credential
                   completion:^(FIRUser *user, NSError *error) {
                     if (error) {
@@ -76,8 +76,8 @@ NSString *kGoogleTestAccountRefreshToken = KGOOGLE_TEST_ACCOUNT_REFRESH_TOKEN;
 - (NSDictionary *)getGoogleAccessToken {
   NSString *googleOauth2TokenServerUrl = @"https://www.googleapis.com/oauth2/v4/token";
   NSString *bodyString =
-  [NSString stringWithFormat:@"client_id=%@&grant_type=refresh_token&refresh_token=%@",
-   kGoogleCliendId, kGoogleTestAccountRefreshToken];
+      [NSString stringWithFormat:@"client_id=%@&grant_type=refresh_token&refresh_token=%@",
+                                 kGoogleCliendId, kGoogleTestAccountRefreshToken];
   NSData *postData = [bodyString dataUsingEncoding:NSUTF8StringEncoding];
   GTMSessionFetcherService *service = [[GTMSessionFetcherService alloc] init];
   GTMSessionFetcher *fetcher = [service fetcherWithURLString:googleOauth2TokenServerUrl];
@@ -85,7 +85,7 @@ NSString *kGoogleTestAccountRefreshToken = KGOOGLE_TEST_ACCOUNT_REFRESH_TOKEN;
   [fetcher setRequestValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
 
   XCTestExpectation *expectation =
-  [self expectationWithDescription:@"Exchanging Google account tokens finished."];
+      [self expectationWithDescription:@"Exchanging Google account tokens finished."];
   __block NSData *data = nil;
   [fetcher beginFetchWithCompletionHandler:^(NSData *receivedData, NSError *error) {
     if (error) {
@@ -105,8 +105,9 @@ NSString *kGoogleTestAccountRefreshToken = KGOOGLE_TEST_ACCOUNT_REFRESH_TOKEN;
                                }];
   NSString *userInfo = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
   NSLog(@"The info of exchanged result is: %@", userInfo);
-  NSDictionary *userInfoDict =
-  [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:nil];
+  NSDictionary *userInfoDict = [NSJSONSerialization JSONObjectWithData:data
+                                                               options:kNilOptions
+                                                                 error:nil];
   return userInfoDict;
 }
 
