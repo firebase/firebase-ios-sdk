@@ -19,7 +19,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "Firestore/core/src/firebase/firestore/util/suppress_warnings.h"
+#import "Firestore/core/src/firebase/firestore/util/warnings.h"
 
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 

@@ -22,7 +22,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "Firestore/core/src/firebase/firestore/util/suppress_warnings.h"
+#include "Firestore/core/src/firebase/firestore/util/warnings.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/token.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"

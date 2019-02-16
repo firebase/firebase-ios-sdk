@@ -40,7 +40,7 @@
 #if defined(__clang__) || defined(__GNUC__)
 #define SUPPRESS_BEGIN_UNIMPLEMENTED_() _Pragma("GCC diagnostic push")
 
-#define SUPPRESS_BEGIN_(name) _Pragma("GCC disagnostic push") _Pragma(name)
+#define SUPPRESS_BEGIN_(name) _Pragma("GCC diagnostic push") _Pragma(name)
 
 #elif defined(_MSC_VER)
 #define SUPPRESS_BEGIN_UNIMPLEMENTED_() __pragma(warning(push))
@@ -52,7 +52,7 @@
 
 // 'Public' macros.
 
-#if defined(__clang__) || defined(__GNU__)
+#if defined(__clang__) || defined(__GNUC__)
 #define SUPPRESS_DOCUMENTATION_WARNINGS_BEGIN() \
   SUPPRESS_BEGIN_("GCC diagnostic ignored \"-Wdocumentation\"")
 

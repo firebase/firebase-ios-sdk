@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/util/suppress_warnings.h"
+#include "Firestore/core/src/firebase/firestore/util/warnings.h"
 
 #import "FIRFirestoreSettings.h"
 
@@ -51,13 +51,14 @@ static const BOOL kDefaultTimestampsInSnapshotsEnabled = YES;
   }
 
   FIRFirestoreSettings *otherSettings = (FIRFirestoreSettings *)other;
+  SUPPRESS_DEPRECATED_DECLARATIONS_BEGIN()
   return [self.host isEqual:otherSettings.host] &&
          self.isSSLEnabled == otherSettings.isSSLEnabled &&
          self.dispatchQueue == otherSettings.dispatchQueue &&
          self.isPersistenceEnabled == otherSettings.isPersistenceEnabled &&
-         SUPPRESS_DEPRECATED_DECLARATIONS_BEGIN()
-                 self.timestampsInSnapshotsEnabled == otherSettings.timestampsInSnapshotsEnabled &&
-         SUPPRESS_END() self.cacheSizeBytes == otherSettings.cacheSizeBytes;
+         self.timestampsInSnapshotsEnabled == otherSettings.timestampsInSnapshotsEnabled &&
+         self.cacheSizeBytes == otherSettings.cacheSizeBytes;
+  SUPPRESS_END()
 }
 
 - (NSUInteger)hash {

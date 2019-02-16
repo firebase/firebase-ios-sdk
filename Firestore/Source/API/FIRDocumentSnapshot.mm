@@ -18,7 +18,7 @@
 
 #include <utility>
 
-#include "Firestore/core/src/firebase/firestore/util/suppress_warnings.h"
+#include "Firestore/core/src/firebase/firestore/util/warnings.h"
 
 #import "FIRFirestoreSettings.h"
 

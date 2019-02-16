@@ -25,7 +25,7 @@
 #include <utility>
 #include <vector>
 
-#include "Firestore/core/src/firebase/firestore/util/suppress_warnings.h"
+#include "Firestore/core/src/firebase/firestore/util/warnings.h"
 
 #include "Firestore/core/src/firebase/firestore/remote/grpc_call.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_completion.h"
