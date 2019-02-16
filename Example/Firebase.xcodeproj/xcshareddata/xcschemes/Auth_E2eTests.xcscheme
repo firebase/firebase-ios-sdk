@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "DE26D26C1F705C35004AE1D3"
-               BuildableName = "Auth_EarlGreyTests.xctest"
-               BlueprintName = "Auth_EarlGreyTests"
+               BuildableName = "Auth_E2eTests.xctest"
+               BlueprintName = "Auth_E2eTests"
                ReferencedContainer = "container:Firebase.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -33,12 +33,21 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "DE26D26C1F705C35004AE1D3"
-               BuildableName = "Auth_EarlGreyTests.xctest"
-               BlueprintName = "Auth_EarlGreyTests"
+               BuildableName = "Auth_E2eTests.xctest"
+               BlueprintName = "Auth_E2eTests"
                ReferencedContainer = "container:Firebase.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "DE26D26C1F705C35004AE1D3"
+            BuildableName = "Auth_E2eTests.xctest"
+            BlueprintName = "Auth_E2eTests"
+            ReferencedContainer = "container:Firebase.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </TestAction>
@@ -56,8 +65,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "DE26D26C1F705C35004AE1D3"
-            BuildableName = "Auth_EarlGreyTests.xctest"
-            BlueprintName = "Auth_EarlGreyTests"
+            BuildableName = "Auth_E2eTests.xctest"
+            BlueprintName = "Auth_E2eTests"
             ReferencedContainer = "container:Firebase.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -70,6 +79,15 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "DE26D26C1F705C35004AE1D3"
+            BuildableName = "Auth_E2eTests.xctest"
+            BlueprintName = "Auth_E2eTests"
+            ReferencedContainer = "container:Firebase.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

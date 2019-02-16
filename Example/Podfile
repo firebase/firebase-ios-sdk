@@ -131,7 +131,7 @@ target 'Auth_Sample' do
     inherit! :search_paths
   end
 
-  target 'Auth_EarlGreyTests' do
+  target 'Auth_E2eTests' do
     inherit! :search_paths
     pod 'EarlGrey'
   end

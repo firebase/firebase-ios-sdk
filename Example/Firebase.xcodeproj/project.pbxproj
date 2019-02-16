@@ -1060,7 +1060,7 @@
 		DE26D1FB1F70333E004AE1D3 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		DE26D22E1F70398A004AE1D3 /* Sample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE26D25D1F7049F1004AE1D3 /* Auth_ApiTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Auth_ApiTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		DE26D26D1F705C35004AE1D3 /* Auth_EarlGreyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Auth_EarlGreyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		DE26D26D1F705C35004AE1D3 /* Auth_E2eTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Auth_E2eTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE37C63A2163D5F30025D03E /* FIRMessagingAnalyticsTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FIRMessagingAnalyticsTest.m; sourceTree = "<group>"; };
 		DE45C6641E7DA8CB009E6ACD /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		DE47C0ED207AC87D00B1AEDF /* Messaging_Sample_iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Messaging_Sample_iOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1693,7 +1693,7 @@
 				D01853C61EDAD364003A645C /* Auth_Tests_macOS.xctest */,
 				DE26D22E1F70398A004AE1D3 /* Sample.app */,
 				DE26D25D1F7049F1004AE1D3 /* Auth_ApiTests.xctest */,
-				DE26D26D1F705C35004AE1D3 /* Auth_EarlGreyTests.xctest */,
+				DE26D26D1F705C35004AE1D3 /* Auth_E2eTests.xctest */,
 				DEAAD3811FBA11270053BF48 /* Core_Example_tvOS.app */,
 				DEAAD3951FBA11270053BF48 /* Core_Tests_tvOS.xctest */,
 				DEAAD3E11FBA46AA0053BF48 /* Storage_Example_tvOS.app */,
@@ -2786,9 +2786,9 @@
 			productReference = DE26D25D1F7049F1004AE1D3 /* Auth_ApiTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		DE26D26C1F705C35004AE1D3 /* Auth_EarlGreyTests */ = {
+		DE26D26C1F705C35004AE1D3 /* Auth_E2eTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = DE26D2741F705C35004AE1D3 /* Build configuration list for PBXNativeTarget "Auth_EarlGreyTests" */;
+			buildConfigurationList = DE26D2741F705C35004AE1D3 /* Build configuration list for PBXNativeTarget "Auth_E2eTests" */;
 			buildPhases = (
 				DE26D2691F705C35004AE1D3 /* Sources */,
 				DE26D26A1F705C35004AE1D3 /* Frameworks */,
@@ -2799,9 +2799,9 @@
 			dependencies = (
 				DE26D2731F705C35004AE1D3 /* PBXTargetDependency */,
 			);
-			name = Auth_EarlGreyTests;
+			name = Auth_E2eTests;
 			productName = Auth_EarlGreyTests;
-			productReference = DE26D26D1F705C35004AE1D3 /* Auth_EarlGreyTests.xctest */;
+			productReference = DE26D26D1F705C35004AE1D3 /* Auth_E2eTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		DE47C0DC207AC87D00B1AEDF /* Messaging_Sample_iOS */ = {
@@ -3333,7 +3333,7 @@
 				DE53893D1FBB62E100199FC2 /* Auth_Tests_tvOS */,
 				DE26D22D1F70398A004AE1D3 /* Auth_Sample */,
 				DE26D25C1F7049F1004AE1D3 /* Auth_ApiTests */,
-				DE26D26C1F705C35004AE1D3 /* Auth_EarlGreyTests */,
+				DE26D26C1F705C35004AE1D3 /* Auth_E2eTests */,
 				DEE14D401E84464D006FA992 /* Core_Example_iOS */,
 				DEE14D581E84464D006FA992 /* Core_Tests_iOS */,
 				D064E6951ED9B1BF001956DF /* Core_Example_macOS */,
@@ -7369,7 +7369,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		DE26D2741F705C35004AE1D3 /* Build configuration list for PBXNativeTarget "Auth_EarlGreyTests" */ = {
+		DE26D2741F705C35004AE1D3 /* Build configuration list for PBXNativeTarget "Auth_E2eTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				DE26D2751F705C35004AE1D3 /* Debug */,
