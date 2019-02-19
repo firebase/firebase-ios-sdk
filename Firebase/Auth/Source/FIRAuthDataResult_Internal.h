@@ -16,6 +16,8 @@
 
 #import "FIRAuthDataResult.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface FIRAuthDataResult () <NSSecureCoding>
 
 /** @fn initWithUser:additionalUserInfo:
@@ -28,3 +30,5 @@
     NS_DESIGNATED_INITIALIZER;
 
 @end
+
+NS_ASSUME_NONNULL_END
