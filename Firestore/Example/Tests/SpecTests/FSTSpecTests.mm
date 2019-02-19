@@ -46,17 +46,15 @@
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
-#include "Firestore/core/src/firebase/firestore/util/objc_compatibility.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
 namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
-namespace objc = util::objc;
 using firebase::firestore::FirestoreErrorCode;
 using firebase::firestore::auth::User;
-using firebase::firestore::core::DocumentViewChange;
+using firebase::firestore::core::DocumentViewChangeType;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::SnapshotVersion;
@@ -202,7 +200,7 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
   return testutil::Version(version.longLongValue);
 }
 
-- (DocumentViewChange)parseChange:(NSDictionary *)jsonDoc ofType:(DocumentViewChange::Type)type {
+- (FSTDocumentViewChange *)parseChange:(NSDictionary *)jsonDoc ofType:(DocumentViewChangeType)type {
   NSNumber *version = jsonDoc[@"version"];
   NSDictionary *options = jsonDoc[@"options"];
   FSTDocumentState documentState = [options[@"hasLocalMutations"] isEqualToNumber:@YES]
@@ -214,7 +212,7 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
   XCTAssert([jsonDoc[@"key"] isKindOfClass:[NSString class]]);
   FSTDocument *doc = FSTTestDoc(util::MakeString((NSString *)jsonDoc[@"key"]),
                                 version.longLongValue, jsonDoc[@"value"], documentState);
-  return DocumentViewChange{doc, type};
+  return [FSTDocumentViewChange changeWithDocument:doc type:type];
 }
 
 #pragma mark - Methods for doing the steps of the spec test.
@@ -499,32 +497,28 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
     XCTAssertNotNil(actual.error);
     XCTAssertEqual(actual.error.code, [expected[@"errorCode"] integerValue]);
   } else {
-    std::vector<DocumentViewChange> expectedChanges;
+    NSMutableArray *expectedChanges = [NSMutableArray array];
     NSMutableArray *removed = expected[@"removed"];
     for (NSDictionary *changeSpec in removed) {
-      expectedChanges.push_back([self parseChange:changeSpec
-                                           ofType:DocumentViewChange::Type::kRemoved]);
+      [expectedChanges addObject:[self parseChange:changeSpec
+                                            ofType:DocumentViewChangeType::kRemoved]];
     }
     NSMutableArray *added = expected[@"added"];
     for (NSDictionary *changeSpec in added) {
-      expectedChanges.push_back([self parseChange:changeSpec
-                                           ofType:DocumentViewChange::Type::kAdded]);
+      [expectedChanges addObject:[self parseChange:changeSpec
+                                            ofType:DocumentViewChangeType::kAdded]];
     }
     NSMutableArray *modified = expected[@"modified"];
     for (NSDictionary *changeSpec in modified) {
-      expectedChanges.push_back([self parseChange:changeSpec
-                                           ofType:DocumentViewChange::Type::kModified]);
+      [expectedChanges addObject:[self parseChange:changeSpec
+                                            ofType:DocumentViewChangeType::kModified]];
     }
     NSMutableArray *metadata = expected[@"metadata"];
     for (NSDictionary *changeSpec in metadata) {
-      expectedChanges.push_back([self parseChange:changeSpec
-                                           ofType:DocumentViewChange::Type::kMetadata]);
+      [expectedChanges addObject:[self parseChange:changeSpec
+                                            ofType:DocumentViewChangeType::kMetadata]];
     }
-
-    XCTAssertEqual(actual.viewSnapshot.documentChanges.size(), expectedChanges.size());
-    for (size_t i = 0; i != expectedChanges.size(); ++i) {
-      XCTAssertTrue((actual.viewSnapshot.documentChanges[i] == expectedChanges[i]));
-    }
+    XCTAssertEqualObjects(actual.viewSnapshot.documentChanges, expectedChanges);
 
     BOOL expectedHasPendingWrites =
         expected[@"hasPendingWrites"] ? [expected[@"hasPendingWrites"] boolValue] : NO;
@@ -688,8 +682,16 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
     actualTargets.erase(targetID);
   }
 
-  XCTAssertTrue(actualTargets.empty(), "Unexpected active targets: %@",
-                objc::Description(actualTargets));
+  if (!actualTargets.empty()) {
+    // Converting to an Objective-C class is a quick-and-dirty way to get
+    // a readable debug description of the context of the map.
+    NSMutableDictionary *actualTargetsDictionary = [NSMutableDictionary dictionary];
+    for (const auto &kv : actualTargets) {
+      actualTargetsDictionary[@(kv.first)] = kv.second;
+    }
+    XCTAssertTrue(actualTargets.empty(), "Unexpected active targets: %@",
+                  [actualTargetsDictionary description]);
+  }
 }
 
 - (void)runSpecTestSteps:(NSArray *)steps config:(NSDictionary *)config {

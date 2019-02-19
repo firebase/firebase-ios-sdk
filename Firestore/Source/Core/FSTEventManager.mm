@@ -16,16 +16,13 @@
 
 #import "Firestore/Source/Core/FSTEventManager.h"
 
-#include <utility>
-#include <vector>
-
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSyncEngine.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
-using firebase::firestore::core::DocumentViewChange;
+using firebase::firestore::core::DocumentViewChangeType;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::TargetId;
 
@@ -124,21 +121,21 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)queryDidChangeViewSnapshot:(FSTViewSnapshot *)snapshot {
-  HARD_ASSERT(!snapshot.documentChanges.empty() || snapshot.syncStateChanged,
+  HARD_ASSERT(snapshot.documentChanges.count > 0 || snapshot.syncStateChanged,
               "We got a new snapshot with no changes?");
 
   if (!self.options.includeDocumentMetadataChanges) {
     // Remove the metadata-only changes.
-    std::vector<DocumentViewChange> changes;
-    for (const DocumentViewChange &change : snapshot.documentChanges) {
-      if (change.type() != DocumentViewChange::Type::kMetadata) {
-        changes.push_back(change);
+    NSMutableArray<FSTDocumentViewChange *> *changes = [NSMutableArray array];
+    for (FSTDocumentViewChange *change in snapshot.documentChanges) {
+      if (change.type != DocumentViewChangeType::kMetadata) {
+        [changes addObject:change];
       }
     }
     snapshot = [[FSTViewSnapshot alloc] initWithQuery:snapshot.query
                                             documents:snapshot.documents
                                          oldDocuments:snapshot.oldDocuments
-                                      documentChanges:std::move(changes)
+                                      documentChanges:changes
                                             fromCache:snapshot.fromCache
                                           mutatedKeys:snapshot.mutatedKeys
                                      syncStateChanged:snapshot.syncStateChanged
@@ -196,7 +193,7 @@ NS_ASSUME_NONNULL_BEGIN
   // We don't need to handle includeDocumentMetadataChanges here because the Metadata only changes
   // have already been stripped out if needed. At this point the only changes we will see are the
   // ones we should propagate.
-  if (!snapshot.documentChanges.empty()) {
+  if (snapshot.documentChanges.count > 0) {
     return YES;
   }
 

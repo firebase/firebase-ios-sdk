@@ -26,9 +26,7 @@
 
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
-#include "Firestore/core/src/firebase/firestore/util/objc_compatibility.h"
 
-namespace objc = firebase::firestore::util::objc;
 using firebase::firestore::model::BatchId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeyHash;
@@ -84,9 +82,13 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSString *)description {
-  return
-      [NSString stringWithFormat:@"<FSTMutationBatch: id=%d, localWriteTime=%@, mutations=%@>",
-                                 self.batchID, self.localWriteTime, objc::Description(_mutations)];
+  // TODO(varconst): quick-and-dirty-way to create a readable description.
+  NSMutableArray *mutationsCopy = [NSMutableArray array];
+  for (FSTMutation *mutation : _mutations) {
+    [mutationsCopy addObject:mutation];
+  }
+  return [NSString stringWithFormat:@"<FSTMutationBatch: id=%d, localWriteTime=%@, mutations=%@>",
+                                    self.batchID, self.localWriteTime, mutationsCopy];
 }
 
 - (FSTMaybeDocument *_Nullable)applyToRemoteDocument:(FSTMaybeDocument *_Nullable)maybeDoc

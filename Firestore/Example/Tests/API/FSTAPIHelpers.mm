@@ -21,8 +21,6 @@
 #import <FirebaseFirestore/FIRSnapshotMetadata.h>
 
 #include <string>
-#include <utility>
-#include <vector>
 
 #import "Firestore/Source/API/FIRCollectionReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
@@ -35,14 +33,12 @@
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 
-#include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
 namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
-using firebase::firestore::core::DocumentViewChange;
-using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::core::DocumentViewChangeType;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -113,13 +109,16 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
     }
   }
   FSTDocumentSet *newDocuments = oldDocuments;
-  std::vector<DocumentViewChange> documentChanges;
+  NSArray<FSTDocumentViewChange *> *documentChanges = [NSArray array];
   for (NSString *key in docsToAdd) {
     FSTDocument *docToAdd =
         FSTTestDoc(util::StringFormat("%s/%s", path, key), 1, docsToAdd[key],
                    hasPendingWrites ? FSTDocumentStateLocalMutations : FSTDocumentStateSynced);
     newDocuments = [newDocuments documentSetByAddingDocument:docToAdd];
-    documentChanges.emplace_back(docToAdd, DocumentViewChange::Type::kAdded);
+    documentChanges = [documentChanges
+        arrayByAddingObject:[FSTDocumentViewChange
+                                changeWithDocument:docToAdd
+                                              type:DocumentViewChangeType::kAdded]];
     if (hasPendingWrites) {
       const std::string documentKey = util::StringFormat("%s/%s", path, key);
       mutatedKeys = mutatedKeys.insert(testutil::Key(documentKey));
@@ -128,7 +127,7 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
   FSTViewSnapshot *viewSnapshot = [[FSTViewSnapshot alloc] initWithQuery:FSTTestQuery(path)
                                                                documents:newDocuments
                                                             oldDocuments:oldDocuments
-                                                         documentChanges:std::move(documentChanges)
+                                                         documentChanges:documentChanges
                                                                fromCache:fromCache
                                                              mutatedKeys:mutatedKeys
                                                         syncStateChanged:YES

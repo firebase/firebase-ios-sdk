@@ -199,7 +199,7 @@ class TargetState {
   void ClearPendingChanges();
 
   void AddDocumentChange(const model::DocumentKey& document_key,
-                         core::DocumentViewChange::Type type);
+                         core::DocumentViewChangeType type);
   void RemoveDocumentChange(const model::DocumentKey& document_key);
   void RecordPendingTargetRequest();
   void RecordTargetResponse();
@@ -219,7 +219,7 @@ class TargetState {
    * always reflect the current set of changes against the last issued snapshot.
    */
   std::unordered_map<model::DocumentKey,
-                     core::DocumentViewChange::Type,
+                     core::DocumentViewChangeType,
                      model::DocumentKeyHash>
       document_changes_;
 

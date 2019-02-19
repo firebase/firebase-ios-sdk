@@ -16,9 +16,7 @@
 
 #import "Firestore/Source/Core/FSTView.h"
 
-#include <algorithm>
 #include <utility>
-#include <vector>
 
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTViewSnapshot.h"
@@ -30,7 +28,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
-using firebase::firestore::core::DocumentViewChange;
+using firebase::firestore::core::DocumentViewChangeType;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::MaybeDocumentMap;
@@ -38,27 +36,6 @@ using firebase::firestore::model::OnlineState;
 using firebase::firestore::remote::TargetChange;
 
 NS_ASSUME_NONNULL_BEGIN
-
-namespace {
-
-int GetDocumentViewChangeTypePosition(DocumentViewChange::Type changeType) {
-  switch (changeType) {
-    case DocumentViewChange::Type::kRemoved:
-      return 0;
-    case DocumentViewChange::Type::kAdded:
-      return 1;
-    case DocumentViewChange::Type::kModified:
-      return 2;
-    case DocumentViewChange::Type::kMetadata:
-      // A metadata change is converted to a modified change at the public API layer. Since we sort
-      // by document key and then change type, metadata and modified changes must be sorted
-      // equivalently.
-      return 2;
-  }
-  HARD_FAIL("Unknown DocumentViewChange::Type %s", changeType);
-}
-
-}  // namespace
 
 #pragma mark - FSTViewDocumentChanges
 
@@ -181,6 +158,9 @@ int GetDocumentViewChangeTypePosition(DocumentViewChange::Type changeType) {
 
 #pragma mark - FSTView
 
+static NSComparisonResult FSTCompareDocumentViewChangeTypes(DocumentViewChangeType c1,
+                                                            DocumentViewChangeType c2);
+
 @interface FSTView ()
 
 @property(nonatomic, strong, readonly) FSTQuery *query;
@@ -282,7 +262,9 @@ int GetDocumentViewChangeTypePosition(DocumentViewChange::Type changeType) {
       BOOL docsEqual = [oldDoc.data isEqual:newDoc.data];
       if (!docsEqual) {
         if (![self shouldWaitForSyncedDocument:newDoc oldDocument:oldDoc]) {
-          [changeSet addChange:DocumentViewChange{newDoc, DocumentViewChange::Type::kModified}];
+          [changeSet addChange:[FSTDocumentViewChange
+                                   changeWithDocument:newDoc
+                                                 type:DocumentViewChangeType::kModified]];
           changeApplied = YES;
 
           if (lastDocInLimit && self.query.comparator(newDoc, lastDocInLimit) > 0) {
@@ -292,15 +274,21 @@ int GetDocumentViewChangeTypePosition(DocumentViewChange::Type changeType) {
           }
         }
       } else if (oldDocHadPendingMutations != newDocHasPendingMutations) {
-        [changeSet addChange:DocumentViewChange{newDoc, DocumentViewChange::Type::kMetadata}];
+        [changeSet
+            addChange:[FSTDocumentViewChange changeWithDocument:newDoc
+                                                           type:DocumentViewChangeType::kMetadata]];
         changeApplied = YES;
       }
 
     } else if (!oldDoc && newDoc) {
-      [changeSet addChange:DocumentViewChange{newDoc, DocumentViewChange::Type::kAdded}];
+      [changeSet
+          addChange:[FSTDocumentViewChange changeWithDocument:newDoc
+                                                         type:DocumentViewChangeType::kAdded]];
       changeApplied = YES;
     } else if (oldDoc && !newDoc) {
-      [changeSet addChange:DocumentViewChange{oldDoc, DocumentViewChange::Type::kRemoved}];
+      [changeSet
+          addChange:[FSTDocumentViewChange changeWithDocument:oldDoc
+                                                         type:DocumentViewChangeType::kRemoved]];
       changeApplied = YES;
 
       if (lastDocInLimit) {
@@ -330,7 +318,9 @@ int GetDocumentViewChangeTypePosition(DocumentViewChange::Type changeType) {
       FSTDocument *oldDoc = [newDocumentSet lastDocument];
       newDocumentSet = [newDocumentSet documentSetByRemovingKey:oldDoc.key];
       newMutatedKeys = newMutatedKeys.erase(oldDoc.key);
-      [changeSet addChange:DocumentViewChange{oldDoc, DocumentViewChange::Type::kRemoved}];
+      [changeSet
+          addChange:[FSTDocumentViewChange changeWithDocument:oldDoc
+                                                         type:DocumentViewChangeType::kRemoved]];
     }
   }
 
@@ -366,17 +356,15 @@ int GetDocumentViewChangeTypePosition(DocumentViewChange::Type changeType) {
   _mutatedKeys = docChanges.mutatedKeys;
 
   // Sort changes based on type and query comparator.
-  std::vector<DocumentViewChange> changes = [docChanges.changeSet changes];
-  std::sort(changes.begin(), changes.end(),
-            [self](const DocumentViewChange &lhs, const DocumentViewChange &rhs) {
-              int pos1 = GetDocumentViewChangeTypePosition(lhs.type());
-              int pos2 = GetDocumentViewChangeTypePosition(rhs.type());
-              if (pos1 != pos2) {
-                return pos1 < pos2;
-              }
-              return self.query.comparator(lhs.document(), rhs.document()) == NSOrderedAscending;
-            });
-
+  NSArray<FSTDocumentViewChange *> *changes = [docChanges.changeSet changes];
+  changes = [changes sortedArrayUsingComparator:^NSComparisonResult(FSTDocumentViewChange *c1,
+                                                                    FSTDocumentViewChange *c2) {
+    NSComparisonResult typeComparison = FSTCompareDocumentViewChangeTypes(c1.type, c2.type);
+    if (typeComparison != NSOrderedSame) {
+      return typeComparison;
+    }
+    return self.query.comparator(c1.document, c2.document);
+  }];
   [self applyTargetChange:targetChange];
   NSArray<FSTLimboDocumentChange *> *limboChanges = [self updateLimboDocuments];
   BOOL synced = _limboDocuments.empty() && self.isCurrent;
@@ -384,7 +372,7 @@ int GetDocumentViewChangeTypePosition(DocumentViewChange::Type changeType) {
   BOOL syncStateChanged = newSyncState != self.syncState;
   self.syncState = newSyncState;
 
-  if (changes.empty() && !syncStateChanged) {
+  if (changes.count == 0 && !syncStateChanged) {
     // No changes.
     return [FSTViewChange changeWithSnapshot:nil limboChanges:limboChanges];
   } else {
@@ -392,7 +380,7 @@ int GetDocumentViewChangeTypePosition(DocumentViewChange::Type changeType) {
         [[FSTViewSnapshot alloc] initWithQuery:self.query
                                      documents:docChanges.documentSet
                                   oldDocuments:oldDocuments
-                               documentChanges:std::move(changes)
+                               documentChanges:changes
                                      fromCache:newSyncState == FSTSyncStateLocal
                                    mutatedKeys:docChanges.mutatedKeys
                               syncStateChanged:syncStateChanged
@@ -500,5 +488,36 @@ int GetDocumentViewChangeTypePosition(DocumentViewChange::Type changeType) {
 }
 
 @end
+
+static inline int DocumentViewChangeTypePosition(DocumentViewChangeType changeType) {
+  switch (changeType) {
+    case DocumentViewChangeType::kRemoved:
+      return 0;
+    case DocumentViewChangeType::kAdded:
+      return 1;
+    case DocumentViewChangeType::kModified:
+      return 2;
+    case DocumentViewChangeType::kMetadata:
+      // A metadata change is converted to a modified change at the public API layer. Since we sort
+      // by document key and then change type, metadata and modified changes must be sorted
+      // equivalently.
+      return 2;
+    default:
+      HARD_FAIL("Unknown DocumentViewChangeType %s", changeType);
+  }
+}
+
+static NSComparisonResult FSTCompareDocumentViewChangeTypes(DocumentViewChangeType c1,
+                                                            DocumentViewChangeType c2) {
+  int pos1 = DocumentViewChangeTypePosition(c1);
+  int pos2 = DocumentViewChangeTypePosition(c2);
+  if (pos1 == pos2) {
+    return NSOrderedSame;
+  } else if (pos1 < pos2) {
+    return NSOrderedAscending;
+  } else {
+    return NSOrderedDescending;
+  }
+}
 
 NS_ASSUME_NONNULL_END

@@ -22,7 +22,7 @@
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 
-using firebase::firestore::core::DocumentViewChange;
+using firebase::firestore::core::DocumentViewChangeType;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::SnapshotVersion;
@@ -61,16 +61,16 @@ TargetChange TargetState::ToTargetChange() const {
 
   for (const auto& entry : document_changes_) {
     const DocumentKey& document_key = entry.first;
-    DocumentViewChange::Type change_type = entry.second;
+    DocumentViewChangeType change_type = entry.second;
 
     switch (change_type) {
-      case DocumentViewChange::Type::kAdded:
+      case DocumentViewChangeType::kAdded:
         added_documents = added_documents.insert(document_key);
         break;
-      case DocumentViewChange::Type::kModified:
+      case DocumentViewChangeType::kModified:
         modified_documents = modified_documents.insert(document_key);
         break;
-      case DocumentViewChange::Type::kRemoved:
+      case DocumentViewChangeType::kRemoved:
         removed_documents = removed_documents.insert(document_key);
         break;
       default:
@@ -102,7 +102,7 @@ void TargetState::MarkCurrent() {
 }
 
 void TargetState::AddDocumentChange(const DocumentKey& document_key,
-                                    DocumentViewChange::Type type) {
+                                    DocumentViewChangeType type) {
   has_pending_changes_ = true;
   document_changes_[document_key] = type;
 }
@@ -322,10 +322,10 @@ void WatchChangeAggregator::AddDocumentToTarget(TargetId target_id,
     return;
   }
 
-  DocumentViewChange::Type change_type =
+  DocumentViewChangeType change_type =
       TargetContainsDocument(target_id, document.key)
-          ? DocumentViewChange::Type::kModified
-          : DocumentViewChange::Type::kAdded;
+          ? DocumentViewChangeType::kModified
+          : DocumentViewChangeType::kAdded;
 
   TargetState& target_state = EnsureTargetState(target_id);
   target_state.AddDocumentChange(document.key, change_type);
@@ -344,7 +344,7 @@ void WatchChangeAggregator::RemoveDocumentFromTarget(
 
   TargetState& target_state = EnsureTargetState(target_id);
   if (TargetContainsDocument(target_id, key)) {
-    target_state.AddDocumentChange(key, DocumentViewChange::Type::kRemoved);
+    target_state.AddDocumentChange(key, DocumentViewChangeType::kRemoved);
   } else {
     // The document may have entered and left the target before we raised a
     // snapshot, so we can just ignore the change.

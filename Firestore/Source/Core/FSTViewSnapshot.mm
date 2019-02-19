@@ -26,28 +26,67 @@
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_map.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
-#include "Firestore/core/src/firebase/firestore/util/hashing.h"
-#include "Firestore/core/src/firebase/firestore/util/objc_compatibility.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
 #include "absl/strings/str_join.h"
 
-namespace objc = firebase::firestore::util::objc;
-using firebase::firestore::core::DocumentViewChange;
+using firebase::firestore::core::DocumentViewChangeType;
 using firebase::firestore::immutable::SortedMap;
 using firebase::firestore::model::DocumentKey;
-using firebase::firestore::model::DocumentKeySet;
-using firebase::firestore::util::Hash;
-using firebase::firestore::util::StringFormat;
 using firebase::firestore::util::WrapNSString;
+using firebase::firestore::util::StringFormat;
 
 NS_ASSUME_NONNULL_BEGIN
+
+#pragma mark - FSTDocumentViewChange
+
+@interface FSTDocumentViewChange ()
+
++ (instancetype)changeWithDocument:(FSTDocument *)document type:(DocumentViewChangeType)type;
+
+- (instancetype)initWithDocument:(FSTDocument *)document
+                            type:(DocumentViewChangeType)type NS_DESIGNATED_INITIALIZER;
+
+@end
+
+@implementation FSTDocumentViewChange
+
++ (instancetype)changeWithDocument:(FSTDocument *)document type:(DocumentViewChangeType)type {
+  return [[FSTDocumentViewChange alloc] initWithDocument:document type:type];
+}
+
+- (instancetype)initWithDocument:(FSTDocument *)document type:(DocumentViewChangeType)type {
+  self = [super init];
+  if (self) {
+    _document = document;
+    _type = type;
+  }
+  return self;
+}
+
+- (BOOL)isEqual:(id)other {
+  if (self == other) {
+    return YES;
+  }
+  if (![other isKindOfClass:[FSTDocumentViewChange class]]) {
+    return NO;
+  }
+  FSTDocumentViewChange *otherChange = (FSTDocumentViewChange *)other;
+  return [self.document isEqual:otherChange.document] && self.type == otherChange.type;
+}
+
+- (NSString *)description {
+  return [NSString
+      stringWithFormat:@"<FSTDocumentViewChange type:%ld doc:%@>", (long)self.type, self.document];
+}
+
+@end
 
 #pragma mark - FSTDocumentViewChangeSet
 
 @implementation FSTDocumentViewChangeSet {
   /** The set of all changes tracked so far, with redundant changes merged. */
-  SortedMap<DocumentKey, DocumentViewChange> _changeMap;
+  SortedMap<DocumentKey, FSTDocumentViewChange *> _changeMap;
 }
 
 + (instancetype)changeSet {
@@ -55,46 +94,60 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSString *)description {
-  return objc::Description(_changeMap);
+  std::string result = absl::StrJoin(
+      _changeMap, ",",
+      [](std::string *out, const std::pair<DocumentKey, FSTDocumentViewChange *> &kv) {
+        out->append(StringFormat("%s: %s", kv.first.ToString(), kv.second));
+      });
+  return WrapNSString(std::string{"{"} + result + "}");
 }
 
-- (void)addChange:(DocumentViewChange &&)change {
-  const DocumentKey &key = change.document().key;
+- (void)addChange:(FSTDocumentViewChange *)change {
+  const DocumentKey &key = change.document.key;
   auto oldChangeIter = _changeMap.find(key);
   if (oldChangeIter == _changeMap.end()) {
     _changeMap = _changeMap.insert(key, change);
     return;
   }
-  const DocumentViewChange &oldChange = oldChangeIter->second;
+  FSTDocumentViewChange *oldChange = oldChangeIter->second;
 
   // Merge the new change with the existing change.
-  if (change.type() != DocumentViewChange::Type::kAdded &&
-      oldChange.type() == DocumentViewChange::Type::kMetadata) {
+  if (change.type != DocumentViewChangeType::kAdded &&
+      oldChange.type == DocumentViewChangeType::kMetadata) {
     _changeMap = _changeMap.insert(key, change);
 
-  } else if (change.type() == DocumentViewChange::Type::kMetadata &&
-             oldChange.type() != DocumentViewChange::Type::kRemoved) {
-    DocumentViewChange newChange{change.document(), oldChange.type()};
+  } else if (change.type == DocumentViewChangeType::kMetadata &&
+             oldChange.type != DocumentViewChangeType::kRemoved) {
+    FSTDocumentViewChange *newChange = [FSTDocumentViewChange changeWithDocument:change.document
+                                                                            type:oldChange.type];
     _changeMap = _changeMap.insert(key, newChange);
 
-  } else if (change.type() == DocumentViewChange::Type::kModified &&
-             oldChange.type() == DocumentViewChange::Type::kModified) {
-    DocumentViewChange newChange{change.document(), DocumentViewChange::Type::kModified};
+  } else if (change.type == DocumentViewChangeType::kModified &&
+             oldChange.type == DocumentViewChangeType::kModified) {
+    FSTDocumentViewChange *newChange =
+        [FSTDocumentViewChange changeWithDocument:change.document
+                                             type:DocumentViewChangeType::kModified];
     _changeMap = _changeMap.insert(key, newChange);
-  } else if (change.type() == DocumentViewChange::Type::kModified &&
-             oldChange.type() == DocumentViewChange::Type::kAdded) {
-    DocumentViewChange newChange{change.document(), DocumentViewChange::Type::kAdded};
+  } else if (change.type == DocumentViewChangeType::kModified &&
+             oldChange.type == DocumentViewChangeType::kAdded) {
+    FSTDocumentViewChange *newChange =
+        [FSTDocumentViewChange changeWithDocument:change.document
+                                             type:DocumentViewChangeType::kAdded];
     _changeMap = _changeMap.insert(key, newChange);
-  } else if (change.type() == DocumentViewChange::Type::kRemoved &&
-             oldChange.type() == DocumentViewChange::Type::kAdded) {
+  } else if (change.type == DocumentViewChangeType::kRemoved &&
+             oldChange.type == DocumentViewChangeType::kAdded) {
     _changeMap = _changeMap.erase(key);
-  } else if (change.type() == DocumentViewChange::Type::kRemoved &&
-             oldChange.type() == DocumentViewChange::Type::kModified) {
-    DocumentViewChange newChange{oldChange.document(), DocumentViewChange::Type::kRemoved};
+  } else if (change.type == DocumentViewChangeType::kRemoved &&
+             oldChange.type == DocumentViewChangeType::kModified) {
+    FSTDocumentViewChange *newChange =
+        [FSTDocumentViewChange changeWithDocument:oldChange.document
+                                             type:DocumentViewChangeType::kRemoved];
     _changeMap = _changeMap.insert(key, newChange);
-  } else if (change.type() == DocumentViewChange::Type::kAdded &&
-             oldChange.type() == DocumentViewChange::Type::kRemoved) {
-    DocumentViewChange newChange{change.document(), DocumentViewChange::Type::kModified};
+  } else if (change.type == DocumentViewChangeType::kAdded &&
+             oldChange.type == DocumentViewChangeType::kRemoved) {
+    FSTDocumentViewChange *newChange =
+        [FSTDocumentViewChange changeWithDocument:change.document
+                                             type:DocumentViewChangeType::kModified];
     _changeMap = _changeMap.insert(key, newChange);
   } else {
     // This includes these cases, which don't make sense:
@@ -104,15 +157,15 @@ NS_ASSUME_NONNULL_BEGIN
     // Removed -> Modified
     // Metadata -> Added
     // Removed -> Metadata
-    HARD_FAIL("Unsupported combination of changes: %s after %s", change.type(), oldChange.type());
+    HARD_FAIL("Unsupported combination of changes: %s after %s", change.type, oldChange.type);
   }
 }
 
-- (std::vector<DocumentViewChange>)changes {
-  std::vector<DocumentViewChange> changes;
+- (NSArray<FSTDocumentViewChange *> *)changes {
+  NSMutableArray<FSTDocumentViewChange *> *changes = [NSMutableArray array];
   for (const auto &kv : _changeMap) {
-    const DocumentViewChange &change = kv.second;
-    changes.push_back(change);
+    FSTDocumentViewChange *change = kv.second;
+    [changes addObject:change];
   }
   return changes;
 }
@@ -121,18 +174,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTViewSnapshot
 
-@implementation FSTViewSnapshot {
-  std::vector<DocumentViewChange> _documentChanges;
-}
-
-- (const std::vector<DocumentViewChange> &)documentChanges {
-  return _documentChanges;
-}
+@implementation FSTViewSnapshot
 
 - (instancetype)initWithQuery:(FSTQuery *)query
                     documents:(FSTDocumentSet *)documents
                  oldDocuments:(FSTDocumentSet *)oldDocuments
-              documentChanges:(std::vector<DocumentViewChange>)documentChanges
+              documentChanges:(NSArray<FSTDocumentViewChange *> *)documentChanges
                     fromCache:(BOOL)fromCache
                   mutatedKeys:(DocumentKeySet)mutatedKeys
              syncStateChanged:(BOOL)syncStateChanged
@@ -142,7 +189,7 @@ NS_ASSUME_NONNULL_BEGIN
     _query = query;
     _documents = documents;
     _oldDocuments = oldDocuments;
-    _documentChanges = std::move(documentChanges);
+    _documentChanges = documentChanges;
     _fromCache = fromCache;
     _mutatedKeys = mutatedKeys;
     _syncStateChanged = syncStateChanged;
@@ -156,15 +203,17 @@ NS_ASSUME_NONNULL_BEGIN
                                 mutatedKeys:(DocumentKeySet)mutatedKeys
                                   fromCache:(BOOL)fromCache
                     excludesMetadataChanges:(BOOL)excludesMetadataChanges {
-  std::vector<DocumentViewChange> viewChanges;
+  NSMutableArray<FSTDocumentViewChange *> *viewChanges = [NSMutableArray array];
   for (FSTDocument *doc in documents.documentEnumerator) {
-    viewChanges.emplace_back(doc, DocumentViewChange::Type::kAdded);
+    [viewChanges
+        addObject:[FSTDocumentViewChange changeWithDocument:doc
+                                                       type:DocumentViewChangeType::kAdded]];
   }
   return [[FSTViewSnapshot alloc]
                 initWithQuery:query
                     documents:documents
                  oldDocuments:[FSTDocumentSet documentSetWithComparator:query.comparator]
-              documentChanges:std::move(viewChanges)
+              documentChanges:viewChanges
                     fromCache:fromCache
                   mutatedKeys:mutatedKeys
              syncStateChanged:YES
@@ -180,8 +229,8 @@ NS_ASSUME_NONNULL_BEGIN
       stringWithFormat:@"<FSTViewSnapshot query:%@ documents:%@ oldDocument:%@ changes:%@ "
                         "fromCache:%@ mutatedKeys:%zu syncStateChanged:%@ "
                         "excludesMetadataChanges%@>",
-                       self.query, self.documents, self.oldDocuments,
-                       objc::Description(_documentChanges), (self.fromCache ? @"YES" : @"NO"),
+                       self.query, self.documents, self.oldDocuments, self.documentChanges,
+                       (self.fromCache ? @"YES" : @"NO"),
                        static_cast<size_t>(self.mutatedKeys.size()),
                        (self.syncStateChanged ? @"YES" : @"NO"),
                        (self.excludesMetadataChanges ? @"YES" : @"NO")];
@@ -197,8 +246,9 @@ NS_ASSUME_NONNULL_BEGIN
   FSTViewSnapshot *other = object;
   return [self.query isEqual:other.query] && [self.documents isEqual:other.documents] &&
          [self.oldDocuments isEqual:other.oldDocuments] &&
-         _documentChanges == other.documentChanges && self.fromCache == other.fromCache &&
-         self.mutatedKeys == other.mutatedKeys && self.syncStateChanged == other.syncStateChanged &&
+         [self.documentChanges isEqualToArray:other.documentChanges] &&
+         self.fromCache == other.fromCache && self.mutatedKeys == other.mutatedKeys &&
+         self.syncStateChanged == other.syncStateChanged &&
          self.excludesMetadataChanges == other.excludesMetadataChanges;
 }
 
@@ -210,7 +260,7 @@ NS_ASSUME_NONNULL_BEGIN
   NSUInteger result = [self.query hash];
   result = 31 * result + [self.documents hash];
   result = 31 * result + [self.oldDocuments hash];
-  result = 31 * result + Hash(_documentChanges);
+  result = 31 * result + [self.documentChanges hash];
   result = 31 * result + (self.fromCache ? 1231 : 1237);
   result = 31 * result + (self.syncStateChanged ? 1231 : 1237);
   result = 31 * result + (self.excludesMetadataChanges ? 1231 : 1237);
