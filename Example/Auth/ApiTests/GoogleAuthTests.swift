@@ -72,7 +72,7 @@ class GoogleAuthTestsSwift: FIRAuthApiTestsBase {
       data = receivedData
       expectation.fulfill()
     }
-    
+
     waitForExpectations(timeout: kExpectationsTimeout) { error in
       if error != nil {
         XCTFail(String(format: "Failed to wait for expectations in exchanging Google account tokens. Error: %@", error!.localizedDescription))

@@ -14,4 +14,29 @@
  * limitations under the License.
  */
 
-#import "FIRAuthApiTestsBase.h"
+#import <XCTest/XCTest.h>
+
+#import <EarlGrey/EarlGrey.h>
+
+#import "FirebaseAuth.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+extern CGFloat const kShortScrollDistance;
+
+extern NSTimeInterval const kWaitForElementTimeOut;
+
+/** Convenience function for EarlGrey tests. */
+id<GREYMatcher> grey_scrollView(void);
+
+@interface FIRAuthE2eTestsBase : XCTestCase
+
+/** Sign out current account. */
+- (void)signOut;
+
+/** Wait for an element with text to appear. */
+- (void)waitForElementWithText:(NSString *)text withDelay:(NSTimeInterval)maxDelay;
+
+@end
+
+NS_ASSUME_NONNULL_END
