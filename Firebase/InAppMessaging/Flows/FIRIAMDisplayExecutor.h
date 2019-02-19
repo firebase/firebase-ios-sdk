@@ -22,6 +22,7 @@
 #import "FIRIAMClearcutLogger.h"
 #import "FIRIAMMessageClientCache.h"
 #import "FIRIAMTimeFetcher.h"
+#import "FIRInAppMessaging.h"
 #import "FIRInAppMessagingRendering.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -39,13 +40,14 @@ NS_ASSUME_NONNULL_BEGIN
 //   2 For non-contextual messages, the display interval in display setting is met.
 @interface FIRIAMDisplayExecutor : NSObject
 
-- (instancetype)initWithSetting:(FIRIAMDisplaySetting *)setting
-                   messageCache:(FIRIAMMessageClientCache *)cache
-                    timeFetcher:(id<FIRIAMTimeFetcher>)timeFetcher
-                     bookKeeper:(id<FIRIAMBookKeeper>)displayBookKeeper
-              actionURLFollower:(FIRIAMActionURLFollower *)actionURLFollower
-                 activityLogger:(FIRIAMActivityLogger *)activityLogger
-           analyticsEventLogger:(id<FIRIAMAnalyticsEventLogger>)analyticsEventLogger;
+- (instancetype)initWithInAppMessaging:(FIRInAppMessaging *)inAppMessaging
+                               setting:(FIRIAMDisplaySetting *)setting
+                          messageCache:(FIRIAMMessageClientCache *)cache
+                           timeFetcher:(id<FIRIAMTimeFetcher>)timeFetcher
+                            bookKeeper:(id<FIRIAMBookKeeper>)displayBookKeeper
+                     actionURLFollower:(FIRIAMActionURLFollower *)actionURLFollower
+                        activityLogger:(FIRIAMActivityLogger *)activityLogger
+                  analyticsEventLogger:(id<FIRIAMAnalyticsEventLogger>)analyticsEventLogger;
 
 // Check and display next in-app message eligible for app open trigger
 - (void)checkAndDisplayNextAppForegroundMessage;

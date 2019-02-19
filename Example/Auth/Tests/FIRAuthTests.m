@@ -68,16 +68,6 @@
 #import "FIRPhoneAuthProvider.h"
 #endif
 
-/** @var kFirebaseAppName1
-    @brief A fake Firebase app name.
- */
-static NSString *const kFirebaseAppName1 = @"FIREBASE_APP_NAME_1";
-
-/** @var kFirebaseAppName2
-    @brief Another fake Firebase app name.
- */
-static NSString *const kFirebaseAppName2 = @"FIREBASE_APP_NAME_2";
-
 /** @var kAPIKey
     @brief The fake API key.
  */
@@ -286,83 +276,6 @@ static const NSTimeInterval kWaitInterval = .5;
   [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:nil];
   [[FIRAuthDispatcher sharedInstance] setDispatchAfterImplementation:nil];
   [super tearDown];
-}
-
-#pragma mark - Life Cycle Tests
-
-/** @fn testSingleton
-    @brief Verifies the @c auth method behaves like a singleton.
- */
-- (void)testSingleton {
-  FIRAuth *auth1 = [FIRAuth auth];
-  XCTAssertNotNil(auth1);
-  FIRAuth *auth2 = [FIRAuth auth];
-  XCTAssertEqual(auth1, auth2);
-}
-
-/** @fn testDefaultAuth
-    @brief Verifies the @c auth method associates with the default Firebase app.
- */
-- (void)testDefaultAuth {
-  FIRAuth *auth1 = [FIRAuth auth];
-  FIRAuth *auth2 = [FIRAuth authWithApp:[FIRApp defaultApp]];
-  XCTAssertEqual(auth1, auth2);
-  XCTAssertEqual(auth1.app, [FIRApp defaultApp]);
-}
-
-/** @fn testNilAppException
-    @brief Verifies the @c auth method raises an exception if the default FIRApp is not configured.
- */
-- (void)testNilAppException {
-  [FIRApp resetApps];
-  XCTAssertThrows([FIRAuth auth]);
-}
-
-/** @fn testAppAPIkey
-    @brief Verifies the API key is correctly copied from @c FIRApp to @c FIRAuth .
- */
-- (void)testAppAPIkey {
-  FIRAuth *auth = [FIRAuth auth];
-  XCTAssertEqualObjects(auth.requestConfiguration.APIKey, kAPIKey);
-}
-
-/** @fn testAppAssociation
-    @brief Verifies each @c FIRApp instance associates with a @c FIRAuth .
- */
-- (void)testAppAssociation {
-  FIRApp *app1 = [self app1];
-  FIRAuth *auth1 = [FIRAuth authWithApp:app1];
-  XCTAssertNotNil(auth1);
-  XCTAssertEqual(auth1.app, app1);
-
-  FIRApp *app2 = [self app2];
-  FIRAuth *auth2 = [FIRAuth authWithApp:app2];
-  XCTAssertNotNil(auth2);
-  XCTAssertEqual(auth2.app, app2);
-
-  XCTAssertNotEqual(auth1, auth2);
-}
-
-/** @fn testLifeCycle
-    @brief Verifies the life cycle of @c FIRAuth is the same as its associated @c FIRApp .
- */
-- (void)testLifeCycle {
-  __weak FIRApp *app;
-  __weak FIRAuth *auth;
-  @autoreleasepool {
-    FIRApp *app1 = [self app1];
-    app = app1;
-    auth = [FIRAuth authWithApp:app1];
-    // Verify that neither the app nor the auth is released yet, i.e., the app owns the auth
-    // because nothing else retains the auth.
-    XCTAssertNotNil(app);
-    XCTAssertNotNil(auth);
-  }
-  [self waitForTimeIntervel:kWaitInterval];
-  // Verify that both the app and the auth are released upon exit of the autorelease pool,
-  // i.e., the app is the sole owner of the auth.
-  XCTAssertNil(app);
-  XCTAssertNil(auth);
 }
 
 #pragma mark - Server API Tests
@@ -2274,22 +2187,6 @@ static const NSTimeInterval kWaitInterval = .5;
     [expectation fulfill];
   }];
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
-}
-
-/** @fn app1
-    @brief Creates a Firebase app.
-    @return A @c FIRApp with some name.
- */
-- (FIRApp *)app1 {
-  return [FIRApp appForAuthUnitTestsWithName:kFirebaseAppName1];
-}
-
-/** @fn app2
-    @brief Creates another Firebase app.
-    @return A @c FIRApp with some other name.
- */
-- (FIRApp *)app2 {
-  return [FIRApp appForAuthUnitTestsWithName:kFirebaseAppName2];
 }
 
 /** @fn stubSecureTokensWithMockResponse

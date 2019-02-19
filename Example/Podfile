@@ -131,18 +131,10 @@ target 'Auth_Sample' do
     inherit! :search_paths
   end
 
-  target 'Auth_EarlGreyTests' do
+  target 'Auth_E2eTests' do
     inherit! :search_paths
     pod 'EarlGrey'
   end
-end
-
-target 'Auth_SwiftSample' do
-  platform :ios, '8.0'
-  pod 'FirebaseAuth', :path => '../'
-  pod 'FirebaseCore', :path => '../'
-  pod 'GoogleSignIn'
-  pod 'FirebaseInstanceID'
 end
 
 target 'Core_Example_macOS' do

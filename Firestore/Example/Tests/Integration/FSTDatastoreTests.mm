@@ -30,7 +30,6 @@
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
-#import "Firestore/Source/Remote/FSTRemoteStore.h"
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
@@ -41,9 +40,11 @@
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
+#include "Firestore/core/src/firebase/firestore/remote/remote_store.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "absl/memory/memory.h"
 
@@ -60,14 +61,12 @@ using firebase::firestore::model::TargetId;
 using firebase::firestore::remote::Datastore;
 using firebase::firestore::remote::GrpcConnection;
 using firebase::firestore::remote::RemoteEvent;
+using firebase::firestore::remote::RemoteStore;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::ExecutorLibdispatch;
+using firebase::firestore::util::Status;
 
 NS_ASSUME_NONNULL_BEGIN
-
-@interface FSTRemoteStore (Tests)
-- (void)addBatchToWritePipeline:(FSTMutationBatch *)batch;
-@end
 
 #pragma mark - FSTRemoteStoreEventCapture
 
@@ -163,7 +162,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   DatabaseInfo _databaseInfo;
   std::shared_ptr<Datastore> _datastore;
-  FSTRemoteStore *_remoteStore;
+  std::unique_ptr<RemoteStore> _remoteStore;
 }
 
 - (void)setUp {
@@ -185,18 +184,16 @@ NS_ASSUME_NONNULL_BEGIN
   _testWorkerQueue = absl::make_unique<AsyncQueue>(absl::make_unique<ExecutorLibdispatch>(queue));
   _datastore = std::make_shared<Datastore>(_databaseInfo, _testWorkerQueue.get(), &_credentials);
 
-  _remoteStore = [[FSTRemoteStore alloc] initWithLocalStore:_localStore
-                                                  datastore:_datastore
-                                                workerQueue:_testWorkerQueue.get()
-                                         onlineStateHandler:[](OnlineState) {}];
+  _remoteStore = absl::make_unique<RemoteStore>(_localStore, _datastore, _testWorkerQueue.get(),
+                                                [](OnlineState) {});
 
-  _testWorkerQueue->Enqueue([=] { [_remoteStore start]; });
+  _testWorkerQueue->Enqueue([=] { _remoteStore->Start(); });
 }
 
 - (void)tearDown {
   XCTestExpectation *completion = [self expectationWithDescription:@"shutdown"];
   _testWorkerQueue->Enqueue([=] {
-    [_remoteStore shutdown];
+    _remoteStore->Shutdown();
     [completion fulfill];
   });
   [self awaitExpectations];
@@ -207,8 +204,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testCommit {
   XCTestExpectation *expectation = [self expectationWithDescription:@"commitWithCompletion"];
 
-  _datastore->CommitMutations({}, ^(NSError *_Nullable error) {
-    XCTAssertNil(error, @"Failed to commit");
+  _datastore->CommitMutations({}, [self, expectation](const Status &status) {
+    XCTAssertTrue(status.ok(), @"Failed to commit");
     [expectation fulfill];
   });
 
@@ -219,17 +216,17 @@ NS_ASSUME_NONNULL_BEGIN
   FSTRemoteStoreEventCapture *capture = [[FSTRemoteStoreEventCapture alloc] initWithTestCase:self];
   [capture expectWriteEventWithDescription:@"write mutations"];
 
-  [_remoteStore setSyncEngine:capture];
+  _remoteStore->set_sync_engine(capture);
 
   FSTSetMutation *mutation = [self setMutation];
   FSTMutationBatch *batch = [[FSTMutationBatch alloc] initWithBatchID:23
                                                        localWriteTime:[FIRTimestamp timestamp]
                                                             mutations:{mutation}];
   _testWorkerQueue->Enqueue([=] {
-    [_remoteStore addBatchToWritePipeline:batch];
+    _remoteStore->AddToWritePipeline(batch);
     // The added batch won't be written immediately because write stream wasn't yet open --
     // trigger its opening.
-    [_remoteStore fillWritePipeline];
+    _remoteStore->FillWritePipeline();
   });
 
   [self awaitExpectations];

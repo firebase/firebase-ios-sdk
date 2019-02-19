@@ -22,6 +22,7 @@
 #import "FIRIAMMessageContentData.h"
 #import "FIRIAMMessageDefinition.h"
 #import "FIRIAMSDKRuntimeErrorCodes.h"
+#import "FIRInAppMessaging.h"
 
 @implementation FIRIAMDisplaySetting
 @end
@@ -32,6 +33,7 @@
 // YES if a message is being rendered at this time
 @property(nonatomic) BOOL isMsgBeingDisplayed;
 @property(nonatomic) NSTimeInterval lastDisplayTime;
+@property(nonatomic, nonnull, readonly) FIRInAppMessaging *inAppMessaging;
 @property(nonatomic, nonnull, readonly) FIRIAMDisplaySetting *setting;
 @property(nonatomic, nonnull, readonly) FIRIAMMessageClientCache *messageCache;
 @property(nonatomic, nonnull, readonly) id<FIRIAMBookKeeper> displayBookKeeper;
@@ -45,7 +47,13 @@
 }
 
 #pragma mark - FIRInAppMessagingDisplayDelegate methods
-- (void)messageClicked {
+- (void)messageClicked:(FIRInAppMessagingDisplayMessage *)inAppMessage {
+  // Call through to app-side delegate.
+  __weak id<FIRInAppMessagingDisplayDelegate> appSideDelegate = self.inAppMessaging.delegate;
+  if ([appSideDelegate respondsToSelector:@selector(messageClicked:)]) {
+    [appSideDelegate messageClicked:inAppMessage];
+  }
+
   self.isMsgBeingDisplayed = NO;
   if (!_currentMsgBeingDisplayed.renderData.messageID) {
     FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM400030",
@@ -124,7 +132,14 @@
   }
 }
 
-- (void)messageDismissedWithType:(FIRInAppMessagingDismissType)dismissType {
+- (void)messageDismissed:(FIRInAppMessagingDisplayMessage *)inAppMessage
+             dismissType:(FIRInAppMessagingDismissType)dismissType {
+  // Call through to app-side delegate.
+  __weak id<FIRInAppMessagingDisplayDelegate> appSideDelegate = self.inAppMessaging.delegate;
+  if ([appSideDelegate respondsToSelector:@selector(messageDismissed:dismissType:)]) {
+    [appSideDelegate messageDismissed:inAppMessage dismissType:dismissType];
+  }
+
   self.isMsgBeingDisplayed = NO;
   if (!_currentMsgBeingDisplayed.renderData.messageID) {
     FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM400014",
@@ -170,7 +185,12 @@
                     }];
 }
 
-- (void)impressionDetected {
+- (void)impressionDetectedForMessage:(FIRInAppMessagingDisplayMessage *)inAppMessage {
+  __weak id<FIRInAppMessagingDisplayDelegate> appSideDelegate = self.inAppMessaging.delegate;
+  if ([appSideDelegate respondsToSelector:@selector(impressionDetectedForMessage:)]) {
+    [appSideDelegate impressionDetectedForMessage:inAppMessage];
+  }
+
   if (!_currentMsgBeingDisplayed.renderData.messageID) {
     FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM400022",
                   @"impressionDetected called but "
@@ -189,7 +209,13 @@
   }
 }
 
-- (void)displayErrorEncountered:(NSError *)error {
+- (void)displayErrorForMessage:(FIRInAppMessagingDisplayMessage *)inAppMessage
+                         error:(NSError *)error {
+  __weak id<FIRInAppMessagingDisplayDelegate> appSideDelegate = self.inAppMessaging.delegate;
+  if ([appSideDelegate respondsToSelector:@selector(displayErrorForMessage:error:)]) {
+    [appSideDelegate displayErrorForMessage:inAppMessage error:error];
+  }
+
   self.isMsgBeingDisplayed = NO;
 
   if (!_currentMsgBeingDisplayed.renderData.messageID) {
@@ -283,14 +309,16 @@
                                                                              completion:nil];
 }
 
-- (instancetype)initWithSetting:(FIRIAMDisplaySetting *)setting
-                   messageCache:(FIRIAMMessageClientCache *)cache
-                    timeFetcher:(id<FIRIAMTimeFetcher>)timeFetcher
-                     bookKeeper:(id<FIRIAMBookKeeper>)displayBookKeeper
-              actionURLFollower:(FIRIAMActionURLFollower *)actionURLFollower
-                 activityLogger:(FIRIAMActivityLogger *)activityLogger
-           analyticsEventLogger:(id<FIRIAMAnalyticsEventLogger>)analyticsEventLogger {
+- (instancetype)initWithInAppMessaging:(FIRInAppMessaging *)inAppMessaging
+                               setting:(FIRIAMDisplaySetting *)setting
+                          messageCache:(FIRIAMMessageClientCache *)cache
+                           timeFetcher:(id<FIRIAMTimeFetcher>)timeFetcher
+                            bookKeeper:(id<FIRIAMBookKeeper>)displayBookKeeper
+                     actionURLFollower:(FIRIAMActionURLFollower *)actionURLFollower
+                        activityLogger:(FIRIAMActivityLogger *)activityLogger
+                  analyticsEventLogger:(id<FIRIAMAnalyticsEventLogger>)analyticsEventLogger {
   if (self = [super init]) {
+    _inAppMessaging = inAppMessaging;
     _timeFetcher = timeFetcher;
     _lastDisplayTime = displayBookKeeper.lastDisplayTime;
     _setting = setting;
@@ -334,43 +362,53 @@
         [self.messageCache nextOnFirebaseAnalyticEventDisplayMsg:eventName];
 
     if (nextAnalyticsBasedMessage) {
-      [self displayForMessage:nextAnalyticsBasedMessage];
+      [self displayForMessage:nextAnalyticsBasedMessage
+                  triggerType:FIRInAppMessagingDisplayTriggerTypeOnAnalyticsEvent];
     }
   }
 }
 
 - (FIRInAppMessagingBannerDisplay *)
     bannerMessageWithMessageDefinition:(FIRIAMMessageDefinition *)definition
-                             imageData:(FIRInAppMessagingImageData *)imageData {
+                             imageData:(FIRInAppMessagingImageData *)imageData
+                           triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType {
   NSString *title = definition.renderData.contentData.titleText;
   NSString *body = definition.renderData.contentData.bodyText;
 
   FIRInAppMessagingBannerDisplay *bannerMessage = [[FIRInAppMessagingBannerDisplay alloc]
         initWithMessageID:definition.renderData.messageID
+             campaignName:definition.renderData.name
       renderAsTestMessage:definition.isTestMessage
+              triggerType:triggerType
                 titleText:title
                  bodyText:body
                 textColor:definition.renderData.renderingEffectSettings.textColor
           backgroundColor:definition.renderData.renderingEffectSettings.displayBGColor
-                imageData:imageData];
+                imageData:imageData
+                actionURL:definition.renderData.contentData.actionURL];
 
   return bannerMessage;
 }
 
 - (FIRInAppMessagingImageOnlyDisplay *)
     imageOnlyMessageWithMessageDefinition:(FIRIAMMessageDefinition *)definition
-                                imageData:(FIRInAppMessagingImageData *)imageData {
-  FIRInAppMessagingImageOnlyDisplay *imageOnlyMessage =
-      [[FIRInAppMessagingImageOnlyDisplay alloc] initWithMessageID:definition.renderData.messageID
-                                               renderAsTestMessage:definition.isTestMessage
-                                                         imageData:imageData];
+                                imageData:(FIRInAppMessagingImageData *)imageData
+                              triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType {
+  FIRInAppMessagingImageOnlyDisplay *imageOnlyMessage = [[FIRInAppMessagingImageOnlyDisplay alloc]
+        initWithMessageID:definition.renderData.messageID
+             campaignName:definition.renderData.name
+      renderAsTestMessage:definition.isTestMessage
+              triggerType:triggerType
+                imageData:imageData
+                actionURL:definition.renderData.contentData.actionURL];
 
   return imageOnlyMessage;
 }
 
 - (FIRInAppMessagingModalDisplay *)
     modalViewMessageWithMessageDefinition:(FIRIAMMessageDefinition *)definition
-                                imageData:(FIRInAppMessagingImageData *)imageData {
+                                imageData:(FIRInAppMessagingImageData *)imageData
+                              triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType {
   // For easier reference in this method.
   FIRIAMMessageRenderData *renderData = definition.renderData;
 
@@ -388,33 +426,44 @@
 
   FIRInAppMessagingModalDisplay *modalViewMessage = [[FIRInAppMessagingModalDisplay alloc]
         initWithMessageID:definition.renderData.messageID
+             campaignName:definition.renderData.name
       renderAsTestMessage:definition.isTestMessage
+              triggerType:triggerType
                 titleText:title
                  bodyText:body
                 textColor:renderData.renderingEffectSettings.textColor
           backgroundColor:renderData.renderingEffectSettings.displayBGColor
                 imageData:imageData
-             actionButton:actionButton];
+             actionButton:actionButton
+                actionURL:definition.renderData.contentData.actionURL];
 
   return modalViewMessage;
 }
 
-- (FIRInAppMessagingDisplayMessageBase *)
+- (FIRInAppMessagingDisplayMessage *)
     displayMessageWithMessageDefinition:(FIRIAMMessageDefinition *)definition
-                              imageData:(FIRInAppMessagingImageData *)imageData {
+                              imageData:(FIRInAppMessagingImageData *)imageData
+                            triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType {
   switch (definition.renderData.renderingEffectSettings.viewMode) {
     case FIRIAMRenderAsBannerView:
-      return [self bannerMessageWithMessageDefinition:definition imageData:imageData];
+      return [self bannerMessageWithMessageDefinition:definition
+                                            imageData:imageData
+                                          triggerType:triggerType];
     case FIRIAMRenderAsModalView:
-      return [self modalViewMessageWithMessageDefinition:definition imageData:imageData];
+      return [self modalViewMessageWithMessageDefinition:definition
+                                               imageData:imageData
+                                             triggerType:triggerType];
     case FIRIAMRenderAsImageOnlyView:
-      return [self imageOnlyMessageWithMessageDefinition:definition imageData:imageData];
+      return [self imageOnlyMessageWithMessageDefinition:definition
+                                               imageData:imageData
+                                             triggerType:triggerType];
     default:
       return nil;
   }
 }
 
-- (void)displayForMessage:(FIRIAMMessageDefinition *)message {
+- (void)displayForMessage:(FIRIAMMessageDefinition *)message
+              triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType {
   _currentMsgBeingDisplayed = message;
   [message.renderData.contentData
       loadImageDataWithBlock:^(NSData *_Nullable imageNSData, NSError *error) {
@@ -424,8 +473,12 @@
           FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400019",
                       @"Error in loading image data for the message.");
 
+          FIRInAppMessagingDisplayMessage *erroredMessage =
+              [self displayMessageWithMessageDefinition:message
+                                              imageData:imageData
+                                            triggerType:triggerType];
           // short-circuit to display error handling
-          [self displayErrorEncountered:error];
+          [self displayErrorForMessage:erroredMessage error:error];
           return;
         } else if (imageNSData != nil) {
           imageData = [[FIRInAppMessagingImageData alloc]
@@ -436,8 +489,10 @@
         self.impressionRecorded = NO;
         self.isMsgBeingDisplayed = YES;
 
-        FIRInAppMessagingDisplayMessageBase *displayMessage =
-            [self displayMessageWithMessageDefinition:message imageData:imageData];
+        FIRInAppMessagingDisplayMessage *displayMessage =
+            [self displayMessageWithMessageDefinition:message
+                                            imageData:imageData
+                                          triggerType:triggerType];
         [self.messageDisplayComponent displayMessage:displayMessage displayDelegate:self];
       }];
 }
@@ -481,7 +536,8 @@
       FIRIAMMessageDefinition *nextForegroundMessage = [self.messageCache nextOnAppOpenDisplayMsg];
 
       if (nextForegroundMessage) {
-        [self displayForMessage:nextForegroundMessage];
+        [self displayForMessage:nextForegroundMessage
+                    triggerType:FIRInAppMessagingDisplayTriggerTypeOnAppForeground];
         self.lastDisplayTime = [self.timeFetcher currentTimestampInSeconds];
       } else {
         FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400001",

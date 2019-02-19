@@ -29,7 +29,7 @@ namespace firestore {
 namespace remote {
 
 /**
- * A component used by the `FSTRemoteStore` to track the `OnlineState` (that is,
+ * A component used by the `RemoteStore` to track the `OnlineState` (that is,
  * whether or not the client as a whole should be considered to be online or
  * offline), implementing the appropriate heuristics.
  *
@@ -51,7 +51,7 @@ class OnlineStateTracker {
   }
 
   /**
-   * Called by `FSTRemoteStore` when a watch stream is started (including on
+   * Called by `RemoteStore` when a watch stream is started (including on
    * each backoff attempt).
    *
    * If this is the first attempt, it sets the `OnlineState` to `Unknown` and
@@ -60,7 +60,7 @@ class OnlineStateTracker {
   void HandleWatchStreamStart();
 
   /**
-   * Called by `FSTRemoteStore` when a watch stream fails.
+   * Called by `RemoteStore` when a watch stream fails.
    *
    * Updates our `OnlineState` as appropriate. The first failure moves us to
    * `OnlineState::Unknown`. We then may allow multiple failures (based on

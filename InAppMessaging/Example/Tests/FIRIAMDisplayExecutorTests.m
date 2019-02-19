@@ -21,6 +21,7 @@
 #import "FIRIAMDisplayExecutor.h"
 #import "FIRIAMDisplayTriggerDefinition.h"
 #import "FIRIAMMessageContentData.h"
+#import "FIRInAppMessaging.h"
 
 // A class implementing protocol FIRIAMMessageContentData to be used for unit testing
 @interface FIRIAMMessageContentDataForTesting : NSObject <FIRIAMMessageContentData>
@@ -87,7 +88,7 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDelegateInteraction) {
 @property FIRInAppMessagingDelegateInteraction delegateInteraction;
 
 // used for interaction verificatio
-@property FIRInAppMessagingDisplayMessageBase *message;
+@property FIRInAppMessagingDisplayMessage *message;
 - (instancetype)initWithDelegateInteraction:(FIRInAppMessagingDelegateInteraction)interaction;
 @end
 
@@ -99,27 +100,60 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDelegateInteraction) {
   return self;
 }
 
-- (void)displayMessage:(FIRInAppMessagingDisplayMessageBase *)messageForDisplay
+- (void)displayMessage:(FIRInAppMessagingDisplayMessage *)messageForDisplay
        displayDelegate:(id<FIRInAppMessagingDisplayDelegate>)displayDelegate {
   self.message = messageForDisplay;
 
   switch (self.delegateInteraction) {
     case FIRInAppMessagingDelegateInteractionClick:
-      [displayDelegate messageClicked];
+      [displayDelegate messageClicked:messageForDisplay];
       break;
     case FIRInAppMessagingDelegateInteractionDismiss:
-      [displayDelegate messageDismissedWithType:FIRInAppMessagingDismissTypeAuto];
+      [displayDelegate messageDismissed:messageForDisplay
+                            dismissType:FIRInAppMessagingDismissTypeAuto];
       break;
     case FIRInAppMessagingDelegateInteractionError:
-      [displayDelegate displayErrorEncountered:[NSError errorWithDomain:NSURLErrorDomain
-                                                                   code:0
-                                                               userInfo:nil]];
+      [displayDelegate displayErrorForMessage:messageForDisplay
+                                        error:[NSError errorWithDomain:NSURLErrorDomain
+                                                                  code:0
+                                                              userInfo:nil]];
       break;
     case FIRInAppMessagingDelegateInteractionImpressionDetected:
-      [displayDelegate impressionDetected];
+      [displayDelegate impressionDetectedForMessage:messageForDisplay];
       break;
   }
 }
+@end
+
+@interface FIRInAppMessagingDisplayTestDelegate : NSObject <FIRInAppMessagingDisplayDelegate>
+
+@property(nonatomic) BOOL receivedMessageErrorCallback;
+@property(nonatomic) BOOL receivedMessageImpressionCallback;
+@property(nonatomic) BOOL receivedMessageClickedCallback;
+@property(nonatomic) BOOL receivedMessageDismissedCallback;
+
+@end
+
+@implementation FIRInAppMessagingDisplayTestDelegate
+
+- (void)displayErrorForMessage:(nonnull FIRInAppMessagingDisplayMessage *)inAppMessage
+                         error:(nonnull NSError *)error {
+  self.receivedMessageErrorCallback = YES;
+}
+
+- (void)impressionDetectedForMessage:(nonnull FIRInAppMessagingDisplayMessage *)inAppMessage {
+  self.receivedMessageImpressionCallback = YES;
+}
+
+- (void)messageClicked:(nonnull FIRInAppMessagingDisplayMessage *)inAppMessage {
+  self.receivedMessageClickedCallback = YES;
+}
+
+- (void)messageDismissed:(nonnull FIRInAppMessagingDisplayMessage *)inAppMessage
+             dismissType:(FIRInAppMessagingDismissType)dismissType {
+  self.receivedMessageDismissedCallback = YES;
+}
+
 @end
 
 @interface FIRIAMDisplayExecutorTests : XCTestCase
@@ -132,7 +166,7 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDelegateInteraction) {
 @property FIRIAMDisplayExecutor *displayExecutor;
 
 @property FIRIAMActivityLogger *mockActivityLogger;
-
+@property FIRInAppMessaging *mockInAppMessaging;
 @property id<FIRIAMAnalyticsEventLogger> mockAnalyticsEventLogger;
 
 @property FIRIAMActionURLFollower *mockActionURLFollower;
@@ -269,26 +303,21 @@ NSTimeInterval DISPLAY_MIN_INTERVALS = 1;
   self.mockTimeFetcher = OCMProtocolMock(@protocol(FIRIAMTimeFetcher));
   self.mockActivityLogger = OCMClassMock([FIRIAMActivityLogger class]);
   self.mockAnalyticsEventLogger = OCMProtocolMock(@protocol(FIRIAMAnalyticsEventLogger));
-
+  self.mockInAppMessaging = OCMClassMock([FIRInAppMessaging class]);
   self.mockActionURLFollower = OCMClassMock([FIRIAMActionURLFollower class]);
 
   self.displayExecutor =
-      [[FIRIAMDisplayExecutor alloc] initWithSetting:self.displaySetting
-                                        messageCache:self.clientMessageCache
-                                         timeFetcher:self.mockTimeFetcher
-                                          bookKeeper:self.mockBookkeeper
-                                   actionURLFollower:self.mockActionURLFollower
-                                      activityLogger:self.mockActivityLogger
-                                analyticsEventLogger:self.mockAnalyticsEventLogger];
+      [[FIRIAMDisplayExecutor alloc] initWithInAppMessaging:self.mockInAppMessaging
+                                                    setting:self.displaySetting
+                                               messageCache:self.clientMessageCache
+                                                timeFetcher:self.mockTimeFetcher
+                                                 bookKeeper:self.mockBookkeeper
+                                          actionURLFollower:self.mockActionURLFollower
+                                             activityLogger:self.mockActivityLogger
+                                       analyticsEventLogger:self.mockAnalyticsEventLogger];
 
   OCMStub([self.mockBookkeeper recordNewImpressionForMessage:[OCMArg any]
                                  withStartTimestampInSeconds:1000]);
-}
-
-- (void)tearDown {
-  // Put teardown code here. This method is called after the invocation of each test method in the
-  // class.
-  [super tearDown];
 }
 
 - (void)testRegularMessageAvailableCase {
@@ -305,7 +334,7 @@ NSTimeInterval DISPLAY_MIN_INTERVALS = 1;
   XCTAssertEqual(1, remainingMsgCount);
 
   // Verify that the message content handed to display component is expected
-  XCTAssertEqualObjects(self.m2.renderData.messageID, display.message.messageID);
+  XCTAssertEqualObjects(self.m2.renderData.messageID, display.message.campaignInfo.messageID);
 }
 
 - (void)testFollowingActionURL {
@@ -389,7 +418,7 @@ NSTimeInterval DISPLAY_MIN_INTERVALS = 1;
   [self.displayExecutor checkAndDisplayNextAppForegroundMessage];
 
   // m2 is being rendered
-  XCTAssertEqualObjects(self.m2.renderData.messageID, display.message.messageID);
+  XCTAssertEqualObjects(self.m2.renderData.messageID, display.message.campaignInfo.messageID);
 
   NSInteger remainingMsgCount = [self.clientMessageCache allRegularMessages].count;
   XCTAssertEqual(1, remainingMsgCount);
@@ -398,7 +427,7 @@ NSTimeInterval DISPLAY_MIN_INTERVALS = 1;
   [self.displayExecutor checkAndDisplayNextAppForegroundMessage];
 
   // Verify that the message in display component is still m2
-  XCTAssertEqualObjects(self.m2.renderData.messageID, display.message.messageID);
+  XCTAssertEqualObjects(self.m2.renderData.messageID, display.message.campaignInfo.messageID);
 
   // message in cache remain unchanged for the second checkAndDisplayNext call
   remainingMsgCount = [self.clientMessageCache allRegularMessages].count;
@@ -691,7 +720,7 @@ NSTimeInterval DISPLAY_MIN_INTERVALS = 1;
   // from cache
   [self.displayExecutor checkAndDisplayNextContextualMessageForAnalyticsEvent:@"test_event"];
   // Expecting the m1 being used for display
-  XCTAssertEqualObjects(self.m1.renderData.messageID, display.message.messageID);
+  XCTAssertEqualObjects(self.m1.renderData.messageID, display.message.campaignInfo.messageID);
 
   remainingMsgCount = [self.clientMessageCache allRegularMessages].count;
 
@@ -758,4 +787,84 @@ NSTimeInterval DISPLAY_MIN_INTERVALS = 1;
   // one message was rendered and removed from the cache
   XCTAssertEqual(1, remainingMsgCount2);
 }
+
+- (void)testMessageClickedCallback {
+  FIRInAppMessagingDisplayTestDelegate *delegate =
+      [[FIRInAppMessagingDisplayTestDelegate alloc] init];
+  self.mockInAppMessaging.delegate = delegate;
+
+  // This setup allows next message to be displayed from display interval perspective.
+  OCMStub([self.mockTimeFetcher currentTimestampInSeconds])
+      .andReturn(DISPLAY_MIN_INTERVALS * 60 + 100);
+  OCMStub(self.mockInAppMessaging.delegate).andReturn(delegate);
+
+  FIRIAMMessageDisplayForTesting *display = [[FIRIAMMessageDisplayForTesting alloc]
+      initWithDelegateInteraction:FIRInAppMessagingDelegateInteractionClick];
+  self.displayExecutor.messageDisplayComponent = display;
+  [self.clientMessageCache setMessageData:@[ self.m2, self.m4 ]];
+  [self.displayExecutor checkAndDisplayNextAppForegroundMessage];
+
+  XCTAssertTrue(delegate.receivedMessageClickedCallback);
+}
+
+- (void)testMessageImpressionCallback {
+  FIRInAppMessagingDisplayTestDelegate *delegate =
+      [[FIRInAppMessagingDisplayTestDelegate alloc] init];
+  self.mockInAppMessaging.delegate = delegate;
+
+  // This setup allows next message to be displayed from display interval perspective.
+  OCMStub([self.mockTimeFetcher currentTimestampInSeconds])
+      .andReturn(DISPLAY_MIN_INTERVALS * 60 + 100);
+  OCMStub(self.mockInAppMessaging.delegate).andReturn(delegate);
+
+  FIRIAMMessageDisplayForTesting *display = [[FIRIAMMessageDisplayForTesting alloc]
+      initWithDelegateInteraction:FIRInAppMessagingDelegateInteractionImpressionDetected];
+  self.displayExecutor.messageDisplayComponent = display;
+  [self.clientMessageCache setMessageData:@[ self.m2, self.m4 ]];
+  [self.displayExecutor checkAndDisplayNextAppForegroundMessage];
+
+  // Verify that the message content handed to display component is expected
+  XCTAssertTrue(delegate.receivedMessageImpressionCallback);
+}
+
+- (void)testMessageErrorCallback {
+  FIRInAppMessagingDisplayTestDelegate *delegate =
+      [[FIRInAppMessagingDisplayTestDelegate alloc] init];
+  self.mockInAppMessaging.delegate = delegate;
+
+  // This setup allows next message to be displayed from display interval perspective.
+  OCMStub([self.mockTimeFetcher currentTimestampInSeconds])
+      .andReturn(DISPLAY_MIN_INTERVALS * 60 + 100);
+  OCMStub(self.mockInAppMessaging.delegate).andReturn(delegate);
+
+  FIRIAMMessageDisplayForTesting *display = [[FIRIAMMessageDisplayForTesting alloc]
+      initWithDelegateInteraction:FIRInAppMessagingDelegateInteractionError];
+  self.displayExecutor.messageDisplayComponent = display;
+  [self.clientMessageCache setMessageData:@[ self.m2, self.m4 ]];
+  [self.displayExecutor checkAndDisplayNextAppForegroundMessage];
+
+  // Verify that the message content handed to display component is expected
+  XCTAssertTrue(delegate.receivedMessageErrorCallback);
+}
+
+- (void)testMessageDismissedCallback {
+  FIRInAppMessagingDisplayTestDelegate *delegate =
+      [[FIRInAppMessagingDisplayTestDelegate alloc] init];
+  self.mockInAppMessaging.delegate = delegate;
+
+  // This setup allows next message to be displayed from display interval perspective.
+  OCMStub([self.mockTimeFetcher currentTimestampInSeconds])
+      .andReturn(DISPLAY_MIN_INTERVALS * 60 + 100);
+  OCMStub(self.mockInAppMessaging.delegate).andReturn(delegate);
+
+  FIRIAMMessageDisplayForTesting *display = [[FIRIAMMessageDisplayForTesting alloc]
+      initWithDelegateInteraction:FIRInAppMessagingDelegateInteractionDismiss];
+  self.displayExecutor.messageDisplayComponent = display;
+  [self.clientMessageCache setMessageData:@[ self.m2, self.m4 ]];
+  [self.displayExecutor checkAndDisplayNextAppForegroundMessage];
+
+  // Verify that the message content handed to display component is expected
+  XCTAssertTrue(delegate.receivedMessageDismissedCallback);
+}
+
 @end

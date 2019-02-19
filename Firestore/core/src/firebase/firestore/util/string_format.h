@@ -53,7 +53,7 @@ struct FormatChoice<5> {};
  *
  * Chooses a conversion to a text form in this order:
  *   * If the value is exactly of `bool` type (without implicit conversions)
- *     the text will the "true" or "false".
+ *     the text will be "true" or "false".
  *   * If the value is of type `const char*`, the text will be the value
  *     interpreted as a C string. To show the address of a single char or to
  *     show the `const char*` as an address, cast to `void*`.

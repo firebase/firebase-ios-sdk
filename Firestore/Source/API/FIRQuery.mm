@@ -22,6 +22,7 @@
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
+#import "Firestore/Source/API/FIRFieldValue+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRListenerRegistration+Internal.h"
 #import "Firestore/Source/API/FIRQuery+Internal.h"
@@ -470,11 +471,13 @@ NS_ASSUME_NONNULL_BEGIN
                                  "a valid document ID, but it was an empty string.");
       }
       ResourcePath path = self.query.path.Append([documentKey UTF8String]);
-      fieldValue = [FSTReferenceValue referenceValue:DocumentKey{path}
-                                          databaseID:self.firestore.databaseID];
+      fieldValue =
+          [FSTReferenceValue referenceValue:[FSTDocumentKey keyWithDocumentKey:DocumentKey{path}]
+                                 databaseID:self.firestore.databaseID];
     } else if ([value isKindOfClass:[FIRDocumentReference class]]) {
       FIRDocumentReference *ref = (FIRDocumentReference *)value;
-      fieldValue = [FSTReferenceValue referenceValue:ref.key databaseID:self.firestore.databaseID];
+      fieldValue = [FSTReferenceValue referenceValue:[FSTDocumentKey keyWithDocumentKey:ref.key]
+                                          databaseID:self.firestore.databaseID];
     } else {
       FSTThrowInvalidArgument(@"Invalid query. When querying by document ID you must provide a "
                                "valid string or DocumentReference, but it was of type: %@",
@@ -550,7 +553,9 @@ NS_ASSUME_NONNULL_BEGIN
  * Note that the FSTBound will always include the key of the document and the position will be
  * unambiguous.
  *
- * Will throw if the document does not contain all fields of the order by of the query.
+ * Will throw if the document does not contain all fields of the order by of
+ * the query or if any of the fields in the order by are an uncommitted server
+ * timestamp.
  */
 - (FSTBound *)boundFromSnapshot:(FIRDocumentSnapshot *)snapshot isBefore:(BOOL)isBefore {
   if (![snapshot exists]) {
@@ -568,11 +573,20 @@ NS_ASSUME_NONNULL_BEGIN
   // orders), multiple documents could match the position, yielding duplicate results.
   for (FSTSortOrder *sortOrder in self.query.sortOrders) {
     if (sortOrder.field == FieldPath::KeyFieldPath()) {
-      [components addObject:[FSTReferenceValue referenceValue:document.key
-                                                   databaseID:self.firestore.databaseID]];
+      [components addObject:[FSTReferenceValue
+                                referenceValue:[FSTDocumentKey keyWithDocumentKey:document.key]
+                                    databaseID:self.firestore.databaseID]];
     } else {
       FSTFieldValue *value = [document fieldForPath:sortOrder.field];
-      if (value != nil) {
+
+      if ([value isKindOfClass:[FSTServerTimestampValue class]]) {
+        FSTThrowInvalidUsage(@"InvalidQueryException",
+                             @"Invalid query. You are trying to start or end a query using a "
+                              "document for which the field '%s' is an uncommitted server "
+                              "timestamp. (Since the value of this field is unknown, you cannot "
+                              "start/end a query with it.)",
+                             sortOrder.field.CanonicalString().c_str());
+      } else if (value != nil) {
         [components addObject:value];
       } else {
         FSTThrowInvalidUsage(@"InvalidQueryException",
@@ -610,8 +624,9 @@ NS_ASSUME_NONNULL_BEGIN
                              @"Invalid query. Document ID '%@' contains a slash.", documentID);
       }
       const DocumentKey key{self.query.path.Append([documentID UTF8String])};
-      [components addObject:[FSTReferenceValue referenceValue:key
-                                                   databaseID:self.firestore.databaseID]];
+      [components
+          addObject:[FSTReferenceValue referenceValue:[FSTDocumentKey keyWithDocumentKey:key]
+                                           databaseID:self.firestore.databaseID]];
     } else {
       FSTFieldValue *fieldValue = [self.firestore.dataConverter parsedQueryValue:rawValue];
       [components addObject:fieldValue];

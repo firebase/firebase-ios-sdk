@@ -22,6 +22,7 @@
 #endif  // !defined(__OBJC__)
 
 #import <Foundation/Foundation.h>
+
 #include <functional>
 #include <memory>
 #include <string>
@@ -67,6 +68,12 @@ namespace remote {
  */
 class Datastore : public std::enable_shared_from_this<Datastore> {
  public:
+  // TODO(varconst): once `FSTMaybeDocument` is replaced with a C++ equivalent,
+  // this function could take a single `StatusOr` parameter.
+  using LookupCallback = std::function<void(
+      const std::vector<FSTMaybeDocument*>&, const util::Status&)>;
+  using CommitCallback = std::function<void(const util::Status&)>;
+
   Datastore(const core::DatabaseInfo& database_info,
             util::AsyncQueue* worker_queue,
             auth::CredentialsProvider* credentials);
@@ -93,9 +100,9 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
       WriteStreamCallback* callback);
 
   void CommitMutations(const std::vector<FSTMutation*>& mutations,
-                       FSTVoidErrorBlock completion);
+                       CommitCallback&& callback);
   void LookupDocuments(const std::vector<model::DocumentKey>& keys,
-                       FSTVoidMaybeDocumentArrayErrorBlock completion);
+                       LookupCallback&& callback);
 
   /** Returns true if the given error is a gRPC ABORTED error. */
   static bool IsAbortedError(const util::Status& status);
@@ -158,17 +165,15 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
   void CommitMutationsWithCredentials(
       const auth::Token& token,
       const std::vector<FSTMutation*>& mutations,
-      FSTVoidErrorBlock completion);
-  void OnCommitMutationsResponse(const util::StatusOr<grpc::ByteBuffer>& result,
-                                 FSTVoidErrorBlock completion);
+      CommitCallback&& callback);
 
   void LookupDocumentsWithCredentials(
       const auth::Token& token,
       const std::vector<model::DocumentKey>& keys,
-      FSTVoidMaybeDocumentArrayErrorBlock completion);
+      LookupCallback&& callback);
   void OnLookupDocumentsResponse(
       const util::StatusOr<std::vector<grpc::ByteBuffer>>& result,
-      FSTVoidMaybeDocumentArrayErrorBlock completion);
+      const LookupCallback& callback);
 
   using OnCredentials = std::function<void(const util::StatusOr<auth::Token>&)>;
   void ResumeRpcWithCredentials(const OnCredentials& on_token);
