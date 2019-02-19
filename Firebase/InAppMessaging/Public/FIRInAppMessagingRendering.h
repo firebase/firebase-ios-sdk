@@ -21,7 +21,8 @@ NS_ASSUME_NONNULL_BEGIN
 typedef NS_ENUM(NSInteger, FIRInAppMessagingDisplayMessageType) {
   FIRInAppMessagingDisplayMessageTypeModal,
   FIRInAppMessagingDisplayMessageTypeBanner,
-  FIRInAppMessagingDisplayMessageTypeImageOnly
+  FIRInAppMessagingDisplayMessageTypeImageOnly,
+  FIRInAppMessagingDisplayMessageTypeCard
 };
 
 typedef NS_ENUM(NSInteger, FIRInAppMessagingDisplayTriggerType) {
@@ -102,6 +103,36 @@ NS_SWIFT_NAME(InAppMessagingDisplayMessage)
               renderAsTestMessage:(BOOL)renderAsTestMessage
                       messageType:(FIRInAppMessagingDisplayMessageType)messageType
                       triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType;
+@end
+
+NS_SWIFT_NAME(InAppMessagingCardDisplay)
+@interface FIRInAppMessagingCardDisplay : FIRInAppMessagingDisplayMessage
+
+@property(nonatomic, nonnull, copy, readonly) NSString *title;
+@property(nonatomic, nullable, copy, readonly) NSString *body;
+@property(nonatomic, nonnull, copy, readonly) FIRInAppMessagingImageData *portraitImageData;
+@property(nonatomic, nullable, copy, readonly) FIRInAppMessagingImageData *landscapeImageData;
+@property(nonatomic, copy, nonnull) UIColor *displayBackgroundColor;
+@property(nonatomic, nonnull, readonly) FIRInAppMessagingActionButton *primaryActionButton;
+@property(nonatomic, nonnull, readonly) NSURL *primaryActionURL;
+@property(nonatomic, nullable, readonly) FIRInAppMessagingActionButton *secondaryActionButton;
+@property(nonatomic, nullable, readonly) NSURL *secondaryActionURL;
+
+- (instancetype)init NS_UNAVAILABLE;
+- (instancetype)initWithMessageID:(NSString *)messageID
+                     campaignName:(NSString *)campaignName
+              renderAsTestMessage:(BOOL)renderAsTestMessage
+                      triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
+                        titleText:(NSString *)title
+                         bodyText:(nullable NSString *)body
+                portraitImageData:(FIRInAppMessagingImageData *)portraitImageData
+               landscapeImageData:(nullable FIRInAppMessagingImageData *)landscapeImageData
+                  backgroundColor:(UIColor *)backgroundColor
+              primaryActionButton:(FIRInAppMessagingActionButton *)primaryActionButton
+                 primaryActionURL:(NSURL *)primaryActionURL
+            secondaryActionButton:(nullable FIRInAppMessagingActionButton *)secondaryActionButton
+               secondaryActionURL:(nullable NSURL *)secondaryActionURL;
+
 @end
 
 /** Class for defining a modal message for display.

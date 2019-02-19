@@ -36,6 +36,40 @@
 }
 @end
 
+@implementation FIRInAppMessagingCardDisplay
+
+- (instancetype)initWithMessageID:(NSString *)messageID
+                     campaignName:(NSString *)campaignName
+              renderAsTestMessage:(BOOL)renderAsTestMessage
+                      triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
+                        titleText:(NSString *)title
+                         bodyText:(nullable NSString *)body
+                portraitImageData:(FIRInAppMessagingImageData *)portraitImageData
+               landscapeImageData:(nullable FIRInAppMessagingImageData *)landscapeImageData
+                  backgroundColor:(UIColor *)backgroundColor
+              primaryActionButton:(FIRInAppMessagingActionButton *)primaryActionButton
+                 primaryActionURL:(NSURL *)primaryActionURL
+            secondaryActionButton:(nullable FIRInAppMessagingActionButton *)secondaryActionButton
+               secondaryActionURL:(nullable NSURL *)secondaryActionURL {
+  if (self = [super initWithMessageID:messageID
+                         campaignName:campaignName
+                  renderAsTestMessage:renderAsTestMessage
+                          messageType:FIRInAppMessagingDisplayMessageTypeCard
+                          triggerType:triggerType]) {
+    _title = title;
+    _body = body;
+    _portraitImageData = portraitImageData;
+    _landscapeImageData = landscapeImageData;
+    _displayBackgroundColor = backgroundColor;
+    _primaryActionButton = primaryActionButton;
+    _primaryActionURL = primaryActionURL;
+    _secondaryActionButton = secondaryActionButton;
+    _secondaryActionURL = secondaryActionURL;
+  }
+}
+
+@end
+
 @implementation FIRInAppMessagingBannerDisplay
 - (instancetype)initWithMessageID:(NSString *)messageID
                      campaignName:(NSString *)campaignName
