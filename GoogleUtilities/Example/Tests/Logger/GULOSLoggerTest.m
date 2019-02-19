@@ -156,17 +156,22 @@ void GULTestOSLogWithType(os_log_t log, os_log_type_t type, char *s, ...) {
 
 - (void)testSetLogLevelValid {
   // Setting the log level to something valid should not result in an error message.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wformat-security"
   OCMReject([self.mock logWithLevel:GULLoggerLevelError
                         withService:OCMOCK_ANY
-                           isForced:OCMOCK_ANY
+                           isForced:NO
                            withCode:OCMOCK_ANY
                         withMessage:OCMOCK_ANY]);
+#pragma clang diagnostic pop
   self.osLogger.logLevel = GULLoggerLevelWarning;
   OCMVerifyAll(self.mock);
 }
 
 - (void)testSetLogLevelInvalid {
   // The logger should log an error for invalid levels.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wformat-security"
   OCMExpect([[self.mock stub] logWithLevel:GULLoggerLevelError
                                withService:OCMOCK_ANY
                                   isForced:YES
@@ -179,6 +184,7 @@ void GULTestOSLogWithType(os_log_t log, os_log_type_t type, char *s, ...) {
                                   isForced:YES
                                   withCode:OCMOCK_ANY
                                withMessage:OCMOCK_ANY]);
+#pragma clang diagnostic push
   self.osLogger.logLevel = GULLoggerLevelMax + 1;
   OCMVerifyAll(self.mock);
 }
@@ -225,7 +231,6 @@ void GULTestOSLogWithType(os_log_t log, os_log_type_t type, char *s, ...) {
 }
 
 - (void)testLoggingValidNoVarArgs {
-  [self partialMockLogger];
   [self.osLogger initializeLogger];
   XCTAssert(self.osLogger.categoryLoggers.count == 0);
   NSString *message = [NSUUID UUID].UUIDString;
@@ -241,7 +246,6 @@ void GULTestOSLogWithType(os_log_t log, os_log_type_t type, char *s, ...) {
 }
 
 - (void)testLoggingValidWithVarArgs {
-  [self partialMockLogger];
   [self.osLogger initializeLogger];
   XCTAssert(self.osLogger.categoryLoggers.count == 0);
   NSString *message = [NSUUID UUID].UUIDString;

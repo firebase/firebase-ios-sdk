@@ -154,7 +154,7 @@ static void GULLOSLogWithType(os_log_t log, os_log_type_t type, char *s, ...) {
   completeMessage = [GULLogger messageFromLogger:self
                                      withService:service
                                             code:messageCode
-                                         message:message];
+                                         message:[completeMessage copy]];
 
   // Avoid blocking during logging.
   dispatch_async(self.dispatchQueue, ^{
