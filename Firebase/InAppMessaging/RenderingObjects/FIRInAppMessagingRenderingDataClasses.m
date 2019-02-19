@@ -66,6 +66,7 @@
     _secondaryActionButton = secondaryActionButton;
     _secondaryActionURL = secondaryActionURL;
   }
+  return self;
 }
 
 @end

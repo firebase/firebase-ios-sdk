@@ -368,6 +368,51 @@
   }
 }
 
+- (FIRInAppMessagingCardDisplay *)
+    cardMessageWithMessageDefinition:(FIRIAMMessageDefinition *)definition
+                   portraitImageData:(FIRInAppMessagingImageData *)portraitImageData
+                  landscapeImageData:(nullable FIRInAppMessagingImageData *)landscapeImageData
+                         triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType {
+  // For easier reference in this method.
+  FIRIAMMessageRenderData *renderData = definition.renderData;
+  
+  NSString *title = renderData.contentData.titleText;
+  NSString *body = renderData.contentData.bodyText;
+  
+  FIRInAppMessagingActionButton *primaryActionButton = nil;
+  if (definition.renderData.contentData.actionButtonText) {
+    primaryActionButton = [[FIRInAppMessagingActionButton alloc]
+        initWithButtonText:renderData.contentData.actionButtonText
+           buttonTextColor:renderData.renderingEffectSettings.btnTextColor
+           backgroundColor:renderData.renderingEffectSettings.btnBGColor];
+  }
+  
+  FIRInAppMessagingActionButton *secondaryActionButton = nil;
+  if (definition.renderData.contentData.actionButtonText) {
+    secondaryActionButton = [[FIRInAppMessagingActionButton alloc]
+        initWithButtonText:renderData.contentData.secondaryActionButtonText
+           buttonTextColor:renderData.renderingEffectSettings.btnTextColor
+           backgroundColor:renderData.renderingEffectSettings.btnBGColor];
+  }
+  
+  FIRInAppMessagingCardDisplay *cardMessage =
+      [[FIRInAppMessagingCardDisplay alloc] initWithMessageID:renderData.messageID
+                                                 campaignName:renderData.name
+                                          renderAsTestMessage:definition.isTestMessage
+                                                  triggerType:triggerType
+                                                    titleText:title
+                                                     bodyText:body
+                                            portraitImageData:portraitImageData
+                                           landscapeImageData:landscapeImageData
+                                              backgroundColor:renderData.renderingEffectSettings.displayBGColor
+                                          primaryActionButton:primaryActionButton
+                                             primaryActionURL:definition.renderData.contentData.actionURL
+                                        secondaryActionButton:secondaryActionButton
+                                           secondaryActionURL:definition.renderData.contentData.secondaryActionURL];
+  
+  return cardMessage;
+}
+
 - (FIRInAppMessagingBannerDisplay *)
     bannerMessageWithMessageDefinition:(FIRIAMMessageDefinition *)definition
                              imageData:(FIRInAppMessagingImageData *)imageData
@@ -443,8 +488,14 @@
 - (FIRInAppMessagingDisplayMessage *)
     displayMessageWithMessageDefinition:(FIRIAMMessageDefinition *)definition
                               imageData:(FIRInAppMessagingImageData *)imageData
+                     landscapeImageData:(nullable FIRInAppMessagingImageData *)landscapeImageData
                             triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType {
   switch (definition.renderData.renderingEffectSettings.viewMode) {
+    case FIRIAMRenderAsCardView:
+      return [self cardMessageWithMessageDefinition:definition
+                                  portraitImageData:imageData
+                                 landscapeImageData:landscapeImageData
+                                        triggerType:triggerType];
     case FIRIAMRenderAsBannerView:
       return [self bannerMessageWithMessageDefinition:definition
                                             imageData:imageData
@@ -468,7 +519,10 @@
   [message.renderData.contentData
       loadImageDataWithBlock:^(NSData *_Nullable imageNSData, NSError *error) {
         FIRInAppMessagingImageData *imageData = nil;
+        FIRInAppMessagingImageData *landscapeImageData = nil;
 
+        // TODO(eggyeggbean): load image data for landscape image.
+        
         if (error) {
           FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400019",
                       @"Error in loading image data for the message.");
@@ -476,6 +530,7 @@
           FIRInAppMessagingDisplayMessage *erroredMessage =
               [self displayMessageWithMessageDefinition:message
                                               imageData:imageData
+                                     landscapeImageData:landscapeImageData
                                             triggerType:triggerType];
           // short-circuit to display error handling
           [self displayErrorForMessage:erroredMessage error:error];
@@ -492,6 +547,7 @@
         FIRInAppMessagingDisplayMessage *displayMessage =
             [self displayMessageWithMessageDefinition:message
                                             imageData:imageData
+                                   landscapeImageData:landscapeImageData
                                           triggerType:triggerType];
         [self.messageDisplayComponent displayMessage:displayMessage displayDelegate:self];
       }];

@@ -24,8 +24,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, readonly, nonnull) NSString *titleText;
 @property(nonatomic, readonly, nonnull) NSString *bodyText;
 @property(nonatomic, readonly, nullable) NSString *actionButtonText;
+@property(nonatomic, readonly, nullable) NSString *secondaryActionButtonText;
 @property(nonatomic, readonly, nullable) NSURL *actionURL;
+@property(nonatomic, readonly, nullable) NSURL *secondaryActionURL;
 @property(nonatomic, readonly, nullable) NSURL *imageURL;
+@property(nonatomic, readonly, nullable) NSURL *landscapeImageURL;
 
 // Load image data and report the result in the callback block.
 // Expect these cases in the callback block

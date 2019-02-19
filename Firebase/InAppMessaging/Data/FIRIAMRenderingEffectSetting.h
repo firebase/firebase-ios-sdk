@@ -22,7 +22,8 @@ NS_ASSUME_NONNULL_BEGIN
 typedef NS_ENUM(NSInteger, FIRIAMRenderingMode) {
   FIRIAMRenderAsBannerView,
   FIRIAMRenderAsModalView,
-  FIRIAMRenderAsImageOnlyView
+  FIRIAMRenderAsImageOnlyView,
+  FIRIAMRenderAsCardView
 };
 
 /**

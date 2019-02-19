@@ -181,8 +181,10 @@
     UIColor *viewCardBackgroundColor, *btnBgColor, *btnTxtColor, *titleTextColor;
     viewCardBackgroundColor = btnBgColor = btnTxtColor = titleTextColor = nil;
 
-    NSString *title, *body, *imageURLStr, *actionURLStr, *actionButtonText;
-    title = body = imageURLStr = actionButtonText = actionURLStr = nil;
+    NSString *title, *body, *imageURLStr, *landscapeImageURLStr, *actionURLStr, *secondaryActionURLStr,
+        *actionButtonText, *secondaryActionButtonText;
+    title = body = imageURLStr = landscapeImageURLStr = actionButtonText = secondaryActionButtonText =
+        actionURLStr = secondaryActionURLStr = nil;
 
     if ([content[@"banner"] isKindOfClass:[NSDictionary class]]) {
       NSDictionary *bannerNode = (NSDictionary *)contentNode[@"banner"];
@@ -227,6 +229,26 @@
         return nil;
       }
       actionURLStr = imageOnlyNode[@"action"][@"actionUrl"];
+    } else if ([content[@"card"] isKindOfClass:[NSDictionary class]]) {
+      mode = FIRIAMRenderAsCardView;
+      NSDictionary *cardNode = (NSDictionary *)contentNode[@"card"];
+      title = cardNode[@"title"][@"text"];
+      titleTextColor = [UIColor blackColor];
+      
+      body = cardNode[@"body"][@"text"];
+      
+      imageURLStr = cardNode[@"portraitImageUrl"];
+      landscapeImageURLStr = cardNode[@"landscapeImageUrl"];
+      
+      viewCardBackgroundColor = [UIColor firiam_colorWithHexString:@"backgroundHexColor"];
+      
+      actionButtonText = cardNode[@"primaryActionButton"][@"text"][@"text"];
+      secondaryActionButtonText = cardNode[@"secondaryActionButton"][@"text"][@"text"];
+      
+      actionURLStr = cardNode[@"primaryAction"][@"actionUrl"];
+      secondaryActionURLStr = cardNode[@"secondaryAction"][@"actionUrl"];
+      
+      
     } else {
       // Unknown message type
       FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM900003",
@@ -241,7 +263,11 @@
     }
 
     NSURL *imageURL = (imageURLStr.length == 0) ? nil : [NSURL URLWithString:imageURLStr];
+    NSURL *landscapeImageURL = (landscapeImageURLStr.length == 0) ?
+        nil : [NSURL URLWithString:landscapeImageURLStr];
     NSURL *actionURL = (actionURLStr.length == 0) ? nil : [NSURL URLWithString:actionURLStr];
+    NSURL *secondaryActionURL = (secondaryActionURLStr.length == 0) ?
+        nil : [NSURL URLWithString:secondaryActionURLStr];
     FIRIAMRenderingEffectSetting *renderEffect =
         [FIRIAMRenderingEffectSetting getDefaultRenderingEffectSetting];
     renderEffect.viewMode = mode;
@@ -284,8 +310,11 @@
         [[FIRIAMMessageContentDataWithImageURL alloc] initWithMessageTitle:title
                                                                messageBody:body
                                                           actionButtonText:actionButtonText
+                                                 secondaryActionButtonText:secondaryActionButtonText
                                                                  actionURL:actionURL
+                                                        secondaryActionURL:secondaryActionURL
                                                                   imageURL:imageURL
+                                                         landscapeImageURL:landscapeImageURL
                                                            usingURLSession:nil];
 
     FIRIAMMessageRenderData *renderData =

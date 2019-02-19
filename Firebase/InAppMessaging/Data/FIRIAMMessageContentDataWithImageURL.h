@@ -40,8 +40,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithMessageTitle:(NSString *)title
                          messageBody:(NSString *)body
                     actionButtonText:(nullable NSString *)actionButtonText
+           secondaryActionButtonText:(nullable NSString *)secondaryActionButtonText
                            actionURL:(nullable NSURL *)actionURL
+                  secondaryActionURL:(nullable NSURL *)secondaryActionURL
                             imageURL:(nullable NSURL *)imageURL
+                   landscapeImageURL:(nullable NSURL *)landscapeImageURL
                      usingURLSession:(nullable NSURLSession *)URLSession;
 @end
 NS_ASSUME_NONNULL_END
