@@ -124,7 +124,6 @@ static CGFloat LandScapePaddingBetweenImageAndTextColumn = 24;
   }
 
   self.messageCardView.backgroundColor = self.modalDisplayMessage.displayBackgroundColor;
-  self.messageCardView.layer.cornerRadius = 4;
 
   self.titleLabel.textColor = self.modalDisplayMessage.textColor;
   self.bodyTextView.textColor = self.modalDisplayMessage.textColor;
