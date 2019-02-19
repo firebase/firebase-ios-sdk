@@ -31,6 +31,8 @@
 @class FIRAuthSettings;
 @class FIRUser;
 @protocol FIRAuthStateListener;
+@protocol FIRAuthUIDelegate;
+@protocol FIRFederatedAuthProvider;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -238,6 +240,59 @@ typedef NS_ENUM(NSInteger, FIRActionCodeOperation) {
 
 @end
 
+
+/** @class FIRActionCodeURL
+    @brief This class will allow developers to easily extract information about out of band links.
+ */
+NS_SWIFT_NAME(FIRActionCodeURL)
+@interface FIRActionCodeURL : NSObject
+
+/** @fn actionCodeURLWithLink:
+    @brief Construct an FIRActionCodeURL from an oob link.
+    @param link The oob link string used to construct the action code URL.
+    @return The FIRActionCodeURL object constructed based on the oob link provided.
+ */
++ (nullable instancetype)actionCodeURLWithLink:(NSString *)link;
+
+/** @property APIKey
+    @brief Returns the API key from the link. nil, if not provided.
+ */
+@property(nonatomic, nullable, copy, readonly) NSString *APIKey;
+
+/** @property operation
+    @brief Returns the mode of oob action. The property will be of FIRActionCodeOperation type.
+        It will return FIRActionCodeOperationUnknown if no oob action is provided.
+ */
+@property(nonatomic, readonly) FIRActionCodeOperation operation;
+
+/** @property code
+    @brief Returns the email action code from the link. nil, if not provided.
+ */
+@property(nonatomic, nullable, copy, readonly) NSString *code;
+
+/** @property continueURL
+    @brief Returns the continue URL from the link. nil, if not provided.
+ */
+@property(nonatomic, nullable, copy, readonly) NSURL *continueURL;
+
+/** @property languageCode
+    @brief Returns the language code from the link. nil, if not provided.
+ */
+@property(nonatomic, nullable, copy, readonly) NSString *languageCode;
+
+/** @property tenantID
+    @brief Returns the tenant ID from the link. nil, if not provided.
+ */
+@property(nonatomic, nullable, copy, readonly) NSString *tenantID;
+
+/** @fn init
+    @brief please use +[FIRActionCodeURL actionCodeURLWithLink:] instead.
+ */
+- (instancetype)init NS_UNAVAILABLE;
+
+@end
+
+
 /** @typedef FIRCheckActionCodeCallBack
     @brief The type of block invoked when performing a check action code operation.
 
@@ -293,6 +348,11 @@ NS_SWIFT_NAME(Auth)
     @brief Contains settings related to the auth object.
  */
 @property (nonatomic, copy, nullable) FIRAuthSettings *settings;
+
+/** @property tenantID
+    @brief The tenant ID of the auth instance. nil if none is available.
+ */
+@property(nonatomic, copy, nullable) NSString *tenantID;
 
 #if TARGET_OS_IOS
 /** @property APNSToken
@@ -464,6 +524,54 @@ NS_SWIFT_NAME(Auth)
                                       " for Objective-C or signInAndRetrieveData(with:completion:)"
                                       " for Swift instead.");
 
+/** @fn signInWithProvider:UIDelegate:completion:
+    @brief Signs in using the provided auth provider instance.
+
+    @param provider An isntance of an auth provider used to initiate the sign-in flow.
+    @param UIDelegate Optionally an instance of a class conforming to the FIRAuthUIDelegate
+        protocol, this is used for presenting the web context. If nil, a default FIRAuthUIDelegate
+        will be used.
+    @param completion Optionally; a block which is invoked when the sign in flow finishes, or is
+        canceled. Invoked asynchronously on the main thread in the future.
+
+    @remarks Possible error codes:
+    <ul>
+        <li>@c FIRAuthErrorCodeOperationNotAllowed - Indicates that email and password
+            accounts are not enabled. Enable them in the Auth section of the
+            Firebase console.
+        </li>
+        <li>@c FIRAuthErrorCodeUserDisabled - Indicates the user's account is disabled.
+        </li>
+        <li>@c FIRAuthErrorCodeWebNetworkRequestFailed - Indicates that a network request within a
+            SFSafariViewController or UIWebview failed.
+        </li>
+        <li>@c FIRAuthErrorCodeWebInternalError - Indicates that an internal error occured within a
+            SFSafariViewController or UIWebview.
+        </li>
+        <li>@c FIRAuthErrorCodeWebSignInUserInteractionFailure - Indicates a general failure during
+            a web sign-in flow.
+        </li>
+        <li>@c FIRAuthErrorCodeWebContextAlreadyPresented - Indicates that an attempt was made to
+            present a new web context while one was already being presented.
+        </li>
+        <li>@c FIRAuthErrorCodeWebContextCancelled - Indicates that the URL presentation was cancelled prematurely
+            by the user.
+        </li>
+        <li>@c FIRAuthErrorCodeAccountExistsWithDifferentCredential - Indicates the email asserted
+            by the credential (e.g. the email in a Facebook access token) is already in use by an
+            existing account, that cannot be authenticated with this sign-in method. Call
+            fetchProvidersForEmail for this user’s email and then prompt them to sign in with any of
+            the sign-in providers returned. This error will only be thrown if the "One account per
+            email address" setting is enabled in the Firebase console, under Auth settings.
+        </li>
+    </ul>
+
+    @remarks See @c FIRAuthErrors for a list of error codes that are common to all API methods.
+ */
+- (void)signInWithProvider:(id<FIRFederatedAuthProvider>)provider
+                UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
+                completion:(nullable FIRAuthDataResultCallback)completion;
+
 /** @fn signInAndRetrieveDataWithCredential:completion:
     @brief Asynchronously signs in to Firebase with the given 3rd-party credentials (e.g. a Facebook
         login Access Token, a Google ID Token/Access Token pair, etc.) and returns additional
@@ -505,6 +613,20 @@ NS_SWIFT_NAME(Auth)
     @remarks See `FIRAuthErrors` for a list of error codes that are common to all API methods
  */
 - (void)signInAndRetrieveDataWithCredential:(FIRAuthCredential *)credential
+                                 completion:(nullable FIRAuthDataResultCallback)completion;
+
+/** @fn signInAndRetrieveDataWithCredential:tenantID:completion:
+    @brief same as `signInAndRetrieveDataWithCredential:completion:, but
+           allows the user to pass in an optional tenant ID, which may be different
+           than the auth instance's tenantID.
+
+    @param credential The credential supplied by the IdP.
+    @param tenantID An optional tenantID that may be different with auth instance's tenant ID.
+    @param completion Optionally; a block which is invoked when the sign in flow finishes, or is
+        canceled. Invoked asynchronously on the main thread in the future.
+ */
+- (void)signInAndRetrieveDataWithCredential:(FIRAuthCredential *)credential
+                                   tenantID:(nullable NSString *)tenantID
                                  completion:(nullable FIRAuthDataResultCallback)completion;
 
 /** @fn signInAnonymouslyWithCompletion:

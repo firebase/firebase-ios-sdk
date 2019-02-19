@@ -122,6 +122,11 @@ static NSString *const kTokenServiceCodingKey = @"tokenService";
  */
 static NSString *const kMetadataCodingKey = @"metadata";
 
+/** @var kTenantIDKey
+    @brief The key used to encode the tenantID instance variable for NSSecureCoding.
+ */
+static NSString *const kTenantIDKey = @"tenantID";
+
 /** @var kMissingUsersErrorMessage
     @brief The error message when there is no users array in the getAccountInfo response.
  */
@@ -213,6 +218,11 @@ static void callInMainThreadWithAuthDataResultAndError(
  */
 @property(nonatomic, readwrite) BOOL anonymous;
 
+/** @property tenantID
+    @brief The tenant ID of the current user. nil if none is available.
+ */
+@property(nonatomic, readwrite, nullable) NSString *tenantID;
+
 @end
 
 @implementation FIRUser {
@@ -262,6 +272,7 @@ static void callInMainThreadWithAuthDataResultAndError(
                                                      refreshToken:refreshToken];
   FIRUser *user = [[self alloc] initWithTokenService:tokenService];
   user.auth = auth;
+  user.tenantID = auth.tenantID;
   user.requestConfiguration = auth.requestConfiguration;
   [user internalGetTokenWithCallback:^(NSString *_Nullable accessToken, NSError *_Nullable error) {
     if (error) {
@@ -328,6 +339,8 @@ static void callInMainThreadWithAuthDataResultAndError(
       [aDecoder decodeObjectOfClass:[FIRSecureTokenService class] forKey:kTokenServiceCodingKey];
   FIRUserMetadata *metadata =
       [aDecoder decodeObjectOfClass:[FIRUserMetadata class] forKey:kMetadataCodingKey];
+  NSString *tenantID =
+      [aDecoder decodeObjectOfClass:[NSString class] forKey:kTenantIDKey];
   NSString *APIKey =
       [aDecoder decodeObjectOfClass:[FIRUserMetadata class] forKey:kAPIKeyCodingKey];
   if (!userID || !tokenService) {
@@ -348,6 +361,7 @@ static void callInMainThreadWithAuthDataResultAndError(
     _providerData = providerData;
     _phoneNumber = phoneNumber;
     _metadata = metadata ?: [[FIRUserMetadata alloc] initWithCreationDate:nil lastSignInDate:nil];
+    _tenantID = tenantID;
     _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:APIKey];
   }
   return self;
@@ -364,6 +378,7 @@ static void callInMainThreadWithAuthDataResultAndError(
   [aCoder encodeObject:_photoURL forKey:kPhotoURLCodingKey];
   [aCoder encodeObject:_displayName forKey:kDisplayNameCodingKey];
   [aCoder encodeObject:_metadata forKey:kMetadataCodingKey];
+  [aCoder encodeObject:_tenantID forKey:kTenantIDKey];
   [aCoder encodeObject:_auth.requestConfiguration.APIKey forKey:kAPIKeyCodingKey];
   [aCoder encodeObject:_tokenService forKey:kTokenServiceCodingKey];
 }
@@ -673,6 +688,9 @@ static void callInMainThreadWithAuthDataResultAndError(
               verificationCode:phoneAuthCredential.verificationCode
                      operation:operation
           requestConfiguration:self->_auth.requestConfiguration];
+    if (!isLinkOperation) {
+      request.tenantID = self.tenantID;
+    }
     request.accessToken = accessToken;
     [FIRAuthBackend verifyPhoneNumber:request
                              callback:^(FIRVerifyPhoneNumberResponse *_Nullable response,
@@ -1101,6 +1119,7 @@ static void callInMainThreadWithAuthDataResultAndError(
                                              requestConfiguration:requestConfiguration];
         [credential prepareVerifyAssertionRequest:request];
         request.accessToken = accessToken;
+        request.tenantID = self.tenantID;
         [FIRAuthBackend verifyAssertion:request
                                callback:^(FIRVerifyAssertionResponse *response, NSError *error) {
           if (error) {
@@ -1263,6 +1282,7 @@ static void callInMainThreadWithAuthDataResultAndError(
           [FIRGetOOBConfirmationCodeRequest verifyEmailRequestWithAccessToken:accessToken
                                                            actionCodeSettings:actionCodeSettings
                                                          requestConfiguration:configuration];
+      request.tenantID = self.tenantID;
       [FIRAuthBackend getOOBConfirmationCode:request
                                     callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable
                                                    response,

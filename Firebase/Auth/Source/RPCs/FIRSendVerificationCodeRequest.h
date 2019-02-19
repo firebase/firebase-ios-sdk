@@ -41,6 +41,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, strong, readonly, nullable) NSString *reCAPTCHAToken;
 
+/** @property tenantID
+    @brief The tenant ID of the request. nil if none is available.
+ */
+@property(nonatomic, copy, nullable) NSString *tenantID;
+
 /** @fn initWithEndpoint:requestConfiguration:
     @brief Please use initWithPhoneNumber:appCredentials:requestConfiguration: instead.
  */

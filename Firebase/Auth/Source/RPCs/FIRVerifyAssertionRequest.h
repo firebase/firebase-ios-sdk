@@ -33,10 +33,10 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, copy, nullable) NSString *requestURI;
 
-/** @property pendingIDToken
-    @brief The Firebase ID Token for the non-trusted IDP pending to be confirmed by the user.
+/** @property pendingToken
+    @brief The Firebase ID Token for the IDP pending to be confirmed by the user.
  */
-@property(nonatomic, copy, nullable) NSString *pendingIDToken;
+@property(nonatomic, copy, nullable) NSString *pendingToken;
 
 /** @property accessToken
     @brief The STS Access Token for the authenticated user, only needed for linking the user.
@@ -66,6 +66,16 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, copy, nullable) NSString *providerIDToken;
 
+/** @property returnIDPCredential
+    @brief Whether the response should return the IDP credential directly.
+ */
+@property(nonatomic, assign) BOOL returnIDPCredential;
+
+/** @property providerOAuthTokenSecret
+    @brief A session ID used to map this request to a headful-lite flow.
+ */
+@property(nonatomic, copy, nullable) NSString *sessionID;
+
 /** @property providerOAuthTokenSecret
     @brief An OAuth client secret from the IDP.
  */
@@ -80,6 +90,11 @@ NS_ASSUME_NONNULL_BEGIN
     @brief A flag that indicates whether or not the user should be automatically created.
  */
 @property(nonatomic, assign) BOOL autoCreate;
+
+/** @property tenantID
+    @brief The tenant ID of the request. nil if none is available.
+ */
+@property(nonatomic, copy, nullable) NSString *tenantID;
 
 /** @fn initWithEndpoint:requestConfiguration:
     @brief Please use initWithProviderID:requestConfifuration instead.

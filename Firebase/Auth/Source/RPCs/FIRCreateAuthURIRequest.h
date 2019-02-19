@@ -65,6 +65,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, copy, nullable) NSString *appID;
 
+/** @property tenantID
+    @brief The tenant ID of the request. nil if none is available.
+ */
+@property(nonatomic, copy, nullable) NSString *tenantID;
+
 /** @fn initWithEndpoint:requestConfiguration:requestConfiguration.
     @brief Please use initWithIdentifier:continueURI:requestConfiguration: instead.
  */

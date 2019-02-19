@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-@class FIRPhoneAuthCredential;
+@class FIRAuthCredential;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -216,13 +216,15 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (NSError *)invalidEmailErrorWithMessage:(nullable NSString *)message;
 
-/** @fn accountExistsWithDifferentCredentialErrorWithEmail:
+/** @fn accountExistsWithDifferentCredentialErrorWithEmail:tenantID:
     @brief Constructs an @c NSError with the @c FIRAuthErrorAccountExistsWithDifferentCredential
         code.
-    @param Email The email address that is already associated with an existing account
+    @param email The email address that is already associated with an existing account
+    @param tenantID The tenantID used to sign in.
     @return The NSError instance associated with the given FIRAuthError.
  */
-+ (NSError *)accountExistsWithDifferentCredentialErrorWithEmail:(nullable NSString *)Email;
++ (NSError *)accountExistsWithDifferentCredentialErrorWithEmail:(nullable NSString *)email
+                                                       tenantID:(nullable NSString *)tenantID;
 
 /** @fn providerAlreadyLinkedErrorWithMessage:
     @brief Constructs an @c NSError with the @c FIRAuthErrorCodeProviderAlreadyLinked code.
@@ -262,15 +264,16 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (NSError *)userMismatchError;
 
-/** @fn credentialAlreadyInUseErrorWithMessage:
+/** @fn credentialAlreadyInUseErrorWithMessage:email:
     @brief Constructs an @c NSError with the @c FIRAuthErrorCodeCredentialAlreadyInUse code.
     @param message Error message from the backend, if any.
     @param credential Auth credential to be added to the Error User Info dictionary.
+    @param email Email to be added to the Error User Info dictionary.
     @return The NSError instance associated with the given FIRAuthError.
  */
 + (NSError *)credentialAlreadyInUseErrorWithMessage:(nullable NSString *)message
-                                         credential:(nullable FIRPhoneAuthCredential *)credential;
-
+                                         credential:(nullable FIRAuthCredential *)credential
+                                              email:(nullable NSString *)email;
 /** @fn operationNotAllowedErrorWithMessage:
     @brief Constructs an @c NSError with the @c FIRAuthErrorCodeOperationNotAllowed code.
     @param message Error message from the backend, if any.
@@ -499,6 +502,14 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (NSError *)appVerificationUserInteractionFailureWithReason:(NSString *)reason;
 
+/** @fn webSignInUserInteractionFailureWithReason:
+    @brief Constructs an @c NSError with the @c
+        FIRAuthErrorCodeWebSignInUserInteractionFailure code.
+    @param reason Reason for error, returned via URL response.
+    @return The NSError instance associated with the given FIRAuthError.
+ */
++ (NSError *)webSignInUserInteractionFailureWithReason:(nullable NSString *)reason;
+
 /** @fn URLResponseErrorWithCode:message:
     @brief Constructs an @c NSError with the code and message provided.
     @param message Error message from the backend, if any.
@@ -530,6 +541,19 @@ NS_ASSUME_NONNULL_BEGIN
         a string partially comprised of this value.
  */
 + (NSError *)keychainErrorWithFunction:(NSString *)keychainFunction status:(OSStatus)status;
+
+/** @fn tenantIDMismatchError
+    @brief Constructs an @c NSError with the @c FIRAuthErrorCodeTenantIDMismatch code.
+    @remarks This error is used when an attempt is made to update the current user with a
+        tenantId that differs from the current FirebaseAuth instance's tenantId.
+ */
++ (NSError *)tenantIDMismatchError;
+
+/** @fn unsupportedTenantOperationError
+    @brief Constructs an @c NSError with the @c FIRUnsupportedTenantOperation code.
+    @remarks This error indicates the operation is not supported in a multi-tenant context.
+ */
++ (NSError *)unsupportedTenantOperationError;
 
 @end
 

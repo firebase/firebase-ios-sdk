@@ -24,6 +24,8 @@
 #if FIRAUTH_USER_DEFAULTS_STORAGE_AVAILABLE
 #import <UIKit/UIKit.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 /** @var kOSVersionMatcherForUsingUserDefaults
     @brief The regular expression to match all OS versions that @c FIRAuthUserDefaultsStorage is
         used instead if available.
@@ -75,7 +77,7 @@ static NSString *const kAccountPrefix = @"firebase_auth_1_";
   return self;
 }
 
-- (NSData *)dataForKey:(NSString *)key error:(NSError **_Nullable)error {
+- (nullable NSData *)dataForKey:(NSString *)key error:(NSError **_Nullable)error {
   if (!key.length) {
     [NSException raise:NSInvalidArgumentException
                 format:@"%@", @"The key cannot be nil or empty."];
@@ -254,3 +256,5 @@ static NSString *const kAccountPrefix = @"firebase_auth_1_";
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

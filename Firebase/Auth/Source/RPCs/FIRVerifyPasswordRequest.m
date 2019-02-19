@@ -16,6 +16,8 @@
 
 #import "FIRVerifyPasswordRequest.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 /** @var kVerifyPasswordEndpoint
     @brief The "verifyPassword" endpoint.
  */
@@ -50,6 +52,11 @@ static NSString *const kCaptchaResponseKey = @"captchaResponse";
     @brief The key for the "returnSecureToken" value in the request.
  */
 static NSString *const kReturnSecureTokenKey = @"returnSecureToken";
+
+/** @var kTenantIDKey
+    @brief The key for the tenant id value in the request.
+ */
+static NSString *const kTenantIDKey = @"tenantId";
 
 @implementation FIRVerifyPasswordRequest
 
@@ -86,7 +93,12 @@ static NSString *const kReturnSecureTokenKey = @"returnSecureToken";
   if (_returnSecureToken) {
     postBody[kReturnSecureTokenKey] = @YES;
   }
+  if (self.tenantID) {
+    postBody[kTenantIDKey] = self.tenantID;
+  }
   return postBody;
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -1513,7 +1513,8 @@ static const NSTimeInterval kExpectationTimeout = 2;
                        FIRVerifyAssertionResponseCallback callback) {
         dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
             callback(nil,
-                     [FIRAuthErrorUtils accountExistsWithDifferentCredentialErrorWithEmail:kEmail]);
+                     [FIRAuthErrorUtils accountExistsWithDifferentCredentialErrorWithEmail:kEmail
+                                                                                  tenantID:nil]);
       });
     });
 
@@ -2279,7 +2280,7 @@ static const NSTimeInterval kExpectationTimeout = 2;
                                               NSError *_Nullable error) {
       XCTAssertNil(linkAuthResult);
       XCTAssertEqual(error.code, FIRAuthErrorCodeCredentialAlreadyInUse);
-      FIRPhoneAuthCredential *credential = error.userInfo[FIRAuthUpdatedCredentialKey];
+      FIRPhoneAuthCredential *credential = error.userInfo[FIRAuthErrorUserInfoUpdatedCredentialKey];
       XCTAssertEqual(credential.temporaryProof, kTemporaryProof);
       XCTAssertEqual(credential.phoneNumber, kPhoneNumber);
       [expectation fulfill];

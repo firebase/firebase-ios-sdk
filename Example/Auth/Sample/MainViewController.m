@@ -114,6 +114,11 @@ static NSString *const kSetPhotoURLText = @"Set Photo url";
  */
 static NSString *const kSignInGoogleButtonText = @"Sign in with Google";
 
+/** @var kSignInGoogleProviderButtonText
+    @brief The text of the Google provider version of "Sign In With Provider" button.
+ */
+static NSString *const kSignInGoogleProviderButtonText = @"Sign in with provider:(Google)";
+
 /** @var kSignInWithEmailLink
     @brief The text of the "Sign in with Email Link" button.
  */
@@ -134,6 +139,16 @@ static NSString *const kSendEmailSignInLink = @"Send Email Sign in Link";
  */
 static NSString *const kSignInGoogleAndRetrieveDataButtonText =
     @"Sign in with Google and retrieve data";
+
+/** @var kSignInGoogleHeadfulLite
+    @brief The text of the "Sign in with Google (headful lite)" button.
+ */
+static NSString *const kSignInGoogleHeadfulLite = @"Sign in with Google (headful lite)";
+
+/** @var kSignInMicrosoftHeadfulLite
+    @brief The text of the "Sign in with Microsoft (headful lite)" button.
+ */
+static NSString *const kSignInMicrosoftHeadfulLite = @"Sign in with Microsoft (headful lite)";
 
 /** @var kSignInFacebookButtonText
     @brief The text of the "Facebook SignIn" button.
@@ -819,6 +834,8 @@ typedef enum {
                                            action:^{ [weakSelf createUserAuthDataResult]; }],
         [StaticContentTableViewCell cellWithTitle:kSignInGoogleButtonText
                                            action:^{ [weakSelf signInGoogle]; }],
+        [StaticContentTableViewCell cellWithTitle:kSignInGoogleProviderButtonText
+                                           action:^{ [weakSelf signInGoogleProvider]; }],
         [StaticContentTableViewCell cellWithTitle:kSignInWithEmailLink
                                            action:^{ [weakSelf signInWithEmailLink]; }],
         [StaticContentTableViewCell cellWithTitle:kVerifyEmailLinkAccount
@@ -827,6 +844,10 @@ typedef enum {
                                            action:^{ [weakSelf sendEmailSignInLink]; }],
         [StaticContentTableViewCell cellWithTitle:kSignInGoogleAndRetrieveDataButtonText
                                            action:^{ [weakSelf signInGoogleAndRetrieveData]; }],
+        [StaticContentTableViewCell cellWithTitle:kSignInGoogleHeadfulLite
+                                           action:^{ [weakSelf signInGoogleHeadfulLite]; }],
+        [StaticContentTableViewCell cellWithTitle:kSignInMicrosoftHeadfulLite
+                                           action:^{ [weakSelf signInMicrosoftHeadfulLite]; }],
         [StaticContentTableViewCell cellWithTitle:kSignInFacebookButtonText
                                            action:^{ [weakSelf signInFacebook]; }],
         [StaticContentTableViewCell cellWithTitle:kSignInFacebookAndRetrieveDataButtonText
@@ -1758,6 +1779,108 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
  */
 - (void)signInGoogleAndRetrieveData {
   [self signinWithProvider:[AuthProviders google] retrieveData:YES];
+}
+
+- (void)signInGoogleProvider {
+  FIROAuthProvider *provider = [FIROAuthProvider providerWithProviderID:FIRGoogleAuthProviderID];
+  provider.customParameters = @{
+    @"prompt" : @"consent",
+  };
+  provider.scopes = @[ @"profile", @"email", @"https://www.googleapis.com/auth/plus.me" ];
+  [self showSpinner:^{
+    [[AppManager auth] signInWithProvider:provider
+                               UIDelegate:nil
+                               completion:^(FIRAuthDataResult *_Nullable authResult,
+                                            NSError *_Nullable error) {
+      [self hideSpinner:^{
+        if (error) {
+          [self logFailure:@"sign-in with provider (Google) failed" error:error];
+        } else if (authResult.additionalUserInfo) {
+          [self logSuccess:[self stringWithAdditionalUserInfo:authResult.additionalUserInfo]];
+          if (_isNewUserToggleOn) {
+            NSString *newUserString = authResult.additionalUserInfo.newUser ?
+                @"New user" : @"Existing user";
+            [self showMessagePromptWithTitle:@"New or Existing"
+                                     message:newUserString
+                            showCancelButton:NO
+                                  completion:nil];
+          }
+        }
+        [self showTypicalUIForUserUpdateResultsWithTitle:@"Sign-In Error" error:error];
+      }];
+    }];
+  }];
+}
+
+/** @fn signInGoogleHeadfulLite
+    @brief Invoked when "Sign in with Google (headful-lite)" row is pressed.
+ */
+- (void)signInGoogleHeadfulLite {
+  FIROAuthProvider *provider = [FIROAuthProvider providerWithProviderID:FIRGoogleAuthProviderID];
+  provider.customParameters = @{
+    @"prompt" : @"consent",
+  };
+  provider.scopes = @[ @"profile", @"email", @"https://www.googleapis.com/auth/plus.me" ];
+  [self showSpinner:^{
+    [provider getCredentialWithUIDelegate:nil completion:^(FIRAuthCredential *_Nullable credential,
+                                                           NSError *_Nullable error) {
+      if (error) {
+        [self logFailure:@"sign-in with Google failed" error:error];
+        return;
+      }
+      [[AppManager auth] signInAndRetrieveDataWithCredential:credential
+                                                    tenantID:provider.tenantID
+                                                  completion:^(FIRAuthDataResult *_Nullable
+                                                                   authResult,
+                                                               NSError *_Nullable error) {
+        [self hideSpinner:^{
+          if (error) {
+            [self logFailure:@"sign-in with Google failed" error:error];
+            return;
+          } else {
+            [self logSuccess:@"sign-in with Google (headful-lite) succeeded."];
+          }
+          [self showTypicalUIForUserUpdateResultsWithTitle:@"Sign-In Error" error:error];
+        }];
+      }];
+    }];
+  }];
+}
+
+/** @fn signInMicrosoftHeadfulLite
+    @brief Invoked when "Sign in with Microsoft (headful-lite)" row is pressed.
+ */
+- (void)signInMicrosoftHeadfulLite {
+  FIROAuthProvider *provider = [FIROAuthProvider providerWithProviderID:FIRMicrosoftAuthProviderID];
+  provider.customParameters = @{
+    @"prompt" : @"consent",
+    @"login_hint" : @"tu8731@gmail.com",
+  };
+  provider.scopes = @[ @"user.readwrite,calendars.read" ];
+  [self showSpinner:^{
+    [provider getCredentialWithUIDelegate:nil completion:^(FIRAuthCredential *_Nullable credential,
+                                                           NSError *_Nullable error) {
+      if (error) {
+        [self logFailure:@"sign-in with Microsoft failed" error:error];
+        return;
+      }
+      [[AppManager auth] signInAndRetrieveDataWithCredential:credential
+                                                    tenantID:provider.tenantID
+                                                  completion:^(FIRAuthDataResult *_Nullable
+                                                                   authResult,
+                                                               NSError *_Nullable error) {
+        [self hideSpinner:^{
+          if (error) {
+            [self logFailure:@"sign-in with Microsoft failed" error:error];
+            return;
+          } else {
+            [self logSuccess:@"sign-in with Microsoft (headful-lite) succeeded."];
+          }
+          [self showTypicalUIForUserUpdateResultsWithTitle:@"Sign-In Error" error:error];
+        }];
+      }];
+    }];
+  }];
 }
 
 /** @fn signInFacebook
@@ -3262,7 +3385,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
                         // provided credential.
                         [self showSpinner:^{
                           FIRPhoneAuthCredential *credential =
-                              error.userInfo[FIRAuthUpdatedCredentialKey];
+                              error.userInfo[FIRAuthErrorUserInfoUpdatedCredentialKey];
                           [[AppManager auth] signInWithCredential:credential
                                                        completion:^(FIRUser *_Nullable user,
                                                                     NSError *_Nullable error) {
@@ -3356,7 +3479,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
     if (!userPressedOK || !accessToken.length) {
       return;
     }
-    FIRAuthCredential *credential =
+    FIROAuthCredential *credential =
         [FIROAuthProvider credentialWithProviderID:FIRGitHubAuthProviderID accessToken:accessToken];
     if (credential) {
         [[AppManager auth] signInWithCredential:credential

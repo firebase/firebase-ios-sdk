@@ -18,6 +18,8 @@
 
 #import "FIRAuthErrors.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 /** @var FIRAuthPublicErrorCodeFlag
     @brief Bitmask value indicating the error represents a public error code when this bit is
         zeroed. Error codes which don't contain this flag will be wrapped in an @c NSError whose
@@ -89,6 +91,19 @@ typedef NS_ENUM(NSInteger, FIRAuthInternalErrorCode) {
    */
   FIRAuthInternalErrorCodeKeychainError =
       FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeKeychainError,
+
+  /** @var FIRAuthInternalErrorCodeTenantIDMismatch
+      @brief Indicates an error occurred when an attempt is made to update the current user with a
+          tenantId that differs from the current FirebaseAuth instance's tenantId.
+   */
+  FIRAuthInternalErrorCodeTenantIDMismatch =
+      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeTenantIDMismatch,
+
+  /** @var FIRAuthInternalErrorCodeUnsupportedTenantOperation
+      @brief Indicates an error occurred when operation is not supported in a multi-tenant context.
+   */
+  FIRAuthInternalErrorCodeUnsupportedTenantOperation =
+      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeUnsupportedTenantOperation,
 
   /** @var FIRAuthInternalErrorCodeInternalError
       @brief An internal error occurred.
@@ -353,6 +368,11 @@ typedef NS_ENUM(NSInteger, FIRAuthInternalErrorCode) {
   FIRAuthInternalErrorCodeWebInternalError =
       FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeWebInternalError,
 
+  /** Indicates that an internal error occured within a SFSafariViewController or UIWebview.
+   */
+  FIRAuthInternalErrorCodeWebSignInUserInteractionFailure =
+      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeWebSignInUserInteractionFailure,
+
   // The enum values between 17046 and 17051 are reserved and should NOT be used for new error
   // codes.
 
@@ -457,3 +477,5 @@ typedef NS_ENUM(NSInteger, FIRAuthInternalErrorCode) {
    */
   FIRAuthInternalErrorCodeRPCResponseDecodingError = 5,
 };
+
+NS_ASSUME_NONNULL_END

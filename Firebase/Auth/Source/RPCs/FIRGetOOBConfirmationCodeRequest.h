@@ -101,6 +101,10 @@ typedef NS_ENUM(NSInteger, FIRGetOOBConfirmationCodeRequestType) {
  */
 @property (copy, nonatomic, nullable) NSString *dynamicLinkDomain;
 
+/** @property tenantID
+    @brief The tenant ID of the request. nil if none is available.
+ */
+@property(nonatomic, copy, nullable) NSString *tenantID;
 
 /** @fn passwordResetRequestWithEmail:actionCodeSettings:requestConfiguration:
     @brief Creates a password reset request.

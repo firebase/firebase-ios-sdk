@@ -21,6 +21,8 @@
 #import "FIRAuthErrorUtils.h"
 #import "FIRAuth_Internal.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 /** @var kEndpoint
     @brief The getOobConfirmationCode endpoint name.
  */
@@ -94,6 +96,11 @@ static NSString *const kEmailLinkSignInTypeValue= @"EMAIL_SIGNIN";
  */
 static NSString *const kVerifyEmailRequestTypeValue = @"VERIFY_EMAIL";
 
+/** @var kTenantIDKey
+    @brief The key for the tenant id value in the request.
+ */
+static NSString *const kTenantIDKey = @"tenantId";
+
 @interface FIRGetOOBConfirmationCodeRequest ()
 
 /** @fn initWithRequestType:email:APIKey:
@@ -132,7 +139,7 @@ static NSString *const kVerifyEmailRequestTypeValue = @"VERIFY_EMAIL";
   }
 }
 
-+ (FIRGetOOBConfirmationCodeRequest *)
++ (nullable FIRGetOOBConfirmationCodeRequest *)
     passwordResetRequestWithEmail:(NSString *)email
                actionCodeSettings:(nullable FIRActionCodeSettings *)actionCodeSettings
              requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
@@ -143,7 +150,7 @@ static NSString *const kVerifyEmailRequestTypeValue = @"VERIFY_EMAIL";
                       requestConfiguration:requestConfiguration];
 }
 
-+ (FIRGetOOBConfirmationCodeRequest *)
++ (nullable FIRGetOOBConfirmationCodeRequest *)
     verifyEmailRequestWithAccessToken:(NSString *)accessToken
                    actionCodeSettings:(nullable FIRActionCodeSettings *)actionCodeSettings
                  requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
@@ -154,7 +161,7 @@ static NSString *const kVerifyEmailRequestTypeValue = @"VERIFY_EMAIL";
                       requestConfiguration:requestConfiguration];
 }
 
-+ (FIRGetOOBConfirmationCodeRequest *)
++ (nullable FIRGetOOBConfirmationCodeRequest *)
     signInWithEmailLinkRequest:(NSString *)email
             actionCodeSettings:(nullable FIRActionCodeSettings *)actionCodeSettings
           requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
@@ -238,7 +245,13 @@ static NSString *const kVerifyEmailRequestTypeValue = @"VERIFY_EMAIL";
     body[kDynamicLinkDomainKey] = _dynamicLinkDomain;
   }
 
+  if (self.tenantID) {
+    body[kTenantIDKey] = self.tenantID;
+  }
+
   return body;
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

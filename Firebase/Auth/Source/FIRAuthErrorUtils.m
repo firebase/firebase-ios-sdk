@@ -32,6 +32,13 @@ NSString *const FIRAuthErrorUserInfoDataKey = @"FIRAuthErrorUserInfoDataKey";
 
 NSString *const FIRAuthErrorUserInfoEmailKey = @"FIRAuthErrorUserInfoEmailKey";
 
+NSString *const FIRAuthErrorUserInfoUpdatedCredentialKey =
+    @"FIRAuthErrorUserInfoUpdatedCredentialKey";
+
+NSString *const FIRAuthErrorUserInfoNameKey = @"FIRAuthErrorUserInfoUpdatedCredentialKey";
+
+NSString *const FIRAuthErrorUserInfoTenantIDKey = @"FIRAuthErrorUserInfoTenantID";
+
 NSString *const FIRAuthErrorNameKey = @"error_name";
 
 NSString *const FIRAuthUpdatedCredentialKey = @"FIRAuthUpdatedCredentialKey";
@@ -148,6 +155,18 @@ static NSString *const kFIRAuthErrorMessageInvalidUserToken = @"This user's cred
  */
 static NSString *const kFIRAuthErrorMessageNetworkError = @"Network error (such as timeout, "
     "interrupted connection or unreachable host) has occurred.";
+
+/** @var kFIRAuthErrorMessageTenantIDMismatch.
+    @brief Message for @c FIRAuthErrorCodeTenantIDMismatch error code.
+ */
+static NSString *const kFIRAuthErrorMessageTenantIDMismatch = @"The provided user's tenant ID does"
+    "not match the Auth instance's tenant ID.";
+
+/** @var kFIRAuthErrorMessageUnsupportedTenantOperation
+    @brief Message for @c FIRAuthErrorCodeUnsupportedTenantOperation error code.
+ */
+static NSString *const kFIRAuthErrorMessageUnsupportedTenantOperation = @"This operation is not"
+    "supported in a multi-tenant context.";
 
 /** @var kFIRAuthErrorMessageKeychainError
     @brief Message for @c FIRAuthErrorCodeKeychainError error code.
@@ -472,6 +491,10 @@ static NSString *FIRAuthErrorDescription(FIRAuthErrorCode code) {
       return kFIRAuthErrorMessageInvalidUserToken;
     case FIRAuthErrorCodeNetworkError:
       return kFIRAuthErrorMessageNetworkError;
+    case FIRAuthErrorCodeTenantIDMismatch:
+      return kFIRAuthErrorMessageTenantIDMismatch;
+    case FIRAuthErrorCodeUnsupportedTenantOperation:
+      return kFIRAuthErrorMessageUnsupportedTenantOperation;
     case FIRAuthErrorCodeKeychainError:
       return kFIRAuthErrorMessageKeychainError;
     case FIRAuthErrorCodeUserTokenExpired:
@@ -558,6 +581,8 @@ static NSString *FIRAuthErrorDescription(FIRAuthErrorCode code) {
       return kFIRAuthErrorMessageInvalidDynamicLinkDomain;
     case FIRAuthErrorCodeWebInternalError:
       return kFIRAuthErrorMessageWebInternalError;
+    case FIRAuthErrorCodeWebSignInUserInteractionFailure:
+      return kFIRAuthErrorMessageAppVerificationUserInteractionFailure;
     case FIRAuthErrorCodeMalformedJWT:
       return kFIRAuthErrorMessageMalformedJWT;
     case FIRAuthErrorCodeLocalPlayerNotAuthenticated:
@@ -601,6 +626,10 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
       return @"ERROR_INVALID_USER_TOKEN";
     case FIRAuthErrorCodeNetworkError:
       return @"ERROR_NETWORK_REQUEST_FAILED";
+    case FIRAuthErrorCodeTenantIDMismatch:
+      return @"ERROR_TENANT_ID_MISMATCH";
+    case FIRAuthErrorCodeUnsupportedTenantOperation:
+      return @"UNSUPPORTED_TENANT_OPERATION";
     case FIRAuthErrorCodeKeychainError:
       return @"ERROR_KEYCHAIN_ERROR";
     case FIRAuthErrorCodeUserTokenExpired:
@@ -687,6 +716,8 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
       return @"ERROR_INVALID_DYNAMIC_LINK_DOMAIN";
     case FIRAuthErrorCodeWebInternalError:
       return @"ERROR_WEB_INTERNAL_ERROR";
+    case FIRAuthErrorCodeWebSignInUserInteractionFailure:
+      return @"ERROR_WEB_USER_INTERACTION_FAILURE";
     case FIRAuthErrorCodeMalformedJWT:
       return @"ERROR_MALFORMED_JWT";
     case FIRAuthErrorCodeLocalPlayerNotAuthenticated:
@@ -715,7 +746,7 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
 
 + (NSError *)errorWithCode:(FIRAuthInternalErrorCode)code
            underlyingError:(nullable NSError *)underlyingError {
-  NSDictionary *errorUserInfo = nil;
+  NSDictionary *errorUserInfo;
   if (underlyingError) {
     errorUserInfo = @{
       NSUnderlyingErrorKey : underlyingError
@@ -734,7 +765,12 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
     if (!errorUserInfo[NSLocalizedDescriptionKey]) {
       errorUserInfo[NSLocalizedDescriptionKey] = FIRAuthErrorDescription(errorCode);
     }
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    // TODO(wangyue): Remove the deprecated code on next breaking change.
     errorUserInfo[FIRAuthErrorNameKey] = FIRAuthErrorCodeString(errorCode);
+#pragma clang diagnostic pop
+    errorUserInfo[FIRAuthErrorUserInfoNameKey] = FIRAuthErrorCodeString(errorCode);
     return [NSError errorWithDomain:FIRAuthErrorDomain code:errorCode userInfo:errorUserInfo];
   } else {
     // This is an internal error. Wrap it in an internal error.
@@ -765,16 +801,25 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
 
 + (NSError *)unexpectedErrorResponseWithData:(NSData *)data
                              underlyingError:(NSError *)underlyingError {
-  return [self errorWithCode:FIRAuthInternalErrorCodeUnexpectedErrorResponse userInfo:@{
-    FIRAuthErrorUserInfoDataKey : data,
-    NSUnderlyingErrorKey : underlyingError
-  }];
+  NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
+  if (data) {
+    userInfo[FIRAuthErrorUserInfoDataKey] = data;
+  }
+  if (underlyingError) {
+    userInfo[NSUnderlyingErrorKey] = underlyingError;
+  }
+  return [self errorWithCode:FIRAuthInternalErrorCodeUnexpectedErrorResponse
+                    userInfo:[userInfo copy]];
 }
 
 + (NSError *)unexpectedErrorResponseWithDeserializedResponse:(id)deserializedResponse {
-  return [self errorWithCode:FIRAuthInternalErrorCodeUnexpectedErrorResponse userInfo:@{
-    FIRAuthErrorUserInfoDeserializedResponseKey : deserializedResponse
-  }];
+  NSDictionary *userInfo;
+  if (deserializedResponse) {
+    userInfo = @{
+      FIRAuthErrorUserInfoDeserializedResponseKey : deserializedResponse,
+    };
+  }
+  return [self errorWithCode:FIRAuthInternalErrorCodeUnexpectedErrorResponse userInfo:userInfo];
 }
 
 + (NSError *)malformedJWTErrorWithToken:(NSString *)token
@@ -791,40 +836,57 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
 
 + (NSError *)unexpectedResponseWithData:(NSData *)data
                         underlyingError:(NSError *)underlyingError {
-  return [self errorWithCode:FIRAuthInternalErrorCodeUnexpectedResponse userInfo:@{
-    FIRAuthErrorUserInfoDataKey : data,
-    NSUnderlyingErrorKey : underlyingError
-  }];
+  NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
+  if (data) {
+    userInfo[FIRAuthErrorUserInfoDataKey] = data;
+  }
+  if (underlyingError) {
+    userInfo[NSUnderlyingErrorKey] = underlyingError;
+  }
+  return [self errorWithCode:FIRAuthInternalErrorCodeUnexpectedResponse userInfo:[userInfo copy]];
 }
 
 + (NSError *)unexpectedResponseWithDeserializedResponse:(id)deserializedResponse {
-  return [self errorWithCode:FIRAuthInternalErrorCodeUnexpectedResponse userInfo:@{
-    FIRAuthErrorUserInfoDeserializedResponseKey : deserializedResponse
-  }];
-}
-
-+ (NSError *)unexpectedResponseWithDeserializedResponse:(nullable id)deserializedResponse
-                                        underlyingError:(NSError *)underlyingError {
-  NSMutableDictionary *userInfo =
-      [NSMutableDictionary dictionaryWithDictionary:@{ NSUnderlyingErrorKey : underlyingError }];
+  NSDictionary *userInfo;
   if (deserializedResponse) {
-    userInfo[FIRAuthErrorUserInfoDeserializedResponseKey] = deserializedResponse;
+    userInfo = @{
+      FIRAuthErrorUserInfoDeserializedResponseKey : deserializedResponse,
+    };
   }
   return [self errorWithCode:FIRAuthInternalErrorCodeUnexpectedResponse userInfo:userInfo];
 }
 
++ (NSError *)unexpectedResponseWithDeserializedResponse:(nullable id)deserializedResponse
+                                        underlyingError:(NSError *)underlyingError {
+  NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
+  if (deserializedResponse) {
+    userInfo[FIRAuthErrorUserInfoDeserializedResponseKey] = deserializedResponse;
+  }
+  if (underlyingError) {
+    userInfo[NSUnderlyingErrorKey] = underlyingError;
+  }
+  return [self errorWithCode:FIRAuthInternalErrorCodeUnexpectedResponse userInfo:[userInfo copy]];
+}
+
 + (NSError *)RPCResponseDecodingErrorWithDeserializedResponse:(id)deserializedResponse
                                               underlyingError:(NSError *)underlyingError {
-  return [self errorWithCode:FIRAuthInternalErrorCodeRPCResponseDecodingError userInfo:@{
-    FIRAuthErrorUserInfoDeserializedResponseKey : deserializedResponse,
-    NSUnderlyingErrorKey : underlyingError
-  }];
+  NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
+  if (deserializedResponse) {
+    userInfo[FIRAuthErrorUserInfoDeserializedResponseKey] = deserializedResponse;
+  }
+  if (underlyingError) {
+    userInfo[NSUnderlyingErrorKey] = underlyingError;
+  }
+  return [self errorWithCode:FIRAuthInternalErrorCodeRPCResponseDecodingError
+                    userInfo:[userInfo copy]];
 }
 
 + (NSError *)emailAlreadyInUseErrorWithEmail:(nullable NSString *)email {
-  NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
+  NSMutableDictionary *userInfo;
   if (email.length) {
-    userInfo[FIRAuthErrorUserInfoEmailKey] = email;
+    userInfo = @{
+      FIRAuthErrorUserInfoEmailKey : email,
+    };
   }
   return [self errorWithCode:FIRAuthInternalErrorCodeEmailAlreadyInUse userInfo:userInfo];
 }
@@ -865,9 +927,17 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
   return [self errorWithCode:FIRAuthInternalErrorCodeInvalidEmail message:message];
 }
 
-+ (NSError *)accountExistsWithDifferentCredentialErrorWithEmail:(nullable NSString *)email {
++ (NSError *)accountExistsWithDifferentCredentialErrorWithEmail:(nullable NSString *)email
+                                                       tenantID:(nullable NSString *)tenantID {
+  NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
+  if (email.length) {
+    userInfo[FIRAuthErrorUserInfoEmailKey] = email;
+  }
+  if (tenantID.length) {
+    userInfo[FIRAuthErrorUserInfoTenantIDKey] = tenantID;
+  }
   return [self errorWithCode:FIRAuthInternalErrorCodeAccountExistsWithDifferentCredential
-                    userInfo:@{ FIRAuthErrorUserInfoEmailKey : email }];
+                    userInfo:[userInfo copy]];
 }
 
 + (NSError *)providerAlreadyLinkedError {
@@ -895,10 +965,23 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
 }
 
 + (NSError *)credentialAlreadyInUseErrorWithMessage:(nullable NSString *)message
-                                         credential:(nullable FIRPhoneAuthCredential *)credential {
+                                         credential:(nullable FIRAuthCredential *)credential
+                                              email:(nullable NSString *)email {
+  NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
   if (credential) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    // TODO(wangyue): Remove the deprecated code on next breaking change.
+    userInfo[FIRAuthUpdatedCredentialKey] = credential;
+#pragma clang diagnostic pop
+    userInfo[FIRAuthErrorUserInfoUpdatedCredentialKey] = credential;
+  }
+  if (email.length) {
+    userInfo[FIRAuthErrorUserInfoEmailKey] = email;
+  }
+  if (userInfo.count) {
     return [self errorWithCode:FIRAuthInternalErrorCodeCredentialAlreadyInUse
-                    userInfo:@{ FIRAuthUpdatedCredentialKey : credential }];
+                      userInfo:userInfo];
   }
   return [self errorWithCode:FIRAuthInternalErrorCodeCredentialAlreadyInUse message:message];
 }
@@ -908,9 +991,13 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
 }
 
 + (NSError *)weakPasswordErrorWithServerResponseReason:(nullable NSString *)reason {
-  return [self errorWithCode:FIRAuthInternalErrorCodeWeakPassword userInfo:@{
-    NSLocalizedFailureReasonErrorKey : reason
-  }];
+  NSDictionary *userInfo;
+  if (reason.length) {
+    userInfo = @{
+      NSLocalizedFailureReasonErrorKey : reason,
+    };
+  }
+  return [self errorWithCode:FIRAuthInternalErrorCodeWeakPassword userInfo:userInfo];
 }
 
 + (NSError *)appNotAuthorizedError {
@@ -1035,10 +1122,25 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
 }
 
 + (NSError *)appVerificationUserInteractionFailureWithReason:(NSString *)reason {
+  NSDictionary *userInfo;
+  if (reason.length) {
+    userInfo = @{
+      NSLocalizedFailureReasonErrorKey : reason,
+    };
+  }
   return [self errorWithCode:FIRAuthInternalErrorCodeAppVerificationUserInteractionFailure
-                    userInfo:@{
-    NSLocalizedFailureReasonErrorKey : reason
-  }];
+                    userInfo:userInfo];
+}
+
++ (NSError *)webSignInUserInteractionFailureWithReason:(nullable NSString *)reason {
+  NSDictionary *userInfo;
+  if (reason.length) {
+    userInfo = @{
+      NSLocalizedFailureReasonErrorKey : reason,
+    };
+  }
+  return [self errorWithCode:FIRAuthInternalErrorCodeWebSignInUserInteractionFailure
+                    userInfo:userInfo];
 }
 
 + (nullable NSError *)URLResponseErrorWithCode:(NSString *)code message:(nullable NSString *)message {
@@ -1067,6 +1169,14 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
   return [self errorWithCode:FIRAuthInternalErrorCodeKeychainError userInfo:@{
     NSLocalizedFailureReasonErrorKey : failureReason,
   }];
+}
+
++ (NSError *)tenantIDMismatchError {
+  return [self errorWithCode:FIRAuthInternalErrorCodeTenantIDMismatch];
+}
+
++ (NSError *)unsupportedTenantOperationError {
+  return [self errorWithCode:FIRAuthInternalErrorCodeUnsupportedTenantOperation];
 }
 
 @end

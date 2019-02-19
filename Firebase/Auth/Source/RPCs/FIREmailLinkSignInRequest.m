@@ -16,6 +16,8 @@
 
 #import "FIREmailLinkSignInRequest.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 /** @var kEmailLinkSigninEndpoint
     @brief The "EmailLinkSignin" endpoint.
  */
@@ -41,6 +43,11 @@ static NSString *const kIDTokenKey = @"idToken";
  */
 static NSString *const kPostBodyKey = @"postBody";
 
+/** @var kTenantIDKey
+    @brief The key for the tenant id value in the request.
+ */
+static NSString *const kTenantIDKey = @"tenantId";
+
 @implementation FIREmailLinkSignInRequest
 
 - (instancetype)initWithEmail:(NSString *)email
@@ -64,7 +71,12 @@ static NSString *const kPostBodyKey = @"postBody";
   if (_IDToken) {
     postBody[kIDTokenKey] = _IDToken;
   }
+  if (self.tenantID) {
+    postBody[kTenantIDKey] = self.tenantID;
+  }
   return postBody;
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

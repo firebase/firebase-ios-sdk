@@ -16,6 +16,8 @@
 
 #import "FIRVerifyCustomTokenRequest.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 /** @var kVerifyCustomTokenEndpoint
     @brief The "verifyPassword" endpoint.
  */
@@ -30,6 +32,11 @@ static NSString *const kTokenKey = @"token";
     @brief The key for the "returnSecureToken" value in the request.
  */
 static NSString *const kReturnSecureTokenKey = @"returnSecureToken";
+
+/** @var kTenantIDKey
+    @brief The key for the tenant id value in the request.
+ */
+static NSString *const kTenantIDKey = @"tenantId";
 
 @implementation FIRVerifyCustomTokenRequest
 
@@ -51,7 +58,12 @@ static NSString *const kReturnSecureTokenKey = @"returnSecureToken";
   if (_returnSecureToken) {
     body[kReturnSecureTokenKey] = @YES;
   }
+  if (self.tenantID) {
+    body[kTenantIDKey] = self.tenantID;
+  }
   return body;
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

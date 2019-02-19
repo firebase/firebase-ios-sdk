@@ -16,6 +16,8 @@
 
 #import "FIRDeleteAccountResponse.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @implementation FIRDeleteAccountResponse
 
 - (BOOL)setWithDictionary:(NSDictionary *)dictionary
@@ -24,3 +26,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

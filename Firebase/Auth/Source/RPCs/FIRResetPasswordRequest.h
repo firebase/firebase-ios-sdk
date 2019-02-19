@@ -33,6 +33,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, copy, readonly) NSString *updatedPassword;
 
+/** @property tenantID
+    @brief The tenant ID of the request. nil if none is available.
+ */
+@property(nonatomic, copy, nullable) NSString *tenantID;
+
 /** @fn initWithEndpoint:requestConfiguration:
     @brief Please use initWithOobCode:newPassword:requestConfiguration: instead.
  */

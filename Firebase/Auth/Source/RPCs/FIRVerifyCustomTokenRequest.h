@@ -37,6 +37,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, assign) BOOL returnSecureToken;
 
+/** @property tenantID
+    @brief The tenant ID of the request. nil if none is available.
+ */
+@property(nonatomic, copy, nullable) NSString *tenantID;
+
 /** @fn initWithEndpoint:requestConfiguration:
     @brief Please use initWithToken:requestConfiguration: instead.
  */
