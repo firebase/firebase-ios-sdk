@@ -232,6 +232,9 @@ public enum CocoaPodUtils {
   ///            String if there were no specific subspecs used.
   private static func cacheKey(forPod podName: String,
                                fromPodfileLock podfileLock: String) -> String? {
+    // Ignore the umbrella Firebase pod, cacheing doesn't make sense.
+    guard podName != "Firebase" else { return nil }
+
     // Get the first section of the Podfile containing only Pods installed, the only thing we care
     // about.
     guard let podsInstalled = podfileLock.components(separatedBy: "DEPENDENCIES:").first else {
@@ -244,11 +247,11 @@ public enum CocoaPodUtils {
         """)
     }
 
-    // Only get the lines that start with "- ", and have the framework we're looking for since they
-    // are the top level pods that are installed.
+    // Only get the lines that start with "  - ", and have the framework we're looking for since
+    // they are the top level pods that are installed.
     // Example result of a single line: `- GoogleUtilities/Environment (~> 5.2)`.
     let lines = podsInstalled.components(separatedBy: .newlines).filter {
-      return $0.hasPrefix("- ") && $0.contains(podName)
+      return $0.hasPrefix("  - ") && $0.contains(podName)
     }
 
     // Get a list of all the subspecs used to build this framework, and use that to generate the
@@ -259,12 +262,15 @@ public enum CocoaPodUtils {
       // Example result: `["-", "GoogleUtilities/Environment", "(~>", "5.2)"]`.
       let components = line.components(separatedBy: CharacterSet(charactersIn: " \""))
 
-      // The Pod and subspec will be the only variables we care about, filter out the rest of the
-      // components.
-      // Example result: 'GoogleUtilities/Environment'.
-      guard let fullPodName = components.filter({ $0.contains(podName) }).first else { continue }
+      // The Pod and subspec will be the only variables we care about, filter out the rest.
+      // Example result: 'GoogleUtilities/Environment' or `FirebaseCore`. Only Pods with a subspec
+      // should be included here, which are always in the format of `PodName/SubspecName`.
+      guard let fullPodName = components.filter({ $0.contains("\(podName)/") }).first else {
+        continue
+      }
 
-      // The fullPodName will be something like `GoogleUtilities/UserDefaults`.
+      // The fullPodName will be something like `GoogleUtilities/UserDefaults`, get the subspec
+      // name.
       let subspec = fullPodName.replacingOccurrences(of: "\(podName)/", with: "")
       if !subspec.isEmpty {
         uniqueSubspecs.insert(subspec)

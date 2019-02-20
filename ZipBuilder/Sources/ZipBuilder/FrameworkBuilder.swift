@@ -16,16 +16,6 @@
 
 import Foundation
 
-/// Extra URL utilities.
-fileprivate extension URL {
-  func appendingPathComponents(_ components: [String]) -> URL {
-    // Append multiple path components in a single call to prevent long lines of multiple calls.
-    var result = self
-    components.forEach({ result.appendPathComponent($0) })
-    return result
-  }
-}
-
 /// Different architectures to build frameworks for.
 fileprivate enum Architecture : String {
   /// The target platform that the framework is built for.
@@ -106,7 +96,12 @@ struct FrameworkBuilder {
     }
 
     guard let podInfo = cachedVersions[version] else {
-      fatalError("Cannot find a pod cache for framework \(podName) at version \(version).")
+      fatalError("""
+        Cannot find a pod cache for framework \(podName) at version \(version).
+        Something could be wrong with your CocoaPods cache - try running the following:
+
+        pod cache clean '\(podName)' --all
+        """)
     }
 
     // TODO: Figure out if we need the MD5 at all.

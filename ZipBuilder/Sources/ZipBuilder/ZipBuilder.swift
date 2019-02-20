@@ -40,6 +40,9 @@ private struct Constants {
     public static let modulemap = "module.modulemap"
     public static let notices = "NOTICES"
 
+    // Directory containing extra FirebaseCrash scripts.
+    public static let crashDir = "Crash"
+
     /// All required files for distribution. Note: the readmeTemplate is also needed for
     /// distribution but is copied separately since it's modified.
     public static let requiredFilesForDistribution: [String] = [firebaseHeader, modulemap, notices]
@@ -60,6 +63,21 @@ private struct Constants {
   // Make the struct un-initializable.
   @available(*, unavailable)
   init() { fatalError() }
+}
+
+/// A package of files to install for a specific Pod. Used for closed source SDKs in the framework
+/// generation step to determine the files required during packaging.
+private struct FilesToInstall {
+  /// All frameworks required for the product to function.
+  let frameworks: [URL]
+  /// Any resources required for the product.
+  let resourceBundles: [URL]
+
+  /// Default initializer.
+  init(frameworks: [URL], resourceBundles: [URL] = []) {
+    self.frameworks = frameworks
+    self.resourceBundles = resourceBundles
+  }
 }
 
 /// A zip file builder. The zip file can be built with the `build()` function.
@@ -170,8 +188,8 @@ struct ZipBuilder {
 
     // Break the `subspecsToInstall` into a variable since it's helpful when debugging non-cache
     // builds to just install a subset: `[.core, .analytics, .storage, .firestore]` for example.
-//    let subspecsToInstall = Subspec.allCases()
-    let subspecsToInstall: [Subspec] = [.core, .analytics, .mlVisionTextModel]
+    let subspecsToInstall = Subspec.allCases()
+//    let subspecsToInstall: [Subspec] = [.core, .analytics, .mlVisionTextModel]
 
     // We need to install all the subpsecs in order to get every single framework that we'll need
     // for the zip file. We can't install each one individually since some pods depend on different
@@ -179,7 +197,9 @@ struct ZipBuilder {
     // wouldn't be included so we need to install all of the subspecs to catch the superset of all
     // required frameworks, then use that as the source of frameworks to pull from when including
     // the folders in each product directory.
-    CocoaPodUtils.installSubspecs(subspecsToInstall, inDir: projectDir)
+    CocoaPodUtils.installSubspecs(subspecsToInstall,
+                                  inDir: projectDir,
+                                  customSpecRepos: customSpecRepos)
 
     // If any expected versions were passed in, we should verify that those were actually installed
     // and get the list of actual versions we'll be using to build the Zip file. This method will
@@ -187,10 +207,14 @@ struct ZipBuilder {
     validateExpectedVersions(inProjectDir: projectDir)
 
     let installedPods = CocoaPodUtils.installedPodsInfo(inProjectDir: projectDir)
-    let frameworks = generateFrameworks(fromPods: installedPods,
-                                        inProjectDir: projectDir,
-                                        useCache: useCache)
+    let filesToInstall = generateFrameworksWithResources(fromPods: installedPods,
+                                                         inProjectDir: projectDir,
+                                                         useCache: useCache)
 
+    // Create an array that has the Pod name as the key and the array of frameworks needed - this
+    // will be used as the source of truth for all frameworks to be copied in each product's
+    // directory.
+    let frameworks = filesToInstall.mapValues { $0.frameworks }
     for (framework, paths) in frameworks {
       print("Frameworks for pod: \(framework) were compiled at \(paths)")
     }
@@ -263,7 +287,8 @@ struct ZipBuilder {
                                       frameworks: analyticsFrameworks)
 
     // Loop through all the other subspecs that aren't Core and Analytics and write them to their
-    // final destination.
+    // final destination, including resources.
+    let resourceBundles = filesToInstall.mapValues({ $0.resourceBundles }).filter({ !$0.value.isEmpty })
     let remainingSubspecs = subspecsToInstall.filter { $0 != .analytics && $0 != .core }
     for spec in remainingSubspecs {
       do {
@@ -274,6 +299,25 @@ struct ZipBuilder {
                                          builtFrameworks: frameworks,
                                          podsToIgnore: analyticsFrameworks,
                                          foldersToIgnore: spec.duplicateFoldersToRemove())
+
+        // Copy any Resources from closed source pods into their destination folder. Open source
+        // pods have already had the Resources taken care of.
+        for pod in podFrameworks {
+          guard let bundles = resourceBundles[pod] else { continue }
+
+          // There are bundles to copy! Create a Resources directory.
+          let resourceDir = specDir.appendingPathComponent("Resources", isDirectory: true)
+          try FileManager.default.createDirectory(at: resourceDir,
+                                                  withIntermediateDirectories: true,
+                                                  attributes: nil)
+
+          // Copy each bundle individually.
+          for bundle in bundles {
+            let destination = resourceDir.appendingPathComponent(bundle.lastPathComponent,
+                                                                 isDirectory: true)
+            try FileManager.default.copyItem(at: bundle, to: destination)
+          }
+        }
 
         readmeDeps += dependencyString(for: spec, in: specDir, frameworks: podFrameworks)
       } catch {
@@ -292,6 +336,24 @@ struct ZipBuilder {
                            encoding: .utf8)
     } catch {
       fatalError("Could not write README to Zip directory: \(error)")
+    }
+
+    // TODO: Remove this manual copy once FirebaseCrash is removed from the Zip file.
+    // Copy over the Crash scripts, if Crash should be installed
+    if (subspecsToInstall.contains(.crash)) {
+      do {
+        let crashDir = paths.templateDir.appendingPathComponent(Constants.ProjectPath.crashDir)
+        let crashFiles = try FileManager.default.contentsOfDirectory(at: crashDir,
+                                                                     includingPropertiesForKeys: nil,
+                                                                     options: [])
+        let crashZipDir = zipDir.appendingPathComponent("Crash")
+        for file in crashFiles {
+          let destination = crashZipDir.appendingPathComponent(file.lastPathComponent)
+          try FileManager.default.copyItem(at: file, to: destination)
+        }
+      } catch {
+        fatalError("Could not copy extra Crash tools: \(error)")
+      }
     }
 
     print("Contents of the Zip file were assembled at: \(zipDir)")
@@ -576,32 +638,43 @@ struct ZipBuilder {
 
   /// Generates all the .framework files from a Pods directory. This will go through the contents of
   /// the directory, copy the .frameworks to a temporary directory and compile any source based
-  /// CocoaPods. Returns a dictionary with the framework name for the key and path as the value.
-  private func generateFrameworks(fromPods pods: [CocoaPodUtils.PodInfo],
-                                  inProjectDir projectDir: URL,
-                                  useCache: Bool = false) -> [String: [URL]] {
+  /// CocoaPods. Returns a dictionary with the framework name for the key and all information for
+  /// files to install (frameworks and resources).
+  private func generateFrameworksWithResources(fromPods pods: [CocoaPodUtils.PodInfo],
+                                               inProjectDir projectDir: URL,
+                                               useCache: Bool = false) -> [String: FilesToInstall] {
     // Verify the Pods folder exists and we can get the contents of it.
     let fileManager = FileManager.default
 
-    // Create the temporary directory we'll be storing the build/assembled frameworks in.
+    // Create the temporary directory we'll be storing the build/assembled frameworks in, and remove
+    // the Resources directory if it already exists.
     let tempDir = fileManager.temporaryDirectory(withName: "all_frameworks")
+    let tempResourceDir = tempDir.appendingPathComponent("Resources")
     do {
       try fileManager.createDirectory(at: tempDir,
                                       withIntermediateDirectories: true,
                                       attributes: nil)
+      if fileManager.directoryExists(at: tempResourceDir) {
+        try fileManager.removeItem(at: tempResourceDir)
+      }
     } catch {
-      fatalError("Cannot create temporary directory to store frameworks from the full build: " +
-        "\(error)")
+      fatalError("Cannot create temporary directory to store frameworks and resources from the " +
+        "full build: \(error)")
     }
 
     // Loop through each pod folder and check if the frameworks already exist, or they need to be
     // compiled. If they exist, add them to the frameworks dictionary.
-    var frameworks: [String : [URL]] = [:]
+    var toInstall: [String : FilesToInstall] = [:]
     for pod in pods {
+      var frameworks: [URL] = []
       // Ignore any Interop pods or the Firebase umbrella pod.
       guard !pod.name.contains("Interop"), pod.name != "Firebase" else {
         continue
       }
+
+      // Define the search directory to find Resource bundles - this varies if it's an open source
+      // or closed source Pod.
+      let resourceSearchDir: URL
 
       // Get all the frameworks contained in this directory.
       var foundFrameworks: [URL]
@@ -621,11 +694,11 @@ struct ZipBuilder {
                                                version: pod.version,
                                                cacheKey: pod.cacheKey,
                                                cacheEnabled: useCache)
-        frameworks[pod.name] = [framework]
-      } else {
-        // Create an empty array so we can populate it below with the frameworks that were found.
-        frameworks[pod.name] = []
 
+        // Resources for open source Pods are found in the .framework folder.
+        resourceSearchDir = framework
+        frameworks = [framework]
+      } else {
         // Copy found frameworks to a known temporary directory, and store that location. Also move
         // the resources inside the .framework to be consistent with the compiled frameworks, which
         // they'll be moved out afterwards.
@@ -644,10 +717,28 @@ struct ZipBuilder {
               "attempting to generate frameworks. \(error)")
           }
 
-          frameworks[pod.name]?.append(copiedLocation)
+          frameworks.append(copiedLocation)
         }
+
+        // Resources for closed source Pods are found in the location the pod is installed.
+        resourceSearchDir = pod.installedLocation
+      }
+
+      // Move all the Resource bundles for the Pod into a temporary folder - they will either be in
+      // the .framework generated from the open source pods or the installedLocation of the close
+      let podResourceDir = tempResourceDir.appendingPathComponent(pod.name)
+      let bundles: [URL]
+      do {
+        bundles = try ResourcesManager.moveAllBundles(inDirectory: resourceSearchDir,
+                                                                to: podResourceDir)
+      } catch {
+        fatalError("Could not move resource bundles for \(pod.name): \(error)")
+      }
+
+      let podFiles = FilesToInstall(frameworks: frameworks, resourceBundles: bundles)
+      toInstall[pod.name] = podFiles
     }
 
-    return frameworks
+    return toInstall
   }
 }
