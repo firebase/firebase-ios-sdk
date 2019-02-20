@@ -25,8 +25,8 @@
 #import "FIDTimeFetcher.h"
 #import "FIRCore+InAppMessagingDisplay.h"
 #import "FIRIAMDefaultDisplayImpl.h"
-#import "FIRInAppMessaging.h"
-#import "FIRInAppMessagingRendering.h"
+#import <FirebaseInAppMessaging/FIRInAppMessaging.h>
+#import <FirebaseInAppMessaging/FIRInAppMessagingRendering.h>
 
 @implementation FIRIAMDefaultDisplayImpl
 
