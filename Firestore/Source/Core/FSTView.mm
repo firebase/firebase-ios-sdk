@@ -69,7 +69,7 @@ int GetDocumentViewChangeTypePosition(DocumentViewChange::Type changeType) {
 @interface FSTViewDocumentChanges ()
 
 - (instancetype)initWithDocumentSet:(FSTDocumentSet *)documentSet
-                          changeSet:(DocumentViewChangeSet&&)changeSet
+                          changeSet:(DocumentViewChangeSet &&)changeSet
                         needsRefill:(BOOL)needsRefill
                         mutatedKeys:(DocumentKeySet)mutatedKeys NS_DESIGNATED_INITIALIZER;
 
@@ -81,7 +81,7 @@ int GetDocumentViewChangeTypePosition(DocumentViewChange::Type changeType) {
 }
 
 - (instancetype)initWithDocumentSet:(FSTDocumentSet *)documentSet
-                          changeSet:(DocumentViewChangeSet&&)changeSet
+                          changeSet:(DocumentViewChangeSet &&)changeSet
                         needsRefill:(BOOL)needsRefill
                         mutatedKeys:(DocumentKeySet)mutatedKeys {
   self = [super init];
@@ -98,7 +98,7 @@ int GetDocumentViewChangeTypePosition(DocumentViewChange::Type changeType) {
   return _mutatedKeys;
 }
 
-- (const firebase::firestore::core::DocumentViewChangeSet&) changeSet {
+- (const firebase::firestore::core::DocumentViewChangeSet &)changeSet {
   return _changeSet;
 }
 
@@ -418,12 +418,11 @@ int GetDocumentViewChangeTypePosition(DocumentViewChange::Type changeType) {
     // and generate an FSTViewChange as appropriate. We are guaranteed to get a new `TargetChange`
     // that sets `current` back to YES once the client is back online.
     self.current = NO;
-    return
-        [self applyChangesToDocuments:[[FSTViewDocumentChanges alloc]
-                                          initWithDocumentSet:self.documentSet
-                                                    changeSet:DocumentViewChangeSet{}
-                                                  needsRefill:NO
-                                                  mutatedKeys:_mutatedKeys]];
+    return [self applyChangesToDocuments:[[FSTViewDocumentChanges alloc]
+                                             initWithDocumentSet:self.documentSet
+                                                       changeSet:DocumentViewChangeSet {}
+                                                     needsRefill:NO
+                                                     mutatedKeys:_mutatedKeys]];
   } else {
     // No effect, just return a no-op FSTViewChange.
     return [[FSTViewChange alloc] initWithSnapshot:nil limboChanges:@[]];

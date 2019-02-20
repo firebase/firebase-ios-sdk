@@ -53,7 +53,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong, readonly) FSTDocumentSet *documentSet;
 
 /** The diff of this these docs with the previous set of docs. */
-- (const firebase::firestore::core::DocumentViewChangeSet&) changeSet;
+- (const firebase::firestore::core::DocumentViewChangeSet &)changeSet;
 
 /**
  * Whether the set of documents passed in was not sufficient to calculate the new state of the view
