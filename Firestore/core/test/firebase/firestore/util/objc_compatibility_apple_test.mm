@@ -35,24 +35,24 @@ namespace util {
 namespace objc {
 
 TEST(ObjCCompatibilityTest, Equals) {
-  FSTDocument* doc1 = FSTTestDoc("a/b", 0, @{}, FSTDocumentStateSynced);
-  FSTDocument* doc2 = FSTTestDoc("a/b", 0, @{}, FSTDocumentStateSynced);
-  FSTDocument* doc3 = FSTTestDoc("b/c", 1, @{}, FSTDocumentStateSynced);
+  FSTDocument* doc1a = FSTTestDoc("a/b", 0, @{}, FSTDocumentStateSynced);
+  FSTDocument* doc1b = FSTTestDoc("a/b", 0, @{}, FSTDocumentStateSynced);
+  FSTDocument* doc2 = FSTTestDoc("b/c", 1, @{}, FSTDocumentStateSynced);
 
-  EXPECT_TRUE(Equals(doc1, doc2));
-  EXPECT_FALSE(Equals(doc1, doc3));
-  EXPECT_FALSE(Equals(doc2, doc3));
+  EXPECT_TRUE(Equals(doc1a, doc1b));
+  EXPECT_FALSE(Equals(doc1a, doc2));
+  EXPECT_FALSE(Equals(doc1b, doc2));
 }
 
 TEST(ObjCCompatibilityTest, ContainerEquals) {
-  FSTDocument* doc1 = FSTTestDoc("a/b", 0, @{}, FSTDocumentStateSynced);
-  FSTDocument* doc2 = FSTTestDoc("b/c", 1, @{}, FSTDocumentStateSynced);
-  FSTDocument* doc3 = FSTTestDoc("a/b", 0, @{}, FSTDocumentStateSynced);
-  FSTDocument* doc4 = FSTTestDoc("b/c", 1, @{}, FSTDocumentStateSynced);
+  FSTDocument* doc1a = FSTTestDoc("a/b", 0, @{}, FSTDocumentStateSynced);
+  FSTDocument* doc2a = FSTTestDoc("b/c", 1, @{}, FSTDocumentStateSynced);
+  FSTDocument* doc1b = FSTTestDoc("a/b", 0, @{}, FSTDocumentStateSynced);
+  FSTDocument* doc2b = FSTTestDoc("b/c", 1, @{}, FSTDocumentStateSynced);
 
-  std::vector<FSTDocument*> v1{doc1, doc2};
-  std::vector<FSTDocument*> v2{doc3, doc4};
-  std::vector<FSTDocument*> v3{doc1, doc3};
+  std::vector<FSTDocument*> v1{doc1a, doc2a};
+  std::vector<FSTDocument*> v2{doc1b, doc2b};
+  std::vector<FSTDocument*> v3{doc1a, doc1b};
   EXPECT_TRUE(Equals(v1, v2));
   EXPECT_FALSE(Equals(v1, v3));
   EXPECT_FALSE(Equals(v2, v3));

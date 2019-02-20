@@ -43,8 +43,9 @@ size_t DocumentViewChange::Hash() const {
   return util::Hash(document_hash, static_cast<int>(type()));
 }
 
-bool DocumentViewChange::operator==(const DocumentViewChange& rhs) const {
-  return objc::Equals(document_, rhs.document_) && type_ == rhs.type_;
+bool operator==(const DocumentViewChange& lhs, const DocumentViewChange& rhs) {
+  return objc::Equals(lhs.document(), rhs.document()) &&
+         lhs.type() == rhs.type();
 }
 
 // DocumentViewChangeSet
@@ -58,45 +59,45 @@ void DocumentViewChangeSet::AddChange(DocumentViewChange&& change) {
   }
 
   const DocumentViewChange& old = old_change_iter->second;
-  DocumentViewChangeType old_type = old.type();
-  DocumentViewChangeType new_type = change.type();
+  DocumentViewChange::Type old_type = old.type();
+  DocumentViewChange::Type new_type = change.type();
 
   // Merge the new change with the existing change.
-  if (new_type != DocumentViewChangeType::kAdded &&
-      old_type == DocumentViewChangeType::kMetadata) {
+  if (new_type != DocumentViewChange::Type::kAdded &&
+      old_type == DocumentViewChange::Type::kMetadata) {
     change_map_ = change_map_.insert(key, change);
 
-  } else if (new_type == DocumentViewChangeType::kMetadata &&
-             old_type != DocumentViewChangeType::kRemoved) {
+  } else if (new_type == DocumentViewChange::Type::kMetadata &&
+             old_type != DocumentViewChange::Type::kRemoved) {
     DocumentViewChange new_change{change.document(), old_type};
     change_map_ = change_map_.insert(key, new_change);
 
-  } else if (new_type == DocumentViewChangeType::kModified &&
-             old_type == DocumentViewChangeType::kModified) {
+  } else if (new_type == DocumentViewChange::Type::kModified &&
+             old_type == DocumentViewChange::Type::kModified) {
     DocumentViewChange new_change{change.document(),
-                                  DocumentViewChangeType::kModified};
+                                  DocumentViewChange::Type::kModified};
     change_map_ = change_map_.insert(key, new_change);
 
-  } else if (new_type == DocumentViewChangeType::kModified &&
-             old_type == DocumentViewChangeType::kAdded) {
+  } else if (new_type == DocumentViewChange::Type::kModified &&
+             old_type == DocumentViewChange::Type::kAdded) {
     DocumentViewChange new_change{change.document(),
-                                  DocumentViewChangeType::kAdded};
+                                  DocumentViewChange::Type::kAdded};
     change_map_ = change_map_.insert(key, new_change);
 
-  } else if (new_type == DocumentViewChangeType::kRemoved &&
-             old_type == DocumentViewChangeType::kAdded) {
+  } else if (new_type == DocumentViewChange::Type::kRemoved &&
+             old_type == DocumentViewChange::Type::kAdded) {
     change_map_ = change_map_.erase(key);
 
-  } else if (new_type == DocumentViewChangeType::kRemoved &&
-             old_type == DocumentViewChangeType::kModified) {
+  } else if (new_type == DocumentViewChange::Type::kRemoved &&
+             old_type == DocumentViewChange::Type::kModified) {
     DocumentViewChange new_change{old.document(),
-                                  DocumentViewChangeType::kRemoved};
+                                  DocumentViewChange::Type::kRemoved};
     change_map_ = change_map_.insert(key, new_change);
 
-  } else if (new_type == DocumentViewChangeType::kAdded &&
-             old_type == DocumentViewChangeType::kRemoved) {
+  } else if (new_type == DocumentViewChange::Type::kAdded &&
+             old_type == DocumentViewChange::Type::kRemoved) {
     DocumentViewChange new_change{change.document(),
-                                  DocumentViewChangeType::kModified};
+                                  DocumentViewChange::Type::kModified};
     change_map_ = change_map_.insert(key, new_change);
 
   } else {

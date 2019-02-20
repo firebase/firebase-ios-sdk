@@ -26,7 +26,6 @@
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 using firebase::firestore::core::DocumentViewChange;
-using firebase::firestore::core::DocumentViewChangeType;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::TargetId;
 
@@ -132,7 +131,7 @@ NS_ASSUME_NONNULL_BEGIN
     // Remove the metadata-only changes.
     std::vector<DocumentViewChange> changes;
     for (const DocumentViewChange &change : snapshot.documentChanges) {
-      if (change.type() != DocumentViewChangeType::kMetadata) {
+      if (change.type() != DocumentViewChange::Type::kMetadata) {
         changes.push_back(change);
       }
     }

@@ -34,7 +34,6 @@
 
 namespace objc = firebase::firestore::util::objc;
 using firebase::firestore::core::DocumentViewChange;
-using firebase::firestore::core::DocumentViewChangeType;
 using firebase::firestore::immutable::SortedMap;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
@@ -81,7 +80,7 @@ NS_ASSUME_NONNULL_BEGIN
                     excludesMetadataChanges:(BOOL)excludesMetadataChanges {
   std::vector<DocumentViewChange> viewChanges;
   for (FSTDocument *doc in documents.documentEnumerator) {
-    viewChanges.emplace_back(doc, DocumentViewChangeType::kAdded);
+    viewChanges.emplace_back(doc, DocumentViewChange::Type::kAdded);
   }
   return [[FSTViewSnapshot alloc]
                 initWithQuery:query

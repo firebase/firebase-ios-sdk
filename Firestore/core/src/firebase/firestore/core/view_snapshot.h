@@ -33,42 +33,38 @@ namespace firebase {
 namespace firestore {
 namespace core {
 
-/**
- * The types of changes that can happen to a document with respect to a view.
- * NOTE: We sort document changes by their type, so the ordering of this enum is
- * significant.
- */
-enum class DocumentViewChangeType {
-  kRemoved = 0,
-  kAdded,
-  kModified,
-  kMetadata
-};
-
 /** A change to a single document's state within a view. */
 class DocumentViewChange {
  public:
+  /**
+   * The types of changes that can happen to a document with respect to a view.
+   * NOTE: We sort document changes by their type, so the ordering of this enum
+   * is significant.
+   */
+  enum class Type { kRemoved = 0, kAdded, kModified, kMetadata };
+
   DocumentViewChange() = default;
 
-  DocumentViewChange(FSTDocument* document, DocumentViewChangeType type)
+  DocumentViewChange(FSTDocument* document, Type type)
       : document_{document}, type_{type} {
   }
 
   FSTDocument* document() const {
     return document_;
   }
-  DocumentViewChangeType type() const {
+  DocumentViewChange::Type type() const {
     return type_;
   }
 
   std::string ToString() const;
   size_t Hash() const;
-  bool operator==(const DocumentViewChange& rhs) const;
 
  private:
   FSTDocument* document_ = nullptr;
-  DocumentViewChangeType type_{};
+  Type type_{};
 };
+
+bool operator==(const DocumentViewChange& lhs, const DocumentViewChange& rhs);
 
 /** The possible states a document can be in w.r.t syncing from local storage to the backend. */
 enum class SyncState {

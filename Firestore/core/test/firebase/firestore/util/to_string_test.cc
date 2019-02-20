@@ -37,9 +37,19 @@ using immutable::SortedMap;
 using immutable::SortedSet;
 using model::DocumentKey;
 
-TEST(ToStringTest, StdToString) {
+TEST(ToStringTest, SimpleTypes) {
   EXPECT_EQ(ToString(123), "123");
+  EXPECT_EQ(ToString(1.5), "1.5");
+
+  EXPECT_EQ(ToString("foo"), "foo");
   EXPECT_EQ(ToString(std::string{"foo"}), "foo");
+
+  EXPECT_EQ(ToString(true), "true");
+
+  EXPECT_EQ(ToString(nullptr), "null");
+
+  void* ptr = reinterpret_cast<void*>(0xBAAAAAAD);
+  EXPECT_EQ(ToString(ptr), "baaaaaad");
 }
 
 TEST(ToStringTest, CustomToString) {
@@ -61,14 +71,6 @@ TEST(ToStringTest, StdMap) {
       {2, DocumentKey({"foo", "baz"})},
   };
   EXPECT_EQ(ToString(key_map), "{1: foo/bar, 2: foo/baz}");
-}
-
-TEST(ToStringTest, EmptyContainer) {
-  std::vector<int> v;
-  EXPECT_EQ(ToString(v), "[]");
-
-  std::map<int, int> m;
-  EXPECT_EQ(ToString(m), "{}");
 }
 
 TEST(ToStringTest, CustomMap) {
@@ -140,22 +142,14 @@ TEST(ToStringTest, Ordering) {
     std::vector<int> v;
   };
 
-  struct Conversion : public Container {
+  struct CustomToString : public Container {
     using Container::Container;
-    operator std::string() const {
-      return "Conversion";
-    }
-  };
-
-  struct CustomToString : public Conversion {
-    using Conversion::Conversion;
     std::string ToString() const {
       return "CustomToString";
     }
   };
 
   EXPECT_EQ(ToString(Container{{1, 2, 3}}), "[1, 2, 3]");
-  EXPECT_EQ(ToString(Conversion{{1, 2, 3}}), "Conversion");
   EXPECT_EQ(ToString(CustomToString{{1, 2, 3}}), "CustomToString");
 }
 

@@ -57,7 +57,6 @@ namespace objc = util::objc;
 using firebase::firestore::FirestoreErrorCode;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::DocumentViewChange;
-using firebase::firestore::core::DocumentViewChangeType;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::SnapshotVersion;
@@ -203,7 +202,7 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
   return testutil::Version(version.longLongValue);
 }
 
-- (DocumentViewChange)parseChange:(NSDictionary *)jsonDoc ofType:(DocumentViewChangeType)type {
+- (DocumentViewChange)parseChange:(NSDictionary *)jsonDoc ofType:(DocumentViewChange::Type)type {
   NSNumber *version = jsonDoc[@"version"];
   NSDictionary *options = jsonDoc[@"options"];
   FSTDocumentState documentState = [options[@"hasLocalMutations"] isEqualToNumber:@YES]
@@ -504,22 +503,22 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
     NSMutableArray *removed = expected[@"removed"];
     for (NSDictionary *changeSpec in removed) {
       expectedChanges.push_back([self parseChange:changeSpec
-                                           ofType:DocumentViewChangeType::kRemoved]);
+                                           ofType:DocumentViewChange::Type::kRemoved]);
     }
     NSMutableArray *added = expected[@"added"];
     for (NSDictionary *changeSpec in added) {
       expectedChanges.push_back([self parseChange:changeSpec
-                                           ofType:DocumentViewChangeType::kAdded]);
+                                           ofType:DocumentViewChange::Type::kAdded]);
     }
     NSMutableArray *modified = expected[@"modified"];
     for (NSDictionary *changeSpec in modified) {
       expectedChanges.push_back([self parseChange:changeSpec
-                                           ofType:DocumentViewChangeType::kModified]);
+                                           ofType:DocumentViewChange::Type::kModified]);
     }
     NSMutableArray *metadata = expected[@"metadata"];
     for (NSDictionary *changeSpec in metadata) {
       expectedChanges.push_back([self parseChange:changeSpec
-                                           ofType:DocumentViewChangeType::kMetadata]);
+                                           ofType:DocumentViewChange::Type::kMetadata]);
     }
 
     XCTAssertEqual(actual.viewSnapshot.documentChanges.size(), expectedChanges.size());
