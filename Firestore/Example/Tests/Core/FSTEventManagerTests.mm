@@ -19,15 +19,24 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
+#include <utility>
+
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSyncEngine.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
+#include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
 
+using firebase::firestore::core::ViewSnapshot;
+using firebase::firestore::core::ViewSnapshotHandler;
+using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::OnlineState;
+using firebase::firestore::util::StatusOr;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -51,11 +60,9 @@ static NSNumber *ToNSNumber(OnlineState state) {
 @implementation FSTEventManagerTests
 
 - (FSTQueryListener *)noopListenerForQuery:(FSTQuery *)query {
-  return [[FSTQueryListener alloc]
-            initWithQuery:query
-                  options:[FSTListenOptions defaultOptions]
-      viewSnapshotHandler:^(FSTViewSnapshot *_Nullable snapshot, NSError *_Nullable error){
-      }];
+  return [[FSTQueryListener alloc] initWithQuery:query
+                                         options:[FSTListenOptions defaultOptions]
+                             viewSnapshotHandler:[](const StatusOr<ViewSnapshot> &) {}];
 }
 
 - (void)testHandlesManyListenersPerQuery {
@@ -92,13 +99,16 @@ static NSNumber *ToNSNumber(OnlineState state) {
 }
 
 - (FSTQueryListener *)makeMockListenerForQuery:(FSTQuery *)query
-                           viewSnapshotHandler:(void (^)())handler {
-  FSTQueryListener *listener = OCMClassMock([FSTQueryListener class]);
-  OCMStub([listener query]).andReturn(query);
-  OCMStub([listener queryDidChangeViewSnapshot:[OCMArg any]]).andDo(^(NSInvocation *invocation) {
-    handler();
-  });
-  return listener;
+                           viewSnapshotHandler:(ViewSnapshotHandler &&)handler {
+  // FSTQueryListener *listener = OCMClassMock([FSTQueryListener class]);
+  // OCMStub([listener query]).andReturn(query);
+  // OCMStub([listener queryDidChangeViewSnapshot:[OCMArg any]]).andDo(^(NSInvocation *invocation) {
+  //   handler();
+  // });
+  // return listener;
+  return [[FSTQueryListener alloc] initWithQuery:query
+                                         options:[FSTListenOptions defaultOptions]
+                             viewSnapshotHandler:std::move(handler)];
 }
 
 - (void)testNotifiesListenersInTheRightOrder {
@@ -106,20 +116,23 @@ static NSNumber *ToNSNumber(OnlineState state) {
   FSTQuery *query2 = FSTTestQuery("bar/baz");
   NSMutableArray *eventOrder = [NSMutableArray array];
 
-  FSTQueryListener *listener1 = [self makeMockListenerForQuery:query1
-                                           viewSnapshotHandler:^{
-                                             [eventOrder addObject:@"listener1"];
-                                           }];
+  FSTQueryListener *listener1 =
+      [self makeMockListenerForQuery:query1
+                 viewSnapshotHandler:[eventOrder](const StatusOr<ViewSnapshot> &) {
+                   [eventOrder addObject:@"listener1"];
+                 }];
 
-  FSTQueryListener *listener2 = [self makeMockListenerForQuery:query2
-                                           viewSnapshotHandler:^{
-                                             [eventOrder addObject:@"listener2"];
-                                           }];
+  FSTQueryListener *listener2 =
+      [self makeMockListenerForQuery:query2
+                 viewSnapshotHandler:[eventOrder](const StatusOr<ViewSnapshot> &) {
+                   [eventOrder addObject:@"listener2"];
+                 }];
 
-  FSTQueryListener *listener3 = [self makeMockListenerForQuery:query1
-                                           viewSnapshotHandler:^{
-                                             [eventOrder addObject:@"listener3"];
-                                           }];
+  FSTQueryListener *listener3 =
+      [self makeMockListenerForQuery:query1
+                 viewSnapshotHandler:[eventOrder](const StatusOr<ViewSnapshot> &) {
+                   [eventOrder addObject:@"listener3"];
+                 }];
 
   FSTSyncEngine *syncEngineMock = OCMClassMock([FSTSyncEngine class]);
   FSTEventManager *eventManager = [FSTEventManager eventManagerWithSyncEngine:syncEngineMock];
@@ -130,12 +143,11 @@ static NSNumber *ToNSNumber(OnlineState state) {
   OCMVerify([syncEngineMock listenToQuery:query1]);
   OCMVerify([syncEngineMock listenToQuery:query2]);
 
-  FSTViewSnapshot *snapshot1 = OCMClassMock([FSTViewSnapshot class]);
-  OCMStub([snapshot1 query]).andReturn(query1);
-  FSTViewSnapshot *snapshot2 = OCMClassMock([FSTViewSnapshot class]);
-  OCMStub([snapshot2 query]).andReturn(query2);
+  FSTDocumentSet *emptyDocs = [FSTDocumentSet documentSetWithComparator:query1.comparator];
+  ViewSnapshot snapshot1{query1, emptyDocs, emptyDocs, {}, false, true, false, DocumentKeySet{}};
+  ViewSnapshot snapshot2{query2, emptyDocs, emptyDocs, {}, false, true, false, DocumentKeySet{}};
 
-  [eventManager handleViewSnapshots:@[ snapshot1, snapshot2 ]];
+  [eventManager handleViewSnapshots:{snapshot1, snapshot2}];
 
   NSArray *expected = @[ @"listener1", @"listener3", @"listener2" ];
   XCTAssertEqualObjects(eventOrder, expected);

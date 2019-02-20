@@ -27,14 +27,15 @@
 #import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
 #import "Firestore/Source/API/FIRQuerySnapshot+Internal.h"
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
-#import "Firestore/Source/Core/FSTViewSnapshot.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 
+#include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::core::DocumentViewChange;
+using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::model::DocumentKeySet;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -93,19 +94,19 @@ NS_ASSUME_NONNULL_BEGIN
 
   FIRFirestore *firestore = FSTTestFirestore();
   FSTQuery *query = FSTTestQuery("foo");
-  FSTViewSnapshot *viewSnapshot = [[FSTViewSnapshot alloc] initWithQuery:query
-                                                               documents:newDocuments
-                                                            oldDocuments:oldDocuments
-                                                         documentChanges:std::move(documentChanges)
-                                                               fromCache:NO
-                                                             mutatedKeys:DocumentKeySet {}
-                                                        syncStateChanged:YES
-                                                 excludesMetadataChanges:NO];
+  ViewSnapshot viewSnapshot{query,
+                            newDocuments,
+                            oldDocuments,
+                            std::move(documentChanges),
+                            /*from_cache=*/false,
+                            /*sync_state_changed=*/true,
+                            /*excludes_metadata_changes=*/false,
+                            /*mutated_keys=*/DocumentKeySet{}};
   FIRSnapshotMetadata *metadata = [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:NO
                                                                                fromCache:NO];
   FIRQuerySnapshot *snapshot = [FIRQuerySnapshot snapshotWithFirestore:firestore
                                                          originalQuery:query
-                                                              snapshot:viewSnapshot
+                                                              snapshot:std::move(viewSnapshot)
                                                               metadata:metadata];
 
   FIRQueryDocumentSnapshot *doc1Snap = [FIRQueryDocumentSnapshot snapshotWithFirestore:firestore

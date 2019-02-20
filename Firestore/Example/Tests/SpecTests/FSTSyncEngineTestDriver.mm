@@ -42,10 +42,12 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_store.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
+#include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "absl/memory/memory.h"
 
 using firebase::firestore::FirestoreErrorCode;
@@ -53,6 +55,7 @@ using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::auth::HashUser;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
+using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
@@ -65,17 +68,30 @@ using firebase::firestore::remote::WatchChange;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::TimerId;
 using firebase::firestore::util::ExecutorLibdispatch;
+using firebase::firestore::util::MakeNSError;
 using firebase::firestore::util::MakeString;
 using firebase::firestore::util::Status;
+using firebase::firestore::util::StatusOr;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@implementation FSTQueryEvent
+@implementation FSTQueryEvent {
+  absl::optional<ViewSnapshot> _maybeViewSnapshot;
+}
+
+- (const absl::optional<ViewSnapshot> &)viewSnapshot {
+  return _maybeViewSnapshot;
+}
+
+- (void)setViewSnapshot:(absl::optional<ViewSnapshot>)snapshot {
+  _maybeViewSnapshot = std::move(snapshot);
+}
 
 - (NSString *)description {
+  // OBC
   // The Query is also included in the view, so we skip it.
-  return [NSString stringWithFormat:@"<FSTQueryEvent: viewSnapshot=%@, error=%@>",
-                                    self.viewSnapshot, self.error];
+  return [NSString stringWithFormat:@"<FSTQueryEvent: viewSnapshot=%s, error=%@>",
+                                    _maybeViewSnapshot.value().ToString().c_str(), self.error];
 }
 
 @end
@@ -333,11 +349,15 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQueryListener *listener = [[FSTQueryListener alloc]
             initWithQuery:query
                   options:options
-      viewSnapshotHandler:^(FSTViewSnapshot *_Nullable snapshot, NSError *_Nullable error) {
+      viewSnapshotHandler:[self, query](const StatusOr<ViewSnapshot> &maybe_snapshot) {
         FSTQueryEvent *event = [[FSTQueryEvent alloc] init];
         event.query = query;
-        event.viewSnapshot = snapshot;
-        event.error = error;
+        if (maybe_snapshot.ok()) {
+          [event setViewSnapshot:maybe_snapshot.ValueOrDie()];
+        } else {
+          event.error = MakeNSError(maybe_snapshot.status());
+        }
+
         [self.events addObject:event];
       }];
   self.queryListeners[query] = listener;

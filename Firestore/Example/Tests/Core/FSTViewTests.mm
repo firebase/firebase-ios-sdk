@@ -18,23 +18,25 @@
 
 #import <XCTest/XCTest.h>
 
+#include <utility>
 #include <vector>
 
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/Core/FSTQuery.h"
-#import "Firestore/Source/Core/FSTViewSnapshot.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
+#include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 #include "absl/types/optional.h"
 
 namespace testutil = firebase::firestore::testutil;
 using firebase::firestore::core::DocumentViewChange;
+using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::DocumentKeySet;
 
@@ -61,21 +63,23 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocument *doc3 =
       FSTTestDoc("rooms/other/messages/1", 0, @{@"text" : @"msg3"}, FSTDocumentStateSynced);
 
-  FSTViewSnapshot *_Nullable snapshot = FSTTestApplyChanges(
+  absl::optional<ViewSnapshot> maybe_snapshot = FSTTestApplyChanges(
       view, @[ doc1, doc2, doc3 ], FSTTestTargetChangeAckDocuments({doc1.key, doc2.key, doc3.key}));
+  XCTAssertTrue(maybe_snapshot.has_value());
+  ViewSnapshot snapshot = std::move(maybe_snapshot).value();
 
-  XCTAssertEqual(snapshot.query, query);
+  XCTAssertEqual(snapshot.query(), query);
 
-  XCTAssertEqualObjects(snapshot.documents.arrayValue, (@[ doc1, doc2 ]));
+  XCTAssertEqualObjects(snapshot.documents().arrayValue, (@[ doc1, doc2 ]));
 
   XCTAssertTrue((
-      snapshot.documentChanges ==
+      snapshot.document_changes() ==
       std::vector<DocumentViewChange>{DocumentViewChange{doc1, DocumentViewChange::Type::kAdded},
                                       DocumentViewChange{doc2, DocumentViewChange::Type::kAdded}}));
 
-  XCTAssertFalse(snapshot.isFromCache);
-  XCTAssertFalse(snapshot.hasPendingWrites);
-  XCTAssertTrue(snapshot.syncStateChanged);
+  XCTAssertFalse(snapshot.from_cache());
+  XCTAssertFalse(snapshot.has_pending_writes());
+  XCTAssertTrue(snapshot.sync_state_changed());
 }
 
 - (void)testRemovesDocuments {
@@ -93,21 +97,23 @@ NS_ASSUME_NONNULL_BEGIN
   FSTTestApplyChanges(view, @[ doc1, doc2 ], absl::nullopt);
 
   // delete doc2, add doc3
-  FSTViewSnapshot *snapshot =
+  absl::optional<ViewSnapshot> maybe_snapshot =
       FSTTestApplyChanges(view, @[ FSTTestDeletedDoc("rooms/eros/messages/2", 0, NO), doc3 ],
                           FSTTestTargetChangeAckDocuments({doc1.key, doc3.key}));
+  XCTAssertTrue(maybe_snapshot.has_value());
+  ViewSnapshot snapshot = std::move(maybe_snapshot).value();
 
-  XCTAssertEqual(snapshot.query, query);
+  XCTAssertEqual(snapshot.query(), query);
 
-  XCTAssertEqualObjects(snapshot.documents.arrayValue, (@[ doc1, doc3 ]));
+  XCTAssertEqualObjects(snapshot.documents().arrayValue, (@[ doc1, doc3 ]));
 
   XCTAssertTrue((
-      snapshot.documentChanges ==
+      snapshot.document_changes() ==
       std::vector<DocumentViewChange>{DocumentViewChange{doc2, DocumentViewChange::Type::kRemoved},
                                       DocumentViewChange{doc3, DocumentViewChange::Type::kAdded}}));
 
-  XCTAssertFalse(snapshot.isFromCache);
-  XCTAssertTrue(snapshot.syncStateChanged);
+  XCTAssertFalse(snapshot.from_cache());
+  XCTAssertTrue(snapshot.sync_state_changed());
 }
 
 - (void)testReturnsNilIfThereAreNoChanges {
@@ -123,16 +129,16 @@ NS_ASSUME_NONNULL_BEGIN
   FSTTestApplyChanges(view, @[ doc1, doc2 ], absl::nullopt);
 
   // reapply same docs, no changes
-  FSTViewSnapshot *snapshot = FSTTestApplyChanges(view, @[ doc1, doc2 ], absl::nullopt);
-  XCTAssertNil(snapshot);
+  absl::optional<ViewSnapshot> snapshot = FSTTestApplyChanges(view, @[ doc1, doc2 ], absl::nullopt);
+  XCTAssertFalse(snapshot.has_value());
 }
 
 - (void)testDoesNotReturnNilForFirstChanges {
   FSTQuery *query = [self queryForMessages];
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
 
-  FSTViewSnapshot *snapshot = FSTTestApplyChanges(view, @[], absl::nullopt);
-  XCTAssertNotNil(snapshot);
+  absl::optional<ViewSnapshot> snapshot = FSTTestApplyChanges(view, @[], absl::nullopt);
+  XCTAssertTrue(snapshot.has_value());
 }
 
 - (void)testFiltersDocumentsBasedOnQueryWithFilter {
@@ -155,21 +161,23 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocument *doc5 =
       FSTTestDoc("rooms/eros/messages/5", 0, @{@"sort" : @1}, FSTDocumentStateSynced);
 
-  FSTViewSnapshot *snapshot =
+  absl::optional<ViewSnapshot> maybe_snapshot =
       FSTTestApplyChanges(view, @[ doc1, doc2, doc3, doc4, doc5 ], absl::nullopt);
+  XCTAssertTrue(maybe_snapshot.has_value());
+  ViewSnapshot snapshot = std::move(maybe_snapshot).value();
 
-  XCTAssertEqual(snapshot.query, query);
+  XCTAssertEqual(snapshot.query(), query);
 
-  XCTAssertEqualObjects(snapshot.documents.arrayValue, (@[ doc1, doc5, doc2 ]));
+  XCTAssertEqualObjects(snapshot.documents().arrayValue, (@[ doc1, doc5, doc2 ]));
 
   XCTAssertTrue((
-      snapshot.documentChanges ==
+      snapshot.document_changes() ==
       std::vector<DocumentViewChange>{DocumentViewChange{doc1, DocumentViewChange::Type::kAdded},
                                       DocumentViewChange{doc5, DocumentViewChange::Type::kAdded},
                                       DocumentViewChange{doc2, DocumentViewChange::Type::kAdded}}));
 
-  XCTAssertTrue(snapshot.isFromCache);
-  XCTAssertTrue(snapshot.syncStateChanged);
+  XCTAssertTrue(snapshot.from_cache());
+  XCTAssertTrue(snapshot.sync_state_changed());
 }
 
 - (void)testUpdatesDocumentsBasedOnQueryWithFilter {
@@ -189,11 +197,12 @@ NS_ASSUME_NONNULL_BEGIN
       FSTTestDoc("rooms/eros/messages/3", 0, @{@"sort" : @2}, FSTDocumentStateSynced);
   FSTDocument *doc4 = FSTTestDoc("rooms/eros/messages/4", 0, @{}, FSTDocumentStateSynced);
 
-  FSTViewSnapshot *snapshot = FSTTestApplyChanges(view, @[ doc1, doc2, doc3, doc4 ], absl::nullopt);
+  ViewSnapshot snapshot =
+      FSTTestApplyChanges(view, @[ doc1, doc2, doc3, doc4 ], absl::nullopt).value();
 
-  XCTAssertEqual(snapshot.query, query);
+  XCTAssertEqual(snapshot.query(), query);
 
-  XCTAssertEqualObjects(snapshot.documents.arrayValue, (@[ doc1, doc3 ]));
+  XCTAssertEqualObjects(snapshot.documents().arrayValue, (@[ doc1, doc3 ]));
 
   FSTDocument *newDoc2 =
       FSTTestDoc("rooms/eros/messages/2", 1, @{@"sort" : @2}, FSTDocumentStateSynced);
@@ -202,20 +211,20 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocument *newDoc4 =
       FSTTestDoc("rooms/eros/messages/4", 1, @{@"sort" : @0}, FSTDocumentStateSynced);
 
-  snapshot = FSTTestApplyChanges(view, @[ newDoc2, newDoc3, newDoc4 ], absl::nullopt);
+  snapshot = FSTTestApplyChanges(view, @[ newDoc2, newDoc3, newDoc4 ], absl::nullopt).value();
 
-  XCTAssertEqual(snapshot.query, query);
+  XCTAssertEqual(snapshot.query(), query);
 
-  XCTAssertEqualObjects(snapshot.documents.arrayValue, (@[ newDoc4, doc1, newDoc2 ]));
+  XCTAssertEqualObjects(snapshot.documents().arrayValue, (@[ newDoc4, doc1, newDoc2 ]));
 
-  XCTAssertTrue((snapshot.documentChanges ==
+  XCTAssertTrue((snapshot.document_changes() ==
                  std::vector<DocumentViewChange>{
                      DocumentViewChange{doc3, DocumentViewChange::Type::kRemoved},
                      DocumentViewChange{newDoc4, DocumentViewChange::Type::kAdded},
                      DocumentViewChange{newDoc2, DocumentViewChange::Type::kAdded}}));
 
-  XCTAssertTrue(snapshot.isFromCache);
-  XCTAssertFalse(snapshot.syncStateChanged);
+  XCTAssertTrue(snapshot.from_cache());
+  XCTAssertFalse(snapshot.sync_state_changed());
 }
 
 - (void)testRemovesDocumentsForQueryWithLimit {
@@ -234,20 +243,22 @@ NS_ASSUME_NONNULL_BEGIN
   FSTTestApplyChanges(view, @[ doc1, doc3 ], absl::nullopt);
 
   // add doc2, which should push out doc3
-  FSTViewSnapshot *snapshot = FSTTestApplyChanges(
-      view, @[ doc2 ], FSTTestTargetChangeAckDocuments({doc1.key, doc2.key, doc3.key}));
+  ViewSnapshot snapshot =
+      FSTTestApplyChanges(view, @[ doc2 ],
+                          FSTTestTargetChangeAckDocuments({doc1.key, doc2.key, doc3.key}))
+          .value();
 
-  XCTAssertEqual(snapshot.query, query);
+  XCTAssertEqual(snapshot.query(), query);
 
-  XCTAssertEqualObjects(snapshot.documents.arrayValue, (@[ doc1, doc2 ]));
+  XCTAssertEqualObjects(snapshot.documents().arrayValue, (@[ doc1, doc2 ]));
 
   XCTAssertTrue((
-      snapshot.documentChanges ==
+      snapshot.document_changes() ==
       std::vector<DocumentViewChange>{DocumentViewChange{doc3, DocumentViewChange::Type::kRemoved},
                                       DocumentViewChange{doc2, DocumentViewChange::Type::kAdded}}));
 
-  XCTAssertFalse(snapshot.isFromCache);
-  XCTAssertTrue(snapshot.syncStateChanged);
+  XCTAssertFalse(snapshot.from_cache());
+  XCTAssertTrue(snapshot.sync_state_changed());
 }
 
 - (void)testDoesntReportChangesForDocumentBeyondLimitOfQuery {
@@ -280,24 +291,26 @@ NS_ASSUME_NONNULL_BEGIN
   // Verify that all the docs still match.
   viewDocChanges = [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1, doc2, doc3, doc4 ])
                                      previousChanges:viewDocChanges];
-  FSTViewSnapshot *snapshot =
+  absl::optional<ViewSnapshot> maybe_snapshot =
       [view applyChangesToDocuments:viewDocChanges
                        targetChange:FSTTestTargetChangeAckDocuments(
                                         {doc1.key, doc2.key, doc3.key, doc4.key})]
           .snapshot;
+  XCTAssertTrue(maybe_snapshot.has_value());
+  ViewSnapshot snapshot = std::move(maybe_snapshot).value();
 
-  XCTAssertEqual(snapshot.query, query);
+  XCTAssertEqual(snapshot.query(), query);
 
-  XCTAssertEqualObjects(snapshot.documents.arrayValue, (@[ doc1, doc3 ]));
+  XCTAssertEqualObjects(snapshot.documents().arrayValue, (@[ doc1, doc3 ]));
 
-  XCTAssertTrue(
-      (snapshot.documentChanges == std::vector<DocumentViewChange>{
-                                       DocumentViewChange{doc2, DocumentViewChange::Type::kRemoved},
-                                       DocumentViewChange{doc3, DocumentViewChange::Type::kAdded},
-                                   }));
+  XCTAssertTrue((snapshot.document_changes() ==
+                 std::vector<DocumentViewChange>{
+                     DocumentViewChange{doc2, DocumentViewChange::Type::kRemoved},
+                     DocumentViewChange{doc3, DocumentViewChange::Type::kAdded},
+                 }));
 
-  XCTAssertFalse(snapshot.isFromCache);
-  XCTAssertTrue(snapshot.syncStateChanged);
+  XCTAssertFalse(snapshot.from_cache());
+  XCTAssertTrue(snapshot.sync_state_changed());
 }
 
 - (void)testKeepsTrackOfLimboDocuments {
@@ -378,7 +391,7 @@ NS_ASSUME_NONNULL_BEGIN
       [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1, doc2 ])];
   [self assertDocSet:changes.documentSet containsDocs:@[ doc1, doc2 ]];
   XCTAssertFalse(changes.needsRefill);
-  XCTAssertEqual(2, [changes.changeSet changes].size());
+  XCTAssertEqual(2, changes.changeSet.GetChanges().size());
   [view applyChangesToDocuments:changes];
 
   // Remove one of the docs.
@@ -386,12 +399,12 @@ NS_ASSUME_NONNULL_BEGIN
                                                   "rooms/eros/messages/0", 0, NO) ])];
   [self assertDocSet:changes.documentSet containsDocs:@[ doc2 ]];
   XCTAssertTrue(changes.needsRefill);
-  XCTAssertEqual(1, [changes.changeSet changes].size());
+  XCTAssertEqual(1, changes.changeSet.GetChanges().size());
   // Refill it with just the one doc remaining.
   changes = [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc2 ]) previousChanges:changes];
   [self assertDocSet:changes.documentSet containsDocs:@[ doc2 ]];
   XCTAssertFalse(changes.needsRefill);
-  XCTAssertEqual(1, [changes.changeSet changes].size());
+  XCTAssertEqual(1, changes.changeSet.GetChanges().size());
   [view applyChangesToDocuments:changes];
 }
 
@@ -414,7 +427,7 @@ NS_ASSUME_NONNULL_BEGIN
       [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1, doc2, doc3 ])];
   [self assertDocSet:changes.documentSet containsDocs:@[ doc1, doc2 ]];
   XCTAssertFalse(changes.needsRefill);
-  XCTAssertEqual(2, [changes.changeSet changes].size());
+  XCTAssertEqual(2, changes.changeSet.GetChanges().size());
   [view applyChangesToDocuments:changes];
 
   // Move one of the docs.
@@ -422,13 +435,13 @@ NS_ASSUME_NONNULL_BEGIN
   changes = [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc2 ])];
   [self assertDocSet:changes.documentSet containsDocs:@[ doc1, doc2 ]];
   XCTAssertTrue(changes.needsRefill);
-  XCTAssertEqual(1, [changes.changeSet changes].size());
+  XCTAssertEqual(1, changes.changeSet.GetChanges().size());
   // Refill it with all three current docs.
   changes = [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1, doc2, doc3 ])
                               previousChanges:changes];
   [self assertDocSet:changes.documentSet containsDocs:@[ doc1, doc3 ]];
   XCTAssertFalse(changes.needsRefill);
-  XCTAssertEqual(2, [changes.changeSet changes].size());
+  XCTAssertEqual(2, changes.changeSet.GetChanges().size());
   [view applyChangesToDocuments:changes];
 }
 
@@ -455,7 +468,7 @@ NS_ASSUME_NONNULL_BEGIN
       [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1, doc2, doc3, doc4, doc5 ])];
   [self assertDocSet:changes.documentSet containsDocs:@[ doc1, doc2, doc3 ]];
   XCTAssertFalse(changes.needsRefill);
-  XCTAssertEqual(3, [changes.changeSet changes].size());
+  XCTAssertEqual(3, changes.changeSet.GetChanges().size());
   [view applyChangesToDocuments:changes];
 
   // Move one of the docs.
@@ -463,7 +476,7 @@ NS_ASSUME_NONNULL_BEGIN
   changes = [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1 ])];
   [self assertDocSet:changes.documentSet containsDocs:@[ doc2, doc3, doc1 ]];
   XCTAssertFalse(changes.needsRefill);
-  XCTAssertEqual(1, [changes.changeSet changes].size());
+  XCTAssertEqual(1, changes.changeSet.GetChanges().size());
   [view applyChangesToDocuments:changes];
 }
 
@@ -490,7 +503,7 @@ NS_ASSUME_NONNULL_BEGIN
       [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1, doc2, doc3, doc4, doc5 ])];
   [self assertDocSet:changes.documentSet containsDocs:@[ doc1, doc2, doc3 ]];
   XCTAssertFalse(changes.needsRefill);
-  XCTAssertEqual(3, [changes.changeSet changes].size());
+  XCTAssertEqual(3, changes.changeSet.GetChanges().size());
   [view applyChangesToDocuments:changes];
 
   // Move one of the docs.
@@ -498,7 +511,7 @@ NS_ASSUME_NONNULL_BEGIN
   changes = [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc4 ])];
   [self assertDocSet:changes.documentSet containsDocs:@[ doc1, doc2, doc3 ]];
   XCTAssertFalse(changes.needsRefill);
-  XCTAssertEqual(0, [changes.changeSet changes].size());
+  XCTAssertEqual(0, changes.changeSet.GetChanges().size());
   [view applyChangesToDocuments:changes];
 }
 
@@ -513,7 +526,7 @@ NS_ASSUME_NONNULL_BEGIN
       [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1, doc2 ])];
   [self assertDocSet:changes.documentSet containsDocs:@[ doc1, doc2 ]];
   XCTAssertFalse(changes.needsRefill);
-  XCTAssertEqual(2, [changes.changeSet changes].size());
+  XCTAssertEqual(2, changes.changeSet.GetChanges().size());
   [view applyChangesToDocuments:changes];
 
   // Add a doc that is past the limit.
@@ -521,7 +534,7 @@ NS_ASSUME_NONNULL_BEGIN
   changes = [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc3 ])];
   [self assertDocSet:changes.documentSet containsDocs:@[ doc1, doc2 ]];
   XCTAssertFalse(changes.needsRefill);
-  XCTAssertEqual(0, [changes.changeSet changes].size());
+  XCTAssertEqual(0, changes.changeSet.GetChanges().size());
   [view applyChangesToDocuments:changes];
 }
 
@@ -535,7 +548,7 @@ NS_ASSUME_NONNULL_BEGIN
       [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1, doc2 ])];
   [self assertDocSet:changes.documentSet containsDocs:@[ doc1, doc2 ]];
   XCTAssertFalse(changes.needsRefill);
-  XCTAssertEqual(2, [changes.changeSet changes].size());
+  XCTAssertEqual(2, changes.changeSet.GetChanges().size());
   [view applyChangesToDocuments:changes];
 
   // Remove one of the docs.
@@ -543,7 +556,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                   "rooms/eros/messages/1", 0, NO) ])];
   [self assertDocSet:changes.documentSet containsDocs:@[ doc1 ]];
   XCTAssertFalse(changes.needsRefill);
-  XCTAssertEqual(1, [changes.changeSet changes].size());
+  XCTAssertEqual(1, changes.changeSet.GetChanges().size());
   [view applyChangesToDocuments:changes];
 }
 
@@ -558,7 +571,7 @@ NS_ASSUME_NONNULL_BEGIN
       [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1, doc2 ])];
   [self assertDocSet:changes.documentSet containsDocs:@[ doc1, doc2 ]];
   XCTAssertFalse(changes.needsRefill);
-  XCTAssertEqual(2, [changes.changeSet changes].size());
+  XCTAssertEqual(2, changes.changeSet.GetChanges().size());
   [view applyChangesToDocuments:changes];
 
   // Remove a doc that isn't even in the results.
@@ -566,7 +579,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                   "rooms/eros/messages/2", 0, NO) ])];
   [self assertDocSet:changes.documentSet containsDocs:@[ doc1, doc2 ]];
   XCTAssertFalse(changes.needsRefill);
-  XCTAssertEqual(0, [changes.changeSet changes].size());
+  XCTAssertEqual(0, changes.changeSet.GetChanges().size());
   [view applyChangesToDocuments:changes];
 }
 
@@ -645,7 +658,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
   FSTViewDocumentChanges *changes = [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1 ])];
   FSTViewChange *viewChange = [view applyChangesToDocuments:changes];
-  XCTAssertTrue(viewChange.snapshot.hasPendingWrites);
+  XCTAssertTrue(viewChange.snapshot.value().has_pending_writes());
 }
 
 - (void)testDoesntRaiseHasPendingWritesForCommittedMutationsInInitialSnapshot {
@@ -655,7 +668,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
   FSTViewDocumentChanges *changes = [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1 ])];
   FSTViewChange *viewChange = [view applyChangesToDocuments:changes];
-  XCTAssertFalse(viewChange.snapshot.hasPendingWrites);
+  XCTAssertFalse(viewChange.snapshot.value().has_pending_writes());
 }
 
 - (void)testSuppressesWriteAcknowledgementIfWatchHasNotCaughtUp {
@@ -681,7 +694,7 @@ NS_ASSUME_NONNULL_BEGIN
       [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1, doc2 ])];
   FSTViewChange *viewChange = [view applyChangesToDocuments:changes];
 
-  XCTAssertTrue((viewChange.snapshot.documentChanges ==
+  XCTAssertTrue((viewChange.snapshot.value().document_changes() ==
                  std::vector<DocumentViewChange>{
                      DocumentViewChange{doc1, DocumentViewChange::Type::kAdded},
                      DocumentViewChange{doc2, DocumentViewChange::Type::kAdded},
@@ -690,7 +703,7 @@ NS_ASSUME_NONNULL_BEGIN
   changes = [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1Committed, doc2Modified ])];
   viewChange = [view applyChangesToDocuments:changes];
   // The 'doc1Committed' update is suppressed
-  XCTAssertTrue((viewChange.snapshot.documentChanges ==
+  XCTAssertTrue((viewChange.snapshot.value().document_changes() ==
                  std::vector<DocumentViewChange>{
                      DocumentViewChange{doc2Modified, DocumentViewChange::Type::kModified},
                  }));
@@ -698,7 +711,7 @@ NS_ASSUME_NONNULL_BEGIN
   changes =
       [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1Acknowledged, doc2Acknowledged ])];
   viewChange = [view applyChangesToDocuments:changes];
-  XCTAssertTrue((viewChange.snapshot.documentChanges ==
+  XCTAssertTrue((viewChange.snapshot.value().document_changes() ==
                  std::vector<DocumentViewChange>{
                      DocumentViewChange{doc1Acknowledged, DocumentViewChange::Type::kModified},
                      DocumentViewChange{doc2Acknowledged, DocumentViewChange::Type::kMetadata},

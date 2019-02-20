@@ -31,7 +31,6 @@
 #import "Firestore/Source/API/FIRQuerySnapshot+Internal.h"
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
 #import "Firestore/Source/Core/FSTQuery.h"
-#import "Firestore/Source/Core/FSTViewSnapshot.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 
@@ -42,6 +41,7 @@
 namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
 using firebase::firestore::core::DocumentViewChange;
+using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::model::DocumentKeySet;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -125,17 +125,18 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
       mutatedKeys = mutatedKeys.insert(testutil::Key(documentKey));
     }
   }
-  FSTViewSnapshot *viewSnapshot = [[FSTViewSnapshot alloc] initWithQuery:FSTTestQuery(path)
-                                                               documents:newDocuments
-                                                            oldDocuments:oldDocuments
-                                                         documentChanges:std::move(documentChanges)
-                                                               fromCache:fromCache
-                                                             mutatedKeys:mutatedKeys
-                                                        syncStateChanged:YES
-                                                 excludesMetadataChanges:NO];
+  ViewSnapshot viewSnapshot{FSTTestQuery(path),
+                            newDocuments,
+                            oldDocuments,
+                            std::move(documentChanges),
+                            fromCache,
+
+                            /*sync_state_changed=*/true,
+                            /*excludes_metadata_changes=*/false,
+                            mutatedKeys};
   return [FIRQuerySnapshot snapshotWithFirestore:FSTTestFirestore()
                                    originalQuery:FSTTestQuery(path)
-                                        snapshot:viewSnapshot
+                                        snapshot:std::move(viewSnapshot)
                                         metadata:metadata];
 }
 
