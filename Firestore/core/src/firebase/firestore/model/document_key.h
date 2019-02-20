@@ -91,9 +91,9 @@ class DocumentKey {
   }
 
   /** Returns true if the document is in the specified collectionId. */
-  bool HasCollectionID(absl::string_view collectionID) const {
+  bool HasCollectionId(absl::string_view collection_id) const {
     size_t size = path().size();
-    return size >= 2 && path()[size - 2] == collectionID;
+    return size >= 2 && path()[size - 2] == collection_id;
   }
 
  private:

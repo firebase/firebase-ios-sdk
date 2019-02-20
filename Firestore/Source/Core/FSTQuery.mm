@@ -851,7 +851,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
   if (self.collectionGroup) {
     // NOTE: self.path is currently always empty since we don't expose Collection Group queries
     // rooted at a document path yet.
-    return document.key.HasCollectionID(util::MakeString(self.collectionGroup)) &&
+    return document.key.HasCollectionId(util::MakeString(self.collectionGroup)) &&
            self.path.IsPrefixOf(documentPath);
   } else if (DocumentKey::IsDocumentKey(_path)) {
     // Exact match for document queries.
