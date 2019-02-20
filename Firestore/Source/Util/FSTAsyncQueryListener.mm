@@ -16,16 +16,22 @@
 
 #import "Firestore/Source/Util/FSTAsyncQueryListener.h"
 
+#include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
+
+using firebase::firestore::core::ViewSnapshot;
+using firebase::firestore::core::ViewSnapshotHandler;
 using firebase::firestore::util::Executor;
+using firebase::firestore::util::StatusOr;
 
 @implementation FSTAsyncQueryListener {
   volatile BOOL _muted;
-  FSTViewSnapshotHandler _snapshotHandler;
+  ViewSnapshotHandler _snapshotHandler;
   Executor *_executor;
 }
 
 - (instancetype)initWithExecutor:(Executor *)executor
-                 snapshotHandler:(FSTViewSnapshotHandler)snapshotHandler {
+                 snapshotHandler:(ViewSnapshotHandler &&)snapshotHandler {
   if (self = [super init]) {
     _executor = executor;
     _snapshotHandler = snapshotHandler;
@@ -33,16 +39,17 @@ using firebase::firestore::util::Executor;
   return self;
 }
 
-- (FSTViewSnapshotHandler)asyncSnapshotHandler {
+- (ViewSnapshotHandler)asyncSnapshotHandler {
   // Retain `self` strongly in resulting snapshot handler so that even if the
   // user releases the `FSTAsyncQueryListener` we'll continue to deliver
   // events. This is done specifically to facilitate the common case where
   // users just want to turn on notifications "forever" and don't want to have
   // to keep track of our handle to keep them going.
-  return ^(FSTViewSnapshot *_Nullable snapshot, NSError *_Nullable error) {
-    self->_executor->Execute([self, snapshot, error] {
+  return [self](const StatusOr<ViewSnapshot> &maybe_snapshot) {
+    // TODO(c++14): move into lambda.
+    self->_executor->Execute([self, maybe_snapshot] {
       if (!self->_muted) {
-        self->_snapshotHandler(snapshot, error);
+        self->_snapshotHandler(maybe_snapshot);
       }
     });
   };

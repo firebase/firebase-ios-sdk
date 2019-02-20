@@ -28,7 +28,6 @@
 @class FSTLocalStore;
 @class FSTMutation;
 @class FSTQuery;
-@class FSTViewSnapshot;
 
 using firebase::firestore::model::OnlineState;
 
@@ -41,7 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
  * new view snapshots or errors.
  */
 @protocol FSTSyncEngineDelegate
-- (void)handleViewSnapshots:(NSArray<FSTViewSnapshot *> *)viewSnapshots;
+- (void)handleViewSnapshots:(std::vector<firebase::firestore::core::ViewSnapshot> &&)viewSnapshots;
 - (void)handleError:(NSError *)error forQuery:(FSTQuery *)query;
 - (void)applyChangedOnlineState:(OnlineState)onlineState;
 @end

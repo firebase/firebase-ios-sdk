@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#include <utility>
+
 #import "Firestore/Source/API/FIRQuerySnapshot+Internal.h"
 
 #import "FIRFirestore.h"
@@ -22,10 +24,13 @@
 #import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
 #import "Firestore/Source/API/FIRQuery+Internal.h"
 #import "Firestore/Source/Core/FSTQuery.h"
-#import "Firestore/Source/Core/FSTViewSnapshot.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
+
+#include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
+
+using firebase::firestore::core::ViewSnapshot;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -33,12 +38,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithFirestore:(FIRFirestore *)firestore
                     originalQuery:(FSTQuery *)query
-                         snapshot:(FSTViewSnapshot *)snapshot
+                         snapshot:(ViewSnapshot &&)snapshot
                          metadata:(FIRSnapshotMetadata *)metadata;
 
 @property(nonatomic, strong, readonly) FIRFirestore *firestore;
 @property(nonatomic, strong, readonly) FSTQuery *originalQuery;
-@property(nonatomic, strong, readonly) FSTViewSnapshot *snapshot;
+- (const ViewSnapshot &)snapshot;
 
 @end
 
@@ -46,11 +51,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (instancetype)snapshotWithFirestore:(FIRFirestore *)firestore
                         originalQuery:(FSTQuery *)query
-                             snapshot:(FSTViewSnapshot *)snapshot
+                             snapshot:(ViewSnapshot)snapshot
                              metadata:(FIRSnapshotMetadata *)metadata {
   return [[FIRQuerySnapshot alloc] initWithFirestore:firestore
                                        originalQuery:query
-                                            snapshot:snapshot
+                                            snapshot:std::move(snapshot)
                                             metadata:metadata];
 }
 
@@ -63,20 +68,26 @@ NS_ASSUME_NONNULL_BEGIN
   // Cached value of the documentChanges property.
   NSArray<FIRDocumentChange *> *_documentChanges;
   BOOL _documentChangesIncludeMetadataChanges;
+
+  ViewSnapshot _snapshot;
 }
 
 - (instancetype)initWithFirestore:(FIRFirestore *)firestore
                     originalQuery:(FSTQuery *)query
-                         snapshot:(FSTViewSnapshot *)snapshot
+                         snapshot:(ViewSnapshot &&)snapshot
                          metadata:(FIRSnapshotMetadata *)metadata {
   if (self = [super init]) {
     _firestore = firestore;
     _originalQuery = query;
-    _snapshot = snapshot;
+    _snapshot = std::move(snapshot);
     _metadata = metadata;
     _documentChangesIncludeMetadataChanges = NO;
   }
   return self;
+}
+
+- (const ViewSnapshot &)snapshot {
+  return _snapshot;
 }
 
 // NSObject Methods
@@ -92,14 +103,14 @@ NS_ASSUME_NONNULL_BEGIN
   if (snapshot == nil) return NO;
 
   return [self.firestore isEqual:snapshot.firestore] &&
-         [self.originalQuery isEqual:snapshot.originalQuery] &&
-         [self.snapshot isEqual:snapshot.snapshot] && [self.metadata isEqual:snapshot.metadata];
+         [self.originalQuery isEqual:snapshot.originalQuery] && _snapshot == snapshot.snapshot &&
+         [self.metadata isEqual:snapshot.metadata];
 }
 
 - (NSUInteger)hash {
   NSUInteger hash = [self.firestore hash];
   hash = hash * 31u + [self.originalQuery hash];
-  hash = hash * 31u + [self.snapshot hash];
+  hash = hash * 31u + _snapshot.Hash();
   hash = hash * 31u + [self.metadata hash];
   return hash;
 }
@@ -111,31 +122,30 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (BOOL)isEmpty {
-  return self.snapshot.documents.isEmpty;
+  return _snapshot.documents().isEmpty;
 }
 
 // This property is exposed as an NSInteger instead of an NSUInteger since (as of Xcode 8.1)
 // Swift bridges NSUInteger as UInt, and we want to avoid forcing Swift users to cast their ints
 // where we can. See cr/146959032 for additional context.
 - (NSInteger)count {
-  return self.snapshot.documents.count;
+  return _snapshot.documents().count;
 }
 
 - (NSArray<FIRQueryDocumentSnapshot *> *)documents {
   if (!_documents) {
-    FSTDocumentSet *documentSet = self.snapshot.documents;
+    FSTDocumentSet *documentSet = _snapshot.documents();
     FIRFirestore *firestore = self.firestore;
     BOOL fromCache = self.metadata.fromCache;
 
     NSMutableArray<FIRQueryDocumentSnapshot *> *result = [NSMutableArray array];
     for (FSTDocument *document in documentSet.documentEnumerator) {
-      [result
-          addObject:[FIRQueryDocumentSnapshot
-                        snapshotWithFirestore:firestore
-                                  documentKey:document.key
-                                     document:document
-                                    fromCache:fromCache
-                             hasPendingWrites:self.snapshot.mutatedKeys.contains(document.key)]];
+      [result addObject:[FIRQueryDocumentSnapshot
+                            snapshotWithFirestore:firestore
+                                      documentKey:document.key
+                                         document:document
+                                        fromCache:fromCache
+                                 hasPendingWrites:_snapshot.mutated_keys().contains(document.key)]];
     }
 
     _documents = result;
@@ -149,14 +159,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSArray<FIRDocumentChange *> *)documentChangesWithIncludeMetadataChanges:
     (BOOL)includeMetadataChanges {
-  if (includeMetadataChanges && self.snapshot.excludesMetadataChanges) {
+  if (includeMetadataChanges && _snapshot.excludes_metadata_changes()) {
     FSTThrowInvalidArgument(
         @"To include metadata changes with your document changes, you must call "
         @"addSnapshotListener(includeMetadataChanges: true).");
   }
 
   if (!_documentChanges || _documentChangesIncludeMetadataChanges != includeMetadataChanges) {
-    _documentChanges = [FIRDocumentChange documentChangesForSnapshot:self.snapshot
+    _documentChanges = [FIRDocumentChange documentChangesForSnapshot:_snapshot
                                               includeMetadataChanges:includeMetadataChanges
                                                            firestore:self.firestore];
     _documentChangesIncludeMetadataChanges = includeMetadataChanges;
