@@ -30,6 +30,7 @@
 #include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/string_util.h"
+#include "Firestore/core/src/firebase/firestore/util/to_string.h"
 #include "absl/strings/match.h"
 
 NS_ASSUME_NONNULL_BEGIN

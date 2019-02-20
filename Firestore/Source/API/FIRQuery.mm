@@ -481,11 +481,13 @@ NS_ASSUME_NONNULL_BEGIN
              "has an odd number of segments.",
             path.CanonicalString().c_str());
       }
-      fieldValue = [FSTReferenceValue referenceValue:DocumentKey{path}
-                                          databaseID:self.firestore.databaseID];
+      fieldValue =
+          [FSTReferenceValue referenceValue:[FSTDocumentKey keyWithDocumentKey:DocumentKey{path}]
+                                 databaseID:self.firestore.databaseID];
     } else if ([value isKindOfClass:[FIRDocumentReference class]]) {
       FIRDocumentReference *ref = (FIRDocumentReference *)value;
-      fieldValue = [FSTReferenceValue referenceValue:ref.key databaseID:self.firestore.databaseID];
+      fieldValue = [FSTReferenceValue referenceValue:[FSTDocumentKey keyWithDocumentKey:ref.key]
+                                          databaseID:self.firestore.databaseID];
     } else {
       FSTThrowInvalidArgument(@"Invalid query. When querying by document ID you must provide a "
                                "valid string or DocumentReference, but it was of type: %@",
@@ -581,8 +583,9 @@ NS_ASSUME_NONNULL_BEGIN
   // orders), multiple documents could match the position, yielding duplicate results.
   for (FSTSortOrder *sortOrder in self.query.sortOrders) {
     if (sortOrder.field == FieldPath::KeyFieldPath()) {
-      [components addObject:[FSTReferenceValue referenceValue:document.key
-                                                   databaseID:self.firestore.databaseID]];
+      [components addObject:[FSTReferenceValue
+                                referenceValue:[FSTDocumentKey keyWithDocumentKey:document.key]
+                                    databaseID:self.firestore.databaseID]];
     } else {
       FSTFieldValue *value = [document fieldForPath:sortOrder.field];
 
@@ -643,8 +646,9 @@ NS_ASSUME_NONNULL_BEGIN
             path.CanonicalString().c_str());
       }
       DocumentKey key{path};
-      [components addObject:[FSTReferenceValue referenceValue:key
-                                                   databaseID:self.firestore.databaseID]];
+      [components
+          addObject:[FSTReferenceValue referenceValue:[FSTDocumentKey keyWithDocumentKey:key]
+                                           databaseID:self.firestore.databaseID]];
     } else {
       FSTFieldValue *fieldValue = [self.firestore.dataConverter parsedQueryValue:rawValue];
       [components addObject:fieldValue];

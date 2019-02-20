@@ -38,6 +38,8 @@ namespace immutable {
 template <typename K, typename V, typename C = util::Comparator<K>>
 class SortedMap : public impl::SortedMapBase {
  public:
+  using key_type = K;
+  using mapped_type = V;
   /** The type of the entries stored in the map. */
   using value_type = std::pair<K, V>;
   using array_type = impl::ArraySortedMap<K, V, C>;

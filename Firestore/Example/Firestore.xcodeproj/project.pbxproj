@@ -205,7 +205,10 @@
 		B67BF449216EB43000CA9097 /* create_noop_connectivity_monitor.cc in Sources */ = {isa = PBXBuildFile; fileRef = B67BF448216EB43000CA9097 /* create_noop_connectivity_monitor.cc */; };
 		B686F2AF2023DDEE0028D6BE /* field_path_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B686F2AD2023DDB20028D6BE /* field_path_test.cc */; };
 		B686F2B22025000D0028D6BE /* resource_path_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B686F2B02024FFD70028D6BE /* resource_path_test.cc */; };
+		B68B1E012213A765008977EF /* to_string_apple_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = B68B1E002213A764008977EF /* to_string_apple_test.mm */; };
 		B68FC0E521F6848700A7055C /* watch_change_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = B68FC0E421F6848700A7055C /* watch_change_test.mm */; };
+		B696858E2214B53900271095 /* to_string_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B696858D2214B53900271095 /* to_string_test.cc */; };
+		B6968590221770F100271095 /* objc_compatibility_apple_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = B696858F221770F000271095 /* objc_compatibility_apple_test.mm */; };
 		B6BBE43121262CF400C6A53E /* grpc_stream_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6BBE42F21262CF400C6A53E /* grpc_stream_test.cc */; };
 		B6D1B68520E2AB1B00B35856 /* exponential_backoff_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6D1B68420E2AB1A00B35856 /* exponential_backoff_test.cc */; };
 		B6D9649121544D4F00EB9CFB /* grpc_connection_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6D9649021544D4F00EB9CFB /* grpc_connection_test.cc */; };
@@ -531,7 +534,10 @@
 		B67BF448216EB43000CA9097 /* create_noop_connectivity_monitor.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = create_noop_connectivity_monitor.cc; sourceTree = "<group>"; };
 		B686F2AD2023DDB20028D6BE /* field_path_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = field_path_test.cc; sourceTree = "<group>"; };
 		B686F2B02024FFD70028D6BE /* resource_path_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = resource_path_test.cc; sourceTree = "<group>"; };
+		B68B1E002213A764008977EF /* to_string_apple_test.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = to_string_apple_test.mm; sourceTree = "<group>"; };
 		B68FC0E421F6848700A7055C /* watch_change_test.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = watch_change_test.mm; sourceTree = "<group>"; };
+		B696858D2214B53900271095 /* to_string_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = to_string_test.cc; sourceTree = "<group>"; };
+		B696858F221770F000271095 /* objc_compatibility_apple_test.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = objc_compatibility_apple_test.mm; sourceTree = "<group>"; };
 		B69CF05A219B9105004C434D /* FIRFirestore+Testing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "FIRFirestore+Testing.h"; sourceTree = "<group>"; };
 		B6BBE42F21262CF400C6A53E /* grpc_stream_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = grpc_stream_test.cc; sourceTree = "<group>"; };
 		B6D1B68420E2AB1A00B35856 /* exponential_backoff_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = exponential_backoff_test.cc; sourceTree = "<group>"; };
@@ -726,6 +732,7 @@
 		54740A561FC913EB00713A1A /* util */ = {
 			isa = PBXGroup;
 			children = (
+				B696858F221770F000271095 /* objc_compatibility_apple_test.mm */,
 				B6FB4680208EA0BE00554BA2 /* async_queue_libdispatch_test.mm */,
 				B6FB4681208EA0BE00554BA2 /* async_queue_std_test.cc */,
 				B6FB467B208E9A8200554BA2 /* async_queue_test.cc */,
@@ -761,6 +768,8 @@
 				54131E9620ADE678001DF3FF /* string_format_test.cc */,
 				AB380CFC201A2EE200D97691 /* string_util_test.cc */,
 				79507DF8378D3C42F5B36268 /* string_win_test.cc */,
+				B68B1E002213A764008977EF /* to_string_apple_test.mm */,
+				B696858D2214B53900271095 /* to_string_test.cc */,
 				2A0CF41BA5AED6049B0BEB2C /* type_traits_apple_test.mm */,
 			);
 			path = util;
@@ -1985,6 +1994,7 @@
 				5492E058202154AB00B64F25 /* FSTAPIHelpers.mm in Sources */,
 				DE2EF0851F3D0B6E003D0CDC /* FSTArraySortedDictionaryTests.m in Sources */,
 				5492E0B92021555100B64F25 /* FSTDocumentKeyTests.mm in Sources */,
+				B6968590221770F100271095 /* objc_compatibility_apple_test.mm in Sources */,
 				5492E0BA2021555100B64F25 /* FSTDocumentSetTests.mm in Sources */,
 				5492E0BD2021555100B64F25 /* FSTDocumentTests.mm in Sources */,
 				5492E03E2021401F00B64F25 /* FSTEventAccumulator.mm in Sources */,
@@ -2108,6 +2118,8 @@
 				AB380CFB2019388600D97691 /* target_id_generator_test.cc in Sources */,
 				54A0352A20A3B3BD003E0143 /* testutil.cc in Sources */,
 				ABF6506C201131F8005F2C74 /* timestamp_test.cc in Sources */,
+				B68B1E012213A765008977EF /* to_string_apple_test.mm in Sources */,
+				B696858E2214B53900271095 /* to_string_test.cc in Sources */,
 				ABC1D7E12023A40C00BA84F0 /* token_test.cc in Sources */,
 				54A0352720A3AED0003E0143 /* transform_operations_test.mm in Sources */,
 				549CCA5120A36DBC00BCEB75 /* tree_sorted_map_test.cc in Sources */,

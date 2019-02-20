@@ -18,6 +18,9 @@
 
 #import <XCTest/XCTest.h>
 
+#include <utility>
+#include <vector>
+
 #import "Firestore/Example/Tests/API/FSTAPIHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Source/API/FIRDocumentChange+Internal.h"
@@ -31,7 +34,8 @@
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
-using firebase::firestore::core::DocumentViewChangeType;
+using firebase::firestore::core::DocumentViewChange;
+using firebase::firestore::model::DocumentKeySet;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -82,17 +86,17 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTDocumentSet *oldDocuments = FSTTestDocSet(FSTDocumentComparatorByKey, @[ doc1Old, doc2Old ]);
   FSTDocumentSet *newDocuments = FSTTestDocSet(FSTDocumentComparatorByKey, @[ doc2New, doc2New ]);
-  NSArray<FSTDocumentViewChange *> *documentChanges = @[
-    [FSTDocumentViewChange changeWithDocument:doc1New type:DocumentViewChangeType::kMetadata],
-    [FSTDocumentViewChange changeWithDocument:doc2New type:DocumentViewChangeType::kModified],
-  ];
+  std::vector<DocumentViewChange> documentChanges{
+      DocumentViewChange{doc1New, DocumentViewChange::Type::kMetadata},
+      DocumentViewChange{doc2New, DocumentViewChange::Type::kModified},
+  };
 
   FIRFirestore *firestore = FSTTestFirestore();
   FSTQuery *query = FSTTestQuery("foo");
   FSTViewSnapshot *viewSnapshot = [[FSTViewSnapshot alloc] initWithQuery:query
                                                                documents:newDocuments
                                                             oldDocuments:oldDocuments
-                                                         documentChanges:documentChanges
+                                                         documentChanges:std::move(documentChanges)
                                                                fromCache:NO
                                                              mutatedKeys:DocumentKeySet {}
                                                         syncStateChanged:YES
