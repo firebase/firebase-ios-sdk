@@ -37,7 +37,7 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=InAppMessagingDisplay PLATFORM=iOS METHOD=xcodebuild
+        - PROJECT=InAppMessaging PLATFORM=iOS METHOD=xcodebuild
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
@@ -138,7 +138,7 @@ jobs:
     - stage: test
       osx_image: xcode9.4
       env:
-        - PROJECT=InAppMessagingDisplay PLATFORM=iOS METHOD=xcodebuild
+        - PROJECT=InAppMessaging PLATFORM=iOS METHOD=xcodebuild
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
