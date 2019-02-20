@@ -377,10 +377,10 @@
             </objects>
             <point key="canvasLocation" x="916" y="-177.66116941529236"/>
         </scene>
-        <!--View Controller-->
+        <!--Card View Controller-->
         <scene sceneID="5eQ-Ln-que">
             <objects>
-                <viewController id="oTF-1C-LZP" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="card-view-vc" id="oTF-1C-LZP" customClass="FIDCardViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="1Sy-cb-zoy"/>
                         <viewControllerLayoutGuide type="bottom" id="I6y-sz-UcT"/>
@@ -507,7 +507,7 @@
                                 </variation>
                             </view>
                         </subviews>
-                        <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="Aft-rr-icV" firstAttribute="centerX" secondItem="SM1-hn-m3n" secondAttribute="centerX" identifier="Center card view horizontally" id="5rk-YP-Qx8" userLabel="Center card view horizontally"/>
                             <constraint firstItem="Aft-rr-icV" firstAttribute="centerY" secondItem="SM1-hn-m3n" secondAttribute="centerY" identifier="Center card view vertically" id="N6p-hW-l6v" userLabel="Center card view vertically"/>
@@ -526,6 +526,13 @@
                             </mask>
                         </variation>
                     </view>
+                    <connections>
+                        <outlet property="bodyLabel" destination="prz-tD-IhN" id="ZqD-XA-CnY"/>
+                        <outlet property="imageView" destination="gB0-8W-G9z" id="4aL-wh-SFa"/>
+                        <outlet property="primaryActionButton" destination="aZE-3x-WHk" id="0s0-YO-XU5"/>
+                        <outlet property="secondaryActionButton" destination="Feg-VM-jUf" id="LmG-nQ-Wne"/>
+                        <outlet property="titleLabel" destination="oVh-9O-yfC" id="tnG-sy-Htt"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="gTd-sb-y8u" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
