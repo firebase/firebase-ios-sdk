@@ -242,7 +242,8 @@ class LimboResolution {
   self.queryViewsByQuery[queryData.query] = queryView;
   _queryViewsByTarget[queryData.targetID] = queryView;
 
-  // OBC
+  HARD_ASSERT(viewChange.snapshot.has_value(),
+              "applyChangesToDocuments for new view should always return a snapshot");
   return viewChange.snapshot.value();
 }
 

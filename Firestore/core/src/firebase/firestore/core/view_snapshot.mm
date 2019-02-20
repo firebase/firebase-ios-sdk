@@ -135,10 +135,10 @@ ViewSnapshot::ViewSnapshot(FSTQuery* query,
                            FSTDocumentSet* documents,
                            FSTDocumentSet* old_documents,
                            std::vector<DocumentViewChange> document_changes,
+                           model::DocumentKeySet mutated_keys,
                            bool from_cache,
                            bool sync_state_changed,
-                           bool excludes_metadata_changes,
-                           model::DocumentKeySet mutated_keys)
+                           bool excludes_metadata_changes)
     : impl_{std::make_shared<Impl>(query,
                                    documents,
                                    old_documents,
@@ -160,13 +160,12 @@ ViewSnapshot ViewSnapshot::FromInitialDocuments(
     view_changes.emplace_back(doc, DocumentViewChange::Type::kAdded);
   }
 
-  return ViewSnapshot(
+  return ViewSnapshot{
       query, documents,
       /*old_documents=*/
       [FSTDocumentSet documentSetWithComparator:query.comparator],
-      std::move(view_changes), from_cache,
-      /*sync_state_changed=*/true, excludes_metadata_changes,
-      std::move(mutated_keys));
+      std::move(view_changes), std::move(mutated_keys), from_cache,
+      /*sync_state_changed=*/true, excludes_metadata_changes};
 }
 
 std::string ViewSnapshot::ToString() const {

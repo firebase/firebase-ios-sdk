@@ -166,10 +166,10 @@ NS_ASSUME_NONNULL_BEGIN
                             snapshot.documents(),
                             snapshot.old_documents(),
                             std::move(changes),
+                            snapshot.mutated_keys(),
                             snapshot.from_cache(),
                             snapshot.sync_state_changed(),
-                            /*excludes_metadata_changes=*/true,
-                            snapshot.mutated_keys()};
+                            /*excludes_metadata_changes=*/true};
   }
 
   if (!self.raisedInitialEvent) {

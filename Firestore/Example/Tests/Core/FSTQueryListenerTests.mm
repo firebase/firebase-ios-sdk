@@ -71,10 +71,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (ViewSnapshot)setExcludesMetadataChanges:(BOOL)excludesMetadataChanges
                                   snapshot:(const ViewSnapshot &)snapshot {
-  return ViewSnapshot{snapshot.query(),         snapshot.documents(),
-                      snapshot.old_documents(), snapshot.document_changes(),
-                      snapshot.from_cache(),    snapshot.sync_state_changed(),
-                      excludesMetadataChanges,  snapshot.mutated_keys()};
+  return ViewSnapshot{
+      snapshot.query(),
+      snapshot.documents(),
+      snapshot.old_documents(),
+      snapshot.document_changes(),
+      snapshot.mutated_keys(),
+      snapshot.from_cache(),
+      snapshot.sync_state_changed(),
+      excludesMetadataChanges,
+  };
 }
 
 - (void)testRaisesCollectionEvents {
@@ -114,10 +120,10 @@ NS_ASSUME_NONNULL_BEGIN
       snap2.documents(),
       /*old_documents=*/[FSTDocumentSet documentSetWithComparator : snap2.query().comparator],
       /*document_changes=*/{ change1, change4 },
+      snap2.mutated_keys(),
       snap2.from_cache(),
       /*sync_state_changed=*/true,
-      /*excludes_metadata_changes=*/true,
-      snap2.mutated_keys()};
+      /*excludes_metadata_changes=*/true};
   XCTAssertTrue((otherAccum == std::vector<ViewSnapshot>{expectedSnap2}));
 }
 
@@ -324,10 +330,10 @@ NS_ASSUME_NONNULL_BEGIN
       snap4.documents(),
       snap3.documents(),
       /*document_changes=*/{},
+      snap4.mutated_keys(),
       snap4.from_cache(),
       snap4.sync_state_changed(),
-      /*excludes_metadata_changes=*/true,  // This test excludes document metadata changes
-      snap4.mutated_keys(),
+      /*excludes_metadata_changes=*/true  // This test excludes document metadata changes
   };
   XCTAssertTrue(
       (fullAccum == std::vector<ViewSnapshot>{[self setExcludesMetadataChanges:YES snapshot:snap1],
@@ -362,11 +368,10 @@ NS_ASSUME_NONNULL_BEGIN
                              snap2.documents(),
                              snap1.documents(),
                              /*document_changes=*/{change3},
+                             snap2.mutated_keys(),
                              snap2.from_cache(),
-
                              snap2.sync_state_changed(),
-                             /*excludes_metadata_changes=*/true,
-                             snap2.mutated_keys()};
+                             /*excludes_metadata_changes=*/true};
   XCTAssertTrue((filteredAccum == std::vector<ViewSnapshot>{[self setExcludesMetadataChanges:YES
                                                                                     snapshot:snap1],
                                                             expectedSnap2}));
@@ -405,10 +410,10 @@ NS_ASSUME_NONNULL_BEGIN
       snap3.documents(),
       /*old_documents=*/[FSTDocumentSet documentSetWithComparator : snap3.query().comparator],
       /*document_changes=*/{ change1, change2 },
+      snap3.mutated_keys(),
       /*from_cache=*/false,
       /*sync_state_changed=*/true,
-      /*excludes_metadata_changes=*/true,
-      snap3.mutated_keys()};
+      /*excludes_metadata_changes=*/true};
   XCTAssertTrue((events == std::vector<ViewSnapshot>{expectedSnap}));
 }
 
@@ -443,22 +448,19 @@ NS_ASSUME_NONNULL_BEGIN
       /*documents=*/snap1.documents(),
       /*old_documents=*/[FSTDocumentSet documentSetWithComparator : snap1.query().comparator],
       /*document_changes=*/{ change1 },
+      snap1.mutated_keys(),
       /*from_cache=*/true,
       /*sync_state_changed=*/true,
-      /*excludes_metadata_changes=*/true,
-      snap1.mutated_keys()};
+      /*excludes_metadata_changes=*/true};
 
-  ViewSnapshot expectedSnap2{
-      query,
-      /*documents=*/snap2.documents(),
-      /*old_documents=*/snap1.documents(),
-      /*document_changes=*/{change2},
-      /*from_cache=*/true,
-
-      /*sync_state_changed=*/false,
-      /*excludes_metadata_changes=*/true,
-      snap2.mutated_keys(),
-  };
+  ViewSnapshot expectedSnap2{query,
+                             /*documents=*/snap2.documents(),
+                             /*old_documents=*/snap1.documents(),
+                             /*document_changes=*/{change2},
+                             snap2.mutated_keys(),
+                             /*from_cache=*/true,
+                             /*sync_state_changed=*/false,
+                             /*excludes_metadata_changes=*/true};
   XCTAssertTrue((events == std::vector<ViewSnapshot>{expectedSnap1, expectedSnap2}));
 }
 
@@ -482,11 +484,10 @@ NS_ASSUME_NONNULL_BEGIN
       /*documents=*/snap1.documents(),
       /*old_documents=*/[FSTDocumentSet documentSetWithComparator : snap1.query().comparator],
       /*document_changes=*/{},
+      snap1.mutated_keys(),
       /*from_cache=*/true,
-
       /*sync_state_changed=*/true,
-      /*excludes_metadata_changes=*/true,
-      snap1.mutated_keys()};
+      /*excludes_metadata_changes=*/true};
   XCTAssertTrue((events == std::vector<ViewSnapshot>{expectedSnap}));
 }
 
@@ -509,11 +510,10 @@ NS_ASSUME_NONNULL_BEGIN
       /*documents=*/snap1.documents(),
       /*old_documents=*/[FSTDocumentSet documentSetWithComparator : snap1.query().comparator],
       /*document_changes=*/{},
+      snap1.mutated_keys(),
       /*from_cache=*/true,
-
       /*sync_state_changed=*/true,
-      /*excludes_metadata_changes=*/true,
-      snap1.mutated_keys()};
+      /*excludes_metadata_changes=*/true};
   XCTAssertTrue((events == std::vector<ViewSnapshot>{expectedSnap}));
 }
 

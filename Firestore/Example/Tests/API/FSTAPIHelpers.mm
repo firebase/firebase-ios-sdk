@@ -129,11 +129,10 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
                             newDocuments,
                             oldDocuments,
                             std::move(documentChanges),
+                            mutatedKeys,
                             fromCache,
-
                             /*sync_state_changed=*/true,
-                            /*excludes_metadata_changes=*/false,
-                            mutatedKeys};
+                            /*excludes_metadata_changes=*/false};
   return [FIRQuerySnapshot snapshotWithFirestore:FSTTestFirestore()
                                    originalQuery:FSTTestQuery(path)
                                         snapshot:std::move(viewSnapshot)

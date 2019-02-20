@@ -98,10 +98,10 @@ NS_ASSUME_NONNULL_BEGIN
                             newDocuments,
                             oldDocuments,
                             std::move(documentChanges),
+                            /*mutated_keys=*/DocumentKeySet{},
                             /*from_cache=*/false,
                             /*sync_state_changed=*/true,
-                            /*excludes_metadata_changes=*/false,
-                            /*mutated_keys=*/DocumentKeySet{}};
+                            /*excludes_metadata_changes=*/false};
   FIRSnapshotMetadata *metadata = [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:NO
                                                                                fromCache:NO];
   FIRQuerySnapshot *snapshot = [FIRQuerySnapshot snapshotWithFirestore:firestore

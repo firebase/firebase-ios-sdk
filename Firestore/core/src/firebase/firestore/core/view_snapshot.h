@@ -75,8 +75,10 @@ class DocumentViewChange {
 
 bool operator==(const DocumentViewChange& lhs, const DocumentViewChange& rhs);
 
-/** The possible states a document can be in w.r.t syncing from local storage to
- * the backend. */
+/**
+ * The possible states a document can be in w.r.t syncing from local storage to
+ * the backend.
+ */
 enum class SyncState { None = 0, Local, Synced };
 
 /**
@@ -115,10 +117,10 @@ class ViewSnapshot {
                FSTDocumentSet* documents,
                FSTDocumentSet* old_documents,
                std::vector<DocumentViewChange> document_changes,
+               model::DocumentKeySet mutated_keys,
                bool from_cache,
                bool sync_state_changed,
-               bool excludes_metadata_changes,
-               model::DocumentKeySet mutated_keys);
+               bool excludes_metadata_changes);
 
   /**
    * Returns a view snapshot as if all documents in the snapshot were

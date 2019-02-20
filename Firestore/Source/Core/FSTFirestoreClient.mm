@@ -371,8 +371,8 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
     FSTViewChange *viewChange = [view applyChangesToDocuments:viewDocChanges];
     HARD_ASSERT(viewChange.limboChanges.count == 0,
                 "View returned limbo documents during local-only query execution.");
+    HARD_ASSERT(viewChange.snapshot.has_value(), "Expected a snapshot");
 
-    // OBC
     ViewSnapshot snapshot = std::move(viewChange.snapshot).value();
     FIRSnapshotMetadata *metadata =
         [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:snapshot.has_pending_writes()

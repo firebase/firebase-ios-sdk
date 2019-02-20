@@ -115,10 +115,10 @@ NS_ASSUME_NONNULL_BEGIN
                         documents,
                         oldDocuments,
                         documentChanges,
+                        mutatedKeys,
                         fromCache,
                         syncStateChanged,
-                        /*excludes_metadata_changes=*/false,
-                        mutatedKeys};
+                        /*excludes_metadata_changes=*/false};
 
   XCTAssertEqual(snapshot.query(), query);
   XCTAssertEqual(snapshot.documents(), documents);

@@ -408,10 +408,10 @@ int GetDocumentViewChangeTypePosition(DocumentViewChange::Type changeType) {
                           docChanges.documentSet,
                           oldDocuments,
                           std::move(changes),
+                          docChanges.mutatedKeys,
                           /*from_cache=*/newSyncState == SyncState::Local,
                           syncStateChanged,
-                          /*excludes_metadata_changes=*/false,
-                          docChanges.mutatedKeys};
+                          /*excludes_metadata_changes=*/false};
 
     return [FSTViewChange changeWithSnapshot:std::move(snapshot) limboChanges:limboChanges];
   }

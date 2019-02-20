@@ -144,8 +144,12 @@ static NSNumber *ToNSNumber(OnlineState state) {
   OCMVerify([syncEngineMock listenToQuery:query2]);
 
   FSTDocumentSet *emptyDocs = [FSTDocumentSet documentSetWithComparator:query1.comparator];
-  ViewSnapshot snapshot1{query1, emptyDocs, emptyDocs, {}, false, true, false, DocumentKeySet{}};
-  ViewSnapshot snapshot2{query2, emptyDocs, emptyDocs, {}, false, true, false, DocumentKeySet{}};
+  ViewSnapshot snapshot1{
+      query1, emptyDocs, emptyDocs, {}, DocumentKeySet{}, false, /*sync_state_changed=*/true,
+      false};
+  ViewSnapshot snapshot2{
+      query2, emptyDocs, emptyDocs, {}, DocumentKeySet{}, false, /*sync_state_changed=*/true,
+      false};
 
   [eventManager handleViewSnapshots:{snapshot1, snapshot2}];
 

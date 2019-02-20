@@ -20,6 +20,7 @@
 
 #include <map>
 #include <memory>
+#include <string>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -48,6 +49,8 @@
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
+#include "Firestore/core/src/firebase/firestore/util/string_format.h"
+#include "Firestore/core/src/firebase/firestore/util/to_string.h"
 #include "absl/memory/memory.h"
 
 using firebase::firestore::FirestoreErrorCode;
@@ -72,6 +75,9 @@ using firebase::firestore::util::MakeNSError;
 using firebase::firestore::util::MakeString;
 using firebase::firestore::util::Status;
 using firebase::firestore::util::StatusOr;
+using firebase::firestore::util::StringFormat;
+using firebase::firestore::util::ToString;
+using firebase::firestore::util::WrapNSString;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -88,10 +94,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSString *)description {
-  // OBC
   // The Query is also included in the view, so we skip it.
-  return [NSString stringWithFormat:@"<FSTQueryEvent: viewSnapshot=%s, error=%@>",
-                                    _maybeViewSnapshot.value().ToString().c_str(), self.error];
+  std::string str = StringFormat("<FSTQueryEvent: viewSnapshot=%s, error=%s>",
+                                 ToString(_maybeViewSnapshot), self.error);
+  return WrapNSString(str);
 }
 
 @end
