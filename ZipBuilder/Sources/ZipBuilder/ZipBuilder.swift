@@ -725,7 +725,8 @@ struct ZipBuilder {
       }
 
       // Move all the Resource bundles for the Pod into a temporary folder - they will either be in
-      // the .framework generated from the open source pods or the installedLocation of the close
+      // the .framework generated from the open source pods or the installedLocation of the closed
+      // source Pod.
       let podResourceDir = tempResourceDir.appendingPathComponent(pod.name)
       let bundles: [URL]
       do {
