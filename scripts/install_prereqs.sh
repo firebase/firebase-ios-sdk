@@ -37,17 +37,23 @@ case "$PROJECT-$PLATFORM-$METHOD" in
         cp Example/Storage/App/GoogleService-Info.plist Example/Database/App/GoogleService-Info.plist
 
         openssl aes-256-cbc -K $encrypted_68e2a4a3cb43_key -iv $encrypted_68e2a4a3cb43_iv \
-            -in AuthCredentials.h.enc -out AuthCredentials.h -d
+            -in Example/Auth/ApiTests/AuthCredentials.h.enc
+            -out Example/Auth/ApiTests/AuthCredentials.h -d
         openssl aes-256-cbc -K $encrypted_68e2a4a3cb43_key -iv $encrypted_68e2a4a3cb43_iv \
-            -in GoogleService-Info_multi.plist.enc -out GoogleService-Info_multi.plist -d
+            -in Example/Auth/Sample/GoogleService-Info_multi.plist.enc
+            -out Example/Auth/Sample/GoogleService-Info_multi.plist -d
         openssl aes-256-cbc -K $encrypted_68e2a4a3cb43_key -iv $encrypted_68e2a4a3cb43_iv \
-            -in GoogleService-Info.plist.enc -out GoogleService-Info.plist -d
+            -in Example/Auth/Sample/GoogleService-Info.plist.enc
+            -out GoogleService-Info.plist -d
         openssl aes-256-cbc -K $encrypted_68e2a4a3cb43_key -iv $encrypted_68e2a4a3cb43_iv \
-            -in Sample.entitlements.enc -out Sample.entitlements -d
+            -in Example/Auth/Sample/Sample.entitlements.enc
+            -out Example/Auth/Sample/Sample.entitlements -d
         openssl aes-256-cbc -K $encrypted_68e2a4a3cb43_key -iv $encrypted_68e2a4a3cb43_iv \
-            -in Application.plist.enc -out Application.plist -d
+            -in Example/Auth/Sample/Application.plist.enc
+            -out Example/Auth/Sample/Application.plist -d
         openssl aes-256-cbc -K $encrypted_6463f7663a33_key -iv $encrypted_6463f7663a33_iv \
-            -in AuthCredentials.h.enc -out AuthCredentials.h -d
+            -in Example/Auth/Sample/AuthCredentials.h.enc
+            -out Example/Auth/Sample/AuthCredentials.h -d
     fi
     ;;
 
