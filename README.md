@@ -86,6 +86,10 @@ Firestore and Functions have self contained Xcode projects. See
 
 ### Code Formatting
 
+To insure that the code is formatted consistently, run the script
+[./scripts/style.sh](https://github.com/firebase/firebase-ios-sdk/blob/master/scripts/style.sh)
+before creating a PR.
+
 Travis will verify that any code changes are done in a style compliant way. Install
 `clang-format` and `swiftformat`.
 This command will get the right `clang-format` version:
