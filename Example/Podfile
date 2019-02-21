@@ -87,6 +87,17 @@ target 'FDLBuilderTestAppObjC' do
   end
 end
 
+target 'InstanceID_Example_iOS' do
+  platform :ios, '8.0'
+
+  pod 'FirebaseInstanceID' , :path => '../'
+
+  target 'InstanceID_Tests_iOS' do
+    inherit! :search_paths
+    pod 'OCMock'
+  end
+end
+
 target 'Messaging_Example_iOS' do
   platform :ios, '8.0'
 
@@ -124,7 +135,7 @@ target 'Auth_Sample' do
   pod 'FirebaseCore', :path => '../'
   pod 'FBSDKLoginKit'
   pod 'GoogleSignIn'
-  pod 'FirebaseInstanceID'
+  pod 'FirebaseInstanceID', :path => '../'
   pod 'GTMSessionFetcher/Core'
 
   target 'Auth_ApiTests' do
