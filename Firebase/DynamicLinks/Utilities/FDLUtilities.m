@@ -172,7 +172,6 @@ NSString *FIRDLDeviceModelName() {
 
     // compute string size
     if (sysctlbyname("hw.machine", NULL, &size, NULL, 0) == 0) {
-
       // get device name
       char *machine = calloc(1, size);
       if (sysctlbyname("hw.machine", machine, &size, NULL, 0) == 0) {
