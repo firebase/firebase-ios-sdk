@@ -383,6 +383,7 @@
 		DE7B8DCC1E8EF23A009EB6DF /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = DE7B8D371E8EF202009EB6DF /* main.m */; };
 		DE7B8DD01E8EF246009EB6DF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DE7B8D2C1E8EF202009EB6DF /* LaunchScreen.storyboard */; };
 		DE7B8DD11E8EF24F009EB6DF /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DE7B8D2E1E8EF202009EB6DF /* Main.storyboard */; };
+		DE8DB551221F5B480068BB0E /* FIRInstanceIDWithFCMTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE8DB550221F5B470068BB0E /* FIRInstanceIDWithFCMTest.m */; };
 		DE9037291FBA5F2400E239D3 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0672F2F11EBBA7D900818E87 /* GoogleService-Info.plist */; };
 		DE90372A1FBA5F8F00E239D3 /* FArraySortedDictionaryTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 063CB4471EBA7AE200038A59 /* FArraySortedDictionaryTest.m */; };
 		DE90372B1FBA5F8F00E239D3 /* FCompoundHashTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 063CB4481EBA7AE200038A59 /* FCompoundHashTest.m */; };
@@ -1182,6 +1183,7 @@
 		DE7B8D8D1E8EF203009EB6DF /* SenTest+FWaiter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "SenTest+FWaiter.m"; sourceTree = "<group>"; };
 		DE7B8D8E1E8EF203009EB6DF /* syncPointSpec.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = syncPointSpec.json; sourceTree = "<group>"; };
 		DE7B8DD21E8F1CA7009EB6DF /* Database-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Database-Info.plist"; sourceTree = "<group>"; };
+		DE8DB550221F5B470068BB0E /* FIRInstanceIDWithFCMTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRInstanceIDWithFCMTest.m; sourceTree = "<group>"; };
 		DE9314C61E86C6BD0083EDBF /* Auth_Example_iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Auth_Example_iOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE9314DE1E86C6BE0083EDBF /* Auth_Tests_iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Auth_Tests_iOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE9314EE1E86C6FF0083EDBF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -1279,7 +1281,6 @@
 		DE958BDF21F7DF0C00E6C1C5 /* FIRInstanceIDKeyPairMigrationTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRInstanceIDKeyPairMigrationTest.m; sourceTree = "<group>"; };
 		DE958BE021F7DF0C00E6C1C5 /* FIRInstanceIDTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRInstanceIDTest.m; sourceTree = "<group>"; };
 		DE958BE121F7DF0C00E6C1C5 /* FIRInstanceIDUtilitiesTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRInstanceIDUtilitiesTest.m; sourceTree = "<group>"; };
-		DE958BE221F7DF0C00E6C1C5 /* FIRInstanceIDWithFCMTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRInstanceIDWithFCMTest.m; sourceTree = "<group>"; };
 		DE958BE321F7DF0C00E6C1C5 /* FIRInstanceIDFakeKeychain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRInstanceIDFakeKeychain.h; sourceTree = "<group>"; };
 		DE958BE421F7DF0C00E6C1C5 /* FIRInstanceIDKeyPairStoreTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRInstanceIDKeyPairStoreTest.m; sourceTree = "<group>"; };
 		DE958BE521F7DF0C00E6C1C5 /* FIRInstanceIDAuthKeyChainTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRInstanceIDAuthKeyChainTest.m; sourceTree = "<group>"; };
@@ -2363,6 +2364,7 @@
 		DE9315C21E8738B70083EDBF /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				DE8DB550221F5B470068BB0E /* FIRInstanceIDWithFCMTest.m */,
 				DE9315C81E8738B70083EDBF /* FIRMessagingFakeConnection.h */,
 				DE9315CA1E8738B70083EDBF /* FIRMessagingFakeSocket.h */,
 				DE9315D61E8738B70083EDBF /* FIRMessagingTestNotificationUtilities.h */,
@@ -2448,7 +2450,6 @@
 				DE958BD921F7DF0B00E6C1C5 /* FIRInstanceIDTokenManagerTest.m */,
 				DE958BDB21F7DF0B00E6C1C5 /* FIRInstanceIDTokenOperationsTest.m */,
 				DE958BE121F7DF0C00E6C1C5 /* FIRInstanceIDUtilitiesTest.m */,
-				DE958BE221F7DF0C00E6C1C5 /* FIRInstanceIDWithFCMTest.m */,
 				DE958BBA21F7D32300E6C1C5 /* Info.plist */,
 			);
 			path = Tests;
@@ -4545,6 +4546,7 @@
 				DE9315FB1E8738E60083EDBF /* FIRMessagingLinkHandlingTest.m in Sources */,
 				DE9315FC1E8738E60083EDBF /* FIRMessagingPendingTopicsListTest.m in Sources */,
 				DE9316001E8738E60083EDBF /* FIRMessagingRmqManagerTest.m in Sources */,
+				DE8DB551221F5B480068BB0E /* FIRInstanceIDWithFCMTest.m in Sources */,
 				DE9315F91E8738E60083EDBF /* FIRMessagingFakeConnection.m in Sources */,
 				DE9316021E8738E60083EDBF /* FIRMessagingServiceTest.m in Sources */,
 				DE9315FE1E8738E60083EDBF /* FIRMessagingRegistrarTest.m in Sources */,
