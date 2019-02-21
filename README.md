@@ -86,7 +86,7 @@ Firestore and Functions have self contained Xcode projects. See
 
 ### Code Formatting
 
-To insure that the code is formatted consistently, run the script
+To ensure that the code is formatted consistently, run the script
 [./scripts/style.sh](https://github.com/firebase/firebase-ios-sdk/blob/master/scripts/style.sh)
 before creating a PR.
 
