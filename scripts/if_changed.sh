@@ -45,6 +45,17 @@ elif [[ -z "$TRAVIS_COMMIT_RANGE" ]]; then
 
 else
   case "$PROJECT-$METHOD" in
+    Firebase-pod-lib-lint) # Combines Firebase-* and InAppMessaging*
+      check_changes '^(Firebase/Auth|Firebase/Core|Firebase/Database|Firebase/DynamicLinks|'\
+'Firebase/Messaging|Firebase/Storage|Functions|GoogleUtilities|Interop|Example|'\
+'FirebaseAnalyticsIntop.podspec|FirebaseAuth.podspec|FirebaseAuthInterop.podspec|'\
+'FirebaseCore.podspec|FirebaseDatabase.podspec|FirebaseDynamicLinks.podspec|'\
+'FirebaseFunctions.podspec|FirebaseMessaging.podspec|FirebaseStorage.podspec|'\
+'FirebaseStorage.podspec|Firebase/InAppMessagingDisplay|InAppMessagingDisplay|'\
+'InAppMessaging|Firebase/InAppMessaging|'\
+'FirebaseInAppMessaging.podspec|FirebaseInAppMessagingDisplay.podspec)'
+      ;;
+
     Firebase-*)
       check_changes '^(Firebase/Auth|Firebase/Core|Firebase/Database|Firebase/DynamicLinks|'\
 'Firebase/Messaging|Firebase/Storage|Functions|GoogleUtilities|Interop|Example|'\
@@ -54,8 +65,9 @@ else
 'FirebaseStorage.podspec)'
       ;;
 
-    InAppMessagingDisplay-*)
-      check_changes '^(Firebase/InAppMessagingDisplay|InAppMessagingDisplay)'
+    InAppMessaging-*)
+      check_changes '^(Firebase/InAppMessagingDisplay|InAppMessagingDisplay|InAppMessaging|'\
+'Firebase/InAppMessaging)'
       ;;
 
     Firestore-xcodebuild|Firestore-pod-lib-lint)

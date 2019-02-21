@@ -18,26 +18,20 @@
 
 #import "Firestore/Source/Model/FSTDocument.h"
 
+#include "Firestore/core/src/firebase/firestore/util/objc_compatibility.h"
+
+namespace objc = firebase::firestore::util::objc;
+
 namespace firebase {
 namespace firestore {
 namespace remote {
-
-namespace {
-
-template <typename T>
-bool objc_equals(T* lhs, T* rhs) {
-  // `isEqual:` will return false if both objects are nil.
-  return (lhs == nil && rhs == nil) || [lhs isEqual:rhs];
-}
-
-}  // namespace
 
 bool operator==(const DocumentWatchChange& lhs,
                 const DocumentWatchChange& rhs) {
   return lhs.updated_target_ids() == rhs.updated_target_ids() &&
          lhs.removed_target_ids() == rhs.removed_target_ids() &&
          lhs.document_key() == rhs.document_key() &&
-         objc_equals(lhs.new_document(), rhs.new_document());
+         objc::Equals(lhs.new_document(), rhs.new_document());
 }
 
 bool operator==(const ExistenceFilterWatchChange& lhs,
@@ -47,7 +41,7 @@ bool operator==(const ExistenceFilterWatchChange& lhs,
 
 bool operator==(const WatchTargetChange& lhs, const WatchTargetChange& rhs) {
   return lhs.state() == rhs.state() && lhs.target_ids() == rhs.target_ids() &&
-         objc_equals(lhs.resume_token(), rhs.resume_token()) &&
+         objc::Equals(lhs.resume_token(), rhs.resume_token()) &&
          lhs.cause() == rhs.cause();
 }
 
