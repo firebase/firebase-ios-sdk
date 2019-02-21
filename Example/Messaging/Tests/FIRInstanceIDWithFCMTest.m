@@ -58,6 +58,8 @@
   NSString *const kFIRMessagingTestsAutoInit = @"com.messaging.test_autoInit";
   NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingTestsAutoInit];
   FIRMessaging *messaging = [FIRMessagingTestUtilities messagingForTestsWithUserDefaults:defaults];
+  id classMock = OCMClassMock([FIRMessaging class]);
+  OCMStub([classMock messaging]).andReturn(messaging);
   OCMStub([_mockFirebaseApp isDataCollectionDefaultEnabled]).andReturn(YES);
   XCTAssertTrue(
       [_instanceID isFCMAutoInitEnabled],
