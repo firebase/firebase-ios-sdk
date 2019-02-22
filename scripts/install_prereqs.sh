@@ -31,29 +31,15 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     # Set up GoogleService-Info.plist for Storage and Database integration tests. The decrypting
     # is not supported for pull requests. See https://docs.travis-ci.com/user/encrypting-files/
     if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
-        openssl aes-256-cbc -K $encrypted_2c8d10c8cc1d_key -iv $encrypted_2c8d10c8cc1d_iv \
-            -in scripts/travis-encrypted/database-storage/GoogleService-Info.plist.enc \
-            -out Example/Storage/App/GoogleService-Info.plist -d
-        cp Example/Storage/App/GoogleService-Info.plist Example/Database/App/GoogleService-Info.plist
+      openssl aes-256-cbc -K $encrypted_b02643c8c602_key -iv $encrypted_b02643c8c602_iv -in Secrets.tar.enc -out Secrets.tar -d
+      tar xvf Secrets.tar
 
-        openssl aes-256-cbc -K $encrypted_68e2a4a3cb43_key -iv $encrypted_68e2a4a3cb43_iv \
-            -in Example/Auth/ApiTests/AuthCredentials.h.enc \
-            -out Example/Auth/ApiTests/AuthCredentials.h -d
-        openssl aes-256-cbc -K $encrypted_68e2a4a3cb43_key -iv $encrypted_68e2a4a3cb43_iv \
-            -in Example/Auth/Sample/GoogleService-Info_multi.plist.enc \
-            -out Example/Auth/Sample/GoogleService-Info_multi.plist -d
-        openssl aes-256-cbc -K $encrypted_68e2a4a3cb43_key -iv $encrypted_68e2a4a3cb43_iv \
-            -in Example/Auth/Sample/GoogleService-Info.plist.enc \
-            -out GoogleService-Info.plist -d
-        openssl aes-256-cbc -K $encrypted_68e2a4a3cb43_key -iv $encrypted_68e2a4a3cb43_iv \
-            -in Example/Auth/Sample/Sample.entitlements.enc \
-            -out Example/Auth/Sample/Sample.entitlements -d
-        openssl aes-256-cbc -K $encrypted_68e2a4a3cb43_key -iv $encrypted_68e2a4a3cb43_iv \
-            -in Example/Auth/Sample/Application.plist.enc \
-            -out Example/Auth/Sample/Application.plist -d
-        openssl aes-256-cbc -K $encrypted_6463f7663a33_key -iv $encrypted_6463f7663a33_iv \
-            -in Example/Auth/Sample/AuthCredentials.h.enc \
-            -out Example/Auth/Sample/AuthCredentials.h -d
+      cp Secrets/Auth/Sample/Application.plist Example/Auth/Sample/Application.plist 
+      cp Secrets/Auth/Sample/AuthCredentials.h Example/Auth/Sample/AuthCredentials.h
+      cp Secrets/Auth/Sample/GoogleService-Info_multi.plist Example/Auth/Sample/GoogleService-Info_multi.plist
+      cp Secrets/Auth/Sample/GoogleService-Info.plist Example/Auth/Sample/GoogleService-Info.plist
+      cp Secrets/Auth/Sample/Sample.entitlements Example/Auth/Sample/Sample.entitlements
+      cp Secrets/Auth/ApiTests/AuthCredentials.h Example/Auth/ApiTests/AuthCredentials.h
     fi
     ;;
 
