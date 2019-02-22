@@ -73,7 +73,6 @@ void GULLogBasic(GULLoggerLevel level,
                      withMessage:messageCode, formatArgs];
   va_end(formatArgs);
 }
-#pragma clang diagnostic pop
 
 /**
  * Generates the logging functions using macros.
