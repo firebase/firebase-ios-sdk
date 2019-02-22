@@ -113,7 +113,11 @@ GUL_LOGGING_FUNCTION(Debug)
     // first get.
     @synchronized(self) {
       if (!sGULLogger) {
-        if (@available(iOS 9.0, macOS 10.11, *)) {
+#if __has_builtin(__builtin_available)
+        if (@available(iOS 9.0, *)) {
+#else
+        if ([[UIDevice currentDevice].systemVersion integerValue] >= 9) {
+#endif
           sGULLogger = [[GULOSLogger alloc] init];
         } else {
           sGULLogger = [[GULASLLogger alloc] init];
