@@ -34,7 +34,7 @@ case "$PROJECT-$PLATFORM-$METHOD" in
       openssl aes-256-cbc -K $encrypted_b02643c8c602_key -iv $encrypted_b02643c8c602_iv -in Secrets.tar.enc -out Secrets.tar -d
       tar xvf Secrets.tar
 
-      cp Secrets/Auth/Sample/Application.plist Example/Auth/Sample/Application.plist 
+      cp Secrets/Auth/Sample/Application.plist Example/Auth/Sample/Application.plist
       cp Secrets/Auth/Sample/AuthCredentials.h Example/Auth/Sample/AuthCredentials.h
       cp Secrets/Auth/Sample/GoogleService-Info_multi.plist Example/Auth/Sample/GoogleService-Info_multi.plist
       cp Secrets/Auth/Sample/GoogleService-Info.plist Example/Auth/Sample/GoogleService-Info.plist
