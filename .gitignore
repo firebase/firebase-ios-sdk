@@ -9,7 +9,7 @@ Example/Database/App/GoogleService-Info.plist
 
 Example/Storage/App/GoogleService-Info.plist
 
-/Secrets.tar
+Secrets.tar
 
 # OS X
 .DS_Store
