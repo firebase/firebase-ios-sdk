@@ -169,11 +169,16 @@ NSString *FIRDLDeviceModelName() {
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
     size_t size;
-    sysctlbyname("hw.machine", NULL, &size, NULL, 0);
-    char *machine = calloc(1, size);
-    sysctlbyname("hw.machine", machine, &size, NULL, 0);
-    machineString = [NSString stringWithCString:machine encoding:NSUTF8StringEncoding];
-    free(machine);
+
+    // compute string size
+    if (sysctlbyname("hw.machine", NULL, &size, NULL, 0) == 0) {
+      // get device name
+      char *machine = calloc(1, size);
+      if (sysctlbyname("hw.machine", machine, &size, NULL, 0) == 0) {
+        machineString = [NSString stringWithCString:machine encoding:NSUTF8StringEncoding];
+      }
+      free(machine);
+    }
   });
   return machineString;
 }
