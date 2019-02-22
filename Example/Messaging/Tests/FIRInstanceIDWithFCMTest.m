@@ -72,6 +72,7 @@
 
   messaging.autoInitEnabled = YES;
   XCTAssertTrue([_instanceID isFCMAutoInitEnabled]);
+  [classMock stopMocking];
 }
 
 @end
