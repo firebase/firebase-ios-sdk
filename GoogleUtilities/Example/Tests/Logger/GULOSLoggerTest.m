@@ -121,6 +121,7 @@ void GULTestOSLogWithType(os_log_t log, os_log_type_t type, char *s, ...) {
 }
 
 - (void)setUp {
+  [super setUp];
   // Setup globals and create the instance under test.
   sExpectations = [[NSMutableArray<GULOSLoggerExpectation *> alloc] init];
   self.osLogger = [[GULOSLogger alloc] init];
@@ -131,11 +132,15 @@ void GULTestOSLogWithType(os_log_t log, os_log_type_t type, char *s, ...) {
   // Clear globals
   sExpectations = nil;
   GULLogger.logger = nil;
+  [self.mock stopMocking];
+  self.mock = nil;
   if (self.appStoreWasSwizzled) {
     [GULSwizzler unswizzleClass:[GULAppEnvironmentUtil class]
                        selector:@selector(isFromAppStore)
                 isClassSelector:YES];
+    self.appStoreWasSwizzled = NO;
   }
+  [super tearDown];
 }
 
 #pragma mark Tests

@@ -38,12 +38,16 @@ static char *const kVersionChar = "2";
 @implementation GULLoggerTest
 
 - (void)setUp {
+  [super setUp];
   self.loggerSystemMock = OCMProtocolMock(@protocol(GULLoggerSystem));
   GULLogger.logger = self.loggerSystemMock;
 }
 
 - (void)tearDown {
   GULLogger.logger = nil;
+  [self.loggerSystemMock stopMocking];
+  self.loggerSystemMock = nil;
+  [super tearDown];
 }
 
 #pragma mark Initialization Tests

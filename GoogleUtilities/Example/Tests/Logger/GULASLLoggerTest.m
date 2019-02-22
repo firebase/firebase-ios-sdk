@@ -76,8 +76,15 @@ static NSString *const kCode = @"I-COR000001";
 #pragma mark Testing
 
 - (void)setUp {
+  [super setUp];
   self.logger = [[GULASLLogger alloc] init];
   GULLogger.logger = self.logger;
+}
+
+- (void)tearDown {
+  GULLogger.logger = nil;
+  self.logger = nil;
+  [super tearDown];
 }
 
 - (void)testMessageCodeFormat {

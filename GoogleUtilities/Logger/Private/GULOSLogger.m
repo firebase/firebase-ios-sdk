@@ -54,7 +54,7 @@ static void GULLOSLogWithType(os_log_t log, os_log_type_t type, char *s, ...) {
 @property(nonatomic) dispatch_queue_t dispatchQueue;
 
 // This property is a function pointer to the method that logs messages to os_log.
-// This indirection allows us to inject a different function pointer for denpendency injection.
+// This indirection allows us to inject a different function pointer for dependency injection.
 @property(nonatomic, unsafe_unretained) void (*logFunction)(os_log_t, os_log_type_t, char *, ...);
 
 @end
