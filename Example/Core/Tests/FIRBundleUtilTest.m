@@ -69,16 +69,22 @@ static NSString *const kFileType = @"fileType";
 - (void)testBundleIdentifierExistsInBundles {
   NSString *bundleID = @"com.google.test";
   [OCMStub([self.mockBundle bundleIdentifier]) andReturn:bundleID];
-  XCTAssertTrue([FIRBundleUtil hasBundleIdentifier:bundleID inBundles:@[ self.mockBundle ]]);
+  XCTAssertTrue([FIRBundleUtil hasBundleIdentifierPrefix:bundleID inBundles:@[ self.mockBundle ]]);
 }
 
 - (void)testBundleIdentifierExistsInBundles_notExist {
   [OCMStub([self.mockBundle bundleIdentifier]) andReturn:@"com.google.test"];
-  XCTAssertFalse([FIRBundleUtil hasBundleIdentifier:@"not-exist" inBundles:@[ self.mockBundle ]]);
+  XCTAssertFalse([FIRBundleUtil hasBundleIdentifierPrefix:@"not-exist" inBundles:@[ self.mockBundle ]]);
 }
 
 - (void)testBundleIdentifierExistsInBundles_emptyBundlesArray {
-  XCTAssertFalse([FIRBundleUtil hasBundleIdentifier:@"com.google.test" inBundles:@[]]);
+  XCTAssertFalse([FIRBundleUtil hasBundleIdentifierPrefix:@"com.google.test" inBundles:@[]]);
+}
+
+- (void)testBundleIdentifierHasPrefixInBundles {
+  [OCMStub([self.mockBundle bundleIdentifier]) andReturn:@"com.google.test"];
+  XCTAssertTrue([FIRBundleUtil hasBundleIdentifierPrefix:@"com.google.test.someextension"
+                                               inBundles:@[ self.mockBundle ]]);
 }
 
 @end

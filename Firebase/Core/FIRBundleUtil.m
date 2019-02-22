@@ -45,9 +45,10 @@
   return result;
 }
 
-+ (BOOL)hasBundleIdentifier:(NSString *)bundleIdentifier inBundles:(NSArray *)bundles {
++ (BOOL)hasBundleIdentifierPrefix:(NSString *)bundleIdentifier inBundles:(NSArray *)bundles {
   for (NSBundle *bundle in bundles) {
-    if ([bundle.bundleIdentifier isEqualToString:bundleIdentifier]) {
+    // This allows app extensions that have the app's bundle as their prefix to pass this test.
+    if ([bundleIdentifier hasPrefix:bundle.bundleIdentifier]) {
       return YES;
     }
   }
