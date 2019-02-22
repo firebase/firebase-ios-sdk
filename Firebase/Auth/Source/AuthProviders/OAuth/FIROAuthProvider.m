@@ -23,11 +23,14 @@
 #import "FIRAuthErrorUtils.h"
 #import "FIRAuthGlobalWorkQueue.h"
 #import "FIRAuthRequestConfiguration.h"
-#import "FIRAuthURLPresenter.h"
 #import "FIRAuthWebUtils.h"
 #import "FIROAuthCredential_Internal.h"
 #import "FIROAuthCredential.h"
 #import "FIROptions.h"
+
+#if TARGET_OS_IOS
+#import "FIRAuthURLPresenter.h"
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
