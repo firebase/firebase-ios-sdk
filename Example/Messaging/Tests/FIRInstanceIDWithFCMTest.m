@@ -17,10 +17,11 @@
 #import <XCTest/XCTest.h>
 
 #import <FirebaseCore/FIRAppInternal.h>
+#import <FirebaseInstanceID/FIRInstanceID.h>
 #import <OCMock/OCMock.h>
-#import "Firebase/InstanceID/Public/FIRInstanceID.h"
-#import "third_party/firebase/ios/Source/FirebaseMessaging/Library/FIRMessaging_Private.h"
-#import "third_party/firebase/ios/Source/FirebaseMessaging/Library/Public/FIRMessaging.h"
+#import "FIRMessaging_Private.h"
+#import "FIRMessaging.h"
+#import "FIRMessagingTestUtilities.h"
 
 @interface FIRInstanceID (ExposedForTest)
 - (BOOL)isFCMAutoInitEnabled;
@@ -54,7 +55,11 @@
 }
 
 - (void)testFCMAutoInitEnabled {
-  FIRMessaging *messaging = [FIRMessaging messagingForTests];
+  NSString *const kFIRMessagingTestsAutoInit = @"com.messaging.test_autoInit";
+  NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingTestsAutoInit];
+  FIRMessaging *messaging = [FIRMessagingTestUtilities messagingForTestsWithUserDefaults:defaults];
+  id classMock = OCMClassMock([FIRMessaging class]);
+  OCMStub([classMock messaging]).andReturn(messaging);
   OCMStub([_mockFirebaseApp isDataCollectionDefaultEnabled]).andReturn(YES);
   XCTAssertTrue(
       [_instanceID isFCMAutoInitEnabled],
@@ -67,6 +72,7 @@
 
   messaging.autoInitEnabled = YES;
   XCTAssertTrue([_instanceID isFCMAutoInitEnabled]);
+  [classMock stopMocking];
 }
 
 @end
