@@ -108,7 +108,7 @@ NSString *FIRInstanceIDDeviceModel() {
 
 // Get the system version from Firebase Core's App Environment Util
 NSString *FIRInstanceIDOperatingSystemVersion() {
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_TV
   return [UIDevice currentDevice].systemVersion;
 #elif TARGET_OS_OSX
   return [NSProcessInfo processInfo].operatingSystemVersionString;
