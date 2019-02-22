@@ -29,7 +29,11 @@ NS_ASSUME_NONNULL_BEGIN
 // and the va_list should only contain one argument, a full message with format substitutions
 // already filled.
 static void GULLOSLogWithType(os_log_t log, os_log_type_t type, char *s, ...) {
-  if (@available(iOS 9.0, macOS 10.11, *)) {
+#if __has_builtin(__builtin_available)
+  if (@available(iOS 9.0, *)) {
+#else
+  if ([[UIDevice currentDevice].systemVersion integerValue] >= 9) {
+#endif
     va_list args;
     va_start(args, s);
 #if TARGET_OS_TV
@@ -160,7 +164,11 @@ static void GULLOSLogWithType(os_log_t log, os_log_type_t type, char *s, ...) {
   dispatch_async(self.dispatchQueue, ^{
     os_log_t osLog = self.categoryLoggers[service];
     if (!osLog) {
-      if (@available(iOS 9.0, macOS 10.11, *)) {
+#if __has_builtin(__builtin_available)
+      if (@available(iOS 9.0, *)) {
+#else
+      if ([[UIDevice currentDevice].systemVersion integerValue] >= 9) {
+#endif
         osLog = os_log_create(kGULLoggerClientFacilityName, service.UTF8String);
         self.categoryLoggers[service] = osLog;
       } else {
