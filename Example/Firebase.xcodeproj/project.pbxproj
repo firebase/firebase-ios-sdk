@@ -2348,7 +2348,6 @@
 				DE9315231E86C6FF0083EDBF /* OCMStubRecorder+FIRAuthUnitTests.h */,
 				DE9315241E86C6FF0083EDBF /* OCMStubRecorder+FIRAuthUnitTests.m */,
 				DE9315251E86C6FF0083EDBF /* Tests-Info.plist */,
-				7EFA2E031F71C93300DD354F /* FIRUserMetadataTests.m */,
 				7E21E0721F857DFC00D0AC1C /* FIROAuthProviderTests.m */,
 			);
 			path = Tests;
