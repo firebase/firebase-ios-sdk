@@ -22,6 +22,10 @@
 #import "GULLogger+Internal.h"
 #import "GULLoggerLevel.h"
 
+#if TARGET_OS_IOS
+#import <UIKit/UIKit.h>
+#endif
+
 NS_ASSUME_NONNULL_BEGIN
 
 // Function which calls the macro so that this can be substituted for testing.
@@ -38,8 +42,14 @@ static void GULLOSLogWithType(os_log_t log, os_log_type_t type, char *s, ...) {
     va_start(args, s);
 #if TARGET_OS_TV
     os_log_with_type(log, type, "%s", (char *)args);
+#elif TARGET_OS_OSX
+    // Silence macOS 10.10 warning until we move minimum to 10.11.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunguarded-availability"
+    os_log_with_type(log, type, "%s", (char *)args);
+#pragma clang diagnostic pop
 #else
-    os_log_with_type(log, type, "%s", args);
+  os_log_with_type(log, type, "%s", args);
 #endif
     va_end(args);
   } else {
@@ -169,7 +179,15 @@ static void GULLOSLogWithType(os_log_t log, os_log_type_t type, char *s, ...) {
 #else
       if ([[UIDevice currentDevice].systemVersion integerValue] >= 9) {
 #endif
+#if TARGET_OS_OSX
+        // Silence macOS 10.10 warning until we move minimum to 10.11.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunguarded-availability"
         osLog = os_log_create(kGULLoggerClientFacilityName, service.UTF8String);
+#pragma clang diagnostic pop
+#else
+        osLog = os_log_create(kGULLoggerClientFacilityName, service.UTF8String);
+#endif
         self.categoryLoggers[service] = osLog;
       } else {
 #ifdef DEBUG
