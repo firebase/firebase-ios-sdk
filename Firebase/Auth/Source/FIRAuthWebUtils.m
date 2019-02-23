@@ -165,7 +165,7 @@ static NSString *const kAuthDomainSuffix = @"firebaseapp.com";
                                 withString:@" "
                                    options:NSLiteralSearch
                                      range:NSMakeRange(0, [resultString length])];
-  return [resultString stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+  return [resultString stringByRemovingPercentEncoding];
 }
 
 @end

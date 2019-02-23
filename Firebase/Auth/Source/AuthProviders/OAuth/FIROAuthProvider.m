@@ -277,8 +277,9 @@ static NSString *const kAuthTypeSignInWithRedirect = @"signInWithRedirect";
     NSString *URLString =
         [NSString stringWithFormat:kHeadfulLiteURLStringFormat, authDomain, argumentsString];
     if (completion) {
+      NSCharacterSet *set = [NSCharacterSet URLFragmentAllowedCharacterSet];
       completion([NSURL URLWithString:
-          [URLString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]], nil);
+          [URLString stringByAddingPercentEncodingWithAllowedCharacters:set]], nil);
     }
   }];
 }

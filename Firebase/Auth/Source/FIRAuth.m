@@ -468,10 +468,10 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 }
 
 
-#if TARGET_OS_IOS
 - (void)signInWithProvider:(id<FIRFederatedAuthProvider>)provider
                 UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
                 completion:(nullable FIRAuthDataResultCallback)completion {
+#if TARGET_OS_IOS
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
     FIRAuthDataResultCallback decoratedCallback =
         [self signInFlowAuthDataResultCallbackByDecoratingCallback:completion];
@@ -487,8 +487,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                                callback:decoratedCallback];
     }];
   });
-}
 #endif  // TARGET_OS_IOS
+}
 
 - (void)fetchSignInMethodsForEmail:(nonnull NSString *)email
                         completion:(nullable FIRSignInMethodQueryCallback)completion {
