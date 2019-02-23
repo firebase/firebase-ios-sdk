@@ -278,7 +278,7 @@ static const double kAllowedTimeDifference = 0.1;
 
   XCTAssert(callbackInvoked);
   XCTAssertNil(RPCResponse);
-  FIRPhoneAuthCredential *credential = RPCError.userInfo[FIRAuthUpdatedCredentialKey];
+  FIRPhoneAuthCredential *credential = RPCError.userInfo[FIRAuthErrorUserInfoUpdatedCredentialKey];
   XCTAssertEqualObjects(credential.temporaryProof, kFakeTemporaryProof);
   XCTAssertEqualObjects(credential.phoneNumber, kFakePhoneNumber);
 }
