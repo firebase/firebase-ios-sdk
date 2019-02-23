@@ -49,7 +49,7 @@ static void GULLOSLogWithType(os_log_t log, os_log_type_t type, char *s, ...) {
     os_log_with_type(log, type, "%s", args);
 #pragma clang diagnostic pop
 #else
-    os_log_with_type(log, type, "%s", args);
+  os_log_with_type(log, type, "%s", args);
 #endif
     va_end(args);
   } else {
