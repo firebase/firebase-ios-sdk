@@ -46,7 +46,7 @@ static void GULLOSLogWithType(os_log_t log, os_log_type_t type, char *s, ...) {
     // Silence macOS 10.10 warning until we move minimum to 10.11.
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunguarded-availability"
-    os_log_with_type(log, type, "%s", args);
+    os_log_with_type(log, type, "%s", (char *)args);
 #pragma clang diagnostic pop
 #else
   os_log_with_type(log, type, "%s", args);
