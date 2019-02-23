@@ -61,6 +61,7 @@
   id classMock = OCMClassMock([FIRMessaging class]);
   OCMStub([classMock messaging]).andReturn(messaging);
   OCMStub([_mockFirebaseApp isDataCollectionDefaultEnabled]).andReturn(YES);
+  messaging.autoInitEnabled = YES;
   XCTAssertTrue(
       [_instanceID isFCMAutoInitEnabled],
       @"When FCM is available, FCM Auto Init Enabled should be FCM's autoInitEnable property.");
