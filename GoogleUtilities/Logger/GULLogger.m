@@ -19,6 +19,10 @@
 #import "GULLoggerLevel.h"
 #import "GULOSLogger.h"
 
+#if TARGET_OS_IOS
+#import <UIKit/UIKit.h>
+#endif
+
 static id<GULLoggerSystem> sGULLogger;
 
 NSString *const kGULLoggerInvalidLoggerLevelCore = @"I-COR000023";

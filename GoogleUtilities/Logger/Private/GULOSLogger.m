@@ -22,6 +22,10 @@
 #import "GULLogger+Internal.h"
 #import "GULLoggerLevel.h"
 
+#if TARGET_OS_IOS
+#import <UIKit/UIKit.h>
+#endif
+
 NS_ASSUME_NONNULL_BEGIN
 
 // Function which calls the macro so that this can be substituted for testing.
