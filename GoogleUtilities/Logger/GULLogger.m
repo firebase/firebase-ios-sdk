@@ -17,22 +17,54 @@
 #import "GULASLLogger.h"
 #import "GULAppEnvironmentUtil.h"
 #import "GULLoggerLevel.h"
+#import "GULLogger+Internal.h"
 #import "GULOSLogger.h"
 
 #if TARGET_OS_IOS
 #import <UIKit/UIKit.h>
 #endif
 
-static id<GULLoggerSystem> sGULLogger;
-
-NSString *const kGULLoggerInvalidLoggerLevelCore = @"I-COR000023";
-NSString *const kGULLoggerInvalidLoggerLevelMessage = @"Invalid logger level, %ld";
-GULLoggerService const kGULLoggerName = @"[GULLogger]";
-const char *const kGULLoggerClientFacilityName = "com.google.utilities.logger";
-
 #ifdef DEBUG
-NSString *const kGULLoggerMessageCodePattern = @"^I-[A-Z]{3}[0-9]{6}$";
+static NSRegularExpression *sMessageCodeRegex;
+static NSString *const kGULLoggerMessageCodePattern = @"^I-[A-Z]{3}[0-9]{6}$";
 #endif
+
+@implementation GULLogger (Internal)
+
++ (BOOL)loggerSystem:(id<GULLoggerSystem>)logger shouldLogMessageOfLevel:(GULLoggerLevel)logLevel {
+  if (logger.forcedDebug) {
+    return YES;
+  } else if (logLevel < GULLoggerLevelMin || logLevel > GULLoggerLevelMax) {
+    return NO;
+  }
+  return logLevel <= logger.logLevel;
+}
+
++ (NSString *)messageFromLogger:(id<GULLoggerSystem>)logger
+                    withService:(GULLoggerService)service
+                           code:(NSString *)code
+                        message:(NSString *)message {
+#ifdef DEBUG
+  NSCAssert(code.length == 11, @"Incorrect message code length.");
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    sMessageCodeRegex =
+    [NSRegularExpression regularExpressionWithPattern:kGULLoggerMessageCodePattern
+                                              options:0
+                                                error:NULL];
+  });
+  NSRange messageCodeRange = NSMakeRange(0, code.length);
+  NSUInteger numberOfMatches = [sMessageCodeRegex numberOfMatchesInString:code
+                                                                  options:0
+                                                                    range:messageCodeRange];
+  NSCAssert(numberOfMatches == 1, @"Incorrect message code format.");
+#endif
+  return [NSString stringWithFormat:@"%@ - %@[%@] %@", logger.version, service, code, message];
+}
+
+@end
+
+static id<GULLoggerSystem> sGULLogger;
 
 void GULLoggerInitialize(void) {
   [GULLogger.logger initializeLogger];
