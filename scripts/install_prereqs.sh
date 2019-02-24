@@ -31,18 +31,20 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     # Set up GoogleService-Info.plist for Storage and Database integration tests. The decrypting
     # is not supported for pull requests. See https://docs.travis-ci.com/user/encrypting-files/
     if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
-      openssl aes-256-cbc -K $encrypted_b02643c8c602_key -iv $encrypted_b02643c8c602_iv -in Secrets.tar.enc -out Secrets.tar -d
-      tar xvf Secrets.tar
+      openssl aes-256-cbc -K $encrypted_b02643c8c602_key -iv $encrypted_b02643c8c602_iv \
+      -in scripts/travis-encrypted/Secrets.tar.enc \
+      -out scripts/travis-encrypted/Secrets.tar -d
+      tar xvf scripts/travis-encrypted/Secrets.tar
 
-      cp Secrets/Auth/Sample/Application.plist Example/Auth/Sample/Application.plist
-      cp Secrets/Auth/Sample/AuthCredentials.h Example/Auth/Sample/AuthCredentials.h
-      cp Secrets/Auth/Sample/GoogleService-Info_multi.plist Example/Auth/Sample/GoogleService-Info_multi.plist
-      cp Secrets/Auth/Sample/GoogleService-Info.plist Example/Auth/Sample/GoogleService-Info.plist
-      cp Secrets/Auth/Sample/Sample.entitlements Example/Auth/Sample/Sample.entitlements
-      cp Secrets/Auth/ApiTests/AuthCredentials.h Example/Auth/ApiTests/AuthCredentials.h
+      cp scripts/travis-encrypted/Secrets/Auth/Sample/Application.plist Example/Auth/Sample/Application.plist
+      cp scripts/travis-encrypted/Secrets/Auth/Sample/AuthCredentials.h Example/Auth/Sample/AuthCredentials.h
+      cp scripts/travis-encrypted/Secrets/Auth/Sample/GoogleService-Info_multi.plist Example/Auth/Sample/GoogleService-Info_multi.plist
+      cp scripts/travis-encrypted/Secrets/Auth/Sample/GoogleService-Info.plist Example/Auth/Sample/GoogleService-Info.plist
+      cp scripts/travis-encrypted/Secrets/Auth/Sample/Sample.entitlements Example/Auth/Sample/Sample.entitlements
+      cp scripts/travis-encrypted/Secrets/Auth/ApiTests/AuthCredentials.h Example/Auth/ApiTests/AuthCredentials.h
 
-      cp Secrets/Storage/App/GoogleService-Info.plist Example/Storage/App/GoogleService-Info.plist
-      cp Secrets/Storage/App/GoogleService-Info.plist Example/Database/App/GoogleService-Info.plist
+      cp scripts/travis-encrypted/Secrets/Storage/App/GoogleService-Info.plist Example/Storage/App/GoogleService-Info.plist
+      cp scripts/travis-encrypted/Secrets/Storage/App/GoogleService-Info.plist Example/Database/App/GoogleService-Info.plist
     fi
     ;;
 
