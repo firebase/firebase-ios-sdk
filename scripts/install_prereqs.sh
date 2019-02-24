@@ -34,7 +34,7 @@ case "$PROJECT-$PLATFORM-$METHOD" in
       openssl aes-256-cbc -K $encrypted_824e27188cd5_key -iv $encrypted_824e27188cd5_iv \
       -in scripts/travis-encrypted/Secrets.tar.enc \
       -out scripts/travis-encrypted/Secrets.tar -d
-      
+
       tar xvf scripts/travis-encrypted/Secrets.tar
 
       cp Secrets/Auth/Sample/Application.plist Example/Auth/Sample/Application.plist
