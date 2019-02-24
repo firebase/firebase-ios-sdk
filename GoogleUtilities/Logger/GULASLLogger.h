@@ -16,13 +16,11 @@
 
 #import <Foundation/Foundation.h>
 
-#import <GoogleUtilities/GULLoggerLevel.h>
-
-#import "GULLoggerSystem.h"
+#import <GoogleUtilities/GULLoggerSystem.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface GULOSLogger : NSObject <GULLoggerSystem>
+@interface GULASLLogger : NSObject <GULLoggerSystem>
 @end
 
 NS_ASSUME_NONNULL_END
