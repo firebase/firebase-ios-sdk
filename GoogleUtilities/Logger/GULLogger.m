@@ -16,8 +16,8 @@
 
 #import "GULASLLogger.h"
 #import "GULAppEnvironmentUtil.h"
-#import "GULLoggerLevel.h"
 #import "GULLogger+Internal.h"
+#import "GULLoggerLevel.h"
 #import "GULOSLogger.h"
 
 #if TARGET_OS_IOS
@@ -49,9 +49,9 @@ static NSString *const kGULLoggerMessageCodePattern = @"^I-[A-Z]{3}[0-9]{6}$";
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
     sMessageCodeRegex =
-    [NSRegularExpression regularExpressionWithPattern:kGULLoggerMessageCodePattern
-                                              options:0
-                                                error:NULL];
+        [NSRegularExpression regularExpressionWithPattern:kGULLoggerMessageCodePattern
+                                                  options:0
+                                                    error:NULL];
   });
   NSRange messageCodeRange = NSMakeRange(0, code.length);
   NSUInteger numberOfMatches = [sMessageCodeRegex numberOfMatchesInString:code
