@@ -16,6 +16,8 @@
 
 #import "FIRDeleteAccountRequest.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 /** @var kCreateAuthURIEndpoint
     @brief The "deleteAccount" endpoint.
  */
@@ -63,3 +65,5 @@ static NSString *const kLocalIDKey = @"localId";
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

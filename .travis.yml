@@ -37,7 +37,7 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=InAppMessagingDisplay PLATFORM=iOS METHOD=xcodebuild
+        - PROJECT=InAppMessaging PLATFORM=iOS METHOD=xcodebuild
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
@@ -65,6 +65,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseAuthInterop.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseDatabase.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseDynamicLinks.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseInstanceID.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseMessaging.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseStorage.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseFunctions.podspec
@@ -95,6 +96,7 @@ jobs:
         - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseAuthInterop.podspec --use-libraries
         - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseDatabase.podspec --use-libraries
         - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseDynamicLinks.podspec --use-libraries
+        - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseInstanceID.podspec --use-libraries
         # The Protobuf dependency of FirebaseMessaging has warnings with --use-libraries
         - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseMessaging.podspec --use-libraries --allow-warnings
         - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseStorage.podspec --use-libraries
@@ -131,35 +133,35 @@ jobs:
       before_install:
         - npm install ios-sim -g
         - ios-sim start --devicetypeid "com.apple.CoreSimulator.SimDeviceType.iPhone-8-Plus, 11.3"
-        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+        - ./scripts/if_cron.sh ./scripts/install_prereqs.sh
       script:
-        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
+        - travis_retry ./scripts/if_cron.sh ./scripts/build.sh $PROJECT $PLATFORM
 
     - stage: test
       osx_image: xcode9.4
       env:
-        - PROJECT=InAppMessagingDisplay PLATFORM=iOS METHOD=xcodebuild
+        - PROJECT=InAppMessaging PLATFORM=iOS METHOD=xcodebuild
       before_install:
-        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+        - ./scripts/if_cron.sh ./scripts/install_prereqs.sh
       script:
-        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
+        - travis_retry ./scripts/if_cron.sh ./scripts/build.sh $PROJECT $PLATFORM
 
     - stage: test
       osx_image: xcode9.4
       env:
         - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild
       before_install:
-        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+        - ./scripts/if_cron.sh ./scripts/install_prereqs.sh
       script:
-        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+        - travis_retry ./scripts/if_cron.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
     - stage: test
       env:
         - PROJECT=Firestore PLATFORM=macOS METHOD=cmake
       before_install:
-        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+        - ./scripts/if_cron.sh ./scripts/install_prereqs.sh
       script:
-        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+        - travis_retry ./scripts/if_cron.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
     - stage: test
       osx_image: xcode8.3
@@ -176,31 +178,32 @@ jobs:
       env:
         - PROJECT=Firebase PLATFORM=iOS METHOD=pod-lib-lint
       before_install:
-        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+        - ./scripts/if_cron.sh ./scripts/install_prereqs.sh
       script:
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh GoogleUtilities.podspec
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseCore.podspec
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseAnalyticsInterop.podspec
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseAuth.podspec
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseAuthInterop.podspec
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseDatabase.podspec
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseDynamicLinks.podspec
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseMessaging.podspec
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseStorage.podspec
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseFunctions.podspec
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseInAppMessaging.podspec
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseInAppMessagingDisplay.podspec
+        - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh GoogleUtilities.podspec
+        - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseCore.podspec
+        - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseAnalyticsInterop.podspec
+        - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseAuth.podspec
+        - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseAuthInterop.podspec
+        - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseDatabase.podspec
+        - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseDynamicLinks.podspec
+        - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseInstanceID.podspec
+        - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseMessaging.podspec
+        - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseStorage.podspec
+        - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseFunctions.podspec
+        - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseInAppMessaging.podspec
+        - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseInAppMessagingDisplay.podspec
 
     - stage: test
       osx_image: xcode9.4
       env:
         - PROJECT=Firestore PLATFORM=iOS METHOD=pod-lib-lint
       before_install:
-        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+        - ./scripts/if_cron.sh ./scripts/install_prereqs.sh
       script:
         # Eliminate the one warning from BoringSSL when CocoaPods 1.6.0 is available.
         # The travis_wait is necessary because the command takes more than 10 minutes.
-        - travis_wait 45 ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseFirestore.podspec --allow-warnings --no-subspecs
+        - travis_wait 45 ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseFirestore.podspec --allow-warnings --no-subspecs
 
     # Community-supported platforms
 

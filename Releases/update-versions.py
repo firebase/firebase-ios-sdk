@@ -188,7 +188,7 @@ def UpdateTags(version_data, firebase_version, first=False):
       LogOrRun("git push --delete origin '{}'".format(tag))
       LogOrRun("git tag --delete  '{}'".format(tag))
     LogOrRun("git tag '{}'".format(tag))
-  LogOrRun('git push origin --tags')
+    LogOrRun("git push origin '{}'".format(tag))
 
 
 def GetCpdcInternal():

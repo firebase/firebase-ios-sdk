@@ -118,6 +118,20 @@
                ReferencedContainer = "container:Firebase.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "DE958B7421F7D15900E6C1C5"
+               BuildableName = "InstanceID_Tests_iOS.xctest"
+               BlueprintName = "InstanceID_Tests_iOS"
+               ReferencedContainer = "container:Firebase.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
@@ -184,6 +198,16 @@
                BlueprintIdentifier = "DEDFF0121FD6135D00F7D466"
                BuildableName = "DynamicLinks_Tests_iOS.xctest"
                BlueprintName = "DynamicLinks_Tests_iOS"
+               ReferencedContainer = "container:Firebase.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "DE958B7421F7D15900E6C1C5"
+               BuildableName = "InstanceID_Tests_iOS.xctest"
+               BlueprintName = "InstanceID_Tests_iOS"
                ReferencedContainer = "container:Firebase.xcodeproj">
             </BuildableReference>
          </TestableReference>

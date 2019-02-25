@@ -27,7 +27,7 @@ USAGE: $0 product [platform] [method]
 product can be one of:
   Firebase
   Firestore
-  InAppMessagingDisplay
+  InAppMessaging
   SymbolCollision
 
 platform can be one of:
@@ -195,6 +195,13 @@ case "$product-$method-$platform" in
       if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
         RunXcodebuild \
           -workspace 'Example/Firebase.xcworkspace' \
+          -scheme "Auth_ApiTests" \
+          "${xcb_flags[@]}" \
+          build \
+          test
+
+        RunXcodebuild \
+          -workspace 'Example/Firebase.xcworkspace' \
           -scheme "Storage_IntegrationTests_iOS" \
           "${xcb_flags[@]}" \
           build \
@@ -233,7 +240,18 @@ case "$product-$method-$platform" in
     fi
     ;;
 
-  InAppMessagingDisplay-xcodebuild-iOS)
+  InAppMessaging-xcodebuild-iOS)
+    RunXcodebuild \
+        -workspace 'InAppMessaging/Example/InAppMessaging-Example-iOS.xcworkspace'  \
+        -scheme 'InAppMessaging_Example_iOS' \
+        "${xcb_flags[@]}" \
+        build \
+        test
+
+    cd InAppMessaging/Example
+    sed -i -e 's/use_frameworks/\#use_frameworks/' Podfile
+    pod update --no-repo-update
+    cd ../..
     RunXcodebuild \
         -workspace 'InAppMessaging/Example/InAppMessaging-Example-iOS.xcworkspace'  \
         -scheme 'InAppMessaging_Example_iOS' \

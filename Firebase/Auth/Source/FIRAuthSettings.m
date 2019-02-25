@@ -16,6 +16,8 @@
 
 #import "FIRAuthSettings.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @implementation FIRAuthSettings
 
 - (instancetype)init {
@@ -27,3 +29,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

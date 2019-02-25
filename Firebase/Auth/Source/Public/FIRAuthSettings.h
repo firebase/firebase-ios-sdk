@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 /** @class FIRAuthSettings
     @brief Determines settings related to an auth object.
  */
@@ -28,3 +30,5 @@
     appVerificationDisabledForTesting;
 
 @end
+
+NS_ASSUME_NONNULL_END
