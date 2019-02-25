@@ -522,9 +522,9 @@ struct ZipBuilder {
     // Return the names of all the installed frameworks.
     let namedFrameworks = installedPods.map { $0.name }
     let copiedFrameworks = namedFrameworks.filter {
-      // Only return the frameworks that aren't contained in the "podsToIgnore" array and aren't
-      // an interop framework (since they don't compile to frameworks).
-      return !(podsToIgnore.contains($0) || $0.hasSuffix("Interop"))
+      // Only return the frameworks that aren't contained in the "podsToIgnore" array, aren't an
+      // interop framework (since they don't compile to frameworks), or the Firebase pod itself.
+      return !(podsToIgnore.contains($0) || $0.hasSuffix("Interop") || $0 == "Firebase")
     }
 
     return (productDir, copiedFrameworks)
