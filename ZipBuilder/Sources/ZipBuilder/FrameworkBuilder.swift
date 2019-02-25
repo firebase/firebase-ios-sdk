@@ -81,11 +81,12 @@ struct FrameworkBuilder {
   ///   - cacheKey: The key used for caching this framework build. If nil, the framework name will
   ///               be used.
   ///   - cacheEnabled: Flag for enabling the cache. Defaults to false.
-  /// - Returns: A URL to the framework that was built (or pulled from the cache).
+  /// - Returns: A URL to the framework that was built (or pulled from the cache) and a URL to the
+  ///     Resources directory containing all required bundles.
   public func buildFramework(withName podName: String,
                              version: String,
                              cacheKey: String?,
-                             cacheEnabled: Bool = false) -> URL {
+                             cacheEnabled: Bool = false) -> (framework: URL, resources: URL) {
     print("Building \(podName)")
 
     // Get the CocoaPods cache to see if we can pull from any frameworks already built.
@@ -123,12 +124,13 @@ struct FrameworkBuilder {
     // Build the full cached framework path.
     let cachedFrameworkDir = cachedFrameworkRoot.appendingPathComponent("\(podName).framework")
     let cachedFrameworkExists = fileManager.directoryExists(at: cachedFrameworkDir)
+    let cachedResourcesDir = cachedFrameworkRoot.appendingPathComponent("Resources")
     if cachedFrameworkExists && cacheEnabled {
       print("Framework \(podName) version \(version) has already been built and cached at " +
             "\(cachedFrameworkDir)")
-      return cachedFrameworkDir
+      return (cachedFrameworkDir, cachedResourcesDir)
     } else {
-      let frameworkDir = compileFramework(withName: podName)
+      let (frameworkDir, bundles) = compileFrameworkAndResources(withName: podName)
       do {
         // Remove the previously cached framework, if it exists, otherwise the `moveItem` call will
         // fail.
@@ -141,9 +143,26 @@ struct FrameworkBuilder {
                                           attributes: nil)
         }
 
-        // Move the newly built framework to the cache directory.
+        // Move any Resource bundles into the Resources folder. Remove the existing Resources folder
+        // and create a new one.
+        if fileManager.directoryExists(at: cachedResourcesDir) {
+          try fileManager.removeItem(at: cachedResourcesDir)
+        }
+
+        // Create the directory where all the bundles will be kept and copy each one.
+        try fileManager.createDirectory(at: cachedResourcesDir,
+                                        withIntermediateDirectories: true,
+                                        attributes: nil)
+        for bundle in bundles {
+          let destination = cachedResourcesDir.appendingPathComponent(bundle.lastPathComponent)
+          try fileManager.moveItem(at: bundle, to: destination)
+        }
+
+        // Move the newly built framework to the cache directory. NOTE: This needs to happen after
+        // the Resources are moved since the Resources are contained in the frameworkDir.
         try fileManager.moveItem(at: frameworkDir, to: cachedFrameworkDir)
-        return cachedFrameworkDir
+
+        return (cachedFrameworkDir, cachedResourcesDir)
       } catch {
         fatalError("Could not move built frameworks into the cached frameworks directory: \(error)")
       }
@@ -181,10 +200,13 @@ struct FrameworkBuilder {
   /// - Parameters:
   ///   - framework: Name of the framework being built.
   ///   - arch: Architecture slice to build.
+  ///   - buildDir: Location where the project should be built.
   ///   - logRoot: Root directory where all logs should be written.
   /// - Returns: A URL to the thin library that was built.
-  private func buildThin(framework: String, arch: Architecture, logRoot: URL) -> URL {
-    let buildDir = projectDir.appendingPathComponent(arch.rawValue)
+  private func buildThin(framework: String,
+                         arch: Architecture,
+                         buildDir: URL,
+                         logRoot: URL) -> URL {
     let platform = arch.platform
     let workspacePath = projectDir.appendingPathComponent("FrameworkMaker.xcworkspace").path
     let standardOptions = [ "build",
@@ -306,8 +328,9 @@ struct FrameworkBuilder {
   /// This will compile all architectures and use the lipo command to create a "fat" archive.
   ///
   /// - Parameter framework: The name of the framework to be built.
-  /// - Returns: A path to the newly compiled framework.
-  private func compileFramework(withName framework: String) -> URL {
+  /// - Returns: A path to the newly compiled framework and Resource bundles.
+  private func compileFrameworkAndResources(withName framework: String) ->
+      (framework: URL, resourceBundles: [URL]) {
     let fileManager = FileManager.default
     let outputDir = fileManager.temporaryDirectory(withName: "frameworkBeingBuilt")
     let logsDir = fileManager.temporaryDirectory(withName: "buildLogs")
@@ -336,7 +359,11 @@ struct FrameworkBuilder {
     // architectures (MLKit).
     var thinArchives = [URL]()
     for arch in Architecture.allCases() {
-      let thinArchive = buildThin(framework: framework, arch: arch, logRoot: logsDir)
+      let buildDir = projectDir.appendingPathComponent(arch.rawValue)
+      let thinArchive = buildThin(framework: framework,
+                                  arch: arch,
+                                  buildDir: buildDir,
+                                  logRoot: logsDir)
       thinArchives.append(thinArchive)
     }
 
@@ -401,19 +428,24 @@ struct FrameworkBuilder {
                  "\(headersDestination): \(error)")
   }
 
-    // Move all the .bundle directories in the contentsDir to the Resources directory.
-    // Move all the resources into .bundle directories in the destination Resources dir.
-    let contentsDir = podsDir.appendingPathComponent(framework)
+    // Move all the Resources into .bundle directories in the destination Resources dir. The
+    // Resources live are contained within the folder structure:
+    // `projectDir/arch/Release-platform/FrameworkName`
+    let arch = Architecture.arm64
+    let contentsDir = projectDir.appendingPathComponents([arch.rawValue,
+                                                          "Release-\(arch.platform.rawValue)",
+                                                          framework])
     let resourceDir = frameworkDir.appendingPathComponent("Resources")
+    let bundles: [URL]
     do {
-      try ResourcesManager.createBundleFromResources(inDirectory: contentsDir, to: resourceDir)
+      bundles = try ResourcesManager.moveAllBundles(inDirectory: contentsDir, to: resourceDir)
     } catch {
       fatalError("Could not move bundles into Resources directory while building \(framework): " +
                  "\(error)")
     }
 
     makeModuleMap(baseDir: outputDir, framework: framework, dir: frameworkDir)
-    return frameworkDir
+    return (frameworkDir, bundles)
   }
 
   /// Recrusively copies headers from the given directory to the destination directory. This does a

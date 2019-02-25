@@ -189,7 +189,6 @@ struct ZipBuilder {
     // Break the `subspecsToInstall` into a variable since it's helpful when debugging non-cache
     // builds to just install a subset: `[.core, .analytics, .storage, .firestore]` for example.
     let subspecsToInstall = Subspec.allCases()
-//    let subspecsToInstall: [Subspec] = [.core, .analytics, .mlVisionTextModel]
 
     // We need to install all the subpsecs in order to get every single framework that we'll need
     // for the zip file. We can't install each one individually since some pods depend on different
@@ -298,12 +297,15 @@ struct ZipBuilder {
                                          rootZipDir: zipDir,
                                          builtFrameworks: frameworks,
                                          podsToIgnore: analyticsFrameworks,
-                                         foldersToIgnore: spec.duplicateFoldersToRemove())
+                                         foldersToIgnore: spec.duplicateFrameworksToRemove())
 
         // Copy any Resources from closed source pods into their destination folder. Open source
         // pods have already had the Resources taken care of.
         for pod in podFrameworks {
           guard let bundles = resourceBundles[pod] else { continue }
+
+          // If Resources should be excluded (for example from MLKit), move on to the next one.
+          guard !spec.excludeResources else { continue }
 
           // There are bundles to copy! Create a Resources directory.
           let resourceDir = specDir.appendingPathComponent("Resources", isDirectory: true)
@@ -311,10 +313,13 @@ struct ZipBuilder {
                                                   withIntermediateDirectories: true,
                                                   attributes: nil)
 
-          // Copy each bundle individually.
+          // Copy each bundle individually, skipping duplicates.
+          let bundlesToSkip = spec.duplicateResourcesToRemove()
           for bundle in bundles {
-            let destination = resourceDir.appendingPathComponent(bundle.lastPathComponent,
-                                                                 isDirectory: true)
+            let name = bundle.lastPathComponent
+            guard !bundlesToSkip.contains(name) else { continue }
+
+            let destination = resourceDir.appendingPathComponent(name, isDirectory: true)
             try FileManager.default.copyItem(at: bundle, to: destination)
           }
         }
@@ -360,7 +365,7 @@ struct ZipBuilder {
     return zipDir
   }
 
-  // MARK: - Private Helpers
+  // MARK: - Private
 
   /// Copies all frameworks from the `InstalledPod` (pulling from the `frameworkLocations`) and copy
   /// them to the destination directory.
@@ -430,7 +435,7 @@ struct ZipBuilder {
   private func dependencyString(for subspec: Subspec, in dir: URL, frameworks: [String]) -> String {
     var result = subspec.readmeHeader()
     for framework in frameworks.sorted() {
-      result += " - \(framework).framework\n"
+      result += "- \(framework).framework\n"
     }
 
     result += "\n"
@@ -489,7 +494,7 @@ struct ZipBuilder {
   }
 
   /// Installs a subspec and attempts to copy all the frameworks required for it from
-  /// `buildFrameworks` and puts them into a new directory in the `rootZipDir` matching the
+  /// `buildFramework` and puts them into a new directory in the `rootZipDir` matching the
   /// subspec's name. This also will move any Resources directory outside of the frameworks and
   /// place them in the same directory as the rest of the frameworks.
   ///
@@ -531,7 +536,6 @@ struct ZipBuilder {
 
     return (productDir, copiedFrameworks)
   }
-
 
   /// Validates that the expected versions (based on the release manifest passed in, if there was
   /// one) match the expected versions installed and listed in the Podfile.lock in a project
@@ -597,7 +601,7 @@ struct ZipBuilder {
     let header: String = {
       // Center the CocoaPods title within the spaces given. If there's an odd number of spaces, add
       // the extra space after the CocoaPods title.
-      let cocoaPods = "CocoaPods"
+      let cocoaPods = "CocoaPod"
       let spacesToPad = maxLength - cocoaPods.count
       let halfPadding = String(repeating: " ", count: spacesToPad / 2)
 
@@ -609,7 +613,7 @@ struct ZipBuilder {
       }
 
       // Add the versioning text and return.
-      result += "| Versions\n"
+      result += "| Version\n"
 
       // Add a line underneath each.
       result += String(repeating: "-", count: maxLength) + "|" + String(repeating: "-", count: 9)
@@ -672,10 +676,6 @@ struct ZipBuilder {
         continue
       }
 
-      // Define the search directory to find Resource bundles - this varies if it's an open source
-      // or closed source Pod.
-      let resourceSearchDir: URL
-
       // Get all the frameworks contained in this directory.
       var foundFrameworks: [URL]
       do {
@@ -686,17 +686,27 @@ struct ZipBuilder {
                    "\(pod.installedLocation): \(error)")
       }
 
+      // Get the resulting folder that will contain all resources for that Pod.
+      let podResourceDir = tempResourceDir.appendingPathComponent(pod.name)
+      var resourceBundles: [URL] = []
+
       // If there are no frameworks, it's an open source pod and we need to compile the source to
       // get a framework.
       if (foundFrameworks.count == 0) {
         let builder = FrameworkBuilder(projectDir: projectDir)
-        let framework = builder.buildFramework(withName: pod.name,
-                                               version: pod.version,
-                                               cacheKey: pod.cacheKey,
-                                               cacheEnabled: useCache)
+        let (framework, resourceDir) = builder.buildFramework(withName: pod.name,
+                                                              version: pod.version,
+                                                              cacheKey: pod.cacheKey,
+                                                              cacheEnabled: useCache)
 
-        // Resources for open source Pods are found in the .framework folder.
-        resourceSearchDir = framework
+        // Move all the Resources that are contained in the resourceDir returned.
+        do {
+          resourceBundles = try ResourcesManager.moveAllBundles(inDirectory: resourceDir,
+                                                                to: podResourceDir)
+        } catch {
+          fatalError("Could not move Resource bundles for \(pod.name): \(error)")
+        }
+
         frameworks = [framework]
       } else {
         // Copy found frameworks to a known temporary directory, and store that location. Also move
@@ -705,11 +715,9 @@ struct ZipBuilder {
         for framework in foundFrameworks {
           // Copy it to the temporary directory and save it to our list of frameworks.
           let copiedLocation = tempDir.appendingPathComponent(framework.lastPathComponent)
-          if fileManager.directoryExists(at: copiedLocation) {
-            // The framework exists, remove it since it could be out of date. It's okay to force try!
-            // here since we know the directory exists.
-            try! fileManager.removeItem(at: copiedLocation)
-          }
+
+          // Remove the framework if it exists since it could be out of date.
+          fileManager.removeDirectoryIfExists(at: copiedLocation)
           do {
             try fileManager.copyItem(at: framework, to: copiedLocation)
           } catch {
@@ -720,23 +728,37 @@ struct ZipBuilder {
           frameworks.append(copiedLocation)
         }
 
-        // Resources for closed source Pods are found in the location the pod is installed.
-        resourceSearchDir = pod.installedLocation
-      }
+        // There are two sitautions for Resources in closed source Pods depending on what they use
+        // in their Podspec. Pods can define either pre-built bundles or a list of files for any
+        // number of bundles to be created. We'll search for any pre-built bundles, and if there
+        // aren't any, look in all the included Pods to see if there are Resources folders
+        // available to build bundles from. The latter is necessary for GoogleMobileVision and
+        // MLKit.
 
-      // Move all the Resource bundles for the Pod into a temporary folder - they will either be in
-      // the .framework generated from the open source pods or the installedLocation of the closed
-      // source Pod.
-      let podResourceDir = tempResourceDir.appendingPathComponent(pod.name)
-      let bundles: [URL]
-      do {
-        bundles = try ResourcesManager.moveAllBundles(inDirectory: resourceSearchDir,
+        // Search for any pre-built bundles.
+        do {
+          resourceBundles = try ResourcesManager.moveAllBundles(inDirectory: pod.installedLocation,
                                                                 to: podResourceDir)
-      } catch {
-        fatalError("Could not move resource bundles for \(pod.name): \(error)")
+        } catch {
+          fatalError("Cannot move Resource bundles for \(pod.name): \(error)")
+        }
+
+        // Special case for MLKit *Model subspecs, explicitly copy directories from
+        // GoogleMobileVision. This should be fixed in the future to pull all compiled resources
+        // from Xcode's build directory.
+        if pod.name == "FirebaseMLVisionTextModel" || pod.name == "FirebaseMLVisionFaceModel" {
+          do {
+            let podsDir = pod.installedLocation.deletingLastPathComponent()
+            let gmvDir = podsDir.appendingPathComponent("GoogleMobileVision")
+            resourceBundles = try ResourcesManager.createBundleForFoldersInResourcesDirs(
+                containedIn: gmvDir, destinationDir: podResourceDir)
+          } catch {
+            fatalError("Could not generate Resource bundles for \(pod.name): \(error)")
+          }
+        }
       }
 
-      let podFiles = FilesToInstall(frameworks: frameworks, resourceBundles: bundles)
+      let podFiles = FilesToInstall(frameworks: frameworks, resourceBundles: resourceBundles)
       toInstall[pod.name] = podFiles
     }
 

@@ -44,6 +44,16 @@ public enum Subspec: String {
   case remoteConfig = "RemoteConfig"
   case storage = "Storage"
 
+  /// Flag to explicitly exclude any Resources from being copied.
+  public var excludeResources: Bool {
+    switch self {
+    case .mlVision, .mlVisionBarcodeModel, .mlVisionLabelModel:
+      return true
+    default:
+      return false
+    }
+  }
+
   // TODO: Once we default to Swift 4.2 (in Xcode 10) we can conform to "CaseIterable" protocol to
   //       automatically generate this method.
   /// All the subspecs to parse.
@@ -102,48 +112,56 @@ public enum Subspec: String {
   /// Returns folders to remove from the Zip file from a specific subspec for de-duplication. This
   /// is necessary for the MLKit frameworks because of their unique structure, an unnecessary amount
   /// of frameworks get pulled in.
-  public func duplicateFoldersToRemove() -> [String] {
+  public func duplicateFrameworksToRemove() -> [String] {
     switch self {
     case .mlVision:
       return ["BarcodeDetector.framework",
               "FaceDetector.framework",
               "LabelDetector.framework",
-              "TextDetector.framework",
-              "Resources"]
+              "TextDetector.framework"]
     case .mlVisionBarcodeModel:
       return ["FaceDetector.framework",
               "GTMSessionFetcher.framework",
               "GoogleMobileVision.framework",
               "LabelDetector.framework",
               "Protobuf.framework",
-              "TextDetector.framework",
-              "Resources"]
+              "TextDetector.framework"]
     case .mlVisionFaceModel:
       return ["BarcodeDetector.framework",
               "GTMSessionFetcher.framework",
               "GoogleMobileVision.framework",
               "LabelDetector.framework",
               "Protobuf.framework",
-              "TextDetector.framework",
-              "Resources/GoogleMVTextDetectorResources.bundle"]
+              "TextDetector.framework"]
     case .mlVisionLabelModel:
       return ["BarcodeDetector.framework",
               "FaceDetector.framework",
               "GTMSessionFetcher.framework",
               "GoogleMobileVision.framework",
               "Protobuf.framework",
-              "TextDetector.framework",
-              "Resources"]
+              "TextDetector.framework"]
     case .mlVisionTextModel:
       return ["BarcodeDetector.framework",
               "FaceDetector.framework",
               "GTMSessionFetcher.framework",
               "GoogleMobileVision.framework",
               "LabelDetector.framework",
-              "Protobuf.framework",
-              "Resources/GoogleMVFaceDetectorResources.bundle"]
+              "Protobuf.framework"]
     default:
       // By default, no folders need to be removed.
+      return []
+    }
+  }
+
+  /// Returns a group of duplicate Resources that should be removed, if any.
+  public func duplicateResourcesToRemove() -> [String] {
+    switch self {
+    case .mlVisionFaceModel:
+      return ["GoogleMVTextDetectorResources.bundle"]
+    case .mlVisionTextModel:
+      return ["GoogleMVFaceDetectorResources.bundle"]
+    default:
+      // By default, no resources should be removed.
       return []
     }
   }

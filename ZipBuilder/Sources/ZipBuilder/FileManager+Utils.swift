@@ -67,6 +67,43 @@ public extension FileManager {
     return directoryExists(at: url)
   }
 
+  /// Returns the URL to the Firebase cache directory, and creates it if it doesn't exist.
+  public func firebaseCacheDirectory() throws -> URL {
+    // Get the URL for the cache directory.
+    let cacheDir: URL = try url(for: .cachesDirectory,
+                                in: .userDomainMask,
+                                appropriateFor: nil,
+                                create: true)
+
+    // Get the cache root path, and if it already exists just return the URL.
+    let cacheRoot = cacheDir.appendingPathComponent("firebase_oss_framework_cache")
+    if directoryExists(at: cacheRoot) {
+      return cacheRoot
+    }
+
+    // The cache root folder doesn't exist yet, create it.
+    try createDirectory(at: cacheRoot, withIntermediateDirectories: false, attributes: nil)
+
+    return cacheRoot
+  }
+
+  /// Removes a directory if it exists. This is helpful to clean up error handling for checks that
+  /// shouldn't fail. The only situation this could potentially fail is permission errors or if a
+  /// folder is open in Finder, and in either state the user needs to close the window or fix the
+  /// permissions. A fatal error will be thrown in those situations.
+  public func removeDirectoryIfExists(at url: URL) {
+    guard directoryExists(at: url) else { return }
+
+    do {
+      try removeItem(at: url)
+    } catch {
+      fatalError("""
+          Tried to remove directory \(url) but it failed - close any Finder windows and try again.
+          Error: \(error)
+          """)
+    }
+  }
+
   /// Returns a deterministic path of a temporary directory for the given name. Note: This does
   /// *not* create the directory if it doesn't exist, merely generates the name for creation.
   public func temporaryDirectory(withName name: String) -> URL {
@@ -81,36 +118,6 @@ public extension FileManager {
     // Organize all temporary directories into a "FirebaseZipRelease" directory.
     let firebaseDir = tempDir.appendingPathComponent("FirebaseZipRelease", isDirectory: true)
     return firebaseDir.appendingPathComponent(name, isDirectory: true)
-  }
-
-  /// Returns the URL to the Firebase cache directory, and creates it if it doesn't exist.
-  public func firebaseCacheDirectory() throws -> URL {
-    let cacheDir: URL
-    do {
-      // Get the URL for the cache directory.
-      cacheDir = try url(for: .cachesDirectory,
-                             in: .userDomainMask,
-                             appropriateFor: nil,
-                             create: true)
-    } catch {
-      throw error
-    }
-
-    // Get the cache root path, and if it already exists just return the URL.
-    let cacheRoot = cacheDir.appendingPathComponent("firebase_oss_framework_cache")
-    if directoryExists(at: cacheRoot) {
-      return cacheRoot
-    }
-
-    // The cache root folder doesn't exist yet, create it!
-    do {
-      // Create the directory
-      try createDirectory(at: cacheRoot, withIntermediateDirectories: false, attributes: nil)
-    } catch {
-      throw error
-    }
-
-    return cacheRoot
   }
 
   // MARK: Searching

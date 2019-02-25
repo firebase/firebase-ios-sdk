@@ -20,21 +20,21 @@ import Foundation
 enum ResourcesManager {}
 
 extension ResourcesManager {
-  /// Recursively searches for Resources directories in `dir`, creates a `.bundle` and moves them
-  /// to the Resources directory `resourceDir`.
+  /// Recursively searches for Resources directories in `dir`, creates a `.bundle` based on each
+  /// folder contained there, and moves them to the Resources directory `resourceDir`.
   ///
   /// - Parameters:
   ///   - dir: The directory to search for Resource directories.
-  ///   - resourceDir: The destination Resources directory. This function will create the Resources
+  ///   - destinationDir: The destination Resources directory. This function will create the Resources
   ///                  directory if it doesn't exist.
-  public static func createBundleFromResources(inDirectory dir: URL,
-                                               to destinationDir: URL) throws {
+  public static func createBundleForFoldersInResourcesDirs(containedIn dir: URL,
+                                                           destinationDir: URL) throws -> [URL] {
     let fileManager = FileManager.default
     let existingResources = try fileManager.recursivelySearch(for: .directories(name: "Resources"),
                                                               in: dir)
 
     // Only continue if there are Resources to bundle.
-    guard !existingResources.isEmpty else { return }
+    guard !existingResources.isEmpty else { return [] }
 
     // Create the umbrella Resources folder if it doesn't exist.
     if !fileManager.directoryExists(at: destinationDir) {
@@ -45,20 +45,30 @@ extension ResourcesManager {
                                       attributes: nil)
     }
 
-    // Move each of the Resources directories into their own bundle, compiling any storyboards along
-    // the way.
+    // For each "Resources" directory found, turn each folder into a `.bundle`.
+    var bundles: [URL] = []
     for resourceDir in existingResources {
-      // Get the name of the .bundle to create by using the parent directory of the Resources dir -
-      // it's the second last path component. Use that name plus "Resources.bundle".
-      let name = resourceDir.deletingLastPathComponent().lastPathComponent + "Resources.bundle"
-      let location = destinationDir.appendingPathComponent(name)
+      // Get all the folders in the "Resources" directory and loop through them.
+      let containedFolders = try fileManager.contentsOfDirectory(atPath: resourceDir.path)
+      for folderToBundle in containedFolders {
+        let folder = resourceDir.appendingPathComponent(folderToBundle)
+        guard fileManager.isDirectory(at: folder) else { continue }
 
-      // Copy the existing Resources folder to the new bundle location.
-      try fileManager.copyItem(at: resourceDir, to: location)
+        // Generate the name and location based on the folder name.
+        let name = folder.lastPathComponent + ".bundle"
+        let location = destinationDir.appendingPathComponent(name)
 
-      // Compile any storyboards that exist in the new bundle.
-      compileStoryboards(inDir: location)
+        // Copy the existing Resources folder to the new bundle location.
+        try fileManager.copyItem(at: folder, to: location)
+
+        // Compile any storyboards that exist in the new bundle.
+        compileStoryboards(inDir: location)
+
+        bundles.append(location)
+      }
     }
+
+    return bundles
   }
 
   /// Recursively searches for bundles in `dir` and moves them to the Resources directory
