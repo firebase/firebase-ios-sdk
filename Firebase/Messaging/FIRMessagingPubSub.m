@@ -16,6 +16,8 @@
 
 #import "FIRMessagingPubSub.h"
 
+#import <GoogleUtilities/GULUserDefaults.h>
+
 #import "FIRMessaging.h"
 #import "FIRMessagingClient.h"
 #import "FIRMessagingDefines.h"
@@ -23,7 +25,6 @@
 #import "FIRMessagingPendingTopicsList.h"
 #import "FIRMessagingUtilities.h"
 #import "FIRMessaging_Private.h"
-#import <GoogleUtilities/GULUserDefaults.h>
 #import "NSDictionary+FIRMessaging.h"
 #import "NSError+FIRMessaging.h"
 
