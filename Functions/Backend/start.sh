@@ -47,6 +47,7 @@ FUNCTIONS_BIN="./node_modules/.bin/functions"
 "${FUNCTIONS_BIN}" deploy unknownErrorTest --trigger-http
 "${FUNCTIONS_BIN}" deploy explicitErrorTest --trigger-http
 "${FUNCTIONS_BIN}" deploy httpErrorTest --trigger-http
+"${FUNCTIONS_BIN}" deploy timeoutTest --trigger-http
 
 # Wait for the user to tell us to stop the server.
 echo "Functions emulator now running in ${TEMP_DIR}."
