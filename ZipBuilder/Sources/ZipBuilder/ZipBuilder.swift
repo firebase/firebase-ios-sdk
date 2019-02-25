@@ -16,13 +16,6 @@
 
 import Foundation
 
-fileprivate extension URL {
-  /// Generates an array of URLs by calling `appendingPathComponent` for each item in `strings`.
-  func appendEach(_ strings: [String]) -> [URL] {
-    return strings.map{ self.appendingPathComponent($0) }
-  }
-}
-
 /// Misc. constants used in the script.
 private struct Constants {
   /// Constants related to the Xcode project template.
