@@ -290,4 +290,3 @@ jobs:
 branches:
   only:
     - master
-    - enable-integration-tests
