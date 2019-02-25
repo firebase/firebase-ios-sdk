@@ -21,7 +21,7 @@ public extension FileManager {
   // MARK: - Helper Enum Declarations
 
   /// Describes a type of file to be searched for.
-  public enum SearchFileType {
+  enum SearchFileType {
     /// All folders with a `.bundle` extension.
     case bundles
 
@@ -41,14 +41,14 @@ public extension FileManager {
   // MARK: - Error Declarations
 
   /// Errors that can be used to propagate up through the script related to files.
-  public enum FileError: Error {
+  enum FileError: Error {
     case directoryNotFound(path: String)
     case failedToCreateDirectory(path: String, error: Error)
     case writeToFileFailed(file: String, error: Error)
   }
 
   /// Errors that can occur during a recursive search operation.
-  public enum RecursiveSearchError: Error {
+  enum RecursiveSearchError: Error {
     case failedToCreateEnumerator(forDirectory: URL)
   }
 
@@ -56,19 +56,19 @@ public extension FileManager {
 
   /// Convenience function to determine if there's a directory at the given file URL using existing
   /// FileManager calls.
-  public func directoryExists(at url: URL) -> Bool {
+  func directoryExists(at url: URL) -> Bool {
     var isDir: ObjCBool = false
     let exists = fileExists(atPath: url.path, isDirectory: &isDir)
     return exists && isDir.boolValue
   }
 
   /// Convenience function to determine if a given file URL is a directory.
-  public func isDirectory(at url: URL) -> Bool {
+  func isDirectory(at url: URL) -> Bool {
     return directoryExists(at: url)
   }
 
   /// Returns the URL to the Firebase cache directory, and creates it if it doesn't exist.
-  public func firebaseCacheDirectory() throws -> URL {
+  func firebaseCacheDirectory() throws -> URL {
     // Get the URL for the cache directory.
     let cacheDir: URL = try url(for: .cachesDirectory,
                                 in: .userDomainMask,
@@ -91,22 +91,22 @@ public extension FileManager {
   /// shouldn't fail. The only situation this could potentially fail is permission errors or if a
   /// folder is open in Finder, and in either state the user needs to close the window or fix the
   /// permissions. A fatal error will be thrown in those situations.
-  public func removeDirectoryIfExists(at url: URL) {
+  func removeDirectoryIfExists(at url: URL) {
     guard directoryExists(at: url) else { return }
 
     do {
       try removeItem(at: url)
     } catch {
       fatalError("""
-          Tried to remove directory \(url) but it failed - close any Finder windows and try again.
-          Error: \(error)
-          """)
+      Tried to remove directory \(url) but it failed - close any Finder windows and try again.
+      Error: \(error)
+      """)
     }
   }
 
   /// Returns a deterministic path of a temporary directory for the given name. Note: This does
   /// *not* create the directory if it doesn't exist, merely generates the name for creation.
-  public func temporaryDirectory(withName name: String) -> URL {
+  func temporaryDirectory(withName name: String) -> URL {
     // Get access to the temporary directory.
     let tempDir: URL
     if #available(OSX 10.12, *) {
@@ -123,9 +123,9 @@ public extension FileManager {
   // MARK: Searching
 
   /// Recursively search for a set of items in a particular directory.
-  public func recursivelySearch(for type: SearchFileType, in dir: URL) throws -> [URL] {
+  func recursivelySearch(for type: SearchFileType, in dir: URL) throws -> [URL] {
     // Throw an error so an appropriate error can be logged from the caller.
-    
+
     guard directoryExists(at: dir) else {
       throw FileError.directoryNotFound(path: dir.path)
     }
@@ -141,7 +141,7 @@ public extension FileManager {
     var matches: [URL] = []
     while let fileURL = dirEnumerator.nextObject() as? URL {
       switch type {
-      case .directories(let name):
+      case let .directories(name):
         // Skip any non-directories.
         guard directoryExists(at: fileURL) else { continue }
 
@@ -172,7 +172,7 @@ public extension FileManager {
         }
       case .frameworks:
         // We care if it's a directory and has a .framework extension.
-        if directoryExists(at: fileURL) && fileURL.pathExtension == "framework" {
+        if directoryExists(at: fileURL), fileURL.pathExtension == "framework" {
           matches.append(fileURL)
         }
       }

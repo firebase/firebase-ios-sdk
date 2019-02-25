@@ -62,7 +62,7 @@ extension Shell {
       \(command)
       """
       try contents.write(to: scriptPath, atomically: true, encoding: .utf8)
-    } catch FileManager.FileError.failedToCreateDirectory(let path, let error) {
+    } catch let FileManager.FileError.failedToCreateDirectory(path, error) {
       fatalError("Could not execute shell command: \(command) - could not create temporary " +
         "script directory at \(path). \(error)")
     } catch {
@@ -160,9 +160,9 @@ extension Shell {
     let command = "find \(url.path) -type f -exec md5 '{}' + | sort -k 2 | md5"
     let result = executeCommandFromScript(command, outputToConsole: false)
     switch result {
-    case .error(_, let output):
+    case let .error(_, output):
       fatalError("Failed to compute an MD5 hash for \(url): \(output)")
-    case .success(let output):
+    case let .success(output):
       // The output has newlines and a few spaces, only use alphanumerics.
       let excludedChars = CharacterSet.alphanumerics.inverted
       return output.trimmingCharacters(in: excludedChars)

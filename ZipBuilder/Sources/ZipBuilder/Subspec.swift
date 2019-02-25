@@ -83,7 +83,7 @@ public enum Subspec: String {
       .mlVisionTextModel,
       .performance,
       .remoteConfig,
-      .storage
+      .storage,
     ]
   }
 
@@ -99,7 +99,7 @@ public enum Subspec: String {
 
   /// Describes the dependency on other frameworks for the README file.
   public func readmeHeader() -> String {
-    var header = "## \(self.rawValue)"
+    var header = "## \(rawValue)"
     if self != .analytics {
       header += " (~> Analytics)"
     }
@@ -184,7 +184,7 @@ extension OperatingSystemVersion: Comparable, Equatable {
     return lhs.minorVersion < rhs.minorVersion
   }
 
-  public static func >(lhs: OperatingSystemVersion, rhs: OperatingSystemVersion) -> Bool {
+  public static func > (lhs: OperatingSystemVersion, rhs: OperatingSystemVersion) -> Bool {
     // The priority is major.minor.patch, only keep searching to lower importance if the higher
     // levels are equal.
     if lhs.majorVersion > rhs.majorVersion { return true }
@@ -198,10 +198,10 @@ extension OperatingSystemVersion: Comparable, Equatable {
     return lhs.minorVersion > rhs.minorVersion
   }
 
-  public static func ==(lhs: OperatingSystemVersion, rhs: OperatingSystemVersion) -> Bool {
+  public static func == (lhs: OperatingSystemVersion, rhs: OperatingSystemVersion) -> Bool {
     return lhs.majorVersion == rhs.majorVersion &&
-           lhs.minorVersion == rhs.minorVersion &&
-           lhs.patchVersion == rhs.patchVersion
+      lhs.minorVersion == rhs.minorVersion &&
+      lhs.patchVersion == rhs.patchVersion
   }
 }
 

@@ -60,18 +60,18 @@ struct LaunchArgs {
         return "A comma separated list of custom CocoaPod Spec repos."
       case .deleteCache:
         return "A flag to empty the cache. Note: if this flag and the `cacheEnabled` flag is " +
-        "set, it will fail since that's probably unintended."
+          "set, it will fail since that's probably unintended."
       case .existingVersions:
         return "The file path to a textproto file containing the existing released SDK versions, " +
-        "of type `ZipBuilder_FirebaseSDKs`."
+          "of type `ZipBuilder_FirebaseSDKs`."
       case .outputDir:
         return "The directory to copy the built Zip file to."
       case .releasingSDKs:
         return "The file path to a textproto file containing all the releasing SDKs, of type " +
-        "`ZipBuilder_Release`."
+          "`ZipBuilder_Release`."
       case .templateDir:
         return "The path to the directory containing the blank xcodeproj and Info.plist for " +
-        "building source based frameworks"
+          "building source based frameworks"
       case .updatePodRepo:
         return "A flag to run `pod repo update` before building the zip file."
       }
@@ -174,7 +174,7 @@ struct LaunchArgs {
       currentReleasePath = url.standardizedFileURL
     } else {
       // No argument was passed in.
-      currentReleasePath =  nil
+      currentReleasePath = nil
     }
 
     // Parse the output directory key.
@@ -215,7 +215,7 @@ struct LaunchArgs {
     cacheEnabled = defaults.bool(forKey: Key.cacheEnabled.rawValue)
     deleteCache = defaults.bool(forKey: Key.deleteCache.rawValue)
 
-    if deleteCache && cacheEnabled {
+    if deleteCache, cacheEnabled {
       LaunchArgs.exitWithUsageAndLog("Invalid pair - attempted to delete the cache and enable " +
         "it at the same time. Please remove on of the keys and try " +
         "again.")
@@ -230,9 +230,9 @@ struct LaunchArgs {
     print("Usage: `swift run ZipBuilder [ARGS]` where args are:")
     for option in Key.allCases() {
       print("""
-        -\(option.rawValue) <VALUE>
-            \(option.usage)
-        """)
+      -\(option.rawValue) <VALUE>
+          \(option.usage)
+      """)
     }
 
     fatalError("Invalid arguments. See output above for specific error and usage instructions.")

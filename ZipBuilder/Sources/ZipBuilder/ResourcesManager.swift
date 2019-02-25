@@ -85,7 +85,7 @@ extension ResourcesManager {
     let allBundles = try fileManager.recursivelySearch(for: .bundles, in: dir)
 
     // Find the bundle directories and move them into a Resources directory.
-    if !allBundles.isEmpty && !fileManager.directoryExists(at: resourceDir) {
+    if !allBundles.isEmpty, !fileManager.directoryExists(at: resourceDir) {
       // Create a Resources directory if there is at least one bundle and the directory doesn't
       // already exist.
       try fileManager.createDirectory(at: resourceDir,
@@ -113,7 +113,7 @@ extension ResourcesManager {
     let fileManager = FileManager.default
     guard let resourceDirs = try? fileManager.recursivelySearch(for: .directories(name: "Resources"), in: dir) else {
       print("Attempted to remove empty resource directories, but it failed. This shouldn't be " +
-            "classified as an error, but something to look out for.")
+        "classified as an error, but something to look out for.")
       return
     }
 
@@ -131,7 +131,7 @@ extension ResourcesManager {
           try fileManager.removeItem(at: resourceDir)
         } catch {
           print("WARNING: Failed to remove empty Resources directory while cleaning up folder " +
-                "heirarchy: \(error)")
+            "heirarchy: \(error)")
         }
       }
     }
@@ -156,15 +156,15 @@ extension ResourcesManager {
       let command = "ibtool --compile \(compiledPath.path) \(storyboard.path)"
       let result = Shell.executeCommandFromScript(command)
       switch result {
-      case .success(_):
+      case .success:
         // Remove the original storyboard file and continue.
         do {
           try fileManager.removeItem(at: storyboard)
         } catch {
           fatalError("Could not remove storyboard file \(storyboard) from bundle after " +
-                     "compilation: \(error)")
+            "compilation: \(error)")
         }
-      case .error(let code, let output):
+      case let .error(code, output):
         fatalError("Failed to compile storyboard \(storyboard): error \(code) \(output)")
       }
     }

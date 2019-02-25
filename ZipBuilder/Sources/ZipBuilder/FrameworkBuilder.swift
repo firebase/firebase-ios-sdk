@@ -17,9 +17,9 @@
 import Foundation
 
 /// Different architectures to build frameworks for.
-fileprivate enum Architecture : String {
+private enum Architecture: String {
   /// The target platform that the framework is built for.
-  enum TargetPlatform : String {
+  enum TargetPlatform: String {
     case device = "iphoneos"
     case simulator = "iphonesimulator"
 
@@ -57,13 +57,12 @@ fileprivate enum Architecture : String {
 
 /// A structure to build a .framework in a given project directory.
 struct FrameworkBuilder {
-
   /// The directory containing the Xcode project and Pods folder.
   private let projectDir: URL
 
   /// The Pods directory for building the framework.
   private var podsDir: URL {
-    return self.projectDir.appendingPathComponent("Pods", isDirectory: true)
+    return projectDir.appendingPathComponent("Pods", isDirectory: true)
   }
 
   /// Default initializer.
@@ -98,11 +97,11 @@ struct FrameworkBuilder {
 
     guard let podInfo = cachedVersions[version] else {
       fatalError("""
-        Cannot find a pod cache for framework \(podName) at version \(version).
-        Something could be wrong with your CocoaPods cache - try running the following:
+      Cannot find a pod cache for framework \(podName) at version \(version).
+      Something could be wrong with your CocoaPods cache - try running the following:
 
-        pod cache clean '\(podName)' --all
-        """)
+      pod cache clean '\(podName)' --all
+      """)
     }
 
     // TODO: Figure out if we need the MD5 at all.
@@ -125,9 +124,9 @@ struct FrameworkBuilder {
     let cachedFrameworkDir = cachedFrameworkRoot.appendingPathComponent("\(podName).framework")
     let cachedFrameworkExists = fileManager.directoryExists(at: cachedFrameworkDir)
     let cachedResourcesDir = cachedFrameworkRoot.appendingPathComponent("Resources")
-    if cachedFrameworkExists && cacheEnabled {
+    if cachedFrameworkExists, cacheEnabled {
       print("Framework \(podName) version \(version) has already been built and cached at " +
-            "\(cachedFrameworkDir)")
+        "\(cachedFrameworkDir)")
       return (cachedFrameworkDir, cachedResourcesDir)
     } else {
       let (frameworkDir, bundles) = compileFrameworkAndResources(withName: podName)
@@ -188,7 +187,7 @@ struct FrameworkBuilder {
     // Normally we'd use a pipe to retrieve the output, but for whatever reason it slows things down
     // tremendously for xcodebuild.
     let output = "The task completed."
-    guard (task.terminationStatus == 0) else {
+    guard task.terminationStatus == 0 else {
       return .error(code: task.terminationStatus, output: output)
     }
 
@@ -209,19 +208,19 @@ struct FrameworkBuilder {
                          logRoot: URL) -> URL {
     let platform = arch.platform
     let workspacePath = projectDir.appendingPathComponent("FrameworkMaker.xcworkspace").path
-    let standardOptions = [ "build",
-                            "-configuration", "release",
-                            "-workspace", workspacePath,
-                            "-scheme", framework,
-                            "GCC_GENERATE_DEBUGGING_SYMBOLS=No",
-                            "ARCHS=\(arch.rawValue)",
-                            "BUILD_DIR=\(buildDir.path)",
-                            "-sdk", platform.rawValue]
+    let standardOptions = ["build",
+                           "-configuration", "release",
+                           "-workspace", workspacePath,
+                           "-scheme", framework,
+                           "GCC_GENERATE_DEBUGGING_SYMBOLS=No",
+                           "ARCHS=\(arch.rawValue)",
+                           "BUILD_DIR=\(buildDir.path)",
+                           "-sdk", platform.rawValue]
     let args = standardOptions + platform.extraArguments()
     print("""
-      Compiling \(framework) for \(arch.rawValue) with command:
-      /usr/bin/xcodebuild \(args.joined(separator: " "))
-      """)
+    Compiling \(framework) for \(arch.rawValue) with command:
+    /usr/bin/xcodebuild \(args.joined(separator: " "))
+    """)
 
     // Regardless if it succeeds or not, we want to write the log to file in case we need to inspect
     // things further.
@@ -236,17 +235,17 @@ struct FrameworkBuilder {
       // should pass every time. Revisit if that's not the case.
       try! output.write(to: logFile, atomically: true, encoding: .utf8)
       fatalError("Error building \(framework) for \(arch.rawValue). Code: \(code). See the build " +
-                 "log at \(logFile)")
+        "log at \(logFile)")
 
-    case .success(let output):
+    case let .success(output):
       // Try to write the output to the log file but if it fails it's not a huge deal since it was
       // a successful build.
       try? output.write(to: logFile, atomically: true, encoding: .utf8)
 
       // Use the Xcode-generated path to return the path to the compiled library.
       let libPath = buildDir.appendingPathComponents(["Release-\(platform.rawValue)",
-        framework,
-        "lib\(framework).a"])
+                                                      framework,
+                                                      "lib\(framework).a"])
       return libPath
     }
   }
@@ -255,37 +254,37 @@ struct FrameworkBuilder {
   // Pods/Target Support Files/{framework}/{framework}.xcconfig.
   private func getModuleDependencies(forFramework framework: String) ->
     (frameworks: [String], libraries: [String]) {
-      let xcconfigFile = podsDir.appendingPathComponents(["Target Support Files",
-                                                          framework,
-                                                          "\(framework).xcconfig"])
-      do {
-        let text = try String(contentsOf: xcconfigFile)
-        let lines = text.components(separatedBy: .newlines)
-        for line in lines {
-          if (line.hasPrefix("OTHER_LDFLAGS =")) {
-            var dependencyFrameworks: [String] = []
-            var dependencyLibraries: [String] = []
-            let tokens = line.components(separatedBy: " ")
-            var addNext = false
-            for token in tokens {
-              if addNext {
-                dependencyFrameworks.append(token)
-                addNext = false
-              } else if token == "-framework" {
-                addNext = true
-              } else if token.hasPrefix("-l") {
-                let index = token.index(token.startIndex, offsetBy: 2)
-                dependencyLibraries.append(String(token[index...]))
-              }
+    let xcconfigFile = podsDir.appendingPathComponents(["Target Support Files",
+                                                        framework,
+                                                        "\(framework).xcconfig"])
+    do {
+      let text = try String(contentsOf: xcconfigFile)
+      let lines = text.components(separatedBy: .newlines)
+      for line in lines {
+        if line.hasPrefix("OTHER_LDFLAGS =") {
+          var dependencyFrameworks: [String] = []
+          var dependencyLibraries: [String] = []
+          let tokens = line.components(separatedBy: " ")
+          var addNext = false
+          for token in tokens {
+            if addNext {
+              dependencyFrameworks.append(token)
+              addNext = false
+            } else if token == "-framework" {
+              addNext = true
+            } else if token.hasPrefix("-l") {
+              let index = token.index(token.startIndex, offsetBy: 2)
+              dependencyLibraries.append(String(token[index...]))
             }
-            
-            return (dependencyFrameworks, dependencyLibraries)
           }
+
+          return (dependencyFrameworks, dependencyLibraries)
         }
-      } catch {
-        fatalError("Failed to open \(xcconfigFile): \(error)")
       }
-      return ([], [])
+    } catch {
+      fatalError("Failed to open \(xcconfigFile): \(error)")
+    }
+    return ([], [])
   }
 
   private func makeModuleMap(baseDir: URL, framework: String, dir: URL) {
@@ -323,14 +322,13 @@ struct FrameworkBuilder {
     }
   }
 
-
   /// Compiles the specified framework in a temporary directory and writes the build logs to file.
   /// This will compile all architectures and use the lipo command to create a "fat" archive.
   ///
   /// - Parameter framework: The name of the framework to be built.
   /// - Returns: A path to the newly compiled framework and Resource bundles.
   private func compileFrameworkAndResources(withName framework: String) ->
-      (framework: URL, resourceBundles: [URL]) {
+    (framework: URL, resourceBundles: [URL]) {
     let fileManager = FileManager.default
     let outputDir = fileManager.temporaryDirectory(withName: "frameworkBeingBuilt")
     let logsDir = fileManager.temporaryDirectory(withName: "buildLogs")
@@ -382,14 +380,14 @@ struct FrameworkBuilder {
     // thin paths (as Strings, not URLs).
     let thinPaths = thinArchives.map { $0.path }
     let fatArchive = frameworkDir.appendingPathComponent(framework)
-    let result = syncExec(command:"/usr/bin/lipo", args:["-create", "-output", fatArchive.path] + thinPaths)
+    let result = syncExec(command: "/usr/bin/lipo", args: ["-create", "-output", fatArchive.path] + thinPaths)
     switch result {
     case let .error(code, output):
       fatalError("""
-        lipo command exited with \(code) when trying to build \(framework). Output:
-        \(output)
-        """)
-    case .success(_):
+      lipo command exited with \(code) when trying to build \(framework). Output:
+      \(output)
+      """)
+    case .success:
       print("lipo command for \(framework) succeeded.")
     }
 
@@ -401,11 +399,11 @@ struct FrameworkBuilder {
         // Just log a warning instead of failing, since this doesn't actually affect the build
         // itself. This should only be shown to help users clean up their disk afterwards.
         print("""
-          WARNING: Failed to remove temporary thin archive at \(thinArchive.path). This should be
-          removed from your system to save disk space. \(error). You should be able to remove the
-          archive from Terminal with:
-          rm \(thinArchive.path)
-          """)
+        WARNING: Failed to remove temporary thin archive at \(thinArchive.path). This should be
+        removed from your system to save disk space. \(error). You should be able to remove the
+        archive from Terminal with:
+        rm \(thinArchive.path)
+        """)
       }
     }
 
@@ -425,8 +423,8 @@ struct FrameworkBuilder {
       try recursivelyCopyHeaders(from: headersDir, to: headersDestination)
     } catch {
       fatalError("Could not copy headers from \(headersDir) to Headers directory in " +
-                 "\(headersDestination): \(error)")
-  }
+        "\(headersDestination): \(error)")
+    }
 
     // Move all the Resources into .bundle directories in the destination Resources dir. The
     // Resources live are contained within the folder structure:
@@ -441,7 +439,7 @@ struct FrameworkBuilder {
       bundles = try ResourcesManager.moveAllBundles(inDirectory: contentsDir, to: resourceDir)
     } catch {
       fatalError("Could not move bundles into Resources directory while building \(framework): " +
-                 "\(error)")
+        "\(error)")
     }
 
     makeModuleMap(baseDir: outputDir, framework: framework, dir: frameworkDir)

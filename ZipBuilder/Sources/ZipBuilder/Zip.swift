@@ -42,7 +42,7 @@ struct Zip {
     let command = "zip -q -r -dg \(zip.lastPathComponent) \(directory.lastPathComponent)"
     let result = Shell.executeCommandFromScript(command, workingDir: parentDir)
     switch result {
-    case .success(_):
+    case .success:
       print("Successfully built Zip file.")
       return zip
     case let .error(code, output):

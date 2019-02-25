@@ -21,8 +21,8 @@ import Foundation
 enum ManifestReader {}
 
 extension ManifestReader {
-   /// Load all the publicly released SDKs and their versions. Will cause a fatal error if the file
-   /// cannot be read or proto cannot be generated.
+  /// Load all the publicly released SDKs and their versions. Will cause a fatal error if the file
+  /// cannot be read or proto cannot be generated.
   static func loadAllReleasedSDKs(fromTextproto textproto: URL) -> ZipBuilder_FirebaseSDKs {
     // Read the textproto and create it from the proto's generated API. Fail if anything fails in
     // the process.

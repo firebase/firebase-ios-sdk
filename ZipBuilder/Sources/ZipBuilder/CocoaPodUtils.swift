@@ -58,10 +58,10 @@ public enum CocoaPodUtils {
   public static func listPodCache(inDir dir: URL) -> [String: [String: PodInfo]] {
     let result = Shell.executeCommandFromScript("pod cache list", outputToConsole: false)
     switch result {
-    case .error(let code):
+    case let .error(code):
       fatalError("Could not list the pod cache in \(dir), the command exited with \(code). Try " +
         "running in Terminal to see what's wrong.")
-    case .success(let output):
+    case let .success(output):
       return parsePodsCache(output: output.components(separatedBy: "\n"))
     }
   }
@@ -78,7 +78,7 @@ public enum CocoaPodUtils {
     }
 
     // Get the versions in the format of [PodName: VersionString].
-    let versions = self.loadVersionsFromPodfileLock(contents: podfileLock)
+    let versions = loadVersionsFromPodfileLock(contents: podfileLock)
 
     // Generate an InstalledPod for each Pod found.
     let podsDir = projectDir.appendingPathComponent("Pods")
@@ -124,9 +124,9 @@ public enum CocoaPodUtils {
     // Attempt to write the Podfile to disk.
     do {
       try writePodfile(for: subspecs, toDirectory: directory, customSpecRepos: customSpecRepos)
-    } catch FileManager.FileError.directoryNotFound(let path) {
+    } catch let FileManager.FileError.directoryNotFound(path) {
       fatalError("Failed to write Podfile with subspecs \(subspecs) at path \(path)")
-    } catch FileManager.FileError.writeToFileFailed(let path, let error) {
+    } catch let FileManager.FileError.writeToFileFailed(path, error) {
       fatalError("Failed to write Podfile for all subspecs at path: \(path), error: \(error)")
     } catch {
       fatalError("Unspecified error writing Podfile for all subspecs to disk: \(error)")
@@ -135,18 +135,18 @@ public enum CocoaPodUtils {
     // Run pod install on the directory that contains the Podfile and blank Xcode project.
     let result = Shell.executeCommandFromScript("pod install", workingDir: directory)
     switch result {
-    case .error(let code, let output):
+    case let .error(code, output):
       fatalError("""
-                `pod install` failed with exit code \(code) while trying to install subspecs:
-                \(subspecs)
+      `pod install` failed with exit code \(code) while trying to install subspecs:
+      \(subspecs)
 
-                Output from `pod install`:
-                \(output)
-                """)
-    case .success(let output):
+      Output from `pod install`:
+      \(output)
+      """)
+    case let .success(output):
       // Print the output to the console and return the information for all installed pods.
       print(output)
-      return self.installedPodsInfo(inProjectDir: directory)
+      return installedPodsInfo(inProjectDir: directory)
     }
   }
 
@@ -180,9 +180,9 @@ public enum CocoaPodUtils {
   public static func updateRepos() {
     let result = Shell.executeCommandFromScript("pod repo update")
     switch result {
-    case .error(_, let output):
+    case let .error(_, output):
       fatalError("Command `pod repo update` failed: \(output)")
-    case .success(_):
+    case .success:
       return
     }
   }
@@ -201,8 +201,8 @@ public enum CocoaPodUtils {
   ///   - regex: The regex to match compared to the input.
   /// - Returns: A tuple of the framework and version, if it can be parsed.
   private static func detectVersion(fromLine input: String,
-                                    matching regex : NSRegularExpression) -> (framework: String, version: String)? {
-    let matches = regex.matches(in: input, range:NSRange(location: 0, length: input.utf8.count))
+                                    matching regex: NSRegularExpression) -> (framework: String, version: String)? {
+    let matches = regex.matches(in: input, range: NSRange(location: 0, length: input.utf8.count))
     let nsString = input as NSString
 
     guard let match = matches.first else {
@@ -214,8 +214,8 @@ public enum CocoaPodUtils {
       return nil
     }
 
-    let framework = nsString.substring(with: match.range(at:1)) as String
-    let version = nsString.substring(with: match.range(at:2)) as String
+    let framework = nsString.substring(with: match.range(at: 1)) as String
+    let version = nsString.substring(with: match.range(at: 2)) as String
 
     return (framework, version)
   }
@@ -239,19 +239,19 @@ public enum CocoaPodUtils {
     // about.
     guard let podsInstalled = podfileLock.components(separatedBy: "DEPENDENCIES:").first else {
       fatalError("""
-        Could not generate cache key for \(podName) from Podfile.lock contents - is this a valid
-        Podfile.lock?
-        ---------- Podfile.lock contents ----------
-        \(podfileLock)
-        -------------------------------------------
-        """)
+      Could not generate cache key for \(podName) from Podfile.lock contents - is this a valid
+      Podfile.lock?
+      ---------- Podfile.lock contents ----------
+      \(podfileLock)
+      -------------------------------------------
+      """)
     }
 
     // Only get the lines that start with "  - ", and have the framework we're looking for since
     // they are the top level pods that are installed.
     // Example result of a single line: `- GoogleUtilities/Environment (~> 5.2)`.
     let lines = podsInstalled.components(separatedBy: .newlines).filter {
-      return $0.hasPrefix("  - ") && $0.contains(podName)
+      $0.hasPrefix("  - ") && $0.contains(podName)
     }
 
     // Get a list of all the subspecs used to build this framework, and use that to generate the
@@ -299,10 +299,10 @@ public enum CocoaPodUtils {
       // This shouldn't happen, but in the interest of completeness quit the script and describe
       // how this could be fixed.
       fatalError("""
-        Could not retrieve the largest minimum iOS version for the Podfile - array of subspecs
-        to install is likely empty. This is likely a programmer error - no function should be
-        calling \(#function) before validating that the subspecs array is not empty.
-        """)
+      Could not retrieve the largest minimum iOS version for the Podfile - array of subspecs
+      to install is likely empty. This is likely a programmer error - no function should be
+      calling \(#function) before validating that the subspecs array is not empty.
+      """)
     }
 
     // Start assembling the Podfile.
@@ -311,19 +311,19 @@ public enum CocoaPodUtils {
     // If custom Specs repos were passed in, prefix the Podfile with the custom repos followed by
     // the CocoaPods master Specs repo.
     if let customSpecsRepos = customSpecsRepos {
-      let reposText = customSpecsRepos.map { "source '\($0)'"}
+      let reposText = customSpecsRepos.map { "source '\($0)'" }
       podfile += """
-          \(reposText.joined(separator: "\n"))
-          source 'https://github.com/CocoaPods/Specs.git'
+      \(reposText.joined(separator: "\n"))
+      source 'https://github.com/CocoaPods/Specs.git'
 
-          """ // Explicit newline above to ensure it's included in the String.
+      """ // Explicit newline above to ensure it's included in the String.
     }
 
     // Include the calculated minimum iOS version.
     podfile += """
-      platform :ios, '\(largestMinVersion.podVersion())'
-      target 'FrameworkMaker' do\n
-      """
+    platform :ios, '\(largestMinVersion.podVersion())'
+    target 'FrameworkMaker' do\n
+    """
 
     // Loop through the subspecs passed in and use the rawValue (actual Pod name).
     for subspec in subspecs {
@@ -336,13 +336,13 @@ public enum CocoaPodUtils {
 
   /// Parse the output from Pods Cache
   private static func parsePodsCache(output: [String]) -> [String: [String: PodInfo]] {
-    var podName : String?
-    var podVersion : String?
+    var podName: String?
+    var podVersion: String?
 
-    var podsCache : [String: [String: PodInfo]] = [:]
+    var podsCache: [String: [String: PodInfo]] = [:]
 
     for line in output {
-      let trimmedLine = line.trimmingCharacters(in: .whitespaces);
+      let trimmedLine = line.trimmingCharacters(in: .whitespaces)
       let parts = trimmedLine.components(separatedBy: ":")
       if trimmedLine.hasSuffix(":") {
         podName = parts[0]
@@ -351,10 +351,9 @@ public enum CocoaPodUtils {
         let key = parts[0].trimmingCharacters(in: .whitespaces)
         let value = parts[1].trimmingCharacters(in: .whitespaces)
 
-        switch(key) {
+        switch key {
         case "- Version":
           podVersion = value
-          break;
         case "Pod":
           let podLocation = URL(fileURLWithPath: value)
           let podInfo = PodInfo(name: podName!, version: podVersion!, installedLocation: podLocation)
@@ -362,17 +361,15 @@ public enum CocoaPodUtils {
             podsCache[podName!] = [:]
           }
           podsCache[podName!]![podVersion!] = podInfo
-          break;
 
         default:
-          break;
+          break
         }
       }
     }
 
     return podsCache
   }
-
 
   /// Write a podfile that contains all the subspecs passed in to the directory passed in with a
   /// name "Podfile".

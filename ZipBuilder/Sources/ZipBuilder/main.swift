@@ -71,16 +71,16 @@ do {
   // Get the time since the start of the build to get the full time.
   let secondsSinceStart = -Int(buildStart.timeIntervalSinceNow)
   print("""
-    Time profile:
-      It took \(secondsSinceStart) seconds (~\(secondsSinceStart / 60)m) to build the zip file.
-      \(cocoaPodsUpdateMessage)
-    """)
+  Time profile:
+    It took \(secondsSinceStart) seconds (~\(secondsSinceStart / 60)m) to build the zip file.
+    \(cocoaPodsUpdateMessage)
+  """)
 } catch {
   let secondsSinceStart = -buildStart.timeIntervalSinceNow
   print("""
-    Time profile:
-      The build failed in \(secondsSinceStart) seconds (~\(secondsSinceStart / 60)m).
-      \(cocoaPodsUpdateMessage)
-    """)
+  Time profile:
+    The build failed in \(secondsSinceStart) seconds (~\(secondsSinceStart / 60)m).
+    \(cocoaPodsUpdateMessage)
+  """)
   fatalError("Could not build the zip file: \(error)")
 }
