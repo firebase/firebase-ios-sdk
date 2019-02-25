@@ -136,14 +136,7 @@ NS_ASSUME_NONNULL_BEGIN
                                              accum.push_back(maybe_snapshot.status());
                                            }];
 
-  Status testError{FirestoreErrorCode::Unknown, ""};
-  /*
-   [NSError errorWithDomain:@"com.google.firestore.test"
-                                         code:42
-                     /Users/varconst/firebase-ios-sdk/Firestore/Example/Tests/Core/FSTQueryListenerTests.mm:137:29:
-   No matching member function for call to 'push_back'                userInfo:@{@"some" :
-   @"info"}];
-   */
+  Status testError{FirestoreErrorCode::Unauthenticated, "Some info"};
   [listener queryDidError:testError];
 
   XCTAssertTrue((accum == std::vector<Status>{testError}));

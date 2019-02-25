@@ -139,7 +139,7 @@ ViewSnapshot::ViewSnapshot(FSTQuery* query,
                            bool from_cache,
                            bool sync_state_changed,
                            bool excludes_metadata_changes)
-    : impl_{std::make_shared<Impl>(query,
+    : impl_{std::make_shared<const Impl>(query,
                                    documents,
                                    old_documents,
                                    std::move(document_changes),

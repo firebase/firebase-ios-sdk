@@ -215,7 +215,7 @@ class ViewSnapshot {
     model::DocumentKeySet mutated_keys;
   };
 
-  std::shared_ptr<Impl> impl_;
+  std::shared_ptr<const Impl> impl_;
 };
 
 }  // namespace core

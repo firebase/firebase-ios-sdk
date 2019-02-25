@@ -100,12 +100,6 @@ static NSNumber *ToNSNumber(OnlineState state) {
 
 - (FSTQueryListener *)makeMockListenerForQuery:(FSTQuery *)query
                            viewSnapshotHandler:(ViewSnapshotHandler &&)handler {
-  // FSTQueryListener *listener = OCMClassMock([FSTQueryListener class]);
-  // OCMStub([listener query]).andReturn(query);
-  // OCMStub([listener queryDidChangeViewSnapshot:[OCMArg any]]).andDo(^(NSInvocation *invocation) {
-  //   handler();
-  // });
-  // return listener;
   return [[FSTQueryListener alloc] initWithQuery:query
                                          options:[FSTListenOptions defaultOptions]
                              viewSnapshotHandler:std::move(handler)];
