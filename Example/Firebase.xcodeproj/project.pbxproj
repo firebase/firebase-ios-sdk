@@ -114,6 +114,7 @@
 		23E0AE5068016F070791E057 /* Pods_Core_Tests_macOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AC72EDDF4AF92EA024B2EB44 /* Pods_Core_Tests_macOS.framework */; };
 		3B8FDC1F1FBDA53E6F448A3F /* Pods_Messaging_Example_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 266E5DCA55580B14AB3EF4BB /* Pods_Messaging_Example_iOS.framework */; };
 		3C12A42783AC5F964C78FD16 /* Pods_Messaging_Tests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E1B9864D059BB8C10886D295 /* Pods_Messaging_Tests_iOS.framework */; };
+		3C598372199A2FB2D52FFD29 /* Pods_Messaging_Example_tvOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6EEEC07800F2477066AE701 /* Pods_Messaging_Example_tvOS.framework */; };
 		405EEF4C2216518B00B08FF4 /* FIRAuthLifeCycleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 405EEF4B2216518A00B08FF4 /* FIRAuthLifeCycleTests.m */; };
 		405EEF4D2216518B00B08FF4 /* FIRAuthLifeCycleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 405EEF4B2216518A00B08FF4 /* FIRAuthLifeCycleTests.m */; };
 		405EEF4E2216518B00B08FF4 /* FIRAuthLifeCycleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 405EEF4B2216518A00B08FF4 /* FIRAuthLifeCycleTests.m */; };
@@ -136,6 +137,7 @@
 		511DD2802225C4D20094D78D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 511DD27F2225C4D20094D78D /* main.m */; };
 		54C5E6705B219A2D6E316184 /* Pods_Storage_Example_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 57BB675536A0CFBE94128175 /* Pods_Storage_Example_iOS.framework */; };
 		582C0B7DCDABF094B75287BC /* Pods_Core_Example_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 43B70BAF1F389278DD25837A /* Pods_Core_Example_iOS.framework */; };
+		6206250D8413E6B3E045E4ED /* Pods_Messaging_Tests_tvOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C152AFD0C606933B0B1D8801 /* Pods_Messaging_Tests_tvOS.framework */; };
 		6367306BE5D0ED922A23F23C /* Pods_Auth_Sample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C13C0F6A188F81BEED2E7FAE /* Pods_Auth_Sample.framework */; };
 		6D51BEB3080E235187DFC24E /* Pods_Auth_E2eTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E6A5E548401D0FD00C028D1 /* Pods_Auth_E2eTests.framework */; };
 		6F48F530D5A108F1720C93C5 /* Pods_DynamicLinks_Tests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B70A99F8540526AF516DD45 /* Pods_DynamicLinks_Tests_iOS.framework */; };
@@ -1598,6 +1600,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3C598372199A2FB2D52FFD29 /* Pods_Messaging_Example_tvOS.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1605,6 +1608,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6206250D8413E6B3E045E4ED /* Pods_Messaging_Tests_tvOS.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3046,9 +3050,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 511DD2812225C4D20094D78D /* Build configuration list for PBXNativeTarget "Messaging_Example_tvOS" */;
 			buildPhases = (
+				CFB006462C33B17DCD339270 /* [CP] Check Pods Manifest.lock */,
 				511DD26D2225C4D00094D78D /* Sources */,
 				511DD26E2225C4D00094D78D /* Frameworks */,
 				511DD26F2225C4D00094D78D /* Resources */,
+				825AD0EA71FA7CB6CFDEB11C /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -3063,9 +3069,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 511DD28F2225C5A80094D78D /* Build configuration list for PBXNativeTarget "Messaging_Tests_tvOS" */;
 			buildPhases = (
+				CE129A53BF2919B15FE885E1 /* [CP] Check Pods Manifest.lock */,
 				511DD2842225C5A80094D78D /* Sources */,
 				511DD2852225C5A80094D78D /* Frameworks */,
 				511DD2862225C5A80094D78D /* Resources */,
+				CE638761D9E9464DA95005BA /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -5216,6 +5224,30 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
+		825AD0EA71FA7CB6CFDEB11C /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Messaging_Example_tvOS/Pods-Messaging_Example_tvOS-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/GoogleUtilities-tvOS/GoogleUtilities.framework",
+				"${BUILT_PRODUCTS_DIR}/Protobuf-tvOS/Protobuf.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleUtilities.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Protobuf.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Messaging_Example_tvOS/Pods-Messaging_Example_tvOS-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		84860ED4E993D8707D5B6E8B /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -5568,6 +5600,50 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Auth_Example_macOS/Pods-Auth_Example_macOS-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
+		CE129A53BF2919B15FE885E1 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Messaging_Tests_tvOS-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		CE638761D9E9464DA95005BA /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Messaging_Tests_tvOS/Pods-Messaging_Tests_tvOS-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/OCMock-tvOS/OCMock.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/OCMock.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Messaging_Tests_tvOS/Pods-Messaging_Tests_tvOS-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		CEFD84C50D792C4837C8BE37 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -5604,6 +5680,28 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Storage_Example_tvOS/Pods-Storage_Example_tvOS-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		CFB006462C33B17DCD339270 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Messaging_Example_tvOS-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
 		D333E1C4835193968D3CE97C /* [CP] Check Pods Manifest.lock */ = {
@@ -7118,6 +7216,7 @@
 		};
 		511DD2822225C4D20094D78D /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 717406E6EAB48BFF57F69FF2 /* Pods-Messaging_Example_tvOS.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
@@ -7151,6 +7250,7 @@
 		};
 		511DD2832225C4D20094D78D /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 80D66B8957E4161A05174E22 /* Pods-Messaging_Example_tvOS.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
@@ -7185,6 +7285,7 @@
 		};
 		511DD2902225C5A80094D78D /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4BA790B9DFC3F29E3CA89B6F /* Pods-Messaging_Tests_tvOS.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ANALYZER_NONNULL = YES;
@@ -7218,6 +7319,7 @@
 		};
 		511DD2912225C5A80094D78D /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = CA8C689C70845912FFF32254 /* Pods-Messaging_Tests_tvOS.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ANALYZER_NONNULL = YES;
@@ -8005,7 +8107,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 4ANB9W7R3P;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = $SRCROOT/DynamicLinks/FDLBuilderTestAppObjC/Info.plist;
+				INFOPLIST_FILE = "$SRCROOT/DynamicLinks/FDLBuilderTestAppObjC/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.4;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
@@ -8040,7 +8142,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 4ANB9W7R3P;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = $SRCROOT/DynamicLinks/FDLBuilderTestAppObjC/Info.plist;
+				INFOPLIST_FILE = "$SRCROOT/DynamicLinks/FDLBuilderTestAppObjC/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.4;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
