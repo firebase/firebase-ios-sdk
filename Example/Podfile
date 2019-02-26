@@ -249,3 +249,16 @@ target 'Storage_Example_tvOS' do
 #    inherit! :search_paths
 #  end
 end
+
+target 'Messaging_Example_tvOS' do
+  platform :tvos, '10.0'
+
+  pod 'FirebaseMessaging', :path => '../'
+
+  target 'Messaging_Tests_tvOS' do
+    inherit! :search_paths
+    pod 'OCMock'
+  end
+end
+
+
