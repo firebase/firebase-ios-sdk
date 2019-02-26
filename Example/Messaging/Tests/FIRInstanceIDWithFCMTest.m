@@ -25,7 +25,8 @@
 
 @interface FIRInstanceID (ExposedForTest)
 - (BOOL)isFCMAutoInitEnabled;
-+ (FIRInstanceID *)instanceIDForTests;
+- (instancetype)initPrivately;
+- (void)start;
 @end
 
 @interface FIRMessaging ()
@@ -43,7 +44,8 @@
 
 - (void)setUp {
   [super setUp];
-  _instanceID = [FIRInstanceID instanceIDForTests];
+  _instanceID = [[FIRInstanceID alloc] initPrivately];
+  [_instanceID start];
   _mockFirebaseApp = OCMClassMock([FIRApp class]);
   OCMStub([_mockFirebaseApp defaultApp]).andReturn(_mockFirebaseApp);
 }
