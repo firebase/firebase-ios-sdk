@@ -145,17 +145,14 @@ typedef NS_ENUM(NSInteger, FIRInstanceIDAPNSTokenType) {
 static FIRInstanceID *gInstanceID;
 
 + (instancetype)instanceID {
+  // If the static instance was created, return it. This should only be set in tests and we should
+  // eventually use proper dependency injection for a better test structure.
   if (gInstanceID != nil) {
     return gInstanceID;
   }
   FIRApp *defaultApp = [FIRApp defaultApp];  // Missing configure will be logged here.
   FIRInstanceID *instanceID =
       (FIRInstanceID *)FIR_COMPONENT(FIRInstanceIDInstanceProvider, defaultApp.container);
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    [instanceID start];
-    gInstanceID = instanceID;
-  });
   return instanceID;
 }
 
@@ -658,7 +655,9 @@ static FIRInstanceID *gInstanceID;
       ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
     // Ensure it's cached so it returns the same instance every time instanceID is called.
     *isCacheable = YES;
-    return [[FIRInstanceID alloc] initPrivately];
+    FIRInstanceID *instanceID = [[FIRInstanceID alloc] initPrivately];
+    [instanceID start];
+    return instanceID;
   };
   FIRComponent *instanceIDProvider =
       [FIRComponent componentWithProtocol:@protocol(FIRInstanceIDInstanceProvider)
