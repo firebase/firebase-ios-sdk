@@ -47,6 +47,7 @@
 #import <FirebaseCore/FIRLibrary.h>
 #import <FirebaseInstanceID/FirebaseInstanceID.h>
 #import <GoogleUtilities/GULReachabilityChecker.h>
+#import <GoogleUtilities/GULUserDefaults.h>
 
 #import "NSError+FIRMessaging.h"
 
@@ -141,7 +142,7 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 @property(nonatomic, readwrite, strong) FIRMessagingRmqManager *rmq2Manager;
 @property(nonatomic, readwrite, strong) FIRMessagingReceiver *receiver;
 @property(nonatomic, readwrite, strong) FIRMessagingSyncMessageManager *syncMessageManager;
-@property(nonatomic, readwrite, strong) NSUserDefaults *messagingUserDefaults;
+@property(nonatomic, readwrite, strong) GULUserDefaults *messagingUserDefaults;
 
 /// Message ID's logged for analytics. This prevents us from logging the same message twice
 /// which can happen if the user inadvertently calls `appDidReceiveMessage` along with us
@@ -179,7 +180,7 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 
 - (instancetype)initWithAnalytics:(nullable id<FIRAnalyticsInterop>)analytics
                    withInstanceID:(FIRInstanceID *)instanceID
-                 withUserDefaults:(NSUserDefaults *)defaults {
+                 withUserDefaults:(GULUserDefaults *)defaults {
   self = [super init];
   if (self != nil) {
     _loggedMessageIDs = [NSMutableSet set];
@@ -214,7 +215,7 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
     id<FIRAnalyticsInterop> analytics = FIR_COMPONENT(FIRAnalyticsInterop, container);
         return [[FIRMessaging alloc] initWithAnalytics:analytics
                                         withInstanceID:[FIRInstanceID instanceID]
-                                      withUserDefaults:[NSUserDefaults standardUserDefaults]];
+                                      withUserDefaults:[GULUserDefaults standardUserDefaults]];
   };
   FIRComponent *messagingProvider =
       [FIRComponent componentWithProtocol:@protocol(FIRMessagingInstanceProvider)
