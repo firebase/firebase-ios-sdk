@@ -700,6 +700,13 @@
 			remoteGlobalIDString = DE7B8D041E8EF077009EB6DF;
 			remoteInfo = Database_Example;
 		};
+		511DD28D2225C5A80094D78D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6003F582195388D10070C39A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 511DD2702225C4D00094D78D;
+			remoteInfo = Messaging_Example_tvOS;
+		};
 		AFD563111EB140E100EA2233 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 6003F582195388D10070C39A /* Project object */;
@@ -1073,6 +1080,7 @@
 		511DD27C2225C4D20094D78D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		511DD27E2225C4D20094D78D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		511DD27F2225C4D20094D78D /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		511DD2882225C5A80094D78D /* Messaging_Tests_tvOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Messaging_Tests_tvOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		528CD8B3E835B99185E2B17A /* Pods_Database_Tests_macOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Database_Tests_macOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		52B1A145C64AC070BCBBC5C0 /* Pods-Storage_Example_tvOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Storage_Example_tvOS.debug.xcconfig"; path = "Target Support Files/Pods-Storage_Example_tvOS/Pods-Storage_Example_tvOS.debug.xcconfig"; sourceTree = "<group>"; };
 		53B7DE35FA66DCC678A368E1 /* Pods-DynamicLinks_Tests_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DynamicLinks_Tests_iOS.debug.xcconfig"; path = "Target Support Files/Pods-DynamicLinks_Tests_iOS/Pods-DynamicLinks_Tests_iOS.debug.xcconfig"; sourceTree = "<group>"; };
@@ -1593,6 +1601,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		511DD2852225C5A80094D78D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AEC1C964E4211C8E5B7CD8C6 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -2055,6 +2070,7 @@
 				DE958B7221F7D13E00E6C1C5 /* InstanceID_Example_iOS.app */,
 				DE958B9421F7D15900E6C1C5 /* InstanceID_Tests_iOS.xctest */,
 				511DD2712225C4D00094D78D /* Messaging_Example_tvOS.app */,
+				511DD2882225C5A80094D78D /* Messaging_Tests_tvOS.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -3043,6 +3059,24 @@
 			productReference = 511DD2712225C4D00094D78D /* Messaging_Example_tvOS.app */;
 			productType = "com.apple.product-type.application";
 		};
+		511DD2872225C5A80094D78D /* Messaging_Tests_tvOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 511DD28F2225C5A80094D78D /* Build configuration list for PBXNativeTarget "Messaging_Tests_tvOS" */;
+			buildPhases = (
+				511DD2842225C5A80094D78D /* Sources */,
+				511DD2852225C5A80094D78D /* Frameworks */,
+				511DD2862225C5A80094D78D /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				511DD28E2225C5A80094D78D /* PBXTargetDependency */,
+			);
+			name = Messaging_Tests_tvOS;
+			productName = Messaging_Tests_tvOS;
+			productReference = 511DD2882225C5A80094D78D /* Messaging_Tests_tvOS.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		AFD562E41EB13C6D00EA2233 /* Messaging_Example_iOS */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = AFD562F41EB13C6D00EA2233 /* Build configuration list for PBXNativeTarget "Messaging_Example_iOS" */;
@@ -3804,6 +3838,11 @@
 						CreatedOnToolsVersion = 9.4;
 						ProvisioningStyle = Automatic;
 					};
+					511DD2872225C5A80094D78D = {
+						CreatedOnToolsVersion = 9.4;
+						ProvisioningStyle = Automatic;
+						TestTargetID = 511DD2702225C4D00094D78D;
+					};
 					AFD562E41EB13C6D00EA2233 = {
 						CreatedOnToolsVersion = 8.3.2;
 						LastSwiftMigration = 0830;
@@ -4054,6 +4093,7 @@
 				DE3373891E73773400881891 /* AllUnitTests_iOS */,
 				D0FE8A041ED9C32C003F6722 /* AllUnitTests_macOS */,
 				DE545C7F1FBCA3F000C637AE /* AllUnitTests_tvOS */,
+				511DD2872225C5A80094D78D /* Messaging_Tests_tvOS */,
 			);
 		};
 /* End PBXProject section */
@@ -4079,6 +4119,13 @@
 			files = (
 				511DD27D2225C4D20094D78D /* Assets.xcassets in Resources */,
 				511DD27B2225C4D00094D78D /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		511DD2862225C5A80094D78D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5830,6 +5877,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		511DD2842225C5A80094D78D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AFD562E11EB13C6D00EA2233 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -6575,6 +6629,11 @@
 			target = DE7B8D041E8EF077009EB6DF /* Database_Example_iOS */;
 			targetProxy = 0624F3E61EC0ECFA00E5940D /* PBXContainerItemProxy */;
 		};
+		511DD28E2225C5A80094D78D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 511DD2702225C4D00094D78D /* Messaging_Example_tvOS */;
+			targetProxy = 511DD28D2225C5A80094D78D /* PBXContainerItemProxy */;
+		};
 		AFD563121EB140E100EA2233 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = AFD562E41EB13C6D00EA2233 /* Messaging_Example_iOS */;
@@ -7079,7 +7138,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = tvOS/Info.plist;
+				INFOPLIST_FILE = "$(SRCROOT)/Messaging/App/tvOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.FirebaseMessagingSample.tvOS.tvOS;
@@ -7113,13 +7172,80 @@
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = tvOS/Info.plist;
+				INFOPLIST_FILE = "$(SRCROOT)/Messaging/App/tvOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.FirebaseMessagingSample.tvOS.tvOS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
 				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 11.4;
+			};
+			name = Release;
+		};
+		511DD2902225C5A80094D78D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = Messaging_Tests_tvOS/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.google.FirebaseMessagingSample.tvOS.Messaging-Tests-tvOS";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				TARGETED_DEVICE_FAMILY = 3;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Messaging_Example_tvOS.app/Messaging_Example_tvOS";
+				TVOS_DEPLOYMENT_TARGET = 11.4;
+			};
+			name = Debug;
+		};
+		511DD2912225C5A80094D78D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = Messaging_Tests_tvOS/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.google.FirebaseMessagingSample.tvOS.Messaging-Tests-tvOS";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				TARGETED_DEVICE_FAMILY = 3;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Messaging_Example_tvOS.app/Messaging_Example_tvOS";
 				TVOS_DEPLOYMENT_TARGET = 11.4;
 			};
 			name = Release;
@@ -9609,6 +9735,15 @@
 			buildConfigurations = (
 				511DD2822225C4D20094D78D /* Debug */,
 				511DD2832225C4D20094D78D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		511DD28F2225C5A80094D78D /* Build configuration list for PBXNativeTarget "Messaging_Tests_tvOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				511DD2902225C5A80094D78D /* Debug */,
+				511DD2912225C5A80094D78D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
