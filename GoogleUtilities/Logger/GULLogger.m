@@ -106,7 +106,7 @@ void GULLogBasic(GULLoggerLevel level,
                      withService:service
                         isForced:forceLog
                         withCode:messageCode
-                     withMessage:messageCode, formatArgs];
+                     withMessage:message, formatArgs];
   va_end(formatArgs);
 }
 
