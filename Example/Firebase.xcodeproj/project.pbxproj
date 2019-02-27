@@ -1769,7 +1769,7 @@
 			path = FIRAuth;
 			sourceTree = "<group>";
 		};
-		406ADCA522271E9300C3C663 /* System Managers */ = {
+		406ADCA522271E9300C3C663 /* System Services */ = {
 			isa = PBXGroup;
 			children = (
 				DE750DB51EB3DD4000A75E47 /* FIRAuthAPNSTokenManagerTests.m */,
@@ -1778,7 +1778,7 @@
 				DE0E5BB51EA7D91C00FAA825 /* FIRAuthAppCredentialTests.m */,
 				DE0E5BB61EA7D91C00FAA825 /* FIRAuthAppDelegateProxyTests.m */,
 			);
-			path = "System Managers";
+			path = "System Services";
 			sourceTree = "<group>";
 		};
 		406ADCA622271F9C00C3C663 /* RPCs */ = {
@@ -1841,16 +1841,16 @@
 			path = "Auth Providers";
 			sourceTree = "<group>";
 		};
-		406ADCA92227203300C3C663 /* Local */ = {
+		406ADCA92227203300C3C663 /* Storage */ = {
 			isa = PBXGroup;
 			children = (
 				DE9315011E86C6FF0083EDBF /* FIRAuthKeychainTests.m */,
 				DE9315041E86C6FF0083EDBF /* FIRAuthUserDefaultsStorageTests.m */,
 			);
-			path = Local;
+			path = Storage;
 			sourceTree = "<group>";
 		};
-		406ADCAB2227204F00C3C663 /* Network */ = {
+		406ADCAB2227204F00C3C663 /* Backend */ = {
 			isa = PBXGroup;
 			children = (
 				DE9314FE1E86C6FF0083EDBF /* FIRAuthBackendRPCImplementationTests.m */,
@@ -1858,7 +1858,7 @@
 				DE93150A1E86C6FF0083EDBF /* FIRFakeBackendRPCIssuer.m */,
 				406ADCA622271F9C00C3C663 /* RPCs */,
 			);
-			path = Network;
+			path = Backend;
 			sourceTree = "<group>";
 		};
 		406ADCAE222720D800C3C663 /* Utilities */ = {
@@ -2435,10 +2435,10 @@
 				406ADCA422271DFA00C3C663 /* FIRAuth */,
 				406ADCA722271FD000C3C663 /* FIRUser */,
 				406ADCA82227200C00C3C663 /* Auth Providers */,
-				406ADCA522271E9300C3C663 /* System Managers */,
+				406ADCA522271E9300C3C663 /* System Services */,
 				406ADCAE222720D800C3C663 /* Utilities */,
-				406ADCA92227203300C3C663 /* Local */,
-				406ADCAB2227204F00C3C663 /* Network */,
+				406ADCA92227203300C3C663 /* Storage */,
+				406ADCAB2227204F00C3C663 /* Backend */,
 				406ADCAF222720F300C3C663 /* Supporting Files */,
 			);
 			path = Tests;
