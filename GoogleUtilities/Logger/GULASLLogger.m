@@ -66,7 +66,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)dealloc {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"  // asl is deprecated
-  asl_release(self.aslClient);
+  asl_free(self.aslClient);
 #pragma clang diagnostic pop
 }
 
