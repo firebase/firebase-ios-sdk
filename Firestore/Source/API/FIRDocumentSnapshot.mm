@@ -18,6 +18,7 @@
 
 #include <utility>
 
+#import "FIRFirestore.h"
 #import "FIRFirestoreSettings.h"
 
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
@@ -28,31 +29,39 @@
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
+#include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::api::DocumentSnapshot;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::util::WrapNSString;
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** Converts a public FIRServerTimestampBehavior into its internal equivalent. */
-static FSTServerTimestampBehavior InternalServerTimestampBehavor(
-    FIRServerTimestampBehavior behavior) {
+namespace {
+
+/**
+ * Converts a public FIRServerTimestampBehavior into its internal equivalent.
+ */
+ServerTimestampBehavior InternalServerTimestampBehavor(FIRServerTimestampBehavior behavior) {
   switch (behavior) {
     case FIRServerTimestampBehaviorNone:
-      return FSTServerTimestampBehaviorNone;
+      return ServerTimestampBehavior::None;
     case FIRServerTimestampBehaviorEstimate:
-      return FSTServerTimestampBehaviorEstimate;
+      return ServerTimestampBehavior::Estimate;
     case FIRServerTimestampBehaviorPrevious:
-      return FSTServerTimestampBehaviorPrevious;
+      return ServerTimestampBehavior::Previous;
     default:
       HARD_FAIL("Unexpected server timestamp option: %s", behavior);
   }
 }
+
+}  // namespace
 
 @interface FIRDocumentSnapshot ()
 
@@ -61,13 +70,6 @@ static FSTServerTimestampBehavior InternalServerTimestampBehavor(
                          document:(nullable FSTDocument *)document
                         fromCache:(BOOL)fromCache
                  hasPendingWrites:(BOOL)pendingWrites NS_DESIGNATED_INITIALIZER;
-
-- (const DocumentKey &)internalKey;
-
-@property(nonatomic, strong, readonly) FIRFirestore *firestore;
-@property(nonatomic, strong, readonly, nullable) FSTDocument *internalDocument;
-@property(nonatomic, assign, readonly) BOOL fromCache;
-@property(nonatomic, assign, readonly) BOOL pendingWrites;
 
 @end
 
@@ -88,11 +90,8 @@ static FSTServerTimestampBehavior InternalServerTimestampBehavor(
 @end
 
 @implementation FIRDocumentSnapshot {
-  FIRSnapshotMetadata *_cachedMetadata;
-  DocumentKey _internalKey;
+  DocumentSnapshot _shim;
 }
-
-@dynamic metadata;
 
 - (instancetype)initWithFirestore:(FIRFirestore *)firestore
                       documentKey:(DocumentKey)documentKey
@@ -100,17 +99,9 @@ static FSTServerTimestampBehavior InternalServerTimestampBehavor(
                         fromCache:(BOOL)fromCache
                  hasPendingWrites:(BOOL)pendingWrites {
   if (self = [super init]) {
-    _firestore = firestore;
-    _internalKey = std::move(documentKey);
-    _internalDocument = document;
-    _fromCache = fromCache;
-    _pendingWrites = pendingWrites;
+    _shim = DocumentSnapshot{firestore, std::move(documentKey), document, fromCache, pendingWrites};
   }
   return self;
-}
-
-- (const DocumentKey &)internalKey {
-  return _internalKey;
 }
 
 // NSObject Methods
@@ -119,48 +110,35 @@ static FSTServerTimestampBehavior InternalServerTimestampBehavor(
   // self class could be FIRDocumentSnapshot or subtype. So we compare with base type explicitly.
   if (![other isKindOfClass:[FIRDocumentSnapshot class]]) return NO;
 
-  return [self isEqualToSnapshot:other];
-}
-
-- (BOOL)isEqualToSnapshot:(nullable FIRDocumentSnapshot *)snapshot {
-  if (self == snapshot) return YES;
-  if (snapshot == nil) return NO;
-
-  return [self.firestore isEqual:snapshot.firestore] && self.internalKey == snapshot.internalKey &&
-         (self.internalDocument == snapshot.internalDocument ||
-          [self.internalDocument isEqual:snapshot.internalDocument]) &&
-         self.pendingWrites == snapshot.pendingWrites && self.fromCache == snapshot.fromCache;
+  return _shim == static_cast<FIRDocumentSnapshot *>(other)->_shim;
 }
 
 - (NSUInteger)hash {
-  NSUInteger hash = [self.firestore hash];
-  hash = hash * 31u + self.internalKey.Hash();
-  hash = hash * 31u + [self.internalDocument hash];
-  hash = hash * 31u + (_pendingWrites ? 1 : 0);
-  hash = hash * 31u + (self.fromCache ? 1 : 0);
-  return hash;
+  return _shim.Hash();
 }
 
 @dynamic exists;
 
 - (BOOL)exists {
-  return _internalDocument != nil;
+  return _shim.Exists();
+}
+
+- (FSTDocument*)internalDocument {
+  return _shim.GetInternalDocument();
 }
 
 - (FIRDocumentReference *)reference {
-  return [FIRDocumentReference referenceWithKey:self.internalKey firestore:self.firestore];
+  return _shim.CreateReference();
 }
 
 - (NSString *)documentID {
-  return util::WrapNSString(self.internalKey.path().last_segment());
+  return WrapNSString(_shim.GetDocumentId());
 }
 
+@dynamic metadata;
+
 - (FIRSnapshotMetadata *)metadata {
-  if (!_cachedMetadata) {
-    _cachedMetadata = [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:_pendingWrites
-                                                                   fromCache:self.fromCache];
-  }
-  return _cachedMetadata;
+  return _shim.GetMetadata();
 }
 
 - (nullable NSDictionary<NSString *, id> *)data {
@@ -169,10 +147,10 @@ static FSTServerTimestampBehavior InternalServerTimestampBehavor(
 
 - (nullable NSDictionary<NSString *, id> *)dataWithServerTimestampBehavior:
     (FIRServerTimestampBehavior)serverTimestampBehavior {
-  FSTFieldValueOptions *options = [self optionsForServerTimestampBehavior:serverTimestampBehavior];
-  return self.internalDocument == nil
-             ? nil
-             : [self convertedObject:[self.internalDocument data] options:options];
+  FSTFieldValueOptions *options =
+      [self createOptionsForServerTimestampBehavior:serverTimestampBehavior];
+  FSTObjectValue *data = _shim.GetData();
+  return data == nil ? nil : [self convertedObject:data options:options];
 }
 
 - (nullable id)valueForField:(id)field {
@@ -181,8 +159,10 @@ static FSTServerTimestampBehavior InternalServerTimestampBehavor(
 
 - (nullable id)valueForField:(id)field
      serverTimestampBehavior:(FIRServerTimestampBehavior)serverTimestampBehavior {
-  FIRFieldPath *fieldPath;
+  FSTFieldValueOptions *options =
+      [self createOptionsForServerTimestampBehavior:serverTimestampBehavior];
 
+  FIRFieldPath *fieldPath;
   if ([field isKindOfClass:[NSString class]]) {
     fieldPath = [FIRFieldPath pathWithDotSeparatedString:field];
   } else if ([field isKindOfClass:[FIRFieldPath class]]) {
@@ -191,25 +171,22 @@ static FSTServerTimestampBehavior InternalServerTimestampBehavor(
     FSTThrowInvalidArgument(@"Subscript key must be an NSString or FIRFieldPath.");
   }
 
-  FSTFieldValue *fieldValue = [[self.internalDocument data] valueForPath:fieldPath.internalValue];
-  FSTFieldValueOptions *options = [self optionsForServerTimestampBehavior:serverTimestampBehavior];
+  FSTFieldValue *fieldValue = _shim.GetValue(fieldPath.internalValue);
   return fieldValue == nil ? nil : [self convertedValue:fieldValue options:options];
-}
-
-- (FSTFieldValueOptions *)optionsForServerTimestampBehavior:
-    (FIRServerTimestampBehavior)serverTimestampBehavior {
-  FSTServerTimestampBehavior internalBehavior =
-      InternalServerTimestampBehavor(serverTimestampBehavior);
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  return [[FSTFieldValueOptions alloc]
-      initWithServerTimestampBehavior:internalBehavior
-         timestampsInSnapshotsEnabled:self.firestore.settings.timestampsInSnapshotsEnabled];
-#pragma clang diagnostic pop
 }
 
 - (nullable id)objectForKeyedSubscript:(id)key {
   return [self valueForField:key];
+}
+
+- (FSTFieldValueOptions *)createOptionsForServerTimestampBehavior:
+    (FIRServerTimestampBehavior)serverTimestampBehavior {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+  return [[FSTFieldValueOptions alloc]
+      initWithServerTimestampBehavior:InternalServerTimestampBehavor(serverTimestampBehavior)
+         timestampsInSnapshotsEnabled:_shim.firestore().settings.timestampsInSnapshotsEnabled];
+#pragma clang diagnostic pop
 }
 
 - (id)convertedValue:(FSTFieldValue *)value options:(FSTFieldValueOptions *)options {
@@ -220,18 +197,20 @@ static FSTServerTimestampBehavior InternalServerTimestampBehavor(
   } else if ([value isKindOfClass:[FSTReferenceValue class]]) {
     FSTReferenceValue *ref = (FSTReferenceValue *)value;
     const DatabaseId *refDatabase = ref.databaseID;
-    const DatabaseId *database = self.firestore.databaseID;
+    const DatabaseId *database = _shim.firestore().databaseID;
     if (*refDatabase != *database) {
       // TODO(b/32073923): Log this as a proper warning.
-      NSLog(@"WARNING: Document %@ contains a document reference within a different database "
-             "(%s/%s) which is not supported. It will be treated as a reference within the "
+      NSLog(@"WARNING: Document %@ contains a document reference within a "
+            @"different database "
+             "(%s/%s) which is not supported. It will be treated as a "
+             "reference within the "
              "current database (%s/%s) instead.",
             self.reference.path, refDatabase->project_id().c_str(),
             refDatabase->database_id().c_str(), database->project_id().c_str(),
             database->database_id().c_str());
     }
     DocumentKey key = [[ref valueWithOptions:options] key];
-    return [FIRDocumentReference referenceWithKey:key firestore:self.firestore];
+    return [FIRDocumentReference referenceWithKey:key firestore:_shim.firestore()];
   } else {
     return [value valueWithOptions:options];
   }
