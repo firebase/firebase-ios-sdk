@@ -162,4 +162,23 @@
   XCTAssertNotEqual(ref, copiedRef);
 }
 
+- (void)test_GivenReferenceWithPath_WhenPutNonExistingFile_ThenCompletionIsCalledWithError {
+  NSString *tempFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"temp.data"];
+  FIRStorageReference *ref = [self.storage referenceWithPath:tempFilePath];
+
+  NSURL *dummyFileURL = [NSURL fileURLWithPath:@"some_non_existing-folder/file.data"];
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"completionExpectation"];
+
+  [ref putFile:dummyFileURL
+      metadata:nil
+    completion:^(FIRStorageMetadata * _Nullable metadata, NSError * _Nullable error) {
+      [expectation fulfill];
+      XCTAssertNotNil(error);
+      XCTAssertNil(metadata);
+    }];
+
+  [self waitForExpectationsWithTimeout:0.5 handler:NULL];
+}
+
 @end

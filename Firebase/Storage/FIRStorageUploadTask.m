@@ -72,6 +72,13 @@
 - (void)enqueue {
   __weak FIRStorageUploadTask *weakSelf = self;
 
+  NSError *contentValidationError;
+  if (![self isContentToUploadValid:&contentValidationError]) {
+    self.error = contentValidationError;
+    [self finishTaskWithStatus:FIRStorageTaskStatusFailure snapshot:self.snapshot];
+    return;
+  }
+
   [self dispatchAsync:^() {
     FIRStorageUploadTask *strongSelf = weakSelf;
 
@@ -113,6 +120,10 @@
       [uploadFetcher setUploadData:strongSelf->_uploadData];
       uploadFetcher.comment = @"Data UploadTask";
     } else if (strongSelf->_fileURL) {
+      NSError *fileReachabilityError;
+      if (![strongSelf->_fileURL checkResourceIsReachableAndReturnError:&fileReachabilityError]) {
+
+      }
       [uploadFetcher setUploadFileURL:strongSelf->_fileURL];
       uploadFetcher.comment = @"File UploadTask";
     }
@@ -145,9 +156,8 @@
         self.state = FIRStorageTaskStateFailed;
         self.error = [FIRStorageErrors errorWithServerError:error reference:self.reference];
         self.metadata = self->_uploadMetadata;
-        [self fireHandlersForStatus:FIRStorageTaskStatusFailure snapshot:self.snapshot];
-        [self removeAllObservers];
-        self->_fetcherCompletion = nil;
+
+        [self finishTaskWithStatus:FIRStorageTaskStatusFailure snapshot:self.snapshot];
         return;
       }
 
@@ -164,9 +174,7 @@
         self.error = [FIRStorageErrors errorWithInvalidRequest:data];
       }
 
-      [self fireHandlersForStatus:FIRStorageTaskStatusSuccess snapshot:self.snapshot];
-      [self removeAllObservers];
-      self->_fetcherCompletion = nil;
+      [self finishTaskWithStatus:FIRStorageTaskStatusSuccess snapshot:self.snapshot];
     };
 #pragma clang diagnostic pop
 
@@ -175,6 +183,35 @@
           weakSelf.fetcherCompletion(data, error);
         }];
   }];
+}
+
+- (void)finishTaskWithStatus:(FIRStorageTaskStatus)status
+                    snapshot:(FIRStorageTaskSnapshot *)snapshot {
+  [self fireHandlersForStatus:status snapshot:self.snapshot];
+  [self removeAllObservers];
+  self->_fetcherCompletion = nil;
+}
+
+- (BOOL)isContentToUploadValid:(NSError **)outError {
+  if (_uploadData != nil) {
+    return YES;
+  }
+
+  NSError *fileReachabilityError;
+  if (![_fileURL checkResourceIsReachableAndReturnError:&fileReachabilityError]) {
+    if (outError != NULL) {
+      *outError = [NSError errorWithDomain:FIRStorageErrorDomain
+                                      code:FIRStorageErrorCodeUnknown
+                                  userInfo:@ {
+                                  NSUnderlyingErrorKey: fileReachabilityError,
+                                  NSLocalizedDescriptionKey: @"File is not available"
+                                  }];
+    }
+
+    return NO;
+  }
+
+  return YES;
 }
 
 #pragma mark - Upload Management
