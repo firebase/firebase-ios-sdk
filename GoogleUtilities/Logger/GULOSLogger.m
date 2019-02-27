@@ -32,24 +32,24 @@ NS_ASSUME_NONNULL_BEGIN
 // Since the macro enforces built-in constant-ness of the format string, it is replaced by "s"
 // and the va_list should only contain one argument, a full message with format substitutions
 // already filled.
-static void GULLOSLogWithType(os_log_t log, os_log_type_t type, char *s, ...) {
+static void GULLOSLogWithType(os_log_t log, os_log_type_t type, char *format, ...) {
 #if __has_builtin(__builtin_available)
   if (@available(iOS 9.0, *)) {
 #else
   if ([[UIDevice currentDevice].systemVersion integerValue] >= 9) {
 #endif
     va_list args;
-    va_start(args, s);
-#if TARGET_OS_TV
-    os_log_with_type(log, type, "%s", (char *)args);
-#elif TARGET_OS_OSX
+    va_start(args, format);
+    NSString *formattedString =
+        [[NSString alloc] initWithFormat:[NSString stringWithUTF8String:format] arguments:args];
+#if TARGET_OS_OSX
     // Silence macOS 10.10 warning until we move minimum to 10.11.
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunguarded-availability"
-    os_log_with_type(log, type, "%s", (char *)args);
+    os_log_with_type(log, type, "%s", [formattedString UTF8String]);
 #pragma clang diagnostic pop
 #else
-  os_log_with_type(log, type, "%s", args);
+    os_log_with_type(log, type, "%s", [formattedString UTF8String]);
 #endif
     va_end(args);
   } else {

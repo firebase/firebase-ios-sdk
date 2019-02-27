@@ -28,7 +28,7 @@ static NSString *const kCode = @"I-COR000001";
 
 // Redefine class property as readwrite for testing.
 @interface GULLogger (ForTesting)
-@property(nonatomic, class, readwrite) id<GULLoggerSystem> logger;
+@property(nonatomic, nullable, class, readwrite) id<GULLoggerSystem> logger;
 @end
 
 // Surface aslclient and dispatchQueues for tests.
@@ -40,7 +40,7 @@ static NSString *const kCode = @"I-COR000001";
 #pragma mark -
 
 @interface GULASLLoggerTest : XCTestCase
-@property(nonatomic) GULASLLogger *logger;
+@property(nonatomic, nullable) GULASLLogger *logger;
 @end
 
 @implementation GULASLLoggerTest

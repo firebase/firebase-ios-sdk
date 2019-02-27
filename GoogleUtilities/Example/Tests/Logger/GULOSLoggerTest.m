@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 static NSString *const kService = @"my service";
 static NSString *const kCode = @"I-COR000001";
-static NSTimeInterval const kTimeout = 1.0f;
+static NSTimeInterval const kTimeout = 1.0;
 
 // Expectation that contains the information needed to see if the correct parameters were used in an
 // os_log_with_type call.
