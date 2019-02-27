@@ -176,6 +176,10 @@
       [expectation fulfill];
       XCTAssertNotNil(error);
       XCTAssertNil(metadata);
+
+      XCTAssertEqualObjects(error.domain, FIRStorageErrorDomain);
+      XCTAssertEqual(error.code, FIRStorageErrorCodeUnknown);
+      XCTAssertEqualObjects(error.localizedDescription, @"File is not available");
     }];
 
   [self waitForExpectationsWithTimeout:0.5 handler:NULL];
