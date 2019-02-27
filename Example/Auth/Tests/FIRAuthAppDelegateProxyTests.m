@@ -379,9 +379,9 @@ NS_ASSUME_NONNULL_BEGIN
     XCTAssertNoThrow([delegate application:_mockApplication openURL:_url options:@{}]);
   } else {
     XCTAssertNoThrow([delegate application:_mockApplication
-                                 openURL:_url
-                       sourceApplication:@"sourceApplication"
-                              annotation:@"annotaton"]);
+                                   openURL:_url
+                         sourceApplication:@"sourceApplication"
+                                annotation:@"annotaton"]);
   }
 }
 
