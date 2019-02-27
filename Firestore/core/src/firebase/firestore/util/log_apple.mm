@@ -50,11 +50,9 @@ FIRLoggerLevel ToFIRLoggerLevel(LogLevel level) {
 void LogMessageV(LogLevel level, NSString* format, ...) {
   va_list list;
   va_start(list, format);
-
+  NSString *formattedMessage = [[NSString alloc] initWithFormat:format arguments:list];
   FIRLogBasic(ToFIRLoggerLevel(level), kFIRLoggerFirestore, @"I-FST000001",
-              format, list);
-
-  va_end(list);
+              @"%@", formattedMessage);
 }
 
 }  // namespace

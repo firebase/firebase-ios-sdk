@@ -102,12 +102,13 @@ void GULLogBasic(GULLoggerLevel level,
                  ...) {
   va_list formatArgs;
   va_start(formatArgs, message);
+  NSString *completeMessage = [[NSString alloc] initWithFormat:message arguments:formatArgs];
+  va_end(formatArgs);
   [GULLogger.logger logWithLevel:level
                      withService:service
                         isForced:forceLog
                         withCode:messageCode
-                     withMessage:message, formatArgs];
-  va_end(formatArgs);
+                     withMessage:@"%@", completeMessage];
 }
 
 /**

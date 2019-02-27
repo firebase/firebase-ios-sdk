@@ -88,7 +88,7 @@ extern void GULLogBasic(GULLoggerLevel level,
                         BOOL forceLog,
                         NSString *messageCode,
                         NSString *message,
-                        ...);
+                        ...) NS_FORMAT_FUNCTION(5, 6);
 
 /**
  * The following functions accept the following parameters in order:

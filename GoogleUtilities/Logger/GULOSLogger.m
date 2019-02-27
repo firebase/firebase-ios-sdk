@@ -42,6 +42,7 @@ static void GULLOSLogWithType(os_log_t log, os_log_type_t type, char *format, ..
     va_start(args, format);
     NSString *formattedString =
         [[NSString alloc] initWithFormat:[NSString stringWithUTF8String:format] arguments:args];
+    va_end(args);
 #if TARGET_OS_OSX
     // Silence macOS 10.10 warning until we move minimum to 10.11.
 #pragma clang diagnostic push
@@ -51,7 +52,6 @@ static void GULLOSLogWithType(os_log_t log, os_log_type_t type, char *format, ..
 #else
     os_log_with_type(log, type, "%s", [formattedString UTF8String]);
 #endif
-    va_end(args);
   } else {
 #ifdef DEBUG
     NSCAssert(NO, @"Attempting to use os_log on iOS version prior to 9.");
@@ -161,14 +161,14 @@ static void GULLOSLogWithType(os_log_t log, os_log_type_t type, char *format, ..
   [self initializeLogger];
 
   // Process the va_list here, while the parameters are on the stack.
-  va_list args;
-  va_start(args, message);
-  NSString *completeMessage = [[NSString alloc] initWithFormat:message arguments:args];
-  va_end(args);
+  va_list args_ptr;
+  va_start(args_ptr, message);
+  __block NSString *completeMessage = [[NSString alloc] initWithFormat:message arguments:args_ptr];
+  va_end(args_ptr);
   completeMessage = [GULLogger messageFromLogger:self
                                      withService:service
                                             code:messageCode
-                                         message:[completeMessage copy]];
+                                         message:completeMessage];
 
   // Avoid blocking during logging.
   dispatch_async(self.dispatchQueue, ^{

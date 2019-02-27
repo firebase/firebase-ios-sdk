@@ -124,12 +124,15 @@ __attribute__((no_sanitize("thread"))) BOOL FIRIsLoggableLevel(FIRLoggerLevel lo
 void FIRLogBasic(FIRLoggerLevel level,
                  FIRLoggerService service,
                  NSString *messageCode,
-                 NSString *message,
-                 va_list args_ptr) {
+                 NSString *message, ...) {
   FIRLoggerInitializeASL();
+  va_list args_ptr;
+  va_start(args_ptr, message);
+  NSString *formattedMessage = [[NSString alloc] initWithFormat:message arguments:args_ptr];
+  va_end(args_ptr);
   GULLogBasic((GULLoggerLevel)level, service,
               sFIRAnalyticsDebugMode && [kFIRLoggerAnalytics isEqualToString:service], messageCode,
-              message, args_ptr);
+              @"%@", formattedMessage);
 }
 
 /**
@@ -144,8 +147,9 @@ void FIRLogBasic(FIRLoggerLevel level,
   void FIRLog##level(FIRLoggerService service, NSString *messageCode, NSString *message, ...) { \
     va_list args_ptr;                                                                           \
     va_start(args_ptr, message);                                                                \
-    FIRLogBasic(FIRLoggerLevel##level, service, messageCode, message, args_ptr);                \
+    NSString *formattedMessage = [[NSString alloc] initWithFormat:message arguments:args_ptr];  \
     va_end(args_ptr);                                                                           \
+    FIRLogBasic(FIRLoggerLevel##level, service, messageCode, @"%@", formattedMessage);          \
   }
 
 FIR_LOGGING_FUNCTION(Error)
@@ -155,17 +159,3 @@ FIR_LOGGING_FUNCTION(Info)
 FIR_LOGGING_FUNCTION(Debug)
 
 #undef FIR_MAKE_LOGGER
-
-#pragma mark - FIRLoggerWrapper
-
-@implementation FIRLoggerWrapper
-
-+ (void)logWithLevel:(FIRLoggerLevel)level
-         withService:(FIRLoggerService)service
-            withCode:(NSString *)messageCode
-         withMessage:(NSString *)message
-            withArgs:(va_list)args {
-  FIRLogBasic(level, service, messageCode, message, args);
-}
-
-@end
