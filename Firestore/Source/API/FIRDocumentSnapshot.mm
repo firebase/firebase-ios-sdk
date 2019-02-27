@@ -123,7 +123,7 @@ ServerTimestampBehavior InternalServerTimestampBehavor(FIRServerTimestampBehavio
   return _shim.Exists();
 }
 
-- (FSTDocument*)internalDocument {
+- (FSTDocument *)internalDocument {
   return _shim.GetInternalDocument();
 }
 
