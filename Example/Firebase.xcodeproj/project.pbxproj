@@ -5498,7 +5498,7 @@
 					"\"${PODS_ROOT}/../../Firebase/Auth/Source\"",
 					"\"${PODS_ROOT}/../../Firebase/Auth/Source/AuthProviders\"",
 				);
-				INFOPLIST_FILE = "Auth/Tests/Tests-Info.plist";
+				INFOPLIST_FILE = "Auth/Tests/Supporting Files/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Auth-Tests-macOS";
@@ -5523,7 +5523,7 @@
 					"\"${PODS_ROOT}/../../Firebase/Auth/Source\"",
 					"\"${PODS_ROOT}/../../Firebase/Auth/Source/AuthProviders\"",
 				);
-				INFOPLIST_FILE = "Auth/Tests/Tests-Info.plist";
+				INFOPLIST_FILE = "Auth/Tests/Supporting Files/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Auth-Tests-macOS";
@@ -6669,7 +6669,7 @@
 					"\"${PODS_ROOT}/../../Firebase/Auth/Source\"",
 					"\"${PODS_ROOT}/../../Firebase/Auth/Source/AuthProviders\"",
 				);
-				INFOPLIST_FILE = "$(SRCROOT)/Auth/App/iOS/Auth-Info.plist";
+				INFOPLIST_FILE = "Auth/Tests/Supporting Files/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Auth-Example-tvOS";
@@ -6709,7 +6709,7 @@
 					"\"${PODS_ROOT}/../../Firebase/Auth/Source\"",
 					"\"${PODS_ROOT}/../../Firebase/Auth/Source/AuthProviders\"",
 				);
-				INFOPLIST_FILE = "$(SRCROOT)/Auth/App/iOS/Auth-Info.plist";
+				INFOPLIST_FILE = "Auth/Tests/Supporting Files/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Auth-Example-tvOS";
