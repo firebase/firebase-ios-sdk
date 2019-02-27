@@ -133,6 +133,10 @@ struct LaunchArgs {
   ///                  `FileManager.default`.
   init(userDefaults defaults: UserDefaults = UserDefaults.standard,
        fileChecker: FileChecker = FileManager.default) {
+    // Override default values for specific keys.
+    //   - Always run `pod repo update` unless explicitly set to false.
+    defaults.register(defaults: [Key.updatePodRepo.rawValue: true])
+
     // Get the project template directory, and fail if it doesn't exist.
     guard let templatePath = defaults.string(forKey: Key.templateDir.rawValue) else {
       LaunchArgs.exitWithUsageAndLog("Missing required key: `\(Key.templateDir)` for the folder " +

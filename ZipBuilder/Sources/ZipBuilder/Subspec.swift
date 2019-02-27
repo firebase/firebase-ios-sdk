@@ -16,6 +16,7 @@
 
 import Foundation
 
+// TODO: Auto generate this list from the Firebase.podspec, probably with a script.
 /// All the subspecs available in the Firebase pod.
 public enum Subspec: String {
   case abTesting = "ABTesting"

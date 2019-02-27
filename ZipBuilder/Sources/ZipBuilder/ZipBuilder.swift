@@ -212,6 +212,7 @@ struct ZipBuilder {
 
     // TODO: Overwrite the `CoreDiagnostics.framework` in the generated framework.
 
+    // TODO: The folder heirarchy should change in Firebase 6.
     // Time to assemble the folder structure of the Zip file. In order to get the frameworks
     // required, we will `pod install` only those subspecs and then fetch the information for all
     // the frameworks that were installed, copying the frameworks from our list of compiled
