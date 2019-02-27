@@ -42,6 +42,7 @@
 			buildPhases = (
 			);
 			dependencies = (
+				510395E322270D8E0055A64F /* PBXTargetDependency */,
 				DE545C881FBCA43200C637AE /* PBXTargetDependency */,
 				DE545C861FBCA42C00C637AE /* PBXTargetDependency */,
 				DE545C841FBCA41C00C637AE /* PBXTargetDependency */,
@@ -685,6 +686,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = DE7B8D041E8EF077009EB6DF;
 			remoteInfo = Database_Example;
+		};
+		510395E222270D8E0055A64F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6003F582195388D10070C39A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 511DD2872225C5A80094D78D;
+			remoteInfo = Messaging_Tests_tvOS;
 		};
 		511DD28D2225C5A80094D78D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -4922,6 +4930,11 @@
 			isa = PBXTargetDependency;
 			target = DE7B8D041E8EF077009EB6DF /* Database_Example_iOS */;
 			targetProxy = 0624F3E61EC0ECFA00E5940D /* PBXContainerItemProxy */;
+		};
+		510395E322270D8E0055A64F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 511DD2872225C5A80094D78D /* Messaging_Tests_tvOS */;
+			targetProxy = 510395E222270D8E0055A64F /* PBXContainerItemProxy */;
 		};
 		511DD28E2225C5A80094D78D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
