@@ -25,11 +25,11 @@ static NSString *const kInvalidCustomToken = @"invalid token.";
 /** The user name string for BYOAuth testing account. */
 static NSString *const kTestingAccountUserID = @"BYU_Test_User_ID";
 
-@interface BYOAuthTests : FIRAuthE2eTestsBase
+@interface FIRBYOAuthTests : FIRAuthE2eTestsBase
 
 @end
 
-@implementation BYOAuthTests
+@implementation FIRBYOAuthTests
 
 /** Test sign in with a valid BYOAuth token retrived from a remote server. */
 - (void)testSignInWithValidBYOAuthToken {
