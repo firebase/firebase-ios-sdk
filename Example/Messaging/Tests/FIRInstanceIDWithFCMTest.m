@@ -25,7 +25,8 @@
 
 @interface FIRInstanceID (ExposedForTest)
 - (BOOL)isFCMAutoInitEnabled;
-+ (FIRInstanceID *)instanceIDForTests;
+- (instancetype)initPrivately;
+- (void)start;
 @end
 
 @interface FIRMessaging ()
@@ -43,7 +44,8 @@
 
 - (void)setUp {
   [super setUp];
-  _instanceID = [FIRInstanceID instanceIDForTests];
+  _instanceID = [[FIRInstanceID alloc] initPrivately];
+  [_instanceID start];
   _mockFirebaseApp = OCMClassMock([FIRApp class]);
   OCMStub([_mockFirebaseApp defaultApp]).andReturn(_mockFirebaseApp);
 }
@@ -61,6 +63,7 @@
   id classMock = OCMClassMock([FIRMessaging class]);
   OCMStub([classMock messaging]).andReturn(messaging);
   OCMStub([_mockFirebaseApp isDataCollectionDefaultEnabled]).andReturn(YES);
+  messaging.autoInitEnabled = YES;
   XCTAssertTrue(
       [_instanceID isFCMAutoInitEnabled],
       @"When FCM is available, FCM Auto Init Enabled should be FCM's autoInitEnable property.");

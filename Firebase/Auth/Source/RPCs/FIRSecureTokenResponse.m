@@ -18,6 +18,8 @@
 
 #import "FIRAuthErrorUtils.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 /** @var kExpiresInKey
     @brief The key for the number of seconds till the access token expires.
  */
@@ -68,3 +70,5 @@ static NSString *const kIDTokenKey = @"id_token";
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

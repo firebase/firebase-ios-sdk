@@ -22,6 +22,10 @@
 #endif  // !defined(__OBJC__)
 
 #include <string>
+#include <vector>
+
+#include "Firestore/core/src/firebase/firestore/immutable/sorted_map.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
 @class FSTDocument;
 
@@ -61,6 +65,29 @@ class DocumentViewChange {
 };
 
 bool operator==(const DocumentViewChange& lhs, const DocumentViewChange& rhs);
+
+/** The possible states a document can be in w.r.t syncing from local storage to
+ * the backend. */
+enum class SyncState { None = 0, Local, Synced };
+
+/**
+ * A set of changes to docs in a query, merging duplicate events for the same
+ * doc.
+ */
+class DocumentViewChangeSet {
+ public:
+  /** Takes a new change and applies it to the set. */
+  void AddChange(DocumentViewChange&& change);
+
+  /** Returns the set of all changes tracked in this set. */
+  std::vector<DocumentViewChange> GetChanges() const;
+
+  std::string ToString() const;
+
+ private:
+  /** The set of all changes tracked so far, with redundant changes merged. */
+  immutable::SortedMap<model::DocumentKey, DocumentViewChange> change_map_;
+};
 
 }  // namespace core
 }  // namespace firestore

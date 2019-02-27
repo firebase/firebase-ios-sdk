@@ -18,6 +18,7 @@
 
 #import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 #import <FirebaseInstanceID/FirebaseInstanceID.h>
+#import <GoogleUtilities/GULUserDefaults.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -37,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// Surface internal initializer to avoid singleton usage during tests.
 - (instancetype)initWithAnalytics:(nullable id<FIRAnalyticsInterop>)analytics
                    withInstanceID:(FIRInstanceID *)instanceID
-                 withUserDefaults:(NSUserDefaults *)defaults;
+                 withUserDefaults:(GULUserDefaults *)defaults;
 
 /// Kicks off required calls for some messaging tests.
 - (void)start;
@@ -46,7 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRMessagingTestUtilities
 
-+ (FIRMessaging *)messagingForTestsWithUserDefaults:(NSUserDefaults *)userDefaults {
++ (FIRMessaging *)messagingForTestsWithUserDefaults:(GULUserDefaults *)userDefaults {
   // Create the messaging instance with all the necessary dependencies.
   FIRInstanceID *instanceID = [[FIRInstanceID alloc] initPrivately];
   [instanceID start];

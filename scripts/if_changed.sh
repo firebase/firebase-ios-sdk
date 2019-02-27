@@ -71,11 +71,12 @@ else
       ;;
 
     Firestore-xcodebuild|Firestore-pod-lib-lint)
-      check_changes '^(Firestore|FirebaseFirestore.podspec|FirebaseFirestoreSwift.podspec)'
+      check_changes '^(Firestore|FirebaseFirestore.podspec|FirebaseFirestoreSwift.podspec|'\
+'GoogleUtilities)'
       ;;
 
     Firestore-cmake)
-      check_changes '^(Firestore/(core|third_party)|cmake)'
+      check_changes '^(Firestore/(core|third_party)|cmake|GoogleUtilities)'
       ;;
 
     *)

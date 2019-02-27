@@ -149,6 +149,7 @@
 		511DD2A92225C8C40094D78D /* FIRMessagingAnalyticsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE37C63A2163D5F30025D03E /* FIRMessagingAnalyticsTest.m */; };
 		511DD2AA2225C8D50094D78D /* FIRMessagingTestUtilities.h in Sources */ = {isa = PBXBuildFile; fileRef = EDF5242A21EA364600BB24C6 /* FIRMessagingTestUtilities.h */; };
 		511DD2AB2225C8D50094D78D /* FIRMessagingTestUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = EDF5242B21EA364600BB24C6 /* FIRMessagingTestUtilities.m */; };
+		7E21E0731F857DFC00D0AC1C /* FIROAuthProviderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7E21E0721F857DFC00D0AC1C /* FIROAuthProviderTests.m */; };
 		7E9485421F578AC4005A3939 /* FIRAuthURLPresenterTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7E94853F1F578A9D005A3939 /* FIRAuthURLPresenterTests.m */; };
 		7EE21F7A1FE89193009B1370 /* FIREmailLinkRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7EE21F791FE89193009B1370 /* FIREmailLinkRequestTests.m */; };
 		7EE21F7C1FE8919E009B1370 /* FIREmailLinkSignInResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7EE21F7B1FE8919D009B1370 /* FIREmailLinkSignInResponseTests.m */; };
@@ -1037,6 +1038,7 @@
 		6003F58D195388D20070C39A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		6003F58F195388D20070C39A /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		6003F591195388D20070C39A /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		7E21E0721F857DFC00D0AC1C /* FIROAuthProviderTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIROAuthProviderTests.m; sourceTree = "<group>"; };
 		7E94853F1F578A9D005A3939 /* FIRAuthURLPresenterTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRAuthURLPresenterTests.m; sourceTree = "<group>"; };
 		7EE21F791FE89193009B1370 /* FIREmailLinkRequestTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIREmailLinkRequestTests.m; sourceTree = "<group>"; };
 		7EE21F7B1FE8919D009B1370 /* FIREmailLinkSignInResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIREmailLinkSignInResponseTests.m; sourceTree = "<group>"; };
@@ -2444,6 +2446,7 @@
 				DE9315231E86C6FF0083EDBF /* OCMStubRecorder+FIRAuthUnitTests.h */,
 				DE9315241E86C6FF0083EDBF /* OCMStubRecorder+FIRAuthUnitTests.m */,
 				DE9315251E86C6FF0083EDBF /* Tests-Info.plist */,
+				7E21E0721F857DFC00D0AC1C /* FIROAuthProviderTests.m */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -4729,6 +4732,7 @@
 				DE9315711E86C71C0083EDBF /* FIRSetAccountInfoResponseTests.m in Sources */,
 				DE93155F1E86C71C0083EDBF /* FIRAuthTests.m in Sources */,
 				7E9485421F578AC4005A3939 /* FIRAuthURLPresenterTests.m in Sources */,
+				7E21E0731F857DFC00D0AC1C /* FIROAuthProviderTests.m in Sources */,
 				DE750DBD1EB3DD5B00A75E47 /* FIRAuthAPNSTokenTests.m in Sources */,
 				DE0E5BBE1EA7D93500FAA825 /* FIRAuthAppDelegateProxyTests.m in Sources */,
 				7EFA2E041F71C93300DD354F /* FIRUserMetadataTests.m in Sources */,

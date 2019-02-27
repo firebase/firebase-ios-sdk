@@ -19,6 +19,7 @@
 #import <UIKit/UIKit.h>
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
+#import <GoogleUtilities/GULUserDefaults.h>
 
 #import "FIRMessaging.h"
 #import "FIRMessagingLogger.h"
@@ -37,14 +38,14 @@ NSString *const kFIRMessagingPlistUseMessagingDelegate =
 static int downstreamMessageID = 0;
 
 @interface FIRMessagingReceiver ()
-@property(nonatomic, strong) NSUserDefaults *defaults;
+@property(nonatomic, strong) GULUserDefaults *defaults;
 @end
 
 @implementation FIRMessagingReceiver
 
 #pragma mark - Initializer
 
-- (instancetype)initWithUserDefaults:(NSUserDefaults *)defaults {
+- (instancetype)initWithUserDefaults:(GULUserDefaults *)defaults {
   self = [super init];
   if (self != nil) {
     _defaults = defaults;

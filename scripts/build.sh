@@ -116,6 +116,7 @@ xcb_flags+=(
   ONLY_ACTIVE_ARCH=YES
   CODE_SIGNING_REQUIRED=NO
   CODE_SIGNING_ALLOWED=YES
+  COMPILER_INDEX_STORE_ENABLE=NO
 )
 
 # TODO(varconst): --warn-unused-vars - right now, it makes the log overflow on
@@ -193,6 +194,13 @@ case "$product-$method-$platform" in
 
       # Run integration tests (not allowed on PRs)
       if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+        RunXcodebuild \
+          -workspace 'Example/Firebase.xcworkspace' \
+          -scheme "Auth_ApiTests" \
+          "${xcb_flags[@]}" \
+          build \
+          test
+
         RunXcodebuild \
           -workspace 'Example/Firebase.xcworkspace' \
           -scheme "Storage_IntegrationTests_iOS" \

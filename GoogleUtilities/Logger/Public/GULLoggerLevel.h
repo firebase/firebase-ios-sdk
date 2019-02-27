@@ -14,22 +14,26 @@
  * limitations under the License.
  */
 
-/**
- * The log levels used by internal logging.
- */
+/// The log levels used by internal logging.
 typedef NS_ENUM(NSInteger, GULLoggerLevel) {
-  /** Error level, matches ASL_LEVEL_ERR. */
+  /// Error level, matches ASL_LEVEL_ERR and is used for OS_LOG_TYPE_ERROR.
   GULLoggerLevelError = 3,
-  /** Warning level, matches ASL_LEVEL_WARNING. */
+
+  /// Warning level, matches ASL_LEVEL_WARNING and is used for OS_LOG_TYPE_DEFAULT.
   GULLoggerLevelWarning = 4,
-  /** Notice level, matches ASL_LEVEL_NOTICE. */
+
+  /// Notice level, matches ASL_LEVEL_NOTICE and is used for OS_LOG_TYPE_DEFAULT.
   GULLoggerLevelNotice = 5,
-  /** Info level, matches ASL_LEVEL_INFO. */
+
+  /// Info level, matches ASL_LEVEL_INFO and is used for OS_LOG_TYPE_INFO.
   GULLoggerLevelInfo = 6,
-  /** Debug level, matches ASL_LEVEL_DEBUG. */
+
+  /// Debug level, matches ASL_LEVEL_DEBUG  and is mapped to OS_LOG_TYPE_DEBUG.
   GULLoggerLevelDebug = 7,
-  /** Minimum log level. */
+
+  /// Minimum log level.
   GULLoggerLevelMin = GULLoggerLevelError,
-  /** Maximum log level. */
+
+  /// Maximum log level.
   GULLoggerLevelMax = GULLoggerLevelDebug
 } NS_SWIFT_NAME(GoogleLoggerLevel);

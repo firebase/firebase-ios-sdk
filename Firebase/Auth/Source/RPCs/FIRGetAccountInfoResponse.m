@@ -18,6 +18,8 @@
 
 #import "FIRAuthErrorUtils.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 /** @var kErrorKey
     @brief The key for the "error" value in JSON responses from the server.
  */
@@ -102,3 +104,5 @@ static NSString *const kErrorKey = @"error";
 }
 
 @end
+
+NS_ASSUME_NONNULL_END
