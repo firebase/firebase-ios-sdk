@@ -34,9 +34,10 @@ NSString *const kFIRInstanceIDLoggerService = @"[Firebase/InstanceID]";
                  msg:(NSString *)fmt, ... {
   va_list args;
   va_start(args, fmt);
-  FIRLogBasic(FIRLoggerLevelDebug, kFIRInstanceIDLoggerService,
-              [FIRInstanceIDLogger formatMessageCode:messageCode], fmt, args);
+  NSString *formattedMessage = [[NSString alloc] initWithFormat:fmt arguments:args];
   va_end(args);
+  FIRLogBasic(FIRLoggerLevelDebug, kFIRInstanceIDLoggerService,
+              [FIRInstanceIDLogger formatMessageCode:messageCode], @"%@", formattedMessage);
 }
 
 - (void)logFuncInfo:(const char *)func
@@ -44,9 +45,10 @@ NSString *const kFIRInstanceIDLoggerService = @"[Firebase/InstanceID]";
                 msg:(NSString *)fmt, ... {
   va_list args;
   va_start(args, fmt);
-  FIRLogBasic(FIRLoggerLevelInfo, kFIRInstanceIDLoggerService,
-              [FIRInstanceIDLogger formatMessageCode:messageCode], fmt, args);
+  NSString *formattedMessage = [[NSString alloc] initWithFormat:fmt arguments:args];
   va_end(args);
+  FIRLogBasic(FIRLoggerLevelInfo, kFIRInstanceIDLoggerService,
+              [FIRInstanceIDLogger formatMessageCode:messageCode], @"%@", formattedMessage);
 }
 
 - (void)logFuncNotice:(const char *)func
