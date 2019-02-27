@@ -1756,7 +1756,7 @@
 			path = third_party;
 			sourceTree = "<group>";
 		};
-		406ADCA422271DFA00C3C663 /* FIRAuth */ = {
+		406ADCA422271DFA00C3C663 /* Auth */ = {
 			isa = PBXGroup;
 			children = (
 				DE9314FF1E86C6FF0083EDBF /* FIRAuthDispatcherTests.m */,
@@ -1766,7 +1766,7 @@
 				DE9315021E86C6FF0083EDBF /* FIRAuthSerialTaskQueueTests.m */,
 				DE9315031E86C6FF0083EDBF /* FIRAuthTests.m */,
 			);
-			path = FIRAuth;
+			path = Auth;
 			sourceTree = "<group>";
 		};
 		406ADCA522271E9300C3C663 /* System Services */ = {
@@ -1820,14 +1820,14 @@
 			path = RPCs;
 			sourceTree = "<group>";
 		};
-		406ADCA722271FD000C3C663 /* FIRUser */ = {
+		406ADCA722271FD000C3C663 /* User */ = {
 			isa = PBXGroup;
 			children = (
 				DE9314FA1E86C6FF0083EDBF /* FIRAdditionalUserInfoTests.m */,
 				7EFA2E031F71C93300DD354F /* FIRUserMetadataTests.m */,
 				DE93151A1E86C6FF0083EDBF /* FIRUserTests.m */,
 			);
-			path = FIRUser;
+			path = User;
 			sourceTree = "<group>";
 		};
 		406ADCA82227200C00C3C663 /* Auth Providers */ = {
@@ -1873,10 +1873,10 @@
 			isa = PBXGroup;
 			children = (
 				DE9314FB1E86C6FF0083EDBF /* FIRApp+FIRAuthUnitTests.h */,
-				DE9315231E86C6FF0083EDBF /* OCMStubRecorder+FIRAuthUnitTests.h */,
 				DE9314FC1E86C6FF0083EDBF /* FIRApp+FIRAuthUnitTests.m */,
-				DE9315241E86C6FF0083EDBF /* OCMStubRecorder+FIRAuthUnitTests.m */,
 				DE9315251E86C6FF0083EDBF /* Info.plist */,
+				DE9315231E86C6FF0083EDBF /* OCMStubRecorder+FIRAuthUnitTests.h */,
+				DE9315241E86C6FF0083EDBF /* OCMStubRecorder+FIRAuthUnitTests.m */,
 			);
 			path = "Supporting Files";
 			sourceTree = "<group>";
@@ -2432,8 +2432,8 @@
 		DE9314F91E86C6FF0083EDBF /* Tests */ = {
 			isa = PBXGroup;
 			children = (
-				406ADCA422271DFA00C3C663 /* FIRAuth */,
-				406ADCA722271FD000C3C663 /* FIRUser */,
+				406ADCA422271DFA00C3C663 /* Auth */,
+				406ADCA722271FD000C3C663 /* User */,
 				406ADCA82227200C00C3C663 /* Auth Providers */,
 				406ADCA522271E9300C3C663 /* System Services */,
 				406ADCAE222720D800C3C663 /* Utilities */,
