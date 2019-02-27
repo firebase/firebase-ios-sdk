@@ -116,6 +116,7 @@ xcb_flags+=(
   ONLY_ACTIVE_ARCH=YES
   CODE_SIGNING_REQUIRED=NO
   CODE_SIGNING_ALLOWED=YES
+  COMPILER_INDEX_STORE_ENABLE=NO
 )
 
 # TODO(varconst): --warn-unused-vars - right now, it makes the log overflow on
