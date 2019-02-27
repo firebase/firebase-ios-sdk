@@ -135,6 +135,32 @@
 		511DD27B2225C4D00094D78D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 511DD2792225C4D00094D78D /* Main.storyboard */; };
 		511DD27D2225C4D20094D78D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 511DD27C2225C4D20094D78D /* Assets.xcassets */; };
 		511DD2802225C4D20094D78D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 511DD27F2225C4D20094D78D /* main.m */; };
+		511DD2922225C8C40094D78D /* FIRInstanceIDWithFCMTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE8DB550221F5B470068BB0E /* FIRInstanceIDWithFCMTest.m */; };
+		511DD2932225C8C40094D78D /* FIRMessagingFakeConnection.h in Sources */ = {isa = PBXBuildFile; fileRef = DE9315C81E8738B70083EDBF /* FIRMessagingFakeConnection.h */; };
+		511DD2942225C8C40094D78D /* FIRMessagingFakeSocket.h in Sources */ = {isa = PBXBuildFile; fileRef = DE9315CA1E8738B70083EDBF /* FIRMessagingFakeSocket.h */; };
+		511DD2952225C8C40094D78D /* FIRMessagingTestNotificationUtilities.h in Sources */ = {isa = PBXBuildFile; fileRef = DE9315D61E8738B70083EDBF /* FIRMessagingTestNotificationUtilities.h */; };
+		511DD2962225C8C40094D78D /* FIRMessagingClientTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315C31E8738B70083EDBF /* FIRMessagingClientTest.m */; };
+		511DD2972225C8C40094D78D /* FIRMessagingCodedInputStreamTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315C41E8738B70083EDBF /* FIRMessagingCodedInputStreamTest.m */; };
+		511DD2982225C8C40094D78D /* FIRMessagingConnectionTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315C51E8738B70083EDBF /* FIRMessagingConnectionTest.m */; };
+		511DD2992225C8C40094D78D /* FIRMessagingContextManagerServiceTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315C61E8738B70083EDBF /* FIRMessagingContextManagerServiceTest.m */; };
+		511DD29A2225C8C40094D78D /* FIRMessagingDataMessageManagerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315C71E8738B70083EDBF /* FIRMessagingDataMessageManagerTest.m */; };
+		511DD29B2225C8C40094D78D /* FIRMessagingFakeConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315C91E8738B70083EDBF /* FIRMessagingFakeConnection.m */; };
+		511DD29C2225C8C40094D78D /* FIRMessagingFakeSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315CB1E8738B70083EDBF /* FIRMessagingFakeSocket.m */; };
+		511DD29D2225C8C40094D78D /* FIRMessagingLinkHandlingTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315CC1E8738B70083EDBF /* FIRMessagingLinkHandlingTest.m */; };
+		511DD29E2225C8C40094D78D /* FIRMessagingPendingTopicsListTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315CD1E8738B70083EDBF /* FIRMessagingPendingTopicsListTest.m */; };
+		511DD29F2225C8C40094D78D /* FIRMessagingPubSubTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315CE1E8738B70083EDBF /* FIRMessagingPubSubTest.m */; };
+		511DD2A02225C8C40094D78D /* FIRMessagingReceiverTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DEF61BFC216E8B1000A738D4 /* FIRMessagingReceiverTest.m */; };
+		511DD2A12225C8C40094D78D /* FIRMessagingRegistrarTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315CF1E8738B70083EDBF /* FIRMessagingRegistrarTest.m */; };
+		511DD2A22225C8C40094D78D /* FIRMessagingRemoteNotificationsProxyTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315D01E8738B70083EDBF /* FIRMessagingRemoteNotificationsProxyTest.m */; };
+		511DD2A32225C8C40094D78D /* FIRMessagingRmqManagerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315D11E8738B70083EDBF /* FIRMessagingRmqManagerTest.m */; };
+		511DD2A42225C8C40094D78D /* FIRMessagingSecureSocketTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315D21E8738B70083EDBF /* FIRMessagingSecureSocketTest.m */; };
+		511DD2A52225C8C40094D78D /* FIRMessagingServiceTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315D31E8738B70083EDBF /* FIRMessagingServiceTest.m */; };
+		511DD2A62225C8C40094D78D /* FIRMessagingSyncMessageManagerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315D41E8738B70083EDBF /* FIRMessagingSyncMessageManagerTest.m */; };
+		511DD2A72225C8C40094D78D /* FIRMessagingTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315D51E8738B70083EDBF /* FIRMessagingTest.m */; };
+		511DD2A82225C8C40094D78D /* FIRMessagingTestNotificationUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315D71E8738B70083EDBF /* FIRMessagingTestNotificationUtilities.m */; };
+		511DD2A92225C8C40094D78D /* FIRMessagingAnalyticsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE37C63A2163D5F30025D03E /* FIRMessagingAnalyticsTest.m */; };
+		511DD2AA2225C8D50094D78D /* FIRMessagingTestUtilities.h in Sources */ = {isa = PBXBuildFile; fileRef = EDF5242A21EA364600BB24C6 /* FIRMessagingTestUtilities.h */; };
+		511DD2AB2225C8D50094D78D /* FIRMessagingTestUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = EDF5242B21EA364600BB24C6 /* FIRMessagingTestUtilities.m */; };
 		54C5E6705B219A2D6E316184 /* Pods_Storage_Example_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 57BB675536A0CFBE94128175 /* Pods_Storage_Example_iOS.framework */; };
 		582C0B7DCDABF094B75287BC /* Pods_Core_Example_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 43B70BAF1F389278DD25837A /* Pods_Core_Example_iOS.framework */; };
 		6206250D8413E6B3E045E4ED /* Pods_Messaging_Tests_tvOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C152AFD0C606933B0B1D8801 /* Pods_Messaging_Tests_tvOS.framework */; };
@@ -1083,6 +1109,7 @@
 		511DD27E2225C4D20094D78D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		511DD27F2225C4D20094D78D /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		511DD2882225C5A80094D78D /* Messaging_Tests_tvOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Messaging_Tests_tvOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		511DD2AC2226005D0094D78D /* FirebaseMessaging.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = FirebaseMessaging.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		528CD8B3E835B99185E2B17A /* Pods_Database_Tests_macOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Database_Tests_macOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		52B1A145C64AC070BCBBC5C0 /* Pods-Storage_Example_tvOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Storage_Example_tvOS.debug.xcconfig"; path = "Target Support Files/Pods-Storage_Example_tvOS/Pods-Storage_Example_tvOS.debug.xcconfig"; sourceTree = "<group>"; };
 		53B7DE35FA66DCC678A368E1 /* Pods-DynamicLinks_Tests_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DynamicLinks_Tests_iOS.debug.xcconfig"; path = "Target Support Files/Pods-DynamicLinks_Tests_iOS/Pods-DynamicLinks_Tests_iOS.debug.xcconfig"; sourceTree = "<group>"; };
@@ -2082,6 +2109,7 @@
 		6003F58C195388D20070C39A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				511DD2AC2226005D0094D78D /* FirebaseMessaging.framework */,
 				923F8250206C4DC500034974 /* UserNotifications.framework */,
 				923F824B206C4D8000034974 /* SafariServices.framework */,
 				DE45C6641E7DA8CB009E6ACD /* XCTest.framework */,
@@ -4090,6 +4118,7 @@
 				DE9315A61E8738460083EDBF /* Messaging_Tests_iOS */,
 				DE47C0DC207AC87D00B1AEDF /* Messaging_Sample_iOS */,
 				511DD2702225C4D00094D78D /* Messaging_Example_tvOS */,
+				511DD2872225C5A80094D78D /* Messaging_Tests_tvOS */,
 				DEB139E01E73506A00AC236D /* Storage_Example_iOS */,
 				DEB13A0A1E73507E00AC236D /* Storage_Tests_iOS */,
 				06121EBB1EC399C50008D70E /* Storage_IntegrationTests_iOS */,
@@ -4101,7 +4130,6 @@
 				DE3373891E73773400881891 /* AllUnitTests_iOS */,
 				D0FE8A041ED9C32C003F6722 /* AllUnitTests_macOS */,
 				DE545C7F1FBCA3F000C637AE /* AllUnitTests_tvOS */,
-				511DD2872225C5A80094D78D /* Messaging_Tests_tvOS */,
 			);
 		};
 /* End PBXProject section */
@@ -5229,16 +5257,12 @@
 			buildActionMask = 2147483647;
 			files = (
 			);
-			inputFileListPaths = (
-			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Messaging_Example_tvOS/Pods-Messaging_Example_tvOS-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/GoogleUtilities-tvOS/GoogleUtilities.framework",
 				"${BUILT_PRODUCTS_DIR}/Protobuf-tvOS/Protobuf.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-			);
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleUtilities.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Protobuf.framework",
@@ -5605,15 +5629,11 @@
 			buildActionMask = 2147483647;
 			files = (
 			);
-			inputFileListPaths = (
-			);
 			inputPaths = (
 				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
 				"${PODS_ROOT}/Manifest.lock",
 			);
 			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
 			outputPaths = (
 				"$(DERIVED_FILE_DIR)/Pods-Messaging_Tests_tvOS-checkManifestLockResult.txt",
 			);
@@ -5627,16 +5647,16 @@
 			buildActionMask = 2147483647;
 			files = (
 			);
-			inputFileListPaths = (
-			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Messaging_Tests_tvOS/Pods-Messaging_Tests_tvOS-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/GoogleUtilities-Environment-Logger-Reachability-UserDefaults/GoogleUtilities.framework",
+				"${BUILT_PRODUCTS_DIR}/Protobuf-tvOS/Protobuf.framework",
 				"${BUILT_PRODUCTS_DIR}/OCMock-tvOS/OCMock.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-			);
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleUtilities.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Protobuf.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/OCMock.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -5687,15 +5707,11 @@
 			buildActionMask = 2147483647;
 			files = (
 			);
-			inputFileListPaths = (
-			);
 			inputPaths = (
 				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
 				"${PODS_ROOT}/Manifest.lock",
 			);
 			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
 			outputPaths = (
 				"$(DERIVED_FILE_DIR)/Pods-Messaging_Example_tvOS-checkManifestLockResult.txt",
 			);
@@ -5979,6 +5995,32 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				511DD2AA2225C8D50094D78D /* FIRMessagingTestUtilities.h in Sources */,
+				511DD2AB2225C8D50094D78D /* FIRMessagingTestUtilities.m in Sources */,
+				511DD2922225C8C40094D78D /* FIRInstanceIDWithFCMTest.m in Sources */,
+				511DD2932225C8C40094D78D /* FIRMessagingFakeConnection.h in Sources */,
+				511DD2942225C8C40094D78D /* FIRMessagingFakeSocket.h in Sources */,
+				511DD2952225C8C40094D78D /* FIRMessagingTestNotificationUtilities.h in Sources */,
+				511DD2962225C8C40094D78D /* FIRMessagingClientTest.m in Sources */,
+				511DD2972225C8C40094D78D /* FIRMessagingCodedInputStreamTest.m in Sources */,
+				511DD2982225C8C40094D78D /* FIRMessagingConnectionTest.m in Sources */,
+				511DD2992225C8C40094D78D /* FIRMessagingContextManagerServiceTest.m in Sources */,
+				511DD29A2225C8C40094D78D /* FIRMessagingDataMessageManagerTest.m in Sources */,
+				511DD29B2225C8C40094D78D /* FIRMessagingFakeConnection.m in Sources */,
+				511DD29C2225C8C40094D78D /* FIRMessagingFakeSocket.m in Sources */,
+				511DD29D2225C8C40094D78D /* FIRMessagingLinkHandlingTest.m in Sources */,
+				511DD29E2225C8C40094D78D /* FIRMessagingPendingTopicsListTest.m in Sources */,
+				511DD29F2225C8C40094D78D /* FIRMessagingPubSubTest.m in Sources */,
+				511DD2A02225C8C40094D78D /* FIRMessagingReceiverTest.m in Sources */,
+				511DD2A12225C8C40094D78D /* FIRMessagingRegistrarTest.m in Sources */,
+				511DD2A22225C8C40094D78D /* FIRMessagingRemoteNotificationsProxyTest.m in Sources */,
+				511DD2A32225C8C40094D78D /* FIRMessagingRmqManagerTest.m in Sources */,
+				511DD2A42225C8C40094D78D /* FIRMessagingSecureSocketTest.m in Sources */,
+				511DD2A52225C8C40094D78D /* FIRMessagingServiceTest.m in Sources */,
+				511DD2A62225C8C40094D78D /* FIRMessagingSyncMessageManagerTest.m in Sources */,
+				511DD2A72225C8C40094D78D /* FIRMessagingTest.m in Sources */,
+				511DD2A82225C8C40094D78D /* FIRMessagingTestNotificationUtilities.m in Sources */,
+				511DD2A92225C8C40094D78D /* FIRMessagingAnalyticsTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -7237,10 +7279,16 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"${PODS_ROOT}/Headers/Public\"",
+					"\"${PODS_ROOT}/Headers/Public/FirebaseAnalyticsInterop\"",
+					"\"${PODS_ROOT}/Headers/Public/FirebaseAuthInterop\"",
+				);
 				INFOPLIST_FILE = "$(SRCROOT)/Messaging/App/tvOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.google.FirebaseMessagingSample.tvOS.tvOS;
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.FirebaseMessagingSample.tvOS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
 				TARGETED_DEVICE_FAMILY = 3;
@@ -7275,7 +7323,7 @@
 				INFOPLIST_FILE = "$(SRCROOT)/Messaging/App/tvOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = com.google.FirebaseMessagingSample.tvOS.tvOS;
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.FirebaseMessagingSample.tvOS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
 				TARGETED_DEVICE_FAMILY = 3;
@@ -7305,10 +7353,26 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = Messaging_Tests_tvOS/Info.plist;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/FirebaseCore-tvOS/FirebaseCore.framework/Headers\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/FirebaseInstanceID-tvOS/FirebaseInstanceID.framework/Headers\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/FirebaseMessaging-tvOS/FirebaseMessaging.framework/Headers\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/GoogleUtilities-Environment-Logger-Reachability-UserDefaults/GoogleUtilities.framework/Headers\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/GoogleUtilities-tvOS/GoogleUtilities.framework/Headers\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/OCMock-tvOS/OCMock.framework/Headers\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Protobuf-tvOS/Protobuf.framework/Headers\"",
+					"\"${PODS_ROOT}/Headers/Public\"",
+					"\"${PODS_ROOT}/Headers/Public/FirebaseAnalyticsInterop\"",
+					"\"${PODS_ROOT}/Headers/Public/FirebaseAuthInterop\"",
+					"\"${PODS_ROOT}/Headers/Private\"",
+					"\"${PODS_ROOT}/../../Firebase/Messaging/Private\"",
+					"\"${PODS_ROOT}/../../Firebase/Messaging\"",
+				);
+				INFOPLIST_FILE = Messaging/Tests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.google.FirebaseMessagingSample.tvOS.Messaging-Tests-tvOS";
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.FirebaseMessagingTests.tvOS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
 				TARGETED_DEVICE_FAMILY = 3;
@@ -7340,10 +7404,24 @@
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = Messaging_Tests_tvOS/Info.plist;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/FirebaseCore-tvOS/FirebaseCore.framework/Headers\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/FirebaseInstanceID-tvOS/FirebaseInstanceID.framework/Headers\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/FirebaseMessaging-tvOS/FirebaseMessaging.framework/Headers\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/GoogleUtilities-Environment-Logger-Reachability-UserDefaults/GoogleUtilities.framework/Headers\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/GoogleUtilities-tvOS/GoogleUtilities.framework/Headers\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/OCMock-tvOS/OCMock.framework/Headers\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Protobuf-tvOS/Protobuf.framework/Headers\"",
+					"\"${PODS_ROOT}/Headers/Public\"",
+					"\"${PODS_ROOT}/Headers/Public/FirebaseAnalyticsInterop\"",
+					"\"${PODS_ROOT}/Headers/Public/FirebaseAuthInterop\"",
+					"\"${PODS_ROOT}/../../Firebase/Messaging\"",
+				);
+				INFOPLIST_FILE = Messaging/Tests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.google.FirebaseMessagingSample.tvOS.Messaging-Tests-tvOS";
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.FirebaseMessagingTests.tvOS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
 				TARGETED_DEVICE_FAMILY = 3;
@@ -8107,7 +8185,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 4ANB9W7R3P;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = "$SRCROOT/DynamicLinks/FDLBuilderTestAppObjC/Info.plist";
+				INFOPLIST_FILE = $SRCROOT/DynamicLinks/FDLBuilderTestAppObjC/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.4;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
@@ -8142,7 +8220,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 4ANB9W7R3P;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = "$SRCROOT/DynamicLinks/FDLBuilderTestAppObjC/Info.plist";
+				INFOPLIST_FILE = $SRCROOT/DynamicLinks/FDLBuilderTestAppObjC/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.4;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;

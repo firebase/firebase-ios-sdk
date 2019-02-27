@@ -70,10 +70,12 @@ void FCM_swizzle_didReceiveNotificationResponseWithHandler(
 @property(nonatomic) BOOL remoteNotificationWithFetchHandlerWasCalled;
 @end
 @implementation FakeAppDelegate
+#if TARGET_OS_IOS
 - (void)application:(UIApplication *)application
     didReceiveRemoteNotification:(NSDictionary *)userInfo {
   self.remoteNotificationMethodWasCalled = YES;
 }
+#endif
 - (void)application:(UIApplication *)application
     didReceiveRemoteNotification:(NSDictionary *)userInfo
     fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
@@ -101,9 +103,11 @@ void FCM_swizzle_didReceiveNotificationResponseWithHandler(
     completionHandler {
   self.willPresentWasCalled = YES;
 }
+#if TARGET_OS_IOS
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler {
   self.didReceiveResponseWasCalled = YES;
 }
+#endif // TARGET_OS_IOS
 @end
 #endif // __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 
@@ -182,6 +186,7 @@ void FCM_swizzle_didReceiveNotificationResponseWithHandler(
 }
 
 - (void)testSwizzledAppDelegateRemoteNotificationMethods {
+#if TARGET_OS_IOS
   FakeAppDelegate *appDelegate = [[FakeAppDelegate alloc] init];
   [self.mockProxy swizzleAppDelegateMethods:appDelegate];
   [appDelegate application:OCMClassMock([UIApplication class]) didReceiveRemoteNotification:@{}];
@@ -198,6 +203,8 @@ void FCM_swizzle_didReceiveNotificationResponseWithHandler(
   OCMVerify(FCM_swizzle_appDidReceiveRemoteNotificationWithHandler);
   // Verify our original method was called
   XCTAssertTrue(appDelegate.remoteNotificationWithFetchHandlerWasCalled);
+#endif
+
 }
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
@@ -260,7 +267,7 @@ void FCM_swizzle_didReceiveNotificationResponseWithHandler(
   OCMVerify(FCM_swizzle_willPresentNotificationWithHandler);
   // Verify our original method was called
   XCTAssertTrue(delegate.willPresentWasCalled);
-
+#if TARGET_OS_IOS
   [delegate userNotificationCenter:OCMClassMock([UNUserNotificationCenter class])
     didReceiveNotificationResponse:[self generateMockNotificationResponse]
              withCompletionHandler:^{}];
@@ -268,6 +275,7 @@ void FCM_swizzle_didReceiveNotificationResponseWithHandler(
   OCMVerify(FCM_swizzle_appDidReceiveRemoteNotificationWithHandler);
   // Verify our original method was called
   XCTAssertTrue(delegate.didReceiveResponseWasCalled);
+#endif
 }
 
 - (id)generateMockNotification {
@@ -283,10 +291,14 @@ void FCM_swizzle_didReceiveNotificationResponseWithHandler(
 
 - (id)generateMockNotificationResponse {
   // Stub out: response.[mock notification above]
+#if TARGET_OS_IOS
   id mockNotificationResponse = OCMClassMock([UNNotificationResponse class]);
   id mockNotification = [self generateMockNotification];
   OCMStub([mockNotificationResponse notification]).andReturn(mockNotification);
   return mockNotificationResponse;
+#else
+  return nil;
+#endif
 }
 
 #endif // __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
