@@ -480,6 +480,7 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [appDelegate application:application handleOpenURL:url];
+#pragma clang diagnostic pop
 #endif
   }
 }
