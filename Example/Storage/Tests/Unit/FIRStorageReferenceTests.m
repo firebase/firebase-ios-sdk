@@ -162,7 +162,7 @@
   XCTAssertNotEqual(ref, copiedRef);
 }
 
-- (void)test_GivenReferenceWithPath_WhenPutNonExistingFile_ThenCompletionIsCalledWithError {
+- (void)testReferenceWithNonExistentFileFailsWithCompletion {
   NSString *tempFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"temp.data"];
   FIRStorageReference *ref = [self.storage referenceWithPath:tempFilePath];
 
