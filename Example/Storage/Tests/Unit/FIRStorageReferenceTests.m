@@ -171,17 +171,18 @@
   XCTestExpectation *expectation = [self expectationWithDescription:@"completionExpectation"];
 
   [ref putFile:dummyFileURL
-      metadata:nil
-    completion:^(FIRStorageMetadata * _Nullable metadata, NSError * _Nullable error) {
-      [expectation fulfill];
-      XCTAssertNotNil(error);
-      XCTAssertNil(metadata);
+        metadata:nil
+      completion:^(FIRStorageMetadata *_Nullable metadata, NSError *_Nullable error) {
+        [expectation fulfill];
+        XCTAssertNotNil(error);
+        XCTAssertNil(metadata);
 
-      XCTAssertEqualObjects(error.domain, FIRStorageErrorDomain);
-      XCTAssertEqual(error.code, FIRStorageErrorCodeUnknown);
-      XCTAssertEqualObjects(error.localizedDescription,
-                            @"File at URL: file:///some_non_existing-folder/file.data is not reachable");
-    }];
+        XCTAssertEqualObjects(error.domain, FIRStorageErrorDomain);
+        XCTAssertEqual(error.code, FIRStorageErrorCodeUnknown);
+        XCTAssertEqualObjects(
+            error.localizedDescription,
+            @"File at URL: file:///some_non_existing-folder/file.data is not reachable");
+      }];
 
   [self waitForExpectationsWithTimeout:0.5 handler:NULL];
 }
