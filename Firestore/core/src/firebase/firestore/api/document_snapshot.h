@@ -44,11 +44,9 @@ namespace api {
 
 class DocumentSnapshot {
  public:
-  DocumentSnapshot() = default;
-
   DocumentSnapshot(FIRFirestore* firestore,
                    model::DocumentKey document_key,
-                   FSTDocument* document,
+                   FSTDocument* _Nullable document,
                    bool from_cache,
                    bool has_pending_writes)
       : firestore_{firestore},
@@ -60,14 +58,18 @@ class DocumentSnapshot {
 
   size_t Hash() const;
 
-  bool Exists() const;
-  FSTDocument* GetInternalDocument() const;
+  bool Exists() const {
+    return internal_document_ != nil;
+  }
+  FSTDocument* GetInternalDocument() const {
+    return internal_document_;
+  }
   FIRDocumentReference* CreateReference() const;
   std::string GetDocumentId() const;
   FIRSnapshotMetadata* GetMetadata() const;
 
-  FSTObjectValue* GetData() const;
-  id GetValue(const model::FieldPath& field_path) const;
+  virtual FSTObjectValue* _Nullable GetData() const;
+  id _Nullable GetValue(const model::FieldPath& field_path) const;
 
   FIRFirestore* firestore() const {
     return firestore_;
@@ -84,6 +86,13 @@ class DocumentSnapshot {
   bool has_pending_writes_ = false;
 
   mutable FIRSnapshotMetadata* cached_metadata_ = nil;
+};
+
+class QueryDocumentSnapshot : public DocumentSnapshot {
+  public:
+    using DocumentSnapshot::DocumentSnapshot;
+
+    FSTObjectValue* _Nullable GetData() const override;
 };
 
 }  // namespace api

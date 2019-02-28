@@ -16,7 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
 
-#import "FIRFirestore.h"
+#import "Firestore/Source/API/FIRFirestore+Internal.h"
 
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
@@ -40,14 +40,6 @@ size_t DocumentSnapshot::Hash() const {
                     has_pending_writes_);
 }
 
-bool DocumentSnapshot::Exists() const {
-  return internal_document_ != nil;
-}
-
-FSTDocument* DocumentSnapshot::GetInternalDocument() const {
-  return internal_document_;
-}
-
 FIRDocumentReference* DocumentSnapshot::CreateReference() const {
   return [FIRDocumentReference referenceWithKey:internal_key_
                                       firestore:firestore_];
@@ -66,11 +58,11 @@ FIRSnapshotMetadata* DocumentSnapshot::GetMetadata() const {
   return cached_metadata_;
 }
 
-FSTObjectValue* DocumentSnapshot::GetData() const {
+FSTObjectValue* _Nullable DocumentSnapshot::GetData() const {
   return internal_document_ == nil ? nil : [internal_document_ data];
 }
 
-id DocumentSnapshot::GetValue(const FieldPath& field_path) const {
+id _Nullable DocumentSnapshot::GetValue(const FieldPath& field_path) const {
   return [[internal_document_ data] valueForPath:field_path];
 }
 
@@ -80,6 +72,12 @@ bool operator==(const DocumentSnapshot& lhs, const DocumentSnapshot& rhs) {
          objc::Equals(lhs.internal_document_, rhs.internal_document_) &&
          lhs.from_cache_ == rhs.from_cache_ &&
          lhs.has_pending_writes_ == rhs.has_pending_writes_;
+}
+
+FSTObjectValue* _Nullable QueryDocumentSnapshot::GetData() const {
+  FSTObjectValue* data = DocumentSnapshot::GetData();
+  HARD_ASSERT(data, "Document in a QueryDocumentSnapshot should exist");
+  return data;
 }
 
 }  // namespace api
