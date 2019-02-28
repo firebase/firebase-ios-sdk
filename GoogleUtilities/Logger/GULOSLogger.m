@@ -163,7 +163,7 @@ static void GULLOSLogWithType(os_log_t log, os_log_type_t type, char *format, ..
   // Process the va_list here, while the parameters are on the stack.
   va_list args_ptr;
   va_start(args_ptr, message);
-  __block NSString *completeMessage = [[NSString alloc] initWithFormat:message arguments:args_ptr];
+  NSString *completeMessage = [[NSString alloc] initWithFormat:message arguments:args_ptr];
   va_end(args_ptr);
   completeMessage = [GULLogger messageFromLogger:self
                                      withService:service
