@@ -120,10 +120,6 @@
       [uploadFetcher setUploadData:strongSelf->_uploadData];
       uploadFetcher.comment = @"Data UploadTask";
     } else if (strongSelf->_fileURL) {
-      NSError *fileReachabilityError;
-      if (![strongSelf->_fileURL checkResourceIsReachableAndReturnError:&fileReachabilityError]) {
-
-      }
       [uploadFetcher setUploadFileURL:strongSelf->_fileURL];
       uploadFetcher.comment = @"File UploadTask";
     }
@@ -200,11 +196,13 @@
   NSError *fileReachabilityError;
   if (![_fileURL checkResourceIsReachableAndReturnError:&fileReachabilityError]) {
     if (outError != NULL) {
+      NSString *description =
+        [NSString stringWithFormat:@"File at URL: %@ is not reachable", _fileURL];
       *outError = [NSError errorWithDomain:FIRStorageErrorDomain
                                       code:FIRStorageErrorCodeUnknown
                                   userInfo:@ {
                                   NSUnderlyingErrorKey: fileReachabilityError,
-                                  NSLocalizedDescriptionKey: @"File is not available"
+                                  NSLocalizedDescriptionKey: description
                                   }];
     }
 
