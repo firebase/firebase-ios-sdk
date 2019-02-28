@@ -119,14 +119,14 @@ void GULLogBasic(GULLoggerLevel level,
  * Calling GULLogDebug(kGULLoggerCore, @"I-COR000001", @"Configure succeed.") shows:
  * yyyy-mm-dd hh:mm:ss.SSS sender[PID] <Debug> [{service}][I-COR000001] Configure succeed.
  */
-#define GUL_LOGGING_FUNCTION(level)                                                            \
-  void GULLog##level(GULLoggerService service, BOOL force, NSString *messageCode,              \
-                     NSString *message, ...) {                                                 \
-    va_list args;                                                                              \
-    va_start(args, message);                                                                   \
-    NSString *formattedMessage = [[NSString alloc] initWithFormat:message arguments:args];     \
-    va_end(args);                                                                              \
-    GULLogBasic(GULLoggerLevel##level, service, force, messageCode, @"%@", formattedMessage);  \
+#define GUL_LOGGING_FUNCTION(level)                                                           \
+  void GULLog##level(GULLoggerService service, BOOL force, NSString *messageCode,             \
+                     NSString *message, ...) {                                                \
+    va_list args;                                                                             \
+    va_start(args, message);                                                                  \
+    NSString *formattedMessage = [[NSString alloc] initWithFormat:message arguments:args];    \
+    va_end(args);                                                                             \
+    GULLogBasic(GULLoggerLevel##level, service, force, messageCode, @"%@", formattedMessage); \
   }
 
 GUL_LOGGING_FUNCTION(Error)
