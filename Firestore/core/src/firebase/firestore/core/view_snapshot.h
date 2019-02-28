@@ -134,89 +134,66 @@ class ViewSnapshot {
 
   /** The query this view is tracking the results for. */
   FSTQuery* query() const {
-    return impl_->query;
+    return query_;
   }
 
   /** The documents currently known to be results of the query. */
   FSTDocumentSet* documents() const {
-    return impl_->documents;
+    return documents_;
   }
 
   /** The documents of the last snapshot. */
   FSTDocumentSet* old_documents() const {
-    return impl_->old_documents;
+    return old_documents_;
   }
 
   /** The set of changes that have been applied to the documents. */
   const std::vector<DocumentViewChange>& document_changes() const {
-    return impl_->document_changes;
+    return document_changes_;
   }
 
   /** Whether any document in the snapshot was served from the local cache. */
   bool from_cache() const {
-    return impl_->from_cache;
+    return from_cache_;
   }
 
   /** Whether any document in the snapshot has pending local writes. */
   bool has_pending_writes() const {
-    return !(impl_->mutated_keys.empty());
+    return !mutated_keys_.empty();
   }
 
   /** Whether the sync state changed as part of this snapshot. */
   bool sync_state_changed() const {
-    return impl_->sync_state_changed;
+    return sync_state_changed_;
   }
 
   /** Whether this snapshot has been filtered to not include metadata changes */
   bool excludes_metadata_changes() const {
-    return impl_->excludes_metadata_changes;
+    return excludes_metadata_changes_;
   }
 
   /** The document in this snapshot that have unconfirmed writes. */
   model::DocumentKeySet mutated_keys() const {
-    return impl_->mutated_keys;
+    return mutated_keys_;
   }
 
   std::string ToString() const;
   size_t Hash() const;
 
-  friend bool operator==(const ViewSnapshot& lhs, const ViewSnapshot& rhs);
-
  private:
-  struct Impl {
-    Impl(FSTQuery* query,
-         FSTDocumentSet* documents,
-         FSTDocumentSet* old_documents,
-         std::vector<DocumentViewChange> document_changes,
-         bool from_cache,
-         bool sync_state_changed,
-         bool excludes_metadata_changes,
-         model::DocumentKeySet mutated_keys)
-        : query{query},
-          documents{documents},
-          old_documents{old_documents},
-          document_changes{std::move(document_changes)},
-          from_cache{from_cache},
-          sync_state_changed{sync_state_changed},
-          excludes_metadata_changes{excludes_metadata_changes},
-          mutated_keys{std::move(mutated_keys)} {
-    }
+  FSTQuery* query_ = nil;
 
-    FSTQuery* query = nil;
+  FSTDocumentSet* documents_ = nil;
+  FSTDocumentSet* old_documents_ = nil;
+  std::vector<DocumentViewChange> document_changes_;
+  model::DocumentKeySet mutated_keys_;
 
-    FSTDocumentSet* documents = nil;
-    FSTDocumentSet* old_documents = nil;
-    std::vector<DocumentViewChange> document_changes;
-
-    bool from_cache = false;
-    bool sync_state_changed = false;
-    bool excludes_metadata_changes = false;
-
-    model::DocumentKeySet mutated_keys;
-  };
-
-  std::shared_ptr<const Impl> impl_;
+  bool from_cache_ = false;
+  bool sync_state_changed_ = false;
+  bool excludes_metadata_changes_ = false;
 };
+
+bool operator==(const ViewSnapshot& lhs, const ViewSnapshot& rhs);
 
 }  // namespace core
 }  // namespace firestore

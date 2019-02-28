@@ -139,14 +139,14 @@ ViewSnapshot::ViewSnapshot(FSTQuery* query,
                            bool from_cache,
                            bool sync_state_changed,
                            bool excludes_metadata_changes)
-    : impl_{std::make_shared<const Impl>(query,
-                                         documents,
-                                         old_documents,
-                                         std::move(document_changes),
-                                         from_cache,
-                                         sync_state_changed,
-                                         excludes_metadata_changes,
-                                         std::move(mutated_keys))} {
+    : query_{query},
+      documents_{documents},
+      old_documents_{old_documents},
+      document_changes_{std::move(document_changes)},
+      mutated_keys_{std::move(mutated_keys)},
+      from_cache_{from_cache},
+      sync_state_changed_{sync_state_changed},
+      excludes_metadata_changes_{excludes_metadata_changes} {
 }
 
 ViewSnapshot ViewSnapshot::FromInitialDocuments(
@@ -180,7 +180,8 @@ std::string ViewSnapshot::ToString() const {
 
 size_t ViewSnapshot::Hash() const {
   // Note: We are omitting `mutated_keys_` from the hash, since we don't have a
-  // straightforward way to compute its hash value.
+  // straightforward way to compute its hash value. Since `ViewSnapshot` is
+  // currently not stored in any dictionaries, this has no side effects.
 
   return util::Hash([query() hash], [documents() hash], [old_documents() hash],
                     document_changes(), from_cache(), sync_state_changed(),
@@ -188,10 +189,6 @@ size_t ViewSnapshot::Hash() const {
 }
 
 bool operator==(const ViewSnapshot& lhs, const ViewSnapshot& rhs) {
-  if (lhs.impl_ == rhs.impl_) {
-    return true;
-  }
-
   return objc::Equals(lhs.query(), rhs.query()) &&
          objc::Equals(lhs.documents(), rhs.documents()) &&
          objc::Equals(lhs.old_documents(), rhs.old_documents()) &&
