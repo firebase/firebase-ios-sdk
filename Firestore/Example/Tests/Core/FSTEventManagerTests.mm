@@ -98,7 +98,7 @@ static NSNumber *ToNSNumber(OnlineState state) {
   OCMVerifyAll((id)syncEngineMock);
 }
 
-- (FSTQueryListener *)makeListenerForQuery:(FSTQuery *)query
+- (FSTQueryListener *)queryListenerForQuery:(FSTQuery *)query
                                withHandler:(ViewSnapshotHandler &&)handler {
   return [[FSTQueryListener alloc] initWithQuery:query
                                          options:[FSTListenOptions defaultOptions]
@@ -118,19 +118,19 @@ static NSNumber *ToNSNumber(OnlineState state) {
   NSMutableArray *eventOrder = [NSMutableArray array];
 
   FSTQueryListener *listener1 =
-      [self makeListenerForQuery:query1
+      [self queryListenerForQuery:query1
                      withHandler:[eventOrder](const StatusOr<ViewSnapshot> &) {
                        [eventOrder addObject:@"listener1"];
                      }];
 
   FSTQueryListener *listener2 =
-      [self makeListenerForQuery:query2
+      [self queryListenerForQuery:query2
                      withHandler:[eventOrder](const StatusOr<ViewSnapshot> &) {
                        [eventOrder addObject:@"listener2"];
                      }];
 
   FSTQueryListener *listener3 =
-      [self makeListenerForQuery:query1
+      [self queryListenerForQuery:query1
                      withHandler:[eventOrder](const StatusOr<ViewSnapshot> &) {
                        [eventOrder addObject:@"listener3"];
                      }];
