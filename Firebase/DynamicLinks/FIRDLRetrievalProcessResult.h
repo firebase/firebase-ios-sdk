@@ -29,6 +29,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSURL *)URLWithCustomURLScheme:(NSString *)customURLScheme;
 
 @property(nonatomic, nullable, readonly) FIRDynamicLink *dynamicLink;
+@property(nonatomic, nullable, copy, readonly) NSString *source;
+@property(nonatomic, nullable, copy, readonly) NSString *medium;
+@property(nonatomic, nullable, copy, readonly) NSString *campaign;
 @property(nonatomic, nullable, readonly) NSError *error;
 @property(nonatomic, nullable, copy, readonly) NSString *message;
 @property(nonatomic, nullable, copy, readonly) NSString *matchSource;

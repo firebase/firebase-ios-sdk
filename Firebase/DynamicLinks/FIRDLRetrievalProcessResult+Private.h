@@ -21,6 +21,9 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FIRDLRetrievalProcessResult ()
 
 - (instancetype)initWithDynamicLink:(nullable FIRDynamicLink *)dynamicLink
+                             source:(nullable NSString *)source
+                             medium:(nullable NSString *)medium
+                           campaign:(nullable NSString *)campaign
                               error:(nullable NSError *)error
                             message:(nullable NSString *)message
                         matchSource:(nullable NSString *)matchSource NS_DESIGNATED_INITIALIZER;

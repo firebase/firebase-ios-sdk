@@ -24,11 +24,17 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRDLRetrievalProcessResult
 
 - (instancetype)initWithDynamicLink:(nullable FIRDynamicLink *)dynamicLink
+                             source:(nullable NSString *)source
+                             medium:(nullable NSString *)medium
+                           campaign:(nullable NSString *)campaign
                               error:(nullable NSError *)error
                             message:(nullable NSString *)message
                         matchSource:(nullable NSString *)matchSource {
   if (self = [super init]) {
     _dynamicLink = dynamicLink;
+    _source = [source copy];
+    _medium = [medium copy];
+    _campaign = [campaign copy];
     _error = error;
     _message = [message copy];
     _matchSource = [matchSource copy];
@@ -40,10 +46,13 @@ NS_ASSUME_NONNULL_BEGIN
   NSURL *URL;
   if (_dynamicLink) {
     NSString *queryString = FIRDLURLQueryStringFromDictionary(_dynamicLink.parametersDictionary);
+    NSString *utmFormatString = @"&utm_medium=%@&utm_campaign=%@&utm_source=%@";
+    NSString *queryStringUtm = [NSString stringWithFormat:utmFormatString, _medium, _campaign, _source];
     NSMutableString *URLString = [[NSMutableString alloc] init];
     [URLString appendString:customURLScheme];
     [URLString appendString:@"://google/link/"];
     [URLString appendString:queryString];
+    [URLString appendString:queryStringUtm];
     URL = [NSURL URLWithString:URLString];
   } else {
     NSMutableString *URLString = [[NSMutableString alloc] init];

@@ -143,6 +143,9 @@ NS_ASSUME_NONNULL_BEGIN
         }
         FIRDLRetrievalProcessResult *result =
             [[FIRDLRetrievalProcessResult alloc] initWithDynamicLink:dynamicLink
+                                                              source:dynamicLinkParameters[kFIRDLParameterSource]
+                                                              medium:dynamicLinkParameters[kFIRDLParameterMedium]
+                                                            campaign:dynamicLinkParameters[kFIRDLParameterCampaign]
                                                                error:error
                                                              message:matchMessage
                                                          matchSource:nil];
@@ -253,6 +256,9 @@ NS_ASSUME_NONNULL_BEGIN
         NSString *message = NSLocalizedString(@"Pending dynamic link not found",
                                               @"Message when dynamic link was not found");
         result = [[FIRDLRetrievalProcessResult alloc] initWithDynamicLink:nil
+                                                                   source:nil
+                                                                   medium:nil
+                                                                 campaign:nil
                                                                     error:nil
                                                                   message:message
                                                               matchSource:nil];
