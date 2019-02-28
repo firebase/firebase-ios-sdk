@@ -181,7 +181,7 @@
         XCTAssertEqual(error.code, FIRStorageErrorCodeUnknown);
         XCTAssertEqualObjects(
             error.localizedDescription,
-            @"File at URL: file:///some_non_existing-folder/file.data is not reachable");
+            @"File at URL: file:///some_non_existing-folder/file.data is not reachable.");
       }];
 
   [self waitForExpectationsWithTimeout:0.5 handler:NULL];
