@@ -22,7 +22,6 @@
 #endif  // !defined(__OBJC__)
 
 #include <functional>
-#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
