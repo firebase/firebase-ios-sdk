@@ -34,10 +34,9 @@ NSString *const kFIRInstanceIDLoggerService = @"[Firebase/InstanceID]";
                  msg:(NSString *)fmt, ... {
   va_list args;
   va_start(args, fmt);
-  NSString *formattedMessage = [[NSString alloc] initWithFormat:fmt arguments:args];
-  va_end(args);
   FIRLogBasic(FIRLoggerLevelDebug, kFIRInstanceIDLoggerService,
-              [FIRInstanceIDLogger formatMessageCode:messageCode], @"%@", formattedMessage);
+              [FIRInstanceIDLogger formatMessageCode:messageCode], fmt, args);
+  va_end(args);
 }
 
 - (void)logFuncInfo:(const char *)func
@@ -45,10 +44,9 @@ NSString *const kFIRInstanceIDLoggerService = @"[Firebase/InstanceID]";
                 msg:(NSString *)fmt, ... {
   va_list args;
   va_start(args, fmt);
-  NSString *formattedMessage = [[NSString alloc] initWithFormat:fmt arguments:args];
-  va_end(args);
   FIRLogBasic(FIRLoggerLevelInfo, kFIRInstanceIDLoggerService,
-              [FIRInstanceIDLogger formatMessageCode:messageCode], @"%@", formattedMessage);
+              [FIRInstanceIDLogger formatMessageCode:messageCode], fmt, args);
+  va_end(args);
 }
 
 - (void)logFuncNotice:(const char *)func
@@ -56,10 +54,9 @@ NSString *const kFIRInstanceIDLoggerService = @"[Firebase/InstanceID]";
                   msg:(NSString *)fmt, ... {
   va_list args;
   va_start(args, fmt);
-  NSString *formattedMessage = [[NSString alloc] initWithFormat:fmt arguments:args];
-  va_end(args);
   FIRLogBasic(FIRLoggerLevelNotice, kFIRInstanceIDLoggerService,
-              [FIRInstanceIDLogger formatMessageCode:messageCode], @"%@", formattedMessage);
+              [FIRInstanceIDLogger formatMessageCode:messageCode], fmt, args);
+  va_end(args);
 }
 
 - (void)logFuncWarning:(const char *)func
@@ -67,10 +64,9 @@ NSString *const kFIRInstanceIDLoggerService = @"[Firebase/InstanceID]";
                    msg:(NSString *)fmt, ... {
   va_list args;
   va_start(args, fmt);
-  NSString *formattedMessage = [[NSString alloc] initWithFormat:fmt arguments:args];
-  va_end(args);
   FIRLogBasic(FIRLoggerLevelWarning, kFIRInstanceIDLoggerService,
-              [FIRInstanceIDLogger formatMessageCode:messageCode], @"%@", formattedMessage);
+              [FIRInstanceIDLogger formatMessageCode:messageCode], fmt, args);
+  va_end(args);
 }
 
 - (void)logFuncError:(const char *)func
@@ -78,10 +74,9 @@ NSString *const kFIRInstanceIDLoggerService = @"[Firebase/InstanceID]";
                  msg:(NSString *)fmt, ... {
   va_list args;
   va_start(args, fmt);
-  NSString *formattedMessage = [[NSString alloc] initWithFormat:fmt arguments:args];
-  va_end(args);
   FIRLogBasic(FIRLoggerLevelError, kFIRInstanceIDLoggerService,
-              [FIRInstanceIDLogger formatMessageCode:messageCode], @"%@", formattedMessage);
+              [FIRInstanceIDLogger formatMessageCode:messageCode], fmt, args);
+  va_end(args);
 }
 
 @end

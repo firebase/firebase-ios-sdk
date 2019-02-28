@@ -121,16 +121,20 @@ __attribute__((no_sanitize("thread"))) BOOL FIRIsLoggableLevel(FIRLoggerLevel lo
   return GULIsLoggableLevel((GULLoggerLevel)loggerLevel);
 }
 
-void FIRLogBasic(
-    FIRLoggerLevel level, FIRLoggerService service, NSString *messageCode, NSString *message, ...) {
+void FIRLogBasic(FIRLoggerLevel level,
+                 FIRLoggerService service,
+                 NSString *messageCode,
+                 NSString *message,
+#if __LP64__ && TARGET_OS_SIMULATOR || TARGET_OS_OSX
+                 va_list args_ptr
+#else
+                 va_list _Nullable args_ptr
+#endif
+) {
   FIRLoggerInitializeASL();
-  va_list args_ptr;
-  va_start(args_ptr, message);
-  NSString *formattedMessage = [[NSString alloc] initWithFormat:message arguments:args_ptr];
-  va_end(args_ptr);
   GULLogBasic((GULLoggerLevel)level, service,
               sFIRAnalyticsDebugMode && [kFIRLoggerAnalytics isEqualToString:service], messageCode,
-              @"%@", formattedMessage);
+              message, args_ptr);
 }
 
 /**
@@ -145,9 +149,8 @@ void FIRLogBasic(
   void FIRLog##level(FIRLoggerService service, NSString *messageCode, NSString *message, ...) { \
     va_list args_ptr;                                                                           \
     va_start(args_ptr, message);                                                                \
-    NSString *formattedMessage = [[NSString alloc] initWithFormat:message arguments:args_ptr];  \
+    FIRLogBasic(FIRLoggerLevel##level, service, messageCode, message, args_ptr);                \
     va_end(args_ptr);                                                                           \
-    FIRLogBasic(FIRLoggerLevel##level, service, messageCode, @"%@", formattedMessage);          \
   }
 
 FIR_LOGGING_FUNCTION(Error)
@@ -157,3 +160,17 @@ FIR_LOGGING_FUNCTION(Info)
 FIR_LOGGING_FUNCTION(Debug)
 
 #undef FIR_MAKE_LOGGER
+
+#pragma mark - FIRLoggerWrapper
+
+@implementation FIRLoggerWrapper
+
++ (void)logWithLevel:(FIRLoggerLevel)level
+         withService:(FIRLoggerService)service
+            withCode:(NSString *)messageCode
+         withMessage:(NSString *)message
+            withArgs:(va_list)args {
+  FIRLogBasic(level, service, messageCode, message, args);
+}
+
+@end
