@@ -137,7 +137,7 @@ NS_ASSUME_NONNULL_END
 
 @interface FIRLoggerWrapper : NSObject
 
- /**
+/**
  * Objective-C wrapper for FIRLogBasic to allow weak linking to FIRLogger
  * (required) log level (one of the FIRLoggerLevel enum values).
  * (required) service name of type FIRLoggerService.
@@ -150,10 +150,10 @@ NS_ASSUME_NONNULL_END
  *            string.
  */
 
- + (void)logWithLevel:(FIRLoggerLevel)level
++ (void)logWithLevel:(FIRLoggerLevel)level
          withService:(FIRLoggerService)service
             withCode:(NSString *)messageCode
          withMessage:(NSString *)message
             withArgs:(va_list)args;
 
- @end
+@end
