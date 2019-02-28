@@ -95,7 +95,8 @@ BOOL FIRIsLoggableLevel(FIRLoggerLevel loggerLevel, BOOL analyticsComponent);
 extern void FIRLogBasic(FIRLoggerLevel level,
                         FIRLoggerService service,
                         NSString *messageCode,
-                        NSString *message, ...) NS_FORMAT_FUNCTION(4, 5);
+                        NSString *message,
+                        ...) NS_FORMAT_FUNCTION(4, 5);
 
 /**
  * The following functions accept the following parameters in order:

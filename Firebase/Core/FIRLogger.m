@@ -121,10 +121,8 @@ __attribute__((no_sanitize("thread"))) BOOL FIRIsLoggableLevel(FIRLoggerLevel lo
   return GULIsLoggableLevel((GULLoggerLevel)loggerLevel);
 }
 
-void FIRLogBasic(FIRLoggerLevel level,
-                 FIRLoggerService service,
-                 NSString *messageCode,
-                 NSString *message, ...) {
+void FIRLogBasic(
+    FIRLoggerLevel level, FIRLoggerService service, NSString *messageCode, NSString *message, ...) {
   FIRLoggerInitializeASL();
   va_list args_ptr;
   va_start(args_ptr, message);
