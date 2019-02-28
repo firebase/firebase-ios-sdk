@@ -6,5 +6,6 @@
   "FirebaseFunctions":"2.3.0",
   "FirebaseInAppMessaging":"0.13.0",
   "FirebaseInAppMessagingDisplay":"0.13.0",
-  "FirebaseMessaging":"3.3.2"
+  "FirebaseMessaging":"3.3.2",
+  "GoogleUtilities":"5.4.0"
 }
