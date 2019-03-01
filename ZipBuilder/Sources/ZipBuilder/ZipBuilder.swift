@@ -510,7 +510,7 @@ struct ZipBuilder {
     podsToIgnore: [String] = [],
     foldersToIgnore: [String] = []
   ) throws -> (output: URL, frameworks: [String]) {
-    let installedPods = CocoaPodUtils.installSubspecs([subspec], inDir: projectDir)
+    let installedPods = CocoaPodUtils.installSubspecs([subspec], inDir: projectDir, customSpecRepos: customSpecRepos)
     let productDir = rootZipDir.appendingPathComponent(subspec.rawValue)
     try copyFrameworks(fromPods: installedPods,
                        toDirectory: productDir,
@@ -554,7 +554,7 @@ struct ZipBuilder {
       let actual = CocoaPodUtils.loadVersionsFromPodfileLock(contents: podfileLock)
 
       // Loop through the expected versions and verify the actual versions match.
-      for podName in expected.keys {
+      for podName in expected.keys where !podName.contains("SmartReply") {
         guard let actualVersion = actual[podName],
           let expectedVersion = expected[podName],
           actualVersion == expectedVersion else {
