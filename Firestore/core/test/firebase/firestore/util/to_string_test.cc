@@ -26,6 +26,7 @@
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/util/to_string.h"
+#include "absl/types/optional.h"
 
 #include "gtest/gtest.h"
 
@@ -55,6 +56,14 @@ TEST(ToStringTest, SimpleTypes) {
 TEST(ToStringTest, CustomToString) {
   DocumentKey key({"rooms", "firestore"});
   EXPECT_EQ(ToString(key), "rooms/firestore");
+}
+
+TEST(ToStringTest, Optional) {
+  absl::optional<int> foo;
+  EXPECT_EQ(ToString(foo), "nullopt");
+
+  absl::optional<int> bar = 1;
+  EXPECT_EQ(ToString(bar), "1");
 }
 
 TEST(ToStringTest, Container) {

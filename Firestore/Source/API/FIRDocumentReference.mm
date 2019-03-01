@@ -37,18 +37,24 @@
 #import "Firestore/Source/Util/FSTAsyncQueryListener.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
+#include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::core::ParsedSetData;
 using firebase::firestore::core::ParsedUpdateData;
+using firebase::firestore::core::ViewSnapshot;
+using firebase::firestore::core::ViewSnapshotHandler;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::ResourcePath;
+using firebase::firestore::util::MakeNSError;
+using firebase::firestore::util::StatusOr;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -263,30 +269,32 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQuery *query = [FSTQuery queryWithPath:self.key.path()];
   const DocumentKey key = self.key;
 
-  FSTViewSnapshotHandler snapshotHandler = ^(FSTViewSnapshot *snapshot, NSError *error) {
-    if (error) {
-      listener(nil, error);
+  ViewSnapshotHandler snapshotHandler = [key, listener,
+                                         firestore](const StatusOr<ViewSnapshot> &maybe_snapshot) {
+    if (!maybe_snapshot.ok()) {
+      listener(nil, MakeNSError(maybe_snapshot.status()));
       return;
     }
 
-    HARD_ASSERT(snapshot.documents.count <= 1, "Too many document returned on a document query");
-    FSTDocument *document = [snapshot.documents documentForKey:key];
+    const ViewSnapshot &snapshot = maybe_snapshot.ValueOrDie();
+    HARD_ASSERT(snapshot.documents().count <= 1, "Too many document returned on a document query");
+    FSTDocument *document = [snapshot.documents() documentForKey:key];
 
     BOOL hasPendingWrites = document
-                                ? snapshot.mutatedKeys.contains(key)
+                                ? snapshot.mutated_keys().contains(key)
                                 : NO;  // We don't raise `hasPendingWrites` for deleted documents.
 
     FIRDocumentSnapshot *result = [FIRDocumentSnapshot snapshotWithFirestore:firestore
                                                                  documentKey:key
                                                                     document:document
-                                                                   fromCache:snapshot.fromCache
+                                                                   fromCache:snapshot.from_cache()
                                                             hasPendingWrites:hasPendingWrites];
     listener(result, nil);
   };
 
   FSTAsyncQueryListener *asyncListener =
       [[FSTAsyncQueryListener alloc] initWithExecutor:self.firestore.client.userExecutor
-                                      snapshotHandler:snapshotHandler];
+                                      snapshotHandler:std::move(snapshotHandler)];
 
   FSTQueryListener *internalListener =
       [firestore.client listenToQuery:query

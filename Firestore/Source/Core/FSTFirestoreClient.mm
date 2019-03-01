@@ -57,6 +57,8 @@ namespace util = firebase::firestore::util;
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
+using firebase::firestore::core::ViewSnapshot;
+using firebase::firestore::core::ViewSnapshotHandler;
 using firebase::firestore::local::LruParams;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKeySet;
@@ -303,10 +305,11 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
 
 - (FSTQueryListener *)listenToQuery:(FSTQuery *)query
                             options:(FSTListenOptions *)options
-                viewSnapshotHandler:(FSTViewSnapshotHandler)viewSnapshotHandler {
-  FSTQueryListener *listener = [[FSTQueryListener alloc] initWithQuery:query
-                                                               options:options
-                                                   viewSnapshotHandler:viewSnapshotHandler];
+                viewSnapshotHandler:(ViewSnapshotHandler &&)viewSnapshotHandler {
+  FSTQueryListener *listener =
+      [[FSTQueryListener alloc] initWithQuery:query
+                                      options:options
+                          viewSnapshotHandler:std::move(viewSnapshotHandler)];
 
   _workerQueue->Enqueue([self, listener] { [self.eventManager addListener:listener]; });
 
@@ -368,15 +371,16 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
     FSTViewChange *viewChange = [view applyChangesToDocuments:viewDocChanges];
     HARD_ASSERT(viewChange.limboChanges.count == 0,
                 "View returned limbo documents during local-only query execution.");
+    HARD_ASSERT(viewChange.snapshot.has_value(), "Expected a snapshot");
 
-    FSTViewSnapshot *snapshot = viewChange.snapshot;
+    ViewSnapshot snapshot = std::move(viewChange.snapshot).value();
     FIRSnapshotMetadata *metadata =
-        [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:snapshot.hasPendingWrites
-                                                     fromCache:snapshot.fromCache];
+        [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:snapshot.has_pending_writes()
+                                                     fromCache:snapshot.from_cache()];
 
     FIRQuerySnapshot *result = [FIRQuerySnapshot snapshotWithFirestore:query.firestore
                                                          originalQuery:query.query
-                                                              snapshot:snapshot
+                                                              snapshot:std::move(snapshot)
                                                               metadata:metadata];
 
     if (completion) {

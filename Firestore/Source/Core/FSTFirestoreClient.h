@@ -20,10 +20,10 @@
 #include <vector>
 
 #import "Firestore/Source/Core/FSTTypes.h"
-#import "Firestore/Source/Core/FSTViewSnapshot.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
+#include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
@@ -78,7 +78,8 @@ NS_ASSUME_NONNULL_BEGIN
 /** Starts listening to a query. */
 - (FSTQueryListener *)listenToQuery:(FSTQuery *)query
                             options:(FSTListenOptions *)options
-                viewSnapshotHandler:(FSTViewSnapshotHandler)viewSnapshotHandler;
+                viewSnapshotHandler:
+                    (firebase::firestore::core::ViewSnapshotHandler &&)viewSnapshotHandler;
 
 /** Stops listening to a query previously listened to. */
 - (void)removeListener:(FSTQueryListener *)listener;
