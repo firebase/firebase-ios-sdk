@@ -397,7 +397,7 @@ int GetDocumentViewChangeTypePosition(DocumentViewChange::Type changeType) {
   NSArray<FSTLimboDocumentChange *> *limboChanges = [self updateLimboDocuments];
   BOOL synced = _limboDocuments.empty() && self.isCurrent;
   SyncState newSyncState = synced ? SyncState::Synced : SyncState::Local;
-  BOOL syncStateChanged = newSyncState != self.syncState;
+  bool syncStateChanged = newSyncState != self.syncState;
   self.syncState = newSyncState;
 
   if (changes.empty() && !syncStateChanged) {
