@@ -23,6 +23,7 @@
 
 #import <Foundation/Foundation.h>
 
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
@@ -44,6 +45,8 @@ namespace firebase {
 namespace firestore {
 namespace api {
 
+class Firestore;
+
 class DocumentReference {
  public:
   using Completion = void (^)(NSError* _Nullable error) _Nullable;
@@ -51,13 +54,13 @@ class DocumentReference {
                                       NSError* _Nullable error) _Nullable;
 
   DocumentReference() = default;
-  DocumentReference(FIRFirestore* firestore, model::DocumentKey document_key)
-      : firestore_{firestore}, key_{std::move(document_key)} {
+  DocumentReference(std::shared_ptr<Firestore> firestore, model::DocumentKey document_key)
+      : firestore_{std::move(firestore)}, key_{std::move(document_key)} {
   }
 
   size_t Hash() const;
 
-  FIRFirestore* firestore() const {
+  std::shared_ptr<Firestore> firestore() const {
     return firestore_;
   }
   const model::DocumentKey& key() const {
@@ -85,7 +88,7 @@ class DocumentReference {
       FIRDocumentSnapshotBlock listener, FSTListenOptions* options);
 
  private:
-  FIRFirestore* firestore_ = nil;
+  std::shared_ptr<Firestore> firestore_;
   model::DocumentKey key_;
 };
 

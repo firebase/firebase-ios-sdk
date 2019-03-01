@@ -16,6 +16,7 @@
 
 #import "FIRDocumentReference.h"
 
+#include "Firestore/core/src/firebase/firestore/api/document_reference.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 
@@ -28,6 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
                         firestore:(FIRFirestore *)firestore;
 + (instancetype)referenceWithKey:(firebase::firestore::model::DocumentKey)key
                        firestore:(FIRFirestore *)firestore;
++ (instancetype)referenceWithReference:(firebase::firestore::api::DocumentReference&&)reference;
 
 - (const firebase::firestore::model::DocumentKey &)key;
 

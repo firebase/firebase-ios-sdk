@@ -31,6 +31,7 @@
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 #include "Firestore/core/include/firebase/firestore/firestore_version.h"
+#include "Firestore/core/src/firebase/firestore/api/firestore.h"
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/auth/firebase_credentials_provider_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
@@ -39,6 +40,7 @@
 #include "absl/memory/memory.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::api::Firestore;
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::FirebaseCredentialsProvider;
 using util::AsyncQueue;
@@ -95,12 +97,10 @@ NS_ASSUME_NONNULL_BEGIN
 
       NSString *persistenceKey = self.app.name;
       NSString *projectID = self.app.options.projectID;
-      firestore = [[FIRFirestore alloc] initWithProjectID:util::MakeString(projectID)
-                                                 database:util::MakeString(database)
-                                           persistenceKey:persistenceKey
-                                      credentialsProvider:std::move(credentials_provider)
-                                              workerQueue:std::move(workerQueue)
-                                              firebaseApp:self.app];
+      auto underlyingFirestore = std::make_shared(
+          util::MakeString(projectID), util::MakeString(database), util::MakeString(persistenceKey),
+          std::move(credentials_provider), std::move(workerQueue), self.app);
+      firestore = [[FIRFirestore alloc] initWithFirestore:std::move(underlyingFirestore)];
       _instances[key] = firestore;
     }
 

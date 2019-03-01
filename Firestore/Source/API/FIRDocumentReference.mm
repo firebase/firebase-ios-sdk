@@ -26,7 +26,6 @@
 #import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRListenerRegistration+Internal.h"
-#import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Core/FSTEventManager.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
@@ -35,7 +34,6 @@
 
 #include "Firestore/core/src/firebase/firestore/api/document_reference.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
-#include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
@@ -44,7 +42,6 @@ using firebase::firestore::api::DocumentReference;
 using firebase::firestore::core::ParsedSetData;
 using firebase::firestore::core::ParsedUpdateData;
 using firebase::firestore::model::DocumentKey;
-using firebase::firestore::model::Precondition;
 using firebase::firestore::model::ResourcePath;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -84,7 +81,7 @@ NS_ASSUME_NONNULL_BEGIN
 @dynamic firestore;
 
 - (FIRFirestore *)firestore {
-  return _documentReference.firestore();
+  return [[FIRFirestore alloc] initWithFirestore:_documentReference.firestore()];
 }
 
 - (NSString *)documentID {
@@ -212,12 +209,17 @@ NS_ASSUME_NONNULL_BEGIN
                              "number of segments, but %s has %zu",
                             path.CanonicalString().c_str(), path.size());
   }
-  return [FIRDocumentReference referenceWithKey:DocumentKey{path} firestore:firestore];
+  DocumentReference underlyingReference{firestore, DocumentKey{path}};
+  return [FIRDocumentReference referenceWithReference:std::move(underlyingReference)];
 }
 
 + (instancetype)referenceWithKey:(DocumentKey)key firestore:(FIRFirestore *)firestore {
   DocumentReference underlyingReference{firestore, std::move(key)};
-  return [[FIRDocumentReference alloc] initWithReference:std::move(underlyingReference)];
+  return [FIRDocumentReference referenceWithReference:std::move(underlyingReference)];
+}
+
++ (instancetype)referenceWithReference:(firebase::firestore::api::DocumentReference&&)reference {
+  return [[FIRDocumentReference alloc] initWithReference:std::move(reference)];
 }
 
 - (const DocumentKey &)key {
