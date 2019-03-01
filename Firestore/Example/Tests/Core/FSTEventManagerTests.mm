@@ -99,7 +99,7 @@ static NSNumber *ToNSNumber(OnlineState state) {
 }
 
 - (FSTQueryListener *)queryListenerForQuery:(FSTQuery *)query
-                               withHandler:(ViewSnapshotHandler &&)handler {
+                                withHandler:(ViewSnapshotHandler &&)handler {
   return [[FSTQueryListener alloc] initWithQuery:query
                                          options:[FSTListenOptions defaultOptions]
                              viewSnapshotHandler:std::move(handler)];
@@ -119,21 +119,21 @@ static NSNumber *ToNSNumber(OnlineState state) {
 
   FSTQueryListener *listener1 =
       [self queryListenerForQuery:query1
-                     withHandler:[eventOrder](const StatusOr<ViewSnapshot> &) {
-                       [eventOrder addObject:@"listener1"];
-                     }];
+                      withHandler:[eventOrder](const StatusOr<ViewSnapshot> &) {
+                        [eventOrder addObject:@"listener1"];
+                      }];
 
   FSTQueryListener *listener2 =
       [self queryListenerForQuery:query2
-                     withHandler:[eventOrder](const StatusOr<ViewSnapshot> &) {
-                       [eventOrder addObject:@"listener2"];
-                     }];
+                      withHandler:[eventOrder](const StatusOr<ViewSnapshot> &) {
+                        [eventOrder addObject:@"listener2"];
+                      }];
 
   FSTQueryListener *listener3 =
       [self queryListenerForQuery:query1
-                     withHandler:[eventOrder](const StatusOr<ViewSnapshot> &) {
-                       [eventOrder addObject:@"listener3"];
-                     }];
+                      withHandler:[eventOrder](const StatusOr<ViewSnapshot> &) {
+                        [eventOrder addObject:@"listener3"];
+                      }];
 
   FSTSyncEngine *syncEngineMock = OCMClassMock([FSTSyncEngine class]);
   FSTEventManager *eventManager = [FSTEventManager eventManagerWithSyncEngine:syncEngineMock];
