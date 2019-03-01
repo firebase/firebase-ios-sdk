@@ -90,13 +90,6 @@ class DocumentSnapshot {
   mutable FIRSnapshotMetadata* cached_metadata_ = nil;
 };
 
-class QueryDocumentSnapshot : public DocumentSnapshot {
- public:
-  using DocumentSnapshot::DocumentSnapshot;
-
-  FSTObjectValue* _Nullable GetData() const override;
-};
-
 }  // namespace api
 }  // namespace firestore
 }  // namespace firebase

@@ -74,12 +74,6 @@ bool operator==(const DocumentSnapshot& lhs, const DocumentSnapshot& rhs) {
          lhs.has_pending_writes_ == rhs.has_pending_writes_;
 }
 
-FSTObjectValue* _Nullable QueryDocumentSnapshot::GetData() const {
-  FSTObjectValue* data = DocumentSnapshot::GetData();
-  HARD_ASSERT(data, "Document in a QueryDocumentSnapshot should exist");
-  return data;
-}
-
 }  // namespace api
 }  // namespace firestore
 }  // namespace firebase
