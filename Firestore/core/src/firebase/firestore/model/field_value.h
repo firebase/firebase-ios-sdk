@@ -160,12 +160,12 @@ class FieldValue {
   absl::optional<FieldValue> Get(const FieldPath& field_path) const;
 
   /** factory methods. */
-  static const FieldValue& Null();
-  static const FieldValue& True();
-  static const FieldValue& False();
-  static const FieldValue& Nan();
-  static const FieldValue& EmptyObject();
-  static const FieldValue& FromBoolean(bool value);
+  static FieldValue Null();
+  static FieldValue True();
+  static FieldValue False();
+  static FieldValue Nan();
+  static FieldValue EmptyObject();
+  static FieldValue FromBoolean(bool value);
   static FieldValue FromInteger(int64_t value);
   static FieldValue FromDouble(double value);
   static FieldValue FromTimestamp(const Timestamp& value);

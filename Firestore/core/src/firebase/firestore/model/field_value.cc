@@ -217,34 +217,28 @@ FieldValue FieldValue::SetChild(const std::string& child_name, const FieldValue&
   return FieldValue::FromMap(object_value_->internal_value.insert(child_name, value));
 }
 
-const FieldValue& FieldValue::Null() {
-  static const FieldValue kNullInstance;
-  return kNullInstance;
+FieldValue FieldValue::Null() {
+  return FieldValue();
 }
 
-const FieldValue& FieldValue::True() {
-  static const FieldValue kTrueInstance(true);
-  return kTrueInstance;
+FieldValue FieldValue::True() {
+  return FieldValue(true);
 }
 
-const FieldValue& FieldValue::False() {
-  static const FieldValue kFalseInstance(false);
-  return kFalseInstance;
+FieldValue FieldValue::False() {
+  return FieldValue(false);
 }
 
-const FieldValue& FieldValue::FromBoolean(bool value) {
+FieldValue FieldValue::FromBoolean(bool value) {
   return value ? True() : False();
 }
 
-const FieldValue& FieldValue::Nan() {
-  static const FieldValue kNanInstance = FieldValue::FromDouble(NAN);
-  return kNanInstance;
+FieldValue FieldValue::Nan() {
+  return FieldValue::FromDouble(NAN);
 }
 
-const FieldValue& FieldValue::EmptyObject() {
-  // TODO: FV is not trivally destructible, so this isn't allowed. Fix it.
-  static const FieldValue kEmptyObject = FieldValue::FromMap(ObjectValue::Empty());
-  return kEmptyObject;
+FieldValue FieldValue::EmptyObject() {
+  return FieldValue::FromMap(ObjectValue::Empty());
 }
 
 FieldValue FieldValue::FromInteger(int64_t value) {
