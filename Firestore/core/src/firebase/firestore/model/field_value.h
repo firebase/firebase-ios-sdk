@@ -24,11 +24,11 @@
 
 #include "Firestore/core/include/firebase/firestore/geo_point.h"
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
+#include "Firestore/core/src/firebase/firestore/immutable/sorted_map.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
-#include "Firestore/core/src/firebase/firestore/immutable/sorted_map.h"
 #include "absl/types/optional.h"
 
 namespace firebase {
@@ -183,8 +183,10 @@ class FieldValue {
   static FieldValue FromGeoPoint(const GeoPoint& value);
   static FieldValue FromArray(const std::vector<FieldValue>& value);
   static FieldValue FromArray(std::vector<FieldValue>&& value);
-  static FieldValue FromMap(const immutable::SortedMap<std::string, FieldValue>& value);
-  static FieldValue FromMap(immutable::SortedMap<std::string, FieldValue>&& value);
+  static FieldValue FromMap(
+      const immutable::SortedMap<std::string, FieldValue>& value);
+  static FieldValue FromMap(
+      immutable::SortedMap<std::string, FieldValue>&& value);
 
   friend bool operator<(const FieldValue& lhs, const FieldValue& rhs);
 
@@ -197,7 +199,8 @@ class FieldValue {
    */
   void SwitchTo(Type type);
 
-  FieldValue SetChild(const std::string& child_name, const FieldValue& value) const;
+  FieldValue SetChild(const std::string& child_name,
+                      const FieldValue& value) const;
 
   Type tag_ = Type::Null;
   union {

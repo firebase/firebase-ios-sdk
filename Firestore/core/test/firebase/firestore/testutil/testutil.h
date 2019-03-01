@@ -140,7 +140,8 @@ inline core::Query Query(absl::string_view path) {
 }
 
 inline std::unique_ptr<model::SetMutation> SetMutation(
-    absl::string_view path, const model::ObjectValue::Map& values = model::ObjectValue::Empty()) {
+    absl::string_view path,
+    const model::ObjectValue::Map& values = model::ObjectValue::Empty()) {
   return absl::make_unique<model::SetMutation>(
       Key(path), model::FieldValue::FromMap(values),
       model::Precondition::None());

@@ -143,7 +143,6 @@ bool FieldValue::Comparable(Type lhs, Type rhs) {
   }
 }
 
-
 FieldValue FieldValue::Set(const FieldPath& field_path,
                            const FieldValue& value) const {
   HARD_ASSERT(type() == Type::Object,
@@ -211,10 +210,12 @@ absl::optional<FieldValue> FieldValue::Get(const FieldPath& field_path) const {
   return *current;
 }
 
-FieldValue FieldValue::SetChild(const std::string& child_name, const FieldValue& value) const {
+FieldValue FieldValue::SetChild(const std::string& child_name,
+                                const FieldValue& value) const {
   HARD_ASSERT(type() == Type::Object,
               "Cannot set child for non-object FieldValue");
-  return FieldValue::FromMap(object_value_->internal_value.insert(child_name, value));
+  return FieldValue::FromMap(
+      object_value_->internal_value.insert(child_name, value));
 }
 
 FieldValue FieldValue::Null() {
@@ -356,7 +357,8 @@ FieldValue FieldValue::FromMap(ObjectValue::Map&& value) {
 }
 
 bool operator<(const ObjectValue::Map& lhs, const ObjectValue::Map& rhs) {
-  return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
+  return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(),
+                                      rhs.end());
 }
 
 bool operator<(const FieldValue& lhs, const FieldValue& rhs) {
@@ -454,7 +456,8 @@ void FieldValue::SwitchTo(const Type type) {
     case Type::Object:
       object_value_.~unique_ptr<ObjectValue>();
       break;
-    default: {}  // The other types where there is nothing to worry about.
+    default: {
+    }  // The other types where there is nothing to worry about.
   }
   tag_ = type;
   // Must call constructor explicitly for any non-POD type to initialize.
@@ -492,7 +495,8 @@ void FieldValue::SwitchTo(const Type type) {
       new (&object_value_)
           std::unique_ptr<ObjectValue>(absl::make_unique<ObjectValue>());
       break;
-    default: {}  // The other types where there is nothing to worry about.
+    default: {
+    }  // The other types where there is nothing to worry about.
   }
 }
 
