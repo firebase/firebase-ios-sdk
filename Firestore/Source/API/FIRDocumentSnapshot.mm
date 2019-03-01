@@ -50,7 +50,7 @@ namespace {
 /**
  * Converts a public FIRServerTimestampBehavior into its internal equivalent.
  */
-ServerTimestampBehavior InternalServerTimestampBehavor(FIRServerTimestampBehavior behavior) {
+ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavior behavior) {
   switch (behavior) {
     case FIRServerTimestampBehaviorNone:
       return ServerTimestampBehavior::None;
@@ -146,9 +146,6 @@ ServerTimestampBehavior InternalServerTimestampBehavor(FIRServerTimestampBehavio
 
 - (nullable id)valueForField:(id)field
      serverTimestampBehavior:(FIRServerTimestampBehavior)serverTimestampBehavior {
-  FSTFieldValueOptions *options =
-      [self optionsForServerTimestampBehavior:serverTimestampBehavior];
-
   FIRFieldPath *fieldPath;
   if ([field isKindOfClass:[NSString class]]) {
     fieldPath = [FIRFieldPath pathWithDotSeparatedString:field];
@@ -159,6 +156,8 @@ ServerTimestampBehavior InternalServerTimestampBehavor(FIRServerTimestampBehavio
   }
 
   FSTFieldValue *fieldValue = _snapshot->GetValue(fieldPath.internalValue);
+  FSTFieldValueOptions *options =
+      [self optionsForServerTimestampBehavior:serverTimestampBehavior];
   return fieldValue == nil ? nil : [self convertedValue:fieldValue options:options];
 }
 
@@ -171,7 +170,7 @@ ServerTimestampBehavior InternalServerTimestampBehavor(FIRServerTimestampBehavio
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
   return [[FSTFieldValueOptions alloc]
-      initWithServerTimestampBehavior:InternalServerTimestampBehavor(serverTimestampBehavior)
+      initWithServerTimestampBehavior:InternalServerTimestampBehavior(serverTimestampBehavior)
          timestampsInSnapshotsEnabled:_snapshot->firestore().settings.timestampsInSnapshotsEnabled];
 #pragma clang diagnostic pop
 }
