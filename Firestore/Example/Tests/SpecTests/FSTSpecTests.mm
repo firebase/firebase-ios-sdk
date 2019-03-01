@@ -521,17 +521,17 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
                                            ofType:DocumentViewChange::Type::kMetadata]);
     }
 
-    XCTAssertEqual(actual.viewSnapshot.documentChanges.size(), expectedChanges.size());
+    XCTAssertEqual(actual.viewSnapshot.value().document_changes().size(), expectedChanges.size());
     for (size_t i = 0; i != expectedChanges.size(); ++i) {
-      XCTAssertTrue((actual.viewSnapshot.documentChanges[i] == expectedChanges[i]));
+      XCTAssertTrue((actual.viewSnapshot.value().document_changes()[i] == expectedChanges[i]));
     }
 
     BOOL expectedHasPendingWrites =
         expected[@"hasPendingWrites"] ? [expected[@"hasPendingWrites"] boolValue] : NO;
     BOOL expectedIsFromCache = expected[@"fromCache"] ? [expected[@"fromCache"] boolValue] : NO;
-    XCTAssertEqual(actual.viewSnapshot.hasPendingWrites, expectedHasPendingWrites,
+    XCTAssertEqual(actual.viewSnapshot.value().has_pending_writes(), expectedHasPendingWrites,
                    @"hasPendingWrites");
-    XCTAssertEqual(actual.viewSnapshot.isFromCache, expectedIsFromCache, @"isFromCache");
+    XCTAssertEqual(actual.viewSnapshot.value().from_cache(), expectedIsFromCache, @"isFromCache");
   }
 }
 

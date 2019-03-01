@@ -36,7 +36,6 @@ class TargetChange;
 
 @class FSTDocumentSet;
 @class FSTQuery;
-@class FSTViewSnapshot;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -90,7 +89,7 @@ typedef NS_ENUM(NSInteger, FSTLimboDocumentChangeType) {
 
 - (id)init __attribute__((unavailable("Use a static constructor method.")));
 
-@property(nonatomic, strong, readonly, nullable) FSTViewSnapshot *snapshot;
+- (absl::optional<firebase::firestore::core::ViewSnapshot> &)snapshot;
 @property(nonatomic, strong, readonly) NSArray<FSTLimboDocumentChange *> *limboChanges;
 @end
 

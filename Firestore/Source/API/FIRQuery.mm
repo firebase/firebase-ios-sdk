@@ -16,6 +16,8 @@
 
 #import "FIRQuery.h"
 
+#include <utility>
+
 #import "FIRDocumentReference.h"
 #import "FIRFirestoreErrors.h"
 #import "FIRFirestoreSource.h"
@@ -41,13 +43,19 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::core::ViewSnapshot;
+using firebase::firestore::core::ViewSnapshotHandler;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::ResourcePath;
+using firebase::firestore::util::MakeNSError;
+using firebase::firestore::util::StatusOr;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -166,26 +174,28 @@ NS_ASSUME_NONNULL_BEGIN
   FIRFirestore *firestore = self.firestore;
   FSTQuery *query = self.query;
 
-  FSTViewSnapshotHandler snapshotHandler = ^(FSTViewSnapshot *snapshot, NSError *error) {
-    if (error) {
-      listener(nil, error);
+  ViewSnapshotHandler snapshotHandler = [listener, firestore,
+                                         query](const StatusOr<ViewSnapshot> &maybe_snapshot) {
+    if (!maybe_snapshot.status().ok()) {
+      listener(nil, MakeNSError(maybe_snapshot.status()));
       return;
     }
+    ViewSnapshot snapshot = maybe_snapshot.ValueOrDie();
 
     FIRSnapshotMetadata *metadata =
-        [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:snapshot.hasPendingWrites
-                                                     fromCache:snapshot.fromCache];
+        [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:snapshot.has_pending_writes()
+                                                     fromCache:snapshot.from_cache()];
 
     listener([FIRQuerySnapshot snapshotWithFirestore:firestore
                                        originalQuery:query
-                                            snapshot:snapshot
+                                            snapshot:std::move(snapshot)
                                             metadata:metadata],
              nil);
   };
 
   FSTAsyncQueryListener *asyncListener =
       [[FSTAsyncQueryListener alloc] initWithExecutor:self.firestore.client.userExecutor
-                                      snapshotHandler:snapshotHandler];
+                                      snapshotHandler:std::move(snapshotHandler)];
 
   FSTQueryListener *internalListener =
       [firestore.client listenToQuery:query

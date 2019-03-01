@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/Core/FSTViewSnapshot.h"
-
 #import <XCTest/XCTest.h>
 
 #include <vector>
@@ -30,6 +28,7 @@
 
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::DocumentViewChangeSet;
+using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::model::DocumentKeySet;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -112,22 +111,22 @@ NS_ASSUME_NONNULL_BEGIN
   DocumentKeySet mutatedKeys;
   BOOL syncStateChanged = YES;
 
-  FSTViewSnapshot *snapshot = [[FSTViewSnapshot alloc] initWithQuery:query
-                                                           documents:documents
-                                                        oldDocuments:oldDocuments
-                                                     documentChanges:documentChanges
-                                                           fromCache:fromCache
-                                                         mutatedKeys:mutatedKeys
-                                                    syncStateChanged:syncStateChanged
-                                             excludesMetadataChanges:NO];
+  ViewSnapshot snapshot{query,
+                        documents,
+                        oldDocuments,
+                        documentChanges,
+                        mutatedKeys,
+                        fromCache,
+                        syncStateChanged,
+                        /*excludes_metadata_changes=*/false};
 
-  XCTAssertEqual(snapshot.query, query);
-  XCTAssertEqual(snapshot.documents, documents);
-  XCTAssertEqual(snapshot.oldDocuments, oldDocuments);
-  XCTAssertEqual(snapshot.documentChanges, documentChanges);
-  XCTAssertEqual(snapshot.fromCache, fromCache);
-  XCTAssertEqual(snapshot.mutatedKeys, mutatedKeys);
-  XCTAssertEqual(snapshot.syncStateChanged, syncStateChanged);
+  XCTAssertEqual(snapshot.query(), query);
+  XCTAssertEqual(snapshot.documents(), documents);
+  XCTAssertEqual(snapshot.old_documents(), oldDocuments);
+  XCTAssertEqual(snapshot.document_changes(), documentChanges);
+  XCTAssertEqual(snapshot.from_cache(), fromCache);
+  XCTAssertEqual(snapshot.mutated_keys(), mutatedKeys);
+  XCTAssertEqual(snapshot.sync_state_changed(), syncStateChanged);
 }
 
 @end

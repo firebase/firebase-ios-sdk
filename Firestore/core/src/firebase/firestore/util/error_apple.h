@@ -22,7 +22,8 @@
 
 #import <Foundation/Foundation.h>
 
-#include "Firestore/Source/Public/FIRFirestoreErrors.h"  // for FIRFirestoreErrorDomain
+#import <FirebaseFirestore/FIRFirestoreErrors.h>  // for FIRFirestoreErrorDomain
+
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
@@ -46,6 +47,21 @@ inline NSError* MakeNSError(const int64_t error_code,
 
 inline NSError* MakeNSError(const util::Status& status) {
   return MakeNSError(status.code(), status.error_message());
+}
+
+inline Status MakeStatus(NSError* error) {
+  if (!error) {
+    return Status::OK();
+  }
+
+  HARD_ASSERT(error.domain == FIRFirestoreErrorDomain,
+              "Can only translate a Firestore error to a status");
+  auto error_code = static_cast<int>(error.code);
+  HARD_ASSERT(error_code >= FirestoreErrorCode::Cancelled &&
+                  error_code <= FirestoreErrorCode::Unauthenticated,
+              "Unknown error code");
+  return Status{static_cast<FirestoreErrorCode>(error_code),
+                MakeString(error.localizedDescription)};
 }
 
 }  // namespace util

@@ -29,7 +29,6 @@
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTView.h"
-#import "Firestore/Source/Core/FSTViewSnapshot.h"
 #import "Firestore/Source/Local/FSTLocalViewChanges.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
@@ -37,6 +36,7 @@
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 
+#include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
@@ -55,6 +55,7 @@
 namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
 using firebase::firestore::core::ParsedUpdateData;
+using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
@@ -296,12 +297,13 @@ MaybeDocumentMap FSTTestDocUpdates(NSArray<FSTMaybeDocument *> *docs) {
   return updates;
 }
 
-FSTViewSnapshot *_Nullable FSTTestApplyChanges(FSTView *view,
-                                               NSArray<FSTMaybeDocument *> *docs,
-                                               const absl::optional<TargetChange> &targetChange) {
-  return [view applyChangesToDocuments:[view computeChangesWithDocuments:FSTTestDocUpdates(docs)]
-                          targetChange:targetChange]
-      .snapshot;
+absl::optional<ViewSnapshot> FSTTestApplyChanges(FSTView *view,
+                                                 NSArray<FSTMaybeDocument *> *docs,
+                                                 const absl::optional<TargetChange> &targetChange) {
+  FSTViewChange *change =
+      [view applyChangesToDocuments:[view computeChangesWithDocuments:FSTTestDocUpdates(docs)]
+                       targetChange:targetChange];
+  return std::move(change.snapshot);
 }
 
 namespace firebase {

@@ -19,6 +19,8 @@
 #include <utility>
 
 #import "FIRFirestore.h"
+#include "Firestore/core/src/firebase/firestore/util/warnings.h"
+
 #import "FIRFirestoreSettings.h"
 
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
@@ -171,12 +173,11 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
 
 - (FSTFieldValueOptions *)optionsForServerTimestampBehavior:
     (FIRServerTimestampBehavior)serverTimestampBehavior {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+  SUPPRESS_DEPRECATED_DECLARATIONS_BEGIN()
   return [[FSTFieldValueOptions alloc]
       initWithServerTimestampBehavior:InternalServerTimestampBehavior(serverTimestampBehavior)
          timestampsInSnapshotsEnabled:_snapshot.firestore().settings.timestampsInSnapshotsEnabled];
-#pragma clang diagnostic pop
+  SUPPRESS_END()
 }
 
 - (id)convertedValue:(FSTFieldValue *)value options:(FSTFieldValueOptions *)options {
