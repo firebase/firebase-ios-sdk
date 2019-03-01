@@ -70,7 +70,7 @@ class DocumentSnapshot {
   std::string GetDocumentId() const;
   FIRSnapshotMetadata* GetMetadata() const;
 
-  virtual FSTObjectValue* _Nullable GetData() const;
+  FSTObjectValue* _Nullable GetData() const;
   id _Nullable GetValue(const model::FieldPath& field_path) const;
 
   FIRFirestore* firestore() const {
