@@ -18,7 +18,6 @@
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_FIELD_VALUE_H_
 
 #include <cstdint>
-#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -29,6 +28,7 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/immutable/sorted_map.h"
 #include "absl/types/optional.h"
 
 namespace firebase {
@@ -139,7 +139,7 @@ class FieldValue {
    * @param value The value to set.
    * @return A new FieldValue with the field set.
    */
-  FieldValue Set(const FieldPath& field_path, FieldValue value) const;
+  FieldValue Set(const FieldPath& field_path, const FieldValue& value) const;
 
   /**
    * Returns a FieldValue with the field path deleted. If there is no field at
@@ -164,6 +164,7 @@ class FieldValue {
   static const FieldValue& True();
   static const FieldValue& False();
   static const FieldValue& Nan();
+  static const FieldValue& EmptyObject();
   static const FieldValue& FromBoolean(bool value);
   static FieldValue FromInteger(int64_t value);
   static FieldValue FromDouble(double value);
@@ -182,8 +183,8 @@ class FieldValue {
   static FieldValue FromGeoPoint(const GeoPoint& value);
   static FieldValue FromArray(const std::vector<FieldValue>& value);
   static FieldValue FromArray(std::vector<FieldValue>&& value);
-  static FieldValue FromMap(const std::map<std::string, FieldValue>& value);
-  static FieldValue FromMap(std::map<std::string, FieldValue>&& value);
+  static FieldValue FromMap(const immutable::SortedMap<std::string, FieldValue>& value);
+  static FieldValue FromMap(immutable::SortedMap<std::string, FieldValue>&& value);
 
   friend bool operator<(const FieldValue& lhs, const FieldValue& rhs);
 
@@ -195,6 +196,8 @@ class FieldValue {
    * Switch to the specified type, if different from the current type.
    */
   void SwitchTo(Type type);
+
+  FieldValue SetChild(const std::string& child_name, const FieldValue& value) const;
 
   Type tag_ = Type::Null;
   union {
@@ -222,9 +225,15 @@ struct ObjectValue {
   // TODO(rsgowman): These will eventually be private. We do want the serializer
   // to be able to directly access these (possibly implying 'friend' usage, or a
   // getInternalValue() like java has.)
-  using Map = std::map<std::string, FieldValue>;
+  using Map = immutable::SortedMap<std::string, FieldValue>;
   Map internal_value;
+
+  static ObjectValue::Map Empty() {
+    return Map();
+  }
 };
+
+bool operator<(const ObjectValue::Map& lhs, const ObjectValue::Map& rhs);
 
 /** Compares against another FieldValue. */
 bool operator<(const FieldValue& lhs, const FieldValue& rhs);

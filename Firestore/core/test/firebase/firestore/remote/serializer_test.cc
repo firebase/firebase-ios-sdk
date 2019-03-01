@@ -465,7 +465,7 @@ TEST_F(SerializerTest, EncodesTimestamps) {
 }
 
 TEST_F(SerializerTest, EncodesEmptyMap) {
-  FieldValue model = FieldValue::FromMap({});
+  FieldValue model = FieldValue::EmptyObject();
 
   v1::Value proto;
   proto.mutable_map_value();
@@ -797,7 +797,7 @@ TEST_F(SerializerTest, BadKey) {
 
 TEST_F(SerializerTest, EncodesEmptyDocument) {
   DocumentKey key = DocumentKey::FromPathString("path/to/the/doc");
-  FieldValue empty_value = FieldValue::FromMap({});
+  FieldValue empty_value = FieldValue::EmptyObject();
   SnapshotVersion update_time = SnapshotVersion{{1234, 5678}};
 
   v1::BatchGetDocumentsResponse proto;

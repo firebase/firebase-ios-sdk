@@ -156,7 +156,7 @@ FieldValue PatchMutation::PatchDocument(const MaybeDocument* maybe_doc) const {
   if (maybe_doc && maybe_doc->type() == MaybeDocument::Type::Document) {
     return PatchObject(static_cast<const Document*>(maybe_doc)->data());
   } else {
-    return PatchObject(FieldValue::FromMap({}));
+    return PatchObject(FieldValue::EmptyObject());
   }
 }
 
