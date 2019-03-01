@@ -16,7 +16,6 @@
 
 #import "FIRDocumentSnapshot.h"
 
-#include <memory>
 #include <utility>
 
 #import "FIRFirestore.h"
@@ -67,23 +66,29 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
 
 @interface FIRDocumentSnapshot ()
 
-- (instancetype)initWithSnapshot:(std::unique_ptr<DocumentSnapshot>)snapshot;
+- (instancetype)initWithSnapshot:(DocumentSnapshot&&)snapshot;
 
 @end
 
 @implementation FIRDocumentSnapshot (Internal)
 
-+ (instancetype)snapshotWithSnapshot:(std::unique_ptr<DocumentSnapshot>)snapshot {
-  return [[[self class] alloc] initWithSnapshot:std::move(snapshot)];
++ (instancetype)snapshotWithFirestore:(FIRFirestore *)firestore
+                          documentKey:(DocumentKey)documentKey
+                             document:(nullable FSTDocument *)document
+                            fromCache:(BOOL)fromCache
+                     hasPendingWrites:(BOOL)pendingWrites {
+  DocumentSnapshot underlyingSnapshot{firestore, documentKey, document,
+    fromCache, pendingWrites};
+  return [[[self class] alloc] initWithSnapshot:std::move(underlyingSnapshot)];
 }
 
 @end
 
 @implementation FIRDocumentSnapshot {
-  std::unique_ptr<DocumentSnapshot> _snapshot;
+  DocumentSnapshot _snapshot;
 }
 
-- (instancetype)initWithSnapshot:(std::unique_ptr<DocumentSnapshot>)snapshot {
+- (instancetype)initWithSnapshot:(DocumentSnapshot&&)snapshot {
   if (self = [super init]) {
     _snapshot = std::move(snapshot);
   }
@@ -96,36 +101,35 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
   // self class could be FIRDocumentSnapshot or subtype. So we compare with base type explicitly.
   if (![other isKindOfClass:[FIRDocumentSnapshot class]]) return NO;
 
-  const auto& rhs = static_cast<FIRDocumentSnapshot *>(other)->_snapshot;
-  return *_snapshot == *rhs;
+  return _snapshot == static_cast<FIRDocumentSnapshot *>(other)->_snapshot;
 }
 
 - (NSUInteger)hash {
-  return _snapshot->Hash();
+  return _snapshot.Hash();
 }
 
 @dynamic exists;
 
 - (BOOL)exists {
-  return _snapshot->Exists();
+  return _snapshot.Exists();
 }
 
 - (FSTDocument *)internalDocument {
-  return _snapshot->GetInternalDocument();
+  return _snapshot.GetInternalDocument();
 }
 
 - (FIRDocumentReference *)reference {
-  return _snapshot->CreateReference();
+  return _snapshot.CreateReference();
 }
 
 - (NSString *)documentID {
-  return WrapNSString(_snapshot->GetDocumentId());
+  return WrapNSString(_snapshot.GetDocumentId());
 }
 
 @dynamic metadata;
 
 - (FIRSnapshotMetadata *)metadata {
-  return _snapshot->GetMetadata();
+  return _snapshot.GetMetadata();
 }
 
 - (nullable NSDictionary<NSString *, id> *)data {
@@ -136,7 +140,7 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
     (FIRServerTimestampBehavior)serverTimestampBehavior {
   FSTFieldValueOptions *options =
       [self optionsForServerTimestampBehavior:serverTimestampBehavior];
-  FSTObjectValue *data = _snapshot->GetData();
+  FSTObjectValue *data = _snapshot.GetData();
   return data == nil ? nil : [self convertedObject:data options:options];
 }
 
@@ -155,7 +159,7 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
     FSTThrowInvalidArgument(@"Subscript key must be an NSString or FIRFieldPath.");
   }
 
-  FSTFieldValue *fieldValue = _snapshot->GetValue(fieldPath.internalValue);
+  FSTFieldValue *fieldValue = _snapshot.GetValue(fieldPath.internalValue);
   FSTFieldValueOptions *options =
       [self optionsForServerTimestampBehavior:serverTimestampBehavior];
   return fieldValue == nil ? nil : [self convertedValue:fieldValue options:options];
@@ -171,7 +175,7 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
   return [[FSTFieldValueOptions alloc]
       initWithServerTimestampBehavior:InternalServerTimestampBehavior(serverTimestampBehavior)
-         timestampsInSnapshotsEnabled:_snapshot->firestore().settings.timestampsInSnapshotsEnabled];
+         timestampsInSnapshotsEnabled:_snapshot.firestore().settings.timestampsInSnapshotsEnabled];
 #pragma clang diagnostic pop
 }
 
@@ -183,7 +187,7 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
   } else if ([value isKindOfClass:[FSTReferenceValue class]]) {
     FSTReferenceValue *ref = (FSTReferenceValue *)value;
     const DatabaseId *refDatabase = ref.databaseID;
-    const DatabaseId *database = _snapshot->firestore().databaseID;
+    const DatabaseId *database = _snapshot.firestore().databaseID;
     if (*refDatabase != *database) {
       // TODO(b/32073923): Log this as a proper warning.
       NSLog(@"WARNING: Document %@ contains a document reference within a different database "
@@ -194,7 +198,7 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
             database->database_id().c_str());
     }
     DocumentKey key = [[ref valueWithOptions:options] key];
-    return [FIRDocumentReference referenceWithKey:key firestore:_snapshot->firestore()];
+    return [FIRDocumentReference referenceWithKey:key firestore:_snapshot.firestore()];
   } else {
     return [value valueWithOptions:options];
   }
@@ -224,15 +228,30 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
 
 @interface FIRQueryDocumentSnapshot ()
 
-- (instancetype)initWithSnapshot:(std::unique_ptr<QueryDocumentSnapshot>)snapshot NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithSnapshot:(DocumentSnapshot&&)snapshot NS_DESIGNATED_INITIALIZER;
 
 @end
 
 @implementation FIRQueryDocumentSnapshot
 
-- (instancetype)initWithSnapshot:(std::unique_ptr<QueryDocumentSnapshot>)snapshot {
+- (instancetype)initWithSnapshot:(DocumentSnapshot&&)snapshot {
   return [super initWithSnapshot:std::move(snapshot)];
 }
+
+- (NSDictionary<NSString *, id> *)data {
+  NSDictionary<NSString *, id> *data = [super data];
+  HARD_ASSERT(data, "Document in a QueryDocumentSnapshot should exist");
+  return data;
+}
+
+- (NSDictionary<NSString *, id> *)dataWithServerTimestampBehavior:
+    (FIRServerTimestampBehavior)serverTimestampBehavior {
+  NSDictionary<NSString *, id> *data =
+      [super dataWithServerTimestampBehavior:serverTimestampBehavior];
+  HARD_ASSERT(data, "Document in a QueryDocumentSnapshot should exist");
+  return data;
+}
+
 
 @end
 

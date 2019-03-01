@@ -44,6 +44,8 @@ namespace api {
 
 class DocumentSnapshot {
  public:
+  DocumentSnapshot() = default;
+
   DocumentSnapshot(FIRFirestore* firestore,
                    model::DocumentKey document_key,
                    FSTDocument* _Nullable document,
