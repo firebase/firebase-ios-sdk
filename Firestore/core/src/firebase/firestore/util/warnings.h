@@ -52,9 +52,17 @@
 
 // 'Public' macros.
 
-#if defined(__clang__) || defined(__GNUC__)
+#if defined(__clang__)
 #define SUPPRESS_DOCUMENTATION_WARNINGS_BEGIN() \
   SUPPRESS_BEGIN_("GCC diagnostic ignored \"-Wdocumentation\"")
+
+#define SUPPRESS_DEPRECATED_DECLARATIONS_BEGIN() \
+  SUPPRESS_BEGIN_("GCC diagnostic ignored \"-Wdeprecated-declarations\"")
+
+#define SUPPRESS_END() _Pragma("GCC diagnostic pop")
+
+#elif defined(__GNUC__)
+#define SUPPRESS_DOCUMENTATION_WARNINGS_BEGIN() SUPPRESS_BEGIN_UNIMPLEMENTED_()
 
 #define SUPPRESS_DEPRECATED_DECLARATIONS_BEGIN() \
   SUPPRESS_BEGIN_("GCC diagnostic ignored \"-Wdeprecated-declarations\"")
