@@ -35,9 +35,10 @@
                  msg:(NSString *)fmt, ... {
   va_list args;
   va_start(args, fmt);
-  FIRLogBasic(FIRLoggerLevelDebug, kFIRLoggerMessaging,
-              [FIRMessagingLogger formatMessageCode:messageCode], fmt, args);
+  NSString *formattedMessage = [[NSString alloc] initWithFormat:fmt arguments:args];
   va_end(args);
+  FIRLogBasic(FIRLoggerLevelDebug, kFIRLoggerMessaging,
+              [FIRMessagingLogger formatMessageCode:messageCode], @"%@", formattedMessage);
 }
 
 - (void)logFuncInfo:(const char *)func
@@ -45,9 +46,10 @@
                 msg:(NSString *)fmt, ... {
   va_list args;
   va_start(args, fmt);
-  FIRLogBasic(FIRLoggerLevelInfo, kFIRLoggerMessaging,
-              [FIRMessagingLogger formatMessageCode:messageCode], fmt, args);
+  NSString *formattedMessage = [[NSString alloc] initWithFormat:fmt arguments:args];
   va_end(args);
+  FIRLogBasic(FIRLoggerLevelInfo, kFIRLoggerMessaging,
+              [FIRMessagingLogger formatMessageCode:messageCode], @"%@", formattedMessage);
 }
 
 - (void)logFuncNotice:(const char *)func
@@ -55,9 +57,10 @@
                   msg:(NSString *)fmt, ... {
   va_list args;
   va_start(args, fmt);
-  FIRLogBasic(FIRLoggerLevelNotice, kFIRLoggerMessaging,
-              [FIRMessagingLogger formatMessageCode:messageCode], fmt, args);
+  NSString *formattedMessage = [[NSString alloc] initWithFormat:fmt arguments:args];
   va_end(args);
+  FIRLogBasic(FIRLoggerLevelNotice, kFIRLoggerMessaging,
+              [FIRMessagingLogger formatMessageCode:messageCode], @"%@", formattedMessage);
 }
 
 - (void)logFuncWarning:(const char *)func
@@ -65,9 +68,10 @@
                    msg:(NSString *)fmt, ... {
   va_list args;
   va_start(args, fmt);
-  FIRLogBasic(FIRLoggerLevelWarning, kFIRLoggerMessaging,
-              [FIRMessagingLogger formatMessageCode:messageCode], fmt, args);
+  NSString *formattedMessage = [[NSString alloc] initWithFormat:fmt arguments:args];
   va_end(args);
+  FIRLogBasic(FIRLoggerLevelWarning, kFIRLoggerMessaging,
+              [FIRMessagingLogger formatMessageCode:messageCode], @"%@", formattedMessage);
 }
 
 - (void)logFuncError:(const char *)func
@@ -75,9 +79,10 @@
                  msg:(NSString *)fmt, ... {
   va_list args;
   va_start(args, fmt);
-  FIRLogBasic(FIRLoggerLevelError, kFIRLoggerMessaging,
-              [FIRMessagingLogger formatMessageCode:messageCode], fmt, args);
+  NSString *formattedMessage = [[NSString alloc] initWithFormat:fmt arguments:args];
   va_end(args);
+  FIRLogBasic(FIRLoggerLevelError, kFIRLoggerMessaging,
+              [FIRMessagingLogger formatMessageCode:messageCode], @"%@", formattedMessage);
 }
 
 @end

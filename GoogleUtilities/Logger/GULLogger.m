@@ -99,15 +99,11 @@ void GULLogBasic(GULLoggerLevel level,
                  BOOL forceLog,
                  NSString *messageCode,
                  NSString *message,
-// On 64-bit simulators, va_list is not a pointer, so cannot be marked nullable
-// See: http://stackoverflow.com/q/29095469
-#if __LP64__ && TARGET_OS_SIMULATOR || TARGET_OS_OSX
-                 va_list args_ptr
-#else
-                 va_list _Nullable args_ptr
-#endif
-) {
-  NSString *completeMessage = [[NSString alloc] initWithFormat:message arguments:args_ptr];
+                 ...) {
+  va_list formatArgs;
+  va_start(formatArgs, message);
+  NSString *completeMessage = [[NSString alloc] initWithFormat:message arguments:formatArgs];
+  va_end(formatArgs);
   [GULLogger.logger logWithLevel:level
                      withService:service
                         isForced:forceLog
@@ -123,13 +119,14 @@ void GULLogBasic(GULLoggerLevel level,
  * Calling GULLogDebug(kGULLoggerCore, @"I-COR000001", @"Configure succeed.") shows:
  * yyyy-mm-dd hh:mm:ss.SSS sender[PID] <Debug> [{service}][I-COR000001] Configure succeed.
  */
-#define GUL_LOGGING_FUNCTION(level)                                                 \
-  void GULLog##level(GULLoggerService service, BOOL force, NSString *messageCode,   \
-                     NSString *message, ...) {                                      \
-    va_list args;                                                                   \
-    va_start(args, message);                                                        \
-    GULLogBasic(GULLoggerLevel##level, service, force, messageCode, message, args); \
-    va_end(args);                                                                   \
+#define GUL_LOGGING_FUNCTION(level)                                                           \
+  void GULLog##level(GULLoggerService service, BOOL force, NSString *messageCode,             \
+                     NSString *message, ...) {                                                \
+    va_list args;                                                                             \
+    va_start(args, message);                                                                  \
+    NSString *formattedMessage = [[NSString alloc] initWithFormat:message arguments:args];    \
+    va_end(args);                                                                             \
+    GULLogBasic(GULLoggerLevel##level, service, force, messageCode, @"%@", formattedMessage); \
   }
 
 GUL_LOGGING_FUNCTION(Error)
