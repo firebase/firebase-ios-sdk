@@ -68,7 +68,7 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
 
 @interface FIRDocumentSnapshot ()
 
-- (instancetype)initWithSnapshot:(DocumentSnapshot&&)snapshot;
+- (instancetype)initWithSnapshot:(DocumentSnapshot &&)snapshot;
 
 @end
 
@@ -79,8 +79,7 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
                              document:(nullable FSTDocument *)document
                             fromCache:(BOOL)fromCache
                      hasPendingWrites:(BOOL)pendingWrites {
-  DocumentSnapshot underlyingSnapshot{firestore, documentKey, document,
-    fromCache, pendingWrites};
+  DocumentSnapshot underlyingSnapshot{firestore, documentKey, document, fromCache, pendingWrites};
   return [[[self class] alloc] initWithSnapshot:std::move(underlyingSnapshot)];
 }
 
@@ -90,7 +89,7 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
   DocumentSnapshot _snapshot;
 }
 
-- (instancetype)initWithSnapshot:(DocumentSnapshot&&)snapshot {
+- (instancetype)initWithSnapshot:(DocumentSnapshot &&)snapshot {
   if (self = [super init]) {
     _snapshot = std::move(snapshot);
   }
@@ -140,8 +139,7 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
 
 - (nullable NSDictionary<NSString *, id> *)dataWithServerTimestampBehavior:
     (FIRServerTimestampBehavior)serverTimestampBehavior {
-  FSTFieldValueOptions *options =
-      [self optionsForServerTimestampBehavior:serverTimestampBehavior];
+  FSTFieldValueOptions *options = [self optionsForServerTimestampBehavior:serverTimestampBehavior];
   FSTObjectValue *data = _snapshot.GetData();
   return data == nil ? nil : [self convertedObject:data options:options];
 }
@@ -162,8 +160,7 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
   }
 
   FSTFieldValue *fieldValue = _snapshot.GetValue(fieldPath.internalValue);
-  FSTFieldValueOptions *options =
-      [self optionsForServerTimestampBehavior:serverTimestampBehavior];
+  FSTFieldValueOptions *options = [self optionsForServerTimestampBehavior:serverTimestampBehavior];
   return fieldValue == nil ? nil : [self convertedValue:fieldValue options:options];
 }
 
@@ -229,13 +226,13 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
 
 @interface FIRQueryDocumentSnapshot ()
 
-- (instancetype)initWithSnapshot:(DocumentSnapshot&&)snapshot NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithSnapshot:(DocumentSnapshot &&)snapshot NS_DESIGNATED_INITIALIZER;
 
 @end
 
 @implementation FIRQueryDocumentSnapshot
 
-- (instancetype)initWithSnapshot:(DocumentSnapshot&&)snapshot {
+- (instancetype)initWithSnapshot:(DocumentSnapshot &&)snapshot {
   return [super initWithSnapshot:std::move(snapshot)];
 }
 
@@ -253,7 +250,6 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
   return data;
 }
 
-
-@end
+end
 
 NS_ASSUME_NONNULL_END
