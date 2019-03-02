@@ -18,9 +18,9 @@
 
 #include <utility>
 
-#import "FIRFirestore.h"
 #include "Firestore/core/src/firebase/firestore/util/warnings.h"
 
+#import "FIRFirestore.h"
 #import "FIRFirestoreSettings.h"
 
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
@@ -39,7 +39,6 @@
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::api::DocumentSnapshot;
-using firebase::firestore::api::QueryDocumentSnapshot;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::util::WrapNSString;
@@ -112,11 +111,11 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
 @dynamic exists;
 
 - (BOOL)exists {
-  return _snapshot.Exists();
+  return _snapshot.exists();
 }
 
 - (FSTDocument *)internalDocument {
-  return _snapshot.GetInternalDocument();
+  return _snapshot.internal_document();
 }
 
 - (FIRDocumentReference *)reference {
@@ -124,7 +123,7 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
 }
 
 - (NSString *)documentID {
-  return WrapNSString(_snapshot.GetDocumentId());
+  return WrapNSString(_snapshot.document_id());
 }
 
 @dynamic metadata;
@@ -250,6 +249,6 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
   return data;
 }
 
-end
+@end
 
 NS_ASSUME_NONNULL_END

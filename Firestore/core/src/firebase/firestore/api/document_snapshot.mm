@@ -45,7 +45,7 @@ FIRDocumentReference* DocumentSnapshot::CreateReference() const {
                                       firestore:firestore_];
 }
 
-std::string DocumentSnapshot::GetDocumentId() const {
+std::string DocumentSnapshot::document_id() const {
   return internal_key_.path().last_segment();
 }
 

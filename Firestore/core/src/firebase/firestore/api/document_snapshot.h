@@ -60,14 +60,15 @@ class DocumentSnapshot {
 
   size_t Hash() const;
 
-  bool Exists() const {
+  bool exists() const {
     return internal_document_ != nil;
   }
-  FSTDocument* GetInternalDocument() const {
+  FSTDocument* internal_document() const {
     return internal_document_;
   }
+  std::string document_id() const;
+
   FIRDocumentReference* CreateReference() const;
-  std::string GetDocumentId() const;
   FIRSnapshotMetadata* GetMetadata() const;
 
   FSTObjectValue* _Nullable GetData() const;
