@@ -72,17 +72,17 @@
 - (void)enqueue {
   __weak FIRStorageUploadTask *weakSelf = self;
 
-  NSError *contentValidationError;
-  if (![self isContentToUploadValid:&contentValidationError]) {
-    self.error = contentValidationError;
-    [self finishTaskWithStatus:FIRStorageTaskStatusFailure snapshot:self.snapshot];
-    return;
-  }
-
   [self dispatchAsync:^() {
     FIRStorageUploadTask *strongSelf = weakSelf;
 
     if (!strongSelf) {
+      return;
+    }
+
+    NSError *contentValidationError;
+    if (![strongSelf isContentToUploadValid:&contentValidationError]) {
+      strongSelf.error = contentValidationError;
+      [strongSelf finishTaskWithStatus:FIRStorageTaskStatusFailure snapshot:strongSelf.snapshot];
       return;
     }
 
