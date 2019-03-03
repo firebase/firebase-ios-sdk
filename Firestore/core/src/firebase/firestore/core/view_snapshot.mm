@@ -16,7 +16,9 @@
 
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 
+#import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Model/FSTDocument.h"
+#import "Firestore/Source/Model/FSTDocumentSet.h"
 
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
 #include "Firestore/core/src/firebase/firestore/util/objc_compatibility.h"
@@ -29,6 +31,7 @@ namespace core {
 
 namespace objc = util::objc;
 using model::DocumentKey;
+using model::DocumentKeySet;
 using util::StringFormat;
 
 // DocumentViewChange
@@ -124,6 +127,76 @@ std::vector<DocumentViewChange> DocumentViewChangeSet::GetChanges() const {
 
 std::string DocumentViewChangeSet::ToString() const {
   return util::ToString(change_map_);
+}
+
+// ViewSnapshot
+
+ViewSnapshot::ViewSnapshot(FSTQuery* query,
+                           FSTDocumentSet* documents,
+                           FSTDocumentSet* old_documents,
+                           std::vector<DocumentViewChange> document_changes,
+                           model::DocumentKeySet mutated_keys,
+                           bool from_cache,
+                           bool sync_state_changed,
+                           bool excludes_metadata_changes)
+    : query_{query},
+      documents_{documents},
+      old_documents_{old_documents},
+      document_changes_{std::move(document_changes)},
+      mutated_keys_{std::move(mutated_keys)},
+      from_cache_{from_cache},
+      sync_state_changed_{sync_state_changed},
+      excludes_metadata_changes_{excludes_metadata_changes} {
+}
+
+ViewSnapshot ViewSnapshot::FromInitialDocuments(
+    FSTQuery* query,
+    FSTDocumentSet* documents,
+    DocumentKeySet mutated_keys,
+    bool from_cache,
+    bool excludes_metadata_changes) {
+  std::vector<DocumentViewChange> view_changes;
+  for (FSTDocument* doc in documents.documentEnumerator) {
+    view_changes.emplace_back(doc, DocumentViewChange::Type::kAdded);
+  }
+
+  return ViewSnapshot{
+      query, documents,
+      /*old_documents=*/
+      [FSTDocumentSet documentSetWithComparator:query.comparator],
+      std::move(view_changes), std::move(mutated_keys), from_cache,
+      /*sync_state_changed=*/true, excludes_metadata_changes};
+}
+
+std::string ViewSnapshot::ToString() const {
+  return StringFormat(
+      "<ViewSnapshot query: %s documents: %s old_documents: %s changes: %s "
+      "from_cache: %s mutated_keys: %s sync_state_changed: %s "
+      "excludes_metadata_changes: %s>",
+      query(), documents(), old_documents(),
+      objc::Description(document_changes()), from_cache(),
+      mutated_keys().size(), sync_state_changed(), excludes_metadata_changes());
+}
+
+size_t ViewSnapshot::Hash() const {
+  // Note: We are omitting `mutated_keys_` from the hash, since we don't have a
+  // straightforward way to compute its hash value. Since `ViewSnapshot` is
+  // currently not stored in any dictionaries, this has no side effects.
+
+  return util::Hash([query() hash], [documents() hash], [old_documents() hash],
+                    document_changes(), from_cache(), sync_state_changed(),
+                    excludes_metadata_changes());
+}
+
+bool operator==(const ViewSnapshot& lhs, const ViewSnapshot& rhs) {
+  return objc::Equals(lhs.query(), rhs.query()) &&
+         objc::Equals(lhs.documents(), rhs.documents()) &&
+         objc::Equals(lhs.old_documents(), rhs.old_documents()) &&
+         lhs.document_changes() == rhs.document_changes() &&
+         lhs.from_cache() == rhs.from_cache() &&
+         lhs.mutated_keys() == rhs.mutated_keys() &&
+         lhs.sync_state_changed() == rhs.sync_state_changed() &&
+         lhs.excludes_metadata_changes() == rhs.excludes_metadata_changes();
 }
 
 }  // namespace core

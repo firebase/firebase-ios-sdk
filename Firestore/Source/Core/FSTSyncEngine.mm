@@ -21,11 +21,11 @@
 #include <set>
 #include <unordered_map>
 #include <utility>
+#include <vector>
 
 #import "FIRFirestoreErrors.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTView.h"
-#import "Firestore/Source/Core/FSTViewSnapshot.h"
 #import "Firestore/Source/Local/FSTLocalStore.h"
 #import "Firestore/Source/Local/FSTLocalViewChanges.h"
 #import "Firestore/Source/Local/FSTLocalWriteResult.h"
@@ -37,6 +37,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
+#include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
@@ -52,6 +53,7 @@ using firebase::firestore::auth::HashUser;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::TargetIdGenerator;
 using firebase::firestore::core::Transaction;
+using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::local::ReferenceSet;
 using firebase::firestore::model::BatchId;
 using firebase::firestore::model::DocumentKey;
@@ -215,14 +217,14 @@ class LimboResolution {
   HARD_ASSERT(self.queryViewsByQuery[query] == nil, "We already listen to query: %s", query);
 
   FSTQueryData *queryData = [self.localStore allocateQuery:query];
-  FSTViewSnapshot *viewSnapshot = [self initializeViewAndComputeSnapshotForQueryData:queryData];
-  [self.syncEngineDelegate handleViewSnapshots:@[ viewSnapshot ]];
+  ViewSnapshot viewSnapshot = [self initializeViewAndComputeSnapshotForQueryData:queryData];
+  [self.syncEngineDelegate handleViewSnapshots:{viewSnapshot}];
 
   _remoteStore->Listen(queryData);
   return queryData.targetID;
 }
 
-- (FSTViewSnapshot *)initializeViewAndComputeSnapshotForQueryData:(FSTQueryData *)queryData {
+- (ViewSnapshot)initializeViewAndComputeSnapshotForQueryData:(FSTQueryData *)queryData {
   DocumentMap docs = [self.localStore executeQuery:queryData.query];
   DocumentKeySet remoteKeys = [self.localStore remoteDocumentKeysForTarget:queryData.targetID];
 
@@ -240,7 +242,9 @@ class LimboResolution {
   self.queryViewsByQuery[queryData.query] = queryView;
   _queryViewsByTarget[queryData.targetID] = queryView;
 
-  return viewChange.snapshot;
+  HARD_ASSERT(viewChange.snapshot.has_value(),
+              "applyChangesToDocuments for new view should always return a snapshot");
+  return viewChange.snapshot.value();
 }
 
 - (void)stopListeningToQuery:(FSTQuery *)query {
@@ -368,18 +372,18 @@ class LimboResolution {
 }
 
 - (void)applyChangedOnlineState:(OnlineState)onlineState {
-  NSMutableArray<FSTViewSnapshot *> *newViewSnapshots = [NSMutableArray array];
+  __block std::vector<ViewSnapshot> newViewSnapshots;
   [self.queryViewsByQuery
       enumerateKeysAndObjectsUsingBlock:^(FSTQuery *query, FSTQueryView *queryView, BOOL *stop) {
         FSTViewChange *viewChange = [queryView.view applyChangedOnlineState:onlineState];
         HARD_ASSERT(viewChange.limboChanges.count == 0,
                     "OnlineState should not affect limbo documents.");
-        if (viewChange.snapshot) {
-          [newViewSnapshots addObject:viewChange.snapshot];
+        if (viewChange.snapshot.has_value()) {
+          newViewSnapshots.push_back(std::move(viewChange.snapshot.value()));
         }
       }];
 
-  [self.syncEngineDelegate handleViewSnapshots:newViewSnapshots];
+  [self.syncEngineDelegate handleViewSnapshots:std::move(newViewSnapshots)];
   [self.syncEngineDelegate applyChangedOnlineState:onlineState];
 }
 
@@ -491,7 +495,7 @@ class LimboResolution {
 - (void)emitNewSnapshotsAndNotifyLocalStoreWithChanges:(const MaybeDocumentMap &)changes
                                            remoteEvent:(const absl::optional<RemoteEvent> &)
                                                            maybeRemoteEvent {
-  NSMutableArray<FSTViewSnapshot *> *newSnapshots = [NSMutableArray array];
+  __block std::vector<ViewSnapshot> newSnapshots;
   NSMutableArray<FSTLocalViewChanges *> *documentChangesInAllViews = [NSMutableArray array];
 
   [self.queryViewsByQuery
@@ -521,16 +525,16 @@ class LimboResolution {
         [self updateTrackedLimboDocumentsWithChanges:viewChange.limboChanges
                                             targetID:queryView.targetID];
 
-        if (viewChange.snapshot) {
-          [newSnapshots addObject:viewChange.snapshot];
+        if (viewChange.snapshot.has_value()) {
+          newSnapshots.push_back(viewChange.snapshot.value());
           FSTLocalViewChanges *docChanges =
-              [FSTLocalViewChanges changesForViewSnapshot:viewChange.snapshot
+              [FSTLocalViewChanges changesForViewSnapshot:viewChange.snapshot.value()
                                              withTargetID:queryView.targetID];
           [documentChangesInAllViews addObject:docChanges];
         }
       }];
 
-  [self.syncEngineDelegate handleViewSnapshots:newSnapshots];
+  [self.syncEngineDelegate handleViewSnapshots:std::move(newSnapshots)];
   [self.localStore notifyLocalViewChanges:documentChangesInAllViews];
 }
 
