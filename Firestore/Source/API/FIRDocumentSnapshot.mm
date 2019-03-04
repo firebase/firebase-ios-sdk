@@ -78,7 +78,9 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
                              document:(nullable FSTDocument *)document
                             fromCache:(BOOL)fromCache
                      hasPendingWrites:(BOOL)pendingWrites {
-  DocumentSnapshot underlyingSnapshot{firestore, documentKey, document, fromCache, pendingWrites};
+  DocumentSnapshot underlyingSnapshot{firestore, documentKey, document,
+                                      static_cast<bool>(fromCache),
+                                      static_cast<bool>(pendingWrites)};
   return [[[self class] alloc] initWithSnapshot:std::move(underlyingSnapshot)];
 }
 
