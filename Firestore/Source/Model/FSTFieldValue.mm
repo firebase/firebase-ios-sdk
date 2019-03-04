@@ -47,7 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTFieldValueOptions
 
-- (instancetype)initWithServerTimestampBehavior:(FSTServerTimestampBehavior)serverTimestampBehavior
+- (instancetype)initWithServerTimestampBehavior:(ServerTimestampBehavior)serverTimestampBehavior
                    timestampsInSnapshotsEnabled:(BOOL)timestampsInSnapshotsEnabled {
   self = [super init];
 
@@ -494,11 +494,11 @@ struct Comparator<NSString *> {
 
 - (id)valueWithOptions:(FSTFieldValueOptions *)options {
   switch (options.serverTimestampBehavior) {
-    case FSTServerTimestampBehaviorNone:
+    case ServerTimestampBehavior::None:
       return [NSNull null];
-    case FSTServerTimestampBehaviorEstimate:
+    case ServerTimestampBehavior::Estimate:
       return [[FSTTimestampValue timestampValue:self.localWriteTime] valueWithOptions:options];
-    case FSTServerTimestampBehaviorPrevious:
+    case ServerTimestampBehavior::Previous:
       return self.previousValue ? [self.previousValue valueWithOptions:options] : [NSNull null];
     default:
       HARD_FAIL("Unexpected server timestamp option: %s", options.serverTimestampBehavior);
