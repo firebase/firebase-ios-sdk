@@ -62,13 +62,13 @@ class DocumentReference {
     return key_;
   }
 
-  std::string GetDocumentId() const;
+  std::string document_id() const;
 
-  FIRCollectionReference* GetParent() const;
+  FIRCollectionReference* parent() const;
 
-  std::string GetPath() const;
+  std::string path() const;
 
-  FIRCollectionReference* GetCollection(
+  FIRCollectionReference* collection(
       const std::string& collection_path) const;
 
   void SetData(NSDictionary<NSString*, id>* document_data,

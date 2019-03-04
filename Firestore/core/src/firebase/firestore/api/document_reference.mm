@@ -61,20 +61,20 @@ size_t DocumentReference::Hash() const {
   return util::Hash(firestore_, key_);
 }
 
-std::string DocumentReference::GetDocumentId() const {
+std::string DocumentReference::document_id() const {
   return key_.path().last_segment();
 }
 
-FIRCollectionReference* DocumentReference::GetParent() const {
+FIRCollectionReference* DocumentReference::parent() const {
   return [FIRCollectionReference referenceWithPath:key_.path().PopLast()
                                          firestore:firestore_];
 }
 
-std::string DocumentReference::GetPath() const {
+std::string DocumentReference::path() const {
   return key_.path().CanonicalString();
 }
 
-FIRCollectionReference* DocumentReference::GetCollection(
+FIRCollectionReference* DocumentReference::collection(
     const std::string& collection_path) const {
   ResourcePath sub_path = ResourcePath::FromString(collection_path);
   ResourcePath path = key_.path().Append(sub_path);

@@ -83,22 +83,22 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSString *)documentID {
-  return util::WrapNSString(_documentReference.GetDocumentId());
+  return util::WrapNSString(_documentReference.document_id());
 }
 
 - (FIRCollectionReference *)parent {
-  return _documentReference.GetParent();
+  return _documentReference.parent();
 }
 
 - (NSString *)path {
-  return util::WrapNSString(_documentReference.GetPath());
+  return util::WrapNSString(_documentReference.path());
 }
 
 - (FIRCollectionReference *)collectionWithPath:(NSString *)collectionPath {
   if (!collectionPath) {
     FSTThrowInvalidArgument(@"Collection path cannot be nil.");
   }
-  return _documentReference.GetCollection(util::MakeString(collectionPath));
+  return _documentReference.collection(util::MakeString(collectionPath));
 }
 
 - (void)setData:(NSDictionary<NSString *, id> *)documentData {
