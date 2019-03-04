@@ -68,8 +68,7 @@ class DocumentReference {
 
   std::string path() const;
 
-  FIRCollectionReference* collection(
-      const std::string& collection_path) const;
+  FIRCollectionReference* collection(const std::string& collection_path) const;
 
   void SetData(NSDictionary<NSString*, id>* document_data,
                bool merge,
