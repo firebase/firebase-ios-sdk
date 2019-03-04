@@ -157,10 +157,15 @@
   NSArray *expected = @[
     @1, @"two",
     @[
-      @3, @{
+      @3,
+#if __LP64__  // 64-bit
+      @{
         @"@type" : @"type.googleapis.com/google.protobuf.Int64Value",
         @"value" : @"4",
       }
+#else
+      @4
+#endif
     ]
   ];
   FUNSerializer *serializer = [[FUNSerializer alloc] init];
@@ -191,10 +196,15 @@
     @"foo" : @1,
     @"bar" : @"hello",
     @"baz" : @[
-      @3, @{
-        @"@type" : @"type.googleapis.com/google.protobuf.Int64Value",
-        @"value" : @"4",
-      }
+        @3,
+#if __LP64__  // 64-bit
+        @{
+          @"@type" : @"type.googleapis.com/google.protobuf.Int64Value",
+          @"value" : @"4",
+          }
+#else
+        @4
+#endif
     ]
   };
   FUNSerializer *serializer = [[FUNSerializer alloc] init];
