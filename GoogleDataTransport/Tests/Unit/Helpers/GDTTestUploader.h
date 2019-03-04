@@ -18,6 +18,8 @@
 
 #import "GDTUploader.h"
 
+@class GDTUploadPackage;
+
 NS_ASSUME_NONNULL_BEGIN
 
 /** This class implements a backend uploader protocol for testing purposes, providing APIs to allow
@@ -25,9 +27,9 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface GDTTestUploader : NSObject <GDTUploader>
 
-/** A block that can be ran in -uploadEvents:onComplete:. */
+/** A block that can be ran in -uploadPackage:onComplete:. */
 @property(nullable, nonatomic) void (^uploadEventsBlock)
-    (NSSet<NSURL *> *eventFiles, GDTUploaderCompletionBlock completionBlock);
+    (GDTUploadPackage *package, GDTUploaderCompletionBlock completionBlock);
 
 @end
 

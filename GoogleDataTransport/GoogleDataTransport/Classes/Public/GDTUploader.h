@@ -39,13 +39,13 @@ typedef void (^GDTUploaderCompletionBlock)(GDTTarget target,
 
 /** Uploads events to the backend using this specific backend's chosen format.
  *
- * @param eventFiles The set of event files to upload.
+ * @param package The event package to upload.
  * @param onComplete A block to invoke upon completing the upload. Has three arguments:
  *   - target: The GDTTarget that just uploaded.
  *   - nextUploadAttemptUTC: A clock representing the next upload attempt.
  *   - uploadError: An error object describing the upload error, or nil if upload was successful.
  */
-- (void)uploadEvents:(NSSet<NSURL *> *)eventFiles onComplete:(GDTUploaderCompletionBlock)onComplete;
+- (void)uploadPackage:(GDTUploadPackage *)package onComplete:(GDTUploaderCompletionBlock)onComplete;
 
 @end
 

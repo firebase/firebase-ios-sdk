@@ -22,6 +22,7 @@
 #import "GDTConsoleLogger.h"
 #import "GDTRegistrar_Private.h"
 #import "GDTStorage.h"
+#import "GDTUploadPackage_Private.h"
 
 @implementation GDTUploadCoordinator
 
@@ -57,9 +58,10 @@
     GDTUploadCoordinatorForceUploadBlock forceUploadBlock = ^{
       GDTAssert(eventHashes.count, @"It doesn't make sense to force upload of 0 events");
       id<GDTUploader> uploader = registrar.targetToUploader[targetNumber];
-      NSSet<NSURL *> *eventFiles = [self.storage eventHashesToFiles:eventHashes];
+      GDTUploadPackage *package = [[GDTUploadPackage alloc] init];
+      package.eventHashes = [eventHashes copy];
       GDTAssert(uploader, @"Target '%@' is missing an implementation", targetNumber);
-      [uploader uploadEvents:eventFiles onComplete:self.onCompleteBlock];
+      [uploader uploadPackage:package onComplete:self.onCompleteBlock];
       self->_targetToInFlightEventSet[targetNumber] = eventHashes;
     };
 
@@ -157,16 +159,13 @@
         id<GDTUploader> uploader = strongSelf->_registrar.targetToUploader[target];
         GDTAssert(prioritizer && uploader, @"Target '%@' is missing an implementation", target);
         GDTUploadConditions conds = [self uploadConditions];
-        NSSet<NSNumber *> *eventHashesToUpload =
-            [[prioritizer eventsToUploadGivenConditions:conds] copy];
-        if (eventHashesToUpload && eventHashesToUpload.count > 0) {
-          NSAssert(eventHashesToUpload.count > 0, @"");
-          NSSet<NSURL *> *eventFilesToUpload =
-              [strongSelf.storage eventHashesToFiles:eventHashesToUpload];
-          NSAssert(eventFilesToUpload.count == eventHashesToUpload.count,
+        GDTUploadPackage *package = [[prioritizer uploadPackageWithConditions:conds] copy];
+        package.storage = strongSelf.storage;
+        if (package.eventHashes && package.eventHashes.count > 0) {
+          NSAssert(package.eventHashesToFiles.count == package.eventHashes.count,
                    @"There should be the same number of files to events");
-          strongSelf->_targetToInFlightEventSet[target] = eventHashesToUpload;
-          [uploader uploadEvents:eventFilesToUpload onComplete:self.onCompleteBlock];
+          strongSelf->_targetToInFlightEventSet[target] = package.eventHashes;
+          [uploader uploadPackage:package onComplete:self.onCompleteBlock];
         }
       }
     }

@@ -37,7 +37,7 @@
   return self;
 }
 
-- (void)uploadEvents:(NSSet<NSURL *> *)eventFiles
+- (void)uploadPackage:(GDTUploadPackage *)package
           onComplete:(GDTUploaderCompletionBlock)onComplete {
   NSAssert(!_currentUploadTask, @"An upload shouldn't be initiated with another in progress.");
   NSURL *serverURL = arc4random_uniform(2) ? [_serverURL URLByAppendingPathComponent:@"log"]
@@ -47,10 +47,10 @@
   request.HTTPMethod = @"POST";
   NSMutableData *uploadData = [[NSMutableData alloc] init];
 
-  NSLog(@"Uploading batch of %lu events: ", (unsigned long)eventFiles.count);
+  NSLog(@"Uploading batch of %lu events: ", (unsigned long)[package eventHashes].count);
 
   // In real usage, you'd create an instance of whatever request proto your server needs.
-  for (NSURL *eventFile in eventFiles) {
+  for (NSURL *eventFile in [package.eventHashesToFiles allValues]) {
     NSData *fileData = [NSData dataWithContentsOfURL:eventFile];
     NSAssert(fileData, @"A event file shouldn't be empty");
     [uploadData appendData:fileData];

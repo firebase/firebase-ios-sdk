@@ -113,16 +113,16 @@ static NSString *GDTStoragePath() {
   });
 }
 
-- (NSSet<NSURL *> *)eventHashesToFiles:(NSSet<NSNumber *> *)eventHashes {
-  NSMutableSet<NSURL *> *eventFiles = [[NSMutableSet alloc] init];
+- (NSDictionary<NSNumber *, NSURL *> *)eventHashesToFiles:(NSSet<NSNumber *> *)eventHashes {
+  NSMutableDictionary<NSNumber *, NSURL *> *eventHashesToFiles = [[NSMutableDictionary alloc] init];
   dispatch_sync(_storageQueue, ^{
     for (NSNumber *hashNumber in eventHashes) {
       NSURL *eventURL = self.eventHashToFile[hashNumber];
       GDTAssert(eventURL, @"An event file URL couldn't be found for the given hash");
-      [eventFiles addObject:eventURL];
+      eventHashesToFiles[hashNumber] = eventURL;
     }
   });
-  return eventFiles;
+  return eventHashesToFiles;
 }
 
 #pragma mark - Private helper methods

@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+#import <GoogleDataTransport/GDTUploadPackage.h>
+
 @class GDTEvent;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -46,7 +48,7 @@ typedef NS_OPTIONS(NSInteger, GDTUploadConditions) {
  *
  * @note A couple of things: 1. The event cannot be retained for longer than the execution time of
  * this method. 2. You should retain the event hashes, because those are returned in
- * -eventsForNextUpload.
+ * -uploadPackageWithConditions.
  *
  * @param event The event to prioritize.
  */
@@ -60,9 +62,10 @@ typedef NS_OPTIONS(NSInteger, GDTUploadConditions) {
 /** Returns a set of events to upload given a set of conditions.
  *
  * @param conditions A bit mask specifying the current upload conditions.
- * @return A set of events to upload with respect to the current conditions.
+ * @return An object to be used by the uploader to determine file URLs to upload with respect to the
+ * current conditions.
  */
-- (NSSet<NSNumber *> *)eventsToUploadGivenConditions:(GDTUploadConditions)conditions;
+- (GDTUploadPackage *)uploadPackageWithConditions:(GDTUploadConditions)conditions;
 
 @end
 

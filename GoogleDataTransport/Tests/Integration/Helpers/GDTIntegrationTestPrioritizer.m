@@ -16,6 +16,8 @@
 
 #import "GDTIntegrationTestPrioritizer.h"
 
+#import "GDTIntegrationTestUploadPackage.h"
+
 @interface GDTIntegrationTestPrioritizer ()
 
 /** Events that are only supposed to be uploaded whilst on wifi. */
@@ -44,32 +46,34 @@
 }
 
 - (void)prioritizeEvent:(GDTEvent *)event {
-  dispatch_sync(_queue, ^{
-    if (event.qosTier == GDTEventQoSWifiOnly) {
-      [self.wifiOnlyEvents addObject:@(event.hash)];
+  NSUInteger eventHash = event.hash;
+  NSInteger qosTier = event.qosTier;
+  dispatch_async(_queue, ^{
+    if (qosTier == GDTEventQoSWifiOnly) {
+      [self.wifiOnlyEvents addObject:@(eventHash)];
     } else {
-      [self.nonWifiEvents addObject:@(event.hash)];
+      [self.nonWifiEvents addObject:@(eventHash)];
     }
   });
 }
 
 - (void)unprioritizeEvent:(NSNumber *)eventHash {
-  dispatch_sync(_queue, ^{
+  dispatch_async(_queue, ^{
     [self.wifiOnlyEvents removeObject:eventHash];
     [self.nonWifiEvents removeObject:eventHash];
   });
 }
 
-- (nonnull NSSet<NSNumber *> *)eventsToUploadGivenConditions:(GDTUploadConditions)conditions {
-  __block NSSet<NSNumber *> *events;
+- (GDTUploadPackage *)uploadPackageWithConditions:(GDTUploadConditions)conditions {
+  __block GDTIntegrationTestUploadPackage *uploadPackage = [[GDTIntegrationTestUploadPackage alloc] init];
   dispatch_sync(_queue, ^{
     if ((conditions & GDTUploadConditionWifiData) == GDTUploadConditionWifiData) {
-      events = self.wifiOnlyEvents;
+      uploadPackage.eventHashes = self.wifiOnlyEvents;
     } else {
-      events = self.nonWifiEvents;
+      uploadPackage.eventHashes = self.nonWifiEvents;
     }
   });
-  return events;
+  return uploadPackage;
 }
 
 @end
