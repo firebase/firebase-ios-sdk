@@ -19,7 +19,7 @@
 @implementation GDTTestUploader
 
 - (void)uploadPackage:(GDTUploadPackage *)package
-          onComplete:(GDTUploaderCompletionBlock)onComplete {
+           onComplete:(GDTUploaderCompletionBlock)onComplete {
   if (_uploadEventsBlock) {
     _uploadEventsBlock(package, onComplete);
   } else if (onComplete) {

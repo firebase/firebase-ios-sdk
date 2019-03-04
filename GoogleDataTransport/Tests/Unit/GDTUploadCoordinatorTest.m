@@ -22,9 +22,9 @@
 #import "GDTRegistrar+Testing.h"
 #import "GDTStorageFake.h"
 #import "GDTTestPrioritizer.h"
+#import "GDTTestUploadPackage.h"
 #import "GDTTestUploader.h"
 #import "GDTUploadCoordinator+Testing.h"
-#import "GDTTestUploadPackage.h"
 
 @interface GDTUploadCoordinatorTest : GDTTestCase
 
@@ -80,7 +80,7 @@
 - (void)testForceUploadEvents {
   XCTestExpectation *expectation = [self expectationWithDescription:@"uploader will upload"];
   self.uploader.uploadEventsBlock =
-      ^(GDTUploadPackage * _Nonnull package, GDTUploaderCompletionBlock _Nonnull completionBlock) {
+      ^(GDTUploadPackage *_Nonnull package, GDTUploaderCompletionBlock _Nonnull completionBlock) {
         [expectation fulfill];
       };
   NSSet<NSURL *> *fakeEventSet = [NSSet setWithObjects:[NSURL URLWithString:@"file:///fake"], nil];
@@ -99,7 +99,7 @@
   [GDTUploadCoordinator sharedInstance].timerLeeway = NSEC_PER_SEC / 1000;
   XCTestExpectation *expectation = [self expectationWithDescription:@"uploader will upload"];
   self.uploader.uploadEventsBlock =
-      ^(GDTUploadPackage * _Nonnull package, GDTUploaderCompletionBlock _Nonnull completionBlock) {
+      ^(GDTUploadPackage *_Nonnull package, GDTUploaderCompletionBlock _Nonnull completionBlock) {
         [expectation fulfill];
       };
   NSSet<NSURL *> *fakeEventSet = [NSSet setWithObjects:[NSURL URLWithString:@"file:///fake"], nil];
@@ -154,7 +154,7 @@
   uploadPackage.eventHashes = [NSSet setWithObjects:@(1234), nil];
   self.prioritizer.uploadPackage = uploadPackage;
   self.uploader.uploadEventsBlock =
-      ^(GDTUploadPackage * _Nonnull package, GDTUploaderCompletionBlock _Nonnull completionBlock) {
+      ^(GDTUploadPackage *_Nonnull package, GDTUploaderCompletionBlock _Nonnull completionBlock) {
         GDTUploadCoordinatorTest *strongSelf = weakSelf;
         completionBlock(strongSelf->_target, [GDTClock clockSnapshotInTheFuture:100], nil);
         uploadAttempts++;
@@ -181,7 +181,7 @@
   uploadPackage.eventHashes = [NSSet setWithObjects:@(1234), nil];
   self.prioritizer.uploadPackage = uploadPackage;
   self.uploader.uploadEventsBlock =
-      ^(GDTUploadPackage * _Nonnull package, GDTUploaderCompletionBlock _Nonnull completionBlock) {
+      ^(GDTUploadPackage *_Nonnull package, GDTUploaderCompletionBlock _Nonnull completionBlock) {
         GDTUploadCoordinatorTest *strongSelf = weakSelf;
         NSError *error = [NSError errorWithDomain:NSURLErrorDomain code:1337 userInfo:nil];
         completionBlock(strongSelf->_target, [GDTClock clockSnapshotInTheFuture:100], error);
