@@ -94,7 +94,7 @@ DocumentMap LevelDbRemoteDocumentCache::GetMatching(FSTQuery* query) {
 
   // Use the query path as a prefix for testing if a document matches the query.
   const model::ResourcePath& query_path = query.path;
-  unsigned long immediate_children_path_length = query_path.size() + 1;
+  size_t immediate_children_path_length = query_path.size() + 1;
 
   // Documents are ordered by key, so we can use a prefix scan to narrow down
   // the documents we need to match the query against.
