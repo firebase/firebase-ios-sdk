@@ -114,7 +114,8 @@ DocumentMap LevelDbRemoteDocumentCache::GetMatching(FSTQuery* query) {
       continue;
     }
 
-    FSTMaybeDocument* maybe_doc = DecodeMaybeDocument(it->value(), document_key);
+    FSTMaybeDocument* maybe_doc =
+        DecodeMaybeDocument(it->value(), document_key);
     if (!query_path.IsPrefixOf(maybe_doc.key.path())) {
       break;
     } else if ([maybe_doc isKindOfClass:[FSTDocument class]]) {
