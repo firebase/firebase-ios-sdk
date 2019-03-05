@@ -1,3 +1,6 @@
+# 2019-02-20 -- v3.3.2
+- Replaced `NSUserDefaults` with `GULUserDefaults` to avoid potential crashes. (#2443)
+
 # 2019-02-20 -- v3.3.1
 - Internal code cleanup.
 
