@@ -42,6 +42,7 @@
 			buildPhases = (
 			);
 			dependencies = (
+				510395E322270D8E0055A64F /* PBXTargetDependency */,
 				DE545C881FBCA43200C637AE /* PBXTargetDependency */,
 				DE545C861FBCA42C00C637AE /* PBXTargetDependency */,
 				DE545C841FBCA41C00C637AE /* PBXTargetDependency */,
@@ -117,6 +118,37 @@
 		40CC5511221B9B4700032423 /* GoogleAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 40CC5509221B9B4700032423 /* GoogleAuthTests.m */; };
 		40CC5512221B9B4700032423 /* AnonymousAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 40CC550A221B9B4700032423 /* AnonymousAuthTests.m */; };
 		40CC5513221B9B4700032423 /* FacebookAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 40CC550B221B9B4700032423 /* FacebookAuthTests.m */; };
+		511DD2752225C4D00094D78D /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 511DD2742225C4D00094D78D /* AppDelegate.m */; };
+		511DD2782225C4D00094D78D /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 511DD2772225C4D00094D78D /* ViewController.m */; };
+		511DD27B2225C4D00094D78D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 511DD2792225C4D00094D78D /* Main.storyboard */; };
+		511DD27D2225C4D20094D78D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 511DD27C2225C4D20094D78D /* Assets.xcassets */; };
+		511DD2802225C4D20094D78D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 511DD27F2225C4D20094D78D /* main.m */; };
+		511DD2922225C8C40094D78D /* FIRInstanceIDWithFCMTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE8DB550221F5B470068BB0E /* FIRInstanceIDWithFCMTest.m */; };
+		511DD2932225C8C40094D78D /* FIRMessagingFakeConnection.h in Sources */ = {isa = PBXBuildFile; fileRef = DE9315C81E8738B70083EDBF /* FIRMessagingFakeConnection.h */; };
+		511DD2942225C8C40094D78D /* FIRMessagingFakeSocket.h in Sources */ = {isa = PBXBuildFile; fileRef = DE9315CA1E8738B70083EDBF /* FIRMessagingFakeSocket.h */; };
+		511DD2952225C8C40094D78D /* FIRMessagingTestNotificationUtilities.h in Sources */ = {isa = PBXBuildFile; fileRef = DE9315D61E8738B70083EDBF /* FIRMessagingTestNotificationUtilities.h */; };
+		511DD2962225C8C40094D78D /* FIRMessagingClientTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315C31E8738B70083EDBF /* FIRMessagingClientTest.m */; };
+		511DD2972225C8C40094D78D /* FIRMessagingCodedInputStreamTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315C41E8738B70083EDBF /* FIRMessagingCodedInputStreamTest.m */; };
+		511DD2982225C8C40094D78D /* FIRMessagingConnectionTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315C51E8738B70083EDBF /* FIRMessagingConnectionTest.m */; };
+		511DD2992225C8C40094D78D /* FIRMessagingContextManagerServiceTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315C61E8738B70083EDBF /* FIRMessagingContextManagerServiceTest.m */; };
+		511DD29A2225C8C40094D78D /* FIRMessagingDataMessageManagerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315C71E8738B70083EDBF /* FIRMessagingDataMessageManagerTest.m */; };
+		511DD29B2225C8C40094D78D /* FIRMessagingFakeConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315C91E8738B70083EDBF /* FIRMessagingFakeConnection.m */; };
+		511DD29C2225C8C40094D78D /* FIRMessagingFakeSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315CB1E8738B70083EDBF /* FIRMessagingFakeSocket.m */; };
+		511DD29D2225C8C40094D78D /* FIRMessagingLinkHandlingTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315CC1E8738B70083EDBF /* FIRMessagingLinkHandlingTest.m */; };
+		511DD29E2225C8C40094D78D /* FIRMessagingPendingTopicsListTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315CD1E8738B70083EDBF /* FIRMessagingPendingTopicsListTest.m */; };
+		511DD29F2225C8C40094D78D /* FIRMessagingPubSubTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315CE1E8738B70083EDBF /* FIRMessagingPubSubTest.m */; };
+		511DD2A02225C8C40094D78D /* FIRMessagingReceiverTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DEF61BFC216E8B1000A738D4 /* FIRMessagingReceiverTest.m */; };
+		511DD2A12225C8C40094D78D /* FIRMessagingRegistrarTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315CF1E8738B70083EDBF /* FIRMessagingRegistrarTest.m */; };
+		511DD2A22225C8C40094D78D /* FIRMessagingRemoteNotificationsProxyTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315D01E8738B70083EDBF /* FIRMessagingRemoteNotificationsProxyTest.m */; };
+		511DD2A32225C8C40094D78D /* FIRMessagingRmqManagerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315D11E8738B70083EDBF /* FIRMessagingRmqManagerTest.m */; };
+		511DD2A42225C8C40094D78D /* FIRMessagingSecureSocketTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315D21E8738B70083EDBF /* FIRMessagingSecureSocketTest.m */; };
+		511DD2A52225C8C40094D78D /* FIRMessagingServiceTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315D31E8738B70083EDBF /* FIRMessagingServiceTest.m */; };
+		511DD2A62225C8C40094D78D /* FIRMessagingSyncMessageManagerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315D41E8738B70083EDBF /* FIRMessagingSyncMessageManagerTest.m */; };
+		511DD2A72225C8C40094D78D /* FIRMessagingTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315D51E8738B70083EDBF /* FIRMessagingTest.m */; };
+		511DD2A82225C8C40094D78D /* FIRMessagingTestNotificationUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315D71E8738B70083EDBF /* FIRMessagingTestNotificationUtilities.m */; };
+		511DD2A92225C8C40094D78D /* FIRMessagingAnalyticsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE37C63A2163D5F30025D03E /* FIRMessagingAnalyticsTest.m */; };
+		511DD2AA2225C8D50094D78D /* FIRMessagingTestUtilities.h in Sources */ = {isa = PBXBuildFile; fileRef = EDF5242A21EA364600BB24C6 /* FIRMessagingTestUtilities.h */; };
+		511DD2AB2225C8D50094D78D /* FIRMessagingTestUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = EDF5242B21EA364600BB24C6 /* FIRMessagingTestUtilities.m */; };
 		7E21E0731F857DFC00D0AC1C /* FIROAuthProviderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7E21E0721F857DFC00D0AC1C /* FIROAuthProviderTests.m */; };
 		7E9485421F578AC4005A3939 /* FIRAuthURLPresenterTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7E94853F1F578A9D005A3939 /* FIRAuthURLPresenterTests.m */; };
 		7EE21F7A1FE89193009B1370 /* FIREmailLinkRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7EE21F791FE89193009B1370 /* FIREmailLinkRequestTests.m */; };
@@ -656,6 +688,20 @@
 			remoteGlobalIDString = DE7B8D041E8EF077009EB6DF;
 			remoteInfo = Database_Example;
 		};
+		510395E222270D8E0055A64F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6003F582195388D10070C39A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 511DD2872225C5A80094D78D;
+			remoteInfo = Messaging_Tests_tvOS;
+		};
+		511DD28D2225C5A80094D78D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6003F582195388D10070C39A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 511DD2702225C4D00094D78D;
+			remoteInfo = Messaging_Example_tvOS;
+		};
 		AFD563111EB140E100EA2233 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 6003F582195388D10070C39A /* Project object */;
@@ -978,6 +1024,17 @@
 		40CC550A221B9B4700032423 /* AnonymousAuthTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AnonymousAuthTests.m; sourceTree = "<group>"; };
 		40CC550B221B9B4700032423 /* FacebookAuthTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FacebookAuthTests.m; sourceTree = "<group>"; };
 		40CC550C221B9B4700032423 /* FIRAuthApiTestsBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRAuthApiTestsBase.h; sourceTree = "<group>"; };
+		511DD2712225C4D00094D78D /* Messaging_Example_tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Messaging_Example_tvOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		511DD2732225C4D00094D78D /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		511DD2742225C4D00094D78D /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		511DD2762225C4D00094D78D /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		511DD2772225C4D00094D78D /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		511DD27A2225C4D00094D78D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		511DD27C2225C4D20094D78D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		511DD27E2225C4D20094D78D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		511DD27F2225C4D20094D78D /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		511DD2882225C5A80094D78D /* Messaging_Tests_tvOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Messaging_Tests_tvOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		511DD2AC2226005D0094D78D /* FirebaseMessaging.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = FirebaseMessaging.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6003F58D195388D20070C39A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		6003F58F195388D20070C39A /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		6003F591195388D20070C39A /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -1406,6 +1463,20 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		511DD26E2225C4D00094D78D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		511DD2852225C5A80094D78D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AEC1C964E4211C8E5B7CD8C6 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -1753,6 +1824,21 @@
 			path = third_party;
 			sourceTree = "<group>";
 		};
+		511DD2722225C4D00094D78D /* tvOS */ = {
+			isa = PBXGroup;
+			children = (
+				511DD2732225C4D00094D78D /* AppDelegate.h */,
+				511DD2742225C4D00094D78D /* AppDelegate.m */,
+				511DD2762225C4D00094D78D /* ViewController.h */,
+				511DD2772225C4D00094D78D /* ViewController.m */,
+				511DD2792225C4D00094D78D /* Main.storyboard */,
+				511DD27C2225C4D20094D78D /* Assets.xcassets */,
+				511DD27E2225C4D20094D78D /* Info.plist */,
+				511DD27F2225C4D20094D78D /* main.m */,
+			);
+			path = tvOS;
+			sourceTree = "<group>";
+		};
 		6003F581195388D10070C39A = {
 			isa = PBXGroup;
 			children = (
@@ -1767,6 +1853,7 @@
 				DEB139B31E734D9D00AC236D /* Storage */,
 				6003F58C195388D20070C39A /* Frameworks */,
 				6003F58B195388D20070C39A /* Products */,
+				73F3D26B690BF932AE286CD5 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -1813,6 +1900,8 @@
 				DE4A62DD214816BD00670B27 /* FDLBuilderTestAppObjCEarlGrey.xctest */,
 				DE958B7221F7D13E00E6C1C5 /* InstanceID_Example_iOS.app */,
 				DE958B9421F7D15900E6C1C5 /* InstanceID_Tests_iOS.xctest */,
+				511DD2712225C4D00094D78D /* Messaging_Example_tvOS.app */,
+				511DD2882225C5A80094D78D /* Messaging_Tests_tvOS.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1820,6 +1909,7 @@
 		6003F58C195388D20070C39A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				511DD2AC2226005D0094D78D /* FirebaseMessaging.framework */,
 				923F8250206C4DC500034974 /* UserNotifications.framework */,
 				923F824B206C4D8000034974 /* SafariServices.framework */,
 				DE45C6641E7DA8CB009E6ACD /* XCTest.framework */,
@@ -1838,6 +1928,13 @@
 				E2C2834C90DBAB56D568189F /* LICENSE */,
 			);
 			name = "Podspec Metadata";
+			sourceTree = "<group>";
+		};
+		73F3D26B690BF932AE286CD5 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Pods;
 			sourceTree = "<group>";
 		};
 		AFC8BAA01EC24B1600B8EEAE /* Shared */ = {
@@ -2129,6 +2226,7 @@
 		DE47C131207ACAA900B1AEDF /* App */ = {
 			isa = PBXGroup;
 			children = (
+				511DD2722225C4D00094D78D /* tvOS */,
 				DE47C133207ACAA900B1AEDF /* iOS */,
 			);
 			path = App;
@@ -2647,6 +2745,41 @@
 			name = Database_IntegrationTests_iOS;
 			productName = Database_IntegratioNtests;
 			productReference = 0624F3E11EC0ECFA00E5940D /* Database_IntegrationTests_iOS.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		511DD2702225C4D00094D78D /* Messaging_Example_tvOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 511DD2812225C4D20094D78D /* Build configuration list for PBXNativeTarget "Messaging_Example_tvOS" */;
+			buildPhases = (
+				511DD26D2225C4D00094D78D /* Sources */,
+				511DD26E2225C4D00094D78D /* Frameworks */,
+				511DD26F2225C4D00094D78D /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Messaging_Example_tvOS;
+			productName = tvOS;
+			productReference = 511DD2712225C4D00094D78D /* Messaging_Example_tvOS.app */;
+			productType = "com.apple.product-type.application";
+		};
+		511DD2872225C5A80094D78D /* Messaging_Tests_tvOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 511DD28F2225C5A80094D78D /* Build configuration list for PBXNativeTarget "Messaging_Tests_tvOS" */;
+			buildPhases = (
+				511DD2842225C5A80094D78D /* Sources */,
+				511DD2852225C5A80094D78D /* Frameworks */,
+				511DD2862225C5A80094D78D /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				511DD28E2225C5A80094D78D /* PBXTargetDependency */,
+			);
+			name = Messaging_Tests_tvOS;
+			productName = Messaging_Tests_tvOS;
+			productReference = 511DD2882225C5A80094D78D /* Messaging_Tests_tvOS.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		AFD562E41EB13C6D00EA2233 /* Messaging_Example_iOS */ = {
@@ -3335,6 +3468,15 @@
 						ProvisioningStyle = Automatic;
 						TestTargetID = DE7B8D041E8EF077009EB6DF;
 					};
+					511DD2702225C4D00094D78D = {
+						CreatedOnToolsVersion = 9.4;
+						ProvisioningStyle = Automatic;
+					};
+					511DD2872225C5A80094D78D = {
+						CreatedOnToolsVersion = 9.4;
+						ProvisioningStyle = Automatic;
+						TestTargetID = 511DD2702225C4D00094D78D;
+					};
 					AFD562E41EB13C6D00EA2233 = {
 						CreatedOnToolsVersion = 8.3.2;
 						LastSwiftMigration = 0830;
@@ -3573,6 +3715,8 @@
 				AFD562E41EB13C6D00EA2233 /* Messaging_Example_iOS */,
 				DE9315A61E8738460083EDBF /* Messaging_Tests_iOS */,
 				DE47C0DC207AC87D00B1AEDF /* Messaging_Sample_iOS */,
+				511DD2702225C4D00094D78D /* Messaging_Example_tvOS */,
+				511DD2872225C5A80094D78D /* Messaging_Tests_tvOS */,
 				DEB139E01E73506A00AC236D /* Storage_Example_iOS */,
 				DEB13A0A1E73507E00AC236D /* Storage_Tests_iOS */,
 				06121EBB1EC399C50008D70E /* Storage_IntegrationTests_iOS */,
@@ -3597,6 +3741,22 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		0624F3DF1EC0ECFA00E5940D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		511DD26F2225C4D00094D78D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				511DD27D2225C4D20094D78D /* Assets.xcassets in Resources */,
+				511DD27B2225C4D00094D78D /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		511DD2862225C5A80094D78D /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -3983,6 +4143,49 @@
 				0637BA6E1EC0F9D200CAEFD4 /* FTestCachePolicy.m in Sources */,
 				0637BA711EC0F9DD00CAEFD4 /* FTestHelpers.m in Sources */,
 				0637BA681EC0F9BD00CAEFD4 /* FEventTester.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		511DD26D2225C4D00094D78D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				511DD2782225C4D00094D78D /* ViewController.m in Sources */,
+				511DD2802225C4D20094D78D /* main.m in Sources */,
+				511DD2752225C4D00094D78D /* AppDelegate.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		511DD2842225C5A80094D78D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				511DD2AA2225C8D50094D78D /* FIRMessagingTestUtilities.h in Sources */,
+				511DD2AB2225C8D50094D78D /* FIRMessagingTestUtilities.m in Sources */,
+				511DD2922225C8C40094D78D /* FIRInstanceIDWithFCMTest.m in Sources */,
+				511DD2932225C8C40094D78D /* FIRMessagingFakeConnection.h in Sources */,
+				511DD2942225C8C40094D78D /* FIRMessagingFakeSocket.h in Sources */,
+				511DD2952225C8C40094D78D /* FIRMessagingTestNotificationUtilities.h in Sources */,
+				511DD2962225C8C40094D78D /* FIRMessagingClientTest.m in Sources */,
+				511DD2972225C8C40094D78D /* FIRMessagingCodedInputStreamTest.m in Sources */,
+				511DD2982225C8C40094D78D /* FIRMessagingConnectionTest.m in Sources */,
+				511DD2992225C8C40094D78D /* FIRMessagingContextManagerServiceTest.m in Sources */,
+				511DD29A2225C8C40094D78D /* FIRMessagingDataMessageManagerTest.m in Sources */,
+				511DD29B2225C8C40094D78D /* FIRMessagingFakeConnection.m in Sources */,
+				511DD29C2225C8C40094D78D /* FIRMessagingFakeSocket.m in Sources */,
+				511DD29D2225C8C40094D78D /* FIRMessagingLinkHandlingTest.m in Sources */,
+				511DD29E2225C8C40094D78D /* FIRMessagingPendingTopicsListTest.m in Sources */,
+				511DD29F2225C8C40094D78D /* FIRMessagingPubSubTest.m in Sources */,
+				511DD2A02225C8C40094D78D /* FIRMessagingReceiverTest.m in Sources */,
+				511DD2A12225C8C40094D78D /* FIRMessagingRegistrarTest.m in Sources */,
+				511DD2A22225C8C40094D78D /* FIRMessagingRemoteNotificationsProxyTest.m in Sources */,
+				511DD2A32225C8C40094D78D /* FIRMessagingRmqManagerTest.m in Sources */,
+				511DD2A42225C8C40094D78D /* FIRMessagingSecureSocketTest.m in Sources */,
+				511DD2A52225C8C40094D78D /* FIRMessagingServiceTest.m in Sources */,
+				511DD2A62225C8C40094D78D /* FIRMessagingSyncMessageManagerTest.m in Sources */,
+				511DD2A72225C8C40094D78D /* FIRMessagingTest.m in Sources */,
+				511DD2A82225C8C40094D78D /* FIRMessagingTestNotificationUtilities.m in Sources */,
+				511DD2A92225C8C40094D78D /* FIRMessagingAnalyticsTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4732,6 +4935,16 @@
 			target = DE7B8D041E8EF077009EB6DF /* Database_Example_iOS */;
 			targetProxy = 0624F3E61EC0ECFA00E5940D /* PBXContainerItemProxy */;
 		};
+		510395E322270D8E0055A64F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 511DD2872225C5A80094D78D /* Messaging_Tests_tvOS */;
+			targetProxy = 510395E222270D8E0055A64F /* PBXContainerItemProxy */;
+		};
+		511DD28E2225C5A80094D78D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 511DD2702225C4D00094D78D /* Messaging_Example_tvOS */;
+			targetProxy = 511DD28D2225C5A80094D78D /* PBXContainerItemProxy */;
+		};
 		AFD563121EB140E100EA2233 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = AFD562E41EB13C6D00EA2233 /* Messaging_Example_iOS */;
@@ -4895,6 +5108,14 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
+		511DD2792225C4D00094D78D /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				511DD27A2225C4D00094D78D /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
 		D018537B1EDAD0E6003A645C /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -5199,6 +5420,171 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Database-IntegrationTests-iOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Database_Example_iOS.app/Database_Example_iOS";
+			};
+			name = Release;
+		};
+		511DD2822225C4D20094D78D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"${PODS_ROOT}/Headers/Public\"",
+					"\"${PODS_ROOT}/Headers/Public/FirebaseAnalyticsInterop\"",
+					"\"${PODS_ROOT}/Headers/Public/FirebaseAuthInterop\"",
+				);
+				INFOPLIST_FILE = "$(SRCROOT)/Messaging/App/tvOS/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.FirebaseMessagingSample.tvOS;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 11.4;
+			};
+			name = Debug;
+		};
+		511DD2832225C4D20094D78D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = "$(SRCROOT)/Messaging/App/tvOS/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.FirebaseMessagingSample.tvOS;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 11.4;
+			};
+			name = Release;
+		};
+		511DD2902225C5A80094D78D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"COCOAPODS=1",
+					"GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"${PODS_ROOT}/Headers/Public\"",
+					"\"${PODS_ROOT}/Headers/Public/FirebaseAnalyticsInterop\"",
+					"\"${PODS_ROOT}/Headers/Public/FirebaseAuthInterop\"",
+					"\"${PODS_ROOT}/Headers/Private\"",
+					"\"${PODS_ROOT}/../../Firebase/Messaging\"",
+				);
+				INFOPLIST_FILE = Messaging/Tests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.FirebaseMessagingTests.tvOS;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				TARGETED_DEVICE_FAMILY = 3;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Messaging_Example_tvOS.app/Messaging_Example_tvOS";
+				TVOS_DEPLOYMENT_TARGET = 11.4;
+			};
+			name = Debug;
+		};
+		511DD2912225C5A80094D78D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"COCOAPODS=1",
+					"GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"${PODS_ROOT}/Headers/Public\"",
+					"\"${PODS_ROOT}/Headers/Public/FirebaseAnalyticsInterop\"",
+					"\"${PODS_ROOT}/Headers/Public/FirebaseAuthInterop\"",
+					"\"${PODS_ROOT}/../../Firebase/Messaging\"",
+				);
+				INFOPLIST_FILE = Messaging/Tests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.FirebaseMessagingTests.tvOS;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				TARGETED_DEVICE_FAMILY = 3;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Messaging_Example_tvOS.app/Messaging_Example_tvOS";
+				TVOS_DEPLOYMENT_TARGET = 11.4;
 			};
 			name = Release;
 		};
@@ -7602,6 +7988,24 @@
 			buildConfigurations = (
 				0624F3E91EC0ECFA00E5940D /* Debug */,
 				0624F3EA1EC0ECFA00E5940D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		511DD2812225C4D20094D78D /* Build configuration list for PBXNativeTarget "Messaging_Example_tvOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				511DD2822225C4D20094D78D /* Debug */,
+				511DD2832225C4D20094D78D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		511DD28F2225C5A80094D78D /* Build configuration list for PBXNativeTarget "Messaging_Tests_tvOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				511DD2902225C5A80094D78D /* Debug */,
+				511DD2912225C5A80094D78D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

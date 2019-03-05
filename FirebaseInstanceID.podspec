@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseInstanceID'
-  s.version          = '3.6.0'
+  s.version          = '3.7.0'
   s.summary          = 'Firebase InstanceID for iOS'
 
   s.description      = <<-DESC
@@ -19,6 +19,7 @@ services.
   }
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '8.0'
+  s.tvos.deployment_target = '10.0'
 
   s.cocoapods_version = '>= 1.4.0'
   s.static_framework = true
