@@ -68,13 +68,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		9B94C1CCD508A0EA075696DA /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Pods;
-			sourceTree = "<group>";
-		};
 		AD7200B32124D19200AFD5F3 /* FiamDisplaySwiftExample */ = {
 			isa = PBXGroup;
 			children = (
@@ -109,7 +102,6 @@
 				AD7200B32124D19200AFD5F3 /* FiamDisplaySwiftExample */,
 				AD7200D22125F92100AFD5F3 /* InAppMessagingDisplay-UITests */,
 				ADA7B5B921223CED00B1C614 /* Products */,
-				9B94C1CCD508A0EA075696DA /* Pods */,
 			);
 			sourceTree = "<group>";
 		};

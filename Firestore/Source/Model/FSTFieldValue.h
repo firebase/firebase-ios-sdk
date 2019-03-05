@@ -43,16 +43,12 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
 };
 
 /** Defines the return value for pending server timestamps. */
-typedef NS_ENUM(NSInteger, FSTServerTimestampBehavior) {
-  FSTServerTimestampBehaviorNone,
-  FSTServerTimestampBehaviorEstimate,
-  FSTServerTimestampBehaviorPrevious
-};
+enum class ServerTimestampBehavior { None, Estimate, Previous };
 
 /** Holds properties that define field value deserialization options. */
 @interface FSTFieldValueOptions : NSObject
 
-@property(nonatomic, readonly, assign) FSTServerTimestampBehavior serverTimestampBehavior;
+@property(nonatomic, readonly, assign) ServerTimestampBehavior serverTimestampBehavior;
 
 @property(nonatomic) BOOL timestampsInSnapshotsEnabled;
 
@@ -62,7 +58,7 @@ typedef NS_ENUM(NSInteger, FSTServerTimestampBehavior) {
  * Creates an FSTFieldValueOptions instance that specifies deserialization behavior for pending
  * server timestamps.
  */
-- (instancetype)initWithServerTimestampBehavior:(FSTServerTimestampBehavior)serverTimestampBehavior
+- (instancetype)initWithServerTimestampBehavior:(ServerTimestampBehavior)serverTimestampBehavior
                    timestampsInSnapshotsEnabled:(BOOL)timestampsInSnapshotsEnabled
     NS_DESIGNATED_INITIALIZER;
 
