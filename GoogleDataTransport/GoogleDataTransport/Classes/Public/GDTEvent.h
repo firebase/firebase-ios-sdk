@@ -18,6 +18,8 @@
 
 #import "GDTEventDataObject.h"
 
+@class GDTClock;
+
 NS_ASSUME_NONNULL_BEGIN
 
 /** The different possible quality of service specifiers. High values indicate high priority. */
@@ -55,6 +57,9 @@ typedef NS_ENUM(NSInteger, GDTEventQoS) {
 
 /** The quality of service tier this event belongs to. */
 @property(nonatomic) GDTEventQoS qosTier;
+
+/** The clock snapshot at the time of the event. */
+@property(nonatomic) GDTClock *clockSnapshot;
 
 /** A dictionary provided to aid prioritizers by allowing the passing of arbitrary data. It will be
  * retained by a copy in -copy, but not used for -hash.

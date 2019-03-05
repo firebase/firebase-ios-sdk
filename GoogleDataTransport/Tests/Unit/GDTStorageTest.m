@@ -144,14 +144,14 @@ static NSInteger target = 1337;
   }
   NSSet<NSNumber *> *eventHashSet =
       [NSSet setWithObjects:@(event1Hash), @(event2Hash), @(event3Hash), nil];
-  NSSet<NSURL *> *eventFiles = [storage eventHashesToFiles:eventHashSet];
+  NSDictionary<NSNumber *, NSURL *> *eventFiles = [storage eventHashesToFiles:eventHashSet];
   [storage removeEvents:eventHashSet target:@(target)];
   dispatch_sync(storage.storageQueue, ^{
     XCTAssertNil(storage.eventHashToFile[@(event1Hash)]);
     XCTAssertNil(storage.eventHashToFile[@(event2Hash)]);
     XCTAssertNil(storage.eventHashToFile[@(event3Hash)]);
     XCTAssertEqual(storage.targetToEventHashSet[@(target)].count, 0);
-    for (NSURL *eventFile in eventFiles) {
+    for (NSURL *eventFile in [eventFiles allValues]) {
       XCTAssertFalse([[NSFileManager defaultManager] fileExistsAtPath:eventFile.path]);
     }
   });
@@ -309,12 +309,12 @@ static NSInteger target = 1337;
   }
   NSSet<NSNumber *> *eventHashSet =
       [NSSet setWithObjects:@(event1Hash), @(event2Hash), @(event3Hash), nil];
-  NSSet<NSURL *> *eventFiles = [storage eventHashesToFiles:eventHashSet];
+  NSDictionary<NSNumber *, NSURL *> *eventFiles = [storage eventHashesToFiles:eventHashSet];
   dispatch_sync(storage.storageQueue, ^{
     XCTAssertEqual(eventFiles.count, 3);
-    XCTAssertTrue([eventFiles containsObject:storage.eventHashToFile[@(event1Hash)]]);
-    XCTAssertTrue([eventFiles containsObject:storage.eventHashToFile[@(event2Hash)]]);
-    XCTAssertTrue([eventFiles containsObject:storage.eventHashToFile[@(event3Hash)]]);
+    XCTAssertEqualObjects(eventFiles[@(event1Hash)], storage.eventHashToFile[@(event1Hash)]);
+    XCTAssertEqualObjects(eventFiles[@(event2Hash)], storage.eventHashToFile[@(event2Hash)]);
+    XCTAssertEqualObjects(eventFiles[@(event3Hash)], storage.eventHashToFile[@(event3Hash)]);
   });
 }
 

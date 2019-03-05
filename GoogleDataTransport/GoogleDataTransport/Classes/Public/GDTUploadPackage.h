@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,13 @@
 
 #import <Foundation/Foundation.h>
 
-#import "GDTUploader.h"
+/** This class is a container that's handed off to uploaders. */
+@interface GDTUploadPackage : NSObject
 
-@class GDTUploadPackage;
+/** The set of event hashes in this upload package. */
+@property(nonatomic) NSSet<NSNumber *> *eventHashes;
 
-NS_ASSUME_NONNULL_BEGIN
-
-/** This class implements a backend uploader protocol for testing purposes, providing APIs to allow
- * tests to alter the uploader behavior without creating a bunch of specialized classes.
- */
-@interface GDTTestUploader : NSObject <GDTUploader>
-
-/** A block that can be ran in -uploadPackage:onComplete:. */
-@property(nullable, nonatomic) void (^uploadEventsBlock)
-    (GDTUploadPackage *package, GDTUploaderCompletionBlock completionBlock);
+/** A lazily-determined map of event hashes to their files. */
+@property(nonatomic, readonly) NSDictionary<NSNumber *, NSURL *> *eventHashesToFiles;
 
 @end
-
-NS_ASSUME_NONNULL_END

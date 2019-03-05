@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,9 @@
  * limitations under the License.
  */
 
-#import "GDTEvent.h"
+#import "GDTTestPrioritizer.h"
 
-#import "GDTClock.h"
-
-NS_ASSUME_NONNULL_BEGIN
-
-@interface GDTEvent ()
-
-/** The serialized bytes of the event data object. */
-@property(nonatomic) NSData *dataObjectTransportBytes;
+/** An upload package used in testing. */
+@interface GDTTestUploadPackage : GDTUploadPackage
 
 @end
-
-NS_ASSUME_NONNULL_END

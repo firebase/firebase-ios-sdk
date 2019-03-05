@@ -23,6 +23,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @protocol GDTEventDataObject <NSObject>
 
+@required
+
 /** Returns the serialized proto bytes of the implementing event proto.
  *
  * @return the serialized proto bytes of the implementing event proto.

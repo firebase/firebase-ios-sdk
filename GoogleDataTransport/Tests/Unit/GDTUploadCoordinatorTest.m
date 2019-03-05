@@ -22,6 +22,7 @@
 #import "GDTRegistrar+Testing.h"
 #import "GDTStorageFake.h"
 #import "GDTTestPrioritizer.h"
+#import "GDTTestUploadPackage.h"
 #import "GDTTestUploader.h"
 #import "GDTUploadCoordinator+Testing.h"
 
@@ -79,7 +80,7 @@
 - (void)testForceUploadEvents {
   XCTestExpectation *expectation = [self expectationWithDescription:@"uploader will upload"];
   self.uploader.uploadEventsBlock =
-      ^(NSSet<NSURL *> *_Nonnull eventFiles, GDTUploaderCompletionBlock _Nonnull completionBlock) {
+      ^(GDTUploadPackage *_Nonnull package, GDTUploaderCompletionBlock _Nonnull completionBlock) {
         [expectation fulfill];
       };
   NSSet<NSURL *> *fakeEventSet = [NSSet setWithObjects:[NSURL URLWithString:@"file:///fake"], nil];
@@ -98,7 +99,7 @@
   [GDTUploadCoordinator sharedInstance].timerLeeway = NSEC_PER_SEC / 1000;
   XCTestExpectation *expectation = [self expectationWithDescription:@"uploader will upload"];
   self.uploader.uploadEventsBlock =
-      ^(NSSet<NSURL *> *_Nonnull eventFiles, GDTUploaderCompletionBlock _Nonnull completionBlock) {
+      ^(GDTUploadPackage *_Nonnull package, GDTUploaderCompletionBlock _Nonnull completionBlock) {
         [expectation fulfill];
       };
   NSSet<NSURL *> *fakeEventSet = [NSSet setWithObjects:[NSURL URLWithString:@"file:///fake"], nil];
@@ -123,7 +124,7 @@
 /** Tests the timer is running at the desired frequency. */
 - (void)testTimerIsRunningAtDesiredFrequency {
   __block int numberOfTimesCalled = 0;
-  self.prioritizer.eventsForNextUploadBlock = ^{
+  self.prioritizer.uploadPackageWithConditionsBlock = ^{
     numberOfTimesCalled++;
   };
   dispatch_sync([GDTUploadCoordinator sharedInstance].coordinationQueue, ^{
@@ -149,9 +150,11 @@
   self.storageFake.eventsToReturnFromEventHashesToFiles = fakeEventSet;
   __block int uploadAttempts = 0;
   __weak GDTUploadCoordinatorTest *weakSelf = self;
-  self.prioritizer.eventsForNextUploadFake = [NSSet setWithObjects:@(1234), nil];
+  GDTTestUploadPackage *uploadPackage = [[GDTTestUploadPackage alloc] init];
+  uploadPackage.eventHashes = [NSSet setWithObjects:@(1234), nil];
+  self.prioritizer.uploadPackage = uploadPackage;
   self.uploader.uploadEventsBlock =
-      ^(NSSet<NSURL *> *_Nonnull eventFiles, GDTUploaderCompletionBlock _Nonnull completionBlock) {
+      ^(GDTUploadPackage *_Nonnull package, GDTUploaderCompletionBlock _Nonnull completionBlock) {
         GDTUploadCoordinatorTest *strongSelf = weakSelf;
         completionBlock(strongSelf->_target, [GDTClock clockSnapshotInTheFuture:100], nil);
         uploadAttempts++;
@@ -174,9 +177,11 @@
   self.storageFake.eventsToReturnFromEventHashesToFiles = fakeEventSet;
   __block int uploadAttempts = 0;
   __weak GDTUploadCoordinatorTest *weakSelf = self;
-  self.prioritizer.eventsForNextUploadFake = [NSSet setWithObjects:@(1234), nil];
+  GDTTestUploadPackage *uploadPackage = [[GDTTestUploadPackage alloc] init];
+  uploadPackage.eventHashes = [NSSet setWithObjects:@(1234), nil];
+  self.prioritizer.uploadPackage = uploadPackage;
   self.uploader.uploadEventsBlock =
-      ^(NSSet<NSURL *> *_Nonnull eventFiles, GDTUploaderCompletionBlock _Nonnull completionBlock) {
+      ^(GDTUploadPackage *_Nonnull package, GDTUploaderCompletionBlock _Nonnull completionBlock) {
         GDTUploadCoordinatorTest *strongSelf = weakSelf;
         NSError *error = [NSError errorWithDomain:NSURLErrorDomain code:1337 userInfo:nil];
         completionBlock(strongSelf->_target, [GDTClock clockSnapshotInTheFuture:100], error);

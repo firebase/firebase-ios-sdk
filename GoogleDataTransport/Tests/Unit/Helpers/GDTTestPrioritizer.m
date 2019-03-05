@@ -16,21 +16,23 @@
 
 #import "GDTTestPrioritizer.h"
 
+#import "GDTTestUploadPackage.h"
+
 @implementation GDTTestPrioritizer
 
 - (instancetype)init {
   self = [super init];
   if (self) {
-    _eventsForNextUploadFake = [[NSSet alloc] init];
+    _uploadPackage = [[GDTTestUploadPackage alloc] init];
   }
   return self;
 }
 
-- (NSSet<NSNumber *> *)eventsToUploadGivenConditions:(GDTUploadConditions)conditions {
-  if (_eventsForNextUploadBlock) {
-    _eventsForNextUploadBlock();
+- (GDTUploadPackage *)uploadPackageWithConditions:(GDTUploadConditions)conditions {
+  if (_uploadPackageWithConditionsBlock) {
+    _uploadPackageWithConditionsBlock();
   }
-  return _eventsForNextUploadFake;
+  return _uploadPackage;
 }
 
 - (void)prioritizeEvent:(GDTEvent *)event {

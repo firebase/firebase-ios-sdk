@@ -50,7 +50,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param eventHashes A set of event hashes to get the files of.
  * @return A set of equivalent length, containing all the filenames corresponding to the hashes.
  */
-- (NSSet<NSURL *> *)eventHashesToFiles:(NSSet<NSNumber *> *)eventHashes;
+- (NSDictionary<NSNumber *, NSURL *> *)eventHashesToFiles:(NSSet<NSNumber *> *)eventHashes;
 
 @end
 

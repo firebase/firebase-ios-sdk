@@ -18,10 +18,10 @@
 
 @implementation GDTTestUploader
 
-- (void)uploadEvents:(NSSet<NSURL *> *)eventFiles
-          onComplete:(GDTUploaderCompletionBlock)onComplete {
+- (void)uploadPackage:(GDTUploadPackage *)package
+           onComplete:(GDTUploaderCompletionBlock)onComplete {
   if (_uploadEventsBlock) {
-    _uploadEventsBlock(eventFiles, onComplete);
+    _uploadEventsBlock(package, onComplete);
   } else if (onComplete) {
     onComplete(kGDTTargetCCT, [GDTClock snapshot], nil);
   }

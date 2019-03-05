@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,13 @@
  * limitations under the License.
  */
 
-#import "GDTEvent.h"
+#import <GoogleDataTransport/GDTUploadPackage.h>
 
-#import "GDTClock.h"
+@class GDTStorage;
 
-NS_ASSUME_NONNULL_BEGIN
+@interface GDTUploadPackage ()
 
-@interface GDTEvent ()
-
-/** The serialized bytes of the event data object. */
-@property(nonatomic) NSData *dataObjectTransportBytes;
+/** The storage object this upload package will use to resolve event hashes to files. */
+@property(nonatomic) GDTStorage *storage;
 
 @end
-
-NS_ASSUME_NONNULL_END
