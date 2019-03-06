@@ -19,6 +19,7 @@
 #import "Firestore/third_party/Immutable/FSTImmutableSortedDictionary.h"
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 
 @class FSTDocumentKey;
@@ -247,6 +248,14 @@ enum class ServerTimestampBehavior { None, Estimate, Previous };
  * path does not exist within this object's structure, no change is performed.
  */
 - (FSTObjectValue *)objectByDeletingPath:(const firebase::firestore::model::FieldPath &)fieldPath;
+
+/**
+ * Applies this field mask to the provided object value and returns an object that only contains
+ * fields that are specified in both the input object and this field mask.
+ */
+// TODO(mrschmidt): Once FieldValues are C++, move this to FieldMask to match other platforms.
+- (FSTObjectValue *)objectByApplyingFieldMask:
+    (const firebase::firestore::model::FieldMask &)fieldMask;
 @end
 
 /**
