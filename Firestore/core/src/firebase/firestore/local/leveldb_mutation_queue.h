@@ -71,7 +71,8 @@ class LevelDbMutationQueue : public MutationQueue {
                         NSData* _Nullable stream_token) override;
 
   FSTMutationBatch* AddMutationBatch(
-      FIRTimestamp* local_write_time, std::vector<FSTMutation*>&& base_mutations,
+      FIRTimestamp* local_write_time,
+      std::vector<FSTMutation*>&& base_mutations,
       std::vector<FSTMutation*>&& mutations) override;
 
   void RemoveMutationBatch(FSTMutationBatch* batch) override;

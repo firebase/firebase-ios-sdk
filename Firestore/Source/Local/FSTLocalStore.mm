@@ -212,7 +212,8 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
       }
     }
 
-    FSTMutationBatch *batch = _mutationQueue->AddMutationBatch(localWriteTime, std::move(baseMutations), std::move(mutations));
+    FSTMutationBatch *batch = _mutationQueue->AddMutationBatch(
+        localWriteTime, std::move(baseMutations), std::move(mutations));
     MaybeDocumentMap changedDocuments = [batch applyToLocalDocumentSet:existingDocuments];
     return [FSTLocalWriteResult resultForBatchID:batch.batchID changes:std::move(changedDocuments)];
   });
@@ -420,9 +421,10 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 }
 
 - (nullable FSTMaybeDocument *)readDocument:(const DocumentKey &)key {
-  return self.persistence.run("ReadDocument", [&]() -> FSTMaybeDocument *_Nullable {
-    return [self.localDocuments documentForKey:key];
-  });
+  return self.persistence.run(
+      "ReadDocument", [&]() -> FSTMaybeDocument *_Nullable {
+        return [self.localDocuments documentForKey:key];
+      });
 }
 
 - (FSTQueryData *)allocateQuery:(FSTQuery *)query {

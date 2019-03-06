@@ -63,9 +63,9 @@ class MutationQueue {
    * Creates a new mutation batch and adds it to this mutation queue.
    *
    * @param local_write_time The original write time of this mutation.
-   * @param base_mutations Mutations that are used to populate the base values when this mutation is
-   * applied locally. These mutations are used to locally overwrite values that are persisted in
-   * the remote document cache.
+   * @param base_mutations Mutations that are used to populate the base values
+   * when this mutation is applied locally. These mutations are used to locally
+   * overwrite values that are persisted in the remote document cache.
    * @param mutations The user-provided mutations in this mutation batch.
    */
   virtual FSTMutationBatch* AddMutationBatch(

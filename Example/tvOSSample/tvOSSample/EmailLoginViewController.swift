@@ -21,7 +21,6 @@ protocol EmailLoginDelegate {
 }
 
 class EmailLoginViewController: UIViewController {
-
   // MARK: - Public Properties
 
   var delegate: EmailLoginDelegate?

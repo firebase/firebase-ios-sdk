@@ -1312,12 +1312,12 @@
 				5492E06A202154D500B64F25 /* FIRFieldsTests.mm */,
 				6161B5012047140400A99DBB /* FIRFirestoreSourceTests.mm */,
 				5492E06B202154D500B64F25 /* FIRListenerRegistrationTests.mm */,
+				D5B25E7E7D6873CBA4571841 /* FIRNumericTransformTests.mm */,
 				5492E069202154D500B64F25 /* FIRQueryTests.mm */,
 				5492E06E202154D600B64F25 /* FIRServerTimestampTests.mm */,
 				5492E071202154D600B64F25 /* FIRTypeTests.mm */,
 				5492E06D202154D600B64F25 /* FIRValidationTests.mm */,
 				5492E06F202154D600B64F25 /* FIRWriteBatchTests.mm */,
-				D5B25E7E7D6873CBA4571841 /* FIRNumericTransformTests.mm */,
 			);
 			path = API;
 			sourceTree = "<group>";
@@ -2148,6 +2148,7 @@
 				5492E073202154D600B64F25 /* FIRFieldsTests.mm in Sources */,
 				6161B5032047140C00A99DBB /* FIRFirestoreSourceTests.mm in Sources */,
 				5492E074202154D600B64F25 /* FIRListenerRegistrationTests.mm in Sources */,
+				D5B252EE3F4037405DB1ECE3 /* FIRNumericTransformTests.mm in Sources */,
 				5492E072202154D600B64F25 /* FIRQueryTests.mm in Sources */,
 				5492E077202154D600B64F25 /* FIRServerTimestampTests.mm in Sources */,
 				5492E07A202154D600B64F25 /* FIRTypeTests.mm in Sources */,
@@ -2162,7 +2163,6 @@
 				5492E0442021457E00B64F25 /* XCTestCase+Await.mm in Sources */,
 				EBFC611B1BF195D0EC710AF4 /* app_testing.mm in Sources */,
 				CA989C0E6020C372A62B7062 /* testutil.cc in Sources */,
-				D5B252EE3F4037405DB1ECE3 /* FIRNumericTransformTests.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -212,10 +212,7 @@ using firebase::firestore::model::TransformOperation;
 
 - (void)testAppliesIncrementWithoutOverflow {
   NSDictionary *baseDoc =
-      @{@"a" : @(LONG_MAX - 1),
-        @"b" : @(LONG_MAX - 1),
-        @"c" : @(LONG_MAX),
-        @"d" : @(LONG_MAX)};
+      @{@"a" : @(LONG_MAX - 1), @"b" : @(LONG_MAX - 1), @"c" : @(LONG_MAX), @"d" : @(LONG_MAX)};
   NSDictionary *transform = @{
     @"a" : [FIRFieldValue fieldValueForIntegerIncrement:1],
     @"b" : [FIRFieldValue fieldValueForIntegerIncrement:LONG_MAX],
@@ -223,19 +220,13 @@ using firebase::firestore::model::TransformOperation;
     @"d" : [FIRFieldValue fieldValueForIntegerIncrement:LONG_MAX]
   };
   NSDictionary *expected =
-      @{@"a" : @LONG_MAX,
-        @"b" : @LONG_MAX,
-        @"c" : @LONG_MAX,
-        @"d" : @LONG_MAX};
+      @{@"a" : @LONG_MAX, @"b" : @LONG_MAX, @"c" : @LONG_MAX, @"d" : @LONG_MAX};
   [self transformBaseDoc:baseDoc applyTransform:transform expecting:expected];
 }
 
 - (void)testAppliesIncrementWithoutUnderflow {
   NSDictionary *baseDoc =
-      @{@"a" : @(LONG_MIN + 1),
-        @"b" : @(LONG_MIN + 1),
-        @"c" : @(LONG_MIN),
-        @"d" : @(LONG_MIN)};
+      @{@"a" : @(LONG_MIN + 1), @"b" : @(LONG_MIN + 1), @"c" : @(LONG_MIN), @"d" : @(LONG_MIN)};
   NSDictionary *transform = @{
     @"a" : [FIRFieldValue fieldValueForIntegerIncrement:-1],
     @"b" : [FIRFieldValue fieldValueForIntegerIncrement:LONG_MIN],
@@ -243,10 +234,7 @@ using firebase::firestore::model::TransformOperation;
     @"d" : [FIRFieldValue fieldValueForIntegerIncrement:LONG_MIN]
   };
   NSDictionary *expected =
-      @{@"a" : @(LONG_MIN),
-        @"b" : @(LONG_MIN),
-        @"c" : @(LONG_MIN),
-        @"d" : @(LONG_MIN)};
+      @{@"a" : @(LONG_MIN), @"b" : @(LONG_MIN), @"c" : @(LONG_MIN), @"d" : @(LONG_MIN)};
   [self transformBaseDoc:baseDoc applyTransform:transform expecting:expected];
 }
 
@@ -434,8 +422,8 @@ using firebase::firestore::model::TransformOperation;
       [[FSTMutationResult alloc] initWithVersion:testutil::Version(1)
                                 transformResults:@[ [FSTIntegerValue integerValue:3] ]];
 
-  FSTMaybeDocument *transformedDoc =
-      [transform applyToRemoteDocument:baseDoc mutationResult:mutationResult];
+  FSTMaybeDocument *transformedDoc = [transform applyToRemoteDocument:baseDoc
+                                                       mutationResult:mutationResult];
 
   NSDictionary *expectedData = @{@"sum" : @3};
   XCTAssertEqualObjects(transformedDoc, FSTTestDoc("collection/key", 1, expectedData,
