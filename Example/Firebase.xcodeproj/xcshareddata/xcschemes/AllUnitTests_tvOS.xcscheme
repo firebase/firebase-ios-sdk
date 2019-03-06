@@ -92,6 +92,16 @@
                ReferencedContainer = "container:Firebase.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "518854EB223066BE00CA4141"
+               BuildableName = "InstanceID_Tests_tvOS.xctest"
+               BlueprintName = "InstanceID_Tests_tvOS"
+               ReferencedContainer = "container:Firebase.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference
