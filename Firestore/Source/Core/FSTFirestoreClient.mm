@@ -54,6 +54,7 @@
 #include "absl/memory/memory.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::api::DocumentReference;
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
@@ -320,24 +321,24 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
   _workerQueue->Enqueue([self, listener] { [self.eventManager removeListener:listener]; });
 }
 
-- (void)getDocumentFromLocalCache:(FIRDocumentReference *)doc
+- (void)getDocumentFromLocalCache:(const DocumentReference &)doc
                        completion:(void (^)(FIRDocumentSnapshot *_Nullable document,
                                             NSError *_Nullable error))completion {
   _workerQueue->Enqueue([self, doc, completion] {
-    FSTMaybeDocument *maybeDoc = [self.localStore readDocument:doc.key];
+    FSTMaybeDocument *maybeDoc = [self.localStore readDocument:doc.key()];
     FIRDocumentSnapshot *_Nullable result = nil;
     NSError *_Nullable error = nil;
 
     if ([maybeDoc isKindOfClass:[FSTDocument class]]) {
       FSTDocument *document = (FSTDocument *)maybeDoc;
-      result = [FIRDocumentSnapshot snapshotWithFirestore:doc.firestore
-                                              documentKey:doc.key
+      result = [FIRDocumentSnapshot snapshotWithFirestore:doc.firestore()
+                                              documentKey:doc.key()
                                                  document:document
                                                 fromCache:YES
                                          hasPendingWrites:document.hasLocalMutations];
     } else if ([maybeDoc isKindOfClass:[FSTDeletedDocument class]]) {
-      result = [FIRDocumentSnapshot snapshotWithFirestore:doc.firestore
-                                              documentKey:doc.key
+      result = [FIRDocumentSnapshot snapshotWithFirestore:doc.firestore()
+                                              documentKey:doc.key()
                                                  document:nil
                                                 fromCache:YES
                                          hasPendingWrites:NO];
