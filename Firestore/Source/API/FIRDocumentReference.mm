@@ -92,11 +92,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FIRCollectionReference *)parent {
-  return _documentReference.parent();
+  return _documentReference.Parent();
 }
 
 - (NSString *)path {
-  return util::WrapNSString(_documentReference.path());
+  return util::WrapNSString(_documentReference.Path());
 }
 
 - (FIRCollectionReference *)collectionWithPath:(NSString *)collectionPath {

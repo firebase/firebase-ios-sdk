@@ -64,11 +64,11 @@ class DocumentReference {
     return key_;
   }
 
-  std::string document_id() const;
+  const std::string& document_id() const;
 
-  FIRCollectionReference* parent() const;
+  FIRCollectionReference* Parent() const;
 
-  std::string path() const;
+  std::string Path() const;
 
   FIRCollectionReference* GetCollectionReference(
       const std::string& collection_path) const;

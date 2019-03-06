@@ -58,16 +58,16 @@ size_t DocumentReference::Hash() const {
   return util::Hash(firestore_, key_);
 }
 
-std::string DocumentReference::document_id() const {
+const std::string& DocumentReference::document_id() const {
   return key_.path().last_segment();
 }
 
-FIRCollectionReference* DocumentReference::parent() const {
+FIRCollectionReference* DocumentReference::Parent() const {
   return [FIRCollectionReference referenceWithPath:key_.path().PopLast()
                                          firestore:firestore_];
 }
 
-std::string DocumentReference::path() const {
+std::string DocumentReference::Path() const {
   return key_.path().CanonicalString();
 }
 
@@ -104,9 +104,9 @@ void DocumentReference::GetDocument(FIRFirestoreSource source,
   }
 
   FSTListenOptions* options =
-      [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:YES
-                                     includeDocumentMetadataChanges:YES
-                                              waitForSyncWhenOnline:YES];
+      [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:true
+                                     includeDocumentMetadataChanges:true
+                                              waitForSyncWhenOnline:true];
 
   // TODO(varconst): replace with a synchronization primitive that doesn't
   // require libdispatch. See
@@ -131,12 +131,11 @@ void DocumentReference::GetDocument(FIRFirestoreSource source,
       // If we're online and the document doesn't exist then we call the
       // completion with a document with document.exists set to false. If we're
       // offline however, we call the completion handler with an error. Two
-      // options: 1) Cache the negative response from the server so we can
-      // deliver that even when you're
-      //    offline.
+      // options:
+      // 1) Cache the negative response from the server so we can deliver that
+      //    even when you're offline.
       // 2) Actually call the completion handler with an error if the document
-      // doesn't exist when
-      //    you are offline.
+      // doesn't exist when you are offline.
       completion(nil, [NSError errorWithDomain:FIRFirestoreErrorDomain
                                           code:FIRFirestoreErrorCodeUnavailable
                                       userInfo:@{
@@ -154,11 +153,10 @@ void DocumentReference::GetDocument(FIRFirestoreSource source,
                      userInfo:@{
                        NSLocalizedDescriptionKey :
                            @"Failed to get document from server. (However, "
-                           @"this "
-                           @"document does exist in the local cache. Run again "
-                           @"without setting source to "
-                           @"FIRFirestoreSourceServer to "
-                           @"retrieve the cached document.)"
+                           @"this document does exist in the local cache. Run "
+                           @"again without setting source to "
+                           @"FIRFirestoreSourceServer to retrieve the cached "
+                           @"document.)"
                      }]);
     } else {
       completion(snapshot, nil);
@@ -175,36 +173,36 @@ id<FIRListenerRegistration> DocumentReference::AddSnapshotListener(
   FSTQuery* query = [FSTQuery queryWithPath:key_.path()];
   DocumentKey key = key_;
 
-  ViewSnapshotHandler snapshotHandler = [key, listener, firestore](
-                                            const StatusOr<ViewSnapshot>&
-                                                maybe_snapshot) {
-    if (!maybe_snapshot.ok()) {
-      listener(nil, MakeNSError(maybe_snapshot.status()));
-      return;
-    }
+  ViewSnapshotHandler handler =
+      [key, listener, firestore](const StatusOr<ViewSnapshot>& maybe_snapshot) {
+        if (!maybe_snapshot.ok()) {
+          listener(nil, MakeNSError(maybe_snapshot.status()));
+          return;
+        }
 
-    const ViewSnapshot& snapshot = maybe_snapshot.ValueOrDie();
-    HARD_ASSERT(snapshot.documents().count <= 1,
-                "Too many document returned on a document query");
-    FSTDocument* document = [snapshot.documents() documentForKey:key];
+        const ViewSnapshot& snapshot = maybe_snapshot.ValueOrDie();
+        HARD_ASSERT(snapshot.documents().count <= 1,
+                    "Too many document returned on a document query");
+        FSTDocument* document = [snapshot.documents() documentForKey:key];
 
-    bool has_pending_writes =
-        document
-            ? snapshot.mutated_keys().contains(key)
-            : NO;  // We don't raise `has_pending_writes` for deleted documents.
+        bool has_pending_writes =
+            document
+                ? snapshot.mutated_keys().contains(key)
+                // We don't raise `has_pending_writes` for deleted documents.
+                : false;
 
-    FIRDocumentSnapshot* result =
-        [FIRDocumentSnapshot snapshotWithFirestore:firestore
-                                       documentKey:key
-                                          document:document
-                                         fromCache:snapshot.from_cache()
-                                  hasPendingWrites:has_pending_writes];
-    listener(result, nil);
-  };
+        FIRDocumentSnapshot* result =
+            [FIRDocumentSnapshot snapshotWithFirestore:firestore
+                                           documentKey:key
+                                              document:document
+                                             fromCache:snapshot.from_cache()
+                                      hasPendingWrites:has_pending_writes];
+        listener(result, nil);
+      };
 
   FSTAsyncQueryListener* async_listener = [[FSTAsyncQueryListener alloc]
       initWithExecutor:firestore_.client.userExecutor
-       snapshotHandler:std::move(snapshotHandler)];
+       snapshotHandler:std::move(handler)];
 
   FSTQueryListener* internal_listener =
       [firestore.client listenToQuery:query
