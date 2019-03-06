@@ -170,7 +170,6 @@
 		518854DF2230652900CA4141 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 518854DD2230652900CA4141 /* Main.storyboard */; };
 		518854E12230652B00CA4141 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 518854E02230652B00CA4141 /* Assets.xcassets */; };
 		518854E42230652B00CA4141 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 518854E32230652B00CA4141 /* main.m */; };
-		518854EF223066BF00CA4141 /* InstanceID_Tests_tvOS.m in Sources */ = {isa = PBXBuildFile; fileRef = 518854EE223066BF00CA4141 /* InstanceID_Tests_tvOS.m */; };
 		518854F6223067E900CA4141 /* FIRInstanceIDAPNSInfoTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BDA21F7DF0B00E6C1C5 /* FIRInstanceIDAPNSInfoTest.m */; };
 		518854F7223067E900CA4141 /* FIRInstanceIDAuthKeyChainTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BE521F7DF0C00E6C1C5 /* FIRInstanceIDAuthKeyChainTest.m */; };
 		518854F8223067E900CA4141 /* FIRInstanceIDAuthServiceTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BDE21F7DF0C00E6C1C5 /* FIRInstanceIDAuthServiceTest.m */; };
@@ -1163,8 +1162,6 @@
 		518854E22230652B00CA4141 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		518854E32230652B00CA4141 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		518854EC223066BE00CA4141 /* InstanceID_Tests_tvOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = InstanceID_Tests_tvOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		518854EE223066BF00CA4141 /* InstanceID_Tests_tvOS.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = InstanceID_Tests_tvOS.m; sourceTree = "<group>"; };
-		518854F0223066BF00CA4141 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		533D3808AD791D7005D59F7D /* Pods-Storage_Example_tvOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Storage_Example_tvOS.release.xcconfig"; path = "Target Support Files/Pods-Storage_Example_tvOS/Pods-Storage_Example_tvOS.release.xcconfig"; sourceTree = "<group>"; };
 		537267386A0FC09FEB94CCEF /* Pods-FDLBuilderTestAppObjCEarlGrey.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FDLBuilderTestAppObjCEarlGrey.release.xcconfig"; path = "Target Support Files/Pods-FDLBuilderTestAppObjCEarlGrey/Pods-FDLBuilderTestAppObjCEarlGrey.release.xcconfig"; sourceTree = "<group>"; };
 		574B6FAD0C35F43DFB2A51CD /* Pods-Storage_Example_macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Storage_Example_macOS.release.xcconfig"; path = "Target Support Files/Pods-Storage_Example_macOS/Pods-Storage_Example_macOS.release.xcconfig"; sourceTree = "<group>"; };
@@ -2134,15 +2131,6 @@
 			path = tvOS;
 			sourceTree = "<group>";
 		};
-		518854ED223066BF00CA4141 /* InstanceID_Tests_tvOS */ = {
-			isa = PBXGroup;
-			children = (
-				518854EE223066BF00CA4141 /* InstanceID_Tests_tvOS.m */,
-				518854F0223066BF00CA4141 /* Info.plist */,
-			);
-			path = InstanceID_Tests_tvOS;
-			sourceTree = "<group>";
-		};
 		6003F581195388D10070C39A = {
 			isa = PBXGroup;
 			children = (
@@ -2155,7 +2143,6 @@
 				DE9315B41E8738B70083EDBF /* Messaging */,
 				AFC8BAA01EC24B1600B8EEAE /* Shared */,
 				DEB139B31E734D9D00AC236D /* Storage */,
-				518854ED223066BF00CA4141 /* InstanceID_Tests_tvOS */,
 				6003F58C195388D20070C39A /* Frameworks */,
 				6003F58B195388D20070C39A /* Products */,
 				73F3D26B690BF932AE286CD5 /* Pods */,
@@ -6632,7 +6619,6 @@
 				51885508223067E900CA4141 /* FIRInstanceIDTokenManagerTest.m in Sources */,
 				51885509223067E900CA4141 /* FIRInstanceIDTokenOperationsTest.m in Sources */,
 				5188550A223067E900CA4141 /* FIRInstanceIDUtilitiesTest.m in Sources */,
-				518854EF223066BF00CA4141 /* InstanceID_Tests_tvOS.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -8154,13 +8140,10 @@
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"${PODS_CONFIGURATION_BUILD_DIR}/FirebaseCore-tvOS/FirebaseCore.framework/Headers\"",
-					"\"${PODS_CONFIGURATION_BUILD_DIR}/FirebaseInstanceID-tvOS/FirebaseInstanceID.framework/Headers\"",
-					"\"${PODS_CONFIGURATION_BUILD_DIR}/GoogleUtilities-tvOS/GoogleUtilities.framework/Headers\"",
-					"\"${PODS_CONFIGURATION_BUILD_DIR}/OCMock-tvOS/OCMock.framework/Headers\"",
 					"\"${PODS_ROOT}/Headers/Public\"",
 					"\"${PODS_ROOT}/Headers/Public/FirebaseAnalyticsInterop\"",
 					"\"${PODS_ROOT}/Headers/Public/FirebaseAuthInterop\"",
+					"\"${PODS_ROOT}/Headers/Private\"",
 					"\"${PODS_ROOT}/../../Firebase/InstanceID\"",
 				);
 				INFOPLIST_FILE = InstanceID/Tests/Info.plist;
@@ -8205,12 +8188,9 @@
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"${PODS_CONFIGURATION_BUILD_DIR}/FirebaseCore-tvOS/FirebaseCore.framework/Headers\"",
-					"\"${PODS_CONFIGURATION_BUILD_DIR}/FirebaseInstanceID-tvOS/FirebaseInstanceID.framework/Headers\"",
-					"\"${PODS_CONFIGURATION_BUILD_DIR}/GoogleUtilities-tvOS/GoogleUtilities.framework/Headers\"",
-					"\"${PODS_CONFIGURATION_BUILD_DIR}/OCMock-tvOS/OCMock.framework/Headers\"",
 					"\"${PODS_ROOT}/Headers/Public\"",
 					"\"${PODS_ROOT}/Headers/Public/FirebaseAnalyticsInterop\"",
+					"\"${PODS_ROOT}/Headers/Private\"",
 					"\"${PODS_ROOT}/Headers/Public/FirebaseAuthInterop\"",
 					"\"${PODS_ROOT}/../../Firebase/InstanceID\"",
 				);
