@@ -22,6 +22,8 @@
 #import "Firestore/Source/Core/FSTTypes.h"
 
 #include "Firestore/core/src/firebase/firestore/api/document_reference.h"
+#include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
+#include "Firestore/core/src/firebase/firestore/api/handle_maybe.h"
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
@@ -90,8 +92,7 @@ NS_ASSUME_NONNULL_BEGIN
  * doesn't exist, an error will be sent to the completion.
  */
 - (void)getDocumentFromLocalCache:(const firebase::firestore::api::DocumentReference &)doc
-                       completion:(void (^)(FIRDocumentSnapshot *_Nullable document,
-                                            NSError *_Nullable error))completion;
+                       completion:(firebase::firestore::api::HandleMaybe<firebase::firestore::api::DocumentSnapshot>&&)completion;
 
 /**
  * Retrieves a (possibly empty) set of documents from the cache via the

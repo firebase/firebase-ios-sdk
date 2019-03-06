@@ -77,18 +77,17 @@ void Firestore::set_settings(FIRFirestoreSettings* settings) {
   if (client_ && ![settings_ isEqual:settings]) {
     HARD_FAIL(
         "Firestore instance has already been started and its settings can "
-        "no "
-        "longer be changed. You can only set settings before calling any "
+        "no longer be changed. You can only set settings before calling any "
         "other methods on a Firestore instance.");
   }
   settings_ = [settings copy];
 }
 
 FIRCollectionReference* Firestore::GetCollection(
-    absl::string_view collection_path) {
+    absl::string_view collection_path, FIRFirestore* firestore) {
   EnsureClientConfigured();
   ResourcePath path = ResourcePath::FromString(collection_path);
-  return [FIRCollectionReference referenceWithPath:path firestore:this];
+  return [FIRCollectionReference referenceWithPath:path firestore:firestore];
 }
 
 DocumentReference Firestore::GetDocument(absl::string_view document_path) {
@@ -97,20 +96,20 @@ DocumentReference Firestore::GetDocument(absl::string_view document_path) {
   return DocumentReference{this, DocumentKey{path}};
 }
 
-FIRWriteBatch* Firestore::GetBatch() {
+FIRWriteBatch* Firestore::GetBatch(FIRFirestore* firestore) {
   EnsureClientConfigured();
-  return [FIRWriteBatch writeBatchWithFirestore:this];
+  return [FIRWriteBatch writeBatchWithFirestore:firestore];
 }
 
 void Firestore::RunTransaction(TransactionBlock update_block,
                                dispatch_queue_t queue,
-                               ResultOrErrorCompletion completion) {
+                               ResultOrErrorCompletion completion, FIRFirestore* firestore) {
   FSTTransactionBlock wrapped_update =
       ^(std::shared_ptr<Transaction> internal_transaction,
         void (^internal_completion)(id _Nullable, NSError* _Nullable)) {
         FIRTransaction* transaction = [FIRTransaction
             transactionWithInternalTransaction:std::move(internal_transaction)
-                                     firestore:this];
+                                     firestore:firestore];
 
         dispatch_async(queue, ^{
           NSError* _Nullable error = nil;

@@ -18,7 +18,6 @@
 
 #import "FIRSnapshotMetadata.h"
 
-#import "Firestore/Source/API/FIRCollectionReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRListenerRegistration+Internal.h"
@@ -30,7 +29,6 @@
 #import "Firestore/Source/Util/FSTAsyncQueryListener.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
-#include "Firestore/core/src/firebase/firestore/api/firestore.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
@@ -39,6 +37,8 @@
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
 #include "Firestore/core/src/firebase/firestore/util/objc_compatibility.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -53,6 +53,7 @@ using model::DocumentKey;
 using model::Precondition;
 using model::ResourcePath;
 using util::MakeNSError;
+using util::Status;
 using util::StatusOr;
 
 size_t DocumentReference::Hash() const {
@@ -63,44 +64,47 @@ const std::string& DocumentReference::document_id() const {
   return key_.path().last_segment();
 }
 
-FIRCollectionReference* DocumentReference::Parent() const {
-  return [FIRCollectionReference referenceWithPath:key_.path().PopLast()
-                                         firestore:firestore_];
-}
+// TODO(varconst) uncomment when core API CollectionReference is implemented.
+// CollectionReference DocumentReference::Parent() const {
+//   return CollectionReference{firestore_, key_.path().PopLast()};
+// }
 
 std::string DocumentReference::Path() const {
   return key_.path().CanonicalString();
 }
 
-FIRCollectionReference* DocumentReference::GetCollectionReference(
-    const std::string& collection_path) const {
-  ResourcePath sub_path = ResourcePath::FromString(collection_path);
-  ResourcePath path = key_.path().Append(sub_path);
-  return [FIRCollectionReference referenceWithPath:path firestore:firestore_];
-}
+// TODO(varconst) uncomment when core API CollectionReference is implemented.
+// CollectionReference DocumentReference::GetCollectionReference(
+//     const std::string& collection_path) const {
+//   ResourcePath sub_path = ResourcePath::FromString(collection_path);
+//   ResourcePath path = key_.path().Append(sub_path);
+//   return CollectionReference{firestore_, path};
+// }
 
 void DocumentReference::SetData(std::vector<FSTMutation*>&& mutations,
                                 Completion completion) {
-  [firestore_.client writeMutations:std::move(mutations) completion:completion];
+  [firestore_->client() writeMutations:std::move(mutations)
+                            completion:completion];
 }
 
 void DocumentReference::UpdateData(std::vector<FSTMutation*>&& mutations,
                                    Completion completion) {
-  return [firestore_.client writeMutations:std::move(mutations)
-                                completion:completion];
+  return [firestore_->client() writeMutations:std::move(mutations)
+                                   completion:completion];
 }
 
 void DocumentReference::DeleteDocument(Completion completion) {
   FSTDeleteMutation* mutation =
       [[FSTDeleteMutation alloc] initWithKey:key_
                                 precondition:Precondition::None()];
-  [firestore_.client writeMutations:{mutation} completion:completion];
+  [firestore_->client() writeMutations:{mutation} completion:completion];
 }
 
 void DocumentReference::GetDocument(FIRFirestoreSource source,
-                                    DocumentCompletion completion) {
+                                    HandleMaybe<DocumentSnapshot>&& completion) {
   if (source == FIRFirestoreSourceCache) {
-    [firestore_.client getDocumentFromLocalCache:*this completion:completion];
+   [firestore_->client() getDocumentFromLocalCache:*this
+                                        completion:std::move(completion)];
     return;
   }
 
@@ -114,20 +118,21 @@ void DocumentReference::GetDocument(FIRFirestoreSource source,
   // https://github.com/firebase/firebase-ios-sdk/blob/3ccbdcdc65c93c4621c045c3c6d15de9dcefa23f/Firestore/Source/Core/FSTFirestoreClient.mm#L161
   // for an example.
   dispatch_semaphore_t registered = dispatch_semaphore_create(0);
-  __block id<FIRListenerRegistration> listener_registration;
-  FIRDocumentSnapshotBlock listener = ^(FIRDocumentSnapshot* snapshot,
-                                        NSError* error) {
-    if (error) {
-      completion(nil, error);
+  id<FIRListenerRegistration> listener_registration;
+  HandleMaybe<DocumentSnapshot> listener = [listener_registration, registered, completion, source](StatusOr<DocumentSnapshot> maybe_snapshot) {
+    if (!maybe_snapshot.ok()) {
+      completion(maybe_snapshot);
       return;
     }
+
+    DocumentSnapshot snapshot = std::move(maybe_snapshot).ValueOrDie();
 
     // Remove query first before passing event to user to avoid user actions
     // affecting the now stale query.
     dispatch_semaphore_wait(registered, DISPATCH_TIME_FOREVER);
     [listener_registration remove];
 
-    if (!snapshot.exists && snapshot.metadata.fromCache) {
+    if (!snapshot.exists() && snapshot.GetMetadata().fromCache) {
       // TODO(dimond): Reconsider how to raise missing documents when offline.
       // If we're online and the document doesn't exist then we call the
       // completion with a document with document.exists set to false. If we're
@@ -137,47 +142,34 @@ void DocumentReference::GetDocument(FIRFirestoreSource source,
       //    even when you're offline.
       // 2) Actually call the completion handler with an error if the document
       // doesn't exist when you are offline.
-      completion(nil, [NSError errorWithDomain:FIRFirestoreErrorDomain
-                                          code:FIRFirestoreErrorCodeUnavailable
-                                      userInfo:@{
-                                        NSLocalizedDescriptionKey :
-                                            @"Failed to get document because "
-                                            @"the client is offline.",
-                                      }]);
-    } else if (snapshot.exists && snapshot.metadata.fromCache &&
+      completion(Status{FirestoreErrorCode::Unavailable, "Failed to get document because the client is offline."});
+    } else if (snapshot.exists() && snapshot.GetMetadata().fromCache &&
                source == FIRFirestoreSourceServer) {
-      completion(
-          nil,
-          [NSError
-              errorWithDomain:FIRFirestoreErrorDomain
-                         code:FIRFirestoreErrorCodeUnavailable
-                     userInfo:@{
-                       NSLocalizedDescriptionKey :
-                           @"Failed to get document from server. (However, "
-                           @"this document does exist in the local cache. Run "
-                           @"again without setting source to "
-                           @"FIRFirestoreSourceServer to retrieve the cached "
-                           @"document.)"
-                     }]);
+      completion(Status{FirestoreErrorCode::Unavailable,
+                           "Failed to get document from server. (However, "
+                           "this document does exist in the local cache. Run "
+                           "again without setting source to "
+                           "FIRFirestoreSourceServer to retrieve the cached "
+                           "document.)"});
     } else {
-      completion(snapshot, nil);
+      completion(snapshot);
     }
   };
 
-  listener_registration = AddSnapshotListener(listener, options);
+  listener_registration = AddSnapshotListener(std::move(listener), options);
   dispatch_semaphore_signal(registered);
 }
 
 id<FIRListenerRegistration> DocumentReference::AddSnapshotListener(
-    FIRDocumentSnapshotBlock listener, FSTListenOptions* options) {
-  FIRFirestore* firestore = firestore_;
+    HandleMaybe<DocumentSnapshot>&& listener, FSTListenOptions* options) {
+  Firestore* firestore = firestore_;
   FSTQuery* query = [FSTQuery queryWithPath:key_.path()];
   DocumentKey key = key_;
 
   ViewSnapshotHandler handler =
       [key, listener, firestore](const StatusOr<ViewSnapshot>& maybe_snapshot) {
         if (!maybe_snapshot.ok()) {
-          listener(nil, MakeNSError(maybe_snapshot.status()));
+          listener(maybe_snapshot.status());
           return;
         }
 
@@ -192,31 +184,26 @@ id<FIRListenerRegistration> DocumentReference::AddSnapshotListener(
                 // We don't raise `has_pending_writes` for deleted documents.
                 : false;
 
-        FIRDocumentSnapshot* result =
-            [FIRDocumentSnapshot snapshotWithFirestore:firestore
-                                           documentKey:key
-                                              document:document
-                                             fromCache:snapshot.from_cache()
-                                      hasPendingWrites:has_pending_writes];
-        listener(result, nil);
+        DocumentSnapshot result{firestore, key, document, snapshot.from_cache(),
+                                has_pending_writes};
+        listener(std::move(result));
       };
 
   FSTAsyncQueryListener* async_listener = [[FSTAsyncQueryListener alloc]
-      initWithExecutor:firestore_.client.userExecutor
+      initWithExecutor:firestore_->client().userExecutor
        snapshotHandler:std::move(handler)];
 
-  FSTQueryListener* internal_listener =
-      [firestore.client listenToQuery:query
-                              options:options
-                  viewSnapshotHandler:[async_listener asyncSnapshotHandler]];
-  return [[FSTListenerRegistration alloc] initWithClient:firestore_.client
+  FSTQueryListener* internal_listener = [firestore_->client()
+            listenToQuery:query
+                  options:options
+      viewSnapshotHandler:[async_listener asyncSnapshotHandler]];
+  return [[FSTListenerRegistration alloc] initWithClient:firestore_->client()
                                            asyncListener:async_listener
                                         internalListener:internal_listener];
 }
 
 bool operator==(const DocumentReference& lhs, const DocumentReference& rhs) {
-  return objc::Equals(lhs.firestore(), rhs.firestore()) &&
-         lhs.key() == rhs.key();
+  return lhs.firestore() == rhs.firestore() && lhs.key() == rhs.key();
 }
 
 }  // namespace api

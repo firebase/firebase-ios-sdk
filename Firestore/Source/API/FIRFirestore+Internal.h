@@ -22,6 +22,17 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+namespace firebase {
+namespace firestore {
+namespace api {
+
+class Firestore;
+
+}  // namespace api
+}  // namespace firestore
+}  // namespace firebase
+
+@class FIRApp;
 @class FSTFirestoreClient;
 @class FSTUserDataConverter;
 
@@ -31,7 +42,8 @@ NS_ASSUME_NONNULL_BEGIN
  * Initializes a Firestore object with all the required parameters directly. This exists so that
  * tests can create FIRFirestore objects without needing FIRApp.
  */
-- (instancetype)initWithFirestore:(std::shared_ptr<firebase::firestore::api::Firestore> )firestore;
+- (instancetype)initWithFirestore:(std::unique_ptr<firebase::firestore::api::Firestore>)firestore
+                              firebaseApp:(FIRApp *)app;
 
 @end
 
@@ -51,6 +63,8 @@ NS_ASSUME_NONNULL_BEGIN
     NS_SWIFT_NAME(shutdown(completion:));
 
 - (firebase::firestore::util::AsyncQueue *)workerQueue;
+
+- (firebase::firestore::api::Firestore *)underlyingFirestore;
 
 // FIRFirestore ownes the DatabaseId instance.
 @property(nonatomic, assign, readonly) const firebase::firestore::model::DatabaseId *databaseID;

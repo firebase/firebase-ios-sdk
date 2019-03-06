@@ -33,20 +33,21 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class FIRFirestore;
 @class FIRSnapshotMetadata;
-@class FIRDocumentReference;
 @class FSTDocument;
 
 namespace firebase {
 namespace firestore {
 namespace api {
 
+class DocumentReference;
+class Firestore;
+
 class DocumentSnapshot {
  public:
   DocumentSnapshot() = default;
 
-  DocumentSnapshot(FIRFirestore* firestore,
+  DocumentSnapshot(Firestore* firestore,
                    model::DocumentKey document_key,
                    FSTDocument* _Nullable document,
                    bool from_cache,
@@ -68,13 +69,13 @@ class DocumentSnapshot {
   }
   std::string document_id() const;
 
-  FIRDocumentReference* CreateReference() const;
+  DocumentReference CreateReference() const;
   FIRSnapshotMetadata* GetMetadata() const;
 
   FSTObjectValue* _Nullable GetData() const;
   id _Nullable GetValue(const model::FieldPath& field_path) const;
 
-  FIRFirestore* firestore() const {
+  Firestore* firestore() const {
     return firestore_;
   }
 
@@ -82,7 +83,7 @@ class DocumentSnapshot {
                          const DocumentSnapshot& rhs);
 
  private:
-  FIRFirestore* firestore_ = nil;
+  Firestore* firestore_ = nullptr;
   model::DocumentKey internal_key_;
   FSTDocument* internal_document_ = nil;
   bool from_cache_ = false;

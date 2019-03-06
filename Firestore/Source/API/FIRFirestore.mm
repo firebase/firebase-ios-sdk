@@ -26,6 +26,8 @@
 #include <string>
 #include <utility>
 
+#import "FIRFirestore.h"
+
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FSTFirestoreComponent.h"
@@ -60,21 +62,15 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 @end
 
 @implementation FIRFirestore {
-  std::shared_ptr<Firestore> _firestore;
+  std::unique_ptr<Firestore> _firestore;
 }
-
-/*
- @dynamic workerQueue;
 
 - (AsyncQueue *)workerQueue {
   return _firestore->worker_queue();
 }
- */
 
-@dynamic app;
-
-- (FIRApp *)app {
-  return _firestore->app();
+- (Firestore*) underlyingFirestore {
+  return _firestore.get();
 }
 
 + (NSMutableDictionary<NSString *, FIRFirestore *> *)instances {
@@ -147,9 +143,10 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
   return [provider firestoreForDatabase:database];
 }
 
-- (instancetype)initWithFirestore:(std::shared_ptr<Firestore>)firestore {
+- (instancetype)initWithFirestore:(std::unique_ptr<Firestore>)firestore firebaseApp:(FIRApp*)app {
   if (self = [super init]) {
     _firestore = std::move(firestore);
+    _app = app;
 
     FSTPreConverterBlock block = ^id _Nullable(id _Nullable input) {
       if ([input isKindOfClass:[FIRDocumentReference class]]) {
@@ -191,7 +188,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
                             collectionPath);
   }
 
-  return _firestore->GetCollection(util::MakeString(collectionPath));
+  return _firestore->GetCollection(util::MakeString(collectionPath), self);
 }
 
 - (FIRDocumentReference *)documentWithPath:(NSString *)documentPath {
@@ -203,11 +200,11 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
   }
 
   DocumentReference documentReference = _firestore->GetDocument(util::MakeString(documentPath));
-  return [FIRDocumentReference referenceWithReference:std::move(documentReference)];
+  return [FIRDocumentReference referenceWithReference:std::move(documentReference) firestore:self];
 }
 
 - (FIRWriteBatch *)batch {
-  return _firestore->GetBatch();
+  return _firestore->GetBatch(self);
 }
 
 - (void)runTransactionWithBlock:(id _Nullable (^)(FIRTransaction *, NSError **))updateBlock
@@ -222,7 +219,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
     FSTThrowInvalidArgument(@"Transaction completion block cannot be nil.");
   }
 
-  _firestore->RunTransaction(updateBlock, queue, completion);
+  _firestore->RunTransaction(updateBlock, queue, completion, self);
 }
 
 - (void)runTransactionWithBlock:(id _Nullable (^)(FIRTransaction *, NSError **error))updateBlock

@@ -97,10 +97,10 @@ NS_ASSUME_NONNULL_BEGIN
 
       NSString *persistenceKey = self.app.name;
       NSString *projectID = self.app.options.projectID;
-      auto underlyingFirestore = std::make_shared(
+      auto underlyingFirestore = absl::make_unique<Firestore>(
           util::MakeString(projectID), util::MakeString(database), util::MakeString(persistenceKey),
-          std::move(credentials_provider), std::move(workerQueue), self.app);
-      firestore = [[FIRFirestore alloc] initWithFirestore:std::move(underlyingFirestore)];
+          std::move(credentials_provider), std::move(workerQueue));
+        firestore = [[FIRFirestore alloc] initWithFirestore:std::move(underlyingFirestore) firebaseApp:self.app];
       _instances[key] = firestore;
     }
 

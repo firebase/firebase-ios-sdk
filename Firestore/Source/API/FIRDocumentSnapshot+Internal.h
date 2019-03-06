@@ -18,6 +18,16 @@
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
+namespace firebase {
+namespace firestore {
+namespace api {
+
+class DocumentSnapshot;
+
+}  // namespace api
+}  // namespace firestore
+}  // namespace firebase
+
 @class FIRFirestore;
 @class FSTDocument;
 
@@ -31,6 +41,8 @@ NS_ASSUME_NONNULL_BEGIN
                              document:(nullable FSTDocument *)document
                             fromCache:(BOOL)fromCache
                      hasPendingWrites:(BOOL)pendingWrites;
+
++ (instancetype)snapshotWithSnapshot:(firebase::firestore::api::DocumentSnapshot&&)snapshot firestore:(FIRFirestore *)firestore;
 
 @property(nonatomic, strong, readonly, nullable) FSTDocument *internalDocument;
 

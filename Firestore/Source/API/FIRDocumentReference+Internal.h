@@ -29,7 +29,8 @@ NS_ASSUME_NONNULL_BEGIN
                         firestore:(FIRFirestore *)firestore;
 + (instancetype)referenceWithKey:(firebase::firestore::model::DocumentKey)key
                        firestore:(FIRFirestore *)firestore;
-+ (instancetype)referenceWithReference:(firebase::firestore::api::DocumentReference&&)reference;
++ (instancetype)referenceWithReference:(firebase::firestore::api::DocumentReference &&)reference
+                             firestore:(FIRFirestore *)firestore;
 
 - (const firebase::firestore::model::DocumentKey &)key;
 

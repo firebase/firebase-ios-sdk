@@ -23,7 +23,6 @@
 
 #import <Foundation/Foundation.h>
 
-#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
@@ -32,11 +31,12 @@
 #import "FIRFirestoreSource.h"
 #import "FIRListenerRegistration.h"
 
+#include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
+#include "Firestore/core/src/firebase/firestore/api/handle_maybe.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class FIRCollectionReference;
 @class FIRFirestore;
 @class FSTListenOptions;
 @class FSTMutation;
@@ -54,13 +54,13 @@ class DocumentReference {
                                       NSError* _Nullable error) _Nullable;
 
   DocumentReference() = default;
-  DocumentReference(std::shared_ptr<Firestore> firestore, model::DocumentKey document_key)
-      : firestore_{std::move(firestore)}, key_{std::move(document_key)} {
+  DocumentReference(Firestore* firestore, model::DocumentKey document_key)
+      : firestore_{firestore}, key_{std::move(document_key)} {
   }
 
   size_t Hash() const;
 
-  std::shared_ptr<Firestore> firestore() const {
+  Firestore* firestore() const {
     return firestore_;
   }
   const model::DocumentKey& key() const {
@@ -69,12 +69,14 @@ class DocumentReference {
 
   const std::string& document_id() const;
 
-  FIRCollectionReference* Parent() const;
+  // TODO(varconst) uncomment when core API CollectionReference is implemented.
+  //CollectionReference Parent() const;
 
   std::string Path() const;
 
-  FIRCollectionReference* GetCollectionReference(
-      const std::string& collection_path) const;
+  // TODO(varconst) uncomment when core API CollectionReference is implemented.
+  // CollectionReference GetCollectionReference(
+  //     const std::string& collection_path) const;
 
   void SetData(std::vector<FSTMutation*>&& mutations, Completion completion);
 
@@ -82,13 +84,13 @@ class DocumentReference {
 
   void DeleteDocument(Completion completion);
 
-  void GetDocument(FIRFirestoreSource source, DocumentCompletion completion);
+  void GetDocument(FIRFirestoreSource source, HandleMaybe<DocumentSnapshot>&& completion);
 
   id<FIRListenerRegistration> AddSnapshotListener(
-      FIRDocumentSnapshotBlock listener, FSTListenOptions* options);
+      HandleMaybe<DocumentSnapshot>&& listener, FSTListenOptions* options);
 
  private:
-  std::shared_ptr<Firestore> firestore_;
+  Firestore* firestore_ = nullptr;
   model::DocumentKey key_;
 };
 
