@@ -37,6 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 // is no image assoicated with the message.
 // If error is nil and imageData is not nil, then the image data is loaded successfully
 - (void)loadImageDataWithBlock:(void (^)(NSData *_Nullable imageData,
+                                         NSData *_Nullable landscapeImageData,
                                          NSError *_Nullable error))block;
 
 // convert to a description string of the content

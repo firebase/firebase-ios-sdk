@@ -375,10 +375,10 @@
                          triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType {
   // For easier reference in this method.
   FIRIAMMessageRenderData *renderData = definition.renderData;
-  
+
   NSString *title = renderData.contentData.titleText;
   NSString *body = renderData.contentData.bodyText;
-  
+
   FIRInAppMessagingActionButton *primaryActionButton = nil;
   if (definition.renderData.contentData.actionButtonText) {
     primaryActionButton = [[FIRInAppMessagingActionButton alloc]
@@ -386,7 +386,7 @@
            buttonTextColor:renderData.renderingEffectSettings.btnTextColor
            backgroundColor:renderData.renderingEffectSettings.btnBGColor];
   }
-  
+
   FIRInAppMessagingActionButton *secondaryActionButton = nil;
   if (definition.renderData.contentData.actionButtonText) {
     secondaryActionButton = [[FIRInAppMessagingActionButton alloc]
@@ -394,22 +394,22 @@
            buttonTextColor:renderData.renderingEffectSettings.btnTextColor
            backgroundColor:renderData.renderingEffectSettings.btnBGColor];
   }
-  
-  FIRInAppMessagingCardDisplay *cardMessage =
-      [[FIRInAppMessagingCardDisplay alloc] initWithMessageID:renderData.messageID
-                                                 campaignName:renderData.name
-                                          renderAsTestMessage:definition.isTestMessage
-                                                  triggerType:triggerType
-                                                    titleText:title
-                                                     bodyText:body
-                                            portraitImageData:portraitImageData
-                                           landscapeImageData:landscapeImageData
-                                              backgroundColor:renderData.renderingEffectSettings.displayBGColor
-                                          primaryActionButton:primaryActionButton
-                                             primaryActionURL:definition.renderData.contentData.actionURL
-                                        secondaryActionButton:secondaryActionButton
-                                           secondaryActionURL:definition.renderData.contentData.secondaryActionURL];
-  
+
+  FIRInAppMessagingCardDisplay *cardMessage = [[FIRInAppMessagingCardDisplay alloc]
+          initWithMessageID:renderData.messageID
+               campaignName:renderData.name
+        renderAsTestMessage:definition.isTestMessage
+                triggerType:triggerType
+                  titleText:title
+                   bodyText:body
+          portraitImageData:portraitImageData
+         landscapeImageData:landscapeImageData
+            backgroundColor:renderData.renderingEffectSettings.displayBGColor
+        primaryActionButton:primaryActionButton
+           primaryActionURL:definition.renderData.contentData.actionURL
+      secondaryActionButton:secondaryActionButton
+         secondaryActionURL:definition.renderData.contentData.secondaryActionURL];
+
   return cardMessage;
 }
 
@@ -517,12 +517,11 @@
               triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType {
   _currentMsgBeingDisplayed = message;
   [message.renderData.contentData
-      loadImageDataWithBlock:^(NSData *_Nullable imageNSData, NSError *error) {
+      loadImageDataWithBlock:^(NSData *_Nullable standardImageRawData,
+                               NSData *_Nullable landscapeImageRawData, NSError *_Nullable error) {
         FIRInAppMessagingImageData *imageData = nil;
         FIRInAppMessagingImageData *landscapeImageData = nil;
 
-        // TODO(eggyeggbean): load image data for landscape image.
-        
         if (error) {
           FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400019",
                       @"Error in loading image data for the message.");
@@ -535,10 +534,17 @@
           // short-circuit to display error handling
           [self displayErrorForMessage:erroredMessage error:error];
           return;
-        } else if (imageNSData != nil) {
-          imageData = [[FIRInAppMessagingImageData alloc]
-              initWithImageURL:message.renderData.contentData.imageURL.absoluteString
-                     imageData:imageNSData];
+        } else {
+          if (standardImageRawData) {
+            imageData = [[FIRInAppMessagingImageData alloc]
+                initWithImageURL:message.renderData.contentData.imageURL.absoluteString
+                       imageData:standardImageRawData];
+          }
+          if (landscapeImageRawData) {
+            landscapeImageData = [[FIRInAppMessagingImageData alloc]
+                initWithImageURL:message.renderData.contentData.imageURL.absoluteString
+                       imageData:landscapeImageRawData];
+          }
         }
 
         self.impressionRecorded = NO;
