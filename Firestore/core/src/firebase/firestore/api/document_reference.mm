@@ -123,7 +123,7 @@ void DocumentReference::GetDocument(
       [listener_registration, registered, completion,
        source](StatusOr<DocumentSnapshot> maybe_snapshot) {
         if (!maybe_snapshot.ok()) {
-          completion(maybe_snapshot);
+          completion(std::move(maybe_snapshot));
           return;
         }
 
@@ -140,8 +140,7 @@ void DocumentReference::GetDocument(
           // call the completion with a document with document.exists set to
           // false. If we're offline however, we call the completion handler
           // with an error. Two options: 1) Cache the negative response from the
-          // server so we can deliver that
-          //    even when you're offline.
+          // server so we can deliver that even when you're offline.
           // 2) Actually call the completion handler with an error if the
           // document doesn't exist when you are offline.
           completion(
@@ -156,7 +155,7 @@ void DocumentReference::GetDocument(
                             "FIRFirestoreSourceServer to retrieve the cached "
                             "document.)"});
         } else {
-          completion(snapshot);
+          completion(std::move(snapshot));
         }
       };
 

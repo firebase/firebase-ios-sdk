@@ -215,7 +215,7 @@ NS_ASSUME_NONNULL_BEGIN
   return [block, firestore](StatusOr<DocumentSnapshot> maybe_snapshot) {
     if (maybe_snapshot.ok()) {
       FIRDocumentSnapshot *result =
-          [FIRDocumentSnapshot snapshotWithSnapshot:std::move(maybe_snapshot.ValueOrDie())
+          [FIRDocumentSnapshot snapshotWithSnapshot:std::move(maybe_snapshot).ValueOrDie()
                                           firestore:firestore];
       block(result, nil);
     } else {
