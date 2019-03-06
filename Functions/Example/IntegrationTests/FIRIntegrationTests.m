@@ -48,7 +48,7 @@ static NSString *const kProjectID = @"functions-integration-test";
   NSDictionary *data = @{
     @"bool" : @YES,
     @"int" : @2,
-    @"long" : @3L,
+    @"long" : @9876543210L,
     @"string" : @"four",
     @"array" : @[ @5, @6 ],
     @"null" : [NSNull null],
