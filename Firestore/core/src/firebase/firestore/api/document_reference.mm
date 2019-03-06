@@ -100,11 +100,11 @@ void DocumentReference::DeleteDocument(Completion completion) {
   [firestore_->client() writeMutations:{mutation} completion:completion];
 }
 
-void DocumentReference::GetDocument(FIRFirestoreSource source,
-                                    HandleMaybe<DocumentSnapshot>&& completion) {
+void DocumentReference::GetDocument(
+    FIRFirestoreSource source, HandleMaybe<DocumentSnapshot>&& completion) {
   if (source == FIRFirestoreSourceCache) {
-   [firestore_->client() getDocumentFromLocalCache:*this
-                                        completion:std::move(completion)];
+    [firestore_->client() getDocumentFromLocalCache:*this
+                                         completion:std::move(completion)];
     return;
   }
 
@@ -119,42 +119,46 @@ void DocumentReference::GetDocument(FIRFirestoreSource source,
   // for an example.
   dispatch_semaphore_t registered = dispatch_semaphore_create(0);
   id<FIRListenerRegistration> listener_registration;
-  HandleMaybe<DocumentSnapshot> listener = [listener_registration, registered, completion, source](StatusOr<DocumentSnapshot> maybe_snapshot) {
-    if (!maybe_snapshot.ok()) {
-      completion(maybe_snapshot);
-      return;
-    }
+  HandleMaybe<DocumentSnapshot> listener =
+      [listener_registration, registered, completion,
+       source](StatusOr<DocumentSnapshot> maybe_snapshot) {
+        if (!maybe_snapshot.ok()) {
+          completion(maybe_snapshot);
+          return;
+        }
 
-    DocumentSnapshot snapshot = std::move(maybe_snapshot).ValueOrDie();
+        DocumentSnapshot snapshot = std::move(maybe_snapshot).ValueOrDie();
 
-    // Remove query first before passing event to user to avoid user actions
-    // affecting the now stale query.
-    dispatch_semaphore_wait(registered, DISPATCH_TIME_FOREVER);
-    [listener_registration remove];
+        // Remove query first before passing event to user to avoid user actions
+        // affecting the now stale query.
+        dispatch_semaphore_wait(registered, DISPATCH_TIME_FOREVER);
+        [listener_registration remove];
 
-    if (!snapshot.exists() && snapshot.GetMetadata().fromCache) {
-      // TODO(dimond): Reconsider how to raise missing documents when offline.
-      // If we're online and the document doesn't exist then we call the
-      // completion with a document with document.exists set to false. If we're
-      // offline however, we call the completion handler with an error. Two
-      // options:
-      // 1) Cache the negative response from the server so we can deliver that
-      //    even when you're offline.
-      // 2) Actually call the completion handler with an error if the document
-      // doesn't exist when you are offline.
-      completion(Status{FirestoreErrorCode::Unavailable, "Failed to get document because the client is offline."});
-    } else if (snapshot.exists() && snapshot.GetMetadata().fromCache &&
-               source == FIRFirestoreSourceServer) {
-      completion(Status{FirestoreErrorCode::Unavailable,
-                           "Failed to get document from server. (However, "
-                           "this document does exist in the local cache. Run "
-                           "again without setting source to "
-                           "FIRFirestoreSourceServer to retrieve the cached "
-                           "document.)"});
-    } else {
-      completion(snapshot);
-    }
-  };
+        if (!snapshot.exists() && snapshot.GetMetadata().fromCache) {
+          // TODO(dimond): Reconsider how to raise missing documents when
+          // offline. If we're online and the document doesn't exist then we
+          // call the completion with a document with document.exists set to
+          // false. If we're offline however, we call the completion handler
+          // with an error. Two options: 1) Cache the negative response from the
+          // server so we can deliver that
+          //    even when you're offline.
+          // 2) Actually call the completion handler with an error if the
+          // document doesn't exist when you are offline.
+          completion(
+              Status{FirestoreErrorCode::Unavailable,
+                     "Failed to get document because the client is offline."});
+        } else if (snapshot.exists() && snapshot.GetMetadata().fromCache &&
+                   source == FIRFirestoreSourceServer) {
+          completion(Status{FirestoreErrorCode::Unavailable,
+                            "Failed to get document from server. (However, "
+                            "this document does exist in the local cache. Run "
+                            "again without setting source to "
+                            "FIRFirestoreSourceServer to retrieve the cached "
+                            "document.)"});
+        } else {
+          completion(snapshot);
+        }
+      };
 
   listener_registration = AddSnapshotListener(std::move(listener), options);
   dispatch_semaphore_signal(registered);

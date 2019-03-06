@@ -100,7 +100,8 @@ NS_ASSUME_NONNULL_BEGIN
       auto underlyingFirestore = absl::make_unique<Firestore>(
           util::MakeString(projectID), util::MakeString(database), util::MakeString(persistenceKey),
           std::move(credentials_provider), std::move(workerQueue));
-        firestore = [[FIRFirestore alloc] initWithFirestore:std::move(underlyingFirestore) firebaseApp:self.app];
+      firestore = [[FIRFirestore alloc] initWithFirestore:std::move(underlyingFirestore)
+                                              firebaseApp:self.app];
       _instances[key] = firestore;
     }
 

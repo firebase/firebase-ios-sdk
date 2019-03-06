@@ -92,7 +92,8 @@ NS_ASSUME_NONNULL_BEGIN
  * doesn't exist, an error will be sent to the completion.
  */
 - (void)getDocumentFromLocalCache:(const firebase::firestore::api::DocumentReference &)doc
-                       completion:(firebase::firestore::api::HandleMaybe<firebase::firestore::api::DocumentSnapshot>&&)completion;
+                       completion:(firebase::firestore::api::HandleMaybe<
+                                      firebase::firestore::api::DocumentSnapshot> &&)completion;
 
 /**
  * Retrieves a (possibly empty) set of documents from the cache via the

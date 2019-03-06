@@ -70,7 +70,7 @@ class DocumentReference {
   const std::string& document_id() const;
 
   // TODO(varconst) uncomment when core API CollectionReference is implemented.
-  //CollectionReference Parent() const;
+  // CollectionReference Parent() const;
 
   std::string Path() const;
 
@@ -84,7 +84,8 @@ class DocumentReference {
 
   void DeleteDocument(Completion completion);
 
-  void GetDocument(FIRFirestoreSource source, HandleMaybe<DocumentSnapshot>&& completion);
+  void GetDocument(FIRFirestoreSource source,
+                   HandleMaybe<DocumentSnapshot>&& completion);
 
   id<FIRListenerRegistration> AddSnapshotListener(
       HandleMaybe<DocumentSnapshot>&& listener, FSTListenOptions* options);

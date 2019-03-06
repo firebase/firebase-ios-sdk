@@ -24,7 +24,7 @@
 #import <Foundation/Foundation.h>
 
 #include <memory>
-#include <mutex>
+#include <mutex>  // NOLINT(build/c++11)
 #include <string>
 #include <utility>
 #include "dispatch/dispatch.h"
@@ -64,7 +64,7 @@ class Firestore {
             std::unique_ptr<auth::CredentialsProvider> credentials_provider,
             std::unique_ptr<util::AsyncQueue> worker_queue);
 
-    const model::DatabaseId& database_id() const {
+  const model::DatabaseId& database_id() const {
     return database_id_;
   }
 
@@ -81,9 +81,12 @@ class Firestore {
   FIRFirestoreSettings* settings() const;
   void set_settings(FIRFirestoreSettings* settings);
 
-  FIRApp* app() const { return app_; }
+  FIRApp* app() const {
+    return app_;
+  }
 
-  FIRCollectionReference* GetCollection(absl::string_view collection_path, FIRFirestore* firestore);
+  FIRCollectionReference* GetCollection(absl::string_view collection_path,
+                                        FIRFirestore* firestore);
   DocumentReference GetDocument(absl::string_view document_path);
   FIRWriteBatch* GetBatch(FIRFirestore* firestore);
 

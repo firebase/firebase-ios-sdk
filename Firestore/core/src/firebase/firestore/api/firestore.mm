@@ -103,7 +103,8 @@ FIRWriteBatch* Firestore::GetBatch(FIRFirestore* firestore) {
 
 void Firestore::RunTransaction(TransactionBlock update_block,
                                dispatch_queue_t queue,
-                               ResultOrErrorCompletion completion, FIRFirestore* firestore) {
+                               ResultOrErrorCompletion completion,
+                               FIRFirestore* firestore) {
   FSTTransactionBlock wrapped_update =
       ^(std::shared_ptr<Transaction> internal_transaction,
         void (^internal_completion)(id _Nullable, NSError* _Nullable)) {

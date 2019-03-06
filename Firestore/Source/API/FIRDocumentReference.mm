@@ -175,7 +175,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)getDocumentWithCompletion:(FIRDocumentSnapshotBlock)completion {
-  _documentReference.GetDocument(FIRFirestoreSourceDefault, [self wrapDocumentSnapshotBlock:completion]);
+  _documentReference.GetDocument(FIRFirestoreSourceDefault,
+                                 [self wrapDocumentSnapshotBlock:completion]);
 }
 
 - (void)getDocumentWithSource:(FIRFirestoreSource)source

@@ -66,7 +66,7 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
 
 @interface FIRDocumentSnapshot ()
 
-- (instancetype)initWithSnapshot:(DocumentSnapshot &&)snapshot firestore:(FIRFirestore*)firestore;
+- (instancetype)initWithSnapshot:(DocumentSnapshot &&)snapshot firestore:(FIRFirestore *)firestore;
 
 @property(nonatomic, readonly, readonly) FIRFirestore *firestore;
 
@@ -91,7 +91,7 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
   DocumentSnapshot _snapshot;
 }
 
-- (instancetype)initWithSnapshot:(DocumentSnapshot &&)snapshot firestore:(FIRFirestore*)firestore {
+- (instancetype)initWithSnapshot:(DocumentSnapshot &&)snapshot firestore:(FIRFirestore *)firestore {
   if (self = [super init]) {
     _snapshot = std::move(snapshot);
     _firestore = firestore;
@@ -177,7 +177,9 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
   SUPPRESS_DEPRECATED_DECLARATIONS_BEGIN()
   return [[FSTFieldValueOptions alloc]
       initWithServerTimestampBehavior:InternalServerTimestampBehavior(serverTimestampBehavior)
-         timestampsInSnapshotsEnabled:_snapshot.firestore()->settings().timestampsInSnapshotsEnabled];
+         timestampsInSnapshotsEnabled:_snapshot.firestore()
+                                          ->settings()
+                                          .timestampsInSnapshotsEnabled];
   SUPPRESS_END()
 }
 
@@ -230,14 +232,15 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
 
 @interface FIRQueryDocumentSnapshot ()
 
-- (instancetype)initWithSnapshot:(DocumentSnapshot &&)snapshot firestore:(FIRFirestore*)firestore NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithSnapshot:(DocumentSnapshot &&)snapshot
+                       firestore:(FIRFirestore *)firestore NS_DESIGNATED_INITIALIZER;
 
 @end
 
 @implementation FIRQueryDocumentSnapshot
 
-- (instancetype)initWithSnapshot:(DocumentSnapshot &&)snapshot firestore:(FIRFirestore*)firestore {
-    return [super initWithSnapshot:std::move(snapshot) firestore:firestore];
+- (instancetype)initWithSnapshot:(DocumentSnapshot &&)snapshot firestore:(FIRFirestore *)firestore {
+  return [super initWithSnapshot:std::move(snapshot) firestore:firestore];
 }
 
 - (NSDictionary<NSString *, id> *)data {

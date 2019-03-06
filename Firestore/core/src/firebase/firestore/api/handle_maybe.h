@@ -26,7 +26,7 @@ namespace firestore {
 namespace api {
 
 template <typename T>
-using HandleMaybe = std::function<void (util::StatusOr<T>)>;
+using HandleMaybe = std::function<void(util::StatusOr<T>)>;
 
 }  // namespace api
 }  // namespace firestore

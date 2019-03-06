@@ -43,7 +43,7 @@ class Firestore;
  * tests can create FIRFirestore objects without needing FIRApp.
  */
 - (instancetype)initWithFirestore:(std::unique_ptr<firebase::firestore::api::Firestore>)firestore
-                              firebaseApp:(FIRApp *)app;
+                      firebaseApp:(FIRApp *)app;
 
 @end
 

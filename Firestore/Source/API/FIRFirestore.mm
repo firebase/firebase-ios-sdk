@@ -69,7 +69,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
   return _firestore->worker_queue();
 }
 
-- (Firestore*) underlyingFirestore {
+- (Firestore *)underlyingFirestore {
   return _firestore.get();
 }
 
@@ -143,7 +143,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
   return [provider firestoreForDatabase:database];
 }
 
-- (instancetype)initWithFirestore:(std::unique_ptr<Firestore>)firestore firebaseApp:(FIRApp*)app {
+- (instancetype)initWithFirestore:(std::unique_ptr<Firestore>)firestore firebaseApp:(FIRApp *)app {
   if (self = [super init]) {
     _firestore = std::move(firestore);
     _app = app;
