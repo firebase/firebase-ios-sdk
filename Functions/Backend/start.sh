@@ -49,8 +49,10 @@ FUNCTIONS_BIN="./node_modules/.bin/functions"
 "${FUNCTIONS_BIN}" deploy httpErrorTest --trigger-http
 "${FUNCTIONS_BIN}" deploy timeoutTest --trigger-http
 
-# Wait for the user to tell us to stop the server.
-echo "Functions emulator now running in ${TEMP_DIR}."
-read -n 1 -p "*** Press any key to stop the server. ***"
-echo "\nStopping the emulator..."
-"${FUNCTIONS_BIN}" stop
+if [ "$1" != "synchronous" ]; then
+  # Wait for the user to tell us to stop the server.
+  echo "Functions emulator now running in ${TEMP_DIR}."
+  read -n 1 -p "*** Press any key to stop the server. ***"
+  echo "\nStopping the emulator..."
+  "${FUNCTIONS_BIN}" stop
+fi
