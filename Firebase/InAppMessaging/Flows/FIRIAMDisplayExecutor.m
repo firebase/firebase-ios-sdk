@@ -542,7 +542,7 @@
           }
           if (landscapeImageRawData) {
             landscapeImageData = [[FIRInAppMessagingImageData alloc]
-                initWithImageURL:message.renderData.contentData.imageURL.absoluteString
+                initWithImageURL:message.renderData.contentData.landscapeImageURL.absoluteString
                        imageData:landscapeImageRawData];
           }
         }
