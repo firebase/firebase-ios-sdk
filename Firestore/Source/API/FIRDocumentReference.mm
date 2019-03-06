@@ -26,6 +26,7 @@
 #import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRListenerRegistration+Internal.h"
+#import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Core/FSTEventManager.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
@@ -34,12 +35,16 @@
 
 #include "Firestore/core/src/firebase/firestore/api/document_reference.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::api::DocumentReference;
+using firebase::firestore::core::ParsedSetData;
+using firebase::firestore::core::ParsedUpdateData;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::Precondition;
 using firebase::firestore::model::ResourcePath;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -98,7 +103,7 @@ NS_ASSUME_NONNULL_BEGIN
   if (!collectionPath) {
     FSTThrowInvalidArgument(@"Collection path cannot be nil.");
   }
-  return _documentReference.collection(util::MakeString(collectionPath));
+  return _documentReference.GetCollectionReference(util::MakeString(collectionPath));
 }
 
 - (void)setData:(NSDictionary<NSString *, id> *)documentData {
@@ -122,13 +127,21 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setData:(NSDictionary<NSString *, id> *)documentData
           merge:(BOOL)merge
      completion:(nullable void (^)(NSError *_Nullable error))completion {
-  _documentReference.SetData(documentData, merge, completion);
+  ParsedSetData parsed =
+      merge ? [_documentReference.firestore().dataConverter parsedMergeData:documentData
+                                                                  fieldMask:nil]
+            : [_documentReference.firestore().dataConverter parsedSetData:documentData];
+  _documentReference.SetData(
+      std::move(parsed).ToMutations(_documentReference.key(), Precondition::None()), completion);
 }
 
 - (void)setData:(NSDictionary<NSString *, id> *)documentData
     mergeFields:(NSArray<id> *)mergeFields
      completion:(nullable void (^)(NSError *_Nullable error))completion {
-  _documentReference.SetData(documentData, mergeFields, completion);
+  ParsedSetData parsed = [_documentReference.firestore().dataConverter parsedMergeData:documentData
+                                                                             fieldMask:mergeFields];
+  _documentReference.SetData(
+      std::move(parsed).ToMutations(_documentReference.key(), Precondition::None()), completion);
 }
 
 - (void)updateData:(NSDictionary<id, id> *)fields {
@@ -137,7 +150,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)updateData:(NSDictionary<id, id> *)fields
         completion:(nullable void (^)(NSError *_Nullable error))completion {
-  _documentReference.UpdateData(fields, completion);
+  ParsedUpdateData parsed = [_documentReference.firestore().dataConverter parsedUpdateData:fields];
+  _documentReference.UpdateData(
+      std::move(parsed).ToMutations(_documentReference.key(), Precondition::Exists(true)),
+      completion);
 }
 
 - (void)deleteDocument {

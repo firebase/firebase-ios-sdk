@@ -22,7 +22,6 @@
 #import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRListenerRegistration+Internal.h"
-#import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Core/FSTEventManager.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 #import "Firestore/Source/Core/FSTQuery.h"
@@ -47,8 +46,6 @@ namespace firestore {
 namespace api {
 
 namespace objc = util::objc;
-using core::ParsedSetData;
-using core::ParsedUpdateData;
 using core::ViewSnapshot;
 using core::ViewSnapshotHandler;
 using model::DocumentKey;
@@ -74,41 +71,21 @@ std::string DocumentReference::path() const {
   return key_.path().CanonicalString();
 }
 
-FIRCollectionReference* DocumentReference::collection(
+FIRCollectionReference* DocumentReference::GetCollectionReference(
     const std::string& collection_path) const {
   ResourcePath sub_path = ResourcePath::FromString(collection_path);
   ResourcePath path = key_.path().Append(sub_path);
   return [FIRCollectionReference referenceWithPath:path firestore:firestore_];
 }
 
-void DocumentReference::SetData(NSDictionary<NSString*, id>* document_data,
-                                bool merge,
+void DocumentReference::SetData(std::vector<FSTMutation*>&& mutations,
                                 Completion completion) {
-  ParsedSetData parsed =
-      merge ? [firestore_.dataConverter parsedMergeData:document_data
-                                              fieldMask:nil]
-            : [firestore_.dataConverter parsedSetData:document_data];
-  [firestore_.client
-      writeMutations:std::move(parsed).ToMutations(key_, Precondition::None())
-          completion:completion];
+  [firestore_.client writeMutations:std::move(mutations) completion:completion];
 }
 
-void DocumentReference::SetData(NSDictionary<NSString*, id>* document_data,
-                                NSArray<id>* merge_fields,
-                                Completion completion) {
-  ParsedSetData parsed =
-      [firestore_.dataConverter parsedMergeData:document_data
-                                      fieldMask:merge_fields];
-  [firestore_.client
-      writeMutations:std::move(parsed).ToMutations(key_, Precondition::None())
-          completion:completion];
-}
-
-void DocumentReference::UpdateData(NSDictionary<id, id>* fields,
+void DocumentReference::UpdateData(std::vector<FSTMutation*>&& mutations,
                                    Completion completion) {
-  ParsedUpdateData parsed = [firestore_.dataConverter parsedUpdateData:fields];
-  return [firestore_.client writeMutations:std::move(parsed).ToMutations(
-                                               key_, Precondition::Exists(true))
+  return [firestore_.client writeMutations:std::move(mutations)
                                 completion:completion];
 }
 
@@ -132,7 +109,9 @@ void DocumentReference::GetDocument(FIRFirestoreSource source,
                                               waitForSyncWhenOnline:YES];
 
   // TODO(varconst): replace with a synchronization primitive that doesn't
-  // require libdispatch.
+  // require libdispatch. See
+  // https://github.com/firebase/firebase-ios-sdk/blob/3ccbdcdc65c93c4621c045c3c6d15de9dcefa23f/Firestore/Source/Core/FSTFirestoreClient.mm#L161
+  // for an example.
   dispatch_semaphore_t registered = dispatch_semaphore_create(0);
   __block id<FIRListenerRegistration> listener_registration;
   FIRDocumentSnapshotBlock listener = ^(FIRDocumentSnapshot* snapshot,

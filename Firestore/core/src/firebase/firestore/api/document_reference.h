@@ -25,6 +25,7 @@
 
 #include <string>
 #include <utility>
+#include <vector>
 
 #import "FIRDocumentReference.h"
 #import "FIRFirestoreSource.h"
@@ -37,6 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class FIRCollectionReference;
 @class FIRFirestore;
 @class FSTListenOptions;
+@class FSTMutation;
 
 namespace firebase {
 namespace firestore {
@@ -68,17 +70,12 @@ class DocumentReference {
 
   std::string path() const;
 
-  FIRCollectionReference* collection(const std::string& collection_path) const;
+  FIRCollectionReference* GetCollectionReference(
+      const std::string& collection_path) const;
 
-  void SetData(NSDictionary<NSString*, id>* document_data,
-               bool merge,
-               Completion completion);
+  void SetData(std::vector<FSTMutation*>&& mutations, Completion completion);
 
-  void SetData(NSDictionary<NSString*, id>* document_data,
-               NSArray<id>* merge_fields,
-               Completion completion);
-
-  void UpdateData(NSDictionary<id, id>* fields, Completion completion);
+  void UpdateData(std::vector<FSTMutation*>&& mutations, Completion completion);
 
   void DeleteDocument(Completion completion);
 
