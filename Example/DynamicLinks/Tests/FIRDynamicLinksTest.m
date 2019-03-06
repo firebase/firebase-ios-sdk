@@ -967,6 +967,8 @@ static void UnswizzleDynamicLinkNetworking() {
   [mockService stopMocking];
 }
 
+// TODO: Add tests(s) for case from #2462
+
 - (void)test_multipleRequestsToRetrievePendingDeepLinkShouldNotCrash {
   id mockService = OCMPartialMock(self.service);
   [[mockService expect] handlePendingDynamicLinkRetrievalFailureWithErrorCode:-1
