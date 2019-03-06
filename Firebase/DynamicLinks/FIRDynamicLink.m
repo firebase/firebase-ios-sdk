@@ -57,7 +57,8 @@
 
 - (void)setUrl:(NSURL *)url {
   _url = [url copy];
-  [self setParametersDictionaryValue:[_url absoluteString] forKey:kFIRDLParameterDeepLinkIdentifier];
+  [self setParametersDictionaryValue:[_url absoluteString]
+                              forKey:kFIRDLParameterDeepLinkIdentifier];
 }
 
 - (void)setMinimumAppVersion:(NSString *)minimumAppVersion {
