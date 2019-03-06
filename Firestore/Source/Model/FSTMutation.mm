@@ -17,6 +17,7 @@
 #import "Firestore/Source/Model/FSTMutation.h"
 
 #include <memory>
+#include <set>
 #include <string>
 #include <utility>
 #include <vector>
@@ -338,9 +339,9 @@ NS_ASSUME_NONNULL_BEGIN
   if (self = [super initWithKey:std::move(key) precondition:Precondition::Exists(true)]) {
     _fieldTransforms = std::move(fieldTransforms);
 
-    std::vector<FieldPath> fields;
-    for (const auto &transform : self.fieldTransforms) {
-      fields.push_back(transform.path());
+    std::set<FieldPath> fields;
+    for (const auto &transform : _fieldTransforms) {
+      fields.insert(transform.path());
     }
 
     _fieldMask = FieldMask(std::move(fields));

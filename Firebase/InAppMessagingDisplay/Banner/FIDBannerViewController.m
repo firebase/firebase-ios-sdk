@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#import <FirebaseInAppMessaging/FIRInAppMessagingRendering.h>
-
 #import "FIDBannerViewController.h"
 #import "FIRCore+InAppMessagingDisplay.h"
 
@@ -67,8 +65,8 @@ static const CGFloat kSwipeUpThreshold = -10.0f;
                                 displayDelegate:
                                     (id<FIRInAppMessagingDisplayDelegate>)displayDelegate
                                     timeFetcher:(id<FIDTimeFetcher>)timeFetcher {
-  UIStoryboard *storyboard =
-      [UIStoryboard storyboardWithName:@"FIRInAppMessageDisplayStoryboard" bundle:resourceBundle];
+  UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"FIRInAppMessageDisplayStoryboard"
+                                                       bundle:resourceBundle];
 
   if (storyboard == nil) {
     FIRLogError(kFIRLoggerInAppMessagingDisplay, @"I-FID300002",
@@ -84,6 +82,10 @@ static const CGFloat kSwipeUpThreshold = -10.0f;
   bannerVC.timeFetcher = timeFetcher;
 
   return bannerVC;
+}
+
+- (FIRInAppMessagingDisplayMessage *)inAppMessage {
+  return self.bannerDisplayMessage;
 }
 
 - (void)setupRecognizers {

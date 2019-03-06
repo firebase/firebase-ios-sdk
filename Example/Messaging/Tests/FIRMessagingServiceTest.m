@@ -22,6 +22,7 @@
 #import "FIRMessaging.h"
 #import "FIRMessagingClient.h"
 #import "FIRMessagingPubSub.h"
+#import "FIRMessagingTestUtilities.h"
 #import "FIRMessagingTopicsCommon.h"
 #import "InternalHeaders/FIRMessagingInternalUtilities.h"
 #import "NSError+FIRMessaging.h"
@@ -31,8 +32,9 @@ static NSString *const kFakeToken =
     @"yUTTzK6dhIvLqzqqCSabaa4TQVM0pGTmF6r7tmMHPe6VYiGMHuCwJFgj5v97xl78sUNMLwuPPhoci8z_"
     @"QGlCrTbxCFGzEUfvA3fGpGgIVQU2W6";
 
+NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test_serviceTest";
+
 @interface FIRMessaging () <FIRMessagingClientDelegate>
-+ (FIRMessaging *)messagingForTests;
 @property(nonatomic, readwrite, strong) FIRMessagingClient *client;
 @property(nonatomic, readwrite, strong) FIRMessagingPubSub *pubsub;
 @property(nonatomic, readwrite, strong) NSString *defaultFcmToken;
@@ -55,7 +57,8 @@ static NSString *const kFakeToken =
 @implementation FIRMessagingServiceTest
 
 - (void)setUp {
-  _messaging = [FIRMessaging messagingForTests];
+  NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingTestsServiceSuiteName];
+  _messaging = [FIRMessagingTestUtilities messagingForTestsWithUserDefaults:defaults];
   _messaging.defaultFcmToken = kFakeToken;
   _mockPubSub = OCMPartialMock(_messaging.pubsub);
   [_mockPubSub setClient:nil];
@@ -63,6 +66,8 @@ static NSString *const kFakeToken =
 }
 
 - (void)tearDown {
+  [_messaging.messagingUserDefaults removePersistentDomainForName:kFIRMessagingTestsServiceSuiteName];
+  _messaging = nil;
   [_mockPubSub stopMocking];
   [super tearDown];
 }

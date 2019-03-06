@@ -16,11 +16,12 @@
 
 #import "FIRQuerySnapshot.h"
 
+#include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
+
 @class FIRFirestore;
 @class FIRSnapshotMetadata;
 @class FSTDocumentSet;
 @class FSTQuery;
-@class FSTViewSnapshot;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -29,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (instancetype)snapshotWithFirestore:(FIRFirestore *)firestore
                         originalQuery:(FSTQuery *)query
-                             snapshot:(FSTViewSnapshot *)snapshot
+                             snapshot:(firebase::firestore::core::ViewSnapshot)snapshot
                              metadata:(FIRSnapshotMetadata *)metadata;
 
 @end

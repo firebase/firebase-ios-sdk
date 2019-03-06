@@ -23,6 +23,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 NSString *const kApiaryRestBaseUrl = @"https://appinvite-pa.googleapis.com/v1";
+static NSString *const kiOSReopenRestBaseUrl = @"https://firebasedynamiclinks.googleapis.com/v1";
 
 // IPv4 and IPv6 Endpoints.
 static NSString *const kApiaryRestBaseUrlIPV4 = @"https://appinvite-ipv4-pa.googleapis.com/v1";
@@ -41,11 +42,9 @@ static NSString *const kiOSInviteReason = @"ios_invite";
 
 NSString *const kFDLResolvedLinkDeepLinkURLKey = @"deepLink";
 NSString *const kFDLResolvedLinkMinAppVersionKey = @"iosMinAppVersion";
-
-static NSString *const kFDLAnalyticsDataKey = @"durableLinkAnalyticsData";
-static NSString *const kFDLAnalyticsDataSourceKey = @"source";
-static NSString *const kFDLAnalyticsDataMediumKey = @"medium";
-static NSString *const kFDLAnalyticsDataCampaignKey = @"campaign";
+static NSString *const kFDLAnalyticsDataSourceKey = @"utmSource";
+static NSString *const kFDLAnalyticsDataMediumKey = @"utmMedium";
+static NSString *const kFDLAnalyticsDataCampaignKey = @"utmCampaign";
 static NSString *const kHeaderIosBundleIdentifier = @"X-Ios-Bundle-Identifier";
 
 typedef NSDictionary *_Nullable (^FIRDLNetworkingParserBlock)(
@@ -102,14 +101,20 @@ NSData *_Nullable FIRDataWithDictionary(NSDictionary *dictionary, NSError **_Nul
 
 #pragma mark - Public interface
 
-- (void)resolveShortLink:(NSURL *)url completion:(FIRDynamicLinkResolverHandler)handler {
+- (void)resolveShortLink:(NSURL *)url
+           FDLSDKVersion:(NSString *)FDLSDKVersion
+              completion:(FIRDynamicLinkResolverHandler)handler {
   NSParameterAssert(handler);
   if (!url) {
     handler(nil, nil);
     return;
   }
 
-  NSDictionary *requestBody = @{@"link" : url.absoluteString};
+  NSDictionary *requestBody = @{
+    @"requestedLink" : url.absoluteString,
+    @"bundle_id" : [NSBundle mainBundle].bundleIdentifier,
+    @"sdk_version" : FDLSDKVersion
+  };
 
   FIRNetworkRequestCompletionHandler resolveLinkCallback = ^(NSData *data, NSError *error) {
     NSURL *resolvedURL;
@@ -129,10 +134,9 @@ NSData *_Nullable FIRDataWithDictionary(NSDictionary *dictionary, NSError **_Nul
 
         NSString *deepLinkString = result[kFDLResolvedLinkDeepLinkURLKey];
         NSString *minAppVersion = result[kFDLResolvedLinkMinAppVersionKey];
-        NSDictionary *analytics = result[kFDLAnalyticsDataKey];
-        NSString *utmSource = analytics[kFDLAnalyticsDataSourceKey];
-        NSString *utmMedium = analytics[kFDLAnalyticsDataMediumKey];
-        NSString *utmCampaign = analytics[kFDLAnalyticsDataCampaignKey];
+        NSString *utmSource = result[kFDLAnalyticsDataSourceKey];
+        NSString *utmMedium = result[kFDLAnalyticsDataMediumKey];
+        NSString *utmCampaign = result[kFDLAnalyticsDataCampaignKey];
         resolvedURL = FIRDLDeepLinkURLWithInviteID(invitationIDString, deepLinkString, utmSource,
                                                    utmMedium, utmCampaign, NO, nil, minAppVersion,
                                                    self->_URLScheme, nil);
@@ -141,8 +145,9 @@ NSData *_Nullable FIRDataWithDictionary(NSDictionary *dictionary, NSError **_Nul
     handler(resolvedURL, error);
   };
 
-  NSString *requestURLString = [NSString stringWithFormat:@"%@/resolveLink%@", kApiaryRestBaseUrl,
-                                                          FIRDynamicLinkAPIKeyParameter(_APIKey)];
+  NSString *requestURLString =
+      [NSString stringWithFormat:@"%@/reopenAttribution%@", kiOSReopenRestBaseUrl,
+                                 FIRDynamicLinkAPIKeyParameter(_APIKey)];
   [self executeOnePlatformRequest:requestBody
                            forURL:requestURLString
                 completionHandler:resolveLinkCallback];
@@ -193,8 +198,9 @@ NSData *_Nullable FIRDataWithDictionary(NSDictionary *dictionary, NSError **_Nul
   FIRDLNetworkingParserBlock responseParserBlock = ^NSDictionary *_Nullable(
       NSString *requestURLString, NSData *data, NSString **matchMessagePtr, NSError **errorPtr) {
     NSError *serializationError;
-    NSDictionary *result =
-        [NSJSONSerialization JSONObjectWithData:data options:0 error:&serializationError];
+    NSDictionary *result = [NSJSONSerialization JSONObjectWithData:data
+                                                           options:0
+                                                             error:&serializationError];
 
     if (serializationError) {
       *errorPtr = serializationError;

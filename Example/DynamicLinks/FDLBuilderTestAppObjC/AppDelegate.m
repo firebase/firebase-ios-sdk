@@ -61,7 +61,11 @@
 - (BOOL)application:(UIApplication *)application
     continueUserActivity:(NSUserActivity *)userActivity
       restorationHandler:
+#if __has_include(<UIKit/UIUserActivity.h>)
           (void (^)(NSArray<id<UIUserActivityRestoring>> *_Nullable))restorationHandler {
+#else
+          (void (^)(NSArray *))restorationHandler {
+#endif
   BOOL handled = [[FIRDynamicLinks dynamicLinks]
       handleUniversalLink:userActivity.webpageURL
                completion:^(FIRDynamicLink *_Nullable dynamicLink, NSError *_Nullable error) {

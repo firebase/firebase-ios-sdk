@@ -16,12 +16,14 @@
 
 #import "FIRAuthCredential_Internal.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @implementation FIRAuthCredential
 
 - (instancetype)init {
   @throw [NSException exceptionWithName:@"Attempt to call unavailable initializer."
                                  reason:@"This class is an abstract base class. It's init method "
-                                        "should not be called directly."
+          "should not be called directly."
                                userInfo:nil];
 }
 
@@ -40,3 +42,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

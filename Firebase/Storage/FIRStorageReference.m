@@ -57,8 +57,8 @@
 #pragma mark - NSObject overrides
 
 - (instancetype)copyWithZone:(NSZone *)zone {
-  FIRStorageReference *copiedReference =
-      [[[self class] allocWithZone:zone] initWithStorage:_storage path:_path];
+  FIRStorageReference *copiedReference = [[[self class] allocWithZone:zone] initWithStorage:_storage
+                                                                                       path:_path];
   return copiedReference;
 }
 
@@ -121,8 +121,8 @@
 
 - (FIRStorageReference *)root {
   FIRStoragePath *rootPath = [_path root];
-  FIRStorageReference *rootReference =
-      [[FIRStorageReference alloc] initWithStorage:_storage path:rootPath];
+  FIRStorageReference *rootReference = [[FIRStorageReference alloc] initWithStorage:_storage
+                                                                               path:rootPath];
   return rootReference;
 }
 
@@ -132,15 +132,15 @@
     return nil;
   }
 
-  FIRStorageReference *parentReference =
-      [[FIRStorageReference alloc] initWithStorage:_storage path:parentPath];
+  FIRStorageReference *parentReference = [[FIRStorageReference alloc] initWithStorage:_storage
+                                                                                 path:parentPath];
   return parentReference;
 }
 
 - (FIRStorageReference *)child:(NSString *)path {
   FIRStoragePath *childPath = [_path child:path];
-  FIRStorageReference *childReference =
-      [[FIRStorageReference alloc] initWithStorage:_storage path:childPath];
+  FIRStorageReference *childReference = [[FIRStorageReference alloc] initWithStorage:_storage
+                                                                                path:childPath];
   return childReference;
 }
 

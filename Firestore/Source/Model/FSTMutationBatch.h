@@ -17,6 +17,7 @@
 #import <Foundation/Foundation.h>
 
 #include <unordered_map>
+#include <vector>
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
@@ -44,14 +45,6 @@ using DocumentVersionMap = std::unordered_map<DocumentKey, SnapshotVersion, Docu
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * A BatchID that was searched for and not found or a batch ID value known to be before all known
- * batches.
- *
- * BatchId values from the local store are non-negative so this value is before all batches.
- */
-extern const firebase::firestore::model::BatchId kFSTBatchIDUnknown;
-
-/**
  * A batch of mutations that will be sent as one unit to the backend. Batches can be marked as a
  * tombstone if the mutation queue does not remove them immediately. When a batch is a tombstone
  * it has no mutations.
@@ -64,8 +57,8 @@ extern const firebase::firestore::model::BatchId kFSTBatchIDUnknown;
  */
 - (instancetype)initWithBatchID:(firebase::firestore::model::BatchId)batchID
                  localWriteTime:(FIRTimestamp *)localWriteTime
-                  baseMutations:(NSArray<FSTMutation *> *)baseMutations
-                      mutations:(NSArray<FSTMutation *> *)mutations NS_DESIGNATED_INITIALIZER;
+                  baseMutations:(std::vector<FSTMutation *> &&)baseMutations
+                      mutations:(std::vector<FSTMutation *> &&)mutations NS_DESIGNATED_INITIALIZER;
 
 - (id)init NS_UNAVAILABLE;
 
@@ -110,13 +103,13 @@ extern const firebase::firestore::model::BatchId kFSTBatchIDUnknown;
  * can be used to locally overwrite values that are persisted in the remote document cache. Base
  * mutations are never sent to the backend.
  */
-@property(nonatomic, strong, readonly) NSArray<FSTMutation *> *baseMutations;
+- (const std::vector<FSTMutation *> &)baseMutations;
 
 /**
  * The user-provided mutations in this mutation batch. User-provided mutations are applied both
  * locally and remotely on the backend.
  */
-@property(nonatomic, strong, readonly) NSArray<FSTMutation *> *mutations;
+- (const std::vector<FSTMutation *> &)mutations;
 
 @end
 
@@ -134,13 +127,13 @@ extern const firebase::firestore::model::BatchId kFSTBatchIDUnknown;
  */
 + (instancetype)resultWithBatch:(FSTMutationBatch *)batch
                   commitVersion:(firebase::firestore::model::SnapshotVersion)commitVersion
-                mutationResults:(NSArray<FSTMutationResult *> *)mutationResults
+                mutationResults:(std::vector<FSTMutationResult *>)mutationResults
                     streamToken:(nullable NSData *)streamToken;
 
 - (const firebase::firestore::model::SnapshotVersion &)commitVersion;
+- (const std::vector<FSTMutationResult *> &)mutationResults;
 
 @property(nonatomic, strong, readonly) FSTMutationBatch *batch;
-@property(nonatomic, strong, readonly) NSArray<FSTMutationResult *> *mutationResults;
 @property(nonatomic, strong, readonly, nullable) NSData *streamToken;
 
 - (const firebase::firestore::model::DocumentVersionMap &)docVersions;

@@ -40,6 +40,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/auth/firebase_credentials_provider_apple.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
+#include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
@@ -53,6 +54,7 @@ namespace util = firebase::firestore::util;
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::FirebaseCredentialsProvider;
 using firebase::firestore::core::DatabaseInfo;
+using firebase::firestore::core::Transaction;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::ResourcePath;
 using util::AsyncQueue;
@@ -149,15 +151,13 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 // TODO(b/62410906): make this public
 + (instancetype)firestoreForApp:(FIRApp *)app database:(NSString *)database {
   if (!app) {
-    FSTThrowInvalidArgument(
-        @"FirebaseApp instance may not be nil. Use FirebaseApp.app() if you'd "
-         "like to use the default FirebaseApp instance.");
+    FSTThrowInvalidArgument(@"FirebaseApp instance may not be nil. Use FirebaseApp.app() if you'd "
+                             "like to use the default FirebaseApp instance.");
   }
   if (!database) {
-    FSTThrowInvalidArgument(
-        @"database identifier may not be nil. Use '%s' if you want the default "
-         "database",
-        DatabaseId::kDefault);
+    FSTThrowInvalidArgument(@"database identifier may not be nil. Use '%s' if you want the default "
+                             "database",
+                            DatabaseId::kDefault);
   }
 
   id<FSTFirestoreMultiDBProvider> provider =
@@ -182,8 +182,8 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
         return input;
       }
     };
-    _dataConverter =
-        [[FSTUserDataConverter alloc] initWithDatabaseID:&_databaseID preConverter:block];
+    _dataConverter = [[FSTUserDataConverter alloc] initWithDatabaseID:&_databaseID
+                                                         preConverter:block];
     _persistenceKey = persistenceKey;
     _credentialsProvider = std::move(credentialsProvider);
     _workerQueue = std::move(workerQueue);
@@ -228,34 +228,6 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
       // These values are validated elsewhere; this is just double-checking:
       HARD_ASSERT(_settings.host, "FirestoreSettings.host cannot be nil.");
       HARD_ASSERT(_settings.dispatchQueue, "FirestoreSettings.dispatchQueue cannot be nil.");
-
-      if (!_settings.timestampsInSnapshotsEnabled) {
-        LOG_WARN(
-            "The behavior for system Date objects stored in Firestore is going to change "
-            "AND YOUR APP MAY BREAK.\n"
-            "To hide this warning and ensure your app does not break, you need to add "
-            "the following code to your app before calling any other Cloud Firestore methods:\n"
-            "\n"
-            "let db = Firestore.firestore()\n"
-            "let settings = db.settings\n"
-            "settings.areTimestampsInSnapshotsEnabled = true\n"
-            "db.settings = settings\n"
-            "\n"
-            "With this change, timestamps stored in Cloud Firestore will be read back as "
-            "Firebase Timestamp objects instead of as system Date objects. So you will "
-            "also need to update code expecting a Date to instead expect a Timestamp. "
-            "For example:\n"
-            "\n"
-            "// old:\n"
-            "let date: Date = documentSnapshot.get(\"created_at\") as! Date\n"
-            "// new:\n"
-            "let timestamp: Timestamp = documentSnapshot.get(\"created_at\") as! Timestamp\n"
-            "let date: Date = timestamp.dateValue()\n"
-            "\n"
-            "Please audit all existing usages of Date when you enable the new behavior. In a "
-            "future release, the behavior will be changed to the new behavior, so if you do not "
-            "follow these steps, YOUR APP MAY BREAK.");
-      }
 
       const DatabaseInfo database_info(*self.databaseID, util::MakeString(_persistenceKey),
                                        util::MakeString(_settings.host), _settings.sslEnabled);
@@ -305,7 +277,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
                      completion:
                          (void (^)(id _Nullable result, NSError *_Nullable error))completion {
   // We wrap the function they provide in order to use internal implementation classes for
-  // FSTTransaction, and to run the user callback block on the proper queue.
+  // transaction, and to run the user callback block on the proper queue.
   if (!updateBlock) {
     FSTThrowInvalidArgument(@"Transaction block cannot be nil.");
   } else if (!completion) {
@@ -313,10 +285,11 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
   }
 
   FSTTransactionBlock wrappedUpdate =
-      ^(FSTTransaction *internalTransaction,
+      ^(std::shared_ptr<Transaction> internalTransaction,
         void (^internalCompletion)(id _Nullable, NSError *_Nullable)) {
         FIRTransaction *transaction =
-            [FIRTransaction transactionWithFSTTransaction:internalTransaction firestore:self];
+            [FIRTransaction transactionWithInternalTransaction:std::move(internalTransaction)
+                                                     firestore:self];
         dispatch_async(queue, ^{
           NSError *_Nullable error = nil;
           id _Nullable result = updateBlock(transaction, &error);

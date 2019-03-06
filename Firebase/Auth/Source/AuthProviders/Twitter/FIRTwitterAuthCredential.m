@@ -20,6 +20,8 @@
 #import "FIRAuthExceptionUtils.h"
 #import "FIRVerifyAssertionRequest.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface FIRTwitterAuthCredential ()
 
 - (nullable instancetype)initWithProvider:(NSString *)provider NS_UNAVAILABLE;
@@ -48,4 +50,24 @@
   request.providerOAuthTokenSecret = _secret;
 }
 
+#pragma mark - NSSecureCoding
+
++ (BOOL)supportsSecureCoding {
+  return YES;
+}
+
+- (nullable instancetype)initWithCoder:(NSCoder *)aDecoder {
+  NSString *token = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"token"];
+  NSString *secret = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"secret"];
+  self = [self initWithToken:token secret:secret];
+  return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)aCoder {
+  [aCoder encodeObject:self.token forKey:@"token"];
+  [aCoder encodeObject:self.secret forKey:@"secret"];
+}
+
 @end
+
+NS_ASSUME_NONNULL_END

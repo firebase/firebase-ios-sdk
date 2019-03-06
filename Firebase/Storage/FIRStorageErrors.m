@@ -72,9 +72,8 @@
     }
 
     case FIRStorageErrorCodeUnauthenticated:
-      errorMessage =
-          @"User is not authenticated, please authenticate using Firebase "
-          @"Authentication and try again.";
+      errorMessage = @"User is not authenticated, please authenticate using Firebase "
+                     @"Authentication and try again.";
       break;
 
     case FIRStorageErrorCodeUnauthorized: {
@@ -158,8 +157,8 @@
   // Turn raw response into a string
   NSData *responseData = errorDictionary[@"data"];
   if (responseData) {
-    NSString *errorString =
-        [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
+    NSString *errorString = [[NSString alloc] initWithData:responseData
+                                                  encoding:NSUTF8StringEncoding];
     errorDictionary[kFIRStorageResponseBody] = errorString ?: @"No Response from Server.";
   }
 

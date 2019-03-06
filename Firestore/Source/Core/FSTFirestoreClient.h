@@ -17,13 +17,13 @@
 #import <Foundation/Foundation.h>
 
 #include <memory>
+#include <vector>
 
 #import "Firestore/Source/Core/FSTTypes.h"
-#import "Firestore/Source/Core/FSTViewSnapshot.h"
-#import "Firestore/Source/Remote/FSTRemoteStore.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
+#include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
@@ -49,7 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
  * SDK architecture. It is responsible for creating the worker queue that is shared by all of the
  * other components in the system.
  */
-@interface FSTFirestoreClient : NSObject <FSTOnlineStateDelegate>
+@interface FSTFirestoreClient : NSObject
 
 /**
  * Creates and returns a FSTFirestoreClient with the given parameters.
@@ -78,7 +78,8 @@ NS_ASSUME_NONNULL_BEGIN
 /** Starts listening to a query. */
 - (FSTQueryListener *)listenToQuery:(FSTQuery *)query
                             options:(FSTListenOptions *)options
-                viewSnapshotHandler:(FSTViewSnapshotHandler)viewSnapshotHandler;
+                viewSnapshotHandler:
+                    (firebase::firestore::core::ViewSnapshotHandler &&)viewSnapshotHandler;
 
 /** Stops listening to a query previously listened to. */
 - (void)removeListener:(FSTQueryListener *)listener;
@@ -100,7 +101,7 @@ NS_ASSUME_NONNULL_BEGIN
                                              NSError *_Nullable error))completion;
 
 /** Write mutations. completion will be notified when it's written to the backend. */
-- (void)writeMutations:(NSArray<FSTMutation *> *)mutations
+- (void)writeMutations:(std::vector<FSTMutation *> &&)mutations
             completion:(nullable FSTVoidErrorBlock)completion;
 
 /** Tries to execute the transaction in updateBlock up to retries times. */

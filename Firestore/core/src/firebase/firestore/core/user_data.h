@@ -18,6 +18,7 @@
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_USER_DATA_H_
 
 #include <memory>
+#include <set>
 #include <string>
 #include <utility>
 #include <vector>
@@ -166,7 +167,7 @@ class ParseAccumulator {
   // field_mask_ and field_transforms_ are shared across all active context
   // objects to accumulate the result. All ChildContext objects append their
   // results here.
-  std::vector<model::FieldPath> field_mask_;
+  std::set<model::FieldPath> field_mask_;
   std::vector<model::FieldTransform> field_transforms_;
 };
 
@@ -265,7 +266,7 @@ class ParsedSetData {
    *
    * This method consumes the values stored in the ParsedSetData
    */
-  NSArray<FSTMutation*>* ToMutations(
+  std::vector<FSTMutation*> ToMutations(
       const model::DocumentKey& key,
       const model::Precondition& precondition) &&;
 
@@ -298,7 +299,7 @@ class ParsedUpdateData {
    *
    * This method consumes the values stored in the ParsedUpdateData
    */
-  NSArray<FSTMutation*>* ToMutations(
+  std::vector<FSTMutation*> ToMutations(
       const model::DocumentKey& key,
       const model::Precondition& precondition) &&;
 

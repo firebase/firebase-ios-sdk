@@ -58,8 +58,8 @@ FSTPBTargetGlobal* LevelDbQueryCache::ReadMetadata(leveldb::DB* db) {
                                         freeWhenDone:NO];
 
   NSError* error;
-  FSTPBTargetGlobal* proto =
-      [FSTPBTargetGlobal parseFromData:data error:&error];
+  FSTPBTargetGlobal* proto = [FSTPBTargetGlobal parseFromData:data
+                                                        error:&error];
   if (!proto) {
     HARD_FAIL("FSTPBTargetGlobal failed to parse: %s", error);
   }
@@ -153,11 +153,10 @@ FSTQueryData* _Nullable LevelDbQueryCache::GetTarget(FSTQuery* query) {
     std::string target_key = LevelDbTargetKey::Key(row_key.target_id());
     target_iterator->Seek(target_key);
     if (!target_iterator->Valid() || target_iterator->key() != target_key) {
-      HARD_FAIL(
-          "Dangling query-target reference found: "
-          "%s points to %s; seeking there found %s",
-          DescribeKey(index_iterator), DescribeKey(target_key),
-          DescribeKey(target_iterator));
+      HARD_FAIL("Dangling query-target reference found: "
+                "%s points to %s; seeking there found %s",
+                DescribeKey(index_iterator), DescribeKey(target_key),
+                DescribeKey(target_iterator));
     }
 
     // Finally after finding a potential match, check that the query is actually
@@ -186,7 +185,7 @@ void LevelDbQueryCache::EnumerateTargets(TargetEnumerator block) {
 
 int LevelDbQueryCache::RemoveTargets(
     ListenSequenceNumber upper_bound,
-    NSDictionary<NSNumber*, FSTQueryData*>* live_targets) {
+    const std::unordered_map<model::TargetId, FSTQueryData*>& live_targets) {
   int count = 0;
   std::string target_prefix = LevelDbTargetKey::KeyPrefix();
   auto it = db_.currentTransaction->NewIterator();
@@ -195,7 +194,7 @@ int LevelDbQueryCache::RemoveTargets(
        it->Next()) {
     FSTQueryData* query_data = DecodeTarget(it->value());
     if (query_data.sequenceNumber <= upper_bound &&
-        !live_targets[@(query_data.targetID)]) {
+        live_targets.find(query_data.targetID) == live_targets.end()) {
       RemoveTarget(query_data);
       count++;
     }

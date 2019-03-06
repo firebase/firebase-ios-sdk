@@ -79,10 +79,10 @@ static NSString *const kInputEmailKey = @"identifier";
  */
 static NSString *const kTestInputEmail = @"testInputEmail";
 
-/** @var kPendingIDTokenKey
-    @brief The key for the "pendingIdToken" value in the request.
+/** @var kPendingTokenKey
+    @brief The key for the "pendingToken" value in the request.
  */
-static NSString *const kPendingIDTokenKey = @"pendingIdToken";
+static NSString *const kPendingTokenKey = @"pendingToken";
 
 /** @var kTestPendingToken
     @brief Fake pending token used for testing.
@@ -216,7 +216,7 @@ static NSString *const kAutoCreateKey = @"autoCreate";
   request.providerAccessToken = kTestProviderAccessToken;
   request.accessToken = kTestAccessToken;
   request.inputEmail = kTestInputEmail;
-  request.pendingIDToken = kTestPendingToken;
+  request.pendingToken = kTestPendingToken;
   request.providerOAuthTokenSecret = kTestProviderOAuthTokenSecret;
   request.autoCreate = NO;
 

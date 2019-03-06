@@ -17,6 +17,8 @@
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 
 #include <cinttypes>
+#include <utility>
+#include <vector>
 
 #import "FIRTimestamp.h"
 #import "Firestore/Protos/objc/firestore/local/MaybeDocument.pbobjc.h"
@@ -87,8 +89,8 @@ using firebase::firestore::model::TargetId;
 - (FSTMaybeDocument *)decodedMaybeDocument:(FSTPBMaybeDocument *)proto {
   switch (proto.documentTypeOneOfCase) {
     case FSTPBMaybeDocument_DocumentType_OneOfCase_Document:
-      return
-          [self decodedDocument:proto.document withCommittedMutations:proto.hasCommittedMutations];
+      return [self decodedDocument:proto.document
+            withCommittedMutations:proto.hasCommittedMutations];
 
     case FSTPBMaybeDocument_DocumentType_OneOfCase_NoDocument:
       return [self decodedDeletedDocument:proto.noDocument
@@ -182,11 +184,11 @@ using firebase::firestore::model::TargetId;
       encodedTimestamp:Timestamp{batch.localWriteTime.seconds, batch.localWriteTime.nanoseconds}];
 
   NSMutableArray<GCFSWrite *> *baseWrites = proto.baseWritesArray;
-  for (FSTMutation *baseMutation in batch.baseMutations) {
+  for (FSTMutation *baseMutation : [batch baseMutations]) {
     [baseWrites addObject:[remoteSerializer encodedMutation:baseMutation]];
   }
   NSMutableArray<GCFSWrite *> *writes = proto.writesArray;
-  for (FSTMutation *mutation in batch.mutations) {
+  for (FSTMutation *mutation : [batch mutations]) {
     [writes addObject:[remoteSerializer encodedMutation:mutation]];
   }
   return proto;
@@ -197,13 +199,13 @@ using firebase::firestore::model::TargetId;
 
   int batchID = batch.batchId;
 
-  NSMutableArray<FSTMutation *> *baseMutations = [NSMutableArray array];
+  std::vector<FSTMutation *> baseMutations;
   for (GCFSWrite *write in batch.baseWritesArray) {
-    [baseMutations addObject:[remoteSerializer decodedMutation:write]];
+    baseMutations.push_back([remoteSerializer decodedMutation:write]);
   }
-  NSMutableArray<FSTMutation *> *mutations = [NSMutableArray array];
+  std::vector<FSTMutation *> mutations;
   for (GCFSWrite *write in batch.writesArray) {
-    [mutations addObject:[remoteSerializer decodedMutation:write]];
+    mutations.push_back([remoteSerializer decodedMutation:write]);
   }
 
   Timestamp localWriteTime = [remoteSerializer decodedTimestamp:batch.localWriteTime];
@@ -212,8 +214,8 @@ using firebase::firestore::model::TargetId;
       initWithBatchID:batchID
        localWriteTime:[FIRTimestamp timestampWithSeconds:localWriteTime.seconds()
                                              nanoseconds:localWriteTime.nanoseconds()]
-        baseMutations:baseMutations
-            mutations:mutations];
+        baseMutations:std::move(baseMutations)
+            mutations:std::move(mutations)];
 }
 
 - (FSTPBTarget *)encodedQueryData:(FSTQueryData *)queryData {

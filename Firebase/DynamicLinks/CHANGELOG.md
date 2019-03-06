@@ -1,3 +1,9 @@
+# v3.4.1
+- Return call validation for sysctlbyname. (#2394)
+
+# v3.4.0
+- Bug fixes and internal SDK changes. (#2238, #2220)
+
 # v3.3.0
 - Introduced a new componentsWithLink:domainURIPrefix: and deprecated the existing componentsWithLink:domain:. (#1962, #2017, #2078, #2097, #2112)
 

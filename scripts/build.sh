@@ -27,7 +27,7 @@ USAGE: $0 product [platform] [method]
 product can be one of:
   Firebase
   Firestore
-  InAppMessagingDisplay
+  InAppMessaging
   SymbolCollision
 
 platform can be one of:
@@ -69,6 +69,8 @@ fi
 # Runs xcodebuild with the given flags, piping output to xcpretty
 # If xcodebuild fails with known error codes, retries once.
 function RunXcodebuild() {
+  echo xcodebuild "$@"
+
   xcodebuild "$@" | xcpretty; result=$?
   if [[ $result == 65 ]]; then
     echo "xcodebuild exited with 65, retrying" 1>&2
@@ -114,6 +116,7 @@ xcb_flags+=(
   ONLY_ACTIVE_ARCH=YES
   CODE_SIGNING_REQUIRED=NO
   CODE_SIGNING_ALLOWED=YES
+  COMPILER_INDEX_STORE_ENABLE=NO
 )
 
 # TODO(varconst): --warn-unused-vars - right now, it makes the log overflow on
@@ -193,6 +196,13 @@ case "$product-$method-$platform" in
       if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
         RunXcodebuild \
           -workspace 'Example/Firebase.xcworkspace' \
+          -scheme "Auth_ApiTests" \
+          "${xcb_flags[@]}" \
+          build \
+          test
+
+        RunXcodebuild \
+          -workspace 'Example/Firebase.xcworkspace' \
           -scheme "Storage_IntegrationTests_iOS" \
           "${xcb_flags[@]}" \
           build \
@@ -231,7 +241,25 @@ case "$product-$method-$platform" in
     fi
     ;;
 
-  InAppMessagingDisplay-xcodebuild-iOS)
+  InAppMessaging-xcodebuild-iOS)
+    RunXcodebuild \
+        -workspace 'InAppMessaging/Example/InAppMessaging-Example-iOS.xcworkspace'  \
+        -scheme 'InAppMessaging_Example_iOS' \
+        "${xcb_flags[@]}" \
+        build \
+        test
+
+    cd InAppMessaging/Example
+    sed -i -e 's/use_frameworks/\#use_frameworks/' Podfile
+    pod update --no-repo-update
+    cd ../..
+    RunXcodebuild \
+        -workspace 'InAppMessaging/Example/InAppMessaging-Example-iOS.xcworkspace'  \
+        -scheme 'InAppMessaging_Example_iOS' \
+        "${xcb_flags[@]}" \
+        build \
+        test
+
     # Run UI tests on both iPad and iPhone simulators
     # TODO: Running two destinations from one xcodebuild command stopped working with Xcode 10.
     # Consider separating static library tests to a separate job.
@@ -295,16 +323,6 @@ case "$product-$method-$platform" in
         "${xcb_flags[@]}" \
         build
 
-    # Firestore_FuzzTests_iOS require a Clang that supports -fsanitize-coverage=trace-pc-guard
-    # and cannot run with thread sanitizer.
-    if [[ "$xcode_major" -ge 9 ]] && ! [[ -n "${SANITIZERS:-}" && "$SANITIZERS" = *"tsan"* ]]; then
-      RunXcodebuild \
-          -workspace 'Firestore/Example/Firestore.xcworkspace' \
-          -scheme "Firestore_FuzzTests_iOS" \
-          "${xcb_flags[@]}" \
-          FUZZING_TARGET="NONE" \
-          test
-    fi
     ;;
 
   Firestore-cmake-macOS)

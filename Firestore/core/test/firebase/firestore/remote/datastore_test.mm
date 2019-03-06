@@ -16,10 +16,12 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/util/fake_credentials_provider.h"
 #include "Firestore/core/test/firebase/firestore/util/grpc_stream_tester.h"
@@ -47,6 +49,7 @@ using util::ExecutorLibdispatch;
 using util::CompletionResult::Error;
 using util::CompletionResult::Ok;
 using util::ExecutorStd;
+using util::Status;
 using Type = GrpcCompletion::Type;
 
 namespace {
@@ -90,10 +93,8 @@ std::shared_ptr<FakeDatastore> CreateDatastore(
     const DatabaseInfo& database_info,
     AsyncQueue* worker_queue,
     CredentialsProvider* credentials) {
-  return std::make_shared<FakeDatastore>(
-      database_info, worker_queue, credentials,
-      [[FSTSerializerBeta alloc]
-          initWithDatabaseID:&database_info.database_id()]);
+  return std::make_shared<FakeDatastore>(database_info, worker_queue,
+                                         credentials);
 }
 
 }  // namespace
@@ -103,7 +104,7 @@ class DatastoreTest : public testing::Test {
   DatastoreTest()
       : worker_queue{absl::make_unique<ExecutorLibdispatch>(
             dispatch_queue_create("datastore_test", DISPATCH_QUEUE_SERIAL))},
-        database_info{DatabaseId{"p", "d"}, "", "", false},
+        database_info{DatabaseId{"p", "d"}, "", "some.host", false},
         datastore{CreateDatastore(database_info, &worker_queue, &credentials)},
         fake_grpc_queue{datastore->queue()} {
     // Deliberately don't `Start` the `Datastore` to prevent normal gRPC
@@ -161,23 +162,22 @@ TEST_F(DatastoreTest, WhitelistedHeaders) {
       {"x-google-service", "service 2"},  // Duplicate names are allowed
   };
   std::string result = Datastore::GetWhitelistedHeadersAsString(headers);
-  EXPECT_EQ(result,
-            "date: date value\n"
-            "x-google-backends: backend value\n"
-            "x-google-gfe-request-trace: request trace\n"
-            "x-google-netmon-label: netmon label\n"
-            "x-google-service: service 1\n"
-            "x-google-service: service 2\n");
+  EXPECT_EQ(result, "date: date value\n"
+                    "x-google-backends: backend value\n"
+                    "x-google-gfe-request-trace: request trace\n"
+                    "x-google-netmon-label: netmon label\n"
+                    "x-google-service: service 1\n"
+                    "x-google-service: service 2\n");
 }
 
 // Normal operation
 
 TEST_F(DatastoreTest, CommitMutationsSuccess) {
-  __block bool done = false;
-  __block NSError* resulting_error = nullptr;
-  datastore->CommitMutations(@[], ^(NSError* _Nullable error) {
+  bool done = false;
+  Status resulting_status;
+  datastore->CommitMutations({}, [&](const Status& status) {
     done = true;
-    resulting_error = error;
+    resulting_status = status;
   });
   // Make sure Auth has a chance to run.
   worker_queue.EnqueueBlocking([] {});
@@ -185,20 +185,20 @@ TEST_F(DatastoreTest, CommitMutationsSuccess) {
   ForceFinish({{Type::Finish, grpc::Status::OK}});
 
   EXPECT_TRUE(done);
-  EXPECT_EQ(resulting_error, nullptr);
+  EXPECT_TRUE(resulting_status.ok());
 }
 
 TEST_F(DatastoreTest, LookupDocumentsOneSuccessfulRead) {
-  __block bool done = false;
-  __block NSArray<FSTMaybeDocument*>* resulting_docs = nullptr;
-  __block NSError* resulting_error = nullptr;
-  datastore->LookupDocuments({},
-                             ^(NSArray<FSTMaybeDocument*>* _Nullable documents,
-                               NSError* _Nullable error) {
-                               done = true;
-                               resulting_docs = documents;
-                               resulting_error = error;
-                             });
+  bool done = false;
+  std::vector<FSTMaybeDocument*> resulting_docs;
+  Status resulting_status;
+  datastore->LookupDocuments(
+      {}, [&](const std::vector<FSTMaybeDocument*>& documents,
+              const Status& status) {
+        done = true;
+        resulting_docs = documents;
+        resulting_status = status;
+      });
   // Make sure Auth has a chance to run.
   worker_queue.EnqueueBlocking([] {});
 
@@ -208,23 +208,22 @@ TEST_F(DatastoreTest, LookupDocumentsOneSuccessfulRead) {
   ForceFinish({{Type::Finish, grpc::Status::OK}});
 
   EXPECT_TRUE(done);
-  ASSERT_NE(resulting_docs, nullptr);
-  EXPECT_EQ(resulting_docs.count, 1);
-  EXPECT_EQ([[resulting_docs objectAtIndex:0] key].ToString(), "foo/1");
-  EXPECT_EQ(resulting_error, nullptr);
+  EXPECT_EQ(resulting_docs.size(), 1);
+  EXPECT_EQ(resulting_docs[0].key.ToString(), "foo/1");
+  EXPECT_TRUE(resulting_status.ok());
 }
 
 TEST_F(DatastoreTest, LookupDocumentsTwoSuccessfulReads) {
-  __block bool done = false;
-  __block NSArray<FSTMaybeDocument*>* resulting_docs = nullptr;
-  __block NSError* resulting_error = nullptr;
-  datastore->LookupDocuments({},
-                             ^(NSArray<FSTMaybeDocument*>* _Nullable documents,
-                               NSError* _Nullable error) {
-                               done = true;
-                               resulting_docs = documents;
-                               resulting_error = error;
-                             });
+  bool done = false;
+  std::vector<FSTMaybeDocument*> resulting_docs;
+  Status resulting_status;
+  datastore->LookupDocuments(
+      {}, [&](const std::vector<FSTMaybeDocument*>& documents,
+              const Status& status) {
+        done = true;
+        resulting_docs = documents;
+        resulting_status = status;
+      });
   // Make sure Auth has a chance to run.
   worker_queue.EnqueueBlocking([] {});
 
@@ -235,21 +234,20 @@ TEST_F(DatastoreTest, LookupDocumentsTwoSuccessfulReads) {
   ForceFinish({{Type::Finish, grpc::Status::OK}});
 
   EXPECT_TRUE(done);
-  ASSERT_NE(resulting_docs, nullptr);
-  EXPECT_EQ(resulting_docs.count, 2);
-  EXPECT_EQ([[resulting_docs objectAtIndex:0] key].ToString(), "foo/1");
-  EXPECT_EQ([[resulting_docs objectAtIndex:1] key].ToString(), "foo/2");
-  EXPECT_EQ(resulting_error, nullptr);
+  EXPECT_EQ(resulting_docs.size(), 2);
+  EXPECT_EQ(resulting_docs[0].key.ToString(), "foo/1");
+  EXPECT_EQ(resulting_docs[1].key.ToString(), "foo/2");
+  EXPECT_TRUE(resulting_status.ok());
 }
 
 // gRPC errors
 
 TEST_F(DatastoreTest, CommitMutationsError) {
-  __block bool done = false;
-  __block NSError* resulting_error = nullptr;
-  datastore->CommitMutations(@[], ^(NSError* _Nullable error) {
+  bool done = false;
+  Status resulting_status;
+  datastore->CommitMutations({}, [&](const Status& status) {
     done = true;
-    resulting_error = error;
+    resulting_status = status;
   });
   // Make sure Auth has a chance to run.
   worker_queue.EnqueueBlocking([] {});
@@ -257,18 +255,19 @@ TEST_F(DatastoreTest, CommitMutationsError) {
   ForceFinish({{Type::Finish, grpc::Status{grpc::UNAVAILABLE, ""}}});
 
   EXPECT_TRUE(done);
-  EXPECT_NE(resulting_error, nullptr);
+  EXPECT_FALSE(resulting_status.ok());
+  EXPECT_EQ(resulting_status.code(), FirestoreErrorCode::Unavailable);
 }
 
 TEST_F(DatastoreTest, LookupDocumentsErrorBeforeFirstRead) {
-  __block bool done = false;
-  __block NSError* resulting_error = nullptr;
-  datastore->LookupDocuments({},
-                             ^(NSArray<FSTMaybeDocument*>* _Nullable documents,
-                               NSError* _Nullable error) {
-                               done = true;
-                               resulting_error = error;
-                             });
+  bool done = false;
+  Status resulting_status;
+  datastore->LookupDocuments(
+      {}, [&](const std::vector<FSTMaybeDocument*>& documents,
+              const Status& status) {
+        done = true;
+        resulting_status = status;
+      });
   // Make sure Auth has a chance to run.
   worker_queue.EnqueueBlocking([] {});
 
@@ -276,19 +275,20 @@ TEST_F(DatastoreTest, LookupDocumentsErrorBeforeFirstRead) {
   ForceFinish({{Type::Finish, grpc::Status{grpc::UNAVAILABLE, ""}}});
 
   EXPECT_TRUE(done);
-  EXPECT_NE(resulting_error, nullptr);
+  EXPECT_FALSE(resulting_status.ok());
+  EXPECT_EQ(resulting_status.code(), FirestoreErrorCode::Unavailable);
 }
 
 TEST_F(DatastoreTest, LookupDocumentsErrorAfterFirstRead) {
-  __block bool done = false;
-  __block NSArray<FSTMaybeDocument*>* resulting_docs = nullptr;
-  __block NSError* resulting_error = nullptr;
-  datastore->LookupDocuments({},
-                             ^(NSArray<FSTMaybeDocument*>* _Nullable documents,
-                               NSError* _Nullable error) {
-                               done = true;
-                               resulting_error = error;
-                             });
+  bool done = false;
+  std::vector<FSTMaybeDocument*> resulting_docs;
+  Status resulting_status;
+  datastore->LookupDocuments(
+      {}, [&](const std::vector<FSTMaybeDocument*>& documents,
+              const Status& status) {
+        done = true;
+        resulting_status = status;
+      });
   // Make sure Auth has a chance to run.
   worker_queue.EnqueueBlocking([] {});
 
@@ -298,8 +298,9 @@ TEST_F(DatastoreTest, LookupDocumentsErrorAfterFirstRead) {
   ForceFinish({{Type::Finish, grpc::Status{grpc::UNAVAILABLE, ""}}});
 
   EXPECT_TRUE(done);
-  EXPECT_EQ(resulting_docs, nullptr);
-  EXPECT_NE(resulting_error, nullptr);
+  EXPECT_TRUE(resulting_docs.empty());
+  EXPECT_FALSE(resulting_status.ok());
+  EXPECT_EQ(resulting_status.code(), FirestoreErrorCode::Unavailable);
 }
 
 // Auth errors
@@ -307,31 +308,30 @@ TEST_F(DatastoreTest, LookupDocumentsErrorAfterFirstRead) {
 TEST_F(DatastoreTest, CommitMutationsAuthFailure) {
   credentials.FailGetToken();
 
-  __block NSError* resulting_error = nullptr;
-  datastore->CommitMutations(@[], ^(NSError* _Nullable error) {
-    resulting_error = error;
-  });
+  Status resulting_status;
+  datastore->CommitMutations(
+      {}, [&](const Status& status) { resulting_status = status; });
   worker_queue.EnqueueBlocking([] {});
-  EXPECT_NE(resulting_error, nullptr);
+  EXPECT_FALSE(resulting_status.ok());
 }
 
 TEST_F(DatastoreTest, LookupDocumentsAuthFailure) {
   credentials.FailGetToken();
 
-  __block NSError* resulting_error = nullptr;
+  Status resulting_status;
   datastore->LookupDocuments(
-      {}, ^(NSArray<FSTMaybeDocument*>* docs, NSError* _Nullable error) {
-        resulting_error = error;
+      {}, [&](const std::vector<FSTMaybeDocument*>&, const Status& status) {
+        resulting_status = status;
       });
   worker_queue.EnqueueBlocking([] {});
-  EXPECT_NE(resulting_error, nullptr);
+  EXPECT_FALSE(resulting_status.ok());
 }
 
 TEST_F(DatastoreTest, AuthAfterDatastoreHasBeenShutDown) {
   credentials.DelayGetToken();
 
   worker_queue.EnqueueBlocking([&] {
-    datastore->CommitMutations(@[], ^(NSError* _Nullable error) {
+    datastore->CommitMutations({}, [](const Status& status) {
       FAIL() << "Callback shouldn't be invoked";
     });
   });
@@ -344,7 +344,7 @@ TEST_F(DatastoreTest, AuthOutlivesDatastore) {
   credentials.DelayGetToken();
 
   worker_queue.EnqueueBlocking([&] {
-    datastore->CommitMutations(@[], ^(NSError* _Nullable error) {
+    datastore->CommitMutations({}, [](const Status& status) {
       FAIL() << "Callback shouldn't be invoked";
     });
   });
@@ -352,6 +352,37 @@ TEST_F(DatastoreTest, AuthOutlivesDatastore) {
   datastore.reset();
 
   EXPECT_NO_THROW(credentials.InvokeGetToken());
+}
+
+// Error classification
+
+TEST_F(DatastoreTest, IsPermanentError) {
+  EXPECT_FALSE(
+      Datastore::IsPermanentError(Status{FirestoreErrorCode::Cancelled, ""}));
+  EXPECT_FALSE(Datastore::IsPermanentError(
+      Status{FirestoreErrorCode::ResourceExhausted, ""}));
+  EXPECT_FALSE(
+      Datastore::IsPermanentError(Status{FirestoreErrorCode::Unavailable, ""}));
+  // User info doesn't matter:
+  EXPECT_FALSE(Datastore::IsPermanentError(
+      Status{FirestoreErrorCode::Unavailable, "Connectivity lost"}));
+  // "unauthenticated" is considered a recoverable error due to expired token.
+  EXPECT_FALSE(Datastore::IsPermanentError(
+      Status{FirestoreErrorCode::Unauthenticated, ""}));
+
+  EXPECT_TRUE(
+      Datastore::IsPermanentError(Status{FirestoreErrorCode::DataLoss, ""}));
+  EXPECT_TRUE(
+      Datastore::IsPermanentError(Status{FirestoreErrorCode::Aborted, ""}));
+}
+
+TEST_F(DatastoreTest, IsPermanentWriteError) {
+  EXPECT_FALSE(Datastore::IsPermanentWriteError(
+      Status{FirestoreErrorCode::Unauthenticated, ""}));
+  EXPECT_TRUE(Datastore::IsPermanentWriteError(
+      Status{FirestoreErrorCode::DataLoss, ""}));
+  EXPECT_FALSE(Datastore::IsPermanentWriteError(
+      Status{FirestoreErrorCode::Aborted, ""}));
 }
 
 }  // namespace remote

@@ -21,6 +21,8 @@
 #import "FIRGameCenterAuthProvider.h"
 #import "FIRVerifyAssertionRequest.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @implementation FIRGameCenterAuthCredential
 
 - (nullable instancetype)initWithProvider:(NSString *)provider {
@@ -52,4 +54,37 @@
       @"Attempt to call prepareVerifyAssertionRequest: on a FIRGameCenterAuthCredential."];
 }
 
+#pragma mark - NSSecureCoding
+
++ (BOOL)supportsSecureCoding {
+  return YES;
+}
+
+- (nullable instancetype)initWithCoder:(NSCoder *)aDecoder {
+  NSString *playerID = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"playerID"];
+  NSURL *publicKeyURL = [aDecoder decodeObjectOfClass:[NSURL class] forKey:@"publicKeyURL"];
+  NSData *signature = [aDecoder decodeObjectOfClass:[NSData class] forKey:@"signature"];
+  NSData *salt = [aDecoder decodeObjectOfClass:[NSData class] forKey:@"salt"];
+  NSNumber *timestamp = [aDecoder decodeObjectOfClass:[NSNumber class] forKey:@"timestamp"];
+  NSString *displayName = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"displayName"];
+  self = [self initWithPlayerID:playerID
+                   publicKeyURL:publicKeyURL
+                      signature:signature
+                           salt:salt
+                      timestamp:timestamp.unsignedLongLongValue
+                    displayName:displayName];
+  return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)aCoder {
+  [aCoder encodeObject:self.playerID forKey:@"playerID"];
+  [aCoder encodeObject:self.publicKeyURL forKey:@"publicKeyURL"];
+  [aCoder encodeObject:self.signature forKey:@"signature"];
+  [aCoder encodeObject:self.salt forKey:@"salt"];
+  [aCoder encodeObject:[NSNumber numberWithUnsignedLongLong:self.timestamp] forKey:@"timestamp"];
+  [aCoder encodeObject:self.displayName forKey:@"displayName"];
+}
+
 @end
+
+NS_ASSUME_NONNULL_END

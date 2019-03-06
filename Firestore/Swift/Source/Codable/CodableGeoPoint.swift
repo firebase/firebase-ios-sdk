@@ -24,7 +24,7 @@ import FirebaseFirestore
  * marked required but that can't be done in an extension. Declaring the extension on the protocol
  * sidesteps this issue.
  */
-fileprivate protocol CodableGeoPoint: Codable {
+private protocol CodableGeoPoint: Codable {
   var latitude: Double { get }
   var longitude: Double { get }
 
@@ -32,7 +32,7 @@ fileprivate protocol CodableGeoPoint: Codable {
 }
 
 /** The keys in a GeoPoint. Must match the properties of CodableGeoPoint. */
-fileprivate enum GeoPointKeys: String, CodingKey {
+private enum GeoPointKeys: String, CodingKey {
   case latitude
   case longitude
 }

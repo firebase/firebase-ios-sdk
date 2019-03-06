@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#import <FirebaseInAppMessaging/FIRInAppMessagingRendering.h>
-
 #import "FIDImageOnlyViewController.h"
 #import "FIRCore+InAppMessagingDisplay.h"
 
@@ -37,8 +35,8 @@
                                 displayDelegate:
                                     (id<FIRInAppMessagingDisplayDelegate>)displayDelegate
                                     timeFetcher:(id<FIDTimeFetcher>)timeFetcher {
-  UIStoryboard *storyboard =
-      [UIStoryboard storyboardWithName:@"FIRInAppMessageDisplayStoryboard" bundle:resourceBundle];
+  UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"FIRInAppMessageDisplayStoryboard"
+                                                       bundle:resourceBundle];
 
   if (storyboard == nil) {
     FIRLogError(kFIRLoggerInAppMessagingDisplay, @"I-FID300002",
@@ -54,6 +52,10 @@
   imageOnlyVC.timeFetcher = timeFetcher;
 
   return imageOnlyVC;
+}
+
+- (FIRInAppMessagingDisplayMessage *)inAppMessage {
+  return self.imageOnlyMessage;
 }
 
 - (IBAction)closeButtonClicked:(id)sender {
@@ -151,7 +153,7 @@
                                              to:nil
                                            from:nil
                                        forEvent:nil];
-  if (self.imageOnlyMessage.renderAsTestMessage) {
+  if (self.imageOnlyMessage.campaignInfo.renderAsTestMessage) {
     FIRLogDebug(kFIRLoggerInAppMessagingDisplay, @"I-FID110004",
                 @"Flashing the close button since this is a test message.");
     [self flashCloseButton:self.closeButton];

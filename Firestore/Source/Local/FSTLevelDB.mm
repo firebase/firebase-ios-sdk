@@ -17,12 +17,11 @@
 #import "Firestore/Source/Local/FSTLevelDB.h"
 
 #include <memory>
+#include <unordered_map>
 #include <utility>
 
 #import "FIRFirestoreErrors.h"
-#import "Firestore/Source/Core/FSTListenSequence.h"
 #import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
-#import "Firestore/Source/Local/FSTLevelDBMutationQueue.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
@@ -30,15 +29,18 @@
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_migrations.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_mutation_queue.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_query_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_util.h"
+#include "Firestore/core/src/firebase/firestore/local/listen_sequence.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 #include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/util/filesystem.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
@@ -61,9 +63,11 @@ using firebase::firestore::local::LevelDbDocumentMutationKey;
 using firebase::firestore::local::LevelDbDocumentTargetKey;
 using firebase::firestore::local::LevelDbMigrations;
 using firebase::firestore::local::LevelDbMutationKey;
+using firebase::firestore::local::LevelDbMutationQueue;
 using firebase::firestore::local::LevelDbQueryCache;
 using firebase::firestore::local::LevelDbRemoteDocumentCache;
 using firebase::firestore::local::LevelDbTransaction;
+using firebase::firestore::local::ListenSequence;
 using firebase::firestore::local::LruParams;
 using firebase::firestore::local::ReferenceSet;
 using firebase::firestore::local::RemoteDocumentCache;
@@ -71,6 +75,7 @@ using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::ListenSequenceNumber;
 using firebase::firestore::model::ResourcePath;
+using firebase::firestore::model::TargetId;
 using firebase::firestore::util::OrderedCode;
 using firebase::firestore::util::Path;
 using firebase::firestore::util::Status;
@@ -89,7 +94,9 @@ static const char *kReservedPathComponent = "firestore";
 
 @property(nonatomic, assign, getter=isStarted) BOOL started;
 
-- (firebase::firestore::local::LevelDbQueryCache *)queryCache;
+- (LevelDbQueryCache *)queryCache;
+
+- (LevelDbMutationQueue *)mutationQueueForUser:(const User &)user;
 
 @end
 
@@ -116,7 +123,8 @@ static const char *kReservedPathComponent = "firestore";
   __weak FSTLevelDB *_db;
   ReferenceSet *_additionalReferences;
   ListenSequenceNumber _currentSequenceNumber;
-  FSTListenSequence *_listenSequence;
+  // PORTING NOTE: doesn't need to be a pointer once this class is ported to C++.
+  std::unique_ptr<ListenSequence> _listenSequence;
 }
 
 - (instancetype)initWithPersistence:(FSTLevelDB *)persistence lruParams:(LruParams)lruParams {
@@ -130,13 +138,13 @@ static const char *kReservedPathComponent = "firestore";
 
 - (void)start {
   ListenSequenceNumber highestSequenceNumber = _db.queryCache->highest_listen_sequence_number();
-  _listenSequence = [[FSTListenSequence alloc] initStartingAfter:highestSequenceNumber];
+  _listenSequence = absl::make_unique<ListenSequence>(highestSequenceNumber);
 }
 
 - (void)transactionWillStart {
   HARD_ASSERT(_currentSequenceNumber == kFSTListenSequenceNumberInvalid,
               "Previous sequence number is still in effect");
-  _currentSequenceNumber = [_listenSequence next];
+  _currentSequenceNumber = _listenSequence->Next();
 }
 
 - (void)transactionWillCommit {
@@ -227,7 +235,8 @@ static const char *kReservedPathComponent = "firestore";
 }
 
 - (int)removeTargetsThroughSequenceNumber:(ListenSequenceNumber)sequenceNumber
-                              liveQueries:(NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries {
+                              liveQueries:(const std::unordered_map<TargetId, FSTQueryData *> &)
+                                              liveQueries {
   return _db.queryCache->RemoveTargets(sequenceNumber, liveQueries);
 }
 
@@ -274,6 +283,7 @@ static const char *kReservedPathComponent = "firestore";
   FSTLevelDBLRUDelegate *_referenceDelegate;
   std::unique_ptr<LevelDbQueryCache> _queryCache;
   std::set<std::string> _users;
+  std::unique_ptr<LevelDbMutationQueue> _currentMutationQueue;
 }
 
 /**
@@ -341,8 +351,8 @@ static const char *kReservedPathComponent = "firestore";
     _serializer = serializer;
     _queryCache = absl::make_unique<LevelDbQueryCache>(self, _serializer);
     _documentCache = absl::make_unique<LevelDbRemoteDocumentCache>(self, _serializer);
-    _referenceDelegate =
-        [[FSTLevelDBLRUDelegate alloc] initWithPersistence:self lruParams:lruParams];
+    _referenceDelegate = [[FSTLevelDBLRUDelegate alloc] initWithPersistence:self
+                                                                  lruParams:lruParams];
     _transactionRunner.SetBackingPersistence(self);
     _users = std::move(users);
     // TODO(gsoltis): set up a leveldb transaction for these operations.
@@ -383,7 +393,7 @@ static const char *kReservedPathComponent = "firestore";
       NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
   return Path::FromNSString(directories[0]).AppendUtf8(kReservedPathComponent);
 
-#elif TARGET_OS_MAC
+#elif TARGET_OS_OSX
   std::string dotPrefixed = absl::StrCat(".", kReservedPathComponent);
   return Path::FromNSString(NSHomeDirectory()).AppendUtf8(dotPrefixed);
 
@@ -457,9 +467,10 @@ static const char *kReservedPathComponent = "firestore";
 
 #pragma mark - Persistence Factory methods
 
-- (id<FSTMutationQueue>)mutationQueueForUser:(const User &)user {
+- (LevelDbMutationQueue *)mutationQueueForUser:(const User &)user {
   _users.insert(user.uid());
-  return [FSTLevelDBMutationQueue mutationQueueWithUser:user db:self serializer:self.serializer];
+  _currentMutationQueue.reset(new LevelDbMutationQueue(user, self, self.serializer));
+  return _currentMutationQueue.get();
 }
 
 - (LevelDbQueryCache *)queryCache {

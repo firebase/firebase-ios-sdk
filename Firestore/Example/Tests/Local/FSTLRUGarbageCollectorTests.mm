@@ -18,18 +18,21 @@
 
 #import <XCTest/XCTest.h>
 
+#include <unordered_map>
 #include <unordered_set>
+#include <utility>
+#include <vector>
 
 #import "FIRTimestamp.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
-#import "Firestore/Source/Local/FSTMutationQueue.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/local/mutation_queue.h"
 #include "Firestore/core/src/firebase/firestore/local/query_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_set.h"
 #include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
@@ -43,6 +46,7 @@ namespace testutil = firebase::firestore::testutil;
 using firebase::firestore::auth::User;
 using firebase::firestore::local::LruParams;
 using firebase::firestore::local::LruResults;
+using firebase::firestore::local::MutationQueue;
 using firebase::firestore::local::QueryCache;
 using firebase::firestore::local::ReferenceSet;
 using firebase::firestore::local::RemoteDocumentCache;
@@ -63,7 +67,7 @@ NS_ASSUME_NONNULL_BEGIN
   id<FSTPersistence> _persistence;
   QueryCache *_queryCache;
   RemoteDocumentCache *_documentCache;
-  id<FSTMutationQueue> _mutationQueue;
+  MutationQueue *_mutationQueue;
   id<FSTLRUDelegate> _lruDelegate;
   FSTLRUGarbageCollector *_gc;
   ListenSequenceNumber _initialSequenceNumber;
@@ -95,7 +99,7 @@ NS_ASSUME_NONNULL_BEGIN
   _mutationQueue = [_persistence mutationQueueForUser:_user];
   _lruDelegate = (id<FSTLRUDelegate>)_persistence.referenceDelegate;
   _initialSequenceNumber = _persistence.run("start querycache", [&]() -> ListenSequenceNumber {
-    [_mutationQueue start];
+    _mutationQueue->Start();
     _gc = _lruDelegate.gc;
     return _persistence.currentSequenceNumber;
   });
@@ -130,7 +134,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (int)removeQueriesThroughSequenceNumber:(ListenSequenceNumber)sequenceNumber
-                              liveQueries:(NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries {
+                              liveQueries:(const std::unordered_map<TargetId, FSTQueryData *> &)
+                                              liveQueries {
   return _persistence.run("gc", [&]() -> int {
     return [_gc removeQueriesUpThroughSequenceNumber:sequenceNumber liveQueries:liveQueries];
   });
@@ -378,18 +383,18 @@ NS_ASSUME_NONNULL_BEGIN
   if ([self isTestBaseClass]) return;
 
   [self newTestResources];
-  NSMutableDictionary<NSNumber *, FSTQueryData *> *liveQueries = [[NSMutableDictionary alloc] init];
+  std::unordered_map<TargetId, FSTQueryData *> liveQueries;
   for (int i = 0; i < 100; i++) {
     FSTQueryData *queryData = [self addNextQuery];
     // Mark odd queries as live so we can test filtering out live queries.
     if (queryData.targetID % 2 == 1) {
-      liveQueries[@(queryData.targetID)] = queryData;
+      liveQueries[queryData.targetID] = queryData;
     }
   }
   // GC up through 20th query, which is 20%.
   // Expect to have GC'd 10 targets, since every other target is live
-  int removed =
-      [self removeQueriesThroughSequenceNumber:20 + _initialSequenceNumber liveQueries:liveQueries];
+  int removed = [self removeQueriesThroughSequenceNumber:20 + _initialSequenceNumber
+                                             liveQueries:liveQueries];
   XCTAssertEqual(10, removed);
   // Make sure we removed the even targets with targetID <= 20.
   _persistence.run("verify remaining targets are > 20 or odd", [&]() {
@@ -409,7 +414,7 @@ NS_ASSUME_NONNULL_BEGIN
   // as any documents with pending mutations.
   std::unordered_set<DocumentKey, DocumentKeyHash> expectedRetained;
   // we add two mutations later, for now track them in an array.
-  NSMutableArray *mutations = [NSMutableArray arrayWithCapacity:2];
+  std::vector<FSTMutation *> mutations;
 
   // Add a target and add two documents to it. The documents are expected to be
   // retained, since their membership in the target keeps them alive.
@@ -423,7 +428,7 @@ NS_ASSUME_NONNULL_BEGIN
     FSTDocument *doc2 = [self cacheADocumentInTransaction];
     [self addDocument:doc2.key toTarget:queryData.targetID];
     expectedRetained.insert(doc2.key);
-    [mutations addObject:[self mutationForDocument:doc2.key]];
+    mutations.push_back([self mutationForDocument:doc2.key]);
   });
 
   // Add a second query and register a third document on it
@@ -437,7 +442,7 @@ NS_ASSUME_NONNULL_BEGIN
   // cache another document and prepare a mutation on it.
   _persistence.run("queue a mutation", [&]() {
     FSTDocument *doc4 = [self cacheADocumentInTransaction];
-    [mutations addObject:[self mutationForDocument:doc4.key]];
+    mutations.push_back([self mutationForDocument:doc4.key]);
     expectedRetained.insert(doc4.key);
   });
 
@@ -445,7 +450,7 @@ NS_ASSUME_NONNULL_BEGIN
   // serve to keep the mutated documents from being GC'd while the mutations are outstanding.
   _persistence.run("actually register the mutations", [&]() {
     FIRTimestamp *writeTime = [FIRTimestamp timestamp];
-    [_mutationQueue addMutationBatchWithWriteTime:writeTime baseMutations:@[] mutations:mutations];
+    _mutationQueue->AddMutationBatch(writeTime, {}, std::move(mutations));
   });
 
   // Mark 5 documents eligible for GC. This simulates documents that were mutated then ack'd.
@@ -639,8 +644,7 @@ NS_ASSUME_NONNULL_BEGIN
   });
 
   // Finally, do the garbage collection, up to but not including the removal of middleTarget
-  NSDictionary<NSNumber *, FSTQueryData *> *liveQueries =
-      @{@(oldestTarget.targetID) : oldestTarget};
+  std::unordered_map<TargetId, FSTQueryData *> liveQueries{{oldestTarget.targetID, oldestTarget}};
 
   int queriesRemoved = [self removeQueriesThroughSequenceNumber:upperBound liveQueries:liveQueries];
   XCTAssertEqual(1, queriesRemoved, @"Expected to remove newest target");
@@ -699,7 +703,7 @@ NS_ASSUME_NONNULL_BEGIN
   });
 
   LruResults results =
-      _persistence.run("GC", [&]() -> LruResults { return [_gc collectWithLiveTargets:@{}]; });
+      _persistence.run("GC", [&]() -> LruResults { return [_gc collectWithLiveTargets:{}]; });
   XCTAssertFalse(results.didRun);
 
   [_persistence shutdown];
@@ -725,7 +729,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Try collection and verify that it didn't run
   LruResults results =
-      _persistence.run("GC", [&]() -> LruResults { return [_gc collectWithLiveTargets:@{}]; });
+      _persistence.run("GC", [&]() -> LruResults { return [_gc collectWithLiveTargets:{}]; });
   XCTAssertFalse(results.didRun);
 
   [_persistence shutdown];
@@ -754,7 +758,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Mark nothing as live, so everything is eligible.
   LruResults results =
-      _persistence.run("GC", [&]() -> LruResults { return [_gc collectWithLiveTargets:@{}]; });
+      _persistence.run("GC", [&]() -> LruResults { return [_gc collectWithLiveTargets:{}]; });
 
   // By default, we collect 10% of the sequence numbers. Since we added 100 targets,
   // that should be 10 targets with 10 documents each, for a total of 100 documents.

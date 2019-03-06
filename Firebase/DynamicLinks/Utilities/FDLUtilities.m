@@ -44,10 +44,10 @@ NSURL *FIRDLCookieRetrievalURL(NSString *urlScheme, NSString *bundleID) {
   components.path = @"/app/_/deeplink";
   NSMutableArray *queryItems = [NSMutableArray array];
 
-  [queryItems
-      addObject:[NSURLQueryItem queryItemWithName:kFDLBundleIDQueryParameterName value:bundleID]];
-  [queryItems
-      addObject:[NSURLQueryItem queryItemWithName:kFDLURLSchemeQueryParameterName value:urlScheme]];
+  [queryItems addObject:[NSURLQueryItem queryItemWithName:kFDLBundleIDQueryParameterName
+                                                    value:bundleID]];
+  [queryItems addObject:[NSURLQueryItem queryItemWithName:kFDLURLSchemeQueryParameterName
+                                                    value:urlScheme]];
   [components setQueryItems:queryItems];
 
   return [components URL];
@@ -169,11 +169,16 @@ NSString *FIRDLDeviceModelName() {
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
     size_t size;
-    sysctlbyname("hw.machine", NULL, &size, NULL, 0);
-    char *machine = calloc(1, size);
-    sysctlbyname("hw.machine", machine, &size, NULL, 0);
-    machineString = [NSString stringWithCString:machine encoding:NSUTF8StringEncoding];
-    free(machine);
+
+    // compute string size
+    if (sysctlbyname("hw.machine", NULL, &size, NULL, 0) == 0) {
+      // get device name
+      char *machine = calloc(1, size);
+      if (sysctlbyname("hw.machine", machine, &size, NULL, 0) == 0) {
+        machineString = [NSString stringWithCString:machine encoding:NSUTF8StringEncoding];
+      }
+      free(machine);
+    }
   });
   return machineString;
 }
@@ -212,10 +217,12 @@ BOOL FIRDLIsURLForWhiteListedCustomDomain(NSURL *_Nullable URL) {
             ([urlStr characterAtIndex:domainURIPrefixStr.length] == '/' ||
              [urlStr characterAtIndex:domainURIPrefixStr.length] == '?')) {
           // Check if there are any more '/' after the first '/' or '?' trailing the
-          // domainURIPrefix.
+          // domainURIPrefix. This does not apply to unique match links copied from the clipboard.
+          // The clipboard links will have '?link=' after the domainURIPrefix.
           NSString *urlWithoutDomainURIPrefix =
               [urlStr substringFromIndex:domainURIPrefixStr.length + 1];
-          if ([urlWithoutDomainURIPrefix rangeOfString:@"/"].location == NSNotFound) {
+          if ([urlWithoutDomainURIPrefix rangeOfString:@"/"].location == NSNotFound ||
+              [urlWithoutDomainURIPrefix rangeOfString:@"?link="].location != NSNotFound) {
             customDomainMatchFound = true;
             break;
           }

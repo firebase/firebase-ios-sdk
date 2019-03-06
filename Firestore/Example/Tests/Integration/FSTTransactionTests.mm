@@ -81,6 +81,7 @@
       runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **error) {
         FIRDocumentSnapshot *snapshot = [transaction getDocument:doc error:error];
         XCTAssertNil(*error);
+        XCTAssertNotNil(snapshot);
         XCTAssertFalse(snapshot.exists);
         [transaction setData:@{@"foo" : @"bar"} forDocument:doc];
         return @YES;
@@ -221,10 +222,7 @@
 
   FIRDocumentSnapshot *snapshot = [self readDocumentForRef:doc];
   XCTAssertEqualObjects(snapshot.data,
-                        (
-                            @{@"a" : @"b",
-                              @"c" : @"d",
-                              @"nested" : @{@"a" : @"b", @"c" : @"d"}}));
+                        (@{@"a" : @"b", @"c" : @"d", @"nested" : @{@"a" : @"b", @"c" : @"d"}}));
 }
 
 - (void)testCannotUpdateNonExistentDocument {
@@ -406,7 +404,7 @@
         // The get itself will fail, because we already read an earlier version of this document.
         // TODO(klimt): Perhaps we shouldn't fail reads for this, but should wait and fail the
         // whole transaction? It's an edge-case anyway, as developers shouldn't be reading the same
-        // do multiple times. But they need to handle read errors anyway.
+        // doc multiple times. But they need to handle read errors anyway.
         XCTAssertNotNil(*error);
         return nil;
       }

@@ -2,8 +2,8 @@
 
 This repository contains a subset of the Firebase iOS SDK source. It currently
 includes FirebaseCore, FirebaseAuth, FirebaseDatabase, FirebaseFirestore,
-FirebaseFunctions, FirebaseInAppMessagingDisplay, FirebaseMessaging and
-FirebaseStorage.
+FirebaseFunctions, FirebaseInstanceID, FirebaseInAppMessaging,
+FirebaseInAppMessagingDisplay, FirebaseMessaging and FirebaseStorage.
 
 The repository also includes GoogleUtilities source. The
 [GoogleUtilities](GoogleUtilities/README.md) pod is
@@ -86,11 +86,15 @@ Firestore and Functions have self contained Xcode projects. See
 
 ### Code Formatting
 
+To ensure that the code is formatted consistently, run the script
+[./scripts/style.sh](https://github.com/firebase/firebase-ios-sdk/blob/master/scripts/style.sh)
+before creating a PR.
+
 Travis will verify that any code changes are done in a style compliant way. Install
 `clang-format` and `swiftformat`.
 This command will get the right `clang-format` version:
 
-`brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/0743d748ba8b41eec074a0a787dc80219142c525/Formula/clang-format.rb`
+`brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/773cb75d360b58f32048f5964038d09825a507c8/Formula/clang-format.rb`
 
 ### Running Unit Tests
 

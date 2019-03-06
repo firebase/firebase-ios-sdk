@@ -32,8 +32,9 @@
   self.fetcher = [GTMSessionFetcher fetcherWithRequest:fetchRequest];
 
   GTMSessionFetcherService *fetcherService = [[GTMSessionFetcherService alloc] init];
-  FIRAuthInteropFake *auth =
-      [[FIRAuthInteropFake alloc] initWithToken:kFIRStorageTestAuthToken userID:nil error:nil];
+  FIRAuthInteropFake *auth = [[FIRAuthInteropFake alloc] initWithToken:kFIRStorageTestAuthToken
+                                                                userID:nil
+                                                                 error:nil];
   self.fetcher.authorizer = [[FIRStorageTokenAuthorizer alloc] initWithGoogleAppID:@"dummyAppID"
                                                                     fetcherService:fetcherService
                                                                       authProvider:auth];
@@ -78,8 +79,9 @@
   NSError *authError = [NSError errorWithDomain:FIRStorageErrorDomain
                                            code:FIRStorageErrorCodeUnauthenticated
                                        userInfo:nil];
-  FIRAuthInteropFake *failedAuth =
-      [[FIRAuthInteropFake alloc] initWithToken:nil userID:nil error:authError];
+  FIRAuthInteropFake *failedAuth = [[FIRAuthInteropFake alloc] initWithToken:nil
+                                                                      userID:nil
+                                                                       error:authError];
   GTMSessionFetcherService *fetcherService = [[GTMSessionFetcherService alloc] init];
   self.fetcher.authorizer = [[FIRStorageTokenAuthorizer alloc] initWithGoogleAppID:@"dummyAppID"
                                                                     fetcherService:fetcherService

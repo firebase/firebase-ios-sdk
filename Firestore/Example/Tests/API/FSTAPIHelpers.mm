@@ -21,6 +21,8 @@
 #import <FirebaseFirestore/FIRSnapshotMetadata.h>
 
 #include <string>
+#include <utility>
+#include <vector>
 
 #import "Firestore/Source/API/FIRCollectionReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
@@ -29,15 +31,18 @@
 #import "Firestore/Source/API/FIRQuerySnapshot+Internal.h"
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
 #import "Firestore/Source/Core/FSTQuery.h"
-#import "Firestore/Source/Core/FSTViewSnapshot.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 
+#include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
 namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
+using firebase::firestore::core::DocumentViewChange;
+using firebase::firestore::core::ViewSnapshot;
+using firebase::firestore::model::DocumentKeySet;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -108,32 +113,29 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
     }
   }
   FSTDocumentSet *newDocuments = oldDocuments;
-  NSArray<FSTDocumentViewChange *> *documentChanges = [NSArray array];
+  std::vector<DocumentViewChange> documentChanges;
   for (NSString *key in docsToAdd) {
     FSTDocument *docToAdd =
         FSTTestDoc(util::StringFormat("%s/%s", path, key), 1, docsToAdd[key],
                    hasPendingWrites ? FSTDocumentStateLocalMutations : FSTDocumentStateSynced);
     newDocuments = [newDocuments documentSetByAddingDocument:docToAdd];
-    documentChanges = [documentChanges
-        arrayByAddingObject:[FSTDocumentViewChange
-                                changeWithDocument:docToAdd
-                                              type:FSTDocumentViewChangeTypeAdded]];
+    documentChanges.emplace_back(docToAdd, DocumentViewChange::Type::kAdded);
     if (hasPendingWrites) {
       const std::string documentKey = util::StringFormat("%s/%s", path, key);
       mutatedKeys = mutatedKeys.insert(testutil::Key(documentKey));
     }
   }
-  FSTViewSnapshot *viewSnapshot = [[FSTViewSnapshot alloc] initWithQuery:FSTTestQuery(path)
-                                                               documents:newDocuments
-                                                            oldDocuments:oldDocuments
-                                                         documentChanges:documentChanges
-                                                               fromCache:fromCache
-                                                             mutatedKeys:mutatedKeys
-                                                        syncStateChanged:YES
-                                                 excludesMetadataChanges:NO];
+  ViewSnapshot viewSnapshot{FSTTestQuery(path),
+                            newDocuments,
+                            oldDocuments,
+                            std::move(documentChanges),
+                            mutatedKeys,
+                            fromCache,
+                            /*sync_state_changed=*/true,
+                            /*excludes_metadata_changes=*/false};
   return [FIRQuerySnapshot snapshotWithFirestore:FSTTestFirestore()
                                    originalQuery:FSTTestQuery(path)
-                                        snapshot:viewSnapshot
+                                        snapshot:std::move(viewSnapshot)
                                         metadata:metadata];
 }
 

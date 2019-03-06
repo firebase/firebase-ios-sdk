@@ -19,7 +19,9 @@
 #import <FirebaseFirestore/FIRFirestoreErrors.h>
 
 #include <map>
+#include <unordered_map>
 #include <utility>
+#include <vector>
 
 #import "Firestore/Source/Core/FSTEventManager.h"
 #import "Firestore/Source/Core/FSTQuery.h"
@@ -28,31 +30,44 @@
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
-#import "Firestore/Source/Remote/FSTExistenceFilter.h"
-#import "Firestore/Source/Remote/FSTWatchChange.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 
-#import "Firestore/Example/Tests/Remote/FSTWatchChange+Testing.h"
 #import "Firestore/Example/Tests/SpecTests/FSTSyncEngineTestDriver.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
+#include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/remote/existence_filter.h"
+#include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
+#include "Firestore/core/src/firebase/firestore/util/objc_compatibility.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
 namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
+namespace objc = util::objc;
+using firebase::firestore::FirestoreErrorCode;
 using firebase::firestore::auth::User;
+using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::remote::ExistenceFilter;
+using firebase::firestore::remote::DocumentWatchChange;
+using firebase::firestore::remote::ExistenceFilterWatchChange;
+using firebase::firestore::remote::WatchTargetChange;
+using firebase::firestore::remote::WatchTargetChangeState;
+using firebase::firestore::util::MakeString;
+using firebase::firestore::util::Status;
 using firebase::firestore::util::TimerId;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -81,9 +96,21 @@ NSString *const kEagerGC = @"eager-gc";
 
 NSString *const kDurablePersistence = @"durable-persistence";
 
-static NSString *Describe(NSData *data) {
+namespace {
+
+NSString *Describe(NSData *data) {
   return [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
 }
+
+std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
+  std::vector<TargetId> result;
+  for (NSNumber *targetID in from) {
+    result.push_back(targetID.intValue);
+  }
+  return result;
+}
+
+}  // namespace
 
 @interface FSTSpecTests ()
 @property(nonatomic, strong) FSTSyncEngineTestDriver *driver;
@@ -175,8 +202,7 @@ static NSString *Describe(NSData *data) {
   return testutil::Version(version.longLongValue);
 }
 
-- (FSTDocumentViewChange *)parseChange:(NSDictionary *)jsonDoc
-                                ofType:(FSTDocumentViewChangeType)type {
+- (DocumentViewChange)parseChange:(NSDictionary *)jsonDoc ofType:(DocumentViewChange::Type)type {
   NSNumber *version = jsonDoc[@"version"];
   NSDictionary *options = jsonDoc[@"options"];
   FSTDocumentState documentState = [options[@"hasLocalMutations"] isEqualToNumber:@YES]
@@ -188,7 +214,7 @@ static NSString *Describe(NSData *data) {
   XCTAssert([jsonDoc[@"key"] isKindOfClass:[NSString class]]);
   FSTDocument *doc = FSTTestDoc(util::MakeString((NSString *)jsonDoc[@"key"]),
                                 version.longLongValue, jsonDoc[@"value"], documentState);
-  return [FSTDocumentViewChange changeWithDocument:doc type:type];
+  return DocumentViewChange{doc, type};
 }
 
 #pragma mark - Methods for doing the steps of the spec test.
@@ -220,37 +246,30 @@ static NSString *Describe(NSData *data) {
 }
 
 - (void)doWatchAck:(NSArray<NSNumber *> *)ackedTargets {
-  FSTWatchTargetChange *change =
-      [FSTWatchTargetChange changeWithState:FSTWatchTargetChangeStateAdded
-                                  targetIDs:ackedTargets
-                                      cause:nil];
+  WatchTargetChange change{WatchTargetChangeState::Added, ConvertTargetsArray(ackedTargets)};
   [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
 }
 
 - (void)doWatchCurrent:(NSArray<id> *)currentSpec {
   NSArray<NSNumber *> *currentTargets = currentSpec[0];
   NSData *resumeToken = [currentSpec[1] dataUsingEncoding:NSUTF8StringEncoding];
-  FSTWatchTargetChange *change =
-      [FSTWatchTargetChange changeWithState:FSTWatchTargetChangeStateCurrent
-                                  targetIDs:currentTargets
-                                resumeToken:resumeToken];
+  WatchTargetChange change{WatchTargetChangeState::Current, ConvertTargetsArray(currentTargets),
+                           resumeToken};
   [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
 }
 
 - (void)doWatchRemove:(NSDictionary *)watchRemoveSpec {
-  NSError *error = nil;
+  Status error;
   NSDictionary *cause = watchRemoveSpec[@"cause"];
   if (cause) {
     int code = ((NSNumber *)cause[@"code"]).intValue;
     NSDictionary *userInfo = @{
       NSLocalizedDescriptionKey : @"Error from watchRemove.",
     };
-    error = [NSError errorWithDomain:FIRFirestoreErrorDomain code:code userInfo:userInfo];
+    error = Status{static_cast<FirestoreErrorCode>(code), MakeString([userInfo description])};
   }
-  FSTWatchTargetChange *change =
-      [FSTWatchTargetChange changeWithState:FSTWatchTargetChangeStateRemoved
-                                  targetIDs:watchRemoveSpec[@"targetIds"]
-                                      cause:error];
+  WatchTargetChange change{WatchTargetChangeState::Removed,
+                           ConvertTargetsArray(watchRemoveSpec[@"targetIds"]), error};
   [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
   // Unlike web, the FSTMockDatastore detects a watch removal with cause and will remove active
   // targets
@@ -285,19 +304,13 @@ static NSString *Describe(NSData *data) {
                                   : [FSTDeletedDocument documentWithKey:key
                                                                 version:std::move(version)
                                                   hasCommittedMutations:NO];
-    FSTWatchChange *change =
-        [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:watchEntity[@"targets"]
-                                                removedTargetIDs:watchEntity[@"removedTargets"]
-                                                     documentKey:doc.key
-                                                        document:doc];
+    DocumentWatchChange change{ConvertTargetsArray(watchEntity[@"targets"]),
+                               ConvertTargetsArray(watchEntity[@"removedTargets"]), doc.key, doc};
     [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
   } else if (watchEntity[@"key"]) {
     DocumentKey docKey = FSTTestDocKey(watchEntity[@"key"]);
-    FSTWatchChange *change =
-        [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[]
-                                                removedTargetIDs:watchEntity[@"removedTargets"]
-                                                     documentKey:docKey
-                                                        document:nil];
+    DocumentWatchChange change{
+        {}, ConvertTargetsArray(watchEntity[@"removedTargets"]), docKey, nil};
     [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
   } else {
     HARD_FAIL("Either key, doc or docs must be set.");
@@ -310,18 +323,13 @@ static NSString *Describe(NSData *data) {
 
   int keyCount = watchFilter.count == 0 ? 0 : (int)watchFilter.count - 1;
 
-  // TODO(dimond): extend this with different existence filters over time.
-  FSTExistenceFilter *filter = [FSTExistenceFilter filterWithCount:keyCount];
-  FSTExistenceFilterWatchChange *change =
-      [FSTExistenceFilterWatchChange changeWithFilter:filter targetID:targets[0].intValue];
+  ExistenceFilter filter{keyCount};
+  ExistenceFilterWatchChange change{filter, targets[0].intValue};
   [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
 }
 
 - (void)doWatchReset:(NSArray<NSNumber *> *)watchReset {
-  FSTWatchTargetChange *change =
-      [FSTWatchTargetChange changeWithState:FSTWatchTargetChangeStateReset
-                                  targetIDs:watchReset
-                                      cause:nil];
+  WatchTargetChange change{WatchTargetChangeState::Reset, ConvertTargetsArray(watchReset)};
   [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
 }
 
@@ -331,10 +339,8 @@ static NSString *Describe(NSData *data) {
   NSArray<NSNumber *> *targetIDs =
       watchSnapshot[@"targetIds"] ? watchSnapshot[@"targetIds"] : [NSArray array];
   NSData *resumeToken = [watchSnapshot[@"resumeToken"] dataUsingEncoding:NSUTF8StringEncoding];
-  FSTWatchTargetChange *change =
-      [FSTWatchTargetChange changeWithState:FSTWatchTargetChangeStateNoChange
-                                  targetIDs:targetIDs
-                                resumeToken:resumeToken];
+  WatchTargetChange change{WatchTargetChangeState::NoChange, ConvertTargetsArray(targetIDs),
+                           resumeToken};
   [self.driver receiveWatchChange:change
                   snapshotVersion:[self parseVersion:watchSnapshot[@"version"]]];
 }
@@ -357,9 +363,9 @@ static NSString *Describe(NSData *data) {
                 @"'keepInQueue=true' is not supported on iOS and should only be set in "
                 @"multi-client tests");
 
-  FSTMutationResult *mutationResult =
-      [[FSTMutationResult alloc] initWithVersion:version transformResults:nil];
-  [self.driver receiveWriteAckWithVersion:version mutationResults:@[ mutationResult ]];
+  FSTMutationResult *mutationResult = [[FSTMutationResult alloc] initWithVersion:version
+                                                                transformResults:nil];
+  [self.driver receiveWriteAckWithVersion:version mutationResults:{mutationResult}];
 }
 
 - (void)doFailWrite:(NSDictionary *)spec {
@@ -479,9 +485,8 @@ static NSString *Describe(NSData *data) {
   } else if (step[@"restart"]) {
     [self doRestart];
   } else if (step[@"applyClientState"]) {
-    XCTFail(
-        @"'applyClientState' is not supported on iOS and should only be used in multi-client "
-        @"tests");
+    XCTFail(@"'applyClientState' is not supported on iOS and should only be used in multi-client "
+            @"tests");
   } else {
     XCTFail(@"Unknown step: %@", step);
   }
@@ -494,35 +499,39 @@ static NSString *Describe(NSData *data) {
     XCTAssertNotNil(actual.error);
     XCTAssertEqual(actual.error.code, [expected[@"errorCode"] integerValue]);
   } else {
-    NSMutableArray *expectedChanges = [NSMutableArray array];
+    std::vector<DocumentViewChange> expectedChanges;
     NSMutableArray *removed = expected[@"removed"];
     for (NSDictionary *changeSpec in removed) {
-      [expectedChanges
-          addObject:[self parseChange:changeSpec ofType:FSTDocumentViewChangeTypeRemoved]];
+      expectedChanges.push_back([self parseChange:changeSpec
+                                           ofType:DocumentViewChange::Type::kRemoved]);
     }
     NSMutableArray *added = expected[@"added"];
     for (NSDictionary *changeSpec in added) {
-      [expectedChanges
-          addObject:[self parseChange:changeSpec ofType:FSTDocumentViewChangeTypeAdded]];
+      expectedChanges.push_back([self parseChange:changeSpec
+                                           ofType:DocumentViewChange::Type::kAdded]);
     }
     NSMutableArray *modified = expected[@"modified"];
     for (NSDictionary *changeSpec in modified) {
-      [expectedChanges
-          addObject:[self parseChange:changeSpec ofType:FSTDocumentViewChangeTypeModified]];
+      expectedChanges.push_back([self parseChange:changeSpec
+                                           ofType:DocumentViewChange::Type::kModified]);
     }
     NSMutableArray *metadata = expected[@"metadata"];
     for (NSDictionary *changeSpec in metadata) {
-      [expectedChanges
-          addObject:[self parseChange:changeSpec ofType:FSTDocumentViewChangeTypeMetadata]];
+      expectedChanges.push_back([self parseChange:changeSpec
+                                           ofType:DocumentViewChange::Type::kMetadata]);
     }
-    XCTAssertEqualObjects(actual.viewSnapshot.documentChanges, expectedChanges);
+
+    XCTAssertEqual(actual.viewSnapshot.value().document_changes().size(), expectedChanges.size());
+    for (size_t i = 0; i != expectedChanges.size(); ++i) {
+      XCTAssertTrue((actual.viewSnapshot.value().document_changes()[i] == expectedChanges[i]));
+    }
 
     BOOL expectedHasPendingWrites =
         expected[@"hasPendingWrites"] ? [expected[@"hasPendingWrites"] boolValue] : NO;
     BOOL expectedIsFromCache = expected[@"fromCache"] ? [expected[@"fromCache"] boolValue] : NO;
-    XCTAssertEqual(actual.viewSnapshot.hasPendingWrites, expectedHasPendingWrites,
+    XCTAssertEqual(actual.viewSnapshot.value().has_pending_writes(), expectedHasPendingWrites,
                    @"hasPendingWrites");
-    XCTAssertEqual(actual.viewSnapshot.isFromCache, expectedIsFromCache, @"isFromCache");
+    XCTAssertEqual(actual.viewSnapshot.value().from_cache(), expectedIsFromCache, @"isFromCache");
   }
 }
 
@@ -584,7 +593,7 @@ static NSString *Describe(NSData *data) {
       [self.driver setExpectedLimboDocuments:std::move(expectedLimboDocuments)];
     }
     if (expected[@"activeTargets"]) {
-      NSMutableDictionary *expectedActiveTargets = [NSMutableDictionary dictionary];
+      __block std::unordered_map<TargetId, FSTQueryData *> expectedActiveTargets;
       [expected[@"activeTargets"] enumerateKeysAndObjectsUsingBlock:^(NSString *targetIDString,
                                                                       NSDictionary *queryData,
                                                                       BOOL *stop) {
@@ -594,7 +603,7 @@ static NSString *Describe(NSData *data) {
         // TODO(mcg): populate the purpose of the target once it's possible to encode that in the
         // spec tests. For now, hard-code that it's a listen despite the fact that it's not always
         // the right value.
-        expectedActiveTargets[@(targetID)] =
+        expectedActiveTargets[targetID] =
             [[FSTQueryData alloc] initWithQuery:query
                                        targetID:targetID
                            listenSequenceNumber:0
@@ -602,7 +611,7 @@ static NSString *Describe(NSData *data) {
                                 snapshotVersion:SnapshotVersion::None()
                                     resumeToken:resumeToken];
       }];
-      self.driver.expectedActiveTargets = expectedActiveTargets;
+      [self.driver setExpectedActiveTargets:expectedActiveTargets];
     }
   }
 
@@ -635,8 +644,9 @@ static NSString *Describe(NSData *data) {
 
   // Validate that each limbo doc has an expected active target
   for (const auto &kv : actualLimboDocs) {
-    XCTAssertNotNil(self.driver.expectedActiveTargets[@(kv.second)],
-                    @"Found limbo doc without an expected active target");
+    const auto &expected = [self.driver expectedActiveTargets];
+    XCTAssertTrue(expected.find(kv.second) != expected.end(),
+                  @"Found limbo doc without an expected active target");
   }
 
   for (const DocumentKey &expectedLimboDoc : self.driver.expectedLimboDocuments) {
@@ -655,12 +665,11 @@ static NSString *Describe(NSData *data) {
   }
 
   // Create a copy so we can modify it in tests
-  NSMutableDictionary<FSTBoxedTargetID *, FSTQueryData *> *actualTargets =
-      [NSMutableDictionary dictionaryWithDictionary:self.driver.activeTargets];
+  std::unordered_map<TargetId, FSTQueryData *> actualTargets = [self.driver activeTargets];
 
-  [self.driver.expectedActiveTargets enumerateKeysAndObjectsUsingBlock:^(FSTBoxedTargetID *targetID,
-                                                                         FSTQueryData *queryData,
-                                                                         BOOL *stop) {
+  for (const auto &kv : [self.driver activeTargets]) {
+    TargetId targetID = kv.first;
+    FSTQueryData *queryData = kv.second;
     XCTAssertNotNil(actualTargets[targetID], @"Expected active target not found: %@", queryData);
 
     // TODO(mcg): validate the purpose of the target once it's possible to encode that in the
@@ -676,9 +685,11 @@ static NSString *Describe(NSData *data) {
       XCTAssertEqualObjects(Describe(actual.resumeToken), Describe(queryData.resumeToken));
     }
 
-    [actualTargets removeObjectForKey:targetID];
-  }];
-  XCTAssertTrue(actualTargets.count == 0, "Unexpected active targets: %@", actualTargets);
+    actualTargets.erase(targetID);
+  }
+
+  XCTAssertTrue(actualTargets.empty(), "Unexpected active targets: %@",
+                objc::Description(actualTargets));
 }
 
 - (void)runSpecTestSteps:(NSArray *)steps config:(NSDictionary *)config {

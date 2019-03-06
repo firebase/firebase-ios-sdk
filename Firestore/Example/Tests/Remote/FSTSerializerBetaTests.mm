@@ -23,6 +23,7 @@
 #import <FirebaseFirestore/FIRTimestamp.h>
 #import <XCTest/XCTest.h>
 
+#include <memory>
 #include <vector>
 
 #import "Firestore/Protos/objc/firestore/local/MaybeDocument.pbobjc.h"
@@ -42,26 +43,62 @@
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
-#import "Firestore/Source/Remote/FSTWatchChange.h"
 
 #import "Firestore/Example/Tests/API/FSTAPIHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
+#include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_transform.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
+#include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
 namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
 using firebase::Timestamp;
+using firebase::firestore::FirestoreErrorCode;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldTransform;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::SnapshotVersion;
+using firebase::firestore::remote::DocumentWatchChange;
+using firebase::firestore::remote::ExistenceFilterWatchChange;
+using firebase::firestore::remote::WatchChange;
+using firebase::firestore::remote::WatchTargetChange;
+using firebase::firestore::remote::WatchTargetChangeState;
+using firebase::firestore::util::Status;
+
+namespace {
+
+template <typename T>
+bool Equals(const WatchChange &lhs, const WatchChange &rhs) {
+  return static_cast<const T &>(lhs) == static_cast<const T &>(rhs);
+}
+
+// Compares two `WatchChange`s taking into account their actual derived type.
+bool IsWatchChangeEqual(const WatchChange &lhs, const WatchChange &rhs) {
+  if (lhs.type() != rhs.type()) {
+    return false;
+  }
+
+  switch (lhs.type()) {
+    case WatchChange::Type::Document:
+      return Equals<DocumentWatchChange>(lhs, rhs);
+    case WatchChange::Type::ExistenceFilter:
+      return Equals<ExistenceFilterWatchChange>(lhs, rhs);
+    case WatchChange::Type::TargetChange:
+      return Equals<WatchTargetChange>(lhs, rhs);
+  }
+  UNREACHABLE();
+}
+
+}  // namespace
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -287,8 +324,7 @@ NS_ASSUME_NONNULL_BEGIN
     @"i" : @1,
     @"n" : [NSNull null],
     @"s" : @"foo",
-    @"a" : @[ @2, @"bar",
-              @{@"b" : @NO} ],
+    @"a" : @[ @2, @"bar", @{@"b" : @NO} ],
     @"o" : @{
       @"d" : @100,
       @"nested" : @{@"e" : @(LLONG_MIN)},
@@ -346,12 +382,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesPatchMutation {
-  FSTPatchMutation *mutation =
-      FSTTestPatchMutation("docs/1",
-                           @{@"a" : @"b",
-                             @"num" : @1,
-                             @"some.de\\\\ep.th\\ing'" : @2},
-                           {});
+  FSTPatchMutation *mutation = FSTTestPatchMutation(
+      "docs/1", @{@"a" : @"b", @"num" : @1, @"some.de\\\\ep.th\\ing'" : @2}, {});
   GCFSWrite *proto = [GCFSWrite message];
   proto.update = [self.serializer encodedDocumentWithFields:mutation.value key:mutation.key];
   proto.updateMask = [self.serializer encodedFieldMask:*(mutation.fieldMask)];
@@ -386,9 +418,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testEncodesArrayTransformMutations {
   FSTTransformMutation *mutation = FSTTestTransformMutation(@"docs/1", @{
     @"a" : [FIRFieldValue fieldValueForArrayUnion:@[ @"a", @2 ]],
-    @"bar.baz" : [FIRFieldValue fieldValueForArrayRemove:@[
-      @{@"x" : @1}
-    ]]
+    @"bar.baz" : [FIRFieldValue fieldValueForArrayRemove:@[ @{@"x" : @1} ]]
   });
   GCFSWrite *proto = [GCFSWrite message];
   proto.transform = [GCFSDocumentTransform message];
@@ -418,9 +448,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testEncodesSetMutationWithPrecondition {
   FSTSetMutation *mutation =
       [[FSTSetMutation alloc] initWithKey:FSTTestDocKey(@"foo/bar")
-                                    value:FSTTestObjectValue(
-                                              @{@"a" : @"b",
-                                                @"num" : @1})
+                                    value:FSTTestObjectValue(@{@"a" : @"b", @"num" : @1})
                              precondition:Precondition::UpdateTime(testutil::Version(4))];
   GCFSWrite *proto = [GCFSWrite message];
   proto.update = [self.serializer encodedDocumentWithFields:mutation.value key:mutation.key];
@@ -444,8 +472,8 @@ NS_ASSUME_NONNULL_BEGIN
   proto.updateTime = [self.serializer encodedTimestamp:updateVersion.timestamp()];
   [proto.transformResultsArray addObject:[self.serializer encodedString:@"result"]];
 
-  FSTMutationResult *result =
-      [self.serializer decodedMutationResult:proto commitVersion:commitVersion];
+  FSTMutationResult *result = [self.serializer decodedMutationResult:proto
+                                                       commitVersion:commitVersion];
 
   XCTAssertEqual(result.version, updateVersion);
   XCTAssertEqualObjects(result.transformResults, @[ [FSTStringValue stringValue:@"result"] ]);
@@ -455,8 +483,8 @@ NS_ASSUME_NONNULL_BEGIN
   GCFSWriteResult *proto = [GCFSWriteResult message];
   SnapshotVersion commitVersion = testutil::Version(4000);
 
-  FSTMutationResult *result =
-      [self.serializer decodedMutationResult:proto commitVersion:commitVersion];
+  FSTMutationResult *result = [self.serializer decodedMutationResult:proto
+                                                       commitVersion:commitVersion];
 
   XCTAssertEqual(result.version, commitVersion);
   XCTAssertEqual(result.transformResults.count, 0);
@@ -542,7 +570,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQueryData *model = [self queryDataForQuery:q];
 
   GCFSTarget *expected = [GCFSTarget message];
-  expected.query.parent = @"projects/p/databases/d";
+  expected.query.parent = @"projects/p/databases/d/documents";
   GCFSStructuredQuery_CollectionSelector *from = [GCFSStructuredQuery_CollectionSelector message];
   from.collectionId = @"messages";
   [expected.query.structuredQuery.fromArray addObject:from];
@@ -574,7 +602,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQueryData *model = [self queryDataForQuery:q];
 
   GCFSTarget *expected = [GCFSTarget message];
-  expected.query.parent = @"projects/p/databases/d";
+  expected.query.parent = @"projects/p/databases/d/documents";
   GCFSStructuredQuery_CollectionSelector *from = [GCFSStructuredQuery_CollectionSelector message];
   from.collectionId = @"docs";
   [expected.query.structuredQuery.fromArray addObject:from];
@@ -655,7 +683,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQueryData *model = [self queryDataForQuery:q];
 
   GCFSTarget *expected = [GCFSTarget message];
-  expected.query.parent = @"projects/p/databases/d";
+  expected.query.parent = @"projects/p/databases/d/documents";
   GCFSStructuredQuery_CollectionSelector *from = [GCFSStructuredQuery_CollectionSelector message];
   from.collectionId = @"docs";
   [expected.query.structuredQuery.fromArray addObject:from];
@@ -677,7 +705,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQueryData *model = [self queryDataForQuery:q];
 
   GCFSTarget *expected = [GCFSTarget message];
-  expected.query.parent = @"projects/p/databases/d";
+  expected.query.parent = @"projects/p/databases/d/documents";
   GCFSStructuredQuery_CollectionSelector *from = [GCFSStructuredQuery_CollectionSelector message];
   from.collectionId = @"docs";
   [expected.query.structuredQuery.fromArray addObject:from];
@@ -715,7 +743,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQueryData *model = [self queryDataForQuery:q];
 
   GCFSTarget *expected = [GCFSTarget message];
-  expected.query.parent = @"projects/p/databases/d";
+  expected.query.parent = @"projects/p/databases/d/documents";
   GCFSStructuredQuery_CollectionSelector *from = [GCFSStructuredQuery_CollectionSelector message];
   from.collectionId = @"docs";
   [expected.query.structuredQuery.fromArray addObject:from];
@@ -737,7 +765,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                 resumeToken:FSTTestData(1, 2, 3, -1)];
 
   GCFSTarget *expected = [GCFSTarget message];
-  expected.query.parent = @"projects/p/databases/d";
+  expected.query.parent = @"projects/p/databases/d/documents";
   GCFSStructuredQuery_CollectionSelector *from = [GCFSStructuredQuery_CollectionSelector message];
   from.collectionId = @"docs";
   [expected.query.structuredQuery.fromArray addObject:from];
@@ -775,30 +803,22 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testConvertsTargetChangeWithAdded {
-  FSTWatchChange *expected =
-      [[FSTWatchTargetChange alloc] initWithState:FSTWatchTargetChangeStateAdded
-                                        targetIDs:@[ @1, @4 ]
-                                      resumeToken:[NSData data]
-                                            cause:nil];
+  WatchTargetChange expected{WatchTargetChangeState::Added, {1, 4}};
   GCFSListenResponse *listenResponse = [GCFSListenResponse message];
   listenResponse.targetChange.targetChangeType = GCFSTargetChange_TargetChangeType_Add;
   [listenResponse.targetChange.targetIdsArray addValue:1];
   [listenResponse.targetChange.targetIdsArray addValue:4];
-  FSTWatchChange *actual = [self.serializer decodedWatchChange:listenResponse];
 
-  XCTAssertEqualObjects(actual, expected);
+  std::unique_ptr<WatchChange> actual = [self.serializer decodedWatchChange:listenResponse];
+  XCTAssertTrue(IsWatchChangeEqual(*actual, expected));
 }
 
 - (void)testConvertsTargetChangeWithRemoved {
-  FSTWatchChange *expected = [[FSTWatchTargetChange alloc]
-      initWithState:FSTWatchTargetChangeStateRemoved
-          targetIDs:@[ @1, @4 ]
-        resumeToken:FSTTestData(0, 1, 2, -1)
-              cause:[NSError errorWithDomain:FIRFirestoreErrorDomain
-                                        code:FIRFirestoreErrorCodePermissionDenied
-                                    userInfo:@{
-                                      NSLocalizedDescriptionKey : @"Error message",
-                                    }]];
+  WatchTargetChange expected{WatchTargetChangeState::Removed,
+                             {1, 4},
+                             FSTTestData(0, 1, 2, -1),
+                             Status{FirestoreErrorCode::PermissionDenied, "Error message"}};
+
   GCFSListenResponse *listenResponse = [GCFSListenResponse message];
   listenResponse.targetChange.targetChangeType = GCFSTargetChange_TargetChangeType_Remove;
   listenResponse.targetChange.cause.code = FIRFirestoreErrorCodePermissionDenied;
@@ -806,32 +826,27 @@ NS_ASSUME_NONNULL_BEGIN
   listenResponse.targetChange.resumeToken = FSTTestData(0, 1, 2, -1);
   [listenResponse.targetChange.targetIdsArray addValue:1];
   [listenResponse.targetChange.targetIdsArray addValue:4];
-  FSTWatchChange *actual = [self.serializer decodedWatchChange:listenResponse];
 
-  XCTAssertEqualObjects(actual, expected);
+  std::unique_ptr<WatchChange> actual = [self.serializer decodedWatchChange:listenResponse];
+  XCTAssertTrue(IsWatchChangeEqual(*actual, expected));
 }
 
 - (void)testConvertsTargetChangeWithNoChange {
-  FSTWatchChange *expected =
-      [[FSTWatchTargetChange alloc] initWithState:FSTWatchTargetChangeStateNoChange
-                                        targetIDs:@[ @1, @4 ]
-                                      resumeToken:[NSData data]
-                                            cause:nil];
+  WatchTargetChange expected{WatchTargetChangeState::NoChange, {1, 4}};
   GCFSListenResponse *listenResponse = [GCFSListenResponse message];
   listenResponse.targetChange.targetChangeType = GCFSTargetChange_TargetChangeType_NoChange;
   [listenResponse.targetChange.targetIdsArray addValue:1];
   [listenResponse.targetChange.targetIdsArray addValue:4];
-  FSTWatchChange *actual = [self.serializer decodedWatchChange:listenResponse];
 
-  XCTAssertEqualObjects(actual, expected);
+  std::unique_ptr<WatchChange> actual = [self.serializer decodedWatchChange:listenResponse];
+  XCTAssertTrue(IsWatchChangeEqual(*actual, expected));
 }
 
 - (void)testConvertsDocumentChangeWithTargetIds {
-  FSTWatchChange *expected = [[FSTDocumentWatchChange alloc]
-      initWithUpdatedTargetIDs:@[ @1, @2 ]
-              removedTargetIDs:@[]
-                   documentKey:FSTTestDocKey(@"coll/1")
-                      document:FSTTestDoc("coll/1", 5, @{@"foo" : @"bar"}, FSTDocumentStateSynced)];
+  DocumentWatchChange expected {
+    {1, 2}, {}, FSTTestDocKey(@"coll/1"),
+        FSTTestDoc("coll/1", 5, @{@"foo" : @"bar"}, FSTDocumentStateSynced)
+  };
   GCFSListenResponse *listenResponse = [GCFSListenResponse message];
   listenResponse.documentChange.document.name = @"projects/p/databases/d/documents/coll/1";
   listenResponse.documentChange.document.updateTime.nanos = 5000;
@@ -840,17 +855,17 @@ NS_ASSUME_NONNULL_BEGIN
   [listenResponse.documentChange.document.fields setObject:fooValue forKey:@"foo"];
   [listenResponse.documentChange.targetIdsArray addValue:1];
   [listenResponse.documentChange.targetIdsArray addValue:2];
-  FSTWatchChange *actual = [self.serializer decodedWatchChange:listenResponse];
 
-  XCTAssertEqualObjects(actual, expected);
+  std::unique_ptr<WatchChange> actual = [self.serializer decodedWatchChange:listenResponse];
+  XCTAssertTrue(IsWatchChangeEqual(*actual, expected));
 }
 
 - (void)testConvertsDocumentChangeWithRemovedTargetIds {
-  FSTWatchChange *expected = [[FSTDocumentWatchChange alloc]
-      initWithUpdatedTargetIDs:@[ @2 ]
-              removedTargetIDs:@[ @1 ]
-                   documentKey:FSTTestDocKey(@"coll/1")
-                      document:FSTTestDoc("coll/1", 5, @{@"foo" : @"bar"}, FSTDocumentStateSynced)];
+  DocumentWatchChange expected {
+    {2}, {1}, FSTTestDocKey(@"coll/1"),
+        FSTTestDoc("coll/1", 5, @{@"foo" : @"bar"}, FSTDocumentStateSynced)
+  };
+
   GCFSListenResponse *listenResponse = [GCFSListenResponse message];
   listenResponse.documentChange.document.name = @"projects/p/databases/d/documents/coll/1";
   listenResponse.documentChange.document.updateTime.nanos = 5000;
@@ -859,40 +874,35 @@ NS_ASSUME_NONNULL_BEGIN
   [listenResponse.documentChange.document.fields setObject:fooValue forKey:@"foo"];
   [listenResponse.documentChange.removedTargetIdsArray addValue:1];
   [listenResponse.documentChange.targetIdsArray addValue:2];
-  FSTWatchChange *actual = [self.serializer decodedWatchChange:listenResponse];
 
-  XCTAssertEqualObjects(actual, expected);
+  std::unique_ptr<WatchChange> actual = [self.serializer decodedWatchChange:listenResponse];
+  XCTAssertTrue(IsWatchChangeEqual(*actual, expected));
 }
 
 - (void)testConvertsDocumentChangeWithDeletions {
-  FSTWatchChange *expected =
-      [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[]
-                                              removedTargetIDs:@[ @1, @2 ]
-                                                   documentKey:FSTTestDocKey(@"coll/1")
-                                                      document:FSTTestDeletedDoc("coll/1", 5, NO)];
+  DocumentWatchChange expected{
+      {}, {1, 2}, FSTTestDocKey(@"coll/1"), FSTTestDeletedDoc("coll/1", 5, NO)};
+
   GCFSListenResponse *listenResponse = [GCFSListenResponse message];
   listenResponse.documentDelete.document = @"projects/p/databases/d/documents/coll/1";
   listenResponse.documentDelete.readTime.nanos = 5000;
   [listenResponse.documentDelete.removedTargetIdsArray addValue:1];
   [listenResponse.documentDelete.removedTargetIdsArray addValue:2];
-  FSTWatchChange *actual = [self.serializer decodedWatchChange:listenResponse];
 
-  XCTAssertEqualObjects(actual, expected);
+  std::unique_ptr<WatchChange> actual = [self.serializer decodedWatchChange:listenResponse];
+  XCTAssertTrue(IsWatchChangeEqual(*actual, expected));
 }
 
 - (void)testConvertsDocumentChangeWithRemoves {
-  FSTWatchChange *expected =
-      [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[]
-                                              removedTargetIDs:@[ @1, @2 ]
-                                                   documentKey:FSTTestDocKey(@"coll/1")
-                                                      document:nil];
+  DocumentWatchChange expected{{}, {1, 2}, FSTTestDocKey(@"coll/1"), nil};
+
   GCFSListenResponse *listenResponse = [GCFSListenResponse message];
   listenResponse.documentRemove.document = @"projects/p/databases/d/documents/coll/1";
   [listenResponse.documentRemove.removedTargetIdsArray addValue:1];
   [listenResponse.documentRemove.removedTargetIdsArray addValue:2];
-  FSTWatchChange *actual = [self.serializer decodedWatchChange:listenResponse];
 
-  XCTAssertEqualObjects(actual, expected);
+  std::unique_ptr<WatchChange> actual = [self.serializer decodedWatchChange:listenResponse];
+  XCTAssertTrue(IsWatchChangeEqual(*actual, expected));
 }
 
 @end

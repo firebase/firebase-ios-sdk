@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-@class FIRPhoneAuthCredential;
+@class FIRAuthCredential;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -262,15 +262,16 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (NSError *)userMismatchError;
 
-/** @fn credentialAlreadyInUseErrorWithMessage:
+/** @fn credentialAlreadyInUseErrorWithMessage:email:
     @brief Constructs an @c NSError with the @c FIRAuthErrorCodeCredentialAlreadyInUse code.
     @param message Error message from the backend, if any.
     @param credential Auth credential to be added to the Error User Info dictionary.
+    @param email Email to be added to the Error User Info dictionary.
     @return The NSError instance associated with the given FIRAuthError.
  */
 + (NSError *)credentialAlreadyInUseErrorWithMessage:(nullable NSString *)message
-                                         credential:(nullable FIRPhoneAuthCredential *)credential;
-
+                                         credential:(nullable FIRAuthCredential *)credential
+                                              email:(nullable NSString *)email;
 /** @fn operationNotAllowedErrorWithMessage:
     @brief Constructs an @c NSError with the @c FIRAuthErrorCodeOperationNotAllowed code.
     @param message Error message from the backend, if any.
@@ -451,6 +452,12 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (NSError *)localPlayerNotAuthenticatedError;
 
+/** @fn gameKitNotLinkedError
+   @brief Constructs an @c NSError with the @c FIRAuthErrorCodeGameKitNotLinked code.
+   @return The NSError instance associated with the given FIRAuthError.
+ */
++ (NSError *)gameKitNotLinkedError;
+
 /** @fn notificationNotForwardedError
     @brief Constructs an @c NSError with the @c FIRAuthErrorCodeNotificationNotForwarded code.
     @return The NSError instance associated with the given FIRAuthError.
@@ -492,6 +499,14 @@ NS_ASSUME_NONNULL_BEGIN
     @return The NSError instance associated with the given FIRAuthError.
  */
 + (NSError *)appVerificationUserInteractionFailureWithReason:(NSString *)reason;
+
+/** @fn webSignInUserInteractionFailureWithReason:
+    @brief Constructs an @c NSError with the @c
+        FIRAuthErrorCodeWebSignInUserInteractionFailure code.
+    @param reason Reason for error, returned via URL response.
+    @return The NSError instance associated with the given FIRAuthError.
+ */
++ (NSError *)webSignInUserInteractionFailureWithReason:(nullable NSString *)reason;
 
 /** @fn URLResponseErrorWithCode:message:
     @brief Constructs an @c NSError with the code and message provided.

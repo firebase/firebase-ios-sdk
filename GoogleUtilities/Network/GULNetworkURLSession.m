@@ -413,9 +413,8 @@
     [_loggerDelegate
         GULNetwork_logWithLevel:kGULNetworkLogLevelError
                     messageCode:kGULNetworkMessageCodeURLSession010
-                        message:
-                            @"Cannot store system completion handler with empty network "
-                             "session identifier"];
+                        message:@"Cannot store system completion handler with empty network "
+                                 "session identifier"];
     return;
   }
 
@@ -517,8 +516,9 @@
   NSTimeInterval now = [NSDate date].timeIntervalSince1970;
   for (NSURL *tempFile in directoryContent) {
     NSDate *creationDate;
-    BOOL getCreationDate =
-        [tempFile getResourceValue:&creationDate forKey:NSURLCreationDateKey error:NULL];
+    BOOL getCreationDate = [tempFile getResourceValue:&creationDate
+                                               forKey:NSURLCreationDateKey
+                                                error:NULL];
     if (!getCreationDate) {
       continue;
     }

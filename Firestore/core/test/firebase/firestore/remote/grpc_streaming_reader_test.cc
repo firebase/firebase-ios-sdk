@@ -34,6 +34,7 @@ namespace remote {
 using util::AsyncQueue;
 using util::ByteBufferToString;
 using util::CompletionEndState;
+using util::CompletionResult;
 using util::CreateNoOpConnectivityMonitor;
 using util::ExecutorStd;
 using util::GetFirestoreErrorCodeName;
@@ -43,8 +44,6 @@ using util::MakeByteBuffer;
 using util::Status;
 using util::StatusOr;
 using util::StringFormat;
-using util::CompletionResult::Error;
-using util::CompletionResult::Ok;
 using Type = GrpcCompletion::Type;
 
 class GrpcStreamingReaderTest : public testing::Test {
@@ -153,9 +152,9 @@ TEST_F(GrpcStreamingReaderTest, OneSuccessfulRead) {
   StartReader();
 
   ForceFinishAnyTypeOrder({
-      {Type::Write, Ok},
+      {Type::Write, CompletionResult::Ok},
       {Type::Read, MakeByteBuffer("foo")},
-      /*Read after last*/ {Type::Read, Error},
+      /*Read after last*/ {Type::Read, CompletionResult::Error},
   });
 
   EXPECT_FALSE(status.has_value());
@@ -172,10 +171,10 @@ TEST_F(GrpcStreamingReaderTest, TwoSuccessfulReads) {
   StartReader();
 
   ForceFinishAnyTypeOrder({
-      {Type::Write, Ok},
+      {Type::Write, CompletionResult::Ok},
       {Type::Read, MakeByteBuffer("foo")},
       {Type::Read, MakeByteBuffer("bar")},
-      /*Read after last*/ {Type::Read, Error},
+      /*Read after last*/ {Type::Read, CompletionResult::Error},
   });
   EXPECT_FALSE(status.has_value());
 
@@ -191,7 +190,8 @@ TEST_F(GrpcStreamingReaderTest, TwoSuccessfulReads) {
 TEST_F(GrpcStreamingReaderTest, FinishWhileReading) {
   StartReader();
 
-  ForceFinishAnyTypeOrder({{Type::Write, Ok}, {Type::Read, Ok}});
+  ForceFinishAnyTypeOrder({{Type::Write, CompletionResult::Ok},
+                           {Type::Read, CompletionResult::Ok}});
   EXPECT_FALSE(status.has_value());
 
   KeepPollingGrpcQueue();
@@ -243,8 +243,8 @@ TEST_F(GrpcStreamingReaderTest, ErrorOnFirstRead) {
   StartReader();
 
   ForceFinishAnyTypeOrder({
-      {Type::Write, Ok},
-      {Type::Read, Error},
+      {Type::Write, CompletionResult::Ok},
+      {Type::Read, CompletionResult::Error},
   });
 
   ForceFinish(
@@ -258,9 +258,9 @@ TEST_F(GrpcStreamingReaderTest, ErrorOnSecondRead) {
   StartReader();
 
   ForceFinishAnyTypeOrder({
-      {Type::Write, Ok},
-      {Type::Read, Ok},
-      {Type::Read, Error},
+      {Type::Write, CompletionResult::Ok},
+      {Type::Read, CompletionResult::Ok},
+      {Type::Read, CompletionResult::Error},
   });
 
   ForceFinish({{Type::Finish, grpc::Status{grpc::StatusCode::DATA_LOSS, ""}}});
@@ -279,9 +279,9 @@ TEST_F(GrpcStreamingReaderTest, CallbackCanDestroyReaderOnSuccess) {
   });
 
   ForceFinishAnyTypeOrder({
-      {Type::Write, Ok},
+      {Type::Write, CompletionResult::Ok},
       {Type::Read, MakeByteBuffer("foo")},
-      /*Read after last*/ {Type::Read, Error},
+      /*Read after last*/ {Type::Read, CompletionResult::Error},
   });
 
   EXPECT_NE(reader, nullptr);
@@ -297,8 +297,8 @@ TEST_F(GrpcStreamingReaderTest, CallbackCanDestroyReaderOnError) {
   });
 
   ForceFinishAnyTypeOrder({
-      {Type::Write, Ok},
-      {Type::Read, Error},
+      {Type::Write, CompletionResult::Ok},
+      {Type::Read, CompletionResult::Error},
   });
 
   grpc::Status error_status{grpc::StatusCode::DATA_LOSS, ""};

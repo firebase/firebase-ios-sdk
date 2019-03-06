@@ -111,7 +111,7 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?";
 - (void)verifyPhoneNumber:(NSString *)phoneNumber
                UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
                completion:(nullable FIRVerificationResultCallback)completion {
-  if (![self isCallbackSchemeRegistered]) {
+  if (![FIRAuthWebUtils isCallbackSchemeRegisteredForCustomURLScheme:_callbackScheme]) {
     [NSException raise:NSInternalInconsistencyException
                 format:@"Please register custom URL scheme '%@' in the app's Info.plist file.",
                        _callbackScheme];
@@ -138,11 +138,7 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?";
         callBackOnMainThread(nil, error);
         return;
       }
-      NSMutableString *eventID = [[NSMutableString alloc] init];
-      for (int i=0; i<10; i++) {
-        [eventID appendString:
-            [NSString stringWithFormat:@"%c", 'a' + arc4random_uniform('z' - 'a' + 1)]];
-      }
+      NSString *eventID = [FIRAuthWebUtils randomStringWithLength:10];
       [self reCAPTCHAURLWithEventID:eventID completion:^(NSURL *_Nullable reCAPTCHAURL,
                                                          NSError *_Nullable error) {
         if (error) {
@@ -150,7 +146,10 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?";
           return;
         }
         FIRAuthURLCallbackMatcher callbackMatcher = ^BOOL(NSURL *_Nullable callbackURL) {
-          return [self isVerifyAppURL:callbackURL eventID:eventID];
+          return [FIRAuthWebUtils isExpectedCallbackURL:callbackURL
+                                                eventID:eventID
+                                               authType:kAuthTypeVerifyApp
+                                         callbackScheme:self->_callbackScheme];
         };
         [self->_auth.authURLPresenter presentURL:reCAPTCHAURL
                                       UIDelegate:UIDelegate
@@ -205,26 +204,8 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?";
 
 #pragma mark - Internal Methods
 
-/** @fn isCallbackSchemeRegistered
-    @brief Checks whether or not the expected callback scheme has been registered by the app.
-    @remarks This method is thread-safe.
- */
-- (BOOL)isCallbackSchemeRegistered {
-  NSString *expectedCustomScheme = [_callbackScheme lowercaseString];
-  NSArray *urlTypes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleURLTypes"];
-  for (NSDictionary *urlType in urlTypes) {
-    NSArray *urlTypeSchemes = urlType[@"CFBundleURLSchemes"];
-    for (NSString *urlTypeScheme in urlTypeSchemes) {
-      if ([urlTypeScheme.lowercaseString isEqualToString:expectedCustomScheme]) {
-        return YES;
-      }
-    }
-  }
-  return NO;
-}
-
 /** @fn reCAPTCHATokenForURL:error:
-    @brief Parses the reCAPTCHA URL and returns.
+    @brief Parses the reCAPTCHA URL and returns the reCAPTCHA token.
     @param URL The url to be parsed for a reCAPTCHA token.
     @param error The error that occurred if any.
     @return The reCAPTCHA token if successful.
@@ -267,46 +248,6 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?";
     *error = [FIRAuthErrorUtils appVerificationUserInteractionFailureWithReason:reason];
   }
   return nil;
-}
-
-/** @fn isVerifyAppURL:
-    @brief Parses a URL into all available query items.
-    @param URL The url to be checked against the authType string.
-    @return Whether or not the URL matches authType.
- */
-- (BOOL)isVerifyAppURL:(nullable NSURL *)URL eventID:(NSString *)eventID {
-  if (!URL) {
-    return NO;
-  }
-  NSURLComponents *actualURLComponents =
-      [NSURLComponents componentsWithURL:URL resolvingAgainstBaseURL:NO];
-  actualURLComponents.query = nil;
-  actualURLComponents.fragment = nil;
-
-  NSURLComponents *expectedURLComponents = [NSURLComponents new];
-  expectedURLComponents.scheme = _callbackScheme;
-  expectedURLComponents.host = @"firebaseauth";
-  expectedURLComponents.path = @"/link";
-
-  if (!([[expectedURLComponents URL] isEqual:[actualURLComponents URL]])) {
-    return NO;
-  }
-  actualURLComponents = [NSURLComponents componentsWithURL:URL resolvingAgainstBaseURL:NO];
-  NSArray<NSURLQueryItem *> *queryItems = [actualURLComponents queryItems];
-  NSString *deepLinkURL = [FIRAuthWebUtils queryItemValue:@"deep_link_id" from:queryItems];
-  if (deepLinkURL == nil) {
-    return NO;
-  }
-  NSURLComponents *deepLinkURLComponents = [NSURLComponents componentsWithString:deepLinkURL];
-  NSArray<NSURLQueryItem *> *deepLinkQueryItems = [deepLinkURLComponents queryItems];
-
-  NSString *deepLinkAuthType = [FIRAuthWebUtils queryItemValue:@"authType" from:deepLinkQueryItems];
-  NSString *deepLinkEventID = [FIRAuthWebUtils queryItemValue:@"eventId" from:deepLinkQueryItems];
-  if ([deepLinkAuthType isEqualToString:kAuthTypeVerifyApp] &&
-      [deepLinkEventID isEqualToString:eventID]) {
-    return YES;
-  }
-  return NO;
 }
 
 /** @fn internalVerifyPhoneNumber:completion:
@@ -450,11 +391,14 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?";
         has been encountered.
  */
 - (void)reCAPTCHAURLWithEventID:(NSString *)eventID completion:(FIRReCAPTCHAURLCallBack)completion {
-  [self fetchAuthDomainWithCompletion:^(NSString *_Nullable authDomain,
-                                        NSError *_Nullable error) {
+  [FIRAuthWebUtils fetchAuthDomainWithRequestConfiguration:_auth.requestConfiguration
+                                                completion:^(NSString *_Nullable authDomain,
+                                                             NSError *_Nullable error) {
     if (error) {
-      completion(nil, error);
-      return;
+      if (completion) {
+        completion(nil, error);
+        return;
+      }
     }
     NSString *bundleID = [NSBundle mainBundle].bundleIdentifier;
     NSString *clientID = self->_auth.app.options.clientID;
@@ -477,40 +421,6 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?";
       [NSString stringWithFormat:kReCAPTCHAURLStringFormat, authDomain]];
     [components setQueryItems:queryItems];
     completion([components URL], nil);
-  }];
-}
-
-/** @fn fetchAuthDomainWithCompletion:completion:
-    @brief Fetches the auth domain associated with the Firebase Project.
-    @param completion The callback invoked after the auth domain has been constructed or an error
-        has been encountered.
- */
-- (void)fetchAuthDomainWithCompletion:(FIRFetchAuthDomainCallback)completion {
-  FIRGetProjectConfigRequest *request =
-      [[FIRGetProjectConfigRequest alloc] initWithRequestConfiguration:_auth.requestConfiguration];
-
-  [FIRAuthBackend getProjectConfig:request
-                          callback:^(FIRGetProjectConfigResponse *_Nullable response,
-                                     NSError *_Nullable error) {
-    if (error) {
-      completion(nil, error);
-      return;
-    }
-    NSString *authDomain;
-    for (NSString *domain in response.authorizedDomains) {
-      NSInteger index = domain.length - kAuthDomainSuffix.length;
-      if (index >= 2) {
-        if ([domain hasSuffix:kAuthDomainSuffix] && domain.length >= kAuthDomainSuffix.length + 2) {
-          authDomain = domain;
-          break;
-        }
-      }
-    }
-    if (!authDomain.length) {
-      completion(nil, [FIRAuthErrorUtils unexpectedErrorResponseWithDeserializedResponse:response]);
-      return;
-    }
-    completion(authDomain, nil);
   }];
 }
 

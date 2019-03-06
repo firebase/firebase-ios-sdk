@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** @class FIRGitHubAuthCredential
     @brief Internal implementation of FIRAuthCredential for GitHub credentials.
  */
-@interface FIRGitHubAuthCredential : FIRAuthCredential
+@interface FIRGitHubAuthCredential : FIRAuthCredential <NSSecureCoding>
 
 /** @property token
     @brief The GitHub OAuth access token.

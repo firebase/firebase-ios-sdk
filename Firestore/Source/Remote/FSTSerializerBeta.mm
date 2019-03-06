@@ -17,6 +17,7 @@
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
 #include <cinttypes>
+#include <set>
 #include <string>
 #include <utility>
 #include <vector>
@@ -38,9 +39,8 @@
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
-#import "Firestore/Source/Remote/FSTExistenceFilter.h"
-#import "Firestore/Source/Remote/FSTWatchChange.h"
 
+#include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
@@ -49,13 +49,17 @@
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
+#include "Firestore/core/src/firebase/firestore/remote/existence_filter.h"
+#include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "absl/memory/memory.h"
 #include "absl/types/optional.h"
 
 namespace util = firebase::firestore::util;
 using firebase::Timestamp;
+using firebase::firestore::FirestoreErrorCode;
 using firebase::firestore::model::ArrayTransform;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
@@ -69,6 +73,12 @@ using firebase::firestore::model::ServerTimestampTransform;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::model::TransformOperation;
+using firebase::firestore::remote::DocumentWatchChange;
+using firebase::firestore::remote::ExistenceFilter;
+using firebase::firestore::remote::ExistenceFilterWatchChange;
+using firebase::firestore::remote::WatchChange;
+using firebase::firestore::remote::WatchTargetChange;
+using firebase::firestore::remote::WatchTargetChangeState;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -152,16 +162,15 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSString *)encodedQueryPath:(const ResourcePath &)path {
-  if (path.size() == 0) {
-    // If the path is empty, the backend requires we leave off the /documents at the end.
-    return [self encodedDatabaseID];
-  }
   return [self encodedResourcePathForDatabaseID:self.databaseID path:path];
 }
 
 - (ResourcePath)decodedQueryPath:(NSString *)name {
   const ResourcePath resource = [self decodedResourcePathWithDatabaseID:name];
   if (resource.size() == 4) {
+    // In v1beta1 queries for collections at the root did not have a trailing "/documents". In v1
+    // all resource paths contain "/documents". Preserve the ability to read the v1beta1 form for
+    // compatibility with queries persisted in the local query cache.
     return ResourcePath{};
   } else {
     return [self localResourcePathForQualifiedResourcePath:resource];
@@ -347,7 +356,8 @@ NS_ASSUME_NONNULL_BEGIN
   HARD_ASSERT(database_id == *self.databaseID, "Database %s:%s cannot encode reference from %s:%s",
               self.databaseID->project_id(), self.databaseID->database_id(),
               database_id.project_id(), database_id.database_id());
-  return [FSTReferenceValue referenceValue:key databaseID:self.databaseID];
+  return [FSTReferenceValue referenceValue:[FSTDocumentKey keyWithDocumentKey:key]
+                                databaseID:self.databaseID];
 }
 
 - (GCFSArrayValue *)encodedArrayValue:(FSTArrayValue *)arrayValue {
@@ -571,10 +581,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FieldMask)decodedFieldMask:(GCFSDocumentMask *)fieldMask {
-  std::vector<FieldPath> fields;
-  fields.reserve(fieldMask.fieldPathsArray_Count);
+  std::set<FieldPath> fields;
   for (NSString *path in fieldMask.fieldPathsArray) {
-    fields.push_back(FieldPath::FromServerFormat(util::MakeString(path)));
+    fields.insert(FieldPath::FromServerFormat(util::MakeString(path)));
   }
   return FieldMask(std::move(fields));
 }
@@ -1070,9 +1079,9 @@ NS_ASSUME_NONNULL_BEGIN
   return [FSTBound boundWithPosition:indexComponents isBefore:proto.before];
 }
 
-#pragma mark - FSTWatchChange <= GCFSListenResponse proto
+#pragma mark - WatchChange <= GCFSListenResponse proto
 
-- (FSTWatchChange *)decodedWatchChange:(GCFSListenResponse *)watchChange {
+- (std::unique_ptr<WatchChange>)decodedWatchChange:(GCFSListenResponse *)watchChange {
   switch (watchChange.responseTypeOneOfCase) {
     case GCFSListenResponse_ResponseType_OneOfCase_TargetChange:
       return [self decodedTargetChangeFromWatchChange:watchChange.targetChange];
@@ -1107,57 +1116,55 @@ NS_ASSUME_NONNULL_BEGIN
   return [self decodedVersion:watchChange.targetChange.readTime];
 }
 
-- (FSTWatchTargetChange *)decodedTargetChangeFromWatchChange:(GCFSTargetChange *)change {
-  FSTWatchTargetChangeState state = [self decodedWatchTargetChangeState:change.targetChangeType];
-  NSMutableArray<NSNumber *> *targetIDs =
-      [NSMutableArray arrayWithCapacity:change.targetIdsArray_Count];
+- (std::unique_ptr<WatchChange>)decodedTargetChangeFromWatchChange:(GCFSTargetChange *)change {
+  WatchTargetChangeState state = [self decodedWatchTargetChangeState:change.targetChangeType];
+  __block std::vector<TargetId> targetIDs;
 
   [change.targetIdsArray enumerateValuesWithBlock:^(int32_t value, NSUInteger idx, BOOL *stop) {
-    [targetIDs addObject:@(value)];
+    targetIDs.push_back(value);
   }];
 
-  NSError *cause = nil;
+  NSData *resumeToken = change.resumeToken;
+
+  util::Status cause;
   if (change.hasCause) {
-    cause = [NSError errorWithDomain:FIRFirestoreErrorDomain
-                                code:change.cause.code
-                            userInfo:@{NSLocalizedDescriptionKey : change.cause.message}];
+    cause = util::Status{static_cast<FirestoreErrorCode>(change.cause.code),
+                         util::MakeString(change.cause.message)};
   }
 
-  return [[FSTWatchTargetChange alloc] initWithState:state
-                                           targetIDs:targetIDs
-                                         resumeToken:change.resumeToken
-                                               cause:cause];
+  return absl::make_unique<WatchTargetChange>(state, std::move(targetIDs), resumeToken,
+                                              std::move(cause));
 }
 
-- (FSTWatchTargetChangeState)decodedWatchTargetChangeState:
-    (GCFSTargetChange_TargetChangeType)state {
+- (WatchTargetChangeState)decodedWatchTargetChangeState:(GCFSTargetChange_TargetChangeType)state {
   switch (state) {
     case GCFSTargetChange_TargetChangeType_NoChange:
-      return FSTWatchTargetChangeStateNoChange;
+      return WatchTargetChangeState::NoChange;
     case GCFSTargetChange_TargetChangeType_Add:
-      return FSTWatchTargetChangeStateAdded;
+      return WatchTargetChangeState::Added;
     case GCFSTargetChange_TargetChangeType_Remove:
-      return FSTWatchTargetChangeStateRemoved;
+      return WatchTargetChangeState::Removed;
     case GCFSTargetChange_TargetChangeType_Current:
-      return FSTWatchTargetChangeStateCurrent;
+      return WatchTargetChangeState::Current;
     case GCFSTargetChange_TargetChangeType_Reset:
-      return FSTWatchTargetChangeStateReset;
+      return WatchTargetChangeState::Reset;
     default:
       HARD_FAIL("Unexpected TargetChange.state: %s", state);
   }
 }
 
-- (NSArray<NSNumber *> *)decodedIntegerArray:(GPBInt32Array *)values {
-  NSMutableArray<NSNumber *> *result = [NSMutableArray arrayWithCapacity:values.count];
+- (std::vector<TargetId>)decodedIntegerArray:(GPBInt32Array *)values {
+  __block std::vector<TargetId> result;
+  result.reserve(values.count);
   [values enumerateValuesWithBlock:^(int32_t value, NSUInteger idx, BOOL *stop) {
-    [result addObject:@(value)];
+    result.push_back(value);
   }];
   return result;
 }
 
-- (FSTDocumentWatchChange *)decodedDocumentChange:(GCFSDocumentChange *)change {
+- (std::unique_ptr<WatchChange>)decodedDocumentChange:(GCFSDocumentChange *)change {
   FSTObjectValue *value = [self decodedFields:change.document.fields];
-  const DocumentKey key = [self decodedDocumentKey:change.document.name];
+  DocumentKey key = [self decodedDocumentKey:change.document.name];
   SnapshotVersion version = [self decodedVersion:change.document.updateTime];
   HARD_ASSERT(version != SnapshotVersion::None(), "Got a document change with no snapshot version");
   // The document may soon be re-serialized back to protos in order to store it in local
@@ -1168,45 +1175,39 @@ NS_ASSUME_NONNULL_BEGIN
                                                        state:FSTDocumentStateSynced
                                                        proto:change.document];
 
-  NSArray<NSNumber *> *updatedTargetIds = [self decodedIntegerArray:change.targetIdsArray];
-  NSArray<NSNumber *> *removedTargetIds = [self decodedIntegerArray:change.removedTargetIdsArray];
+  std::vector<TargetId> updatedTargetIDs = [self decodedIntegerArray:change.targetIdsArray];
+  std::vector<TargetId> removedTargetIDs = [self decodedIntegerArray:change.removedTargetIdsArray];
 
-  return [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:updatedTargetIds
-                                                 removedTargetIDs:removedTargetIds
-                                                      documentKey:document.key
-                                                         document:document];
+  return absl::make_unique<DocumentWatchChange>(
+      std::move(updatedTargetIDs), std::move(removedTargetIDs), std::move(key), document);
 }
 
-- (FSTDocumentWatchChange *)decodedDocumentDelete:(GCFSDocumentDelete *)change {
-  const DocumentKey key = [self decodedDocumentKey:change.document];
+- (std::unique_ptr<WatchChange>)decodedDocumentDelete:(GCFSDocumentDelete *)change {
+  DocumentKey key = [self decodedDocumentKey:change.document];
   // Note that version might be unset in which case we use SnapshotVersion::None()
   SnapshotVersion version = [self decodedVersion:change.readTime];
-  FSTMaybeDocument *document =
-      [FSTDeletedDocument documentWithKey:key version:version hasCommittedMutations:NO];
+  FSTMaybeDocument *document = [FSTDeletedDocument documentWithKey:key
+                                                           version:version
+                                             hasCommittedMutations:NO];
 
-  NSArray<NSNumber *> *removedTargetIds = [self decodedIntegerArray:change.removedTargetIdsArray];
+  std::vector<TargetId> removedTargetIDs = [self decodedIntegerArray:change.removedTargetIdsArray];
 
-  return [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[]
-                                                 removedTargetIDs:removedTargetIds
-                                                      documentKey:document.key
-                                                         document:document];
+  return absl::make_unique<DocumentWatchChange>(
+      std::vector<TargetId>{}, std::move(removedTargetIDs), std::move(key), document);
 }
 
-- (FSTDocumentWatchChange *)decodedDocumentRemove:(GCFSDocumentRemove *)change {
-  const DocumentKey key = [self decodedDocumentKey:change.document];
-  NSArray<NSNumber *> *removedTargetIds = [self decodedIntegerArray:change.removedTargetIdsArray];
+- (std::unique_ptr<WatchChange>)decodedDocumentRemove:(GCFSDocumentRemove *)change {
+  DocumentKey key = [self decodedDocumentKey:change.document];
+  std::vector<TargetId> removedTargetIDs = [self decodedIntegerArray:change.removedTargetIdsArray];
 
-  return [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[]
-                                                 removedTargetIDs:removedTargetIds
-                                                      documentKey:key
-                                                         document:nil];
+  return absl::make_unique<DocumentWatchChange>(std::vector<TargetId>{},
+                                                std::move(removedTargetIDs), std::move(key), nil);
 }
 
-- (FSTExistenceFilterWatchChange *)decodedExistenceFilterWatchChange:(GCFSExistenceFilter *)filter {
-  // TODO(dimond): implement existence filter parsing
-  FSTExistenceFilter *existenceFilter = [FSTExistenceFilter filterWithCount:filter.count];
+- (std::unique_ptr<WatchChange>)decodedExistenceFilterWatchChange:(GCFSExistenceFilter *)filter {
+  ExistenceFilter existenceFilter{filter.count};
   TargetId targetID = filter.targetId;
-  return [FSTExistenceFilterWatchChange changeWithFilter:existenceFilter targetID:targetID];
+  return absl::make_unique<ExistenceFilterWatchChange>(existenceFilter, targetID);
 }
 
 @end

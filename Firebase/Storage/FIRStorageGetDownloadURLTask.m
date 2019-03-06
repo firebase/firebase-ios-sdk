@@ -57,8 +57,8 @@
     // The backend can return an arbitrary number of download tokens, but we only expose the first
     // token via the download URL.
     NSURLQueryItem *altItem = [[NSURLQueryItem alloc] initWithName:@"alt" value:@"media"];
-    NSURLQueryItem *tokenItem =
-        [[NSURLQueryItem alloc] initWithName:@"token" value:downloadTokenArray[0]];
+    NSURLQueryItem *tokenItem = [[NSURLQueryItem alloc] initWithName:@"token"
+                                                               value:downloadTokenArray[0]];
     components.queryItems = @[ altItem, tokenItem ];
 
     return [components URL];

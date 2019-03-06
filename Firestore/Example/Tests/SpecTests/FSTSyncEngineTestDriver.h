@@ -18,14 +18,15 @@
 
 #include <map>
 #include <unordered_map>
-
-#import "Firestore/Source/Remote/FSTRemoteStore.h"
+#include <vector>
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 
 @class FSTDocumentKey;
@@ -33,8 +34,6 @@
 @class FSTMutationResult;
 @class FSTQuery;
 @class FSTQueryData;
-@class FSTViewSnapshot;
-@class FSTWatchChange;
 @protocol FSTPersistence;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -45,8 +44,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FSTQueryEvent : NSObject
 @property(nonatomic, strong) FSTQuery *query;
-@property(nonatomic, strong, nullable) FSTViewSnapshot *viewSnapshot;
 @property(nonatomic, strong, nullable) NSError *error;
+
+- (const absl::optional<firebase::firestore::core::ViewSnapshot> &)viewSnapshot;
+- (void)setViewSnapshot:(absl::optional<firebase::firestore::core::ViewSnapshot>)snapshot;
+
 @end
 
 /** Holds an outstanding write and its result. */
@@ -72,8 +74,8 @@ typedef std::unordered_map<firebase::firestore::auth::User,
  *
  * FSTSyncEngineTestDriver:
  *
- * + constructs an FSTSyncEngine using a mocked FSTDatastore for the backend;
- * + allows the caller to trigger events (user API calls and incoming FSTDatastore messages);
+ * + constructs an FSTSyncEngine using a mocked Datastore for the backend;
+ * + allows the caller to trigger events (user API calls and incoming Datastore messages);
  * + performs sequencing validation internally (e.g. that when a user mutation is initiated, the
  *   FSTSyncEngine correctly sends it to the remote store); and
  * + exposes the set of FSTQueryEvents generated for the caller to verify.
@@ -86,7 +88,7 @@ typedef std::unordered_map<firebase::firestore::auth::User,
  *
  * Each method on the driver injects a different event into the system.
  */
-@interface FSTSyncEngineTestDriver : NSObject <FSTOnlineStateDelegate>
+@interface FSTSyncEngineTestDriver : NSObject
 
 /**
  * Initializes the underlying FSTSyncEngine with the given local persistence implementation and
@@ -147,7 +149,7 @@ typedef std::unordered_map<firebase::firestore::auth::User,
  * @param snapshot A snapshot version to attach, if applicable. This should be sent when
  *      simulating the server having sent a complete snapshot.
  */
-- (void)receiveWatchChange:(FSTWatchChange *)change
+- (void)receiveWatchChange:(const firebase::firestore::remote::WatchChange &)change
            snapshotVersion:(const firebase::firestore::model::SnapshotVersion &)snapshot;
 
 /**
@@ -195,9 +197,9 @@ typedef std::unordered_map<firebase::firestore::auth::User,
  *     the mutation. Snapshot versions must be monotonically increasing.
  * @param mutationResults The mutation results for the write that is being acked.
  */
-- (FSTOutstandingWrite *)receiveWriteAckWithVersion:
-                             (const firebase::firestore::model::SnapshotVersion &)commitVersion
-                                    mutationResults:(NSArray<FSTMutationResult *> *)mutationResults;
+- (FSTOutstandingWrite *)
+    receiveWriteAckWithVersion:(const firebase::firestore::model::SnapshotVersion &)commitVersion
+               mutationResults:(std::vector<FSTMutationResult *>)mutationResults;
 
 /**
  * A count of the mutations written to the write stream by the FSTSyncEngine, but not yet
@@ -285,7 +287,7 @@ typedef std::unordered_map<firebase::firestore::auth::User,
  * outstanding persisted mutations.
  *
  * Note: The size of the list for the current user will generally be the same as
- * sentWritesCount, but not necessarily, since the FSTRemoteStore limits the number of
+ * sentWritesCount, but not necessarily, since the `RemoteStore` limits the number of
  * outstanding writes to the backend at a given time.
  */
 @property(nonatomic, assign, readonly) const FSTOutstandingWriteQueues &outstandingWrites;
@@ -294,12 +296,14 @@ typedef std::unordered_map<firebase::firestore::auth::User,
 @property(nonatomic, assign, readonly) const firebase::firestore::auth::User &currentUser;
 
 /** The set of active targets as observed on the watch stream. */
-@property(nonatomic, strong, readonly)
-    NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *activeTargets;
+- (const std::unordered_map<firebase::firestore::model::TargetId, FSTQueryData *> &)activeTargets;
 
 /** The expected set of active targets, keyed by target ID. */
-@property(nonatomic, strong, readwrite)
-    NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *expectedActiveTargets;
+- (const std::unordered_map<firebase::firestore::model::TargetId, FSTQueryData *> &)
+    expectedActiveTargets;
+
+- (void)setExpectedActiveTargets:
+    (const std::unordered_map<firebase::firestore::model::TargetId, FSTQueryData *> &)targets;
 
 @end
 

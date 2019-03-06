@@ -20,6 +20,11 @@
 
 #import <FirebaseAuthInterop/FIRAuthInterop.h>
 #import <FirebaseCore/FIRAppInternal.h>
+
+#import <FirebaseAuth/FIREmailAuthProvider.h>
+#import <FirebaseAuth/FIRGoogleAuthProvider.h>
+#import <FirebaseAuth/FIRAdditionalUserInfo.h>
+
 #import <FirebaseCore/FIRComponent.h>
 #import <FirebaseCore/FIRLibrary.h>
 
@@ -41,7 +46,7 @@
 #import "FIRGetAccountInfoResponse.h"
 #import "FIRGetOOBConfirmationCodeRequest.h"
 #import "FIRGetOOBConfirmationCodeResponse.h"
-#import "FIRGoogleAuthProvider.h"
+#import "FIROAuthProvider.h"
 #import "FIRSecureTokenRequest.h"
 #import "FIRSecureTokenResponse.h"
 #import "FIRResetPasswordRequest.h"
@@ -59,24 +64,16 @@
 #import "FIRVerifyPhoneNumberRequest.h"
 #import "FIRVerifyPhoneNumberResponse.h"
 #import "FIRApp+FIRAuthUnitTests.h"
+#import "OAuth/FIROAuthCredential_Internal.h"
 #import "OCMStubRecorder+FIRAuthUnitTests.h"
 #import <OCMock/OCMock.h>
 #import "FIRActionCodeSettings.h"
 
 #if TARGET_OS_IOS
+#import "FIRAuthUIDelegate.h"
 #import "FIRPhoneAuthCredential.h"
 #import "FIRPhoneAuthProvider.h"
 #endif
-
-/** @var kFirebaseAppName1
-    @brief A fake Firebase app name.
- */
-static NSString *const kFirebaseAppName1 = @"FIREBASE_APP_NAME_1";
-
-/** @var kFirebaseAppName2
-    @brief Another fake Firebase app name.
- */
-static NSString *const kFirebaseAppName2 = @"FIREBASE_APP_NAME_2";
 
 /** @var kAPIKey
     @brief The fake API key.
@@ -172,6 +169,21 @@ static NSString *const kVerificationCode = @"12345678";
     @brief Fake verification ID for testing.
  */
 static NSString *const kVerificationID = @"55432";
+
+/** @var kOAuthRequestURI
+    @brief Fake OAuthRequest URI for testing.
+ */
+static NSString *const kOAuthRequestURI = @"requestURI";
+
+/** @var kOAuthSessionID
+    @brief Fake session ID for testing.
+ */
+static NSString *const kOAuthSessionID = @"sessionID";
+
+/** @var kFakeWebSignInUserInteractionFailureReason
+    @brief Fake reason for FIRAuthErrorCodeWebSignInUserInteractionFailure error while testing.
+ */
+static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reason";
 
 /** @var kContinueURL
     @brief Fake string value of continue url.
@@ -286,83 +298,6 @@ static const NSTimeInterval kWaitInterval = .5;
   [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:nil];
   [[FIRAuthDispatcher sharedInstance] setDispatchAfterImplementation:nil];
   [super tearDown];
-}
-
-#pragma mark - Life Cycle Tests
-
-/** @fn testSingleton
-    @brief Verifies the @c auth method behaves like a singleton.
- */
-- (void)testSingleton {
-  FIRAuth *auth1 = [FIRAuth auth];
-  XCTAssertNotNil(auth1);
-  FIRAuth *auth2 = [FIRAuth auth];
-  XCTAssertEqual(auth1, auth2);
-}
-
-/** @fn testDefaultAuth
-    @brief Verifies the @c auth method associates with the default Firebase app.
- */
-- (void)testDefaultAuth {
-  FIRAuth *auth1 = [FIRAuth auth];
-  FIRAuth *auth2 = [FIRAuth authWithApp:[FIRApp defaultApp]];
-  XCTAssertEqual(auth1, auth2);
-  XCTAssertEqual(auth1.app, [FIRApp defaultApp]);
-}
-
-/** @fn testNilAppException
-    @brief Verifies the @c auth method raises an exception if the default FIRApp is not configured.
- */
-- (void)testNilAppException {
-  [FIRApp resetApps];
-  XCTAssertThrows([FIRAuth auth]);
-}
-
-/** @fn testAppAPIkey
-    @brief Verifies the API key is correctly copied from @c FIRApp to @c FIRAuth .
- */
-- (void)testAppAPIkey {
-  FIRAuth *auth = [FIRAuth auth];
-  XCTAssertEqualObjects(auth.requestConfiguration.APIKey, kAPIKey);
-}
-
-/** @fn testAppAssociation
-    @brief Verifies each @c FIRApp instance associates with a @c FIRAuth .
- */
-- (void)testAppAssociation {
-  FIRApp *app1 = [self app1];
-  FIRAuth *auth1 = [FIRAuth authWithApp:app1];
-  XCTAssertNotNil(auth1);
-  XCTAssertEqual(auth1.app, app1);
-
-  FIRApp *app2 = [self app2];
-  FIRAuth *auth2 = [FIRAuth authWithApp:app2];
-  XCTAssertNotNil(auth2);
-  XCTAssertEqual(auth2.app, app2);
-
-  XCTAssertNotEqual(auth1, auth2);
-}
-
-/** @fn testLifeCycle
-    @brief Verifies the life cycle of @c FIRAuth is the same as its associated @c FIRApp .
- */
-- (void)testLifeCycle {
-  __weak FIRApp *app;
-  __weak FIRAuth *auth;
-  @autoreleasepool {
-    FIRApp *app1 = [self app1];
-    app = app1;
-    auth = [FIRAuth authWithApp:app1];
-    // Verify that neither the app nor the auth is released yet, i.e., the app owns the auth
-    // because nothing else retains the auth.
-    XCTAssertNotNil(app);
-    XCTAssertNotNil(auth);
-  }
-  [self waitForTimeIntervel:kWaitInterval];
-  // Verify that both the app and the auth are released upon exit of the autorelease pool,
-  // i.e., the app is the sole owner of the auth.
-  XCTAssertNil(app);
-  XCTAssertNil(auth);
 }
 
 #pragma mark - Server API Tests
@@ -1203,6 +1138,91 @@ static const NSTimeInterval kWaitInterval = .5;
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
 }
 
+#if TARGET_OS_IOS
+/** @fn testSignInWithProviderSuccess
+    @brief Tests a successful @c signInWithProvider:UIDelegate:completion: call with an OAuth
+        provider configured for Google.
+ */
+- (void)testSignInWithProviderSuccess {
+  OCMExpect([_mockBackend verifyAssertion:[OCMArg any] callback:[OCMArg any]])
+      .andCallBlock2(^(FIRVerifyAssertionRequest *_Nullable request,
+                       FIRVerifyAssertionResponseCallback callback) {
+    XCTAssertEqualObjects(request.APIKey, kAPIKey);
+    XCTAssertEqualObjects(request.providerID, FIRGoogleAuthProviderID);
+    XCTAssertTrue(request.returnSecureToken);
+    dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+      id mockVerifyAssertionResponse = OCMClassMock([FIRVerifyAssertionResponse class]);
+      OCMStub([mockVerifyAssertionResponse federatedID]).andReturn(kGoogleID);
+      OCMStub([mockVerifyAssertionResponse providerID]).andReturn(FIRGoogleAuthProviderID);
+      OCMStub([mockVerifyAssertionResponse localID]).andReturn(kLocalID);
+      OCMStub([mockVerifyAssertionResponse displayName]).andReturn(kGoogleDisplayName);
+      [self stubTokensWithMockResponse:mockVerifyAssertionResponse];
+      callback(mockVerifyAssertionResponse, nil);
+    });
+  });
+  [self expectGetAccountInfoGoogle];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  [[FIRAuth auth] signOut:NULL];
+  id mockProvider = OCMClassMock([FIROAuthProvider class]);
+  OCMExpect([mockProvider getCredentialWithUIDelegate:[OCMArg any] completion:[OCMArg any]])
+      .andCallBlock2(^(id<FIRAuthUIDelegate> delegate, FIRAuthCredentialCallback callback) {
+    dispatch_async(FIRAuthGlobalWorkQueue(), ^(){
+      FIROAuthCredential *credential =
+          [[FIROAuthCredential alloc] initWithProviderID:FIRGoogleAuthProviderID
+                                               sessionID:kOAuthSessionID
+                                  OAuthResponseURLString:kOAuthRequestURI];
+      callback(credential, nil);
+    });
+  });
+  [[FIRAuth auth] signInWithProvider:mockProvider
+                          UIDelegate:nil
+                          completion:^(FIRAuthDataResult *_Nullable authResult,
+                                       NSError *_Nullable error) {
+    XCTAssertTrue([NSThread isMainThread]);
+    [self assertUserGoogle:authResult.user];
+    XCTAssertNil(error);
+    [expectation fulfill];
+  }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  OCMVerifyAll(_mockBackend);
+}
+
+/** @fn testSignInWithProviderFailure
+    @brief Tests a failed @c signInWithProvider:UIDelegate:completion: call with the error code
+        FIRAuthErrorCodeWebSignInUserInteractionFailure.
+ */
+- (void)testSignInWithProviderFailure {
+  OCMExpect([_mockBackend verifyAssertion:[OCMArg any] callback:[OCMArg any]])
+      .andDispatchError2([FIRAuthErrorUtils webSignInUserInteractionFailureWithReason:
+          kFakeWebSignInUserInteractionFailureReason]);
+  [[FIRAuth auth] signOut:NULL];
+  id mockProvider = OCMClassMock([FIROAuthProvider class]);
+  OCMExpect([mockProvider getCredentialWithUIDelegate:[OCMArg any] completion:[OCMArg any]])
+      .andCallBlock2(^(id<FIRAuthUIDelegate> delegate, FIRAuthCredentialCallback callback) {
+    dispatch_async(FIRAuthGlobalWorkQueue(), ^(){
+      FIROAuthCredential *credential =
+          [[FIROAuthCredential alloc] initWithProviderID:FIRGoogleAuthProviderID
+                                               sessionID:kOAuthSessionID
+                                  OAuthResponseURLString:kOAuthRequestURI];
+      callback(credential, nil);
+    });
+  });
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  [[FIRAuth auth] signInWithProvider:mockProvider
+                          UIDelegate:nil
+                          completion:^(FIRAuthDataResult *_Nullable authResult,
+                                       NSError *_Nullable error) {
+    XCTAssertTrue([NSThread isMainThread]);
+    XCTAssertNil(authResult);
+    XCTAssertEqual(error.code, FIRAuthErrorCodeWebSignInUserInteractionFailure);
+    XCTAssertEqualObjects(error.userInfo[NSLocalizedFailureReasonErrorKey],
+                          kFakeWebSignInUserInteractionFailureReason);
+    [expectation fulfill];
+  }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  OCMVerifyAll(_mockBackend);
+}
+
 /** @fn testSignInWithGoogleAccountExistsError
     @brief Tests the flow of a failed @c signInWithCredential:completion: with a Google credential
         where the backend returns a needs @needConfirmation equal to true. An
@@ -1281,6 +1301,64 @@ static const NSTimeInterval kWaitInterval = .5;
   [self assertUserGoogle:[FIRAuth auth].currentUser];
   OCMVerifyAll(_mockBackend);
 }
+
+/** @fn testSignInWithOAuthCredentialSuccess
+    @brief Tests the flow of a successful @c signInWithCredential:completion: call with a generic
+        OAuth credential (In this case, configured for the Google IDP).
+ */
+- (void)testSignInWithOAuthCredentialSuccess {
+  OCMExpect([_mockBackend verifyAssertion:[OCMArg any] callback:[OCMArg any]])
+      .andCallBlock2(^(FIRVerifyAssertionRequest *_Nullable request,
+                       FIRVerifyAssertionResponseCallback callback) {
+    XCTAssertEqualObjects(request.APIKey, kAPIKey);
+    XCTAssertEqualObjects(request.providerID, FIRGoogleAuthProviderID);
+    XCTAssertEqualObjects(request.requestURI, kOAuthRequestURI);
+    XCTAssertEqualObjects(request.sessionID, kOAuthSessionID);
+    XCTAssertTrue(request.returnSecureToken);
+    dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+      id mockVeriyAssertionResponse = OCMClassMock([FIRVerifyAssertionResponse class]);
+      OCMStub([mockVeriyAssertionResponse federatedID]).andReturn(kGoogleID);
+      OCMStub([mockVeriyAssertionResponse providerID]).andReturn(FIRGoogleAuthProviderID);
+      OCMStub([mockVeriyAssertionResponse localID]).andReturn(kLocalID);
+      OCMStub([mockVeriyAssertionResponse displayName]).andReturn(kGoogleDisplayName);
+      [self stubTokensWithMockResponse:mockVeriyAssertionResponse];
+      callback(mockVeriyAssertionResponse, nil);
+    });
+  });
+  [self expectGetAccountInfoGoogle];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  [[FIRAuth auth] signOut:NULL];
+  id mockProvider = OCMClassMock([FIROAuthProvider class]);
+  OCMExpect([mockProvider getCredentialWithUIDelegate:[OCMArg any] completion:[OCMArg any]])
+      .andCallBlock2(^(id<FIRAuthUIDelegate> delegate, FIRAuthCredentialCallback callback) {
+    dispatch_async(FIRAuthGlobalWorkQueue(), ^(){
+      FIROAuthCredential *credential =
+          [[FIROAuthCredential alloc] initWithProviderID:FIRGoogleAuthProviderID
+                                               sessionID:kOAuthSessionID
+                                  OAuthResponseURLString:kOAuthRequestURI];
+      callback(credential, nil);
+    });
+  });
+  [mockProvider getCredentialWithUIDelegate:nil
+                                 completion:^(FIRAuthCredential *_Nullable credential,
+                                              NSError *_Nullable error) {
+    XCTAssertTrue([credential isKindOfClass:[FIROAuthCredential class]]);
+    FIROAuthCredential *OAuthCredential = (FIROAuthCredential *)credential;
+    XCTAssertEqualObjects(OAuthCredential.OAuthResponseURLString, kOAuthRequestURI);
+    XCTAssertEqualObjects(OAuthCredential.sessionID, kOAuthSessionID);
+    [[FIRAuth auth] signInWithCredential:OAuthCredential completion:^(FIRUser *_Nullable user,
+                                                                      NSError *_Nullable error) {
+      XCTAssertTrue([NSThread isMainThread]);
+      [self assertUserGoogle:user];
+      XCTAssertNil(error);
+      [expectation fulfill];
+    }];
+  }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  [self assertUserGoogle:[FIRAuth auth].currentUser];
+  OCMVerifyAll(_mockBackend);
+}
+#endif  // TARGET_OS_IOS
 
 /** @fn testSignInAndRetrieveDataWithCredentialSuccess
     @brief Tests the flow of a successful @c signInAndRetrieveDataWithCredential:completion: call
@@ -2274,22 +2352,6 @@ static const NSTimeInterval kWaitInterval = .5;
     [expectation fulfill];
   }];
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
-}
-
-/** @fn app1
-    @brief Creates a Firebase app.
-    @return A @c FIRApp with some name.
- */
-- (FIRApp *)app1 {
-  return [FIRApp appForAuthUnitTestsWithName:kFirebaseAppName1];
-}
-
-/** @fn app2
-    @brief Creates another Firebase app.
-    @return A @c FIRApp with some other name.
- */
-- (FIRApp *)app2 {
-  return [FIRApp appForAuthUnitTestsWithName:kFirebaseAppName2];
 }
 
 /** @fn stubSecureTokensWithMockResponse

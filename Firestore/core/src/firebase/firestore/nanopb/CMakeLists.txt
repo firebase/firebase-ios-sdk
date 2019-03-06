@@ -19,7 +19,6 @@ cc_library(
     nanopb_string.h
     reader.h
     reader.cc
-    tag.h
     writer.h
     writer.cc
   DEPENDS
@@ -28,4 +27,9 @@ cc_library(
 
     firebase_firestore_util
     firebase_firestore_protos_nanopb
+)
+
+target_compile_definitions(
+  firebase_firestore_nanopb
+  PUBLIC -DPB_ENABLE_MALLOC
 )

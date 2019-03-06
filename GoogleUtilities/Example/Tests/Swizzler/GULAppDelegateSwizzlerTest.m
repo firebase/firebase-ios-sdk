@@ -98,8 +98,8 @@ static BOOL gRespondsToHandleBackgroundSession;
   gRespondsToOpenURLHandler_iOS9 =
       [self instancesRespondToSelector:@selector(application:openURL:options:)];
   gRespondsToHandleBackgroundSession =
-      [self instancesRespondToSelector:@selector
-            (application:handleEventsForBackgroundURLSession:completionHandler:)];
+      [self instancesRespondToSelector:@selector(application:
+                                           handleEventsForBackgroundURLSession:completionHandler:)];
   gRespondsToContinueUserActivity = [self
       instancesRespondToSelector:@selector(application:continueUserActivity:restorationHandler:)];
 #pragma clang diagnostic pop
@@ -236,12 +236,12 @@ static BOOL gRespondsToHandleBackgroundSession;
   // After being proxied, it should be able to respond to the required method selector.
   XCTAssertTrue([realAppDelegate
       respondsToSelector:@selector(application:openURL:sourceApplication:annotation:)]);
-  XCTAssertTrue([realAppDelegate
-      respondsToSelector:@selector(application:continueUserActivity:restorationHandler:)]);
+  XCTAssertTrue([realAppDelegate respondsToSelector:@selector(application:
+                                                        continueUserActivity:restorationHandler:)]);
   XCTAssertTrue([realAppDelegate respondsToSelector:@selector(application:openURL:options:)]);
-  XCTAssertTrue(
-      [realAppDelegate respondsToSelector:@selector
-                       (application:handleEventsForBackgroundURLSession:completionHandler:)]);
+  XCTAssertTrue([realAppDelegate
+      respondsToSelector:@selector(application:
+                             handleEventsForBackgroundURLSession:completionHandler:)]);
   // Make sure that the class has changed.
   XCTAssertNotEqualObjects([realAppDelegate class], realAppDelegateClassBefore);
 

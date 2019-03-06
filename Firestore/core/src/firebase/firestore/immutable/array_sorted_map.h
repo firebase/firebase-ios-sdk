@@ -23,6 +23,7 @@
 #include <functional>
 #include <memory>
 #include <utility>
+#include <vector>
 
 #include "Firestore/core/src/firebase/firestore/immutable/keys_view.h"
 #include "Firestore/core/src/firebase/firestore/immutable/map_entry.h"
@@ -151,8 +152,7 @@ class ArraySortedMap : public SortedMapBase {
    */
   ArraySortedMap(std::initializer_list<value_type> entries,
                  const C& comparator = C())
-      : array_{std::make_shared<array_type>(entries.begin(), entries.end())},
-        key_comparator_{comparator} {
+      : array_{SortedArray(entries, comparator)}, key_comparator_{comparator} {
   }
 
   /** Returns true if the map contains no elements. */
@@ -332,6 +332,16 @@ class ArraySortedMap : public SortedMapBase {
     static const array_pointer kEmptyArray =
         std::make_shared<const array_type>();
     return kEmptyArray;
+  }
+
+  static array_pointer SortedArray(std::initializer_list<value_type> entries,
+                                   const C& comparator) {
+    std::vector<value_type> sorted{entries.begin(), entries.end()};
+    std::sort(sorted.begin(), sorted.end(),
+              [&comparator](const value_type& lhs, const value_type& rhs) {
+                return comparator(lhs.first, rhs.first);
+              });
+    return std::make_shared<const array_type>(sorted.begin(), sorted.end());
   }
 
   ArraySortedMap(const array_pointer& array,

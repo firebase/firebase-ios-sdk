@@ -20,6 +20,8 @@
 #import "FIRAuthExceptionUtils.h"
 #import "FIRVerifyAssertionRequest.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface FIRGoogleAuthCredential ()
 
 - (nullable instancetype)initWithProvider:(NSString *)provider NS_UNAVAILABLE;
@@ -51,4 +53,24 @@
   request.providerAccessToken = _accessToken;
 }
 
+#pragma mark - NSSecureCoding
+
++ (BOOL)supportsSecureCoding {
+  return YES;
+}
+
+- (nullable instancetype)initWithCoder:(NSCoder *)aDecoder {
+  NSString *IDToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"IDToken"];
+  NSString *accessToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"accessToken"];
+  self = [self initWithIDToken:IDToken accessToken:accessToken];
+  return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)aCoder {
+  [aCoder encodeObject:_IDToken forKey:@"IDToken"];
+  [aCoder encodeObject:_accessToken forKey:@"accessToken"];
+}
+
 @end
+
+NS_ASSUME_NONNULL_END

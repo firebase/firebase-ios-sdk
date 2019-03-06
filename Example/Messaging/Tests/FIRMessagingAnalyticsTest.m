@@ -97,6 +97,20 @@ propertyNamePrefix:(nonnull NSString *)propertyNamePrefix {
 - (void)setConditionalUserProperty:(nonnull FIRAConditionalUserProperty *)conditionalUserProperty {
 }
 
+- (void)checkLastNotificationForOrigin:(nonnull NSString *)origin
+                                 queue:(nonnull dispatch_queue_t)queue
+                              callback:(nonnull void (^)(NSString *_Nullable))
+                                           currentLastNotificationProperty {
+}
+
+- (void)registerAnalyticsListener:(nonnull id<FIRAnalyticsInteropListener>)listener
+                       withOrigin:(nonnull NSString *)origin {
+}
+
+- (void)unregisterAnalyticsListenerWithOrigin:(nonnull NSString *)origin {
+}
+
+
 @end
 
 @interface FIRMessagingAnalytics (ExposedForTest)

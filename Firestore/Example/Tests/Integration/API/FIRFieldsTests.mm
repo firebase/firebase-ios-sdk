@@ -19,6 +19,8 @@
 
 #import <XCTest/XCTest.h>
 
+#import "Firestore/core/src/firebase/firestore/util/warnings.h"
+
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
@@ -228,14 +230,11 @@ NSDictionary<NSString *, id> *testDataWithTimestamps(FIRTimestamp *timestamp) {
 - (FIRDocumentSnapshot *)snapshotWithTimestamps:(FIRTimestamp *)timestamp {
   FIRDocumentReference *doc = [self documentRef];
   NSDictionary<NSString *, id> *data =
-      @{@"timestamp" : timestamp,
-        @"nested" : @{@"timestamp2" : timestamp}};
+      @{@"timestamp" : timestamp, @"nested" : @{@"timestamp2" : timestamp}};
   [self writeDocumentRef:doc data:data];
   return [self readDocumentForRef:doc];
 }
 
-// Note: timestampsInSnapshotsEnabled is set to "true" in FSTIntegrationTestCase, so this test is
-// not affected by the current default in FIRFirestoreSettings.
 - (void)testTimestampsInSnapshots {
   FIRTimestamp *originalTimestamp = [FIRTimestamp timestampWithSeconds:100 nanoseconds:123456789];
   FIRDocumentReference *doc = [self documentRef];
@@ -269,7 +268,9 @@ NSDictionary<NSString *, id> *testDataWithTimestamps(FIRTimestamp *timestamp) {
   [super setUp];
   // Settings can only be redefined before client is initialized, so this has to happen in setUp.
   FIRFirestoreSettings *settings = self.db.settings;
+  SUPPRESS_DEPRECATED_DECLARATIONS_BEGIN()
   settings.timestampsInSnapshotsEnabled = NO;
+  SUPPRESS_END()
   self.db.settings = settings;
 }
 
