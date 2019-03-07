@@ -48,6 +48,8 @@ cc_library(
   SOURCES
     document_reference.h
     document_reference.cc
+    local_documents_view.h
+    local_documents_view.mm
     local_serializer.h
     local_serializer.cc
     query_data.cc
