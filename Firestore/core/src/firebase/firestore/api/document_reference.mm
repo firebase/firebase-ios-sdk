@@ -58,6 +58,18 @@ using util::MakeNSError;
 using util::Status;
 using util::StatusOr;
 
+DocumentReference::DocumentReference(Firestore* firestore,
+                                     model::ResourcePath path)
+    : firestore_{firestore} {
+  if (path.size() % 2 != 0) {
+    HARD_FAIL(
+        "Invalid document reference. Document references must have an even "
+        "number of segments, but %s has %s",
+        path.CanonicalString(), path.size());
+  }
+  key_ = DocumentKey{path};
+}
+
 size_t DocumentReference::Hash() const {
   return util::Hash(firestore_, key_);
 }
