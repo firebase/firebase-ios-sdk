@@ -149,6 +149,33 @@
 		511DD2A92225C8C40094D78D /* FIRMessagingAnalyticsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE37C63A2163D5F30025D03E /* FIRMessagingAnalyticsTest.m */; };
 		511DD2AA2225C8D50094D78D /* FIRMessagingTestUtilities.h in Sources */ = {isa = PBXBuildFile; fileRef = EDF5242A21EA364600BB24C6 /* FIRMessagingTestUtilities.h */; };
 		511DD2AB2225C8D50094D78D /* FIRMessagingTestUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = EDF5242B21EA364600BB24C6 /* FIRMessagingTestUtilities.m */; };
+		518854D92230652900CA4141 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 518854D82230652900CA4141 /* AppDelegate.m */; };
+		518854DC2230652900CA4141 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 518854DB2230652900CA4141 /* ViewController.m */; };
+		518854DF2230652900CA4141 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 518854DD2230652900CA4141 /* Main.storyboard */; };
+		518854E12230652B00CA4141 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 518854E02230652B00CA4141 /* Assets.xcassets */; };
+		518854E42230652B00CA4141 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 518854E32230652B00CA4141 /* main.m */; };
+		518854F6223067E900CA4141 /* FIRInstanceIDAPNSInfoTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BDA21F7DF0B00E6C1C5 /* FIRInstanceIDAPNSInfoTest.m */; };
+		518854F7223067E900CA4141 /* FIRInstanceIDAuthKeyChainTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BE521F7DF0C00E6C1C5 /* FIRInstanceIDAuthKeyChainTest.m */; };
+		518854F8223067E900CA4141 /* FIRInstanceIDAuthServiceTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BDE21F7DF0C00E6C1C5 /* FIRInstanceIDAuthServiceTest.m */; };
+		518854F9223067E900CA4141 /* FIRInstanceIDBackupExcludedPlistTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BE921F7DF0D00E6C1C5 /* FIRInstanceIDBackupExcludedPlistTest.m */; };
+		518854FA223067E900CA4141 /* FIRInstanceIDCheckinPreferencesTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BED21F7DF0D00E6C1C5 /* FIRInstanceIDCheckinPreferencesTest.m */; };
+		518854FB223067E900CA4141 /* FIRInstanceIDCheckinServiceTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BE721F7DF0D00E6C1C5 /* FIRInstanceIDCheckinServiceTest.m */; };
+		518854FC223067E900CA4141 /* FIRInstanceIDCheckinStoreTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BEB21F7DF0D00E6C1C5 /* FIRInstanceIDCheckinStoreTest.m */; };
+		518854FD223067E900CA4141 /* FIRInstanceIDFakeKeychain.h in Sources */ = {isa = PBXBuildFile; fileRef = DE958BE321F7DF0C00E6C1C5 /* FIRInstanceIDFakeKeychain.h */; };
+		518854FE223067E900CA4141 /* FIRInstanceIDFakeKeychain.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BDC21F7DF0B00E6C1C5 /* FIRInstanceIDFakeKeychain.m */; };
+		518854FF223067E900CA4141 /* FIRInstanceIDKeyPairMigrationTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BDF21F7DF0C00E6C1C5 /* FIRInstanceIDKeyPairMigrationTest.m */; };
+		51885500223067E900CA4141 /* FIRInstanceIDKeyPairStoreTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BE421F7DF0C00E6C1C5 /* FIRInstanceIDKeyPairStoreTest.m */; };
+		51885501223067E900CA4141 /* FIRInstanceIDKeyPairTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BE821F7DF0D00E6C1C5 /* FIRInstanceIDKeyPairTest.m */; };
+		51885502223067E900CA4141 /* FIRInstanceIDResultTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BDD21F7DF0C00E6C1C5 /* FIRInstanceIDResultTest.m */; };
+		51885503223067E900CA4141 /* FIRInstanceIDStoreTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BEA21F7DF0D00E6C1C5 /* FIRInstanceIDStoreTest.m */; };
+		51885504223067E900CA4141 /* FIRInstanceIDTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BE021F7DF0C00E6C1C5 /* FIRInstanceIDTest.m */; };
+		51885505223067E900CA4141 /* FIRInstanceIDTokenInfoTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BEE21F7DF0D00E6C1C5 /* FIRInstanceIDTokenInfoTest.m */; };
+		51885506223067E900CA4141 /* FIRInstanceIDTokenManager+Test.h in Sources */ = {isa = PBXBuildFile; fileRef = DE958BD821F7DF0B00E6C1C5 /* FIRInstanceIDTokenManager+Test.h */; };
+		51885507223067E900CA4141 /* FIRInstanceIDTokenManager+Test.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BE621F7DF0C00E6C1C5 /* FIRInstanceIDTokenManager+Test.m */; };
+		51885508223067E900CA4141 /* FIRInstanceIDTokenManagerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BD921F7DF0B00E6C1C5 /* FIRInstanceIDTokenManagerTest.m */; };
+		51885509223067E900CA4141 /* FIRInstanceIDTokenOperationsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BDB21F7DF0B00E6C1C5 /* FIRInstanceIDTokenOperationsTest.m */; };
+		5188550A223067E900CA4141 /* FIRInstanceIDUtilitiesTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BE121F7DF0C00E6C1C5 /* FIRInstanceIDUtilitiesTest.m */; };
+		5188550C2230873000CA4141 /* FIRInstanceIDAPNSInfoTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BDA21F7DF0B00E6C1C5 /* FIRInstanceIDAPNSInfoTest.m */; };
 		7E21E0731F857DFC00D0AC1C /* FIROAuthProviderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7E21E0721F857DFC00D0AC1C /* FIROAuthProviderTests.m */; };
 		7E9485421F578AC4005A3939 /* FIRAuthURLPresenterTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7E94853F1F578A9D005A3939 /* FIRAuthURLPresenterTests.m */; };
 		7EE21F7A1FE89193009B1370 /* FIREmailLinkRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7EE21F791FE89193009B1370 /* FIREmailLinkRequestTests.m */; };
@@ -524,7 +551,6 @@
 		DE958BC121F7D32300E6C1C5 /* FIRViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BA321F7D32300E6C1C5 /* FIRViewController.m */; };
 		DE958BD721F7D44200E6C1C5 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DE958B9D21F7D32200E6C1C5 /* LaunchScreen.storyboard */; };
 		DE958BEF21F7DF0D00E6C1C5 /* FIRInstanceIDTokenManagerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BD921F7DF0B00E6C1C5 /* FIRInstanceIDTokenManagerTest.m */; };
-		DE958BF021F7DF0D00E6C1C5 /* FIRInstanceIDAPNSInfoTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BDA21F7DF0B00E6C1C5 /* FIRInstanceIDAPNSInfoTest.m */; };
 		DE958BF121F7DF0D00E6C1C5 /* FIRInstanceIDTokenOperationsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BDB21F7DF0B00E6C1C5 /* FIRInstanceIDTokenOperationsTest.m */; };
 		DE958BF221F7DF0D00E6C1C5 /* FIRInstanceIDFakeKeychain.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BDC21F7DF0B00E6C1C5 /* FIRInstanceIDFakeKeychain.m */; };
 		DE958BF321F7DF0D00E6C1C5 /* FIRInstanceIDResultTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BDD21F7DF0C00E6C1C5 /* FIRInstanceIDResultTest.m */; };
@@ -701,6 +727,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 511DD2702225C4D00094D78D;
 			remoteInfo = Messaging_Example_tvOS;
+		};
+		518854F1223066BF00CA4141 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6003F582195388D10070C39A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 518854D42230652900CA4141;
+			remoteInfo = InstanceID_Example_tvOS;
 		};
 		AFD563111EB140E100EA2233 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -1035,6 +1068,16 @@
 		511DD27F2225C4D20094D78D /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		511DD2882225C5A80094D78D /* Messaging_Tests_tvOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Messaging_Tests_tvOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		511DD2AC2226005D0094D78D /* FirebaseMessaging.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = FirebaseMessaging.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		518854D52230652900CA4141 /* InstanceID_Example_tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = InstanceID_Example_tvOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		518854D72230652900CA4141 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		518854D82230652900CA4141 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		518854DA2230652900CA4141 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		518854DB2230652900CA4141 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		518854DE2230652900CA4141 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		518854E02230652B00CA4141 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		518854E22230652B00CA4141 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		518854E32230652B00CA4141 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		518854EC223066BE00CA4141 /* InstanceID_Tests_tvOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = InstanceID_Tests_tvOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		6003F58D195388D20070C39A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		6003F58F195388D20070C39A /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		6003F591195388D20070C39A /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -1477,6 +1520,20 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		518854D22230652900CA4141 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		518854E9223066BE00CA4141 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AEC1C964E4211C8E5B7CD8C6 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -1839,6 +1896,21 @@
 			path = tvOS;
 			sourceTree = "<group>";
 		};
+		518854D62230652900CA4141 /* tvOS */ = {
+			isa = PBXGroup;
+			children = (
+				518854D72230652900CA4141 /* AppDelegate.h */,
+				518854D82230652900CA4141 /* AppDelegate.m */,
+				518854DA2230652900CA4141 /* ViewController.h */,
+				518854DB2230652900CA4141 /* ViewController.m */,
+				518854DD2230652900CA4141 /* Main.storyboard */,
+				518854E02230652B00CA4141 /* Assets.xcassets */,
+				518854E22230652B00CA4141 /* Info.plist */,
+				518854E32230652B00CA4141 /* main.m */,
+			);
+			path = tvOS;
+			sourceTree = "<group>";
+		};
 		6003F581195388D10070C39A = {
 			isa = PBXGroup;
 			children = (
@@ -1902,6 +1974,8 @@
 				DE958B9421F7D15900E6C1C5 /* InstanceID_Tests_iOS.xctest */,
 				511DD2712225C4D00094D78D /* Messaging_Example_tvOS.app */,
 				511DD2882225C5A80094D78D /* Messaging_Tests_tvOS.xctest */,
+				518854D52230652900CA4141 /* InstanceID_Example_tvOS.app */,
+				518854EC223066BE00CA4141 /* InstanceID_Tests_tvOS.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -2508,6 +2582,7 @@
 		DE958B9921F7D32200E6C1C5 /* App */ = {
 			isa = PBXGroup;
 			children = (
+				518854D62230652900CA4141 /* tvOS */,
 				DE958B9A21F7D32200E6C1C5 /* iOS */,
 			);
 			path = App;
@@ -2780,6 +2855,41 @@
 			name = Messaging_Tests_tvOS;
 			productName = Messaging_Tests_tvOS;
 			productReference = 511DD2882225C5A80094D78D /* Messaging_Tests_tvOS.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		518854D42230652900CA4141 /* InstanceID_Example_tvOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 518854E72230652B00CA4141 /* Build configuration list for PBXNativeTarget "InstanceID_Example_tvOS" */;
+			buildPhases = (
+				518854D12230652900CA4141 /* Sources */,
+				518854D22230652900CA4141 /* Frameworks */,
+				518854D32230652900CA4141 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = InstanceID_Example_tvOS;
+			productName = tvOS;
+			productReference = 518854D52230652900CA4141 /* InstanceID_Example_tvOS.app */;
+			productType = "com.apple.product-type.application";
+		};
+		518854EB223066BE00CA4141 /* InstanceID_Tests_tvOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 518854F3223066BF00CA4141 /* Build configuration list for PBXNativeTarget "InstanceID_Tests_tvOS" */;
+			buildPhases = (
+				518854E8223066BE00CA4141 /* Sources */,
+				518854E9223066BE00CA4141 /* Frameworks */,
+				518854EA223066BE00CA4141 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				518854F2223066BF00CA4141 /* PBXTargetDependency */,
+			);
+			name = InstanceID_Tests_tvOS;
+			productName = InstanceID_Tests_tvOS;
+			productReference = 518854EC223066BE00CA4141 /* InstanceID_Tests_tvOS.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		AFD562E41EB13C6D00EA2233 /* Messaging_Example_iOS */ = {
@@ -3477,6 +3587,15 @@
 						ProvisioningStyle = Automatic;
 						TestTargetID = 511DD2702225C4D00094D78D;
 					};
+					518854D42230652900CA4141 = {
+						CreatedOnToolsVersion = 10.0;
+						ProvisioningStyle = Automatic;
+					};
+					518854EB223066BE00CA4141 = {
+						CreatedOnToolsVersion = 10.0;
+						ProvisioningStyle = Automatic;
+						TestTargetID = 518854D42230652900CA4141;
+					};
 					AFD562E41EB13C6D00EA2233 = {
 						CreatedOnToolsVersion = 8.3.2;
 						LastSwiftMigration = 0830;
@@ -3712,6 +3831,8 @@
 				DE4A62DC214816BD00670B27 /* FDLBuilderTestAppObjCEarlGrey */,
 				DE958B6421F7D13E00E6C1C5 /* InstanceID_Example_iOS */,
 				DE958B7421F7D15900E6C1C5 /* InstanceID_Tests_iOS */,
+				518854D42230652900CA4141 /* InstanceID_Example_tvOS */,
+				518854EB223066BE00CA4141 /* InstanceID_Tests_tvOS */,
 				AFD562E41EB13C6D00EA2233 /* Messaging_Example_iOS */,
 				DE9315A61E8738460083EDBF /* Messaging_Tests_iOS */,
 				DE47C0DC207AC87D00B1AEDF /* Messaging_Sample_iOS */,
@@ -3757,6 +3878,22 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		511DD2862225C5A80094D78D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		518854D32230652900CA4141 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				518854E12230652B00CA4141 /* Assets.xcassets in Resources */,
+				518854DF2230652900CA4141 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		518854EA223066BE00CA4141 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -4186,6 +4323,44 @@
 				511DD2A72225C8C40094D78D /* FIRMessagingTest.m in Sources */,
 				511DD2A82225C8C40094D78D /* FIRMessagingTestNotificationUtilities.m in Sources */,
 				511DD2A92225C8C40094D78D /* FIRMessagingAnalyticsTest.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		518854D12230652900CA4141 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				518854DC2230652900CA4141 /* ViewController.m in Sources */,
+				518854E42230652B00CA4141 /* main.m in Sources */,
+				518854D92230652900CA4141 /* AppDelegate.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		518854E8223066BE00CA4141 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				518854F6223067E900CA4141 /* FIRInstanceIDAPNSInfoTest.m in Sources */,
+				518854F7223067E900CA4141 /* FIRInstanceIDAuthKeyChainTest.m in Sources */,
+				518854F8223067E900CA4141 /* FIRInstanceIDAuthServiceTest.m in Sources */,
+				518854F9223067E900CA4141 /* FIRInstanceIDBackupExcludedPlistTest.m in Sources */,
+				518854FA223067E900CA4141 /* FIRInstanceIDCheckinPreferencesTest.m in Sources */,
+				518854FB223067E900CA4141 /* FIRInstanceIDCheckinServiceTest.m in Sources */,
+				518854FC223067E900CA4141 /* FIRInstanceIDCheckinStoreTest.m in Sources */,
+				518854FD223067E900CA4141 /* FIRInstanceIDFakeKeychain.h in Sources */,
+				518854FE223067E900CA4141 /* FIRInstanceIDFakeKeychain.m in Sources */,
+				518854FF223067E900CA4141 /* FIRInstanceIDKeyPairMigrationTest.m in Sources */,
+				51885500223067E900CA4141 /* FIRInstanceIDKeyPairStoreTest.m in Sources */,
+				51885501223067E900CA4141 /* FIRInstanceIDKeyPairTest.m in Sources */,
+				51885502223067E900CA4141 /* FIRInstanceIDResultTest.m in Sources */,
+				51885503223067E900CA4141 /* FIRInstanceIDStoreTest.m in Sources */,
+				51885504223067E900CA4141 /* FIRInstanceIDTest.m in Sources */,
+				51885505223067E900CA4141 /* FIRInstanceIDTokenInfoTest.m in Sources */,
+				51885506223067E900CA4141 /* FIRInstanceIDTokenManager+Test.h in Sources */,
+				51885507223067E900CA4141 /* FIRInstanceIDTokenManager+Test.m in Sources */,
+				51885508223067E900CA4141 /* FIRInstanceIDTokenManagerTest.m in Sources */,
+				51885509223067E900CA4141 /* FIRInstanceIDTokenOperationsTest.m in Sources */,
+				5188550A223067E900CA4141 /* FIRInstanceIDUtilitiesTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4793,6 +4968,7 @@
 				DE958BFE21F7DF0E00E6C1C5 /* FIRInstanceIDBackupExcludedPlistTest.m in Sources */,
 				DE958BF521F7DF0D00E6C1C5 /* FIRInstanceIDKeyPairMigrationTest.m in Sources */,
 				DE958BFD21F7DF0E00E6C1C5 /* FIRInstanceIDKeyPairTest.m in Sources */,
+				5188550C2230873000CA4141 /* FIRInstanceIDAPNSInfoTest.m in Sources */,
 				DE958BF921F7DF0E00E6C1C5 /* FIRInstanceIDKeyPairStoreTest.m in Sources */,
 				DE958BEF21F7DF0D00E6C1C5 /* FIRInstanceIDTokenManagerTest.m in Sources */,
 				DE958BFF21F7DF0E00E6C1C5 /* FIRInstanceIDStoreTest.m in Sources */,
@@ -4801,7 +4977,6 @@
 				DE958C0021F7DF0E00E6C1C5 /* FIRInstanceIDCheckinStoreTest.m in Sources */,
 				DE958BF321F7DF0D00E6C1C5 /* FIRInstanceIDResultTest.m in Sources */,
 				DE958BFC21F7DF0E00E6C1C5 /* FIRInstanceIDCheckinServiceTest.m in Sources */,
-				DE958BF021F7DF0D00E6C1C5 /* FIRInstanceIDAPNSInfoTest.m in Sources */,
 				DE958BFA21F7DF0E00E6C1C5 /* FIRInstanceIDAuthKeyChainTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4944,6 +5119,11 @@
 			isa = PBXTargetDependency;
 			target = 511DD2702225C4D00094D78D /* Messaging_Example_tvOS */;
 			targetProxy = 511DD28D2225C5A80094D78D /* PBXContainerItemProxy */;
+		};
+		518854F2223066BF00CA4141 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 518854D42230652900CA4141 /* InstanceID_Example_tvOS */;
+			targetProxy = 518854F1223066BF00CA4141 /* PBXContainerItemProxy */;
 		};
 		AFD563121EB140E100EA2233 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -5112,6 +5292,14 @@
 			isa = PBXVariantGroup;
 			children = (
 				511DD27A2225C4D00094D78D /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		518854DD2230652900CA4141 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				518854DE2230652900CA4141 /* Base */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";
@@ -5585,6 +5773,162 @@
 				TARGETED_DEVICE_FAMILY = 3;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Messaging_Example_tvOS.app/Messaging_Example_tvOS";
 				TVOS_DEPLOYMENT_TARGET = 11.4;
+			};
+			name = Release;
+		};
+		518854E52230652B00CA4141 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = "$(SRCROOT)/InstanceID/App/tvOS/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.FirebaseInstanceIDSample.tvOS;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 12.0;
+			};
+			name = Debug;
+		};
+		518854E62230652B00CA4141 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = "$(SRCROOT)/InstanceID/App/tvOS/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.FirebaseInstanceIDSample.tvOS;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 12.0;
+			};
+			name = Release;
+		};
+		518854F4223066BF00CA4141 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"COCOAPODS=1",
+					"GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"${PODS_ROOT}/Headers/Public\"",
+					"\"${PODS_ROOT}/Headers/Private\"",
+					"\"${SRCROOT}/../\"",
+				);
+				INFOPLIST_FILE = InstanceID/Tests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.FirebaseInstanceIDTests.tvOS;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				TARGETED_DEVICE_FAMILY = 3;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/InstanceID_Example_tvOS.app/InstanceID_Example_tvOS";
+				TVOS_DEPLOYMENT_TARGET = 12.0;
+			};
+			name = Debug;
+		};
+		518854F5223066BF00CA4141 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"COCOAPODS=1",
+					"GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"${PODS_ROOT}/Headers/Public\"",
+					"\"${PODS_ROOT}/Headers/Private\"",
+					"\"${SRCROOT}/../\"",
+				);
+				INFOPLIST_FILE = InstanceID/Tests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.FirebaseInstanceIDTests.tvOS;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				TARGETED_DEVICE_FAMILY = 3;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/InstanceID_Example_tvOS.app/InstanceID_Example_tvOS";
+				TVOS_DEPLOYMENT_TARGET = 12.0;
 			};
 			name = Release;
 		};
@@ -8006,6 +8350,24 @@
 			buildConfigurations = (
 				511DD2902225C5A80094D78D /* Debug */,
 				511DD2912225C5A80094D78D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		518854E72230652B00CA4141 /* Build configuration list for PBXNativeTarget "InstanceID_Example_tvOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				518854E52230652B00CA4141 /* Debug */,
+				518854E62230652B00CA4141 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		518854F3223066BF00CA4141 /* Build configuration list for PBXNativeTarget "InstanceID_Tests_tvOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				518854F4223066BF00CA4141 /* Debug */,
+				518854F5223066BF00CA4141 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
