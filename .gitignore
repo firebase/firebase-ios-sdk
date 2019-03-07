@@ -74,3 +74,6 @@ Ninja
 
 # Visual Studio
 /.vs
+
+# CocoaPods generarte
+gen/
