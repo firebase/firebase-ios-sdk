@@ -104,6 +104,8 @@ void Firestore::RunTransaction(TransactionBlock update_block,
                                dispatch_queue_t queue,
                                ResultOrErrorCompletion completion,
                                FIRFirestore* firestore) {
+  EnsureClientConfigured();
+
   FSTTransactionBlock wrapped_update =
       ^(std::shared_ptr<Transaction> internal_transaction,
         void (^internal_completion)(id _Nullable, NSError* _Nullable)) {
