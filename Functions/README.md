@@ -15,6 +15,10 @@ integration test FirebaseFunctions:
 - Run `pod gen FirebaseFunctions.podspec`
 - `open gen/FirebaseFunctions/FirebaseFunctions.xcworkspace`
 
+OR these two commands can be combined with
+
+- `pod gen FirebaseFunctions.podspec --auto-open --gen-directory="gen" --clean`
+
 You're now in an Xcode workspace generate for building, debugging and
 testing the FirebaseFunctions CocoaPod.
 
