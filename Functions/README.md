@@ -10,7 +10,7 @@ integration test FirebaseFunctions:
 - At least CocoaPods 1.6.0
 - Install [cocoapod-generate](https://github.com/square/cocoapods-generate)
 
-### To develop
+### To Develop
 
 - Run `pod gen FirebaseFunctions.podspec`
 - `open gen/FirebaseFunctions/FirebaseFunctions.xcworkspace`
