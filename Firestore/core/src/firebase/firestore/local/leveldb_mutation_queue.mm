@@ -156,13 +156,16 @@ void LevelDbMutationQueue::AcknowledgeBatch(FSTMutationBatch* batch,
 }
 
 FSTMutationBatch* LevelDbMutationQueue::AddMutationBatch(
-    FIRTimestamp* local_write_time, std::vector<FSTMutation*>&& mutations) {
+    FIRTimestamp* local_write_time,
+    std::vector<FSTMutation*>&& base_mutations,
+    std::vector<FSTMutation*>&& mutations) {
   BatchId batch_id = next_batch_id_;
   next_batch_id_++;
 
   FSTMutationBatch* batch =
       [[FSTMutationBatch alloc] initWithBatchID:batch_id
                                  localWriteTime:local_write_time
+                                  baseMutations:std::move(base_mutations)
                                       mutations:std::move(mutations)];
   std::string key = mutation_batch_key(batch_id);
   db_.currentTransaction->Put(key, [serializer_ encodedMutationBatch:batch]);
