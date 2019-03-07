@@ -58,9 +58,11 @@ typedef void (^FIRInstanceIDDeviceCheckinCompletion)(
  *  gService data.
  *
  *  @param existingCheckin An existing checkin preference object, if available.
+ *  @param firebaseUserAgent A string containing info about SDK components, Xcode version, etc.
  *  @param completion Completion hander called on success or failure of device checkin.
  */
 - (void)checkinWithExistingCheckin:(nullable FIRInstanceIDCheckinPreferences *)existingCheckin
+                 firebaseUserAgent:(NSString *)firebaseUserAgent
                         completion:(FIRInstanceIDDeviceCheckinCompletion)completion;
 
 /**

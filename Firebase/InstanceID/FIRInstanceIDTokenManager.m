@@ -338,4 +338,11 @@
   return tokenInfosToDelete;
 }
 
+#pragma mark - Properties
+
+- (void)setFirebaseUserAgent:(NSString *)firebaseUserAgent {
+  _firebaseUserAgent = [firebaseUserAgent copy];
+  self.authService.firebaseUserAgent = firebaseUserAgent;
+}
+
 @end

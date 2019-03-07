@@ -678,6 +678,8 @@ static FIRInstanceID *gInstanceID;
 }
 
 - (void)configureInstanceIDWithOptions:(FIROptions *)options app:(FIRApp *)firApp {
+  self.tokenManager.firebaseUserAgent = [[firApp class] firebaseUserAgent];
+
   NSString *GCMSenderID = options.GCMSenderID;
   if (!GCMSenderID.length) {
     FIRInstanceIDLoggerError(kFIRInstanceIDMessageCodeFIRApp000,

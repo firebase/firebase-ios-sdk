@@ -34,6 +34,7 @@ NSString *const kFIRInstanceIDLastCheckinTimeKey = @"GMSInstanceIDLastCheckinTim
 NSString *const kFIRInstanceIDVersionInfoStringKey = @"GMSInstanceIDVersionInfo";
 NSString *const kFIRInstanceIDGServicesDictionaryKey = @"GMSInstanceIDGServicesData";
 NSString *const kFIRInstanceIDDeviceDataVersionKey = @"GMSInstanceIDDeviceDataVersion";
+NSString *const kFIRInstanceIDFirebaseUserAgentKey = @"X-firebase-client";
 
 static NSUInteger const kCheckinType = 2;  // DeviceType IOS in l/w/a/_checkin.proto
 static NSUInteger const kCheckinVersion = 2;
@@ -69,12 +70,16 @@ static FIRInstanceIDURLRequestTestBlock testBlock;
 }
 
 - (void)checkinWithExistingCheckin:(FIRInstanceIDCheckinPreferences *)existingCheckin
+                 firebaseUserAgent:(NSString *)firebaseUserAgent
                         completion:(FIRInstanceIDDeviceCheckinCompletion)completion {
   _FIRInstanceIDDevAssert(completion != nil, @"completion required");
 
   NSURL *url = [NSURL URLWithString:kDeviceCheckinURL];
   NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+  
   [request setValue:@"application/json" forHTTPHeaderField:@"content-type"];
+  [request setValue:firebaseUserAgent forHTTPHeaderField:kFIRInstanceIDFirebaseUserAgentKey];
+
   NSDictionary *checkinParameters = [self checkinParametersWithExistingCheckin:existingCheckin];
   NSData *checkinData = [NSJSONSerialization dataWithJSONObject:checkinParameters
                                                         options:0

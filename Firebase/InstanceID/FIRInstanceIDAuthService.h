@@ -29,6 +29,12 @@
 @interface FIRInstanceIDAuthService : NSObject
 
 /**
+ * A string containing info about SDK components, Xcode version, etc.
+ * It will be added to each checkin request to track stats.
+ */
+@property (nonatomic, readwrite, copy) NSString *firebaseUserAgent;
+
+/**
  *  Used only for testing. In addition to taking a store (for locally caching the checkin info), it
  *  also takes a checkinService.
  */
