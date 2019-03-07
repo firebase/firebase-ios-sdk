@@ -175,6 +175,7 @@
 		51885508223067E900CA4141 /* FIRInstanceIDTokenManagerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BD921F7DF0B00E6C1C5 /* FIRInstanceIDTokenManagerTest.m */; };
 		51885509223067E900CA4141 /* FIRInstanceIDTokenOperationsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BDB21F7DF0B00E6C1C5 /* FIRInstanceIDTokenOperationsTest.m */; };
 		5188550A223067E900CA4141 /* FIRInstanceIDUtilitiesTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BE121F7DF0C00E6C1C5 /* FIRInstanceIDUtilitiesTest.m */; };
+		5188550C2230873000CA4141 /* FIRInstanceIDAPNSInfoTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BDA21F7DF0B00E6C1C5 /* FIRInstanceIDAPNSInfoTest.m */; };
 		7E21E0731F857DFC00D0AC1C /* FIROAuthProviderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7E21E0721F857DFC00D0AC1C /* FIROAuthProviderTests.m */; };
 		7E9485421F578AC4005A3939 /* FIRAuthURLPresenterTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7E94853F1F578A9D005A3939 /* FIRAuthURLPresenterTests.m */; };
 		7EE21F7A1FE89193009B1370 /* FIREmailLinkRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7EE21F791FE89193009B1370 /* FIREmailLinkRequestTests.m */; };
@@ -550,7 +551,6 @@
 		DE958BC121F7D32300E6C1C5 /* FIRViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BA321F7D32300E6C1C5 /* FIRViewController.m */; };
 		DE958BD721F7D44200E6C1C5 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DE958B9D21F7D32200E6C1C5 /* LaunchScreen.storyboard */; };
 		DE958BEF21F7DF0D00E6C1C5 /* FIRInstanceIDTokenManagerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BD921F7DF0B00E6C1C5 /* FIRInstanceIDTokenManagerTest.m */; };
-		DE958BF021F7DF0D00E6C1C5 /* FIRInstanceIDAPNSInfoTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BDA21F7DF0B00E6C1C5 /* FIRInstanceIDAPNSInfoTest.m */; };
 		DE958BF121F7DF0D00E6C1C5 /* FIRInstanceIDTokenOperationsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BDB21F7DF0B00E6C1C5 /* FIRInstanceIDTokenOperationsTest.m */; };
 		DE958BF221F7DF0D00E6C1C5 /* FIRInstanceIDFakeKeychain.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BDC21F7DF0B00E6C1C5 /* FIRInstanceIDFakeKeychain.m */; };
 		DE958BF321F7DF0D00E6C1C5 /* FIRInstanceIDResultTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BDD21F7DF0C00E6C1C5 /* FIRInstanceIDResultTest.m */; };
@@ -4968,6 +4968,7 @@
 				DE958BFE21F7DF0E00E6C1C5 /* FIRInstanceIDBackupExcludedPlistTest.m in Sources */,
 				DE958BF521F7DF0D00E6C1C5 /* FIRInstanceIDKeyPairMigrationTest.m in Sources */,
 				DE958BFD21F7DF0E00E6C1C5 /* FIRInstanceIDKeyPairTest.m in Sources */,
+				5188550C2230873000CA4141 /* FIRInstanceIDAPNSInfoTest.m in Sources */,
 				DE958BF921F7DF0E00E6C1C5 /* FIRInstanceIDKeyPairStoreTest.m in Sources */,
 				DE958BEF21F7DF0D00E6C1C5 /* FIRInstanceIDTokenManagerTest.m in Sources */,
 				DE958BFF21F7DF0E00E6C1C5 /* FIRInstanceIDStoreTest.m in Sources */,
@@ -4976,7 +4977,6 @@
 				DE958C0021F7DF0E00E6C1C5 /* FIRInstanceIDCheckinStoreTest.m in Sources */,
 				DE958BF321F7DF0D00E6C1C5 /* FIRInstanceIDResultTest.m in Sources */,
 				DE958BFC21F7DF0E00E6C1C5 /* FIRInstanceIDCheckinServiceTest.m in Sources */,
-				DE958BF021F7DF0D00E6C1C5 /* FIRInstanceIDAPNSInfoTest.m in Sources */,
 				DE958BFA21F7DF0E00E6C1C5 /* FIRInstanceIDAuthKeyChainTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -5801,7 +5801,7 @@
 				INFOPLIST_FILE = "$(SRCROOT)/InstanceID/App/tvOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.google.FirebaseInstanceID-tvOS.dev.tvOS";
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.FirebaseInstanceIDSample.tvOS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
 				TARGETED_DEVICE_FAMILY = 3;
@@ -5835,7 +5835,7 @@
 				INFOPLIST_FILE = "$(SRCROOT)/InstanceID/App/tvOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.google.FirebaseInstanceID-tvOS.dev.tvOS";
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.FirebaseInstanceIDSample.tvOS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
 				TARGETED_DEVICE_FAMILY = 3;
@@ -5872,15 +5872,13 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"${PODS_ROOT}/Headers/Public\"",
-					"\"${PODS_ROOT}/Headers/Public/FirebaseAnalyticsInterop\"",
-					"\"${PODS_ROOT}/Headers/Public/FirebaseAuthInterop\"",
 					"\"${PODS_ROOT}/Headers/Private\"",
-					"\"${PODS_ROOT}/../../Firebase/InstanceID\"",
+					"\"${SRCROOT}/../\"",
 				);
 				INFOPLIST_FILE = InstanceID/Tests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.google.FirebaseInstanceID-tvOS.dev.InstanceID-Tests-tvOS";
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.FirebaseInstanceIDTests.tvOS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
 				TARGETED_DEVICE_FAMILY = 3;
@@ -5919,15 +5917,13 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"${PODS_ROOT}/Headers/Public\"",
-					"\"${PODS_ROOT}/Headers/Public/FirebaseAnalyticsInterop\"",
 					"\"${PODS_ROOT}/Headers/Private\"",
-					"\"${PODS_ROOT}/Headers/Public/FirebaseAuthInterop\"",
-					"\"${PODS_ROOT}/../../Firebase/InstanceID\"",
+					"\"${SRCROOT}/../\"",
 				);
 				INFOPLIST_FILE = InstanceID/Tests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.google.FirebaseInstanceID-tvOS.dev.InstanceID-Tests-tvOS";
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.FirebaseInstanceIDTests.tvOS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
 				TARGETED_DEVICE_FAMILY = 3;
