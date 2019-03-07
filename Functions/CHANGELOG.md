@@ -1,6 +1,6 @@
 # v2.3.0
-- Change the default timeout for callable functions to 70s.
-- Add a method to change the timeout for a callable.
+- Change the default timeout for callable functions to 70s (#2329).
+- Add a method to change the timeout for a callable (#2329).
 
 # v2.1.0
 - Add a constructor to set the region.
