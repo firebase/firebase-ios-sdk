@@ -187,7 +187,7 @@ static const int64_t kMaxCheckinRetryIntervalInSeconds = 1 << 5;
   }
   [self.checkinService
       checkinWithExistingCheckin:self.checkinPreferences
-              firebaseUserAgent:self.firebaseUserAgent
+               firebaseUserAgent:self.firebaseUserAgent
                       completion:^(FIRInstanceIDCheckinPreferences *checkinPreferences,
                                    NSError *error) {
                         @synchronized(self) {

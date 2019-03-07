@@ -76,7 +76,7 @@ static FIRInstanceIDURLRequestTestBlock testBlock;
 
   NSURL *url = [NSURL URLWithString:kDeviceCheckinURL];
   NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
-  
+
   [request setValue:@"application/json" forHTTPHeaderField:@"content-type"];
   [request setValue:firebaseUserAgent forHTTPHeaderField:kFIRInstanceIDFirebaseUserAgentKey];
 

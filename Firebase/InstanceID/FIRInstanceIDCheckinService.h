@@ -28,6 +28,7 @@ FOUNDATION_EXPORT NSString *const kFIRInstanceIDLastCheckinTimeKey;
 FOUNDATION_EXPORT NSString *const kFIRInstanceIDVersionInfoStringKey;
 FOUNDATION_EXPORT NSString *const kFIRInstanceIDGServicesDictionaryKey;
 FOUNDATION_EXPORT NSString *const kFIRInstanceIDDeviceDataVersionKey;
+FOUNDATION_EXPORT NSString *const kFIRInstanceIDFirebaseUserAgentKey;
 
 @class FIRInstanceIDCheckinPreferences;
 

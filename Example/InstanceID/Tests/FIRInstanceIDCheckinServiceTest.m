@@ -38,15 +38,16 @@ static NSString *const kVersionInfo = @"1.0";
 
 - (void)setUp {
   [super setUp];
+  self.checkinService = [[FIRInstanceIDCheckinService alloc] init];
 }
 
 - (void)tearDown {
+  [FIRInstanceIDCheckinService setCheckinTestBlock:nil];
+  self.checkinService = nil;
   [super tearDown];
 }
 
 - (void)testCheckinWithSuccessfulCompletion {
-  self.checkinService = [[FIRInstanceIDCheckinService alloc] init];
-
   FIRInstanceIDCheckinPreferences *existingCheckin = [self stubCheckinCacheWithValidData];
 
   [FIRInstanceIDCheckinService setCheckinTestBlock:[self successfulCheckinCompletionHandler]];
@@ -56,6 +57,7 @@ static NSString *const kVersionInfo = @"1.0";
 
   [self.checkinService
       checkinWithExistingCheckin:existingCheckin
+               firebaseUserAgent:@"Fake firebaseUserAgent"
                       completion:^(FIRInstanceIDCheckinPreferences *checkinPreferences,
                                    NSError *error) {
                         XCTAssertNil(error);
@@ -79,8 +81,6 @@ static NSString *const kVersionInfo = @"1.0";
 }
 
 - (void)testFailedCheckinService {
-  self.checkinService = [[FIRInstanceIDCheckinService alloc] init];
-
   [FIRInstanceIDCheckinService setCheckinTestBlock:[self failCheckinCompletionHandler]];
 
   XCTestExpectation *checkinCompletionExpectation =
@@ -88,11 +88,44 @@ static NSString *const kVersionInfo = @"1.0";
 
   [self.checkinService
       checkinWithExistingCheckin:nil
+               firebaseUserAgent:@""
                       completion:^(FIRInstanceIDCheckinPreferences *preferences, NSError *error) {
                         XCTAssertNotNil(error);
                         XCTAssertNil(preferences.deviceID);
                         XCTAssertNil(preferences.secretToken);
                         XCTAssertFalse([preferences hasValidCheckinInfo]);
+                        [checkinCompletionExpectation fulfill];
+                      }];
+
+  [self waitForExpectationsWithTimeout:5
+                               handler:^(NSError *error) {
+                                 if (error) {
+                                   XCTFail(@"Checkin Timeout Error: %@", error);
+                                 }
+                               }];
+}
+
+- (void)testCheckinServiceAddsFirebaseUserAgentToHTTPHeader {
+  NSString *firebaseUserAgent = @"Fake Firebase user agent";
+
+  FIRInstanceIDURLRequestTestBlock successHandler = [self successfulCheckinCompletionHandler];
+
+  [FIRInstanceIDCheckinService
+      setCheckinTestBlock:^(NSURLRequest *request,
+                            FIRInstanceIDURLRequestTestResponseBlock response) {
+        NSString *requestFirebaseUserAgentValue =
+            request.allHTTPHeaderFields[kFIRInstanceIDFirebaseUserAgentKey];
+        XCTAssertEqualObjects(requestFirebaseUserAgentValue, firebaseUserAgent);
+        successHandler(request, response);
+      }];
+
+  XCTestExpectation *checkinCompletionExpectation =
+      [self expectationWithDescription:@"Checkin Completion"];
+
+  [self.checkinService
+      checkinWithExistingCheckin:nil
+               firebaseUserAgent:firebaseUserAgent
+                      completion:^(FIRInstanceIDCheckinPreferences *preferences, NSError *error) {
                         [checkinCompletionExpectation fulfill];
                       }];
 

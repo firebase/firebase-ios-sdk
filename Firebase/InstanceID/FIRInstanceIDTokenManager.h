@@ -42,7 +42,7 @@ typedef NS_OPTIONS(NSUInteger, FIRInstanceIDInvalidTokenReason) {
  * A string containing info about SDK components, Xcode version, etc.
  * It will be added to each token request to track stats.
  */
-@property (nonatomic, readwrite, copy) NSString *firebaseUserAgent;
+@property(nonatomic, readwrite, copy) NSString *firebaseUserAgent;
 
 /**
  *  Fetch new token for the given authorizedEntity and scope. This makes an

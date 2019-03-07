@@ -60,6 +60,7 @@ static NSString *const kVersionInfo = @"1.0";
   _mockCheckinService = OCMPartialMock(_checkinService);
   _authService = [[FIRInstanceIDAuthService alloc] initWithCheckinService:_mockCheckinService
                                                                     store:_mockStore];
+  _authService.firebaseUserAgent = @"Fake firebaseUserAgent";
   // The tests here are to focus on checkin interval not locale change, so always set locale as
   // non-changed.
   [[NSUserDefaults standardUserDefaults] setObject:FIRInstanceIDCurrentLocale()
@@ -83,6 +84,7 @@ static NSString *const kVersionInfo = @"1.0";
   [[[self.mockCheckinService stub] andDo:^(NSInvocation *invocation) {
     self.checkinCompletion(checkinPreferences, nil);
   }] checkinWithExistingCheckin:[OCMArg any]
+              firebaseUserAgent:[OCMArg isEqual:self.authService.firebaseUserAgent]
                      completion:[OCMArg checkWithBlock:^BOOL(id obj) {
                        [checkinExpectation fulfill];
                        self.checkinCompletion = obj;
@@ -112,6 +114,7 @@ static NSString *const kVersionInfo = @"1.0";
   [[[self.mockCheckinService stub] andDo:^(NSInvocation *invocation) {
     self.checkinCompletion(checkinPreferences, nil);
   }] checkinWithExistingCheckin:[OCMArg any]
+              firebaseUserAgent:[OCMArg isEqual:self.authService.firebaseUserAgent]
                      completion:[OCMArg checkWithBlock:^BOOL(id obj) {
                        self.checkinCompletion = obj;
                        return obj != nil;
@@ -149,6 +152,7 @@ static NSString *const kVersionInfo = @"1.0";
                      self.checkinCompletion(checkinPreferences, nil);
                    });
   }] checkinWithExistingCheckin:[OCMArg any]
+              firebaseUserAgent:[OCMArg isEqual:self.authService.firebaseUserAgent]
                      completion:[OCMArg checkWithBlock:^BOOL(id obj) {
                        self.checkinCompletion = obj;
                        return obj != nil;
@@ -190,6 +194,7 @@ static NSString *const kVersionInfo = @"1.0";
                      self.checkinCompletion(checkinPreferences, nil);
                    });
   }] checkinWithExistingCheckin:[OCMArg any]
+              firebaseUserAgent:[OCMArg isEqual:self.authService.firebaseUserAgent]
                      completion:[OCMArg checkWithBlock:^BOOL(id obj) {
                        self.checkinCompletion = obj;
                        return obj != nil;
@@ -236,6 +241,7 @@ static NSString *const kVersionInfo = @"1.0";
       XCTFail(@"Invoking checkin handler invalid number of times.");
     }
   }] checkinWithExistingCheckin:[OCMArg any]
+              firebaseUserAgent:[OCMArg isEqual:self.authService.firebaseUserAgent]
                      completion:[OCMArg checkWithBlock:^BOOL(id obj) {
                        self.checkinCompletion = obj;
                        return obj != nil;
@@ -284,6 +290,7 @@ static NSString *const kVersionInfo = @"1.0";
       XCTFail(@"Invoking checkin handler invalid number of times.");
     }
   }] checkinWithExistingCheckin:[OCMArg any]
+              firebaseUserAgent:[OCMArg isEqual:self.authService.firebaseUserAgent]
                      completion:[OCMArg checkWithBlock:^BOOL(id obj) {
                        self.checkinCompletion = obj;
                        return obj != nil;
@@ -315,6 +322,7 @@ static NSString *const kVersionInfo = @"1.0";
     checkinServiceInvocationCount++;
     self.checkinCompletion([self validCheckinPreferences], nil);
   }] checkinWithExistingCheckin:[OCMArg any]
+              firebaseUserAgent:[OCMArg isEqual:self.authService.firebaseUserAgent]
                      completion:[OCMArg checkWithBlock:^BOOL(id obj) {
                        self.checkinCompletion = obj;
                        return obj != nil;
@@ -359,6 +367,7 @@ static NSString *const kVersionInfo = @"1.0";
                      self.checkinCompletion([self validCheckinPreferences], nil);
                    });
   }] checkinWithExistingCheckin:[OCMArg any]
+              firebaseUserAgent:[OCMArg isEqual:self.authService.firebaseUserAgent]
                      completion:[OCMArg checkWithBlock:^BOOL(id obj) {
                        self.checkinCompletion = obj;
                        return obj != nil;
