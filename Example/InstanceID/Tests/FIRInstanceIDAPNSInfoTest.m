@@ -70,7 +70,10 @@
 
 - (void)testAPNSInfoCreationFromInvalidArchive {
   NSData *badData = [@"badData" dataUsingEncoding:NSUTF8StringEncoding];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   FIRInstanceIDAPNSInfo *info = [NSKeyedUnarchiver unarchiveObjectWithData:badData];
+#pragma clang diagnostic pop
   XCTAssertNil(info);
 }
 
@@ -83,8 +86,11 @@
   };
   FIRInstanceIDAPNSInfo *info =
       [[FIRInstanceIDAPNSInfo alloc] initWithTokenOptionsDictionary:validDictionary];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   NSData *archive = [NSKeyedArchiver archivedDataWithRootObject:info];
   FIRInstanceIDAPNSInfo *restoredInfo = [NSKeyedUnarchiver unarchiveObjectWithData:archive];
+#pragma clang diagnostic pop
   XCTAssertEqualObjects(info.deviceToken, restoredInfo.deviceToken);
   XCTAssertEqual(info.sandbox, restoredInfo.sandbox);
 }
