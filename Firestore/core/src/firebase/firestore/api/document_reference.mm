@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/api/document_reference.h"
 
+#include <memory>
+
 #import "FIRSnapshotMetadata.h"
 
 #import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
@@ -118,7 +120,7 @@ void DocumentReference::GetDocument(
   // https://github.com/firebase/firebase-ios-sdk/blob/3ccbdcdc65c93c4621c045c3c6d15de9dcefa23f/Firestore/Source/Core/FSTFirestoreClient.mm#L161
   // for an example.
   dispatch_semaphore_t registered = dispatch_semaphore_create(0);
-  id<FIRListenerRegistration> listener_registration;
+  auto listener_registration = std::make_shared<id<FIRListenerRegistration>>();
   HandleMaybe<DocumentSnapshot> listener =
       [listener_registration, registered, completion,
        source](StatusOr<DocumentSnapshot> maybe_snapshot) {
@@ -132,7 +134,7 @@ void DocumentReference::GetDocument(
         // Remove query first before passing event to user to avoid user actions
         // affecting the now stale query.
         dispatch_semaphore_wait(registered, DISPATCH_TIME_FOREVER);
-        [listener_registration remove];
+        [*listener_registration remove];
 
         if (!snapshot.exists() && snapshot.GetMetadata().fromCache) {
           // TODO(dimond): Reconsider how to raise missing documents when
@@ -159,7 +161,7 @@ void DocumentReference::GetDocument(
         }
       };
 
-  listener_registration = AddSnapshotListener(std::move(listener), options);
+  *listener_registration = AddSnapshotListener(std::move(listener), options);
   dispatch_semaphore_signal(registered);
 }
 
@@ -178,7 +180,7 @@ id<FIRListenerRegistration> DocumentReference::AddSnapshotListener(
 
         const ViewSnapshot& snapshot = maybe_snapshot.ValueOrDie();
         HARD_ASSERT(snapshot.documents().count <= 1,
-                    "Too many document returned on a document query");
+                    "Too many documents returned on a document query");
         FSTDocument* document = [snapshot.documents() documentForKey:key];
 
         bool has_pending_writes =
