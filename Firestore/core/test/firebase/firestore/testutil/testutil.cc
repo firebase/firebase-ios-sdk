@@ -27,7 +27,7 @@ std::unique_ptr<model::PatchMutation> PatchMutation(
     const model::ObjectValue::Map& values,
     // TODO(rsgowman): Investigate changing update_mask to a set.
     const std::vector<model::FieldPath>* update_mask) {
-  model::FieldValue object_value = model::FieldValue::FromMap({});
+  model::FieldValue object_value = model::FieldValue::EmptyObject();
   std::set<model::FieldPath> object_mask;
 
   for (const auto& kv : values) {
