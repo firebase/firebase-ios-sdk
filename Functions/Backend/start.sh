@@ -32,7 +32,9 @@ npm install
 
 # Start the server.
 FUNCTIONS_BIN="./node_modules/.bin/functions"
-"${FUNCTIONS_BIN}" config set projectId functions-integration-test
+"${FUNCTIONS_BIN}" config set projectId functions-integration-test <<-!
+  myproject
+!
 "${FUNCTIONS_BIN}" config set supervisorPort 5005
 "${FUNCTIONS_BIN}" config set region us-central1
 "${FUNCTIONS_BIN}" config set verbose true

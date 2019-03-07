@@ -58,9 +58,7 @@ case "$PROJECT-$PLATFORM-$METHOD" in
   Functions-*)
     bundle exec pod repo update
     # Start server for Functions integration tests.
-    ./Functions/Backend/start.sh synchronous <<!
-myproject
-!
+    ./Functions/Backend/start.sh synchronous
     ;;
 
   InAppMessaging-iOS-xcodebuild)
