@@ -253,7 +253,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 }
 
 - (void)disableNetworkWithCompletion:(nullable void (^)(NSError *_Nullable))completion {
-  _firestore->EnableNetwork(completion);
+  _firestore->DisableNetwork(completion);
 }
 
 - (const DatabaseId *)databaseID {
