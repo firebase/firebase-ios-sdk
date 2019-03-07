@@ -85,8 +85,8 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
   return [[[self class] alloc] initWithSnapshot:std::move(underlyingSnapshot) firestore:firestore];
 }
 
-+ (instancetype)snapshotWithSnapshot:(DocumentSnapshot&&)snapshot
-                            firestore:(FIRFirestore*)firestore {
++ (instancetype)snapshotWithSnapshot:(DocumentSnapshot &&)snapshot
+                           firestore:(FIRFirestore *)firestore {
   return [[[self class] alloc] initWithSnapshot:std::move(snapshot) firestore:firestore];
 }
 
