@@ -180,7 +180,7 @@ struct ZipBuilder {
 
     // Break the `subspecsToInstall` into a variable since it's helpful when debugging non-cache
     // builds to just install a subset: `[.core, .analytics, .storage, .firestore]` for example.
-    let subspecsToInstall = Subspec.allCases()
+    let subspecsToInstall = Subspec.allCases
 
     // We need to install all the subpsecs in order to get every single framework that we'll need
     // for the zip file. We can't install each one individually since some pods depend on different

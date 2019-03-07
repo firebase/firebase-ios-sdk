@@ -17,7 +17,7 @@
 import Foundation
 
 /// Different architectures to build frameworks for.
-private enum Architecture: String {
+private enum Architecture: String, CaseIterable {
   /// The target platform that the framework is built for.
   enum TargetPlatform: String {
     case device = "iphoneos"
@@ -48,11 +48,6 @@ private enum Architecture: String {
     case .i386, .x86_64: return .simulator
     }
   }
-
-  // TODO: Once we default to Swift 4.2 (in Xcode 10) we can conform to "CaseIterable" protocol to
-  //       automatically generate this method.
-  /// All the architectures to parse.
-  public static func allCases() -> [Architecture] { return [.arm64, .armv7, .i386, .x86_64] }
 }
 
 /// A structure to build a .framework in a given project directory.
@@ -356,7 +351,7 @@ struct FrameworkBuilder {
     // TODO: Pass in supported architectures here, for those that don't support individual
     // architectures (MLKit).
     var thinArchives = [URL]()
-    for arch in Architecture.allCases() {
+    for arch in Architecture.allCases {
       let buildDir = projectDir.appendingPathComponent(arch.rawValue)
       let thinArchive = buildThin(framework: framework,
                                   arch: arch,

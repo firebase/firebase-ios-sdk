@@ -38,7 +38,7 @@ extension FileManager: FileChecker {}
 /// `-myKey myValue`.
 struct LaunchArgs {
   /// Keys associated with the launch args. See `Usage` for descriptions of each flag.
-  private enum Key: String {
+  private enum Key: String, CaseIterable {
     case cacheEnabled
     case customSpecRepos
     case coreDiagnosticsDir
@@ -75,21 +75,6 @@ struct LaunchArgs {
       case .updatePodRepo:
         return "A flag to run `pod repo update` before building the zip file."
       }
-    }
-
-    // TODO: Once we default to Swift 4.2 (in Xcode 10) we can conform to "CaseIterable" protocol to
-    //       automatically generate this method.
-    /// All the subspecs to parse.
-    static func allCases() -> [Key] {
-      return [.cacheEnabled,
-              .coreDiagnosticsDir,
-              .customSpecRepos,
-              .deleteCache,
-              .existingVersions,
-              .outputDir,
-              .releasingSDKs,
-              .templateDir,
-              .updatePodRepo]
     }
   }
 
@@ -232,7 +217,7 @@ struct LaunchArgs {
 
     // Loop over all the possible keys and print their description.
     print("Usage: `swift run ZipBuilder [ARGS]` where args are:")
-    for option in Key.allCases() {
+    for option in Key.allCases {
       print("""
       -\(option.rawValue) <VALUE>
           \(option.usage)
