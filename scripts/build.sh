@@ -184,6 +184,7 @@ case "$product-$method-$platform" in
         build \
         test
 
+    if [[ $platform == 'iOS' ]]; then
       # Run integration tests (not allowed on PRs)
       if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
         RunXcodebuild \
