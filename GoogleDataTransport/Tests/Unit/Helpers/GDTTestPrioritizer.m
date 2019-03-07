@@ -35,13 +35,13 @@
   return _uploadPackage;
 }
 
-- (void)prioritizeEvent:(GDTEvent *)event {
+- (void)prioritizeEvent:(GDTStoredEvent *)event {
   if (_prioritizeEventBlock) {
     _prioritizeEventBlock(event);
   }
 }
 
-- (void)unprioritizeEvent:(nonnull NSNumber *)eventHash {
+- (void)unprioritizeEvents:(NSSet<GDTStoredEvent *> *)events {
 }
 
 @end

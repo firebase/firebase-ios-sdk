@@ -25,12 +25,12 @@ NS_ASSUME_NONNULL_BEGIN
 /** The queue on which all storage work will occur. */
 @property(nonatomic) dispatch_queue_t storageQueue;
 
-/** A map of event hashes to their on-disk file URLs. */
-@property(nonatomic) NSMutableDictionary<NSNumber *, NSURL *> *eventHashToFile;
-
-/** A map of targets to a set of event hash values. */
+/** A map of targets to a set of stored events. */
 @property(nonatomic)
-    NSMutableDictionary<NSNumber *, NSMutableSet<NSNumber *> *> *targetToEventHashSet;
+    NSMutableDictionary<NSNumber *, NSMutableSet<GDTStoredEvent *> *> *targetToEventSet;
+
+/** All the events that have been stored. */
+@property(readonly, nonatomic) NSMutableOrderedSet<GDTStoredEvent *> *storedEvents;
 
 /** The upload coordinator instance to use. */
 @property(nonatomic) GDTUploadCoordinator *uploader;

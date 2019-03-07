@@ -19,6 +19,7 @@
 #import "GDTUploadCoordinator.h"
 #import "GDTUploadCoordinator_Private.h"
 
+#import "GDTEventGenerator.h"
 #import "GDTRegistrar+Testing.h"
 #import "GDTStorageFake.h"
 #import "GDTTestPrioritizer.h"
@@ -83,9 +84,7 @@
       ^(GDTUploadPackage *_Nonnull package, GDTUploaderCompletionBlock _Nonnull completionBlock) {
         [expectation fulfill];
       };
-  NSSet<NSURL *> *fakeEventSet = [NSSet setWithObjects:[NSURL URLWithString:@"file:///fake"], nil];
-  self.storageFake.eventsToReturnFromEventHashesToFiles = fakeEventSet;
-  NSSet<NSNumber *> *eventSet = [NSSet setWithObjects:@(1234), nil];
+  NSSet<GDTStoredEvent *> *eventSet = [GDTEventGenerator generate3StoredEvents];
   XCTAssertNoThrow([[GDTUploadCoordinator sharedInstance] forceUploadEvents:eventSet
                                                                      target:_target]);
   dispatch_sync([GDTUploadCoordinator sharedInstance].coordinationQueue, ^{
@@ -102,9 +101,7 @@
       ^(GDTUploadPackage *_Nonnull package, GDTUploaderCompletionBlock _Nonnull completionBlock) {
         [expectation fulfill];
       };
-  NSSet<NSURL *> *fakeEventSet = [NSSet setWithObjects:[NSURL URLWithString:@"file:///fake"], nil];
-  self.storageFake.eventsToReturnFromEventHashesToFiles = fakeEventSet;
-  NSSet<NSNumber *> *eventSet = [NSSet setWithObjects:@(1234), nil];
+  NSSet<GDTStoredEvent *> *eventSet = [GDTEventGenerator generate3StoredEvents];
   dispatch_sync([GDTUploadCoordinator sharedInstance].coordinationQueue, ^{
     [GDTUploadCoordinator sharedInstance].targetToInFlightEventSet[@(self->_target)] =
         [[NSSet alloc] init];
@@ -146,12 +143,10 @@
 
 /** Tests uploading events via the coordinator timer. */
 - (void)testUploadingEventsViaTimer {
-  NSSet<NSURL *> *fakeEventSet = [NSSet setWithObjects:[NSURL URLWithString:@"file:///fake"], nil];
-  self.storageFake.eventsToReturnFromEventHashesToFiles = fakeEventSet;
   __block int uploadAttempts = 0;
   __weak GDTUploadCoordinatorTest *weakSelf = self;
   GDTTestUploadPackage *uploadPackage = [[GDTTestUploadPackage alloc] init];
-  uploadPackage.eventHashes = [NSSet setWithObjects:@(1234), nil];
+  uploadPackage.events = [GDTEventGenerator generate3StoredEvents];
   self.prioritizer.uploadPackage = uploadPackage;
   self.uploader.uploadEventsBlock =
       ^(GDTUploadPackage *_Nonnull package, GDTUploaderCompletionBlock _Nonnull completionBlock) {
@@ -173,12 +168,10 @@
 
 /** Tests the situation in which the uploader failed to upload the events for some reason. */
 - (void)testThatAFailedUploadResultsInAnEventualRetry {
-  NSSet<NSURL *> *fakeEventSet = [NSSet setWithObjects:[NSURL URLWithString:@"file:///fake"], nil];
-  self.storageFake.eventsToReturnFromEventHashesToFiles = fakeEventSet;
   __block int uploadAttempts = 0;
   __weak GDTUploadCoordinatorTest *weakSelf = self;
   GDTTestUploadPackage *uploadPackage = [[GDTTestUploadPackage alloc] init];
-  uploadPackage.eventHashes = [NSSet setWithObjects:@(1234), nil];
+  uploadPackage.events = [GDTEventGenerator generate3StoredEvents];
   self.prioritizer.uploadPackage = uploadPackage;
   self.uploader.uploadEventsBlock =
       ^(GDTUploadPackage *_Nonnull package, GDTUploaderCompletionBlock _Nonnull completionBlock) {

@@ -18,7 +18,7 @@
 
 #import <GoogleDataTransport/GDTUploadPackage.h>
 
-@class GDTEvent;
+@class GDTStoredEvent;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -46,18 +46,19 @@ typedef NS_OPTIONS(NSInteger, GDTUploadConditions) {
  * This method exists as a way to help prioritize which events should be sent, which is dependent on
  * the request proto structure of your backend.
  *
- * @note A couple of things: 1. The event cannot be retained for longer than the execution time of
- * this method. 2. You should retain the event hashes, because those are returned in
- * -uploadPackageWithConditions.
- *
  * @param event The event to prioritize.
  */
-- (void)prioritizeEvent:(GDTEvent *)event;
+- (void)prioritizeEvent:(GDTStoredEvent *)event;
 
-/** Unprioritizes an event. This method is called when an event has been removed from storage and
- * should no longer be given to an uploader.
+/** Unprioritizes a set of events. This method is called after all the events in the set have been
+ * removed from storage and from disk. It's passed as a set so that instead of having N blocks
+ * dispatched to a queue, it can be a single block--this prevents possible race conditions in which
+ * the storage system has removed the events, but the prioritizers haven't unprioritized the events
+ * because it was being done one at a time.
+ *
+ * @param events The set of events to unprioritize.
  */
-- (void)unprioritizeEvent:(NSNumber *)eventHash;
+- (void)unprioritizeEvents:(NSSet<GDTStoredEvent *> *)events;
 
 /** Returns a set of events to upload given a set of conditions.
  *

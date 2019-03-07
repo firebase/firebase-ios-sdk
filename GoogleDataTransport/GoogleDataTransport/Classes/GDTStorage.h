@@ -17,6 +17,7 @@
 #import <Foundation/Foundation.h>
 
 @class GDTEvent;
+@class GDTStoredEvent;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -30,27 +31,17 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)sharedInstance;
 
 /** Stores event.dataObjectTransportBytes into a shared on-device folder and tracks the event via
- * its hash and target properties.
- *
- * @note The event param is expected to be deallocated during this method.
+ * a GDTStoredEvent instance.
  *
  * @param event The event to store.
  */
 - (void)storeEvent:(GDTEvent *)event;
 
-/** Removes a set of event from storage specified by their hash.
+/** Removes a set of events from storage specified by their hash.
  *
- * @param eventHashes The set of event hashes to remove.
- * @param target The upload target the event files correspond to.
+ * @param events The set of stored events to remove.
  */
-- (void)removeEvents:(NSSet<NSNumber *> *)eventHashes target:(NSNumber *)target;
-
-/** Converts a set of event hashes to a set of event files.
- *
- * @param eventHashes A set of event hashes to get the files of.
- * @return A set of equivalent length, containing all the filenames corresponding to the hashes.
- */
-- (NSDictionary<NSNumber *, NSURL *> *)eventHashesToFiles:(NSSet<NSNumber *> *)eventHashes;
+- (void)removeEvents:(NSSet<GDTStoredEvent *> *)events;
 
 @end
 

@@ -21,9 +21,6 @@ NS_ASSUME_NONNULL_BEGIN
 /** A functionless fake that can be injected into classes that need it. */
 @interface GDTStorageFake : GDTStorage
 
-/** The events to return from -eventHashesToFiles. */
-@property(nonatomic) NSSet<NSURL *> *eventsToReturnFromEventHashesToFiles;
-
 @end
 
 NS_ASSUME_NONNULL_END

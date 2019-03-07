@@ -31,26 +31,16 @@
 
 - (instancetype)copy {
   GDTUploadPackage *newPackage = [[GDTUploadPackage alloc] init];
-  newPackage->_eventHashes = _eventHashes;
+  newPackage->_events = [_events copy];
   return newPackage;
 }
 
 - (NSUInteger)hash {
-  return [_eventHashes hash];
+  return [_events hash];
 }
 
 - (BOOL)isEqual:(id)object {
   return [self hash] == [object hash];
-}
-
-- (void)setEventHashes:(NSSet<NSNumber *> *)eventHashes {
-  if (eventHashes != _eventHashes) {
-    _eventHashes = [eventHashes copy];
-  }
-}
-
-- (NSDictionary<NSNumber *, NSURL *> *)eventHashesToFiles {
-  return [_storage eventHashesToFiles:_eventHashes];
 }
 
 - (void)setStorage:(GDTStorage *)storage {

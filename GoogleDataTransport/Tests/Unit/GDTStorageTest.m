@@ -17,6 +17,7 @@
 #import "GDTTestCase.h"
 
 #import <GoogleDataTransport/GDTEvent.h>
+#import <GoogleDataTransport/GDTStoredEvent.h>
 
 #import "GDTEvent_Private.h"
 #import "GDTRegistrar.h"
@@ -77,18 +78,16 @@ static NSInteger target = 1337;
 
 /** Tests storing an event. */
 - (void)testStoreEvent {
-  NSUInteger eventHash;
   // event is autoreleased, and the pool needs to drain.
   @autoreleasepool {
     GDTEvent *event = [[GDTEvent alloc] initWithMappingID:@"404" target:target];
     event.dataObjectTransportBytes = [@"testString" dataUsingEncoding:NSUTF8StringEncoding];
-    eventHash = event.hash;
     XCTAssertNoThrow([[GDTStorage sharedInstance] storeEvent:event]);
   }
   dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
-    XCTAssertEqual([GDTStorage sharedInstance].eventHashToFile.count, 1);
-    XCTAssertEqual([GDTStorage sharedInstance].targetToEventHashSet[@(target)].count, 1);
-    NSURL *eventFile = [GDTStorage sharedInstance].eventHashToFile[@(eventHash)];
+    XCTAssertEqual([GDTStorage sharedInstance].storedEvents.count, 1);
+    XCTAssertEqual([GDTStorage sharedInstance].targetToEventSet[@(target)].count, 1);
+    NSURL *eventFile = [[GDTStorage sharedInstance].storedEvents lastObject].eventFileURL;
     XCTAssertNotNil(eventFile);
     XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:eventFile.path]);
     NSError *error;
@@ -99,104 +98,113 @@ static NSInteger target = 1337;
 
 /** Tests removing an event. */
 - (void)testRemoveEvent {
-  NSUInteger eventHash;
   // event is autoreleased, and the pool needs to drain.
   @autoreleasepool {
     GDTEvent *event = [[GDTEvent alloc] initWithMappingID:@"404" target:target];
     event.dataObjectTransportBytes = [@"testString" dataUsingEncoding:NSUTF8StringEncoding];
-    eventHash = event.hash;
     XCTAssertNoThrow([[GDTStorage sharedInstance] storeEvent:event]);
   }
   __block NSURL *eventFile;
   dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
-    eventFile = [GDTStorage sharedInstance].eventHashToFile[@(eventHash)];
+    eventFile = [[GDTStorage sharedInstance].storedEvents lastObject].eventFileURL;
     XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:eventFile.path]);
   });
-  [[GDTStorage sharedInstance] removeEvents:[NSSet setWithObject:@(eventHash)] target:@(target)];
+  [[GDTStorage sharedInstance] removeEvents:[GDTStorage sharedInstance].storedEvents.set];
   dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
     XCTAssertFalse([[NSFileManager defaultManager] fileExistsAtPath:eventFile.path]);
-    XCTAssertEqual([GDTStorage sharedInstance].eventHashToFile.count, 0);
-    XCTAssertEqual([GDTStorage sharedInstance].targetToEventHashSet[@(target)].count, 0);
+    XCTAssertEqual([GDTStorage sharedInstance].storedEvents.count, 0);
+    XCTAssertEqual([GDTStorage sharedInstance].targetToEventSet[@(target)].count, 0);
   });
 }
 
 /** Tests removing a set of events. */
 - (void)testRemoveEvents {
   GDTStorage *storage = [GDTStorage sharedInstance];
-  NSUInteger event1Hash, event2Hash, event3Hash;
+  __block GDTStoredEvent *storedEvent1, *storedEvent2, *storedEvent3;
 
   // events are autoreleased, and the pool needs to drain.
   @autoreleasepool {
     GDTEvent *event = [[GDTEvent alloc] initWithMappingID:@"404" target:target];
     event.dataObjectTransportBytes = [@"testString1" dataUsingEncoding:NSUTF8StringEncoding];
-    event1Hash = event.hash;
     XCTAssertNoThrow([storage storeEvent:event]);
+    dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
+      storedEvent1 = [storage.storedEvents lastObject];
+    });
 
     event = [[GDTEvent alloc] initWithMappingID:@"100" target:target];
     event.dataObjectTransportBytes = [@"testString2" dataUsingEncoding:NSUTF8StringEncoding];
-    event2Hash = event.hash;
     XCTAssertNoThrow([storage storeEvent:event]);
+    dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
+      storedEvent2 = [storage.storedEvents lastObject];
+    });
 
     event = [[GDTEvent alloc] initWithMappingID:@"404" target:target];
     event.dataObjectTransportBytes = [@"testString3" dataUsingEncoding:NSUTF8StringEncoding];
-    event3Hash = event.hash;
     XCTAssertNoThrow([storage storeEvent:event]);
+    dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
+      storedEvent3 = [storage.storedEvents lastObject];
+    });
   }
-  NSSet<NSNumber *> *eventHashSet =
-      [NSSet setWithObjects:@(event1Hash), @(event2Hash), @(event3Hash), nil];
-  NSDictionary<NSNumber *, NSURL *> *eventFiles = [storage eventHashesToFiles:eventHashSet];
-  [storage removeEvents:eventHashSet target:@(target)];
+  NSSet<GDTStoredEvent *> *eventSet =
+      [NSSet setWithObjects:storedEvent1, storedEvent2, storedEvent3, nil];
+  [storage removeEvents:eventSet];
   dispatch_sync(storage.storageQueue, ^{
-    XCTAssertNil(storage.eventHashToFile[@(event1Hash)]);
-    XCTAssertNil(storage.eventHashToFile[@(event2Hash)]);
-    XCTAssertNil(storage.eventHashToFile[@(event3Hash)]);
-    XCTAssertEqual(storage.targetToEventHashSet[@(target)].count, 0);
-    for (NSURL *eventFile in [eventFiles allValues]) {
-      XCTAssertFalse([[NSFileManager defaultManager] fileExistsAtPath:eventFile.path]);
+    XCTAssertFalse([storage.storedEvents containsObject:storedEvent1]);
+    XCTAssertFalse([storage.storedEvents containsObject:storedEvent2]);
+    XCTAssertFalse([storage.storedEvents containsObject:storedEvent3]);
+    XCTAssertEqual(storage.targetToEventSet[@(target)].count, 0);
+    for (GDTStoredEvent *event in eventSet) {
+      XCTAssertFalse([[NSFileManager defaultManager] fileExistsAtPath:event.eventFileURL.path]);
     }
   });
 }
 
 /** Tests storing a few different events. */
 - (void)testStoreMultipleEvents {
-  NSUInteger event1Hash, event2Hash, event3Hash;
+  __block GDTStoredEvent *storedEvent1, *storedEvent2, *storedEvent3;
 
   // events are autoreleased, and the pool needs to drain.
   @autoreleasepool {
     GDTEvent *event = [[GDTEvent alloc] initWithMappingID:@"404" target:target];
     event.dataObjectTransportBytes = [@"testString1" dataUsingEncoding:NSUTF8StringEncoding];
-    event1Hash = event.hash;
     XCTAssertNoThrow([[GDTStorage sharedInstance] storeEvent:event]);
+    dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
+      storedEvent1 = [[GDTStorage sharedInstance].storedEvents lastObject];
+    });
 
     event = [[GDTEvent alloc] initWithMappingID:@"100" target:target];
     event.dataObjectTransportBytes = [@"testString2" dataUsingEncoding:NSUTF8StringEncoding];
-    event2Hash = event.hash;
     XCTAssertNoThrow([[GDTStorage sharedInstance] storeEvent:event]);
+    dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
+      storedEvent2 = [[GDTStorage sharedInstance].storedEvents lastObject];
+    });
 
     event = [[GDTEvent alloc] initWithMappingID:@"404" target:target];
     event.dataObjectTransportBytes = [@"testString3" dataUsingEncoding:NSUTF8StringEncoding];
-    event3Hash = event.hash;
     XCTAssertNoThrow([[GDTStorage sharedInstance] storeEvent:event]);
+    dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
+      storedEvent3 = [[GDTStorage sharedInstance].storedEvents lastObject];
+    });
   }
   dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
-    XCTAssertEqual([GDTStorage sharedInstance].eventHashToFile.count, 3);
-    XCTAssertEqual([GDTStorage sharedInstance].targetToEventHashSet[@(target)].count, 3);
+    XCTAssertEqual([GDTStorage sharedInstance].storedEvents.count, 3);
+    XCTAssertEqual([GDTStorage sharedInstance].targetToEventSet[@(target)].count, 3);
 
-    NSURL *event1File = [GDTStorage sharedInstance].eventHashToFile[@(event1Hash)];
+    NSURL *event1File = storedEvent1.eventFileURL;
     XCTAssertNotNil(event1File);
     XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:event1File.path]);
     NSError *error;
     XCTAssertTrue([[NSFileManager defaultManager] removeItemAtURL:event1File error:&error]);
     XCTAssertNil(error, @"There was an error deleting the eventFile: %@", error);
 
-    NSURL *event2File = [GDTStorage sharedInstance].eventHashToFile[@(event2Hash)];
+    NSURL *event2File = storedEvent2.eventFileURL;
     XCTAssertNotNil(event2File);
     XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:event2File.path]);
     error = nil;
     XCTAssertTrue([[NSFileManager defaultManager] removeItemAtURL:event2File error:&error]);
     XCTAssertNil(error, @"There was an error deleting the eventFile: %@", error);
 
-    NSURL *event3File = [GDTStorage sharedInstance].eventHashToFile[@(event3Hash)];
+    NSURL *event3File = storedEvent3.eventFileURL;
     XCTAssertNotNil(event3File);
     XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:event3File.path]);
     error = nil;
@@ -207,21 +215,24 @@ static NSInteger target = 1337;
 
 /** Tests enforcing that a prioritizer does not retain an event in memory. */
 - (void)testEventDeallocationIsEnforced {
-  XCTestExpectation *errorExpectation = [self expectationWithDescription:@"event retain error"];
-  [GDTAssertHelper setAssertionBlock:^{
-    [errorExpectation fulfill];
-  }];
+  __weak GDTEvent *weakEvent;
+  GDTStoredEvent *storedEvent;
+  @autoreleasepool {
+    GDTEvent *event = [[GDTEvent alloc] initWithMappingID:@"404" target:target];
+    weakEvent = event;
+    event.dataObjectTransportBytes = [@"testString" dataUsingEncoding:NSUTF8StringEncoding];
 
-  // event is referenced past -storeEvent, ensuring it's retained, which should assert.
-  GDTEvent *event = [[GDTEvent alloc] initWithMappingID:@"404" target:target];
-  event.dataObjectTransportBytes = [@"testString" dataUsingEncoding:NSUTF8StringEncoding];
-
-  // Store the event and wait for the expectation.
-  [[GDTStorage sharedInstance] storeEvent:event];
-  [self waitForExpectations:@[ errorExpectation ] timeout:5.0];
+    // Store the event and wait for the expectation.
+    [[GDTStorage sharedInstance] storeEvent:event];
+    storedEvent = [event storedEventWithFileURL:[NSURL fileURLWithPath:@"/test"]];
+  }
+  dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
+    XCTAssertNil(weakEvent);
+    XCTAssertNotNil(storedEvent);
+  });
 
   NSURL *eventFile;
-  eventFile = [GDTStorage sharedInstance].eventHashToFile[@(event.hash)];
+  eventFile = [[GDTStorage sharedInstance].storedEvents lastObject].eventFileURL;
 
   // This isn't strictly necessary because of the -waitForExpectations above.
   dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
@@ -229,12 +240,11 @@ static NSInteger target = 1337;
   });
 
   // Ensure event was removed.
-  NSNumber *eventHash = @(event.hash);
-  [[GDTStorage sharedInstance] removeEvents:[NSSet setWithObject:eventHash] target:@(target)];
+  [[GDTStorage sharedInstance] removeEvents:[GDTStorage sharedInstance].storedEvents.set];
   dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
     XCTAssertFalse([[NSFileManager defaultManager] fileExistsAtPath:eventFile.path]);
-    XCTAssertEqual([GDTStorage sharedInstance].eventHashToFile.count, 0);
-    XCTAssertEqual([GDTStorage sharedInstance].targetToEventHashSet[@(target)].count, 0);
+    XCTAssertEqual([GDTStorage sharedInstance].storedEvents.count, 0);
+    XCTAssertEqual([GDTStorage sharedInstance].targetToEventSet[@(target)].count, 0);
   });
 }
 
@@ -243,78 +253,42 @@ static NSInteger target = 1337;
   XCTAssertTrue([GDTStorage supportsSecureCoding]);
   GDTEvent *event = [[GDTEvent alloc] initWithMappingID:@"404" target:target];
   event.dataObjectTransportBytes = [@"testString" dataUsingEncoding:NSUTF8StringEncoding];
-  NSUInteger eventHash = event.hash;
   XCTAssertNoThrow([[GDTStorage sharedInstance] storeEvent:event]);
   event = nil;
   NSData *storageData = [NSKeyedArchiver archivedDataWithRootObject:[GDTStorage sharedInstance]];
   dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
-    XCTAssertNotNil([GDTStorage sharedInstance].eventHashToFile[@(eventHash)]);
+    XCTAssertNotNil([[GDTStorage sharedInstance].storedEvents lastObject]);
   });
-  [[GDTStorage sharedInstance] removeEvents:[NSSet setWithObject:@(eventHash)] target:@(target)];
+  [[GDTStorage sharedInstance] removeEvents:[GDTStorage sharedInstance].storedEvents.set];
   dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
-    XCTAssertNil([GDTStorage sharedInstance].eventHashToFile[@(eventHash)]);
+    XCTAssertNil([[GDTStorage sharedInstance].storedEvents lastObject]);
   });
 
   // TODO(mikehaney24): Ensure that the object created by alloc is discarded?
-  [NSKeyedUnarchiver unarchiveObjectWithData:storageData];
-  XCTAssertNotNil([GDTStorage sharedInstance].eventHashToFile[@(eventHash)]);
+  GDTStorage *unarchivedStorage = [NSKeyedUnarchiver unarchiveObjectWithData:storageData];
+  XCTAssertNotNil([unarchivedStorage.storedEvents lastObject]);
 }
 
 /** Tests sending a fast priority event causes an upload attempt. */
 - (void)testQoSTierFast {
-  NSUInteger eventHash;
   // event is autoreleased, and the pool needs to drain.
   @autoreleasepool {
     GDTEvent *event = [[GDTEvent alloc] initWithMappingID:@"404" target:target];
     event.dataObjectTransportBytes = [@"testString" dataUsingEncoding:NSUTF8StringEncoding];
     event.qosTier = GDTEventQoSFast;
-    eventHash = event.hash;
     XCTAssertFalse(self.uploaderFake.forceUploadCalled);
     XCTAssertNoThrow([[GDTStorage sharedInstance] storeEvent:event]);
   }
   dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
     XCTAssertTrue(self.uploaderFake.forceUploadCalled);
-    XCTAssertEqual([GDTStorage sharedInstance].eventHashToFile.count, 1);
-    XCTAssertEqual([GDTStorage sharedInstance].targetToEventHashSet[@(target)].count, 1);
-    NSURL *eventFile = [GDTStorage sharedInstance].eventHashToFile[@(eventHash)];
+    XCTAssertEqual([GDTStorage sharedInstance].storedEvents.count, 1);
+    XCTAssertEqual([GDTStorage sharedInstance].targetToEventSet[@(target)].count, 1);
+    NSURL *eventFile = [[GDTStorage sharedInstance].storedEvents lastObject].eventFileURL;
     XCTAssertNotNil(eventFile);
     XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:eventFile.path]);
     NSError *error;
     XCTAssertTrue([[NSFileManager defaultManager] removeItemAtURL:eventFile error:&error]);
     XCTAssertNil(error, @"There was an error deleting the eventFile: %@", error);
-  });
-}
-
-/** Tests convert a set of event hashes to a set of event file URLS. */
-- (void)testEventHashesToFiles {
-  GDTStorage *storage = [GDTStorage sharedInstance];
-  NSUInteger event1Hash, event2Hash, event3Hash;
-
-  // events are autoreleased, and the pool needs to drain.
-  @autoreleasepool {
-    GDTEvent *event = [[GDTEvent alloc] initWithMappingID:@"404" target:target];
-    event.dataObjectTransportBytes = [@"testString1" dataUsingEncoding:NSUTF8StringEncoding];
-    event1Hash = event.hash;
-    XCTAssertNoThrow([storage storeEvent:event]);
-
-    event = [[GDTEvent alloc] initWithMappingID:@"100" target:target];
-    event.dataObjectTransportBytes = [@"testString2" dataUsingEncoding:NSUTF8StringEncoding];
-    event2Hash = event.hash;
-    XCTAssertNoThrow([storage storeEvent:event]);
-
-    event = [[GDTEvent alloc] initWithMappingID:@"404" target:target];
-    event.dataObjectTransportBytes = [@"testString3" dataUsingEncoding:NSUTF8StringEncoding];
-    event3Hash = event.hash;
-    XCTAssertNoThrow([storage storeEvent:event]);
-  }
-  NSSet<NSNumber *> *eventHashSet =
-      [NSSet setWithObjects:@(event1Hash), @(event2Hash), @(event3Hash), nil];
-  NSDictionary<NSNumber *, NSURL *> *eventFiles = [storage eventHashesToFiles:eventHashSet];
-  dispatch_sync(storage.storageQueue, ^{
-    XCTAssertEqual(eventFiles.count, 3);
-    XCTAssertEqualObjects(eventFiles[@(event1Hash)], storage.eventHashToFile[@(event1Hash)]);
-    XCTAssertEqualObjects(eventFiles[@(event2Hash)], storage.eventHashToFile[@(event2Hash)]);
-    XCTAssertEqualObjects(eventFiles[@(event3Hash)], storage.eventHashToFile[@(event3Hash)]);
   });
 }
 

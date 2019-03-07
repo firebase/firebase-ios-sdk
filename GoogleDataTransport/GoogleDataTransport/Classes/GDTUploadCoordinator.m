@@ -51,18 +51,19 @@
   return self;
 }
 
-- (void)forceUploadEvents:(NSSet<NSNumber *> *)eventHashes target:(GDTTarget)target {
+- (void)forceUploadEvents:(NSSet<GDTStoredEvent *> *)events target:(GDTTarget)target {
   dispatch_async(_coordinationQueue, ^{
+    GDTLogWarning(GDTMCWForcedUpload, @"%@", @"A high priority event has caused an upload.");
     NSNumber *targetNumber = @(target);
     GDTRegistrar *registrar = self->_registrar;
     GDTUploadCoordinatorForceUploadBlock forceUploadBlock = ^{
-      GDTAssert(eventHashes.count, @"It doesn't make sense to force upload of 0 events");
+      GDTAssert(events.count, @"It doesn't make sense to force upload of 0 events");
       id<GDTUploader> uploader = registrar.targetToUploader[targetNumber];
       GDTUploadPackage *package = [[GDTUploadPackage alloc] init];
-      package.eventHashes = [eventHashes copy];
+      package.events = [events copy];
       GDTAssert(uploader, @"Target '%@' is missing an implementation", targetNumber);
       [uploader uploadPackage:package onComplete:self.onCompleteBlock];
-      self->_targetToInFlightEventSet[targetNumber] = eventHashes;
+      self->_targetToInFlightEventSet[targetNumber] = events;
     };
 
     // Enqueue the force upload block if there's an in-flight upload for that target already.
@@ -102,10 +103,10 @@
             return;
           }
           strongSelf->_targetToNextUploadTimes[targetNumber] = nextUploadAttemptUTC;
-          NSSet<NSNumber *> *eventHashSet =
+          NSSet<GDTStoredEvent *> *events =
               [strongSelf->_targetToInFlightEventSet objectForKey:targetNumber];
-          GDTAssert(eventHashSet, @"There should be an in-flight event set to remove.");
-          [strongSelf.storage removeEvents:eventHashSet target:targetNumber];
+          GDTAssert(events, @"There should be an in-flight event set to remove.");
+          [strongSelf.storage removeEvents:events];
           [strongSelf->_targetToInFlightEventSet removeObjectForKey:targetNumber];
           if (strongSelf->_forcedUploadQueue.count) {
             GDTUploadCoordinatorForceUploadBlock queuedBlock =
@@ -161,10 +162,8 @@
         GDTUploadConditions conds = [self uploadConditions];
         GDTUploadPackage *package = [[prioritizer uploadPackageWithConditions:conds] copy];
         package.storage = strongSelf.storage;
-        if (package.eventHashes && package.eventHashes.count > 0) {
-          NSAssert(package.eventHashesToFiles.count == package.eventHashes.count,
-                   @"There should be the same number of files to events");
-          strongSelf->_targetToInFlightEventSet[target] = package.eventHashes;
+        if (package.events && package.events.count > 0) {
+          strongSelf->_targetToInFlightEventSet[target] = package.events;
           [uploader uploadPackage:package onComplete:self.onCompleteBlock];
         }
       }

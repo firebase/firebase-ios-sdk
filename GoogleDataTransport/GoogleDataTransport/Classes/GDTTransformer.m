@@ -21,7 +21,6 @@
 
 #import "GDTAssert.h"
 #import "GDTConsoleLogger.h"
-#import "GDTEvent_Private.h"
 #import "GDTStorage.h"
 
 @implementation GDTTransformer

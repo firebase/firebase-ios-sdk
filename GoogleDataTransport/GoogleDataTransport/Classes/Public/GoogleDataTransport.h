@@ -20,5 +20,6 @@
 #import "GDTEventTransformer.h"
 #import "GDTPrioritizer.h"
 #import "GDTRegistrar.h"
+#import "GDTStoredEvent.h"
 #import "GDTTransport.h"
 #import "GDTUploader.h"

@@ -16,13 +16,12 @@
 
 #import <Foundation/Foundation.h>
 
+@class GDTStoredEvent;
+
 /** This class is a container that's handed off to uploaders. */
 @interface GDTUploadPackage : NSObject
 
-/** The set of event hashes in this upload package. */
-@property(nonatomic) NSSet<NSNumber *> *eventHashes;
-
-/** A lazily-determined map of event hashes to their files. */
-@property(nonatomic, readonly) NSDictionary<NSNumber *, NSURL *> *eventHashesToFiles;
+/** The set of stored events in this upload package. */
+@property(nonatomic) NSSet<GDTStoredEvent *> *events;
 
 @end

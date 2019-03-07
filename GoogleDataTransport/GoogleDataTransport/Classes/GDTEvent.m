@@ -16,6 +16,8 @@
 
 #import <GoogleDataTransport/GDTEvent.h>
 
+#import <GoogleDataTransport/GDTStoredEvent.h>
+
 #import "GDTAssert.h"
 #import "GDTEvent_Private.h"
 
@@ -59,6 +61,10 @@
     _dataObject = dataObject;
     _dataObjectTransportBytes = [dataObject transportBytes];
   }
+}
+
+- (GDTStoredEvent *)storedEventWithFileURL:(NSURL *)fileURL {
+  return [[GDTStoredEvent alloc] initWithFileURL:fileURL event:self];
 }
 
 #pragma mark - NSSecureCoding and NSCoding Protocols

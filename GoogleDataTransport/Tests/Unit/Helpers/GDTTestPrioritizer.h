@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nullable, nonatomic) GDTUploadPackage *uploadPackage;
 
 /** Allows the running of a block of code during -prioritizeEvent. */
-@property(nullable, nonatomic) void (^prioritizeEventBlock)(GDTEvent *event);
+@property(nullable, nonatomic) void (^prioritizeEventBlock)(GDTStoredEvent *event);
 
 /** A block that can run before -uploadPackageWithConditions completes. */
 @property(nullable, nonatomic) void (^uploadPackageWithConditionsBlock)(void);
