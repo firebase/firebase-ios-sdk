@@ -92,8 +92,7 @@ FIRCollectionReference* Firestore::GetCollection(
 
 DocumentReference Firestore::GetDocument(absl::string_view document_path) {
   EnsureClientConfigured();
-  ResourcePath path = ResourcePath::FromString(document_path);
-  return DocumentReference{this, DocumentKey{path}};
+  return DocumentReference{this, ResourcePath::FromString(document_path)};
 }
 
 FIRWriteBatch* Firestore::GetBatch(FIRFirestore* firestore) {

@@ -34,6 +34,7 @@
 #include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/api/handle_maybe.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -54,6 +55,7 @@ class DocumentReference {
                                       NSError* _Nullable error) _Nullable;
 
   DocumentReference() = default;
+  DocumentReference(Firestore* firestore, model::ResourcePath path);
   DocumentReference(Firestore* firestore, model::DocumentKey document_key)
       : firestore_{firestore}, key_{std::move(document_key)} {
   }
