@@ -19,6 +19,7 @@
 #import <OCMock/OCMock.h>
 #import "FIRInstanceIDFakeKeychain.h"
 #import "FIRInstanceIDTokenManager+Test.h"
+#import "Firebase/InstanceID/FIRInstanceIDAuthService.h"
 #import "Firebase/InstanceID/FIRInstanceIDBackupExcludedPlist.h"
 #import "Firebase/InstanceID/FIRInstanceIDCheckinPreferences+Internal.h"
 #import "Firebase/InstanceID/FIRInstanceIDCheckinStore.h"
@@ -502,6 +503,16 @@ static NSString *const kNewAPNSTokenString = @"newAPNSData";
         [self.tokenManager cachedTokenInfoWithAuthorizedEntity:entity scope:kScope];
     XCTAssertNotNil(cachedTokenInfo);
   }
+}
+
+- (void)testFirebaseUserAgentIsPassedToAuthService {
+  XCTAssertEqualObjects(self.tokenManager.firebaseUserAgent,
+                        self.tokenManager.authService.firebaseUserAgent);
+
+  self.tokenManager.firebaseUserAgent = @"Fake firebaseUserAgent";
+
+  XCTAssertEqualObjects(self.tokenManager.firebaseUserAgent,
+                        self.tokenManager.authService.firebaseUserAgent);
 }
 
 - (void)triggerAPNSTokenChange {

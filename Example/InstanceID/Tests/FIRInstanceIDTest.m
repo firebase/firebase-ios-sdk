@@ -52,6 +52,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 - (NSString *)cachedTokenIfAvailable;
 - (void)deleteIdentityWithHandler:(FIRInstanceIDDeleteHandler)handler;
 + (FIRInstanceID *)instanceIDForTests;
+- (void)configureInstanceIDWithOptions:(FIROptions *)options app:(FIRApp *)firApp;
 @end
 
 @interface FIRInstanceIDTest : XCTestCase
@@ -986,6 +987,21 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   }];
 
   [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
+- (void)testInstanceIDConfigureWithOptionsSetsUserAgentForTokenManager {
+  // The shared instance relies on the default app being configured. Configure it.
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
+                                                    GCMSenderID:kGCMSenderID];
+
+  FIRApp *app = [[FIRApp alloc] initInstanceWithName:@"FIRInstanceIDTest" options:options];
+
+  NSString *expectedUserAgent = [[app class] firebaseUserAgent];
+  OCMExpect([self.mockTokenManager setFirebaseUserAgent:[OCMArg isEqual:expectedUserAgent]]);
+
+  [self.instanceID configureInstanceIDWithOptions:options app:app];
+
+  OCMVerifyAll(self.mockTokenManager);
 }
 
 #pragma mark - Private Helpers
