@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2544AF6B2230656D00C5B420 /* CardMessageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2544AF6A2230656D00C5B420 /* CardMessageViewController.swift */; };
 		4265DE16D92C99B9A6E56539 /* Pods_FiamDisplaySwiftExample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5C72088F73776B875CB106D8 /* Pods_FiamDisplaySwiftExample.framework */; };
 		AD7200B52124D19200AFD5F3 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD7200B42124D19200AFD5F3 /* AppDelegate.swift */; };
 		AD7200BA2124D19200AFD5F3 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AD7200B82124D19200AFD5F3 /* Main.storyboard */; };
@@ -34,6 +35,7 @@
 
 /* Begin PBXFileReference section */
 		0F66149C0079E8409F390CBE /* Pods-InAppMessagingDisplay-Sample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-InAppMessagingDisplay-Sample.release.xcconfig"; path = "Pods/Target Support Files/Pods-InAppMessagingDisplay-Sample/Pods-InAppMessagingDisplay-Sample.release.xcconfig"; sourceTree = "<group>"; };
+		2544AF6A2230656D00C5B420 /* CardMessageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardMessageViewController.swift; sourceTree = "<group>"; };
 		46449F37C45EA76C97C32634 /* Pods-FiamDisplaySwiftExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FiamDisplaySwiftExample.release.xcconfig"; path = "Pods/Target Support Files/Pods-FiamDisplaySwiftExample/Pods-FiamDisplaySwiftExample.release.xcconfig"; sourceTree = "<group>"; };
 		5C72088F73776B875CB106D8 /* Pods_FiamDisplaySwiftExample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FiamDisplaySwiftExample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		8FF302EB136148B923534F2E /* Pods-FiamDisplaySwiftExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FiamDisplaySwiftExample.debug.xcconfig"; path = "Pods/Target Support Files/Pods-FiamDisplaySwiftExample/Pods-FiamDisplaySwiftExample.debug.xcconfig"; sourceTree = "<group>"; };
@@ -108,6 +110,7 @@
 				AD7200BB2124D19400AFD5F3 /* Assets.xcassets */,
 				AD7200BD2124D19400AFD5F3 /* LaunchScreen.storyboard */,
 				AD7200C02124D19400AFD5F3 /* Info.plist */,
+				2544AF6A2230656D00C5B420 /* CardMessageViewController.swift */,
 			);
 			path = FiamDisplaySwiftExample;
 			sourceTree = "<group>";
@@ -307,6 +310,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2544AF6B2230656D00C5B420 /* CardMessageViewController.swift in Sources */,
 				AD7200C82124E24300AFD5F3 /* ImageOnlyMessageViewController.swift in Sources */,
 				AD7200CA2124E24300AFD5F3 /* ModalMessageViewController.swift in Sources */,
 				AD7200CC2124E2A800AFD5F3 /* CommonMessageTestVC.swift in Sources */,

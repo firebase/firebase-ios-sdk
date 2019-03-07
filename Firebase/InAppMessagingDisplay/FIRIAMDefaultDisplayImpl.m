@@ -19,6 +19,7 @@
 #import <FirebaseCore/FIRAppInternal.h>
 
 #import "FIDBannerViewController.h"
+#import "FIDCardViewController.h"
 #import "FIDImageOnlyViewController.h"
 #import "FIDModalViewController.h"
 #import "FIDRenderingWindowHelper.h"
@@ -67,6 +68,42 @@
     }
   });
   return resourceBundle;
+}
+
++ (void)displayCardViewWithMessageDefinition:(FIRInAppMessagingCardDisplay *)cardMessage
+                             displayDelegate:(id<FIRInAppMessagingDisplayDelegate>)displayDelegate {
+  NSBundle *resourceBundle = [self getViewResourceBundle];
+
+  if (resourceBundle == nil) {
+    NSError *error = [NSError errorWithDomain:kFirebaseInAppMessagingDisplayErrorDomain
+                                         code:FIAMDisplayRenderErrorTypeUnspecifiedError
+                                     userInfo:@{@"message" : @"resource bundle is missing"}];
+    [displayDelegate displayErrorForMessage:cardMessage error:error];
+    return;
+  }
+
+  dispatch_async(dispatch_get_main_queue(), ^{
+    FIDTimerWithNSDate *timeFetcher = [[FIDTimerWithNSDate alloc] init];
+    FIDCardViewController *cardVC =
+        [FIDCardViewController instantiateViewControllerWithResourceBundle:resourceBundle
+                                                            displayMessage:cardMessage
+                                                           displayDelegate:displayDelegate
+                                                               timeFetcher:timeFetcher];
+
+    if (cardVC == nil) {
+      FIRLogWarning(kFIRLoggerInAppMessagingDisplay, @"I-FID100011",
+                    @"View controller can not be created.");
+      NSError *error = [NSError errorWithDomain:kFirebaseInAppMessagingDisplayErrorDomain
+                                           code:FIAMDisplayRenderErrorTypeUnspecifiedError
+                                       userInfo:@{}];
+      [displayDelegate displayErrorForMessage:cardMessage error:error];
+      return;
+    }
+
+    UIWindow *displayUIWindow = [FIDRenderingWindowHelper UIWindowForModalView];
+    displayUIWindow.rootViewController = cardVC;
+    [displayUIWindow setHidden:NO];
+  });
 }
 
 + (void)displayModalViewWithMessageDefinition:(FIRInAppMessagingModalDisplay *)modalMessage
@@ -200,6 +237,12 @@
     [self.class displayImageOnlyViewWithMessageDefinition:(FIRInAppMessagingImageOnlyDisplay *)
                                                               messageForDisplay
                                           displayDelegate:displayDelegate];
+  } else if ([messageForDisplay isKindOfClass:[FIRInAppMessagingCardDisplay class]]) {
+    FIRLogDebug(kFIRLoggerInAppMessagingDisplay, @"I-FID100009", @"Display a card message");
+    [self.class displayCardViewWithMessageDefinition:(FIRInAppMessagingCardDisplay *)
+                                                         messageForDisplay
+                                     displayDelegate:displayDelegate];
+
   } else {
     FIRLogWarning(kFIRLoggerInAppMessagingDisplay, @"I-FID100003",
                   @"Unknown message type %@ "

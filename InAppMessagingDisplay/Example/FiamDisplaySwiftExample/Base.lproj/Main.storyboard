@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14113" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="3pN-pw-EY2">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="3pN-pw-EY2">
     <device id="retina5_5" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14460.20"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -325,11 +325,62 @@
                         <segue destination="BYZ-38-t0r" kind="relationship" relationship="viewControllers" id="vjd-Pj-odJ"/>
                         <segue destination="ttC-lg-4V1" kind="relationship" relationship="viewControllers" id="KIt-l5-XTe"/>
                         <segue destination="3X5-S5-3oo" kind="relationship" relationship="viewControllers" id="c5a-QK-OKw"/>
+                        <segue destination="7qp-KF-emt" kind="relationship" relationship="viewControllers" id="5Za-CI-fkn"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="kJN-c1-1dl" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="139.4021739130435" y="95.652173913043484"/>
+        </scene>
+        <!--Card Messages-->
+        <scene sceneID="lTf-2W-Yrp">
+            <objects>
+                <viewController id="7qp-KF-emt" userLabel="Card Messages" customClass="CardMessageViewController" customModule="FiamDisplaySwiftExample" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="A8k-VD-CtE"/>
+                        <viewControllerLayoutGuide type="bottom" id="X2N-2U-Eje"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="CBW-Xw-spg">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="hgf-QM-eOg">
+                                <rect key="frame" x="0.0" y="20" width="414" height="667"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Verification Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ts8-L7-y9b">
+                                        <rect key="frame" x="0.0" y="0.0" width="414" height="333.66666666666669"/>
+                                        <accessibility key="accessibilityConfiguration" identifier="verification-label-modal"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ITc-lu-jBW">
+                                        <rect key="frame" x="0.0" y="333.66666666666674" width="414" height="333.33333333333326"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="11"/>
+                                        <state key="normal" title="Regular"/>
+                                        <connections>
+                                            <action selector="showRegular:" destination="7qp-KF-emt" eventType="touchUpInside" id="bC3-R5-7LF"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                            </stackView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="X2N-2U-Eje" firstAttribute="top" secondItem="hgf-QM-eOg" secondAttribute="bottom" id="3Uf-aa-woV"/>
+                            <constraint firstItem="hgf-QM-eOg" firstAttribute="centerX" secondItem="CBW-Xw-spg" secondAttribute="centerX" id="8Ti-Ml-l6D"/>
+                            <constraint firstItem="hgf-QM-eOg" firstAttribute="top" secondItem="A8k-VD-CtE" secondAttribute="bottom" id="YT5-j4-b8g"/>
+                            <constraint firstItem="hgf-QM-eOg" firstAttribute="width" secondItem="CBW-Xw-spg" secondAttribute="width" id="Zui-ty-Day"/>
+                        </constraints>
+                    </view>
+                    <tabBarItem key="tabBarItem" title="Card Messages" id="ojf-YC-btZ"/>
+                    <connections>
+                        <outlet property="verifyLabel" destination="ts8-L7-y9b" id="6Dm-Fi-dhQ"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="W6A-nN-JfC" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1733" y="95"/>
         </scene>
     </scenes>
 </document>
