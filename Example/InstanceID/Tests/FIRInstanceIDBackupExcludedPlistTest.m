@@ -38,16 +38,15 @@ static NSString *const kTestPlistFileName = @"com.google.test.IIDBackupExcludedP
 
 - (void)setUp {
   [super setUp];
-  [FIRInstanceIDStore createApplicationSupportSubDirectory:kApplicationSupportSubDirectoryName];
+  [FIRInstanceIDStore createSubDirectory:kApplicationSupportSubDirectoryName];
   self.plist = [[FIRInstanceIDBackupExcludedPlist alloc]
-                    initWithFileName:kTestPlistFileName
-      applicationSupportSubDirectory:kApplicationSupportSubDirectoryName];
+      initWithFileName:kTestPlistFileName
+          subDirectory:kApplicationSupportSubDirectoryName];
 }
 
 - (void)tearDown {
   [self.plist deleteFile:nil];
-  [FIRInstanceIDStore removeApplicationSupportSubDirectory:kApplicationSupportSubDirectoryName
-                                                     error:nil];
+  [FIRInstanceIDStore removeSubDirectory:kApplicationSupportSubDirectoryName error:nil];
   [super tearDown];
 }
 
@@ -84,7 +83,7 @@ static NSString *const kTestPlistFileName = @"com.google.test.IIDBackupExcludedP
 - (void)testMovePlistToApplicationSupportDirectorySuccess {
   NSDictionary *plistContents = @{@"hello" : @"world", @"id" : @123};
   [self.plist writeDictionary:plistContents error:nil];
-  [self.plist moveToApplicationSupportSubDirectory];
+  [self.plist moveToApplicationSupportSubDirectory:kApplicationSupportSubDirectoryName];
   XCTAssertTrue([self isPlistInApplicationSupportDirectory]);
   XCTAssertFalse([self isPlistInDocumentsDirectory]);
 
@@ -95,15 +94,14 @@ static NSString *const kTestPlistFileName = @"com.google.test.IIDBackupExcludedP
 
 - (void)testMovePlistToApplicationSupportDirectoryFailure {
   // Delete the subdirectory
-  [FIRInstanceIDStore removeApplicationSupportSubDirectory:kApplicationSupportSubDirectoryName
-                                                     error:nil];
+  [FIRInstanceIDStore removeSubDirectory:kApplicationSupportSubDirectoryName error:nil];
 
   // Create a new plistl This would try to move or write to the ApplicationSupport directory
   // but since the subdirectory is not there anymore it will fail and rather write to the
   // Documents folder.
   self.plist = [[FIRInstanceIDBackupExcludedPlist alloc]
-                    initWithFileName:kTestPlistFileName
-      applicationSupportSubDirectory:kApplicationSupportSubDirectoryName];
+      initWithFileName:kTestPlistFileName
+          subDirectory:kApplicationSupportSubDirectoryName];
 
   NSDictionary *plistContents = @{@"hello" : @"world", @"id" : @123};
   [self.plist writeDictionary:plistContents error:nil];

@@ -55,6 +55,7 @@
                   msg:(NSString *)fmt, ... {
   va_list args;
   va_start(args, fmt);
+  return;
   FIRLogBasic(FIRLoggerLevelNotice, kFIRLoggerMessaging,
               [FIRMessagingLogger formatMessageCode:messageCode], fmt, args);
   va_end(args);
@@ -65,6 +66,7 @@
                    msg:(NSString *)fmt, ... {
   va_list args;
   va_start(args, fmt);
+  return;
   FIRLogBasic(FIRLoggerLevelWarning, kFIRLoggerMessaging,
               [FIRMessagingLogger formatMessageCode:messageCode], fmt, args);
   va_end(args);
