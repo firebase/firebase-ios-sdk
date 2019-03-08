@@ -23,9 +23,8 @@ static NSString *const kPayloadOptionsName = @"fcm_options";
 static NSString *const kPayloadOptionsImageURLName = @"image";
 
 @interface FIRMessagingExtensionHelper ()
-
-@property(nonatomic, strong) void (^contentHandler)(UNNotificationContent *contentToDeliver);
-@property(nonatomic, strong) UNMutableNotificationContent *bestAttemptContent;
+@property(nonatomic, strong) void (^contentHandler)(UNNotificationContent *contentToDeliver) NS_AVAILABLE_IOS(10.0);
+@property(nonatomic, strong) UNMutableNotificationContent *bestAttemptContent NS_AVAILABLE_IOS(10.0);
 
 @end
 
@@ -41,6 +40,7 @@ static NSString *const kPayloadOptionsImageURLName = @"image";
     [self deliverNotification];
     return;
   }
+#if TARGET_OS_IOS
   NSURL *attachmentURL = [NSURL URLWithString:currentImageURL];
   if (attachmentURL) {
     [self loadAttachmentForURL:attachmentURL
@@ -53,15 +53,18 @@ static NSString *const kPayloadOptionsImageURLName = @"image";
                             @"The Image URL provided is invalid %@.", currentImageURL);
     [self deliverNotification];
   }
+#else
+  [self deliverNotification];
+#endif
 }
 
+#if TARGET_OS_IOS
 - (void)loadAttachmentForURL:(NSURL *)attachmentURL
-           completionHandler:(void (^)(UNNotificationAttachment *))completionHandler {
+           completionHandler:(void (^)(UNNotificationAttachment *))completionHandler NS_AVAILABLE_IOS(10.0) {
   __block UNNotificationAttachment *attachment = nil;
 
   NSURLSession *session = [NSURLSession
       sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
-  __weak FIRMessagingExtensionHelper *weakSelf = self;
   [[session
       downloadTaskWithURL:attachmentURL
         completionHandler:^(NSURL *temporaryFileLocation, NSURLResponse *response, NSError *error) {
@@ -69,7 +72,7 @@ static NSString *const kPayloadOptionsImageURLName = @"image";
             FIRMessagingLoggerError(kFIRMessagingServiceExtensionImageNotDownloaded,
                                     @"Failed to download image given URL %@, error: %@\n",
                                     attachmentURL, error);
-            [weakSelf deliverNotification];
+            completionHandler(attachment);
             return;
           }
 
@@ -84,7 +87,7 @@ static NSString *const kPayloadOptionsImageURLName = @"image";
                 kFIRMessagingServiceExtensionLocalFileNotCreated,
                 @"Failed to move the image file to local location: %@, error: %@\n", localURL,
                 error);
-            [weakSelf deliverNotification];
+            completionHandler(attachment);
             return;
           }
 
@@ -96,16 +99,19 @@ static NSString *const kPayloadOptionsImageURLName = @"image";
             FIRMessagingLoggerError(kFIRMessagingServiceExtensionImageNotAttached,
                                     @"Failed to attach the image to attachments, error: %@\n",
                                     error);
-            [weakSelf deliverNotification];
+            completionHandler(attachment);
             return;
           }
           completionHandler(attachment);
         }] resume];
 }
+#endif
 
 - (void)deliverNotification {
-  if (self.contentHandler) {
-    self.contentHandler(self.bestAttemptContent);
+  if (@available(iOS 10, *)) {
+    if (self.contentHandler) {
+      self.contentHandler(self.bestAttemptContent);
+    }
   }
 }
 

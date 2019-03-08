@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 #import <UserNotifications/UserNotifications.h>
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -25,7 +26,8 @@ NS_ASSUME_NONNULL_BEGIN
 /// make sure to make your customized motification to the content before passing it to
 /// this call.
 - (void)populateNotificationContent:(UNMutableNotificationContent *)content
-                 withContentHandler:(void (^)(UNNotificationContent *_Nonnull))contentHandler;
+                 withContentHandler:(void (^)(UNNotificationContent *_Nonnull))contentHandler NS_AVAILABLE_IOS(10.0);
+
 @end
 
 NS_ASSUME_NONNULL_END
