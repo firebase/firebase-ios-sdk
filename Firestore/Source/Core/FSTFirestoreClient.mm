@@ -351,7 +351,7 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
     }
 
     if (completion) {
-      self->_userExecutor->Execute([=] { completion(maybe_snapshot); });
+      self->_userExecutor->Execute([=] { completion(std::move(maybe_snapshot)); });
     }
   });
 }

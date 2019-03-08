@@ -201,8 +201,8 @@ id<FIRListenerRegistration> DocumentReference::AddSnapshotListener(
                 // We don't raise `has_pending_writes` for deleted documents.
                 : false;
 
-        DocumentSnapshot result{firestore, key, document, snapshot.from_cache(),
-                                has_pending_writes};
+        DocumentSnapshot result{firestore, std::move(key), document,
+                                snapshot.from_cache(), has_pending_writes};
         listener(std::move(result));
       };
 
