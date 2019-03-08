@@ -20,9 +20,8 @@
 #include <unordered_map>
 #include <vector>
 
-#import "Firestore/Source/Remote/FSTRemoteStore.h"
-
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
@@ -35,7 +34,6 @@
 @class FSTMutationResult;
 @class FSTQuery;
 @class FSTQueryData;
-@class FSTViewSnapshot;
 @protocol FSTPersistence;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -46,8 +44,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FSTQueryEvent : NSObject
 @property(nonatomic, strong) FSTQuery *query;
-@property(nonatomic, strong, nullable) FSTViewSnapshot *viewSnapshot;
 @property(nonatomic, strong, nullable) NSError *error;
+
+- (const absl::optional<firebase::firestore::core::ViewSnapshot> &)viewSnapshot;
+- (void)setViewSnapshot:(absl::optional<firebase::firestore::core::ViewSnapshot>)snapshot;
+
 @end
 
 /** Holds an outstanding write and its result. */
@@ -286,7 +287,7 @@ typedef std::unordered_map<firebase::firestore::auth::User,
  * outstanding persisted mutations.
  *
  * Note: The size of the list for the current user will generally be the same as
- * sentWritesCount, but not necessarily, since the FSTRemoteStore limits the number of
+ * sentWritesCount, but not necessarily, since the `RemoteStore` limits the number of
  * outstanding writes to the backend at a given time.
  */
 @property(nonatomic, assign, readonly) const FSTOutstandingWriteQueues &outstandingWrites;

@@ -131,7 +131,7 @@ class WriteStream : public Stream {
   virtual void WriteHandshake();
 
   /** Sends a group of mutations to the Firestore backend to apply. */
-  virtual void WriteMutations(NSArray<FSTMutation*>* mutations);
+  virtual void WriteMutations(const std::vector<FSTMutation*>& mutations);
 
  protected:
   // For tests only

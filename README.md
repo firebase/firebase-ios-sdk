@@ -2,8 +2,8 @@
 
 This repository contains a subset of the Firebase iOS SDK source. It currently
 includes FirebaseCore, FirebaseAuth, FirebaseDatabase, FirebaseFirestore,
-FirebaseFunctions, FirebaseInAppMessagingDisplay, FirebaseMessaging and
-FirebaseStorage.
+FirebaseFunctions, FirebaseInstanceID, FirebaseInAppMessaging,
+FirebaseInAppMessagingDisplay, FirebaseMessaging and FirebaseStorage.
 
 The repository also includes GoogleUtilities source. The
 [GoogleUtilities](GoogleUtilities/README.md) pod is
@@ -86,6 +86,10 @@ Firestore and Functions have self contained Xcode projects. See
 
 ### Code Formatting
 
+To ensure that the code is formatted consistently, run the script
+[./scripts/style.sh](https://github.com/firebase/firebase-ios-sdk/blob/master/scripts/style.sh)
+before creating a PR.
+
 Travis will verify that any code changes are done in a style compliant way. Install
 `clang-format` and `swiftformat`.
 This command will get the right `clang-format` version:
@@ -95,6 +99,14 @@ This command will get the right `clang-format` version:
 ### Running Unit Tests
 
 Select a scheme and press Command-u to build a component and run its unit tests.
+
+#### Viewing Code Coverage
+
+First, make sure that [xcov](https://github.com/nakiostudio/xcov) is installed with `gem install xcov`.
+
+After running the `AllUnitTests_iOS` scheme in Xcode, execute
+`xcov --workspace Firebase.xcworkspace --scheme AllUnitTests_iOS --output_directory xcov_output`
+at Example/ in the terminal. This will aggregate the coverage, and you can run `open xcov_output/index.html` to see the results.
 
 ### Running Sample Apps
 In order to run the sample apps and integration tests, you'll need valid

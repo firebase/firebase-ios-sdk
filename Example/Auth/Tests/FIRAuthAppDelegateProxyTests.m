@@ -376,12 +376,12 @@ NS_ASSUME_NONNULL_BEGIN
     XCTFail(@"Should not call completion handler.");
   }];
   if (_isIOS9orLater) {
-    XCTAssertFalse([delegate application:_mockApplication openURL:_url options:@{}]);
+    XCTAssertNoThrow([delegate application:_mockApplication openURL:_url options:@{}]);
   } else {
-    XCTAssertFalse([delegate application:_mockApplication
-                                 openURL:_url
-                       sourceApplication:@"sourceApplication"
-                              annotation:@"annotaton"]);
+    XCTAssertNoThrow([delegate application:_mockApplication
+                                   openURL:_url
+                         sourceApplication:@"sourceApplication"
+                                annotation:@"annotaton"]);
   }
 }
 

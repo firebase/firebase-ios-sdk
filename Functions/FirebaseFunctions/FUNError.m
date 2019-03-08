@@ -14,7 +14,6 @@
 // limitations under the License.
 
 #import "FUNError.h"
-#import "FIRError.h"
 
 #import "FUNSerializer.h"
 
@@ -139,6 +138,11 @@ NSString *FUNDescriptionForErrorCode(FIRFunctionsErrorCode code) {
       return @"UNAUTHENTICATED";
   }
   return @"UNKNOWN";
+}
+
+NSError *_Nullable FUNErrorForCode(FIRFunctionsErrorCode code) {
+  NSDictionary *userInfo = @{NSLocalizedDescriptionKey : FUNDescriptionForErrorCode(code)};
+  return [NSError errorWithDomain:FIRFunctionsErrorDomain code:code userInfo:userInfo];
 }
 
 NSError *_Nullable FUNErrorForResponse(NSInteger status,

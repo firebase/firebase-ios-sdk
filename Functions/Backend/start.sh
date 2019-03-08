@@ -17,6 +17,10 @@
 # Sets up a project with the functions CLI and starts a backend to run
 # integration tests against.
 
+# Adding the "synchronous" parameter will cause the script to exit
+# with the server still running so that other scripts can invoke this
+# script followed by subsequent dependent commands.
+
 set -e
 
 # Get the absolute path to the directory containing this script.
@@ -32,7 +36,9 @@ npm install
 
 # Start the server.
 FUNCTIONS_BIN="./node_modules/.bin/functions"
-"${FUNCTIONS_BIN}" config set projectId functions-integration-test
+"${FUNCTIONS_BIN}" config set projectId functions-integration-test <<-!
+  myproject
+!
 "${FUNCTIONS_BIN}" config set supervisorPort 5005
 "${FUNCTIONS_BIN}" config set region us-central1
 "${FUNCTIONS_BIN}" config set verbose true
@@ -47,9 +53,12 @@ FUNCTIONS_BIN="./node_modules/.bin/functions"
 "${FUNCTIONS_BIN}" deploy unknownErrorTest --trigger-http
 "${FUNCTIONS_BIN}" deploy explicitErrorTest --trigger-http
 "${FUNCTIONS_BIN}" deploy httpErrorTest --trigger-http
+"${FUNCTIONS_BIN}" deploy timeoutTest --trigger-http
 
-# Wait for the user to tell us to stop the server.
-echo "Functions emulator now running in ${TEMP_DIR}."
-read -n 1 -p "*** Press any key to stop the server. ***"
-echo "\nStopping the emulator..."
-"${FUNCTIONS_BIN}" stop
+if [ "$1" != "synchronous" ]; then
+  # Wait for the user to tell us to stop the server.
+  echo "Functions emulator now running in ${TEMP_DIR}."
+  read -n 1 -p "*** Press any key to stop the server. ***"
+  echo "\nStopping the emulator..."
+  "${FUNCTIONS_BIN}" stop
+fi

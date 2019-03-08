@@ -1167,8 +1167,8 @@ static void callInMainThreadWithAuthDataResultAndError(
       FIRSetAccountInfoRequest *setAccountInfoRequest =
           [[FIRSetAccountInfoRequest alloc] initWithRequestConfiguration:requestConfiguration];
       setAccountInfoRequest.accessToken = accessToken;
-      BOOL isEmailPasswordProvider = [provider isEqualToString:FIREmailAuthProviderID];
-      if (isEmailPasswordProvider) {
+
+      if ([provider isEqualToString:FIREmailAuthProviderID]) {
         if (!self->_hasEmailPasswordCredential) {
           completeAndCallbackWithError([FIRAuthErrorUtils noSuchProviderError]);
           return;
@@ -1181,6 +1181,7 @@ static void callInMainThreadWithAuthDataResultAndError(
         }
         setAccountInfoRequest.deleteProviders = @[ provider ];
       }
+
       [FIRAuthBackend setAccountInfo:setAccountInfoRequest
                             callback:^(FIRSetAccountInfoResponse *_Nullable response,
                                        NSError *_Nullable error) {
@@ -1189,23 +1190,24 @@ static void callInMainThreadWithAuthDataResultAndError(
           completeAndCallbackWithError(error);
           return;
         }
-        if (isEmailPasswordProvider) {
-          self->_hasEmailPasswordCredential = NO;
-        } else {
-          // We can't just use the provider info objects in FIRSetAcccountInfoResponse because they
-          // don't have localID and email fields. Remove the specific provider manually.
-          NSMutableDictionary *mutableProviderData = [self->_providerData mutableCopy];
-          [mutableProviderData removeObjectForKey:provider];
-          self->_providerData = [mutableProviderData copy];
 
-          #if TARGET_OS_IOS
-          // After successfully unlinking a phone auth provider, remove the phone number from the
-          // cached user info.
-          if ([provider isEqualToString:FIRPhoneAuthProviderID]) {
-            self->_phoneNumber = nil;
-          }
-          #endif
+        // We can't just use the provider info objects in FIRSetAcccountInfoResponse because they
+        // don't have localID and email fields. Remove the specific provider manually.
+        NSMutableDictionary *mutableProviderData = [self->_providerData mutableCopy];
+        [mutableProviderData removeObjectForKey:provider];
+        self->_providerData = [mutableProviderData copy];
+
+        if ([provider isEqualToString:FIREmailAuthProviderID]) {
+          self->_hasEmailPasswordCredential = NO;
         }
+        #if TARGET_OS_IOS
+        // After successfully unlinking a phone auth provider, remove the phone number from the
+        // cached user info.
+        if ([provider isEqualToString:FIRPhoneAuthProviderID]) {
+          self->_phoneNumber = nil;
+        }
+        #endif
+
         if (response.IDToken && response.refreshToken) {
           FIRSecureTokenService *tokenService = [[FIRSecureTokenService alloc]
               initWithRequestConfiguration:requestConfiguration

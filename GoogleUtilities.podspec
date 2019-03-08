@@ -33,7 +33,7 @@ other Google CocoaPods. They're not intended for direct public usage.
 
   s.subspec 'Logger' do |ls|
     ls.source_files = 'GoogleUtilities/Logger/**/*.[mh]'
-    ls.public_header_files = 'GoogleUtilities/Logger/Private/*.h', 'GoogleUtilities/Logger/Public/*.h'
+    ls.public_header_files = 'GoogleUtilities/Logger/Public/*.h'
     ls.private_header_files = 'GoogleUtilities/Logger/Private/*.h'
     ls.dependency 'GoogleUtilities/Environment'
   end

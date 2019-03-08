@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/immutable/array_sorted_map.h"
 
+#include <algorithm>
 #include <numeric>
 #include <random>
 
@@ -41,6 +42,12 @@ TEST(ArraySortedMap, ChecksSize) {
 
   int next = kFixedSize;
   ASSERT_ANY_THROW(map.insert(next, next));
+}
+
+TEST(ArraySortedMap, InitializerIsSorted) {
+  IntMap map{{3, 0}, {2, 0}, {1, 0}};
+
+  EXPECT_TRUE(std::is_sorted(map.begin(), map.end()));
 }
 
 }  // namespace impl

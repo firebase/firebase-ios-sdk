@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/immutable/tree_sorted_map.h"
 
+#include <algorithm>
+
 #include "Firestore/core/src/firebase/firestore/util/secure_random.h"
 #include "Firestore/core/test/firebase/firestore/immutable/testing.h"
 #include "gtest/gtest.h"
@@ -219,6 +221,13 @@ TEST(TreeSortedMap, InsertIsImmutable) {
   EXPECT_EQ(Color::Black, original.root().color());
   EXPECT_TRUE(original.root().left().empty());
   EXPECT_TRUE(original.root().right().empty());
+}
+
+TEST(TreeSortedMap, InitializerIsSorted) {
+  IntMap map = IntMap::Create(
+      std::vector<IntMap::value_type>{{3, 0}, {2, 0}, {1, 0}}, {});
+
+  EXPECT_TRUE(std::is_sorted(map.begin(), map.end()));
 }
 
 }  // namespace impl

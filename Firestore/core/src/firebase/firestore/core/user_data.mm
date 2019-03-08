@@ -210,25 +210,30 @@ ParsedSetData::ParsedSetData(FSTObjectValue* data,
       patch_{true} {
 }
 
-NSArray<FSTMutation*>* ParsedSetData::ToMutations(
+std::vector<FSTMutation*> ParsedSetData::ToMutations(
     const DocumentKey& key, const Precondition& precondition) && {
-  NSMutableArray<FSTMutation*>* mutations = [NSMutableArray array];
+  std::vector<FSTMutation*> mutations;
   if (patch_) {
-    [mutations
-        addObject:[[FSTPatchMutation alloc] initWithKey:key
-                                              fieldMask:std::move(field_mask_)
-                                                  value:data_
-                                           precondition:precondition]];
+    FSTMutation* mutation =
+        [[FSTPatchMutation alloc] initWithKey:key
+                                    fieldMask:std::move(field_mask_)
+                                        value:data_
+                                 precondition:precondition];
+    mutations.push_back(mutation);
   } else {
-    [mutations addObject:[[FSTSetMutation alloc] initWithKey:key
-                                                       value:data_
-                                                precondition:precondition]];
+    FSTMutation* mutation = [[FSTSetMutation alloc] initWithKey:key
+                                                          value:data_
+                                                   precondition:precondition];
+    mutations.push_back(mutation);
   }
+
   if (!field_transforms_.empty()) {
-    [mutations
-        addObject:[[FSTTransformMutation alloc] initWithKey:key
-                                            fieldTransforms:field_transforms_]];
+    FSTMutation* mutation =
+        [[FSTTransformMutation alloc] initWithKey:key
+                                  fieldTransforms:field_transforms_];
+    mutations.push_back(mutation);
   }
+
   return mutations;
 }
 
@@ -243,19 +248,24 @@ ParsedUpdateData::ParsedUpdateData(
       field_transforms_{std::move(field_transforms)} {
 }
 
-NSArray<FSTMutation*>* ParsedUpdateData::ToMutations(
+std::vector<FSTMutation*> ParsedUpdateData::ToMutations(
     const DocumentKey& key, const Precondition& precondition) && {
-  NSMutableArray<FSTMutation*>* mutations = [NSMutableArray array];
-  [mutations
-      addObject:[[FSTPatchMutation alloc] initWithKey:key
-                                            fieldMask:std::move(field_mask_)
-                                                value:data_
-                                         precondition:precondition]];
+  std::vector<FSTMutation*> mutations;
+
+  FSTMutation* mutation =
+      [[FSTPatchMutation alloc] initWithKey:key
+                                  fieldMask:std::move(field_mask_)
+                                      value:data_
+                               precondition:precondition];
+  mutations.push_back(mutation);
+
   if (!field_transforms_.empty()) {
-    [mutations addObject:[[FSTTransformMutation alloc]
-                                 initWithKey:key
-                             fieldTransforms:std::move(field_transforms_)]];
+    FSTMutation* mutation =
+        [[FSTTransformMutation alloc] initWithKey:key
+                                  fieldTransforms:std::move(field_transforms_)];
+    mutations.push_back(mutation);
   }
+
   return mutations;
 }
 

@@ -172,6 +172,7 @@ static const int kVersion = 42;
     // query path. We'll need more tests once we add index support.
     [self setTestDocumentAtPath:"a/1"];
     [self setTestDocumentAtPath:"b/1"];
+    [self setTestDocumentAtPath:"b/1/z/1"];
     [self setTestDocumentAtPath:"b/2"];
     [self setTestDocumentAtPath:"c/1"];
 

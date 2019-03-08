@@ -1,3 +1,6 @@
+# 2019-02-20 -- v3.3.1
+- Internal code cleanup.
+
 # 2019-01-22 -- v3.3.0
 - Use the new registerInternalLibrary API to register with FirebaseCore. (#2137)
 

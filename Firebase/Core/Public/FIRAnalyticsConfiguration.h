@@ -30,10 +30,13 @@ NS_SWIFT_NAME(AnalyticsConfiguration)
 + (FIRAnalyticsConfiguration *)sharedInstance NS_SWIFT_NAME(shared());
 
 /**
+ * Deprecated.
  * Sets the minimum engagement time in seconds required to start a new session. The default value
  * is 10 seconds.
  */
-- (void)setMinimumSessionInterval:(NSTimeInterval)minimumSessionInterval;
+- (void)setMinimumSessionInterval:(NSTimeInterval)minimumSessionInterval
+    DEPRECATED_MSG_ATTRIBUTE(
+        "Sessions are started immediately. More information at https://bit.ly/2FU46av");
 
 /**
  * Sets the interval of inactivity in seconds that terminates the current session. The default

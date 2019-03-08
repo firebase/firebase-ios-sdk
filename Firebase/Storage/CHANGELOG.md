@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] `StorageReference.putFile()` now correctly propagates error if file to upload does not exist (#2458, #2350).
+
 # 3.0.3
 - [changed] Storage operations can now be scheduled and controlled from any thread (#1302, #1388).
 - [fixed] Fixed an issue that prevented uploading of files whose names include semicolons.

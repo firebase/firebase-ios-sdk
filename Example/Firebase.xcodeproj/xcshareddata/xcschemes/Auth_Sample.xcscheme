@@ -33,8 +33,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "DE26D26C1F705C35004AE1D3"
-               BuildableName = "Auth_EarlGreyTests.xctest"
-               BlueprintName = "Auth_EarlGreyTests"
+               BuildableName = "Auth_E2eTests.xctest"
+               BlueprintName = "Auth_E2eTests"
                ReferencedContainer = "container:Firebase.xcodeproj">
             </BuildableReference>
          </TestableReference>

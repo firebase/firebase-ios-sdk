@@ -166,7 +166,7 @@ NS_ASSUME_NONNULL_BEGIN
       _mutationQueue->AllMutationBatchesAffectingQuery(query);
 
   for (FSTMutationBatch *batch : matchingBatches) {
-    for (FSTMutation *mutation in batch.mutations) {
+    for (FSTMutation *mutation : [batch mutations]) {
       // Only process documents belonging to the collection.
       if (!query.path.IsImmediateParentOf(mutation.key.path())) {
         continue;

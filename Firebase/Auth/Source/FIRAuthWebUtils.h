@@ -45,6 +45,19 @@ typedef void (^FIRFetchAuthDomainCallback)(NSString *_Nullable authDomain,
  */
 + (BOOL)isCallbackSchemeRegisteredForCustomURLScheme:(NSString *)URLScheme;
 
+/** @fn isExpectedCallbackURL:eventID:authType
+    @brief Parses a URL into all available query items.
+    @param URL The actual callback URL.
+    @param eventID The expected event ID.
+    @param authType The expected auth type.
+    @param callbackScheme The expected callback custom scheme.
+    @return Whether or not the actual callback URL matches the expected callback URL.
+ */
++ (BOOL)isExpectedCallbackURL:(nullable NSURL *)URL
+                      eventID:(NSString *)eventID
+                     authType:(NSString *)authType
+               callbackScheme:(NSString *)callbackScheme;
+
 /** @fn fetchAuthDomainWithCompletion:completion:
     @brief Fetches the auth domain associated with the Firebase Project.
     @param completion The callback invoked after the auth domain has been constructed or an error
@@ -61,6 +74,20 @@ typedef void (^FIRFetchAuthDomainCallback)(NSString *_Nullable authDomain,
  */
 
 + (nullable NSString *)queryItemValue:(NSString *)name from:(NSArray<NSURLQueryItem *> *)queryList;
+
+/** @fn dictionaryWithHttpArgumentsString:
+    @brief Utility function to get a dictionary from a http argument string.
+    @param argString The http argument string.
+    @return The resulting dictionary of query arguments.
+ */
++ (NSDictionary *)dictionaryWithHttpArgumentsString:(NSString *)argString;
+
+/** @fn stringByUnescapingFromURLArgument:from:
+    @brief Utility function to get a string by unescapting URL arguments.
+    @param argument The argument string.
+    @return The resulting string after unescaping URL argument.
+ */
++ (NSString *)stringByUnescapingFromURLArgument:(NSString *)argument;
 
 @end
 

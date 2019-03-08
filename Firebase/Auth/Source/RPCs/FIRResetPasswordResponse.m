@@ -16,6 +16,8 @@
 
 #import "FIRResetPasswordResponse.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @implementation FIRResetPasswordResponse
 
 - (BOOL)setWithDictionary:(NSDictionary *)dictionary
@@ -27,3 +29,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

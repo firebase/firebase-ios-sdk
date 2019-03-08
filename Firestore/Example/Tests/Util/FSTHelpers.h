@@ -22,6 +22,7 @@
 
 #import "Firestore/Source/Model/FSTDocument.h"
 
+#include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
@@ -47,7 +48,6 @@
 @class FIRTimestamp;
 @class FSTTransformMutation;
 @class FSTView;
-@class FSTViewSnapshot;
 @class FSTObjectValue;
 
 namespace firebase {
@@ -139,6 +139,15 @@ inline NSString *FSTRemoveExceptionPrefix(NSString *exception) {
                             FSTRemoveExceptionPrefix(exceptionReason)); \
     }                                                                   \
     XCTAssertTrue(didThrow, ##__VA_ARGS__);                             \
+  } while (0)
+
+// Helper to compare vectors containing Objective-C objects.
+#define FSTAssertEqualVectors(v1, v2)                                \
+  do {                                                               \
+    XCTAssertEqual(v1.size(), v2.size(), @"Vector length mismatch"); \
+    for (size_t i = 0; i < v1.size(); i++) {                         \
+      XCTAssertEqualObjects(v1[i], v2[i]);                           \
+    }                                                                \
   } while (0)
 
 /**
@@ -272,7 +281,7 @@ NSComparator FSTTestDocComparator(const absl::string_view fieldPath);
 FSTDocumentSet *FSTTestDocSet(NSComparator comp, NSArray<FSTDocument *> *docs);
 
 /** Computes changes to the view with the docs and then applies them and returns the snapshot. */
-FSTViewSnapshot *_Nullable FSTTestApplyChanges(
+absl::optional<firebase::firestore::core::ViewSnapshot> FSTTestApplyChanges(
     FSTView *view,
     NSArray<FSTMaybeDocument *> *docs,
     const absl::optional<firebase::firestore::remote::TargetChange> &targetChange);

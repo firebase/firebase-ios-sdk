@@ -19,6 +19,9 @@
 #import <FirebaseFirestore/FIRTimestamp.h>
 #import <XCTest/XCTest.h>
 
+#include <utility>
+#include <vector>
+
 #import "Firestore/Protos/objc/firestore/local/MaybeDocument.pbobjc.h"
 #import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
@@ -79,6 +82,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesMutationBatch {
+  FSTMutation *base = [[FSTPatchMutation alloc] initWithKey:FSTTestDocKey(@"bar/baz")
+                                                  fieldMask:FieldMask{testutil::Field("a")}
+                                                      value:FSTTestObjectValue(@{@"a" : @"b"})
+                                               precondition:Precondition::Exists(true)];
   FSTMutation *set = FSTTestSetMutation(@"foo/bar", @{@"a" : @"b", @"num" : @1});
   FSTMutation *patch =
       [[FSTPatchMutation alloc] initWithKey:FSTTestDocKey(@"bar/baz")
@@ -89,7 +96,16 @@ NS_ASSUME_NONNULL_BEGIN
   FIRTimestamp *writeTime = [FIRTimestamp timestamp];
   FSTMutationBatch *model = [[FSTMutationBatch alloc] initWithBatchID:42
                                                        localWriteTime:writeTime
-                                                            mutations:@[ set, patch, del ]];
+                                                        baseMutations:{base}
+                                                            mutations:{set, patch, del}];
+
+  GCFSWrite *baseProto = [GCFSWrite message];
+  baseProto.update.name = @"projects/p/databases/d/documents/bar/baz";
+  [baseProto.update.fields addEntriesFromDictionary:@{
+    @"a" : [self.remoteSerializer encodedString:@"b"],
+  }];
+  [baseProto.updateMask.fieldPathsArray addObjectsFromArray:@[ @"a" ]];
+  baseProto.currentDocument.exists = YES;
 
   GCFSWrite *setProto = [GCFSWrite message];
   setProto.update.name = @"projects/p/databases/d/documents/foo/bar";
@@ -116,6 +132,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTPBWriteBatch *batchProto = [FSTPBWriteBatch message];
   batchProto.batchId = 42;
+  [batchProto.baseWritesArray addObject:baseProto];
   [batchProto.writesArray addObjectsFromArray:@[ setProto, patchProto, delProto ]];
   batchProto.localWriteTime = writeTimeProto;
 
@@ -123,7 +140,8 @@ NS_ASSUME_NONNULL_BEGIN
   FSTMutationBatch *decoded = [self.serializer decodedMutationBatch:batchProto];
   XCTAssertEqual(decoded.batchID, model.batchID);
   XCTAssertEqualObjects(decoded.localWriteTime, model.localWriteTime);
-  XCTAssertEqualObjects(decoded.mutations, model.mutations);
+  FSTAssertEqualVectors(decoded.baseMutations, model.baseMutations);
+  FSTAssertEqualVectors(decoded.mutations, model.mutations);
   XCTAssertEqual([decoded keys], [model keys]);
 }
 

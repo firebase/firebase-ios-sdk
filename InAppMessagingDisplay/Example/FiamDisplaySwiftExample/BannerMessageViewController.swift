@@ -16,20 +16,19 @@
 
 import UIKit
 
-import FirebaseInAppMessaging
-
 class BannerMessageViewController: CommonMessageTestVC {
   let displayImpl = InAppMessagingDefaultDisplayImpl()
 
   @IBOutlet var verifyLabel: UILabel!
 
-  override func messageClicked() {
-    super.messageClicked()
+  override func messageClicked(_ inAppMessage: InAppMessagingDisplayMessage) {
+    super.messageClicked(inAppMessage)
     verifyLabel.text = "message clicked!"
   }
 
-  override func messageDismissed(dismissType dimissType: FIRInAppMessagingDismissType) {
-    super.messageClicked()
+  override func messageDismissed(_ inAppMessage: InAppMessagingDisplayMessage,
+                                 dismissType: FIRInAppMessagingDismissType) {
+    super.messageClicked(inAppMessage)
     verifyLabel.text = "message dismissed!"
   }
 
@@ -38,26 +37,32 @@ class BannerMessageViewController: CommonMessageTestVC {
     let imageRawData = produceImageOfSize(size: CGSize(width: 200, height: 200))
     let fiamImageData = InAppMessagingImageData(imageURL: "url not important", imageData: imageRawData!)
 
-    let modalMessage = InAppMessagingBannerDisplay(messageID: "messageId",
-                                                   renderAsTestMessage: false,
-                                                   titleText: normalMessageTitle,
-                                                   bodyText: normalMessageBody,
-                                                   textColor: UIColor.black,
-                                                   backgroundColor: UIColor.blue,
-                                                   imageData: fiamImageData)
+    let bannerMessage = InAppMessagingBannerDisplay(messageID: "messageId",
+                                                    campaignName: "testCampaign",
+                                                    renderAsTestMessage: false,
+                                                    triggerType: .onAnalyticsEvent,
+                                                    titleText: normalMessageTitle,
+                                                    bodyText: normalMessageBody,
+                                                    textColor: UIColor.black,
+                                                    backgroundColor: UIColor.blue,
+                                                    imageData: fiamImageData,
+                                                    actionURL: URL(string: "http://firebase.com"))
 
-    displayImpl.displayMessage(modalMessage, displayDelegate: self)
+    displayImpl.displayMessage(bannerMessage, displayDelegate: self)
   }
 
   @IBAction func showBannerViewWithoutImageTapped(_ sender: Any) {
     verifyLabel.text = "Verification Label"
     let modalMessage = InAppMessagingBannerDisplay(messageID: "messageId",
+                                                   campaignName: "testCampaign",
                                                    renderAsTestMessage: false,
+                                                   triggerType: .onAnalyticsEvent,
                                                    titleText: normalMessageTitle,
                                                    bodyText: normalMessageBody,
                                                    textColor: UIColor.black,
                                                    backgroundColor: UIColor.blue,
-                                                   imageData: nil)
+                                                   imageData: nil,
+                                                   actionURL: URL(string: "http://firebase.com"))
 
     displayImpl.displayMessage(modalMessage, displayDelegate: self)
   }
@@ -68,12 +73,15 @@ class BannerMessageViewController: CommonMessageTestVC {
     let fiamImageData = InAppMessagingImageData(imageURL: "url not important", imageData: imageRawData!)
 
     let modalMessage = InAppMessagingBannerDisplay(messageID: "messageId",
+                                                   campaignName: "testCampaign",
                                                    renderAsTestMessage: false,
+                                                   triggerType: .onAnalyticsEvent,
                                                    titleText: normalMessageTitle,
                                                    bodyText: normalMessageBody,
                                                    textColor: UIColor.black,
                                                    backgroundColor: UIColor.blue,
-                                                   imageData: fiamImageData)
+                                                   imageData: fiamImageData,
+                                                   actionURL: URL(string: "http://firebase.com"))
 
     displayImpl.displayMessage(modalMessage, displayDelegate: self)
   }
@@ -84,12 +92,15 @@ class BannerMessageViewController: CommonMessageTestVC {
     let fiamImageData = InAppMessagingImageData(imageURL: "url not important", imageData: imageRawData!)
 
     let modalMessage = InAppMessagingBannerDisplay(messageID: "messageId",
+                                                   campaignName: "testCampaign",
                                                    renderAsTestMessage: false,
+                                                   triggerType: .onAnalyticsEvent,
                                                    titleText: normalMessageTitle,
                                                    bodyText: normalMessageBody,
                                                    textColor: UIColor.black,
                                                    backgroundColor: UIColor.blue,
-                                                   imageData: fiamImageData)
+                                                   imageData: fiamImageData,
+                                                   actionURL: URL(string: "http://firebase.com"))
 
     displayImpl.displayMessage(modalMessage, displayDelegate: self)
   }
@@ -100,12 +111,15 @@ class BannerMessageViewController: CommonMessageTestVC {
     let fiamImageData = InAppMessagingImageData(imageURL: "url not important", imageData: imageRawData!)
 
     let modalMessage = InAppMessagingBannerDisplay(messageID: "messageId",
+                                                   campaignName: "testCampaign",
                                                    renderAsTestMessage: false,
+                                                   triggerType: .onAnalyticsEvent,
                                                    titleText: normalMessageTitle,
                                                    bodyText: longBodyText,
                                                    textColor: UIColor.black,
                                                    backgroundColor: UIColor.blue,
-                                                   imageData: fiamImageData)
+                                                   imageData: fiamImageData,
+                                                   actionURL: URL(string: "http://firebase.com"))
 
     displayImpl.displayMessage(modalMessage, displayDelegate: self)
   }
@@ -116,12 +130,15 @@ class BannerMessageViewController: CommonMessageTestVC {
     let fiamImageData = InAppMessagingImageData(imageURL: "url not important", imageData: imageRawData!)
 
     let modalMessage = InAppMessagingBannerDisplay(messageID: "messageId",
+                                                   campaignName: "testCampaign",
                                                    renderAsTestMessage: false,
+                                                   triggerType: .onAnalyticsEvent,
                                                    titleText: longTitleText,
                                                    bodyText: normalMessageBody,
                                                    textColor: UIColor.black,
                                                    backgroundColor: UIColor.blue,
-                                                   imageData: fiamImageData)
+                                                   imageData: fiamImageData,
+                                                   actionURL: URL(string: "http://firebase.com"))
 
     displayImpl.displayMessage(modalMessage, displayDelegate: self)
   }
