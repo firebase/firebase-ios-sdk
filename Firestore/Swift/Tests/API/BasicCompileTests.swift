@@ -99,8 +99,8 @@ func makeQuery(collection collectionRef: CollectionReference) -> Query {
     .order(by: "name", descending: true)
     .limit(to: 10)
 
-  // collectionGroup query.
-  query = collectionRef.firestore.collectionGroup("collection")
+  // TODO(b/116617988): collectionGroup query.
+  //query = collectionRef.firestore.collectionGroup("collection")
 
   return query
 }
