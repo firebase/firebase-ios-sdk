@@ -60,6 +60,7 @@ typedef void (^FIRInstanceIDDeviceCheckinCompletion)(
  *
  *  @param existingCheckin An existing checkin preference object, if available.
  *  @param firebaseUserAgent A string containing info about SDK components, Xcode version, etc.
+ *    It will be added to each checkin request to count third party libraries and version numbers.
  *  @param completion Completion hander called on success or failure of device checkin.
  */
 - (void)checkinWithExistingCheckin:(nullable FIRInstanceIDCheckinPreferences *)existingCheckin

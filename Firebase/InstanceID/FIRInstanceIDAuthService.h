@@ -30,7 +30,7 @@
 
 /**
  * A string containing info about SDK components, Xcode version, etc.
- * It will be added to each checkin request to track stats.
+ * It will be added to each checkin request to count third party libraries and version numbers.
  */
 @property(nonatomic, readwrite, copy) NSString *firebaseUserAgent;
 
