@@ -122,27 +122,16 @@ NS_ASSUME_NONNULL_BEGIN
          withService:(GULLoggerService)service
             isForced:(BOOL)forced
             withCode:(NSString *)messageCode
-         withMessage:(NSString *)message, ... {
+         withMessage:(NSString *)message {
   // Skip logging this if the level isn't to be logged unless it's forced.
   if (![self isLoggableLevel:level] && !forced) {
     return;
   }
   [self initializeLogger];
-
-  // Process the va_list here, while the parameters are on the stack.
-  va_list args;
-  va_start(args, message);
-  message = [[NSString alloc] initWithFormat:message arguments:args];
-  va_end(args);
-  const char *logMsg = [GULLogger messageFromLogger:self
-                                        withService:service
-                                               code:messageCode
-                                            message:message]
-                           .UTF8String;
   dispatch_async(self.dispatchQueue, ^{
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"  // asl is deprecated
-    asl_log(self.aslClient, NULL, (int)level, "%s", logMsg);
+    asl_log(self.aslClient, NULL, (int)level, "%s", message.UTF8String);
 #pragma clang diagnostic pop
   });
 }

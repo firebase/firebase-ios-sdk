@@ -153,22 +153,12 @@ static void GULLOSLogWithType(os_log_t log, os_log_type_t type, char *format, ..
          withService:(GULLoggerService)service
             isForced:(BOOL)forced
             withCode:(NSString *)messageCode
-         withMessage:(NSString *)message, ... {
+         withMessage:(NSString *)message {
   // Skip logging this if the level isn't to be logged unless it's forced.
   if (![self isLoggableLevel:level] && !forced) {
     return;
   }
   [self initializeLogger];
-
-  // Process the va_list here, while the parameters are on the stack.
-  va_list args;
-  va_start(args, message);
-  NSString *completeMessage = [[NSString alloc] initWithFormat:message arguments:args];
-  va_end(args);
-  completeMessage = [GULLogger messageFromLogger:self
-                                     withService:service
-                                            code:messageCode
-                                         message:[completeMessage copy]];
 
   // Avoid blocking during logging.
   dispatch_async(self.dispatchQueue, ^{
@@ -197,7 +187,7 @@ static void GULLOSLogWithType(os_log_t log, os_log_type_t type, char *format, ..
     }
     // Call the function pointer using the message constructed by GULLogger.
     (*self.logFunction)(osLog, [[self class] osLogTypeForGULLoggerLevel:level], "%s",
-                        completeMessage.UTF8String);
+                        message.UTF8String);
   });
 }
 

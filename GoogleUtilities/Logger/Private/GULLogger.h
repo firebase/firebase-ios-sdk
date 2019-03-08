@@ -80,15 +80,21 @@ extern void GULLoggerRegisterVersion(const char *version);
  *            within the service.
  *            An example of the message code is @"I-COR000001".
  * @param message string which can be a format string.
- * @param ... variable arguments list obtained from calling va_start, used when message is a format
- *            string.
+ * @param args_ptr the list of arguments to substitute into the format string.
  */
 extern void GULLogBasic(GULLoggerLevel level,
                         GULLoggerService service,
                         BOOL forceLog,
                         NSString *messageCode,
                         NSString *message,
-                        ...);
+// On 64-bit simulators, va_list is not a pointer, so cannot be marked nullable
+// See: http://stackoverflow.com/q/29095469
+#if __LP64__ && TARGET_OS_SIMULATOR || TARGET_OS_OSX
+                        va_list args_ptr
+#else
+                        va_list _Nullable args_ptr
+#endif
+);
 
 /**
  * The following functions accept the following parameters in order:
