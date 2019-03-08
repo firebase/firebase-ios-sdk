@@ -185,13 +185,6 @@ case "$product-$method-$platform" in
         test
 
     if [[ $platform == 'iOS' ]]; then
-      RunXcodebuild \
-          -workspace 'Functions/Example/FirebaseFunctions.xcworkspace' \
-          -scheme "FirebaseFunctions_Tests" \
-          "${xcb_flags[@]}" \
-          build \
-          test
-
       # Run integration tests (not allowed on PRs)
       if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
         RunXcodebuild \
@@ -224,17 +217,6 @@ case "$product-$method-$platform" in
       RunXcodebuild \
           -workspace 'Example/Firebase.xcworkspace' \
           -scheme "AllUnitTests_$platform" \
-          "${xcb_flags[@]}" \
-          build \
-          test
-
-      cd Functions/Example
-      sed -i -e 's/use_frameworks/\#use_frameworks/' Podfile
-      pod update --no-repo-update
-      cd ../..
-      RunXcodebuild \
-          -workspace 'Functions/Example/FirebaseFunctions.xcworkspace' \
-          -scheme "FirebaseFunctions_Tests" \
           "${xcb_flags[@]}" \
           build \
           test

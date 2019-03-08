@@ -37,6 +37,16 @@ jobs:
 
     - stage: test
       env:
+        - PROJECT=Functions PLATFORM=iOS METHOD=pod-lib-lint
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseFunctions.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseFunctions.podspec --use-libraries
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseFunctions.podspec --use-modular-headers
+
+    - stage: test
+      env:
         - PROJECT=InAppMessaging PLATFORM=iOS METHOD=xcodebuild
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
@@ -68,7 +78,6 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseInstanceID.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseMessaging.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseStorage.podspec
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseFunctions.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseInAppMessaging.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseInAppMessagingDisplay.podspec
 
@@ -100,7 +109,6 @@ jobs:
         # The Protobuf dependency of FirebaseMessaging has warnings with --use-libraries
         - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseMessaging.podspec --use-libraries --allow-warnings
         - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseStorage.podspec --use-libraries
-        - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseFunctions.podspec --use-libraries
         - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseInAppMessaging.podspec --use-libraries
         - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseInAppMessagingDisplay.podspec --use-libraries
 
