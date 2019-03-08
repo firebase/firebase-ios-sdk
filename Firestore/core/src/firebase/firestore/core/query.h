@@ -92,6 +92,8 @@ class Query {
   // existing filters, plus the new one. (Both Query and Filter objects are
   // immutable.) Filters are not shared across unrelated Query instances.
   std::vector<std::shared_ptr<core::Filter>> filters_;
+
+  // TODO(rsgowman): Port collection group queries logic.
 };
 
 inline bool operator==(const Query& lhs, const Query& rhs) {

@@ -4,6 +4,9 @@
 - [feature] Added `FieldValue.increment()`, which can be used in
   `updateData(_:)` and `setData(_:merge:)` to increment or decrement numeric
   field values safely without transactions.
+- [changed] Prepared the persistence layer to support collection group queries.
+  While this feature is not yet available, all schema changes are included
+  in this release.
 
 # v1.0.2
 - [changed] Internal improvements.

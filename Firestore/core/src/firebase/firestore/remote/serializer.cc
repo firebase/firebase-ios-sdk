@@ -701,6 +701,7 @@ google_firestore_v1_Target_QueryTarget Serializer::EncodeQueryTarget(
 
   // Dissect the path into parent, collection_id and optional key filter.
   std::string collection_id;
+  // TODO(rsgowman): Port Collection Group Queries logic.
   if (query.path().empty()) {
     result.parent = EncodeString(EncodeQueryPath(ResourcePath::Empty()));
   } else {

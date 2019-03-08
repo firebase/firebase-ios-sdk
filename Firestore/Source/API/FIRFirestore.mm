@@ -30,11 +30,13 @@
 #import "Firestore/Source/API/FIRCollectionReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
+#import "Firestore/Source/API/FIRQuery+Internal.h"
 #import "Firestore/Source/API/FIRTransaction+Internal.h"
 #import "Firestore/Source/API/FIRWriteBatch+Internal.h"
 #import "Firestore/Source/API/FSTFirestoreComponent.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
+#import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
@@ -270,6 +272,21 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
   [self ensureClientConfigured];
   const ResourcePath path = ResourcePath::FromString(util::MakeString(documentPath));
   return [FIRDocumentReference referenceWithPath:path firestore:self];
+}
+
+- (FIRQuery *)collectionGroupWithID:(NSString *)collectionID {
+  if (!collectionID) {
+    FSTThrowInvalidArgument(@"Collection ID cannot be nil.");
+  }
+  if ([collectionID containsString:@"/"]) {
+    FSTThrowInvalidArgument(
+        @"Invalid collection ID (%@). Collection IDs must not contain / in them.", collectionID);
+  }
+
+  [self ensureClientConfigured];
+  return [FIRQuery referenceWithQuery:[FSTQuery queryWithPath:ResourcePath::Empty()
+                                              collectionGroup:collectionID]
+                            firestore:self];
 }
 
 - (void)runTransactionWithBlock:(id _Nullable (^)(FIRTransaction *, NSError **))updateBlock
