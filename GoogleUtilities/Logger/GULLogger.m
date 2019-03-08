@@ -49,10 +49,9 @@ static NSRegularExpression *sMessageCodeRegex;
   NSCAssert(code.length == 11, @"Incorrect message code length.");
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
-    sMessageCodeRegex =
-        [NSRegularExpression regularExpressionWithPattern:kMessageCodePattern
-                                                  options:0
-                                                    error:NULL];
+    sMessageCodeRegex = [NSRegularExpression regularExpressionWithPattern:kMessageCodePattern
+                                                                  options:0
+                                                                    error:NULL];
   });
   NSRange messageCodeRange = NSMakeRange(0, code.length);
   NSUInteger numberOfMatches = [sMessageCodeRegex numberOfMatchesInString:code
