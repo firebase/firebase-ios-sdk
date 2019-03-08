@@ -27,8 +27,9 @@
 + (NSMutableSet<GDTStoredEvent *> *)generate3StoredEvents {
   static NSUInteger counter = 0;
   NSString *cachePath = NSTemporaryDirectory();
-  NSString *filePath = [cachePath
-      stringByAppendingPathComponent:[NSString stringWithFormat:@"test-%ld.txt", counter]];
+  NSString *filePath =
+      [cachePath stringByAppendingPathComponent:[NSString stringWithFormat:@"test-%ld.txt",
+                                                                           (unsigned long)counter]];
   int howManyToGenerate = 3;
   NSMutableSet<GDTStoredEvent *> *set = [[NSMutableSet alloc] initWithCapacity:howManyToGenerate];
   for (int i = 0; i < howManyToGenerate; i++) {

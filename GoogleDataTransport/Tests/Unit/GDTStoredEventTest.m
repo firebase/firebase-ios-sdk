@@ -36,6 +36,7 @@
 
 /** Tests encoding and decoding. */
 - (void)testNSSecureCoding {
+  XCTAssertTrue([GDTStoredEvent supportsSecureCoding]);
   GDTEvent *event = [[GDTEvent alloc] initWithMappingID:@"testing" target:1];
   event.clockSnapshot = [GDTClock snapshot];
   event.qosTier = GDTEventQoSTelemetry;
