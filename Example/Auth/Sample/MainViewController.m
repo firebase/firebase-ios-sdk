@@ -1850,7 +1850,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
     @brief Invoked when "Sign in with Microsoft (headful-lite)" row is pressed.
  */
 - (void)signInMicrosoftHeadfulLite {
-  FIROAuthProvider *provider = [FIROAuthProvider providerWithProviderID:FIRMicrosoftAuthProviderID];
+  FIROAuthProvider *provider = [FIROAuthProvider providerWithProviderID:@"microsoft.com"];
   provider.customParameters = @{
     @"prompt" : @"consent",
     @"login_hint" : @"tu8731@gmail.com",
