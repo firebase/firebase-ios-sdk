@@ -134,7 +134,7 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
                             ? FIRMessagingRmqDirectoryApplicationSupport
                             : FIRMessagingRmqDirectoryDocuments;
 #else
-      _currentDirectory =FIRMessagingRmqDirectoryApplicationSupport;
+    _currentDirectory = FIRMessagingRmqDirectoryApplicationSupport;
 #endif
 
     [self openDatabase:_databaseName];
