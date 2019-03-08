@@ -17,6 +17,10 @@
 # Sets up a project with the functions CLI and starts a backend to run
 # integration tests against.
 
+# Adding the "synchronous" parameter will cause the script to exit
+# with the server still running so that other scripts can invoke this
+# script followed by subsequent dependent commands.
+
 set -e
 
 # Get the absolute path to the directory containing this script.
