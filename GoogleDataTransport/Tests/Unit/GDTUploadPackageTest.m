@@ -18,6 +18,7 @@
 
 #import <GoogleDataTransport/GDTUploadPackage.h>
 
+#import "GDTEventGenerator.h"
 #import "GDTUploadPackage_Private.h"
 
 @interface GDTUploadPackageTest : GDTTestCase
@@ -36,23 +37,26 @@
   GDTUploadPackage *uploadPackage = [[GDTUploadPackage alloc] init];
   GDTUploadPackage *uploadPackageCopy = [uploadPackage copy];
   XCTAssertNotEqual(uploadPackage, uploadPackageCopy);
-  XCTAssertEqualObjects(uploadPackage.eventHashes, uploadPackageCopy.eventHashes);
+  XCTAssertEqualObjects(uploadPackage.events, uploadPackageCopy.events);
   XCTAssertEqualObjects(uploadPackage, uploadPackageCopy);
 
-  uploadPackage.eventHashes = [NSSet set];
+  uploadPackage.events = [NSSet set];
   uploadPackageCopy = [uploadPackage copy];
   XCTAssertNotEqual(uploadPackage, uploadPackageCopy);
-  XCTAssertEqualObjects(uploadPackage.eventHashes, uploadPackageCopy.eventHashes);
+  XCTAssertEqualObjects(uploadPackage.events, uploadPackageCopy.events);
   XCTAssertEqualObjects(uploadPackage, uploadPackageCopy);
 
-  NSMutableSet *set = [[NSMutableSet alloc] initWithObjects:@1, @2, @3, nil];
-  [set addObject:@4];
-  uploadPackage.eventHashes = set;
+  NSMutableSet<GDTStoredEvent *> *set = [GDTEventGenerator generate3StoredEvents];
+  uploadPackage.events = set;
   uploadPackageCopy = [uploadPackage copy];
   XCTAssertNotEqual(uploadPackage, uploadPackageCopy);
-  [set addObject:@5];
-  XCTAssertFalse([uploadPackageCopy.eventHashes containsObject:@5]);
-  XCTAssertEqualObjects(uploadPackage.eventHashes, uploadPackageCopy.eventHashes);
+  GDTStoredEvent *newEvent = [[GDTEventGenerator generate3StoredEvents] anyObject];
+  [set addObject:newEvent];
+  XCTAssertFalse([uploadPackageCopy.events containsObject:newEvent]);
+  XCTAssertNotEqualObjects(uploadPackage.events, uploadPackageCopy.events);
+  XCTAssertNotEqualObjects(uploadPackage, uploadPackageCopy);
+  [set removeObject:newEvent];
+  XCTAssertEqualObjects(uploadPackage.events, uploadPackageCopy.events);
   XCTAssertEqualObjects(uploadPackage, uploadPackageCopy);
 }
 

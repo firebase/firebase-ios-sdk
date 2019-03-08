@@ -13,13 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#import <Foundation/Foundation.h>
 
-#import "GDTUploadCoordinatorFake.h"
+@class GDTStoredEvent;
 
-@implementation GDTUploadCoordinatorFake
+NS_ASSUME_NONNULL_BEGIN
 
-- (void)forceUploadEvents:(NSSet<GDTStoredEvent *> *)events target:(GDTTarget)target {
-  self.forceUploadCalled = YES;
-}
+@interface GDTEventGenerator : NSObject
+
+/** Generates 3 stored events with consecutive clock snapshots.
+ *
+ * @return A set of 3 generated stored events.
+ */
++ (NSMutableSet<GDTStoredEvent *> *)generate3StoredEvents;
 
 @end
+
+NS_ASSUME_NONNULL_END

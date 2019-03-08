@@ -21,15 +21,7 @@
 - (void)storeEvent:(GDTEvent *)event {
 }
 
-- (NSSet<NSURL *> *)eventHashesToFiles:(NSSet<NSNumber *> *)eventHashes {
-  if (_eventsToReturnFromEventHashesToFiles) {
-    return _eventsToReturnFromEventHashesToFiles;
-  } else {
-    return [[NSSet alloc] init];
-  }
-}
-
-- (void)removeEvents:(NSSet<NSNumber *> *)eventHashes target:(NSNumber *)target {
+- (void)removeEvents:(NSSet<GDTStoredEvent *> *)events {
 }
 
 @end

@@ -37,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** A map of targets to a set of event hashes that has been handed off to the uploader. */
 @property(nonatomic, readonly)
-    NSMutableDictionary<NSNumber *, NSSet<NSNumber *> *> *targetToInFlightEventSet;
+    NSMutableDictionary<NSNumber *, NSSet<GDTStoredEvent *> *> *targetToInFlightEventSet;
 
 /** A queue of forced uploads. Only populated if the target already had in-flight events. */
 @property(nonatomic, readonly)

@@ -48,7 +48,7 @@
 
 - (GDTEvent *)transform:(GDTEvent *)event {
   // drop half the events during transforming.
-  if (arc4random_uniform(2) == 1) {
+  if (arc4random_uniform(2) == 0) {
     event = nil;
   }
   return event;
@@ -76,7 +76,7 @@
 
 - (void)tearDown {
   dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
-    XCTAssertEqual([GDTStorage sharedInstance].eventHashToFile.count, 0);
+    XCTAssertEqual([GDTStorage sharedInstance].storedEvents.count, 0);
   });
 }
 
@@ -98,9 +98,10 @@
                                                transformers:nil
                                                      target:kGDTIntegrationTestTarget];
 
-  self.transport2 = [[GDTTransport alloc] initWithMappingID:@"eventMap2"
-                                               transformers:nil
-                                                     target:kGDTIntegrationTestTarget];
+  self.transport2 =
+      [[GDTTransport alloc] initWithMappingID:@"eventMap2"
+                                 transformers:@[ [[GDTIntegrationTestTransformer alloc] init] ]
+                                       target:kGDTIntegrationTestTarget];
 
   // Create a prioritizer and uploader.
   self.prioritizer = [[GDTIntegrationTestPrioritizer alloc] init];
@@ -111,16 +112,16 @@
   [GDTUploadCoordinator sharedInstance].timerLeeway = NSEC_PER_SEC * 0.01;
 
   // Confirm no events are in disk.
-  XCTAssertEqual([GDTStorage sharedInstance].eventHashToFile.count, 0);
-  XCTAssertEqual([GDTStorage sharedInstance].targetToEventHashSet.count, 0);
+  XCTAssertEqual([GDTStorage sharedInstance].storedEvents.count, 0);
+  XCTAssertEqual([GDTStorage sharedInstance].targetToEventSet.count, 0);
 
   // Generate some events data.
   [self generateEvents];
 
   // Confirm events are on disk.
   dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
-    XCTAssertGreaterThan([GDTStorage sharedInstance].eventHashToFile.count, 0);
-    XCTAssertGreaterThan([GDTStorage sharedInstance].targetToEventHashSet.count, 0);
+    XCTAssertGreaterThan([GDTStorage sharedInstance].storedEvents.count, 0);
+    XCTAssertGreaterThan([GDTStorage sharedInstance].targetToEventSet.count, 0);
   });
 
   // Confirm events were sent and received.
@@ -144,9 +145,9 @@
   });
   dispatch_resume(timer);
 
-  // Run for a bit, a couple seconds longer than the previous bit.
+  // Run for a bit, several seconds longer than the previous bit.
   [[NSRunLoop currentRunLoop]
-      runUntilDate:[NSDate dateWithTimeIntervalSinceNow:lengthOfTestToRunInSeconds + 2]];
+      runUntilDate:[NSDate dateWithTimeIntervalSinceNow:lengthOfTestToRunInSeconds + 5]];
 
   [testServer stop];
 }
@@ -154,7 +155,7 @@
 /** Generates and events a bunch of random events. */
 - (void)generateEvents {
   for (int i = 0; i < 50; i++) {
-    // Choose a random eventger, and randomly choose if it's a telemetry event.
+    // Choose a random transport, and randomly choose if it's a telemetry event.
     GDTTransport *transport = arc4random_uniform(2) ? self.transport1 : self.transport2;
     BOOL isTelemetryEvent = arc4random_uniform(2);
 

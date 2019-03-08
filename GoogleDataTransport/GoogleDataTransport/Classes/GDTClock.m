@@ -118,8 +118,7 @@ static int64_t UptimeInNanoseconds() {
 }
 
 - (NSUInteger)hash {
-  // These casts lose some precision, but it's probably fine.
-  return (NSUInteger)_kernelBootTime ^ (NSUInteger)_uptime ^ (NSUInteger)_timeMillis;
+  return [@(_kernelBootTime) hash] ^ [@(_uptime) hash] ^ [@(_timeMillis) hash];
 }
 
 - (BOOL)isEqual:(id)object {

@@ -18,8 +18,8 @@
 #import "GDTTransport_Private.h"
 
 #import "GDTAssert.h"
+#import "GDTClock.h"
 #import "GDTEvent.h"
-#import "GDTEvent_Private.h"
 #import "GDTTransformer.h"
 
 @implementation GDTTransport

@@ -47,12 +47,12 @@
   request.HTTPMethod = @"POST";
   NSMutableData *uploadData = [[NSMutableData alloc] init];
 
-  NSLog(@"Uploading batch of %lu events: ", (unsigned long)[package eventHashes].count);
+  NSLog(@"Uploading batch of %lu events: ", (unsigned long)[package events].count);
 
   // In real usage, you'd create an instance of whatever request proto your server needs.
-  for (NSURL *eventFile in [package.eventHashesToFiles allValues]) {
-    NSData *fileData = [NSData dataWithContentsOfURL:eventFile];
-    NSAssert(fileData, @"A event file shouldn't be empty");
+  for (GDTStoredEvent *event in package.events) {
+    NSData *fileData = [NSData dataWithContentsOfURL:event.eventFileURL];
+    NSAssert(fileData, @"An event file shouldn't be empty");
     [uploadData appendData:fileData];
   }
   NSURLSessionUploadTask *uploadTask =

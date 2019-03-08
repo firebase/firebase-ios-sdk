@@ -18,6 +18,7 @@
 #import "GDTStorage_Private.h"
 
 #import <GoogleDataTransport/GDTPrioritizer.h>
+#import <GoogleDataTransport/GDTStoredEvent.h>
 
 #import "GDTAssert.h"
 #import "GDTConsoleLogger.h"
@@ -55,8 +56,8 @@ static NSString *GDTStoragePath() {
   self = [super init];
   if (self) {
     _storageQueue = dispatch_queue_create("com.google.GDTStorage", DISPATCH_QUEUE_SERIAL);
-    _eventHashToFile = [[NSMutableDictionary alloc] init];
-    _targetToEventHashSet = [[NSMutableDictionary alloc] init];
+    _targetToEventSet = [[NSMutableDictionary alloc] init];
+    _storedEvents = [[NSMutableOrderedSet alloc] init];
     _uploader = [GDTUploadCoordinator sharedInstance];
   }
   return self;
@@ -65,93 +66,63 @@ static NSString *GDTStoragePath() {
 - (void)storeEvent:(GDTEvent *)event {
   [self createEventDirectoryIfNotExists];
 
-  // This is done to ensure that event is deallocated at the end of the ensuing block.
-  __block GDTEvent *shortLivedEvent = event;
-  __weak GDTEvent *weakShortLivedEvent = event;
-  event = nil;
-
   dispatch_async(_storageQueue, ^{
     // Check that a backend implementation is available for this target.
-    NSInteger target = shortLivedEvent.target;
+    NSInteger target = event.target;
 
     // Check that a prioritizer is available for this target.
     id<GDTPrioritizer> prioritizer = [GDTRegistrar sharedInstance].targetToPrioritizer[@(target)];
     GDTAssert(prioritizer, @"There's no prioritizer registered for the given target.");
 
     // Write the transport bytes to disk, get a filename.
-    GDTAssert(shortLivedEvent.dataObjectTransportBytes,
-              @"The event should have been serialized to bytes");
-    NSURL *eventFile = [self saveEventBytesToDisk:shortLivedEvent.dataObjectTransportBytes
-                                        eventHash:shortLivedEvent.hash];
+    GDTAssert(event.dataObjectTransportBytes, @"The event should have been serialized to bytes");
+    NSURL *eventFile = [self saveEventBytesToDisk:event.dataObjectTransportBytes
+                                        eventHash:event.hash];
+    GDTStoredEvent *storedEvent = [event storedEventWithFileURL:eventFile];
 
     // Add event to tracking collections.
-    [self addEventToTrackingCollections:shortLivedEvent eventFile:eventFile];
+    [self addEventToTrackingCollections:storedEvent];
 
     // Check the QoS, if it's high priority, notify the target that it has a high priority event.
-    if (shortLivedEvent.qosTier == GDTEventQoSFast) {
-      NSSet<NSNumber *> *allEventsForTarget = self.targetToEventHashSet[@(target)];
+    if (event.qosTier == GDTEventQoSFast) {
+      NSSet<GDTStoredEvent *> *allEventsForTarget = self.targetToEventSet[storedEvent.target];
       [self.uploader forceUploadEvents:allEventsForTarget target:target];
     }
 
-    // Have the prioritizer prioritize the event, enforcing that they do not retain it.
-    @autoreleasepool {
-      [prioritizer prioritizeEvent:shortLivedEvent];
-      shortLivedEvent = nil;
-    }
-    if (weakShortLivedEvent) {
-      GDTLogError(GDTMCEEventWasIllegallyRetained, @"%@",
-                  @"An event should not be retained outside of storage.");
-    };
+    // Have the prioritizer prioritize the event.
+    [prioritizer prioritizeEvent:storedEvent];
   });
 }
 
-- (void)removeEvents:(NSSet<NSNumber *> *)eventHashes target:(NSNumber *)target {
-  dispatch_sync(_storageQueue, ^{
-    for (NSNumber *eventHash in eventHashes) {
-      [self removeEvent:eventHash target:target];
-    }
-  });
-}
+- (void)removeEvents:(NSSet<GDTStoredEvent *> *)events {
+  NSSet<GDTStoredEvent *> *eventsToRemove = [events copy];
+  dispatch_async(_storageQueue, ^{
+    // Check that a prioritizer is available for this target.
+    id<GDTPrioritizer> prioritizer;
 
-- (NSDictionary<NSNumber *, NSURL *> *)eventHashesToFiles:(NSSet<NSNumber *> *)eventHashes {
-  NSMutableDictionary<NSNumber *, NSURL *> *eventHashesToFiles = [[NSMutableDictionary alloc] init];
-  dispatch_sync(_storageQueue, ^{
-    for (NSNumber *hashNumber in eventHashes) {
-      NSURL *eventURL = self.eventHashToFile[hashNumber];
-      GDTAssert(eventURL, @"An event file URL couldn't be found for the given hash");
-      eventHashesToFiles[hashNumber] = eventURL;
+    for (GDTStoredEvent *event in eventsToRemove) {
+      // Remove from disk, first and foremost.
+      NSError *error;
+      [[NSFileManager defaultManager] removeItemAtURL:event.eventFileURL error:&error];
+      GDTAssert(error == nil, @"There was an error removing an event file: %@", error);
+
+      if (!prioritizer) {
+        prioritizer = [GDTRegistrar sharedInstance].targetToPrioritizer[event.target];
+      } else {
+        GDTAssert(prioritizer == [GDTRegistrar sharedInstance].targetToPrioritizer[event.target],
+                  @"All logs within an upload set should have the same prioritizer.");
+      }
+
+      // Remove from the tracking collections.
+      [self.storedEvents removeObject:event];
+      [self.targetToEventSet[event.target] removeObject:event];
     }
+    GDTAssert(prioritizer, @"There's no prioritizer registered for the given target.");
+    [prioritizer unprioritizeEvents:events];
   });
-  return eventHashesToFiles;
 }
 
 #pragma mark - Private helper methods
-
-/** Removes the corresponding event file from disk.
- *
- * @param eventHash The hash value of the original event.
- * @param target The target of the original event.
- */
-- (void)removeEvent:(NSNumber *)eventHash target:(NSNumber *)target {
-  NSURL *eventFile = self.eventHashToFile[eventHash];
-
-  // Remove from disk, first and foremost.
-  NSError *error;
-  [[NSFileManager defaultManager] removeItemAtURL:eventFile error:&error];
-  GDTAssert(error == nil, @"There was an error removing an event file: %@", error);
-
-  // Remove from the tracking collections.
-  [self.eventHashToFile removeObjectForKey:eventHash];
-  NSMutableSet<NSNumber *> *eventHashes = self.targetToEventHashSet[target];
-  GDTAssert(eventHashes, @"There wasn't an event set for this target.");
-  [eventHashes removeObject:eventHash];
-  // It's fine to not remove the set if it's empty.
-
-  // Check that a prioritizer is available for this target.
-  id<GDTPrioritizer> prioritizer = [GDTRegistrar sharedInstance].targetToPrioritizer[target];
-  GDTAssert(prioritizer, @"There's no prioritizer registered for the given target.");
-  [prioritizer unprioritizeEvent:eventHash];
-}
 
 /** Creates the storage directory if it does not exist. */
 - (void)createEventDirectoryIfNotExists {
@@ -179,6 +150,9 @@ static NSString *GDTStoragePath() {
   NSString *event = [NSString stringWithFormat:@"event-%lu", (unsigned long)eventHash];
   NSURL *eventFilePath = [NSURL fileURLWithPath:[storagePath stringByAppendingPathComponent:event]];
 
+  GDTAssert(![[NSFileManager defaultManager] fileExistsAtPath:eventFilePath.path],
+            @"An event shouldn't already exist at this path: %@", eventFilePath.path);
+
   BOOL writingSuccess = [transportBytes writeToURL:eventFilePath atomically:YES];
   if (!writingSuccess) {
     GDTLogError(GDTMCEFileWriteError, @"An event file could not be written: %@", eventFilePath);
@@ -193,29 +167,22 @@ static NSString *GDTStoragePath() {
  * thread safety.
  *
  * @param event The event to track.
- * @param eventFile The file the event has been saved to.
  */
-- (void)addEventToTrackingCollections:(GDTEvent *)event eventFile:(NSURL *)eventFile {
-  NSInteger target = event.target;
-  NSNumber *eventHash = @(event.hash);
-  NSNumber *targetNumber = @(target);
-  self.eventHashToFile[eventHash] = eventFile;
-  NSMutableSet<NSNumber *> *events = self.targetToEventHashSet[targetNumber];
-  if (events) {
-    [events addObject:eventHash];
-  } else {
-    NSMutableSet<NSNumber *> *eventSet = [NSMutableSet setWithObject:eventHash];
-    self.targetToEventHashSet[targetNumber] = eventSet;
-  }
+- (void)addEventToTrackingCollections:(GDTStoredEvent *)event {
+  [_storedEvents addObject:event];
+  NSMutableSet<GDTStoredEvent *> *events = self.targetToEventSet[event.target];
+  events = events ? events : [[NSMutableSet alloc] init];
+  [events addObject:event];
+  _targetToEventSet[event.target] = events;
 }
 
 #pragma mark - NSSecureCoding
 
-/** The NSKeyedCoder key for the eventHashToFile property. */
-static NSString *const kGDTEventHashToFileKey = @"eventHashToFileKey";
+/** The NSKeyedCoder key for the storedEvents property. */
+static NSString *const kGDTStorageStoredEventsKey = @"GDTStorageStoredEventsKey";
 
-/** The NSKeyedCoder key for the targetToEventHashSet property. */
-static NSString *const kGDTTargetToEventHashSetKey = @"targetToEventHashSetKey";
+/** The NSKeyedCoder key for the targetToEventSet property. */
+static NSString *const kGDTStorageTargetToEventSetKey = @"GDTStorageTargetToEventSetKey";
 
 + (BOOL)supportsSecureCoding {
   return YES;
@@ -225,11 +192,11 @@ static NSString *const kGDTTargetToEventHashSetKey = @"targetToEventHashSetKey";
   // Create the singleton and populate its ivars.
   GDTStorage *sharedInstance = [self.class sharedInstance];
   dispatch_sync(sharedInstance.storageQueue, ^{
-    Class NSMutableDictionaryClass = [NSMutableDictionary class];
-    sharedInstance->_eventHashToFile = [aDecoder decodeObjectOfClass:NSMutableDictionaryClass
-                                                              forKey:kGDTEventHashToFileKey];
-    sharedInstance->_targetToEventHashSet =
-        [aDecoder decodeObjectOfClass:NSMutableDictionaryClass forKey:kGDTTargetToEventHashSetKey];
+    sharedInstance->_storedEvents = [aDecoder decodeObjectOfClass:[NSMutableOrderedSet class]
+                                                           forKey:kGDTStorageStoredEventsKey];
+    sharedInstance->_targetToEventSet =
+        [aDecoder decodeObjectOfClass:[NSMutableDictionary class]
+                               forKey:kGDTStorageTargetToEventSetKey];
   });
   return sharedInstance;
 }
@@ -237,8 +204,8 @@ static NSString *const kGDTTargetToEventHashSetKey = @"targetToEventHashSetKey";
 - (void)encodeWithCoder:(NSCoder *)aCoder {
   GDTStorage *sharedInstance = [self.class sharedInstance];
   dispatch_sync(sharedInstance.storageQueue, ^{
-    [aCoder encodeObject:sharedInstance->_eventHashToFile forKey:kGDTEventHashToFileKey];
-    [aCoder encodeObject:sharedInstance->_targetToEventHashSet forKey:kGDTTargetToEventHashSetKey];
+    [aCoder encodeObject:sharedInstance->_storedEvents forKey:kGDTStorageStoredEventsKey];
+    [aCoder encodeObject:sharedInstance->_targetToEventSet forKey:kGDTStorageTargetToEventSetKey];
   });
 }
 

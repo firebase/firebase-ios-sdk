@@ -19,6 +19,7 @@
 #import "GDTEventDataObject.h"
 
 @class GDTClock;
+@class GDTStoredEvent;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -63,6 +64,8 @@ typedef NS_ENUM(NSInteger, GDTEventQoS) {
 
 /** A dictionary provided to aid prioritizers by allowing the passing of arbitrary data. It will be
  * retained by a copy in -copy, but not used for -hash.
+ *
+ * @note Ensure that classes contained therein implement NSSecureCoding to prevent loss of data.
  */
 @property(nullable, nonatomic) NSDictionary *customPrioritizationParams;
 
@@ -77,6 +80,13 @@ typedef NS_ENUM(NSInteger, GDTEventQoS) {
  */
 - (instancetype)initWithMappingID:(NSString *)mappingID
                            target:(NSInteger)target NS_DESIGNATED_INITIALIZER;
+
+/** Returns the GDTStoredEvent equivalent of self.
+ *
+ * @param fileURL The file URL of the result of the dataObject's -transportBytes.
+ * @return An equivalent GDTStoredEvent.
+ */
+- (GDTStoredEvent *)storedEventWithFileURL:(NSURL *)fileURL;
 
 @end
 

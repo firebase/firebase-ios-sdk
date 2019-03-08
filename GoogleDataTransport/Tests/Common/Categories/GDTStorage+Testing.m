@@ -20,8 +20,8 @@
 
 - (void)reset {
   dispatch_sync(self.storageQueue, ^{
-    [self.targetToEventHashSet removeAllObjects];
-    [self.eventHashToFile removeAllObjects];
+    [self.targetToEventSet removeAllObjects];
+    [self.storedEvents removeAllObjects];
   });
 }
 
