@@ -66,6 +66,7 @@ using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::FieldTransform;
+using firebase::firestore::model::NumericIncrementTransform;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::ServerTimestampTransform;
@@ -477,7 +478,7 @@ NS_ASSUME_NONNULL_BEGIN
   } else if (mutationClass == [FSTPatchMutation class]) {
     FSTPatchMutation *patch = (FSTPatchMutation *)mutation;
     proto.update = [self encodedDocumentWithFields:patch.value key:patch.key];
-    proto.updateMask = [self encodedFieldMask:patch.fieldMask];
+    proto.updateMask = [self encodedFieldMask:*(patch.fieldMask)];
 
   } else if (mutationClass == [FSTTransformMutation class]) {
     FSTTransformMutation *transform = (FSTTransformMutation *)mutation;
@@ -611,7 +612,10 @@ NS_ASSUME_NONNULL_BEGIN
   } else if (fieldTransform.transformation().type() == TransformOperation::Type::ArrayRemove) {
     proto.removeAllFromArray_p = [self
         encodedArrayTransformElements:ArrayTransform::Elements(fieldTransform.transformation())];
-
+  } else if (fieldTransform.transformation().type() == TransformOperation::Type::Increment) {
+    const NumericIncrementTransform &incrementTransform =
+        static_cast<const NumericIncrementTransform &>(fieldTransform.transformation());
+    proto.increment = [self encodedFieldValue:incrementTransform.operand()];
   } else {
     HARD_FAIL("Unknown transform: %s type", fieldTransform.transformation().type());
   }
@@ -663,6 +667,14 @@ NS_ASSUME_NONNULL_BEGIN
             FieldPath::FromServerFormat(util::MakeString(proto.fieldPath)),
             absl::make_unique<ArrayTransform>(TransformOperation::Type::ArrayRemove,
                                               std::move(elements)));
+        break;
+      }
+
+      case GCFSDocumentTransform_FieldTransform_TransformType_OneOfCase_Increment: {
+        FSTNumberValue *operand =
+            static_cast<FSTNumberValue *>([self decodedFieldValue:proto.increment]);
+        fieldTransforms.emplace_back(FieldPath::FromServerFormat(util::MakeString(proto.fieldPath)),
+                                     absl::make_unique<NumericIncrementTransform>(operand));
         break;
       }
 

@@ -1,7 +1,14 @@
 # Unreleased
+- [changed] Improved performance when querying over documents that contain
+  subcollections.
+- [feature] Added `FieldValue.increment()`, which can be used in
+  `updateData(_:)` and `setData(_:merge:)` to increment or decrement numeric
+  field values safely without transactions.
 - [feature] You can now query across all collections in your database with a
   given collection ID using the `Firestore.collectionGroup()` method.
 
+# v1.0.2
+- [changed] Internal improvements.
 
 # v1.0.1
 - [changed] Internal improvements.

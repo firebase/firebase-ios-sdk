@@ -21,7 +21,7 @@ exports.dataTest = functions.https.onRequest((request, response) => {
       bool: true,
       int: 2,
       long: {
-        value: '3',
+        value: '9876543210',
         '@type': 'type.googleapis.com/google.protobuf.Int64Value',
       },
       string: 'four',
@@ -107,3 +107,9 @@ exports.httpErrorTest = functions.https.onRequest((request, response) => {
   // Send an http error with no body.
   response.status(400).send();
 });
+
+exports.timeoutTest = functions.https.onRequest((request, response) => {
+  // Wait for longer than 500ms.
+  setTimeout(() => response.send({data: true}), 500);
+});
+

@@ -16,13 +16,13 @@
 
 #import <Foundation/Foundation.h>
 
+#include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 
 @class FSTDocumentSet;
 @class FSTMutation;
 @class FSTQuery;
-@class FSTViewSnapshot;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -37,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
                        addedKeys:(firebase::firestore::model::DocumentKeySet)addedKeys
                      removedKeys:(firebase::firestore::model::DocumentKeySet)removedKeys;
 
-+ (instancetype)changesForViewSnapshot:(FSTViewSnapshot *)viewSnapshot
++ (instancetype)changesForViewSnapshot:(const firebase::firestore::core::ViewSnapshot &)viewSnapshot
                           withTargetID:(firebase::firestore::model::TargetId)targetID;
 
 - (id)init NS_UNAVAILABLE;

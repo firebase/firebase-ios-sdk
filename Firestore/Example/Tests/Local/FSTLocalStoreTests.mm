@@ -22,6 +22,7 @@
 #include <utility>
 #include <vector>
 
+#import "Firestore/Source/API/FIRFieldValue+Internal.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTLocalWriteResult.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
@@ -134,6 +135,7 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertNotNil(result);
   [self.batches addObject:[[FSTMutationBatch alloc] initWithBatchID:result.batchID
                                                      localWriteTime:[FIRTimestamp timestamp]
+                                                      baseMutations:{}
                                                           mutations:std::move(mutations)]];
   _lastChanges = result.changes;
 }
@@ -146,18 +148,24 @@ NS_ASSUME_NONNULL_BEGIN
   [self.localStore notifyLocalViewChanges:@[ changes ]];
 }
 
-- (void)acknowledgeMutationWithVersion:(FSTTestSnapshotVersion)documentVersion {
+- (void)acknowledgeMutationWithVersion:(FSTTestSnapshotVersion)documentVersion
+                       transformResult:(id _Nullable)transformResult {
   FSTMutationBatch *batch = [self.batches firstObject];
   [self.batches removeObjectAtIndex:0];
   XCTAssertEqual(batch.mutations.size(), 1, @"Acknowledging more than one mutation not supported.");
   SnapshotVersion version = testutil::Version(documentVersion);
-  FSTMutationResult *mutationResult = [[FSTMutationResult alloc] initWithVersion:version
-                                                                transformResults:nil];
+  FSTMutationResult *mutationResult = [[FSTMutationResult alloc]
+       initWithVersion:version
+      transformResults:transformResult != nil ? @[ FSTTestFieldValue(transformResult) ] : nil];
   FSTMutationBatchResult *result = [FSTMutationBatchResult resultWithBatch:batch
                                                              commitVersion:version
                                                            mutationResults:{mutationResult}
                                                                streamToken:nil];
   _lastChanges = [self.localStore acknowledgeBatchWithResult:result];
+}
+
+- (void)acknowledgeMutationWithVersion:(FSTTestSnapshotVersion)documentVersion {
+  [self acknowledgeMutationWithVersion:documentVersion transformResult:nil];
 }
 
 - (void)rejectMutation {
@@ -225,10 +233,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testMutationBatchKeys {
   if ([self isTestBaseClass]) return;
 
+  FSTMutation *base = FSTTestSetMutation(@"foo/ignore", @{@"foo" : @"bar"});
   FSTMutation *set1 = FSTTestSetMutation(@"foo/bar", @{@"foo" : @"bar"});
   FSTMutation *set2 = FSTTestSetMutation(@"bar/baz", @{@"bar" : @"baz"});
   FSTMutationBatch *batch = [[FSTMutationBatch alloc] initWithBatchID:1
                                                        localWriteTime:[FIRTimestamp timestamp]
+                                                        baseMutations:{base}
                                                             mutations:{set1, set2}];
   DocumentKeySet keys = [batch keys];
   XCTAssertEqual(keys.size(), 2u);
@@ -952,6 +962,202 @@ NS_ASSUME_NONNULL_BEGIN
 
   keys = [self.localStore remoteDocumentKeysForTarget:2];
   XCTAssertEqual(keys, (DocumentKeySet{testutil::Key("foo/bar"), testutil::Key("foo/baz")}));
+}
+
+// TODO(mrschmidt): The FieldValue.increment() field transform tests below would probably be
+// better implemented as spec tests but currently they don't support transforms.
+
+- (void)testHandlesSetMutationThenTransformMutationThenTransformMutation {
+  if ([self isTestBaseClass]) return;
+
+  [self writeMutation:FSTTestSetMutation(@"foo/bar", @{@"sum" : @0})];
+  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"sum" : @0}, FSTDocumentStateLocalMutations));
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 0, @{@"sum" : @0}, FSTDocumentStateLocalMutations) ]);
+
+  [self writeMutation:FSTTestTransformMutation(
+                          @"foo/bar", @{@"sum" : [FIRFieldValue fieldValueForIntegerIncrement:1]})];
+  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"sum" : @1}, FSTDocumentStateLocalMutations));
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 0, @{@"sum" : @1}, FSTDocumentStateLocalMutations) ]);
+
+  [self writeMutation:FSTTestTransformMutation(
+                          @"foo/bar", @{@"sum" : [FIRFieldValue fieldValueForIntegerIncrement:2]})];
+  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"sum" : @3}, FSTDocumentStateLocalMutations));
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 0, @{@"sum" : @3}, FSTDocumentStateLocalMutations) ]);
+}
+
+- (void)testHandlesSetMutationThenAckThenTransformMutationThenAckThenTransformMutation {
+  if ([self isTestBaseClass]) return;
+
+  // Since this test doesn't start a listen, Eager GC removes the documents from the cache as
+  // soon as the mutation is applied. This creates a lot of special casing in this unit test but
+  // does not expand its test coverage.
+  if ([self gcIsEager]) return;
+
+  [self writeMutation:FSTTestSetMutation(@"foo/bar", @{@"sum" : @0})];
+  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"sum" : @0}, FSTDocumentStateLocalMutations));
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 0, @{@"sum" : @0}, FSTDocumentStateLocalMutations) ]);
+
+  [self acknowledgeMutationWithVersion:1];
+  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"sum" : @0}, FSTDocumentStateCommittedMutations));
+  FSTAssertChanged(
+      @[ FSTTestDoc("foo/bar", 1, @{@"sum" : @0}, FSTDocumentStateCommittedMutations) ]);
+
+  [self writeMutation:FSTTestTransformMutation(
+                          @"foo/bar", @{@"sum" : [FIRFieldValue fieldValueForIntegerIncrement:1]})];
+  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"sum" : @1}, FSTDocumentStateLocalMutations));
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 1, @{@"sum" : @1}, FSTDocumentStateLocalMutations) ]);
+
+  [self acknowledgeMutationWithVersion:2 transformResult:@1];
+  FSTAssertContains(FSTTestDoc("foo/bar", 2, @{@"sum" : @1}, FSTDocumentStateCommittedMutations));
+  FSTAssertChanged(
+      @[ FSTTestDoc("foo/bar", 2, @{@"sum" : @1}, FSTDocumentStateCommittedMutations) ]);
+
+  [self writeMutation:FSTTestTransformMutation(
+                          @"foo/bar", @{@"sum" : [FIRFieldValue fieldValueForIntegerIncrement:2]})];
+  FSTAssertContains(FSTTestDoc("foo/bar", 2, @{@"sum" : @3}, FSTDocumentStateLocalMutations));
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 2, @{@"sum" : @3}, FSTDocumentStateLocalMutations) ]);
+}
+
+- (void)testHandlesSetMutationThenTransformMutationThenRemoteEventThenTransformMutation {
+  if ([self isTestBaseClass]) return;
+
+  FSTQuery *query = FSTTestQuery("foo");
+  [self allocateQuery:query];
+  FSTAssertTargetID(2);
+
+  [self writeMutation:FSTTestSetMutation(@"foo/bar", @{@"sum" : @0})];
+  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"sum" : @0}, FSTDocumentStateLocalMutations));
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 0, @{@"sum" : @0}, FSTDocumentStateLocalMutations) ]);
+
+  [self
+      applyRemoteEvent:FSTTestAddedRemoteEvent(
+                           FSTTestDoc("foo/bar", 1, @{@"sum" : @0}, FSTDocumentStateSynced), {2})];
+
+  [self acknowledgeMutationWithVersion:1];
+  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"sum" : @0}, FSTDocumentStateSynced));
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 1, @{@"sum" : @0}, FSTDocumentStateSynced) ]);
+
+  [self writeMutation:FSTTestTransformMutation(
+                          @"foo/bar", @{@"sum" : [FIRFieldValue fieldValueForIntegerIncrement:1]})];
+  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"sum" : @1}, FSTDocumentStateLocalMutations));
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 1, @{@"sum" : @1}, FSTDocumentStateLocalMutations) ]);
+
+  // The value in this remote event gets ignored since we still have a pending transform mutation.
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(
+                             FSTTestDoc("foo/bar", 2, @{@"sum" : @0}, FSTDocumentStateSynced), {2},
+                             {})];
+  FSTAssertContains(FSTTestDoc("foo/bar", 2, @{@"sum" : @1}, FSTDocumentStateLocalMutations));
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 2, @{@"sum" : @1}, FSTDocumentStateLocalMutations) ]);
+
+  // Add another increment. Note that we still compute the increment based on the local value.
+  [self writeMutation:FSTTestTransformMutation(
+                          @"foo/bar", @{@"sum" : [FIRFieldValue fieldValueForIntegerIncrement:2]})];
+  FSTAssertContains(FSTTestDoc("foo/bar", 2, @{@"sum" : @3}, FSTDocumentStateLocalMutations));
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 2, @{@"sum" : @3}, FSTDocumentStateLocalMutations) ]);
+
+  [self acknowledgeMutationWithVersion:3 transformResult:@1];
+  FSTAssertContains(FSTTestDoc("foo/bar", 3, @{@"sum" : @3}, FSTDocumentStateLocalMutations));
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 3, @{@"sum" : @3}, FSTDocumentStateLocalMutations) ]);
+
+  [self acknowledgeMutationWithVersion:4 transformResult:@1339];
+  FSTAssertContains(
+      FSTTestDoc("foo/bar", 4, @{@"sum" : @1339}, FSTDocumentStateCommittedMutations));
+  FSTAssertChanged(
+      @[ FSTTestDoc("foo/bar", 4, @{@"sum" : @1339}, FSTDocumentStateCommittedMutations) ]);
+}
+
+- (void)testHoldsBackOnlyNonIdempotentTransforms {
+  if ([self isTestBaseClass]) return;
+
+  FSTQuery *query = FSTTestQuery("foo");
+  [self allocateQuery:query];
+  FSTAssertTargetID(2);
+
+  [self writeMutation:FSTTestSetMutation(@"foo/bar", @{@"sum" : @0, @"array_union" : @[]})];
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 0, @{@"sum" : @0, @"array_union" : @[]},
+                                 FSTDocumentStateLocalMutations) ]);
+
+  [self acknowledgeMutationWithVersion:1];
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 1, @{@"sum" : @0, @"array_union" : @[]},
+                                 FSTDocumentStateCommittedMutations) ]);
+
+  [self applyRemoteEvent:FSTTestAddedRemoteEvent(
+                             FSTTestDoc("foo/bar", 1, @{@"sum" : @0, @"array_union" : @[]},
+                                        FSTDocumentStateSynced),
+                             {2})];
+  FSTAssertChanged(
+      @[ FSTTestDoc("foo/bar", 1, @{@"sum" : @0, @"array_union" : @[]}, FSTDocumentStateSynced) ]);
+
+  [self writeMutations:{
+    FSTTestTransformMutation(@"foo/bar",
+                             @{@"sum" : [FIRFieldValue fieldValueForIntegerIncrement:1]}),
+        FSTTestTransformMutation(
+            @"foo/bar",
+            @{@"array_union" : [FIRFieldValue fieldValueForArrayUnion:@[ @"foo" ]]})
+  }];
+
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 1, @{@"sum" : @1, @"array_union" : @[ @"foo" ]},
+                                 FSTDocumentStateLocalMutations) ]);
+
+  // The sum transform is not idempotent and the backend's updated value is ignored. The
+  // ArrayUnion transform is recomputed and includes the backend value.
+  [self
+      applyRemoteEvent:FSTTestUpdateRemoteEvent(
+                           FSTTestDoc("foo/bar", 1, @{@"sum" : @1337, @"array_union" : @[ @"bar" ]},
+                                      FSTDocumentStateSynced),
+                           {2}, {})];
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 1, @{@"sum" : @1, @"array_union" : @[ @"bar", @"foo" ]},
+                                 FSTDocumentStateLocalMutations) ]);
+}
+
+- (void)testHandlesMergeMutationWithTransformThenRemoteEvent {
+  if ([self isTestBaseClass]) return;
+
+  FSTQuery *query = FSTTestQuery("foo");
+  [self allocateQuery:query];
+  FSTAssertTargetID(2);
+
+  [self writeMutations:{
+    FSTTestPatchMutation("foo/bar", @{}, {firebase::firestore::testutil::Field("sum")}),
+        FSTTestTransformMutation(@"foo/bar",
+                                 @{@"sum" : [FIRFieldValue fieldValueForIntegerIncrement:1]})
+  }];
+
+  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"sum" : @1}, FSTDocumentStateLocalMutations));
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 0, @{@"sum" : @1}, FSTDocumentStateLocalMutations) ]);
+
+  [self applyRemoteEvent:FSTTestAddedRemoteEvent(
+                             FSTTestDoc("foo/bar", 1, @{@"sum" : @1337}, FSTDocumentStateSynced),
+                             {2})];
+
+  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"sum" : @1}, FSTDocumentStateLocalMutations));
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 1, @{@"sum" : @1}, FSTDocumentStateLocalMutations) ]);
+}
+
+- (void)testHandlesPatchMutationWithTransformThenRemoteEvent {
+  if ([self isTestBaseClass]) return;
+
+  FSTQuery *query = FSTTestQuery("foo");
+  [self allocateQuery:query];
+  FSTAssertTargetID(2);
+
+  [self writeMutations:{
+    FSTTestPatchMutation("foo/bar", @{}, {}),
+        FSTTestTransformMutation(@"foo/bar",
+                                 @{@"sum" : [FIRFieldValue fieldValueForIntegerIncrement:1]})
+  }];
+
+  FSTAssertNotContains(@"foo/bar");
+  FSTAssertChanged(@[ FSTTestDeletedDoc("foo/bar", 0, NO) ]);
+
+  // Note: This test reflects the current behavior, but it may be preferable to replay the
+  // mutation once we receive the first value from the remote event.
+  [self applyRemoteEvent:FSTTestAddedRemoteEvent(
+                             FSTTestDoc("foo/bar", 1, @{@"sum" : @1337}, FSTDocumentStateSynced),
+                             {2})];
+
+  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"sum" : @1}, FSTDocumentStateLocalMutations));
+  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 1, @{@"sum" : @1}, FSTDocumentStateLocalMutations) ]);
 }
 
 @end

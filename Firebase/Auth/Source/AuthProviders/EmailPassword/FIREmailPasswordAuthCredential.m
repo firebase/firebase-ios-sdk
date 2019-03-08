@@ -20,6 +20,8 @@
 #import "FIRAuthExceptionUtils.h"
 #import "FIRVerifyAssertionRequest.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface FIREmailPasswordAuthCredential ()
 
 - (nullable instancetype)initWithProvider:(NSString *)provider NS_UNAVAILABLE;
@@ -84,3 +86,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

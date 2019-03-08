@@ -60,6 +60,7 @@ class MemoryMutationQueue : public MutationQueue {
 
   FSTMutationBatch* AddMutationBatch(
       FIRTimestamp* local_write_time,
+      std::vector<FSTMutation*>&& base_mutations,
       std::vector<FSTMutation*>&& mutations) override;
 
   void RemoveMutationBatch(FSTMutationBatch* batch) override;

@@ -22,6 +22,7 @@
 
 #import "Firestore/Source/Model/FSTDocument.h"
 
+#include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
@@ -47,7 +48,6 @@
 @class FIRTimestamp;
 @class FSTTransformMutation;
 @class FSTView;
-@class FSTViewSnapshot;
 @class FSTObjectValue;
 
 namespace firebase {
@@ -281,7 +281,7 @@ NSComparator FSTTestDocComparator(const absl::string_view fieldPath);
 FSTDocumentSet *FSTTestDocSet(NSComparator comp, NSArray<FSTDocument *> *docs);
 
 /** Computes changes to the view with the docs and then applies them and returns the snapshot. */
-FSTViewSnapshot *_Nullable FSTTestApplyChanges(
+absl::optional<firebase::firestore::core::ViewSnapshot> FSTTestApplyChanges(
     FSTView *view,
     NSArray<FSTMaybeDocument *> *docs,
     const absl::optional<firebase::firestore::remote::TargetChange> &targetChange);
