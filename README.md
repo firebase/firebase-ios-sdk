@@ -102,11 +102,11 @@ Select a scheme and press Command-u to build a component and run its unit tests.
 
 #### Viewing Code Coverage
 
-First, make sure that [slather](https://github.com/SlatherOrg/slather) is installed with `gem install slather`.
+First, make sure that [xcov](https://github.com/nakiostudio/xcov) is installed with `gem install xcov`.
 
 After running the `AllUnitTests_iOS` scheme in Xcode, execute
-`slather coverage --html --scheme AllUnitTests_iOS --configuration=Debug --workspace Firebase.xcworkspace/ Firebase.xcodeproj/`
-at Example/ in the terminal. This will aggregate the coverage and provide instructions to view the code coverage in the browser.
+`xcov --workspace Firebase.xcworkspace --scheme AllUnitTests_iOS --output_directory xcov_output`
+at Example/ in the terminal. This will aggregate the coverage and you can run `open xcov_output/index.html` to see the results.
 
 ### Running Sample Apps
 In order to run the sample apps and integration tests, you'll need valid
