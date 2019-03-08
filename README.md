@@ -100,6 +100,14 @@ This command will get the right `clang-format` version:
 
 Select a scheme and press Command-u to build a component and run its unit tests.
 
+#### Viewing Code Coverage
+
+First, make sure that [xcov](https://github.com/nakiostudio/xcov) is installed with `gem install xcov`.
+
+After running the `AllUnitTests_iOS` scheme in Xcode, execute
+`xcov --workspace Firebase.xcworkspace --scheme AllUnitTests_iOS --output_directory xcov_output`
+at Example/ in the terminal. This will aggregate the coverage, and you can run `open xcov_output/index.html` to see the results.
+
 ### Running Sample Apps
 In order to run the sample apps and integration tests, you'll need valid
 `GoogleService-Info.plist` files for those samples. The Firebase Xcode project contains dummy plist
