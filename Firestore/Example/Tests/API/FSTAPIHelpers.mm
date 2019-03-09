@@ -34,15 +34,12 @@
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 
-#include "Firestore/core/src/firebase/firestore/api/firestore.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
-#include "absl/memory/memory.h"
 
 namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
-using firebase::firestore::api::Firestore;
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::model::DocumentKeySet;
@@ -56,9 +53,11 @@ FIRFirestore *FSTTestFirestore() {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnonnull"
   dispatch_once(&onceToken, ^{
-    auto underlyingFirestore =
-        absl::make_unique<Firestore>("abc", "abc", "db123", nullptr, nullptr);
-    sharedInstance = [[FIRFirestore alloc] initWithFirestore:std::move(underlyingFirestore)
+    sharedInstance = [[FIRFirestore alloc] initWithProjectID:"abc"
+                                                    database:"abc"
+                                              persistenceKey:"db123"
+                                         credentialsProvider:nullptr
+                                                 workerQueue:nullptr
                                                  firebaseApp:nil];
   });
 #pragma clang diagnostic pop

@@ -17,20 +17,13 @@
 #import "FIRFirestore.h"
 
 #include <memory>
+#include <string>
 
 #include "Firestore/core/src/firebase/firestore/api/firestore.h"
+#include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
+#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 
 NS_ASSUME_NONNULL_BEGIN
-
-namespace firebase {
-namespace firestore {
-namespace api {
-
-class Firestore;
-
-}  // namespace api
-}  // namespace firestore
-}  // namespace firebase
 
 @class FIRApp;
 @class FSTFirestoreClient;
@@ -42,9 +35,14 @@ class Firestore;
  * Initializes a Firestore object with all the required parameters directly. This exists so that
  * tests can create FIRFirestore objects without needing FIRApp.
  */
-- (instancetype)initWithFirestore:(std::unique_ptr<firebase::firestore::api::Firestore>)firestore
-                      firebaseApp:(FIRApp *)app;
-
+- (instancetype)
+      initWithProjectID:(std::string)projectID
+               database:(std::string)database
+         persistenceKey:(std::string)persistenceKey
+    credentialsProvider:
+        (std::unique_ptr<firebase::firestore::auth::CredentialsProvider>)credentialsProvider
+            workerQueue:(std::unique_ptr<firebase::firestore::util::AsyncQueue>)workerQueue
+            firebaseApp:(FIRApp *)app;
 @end
 
 /** Internal FIRFirestore API we don't want exposed in our public header files. */

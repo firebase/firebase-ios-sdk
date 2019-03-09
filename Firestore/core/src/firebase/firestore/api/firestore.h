@@ -62,7 +62,8 @@ class Firestore {
             std::string database,
             std::string persistence_key,
             std::unique_ptr<auth::CredentialsProvider> credentials_provider,
-            std::unique_ptr<util::AsyncQueue> worker_queue);
+            std::unique_ptr<util::AsyncQueue> worker_queue,
+            void* extension);
 
   const model::DatabaseId& database_id() const {
     return database_id_;
@@ -78,12 +79,12 @@ class Firestore {
 
   util::AsyncQueue* worker_queue();
 
+  void* extension() {
+    return extension_;
+  }
+
   FIRFirestoreSettings* settings() const;
   void set_settings(FIRFirestoreSettings* settings);
-
-  FIRApp* app() const {
-    return app_;
-  }
 
   FIRCollectionReference* GetCollection(absl::string_view collection_path,
                                         FIRFirestore* firestore);
@@ -112,9 +113,9 @@ class Firestore {
   // client is created.
   std::unique_ptr<util::AsyncQueue> worker_queue_;
 
-  FIRFirestoreSettings* settings_ = nil;
+  void* extension_ = nullptr;
 
-  FIRApp* app_ = nil;
+  FIRFirestoreSettings* settings_ = nil;
 
   mutable std::mutex mutex_;
 };

@@ -143,9 +143,17 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
   return [provider firestoreForDatabase:database];
 }
 
-- (instancetype)initWithFirestore:(std::unique_ptr<Firestore>)firestore firebaseApp:(FIRApp *)app {
+- (instancetype)initWithProjectID:(std::string)projectID
+                         database:(std::string)database
+                   persistenceKey:(std::string)persistenceKey
+              credentialsProvider:(std::unique_ptr<CredentialsProvider>)credentialsProvider
+                      workerQueue:(std::unique_ptr<AsyncQueue>)workerQueue
+                      firebaseApp:(FIRApp *)app {
   if (self = [super init]) {
-    _firestore = std::move(firestore);
+    _firestore = absl::make_unique<Firestore>(
+        std::move(projectID), std::move(database), std::move(persistenceKey),
+        std::move(credentialsProvider), std::move(workerQueue), (__bridge void *)self);
+
     _app = app;
 
     FSTPreConverterBlock block = ^id _Nullable(id _Nullable input) {
