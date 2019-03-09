@@ -65,14 +65,6 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
   std::unique_ptr<Firestore> _firestore;
 }
 
-- (AsyncQueue *)workerQueue {
-  return _firestore->worker_queue();
-}
-
-- (Firestore *)underlyingFirestore {
-  return _firestore.get();
-}
-
 + (NSMutableDictionary<NSString *, FIRFirestore *> *)instances {
   static dispatch_once_t token = 0;
   static NSMutableDictionary<NSString *, FIRFirestore *> *instances;
@@ -244,14 +236,6 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
                      completion:completion];
 }
 
-- (void)shutdownWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
-  _firestore->Shutdown(completion);
-}
-
-+ (BOOL)isLoggingEnabled {
-  return FIRIsLoggableLevel(FIRLoggerLevelDebug, NO);
-}
-
 + (void)enableLogging:(BOOL)logging {
   FIRSetLoggerLevel(logging ? FIRLoggerLevelDebug : FIRLoggerLevelNotice);
 }
@@ -264,8 +248,28 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
   _firestore->DisableNetwork(completion);
 }
 
+@end
+
+@implementation FIRFirestore (Internal)
+
+- (Firestore *)delegate {
+  return _firestore.get();
+}
+
+- (AsyncQueue *)workerQueue {
+  return _firestore->worker_queue();
+}
+
 - (const DatabaseId *)databaseID {
   return &_firestore->database_id();
+}
+
++ (BOOL)isLoggingEnabled {
+  return FIRIsLoggableLevel(FIRLoggerLevelDebug, NO);
+}
+
+- (void)shutdownWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
+  _firestore->Shutdown(completion);
 }
 
 @end

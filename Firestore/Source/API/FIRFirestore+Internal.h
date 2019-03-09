@@ -60,9 +60,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)shutdownWithCompletion:(nullable void (^)(NSError *_Nullable error))completion
     NS_SWIFT_NAME(shutdown(completion:));
 
-- (firebase::firestore::util::AsyncQueue *)workerQueue;
+@property(nonatomic, assign, readonly) firebase::firestore::api::Firestore *delegate;
 
-- (firebase::firestore::api::Firestore *)underlyingFirestore;
+@property(nonatomic, assign, readonly) firebase::firestore::util::AsyncQueue *workerQueue;
 
 // FIRFirestore ownes the DatabaseId instance.
 @property(nonatomic, assign, readonly) const firebase::firestore::model::DatabaseId *databaseID;
