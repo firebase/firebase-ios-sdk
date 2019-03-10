@@ -47,6 +47,8 @@ void LevelDbRemoteDocumentCache::Add(FSTMaybeDocument* document) {
   std::string ldb_key = LevelDbRemoteDocumentKey::Key(document.key);
   db_.currentTransaction->Put(ldb_key,
                               [serializer_ encodedMaybeDocument:document]);
+
+  db_.indexManager->AddToCollectionParentIndex(document.key.path().PopLast());
 }
 
 void LevelDbRemoteDocumentCache::Remove(const DocumentKey& key) {
@@ -90,23 +92,41 @@ MaybeDocumentMap LevelDbRemoteDocumentCache::GetAll(
 }
 
 DocumentMap LevelDbRemoteDocumentCache::GetMatching(FSTQuery* query) {
+  HARD_ASSERT(
+      ![query isCollectionGroupQuery],
+      "CollectionGroup queries should be handled in LocalDocumentsView");
+
   DocumentMap results;
+
+  // Use the query path as a prefix for testing if a document matches the query.
+  const model::ResourcePath& query_path = query.path;
+  size_t immediate_children_path_length = query_path.size() + 1;
 
   // Documents are ordered by key, so we can use a prefix scan to narrow down
   // the documents we need to match the query against.
-  std::string startKey = LevelDbRemoteDocumentKey::KeyPrefix(query.path);
+  std::string start_key = LevelDbRemoteDocumentKey::KeyPrefix(query_path);
   auto it = db_.currentTransaction->NewIterator();
-  it->Seek(startKey);
+  it->Seek(start_key);
 
-  LevelDbRemoteDocumentKey currentKey;
-  for (; it->Valid() && currentKey.Decode(it->key()); it->Next()) {
-    FSTMaybeDocument* maybeDoc =
-        DecodeMaybeDocument(it->value(), currentKey.document_key());
-    if (!query.path.IsPrefixOf(maybeDoc.key.path())) {
+  LevelDbRemoteDocumentKey current_key;
+  for (; it->Valid() && current_key.Decode(it->key()); it->Next()) {
+    // The query is actually returning any path that starts with the query path
+    // prefix which may include documents in subcollections. For example, a
+    // query on 'rooms' will return rooms/abc/messages/xyx but we shouldn't
+    // match it. Fix this by discarding rows with document keys more than one
+    // segment longer than the query path.
+    const DocumentKey& document_key = current_key.document_key();
+    if (document_key.path().size() != immediate_children_path_length) {
+      continue;
+    }
+
+    FSTMaybeDocument* maybe_doc =
+        DecodeMaybeDocument(it->value(), document_key);
+    if (!query_path.IsPrefixOf(maybe_doc.key.path())) {
       break;
-    } else if ([maybeDoc isKindOfClass:[FSTDocument class]]) {
+    } else if ([maybe_doc isKindOfClass:[FSTDocument class]]) {
       results =
-          results.insert(maybeDoc.key, static_cast<FSTDocument*>(maybeDoc));
+          results.insert(maybe_doc.key, static_cast<FSTDocument*>(maybe_doc));
     }
   }
 

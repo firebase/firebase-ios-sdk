@@ -17,6 +17,7 @@
 #import <Foundation/Foundation.h>
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/local/index_manager.h"
 #include "Firestore/core/src/firebase/firestore/local/mutation_queue.h"
 #include "Firestore/core/src/firebase/firestore/local/query_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/reference_set.h"
@@ -82,8 +83,11 @@ NS_ASSUME_NONNULL_BEGIN
 /** Creates an FSTQueryCache representing the persisted cache of queries. */
 - (firebase::firestore::local::QueryCache *)queryCache;
 
-/** Creates an FSTRemoteDocumentCache representing the persisted cache of remote documents. */
+/** Creates a RemoteDocumentCache representing the persisted cache of remote documents. */
 - (firebase::firestore::local::RemoteDocumentCache *)remoteDocumentCache;
+
+/** Creates an IndexManager that manages our persisted query indexes. */
+- (firebase::firestore::local::IndexManager *)indexManager;
 
 @property(nonatomic, readonly, assign) const FSTTransactionRunner &run;
 

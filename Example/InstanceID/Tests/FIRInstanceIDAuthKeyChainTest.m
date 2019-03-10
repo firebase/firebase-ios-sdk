@@ -97,6 +97,8 @@ static NSString *const kBundleID2 = @"com.google.abtesting.dev";
                           // Now query the token and compare, they should not corrupt
                           // each other.
                           NSData *data1 = [weakKeychain dataForService:service account:account1];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
                           FIRInstanceIDTokenInfo *tokenInfo1 =
                               [NSKeyedUnarchiver unarchiveObjectWithData:data1];
                           XCTAssertEqualObjects(kToken1, tokenInfo1.token);
@@ -104,6 +106,7 @@ static NSString *const kBundleID2 = @"com.google.abtesting.dev";
                           NSData *data2 = [weakKeychain dataForService:service account:account2];
                           FIRInstanceIDTokenInfo *tokenInfo2 =
                               [NSKeyedUnarchiver unarchiveObjectWithData:data2];
+#pragma clang diagnostic pop
                           XCTAssertEqualObjects(kToken2, tokenInfo2.token);
                           // Also check the cache data.
                           XCTAssertEqual(weakKeychain.cachedKeychainData.count, 1);
@@ -168,8 +171,11 @@ static NSString *const kBundleID2 = @"com.google.abtesting.dev";
                           // Now query the token and compare, they should not corrupt
                           // each other.
                           NSData *data1 = [weakKeychain dataForService:service1 account:account];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
                           FIRInstanceIDTokenInfo *tokenInfo1 =
                               [NSKeyedUnarchiver unarchiveObjectWithData:data1];
+#pragma clang diagnostic pop
                           XCTAssertEqualObjects(kToken1, tokenInfo1.token);
 
                           NSData *data2 = [weakKeychain dataForService:service2 account:account];
@@ -401,6 +407,9 @@ static NSString *const kBundleID2 = @"com.google.abtesting.dev";
                                                          token:token
                                                     appVersion:@"1.0"
                                                  firebaseAppID:kFirebaseAppID];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   return [NSKeyedArchiver archivedDataWithRootObject:tokenInfo];
+#pragma clang diagnostic pop
 }
 @end

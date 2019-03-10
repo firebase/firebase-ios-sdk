@@ -153,13 +153,13 @@
 }
 
 - (void)testEncodeArray {
-  NSArray *input = @[ @1, @"two", @[ @3, @4L ] ];
+  NSArray *input = @[ @1, @"two", @[ @3, @9876543210LL ] ];
   NSArray *expected = @[
     @1, @"two",
     @[
       @3, @{
         @"@type" : @"type.googleapis.com/google.protobuf.Int64Value",
-        @"value" : @"4",
+        @"value" : @"9876543210",
       }
     ]
   ];
@@ -173,11 +173,11 @@
     @[
       @3, @{
         @"@type" : @"type.googleapis.com/google.protobuf.Int64Value",
-        @"value" : @"4",
+        @"value" : @"9876543210",
       }
     ]
   ];
-  NSArray *expected = @[ @1, @"two", @[ @3, @4L ] ];
+  NSArray *expected = @[ @1, @"two", @[ @3, @9876543210LL ] ];
   FUNSerializer *serializer = [[FUNSerializer alloc] init];
   NSError *error = nil;
 
@@ -186,14 +186,14 @@
 }
 
 - (void)testEncodeMap {
-  NSDictionary *input = @{@"foo" : @1, @"bar" : @"hello", @"baz" : @[ @3, @4L ]};
+  NSDictionary *input = @{@"foo" : @1, @"bar" : @"hello", @"baz" : @[ @3, @9876543210LL ]};
   NSDictionary *expected = @{
     @"foo" : @1,
     @"bar" : @"hello",
     @"baz" : @[
       @3, @{
         @"@type" : @"type.googleapis.com/google.protobuf.Int64Value",
-        @"value" : @"4",
+        @"value" : @"9876543210",
       }
     ]
   };
@@ -208,11 +208,11 @@
     @"baz" : @[
       @3, @{
         @"@type" : @"type.googleapis.com/google.protobuf.Int64Value",
-        @"value" : @"4",
+        @"value" : @"9876543210",
       }
     ]
   };
-  NSDictionary *expected = @{@"foo" : @1, @"bar" : @"hello", @"baz" : @[ @3, @4L ]};
+  NSDictionary *expected = @{@"foo" : @1, @"bar" : @"hello", @"baz" : @[ @3, @9876543210LL ]};
   FUNSerializer *serializer = [[FUNSerializer alloc] init];
   NSError *error = nil;
   XCTAssertEqualObjects(expected, [serializer decode:input error:&error]);

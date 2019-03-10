@@ -16,6 +16,7 @@
 
 #import "Firestore/Source/Local/FSTLocalDocumentsView.h"
 
+#include <string>
 #include <vector>
 
 #import "Firestore/Source/Core/FSTQuery.h"
@@ -23,6 +24,7 @@
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 
+#include "Firestore/core/src/firebase/firestore/local/index_manager.h"
 #include "Firestore/core/src/firebase/firestore/local/mutation_queue.h"
 #include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -30,7 +32,9 @@
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
+using firebase::firestore::local::IndexManager;
 using firebase::firestore::local::MutationQueue;
 using firebase::firestore::local::RemoteDocumentCache;
 using firebase::firestore::model::DocumentKey;
@@ -39,32 +43,38 @@ using firebase::firestore::model::DocumentMap;
 using firebase::firestore::model::MaybeDocumentMap;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::SnapshotVersion;
+using firebase::firestore::util::MakeString;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTLocalDocumentsView ()
 - (instancetype)initWithRemoteDocumentCache:(RemoteDocumentCache *)remoteDocumentCache
                               mutationQueue:(MutationQueue *)mutationQueue
-    NS_DESIGNATED_INITIALIZER;
+                               indexManager:(IndexManager *)indexManager NS_DESIGNATED_INITIALIZER;
 
 @end
 
 @implementation FSTLocalDocumentsView {
   RemoteDocumentCache *_remoteDocumentCache;
   MutationQueue *_mutationQueue;
+  IndexManager *_indexManager;
 }
 
 + (instancetype)viewWithRemoteDocumentCache:(RemoteDocumentCache *)remoteDocumentCache
-                              mutationQueue:(MutationQueue *)mutationQueue {
+                              mutationQueue:(MutationQueue *)mutationQueue
+                               indexManager:(IndexManager *)indexManager {
   return [[FSTLocalDocumentsView alloc] initWithRemoteDocumentCache:remoteDocumentCache
-                                                      mutationQueue:mutationQueue];
+                                                      mutationQueue:mutationQueue
+                                                       indexManager:indexManager];
 }
 
 - (instancetype)initWithRemoteDocumentCache:(RemoteDocumentCache *)remoteDocumentCache
-                              mutationQueue:(MutationQueue *)mutationQueue {
+                              mutationQueue:(MutationQueue *)mutationQueue
+                               indexManager:(IndexManager *)indexManager {
   if (self = [super init]) {
     _remoteDocumentCache = remoteDocumentCache;
     _mutationQueue = mutationQueue;
+    _indexManager = indexManager;
   }
   return self;
 }
@@ -142,8 +152,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (DocumentMap)documentsMatchingQuery:(FSTQuery *)query {
-  if (DocumentKey::IsDocumentKey(query.path)) {
+  if ([query isDocumentQuery]) {
     return [self documentsMatchingDocumentQuery:query.path];
+  } else if ([query isCollectionGroupQuery]) {
+    return [self documentsMatchingCollectionGroupQuery:query];
   } else {
     return [self documentsMatchingCollectionQuery:query];
   }
@@ -157,6 +169,28 @@ NS_ASSUME_NONNULL_BEGIN
     result = result.insert(doc.key, static_cast<FSTDocument *>(doc));
   }
   return result;
+}
+
+- (DocumentMap)documentsMatchingCollectionGroupQuery:(FSTQuery *)query {
+  HARD_ASSERT(query.path.empty(),
+              "Currently we only support collection group queries at the root.");
+
+  std::string collection_id = MakeString(query.collectionGroup);
+  std::vector<ResourcePath> parents = _indexManager->GetCollectionParents(collection_id);
+  DocumentMap results;
+
+  // Perform a collection query against each parent that contains the collection_id and
+  // aggregate the results.
+  for (const ResourcePath &parent : parents) {
+    FSTQuery *collectionQuery = [query collectionQueryAtPath:parent.Append(collection_id)];
+    DocumentMap collectionResults = [self documentsMatchingCollectionQuery:collectionQuery];
+    for (const auto &kv : collectionResults.underlying_map()) {
+      const DocumentKey &key = kv.first;
+      FSTDocument *doc = static_cast<FSTDocument *>(kv.second);
+      results = results.insert(key, doc);
+    }
+  }
+  return results;
 }
 
 - (DocumentMap)documentsMatchingCollectionQuery:(FSTQuery *)query {

@@ -450,7 +450,7 @@ NS_ASSUME_NONNULL_BEGIN
   // serve to keep the mutated documents from being GC'd while the mutations are outstanding.
   _persistence.run("actually register the mutations", [&]() {
     FIRTimestamp *writeTime = [FIRTimestamp timestamp];
-    _mutationQueue->AddMutationBatch(writeTime, std::move(mutations));
+    _mutationQueue->AddMutationBatch(writeTime, {}, std::move(mutations));
   });
 
   // Mark 5 documents eligible for GC. This simulates documents that were mutated then ack'd.

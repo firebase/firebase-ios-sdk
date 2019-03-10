@@ -156,6 +156,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (const firebase::firestore::model::Precondition &)precondition;
 
+/**
+ * If applicable, returns the field mask for this mutation. Fields that are not included in this
+ * field mask are not modified when this mutation is applied. Mutations that replace all document
+ * values return 'nullptr'.
+ */
+- (const firebase::firestore::model::FieldMask *)fieldMask;
+
+/** Returns whether all operations in the mutation are idempotent. */
+@property(nonatomic, readonly) BOOL idempotent;
+
 @end
 
 #pragma mark - FSTSetMutation
@@ -224,7 +234,7 @@ NS_ASSUME_NONNULL_BEGIN
  * A mask to apply to |value|, where only fields that are in both the fieldMask and the value
  * will be updated.
  */
-- (const firebase::firestore::model::FieldMask &)fieldMask;
+- (const firebase::firestore::model::FieldMask *)fieldMask;
 
 /** The fields and associated values to use when patching the document. */
 @property(nonatomic, strong, readonly) FSTObjectValue *value;

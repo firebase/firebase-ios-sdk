@@ -189,7 +189,7 @@ TEST(FieldValue, ArrayType) {
 }
 
 TEST(FieldValue, ObjectType) {
-  const FieldValue empty = FieldValue::FromMap({});
+  const FieldValue empty = FieldValue::FromMap(ObjectValue::Empty());
   ObjectValue::Map object{{"null", FieldValue::Null()},
                           {"true", FieldValue::True()},
                           {"false", FieldValue::False()}};
@@ -448,7 +448,7 @@ TEST(FieldValue, CompareMixedType) {
   const FieldValue geo_point_value = FieldValue::FromGeoPoint({1, 2});
   const FieldValue array_value =
       FieldValue::FromArray(std::vector<FieldValue>());
-  const FieldValue object_value = FieldValue::FromMap({});
+  const FieldValue object_value = FieldValue::EmptyObject();
   EXPECT_TRUE(null_value < true_value);
   EXPECT_TRUE(true_value < number_value);
   EXPECT_TRUE(number_value < timestamp_value);

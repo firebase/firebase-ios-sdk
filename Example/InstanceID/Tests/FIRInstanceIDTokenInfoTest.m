@@ -69,7 +69,10 @@ static BOOL const kAPNSSandbox = NO;
 
 - (void)testTokenInfoCreationWithInvalidArchive {
   NSData *badData = [@"badData" dataUsingEncoding:NSUTF8StringEncoding];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   FIRInstanceIDTokenInfo *info = [NSKeyedUnarchiver unarchiveObjectWithData:badData];
+#pragma clang diagnostic pop
   XCTAssertNil(info);
 }
 
@@ -77,8 +80,11 @@ static BOOL const kAPNSSandbox = NO;
 // yields the same values for all the fields.
 - (void)testTokenInfoEncodingAndDecoding {
   FIRInstanceIDTokenInfo *info = self.validTokenInfo;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   NSData *archive = [NSKeyedArchiver archivedDataWithRootObject:info];
   FIRInstanceIDTokenInfo *restoredInfo = [NSKeyedUnarchiver unarchiveObjectWithData:archive];
+#pragma clang diagnostic pop
   XCTAssertEqualObjects(restoredInfo.authorizedEntity, info.authorizedEntity);
   XCTAssertEqualObjects(restoredInfo.scope, info.scope);
   XCTAssertEqualObjects(restoredInfo.token, info.token);
@@ -99,8 +105,11 @@ static BOOL const kAPNSSandbox = NO;
                                                          token:kToken
                                                     appVersion:nil
                                                  firebaseAppID:nil];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   NSData *archive = [NSKeyedArchiver archivedDataWithRootObject:sparseInfo];
   FIRInstanceIDTokenInfo *restoredInfo = [NSKeyedUnarchiver unarchiveObjectWithData:archive];
+#pragma clang diagnostic pop
   XCTAssertEqualObjects(restoredInfo.authorizedEntity, sparseInfo.authorizedEntity);
   XCTAssertEqualObjects(restoredInfo.scope, sparseInfo.scope);
   XCTAssertEqualObjects(restoredInfo.token, sparseInfo.token);

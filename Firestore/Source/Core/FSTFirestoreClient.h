@@ -21,6 +21,7 @@
 
 #import "Firestore/Source/Core/FSTTypes.h"
 
+#include "Firestore/core/src/firebase/firestore/api/document_reference.h"
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
@@ -88,7 +89,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Retrieves a document from the cache via the indicated completion. If the doc
  * doesn't exist, an error will be sent to the completion.
  */
-- (void)getDocumentFromLocalCache:(FIRDocumentReference *)doc
+- (void)getDocumentFromLocalCache:(const firebase::firestore::api::DocumentReference &)doc
                        completion:(void (^)(FIRDocumentSnapshot *_Nullable document,
                                             NSError *_Nullable error))completion;
 

@@ -44,6 +44,10 @@ class FieldTransform {
     return *transformation_.get();
   }
 
+  bool idempotent() const {
+    return transformation_->idempotent();
+  }
+
   bool operator==(const FieldTransform& other) const {
     return path_ == other.path_ && *transformation_ == *other.transformation_;
   }
