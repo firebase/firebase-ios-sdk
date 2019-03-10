@@ -28,7 +28,7 @@
                                     self.minimumAppVersion ?: @"N/A", self.matchMessage];
 }
 
-- (instancetype)initWithParametersDictionary:(NSDictionary *)parameters {
+- (instancetype)initWithParametersDictionary:(NSDictionary<NSString *, id> *)parameters {
   NSParameterAssert(parameters.count > 0);
 
   if (self = [super init]) {
@@ -88,7 +88,8 @@
 }
 
 - (void)setParametersDictionaryValue:(id)value forKey:(NSString *)key {
-  NSMutableDictionary *parametersDictionary = [self.parametersDictionary mutableCopy];
+  NSMutableDictionary<NSString *, id> *parametersDictionary =
+      [self.parametersDictionary mutableCopy];
   if (value == nil) {
     [parametersDictionary removeObjectForKey:key];
   } else {
