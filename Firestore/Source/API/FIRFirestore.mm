@@ -200,7 +200,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
   }
 
   DocumentReference documentReference = _firestore->GetDocument(util::MakeString(documentPath));
-  return [FIRDocumentReference referenceWithReference:std::move(documentReference) firestore:self];
+  return [[FIRDocumentReference alloc] initWithReference:std::move(documentReference)];
 }
 
 - (FIRWriteBatch *)batch {
@@ -252,7 +252,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 
 @implementation FIRFirestore (Internal)
 
-- (Firestore *)delegate {
+- (Firestore *)wrapped {
   return _firestore.get();
 }
 
@@ -266,6 +266,10 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 
 + (BOOL)isLoggingEnabled {
   return FIRIsLoggableLevel(FIRLoggerLevelDebug, NO);
+}
+
++ (FIRFirestore *)recoverFromFirestore:(Firestore *)firestore {
+  return (__bridge FIRFirestore *)firestore->extension();
 }
 
 - (void)shutdownWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {

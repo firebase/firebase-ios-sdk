@@ -51,6 +51,8 @@ NS_ASSUME_NONNULL_BEGIN
 /** Checks to see if logging is is globally enabled for the Firestore client. */
 + (BOOL)isLoggingEnabled;
 
++ (FIRFirestore *)recoverFromFirestore:(firebase::firestore::api::Firestore *)firestore;
+
 /**
  * Shutdown this `FIRFirestore`, releasing all resources (abandoning any outstanding writes,
  * removing all listens, closing all network connections, etc.).
@@ -60,7 +62,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)shutdownWithCompletion:(nullable void (^)(NSError *_Nullable error))completion
     NS_SWIFT_NAME(shutdown(completion:));
 
-@property(nonatomic, assign, readonly) firebase::firestore::api::Firestore *delegate;
+@property(nonatomic, assign, readonly) firebase::firestore::api::Firestore *wrapped;
 
 @property(nonatomic, assign, readonly) firebase::firestore::util::AsyncQueue *workerQueue;
 

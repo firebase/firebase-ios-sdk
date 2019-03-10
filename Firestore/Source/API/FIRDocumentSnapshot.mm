@@ -79,7 +79,7 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
                              document:(nullable FSTDocument *)document
                             fromCache:(BOOL)fromCache
                      hasPendingWrites:(BOOL)pendingWrites {
-  DocumentSnapshot underlyingSnapshot{firestore.underlyingFirestore, documentKey, document,
+  DocumentSnapshot underlyingSnapshot{firestore.wrapped, documentKey, document,
                                       static_cast<bool>(fromCache),
                                       static_cast<bool>(pendingWrites)};
   return [[[self class] alloc] initWithSnapshot:std::move(underlyingSnapshot) firestore:firestore];
@@ -128,8 +128,7 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
 }
 
 - (FIRDocumentReference *)reference {
-  return [FIRDocumentReference referenceWithReference:_snapshot.CreateReference()
-                                            firestore:_firestore];
+  return [[FIRDocumentReference alloc] initWithReference:_snapshot.CreateReference()];
 }
 
 - (NSString *)documentID {
@@ -207,7 +206,7 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
             database->database_id().c_str());
     }
     DocumentKey key = [[ref valueWithOptions:options] key];
-    return [FIRDocumentReference referenceWithKey:key firestore:_firestore];
+    return [[FIRDocumentReference alloc] initWithKey:key firestore:_firestore.wrapped];
   } else {
     return [value valueWithOptions:options];
   }
