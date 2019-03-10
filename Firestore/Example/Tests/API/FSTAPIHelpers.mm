@@ -73,11 +73,11 @@ FIRDocumentSnapshot *FSTTestDocSnapshot(const absl::string_view path,
       data ? FSTTestDoc(path, version, data,
                         hasMutations ? FSTDocumentStateLocalMutations : FSTDocumentStateSynced)
            : nil;
-  return [FIRDocumentSnapshot snapshotWithFirestore:FSTTestFirestore()
-                                        documentKey:testutil::Key(path)
-                                           document:doc
-                                          fromCache:fromCache
-                                   hasPendingWrites:hasMutations];
+  return [[FIRDocumentSnapshot alloc] initWithFirestore:FSTTestFirestore().wrapped
+                                            documentKey:testutil::Key(path)
+                                               document:doc
+                                              fromCache:fromCache
+                                       hasPendingWrites:hasMutations];
 }
 
 FIRCollectionReference *FSTTestCollectionRef(const absl::string_view path) {
