@@ -1,4 +1,6 @@
 # Unreleased
+
+# 1.1.0
 - [changed] Improved performance when querying over documents that contain
   subcollections.
 - [feature] Added `FieldValue.increment()`, which can be used in
