@@ -68,7 +68,7 @@ DocumentReference::DocumentReference(model::ResourcePath path,
         "number of segments, but %s has %s",
         path.CanonicalString(), path.size());
   }
-        key_ = DocumentKey{std::move(path)};
+  key_ = DocumentKey{std::move(path)};
 }
 
 size_t DocumentReference::Hash() const {
@@ -116,7 +116,8 @@ void DocumentReference::DeleteDocument(Completion completion) {
 }
 
 void DocumentReference::GetDocument(
-    FIRFirestoreSource source, StatusOrCallback<DocumentSnapshot>&& completion) {
+    FIRFirestoreSource source,
+    StatusOrCallback<DocumentSnapshot>&& completion) {
   if (source == FIRFirestoreSourceCache) {
     [firestore_->client() getDocumentFromLocalCache:*this
                                          completion:std::move(completion)];

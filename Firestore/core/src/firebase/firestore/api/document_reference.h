@@ -90,7 +90,8 @@ class DocumentReference {
                    util::StatusOrCallback<DocumentSnapshot>&& completion);
 
   id<FIRListenerRegistration> AddSnapshotListener(
-      util::StatusOrCallback<DocumentSnapshot>&& listener, FSTListenOptions* options);
+      util::StatusOrCallback<DocumentSnapshot>&& listener,
+      FSTListenOptions* options);
 
  private:
   Firestore* firestore_ = nullptr;
