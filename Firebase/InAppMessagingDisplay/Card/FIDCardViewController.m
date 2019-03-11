@@ -58,9 +58,7 @@
   
   self.titleLabel.text = self.cardDisplayMessage.title;
   self.bodyLabel.text = self.cardDisplayMessage.body;
-  
-  self.imageView.image = [UIImage imageWithData:self.cardDisplayMessage.portraitImageData.imageRawData];
-  
+
   [self.primaryActionButton setTitle:self.cardDisplayMessage.primaryActionButton.buttonText
                             forState:UIControlStateNormal];
   
@@ -68,6 +66,18 @@
     self.secondaryActionButton.hidden = NO;
     [self.secondaryActionButton setTitle:self.cardDisplayMessage.secondaryActionButton.buttonText
                                 forState:UIControlStateNormal];
+  }
+}
+
+- (void)viewDidLayoutSubviews {
+  [super viewDidLayoutSubviews];
+  
+  if (self.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassRegular ||
+      self.traitCollection.verticalSizeClass == UIUserInterfaceSizeClassCompact) {
+    NSData *imageData = self.cardDisplayMessage.landscapeImageData ? self.cardDisplayMessage.landscapeImageData.imageRawData : self.cardDisplayMessage.portraitImageData.imageRawData;
+    self.imageView.image = [UIImage imageWithData:imageData];
+  } else {
+    self.imageView.image = [UIImage imageWithData:self.cardDisplayMessage.portraitImageData.imageRawData];
   }
 }
 
