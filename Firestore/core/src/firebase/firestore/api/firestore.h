@@ -86,8 +86,7 @@ class Firestore {
   FIRFirestoreSettings* settings() const;
   void set_settings(FIRFirestoreSettings* settings);
 
-  FIRCollectionReference* GetCollection(absl::string_view collection_path,
-                                        FIRFirestore* firestore);
+  FIRCollectionReference* GetCollection(absl::string_view collection_path);
   DocumentReference GetDocument(absl::string_view document_path);
   FIRWriteBatch* GetBatch(FIRFirestore* firestore);
 

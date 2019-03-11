@@ -19,6 +19,7 @@
 #import "FIRFirestoreSettings.h"
 #import "Firestore/Source/API/FIRCollectionReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
+#import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRTransaction+Internal.h"
 #import "Firestore/Source/API/FIRWriteBatch+Internal.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
@@ -86,10 +87,12 @@ void Firestore::set_settings(FIRFirestoreSettings* settings) {
 }
 
 FIRCollectionReference* Firestore::GetCollection(
-    absl::string_view collection_path, FIRFirestore* firestore) {
+    absl::string_view collection_path) {
   EnsureClientConfigured();
   ResourcePath path = ResourcePath::FromString(collection_path);
-  return [FIRCollectionReference referenceWithPath:path firestore:firestore];
+  return [FIRCollectionReference
+      referenceWithPath:path
+              firestore:[FIRFirestore recoverFromFirestore:this]];
 }
 
 DocumentReference Firestore::GetDocument(absl::string_view document_path) {

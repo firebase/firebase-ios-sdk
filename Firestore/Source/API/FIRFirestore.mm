@@ -190,7 +190,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
                             collectionPath);
   }
 
-  return _firestore->GetCollection(util::MakeString(collectionPath), self);
+  return _firestore->GetCollection(util::MakeString(collectionPath));
 }
 
 - (FIRDocumentReference *)documentWithPath:(NSString *)documentPath {
