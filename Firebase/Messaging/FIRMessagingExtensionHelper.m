@@ -23,8 +23,8 @@ static NSString *const kPayloadOptionsName = @"fcm_options";
 static NSString *const kPayloadOptionsImageURLName = @"image";
 
 @interface FIRMessagingExtensionHelper ()
-@property(nonatomic, strong) void (^contentHandler)(UNNotificationContent *contentToDeliver) NS_AVAILABLE_IOS(10.0);
-@property(nonatomic, strong) UNMutableNotificationContent *bestAttemptContent NS_AVAILABLE_IOS(10.0);
+@property(nonatomic, strong) void (^contentHandler)(UNNotificationContent *contentToDeliver);
+@property(nonatomic, strong) UNMutableNotificationContent *bestAttemptContent;
 
 @end
 
@@ -60,7 +60,7 @@ static NSString *const kPayloadOptionsImageURLName = @"image";
 
 #if TARGET_OS_IOS
 - (void)loadAttachmentForURL:(NSURL *)attachmentURL
-           completionHandler:(void (^)(UNNotificationAttachment *))completionHandler NS_AVAILABLE_IOS(10.0) {
+           completionHandler:(void (^)(UNNotificationAttachment *))completionHandler {
   __block UNNotificationAttachment *attachment = nil;
 
   NSURLSession *session = [NSURLSession
@@ -108,10 +108,8 @@ static NSString *const kPayloadOptionsImageURLName = @"image";
 #endif
 
 - (void)deliverNotification {
-  if (@available(iOS 10, *)) {
-    if (self.contentHandler) {
-      self.contentHandler(self.bestAttemptContent);
-    }
+  if (self.contentHandler) {
+    self.contentHandler(self.bestAttemptContent);
   }
 }
 
