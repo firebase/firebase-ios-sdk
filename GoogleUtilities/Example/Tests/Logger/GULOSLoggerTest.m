@@ -261,7 +261,7 @@ void GULTestOSLogWithType(os_log_t log, os_log_type_t type, char *s, ...) {
                   withService:kService
                      isForced:NO
                      withCode:kCode
-                  withMessage:@"%@", message];
+                  withMessage:message];
   [self waitForExpectations:sExpectations timeout:kTimeout];
 }
 
