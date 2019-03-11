@@ -63,17 +63,13 @@
 }
 
 + (NSString *)bundleIdentifierByRemovingLastPartFrom:(NSString *)bundleIdentifier {
-  NSString *bundleIdComponentsSeparator = @".";
-  NSArray<NSString *> *bundleIdComponents =
-      [bundleIdentifier componentsSeparatedByString:bundleIdComponentsSeparator];
-  if (bundleIdComponents.count < 2) {
-    return @"";
-  }
+  NSString *bundleIDComponentsSeparator = @".";
 
-  NSMutableArray<NSString *> *mutableNundleIdComponents = [bundleIdComponents mutableCopy];
-  [mutableNundleIdComponents removeLastObject];
+  NSMutableArray<NSString *> *bundleIDComponents =
+      [[bundleIdentifier componentsSeparatedByString:bundleIDComponentsSeparator] mutableCopy];
+  [bundleIDComponents removeLastObject];
 
-  return [mutableNundleIdComponents componentsJoinedByString:bundleIdComponentsSeparator];
+  return [bundleIDComponents componentsJoinedByString:bundleIDComponentsSeparator];
 }
 
 @end
