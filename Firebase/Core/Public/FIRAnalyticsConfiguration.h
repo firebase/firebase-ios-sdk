@@ -22,6 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
  * This class provides configuration fields for Firebase Analytics.
  */
 NS_SWIFT_NAME(AnalyticsConfiguration)
+DEPRECATED_MSG_ATTRIBUTE("Use these methods directly on the `Analytics` class.")
 @interface FIRAnalyticsConfiguration : NSObject
 
 /**

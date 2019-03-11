@@ -1,4 +1,5 @@
 # Unreleased
+- [changed] Deprecated `FIRAnalyticsConfiguration` API in favor of new methods on the Analytics SDK.
 
 # 2019-01-22 -- v5.2.0 -- M41
 - [changed] Added a registerInternalLibrary API. Now other Firebase libraries register with FirebaseCore
