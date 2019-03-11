@@ -74,7 +74,7 @@ TEST(Document, Comparison) {
 
   // Document and MaybeDocument will not equal. In particular, Document and
   // NoDocument will not equal, which I won't test here.
-  EXPECT_NE(Document(FieldValue::FromMap({}),
+  EXPECT_NE(Document(FieldValue(FieldValue::EmptyObject()),
                      DocumentKey::FromPathString("same/path"),
                      SnapshotVersion(Timestamp()), DocumentState::kSynced),
             UnknownDocument(DocumentKey::FromPathString("same/path"),

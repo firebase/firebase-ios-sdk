@@ -16,13 +16,14 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRAuthCredential_Internal.h"
+#import "FIRAuthCredential.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 /** @class FIROAuthCredential
     @brief Internal implementation of FIRAuthCredential for generic credentials.
  */
+NS_SWIFT_NAME(OAuthCredential)
 @interface FIROAuthCredential : FIRAuthCredential <NSSecureCoding>
 
 /** @property IDToken
@@ -35,15 +36,15 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, readonly, nullable) NSString *accessToken;
 
-/** @fn initWithProviderId:IDToken:accessToken:
-    @brief Designated initializer.
-    @param providerID The provider ID associated with the credential being created.
-    @param IDToken  The ID Token associated with the credential being created.
-    @param accessToken The access token associated with the credential being created.
+/** @property pendingToken
+    @brief The pending token used when completing the headful-lite flow.
  */
-- (nullable instancetype)initWithProviderID:(NSString *)providerID
-                                    IDToken:(nullable NSString*)IDToken
-                                accessToken:(nullable NSString *)accessToken;
+@property(nonatomic, readonly, nullable) NSString *pendingToken;
+
+/** @fn init
+    @brief This class is not supposed to be instantiated directly.
+ */
+- (instancetype)init NS_UNAVAILABLE;
 
 @end
 

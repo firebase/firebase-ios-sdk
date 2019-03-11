@@ -49,6 +49,19 @@ NS_ASSUME_NONNULL_BEGIN
 /** Internal FIRFirestore API we don't want exposed in our public header files. */
 @interface FIRFirestore (Internal)
 
+// TODO(b/116617988): Move this to FIRFirestore.h and update CHANGELOG.md once backend support is
+// ready.
+#pragma mark - Collection Group Queries
+/**
+ * Creates and returns a new `Query` that includes all documents in the database that are contained
+ * in a collection or subcollection with the given collectionID.
+ *
+ * @param collectionID Identifies the collections to query over. Every collection or subcollection
+ *     with this ID as the last segment of its path will be included. Cannot contain a slash.
+ * @return The created `Query`.
+ */
+- (FIRQuery *)collectionGroupWithID:(NSString *)collectionID NS_SWIFT_NAME(collectionGroup(_:));
+
 /** Checks to see if logging is is globally enabled for the Firestore client. */
 + (BOOL)isLoggingEnabled;
 

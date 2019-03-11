@@ -16,6 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -37,6 +38,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 using firebase::firestore::FirestoreErrorCode;
+using firebase::firestore::local::LevelDbCollectionParentKey;
 using firebase::firestore::local::LevelDbDocumentMutationKey;
 using firebase::firestore::local::LevelDbDocumentTargetKey;
 using firebase::firestore::local::LevelDbMigrations;
@@ -334,7 +336,6 @@ using SchemaVersion = LevelDbMigrations::SchemaVersion;
     // Verify
     std::string buffer;
     LevelDbTransaction transaction(_db.get(), "Verify");
-    auto it = transaction.NewIterator();
     // verify that we deleted the correct batches
     XCTAssertTrue(transaction.Get(LevelDbMutationKey::Key("foo", 1), &buffer).IsNotFound());
     XCTAssertTrue(transaction.Get(LevelDbMutationKey::Key("foo", 2), &buffer).IsNotFound());
@@ -357,6 +358,60 @@ using SchemaVersion = LevelDbMigrations::SchemaVersion;
                       .IsNotFound());
     XCTAssertTrue(
         transaction.Get(LevelDbDocumentMutationKey::Key("bar", testWritePending, 4), &buffer).ok());
+  }
+}
+
+- (void)testCreateCollectionParentsIndex {
+  // This test creates a database with schema version 5 that has a few
+  // mutations and a few remote documents and then ensures that appropriate
+  // entries are written to the collectionParentIndex.
+  std::vector<std::string> write_paths{"cg1/x", "cg1/y", "cg1/x/cg1/x", "cg2/x", "cg1/x/cg2/x"};
+  std::vector<std::string> remote_doc_paths{"cg1/z", "cg1/y/cg1/x", "cg2/x/cg3/x",
+                                            "blah/x/blah/x/cg3/x"};
+  std::map<std::string, std::vector<std::string>> expected_parents{
+      {"cg1", {"", "cg1/x", "cg1/y"}}, {"cg2", {"", "cg1/x"}}, {"cg3", {"blah/x/blah/x", "cg2/x"}}};
+
+  std::string empty_buffer;
+  LevelDbMigrations::RunMigrations(_db.get(), 5);
+  {
+    LevelDbTransaction transaction(_db.get(), "Write Mutations and Remote Documents");
+    // Write mutations.
+    for (auto write_path : write_paths) {
+      // We "cheat" and only write the DbDocumentMutation index entries, since
+      // that's all the migration uses.
+      DocumentKey key = DocumentKey::FromPathString(write_path);
+      transaction.Put(LevelDbDocumentMutationKey::Key("dummy-uid", key, /*dummy batchId=*/123),
+                      empty_buffer);
+    }
+
+    // Write remote document entries.
+    for (auto remote_doc_path : remote_doc_paths) {
+      DocumentKey key = DocumentKey::FromPathString(remote_doc_path);
+      transaction.Put(LevelDbRemoteDocumentKey::Key(key), empty_buffer);
+    }
+
+    transaction.Commit();
+  }
+
+  // Migrate to v6 and verify index entries.
+  LevelDbMigrations::RunMigrations(_db.get(), 6);
+  {
+    LevelDbTransaction transaction(_db.get(), "Verify");
+
+    std::map<std::string, std::vector<std::string>> actual_parents;
+    auto index_iterator = transaction.NewIterator();
+    std::string index_prefix = LevelDbCollectionParentKey::KeyPrefix();
+    LevelDbCollectionParentKey row_key;
+    for (index_iterator->Seek(index_prefix); index_iterator->Valid(); index_iterator->Next()) {
+      if (!absl::StartsWith(index_iterator->key(), index_prefix) ||
+          !row_key.Decode(index_iterator->key()))
+        break;
+
+      std::vector<std::string> &parents = actual_parents[row_key.collection_id()];
+      parents.push_back(row_key.parent().CanonicalString());
+    }
+
+    XCTAssertEqual(actual_parents, expected_parents);
   }
 }
 

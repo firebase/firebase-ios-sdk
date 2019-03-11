@@ -20,6 +20,7 @@
 @class FIRCollectionReference;
 @class FIRDocumentReference;
 @class FIRFirestoreSettings;
+@class FIRQuery;
 @class FIRTransaction;
 @class FIRWriteBatch;
 

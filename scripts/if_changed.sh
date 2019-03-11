@@ -47,10 +47,10 @@ else
   case "$PROJECT-$METHOD" in
     Firebase-pod-lib-lint) # Combines Firebase-* and InAppMessaging*
       check_changes '^(Firebase/Auth|Firebase/Core|Firebase/Database|Firebase/DynamicLinks|'\
-'Firebase/Messaging|Firebase/Storage|Functions|GoogleUtilities|Interop|Example|'\
+'Firebase/Messaging|Firebase/Storage|GoogleUtilities|Interop|Example|'\
 'FirebaseAnalyticsIntop.podspec|FirebaseAuth.podspec|FirebaseAuthInterop.podspec|'\
 'FirebaseCore.podspec|FirebaseDatabase.podspec|FirebaseDynamicLinks.podspec|'\
-'FirebaseFunctions.podspec|FirebaseMessaging.podspec|FirebaseStorage.podspec|'\
+'FirebaseMessaging.podspec|FirebaseStorage.podspec|'\
 'FirebaseStorage.podspec|Firebase/InAppMessagingDisplay|InAppMessagingDisplay|'\
 'InAppMessaging|Firebase/InAppMessaging|'\
 'FirebaseInAppMessaging.podspec|FirebaseInAppMessagingDisplay.podspec)'
@@ -58,11 +58,15 @@ else
 
     Firebase-*)
       check_changes '^(Firebase/Auth|Firebase/Core|Firebase/Database|Firebase/DynamicLinks|'\
-'Firebase/Messaging|Firebase/Storage|Functions|GoogleUtilities|Interop|Example|'\
+'Firebase/Messaging|Firebase/Storage|GoogleUtilities|Interop|Example|'\
 'FirebaseAnalyticsIntop.podspec|FirebaseAuth.podspec|FirebaseAuthInterop.podspec|'\
 'FirebaseCore.podspec|FirebaseDatabase.podspec|FirebaseDynamicLinks.podspec|'\
-'FirebaseFunctions.podspec|FirebaseMessaging.podspec|FirebaseStorage.podspec|'\
+'FirebaseMessaging.podspec|FirebaseStorage.podspec|'\
 'FirebaseStorage.podspec)'
+      ;;
+
+    Functions-*)
+      check_changes '^(Firebase/Core|Functions|GoogleUtilities|FirebaseFunctions.podspec)'
       ;;
 
     InAppMessaging-*)
@@ -71,11 +75,12 @@ else
       ;;
 
     Firestore-xcodebuild|Firestore-pod-lib-lint)
-      check_changes '^(Firestore|FirebaseFirestore.podspec|FirebaseFirestoreSwift.podspec)'
+      check_changes '^(Firestore|FirebaseFirestore.podspec|FirebaseFirestoreSwift.podspec|'\
+'GoogleUtilities)'
       ;;
 
     Firestore-cmake)
-      check_changes '^(Firestore/(core|third_party)|cmake)'
+      check_changes '^(Firestore/(core|third_party)|cmake|GoogleUtilities)'
       ;;
 
     *)

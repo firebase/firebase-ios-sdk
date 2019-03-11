@@ -6,7 +6,7 @@ target 'SymbolCollisionTest' do
   # use_frameworks!
 
   # Firebase Pods
-    pod 'Firebase', '5.17.0'
+    pod 'Firebase', '5.18.0'
     pod 'FirebaseAnalytics'
     pod 'FirebaseAuth'
     pod 'FirebaseCore'

@@ -16,6 +16,8 @@
 
 #import "FIREmailLinkSignInResponse.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @implementation FIREmailLinkSignInResponse
 
 - (BOOL)setWithDictionary:(NSDictionary *)dictionary
@@ -30,3 +32,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

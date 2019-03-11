@@ -57,8 +57,11 @@ using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentMap;
 using firebase::firestore::model::DocumentVersionMap;
+using firebase::firestore::model::FieldMask;
+using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::MaybeDocumentMap;
 using firebase::firestore::model::ListenSequenceNumber;
+using firebase::firestore::model::Precondition;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::remote::RemoteEvent;
@@ -110,8 +113,10 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
     _mutationQueue = [persistence mutationQueueForUser:initialUser];
     _remoteDocumentCache = [persistence remoteDocumentCache];
     _queryCache = [persistence queryCache];
-    _localDocuments = [FSTLocalDocumentsView viewWithRemoteDocumentCache:_remoteDocumentCache
-                                                           mutationQueue:_mutationQueue];
+    _localDocuments =
+        [FSTLocalDocumentsView viewWithRemoteDocumentCache:_remoteDocumentCache
+                                             mutationQueue:_mutationQueue
+                                              indexManager:[persistence indexManager]];
     [_persistence.referenceDelegate addInMemoryPins:&_localViewReferences];
 
     _targetIDGenerator = TargetIdGenerator::QueryCacheTargetIdGenerator(0);
@@ -145,8 +150,10 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
     std::vector<FSTMutationBatch *> newBatches = _mutationQueue->AllMutationBatches();
 
     // Recreate our LocalDocumentsView using the new MutationQueue.
-    self.localDocuments = [FSTLocalDocumentsView viewWithRemoteDocumentCache:_remoteDocumentCache
-                                                               mutationQueue:_mutationQueue];
+    self.localDocuments =
+        [FSTLocalDocumentsView viewWithRemoteDocumentCache:_remoteDocumentCache
+                                             mutationQueue:_mutationQueue
+                                              indexManager:[_persistence indexManager]];
 
     // Union the old/new changed keys.
     DocumentKeySet changedKeys;
@@ -164,12 +171,54 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 }
 
 - (FSTLocalWriteResult *)locallyWriteMutations:(std::vector<FSTMutation *> &&)mutations {
+  FIRTimestamp *localWriteTime = [FIRTimestamp timestamp];
+  DocumentKeySet keys;
+  for (FSTMutation *mutation : mutations) {
+    keys = keys.insert(mutation.key);
+  }
+
   return self.persistence.run("Locally write mutations", [&]() -> FSTLocalWriteResult * {
-    FIRTimestamp *localWriteTime = [FIRTimestamp timestamp];
-    FSTMutationBatch *batch =
-        _mutationQueue->AddMutationBatch(localWriteTime, std::move(mutations));
-    DocumentKeySet keys = [batch keys];
-    MaybeDocumentMap changedDocuments = [self.localDocuments documentsForKeys:keys];
+    // Load and apply all existing mutations. This lets us compute the current base state for
+    // all non-idempotent transforms before applying any additional user-provided writes.
+    MaybeDocumentMap existingDocuments = [self.localDocuments documentsForKeys:keys];
+
+    // For non-idempotent mutations (such as `FieldValue.increment()`), we record the base
+    // state in a separate patch mutation. This is later used to guarantee consistent values
+    // and prevents flicker even if the backend sends us an update that already includes our
+    // transform.
+    std::vector<FSTMutation *> baseMutations;
+    for (FSTMutation *mutation : mutations) {
+      if (mutation.idempotent) {
+        continue;
+      }
+
+      // Theoretically, we should only include non-idempotent fields in this field mask as this mask
+      // is used to prevent flicker for non-idempotent transforms by providing consistent base
+      // values. By including the fields for all DocumentTransforms, we incorrectly prevent rebasing
+      // of idempotent transforms (such as `arrayUnion()`) when any non-idempotent transforms are
+      // present.
+      // TODO(mrschmidt): Expose a method that only returns the a field mask for non-idempotent
+      // transforms
+      const FieldMask *fieldMask = [mutation fieldMask];
+      if (fieldMask) {
+        // `documentsForKeys` is guaranteed to return a (nullable) entry for every document key.
+        FSTMaybeDocument *maybeDocument = existingDocuments.find(mutation.key)->second;
+        FSTObjectValue *baseValues =
+            [maybeDocument isKindOfClass:[FSTDocument class]]
+                ? [((FSTDocument *)maybeDocument).data objectByApplyingFieldMask:*fieldMask]
+                : [FSTObjectValue objectValue];
+        // NOTE: The base state should only be applied if there's some existing document to
+        // override, so use a Precondition of exists=true
+        baseMutations.push_back([[FSTPatchMutation alloc] initWithKey:mutation.key
+                                                            fieldMask:*fieldMask
+                                                                value:baseValues
+                                                         precondition:Precondition::Exists(true)]);
+      }
+    }
+
+    FSTMutationBatch *batch = _mutationQueue->AddMutationBatch(
+        localWriteTime, std::move(baseMutations), std::move(mutations));
+    MaybeDocumentMap changedDocuments = [batch applyToLocalDocumentSet:existingDocuments];
     return [FSTLocalWriteResult resultForBatchID:batch.batchID changes:std::move(changedDocuments)];
   });
 }

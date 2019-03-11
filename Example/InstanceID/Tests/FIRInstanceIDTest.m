@@ -16,7 +16,10 @@
 
 #import <XCTest/XCTest.h>
 
+#import <FirebaseCore/FIRAppInternal.h>
+#import <FirebaseCore/FIROptionsInternal.h>
 #import <OCMock/OCMock.h>
+
 #import "Firebase/InstanceID/FIRInstanceID+Testing.h"
 #import "Firebase/InstanceID/FIRInstanceIDAuthService.h"
 #import "Firebase/InstanceID/FIRInstanceIDCheckinPreferences+Internal.h"
@@ -38,6 +41,9 @@ static NSString *const kDeviceAuthId = @"device-id";
 static NSString *const kSecretToken = @"secret-token";
 static NSString *const kDigest = @"com.google.digest";
 static NSString *const kVersionInfo = @"1.0";
+// FIRApp configuration.
+static NSString *const kGCMSenderID = @"correct_gcm_sender_id";
+static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 
 @interface FIRInstanceID (ExposedForTest)
 - (NSInteger)retryIntervalToFetchDefaultToken;
@@ -67,7 +73,8 @@ static NSString *const kVersionInfo = @"1.0";
 
 - (void)setUp {
   [super setUp];
-  _instanceID = [FIRInstanceID instanceIDForTests];
+  _instanceID = [[FIRInstanceID alloc] initPrivately];
+  [_instanceID start];
   if (!sTokenInfo) {
     sTokenInfo = [[FIRInstanceIDTokenInfo alloc] initWithAuthorizedEntity:kAuthorizedEntity
                                                                     scope:kScope
@@ -93,7 +100,7 @@ static NSString *const kVersionInfo = @"1.0";
   self.mockAuthService = OCMClassMock([FIRInstanceIDAuthService class]);
 
   [[[self.mockAuthService stub] andDo:^(NSInvocation *invocation) {
-    [invocation setReturnValue:&_hasCheckinInfo];
+    [invocation setReturnValue:&self->_hasCheckinInfo];
   }] hasValidCheckinInfo];
 
   self.mockTokenManager = OCMClassMock([FIRInstanceIDTokenManager class]);
@@ -116,9 +123,23 @@ static NSString *const kVersionInfo = @"1.0";
  *  FIRInstanceID with an associated FIRInstanceIDTokenManager.
  */
 - (void)testSharedInstance {
+  // The shared instance should be `nil` before the app is configured.
+  XCTAssertNil([FIRInstanceID instanceID]);
+
+  // The shared instance relies on the default app being configured. Configure it.
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
+                                                    GCMSenderID:kGCMSenderID];
+  [FIRApp configureWithName:kFIRDefaultAppName options:options];
   FIRInstanceID *instanceID = [FIRInstanceID instanceID];
   XCTAssertNotNil(instanceID);
   XCTAssertNotNil(instanceID.tokenManager);
+
+  // Ensure a second call returns the same instance as the first.
+  FIRInstanceID *secondInstanceID = [FIRInstanceID instanceID];
+  XCTAssertEqualObjects(instanceID, secondInstanceID);
+
+  // Reset the default app for the next test.
+  [FIRApp resetApps];
 }
 
 - (void)testFCMAutoInitEnabled {
@@ -568,8 +589,10 @@ static NSString *const kVersionInfo = @"1.0";
                 cachedTokenInfo = sTokenInfo;
 
                 notificationPostCount++;
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
                 notificationToken = [[self.instanceID token] copy];
+#pragma clang diagnostic pop
                 [defaultTokenExpectation fulfill];
               }];
 
@@ -646,8 +669,10 @@ static NSString *const kVersionInfo = @"1.0";
                 cachedTokenInfo = sTokenInfo;
 
                 notificationPostCount++;
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
                 notificationToken = [[self.instanceID token] copy];
+#pragma clang diagnostic pop
                 [defaultTokenExpectation fulfill];
               }];
 
@@ -715,8 +740,10 @@ static NSString *const kVersionInfo = @"1.0";
                 cachedTokenInfo = sTokenInfo;
 
                 notificationPostCount++;
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
                 notificationToken = [[self.instanceID token] copy];
+#pragma clang diagnostic pop
                 [defaultTokenExpectation fulfill];
               }];
 

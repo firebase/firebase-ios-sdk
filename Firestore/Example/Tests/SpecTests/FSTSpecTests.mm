@@ -39,6 +39,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
+#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/remote/existence_filter.h"
@@ -59,6 +60,7 @@ using firebase::firestore::auth::User;
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::remote::ExistenceFilter;
@@ -170,7 +172,10 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
   } else if ([querySpec isKindOfClass:[NSDictionary class]]) {
     NSDictionary *queryDict = (NSDictionary *)querySpec;
     NSString *path = queryDict[@"path"];
-    __block FSTQuery *query = FSTTestQuery(util::MakeString(path));
+    ResourcePath resource_path = ResourcePath::FromString(util::MakeString(path));
+    NSString *_Nullable collectionGroup = queryDict[@"collectionGroup"];
+    __block FSTQuery *query = [FSTQuery queryWithPath:resource_path
+                                      collectionGroup:collectionGroup];
     if (queryDict[@"limit"]) {
       NSNumber *limit = queryDict[@"limit"];
       query = [query queryBySettingLimit:limit.integerValue];
@@ -521,17 +526,17 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
                                            ofType:DocumentViewChange::Type::kMetadata]);
     }
 
-    XCTAssertEqual(actual.viewSnapshot.documentChanges.size(), expectedChanges.size());
+    XCTAssertEqual(actual.viewSnapshot.value().document_changes().size(), expectedChanges.size());
     for (size_t i = 0; i != expectedChanges.size(); ++i) {
-      XCTAssertTrue((actual.viewSnapshot.documentChanges[i] == expectedChanges[i]));
+      XCTAssertTrue((actual.viewSnapshot.value().document_changes()[i] == expectedChanges[i]));
     }
 
     BOOL expectedHasPendingWrites =
         expected[@"hasPendingWrites"] ? [expected[@"hasPendingWrites"] boolValue] : NO;
     BOOL expectedIsFromCache = expected[@"fromCache"] ? [expected[@"fromCache"] boolValue] : NO;
-    XCTAssertEqual(actual.viewSnapshot.hasPendingWrites, expectedHasPendingWrites,
+    XCTAssertEqual(actual.viewSnapshot.value().has_pending_writes(), expectedHasPendingWrites,
                    @"hasPendingWrites");
-    XCTAssertEqual(actual.viewSnapshot.isFromCache, expectedIsFromCache, @"isFromCache");
+    XCTAssertEqual(actual.viewSnapshot.value().from_cache(), expectedIsFromCache, @"isFromCache");
   }
 }
 

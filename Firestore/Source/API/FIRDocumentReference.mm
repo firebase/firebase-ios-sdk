@@ -21,7 +21,6 @@
 
 #import "FIRFirestoreErrors.h"
 #import "FIRFirestoreSource.h"
-#import "FIRSnapshotMetadata.h"
 #import "Firestore/Source/API/FIRCollectionReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
@@ -29,21 +28,19 @@
 #import "Firestore/Source/API/FIRListenerRegistration+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Core/FSTEventManager.h"
-#import "Firestore/Source/Core/FSTFirestoreClient.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
-#import "Firestore/Source/Model/FSTMutation.h"
-#import "Firestore/Source/Util/FSTAsyncQueryListener.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
+#include "Firestore/core/src/firebase/firestore/api/document_reference.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
-#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::api::DocumentReference;
 using firebase::firestore::core::ParsedSetData;
 using firebase::firestore::core::ParsedUpdateData;
 using firebase::firestore::model::DocumentKey;
@@ -55,18 +52,16 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - FIRDocumentReference
 
 @interface FIRDocumentReference ()
-- (instancetype)initWithKey:(DocumentKey)key
-                  firestore:(FIRFirestore *)firestore NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithReference:(DocumentReference &&)reference NS_DESIGNATED_INITIALIZER;
 @end
 
 @implementation FIRDocumentReference {
-  DocumentKey _key;
+  DocumentReference _documentReference;
 }
 
-- (instancetype)initWithKey:(DocumentKey)key firestore:(FIRFirestore *)firestore {
+- (instancetype)initWithReference:(DocumentReference &&)reference {
   if (self = [super init]) {
-    _key = std::move(key);
-    _firestore = firestore;
+    _documentReference = std::move(reference);
   }
   return self;
 }
@@ -77,171 +72,107 @@ NS_ASSUME_NONNULL_BEGIN
   if (other == self) return YES;
   if (![[other class] isEqual:[self class]]) return NO;
 
-  return [self isEqualToReference:other];
-}
-
-- (BOOL)isEqualToReference:(nullable FIRDocumentReference *)reference {
-  if (self == reference) return YES;
-  if (reference == nil) return NO;
-  return [self.firestore isEqual:reference.firestore] && self.key == reference.key;
+  return _documentReference == static_cast<FIRDocumentReference *>(other)->_documentReference;
 }
 
 - (NSUInteger)hash {
-  NSUInteger hash = [self.firestore hash];
-  hash = hash * 31u + self.key.Hash();
-  return hash;
+  return _documentReference.Hash();
 }
 
 #pragma mark - Public Methods
 
+@dynamic firestore;
+
+- (FIRFirestore *)firestore {
+  return _documentReference.firestore();
+}
+
 - (NSString *)documentID {
-  return util::WrapNSString(self.key.path().last_segment());
+  return util::WrapNSString(_documentReference.document_id());
 }
 
 - (FIRCollectionReference *)parent {
-  return [FIRCollectionReference referenceWithPath:self.key.path().PopLast()
-                                         firestore:self.firestore];
+  return _documentReference.Parent();
 }
 
 - (NSString *)path {
-  return util::WrapNSString(self.key.path().CanonicalString());
+  return util::WrapNSString(_documentReference.Path());
 }
 
 - (FIRCollectionReference *)collectionWithPath:(NSString *)collectionPath {
   if (!collectionPath) {
     FSTThrowInvalidArgument(@"Collection path cannot be nil.");
   }
-  const ResourcePath subPath = ResourcePath::FromString(util::MakeString(collectionPath));
-  const ResourcePath path = self.key.path().Append(subPath);
-  return [FIRCollectionReference referenceWithPath:path firestore:self.firestore];
+  return _documentReference.GetCollectionReference(util::MakeString(collectionPath));
 }
 
 - (void)setData:(NSDictionary<NSString *, id> *)documentData {
-  return [self setData:documentData merge:NO completion:nil];
+  [self setData:documentData merge:NO completion:nil];
 }
 
 - (void)setData:(NSDictionary<NSString *, id> *)documentData merge:(BOOL)merge {
-  return [self setData:documentData merge:merge completion:nil];
+  [self setData:documentData merge:merge completion:nil];
 }
 
 - (void)setData:(NSDictionary<NSString *, id> *)documentData
     mergeFields:(NSArray<id> *)mergeFields {
-  return [self setData:documentData mergeFields:mergeFields completion:nil];
+  [self setData:documentData mergeFields:mergeFields completion:nil];
 }
 
 - (void)setData:(NSDictionary<NSString *, id> *)documentData
      completion:(nullable void (^)(NSError *_Nullable error))completion {
-  return [self setData:documentData merge:NO completion:completion];
+  [self setData:documentData merge:NO completion:completion];
 }
 
 - (void)setData:(NSDictionary<NSString *, id> *)documentData
           merge:(BOOL)merge
      completion:(nullable void (^)(NSError *_Nullable error))completion {
-  ParsedSetData parsed = merge ? [self.firestore.dataConverter parsedMergeData:documentData
-                                                                     fieldMask:nil]
-                               : [self.firestore.dataConverter parsedSetData:documentData];
-  return [self.firestore.client
-      writeMutations:std::move(parsed).ToMutations(self.key, Precondition::None())
-          completion:completion];
+  ParsedSetData parsed =
+      merge ? [_documentReference.firestore().dataConverter parsedMergeData:documentData
+                                                                  fieldMask:nil]
+            : [_documentReference.firestore().dataConverter parsedSetData:documentData];
+  _documentReference.SetData(
+      std::move(parsed).ToMutations(_documentReference.key(), Precondition::None()), completion);
 }
 
 - (void)setData:(NSDictionary<NSString *, id> *)documentData
     mergeFields:(NSArray<id> *)mergeFields
      completion:(nullable void (^)(NSError *_Nullable error))completion {
-  ParsedSetData parsed = [self.firestore.dataConverter parsedMergeData:documentData
-                                                             fieldMask:mergeFields];
-  return [self.firestore.client
-      writeMutations:std::move(parsed).ToMutations(self.key, Precondition::None())
-          completion:completion];
+  ParsedSetData parsed = [_documentReference.firestore().dataConverter parsedMergeData:documentData
+                                                                             fieldMask:mergeFields];
+  _documentReference.SetData(
+      std::move(parsed).ToMutations(_documentReference.key(), Precondition::None()), completion);
 }
 
 - (void)updateData:(NSDictionary<id, id> *)fields {
-  return [self updateData:fields completion:nil];
+  [self updateData:fields completion:nil];
 }
 
 - (void)updateData:(NSDictionary<id, id> *)fields
         completion:(nullable void (^)(NSError *_Nullable error))completion {
-  ParsedUpdateData parsed = [self.firestore.dataConverter parsedUpdateData:fields];
-  return [self.firestore.client
-      writeMutations:std::move(parsed).ToMutations(self.key, Precondition::Exists(true))
-          completion:completion];
+  ParsedUpdateData parsed = [_documentReference.firestore().dataConverter parsedUpdateData:fields];
+  _documentReference.UpdateData(
+      std::move(parsed).ToMutations(_documentReference.key(), Precondition::Exists(true)),
+      completion);
 }
 
 - (void)deleteDocument {
-  return [self deleteDocumentWithCompletion:nil];
+  [self deleteDocumentWithCompletion:nil];
 }
 
 - (void)deleteDocumentWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
-  FSTDeleteMutation *mutation = [[FSTDeleteMutation alloc] initWithKey:self.key
-                                                          precondition:Precondition::None()];
-  return [self.firestore.client writeMutations:{mutation} completion:completion];
+  _documentReference.DeleteDocument(completion);
 }
 
 - (void)getDocumentWithCompletion:(void (^)(FIRDocumentSnapshot *_Nullable document,
                                             NSError *_Nullable error))completion {
-  return [self getDocumentWithSource:FIRFirestoreSourceDefault completion:completion];
+  [self getDocumentWithSource:FIRFirestoreSourceDefault completion:completion];
 }
 
 - (void)getDocumentWithSource:(FIRFirestoreSource)source
                    completion:(void (^)(FIRDocumentSnapshot *_Nullable document,
                                         NSError *_Nullable error))completion {
-  if (source == FIRFirestoreSourceCache) {
-    [self.firestore.client getDocumentFromLocalCache:self completion:completion];
-    return;
-  }
-
-  FSTListenOptions *options = [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:YES
-                                                             includeDocumentMetadataChanges:YES
-                                                                      waitForSyncWhenOnline:YES];
-
-  dispatch_semaphore_t registered = dispatch_semaphore_create(0);
-  __block id<FIRListenerRegistration> listenerRegistration;
-  FIRDocumentSnapshotBlock listener = ^(FIRDocumentSnapshot *snapshot, NSError *error) {
-    if (error) {
-      completion(nil, error);
-      return;
-    }
-
-    // Remove query first before passing event to user to avoid user actions affecting the
-    // now stale query.
-    dispatch_semaphore_wait(registered, DISPATCH_TIME_FOREVER);
-    [listenerRegistration remove];
-
-    if (!snapshot.exists && snapshot.metadata.fromCache) {
-      // TODO(dimond): Reconsider how to raise missing documents when offline.
-      // If we're online and the document doesn't exist then we call the completion with
-      // a document with document.exists set to false. If we're offline however, we call the
-      // completion handler with an error. Two options:
-      // 1) Cache the negative response from the server so we can deliver that even when you're
-      //    offline.
-      // 2) Actually call the completion handler with an error if the document doesn't exist when
-      //    you are offline.
-      completion(nil,
-                 [NSError errorWithDomain:FIRFirestoreErrorDomain
-                                     code:FIRFirestoreErrorCodeUnavailable
-                                 userInfo:@{
-                                   NSLocalizedDescriptionKey :
-                                       @"Failed to get document because the client is offline.",
-                                 }]);
-    } else if (snapshot.exists && snapshot.metadata.fromCache &&
-               source == FIRFirestoreSourceServer) {
-      completion(nil,
-                 [NSError errorWithDomain:FIRFirestoreErrorDomain
-                                     code:FIRFirestoreErrorCodeUnavailable
-                                 userInfo:@{
-                                   NSLocalizedDescriptionKey :
-                                       @"Failed to get document from server. (However, this "
-                                       @"document does exist in the local cache. Run again "
-                                       @"without setting source to FIRFirestoreSourceServer to "
-                                       @"retrieve the cached document.)"
-                                 }]);
-    } else {
-      completion(snapshot, nil);
-    }
-  };
-
-  listenerRegistration = [self addSnapshotListenerInternalWithOptions:options listener:listener];
-  dispatch_semaphore_signal(registered);
+  _documentReference.GetDocument(source, completion);
 }
 
 - (id<FIRListenerRegistration>)addSnapshotListener:(FIRDocumentSnapshotBlock)listener {
@@ -259,42 +190,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (id<FIRListenerRegistration>)
     addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
                                   listener:(FIRDocumentSnapshotBlock)listener {
-  FIRFirestore *firestore = self.firestore;
-  FSTQuery *query = [FSTQuery queryWithPath:self.key.path()];
-  const DocumentKey key = self.key;
-
-  FSTViewSnapshotHandler snapshotHandler = ^(FSTViewSnapshot *snapshot, NSError *error) {
-    if (error) {
-      listener(nil, error);
-      return;
-    }
-
-    HARD_ASSERT(snapshot.documents.count <= 1, "Too many document returned on a document query");
-    FSTDocument *document = [snapshot.documents documentForKey:key];
-
-    BOOL hasPendingWrites = document
-                                ? snapshot.mutatedKeys.contains(key)
-                                : NO;  // We don't raise `hasPendingWrites` for deleted documents.
-
-    FIRDocumentSnapshot *result = [FIRDocumentSnapshot snapshotWithFirestore:firestore
-                                                                 documentKey:key
-                                                                    document:document
-                                                                   fromCache:snapshot.fromCache
-                                                            hasPendingWrites:hasPendingWrites];
-    listener(result, nil);
-  };
-
-  FSTAsyncQueryListener *asyncListener =
-      [[FSTAsyncQueryListener alloc] initWithExecutor:self.firestore.client.userExecutor
-                                      snapshotHandler:snapshotHandler];
-
-  FSTQueryListener *internalListener =
-      [firestore.client listenToQuery:query
-                              options:internalOptions
-                  viewSnapshotHandler:[asyncListener asyncSnapshotHandler]];
-  return [[FSTListenerRegistration alloc] initWithClient:self.firestore.client
-                                           asyncListener:asyncListener
-                                        internalListener:internalListener];
+  return _documentReference.AddSnapshotListener(listener, internalOptions);
 }
 
 /** Converts the public API options object to the internal options object. */
@@ -320,11 +216,12 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (instancetype)referenceWithKey:(DocumentKey)key firestore:(FIRFirestore *)firestore {
-  return [[FIRDocumentReference alloc] initWithKey:std::move(key) firestore:firestore];
+  DocumentReference underlyingReference{firestore, std::move(key)};
+  return [[FIRDocumentReference alloc] initWithReference:std::move(underlyingReference)];
 }
 
-- (const firebase::firestore::model::DocumentKey &)key {
-  return _key;
+- (const DocumentKey &)key {
+  return _documentReference.key();
 }
 
 @end

@@ -16,9 +16,9 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Firestore/Source/Core/FSTViewSnapshot.h"
-
+#include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
 
 @class FSTQuery;
 @class FSTSyncEngine;
@@ -56,12 +56,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithQuery:(FSTQuery *)query
                       options:(FSTListenOptions *)options
-          viewSnapshotHandler:(FSTViewSnapshotHandler)viewSnapshotHandler NS_DESIGNATED_INITIALIZER;
+          viewSnapshotHandler:(firebase::firestore::core::ViewSnapshotHandler &&)viewSnapshotHandler
+    NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)init NS_UNAVAILABLE;
 
-- (void)queryDidChangeViewSnapshot:(FSTViewSnapshot *)snapshot;
-- (void)queryDidError:(NSError *)error;
+- (void)queryDidChangeViewSnapshot:(firebase::firestore::core::ViewSnapshot)snapshot;
+- (void)queryDidError:(const firebase::firestore::util::Status &)error;
 - (void)applyChangedOnlineState:(firebase::firestore::model::OnlineState)onlineState;
 
 @property(nonatomic, strong, readonly) FSTQuery *query;
