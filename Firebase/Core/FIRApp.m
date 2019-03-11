@@ -320,6 +320,7 @@ static NSMutableDictionary *sLibraryVersions;
       if ([firAnalyticsClass respondsToSelector:startWithConfigurationSelector]) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         [firAnalyticsClass performSelector:startWithConfigurationSelector
                                 withObject:[FIRConfiguration sharedInstance].analyticsConfiguration
                                 withObject:_options];
@@ -360,9 +361,12 @@ static NSMutableDictionary *sLibraryVersions;
   }
 
   // The Analytics flag has not been explicitly set, so update with the value being set.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   [[FIRAnalyticsConfiguration sharedInstance]
       setAnalyticsCollectionEnabled:dataCollectionDefaultEnabled
                      persistSetting:NO];
+#pragma clang diagnostic pop
 }
 
 - (BOOL)isDataCollectionDefaultEnabled {
