@@ -75,7 +75,8 @@ static NSString *const kFileType = @"fileType";
 
 - (void)testBundleIdentifierExistsInBundles_notExist {
   [OCMStub([self.mockBundle bundleIdentifier]) andReturn:@"com.google.test"];
-  XCTAssertFalse([FIRBundleUtil hasBundleIdentifierPrefix:@"not-exist" inBundles:@[ self.mockBundle ]]);
+  XCTAssertFalse([FIRBundleUtil hasBundleIdentifierPrefix:@"not-exist"
+                                                inBundles:@[ self.mockBundle ]]);
 }
 
 - (void)testBundleIdentifierExistsInBundles_emptyBundlesArray {
@@ -99,7 +100,7 @@ static NSString *const kFileType = @"fileType";
 
   [OCMStub([self.mockBundle bundleIdentifier]) andReturn:@"com.google.test"];
   XCTAssertFalse([FIRBundleUtil hasBundleIdentifierPrefix:@"com.google.test.someextension.some"
-                                               inBundles:@[ self.mockBundle ]]);
+                                                inBundles:@[ self.mockBundle ]]);
 
   XCTAssertFalse([FIRBundleUtil hasBundleIdentifierPrefix:@"com.google.testsomeextension"
                                                 inBundles:@[ self.mockBundle ]]);
