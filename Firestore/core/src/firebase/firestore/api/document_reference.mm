@@ -57,9 +57,10 @@ using model::ResourcePath;
 using util::MakeNSError;
 using util::Status;
 using util::StatusOr;
+using util::StatusOrCallback;
 
-DocumentReference::DocumentReference(Firestore* firestore,
-                                     model::ResourcePath path)
+DocumentReference::DocumentReference(model::ResourcePath path,
+                                     Firestore* firestore)
     : firestore_{firestore} {
   if (path.size() % 2 != 0) {
     HARD_FAIL(
@@ -67,7 +68,7 @@ DocumentReference::DocumentReference(Firestore* firestore,
         "number of segments, but %s has %s",
         path.CanonicalString(), path.size());
   }
-  key_ = DocumentKey{path};
+        key_ = DocumentKey{std::move(path)};
 }
 
 size_t DocumentReference::Hash() const {
@@ -115,7 +116,7 @@ void DocumentReference::DeleteDocument(Completion completion) {
 }
 
 void DocumentReference::GetDocument(
-    FIRFirestoreSource source, HandleMaybe<DocumentSnapshot>&& completion) {
+    FIRFirestoreSource source, StatusOrCallback<DocumentSnapshot>&& completion) {
   if (source == FIRFirestoreSourceCache) {
     [firestore_->client() getDocumentFromLocalCache:*this
                                          completion:std::move(completion)];
@@ -133,7 +134,7 @@ void DocumentReference::GetDocument(
   // for an example.
   dispatch_semaphore_t registered = dispatch_semaphore_create(0);
   auto listener_registration = std::make_shared<id<FIRListenerRegistration>>();
-  HandleMaybe<DocumentSnapshot> listener =
+  StatusOrCallback<DocumentSnapshot> listener =
       [listener_registration, registered, completion,
        source](StatusOr<DocumentSnapshot> maybe_snapshot) {
         if (!maybe_snapshot.ok()) {
@@ -178,7 +179,7 @@ void DocumentReference::GetDocument(
 }
 
 id<FIRListenerRegistration> DocumentReference::AddSnapshotListener(
-    HandleMaybe<DocumentSnapshot>&& listener, FSTListenOptions* options) {
+    StatusOrCallback<DocumentSnapshot>&& listener, FSTListenOptions* options) {
   Firestore* firestore = firestore_;
   FSTQuery* query = [FSTQuery queryWithPath:key_.path()];
   DocumentKey key = key_;

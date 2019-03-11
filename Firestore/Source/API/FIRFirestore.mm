@@ -62,6 +62,8 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 @end
 
 @implementation FIRFirestore {
+  // `std::mutex` member variable makes `core::Firestore` unmovable.
+
   std::unique_ptr<Firestore> _firestore;
 }
 

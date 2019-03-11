@@ -32,9 +32,9 @@
 #import "FIRListenerRegistration.h"
 
 #include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
-#include "Firestore/core/src/firebase/firestore/api/handle_maybe.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor_callback.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -55,8 +55,8 @@ class DocumentReference {
                                       NSError* _Nullable error) _Nullable;
 
   DocumentReference() = default;
-  DocumentReference(Firestore* firestore, model::ResourcePath path);
-  DocumentReference(Firestore* firestore, model::DocumentKey document_key)
+  DocumentReference(model::ResourcePath path, Firestore* firestore);
+  DocumentReference(model::DocumentKey document_key, Firestore* firestore)
       : firestore_{firestore}, key_{std::move(document_key)} {
   }
 
@@ -87,10 +87,10 @@ class DocumentReference {
   void DeleteDocument(Completion completion);
 
   void GetDocument(FIRFirestoreSource source,
-                   HandleMaybe<DocumentSnapshot>&& completion);
+                   util::StatusOrCallback<DocumentSnapshot>&& completion);
 
   id<FIRListenerRegistration> AddSnapshotListener(
-      HandleMaybe<DocumentSnapshot>&& listener, FSTListenOptions* options);
+      util::StatusOrCallback<DocumentSnapshot>&& listener, FSTListenOptions* options);
 
  private:
   Firestore* firestore_ = nullptr;

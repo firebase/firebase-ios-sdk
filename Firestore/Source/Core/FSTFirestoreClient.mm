@@ -59,7 +59,6 @@ namespace util = firebase::firestore::util;
 using firebase::firestore::FirestoreErrorCode;
 using firebase::firestore::api::DocumentReference;
 using firebase::firestore::api::DocumentSnapshot;
-using firebase::firestore::api::HandleMaybe;
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
@@ -80,6 +79,7 @@ using firebase::firestore::util::DelayedOperation;
 using firebase::firestore::util::Executor;
 using firebase::firestore::util::Status;
 using firebase::firestore::util::StatusOr;
+using firebase::firestore::util::StatusOrCallback;
 using firebase::firestore::util::TimerId;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -329,7 +329,7 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
 }
 
 - (void)getDocumentFromLocalCache:(const DocumentReference &)doc
-                       completion:(HandleMaybe<DocumentSnapshot> &&)completion {
+                       completion:(StatusOrCallback<DocumentSnapshot> &&)completion {
   _workerQueue->Enqueue([self, doc, completion] {
     FSTMaybeDocument *maybeDoc = [self.localStore readDocument:doc.key()];
     StatusOr<DocumentSnapshot> maybe_snapshot;

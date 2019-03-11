@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_API_HANDLE_MAYBE_H_
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_API_HANDLE_MAYBE_H_
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_HANDLE_MAYBE_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_HANDLE_MAYBE_H_
 
 #include <functional>
 
@@ -23,13 +23,13 @@
 
 namespace firebase {
 namespace firestore {
-namespace api {
+namespace util {
 
 template <typename T>
-using HandleMaybe = std::function<void(util::StatusOr<T>)>;
+using StatusOrCallback = std::function<void(util::StatusOr<T>)>;
 
-}  // namespace api
+}  // namespace util
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_API_HANDLE_MAYBE_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_HANDLE_MAYBE_H_

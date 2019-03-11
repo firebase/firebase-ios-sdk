@@ -35,20 +35,19 @@
 
 #include "Firestore/core/src/firebase/firestore/api/document_reference.h"
 #include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
-#include "Firestore/core/src/firebase/firestore/api/handle_maybe.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor_callback.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::api::DocumentReference;
 using firebase::firestore::api::DocumentSnapshot;
 using firebase::firestore::api::Firestore;
-using firebase::firestore::api::HandleMaybe;
 using firebase::firestore::core::ParsedSetData;
 using firebase::firestore::core::ParsedUpdateData;
 using firebase::firestore::model::DocumentKey;
@@ -56,6 +55,7 @@ using firebase::firestore::model::Precondition;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::util::Status;
 using firebase::firestore::util::StatusOr;
+using firebase::firestore::util::StatusOrCallback;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -82,7 +82,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (instancetype)initWithKey:(DocumentKey)key firestore:(Firestore *)firestore {
-  DocumentReference delegate{firestore, std::move(key)};
+  DocumentReference delegate{std::move(key), firestore};
   return [self initWithReference:std::move(delegate)];
 }
 
@@ -223,7 +223,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                  waitForSyncWhenOnline:NO];
 }
 
-- (HandleMaybe<DocumentSnapshot>)wrapDocumentSnapshotBlock:(FIRDocumentSnapshotBlock)block {
+- (StatusOrCallback<DocumentSnapshot>)wrapDocumentSnapshotBlock:(FIRDocumentSnapshotBlock)block {
   FIRFirestore *firestore = self.firestore;
   return [block, firestore](StatusOr<DocumentSnapshot> maybe_snapshot) {
     if (maybe_snapshot.ok()) {

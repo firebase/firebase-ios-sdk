@@ -39,7 +39,7 @@ size_t DocumentSnapshot::Hash() const {
 }
 
 DocumentReference DocumentSnapshot::CreateReference() const {
-  return DocumentReference{firestore_, internal_key_};
+  return DocumentReference{internal_key_, firestore_};
 }
 
 std::string DocumentSnapshot::document_id() const {
