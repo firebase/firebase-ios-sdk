@@ -969,7 +969,7 @@ static void UnswizzleDynamicLinkNetworking() {
 }
 
 - (void)testRetrievalProcessResultURLContainsAllParametersPassedToDynamicLinkInitializer {
-  NSDictionary<NSString *, NSString *> *linkParameters = @ {
+  NSDictionary<NSString *, NSString *> *linkParameters = @{
     @"deep_link_id" : @"https://mmaksym.com/test-app1",
     @"match_message" : @"Link is uniquely matched for this device.",
     @"match_type" : @"unique",
@@ -1000,8 +1000,8 @@ static void UnswizzleDynamicLinkNetworking() {
 
   for (NSURLQueryItem *queryItem in urlComponents.queryItems) {
     NSString *expectedValue = notEncodedParameters[queryItem.name];
-    XCTAssertNotNil(expectedValue, @"Extra parameter encoded: %@ = %@",
-                    queryItem.name, queryItem.value);
+    XCTAssertNotNil(expectedValue, @"Extra parameter encoded: %@ = %@", queryItem.name,
+                    queryItem.value);
 
     XCTAssertEqualObjects(queryItem.value, expectedValue);
     [notEncodedParameters removeObjectForKey:queryItem.name];
