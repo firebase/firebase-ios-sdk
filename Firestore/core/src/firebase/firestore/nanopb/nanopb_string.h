@@ -19,6 +19,7 @@
 
 #include <pb.h>
 
+#include <cstdlib>
 #include <string>
 #include <utility>
 
@@ -73,7 +74,7 @@ class String : public util::Comparable<String> {
   }
 
   ~String() {
-    delete bytes_;
+    std::free(bytes_);
   }
 
   String& operator=(String other) {
