@@ -1,11 +1,11 @@
 # Unreleased
 
 # 1.1.0
-- [changed] Improved performance when querying over documents that contain
-  subcollections (#2466).
 - [feature] Added `FieldValue.increment()`, which can be used in
   `updateData(_:)` and `setData(_:merge:)` to increment or decrement numeric
   field values safely without transactions.
+- [changed] Improved performance when querying over documents that contain
+  subcollections (#2466).
 - [changed] Prepared the persistence layer to support collection group queries.
   While this feature is not yet available, all schema changes are included
   in this release.
