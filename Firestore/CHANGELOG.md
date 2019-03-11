@@ -2,7 +2,7 @@
 
 # 1.1.0
 - [changed] Improved performance when querying over documents that contain
-  subcollections.
+  subcollections (#2466).
 - [feature] Added `FieldValue.increment()`, which can be used in
   `updateData(_:)` and `setData(_:merge:)` to increment or decrement numeric
   field values safely without transactions.
