@@ -98,7 +98,7 @@ static NSString *const kPayloadOptionsImageURLName = @"image";
           if (error) {
             FIRMessagingLoggerError(kFIRMessagingServiceExtensionImageNotAttached,
                                     @"Failed to create attachment with URL %@, error: %@\n",
-                                    localURL.absoluteString, error);
+                                    localURL, error);
             completionHandler(attachment);
             return;
           }
