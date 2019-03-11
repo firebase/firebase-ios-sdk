@@ -51,11 +51,13 @@ Firestore::Firestore(std::string project_id,
                      std::string database,
                      std::string persistence_key,
                      std::unique_ptr<CredentialsProvider> credentials_provider,
-                     std::unique_ptr<AsyncQueue> worker_queue)
+                     std::unique_ptr<AsyncQueue> worker_queue,
+                     void* extension)
     : database_id_{std::move(project_id), std::move(database)},
       credentials_provider_{std::move(credentials_provider)},
       persistence_key_{std::move(persistence_key)},
-      worker_queue_{std::move(worker_queue)} {
+      worker_queue_{std::move(worker_queue)},
+      extension_{extension} {
   settings_ = [[FIRFirestoreSettings alloc] init];
 }
 

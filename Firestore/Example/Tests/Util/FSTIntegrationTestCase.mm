@@ -32,7 +32,6 @@
 #include <string>
 #include <utility>
 
-#include "Firestore/core/src/firebase/firestore/api/firestore.h"
 #include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
@@ -56,7 +55,6 @@
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 
 namespace util = firebase::firestore::util;
-using firebase::firestore::api::Firestore;
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::model::DatabaseId;
@@ -193,10 +191,11 @@ static FIRFirestoreSettings *defaultSettings;
   std::unique_ptr<CredentialsProvider> credentials_provider =
       absl::make_unique<firebase::firestore::auth::EmptyCredentialsProvider>();
 
-  auto underlyingFirestore = absl::make_unique<Firestore>(
-      util::MakeString(projectID), DatabaseId::kDefault, util::MakeString(persistenceKey),
-      std::move(credentials_provider), std::move(workerQueue));
-  FIRFirestore *firestore = [[FIRFirestore alloc] initWithFirestore:std::move(underlyingFirestore)
+  FIRFirestore *firestore = [[FIRFirestore alloc] initWithProjectID:util::MakeString(projectID)
+                                                           database:DatabaseId::kDefault
+                                                     persistenceKey:util::MakeString(persistenceKey)
+                                                credentialsProvider:std::move(credentials_provider)
+                                                        workerQueue:std::move(workerQueue)
                                                         firebaseApp:app];
 
   firestore.settings = [FSTIntegrationTestCase settings];

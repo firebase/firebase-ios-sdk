@@ -18,10 +18,10 @@
 
 #import "Firestore/Source/API/FIRQuerySnapshot+Internal.h"
 
-#import "FIRFirestore.h"
 #import "FIRSnapshotMetadata.h"
 #import "Firestore/Source/API/FIRDocumentChange+Internal.h"
 #import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
+#import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRQuery+Internal.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Model/FSTDocument.h"
@@ -30,6 +30,7 @@
 
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 
+using firebase::firestore::api::Firestore;
 using firebase::firestore::core::ViewSnapshot;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -135,17 +136,17 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSArray<FIRQueryDocumentSnapshot *> *)documents {
   if (!_documents) {
     FSTDocumentSet *documentSet = _snapshot.documents();
-    FIRFirestore *firestore = self.firestore;
+    Firestore *firestore = self.firestore.wrapped;
     BOOL fromCache = self.metadata.fromCache;
 
     NSMutableArray<FIRQueryDocumentSnapshot *> *result = [NSMutableArray array];
     for (FSTDocument *document in documentSet.documentEnumerator) {
-      [result addObject:[FIRQueryDocumentSnapshot
-                            snapshotWithFirestore:firestore
-                                      documentKey:document.key
-                                         document:document
-                                        fromCache:fromCache
-                                 hasPendingWrites:_snapshot.mutated_keys().contains(document.key)]];
+      [result addObject:[[FIRQueryDocumentSnapshot alloc]
+                            initWithFirestore:firestore
+                                  documentKey:document.key
+                                     document:document
+                                    fromCache:fromCache
+                             hasPendingWrites:_snapshot.mutated_keys().contains(document.key)]];
     }
 
     _documents = result;
@@ -168,7 +169,7 @@ NS_ASSUME_NONNULL_BEGIN
   if (!_documentChanges || _documentChangesIncludeMetadataChanges != includeMetadataChanges) {
     _documentChanges = [FIRDocumentChange documentChangesForSnapshot:_snapshot
                                               includeMetadataChanges:includeMetadataChanges
-                                                           firestore:self.firestore];
+                                                           firestore:self.firestore.wrapped];
     _documentChangesIncludeMetadataChanges = includeMetadataChanges;
   }
   return _documentChanges;

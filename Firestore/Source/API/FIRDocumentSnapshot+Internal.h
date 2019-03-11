@@ -16,34 +16,29 @@
 
 #import "FIRDocumentSnapshot.h"
 
+#include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
-
-namespace firebase {
-namespace firestore {
-namespace api {
-
-class DocumentSnapshot;
-
-}  // namespace api
-}  // namespace firestore
-}  // namespace firebase
 
 @class FIRFirestore;
 @class FSTDocument;
 
 NS_ASSUME_NONNULL_BEGIN
 
+@interface FIRDocumentSnapshot (/* Init */)
+
+- (instancetype)initWithSnapshot:(firebase::firestore::api::DocumentSnapshot &&)snapshot
+    NS_DESIGNATED_INITIALIZER;
+
+- (instancetype)initWithFirestore:(firebase::firestore::api::Firestore *)firestore
+                      documentKey:(firebase::firestore::model::DocumentKey)documentKey
+                         document:(nullable FSTDocument *)document
+                        fromCache:(bool)fromCache
+                 hasPendingWrites:(bool)pendingWrites;
+
+@end
+
 /** Internal FIRDocumentSnapshot API we don't want exposed in our public header files. */
 @interface FIRDocumentSnapshot (Internal)
-
-+ (instancetype)snapshotWithFirestore:(FIRFirestore *)firestore
-                          documentKey:(firebase::firestore::model::DocumentKey)documentKey
-                             document:(nullable FSTDocument *)document
-                            fromCache:(BOOL)fromCache
-                     hasPendingWrites:(BOOL)pendingWrites;
-
-+ (instancetype)snapshotWithSnapshot:(firebase::firestore::api::DocumentSnapshot &&)snapshot
-                           firestore:(FIRFirestore *)firestore;
 
 @property(nonatomic, strong, readonly, nullable) FSTDocument *internalDocument;
 

@@ -127,19 +127,20 @@ NS_ASSUME_NONNULL_BEGIN
         HARD_ASSERT(documents.size() == 1, "Mismatch in docs returned from document lookup.");
         FSTMaybeDocument *internalDoc = documents.front();
         if ([internalDoc isKindOfClass:[FSTDeletedDocument class]]) {
-          FIRDocumentSnapshot *doc = [FIRDocumentSnapshot snapshotWithFirestore:self.firestore
-                                                                    documentKey:document.key
-                                                                       document:nil
-                                                                      fromCache:NO
-                                                               hasPendingWrites:NO];
+          FIRDocumentSnapshot *doc =
+              [[FIRDocumentSnapshot alloc] initWithFirestore:self.firestore.wrapped
+                                                 documentKey:document.key
+                                                    document:nil
+                                                   fromCache:false
+                                            hasPendingWrites:false];
           completion(doc, nil);
         } else if ([internalDoc isKindOfClass:[FSTDocument class]]) {
           FIRDocumentSnapshot *doc =
-              [FIRDocumentSnapshot snapshotWithFirestore:self.firestore
-                                             documentKey:internalDoc.key
-                                                document:(FSTDocument *)internalDoc
-                                               fromCache:NO
-                                        hasPendingWrites:NO];
+              [[FIRDocumentSnapshot alloc] initWithFirestore:self.firestore.wrapped
+                                                 documentKey:internalDoc.key
+                                                    document:(FSTDocument *)internalDoc
+                                                   fromCache:false
+                                            hasPendingWrites:false];
           completion(doc, nil);
         } else {
           HARD_FAIL("BatchGetDocumentsRequest returned unexpected document type: %s",
