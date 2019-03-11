@@ -19,7 +19,6 @@
 
 #include <pb.h>
 
-#include <cstdlib>
 #include <string>
 #include <utility>
 
@@ -73,9 +72,7 @@ class String : public util::Comparable<String> {
     swap(*this, other);
   }
 
-  ~String() {
-    std::free(bytes_);
-  }
+  ~String();
 
   String& operator=(String other) {
     swap(*this, other);
