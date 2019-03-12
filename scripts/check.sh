@@ -144,4 +144,4 @@ fi
   scripts/check_no_module_imports.sh
   scripts/check_test_inclusion.py
   scripts/check_whitespace.sh
-) 2>&1 | sed "s,^Firestore,$top_dir/Firestore,"
+) 2>&1 | sed "s,^\\([A-Za-z]*/\\),$top_dir/\\1,"
