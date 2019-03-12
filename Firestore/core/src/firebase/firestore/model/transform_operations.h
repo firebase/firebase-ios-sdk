@@ -282,7 +282,7 @@ class NumericIncrementTransform : public TransformOperation {
   }
 
   FSTFieldValue* ApplyToRemoteDocument(
-      FSTFieldValue* previousValue,
+      FSTFieldValue*,
       FSTFieldValue* transformResult) const override {
     return transformResult;
   }
