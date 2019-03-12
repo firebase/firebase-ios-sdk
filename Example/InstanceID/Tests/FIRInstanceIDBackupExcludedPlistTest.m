@@ -121,8 +121,13 @@ static NSString *const kTestPlistFileName = @"com.google.test.IIDBackupExcludedP
 #pragma mark - Private Helpers
 
 - (BOOL)isPlistInApplicationSupportDirectory {
+#if TARGET_OS_TV
   NSArray *directoryPaths =
-      NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
+      NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+#else
+    NSArray *directoryPaths =
+    NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
+#endif
   NSString *applicationSupportDirPath = directoryPaths.lastObject;
   NSArray *components = @[
     applicationSupportDirPath, kApplicationSupportSubDirectoryName,
