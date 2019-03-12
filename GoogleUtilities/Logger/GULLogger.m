@@ -26,8 +26,16 @@
 
 #ifdef DEBUG
 /// The regex pattern for the message code.
-static NSString *const kMessageCodePattern = @"^I-[A-Z]{3}[0-9]{6}$";
-static NSRegularExpression *sMessageCodeRegex;
+NSRegularExpression *GULMessageCodeRegex() {
+  static dispatch_once_t onceToken;
+  static NSRegularExpression *messageCodeRegex;
+  dispatch_once(&onceToken, ^{
+    messageCodeRegex = [NSRegularExpression regularExpressionWithPattern:@"^I-[A-Z]{3}[0-9]{6}$"
+                                                                 options:0
+                                                                   error:NULL];
+  });
+  return messageCodeRegex;
+}
 #endif
 
 @implementation GULLogger (Internal)
@@ -47,16 +55,11 @@ static NSRegularExpression *sMessageCodeRegex;
                         message:(NSString *)message {
 #ifdef DEBUG
   NSCAssert(code.length == 11, @"Incorrect message code length.");
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    sMessageCodeRegex = [NSRegularExpression regularExpressionWithPattern:kMessageCodePattern
-                                                                  options:0
-                                                                    error:NULL];
-  });
+  NSRegularExpression *messageCodeRegex = GULMessageCodeRegex();
   NSRange messageCodeRange = NSMakeRange(0, code.length);
-  NSUInteger numberOfMatches = [sMessageCodeRegex numberOfMatchesInString:code
-                                                                  options:0
-                                                                    range:messageCodeRange];
+  NSUInteger numberOfMatches = [messageCodeRegex numberOfMatchesInString:code
+                                                                 options:0
+                                                                   range:messageCodeRange];
   NSCAssert(numberOfMatches == 1, @"Incorrect message code format.");
 #endif
   return [NSString stringWithFormat:@"%@ - %@[%@] %@", logger.version, service, code, message];
@@ -68,11 +71,6 @@ static id<GULLoggerSystem> sGULLogger;
 
 void GULLoggerInitialize(void) {
   [GULLogger.logger initializeLogger];
-#ifdef DEBUG
-  sMessageCodeRegex = [NSRegularExpression regularExpressionWithPattern:kMessageCodePattern
-                                                                options:0
-                                                                  error:NULL];
-#endif
 }
 
 void GULLoggerInitializeASL(void) {
@@ -106,14 +104,12 @@ void GULLogBasic(GULLoggerLevel level,
                  NSString *message,
                  va_list args_ptr) {
 #ifdef DEBUG
-  sMessageCodeRegex = [NSRegularExpression regularExpressionWithPattern:kMessageCodePattern
-                                                                options:0
-                                                                  error:NULL];
+  NSRegularExpression *messageCodeRegex = GULMessageCodeRegex();
   NSCAssert(messageCode.length == 11, @"Incorrect message code length.");
   NSRange messageCodeRange = NSMakeRange(0, messageCode.length);
-  NSUInteger numberOfMatches = [sMessageCodeRegex numberOfMatchesInString:messageCode
-                                                                  options:0
-                                                                    range:messageCodeRange];
+  NSUInteger numberOfMatches = [messageCodeRegex numberOfMatchesInString:messageCode
+                                                                 options:0
+                                                                   range:messageCodeRange];
   NSCAssert(numberOfMatches == 1, @"Incorrect message code format.");
 #endif
   NSString *logMsg = [[NSString alloc] initWithFormat:message arguments:args_ptr];
