@@ -25,7 +25,7 @@ top_dir=$(git rev-parse --show-toplevel)
 cd "$top_dir"
 
 commit=false
-start="HEAD^"
+start="master"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
