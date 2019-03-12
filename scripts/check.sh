@@ -17,6 +17,35 @@
 # Checks that the current state of the tree is sane and optionally auto-fixes
 # errors automatically. Meant for interactive use.
 
+function usage() {
+  cat <<EOF
+USAGE: scripts/check.sh [--commit] [<revision>]
+
+Runs auto-formatting scripts, source-tree checks, and linters on any files that
+have changed since master.
+
+By default, any changes are left as uncommited changes in the working tree. You
+can review them with git diff. Pass --commit to automatically commit any changes.
+
+Pass an alternate revision to use as the basis for checking changes.
+
+EXAMPLES:
+
+  check.sh
+    Runs automated checks and formatters on all changed files since master.
+    Check for changes with git diff.
+
+  check.sh --commit
+    Runs automated checks and formatters on all changed files since master and
+    commits the results.
+
+  check.sh --commit HEAD
+    Runs automated checks and formatters on all changed files since the last
+    commit.
+
+EOF
+}
+
 set -euo pipefail
 unset CDPATH
 
@@ -31,6 +60,11 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --)
       # Do nothing: explicitly allow this, but ignore it
+      ;;
+
+    -h | --help)
+      usage
+      exit 1
       ;;
 
     --commit)
