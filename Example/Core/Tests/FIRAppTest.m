@@ -461,8 +461,8 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   XCTAssertFalse([FIRApp validateAppIDFingerprint:kGoodAppIDV1 withVersion:kGoodAppIDV1]);
 }
 
-// Uncomment if you need to mesure performance of [FIRApp validateAppID:].
-// It is commented because measures are hevely dependent on a build agent configuration,
+// Uncomment if you need to measure performance of [FIRApp validateAppID:].
+// It is commented because measures are heavily dependent on a build agent configuration,
 // so it cannot produce reliable resault on CI
 //- (void)testAppIDFingerprintPerfomance {
 //  [self measureBlock:^{

@@ -636,14 +636,14 @@ static NSMutableDictionary *sLibraryVersions;
     return NO;
   }
 
-  // Validate vesrion part (see part between '*' symbols below)
+  // Validate version part (see part between '*' symbols below)
   // '<version #>*:*<project number>:ios:<fingerprint of bundle id>'
   if (![stringScanner scanString:@":" intoString:NULL]) {
     // appIDVersion must be separated by ":"
     return NO;
   }
 
-  // Validate vesrion part (see part between '*' symbols below)
+  // Validate version part (see part between '*' symbols below)
   // '<version #>:*<project number>*:ios:<fingerprint of bundle id>'.
   NSInteger projectNumber = NSNotFound;
   if (![stringScanner scanInteger:&projectNumber]) {
@@ -651,33 +651,33 @@ static NSMutableDictionary *sLibraryVersions;
     return NO;
   }
 
-  // Validate vesrion part (see part between '*' symbols below)
+  // Validate version part (see part between '*' symbols below)
   // '<version #>:<project number>*:*ios:<fingerprint of bundle id>'.
   if (![stringScanner scanString:@":" intoString:NULL]) {
     // The project number must be separated by ":"
     return NO;
   }
 
-  // Validate vesrion part (see part between '*' symbols below)
+  // Validate version part (see part between '*' symbols below)
   // '<version #>:<project number>:*ios*:<fingerprint of bundle id>'.
-  NSString *palform;
-  if (![stringScanner scanUpToString:@":" intoString:&palform]) {
+  NSString *platform;
+  if (![stringScanner scanUpToString:@":" intoString:&platform]) {
     return NO;
   }
 
-  if (![palform isEqualToString:@"ios"]) {
+  if (![platform isEqualToString:@"ios"]) {
     // The platform must be @"ios"
     return NO;
   }
 
-  // Validate vesrion part (see part between '*' symbols below)
+  // Validate version part (see part between '*' symbols below)
   // '<version #>:<project number>:ios*:*<fingerprint of bundle id>'.
   if (![stringScanner scanString:@":" intoString:NULL]) {
     // The platform must be separated by ":"
     return NO;
   }
 
-  // Validate vesrion part (see part between '*' symbols below)
+  // Validate version part (see part between '*' symbols below)
   // '<version #>:<project number>:ios:*<fingerprint of bundle id>*'.
   unsigned long long fingerprint = NSNotFound;
   if (![stringScanner scanHexLongLong:&fingerprint]) {
