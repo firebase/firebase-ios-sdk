@@ -93,6 +93,9 @@ static NSString *const kTestPlistFileName = @"com.google.test.IIDBackupExcludedP
 }
 
 - (void)testMovePlistToApplicationSupportDirectoryFailure {
+    // This is to test moving data from deprecated document folder to application folder
+    // which should only apply to iOS.
+#if TARGET_OS_IOS
   // Delete the subdirectory
   [FIRInstanceIDStore removeSubDirectory:kApplicationSupportSubDirectoryName error:nil];
 
@@ -111,11 +114,13 @@ static NSString *const kTestPlistFileName = @"com.google.test.IIDBackupExcludedP
 
   NSDictionary *newPlistContents = @{@"world" : @"hello"};
   [self.plist writeDictionary:newPlistContents error:nil];
+
   XCTAssertEqualObjects(newPlistContents, [self.plist contentAsDictionary]);
 
   // The new file should still be written to the Documents folder.
   XCTAssertFalse([self isPlistInApplicationSupportDirectory]);
   XCTAssertTrue([self isPlistInDocumentsDirectory]);
+#endif
 }
 
 #pragma mark - Private Helpers

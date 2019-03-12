@@ -177,7 +177,6 @@
 		5188550A223067E900CA4141 /* FIRInstanceIDUtilitiesTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BE121F7DF0C00E6C1C5 /* FIRInstanceIDUtilitiesTest.m */; };
 		5188550C2230873000CA4141 /* FIRInstanceIDAPNSInfoTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE958BDA21F7DF0B00E6C1C5 /* FIRInstanceIDAPNSInfoTest.m */; };
 		5188550E2231E02400CA4141 /* FIRMessagingExtensionHelperTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 5188550D2231E02300CA4141 /* FIRMessagingExtensionHelperTest.m */; };
-		518855112231E09300CA4141 /* FIRMessagingExtensionHelperTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 518855102231E09300CA4141 /* FIRMessagingExtensionHelperTest.m */; };
 		7E21E0731F857DFC00D0AC1C /* FIROAuthProviderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7E21E0721F857DFC00D0AC1C /* FIROAuthProviderTests.m */; };
 		7E9485421F578AC4005A3939 /* FIRAuthURLPresenterTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7E94853F1F578A9D005A3939 /* FIRAuthURLPresenterTests.m */; };
 		7EE21F7A1FE89193009B1370 /* FIREmailLinkRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7EE21F791FE89193009B1370 /* FIREmailLinkRequestTests.m */; };
@@ -1080,9 +1079,8 @@
 		518854E22230652B00CA4141 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		518854E32230652B00CA4141 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		518854EC223066BE00CA4141 /* InstanceID_Tests_tvOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = InstanceID_Tests_tvOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		5188550D2231E02300CA4141 /* FIRMessagingExtensionHelperTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = FIRMessagingExtensionHelperTest.m; path = Messaging/Tests/FIRMessagingExtensionHelperTest.m; sourceTree = "<group>"; };
-		5188550F2231E04C00CA4141 /* FIRMessagingClientTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = FIRMessagingClientTest.m; path = Messaging/Tests/FIRMessagingClientTest.m; sourceTree = "<group>"; };
-		518855102231E09300CA4141 /* FIRMessagingExtensionHelperTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = FIRMessagingExtensionHelperTest.m; path = Messaging/Tests/FIRMessagingExtensionHelperTest.m; sourceTree = "<group>"; };
+		5188550D2231E02300CA4141 /* FIRMessagingExtensionHelperTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FIRMessagingExtensionHelperTest.m; sourceTree = "<group>"; };
+		5188550F2231E04C00CA4141 /* FIRMessagingClientTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FIRMessagingClientTest.m; sourceTree = "<group>"; };
 		6003F58D195388D20070C39A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		6003F58F195388D20070C39A /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		6003F591195388D20070C39A /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -1919,9 +1917,6 @@
 		6003F581195388D10070C39A = {
 			isa = PBXGroup;
 			children = (
-				518855102231E09300CA4141 /* FIRMessagingExtensionHelperTest.m */,
-				5188550F2231E04C00CA4141 /* FIRMessagingClientTest.m */,
-				5188550D2231E02300CA4141 /* FIRMessagingExtensionHelperTest.m */,
 				60FF7A9C1954A5C5007DD14C /* Podspec Metadata */,
 				DE9314EB1E86C6FF0083EDBF /* Auth */,
 				DEE14D661E844677006FA992 /* Core */,
@@ -2547,6 +2542,8 @@
 		DE9315C21E8738B70083EDBF /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				5188550D2231E02300CA4141 /* FIRMessagingExtensionHelperTest.m */,
+				5188550F2231E04C00CA4141 /* FIRMessagingClientTest.m */,
 				DE8DB550221F5B470068BB0E /* FIRInstanceIDWithFCMTest.m */,
 				DE9315C81E8738B70083EDBF /* FIRMessagingFakeConnection.h */,
 				DE9315CA1E8738B70083EDBF /* FIRMessagingFakeSocket.h */,
@@ -3798,6 +3795,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 				Base,
 				"es-MX",
@@ -4305,7 +4303,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				518855112231E09300CA4141 /* FIRMessagingExtensionHelperTest.m in Sources */,
 				511DD2AA2225C8D50094D78D /* FIRMessagingTestUtilities.h in Sources */,
 				511DD2AB2225C8D50094D78D /* FIRMessagingTestUtilities.m in Sources */,
 				511DD2922225C8C40094D78D /* FIRInstanceIDWithFCMTest.m in Sources */,
