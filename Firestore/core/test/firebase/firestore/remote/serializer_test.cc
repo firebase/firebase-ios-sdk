@@ -62,9 +62,9 @@ using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldValue;
-using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::MaybeDocument;
 using firebase::firestore::model::NoDocument;
+using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::nanopb::Reader;
 using firebase::firestore::nanopb::Writer;
@@ -199,8 +199,7 @@ class SerializerTest : public ::testing::Test {
                                       const ObjectValue& value) {
     std::vector<uint8_t> bytes;
     Writer writer = Writer::Wrap(&bytes);
-    google_firestore_v1_Document proto =
-        serializer->EncodeDocument(key, value);
+    google_firestore_v1_Document proto = serializer->EncodeDocument(key, value);
     writer.WriteNanopbMessage(google_firestore_v1_Document_fields, &proto);
     serializer->FreeNanopbMessage(google_firestore_v1_Document_fields, &proto);
     return bytes;
@@ -484,16 +483,21 @@ TEST_F(SerializerTest, EncodesNestedObjects) {
       {"s", FieldValue::FromString("foo")},
       // TODO(rsgowman): add arrays (once they're supported)
       // {"a", [2, "bar", {"b", false}]},
-      {"o", ObjectValue::FromMap({
-                {"d", FieldValue::FromInteger(100)},
-                {"nested", ObjectValue::FromMap({
-                               {
-                                   "e",
-                                   FieldValue::FromInteger(
-                                       std::numeric_limits<int64_t>::max()),
-                               },
-                           }).GetWrappedFieldValue()},
-            }).GetWrappedFieldValue()},
+      {"o",
+       ObjectValue::FromMap(
+           {
+               {"d", FieldValue::FromInteger(100)},
+               {"nested", ObjectValue::FromMap(
+                              {
+                                  {
+                                      "e",
+                                      FieldValue::FromInteger(
+                                          std::numeric_limits<int64_t>::max()),
+                                  },
+                              })
+                              .GetWrappedFieldValue()},
+           })
+           .GetWrappedFieldValue()},
   });
 
   v1::Value inner_proto;
@@ -516,7 +520,8 @@ TEST_F(SerializerTest, EncodesNestedObjects) {
   (*fields)["s"] = ValueProto("foo");
   (*fields)["o"] = middle_proto;
 
-  ExpectRoundTrip(model.GetWrappedFieldValue(), proto, FieldValue::Type::Object);
+  ExpectRoundTrip(model.GetWrappedFieldValue(), proto,
+                  FieldValue::Type::Object);
 }
 
 TEST_F(SerializerTest, EncodesFieldValuesWithRepeatedEntries) {
@@ -821,9 +826,11 @@ TEST_F(SerializerTest, EncodesNonEmptyDocument) {
   ObjectValue fields = ObjectValue::FromMap({
       {"foo", FieldValue::FromString("bar")},
       {"two", FieldValue::FromInteger(2)},
-      {"nested", ObjectValue::FromMap({
-                     {"fourty-two", FieldValue::FromInteger(42)},
-                 }).GetWrappedFieldValue()},
+      {"nested",
+       ObjectValue::FromMap({
+                                {"fourty-two", FieldValue::FromInteger(42)},
+                            })
+           .GetWrappedFieldValue()},
   });
   SnapshotVersion update_time = SnapshotVersion{{1234, 5678}};
 

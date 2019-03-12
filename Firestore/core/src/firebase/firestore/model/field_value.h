@@ -231,13 +231,18 @@ class ObjectValue {
   // which is a copy of the immutable map, but with some fields (such as server
   // timestamps) optionally resolved. Do we need the same here?
 
-  const FieldValue::Map& GetInternalValue() const { return *fv_.object_value_; }
-  const FieldValue& GetWrappedFieldValue() const { return fv_; }
+  const FieldValue::Map& GetInternalValue() const {
+    return *fv_.object_value_;
+  }
+  const FieldValue& GetWrappedFieldValue() const {
+    return fv_;
+  }
 
  private:
   friend bool operator<(const ObjectValue& lhs, const ObjectValue& rhs);
 
-  ObjectValue SetChild(const std::string& child_name, const FieldValue& value) const;
+  ObjectValue SetChild(const std::string& child_name,
+                       const FieldValue& value) const;
 
   FieldValue fv_;
 };

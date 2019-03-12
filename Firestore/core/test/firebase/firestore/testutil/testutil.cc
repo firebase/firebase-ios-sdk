@@ -33,7 +33,8 @@ std::unique_ptr<model::PatchMutation> PatchMutation(
   for (const auto& kv : values) {
     model::FieldPath field_path = Field(kv.first);
     object_mask.insert(field_path);
-    // TODO(rsgowman): This will abort if kv.second.string_value.type() != String
+    // TODO(rsgowman): This will abort if kv.second.string_value.type() !=
+    // String
     if (kv.second.string_value() != kDeleteSentinel) {
       object_value = object_value.Set(field_path, kv.second);
     }

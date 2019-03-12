@@ -103,7 +103,7 @@ std::vector<uint8_t> Serializer::DecodeBytes(const pb_bytes_array_t* bytes) {
 namespace {
 
 FieldValue::Map DecodeMapValue(Reader* reader,
-                                const google_firestore_v1_MapValue& map_value);
+                               const google_firestore_v1_MapValue& map_value);
 
 // There's no f:f::model equivalent of StructuredQuery, so we'll create our
 // own struct for decoding. We could use nanopb's struct, but it's slightly
@@ -147,8 +147,7 @@ FieldValue::Map DecodeFields(
   return result;
 }
 
-google_firestore_v1_MapValue EncodeMapValue(
-    const ObjectValue& object_value) {
+google_firestore_v1_MapValue EncodeMapValue(const ObjectValue& object_value) {
   google_firestore_v1_MapValue result{};
 
   size_t count = object_value.GetInternalValue().size();
@@ -167,7 +166,7 @@ google_firestore_v1_MapValue EncodeMapValue(
 }
 
 FieldValue::Map DecodeMapValue(Reader* reader,
-                                const google_firestore_v1_MapValue& map_value) {
+                               const google_firestore_v1_MapValue& map_value) {
   FieldValue::Map result;
 
   for (size_t i = 0; i < map_value.fields_count; i++) {
@@ -352,7 +351,8 @@ FieldValue Serializer::DecodeFieldValue(Reader* reader,
     }
 
     case google_firestore_v1_Value_map_value_tag: {
-      return ObjectValue::FromMap(DecodeMapValue(reader, msg.map_value)).GetWrappedFieldValue();
+      return ObjectValue::FromMap(DecodeMapValue(reader, msg.map_value))
+          .GetWrappedFieldValue();
     }
 
     case google_firestore_v1_Value_double_value_tag:
@@ -514,16 +514,14 @@ google_firestore_v1_Write Serializer::EncodeMutation(
     case Mutation::Type::kSet: {
       result.which_operation = google_firestore_v1_Write_update_tag;
       result.update = EncodeDocument(
-          mutation.key(),
-          static_cast<const SetMutation&>(mutation).value());
+          mutation.key(), static_cast<const SetMutation&>(mutation).value());
       return result;
     }
 
     case Mutation::Type::kPatch: {
       result.which_operation = google_firestore_v1_Write_update_tag;
       auto patch_mutation = static_cast<const PatchMutation&>(mutation);
-      result.update =
-          EncodeDocument(mutation.key(), patch_mutation.value());
+      result.update = EncodeDocument(mutation.key(), patch_mutation.value());
       result.update_mask = EncodeDocumentMask(patch_mutation.mask());
       return result;
     }

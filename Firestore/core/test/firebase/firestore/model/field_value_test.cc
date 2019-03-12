@@ -191,12 +191,12 @@ TEST(FieldValue, ArrayType) {
 TEST(FieldValue, ObjectType) {
   const ObjectValue empty = ObjectValue::Empty();
   FieldValue::Map object{{"null", FieldValue::Null()},
-                          {"true", FieldValue::True()},
-                          {"false", FieldValue::False()}};
+                         {"true", FieldValue::True()},
+                         {"false", FieldValue::False()}};
   // copy the map
   const ObjectValue small = ObjectValue::FromMap(object);
   FieldValue::Map another_object{{"null", FieldValue::Null()},
-                                  {"true", FieldValue::False()}};
+                                 {"true", FieldValue::False()}};
   // move the array
   const ObjectValue large = ObjectValue::FromMap(std::move(another_object));
   EXPECT_TRUE(empty < small);
@@ -331,18 +331,23 @@ TEST(FieldValue, Copy) {
   clone = null_value;
   EXPECT_EQ(FieldValue::Null(), clone);
 
-  const FieldValue object_value = ObjectValue::FromMap({
-      {"true", FieldValue::True()}, {"false", FieldValue::False()}}).GetWrappedFieldValue();
+  const FieldValue object_value =
+      ObjectValue::FromMap(
+          {{"true", FieldValue::True()}, {"false", FieldValue::False()}})
+          .GetWrappedFieldValue();
   clone = object_value;
-  EXPECT_EQ(ObjectValue::FromMap({
-                {"true", FieldValue::True()}, {"false", FieldValue::False()}}).GetWrappedFieldValue(),
+  EXPECT_EQ(ObjectValue::FromMap(
+                {{"true", FieldValue::True()}, {"false", FieldValue::False()}})
+                .GetWrappedFieldValue(),
             clone);
-  EXPECT_EQ(ObjectValue::FromMap({
-                {"true", FieldValue::True()}, {"false", FieldValue::False()}}).GetWrappedFieldValue(),
+  EXPECT_EQ(ObjectValue::FromMap(
+                {{"true", FieldValue::True()}, {"false", FieldValue::False()}})
+                .GetWrappedFieldValue(),
             object_value);
   clone = *&clone;
-  EXPECT_EQ(ObjectValue::FromMap({
-                {"true", FieldValue::True()}, {"false", FieldValue::False()}}).GetWrappedFieldValue(),
+  EXPECT_EQ(ObjectValue::FromMap(
+                {{"true", FieldValue::True()}, {"false", FieldValue::False()}})
+                .GetWrappedFieldValue(),
             clone);
   clone = null_value;
   EXPECT_EQ(FieldValue::Null(), clone);
@@ -422,11 +427,14 @@ TEST(FieldValue, Move) {
   clone = FieldValue::Null();
   EXPECT_EQ(FieldValue::Null(), clone);
 
-  FieldValue object_value = ObjectValue::FromMap({
-      {"true", FieldValue::True()}, {"false", FieldValue::False()}}).GetWrappedFieldValue();
+  FieldValue object_value =
+      ObjectValue::FromMap(
+          {{"true", FieldValue::True()}, {"false", FieldValue::False()}})
+          .GetWrappedFieldValue();
   clone = std::move(object_value);
-  EXPECT_EQ(ObjectValue::FromMap({
-                {"true", FieldValue::True()}, {"false", FieldValue::False()}}).GetWrappedFieldValue(),
+  EXPECT_EQ(ObjectValue::FromMap(
+                {{"true", FieldValue::True()}, {"false", FieldValue::False()}})
+                .GetWrappedFieldValue(),
             clone);
   clone = FieldValue::Null();
   EXPECT_EQ(FieldValue::Null(), clone);
@@ -489,15 +497,17 @@ TEST(FieldValue, Set) {
   const ObjectValue value = ObjectValue::FromMap({
       {"a", FieldValue::FromString("A")},
       {"b", ObjectValue::FromMap({
-                {"ba", FieldValue::FromString("BA")},
-            }).GetWrappedFieldValue()},
+                                     {"ba", FieldValue::FromString("BA")},
+                                 })
+                .GetWrappedFieldValue()},
   });
   const ObjectValue expected = ObjectValue::FromMap({
       {"a", FieldValue::FromString("A")},
       {"b", ObjectValue::FromMap({
-                {"ba", FieldValue::FromString("BA")},
-                {"bb", FieldValue::FromString("BB")},
-            }).GetWrappedFieldValue()},
+                                     {"ba", FieldValue::FromString("BA")},
+                                     {"bb", FieldValue::FromString("BB")},
+                                 })
+                .GetWrappedFieldValue()},
   });
   EXPECT_EQ(expected,
             value.Set(testutil::Field("b.bb"), FieldValue::FromString("BB")));
@@ -511,8 +521,9 @@ TEST(FieldValue, SetRecursive) {
   const ObjectValue expected = ObjectValue::FromMap({
       {"a", FieldValue::FromString("A")},
       {"b", ObjectValue::FromMap({
-                {"bb", FieldValue::FromString("BB")},
-            }).GetWrappedFieldValue()},
+                                     {"bb", FieldValue::FromString("BB")},
+                                 })
+                .GetWrappedFieldValue()},
   });
   EXPECT_EQ(expected,
             value.Set(testutil::Field("b.bb"), FieldValue::FromString("BB")));
@@ -522,15 +533,17 @@ TEST(FieldValue, Delete) {
   const ObjectValue value = ObjectValue::FromMap({
       {"a", FieldValue::FromString("A")},
       {"b", ObjectValue::FromMap({
-                {"ba", FieldValue::FromString("BA")},
-                {"bb", FieldValue::FromString("BB")},
-            }).GetWrappedFieldValue()},
+                                     {"ba", FieldValue::FromString("BA")},
+                                     {"bb", FieldValue::FromString("BB")},
+                                 })
+                .GetWrappedFieldValue()},
   });
   const ObjectValue expected = ObjectValue::FromMap({
       {"a", FieldValue::FromString("A")},
       {"b", ObjectValue::FromMap({
-                {"ba", FieldValue::FromString("BA")},
-            }).GetWrappedFieldValue()},
+                                     {"ba", FieldValue::FromString("BA")},
+                                 })
+                .GetWrappedFieldValue()},
   });
   EXPECT_EQ(expected, value.Delete(testutil::Field("b.bb")));
 }
@@ -539,9 +552,10 @@ TEST(FieldValue, DeleteNothing) {
   const ObjectValue value = ObjectValue::FromMap({
       {"a", FieldValue::FromString("A")},
       {"b", ObjectValue::FromMap({
-                {"ba", FieldValue::FromString("BA")},
-                {"bb", FieldValue::FromString("BB")},
-            }).GetWrappedFieldValue()},
+                                     {"ba", FieldValue::FromString("BA")},
+                                     {"bb", FieldValue::FromString("BB")},
+                                 })
+                .GetWrappedFieldValue()},
   });
   EXPECT_EQ(value, value.Delete(testutil::Field("aa")));
 }
@@ -550,9 +564,10 @@ TEST(FieldValue, Get) {
   const ObjectValue value = ObjectValue::FromMap({
       {"a", FieldValue::FromString("A")},
       {"b", ObjectValue::FromMap({
-                {"ba", FieldValue::FromString("BA")},
-                {"bb", FieldValue::FromString("BB")},
-            }).GetWrappedFieldValue()},
+                                     {"ba", FieldValue::FromString("BA")},
+                                     {"bb", FieldValue::FromString("BB")},
+                                 })
+                .GetWrappedFieldValue()},
   });
   EXPECT_EQ(FieldValue::FromString("A"), value.Get(testutil::Field("a")));
   EXPECT_EQ(FieldValue::FromString("BA"), value.Get(testutil::Field("b.ba")));
@@ -563,9 +578,10 @@ TEST(FieldValue, GetNothing) {
   const ObjectValue value = ObjectValue::FromMap({
       {"a", FieldValue::FromString("A")},
       {"b", ObjectValue::FromMap({
-                {"ba", FieldValue::FromString("BA")},
-                {"bb", FieldValue::FromString("BB")},
-            }).GetWrappedFieldValue()},
+                                     {"ba", FieldValue::FromString("BA")},
+                                     {"bb", FieldValue::FromString("BB")},
+                                 })
+                .GetWrappedFieldValue()},
   });
   EXPECT_EQ(absl::nullopt, value.Get(testutil::Field("aa")));
   EXPECT_EQ(absl::nullopt, value.Get(testutil::Field("a.a")));

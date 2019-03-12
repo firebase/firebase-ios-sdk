@@ -75,11 +75,11 @@ TEST(Document, Comparison) {
 
   // Document and MaybeDocument will not equal. In particular, Document and
   // NoDocument will not equal, which I won't test here.
-  EXPECT_NE(Document(ObjectValue::Empty(),
-                     DocumentKey::FromPathString("same/path"),
-                     SnapshotVersion(Timestamp()), DocumentState::kSynced),
-            UnknownDocument(DocumentKey::FromPathString("same/path"),
-                            SnapshotVersion(Timestamp())));
+  EXPECT_NE(
+      Document(ObjectValue::Empty(), DocumentKey::FromPathString("same/path"),
+               SnapshotVersion(Timestamp()), DocumentState::kSynced),
+      UnknownDocument(DocumentKey::FromPathString("same/path"),
+                      SnapshotVersion(Timestamp())));
 }
 
 }  // namespace model

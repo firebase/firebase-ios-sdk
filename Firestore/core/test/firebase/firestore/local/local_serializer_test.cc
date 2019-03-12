@@ -260,7 +260,7 @@ TEST_F(LocalSerializerTest, EncodesMutationBatch) {
   std::unique_ptr<Mutation> patch = absl::make_unique<PatchMutation>(
       Key("bar/baz"),
       ObjectValue::FromMap({{"a", FieldValue::FromString("b")},
-                           {"num", FieldValue::FromInteger(1)}}),
+                            {"num", FieldValue::FromInteger(1)}}),
       FieldMask({FieldPath({"a"})}), Precondition::Exists(true));
   std::unique_ptr<Mutation> del = testutil::DeleteMutation("baz/quux");
 

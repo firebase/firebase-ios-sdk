@@ -146,7 +146,7 @@ bool FieldValue::Comparable(Type lhs, Type rhs) {
 
 // TODO(rsgowman): Reorder this file to match its header.
 ObjectValue ObjectValue::Set(const FieldPath& field_path,
-                           const FieldValue& value) const {
+                             const FieldValue& value) const {
   HARD_ASSERT(!field_path.empty(),
               "Cannot set field for empty path on FieldValue");
   // Set the value by recursively calling on child object.
@@ -156,7 +156,8 @@ ObjectValue ObjectValue::Set(const FieldPath& field_path,
   } else {
     ObjectValue child = ObjectValue::Empty();
     const auto iter = fv_.object_value_->find(child_name);
-    if (iter != fv_.object_value_->end() && iter->second.type() == Type::Object) {
+    if (iter != fv_.object_value_->end() &&
+        iter->second.type() == Type::Object) {
       child = ObjectValue(iter->second);
     }
     ObjectValue new_child = child.Set(field_path.PopFirst(), value);
@@ -173,8 +174,10 @@ ObjectValue ObjectValue::Delete(const FieldPath& field_path) const {
     return ObjectValue::FromMap(fv_.object_value_->erase(child_name));
   } else {
     const auto iter = fv_.object_value_->find(child_name);
-    if (iter != fv_.object_value_->end() && iter->second.type() == Type::Object) {
-      ObjectValue new_child = ObjectValue(iter->second).Delete(field_path.PopFirst());
+    if (iter != fv_.object_value_->end() &&
+        iter->second.type() == Type::Object) {
+      ObjectValue new_child =
+          ObjectValue(iter->second).Delete(field_path.PopFirst());
       return SetChild(child_name, new_child.fv_);
     } else {
       // If the found value isn't an object, it cannot contain the remaining
@@ -203,9 +206,8 @@ absl::optional<FieldValue> ObjectValue::Get(const FieldPath& field_path) const {
 
 // TODO: move this to the other ObjectValue methods
 ObjectValue ObjectValue::SetChild(const std::string& child_name,
-                                const FieldValue& value) const {
-  return ObjectValue::FromMap(
-      fv_.object_value_->insert(child_name, value));
+                                  const FieldValue& value) const {
+  return ObjectValue::FromMap(fv_.object_value_->insert(child_name, value));
 }
 
 FieldValue FieldValue::Null() {
