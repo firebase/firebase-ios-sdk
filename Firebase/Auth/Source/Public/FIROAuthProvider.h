@@ -26,7 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
     @brief A string constant identifying the Microsoft identity provider.
  */
-extern NSString *const FIRMicrosoftAuthProviderID NS_SWIFT_NAME(MicrosoftAuthProviderID) 
+extern NSString *const FIRMicrosoftAuthProviderID NS_SWIFT_NAME(MicrosoftAuthProviderID)
     DEPRECATED_MSG_ATTRIBUTE("Please use \"microsoft.com\" instead.");
 
 /**
