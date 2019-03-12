@@ -107,9 +107,9 @@ NS_ASSUME_NONNULL_BEGIN
   std::vector<DocumentViewChange> documentChanges{DocumentViewChange{
       FSTTestDoc("c/a", 1, @{}, FSTDocumentStateSynced), DocumentViewChange::Type::kAdded}};
 
-  BOOL fromCache = YES;
+  bool fromCache = true;
   DocumentKeySet mutatedKeys;
-  BOOL syncStateChanged = YES;
+  bool syncStateChanged = true;
 
   ViewSnapshot snapshot{query,
                         documents,

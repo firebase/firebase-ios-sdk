@@ -69,7 +69,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                                     waitForSyncWhenOnline:NO];
 }
 
-- (ViewSnapshot)setExcludesMetadataChanges:(BOOL)excludesMetadataChanges
+- (ViewSnapshot)setExcludesMetadataChanges:(bool)excludesMetadataChanges
                                   snapshot:(const ViewSnapshot &)snapshot {
   return ViewSnapshot{
       snapshot.query(),
@@ -228,8 +228,8 @@ NS_ASSUME_NONNULL_BEGIN
   [fullListener queryDidChangeViewSnapshot:snap3];  // doc2 update
 
   XCTAssertTrue((filteredAccum ==
-                 std::vector<ViewSnapshot>{[self setExcludesMetadataChanges:YES snapshot:snap1],
-                                           [self setExcludesMetadataChanges:YES snapshot:snap3]}));
+                 std::vector<ViewSnapshot>{[self setExcludesMetadataChanges:true snapshot:snap1],
+                                           [self setExcludesMetadataChanges:true snapshot:snap3]}));
   XCTAssertTrue((fullAccum == std::vector<ViewSnapshot>{snap1, snap2, snap3}));
 }
 
@@ -273,8 +273,8 @@ NS_ASSUME_NONNULL_BEGIN
   [fullListener queryDidChangeViewSnapshot:snap3];
 
   XCTAssertTrue((filteredAccum ==
-                 std::vector<ViewSnapshot>{[self setExcludesMetadataChanges:YES snapshot:snap1],
-                                           [self setExcludesMetadataChanges:YES snapshot:snap3]}));
+                 std::vector<ViewSnapshot>{[self setExcludesMetadataChanges:true snapshot:snap1],
+                                           [self setExcludesMetadataChanges:true snapshot:snap3]}));
   XCTAssertTrue(
       (filteredAccum[0].document_changes() == std::vector<DocumentViewChange>{change1, change2}));
   XCTAssertTrue((filteredAccum[1].document_changes() == std::vector<DocumentViewChange>{change4}));
@@ -329,8 +329,8 @@ NS_ASSUME_NONNULL_BEGIN
       /*excludes_metadata_changes=*/true  // This test excludes document metadata changes
   };
   XCTAssertTrue(
-      (fullAccum == std::vector<ViewSnapshot>{[self setExcludesMetadataChanges:YES snapshot:snap1],
-                                              [self setExcludesMetadataChanges:YES snapshot:snap3],
+      (fullAccum == std::vector<ViewSnapshot>{[self setExcludesMetadataChanges:true snapshot:snap1],
+                                              [self setExcludesMetadataChanges:true snapshot:snap3],
                                               expectedSnap4}));
 }
 
@@ -365,7 +365,7 @@ NS_ASSUME_NONNULL_BEGIN
                              snap2.from_cache(),
                              snap2.sync_state_changed(),
                              /*excludes_metadata_changes=*/true};
-  XCTAssertTrue((filteredAccum == std::vector<ViewSnapshot>{[self setExcludesMetadataChanges:YES
+  XCTAssertTrue((filteredAccum == std::vector<ViewSnapshot>{[self setExcludesMetadataChanges:true
                                                                                     snapshot:snap1],
                                                             expectedSnap2}));
 }
