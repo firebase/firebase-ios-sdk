@@ -119,9 +119,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)logWithLevel:(GULLoggerLevel)level
-         withService:(GULLoggerService)service
+         withService:(GULLoggerService)__unused service
             isForced:(BOOL)forced
-            withCode:(NSString *)messageCode
+            withCode:(NSString *)__unused messageCode
          withMessage:(NSString *)message {
   // Skip logging this if the level isn't to be logged unless it's forced.
   if (![self isLoggableLevel:level] && !forced) {
