@@ -125,8 +125,8 @@ static NSString *const kTestPlistFileName = @"com.google.test.IIDBackupExcludedP
   NSArray *directoryPaths =
       NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
 #else
-    NSArray *directoryPaths =
-    NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
+  NSArray *directoryPaths =
+      NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
 #endif
   NSString *applicationSupportDirPath = directoryPaths.lastObject;
   NSArray *components = @[
