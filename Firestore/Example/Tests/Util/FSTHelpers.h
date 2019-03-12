@@ -82,9 +82,9 @@ NS_ASSUME_NONNULL_BEGIN
             NSComparisonResult result = [left compare:right];                                      \
             NSComparisonResult inverseResult = [right compare:left];                               \
             XCTAssertEqual(result, expected, @"comparing %@ with %@ at (%lu, %lu)", left, right,   \
-                           i, j);                                                                  \
+                           (unsigned long)i, (unsigned long)j);                                    \
             XCTAssertEqual(inverseResult, -expected, @"comparing %@ with %@ at (%lu, %lu)", right, \
-                           left, j, i);                                                            \
+                           left, (unsigned long)j, (unsigned long)i);                              \
           }                                                                                        \
         }                                                                                          \
       }                                                                                            \
