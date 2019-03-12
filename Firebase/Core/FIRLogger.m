@@ -20,23 +20,23 @@
 
 #import "Private/FIRVersion.h"
 
-FIRLoggerService kFIRLoggerABTesting = @"[Firebase/ABTesting]";
-FIRLoggerService kFIRLoggerAdMob = @"[Firebase/AdMob]";
-FIRLoggerService kFIRLoggerAnalytics = @"[Firebase/Analytics]";
-FIRLoggerService kFIRLoggerAuth = @"[Firebase/Auth]";
-FIRLoggerService kFIRLoggerCore = @"[Firebase/Core]";
-FIRLoggerService kFIRLoggerCrash = @"[Firebase/Crash]";
-FIRLoggerService kFIRLoggerDatabase = @"[Firebase/Database]";
-FIRLoggerService kFIRLoggerDynamicLinks = @"[Firebase/DynamicLinks]";
-FIRLoggerService kFIRLoggerFirestore = @"[Firebase/Firestore]";
-FIRLoggerService kFIRLoggerInstanceID = @"[Firebase/InstanceID]";
-FIRLoggerService kFIRLoggerInvites = @"[Firebase/Invites]";
-FIRLoggerService kFIRLoggerMLKit = @"[Firebase/MLKit]";
-FIRLoggerService kFIRLoggerMessaging = @"[Firebase/Messaging]";
-FIRLoggerService kFIRLoggerPerf = @"[Firebase/Performance]";
-FIRLoggerService kFIRLoggerRemoteConfig = @"[Firebase/RemoteConfig]";
-FIRLoggerService kFIRLoggerStorage = @"[Firebase/Storage]";
-FIRLoggerService kFIRLoggerSwizzler = @"[FirebaseSwizzlingUtilities]";
+FIRLoggerService kFIRLoggerABTesting = @"Firebase/ABTesting";
+FIRLoggerService kFIRLoggerAdMob = @"Firebase/AdMob";
+FIRLoggerService kFIRLoggerAnalytics = @"Firebase/Analytics";
+FIRLoggerService kFIRLoggerAuth = @"Firebase/Auth";
+FIRLoggerService kFIRLoggerCore = @"Firebase/Core";
+FIRLoggerService kFIRLoggerCrash = @"Firebase/Crash";
+FIRLoggerService kFIRLoggerDatabase = @"Firebase/Database";
+FIRLoggerService kFIRLoggerDynamicLinks = @"Firebase/DynamicLinks";
+FIRLoggerService kFIRLoggerFirestore = @"Firebase/Firestore";
+FIRLoggerService kFIRLoggerInstanceID = @"Firebase/InstanceID";
+FIRLoggerService kFIRLoggerInvites = @"Firebase/Invites";
+FIRLoggerService kFIRLoggerMLKit = @"Firebase/MLKit";
+FIRLoggerService kFIRLoggerMessaging = @"Firebase/Messaging";
+FIRLoggerService kFIRLoggerPerf = @"Firebase/Performance";
+FIRLoggerService kFIRLoggerRemoteConfig = @"Firebase/RemoteConfig";
+FIRLoggerService kFIRLoggerStorage = @"Firebase/Storage";
+FIRLoggerService kFIRLoggerSwizzler = @"FirebaseSwizzlingUtilities";
 
 /// Arguments passed on launch.
 NSString *const kFIRDisableDebugModeApplicationArgument = @"-FIRDebugDisabled";

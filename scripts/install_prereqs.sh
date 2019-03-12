@@ -55,6 +55,12 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     bundle exec pod install --project-directory=GoogleUtilities/Example
     ;;
 
+  Functions-*)
+    bundle exec pod repo update
+    # Start server for Functions integration tests.
+    ./Functions/Backend/start.sh synchronous
+    ;;
+
   InAppMessaging-iOS-xcodebuild)
     gem install xcpretty
     bundle exec pod install --project-directory=InAppMessagingDisplay/Example --repo-update

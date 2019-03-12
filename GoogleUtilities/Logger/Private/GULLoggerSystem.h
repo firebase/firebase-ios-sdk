@@ -44,8 +44,7 @@ typedef NSString *const GULLoggerService;
 - (void)logWithLevel:(GULLoggerLevel)level
          withService:(GULLoggerService)service
             isForced:(BOOL)forced
-            withCode:(NSString *)messageCode
-         withMessage:(NSString *)message, ... NS_FORMAT_FUNCTION(5, 6);
+         withMessage:(NSString *)message;
 @end
 
 NS_ASSUME_NONNULL_END

@@ -1,0 +1,12 @@
+#!/bin/bash
+
+PLIST="${HOME}/Library/Preferences/com.google.SymbolUpload.plist"
+
+[[ -f $PLIST ]] || exit
+
+defaults read com.google.SymbolUpload |
+perl -nle '/"(app_\d+_\d+_ios_.*)"/ and print $1' |
+while read KEY; do
+    APP_ID="${KEY#app_}"; APP_ID="${APP_ID//_/:}"
+    plutil -extract "${KEY}" json -o "${APP_ID}.json" "${PLIST}"
+done
