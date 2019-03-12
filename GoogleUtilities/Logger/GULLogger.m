@@ -118,7 +118,6 @@ void GULLogBasic(GULLoggerLevel level,
   [GULLogger.logger logWithLevel:level
                      withService:service
                         isForced:forceLog
-                        withCode:messageCode
                      withMessage:formattedMsg];
 }
 

@@ -26,7 +26,6 @@
 NS_ASSUME_NONNULL_BEGIN
 
 static NSString *const kService = @"my service";
-static NSString *const kCode = @"I-COR000001";
 static NSTimeInterval const kTimeout = 1.0;
 
 // Expectation that contains the information needed to see if the correct parameters were used in an
@@ -166,7 +165,6 @@ void GULTestOSLogWithType(os_log_t log, os_log_type_t type, char *s, ...) {
   OCMReject([self.mock logWithLevel:GULLoggerLevelError
                         withService:OCMOCK_ANY
                            isForced:NO
-                           withCode:OCMOCK_ANY
                         withMessage:OCMOCK_ANY]);
 #pragma clang diagnostic pop
   self.osLogger.logLevel = GULLoggerLevelWarning;
@@ -180,14 +178,12 @@ void GULTestOSLogWithType(os_log_t log, os_log_type_t type, char *s, ...) {
   OCMExpect([[self.mock stub] logWithLevel:GULLoggerLevelError
                                withService:OCMOCK_ANY
                                   isForced:YES
-                                  withCode:OCMOCK_ANY
                                withMessage:OCMOCK_ANY]);
   self.osLogger.logLevel = GULLoggerLevelMin - 1;
 
   OCMExpect([[self.mock stub] logWithLevel:GULLoggerLevelError
                                withService:OCMOCK_ANY
                                   isForced:YES
-                                  withCode:OCMOCK_ANY
                                withMessage:OCMOCK_ANY]);
 #pragma clang diagnostic push
   self.osLogger.logLevel = GULLoggerLevelMax + 1;
@@ -245,7 +241,6 @@ void GULTestOSLogWithType(os_log_t log, os_log_type_t type, char *s, ...) {
   [self.osLogger logWithLevel:GULLoggerLevelNotice
                   withService:kService
                      isForced:NO
-                     withCode:kCode
                   withMessage:message];
   [self waitForExpectations:sExpectations timeout:kTimeout];
 }
@@ -260,7 +255,6 @@ void GULTestOSLogWithType(os_log_t log, os_log_type_t type, char *s, ...) {
   [self.osLogger logWithLevel:GULLoggerLevelNotice
                   withService:kService
                      isForced:NO
-                     withCode:kCode
                   withMessage:message];
   [self waitForExpectations:sExpectations timeout:kTimeout];
 }
