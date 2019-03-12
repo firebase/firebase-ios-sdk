@@ -93,8 +93,8 @@ static NSString *const kTestPlistFileName = @"com.google.test.IIDBackupExcludedP
 }
 
 - (void)testMovePlistToApplicationSupportDirectoryFailure {
-    // This is to test moving data from deprecated document folder to application folder
-    // which should only apply to iOS.
+  // This is to test moving data from deprecated document folder to application folder
+  // which should only apply to iOS.
 #if TARGET_OS_IOS
   // Delete the subdirectory
   [FIRInstanceIDStore removeSubDirectory:kApplicationSupportSubDirectoryName error:nil];
