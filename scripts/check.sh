@@ -129,11 +129,17 @@ if ! git diff --quiet; then
   fi
 fi
 
-scripts/sync_project.rb
-if ! git diff --quiet; then
-  if [[ $commit == true ]]; then
-    echo "Sync Xcode project"
-    git commit -a --fixup=HEAD
+# If there are changes to the Firestore project, ensure they're ordered
+# correctly to minimize conflicts.
+if ! git diff --quiet --name-only --diff-filter=ACMR -- \
+    Firestore/Example/Firestore.xcodeproj; then
+
+  scripts/sync_project.rb
+  if ! git diff --quiet; then
+    if [[ $commit == true ]]; then
+      echo "Sync Xcode project"
+      git commit -a --fixup=HEAD
+    fi
   fi
 fi
 
