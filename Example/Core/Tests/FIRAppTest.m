@@ -389,11 +389,11 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   // Some direct tests of the validateAppIDFormat:withVersion: method.
   // Sanity checks first.
   NSString *const kGoodAppIDV1 = @"1:1337:ios:deadbeef";
-  NSString *const kGoodVersionV1 = @"1:";
+  NSString *const kGoodVersionV1 = @"1";
   XCTAssertTrue([FIRApp validateAppIDFormat:kGoodAppIDV1 withVersion:kGoodVersionV1]);
 
   NSString *const kGoodAppIDV2 = @"2:1337:ios:5e18052ab54fbfec";
-  NSString *const kGoodVersionV2 = @"2:";
+  NSString *const kGoodVersionV2 = @"2";
   XCTAssertTrue([FIRApp validateAppIDFormat:kGoodAppIDV2 withVersion:kGoodVersionV2]);
 
   // Version mismatch.
@@ -440,17 +440,12 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   // Some direct tests of the validateAppIDFingerprint:withVersion: method.
   // Sanity checks first.
   NSString *const kGoodAppIDV1 = @"1:1337:ios:deadbeef";
-  NSString *const kGoodVersionV1 = @"1:";
+  NSString *const kGoodVersionV1 = @"1";
   XCTAssertTrue([FIRApp validateAppIDFingerprint:kGoodAppIDV1 withVersion:kGoodVersionV1]);
 
   NSString *const kGoodAppIDV2 = @"2:1337:ios:5e18052ab54fbfec";
-  NSString *const kGoodVersionV2 = @"2:";
+  NSString *const kGoodVersionV2 = @"2";
   XCTAssertTrue([FIRApp validateAppIDFormat:kGoodAppIDV2 withVersion:kGoodVersionV2]);
-
-  // Version mismatch.
-  XCTAssertFalse([FIRApp validateAppIDFingerprint:kGoodAppIDV2 withVersion:kGoodVersionV1]);
-  XCTAssertFalse([FIRApp validateAppIDFingerprint:kGoodAppIDV1 withVersion:kGoodVersionV2]);
-  XCTAssertFalse([FIRApp validateAppIDFingerprint:kGoodAppIDV1 withVersion:@"999:"]);
 
   // Nil or empty strings.
   XCTAssertFalse([FIRApp validateAppIDFingerprint:kGoodAppIDV1 withVersion:nil]);
@@ -464,34 +459,18 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   XCTAssertFalse([FIRApp validateAppIDFingerprint:kGoodVersionV1 withVersion:kGoodVersionV1]);
   // The version is the entire app ID.
   XCTAssertFalse([FIRApp validateAppIDFingerprint:kGoodAppIDV1 withVersion:kGoodAppIDV1]);
-
-  // Versions digits that may make a partial match.
-  XCTAssertFalse([FIRApp validateAppIDFingerprint:@"01:1337:ios:deadbeef"
-                                      withVersion:kGoodVersionV1]);
-  XCTAssertFalse([FIRApp validateAppIDFingerprint:@"10:1337:ios:deadbeef"
-                                      withVersion:kGoodVersionV1]);
-  XCTAssertFalse([FIRApp validateAppIDFingerprint:@"11:1337:ios:deadbeef"
-                                      withVersion:kGoodVersionV1]);
-  XCTAssertFalse([FIRApp validateAppIDFingerprint:@"21:1337:ios:5e18052ab54fbfec"
-                                      withVersion:kGoodVersionV2]);
-  XCTAssertFalse([FIRApp validateAppIDFingerprint:@"22:1337:ios:5e18052ab54fbfec"
-                                      withVersion:kGoodVersionV2]);
-  XCTAssertFalse([FIRApp validateAppIDFingerprint:@"02:1337:ios:5e18052ab54fbfec"
-                                      withVersion:kGoodVersionV2]);
-  XCTAssertFalse([FIRApp validateAppIDFingerprint:@"20:1337:ios:5e18052ab54fbfec"
-                                      withVersion:kGoodVersionV2]);
-  // Extra fields.
-  XCTAssertFalse([FIRApp validateAppIDFingerprint:@"ab:1:1337:ios:deadbeef"
-                                      withVersion:kGoodVersionV1]);
-  XCTAssertFalse([FIRApp validateAppIDFingerprint:@"1:ab:1337:ios:deadbeef"
-                                      withVersion:kGoodVersionV1]);
-  XCTAssertFalse([FIRApp validateAppIDFingerprint:@"1:1337:ab:ios:deadbeef"
-                                      withVersion:kGoodVersionV1]);
-  XCTAssertFalse([FIRApp validateAppIDFingerprint:@"1:1337:ios:ab:deadbeef"
-                                      withVersion:kGoodVersionV1]);
-  XCTAssertFalse([FIRApp validateAppIDFingerprint:@"1:1337:ios:deadbeef:ab"
-                                      withVersion:kGoodVersionV1]);
 }
+
+// Uncomment if you need to mesure performance of [FIRApp validateAppID:].
+// It is commented because measures are hevely dependent on a build agent configuration,
+// so it cannot produce reliable resault on CI
+//- (void)testAppIDFingerprintPerfomance {
+//  [self measureBlock:^{
+//    for (NSInteger i = 0; i < 100; ++i) {
+//      [self testAppIDPrefix];
+//    }
+//  }];
+//}
 
 #pragma mark - Automatic Data Collection Tests
 

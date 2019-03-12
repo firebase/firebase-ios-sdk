@@ -571,33 +571,32 @@ static NSMutableDictionary *sLibraryVersions;
     return NO;
   }
 
-  // All app IDs must start with at least "<version number>:".
-  NSString *const versionPattern = @"^\\d+:";
-  NSRegularExpression *versionRegex =
-      [NSRegularExpression regularExpressionWithPattern:versionPattern options:0 error:NULL];
-  if (!versionRegex) {
+  NSScanner *stringScanner = [NSScanner scannerWithString:appID];
+  stringScanner.charactersToBeSkipped = nil;
+
+  NSString *appIDVersion;
+  if (![stringScanner scanCharactersFromSet:[NSCharacterSet decimalDigitCharacterSet] intoString:&appIDVersion]) {
     return NO;
   }
 
-  NSRange appIDRange = NSMakeRange(0, appID.length);
-  NSArray *versionMatches = [versionRegex matchesInString:appID options:0 range:appIDRange];
-  if (versionMatches.count != 1) {
+  if (![stringScanner scanString:@":" intoString:NULL]) {
+    // appIDVersion must be separated by ":"
     return NO;
   }
 
-  NSRange versionRange = [(NSTextCheckingResult *)versionMatches.firstObject range];
-  NSString *appIDVersion = [appID substringWithRange:versionRange];
-  NSArray *knownVersions = @[ @"1:" ];
+  NSArray *knownVersions = @[ @"1" ];
   if (![knownVersions containsObject:appIDVersion]) {
     // Permit unknown yet properly formatted app ID versions.
+    FIRLogInfo(kFIRLoggerCore, @"I-COR000010",
+               @"Unknown GOOGLE_APP_ID version: %@", appIDVersion);
     return YES;
   }
 
-  if (![FIRApp validateAppIDFormat:appID withVersion:appIDVersion]) {
+  if (![self validateAppIDFormat:appID withVersion:appIDVersion]) {
     return NO;
   }
 
-  if (![FIRApp validateAppIDFingerprint:appID withVersion:appIDVersion]) {
+  if (![self validateAppIDFingerprint:appID withVersion:appIDVersion]) {
     return NO;
   }
 
@@ -627,33 +626,76 @@ static NSMutableDictionary *sLibraryVersions;
     return NO;
   }
 
-  if (![version hasSuffix:@":"]) {
+  NSScanner *stringScanner = [NSScanner scannerWithString:appID];
+  stringScanner.charactersToBeSkipped = nil;
+
+  // Skip version part
+  // '*<version #>*:<project number>:ios:<fingerprint of bundle id>'
+  if (![stringScanner scanString:version intoString:NULL]) {
+    // The version part is missing or mismatched
     return NO;
   }
 
-  if (![appID hasPrefix:version]) {
+  // Validate vesrion part (see part between '*' symbols below)
+  // '<version #>*:*<project number>:ios:<fingerprint of bundle id>'
+  if (![stringScanner scanString:@":" intoString:NULL]) {
+    // appIDVersion must be separated by ":"
     return NO;
   }
 
-  NSString *const pattern = @"^\\d+:ios:[a-f0-9]+$";
-  NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:pattern
-                                                                         options:0
-                                                                           error:NULL];
-  if (!regex) {
+  // Validate vesrion part (see part between '*' symbols below)
+  // '<version #>:*<project number>*:ios:<fingerprint of bundle id>'.
+  NSInteger projectNumber = NSNotFound;
+  if (![stringScanner scanInteger:&projectNumber]) {
+    // NO project number found.
     return NO;
   }
 
-  NSRange localRange = NSMakeRange(version.length, appID.length - version.length);
-  NSUInteger numberOfMatches = [regex numberOfMatchesInString:appID options:0 range:localRange];
-  if (numberOfMatches != 1) {
+  // Validate vesrion part (see part between '*' symbols below)
+  // '<version #>:<project number>*:*ios:<fingerprint of bundle id>'.
+  if (![stringScanner scanString:@":" intoString:NULL]) {
+    // The project number must be separated by ":"
     return NO;
   }
+
+  // Validate vesrion part (see part between '*' symbols below)
+  // '<version #>:<project number>:*ios*:<fingerprint of bundle id>'.
+  NSString *palform;
+  if (![stringScanner scanUpToString:@":" intoString:&palform]) {
+    return NO;
+  }
+
+  if (![palform isEqualToString:@"ios"]) {
+    // The platform must be @"ios"
+    return NO;
+  }
+
+  // Validate vesrion part (see part between '*' symbols below)
+  // '<version #>:<project number>:ios*:*<fingerprint of bundle id>'.
+  if (![stringScanner scanString:@":" intoString:NULL]) {
+    // The platform must be separated by ":"
+    return NO;
+  }
+
+  // Validate vesrion part (see part between '*' symbols below)
+  // '<version #>:<project number>:ios:*<fingerprint of bundle id>*'.
+  unsigned long long fingerprint = NSNotFound;
+  if (![stringScanner scanHexLongLong:&fingerprint]) {
+    // Fingerprint part is missing
+    return NO;
+  }
+
+  if (!stringScanner.isAtEnd) {
+    // There are not allowed characters in the fingerprint part
+    return NO;
+  }
+
   return YES;
 }
 
 /**
  * Validates that the fingerprint of the app ID string is what is expected based on the supplied
- * version. The version must end in ":".
+ * version.
  *
  * Note that the v1 hash algorithm is not permitted on the client and cannot be fully validated.
  *
@@ -663,18 +705,6 @@ static NSMutableDictionary *sLibraryVersions;
  *         otherwise.
  */
 + (BOOL)validateAppIDFingerprint:(NSString *)appID withVersion:(NSString *)version {
-  if (!appID.length || !version.length) {
-    return NO;
-  }
-
-  if (![version hasSuffix:@":"]) {
-    return NO;
-  }
-
-  if (![appID hasPrefix:version]) {
-    return NO;
-  }
-
   // Extract the supplied fingerprint from the supplied app ID.
   // This assumes the app ID format is the same for all known versions below. If the app ID format
   // changes in future versions, the tokenizing of the app ID format will need to take into account
@@ -695,7 +725,7 @@ static NSMutableDictionary *sLibraryVersions;
     return NO;
   }
 
-  if ([version isEqual:@"1:"]) {
+  if ([version isEqual:@"1"]) {
     // The v1 hash algorithm is not permitted on the client so the actual hash cannot be validated.
     return YES;
   }
