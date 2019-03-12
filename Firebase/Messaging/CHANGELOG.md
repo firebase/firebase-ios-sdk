@@ -1,3 +1,7 @@
+# 2019-03-19 -- v3.4.0
+- Adding image support for notification. Enable service extension and use FIRMessagingExtensionHelper API to display image on your notification.
+- Adding community support for tvOS.
+
 # 2019-03-05 -- v3.3.2
 - Replaced `NSUserDefaults` with `GULUserDefaults` to avoid potential crashes. (#2443)
 
