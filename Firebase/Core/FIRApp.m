@@ -575,7 +575,8 @@ static NSMutableDictionary *sLibraryVersions;
   stringScanner.charactersToBeSkipped = nil;
 
   NSString *appIDVersion;
-  if (![stringScanner scanCharactersFromSet:[NSCharacterSet decimalDigitCharacterSet] intoString:&appIDVersion]) {
+  if (![stringScanner scanCharactersFromSet:[NSCharacterSet decimalDigitCharacterSet]
+                                 intoString:&appIDVersion]) {
     return NO;
   }
 
@@ -587,8 +588,7 @@ static NSMutableDictionary *sLibraryVersions;
   NSArray *knownVersions = @[ @"1" ];
   if (![knownVersions containsObject:appIDVersion]) {
     // Permit unknown yet properly formatted app ID versions.
-    FIRLogInfo(kFIRLoggerCore, @"I-COR000010",
-               @"Unknown GOOGLE_APP_ID version: %@", appIDVersion);
+    FIRLogInfo(kFIRLoggerCore, @"I-COR000010", @"Unknown GOOGLE_APP_ID version: %@", appIDVersion);
     return YES;
   }
 
