@@ -36,6 +36,7 @@
 #include "Firestore/Protos/cpp/google/firestore/v1/firestore.pb.h"
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
+#include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
@@ -61,9 +62,9 @@ using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldValue;
+using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::MaybeDocument;
 using firebase::firestore::model::NoDocument;
-using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::nanopb::Reader;
 using firebase::firestore::nanopb::Writer;
@@ -195,11 +196,11 @@ class SerializerTest : public ::testing::Test {
 
   std::vector<uint8_t> EncodeDocument(Serializer* serializer,
                                       const DocumentKey& key,
-                                      const FieldValue& value) {
+                                      const ObjectValue& value) {
     std::vector<uint8_t> bytes;
     Writer writer = Writer::Wrap(&bytes);
     google_firestore_v1_Document proto =
-        serializer->EncodeDocument(key, value.object_value());
+        serializer->EncodeDocument(key, value);
     writer.WriteNanopbMessage(google_firestore_v1_Document_fields, &proto);
     serializer->FreeNanopbMessage(google_firestore_v1_Document_fields, &proto);
     return bytes;
@@ -316,7 +317,7 @@ class SerializerTest : public ::testing::Test {
 
   void ExpectSerializationRoundTrip(
       const DocumentKey& key,
-      const FieldValue& value,
+      const ObjectValue& value,
       const SnapshotVersion& update_time,
       const v1::BatchGetDocumentsResponse& proto) {
     std::vector<uint8_t> bytes = EncodeDocument(&serializer, key, value);
@@ -349,7 +350,7 @@ class SerializerTest : public ::testing::Test {
 
   void ExpectDeserializationRoundTrip(
       const DocumentKey& key,
-      const absl::optional<FieldValue> value,
+      const absl::optional<ObjectValue> value,
       const SnapshotVersion& version,  // either update_time or read_time
       const v1::BatchGetDocumentsResponse& proto) {
     size_t size = proto.ByteSizeLong();
@@ -465,7 +466,7 @@ TEST_F(SerializerTest, EncodesTimestamps) {
 }
 
 TEST_F(SerializerTest, EncodesEmptyMap) {
-  FieldValue model = FieldValue::EmptyObject();
+  FieldValue model = ObjectValue::Empty().GetWrappedFieldValue();
 
   v1::Value proto;
   proto.mutable_map_value();
@@ -474,7 +475,7 @@ TEST_F(SerializerTest, EncodesEmptyMap) {
 }
 
 TEST_F(SerializerTest, EncodesNestedObjects) {
-  FieldValue model = FieldValue::FromMap({
+  ObjectValue model = ObjectValue::FromMap({
       {"b", FieldValue::True()},
       // TODO(rsgowman): add doubles (once they're supported)
       // {"d", FieldValue::DoubleValue(std::numeric_limits<double>::max())},
@@ -483,16 +484,16 @@ TEST_F(SerializerTest, EncodesNestedObjects) {
       {"s", FieldValue::FromString("foo")},
       // TODO(rsgowman): add arrays (once they're supported)
       // {"a", [2, "bar", {"b", false}]},
-      {"o", FieldValue::FromMap({
+      {"o", ObjectValue::FromMap({
                 {"d", FieldValue::FromInteger(100)},
-                {"nested", FieldValue::FromMap({
+                {"nested", ObjectValue::FromMap({
                                {
                                    "e",
                                    FieldValue::FromInteger(
                                        std::numeric_limits<int64_t>::max()),
                                },
-                           })},
-            })},
+                           }).GetWrappedFieldValue()},
+            }).GetWrappedFieldValue()},
   });
 
   v1::Value inner_proto;
@@ -515,7 +516,7 @@ TEST_F(SerializerTest, EncodesNestedObjects) {
   (*fields)["s"] = ValueProto("foo");
   (*fields)["o"] = middle_proto;
 
-  ExpectRoundTrip(model, proto, FieldValue::Type::Object);
+  ExpectRoundTrip(model.GetWrappedFieldValue(), proto, FieldValue::Type::Object);
 }
 
 TEST_F(SerializerTest, EncodesFieldValuesWithRepeatedEntries) {
@@ -797,7 +798,7 @@ TEST_F(SerializerTest, BadKey) {
 
 TEST_F(SerializerTest, EncodesEmptyDocument) {
   DocumentKey key = DocumentKey::FromPathString("path/to/the/doc");
-  FieldValue empty_value = FieldValue::EmptyObject();
+  ObjectValue empty_value = ObjectValue::Empty();
   SnapshotVersion update_time = SnapshotVersion{{1234, 5678}};
 
   v1::BatchGetDocumentsResponse proto;
@@ -817,12 +818,12 @@ TEST_F(SerializerTest, EncodesEmptyDocument) {
 
 TEST_F(SerializerTest, EncodesNonEmptyDocument) {
   DocumentKey key = DocumentKey::FromPathString("path/to/the/doc");
-  FieldValue fields = FieldValue::FromMap({
+  ObjectValue fields = ObjectValue::FromMap({
       {"foo", FieldValue::FromString("bar")},
       {"two", FieldValue::FromInteger(2)},
-      {"nested", FieldValue::FromMap({
+      {"nested", ObjectValue::FromMap({
                      {"fourty-two", FieldValue::FromInteger(42)},
-                 })},
+                 }).GetWrappedFieldValue()},
   });
   SnapshotVersion update_time = SnapshotVersion{{1234, 5678}};
 

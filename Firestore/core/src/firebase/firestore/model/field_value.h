@@ -46,7 +46,7 @@ struct ReferenceValue {
   const DatabaseId* database_id;
 };
 
-struct ObjectValue;
+class ObjectValue;
 
 /**
  * tagged-union class representing an immutable data value as stored in
@@ -55,6 +55,8 @@ struct ObjectValue;
  */
 class FieldValue {
  public:
+  using Map = immutable::SortedMap<std::string, FieldValue>;
+
   /**
    * All the different kinds of values that can be stored in fields in
    * a document. The types of the same comparison order should be defined
@@ -126,45 +128,11 @@ class FieldValue {
     return *string_value_;
   }
 
-  const ObjectValue& object_value() const {
-    HARD_ASSERT(tag_ == Type::Object);
-    return *object_value_;
-  }
-
-  /**
-   * Returns a FieldValue with the field at the named path set to value.
-   * Any absent parent of the field will also be created accordingly.
-   *
-   * @param field_path The field path to set. Cannot be empty.
-   * @param value The value to set.
-   * @return A new FieldValue with the field set.
-   */
-  FieldValue Set(const FieldPath& field_path, const FieldValue& value) const;
-
-  /**
-   * Returns a FieldValue with the field path deleted. If there is no field at
-   * the specified path, the returned value is an identical copy.
-   *
-   * @param field_path The field path to remove. Cannot be empty.
-   * @return A new FieldValue with the field path removed.
-   */
-  FieldValue Delete(const FieldPath& field_path) const;
-
-  /**
-   * Returns the value at the given path or absl::nullopt. If the path is empty,
-   * an identical copy of the FieldValue is returned.
-   *
-   * @param field_path the path to search.
-   * @return The value at the path or absl::nullopt if it doesn't exist.
-   */
-  absl::optional<FieldValue> Get(const FieldPath& field_path) const;
-
   /** factory methods. */
   static FieldValue Null();
   static FieldValue True();
   static FieldValue False();
   static FieldValue Nan();
-  static FieldValue EmptyObject();
   static FieldValue FromBoolean(bool value);
   static FieldValue FromInteger(int64_t value);
   static FieldValue FromDouble(double value);
@@ -183,14 +151,12 @@ class FieldValue {
   static FieldValue FromGeoPoint(const GeoPoint& value);
   static FieldValue FromArray(const std::vector<FieldValue>& value);
   static FieldValue FromArray(std::vector<FieldValue>&& value);
-  static FieldValue FromMap(
-      const immutable::SortedMap<std::string, FieldValue>& value);
-  static FieldValue FromMap(
-      immutable::SortedMap<std::string, FieldValue>&& value);
 
   friend bool operator<(const FieldValue& lhs, const FieldValue& rhs);
 
  private:
+  friend ObjectValue;
+
   explicit FieldValue(bool value) : tag_(Type::Boolean), boolean_value_(value) {
   }
 
@@ -198,9 +164,6 @@ class FieldValue {
    * Switch to the specified type, if different from the current type.
    */
   void SwitchTo(Type type);
-
-  FieldValue SetChild(const std::string& child_name,
-                      const FieldValue& value) const;
 
   Type tag_ = Type::Null;
   union {
@@ -216,27 +179,70 @@ class FieldValue {
     std::unique_ptr<ReferenceValue> reference_value_;
     std::unique_ptr<GeoPoint> geo_point_value_;
     std::unique_ptr<std::vector<FieldValue>> array_value_;
-    std::unique_ptr<ObjectValue> object_value_;
+    std::unique_ptr<Map> object_value_;
   };
 };
 
-// TODO(rsgowman): Expand this to roughly match the java class
-// c.g.f.f.model.value.ObjectValue. Probably move it to a similar namespace as
-// well. (FieldValue itself is also in the value package in java.) Also do the
-// same with the other FooValue values that FieldValue can return.
-struct ObjectValue {
-  // TODO(rsgowman): These will eventually be private. We do want the serializer
-  // to be able to directly access these (possibly implying 'friend' usage, or a
-  // getInternalValue() like java has.)
-  using Map = immutable::SortedMap<std::string, FieldValue>;
-  Map internal_value;
-
-  static ObjectValue::Map Empty() {
-    return Map();
+/** A structured object value stored in Firestore. */
+class ObjectValue {
+ public:
+  ObjectValue(FieldValue fv) : fv_(std::move(fv)) {
+    HARD_ASSERT(fv_.type() == FieldValue::Type::Object);
   }
+
+  static ObjectValue Empty() {
+    return FromMap(FieldValue::Map());
+  }
+
+  static ObjectValue FromMap(const FieldValue::Map& value);
+  static ObjectValue FromMap(FieldValue::Map&& value);
+
+  /**
+   * Returns the value at the given path or absl::nullopt. If the path is empty,
+   * an identical copy of the FieldValue is returned.
+   *
+   * @param field_path the path to search.
+   * @return The value at the path or absl::nullopt if it doesn't exist.
+   */
+  absl::optional<FieldValue> Get(const FieldPath& field_path) const;
+
+  /**
+   * Returns a FieldValue with the field at the named path set to value.
+   * Any absent parent of the field will also be created accordingly.
+   *
+   * @param field_path The field path to set. Cannot be empty.
+   * @param value The value to set.
+   * @return A new FieldValue with the field set.
+   */
+  ObjectValue Set(const FieldPath& field_path, const FieldValue& value) const;
+
+  /**
+   * Returns a FieldValue with the field path deleted. If there is no field at
+   * the specified path, the returned value is an identical copy.
+   *
+   * @param field_path The field path to remove. Cannot be empty.
+   * @return A new FieldValue with the field path removed.
+   */
+  ObjectValue Delete(const FieldPath& field_path) const;
+
+  // TODO(rsgowman): Add Value() method?
+  //
+  // Java has a value() method which returns a (non-immutable) java.util.Map,
+  // which is a copy of the immutable map, but with some fields (such as server
+  // timestamps) optionally resolved. Do we need the same here?
+
+  const FieldValue::Map& GetInternalValue() const { return *fv_.object_value_; }
+  const FieldValue& GetWrappedFieldValue() const { return fv_; }
+
+ private:
+  friend bool operator<(const ObjectValue& lhs, const ObjectValue& rhs);
+
+  ObjectValue SetChild(const std::string& child_name, const FieldValue& value) const;
+
+  FieldValue fv_;
 };
 
-bool operator<(const ObjectValue::Map& lhs, const ObjectValue::Map& rhs);
+bool operator<(const FieldValue::Map& lhs, const FieldValue::Map& rhs);
 
 /** Compares against another FieldValue. */
 bool operator<(const FieldValue& lhs, const FieldValue& rhs);
@@ -263,7 +269,7 @@ inline bool operator==(const FieldValue& lhs, const FieldValue& rhs) {
 
 /** Compares against another ObjectValue. */
 inline bool operator<(const ObjectValue& lhs, const ObjectValue& rhs) {
-  return lhs.internal_value < rhs.internal_value;
+  return lhs.fv_ < rhs.fv_;
 }
 
 inline bool operator>(const ObjectValue& lhs, const ObjectValue& rhs) {

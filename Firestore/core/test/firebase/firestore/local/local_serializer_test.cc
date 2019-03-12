@@ -58,6 +58,7 @@ using model::MaybeDocument;
 using model::Mutation;
 using model::MutationBatch;
 using model::NoDocument;
+using model::ObjectValue;
 using model::PatchMutation;
 using model::Precondition;
 using model::SetMutation;
@@ -258,7 +259,7 @@ TEST_F(LocalSerializerTest, EncodesMutationBatch) {
                                         {"num", FieldValue::FromInteger(1)}});
   std::unique_ptr<Mutation> patch = absl::make_unique<PatchMutation>(
       Key("bar/baz"),
-      FieldValue::FromMap({{"a", FieldValue::FromString("b")},
+      ObjectValue::FromMap({{"a", FieldValue::FromString("b")},
                            {"num", FieldValue::FromInteger(1)}}),
       FieldMask({FieldPath({"a"})}), Precondition::Exists(true));
   std::unique_ptr<Mutation> del = testutil::DeleteMutation("baz/quux");

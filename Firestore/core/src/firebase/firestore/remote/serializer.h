@@ -194,11 +194,6 @@ class Serializer {
   std::unique_ptr<model::Document> DecodeDocument(
       nanopb::Reader* reader, const google_firestore_v1_Document& proto) const;
 
-  static void EncodeObjectMap(const model::ObjectValue::Map& object_value_map,
-                              uint32_t map_tag,
-                              uint32_t key_tag,
-                              uint32_t value_tag);
-
   static google_protobuf_Timestamp EncodeVersion(
       const model::SnapshotVersion& version);
 
@@ -222,10 +217,6 @@ class Serializer {
   std::unique_ptr<model::NoDocument> DecodeMissingDocument(
       nanopb::Reader* reader,
       const google_firestore_v1_BatchGetDocumentsResponse& response) const;
-
-  static void EncodeFieldsEntry(const model::ObjectValue::Map::value_type& kv,
-                                uint32_t key_tag,
-                                uint32_t value_tag);
 
   std::string EncodeQueryPath(const model::ResourcePath& path) const;
 
