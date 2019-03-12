@@ -578,7 +578,7 @@ TEST(FieldValue, IsSmallish) {
   // We expect the FV to use 4 bytes to track the type of the union, plus 8
   // bytes for the union contents themselves. The other 4 is for padding. We
   // want to keep FV as small as possible.
-  EXPECT_LE(sizeof(FieldValue), 2 * sizeof(void*));
+  EXPECT_LE(sizeof(FieldValue), 2 * sizeof(int64_t));
 }
 
 }  //  namespace model
