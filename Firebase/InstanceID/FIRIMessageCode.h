@@ -44,6 +44,7 @@ typedef NS_ENUM(NSInteger, FIRInstanceIDMessageCode) {
   kFIRInstanceIDMessageCodeInstanceID014 = 3014,
   kFIRInstanceIDMessageCodeInstanceID015 = 3015,
   kFIRInstanceIDMessageCodeRefetchingTokenForAPNS = 3016,
+  kFIRInstanceIDSDKVersion = 3017,
   // FIRInstanceIDAuthService.m
   kFIRInstanceIDMessageCodeAuthService000 = 5000,
   kFIRInstanceIDMessageCodeAuthService001 = 5001,
