@@ -77,13 +77,14 @@ inline model::SnapshotVersion Version(int64_t version) {
   return model::SnapshotVersion{Timestamp::FromTimePoint(timepoint)};
 }
 
-inline model::Document Doc(
+inline std::shared_ptr<model::Document> Doc(
     absl::string_view key,
     int64_t version = 0,
     const model::ObjectValue::Map& data = model::ObjectValue::Empty(),
     model::DocumentState document_state = model::DocumentState::kSynced) {
-  return model::Document{model::FieldValue::FromMap(data), Key(key),
-                         Version(version), document_state};
+  return std::make_shared<model::Document>(model::FieldValue::FromMap(data),
+                                           Key(key), Version(version),
+                                           document_state);
 }
 
 inline model::NoDocument DeletedDoc(absl::string_view key, int64_t version) {
