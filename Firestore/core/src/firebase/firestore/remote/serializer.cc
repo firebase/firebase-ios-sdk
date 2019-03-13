@@ -286,38 +286,58 @@ google_firestore_v1_Value Serializer::EncodeFieldValue(
     case FieldValue::Type::Null:
       result.which_value_type = google_firestore_v1_Value_null_value_tag;
       result.null_value = google_protobuf_NullValue_NULL_VALUE;
-      break;
+      return result;
 
     case FieldValue::Type::Boolean:
       result.which_value_type = google_firestore_v1_Value_boolean_value_tag;
       result.boolean_value = field_value.boolean_value();
-      break;
+      return result;
 
     case FieldValue::Type::Integer:
       result.which_value_type = google_firestore_v1_Value_integer_value_tag;
       result.integer_value = field_value.integer_value();
-      break;
+      return result;
 
-    case FieldValue::Type::String:
-      result.which_value_type = google_firestore_v1_Value_string_value_tag;
-      result.string_value = EncodeString(field_value.string_value());
-      break;
+    case FieldValue::Type::Double:
+      // TODO(rsgowman): Implement
+      abort();
 
     case FieldValue::Type::Timestamp:
       result.which_value_type = google_firestore_v1_Value_timestamp_value_tag;
       result.timestamp_value = EncodeTimestamp(field_value.timestamp_value());
-      break;
+      return result;
+
+    case FieldValue::Type::ServerTimestamp:
+      // TODO(rsgowman): Implement
+      abort();
+
+    case FieldValue::Type::String:
+      result.which_value_type = google_firestore_v1_Value_string_value_tag;
+      result.string_value = EncodeString(field_value.string_value());
+      return result;
+
+    case FieldValue::Type::Blob:
+      // TODO(rsgowman): Implement
+      abort();
+
+    case FieldValue::Type::Reference:
+      // TODO(rsgowman): Implement
+      abort();
+
+    case FieldValue::Type::GeoPoint:
+      // TODO(rsgowman): Implement
+      abort();
+
+    case FieldValue::Type::Array:
+      // TODO(rsgowman): Implement
+      abort();
 
     case FieldValue::Type::Object:
       result.which_value_type = google_firestore_v1_Value_map_value_tag;
       result.map_value = EncodeMapValue(ObjectValue(field_value));
-      break;
-
-    default:
-      // TODO(rsgowman): implement the other types
-      abort();
+      return result;
   }
-  return result;
+  UNREACHABLE();
 }
 
 FieldValue Serializer::DecodeFieldValue(Reader* reader,
@@ -342,26 +362,42 @@ FieldValue Serializer::DecodeFieldValue(Reader* reader,
     case google_firestore_v1_Value_integer_value_tag:
       return FieldValue::FromInteger(msg.integer_value);
 
-    case google_firestore_v1_Value_string_value_tag:
-      return FieldValue::FromString(DecodeString(msg.string_value));
+    case google_firestore_v1_Value_double_value_tag:
+      // TODO(b/74243929): Implement remaining types.
+      HARD_FAIL("Unhandled message field number (tag): %i.",
+                msg.which_value_type);
 
     case google_firestore_v1_Value_timestamp_value_tag: {
       return FieldValue::FromTimestamp(
           DecodeTimestamp(reader, msg.timestamp_value));
     }
 
-    case google_firestore_v1_Value_map_value_tag: {
-      return FieldValue::FromMap(DecodeMapValue(reader, msg.map_value));
-    }
+    case google_firestore_v1_Value_string_value_tag:
+      return FieldValue::FromString(DecodeString(msg.string_value));
 
-    case google_firestore_v1_Value_double_value_tag:
     case google_firestore_v1_Value_bytes_value_tag:
+      // TODO(b/74243929): Implement remaining types.
+      HARD_FAIL("Unhandled message field number (tag): %i.",
+                msg.which_value_type);
+
     case google_firestore_v1_Value_reference_value_tag:
+      // TODO(b/74243929): Implement remaining types.
+      HARD_FAIL("Unhandled message field number (tag): %i.",
+                msg.which_value_type);
+
     case google_firestore_v1_Value_geo_point_value_tag:
+      // TODO(b/74243929): Implement remaining types.
+      HARD_FAIL("Unhandled message field number (tag): %i.",
+                msg.which_value_type);
+
     case google_firestore_v1_Value_array_value_tag:
       // TODO(b/74243929): Implement remaining types.
       HARD_FAIL("Unhandled message field number (tag): %i.",
                 msg.which_value_type);
+
+    case google_firestore_v1_Value_map_value_tag: {
+      return FieldValue::FromMap(DecodeMapValue(reader, msg.map_value));
+    }
 
     default:
       reader->Fail(StringFormat("Invalid type while decoding FieldValue: %s",
