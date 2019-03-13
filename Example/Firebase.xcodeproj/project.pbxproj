@@ -4304,8 +4304,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				51559F8A2238B8DB00CFC32C /* FIRMessagingExtensionHelperTest.m in Sources */,
 				511DD2962225C8C40094D78D /* FIRMessagingClientTest.m in Sources */,
+				51559F8A2238B8DB00CFC32C /* FIRMessagingExtensionHelperTest.m in Sources */,
 				511DD2AA2225C8D50094D78D /* FIRMessagingTestUtilities.h in Sources */,
 				511DD2AB2225C8D50094D78D /* FIRMessagingTestUtilities.m in Sources */,
 				511DD2922225C8C40094D78D /* FIRInstanceIDWithFCMTest.m in Sources */,
