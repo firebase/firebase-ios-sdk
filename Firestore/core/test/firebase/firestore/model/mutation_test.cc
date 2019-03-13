@@ -46,9 +46,9 @@ TEST(Mutation, AppliesSetsToDocuments) {
       set->ApplyToLocalView(base_doc, base_doc.get(), Timestamp::Now());
   ASSERT_NE(set_doc, nullptr);
   ASSERT_EQ(set_doc->type(), MaybeDocument::Type::Document);
-  EXPECT_EQ(*set_doc.get(), Doc("collection/key", 0,
-                                {{"bar", FieldValue::FromString("bar-value")}},
-                                DocumentState::kLocalMutations));
+  EXPECT_EQ(*set_doc, Doc("collection/key", 0,
+                          {{"bar", FieldValue::FromString("bar-value")}},
+                          DocumentState::kLocalMutations));
 }
 
 TEST(Mutation, AppliesPatchToDocuments) {
@@ -64,7 +64,7 @@ TEST(Mutation, AppliesPatchToDocuments) {
       patch->ApplyToLocalView(base_doc, base_doc.get(), Timestamp::Now());
   ASSERT_NE(local, nullptr);
   EXPECT_EQ(
-      *local.get(),
+      *local,
       Doc("collection/key", 0,
           {{"foo", FieldValue::FromMap(
                        {{"bar", FieldValue::FromString("new-bar-value")}})},
@@ -82,7 +82,7 @@ TEST(Mutation, AppliesPatchWithMergeToDocuments) {
       upsert->ApplyToLocalView(base_doc, base_doc.get(), Timestamp::Now());
   ASSERT_NE(new_doc, nullptr);
   EXPECT_EQ(
-      *new_doc.get(),
+      *new_doc,
       Doc("collection/key", 0,
           {{"foo", FieldValue::FromMap(
                        {{"bar", FieldValue::FromString("new-bar-value")}})}},
@@ -99,7 +99,7 @@ TEST(Mutation, AppliesPatchToNullDocWithMergeToDocuments) {
       upsert->ApplyToLocalView(base_doc, base_doc.get(), Timestamp::Now());
   ASSERT_NE(new_doc, nullptr);
   EXPECT_EQ(
-      *new_doc.get(),
+      *new_doc,
       Doc("collection/key", 0,
           {{"foo", FieldValue::FromMap(
                        {{"bar", FieldValue::FromString("new-bar-value")}})}},
@@ -119,7 +119,7 @@ TEST(Mutation, DeletesValuesFromTheFieldMask) {
   MaybeDocumentPtr patch_doc =
       patch->ApplyToLocalView(base_doc, base_doc.get(), Timestamp::Now());
   ASSERT_NE(patch_doc, nullptr);
-  EXPECT_EQ(*patch_doc.get(),
+  EXPECT_EQ(*patch_doc,
             Doc("collection/key", 0,
                 {{"foo", FieldValue::FromMap(
                              {{"baz", FieldValue::FromString("baz-value")}})}},
@@ -139,7 +139,7 @@ TEST(Mutation, PatchesPrimitiveValue) {
       patch->ApplyToLocalView(base_doc, base_doc.get(), Timestamp::Now());
   ASSERT_NE(patched_doc, nullptr);
   EXPECT_EQ(
-      *patched_doc.get(),
+      *patched_doc,
       Doc("collection/key", 0,
           {{"foo", FieldValue::FromMap(
                        {{"bar", FieldValue::FromString("new-bar-value")}})},
@@ -259,7 +259,7 @@ TEST(Mutation, DeleteDeletes) {
       del->ApplyToLocalView(base_doc, base_doc.get(), Timestamp::Now());
 
   ASSERT_NE(deleted_doc, nullptr);
-  EXPECT_EQ(*deleted_doc.get(), testutil::DeletedDoc("collection/key", 0));
+  EXPECT_EQ(*deleted_doc, testutil::DeletedDoc("collection/key", 0));
 }
 
 TEST(Mutation, SetWithMutationResult) {
@@ -272,9 +272,9 @@ TEST(Mutation, SetWithMutationResult) {
       set->ApplyToRemoteDocument(base_doc, MutationResult(4));
 
   ASSERT_NE(set_doc, nullptr);
-  EXPECT_EQ(*set_doc.get(), Doc("collection/key", 4,
-                                {{"foo", FieldValue::FromString("new-bar")}},
-                                DocumentState::kCommittedMutations));
+  EXPECT_EQ(*set_doc, Doc("collection/key", 4,
+                          {{"foo", FieldValue::FromString("new-bar")}},
+                          DocumentState::kCommittedMutations));
 }
 
 TEST(Mutation, PatchWithMutationResult) {
@@ -287,9 +287,9 @@ TEST(Mutation, PatchWithMutationResult) {
       patch->ApplyToRemoteDocument(base_doc, MutationResult(4));
 
   ASSERT_NE(patch_doc, nullptr);
-  EXPECT_EQ(*patch_doc.get(), Doc("collection/key", 4,
-                                  {{"foo", FieldValue::FromString("new-bar")}},
-                                  DocumentState::kCommittedMutations));
+  EXPECT_EQ(*patch_doc, Doc("collection/key", 4,
+                            {{"foo", FieldValue::FromString("new-bar")}},
+                            DocumentState::kCommittedMutations));
 }
 
 TEST(Mutation, Transitions) {
