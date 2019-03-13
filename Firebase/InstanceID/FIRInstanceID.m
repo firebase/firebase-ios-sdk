@@ -789,7 +789,7 @@ static FIRInstanceID *gInstanceID;
 
 // Actually makes InstanceID instantiate both the IID and Token-related subsystems.
 - (void)start {
-  FIRInstanceIDLoggerInfo(kFIRInstanceIDSDKVersion, @"FIRInstanceID library version %@",
+  FIRInstanceIDLoggerDebug(kFIRInstanceIDSDKVersion, @"FIRInstanceID library version %@",
                           FIRInstanceIDCurrentLibraryVersion());
   NSString *instanceIDSubDirectory = kFIRInstanceIDApplicationSupportSubDirectory;
   if (![FIRInstanceIDStore hasApplicationSupportSubDirectory:instanceIDSubDirectory]) {
