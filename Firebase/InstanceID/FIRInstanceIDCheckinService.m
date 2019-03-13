@@ -75,7 +75,7 @@ static FIRInstanceIDURLRequestTestBlock testBlock;
   _FIRInstanceIDDevAssert(completion != nil, @"completion required");
 
   if (self.session == nil) {
-    FIRInstanceIDLoggerError(kFIRInstanceIDMessageCodeService007,
+    FIRInstanceIDLoggerError(kFIRIntsanceIDInvalidNetworkSession,
                              @"Inconsistent state: NSURLSession has been invalidated");
     NSError *error =
         [NSError errorWithFIRInstanceIDErrorCode:kFIRInstanceIDErrorCodeRegistrarFailedToCheckIn];
