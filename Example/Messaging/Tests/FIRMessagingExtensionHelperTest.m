@@ -47,7 +47,7 @@ static NSString *const kValidImageURL =
 
 - (void)setUp {
   [super setUp];
-  FIRMessagingExtensionHelper *extensionHelper = [FIRMessaging extensionHelper];
+  FIRMessagingExtensionHelper *extensionHelper = [[FIRMessagingExtensionHelper alloc] init];
   _mockExtensionHelper = OCMPartialMock(extensionHelper);
 }
 
