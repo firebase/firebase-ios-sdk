@@ -1,7 +1,34 @@
 # Firebase Zip File Builder
 
 This project builds the Firebase iOS Zip file for distribution.
-More instructions to come.
+
+## Overview
+
+This is a small Swift Package Manager project that allows users to package a Firebase iOS Zip file. With no launch arguments, it will use the most recent public versions of all SDKs included in the zip file.
+
+It was designed to fail fast with an explanation of what went wrong, so you can fix issues or dig in without having to dig too deep into the code.
+
+## Requirements
+
+In order to build the Zip file, you will need:
+
+- Xcode 10.1
+- CocoaPods
+- An internet connection to fetch CocoaPods
+
+## Running the Tool
+
+You can run the tool with `swift run ZipBuilder [ARGS]` or generate an Xcode project with `swift package generate-xcodeproj` and run within Xcode.
+
+## Launch Arguments
+
+See `main.swift` and the `LaunchArgs` struct for information on specific launch arguments.
+
+You can pass in launch arguments with Xcode by clicking "ZipBuilder" beside the Run/Stop buttons, clicking "Edit Scheme" and adding them in the "Arguments Passed On Launch" section. 
+
+## Debugging
+
+You can generate an Xcode project for the tool by running `swift package generate-xcodeproj` in this directory. See the above instructions for adding Launch Arguments to the Xcode build.
 
 ## Priorities
 
