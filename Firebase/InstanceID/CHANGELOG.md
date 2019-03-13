@@ -2,7 +2,7 @@
 - Adding community support for tvOS. (#2428)
 - Adding Firebase info to checkin. (#2509)
 
-# 2019-03-05 -- v3.6.0
+# 2019-03-05 -- v3.7.0
 - Open source Firebase InstanceID. (#186)
 
 # 2019-02-20 -- v3.5.0
