@@ -1115,7 +1115,7 @@ static void callInMainThreadWithAuthDataResultAndError(
           // Update the new token and refresh user info again.
           self->_tokenService = [[FIRSecureTokenService alloc]
               initWithRequestConfiguration:requestConfiguration
-                               accessToken:response.IDToken
+                               accessToken:response.oauthAccessToken
                  accessTokenExpirationDate:response.approximateExpirationDate
                               refreshToken:response.refreshToken];
           [self internalGetTokenWithCallback:^(NSString *_Nullable accessToken,
