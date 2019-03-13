@@ -1,7 +1,7 @@
 # v5.4.1
 - Deprecate Microsoft and Yahoo OAuth Provider ID (#2517)
 - Fix an issue where an exception was thrown when linking OAuth credentials. (#2521)
-- Fix an issue where a wrong error was thrown when upgrading anonymous user. (#2530)
+- Fix an issue where a wrong error was thrown when upgrading anonymous user. (#2530, #2541)
 
 # v5.4.0
 - Add support of Generic IDP (#2405).
