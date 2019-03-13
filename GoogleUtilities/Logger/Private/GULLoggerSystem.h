@@ -44,7 +44,6 @@ typedef NSString *const GULLoggerService;
 - (void)logWithLevel:(GULLoggerLevel)level
          withService:(GULLoggerService)service
             isForced:(BOOL)forced
-            withCode:(NSString *)messageCode
          withMessage:(NSString *)message;
 @end
 

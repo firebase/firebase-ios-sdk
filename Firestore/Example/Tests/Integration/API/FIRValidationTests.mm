@@ -18,6 +18,8 @@
 
 #import <XCTest/XCTest.h>
 
+#include <limits>
+
 #import "Firestore/Source/API/FIRFieldValue+Internal.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
@@ -228,7 +230,7 @@
 }
 
 - (void)testWritesWithLargeNumbersFail {
-  NSNumber *num = @((unsigned long long)LONG_MAX + 1);
+  NSNumber *num = @(static_cast<uint64_t>(std::numeric_limits<int64_t>::max()) + 1);
   NSString *reason =
       [NSString stringWithFormat:@"NSNumber (%@) is too large (found in field num)", num];
   [self expectWrite:@{@"num" : num} toFailWithReason:reason];

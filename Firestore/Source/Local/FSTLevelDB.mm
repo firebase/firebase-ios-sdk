@@ -377,8 +377,8 @@ static const char *kReservedPathComponent = "firestore";
   }
   HARD_ASSERT(iter->status().ok(), "Failed to iterate leveldb directory: %s",
               iter->status().error_message().c_str());
-  HARD_ASSERT(count <= SIZE_MAX, "Overflowed counting bytes cached");
-  return count;
+  HARD_ASSERT(count >= 0 && count <= SIZE_MAX, "Overflowed counting bytes cached");
+  return static_cast<size_t>(count);
 }
 
 - (const std::set<std::string> &)users {

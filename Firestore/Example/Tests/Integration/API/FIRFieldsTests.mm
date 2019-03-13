@@ -163,8 +163,8 @@ NSDictionary<NSString *, id> *testDataWithTimestamps(FIRTimestamp *timestamp) {
   [self writeDocumentRef:doc data:testData];
   [self updateDocumentRef:doc
                      data:@{
-                       [[FIRFieldPath alloc] initWithFields:@[ @"b.dot" ]] : @100,
-                       @"c\\slash" : @200
+                       (id)[[FIRFieldPath alloc] initWithFields:@[ @"b.dot" ]] : @100,
+                       (id) @"c\\slash" : @200
                      }];
 
   FIRDocumentSnapshot *result = [self readDocumentForRef:doc];
