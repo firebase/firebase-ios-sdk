@@ -37,7 +37,7 @@ extern NSString *const kFIRInstanceIDLegacyCheckinKeychainService;
  *  @param checkinFilename                The backup excluded plist filename to persist checkin
  *                                        preferences.
  *
- *  @param subDirectoryName                   Sub-directory in standard direct where we write
+ *  @param subDirectoryName               Sub-directory in standard directory where we write
  *                                        InstanceID plist.
  *
  *  @return Store to persist checkin preferences.
