@@ -74,7 +74,7 @@ TEST(Mutation, AppliesPatchToDocuments) {
 }
 
 TEST(Mutation, AppliesPatchWithMergeToDocuments) {
-  auto base_doc = std::make_shared<NoDocument>(DeletedDoc("collection/key", 0));
+  MaybeDocumentPtr base_doc = DeletedDoc("collection/key", 0);
 
   std::unique_ptr<Mutation> upsert = PatchMutation(
       "collection/key", {{"foo.bar", FieldValue::FromString("new-bar-value")}},
@@ -149,8 +149,7 @@ TEST(Mutation, PatchesPrimitiveValue) {
 }
 
 TEST(Mutation, PatchingDeletedDocumentsDoesNothing) {
-  auto base_doc =
-      std::make_shared<NoDocument>(testutil::DeletedDoc("collection/key", 0));
+  MaybeDocumentPtr base_doc = testutil::DeletedDoc("collection/key", 0);
   std::unique_ptr<Mutation> patch =
       PatchMutation("collection/key", {{"foo", FieldValue::FromString("bar")}});
   MaybeDocumentPtr patched_doc =
@@ -260,7 +259,7 @@ TEST(Mutation, DeleteDeletes) {
       del->ApplyToLocalView(base_doc, base_doc.get(), Timestamp::Now());
 
   ASSERT_NE(deleted_doc, nullptr);
-  EXPECT_EQ(*deleted_doc, testutil::DeletedDoc("collection/key", 0));
+  EXPECT_EQ(*deleted_doc, *testutil::DeletedDoc("collection/key", 0));
 }
 
 TEST(Mutation, SetWithMutationResult) {

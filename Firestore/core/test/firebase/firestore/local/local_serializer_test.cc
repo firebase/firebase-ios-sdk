@@ -326,7 +326,7 @@ TEST_F(LocalSerializerTest, EncodesDocumentAsMaybeDocument) {
 }
 
 TEST_F(LocalSerializerTest, EncodesNoDocumentAsMaybeDocument) {
-  NoDocument no_doc = DeletedDoc("some/path", /*version=*/42);
+  NoDocument no_doc = *DeletedDoc("some/path", /*version=*/42);
 
   ::firestore::client::MaybeDocument maybe_doc_proto;
   maybe_doc_proto.mutable_no_document()->set_name(

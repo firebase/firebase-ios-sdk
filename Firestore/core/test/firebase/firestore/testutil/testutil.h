@@ -87,9 +87,10 @@ inline std::shared_ptr<model::Document> Doc(
                                            document_state);
 }
 
-inline model::NoDocument DeletedDoc(absl::string_view key, int64_t version) {
-  return model::NoDocument{Key(key), Version(version),
-                           /*has_committed_mutations=*/false};
+inline std::shared_ptr<model::NoDocument> DeletedDoc(absl::string_view key,
+                                                     int64_t version) {
+  return std::make_shared<model::NoDocument>(Key(key), Version(version),
+                                             /*has_committed_mutations=*/false);
 }
 
 inline model::UnknownDocument UnknownDoc(absl::string_view key,
