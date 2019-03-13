@@ -74,6 +74,15 @@ static FIRInstanceIDURLRequestTestBlock testBlock;
                         completion:(FIRInstanceIDDeviceCheckinCompletion)completion {
   _FIRInstanceIDDevAssert(completion != nil, @"completion required");
 
+  if (self.session == nil) {
+    FIRInstanceIDLoggerError(kFIRInstanceIDMessageCodeService007,
+                             @"Inconsistent state: NSURLSession has been invalidated");
+    NSError *error =
+        [NSError errorWithFIRInstanceIDErrorCode:kFIRInstanceIDErrorCodeRegistrarFailedToCheckIn];
+    completion(nil, error);
+    return;
+  }
+
   NSURL *url = [NSURL URLWithString:kDeviceCheckinURL];
   NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
 
@@ -179,6 +188,8 @@ static FIRInstanceIDURLRequestTestBlock testBlock;
 
 - (void)stopFetching {
   [self.session invalidateAndCancel];
+  // The session cannot be reused after invalidation. Dispose it to prevent accident reusing.
+  self.session = nil;
 }
 
 #pragma mark - Private
