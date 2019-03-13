@@ -138,16 +138,16 @@ static NSString *const kVersionInfo = @"1.0";
   [self.checkinService stopFetching];
 
   XCTestExpectation *checkinCompletionExpectation =
-  [self expectationWithDescription:@"Checkin Completion"];
+      [self expectationWithDescription:@"Checkin Completion"];
 
   [self.checkinService
-           checkinWithExistingCheckin:nil
-           completion:^(FIRInstanceIDCheckinPreferences *preferences, NSError *error) {
-             [checkinCompletionExpectation fulfill];
-             XCTAssertNil(preferences);
-             XCTAssertNotNil(error);
-             XCTAssertEqual(error.code, kFIRInstanceIDErrorCodeRegistrarFailedToCheckIn);
-           }];
+      checkinWithExistingCheckin:nil
+                      completion:^(FIRInstanceIDCheckinPreferences *preferences, NSError *error) {
+                        [checkinCompletionExpectation fulfill];
+                        XCTAssertNil(preferences);
+                        XCTAssertNotNil(error);
+                        XCTAssertEqual(error.code, kFIRInstanceIDErrorCodeRegistrarFailedToCheckIn);
+                      }];
 
   [self waitForExpectationsWithTimeout:5
                                handler:^(NSError *error) {
