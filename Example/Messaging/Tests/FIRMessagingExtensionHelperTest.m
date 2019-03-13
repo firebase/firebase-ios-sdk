@@ -47,7 +47,7 @@ static NSString *const kValidImageURL =
 
 - (void)setUp {
   [super setUp];
-  FIRMessagingExtensionHelper *extensionHelper = [FIRMessaging extensionHelper];
+  FIRMessagingExtensionHelper *extensionHelper = [[FIRMessagingExtensionHelper alloc] init];
   _mockExtensionHelper = OCMPartialMock(extensionHelper);
 }
 
@@ -55,8 +55,8 @@ static NSString *const kValidImageURL =
   [_mockExtensionHelper stopMocking];
 }
 
-#if TARGET_OS_IOS && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 - (void)testModifyNotificationWithValidPayloadData {
+#if TARGET_OS_IOS && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
   XCTestExpectation *validPayloadExpectation =
       [self expectationWithDescription:@"Test payload is valid."];
 
@@ -70,9 +70,11 @@ static NSString *const kValidImageURL =
   OCMVerify([_mockExtensionHelper loadAttachmentForURL:[OCMArg any]
                                      completionHandler:[OCMArg any]]);
   [self waitForExpectationsWithTimeout:1.0 handler:nil];
+#endif
 }
 
 - (void)testModifyNotificationWithInvalidPayloadData {
+#if TARGET_OS_IOS && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
   XCTestExpectation *validPayloadExpectation =
       [self expectationWithDescription:@"Test payload is valid."];
 
@@ -87,9 +89,11 @@ static NSString *const kValidImageURL =
   OCMReject([_mockExtensionHelper loadAttachmentForURL:[OCMArg any]
                                      completionHandler:[OCMArg any]]);
   [self waitForExpectationsWithTimeout:1.0 handler:nil];
+#endif
 }
 
 - (void)testModifyNotificationWithEmptyPayloadData {
+#if TARGET_OS_IOS && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
   XCTestExpectation *validPayloadExpectation =
       [self expectationWithDescription:@"Test payload is valid."];
 
@@ -104,7 +108,7 @@ static NSString *const kValidImageURL =
   OCMReject([_mockExtensionHelper loadAttachmentForURL:[OCMArg any]
                                      completionHandler:[OCMArg any]]);
   [self waitForExpectationsWithTimeout:1.0 handler:nil];
-}
 #endif
+}
 
 @end

@@ -74,12 +74,12 @@ static NSString *const kFIRInstanceIDAPNSTokenKey = @"APNSTuple";
 
 - (void)setUp {
   [super setUp];
-  [FIRInstanceIDStore createApplicationSupportSubDirectory:kApplicationSupportSubDirectoryName];
+  [FIRInstanceIDStore createSubDirectory:kApplicationSupportSubDirectoryName];
 
   NSString *checkinPlistName = @"com.google.test.IIDStoreTestCheckin";
   self.checkinPlist = [[FIRInstanceIDBackupExcludedPlist alloc]
-                    initWithFileName:checkinPlistName
-      applicationSupportSubDirectory:kApplicationSupportSubDirectoryName];
+      initWithFileName:checkinPlistName
+          subDirectory:kApplicationSupportSubDirectoryName];
 
   // checkin store
   FIRInstanceIDFakeKeychain *fakeKeychain = [[FIRInstanceIDFakeKeychain alloc] init];
@@ -103,8 +103,7 @@ static NSString *const kFIRInstanceIDAPNSTokenKey = @"APNSTuple";
 - (void)tearDown {
   [self.instanceIDStore removeAllCachedTokensWithHandler:nil];
   [self.instanceIDStore removeCheckinPreferencesWithHandler:nil];
-  [FIRInstanceIDStore removeApplicationSupportSubDirectory:kApplicationSupportSubDirectoryName
-                                                     error:nil];
+  [FIRInstanceIDStore removeSubDirectory:kApplicationSupportSubDirectoryName error:nil];
   [_mockCheckinStore stopMocking];
   [_mockTokenStore stopMocking];
   [_mockInstanceIDStore stopMocking];
