@@ -791,9 +791,8 @@ static FIRInstanceID *gInstanceID;
 - (void)start {
   FIRInstanceIDLoggerDebug(kFIRInstanceIDSDKVersion, @"FIRInstanceID library version %@",
                           FIRInstanceIDCurrentLibraryVersion());
-  NSString *instanceIDSubDirectory = kFIRInstanceIDApplicationSupportSubDirectory;
-  if (![FIRInstanceIDStore hasApplicationSupportSubDirectory:instanceIDSubDirectory]) {
-    [FIRInstanceIDStore createApplicationSupportSubDirectory:instanceIDSubDirectory];
+  if (![FIRInstanceIDStore hasSubDirectory:kFIRInstanceIDSubDirectoryName]) {
+    [FIRInstanceIDStore createSubDirectory:kFIRInstanceIDSubDirectoryName];
   }
 
   [self setupTokenManager];

@@ -91,12 +91,12 @@ static NSString *const kNewAPNSTokenString = @"newAPNSData";
 
 - (void)setUp {
   [super setUp];
-  [FIRInstanceIDStore createApplicationSupportSubDirectory:kApplicationSupportSubDirectoryName];
+  [FIRInstanceIDStore createSubDirectory:kApplicationSupportSubDirectoryName];
 
   NSString *checkinPlistFilename = @"com.google.test.IIDCheckinTest";
   self.checkinPlist = [[FIRInstanceIDBackupExcludedPlist alloc]
-                    initWithFileName:checkinPlistFilename
-      applicationSupportSubDirectory:kApplicationSupportSubDirectoryName];
+      initWithFileName:checkinPlistFilename
+          subDirectory:kApplicationSupportSubDirectoryName];
 
   // checkin store
   FIRInstanceIDFakeKeychain *fakeCheckinKeychain = [[FIRInstanceIDFakeKeychain alloc] init];
@@ -123,8 +123,7 @@ static NSString *const kNewAPNSTokenString = @"newAPNSData";
   }
 
   self.tokenManager = nil;
-  [FIRInstanceIDStore removeApplicationSupportSubDirectory:kApplicationSupportSubDirectoryName
-                                                     error:nil];
+  [FIRInstanceIDStore removeSubDirectory:kApplicationSupportSubDirectoryName error:nil];
   [super tearDown];
 }
 

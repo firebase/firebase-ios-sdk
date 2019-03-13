@@ -55,4 +55,6 @@ FOUNDATION_EXPORT NSString *FIRMessagingAppIdentifier(void);
 
 FOUNDATION_EXPORT uint64_t FIRMessagingGetFreeDiskSpaceInMB(void);
 FOUNDATION_EXPORT UIApplication *FIRMessagingUIApplication(void);
+FOUNDATION_EXPORT NSSearchPathDirectory FIRMessagingSupportedDirectory(void);
+
 
