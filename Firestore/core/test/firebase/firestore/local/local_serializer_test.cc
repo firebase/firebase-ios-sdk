@@ -338,7 +338,7 @@ TEST_F(LocalSerializerTest, EncodesNoDocumentAsMaybeDocument) {
 }
 
 TEST_F(LocalSerializerTest, EncodesUnknownDocumentAsMaybeDocument) {
-  UnknownDocument unknown_doc = UnknownDoc("some/path", /*version=*/42);
+  UnknownDocument unknown_doc = *UnknownDoc("some/path", /*version=*/42);
 
   ::firestore::client::MaybeDocument maybe_doc_proto;
   maybe_doc_proto.mutable_unknown_document()->set_name(

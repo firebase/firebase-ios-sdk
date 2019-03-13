@@ -93,9 +93,9 @@ inline std::shared_ptr<model::NoDocument> DeletedDoc(absl::string_view key,
                                              /*has_committed_mutations=*/false);
 }
 
-inline model::UnknownDocument UnknownDoc(absl::string_view key,
+inline std::shared_ptr<model::UnknownDocument> UnknownDoc(absl::string_view key,
                                          int64_t version) {
-  return model::UnknownDocument{Key(key), Version(version)};
+  return std::make_shared<model::UnknownDocument>(Key(key), Version(version));
 }
 
 inline core::RelationFilter::Operator OperatorFromString(absl::string_view s) {
