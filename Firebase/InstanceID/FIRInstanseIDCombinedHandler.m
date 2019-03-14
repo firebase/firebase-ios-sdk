@@ -2,18 +2,17 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef void(^FIRInstanseIDHandler)(id _Nullable result, NSError * _Nullable error);
+typedef void (^FIRInstanseIDHandler)(id _Nullable result, NSError *_Nullable error);
 
-@interface FIRInstanseIDCombinedHandler<ResultType> ()
-@property (atomic, readonly, strong) NSMutableArray <FIRInstanseIDHandler> *handlers;
+@interface FIRInstanseIDCombinedHandler <ResultType>()
+@property(atomic, readonly, strong) NSMutableArray<FIRInstanseIDHandler> *handlers;
 @end
 
 NS_ASSUME_NONNULL_END
 
 @implementation FIRInstanseIDCombinedHandler
 
-- (instancetype)init
-{
+- (instancetype)init {
   self = [super init];
   if (self) {
     _handlers = [NSMutableArray array];
@@ -22,9 +21,11 @@ NS_ASSUME_NONNULL_END
 }
 
 - (void)addHandler:(FIRInstanseIDHandler)handler {
-  if (!handler) { return; }
+  if (!handler) {
+    return;
+  }
 
-  @synchronized (self) {
+  @synchronized(self) {
     [self.handlers addObject:handler];
   }
 }
@@ -32,7 +33,7 @@ NS_ASSUME_NONNULL_END
 - (FIRInstanseIDHandler)combinedHandler {
   FIRInstanseIDHandler combinedHandler = nil;
 
-  @synchronized (self) {
+  @synchronized(self) {
     NSArray<FIRInstanseIDHandler> *handlers = [self.handlers copy];
     combinedHandler = ^(id result, NSError *error) {
       for (FIRInstanseIDHandler handler in handlers) {

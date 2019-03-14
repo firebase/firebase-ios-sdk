@@ -996,8 +996,10 @@ static FIRInstanceID *gInstanceID;
  *
  */
 - (void)performDefaultTokenHandlerWithToken:(NSString *)token error:(NSError *)error {
-  if (!self.defaultTokenFetchHandler) { return; }
-  
+  if (!self.defaultTokenFetchHandler) {
+    return;
+  }
+
   [self.defaultTokenFetchHandler combinedHandler](token, error);
   self.defaultTokenFetchHandler = nil;
 }

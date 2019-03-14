@@ -7,8 +7,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FIRInstanseIDCombinedHandler<ResultType> : NSObject
 
-- (void)addHandler:(void (^)(ResultType _Nullable result, NSError  * _Nullable error))handler;
-- (void (^)(ResultType _Nullable result, NSError * _Nullable error))combinedHandler;
+- (void)addHandler:(void (^)(ResultType _Nullable result, NSError* _Nullable error))handler;
+- (void (^)(ResultType _Nullable result, NSError* _Nullable error))combinedHandler;
 
 @end
 
