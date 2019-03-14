@@ -810,6 +810,58 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   XCTAssertEqual(newTokenFetchCount, [FIRInstanceID maxRetryCountForDefaultToken]);
 }
 
+//- (void)testInstanceIDWithHandlerWhileRequestingSuccess {
+//  [self stubKeyPairStoreToReturnValidKeypair];
+//
+//  // Configure mock token manager
+//  [[[self.mockTokenManager stub] andReturn:nil]
+//   cachedTokenInfoWithAuthorizedEntity:kAuthorizedEntity
+//   scope:@"*"];
+//
+//  XCTestExpectation *fetchNewTokenExpectation =
+//  [self expectationWithDescription:@"fetchNewTokenExpectation"];
+//      NSMutableArray<FIRInstanceIDTokenHandler> *tokenHandlers = [NSMutableArray array];
+//  [[[self.mockTokenManager stub] andDo:^(NSInvocation *invocation) {
+//    FIRInstanceIDTokenHandler tokenHandler;
+//    [invocation getArgument:&tokenHandler atIndex:6];
+//    [tokenHandlers addObject:tokenHandler];
+//  }] fetchNewTokenWithAuthorizedEntity:kAuthorizedEntity
+//   scope:kFIRInstanceIDDefaultTokenScope
+//   keyPair:[OCMArg any]
+//   options:[OCMArg any]
+//   handler:[OCMArg any]];
+//
+//  // Make 1st call
+//  XCTestExpectation *handlerExpectation1 = [self expectationWithDescription:@"handlerExpectation1"];
+//  FIRInstanceIDResultHandler handler1 =
+//  ^(FIRInstanceIDResult * _Nullable result, NSError * _Nullable error){
+//    [handlerExpectation1 fulfill];
+//    XCTAssertNotNil(result);
+//    XCTAssertNil(error);
+//  };
+//
+//  [self.mockInstanceID instanceIDWithHandler:handler1];
+//
+//  // Make 2nd call
+//  XCTestExpectation *handlerExpectation2 = [self expectationWithDescription:@"handlerExpectation1"];
+//  FIRInstanceIDResultHandler handler2 =
+//  ^(FIRInstanceIDResult * _Nullable result, NSError * _Nullable error){
+//    [handlerExpectation2 fulfill];
+//    XCTAssertNotNil(result);
+//    XCTAssertNil(error);
+//  };
+//
+//  [self.mockInstanceID instanceIDWithHandler:handler2];
+//
+//  [self waitForExpectations:@[fetchNewTokenExpectation] timeout:10 enforceOrder:false];
+//  XCTAssertEqual(tokenHandlers.count, 1);
+//  tokenHandlers.firstObject(kToken, nil);
+//
+//
+//  [self waitForExpectationsWithTimeout:10 handler:NULL];
+//}
+
+
 /**
  *  Tests a Keychain read failure while we try to fetch a new InstanceID token. If the Keychain
  *  read fails we won't be able to fetch the public key which is required while fetching a new

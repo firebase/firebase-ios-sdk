@@ -2,6 +2,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/**
+ * A generic class to combine several handler blocks into a single block in a thread-safe manner
+ */
 @interface FIRInstanseIDCombinedHandler<ResultType> : NSObject
 
 - (void)addHandler:(void (^)(ResultType _Nullable result, NSError  * _Nullable error))handler;

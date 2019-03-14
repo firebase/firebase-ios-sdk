@@ -1,7 +1,5 @@
 #import "FIRInstanseIDCombinedHandler.h"
 
-#import "FIRInstanceIDDefines.h"
-
 NS_ASSUME_NONNULL_BEGIN
 
 typedef void(^FIRInstanseIDHandler)(id _Nullable result, NSError * _Nullable error);
@@ -35,10 +33,8 @@ NS_ASSUME_NONNULL_END
   FIRInstanseIDHandler combinedHandler = nil;
 
   @synchronized (self) {
-    FIRInstanceID_WEAKIFY(self);
+    NSArray<FIRInstanseIDHandler> *handlers = [self.handlers copy];
     combinedHandler = ^(id result, NSError *error) {
-      FIRInstanceID_STRONGIFY(self);
-      NSArray<FIRInstanseIDHandler> *handlers = [self.handlers copy];
       for (FIRInstanseIDHandler handler in handlers) {
         handler(result, error);
       }
