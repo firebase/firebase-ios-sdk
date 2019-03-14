@@ -111,6 +111,7 @@ typedef enum : NSUInteger {
 - (BOOL)moveToApplicationSupportSubDirectory:(NSString *)subDirectoryName {
   NSArray *directoryPaths =
       NSSearchPathForDirectoriesInDomains([self supportedDirectory], NSUserDomainMask, YES);
+  // This only going to happen inside iOS so it is an applicationSupportDirectory.
   NSString *applicationSupportDirPath = directoryPaths.lastObject;
   NSArray *components = @[ applicationSupportDirPath, subDirectoryName ];
   NSString *subDirectoryPath = [NSString pathWithComponents:components];

@@ -175,10 +175,6 @@ static FIRInstanceID *gInstanceID;
   [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-- (void)stopAllRequests {
-  [self.tokenManager stopAllTokenOperations];
-}
-
 #pragma mark - Tokens
 
 - (NSString *)token {
