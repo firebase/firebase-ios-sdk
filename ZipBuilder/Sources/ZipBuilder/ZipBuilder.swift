@@ -182,6 +182,10 @@ struct ZipBuilder {
     // builds to just install a subset: `[.core, .analytics, .storage, .firestore]` for example.
     let subspecsToInstall = Subspec.allCases
 
+    // Remove CocoaPods cache so the build gets updates after a version is rebuilt during the
+    // release process.
+    CocoaPodUtils.cleanPodCache()
+
     // We need to install all the subpsecs in order to get every single framework that we'll need
     // for the zip file. We can't install each one individually since some pods depend on different
     // subspecs from the same pod (ex: GoogleUtilities, GoogleToolboxForMac, etc). All of the code
