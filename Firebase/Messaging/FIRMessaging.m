@@ -985,8 +985,8 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 + (NSString *)pathForSubDirectory:(NSString *)subDirectoryName {
   NSArray *directoryPaths = NSSearchPathForDirectoriesInDomains(FIRMessagingSupportedDirectory(),
                                                                 NSUserDomainMask, YES);
-  NSString *applicationSupportDirPath = directoryPaths.lastObject;
-  NSArray *components = @[applicationSupportDirPath, subDirectoryName];
+  NSString *dirPath = directoryPaths.lastObject;
+  NSArray *components = @[dirPath, subDirectoryName];
   return [NSString pathWithComponents:components];
 }
 
