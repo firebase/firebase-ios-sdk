@@ -853,12 +853,12 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   [self.mockInstanceID instanceIDWithHandler:handler2];
 
   // Wait for `fetchNewTokenWithAuthorizedEntity` to be performed
-  [self waitForExpectations:@[ fetchNewTokenExpectation ] timeout:10 enforceOrder:false];
+  [self waitForExpectations:@[ fetchNewTokenExpectation ] timeout:1 enforceOrder:false];
   // Finish token fetch request
   tokenHandler(kToken, nil);
 
   // Wait for completion handlers for both calls to be performed
-  [self waitForExpectationsWithTimeout:10 handler:NULL];
+  [self waitForExpectationsWithTimeout:1 handler:NULL];
 }
 
 - (void)testInstanceIDWithHandler_WhileRequesting_RetrySuccess {
@@ -885,6 +885,9 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
                                options:[OCMArg any]
                                handler:[OCMArg any]];
 
+  // Mock Instance ID's retry interval to 0, to vastly speed up this test.
+  [[[self.mockInstanceID stub] andReturnValue:@(0)] retryIntervalToFetchDefaultToken];
+
   // Make 1st call
   XCTestExpectation *handlerExpectation1 = [self expectationWithDescription:@"handlerExpectation1"];
   FIRInstanceIDResultHandler handler1 =
@@ -910,17 +913,17 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   [self.mockInstanceID instanceIDWithHandler:handler2];
 
   // Wait for the 1st `fetchNewTokenWithAuthorizedEntity` to be performed
-  [self waitForExpectations:@[ fetchNewTokenExpectation1 ] timeout:10 enforceOrder:false];
+  [self waitForExpectations:@[ fetchNewTokenExpectation1 ] timeout:1 enforceOrder:false];
   // Fail for the 1st time
   tokenHandler(nil, [NSError errorWithFIRInstanceIDErrorCode:kFIRInstanceIDErrorCodeUnknown]);
 
   // Wait for the 2nd token feth
-  [self waitForExpectations:@[ fetchNewTokenExpectation2 ] timeout:10 enforceOrder:false];
+  [self waitForExpectations:@[ fetchNewTokenExpectation2 ] timeout:1 enforceOrder:false];
   // Finish with success
   tokenHandler(kToken, nil);
 
   // Wait for completion handlers for both calls to be performed
-  [self waitForExpectationsWithTimeout:10 handler:NULL];
+  [self waitForExpectationsWithTimeout:1 handler:NULL];
 }
 
 - (void)testInstanceIDWithHandler_WhileRequesting_RetryFailure {
@@ -974,13 +977,13 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 
   for (NSInteger i = 0; i < [[self.instanceID class] maxRetryCountForDefaultToken]; ++i) {
     // Wait for the i `fetchNewTokenWithAuthorizedEntity` to be performed
-    [self waitForExpectations:@[ fetchNewTokenExpectations[i] ] timeout:10 enforceOrder:false];
+    [self waitForExpectations:@[ fetchNewTokenExpectations[i] ] timeout:1 enforceOrder:false];
     // Fail for the i time
     tokenHandler(nil, [NSError errorWithFIRInstanceIDErrorCode:kFIRInstanceIDErrorCodeUnknown]);
   }
 
   // Wait for completion handlers for both calls to be performed
-  [self waitForExpectationsWithTimeout:10 handler:NULL];
+  [self waitForExpectationsWithTimeout:1 handler:NULL];
 }
 
 /**
