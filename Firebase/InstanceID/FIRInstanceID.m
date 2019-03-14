@@ -119,7 +119,7 @@ typedef NS_ENUM(NSInteger, FIRInstanceIDAPNSTokenType) {
 @property(atomic, readwrite, assign) BOOL isDefaultTokenFetchScheduled;
 @property(nonatomic, readwrite, assign) NSInteger retryCountForDefaultToken;
 @property(atomic, strong, nullable)
-    FIRInstanseIDCombinedHandler<NSString *> *defaultTokenFetchHandler;
+    FIRInstanceIDCombinedHandler<NSString *> *defaultTokenFetchHandler;
 
 @end
 
@@ -899,7 +899,7 @@ static FIRInstanceID *gInstanceID;
 - (void)defaultTokenWithHandler:(nullable FIRInstanceIDTokenHandler)aHandler {
   // Store handlers to be called once operation completes
   if (!self.defaultTokenFetchHandler) {
-    self.defaultTokenFetchHandler = [[FIRInstanseIDCombinedHandler<NSString *> alloc] init];
+    self.defaultTokenFetchHandler = [[FIRInstanceIDCombinedHandler<NSString *> alloc] init];
   }
   if (aHandler) {
     [self.defaultTokenFetchHandler addHandler:aHandler];
