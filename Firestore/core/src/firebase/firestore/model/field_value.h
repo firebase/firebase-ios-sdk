@@ -117,6 +117,11 @@ class FieldValue {
     return integer_value_;
   }
 
+  double double_value() const {
+    HARD_ASSERT(tag_ == Type::Double);
+    return double_value_;
+  }
+
   Timestamp timestamp_value() const {
     HARD_ASSERT(tag_ == Type::Timestamp);
     return *timestamp_value_;

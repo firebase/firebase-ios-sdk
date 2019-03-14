@@ -232,6 +232,16 @@ class SerializerTest : public ::testing::Test {
     return proto;
   }
 
+  v1::Value ValueProto(double d) {
+    std::vector<uint8_t> bytes =
+        EncodeFieldValue(&serializer, FieldValue::FromDouble(d));
+    v1::Value proto;
+    bool ok =
+        proto.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
+    EXPECT_TRUE(ok);
+    return proto;
+  }
+
   v1::Value ValueProto(const char* s) {
     return ValueProto(std::string(s));
   }
@@ -421,6 +431,40 @@ TEST_F(SerializerTest, EncodesIntegers) {
   for (int64_t int_value : cases) {
     FieldValue model = FieldValue::FromInteger(int_value);
     ExpectRoundTrip(model, ValueProto(int_value), FieldValue::Type::Integer);
+  }
+}
+
+TEST_F(SerializerTest, EncodesDoubles) {
+  // Not technically required at all. But if we run into a platform where this
+  // is false, then we'll have to eliminate a few of our test cases in this
+  // test.
+  static_assert(std::numeric_limits<double>::is_iec559,
+                "IEC559/IEEE764 floating point required");
+
+  std::vector<double> cases{-std::numeric_limits<double>::infinity(),
+                            std::numeric_limits<double>::lowest(),
+                            std::numeric_limits<int64_t>::min() - 1.0,
+                            -2.0,
+                            -1.1,
+                            -1.0,
+                            -std::numeric_limits<double>::epsilon(),
+                            -std::numeric_limits<double>::min(),
+                            -std::numeric_limits<double>::denorm_min(),
+                            -0.0,
+                            0.0,
+                            std::numeric_limits<double>::denorm_min(),
+                            std::numeric_limits<double>::min(),
+                            std::numeric_limits<double>::epsilon(),
+                            1.0,
+                            1.1,
+                            2.0,
+                            std::numeric_limits<int64_t>::max() + 1.0,
+                            std::numeric_limits<double>::max(),
+                            std::numeric_limits<double>::infinity()};
+
+  for (double double_value : cases) {
+    FieldValue model = FieldValue::FromDouble(double_value);
+    ExpectRoundTrip(model, ValueProto(double_value), FieldValue::Type::Double);
   }
 }
 

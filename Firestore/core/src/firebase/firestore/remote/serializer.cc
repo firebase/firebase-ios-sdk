@@ -299,8 +299,9 @@ google_firestore_v1_Value Serializer::EncodeFieldValue(
       return result;
 
     case FieldValue::Type::Double:
-      // TODO(rsgowman): Implement
-      abort();
+      result.which_value_type = google_firestore_v1_Value_double_value_tag;
+      result.double_value = field_value.double_value();
+      return result;
 
     case FieldValue::Type::Timestamp:
       result.which_value_type = google_firestore_v1_Value_timestamp_value_tag;
@@ -363,9 +364,7 @@ FieldValue Serializer::DecodeFieldValue(Reader* reader,
       return FieldValue::FromInteger(msg.integer_value);
 
     case google_firestore_v1_Value_double_value_tag:
-      // TODO(b/74243929): Implement remaining types.
-      HARD_FAIL("Unhandled message field number (tag): %i.",
-                msg.which_value_type);
+      return FieldValue::FromDouble(msg.double_value);
 
     case google_firestore_v1_Value_timestamp_value_tag: {
       return FieldValue::FromTimestamp(
