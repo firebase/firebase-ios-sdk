@@ -40,7 +40,7 @@ NSRegularExpression *GULMessageCodeRegex() {
 // GULResetLogger is unused but depended on by FirebaseCore versions 5.3.x and earlier.
 // It cannot be removed until GoogleUtilities does a breaking change release since FirebaseCore
 // allows GoogleUtilities to float up to the highest 5.x version.
--void GULResetLogger() {
+void GULResetLogger() {
 }
 #endif
 
