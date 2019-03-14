@@ -16,27 +16,21 @@
 
 #import <Foundation/Foundation.h>
 
-#import "GULLoggerSystem.h"
+#import <GoogleUtilities/GULLoggerLevel.h>
 
 NS_ASSUME_NONNULL_BEGIN
+
+/**
+ * The services used in the logger.
+ */
+typedef NSString *const GULLoggerService;
 
 #ifdef __cplusplus
 extern "C" {
 #endif  // __cplusplus
 
 /**
- * Initialize the default GULLogger.
- *
- * @discussion On iOS 9 and earlier. GULLogger will use ASL. For iOS 10 and later, os_log is used.
- */
-extern void GULLoggerInitialize(void);
-
-/**
  * Initialize GULLogger.
- *
- * @discussion This version should no longer be used. ASL is deprecated by Apple to be replaced by
- *             os_log. Calls to this function are redirected to GULLoggerInitialize to ensure
- *             functionality on all iOS versions.
  */
 extern void GULLoggerInitializeASL(void);
 
@@ -53,34 +47,34 @@ extern void GULLoggerEnableSTDERR(void);
 /**
  * Changes the default logging level of GULLoggerLevelNotice to a user-specified level.
  * The default level cannot be set above GULLoggerLevelNotice if the app is running from App Store.
- * @param loggerLevel Log level (one of the GULLoggerLevel enum values).
+ * (required) log level (one of the GULLoggerLevel enum values).
  */
 extern void GULSetLoggerLevel(GULLoggerLevel loggerLevel);
 
 /**
  * Checks if the specified logger level is loggable given the current settings.
- * @param loggerLevel Log level (one of the GULLoggerLevel enum values).
+ * (required) log level (one of the GULLoggerLevel enum values).
  */
 extern BOOL GULIsLoggableLevel(GULLoggerLevel loggerLevel);
 
 /**
  * Register version to include in logs.
- * @param version The version to register with the logger.
+ * (required) version
  */
 extern void GULLoggerRegisterVersion(const char *version);
 
 /**
  * Logs a message to the Xcode console and the device log. If running from AppStore, will
  * not log any messages with a level higher than GULLoggerLevelNotice to avoid log spamming.
- * @param level Log level (one of the GULLoggerLevel enum values).
- * @param service Service name of type GULLoggerService.
- * @param forceLog If this message should be output regardless of its level.
- * @param messageCode starting with "I-" which means iOS, followed by a capitalized
+ * (required) log level (one of the GULLoggerLevel enum values).
+ * (required) service name of type GULLoggerService.
+ * (required) message code starting with "I-" which means iOS, followed by a capitalized
  *            three-character service identifier and a six digit integer message ID that is unique
  *            within the service.
  *            An example of the message code is @"I-COR000001".
- * @param message string which can be a format string.
- * @param args_ptr the list of arguments to substitute into the format string.
+ * (required) message string which can be a format string.
+ * (optional) variable arguments list obtained from calling va_start, used when message is a format
+ *            string.
  */
 extern void GULLogBasic(GULLoggerLevel level,
                         GULLoggerService service,
@@ -98,16 +92,14 @@ extern void GULLogBasic(GULLoggerLevel level,
 
 /**
  * The following functions accept the following parameters in order:
- * @param service Name of type GULLoggerService.
- * @param messageCode Starting from "I-" which means iOS, followed by a capitalized
+ * (required) service name of type GULLoggerService.
+ * (required) message code starting from "I-" which means iOS, followed by a capitalized
  *            three-character service identifier and a six digit integer message ID that is unique
  *            within the service.
  *            An example of the message code is @"I-COR000001".
  *            See go/firebase-log-proposal for details.
- * @param message String which can be a format string.
- * @param ... The list of arguments to substitute into the format string.
- *
- * @discussion
+ * (required) message string which can be a format string.
+ * (optional) the list of arguments to substitute into the format string.
  * Example usage:
  * GULLogError(kGULLoggerCore, @"I-COR000001", @"Configuration of %@ failed.", app.name);
  */
@@ -141,10 +133,26 @@ extern void GULLogDebug(GULLoggerService service,
 }  // extern "C"
 #endif  // __cplusplus
 
-@interface GULLogger : NSObject
+@interface GULLoggerWrapper : NSObject
 
-/// The current default logger.
-@property(nonatomic, class, readonly) id<GULLoggerSystem> logger;
+/**
+ * Objective-C wrapper for GULLogBasic to allow weak linking to GULLogger
+ * (required) log level (one of the GULLoggerLevel enum values).
+ * (required) service name of type GULLoggerService.
+ * (required) message code starting with "I-" which means iOS, followed by a capitalized
+ *            three-character service identifier and a six digit integer message ID that is unique
+ *            within the service.
+ *            An example of the message code is @"I-COR000001".
+ * (required) message string which can be a format string.
+ * (optional) variable arguments list obtained from calling va_start, used when message is a format
+ *            string.
+ */
+
++ (void)logWithLevel:(GULLoggerLevel)level
+         withService:(GULLoggerService)service
+            withCode:(NSString *)messageCode
+         withMessage:(NSString *)message
+            withArgs:(va_list)args;
 
 @end
 
