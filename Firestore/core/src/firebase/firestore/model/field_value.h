@@ -132,6 +132,11 @@ class FieldValue {
     return *string_value_;
   }
 
+  const std::vector<uint8_t>& blob_value() const {
+    HARD_ASSERT(tag_ == Type::Blob);
+    return *blob_value_;
+  }
+
   /** factory methods. */
   static FieldValue Null();
   static FieldValue True();

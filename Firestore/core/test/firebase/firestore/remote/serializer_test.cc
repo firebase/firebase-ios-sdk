@@ -266,6 +266,16 @@ class SerializerTest : public ::testing::Test {
     return proto;
   }
 
+  v1::Value ValueProto(const std::vector<uint8_t>& blob) {
+    std::vector<uint8_t> bytes = EncodeFieldValue(
+        &serializer, FieldValue::FromBlob(blob.data(), blob.size()));
+    v1::Value proto;
+    bool ok =
+        proto.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
+    EXPECT_TRUE(ok);
+    return proto;
+  }
+
   /**
    * Creates entries in the proto that we don't care about.
    *
@@ -505,6 +515,20 @@ TEST_F(SerializerTest, EncodesTimestamps) {
   for (const Timestamp& ts_value : cases) {
     FieldValue model = FieldValue::FromTimestamp(ts_value);
     ExpectRoundTrip(model, ValueProto(ts_value), FieldValue::Type::Timestamp);
+  }
+}
+
+TEST_F(SerializerTest, EncodesBlobs) {
+  std::vector<std::vector<uint8_t>> cases{
+      {},
+      {0, 1, 2, 3},
+      {0xff, 0x00, 0xff, 0x00},
+  };
+
+  for (const std::vector<uint8_t>& blob_value : cases) {
+    FieldValue model =
+        FieldValue::FromBlob(blob_value.data(), blob_value.size());
+    ExpectRoundTrip(model, ValueProto(blob_value), FieldValue::Type::Blob);
   }
 }
 

@@ -318,8 +318,9 @@ google_firestore_v1_Value Serializer::EncodeFieldValue(
       return result;
 
     case FieldValue::Type::Blob:
-      // TODO(rsgowman): Implement
-      abort();
+      result.which_value_type = google_firestore_v1_Value_bytes_value_tag;
+      result.bytes_value = EncodeBytes(field_value.blob_value());
+      return result;
 
     case FieldValue::Type::Reference:
       // TODO(rsgowman): Implement
@@ -374,10 +375,10 @@ FieldValue Serializer::DecodeFieldValue(Reader* reader,
     case google_firestore_v1_Value_string_value_tag:
       return FieldValue::FromString(DecodeString(msg.string_value));
 
-    case google_firestore_v1_Value_bytes_value_tag:
-      // TODO(b/74243929): Implement remaining types.
-      HARD_FAIL("Unhandled message field number (tag): %i.",
-                msg.which_value_type);
+    case google_firestore_v1_Value_bytes_value_tag: {
+      std::vector<uint8_t> bytes = DecodeBytes(msg.bytes_value);
+      return FieldValue::FromBlob(bytes.data(), bytes.size());
+    }
 
     case google_firestore_v1_Value_reference_value_tag:
       // TODO(b/74243929): Implement remaining types.
