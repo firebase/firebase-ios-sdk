@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'GoogleUtilities'
-  s.version          = '5.4.1'
+  s.version          = '5.5.0'
   s.summary          = 'Google Utilities for iOS (plus community support for macOS and tvOS)'
 
   s.description      = <<-DESC
@@ -33,7 +33,7 @@ other Google CocoaPods. They're not intended for direct public usage.
 
   s.subspec 'Logger' do |ls|
     ls.source_files = 'GoogleUtilities/Logger/**/*.[mh]'
-    ls.public_header_files = 'GoogleUtilities/Logger/Public/*.h'
+    ls.public_header_files = 'GoogleUtilities/Logger/Private/*.h', 'GoogleUtilities/Logger/Public/*.h'
     ls.private_header_files = 'GoogleUtilities/Logger/Private/*.h'
     ls.dependency 'GoogleUtilities/Environment'
   end

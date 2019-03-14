@@ -47,6 +47,11 @@ static NSString *dynamicClassBacking;
 
 @implementation GULRuntimeClassSnapshotTests
 
+/** Tests the assurance that init throws. */
+- (void)testInitThrows {
+  XCTAssertThrows([GULRuntimeClassSnapshot new]);
+}
+
 /** Tests initialization. */
 - (void)testInitWithClass {
   Class NSObjectClass = [NSObject class];

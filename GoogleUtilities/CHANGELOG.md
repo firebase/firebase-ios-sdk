@@ -1,5 +1,8 @@
 # Unreleased
 
+# 5.5.0
+- Revert 5.4.x changes restoring 5.3.7 version.
+
 # 5.4.1
 - Fix GULResetLogger API breakage. (#2551)
 
