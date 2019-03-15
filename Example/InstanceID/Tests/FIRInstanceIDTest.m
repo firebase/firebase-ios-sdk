@@ -173,7 +173,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 
   [self.mockInstanceID didCompleteConfigure];
 
-  OCMVerify([self.mockInstanceID defaultTokenWithHandler:[OCMArg any]]);
+  OCMVerify([self.mockInstanceID defaultTokenWithHandler:nil]);
 }
 
 - (void)testTokenIsDeletedAlongWithIdentity {
@@ -520,11 +520,11 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
       cachedTokenInfoWithAuthorizedEntity:kAuthorizedEntity
                                     scope:@"*"];
 
-  OCMExpect([self.mockInstanceID defaultTokenWithHandler:[OCMArg any]]);
+  OCMExpect([self.mockInstanceID defaultTokenWithHandler:nil]);
   NSString *token = [self.mockInstanceID token];
   XCTAssertNil(token);
   [self.mockInstanceID stopMocking];
-  OCMVerify([self.mockInstanceID defaultTokenWithHandler:[OCMArg any]]);
+  OCMVerify([self.mockInstanceID defaultTokenWithHandler:nil]);
 }
 
 /**
@@ -536,7 +536,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
       cachedTokenInfoWithAuthorizedEntity:kAuthorizedEntity
                                     scope:@"*"];
 
-  [[self.mockInstanceID reject] defaultTokenWithHandler:[OCMArg any]];
+  [[self.mockInstanceID reject] defaultTokenWithHandler:nil];
   NSString *token = [self.mockInstanceID token];
   XCTAssertEqualObjects(token, kToken);
 }
