@@ -149,8 +149,16 @@ if ! git diff-index --quiet HEAD --; then
   fi
 fi
 
-# Record actual start
-START_SHA=$(git rev-parse "${START_REVISION}")
+# Record actual start, but only if the revision is specified as a single
+# commit. Ranges specified with .. or ... are left alone.
+if [[ "${START_REVISION}" == *..* ]]; then
+  START_SHA="${START_REVISION}"
+else
+  START_SHA=$(git rev-parse "${START_REVISION}")
+fi
+
+# If committing --fixup, avoid messages with fixup! fixup! that might come from
+# multiple fixup commits.
 HEAD_SHA=$(git rev-parse HEAD)
 
 function maybe_commit() {
