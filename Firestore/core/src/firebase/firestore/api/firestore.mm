@@ -113,9 +113,10 @@ FIRQuery* Firestore::GetCollectionGroup(NSString* collection_id) {
   EnsureClientConfigured();
   FIRFirestore* wrapper = [FIRFirestore recoverFromFirestore:this];
 
-  return [FIRQuery referenceWithQuery:[FSTQuery queryWithPath:ResourcePath::Empty()
-                                              collectionGroup:collection_id]
-                            firestore:wrapper];
+  return
+      [FIRQuery referenceWithQuery:[FSTQuery queryWithPath:ResourcePath::Empty()
+                                           collectionGroup:collection_id]
+                         firestore:wrapper];
 }
 
 void Firestore::RunTransaction(TransactionBlock update_block,

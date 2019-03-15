@@ -280,9 +280,9 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
   }
   if ([collectionID containsString:@"/"]) {
     FSTThrowInvalidArgument(
-                            @"Invalid collection ID (%@). Collection IDs must not contain / in them.", collectionID);
+        @"Invalid collection ID (%@). Collection IDs must not contain / in them.", collectionID);
   }
-  
+
   return _firestore->GetCollectionGroup(collectionID);
 }
 
