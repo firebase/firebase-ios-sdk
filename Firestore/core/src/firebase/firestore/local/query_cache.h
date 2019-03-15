@@ -43,6 +43,8 @@ namespace local {
 using OrphanedDocumentCallback =
     std::function<void(const model::DocumentKey&, model::ListenSequenceNumber)>;
 
+using TargetCallback = std::function<void(FSTQueryData*)>;
+
 /**
  * Represents cached targets received from the remote backend. This contains
  * both a mapping between targets and the documents that matched them according
@@ -53,8 +55,6 @@ using OrphanedDocumentCallback =
  */
 class QueryCache {
  public:
-  typedef void (^TargetEnumerator)(FSTQueryData*, BOOL*);
-
   virtual ~QueryCache() {
   }
 
@@ -93,7 +93,7 @@ class QueryCache {
    */
   virtual FSTQueryData* _Nullable GetTarget(FSTQuery* query) = 0;
 
-  virtual void EnumerateTargets(TargetEnumerator block) = 0;
+  virtual void EnumerateTargets(const TargetCallback& callback) = 0;
 
   virtual int RemoveTargets(
       model::ListenSequenceNumber upper_bound,

@@ -170,16 +170,15 @@ FSTQueryData* _Nullable LevelDbQueryCache::GetTarget(FSTQuery* query) {
   return nil;
 }
 
-void LevelDbQueryCache::EnumerateTargets(TargetEnumerator block) {
+void LevelDbQueryCache::EnumerateTargets(const TargetCallback& callback) {
   // Enumerate all targets, give their sequence numbers.
   std::string target_prefix = LevelDbTargetKey::KeyPrefix();
   auto it = db_.currentTransaction->NewIterator();
   it->Seek(target_prefix);
-  BOOL stop = NO;
-  for (; !stop && it->Valid() && absl::StartsWith(it->key(), target_prefix);
+  for (; it->Valid() && absl::StartsWith(it->key(), target_prefix);
        it->Next()) {
     FSTQueryData* target = DecodeTarget(it->value());
-    block(target, &stop);
+    callback(target);
   }
 }
 

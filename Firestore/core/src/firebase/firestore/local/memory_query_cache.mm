@@ -67,10 +67,10 @@ FSTQueryData* _Nullable MemoryQueryCache::GetTarget(FSTQuery* query) {
   return queries_[query];
 }
 
-void MemoryQueryCache::EnumerateTargets(TargetEnumerator block) {
+void MemoryQueryCache::EnumerateTargets(const TargetCallback& callback) {
   [queries_ enumerateKeysAndObjectsUsingBlock:^(
                 FSTQuery* query, FSTQueryData* query_data, BOOL* stop) {
-    block(query_data, stop);
+    callback(query_data);
   }];
 }
 

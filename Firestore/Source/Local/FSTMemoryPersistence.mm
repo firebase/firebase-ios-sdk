@@ -42,6 +42,7 @@ using firebase::firestore::local::MemoryMutationQueue;
 using firebase::firestore::local::MemoryQueryCache;
 using firebase::firestore::local::MemoryRemoteDocumentCache;
 using firebase::firestore::local::ReferenceSet;
+using firebase::firestore::local::TargetCallback;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeyHash;
 using firebase::firestore::model::ListenSequenceNumber;
@@ -234,8 +235,8 @@ NS_ASSUME_NONNULL_BEGIN
   _currentSequenceNumber = kFSTListenSequenceNumberInvalid;
 }
 
-- (void)enumerateTargetsUsingBlock:(void (^)(FSTQueryData *queryData, BOOL *stop))block {
-  return _persistence.queryCache->EnumerateTargets(block);
+- (void)enumerateTargetsUsingCallback:(const TargetCallback &)callback {
+  return _persistence.queryCache->EnumerateTargets(callback);
 }
 
 - (void)enumerateMutationsUsingCallback:

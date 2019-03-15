@@ -81,7 +81,7 @@ struct LruResults {
  * Enumerates all the targets that the delegate is aware of. This is typically all of the targets in
  * an FSTQueryCache.
  */
-- (void)enumerateTargetsUsingBlock:(void (^)(FSTQueryData *queryData, BOOL *stop))block;
+- (void)enumerateTargetsUsingCallback:(const firebase::firestore::local::TargetCallback &)callback;
 
 /**
  * Enumerates all of the outstanding mutations.

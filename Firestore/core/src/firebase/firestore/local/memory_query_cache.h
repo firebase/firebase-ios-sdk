@@ -57,7 +57,7 @@ class MemoryQueryCache : public QueryCache {
 
   FSTQueryData* _Nullable GetTarget(FSTQuery* query) override;
 
-  void EnumerateTargets(TargetEnumerator block) override;
+  void EnumerateTargets(const TargetCallback& callback) override;
 
   int RemoveTargets(model::ListenSequenceNumber upper_bound,
                     const std::unordered_map<model::TargetId, FSTQueryData*>&
@@ -104,8 +104,10 @@ class MemoryQueryCache : public QueryCache {
 
   /** Maps a query to the data about that query. */
   NSMutableDictionary<FSTQuery*, FSTQueryData*>* queries_;
-  /** A ordered bidirectional mapping between documents and the remote target
-   * IDs. */
+  /**
+   * A ordered bidirectional mapping between documents and the remote target
+   * IDs.
+   */
   ReferenceSet references_;
 };
 

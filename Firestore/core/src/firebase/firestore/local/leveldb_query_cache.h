@@ -70,7 +70,7 @@ class LevelDbQueryCache : public QueryCache {
 
   FSTQueryData* _Nullable GetTarget(FSTQuery* query) override;
 
-  void EnumerateTargets(TargetEnumerator block) override;
+  void EnumerateTargets(const TargetCallback& callback) override;
 
   int RemoveTargets(model::ListenSequenceNumber upper_bound,
                     const std::unordered_map<model::TargetId, FSTQueryData*>&
