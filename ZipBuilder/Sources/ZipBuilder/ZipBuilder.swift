@@ -760,6 +760,17 @@ struct ZipBuilder {
           fatalError("Cannot move Resource bundles for \(pod.name): \(error)")
         }
 
+        // Smart Reply packages Resources separately from other MLKit subspecs.
+        if pod.name == "FirebaseMLNLSmartReply" {
+          do {
+            resourceBundles = try ResourcesManager.createBundleForFoldersInResourcesDirs(
+              containedIn: pod.installedLocation, destinationDir: podResourceDir
+            )
+          } catch {
+            fatalError("Could not generate Resource bundles for \(pod.name): \(error)")
+          }
+        }
+
         // Special case for MLKit *Model subspecs, explicitly copy directories from
         // GoogleMobileVision. This should be fixed in the future to pull all compiled resources
         // from Xcode's build directory.
