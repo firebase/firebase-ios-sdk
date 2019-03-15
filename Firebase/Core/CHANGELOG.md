@@ -1,7 +1,5 @@
 # 2019-03-19 -- v5.4.0 -- M45
 - [changed] Allow Bundle IDs that have a valid prefix to enable richer extension support. (#2515)
-- [changed] Convert FIRLogger to use the recommended os_log for logging via GoogleUtilities.
-  See https://developer.apple.com/documentation/os/logging?language=objc.
 - [changed] Deprecated `FIRAnalyticsConfiguration` API in favor of new methods on the Analytics SDK.
   Please call the new APIs directly: Enable/disable Analytics with `Analytics.setAnalyticsCollectionEnabled(_)`
   and modify the session timeout interval with `Analytics.setSessionTimeoutInterval(_)`.
