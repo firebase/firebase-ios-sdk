@@ -158,7 +158,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
                        handler:[OCMArg any]];
 
   [self.mockInstanceID didCompleteConfigure];
-  OCMVerify([self.mockInstanceID defaultTokenWithHandler:[OCMArg any]]);
+  OCMVerify([self.mockInstanceID defaultTokenWithHandler:nil]);
   XCTAssertEqualObjects([self.mockInstanceID token], kToken);
 }
 

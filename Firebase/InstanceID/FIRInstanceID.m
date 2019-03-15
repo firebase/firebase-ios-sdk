@@ -890,7 +890,6 @@ static FIRInstanceID *gInstanceID;
     } else {
       // If somebody updated IID with APNS token while our initial request did not have it
       // set we need to update it on the server.
-      BOOL shouldNotifyHandler = YES;
       NSData *deviceTokenInRequest = instanceIDOptions[kFIRInstanceIDTokenOptionsAPNSKey];
       BOOL isSandboxInRequest =
           [instanceIDOptions[kFIRInstanceIDTokenOptionsAPNSIsSandboxKey] boolValue];
@@ -906,8 +905,6 @@ static FIRInstanceID *gInstanceID;
         // APNs value did change mid-fetch, so the token should be re-fetched with the current APNs
         // value.
         self.isDefaultTokenFetchScheduled = YES;
-        // Wait to notify until we can modify this token with APNS (or receive a new token)
-        shouldNotifyHandler = NO;
         FIRInstanceID_WEAKIFY(self);
         dispatch_async(dispatch_get_main_queue(), ^{
           FIRInstanceID_STRONGIFY(self);
@@ -917,26 +914,24 @@ static FIRInstanceID *gInstanceID;
         FIRInstanceIDLoggerDebug(kFIRInstanceIDMessageCodeRefetchingTokenForAPNS,
                                  @"Received APNS token while fetching default token. "
                                  @"Refetching default token.");
+        return;
       } else {
         FIRInstanceIDLoggerInfo(kFIRInstanceIDMessageCodeInstanceID010,
                                 @"Successfully fetched default token.");
       }
       // Post the required notifications if somebody is waiting.
-      if (shouldNotifyHandler) {
-        FIRInstanceIDLoggerDebug(kFIRInstanceIDMessageCodeInstanceID008, @"Got default token %@",
-                                 token);
-        NSString *previousFCMToken = self.defaultFCMToken;
-        self.defaultFCMToken = token;
+      FIRInstanceIDLoggerDebug(kFIRInstanceIDMessageCodeInstanceID008, @"Got default token %@",
+                               token);
+      NSString *previousFCMToken = self.defaultFCMToken;
+      self.defaultFCMToken = token;
 
-        // Only notify of token refresh if we have a new valid token that's different than before
-        if (self.defaultFCMToken.length &&
-            ![self.defaultFCMToken isEqualToString:previousFCMToken]) {
-          NSNotification *tokenRefreshNotification =
-              [NSNotification notificationWithName:kFIRInstanceIDTokenRefreshNotification
-                                            object:[self.defaultFCMToken copy]];
-          [[NSNotificationQueue defaultQueue] enqueueNotification:tokenRefreshNotification
-                                                     postingStyle:NSPostASAP];
-        }
+      // Only notify of token refresh if we have a new valid token that's different than before
+      if (self.defaultFCMToken.length && ![self.defaultFCMToken isEqualToString:previousFCMToken]) {
+        NSNotification *tokenRefreshNotification =
+            [NSNotification notificationWithName:kFIRInstanceIDTokenRefreshNotification
+                                          object:[self.defaultFCMToken copy]];
+        [[NSNotificationQueue defaultQueue] enqueueNotification:tokenRefreshNotification
+                                                   postingStyle:NSPostASAP];
       }
       if (handler) {
         handler(token, nil);
