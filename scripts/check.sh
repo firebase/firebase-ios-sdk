@@ -46,6 +46,9 @@ OPTIONS:
     Commit any auto-generated changes with a fixup! message for the HEAD
     commit. The next rebase will squash these fixup commits.
 
+  --test-only
+    Run all checks without making any changes to local files.
+
   <revision>
     Specifies a starting revision other than the default of master.
 
@@ -80,8 +83,9 @@ top_dir=$(git rev-parse --show-toplevel)
 cd "${top_dir}"
 
 ALLOW_DIRTY=false
-COMMIT_METHOD=none
+COMMIT_METHOD="none"
 START_REVISION="master"
+TEST_ONLY=false
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -110,6 +114,13 @@ while [[ $# -gt 0 ]]; do
       COMMIT_METHOD=message
       ;;
 
+    --test-only)
+      # In test-only mode, no changes are made, so there's no reason to
+      # require a clean source tree.
+      ALLOW_DIRTY=true
+      TEST_ONLY=true
+      ;;
+
     *)
       if git rev-parse "$1" >& /dev/null; then
         START_REVISION="$1"
@@ -119,6 +130,11 @@ while [[ $# -gt 0 ]]; do
   esac
   shift
 done
+
+if [[ "${TEST_ONLY}" == true && "${COMMIT_METHOD}" != "none" ]]; then
+  echo "--test-only cannot be combined with --amend, --fixup, or --commit"
+  exit 1
+fi
 
 if [[ "${ALLOW_DIRTY}" == true && "${COMMIT_METHOD}" == "message" ]]; then
   echo "--allow-dirty and --commit are mutually exclusive"
@@ -165,8 +181,14 @@ function maybe_commit() {
   esac
 }
 
+style_cmd=("${top_dir}/scripts/style.sh")
+if [[ "${TEST_ONLY}" == true ]]; then
+  style_cmd+=(test-only)
+fi
+style_cmd+=("${START_SHA}")
+
 # Restyle and commit any changes
-"${top_dir}/scripts/style.sh" "${START_SHA}"
+"${style_cmd[@]}"
 if ! git diff --quiet; then
   maybe_commit "style.sh generated changes"
 fi

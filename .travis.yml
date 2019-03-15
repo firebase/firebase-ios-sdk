@@ -13,13 +13,7 @@ jobs:
         - brew install clang-format
         - brew install swiftformat
       script:
-        - ./scripts/check_whitespace.sh
-        - ./scripts/check_copyright.sh
-        - ./scripts/check_no_module_imports.sh
-        - ./scripts/check_test_inclusion.py
-        - ./scripts/style.sh test-only $TRAVIS_COMMIT_RANGE
-        # Google C++ style compliance
-        - ./scripts/lint.sh $TRAVIS_COMMIT_RANGE
+        - ./scripts/check.sh --test-only $TRAVIS_COMMIT_RANGE
 
     # The order of builds matters (even though they are run in parallel):
     # Travis will schedule them in the same order they are listed here.
