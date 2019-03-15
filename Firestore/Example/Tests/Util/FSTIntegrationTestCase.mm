@@ -193,7 +193,7 @@ static FIRFirestoreSettings *defaultSettings;
 
   FIRFirestore *firestore = [[FIRFirestore alloc] initWithProjectID:util::MakeString(projectID)
                                                            database:DatabaseId::kDefault
-                                                     persistenceKey:persistenceKey
+                                                     persistenceKey:util::MakeString(persistenceKey)
                                                 credentialsProvider:std::move(credentials_provider)
                                                         workerQueue:std::move(workerQueue)
                                                         firebaseApp:app];

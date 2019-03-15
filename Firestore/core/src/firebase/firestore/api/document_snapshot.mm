@@ -16,8 +16,6 @@
 
 #include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
 
-#import "Firestore/Source/API/FIRFirestore+Internal.h"
-
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
 #import "Firestore/Source/Model/FSTDocument.h"
@@ -40,9 +38,8 @@ size_t DocumentSnapshot::Hash() const {
                     has_pending_writes_);
 }
 
-FIRDocumentReference* DocumentSnapshot::CreateReference() const {
-  return [FIRDocumentReference referenceWithKey:internal_key_
-                                      firestore:firestore_];
+DocumentReference DocumentSnapshot::CreateReference() const {
+  return DocumentReference{internal_key_, firestore_};
 }
 
 std::string DocumentSnapshot::document_id() const {
@@ -67,7 +64,7 @@ id _Nullable DocumentSnapshot::GetValue(const FieldPath& field_path) const {
 }
 
 bool operator==(const DocumentSnapshot& lhs, const DocumentSnapshot& rhs) {
-  return objc::Equals(lhs.firestore_, rhs.firestore_) &&
+  return lhs.firestore_ == rhs.firestore_ &&
          lhs.internal_key_ == rhs.internal_key_ &&
          objc::Equals(lhs.internal_document_, rhs.internal_document_) &&
          lhs.from_cache_ == rhs.from_cache_ &&

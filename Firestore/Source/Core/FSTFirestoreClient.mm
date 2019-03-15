@@ -50,11 +50,15 @@
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "absl/memory/memory.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::FirestoreErrorCode;
 using firebase::firestore::api::DocumentReference;
+using firebase::firestore::api::DocumentSnapshot;
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
@@ -73,6 +77,9 @@ using firebase::firestore::util::Status;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::DelayedOperation;
 using firebase::firestore::util::Executor;
+using firebase::firestore::util::Status;
+using firebase::firestore::util::StatusOr;
+using firebase::firestore::util::StatusOrCallback;
 using firebase::firestore::util::TimerId;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -322,40 +329,30 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
 }
 
 - (void)getDocumentFromLocalCache:(const DocumentReference &)doc
-                       completion:(void (^)(FIRDocumentSnapshot *_Nullable document,
-                                            NSError *_Nullable error))completion {
+                       completion:(StatusOrCallback<DocumentSnapshot> &&)completion {
   _workerQueue->Enqueue([self, doc, completion] {
     FSTMaybeDocument *maybeDoc = [self.localStore readDocument:doc.key()];
-    FIRDocumentSnapshot *_Nullable result = nil;
-    NSError *_Nullable error = nil;
+    StatusOr<DocumentSnapshot> maybe_snapshot;
 
     if ([maybeDoc isKindOfClass:[FSTDocument class]]) {
       FSTDocument *document = (FSTDocument *)maybeDoc;
-      result = [FIRDocumentSnapshot snapshotWithFirestore:doc.firestore()
-                                              documentKey:doc.key()
-                                                 document:document
-                                                fromCache:YES
-                                         hasPendingWrites:document.hasLocalMutations];
+      maybe_snapshot =
+          DocumentSnapshot{doc.firestore(), doc.key(), document,
+                           /*from_cache=*/true,
+                           /*has_pending_writes=*/static_cast<bool>(document.hasLocalMutations)};
     } else if ([maybeDoc isKindOfClass:[FSTDeletedDocument class]]) {
-      result = [FIRDocumentSnapshot snapshotWithFirestore:doc.firestore()
-                                              documentKey:doc.key()
-                                                 document:nil
-                                                fromCache:YES
-                                         hasPendingWrites:NO];
+      maybe_snapshot = DocumentSnapshot{doc.firestore(), doc.key(), nil,
+                                        /*from_cache=*/true,
+                                        /*has_pending_writes=*/false};
     } else {
-      error = [NSError errorWithDomain:FIRFirestoreErrorDomain
-                                  code:FIRFirestoreErrorCodeUnavailable
-                              userInfo:@{
-                                NSLocalizedDescriptionKey :
-                                    @"Failed to get document from cache. (However, this document "
-                                    @"may exist on the server. Run again without setting source to "
-                                    @"FIRFirestoreSourceCache to attempt to retrieve the document "
-                                    @"from the server.)",
-                              }];
+      maybe_snapshot = Status{FirestoreErrorCode::Unavailable,
+                              "Failed to get document from cache. (However, this document "
+                              "may exist on the server. Run again without setting source to "
+                              "FIRFirestoreSourceCache to attempt to retrieve the document "};
     }
 
     if (completion) {
-      self->_userExecutor->Execute([=] { completion(result, error); });
+      self->_userExecutor->Execute([=] { completion(std::move(maybe_snapshot)); });
     }
   });
 }
