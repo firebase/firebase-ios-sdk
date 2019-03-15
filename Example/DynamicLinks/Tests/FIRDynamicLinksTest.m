@@ -1069,8 +1069,8 @@ static void UnswizzleDynamicLinkNetworking() {
   XCTAssertNotNil(customSchemeURL);
 
   // Validate URL parameters
-  NSURLComponents *urlComponents =
-      [NSURLComponents componentsWithURL:customSchemeURL resolvingAgainstBaseURL:NO];
+  NSURLComponents *urlComponents = [NSURLComponents componentsWithURL:customSchemeURL
+                                              resolvingAgainstBaseURL:NO];
   XCTAssertNotNil(urlComponents);
   XCTAssertEqualObjects(urlComponents.scheme, @"scheme");
 
