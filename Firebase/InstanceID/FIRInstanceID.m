@@ -914,6 +914,8 @@ static FIRInstanceID *gInstanceID;
         FIRInstanceIDLoggerDebug(kFIRInstanceIDMessageCodeRefetchingTokenForAPNS,
                                  @"Received APNS token while fetching default token. "
                                  @"Refetching default token.");
+        // Do not notify and handle completion handler since this is a retry.
+        // Simply return.
         return;
       } else {
         FIRInstanceIDLoggerInfo(kFIRInstanceIDMessageCodeInstanceID010,
