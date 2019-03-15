@@ -21,6 +21,8 @@
 #import <FirebaseCore/FIRComponentContainer.h>
 #import <FirebaseCore/FIRLibrary.h>
 #import <FirebaseCore/FIROptions.h>
+
+#import <FBLPromises/FBLPromises.h>
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import "FIRInstanceID+Private.h"
 #import "FIRInstanceIDAuthService.h"
@@ -296,102 +298,153 @@ static FIRInstanceID *gInstanceID;
     return;
   }
 
-  NSMutableDictionary *tokenOptions = [NSMutableDictionary dictionary];
-  if (options.count) {
-    [tokenOptions addEntriesFromDictionary:options];
-  }
+  [self tokenWithAuthorizedEntity:authorizedEntity
+                            scope:scope
+                          options:options]
+  // Transform result to handler to keep compatibility with old API
+  .then(^id(NSString *token) {
+    handler(token, nil);
+    return token;
+  })
+  .catch(^(NSError *error) {
+    handler(nil, error);
+  });
+}
 
-  NSString *APNSKey = kFIRInstanceIDTokenOptionsAPNSKey;
-  NSString *serverTypeKey = kFIRInstanceIDTokenOptionsAPNSIsSandboxKey;
+- (FBLPromise<NSString *> *)tokenWithAuthorizedEntity:(NSString *)authorizedEntity
+                                              scope:(NSString *)scope
+                                            options:(NSDictionary *)options {
 
-  if (tokenOptions[APNSKey] != nil && tokenOptions[serverTypeKey] == nil) {
-    // APNS key was given, but server type is missing. Supply the server type with automatic
-    // checking. This can happen when the token is requested from FCM, which does not include a
-    // server type during its request.
-    tokenOptions[serverTypeKey] = @([self isSandboxApp]);
-  }
+  FBLPromise<NSString *> *prepareOptions = [FBLPromise do:^id _Nullable{
+    NSMutableDictionary *tokenOptions = [NSMutableDictionary dictionary];
+    if (options.count) {
+      [tokenOptions addEntriesFromDictionary:options];
+    }
 
-  // comparing enums to ints directly throws a warning
-  FIRInstanceIDErrorCode noError = INT_MAX;
-  FIRInstanceIDErrorCode errorCode = noError;
-  if (FIRInstanceIDIsValidGCMScope(scope) && !tokenOptions[APNSKey]) {
-    errorCode = kFIRInstanceIDErrorCodeMissingAPNSToken;
-  } else if (FIRInstanceIDIsValidGCMScope(scope) &&
-             ![tokenOptions[APNSKey] isKindOfClass:[NSData class]]) {
-    errorCode = kFIRInstanceIDErrorCodeInvalidRequest;
-  } else if (![authorizedEntity length]) {
-    errorCode = kFIRInstanceIDErrorCodeInvalidAuthorizedEntity;
-  } else if (![scope length]) {
-    errorCode = kFIRInstanceIDErrorCodeInvalidScope;
-  } else if (!self.keyPairStore) {
-    errorCode = kFIRInstanceIDErrorCodeInvalidStart;
-  }
+    NSString *APNSKey = kFIRInstanceIDTokenOptionsAPNSKey;
+    NSString *serverTypeKey = kFIRInstanceIDTokenOptionsAPNSIsSandboxKey;
 
-  FIRInstanceIDTokenHandler newHandler = ^(NSString *token, NSError *error) {
-    dispatch_async(dispatch_get_main_queue(), ^{
-      handler(token, error);
+    if (tokenOptions[APNSKey] != nil && tokenOptions[serverTypeKey] == nil) {
+      // APNS key was given, but server type is missing. Supply the server type with automatic
+      // checking. This can happen when the token is requested from FCM, which does not include a
+      // server type during its request.
+      tokenOptions[serverTypeKey] = @([self isSandboxApp]);
+    }
+
+    // comparing enums to ints directly throws a warning
+    FIRInstanceIDErrorCode noError = INT_MAX;
+    FIRInstanceIDErrorCode errorCode = noError;
+    if (FIRInstanceIDIsValidGCMScope(scope) && !tokenOptions[APNSKey]) {
+      errorCode = kFIRInstanceIDErrorCodeMissingAPNSToken;
+    } else if (FIRInstanceIDIsValidGCMScope(scope) &&
+               ![tokenOptions[APNSKey] isKindOfClass:[NSData class]]) {
+      errorCode = kFIRInstanceIDErrorCodeInvalidRequest;
+    } else if (![authorizedEntity length]) {
+      errorCode = kFIRInstanceIDErrorCodeInvalidAuthorizedEntity;
+    } else if (![scope length]) {
+      errorCode = kFIRInstanceIDErrorCodeInvalidScope;
+    } else if (!self.keyPairStore) {
+      errorCode = kFIRInstanceIDErrorCodeInvalidStart;
+    }
+
+    if (errorCode != noError) {
+      return [NSError errorWithFIRInstanceIDErrorCode:errorCode];
+    }
+
+    // TODO(chliangGoogle): Add some validation logic that the APNs token data and sandbox value are
+    // supplied in the valid format (NSData and BOOL, respectively).
+
+    // Add internal options
+    if (self.firebaseAppID) {
+      tokenOptions[kFIRInstanceIDTokenOptionsFirebaseAppIDKey] = self.firebaseAppID;
+    }
+
+    return tokenOptions;
+  }];
+
+//  FIRInstanceIDAuthService *authService = self.tokenManager.authService;
+
+  return prepareOptions
+  .then(^FBLPromise<FIRInstanceIDCheckinPreferences *> *(NSDictionary *tokenOptions) {
+    return [self fetchCheckinInfo].then(^id(id result) {
+      // We are interested in only [authService fetchCheckinInfo] success or failure
+      // On success just pass tokenOptions further
+      return tokenOptions;
     });
-  };
+  })
+  .then(^id(NSDictionary *tokenOptions) {
+    return [self fetchTokenWithAuthorizedEntity:authorizedEntity
+                                          scope:scope
+                                   tokenOptions:tokenOptions];
+  });
+}
 
-  if (errorCode != noError) {
-    newHandler(nil, [NSError errorWithFIRInstanceIDErrorCode:errorCode]);
-    return;
-  }
+- (FBLPromise<NSString *> *)fetchTokenWithAuthorizedEntity:(NSString *)authorizedEntity
+                                                     scope:(NSString *)scope
+                                              tokenOptions:(NSDictionary *)tokenOptions {
+  return [self fetchCachedTokenWithAuthorizedEntity:authorizedEntity
+                                              scope:scope
+                                       tokenOptions:tokenOptions]
+  .recover(^id(id error) {
+    return [self fetchNewTokenWithAuthorizedEntity:authorizedEntity
+                                             scope:scope
+                                      tokenOptions:tokenOptions];
+  });
+}
 
-  // TODO(chliangGoogle): Add some validation logic that the APNs token data and sandbox value are
-  // supplied in the valid format (NSData and BOOL, respectively).
+- (FBLPromise<NSString *> *)fetchCachedTokenWithAuthorizedEntity:(NSString *)authorizedEntity
+                                                           scope:(NSString *)scope
+                                                    tokenOptions:(NSDictionary *)tokenOptions {
+  return [FBLPromise do:^id {
+    return [self.tokenManager cachedTokenInfoWithAuthorizedEntity:authorizedEntity scope:scope];
+  }]
+  .validate(^BOOL(FIRInstanceIDTokenInfo *cachedTokenInfo) {
+    if (cachedTokenInfo == nil) {
+      return NO;
+    }
 
-  // Add internal options
-  if (self.firebaseAppID) {
-    tokenOptions[kFIRInstanceIDTokenOptionsFirebaseAppIDKey] = self.firebaseAppID;
-  }
+    FIRInstanceIDAPNSInfo *optionsAPNSInfo =
+        [[FIRInstanceIDAPNSInfo alloc] initWithTokenOptionsDictionary:tokenOptions];
+    // If either the APNs info is missing in both, or if they are an exact match, then we can
+    // use this cached token.
+    if ((!cachedTokenInfo.APNSInfo && !optionsAPNSInfo) ||
+        [cachedTokenInfo.APNSInfo isEqualToAPNSInfo:optionsAPNSInfo]) {
+      return YES;
+    }
+    return NO;
+  })
+  .then(^id(FIRInstanceIDTokenInfo *cachedTokenInfo) {
+    return cachedTokenInfo.token;
+  });
+}
 
-  FIRInstanceID_WEAKIFY(self);
-  FIRInstanceIDAuthService *authService = self.tokenManager.authService;
-  [authService
-      fetchCheckinInfoWithHandler:^(FIRInstanceIDCheckinPreferences *preferences, NSError *error) {
-        FIRInstanceID_STRONGIFY(self);
-        if (error) {
-          newHandler(nil, error);
-          return;
-        }
+- (FBLPromise<NSString *> *)fetchNewTokenWithAuthorizedEntity:(NSString *)authorizedEntity
+                                               scope:(NSString *)scope
+                                        tokenOptions:(NSDictionary *)tokenOptions {
+  return [FBLPromise wrapObjectOrErrorCompletion:^(FBLPromiseObjectOrErrorCompletion  _Nonnull handler) {
+    [self asyncLoadKeyPairWithHandler:[handler copy]];
+  }]
+  .recover(^id(NSError *error) {
+    // Just transform and re-throw the error
+    return [NSError errorWithFIRInstanceIDErrorCode:kFIRInstanceIDErrorCodeInvalidKeyPair];
+  })
+  .then(^id(FIRInstanceIDKeyPair *keyPair) {
+    // I had to wrap it here, but it can be Promise based API after the refactoring
+    return [FBLPromise wrapObjectOrErrorCompletion:^(FBLPromiseObjectOrErrorCompletion  _Nonnull handler) {
+      [self.tokenManager fetchNewTokenWithAuthorizedEntity:[authorizedEntity copy]
+                                        scope:[scope copy]
+                                      keyPair:keyPair
+                                      options:tokenOptions
+                                      handler:handler];
+    }];
+  });
+}
 
-        // Only use the token in the cache if the APNSInfo matches what the request's options has.
-        // It's possible for the request to be with a newer APNs device token, which should be
-        // honored.
-        FIRInstanceIDTokenInfo *cachedTokenInfo =
-            [self.tokenManager cachedTokenInfoWithAuthorizedEntity:authorizedEntity scope:scope];
-        if (cachedTokenInfo) {
-          // Ensure that the cached token matches APNs data before returning it.
-          FIRInstanceIDAPNSInfo *optionsAPNSInfo =
-              [[FIRInstanceIDAPNSInfo alloc] initWithTokenOptionsDictionary:tokenOptions];
-          // If either the APNs info is missing in both, or if they are an exact match, then we can
-          // use this cached token.
-          if ((!cachedTokenInfo.APNSInfo && !optionsAPNSInfo) ||
-              [cachedTokenInfo.APNSInfo isEqualToAPNSInfo:optionsAPNSInfo]) {
-            newHandler(cachedTokenInfo.token, nil);
-            return;
-          }
-        }
-
-        FIRInstanceID_WEAKIFY(self);
-        [self asyncLoadKeyPairWithHandler:^(FIRInstanceIDKeyPair *keyPair, NSError *error) {
-          FIRInstanceID_STRONGIFY(self);
-
-          if (error) {
-            NSError *newError =
-                [NSError errorWithFIRInstanceIDErrorCode:kFIRInstanceIDErrorCodeInvalidKeyPair];
-            newHandler(nil, newError);
-
-          } else {
-            [self.tokenManager fetchNewTokenWithAuthorizedEntity:[authorizedEntity copy]
-                                                           scope:[scope copy]
-                                                         keyPair:keyPair
-                                                         options:tokenOptions
-                                                         handler:newHandler];
-          }
-        }];
-      }];
+// I had to duplicate it here to keep compatibility with FIRInstanceIDTests
+- (FBLPromise<FIRInstanceIDCheckinPreferences *> *)fetchCheckinInfo {
+  return [FBLPromise wrapObjectOrErrorCompletion:^(FBLPromiseObjectOrErrorCompletion  _Nonnull handler) {
+    [self.tokenManager.authService fetchCheckinInfoWithHandler:handler];
+  }];
 }
 
 - (void)deleteTokenWithAuthorizedEntity:(NSString *)authorizedEntity

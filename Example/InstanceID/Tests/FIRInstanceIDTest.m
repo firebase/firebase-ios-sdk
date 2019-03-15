@@ -821,6 +821,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 
   [[[self.mockTokenManager stub] andDo:^(NSInvocation *invocation) {
     [invocation getArgument:&tokenHandler atIndex:6];
+    tokenHandler = [tokenHandler copy];
     [fetchNewTokenExpectation fulfill];
   }] fetchNewTokenWithAuthorizedEntity:kAuthorizedEntity
                                  scope:kFIRInstanceIDDefaultTokenScope
@@ -877,6 +878,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 
   [[[self.mockTokenManager stub] andDo:^(NSInvocation *invocation) {
     [invocation getArgument:&tokenHandler atIndex:6];
+    tokenHandler = [tokenHandler copy];
     [fetchNewTokenExpectations[fetchNewTokenCallCount] fulfill];
     fetchNewTokenCallCount += 1;
   }] fetchNewTokenWithAuthorizedEntity:kAuthorizedEntity
@@ -942,6 +944,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 
   [[[self.mockTokenManager stub] andDo:^(NSInvocation *invocation) {
     [invocation getArgument:&tokenHandler atIndex:6];
+    tokenHandler = [tokenHandler copy];
     [fetchNewTokenExpectations[fetchNewTokenCallCount] fulfill];
     fetchNewTokenCallCount += 1;
   }] fetchNewTokenWithAuthorizedEntity:kAuthorizedEntity
@@ -979,6 +982,11 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
     // Wait for the i `fetchNewTokenWithAuthorizedEntity` to be performed
     [self waitForExpectations:@[ fetchNewTokenExpectations[i] ] timeout:1 enforceOrder:false];
     // Fail for the i time
+    if (!tokenHandler) {
+      XCTFail(@"Failed to get token handler from fetchNewTokenWithAuthorizedEntity");
+      return;
+    }
+
     tokenHandler(nil, [NSError errorWithFIRInstanceIDErrorCode:kFIRInstanceIDErrorCodeUnknown]);
   }
 
@@ -1035,21 +1043,18 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   NSDictionary *tokenOptions = @{kFIRInstanceIDTokenOptionsAPNSKey : apnsToken};
 
   [[[self.mockTokenManager stub] andDo:^(NSInvocation *invocation) {
-    // Inspect
-    NSDictionary *options;
-    [invocation getArgument:&options atIndex:5];
-    if (options[kFIRInstanceIDTokenOptionsAPNSIsSandboxKey] != nil) {
-      [apnsServerTypeExpectation fulfill];
-    }
+    [apnsServerTypeExpectation fulfill];
     self.newTokenCompletion(kToken, nil);
   }] fetchNewTokenWithAuthorizedEntity:kAuthorizedEntity
-                                 scope:kScope
-                               keyPair:[OCMArg any]
-                               options:[OCMArg any]
-                               handler:[OCMArg checkWithBlock:^BOOL(id obj) {
-                                 self.newTokenCompletion = obj;
-                                 return obj != nil;
-                               }]];
+   scope:kScope
+   keyPair:[OCMArg any]
+   options:[OCMArg checkWithBlock:^BOOL(NSDictionary *options) {
+    return options[kFIRInstanceIDTokenOptionsAPNSIsSandboxKey] != nil;
+  }]
+   handler:[OCMArg checkWithBlock:^BOOL(id obj) {
+    self.newTokenCompletion = obj;
+    return obj != nil;
+  }]];
 
   [self.instanceID tokenWithAuthorizedEntity:kAuthorizedEntity
                                        scope:kScope
