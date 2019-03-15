@@ -83,6 +83,7 @@ struct FrameworkBuilder {
                              cacheEnabled: Bool = false) -> (framework: URL, resources: URL) {
     print("Building \(podName)")
 
+//  Cache is temporarily disabled due to pod cache list issues.
     // Get the CocoaPods cache to see if we can pull from any frameworks already built.
 //    let podsCache = CocoaPodUtils.listPodCache(inDir: projectDir)
 //
@@ -100,6 +101,7 @@ struct FrameworkBuilder {
 //    }
 //
 //    // TODO: Figure out if we need the MD5 at all.
+      let md5 = podName
 //    let md5 = Shell.calculateMD5(for: podInfo.installedLocation)
 
     // Get (or create) the cache directory for storing built frameworks.
@@ -107,7 +109,7 @@ struct FrameworkBuilder {
     var cachedFrameworkRoot: URL
     do {
       let cacheDir = try fileManager.firebaseCacheDirectory()
-      cachedFrameworkRoot = cacheDir.appendingPathComponents([podName, version, podName])
+      cachedFrameworkRoot = cacheDir.appendingPathComponents([podName, version, md5])
       if let cacheKey = cacheKey {
         cachedFrameworkRoot.appendPathComponent(cacheKey)
       }
