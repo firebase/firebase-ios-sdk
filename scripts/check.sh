@@ -180,11 +180,11 @@ if ! git diff --quiet -- Firestore/Example/Firestore.xcodeproj; then
   fi
 fi
 
-# Check lint errors
-(
-  scripts/lint.sh "${START_SHA}"
-  scripts/check_copyright.sh
-  scripts/check_no_module_imports.sh
-  scripts/check_test_inclusion.py
-  scripts/check_whitespace.sh
-) 2>&1 | sed "s,^\\([^:]*:[0-9]*: \\),${top_dir}/\\1,"
+# Check lint errors.
+#
+# Keep in sync with the checks stage in .travis.yml
+scripts/check_whitespace.sh
+scripts/check_copyright.sh
+scripts/check_no_module_imports.sh
+scripts/check_test_inclusion.py
+scripts/lint.sh "${START_SHA}"
