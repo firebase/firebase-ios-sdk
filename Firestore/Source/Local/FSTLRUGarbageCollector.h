@@ -21,6 +21,8 @@
 
 #import "FIRFirestoreSettings.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
+
+#include "Firestore/core/src/firebase/firestore/local/query_cache.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 
@@ -84,10 +86,8 @@ struct LruResults {
 /**
  * Enumerates all of the outstanding mutations.
  */
-- (void)enumerateMutationsUsingBlock:
-    (void (^)(const firebase::firestore::model::DocumentKey &key,
-              firebase::firestore::model::ListenSequenceNumber sequenceNumber,
-              BOOL *stop))block;
+- (void)enumerateMutationsUsingCallback:
+    (const firebase::firestore::local::OrphanedDocumentCallback &)callback;
 
 /**
  * Removes all unreferenced documents from the cache that have a sequence number less than or equal

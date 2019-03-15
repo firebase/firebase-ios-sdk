@@ -73,6 +73,7 @@ using firebase::firestore::local::LevelDbRemoteDocumentCache;
 using firebase::firestore::local::LevelDbTransaction;
 using firebase::firestore::local::ListenSequence;
 using firebase::firestore::local::LruParams;
+using firebase::firestore::local::OrphanedDocumentCallback;
 using firebase::firestore::local::ReferenceSet;
 using firebase::firestore::local::RemoteDocumentCache;
 using firebase::firestore::model::DatabaseId;
@@ -214,15 +215,14 @@ static const char *kReservedPathComponent = "firestore";
   _db.queryCache->EnumerateTargets(block);
 }
 
-- (void)enumerateMutationsUsingBlock:
-    (void (^)(const DocumentKey &key, ListenSequenceNumber sequenceNumber, BOOL *stop))block {
-  _db.queryCache->EnumerateOrphanedDocuments(block);
+- (void)enumerateMutationsUsingCallback:(const OrphanedDocumentCallback &)callback {
+  _db.queryCache->EnumerateOrphanedDocuments(callback);
 }
 
 - (int)removeOrphanedDocumentsThroughSequenceNumber:(ListenSequenceNumber)upperBound {
-  __block int count = 0;
+  int count = 0;
   _db.queryCache->EnumerateOrphanedDocuments(
-      ^(const DocumentKey &docKey, ListenSequenceNumber sequenceNumber, BOOL *stop) {
+      [&count, self, upperBound](const DocumentKey &docKey, ListenSequenceNumber sequenceNumber) {
         if (sequenceNumber <= upperBound) {
           if (![self isPinned:docKey]) {
             count++;
@@ -245,9 +245,9 @@ static const char *kReservedPathComponent = "firestore";
 }
 
 - (size_t)sequenceNumberCount {
-  __block size_t totalCount = _db.queryCache->size();
-  [self enumerateMutationsUsingBlock:^(const DocumentKey &key, ListenSequenceNumber sequenceNumber,
-                                       BOOL *stop) {
+  size_t totalCount = _db.queryCache->size();
+  [self enumerateMutationsUsingCallback:[&totalCount](const DocumentKey &key,
+                                                      ListenSequenceNumber sequenceNumber) {
     totalCount++;
   }];
   return totalCount;

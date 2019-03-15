@@ -23,6 +23,7 @@
 
 #import <Foundation/Foundation.h>
 
+#include <functional>
 #include <unordered_map>
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -38,6 +39,9 @@ NS_ASSUME_NONNULL_BEGIN
 namespace firebase {
 namespace firestore {
 namespace local {
+
+using OrphanedDocumentCallback =
+    std::function<void(const model::DocumentKey&, model::ListenSequenceNumber)>;
 
 /**
  * Represents cached targets received from the remote backend. This contains

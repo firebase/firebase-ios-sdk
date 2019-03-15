@@ -164,9 +164,9 @@ class RollingSequenceNumberBuffer {
   [_delegate enumerateTargetsUsingBlock:^(FSTQueryData *queryData, BOOL *stop) {
     ptr_to_buffer->AddElement(queryData.sequenceNumber);
   }];
-  [_delegate enumerateMutationsUsingBlock:^(const DocumentKey &docKey,
-                                            ListenSequenceNumber sequenceNumber, BOOL *stop) {
-    ptr_to_buffer->AddElement(sequenceNumber);
+  [_delegate enumerateMutationsUsingCallback:[&buffer](const DocumentKey &docKey,
+                                                       ListenSequenceNumber sequenceNumber) {
+    buffer.AddElement(sequenceNumber);
   }];
   return buffer.max_value();
 }

@@ -238,16 +238,15 @@ NS_ASSUME_NONNULL_BEGIN
   return _persistence.queryCache->EnumerateTargets(block);
 }
 
-- (void)enumerateMutationsUsingBlock:
-    (void (^)(const DocumentKey &key, ListenSequenceNumber sequenceNumber, BOOL *stop))block {
-  BOOL stop = NO;
+- (void)enumerateMutationsUsingCallback:
+    (const firebase::firestore::local::OrphanedDocumentCallback &)callback {
   for (const auto &entry : _sequenceNumbers) {
     ListenSequenceNumber sequenceNumber = entry.second;
     const DocumentKey &key = entry.first;
     // Pass in the exact sequence number as the upper bound so we know it won't be pinned by being
     // too recent.
     if (![self isPinnedAtSequenceNumber:sequenceNumber document:key]) {
-      block(key, sequenceNumber, &stop);
+      callback(key, sequenceNumber);
     }
   }
 }
@@ -259,9 +258,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (size_t)sequenceNumberCount {
-  __block size_t totalCount = _persistence.queryCache->size();
-  [self enumerateMutationsUsingBlock:^(const DocumentKey &key, ListenSequenceNumber sequenceNumber,
-                                       BOOL *stop) {
+  size_t totalCount = _persistence.queryCache->size();
+  [self enumerateMutationsUsingCallback:[&totalCount](const DocumentKey &key,
+                                                      ListenSequenceNumber sequenceNumber) {
     totalCount++;
   }];
   return totalCount;
