@@ -351,8 +351,7 @@ FieldValue Serializer::DecodeFieldValue(Reader* reader,
     }
 
     case google_firestore_v1_Value_map_value_tag: {
-      return ObjectValue::FromMap(DecodeMapValue(reader, msg.map_value))
-          .GetWrappedFieldValue();
+      return FieldValue::FromMap(DecodeMapValue(reader, msg.map_value));
     }
 
     case google_firestore_v1_Value_double_value_tag:

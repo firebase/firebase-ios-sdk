@@ -204,7 +204,6 @@ absl::optional<FieldValue> ObjectValue::Get(const FieldPath& field_path) const {
   return *current;
 }
 
-// TODO: move this to the other ObjectValue methods
 ObjectValue ObjectValue::SetChild(const std::string& child_name,
                                   const FieldValue& value) const {
   return ObjectValue::FromMap(fv_.object_value_->insert(child_name, value));
@@ -228,6 +227,10 @@ FieldValue FieldValue::FromBoolean(bool value) {
 
 FieldValue FieldValue::Nan() {
   return FieldValue::FromDouble(NAN);
+}
+
+FieldValue FieldValue::EmptyObject() {
+  return FieldValue::FromMap(FieldValue::Map());
 }
 
 FieldValue FieldValue::FromInteger(int64_t value) {
@@ -332,16 +335,16 @@ FieldValue FieldValue::FromArray(std::vector<FieldValue>&& value) {
   return result;
 }
 
-ObjectValue ObjectValue::FromMap(const FieldValue::Map& value) {
+FieldValue FieldValue::FromMap(const FieldValue::Map& value) {
   FieldValue::Map copy(value);
   return FromMap(std::move(copy));
 }
 
-ObjectValue ObjectValue::FromMap(FieldValue::Map&& value) {
+FieldValue FieldValue::FromMap(FieldValue::Map&& value) {
   FieldValue result;
   result.SwitchTo(Type::Object);
   std::swap(*result.object_value_, value);
-  return ObjectValue(result);
+  return result;
 }
 
 bool operator<(const FieldValue::Map& lhs, const FieldValue::Map& rhs) {
@@ -483,6 +486,14 @@ void FieldValue::SwitchTo(const Type type) {
       break;
     default: {}  // The other types where there is nothing to worry about.
   }
+}
+
+ObjectValue ObjectValue::FromMap(const FieldValue::Map& value) {
+  return ObjectValue(FieldValue::FromMap(value));
+}
+
+ObjectValue ObjectValue::FromMap(FieldValue::Map&& value) {
+  return ObjectValue(FieldValue::FromMap(std::move(value)));
 }
 
 }  // namespace model

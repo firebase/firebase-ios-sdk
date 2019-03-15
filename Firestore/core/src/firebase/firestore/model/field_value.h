@@ -20,6 +20,7 @@
 #include <cstdint>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "Firestore/core/include/firebase/firestore/geo_point.h"
@@ -45,8 +46,6 @@ struct ReferenceValue {
   // Does not own the DatabaseId instance.
   const DatabaseId* database_id;
 };
-
-class ObjectValue;
 
 /**
  * tagged-union class representing an immutable data value as stored in
@@ -133,6 +132,7 @@ class FieldValue {
   static FieldValue True();
   static FieldValue False();
   static FieldValue Nan();
+  static FieldValue EmptyObject();
   static FieldValue FromBoolean(bool value);
   static FieldValue FromInteger(int64_t value);
   static FieldValue FromDouble(double value);
@@ -151,11 +151,13 @@ class FieldValue {
   static FieldValue FromGeoPoint(const GeoPoint& value);
   static FieldValue FromArray(const std::vector<FieldValue>& value);
   static FieldValue FromArray(std::vector<FieldValue>&& value);
+  static FieldValue FromMap(const Map& value);
+  static FieldValue FromMap(Map&& value);
 
   friend bool operator<(const FieldValue& lhs, const FieldValue& rhs);
 
  private:
-  friend ObjectValue;
+  friend class ObjectValue;
 
   explicit FieldValue(bool value) : tag_(Type::Boolean), boolean_value_(value) {
   }
@@ -186,12 +188,12 @@ class FieldValue {
 /** A structured object value stored in Firestore. */
 class ObjectValue {
  public:
-  ObjectValue(FieldValue fv) : fv_(std::move(fv)) {
+  explicit ObjectValue(FieldValue fv) : fv_(std::move(fv)) {
     HARD_ASSERT(fv_.type() == FieldValue::Type::Object);
   }
 
   static ObjectValue Empty() {
-    return FromMap(FieldValue::Map());
+    return ObjectValue(FieldValue::EmptyObject());
   }
 
   static ObjectValue FromMap(const FieldValue::Map& value);
@@ -233,9 +235,6 @@ class ObjectValue {
 
   const FieldValue::Map& GetInternalValue() const {
     return *fv_.object_value_;
-  }
-  const FieldValue& GetWrappedFieldValue() const {
-    return fv_;
   }
 
  private:

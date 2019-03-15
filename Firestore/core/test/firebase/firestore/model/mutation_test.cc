@@ -52,25 +52,24 @@ TEST(Mutation, AppliesSetsToDocuments) {
 }
 
 TEST(Mutation, AppliesPatchToDocuments) {
-  auto base_doc = std::make_shared<Document>(
-      Doc("collection/key", 0,
-          {{"foo",
-            ObjectValue::FromMap({{"bar", FieldValue::FromString("bar-value")}})
-                .GetWrappedFieldValue()},
-           {"baz", FieldValue::FromString("baz-value")}}));
+  auto base_doc = std::make_shared<Document>(Doc(
+      "collection/key", 0,
+      {{"foo",
+        FieldValue::FromMap({{"bar", FieldValue::FromString("bar-value")}})},
+       {"baz", FieldValue::FromString("baz-value")}}));
 
   std::unique_ptr<Mutation> patch = PatchMutation(
       "collection/key", {{"foo.bar", FieldValue::FromString("new-bar-value")}});
   MaybeDocumentPtr local =
       patch->ApplyToLocalView(base_doc, base_doc.get(), Timestamp::Now());
   ASSERT_NE(local, nullptr);
-  EXPECT_EQ(*local.get(),
-            Doc("collection/key", 0,
-                {{"foo", ObjectValue::FromMap(
-                             {{"bar", FieldValue::FromString("new-bar-value")}})
-                             .GetWrappedFieldValue()},
-                 {"baz", FieldValue::FromString("baz-value")}},
-                DocumentState::kLocalMutations));
+  EXPECT_EQ(
+      *local.get(),
+      Doc("collection/key", 0,
+          {{"foo", FieldValue::FromMap(
+                       {{"bar", FieldValue::FromString("new-bar-value")}})},
+           {"baz", FieldValue::FromString("baz-value")}},
+          DocumentState::kLocalMutations));
 }
 
 TEST(Mutation, AppliesPatchWithMergeToDocuments) {
@@ -82,12 +81,12 @@ TEST(Mutation, AppliesPatchWithMergeToDocuments) {
   MaybeDocumentPtr new_doc =
       upsert->ApplyToLocalView(base_doc, base_doc.get(), Timestamp::Now());
   ASSERT_NE(new_doc, nullptr);
-  EXPECT_EQ(*new_doc.get(),
-            Doc("collection/key", 0,
-                {{"foo", ObjectValue::FromMap(
-                             {{"bar", FieldValue::FromString("new-bar-value")}})
-                             .GetWrappedFieldValue()}},
-                DocumentState::kLocalMutations));
+  EXPECT_EQ(
+      *new_doc.get(),
+      Doc("collection/key", 0,
+          {{"foo", FieldValue::FromMap(
+                       {{"bar", FieldValue::FromString("new-bar-value")}})}},
+          DocumentState::kLocalMutations));
 }
 
 TEST(Mutation, AppliesPatchToNullDocWithMergeToDocuments) {
@@ -99,21 +98,20 @@ TEST(Mutation, AppliesPatchToNullDocWithMergeToDocuments) {
   MaybeDocumentPtr new_doc =
       upsert->ApplyToLocalView(base_doc, base_doc.get(), Timestamp::Now());
   ASSERT_NE(new_doc, nullptr);
-  EXPECT_EQ(*new_doc.get(),
-            Doc("collection/key", 0,
-                {{"foo", ObjectValue::FromMap(
-                             {{"bar", FieldValue::FromString("new-bar-value")}})
-                             .GetWrappedFieldValue()}},
-                DocumentState::kLocalMutations));
+  EXPECT_EQ(
+      *new_doc.get(),
+      Doc("collection/key", 0,
+          {{"foo", FieldValue::FromMap(
+                       {{"bar", FieldValue::FromString("new-bar-value")}})}},
+          DocumentState::kLocalMutations));
 }
 
 TEST(Mutation, DeletesValuesFromTheFieldMask) {
-  auto base_doc = std::make_shared<Document>(
-      Doc("collection/key", 0,
-          {{"foo",
-            ObjectValue::FromMap({{"bar", FieldValue::FromString("bar-value")},
-                                  {"baz", FieldValue::FromString("baz-value")}})
-                .GetWrappedFieldValue()}}));
+  auto base_doc = std::make_shared<Document>(Doc(
+      "collection/key", 0,
+      {{"foo",
+        FieldValue::FromMap({{"bar", FieldValue::FromString("bar-value")},
+                             {"baz", FieldValue::FromString("baz-value")}})}}));
 
   std::unique_ptr<Mutation> patch =
       PatchMutation("collection/key", FieldValue::Map(), {Field("foo.bar")});
@@ -123,9 +121,8 @@ TEST(Mutation, DeletesValuesFromTheFieldMask) {
   ASSERT_NE(patch_doc, nullptr);
   EXPECT_EQ(*patch_doc.get(),
             Doc("collection/key", 0,
-                {{"foo", ObjectValue::FromMap(
-                             {{"baz", FieldValue::FromString("baz-value")}})
-                             .GetWrappedFieldValue()}},
+                {{"foo", FieldValue::FromMap(
+                             {{"baz", FieldValue::FromString("baz-value")}})}},
                 DocumentState::kLocalMutations));
 }
 
@@ -141,13 +138,13 @@ TEST(Mutation, PatchesPrimitiveValue) {
   MaybeDocumentPtr patched_doc =
       patch->ApplyToLocalView(base_doc, base_doc.get(), Timestamp::Now());
   ASSERT_NE(patched_doc, nullptr);
-  EXPECT_EQ(*patched_doc.get(),
-            Doc("collection/key", 0,
-                {{"foo", ObjectValue::FromMap(
-                             {{"bar", FieldValue::FromString("new-bar-value")}})
-                             .GetWrappedFieldValue()},
-                 {"baz", FieldValue::FromString("baz-value")}},
-                DocumentState::kLocalMutations));
+  EXPECT_EQ(
+      *patched_doc.get(),
+      Doc("collection/key", 0,
+          {{"foo", FieldValue::FromMap(
+                       {{"bar", FieldValue::FromString("new-bar-value")}})},
+           {"baz", FieldValue::FromString("baz-value")}},
+          DocumentState::kLocalMutations));
 }
 
 TEST(Mutation, PatchingDeletedDocumentsDoesNothing) {

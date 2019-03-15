@@ -465,7 +465,7 @@ TEST_F(SerializerTest, EncodesTimestamps) {
 }
 
 TEST_F(SerializerTest, EncodesEmptyMap) {
-  FieldValue model = ObjectValue::Empty().GetWrappedFieldValue();
+  FieldValue model = FieldValue::EmptyObject();
 
   v1::Value proto;
   proto.mutable_map_value();
@@ -474,7 +474,7 @@ TEST_F(SerializerTest, EncodesEmptyMap) {
 }
 
 TEST_F(SerializerTest, EncodesNestedObjects) {
-  ObjectValue model = ObjectValue::FromMap({
+  FieldValue model = FieldValue::FromMap({
       {"b", FieldValue::True()},
       // TODO(rsgowman): add doubles (once they're supported)
       // {"d", FieldValue::DoubleValue(std::numeric_limits<double>::max())},
@@ -483,21 +483,16 @@ TEST_F(SerializerTest, EncodesNestedObjects) {
       {"s", FieldValue::FromString("foo")},
       // TODO(rsgowman): add arrays (once they're supported)
       // {"a", [2, "bar", {"b", false}]},
-      {"o",
-       ObjectValue::FromMap(
-           {
-               {"d", FieldValue::FromInteger(100)},
-               {"nested", ObjectValue::FromMap(
-                              {
-                                  {
-                                      "e",
-                                      FieldValue::FromInteger(
-                                          std::numeric_limits<int64_t>::max()),
-                                  },
-                              })
-                              .GetWrappedFieldValue()},
-           })
-           .GetWrappedFieldValue()},
+      {"o", FieldValue::FromMap({
+                {"d", FieldValue::FromInteger(100)},
+                {"nested", FieldValue::FromMap({
+                               {
+                                   "e",
+                                   FieldValue::FromInteger(
+                                       std::numeric_limits<int64_t>::max()),
+                               },
+                           })},
+            })},
   });
 
   v1::Value inner_proto;
@@ -520,8 +515,7 @@ TEST_F(SerializerTest, EncodesNestedObjects) {
   (*fields)["s"] = ValueProto("foo");
   (*fields)["o"] = middle_proto;
 
-  ExpectRoundTrip(model.GetWrappedFieldValue(), proto,
-                  FieldValue::Type::Object);
+  ExpectRoundTrip(model, proto, FieldValue::Type::Object);
 }
 
 TEST_F(SerializerTest, EncodesFieldValuesWithRepeatedEntries) {
@@ -826,11 +820,9 @@ TEST_F(SerializerTest, EncodesNonEmptyDocument) {
   ObjectValue fields = ObjectValue::FromMap({
       {"foo", FieldValue::FromString("bar")},
       {"two", FieldValue::FromInteger(2)},
-      {"nested",
-       ObjectValue::FromMap({
-                                {"fourty-two", FieldValue::FromInteger(42)},
-                            })
-           .GetWrappedFieldValue()},
+      {"nested", FieldValue::FromMap({
+                     {"fourty-two", FieldValue::FromInteger(42)},
+                 })},
   });
   SnapshotVersion update_time = SnapshotVersion{{1234, 5678}};
 
