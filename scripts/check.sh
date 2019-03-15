@@ -78,6 +78,12 @@ EOF
 set -euo pipefail
 unset CDPATH
 
+for arg in "$@"; do
+  echo "check.sh arg: '${arg}'"
+done
+
+set -x
+
 # Change to the top-directory of the working tree
 top_dir=$(git rev-parse --show-toplevel)
 cd "${top_dir}"
