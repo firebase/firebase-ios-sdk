@@ -37,7 +37,7 @@ static const NSTimeInterval kExpectationTimeout = 12;
 
 // Testing constants
 static NSString *const kFakeCheckinPlistName = @"com.google.test.IIDStoreTestCheckin";
-static NSString *const kApplicationSupportSubDirectoryName = @"FirebaseInstanceIDCheckinTest";
+static NSString *const kSubDirectoryName = @"FirebaseInstanceIDCheckinTest";
 
 static NSString *const kAuthorizedEntity = @"test-audience";
 static NSString *const kAuthID = @"test-auth-id";
@@ -56,7 +56,7 @@ static int64_t const kLastCheckinTimestamp = 123456;
 
 - (void)setUp {
   [super setUp];
-  [FIRInstanceIDStore createApplicationSupportSubDirectory:kApplicationSupportSubDirectoryName];
+  [FIRInstanceIDStore createSubDirectory:kSubDirectoryName];
 }
 
 - (void)tearDown {
@@ -65,8 +65,7 @@ static int64_t const kLastCheckinTimestamp = 123456;
     NSError *error;
     [[NSFileManager defaultManager] removeItemAtPath:path error:&error];
   }
-  [FIRInstanceIDStore removeApplicationSupportSubDirectory:kApplicationSupportSubDirectoryName
-                                                     error:nil];
+  [FIRInstanceIDStore removeSubDirectory:kSubDirectoryName error:nil];
   [super tearDown];
 }
 
@@ -76,9 +75,9 @@ static int64_t const kLastCheckinTimestamp = 123456;
 - (void)testInvalidCheckinPreferencesOnKeychainFail {
   XCTestExpectation *checkinInvalidExpectation = [self
       expectationWithDescription:@"Checkin preference should be invalid after keychain failure"];
-  FIRInstanceIDBackupExcludedPlist *checkinPlist = [[FIRInstanceIDBackupExcludedPlist alloc]
-                    initWithFileName:kFakeCheckinPlistName
-      applicationSupportSubDirectory:kApplicationSupportSubDirectoryName];
+  FIRInstanceIDBackupExcludedPlist *checkinPlist =
+      [[FIRInstanceIDBackupExcludedPlist alloc] initWithFileName:kFakeCheckinPlistName
+                                                    subDirectory:kSubDirectoryName];
 
   FIRInstanceIDFakeKeychain *fakeKeychain = [[FIRInstanceIDFakeKeychain alloc] init];
 
@@ -109,9 +108,9 @@ static int64_t const kLastCheckinTimestamp = 123456;
 - (void)testCheckinSaveFailsOnKeychainWriteFailure {
   XCTestExpectation *checkinSaveFailsExpectation =
       [self expectationWithDescription:@"Checkin save should fail after keychain write failure"];
-  FIRInstanceIDBackupExcludedPlist *checkinPlist = [[FIRInstanceIDBackupExcludedPlist alloc]
-                    initWithFileName:kFakeCheckinPlistName
-      applicationSupportSubDirectory:kApplicationSupportSubDirectoryName];
+  FIRInstanceIDBackupExcludedPlist *checkinPlist =
+      [[FIRInstanceIDBackupExcludedPlist alloc] initWithFileName:kFakeCheckinPlistName
+                                                    subDirectory:kSubDirectoryName];
 
   FIRInstanceIDFakeKeychain *fakeKeychain = [[FIRInstanceIDFakeKeychain alloc] init];
   fakeKeychain.cannotWriteToKeychain = YES;
@@ -140,9 +139,9 @@ static int64_t const kLastCheckinTimestamp = 123456;
   XCTestExpectation *checkinMigrationExpectation =
       [self expectationWithDescription:@"checkin migration should move to the new location"];
   // Create checkin store class.
-  FIRInstanceIDBackupExcludedPlist *checkinPlist = [[FIRInstanceIDBackupExcludedPlist alloc]
-                    initWithFileName:kFakeCheckinPlistName
-      applicationSupportSubDirectory:kApplicationSupportSubDirectoryName];
+  FIRInstanceIDBackupExcludedPlist *checkinPlist =
+      [[FIRInstanceIDBackupExcludedPlist alloc] initWithFileName:kFakeCheckinPlistName
+                                                    subDirectory:kSubDirectoryName];
 
   FIRInstanceIDFakeKeychain *fakeKeychain = [[FIRInstanceIDFakeKeychain alloc] init];
   FIRInstanceIDFakeKeychain *weakKeychain = fakeKeychain;

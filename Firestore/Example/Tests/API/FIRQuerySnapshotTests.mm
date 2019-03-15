@@ -57,15 +57,16 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRQuerySnapshotTests
 
 - (void)testEquals {
-  FIRQuerySnapshot *foo = FSTTestQuerySnapshot("foo", @{}, @{@"a" : @{@"a" : @1}}, YES, NO);
-  FIRQuerySnapshot *fooDup = FSTTestQuerySnapshot("foo", @{}, @{@"a" : @{@"a" : @1}}, YES, NO);
+  FIRQuerySnapshot *foo = FSTTestQuerySnapshot("foo", @{}, @{@"a" : @{@"a" : @1}}, true, false);
+  FIRQuerySnapshot *fooDup = FSTTestQuerySnapshot("foo", @{}, @{@"a" : @{@"a" : @1}}, true, false);
   FIRQuerySnapshot *differentPath =
-      FSTTestQuerySnapshot("bar", @{}, @{@"a" : @{@"a" : @1}}, YES, NO);
+      FSTTestQuerySnapshot("bar", @{}, @{@"a" : @{@"a" : @1}}, true, false);
   FIRQuerySnapshot *differentDoc =
-      FSTTestQuerySnapshot("foo", @{@"a" : @{@"b" : @1}}, @{}, YES, NO);
+      FSTTestQuerySnapshot("foo", @{@"a" : @{@"b" : @1}}, @{}, true, false);
   FIRQuerySnapshot *noPendingWrites =
-      FSTTestQuerySnapshot("foo", @{}, @{@"a" : @{@"a" : @1}}, NO, NO);
-  FIRQuerySnapshot *fromCache = FSTTestQuerySnapshot("foo", @{}, @{@"a" : @{@"a" : @1}}, YES, YES);
+      FSTTestQuerySnapshot("foo", @{}, @{@"a" : @{@"a" : @1}}, false, false);
+  FIRQuerySnapshot *fromCache =
+      FSTTestQuerySnapshot("foo", @{}, @{@"a" : @{@"a" : @1}}, true, true);
   XCTAssertEqualObjects(foo, fooDup);
   XCTAssertNotEqualObjects(foo, differentPath);
   XCTAssertNotEqualObjects(foo, differentDoc);

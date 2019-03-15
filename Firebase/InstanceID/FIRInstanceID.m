@@ -175,10 +175,6 @@ static FIRInstanceID *gInstanceID;
   [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-- (void)stopAllRequests {
-  [self.tokenManager stopAllTokenOperations];
-}
-
 #pragma mark - Tokens
 
 - (NSString *)token {
@@ -789,9 +785,8 @@ static FIRInstanceID *gInstanceID;
 
 // Actually makes InstanceID instantiate both the IID and Token-related subsystems.
 - (void)start {
-  NSString *instanceIDSubDirectory = kFIRInstanceIDApplicationSupportSubDirectory;
-  if (![FIRInstanceIDStore hasApplicationSupportSubDirectory:instanceIDSubDirectory]) {
-    [FIRInstanceIDStore createApplicationSupportSubDirectory:instanceIDSubDirectory];
+  if (![FIRInstanceIDStore hasSubDirectory:kFIRInstanceIDSubDirectoryName]) {
+    [FIRInstanceIDStore createSubDirectory:kFIRInstanceIDSubDirectoryName];
   }
 
   [self setupTokenManager];

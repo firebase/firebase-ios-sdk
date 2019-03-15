@@ -100,7 +100,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   self.mockAuthService = OCMClassMock([FIRInstanceIDAuthService class]);
 
   [[[self.mockAuthService stub] andDo:^(NSInvocation *invocation) {
-    [invocation setReturnValue:&_hasCheckinInfo];
+    [invocation setReturnValue:&self->_hasCheckinInfo];
   }] hasValidCheckinInfo];
 
   self.mockTokenManager = OCMClassMock([FIRInstanceIDTokenManager class]);
@@ -589,8 +589,10 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
                 cachedTokenInfo = sTokenInfo;
 
                 notificationPostCount++;
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
                 notificationToken = [[self.instanceID token] copy];
+#pragma clang diagnostic pop
                 [defaultTokenExpectation fulfill];
               }];
 
@@ -667,8 +669,10 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
                 cachedTokenInfo = sTokenInfo;
 
                 notificationPostCount++;
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
                 notificationToken = [[self.instanceID token] copy];
+#pragma clang diagnostic pop
                 [defaultTokenExpectation fulfill];
               }];
 
@@ -736,8 +740,10 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
                 cachedTokenInfo = sTokenInfo;
 
                 notificationPostCount++;
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
                 notificationToken = [[self.instanceID token] copy];
+#pragma clang diagnostic pop
                 [defaultTokenExpectation fulfill];
               }];
 

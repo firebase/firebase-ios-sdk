@@ -114,7 +114,7 @@ TEST(Mutation, DeletesValuesFromTheFieldMask) {
                              {"baz", FieldValue::FromString("baz-value")}})}}));
 
   std::unique_ptr<Mutation> patch =
-      PatchMutation("collection/key", {}, {Field("foo.bar")});
+      PatchMutation("collection/key", ObjectValue::Empty(), {Field("foo.bar")});
 
   MaybeDocumentPtr patch_doc =
       patch->ApplyToLocalView(base_doc, base_doc.get(), Timestamp::Now());
@@ -148,10 +148,40 @@ TEST(Mutation, PatchesPrimitiveValue) {
 }
 
 TEST(Mutation, PatchingDeletedDocumentsDoesNothing) {
-  // TODO(rsgowman)
+  auto base_doc =
+      std::make_shared<NoDocument>(testutil::DeletedDoc("collection/key", 0));
+  std::unique_ptr<Mutation> patch =
+      PatchMutation("collection/key", {{"foo", FieldValue::FromString("bar")}});
+  MaybeDocumentPtr patched_doc =
+      patch->ApplyToLocalView(base_doc, base_doc.get(), Timestamp::Now());
+  EXPECT_EQ(base_doc, patched_doc);
 }
 
 TEST(Mutation, AppliesLocalServerTimestampTransformsToDocuments) {
+  // TODO(rsgowman)
+}
+
+TEST(Mutation, AppliesIncrementTransformToDocument) {
+  // TODO(rsgowman)
+}
+
+TEST(Mutation, AppliesIncrementTransformToUnexpectedType) {
+  // TODO(rsgowman)
+}
+
+TEST(Mutation, AppliesIncrementTransformToMissingField) {
+  // TODO(rsgowman)
+}
+
+TEST(Mutation, AppliesIncrementTransformsConsecutively) {
+  // TODO(rsgowman)
+}
+
+TEST(Mutation, AppliesIncrementWithoutOverflow) {
+  // TODO(rsgowman)
+}
+
+TEST(Mutation, AppliesIncrementWithoutUnderflow) {
   // TODO(rsgowman)
 }
 

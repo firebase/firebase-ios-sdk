@@ -261,4 +261,14 @@ target 'Messaging_Example_tvOS' do
   end
 end
 
+target 'InstanceID_Example_tvOS' do
+  platform :tvos, '10.0'
+
+  pod 'FirebaseInstanceID', :path => '../'
+
+  target 'InstanceID_Tests_tvOS' do
+    inherit! :search_paths
+    pod 'OCMock'
+  end
+end
 

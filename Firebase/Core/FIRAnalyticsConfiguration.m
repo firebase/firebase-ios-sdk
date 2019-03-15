@@ -16,7 +16,10 @@
 
 #import "Private/FIRAnalyticsConfiguration+Internal.h"
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
 @implementation FIRAnalyticsConfiguration
+#pragma clang diagnostic pop
 
 + (FIRAnalyticsConfiguration *)sharedInstance {
   static FIRAnalyticsConfiguration *sharedInstance = nil;

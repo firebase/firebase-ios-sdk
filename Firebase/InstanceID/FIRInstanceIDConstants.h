@@ -43,8 +43,8 @@ FOUNDATION_EXPORT NSString *const kFIRInstanceIDAllScopeIdentifier;
 /// The scope used to save the IID "*" scope token.
 FOUNDATION_EXPORT NSString *const kFIRInstanceIDDefaultTokenScope;
 
-/// Subdirectory in Application Support directory to store InstanceID preferences.
-FOUNDATION_EXPORT NSString *const kFIRInstanceIDApplicationSupportSubDirectory;
+/// Subdirectory in search path directory to store InstanceID preferences.
+FOUNDATION_EXPORT NSString *const kFIRInstanceIDSubDirectoryName;
 
 /// The key for APNS token in options dictionary.
 FOUNDATION_EXPORT NSString *const kFIRInstanceIDTokenOptionsAPNSKey;

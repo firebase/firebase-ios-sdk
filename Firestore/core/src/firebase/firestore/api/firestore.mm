@@ -20,9 +20,11 @@
 #import "Firestore/Source/API/FIRCollectionReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
+#import "Firestore/Source/API/FIRQuery+Internal.h"
 #import "Firestore/Source/API/FIRTransaction+Internal.h"
 #import "Firestore/Source/API/FIRWriteBatch+Internal.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
+#import "Firestore/Source/Core/FSTQuery.h"
 
 #include "Firestore/core/src/firebase/firestore/api/document_reference.h"
 #include "Firestore/core/src/firebase/firestore/auth/firebase_credentials_provider_apple.h"
@@ -100,23 +102,34 @@ DocumentReference Firestore::GetDocument(absl::string_view document_path) {
   return DocumentReference{ResourcePath::FromString(document_path), this};
 }
 
-FIRWriteBatch* Firestore::GetBatch(FIRFirestore* firestore) {
+FIRWriteBatch* Firestore::GetBatch() {
   EnsureClientConfigured();
-  return [FIRWriteBatch writeBatchWithFirestore:firestore];
+  FIRFirestore* wrapper = [FIRFirestore recoverFromFirestore:this];
+
+  return [FIRWriteBatch writeBatchWithFirestore:wrapper];
+}
+
+FIRQuery* Firestore::GetCollectionGroup(NSString* collection_id) {
+  EnsureClientConfigured();
+  FIRFirestore* wrapper = [FIRFirestore recoverFromFirestore:this];
+
+  return [FIRQuery referenceWithQuery:[FSTQuery queryWithPath:ResourcePath::Empty()
+                                              collectionGroup:collection_id]
+                            firestore:wrapper];
 }
 
 void Firestore::RunTransaction(TransactionBlock update_block,
                                dispatch_queue_t queue,
-                               ResultOrErrorCompletion completion,
-                               FIRFirestore* firestore) {
+                               ResultOrErrorCompletion completion) {
   EnsureClientConfigured();
+  FIRFirestore* wrapper = [FIRFirestore recoverFromFirestore:this];
 
   FSTTransactionBlock wrapped_update =
       ^(std::shared_ptr<Transaction> internal_transaction,
         void (^internal_completion)(id _Nullable, NSError* _Nullable)) {
         FIRTransaction* transaction = [FIRTransaction
             transactionWithInternalTransaction:std::move(internal_transaction)
-                                     firestore:firestore];
+                                     firestore:wrapper];
 
         dispatch_async(queue, ^{
           NSError* _Nullable error = nil;

@@ -156,13 +156,16 @@ void LevelDbMutationQueue::AcknowledgeBatch(FSTMutationBatch* batch,
 }
 
 FSTMutationBatch* LevelDbMutationQueue::AddMutationBatch(
-    FIRTimestamp* local_write_time, std::vector<FSTMutation*>&& mutations) {
+    FIRTimestamp* local_write_time,
+    std::vector<FSTMutation*>&& base_mutations,
+    std::vector<FSTMutation*>&& mutations) {
   BatchId batch_id = next_batch_id_;
   next_batch_id_++;
 
   FSTMutationBatch* batch =
       [[FSTMutationBatch alloc] initWithBatchID:batch_id
                                  localWriteTime:local_write_time
+                                  baseMutations:std::move(base_mutations)
                                       mutations:std::move(mutations)];
   std::string key = mutation_batch_key(batch_id);
   db_.currentTransaction->Put(key, [serializer_ encodedMutationBatch:batch]);
@@ -176,6 +179,8 @@ FSTMutationBatch* LevelDbMutationQueue::AddMutationBatch(
   for (FSTMutation* mutation : [batch mutations]) {
     key = LevelDbDocumentMutationKey::Key(user_id_, mutation.key, batch_id);
     db_.currentTransaction->Put(key, empty_buffer);
+
+    db_.indexManager->AddToCollectionParentIndex(mutation.key.path().PopLast());
   }
 
   return batch;
@@ -267,6 +272,9 @@ std::vector<FSTMutationBatch*>
 LevelDbMutationQueue::AllMutationBatchesAffectingQuery(FSTQuery* query) {
   HARD_ASSERT(![query isDocumentQuery],
               "Document queries shouldn't go down this path");
+  HARD_ASSERT(
+      ![query isCollectionGroupQuery],
+      "CollectionGroup queries should be handled in LocalDocumentsView");
 
   const ResourcePath& query_path = query.path;
   size_t immediate_children_path_length = query_path.size() + 1;

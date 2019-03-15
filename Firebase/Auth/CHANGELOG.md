@@ -1,3 +1,9 @@
+# v5.4.1
+- Deprecate Microsoft and Yahoo OAuth Provider ID (#2517)
+- Fix an issue where an exception was thrown when linking OAuth credentials. (#2521)
+- Fix an issue where a wrong error was thrown when handling error with
+  FEDERATED_USER_ID_ALREADY_LINKED. (#2522)
+
 # v5.4.0
 - Add support of Generic IDP (#2405).
 

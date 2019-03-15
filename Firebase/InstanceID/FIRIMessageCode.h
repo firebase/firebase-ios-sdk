@@ -65,6 +65,7 @@ typedef NS_ENUM(NSInteger, FIRInstanceIDMessageCode) {
   kFIRInstanceIDMessageCodeService004 = 7004,
   kFIRInstanceIDMessageCodeService005 = 7005,
   kFIRInstanceIDMessageCodeService006 = 7006,
+  kFIRIntsanceIDInvalidNetworkSession = 7007,
   // FIRInstanceIDCheckinStore.m
   // DO NOT USE 8002, 8004 - 8008
   kFIRInstanceIDMessageCodeCheckinStore000 = 8000,

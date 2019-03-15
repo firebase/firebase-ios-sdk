@@ -172,7 +172,11 @@
 		6EDD3B6020BF25AE00C33877 /* FSTFuzzTestsPrincipal.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6EDD3B5E20BF24D000C33877 /* FSTFuzzTestsPrincipal.mm */; };
 		6F3CAC76D918D6B0917EDF92 /* query_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B9C261C26C5D311E1E3C0CB9 /* query_test.cc */; };
 		71719F9F1E33DC2100824A3D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 71719F9D1E33DC2100824A3D /* LaunchScreen.storyboard */; };
+		731541612214AFFA0037F4DC /* query_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 731541602214AFFA0037F4DC /* query_spec_test.json */; };
 		73866AA12082B0A5009BB4FF /* FIRArrayTransformTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 73866A9F2082B069009BB4FF /* FIRArrayTransformTests.mm */; };
+		73F1F73C2210F3D800E1F692 /* memory_index_manager_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = 73F1F7392210F3D800E1F692 /* memory_index_manager_test.mm */; };
+		73F1F73D2210F3D800E1F692 /* index_manager_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = 73F1F73B2210F3D800E1F692 /* index_manager_test.mm */; };
+		73F1F7412211FEF300E1F692 /* leveldb_index_manager_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = 73F1F7402211FEF300E1F692 /* leveldb_index_manager_test.mm */; };
 		73FE5066020EF9B2892C86BF /* hard_assert_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 444B7AB3F5A2929070CB1363 /* hard_assert_test.cc */; };
 		84DBE646DCB49305879D3500 /* nanopb_string_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 353EEE078EF3F39A9B7279F6 /* nanopb_string_test.cc */; };
 		873B8AEB1B1F5CCA007FD442 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 873B8AEA1B1F5CCA007FD442 /* Main.storyboard */; };
@@ -223,6 +227,7 @@
 		C80B10E79CDD7EF7843C321E /* type_traits_apple_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2A0CF41BA5AED6049B0BEB2C /* type_traits_apple_test.mm */; };
 		C8D3CE2343E53223E6487F2C /* Pods_Firestore_Example_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5918805E993304321A05E82B /* Pods_Firestore_Example_iOS.framework */; };
 		CA989C0E6020C372A62B7062 /* testutil.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54A0352820A3B3BD003E0143 /* testutil.cc */; };
+		D5B252EE3F4037405DB1ECE3 /* FIRNumericTransformTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = D5B25E7E7D6873CBA4571841 /* FIRNumericTransformTests.mm */; };
 		D5B25CBF07F65E885C9D68AB /* perf_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = D5B2593BCB52957D62F1C9D3 /* perf_spec_test.json */; };
 		D94A1862B8FB778225DB54A1 /* filesystem_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = F51859B394D01C0C507282F1 /* filesystem_test.cc */; };
 		DAFF0CF921E64AC30062958F /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DAFF0CF821E64AC30062958F /* AppDelegate.m */; };
@@ -489,7 +494,12 @@
 		6EDD3B5C20BF247500C33877 /* Firestore_FuzzTests_iOS-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Firestore_FuzzTests_iOS-Info.plist"; sourceTree = "<group>"; };
 		6EDD3B5E20BF24D000C33877 /* FSTFuzzTestsPrincipal.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTFuzzTestsPrincipal.mm; sourceTree = "<group>"; };
 		71719F9E1E33DC2100824A3D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		731541602214AFFA0037F4DC /* query_spec_test.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = query_spec_test.json; sourceTree = "<group>"; };
 		73866A9F2082B069009BB4FF /* FIRArrayTransformTests.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FIRArrayTransformTests.mm; sourceTree = "<group>"; };
+		73F1F7392210F3D800E1F692 /* memory_index_manager_test.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = memory_index_manager_test.mm; sourceTree = "<group>"; };
+		73F1F73A2210F3D800E1F692 /* index_manager_test.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = index_manager_test.h; sourceTree = "<group>"; };
+		73F1F73B2210F3D800E1F692 /* index_manager_test.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = index_manager_test.mm; sourceTree = "<group>"; };
+		73F1F7402211FEF300E1F692 /* leveldb_index_manager_test.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = leveldb_index_manager_test.mm; sourceTree = "<group>"; };
 		79507DF8378D3C42F5B36268 /* string_win_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = string_win_test.cc; sourceTree = "<group>"; };
 		84434E57CA72951015FC71BC /* Pods-Firestore_FuzzTests_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_FuzzTests_iOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_FuzzTests_iOS/Pods-Firestore_FuzzTests_iOS.debug.xcconfig"; sourceTree = "<group>"; };
 		873B8AEA1B1F5CCA007FD442 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = Main.storyboard; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -552,6 +562,7 @@
 		C8522DE226C467C54E6788D8 /* mutation_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = mutation_test.cc; sourceTree = "<group>"; };
 		D3CC3DC5338DCAF43A211155 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		D5B2593BCB52957D62F1C9D3 /* perf_spec_test.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = perf_spec_test.json; sourceTree = "<group>"; };
+		D5B25E7E7D6873CBA4571841 /* FIRNumericTransformTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FIRNumericTransformTests.mm; sourceTree = "<group>"; };
 		DAFF0CF521E64AC30062958F /* macOS_example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = macOS_example.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DAFF0CF721E64AC30062958F /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		DAFF0CF821E64AC30062958F /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -800,9 +811,13 @@
 		54995F70205B6E1A004EFFA0 /* local */ = {
 			isa = PBXGroup;
 			children = (
+				73F1F73A2210F3D800E1F692 /* index_manager_test.h */,
+				73F1F73B2210F3D800E1F692 /* index_manager_test.mm */,
+				73F1F7402211FEF300E1F692 /* leveldb_index_manager_test.mm */,
 				54995F6E205B6E12004EFFA0 /* leveldb_key_test.cc */,
 				332485C4DCC6BA0DBB5E31B7 /* leveldb_util_test.cc */,
 				F8043813A5D16963EC02B182 /* local_serializer_test.cc */,
+				73F1F7392210F3D800E1F692 /* memory_index_manager_test.mm */,
 				132E32997D781B896672D30A /* reference_set_test.cc */,
 			);
 			path = local;
@@ -1260,6 +1275,7 @@
 				54DA12A21F315EE100DD57A1 /* orderby_spec_test.json */,
 				D5B2593BCB52957D62F1C9D3 /* perf_spec_test.json */,
 				54DA12A31F315EE100DD57A1 /* persistence_spec_test.json */,
+				731541602214AFFA0037F4DC /* query_spec_test.json */,
 				3B843E4A1F3930A400548890 /* remote_store_spec_test.json */,
 				54DA12A41F315EE100DD57A1 /* resume_token_spec_test.json */,
 				54DA12A51F315EE100DD57A1 /* write_spec_test.json */,
@@ -1310,6 +1326,7 @@
 				5492E06A202154D500B64F25 /* FIRFieldsTests.mm */,
 				6161B5012047140400A99DBB /* FIRFirestoreSourceTests.mm */,
 				5492E06B202154D500B64F25 /* FIRListenerRegistrationTests.mm */,
+				D5B25E7E7D6873CBA4571841 /* FIRNumericTransformTests.mm */,
 				5492E069202154D500B64F25 /* FIRQueryTests.mm */,
 				5492E06E202154D600B64F25 /* FIRServerTimestampTests.mm */,
 				5492E071202154D600B64F25 /* FIRTypeTests.mm */,
@@ -1469,7 +1486,7 @@
 			attributes = {
 				CLASSPREFIX = FIR;
 				LastSwiftUpdateCheck = 0920;
-				LastUpgradeCheck = 0720;
+				LastUpgradeCheck = 1010;
 				ORGANIZATIONNAME = Google;
 				TargetAttributes = {
 					54C9EDF02040E16300A969CD = {
@@ -1575,6 +1592,7 @@
 				54DA12AC1F315EE100DD57A1 /* orderby_spec_test.json in Resources */,
 				D5B25CBF07F65E885C9D68AB /* perf_spec_test.json in Resources */,
 				54DA12AD1F315EE100DD57A1 /* persistence_spec_test.json in Resources */,
+				731541612214AFFA0037F4DC /* query_spec_test.json in Resources */,
 				3B843E4C1F3A182900548890 /* remote_store_spec_test.json in Resources */,
 				54DA12AE1F315EE100DD57A1 /* resume_token_spec_test.json in Resources */,
 				54DA12AF1F315EE100DD57A1 /* write_spec_test.json in Resources */,
@@ -2066,13 +2084,16 @@
 				54511E8E209805F8005BD28F /* hashing_test.cc in Sources */,
 				B69CF3F12227386500B281C8 /* hashing_test_apple.mm in Sources */,
 				618BBEB020B89AAC00B5BCE7 /* http.pb.cc in Sources */,
+				73F1F73D2210F3D800E1F692 /* index_manager_test.mm in Sources */,
 				54A0353520A3D8CB003E0143 /* iterator_adaptors_test.cc in Sources */,
 				618BBEAE20B89AAC00B5BCE7 /* latlng.pb.cc in Sources */,
+				73F1F7412211FEF300E1F692 /* leveldb_index_manager_test.mm in Sources */,
 				54995F6F205B6E12004EFFA0 /* leveldb_key_test.cc in Sources */,
 				BEE0294A23AB993E5DE0E946 /* leveldb_util_test.cc in Sources */,
 				020AFD89BB40E5175838BB76 /* local_serializer_test.cc in Sources */,
 				54C2294F1FECABAE007D065B /* log_test.cc in Sources */,
 				618BBEA720B89AAC00B5BCE7 /* maybe_document.pb.cc in Sources */,
+				73F1F73C2210F3D800E1F692 /* memory_index_manager_test.mm in Sources */,
 				618BBEA820B89AAC00B5BCE7 /* mutation.pb.cc in Sources */,
 				32F022CB75AEE48CDDAF2982 /* mutation_test.cc in Sources */,
 				84DBE646DCB49305879D3500 /* nanopb_string_test.cc in Sources */,
@@ -2145,6 +2166,7 @@
 				5492E073202154D600B64F25 /* FIRFieldsTests.mm in Sources */,
 				6161B5032047140C00A99DBB /* FIRFirestoreSourceTests.mm in Sources */,
 				5492E074202154D600B64F25 /* FIRListenerRegistrationTests.mm in Sources */,
+				D5B252EE3F4037405DB1ECE3 /* FIRNumericTransformTests.mm in Sources */,
 				5492E072202154D600B64F25 /* FIRQueryTests.mm in Sources */,
 				5492E077202154D600B64F25 /* FIRServerTimestampTests.mm in Sources */,
 				5492E07A202154D600B64F25 /* FIRTypeTests.mm in Sources */,
@@ -2479,19 +2501,32 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
@@ -2521,18 +2556,31 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
 				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -2543,6 +2591,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				OTHER_CFLAGS = "";
 				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};

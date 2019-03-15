@@ -21,6 +21,7 @@
 #import <FirebaseCore/FIROptions.h>
 #import <GoogleUtilities/GULSwizzler.h>
 #import "DynamicLinks/FIRDLRetrievalProcessFactory.h"
+#import "DynamicLinks/FIRDLRetrievalProcessResult+Private.h"
 #import "DynamicLinks/FIRDynamicLink+Private.h"
 #import "DynamicLinks/FIRDynamicLinkNetworking+Private.h"
 #import "DynamicLinks/FIRDynamicLinks+FirstParty.h"
@@ -965,6 +966,49 @@ static void UnswizzleDynamicLinkNetworking() {
 
   [mockService verify];
   [mockService stopMocking];
+}
+
+- (void)testRetrievalProcessResultURLContainsAllParametersPassedToDynamicLinkInitializer {
+  NSDictionary<NSString *, NSString *> *linkParameters = @{
+    @"deep_link_id" : @"https://mmaksym.com/test-app1",
+    @"match_message" : @"Link is uniquely matched for this device.",
+    @"match_type" : @"unique",
+    @"utm_campaign" : @"Maksym M Test",
+    @"utm_medium" : @"test_medium",
+    @"utm_source" : @"test_source",
+    @"a_parameter" : @"a_value"
+  };
+
+  FIRDynamicLink *dynamicLink =
+      [[FIRDynamicLink alloc] initWithParametersDictionary:linkParameters];
+  FIRDLRetrievalProcessResult *result =
+      [[FIRDLRetrievalProcessResult alloc] initWithDynamicLink:dynamicLink
+                                                         error:nil
+                                                       message:nil
+                                                   matchSource:nil];
+
+  NSURL *customSchemeURL = [result URLWithCustomURLScheme:@"scheme"];
+  XCTAssertNotNil(customSchemeURL);
+
+  // Validate URL parameters
+  NSURLComponents *urlComponents = [NSURLComponents componentsWithURL:customSchemeURL
+                                              resolvingAgainstBaseURL:NO];
+  XCTAssertNotNil(urlComponents);
+  XCTAssertEqualObjects(urlComponents.scheme, @"scheme");
+
+  NSMutableDictionary<NSString *, NSString *> *notEncodedParameters = [linkParameters mutableCopy];
+
+  for (NSURLQueryItem *queryItem in urlComponents.queryItems) {
+    NSString *expectedValue = notEncodedParameters[queryItem.name];
+    XCTAssertNotNil(expectedValue, @"Extra parameter encoded: %@ = %@", queryItem.name,
+                    queryItem.value);
+
+    XCTAssertEqualObjects(queryItem.value, expectedValue);
+    [notEncodedParameters removeObjectForKey:queryItem.name];
+  }
+
+  XCTAssertEqual(notEncodedParameters.count, 0, @"The parameters must have been encoded: %@",
+                 notEncodedParameters);
 }
 
 - (void)test_multipleRequestsToRetrievePendingDeepLinkShouldNotCrash {

@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+import Foundation
 
-#import <GoogleUtilities/GULLoggerSystem.h>
-
-NS_ASSUME_NONNULL_BEGIN
-
-@interface GULASLLogger : NSObject <GULLoggerSystem>
-@end
-
-NS_ASSUME_NONNULL_END
+/// Utilities to simplify URL manipulation.
+public extension URL {
+  /// Appends each item in the array as a component to the existing URL.
+  func appendingPathComponents(_ components: [String]) -> URL {
+    // Append multiple path components in a single call to prevent long lines of multiple calls.
+    var result = self
+    components.forEach({ result.appendPathComponent($0) })
+    return result
+  }
+}

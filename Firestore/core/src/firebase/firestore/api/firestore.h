@@ -39,6 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class FIRCollectionReference;
 @class FIRFirestore;
 @class FIRFirestoreSettings;
+@class FIRQuery;
 @class FIRTransaction;
 @class FIRWriteBatch;
 @class FSTFirestoreClient;
@@ -88,12 +89,12 @@ class Firestore {
 
   FIRCollectionReference* GetCollection(absl::string_view collection_path);
   DocumentReference GetDocument(absl::string_view document_path);
-  FIRWriteBatch* GetBatch(FIRFirestore* firestore);
+  FIRWriteBatch* GetBatch();
+  FIRQuery* GetCollectionGroup(NSString* collection_id);
 
   void RunTransaction(TransactionBlock update_block,
                       dispatch_queue_t queue,
-                      ResultOrErrorCompletion completion,
-                      FIRFirestore* firestore);
+                      ResultOrErrorCompletion completion);
 
   void Shutdown(ErrorCompletion completion);
 

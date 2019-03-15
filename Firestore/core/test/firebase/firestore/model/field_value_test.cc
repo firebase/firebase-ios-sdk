@@ -189,7 +189,7 @@ TEST(FieldValue, ArrayType) {
 }
 
 TEST(FieldValue, ObjectType) {
-  const FieldValue empty = FieldValue::FromMap({});
+  const FieldValue empty = FieldValue::FromMap(ObjectValue::Empty());
   ObjectValue::Map object{{"null", FieldValue::Null()},
                           {"true", FieldValue::True()},
                           {"false", FieldValue::False()}};
@@ -448,7 +448,7 @@ TEST(FieldValue, CompareMixedType) {
   const FieldValue geo_point_value = FieldValue::FromGeoPoint({1, 2});
   const FieldValue array_value =
       FieldValue::FromArray(std::vector<FieldValue>());
-  const FieldValue object_value = FieldValue::FromMap({});
+  const FieldValue object_value = FieldValue::EmptyObject();
   EXPECT_TRUE(null_value < true_value);
   EXPECT_TRUE(true_value < number_value);
   EXPECT_TRUE(number_value < timestamp_value);
@@ -578,7 +578,7 @@ TEST(FieldValue, IsSmallish) {
   // We expect the FV to use 4 bytes to track the type of the union, plus 8
   // bytes for the union contents themselves. The other 4 is for padding. We
   // want to keep FV as small as possible.
-  EXPECT_LE(sizeof(FieldValue), 2 * sizeof(void*));
+  EXPECT_LE(sizeof(FieldValue), 2 * sizeof(int64_t));
 }
 
 }  //  namespace model

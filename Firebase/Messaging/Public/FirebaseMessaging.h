@@ -15,3 +15,4 @@
  */
 
 #import "FIRMessaging.h"
+#import "FIRMessagingExtensionHelper.h"

@@ -27,6 +27,8 @@
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
+#include "Firestore/core/src/firebase/firestore/local/index_manager.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_index_manager.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_migrations.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_mutation_queue.h"
@@ -59,8 +61,10 @@ using firebase::firestore::FirestoreErrorCode;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::local::ConvertStatus;
+using firebase::firestore::local::IndexManager;
 using firebase::firestore::local::LevelDbDocumentMutationKey;
 using firebase::firestore::local::LevelDbDocumentTargetKey;
+using firebase::firestore::local::LevelDbIndexManager;
 using firebase::firestore::local::LevelDbMigrations;
 using firebase::firestore::local::LevelDbMutationKey;
 using firebase::firestore::local::LevelDbMutationQueue;
@@ -279,6 +283,7 @@ static const char *kReservedPathComponent = "firestore";
   std::unique_ptr<LevelDbTransaction> _transaction;
   std::unique_ptr<leveldb::DB> _ptr;
   std::unique_ptr<LevelDbRemoteDocumentCache> _documentCache;
+  std::unique_ptr<LevelDbIndexManager> _indexManager;
   FSTTransactionRunner _transactionRunner;
   FSTLevelDBLRUDelegate *_referenceDelegate;
   std::unique_ptr<LevelDbQueryCache> _queryCache;
@@ -351,6 +356,7 @@ static const char *kReservedPathComponent = "firestore";
     _serializer = serializer;
     _queryCache = absl::make_unique<LevelDbQueryCache>(self, _serializer);
     _documentCache = absl::make_unique<LevelDbRemoteDocumentCache>(self, _serializer);
+    _indexManager = absl::make_unique<LevelDbIndexManager>(self);
     _referenceDelegate = [[FSTLevelDBLRUDelegate alloc] initWithPersistence:self
                                                                   lruParams:lruParams];
     _transactionRunner.SetBackingPersistence(self);
@@ -371,8 +377,8 @@ static const char *kReservedPathComponent = "firestore";
   }
   HARD_ASSERT(iter->status().ok(), "Failed to iterate leveldb directory: %s",
               iter->status().error_message().c_str());
-  HARD_ASSERT(count <= SIZE_MAX, "Overflowed counting bytes cached");
-  return count;
+  HARD_ASSERT(count >= 0 && count <= SIZE_MAX, "Overflowed counting bytes cached");
+  return static_cast<size_t>(count);
 }
 
 - (const std::set<std::string> &)users {
@@ -479,6 +485,10 @@ static const char *kReservedPathComponent = "firestore";
 
 - (RemoteDocumentCache *)remoteDocumentCache {
   return _documentCache.get();
+}
+
+- (IndexManager *)indexManager {
+  return _indexManager.get();
 }
 
 - (void)startTransaction:(absl::string_view)label {

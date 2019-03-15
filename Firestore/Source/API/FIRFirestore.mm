@@ -206,7 +206,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 }
 
 - (FIRWriteBatch *)batch {
-  return _firestore->GetBatch(self);
+  return _firestore->GetBatch();
 }
 
 - (void)runTransactionWithBlock:(id _Nullable (^)(FIRTransaction *, NSError **))updateBlock
@@ -221,7 +221,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
     FSTThrowInvalidArgument(@"Transaction completion block cannot be nil.");
   }
 
-  _firestore->RunTransaction(updateBlock, queue, completion, self);
+  _firestore->RunTransaction(updateBlock, queue, completion);
 }
 
 - (void)runTransactionWithBlock:(id _Nullable (^)(FIRTransaction *, NSError **error))updateBlock
@@ -272,6 +272,18 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 
 + (FIRFirestore *)recoverFromFirestore:(Firestore *)firestore {
   return (__bridge FIRFirestore *)firestore->extension();
+}
+
+- (FIRQuery *)collectionGroupWithID:(NSString *)collectionID {
+  if (!collectionID) {
+    FSTThrowInvalidArgument(@"Collection ID cannot be nil.");
+  }
+  if ([collectionID containsString:@"/"]) {
+    FSTThrowInvalidArgument(
+                            @"Invalid collection ID (%@). Collection IDs must not contain / in them.", collectionID);
+  }
+  
+  return _firestore->GetCollectionGroup(collectionID);
 }
 
 - (void)shutdownWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
