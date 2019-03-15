@@ -36,7 +36,7 @@ public enum Subspec: String, CaseIterable {
   case mlModelInterpreter = "MLModelInterpreter"
   case mlNaturalLanguage = "MLNaturalLanguage"
   case mlNLLanguageID = "MLNLLanguageID"
-  case nlNLSmartReply = "MLNLSmartReply"
+  case mlNLSmartReply = "MLNLSmartReply"
   case mlVision = "MLVision"
   case mlVisionBarcodeModel = "MLVisionBarcodeModel"
   case mlVisionFaceModel = "MLVisionFaceModel"
