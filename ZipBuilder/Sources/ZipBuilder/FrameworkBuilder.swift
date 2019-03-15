@@ -85,11 +85,11 @@ struct FrameworkBuilder {
 
     // Get the CocoaPods cache to see if we can pull from any frameworks already built.
 //    let podsCache = CocoaPodUtils.listPodCache(inDir: projectDir)
-
+//
 //    guard let cachedVersions = podsCache[podName] else {
 //      fatalError("Cannot find a pod cache for framework \(podName).")
 //    }
-
+//
 //    guard let podInfo = cachedVersions[version] else {
 //      fatalError("""
 //      Cannot find a pod cache for framework \(podName) at version \(version).
@@ -107,7 +107,7 @@ struct FrameworkBuilder {
     var cachedFrameworkRoot: URL
     do {
       let cacheDir = try fileManager.firebaseCacheDirectory()
-      cachedFrameworkRoot = cacheDir.appendingPathComponents([podName, version])
+      cachedFrameworkRoot = cacheDir.appendingPathComponents([podName, version, podName])
       if let cacheKey = cacheKey {
         cachedFrameworkRoot.appendPathComponent(cacheKey)
       }
