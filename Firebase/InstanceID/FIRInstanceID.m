@@ -219,6 +219,10 @@ static FIRInstanceID *gInstanceID;
     }
     [self defaultTokenWithHandler:^(NSString *_Nullable token, NSError *_Nullable error) {
       if (handler) {
+        if (error) {
+          handler(nil, error);
+          return;
+        }
         result.token = token;
         handler(result, nil);
       }
@@ -918,7 +922,7 @@ static FIRInstanceID *gInstanceID;
                                 @"Successfully fetched default token.");
       }
       // Post the required notifications if somebody is waiting.
-      if (shouldNotifyHandler && handler) {
+      if (shouldNotifyHandler) {
         FIRInstanceIDLoggerDebug(kFIRInstanceIDMessageCodeInstanceID008, @"Got default token %@",
                                  token);
         NSString *previousFCMToken = self.defaultFCMToken;
@@ -933,6 +937,8 @@ static FIRInstanceID *gInstanceID;
           [[NSNotificationQueue defaultQueue] enqueueNotification:tokenRefreshNotification
                                                      postingStyle:NSPostASAP];
         }
+      }
+      if (handler) {
         handler(token, nil);
       }
     }
