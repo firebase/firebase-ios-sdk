@@ -298,24 +298,21 @@ static FIRInstanceID *gInstanceID;
     return;
   }
 
-  [self tokenWithAuthorizedEntity:authorizedEntity
-                            scope:scope
-                          options:options]
-  // Transform result to handler to keep compatibility with old API
-  .then(^id(NSString *token) {
-    handler(token, nil);
-    return token;
-  })
-  .catch(^(NSError *error) {
-    handler(nil, error);
-  });
+  [self tokenWithAuthorizedEntity:authorizedEntity scope:scope options:options]
+      // Transform result to handler to keep compatibility with old API
+      .then(^id(NSString *token) {
+        handler(token, nil);
+        return token;
+      })
+      .catch(^(NSError *error) {
+        handler(nil, error);
+      });
 }
 
 - (FBLPromise<NSString *> *)tokenWithAuthorizedEntity:(NSString *)authorizedEntity
-                                              scope:(NSString *)scope
-                                            options:(NSDictionary *)options {
-
-  FBLPromise<NSString *> *prepareOptions = [FBLPromise do:^id _Nullable{
+                                                scope:(NSString *)scope
+                                              options:(NSDictionary *)options {
+  FBLPromise<NSString *> *prepareOptions = [FBLPromise do:^id _Nullable {
     NSMutableDictionary *tokenOptions = [NSMutableDictionary dictionary];
     if (options.count) {
       [tokenOptions addEntriesFromDictionary:options];
@@ -362,21 +359,19 @@ static FIRInstanceID *gInstanceID;
     return tokenOptions;
   }];
 
-//  FIRInstanceIDAuthService *authService = self.tokenManager.authService;
-
   return prepareOptions
-  .then(^FBLPromise<FIRInstanceIDCheckinPreferences *> *(NSDictionary *tokenOptions) {
-    return [self fetchCheckinInfo].then(^id(id result) {
-      // We are interested in only [authService fetchCheckinInfo] success or failure
-      // On success just pass tokenOptions further
-      return tokenOptions;
-    });
-  })
-  .then(^id(NSDictionary *tokenOptions) {
-    return [self fetchTokenWithAuthorizedEntity:authorizedEntity
-                                          scope:scope
-                                   tokenOptions:tokenOptions];
-  });
+      .then(^FBLPromise<FIRInstanceIDCheckinPreferences *> *(NSDictionary *tokenOptions) {
+        return [self fetchCheckinInfo].then(^id(id result) {
+          // We are interested in only [authService fetchCheckinInfo] success or failure
+          // On success just pass tokenOptions further
+          return tokenOptions;
+        });
+      })
+      .then(^id(NSDictionary *tokenOptions) {
+        return [self fetchTokenWithAuthorizedEntity:authorizedEntity
+                                              scope:scope
+                                       tokenOptions:tokenOptions];
+      });
 }
 
 - (FBLPromise<NSString *> *)fetchTokenWithAuthorizedEntity:(NSString *)authorizedEntity
@@ -385,66 +380,70 @@ static FIRInstanceID *gInstanceID;
   return [self fetchCachedTokenWithAuthorizedEntity:authorizedEntity
                                               scope:scope
                                        tokenOptions:tokenOptions]
-  .recover(^id(id error) {
-    return [self fetchNewTokenWithAuthorizedEntity:authorizedEntity
-                                             scope:scope
-                                      tokenOptions:tokenOptions];
-  });
+      .recover(^id(id error) {
+        return [self fetchNewTokenWithAuthorizedEntity:authorizedEntity
+                                                 scope:scope
+                                          tokenOptions:tokenOptions];
+      });
 }
 
 - (FBLPromise<NSString *> *)fetchCachedTokenWithAuthorizedEntity:(NSString *)authorizedEntity
                                                            scope:(NSString *)scope
                                                     tokenOptions:(NSDictionary *)tokenOptions {
   return [FBLPromise do:^id {
-    return [self.tokenManager cachedTokenInfoWithAuthorizedEntity:authorizedEntity scope:scope];
-  }]
-  .validate(^BOOL(FIRInstanceIDTokenInfo *cachedTokenInfo) {
-    if (cachedTokenInfo == nil) {
-      return NO;
-    }
+           return [self.tokenManager cachedTokenInfoWithAuthorizedEntity:authorizedEntity
+                                                                   scope:scope];
+         }]
+      .validate(^BOOL(FIRInstanceIDTokenInfo *cachedTokenInfo) {
+        if (cachedTokenInfo == nil) {
+          return NO;
+        }
 
-    FIRInstanceIDAPNSInfo *optionsAPNSInfo =
-        [[FIRInstanceIDAPNSInfo alloc] initWithTokenOptionsDictionary:tokenOptions];
-    // If either the APNs info is missing in both, or if they are an exact match, then we can
-    // use this cached token.
-    if ((!cachedTokenInfo.APNSInfo && !optionsAPNSInfo) ||
-        [cachedTokenInfo.APNSInfo isEqualToAPNSInfo:optionsAPNSInfo]) {
-      return YES;
-    }
-    return NO;
-  })
-  .then(^id(FIRInstanceIDTokenInfo *cachedTokenInfo) {
-    return cachedTokenInfo.token;
-  });
+        FIRInstanceIDAPNSInfo *optionsAPNSInfo =
+            [[FIRInstanceIDAPNSInfo alloc] initWithTokenOptionsDictionary:tokenOptions];
+        // If either the APNs info is missing in both, or if they are an exact match, then we can
+        // use this cached token.
+        if ((!cachedTokenInfo.APNSInfo && !optionsAPNSInfo) ||
+            [cachedTokenInfo.APNSInfo isEqualToAPNSInfo:optionsAPNSInfo]) {
+          return YES;
+        }
+        return NO;
+      })
+      .then(^id(FIRInstanceIDTokenInfo *cachedTokenInfo) {
+        return cachedTokenInfo.token;
+      });
 }
 
 - (FBLPromise<NSString *> *)fetchNewTokenWithAuthorizedEntity:(NSString *)authorizedEntity
-                                               scope:(NSString *)scope
-                                        tokenOptions:(NSDictionary *)tokenOptions {
-  return [FBLPromise wrapObjectOrErrorCompletion:^(FBLPromiseObjectOrErrorCompletion  _Nonnull handler) {
-    [self asyncLoadKeyPairWithHandler:[handler copy]];
-  }]
-  .recover(^id(NSError *error) {
-    // Just transform and re-throw the error
-    return [NSError errorWithFIRInstanceIDErrorCode:kFIRInstanceIDErrorCodeInvalidKeyPair];
-  })
-  .then(^id(FIRInstanceIDKeyPair *keyPair) {
-    // I had to wrap it here, but it can be Promise based API after the refactoring
-    return [FBLPromise wrapObjectOrErrorCompletion:^(FBLPromiseObjectOrErrorCompletion  _Nonnull handler) {
-      [self.tokenManager fetchNewTokenWithAuthorizedEntity:[authorizedEntity copy]
-                                        scope:[scope copy]
-                                      keyPair:keyPair
-                                      options:tokenOptions
-                                      handler:handler];
-    }];
-  });
+                                                        scope:(NSString *)scope
+                                                 tokenOptions:(NSDictionary *)tokenOptions {
+  return [FBLPromise
+             wrapObjectOrErrorCompletion:^(FBLPromiseObjectOrErrorCompletion _Nonnull handler) {
+               [self asyncLoadKeyPairWithHandler:[handler copy]];
+             }]
+      .recover(^id(NSError *error) {
+        // Just transform and re-throw the error
+        return [NSError errorWithFIRInstanceIDErrorCode:kFIRInstanceIDErrorCodeInvalidKeyPair];
+      })
+      .then(^id(FIRInstanceIDKeyPair *keyPair) {
+        // I had to wrap it here, but it can be Promise based API after the refactoring
+        return [FBLPromise
+            wrapObjectOrErrorCompletion:^(FBLPromiseObjectOrErrorCompletion _Nonnull handler) {
+              [self.tokenManager fetchNewTokenWithAuthorizedEntity:[authorizedEntity copy]
+                                                             scope:[scope copy]
+                                                           keyPair:keyPair
+                                                           options:tokenOptions
+                                                           handler:handler];
+            }];
+      });
 }
 
 // I had to duplicate it here to keep compatibility with FIRInstanceIDTests
 - (FBLPromise<FIRInstanceIDCheckinPreferences *> *)fetchCheckinInfo {
-  return [FBLPromise wrapObjectOrErrorCompletion:^(FBLPromiseObjectOrErrorCompletion  _Nonnull handler) {
-    [self.tokenManager.authService fetchCheckinInfoWithHandler:handler];
-  }];
+  return [FBLPromise
+      wrapObjectOrErrorCompletion:^(FBLPromiseObjectOrErrorCompletion _Nonnull handler) {
+        [self.tokenManager.authService fetchCheckinInfoWithHandler:handler];
+      }];
 }
 
 - (void)deleteTokenWithAuthorizedEntity:(NSString *)authorizedEntity

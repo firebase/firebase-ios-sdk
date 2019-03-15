@@ -1046,15 +1046,15 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
     [apnsServerTypeExpectation fulfill];
     self.newTokenCompletion(kToken, nil);
   }] fetchNewTokenWithAuthorizedEntity:kAuthorizedEntity
-   scope:kScope
-   keyPair:[OCMArg any]
-   options:[OCMArg checkWithBlock:^BOOL(NSDictionary *options) {
-    return options[kFIRInstanceIDTokenOptionsAPNSIsSandboxKey] != nil;
-  }]
-   handler:[OCMArg checkWithBlock:^BOOL(id obj) {
-    self.newTokenCompletion = obj;
-    return obj != nil;
-  }]];
+                                 scope:kScope
+                               keyPair:[OCMArg any]
+                               options:[OCMArg checkWithBlock:^BOOL(NSDictionary *options) {
+                                 return options[kFIRInstanceIDTokenOptionsAPNSIsSandboxKey] != nil;
+                               }]
+                               handler:[OCMArg checkWithBlock:^BOOL(id obj) {
+                                 self.newTokenCompletion = obj;
+                                 return obj != nil;
+                               }]];
 
   [self.instanceID tokenWithAuthorizedEntity:kAuthorizedEntity
                                        scope:kScope
