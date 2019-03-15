@@ -181,10 +181,10 @@ if ! git diff --quiet -- Firestore/Example/Firestore.xcodeproj; then
 fi
 
 # Check lint errors.
-#
-# Keep in sync with the checks stage in .travis.yml
-scripts/check_whitespace.sh
-scripts/check_copyright.sh
-scripts/check_no_module_imports.sh
-scripts/check_test_inclusion.py
-scripts/lint.sh "${START_SHA}"
+"${top_dir}/scripts/check_whitespace.sh"
+"${top_dir}/scripts/check_copyright.sh"
+"${top_dir}/scripts/check_no_module_imports.sh"
+"${top_dir}/scripts/check_test_inclusion.py"
+
+# Google C++ style
+"${top_dir}/scripts/lint.sh" "${START_SHA}"
