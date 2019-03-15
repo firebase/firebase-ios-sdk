@@ -336,9 +336,10 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
 
     if ([maybeDoc isKindOfClass:[FSTDocument class]]) {
       FSTDocument *document = (FSTDocument *)maybeDoc;
-      maybe_snapshot = DocumentSnapshot{doc.firestore(), doc.key(), document,
-                                        /*from_cache=*/true,
-                                        /*has_pending_writes=*/document.hasLocalMutations};
+      maybe_snapshot =
+          DocumentSnapshot{doc.firestore(), doc.key(), document,
+                           /*from_cache=*/true,
+                           /*has_pending_writes=*/static_cast<bool>(document.hasLocalMutations)};
     } else if ([maybeDoc isKindOfClass:[FSTDeletedDocument class]]) {
       maybe_snapshot = DocumentSnapshot{doc.firestore(), doc.key(), nil,
                                         /*from_cache=*/true,
