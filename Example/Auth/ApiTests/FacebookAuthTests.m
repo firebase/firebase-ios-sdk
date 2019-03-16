@@ -36,7 +36,7 @@ static NSString *const kFacebookTestAccountName = KFACEBOOK_USER_NAME;
 
 @implementation FacebookAuthTests
 
-- (void)testSignInWithFaceboook {
+- (void)DISABLE_testSignInWithFaceboook {
   FIRAuth *auth = [FIRAuth auth];
   if (!auth) {
     XCTFail(@"Could not obtain auth object.");
@@ -76,7 +76,7 @@ static NSString *const kFacebookTestAccountName = KFACEBOOK_USER_NAME;
   [self deleteFacebookTestingAccountbyId:facebookAccountId];
 }
 
-- (void)testLinkAnonymousAccountToFacebookAccount {
+- (void)DISABLE_testLinkAnonymousAccountToFacebookAccount {
   FIRAuth *auth = [FIRAuth auth];
   if (!auth) {
     XCTFail(@"Could not obtain auth object.");
