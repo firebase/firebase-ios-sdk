@@ -183,8 +183,8 @@ NS_ASSUME_NONNULL_BEGIN
     ViewSnapshot snapshot = maybe_snapshot.ValueOrDie();
 
     FIRSnapshotMetadata *metadata =
-        [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:snapshot.has_pending_writes()
-                                                     fromCache:snapshot.from_cache()];
+        [[FIRSnapshotMetadata alloc] initWithPendingWrites:snapshot.has_pending_writes()
+                                                 fromCache:snapshot.from_cache()];
 
     listener([FIRQuerySnapshot snapshotWithFirestore:firestore
                                        originalQuery:query

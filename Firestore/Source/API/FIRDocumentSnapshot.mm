@@ -68,6 +68,8 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
 
 @implementation FIRDocumentSnapshot {
   DocumentSnapshot _snapshot;
+
+  FIRSnapshotMetadata *_cachedMetadata;
 }
 
 - (instancetype)initWithSnapshot:(DocumentSnapshot &&)snapshot {
@@ -80,10 +82,20 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
 - (instancetype)initWithFirestore:(Firestore *)firestore
                       documentKey:(DocumentKey)documentKey
                          document:(nullable FSTDocument *)document
-                        fromCache:(bool)fromCache
-                 hasPendingWrites:(bool)pendingWrites {
-  DocumentSnapshot wrapped{firestore, std::move(documentKey), document, fromCache, pendingWrites};
+                         metadata:(SnapshotMetadata)metadata {
+  DocumentSnapshot wrapped{firestore, std::move(documentKey), document, std::move(metadata)};
   return [self initWithSnapshot:std::move(wrapped)];
+}
+
+- (instancetype)initWithFirestore:(Firestore *)firestore
+                      documentKey:(DocumentKey)documentKey
+                         document:(nullable FSTDocument *)document
+                        fromCache:(bool)fromCache
+                 hasPendingWrites:(bool)hasPendingWrites {
+  return [self initWithFirestore:firestore
+                     documentKey:std::move(documentKey)
+                        document:document
+                        metadata:SnapshotMetadata(hasPendingWrites, fromCache)];
 }
 
 // NSObject Methods
@@ -120,7 +132,10 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
 @dynamic metadata;
 
 - (FIRSnapshotMetadata *)metadata {
-  return _snapshot.GetMetadata();
+  if (!_cachedMetadata) {
+    _cachedMetadata = [[FIRSnapshotMetadata alloc] initWithMetadata:_snapshot.metadata()];
+  }
+  return _cachedMetadata;
 }
 
 - (nullable NSDictionary<NSString *, id> *)data {

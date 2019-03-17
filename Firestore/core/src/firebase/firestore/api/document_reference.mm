@@ -18,8 +18,6 @@
 
 #include <memory>
 
-#import "FIRSnapshotMetadata.h"
-
 #import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRListenerRegistration+Internal.h"
@@ -150,7 +148,7 @@ void DocumentReference::GetDocument(
         dispatch_semaphore_wait(registered, DISPATCH_TIME_FOREVER);
         [*listener_registration remove];
 
-        if (!snapshot.exists() && snapshot.GetMetadata().fromCache) {
+        if (!snapshot.exists() && snapshot.metadata().from_cache()) {
           // TODO(dimond): Reconsider how to raise missing documents when
           // offline. If we're online and the document doesn't exist then we
           // call the completion with a document with document.exists set to
@@ -162,7 +160,7 @@ void DocumentReference::GetDocument(
           completion(
               Status{FirestoreErrorCode::Unavailable,
                      "Failed to get document because the client is offline."});
-        } else if (snapshot.exists() && snapshot.GetMetadata().fromCache &&
+        } else if (snapshot.exists() && snapshot.metadata().from_cache() &&
                    source == FIRFirestoreSourceServer) {
           completion(Status{FirestoreErrorCode::Unavailable,
                             "Failed to get document from server. (However, "

@@ -104,8 +104,8 @@ NS_ASSUME_NONNULL_BEGIN
                             /*from_cache=*/false,
                             /*sync_state_changed=*/true,
                             /*excludes_metadata_changes=*/false};
-  FIRSnapshotMetadata *metadata = [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:NO
-                                                                               fromCache:NO];
+  FIRSnapshotMetadata *metadata = [[FIRSnapshotMetadata alloc] initWithPendingWrites:NO
+                                                                           fromCache:NO];
   FIRQuerySnapshot *snapshot = [FIRQuerySnapshot snapshotWithFirestore:firestore
                                                          originalQuery:query
                                                               snapshot:std::move(viewSnapshot)

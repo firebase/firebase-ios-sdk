@@ -373,8 +373,8 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
 
     ViewSnapshot snapshot = std::move(viewChange.snapshot).value();
     FIRSnapshotMetadata *metadata =
-        [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:snapshot.has_pending_writes()
-                                                     fromCache:snapshot.from_cache()];
+        [[FIRSnapshotMetadata alloc] initWithPendingWrites:snapshot.has_pending_writes()
+                                                 fromCache:snapshot.from_cache()];
 
     FIRQuerySnapshot *result = [FIRQuerySnapshot snapshotWithFirestore:query.firestore
                                                          originalQuery:query.query
