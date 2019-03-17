@@ -489,7 +489,7 @@ int GetDocumentViewChangeTypePosition(DocumentViewChange::Type changeType) {
   // TODO(klimt): Do this incrementally so that it's not quadratic when updating many documents.
   DocumentKeySet oldLimboDocuments = std::move(_limboDocuments);
   _limboDocuments = DocumentKeySet{};
-  for (FSTDocument *doc in self.documentSet.documentEnumerator) {
+  for (FSTDocument *doc : self.documentSet.documents) {
     if ([self shouldBeLimboDocumentKey:doc.key]) {
       _limboDocuments = _limboDocuments.insert(doc.key);
     }

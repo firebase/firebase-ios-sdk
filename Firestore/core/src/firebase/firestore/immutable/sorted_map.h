@@ -204,7 +204,7 @@ class SortedMap : public impl::SortedMapBase {
         tree_type result = tree_.erase(key);
         if (result.empty()) {
           // Flip back to the array representation for empty arrays.
-          return SortedMap{};
+          return SortedMap{comparator()};
         }
         return SortedMap{std::move(result)};
     }

@@ -158,7 +158,7 @@ ViewSnapshot ViewSnapshot::FromInitialDocuments(
     bool from_cache,
     bool excludes_metadata_changes) {
   std::vector<DocumentViewChange> view_changes;
-  for (FSTDocument* doc in documents.documentEnumerator) {
+  for (FSTDocument* doc : documents.documents) {
     view_changes.emplace_back(doc, DocumentViewChange::Type::kAdded);
   }
 

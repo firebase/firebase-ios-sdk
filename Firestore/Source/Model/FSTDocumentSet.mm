@@ -21,33 +21,42 @@
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/third_party/Immutable/FSTImmutableSortedSet.h"
 
+#include "Firestore/core/src/firebase/firestore/immutable/sorted_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/util/objc_compatibility.h"
+#include "Firestore/core/src/firebase/firestore/util/range.h"
 
+namespace objc = firebase::firestore::util::objc;
+using firebase::firestore::immutable::SortedSet;
 using firebase::firestore::model::DocumentMap;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::util::range;
 
 NS_ASSUME_NONNULL_BEGIN
+
+using firebase::firestore::model::DocumentSetComparator;
 
 /**
  * The type of the main collection of documents in an FSTDocumentSet.
  * @see FSTDocumentSet#sortedSet
  */
-typedef FSTImmutableSortedSet<FSTDocument *> SetType;
+using SetType = SortedSet<FSTDocument *, DocumentSetComparator>;
 
 @interface FSTDocumentSet ()
 
 - (instancetype)initWithIndex:(DocumentMap &&)index
-                          set:(SetType *)sortedSet NS_DESIGNATED_INITIALIZER;
+                          set:(SetType &&)sortedSet NS_DESIGNATED_INITIALIZER;
 
-/**
- * The main collection of documents in the FSTDocumentSet. The documents are ordered by a
- * comparator supplied from a query. The SetType collection exists in addition to the index to
- * allow ordered traversal of the FSTDocumentSet.
- */
-@property(nonatomic, strong, readonly) SetType *sortedSet;
 @end
 
 @implementation FSTDocumentSet {
+  /**
+   * The main collection of documents in the FSTDocumentSet. The documents are ordered by a
+   * comparator supplied from a query. The SetType collection exists in addition to the index to
+   * allow ordered traversal of the FSTDocumentSet.
+   */
+  SetType _sortedSet;
+
   /**
    * An index of the documents in the FSTDocumentSet, indexed by document key. The index
    * exists to guarantee the uniqueness of document keys in the set and to allow lookup and removal
@@ -57,15 +66,15 @@ typedef FSTImmutableSortedSet<FSTDocument *> SetType;
 }
 
 + (instancetype)documentSetWithComparator:(NSComparator)comparator {
-  SetType *set = [FSTImmutableSortedSet setWithComparator:comparator];
-  return [[FSTDocumentSet alloc] initWithIndex:DocumentMap {} set:set];
+  SetType set{DocumentSetComparator(comparator)};
+  return [[FSTDocumentSet alloc] initWithIndex:DocumentMap {} set:std::move(set)];
 }
 
-- (instancetype)initWithIndex:(DocumentMap &&)index set:(SetType *)sortedSet {
+- (instancetype)initWithIndex:(DocumentMap &&)index set:(SetType &&)sortedSet {
   self = [super init];
   if (self) {
     _index = std::move(index);
-    _sortedSet = sortedSet;
+    _sortedSet = std::move(sortedSet);
   }
   return self;
 }
@@ -83,31 +92,34 @@ typedef FSTImmutableSortedSet<FSTDocument *> SetType;
     return NO;
   }
 
-  NSEnumerator<FSTDocument *> *selfIter = [self.sortedSet objectEnumerator];
-  NSEnumerator<FSTDocument *> *otherIter = [otherSet.sortedSet objectEnumerator];
+  SetType::const_iterator selfIter = _sortedSet.begin();
+  SetType::const_iterator selfEnd = _sortedSet.end();
 
-  FSTDocument *selfDoc = [selfIter nextObject];
-  FSTDocument *otherDoc = [otherIter nextObject];
-  while (selfDoc) {
+  SetType::const_iterator otherIter = otherSet->_sortedSet.begin();
+  SetType::const_iterator otherEnd = otherSet->_sortedSet.end();
+
+  while (selfIter != selfEnd && otherIter != otherEnd) {
+    FSTDocument *selfDoc = *selfIter;
+    FSTDocument *otherDoc = *otherIter;
     if (![selfDoc isEqual:otherDoc]) {
       return NO;
     }
-    selfDoc = [selfIter nextObject];
-    otherDoc = [otherIter nextObject];
+    ++selfIter;
+    ++otherIter;
   }
   return YES;
 }
 
 - (NSUInteger)hash {
   NSUInteger hash = 0;
-  for (FSTDocument *doc in self.sortedSet.objectEnumerator) {
+  for (FSTDocument *doc : _sortedSet) {
     hash = 31 * hash + [doc hash];
   }
   return hash;
 }
 
 - (NSString *)description {
-  return [self.sortedSet description];
+  return objc::Description(_sortedSet);
 }
 
 - (NSUInteger)count {
@@ -128,25 +140,27 @@ typedef FSTImmutableSortedSet<FSTDocument *> SetType;
 }
 
 - (FSTDocument *_Nullable)firstDocument {
-  return [self.sortedSet firstObject];
+  auto result = _sortedSet.min();
+  return result != _sortedSet.end() ? *result : nil;
 }
 
 - (FSTDocument *_Nullable)lastDocument {
-  return [self.sortedSet lastObject];
+  auto result = _sortedSet.max();
+  return result != _sortedSet.end() ? *result : nil;
 }
 
 - (NSUInteger)indexOfKey:(const DocumentKey &)key {
   FSTDocument *doc = [self documentForKey:key];
-  return doc ? [self.sortedSet indexOfObject:doc] : NSNotFound;
+  return doc ? _sortedSet.find_index(doc) : NSNotFound;
 }
 
-- (NSEnumerator<FSTDocument *> *)documentEnumerator {
-  return [self.sortedSet objectEnumerator];
+- (const SetType &)documents {
+  return _sortedSet;
 }
 
 - (NSArray *)arrayValue {
   NSMutableArray<FSTDocument *> *result = [NSMutableArray arrayWithCapacity:self.count];
-  for (FSTDocument *doc in self.documentEnumerator) {
+  for (FSTDocument *doc : _sortedSet) {
     [result addObject:doc];
   }
   return result;
@@ -167,8 +181,8 @@ typedef FSTImmutableSortedSet<FSTDocument *> SetType;
   FSTDocumentSet *removed = [self documentSetByRemovingKey:document.key];
 
   DocumentMap index = removed->_index.insert(document.key, document);
-  SetType *set = [removed.sortedSet setByAddingObject:document];
-  return [[FSTDocumentSet alloc] initWithIndex:std::move(index) set:set];
+  SetType set = removed->_sortedSet.insert(document);
+  return [[FSTDocumentSet alloc] initWithIndex:std::move(index) set:std::move(set)];
 }
 
 - (instancetype)documentSetByRemovingKey:(const DocumentKey &)key {
@@ -178,8 +192,8 @@ typedef FSTImmutableSortedSet<FSTDocument *> SetType;
   }
 
   DocumentMap index = _index.erase(key);
-  SetType *set = [self.sortedSet setByRemovingObject:doc];
-  return [[FSTDocumentSet alloc] initWithIndex:std::move(index) set:set];
+  SetType set = _sortedSet.erase(doc);
+  return [[FSTDocumentSet alloc] initWithIndex:std::move(index) set:std::move(set)];
 }
 
 @end

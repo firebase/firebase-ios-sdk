@@ -101,7 +101,7 @@ class SortedSet {
     return const_iterator{map_.min()};
   }
 
-  const K& max() const {
+  const_iterator max() const {
     return const_iterator{map_.max()};
   }
 

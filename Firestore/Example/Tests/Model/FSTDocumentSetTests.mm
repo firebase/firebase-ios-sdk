@@ -18,6 +18,8 @@
 
 #import <XCTest/XCTest.h>
 
+#include <vector>
+
 #import "Firestore/Source/Model/FSTDocument.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
@@ -76,21 +78,21 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testKeepsDocumentsInTheRightOrder {
   FSTDocumentSet *set = FSTTestDocSet(_comp, @[ _doc1, _doc2, _doc3 ]);
-  XCTAssertEqualObjects([[set documentEnumerator] allObjects], (@[ _doc3, _doc1, _doc2 ]));
+  XCTAssertEqual([self allDocuments:set], (std::vector<FSTDocument *>{_doc3, _doc1, _doc2}));
 }
 
 - (void)testDeletes {
   FSTDocumentSet *set = FSTTestDocSet(_comp, @[ _doc1, _doc2, _doc3 ]);
 
   FSTDocumentSet *setWithoutDoc1 = [set documentSetByRemovingKey:_doc1.key];
-  XCTAssertEqualObjects([[setWithoutDoc1 documentEnumerator] allObjects], (@[ _doc3, _doc2 ]));
+  XCTAssertEqual([self allDocuments:setWithoutDoc1], (std::vector<FSTDocument *>{_doc3, _doc2}));
   XCTAssertEqual([setWithoutDoc1 count], 2);
 
   // Original remains unchanged
-  XCTAssertEqualObjects([[set documentEnumerator] allObjects], (@[ _doc3, _doc1, _doc2 ]));
+  XCTAssertEqual([self allDocuments:set], (std::vector<FSTDocument *>{_doc3, _doc1, _doc2}));
 
   FSTDocumentSet *setWithoutDoc3 = [setWithoutDoc1 documentSetByRemovingKey:_doc3.key];
-  XCTAssertEqualObjects([[setWithoutDoc3 documentEnumerator] allObjects], (@[ _doc2 ]));
+  XCTAssertEqual([self allDocuments:setWithoutDoc3], (std::vector<FSTDocument *>{_doc2}));
   XCTAssertEqual([setWithoutDoc3 count], 1);
 }
 
@@ -102,14 +104,14 @@ NS_ASSUME_NONNULL_BEGIN
   set = [set documentSetByAddingDocument:doc2Prime];
   XCTAssertEqual([set count], 3);
   XCTAssertEqualObjects([set documentForKey:doc2Prime.key], doc2Prime);
-  XCTAssertEqualObjects([[set documentEnumerator] allObjects], (@[ _doc3, _doc1, doc2Prime ]));
+  XCTAssertEqual([self allDocuments:set], (std::vector<FSTDocument *>{_doc3, _doc1, doc2Prime}));
 }
 
 - (void)testAddsDocsWithEqualComparisonValues {
   FSTDocument *doc4 = FSTTestDoc("docs/4", 0, @{@"sort" : @2}, FSTDocumentStateSynced);
 
   FSTDocumentSet *set = FSTTestDocSet(_comp, @[ _doc1, doc4 ]);
-  XCTAssertEqualObjects([[set documentEnumerator] allObjects], (@[ _doc1, doc4 ]));
+  XCTAssertEqual([self allDocuments:set], (std::vector<FSTDocument *>{_doc1, doc4}));
 }
 
 - (void)testIsEqual {
@@ -129,6 +131,15 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertNotEqualObjects(set1, shortSet);
   XCTAssertNotEqualObjects(set1, sortedSet1);
 }
+
+- (std::vector<FSTDocument *>)allDocuments:(FSTDocumentSet *)documents {
+  std::vector<FSTDocument *> result;
+  for (FSTDocument *doc : documents.documents) {
+    result.push_back(doc);
+  }
+  return result;
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

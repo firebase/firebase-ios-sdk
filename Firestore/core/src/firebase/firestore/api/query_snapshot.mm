@@ -55,7 +55,7 @@ void QuerySnapshot::ForEachDocument(
   FSTDocumentSet* documentSet = snapshot_.documents();
   bool from_cache = metadata_.from_cache();
 
-  for (FSTDocument* document in documentSet.documentEnumerator) {
+  for (FSTDocument* document : documentSet.documents) {
     bool has_pending_writes = snapshot_.mutated_keys().contains(document.key);
     DocumentSnapshot snap(firestore_, document.key, document, from_cache,
                           has_pending_writes);
