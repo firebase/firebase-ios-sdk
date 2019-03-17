@@ -21,8 +21,8 @@
 
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSyncEngine.h"
-#import "Firestore/Source/Model/FSTDocumentSet.h"
 
+#include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
@@ -216,7 +216,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   // Raise data from cache if we have any documents or we are offline
-  return !snapshot.documents().isEmpty || onlineState == OnlineState::Offline;
+  return !snapshot.documents().empty() || onlineState == OnlineState::Offline;
 }
 
 - (BOOL)shouldRaiseEventForSnapshot:(const ViewSnapshot &)snapshot {

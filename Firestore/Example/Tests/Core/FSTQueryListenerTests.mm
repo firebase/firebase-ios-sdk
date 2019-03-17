@@ -24,13 +24,13 @@
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTView.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentSet.h"
 #import "Firestore/Source/Util/FSTAsyncQueryListener.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
+#include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
 #include "Firestore/core/src/firebase/firestore/util/delayed_constructor.h"
@@ -44,6 +44,7 @@ using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::core::ViewSnapshotHandler;
 using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::DocumentSet;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::remote::TargetChange;
 using firebase::firestore::util::DelayedConstructor;
@@ -119,15 +120,14 @@ ViewSnapshot ExcludingMetadataChanges(const ViewSnapshot &snapshot) {
   XC_ASSERT_THAT(accum[0].document_changes(), ElementsAre(change1, change2));
   XC_ASSERT_THAT(accum[1].document_changes(), ElementsAre(change3));
 
-  ViewSnapshot expectedSnap2{
-      snap2.query(),
-      snap2.documents(),
-      /*old_documents=*/[FSTDocumentSet documentSetWithComparator : snap2.query().comparator],
-      /*document_changes=*/{ change1, change4 },
-      snap2.mutated_keys(),
-      snap2.from_cache(),
-      /*sync_state_changed=*/true,
-      /*excludes_metadata_changes=*/true};
+  ViewSnapshot expectedSnap2{snap2.query(),
+                             snap2.documents(),
+                             /*old_documents=*/DocumentSet{snap2.query().comparator},
+                             /*document_changes=*/{change1, change4},
+                             snap2.mutated_keys(),
+                             snap2.from_cache(),
+                             /*sync_state_changed=*/true,
+                             /*excludes_metadata_changes=*/true};
   XC_ASSERT_THAT(otherAccum, ElementsAre(expectedSnap2));
 }
 
@@ -395,15 +395,14 @@ ViewSnapshot ExcludingMetadataChanges(const ViewSnapshot &snapshot) {
 
   DocumentViewChange change1{doc1, DocumentViewChange::Type::kAdded};
   DocumentViewChange change2{doc2, DocumentViewChange::Type::kAdded};
-  ViewSnapshot expectedSnap{
-      snap3.query(),
-      snap3.documents(),
-      /*old_documents=*/[FSTDocumentSet documentSetWithComparator : snap3.query().comparator],
-      /*document_changes=*/{ change1, change2 },
-      snap3.mutated_keys(),
-      /*from_cache=*/false,
-      /*sync_state_changed=*/true,
-      /*excludes_metadata_changes=*/true};
+  ViewSnapshot expectedSnap{snap3.query(),
+                            snap3.documents(),
+                            /*old_documents=*/DocumentSet{snap3.query().comparator},
+                            /*document_changes=*/{change1, change2},
+                            snap3.mutated_keys(),
+                            /*from_cache=*/false,
+                            /*sync_state_changed=*/true,
+                            /*excludes_metadata_changes=*/true};
   XC_ASSERT_THAT(events, ElementsAre(expectedSnap));
 }
 
@@ -433,15 +432,14 @@ ViewSnapshot ExcludingMetadataChanges(const ViewSnapshot &snapshot) {
 
   DocumentViewChange change1{doc1, DocumentViewChange::Type::kAdded};
   DocumentViewChange change2{doc2, DocumentViewChange::Type::kAdded};
-  ViewSnapshot expectedSnap1{
-      query,
-      /*documents=*/snap1.documents(),
-      /*old_documents=*/[FSTDocumentSet documentSetWithComparator : snap1.query().comparator],
-      /*document_changes=*/{ change1 },
-      snap1.mutated_keys(),
-      /*from_cache=*/true,
-      /*sync_state_changed=*/true,
-      /*excludes_metadata_changes=*/true};
+  ViewSnapshot expectedSnap1{query,
+                             /*documents=*/snap1.documents(),
+                             /*old_documents=*/DocumentSet{snap1.query().comparator},
+                             /*document_changes=*/{change1},
+                             snap1.mutated_keys(),
+                             /*from_cache=*/true,
+                             /*sync_state_changed=*/true,
+                             /*excludes_metadata_changes=*/true};
 
   ViewSnapshot expectedSnap2{query,
                              /*documents=*/snap2.documents(),
@@ -469,15 +467,14 @@ ViewSnapshot ExcludingMetadataChanges(const ViewSnapshot &snapshot) {
   [listener queryDidChangeViewSnapshot:snap1];              // no event
   [listener applyChangedOnlineState:OnlineState::Offline];  // event
 
-  ViewSnapshot expectedSnap{
-      query,
-      /*documents=*/snap1.documents(),
-      /*old_documents=*/[FSTDocumentSet documentSetWithComparator : snap1.query().comparator],
-      /*document_changes=*/{},
-      snap1.mutated_keys(),
-      /*from_cache=*/true,
-      /*sync_state_changed=*/true,
-      /*excludes_metadata_changes=*/true};
+  ViewSnapshot expectedSnap{query,
+                            /*documents=*/snap1.documents(),
+                            /*old_documents=*/DocumentSet{snap1.query().comparator},
+                            /*document_changes=*/{},
+                            snap1.mutated_keys(),
+                            /*from_cache=*/true,
+                            /*sync_state_changed=*/true,
+                            /*excludes_metadata_changes=*/true};
   XC_ASSERT_THAT(events, ElementsAre(expectedSnap));
 }
 
@@ -495,15 +492,14 @@ ViewSnapshot ExcludingMetadataChanges(const ViewSnapshot &snapshot) {
   [listener applyChangedOnlineState:OnlineState::Offline];  // no event
   [listener queryDidChangeViewSnapshot:snap1];              // event
 
-  ViewSnapshot expectedSnap{
-      query,
-      /*documents=*/snap1.documents(),
-      /*old_documents=*/[FSTDocumentSet documentSetWithComparator : snap1.query().comparator],
-      /*document_changes=*/{},
-      snap1.mutated_keys(),
-      /*from_cache=*/true,
-      /*sync_state_changed=*/true,
-      /*excludes_metadata_changes=*/true};
+  ViewSnapshot expectedSnap{query,
+                            /*documents=*/snap1.documents(),
+                            /*old_documents=*/DocumentSet{snap1.query().comparator},
+                            /*document_changes=*/{},
+                            snap1.mutated_keys(),
+                            /*from_cache=*/true,
+                            /*sync_state_changed=*/true,
+                            /*excludes_metadata_changes=*/true};
   XC_ASSERT_THAT(events, ElementsAre(expectedSnap));
 }
 

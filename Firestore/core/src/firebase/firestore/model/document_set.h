@@ -22,10 +22,12 @@
 #include <iosfwd>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
+#include "Firestore/core/src/firebase/firestore/util/comparison.h"
 
 @class FSTDocument;
 
@@ -59,7 +61,8 @@ class DocumentSetComparator {
  * comparator on top of what is provided to guarantee document equality based on
  * the key.
  */
-class DocumentSet : public immutable::impl::SortedMapBase {
+class DocumentSet : public immutable::impl::SortedMapBase,
+                    public util::Equatable<DocumentSet> {
  public:
   /**
    * The type of the main collection of documents in an DocumentSet.
@@ -124,7 +127,7 @@ class DocumentSet : public immutable::impl::SortedMapBase {
    * Returns a copy of the documents in this set as an array. This is O(n) on
    * the size of the set.
    */
-  NSArray<FSTDocument*>* GetArrayValue() const;
+  std::vector<FSTDocument*> ToVector() const;
 
   /**
    * Returns the documents as a `DocumentMap`. This is O(1) as this leverages

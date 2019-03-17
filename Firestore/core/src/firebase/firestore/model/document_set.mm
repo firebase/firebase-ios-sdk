@@ -24,7 +24,6 @@
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/util/objc_compatibility.h"
-#include "Firestore/core/src/firebase/firestore/util/range.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -104,13 +103,8 @@ size_t DocumentSet::IndexOf(const DocumentKey& key) const {
   return doc ? sorted_set_.find_index(doc) : NSNotFound;
 }
 
-NSArray<FSTDocument*>* DocumentSet::GetArrayValue() const {
-  NSMutableArray<FSTDocument*>* result =
-      [NSMutableArray arrayWithCapacity:size()];
-  for (FSTDocument* doc : sorted_set_) {
-    [result addObject:doc];
-  }
-  return result;
+std::vector<FSTDocument*> DocumentSet::ToVector() const {
+  return {sorted_set_.begin(), sorted_set_.end()};
 }
 
 const DocumentMap& DocumentSet::GetMapValue() const {

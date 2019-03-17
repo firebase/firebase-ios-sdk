@@ -23,7 +23,6 @@
 
 @class FIRFirestore;
 @class FIRSnapshotMetadata;
-@class FSTDocumentSet;
 @class FSTQuery;
 
 using firebase::firestore::api::Firestore;

@@ -24,10 +24,10 @@
 #import "Firestore/Source/API/FIRQuery+Internal.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentSet.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
+#include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/util/objc_compatibility.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -39,6 +39,7 @@ namespace api {
 namespace objc = util::objc;
 using api::Firestore;
 using core::ViewSnapshot;
+using model::DocumentSet;
 
 bool operator==(const QuerySnapshot& lhs, const QuerySnapshot& rhs) {
   return lhs.firestore_ == rhs.firestore_ &&
@@ -52,10 +53,10 @@ size_t QuerySnapshot::Hash() const {
 
 void QuerySnapshot::ForEachDocument(
     const std::function<void(DocumentSnapshot)>& callback) const {
-  FSTDocumentSet* documentSet = snapshot_.documents();
+  DocumentSet documentSet = snapshot_.documents();
   bool from_cache = metadata_.from_cache();
 
-  for (FSTDocument* document : documentSet.documents) {
+  for (FSTDocument* document : documentSet) {
     bool has_pending_writes = snapshot_.mutated_keys().contains(document.key);
     DocumentSnapshot snap(firestore_, document.key, document, from_cache,
                           has_pending_writes);

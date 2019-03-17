@@ -29,15 +29,16 @@
 #import "Firestore/Source/API/FIRQuerySnapshot+Internal.h"
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentSet.h"
 
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
+#include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::DocumentSet;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -87,8 +88,8 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocument *doc2Old = FSTTestDoc("foo/baz", 1, @{@"a" : @"b"}, FSTDocumentStateSynced);
   FSTDocument *doc2New = FSTTestDoc("foo/baz", 1, @{@"a" : @"c"}, FSTDocumentStateSynced);
 
-  FSTDocumentSet *oldDocuments = FSTTestDocSet(FSTDocumentComparatorByKey, @[ doc1Old, doc2Old ]);
-  FSTDocumentSet *newDocuments = FSTTestDocSet(FSTDocumentComparatorByKey, @[ doc2New, doc2New ]);
+  DocumentSet oldDocuments = FSTTestDocSet(FSTDocumentComparatorByKey, @[ doc1Old, doc2Old ]);
+  DocumentSet newDocuments = FSTTestDocSet(FSTDocumentComparatorByKey, @[ doc2New, doc2New ]);
   std::vector<DocumentViewChange> documentChanges{
       DocumentViewChange{doc1New, DocumentViewChange::Type::kMetadata},
       DocumentViewChange{doc2New, DocumentViewChange::Type::kModified},
