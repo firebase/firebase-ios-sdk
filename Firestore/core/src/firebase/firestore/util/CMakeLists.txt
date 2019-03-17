@@ -245,6 +245,7 @@ cc_library(
     comparison.cc
     comparison.h
     config.h
+    delayed_constructor.h
     hashing.h
     iterator_adaptors.h
     ordered_code.cc
