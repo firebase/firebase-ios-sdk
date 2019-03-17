@@ -97,8 +97,7 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
     NSDictionary<NSString *, NSDictionary<NSString *, id> *> *docsToAdd,
     bool hasPendingWrites,
     bool fromCache) {
-  FIRSnapshotMetadata *metadata =
-      [[FIRSnapshotMetadata alloc] initWithPendingWrites:hasPendingWrites fromCache:fromCache];
+  SnapshotMetadata metadata(hasPendingWrites, fromCache);
   FSTDocumentSet *oldDocuments = FSTTestDocSet(FSTDocumentComparatorByKey, @[]);
   DocumentKeySet mutatedKeys;
   for (NSString *key in oldDocs) {
@@ -133,10 +132,10 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
                             fromCache,
                             /*sync_state_changed=*/true,
                             /*excludes_metadata_changes=*/false};
-  return [FIRQuerySnapshot snapshotWithFirestore:FSTTestFirestore()
-                                   originalQuery:FSTTestQuery(path)
-                                        snapshot:std::move(viewSnapshot)
-                                        metadata:metadata];
+  return [[FIRQuerySnapshot alloc] initWithFirestore:FSTTestFirestore().wrapped
+                                       originalQuery:FSTTestQuery(path)
+                                            snapshot:std::move(viewSnapshot)
+                                            metadata:std::move(metadata)];
 }
 
 NS_ASSUME_NONNULL_END
