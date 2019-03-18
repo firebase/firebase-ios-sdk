@@ -215,6 +215,12 @@ class Serializer {
   static GeoPoint DecodeGeoPoint(nanopb::Reader* reader,
                                  const google_type_LatLng& latlng_proto);
 
+  static google_firestore_v1_ArrayValue EncodeArray(
+      const std::vector<model::FieldValue>& array_value);
+  static std::vector<model::FieldValue> DecodeArray(
+      nanopb::Reader* reader,
+      const google_firestore_v1_ArrayValue& array_proto);
+
  private:
   std::unique_ptr<model::Document> DecodeFoundDocument(
       nanopb::Reader* reader,

@@ -332,8 +332,9 @@ google_firestore_v1_Value Serializer::EncodeFieldValue(
       return result;
 
     case FieldValue::Type::Array:
-      // TODO(rsgowman): Implement
-      abort();
+      result.which_value_type = google_firestore_v1_Value_array_value_tag;
+      result.array_value = EncodeArray(field_value.array_value());
+      return result;
 
     case FieldValue::Type::Object:
       result.which_value_type = google_firestore_v1_Value_map_value_tag;
@@ -391,9 +392,7 @@ FieldValue Serializer::DecodeFieldValue(Reader* reader,
           DecodeGeoPoint(reader, msg.geo_point_value));
 
     case google_firestore_v1_Value_array_value_tag:
-      // TODO(b/74243929): Implement remaining types.
-      HARD_FAIL("Unhandled message field number (tag): %i.",
-                msg.which_value_type);
+      return FieldValue::FromArray(DecodeArray(reader, msg.array_value));
 
     case google_firestore_v1_Value_map_value_tag: {
       return FieldValue::FromMap(DecodeMapValue(reader, msg.map_value));
@@ -888,6 +887,38 @@ GeoPoint Serializer::DecodeGeoPoint(nanopb::Reader* reader,
 
   if (!reader->status().ok()) return GeoPoint();
   return GeoPoint(latitude, longitude);
+}
+
+/* static */
+google_firestore_v1_ArrayValue Serializer::EncodeArray(
+    const std::vector<FieldValue>& array_value) {
+  google_firestore_v1_ArrayValue result{};
+
+  size_t count = array_value.size();
+  HARD_ASSERT(count <= std::numeric_limits<pb_size_t>::max(),
+              "Unable to encode specified array. Too many entries.");
+  result.values_count = count;
+  result.values = MakeArray<google_firestore_v1_Value>(count);
+
+  size_t i = 0;
+  for (const FieldValue& fv : array_value) {
+    result.values[i++] = EncodeFieldValue(fv);
+  }
+
+  return result;
+}
+
+/* static */
+std::vector<FieldValue> Serializer::DecodeArray(
+    nanopb::Reader* reader, const google_firestore_v1_ArrayValue& array_proto) {
+  std::vector<FieldValue> result;
+  result.reserve(array_proto.values_count);
+
+  for (size_t i = 0; i < array_proto.values_count; i++) {
+    result.push_back(DecodeFieldValue(reader, array_proto.values[i]));
+  }
+
+  return result;
 }
 
 }  // namespace remote

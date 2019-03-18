@@ -286,6 +286,16 @@ class SerializerTest : public ::testing::Test {
     return proto;
   }
 
+  v1::Value ValueProto(const std::vector<FieldValue>& array) {
+    std::vector<uint8_t> bytes =
+        EncodeFieldValue(&serializer, FieldValue::FromArray(array));
+    v1::Value proto;
+    bool ok =
+        proto.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
+    EXPECT_TRUE(ok);
+    return proto;
+  }
+
   /**
    * Creates entries in the proto that we don't care about.
    *
@@ -550,6 +560,29 @@ TEST_F(SerializerTest, EncodesGeoPoint) {
   for (const GeoPoint& geo_value : cases) {
     FieldValue model = FieldValue::FromGeoPoint(geo_value);
     ExpectRoundTrip(model, ValueProto(geo_value), FieldValue::Type::GeoPoint);
+  }
+}
+
+TEST_F(SerializerTest, EncodesArray) {
+  std::vector<std::vector<FieldValue>> cases{
+      // Empty Array.
+      {},
+      // Typical Array.
+      {FieldValue::FromBoolean(true), FieldValue::FromString("foo")},
+      // Nested Array. NB: the protos explicitly state that directly nested
+      // arrays are not allowed, however arrays *can* contain a map which
+      // contains another array.
+      {FieldValue::FromString("foo"),
+       FieldValue::FromMap(
+           {{"nested array",
+             FieldValue::FromArray(
+                 {FieldValue::FromString("nested array value 1"),
+                  FieldValue::FromString("nested array value 2")})}}),
+       FieldValue::FromString("bar")}};
+
+  for (const std::vector<FieldValue>& array_value : cases) {
+    FieldValue model = FieldValue::FromArray(array_value);
+    ExpectRoundTrip(model, ValueProto(array_value), FieldValue::Type::Array);
   }
 }
 

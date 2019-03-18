@@ -142,6 +142,11 @@ class FieldValue {
     return *geo_point_value_;
   }
 
+  const std::vector<FieldValue>& array_value() const {
+    HARD_ASSERT(tag_ == Type::Array);
+    return *array_value_;
+  }
+
   /** factory methods. */
   static FieldValue Null();
   static FieldValue True();
