@@ -22,7 +22,7 @@
 #import <FirebaseCore/FIRLibrary.h>
 #import <FirebaseCore/FIROptions.h>
 
-#import <FBLPromises/FBLPromises.h>
+#import "FBLPromises.h"
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import "FIRInstanceID+Private.h"
 #import "FIRInstanceIDAuthService.h"
