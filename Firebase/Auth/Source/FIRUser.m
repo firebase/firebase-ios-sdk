@@ -1191,7 +1191,7 @@ static void callInMainThreadWithAuthDataResultAndError(
           return;
         }
 
-        // We can't just use the provider info objects in FIRSetAcccountInfoResponse because they
+        // We can't just use the provider info objects in FIRSetAccountInfoResponse because they
         // don't have localID and email fields. Remove the specific provider manually.
         NSMutableDictionary *mutableProviderData = [self->_providerData mutableCopy];
         [mutableProviderData removeObjectForKey:provider];
