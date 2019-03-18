@@ -137,6 +137,11 @@ class FieldValue {
     return *blob_value_;
   }
 
+  const GeoPoint& geo_point_value() const {
+    HARD_ASSERT(tag_ == Type::GeoPoint);
+    return *geo_point_value_;
+  }
+
   /** factory methods. */
   static FieldValue Null();
   static FieldValue True();

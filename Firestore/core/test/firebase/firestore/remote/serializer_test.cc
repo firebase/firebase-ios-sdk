@@ -276,6 +276,16 @@ class SerializerTest : public ::testing::Test {
     return proto;
   }
 
+  v1::Value ValueProto(const GeoPoint& geo_point) {
+    std::vector<uint8_t> bytes =
+        EncodeFieldValue(&serializer, FieldValue::FromGeoPoint(geo_point));
+    v1::Value proto;
+    bool ok =
+        proto.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
+    EXPECT_TRUE(ok);
+    return proto;
+  }
+
   /**
    * Creates entries in the proto that we don't care about.
    *
@@ -529,6 +539,17 @@ TEST_F(SerializerTest, EncodesBlobs) {
     FieldValue model =
         FieldValue::FromBlob(blob_value.data(), blob_value.size());
     ExpectRoundTrip(model, ValueProto(blob_value), FieldValue::Type::Blob);
+  }
+}
+
+TEST_F(SerializerTest, EncodesGeoPoint) {
+  std::vector<GeoPoint> cases{
+      {1.23, 4.56},
+  };
+
+  for (const GeoPoint& geo_value : cases) {
+    FieldValue model = FieldValue::FromGeoPoint(geo_value);
+    ExpectRoundTrip(model, ValueProto(geo_value), FieldValue::Type::GeoPoint);
   }
 }
 
