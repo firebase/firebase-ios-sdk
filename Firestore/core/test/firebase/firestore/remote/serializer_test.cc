@@ -598,13 +598,13 @@ TEST_F(SerializerTest, EncodesEmptyMap) {
 TEST_F(SerializerTest, EncodesNestedObjects) {
   FieldValue model = FieldValue::FromMap({
       {"b", FieldValue::True()},
-      // TODO(rsgowman): add doubles (once they're supported)
-      // {"d", FieldValue::DoubleValue(std::numeric_limits<double>::max())},
+      {"d", FieldValue::FromDouble(std::numeric_limits<double>::max())},
       {"i", FieldValue::FromInteger(1)},
       {"n", FieldValue::Null()},
       {"s", FieldValue::FromString("foo")},
-      // TODO(rsgowman): add arrays (once they're supported)
-      // {"a", [2, "bar", {"b", false}]},
+      {"a", FieldValue::FromArray(
+                {FieldValue::FromInteger(2), FieldValue::FromString("bar"),
+                 FieldValue::FromMap({{"b", FieldValue::False()}})})},
       {"o", FieldValue::FromMap({
                 {"d", FieldValue::FromInteger(100)},
                 {"nested", FieldValue::FromMap({
@@ -628,13 +628,24 @@ TEST_F(SerializerTest, EncodesNestedObjects) {
   (*middle_fields)["d"] = ValueProto(int64_t{100});
   (*middle_fields)["nested"] = inner_proto;
 
+  v1::Value array_proto;
+  *array_proto.mutable_array_value()->add_values() = ValueProto(int64_t{2});
+  *array_proto.mutable_array_value()->add_values() = ValueProto("bar");
+  v1::Value array_inner_proto;
+  google::protobuf::Map<std::string, v1::Value>* array_inner_fields =
+      array_inner_proto.mutable_map_value()->mutable_fields();
+  (*array_inner_fields)["b"] = ValueProto(false);
+  *array_proto.mutable_array_value()->add_values() = array_inner_proto;
+
   v1::Value proto;
   google::protobuf::Map<std::string, v1::Value>* fields =
       proto.mutable_map_value()->mutable_fields();
   (*fields)["b"] = ValueProto(true);
+  (*fields)["d"] = ValueProto(std::numeric_limits<double>::max());
   (*fields)["i"] = ValueProto(int64_t{1});
   (*fields)["n"] = ValueProto(nullptr);
   (*fields)["s"] = ValueProto("foo");
+  (*fields)["a"] = array_proto;
   (*fields)["o"] = middle_proto;
 
   ExpectRoundTrip(model, proto, FieldValue::Type::Object);
