@@ -312,7 +312,28 @@ static FIRInstanceID *gInstanceID;
 - (FBLPromise<NSString *> *)tokenWithAuthorizedEntity:(NSString *)authorizedEntity
                                                 scope:(NSString *)scope
                                               options:(NSDictionary *)options {
-  FBLPromise<NSString *> *prepareOptions = [FBLPromise do:^id _Nullable {
+  FBLPromise<NSDictionary *> *prepareOptions =
+      [self tokenOptionsWithAuthorizedEntity:authorizedEntity scope:scope options:options];
+
+  return prepareOptions
+      .then(^FBLPromise<FIRInstanceIDCheckinPreferences *> *(NSDictionary *tokenOptions) {
+        return [self fetchCheckinInfo].then(^id(id result) {
+          // We are interested in only [authService fetchCheckinInfo] success or failure
+          // On success just pass tokenOptions further
+          return tokenOptions;
+        });
+      })
+      .then(^id(NSDictionary *tokenOptions) {
+        return [self fetchTokenWithAuthorizedEntity:authorizedEntity
+                                              scope:scope
+                                       tokenOptions:tokenOptions];
+      });
+}
+
+- (FBLPromise<NSDictionary *> *)tokenOptionsWithAuthorizedEntity:(NSString *)authorizedEntity
+                                                           scope:(NSString *)scope
+                                                         options:(NSDictionary *)options {
+  return [FBLPromise do:^id _Nullable {
     NSMutableDictionary *tokenOptions = [NSMutableDictionary dictionary];
     if (options.count) {
       [tokenOptions addEntriesFromDictionary:options];
@@ -358,20 +379,6 @@ static FIRInstanceID *gInstanceID;
 
     return tokenOptions;
   }];
-
-  return prepareOptions
-      .then(^FBLPromise<FIRInstanceIDCheckinPreferences *> *(NSDictionary *tokenOptions) {
-        return [self fetchCheckinInfo].then(^id(id result) {
-          // We are interested in only [authService fetchCheckinInfo] success or failure
-          // On success just pass tokenOptions further
-          return tokenOptions;
-        });
-      })
-      .then(^id(NSDictionary *tokenOptions) {
-        return [self fetchTokenWithAuthorizedEntity:authorizedEntity
-                                              scope:scope
-                                       tokenOptions:tokenOptions];
-      });
 }
 
 - (FBLPromise<NSString *> *)fetchTokenWithAuthorizedEntity:(NSString *)authorizedEntity
