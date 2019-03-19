@@ -135,7 +135,7 @@ static NSString *FIRIAM_UserDefaultsKeyForNextValidClearcutUploadTimeInMills =
 - (void)attemptUploading {
   NSArray<FIRIAMClearcutLogRecord *> *availbleLogs =
       [self.logStorage popStillValidRecordsForUpTo:self.strategy.batchSendSize];
-  NSLog(@"Available logs: %@", availbleLogs);
+  NSLog(@"FIRFIRFIR Available logs: %@", availbleLogs);
   if (availbleLogs.count > 0) {
     FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM260011", @"Deliver %d clearcut records",
                 (int)availbleLogs.count);
