@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
-    <device id="ipad10_5" orientation="landscape">
+    <device id="retina5_9" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
@@ -18,7 +18,7 @@
                         <viewControllerLayoutGuide type="bottom" id="8Ta-Lb-9Rg"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="ef6-R8-q1S">
-                        <rect key="frame" x="0.0" y="0.0" width="1112" height="834"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="rA8-LH-EYm">
@@ -59,11 +59,11 @@
                         <viewControllerLayoutGuide type="bottom" id="K7E-8I-Yw5"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="vRb-yf-OWE">
-                        <rect key="frame" x="0.0" y="0.0" width="1112" height="834"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="VfB-vw-7up">
-                                <rect key="frame" x="5" y="23" width="60" height="60"/>
+                                <rect key="frame" x="5" y="47" width="60" height="60"/>
                                 <accessibility key="accessibilityConfiguration" identifier="banner-image-view">
                                     <bool key="isElement" value="YES"/>
                                 </accessibility>
@@ -73,14 +73,14 @@
                                 </constraints>
                             </imageView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Messaging Title" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rzo-9i-rXZ">
-                                <rect key="frame" x="70" y="23" width="1022" height="20.5"/>
+                                <rect key="frame" x="70" y="47" width="289" height="20.333333333333329"/>
                                 <accessibility key="accessibilityConfiguration" identifier="banner-message-title-view"/>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" text="message body" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="GOK-vx-mU8">
-                                <rect key="frame" x="70" y="51.5" width="1022" height="282.5"/>
+                                <rect key="frame" x="70" y="75.333333333333329" width="289" height="202.66666666666669"/>
                                 <accessibility key="accessibilityConfiguration" identifier="banner-body-label"/>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                 <nil key="textColor"/>
@@ -129,14 +129,14 @@
                         <viewControllerLayoutGuide type="bottom" id="1nT-S0-O8H"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="1pz-BP-O6T">
-                        <rect key="frame" x="0.0" y="0.0" width="1112" height="834"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="jER-Re-ODh" customClass="RoundedCornersView">
-                                <rect key="frame" x="231" y="277.5" width="650" height="279"/>
+                                <rect key="frame" x="26" y="145.66666666666669" width="323" height="520.66666666666652"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="1000" text="Message Title" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Edi-DJ-cR8">
-                                        <rect key="frame" x="318" y="20" width="308" height="34"/>
+                                        <rect key="frame" x="24" y="24" width="275" height="34"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="34" identifier="Title Label Height Constraint" id="Gzz-dd-hYn" userLabel="Title Label Height Constraint"/>
                                         </constraints>
@@ -145,7 +145,7 @@
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="700" translatesAutoresizingMaskIntoConstraints="NO" id="c7x-Lf-M58">
-                                        <rect key="frame" x="24" y="24" width="270" height="231"/>
+                                        <rect key="frame" x="24" y="81.999999999999986" width="275" height="230.66666666666663"/>
                                         <accessibility key="accessibilityConfiguration" identifier="modal-image-view">
                                             <bool key="isElement" value="YES"/>
                                         </accessibility>
@@ -172,7 +172,7 @@
                                         </variation>
                                     </imageView>
                                     <button opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="252" verticalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="VmW-ue-K1q">
-                                        <rect key="frame" x="409" y="202" width="126" height="36"/>
+                                        <rect key="frame" x="98.666666666666686" y="460.66666666666674" width="126" height="36"/>
                                         <accessibility key="accessibilityConfiguration" identifier="message-action-button"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="36" identifier="Max Action Button Height" id="6T1-on-oWM"/>
@@ -184,7 +184,7 @@
                                         </connections>
                                     </button>
                                     <textView clipsSubviews="YES" clearsContextBeforeDrawing="NO" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" text="Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor " textAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="24j-6H-N9j">
-                                        <rect key="frame" x="318" y="78" width="308" height="100"/>
+                                        <rect key="frame" x="24" y="336.66666666666663" width="275" height="100"/>
                                         <accessibility key="accessibilityConfiguration" identifier="message-body-textview"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="100" identifier="Body Text View Height Constraint" id="h2w-ub-tEc"/>
@@ -306,7 +306,7 @@
                                 </variation>
                             </view>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="akA-AE-VPc">
-                                <rect key="frame" x="861" y="257.5" width="40" height="40"/>
+                                <rect key="frame" x="329" y="125.66666666666669" width="40" height="40"/>
                                 <accessibility key="accessibilityConfiguration" identifier="close-button"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="40" identifier="Close button width = 40" id="Dwi-In-x47"/>
@@ -386,40 +386,63 @@
                         <viewControllerLayoutGuide type="bottom" id="I6y-sz-UcT"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="SM1-hn-m3n">
-                        <rect key="frame" x="0.0" y="0.0" width="1112" height="834"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Aft-rr-icV" userLabel="Card view" customClass="RoundedCornersView">
-                                <rect key="frame" x="256" y="297" width="600" height="240"/>
+                                <rect key="frame" x="67.666666666666686" y="240.99999999999997" width="240" height="330.33333333333326"/>
                                 <subviews>
-                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="gB0-8W-G9z">
-                                        <rect key="frame" x="0.0" y="0.0" width="240" height="240"/>
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="gB0-8W-G9z">
+                                        <rect key="frame" x="0.0" y="0.0" width="240" height="160"/>
                                         <constraints>
-                                            <constraint firstAttribute="width" constant="240" identifier="Image view width placeholder" id="27L-b0-QJJ" userLabel="Image view width placeholder"/>
-                                            <constraint firstAttribute="height" constant="160" identifier="Image view height placeholder" id="e4D-Ay-89r" userLabel="Image view height placeholder">
+                                            <constraint firstAttribute="width" constant="240" placeholder="YES" identifier="Image view width placeholder" id="27L-b0-QJJ" userLabel="Image view width placeholder"/>
+                                            <constraint firstAttribute="width" secondItem="gB0-8W-G9z" secondAttribute="height" multiplier="3:2" id="NnL-y9-5sH" userLabel="Image view aspect = 3:2 in portrait"/>
+                                            <constraint firstAttribute="width" secondItem="gB0-8W-G9z" secondAttribute="height" multiplier="1:1" id="ViM-uc-rAA" userLabel="Image view aspect = 1:1 in landscape"/>
+                                            <constraint firstAttribute="height" constant="160" placeholder="YES" identifier="Image view height placeholder" id="e4D-Ay-89r" userLabel="Image view height placeholder">
                                                 <variation key="heightClass=compact" constant="240"/>
                                                 <variation key="widthClass=regular" constant="240"/>
                                             </constraint>
                                         </constraints>
+                                        <variation key="default">
+                                            <mask key="constraints">
+                                                <exclude reference="NnL-y9-5sH"/>
+                                                <exclude reference="ViM-uc-rAA"/>
+                                            </mask>
+                                        </variation>
+                                        <variation key="heightClass=compact">
+                                            <mask key="constraints">
+                                                <include reference="ViM-uc-rAA"/>
+                                            </mask>
+                                        </variation>
+                                        <variation key="widthClass=regular">
+                                            <mask key="constraints">
+                                                <include reference="ViM-uc-rAA"/>
+                                            </mask>
+                                        </variation>
+                                        <variation key="heightClass=regular-widthClass=compact">
+                                            <mask key="constraints">
+                                                <include reference="NnL-y9-5sH"/>
+                                            </mask>
+                                        </variation>
                                     </imageView>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="Title" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oVh-9O-yfC" userLabel="Title label">
-                                        <rect key="frame" x="264" y="24" width="312" height="21"/>
+                                        <rect key="frame" x="24" y="184" width="192" height="24"/>
                                         <fontDescription key="fontDescription" style="UICTFontTextStyleTitle2"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="prz-tD-IhN" userLabel="Body label">
-                                        <rect key="frame" x="264" y="69" width="312" height="20.5"/>
+                                        <rect key="frame" x="24" y="232" width="192" height="20.333333333333343"/>
                                         <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" horizontalCompressionResistancePriority="251" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aZE-3x-WHk" userLabel="Primary action button">
-                                        <rect key="frame" x="523" y="186" width="53" height="30"/>
+                                        <rect key="frame" x="163" y="276.33333333333337" width="53" height="30"/>
                                         <state key="normal" title="Primary"/>
                                     </button>
                                     <button hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" horizontalCompressionResistancePriority="250" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Feg-VM-jUf" userLabel="Secondary action button">
-                                        <rect key="frame" x="425" y="186" width="74" height="30"/>
+                                        <rect key="frame" x="65" y="276.33333333333337" width="74.000000000000014" height="30"/>
                                         <state key="normal" title="Secondary"/>
                                     </button>
                                 </subviews>
