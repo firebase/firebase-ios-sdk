@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,23 @@
  * limitations under the License.
  */
 
-#import "FIRSnapshotMetadata.h"
-
-#import <Foundation/Foundation.h>
-
 #include "Firestore/core/src/firebase/firestore/api/snapshot_metadata.h"
 
-using firebase::firestore::api::SnapshotMetadata;
+#include "Firestore/core/src/firebase/firestore/util/hashing.h"
 
-NS_ASSUME_NONNULL_BEGIN
+namespace firebase {
+namespace firestore {
+namespace api {
 
-@interface FIRSnapshotMetadata (/* Init */)
+bool operator==(const SnapshotMetadata& lhs, const SnapshotMetadata& rhs) {
+  return lhs.pending_writes_ == rhs.pending_writes_ &&
+         lhs.from_cache_ == rhs.from_cache_;
+}
 
-- (instancetype)initWithMetadata:(SnapshotMetadata)metadata NS_DESIGNATED_INITIALIZER;
+size_t SnapshotMetadata::Hash() const {
+  return util::Hash(pending_writes_, from_cache_);
+}
 
-- (instancetype)initWithPendingWrites:(bool)pendingWrites fromCache:(bool)fromCache;
-
-@end
-
-NS_ASSUME_NONNULL_END
+}  // namespace api
+}  // namespace firestore
+}  // namespace firebase

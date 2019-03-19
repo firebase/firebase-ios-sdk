@@ -98,7 +98,7 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
     bool hasPendingWrites,
     bool fromCache) {
   FIRSnapshotMetadata *metadata =
-      [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:hasPendingWrites fromCache:fromCache];
+      [[FIRSnapshotMetadata alloc] initWithPendingWrites:hasPendingWrites fromCache:fromCache];
   FSTDocumentSet *oldDocuments = FSTTestDocSet(FSTDocumentComparatorByKey, @[]);
   DocumentKeySet mutatedKeys;
   for (NSString *key in oldDocs) {
