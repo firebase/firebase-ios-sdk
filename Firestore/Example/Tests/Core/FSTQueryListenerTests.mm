@@ -36,6 +36,7 @@
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
+#include "Firestore/core/test/firebase/firestore/testutil/xcgmock.h"
 #include "absl/memory/memory.h"
 
 using firebase::firestore::FirestoreErrorCode;
@@ -48,8 +49,30 @@ using firebase::firestore::remote::TargetChange;
 using firebase::firestore::util::ExecutorLibdispatch;
 using firebase::firestore::util::Status;
 using firebase::firestore::util::StatusOr;
+using testing::ElementsAre;
+using testing::IsEmpty;
 
 NS_ASSUME_NONNULL_BEGIN
+
+namespace {
+
+/**
+ * Returns a copy of the given snapshot, with excludesMetadataChanges set to true.
+ */
+ViewSnapshot ExcludingMetadataChanges(const ViewSnapshot &snapshot) {
+  return ViewSnapshot{
+      snapshot.query(),
+      snapshot.documents(),
+      snapshot.old_documents(),
+      snapshot.document_changes(),
+      snapshot.mutated_keys(),
+      snapshot.from_cache(),
+      snapshot.sync_state_changed(),
+      true,
+  };
+}
+
+}  // namespace
 
 @interface FSTQueryListenerTests : XCTestCase
 @end
@@ -67,20 +90,6 @@ NS_ASSUME_NONNULL_BEGIN
   _includeMetadataChanges = [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:YES
                                                            includeDocumentMetadataChanges:YES
                                                                     waitForSyncWhenOnline:NO];
-}
-
-- (ViewSnapshot)setExcludesMetadataChanges:(bool)excludesMetadataChanges
-                                  snapshot:(const ViewSnapshot &)snapshot {
-  return ViewSnapshot{
-      snapshot.query(),
-      snapshot.documents(),
-      snapshot.old_documents(),
-      snapshot.document_changes(),
-      snapshot.mutated_keys(),
-      snapshot.from_cache(),
-      snapshot.sync_state_changed(),
-      excludesMetadataChanges,
-  };
 }
 
 - (void)testRaisesCollectionEvents {
@@ -111,9 +120,9 @@ NS_ASSUME_NONNULL_BEGIN
   [listener queryDidChangeViewSnapshot:snap2];
   [otherListener queryDidChangeViewSnapshot:snap2];
 
-  XCTAssertTrue((accum == std::vector<ViewSnapshot>{snap1, snap2}));
-  XCTAssertTrue((accum[0].document_changes() == std::vector<DocumentViewChange>{change1, change2}));
-  XCTAssertTrue(accum[1].document_changes() == std::vector<DocumentViewChange>{change3});
+  XC_ASSERT_THAT(accum, ElementsAre(snap1, snap2));
+  XC_ASSERT_THAT(accum[0].document_changes(), ElementsAre(change1, change2));
+  XC_ASSERT_THAT(accum[1].document_changes(), ElementsAre(change3));
 
   ViewSnapshot expectedSnap2{
       snap2.query(),
@@ -124,7 +133,7 @@ NS_ASSUME_NONNULL_BEGIN
       snap2.from_cache(),
       /*sync_state_changed=*/true,
       /*excludes_metadata_changes=*/true};
-  XCTAssertTrue((otherAccum == std::vector<ViewSnapshot>{expectedSnap2}));
+  XC_ASSERT_THAT(otherAccum, ElementsAre(expectedSnap2));
 }
 
 - (void)testRaisesErrorEvent {
@@ -139,7 +148,7 @@ NS_ASSUME_NONNULL_BEGIN
   Status testError{FirestoreErrorCode::Unauthenticated, "Some info"};
   [listener queryDidError:testError];
 
-  XCTAssertTrue((accum == std::vector<Status>{testError}));
+  XC_ASSERT_THAT(accum, ElementsAre(testError));
 }
 
 - (void)testRaisesEventForEmptyCollectionAfterSync {
@@ -155,10 +164,10 @@ NS_ASSUME_NONNULL_BEGIN
   ViewSnapshot snap2 = FSTTestApplyChanges(view, @[], FSTTestTargetChangeMarkCurrent()).value();
 
   [listener queryDidChangeViewSnapshot:snap1];
-  XCTAssertTrue(accum.empty());
+  XC_ASSERT_THAT(accum, IsEmpty());
 
   [listener queryDidChangeViewSnapshot:snap2];
-  XCTAssertTrue((accum == std::vector<ViewSnapshot>{snap2}));
+  XC_ASSERT_THAT(accum, ElementsAre(snap2));
 }
 
 - (void)testMutingAsyncListenerPreventsAllSubsequentEvents {
@@ -195,7 +204,7 @@ NS_ASSUME_NONNULL_BEGIN
                                }];
 
   // We should get the first snapshot but not the second.
-  XCTAssertTrue((accum == std::vector<ViewSnapshot>{viewSnapshot1}));
+  XC_ASSERT_THAT(accum, ElementsAre(viewSnapshot1));
 }
 
 - (void)testDoesNotRaiseEventsForMetadataChangesUnlessSpecified {
@@ -227,10 +236,9 @@ NS_ASSUME_NONNULL_BEGIN
   [fullListener queryDidChangeViewSnapshot:snap2];  // state change event
   [fullListener queryDidChangeViewSnapshot:snap3];  // doc2 update
 
-  XCTAssertTrue((filteredAccum ==
-                 std::vector<ViewSnapshot>{[self setExcludesMetadataChanges:true snapshot:snap1],
-                                           [self setExcludesMetadataChanges:true snapshot:snap3]}));
-  XCTAssertTrue((fullAccum == std::vector<ViewSnapshot>{snap1, snap2, snap3}));
+  XC_ASSERT_THAT(filteredAccum,
+                 ElementsAre(ExcludingMetadataChanges(snap1), ExcludingMetadataChanges(snap3)));
+  XC_ASSERT_THAT(fullAccum, ElementsAre(snap1, snap2, snap3));
 }
 
 - (void)testRaisesDocumentMetadataEventsOnlyWhenSpecified {
@@ -272,18 +280,15 @@ NS_ASSUME_NONNULL_BEGIN
   [fullListener queryDidChangeViewSnapshot:snap2];
   [fullListener queryDidChangeViewSnapshot:snap3];
 
-  XCTAssertTrue((filteredAccum ==
-                 std::vector<ViewSnapshot>{[self setExcludesMetadataChanges:true snapshot:snap1],
-                                           [self setExcludesMetadataChanges:true snapshot:snap3]}));
-  XCTAssertTrue(
-      (filteredAccum[0].document_changes() == std::vector<DocumentViewChange>{change1, change2}));
-  XCTAssertTrue((filteredAccum[1].document_changes() == std::vector<DocumentViewChange>{change4}));
+  XC_ASSERT_THAT(filteredAccum,
+                 ElementsAre(ExcludingMetadataChanges(snap1), ExcludingMetadataChanges(snap3)));
+  XC_ASSERT_THAT(filteredAccum[0].document_changes(), ElementsAre(change1, change2));
+  XC_ASSERT_THAT(filteredAccum[1].document_changes(), ElementsAre(change4));
 
-  XCTAssertTrue((fullAccum == std::vector<ViewSnapshot>{snap1, snap2, snap3}));
-  XCTAssertTrue(
-      (fullAccum[0].document_changes() == std::vector<DocumentViewChange>{change1, change2}));
-  XCTAssertTrue((fullAccum[1].document_changes() == std::vector<DocumentViewChange>{change3}));
-  XCTAssertTrue((fullAccum[2].document_changes() == std::vector<DocumentViewChange>{change4}));
+  XC_ASSERT_THAT(fullAccum, ElementsAre(snap1, snap2, snap3));
+  XC_ASSERT_THAT(fullAccum[0].document_changes(), ElementsAre(change1, change2));
+  XC_ASSERT_THAT(fullAccum[1].document_changes(), ElementsAre(change3));
+  XC_ASSERT_THAT(fullAccum[2].document_changes(), ElementsAre(change4));
 }
 
 - (void)testRaisesQueryMetadataEventsOnlyWhenHasPendingWritesOnTheQueryChanges {
@@ -328,10 +333,9 @@ NS_ASSUME_NONNULL_BEGIN
       snap4.sync_state_changed(),
       /*excludes_metadata_changes=*/true  // This test excludes document metadata changes
   };
-  XCTAssertTrue(
-      (fullAccum == std::vector<ViewSnapshot>{[self setExcludesMetadataChanges:true snapshot:snap1],
-                                              [self setExcludesMetadataChanges:true snapshot:snap3],
-                                              expectedSnap4}));
+
+  XC_ASSERT_THAT(fullAccum, ElementsAre(ExcludingMetadataChanges(snap1),
+                                        ExcludingMetadataChanges(snap3), expectedSnap4));
 }
 
 - (void)testMetadataOnlyDocumentChangesAreFilteredOutWhenIncludeDocumentMetadataChangesIsFalse {
@@ -365,9 +369,7 @@ NS_ASSUME_NONNULL_BEGIN
                              snap2.from_cache(),
                              snap2.sync_state_changed(),
                              /*excludes_metadata_changes=*/true};
-  XCTAssertTrue((filteredAccum == std::vector<ViewSnapshot>{[self setExcludesMetadataChanges:true
-                                                                                    snapshot:snap1],
-                                                            expectedSnap2}));
+  XC_ASSERT_THAT(filteredAccum, ElementsAre(ExcludingMetadataChanges(snap1), expectedSnap2));
 }
 
 - (void)testWillWaitForSyncIfOnline {
@@ -407,7 +409,7 @@ NS_ASSUME_NONNULL_BEGIN
       /*from_cache=*/false,
       /*sync_state_changed=*/true,
       /*excludes_metadata_changes=*/true};
-  XCTAssertTrue((events == std::vector<ViewSnapshot>{expectedSnap}));
+  XC_ASSERT_THAT(events, ElementsAre(expectedSnap));
 }
 
 - (void)testWillRaiseInitialEventWhenGoingOffline {
@@ -454,7 +456,7 @@ NS_ASSUME_NONNULL_BEGIN
                              /*from_cache=*/true,
                              /*sync_state_changed=*/false,
                              /*excludes_metadata_changes=*/true};
-  XCTAssertTrue((events == std::vector<ViewSnapshot>{expectedSnap1, expectedSnap2}));
+  XC_ASSERT_THAT(events, ElementsAre(expectedSnap1, expectedSnap2));
 }
 
 - (void)testWillRaiseInitialEventWhenGoingOfflineAndThereAreNoDocs {
@@ -481,7 +483,7 @@ NS_ASSUME_NONNULL_BEGIN
       /*from_cache=*/true,
       /*sync_state_changed=*/true,
       /*excludes_metadata_changes=*/true};
-  XCTAssertTrue((events == std::vector<ViewSnapshot>{expectedSnap}));
+  XC_ASSERT_THAT(events, ElementsAre(expectedSnap));
 }
 
 - (void)testWillRaiseInitialEventWhenStartingOfflineAndThereAreNoDocs {
@@ -507,7 +509,7 @@ NS_ASSUME_NONNULL_BEGIN
       /*from_cache=*/true,
       /*sync_state_changed=*/true,
       /*excludes_metadata_changes=*/true};
-  XCTAssertTrue((events == std::vector<ViewSnapshot>{expectedSnap}));
+  XC_ASSERT_THAT(events, ElementsAre(expectedSnap));
 }
 
 - (FSTQueryListener *)listenToQuery:(FSTQuery *)query handler:(ViewSnapshotHandler &&)handler {
