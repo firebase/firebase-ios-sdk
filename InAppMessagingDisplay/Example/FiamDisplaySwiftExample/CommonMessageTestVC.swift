@@ -54,6 +54,10 @@ class CommonMessageTestVC: UIViewController, InAppMessagingDisplayDelegate {
   let defaultActionButton = InAppMessagingActionButton(buttonText: "Take action",
                                                        buttonTextColor: UIColor.black,
                                                        backgroundColor: UIColor.yellow)
+  
+  let defaultSecondaryActionButton = InAppMessagingActionButton(buttonText: "Take another action",
+                                                                buttonTextColor: UIColor.black,
+                                                                backgroundColor: UIColor.yellow)
 
   func produceImageOfSize(size: CGSize) -> Data? {
     let color = UIColor.cyan

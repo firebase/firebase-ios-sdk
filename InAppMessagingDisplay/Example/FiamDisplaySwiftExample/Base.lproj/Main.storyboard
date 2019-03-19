@@ -348,18 +348,42 @@
                                 <rect key="frame" x="0.0" y="20" width="414" height="667"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Verification Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ts8-L7-y9b">
-                                        <rect key="frame" x="0.0" y="0.0" width="414" height="333.66666666666669"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="414" height="133.33333333333334"/>
                                         <accessibility key="accessibilityConfiguration" identifier="verification-label-modal"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ITc-lu-jBW">
-                                        <rect key="frame" x="0.0" y="333.66666666666674" width="414" height="333.33333333333326"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="11"/>
-                                        <state key="normal" title="Regular"/>
+                                        <rect key="frame" x="0.0" y="133.33333333333331" width="414" height="133.33333333333331"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                        <state key="normal" title="Regular one button with both images"/>
                                         <connections>
-                                            <action selector="showRegular:" destination="7qp-KF-emt" eventType="touchUpInside" id="bC3-R5-7LF"/>
+                                            <action selector="showRegularOneButtonWithBothImages:" destination="7qp-KF-emt" eventType="touchUpInside" id="m1b-WU-v3c"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="uh3-CP-JX6">
+                                        <rect key="frame" x="0.0" y="266.66666666666669" width="414" height="133.66666666666669"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                        <state key="normal" title="Regular one button with only portrait"/>
+                                        <connections>
+                                            <action selector="showRegularOneButtonWithOnlyPortrait:" destination="7qp-KF-emt" eventType="touchUpInside" id="7dE-hx-ore"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="53O-2p-NBb">
+                                        <rect key="frame" x="0.0" y="400.33333333333331" width="414" height="133.33333333333331"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                        <state key="normal" title="Regular two button with both images"/>
+                                        <connections>
+                                            <action selector="showRegularTwoButtonWithBothImages:" destination="7qp-KF-emt" eventType="touchUpInside" id="krV-Vm-XIf"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bCB-C4-2Bj">
+                                        <rect key="frame" x="0.0" y="533.66666666666663" width="414" height="133.33333333333337"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                        <state key="normal" title="Regular two button with only portrait"/>
+                                        <connections>
+                                            <action selector="showRegularTwoButtonWithOnlyPortrait:" destination="7qp-KF-emt" eventType="touchUpInside" id="yM0-eJ-Hdh"/>
                                         </connections>
                                     </button>
                                 </subviews>
