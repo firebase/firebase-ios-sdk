@@ -17,7 +17,7 @@ class CardMessageViewController: CommonMessageTestVC {
     let portraitImageRawData = produceImageOfSize(size: CGSize(width: 300, height: 200))
     let portraitImageData = InAppMessagingImageData(imageURL: "url not important", imageData: portraitImageRawData!)
     
-    let landscapeImageRawData = produceImageOfSize(size: CGSize(width: 300, height: 300))
+    let landscapeImageRawData = produceImageOfSize(size: CGSize(width: 200, height: 200))
     let landscapeImageData = InAppMessagingImageData(imageURL: "url not important", imageData: landscapeImageRawData!)
 
     let cardMessage = InAppMessagingCardDisplay(messageID: "testID",
