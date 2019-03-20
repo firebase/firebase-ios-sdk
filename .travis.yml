@@ -186,7 +186,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
   allow_failures:
-  	# Temporarily make FIAM non-required due to flake.
+    # Temporarily make FIAM non-required due to flake.
     - stage: test
       env:
         - PROJECT=InAppMessaging PLATFORM=iOS METHOD=xcodebuild
