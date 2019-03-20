@@ -19,7 +19,7 @@
 
 import Foundation
 import XCTest
-import FirebaseFirestore
+import Firebase
 
 class BasicCompileTests: XCTestCase {
   func testCompiled() {
