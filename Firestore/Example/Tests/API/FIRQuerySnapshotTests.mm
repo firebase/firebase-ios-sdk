@@ -94,7 +94,7 @@ NS_ASSUME_NONNULL_BEGIN
       DocumentViewChange{doc2New, DocumentViewChange::Type::kModified},
   };
 
-  FIRFirestore *firestore = FSTTestFirestore();
+  Firestore *firestore = FSTTestFirestore().wrapped;
   FSTQuery *query = FSTTestQuery("foo");
   ViewSnapshot viewSnapshot{query,
                             newDocuments,
@@ -104,21 +104,20 @@ NS_ASSUME_NONNULL_BEGIN
                             /*from_cache=*/false,
                             /*sync_state_changed=*/true,
                             /*excludes_metadata_changes=*/false};
-  FIRSnapshotMetadata *metadata = [[FIRSnapshotMetadata alloc] initWithPendingWrites:NO
-                                                                           fromCache:NO];
-  FIRQuerySnapshot *snapshot = [FIRQuerySnapshot snapshotWithFirestore:firestore
-                                                         originalQuery:query
-                                                              snapshot:std::move(viewSnapshot)
-                                                              metadata:metadata];
+  SnapshotMetadata metadata(/*pending_writes=*/false, /*from_cache=*/false);
+  FIRQuerySnapshot *snapshot = [[FIRQuerySnapshot alloc] initWithFirestore:firestore
+                                                             originalQuery:query
+                                                                  snapshot:std::move(viewSnapshot)
+                                                                  metadata:std::move(metadata)];
 
   FIRQueryDocumentSnapshot *doc1Snap =
-      [[FIRQueryDocumentSnapshot alloc] initWithFirestore:firestore.wrapped
+      [[FIRQueryDocumentSnapshot alloc] initWithFirestore:firestore
                                               documentKey:doc1New.key
                                                  document:doc1New
                                                 fromCache:false
                                          hasPendingWrites:false];
   FIRQueryDocumentSnapshot *doc2Snap =
-      [[FIRQueryDocumentSnapshot alloc] initWithFirestore:firestore.wrapped
+      [[FIRQueryDocumentSnapshot alloc] initWithFirestore:firestore
                                               documentKey:doc2New.key
                                                  document:doc2New
                                                 fromCache:false
