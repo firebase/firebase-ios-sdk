@@ -19,6 +19,9 @@
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import "Public/GULLoggerLevel.h"
 
+NSString *const kGULLoggerErrorCountKey = @"kGULLoggerErrorCountKey";
+NSString *const kGULLoggerWarningCountKey = @"kGULLoggerWarningCountKey";
+
 /// ASL client facility name used by GULLogger.
 const char *kGULLoggerASLClientFacilityName = "com.google.utilities.logger";
 
@@ -42,6 +45,8 @@ static GULLoggerService kGULLoggerLogger = @"[GULLogger]";
 static NSString *const kMessageCodePattern = @"^I-[A-Z]{3}[0-9]{6}$";
 static NSRegularExpression *sMessageCodeRegex;
 #endif
+
+void GULIncrementLogCountForLevel(GULLoggerLevel level);
 
 void GULLoggerInitializeASL(void) {
   dispatch_once(&sGULLoggerOnceToken, ^{
@@ -165,6 +170,10 @@ void GULLogBasic(GULLoggerLevel level,
   logMsg = [NSString stringWithFormat:@"%s - %@[%@] %@", sVersion, service, messageCode, logMsg];
   dispatch_async(sGULClientQueue, ^{
     asl_log(sGULLoggerClient, NULL, level, "%s", logMsg.UTF8String);
+
+    // Keep count of how many errors and warnings are triggered.
+    // The message won't be added if it is of lower level then the logger level
+    GULIncrementLogCountForLevel(level);
   });
 }
 #pragma clang diagnostic pop
@@ -193,6 +202,56 @@ GUL_LOGGING_FUNCTION(Info)
 GUL_LOGGING_FUNCTION(Debug)
 
 #undef GUL_MAKE_LOGGER
+
+#pragma mark - Number of errors and warnings
+
+NSUserDefaults *getGULLoggerUsetDefaults(void) {
+  static NSUserDefaults *_userDefaults = nil;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    _userDefaults = [[NSUserDefaults alloc] initWithSuiteName:@"GoogleUtilities.Logger.GULLogger"];
+  });
+
+  return _userDefaults;
+}
+
+void GULAsyncGetUserDefaultsIntegerForKey(NSString *key, void(^completion)(NSInteger)) {
+  dispatch_async(sGULClientQueue, ^{
+    NSInteger count = [getGULLoggerUsetDefaults() integerForKey:key];
+    dispatch_async(dispatch_get_main_queue(), ^{
+      completion(count);
+    });
+  });
+}
+
+void GULNumberOfErrorsLogged(void(^completion)(NSInteger)) {
+  GULAsyncGetUserDefaultsIntegerForKey(kGULLoggerErrorCountKey, completion);
+}
+
+void GULNumberOfWarningsLogged(void(^completion)(NSInteger)) {
+  GULAsyncGetUserDefaultsIntegerForKey(kGULLoggerWarningCountKey, completion);
+}
+
+void GULResetNumberOfIssuesLogged(void) {
+  dispatch_async(sGULClientQueue, ^{
+    [getGULLoggerUsetDefaults() setInteger:0 forKey:kGULLoggerErrorCountKey];
+    [getGULLoggerUsetDefaults() setInteger:0 forKey:kGULLoggerWarningCountKey];
+  });
+}
+
+void GULIncrementUserDefaultsIntegerForKey(NSString *key) {
+  NSUserDefaults *defaults = getGULLoggerUsetDefaults();
+  NSInteger errorCount = [defaults integerForKey:key];
+  [defaults setInteger:errorCount + 1 forKey:key];
+}
+
+void GULIncrementLogCountForLevel(GULLoggerLevel level) {
+  if (level == GULLoggerLevelError) {
+    GULIncrementUserDefaultsIntegerForKey(kGULLoggerErrorCountKey);
+  } else if (level == GULLoggerLevelWarning) {
+    GULIncrementUserDefaultsIntegerForKey(kGULLoggerWarningCountKey);
+  }
+}
 
 #pragma mark - GULLoggerWrapper
 
