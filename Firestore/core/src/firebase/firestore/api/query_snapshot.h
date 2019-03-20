@@ -59,7 +59,8 @@ class QuerySnapshot {
 
   size_t Hash() const;
 
-  /** Indicates whether this `QuerySnapshot` is empty (contains no documents).
+  /**
+   * Indicates whether this `QuerySnapshot` is empty (contains no documents).
    */
   bool empty() const {
     return static_cast<bool>(snapshot_.documents().isEmpty);
@@ -97,8 +98,8 @@ class QuerySnapshot {
   friend bool operator==(const QuerySnapshot& lhs, const QuerySnapshot& rhs);
 
  private:
-  Firestore* firestore_;
-  FSTQuery* internal_query_;
+  Firestore* firestore_ = nullptr;
+  FSTQuery* internal_query_ = nil;
   core::ViewSnapshot snapshot_;
   SnapshotMetadata metadata_;
 };
