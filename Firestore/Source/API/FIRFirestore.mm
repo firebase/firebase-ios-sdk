@@ -39,6 +39,7 @@
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
+#include "Firestore/core/src/firebase/firestore/util/delayed_constructor.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
@@ -48,6 +49,7 @@ using firebase::firestore::api::Firestore;
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::util::AsyncQueue;
+using firebase::firestore::util::DelayedConstructor;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -62,9 +64,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 @end
 
 @implementation FIRFirestore {
-  // `std::mutex` member variable makes `core::Firestore` unmovable.
-
-  std::unique_ptr<Firestore> _firestore;
+  DelayedConstructor<Firestore> _firestore;
 }
 
 + (NSMutableDictionary<NSString *, FIRFirestore *> *)instances {
@@ -144,9 +144,8 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
                       workerQueue:(std::unique_ptr<AsyncQueue>)workerQueue
                       firebaseApp:(FIRApp *)app {
   if (self = [super init]) {
-    _firestore = absl::make_unique<Firestore>(
-        std::move(projectID), std::move(database), std::move(persistenceKey),
-        std::move(credentialsProvider), std::move(workerQueue), (__bridge void *)self);
+    _firestore.Init(std::move(projectID), std::move(database), std::move(persistenceKey),
+                    std::move(credentialsProvider), std::move(workerQueue), (__bridge void *)self);
 
     _app = app;
 

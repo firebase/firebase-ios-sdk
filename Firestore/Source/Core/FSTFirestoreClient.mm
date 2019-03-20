@@ -25,6 +25,7 @@
 #import "FIRFirestoreSettings.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
+#import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRQuery+Internal.h"
 #import "Firestore/Source/API/FIRQuerySnapshot+Internal.h"
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
@@ -371,14 +372,12 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
     HARD_ASSERT(viewChange.snapshot.has_value(), "Expected a snapshot");
 
     ViewSnapshot snapshot = std::move(viewChange.snapshot).value();
-    FIRSnapshotMetadata *metadata =
-        [[FIRSnapshotMetadata alloc] initWithPendingWrites:snapshot.has_pending_writes()
-                                                 fromCache:snapshot.from_cache()];
+    SnapshotMetadata metadata(snapshot.has_pending_writes(), snapshot.from_cache());
 
-    FIRQuerySnapshot *result = [FIRQuerySnapshot snapshotWithFirestore:query.firestore
-                                                         originalQuery:query.query
-                                                              snapshot:std::move(snapshot)
-                                                              metadata:metadata];
+    FIRQuerySnapshot *result = [[FIRQuerySnapshot alloc] initWithFirestore:query.firestore.wrapped
+                                                             originalQuery:query.query
+                                                                  snapshot:std::move(snapshot)
+                                                                  metadata:std::move(metadata)];
 
     if (completion) {
       self->_userExecutor->Execute([=] { completion(result, nil); });
