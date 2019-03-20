@@ -154,6 +154,10 @@ void GULLogBasic(GULLoggerLevel level,
                  NSString *message,
                  va_list args_ptr) {
   GULLoggerInitializeASL();
+
+  // Keep count of how many errors and warnings are triggered.
+  GULIncrementLogCountForLevel(level);
+
   if (!(level <= sGULLoggerMaximumLevel || sGULLoggerDebugMode || forceLog)) {
     return;
   }
@@ -170,10 +174,6 @@ void GULLogBasic(GULLoggerLevel level,
   logMsg = [NSString stringWithFormat:@"%s - %@[%@] %@", sVersion, service, messageCode, logMsg];
   dispatch_async(sGULClientQueue, ^{
     asl_log(sGULLoggerClient, NULL, level, "%s", logMsg.UTF8String);
-
-    // Keep count of how many errors and warnings are triggered.
-    // The message won't be added if it is of lower level then the logger level
-    GULIncrementLogCountForLevel(level);
   });
 }
 #pragma clang diagnostic pop
@@ -215,8 +215,20 @@ NSUserDefaults *getGULLoggerUsetDefaults(void) {
   return _userDefaults;
 }
 
+dispatch_queue_t getGULLoggerCounterQueue(void) {
+  static dispatch_queue_t queue;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    queue = dispatch_queue_create("GoogleUtilities.GULLogger.counterQueue", DISPATCH_QUEUE_SERIAL);
+    dispatch_set_target_queue(queue,
+                              dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0));
+  });
+
+  return queue;
+}
+
 void GULAsyncGetUserDefaultsIntegerForKey(NSString *key, void(^completion)(NSInteger)) {
-  dispatch_async(sGULClientQueue, ^{
+  dispatch_async(getGULLoggerCounterQueue(), ^{
     NSInteger count = [getGULLoggerUsetDefaults() integerForKey:key];
     dispatch_async(dispatch_get_main_queue(), ^{
       completion(count);
@@ -233,7 +245,7 @@ void GULNumberOfWarningsLogged(void(^completion)(NSInteger)) {
 }
 
 void GULResetNumberOfIssuesLogged(void) {
-  dispatch_async(sGULClientQueue, ^{
+  dispatch_async(getGULLoggerCounterQueue(), ^{
     [getGULLoggerUsetDefaults() setInteger:0 forKey:kGULLoggerErrorCountKey];
     [getGULLoggerUsetDefaults() setInteger:0 forKey:kGULLoggerWarningCountKey];
   });
@@ -246,11 +258,13 @@ void GULIncrementUserDefaultsIntegerForKey(NSString *key) {
 }
 
 void GULIncrementLogCountForLevel(GULLoggerLevel level) {
-  if (level == GULLoggerLevelError) {
-    GULIncrementUserDefaultsIntegerForKey(kGULLoggerErrorCountKey);
-  } else if (level == GULLoggerLevelWarning) {
-    GULIncrementUserDefaultsIntegerForKey(kGULLoggerWarningCountKey);
-  }
+  dispatch_async(getGULLoggerCounterQueue(), ^{
+    if (level == GULLoggerLevelError) {
+      GULIncrementUserDefaultsIntegerForKey(kGULLoggerErrorCountKey);
+    } else if (level == GULLoggerLevelWarning) {
+      GULIncrementUserDefaultsIntegerForKey(kGULLoggerWarningCountKey);
+    }
+  });
 }
 
 #pragma mark - GULLoggerWrapper
