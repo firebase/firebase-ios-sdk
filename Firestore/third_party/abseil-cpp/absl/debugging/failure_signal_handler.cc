@@ -150,12 +150,9 @@ static bool SetupAlternateStackOnce() {
   }
 #endif
 
-#if !TARGET_OS_TV
   if (sigaltstack(&sigstk, nullptr) != 0) {
     ABSL_RAW_LOG(FATAL, "sigaltstack() failed with errno=%d", errno);
   }
-#endif
-    
   return true;
 }
 
