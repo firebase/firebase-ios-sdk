@@ -77,8 +77,6 @@ XcTestRecorder<M> MakeXcTestRecorder(M matcher,
 
 #define XC_ASSERT_THAT(actual, matcher)                                \
   do {                                                                 \
-    using actual_type =                                                \
-        typename std::remove_reference<decltype(actual)>::type;        \
     auto recorder = firebase::firestore::testutil::MakeXcTestRecorder( \
         matcher, self, __FILE__, __LINE__);                            \
     recorder.Match(#actual, actual);                                   \
@@ -109,6 +107,7 @@ inline void ObjcPrintTo(id value, std::ostream* os) {
 // of `operator<<` would be sufficient.
 
 // Select Foundation types
+OBJC_PRINT_TO(NSObject);
 OBJC_PRINT_TO(NSArray);
 OBJC_PRINT_TO(NSDictionary);
 OBJC_PRINT_TO(NSNumber);

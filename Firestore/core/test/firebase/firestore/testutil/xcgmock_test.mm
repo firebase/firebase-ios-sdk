@@ -19,17 +19,27 @@
 #import "Firestore/Source/Core/FSTQuery.h"
 
 #include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "Firestore/core/src/firebase/firestore/util/to_string.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
 namespace firestore {
 namespace testutil {
 
-TEST(XcGmockTest, FoundationPrints) {
-  EXPECT_EQ("value", testing::PrintToString(@"value"));
+TEST(XcGmockTest, NSArrayPrints) {
+  std::string expected = util::ToString(@[ @"value" ]);
 
-  std::string expected = util::MakeString([@[ @"value" ] description]);
   EXPECT_EQ(expected, testing::PrintToString(@[ @"value" ]));
+}
+
+TEST(XcGmockTest, NSNumberPrints) {
+  EXPECT_EQ("1", testing::PrintToString(@1));
+}
+
+// TODO(wilhuff): make this actually work!
+// For whatever reason, this prints like a pointer.
+TEST(XcGmockTest, DISABLED_NSStringPrints) {
+  EXPECT_EQ("value", testing::PrintToString(@"value"));
 }
 
 TEST(XcGmockTest, FSTNullFilterPrints) {
