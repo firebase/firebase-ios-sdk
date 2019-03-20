@@ -186,6 +186,15 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
   allow_failures:
+  	# Temporarily make FIAM non-required due to flake.
+    - stage: test
+      env:
+        - PROJECT=InAppMessaging PLATFORM=iOS METHOD=xcodebuild
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
+  
     # Run fuzz tests only on cron jobs.
     - stage: test
       env:
@@ -195,14 +204,6 @@ jobs:
       script:
         # The travis_wait is necessary because fuzzing runs for 40 minutes.
         - travis_wait 45 ./scripts/if_cron.sh ./scripts/fuzzing_ci.sh
-
-    - stage: test
-      env:
-        - PROJECT=InAppMessaging PLATFORM=iOS METHOD=xcodebuild
-      before_install:
-        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
-      script:
-        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
 
     # TODO(varconst): UBSan for CMake. UBSan failures are non-fatal by default,
     # need to make them fatal for the purposes of the test run.
