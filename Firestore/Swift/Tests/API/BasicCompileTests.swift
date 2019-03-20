@@ -413,7 +413,11 @@ func types() {
   let _: Firestore
   let _: FirestoreSettings
   let _: GeoPoint
+  let _: Firebase.GeoPoint
+  let _: FirebaseFirestore.GeoPoint
   let _: Timestamp
+  let _: Firebase.Timestamp
+  let _: FirebaseFirestore.Timestamp
   let _: ListenerRegistration
   let _: Query
   let _: QuerySnapshot
