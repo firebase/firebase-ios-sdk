@@ -181,7 +181,6 @@ NS_ASSUME_NONNULL_BEGIN
       return;
     }
     ViewSnapshot snapshot = maybe_snapshot.ValueOrDie();
-
     SnapshotMetadata metadata(snapshot.has_pending_writes(), snapshot.from_cache());
 
     listener([[FIRQuerySnapshot alloc] initWithFirestore:firestore

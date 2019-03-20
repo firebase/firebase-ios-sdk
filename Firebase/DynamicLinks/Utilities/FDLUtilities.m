@@ -211,12 +211,11 @@ BOOL FIRDLIsURLForWhiteListedCustomDomain(NSURL *_Nullable URL) {
                                      options:NSCaseInsensitiveSearch | NSAnchoredSearch]
                .location) == 0) {
         // The (short) URL needs to be longer than the domainURIPrefix, it's first character after
-        // the domainURIPrefix needs to be '/' or '?' and should be followed by at-least one more
+        // the domainURIPrefix needs to be '/' and should be followed by at-least one more
         // character.
         if (urlStr.length > domainURIPrefixStr.length + 1 &&
-            ([urlStr characterAtIndex:domainURIPrefixStr.length] == '/' ||
-             [urlStr characterAtIndex:domainURIPrefixStr.length] == '?')) {
-          // Check if there are any more '/' after the first '/' or '?' trailing the
+            ([urlStr characterAtIndex:domainURIPrefixStr.length] == '/')) {
+          // Check if there are any more '/' after the first '/'trailing the
           // domainURIPrefix. This does not apply to unique match links copied from the clipboard.
           // The clipboard links will have '?link=' after the domainURIPrefix.
           NSString *urlWithoutDomainURIPrefix =
@@ -249,17 +248,17 @@ BOOL FIRDLCanParseUniversalLinkURL(NSURL *_Nullable URL) {
 }
 
 BOOL FIRDLMatchesShortLinkFormat(NSURL *URL) {
-  // Short Durable Link URLs always have a path, except for certain custom domain URLs e.g.
-  // 'https://google.com?link=abcd' will not have a path component.
-  // FIRDLIsURLForWhiteListedCustomDomain implicitely checks for path component in custom domain
-  // URLs.
-  BOOL hasPath = URL.path.length > 0 || FIRDLIsURLForWhiteListedCustomDomain(URL);
+  // Short Durable Link URLs always have a path.
+  BOOL hasPath = URL.path.length > 0;
+  BOOL matchesRegularExpression =
+      ([URL.path rangeOfString:@"/[^/]+" options:NSRegularExpressionSearch].location != NSNotFound);
   // Must be able to parse (also checks if the URL conforms to *.app.goo.gl/* or goo.gl/app/*)
-  BOOL canParse = FIRDLCanParseUniversalLinkURL(URL);
+  BOOL canParse = FIRDLCanParseUniversalLinkURL(URL) | FIRDLIsURLForWhiteListedCustomDomain(URL);
+  ;
   // Path cannot be prefixed with /link/dismiss
   BOOL isDismiss = [[URL.path lowercaseString] hasPrefix:@"/link/dismiss"];
 
-  return hasPath && !isDismiss && canParse;
+  return hasPath && matchesRegularExpression && !isDismiss && canParse;
 }
 
 NSString *FIRDLMatchTypeStringFromServerString(NSString *_Nullable serverMatchTypeString) {

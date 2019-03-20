@@ -247,6 +247,7 @@ cc_library(
     config.h
     hashing.h
     iterator_adaptors.h
+    objc_compatibility.h
     ordered_code.cc
     ordered_code.h
     range.h

@@ -32,6 +32,7 @@
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
@@ -101,8 +102,8 @@ std::vector<uint8_t> Serializer::DecodeBytes(const pb_bytes_array_t* bytes) {
 
 namespace {
 
-ObjectValue::Map DecodeMapValue(Reader* reader,
-                                const google_firestore_v1_MapValue& map_value);
+FieldValue::Map DecodeMapValue(Reader* reader,
+                               const google_firestore_v1_MapValue& map_value);
 
 // There's no f:f::model equivalent of StructuredQuery, so we'll create our
 // own struct for decoding. We could use nanopb's struct, but it's slightly
@@ -119,7 +120,7 @@ struct StructuredQuery {
   // TODO(rsgowman): other fields
 };
 
-ObjectValue::Map::value_type DecodeFieldsEntry(
+FieldValue::Map::value_type DecodeFieldsEntry(
     Reader* reader, const google_firestore_v1_Document_FieldsEntry& fields) {
   std::string key = Serializer::DecodeString(fields.key);
   FieldValue value = Serializer::DecodeFieldValue(reader, fields.value);
@@ -130,33 +131,32 @@ ObjectValue::Map::value_type DecodeFieldsEntry(
     return {};
   }
 
-  return ObjectValue::Map::value_type{std::move(key), std::move(value)};
+  return FieldValue::Map::value_type{std::move(key), std::move(value)};
 }
 
-ObjectValue::Map DecodeFields(
+FieldValue::Map DecodeFields(
     Reader* reader,
     size_t count,
     const google_firestore_v1_Document_FieldsEntry* fields) {
-  ObjectValue::Map result;
+  FieldValue::Map result;
   for (size_t i = 0; i < count; i++) {
-    ObjectValue::Map::value_type kv = DecodeFieldsEntry(reader, fields[i]);
+    FieldValue::Map::value_type kv = DecodeFieldsEntry(reader, fields[i]);
     result = result.insert(std::move(kv.first), std::move(kv.second));
   }
 
   return result;
 }
 
-google_firestore_v1_MapValue EncodeMapValue(
-    const ObjectValue::Map& object_value_map) {
+google_firestore_v1_MapValue EncodeMapValue(const ObjectValue& object_value) {
   google_firestore_v1_MapValue result{};
 
-  size_t count = object_value_map.size();
+  size_t count = object_value.GetInternalValue().size();
 
   result.fields_count = static_cast<pb_size_t>(count);
   result.fields = MakeArray<google_firestore_v1_MapValue_FieldsEntry>(count);
 
   int i = 0;
-  for (const auto& kv : object_value_map) {
+  for (const auto& kv : object_value.GetInternalValue()) {
     result.fields[i].key = Serializer::EncodeString(kv.first);
     result.fields[i].value = Serializer::EncodeFieldValue(kv.second);
     i++;
@@ -165,9 +165,9 @@ google_firestore_v1_MapValue EncodeMapValue(
   return result;
 }
 
-ObjectValue::Map DecodeMapValue(Reader* reader,
-                                const google_firestore_v1_MapValue& map_value) {
-  ObjectValue::Map result;
+FieldValue::Map DecodeMapValue(Reader* reader,
+                               const google_firestore_v1_MapValue& map_value) {
+  FieldValue::Map result;
 
   for (size_t i = 0; i < map_value.fields_count; i++) {
     std::string key = Serializer::DecodeString(map_value.fields[i].key);
@@ -310,8 +310,7 @@ google_firestore_v1_Value Serializer::EncodeFieldValue(
 
     case FieldValue::Type::Object:
       result.which_value_type = google_firestore_v1_Value_map_value_tag;
-      result.map_value =
-          EncodeMapValue(field_value.object_value().internal_value);
+      result.map_value = EncodeMapValue(ObjectValue(field_value));
       break;
 
     default:
@@ -416,11 +415,11 @@ google_firestore_v1_Document Serializer::EncodeDocument(
   result.name = EncodeString(EncodeKey(key));
 
   // Encode Document.fields (unless it's empty)
-  size_t count = object_value.internal_value.size();
+  size_t count = object_value.GetInternalValue().size();
   result.fields_count = static_cast<pb_size_t>(count);
   result.fields = MakeArray<google_firestore_v1_Document_FieldsEntry>(count);
   int i = 0;
-  for (const auto& kv : object_value.internal_value) {
+  for (const auto& kv : object_value.GetInternalValue()) {
     result.fields[i].key = EncodeString(kv.first);
     result.fields[i].value = EncodeFieldValue(kv.second);
     i++;
@@ -457,7 +456,7 @@ std::unique_ptr<model::Document> Serializer::DecodeFoundDocument(
               "Tried to deserialize a found document from a missing document.");
 
   DocumentKey key = DecodeKey(reader, DecodeString(response.found.name));
-  ObjectValue::Map value =
+  FieldValue::Map value =
       DecodeFields(reader, response.found.fields_count, response.found.fields);
   SnapshotVersion version =
       DecodeSnapshotVersion(reader, response.found.update_time);
@@ -466,7 +465,7 @@ std::unique_ptr<model::Document> Serializer::DecodeFoundDocument(
     reader->Fail("Got a document response with no snapshot version");
   }
 
-  return absl::make_unique<Document>(FieldValue::FromMap(std::move(value)),
+  return absl::make_unique<Document>(ObjectValue::FromMap(std::move(value)),
                                      std::move(key), std::move(version),
                                      DocumentState::kSynced);
 }
@@ -492,12 +491,12 @@ std::unique_ptr<model::NoDocument> Serializer::DecodeMissingDocument(
 
 std::unique_ptr<Document> Serializer::DecodeDocument(
     Reader* reader, const google_firestore_v1_Document& proto) const {
-  ObjectValue::Map fields_internal =
+  FieldValue::Map fields_internal =
       DecodeFields(reader, proto.fields_count, proto.fields);
   SnapshotVersion version = DecodeSnapshotVersion(reader, proto.update_time);
 
   return absl::make_unique<Document>(
-      FieldValue::FromMap(std::move(fields_internal)),
+      ObjectValue::FromMap(std::move(fields_internal)),
       DecodeKey(reader, DecodeString(proto.name)), std::move(version),
       DocumentState::kSynced);
 }
@@ -514,16 +513,14 @@ google_firestore_v1_Write Serializer::EncodeMutation(
     case Mutation::Type::kSet: {
       result.which_operation = google_firestore_v1_Write_update_tag;
       result.update = EncodeDocument(
-          mutation.key(),
-          static_cast<const SetMutation&>(mutation).value().object_value());
+          mutation.key(), static_cast<const SetMutation&>(mutation).value());
       return result;
     }
 
     case Mutation::Type::kPatch: {
       result.which_operation = google_firestore_v1_Write_update_tag;
       auto patch_mutation = static_cast<const PatchMutation&>(mutation);
-      result.update =
-          EncodeDocument(mutation.key(), patch_mutation.value().object_value());
+      result.update = EncodeDocument(mutation.key(), patch_mutation.value());
       result.update_mask = EncodeDocumentMask(patch_mutation.mask());
       return result;
     }
@@ -565,7 +562,7 @@ std::unique_ptr<model::Mutation> Serializer::DecodeMutation(
   switch (mutation.which_operation) {
     case google_firestore_v1_Write_update_tag: {
       DocumentKey key = DecodeKey(reader, DecodeString(mutation.update.name));
-      FieldValue value = FieldValue::FromMap(DecodeFields(
+      ObjectValue value = ObjectValue::FromMap(DecodeFields(
           reader, mutation.update.fields_count, mutation.update.fields));
       FieldMask mask = DecodeDocumentMask(mutation.update_mask);
       if (mask.size() > 0) {

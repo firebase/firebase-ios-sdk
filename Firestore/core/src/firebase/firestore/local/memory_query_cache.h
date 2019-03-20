@@ -32,6 +32,7 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/util/objc_compatibility.h"
 
 @class FSTLocalSerializer;
 @class FSTMemoryPersistence;
@@ -57,7 +58,7 @@ class MemoryQueryCache : public QueryCache {
 
   FSTQueryData* _Nullable GetTarget(FSTQuery* query) override;
 
-  void EnumerateTargets(TargetEnumerator block) override;
+  void EnumerateTargets(const TargetCallback& callback) override;
 
   int RemoveTargets(model::ListenSequenceNumber upper_bound,
                     const std::unordered_map<model::TargetId, FSTQueryData*>&
@@ -78,7 +79,7 @@ class MemoryQueryCache : public QueryCache {
   size_t CalculateByteSize(FSTLocalSerializer* serializer);
 
   size_t size() const override {
-    return [queries_ count];
+    return queries_.size();
   }
 
   model::ListenSequenceNumber highest_listen_sequence_number() const override {
@@ -103,9 +104,16 @@ class MemoryQueryCache : public QueryCache {
   model::SnapshotVersion last_remote_snapshot_version_;
 
   /** Maps a query to the data about that query. */
-  NSMutableDictionary<FSTQuery*, FSTQueryData*>* queries_;
-  /** A ordered bidirectional mapping between documents and the remote target
-   * IDs. */
+  std::unordered_map<FSTQuery*,
+                     FSTQueryData*,
+                     util::objc::Hash<FSTQuery*>,
+                     util::objc::EqualTo<FSTQuery*>>
+      queries_;
+
+  /**
+   * A ordered bidirectional mapping between documents and the remote target
+   * IDs.
+   */
   ReferenceSet references_;
 };
 
