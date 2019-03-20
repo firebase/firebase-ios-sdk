@@ -194,7 +194,7 @@ jobs:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
-  
+
     # Run fuzz tests only on cron jobs.
     - stage: test
       env:
