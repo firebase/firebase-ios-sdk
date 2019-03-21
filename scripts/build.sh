@@ -342,7 +342,7 @@ case "$product-$method-$platform" in
         test
     ;;
 
-  GoogleDataTransport-xcodebuild-iOS)
+  GoogleDataTransportCCTSupport-xcodebuild-iOS)
     RunXcodebuild \
         -workspace 'GoogleDataTransportCCTSupport/gen/GoogleDataTransportCCTSupport/GoogleDataTransportCCTSupport.xcworkspace' \
         -scheme "GoogleDataTransportCCTSupport-Unit-Tests-Unit" \
