@@ -127,6 +127,11 @@ std::string Status::ToString() const {
   }
 }
 
+std::ostream& operator<<(std::ostream& out, const Status& status) {
+  out << status.ToString();
+  return out;
+}
+
 void Status::IgnoreError() const {
   // no-op
 }

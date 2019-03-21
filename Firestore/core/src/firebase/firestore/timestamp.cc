@@ -17,6 +17,7 @@
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "absl/strings/str_cat.h"
 
 namespace firebase {
 
@@ -84,8 +85,12 @@ Timestamp Timestamp::FromTimePoint(
 #endif  // !defined(_STLPORT_VERSION)
 
 std::string Timestamp::ToString() const {
-  return std::string("Timestamp(seconds=") + std::to_string(seconds_) +
-         ", nanoseconds=" + std::to_string(nanoseconds_) + ")";
+  return absl::StrCat("Timestamp(seconds=", seconds_,
+                      ", nanoseconds=", nanoseconds_, ")");
+}
+
+std::ostream& operator<<(std::ostream& out, const Timestamp& timestamp) {
+  return out << timestamp.ToString();
 }
 
 void Timestamp::ValidateBounds() const {

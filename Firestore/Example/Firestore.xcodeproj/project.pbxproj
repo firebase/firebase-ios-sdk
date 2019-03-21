@@ -34,6 +34,7 @@
 		36FD4CE79613D18BC783C55B /* string_apple_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = 0EE5300F8233D14025EF0456 /* string_apple_test.mm */; };
 		3B843E4C1F3A182900548890 /* remote_store_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 3B843E4A1F3930A400548890 /* remote_store_spec_test.json */; };
 		4AA4ABE36065DB79CD76DD8D /* Pods_Firestore_Benchmarks_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F694C3CE4B77B3C0FA4BBA53 /* Pods_Firestore_Benchmarks_iOS.framework */; };
+		4D1F46B2DD91198C8867C04C /* xcgmock_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4425A513895DEC60325A139E /* xcgmock_test.mm */; };
 		54131E9720ADE679001DF3FF /* string_format_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54131E9620ADE678001DF3FF /* string_format_test.cc */; };
 		544129DA21C2DDC800EFB9CC /* common.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 544129D221C2DDC800EFB9CC /* common.pb.cc */; };
 		544129DB21C2DDC800EFB9CC /* firestore.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 544129D421C2DDC800EFB9CC /* firestore.pb.cc */; };
@@ -182,6 +183,7 @@
 		84DBE646DCB49305879D3500 /* nanopb_string_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 353EEE078EF3F39A9B7279F6 /* nanopb_string_test.cc */; };
 		873B8AEB1B1F5CCA007FD442 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 873B8AEA1B1F5CCA007FD442 /* Main.storyboard */; };
 		8C82D4D3F9AB63E79CC52DC8 /* Pods_Firestore_IntegrationTests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ECEBABC7E7B693BE808A1052 /* Pods_Firestore_IntegrationTests_iOS.framework */; };
+		9794E074439ABE5457E60F35 /* xcgmock_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4425A513895DEC60325A139E /* xcgmock_test.mm */; };
 		AB356EF7200EA5EB0089B766 /* field_value_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB356EF6200EA5EB0089B766 /* field_value_test.cc */; };
 		AB380CFB2019388600D97691 /* target_id_generator_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB380CF82019382300D97691 /* target_id_generator_test.cc */; };
 		AB380CFE201A2F4500D97691 /* string_util_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB380CFC201A2EE200D97691 /* string_util_test.cc */; };
@@ -326,6 +328,7 @@
 		3C81DE3772628FE297055662 /* Pods-Firestore_Example_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Example_iOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Example_iOS/Pods-Firestore_Example_iOS.debug.xcconfig"; sourceTree = "<group>"; };
 		3F0992A4B83C60841C52E960 /* Pods-Firestore_Example_iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Example_iOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Example_iOS/Pods-Firestore_Example_iOS.release.xcconfig"; sourceTree = "<group>"; };
 		403DBF6EFB541DFD01582AA3 /* path_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = path_test.cc; sourceTree = "<group>"; };
+		4425A513895DEC60325A139E /* xcgmock_test.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; path = xcgmock_test.mm; sourceTree = "<group>"; };
 		444B7AB3F5A2929070CB1363 /* hard_assert_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = hard_assert_test.cc; sourceTree = "<group>"; };
 		54131E9620ADE678001DF3FF /* string_format_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = string_format_test.cc; sourceTree = "<group>"; };
 		544129D021C2DDC800EFB9CC /* query.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = query.pb.h; sourceTree = "<group>"; };
@@ -559,6 +562,7 @@
 		B6FB468A208F9B9100554BA2 /* executor_test.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = executor_test.h; sourceTree = "<group>"; };
 		B79CA87A1A01FC5329031C9B /* Pods_Firestore_FuzzTests_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_FuzzTests_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B9C261C26C5D311E1E3C0CB9 /* query_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = query_test.cc; sourceTree = "<group>"; };
+		BA6E5B9D53CCF301F58A62D7 /* xcgmock.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = xcgmock.h; sourceTree = "<group>"; };
 		BB92EB03E3F92485023F64ED /* Pods_Firestore_Example_iOS_Firestore_SwiftTests_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_Example_iOS_Firestore_SwiftTests_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C8522DE226C467C54E6788D8 /* mutation_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = mutation_test.cc; sourceTree = "<group>"; };
 		D0A6E9136804A41CEC9D55D4 /* delayed_constructor_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; path = delayed_constructor_test.cc; sourceTree = "<group>"; };
@@ -715,6 +719,8 @@
 				5467FB07203E6A44009C9584 /* app_testing.mm */,
 				54A0352820A3B3BD003E0143 /* testutil.cc */,
 				54A0352920A3B3BD003E0143 /* testutil.h */,
+				BA6E5B9D53CCF301F58A62D7 /* xcgmock.h */,
+				4425A513895DEC60325A139E /* xcgmock_test.mm */,
 			);
 			path = testutil;
 			sourceTree = "<group>";
@@ -2138,6 +2144,7 @@
 				ABC1D7DE2023A05300BA84F0 /* user_test.cc in Sources */,
 				B68FC0E521F6848700A7055C /* watch_change_test.mm in Sources */,
 				544129DE21C2DDC800EFB9CC /* write.pb.cc in Sources */,
+				9794E074439ABE5457E60F35 /* xcgmock_test.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2185,6 +2192,7 @@
 				5492E0442021457E00B64F25 /* XCTestCase+Await.mm in Sources */,
 				EBFC611B1BF195D0EC710AF4 /* app_testing.mm in Sources */,
 				CA989C0E6020C372A62B7062 /* testutil.cc in Sources */,
+				4D1F46B2DD91198C8867C04C /* xcgmock_test.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2670,12 +2678,12 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"${PODS_ROOT}/../../..\"",
+					"\"${PODS_ROOT}/../../../Firestore/Protos/cpp\"",
+					"\"${PODS_ROOT}/../../../Firestore/Protos/nanopb\"",
 					"\"${PODS_ROOT}/../../../Firestore/third_party/abseil-cpp\"",
 					"\"${PODS_ROOT}/GoogleTest/googlemock/include\"",
 					"\"${PODS_ROOT}/GoogleTest/googletest/include\"",
 					"\"${PODS_ROOT}/leveldb-library/include\"",
-					"\"${PODS_ROOT}/../../../Firestore/Protos/nanopb\"",
-					"\"${PODS_ROOT}/../../../Firestore/Protos/cpp\"",
 					"\"${PODS_ROOT}/ProtobufCpp/src\"",
 				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
@@ -2748,12 +2756,12 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"${PODS_ROOT}/../../..\"",
+					"\"${PODS_ROOT}/../../../Firestore/Protos/cpp\"",
+					"\"${PODS_ROOT}/../../../Firestore/Protos/nanopb\"",
 					"\"${PODS_ROOT}/../../../Firestore/third_party/abseil-cpp\"",
 					"\"${PODS_ROOT}/GoogleTest/googlemock/include\"",
 					"\"${PODS_ROOT}/GoogleTest/googletest/include\"",
 					"\"${PODS_ROOT}/leveldb-library/include\"",
-					"\"${PODS_ROOT}/../../../Firestore/Protos/nanopb\"",
-					"\"${PODS_ROOT}/../../../Firestore/Protos/cpp\"",
 					"\"${PODS_ROOT}/ProtobufCpp/src\"",
 				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
@@ -3044,8 +3052,9 @@
 					"$(inherited)",
 					"\"${PODS_ROOT}/../../..\"",
 					"\"${PODS_ROOT}/../../../Firestore/third_party/abseil-cpp\"",
-					"\"${PODS_ROOT}/leveldb-library/include\"",
+					"\"${PODS_ROOT}/GoogleTest/googlemock/include\"",
 					"\"${PODS_ROOT}/GoogleTest/googletest/include\"",
+					"\"${PODS_ROOT}/leveldb-library/include\"",
 				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				OTHER_LDFLAGS = (
@@ -3081,8 +3090,9 @@
 					"$(inherited)",
 					"\"${PODS_ROOT}/../../..\"",
 					"\"${PODS_ROOT}/../../../Firestore/third_party/abseil-cpp\"",
-					"\"${PODS_ROOT}/leveldb-library/include\"",
+					"\"${PODS_ROOT}/GoogleTest/googlemock/include\"",
 					"\"${PODS_ROOT}/GoogleTest/googletest/include\"",
+					"\"${PODS_ROOT}/leveldb-library/include\"",
 				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				OTHER_LDFLAGS = (

@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 
+#include <ostream>
+
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
@@ -176,6 +178,10 @@ std::string ViewSnapshot::ToString() const {
       query(), documents(), old_documents(),
       objc::Description(document_changes()), from_cache(),
       mutated_keys().size(), sync_state_changed(), excludes_metadata_changes());
+}
+
+std::ostream& operator<<(std::ostream& out, const ViewSnapshot& value) {
+  return out << value.ToString();
 }
 
 size_t ViewSnapshot::Hash() const {
