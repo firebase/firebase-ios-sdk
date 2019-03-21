@@ -702,7 +702,7 @@ google_firestore_v1_DocumentMask Serializer::EncodeDocumentMask(
   google_firestore_v1_DocumentMask result{};
 
   size_t count = mask.size();
-  HARD_ASSERT(count <= std::numeric_limits<pb_size_t>::max(),
+  HARD_ASSERT(count <= PB_SIZE_MAX,
               "Unable to encode specified document mask. Too many fields.");
   result.field_paths_count = static_cast<pb_size_t>(count);
   result.field_paths = MakeArray<pb_bytes_array_t*>(count);
@@ -895,7 +895,7 @@ google_firestore_v1_ArrayValue Serializer::EncodeArray(
   google_firestore_v1_ArrayValue result{};
 
   size_t count = array_value.size();
-  HARD_ASSERT(count <= std::numeric_limits<pb_size_t>::max(),
+  HARD_ASSERT(count <= PB_SIZE_MAX,
               "Unable to encode specified array. Too many entries.");
   result.values_count = count;
   result.values = MakeArray<google_firestore_v1_Value>(count);
