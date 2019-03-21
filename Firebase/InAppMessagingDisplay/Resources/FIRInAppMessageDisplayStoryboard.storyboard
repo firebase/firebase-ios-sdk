@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
-    <device id="retina5_9" orientation="landscape">
+    <device id="retina5_9" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
@@ -18,7 +18,7 @@
                         <viewControllerLayoutGuide type="bottom" id="8Ta-Lb-9Rg"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="ef6-R8-q1S">
-                        <rect key="frame" x="0.0" y="0.0" width="812" height="375"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="rA8-LH-EYm">
@@ -59,11 +59,11 @@
                         <viewControllerLayoutGuide type="bottom" id="K7E-8I-Yw5"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="vRb-yf-OWE">
-                        <rect key="frame" x="0.0" y="0.0" width="812" height="375"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="VfB-vw-7up">
-                                <rect key="frame" x="5" y="3" width="60" height="60"/>
+                                <rect key="frame" x="5" y="47" width="60" height="60"/>
                                 <accessibility key="accessibilityConfiguration" identifier="banner-image-view">
                                     <bool key="isElement" value="YES"/>
                                 </accessibility>
@@ -73,14 +73,14 @@
                                 </constraints>
                             </imageView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Messaging Title" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rzo-9i-rXZ">
-                                <rect key="frame" x="70" y="3" width="678" height="20.333333333333332"/>
+                                <rect key="frame" x="70" y="47" width="289" height="20.333333333333329"/>
                                 <accessibility key="accessibilityConfiguration" identifier="banner-message-title-view"/>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" text="message body" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="GOK-vx-mU8">
-                                <rect key="frame" x="70" y="31.333333333333329" width="678" height="22.666666666666671"/>
+                                <rect key="frame" x="70" y="75.333333333333329" width="289" height="202.66666666666669"/>
                                 <accessibility key="accessibilityConfiguration" identifier="banner-body-label"/>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                 <nil key="textColor"/>
@@ -237,12 +237,6 @@
                                         <exclude reference="8qu-C8-A9u"/>
                                         <exclude reference="Ln4-8U-D7V"/>
                                         <exclude reference="MCf-U1-0tP"/>
-                                        <exclude reference="7vK-9V-j5H"/>
-                                        <exclude reference="9La-QV-ftg"/>
-                                        <exclude reference="Ait-Na-aVF"/>
-                                        <exclude reference="FTB-yV-c00"/>
-                                        <exclude reference="JJo-tI-mvn"/>
-                                        <exclude reference="RbZ-9Q-1S3"/>
                                         <exclude reference="0Fp-k2-48a"/>
                                         <exclude reference="Hm8-0s-RTs"/>
                                         <exclude reference="JUy-lx-oR6"/>
@@ -251,6 +245,12 @@
                                         <exclude reference="ivB-jb-LVl"/>
                                         <exclude reference="pyI-1U-ujR"/>
                                         <exclude reference="ysk-iC-Hz4"/>
+                                        <exclude reference="7vK-9V-j5H"/>
+                                        <exclude reference="9La-QV-ftg"/>
+                                        <exclude reference="Ait-Na-aVF"/>
+                                        <exclude reference="FTB-yV-c00"/>
+                                        <exclude reference="JJo-tI-mvn"/>
+                                        <exclude reference="RbZ-9Q-1S3"/>
                                         <exclude reference="RdS-Ao-GH0"/>
                                         <exclude reference="qgb-13-uT4"/>
                                         <exclude reference="CSN-TG-E9H"/>
@@ -261,12 +261,12 @@
                                 <variation key="heightClass=compact">
                                     <mask key="constraints">
                                         <include reference="MCf-U1-0tP"/>
-                                        <include reference="7vK-9V-j5H"/>
-                                        <include reference="9La-QV-ftg"/>
-                                        <include reference="Ait-Na-aVF"/>
                                         <include reference="Hm8-0s-RTs"/>
                                         <include reference="pyI-1U-ujR"/>
                                         <include reference="ysk-iC-Hz4"/>
+                                        <include reference="7vK-9V-j5H"/>
+                                        <include reference="9La-QV-ftg"/>
+                                        <include reference="Ait-Na-aVF"/>
                                         <include reference="qgb-13-uT4"/>
                                         <include reference="xXr-od-zOM"/>
                                     </mask>
@@ -274,23 +274,23 @@
                                 <variation key="widthClass=regular">
                                     <mask key="constraints">
                                         <include reference="MCf-U1-0tP"/>
+                                        <include reference="Hm8-0s-RTs"/>
+                                        <include reference="ysk-iC-Hz4"/>
                                         <include reference="7vK-9V-j5H"/>
                                         <include reference="9La-QV-ftg"/>
                                         <include reference="Ait-Na-aVF"/>
-                                        <include reference="Hm8-0s-RTs"/>
-                                        <include reference="ysk-iC-Hz4"/>
                                         <include reference="qgb-13-uT4"/>
                                         <include reference="xXr-od-zOM"/>
                                     </mask>
                                 </variation>
                                 <variation key="heightClass=regular-widthClass=compact">
                                     <mask key="constraints">
-                                        <include reference="FTB-yV-c00"/>
-                                        <include reference="JJo-tI-mvn"/>
-                                        <include reference="RbZ-9Q-1S3"/>
                                         <include reference="JUy-lx-oR6"/>
                                         <include reference="Kec-yq-1Pz"/>
                                         <include reference="bD7-OU-bEW"/>
+                                        <include reference="FTB-yV-c00"/>
+                                        <include reference="JJo-tI-mvn"/>
+                                        <include reference="RbZ-9Q-1S3"/>
                                         <include reference="RdS-Ao-GH0"/>
                                         <include reference="CSN-TG-E9H"/>
                                         <include reference="YoE-KS-uWS"/>
@@ -389,8 +389,8 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Aft-rr-icV" userLabel="Card view" customClass="RoundedCornersView">
-                                <rect key="frame" x="67.666666666666686" y="240.99999999999997" width="240" height="330.33333333333326"/>
+                            <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Aft-rr-icV" userLabel="Card view" customClass="RoundedCornersView">
+                                <rect key="frame" x="67.666666666666686" y="67.666666666666686" width="240" height="240"/>
                                 <subviews>
                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="gB0-8W-G9z">
                                         <rect key="frame" x="0.0" y="0.0" width="240" height="160"/>
@@ -433,43 +433,43 @@
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="prz-tD-IhN" userLabel="Body label">
-                                        <rect key="frame" x="24" y="232" width="192" height="20.333333333333343"/>
+                                    <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" scrollEnabled="NO" contentInsetAdjustmentBehavior="never" editable="NO" text="Label" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="elG-N9-aqH" userLabel="Body text view">
+                                        <rect key="frame" x="264" y="71.999999999999986" width="356" height="33"/>
+                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
-                                        <nil key="textColor"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
-                                    <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" horizontalCompressionResistancePriority="251" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aZE-3x-WHk" userLabel="Primary action button">
-                                        <rect key="frame" x="163" y="276.33333333333337" width="53" height="30"/>
+                                        <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                                    </textView>
+                                    <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" horizontalCompressionResistancePriority="251" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aZE-3x-WHk" userLabel="Primary action button">
+                                        <rect key="frame" x="163" y="186" width="53" height="30"/>
                                         <state key="normal" title="Primary"/>
                                     </button>
-                                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" horizontalCompressionResistancePriority="250" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Feg-VM-jUf" userLabel="Secondary action button">
-                                        <rect key="frame" x="64.999999999999986" y="276.33333333333337" width="74.000000000000014" height="30"/>
+                                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" horizontalCompressionResistancePriority="250" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Feg-VM-jUf" userLabel="Secondary action button">
+                                        <rect key="frame" x="65" y="186" width="74.000000000000014" height="30"/>
                                         <state key="normal" title="Secondary"/>
                                     </button>
                                 </subviews>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
+                                    <constraint firstAttribute="leading" secondItem="elG-N9-aqH" secondAttribute="leading" constant="-24" id="43T-YH-IjW"/>
                                     <constraint firstItem="oVh-9O-yfC" firstAttribute="top" secondItem="Aft-rr-icV" secondAttribute="top" constant="24" identifier="Title label top padding - landscape" id="4aZ-wP-20V" userLabel="Title label top padding - landscape"/>
                                     <constraint firstItem="oVh-9O-yfC" firstAttribute="leading" secondItem="gB0-8W-G9z" secondAttribute="trailing" constant="24" identifier="Title label spacing after image view - landscape" id="7IV-jj-DjU" userLabel="Title label spacing after image view - landscape"/>
+                                    <constraint firstAttribute="trailing" secondItem="elG-N9-aqH" secondAttribute="trailing" constant="24" id="7nN-GW-Glj"/>
                                     <constraint firstAttribute="trailing" secondItem="aZE-3x-WHk" secondAttribute="trailing" constant="24" identifier="Primary action button right padding" id="9lx-l9-3We" userLabel="Primary action button right padding"/>
-                                    <constraint firstItem="prz-tD-IhN" firstAttribute="top" secondItem="oVh-9O-yfC" secondAttribute="bottom" constant="24" identifier="Body label spacing below title label" id="B8E-7U-tt9" userLabel="Body label spacing below title label"/>
+                                    <constraint firstItem="aZE-3x-WHk" firstAttribute="top" relation="greaterThanOrEqual" secondItem="elG-N9-aqH" secondAttribute="bottom" constant="24" id="CFg-3y-vwX"/>
+                                    <constraint firstItem="elG-N9-aqH" firstAttribute="top" secondItem="oVh-9O-yfC" secondAttribute="bottom" constant="24" id="CWc-I6-c6J"/>
                                     <constraint firstItem="Feg-VM-jUf" firstAttribute="centerY" secondItem="aZE-3x-WHk" secondAttribute="centerY" identifier="Align action buttons vertically" id="PaU-zW-YCD" userLabel="Align action buttons vertically"/>
+                                    <constraint firstItem="aZE-3x-WHk" firstAttribute="top" secondItem="elG-N9-aqH" secondAttribute="bottom" constant="24" id="Qa4-jW-B7B"/>
                                     <constraint firstItem="oVh-9O-yfC" firstAttribute="leading" secondItem="Aft-rr-icV" secondAttribute="leading" constant="24" identifier="Title label left padding - portrait" id="RVJ-ts-fU5" userLabel="Title label left padding - portrait"/>
                                     <constraint firstItem="oVh-9O-yfC" firstAttribute="top" secondItem="gB0-8W-G9z" secondAttribute="bottom" constant="24" identifier="Title label top spacing under image view - portrait" id="T6F-Mi-UaM" userLabel="Title label top spacing under image view - portrait"/>
                                     <constraint firstAttribute="bottom" secondItem="aZE-3x-WHk" secondAttribute="bottom" constant="24" identifier="Primary action button bottom padding" id="THz-Qq-7VQ" userLabel="Primary action button bottom padding"/>
-                                    <constraint firstItem="aZE-3x-WHk" firstAttribute="top" relation="greaterThanOrEqual" secondItem="prz-tD-IhN" secondAttribute="bottom" constant="24" identifier="Primary action button minimum spacing below body label - landscape" id="UG6-HW-gkT" userLabel="Primary action button minimum spacing below body label - landscape"/>
                                     <constraint firstAttribute="bottom" secondItem="gB0-8W-G9z" secondAttribute="bottom" identifier="Image view no bottom padding in card view - landscape" id="Voc-mp-Yh8" userLabel="Image view no bottom padding in card view - landscape"/>
                                     <constraint firstItem="aZE-3x-WHk" firstAttribute="leading" secondItem="Feg-VM-jUf" secondAttribute="trailing" constant="24" identifier="Secondary action button left spacing before primary action button" id="WOx-4M-WHo" userLabel="Secondary action button left spacing before primary action button"/>
                                     <constraint firstItem="Feg-VM-jUf" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="gB0-8W-G9z" secondAttribute="trailing" constant="24" identifier="Secondary action button minimum spacing after image view - landscape" id="dN2-Ih-eEj" userLabel="Secondary action button minimum spacing after image view - landscape"/>
-                                    <constraint firstItem="prz-tD-IhN" firstAttribute="leading" secondItem="gB0-8W-G9z" secondAttribute="trailing" constant="24" identifier="Body label spacing after image view - landscape" id="iKI-gR-2Sb" userLabel="Body label spacing after image view - landscape"/>
                                     <constraint firstItem="Feg-VM-jUf" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="Aft-rr-icV" secondAttribute="leading" constant="24" identifier="Secondary button minimum left padding - portrait" id="jgB-Ie-frE" userLabel="Secondary button minimum left padding - portrait"/>
+                                    <constraint firstItem="elG-N9-aqH" firstAttribute="leading" secondItem="gB0-8W-G9z" secondAttribute="trailing" constant="24" id="kNE-do-siR"/>
                                     <constraint firstItem="gB0-8W-G9z" firstAttribute="top" secondItem="Aft-rr-icV" secondAttribute="top" identifier="Image view no top padding in card view" id="nIg-YC-8uR" userLabel="Image view no top padding in card view"/>
-                                    <constraint firstItem="aZE-3x-WHk" firstAttribute="top" secondItem="prz-tD-IhN" secondAttribute="bottom" constant="24" identifier="Primary action button spacing below body label - portrait" id="nIn-Nt-VYq" userLabel="Primary action button spacing below body label - portrait"/>
                                     <constraint firstAttribute="width" relation="lessThanOrEqual" constant="650" id="nRl-yZ-E1M" userLabel="Max card view width on tablet"/>
-                                    <constraint firstAttribute="trailing" secondItem="prz-tD-IhN" secondAttribute="trailing" constant="24" identifier="Body label right padding in card view" id="oOX-W2-HfU" userLabel="Body label right padding in card view"/>
                                     <constraint firstAttribute="trailing" secondItem="oVh-9O-yfC" secondAttribute="trailing" constant="24" identifier="Title label right padding" id="pnO-B6-iqg" userLabel="Title label right padding"/>
-                                    <constraint firstItem="prz-tD-IhN" firstAttribute="leading" secondItem="Aft-rr-icV" secondAttribute="leading" constant="24" identifier="Body label left padding in card view - portrait" id="rgl-jH-1fe" userLabel="Body label left padding in card view - portrait"/>
                                     <constraint firstItem="gB0-8W-G9z" firstAttribute="leading" secondItem="Aft-rr-icV" secondAttribute="leading" identifier="Image view no left padding in card view" id="wTO-Mi-2vr" userLabel="Image view no left padding in card view"/>
                                     <constraint firstAttribute="trailing" secondItem="gB0-8W-G9z" secondAttribute="trailing" identifier="Image view no right padding in card view - portrait" id="xX5-sm-qJG" userLabel="Image view no right padding in card view - portrait"/>
                                 </constraints>
@@ -487,12 +487,12 @@
                                         <exclude reference="7IV-jj-DjU"/>
                                         <exclude reference="RVJ-ts-fU5"/>
                                         <exclude reference="T6F-Mi-UaM"/>
-                                        <exclude reference="iKI-gR-2Sb"/>
-                                        <exclude reference="rgl-jH-1fe"/>
+                                        <exclude reference="43T-YH-IjW"/>
+                                        <exclude reference="kNE-do-siR"/>
                                         <exclude reference="dN2-Ih-eEj"/>
                                         <exclude reference="jgB-Ie-frE"/>
-                                        <exclude reference="UG6-HW-gkT"/>
-                                        <exclude reference="nIn-Nt-VYq"/>
+                                        <exclude reference="CFg-3y-vwX"/>
+                                        <exclude reference="Qa4-jW-B7B"/>
                                     </mask>
                                 </variation>
                                 <variation key="heightClass=compact">
@@ -500,9 +500,9 @@
                                         <include reference="Voc-mp-Yh8"/>
                                         <include reference="4aZ-wP-20V"/>
                                         <include reference="7IV-jj-DjU"/>
-                                        <include reference="iKI-gR-2Sb"/>
+                                        <include reference="kNE-do-siR"/>
                                         <include reference="dN2-Ih-eEj"/>
-                                        <include reference="UG6-HW-gkT"/>
+                                        <include reference="CFg-3y-vwX"/>
                                     </mask>
                                 </variation>
                                 <variation key="widthClass=regular">
@@ -511,9 +511,9 @@
                                         <include reference="Voc-mp-Yh8"/>
                                         <include reference="4aZ-wP-20V"/>
                                         <include reference="7IV-jj-DjU"/>
-                                        <include reference="iKI-gR-2Sb"/>
+                                        <include reference="kNE-do-siR"/>
                                         <include reference="dN2-Ih-eEj"/>
-                                        <include reference="UG6-HW-gkT"/>
+                                        <include reference="CFg-3y-vwX"/>
                                     </mask>
                                 </variation>
                                 <variation key="heightClass=regular-widthClass=compact">
@@ -521,9 +521,9 @@
                                         <include reference="xX5-sm-qJG"/>
                                         <include reference="RVJ-ts-fU5"/>
                                         <include reference="T6F-Mi-UaM"/>
-                                        <include reference="rgl-jH-1fe"/>
+                                        <include reference="43T-YH-IjW"/>
                                         <include reference="jgB-Ie-frE"/>
-                                        <include reference="nIn-Nt-VYq"/>
+                                        <include reference="Qa4-jW-B7B"/>
                                     </mask>
                                 </variation>
                             </view>
@@ -548,7 +548,7 @@
                         </variation>
                     </view>
                     <connections>
-                        <outlet property="bodyLabel" destination="prz-tD-IhN" id="ZqD-XA-CnY"/>
+                        <outlet property="bodyTextView" destination="elG-N9-aqH" id="lfH-LZ-eyr"/>
                         <outlet property="imageView" destination="gB0-8W-G9z" id="4aL-wh-SFa"/>
                         <outlet property="primaryActionButton" destination="aZE-3x-WHk" id="0s0-YO-XU5"/>
                         <outlet property="secondaryActionButton" destination="Feg-VM-jUf" id="LmG-nQ-Wne"/>

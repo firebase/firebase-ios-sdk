@@ -14,9 +14,9 @@
 
 @property (weak, nonatomic) IBOutlet UIImageView *imageView;
 @property (weak, nonatomic) IBOutlet UILabel *titleLabel;
-@property (weak, nonatomic) IBOutlet UILabel *bodyLabel;
 @property (weak, nonatomic) IBOutlet UIButton *primaryActionButton;
 @property (weak, nonatomic) IBOutlet UIButton *secondaryActionButton;
+@property (weak, nonatomic) IBOutlet UITextView *bodyTextView;
 
 @end
 
@@ -53,11 +53,13 @@
 - (void)viewDidLoad {
   [super viewDidLoad];
   
+  self.bodyTextView.contentInset = UIEdgeInsetsMake(0, 0, 0, 0);
+  
   // make the background half transparent
   [self.view setBackgroundColor:[UIColor.grayColor colorWithAlphaComponent:0.5]];
   
   self.titleLabel.text = self.cardDisplayMessage.title;
-  self.bodyLabel.text = self.cardDisplayMessage.body;
+  self.bodyTextView.text = self.cardDisplayMessage.body;
 
   [self.primaryActionButton setTitle:self.cardDisplayMessage.primaryActionButton.buttonText
                             forState:UIControlStateNormal];
@@ -79,6 +81,10 @@
   } else {
     self.imageView.image = [UIImage imageWithData:self.cardDisplayMessage.portraitImageData.imageRawData];
   }
+  
+  BOOL enableScrolling =
+      self.bodyTextView.frame.size.height < self.bodyTextView.contentSize.height;
+  self.bodyTextView.scrollEnabled = enableScrolling;
 }
 
 @end
