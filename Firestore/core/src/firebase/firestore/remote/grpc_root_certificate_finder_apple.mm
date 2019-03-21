@@ -20,8 +20,6 @@
 
 #include <string>
 
-#import "Firestore/Source/Core/FSTFirestoreClient.h"
-
 #include "Firestore/core/src/firebase/firestore/util/filesystem.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
@@ -96,7 +94,6 @@ NSBundle* _Nullable FindFirestoreFrameworkBundle() {
 
 /**
  * Finds the path to the roots.pem certificates file, wherever it may be.
- *
  *
  * Carthage users will find roots.pem inside gRPCCertificates.bundle in
  * the main bundle.
