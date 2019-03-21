@@ -93,6 +93,11 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     gem install xcpretty
     bundle exec pod gen GoogleDataTransport.podspec --gen-directory=GoogleDataTransport/gen
     ;;
+
+  GoogleDataTransportCCTSupport-iOS-xcodebuild)
+    gem install xcpretty
+    bundle exec pod gen GoogleDataTransportCCTSupport.podspec --gen-directory=GoogleDataTransportCCTSupport/gen
+    ;;
   *)
     echo "Unknown project-platform-method combo" 1>&2
     echo "  PROJECT=$PROJECT" 1>&2
