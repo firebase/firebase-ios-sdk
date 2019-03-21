@@ -141,13 +141,15 @@ extern void GULLogDebug(GULLoggerService service,
 
 /**
  * Retrieve the number of errors that have been logged since the stat was last reset.
+ * Calling this method can be comparably expensive, so it should not be called from main thread.
  */
-extern void GULNumberOfErrorsLogged(void (^completion)(NSInteger));
+extern NSInteger GULNumberOfErrorsLogged(void);
 
 /**
  * Retrieve the number of warnings that have been logged since the stat was last reset.
+ * Calling this method can be comparably expensive, so it should not be called from main thread.
  */
-extern void GULNumberOfWarningsLogged(void (^completion)(NSInteger));
+extern NSInteger GULNumberOfWarningsLogged(void);
 
 /**
  * Reset number of errors and warnings that have been logged to 0.

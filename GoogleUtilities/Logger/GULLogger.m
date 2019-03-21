@@ -219,7 +219,8 @@ dispatch_queue_t getGULLoggerCounterQueue(void) {
   static dispatch_queue_t queue;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
-    queue = dispatch_queue_create("GoogleUtilities.GULLogger.counterQueue", DISPATCH_QUEUE_SERIAL);
+    queue =
+        dispatch_queue_create("GoogleUtilities.GULLogger.counterQueue", DISPATCH_QUEUE_CONCURRENT);
     dispatch_set_target_queue(queue,
                               dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0));
   });
@@ -227,28 +228,13 @@ dispatch_queue_t getGULLoggerCounterQueue(void) {
   return queue;
 }
 
-void GULAsyncGetUserDefaultsIntegerForKey(NSString *key, void (^completion)(NSInteger)) {
-  dispatch_async(getGULLoggerCounterQueue(), ^{
-    NSInteger count = [getGULLoggerUsetDefaults() integerForKey:key];
-    dispatch_async(dispatch_get_main_queue(), ^{
-      completion(count);
-    });
+NSInteger GULSyncGetUserDefaultsIntegerForKey(NSString *key) {
+  __block NSInteger value = 0;
+  dispatch_sync(getGULLoggerCounterQueue(), ^{
+    value = [getGULLoggerUsetDefaults() integerForKey:key];
   });
-}
 
-void GULNumberOfErrorsLogged(void (^completion)(NSInteger)) {
-  GULAsyncGetUserDefaultsIntegerForKey(kGULLoggerErrorCountKey, completion);
-}
-
-void GULNumberOfWarningsLogged(void (^completion)(NSInteger)) {
-  GULAsyncGetUserDefaultsIntegerForKey(kGULLoggerWarningCountKey, completion);
-}
-
-void GULResetNumberOfIssuesLogged(void) {
-  dispatch_async(getGULLoggerCounterQueue(), ^{
-    [getGULLoggerUsetDefaults() setInteger:0 forKey:kGULLoggerErrorCountKey];
-    [getGULLoggerUsetDefaults() setInteger:0 forKey:kGULLoggerWarningCountKey];
-  });
+  return value;
 }
 
 void GULIncrementUserDefaultsIntegerForKey(NSString *key) {
@@ -257,8 +243,25 @@ void GULIncrementUserDefaultsIntegerForKey(NSString *key) {
   [defaults setInteger:errorCount + 1 forKey:key];
 }
 
+NSInteger GULNumberOfErrorsLogged(void) {
+  return GULSyncGetUserDefaultsIntegerForKey(kGULLoggerErrorCountKey);
+}
+
+NSInteger GULNumberOfWarningsLogged(void) {
+  return GULSyncGetUserDefaultsIntegerForKey(kGULLoggerWarningCountKey);
+}
+
+void GULResetNumberOfIssuesLogged(void) {
+  dispatch_barrier_async(getGULLoggerCounterQueue(), ^{
+    [getGULLoggerUsetDefaults() setInteger:0 forKey:kGULLoggerErrorCountKey];
+    [getGULLoggerUsetDefaults() setInteger:0 forKey:kGULLoggerWarningCountKey];
+  });
+}
+
+
+
 void GULIncrementLogCountForLevel(GULLoggerLevel level) {
-  dispatch_async(getGULLoggerCounterQueue(), ^{
+  dispatch_barrier_async(getGULLoggerCounterQueue(), ^{
     if (level == GULLoggerLevelError) {
       GULIncrementUserDefaultsIntegerForKey(kGULLoggerErrorCountKey);
     } else if (level == GULLoggerLevelWarning) {
