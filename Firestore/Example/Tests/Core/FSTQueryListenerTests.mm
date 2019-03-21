@@ -56,9 +56,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 namespace {
 
-/**
- * Returns a copy of the given snapshot, with excludesMetadataChanges set to true.
- */
 ViewSnapshot ExcludingMetadataChanges(const ViewSnapshot &snapshot) {
   return ViewSnapshot{
       snapshot.query(),
@@ -68,7 +65,7 @@ ViewSnapshot ExcludingMetadataChanges(const ViewSnapshot &snapshot) {
       snapshot.mutated_keys(),
       snapshot.from_cache(),
       snapshot.sync_state_changed(),
-      true,
+      /*excludes_metadata_changes=*/true,
   };
 }
 

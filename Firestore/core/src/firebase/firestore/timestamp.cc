@@ -90,8 +90,7 @@ std::string Timestamp::ToString() const {
 }
 
 std::ostream& operator<<(std::ostream& out, const Timestamp& timestamp) {
-  out << timestamp.ToString();
-  return out;
+  return out << timestamp.ToString();
 }
 
 void Timestamp::ValidateBounds() const {

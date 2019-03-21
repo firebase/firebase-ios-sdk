@@ -17,6 +17,10 @@
 #ifndef FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_TESTUTIL_XCGMOCK_H_
 #define FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_TESTUTIL_XCGMOCK_H_
 
+#if !defined(__OBJC__)
+#error "This header only supports Objective-C++"
+#endif  // !defined(__OBJC__)
+
 #import <XCTest/XCTest.h>
 
 #include <iostream>
