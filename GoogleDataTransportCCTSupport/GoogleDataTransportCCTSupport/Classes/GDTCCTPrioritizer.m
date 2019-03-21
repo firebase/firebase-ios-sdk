@@ -73,7 +73,7 @@ const static NSUInteger kMillisPerDay = 8.64e+7;
       logEventsThatWillBeSent = [self logEventsOkToSendOnMobileData];
     }
     if (self.timeOfLastDailyUpload) {
-      NSUInteger millisSinceLastUpload =
+      int64_t millisSinceLastUpload =
           [GDTClock snapshot].timeMillis - self.timeOfLastDailyUpload.timeMillis;
       if (millisSinceLastUpload > kMillisPerDay) {
         logEventsThatWillBeSent =
