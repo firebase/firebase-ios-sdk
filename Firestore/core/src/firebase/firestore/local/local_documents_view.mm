@@ -16,6 +16,8 @@
 
 #import "Firestore/core/src/firebase/firestore/local/local_documents_view.h"
 
+#include <string>
+
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTMutation.h"
@@ -41,6 +43,7 @@ using model::DocumentMap;
 using model::MaybeDocumentMap;
 using model::ResourcePath;
 using model::SnapshotVersion;
+using util::MakeString;
 
 FSTMaybeDocument* _Nullable LocalDocumentsView::GetDocument(
     const DocumentKey& key) {
@@ -114,8 +117,10 @@ MaybeDocumentMap LocalDocumentsView::GetLocalViewOfDocuments(
 }
 
 DocumentMap LocalDocumentsView::GetDocumentsMatchingQuery(FSTQuery* query) {
-  if (DocumentKey::IsDocumentKey(query.path)) {
+  if ([query isDocumentQuery]) {
     return GetDocumentsMatchingDocumentQuery(query.path);
+  } else if ([query isCollectionGroupQuery]) {
+    return GetDocumentsMatchingCollectionGroupQuery(query);
   } else {
     return GetDocumentsMatchingCollectionQuery(query);
   }
@@ -130,6 +135,33 @@ DocumentMap LocalDocumentsView::GetDocumentsMatchingDocumentQuery(
     result = result.insert(doc.key, static_cast<FSTDocument*>(doc));
   }
   return result;
+}
+
+model::DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionGroupQuery(
+    FSTQuery* query) {
+  HARD_ASSERT(
+      query.path.empty(),
+      "Currently we only support collection group queries at the root.");
+
+  std::string collection_id = MakeString(query.collectionGroup);
+  std::vector<ResourcePath> parents =
+      index_manager_->GetCollectionParents(collection_id);
+  DocumentMap results;
+
+  // Perform a collection query against each parent that contains the
+  // collection_id and aggregate the results.
+  for (const ResourcePath& parent : parents) {
+    FSTQuery* collection_query =
+        [query collectionQueryAtPath:parent.Append(collection_id)];
+    DocumentMap collection_results =
+        GetDocumentsMatchingCollectionQuery(collection_query);
+    for (const auto& kv : collection_results.underlying_map()) {
+      const DocumentKey& key = kv.first;
+      FSTDocument* doc = static_cast<FSTDocument*>(kv.second);
+      results = results.insert(key, doc);
+    }
+  }
+  return results;
 }
 
 DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionQuery(

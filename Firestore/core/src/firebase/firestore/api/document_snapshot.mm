@@ -16,10 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
 
-#import "Firestore/Source/API/FIRFirestore+Internal.h"
-
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
-#import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
@@ -36,26 +33,15 @@ using model::DocumentKey;
 using model::FieldPath;
 
 size_t DocumentSnapshot::Hash() const {
-  return util::Hash(firestore_, internal_key_, internal_document_, from_cache_,
-                    has_pending_writes_);
+  return util::Hash(firestore_, internal_key_, internal_document_, metadata_);
 }
 
-FIRDocumentReference* DocumentSnapshot::CreateReference() const {
-  return [FIRDocumentReference referenceWithKey:internal_key_
-                                      firestore:firestore_];
+DocumentReference DocumentSnapshot::CreateReference() const {
+  return DocumentReference{internal_key_, firestore_};
 }
 
 std::string DocumentSnapshot::document_id() const {
   return internal_key_.path().last_segment();
-}
-
-FIRSnapshotMetadata* DocumentSnapshot::GetMetadata() const {
-  if (!cached_metadata_) {
-    cached_metadata_ = [FIRSnapshotMetadata
-        snapshotMetadataWithPendingWrites:has_pending_writes_
-                                fromCache:from_cache_];
-  }
-  return cached_metadata_;
 }
 
 FSTObjectValue* _Nullable DocumentSnapshot::GetData() const {
@@ -67,11 +53,10 @@ id _Nullable DocumentSnapshot::GetValue(const FieldPath& field_path) const {
 }
 
 bool operator==(const DocumentSnapshot& lhs, const DocumentSnapshot& rhs) {
-  return objc::Equals(lhs.firestore_, rhs.firestore_) &&
+  return lhs.firestore_ == rhs.firestore_ &&
          lhs.internal_key_ == rhs.internal_key_ &&
          objc::Equals(lhs.internal_document_, rhs.internal_document_) &&
-         lhs.from_cache_ == rhs.from_cache_ &&
-         lhs.has_pending_writes_ == rhs.has_pending_writes_;
+         lhs.metadata_ == rhs.metadata_;
 }
 
 }  // namespace api

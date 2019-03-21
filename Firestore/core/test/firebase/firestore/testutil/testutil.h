@@ -80,9 +80,9 @@ inline model::SnapshotVersion Version(int64_t version) {
 inline model::Document Doc(
     absl::string_view key,
     int64_t version = 0,
-    const model::ObjectValue::Map& data = model::ObjectValue::Empty(),
+    const model::FieldValue::Map& data = model::FieldValue::Map(),
     model::DocumentState document_state = model::DocumentState::kSynced) {
-  return model::Document{model::FieldValue::FromMap(data), Key(key),
+  return model::Document{model::ObjectValue::FromMap(data), Key(key),
                          Version(version), document_state};
 }
 
@@ -141,20 +141,20 @@ inline core::Query Query(absl::string_view path) {
 
 inline std::unique_ptr<model::SetMutation> SetMutation(
     absl::string_view path,
-    const model::ObjectValue::Map& values = model::ObjectValue::Empty()) {
+    const model::FieldValue::Map& values = model::FieldValue::Map()) {
   return absl::make_unique<model::SetMutation>(
-      Key(path), model::FieldValue::FromMap(values),
+      Key(path), model::ObjectValue::FromMap(values),
       model::Precondition::None());
 }
 
 std::unique_ptr<model::PatchMutation> PatchMutation(
     absl::string_view path,
-    const model::ObjectValue::Map& values = model::ObjectValue::Empty(),
+    const model::FieldValue::Map& values = model::FieldValue::Map(),
     const std::vector<model::FieldPath>* update_mask = nullptr);
 
 inline std::unique_ptr<model::PatchMutation> PatchMutation(
     absl::string_view path,
-    const model::ObjectValue::Map& values,
+    const model::FieldValue::Map& values,
     const std::vector<model::FieldPath>& update_mask) {
   return PatchMutation(path, values, &update_mask);
 }

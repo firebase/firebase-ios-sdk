@@ -98,7 +98,7 @@
   [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
 
-- (void)testUploadNotTriggeredWhenWaitTimeConditionNotSatisfied {
+- (void)disable_testUploadNotTriggeredWhenWaitTimeConditionNotSatisfied {
   // using a real storage in this case
   FIRIAMClearcutLogStorage *logStorage =
       [[FIRIAMClearcutLogStorage alloc] initWithExpireAfterInSeconds:1000
@@ -238,7 +238,7 @@
   XCTAssertEqual(currentMoment * 1000 + 1500, uploader.nextValidSendTimeInMills);
 }
 
-- (void)testWaitTimeFromRequestSenderAdjustedByMinWaitTimeInStrategy {
+- (void)disable_testWaitTimeFromRequestSenderAdjustedByMinWaitTimeInStrategy {
   // using a real storage in this case
   FIRIAMClearcutLogStorage *logStorage =
       [[FIRIAMClearcutLogStorage alloc] initWithExpireAfterInSeconds:1000

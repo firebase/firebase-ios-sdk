@@ -21,6 +21,7 @@
 
 #include <vector>
 
+#include "Firestore/core/src/firebase/firestore/local/index_manager.h"
 #include "Firestore/core/src/firebase/firestore/local/mutation_queue.h"
 #include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -46,9 +47,11 @@ namespace local {
 class LocalDocumentsView {
  public:
   LocalDocumentsView(RemoteDocumentCache* remote_document_cache,
-                     MutationQueue* mutation_queue)
+                     MutationQueue* mutation_queue,
+                     IndexManager* index_manager)
       : remote_document_cache_{remote_document_cache},
-        mutation_queue_{mutation_queue} {
+        mutation_queue_{mutation_queue},
+        index_manager_{index_manager} {
   }
 
   /**
@@ -95,11 +98,14 @@ class LocalDocumentsView {
   model::DocumentMap GetDocumentsMatchingDocumentQuery(
       const model::ResourcePath& doc_path);
 
+  model::DocumentMap GetDocumentsMatchingCollectionGroupQuery(FSTQuery* query);
+
   /** Queries the remote documents and overlays mutations. */
   model::DocumentMap GetDocumentsMatchingCollectionQuery(FSTQuery* query);
 
   RemoteDocumentCache* remote_document_cache_;
   MutationQueue* mutation_queue_;
+  IndexManager* index_manager_;
 };
 
 }  // namespace local

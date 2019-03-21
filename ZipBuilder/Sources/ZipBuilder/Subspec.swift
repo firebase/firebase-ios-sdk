@@ -18,7 +18,7 @@ import Foundation
 
 // TODO: Auto generate this list from the Firebase.podspec, probably with a script.
 /// All the subspecs available in the Firebase pod.
-public enum Subspec: String {
+public enum Subspec: String, CaseIterable {
   case abTesting = "ABTesting"
   case adMob = "AdMob"
   case analytics = "Analytics"
@@ -36,6 +36,7 @@ public enum Subspec: String {
   case mlModelInterpreter = "MLModelInterpreter"
   case mlNaturalLanguage = "MLNaturalLanguage"
   case mlNLLanguageID = "MLNLLanguageID"
+  case mlNLSmartReply = "MLNLSmartReply"
   case mlVision = "MLVision"
   case mlVisionBarcodeModel = "MLVisionBarcodeModel"
   case mlVisionFaceModel = "MLVisionFaceModel"
@@ -53,39 +54,6 @@ public enum Subspec: String {
     default:
       return false
     }
-  }
-
-  // TODO: Once we default to Swift 4.2 (in Xcode 10) we can conform to "CaseIterable" protocol to
-  //       automatically generate this method.
-  /// All the subspecs to parse.
-  public static func allCases() -> [Subspec] {
-    return [
-      .abTesting,
-      .adMob,
-      .analytics,
-      .auth,
-      .core,
-      .crash,
-      .database,
-      .dynamicLinks,
-      .firestore,
-      .functions,
-      .inAppMessaging,
-      .inAppMessagingDisplay,
-      .invites,
-      .messaging,
-      .mlModelInterpreter,
-      .mlNaturalLanguage,
-      .mlNLLanguageID,
-      .mlVision,
-      .mlVisionBarcodeModel,
-      .mlVisionFaceModel,
-      .mlVisionLabelModel,
-      .mlVisionTextModel,
-      .performance,
-      .remoteConfig,
-      .storage,
-    ]
   }
 
   /// The minimum supported iOS version.

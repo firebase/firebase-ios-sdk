@@ -44,7 +44,7 @@ FOUNDATION_EXPORT NSString *const kFIRMessagingMessageLinkKey;
 
 FOUNDATION_EXPORT NSString *const kFIRMessagingRemoteNotificationsProxyEnabledInfoPlistKey;
 
-FOUNDATION_EXPORT NSString *const kFIRMessagingApplicationSupportSubDirectory;
+FOUNDATION_EXPORT NSString *const kFIRMessagingSubDirectoryName;
 
 // Notifications
 FOUNDATION_EXPORT NSString *const kFIRMessagingCheckinFetchedNotification;

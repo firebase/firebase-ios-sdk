@@ -267,7 +267,7 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
                                                                           withHost:hostname];
   [self.reachability start];
 
-  [self setupApplicationSupportSubDirectory];
+  [self setupFileManagerSubDirectory];
   // setup FIRMessaging objects
   [self setupRmqManager];
   [self setupClient];
@@ -279,10 +279,9 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
   [self setupNotificationListeners];
 }
 
-- (void)setupApplicationSupportSubDirectory {
-  NSString *messagingSubDirectory = kFIRMessagingApplicationSupportSubDirectory;
-  if (![[self class] hasApplicationSupportSubDirectory:messagingSubDirectory]) {
-    [[self class] createApplicationSupportSubDirectory:messagingSubDirectory];
+- (void)setupFileManagerSubDirectory {
+  if (![[self class] hasSubDirectory:kFIRMessagingSubDirectoryName]) {
+    [[self class] createSubDirectory:kFIRMessagingSubDirectoryName];
   }
 }
 
@@ -961,8 +960,8 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 
 #pragma mark - Application Support Directory
 
-+ (BOOL)hasApplicationSupportSubDirectory:(NSString *)subDirectoryName {
-  NSString *subDirectoryPath = [self pathForApplicationSupportSubDirectory:subDirectoryName];
++ (BOOL)hasSubDirectory:(NSString *)subDirectoryName {
+  NSString *subDirectoryPath = [self pathForSubDirectory:subDirectoryName];
   BOOL isDirectory;
   if (![[NSFileManager defaultManager] fileExistsAtPath:subDirectoryPath
                                             isDirectory:&isDirectory]) {
@@ -973,16 +972,16 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
   return YES;
 }
 
-+ (NSString *)pathForApplicationSupportSubDirectory:(NSString *)subDirectoryName {
-  NSArray *directoryPaths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory,
++ (NSString *)pathForSubDirectory:(NSString *)subDirectoryName {
+  NSArray *directoryPaths = NSSearchPathForDirectoriesInDomains(FIRMessagingSupportedDirectory(),
                                                                 NSUserDomainMask, YES);
-  NSString *applicationSupportDirPath = directoryPaths.lastObject;
-  NSArray *components = @[applicationSupportDirPath, subDirectoryName];
+  NSString *dirPath = directoryPaths.lastObject;
+  NSArray *components = @[dirPath, subDirectoryName];
   return [NSString pathWithComponents:components];
 }
 
-+ (BOOL)createApplicationSupportSubDirectory:(NSString *)subDirectoryName {
-  NSString *subDirectoryPath = [self pathForApplicationSupportSubDirectory:subDirectoryName];
++ (BOOL)createSubDirectory:(NSString *)subDirectoryName {
+  NSString *subDirectoryPath = [self pathForSubDirectory:subDirectoryName];
   BOOL hasSubDirectory;
 
   if (![[NSFileManager defaultManager] fileExistsAtPath:subDirectoryPath

@@ -95,10 +95,13 @@ FSTMutationBatch* MemoryMutationQueue::AddMutationBatch(
                                       mutations:std::move(mutations)];
   queue_.push_back(batch);
 
-  // Track references by document key.
+  // Track references by document key and index collection parents.
   for (FSTMutation* mutation : [batch mutations]) {
     batches_by_document_key_ = batches_by_document_key_.insert(
         DocumentReference{mutation.key, batch_id});
+
+    persistence_.indexManager->AddToCollectionParentIndex(
+        mutation.key.path().PopLast());
   }
 
   return batch;
@@ -159,6 +162,10 @@ MemoryMutationQueue::AllMutationBatchesAffectingDocumentKey(
 
 std::vector<FSTMutationBatch*>
 MemoryMutationQueue::AllMutationBatchesAffectingQuery(FSTQuery* query) {
+  HARD_ASSERT(
+      ![query isCollectionGroupQuery],
+      "CollectionGroup queries should be handled in LocalDocumentsView");
+
   // Use the query path as a prefix for testing if a document matches the query.
   const ResourcePath& prefix = query.path;
   size_t immediate_children_path_length = prefix.size() + 1;

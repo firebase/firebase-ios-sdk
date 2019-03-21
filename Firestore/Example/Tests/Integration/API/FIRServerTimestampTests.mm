@@ -264,7 +264,7 @@
 
 - (void)testServerTimestampsWorkViaTransactionSet {
   [self runTransactionBlock:^(FIRTransaction *transaction) {
-    [transaction setData:_setData forDocument:_docRef];
+    [transaction setData:self->_setData forDocument:self->_docRef];
   }];
 
   [self verifySnapshotWithResolvedTimestamps:[_accumulator awaitRemoteEvent]];
@@ -273,7 +273,7 @@
 - (void)testServerTimestampsWorkViaTransactionUpdate {
   [self writeInitialData];
   [self runTransactionBlock:^(FIRTransaction *transaction) {
-    [transaction updateData:_updateData forDocument:_docRef];
+    [transaction updateData:self->_updateData forDocument:self->_docRef];
   }];
   [self verifySnapshotWithResolvedTimestamps:[_accumulator awaitRemoteEvent]];
 }
@@ -294,7 +294,7 @@
   XCTestExpectation *expectation = [self expectationWithDescription:@"transaction complete"];
   [_docRef.firestore
       runTransactionWithBlock:^id(FIRTransaction *transaction, NSError **pError) {
-        [transaction updateData:_updateData forDocument:_docRef];
+        [transaction updateData:self->_updateData forDocument:self->_docRef];
         return nil;
       }
       completion:^(id result, NSError *error) {

@@ -13,13 +13,7 @@ jobs:
         - brew install clang-format
         - brew install swiftformat
       script:
-        - ./scripts/check_whitespace.sh
-        - ./scripts/check_copyright.sh
-        - ./scripts/check_no_module_imports.sh
-        - ./scripts/check_test_inclusion.py
-        - ./scripts/style.sh test-only $TRAVIS_COMMIT_RANGE
-        # Google C++ style compliance
-        - ./scripts/lint.sh $TRAVIS_COMMIT_RANGE
+        - ./scripts/check.sh --test-only $TRAVIS_COMMIT_RANGE
 
     # The order of builds matters (even though they are run in parallel):
     # Travis will schedule them in the same order they are listed here.
@@ -34,6 +28,16 @@ jobs:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
+
+    - stage: test
+      env:
+        - PROJECT=Functions PLATFORM=iOS METHOD=pod-lib-lint
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseFunctions.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseFunctions.podspec --use-libraries
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseFunctions.podspec --use-modular-headers
 
     - stage: test
       env:
@@ -68,7 +72,6 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseInstanceID.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseMessaging.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseStorage.podspec
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseFunctions.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseInAppMessaging.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseInAppMessagingDisplay.podspec
 
@@ -80,7 +83,7 @@ jobs:
       script:
         # Eliminate the one warning from BoringSSL when CocoaPods 1.6.0 is available.
         # The travis_wait is necessary because the command takes more than 10 minutes.
-        - travis_wait 45 ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseFirestore.podspec --allow-warnings --no-subspecs
+        - travis_wait 30 ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseFirestore.podspec --platforms=ios --allow-warnings --no-subspecs
 
     # pod lib lint to check build and warnings for static library build - only on cron jobs
     - stage: test
@@ -100,7 +103,6 @@ jobs:
         # The Protobuf dependency of FirebaseMessaging has warnings with --use-libraries
         - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseMessaging.podspec --use-libraries --allow-warnings
         - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseStorage.podspec --use-libraries
-        - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseFunctions.podspec --use-libraries
         - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseInAppMessaging.podspec --use-libraries
         - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseInAppMessagingDisplay.podspec --use-libraries
 
@@ -214,6 +216,8 @@ jobs:
       - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=asan
     - env:
       - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=tsan
+    - env:
+      - PROJECT=InAppMessaging PLATFORM=iOS METHOD=xcodebuild
 
   # TODO(varconst): enable if it's possible to make this flag work on build
   # stages. It's supposed to avoid waiting for jobs that are allowed to fail

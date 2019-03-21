@@ -22,7 +22,9 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/local/index_manager.h"
 #include "Firestore/core/src/firebase/firestore/local/listen_sequence.h"
+#include "Firestore/core/src/firebase/firestore/local/memory_index_manager.h"
 #include "Firestore/core/src/firebase/firestore/local/memory_mutation_queue.h"
 #include "Firestore/core/src/firebase/firestore/local/memory_query_cache.h"
 #include "Firestore/core/src/firebase/firestore/local/memory_remote_document_cache.h"
@@ -35,10 +37,12 @@ using firebase::firestore::auth::HashUser;
 using firebase::firestore::auth::User;
 using firebase::firestore::local::ListenSequence;
 using firebase::firestore::local::LruParams;
+using firebase::firestore::local::MemoryIndexManager;
 using firebase::firestore::local::MemoryMutationQueue;
 using firebase::firestore::local::MemoryQueryCache;
 using firebase::firestore::local::MemoryRemoteDocumentCache;
 using firebase::firestore::local::ReferenceSet;
+using firebase::firestore::local::TargetCallback;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeyHash;
 using firebase::firestore::model::ListenSequenceNumber;
@@ -54,6 +58,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (MemoryQueryCache *)queryCache;
 
 - (MemoryRemoteDocumentCache *)remoteDocumentCache;
+
+- (MemoryIndexManager *)indexManager;
 
 - (MemoryMutationQueue *)mutationQueueForUser:(const User &)user;
 
@@ -78,7 +84,9 @@ NS_ASSUME_NONNULL_BEGIN
   std::unique_ptr<MemoryQueryCache> _queryCache;
 
   /** The RemoteDocumentCache representing the persisted cache of remote documents. */
-  MemoryRemoteDocumentCache _remoteDocumentCache;
+  std::unique_ptr<MemoryRemoteDocumentCache> _remoteDocumentCache;
+
+  MemoryIndexManager _indexManager;
 
   FSTTransactionRunner _transactionRunner;
 
@@ -105,6 +113,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init {
   if (self = [super init]) {
     _queryCache = absl::make_unique<MemoryQueryCache>(self);
+    _remoteDocumentCache = absl::make_unique<MemoryRemoteDocumentCache>(self);
     self.started = YES;
   }
   return self;
@@ -151,7 +160,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (MemoryRemoteDocumentCache *)remoteDocumentCache {
-  return &_remoteDocumentCache;
+  return _remoteDocumentCache.get();
+}
+
+- (MemoryIndexManager *)indexManager {
+  return &_indexManager;
 }
 
 @end
@@ -222,20 +235,19 @@ NS_ASSUME_NONNULL_BEGIN
   _currentSequenceNumber = kFSTListenSequenceNumberInvalid;
 }
 
-- (void)enumerateTargetsUsingBlock:(void (^)(FSTQueryData *queryData, BOOL *stop))block {
-  return _persistence.queryCache->EnumerateTargets(block);
+- (void)enumerateTargetsUsingCallback:(const TargetCallback &)callback {
+  return _persistence.queryCache->EnumerateTargets(callback);
 }
 
-- (void)enumerateMutationsUsingBlock:
-    (void (^)(const DocumentKey &key, ListenSequenceNumber sequenceNumber, BOOL *stop))block {
-  BOOL stop = NO;
+- (void)enumerateMutationsUsingCallback:
+    (const firebase::firestore::local::OrphanedDocumentCallback &)callback {
   for (const auto &entry : _sequenceNumbers) {
     ListenSequenceNumber sequenceNumber = entry.second;
     const DocumentKey &key = entry.first;
     // Pass in the exact sequence number as the upper bound so we know it won't be pinned by being
     // too recent.
     if (![self isPinnedAtSequenceNumber:sequenceNumber document:key]) {
-      block(key, sequenceNumber, &stop);
+      callback(key, sequenceNumber);
     }
   }
 }
@@ -247,9 +259,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (size_t)sequenceNumberCount {
-  __block size_t totalCount = _persistence.queryCache->size();
-  [self enumerateMutationsUsingBlock:^(const DocumentKey &key, ListenSequenceNumber sequenceNumber,
-                                       BOOL *stop) {
+  size_t totalCount = _persistence.queryCache->size();
+  [self enumerateMutationsUsingCallback:[&totalCount](const DocumentKey &key,
+                                                      ListenSequenceNumber sequenceNumber) {
     totalCount++;
   }];
   return totalCount;

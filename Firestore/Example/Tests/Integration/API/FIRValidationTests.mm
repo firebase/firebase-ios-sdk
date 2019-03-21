@@ -18,10 +18,14 @@
 
 #import <XCTest/XCTest.h>
 
+#include <limits>
+
 #import "Firestore/Source/API/FIRFieldValue+Internal.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
+// TODO(b/116617988): Remove Internal include once CG queries are public.
+#import "Firestore/Source/API/FIRFirestore+Internal.h"
 
 // We have tests for passing nil when nil is not supposed to be allowed. So suppress the warnings.
 #pragma clang diagnostic ignored "-Wnonnull"
@@ -226,7 +230,7 @@
 }
 
 - (void)testWritesWithLargeNumbersFail {
-  NSNumber *num = @((unsigned long long)LONG_MAX + 1);
+  NSNumber *num = @(static_cast<uint64_t>(std::numeric_limits<int64_t>::max()) + 1);
   NSString *reason =
       [NSString stringWithFormat:@"NSNumber (%@) is too large (found in field num)", num];
   [self expectWrite:@{@"num" : num} toFailWithReason:reason];
@@ -482,12 +486,19 @@
 }
 
 - (void)testQueryOrderedByKeyBoundMustBeAStringWithoutSlashes {
-  FIRCollectionReference *testCollection = [self collectionRef];
-  FIRQuery *query = [testCollection queryOrderedByFieldPath:[FIRFieldPath documentID]];
+  FIRQuery *query = [[self.db collectionWithPath:@"collection"]
+      queryOrderedByFieldPath:[FIRFieldPath documentID]];
+  FIRQuery *cgQuery = [[self.db collectionGroupWithID:@"collection"]
+      queryOrderedByFieldPath:[FIRFieldPath documentID]];
   FSTAssertThrows([query queryStartingAtValues:@[ @1 ]],
                   @"Invalid query. Expected a string for the document ID.");
   FSTAssertThrows([query queryStartingAtValues:@[ @"foo/bar" ]],
-                  @"Invalid query. Document ID 'foo/bar' contains a slash.");
+                  @"Invalid query. When querying a collection and ordering by document "
+                   "ID, you must pass a plain document ID, but 'foo/bar' contains a slash.");
+  FSTAssertThrows([cgQuery queryStartingAtValues:@[ @"foo" ]],
+                  @"Invalid query. When querying a collection group and ordering by "
+                   "document ID, you must pass a value that results in a valid document path, "
+                   "but 'foo' is not because it contains an odd number of segments.");
 }
 
 - (void)testQueryMustNotSpecifyStartingOrEndingPointAfterOrder {
@@ -508,14 +519,22 @@
                       "document ID, but it was an empty string.";
   FSTAssertThrows([collection queryWhereFieldPath:[FIRFieldPath documentID] isEqualTo:@""], reason);
 
-  reason = @"Invalid query. When querying by document ID you must provide a valid document ID, "
-            "but 'foo/bar/baz' contains a '/' character.";
+  reason = @"Invalid query. When querying a collection by document ID you must provide a "
+            "plain document ID, but 'foo/bar/baz' contains a '/' character.";
   FSTAssertThrows(
       [collection queryWhereFieldPath:[FIRFieldPath documentID] isEqualTo:@"foo/bar/baz"], reason);
 
   reason = @"Invalid query. When querying by document ID you must provide a valid string or "
             "DocumentReference, but it was of type: __NSCFNumber";
   FSTAssertThrows([collection queryWhereFieldPath:[FIRFieldPath documentID] isEqualTo:@1], reason);
+
+  reason = @"Invalid query. When querying a collection group by document ID, the value "
+            "provided must result in a valid document path, but 'foo/bar/baz' is not because it "
+            "has an odd number of segments.";
+  FSTAssertThrows(
+      [[self.db collectionGroupWithID:@"collection"] queryWhereFieldPath:[FIRFieldPath documentID]
+                                                               isEqualTo:@"foo/bar/baz"],
+      reason);
 
   reason =
       @"Invalid query. You can't perform arrayContains queries on document ID since document IDs "

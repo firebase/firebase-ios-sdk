@@ -118,7 +118,8 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
     _mutationQueue = [persistence mutationQueueForUser:initialUser];
     _remoteDocumentCache = [persistence remoteDocumentCache];
     _queryCache = [persistence queryCache];
-    _localDocuments = absl::make_unique<LocalDocumentsView>(_remoteDocumentCache, _mutationQueue);
+    _localDocuments = absl::make_unique<LocalDocumentsView>(_remoteDocumentCache, _mutationQueue,
+                                                            [_persistence indexManager]);
     [_persistence.referenceDelegate addInMemoryPins:&_localViewReferences];
 
     _targetIDGenerator = TargetIdGenerator::QueryCacheTargetIdGenerator(0);
@@ -152,7 +153,8 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
     std::vector<FSTMutationBatch *> newBatches = _mutationQueue->AllMutationBatches();
 
     // Recreate our LocalDocumentsView using the new MutationQueue.
-    _localDocuments = absl::make_unique<LocalDocumentsView>(_remoteDocumentCache, _mutationQueue);
+    _localDocuments = absl::make_unique<LocalDocumentsView>(_remoteDocumentCache, _mutationQueue,
+                                                            [_persistence indexManager]);
 
     // Union the old/new changed keys.
     DocumentKeySet changedKeys;

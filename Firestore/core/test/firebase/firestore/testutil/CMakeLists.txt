@@ -17,6 +17,7 @@ cc_library(
   SOURCES
     app_testing.h
     app_testing.mm
+    xcgmock.h
   DEPENDS
     FirebaseCore
     GoogleUtilities

@@ -106,6 +106,20 @@ void FIRSetLoggerLevel(FIRLoggerLevel loggerLevel) {
   GULSetLoggerLevel((GULLoggerLevel)loggerLevel);
 }
 
+#ifdef DEBUG
+void FIRResetLogger() {
+  extern void GULResetLogger(void);
+  sFIRLoggerOnceToken = 0;
+  [sFIRLoggerUserDefaults removeObjectForKey:kFIRPersistedDebugModeKey];
+  sFIRLoggerUserDefaults = nil;
+  GULResetLogger();
+}
+
+void FIRSetLoggerUserDefaults(NSUserDefaults *defaults) {
+  sFIRLoggerUserDefaults = defaults;
+}
+#endif
+
 /**
  * Check if the level is high enough to be loggable.
  *

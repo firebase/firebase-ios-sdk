@@ -23,6 +23,10 @@ namespace firebase {
 namespace firestore {
 namespace nanopb {
 
+String::~String() {
+  std::free(bytes_);
+}
+
 /* static */ pb_bytes_array_t* String::MakeBytesArray(absl::string_view value) {
   auto size = static_cast<pb_size_t>(value.size());
 

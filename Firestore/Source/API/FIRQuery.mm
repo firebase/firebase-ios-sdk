@@ -171,7 +171,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (id<FIRListenerRegistration>)
     addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
                                   listener:(FIRQuerySnapshotBlock)listener {
-  FIRFirestore *firestore = self.firestore;
+  Firestore *firestore = self.firestore.wrapped;
   FSTQuery *query = self.query;
 
   ViewSnapshotHandler snapshotHandler = [listener, firestore,
@@ -181,15 +181,12 @@ NS_ASSUME_NONNULL_BEGIN
       return;
     }
     ViewSnapshot snapshot = maybe_snapshot.ValueOrDie();
+    SnapshotMetadata metadata(snapshot.has_pending_writes(), snapshot.from_cache());
 
-    FIRSnapshotMetadata *metadata =
-        [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:snapshot.has_pending_writes()
-                                                     fromCache:snapshot.from_cache()];
-
-    listener([FIRQuerySnapshot snapshotWithFirestore:firestore
-                                       originalQuery:query
-                                            snapshot:std::move(snapshot)
-                                            metadata:metadata],
+    listener([[FIRQuerySnapshot alloc] initWithFirestore:firestore
+                                           originalQuery:query
+                                                snapshot:std::move(snapshot)
+                                                metadata:std::move(metadata)],
              nil);
   };
 
@@ -198,9 +195,9 @@ NS_ASSUME_NONNULL_BEGIN
                                       snapshotHandler:std::move(snapshotHandler)];
 
   FSTQueryListener *internalListener =
-      [firestore.client listenToQuery:query
-                              options:internalOptions
-                  viewSnapshotHandler:[asyncListener asyncSnapshotHandler]];
+      [firestore->client() listenToQuery:query
+                                 options:internalOptions
+                     viewSnapshotHandler:[asyncListener asyncSnapshotHandler]];
   return [[FSTListenerRegistration alloc] initWithClient:self.firestore.client
                                            asyncListener:asyncListener
                                         internalListener:internalListener];
@@ -472,15 +469,25 @@ NS_ASSUME_NONNULL_BEGIN
     }
     if ([value isKindOfClass:[NSString class]]) {
       NSString *documentKey = (NSString *)value;
-      if ([documentKey containsString:@"/"]) {
-        FSTThrowInvalidArgument(@"Invalid query. When querying by document ID you must provide "
-                                 "a valid document ID, but '%@' contains a '/' character.",
-                                documentKey);
-      } else if (documentKey.length == 0) {
+      if (documentKey.length == 0) {
         FSTThrowInvalidArgument(@"Invalid query. When querying by document ID you must provide "
                                  "a valid document ID, but it was an empty string.");
       }
-      ResourcePath path = self.query.path.Append([documentKey UTF8String]);
+      if (![self.query isCollectionGroupQuery] && [documentKey containsString:@"/"]) {
+        FSTThrowInvalidArgument(
+            @"Invalid query. When querying a collection by document ID you must provide "
+             "a plain document ID, but '%@' contains a '/' character.",
+            documentKey);
+      }
+      ResourcePath path =
+          self.query.path.Append(ResourcePath::FromString([documentKey UTF8String]));
+      if (!DocumentKey::IsDocumentKey(path)) {
+        FSTThrowInvalidArgument(
+            @"Invalid query. When querying a collection group by document ID, "
+             "the value provided must result in a valid document path, but '%s' is not because it "
+             "has an odd number of segments.",
+            path.CanonicalString().c_str());
+      }
       fieldValue =
           [FSTReferenceValue referenceValue:[FSTDocumentKey keyWithDocumentKey:DocumentKey{path}]
                                  databaseID:self.firestore.databaseID];
@@ -629,11 +636,23 @@ NS_ASSUME_NONNULL_BEGIN
                              @"Invalid query. Expected a string for the document ID.");
       }
       NSString *documentID = (NSString *)rawValue;
-      if ([documentID containsString:@"/"]) {
-        FSTThrowInvalidUsage(@"InvalidQueryException",
-                             @"Invalid query. Document ID '%@' contains a slash.", documentID);
+      if (![self.query isCollectionGroupQuery] && [documentID containsString:@"/"]) {
+        FSTThrowInvalidUsage(
+            @"InvalidQueryException",
+            @"Invalid query. When querying a collection and ordering by document ID, "
+             "you must pass a plain document ID, but '%@' contains a slash.",
+            documentID);
       }
-      const DocumentKey key{self.query.path.Append([documentID UTF8String])};
+      ResourcePath path = self.query.path.Append(ResourcePath::FromString([documentID UTF8String]));
+      if (!DocumentKey::IsDocumentKey(path)) {
+        FSTThrowInvalidUsage(
+            @"InvalidQueryException",
+            @"Invalid query. When querying a collection group and ordering by document ID, "
+             "you must pass a value that results in a valid document path, but '%s' "
+             "is not because it contains an odd number of segments.",
+            path.CanonicalString().c_str());
+      }
+      DocumentKey key{path};
       [components
           addObject:[FSTReferenceValue referenceValue:[FSTDocumentKey keyWithDocumentKey:key]
                                            databaseID:self.firestore.databaseID]];

@@ -1,3 +1,6 @@
+# v3.4.2
+- Fixes an issue with certain analytics attribution parameters not being recorded on an app install. (#2462)
+
 # v3.4.1
 - Return call validation for sysctlbyname. (#2394)
 

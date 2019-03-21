@@ -116,7 +116,7 @@ NSArray *FSTWrapGroups(NSArray *groups) {
 }
 
 - (void)testWrapsBooleans {
-  NSArray *values = @[ @YES, @NO, [NSNumber numberWithChar:1], [NSNumber numberWithChar:0] ];
+  NSArray *values = @[ @YES, @NO ];
   for (id value in values) {
     FSTFieldValue *wrapped = FSTTestFieldValue(value);
     XCTAssertEqualObjects([wrapped class], [FSTBooleanValue class]);

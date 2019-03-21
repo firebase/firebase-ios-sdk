@@ -23,17 +23,17 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-
 /**
     @brief A string constant identifying the Microsoft identity provider.
  */
-extern NSString *const FIRMicrosoftAuthProviderID NS_SWIFT_NAME(MicrosoftAuthProviderID);
+extern NSString *const FIRMicrosoftAuthProviderID NS_SWIFT_NAME(MicrosoftAuthProviderID)
+    DEPRECATED_MSG_ATTRIBUTE("Please use \"microsoft.com\" instead.");
 
 /**
     @brief A string constant identifying the Yahoo identity provider.
  */
-extern NSString *const FIRYahooAuthProviderID NS_SWIFT_NAME(YahooAuthProviderID);
-
+extern NSString *const FIRYahooAuthProviderID NS_SWIFT_NAME(YahooAuthProviderID)
+    DEPRECATED_MSG_ATTRIBUTE("Please use \"yahoo.com\" instead.");
 
 /** @class FIROAuthProvider
     @brief A concrete implementation of `FIRAuthProvider` for generic OAuth Providers.

@@ -30,7 +30,7 @@
 #import "Firebase/InstanceID/FIRInstanceIDTokenOperation.h"
 #import "Firebase/InstanceID/FIRInstanceIDTokenStore.h"
 
-static NSString *const kApplicationSupportSubDirectoryName = @"FirebaseInstanceIDTokenManagerTest";
+static NSString *const kSubDirectoryName = @"FirebaseInstanceIDTokenManagerTest";
 
 static NSString *const kAuthorizedEntity = @"test-authorized-entity";
 static NSString *const kScope = @"test-scope";
@@ -48,13 +48,31 @@ static NSString *const kNewAPNSTokenString = @"newAPNSData";
 
 @end
 
-@interface FIRInstanceIDTokenManager ()
+@interface FIRInstanceIDTokenManager (ExposedForTests)
 
 - (BOOL)checkForTokenRefreshPolicy;
 - (void)updateToAPNSDeviceToken:(NSData *)deviceToken isSandbox:(BOOL)isSandbox;
+/**
+ *  Create a fetch operation. This method can be stubbed to return a particular operation instance,
+ *  which makes it easier to unit test different behaviors.
+ */
+- (FIRInstanceIDTokenFetchOperation *)
+    createFetchOperationWithAuthorizedEntity:(NSString *)authorizedEntity
+                                       scope:(NSString *)scope
+                                     options:(NSDictionary<NSString *, NSString *> *)options
+                                     keyPair:(FIRInstanceIDKeyPair *)keyPair;
 
+/**
+ *  Create a delete operation. This method can be stubbed to return a particular operation instance,
+ *  which makes it easier to unit test different behaviors.
+ */
+- (FIRInstanceIDTokenDeleteOperation *)
+    createDeleteOperationWithAuthorizedEntity:(NSString *)authorizedEntity
+                                        scope:(NSString *)scope
+                           checkinPreferences:(FIRInstanceIDCheckinPreferences *)checkinPreferences
+                                      keyPair:(FIRInstanceIDKeyPair *)keyPair
+                                       action:(FIRInstanceIDTokenAction)action;
 @end
-;
 
 @interface FIRInstanceIDTokenManagerTest : XCTestCase
 
@@ -73,12 +91,12 @@ static NSString *const kNewAPNSTokenString = @"newAPNSData";
 
 - (void)setUp {
   [super setUp];
-  [FIRInstanceIDStore createApplicationSupportSubDirectory:kApplicationSupportSubDirectoryName];
+  [FIRInstanceIDStore createSubDirectory:kSubDirectoryName];
 
   NSString *checkinPlistFilename = @"com.google.test.IIDCheckinTest";
-  self.checkinPlist = [[FIRInstanceIDBackupExcludedPlist alloc]
-                    initWithFileName:checkinPlistFilename
-      applicationSupportSubDirectory:kApplicationSupportSubDirectoryName];
+  self.checkinPlist =
+      [[FIRInstanceIDBackupExcludedPlist alloc] initWithFileName:checkinPlistFilename
+                                                    subDirectory:kSubDirectoryName];
 
   // checkin store
   FIRInstanceIDFakeKeychain *fakeCheckinKeychain = [[FIRInstanceIDFakeKeychain alloc] init];
@@ -105,8 +123,7 @@ static NSString *const kNewAPNSTokenString = @"newAPNSData";
   }
 
   self.tokenManager = nil;
-  [FIRInstanceIDStore removeApplicationSupportSubDirectory:kApplicationSupportSubDirectoryName
-                                                     error:nil];
+  [FIRInstanceIDStore removeSubDirectory:kSubDirectoryName error:nil];
   [super tearDown];
 }
 

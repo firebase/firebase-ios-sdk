@@ -20,6 +20,7 @@
 @class FIRCollectionReference;
 @class FIRDocumentReference;
 @class FIRFirestoreSettings;
+@class FIRQuery;
 @class FIRTransaction;
 @class FIRWriteBatch;
 
@@ -33,7 +34,7 @@ NS_SWIFT_NAME(Firestore)
 @interface FIRFirestore : NSObject
 
 #pragma mark - Initializing
-/**   */
+/** :nodoc: */
 - (instancetype)init __attribute__((unavailable("Use a static constructor method.")));
 
 /**

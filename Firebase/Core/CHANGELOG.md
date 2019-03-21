@@ -1,4 +1,8 @@
-# Unreleased
+# 2019-03-19 -- v5.4.0 -- M45
+- [changed] Allow Bundle IDs that have a valid prefix to enable richer extension support. (#2515)
+- [changed] Deprecated `FIRAnalyticsConfiguration` API in favor of new methods on the Analytics SDK.
+  Please call the new APIs directly: Enable/disable Analytics with `Analytics.setAnalyticsCollectionEnabled(_)`
+  and modify the session timeout interval with `Analytics.setSessionTimeoutInterval(_)`.
 
 # 2019-01-22 -- v5.2.0 -- M41
 - [changed] Added a registerInternalLibrary API. Now other Firebase libraries register with FirebaseCore

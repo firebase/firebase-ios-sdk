@@ -189,19 +189,16 @@ TEST(FieldValue, ArrayType) {
 }
 
 TEST(FieldValue, ObjectType) {
-  const FieldValue empty = FieldValue::FromMap(ObjectValue::Empty());
-  ObjectValue::Map object{{"null", FieldValue::Null()},
-                          {"true", FieldValue::True()},
-                          {"false", FieldValue::False()}};
+  const ObjectValue empty = ObjectValue::Empty();
+  FieldValue::Map object{{"null", FieldValue::Null()},
+                         {"true", FieldValue::True()},
+                         {"false", FieldValue::False()}};
   // copy the map
-  const FieldValue small = FieldValue::FromMap(object);
-  ObjectValue::Map another_object{{"null", FieldValue::Null()},
-                                  {"true", FieldValue::False()}};
+  const ObjectValue small = ObjectValue::FromMap(object);
+  FieldValue::Map another_object{{"null", FieldValue::Null()},
+                                 {"true", FieldValue::False()}};
   // move the array
-  const FieldValue large = FieldValue::FromMap(std::move(another_object));
-  EXPECT_EQ(Type::Object, empty.type());
-  EXPECT_EQ(Type::Object, small.type());
-  EXPECT_EQ(Type::Object, large.type());
+  const ObjectValue large = ObjectValue::FromMap(std::move(another_object));
   EXPECT_TRUE(empty < small);
   EXPECT_FALSE(small < empty);
   EXPECT_FALSE(small < small);
@@ -334,18 +331,18 @@ TEST(FieldValue, Copy) {
   clone = null_value;
   EXPECT_EQ(FieldValue::Null(), clone);
 
-  const FieldValue object_value = FieldValue::FromMap(ObjectValue::Map{
-      {"true", FieldValue::True()}, {"false", FieldValue::False()}});
+  const FieldValue object_value = FieldValue::FromMap(
+      {{"true", FieldValue::True()}, {"false", FieldValue::False()}});
   clone = object_value;
-  EXPECT_EQ(FieldValue::FromMap(ObjectValue::Map{
-                {"true", FieldValue::True()}, {"false", FieldValue::False()}}),
+  EXPECT_EQ(FieldValue::FromMap(
+                {{"true", FieldValue::True()}, {"false", FieldValue::False()}}),
             clone);
-  EXPECT_EQ(FieldValue::FromMap(ObjectValue::Map{
-                {"true", FieldValue::True()}, {"false", FieldValue::False()}}),
+  EXPECT_EQ(FieldValue::FromMap(
+                {{"true", FieldValue::True()}, {"false", FieldValue::False()}}),
             object_value);
   clone = *&clone;
-  EXPECT_EQ(FieldValue::FromMap(ObjectValue::Map{
-                {"true", FieldValue::True()}, {"false", FieldValue::False()}}),
+  EXPECT_EQ(FieldValue::FromMap(
+                {{"true", FieldValue::True()}, {"false", FieldValue::False()}}),
             clone);
   clone = null_value;
   EXPECT_EQ(FieldValue::Null(), clone);
@@ -425,11 +422,11 @@ TEST(FieldValue, Move) {
   clone = FieldValue::Null();
   EXPECT_EQ(FieldValue::Null(), clone);
 
-  FieldValue object_value = FieldValue::FromMap(ObjectValue::Map{
-      {"true", FieldValue::True()}, {"false", FieldValue::False()}});
+  FieldValue object_value = FieldValue::FromMap(
+      {{"true", FieldValue::True()}, {"false", FieldValue::False()}});
   clone = std::move(object_value);
-  EXPECT_EQ(FieldValue::FromMap(ObjectValue::Map{
-                {"true", FieldValue::True()}, {"false", FieldValue::False()}}),
+  EXPECT_EQ(FieldValue::FromMap(
+                {{"true", FieldValue::True()}, {"false", FieldValue::False()}}),
             clone);
   clone = FieldValue::Null();
   EXPECT_EQ(FieldValue::Null(), clone);
@@ -489,13 +486,13 @@ TEST(FieldValue, CompareWithOperator) {
 
 TEST(FieldValue, Set) {
   // Set a field in an object.
-  const FieldValue value = FieldValue::FromMap({
+  const ObjectValue value = ObjectValue::FromMap({
       {"a", FieldValue::FromString("A")},
       {"b", FieldValue::FromMap({
                 {"ba", FieldValue::FromString("BA")},
             })},
   });
-  const FieldValue expected = FieldValue::FromMap({
+  const ObjectValue expected = ObjectValue::FromMap({
       {"a", FieldValue::FromString("A")},
       {"b", FieldValue::FromMap({
                 {"ba", FieldValue::FromString("BA")},
@@ -508,10 +505,10 @@ TEST(FieldValue, Set) {
 
 TEST(FieldValue, SetRecursive) {
   // Set a field in a new object.
-  const FieldValue value = FieldValue::FromMap({
+  const ObjectValue value = ObjectValue::FromMap({
       {"a", FieldValue::FromString("A")},
   });
-  const FieldValue expected = FieldValue::FromMap({
+  const ObjectValue expected = ObjectValue::FromMap({
       {"a", FieldValue::FromString("A")},
       {"b", FieldValue::FromMap({
                 {"bb", FieldValue::FromString("BB")},
@@ -522,14 +519,14 @@ TEST(FieldValue, SetRecursive) {
 }
 
 TEST(FieldValue, Delete) {
-  const FieldValue value = FieldValue::FromMap({
+  const ObjectValue value = ObjectValue::FromMap({
       {"a", FieldValue::FromString("A")},
       {"b", FieldValue::FromMap({
                 {"ba", FieldValue::FromString("BA")},
                 {"bb", FieldValue::FromString("BB")},
             })},
   });
-  const FieldValue expected = FieldValue::FromMap({
+  const ObjectValue expected = ObjectValue::FromMap({
       {"a", FieldValue::FromString("A")},
       {"b", FieldValue::FromMap({
                 {"ba", FieldValue::FromString("BA")},
@@ -539,7 +536,7 @@ TEST(FieldValue, Delete) {
 }
 
 TEST(FieldValue, DeleteNothing) {
-  const FieldValue value = FieldValue::FromMap({
+  const ObjectValue value = ObjectValue::FromMap({
       {"a", FieldValue::FromString("A")},
       {"b", FieldValue::FromMap({
                 {"ba", FieldValue::FromString("BA")},
@@ -550,7 +547,7 @@ TEST(FieldValue, DeleteNothing) {
 }
 
 TEST(FieldValue, Get) {
-  const FieldValue value = FieldValue::FromMap({
+  const ObjectValue value = ObjectValue::FromMap({
       {"a", FieldValue::FromString("A")},
       {"b", FieldValue::FromMap({
                 {"ba", FieldValue::FromString("BA")},
@@ -563,7 +560,7 @@ TEST(FieldValue, Get) {
 }
 
 TEST(FieldValue, GetNothing) {
-  const FieldValue value = FieldValue::FromMap({
+  const ObjectValue value = ObjectValue::FromMap({
       {"a", FieldValue::FromString("A")},
       {"b", FieldValue::FromMap({
                 {"ba", FieldValue::FromString("BA")},
@@ -578,7 +575,7 @@ TEST(FieldValue, IsSmallish) {
   // We expect the FV to use 4 bytes to track the type of the union, plus 8
   // bytes for the union contents themselves. The other 4 is for padding. We
   // want to keep FV as small as possible.
-  EXPECT_LE(sizeof(FieldValue), 2 * sizeof(void*));
+  EXPECT_LE(sizeof(FieldValue), 2 * sizeof(int64_t));
 }
 
 }  //  namespace model

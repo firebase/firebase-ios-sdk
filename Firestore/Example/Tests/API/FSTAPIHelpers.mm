@@ -55,9 +55,9 @@ FIRFirestore *FSTTestFirestore() {
   dispatch_once(&onceToken, ^{
     sharedInstance = [[FIRFirestore alloc] initWithProjectID:"abc"
                                                     database:"abc"
-                                              persistenceKey:@"db123"
-                                         credentialsProvider:nil
-                                                 workerQueue:nil
+                                              persistenceKey:"db123"
+                                         credentialsProvider:nullptr
+                                                 workerQueue:nullptr
                                                  firebaseApp:nil];
   });
 #pragma clang diagnostic pop
@@ -73,11 +73,11 @@ FIRDocumentSnapshot *FSTTestDocSnapshot(const absl::string_view path,
       data ? FSTTestDoc(path, version, data,
                         hasMutations ? FSTDocumentStateLocalMutations : FSTDocumentStateSynced)
            : nil;
-  return [FIRDocumentSnapshot snapshotWithFirestore:FSTTestFirestore()
-                                        documentKey:testutil::Key(path)
-                                           document:doc
-                                          fromCache:fromCache
-                                   hasPendingWrites:hasMutations];
+  return [[FIRDocumentSnapshot alloc] initWithFirestore:FSTTestFirestore().wrapped
+                                            documentKey:testutil::Key(path)
+                                               document:doc
+                                              fromCache:fromCache
+                                       hasPendingWrites:hasMutations];
 }
 
 FIRCollectionReference *FSTTestCollectionRef(const absl::string_view path) {
@@ -86,8 +86,8 @@ FIRCollectionReference *FSTTestCollectionRef(const absl::string_view path) {
 }
 
 FIRDocumentReference *FSTTestDocRef(const absl::string_view path) {
-  return [FIRDocumentReference referenceWithPath:testutil::Resource(path)
-                                       firestore:FSTTestFirestore()];
+  return [[FIRDocumentReference alloc] initWithPath:testutil::Resource(path)
+                                          firestore:FSTTestFirestore().wrapped];
 }
 
 /** A convenience method for creating a query snapshots for tests. */
@@ -95,10 +95,9 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
     const absl::string_view path,
     NSDictionary<NSString *, NSDictionary<NSString *, id> *> *oldDocs,
     NSDictionary<NSString *, NSDictionary<NSString *, id> *> *docsToAdd,
-    BOOL hasPendingWrites,
-    BOOL fromCache) {
-  FIRSnapshotMetadata *metadata =
-      [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:hasPendingWrites fromCache:fromCache];
+    bool hasPendingWrites,
+    bool fromCache) {
+  SnapshotMetadata metadata(hasPendingWrites, fromCache);
   FSTDocumentSet *oldDocuments = FSTTestDocSet(FSTDocumentComparatorByKey, @[]);
   DocumentKeySet mutatedKeys;
   for (NSString *key in oldDocs) {
@@ -133,10 +132,10 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
                             fromCache,
                             /*sync_state_changed=*/true,
                             /*excludes_metadata_changes=*/false};
-  return [FIRQuerySnapshot snapshotWithFirestore:FSTTestFirestore()
-                                   originalQuery:FSTTestQuery(path)
-                                        snapshot:std::move(viewSnapshot)
-                                        metadata:metadata];
+  return [[FIRQuerySnapshot alloc] initWithFirestore:FSTTestFirestore().wrapped
+                                       originalQuery:FSTTestQuery(path)
+                                            snapshot:std::move(viewSnapshot)
+                                            metadata:std::move(metadata)];
 }
 
 NS_ASSUME_NONNULL_END

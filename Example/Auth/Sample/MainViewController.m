@@ -732,6 +732,16 @@ typedef enum {
       @brief The continue URL to be used in the next action code request.
    */
   NSURL *_actionCodeContinueURL;
+
+  /** @var _googleOAuthProvider
+      @brief OAuth provider instance for Google.
+   */
+  FIROAuthProvider *_googleOAuthProvider;
+
+  /** @var _microsoftOAuthProvider
+      @brief OAuth provider instance for Microsoft.
+   */
+  FIROAuthProvider *_microsoftOAuthProvider;
 }
 
 /** @fn initWithNibName:bundle:
@@ -744,6 +754,8 @@ typedef enum {
     _actionCodeContinueURL = [NSURL URLWithString:KCONTINUE_URL];
     _authStateDidChangeListeners = [NSMutableArray array];
     _IDTokenDidChangeListeners = [NSMutableArray array];
+    _googleOAuthProvider = [FIROAuthProvider providerWithProviderID:FIRGoogleAuthProviderID];
+    _microsoftOAuthProvider = [FIROAuthProvider providerWithProviderID:@"microsoft.com"];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(authStateChangedForAuth:)
                                                  name:FIRAuthStateDidChangeNotification
@@ -1782,7 +1794,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
 }
 
 - (void)signInGoogleProvider {
-  FIROAuthProvider *provider = [FIROAuthProvider providerWithProviderID:FIRGoogleAuthProviderID];
+  FIROAuthProvider *provider = _googleOAuthProvider;
   provider.customParameters = @{
     @"prompt" : @"consent",
   };
@@ -1816,7 +1828,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
     @brief Invoked when "Sign in with Google (headful-lite)" row is pressed.
  */
 - (void)signInGoogleHeadfulLite {
-  FIROAuthProvider *provider = [FIROAuthProvider providerWithProviderID:FIRGoogleAuthProviderID];
+  FIROAuthProvider *provider = _googleOAuthProvider;
   provider.customParameters = @{
     @"prompt" : @"consent",
   };
@@ -1850,7 +1862,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
     @brief Invoked when "Sign in with Microsoft (headful-lite)" row is pressed.
  */
 - (void)signInMicrosoftHeadfulLite {
-  FIROAuthProvider *provider = [FIROAuthProvider providerWithProviderID:FIRMicrosoftAuthProviderID];
+  FIROAuthProvider *provider = _microsoftOAuthProvider;
   provider.customParameters = @{
     @"prompt" : @"consent",
     @"login_hint" : @"tu8731@gmail.com",

@@ -32,6 +32,7 @@
 @class FSTLocalSerializer;
 @class FSTMaybeDocument;
 @class FSTMemoryLRUReferenceDelegate;
+@class FSTMemoryPersistence;
 @class FSTQuery;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -42,6 +43,8 @@ namespace local {
 
 class MemoryRemoteDocumentCache : public RemoteDocumentCache {
  public:
+  explicit MemoryRemoteDocumentCache(FSTMemoryPersistence *persistence);
+
   void Add(FSTMaybeDocument *document) override;
   void Remove(const model::DocumentKey &key) override;
 
@@ -58,6 +61,8 @@ class MemoryRemoteDocumentCache : public RemoteDocumentCache {
  private:
   /** Underlying cache of documents. */
   model::MaybeDocumentMap docs_;
+
+  FSTMemoryPersistence *persistence_;
 };
 
 }  // namespace local
