@@ -103,14 +103,6 @@ size_t DocumentSet::IndexOf(const DocumentKey& key) const {
   return doc ? sorted_set_.find_index(doc) : NSNotFound;
 }
 
-std::vector<FSTDocument*> DocumentSet::ToVector() const {
-  return {sorted_set_.begin(), sorted_set_.end()};
-}
-
-const DocumentMap& DocumentSet::GetMapValue() const {
-  return index_;
-}
-
 DocumentSet DocumentSet::insert(FSTDocument* _Nullable document) const {
   // TODO(mcg): look into making document nonnull.
   if (!document) {

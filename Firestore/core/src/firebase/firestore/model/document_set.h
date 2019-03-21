@@ -123,18 +123,6 @@ class DocumentSet : public immutable::impl::SortedMapBase,
    */
   size_t IndexOf(const DocumentKey& key) const;
 
-  /**
-   * Returns a copy of the documents in this set as an array. This is O(n) on
-   * the size of the set.
-   */
-  std::vector<FSTDocument*> ToVector() const;
-
-  /**
-   * Returns the documents as a `DocumentMap`. This is O(1) as this leverages
-   * our internal representation.
-   */
-  const DocumentMap& GetMapValue() const;
-
   /** Returns a new DocumentSet that contains the given document. */
   DocumentSet insert(FSTDocument* _Nullable document) const;
 
