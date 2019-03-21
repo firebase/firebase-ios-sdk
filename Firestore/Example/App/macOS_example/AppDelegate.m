@@ -35,7 +35,6 @@
 
   // do the timestamp fix
   FIRFirestoreSettings *settings = db.settings;
-  settings.timestampsInSnapshotsEnabled = true;
   db.settings = settings;
 
   // create a doc
