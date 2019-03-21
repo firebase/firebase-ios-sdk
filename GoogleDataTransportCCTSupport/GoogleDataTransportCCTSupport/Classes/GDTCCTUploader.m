@@ -17,12 +17,6 @@
 #import "GDTCCTUploader.h"
 
 #import <GoogleDataTransport/GDTRegistrar.h>
-#import <nanopb/pb.h>
-#import <nanopb/pb_encode.h>
-
-#import "GDTCCTNanopbHelpers.h"
-#import "GDTCCTPrioritizer.h"
-#import "cct.nanopb.h"
 
 @implementation GDTCCTUploader
 
