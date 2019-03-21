@@ -33,11 +33,11 @@
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
+#include "Firestore/core/src/firebase/firestore/util/delayed_constructor.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "Firestore/core/test/firebase/firestore/testutil/xcgmock.h"
-#include "absl/memory/memory.h"
 
 using firebase::firestore::FirestoreErrorCode;
 using firebase::firestore::core::DocumentViewChange;
@@ -46,6 +46,7 @@ using firebase::firestore::core::ViewSnapshotHandler;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::remote::TargetChange;
+using firebase::firestore::util::DelayedConstructor;
 using firebase::firestore::util::ExecutorLibdispatch;
 using firebase::firestore::util::Status;
 using firebase::firestore::util::StatusOr;
@@ -75,15 +76,12 @@ ViewSnapshot ExcludingMetadataChanges(const ViewSnapshot &snapshot) {
 @end
 
 @implementation FSTQueryListenerTests {
-  std::unique_ptr<ExecutorLibdispatch> _executor;
+  DelayedConstructor<ExecutorLibdispatch> _executor;
   FSTListenOptions *_includeMetadataChanges;
 }
 
 - (void)setUp {
-  // TODO(varconst): moving this test to C++, it should be possible to store Executor as a value,
-  // not a pointer, and initialize it in the constructor.
-  _executor = absl::make_unique<ExecutorLibdispatch>(
-      dispatch_queue_create("FSTQueryListenerTests Queue", DISPATCH_QUEUE_SERIAL));
+  _executor.Init(dispatch_queue_create("FSTQueryListenerTests Queue", DISPATCH_QUEUE_SERIAL));
   _includeMetadataChanges = [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:YES
                                                            includeDocumentMetadataChanges:YES
                                                                     waitForSyncWhenOnline:NO];

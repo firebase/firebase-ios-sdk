@@ -32,6 +32,8 @@ extern dispatch_queue_t getGULClientQueue(void);
 
 extern BOOL getGULLoggerDebugMode(void);
 
+extern NSUserDefaults *getGULLoggerUsetDefaults(void);
+
 static NSString *const kMessageCode = @"I-COR000001";
 
 @interface GULLoggerTest : XCTestCase
@@ -151,6 +153,85 @@ static NSString *const kMessageCode = @"I-COR000001";
   XCTAssertEqual(GULLoggerLevelNotice, ASL_LEVEL_NOTICE);
   XCTAssertEqual(GULLoggerLevelInfo, ASL_LEVEL_INFO);
   XCTAssertEqual(GULLoggerLevelDebug, ASL_LEVEL_DEBUG);
+}
+
+- (void)testGetErrorWarningNumberBeforeLogDontCrash {
+  GULResetLogger();
+
+  XCTestExpectation *getErrorCountExpectation =
+      [self expectationWithDescription:@"getErrorCountExpectation"];
+  XCTestExpectation *getWarningsCountExpectation =
+      [self expectationWithDescription:@"getWarningsCountExpectation"];
+
+  GULNumberOfErrorsLogged(^(NSInteger count) {
+    [getErrorCountExpectation fulfill];
+  });
+
+  GULNumberOfWarningsLogged(^(NSInteger count) {
+    [getWarningsCountExpectation fulfill];
+  });
+
+  [self waitForExpectations:@[ getErrorCountExpectation, getWarningsCountExpectation ]
+                    timeout:0.5
+               enforceOrder:YES];
+}
+
+- (void)testErrorNumberIncrement {
+  [getGULLoggerUsetDefaults() setInteger:10 forKey:kGULLoggerErrorCountKey];
+
+  GULLogError(@"my service", NO, kMessageCode, @"Message.");
+
+  XCTestExpectation *getErrorCountExpectation =
+      [self expectationWithDescription:@"getErrorCountExpectation"];
+
+  GULNumberOfErrorsLogged(^(NSInteger count) {
+    [getErrorCountExpectation fulfill];
+    XCTAssertEqual(count, 11);
+  });
+
+  [self waitForExpectationsWithTimeout:0.5 handler:NULL];
+}
+
+- (void)testWarningNumberIncrement {
+  [getGULLoggerUsetDefaults() setInteger:5 forKey:kGULLoggerWarningCountKey];
+
+  GULLogWarning(@"my service", NO, kMessageCode, @"Message.");
+
+  XCTestExpectation *getWarningsCountExpectation =
+      [self expectationWithDescription:@"getWarningsCountExpectation"];
+
+  GULNumberOfWarningsLogged(^(NSInteger count) {
+    [getWarningsCountExpectation fulfill];
+    XCTAssertEqual(count, 6);
+  });
+
+  [self waitForExpectationsWithTimeout:0.5 handler:NULL];
+}
+
+- (void)testResetIssuesCount {
+  [getGULLoggerUsetDefaults() setInteger:3 forKey:kGULLoggerErrorCountKey];
+  [getGULLoggerUsetDefaults() setInteger:4 forKey:kGULLoggerWarningCountKey];
+
+  GULResetNumberOfIssuesLogged();
+
+  XCTestExpectation *getErrorCountExpectation =
+      [self expectationWithDescription:@"getErrorCountExpectation"];
+  XCTestExpectation *getWarningsCountExpectation =
+      [self expectationWithDescription:@"getWarningsCountExpectation"];
+
+  GULNumberOfErrorsLogged(^(NSInteger count) {
+    [getErrorCountExpectation fulfill];
+    XCTAssertEqual(count, 0);
+  });
+
+  GULNumberOfWarningsLogged(^(NSInteger count) {
+    [getWarningsCountExpectation fulfill];
+    XCTAssertEqual(count, 0);
+  });
+
+  [self waitForExpectations:@[ getErrorCountExpectation, getWarningsCountExpectation ]
+                    timeout:0.5
+               enforceOrder:YES];
 }
 
 // Helper functions.

@@ -25,6 +25,16 @@ NS_ASSUME_NONNULL_BEGIN
  */
 typedef NSString *const GULLoggerService;
 
+/**
+ * The key used to store the logger's error count.
+ */
+extern NSString *const kGULLoggerErrorCountKey;
+
+/**
+ * The key used to store the logger's warning count.
+ */
+extern NSString *const kGULLoggerWarningCountKey;
+
 #ifdef __cplusplus
 extern "C" {
 #endif  // __cplusplus
@@ -128,6 +138,21 @@ extern void GULLogDebug(GULLoggerService service,
                         NSString *messageCode,
                         NSString *message,
                         ...) NS_FORMAT_FUNCTION(4, 5);
+
+/**
+ * Retrieve the number of errors that have been logged since the stat was last reset.
+ */
+extern void GULNumberOfErrorsLogged(void (^completion)(NSInteger));
+
+/**
+ * Retrieve the number of warnings that have been logged since the stat was last reset.
+ */
+extern void GULNumberOfWarningsLogged(void (^completion)(NSInteger));
+
+/**
+ * Reset number of errors and warnings that have been logged to 0.
+ */
+extern void GULResetNumberOfIssuesLogged(void);
 
 #ifdef __cplusplus
 }  // extern "C"
