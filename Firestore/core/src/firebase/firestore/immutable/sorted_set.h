@@ -46,7 +46,7 @@ template <typename K,
           typename C = util::Comparator<K>,
           typename V = impl::Empty,
           typename M = SortedMap<K, V, C>>
-class SortedSet {
+class SortedSet : public impl::SortedMapBase {
  public:
   using size_type = typename M::size_type;
   using value_type = K;

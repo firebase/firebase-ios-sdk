@@ -19,31 +19,13 @@
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
+#include "Firestore/core/src/firebase/firestore/model/document_set.h"
 
 @class FSTDocument;
 
+using firebase::firestore::model::DocumentSet;
+
 NS_ASSUME_NONNULL_BEGIN
-
-namespace firebase {
-namespace firestore {
-namespace model {
-
-class DocumentSetComparator {
- public:
-  explicit DocumentSetComparator(NSComparator delegate = nil) : delegate_(delegate) {
-  }
-
-  bool operator()(FSTDocument *lhs, FSTDocument *rhs) const {
-    return delegate_(lhs, rhs) == NSOrderedAscending;
-  }
-
- private:
-  NSComparator delegate_;
-};
-
-}  // namespace model
-}  // namespace firestore
-}  // namespace firebase
 
 /**
  * DocumentSet is an immutable (copy-on-write) collection that holds documents in order specified
@@ -55,7 +37,9 @@ class DocumentSetComparator {
 /** Creates a new, empty FSTDocumentSet sorted by the given comparator, then by keys. */
 + (instancetype)documentSetWithComparator:(NSComparator)comparator;
 
-- (instancetype)init __attribute__((unavailable("Use a static constructor instead")));
+- (instancetype)initWithDocumentSet:(DocumentSet &&)documentSet NS_DESIGNATED_INITIALIZER;
+
+- (instancetype)init NS_UNAVAILABLE;
 
 - (NSUInteger)count;
 
@@ -86,8 +70,7 @@ class DocumentSetComparator {
  */
 - (NSUInteger)indexOfKey:(const firebase::firestore::model::DocumentKey &)key;
 
-- (const firebase::firestore::immutable::
-       SortedSet<FSTDocument *, firebase::firestore::model::DocumentSetComparator> &)documents;
+- (const DocumentSet &)documents;
 
 /** Returns a copy of the documents in this set as an array. This is O(n) on the size of the set. */
 - (NSArray<FSTDocument *> *)arrayValue;

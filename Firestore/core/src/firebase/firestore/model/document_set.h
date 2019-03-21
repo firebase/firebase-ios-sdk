@@ -59,7 +59,7 @@ class DocumentSetComparator {
  * comparator on top of what is provided to guarantee document equality based on
  * the key.
  */
-class DocumentSet {
+class DocumentSet : public immutable::impl::SortedMapBase {
  public:
   /**
    * The type of the main collection of documents in an DocumentSet.
