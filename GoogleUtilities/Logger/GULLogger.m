@@ -204,16 +204,24 @@ GUL_LOGGING_FUNCTION(Debug)
 #undef GUL_MAKE_LOGGER
 
 #pragma mark - Number of errors and warnings
-
+static NSUserDefaults *sGULLoggerUsetDefaults = nil;
 NSUserDefaults *getGULLoggerUsetDefaults(void) {
-  static NSUserDefaults *_userDefaults = nil;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
-    _userDefaults = [[NSUserDefaults alloc] initWithSuiteName:@"GoogleUtilities.Logger.GULLogger"];
+    sGULLoggerUsetDefaults = [[NSUserDefaults alloc] initWithSuiteName:@"GoogleUtilities.Logger.GULLogger"];
   });
 
-  return _userDefaults;
+  return sGULLoggerUsetDefaults;
 }
+
+#ifdef DEBUG
+/**
+ * The method is used to inject NSUserDefaults for tests
+ */
+void setGULLoggerUsetDefaults(NSUserDefaults *defaults) {
+  sGULLoggerUsetDefaults = defaults;
+}
+#endif
 
 dispatch_queue_t getGULLoggerCounterQueue(void) {
   static dispatch_queue_t queue;

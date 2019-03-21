@@ -33,6 +33,9 @@ extern dispatch_queue_t getGULClientQueue(void);
 extern BOOL getGULLoggerDebugMode(void);
 
 extern NSUserDefaults *getGULLoggerUsetDefaults(void);
+extern void setGULLoggerUsetDefaults(NSUserDefaults *defaults);
+extern dispatch_queue_t getGULLoggerCounterQueue(void);
+
 
 static NSString *const kMessageCode = @"I-COR000001";
 
@@ -40,7 +43,8 @@ static NSString *const kMessageCode = @"I-COR000001";
 
 @property(nonatomic) NSString *randomLogString;
 
-@property(nonatomic, strong) NSUserDefaults *defaults;
+@property(nonatomic, strong) id mockLoggerUserDefaults;
+@property(nonatomic, strong) NSUserDefaults *loggerUserDefaults;
 
 @end
 
@@ -50,14 +54,21 @@ static NSString *const kMessageCode = @"I-COR000001";
   [super setUp];
   GULResetLogger();
 
-  // Stub NSUserDefaults for cleaner testing.
-  _defaults = [[NSUserDefaults alloc] initWithSuiteName:@"com.google.logger_test"];
+  self.loggerUserDefaults = getGULLoggerUsetDefaults();
+
+  NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:@"com.google.logger_test"];
+  self.mockLoggerUserDefaults = OCMPartialMock(defaults);
+  setGULLoggerUsetDefaults(defaults);
 }
 
 - (void)tearDown {
   [super tearDown];
 
-  _defaults = nil;
+  [self.mockLoggerUserDefaults stopMocking];
+  self.mockLoggerUserDefaults = nil;
+
+  setGULLoggerUsetDefaults(self.loggerUserDefaults);
+  self.loggerUserDefaults = nil;
 }
 
 - (void)testMessageCodeFormat {
@@ -158,54 +169,32 @@ static NSString *const kMessageCode = @"I-COR000001";
 - (void)testGetErrorWarningNumberBeforeLogDontCrash {
   GULResetLogger();
 
-  XCTestExpectation *getErrorCountExpectation =
-      [self expectationWithDescription:@"getErrorCountExpectation"];
-  XCTestExpectation *getWarningsCountExpectation =
-      [self expectationWithDescription:@"getWarningsCountExpectation"];
-
-  GULNumberOfErrorsLogged(^(NSInteger count) {
-    [getErrorCountExpectation fulfill];
-  });
-
-  GULNumberOfWarningsLogged(^(NSInteger count) {
-    [getWarningsCountExpectation fulfill];
-  });
-
-  [self waitForExpectations:@[ getErrorCountExpectation, getWarningsCountExpectation ]
-                    timeout:0.5
-               enforceOrder:YES];
+  XCTAssertNoThrow(GULNumberOfErrorsLogged());
+  XCTAssertNoThrow(GULNumberOfWarningsLogged());
 }
 
 - (void)testErrorNumberIncrement {
   [getGULLoggerUsetDefaults() setInteger:10 forKey:kGULLoggerErrorCountKey];
 
+  [OCMExpect([self.mockLoggerUserDefaults setInteger:11 forKey:kGULLoggerErrorCountKey])
+      andForwardToRealObject];
+
   GULLogError(@"my service", NO, kMessageCode, @"Message.");
 
-  XCTestExpectation *getErrorCountExpectation =
-      [self expectationWithDescription:@"getErrorCountExpectation"];
-
-  GULNumberOfErrorsLogged(^(NSInteger count) {
-    [getErrorCountExpectation fulfill];
-    XCTAssertEqual(count, 11);
-  });
-
-  [self waitForExpectationsWithTimeout:0.5 handler:NULL];
+  OCMVerify(self.mockLoggerUserDefaults);
+  XCTAssertEqual(GULNumberOfErrorsLogged(), 11);
 }
 
 - (void)testWarningNumberIncrement {
   [getGULLoggerUsetDefaults() setInteger:5 forKey:kGULLoggerWarningCountKey];
 
+  [OCMExpect([self.mockLoggerUserDefaults setInteger:6 forKey:kGULLoggerWarningCountKey])
+    andForwardToRealObject];
+
   GULLogWarning(@"my service", NO, kMessageCode, @"Message.");
 
-  XCTestExpectation *getWarningsCountExpectation =
-      [self expectationWithDescription:@"getWarningsCountExpectation"];
-
-  GULNumberOfWarningsLogged(^(NSInteger count) {
-    [getWarningsCountExpectation fulfill];
-    XCTAssertEqual(count, 6);
-  });
-
-  [self waitForExpectationsWithTimeout:0.5 handler:NULL];
+  OCMVerify(self.mockLoggerUserDefaults);
+  XCTAssertEqual(GULNumberOfWarningsLogged(), 6);
 }
 
 - (void)testResetIssuesCount {
@@ -214,24 +203,15 @@ static NSString *const kMessageCode = @"I-COR000001";
 
   GULResetNumberOfIssuesLogged();
 
-  XCTestExpectation *getErrorCountExpectation =
-      [self expectationWithDescription:@"getErrorCountExpectation"];
-  XCTestExpectation *getWarningsCountExpectation =
-      [self expectationWithDescription:@"getWarningsCountExpectation"];
+  XCTAssertEqual(GULNumberOfErrorsLogged(), 0);
+  XCTAssertEqual(GULNumberOfWarningsLogged(), 0);
+}
 
-  GULNumberOfErrorsLogged(^(NSInteger count) {
-    [getErrorCountExpectation fulfill];
-    XCTAssertEqual(count, 0);
-  });
-
-  GULNumberOfWarningsLogged(^(NSInteger count) {
-    [getWarningsCountExpectation fulfill];
-    XCTAssertEqual(count, 0);
-  });
-
-  [self waitForExpectations:@[ getErrorCountExpectation, getWarningsCountExpectation ]
-                    timeout:0.5
-               enforceOrder:YES];
+- (void)testNumberOfIssuesLoggedNoDeadlock {
+  [self dispatchSyncNestedDispatchCount:100 queue:getGULLoggerCounterQueue() block: ^{
+    XCTAssertNoThrow(GULNumberOfErrorsLogged());
+    XCTAssertNoThrow(GULNumberOfWarningsLogged());
+  }];
 }
 
 // Helper functions.
@@ -270,6 +250,20 @@ static NSString *const kMessageCode = @"I-COR000001";
   asl_release(r);
   return [allMsg containsObject:message];
 #pragma clang pop
+}
+
+- (void)dispatchSyncNestedDispatchCount:(NSInteger)count
+                                  queue:(dispatch_queue_t)queue
+                                  block:(dispatch_block_t)block {
+  if (count < 0) {
+    return;
+  }
+
+  dispatch_sync(queue, ^{
+    [self dispatchSyncNestedDispatchCount:count - 1 queue:queue block:block];
+    block();
+    NSLog(@"%@, depth: %ld", NSStringFromSelector(_cmd), (long)count);
+  });
 }
 
 @end
