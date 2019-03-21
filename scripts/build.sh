@@ -349,6 +349,7 @@ case "$product-$method-$platform" in
         "${xcb_flags[@]}" \
         build \
         test
+    ;;
 
   *)
     echo "Don't know how to build this product-platform-method combination" 1>&2
