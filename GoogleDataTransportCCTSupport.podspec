@@ -6,7 +6,7 @@ Pod::Spec.new do |s|
 
 
   s.description      = <<-DESC
-Support library for the GoogleDataTransport CCT log target.
+Support library to provide event prioritization and uploading for the GoogleDataTransport CCT log target.
                        DESC
 
   s.homepage         = 'https://developers.google.com/'
