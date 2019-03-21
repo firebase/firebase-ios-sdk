@@ -58,7 +58,7 @@ typedef NS_ENUM(NSInteger, FIRServerTimestampBehavior) {
 NS_SWIFT_NAME(DocumentSnapshot)
 @interface FIRDocumentSnapshot : NSObject
 
-/**   */
+/** :nodoc: */
 - (instancetype)init
     __attribute__((unavailable("FIRDocumentSnapshot cannot be created directly.")));
 
@@ -151,7 +151,7 @@ NS_SWIFT_NAME(DocumentSnapshot)
 NS_SWIFT_NAME(QueryDocumentSnapshot)
 @interface FIRQueryDocumentSnapshot : FIRDocumentSnapshot
 
-/**   */
+/** :nodoc: */
 - (instancetype)init
     __attribute__((unavailable("FIRQueryDocumentSnapshot cannot be created directly.")));
 
