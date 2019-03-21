@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
-    <device id="retina5_9" orientation="portrait">
+    <device id="retina5_9" orientation="landscape">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
@@ -18,7 +18,7 @@
                         <viewControllerLayoutGuide type="bottom" id="8Ta-Lb-9Rg"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="ef6-R8-q1S">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
+                        <rect key="frame" x="0.0" y="0.0" width="812" height="375"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="rA8-LH-EYm">
@@ -59,11 +59,11 @@
                         <viewControllerLayoutGuide type="bottom" id="K7E-8I-Yw5"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="vRb-yf-OWE">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
+                        <rect key="frame" x="0.0" y="0.0" width="812" height="375"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="VfB-vw-7up">
-                                <rect key="frame" x="5" y="47" width="60" height="60"/>
+                                <rect key="frame" x="5" y="3" width="60" height="60"/>
                                 <accessibility key="accessibilityConfiguration" identifier="banner-image-view">
                                     <bool key="isElement" value="YES"/>
                                 </accessibility>
@@ -73,14 +73,14 @@
                                 </constraints>
                             </imageView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Messaging Title" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rzo-9i-rXZ">
-                                <rect key="frame" x="70" y="47" width="289" height="20.333333333333329"/>
+                                <rect key="frame" x="70" y="3" width="678" height="20.333333333333332"/>
                                 <accessibility key="accessibilityConfiguration" identifier="banner-message-title-view"/>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" text="message body" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="GOK-vx-mU8">
-                                <rect key="frame" x="70" y="75.333333333333329" width="289" height="202.66666666666669"/>
+                                <rect key="frame" x="70" y="31.333333333333329" width="678" height="22.666666666666671"/>
                                 <accessibility key="accessibilityConfiguration" identifier="banner-body-label"/>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                 <nil key="textColor"/>
@@ -237,6 +237,12 @@
                                         <exclude reference="8qu-C8-A9u"/>
                                         <exclude reference="Ln4-8U-D7V"/>
                                         <exclude reference="MCf-U1-0tP"/>
+                                        <exclude reference="7vK-9V-j5H"/>
+                                        <exclude reference="9La-QV-ftg"/>
+                                        <exclude reference="Ait-Na-aVF"/>
+                                        <exclude reference="FTB-yV-c00"/>
+                                        <exclude reference="JJo-tI-mvn"/>
+                                        <exclude reference="RbZ-9Q-1S3"/>
                                         <exclude reference="0Fp-k2-48a"/>
                                         <exclude reference="Hm8-0s-RTs"/>
                                         <exclude reference="JUy-lx-oR6"/>
@@ -245,12 +251,6 @@
                                         <exclude reference="ivB-jb-LVl"/>
                                         <exclude reference="pyI-1U-ujR"/>
                                         <exclude reference="ysk-iC-Hz4"/>
-                                        <exclude reference="7vK-9V-j5H"/>
-                                        <exclude reference="9La-QV-ftg"/>
-                                        <exclude reference="Ait-Na-aVF"/>
-                                        <exclude reference="FTB-yV-c00"/>
-                                        <exclude reference="JJo-tI-mvn"/>
-                                        <exclude reference="RbZ-9Q-1S3"/>
                                         <exclude reference="RdS-Ao-GH0"/>
                                         <exclude reference="qgb-13-uT4"/>
                                         <exclude reference="CSN-TG-E9H"/>
@@ -261,12 +261,12 @@
                                 <variation key="heightClass=compact">
                                     <mask key="constraints">
                                         <include reference="MCf-U1-0tP"/>
-                                        <include reference="Hm8-0s-RTs"/>
-                                        <include reference="pyI-1U-ujR"/>
-                                        <include reference="ysk-iC-Hz4"/>
                                         <include reference="7vK-9V-j5H"/>
                                         <include reference="9La-QV-ftg"/>
                                         <include reference="Ait-Na-aVF"/>
+                                        <include reference="Hm8-0s-RTs"/>
+                                        <include reference="pyI-1U-ujR"/>
+                                        <include reference="ysk-iC-Hz4"/>
                                         <include reference="qgb-13-uT4"/>
                                         <include reference="xXr-od-zOM"/>
                                     </mask>
@@ -274,23 +274,23 @@
                                 <variation key="widthClass=regular">
                                     <mask key="constraints">
                                         <include reference="MCf-U1-0tP"/>
-                                        <include reference="Hm8-0s-RTs"/>
-                                        <include reference="ysk-iC-Hz4"/>
                                         <include reference="7vK-9V-j5H"/>
                                         <include reference="9La-QV-ftg"/>
                                         <include reference="Ait-Na-aVF"/>
+                                        <include reference="Hm8-0s-RTs"/>
+                                        <include reference="ysk-iC-Hz4"/>
                                         <include reference="qgb-13-uT4"/>
                                         <include reference="xXr-od-zOM"/>
                                     </mask>
                                 </variation>
                                 <variation key="heightClass=regular-widthClass=compact">
                                     <mask key="constraints">
-                                        <include reference="JUy-lx-oR6"/>
-                                        <include reference="Kec-yq-1Pz"/>
-                                        <include reference="bD7-OU-bEW"/>
                                         <include reference="FTB-yV-c00"/>
                                         <include reference="JJo-tI-mvn"/>
                                         <include reference="RbZ-9Q-1S3"/>
+                                        <include reference="JUy-lx-oR6"/>
+                                        <include reference="Kec-yq-1Pz"/>
+                                        <include reference="bD7-OU-bEW"/>
                                         <include reference="RdS-Ao-GH0"/>
                                         <include reference="CSN-TG-E9H"/>
                                         <include reference="YoE-KS-uWS"/>
@@ -396,8 +396,10 @@
                                         <rect key="frame" x="0.0" y="0.0" width="240" height="160"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="240" placeholder="YES" identifier="Image view width placeholder" id="27L-b0-QJJ" userLabel="Image view width placeholder"/>
+                                            <constraint firstAttribute="width" relation="lessThanOrEqual" constant="300" id="GgE-lm-M0H" userLabel="Image view max width"/>
                                             <constraint firstAttribute="width" secondItem="gB0-8W-G9z" secondAttribute="height" multiplier="3:2" id="NnL-y9-5sH" userLabel="Image view aspect = 3:2 in portrait"/>
                                             <constraint firstAttribute="width" secondItem="gB0-8W-G9z" secondAttribute="height" multiplier="1:1" id="ViM-uc-rAA" userLabel="Image view aspect = 1:1 in landscape"/>
+                                            <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="150" id="Zpe-Rk-yQM" userLabel="Image view min width"/>
                                             <constraint firstAttribute="height" constant="160" placeholder="YES" identifier="Image view height placeholder" id="e4D-Ay-89r" userLabel="Image view height placeholder">
                                                 <variation key="heightClass=compact" constant="240"/>
                                                 <variation key="widthClass=regular" constant="240"/>
@@ -442,7 +444,7 @@
                                         <state key="normal" title="Primary"/>
                                     </button>
                                     <button hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" horizontalCompressionResistancePriority="250" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Feg-VM-jUf" userLabel="Secondary action button">
-                                        <rect key="frame" x="65" y="276.33333333333337" width="74.000000000000014" height="30"/>
+                                        <rect key="frame" x="64.999999999999986" y="276.33333333333337" width="74.000000000000014" height="30"/>
                                         <state key="normal" title="Secondary"/>
                                     </button>
                                 </subviews>
@@ -453,7 +455,6 @@
                                     <constraint firstAttribute="trailing" secondItem="aZE-3x-WHk" secondAttribute="trailing" constant="24" identifier="Primary action button right padding" id="9lx-l9-3We" userLabel="Primary action button right padding"/>
                                     <constraint firstItem="prz-tD-IhN" firstAttribute="top" secondItem="oVh-9O-yfC" secondAttribute="bottom" constant="24" identifier="Body label spacing below title label" id="B8E-7U-tt9" userLabel="Body label spacing below title label"/>
                                     <constraint firstItem="Feg-VM-jUf" firstAttribute="centerY" secondItem="aZE-3x-WHk" secondAttribute="centerY" identifier="Align action buttons vertically" id="PaU-zW-YCD" userLabel="Align action buttons vertically"/>
-                                    <constraint firstAttribute="width" priority="750" constant="600" identifier="Fixed card width - tablet" id="RO2-VY-bNA" userLabel="Fixed card width - tablet"/>
                                     <constraint firstItem="oVh-9O-yfC" firstAttribute="leading" secondItem="Aft-rr-icV" secondAttribute="leading" constant="24" identifier="Title label left padding - portrait" id="RVJ-ts-fU5" userLabel="Title label left padding - portrait"/>
                                     <constraint firstItem="oVh-9O-yfC" firstAttribute="top" secondItem="gB0-8W-G9z" secondAttribute="bottom" constant="24" identifier="Title label top spacing under image view - portrait" id="T6F-Mi-UaM" userLabel="Title label top spacing under image view - portrait"/>
                                     <constraint firstAttribute="bottom" secondItem="aZE-3x-WHk" secondAttribute="bottom" constant="24" identifier="Primary action button bottom padding" id="THz-Qq-7VQ" userLabel="Primary action button bottom padding"/>
@@ -465,6 +466,7 @@
                                     <constraint firstItem="Feg-VM-jUf" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="Aft-rr-icV" secondAttribute="leading" constant="24" identifier="Secondary button minimum left padding - portrait" id="jgB-Ie-frE" userLabel="Secondary button minimum left padding - portrait"/>
                                     <constraint firstItem="gB0-8W-G9z" firstAttribute="top" secondItem="Aft-rr-icV" secondAttribute="top" identifier="Image view no top padding in card view" id="nIg-YC-8uR" userLabel="Image view no top padding in card view"/>
                                     <constraint firstItem="aZE-3x-WHk" firstAttribute="top" secondItem="prz-tD-IhN" secondAttribute="bottom" constant="24" identifier="Primary action button spacing below body label - portrait" id="nIn-Nt-VYq" userLabel="Primary action button spacing below body label - portrait"/>
+                                    <constraint firstAttribute="width" relation="lessThanOrEqual" constant="650" id="nRl-yZ-E1M" userLabel="Max card view width on tablet"/>
                                     <constraint firstAttribute="trailing" secondItem="prz-tD-IhN" secondAttribute="trailing" constant="24" identifier="Body label right padding in card view" id="oOX-W2-HfU" userLabel="Body label right padding in card view"/>
                                     <constraint firstAttribute="trailing" secondItem="oVh-9O-yfC" secondAttribute="trailing" constant="24" identifier="Title label right padding" id="pnO-B6-iqg" userLabel="Title label right padding"/>
                                     <constraint firstItem="prz-tD-IhN" firstAttribute="leading" secondItem="Aft-rr-icV" secondAttribute="leading" constant="24" identifier="Body label left padding in card view - portrait" id="rgl-jH-1fe" userLabel="Body label left padding in card view - portrait"/>
@@ -478,7 +480,7 @@
                                 </userDefinedRuntimeAttributes>
                                 <variation key="default">
                                     <mask key="constraints">
-                                        <exclude reference="RO2-VY-bNA"/>
+                                        <exclude reference="nRl-yZ-E1M"/>
                                         <exclude reference="Voc-mp-Yh8"/>
                                         <exclude reference="xX5-sm-qJG"/>
                                         <exclude reference="4aZ-wP-20V"/>
@@ -505,6 +507,7 @@
                                 </variation>
                                 <variation key="widthClass=regular">
                                     <mask key="constraints">
+                                        <include reference="nRl-yZ-E1M"/>
                                         <include reference="Voc-mp-Yh8"/>
                                         <include reference="4aZ-wP-20V"/>
                                         <include reference="7IV-jj-DjU"/>
@@ -521,11 +524,6 @@
                                         <include reference="rgl-jH-1fe"/>
                                         <include reference="jgB-Ie-frE"/>
                                         <include reference="nIn-Nt-VYq"/>
-                                    </mask>
-                                </variation>
-                                <variation key="heightClass=regular-widthClass=regular">
-                                    <mask key="constraints">
-                                        <include reference="RO2-VY-bNA"/>
                                     </mask>
                                 </variation>
                             </view>
