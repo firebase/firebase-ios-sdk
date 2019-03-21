@@ -40,8 +40,8 @@
   return sharedInstance;
 }
 
-- (void)uploadPackage:(nonnull GDTUploadPackage *)package onComplete:(nonnull GDTUploaderCompletionBlock)onComplete {
-
+- (void)uploadPackage:(nonnull GDTUploadPackage *)package
+           onComplete:(nonnull GDTUploaderCompletionBlock)onComplete {
 }
 
 @end

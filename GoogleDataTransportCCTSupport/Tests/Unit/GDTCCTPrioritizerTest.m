@@ -16,8 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import "GDTCCTPrioritizer.h"
 #import "GDTCCTEventGenerator.h"
+#import "GDTCCTPrioritizer.h"
 
 @interface GDTCCTPrioritizerTest : XCTestCase
 
