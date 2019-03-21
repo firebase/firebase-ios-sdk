@@ -1,4 +1,5 @@
 # Unreleased
+- [fixed] Fixed the way gRPC certificates are loaded on macOS (#2604).
 
 # 1.1.0
 - [feature] Added `FieldValue.increment()`, which can be used in
