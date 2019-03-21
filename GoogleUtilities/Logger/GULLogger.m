@@ -227,7 +227,7 @@ dispatch_queue_t getGULLoggerCounterQueue(void) {
   return queue;
 }
 
-void GULAsyncGetUserDefaultsIntegerForKey(NSString *key, void(^completion)(NSInteger)) {
+void GULAsyncGetUserDefaultsIntegerForKey(NSString *key, void (^completion)(NSInteger)) {
   dispatch_async(getGULLoggerCounterQueue(), ^{
     NSInteger count = [getGULLoggerUsetDefaults() integerForKey:key];
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -236,11 +236,11 @@ void GULAsyncGetUserDefaultsIntegerForKey(NSString *key, void(^completion)(NSInt
   });
 }
 
-void GULNumberOfErrorsLogged(void(^completion)(NSInteger)) {
+void GULNumberOfErrorsLogged(void (^completion)(NSInteger)) {
   GULAsyncGetUserDefaultsIntegerForKey(kGULLoggerErrorCountKey, completion);
 }
 
-void GULNumberOfWarningsLogged(void(^completion)(NSInteger)) {
+void GULNumberOfWarningsLogged(void (^completion)(NSInteger)) {
   GULAsyncGetUserDefaultsIntegerForKey(kGULLoggerWarningCountKey, completion);
 }
 

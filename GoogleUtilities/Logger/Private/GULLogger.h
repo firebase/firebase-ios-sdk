@@ -140,14 +140,14 @@ extern void GULLogDebug(GULLoggerService service,
                         ...) NS_FORMAT_FUNCTION(4, 5);
 
 /**
-* Retrieve the number of errors that have been logged since the stat was last reset.
-*/
-extern void GULNumberOfErrorsLogged(void(^completion)(NSInteger));
+ * Retrieve the number of errors that have been logged since the stat was last reset.
+ */
+extern void GULNumberOfErrorsLogged(void (^completion)(NSInteger));
 
 /**
  * Retrieve the number of warnings that have been logged since the stat was last reset.
  */
-extern void GULNumberOfWarningsLogged(void(^completion)(NSInteger));
+extern void GULNumberOfWarningsLogged(void (^completion)(NSInteger));
 
 /**
  * Reset number of errors and warnings that have been logged to 0.

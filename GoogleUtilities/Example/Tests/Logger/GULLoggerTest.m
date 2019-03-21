@@ -163,15 +163,15 @@ static NSString *const kMessageCode = @"I-COR000001";
   XCTestExpectation *getWarningsCountExpectation =
       [self expectationWithDescription:@"getWarningsCountExpectation"];
 
-  GULNumberOfErrorsLogged(^(NSInteger count){
+  GULNumberOfErrorsLogged(^(NSInteger count) {
     [getErrorCountExpectation fulfill];
   });
 
-  GULNumberOfWarningsLogged(^(NSInteger count){
+  GULNumberOfWarningsLogged(^(NSInteger count) {
     [getWarningsCountExpectation fulfill];
   });
 
-  [self waitForExpectations:@[getErrorCountExpectation, getWarningsCountExpectation]
+  [self waitForExpectations:@[ getErrorCountExpectation, getWarningsCountExpectation ]
                     timeout:0.5
                enforceOrder:YES];
 }
@@ -184,7 +184,7 @@ static NSString *const kMessageCode = @"I-COR000001";
   XCTestExpectation *getErrorCountExpectation =
       [self expectationWithDescription:@"getErrorCountExpectation"];
 
-  GULNumberOfErrorsLogged(^(NSInteger count){
+  GULNumberOfErrorsLogged(^(NSInteger count) {
     [getErrorCountExpectation fulfill];
     XCTAssertEqual(count, 11);
   });
@@ -198,9 +198,9 @@ static NSString *const kMessageCode = @"I-COR000001";
   GULLogWarning(@"my service", NO, kMessageCode, @"Message.");
 
   XCTestExpectation *getWarningsCountExpectation =
-    [self expectationWithDescription:@"getWarningsCountExpectation"];
+      [self expectationWithDescription:@"getWarningsCountExpectation"];
 
-  GULNumberOfWarningsLogged(^(NSInteger count){
+  GULNumberOfWarningsLogged(^(NSInteger count) {
     [getWarningsCountExpectation fulfill];
     XCTAssertEqual(count, 6);
   });
@@ -215,21 +215,21 @@ static NSString *const kMessageCode = @"I-COR000001";
   GULResetNumberOfIssuesLogged();
 
   XCTestExpectation *getErrorCountExpectation =
-    [self expectationWithDescription:@"getErrorCountExpectation"];
+      [self expectationWithDescription:@"getErrorCountExpectation"];
   XCTestExpectation *getWarningsCountExpectation =
-    [self expectationWithDescription:@"getWarningsCountExpectation"];
+      [self expectationWithDescription:@"getWarningsCountExpectation"];
 
-  GULNumberOfErrorsLogged(^(NSInteger count){
+  GULNumberOfErrorsLogged(^(NSInteger count) {
     [getErrorCountExpectation fulfill];
     XCTAssertEqual(count, 0);
   });
 
-  GULNumberOfWarningsLogged(^(NSInteger count){
+  GULNumberOfWarningsLogged(^(NSInteger count) {
     [getWarningsCountExpectation fulfill];
     XCTAssertEqual(count, 0);
   });
 
-  [self waitForExpectations:@[getErrorCountExpectation, getWarningsCountExpectation]
+  [self waitForExpectations:@[ getErrorCountExpectation, getWarningsCountExpectation ]
                     timeout:0.5
                enforceOrder:YES];
 }
