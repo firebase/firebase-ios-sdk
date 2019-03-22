@@ -107,13 +107,16 @@ NSString *const kFIRInstanceIDKeychainWildcardIdentifier = @"*";
   }
   NSInteger numPasswords = CFArrayGetCount(passwordInfos);
   results = [[NSMutableArray alloc] init];
-  if (0 < numPasswords) {
-    for (NSUInteger i = 0; i < numPasswords; i++) {
-      NSDictionary *passwordInfo = [((__bridge NSArray *)passwordInfos) objectAtIndex:i];
-      if (passwordInfo[(__bridge id)kSecValueData]) {
-        [results addObject:passwordInfo[(__bridge id)kSecValueData]];
-      }
+  for (NSUInteger i = 0; i < numPasswords; i++) {
+    NSDictionary *passwordInfo = [((__bridge NSArray *)passwordInfos) objectAtIndex:i];
+    if (passwordInfo[(__bridge id)kSecValueData]) {
+      [results addObject:passwordInfo[(__bridge id)kSecValueData]];
     }
+  }
+
+  // TODO(chliangGoogle): Fix the analyzer warning.
+  if (passwordInfos != NULL) {
+    CFRelease(passwordInfos);
   }
 
   // We query the keychain because it didn't exist in cache, now query is done, update the result in

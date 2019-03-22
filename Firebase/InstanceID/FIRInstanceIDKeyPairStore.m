@@ -60,7 +60,7 @@ NSData *FIRInstanceIDKeyDataWithTag(NSString *tag) {
 // Query the key given a tag
 SecKeyRef FIRInstanceIDCachedKeyRefWithTag(NSString *tag) {
   _FIRInstanceIDDevAssert([tag length], @"Invalid tag for keychain specified");
-  if (![tag length]) {
+  if (!tag.length) {
     return NULL;
   }
   NSDictionary *queryKey = FIRInstanceIDKeyPairQuery(tag, YES, NO);
