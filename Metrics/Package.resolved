@@ -2,12 +2,12 @@
   "object": {
     "pins": [
       {
-        "package": "CommandLine",
-        "repositoryURL": "https://github.com/jatoben/CommandLine",
+        "package": "CommandLineKit",
+        "repositoryURL": "https://github.com/objecthub/swift-commandlinekit",
         "state": {
           "branch": null,
-          "revision": "73048b666be97d122109276a1b8a69ec407cdb13",
-          "version": "3.0.0-pre1"
+          "revision": "b6c7786a8fbbe32a819474d3a85f8d93db63052c",
+          "version": "0.2.5"
         }
       }
     ]

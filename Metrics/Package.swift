@@ -6,14 +6,14 @@ import PackageDescription
 let package = Package(
     name: "Metrics",
     dependencies: [
-	.package(url: "https://github.com/jatoben/CommandLine", from: "3.0.0-pre1"),
+	.package(url: "https://github.com/objecthub/swift-commandlinekit", from:"0.2.5"),
     ],
     targets: [
         .target(
             name: "MetricsLib"),
         .target(
             name: "Metrics",
-            dependencies: ["CommandLine", "MetricsLib"]),
+            dependencies: ["CommandLineKit", "MetricsLib"]),
         .testTarget(
             name: "MetricsTests",
             dependencies: ["MetricsLib"]),
