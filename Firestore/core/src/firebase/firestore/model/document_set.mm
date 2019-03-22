@@ -24,6 +24,7 @@
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/util/objc_compatibility.h"
+#include "absl/algorithm/container.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -39,26 +40,10 @@ DocumentSet::DocumentSet(NSComparator comparator)
 }
 
 bool operator==(const DocumentSet& lhs, const DocumentSet& rhs) {
-  if (lhs.size() != rhs.size()) {
-    return false;
-  }
-
-  auto left_iter = lhs.sorted_set_.begin();
-  auto left_end = lhs.sorted_set_.end();
-
-  auto right_iter = rhs.sorted_set_.begin();
-  auto right_end = rhs.sorted_set_.end();
-
-  while (left_iter != left_end && right_iter != right_end) {
-    FSTDocument* left_doc = *left_iter;
-    FSTDocument* right_doc = *right_iter;
-    if (![left_doc isEqual:right_doc]) {
-      return NO;
-    }
-    ++left_iter;
-    ++right_iter;
-  }
-  return YES;
+  return absl::c_equal(lhs.sorted_set_, rhs.sorted_set_,
+                       [](FSTDocument* left_doc, FSTDocument* right_doc) {
+                         return [left_doc isEqual:right_doc];
+                       });
 }
 
 std::string DocumentSet::ToString() const {
