@@ -58,6 +58,8 @@ cc_library(
     document_reference.cc
     index_manager.h
     listen_sequence.h
+    local_documents_view.h
+    local_documents_view.mm
     local_serializer.h
     local_serializer.cc
     memory_index_manager.cc

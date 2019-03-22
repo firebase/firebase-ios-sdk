@@ -117,6 +117,11 @@ class FieldValue {
     return integer_value_;
   }
 
+  double double_value() const {
+    HARD_ASSERT(tag_ == Type::Double);
+    return double_value_;
+  }
+
   Timestamp timestamp_value() const {
     HARD_ASSERT(tag_ == Type::Timestamp);
     return *timestamp_value_;
@@ -125,6 +130,21 @@ class FieldValue {
   const std::string& string_value() const {
     HARD_ASSERT(tag_ == Type::String);
     return *string_value_;
+  }
+
+  const std::vector<uint8_t>& blob_value() const {
+    HARD_ASSERT(tag_ == Type::Blob);
+    return *blob_value_;
+  }
+
+  const GeoPoint& geo_point_value() const {
+    HARD_ASSERT(tag_ == Type::GeoPoint);
+    return *geo_point_value_;
+  }
+
+  const std::vector<FieldValue>& array_value() const {
+    HARD_ASSERT(tag_ == Type::Array);
+    return *array_value_;
   }
 
   /** factory methods. */

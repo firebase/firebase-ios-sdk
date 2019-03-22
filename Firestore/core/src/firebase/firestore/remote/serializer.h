@@ -25,6 +25,7 @@
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/Protos/nanopb/google/firestore/v1/firestore.nanopb.h"
+#include "Firestore/Protos/nanopb/google/type/latlng.nanopb.h"
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
@@ -209,6 +210,16 @@ class Serializer {
   static core::Query DecodeQueryTarget(
       nanopb::Reader* reader,
       const google_firestore_v1_Target_QueryTarget& proto);
+
+  static google_type_LatLng EncodeGeoPoint(const GeoPoint& geo_point_value);
+  static GeoPoint DecodeGeoPoint(nanopb::Reader* reader,
+                                 const google_type_LatLng& latlng_proto);
+
+  static google_firestore_v1_ArrayValue EncodeArray(
+      const std::vector<model::FieldValue>& array_value);
+  static std::vector<model::FieldValue> DecodeArray(
+      nanopb::Reader* reader,
+      const google_firestore_v1_ArrayValue& array_proto);
 
  private:
   std::unique_ptr<model::Document> DecodeFoundDocument(
