@@ -28,25 +28,36 @@
 
 #import "Firestore/Source/Model/FSTFieldValue.h"
 
+#include "Firestore/core/src/firebase/firestore/api/snapshot_metadata.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class FIRFirestore;
-@class FIRSnapshotMetadata;
-@class FIRDocumentReference;
 @class FSTDocument;
 
 namespace firebase {
 namespace firestore {
 namespace api {
 
+class DocumentReference;
+class Firestore;
+
 class DocumentSnapshot {
  public:
   DocumentSnapshot() = default;
 
-  DocumentSnapshot(FIRFirestore* firestore,
+  DocumentSnapshot(Firestore* firestore,
+                   model::DocumentKey document_key,
+                   FSTDocument* _Nullable document,
+                   SnapshotMetadata metadata)
+      : firestore_{firestore},
+        internal_key_{std::move(document_key)},
+        internal_document_{document},
+        metadata_{std::move(metadata)} {
+  }
+
+  DocumentSnapshot(Firestore* firestore,
                    model::DocumentKey document_key,
                    FSTDocument* _Nullable document,
                    bool from_cache,
@@ -54,8 +65,7 @@ class DocumentSnapshot {
       : firestore_{firestore},
         internal_key_{std::move(document_key)},
         internal_document_{document},
-        from_cache_{from_cache},
-        has_pending_writes_{has_pending_writes} {
+        metadata_{has_pending_writes, from_cache} {
   }
 
   size_t Hash() const;
@@ -68,13 +78,16 @@ class DocumentSnapshot {
   }
   std::string document_id() const;
 
-  FIRDocumentReference* CreateReference() const;
-  FIRSnapshotMetadata* GetMetadata() const;
+  const SnapshotMetadata& metadata() const {
+    return metadata_;
+  }
+
+  DocumentReference CreateReference() const;
 
   FSTObjectValue* _Nullable GetData() const;
   id _Nullable GetValue(const model::FieldPath& field_path) const;
 
-  FIRFirestore* firestore() const {
+  Firestore* firestore() const {
     return firestore_;
   }
 
@@ -82,13 +95,10 @@ class DocumentSnapshot {
                          const DocumentSnapshot& rhs);
 
  private:
-  FIRFirestore* firestore_ = nil;
+  Firestore* firestore_ = nullptr;
   model::DocumentKey internal_key_;
   FSTDocument* internal_document_ = nil;
-  bool from_cache_ = false;
-  bool has_pending_writes_ = false;
-
-  mutable FIRSnapshotMetadata* cached_metadata_ = nil;
+  SnapshotMetadata metadata_;
 };
 
 }  // namespace api

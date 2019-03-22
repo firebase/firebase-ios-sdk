@@ -14,14 +14,23 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#include "Firestore/core/src/firebase/firestore/api/snapshot_metadata.h"
 
-#import <GoogleUtilities/GULLoggerLevel.h>
-#import <GoogleUtilities/GULLoggerSystem.h>
+#include "Firestore/core/src/firebase/firestore/util/hashing.h"
 
-NS_ASSUME_NONNULL_BEGIN
+namespace firebase {
+namespace firestore {
+namespace api {
 
-@interface GULOSLogger : NSObject <GULLoggerSystem>
-@end
+bool operator==(const SnapshotMetadata& lhs, const SnapshotMetadata& rhs) {
+  return lhs.pending_writes_ == rhs.pending_writes_ &&
+         lhs.from_cache_ == rhs.from_cache_;
+}
 
-NS_ASSUME_NONNULL_END
+size_t SnapshotMetadata::Hash() const {
+  return util::Hash(pending_writes_, from_cache_);
+}
+
+}  // namespace api
+}  // namespace firestore
+}  // namespace firebase

@@ -1,5 +1,11 @@
 # Unreleased
 
+# 5.5.0
+- Revert 5.4.x changes restoring 5.3.7 version.
+
+# 5.4.1
+- Fix GULResetLogger API breakage. (#2551)
+
 # 5.4.0
 - Update GULLogger to use os_log instead of asl_log on iOS 9 and later. (#2374, #2504)
 

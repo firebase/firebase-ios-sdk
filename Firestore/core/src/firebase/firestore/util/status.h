@@ -100,6 +100,7 @@ class ABSL_MUST_USE_RESULT Status {
   /// \brief Return a string representation of this status suitable for
   /// printing. Returns the string `"OK"` for success.
   std::string ToString() const;
+  friend std::ostream& operator<<(std::ostream& out, const Status& status);
 
   // Ignores any errors. This method does nothing except potentially suppress
   // complaints from any tools that are checking that errors are not dropped on

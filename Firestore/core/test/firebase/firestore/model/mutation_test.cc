@@ -115,7 +115,7 @@ TEST(Mutation, DeletesValuesFromTheFieldMask) {
                              {"baz", FieldValue::FromString("baz-value")}})}});
 
   std::unique_ptr<Mutation> patch =
-      PatchMutation("collection/key", ObjectValue::Empty(), {Field("foo.bar")});
+      PatchMutation("collection/key", FieldValue::Map(), {Field("foo.bar")});
 
   MaybeDocumentPtr patch_doc =
       patch->ApplyToLocalView(base_doc, base_doc.get(), Timestamp::Now());

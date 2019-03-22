@@ -74,6 +74,34 @@ bool Equals(const T& lhs, const T& rhs) {
 }
 
 /**
+ * A function object that implements equality for an Objective-C pointer by
+ * delegating to -isEqual:. This is useful for using Objective-C objects as
+ * keys in STL associative containers.
+ */
+template <typename T,
+          typename = absl::enable_if_t<is_objective_c_pointer<T>::value>>
+class EqualTo {
+ public:
+  bool operator()(T lhs, T rhs) const {
+    return [lhs isEqual:rhs];
+  }
+};
+
+/**
+ * A function object that implements STL-compatible hash code for an Objective-C
+ * pointer by delegating to -hash. This is useful for using Objective-C objects
+ * as keys in std::unordered_map.
+ */
+template <typename T,
+          typename = absl::enable_if_t<is_objective_c_pointer<T>::value>>
+class Hash {
+ public:
+  size_t operator()(T value) const {
+    return static_cast<size_t>([value hash]);
+  }
+};
+
+/**
  * Creates a debug description of the given `value` by calling `ToString` on it,
  * converting the result to an `NSString`. Exists mainly to simplify writing
  * `description:` methods for Objective-C classes.

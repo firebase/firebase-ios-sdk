@@ -171,7 +171,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (id<FIRListenerRegistration>)
     addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
                                   listener:(FIRQuerySnapshotBlock)listener {
-  FIRFirestore *firestore = self.firestore;
+  Firestore *firestore = self.firestore.wrapped;
   FSTQuery *query = self.query;
 
   ViewSnapshotHandler snapshotHandler = [listener, firestore,
@@ -181,15 +181,12 @@ NS_ASSUME_NONNULL_BEGIN
       return;
     }
     ViewSnapshot snapshot = maybe_snapshot.ValueOrDie();
+    SnapshotMetadata metadata(snapshot.has_pending_writes(), snapshot.from_cache());
 
-    FIRSnapshotMetadata *metadata =
-        [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:snapshot.has_pending_writes()
-                                                     fromCache:snapshot.from_cache()];
-
-    listener([FIRQuerySnapshot snapshotWithFirestore:firestore
-                                       originalQuery:query
-                                            snapshot:std::move(snapshot)
-                                            metadata:metadata],
+    listener([[FIRQuerySnapshot alloc] initWithFirestore:firestore
+                                           originalQuery:query
+                                                snapshot:std::move(snapshot)
+                                                metadata:std::move(metadata)],
              nil);
   };
 
@@ -198,9 +195,9 @@ NS_ASSUME_NONNULL_BEGIN
                                       snapshotHandler:std::move(snapshotHandler)];
 
   FSTQueryListener *internalListener =
-      [firestore.client listenToQuery:query
-                              options:internalOptions
-                  viewSnapshotHandler:[asyncListener asyncSnapshotHandler]];
+      [firestore->client() listenToQuery:query
+                                 options:internalOptions
+                     viewSnapshotHandler:[asyncListener asyncSnapshotHandler]];
   return [[FSTListenerRegistration alloc] initWithClient:self.firestore.client
                                            asyncListener:asyncListener
                                         internalListener:internalListener];

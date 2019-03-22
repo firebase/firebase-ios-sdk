@@ -487,7 +487,7 @@ NS_SWIFT_NAME(Auth)
         <li>@c FIRAuthErrorCodeWebNetworkRequestFailed - Indicates that a network request within a
             SFSafariViewController or UIWebview failed.
         </li>
-        <li>@c FIRAuthErrorCodeWebInternalError - Indicates that an internal error occured within a
+        <li>@c FIRAuthErrorCodeWebInternalError - Indicates that an internal error occurred within a
             SFSafariViewController or UIWebview.
         </li>
         <li>@c FIRAuthErrorCodeWebSignInUserInteractionFailure - Indicates a general failure during

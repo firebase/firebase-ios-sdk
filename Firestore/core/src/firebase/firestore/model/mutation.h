@@ -46,7 +46,7 @@ class MutationResult {
  public:
   MutationResult(
       SnapshotVersion&& version,
-      const std::shared_ptr<const std::vector<FieldValue>>& transform_results)
+      const std::shared_ptr<const std::vector<ObjectValue>>& transform_results)
       : version_(std::move(version)),
         transform_results_(std::move(transform_results)) {
   }
@@ -67,19 +67,19 @@ class MutationResult {
 
   /**
    * The resulting fields returned from the backend after a TransformMutation
-   * has been committed.  Contains one FieldValue for each FieldTransform
+   * has been committed.  Contains one ObjectValue for each FieldTransform
    * that was in the mutation.
    *
    * Will be null if the mutation was not a TransformMutation.
    */
-  const std::shared_ptr<const std::vector<FieldValue>>& transform_results()
+  const std::shared_ptr<const std::vector<ObjectValue>>& transform_results()
       const {
     return transform_results_;
   }
 
  private:
   const SnapshotVersion version_;
-  const std::shared_ptr<const std::vector<FieldValue>> transform_results_;
+  const std::shared_ptr<const std::vector<ObjectValue>> transform_results_;
 };
 
 /**
@@ -217,7 +217,7 @@ inline bool operator!=(const Mutation& lhs, const Mutation& rhs) {
 class SetMutation : public Mutation {
  public:
   SetMutation(DocumentKey&& key,
-              FieldValue&& value,
+              ObjectValue&& value,
               Precondition&& precondition);
 
   Type type() const override {
@@ -234,7 +234,7 @@ class SetMutation : public Mutation {
       const Timestamp& local_write_time) const override;
 
   /** Returns the object value to use when setting the document. */
-  const FieldValue& value() const {
+  const ObjectValue& value() const {
     return value_;
   }
 
@@ -242,7 +242,7 @@ class SetMutation : public Mutation {
   bool equal_to(const Mutation& other) const override;
 
  private:
-  const FieldValue value_;
+  const ObjectValue value_;
 };
 
 /**
@@ -261,7 +261,7 @@ class SetMutation : public Mutation {
 class PatchMutation : public Mutation {
  public:
   PatchMutation(DocumentKey&& key,
-                FieldValue&& value,
+                ObjectValue&& value,
                 FieldMask&& mask,
                 Precondition&& precondition);
 
@@ -281,7 +281,7 @@ class PatchMutation : public Mutation {
   /**
    * Returns the fields and associated values to use when patching the document.
    */
-  const FieldValue& value() const {
+  const ObjectValue& value() const {
     return value_;
   }
 
@@ -297,10 +297,10 @@ class PatchMutation : public Mutation {
   bool equal_to(const Mutation& other) const override;
 
  private:
-  FieldValue PatchDocument(const MaybeDocument* maybe_doc) const;
-  FieldValue PatchObject(FieldValue obj) const;
+  ObjectValue PatchDocument(const MaybeDocument* maybe_doc) const;
+  ObjectValue PatchObject(ObjectValue obj) const;
 
-  const FieldValue value_;
+  const ObjectValue value_;
   const FieldMask mask_;
 };
 

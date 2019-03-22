@@ -28,7 +28,7 @@
 #import "Firebase/InstanceID/FIRInstanceIDTokenStore.h"
 #import "Firebase/InstanceID/FIRInstanceIDUtilities.h"
 
-static NSString *const kApplicationSupportSubDirectoryName = @"FirebaseInstanceIDStoreTest";
+static NSString *const kSubDirectoryName = @"FirebaseInstanceIDStoreTest";
 
 static NSString *const kAuthorizedEntity = @"test-audience";
 static NSString *const kScope = @"test-scope";
@@ -74,12 +74,11 @@ static NSString *const kFIRInstanceIDAPNSTokenKey = @"APNSTuple";
 
 - (void)setUp {
   [super setUp];
-  [FIRInstanceIDStore createSubDirectory:kApplicationSupportSubDirectoryName];
+  [FIRInstanceIDStore createSubDirectory:kSubDirectoryName];
 
   NSString *checkinPlistName = @"com.google.test.IIDStoreTestCheckin";
-  self.checkinPlist = [[FIRInstanceIDBackupExcludedPlist alloc]
-      initWithFileName:checkinPlistName
-          subDirectory:kApplicationSupportSubDirectoryName];
+  self.checkinPlist = [[FIRInstanceIDBackupExcludedPlist alloc] initWithFileName:checkinPlistName
+                                                                    subDirectory:kSubDirectoryName];
 
   // checkin store
   FIRInstanceIDFakeKeychain *fakeKeychain = [[FIRInstanceIDFakeKeychain alloc] init];
@@ -103,7 +102,7 @@ static NSString *const kFIRInstanceIDAPNSTokenKey = @"APNSTuple";
 - (void)tearDown {
   [self.instanceIDStore removeAllCachedTokensWithHandler:nil];
   [self.instanceIDStore removeCheckinPreferencesWithHandler:nil];
-  [FIRInstanceIDStore removeSubDirectory:kApplicationSupportSubDirectoryName error:nil];
+  [FIRInstanceIDStore removeSubDirectory:kSubDirectoryName error:nil];
   [_mockCheckinStore stopMocking];
   [_mockTokenStore stopMocking];
   [_mockInstanceIDStore stopMocking];

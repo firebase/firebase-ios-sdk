@@ -1,6 +1,7 @@
 # 2019-03-19 -- v3.8.0
 - Adding community support for tvOS. (#2428)
 - Adding Firebase info to checkin. (#2509)
+- Fixed a crash in FIRInstanceIDCheckinService. (#2548)
 
 # 2019-03-05 -- v3.7.0
 - Open source Firebase InstanceID. (#186)

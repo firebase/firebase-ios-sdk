@@ -25,6 +25,7 @@
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Source/API/FIRDocumentChange+Internal.h"
 #import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
+#import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRQuerySnapshot+Internal.h"
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
 #import "Firestore/Source/Model/FSTDocument.h"
@@ -93,7 +94,7 @@ NS_ASSUME_NONNULL_BEGIN
       DocumentViewChange{doc2New, DocumentViewChange::Type::kModified},
   };
 
-  FIRFirestore *firestore = FSTTestFirestore();
+  Firestore *firestore = FSTTestFirestore().wrapped;
   FSTQuery *query = FSTTestQuery("foo");
   ViewSnapshot viewSnapshot{query,
                             newDocuments,
@@ -103,23 +104,24 @@ NS_ASSUME_NONNULL_BEGIN
                             /*from_cache=*/false,
                             /*sync_state_changed=*/true,
                             /*excludes_metadata_changes=*/false};
-  FIRSnapshotMetadata *metadata = [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:NO
-                                                                               fromCache:NO];
-  FIRQuerySnapshot *snapshot = [FIRQuerySnapshot snapshotWithFirestore:firestore
-                                                         originalQuery:query
-                                                              snapshot:std::move(viewSnapshot)
-                                                              metadata:metadata];
+  SnapshotMetadata metadata(/*pending_writes=*/false, /*from_cache=*/false);
+  FIRQuerySnapshot *snapshot = [[FIRQuerySnapshot alloc] initWithFirestore:firestore
+                                                             originalQuery:query
+                                                                  snapshot:std::move(viewSnapshot)
+                                                                  metadata:std::move(metadata)];
 
-  FIRQueryDocumentSnapshot *doc1Snap = [FIRQueryDocumentSnapshot snapshotWithFirestore:firestore
-                                                                           documentKey:doc1New.key
-                                                                              document:doc1New
-                                                                             fromCache:NO
-                                                                      hasPendingWrites:NO];
-  FIRQueryDocumentSnapshot *doc2Snap = [FIRQueryDocumentSnapshot snapshotWithFirestore:firestore
-                                                                           documentKey:doc2New.key
-                                                                              document:doc2New
-                                                                             fromCache:NO
-                                                                      hasPendingWrites:NO];
+  FIRQueryDocumentSnapshot *doc1Snap =
+      [[FIRQueryDocumentSnapshot alloc] initWithFirestore:firestore
+                                              documentKey:doc1New.key
+                                                 document:doc1New
+                                                fromCache:false
+                                         hasPendingWrites:false];
+  FIRQueryDocumentSnapshot *doc2Snap =
+      [[FIRQueryDocumentSnapshot alloc] initWithFirestore:firestore
+                                              documentKey:doc2New.key
+                                                 document:doc2New
+                                                fromCache:false
+                                         hasPendingWrites:false];
 
   NSArray<FIRDocumentChange *> *changesWithoutMetadata = @[
     [[FIRDocumentChange alloc] initWithType:FIRDocumentChangeTypeModified

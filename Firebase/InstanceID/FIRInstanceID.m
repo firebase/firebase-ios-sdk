@@ -175,10 +175,6 @@ static FIRInstanceID *gInstanceID;
   [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-- (void)stopAllRequests {
-  [self.tokenManager stopAllTokenOperations];
-}
-
 #pragma mark - Tokens
 
 - (NSString *)token {
@@ -194,7 +190,7 @@ static FIRInstanceID *gInstanceID;
     // If we've never had a cached default token, we should fetch one because unrelatedly,
     // this request will help us determine whether the locally-generated Instance ID keypair is not
     // unique, and therefore generate a new one.
-    [self fetchDefaultToken];
+    [self defaultTokenWithHandler:nil];
     return nil;
   }
 }
@@ -221,40 +217,16 @@ static FIRInstanceID *gInstanceID;
       // If no handler, simply return since client has generated iid and token.
       return;
     }
-
-    // Now get token
-    FIRInstanceIDTokenHandler tokenHandler = ^void(NSString *token, NSError *error) {
-      if (error) {
-        FIRInstanceIDLoggerError(kFIRInstanceIDMessageCodeInstanceID007,
-                                 @"Failed to retrieve the default FCM token after %ld retries",
-                                 (long)self.retryCountForDefaultToken);
-        if (handler) {
-          // If token fetching fails, result should be nil with error returned.
-          handler(nil, error);
-        }
-        return;
-      }
-      FIRInstanceIDLoggerDebug(kFIRInstanceIDMessageCodeInstanceID008, @"Got default token %@",
-                               token);
-      NSString *previousFCMToken = self.defaultFCMToken;
-      self.defaultFCMToken = token;
-
-      // Only notify of token refresh if we have a new valid token that's different than before
-      if (self.defaultFCMToken.length && ![self.defaultFCMToken isEqualToString:previousFCMToken]) {
-        NSNotification *tokenRefreshNotification =
-            [NSNotification notificationWithName:kFIRInstanceIDTokenRefreshNotification
-                                          object:[self.defaultFCMToken copy]];
-        [[NSNotificationQueue defaultQueue] enqueueNotification:tokenRefreshNotification
-                                                   postingStyle:NSPostASAP];
-      }
-
+    [self defaultTokenWithHandler:^(NSString *_Nullable token, NSError *_Nullable error) {
       if (handler) {
+        if (error) {
+          handler(nil, error);
+          return;
+        }
         result.token = token;
         handler(result, nil);
       }
-    };
-
-    [self defaultTokenWithHandler:tokenHandler];
+    }];
   }];
 }
 
@@ -631,7 +603,7 @@ static FIRInstanceID *gInstanceID;
                                         dispatch_after(dispatch_time(DISPATCH_TIME_NOW,
                                                                      (int64_t)(0.5 * NSEC_PER_SEC)),
                                                        dispatch_get_main_queue(), ^{
-                                                         [self fetchDefaultToken];
+                                                         [self defaultTokenWithHandler:nil];
                                                        });
                                       }
                                       if (handler) {
@@ -731,7 +703,7 @@ static FIRInstanceID *gInstanceID;
     // Clean up expired tokens by checking the token refresh policy.
     if ([self.tokenManager checkForTokenRefreshPolicy]) {
       // Default token is expired, fetch default token from server.
-      [self fetchDefaultToken];
+      [self defaultTokenWithHandler:nil];
     }
     // Notify FCM with the default token.
 #pragma clang diagnostic push
@@ -742,7 +714,7 @@ static FIRInstanceID *gInstanceID;
     // When there is no cached token, must check auto init is enabled.
     // If it's disabled, don't initiate token generation/refresh.
     // If no cache token and auto init is enabled, fetch a token from server.
-    [self fetchDefaultToken];
+    [self defaultTokenWithHandler:nil];
     // Notify FCM with the default token.
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -859,40 +831,6 @@ static FIRInstanceID *gInstanceID;
       kMaxRetryIntervalForDefaultTokenInSeconds);
 }
 
-- (void)fetchDefaultToken {
-  if (self.isFetchingDefaultToken) {
-    return;
-  }
-
-  FIRInstanceID_WEAKIFY(self);
-  FIRInstanceIDTokenHandler handler = ^void(NSString *token, NSError *error) {
-    FIRInstanceID_STRONGIFY(self);
-
-    if (error) {
-      FIRInstanceIDLoggerError(kFIRInstanceIDMessageCodeInstanceID007,
-                               @"Failed to retrieve the default FCM token after %ld retries",
-                               (long)self.retryCountForDefaultToken);
-    } else {
-      FIRInstanceIDLoggerDebug(kFIRInstanceIDMessageCodeInstanceID008, @"Got default token %@",
-                               token);
-      NSString *previousFCMToken = self.defaultFCMToken;
-      self.defaultFCMToken = token;
-
-      // Only notify of token refresh if we have a new valid token that's different than before
-      if (self.defaultFCMToken.length && ![self.defaultFCMToken isEqualToString:previousFCMToken]) {
-        NSNotification *tokenRefreshNotification =
-            [NSNotification notificationWithName:kFIRInstanceIDTokenRefreshNotification
-                                          object:[self.defaultFCMToken copy]];
-        [[NSNotificationQueue defaultQueue] enqueueNotification:tokenRefreshNotification
-                                                   postingStyle:NSPostASAP];
-      }
-    }
-  };
-
-  // Get a "*" token using this APNS token.
-  [self defaultTokenWithHandler:handler];
-}
-
 - (void)defaultTokenWithHandler:(FIRInstanceIDTokenHandler)handler {
   if (self.isFetchingDefaultToken || self.isDefaultTokenFetchScheduled) {
     return;
@@ -942,6 +880,9 @@ static FIRInstanceID *gInstanceID;
                          [self defaultTokenWithHandler:handler];
                        });
       } else {
+        FIRInstanceIDLoggerError(kFIRInstanceIDMessageCodeInstanceID007,
+                                 @"Failed to retrieve the default FCM token after %ld retries",
+                                 (long)self.retryCountForDefaultToken);
         if (handler) {
           handler(nil, error);
         }
@@ -949,7 +890,6 @@ static FIRInstanceID *gInstanceID;
     } else {
       // If somebody updated IID with APNS token while our initial request did not have it
       // set we need to update it on the server.
-      BOOL shouldNotifyHandler = YES;
       NSData *deviceTokenInRequest = instanceIDOptions[kFIRInstanceIDTokenOptionsAPNSKey];
       BOOL isSandboxInRequest =
           [instanceIDOptions[kFIRInstanceIDTokenOptionsAPNSIsSandboxKey] boolValue];
@@ -965,8 +905,6 @@ static FIRInstanceID *gInstanceID;
         // APNs value did change mid-fetch, so the token should be re-fetched with the current APNs
         // value.
         self.isDefaultTokenFetchScheduled = YES;
-        // Wait to notify until we can modify this token with APNS (or receive a new token)
-        shouldNotifyHandler = NO;
         FIRInstanceID_WEAKIFY(self);
         dispatch_async(dispatch_get_main_queue(), ^{
           FIRInstanceID_STRONGIFY(self);
@@ -976,12 +914,28 @@ static FIRInstanceID *gInstanceID;
         FIRInstanceIDLoggerDebug(kFIRInstanceIDMessageCodeRefetchingTokenForAPNS,
                                  @"Received APNS token while fetching default token. "
                                  @"Refetching default token.");
+        // Do not notify and handle completion handler since this is a retry.
+        // Simply return.
+        return;
       } else {
         FIRInstanceIDLoggerInfo(kFIRInstanceIDMessageCodeInstanceID010,
                                 @"Successfully fetched default token.");
       }
       // Post the required notifications if somebody is waiting.
-      if (shouldNotifyHandler && handler) {
+      FIRInstanceIDLoggerDebug(kFIRInstanceIDMessageCodeInstanceID008, @"Got default token %@",
+                               token);
+      NSString *previousFCMToken = self.defaultFCMToken;
+      self.defaultFCMToken = token;
+
+      // Only notify of token refresh if we have a new valid token that's different than before
+      if (self.defaultFCMToken.length && ![self.defaultFCMToken isEqualToString:previousFCMToken]) {
+        NSNotification *tokenRefreshNotification =
+            [NSNotification notificationWithName:kFIRInstanceIDTokenRefreshNotification
+                                          object:[self.defaultFCMToken copy]];
+        [[NSNotificationQueue defaultQueue] enqueueNotification:tokenRefreshNotification
+                                                   postingStyle:NSPostASAP];
+      }
+      if (handler) {
         handler(token, nil);
       }
     }
@@ -1044,7 +998,7 @@ static FIRInstanceID *gInstanceID;
         if ([tokenInfo.token isEqualToString:self.defaultFCMToken]) {
           // We will perform a special fetch for the default FCM token, so that the delegate methods
           // are called. For all others, we will do an internal re-fetch.
-          [self fetchDefaultToken];
+          [self defaultTokenWithHandler:nil];
         } else {
           [self.tokenManager fetchNewTokenWithAuthorizedEntity:tokenInfo.authorizedEntity
                                                          scope:tokenInfo.scope

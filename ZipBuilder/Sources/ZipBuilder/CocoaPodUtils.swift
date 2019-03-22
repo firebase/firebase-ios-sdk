@@ -50,7 +50,20 @@ public enum CocoaPodUtils {
     }
   }
 
-  /// Execute the `pod cache list` command to get the Pods currently cached on your machine.
+  /// Executes the `pod cache clean --all` command to remove any cached CocoaPods.
+  public static func cleanPodCache() {
+    let result = Shell.executeCommandFromScript("pod cache clean --all", outputToConsole: false)
+    switch result {
+    case let .error(code):
+      fatalError("Could not clean the pod cache, the command exited with \(code). Try running the" +
+        "command in Terminal to see what's wrong.")
+    case .success:
+      // No need to do anything else, continue on.
+      print("Successfully cleaned pod cache.")
+      return
+    }
+  }
+
   /// Executes the `pod cache list` command to get the Pods curerntly cached on your machine.
   ///
   /// - Parameter dir: The directory containing all installed pods.
@@ -133,7 +146,7 @@ public enum CocoaPodUtils {
     }
 
     // Run pod install on the directory that contains the Podfile and blank Xcode project.
-    let result = Shell.executeCommandFromScript("pod install", workingDir: directory)
+    let result = Shell.executeCommandFromScript("pod _1.5.3_ install", workingDir: directory)
     switch result {
     case let .error(code, output):
       fatalError("""
