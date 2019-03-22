@@ -11,8 +11,10 @@ final class UploadMetricsTests: XCTestCase {
       let metricsUpdate = TableUpdate.createFrom(coverage:report, pullRequest:PULL_REQUEST)
       XCTAssertEqual(metricsUpdate.table_name, "Coverage1")
       XCTAssertEqual(metricsUpdate.replace_measurements.count, 2)
-      XCTAssertEqual(metricsUpdate.replace_measurements[0], [Double(PULL_REQUEST), 0, target_one.coverage])
-      XCTAssertEqual(metricsUpdate.replace_measurements[1], [Double(PULL_REQUEST), 1, target_two.coverage])
+      XCTAssertEqual(metricsUpdate.replace_measurements[0],
+                     [Double(PULL_REQUEST), 0, target_one.coverage])
+      XCTAssertEqual(metricsUpdate.replace_measurements[1],
+                     [Double(PULL_REQUEST), 1, target_two.coverage])
     }
 
     func testShouldIgnoreUnkownTargets() {
@@ -24,7 +26,9 @@ final class UploadMetricsTests: XCTestCase {
     }
 
     func testShouldConvertToJson() throws {
-      let table = TableUpdate(table_name: "name", column_names: ["col"], replace_measurements: [[0], [2]])
+      let table = TableUpdate(table_name: "name",
+                              column_names: ["col"],
+                              replace_measurements: [[0], [2]])
       let metrics = UploadMetrics(tables: [table])
       let json = try metrics.json()
       XCTAssertEqual(json, "{\"tables\":[{\"replace_measurements\":[[0],[2]],\"column_names\":[\"col\"],\"table_name\":\"name\"}]}")
