@@ -4,18 +4,21 @@
 import PackageDescription
 
 let package = Package(
-    name: "Metrics",
-    dependencies: [
-	.package(url: "https://github.com/objecthub/swift-commandlinekit", from:"0.2.5"),
-    ],
-    targets: [
-        .target(
-            name: "MetricsLib"),
-        .target(
-            name: "Metrics",
-            dependencies: ["CommandLineKit", "MetricsLib"]),
-        .testTarget(
-            name: "MetricsTests",
-            dependencies: ["MetricsLib"]),
-    ]
+  name: "Metrics",
+  dependencies: [
+    .package(url: "https://github.com/objecthub/swift-commandlinekit", from: "0.2.5"),
+  ],
+  targets: [
+    .target(
+      name: "MetricsLib"
+    ),
+    .target(
+      name: "Metrics",
+      dependencies: ["CommandLineKit", "MetricsLib"]
+    ),
+    .testTarget(
+      name: "MetricsTests",
+      dependencies: ["MetricsLib"]
+    ),
+  ]
 )

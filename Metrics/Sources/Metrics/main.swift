@@ -14,15 +14,15 @@ let pullRequest = flags.int("p",
                             description: "Required - The number of the pull request that corresponds to this coverage run.")
 do {
   try flags.parse()
-  if (!coveragePath.wasSet) {
+  if !coveragePath.wasSet {
     print("Please specify the path of the JSON coverage report from XCov. -c or --coverage")
     exit(1)
   }
-  if (!outputPath.wasSet) {
+  if !outputPath.wasSet {
     print("Please specify output location for the database JSON file. -o or --output")
     exit(1)
   }
-  if (!pullRequest.wasSet) {
+  if !pullRequest.wasSet {
     print("Please specify the corresponding pull request number. -p or --pull_request")
     exit(1)
   }
@@ -32,7 +32,7 @@ do {
   let coverageReport = try CoverageReport.load(path: coveragePath.value!)
   let coverageTable = TableUpdate.createFrom(coverage: coverageReport,
                                              pullRequest: pullRequest.value!)
-  let json = try UploadMetrics(tables:[pullRequestTable, coverageTable]).json()
+  let json = try UploadMetrics(tables: [pullRequestTable, coverageTable]).json()
   try json.write(to: NSURL(fileURLWithPath: outputPath.value!) as URL,
                  atomically: false,
                  encoding: .utf8)
