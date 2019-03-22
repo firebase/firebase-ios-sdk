@@ -31,7 +31,7 @@
 /** Generates a GDTStoredEvent, complete with a file specified in the eventFileURL property.
  *
  * @param qosTier The QoS tier the event should have.
- * @return An newly allocated fake stored event.
+ * @return A newly allocated fake stored event.
  */
 - (GDTStoredEvent *)generateStoredEvent:(GDTEventQoS)qosTier;
 
