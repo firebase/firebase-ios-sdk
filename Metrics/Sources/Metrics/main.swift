@@ -26,11 +26,12 @@ do {
 }
 
 do {
-  let pullRequestTable = Table(table_name: "PullRequests",
-                               column_names: ["pull_request_id"],
-                               replace_measurements: [[Double(pullRequest.value!)]])
-  let coverageTable = try Table.createFrom(coverage: CoverageReport.load(path: coveragePath.value!),
-                                           pullRequest: pullRequest.value!)
+  let pullRequestTable = TableUpdate(table_name: "PullRequests",
+                                     column_names: ["pull_request_id"],
+                                     replace_measurements: [[Double(pullRequest.value!)]])
+  let coverageReport = try CoverageReport.load(path: coveragePath.value!)
+  let coverageTable = TableUpdate.createFrom(coverage: coverageReport,
+                                             pullRequest: pullRequest.value!)
   let json = try UploadMetrics(tables:[pullRequestTable, coverageTable]).json()
   try json.write(to: NSURL(fileURLWithPath: outputPath.value!) as URL,
                  atomically: false,
