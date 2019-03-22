@@ -28,22 +28,21 @@ namespace firestore {
 namespace model {
 
 TEST(Precondition, None) {
-  const Precondition none = Precondition::None();
+  Precondition none = Precondition::None();
   EXPECT_EQ(Precondition::Type::None, none.type());
   EXPECT_TRUE(none.IsNone());
   EXPECT_EQ(SnapshotVersion::None(), none.update_time());
 
-  const std::shared_ptr<NoDocument> deleted_doc =
-      testutil::DeletedDoc("foo/doc", 1234567);
-  const std::shared_ptr<Document> doc = testutil::Doc("bar/doc", 7654321);
-  EXPECT_TRUE(none.IsValidFor(deleted_doc.get()));
-  EXPECT_TRUE(none.IsValidFor(doc.get()));
+  NoDocument deleted_doc = *testutil::DeletedDoc("foo/doc", 1234567);
+  Document doc = *testutil::Doc("bar/doc", 7654321);
+  EXPECT_TRUE(none.IsValidFor(&deleted_doc));
+  EXPECT_TRUE(none.IsValidFor(&doc));
   EXPECT_TRUE(none.IsValidFor(nullptr));
 }
 
 TEST(Precondition, Exists) {
-  const Precondition exists = Precondition::Exists(true);
-  const Precondition no_exists = Precondition::Exists(false);
+  Precondition exists = Precondition::Exists(true);
+  Precondition no_exists = Precondition::Exists(false);
   EXPECT_EQ(Precondition::Type::Exists, exists.type());
   EXPECT_EQ(Precondition::Type::Exists, no_exists.type());
   EXPECT_FALSE(exists.IsNone());
@@ -51,31 +50,29 @@ TEST(Precondition, Exists) {
   EXPECT_EQ(SnapshotVersion::None(), exists.update_time());
   EXPECT_EQ(SnapshotVersion::None(), no_exists.update_time());
 
-  const std::shared_ptr<NoDocument> deleted_doc =
-      testutil::DeletedDoc("foo/doc", 1234567);
-  const std::shared_ptr<Document> doc = testutil::Doc("bar/doc", 7654321);
-  EXPECT_FALSE(exists.IsValidFor(deleted_doc.get()));
-  EXPECT_TRUE(exists.IsValidFor(doc.get()));
+  NoDocument deleted_doc = *testutil::DeletedDoc("foo/doc", 1234567);
+  Document doc = *testutil::Doc("bar/doc", 7654321);
+  EXPECT_FALSE(exists.IsValidFor(&deleted_doc));
+  EXPECT_TRUE(exists.IsValidFor(&doc));
   EXPECT_FALSE(exists.IsValidFor(nullptr));
-  EXPECT_TRUE(no_exists.IsValidFor(deleted_doc.get()));
-  EXPECT_FALSE(no_exists.IsValidFor(doc.get()));
+  EXPECT_TRUE(no_exists.IsValidFor(&deleted_doc));
+  EXPECT_FALSE(no_exists.IsValidFor(&doc));
   EXPECT_TRUE(no_exists.IsValidFor(nullptr));
 }
 
 TEST(Precondition, UpdateTime) {
-  const Precondition update_time =
+  Precondition update_time =
       Precondition::UpdateTime(testutil::Version(1234567));
   EXPECT_EQ(Precondition::Type::UpdateTime, update_time.type());
   EXPECT_FALSE(update_time.IsNone());
   EXPECT_EQ(testutil::Version(1234567), update_time.update_time());
 
-  const std::shared_ptr<NoDocument> deleted_doc =
-      testutil::DeletedDoc("foo/doc", 1234567);
-  const std::shared_ptr<Document> not_match = testutil::Doc("bar/doc", 7654321);
-  const std::shared_ptr<Document> match = testutil::Doc("baz/doc", 1234567);
-  EXPECT_FALSE(update_time.IsValidFor(deleted_doc.get()));
-  EXPECT_FALSE(update_time.IsValidFor(not_match.get()));
-  EXPECT_TRUE(update_time.IsValidFor(match.get()));
+  NoDocument deleted_doc = *testutil::DeletedDoc("foo/doc", 1234567);
+  Document not_match = *testutil::Doc("bar/doc", 7654321);
+  Document match = *testutil::Doc("baz/doc", 1234567);
+  EXPECT_FALSE(update_time.IsValidFor(&deleted_doc));
+  EXPECT_FALSE(update_time.IsValidFor(&not_match));
+  EXPECT_TRUE(update_time.IsValidFor(&match));
   EXPECT_FALSE(update_time.IsValidFor(nullptr));
 }
 
