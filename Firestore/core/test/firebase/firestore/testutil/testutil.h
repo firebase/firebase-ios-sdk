@@ -93,7 +93,7 @@ inline std::shared_ptr<model::NoDocument> DeletedDoc(absl::string_view key,
 }
 
 inline std::shared_ptr<model::UnknownDocument> UnknownDoc(absl::string_view key,
-                                         int64_t version) {
+                                                          int64_t version) {
   return std::make_shared<model::UnknownDocument>(Key(key), Version(version));
 }
 
