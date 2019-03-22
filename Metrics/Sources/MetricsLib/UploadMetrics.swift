@@ -25,6 +25,7 @@ let TARGET_TO_SDK_INDEX = [
   "InstanceID_Example_iOS.app": 4.0,
   "Messaging_Example_iOS.app": 5.0,
   "Storage_Example_iOS.app": 6.0,
+  // TODO(harasha): Add support for Firestore, Functions, and InAppMessaging.
 ]
 
 /// Represents a set of metric table updates to upload to the database.
