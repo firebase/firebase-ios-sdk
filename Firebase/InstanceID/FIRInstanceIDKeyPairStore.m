@@ -279,7 +279,9 @@ NSString *FIRInstanceIDCreationTimeKeyWithSubtype(NSString *subtype) {
     // There is no need to reset keypair again here as FIRInstanceID init call is always
     // going to be ahead of this call, which already trigger keypair reset if it's new install
     FIRInstanceIDErrorCode code = kFIRInstanceIDErrorCodeInvalidKeyPairCreationTime;
-    *error = [NSError errorWithFIRInstanceIDErrorCode:code];
+    if (error) {
+      *error = [NSError errorWithFIRInstanceIDErrorCode:code];
+    }
     return nil;
   }
 }

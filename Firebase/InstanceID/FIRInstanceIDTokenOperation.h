@@ -57,7 +57,7 @@ typedef void (^FIRInstanceIDTokenOperationCompletion)(FIRInstanceIDTokenOperatio
 
 @property(nonatomic, readonly) FIRInstanceIDTokenAction action;
 @property(nonatomic, readonly, nullable) NSString *authorizedEntity;
-@property(nonatomic, readonly) NSString *scope;
+@property(nonatomic, readonly, nullable) NSString *scope;
 @property(nonatomic, readonly, nullable) NSDictionary<NSString *, NSString *> *options;
 @property(nonatomic, readonly, strong) FIRInstanceIDCheckinPreferences *checkinPreferences;
 @property(nonatomic, readonly, strong) FIRInstanceIDKeyPair *keyPair;
