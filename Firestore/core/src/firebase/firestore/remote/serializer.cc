@@ -286,38 +286,62 @@ google_firestore_v1_Value Serializer::EncodeFieldValue(
     case FieldValue::Type::Null:
       result.which_value_type = google_firestore_v1_Value_null_value_tag;
       result.null_value = google_protobuf_NullValue_NULL_VALUE;
-      break;
+      return result;
 
     case FieldValue::Type::Boolean:
       result.which_value_type = google_firestore_v1_Value_boolean_value_tag;
       result.boolean_value = field_value.boolean_value();
-      break;
+      return result;
 
     case FieldValue::Type::Integer:
       result.which_value_type = google_firestore_v1_Value_integer_value_tag;
       result.integer_value = field_value.integer_value();
-      break;
+      return result;
 
-    case FieldValue::Type::String:
-      result.which_value_type = google_firestore_v1_Value_string_value_tag;
-      result.string_value = EncodeString(field_value.string_value());
-      break;
+    case FieldValue::Type::Double:
+      result.which_value_type = google_firestore_v1_Value_double_value_tag;
+      result.double_value = field_value.double_value();
+      return result;
 
     case FieldValue::Type::Timestamp:
       result.which_value_type = google_firestore_v1_Value_timestamp_value_tag;
       result.timestamp_value = EncodeTimestamp(field_value.timestamp_value());
-      break;
+      return result;
+
+    case FieldValue::Type::ServerTimestamp:
+      // TODO(rsgowman): Implement
+      abort();
+
+    case FieldValue::Type::String:
+      result.which_value_type = google_firestore_v1_Value_string_value_tag;
+      result.string_value = EncodeString(field_value.string_value());
+      return result;
+
+    case FieldValue::Type::Blob:
+      result.which_value_type = google_firestore_v1_Value_bytes_value_tag;
+      result.bytes_value = EncodeBytes(field_value.blob_value());
+      return result;
+
+    case FieldValue::Type::Reference:
+      // TODO(rsgowman): Implement
+      abort();
+
+    case FieldValue::Type::GeoPoint:
+      result.which_value_type = google_firestore_v1_Value_geo_point_value_tag;
+      result.geo_point_value = EncodeGeoPoint(field_value.geo_point_value());
+      return result;
+
+    case FieldValue::Type::Array:
+      result.which_value_type = google_firestore_v1_Value_array_value_tag;
+      result.array_value = EncodeArray(field_value.array_value());
+      return result;
 
     case FieldValue::Type::Object:
       result.which_value_type = google_firestore_v1_Value_map_value_tag;
       result.map_value = EncodeMapValue(ObjectValue(field_value));
-      break;
-
-    default:
-      // TODO(rsgowman): implement the other types
-      abort();
+      return result;
   }
-  return result;
+  UNREACHABLE();
 }
 
 FieldValue Serializer::DecodeFieldValue(Reader* reader,
@@ -342,26 +366,37 @@ FieldValue Serializer::DecodeFieldValue(Reader* reader,
     case google_firestore_v1_Value_integer_value_tag:
       return FieldValue::FromInteger(msg.integer_value);
 
-    case google_firestore_v1_Value_string_value_tag:
-      return FieldValue::FromString(DecodeString(msg.string_value));
+    case google_firestore_v1_Value_double_value_tag:
+      return FieldValue::FromDouble(msg.double_value);
 
     case google_firestore_v1_Value_timestamp_value_tag: {
       return FieldValue::FromTimestamp(
           DecodeTimestamp(reader, msg.timestamp_value));
     }
 
-    case google_firestore_v1_Value_map_value_tag: {
-      return FieldValue::FromMap(DecodeMapValue(reader, msg.map_value));
+    case google_firestore_v1_Value_string_value_tag:
+      return FieldValue::FromString(DecodeString(msg.string_value));
+
+    case google_firestore_v1_Value_bytes_value_tag: {
+      std::vector<uint8_t> bytes = DecodeBytes(msg.bytes_value);
+      return FieldValue::FromBlob(bytes.data(), bytes.size());
     }
 
-    case google_firestore_v1_Value_double_value_tag:
-    case google_firestore_v1_Value_bytes_value_tag:
     case google_firestore_v1_Value_reference_value_tag:
-    case google_firestore_v1_Value_geo_point_value_tag:
-    case google_firestore_v1_Value_array_value_tag:
       // TODO(b/74243929): Implement remaining types.
       HARD_FAIL("Unhandled message field number (tag): %i.",
                 msg.which_value_type);
+
+    case google_firestore_v1_Value_geo_point_value_tag:
+      return FieldValue::FromGeoPoint(
+          DecodeGeoPoint(reader, msg.geo_point_value));
+
+    case google_firestore_v1_Value_array_value_tag:
+      return FieldValue::FromArray(DecodeArray(reader, msg.array_value));
+
+    case google_firestore_v1_Value_map_value_tag: {
+      return FieldValue::FromMap(DecodeMapValue(reader, msg.map_value));
+    }
 
     default:
       reader->Fail(StringFormat("Invalid type while decoding FieldValue: %s",
@@ -667,7 +702,7 @@ google_firestore_v1_DocumentMask Serializer::EncodeDocumentMask(
   google_firestore_v1_DocumentMask result{};
 
   size_t count = mask.size();
-  HARD_ASSERT(count <= std::numeric_limits<pb_size_t>::max(),
+  HARD_ASSERT(count <= PB_SIZE_MAX,
               "Unable to encode specified document mask. Too many fields.");
   result.field_paths_count = static_cast<pb_size_t>(count);
   result.field_paths = MakeArray<pb_bytes_array_t*>(count);
@@ -816,7 +851,7 @@ Timestamp Serializer::DecodeTimestamp(
     reader->Fail(
         "Invalid message: timestamp beyond the earliest supported date");
   } else if (TimestampInternal::Max().seconds() < timestamp_proto.seconds) {
-    reader->Fail("Invalid message: timestamp behond the latest supported date");
+    reader->Fail("Invalid message: timestamp beyond the latest supported date");
   } else if (timestamp_proto.nanos < 0 || timestamp_proto.nanos > 999999999) {
     reader->Fail(
         "Invalid message: timestamp nanos must be between 0 and 999999999");
@@ -824,6 +859,66 @@ Timestamp Serializer::DecodeTimestamp(
 
   if (!reader->status().ok()) return Timestamp();
   return Timestamp{timestamp_proto.seconds, timestamp_proto.nanos};
+}
+
+/* static */
+google_type_LatLng Serializer::EncodeGeoPoint(const GeoPoint& geo_point_value) {
+  google_type_LatLng result{};
+  result.latitude = geo_point_value.latitude();
+  result.longitude = geo_point_value.longitude();
+  return result;
+}
+
+/* static */
+GeoPoint Serializer::DecodeGeoPoint(nanopb::Reader* reader,
+                                    const google_type_LatLng& latlng_proto) {
+  // The GeoPoint ctor will assert if we provide values outside the valid range.
+  // However, since we're decoding, a single corrupt byte could cause this to
+  // occur, so we'll verify the ranges before passing them in since we'd rather
+  // not abort in these situations.
+  double latitude = latlng_proto.latitude;
+  double longitude = latlng_proto.longitude;
+  if (std::isnan(latitude) || latitude < -90 || 90 < latitude) {
+    reader->Fail("Invalid message: Latitude must be in the range of [-90, 90]");
+  } else if (std::isnan(longitude) || longitude < -180 || 180 < longitude) {
+    reader->Fail(
+        "Invalid message: Latitude must be in the range of [-180, 180]");
+  }
+
+  if (!reader->status().ok()) return GeoPoint();
+  return GeoPoint(latitude, longitude);
+}
+
+/* static */
+google_firestore_v1_ArrayValue Serializer::EncodeArray(
+    const std::vector<FieldValue>& array_value) {
+  google_firestore_v1_ArrayValue result{};
+
+  size_t count = array_value.size();
+  HARD_ASSERT(count <= PB_SIZE_MAX,
+              "Unable to encode specified array. Too many entries.");
+  result.values_count = count;
+  result.values = MakeArray<google_firestore_v1_Value>(count);
+
+  size_t i = 0;
+  for (const FieldValue& fv : array_value) {
+    result.values[i++] = EncodeFieldValue(fv);
+  }
+
+  return result;
+}
+
+/* static */
+std::vector<FieldValue> Serializer::DecodeArray(
+    nanopb::Reader* reader, const google_firestore_v1_ArrayValue& array_proto) {
+  std::vector<FieldValue> result;
+  result.reserve(array_proto.values_count);
+
+  for (size_t i = 0; i < array_proto.values_count; i++) {
+    result.push_back(DecodeFieldValue(reader, array_proto.values[i]));
+  }
+
+  return result;
 }
 
 }  // namespace remote
