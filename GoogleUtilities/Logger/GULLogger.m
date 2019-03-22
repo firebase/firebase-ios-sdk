@@ -210,7 +210,7 @@ GUL_LOGGING_FUNCTION(Debug)
 // We have to use C API deireclty here
 
 CFStringRef getGULLoggerUsetDefaultsSuiteName(void) {
-  return (__bridge CFStringRef)@"GoogleUtilities.Logger.GULLogger";
+  return (__bridge CFStringRef) @"GoogleUtilities.Logger.GULLogger";
 }
 
 NSInteger GULGetUserDefaultsIntegerForKey(NSString *key) {
@@ -225,9 +225,8 @@ NSInteger GULGetUserDefaultsIntegerForKey(NSString *key) {
 
 void GULLoggerUserDefaultsSetIntegerForKey(NSInteger count, NSString *key) {
   NSNumber *countNumber = @(count);
-  CFPreferencesSetAppValue((__bridge CFStringRef)key,
-                           (__bridge CFNumberRef)countNumber,
-                           getGULLoggerUsetDefaultsSuiteName()) ;
+  CFPreferencesSetAppValue((__bridge CFStringRef)key, (__bridge CFNumberRef)countNumber,
+                           getGULLoggerUsetDefaultsSuiteName());
   CFPreferencesAppSynchronize(getGULLoggerUsetDefaultsSuiteName());
 }
 

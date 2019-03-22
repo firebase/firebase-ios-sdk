@@ -50,7 +50,8 @@ static NSString *const kMessageCode = @"I-COR000001";
   [super setUp];
   GULResetLogger();
 
-  self.loggerDefaults = [[NSUserDefaults alloc] initWithSuiteName:CFBridgingRelease(getGULLoggerUsetDefaultsSuiteName())];
+  self.loggerDefaults = [[NSUserDefaults alloc]
+      initWithSuiteName:CFBridgingRelease(getGULLoggerUsetDefaultsSuiteName())];
 }
 
 - (void)tearDown {
