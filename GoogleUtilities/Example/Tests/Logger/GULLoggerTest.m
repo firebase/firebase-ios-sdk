@@ -36,7 +36,6 @@ extern NSUserDefaults *getGULLoggerUsetDefaults(void);
 extern void setGULLoggerUsetDefaults(NSUserDefaults *defaults);
 extern dispatch_queue_t getGULLoggerCounterQueue(void);
 
-
 static NSString *const kMessageCode = @"I-COR000001";
 
 @interface GULLoggerTest : XCTestCase
@@ -191,10 +190,12 @@ static NSString *const kMessageCode = @"I-COR000001";
 }
 
 - (void)testNumberOfIssuesLoggedNoDeadlock {
-  [self dispatchSyncNestedDispatchCount:100 queue:getGULLoggerCounterQueue() block: ^{
-    XCTAssertNoThrow(GULNumberOfErrorsLogged());
-    XCTAssertNoThrow(GULNumberOfWarningsLogged());
-  }];
+  [self dispatchSyncNestedDispatchCount:100
+                                  queue:getGULLoggerCounterQueue()
+                                  block:^{
+                                    XCTAssertNoThrow(GULNumberOfErrorsLogged());
+                                    XCTAssertNoThrow(GULNumberOfWarningsLogged());
+                                  }];
 }
 
 // Helper functions.
