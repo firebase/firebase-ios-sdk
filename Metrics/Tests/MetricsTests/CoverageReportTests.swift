@@ -17,7 +17,7 @@
 import MetricsLib
 import XCTest
 
-let EXAMPLE_REPORT = "example_report.json"
+let EXAMPLE_REPORT = "Tests/MetricsTests/example_report.json"
 
 final class CoverageReportTests: XCTestCase {
   func testShouldParseTotalCoverage() throws {
