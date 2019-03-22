@@ -1,0 +1,16 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "CommandLine",
+        "repositoryURL": "https://github.com/jatoben/CommandLine",
+        "state": {
+          "branch": null,
+          "revision": "73048b666be97d122109276a1b8a69ec407cdb13",
+          "version": "3.0.0-pre1"
+        }
+      }
+    ]
+  },
+  "version": 1
+}
