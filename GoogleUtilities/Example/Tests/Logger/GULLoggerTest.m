@@ -43,9 +43,6 @@ static NSString *const kMessageCode = @"I-COR000001";
 
 @property(nonatomic) NSString *randomLogString;
 
-@property(nonatomic, strong) id mockLoggerUserDefaults;
-@property(nonatomic, strong) NSUserDefaults *loggerUserDefaults;
-
 @end
 
 @implementation GULLoggerTest
@@ -53,22 +50,14 @@ static NSString *const kMessageCode = @"I-COR000001";
 - (void)setUp {
   [super setUp];
   GULResetLogger();
-
-  self.loggerUserDefaults = getGULLoggerUsetDefaults();
-
-  NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:@"com.google.logger_test"];
-  self.mockLoggerUserDefaults = OCMPartialMock(defaults);
-  setGULLoggerUsetDefaults(defaults);
 }
 
 - (void)tearDown {
+  // Make sure all async operations have finished before starting a new test.
+  [self drainQueue:getGULClientQueue()];
+  [self drainQueue:getGULLoggerCounterQueue()];
+
   [super tearDown];
-
-  [self.mockLoggerUserDefaults stopMocking];
-  self.mockLoggerUserDefaults = nil;
-
-  setGULLoggerUsetDefaults(self.loggerUserDefaults);
-  self.loggerUserDefaults = nil;
 }
 
 - (void)testMessageCodeFormat {
@@ -176,24 +165,18 @@ static NSString *const kMessageCode = @"I-COR000001";
 - (void)testErrorNumberIncrement {
   [getGULLoggerUsetDefaults() setInteger:10 forKey:kGULLoggerErrorCountKey];
 
-  [OCMExpect([self.mockLoggerUserDefaults setInteger:11 forKey:kGULLoggerErrorCountKey])
-      andForwardToRealObject];
-
   GULLogError(@"my service", NO, kMessageCode, @"Message.");
 
-  OCMVerify(self.mockLoggerUserDefaults);
+  [self drainQueue:getGULLoggerCounterQueue()];
   XCTAssertEqual(GULNumberOfErrorsLogged(), 11);
 }
 
 - (void)testWarningNumberIncrement {
   [getGULLoggerUsetDefaults() setInteger:5 forKey:kGULLoggerWarningCountKey];
 
-  [OCMExpect([self.mockLoggerUserDefaults setInteger:6 forKey:kGULLoggerWarningCountKey])
-    andForwardToRealObject];
-
   GULLogWarning(@"my service", NO, kMessageCode, @"Message.");
 
-  OCMVerify(self.mockLoggerUserDefaults);
+  [self drainQueue:getGULLoggerCounterQueue()];
   XCTAssertEqual(GULNumberOfWarningsLogged(), 6);
 }
 
@@ -216,15 +199,15 @@ static NSString *const kMessageCode = @"I-COR000001";
 
 // Helper functions.
 - (BOOL)logExists {
-  [self drainGULClientQueue];
+  [self drainQueue:getGULClientQueue()];
   NSString *correctMsg =
       [NSString stringWithFormat:@"%@[%@] %@", @"my service", kMessageCode, self.randomLogString];
   return [self messageWasLogged:correctMsg];
 }
 
-- (void)drainGULClientQueue {
+- (void)drainQueue:(dispatch_queue_t)queue {
   dispatch_semaphore_t workerSemaphore = dispatch_semaphore_create(0);
-  dispatch_async(getGULClientQueue(), ^{
+  dispatch_barrier_async(queue, ^{
     dispatch_semaphore_signal(workerSemaphore);
   });
   dispatch_semaphore_wait(workerSemaphore, DISPATCH_TIME_FOREVER);
