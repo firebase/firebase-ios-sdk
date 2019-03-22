@@ -204,24 +204,10 @@ GUL_LOGGING_FUNCTION(Debug)
 #undef GUL_MAKE_LOGGER
 
 #pragma mark - Number of errors and warnings
-static NSUserDefaults *sGULLoggerUsetDefaults = nil;
-NSUserDefaults *getGULLoggerUsetDefaults(void) {
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    sGULLoggerUsetDefaults = [[NSUserDefaults alloc] initWithSuiteName:@"GoogleUtilities.Logger.GULLogger"];
-  });
 
-  return sGULLoggerUsetDefaults;
+CFStringRef getGULLoggerUsetDefaultsSuiteName(void) {
+  return (__bridge CFStringRef)@"GoogleUtilities.Logger.GULLogger";
 }
-
-#ifdef DEBUG
-/**
- * The method is used to inject NSUserDefaults for tests
- */
-void setGULLoggerUsetDefaults(NSUserDefaults *defaults) {
-  sGULLoggerUsetDefaults = defaults;
-}
-#endif
 
 dispatch_queue_t getGULLoggerCounterQueue(void) {
   static dispatch_queue_t queue;
@@ -237,18 +223,30 @@ dispatch_queue_t getGULLoggerCounterQueue(void) {
 }
 
 NSInteger GULSyncGetUserDefaultsIntegerForKey(NSString *key) {
-  __block NSInteger value = 0;
+  __block NSInteger integerValue = 0;
   dispatch_sync(getGULLoggerCounterQueue(), ^{
-    value = [getGULLoggerUsetDefaults() integerForKey:key];
+    id value = (__bridge_transfer id)CFPreferencesCopyAppValue((__bridge CFStringRef)key,
+                                                               getGULLoggerUsetDefaultsSuiteName());
+    if (![value isKindOfClass:[NSNumber class]]) {
+      return;
+    }
+
+    integerValue = [(NSNumber *)value integerValue];
   });
 
-  return value;
+  return integerValue;
 }
 
+
+
 void GULIncrementUserDefaultsIntegerForKey(NSString *key) {
-  NSUserDefaults *defaults = getGULLoggerUsetDefaults();
-  NSInteger errorCount = [defaults integerForKey:key];
-  [defaults setInteger:errorCount + 1 forKey:key];
+  NSInteger value = GULSyncGetUserDefaultsIntegerForKey(key);
+
+  NSNumber *incrememntedValueNumber = @(value);
+  CFPreferencesSetAppValue((__bridge CFStringRef)key,
+                           (__bridge CFNumberRef)incrememntedValueNumber,
+                           getGULLoggerUsetDefaultsSuiteName()) ;
+  CFPreferencesAppSynchronize(getGULLoggerUsetDefaultsSuiteName());
 }
 
 NSInteger GULNumberOfErrorsLogged(void) {
