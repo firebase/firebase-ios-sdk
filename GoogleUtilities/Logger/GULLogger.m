@@ -231,11 +231,6 @@ void GULLoggerUserDefaultsSetIntegerForKey(NSInteger count, NSString *key) {
   CFPreferencesAppSynchronize(getGULLoggerUsetDefaultsSuiteName());
 }
 
-void GULIncrementUserDefaultsIntegerForKey(NSString *key) {
-  NSInteger value = GULGetUserDefaultsIntegerForKey(key);
-  GULLoggerUserDefaultsSetIntegerForKey(value + 1, key);
-}
-
 #pragma mark - Number of errors and warnings
 
 dispatch_queue_t getGULLoggerCounterQueue(void) {
@@ -273,6 +268,11 @@ void GULResetNumberOfIssuesLogged(void) {
     GULLoggerUserDefaultsSetIntegerForKey(0, kGULLoggerErrorCountKey);
     GULLoggerUserDefaultsSetIntegerForKey(0, kGULLoggerWarningCountKey);
   });
+}
+
+void GULIncrementUserDefaultsIntegerForKey(NSString *key) {
+  NSInteger value = GULGetUserDefaultsIntegerForKey(key);
+  GULLoggerUserDefaultsSetIntegerForKey(value + 1, key);
 }
 
 void GULIncrementLogCountForLevel(GULLoggerLevel level) {
