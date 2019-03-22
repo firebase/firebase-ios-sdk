@@ -161,8 +161,8 @@ static NSMutableDictionary *sLibraryVersions;
       if (!((character >= 'a' && character <= 'z') || (character >= 'A' && character <= 'Z') ||
             (character >= '0' && character <= '9') || character == '_' || character == '-')) {
         [NSException raise:kFirebaseCoreErrorDomain
-                    format:@"App name should only contain Letters, "
-                           @"Numbers, Underscores, and Dashes."];
+                    format:@"App name can only contain alphanumeric (A-Z,a-z,0-9), "
+                           @"hyphen (-), and underscore (_) characters"];
       }
     }
 
