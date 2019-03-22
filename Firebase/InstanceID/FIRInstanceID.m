@@ -115,8 +115,6 @@ typedef NS_ENUM(NSInteger, FIRInstanceIDAPNSTokenType) {
 @property(nonatomic, readwrite, strong) FIRInstanceIDKeyPairStore *keyPairStore;
 
 // backoff and retry for default token
-@property(atomic, readwrite, assign) BOOL isFetchingDefaultToken;
-@property(atomic, readwrite, assign) BOOL isDefaultTokenFetchScheduled;
 @property(nonatomic, readwrite, assign) NSInteger retryCountForDefaultToken;
 @property(atomic, strong, nullable)
     FIRInstanceIDCombinedHandler<NSString *> *defaultTokenFetchHandler;
@@ -863,7 +861,7 @@ static FIRInstanceID *gInstanceID;
 }
 
 - (void)fetchDefaultToken {
-  if (self.isFetchingDefaultToken) {
+  if (self.defaultTokenFetchHandler != nil) {
     return;
   }
 
@@ -897,15 +895,25 @@ static FIRInstanceID *gInstanceID;
 }
 
 - (void)defaultTokenWithHandler:(nullable FIRInstanceIDTokenHandler)aHandler {
-  // Store handlers to be called once operation completes
+  [self defaultTokenWithRetry:NO handler:aHandler];
+}
+
+/**
+ * @param retry Indicates if the method is called to perform a retry after a failed attempt.
+ * If `YES`, then actual token request will be performed even if `self.defaultTokenFetchHandler != nil`
+ */
+- (void)defaultTokenWithRetry:(BOOL)retry handler:(nullable FIRInstanceIDTokenHandler)aHandler {
+  BOOL shouldPerformRequest = retry || self.defaultTokenFetchHandler == nil;
+
   if (!self.defaultTokenFetchHandler) {
     self.defaultTokenFetchHandler = [[FIRInstanceIDCombinedHandler<NSString *> alloc] init];
   }
+
   if (aHandler) {
     [self.defaultTokenFetchHandler addHandler:aHandler];
   }
 
-  if (self.isFetchingDefaultToken || self.isDefaultTokenFetchScheduled) {
+  if (!shouldPerformRequest) {
     return;
   }
 
@@ -925,7 +933,6 @@ static FIRInstanceID *gInstanceID;
   FIRInstanceID_WEAKIFY(self);
   FIRInstanceIDTokenHandler newHandler = ^void(NSString *token, NSError *error) {
     FIRInstanceID_STRONGIFY(self);
-    self.isFetchingDefaultToken = NO;
 
     if (error) {
       FIRInstanceIDLoggerError(kFIRInstanceIDMessageCodeInstanceID009,
@@ -984,7 +991,6 @@ static FIRInstanceID *gInstanceID;
     }
   };
 
-  self.isFetchingDefaultToken = YES;
   [self tokenWithAuthorizedEntity:self.fcmSenderID
                             scope:kFIRInstanceIDDefaultTokenScope
                           options:instanceIDOptions
@@ -1005,14 +1011,12 @@ static FIRInstanceID *gInstanceID;
 
 - (void)retryGetDefaultTokenAfter:(NSTimeInterval)retryInterval {
   FIRInstanceID_WEAKIFY(self);
-  self.isDefaultTokenFetchScheduled = YES;
   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(retryInterval * NSEC_PER_SEC)),
                  dispatch_get_main_queue(), ^{
                    FIRInstanceID_STRONGIFY(self);
-                   self.isDefaultTokenFetchScheduled = NO;
                    // Pass nil: no new handlers to be added, currently existing handlers
                    // will be called
-                   [self defaultTokenWithHandler:nil];
+                   [self defaultTokenWithRetry:YES handler:nil];
                  });
 }
 
