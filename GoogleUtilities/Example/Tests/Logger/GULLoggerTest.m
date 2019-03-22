@@ -32,19 +32,15 @@ extern dispatch_queue_t getGULClientQueue(void);
 
 extern BOOL getGULLoggerDebugMode(void);
 
-extern NSUserDefaults *getGULLoggerUsetDefaults(void);
-extern void setGULLoggerUsetDefaults(NSUserDefaults *defaults);
+extern CFStringRef getGULLoggerUsetDefaultsSuiteName(void);
 extern dispatch_queue_t getGULLoggerCounterQueue(void);
-
 
 static NSString *const kMessageCode = @"I-COR000001";
 
 @interface GULLoggerTest : XCTestCase
 
 @property(nonatomic) NSString *randomLogString;
-
-@property(nonatomic, strong) id mockLoggerUserDefaults;
-@property(nonatomic, strong) NSUserDefaults *loggerUserDefaults;
+@property(nonatomic) NSUserDefaults *loggerDefaults;
 
 @end
 
@@ -54,21 +50,17 @@ static NSString *const kMessageCode = @"I-COR000001";
   [super setUp];
   GULResetLogger();
 
-  self.loggerUserDefaults = getGULLoggerUsetDefaults();
-
-  NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:@"com.google.logger_test"];
-  self.mockLoggerUserDefaults = OCMPartialMock(defaults);
-  setGULLoggerUsetDefaults(defaults);
+  self.loggerDefaults = [[NSUserDefaults alloc] initWithSuiteName:CFBridgingRelease(getGULLoggerUsetDefaultsSuiteName())];
 }
 
 - (void)tearDown {
+  // Make sure all async operations have finished before starting a new test.
+  [self drainQueue:getGULClientQueue()];
+  [self drainQueue:getGULLoggerCounterQueue()];
+
+  self.loggerDefaults = nil;
+
   [super tearDown];
-
-  [self.mockLoggerUserDefaults stopMocking];
-  self.mockLoggerUserDefaults = nil;
-
-  setGULLoggerUsetDefaults(self.loggerUserDefaults);
-  self.loggerUserDefaults = nil;
 }
 
 - (void)testMessageCodeFormat {
@@ -174,32 +166,26 @@ static NSString *const kMessageCode = @"I-COR000001";
 }
 
 - (void)testErrorNumberIncrement {
-  [getGULLoggerUsetDefaults() setInteger:10 forKey:kGULLoggerErrorCountKey];
-
-  [OCMExpect([self.mockLoggerUserDefaults setInteger:11 forKey:kGULLoggerErrorCountKey])
-      andForwardToRealObject];
+  [self.loggerDefaults setInteger:10 forKey:kGULLoggerErrorCountKey];
 
   GULLogError(@"my service", NO, kMessageCode, @"Message.");
 
-  OCMVerify(self.mockLoggerUserDefaults);
+  [self drainQueue:getGULLoggerCounterQueue()];
   XCTAssertEqual(GULNumberOfErrorsLogged(), 11);
 }
 
 - (void)testWarningNumberIncrement {
-  [getGULLoggerUsetDefaults() setInteger:5 forKey:kGULLoggerWarningCountKey];
-
-  [OCMExpect([self.mockLoggerUserDefaults setInteger:6 forKey:kGULLoggerWarningCountKey])
-    andForwardToRealObject];
+  [self.loggerDefaults setInteger:5 forKey:kGULLoggerWarningCountKey];
 
   GULLogWarning(@"my service", NO, kMessageCode, @"Message.");
 
-  OCMVerify(self.mockLoggerUserDefaults);
+  [self drainQueue:getGULLoggerCounterQueue()];
   XCTAssertEqual(GULNumberOfWarningsLogged(), 6);
 }
 
 - (void)testResetIssuesCount {
-  [getGULLoggerUsetDefaults() setInteger:3 forKey:kGULLoggerErrorCountKey];
-  [getGULLoggerUsetDefaults() setInteger:4 forKey:kGULLoggerWarningCountKey];
+  [self.loggerDefaults setInteger:3 forKey:kGULLoggerErrorCountKey];
+  [self.loggerDefaults setInteger:4 forKey:kGULLoggerWarningCountKey];
 
   GULResetNumberOfIssuesLogged();
 
@@ -208,23 +194,25 @@ static NSString *const kMessageCode = @"I-COR000001";
 }
 
 - (void)testNumberOfIssuesLoggedNoDeadlock {
-  [self dispatchSyncNestedDispatchCount:100 queue:getGULLoggerCounterQueue() block: ^{
-    XCTAssertNoThrow(GULNumberOfErrorsLogged());
-    XCTAssertNoThrow(GULNumberOfWarningsLogged());
-  }];
+  [self dispatchSyncNestedDispatchCount:100
+                                  queue:getGULLoggerCounterQueue()
+                                  block:^{
+                                    XCTAssertNoThrow(GULNumberOfErrorsLogged());
+                                    XCTAssertNoThrow(GULNumberOfWarningsLogged());
+                                  }];
 }
 
 // Helper functions.
 - (BOOL)logExists {
-  [self drainGULClientQueue];
+  [self drainQueue:getGULClientQueue()];
   NSString *correctMsg =
       [NSString stringWithFormat:@"%@[%@] %@", @"my service", kMessageCode, self.randomLogString];
   return [self messageWasLogged:correctMsg];
 }
 
-- (void)drainGULClientQueue {
+- (void)drainQueue:(dispatch_queue_t)queue {
   dispatch_semaphore_t workerSemaphore = dispatch_semaphore_create(0);
-  dispatch_async(getGULClientQueue(), ^{
+  dispatch_barrier_async(queue, ^{
     dispatch_semaphore_signal(workerSemaphore);
   });
   dispatch_semaphore_wait(workerSemaphore, DISPATCH_TIME_FOREVER);

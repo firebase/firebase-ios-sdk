@@ -203,11 +203,40 @@ GUL_LOGGING_FUNCTION(Debug)
 
 #undef GUL_MAKE_LOGGER
 
-#pragma mark - Number of errors and warnings
+#pragma mark - User defaults
+
+// NSUserDefaults cannot be used due to a bug described in GULUserDefaults
+// GULUserDefaults cannot be used because GULLogger is a dependency for GULUserDefaults
+// We have to use C API deireclty here
 
 CFStringRef getGULLoggerUsetDefaultsSuiteName(void) {
   return (__bridge CFStringRef)@"GoogleUtilities.Logger.GULLogger";
 }
+
+NSInteger GULGetUserDefaultsIntegerForKey(NSString *key) {
+  id value = (__bridge_transfer id)CFPreferencesCopyAppValue((__bridge CFStringRef)key,
+                                                             getGULLoggerUsetDefaultsSuiteName());
+  if (![value isKindOfClass:[NSNumber class]]) {
+    return 0;
+  }
+
+  return [(NSNumber *)value integerValue];
+}
+
+void GULLoggerUserDefaultsSetIntegerForKey(NSInteger count, NSString *key) {
+  NSNumber *countNumber = @(count);
+  CFPreferencesSetAppValue((__bridge CFStringRef)key,
+                           (__bridge CFNumberRef)countNumber,
+                           getGULLoggerUsetDefaultsSuiteName()) ;
+  CFPreferencesAppSynchronize(getGULLoggerUsetDefaultsSuiteName());
+}
+
+void GULIncrementUserDefaultsIntegerForKey(NSString *key) {
+  NSInteger value = GULGetUserDefaultsIntegerForKey(key);
+  GULLoggerUserDefaultsSetIntegerForKey(value + 1, key);
+}
+
+#pragma mark - Number of errors and warnings
 
 dispatch_queue_t getGULLoggerCounterQueue(void) {
   static dispatch_queue_t queue;
@@ -225,28 +254,10 @@ dispatch_queue_t getGULLoggerCounterQueue(void) {
 NSInteger GULSyncGetUserDefaultsIntegerForKey(NSString *key) {
   __block NSInteger integerValue = 0;
   dispatch_sync(getGULLoggerCounterQueue(), ^{
-    id value = (__bridge_transfer id)CFPreferencesCopyAppValue((__bridge CFStringRef)key,
-                                                               getGULLoggerUsetDefaultsSuiteName());
-    if (![value isKindOfClass:[NSNumber class]]) {
-      return;
-    }
-
-    integerValue = [(NSNumber *)value integerValue];
+    integerValue = GULGetUserDefaultsIntegerForKey(key);
   });
 
   return integerValue;
-}
-
-
-
-void GULIncrementUserDefaultsIntegerForKey(NSString *key) {
-  NSInteger value = GULSyncGetUserDefaultsIntegerForKey(key);
-
-  NSNumber *incrememntedValueNumber = @(value);
-  CFPreferencesSetAppValue((__bridge CFStringRef)key,
-                           (__bridge CFNumberRef)incrememntedValueNumber,
-                           getGULLoggerUsetDefaultsSuiteName()) ;
-  CFPreferencesAppSynchronize(getGULLoggerUsetDefaultsSuiteName());
 }
 
 NSInteger GULNumberOfErrorsLogged(void) {
@@ -259,12 +270,10 @@ NSInteger GULNumberOfWarningsLogged(void) {
 
 void GULResetNumberOfIssuesLogged(void) {
   dispatch_barrier_async(getGULLoggerCounterQueue(), ^{
-    [getGULLoggerUsetDefaults() setInteger:0 forKey:kGULLoggerErrorCountKey];
-    [getGULLoggerUsetDefaults() setInteger:0 forKey:kGULLoggerWarningCountKey];
+    GULLoggerUserDefaultsSetIntegerForKey(0, kGULLoggerErrorCountKey);
+    GULLoggerUserDefaultsSetIntegerForKey(0, kGULLoggerWarningCountKey);
   });
 }
-
-
 
 void GULIncrementLogCountForLevel(GULLoggerLevel level) {
   dispatch_barrier_async(getGULLoggerCounterQueue(), ^{
