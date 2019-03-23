@@ -28,15 +28,15 @@
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "absl/types/optional.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::core::ViewSnapshotHandler;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::TargetId;
-using firebase::firestore::util::Status;
 using firebase::firestore::util::MakeStatus;
-
-NS_ASSUME_NONNULL_BEGIN
+using firebase::firestore::util::Status;
 
 #pragma mark - FSTListenOptions
 
@@ -113,8 +113,6 @@ NS_ASSUME_NONNULL_BEGIN
 /** The last received view snapshot. */
 - (const absl::optional<ViewSnapshot> &)snapshot;
 
-@property(nonatomic, strong, readonly) FSTListenOptions *options;
-
 /**
  * Initial snapshots (e.g. from cache) may not be propagated to the ViewSnapshotHandler.
  * This flag is set to YES once we've actually raised an event.
@@ -127,6 +125,8 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @implementation FSTQueryListener {
+  ListenOptions _options;
+
   absl::optional<ViewSnapshot> _snapshot;
 
   /** The ViewSnapshotHandler associated with this query listener. */
@@ -134,11 +134,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (instancetype)initWithQuery:(FSTQuery *)query
-                      options:(FSTListenOptions *)options
+                      options:(ListenOptions)options
           viewSnapshotHandler:(ViewSnapshotHandler &&)viewSnapshotHandler {
   if (self = [super init]) {
     _query = query;
-    _options = options;
+    _options = std::move(options);
     _viewSnapshotHandler = std::move(viewSnapshotHandler);
     _raisedInitialEvent = NO;
   }
@@ -153,7 +153,7 @@ NS_ASSUME_NONNULL_BEGIN
   HARD_ASSERT(!snapshot.document_changes().empty() || snapshot.sync_state_changed(),
               "We got a new snapshot with no changes?");
 
-  if (!self.options.includeDocumentMetadataChanges) {
+  if (!_options.include_document_metadata_changes()) {
     // Remove the metadata-only changes.
     std::vector<DocumentViewChange> changes;
     for (const DocumentViewChange &change : snapshot.document_changes()) {
@@ -210,7 +210,7 @@ NS_ASSUME_NONNULL_BEGIN
   BOOL maybeOnline = onlineState != OnlineState::Offline;
   // Don't raise the event if we're online, aren't synced yet (checked
   // above) and are waiting for a sync.
-  if (self.options.waitForSyncWhenOnline && maybeOnline) {
+  if (_options.wait_for_sync_when_online() && maybeOnline) {
     HARD_ASSERT(snapshot.from_cache(), "Waiting for sync, but snapshot is not from cache.");
     return NO;
   }
@@ -230,7 +230,7 @@ NS_ASSUME_NONNULL_BEGIN
   BOOL hasPendingWritesChanged = _snapshot.has_value() && _snapshot.value().has_pending_writes() !=
                                                               snapshot.has_pending_writes();
   if (snapshot.sync_state_changed() || hasPendingWritesChanged) {
-    return self.options.includeQueryMetadataChanges;
+    return _options.include_query_metadata_changes();
   }
 
   // Generally we should have hit one of the cases above, but it's possible to get here if there

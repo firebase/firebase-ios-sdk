@@ -118,10 +118,10 @@ NS_ASSUME_NONNULL_BEGIN
     return;
   }
 
-  FSTListenOptions *listenOptions =
-      [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:YES
-                                     includeDocumentMetadataChanges:YES
-                                              waitForSyncWhenOnline:YES];
+  ListenOptions listenOptions(
+      /*include_query_metadata_changes=*/true,
+      /*include_document_metadata_changes=*/true,
+      /*wait_for_sync_when_online=*/true);
 
   dispatch_semaphore_t registered = dispatch_semaphore_create(0);
   __block id<FIRListenerRegistration> listenerRegistration;
@@ -164,13 +164,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (id<FIRListenerRegistration>)
     addSnapshotListenerWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
                                          listener:(FIRQuerySnapshotBlock)listener {
-  auto options = [self internalOptionsForIncludeMetadataChanges:includeMetadataChanges];
+  auto options = ListenOptions::FromIncludeMetadataChanges(includeMetadataChanges);
   return [self addSnapshotListenerInternalWithOptions:options listener:listener];
 }
 
-- (id<FIRListenerRegistration>)
-    addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
-                                  listener:(FIRQuerySnapshotBlock)listener {
+- (id<FIRListenerRegistration>)addSnapshotListenerInternalWithOptions:(ListenOptions)internalOptions
+                                                             listener:
+                                                                 (FIRQuerySnapshotBlock)listener {
   Firestore *firestore = self.firestore.wrapped;
   FSTQuery *query = self.query;
 
@@ -663,13 +663,6 @@ NS_ASSUME_NONNULL_BEGIN
   }];
 
   return [FSTBound boundWithPosition:components isBefore:isBefore];
-}
-
-/** Converts the public API options object to the internal options object. */
-- (FSTListenOptions *)internalOptionsForIncludeMetadataChanges:(BOOL)includeMetadataChanges {
-  return [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:includeMetadataChanges
-                                        includeDocumentMetadataChanges:includeMetadataChanges
-                                                 waitForSyncWhenOnline:NO];
 }
 
 @end

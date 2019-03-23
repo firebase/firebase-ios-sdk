@@ -16,6 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
+#include "Firestore/core/src/firebase/firestore/core/listen_options.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
@@ -24,6 +25,8 @@
 @class FSTSyncEngine;
 
 NS_ASSUME_NONNULL_BEGIN
+
+using firebase::firestore::core::ListenOptions;
 
 #pragma mark - FSTListenOptions
 
@@ -55,7 +58,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FSTQueryListener : NSObject
 
 - (instancetype)initWithQuery:(FSTQuery *)query
-                      options:(FSTListenOptions *)options
+                      options:(ListenOptions)options
           viewSnapshotHandler:(firebase::firestore::core::ViewSnapshotHandler &&)viewSnapshotHandler
     NS_DESIGNATED_INITIALIZER;
 

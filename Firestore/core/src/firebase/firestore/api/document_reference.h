@@ -32,6 +32,7 @@
 #import "FIRListenerRegistration.h"
 
 #include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
+#include "Firestore/core/src/firebase/firestore/core/listen_options.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor_callback.h"
@@ -39,7 +40,6 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class FIRFirestore;
-@class FSTListenOptions;
 @class FSTMutation;
 
 namespace firebase {
@@ -91,7 +91,7 @@ class DocumentReference {
 
   id<FIRListenerRegistration> AddSnapshotListener(
       util::StatusOrCallback<DocumentSnapshot>&& listener,
-      FSTListenOptions* options);
+      core::ListenOptions options);
 
  private:
   Firestore* firestore_ = nullptr;

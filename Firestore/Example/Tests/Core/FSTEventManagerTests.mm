@@ -62,7 +62,7 @@ static NSNumber *ToNSNumber(OnlineState state) {
 
 - (FSTQueryListener *)noopListenerForQuery:(FSTQuery *)query {
   return [[FSTQueryListener alloc] initWithQuery:query
-                                         options:[FSTListenOptions defaultOptions]
+                                         options:ListenOptions::DefaultOptions()
                              viewSnapshotHandler:[](const StatusOr<ViewSnapshot> &) {}];
 }
 
@@ -102,7 +102,7 @@ static NSNumber *ToNSNumber(OnlineState state) {
 - (FSTQueryListener *)queryListenerForQuery:(FSTQuery *)query
                                 withHandler:(ViewSnapshotHandler &&)handler {
   return [[FSTQueryListener alloc] initWithQuery:query
-                                         options:[FSTListenOptions defaultOptions]
+                                         options:ListenOptions::DefaultOptions()
                              viewSnapshotHandler:std::move(handler)];
 }
 
