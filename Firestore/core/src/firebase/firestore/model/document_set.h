@@ -28,6 +28,7 @@
 #include <utility>
 #include <vector>
 
+#include "Firestore/core/src/firebase/firestore/immutable/sorted_container.h"
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
@@ -65,7 +66,7 @@ class DocumentSetComparator {
  * comparator on top of what is provided to guarantee document equality based on
  * the key.
  */
-class DocumentSet : public immutable::impl::SortedMapBase,
+class DocumentSet : public immutable::SortedContainer,
                     public util::Equatable<DocumentSet> {
  public:
   /**
