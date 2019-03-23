@@ -124,7 +124,7 @@ class DocumentSet : public immutable::SortedContainer,
 
   /**
    * Returns the index of the document with the provided key in the document
-   * set. Returns NSNotFound if the key is not present.
+   * set. Returns `npos` if the key is not present.
    */
   size_t IndexOf(const DocumentKey& key) const;
 

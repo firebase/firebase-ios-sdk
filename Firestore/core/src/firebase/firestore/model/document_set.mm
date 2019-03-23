@@ -85,7 +85,7 @@ FSTDocument* _Nullable DocumentSet::GetLastDocument() const {
 
 size_t DocumentSet::IndexOf(const DocumentKey& key) const {
   FSTDocument* doc = GetDocument(key);
-  return doc ? sorted_set_.find_index(doc) : NSNotFound;
+  return doc ? sorted_set_.find_index(doc) : npos;
 }
 
 DocumentSet DocumentSet::insert(FSTDocument* _Nullable document) const {
