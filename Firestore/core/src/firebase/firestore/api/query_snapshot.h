@@ -44,8 +44,6 @@ namespace api {
  */
 class QuerySnapshot {
  public:
-  QuerySnapshot() = default;
-
   QuerySnapshot(Firestore* firestore,
                 FSTQuery* query,
                 core::ViewSnapshot&& snapshot,

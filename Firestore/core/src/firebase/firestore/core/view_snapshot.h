@@ -111,8 +111,6 @@ using ViewSnapshotHandler =
  */
 class ViewSnapshot {
  public:
-  ViewSnapshot() = default;
-
   ViewSnapshot(FSTQuery* query,
                model::DocumentSet documents,
                model::DocumentSet old_documents,
