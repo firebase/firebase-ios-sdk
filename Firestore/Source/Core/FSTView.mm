@@ -273,7 +273,7 @@ int GetDocumentViewChangeTypePosition(DocumentViewChange::Type changeType) {
   // Note that this should never get used in a refill (when previousChanges is set), because there
   // will only be adds -- no deletes or updates.
   FSTDocument *_Nullable lastDocInLimit =
-      (self.query.limit && oldDocumentSet.size() == self.query.limit)
+      (self.query.limit != NSNotFound && oldDocumentSet.size() == self.query.limit)
           ? oldDocumentSet.GetLastDocument()
           : nil;
 
@@ -351,8 +351,8 @@ int GetDocumentViewChangeTypePosition(DocumentViewChange::Type changeType) {
     }
   }
 
-  if (self.query.limit) {
-    for (long i = newDocumentSet.size() - self.query.limit; i > 0; --i) {
+  if (self.query.limit != NSNotFound && newDocumentSet.size() > self.query.limit) {
+    for (size_t i = newDocumentSet.size() - self.query.limit; i > 0; --i) {
       FSTDocument *oldDoc = newDocumentSet.GetLastDocument();
       newDocumentSet = newDocumentSet.erase(oldDoc.key);
       newMutatedKeys = newMutatedKeys.erase(oldDoc.key);
