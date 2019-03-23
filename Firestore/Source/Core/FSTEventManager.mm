@@ -38,39 +38,6 @@ using firebase::firestore::model::TargetId;
 using firebase::firestore::util::MakeStatus;
 using firebase::firestore::util::Status;
 
-#pragma mark - FSTListenOptions
-
-@implementation FSTListenOptions
-
-+ (instancetype)defaultOptions {
-  static FSTListenOptions *defaultOptions;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    defaultOptions = [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:NO
-                                                    includeDocumentMetadataChanges:NO
-                                                             waitForSyncWhenOnline:NO];
-  });
-  return defaultOptions;
-}
-
-- (instancetype)initWithIncludeQueryMetadataChanges:(BOOL)includeQueryMetadataChanges
-                     includeDocumentMetadataChanges:(BOOL)includeDocumentMetadataChanges
-                              waitForSyncWhenOnline:(BOOL)waitForSyncWhenOnline {
-  if (self = [super init]) {
-    _includeQueryMetadataChanges = includeQueryMetadataChanges;
-    _includeDocumentMetadataChanges = includeDocumentMetadataChanges;
-    _waitForSyncWhenOnline = waitForSyncWhenOnline;
-  }
-  return self;
-}
-
-- (instancetype)init {
-  HARD_FAIL("FSTListenOptions init not supported");
-  return nil;
-}
-
-@end
-
 #pragma mark - FSTQueryListenersInfo
 
 /**

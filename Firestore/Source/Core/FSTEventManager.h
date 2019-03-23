@@ -28,27 +28,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 using firebase::firestore::core::ListenOptions;
 
-#pragma mark - FSTListenOptions
-
-@interface FSTListenOptions : NSObject
-
-+ (instancetype)defaultOptions;
-
-- (instancetype)initWithIncludeQueryMetadataChanges:(BOOL)includeQueryMetadataChanges
-                     includeDocumentMetadataChanges:(BOOL)includeDocumentMetadataChanges
-                              waitForSyncWhenOnline:(BOOL)waitForSyncWhenOnline
-    NS_DESIGNATED_INITIALIZER;
-
-- (instancetype)init NS_UNAVAILABLE;
-
-@property(nonatomic, assign, readonly) BOOL includeQueryMetadataChanges;
-
-@property(nonatomic, assign, readonly) BOOL includeDocumentMetadataChanges;
-
-@property(nonatomic, assign, readonly) BOOL waitForSyncWhenOnline;
-
-@end
-
 #pragma mark - FSTQueryListener
 
 /**
