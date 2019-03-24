@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_DOCUMENT_REFERENCE_H_
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_DOCUMENT_REFERENCE_H_
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_DOCUMENT_KEY_REFERENCE_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_DOCUMENT_KEY_REFERENCE_H_
 
 #include <string>
 #include <utility>
@@ -39,13 +39,13 @@ namespace local {
  *
  * Not to be confused with FIRDocumentReference.
  */
-class DocumentReference {
+class DocumentKeyReference {
  public:
-  DocumentReference() {
+  DocumentKeyReference() {
   }
 
   /** Initializes the document reference with the given key and Id. */
-  DocumentReference(model::DocumentKey key, int32_t ref_id)
+  DocumentKeyReference(model::DocumentKey key, int32_t ref_id)
       : key_{std::move(key)}, ref_id_{ref_id} {
   }
 
@@ -63,23 +63,23 @@ class DocumentReference {
     return ref_id_;
   }
 
-  friend bool operator==(const DocumentReference& lhs,
-                         const DocumentReference& rhs);
+  friend bool operator==(const DocumentKeyReference& lhs,
+                         const DocumentKeyReference& rhs);
 
   size_t Hash() const;
 
   std::string ToString() const;
 
   /** Sorts document references by key then Id. */
-  struct ByKey : public util::Comparator<DocumentReference> {
-    bool operator()(const DocumentReference& lhs,
-                    const DocumentReference& rhs) const;
+  struct ByKey : public util::Comparator<DocumentKeyReference> {
+    bool operator()(const DocumentKeyReference& lhs,
+                    const DocumentKeyReference& rhs) const;
   };
 
   /** Sorts document references by Id then key. */
-  struct ById : public util::Comparator<DocumentReference> {
-    bool operator()(const DocumentReference& lhs,
-                    const DocumentReference& rhs) const;
+  struct ById : public util::Comparator<DocumentKeyReference> {
+    bool operator()(const DocumentKeyReference& lhs,
+                    const DocumentKeyReference& rhs) const;
   };
 
  private:
@@ -94,4 +94,4 @@ class DocumentReference {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_DOCUMENT_REFERENCE_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_DOCUMENT_KEY_REFERENCE_H_
