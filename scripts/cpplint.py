@@ -553,6 +553,9 @@ _valid_extensions = set(['cc', 'h', 'cpp', 'cu', 'cuh'])
 # This is set by --headers flag.
 _hpp_headers = set(['h'])
 
+# Source filename extensions
+_cpp_extensions = set(['cc', 'mm'])
+
 # {str, bool}: a map from error categories to booleans which indicate if the
 # category should be suppressed for every line.
 _global_error_suppressions = {}
@@ -568,6 +571,15 @@ def ProcessHppHeadersOption(val):
 
 def IsHeaderExtension(file_extension):
   return file_extension in _hpp_headers
+
+def IsSourceExtension(file_extension):
+  return file_extension in _cpp_extensions
+
+def IsSourceFilename(filename):
+  global _cpp_extensions
+  ext = os.path.splitext(filename)[-1].lower()
+  ext = ext[1:]  # leading dot
+  return IsSourceExtension(ext)
 
 def ParseNolintSuppressions(filename, raw_line, linenum, error):
   """Updates the global list of line error-suppressions.
@@ -4579,7 +4591,7 @@ def CheckIncludeLine(filename, clean_lines, linenum, include_state, error):
       error(filename, linenum, 'build/include', 4,
             '"%s" already included at %s:%s' %
             (include, filename, duplicate_line))
-    elif (include.endswith('.cc') and
+    elif (IsSourceFilename(include) and
           os.path.dirname(fileinfo.RepositoryName()) != os.path.dirname(include)):
       error(filename, linenum, 'build/include', 4,
             'Do not include .cc files from other packages')
@@ -5390,6 +5402,7 @@ _HEADERS_CONTAINING_TEMPLATES = (
     ('<map>', ('map', 'multimap',)),
     ('<memory>', ('allocator', 'make_shared', 'make_unique', 'shared_ptr',
                   'unique_ptr', 'weak_ptr')),
+    ('<ostream>', ('ostream',)),
     ('<queue>', ('queue', 'priority_queue',)),
     ('<set>', ('set', 'multiset',)),
     ('<stack>', ('stack',)),
@@ -5415,6 +5428,7 @@ _HEADERS_MAYBE_TEMPLATES = (
     )
 
 _RE_PATTERN_STRING = re.compile(r'\bstring\b')
+_RE_PATTERN_OSTREAM = re.compile(r'\bostream\b')
 
 _re_pattern_headers_maybe_templates = []
 for _header, _templates in _HEADERS_MAYBE_TEMPLATES:
@@ -5553,6 +5567,14 @@ def CheckForIncludeWhatYouUse(filename, clean_lines, include_state, error,
       if prefix.endswith('std::') or not prefix.endswith('::'):
         required['<string>'] = (linenum, 'string')
 
+    # Ostream is special too -- also non-templatized
+    matched = _RE_PATTERN_OSTREAM.search(line)
+    if matched:
+      if IsSourceFilename(filename):
+        required['<ostream>'] = (linenum, 'ostream')
+      else:
+        required['<iosfwd>'] = (linenum, 'ostream')
+
     for pattern, template, header in _re_pattern_headers_maybe_templates:
       if pattern.search(line):
         required[header] = (linenum, template)
@@ -5605,7 +5627,7 @@ def CheckForIncludeWhatYouUse(filename, clean_lines, include_state, error,
   # didn't include it in the .h file.
   # TODO(unknown): Do a better job of finding .h files so we are confident that
   # not having the .h file means there isn't one.
-  if filename.endswith('.cc') and not header_found:
+  if IsSourceFilename(filename) and not header_found:
     return
 
   # All the lines have been processed, report the errors found.
