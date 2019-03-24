@@ -27,6 +27,15 @@
             </LocationScenarioReference>
          </TestableReference>
       </Testables>
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "DAFF0CF421E64AC30062958F"
+            BuildableName = "Firestore_Example_macOS.app"
+            BlueprintName = "Firestore_Example_macOS"
+            ReferencedContainer = "container:Firestore.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </TestAction>
@@ -40,6 +49,16 @@
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "DAFF0CF421E64AC30062958F"
+            BuildableName = "Firestore_Example_macOS.app"
+            BlueprintName = "Firestore_Example_macOS"
+            ReferencedContainer = "container:Firestore.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
@@ -49,6 +68,15 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "DAFF0CF421E64AC30062958F"
+            BuildableName = "Firestore_Example_macOS.app"
+            BlueprintName = "Firestore_Example_macOS"
+            ReferencedContainer = "container:Firestore.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">
