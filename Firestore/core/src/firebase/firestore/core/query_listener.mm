@@ -41,7 +41,7 @@ void QueryListener::OnViewSnapshot(ViewSnapshot snapshot) {
       !snapshot.document_changes().empty() || snapshot.sync_state_changed(),
       "We got a new snapshot with no changes?");
 
-  if (!_options.include_document_metadata_changes()) {
+  if (!options_.include_document_metadata_changes()) {
     // Remove the metadata-only changes.
     std::vector<DocumentViewChange> changes;
     for (const DocumentViewChange& change : snapshot.document_changes()) {
@@ -61,27 +61,25 @@ void QueryListener::OnViewSnapshot(ViewSnapshot snapshot) {
   }
 
   if (!raised_initial_event_) {
-    if ([self shouldRaiseInitialEventForSnapshot:snapshot
-                                     onlineState:online_state_]) {
-      [self raiseInitialEventForSnapshot:snapshot];
+    if (ShouldRaiseInitialEvent(snapshot, online_state_)) {
+      RaiseInitialEvent(snapshot);
     }
-  } else if ([self shouldRaiseEventForSnapshot:snapshot]) {
-    _viewSnapshotHandler(snapshot);
+  } else if (ShouldRaiseEvent(snapshot)) {
+    listener_(snapshot);
   }
 
-  _snapshot = std::move(snapshot);
+  snapshot_ = std::move(snapshot);
 }
 
 void QueryListener::OnError(Status error) {
-  view_snapshot_handler_(std::move(error));
+  listener_(std::move(error));
 }
 
 void QueryListener::OnOnlineStateChanged(OnlineState online_state) {
   online_state_ = online_state;
-  if (_snapshot.has_value() && !raised_initial_event_ &&
-      [self shouldRaiseInitialEventForSnapshot:_snapshot.value()
-                                   onlineState:onlineState]) {
-    [self raiseInitialEventForSnapshot:_snapshot.value()];
+  if (snapshot_.has_value() && !raised_initial_event_ &&
+      ShouldRaiseInitialEvent(snapshot_.value(), online_state)) {
+    RaiseInitialEvent(snapshot_.value());
   }
 }
 
@@ -101,7 +99,7 @@ bool QueryListener::ShouldRaiseInitialEvent(const ViewSnapshot& snapshot,
 
   // Don't raise the event if we're online, aren't synced yet (checked
   // above) and are waiting for a sync.
-  if (_options.wait_for_sync_when_online() && maybe_online) {
+  if (options_.wait_for_sync_when_online() && maybe_online) {
     HARD_ASSERT(snapshot.from_cache(),
                 "Waiting for sync, but snapshot is not from cache.");
     return false;
@@ -120,10 +118,10 @@ bool QueryListener::ShouldRaiseEvent(const ViewSnapshot& snapshot) const {
   }
 
   bool has_pending_writes_changed =
-      _snapshot.has_value() &&
-      _snapshot.value().has_pending_writes() != snapshot.has_pending_writes();
+      snapshot_.has_value() &&
+      snapshot_.value().has_pending_writes() != snapshot.has_pending_writes();
   if (snapshot.sync_state_changed() || has_pending_writes_changed) {
-    return _options.include_query_metadata_changes();
+    return options_.include_query_metadata_changes();
   }
 
   // Generally we should have hit one of the cases above, but it's possible to
@@ -138,7 +136,7 @@ void QueryListener::RaiseInitialEvent(const ViewSnapshot& snapshot) {
       snapshot.query(), snapshot.documents(), snapshot.mutated_keys(),
       snapshot.from_cache(), snapshot.excludes_metadata_changes());
   raised_initial_event_ = true;
-  view_snapshot_handler_(modified_snapshot);
+  listener_(modified_snapshot);
 }
 
 }  // namespace core

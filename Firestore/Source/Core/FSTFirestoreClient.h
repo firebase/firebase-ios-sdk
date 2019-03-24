@@ -26,6 +26,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/core/listen_options.h"
+#include "Firestore/core/src/firebase/firestore/core/query_listener.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
@@ -42,12 +43,12 @@
 @class FSTDocument;
 @class FSTMutation;
 @class FSTQuery;
-@class FSTQueryListener;
 @class FSTTransaction;
 
 NS_ASSUME_NONNULL_BEGIN
 
 using firebase::firestore::core::ListenOptions;
+using firebase::firestore::core::QueryListener;
 
 /**
  * FirestoreClient is a top-level class that constructs and owns all of the pieces of the client
@@ -81,13 +82,13 @@ using firebase::firestore::core::ListenOptions;
 - (void)enableNetworkWithCompletion:(nullable FSTVoidErrorBlock)completion;
 
 /** Starts listening to a query. */
-- (FSTQueryListener *)listenToQuery:(FSTQuery *)query
-                            options:(ListenOptions)options
-                viewSnapshotHandler:
-                    (firebase::firestore::core::ViewSnapshotHandler &&)viewSnapshotHandler;
+- (std::shared_ptr<QueryListener>)listenToQuery:(FSTQuery *)query
+                                        options:(ListenOptions)options
+                            viewSnapshotHandler:(firebase::firestore::core::ViewSnapshotHandler &&)
+                                                    viewSnapshotHandler;
 
 /** Stops listening to a query previously listened to. */
-- (void)removeListener:(FSTQueryListener *)listener;
+- (void)removeListener:(const std::shared_ptr<QueryListener> &)listener;
 
 /**
  * Retrieves a document from the cache via the indicated completion. If the doc

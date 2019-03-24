@@ -23,12 +23,14 @@
 
 #import <Foundation/Foundation.h>
 
+#include <memory>
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/core/listen_options.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "absl/types/optional.h"
 
 @class FSTQuery;
 
@@ -44,12 +46,27 @@ namespace core {
  */
 class QueryListener {
  public:
+  static std::shared_ptr<QueryListener> Create(FSTQuery* query,
+                                               ListenOptions options,
+                                               ViewSnapshotHandler&& listener) {
+    return std::make_shared<QueryListener>(query, std::move(options),
+                                           std::move(listener));
+  }
+
+  static std::shared_ptr<QueryListener> Create(FSTQuery* query,
+                                               ViewSnapshotHandler&& listener) {
+    return std::make_shared<QueryListener>(
+        query, ListenOptions::DefaultOptions(), std::move(listener));
+  }
+
   QueryListener(FSTQuery* query,
                 ListenOptions options,
                 ViewSnapshotHandler&& listener)
       : query_(query),
         options_(std::move(options)),
         listener_(std::move(listener)) {
+  }
+  virtual ~QueryListener() {
   }
 
   FSTQuery* query() const {
@@ -61,13 +78,13 @@ class QueryListener {
     return snapshot_;
   }
 
-  void OnViewSnapshot(ViewSnapshot snapshot);
-  void OnError(Status error);
-  void OnOnlineStateChanged(model::OnlineState online_state);
+  virtual void OnViewSnapshot(ViewSnapshot snapshot);
+  virtual void OnError(util::Status error);
+  virtual void OnOnlineStateChanged(model::OnlineState online_state);
 
  private:
   bool ShouldRaiseInitialEvent(const ViewSnapshot& snapshot,
-                               OnlineState online_state) const;
+                               model::OnlineState online_state) const;
   bool ShouldRaiseEvent(const ViewSnapshot& snapshot) const;
   void RaiseInitialEvent(const ViewSnapshot& snapshot);
 

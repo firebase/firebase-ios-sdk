@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#include <memory>
+
 #import "Firestore/Source/API/FIRListenerRegistration+Internal.h"
 
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
@@ -21,24 +23,20 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FSTListenerRegistration ()
+@implementation FSTListenerRegistration {
+  /** The client that was used to register this listen. */
+  FSTFirestoreClient *_client;
 
-/** The client that was used to register this listen. */
-@property(nonatomic, strong, readonly) FSTFirestoreClient *client;
+  /** The async listener that is used to mute events synchronously. */
+  FSTAsyncQueryListener *_asyncListener;
 
-/** The async listener that is used to mute events synchronously. */
-@property(nonatomic, strong, readonly, nullable) FSTAsyncQueryListener *asyncListener;
-
-/** The internal FSTQueryListener that can be used to unlisten the query. */
-@property(nonatomic, strong, readwrite, nullable) FSTQueryListener *internalListener;
-
-@end
-
-@implementation FSTListenerRegistration
+  /** The internal QueryListener that can be used to unlisten the query. */
+  std::weak_ptr<QueryListener> _internalListener;
+}
 
 - (instancetype)initWithClient:(FSTFirestoreClient *)client
                  asyncListener:(FSTAsyncQueryListener *)asyncListener
-              internalListener:(FSTQueryListener *)internalListener {
+              internalListener:(std::shared_ptr<QueryListener>)internalListener {
   if (self = [super init]) {
     _client = client;
     _asyncListener = asyncListener;
@@ -48,9 +46,14 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)remove {
-  [self.asyncListener mute];
-  [self.client removeListener:self.internalListener];
-  _internalListener = nil;
+  [_asyncListener mute];
+
+  std::shared_ptr<QueryListener> listener = _internalListener.lock();
+  if (listener) {
+    [_client removeListener:listener];
+    listener.reset();
+    _internalListener.reset();
+  }
   _asyncListener = nil;
 }
 

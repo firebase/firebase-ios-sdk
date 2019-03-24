@@ -312,20 +312,18 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
   });
 }
 
-- (FSTQueryListener *)listenToQuery:(FSTQuery *)query
-                            options:(ListenOptions)options
-                viewSnapshotHandler:(ViewSnapshotHandler &&)viewSnapshotHandler {
-  FSTQueryListener *listener =
-      [[FSTQueryListener alloc] initWithQuery:query
-                                      options:std::move(options)
-                          viewSnapshotHandler:std::move(viewSnapshotHandler)];
+- (std::shared_ptr<QueryListener>)listenToQuery:(FSTQuery *)query
+                                        options:(ListenOptions)options
+                            viewSnapshotHandler:(ViewSnapshotHandler &&)viewSnapshotHandler {
+  auto listener =
+      std::make_shared<QueryListener>(query, std::move(options), std::move(viewSnapshotHandler));
 
   _workerQueue->Enqueue([self, listener] { [self.eventManager addListener:listener]; });
 
   return listener;
 }
 
-- (void)removeListener:(FSTQueryListener *)listener {
+- (void)removeListener:(const std::shared_ptr<QueryListener> &)listener {
   _workerQueue->Enqueue([self, listener] { [self.eventManager removeListener:listener]; });
 }
 
