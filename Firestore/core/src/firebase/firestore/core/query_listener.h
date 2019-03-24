@@ -30,6 +30,7 @@
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor_callback.h"
 #include "absl/types/optional.h"
 
 @class FSTQuery;
@@ -46,22 +47,36 @@ namespace core {
  */
 class QueryListener {
  public:
-  static std::shared_ptr<QueryListener> Create(FSTQuery* query,
-                                               ListenOptions options,
-                                               ViewSnapshotHandler&& listener) {
+  static std::shared_ptr<QueryListener> Create(
+      FSTQuery* query,
+      ListenOptions options,
+      ViewSnapshot::SharedListener&& listener) {
     return std::make_shared<QueryListener>(query, std::move(options),
                                            std::move(listener));
   }
 
-  static std::shared_ptr<QueryListener> Create(FSTQuery* query,
-                                               ViewSnapshotHandler&& listener) {
-    return std::make_shared<QueryListener>(
-        query, ListenOptions::DefaultOptions(), std::move(listener));
+  static std::shared_ptr<QueryListener> Create(
+      FSTQuery* query, ViewSnapshot::SharedListener&& listener) {
+    return Create(query, ListenOptions::DefaultOptions(), std::move(listener));
+  }
+
+  static std::shared_ptr<QueryListener> Create(
+      FSTQuery* query,
+      ListenOptions options,
+      util::StatusOrCallback<ViewSnapshot>&& listener) {
+    auto event_listener =
+        EventListener<ViewSnapshot>::Create(std::move(listener));
+    return Create(query, std::move(options), std::move(event_listener));
+  }
+
+  static std::shared_ptr<QueryListener> Create(
+      FSTQuery* query, util::StatusOrCallback<ViewSnapshot>&& listener) {
+    return Create(query, ListenOptions::DefaultOptions(), std::move(listener));
   }
 
   QueryListener(FSTQuery* query,
                 ListenOptions options,
-                ViewSnapshotHandler&& listener)
+                ViewSnapshot::SharedListener&& listener)
       : query_(query),
         options_(std::move(options)),
         listener_(std::move(listener)) {
@@ -91,8 +106,11 @@ class QueryListener {
   FSTQuery* query_;
   ListenOptions options_;
 
-  /** The ViewSnapshotHandler associated with this query listener. */
-  ViewSnapshotHandler listener_;
+  /**
+   * The EventListener that will process ViewSnapshots associated with this
+   * query listener.
+   */
+  ViewSnapshot::SharedListener listener_;
 
   /**
    * Initial snapshots (e.g. from cache) may not be propagated to the

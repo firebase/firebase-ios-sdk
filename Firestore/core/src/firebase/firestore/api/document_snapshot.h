@@ -23,12 +23,14 @@
 
 #import <Foundation/Foundation.h>
 
+#include <memory>
 #include <string>
 #include <utility>
 
 #import "Firestore/Source/Model/FSTFieldValue.h"
 
 #include "Firestore/core/src/firebase/firestore/api/snapshot_metadata.h"
+#include "Firestore/core/src/firebase/firestore/core/event_listener.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 
@@ -45,6 +47,8 @@ class Firestore;
 
 class DocumentSnapshot {
  public:
+  using Listener = std::unique_ptr<core::EventListener<DocumentSnapshot>>;
+
   DocumentSnapshot() = default;
 
   DocumentSnapshot(Firestore* firestore,

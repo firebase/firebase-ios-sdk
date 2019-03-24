@@ -64,7 +64,6 @@ using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::core::ViewSnapshot;
-using firebase::firestore::core::ViewSnapshotHandler;
 using firebase::firestore::local::LruParams;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKeySet;
@@ -314,13 +313,12 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
 
 - (std::shared_ptr<QueryListener>)listenToQuery:(FSTQuery *)query
                                         options:(ListenOptions)options
-                            viewSnapshotHandler:(ViewSnapshotHandler &&)viewSnapshotHandler {
-  auto listener =
-      std::make_shared<QueryListener>(query, std::move(options), std::move(viewSnapshotHandler));
+                                       listener:(ViewSnapshot::SharedListener &&)listener {
+  auto query_listener = QueryListener::Create(query, std::move(options), std::move(listener));
 
-  _workerQueue->Enqueue([self, listener] { [self.eventManager addListener:listener]; });
+  _workerQueue->Enqueue([self, query_listener] { [self.eventManager addListener:query_listener]; });
 
-  return listener;
+  return query_listener;
 }
 
 - (void)removeListener:(const std::shared_ptr<QueryListener> &)listener {
@@ -328,8 +326,9 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
 }
 
 - (void)getDocumentFromLocalCache:(const DocumentReference &)doc
-                       completion:(StatusOrCallback<DocumentSnapshot> &&)completion {
-  _workerQueue->Enqueue([self, doc, completion] {
+                       completion:(DocumentSnapshot::Listener &&)completion {
+  auto shared_completion = absl::ShareUniquePtr(std::move(completion));
+  _workerQueue->Enqueue([self, doc, shared_completion] {
     FSTMaybeDocument *maybeDoc = [self.localStore readDocument:doc.key()];
     StatusOr<DocumentSnapshot> maybe_snapshot;
 
@@ -349,8 +348,8 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
                               "FIRFirestoreSourceCache to attempt to retrieve the document "};
     }
 
-    if (completion) {
-      self->_userExecutor->Execute([=] { completion(std::move(maybe_snapshot)); });
+    if (shared_completion) {
+      self->_userExecutor->Execute([=] { shared_completion->OnEvent(std::move(maybe_snapshot)); });
     }
   });
 }

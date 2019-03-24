@@ -17,21 +17,24 @@
 #include "Firestore/core/src/firebase/firestore/api/listener_registration.h"
 
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
-#import "Firestore/Source/Util/FSTAsyncQueryListener.h"
 
 namespace firebase {
 namespace firestore {
 namespace api {
 
 void ListenerRegistration::Remove() {
-  [async_listener_ mute];
-  async_listener_ = nil;
+  auto async_listener = async_listener_.lock();
+  if (async_listener) {
+    async_listener->Mute();
+    async_listener_.reset();
+    async_listener.reset();
+  }
 
-  std::shared_ptr<QueryListener> listener = internal_listener_.lock();
-  if (listener) {
-    [client_ removeListener:listener];
-    listener.reset();
-    internal_listener_.reset();
+  std::shared_ptr<QueryListener> query_listener = query_listener_.lock();
+  if (query_listener) {
+    [client_ removeListener:query_listener];
+    query_listener_.reset();
+    query_listener.reset();
   }
 }
 

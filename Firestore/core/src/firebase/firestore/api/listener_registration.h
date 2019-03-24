@@ -26,9 +26,9 @@
 #include <memory>
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/core/event_listener.h"
 #include "Firestore/core/src/firebase/firestore/core/query_listener.h"
 
-@class FSTAsyncQueryListener;
 @class FSTFirestoreClient;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -41,12 +41,14 @@ class ListenerRegistration {
  public:
   ListenerRegistration() = default;
 
-  ListenerRegistration(FSTFirestoreClient* client,
-                       FSTAsyncQueryListener* async_listener,
-                       std::shared_ptr<core::QueryListener> internal_listener)
+  ListenerRegistration(
+      FSTFirestoreClient* client,
+      std::shared_ptr<core::AsyncEventListener<core::ViewSnapshot>>
+          async_listener,
+      std::shared_ptr<core::QueryListener> query_listener)
       : client_(client),
         async_listener_(async_listener),
-        internal_listener_(std::move(internal_listener)) {
+        query_listener_(std::move(query_listener)) {
   }
 
   // Move-only to prevent copies from proliferating.
@@ -54,12 +56,8 @@ class ListenerRegistration {
   ListenerRegistration(ListenerRegistration&&) noexcept = default;
 
   ListenerRegistration& operator=(const ListenerRegistration&) = delete;
-  ListenerRegistration& operator=(ListenerRegistration&& other) noexcept {
-    client_ = std::move(other.client_);
-    async_listener_ = std::move(other.async_listener_);
-    internal_listener_ = std::move(other.internal_listener_);
-    return *this;
-  };
+  ListenerRegistration& operator=(ListenerRegistration&& other) noexcept =
+      default;
 
   /**
    * Removes the listener being tracked by this FIRListenerRegistration. After
@@ -72,10 +70,10 @@ class ListenerRegistration {
   FSTFirestoreClient* client_;
 
   /** The async listener that is used to mute events synchronously. */
-  FSTAsyncQueryListener* async_listener_;
+  std::weak_ptr<core::AsyncEventListener<core::ViewSnapshot>> async_listener_;
 
   /** The internal QueryListener that can be used to unlisten the query. */
-  std::weak_ptr<core::QueryListener> internal_listener_;
+  std::weak_ptr<core::QueryListener> query_listener_;
 };
 
 }  // namespace api

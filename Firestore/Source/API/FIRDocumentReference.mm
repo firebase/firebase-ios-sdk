@@ -34,6 +34,7 @@
 
 #include "Firestore/core/src/firebase/firestore/api/document_reference.h"
 #include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
+#include "Firestore/core/src/firebase/firestore/core/event_listener.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
@@ -48,6 +49,7 @@ namespace util = firebase::firestore::util;
 using firebase::firestore::api::DocumentReference;
 using firebase::firestore::api::DocumentSnapshot;
 using firebase::firestore::api::Firestore;
+using firebase::firestore::core::EventListener;
 using firebase::firestore::core::ParsedSetData;
 using firebase::firestore::core::ParsedUpdateData;
 using firebase::firestore::model::DocumentKey;
@@ -212,21 +214,30 @@ NS_ASSUME_NONNULL_BEGIN
                                                              listener:(FIRDocumentSnapshotBlock)
                                                                           listener {
   ListenerRegistration result = _documentReference.AddSnapshotListener(
-      [self wrapDocumentSnapshotBlock:listener], std::move(internalOptions));
+      std::move(internalOptions), [self wrapDocumentSnapshotBlock:listener]);
   return [[FSTListenerRegistration alloc] initWithRegistration:std::move(result)];
 }
 
-- (StatusOrCallback<DocumentSnapshot>)wrapDocumentSnapshotBlock:(FIRDocumentSnapshotBlock)block {
-  FIRFirestore *firestore = self.firestore;
-  return [block, firestore](StatusOr<DocumentSnapshot> maybe_snapshot) {
-    if (maybe_snapshot.ok()) {
-      FIRDocumentSnapshot *result =
-          [[FIRDocumentSnapshot alloc] initWithSnapshot:std::move(maybe_snapshot).ValueOrDie()];
-      block(result, nil);
-    } else {
-      block(nil, util::MakeNSError(maybe_snapshot.status()));
+- (DocumentSnapshot::Listener)wrapDocumentSnapshotBlock:(FIRDocumentSnapshotBlock)block {
+  class Converter : public EventListener<DocumentSnapshot> {
+   public:
+    explicit Converter(FIRDocumentSnapshotBlock block) : block_(block) {
     }
+
+    void OnEvent(StatusOr<DocumentSnapshot> maybe_snapshot) override {
+      if (maybe_snapshot.ok()) {
+        FIRDocumentSnapshot *result =
+            [[FIRDocumentSnapshot alloc] initWithSnapshot:std::move(maybe_snapshot).ValueOrDie()];
+        block_(result, nil);
+      } else {
+        block_(nil, util::MakeNSError(maybe_snapshot.status()));
+      }
+    }
+
+   private:
+    FIRDocumentSnapshotBlock block_;
   };
+  return absl::make_unique<Converter>(block);
 }
 
 @end

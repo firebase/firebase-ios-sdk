@@ -23,10 +23,12 @@
 
 #include <functional>
 #include <iosfwd>
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
 
+#include "Firestore/core/src/firebase/firestore/core/event_listener.h"
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_map.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
@@ -100,17 +102,15 @@ class DocumentViewChangeSet {
   immutable::SortedMap<model::DocumentKey, DocumentViewChange> change_map_;
 };
 
-class ViewSnapshot;
-
-using ViewSnapshotHandler =
-    std::function<void(const util::StatusOr<ViewSnapshot>&)>;
-
 /**
  * A view snapshot is an immutable capture of the results of a query and the
  * changes to them.
  */
 class ViewSnapshot {
  public:
+  using Listener = std::unique_ptr<EventListener<ViewSnapshot>>;
+  using SharedListener = std::shared_ptr<EventListener<ViewSnapshot>>;
+
   ViewSnapshot(FSTQuery* query,
                model::DocumentSet documents,
                model::DocumentSet old_documents,

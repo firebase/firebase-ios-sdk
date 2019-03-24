@@ -37,7 +37,7 @@ template <typename T>
 class EventListener {
  public:
   static std::unique_ptr<EventListener<T>> Create(
-      util::StatusOrCallback<T>&& callback);
+      util::StatusOrCallback<T> callback);
 
   virtual ~EventListener() {
   }
@@ -90,7 +90,7 @@ class AsyncEventListener
 
 template <typename T>
 std::unique_ptr<EventListener<T>> EventListener<T>::Create(
-    util::StatusOrCallback<T>&& callback) {
+    util::StatusOrCallback<T> callback) {
   class CallbackEventListener : public EventListener<T> {
    public:
     explicit CallbackEventListener(util::StatusOrCallback<T>&& callback)

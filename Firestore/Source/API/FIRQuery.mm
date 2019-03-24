@@ -38,7 +38,6 @@
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
-#import "Firestore/Source/Util/FSTAsyncQueryListener.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -50,8 +49,9 @@
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::core::AsyncEventListener;
+using firebase::firestore::core::EventListener;
 using firebase::firestore::core::ViewSnapshot;
-using firebase::firestore::core::ViewSnapshotHandler;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::ResourcePath;
@@ -175,34 +175,34 @@ NS_ASSUME_NONNULL_BEGIN
   Firestore *firestore = self.firestore.wrapped;
   FSTQuery *query = self.query;
 
-  ViewSnapshotHandler snapshotHandler = [listener, firestore,
-                                         query](const StatusOr<ViewSnapshot> &maybe_snapshot) {
-    if (!maybe_snapshot.status().ok()) {
-      listener(nil, MakeNSError(maybe_snapshot.status()));
-      return;
-    }
-    ViewSnapshot snapshot = maybe_snapshot.ValueOrDie();
-    SnapshotMetadata metadata(snapshot.has_pending_writes(), snapshot.from_cache());
+  // Convert from ViewSnapshots to QuerySnapshots.
+  auto view_listener = EventListener<ViewSnapshot>::Create(
+      [listener, firestore, query](StatusOr<ViewSnapshot> maybe_snapshot) {
+        if (!maybe_snapshot.status().ok()) {
+          listener(nil, MakeNSError(maybe_snapshot.status()));
+          return;
+        }
 
-    listener([[FIRQuerySnapshot alloc] initWithFirestore:firestore
-                                           originalQuery:query
-                                                snapshot:std::move(snapshot)
-                                                metadata:std::move(metadata)],
-             nil);
-  };
+        ViewSnapshot snapshot = std::move(maybe_snapshot).ValueOrDie();
+        SnapshotMetadata metadata(snapshot.has_pending_writes(), snapshot.from_cache());
 
-  FSTAsyncQueryListener *asyncListener =
-      [[FSTAsyncQueryListener alloc] initWithExecutor:self.firestore.client.userExecutor
-                                      snapshotHandler:std::move(snapshotHandler)];
+        listener([[FIRQuerySnapshot alloc] initWithFirestore:firestore
+                                               originalQuery:query
+                                                    snapshot:std::move(snapshot)
+                                                    metadata:std::move(metadata)],
+                 nil);
+      });
 
-  std::shared_ptr<QueryListener> internalListener =
-      [firestore->client() listenToQuery:query
-                                 options:internalOptions
-                     viewSnapshotHandler:[asyncListener asyncSnapshotHandler]];
+  // Call the view_listener on the user Executor.
+  auto async_listener = AsyncEventListener<ViewSnapshot>::Create(firestore->client().userExecutor,
+                                                                 std::move(view_listener));
+
+  std::shared_ptr<QueryListener> query_listener =
+      [firestore->client() listenToQuery:query options:internalOptions listener:async_listener];
 
   return [[FSTListenerRegistration alloc]
-      initWithRegistration:ListenerRegistration(firestore->client(), asyncListener,
-                                                std::move(internalListener))];
+      initWithRegistration:ListenerRegistration(firestore->client(), std::move(async_listener),
+                                                std::move(query_listener))];
 }
 
 - (FIRQuery *)queryWhereField:(NSString *)field isEqualTo:(id)value {

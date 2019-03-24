@@ -41,10 +41,10 @@
 
 using firebase::firestore::FirestoreErrorCode;
 using firebase::firestore::core::AsyncEventListener;
+using firebase::firestore::core::EventListener;
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::EventListener;
 using firebase::firestore::core::ViewSnapshot;
-using firebase::firestore::core::ViewSnapshotHandler;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentSet;
 using firebase::firestore::model::OnlineState;
@@ -73,10 +73,11 @@ ViewSnapshot ExcludingMetadataChanges(const ViewSnapshot &snapshot) {
   };
 }
 
-ViewSnapshotHandler Accumulating(std::vector<ViewSnapshot> *values) {
-  return [values](const StatusOr<ViewSnapshot> &maybe_snapshot) {
-    values->push_back(maybe_snapshot.ValueOrDie());
-  };
+ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
+  return EventListener<ViewSnapshot>::Create(
+      [values](const StatusOr<ViewSnapshot> &maybe_snapshot) {
+        values->push_back(maybe_snapshot.ValueOrDie());
+      });
 }
 
 }  // namespace

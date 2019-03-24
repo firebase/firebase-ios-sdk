@@ -47,8 +47,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+using firebase::firestore::api::DocumentSnapshot;
 using firebase::firestore::core::ListenOptions;
 using firebase::firestore::core::QueryListener;
+using firebase::firestore::core::ViewSnapshot;
 
 /**
  * FirestoreClient is a top-level class that constructs and owns all of the pieces of the client
@@ -84,8 +86,7 @@ using firebase::firestore::core::QueryListener;
 /** Starts listening to a query. */
 - (std::shared_ptr<QueryListener>)listenToQuery:(FSTQuery *)query
                                         options:(ListenOptions)options
-                            viewSnapshotHandler:(firebase::firestore::core::ViewSnapshotHandler &&)
-                                                    viewSnapshotHandler;
+                                       listener:(ViewSnapshot::SharedListener &&)listener;
 
 /** Stops listening to a query previously listened to. */
 - (void)removeListener:(const std::shared_ptr<QueryListener> &)listener;
@@ -95,8 +96,7 @@ using firebase::firestore::core::QueryListener;
  * doesn't exist, an error will be sent to the completion.
  */
 - (void)getDocumentFromLocalCache:(const firebase::firestore::api::DocumentReference &)doc
-                       completion:(firebase::firestore::util::StatusOrCallback<
-                                      firebase::firestore::api::DocumentSnapshot> &&)completion;
+                       completion:(DocumentSnapshot::Listener &&)completion;
 
 /**
  * Retrieves a (possibly empty) set of documents from the cache via the

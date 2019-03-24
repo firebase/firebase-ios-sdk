@@ -354,7 +354,7 @@ NS_ASSUME_NONNULL_BEGIN
   // TODO(dimond): Allow customizing listen options in spec tests
   // TODO(dimond): Change spec tests to verify isFromCache on snapshots
   ListenOptions options = ListenOptions::FromIncludeMetadataChanges(true);
-  auto listener = std::make_shared<QueryListener>(
+  auto listener = QueryListener::Create(
       query, options, [self, query](const StatusOr<ViewSnapshot> &maybe_snapshot) {
         FSTQueryEvent *event = [[FSTQueryEvent alloc] init];
         event.query = query;
