@@ -104,6 +104,19 @@
 		5467FB01203E5717009C9584 /* FIRFirestoreTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5467FAFF203E56F8009C9584 /* FIRFirestoreTests.mm */; };
 		5467FB08203E6A44009C9584 /* app_testing.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5467FB07203E6A44009C9584 /* app_testing.mm */; };
 		546854AA20A36867004BDBD5 /* datastore_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = 546854A820A36867004BDBD5 /* datastore_test.mm */; };
+		546877D52248206A005E3DE0 /* collection_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 54DA129C1F315EE100DD57A1 /* collection_spec_test.json */; };
+		546877D62248206A005E3DE0 /* existence_filter_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 54DA129D1F315EE100DD57A1 /* existence_filter_spec_test.json */; };
+		546877D72248206A005E3DE0 /* limbo_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 54DA129E1F315EE100DD57A1 /* limbo_spec_test.json */; };
+		546877D82248206A005E3DE0 /* limit_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 54DA129F1F315EE100DD57A1 /* limit_spec_test.json */; };
+		546877D92248206A005E3DE0 /* listen_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 54DA12A01F315EE100DD57A1 /* listen_spec_test.json */; };
+		546877DA2248206A005E3DE0 /* offline_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 54DA12A11F315EE100DD57A1 /* offline_spec_test.json */; };
+		546877DB2248206A005E3DE0 /* orderby_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 54DA12A21F315EE100DD57A1 /* orderby_spec_test.json */; };
+		546877DC2248206A005E3DE0 /* perf_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = D5B2593BCB52957D62F1C9D3 /* perf_spec_test.json */; };
+		546877DD2248206A005E3DE0 /* persistence_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 54DA12A31F315EE100DD57A1 /* persistence_spec_test.json */; };
+		546877DE2248206A005E3DE0 /* query_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 731541602214AFFA0037F4DC /* query_spec_test.json */; };
+		546877DF2248206A005E3DE0 /* remote_store_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 3B843E4A1F3930A400548890 /* remote_store_spec_test.json */; };
+		546877E02248206A005E3DE0 /* resume_token_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 54DA12A41F315EE100DD57A1 /* resume_token_spec_test.json */; };
+		546877E12248206A005E3DE0 /* write_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 54DA12A51F315EE100DD57A1 /* write_spec_test.json */; };
 		54740A571FC914BA00713A1A /* secure_random_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54740A531FC913E500713A1A /* secure_random_test.cc */; };
 		54740A581FC914F000713A1A /* autoid_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54740A521FC913E500713A1A /* autoid_test.cc */; };
 		54764FAF1FAA21B90085E60A /* FSTGoogleTestTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 54764FAE1FAA21B90085E60A /* FSTGoogleTestTests.mm */; };
@@ -1755,6 +1768,19 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				546877D82248206A005E3DE0 /* limit_spec_test.json in Resources */,
+				546877DC2248206A005E3DE0 /* perf_spec_test.json in Resources */,
+				546877D52248206A005E3DE0 /* collection_spec_test.json in Resources */,
+				546877DF2248206A005E3DE0 /* remote_store_spec_test.json in Resources */,
+				546877DA2248206A005E3DE0 /* offline_spec_test.json in Resources */,
+				546877DD2248206A005E3DE0 /* persistence_spec_test.json in Resources */,
+				546877DB2248206A005E3DE0 /* orderby_spec_test.json in Resources */,
+				546877E12248206A005E3DE0 /* write_spec_test.json in Resources */,
+				546877D62248206A005E3DE0 /* existence_filter_spec_test.json in Resources */,
+				546877DE2248206A005E3DE0 /* query_spec_test.json in Resources */,
+				546877E02248206A005E3DE0 /* resume_token_spec_test.json in Resources */,
+				546877D92248206A005E3DE0 /* listen_spec_test.json in Resources */,
+				546877D72248206A005E3DE0 /* limbo_spec_test.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
