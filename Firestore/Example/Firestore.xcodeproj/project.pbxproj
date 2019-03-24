@@ -352,6 +352,7 @@
 		BCD9AEA4A890E804922BF72F /* FSTRemoteEventTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E0C32021557E00B64F25 /* FSTRemoteEventTests.mm */; };
 		BEE0294A23AB993E5DE0E946 /* leveldb_util_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 332485C4DCC6BA0DBB5E31B7 /* leveldb_util_test.cc */; };
 		C1AA536F90A0A576CA2816EB /* Pods_Firestore_Example_iOS_Firestore_SwiftTests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB92EB03E3F92485023F64ED /* Pods_Firestore_Example_iOS_Firestore_SwiftTests_iOS.framework */; };
+		C21B3A1CCB3AD42E57EA14FC /* Pods_Firestore_Tests_macOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 759E964B6A03E6775C992710 /* Pods_Firestore_Tests_macOS.framework */; };
 		C39CBADA58F442C8D66C3DA2 /* FIRFieldPathTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E04C202154AA00B64F25 /* FIRFieldPathTests.mm */; };
 		C4055D868A38221B332CD03D /* FSTIntegrationTestCase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5491BC711FB44593008B3588 /* FSTIntegrationTestCase.mm */; };
 		C482E724F4B10968417C3F78 /* Pods_Firestore_FuzzTests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B79CA87A1A01FC5329031C9B /* Pods_Firestore_FuzzTests_iOS.framework */; };
@@ -494,6 +495,7 @@
 		332485C4DCC6BA0DBB5E31B7 /* leveldb_util_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = leveldb_util_test.cc; sourceTree = "<group>"; };
 		353EEE078EF3F39A9B7279F6 /* nanopb_string_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = nanopb_string_test.cc; path = nanopb/nanopb_string_test.cc; sourceTree = "<group>"; };
 		358C3B5FE573B1D60A4F7592 /* strerror_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = strerror_test.cc; sourceTree = "<group>"; };
+		397FB002E298B780F1E223E2 /* Pods-Firestore_Tests_macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Tests_macOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Tests_macOS/Pods-Firestore_Tests_macOS.release.xcconfig"; sourceTree = "<group>"; };
 		3B843E4A1F3930A400548890 /* remote_store_spec_test.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = remote_store_spec_test.json; sourceTree = "<group>"; };
 		3C81DE3772628FE297055662 /* Pods-Firestore_Example_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Example_iOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Example_iOS/Pods-Firestore_Example_iOS.debug.xcconfig"; sourceTree = "<group>"; };
 		3F0992A4B83C60841C52E960 /* Pods-Firestore_Example_iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Example_iOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Example_iOS/Pods-Firestore_Example_iOS.release.xcconfig"; sourceTree = "<group>"; };
@@ -675,6 +677,7 @@
 		73F1F73A2210F3D800E1F692 /* index_manager_test.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = index_manager_test.h; sourceTree = "<group>"; };
 		73F1F73B2210F3D800E1F692 /* index_manager_test.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = index_manager_test.mm; sourceTree = "<group>"; };
 		73F1F7402211FEF300E1F692 /* leveldb_index_manager_test.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = leveldb_index_manager_test.mm; sourceTree = "<group>"; };
+		759E964B6A03E6775C992710 /* Pods_Firestore_Tests_macOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_Tests_macOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		79507DF8378D3C42F5B36268 /* string_win_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = string_win_test.cc; sourceTree = "<group>"; };
 		84434E57CA72951015FC71BC /* Pods-Firestore_FuzzTests_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_FuzzTests_iOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_FuzzTests_iOS/Pods-Firestore_FuzzTests_iOS.debug.xcconfig"; sourceTree = "<group>"; };
 		873B8AEA1B1F5CCA007FD442 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = Main.storyboard; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -735,6 +738,7 @@
 		B9C261C26C5D311E1E3C0CB9 /* query_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = query_test.cc; sourceTree = "<group>"; };
 		BA6E5B9D53CCF301F58A62D7 /* xcgmock.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = xcgmock.h; sourceTree = "<group>"; };
 		BB92EB03E3F92485023F64ED /* Pods_Firestore_Example_iOS_Firestore_SwiftTests_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_Example_iOS_Firestore_SwiftTests_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		BD01F0E43E4E2A07B8B05099 /* Pods-Firestore_Tests_macOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Tests_macOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Tests_macOS/Pods-Firestore_Tests_macOS.debug.xcconfig"; sourceTree = "<group>"; };
 		C8522DE226C467C54E6788D8 /* mutation_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = mutation_test.cc; sourceTree = "<group>"; };
 		D0A6E9136804A41CEC9D55D4 /* delayed_constructor_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = delayed_constructor_test.cc; sourceTree = "<group>"; };
 		D3CC3DC5338DCAF43A211155 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
@@ -781,6 +785,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C21B3A1CCB3AD42E57EA14FC /* Pods_Firestore_Tests_macOS.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1096,6 +1101,7 @@
 				2B50B3A0DF77100EEE887891 /* Pods_Firestore_Tests_iOS.framework */,
 				6003F591195388D20070C39A /* UIKit.framework */,
 				6003F5AF195388D20070C39A /* XCTest.framework */,
+				759E964B6A03E6775C992710 /* Pods_Firestore_Tests_macOS.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -1271,6 +1277,8 @@
 				F354C0FE92645B56A6C6FD44 /* Pods-Firestore_IntegrationTests_iOS.release.xcconfig */,
 				E592181BFD7C53C305123739 /* Pods-Firestore_Tests_iOS.debug.xcconfig */,
 				B3F5B3AAE791A5911B9EAA82 /* Pods-Firestore_Tests_iOS.release.xcconfig */,
+				BD01F0E43E4E2A07B8B05099 /* Pods-Firestore_Tests_macOS.debug.xcconfig */,
+				397FB002E298B780F1E223E2 /* Pods-Firestore_Tests_macOS.release.xcconfig */,
 			);
 			name = Pods;
 			sourceTree = "<group>";
@@ -1531,9 +1539,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 544AB19B2248072200F851E6 /* Build configuration list for PBXNativeTarget "Firestore_Tests_macOS" */;
 			buildPhases = (
+				30108B32BF2B385AECDB7FB2 /* [CP] Check Pods Manifest.lock */,
 				544AB18E2248072200F851E6 /* Sources */,
 				544AB18F2248072200F851E6 /* Frameworks */,
 				544AB1902248072200F851E6 /* Resources */,
+				7E4A6E169B172874E17A3ECA /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -1893,6 +1903,28 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Firestore_Example_iOS/Pods-Firestore_Example_iOS-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
+		30108B32BF2B385AECDB7FB2 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Firestore_Tests_macOS-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
 		329C25E418360CEF62F6CB2B /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -1901,9 +1933,9 @@
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Firestore_Tests_iOS/Pods-Firestore_Tests_iOS-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/leveldb-library-iOS/leveldb.framework",
-				"${BUILT_PRODUCTS_DIR}/GoogleTest/GoogleTest.framework",
-				"${BUILT_PRODUCTS_DIR}/OCMock/OCMock.framework",
-				"${BUILT_PRODUCTS_DIR}/ProtobufCpp/ProtobufCpp.framework",
+				"${BUILT_PRODUCTS_DIR}/GoogleTest-iOS/GoogleTest.framework",
+				"${BUILT_PRODUCTS_DIR}/OCMock-iOS/OCMock.framework",
+				"${BUILT_PRODUCTS_DIR}/ProtobufCpp-iOS/ProtobufCpp.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
@@ -2040,6 +2072,34 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
+		7E4A6E169B172874E17A3ECA /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Firestore_Tests_macOS/Pods-Firestore_Tests_macOS-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/leveldb-library-macOS/leveldb.framework",
+				"${BUILT_PRODUCTS_DIR}/GoogleTest-macOS/GoogleTest.framework",
+				"${BUILT_PRODUCTS_DIR}/OCMock-macOS/OCMock.framework",
+				"${BUILT_PRODUCTS_DIR}/ProtobufCpp-macOS/ProtobufCpp.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleTest.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/OCMock.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ProtobufCpp.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Firestore_Tests_macOS/Pods-Firestore_Tests_macOS-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		83F2AB95D08093BB076EE521 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -2102,8 +2162,8 @@
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Firestore_IntegrationTests_iOS/Pods-Firestore_IntegrationTests_iOS-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/leveldb-library-iOS/leveldb.framework",
-				"${BUILT_PRODUCTS_DIR}/GoogleTest/GoogleTest.framework",
-				"${BUILT_PRODUCTS_DIR}/OCMock/OCMock.framework",
+				"${BUILT_PRODUCTS_DIR}/GoogleTest-iOS/GoogleTest.framework",
+				"${BUILT_PRODUCTS_DIR}/OCMock-iOS/OCMock.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
@@ -2664,6 +2724,7 @@
 /* Begin XCBuildConfiguration section */
 		544AB1992248072200F851E6 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = BD01F0E43E4E2A07B8B05099 /* Pods-Firestore_Tests_macOS.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ANALYZER_NONNULL = YES;
@@ -2703,6 +2764,7 @@
 		};
 		544AB19A2248072200F851E6 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 397FB002E298B780F1E223E2 /* Pods-Firestore_Tests_macOS.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ANALYZER_NONNULL = YES;
