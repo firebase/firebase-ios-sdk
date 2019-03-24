@@ -24,11 +24,11 @@
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTView.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Util/FSTAsyncQueryListener.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
+#include "Firestore/core/src/firebase/firestore/core/event_listener.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
@@ -40,7 +40,9 @@
 #include "Firestore/core/test/firebase/firestore/testutil/xcgmock.h"
 
 using firebase::firestore::FirestoreErrorCode;
+using firebase::firestore::core::AsyncEventListener;
 using firebase::firestore::core::DocumentViewChange;
+using firebase::firestore::core::EventListener;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::core::ViewSnapshotHandler;
 using firebase::firestore::model::DocumentKeySet;
@@ -165,26 +167,26 @@ ViewSnapshotHandler Accumulating(std::vector<ViewSnapshot> *values) {
 }
 
 - (void)testMutingAsyncListenerPreventsAllSubsequentEvents {
-  __block std::vector<ViewSnapshot> accum;
+  std::vector<ViewSnapshot> accum;
 
   FSTQuery *query = FSTTestQuery("rooms/Eros");
   FSTDocument *doc1 = FSTTestDoc("rooms/Eros", 3, @{@"name" : @"Eros"}, FSTDocumentStateSynced);
   FSTDocument *doc2 = FSTTestDoc("rooms/Eros", 4, @{@"name" : @"Eros2"}, FSTDocumentStateSynced);
 
-  __block FSTAsyncQueryListener *listener = [[FSTAsyncQueryListener alloc]
-      initWithExecutor:_executor.get()
-       snapshotHandler:^(const StatusOr<ViewSnapshot> &maybe_snapshot) {
-         accum.push_back(maybe_snapshot.ValueOrDie());
-         [listener mute];
-       }];
+  std::shared_ptr<AsyncEventListener<ViewSnapshot>> listener =
+      AsyncEventListener<ViewSnapshot>::Create(
+          _executor.get(), EventListener<ViewSnapshot>::Create(
+                               [&accum, &listener](const StatusOr<ViewSnapshot> &maybe_snapshot) {
+                                 accum.push_back(maybe_snapshot.ValueOrDie());
+                                 listener->Mute();
+                               }));
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
   ViewSnapshot viewSnapshot1 = FSTTestApplyChanges(view, @[ doc1 ], absl::nullopt).value();
   ViewSnapshot viewSnapshot2 = FSTTestApplyChanges(view, @[ doc2 ], absl::nullopt).value();
 
-  ViewSnapshotHandler handler = listener.asyncSnapshotHandler;
-  handler(viewSnapshot1);
-  handler(viewSnapshot2);
+  listener->OnEvent(viewSnapshot1);
+  listener->OnEvent(viewSnapshot2);
 
   // Drain queue
   XCTestExpectation *expectation = [self expectationWithDescription:@"Queue drained"];
