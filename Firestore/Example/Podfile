@@ -66,4 +66,14 @@ target 'Firestore_Example_macOS' do
   pod 'FirebaseAuth', :path => '../../'
   pod 'FirebaseCore', :path => '../../'
   pod 'FirebaseFirestore', :path => '../../'
+
+  target 'Firestore_Tests_macOS' do
+    inherit! :search_paths
+
+    pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
+    pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
+
+    pod 'OCMock'
+    pod 'leveldb-library'
+  end
 end
