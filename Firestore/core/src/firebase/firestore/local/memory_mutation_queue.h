@@ -111,7 +111,8 @@ class MemoryMutationQueue : public MutationQueue {
    */
   int IndexOfBatchId(model::BatchId batch_id);
 
-  FSTMemoryPersistence* persistence_;
+  // This instance is owned by FSTMemoryPersistence; avoid a retain cycle.
+  __weak FSTMemoryPersistence* persistence_;
   /**
    * A FIFO queue of all mutations to apply to the backend. Mutations are added
    * to the end of the queue as they're written, and removed from the front of
