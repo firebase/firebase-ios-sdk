@@ -832,10 +832,64 @@ static FIRInstanceID *gInstanceID;
       kMaxRetryIntervalForDefaultTokenInSeconds);
 }
 
-- (void)defaultTokenWithHandler:(FIRInstanceIDTokenHandler)handler {
-  if (self.isFetchingDefaultToken || self.isDefaultTokenFetchScheduled) {
+- (void)defaultTokenWithHandler:(nullable FIRInstanceIDTokenHandler)aHandler {
+  [self defaultTokenWithRetry:NO handler:aHandler];
+}
+
+/**
+ * @param retry Indicates if the method is called to perform a retry after a failed attempt.
+ * If `YES`, then actual token request will be performed even if `self.defaultTokenFetchHandler !=
+ * nil`
+ */
+- (void)defaultTokenWithRetry:(BOOL)retry handler:(nullable FIRInstanceIDTokenHandler)aHandler {
+  BOOL shouldPerformRequest = retry || self.defaultTokenFetchHandler == nil;
+
+  if (!self.defaultTokenFetchHandler) {
+    self.defaultTokenFetchHandler = [[FIRInstanceIDCombinedHandler<NSString *> alloc] init];
+  }
+
+  if (aHandler) {
+    [self.defaultTokenFetchHandler addHandler:aHandler];
+  }
+
+  if (!shouldPerformRequest) {
+    return;
+  }
+
+  NSDictionary *instanceIDOptions = @{};
+  BOOL hasFirebaseMessaging = NSClassFromString(kFIRInstanceIDFCMSDKClassString) != nil;
+  if (hasFirebaseMessaging && self.apnsTokenData) {
+    BOOL isSandboxApp = (self.apnsTokenType == FIRInstanceIDAPNSTokenTypeSandbox);
+    if (self.apnsTokenType == FIRInstanceIDAPNSTokenTypeUnknown) {
+      isSandboxApp = [self isSandboxApp];
+    }
+    instanceIDOptions = @{
+      kFIRInstanceIDTokenOptionsAPNSKey : self.apnsTokenData,
+      kFIRInstanceIDTokenOptionsAPNSIsSandboxKey : @(isSandboxApp),
+    };
+  }
+
+  FIRInstanceID_WEAKIFY(self);
+  FIRInstanceIDTokenHandler newHandler = ^void(NSString *token, NSError *error) {
+    FIRInstanceID_STRONGIFY(self);
+
+    if (error) {
+      FIRInstanceIDLoggerError(kFIRInstanceIDMessageCodeInstanceID009,
+                               @"Failed to fetch default token %@", error);
+
+      // This notification can be sent multiple times since we can't guarantee success at any point
+      // of time.
+      NSNotification *tokenFetchFailNotification =
+          [NSNotification notificationWithName:kFIRInstanceIDDefaultGCMTokenFailNotification
+                                        object:[error copy]];
+      [[NSNotificationQueue defaultQueue] enqueueNotification:tokenFetchFailNotification
+                                                 postingStyle:NSPostASAP];
+
+      self.retryCountForDefaultToken = (NSInteger)MIN(self.retryCountForDefaultToken + 1,
+                                                      [[self class] maxRetryCountForDefaultToken]);
 
       // Do not retry beyond the maximum limit.
+      if (self.retryCountForDefaultToken < [[self class] maxRetryCountForDefaultToken]) {
         NSInteger retryInterval = [self retryIntervalToFetchDefaultToken];
         [self retryGetDefaultTokenAfter:retryInterval];
       } else {
@@ -852,7 +906,6 @@ static FIRInstanceID *gInstanceID;
           [instanceIDOptions[kFIRInstanceIDTokenOptionsAPNSIsSandboxKey] boolValue];
       // Note that APNSTupleStringInRequest will be nil if deviceTokenInRequest is nil
       NSString *APNSTupleStringInRequest = FIRInstanceIDAPNSTupleStringForTokenAndServerType(
-    self.isFetchingDefaultToken = NO;
           deviceTokenInRequest, isSandboxInRequest);
       // If the APNs value either remained nil, or was the same non-nil value, the APNs value
       // did not change.
@@ -874,12 +927,7 @@ static FIRInstanceID *gInstanceID;
                                 @"Successfully fetched default token.");
       }
       // Post the required notifications if somebody is waiting.
-        FIRInstanceIDLoggerError(kFIRInstanceIDMessageCodeInstanceID007,
-                                 @"Failed to retrieve the default FCM token after %ld retries",
-                                 (long)self.retryCountForDefaultToken);
-        if (handler) {
-          handler(nil, error);
-        }
+      FIRInstanceIDLoggerDebug(kFIRInstanceIDMessageCodeInstanceID008, @"Got default token %@",
                                token);
       NSString *previousFCMToken = self.defaultFCMToken;
       self.defaultFCMToken = token;
@@ -887,8 +935,8 @@ static FIRInstanceID *gInstanceID;
       // Only notify of token refresh if we have a new valid token that's different than before
       if (self.defaultFCMToken.length && ![self.defaultFCMToken isEqualToString:previousFCMToken]) {
         NSNotification *tokenRefreshNotification =
-        [NSNotification notificationWithName:kFIRInstanceIDTokenRefreshNotification
-                                      object:[self.defaultFCMToken copy]];
+            [NSNotification notificationWithName:kFIRInstanceIDTokenRefreshNotification
+                                          object:[self.defaultFCMToken copy]];
         [[NSNotificationQueue defaultQueue] enqueueNotification:tokenRefreshNotification
                                                    postingStyle:NSPostASAP];
 
@@ -900,7 +948,7 @@ static FIRInstanceID *gInstanceID;
   [self tokenWithAuthorizedEntity:self.fcmSenderID
                             scope:kFIRInstanceIDDefaultTokenScope
                           options:instanceIDOptions
-        [self retryGetDefaultTokenAfter:0];
+                          handler:newHandler];
 }
 
 /**
@@ -911,14 +959,13 @@ static FIRInstanceID *gInstanceID;
     return;
   }
 
-      // Perfrom completion handlers
-      if (shouldNotifyHandler) {
-        [self performDefaultTokenHandlerWithToken:token error:nil];
+  [self.defaultTokenFetchHandler combinedHandler](token, error);
+  self.defaultTokenFetchHandler = nil;
+}
 
 - (void)retryGetDefaultTokenAfter:(NSTimeInterval)retryInterval {
   FIRInstanceID_WEAKIFY(self);
   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(retryInterval * NSEC_PER_SEC)),
-  self.isFetchingDefaultToken = YES;
                  dispatch_get_main_queue(), ^{
                    FIRInstanceID_STRONGIFY(self);
                    // Pass nil: no new handlers to be added, currently existing handlers
