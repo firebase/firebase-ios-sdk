@@ -42,7 +42,6 @@ using model::MaybeDocument;
 using model::Mutation;
 using model::MutationBatch;
 using model::NoDocument;
-using model::ObjectValue;
 using model::SnapshotVersion;
 using model::UnknownDocument;
 using nanopb::Reader;
@@ -124,13 +123,13 @@ google_firestore_v1_Document LocalSerializer::EncodeDocument(
       rpc_serializer_.EncodeString(rpc_serializer_.EncodeKey(doc.key()));
 
   // Encode Document.fields (unless it's empty)
-  size_t count = doc.data().object_value().internal_value.size();
+  size_t count = doc.data().GetInternalValue().size();
   HARD_ASSERT(count <= std::numeric_limits<pb_size_t>::max(),
               "Unable to encode specified document. Too many fields.");
   result.fields_count = static_cast<pb_size_t>(count);
   result.fields = MakeArray<google_firestore_v1_Document_FieldsEntry>(count);
   int i = 0;
-  for (const auto& kv : doc.data().object_value().internal_value) {
+  for (const auto& kv : doc.data().GetInternalValue()) {
     result.fields[i].key = rpc_serializer_.EncodeString(kv.first);
     result.fields[i].value = rpc_serializer_.EncodeFieldValue(kv.second);
     i++;

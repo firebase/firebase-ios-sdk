@@ -24,15 +24,17 @@ namespace testutil {
 
 std::unique_ptr<model::PatchMutation> PatchMutation(
     absl::string_view path,
-    const model::ObjectValue::Map& values,
+    const model::FieldValue::Map& values,
     // TODO(rsgowman): Investigate changing update_mask to a set.
     const std::vector<model::FieldPath>* update_mask) {
-  model::FieldValue object_value = model::FieldValue::EmptyObject();
+  model::ObjectValue object_value = model::ObjectValue::Empty();
   std::set<model::FieldPath> object_mask;
 
   for (const auto& kv : values) {
     model::FieldPath field_path = Field(kv.first);
     object_mask.insert(field_path);
+    // TODO(rsgowman): This will abort if kv.second.string_value.type() !=
+    // String
     if (kv.second.string_value() != kDeleteSentinel) {
       object_value = object_value.Set(field_path, kv.second);
     }

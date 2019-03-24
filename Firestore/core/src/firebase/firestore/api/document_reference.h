@@ -31,11 +31,13 @@
 #import "FIRFirestoreSource.h"
 #import "FIRListenerRegistration.h"
 
+#include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor_callback.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class FIRCollectionReference;
 @class FIRFirestore;
 @class FSTListenOptions;
 @class FSTMutation;
@@ -44,6 +46,8 @@ namespace firebase {
 namespace firestore {
 namespace api {
 
+class Firestore;
+
 class DocumentReference {
  public:
   using Completion = void (^)(NSError* _Nullable error) _Nullable;
@@ -51,13 +55,14 @@ class DocumentReference {
                                       NSError* _Nullable error) _Nullable;
 
   DocumentReference() = default;
-  DocumentReference(FIRFirestore* firestore, model::DocumentKey document_key)
+  DocumentReference(model::ResourcePath path, Firestore* firestore);
+  DocumentReference(model::DocumentKey document_key, Firestore* firestore)
       : firestore_{firestore}, key_{std::move(document_key)} {
   }
 
   size_t Hash() const;
 
-  FIRFirestore* firestore() const {
+  Firestore* firestore() const {
     return firestore_;
   }
   const model::DocumentKey& key() const {
@@ -66,12 +71,14 @@ class DocumentReference {
 
   const std::string& document_id() const;
 
-  FIRCollectionReference* Parent() const;
+  // TODO(varconst) uncomment when core API CollectionReference is implemented.
+  // CollectionReference Parent() const;
 
   std::string Path() const;
 
-  FIRCollectionReference* GetCollectionReference(
-      const std::string& collection_path) const;
+  // TODO(varconst) uncomment when core API CollectionReference is implemented.
+  // CollectionReference GetCollectionReference(
+  //     const std::string& collection_path) const;
 
   void SetData(std::vector<FSTMutation*>&& mutations, Completion completion);
 
@@ -79,13 +86,15 @@ class DocumentReference {
 
   void DeleteDocument(Completion completion);
 
-  void GetDocument(FIRFirestoreSource source, DocumentCompletion completion);
+  void GetDocument(FIRFirestoreSource source,
+                   util::StatusOrCallback<DocumentSnapshot>&& completion);
 
   id<FIRListenerRegistration> AddSnapshotListener(
-      FIRDocumentSnapshotBlock listener, FSTListenOptions* options);
+      util::StatusOrCallback<DocumentSnapshot>&& listener,
+      FSTListenOptions* options);
 
  private:
-  FIRFirestore* firestore_ = nil;
+  Firestore* firestore_ = nullptr;
   model::DocumentKey key_;
 };
 

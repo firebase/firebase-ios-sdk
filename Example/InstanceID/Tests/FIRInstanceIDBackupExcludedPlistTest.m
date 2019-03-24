@@ -21,7 +21,7 @@
 #import "Firebase/InstanceID/FIRInstanceIDBackupExcludedPlist.h"
 #import "Firebase/InstanceID/FIRInstanceIDStore.h"
 
-static NSString *const kApplicationSupportSubDirectoryName = @"FirebaseInstanceIDBackupPlistTest";
+static NSString *const kSubDirectoryName = @"FirebaseInstanceIDBackupPlistTest";
 static NSString *const kTestPlistFileName = @"com.google.test.IIDBackupExcludedPlist";
 
 @interface FIRInstanceIDBackupExcludedPlist ()
@@ -38,15 +38,14 @@ static NSString *const kTestPlistFileName = @"com.google.test.IIDBackupExcludedP
 
 - (void)setUp {
   [super setUp];
-  [FIRInstanceIDStore createSubDirectory:kApplicationSupportSubDirectoryName];
-  self.plist = [[FIRInstanceIDBackupExcludedPlist alloc]
-      initWithFileName:kTestPlistFileName
-          subDirectory:kApplicationSupportSubDirectoryName];
+  [FIRInstanceIDStore createSubDirectory:kSubDirectoryName];
+  self.plist = [[FIRInstanceIDBackupExcludedPlist alloc] initWithFileName:kTestPlistFileName
+                                                             subDirectory:kSubDirectoryName];
 }
 
 - (void)tearDown {
   [self.plist deleteFile:nil];
-  [FIRInstanceIDStore removeSubDirectory:kApplicationSupportSubDirectoryName error:nil];
+  [FIRInstanceIDStore removeSubDirectory:kSubDirectoryName error:nil];
   [super tearDown];
 }
 
@@ -77,14 +76,14 @@ static NSString *const kTestPlistFileName = @"com.google.test.IIDBackupExcludedP
   XCTAssertTrue([self.plist doesFileExist]);
   XCTAssertEqualObjects(plistContents, [self.plist contentAsDictionary]);
 
-  XCTAssertTrue([self isPlistInApplicationSupportDirectory]);
+  XCTAssertTrue([self doesPlistFileExist]);
 }
 
 - (void)testMovePlistToApplicationSupportDirectorySuccess {
   NSDictionary *plistContents = @{@"hello" : @"world", @"id" : @123};
   [self.plist writeDictionary:plistContents error:nil];
-  [self.plist moveToApplicationSupportSubDirectory:kApplicationSupportSubDirectoryName];
-  XCTAssertTrue([self isPlistInApplicationSupportDirectory]);
+  [self.plist moveToApplicationSupportSubDirectory:kSubDirectoryName];
+  XCTAssertTrue([self doesPlistFileExist]);
   XCTAssertFalse([self isPlistInDocumentsDirectory]);
 
   NSDictionary *newPlistContents = @{@"world" : @"hello"};
@@ -97,19 +96,18 @@ static NSString *const kTestPlistFileName = @"com.google.test.IIDBackupExcludedP
   // which should only apply to iOS.
 #if TARGET_OS_IOS
   // Delete the subdirectory
-  [FIRInstanceIDStore removeSubDirectory:kApplicationSupportSubDirectoryName error:nil];
+  [FIRInstanceIDStore removeSubDirectory:kSubDirectoryName error:nil];
 
   // Create a new plistl This would try to move or write to the ApplicationSupport directory
   // but since the subdirectory is not there anymore it will fail and rather write to the
   // Documents folder.
-  self.plist = [[FIRInstanceIDBackupExcludedPlist alloc]
-      initWithFileName:kTestPlistFileName
-          subDirectory:kApplicationSupportSubDirectoryName];
+  self.plist = [[FIRInstanceIDBackupExcludedPlist alloc] initWithFileName:kTestPlistFileName
+                                                             subDirectory:kSubDirectoryName];
 
   NSDictionary *plistContents = @{@"hello" : @"world", @"id" : @123};
   [self.plist writeDictionary:plistContents error:nil];
 
-  XCTAssertFalse([self isPlistInApplicationSupportDirectory]);
+  XCTAssertFalse([self doesPlistFileExist]);
   XCTAssertTrue([self isPlistInDocumentsDirectory]);
 
   NSDictionary *newPlistContents = @{@"world" : @"hello"};
@@ -118,14 +116,14 @@ static NSString *const kTestPlistFileName = @"com.google.test.IIDBackupExcludedP
   XCTAssertEqualObjects(newPlistContents, [self.plist contentAsDictionary]);
 
   // The new file should still be written to the Documents folder.
-  XCTAssertFalse([self isPlistInApplicationSupportDirectory]);
+  XCTAssertFalse([self doesPlistFileExist]);
   XCTAssertTrue([self isPlistInDocumentsDirectory]);
 #endif
 }
 
 #pragma mark - Private Helpers
 
-- (BOOL)isPlistInApplicationSupportDirectory {
+- (BOOL)doesPlistFileExist {
 #if TARGET_OS_TV
   NSArray *directoryPaths =
       NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
@@ -133,11 +131,9 @@ static NSString *const kTestPlistFileName = @"com.google.test.IIDBackupExcludedP
   NSArray *directoryPaths =
       NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
 #endif
-  NSString *applicationSupportDirPath = directoryPaths.lastObject;
-  NSArray *components = @[
-    applicationSupportDirPath, kApplicationSupportSubDirectoryName,
-    [NSString stringWithFormat:@"%@.plist", kTestPlistFileName]
-  ];
+  NSString *dirPath = directoryPaths.lastObject;
+  NSArray *components =
+      @[ dirPath, kSubDirectoryName, [NSString stringWithFormat:@"%@.plist", kTestPlistFileName] ];
   NSString *plistPath = [NSString pathWithComponents:components];
   return [[NSFileManager defaultManager] fileExistsAtPath:plistPath];
 }
@@ -145,9 +141,9 @@ static NSString *const kTestPlistFileName = @"com.google.test.IIDBackupExcludedP
 - (BOOL)isPlistInDocumentsDirectory {
   NSArray *directoryPaths =
       NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-  NSString *applicationSupportDirPath = directoryPaths.lastObject;
+  NSString *documentsSupportDirPath = directoryPaths.lastObject;
   NSArray *components =
-      @[ applicationSupportDirPath, [NSString stringWithFormat:@"%@.plist", kTestPlistFileName] ];
+      @[ documentsSupportDirPath, [NSString stringWithFormat:@"%@.plist", kTestPlistFileName] ];
   NSString *plistPath = [NSString pathWithComponents:components];
   return [[NSFileManager defaultManager] fileExistsAtPath:plistPath];
 }

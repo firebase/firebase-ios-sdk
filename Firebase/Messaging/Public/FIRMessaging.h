@@ -245,8 +245,6 @@ NS_SWIFT_NAME(MessagingRemoteMessage)
 @end
 
 @class FIRMessaging;
-@class FIRMessagingExtensionHelper;
-
 /**
  * A protocol to handle token update or data message delivery from FCM.
  *
@@ -332,17 +330,6 @@ NS_SWIFT_NAME(Messaging)
  *  @return An instance of FIRMessaging.
  */
 + (instancetype)messaging NS_SWIFT_NAME(messaging());
-
-/**
- * FIRMessagingExtensionHelper
- *
- * Use FIRMessagingExtensionHelper to populate rich UI contents for your notifications.
- * e.g. If an image URL is set in your notification payload or on the console, call
- * FIRMessagingExtensionHelper API to render it on your notification.
- *
- * @return An instance of FIRMessagingExtensionHelper that handles the extensions API.
- */
-+ (FIRMessagingExtensionHelper *)extensionHelper NS_SWIFT_NAME(serviceExtension()) NS_AVAILABLE_IOS(10.0);
 
 /**
  *  Unavailable. Use +messaging instead.

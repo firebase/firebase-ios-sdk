@@ -19,13 +19,13 @@
 #include <memory>
 #include <string>
 
+#include "Firestore/core/src/firebase/firestore/api/firestore.h"
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
-#include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
-#include "absl/strings/string_view.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class FIRApp;
 @class FSTFirestoreClient;
 @class FSTUserDataConverter;
 
@@ -38,12 +38,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)
       initWithProjectID:(std::string)projectID
                database:(std::string)database
-         persistenceKey:(NSString *)persistenceKey
+         persistenceKey:(std::string)persistenceKey
     credentialsProvider:
         (std::unique_ptr<firebase::firestore::auth::CredentialsProvider>)credentialsProvider
             workerQueue:(std::unique_ptr<firebase::firestore::util::AsyncQueue>)workerQueue
             firebaseApp:(FIRApp *)app;
-
 @end
 
 /** Internal FIRFirestore API we don't want exposed in our public header files. */
@@ -65,6 +64,8 @@ NS_ASSUME_NONNULL_BEGIN
 /** Checks to see if logging is is globally enabled for the Firestore client. */
 + (BOOL)isLoggingEnabled;
 
++ (FIRFirestore *)recoverFromFirestore:(firebase::firestore::api::Firestore *)firestore;
+
 /**
  * Shutdown this `FIRFirestore`, releasing all resources (abandoning any outstanding writes,
  * removing all listens, closing all network connections, etc.).
@@ -74,7 +75,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)shutdownWithCompletion:(nullable void (^)(NSError *_Nullable error))completion
     NS_SWIFT_NAME(shutdown(completion:));
 
-- (firebase::firestore::util::AsyncQueue *)workerQueue;
+@property(nonatomic, assign, readonly) firebase::firestore::api::Firestore *wrapped;
+
+@property(nonatomic, assign, readonly) firebase::firestore::util::AsyncQueue *workerQueue;
 
 // FIRFirestore ownes the DatabaseId instance.
 @property(nonatomic, assign, readonly) const firebase::firestore::model::DatabaseId *databaseID;

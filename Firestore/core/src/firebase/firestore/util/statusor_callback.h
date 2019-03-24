@@ -14,13 +14,22 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STATUSOR_CALLBACK_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STATUSOR_CALLBACK_H_
 
-#import <GoogleUtilities/GULLoggerSystem.h>
+#include <functional>
 
-NS_ASSUME_NONNULL_BEGIN
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
 
-@interface GULASLLogger : NSObject <GULLoggerSystem>
-@end
+namespace firebase {
+namespace firestore {
+namespace util {
 
-NS_ASSUME_NONNULL_END
+template <typename T>
+using StatusOrCallback = std::function<void(util::StatusOr<T>)>;
+
+}  // namespace util
+}  // namespace firestore
+}  // namespace firebase
+
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STATUSOR_CALLBACK_H_

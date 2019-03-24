@@ -22,6 +22,7 @@
 #endif  // !defined(__OBJC__)
 
 #include <functional>
+#include <iosfwd>
 #include <string>
 #include <utility>
 #include <vector>
@@ -177,6 +178,7 @@ class ViewSnapshot {
   }
 
   std::string ToString() const;
+  friend std::ostream& operator<<(std::ostream& out, const ViewSnapshot& value);
   size_t Hash() const;
 
  private:

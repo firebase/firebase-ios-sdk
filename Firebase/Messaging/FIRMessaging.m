@@ -29,7 +29,6 @@
 #import "FIRMessagingContextManagerService.h"
 #import "FIRMessagingDataMessageManager.h"
 #import "FIRMessagingDefines.h"
-#import "FIRMessagingExtensionHelper.h"
 #import "FIRMessagingLogger.h"
 #import "FIRMessagingPubSub.h"
 #import "FIRMessagingReceiver.h"
@@ -177,15 +176,6 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
     [messaging start];
   });
   return messaging;
-}
-
-+ (FIRMessagingExtensionHelper *)extensionHelper {
-  static dispatch_once_t once;
-  static FIRMessagingExtensionHelper *extensionHelper;
-  dispatch_once(&once, ^{
-    extensionHelper = [[FIRMessagingExtensionHelper alloc] init];
-  });
-  return extensionHelper;
 }
 
 - (instancetype)initWithAnalytics:(nullable id<FIRAnalyticsInterop>)analytics
@@ -985,8 +975,8 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 + (NSString *)pathForSubDirectory:(NSString *)subDirectoryName {
   NSArray *directoryPaths = NSSearchPathForDirectoriesInDomains(FIRMessagingSupportedDirectory(),
                                                                 NSUserDomainMask, YES);
-  NSString *applicationSupportDirPath = directoryPaths.lastObject;
-  NSArray *components = @[applicationSupportDirPath, subDirectoryName];
+  NSString *dirPath = directoryPaths.lastObject;
+  NSArray *components = @[dirPath, subDirectoryName];
   return [NSString pathWithComponents:components];
 }
 

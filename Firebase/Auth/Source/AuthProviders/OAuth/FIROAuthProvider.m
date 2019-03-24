@@ -37,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** @typedef FIRHeadfulLiteURLCallBack
     @brief The callback invoked at the end of the flow to fetch a headful-lite URL.
     @param headfulLiteURL The headful lite URL.
-    @param error The error that occured while fetching the headful-lite, if any.
+    @param error The error that occurred while fetching the headful-lite, if any.
  */
 typedef void (^FIRHeadfulLiteURLCallBack)(NSURL *_Nullable headfulLiteURL,
                NSError *_Nullable error);
@@ -167,7 +167,7 @@ static NSString *const kAuthTypeSignInWithRedirect = @"signInWithRedirect";
 #pragma mark - Internal Methods
 
 /** @fn initWithProviderID:auth:
-    @brief returns an instance of @c FIROAuthProvider assocaited with the provided auth instance.
+    @brief returns an instance of @c FIROAuthProvider associated with the provided auth instance.
     @param auth The Auth instance to be associated with the OAuthProvider instance.
     @return An Instance of @c FIROAuthProvider.
   */
@@ -314,7 +314,7 @@ static NSString *const kAuthTypeSignInWithRedirect = @"signInWithRedirect";
 }
 
 /** @fn hashforString:
-    @brief Returns the SHA256 hash representaion of a given string object.
+    @brief Returns the SHA256 hash representation of a given string object.
     @param string The string for which a SHA256 hash is desired.
     @return An hexadecimal string representation of the SHA256 hash.
  */
