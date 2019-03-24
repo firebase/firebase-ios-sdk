@@ -211,7 +211,7 @@ id<FIRListenerRegistration> DocumentReference::AddSnapshotListener(
       initWithExecutor:firestore_->client().userExecutor
        snapshotHandler:std::move(handler)];
 
-  FSTQueryListener* internal_listener = [firestore_->client()
+  std::shared_ptr<QueryListener> internal_listener = [firestore_->client()
             listenToQuery:query
                   options:options
       viewSnapshotHandler:[async_listener asyncSnapshotHandler]];

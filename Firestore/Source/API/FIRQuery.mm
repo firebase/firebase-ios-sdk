@@ -16,6 +16,7 @@
 
 #import "FIRQuery.h"
 
+#include <memory>
 #include <utility>
 
 #import "FIRDocumentReference.h"
@@ -194,7 +195,7 @@ NS_ASSUME_NONNULL_BEGIN
       [[FSTAsyncQueryListener alloc] initWithExecutor:self.firestore.client.userExecutor
                                       snapshotHandler:std::move(snapshotHandler)];
 
-  FSTQueryListener *internalListener =
+  std::shared_ptr<QueryListener> internalListener =
       [firestore->client() listenToQuery:query
                                  options:internalOptions
                      viewSnapshotHandler:[asyncListener asyncSnapshotHandler]];

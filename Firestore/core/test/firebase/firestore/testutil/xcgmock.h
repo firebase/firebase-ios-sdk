@@ -191,7 +191,6 @@ OBJC_PRINT_TO(FSTObjectValue);
 OBJC_PRINT_TO(FSTPatchMutation);
 OBJC_PRINT_TO(FSTQuery);
 OBJC_PRINT_TO(FSTQueryData);
-OBJC_PRINT_TO(FSTQueryListener);
 OBJC_PRINT_TO(FSTReferenceValue);
 OBJC_PRINT_TO(FSTRelationFilter);
 OBJC_PRINT_TO(FSTSerializerBeta);
