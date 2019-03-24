@@ -199,9 +199,10 @@ NS_ASSUME_NONNULL_BEGIN
       [firestore->client() listenToQuery:query
                                  options:internalOptions
                      viewSnapshotHandler:[asyncListener asyncSnapshotHandler]];
-  return [[FSTListenerRegistration alloc] initWithClient:self.firestore.client
-                                           asyncListener:asyncListener
-                                        internalListener:internalListener];
+
+  return [[FSTListenerRegistration alloc]
+      initWithRegistration:ListenerRegistration(firestore->client(), asyncListener,
+                                                std::move(internalListener))];
 }
 
 - (FIRQuery *)queryWhereField:(NSString *)field isEqualTo:(id)value {

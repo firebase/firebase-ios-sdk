@@ -29,9 +29,9 @@
 
 #import "FIRDocumentReference.h"
 #import "FIRFirestoreSource.h"
-#import "FIRListenerRegistration.h"
 
 #include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
+#include "Firestore/core/src/firebase/firestore/api/listener_registration.h"
 #include "Firestore/core/src/firebase/firestore/core/listen_options.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
@@ -89,7 +89,7 @@ class DocumentReference {
   void GetDocument(FIRFirestoreSource source,
                    util::StatusOrCallback<DocumentSnapshot>&& completion);
 
-  id<FIRListenerRegistration> AddSnapshotListener(
+  ListenerRegistration AddSnapshotListener(
       util::StatusOrCallback<DocumentSnapshot>&& listener,
       core::ListenOptions options);
 

@@ -211,8 +211,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (id<FIRListenerRegistration>)addSnapshotListenerInternalWithOptions:(ListenOptions)internalOptions
                                                              listener:(FIRDocumentSnapshotBlock)
                                                                           listener {
-  return _documentReference.AddSnapshotListener([self wrapDocumentSnapshotBlock:listener],
-                                                std::move(internalOptions));
+  ListenerRegistration result = _documentReference.AddSnapshotListener(
+      [self wrapDocumentSnapshotBlock:listener], std::move(internalOptions));
+  return [[FSTListenerRegistration alloc] initWithRegistration:std::move(result)];
 }
 
 - (StatusOrCallback<DocumentSnapshot>)wrapDocumentSnapshotBlock:(FIRDocumentSnapshotBlock)block {
