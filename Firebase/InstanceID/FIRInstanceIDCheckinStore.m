@@ -135,10 +135,9 @@ static const NSInteger kOldCheckinPlistCount = 6;
                          handler(error);
                        }
                        return;
-                     } else {
-                       if (handler) {
-                         handler(nil);
-                       }
+                     }
+                     if (handler) {
+                       handler(nil);
                      }
                    }];
   }
