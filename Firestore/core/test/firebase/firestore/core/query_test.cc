@@ -36,9 +36,9 @@ using testutil::Doc;
 using testutil::Filter;
 
 TEST(QueryTest, MatchesBasedOnDocumentKey) {
-  Document doc1 = Doc("rooms/eros/messages/1");
-  Document doc2 = Doc("rooms/eros/messages/2");
-  Document doc3 = Doc("rooms/other/messages/1");
+  Document doc1 = *Doc("rooms/eros/messages/1");
+  Document doc2 = *Doc("rooms/eros/messages/2");
+  Document doc3 = *Doc("rooms/other/messages/1");
 
   Query query = Query::AtPath({"rooms", "eros", "messages", "1"});
   EXPECT_TRUE(query.Matches(doc1));
@@ -47,10 +47,10 @@ TEST(QueryTest, MatchesBasedOnDocumentKey) {
 }
 
 TEST(QueryTest, MatchesShallowAncestorQuery) {
-  Document doc1 = Doc("rooms/eros/messages/1");
-  Document doc1_meta = Doc("rooms/eros/messages/1/meta/1");
-  Document doc2 = Doc("rooms/eros/messages/2");
-  Document doc3 = Doc("rooms/other/messages/1");
+  Document doc1 = *Doc("rooms/eros/messages/1");
+  Document doc1_meta = *Doc("rooms/eros/messages/1/meta/1");
+  Document doc2 = *Doc("rooms/eros/messages/2");
+  Document doc3 = *Doc("rooms/other/messages/1");
 
   Query query = Query::AtPath({"rooms", "eros", "messages"});
   EXPECT_TRUE(query.Matches(doc1));
@@ -60,9 +60,9 @@ TEST(QueryTest, MatchesShallowAncestorQuery) {
 }
 
 TEST(QueryTest, EmptyFieldsAreAllowedForQueries) {
-  Document doc1 = Doc("rooms/eros/messages/1", 0,
-                      {{"text", FieldValue::FromString("msg1")}});
-  Document doc2 = Doc("rooms/eros/messages/2");
+  Document doc1 = *Doc("rooms/eros/messages/1", 0,
+                       {{"text", FieldValue::FromString("msg1")}});
+  Document doc2 = *Doc("rooms/eros/messages/2");
 
   Query query = Query::AtPath({"rooms", "eros", "messages"})
                     .Filter(Filter("text", "==", "msg1"));
@@ -77,14 +77,14 @@ TEST(QueryTest, PrimitiveValueFilter) {
                      .Filter(Filter("sort", "<=", 2));
 
   Document doc1 =
-      Doc("collection/1", 0, {{"sort", FieldValue::FromInteger(1)}});
+      *Doc("collection/1", 0, {{"sort", FieldValue::FromInteger(1)}});
   Document doc2 =
-      Doc("collection/2", 0, {{"sort", FieldValue::FromInteger(2)}});
+      *Doc("collection/2", 0, {{"sort", FieldValue::FromInteger(2)}});
   Document doc3 =
-      Doc("collection/3", 0, {{"sort", FieldValue::FromInteger(3)}});
-  Document doc4 = Doc("collection/4", 0, {{"sort", FieldValue::False()}});
+      *Doc("collection/3", 0, {{"sort", FieldValue::FromInteger(3)}});
+  Document doc4 = *Doc("collection/4", 0, {{"sort", FieldValue::False()}});
   Document doc5 =
-      Doc("collection/5", 0, {{"sort", FieldValue::FromString("string")}});
+      *Doc("collection/5", 0, {{"sort", FieldValue::FromString("string")}});
 
   EXPECT_FALSE(query1.Matches(doc1));
   EXPECT_TRUE(query1.Matches(doc2));
@@ -103,14 +103,14 @@ TEST(QueryTest, NanFilter) {
   Query query = Query::AtPath(ResourcePath::FromString("collection"))
                     .Filter(Filter("sort", "==", NAN));
 
-  Document doc1 = Doc("collection/1", 0, {{"sort", FieldValue::Nan()}});
+  Document doc1 = *Doc("collection/1", 0, {{"sort", FieldValue::Nan()}});
   Document doc2 =
-      Doc("collection/2", 0, {{"sort", FieldValue::FromInteger(2)}});
+      *Doc("collection/2", 0, {{"sort", FieldValue::FromInteger(2)}});
   Document doc3 =
-      Doc("collection/3", 0, {{"sort", FieldValue::FromDouble(3.1)}});
-  Document doc4 = Doc("collection/4", 0, {{"sort", FieldValue::False()}});
+      *Doc("collection/3", 0, {{"sort", FieldValue::FromDouble(3.1)}});
+  Document doc4 = *Doc("collection/4", 0, {{"sort", FieldValue::False()}});
   Document doc5 =
-      Doc("collection/5", 0, {{"sort", FieldValue::FromString("string")}});
+      *Doc("collection/5", 0, {{"sort", FieldValue::FromString("string")}});
 
   EXPECT_TRUE(query.Matches(doc1));
   EXPECT_FALSE(query.Matches(doc2));

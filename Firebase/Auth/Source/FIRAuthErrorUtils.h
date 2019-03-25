@@ -522,6 +522,13 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (NSError *)nullUserErrorWithMessage:(nullable NSString *)message;
 
+/** @fn invalidProviderIDErrorWithMessage:
+    @brief Constructs an @c NSError with the @c FIRAuthErrorCodeInvalidProviderID code.
+    @param message Error message from the backend, if any.
+    @remarks This error indicates that the provider id given for the web operation is invalid.
+ */
++ (NSError *)invalidProviderIDErrorWithMessage:(nullable NSString *)message;
+
 /** @fn invalidDynamicLinkDomainErrorWithMessage:
     @brief Constructs an @c NSError with the code and message provided.
     @param message Error message from the backend, if any.

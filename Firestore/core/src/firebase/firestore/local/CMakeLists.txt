@@ -54,8 +54,8 @@ endif()
 cc_library(
   firebase_firestore_local
   SOURCES
-    document_reference.h
-    document_reference.cc
+    document_key_reference.h
+    document_key_reference.cc
     index_manager.h
     listen_sequence.h
     local_documents_view.h

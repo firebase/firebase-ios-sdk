@@ -60,7 +60,7 @@ NSData *FIRInstanceIDKeyDataWithTag(NSString *tag) {
 // Query the key given a tag
 SecKeyRef FIRInstanceIDCachedKeyRefWithTag(NSString *tag) {
   _FIRInstanceIDDevAssert([tag length], @"Invalid tag for keychain specified");
-  if (![tag length]) {
+  if (!tag.length) {
     return NULL;
   }
   NSDictionary *queryKey = FIRInstanceIDKeyPairQuery(tag, YES, NO);
@@ -279,7 +279,9 @@ NSString *FIRInstanceIDCreationTimeKeyWithSubtype(NSString *subtype) {
     // There is no need to reset keypair again here as FIRInstanceID init call is always
     // going to be ahead of this call, which already trigger keypair reset if it's new install
     FIRInstanceIDErrorCode code = kFIRInstanceIDErrorCodeInvalidKeyPairCreationTime;
-    *error = [NSError errorWithFIRInstanceIDErrorCode:code];
+    if (error) {
+      *error = [NSError errorWithFIRInstanceIDErrorCode:code];
+    }
     return nil;
   }
 }
