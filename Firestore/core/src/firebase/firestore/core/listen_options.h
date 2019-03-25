@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,10 @@ class ListenOptions {
         wait_for_sync_when_online_(wait_for_sync_when_online) {
   }
 
-  /** Converts the public API options object to the internal options object. */
+  /**
+   * Creates a default ListenOptions, with metadata changes and
+   * wait_for_sync_when_online disabled.
+   */
   static ListenOptions DefaultOptions() {
     return ListenOptions(
         /*include_query_metadata_changes=*/false,
@@ -51,7 +54,10 @@ class ListenOptions {
         /*wait_for_sync_when_online=*/false);
   }
 
-  /** Converts the public API options object to the internal options object. */
+  /**
+   * Creates a ListenOptions which optionally includes both query and document
+   * metadata changes.
+   */
   static ListenOptions FromIncludeMetadataChanges(
       bool include_metadata_changes) {
     return ListenOptions(
