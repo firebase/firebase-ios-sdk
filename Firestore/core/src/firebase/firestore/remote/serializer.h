@@ -53,7 +53,7 @@ class LocalSerializer;
 namespace remote {
 
 template <typename T>
-T* MakeArray(size_t count) {
+T* MakeArray(pb_size_t count) {
   return reinterpret_cast<T*>(calloc(count, sizeof(T)));
 }
 

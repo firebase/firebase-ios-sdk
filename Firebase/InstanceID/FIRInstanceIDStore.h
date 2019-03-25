@@ -96,8 +96,8 @@ NS_ASSUME_NONNULL_BEGIN
  *  @return The cached token info if any for the given authorizedEntity and scope else
  *          returns nil.
  */
-- (FIRInstanceIDTokenInfo *)tokenInfoWithAuthorizedEntity:(NSString *)authorizedEntity
-                                                    scope:(NSString *)scope;
+- (nullable FIRInstanceIDTokenInfo *)tokenInfoWithAuthorizedEntity:(NSString *)authorizedEntity
+                                                             scope:(NSString *)scope;
 /**
  *  Return all cached token infos from the Keychain.
  *

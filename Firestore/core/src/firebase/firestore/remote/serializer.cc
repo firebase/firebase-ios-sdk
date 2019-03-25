@@ -35,6 +35,7 @@
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 #include "Firestore/core/src/firebase/firestore/timestamp_internal.h"
@@ -67,13 +68,14 @@ using firebase::firestore::model::Precondition;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::SetMutation;
 using firebase::firestore::model::SnapshotVersion;
+using firebase::firestore::nanopb::CheckedSize;
 using firebase::firestore::nanopb::Reader;
 using firebase::firestore::nanopb::Writer;
 using firebase::firestore::util::Status;
 using firebase::firestore::util::StringFormat;
 
 pb_bytes_array_t* Serializer::EncodeString(const std::string& str) {
-  auto size = static_cast<pb_size_t>(str.size());
+  pb_size_t size = CheckedSize(str.size());
   auto result =
       static_cast<pb_bytes_array_t*>(malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(size)));
   result->size = size;
@@ -83,11 +85,12 @@ pb_bytes_array_t* Serializer::EncodeString(const std::string& str) {
 
 std::string Serializer::DecodeString(const pb_bytes_array_t* str) {
   if (str == nullptr) return "";
-  return std::string{reinterpret_cast<const char*>(str->bytes), str->size};
+  size_t size = static_cast<size_t>(str->size);
+  return std::string{reinterpret_cast<const char*>(str->bytes), size};
 }
 
 pb_bytes_array_t* Serializer::EncodeBytes(const std::vector<uint8_t>& bytes) {
-  auto size = static_cast<pb_size_t>(bytes.size());
+  pb_size_t size = CheckedSize(bytes.size());
   auto result =
       static_cast<pb_bytes_array_t*>(malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(size)));
   result->size = size;
@@ -150,9 +153,9 @@ FieldValue::Map DecodeFields(
 google_firestore_v1_MapValue EncodeMapValue(const ObjectValue& object_value) {
   google_firestore_v1_MapValue result{};
 
-  size_t count = object_value.GetInternalValue().size();
+  pb_size_t count = CheckedSize(object_value.GetInternalValue().size());
 
-  result.fields_count = static_cast<pb_size_t>(count);
+  result.fields_count = count;
   result.fields = MakeArray<google_firestore_v1_MapValue_FieldsEntry>(count);
 
   int i = 0;
@@ -450,8 +453,8 @@ google_firestore_v1_Document Serializer::EncodeDocument(
   result.name = EncodeString(EncodeKey(key));
 
   // Encode Document.fields (unless it's empty)
-  size_t count = object_value.GetInternalValue().size();
-  result.fields_count = static_cast<pb_size_t>(count);
+  pb_size_t count = CheckedSize(object_value.GetInternalValue().size());
+  result.fields_count = count;
   result.fields = MakeArray<google_firestore_v1_Document_FieldsEntry>(count);
   int i = 0;
   for (const auto& kv : object_value.GetInternalValue()) {
@@ -701,10 +704,8 @@ google_firestore_v1_DocumentMask Serializer::EncodeDocumentMask(
     const FieldMask& mask) {
   google_firestore_v1_DocumentMask result{};
 
-  size_t count = mask.size();
-  HARD_ASSERT(count <= PB_SIZE_MAX,
-              "Unable to encode specified document mask. Too many fields.");
-  result.field_paths_count = static_cast<pb_size_t>(count);
+  pb_size_t count = CheckedSize(mask.size());
+  result.field_paths_count = count;
   result.field_paths = MakeArray<pb_bytes_array_t*>(count);
 
   int i = 0;
@@ -748,8 +749,8 @@ google_firestore_v1_Target_QueryTarget Serializer::EncodeQueryTarget(
       google_firestore_v1_Target_QueryTarget_structured_query_tag;
 
   if (!collection_id.empty()) {
-    size_t count = 1;
-    result.structured_query.from_count = static_cast<pb_size_t>(count);
+    pb_size_t count = 1;
+    result.structured_query.from_count = count;
     result.structured_query.from =
         MakeArray<google_firestore_v1_StructuredQuery_CollectionSelector>(
             count);
@@ -894,9 +895,7 @@ google_firestore_v1_ArrayValue Serializer::EncodeArray(
     const std::vector<FieldValue>& array_value) {
   google_firestore_v1_ArrayValue result{};
 
-  size_t count = array_value.size();
-  HARD_ASSERT(count <= PB_SIZE_MAX,
-              "Unable to encode specified array. Too many entries.");
+  pb_size_t count = CheckedSize(array_value.size());
   result.values_count = count;
   result.values = MakeArray<google_firestore_v1_Value>(count);
 

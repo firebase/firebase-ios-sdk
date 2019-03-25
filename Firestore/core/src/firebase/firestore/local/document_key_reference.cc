@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
+#include "Firestore/core/src/firebase/firestore/local/document_key_reference.h"
+
 #include <string>
 #include <utility>
 
-#include "Firestore/core/src/firebase/firestore/local/document_reference.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
@@ -29,22 +30,23 @@ namespace local {
 using model::DocumentKey;
 using util::ComparisonResult;
 
-bool operator==(const DocumentReference& lhs, const DocumentReference& rhs) {
+bool operator==(const DocumentKeyReference& lhs,
+                const DocumentKeyReference& rhs) {
   return lhs.key_ == rhs.key_ && lhs.ref_id_ == rhs.ref_id_;
 }
 
-size_t DocumentReference::Hash() const {
+size_t DocumentKeyReference::Hash() const {
   return util::Hash(key_.ToString(), ref_id_);
 }
 
-std::string DocumentReference::ToString() const {
-  return util::StringFormat("<DocumentReference: key=%s, id=%s>",
+std::string DocumentKeyReference::ToString() const {
+  return util::StringFormat("<DocumentKeyReference: key=%s, id=%s>",
                             key_.ToString(), ref_id_);
 }
 
 /** Sorts document references by key then ID. */
-bool DocumentReference::ByKey::operator()(const DocumentReference& lhs,
-                                          const DocumentReference& rhs) const {
+bool DocumentKeyReference::ByKey::operator()(
+    const DocumentKeyReference& lhs, const DocumentKeyReference& rhs) const {
   util::Comparator<model::DocumentKey> key_less;
   if (key_less(lhs.key_, rhs.key_)) return true;
   if (key_less(rhs.key_, lhs.key_)) return false;
@@ -54,8 +56,8 @@ bool DocumentReference::ByKey::operator()(const DocumentReference& lhs,
 }
 
 /** Sorts document references by ID then key. */
-bool DocumentReference::ById::operator()(const DocumentReference& lhs,
-                                         const DocumentReference& rhs) const {
+bool DocumentKeyReference::ById::operator()(
+    const DocumentKeyReference& lhs, const DocumentKeyReference& rhs) const {
   util::Comparator<int32_t> id_less;
   if (id_less(lhs.ref_id_, rhs.ref_id_)) return true;
   if (id_less(rhs.ref_id_, lhs.ref_id_)) return false;

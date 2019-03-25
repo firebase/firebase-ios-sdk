@@ -294,9 +294,15 @@ static NSString *const kMissingAndroidPackageNameErrorMessage = @"MISSING_ANDROI
  */
 static NSString *const kUnauthorizedDomainErrorMessage = @"UNAUTHORIZED_DOMAIN";
 
+/** @var kInvalidProviderIDErrorMessage
+    @brief This is the error message the server will respond with if the provider id given for the
+        web operation is invalid.
+ */
+static NSString *const kInvalidProviderIDErrorMessage = @"INVALID_PROVIDER_ID";
+
 /** @var kInvalidDynamicLinkDomainErrorMessage
- @brief This is the error message the server will respond with if the dynamic link domain provided
- in the request is invalid.
+    @brief This is the error message the server will respond with if the dynamic link domain
+        provided in the request is invalid.
  */
 static NSString *const kInvalidDynamicLinkDomainErrorMessage = @"INVALID_DYNAMIC_LINK_DOMAIN";
 
@@ -1117,6 +1123,10 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 
   if ([shortErrorMessage isEqualToString:kInvalidContinueURIErrorMessage]) {
     return [FIRAuthErrorUtils invalidContinueURIErrorWithMessage:serverDetailErrorMessage];
+  }
+
+  if ([shortErrorMessage isEqualToString:kInvalidProviderIDErrorMessage]) {
+    return [FIRAuthErrorUtils invalidProviderIDErrorWithMessage:serverDetailErrorMessage];
   }
 
   if ([shortErrorMessage isEqualToString:kInvalidDynamicLinkDomainErrorMessage]) {

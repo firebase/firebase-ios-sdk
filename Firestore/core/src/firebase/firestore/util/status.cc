@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 
+#include <ostream>
+
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
 #include "absl/memory/memory.h"
 

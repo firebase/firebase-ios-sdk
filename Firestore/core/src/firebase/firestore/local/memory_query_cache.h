@@ -95,7 +95,9 @@ class MemoryQueryCache : public QueryCache {
   void SetLastRemoteSnapshotVersion(model::SnapshotVersion version) override;
 
  private:
-  FSTMemoryPersistence* persistence_;
+  // This instance is owned by FSTMemoryPersistence; avoid a retain cycle.
+  __weak FSTMemoryPersistence* persistence_;
+
   /** The highest sequence number encountered */
   model::ListenSequenceNumber highest_listen_sequence_number_;
   /** The highest numbered target ID encountered. */
