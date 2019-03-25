@@ -37,6 +37,30 @@ namespace firebase {
 namespace firestore {
 namespace api {
 
+/**
+ * An internal handle that encapsulates a user's ability to request that we
+ * stop listening to a query. When a user calls Remove(), ListenerRegistration
+ * will synchronously mute the listener and then send a request to the
+ * FirestoreClient to actually unlisten.
+ *
+ * ListenerRegistration will not automaticlaly stop listening if it is
+ * destroyed. We allow users to fire and forget listens if they never want to
+ * stop them.
+ *
+ * Getting shutdown code right is tricky so ListenerRegistration is very
+ * forgiving. It will tolerate:
+ *
+ *   * Multiple calls to Remove(),
+ *   * calls to Remove() after we send an error,
+ *   * calls to Remove() even after deleting the App in which the listener was
+ *     started.
+ *
+ * ListenerRegistration is default constructible to facilitate the pattern in
+ * DocumentReference::GetDocument, where the closure that implements a listener
+ * needs to be able to use the ListenerRegistration thats returned from
+ * starting the listener. The default ListenerRegistration acts as a shared
+ * placeholder that's filled in later once the listener is started.
+ */
 class ListenerRegistration {
  public:
   ListenerRegistration() = default;
@@ -49,18 +73,6 @@ class ListenerRegistration {
         internal_listener_(std::move(internal_listener)) {
   }
 
-  // Move-only to prevent copies from proliferating.
-  ListenerRegistration(const ListenerRegistration&) = delete;
-  ListenerRegistration(ListenerRegistration&&) noexcept = default;
-
-  ListenerRegistration& operator=(const ListenerRegistration&) = delete;
-  ListenerRegistration& operator=(ListenerRegistration&& other) noexcept {
-    client_ = std::move(other.client_);
-    async_listener_ = std::move(other.async_listener_);
-    internal_listener_ = std::move(other.internal_listener_);
-    return *this;
-  };
-
   /**
    * Removes the listener being tracked by this FIRListenerRegistration. After
    * the initial call, subsequent calls have no effect.
@@ -69,10 +81,10 @@ class ListenerRegistration {
 
  private:
   /** The client that was used to register this listen. */
-  FSTFirestoreClient* client_;
+  FSTFirestoreClient* client_ = nil;
 
   /** The async listener that is used to mute events synchronously. */
-  FSTAsyncQueryListener* async_listener_;
+  FSTAsyncQueryListener* async_listener_ = nil;
 
   /** The internal QueryListener that can be used to unlisten the query. */
   std::weak_ptr<core::QueryListener> internal_listener_;

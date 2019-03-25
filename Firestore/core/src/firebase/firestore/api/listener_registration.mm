@@ -32,6 +32,7 @@ void ListenerRegistration::Remove() {
     [client_ removeListener:listener];
     listener.reset();
     internal_listener_.reset();
+    client_ = nil;
   }
 }
 

@@ -127,6 +127,10 @@ void DocumentReference::GetDocument(
       /*include_document_metadata_changes=*/true,
       /*wait_for_sync_when_online=*/true);
 
+  // Create an empty ListenerRegistration captured in the closure below and
+  // then, once the listen has started, assign to it and signal the listener
+  // that we succeeded.
+  //
   // TODO(varconst): replace with a synchronization primitive that doesn't
   // require libdispatch. See
   // https://github.com/firebase/firebase-ios-sdk/blob/3ccbdcdc65c93c4621c045c3c6d15de9dcefa23f/Firestore/Source/Core/FSTFirestoreClient.mm#L161
