@@ -101,7 +101,7 @@ struct FrameworkBuilder {
 //    }
 //
 //    // TODO: Figure out if we need the MD5 at all.
-      let md5 = podName
+    let md5 = podName
 //    let md5 = Shell.calculateMD5(for: podInfo.installedLocation)
 
     // Get (or create) the cache directory for storing built frameworks.
