@@ -5659,9 +5659,14 @@ def CheckForIncludeWhatYouUse(filename, clean_lines, include_state, error,
     if not found:
       preferred_header = headers[0]
       reported.add(preferred_header)
+      if len(headers) < 2:
+        alternatives = ''
+      else:
+        alternatives = ' (or ' + ', '.join(headers[1:]) + ')'
       error(filename, line_and_headers[0],
             'build/include_what_you_use', 4,
-            'Add #include ' + preferred_header + ' for ' + template)
+            'Add #include ' + preferred_header + ' for ' + template +
+            alternatives)
 
 
 _RE_PATTERN_EXPLICIT_MAKEPAIR = re.compile(r'\bmake_pair\s*<')
