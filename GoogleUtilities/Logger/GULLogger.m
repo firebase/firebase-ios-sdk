@@ -238,8 +238,6 @@ dispatch_queue_t getGULLoggerCounterQueue(void) {
   dispatch_once(&onceToken, ^{
     queue =
         dispatch_queue_create("GoogleUtilities.GULLogger.counterQueue", DISPATCH_QUEUE_CONCURRENT);
-    dispatch_set_target_queue(queue,
-                              dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0));
   });
 
   return queue;
