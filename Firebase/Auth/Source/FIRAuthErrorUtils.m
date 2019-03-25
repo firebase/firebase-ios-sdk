@@ -1146,8 +1146,8 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
   return [self errorWithCode:FIRAuthInternalErrorCodeNullUser message:message];
 }
 
-+ (NSError *)invalidProviderIDError {
-  return [self errorWithCode:FIRAuthInternalErrorCodeInvalidProviderID];
++ (NSError *)invalidProviderIDErrorWithMessage:(nullable NSString *)message {
+  return [self errorWithCode:FIRAuthInternalErrorCodeInvalidProviderID message:message];
 }
 
 + (NSError *)invalidDynamicLinkDomainErrorWithMessage:(nullable NSString *)message {

@@ -1126,7 +1126,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   }
 
   if ([shortErrorMessage isEqualToString:kInvalidProviderIDErrorMessage]) {
-    return [FIRAuthErrorUtils invalidProviderIDError];
+    return [FIRAuthErrorUtils invalidProviderIDErrorWithMessage:serverDetailErrorMessage];
   }
 
   if ([shortErrorMessage isEqualToString:kInvalidDynamicLinkDomainErrorMessage]) {
