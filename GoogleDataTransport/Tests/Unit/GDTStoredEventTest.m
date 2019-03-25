@@ -62,7 +62,7 @@
   event1.qosTier = GDTEventQosDefault;
   event1.customPrioritizationParams = @{@"customParam1" : @"aValue1"};
   GDTStoredEvent *storedEvent1 =
-  [event1 storedEventWithFileURL:[NSURL fileURLWithPath:@"/tmp/fake.txt"]];
+      [event1 storedEventWithFileURL:[NSURL fileURLWithPath:@"/tmp/fake.txt"]];
 
   GDTEvent *event2 = [[GDTEvent alloc] initWithMappingID:@"1018" target:1];
   event2.clockSnapshot = [GDTClock snapshot];
@@ -73,7 +73,7 @@
   event2.qosTier = GDTEventQosDefault;
   event2.customPrioritizationParams = @{@"customParam1" : @"aValue1"};
   GDTStoredEvent *storedEvent2 =
-  [event2 storedEventWithFileURL:[NSURL fileURLWithPath:@"/tmp/fake.txt"]];
+      [event2 storedEventWithFileURL:[NSURL fileURLWithPath:@"/tmp/fake.txt"]];
 
   XCTAssertEqual([storedEvent1 hash], [storedEvent2 hash]);
   XCTAssertEqualObjects(storedEvent1, storedEvent2);

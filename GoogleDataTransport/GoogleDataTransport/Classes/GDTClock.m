@@ -112,7 +112,8 @@ static int64_t UptimeInNanoseconds() {
 }
 
 - (NSUInteger)hash {
-  return [@(_kernelBootTime) hash] ^ [@(_uptime) hash] ^ [@(_timeMillis) hash] ^ [@(_timezoneOffsetSeconds) hash];
+  return [@(_kernelBootTime) hash] ^ [@(_uptime) hash] ^ [@(_timeMillis) hash] ^
+         [@(_timezoneOffsetSeconds) hash];
 }
 
 - (BOOL)isEqual:(id)object {
