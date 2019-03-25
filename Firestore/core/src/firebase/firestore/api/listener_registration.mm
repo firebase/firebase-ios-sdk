@@ -35,6 +35,7 @@ void ListenerRegistration::Remove() {
     [client_ removeListener:query_listener];
     query_listener_.reset();
     query_listener.reset();
+    client_ = nil;
   }
 }
 

@@ -37,6 +37,30 @@ namespace firebase {
 namespace firestore {
 namespace api {
 
+/**
+ * An internal handle that encapsulates a user's ability to request that we
+ * stop listening to a query. When a user calls Remove(), ListenerRegistration
+ * will synchronously mute the listener and then send a request to the
+ * FirestoreClient to actually unlisten.
+ *
+ * ListenerRegistration will not automaticlaly stop listening if it is
+ * destroyed. We allow users to fire and forget listens if they never want to
+ * stop them.
+ *
+ * Getting shutdown code right is tricky so ListenerRegistration is very
+ * forgiving. It will tolerate:
+ *
+ *   * Multiple calls to Remove(),
+ *   * calls to Remove() after we send an error,
+ *   * calls to Remove() even after deleting the App in which the listener was
+ *     started.
+ *
+ * ListenerRegistration is default constructible to facilitate the pattern in
+ * DocumentReference::GetDocument, where the closure that implements a listener
+ * needs to be able to use the ListenerRegistration thats returned from
+ * starting the listener. The default ListenerRegistration acts as a shared
+ * placeholder that's filled in later once the listener is started.
+ */
 class ListenerRegistration {
  public:
   ListenerRegistration() = default;
@@ -47,17 +71,9 @@ class ListenerRegistration {
           async_listener,
       std::shared_ptr<core::QueryListener> query_listener)
       : client_(client),
-        async_listener_(async_listener),
+        async_listener_(std::move(async_listener)),
         query_listener_(std::move(query_listener)) {
   }
-
-  // Move-only to prevent copies from proliferating.
-  ListenerRegistration(const ListenerRegistration&) = delete;
-  ListenerRegistration(ListenerRegistration&&) noexcept = default;
-
-  ListenerRegistration& operator=(const ListenerRegistration&) = delete;
-  ListenerRegistration& operator=(ListenerRegistration&& other) noexcept =
-      default;
 
   /**
    * Removes the listener being tracked by this FIRListenerRegistration. After
@@ -67,7 +83,7 @@ class ListenerRegistration {
 
  private:
   /** The client that was used to register this listen. */
-  FSTFirestoreClient* client_;
+  FSTFirestoreClient* client_ = nil;
 
   /** The async listener that is used to mute events synchronously. */
   std::weak_ptr<core::AsyncEventListener<core::ViewSnapshot>> async_listener_;
