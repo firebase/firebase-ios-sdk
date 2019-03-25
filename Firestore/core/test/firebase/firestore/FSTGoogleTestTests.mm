@@ -225,8 +225,9 @@ void ReportTestResult(XCTestCase *self, SEL _cmd) {
  * Each TestInfo (which represents an indivudal test method execution) is
  * translated into a method on the test case.
  *
- * @param The testing::TestCase of interest to translate.
- * @param A map of TestInfoKeys to testing::TestInfos, populated by this method.
+ * @param testCase The testing::TestCase of interest to translate.
+ * @param infoMap A map of TestInfoKeys to testing::TestInfos, populated by this
+ *     method.
  *
  * @return A new Class that's a subclass of XCTestCase, that's been registered
  * with the Objective-C runtime.
