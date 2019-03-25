@@ -334,6 +334,11 @@ typedef NS_ENUM(NSInteger, FIRAuthErrorCode) {
      */
     FIRAuthErrorCodeNullUser = 17067,
 
+    /**
+     * Represents the error code for when the given provider id for a web operation is invalid.
+     */
+    FIRAuthErrorCodeInvalidProviderID = 17071,
+
     /** Indicates that the Firebase Dynamic Link domain used is either not configured or is unauthorized
         for the current project.
      */
