@@ -29,6 +29,7 @@
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/unknown_document.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
 
@@ -44,6 +45,7 @@ using model::MutationBatch;
 using model::NoDocument;
 using model::SnapshotVersion;
 using model::UnknownDocument;
+using nanopb::CheckedSize;
 using nanopb::Reader;
 using nanopb::Writer;
 using remote::MakeArray;
@@ -123,10 +125,8 @@ google_firestore_v1_Document LocalSerializer::EncodeDocument(
       rpc_serializer_.EncodeString(rpc_serializer_.EncodeKey(doc.key()));
 
   // Encode Document.fields (unless it's empty)
-  size_t count = doc.data().GetInternalValue().size();
-  HARD_ASSERT(count <= std::numeric_limits<pb_size_t>::max(),
-              "Unable to encode specified document. Too many fields.");
-  result.fields_count = static_cast<pb_size_t>(count);
+  pb_size_t count = CheckedSize(doc.data().GetInternalValue().size());
+  result.fields_count = count;
   result.fields = MakeArray<google_firestore_v1_Document_FieldsEntry>(count);
   int i = 0;
   for (const auto& kv : doc.data().GetInternalValue()) {
@@ -257,10 +257,8 @@ firestore_client_WriteBatch LocalSerializer::EncodeMutationBatch(
   firestore_client_WriteBatch result{};
 
   result.batch_id = mutation_batch.batch_id();
-  size_t count = mutation_batch.mutations().size();
-  HARD_ASSERT(count <= std::numeric_limits<pb_size_t>::max(),
-              "Unable to encode specified mutation batch. Too many mutations.");
-  result.writes_count = static_cast<pb_size_t>(count);
+  pb_size_t count = CheckedSize(mutation_batch.mutations().size());
+  result.writes_count = count;
   result.writes = MakeArray<google_firestore_v1_Write>(count);
   int i = 0;
   for (const std::unique_ptr<Mutation>& mutation : mutation_batch.mutations()) {
