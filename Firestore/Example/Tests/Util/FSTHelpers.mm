@@ -32,7 +32,6 @@
 #import "Firestore/Source/Local/FSTLocalViewChanges.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentSet.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 
@@ -40,6 +39,7 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
+#include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_transform.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
@@ -59,6 +59,7 @@ using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::DocumentSet;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::FieldTransform;
@@ -236,10 +237,10 @@ NSComparator FSTTestDocComparator(const absl::string_view fieldPath) {
   return [query comparator];
 }
 
-FSTDocumentSet *FSTTestDocSet(NSComparator comp, NSArray<FSTDocument *> *docs) {
-  FSTDocumentSet *docSet = [FSTDocumentSet documentSetWithComparator:comp];
+DocumentSet FSTTestDocSet(NSComparator comp, NSArray<FSTDocument *> *docs) {
+  DocumentSet docSet{comp};
   for (FSTDocument *doc in docs) {
-    docSet = [docSet documentSetByAddingDocument:doc];
+    docSet = docSet.insert(doc);
   }
   return docSet;
 }

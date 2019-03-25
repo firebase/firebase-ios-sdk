@@ -30,13 +30,13 @@
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_map.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
+#include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class FSTDocument;
 @class FSTQuery;
-@class FSTDocumentSet;
 
 namespace firebase {
 namespace firestore {
@@ -111,11 +111,9 @@ using ViewSnapshotHandler =
  */
 class ViewSnapshot {
  public:
-  ViewSnapshot() = default;
-
   ViewSnapshot(FSTQuery* query,
-               FSTDocumentSet* documents,
-               FSTDocumentSet* old_documents,
+               model::DocumentSet documents,
+               model::DocumentSet old_documents,
                std::vector<DocumentViewChange> document_changes,
                model::DocumentKeySet mutated_keys,
                bool from_cache,
@@ -127,7 +125,7 @@ class ViewSnapshot {
    * added.
    */
   static ViewSnapshot FromInitialDocuments(FSTQuery* query,
-                                           FSTDocumentSet* documents,
+                                           model::DocumentSet documents,
                                            model::DocumentKeySet mutated_keys,
                                            bool from_cache,
                                            bool excludes_metadata_changes);
@@ -138,12 +136,12 @@ class ViewSnapshot {
   }
 
   /** The documents currently known to be results of the query. */
-  FSTDocumentSet* documents() const {
+  const model::DocumentSet& documents() const {
     return documents_;
   }
 
   /** The documents of the last snapshot. */
-  FSTDocumentSet* old_documents() const {
+  const model::DocumentSet& old_documents() const {
     return old_documents_;
   }
 
@@ -184,8 +182,8 @@ class ViewSnapshot {
  private:
   FSTQuery* query_ = nil;
 
-  FSTDocumentSet* documents_ = nil;
-  FSTDocumentSet* old_documents_ = nil;
+  model::DocumentSet documents_;
+  model::DocumentSet old_documents_;
   std::vector<DocumentViewChange> document_changes_;
   model::DocumentKeySet mutated_keys_;
 

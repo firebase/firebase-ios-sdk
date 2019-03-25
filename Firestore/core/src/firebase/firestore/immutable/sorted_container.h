@@ -14,25 +14,25 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_IMMUTABLE_SORTED_MAP_BASE_H_
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_IMMUTABLE_SORTED_MAP_BASE_H_
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_IMMUTABLE_SORTED_CONTAINER_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_IMMUTABLE_SORTED_CONTAINER_H_
 
 #include <cstdint>
 
 namespace firebase {
 namespace firestore {
 namespace immutable {
-namespace impl {
 
 /**
- * A base class for implementing sorted maps, containing types and constants
- * that don't depend upon the template parameters to the main class.
+ * A base class for implementing immutable sorted containers, containing types
+ * and constants that don't depend upon the template parameters to the main
+ * class.
  *
  * Note that this exists as a base class rather than as just a namespace in
  * order to make it possible for users of the SortedMap classes to avoid needing
  * to declare storage for each instantiation of the template.
  */
-class SortedMapBase {
+class SortedContainer {
  public:
   /**
    * The type of size() methods on immutable collections. Note:
@@ -43,6 +43,23 @@ class SortedMapBase {
   using size_type = uint32_t;
 
   /**
+   * A sentinel return value that indicates not found. Functionally similar to
+   * std::string::npos.
+   */
+  static constexpr size_type npos = static_cast<size_type>(-1);
+};
+
+/**
+ * A base class for implementing sorted maps, containing types and constants
+ * that don't depend upon the template parameters to the main class.
+ *
+ * Note that this exists as a base class rather than as just a namespace in
+ * order to make it possible for users of the SortedMap classes to avoid needing
+ * to declare storage for each instantiation of the template.
+ */
+class SortedMapBase : public SortedContainer {
+ public:
+  /**
    * The maximum size of an ArraySortedMap.
    *
    * This is the size threshold where we use a tree backed sorted map instead of
@@ -52,19 +69,11 @@ class SortedMapBase {
    * inserting and lookups. Feel free to empirically determine this constant,
    * but don't expect much gain in real world performance.
    */
-  // TODO(wilhuff): actually use this for switching implementations.
   static constexpr size_type kFixedSize = 25;
-
-  /**
-   * A sentinel return value that indicates not found. Functionally similar to
-   * std::string::npos.
-   */
-  static constexpr size_type npos = static_cast<size_type>(-1);
 };
 
-}  // namespace impl
 }  // namespace immutable
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_IMMUTABLE_SORTED_MAP_BASE_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_IMMUTABLE_SORTED_CONTAINER_H_

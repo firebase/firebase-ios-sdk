@@ -32,9 +32,9 @@
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentSet.h"
 
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
+#include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
@@ -43,6 +43,7 @@ namespace util = firebase::firestore::util;
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::DocumentSet;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -98,26 +99,24 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
     bool hasPendingWrites,
     bool fromCache) {
   SnapshotMetadata metadata(hasPendingWrites, fromCache);
-  FSTDocumentSet *oldDocuments = FSTTestDocSet(FSTDocumentComparatorByKey, @[]);
+  DocumentSet oldDocuments = FSTTestDocSet(FSTDocumentComparatorByKey, @[]);
   DocumentKeySet mutatedKeys;
   for (NSString *key in oldDocs) {
-    oldDocuments = [oldDocuments
-        documentSetByAddingDocument:FSTTestDoc(util::StringFormat("%s/%s", path, key), 1,
-                                               oldDocs[key],
-                                               hasPendingWrites ? FSTDocumentStateLocalMutations
-                                                                : FSTDocumentStateSynced)];
+    oldDocuments = oldDocuments.insert(
+        FSTTestDoc(util::StringFormat("%s/%s", path, key), 1, oldDocs[key],
+                   hasPendingWrites ? FSTDocumentStateLocalMutations : FSTDocumentStateSynced));
     if (hasPendingWrites) {
       const std::string documentKey = util::StringFormat("%s/%s", path, key);
       mutatedKeys = mutatedKeys.insert(testutil::Key(documentKey));
     }
   }
-  FSTDocumentSet *newDocuments = oldDocuments;
+  DocumentSet newDocuments = oldDocuments;
   std::vector<DocumentViewChange> documentChanges;
   for (NSString *key in docsToAdd) {
     FSTDocument *docToAdd =
         FSTTestDoc(util::StringFormat("%s/%s", path, key), 1, docsToAdd[key],
                    hasPendingWrites ? FSTDocumentStateLocalMutations : FSTDocumentStateSynced);
-    newDocuments = [newDocuments documentSetByAddingDocument:docToAdd];
+    newDocuments = newDocuments.insert(docToAdd);
     documentChanges.emplace_back(docToAdd, DocumentViewChange::Type::kAdded);
     if (hasPendingWrites) {
       const std::string documentKey = util::StringFormat("%s/%s", path, key);

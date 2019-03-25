@@ -24,13 +24,13 @@
 #import "Firestore/Source/Core/FSTEventManager.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 #import "Firestore/Source/Core/FSTQuery.h"
-#import "Firestore/Source/Model/FSTDocumentSet.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Util/FSTAsyncQueryListener.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
@@ -191,9 +191,9 @@ id<FIRListenerRegistration> DocumentReference::AddSnapshotListener(
         }
 
         const ViewSnapshot& snapshot = maybe_snapshot.ValueOrDie();
-        HARD_ASSERT(snapshot.documents().count <= 1,
+        HARD_ASSERT(snapshot.documents().size() <= 1,
                     "Too many documents returned on a document query");
-        FSTDocument* document = [snapshot.documents() documentForKey:key];
+        FSTDocument* document = snapshot.documents().GetDocument(key);
 
         bool has_pending_writes =
             document

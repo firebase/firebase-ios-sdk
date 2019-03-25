@@ -23,18 +23,19 @@
 
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSyncEngine.h"
-#import "Firestore/Source/Model/FSTDocumentSet.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
+#include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
 
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::core::ViewSnapshotHandler;
 using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::DocumentSet;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::util::StatusOr;
 
@@ -106,7 +107,7 @@ static NSNumber *ToNSNumber(OnlineState state) {
 }
 
 - (ViewSnapshot)makeEmptyViewSnapshotWithQuery:(FSTQuery *)query {
-  FSTDocumentSet *emptyDocs = [FSTDocumentSet documentSetWithComparator:query.comparator];
+  DocumentSet emptyDocs{query.comparator};
   // sync_state_changed has to be `true` to prevent an assertion about a meaningless view snapshot.
   return ViewSnapshot{
       query, emptyDocs, emptyDocs, {}, DocumentKeySet{}, false, /*sync_state_changed=*/true, false};

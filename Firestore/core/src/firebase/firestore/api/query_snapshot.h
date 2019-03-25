@@ -26,11 +26,10 @@
 #include <functional>
 #include <utility>
 
-#import "Firestore/Source/Model/FSTDocumentSet.h"
-
 #include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/api/snapshot_metadata.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
+#include "Firestore/core/src/firebase/firestore/model/document_set.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -45,8 +44,6 @@ namespace api {
  */
 class QuerySnapshot {
  public:
-  QuerySnapshot() = default;
-
   QuerySnapshot(Firestore* firestore,
                 FSTQuery* query,
                 core::ViewSnapshot&& snapshot,
@@ -63,12 +60,12 @@ class QuerySnapshot {
    * Indicates whether this `QuerySnapshot` is empty (contains no documents).
    */
   bool empty() const {
-    return static_cast<bool>(snapshot_.documents().isEmpty);
+    return snapshot_.documents().empty();
   }
 
   /** The count of documents in this `QuerySnapshot`. */
   size_t size() const {
-    return static_cast<size_t>(snapshot_.documents().count);
+    return snapshot_.documents().size();
   }
 
   Firestore* firestore() const {
