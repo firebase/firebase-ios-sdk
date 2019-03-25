@@ -82,8 +82,9 @@ inline std::shared_ptr<model::Document> Doc(
     int64_t version = 0,
     const model::FieldValue::Map& data = model::FieldValue::Map(),
     model::DocumentState document_state = model::DocumentState::kSynced) {
-  return model::Document{model::FieldValue::FromMap(data), Key(key),
-                         Version(version), document_state};
+  return std::make_shared<model::Document>(model::ObjectValue::FromMap(data),
+                                           Key(key), Version(version),
+                                           document_state);
 }
 
 inline std::shared_ptr<model::NoDocument> DeletedDoc(absl::string_view key,
