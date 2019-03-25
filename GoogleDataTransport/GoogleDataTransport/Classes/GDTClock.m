@@ -74,13 +74,7 @@ static int64_t UptimeInNanoseconds() {
 }
 
 // TODO: Consider adding a 'trustedTime' property that can be populated by the response from a BE.
-@implementation GDTClock {
-  /** The kernel boot time when this clock was created. */
-  int64_t _kernelBootTime;
-
-  /** The device uptime when this clock was created. */
-  int64_t _uptime;
-}
+@implementation GDTClock
 
 - (instancetype)init {
   self = [super init];
@@ -118,7 +112,7 @@ static int64_t UptimeInNanoseconds() {
 }
 
 - (NSUInteger)hash {
-  return [@(_kernelBootTime) hash] ^ [@(_uptime) hash] ^ [@(_timeMillis) hash];
+  return [@(_kernelBootTime) hash] ^ [@(_uptime) hash] ^ [@(_timeMillis) hash] ^ [@(_timezoneOffsetSeconds) hash];
 }
 
 - (BOOL)isEqual:(id)object {
