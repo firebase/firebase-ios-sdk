@@ -16,6 +16,8 @@
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 
+#include <ostream>
+
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/strings/str_cat.h"
 

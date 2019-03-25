@@ -24,6 +24,7 @@
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import "FIRInstanceID+Private.h"
 #import "FIRInstanceIDAuthService.h"
+#import "FIRInstanceIDCombinedHandler.h"
 #import "FIRInstanceIDConstants.h"
 #import "FIRInstanceIDDefines.h"
 #import "FIRInstanceIDKeyPairStore.h"
@@ -114,9 +115,9 @@ typedef NS_ENUM(NSInteger, FIRInstanceIDAPNSTokenType) {
 @property(nonatomic, readwrite, strong) FIRInstanceIDKeyPairStore *keyPairStore;
 
 // backoff and retry for default token
-@property(atomic, readwrite, assign) BOOL isFetchingDefaultToken;
-@property(atomic, readwrite, assign) BOOL isDefaultTokenFetchScheduled;
 @property(nonatomic, readwrite, assign) NSInteger retryCountForDefaultToken;
+@property(atomic, strong, nullable)
+    FIRInstanceIDCombinedHandler<NSString *> *defaultTokenFetchHandler;
 
 @end
 
@@ -831,10 +832,30 @@ static FIRInstanceID *gInstanceID;
       kMaxRetryIntervalForDefaultTokenInSeconds);
 }
 
-- (void)defaultTokenWithHandler:(FIRInstanceIDTokenHandler)handler {
-  if (self.isFetchingDefaultToken || self.isDefaultTokenFetchScheduled) {
+- (void)defaultTokenWithHandler:(nullable FIRInstanceIDTokenHandler)aHandler {
+  [self defaultTokenWithRetry:NO handler:aHandler];
+}
+
+/**
+ * @param retry Indicates if the method is called to perform a retry after a failed attempt.
+ * If `YES`, then actual token request will be performed even if `self.defaultTokenFetchHandler !=
+ * nil`
+ */
+- (void)defaultTokenWithRetry:(BOOL)retry handler:(nullable FIRInstanceIDTokenHandler)aHandler {
+  BOOL shouldPerformRequest = retry || self.defaultTokenFetchHandler == nil;
+
+  if (!self.defaultTokenFetchHandler) {
+    self.defaultTokenFetchHandler = [[FIRInstanceIDCombinedHandler<NSString *> alloc] init];
+  }
+
+  if (aHandler) {
+    [self.defaultTokenFetchHandler addHandler:aHandler];
+  }
+
+  if (!shouldPerformRequest) {
     return;
   }
+
   NSDictionary *instanceIDOptions = @{};
   BOOL hasFirebaseMessaging = NSClassFromString(kFIRInstanceIDFCMSDKClassString) != nil;
   if (hasFirebaseMessaging && self.apnsTokenData) {
@@ -851,7 +872,6 @@ static FIRInstanceID *gInstanceID;
   FIRInstanceID_WEAKIFY(self);
   FIRInstanceIDTokenHandler newHandler = ^void(NSString *token, NSError *error) {
     FIRInstanceID_STRONGIFY(self);
-    self.isFetchingDefaultToken = NO;
 
     if (error) {
       FIRInstanceIDLoggerError(kFIRInstanceIDMessageCodeInstanceID009,
@@ -871,21 +891,12 @@ static FIRInstanceID *gInstanceID;
       // Do not retry beyond the maximum limit.
       if (self.retryCountForDefaultToken < [[self class] maxRetryCountForDefaultToken]) {
         NSInteger retryInterval = [self retryIntervalToFetchDefaultToken];
-        FIRInstanceID_WEAKIFY(self);
-        self.isDefaultTokenFetchScheduled = YES;
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(retryInterval * NSEC_PER_SEC)),
-                       dispatch_get_main_queue(), ^{
-                         FIRInstanceID_STRONGIFY(self);
-                         self.isDefaultTokenFetchScheduled = NO;
-                         [self defaultTokenWithHandler:handler];
-                       });
+        [self retryGetDefaultTokenAfter:retryInterval];
       } else {
         FIRInstanceIDLoggerError(kFIRInstanceIDMessageCodeInstanceID007,
                                  @"Failed to retrieve the default FCM token after %ld retries",
                                  (long)self.retryCountForDefaultToken);
-        if (handler) {
-          handler(nil, error);
-        }
+        [self performDefaultTokenHandlerWithToken:nil error:error];
       }
     } else {
       // If somebody updated IID with APNS token while our initial request did not have it
@@ -904,13 +915,7 @@ static FIRInstanceID *gInstanceID;
       if (!APNSRemainedSameDuringFetch && hasFirebaseMessaging) {
         // APNs value did change mid-fetch, so the token should be re-fetched with the current APNs
         // value.
-        self.isDefaultTokenFetchScheduled = YES;
-        FIRInstanceID_WEAKIFY(self);
-        dispatch_async(dispatch_get_main_queue(), ^{
-          FIRInstanceID_STRONGIFY(self);
-          self.isDefaultTokenFetchScheduled = NO;
-          [self defaultTokenWithHandler:handler];
-        });
+        [self retryGetDefaultTokenAfter:0];
         FIRInstanceIDLoggerDebug(kFIRInstanceIDMessageCodeRefetchingTokenForAPNS,
                                  @"Received APNS token while fetching default token. "
                                  @"Refetching default token.");
@@ -934,18 +939,39 @@ static FIRInstanceID *gInstanceID;
                                           object:[self.defaultFCMToken copy]];
         [[NSNotificationQueue defaultQueue] enqueueNotification:tokenRefreshNotification
                                                    postingStyle:NSPostASAP];
-      }
-      if (handler) {
-        handler(token, nil);
+
+        [self performDefaultTokenHandlerWithToken:token error:nil];
       }
     }
   };
 
-  self.isFetchingDefaultToken = YES;
   [self tokenWithAuthorizedEntity:self.fcmSenderID
                             scope:kFIRInstanceIDDefaultTokenScope
                           options:instanceIDOptions
                           handler:newHandler];
+}
+
+/**
+ *
+ */
+- (void)performDefaultTokenHandlerWithToken:(NSString *)token error:(NSError *)error {
+  if (!self.defaultTokenFetchHandler) {
+    return;
+  }
+
+  [self.defaultTokenFetchHandler combinedHandler](token, error);
+  self.defaultTokenFetchHandler = nil;
+}
+
+- (void)retryGetDefaultTokenAfter:(NSTimeInterval)retryInterval {
+  FIRInstanceID_WEAKIFY(self);
+  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(retryInterval * NSEC_PER_SEC)),
+                 dispatch_get_main_queue(), ^{
+                   FIRInstanceID_STRONGIFY(self);
+                   // Pass nil: no new handlers to be added, currently existing handlers
+                   // will be called
+                   [self defaultTokenWithRetry:YES handler:nil];
+                 });
 }
 
 #pragma mark - APNS Token

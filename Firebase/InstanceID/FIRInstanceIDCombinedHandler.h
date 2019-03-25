@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-#import "FIRInstanceIDTokenOperation.h"
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRInstanceIDTokenDeleteOperation : FIRInstanceIDTokenOperation
+/**
+ * A generic class to combine several handler blocks into a single block in a thread-safe manner
+ */
+@interface FIRInstanceIDCombinedHandler<ResultType> : NSObject
 
-- (instancetype)initWithAuthorizedEntity:(nullable NSString *)authorizedEntity
-                                   scope:(nullable NSString *)scope
-                      checkinPreferences:(FIRInstanceIDCheckinPreferences *)checkinPreferences
-                                 keyPair:(nullable FIRInstanceIDKeyPair *)keyPair
-                                  action:(FIRInstanceIDTokenAction)action;
+- (void)addHandler:(void (^)(ResultType _Nullable result, NSError* _Nullable error))handler;
+- (void (^)(ResultType _Nullable result, NSError* _Nullable error))combinedHandler;
 
 @end
 
