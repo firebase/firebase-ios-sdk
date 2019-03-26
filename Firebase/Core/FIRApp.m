@@ -24,6 +24,8 @@
 #import "Private/FIRLogger.h"
 #import "Private/FIROptionsInternal.h"
 
+#import <GoogleUtilities/GULMutableDictionary.h>
+
 NSString *const kFIRServiceAdMob = @"AdMob";
 NSString *const kFIRServiceAuth = @"Auth";
 NSString *const kFIRServiceAuthUI = @"AuthUI";
@@ -96,9 +98,9 @@ static NSMutableArray<Class<FIRLibrary>> *sRegisteredAsConfigurable;
 // This is necessary since our custom getter prevents `_options` from being created.
 @synthesize options = _options;
 
-static NSMutableDictionary *sAllApps;
+static GULMutableDictionary *sAllApps;
 static FIRApp *sDefaultApp;
-static NSMutableDictionary *sLibraryVersions;
+static GULMutableDictionary *sLibraryVersions;
 
 + (void)configure {
   FIROptions *options = [FIROptions defaultOptions];
@@ -214,8 +216,7 @@ static NSMutableDictionary *sLibraryVersions;
     if (!sAllApps) {
       FIRLogError(kFIRLoggerCore, @"I-COR000005", @"No app has been configured yet.");
     }
-    NSDictionary *dict = [NSDictionary dictionaryWithDictionary:sAllApps];
-    return dict;
+    return [sAllApps dictionary];
   }
 }
 
@@ -255,7 +256,7 @@ static NSMutableDictionary *sLibraryVersions;
 
 + (void)addAppToAppDictionary:(FIRApp *)app {
   if (!sAllApps) {
-    sAllApps = [NSMutableDictionary dictionary];
+    sAllApps = [[GULMutableDictionary alloc] init];
   }
   if ([app configureCore]) {
     sAllApps[app.name] = app;
@@ -423,7 +424,7 @@ static NSMutableDictionary *sLibraryVersions;
 
   // This is the new way of sending information to SDKs.
   // TODO: Do we want this on a background thread, maybe?
-  for (Class<FIRLibrary> library in sRegisteredAsConfigurable) {
+  for (Class<FIRLibrary> library in [sRegisteredAsConfigurable copy]) {
     [library configureWithApp:app];
   }
 }
@@ -477,7 +478,7 @@ static NSMutableDictionary *sLibraryVersions;
   if ([name rangeOfCharacterFromSet:disallowedSet].location == NSNotFound &&
       [version rangeOfCharacterFromSet:disallowedSet].location == NSNotFound) {
     if (!sLibraryVersions) {
-      sLibraryVersions = [[NSMutableDictionary alloc] init];
+      sLibraryVersions = [[GULMutableDictionary alloc] init];
     }
     sLibraryVersions[name] = version;
   } else {
@@ -514,9 +515,10 @@ static NSMutableDictionary *sLibraryVersions;
 }
 
 + (NSString *)firebaseUserAgent {
+  NSDictionary *libraryVersions = [sLibraryVersions dictionary];
   NSMutableArray<NSString *> *libraries =
-      [[NSMutableArray<NSString *> alloc] initWithCapacity:sLibraryVersions.count];
-  for (NSString *libraryName in sLibraryVersions) {
+      [[NSMutableArray<NSString *> alloc] initWithCapacity:libraryVersions.count];
+  for (NSString *libraryName in libraryVersions) {
     [libraries
         addObject:[NSString stringWithFormat:@"%@/%@", libraryName, sLibraryVersions[libraryName]]];
   }
