@@ -84,3 +84,6 @@ Ninja
 
 # CocoaPods generate
 gen/
+
+# b/111916494
+default.profraw
