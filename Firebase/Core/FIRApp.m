@@ -24,8 +24,6 @@
 #import "Private/FIRLogger.h"
 #import "Private/FIROptionsInternal.h"
 
-#import <GoogleUtilities/GULMutableDictionary.h>
-
 NSString *const kFIRServiceAdMob = @"AdMob";
 NSString *const kFIRServiceAuth = @"Auth";
 NSString *const kFIRServiceAuthUI = @"AuthUI";
@@ -98,9 +96,9 @@ static NSMutableArray<Class<FIRLibrary>> *sRegisteredAsConfigurable;
 // This is necessary since our custom getter prevents `_options` from being created.
 @synthesize options = _options;
 
-static GULMutableDictionary *sAllApps;
+static NSMutableDictionary *sAllApps;
 static FIRApp *sDefaultApp;
-static GULMutableDictionary *sLibraryVersions;
+static NSMutableDictionary *sLibraryVersions;
 
 + (void)configure {
   FIROptions *options = [FIROptions defaultOptions];
@@ -168,9 +166,11 @@ static GULMutableDictionary *sLibraryVersions;
       }
     }
 
-    if (sAllApps && sAllApps[name]) {
-      [NSException raise:kFirebaseCoreErrorDomain
-                  format:@"App named %@ has already been configured.", name];
+    @synchronized(self) {
+      if (sAllApps && sAllApps[name]) {
+        [NSException raise:kFirebaseCoreErrorDomain
+                    format:@"App named %@ has already been configured.", name];
+      }
     }
 
     FIRLogDebug(kFIRLoggerCore, @"I-COR000002", @"Configuring app named %@", name);
@@ -216,17 +216,19 @@ static GULMutableDictionary *sLibraryVersions;
     if (!sAllApps) {
       FIRLogError(kFIRLoggerCore, @"I-COR000005", @"No app has been configured yet.");
     }
-    return [sAllApps dictionary];
+    return [sAllApps copy];
   }
 }
 
 // Public only for tests
 + (void)resetApps {
-  sDefaultApp = nil;
-  [sAllApps removeAllObjects];
-  sAllApps = nil;
-  [sLibraryVersions removeAllObjects];
-  sLibraryVersions = nil;
+  @synchronized(self) {
+    sDefaultApp = nil;
+    [sAllApps removeAllObjects];
+    sAllApps = nil;
+    [sLibraryVersions removeAllObjects];
+    sLibraryVersions = nil;
+  }
 }
 
 - (void)deleteApp:(FIRAppVoidBoolCallback)completion {
@@ -256,7 +258,7 @@ static GULMutableDictionary *sLibraryVersions;
 
 + (void)addAppToAppDictionary:(FIRApp *)app {
   if (!sAllApps) {
-    sAllApps = [[GULMutableDictionary alloc] init];
+    sAllApps = [NSMutableDictionary dictionary];
   }
   if ([app configureCore]) {
     sAllApps[app.name] = app;
@@ -424,8 +426,10 @@ static GULMutableDictionary *sLibraryVersions;
 
   // This is the new way of sending information to SDKs.
   // TODO: Do we want this on a background thread, maybe?
-  for (Class<FIRLibrary> library in [sRegisteredAsConfigurable copy]) {
-    [library configureWithApp:app];
+  @synchronized(self) {
+    for (Class<FIRLibrary> library in sRegisteredAsConfigurable) {
+      [library configureWithApp:app];
+    }
   }
 }
 
@@ -477,10 +481,12 @@ static GULMutableDictionary *sLibraryVersions;
   // add the name/version pair to the dictionary.
   if ([name rangeOfCharacterFromSet:disallowedSet].location == NSNotFound &&
       [version rangeOfCharacterFromSet:disallowedSet].location == NSNotFound) {
-    if (!sLibraryVersions) {
-      sLibraryVersions = [[GULMutableDictionary alloc] init];
+    @synchronized(self) {
+      if (!sLibraryVersions) {
+        sLibraryVersions = [[NSMutableDictionary alloc] init];
+      }
+      sLibraryVersions[name] = version;
     }
-    sLibraryVersions[name] = version;
   } else {
     FIRLogError(kFIRLoggerCore, @"I-COR000027",
                 @"The library name (%@) or version number (%@) contain invalid characters. "
@@ -509,21 +515,24 @@ static GULMutableDictionary *sLibraryVersions;
     dispatch_once(&onceToken, ^{
       sRegisteredAsConfigurable = [[NSMutableArray alloc] init];
     });
-    [sRegisteredAsConfigurable addObject:library];
+    @synchronized(self) {
+      [sRegisteredAsConfigurable addObject:library];
+    }
   }
   [self registerLibrary:name withVersion:version];
 }
 
 + (NSString *)firebaseUserAgent {
-  NSDictionary *libraryVersions = [sLibraryVersions dictionary];
-  NSMutableArray<NSString *> *libraries =
-      [[NSMutableArray<NSString *> alloc] initWithCapacity:libraryVersions.count];
-  for (NSString *libraryName in libraryVersions) {
-    [libraries
-        addObject:[NSString stringWithFormat:@"%@/%@", libraryName, sLibraryVersions[libraryName]]];
+  @synchronized(self) {
+    NSMutableArray<NSString *> *libraries =
+        [[NSMutableArray<NSString *> alloc] initWithCapacity:sLibraryVersions.count];
+    for (NSString *libraryName in sLibraryVersions) {
+      [libraries addObject:[NSString stringWithFormat:@"%@/%@", libraryName,
+                                                      sLibraryVersions[libraryName]]];
+    }
+    [libraries sortUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
+    return [libraries componentsJoinedByString:@" "];
   }
-  [libraries sortUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
-  return [libraries componentsJoinedByString:@" "];
 }
 
 - (void)checkExpectedBundleID {
