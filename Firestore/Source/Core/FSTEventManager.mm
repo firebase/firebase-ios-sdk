@@ -89,11 +89,7 @@ struct QueryListenersInfo {
 @end
 
 @implementation FSTEventManager {
-  std::unordered_map<FSTQuery *,
-                     QueryListenersInfo,
-                     objc::Hash<FSTQuery *>,
-                     objc::EqualTo<FSTQuery *>>
-      _queries;
+  objc::unordered_map<FSTQuery *, QueryListenersInfo> _queries;
 }
 
 + (instancetype)eventManagerWithSyncEngine:(FSTSyncEngine *)syncEngine {

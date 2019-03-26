@@ -144,11 +144,7 @@ NS_ASSUME_NONNULL_BEGIN
   DocumentKeySet _expectedLimboDocuments;
 
   /** A dictionary for tracking the listens on queries. */
-  std::unordered_map<FSTQuery *,
-                     std::shared_ptr<QueryListener>,
-                     objc::Hash<FSTQuery *>,
-                     objc::EqualTo<FSTQuery *>>
-      _queryListeners;
+  objc::unordered_map<FSTQuery *, std::shared_ptr<QueryListener>> _queryListeners;
 
   DatabaseInfo _databaseInfo;
   User _currentUser;
