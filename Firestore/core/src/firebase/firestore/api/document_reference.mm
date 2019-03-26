@@ -127,12 +127,16 @@ void DocumentReference::GetDocument(
       /*include_document_metadata_changes=*/true,
       /*wait_for_sync_when_online=*/true);
 
+  // Create an empty ListenerRegistration captured in the closure below and
+  // then, once the listen has started, assign to it and signal the listener
+  // that we succeeded.
+  //
   // TODO(varconst): replace with a synchronization primitive that doesn't
   // require libdispatch. See
   // https://github.com/firebase/firebase-ios-sdk/blob/3ccbdcdc65c93c4621c045c3c6d15de9dcefa23f/Firestore/Source/Core/FSTFirestoreClient.mm#L161
   // for an example.
   dispatch_semaphore_t registered = dispatch_semaphore_create(0);
-  auto listener_registration = std::make_shared<id<FIRListenerRegistration>>();
+  auto listener_registration = std::make_shared<ListenerRegistration>();
   StatusOrCallback<DocumentSnapshot> listener =
       [listener_registration, registered, completion,
        source](StatusOr<DocumentSnapshot> maybe_snapshot) {
@@ -146,7 +150,7 @@ void DocumentReference::GetDocument(
         // Remove query first before passing event to user to avoid user actions
         // affecting the now stale query.
         dispatch_semaphore_wait(registered, DISPATCH_TIME_FOREVER);
-        [*listener_registration remove];
+        listener_registration->Remove();
 
         if (!snapshot.exists() && snapshot.metadata().from_cache()) {
           // TODO(dimond): Reconsider how to raise missing documents when
@@ -178,7 +182,7 @@ void DocumentReference::GetDocument(
   dispatch_semaphore_signal(registered);
 }
 
-id<FIRListenerRegistration> DocumentReference::AddSnapshotListener(
+ListenerRegistration DocumentReference::AddSnapshotListener(
     StatusOrCallback<DocumentSnapshot>&& listener, ListenOptions options) {
   Firestore* firestore = firestore_;
   FSTQuery* query = [FSTQuery queryWithPath:key_.path()];
@@ -215,9 +219,8 @@ id<FIRListenerRegistration> DocumentReference::AddSnapshotListener(
             listenToQuery:query
                   options:options
       viewSnapshotHandler:[async_listener asyncSnapshotHandler]];
-  return [[FSTListenerRegistration alloc] initWithClient:firestore_->client()
-                                           asyncListener:async_listener
-                                        internalListener:internal_listener];
+  return ListenerRegistration(firestore_->client(), async_listener,
+                              internal_listener);
 }
 
 bool operator==(const DocumentReference& lhs, const DocumentReference& rhs) {

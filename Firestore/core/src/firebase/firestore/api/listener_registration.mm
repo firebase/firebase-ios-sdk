@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,28 @@
  * limitations under the License.
  */
 
-#import "FIRListenerRegistration.h"
-
 #include "Firestore/core/src/firebase/firestore/api/listener_registration.h"
 
-NS_ASSUME_NONNULL_BEGIN
+#import "Firestore/Source/Core/FSTFirestoreClient.h"
+#import "Firestore/Source/Util/FSTAsyncQueryListener.h"
 
-using firebase::firestore::api::ListenerRegistration;
+namespace firebase {
+namespace firestore {
+namespace api {
 
-/** Private implementation of the FIRListenerRegistration protocol. */
-@interface FSTListenerRegistration : NSObject <FIRListenerRegistration>
+void ListenerRegistration::Remove() {
+  [async_listener_ mute];
+  async_listener_ = nil;
 
-- (instancetype)initWithRegistration:(ListenerRegistration &&)registration;
+  std::shared_ptr<QueryListener> listener = internal_listener_.lock();
+  if (listener) {
+    [client_ removeListener:listener];
+    listener.reset();
+    internal_listener_.reset();
+    client_ = nil;
+  }
+}
 
-@end
-
-NS_ASSUME_NONNULL_END
+}  // namespace api
+}  // namespace firestore
+}  // namespace firebase
