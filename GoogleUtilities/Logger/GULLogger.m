@@ -207,15 +207,15 @@ GUL_LOGGING_FUNCTION(Debug)
 
 // NSUserDefaults cannot be used due to a bug described in GULUserDefaults
 // GULUserDefaults cannot be used because GULLogger is a dependency for GULUserDefaults
-// We have to use C API deireclty here
+// We have to use C API direclty here
 
-CFStringRef getGULLoggerUsetDefaultsSuiteName(void) {
+CFStringRef getGULLoggerUserDefaultsSuiteName(void) {
   return (__bridge CFStringRef) @"GoogleUtilities.Logger.GULLogger";
 }
 
 NSInteger GULGetUserDefaultsIntegerForKey(NSString *key) {
   id value = (__bridge_transfer id)CFPreferencesCopyAppValue((__bridge CFStringRef)key,
-                                                             getGULLoggerUsetDefaultsSuiteName());
+                                                             getGULLoggerUserDefaultsSuiteName());
   if (![value isKindOfClass:[NSNumber class]]) {
     return 0;
   }
@@ -226,8 +226,8 @@ NSInteger GULGetUserDefaultsIntegerForKey(NSString *key) {
 void GULLoggerUserDefaultsSetIntegerForKey(NSInteger count, NSString *key) {
   NSNumber *countNumber = @(count);
   CFPreferencesSetAppValue((__bridge CFStringRef)key, (__bridge CFNumberRef)countNumber,
-                           getGULLoggerUsetDefaultsSuiteName());
-  CFPreferencesAppSynchronize(getGULLoggerUsetDefaultsSuiteName());
+                           getGULLoggerUserDefaultsSuiteName());
+  CFPreferencesAppSynchronize(getGULLoggerUserDefaultsSuiteName());
 }
 
 #pragma mark - Number of errors and warnings
@@ -238,8 +238,6 @@ dispatch_queue_t getGULLoggerCounterQueue(void) {
   dispatch_once(&onceToken, ^{
     queue =
         dispatch_queue_create("GoogleUtilities.GULLogger.counterQueue", DISPATCH_QUEUE_CONCURRENT);
-    dispatch_set_target_queue(queue,
-                              dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0));
   });
 
   return queue;

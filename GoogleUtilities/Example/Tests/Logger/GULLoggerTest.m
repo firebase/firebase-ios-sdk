@@ -32,7 +32,7 @@ extern dispatch_queue_t getGULClientQueue(void);
 
 extern BOOL getGULLoggerDebugMode(void);
 
-extern CFStringRef getGULLoggerUsetDefaultsSuiteName(void);
+extern CFStringRef getGULLoggerUserDefaultsSuiteName(void);
 extern dispatch_queue_t getGULLoggerCounterQueue(void);
 
 static NSString *const kMessageCode = @"I-COR000001";
@@ -51,7 +51,7 @@ static NSString *const kMessageCode = @"I-COR000001";
   GULResetLogger();
 
   self.loggerDefaults = [[NSUserDefaults alloc]
-      initWithSuiteName:CFBridgingRelease(getGULLoggerUsetDefaultsSuiteName())];
+      initWithSuiteName:CFBridgingRelease(getGULLoggerUserDefaultsSuiteName())];
 }
 
 - (void)tearDown {
