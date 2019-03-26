@@ -24,8 +24,7 @@
   static dispatch_once_t onceToken;
 
   dispatch_once(&onceToken, ^{
-    UIWindow *appWindow = [[[UIApplication sharedApplication] delegate] window];
-    UIWindowForModal = [[UIWindow alloc] initWithFrame:[appWindow frame]];
+    UIWindowForModal = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
     UIWindowForModal.windowLevel = UIWindowLevelNormal;
   });
   return UIWindowForModal;
@@ -36,8 +35,7 @@
   static dispatch_once_t onceToken;
 
   dispatch_once(&onceToken, ^{
-    UIWindow *appWindow = [[[UIApplication sharedApplication] delegate] window];
-    UIWindowForBanner = [[FIDBannerViewUIWindow alloc] initWithFrame:[appWindow frame]];
+    UIWindowForBanner = [[FIDBannerViewUIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
     UIWindowForBanner.windowLevel = UIWindowLevelNormal;
   });
 
@@ -49,8 +47,7 @@
   static dispatch_once_t onceToken;
 
   dispatch_once(&onceToken, ^{
-    UIWindow *appWindow = [[[UIApplication sharedApplication] delegate] window];
-    UIWindowForImageOnly = [[UIWindow alloc] initWithFrame:[appWindow frame]];
+    UIWindowForImageOnly = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
     UIWindowForImageOnly.windowLevel = UIWindowLevelNormal;
   });
 

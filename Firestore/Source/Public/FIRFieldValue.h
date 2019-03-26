@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(FieldValue)
 @interface FIRFieldValue : NSObject
 
-/**   */
+/** :nodoc: */
 - (instancetype)init NS_UNAVAILABLE;
 
 /** Used with updateData() to mark a field for deletion. */
@@ -60,6 +60,35 @@ NS_SWIFT_NAME(FieldValue)
  * @return The FieldValue sentinel for use in a call to setData() or updateData().
  */
 + (instancetype)fieldValueForArrayRemove:(NSArray<id> *)elements NS_SWIFT_NAME(arrayRemove(_:));
+
+/**
+ * Returns a special value that can be used with setData() or updateData() that tells the server to
+ * increment the field's current value by the given value.
+ *
+ * If the current value is an integer or a double, both the current and the given value will be
+ * interpreted as doubles and all arithmetic will follow IEEE 754 semantics. Otherwise, the
+ * transformation will set the field to the given value.
+ *
+ * @param d The double value to increment by.
+ * @return The FieldValue sentinel for use in a call to setData() or update().
+ */
++ (instancetype)fieldValueForDoubleIncrement:(double)d NS_SWIFT_NAME(increment(_:));
+
+/**
+ * Returns a special value that can be used with setData() or updateData() that tells the server to
+ * increment the field's current value by the given value.
+ *
+ * If the current field value is an integer, possible integer overflows are resolved to LONG_MAX or
+ * LONG_MIN. If the current field value is a double, both values will be interpreted as doubles and
+ * the arithmetic will follow IEEE 754 semantics.
+ *
+ * If field is not an integer or double, or if the field does not yet exist, the transformation
+ * will set the field to the given value.
+ *
+ * @param l The integer value to increment by.
+ * @return The FieldValue sentinel for use in a call to setData() or updateData().
+ */
++ (instancetype)fieldValueForIntegerIncrement:(int64_t)l NS_SWIFT_NAME(increment(_:));
 
 @end
 

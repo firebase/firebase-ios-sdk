@@ -89,6 +89,11 @@ NS_SWIFT_NAME(HTTPSCallable)
     NS_SWIFT_NAME(call(_:completion:));
 // clang-format on
 
+/**
+ * The timeout to use when calling the function. Defaults to 60 seconds.
+ */
+@property(nonatomic, assign) NSTimeInterval timeoutInterval;
+
 @end
 
 NS_ASSUME_NONNULL_END

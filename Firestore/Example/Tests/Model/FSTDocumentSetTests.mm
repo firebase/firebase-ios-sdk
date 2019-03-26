@@ -14,13 +14,19 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/Model/FSTDocumentSet.h"
-
 #import <XCTest/XCTest.h>
 
-#import "Firestore/Source/Model/FSTDocument.h"
+#include <vector>
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
+#import "Firestore/Source/Model/FSTDocument.h"
+
+// TODO(wilhuff) move to first include once this test filename matches
+#include "Firestore/core/src/firebase/firestore/model/document_set.h"
+#include "Firestore/core/test/firebase/firestore/testutil/xcgmock.h"
+
+using firebase::firestore::model::DocumentSet;
+using testing::ElementsAre;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -44,91 +50,93 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testCount {
-  XCTAssertEqual([FSTTestDocSet(_comp, @[]) count], 0);
-  XCTAssertEqual([FSTTestDocSet(_comp, @[ _doc1, _doc2, _doc3 ]) count], 3);
+  XCTAssertEqual(FSTTestDocSet(_comp, @[]).size(), 0);
+  XCTAssertEqual(FSTTestDocSet(_comp, @[ _doc1, _doc2, _doc3 ]).size(), 3);
 }
 
 - (void)testHasKey {
-  FSTDocumentSet *set = FSTTestDocSet(_comp, @[ _doc1, _doc2 ]);
+  DocumentSet set = FSTTestDocSet(_comp, @[ _doc1, _doc2 ]);
 
-  XCTAssertTrue([set containsKey:_doc1.key]);
-  XCTAssertTrue([set containsKey:_doc2.key]);
-  XCTAssertFalse([set containsKey:_doc3.key]);
+  XCTAssertTrue(set.ContainsKey(_doc1.key));
+  XCTAssertTrue(set.ContainsKey(_doc2.key));
+  XCTAssertFalse(set.ContainsKey(_doc3.key));
 }
 
 - (void)testDocumentForKey {
-  FSTDocumentSet *set = FSTTestDocSet(_comp, @[ _doc1, _doc2 ]);
+  DocumentSet set = FSTTestDocSet(_comp, @[ _doc1, _doc2 ]);
 
-  XCTAssertEqualObjects([set documentForKey:_doc1.key], _doc1);
-  XCTAssertEqualObjects([set documentForKey:_doc2.key], _doc2);
-  XCTAssertNil([set documentForKey:_doc3.key]);
+  XCTAssertEqualObjects(set.GetDocument(_doc1.key), _doc1);
+  XCTAssertEqualObjects(set.GetDocument(_doc2.key), _doc2);
+  XCTAssertNil(set.GetDocument(_doc3.key));
 }
 
 - (void)testFirstAndLastDocument {
-  FSTDocumentSet *set = FSTTestDocSet(_comp, @[]);
-  XCTAssertNil([set firstDocument]);
-  XCTAssertNil([set lastDocument]);
+  DocumentSet set = FSTTestDocSet(_comp, @[]);
+  XCTAssertNil(set.GetFirstDocument());
+  XCTAssertNil(set.GetLastDocument());
 
   set = FSTTestDocSet(_comp, @[ _doc1, _doc2, _doc3 ]);
-  XCTAssertEqualObjects([set firstDocument], _doc3);
-  XCTAssertEqualObjects([set lastDocument], _doc2);
+  XCTAssertEqualObjects(set.GetFirstDocument(), _doc3);
+  XCTAssertEqualObjects(set.GetLastDocument(), _doc2);
 }
 
 - (void)testKeepsDocumentsInTheRightOrder {
-  FSTDocumentSet *set = FSTTestDocSet(_comp, @[ _doc1, _doc2, _doc3 ]);
-  XCTAssertEqualObjects([[set documentEnumerator] allObjects], (@[ _doc3, _doc1, _doc2 ]));
+  DocumentSet set = FSTTestDocSet(_comp, @[ _doc1, _doc2, _doc3 ]);
+  XC_ASSERT_THAT(set, ElementsAre(_doc3, _doc1, _doc2));
 }
 
 - (void)testDeletes {
-  FSTDocumentSet *set = FSTTestDocSet(_comp, @[ _doc1, _doc2, _doc3 ]);
+  DocumentSet set = FSTTestDocSet(_comp, @[ _doc1, _doc2, _doc3 ]);
 
-  FSTDocumentSet *setWithoutDoc1 = [set documentSetByRemovingKey:_doc1.key];
-  XCTAssertEqualObjects([[setWithoutDoc1 documentEnumerator] allObjects], (@[ _doc3, _doc2 ]));
-  XCTAssertEqual([setWithoutDoc1 count], 2);
+  DocumentSet setWithoutDoc1 = set.erase(_doc1.key);
+  XC_ASSERT_THAT(setWithoutDoc1, ElementsAre(_doc3, _doc2));
+  XCTAssertEqual(setWithoutDoc1.size(), 2);
 
   // Original remains unchanged
-  XCTAssertEqualObjects([[set documentEnumerator] allObjects], (@[ _doc3, _doc1, _doc2 ]));
+  XC_ASSERT_THAT(set, ElementsAre(_doc3, _doc1, _doc2));
 
-  FSTDocumentSet *setWithoutDoc3 = [setWithoutDoc1 documentSetByRemovingKey:_doc3.key];
-  XCTAssertEqualObjects([[setWithoutDoc3 documentEnumerator] allObjects], (@[ _doc2 ]));
-  XCTAssertEqual([setWithoutDoc3 count], 1);
+  DocumentSet setWithoutDoc3 = setWithoutDoc1.erase(_doc3.key);
+  XC_ASSERT_THAT(setWithoutDoc3, ElementsAre(_doc2));
+  XCTAssertEqual(setWithoutDoc3.size(), 1);
 }
 
 - (void)testUpdates {
-  FSTDocumentSet *set = FSTTestDocSet(_comp, @[ _doc1, _doc2, _doc3 ]);
+  DocumentSet set = FSTTestDocSet(_comp, @[ _doc1, _doc2, _doc3 ]);
 
   FSTDocument *doc2Prime = FSTTestDoc("docs/2", 0, @{@"sort" : @9}, FSTDocumentStateSynced);
 
-  set = [set documentSetByAddingDocument:doc2Prime];
-  XCTAssertEqual([set count], 3);
-  XCTAssertEqualObjects([set documentForKey:doc2Prime.key], doc2Prime);
-  XCTAssertEqualObjects([[set documentEnumerator] allObjects], (@[ _doc3, _doc1, doc2Prime ]));
+  set = set.insert(doc2Prime);
+  XCTAssertEqual(set.size(), 3);
+  XCTAssertEqualObjects(set.GetDocument(doc2Prime.key), doc2Prime);
+  XC_ASSERT_THAT(set, ElementsAre(_doc3, _doc1, doc2Prime));
 }
 
 - (void)testAddsDocsWithEqualComparisonValues {
   FSTDocument *doc4 = FSTTestDoc("docs/4", 0, @{@"sort" : @2}, FSTDocumentStateSynced);
 
-  FSTDocumentSet *set = FSTTestDocSet(_comp, @[ _doc1, doc4 ]);
-  XCTAssertEqualObjects([[set documentEnumerator] allObjects], (@[ _doc1, doc4 ]));
+  DocumentSet set = FSTTestDocSet(_comp, @[ _doc1, doc4 ]);
+  XC_ASSERT_THAT(set, ElementsAre(_doc1, doc4));
 }
 
 - (void)testIsEqual {
-  FSTDocumentSet *set1 = FSTTestDocSet(FSTDocumentComparatorByKey, @[ _doc1, _doc2, _doc3 ]);
-  FSTDocumentSet *set2 = FSTTestDocSet(FSTDocumentComparatorByKey, @[ _doc1, _doc2, _doc3 ]);
-  XCTAssertEqualObjects(set1, set1);
-  XCTAssertEqualObjects(set1, set2);
-  XCTAssertNotEqualObjects(set1, nil);
+  DocumentSet empty{FSTDocumentComparatorByKey};
+  DocumentSet set1 = FSTTestDocSet(FSTDocumentComparatorByKey, @[ _doc1, _doc2, _doc3 ]);
+  DocumentSet set2 = FSTTestDocSet(FSTDocumentComparatorByKey, @[ _doc1, _doc2, _doc3 ]);
+  XCTAssertEqual(set1, set1);
+  XCTAssertEqual(set1, set2);
+  XCTAssertNotEqual(set1, empty);
 
-  FSTDocumentSet *sortedSet1 = FSTTestDocSet(_comp, @[ _doc1, _doc2, _doc3 ]);
-  FSTDocumentSet *sortedSet2 = FSTTestDocSet(_comp, @[ _doc1, _doc2, _doc3 ]);
-  XCTAssertEqualObjects(sortedSet1, sortedSet1);
-  XCTAssertEqualObjects(sortedSet1, sortedSet2);
-  XCTAssertNotEqualObjects(sortedSet1, nil);
+  DocumentSet sortedSet1 = FSTTestDocSet(_comp, @[ _doc1, _doc2, _doc3 ]);
+  DocumentSet sortedSet2 = FSTTestDocSet(_comp, @[ _doc1, _doc2, _doc3 ]);
+  XCTAssertEqual(sortedSet1, sortedSet1);
+  XCTAssertEqual(sortedSet1, sortedSet2);
+  XCTAssertNotEqual(sortedSet1, empty);
 
-  FSTDocumentSet *shortSet = FSTTestDocSet(FSTDocumentComparatorByKey, @[ _doc1, _doc2 ]);
-  XCTAssertNotEqualObjects(set1, shortSet);
-  XCTAssertNotEqualObjects(set1, sortedSet1);
+  DocumentSet shortSet = FSTTestDocSet(FSTDocumentComparatorByKey, @[ _doc1, _doc2 ]);
+  XCTAssertNotEqual(set1, shortSet);
+  XCTAssertNotEqual(set1, sortedSet1);
 }
+
 @end
 
 NS_ASSUME_NONNULL_END

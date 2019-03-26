@@ -21,7 +21,7 @@
 
 #include "Firestore/core/src/firebase/firestore/immutable/array_sorted_map.h"
 #include "Firestore/core/src/firebase/firestore/immutable/keys_view.h"
-#include "Firestore/core/src/firebase/firestore/immutable/sorted_map_base.h"
+#include "Firestore/core/src/firebase/firestore/immutable/sorted_container.h"
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_map_iterator.h"
 #include "Firestore/core/src/firebase/firestore/immutable/tree_sorted_map.h"
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
@@ -36,8 +36,10 @@ namespace immutable {
  * has methods to efficiently create new maps that are mutations of it.
  */
 template <typename K, typename V, typename C = util::Comparator<K>>
-class SortedMap : public impl::SortedMapBase {
+class SortedMap : public SortedMapBase {
  public:
+  using key_type = K;
+  using mapped_type = V;
   /** The type of the entries stored in the map. */
   using value_type = std::pair<K, V>;
   using array_type = impl::ArraySortedMap<K, V, C>;
@@ -202,7 +204,7 @@ class SortedMap : public impl::SortedMapBase {
         tree_type result = tree_.erase(key);
         if (result.empty()) {
           // Flip back to the array representation for empty arrays.
-          return SortedMap{};
+          return SortedMap{comparator()};
         }
         return SortedMap{std::move(result)};
     }

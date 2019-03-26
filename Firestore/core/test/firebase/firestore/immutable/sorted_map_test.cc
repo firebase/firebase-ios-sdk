@@ -36,8 +36,6 @@
 #include "Firestore/core/test/firebase/firestore/immutable/testing.h"
 #include "gtest/gtest.h"
 
-using firebase::firestore::immutable::impl::SortedMapBase;
-
 namespace firebase {
 namespace firestore {
 namespace immutable {

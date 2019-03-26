@@ -45,6 +45,7 @@ const char* kQueryTargetsTable = "query_target";
 const char* kTargetDocumentsTable = "target_document";
 const char* kDocumentTargetsTable = "document_target";
 const char* kRemoteDocumentsTable = "remote_document";
+const char* kCollectionParentsTable = "collection_parent";
 
 /**
  * Labels for the components of keys. These serve to make keys self-describing.
@@ -88,6 +89,12 @@ enum ComponentLabel {
 
   /** A component containing a user Id. */
   UserId = 13,
+
+  /**
+   * A component containing a standalone collection ID (e.g. as used by the
+   * collection_parent table, but not for collection IDs within paths).
+   */
+  CollectionId = 14,
 
   /**
    * A path segment describes just a single segment in a resource path. Path
@@ -158,6 +165,17 @@ class Reader {
   std::string ReadUserId() {
     return ReadLabeledString(ComponentLabel::UserId);
   }
+
+  std::string ReadCollectionId() {
+    return ReadLabeledString(ComponentLabel::CollectionId);
+  }
+
+  /**
+   * Reads component labels and strings from the key until it finds a component
+   * label other than ComponentLabel::PathSegment (or the key is exhausted).
+   * All matched path segments are assembled into a ResourcePath.
+   */
+  ResourcePath ReadResourcePath();
 
   /**
    * Reads component labels and strings from the key until it finds a component
@@ -358,7 +376,7 @@ class Reader {
   bool ok_;
 };
 
-DocumentKey Reader::ReadDocumentKey() {
+ResourcePath Reader::ReadResourcePath() {
   std::vector<std::string> path_segments;
   while (!empty()) {
     // Advance a temporary slice to avoid advancing contents into the next key
@@ -375,7 +393,13 @@ DocumentKey Reader::ReadDocumentKey() {
     path_segments.push_back(std::move(segment));
   }
 
-  ResourcePath path{std::move(path_segments)};
+  return ResourcePath{std::move(path_segments)};
+}
+
+DocumentKey Reader::ReadDocumentKey() {
+  ResourcePath path = ReadResourcePath();
+
+  // Avoid assertion failures in DocumentKey if path is invalid.
   if (ok_ && !path.empty() && DocumentKey::IsDocumentKey(path)) {
     return DocumentKey{std::move(path)};
   }
@@ -419,10 +443,10 @@ std::string Reader::Describe() {
     src_ = saved_source;
 
     if (label == ComponentLabel::PathSegment) {
-      DocumentKey document_key = ReadDocumentKey();
+      ResourcePath resource_path = ReadResourcePath();
       if (ok_) {
         absl::StrAppend(&description,
-                        " key=", document_key.path().CanonicalString());
+                        " path=", resource_path.CanonicalString());
       }
 
     } else if (label == ComponentLabel::TableName) {
@@ -453,6 +477,12 @@ std::string Reader::Describe() {
       std::string user_id = ReadUserId();
       if (ok_) {
         absl::StrAppend(&description, " user_id=", user_id);
+      }
+
+    } else if (label == ComponentLabel::CollectionId) {
+      std::string collection_id = ReadCollectionId();
+      if (ok_) {
+        absl::StrAppend(&description, " collection_id=", collection_id);
       }
 
     } else {
@@ -500,6 +530,10 @@ class Writer {
 
   void WriteUserId(absl::string_view user_id) {
     WriteLabeledString(ComponentLabel::UserId, user_id);
+  }
+
+  void WriteCollectionId(absl::string_view collection_id) {
+    WriteLabeledString(ComponentLabel::CollectionId, collection_id);
   }
 
   /**
@@ -844,6 +878,39 @@ bool LevelDbRemoteDocumentKey::Decode(absl::string_view key) {
   Reader reader{key};
   reader.ReadTableNameMatching(kRemoteDocumentsTable);
   document_key_ = reader.ReadDocumentKey();
+  reader.ReadTerminator();
+  return reader.ok();
+}
+
+std::string LevelDbCollectionParentKey::KeyPrefix() {
+  Writer writer;
+  writer.WriteTableName(kCollectionParentsTable);
+  return writer.result();
+}
+
+std::string LevelDbCollectionParentKey::KeyPrefix(
+    absl::string_view collection_id) {
+  Writer writer;
+  writer.WriteTableName(kCollectionParentsTable);
+  writer.WriteCollectionId(collection_id);
+  return writer.result();
+}
+
+std::string LevelDbCollectionParentKey::Key(absl::string_view collection_id,
+                                            const ResourcePath& parent) {
+  Writer writer;
+  writer.WriteTableName(kCollectionParentsTable);
+  writer.WriteCollectionId(collection_id);
+  writer.WriteResourcePath(parent);
+  writer.WriteTerminator();
+  return writer.result();
+}
+
+bool LevelDbCollectionParentKey::Decode(absl::string_view key) {
+  Reader reader{key};
+  reader.ReadTableNameMatching(kCollectionParentsTable);
+  collection_id_ = reader.ReadCollectionId();
+  parent_ = reader.ReadResourcePath();
   reader.ReadTerminator();
   return reader.ok();
 }

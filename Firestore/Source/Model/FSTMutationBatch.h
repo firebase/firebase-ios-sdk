@@ -17,9 +17,11 @@
 #import <Foundation/Foundation.h>
 
 #include <unordered_map>
+#include <vector>
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
+#include "Firestore/core/src/firebase/firestore/model/document_map.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 
@@ -49,10 +51,14 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FSTMutationBatch : NSObject
 
-/** Initializes a mutation batch with the given batchID, localWriteTime, and mutations. */
+/**
+ * Initializes a mutation batch with the given batchID, localWriteTime, base mutations, and
+ * mutations.
+ */
 - (instancetype)initWithBatchID:(firebase::firestore::model::BatchId)batchID
                  localWriteTime:(FIRTimestamp *)localWriteTime
-                      mutations:(NSArray<FSTMutation *> *)mutations NS_DESIGNATED_INITIALIZER;
+                  baseMutations:(std::vector<FSTMutation *> &&)baseMutations
+                      mutations:(std::vector<FSTMutation *> &&)mutations NS_DESIGNATED_INITIALIZER;
 
 - (id)init NS_UNAVAILABLE;
 
@@ -79,12 +85,31 @@ NS_ASSUME_NONNULL_BEGIN
     applyToLocalDocument:(FSTMaybeDocument *_Nullable)maybeDoc
              documentKey:(const firebase::firestore::model::DocumentKey &)documentKey;
 
+/** Computes the local view for all provided documents given the mutations in this batch. */
+- (firebase::firestore::model::MaybeDocumentMap)applyToLocalDocumentSet:
+    (const firebase::firestore::model::MaybeDocumentMap &)documentSet;
+
 /** Returns the set of unique keys referenced by all mutations in the batch. */
 - (firebase::firestore::model::DocumentKeySet)keys;
 
+/** The unique ID of this mutation batch. */
 @property(nonatomic, assign, readonly) firebase::firestore::model::BatchId batchID;
+
+/** The original write time of this mutation. */
 @property(nonatomic, strong, readonly) FIRTimestamp *localWriteTime;
-@property(nonatomic, strong, readonly) NSArray<FSTMutation *> *mutations;
+
+/**
+ * Mutations that are used to populate the base values when this mutation is applied locally. This
+ * can be used to locally overwrite values that are persisted in the remote document cache. Base
+ * mutations are never sent to the backend.
+ */
+- (const std::vector<FSTMutation *> &)baseMutations;
+
+/**
+ * The user-provided mutations in this mutation batch. User-provided mutations are applied both
+ * locally and remotely on the backend.
+ */
+- (const std::vector<FSTMutation *> &)mutations;
 
 @end
 
@@ -102,13 +127,13 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (instancetype)resultWithBatch:(FSTMutationBatch *)batch
                   commitVersion:(firebase::firestore::model::SnapshotVersion)commitVersion
-                mutationResults:(NSArray<FSTMutationResult *> *)mutationResults
+                mutationResults:(std::vector<FSTMutationResult *>)mutationResults
                     streamToken:(nullable NSData *)streamToken;
 
 - (const firebase::firestore::model::SnapshotVersion &)commitVersion;
+- (const std::vector<FSTMutationResult *> &)mutationResults;
 
 @property(nonatomic, strong, readonly) FSTMutationBatch *batch;
-@property(nonatomic, strong, readonly) NSArray<FSTMutationResult *> *mutationResults;
 @property(nonatomic, strong, readonly, nullable) NSData *streamToken;
 
 - (const firebase::firestore::model::DocumentVersionMap &)docVersions;

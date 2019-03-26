@@ -21,12 +21,11 @@
 
 #include "Firestore/core/test/firebase/firestore/immutable/testing.h"
 
-using firebase::firestore::immutable::impl::SortedMapBase;
-using SizeType = SortedMapBase::size_type;
-
 namespace firebase {
 namespace firestore {
 namespace immutable {
+
+using SizeType = SortedContainer::size_type;
 
 template <typename K>
 SortedSet<K> ToSet(const std::vector<K>& container) {

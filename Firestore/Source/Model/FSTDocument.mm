@@ -55,7 +55,7 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-- (BOOL)hasPendingWrites {
+- (bool)hasPendingWrites {
   @throw FSTAbstractMethodException();  // NOLINT
 }
 
@@ -127,15 +127,15 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-- (BOOL)hasLocalMutations {
+- (bool)hasLocalMutations {
   return _documentState == FSTDocumentStateLocalMutations;
 }
 
-- (BOOL)hasCommittedMutations {
+- (bool)hasCommittedMutations {
   return _documentState == FSTDocumentStateCommittedMutations;
 }
 
-- (BOOL)hasPendingWrites {
+- (bool)hasPendingWrites {
   return self.hasLocalMutations || self.hasCommittedMutations;
 }
 
@@ -153,7 +153,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSUInteger)hash {
-  NSUInteger result = [self.key hash];
+  NSUInteger result = self.key.Hash();
   result = result * 31 + self.version.Hash();
   result = result * 31 + [self.data hash];
   result = result * 31 + _documentState;
@@ -174,12 +174,12 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @implementation FSTDeletedDocument {
-  BOOL _hasCommittedMutations;
+  bool _hasCommittedMutations;
 }
 
 + (instancetype)documentWithKey:(DocumentKey)key
                         version:(SnapshotVersion)version
-          hasCommittedMutations:(BOOL)committedMutations {
+          hasCommittedMutations:(bool)committedMutations {
   FSTDeletedDocument *deletedDocument = [[FSTDeletedDocument alloc] initWithKey:std::move(key)
                                                                         version:std::move(version)];
 
@@ -190,11 +190,11 @@ NS_ASSUME_NONNULL_BEGIN
   return deletedDocument;
 }
 
-- (BOOL)hasCommittedMutations {
+- (bool)hasCommittedMutations {
   return _hasCommittedMutations;
 }
 
-- (BOOL)hasPendingWrites {
+- (bool)hasPendingWrites {
   return self.hasCommittedMutations;
 }
 
@@ -212,7 +212,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSUInteger)hash {
-  NSUInteger result = [self.key hash];
+  NSUInteger result = self.key.Hash();
   result = result * 31 + self.version.Hash();
   result = result * 31 + (_hasCommittedMutations ? 1 : 0);
   return result;
@@ -233,8 +233,8 @@ NS_ASSUME_NONNULL_BEGIN
   return [[FSTUnknownDocument alloc] initWithKey:std::move(key) version:std::move(version)];
 }
 
-- (BOOL)hasPendingWrites {
-  return YES;
+- (bool)hasPendingWrites {
+  return true;
 }
 
 - (BOOL)isEqual:(id)other {
@@ -250,7 +250,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSUInteger)hash {
-  NSUInteger result = [self.key hash];
+  NSUInteger result = self.key.Hash();
   result = result * 31 + self.version.Hash();
   return result;
 }

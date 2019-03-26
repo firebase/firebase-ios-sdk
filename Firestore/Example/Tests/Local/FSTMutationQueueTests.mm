@@ -19,6 +19,7 @@
 #import <FirebaseFirestore/FIRTimestamp.h>
 
 #include <set>
+#include <utility>
 #include <vector>
 
 #import "Firestore/Source/Core/FSTQuery.h"
@@ -48,14 +49,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)tearDown {
   [self.persistence shutdown];
   [super tearDown];
-}
-
-- (void)assertVector:(const std::vector<FSTMutationBatch *> &)actual
-     matchesExpected:(const std::vector<FSTMutationBatch *> &)expected {
-  XCTAssertEqual(actual.size(), expected.size(), @"Vector length mismatch");
-  for (int i = 0; i < expected.size(); i++) {
-    XCTAssertEqualObjects(actual[i], expected[i]);
-  }
 }
 
 /**
@@ -208,7 +201,7 @@ NS_ASSUME_NONNULL_BEGIN
     NSMutableArray<FSTMutationBatch *> *batches = [NSMutableArray array];
     for (FSTMutation *mutation in mutations) {
       FSTMutationBatch *batch =
-          self.mutationQueue->AddMutationBatch([FIRTimestamp timestamp], @[ mutation ]);
+          self.mutationQueue->AddMutationBatch([FIRTimestamp timestamp], {}, {mutation});
       [batches addObject:batch];
     }
 
@@ -216,7 +209,7 @@ NS_ASSUME_NONNULL_BEGIN
     std::vector<FSTMutationBatch *> matches =
         self.mutationQueue->AllMutationBatchesAffectingDocumentKey(testutil::Key("foo/bar"));
 
-    [self assertVector:matches matchesExpected:expected];
+    FSTAssertEqualVectors(matches, expected);
   });
 }
 
@@ -235,7 +228,7 @@ NS_ASSUME_NONNULL_BEGIN
     NSMutableArray<FSTMutationBatch *> *batches = [NSMutableArray array];
     for (FSTMutation *mutation in mutations) {
       FSTMutationBatch *batch =
-          self.mutationQueue->AddMutationBatch([FIRTimestamp timestamp], @[ mutation ]);
+          self.mutationQueue->AddMutationBatch([FIRTimestamp timestamp], {}, {mutation});
       [batches addObject:batch];
     }
 
@@ -248,7 +241,7 @@ NS_ASSUME_NONNULL_BEGIN
     std::vector<FSTMutationBatch *> matches =
         self.mutationQueue->AllMutationBatchesAffectingDocumentKeys(keys);
 
-    [self assertVector:matches matchesExpected:expected];
+    FSTAssertEqualVectors(matches, expected);
   });
 }
 
@@ -256,21 +249,21 @@ NS_ASSUME_NONNULL_BEGIN
   if ([self isTestBaseClass]) return;
 
   self.persistence.run("testAllMutationBatchesAffectingDocumentKeys_handlesOverlap", [&]() {
-    NSArray<FSTMutation *> *group1 = @[
-      FSTTestSetMutation(@"foo/bar", @{@"a" : @1}),
-      FSTTestSetMutation(@"foo/baz", @{@"a" : @1}),
-    ];
+    std::vector<FSTMutation *> group1 = {
+        FSTTestSetMutation(@"foo/bar", @{@"a" : @1}),
+        FSTTestSetMutation(@"foo/baz", @{@"a" : @1}),
+    };
     FSTMutationBatch *batch1 =
-        self.mutationQueue->AddMutationBatch([FIRTimestamp timestamp], group1);
+        self.mutationQueue->AddMutationBatch([FIRTimestamp timestamp], {}, std::move(group1));
 
-    NSArray<FSTMutation *> *group2 = @[ FSTTestSetMutation(@"food/bar", @{@"a" : @1}) ];
-    self.mutationQueue->AddMutationBatch([FIRTimestamp timestamp], group2);
+    std::vector<FSTMutation *> group2 = {FSTTestSetMutation(@"food/bar", @{@"a" : @1})};
+    self.mutationQueue->AddMutationBatch([FIRTimestamp timestamp], {}, std::move(group2));
 
-    NSArray<FSTMutation *> *group3 = @[
-      FSTTestSetMutation(@"foo/bar", @{@"b" : @1}),
-    ];
+    std::vector<FSTMutation *> group3 = {
+        FSTTestSetMutation(@"foo/bar", @{@"b" : @1}),
+    };
     FSTMutationBatch *batch3 =
-        self.mutationQueue->AddMutationBatch([FIRTimestamp timestamp], group3);
+        self.mutationQueue->AddMutationBatch([FIRTimestamp timestamp], {}, std::move(group3));
 
     DocumentKeySet keys{
         Key("foo/bar"),
@@ -281,7 +274,7 @@ NS_ASSUME_NONNULL_BEGIN
     std::vector<FSTMutationBatch *> matches =
         self.mutationQueue->AllMutationBatchesAffectingDocumentKeys(keys);
 
-    [self assertVector:matches matchesExpected:expected];
+    FSTAssertEqualVectors(matches, expected);
   });
 }
 
@@ -300,7 +293,7 @@ NS_ASSUME_NONNULL_BEGIN
     NSMutableArray<FSTMutationBatch *> *batches = [NSMutableArray array];
     for (FSTMutation *mutation in mutations) {
       FSTMutationBatch *batch =
-          self.mutationQueue->AddMutationBatch([FIRTimestamp timestamp], @[ mutation ]);
+          self.mutationQueue->AddMutationBatch([FIRTimestamp timestamp], {}, {mutation});
       [batches addObject:batch];
     }
 
@@ -309,7 +302,7 @@ NS_ASSUME_NONNULL_BEGIN
     std::vector<FSTMutationBatch *> matches =
         self.mutationQueue->AllMutationBatchesAffectingQuery(query);
 
-    [self assertVector:matches matchesExpected:expected];
+    FSTAssertEqualVectors(matches, expected);
   });
 }
 
@@ -327,7 +320,7 @@ NS_ASSUME_NONNULL_BEGIN
     std::vector<FSTMutationBatch *> found;
 
     found = self.mutationQueue->AllMutationBatches();
-    [self assertVector:found matchesExpected:batches];
+    FSTAssertEqualVectors(found, batches);
     XCTAssertEqual(found.size(), 9);
 
     self.mutationQueue->RemoveMutationBatch(batches[0]);
@@ -337,7 +330,7 @@ NS_ASSUME_NONNULL_BEGIN
     XCTAssertEqual([self batchCount], 6);
 
     found = self.mutationQueue->AllMutationBatches();
-    [self assertVector:found matchesExpected:batches];
+    FSTAssertEqualVectors(found, batches);
     XCTAssertEqual(found.size(), 6);
 
     self.mutationQueue->RemoveMutationBatch(batches[0]);
@@ -345,7 +338,7 @@ NS_ASSUME_NONNULL_BEGIN
     XCTAssertEqual([self batchCount], 5);
 
     found = self.mutationQueue->AllMutationBatches();
-    [self assertVector:found matchesExpected:batches];
+    FSTAssertEqualVectors(found, batches);
     XCTAssertEqual(found.size(), 5);
 
     self.mutationQueue->RemoveMutationBatch(batches[0]);
@@ -357,7 +350,7 @@ NS_ASSUME_NONNULL_BEGIN
     XCTAssertEqual([self batchCount], 3);
 
     found = self.mutationQueue->AllMutationBatches();
-    [self assertVector:found matchesExpected:batches];
+    FSTAssertEqualVectors(found, batches);
     XCTAssertEqual(found.size(), 3);
     XCTAssertFalse(self.mutationQueue->IsEmpty());
 
@@ -404,7 +397,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTSetMutation *mutation = FSTTestSetMutation(key, @{@"a" : @1});
 
   FSTMutationBatch *batch =
-      self.mutationQueue->AddMutationBatch([FIRTimestamp timestamp], @[ mutation ]);
+      self.mutationQueue->AddMutationBatch([FIRTimestamp timestamp], {}, {mutation});
   return batch;
 }
 

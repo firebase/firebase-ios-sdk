@@ -17,9 +17,9 @@
 #import <Foundation/Foundation.h>
 
 #import <FirebaseCore/FIRAppInternal.h>
+
 #import <FirebaseInAppMessaging/FIRInAppMessaging.h>
 #import <FirebaseInAppMessaging/FIRInAppMessagingRendering.h>
-
 #import "FIDBannerViewController.h"
 #import "FIDImageOnlyViewController.h"
 #import "FIDModalViewController.h"
@@ -78,7 +78,7 @@
     NSError *error = [NSError errorWithDomain:kFirebaseInAppMessagingDisplayErrorDomain
                                          code:FIAMDisplayRenderErrorTypeUnspecifiedError
                                      userInfo:@{@"message" : @"resource bundle is missing"}];
-    [displayDelegate displayErrorEncountered:error];
+    [displayDelegate displayErrorForMessage:modalMessage error:error];
     return;
   }
 
@@ -96,7 +96,7 @@
       NSError *error = [NSError errorWithDomain:kFirebaseInAppMessagingDisplayErrorDomain
                                            code:FIAMDisplayRenderErrorTypeUnspecifiedError
                                        userInfo:@{}];
-      [displayDelegate displayErrorEncountered:error];
+      [displayDelegate displayErrorForMessage:modalMessage error:error];
       return;
     }
 
@@ -115,7 +115,7 @@
     NSError *error = [NSError errorWithDomain:kFirebaseInAppMessagingDisplayErrorDomain
                                          code:FIAMDisplayRenderErrorTypeUnspecifiedError
                                      userInfo:@{}];
-    [displayDelegate displayErrorEncountered:error];
+    [displayDelegate displayErrorForMessage:bannerMessage error:error];
     return;
   }
 
@@ -133,7 +133,7 @@
       NSError *error = [NSError errorWithDomain:kFirebaseInAppMessagingDisplayErrorDomain
                                            code:FIAMDisplayRenderErrorTypeUnspecifiedError
                                        userInfo:@{}];
-      [displayDelegate displayErrorEncountered:error];
+      [displayDelegate displayErrorForMessage:bannerMessage error:error];
       return;
     }
 
@@ -153,7 +153,7 @@
     NSError *error = [NSError errorWithDomain:kFirebaseInAppMessagingDisplayErrorDomain
                                          code:FIAMDisplayRenderErrorTypeUnspecifiedError
                                      userInfo:@{}];
-    [displayDelegate displayErrorEncountered:error];
+    [displayDelegate displayErrorForMessage:imageOnlyMessage error:error];
     return;
   }
 
@@ -171,7 +171,7 @@
       NSError *error = [NSError errorWithDomain:kFirebaseInAppMessagingDisplayErrorDomain
                                            code:FIAMDisplayRenderErrorTypeUnspecifiedError
                                        userInfo:@{}];
-      [displayDelegate displayErrorEncountered:error];
+      [displayDelegate displayErrorForMessage:imageOnlyMessage error:error];
       return;
     }
 
@@ -182,7 +182,7 @@
 }
 
 #pragma mark - protocol FIRInAppMessagingDisplay
-- (void)displayMessage:(FIRInAppMessagingDisplayMessageBase *)messageForDisplay
+- (void)displayMessage:(FIRInAppMessagingDisplayMessage *)messageForDisplay
        displayDelegate:(id<FIRInAppMessagingDisplayDelegate>)displayDelegate {
   if ([messageForDisplay isKindOfClass:[FIRInAppMessagingModalDisplay class]]) {
     FIRLogDebug(kFIRLoggerInAppMessagingDisplay, @"I-FID100000", @"Display a modal message");
@@ -208,7 +208,7 @@
     NSError *error = [NSError errorWithDomain:kFirebaseInAppMessagingDisplayErrorDomain
                                          code:FIAMDisplayRenderErrorTypeUnspecifiedError
                                      userInfo:@{}];
-    [displayDelegate displayErrorEncountered:error];
+    [displayDelegate displayErrorForMessage:messageForDisplay error:error];
   }
 }
 @end

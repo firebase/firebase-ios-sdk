@@ -39,6 +39,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
+#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/remote/existence_filter.h"
@@ -46,17 +47,20 @@
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
+#include "Firestore/core/src/firebase/firestore/util/objc_compatibility.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
 namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
+namespace objc = util::objc;
 using firebase::firestore::FirestoreErrorCode;
 using firebase::firestore::auth::User;
-using firebase::firestore::core::DocumentViewChangeType;
+using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::remote::ExistenceFilter;
@@ -168,7 +172,10 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
   } else if ([querySpec isKindOfClass:[NSDictionary class]]) {
     NSDictionary *queryDict = (NSDictionary *)querySpec;
     NSString *path = queryDict[@"path"];
-    __block FSTQuery *query = FSTTestQuery(util::MakeString(path));
+    ResourcePath resource_path = ResourcePath::FromString(util::MakeString(path));
+    NSString *_Nullable collectionGroup = queryDict[@"collectionGroup"];
+    __block FSTQuery *query = [FSTQuery queryWithPath:resource_path
+                                      collectionGroup:collectionGroup];
     if (queryDict[@"limit"]) {
       NSNumber *limit = queryDict[@"limit"];
       query = [query queryBySettingLimit:limit.integerValue];
@@ -200,7 +207,7 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
   return testutil::Version(version.longLongValue);
 }
 
-- (FSTDocumentViewChange *)parseChange:(NSDictionary *)jsonDoc ofType:(DocumentViewChangeType)type {
+- (DocumentViewChange)parseChange:(NSDictionary *)jsonDoc ofType:(DocumentViewChange::Type)type {
   NSNumber *version = jsonDoc[@"version"];
   NSDictionary *options = jsonDoc[@"options"];
   FSTDocumentState documentState = [options[@"hasLocalMutations"] isEqualToNumber:@YES]
@@ -212,7 +219,7 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
   XCTAssert([jsonDoc[@"key"] isKindOfClass:[NSString class]]);
   FSTDocument *doc = FSTTestDoc(util::MakeString((NSString *)jsonDoc[@"key"]),
                                 version.longLongValue, jsonDoc[@"value"], documentState);
-  return [FSTDocumentViewChange changeWithDocument:doc type:type];
+  return DocumentViewChange{doc, type};
 }
 
 #pragma mark - Methods for doing the steps of the spec test.
@@ -363,7 +370,7 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
 
   FSTMutationResult *mutationResult = [[FSTMutationResult alloc] initWithVersion:version
                                                                 transformResults:nil];
-  [self.driver receiveWriteAckWithVersion:version mutationResults:@[ mutationResult ]];
+  [self.driver receiveWriteAckWithVersion:version mutationResults:{mutationResult}];
 }
 
 - (void)doFailWrite:(NSDictionary *)spec {
@@ -497,35 +504,39 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
     XCTAssertNotNil(actual.error);
     XCTAssertEqual(actual.error.code, [expected[@"errorCode"] integerValue]);
   } else {
-    NSMutableArray *expectedChanges = [NSMutableArray array];
+    std::vector<DocumentViewChange> expectedChanges;
     NSMutableArray *removed = expected[@"removed"];
     for (NSDictionary *changeSpec in removed) {
-      [expectedChanges addObject:[self parseChange:changeSpec
-                                            ofType:DocumentViewChangeType::kRemoved]];
+      expectedChanges.push_back([self parseChange:changeSpec
+                                           ofType:DocumentViewChange::Type::kRemoved]);
     }
     NSMutableArray *added = expected[@"added"];
     for (NSDictionary *changeSpec in added) {
-      [expectedChanges addObject:[self parseChange:changeSpec
-                                            ofType:DocumentViewChangeType::kAdded]];
+      expectedChanges.push_back([self parseChange:changeSpec
+                                           ofType:DocumentViewChange::Type::kAdded]);
     }
     NSMutableArray *modified = expected[@"modified"];
     for (NSDictionary *changeSpec in modified) {
-      [expectedChanges addObject:[self parseChange:changeSpec
-                                            ofType:DocumentViewChangeType::kModified]];
+      expectedChanges.push_back([self parseChange:changeSpec
+                                           ofType:DocumentViewChange::Type::kModified]);
     }
     NSMutableArray *metadata = expected[@"metadata"];
     for (NSDictionary *changeSpec in metadata) {
-      [expectedChanges addObject:[self parseChange:changeSpec
-                                            ofType:DocumentViewChangeType::kMetadata]];
+      expectedChanges.push_back([self parseChange:changeSpec
+                                           ofType:DocumentViewChange::Type::kMetadata]);
     }
-    XCTAssertEqualObjects(actual.viewSnapshot.documentChanges, expectedChanges);
+
+    XCTAssertEqual(actual.viewSnapshot.value().document_changes().size(), expectedChanges.size());
+    for (size_t i = 0; i != expectedChanges.size(); ++i) {
+      XCTAssertTrue((actual.viewSnapshot.value().document_changes()[i] == expectedChanges[i]));
+    }
 
     BOOL expectedHasPendingWrites =
         expected[@"hasPendingWrites"] ? [expected[@"hasPendingWrites"] boolValue] : NO;
     BOOL expectedIsFromCache = expected[@"fromCache"] ? [expected[@"fromCache"] boolValue] : NO;
-    XCTAssertEqual(actual.viewSnapshot.hasPendingWrites, expectedHasPendingWrites,
+    XCTAssertEqual(actual.viewSnapshot.value().has_pending_writes(), expectedHasPendingWrites,
                    @"hasPendingWrites");
-    XCTAssertEqual(actual.viewSnapshot.isFromCache, expectedIsFromCache, @"isFromCache");
+    XCTAssertEqual(actual.viewSnapshot.value().from_cache(), expectedIsFromCache, @"isFromCache");
   }
 }
 
@@ -682,16 +693,8 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
     actualTargets.erase(targetID);
   }
 
-  if (!actualTargets.empty()) {
-    // Converting to an Objective-C class is a quick-and-dirty way to get
-    // a readable debug description of the context of the map.
-    NSMutableDictionary *actualTargetsDictionary = [NSMutableDictionary dictionary];
-    for (const auto &kv : actualTargets) {
-      actualTargetsDictionary[@(kv.first)] = kv.second;
-    }
-    XCTAssertTrue(actualTargets.empty(), "Unexpected active targets: %@",
-                  [actualTargetsDictionary description]);
-  }
+  XCTAssertTrue(actualTargets.empty(), "Unexpected active targets: %@",
+                objc::Description(actualTargets));
 }
 
 - (void)runSpecTestSteps:(NSArray *)steps config:(NSDictionary *)config {

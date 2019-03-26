@@ -1,4 +1,21 @@
 # Unreleased
+- [fixed] Fixed the way gRPC certificates are loaded on macOS (#2604).
+
+# 1.1.0
+- [feature] Added `FieldValue.increment()`, which can be used in
+  `updateData(_:)` and `setData(_:merge:)` to increment or decrement numeric
+  field values safely without transactions.
+- [changed] Improved performance when querying over documents that contain
+  subcollections (#2466).
+- [changed] Prepared the persistence layer to support collection group queries.
+  While this feature is not yet available, all schema changes are included
+  in this release.
+
+# v1.0.2
+- [changed] Internal improvements.
+
+# v1.0.1
+- [changed] Internal improvements.
 
 # v1.0.0
 - [changed] **Breaking change:** The `areTimestampsInSnapshotsEnabled` setting

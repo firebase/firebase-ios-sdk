@@ -32,7 +32,9 @@ NS_SWIFT_NAME(FirebaseConfiguration)
 @property(class, nonatomic, readonly) FIRConfiguration *sharedInstance NS_SWIFT_NAME(shared);
 
 /** The configuration class for Firebase Analytics. */
-@property(nonatomic, readwrite) FIRAnalyticsConfiguration *analyticsConfiguration;
+@property(nonatomic, readwrite)
+    FIRAnalyticsConfiguration *analyticsConfiguration DEPRECATED_MSG_ATTRIBUTE(
+        "Use the methods available here directly on the `Analytics` class.");
 
 /**
  * Sets the logging level for internal Firebase logging. Firebase will only log messages

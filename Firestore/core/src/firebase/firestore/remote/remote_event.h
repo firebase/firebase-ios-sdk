@@ -28,6 +28,7 @@
 #include <set>
 #include <unordered_map>
 #include <unordered_set>
+#include <utility>
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
@@ -39,36 +40,114 @@
 
 @class FSTMaybeDocument;
 @class FSTQueryData;
-@class FSTRemoteEvent;
-@class FSTTargetChange;
 
 NS_ASSUME_NONNULL_BEGIN
-
-/**
- * Interface implemented by RemoteStore to expose target metadata to the
- * `WatchChangeAggregator`.
- */
-@protocol FSTTargetMetadataProvider
-
-/**
- * Returns the set of remote document keys for the given target ID as of the
- * last raised snapshot.
- */
-- (firebase::firestore::model::DocumentKeySet)remoteKeysForTarget:
-    (firebase::firestore::model::TargetId)targetID;
-
-/**
- * Returns the FSTQueryData for an active target ID or 'null' if this query has
- * become inactive
- */
-- (nullable FSTQueryData*)queryDataForTarget:
-    (firebase::firestore::model::TargetId)targetID;
-
-@end
 
 namespace firebase {
 namespace firestore {
 namespace remote {
+
+/**
+ * Interface implemented by `RemoteStore` to expose target metadata to the
+ * `WatchChangeAggregator`.
+ */
+class TargetMetadataProvider {
+ public:
+  virtual ~TargetMetadataProvider() {
+  }
+
+  /**
+   * Returns the set of remote document keys for the given target ID as of the
+   * last raised snapshot.
+   */
+  virtual model::DocumentKeySet GetRemoteKeysForTarget(
+      model::TargetId target_id) const = 0;
+
+  /**
+   * Returns the FSTQueryData for an active target ID or 'null' if this query
+   * has become inactive
+   */
+  virtual FSTQueryData* GetQueryDataForTarget(
+      model::TargetId target_id) const = 0;
+};
+
+/**
+ * A `TargetChange` specifies the set of changes for a specific target as part
+ * of an `RemoteEvent`. These changes track which documents are added,
+ * modified or removed, as well as the target's resume token and whether the
+ * target is marked CURRENT.
+ *
+ * The actual changes *to* documents are not part of the `TargetChange` since
+ * documents may be part of multiple targets.
+ */
+class TargetChange {
+ public:
+  TargetChange() = default;
+
+  TargetChange(NSData* resume_token,
+               bool current,
+               model::DocumentKeySet added_documents,
+               model::DocumentKeySet modified_documents,
+               model::DocumentKeySet removed_documents)
+      : resume_token_{resume_token},
+        current_{current},
+        added_documents_{std::move(added_documents)},
+        modified_documents_{std::move(modified_documents)},
+        removed_documents_{std::move(removed_documents)} {
+  }
+
+  /**
+   * An opaque, server-assigned token that allows watching a query to be resumed
+   * after disconnecting without retransmitting all the data that matches the
+   * query. The resume token essentially identifies a point in time from which
+   * the server should resume sending results.
+   */
+  NSData* resume_token() const {
+    return resume_token_;
+  }
+
+  /**
+   * The "current" (synced) status of this target. Note that "current" has
+   * special meaning in the RPC protocol that implies that a target is both
+   * up-to-date and consistent with the rest of the watch stream.
+   */
+  bool current() const {
+    return current_;
+  }
+
+  /**
+   * The set of documents that were newly assigned to this target as part of
+   * this remote event.
+   */
+  const model::DocumentKeySet& added_documents() const {
+    return added_documents_;
+  }
+
+  /**
+   * The set of documents that were already assigned to this target but received
+   * an update during this remote event.
+   */
+  const model::DocumentKeySet& modified_documents() const {
+    return modified_documents_;
+  }
+
+  /**
+   * The set of documents that were removed from this target as part of this
+   * remote event.
+   */
+  const model::DocumentKeySet& removed_documents() const {
+    return removed_documents_;
+  }
+
+ private:
+  NSData* resume_token_ = nil;
+  bool current_ = false;
+  model::DocumentKeySet added_documents_;
+  model::DocumentKeySet modified_documents_;
+  model::DocumentKeySet removed_documents_;
+};
+
+bool operator==(const TargetChange& lhs, const TargetChange& rhs);
 
 /** Tracks the internal state of a Watch target. */
 class TargetState {
@@ -78,12 +157,12 @@ class TargetState {
   /**
    * Whether this target has been marked 'current'.
    *
-   * 'Current' has special meaning in the RPC protocol: It implies that the
+   * 'current' has special meaning in the RPC protocol: It implies that the
    * Watch backend has sent us all changes up to the point at which the target
    * was added and that the target is consistent with the rest of the watch
    * stream.
    */
-  bool Current() const {
+  bool current() const {
     return current_;
   }
 
@@ -114,13 +193,13 @@ class TargetState {
    * To reset the document changes after raising this snapshot, call
    * `ClearPendingChanges()`.
    */
-  FSTTargetChange* ToTargetChange() const;
+  TargetChange ToTargetChange() const;
 
   /** Resets the document changes and sets `HasPendingChanges` to false. */
   void ClearPendingChanges();
 
   void AddDocumentChange(const model::DocumentKey& document_key,
-                         core::DocumentViewChangeType type);
+                         core::DocumentViewChange::Type type);
   void RemoveDocumentChange(const model::DocumentKey& document_key);
   void RecordPendingTargetRequest();
   void RecordTargetResponse();
@@ -140,7 +219,7 @@ class TargetState {
    * always reflect the current set of changes against the last issued snapshot.
    */
   std::unordered_map<model::DocumentKey,
-                     core::DocumentViewChangeType,
+                     core::DocumentViewChange::Type,
                      model::DocumentKeyHash>
       document_changes_;
 
@@ -157,15 +236,82 @@ class TargetState {
 };
 
 /**
+ * An event from the RemoteStore. It is split into `TargetChanges` (changes to
+ * the state or the set of documents in our watched targets) and
+ * `DocumentUpdates` (changes to the actual documents).
+ */
+class RemoteEvent {
+ public:
+  RemoteEvent(model::SnapshotVersion snapshot_version,
+              std::unordered_map<model::TargetId, TargetChange> target_changes,
+              std::unordered_set<model::TargetId> target_mismatches,
+              std::unordered_map<model::DocumentKey,
+                                 FSTMaybeDocument*,
+                                 model::DocumentKeyHash> document_updates,
+              model::DocumentKeySet limbo_document_changes)
+      : snapshot_version_{snapshot_version},
+        target_changes_{std::move(target_changes)},
+        target_mismatches_{std::move(target_mismatches)},
+        document_updates_{std::move(document_updates)},
+        limbo_document_changes_{std::move(limbo_document_changes)} {
+  }
+
+  /** The snapshot version this event brings us up to. */
+  const model::SnapshotVersion& snapshot_version() const {
+    return snapshot_version_;
+  }
+
+  /** A map from target to changes to the target. See `TargetChange`. */
+  const std::unordered_map<model::TargetId, TargetChange>& target_changes()
+      const {
+    return target_changes_;
+  }
+
+  /**
+   * A set of targets that is known to be inconsistent. Listens for these
+   * targets should be re-established without resume tokens.
+   */
+  const std::unordered_set<model::TargetId>& target_mismatches() const {
+    return target_mismatches_;
+  }
+
+  /**
+   * A set of which documents have changed or been deleted, along with the doc's
+   * new values (if not deleted).
+   */
+  const std::unordered_map<model::DocumentKey,
+                           FSTMaybeDocument*,
+                           model::DocumentKeyHash>&
+  document_updates() const {
+    return document_updates_;
+  }
+
+  /**
+   * A set of which document updates are due only to limbo resolution targets.
+   */
+  const model::DocumentKeySet& limbo_document_changes() const {
+    return limbo_document_changes_;
+  }
+
+ private:
+  model::SnapshotVersion snapshot_version_;
+  std::unordered_map<model::TargetId, TargetChange> target_changes_;
+  std::unordered_set<model::TargetId> target_mismatches_;
+  std::unordered_map<model::DocumentKey,
+                     FSTMaybeDocument*,
+                     model::DocumentKeyHash>
+      document_updates_;
+  model::DocumentKeySet limbo_document_changes_;
+};
+
+/**
  * A helper class to accumulate watch changes into a `RemoteEvent` and other
  * target information.
  */
 class WatchChangeAggregator {
  public:
   explicit WatchChangeAggregator(
-      id<FSTTargetMetadataProvider> target_metadata_provider)
-      : target_metadata_provider_{target_metadata_provider} {
-  }
+      TargetMetadataProvider* target_metadata_provider);
 
   /**
    * Processes and adds the `DocumentWatchChange` to the current set of changes.
@@ -190,8 +336,7 @@ class WatchChangeAggregator {
    * taken from the initializer. Resets the accumulated changes before
    * returning.
    */
-  FSTRemoteEvent* CreateRemoteEvent(
-      const model::SnapshotVersion& snapshot_version);
+  RemoteEvent CreateRemoteEvent(const model::SnapshotVersion& snapshot_version);
 
   /** Removes the in-memory state for the provided target. */
   void RemoveTarget(model::TargetId target_id);
@@ -292,7 +437,7 @@ class WatchChangeAggregator {
    */
   std::unordered_set<model::TargetId> pending_target_resets_;
 
-  id<FSTTargetMetadataProvider> target_metadata_provider_;
+  TargetMetadataProvider* target_metadata_provider_ = nullptr;
 };
 
 }  // namespace remote

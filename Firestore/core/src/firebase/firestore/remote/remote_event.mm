@@ -21,9 +21,8 @@
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Remote/FSTRemoteEvent.h"
 
-using firebase::firestore::core::DocumentViewChangeType;
+using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::SnapshotVersion;
@@ -32,6 +31,16 @@ using firebase::firestore::model::TargetId;
 namespace firebase {
 namespace firestore {
 namespace remote {
+
+// TargetChange
+
+bool operator==(const TargetChange& lhs, const TargetChange& rhs) {
+  return [lhs.resume_token() isEqualToData:rhs.resume_token()] &&
+         lhs.current() == rhs.current() &&
+         lhs.added_documents() == rhs.added_documents() &&
+         lhs.modified_documents() == rhs.modified_documents() &&
+         lhs.removed_documents() == rhs.removed_documents();
+}
 
 // TargetState
 
@@ -45,23 +54,23 @@ void TargetState::UpdateResumeToken(NSData* resume_token) {
   }
 }
 
-FSTTargetChange* TargetState::ToTargetChange() const {
+TargetChange TargetState::ToTargetChange() const {
   DocumentKeySet added_documents;
   DocumentKeySet modified_documents;
   DocumentKeySet removed_documents;
 
   for (const auto& entry : document_changes_) {
     const DocumentKey& document_key = entry.first;
-    DocumentViewChangeType change_type = entry.second;
+    DocumentViewChange::Type change_type = entry.second;
 
     switch (change_type) {
-      case DocumentViewChangeType::kAdded:
+      case DocumentViewChange::Type::kAdded:
         added_documents = added_documents.insert(document_key);
         break;
-      case DocumentViewChangeType::kModified:
+      case DocumentViewChange::Type::kModified:
         modified_documents = modified_documents.insert(document_key);
         break;
-      case DocumentViewChangeType::kRemoved:
+      case DocumentViewChange::Type::kRemoved:
         removed_documents = removed_documents.insert(document_key);
         break;
       default:
@@ -69,12 +78,9 @@ FSTTargetChange* TargetState::ToTargetChange() const {
     }
   }
 
-  return [[FSTTargetChange alloc]
-      initWithResumeToken:resume_token()
-                  current:Current()
-           addedDocuments:std::move(added_documents)
-        modifiedDocuments:std::move(modified_documents)
-         removedDocuments:std::move(removed_documents)];
+  return TargetChange{resume_token(), current(), std::move(added_documents),
+                      std::move(modified_documents),
+                      std::move(removed_documents)};
 }
 
 void TargetState::ClearPendingChanges() {
@@ -96,7 +102,7 @@ void TargetState::MarkCurrent() {
 }
 
 void TargetState::AddDocumentChange(const DocumentKey& document_key,
-                                    DocumentViewChangeType type) {
+                                    DocumentViewChange::Type type) {
   has_pending_changes_ = true;
   document_changes_[document_key] = type;
 }
@@ -107,6 +113,11 @@ void TargetState::RemoveDocumentChange(const DocumentKey& document_key) {
 }
 
 // WatchChangeAggregator
+
+WatchChangeAggregator::WatchChangeAggregator(
+    TargetMetadataProvider* target_metadata_provider)
+    : target_metadata_provider_{NOT_NULL(target_metadata_provider)} {
+}
 
 void WatchChangeAggregator::HandleDocumentChange(
     const DocumentWatchChange& document_change) {
@@ -235,9 +246,9 @@ void WatchChangeAggregator::HandleExistenceFilter(
   }
 }
 
-FSTRemoteEvent* WatchChangeAggregator::CreateRemoteEvent(
+RemoteEvent WatchChangeAggregator::CreateRemoteEvent(
     const SnapshotVersion& snapshot_version) {
-  std::unordered_map<TargetId, FSTTargetChange*> target_changes;
+  std::unordered_map<TargetId, TargetChange> target_changes;
 
   for (auto& entry : target_states_) {
     TargetId target_id = entry.first;
@@ -245,7 +256,7 @@ FSTRemoteEvent* WatchChangeAggregator::CreateRemoteEvent(
 
     FSTQueryData* query_data = QueryDataForActiveTarget(target_id);
     if (query_data) {
-      if (target_state.Current() && [query_data.query isDocumentQuery]) {
+      if (target_state.current() && [query_data.query isDocumentQuery]) {
         // Document queries for document that don't exist can produce an empty
         // result set. To update our local cache, we synthesize a document
         // delete if we have not previously received the document. This resolves
@@ -291,12 +302,10 @@ FSTRemoteEvent* WatchChangeAggregator::CreateRemoteEvent(
     }
   }
 
-  FSTRemoteEvent* remote_event =
-      [[FSTRemoteEvent alloc] initWithSnapshotVersion:snapshot_version
-                                        targetChanges:target_changes
-                                     targetMismatches:pending_target_resets_
-                                      documentUpdates:pending_document_updates_
-                                       limboDocuments:resolved_limbo_documents];
+  RemoteEvent remote_event{snapshot_version, std::move(target_changes),
+                           std::move(pending_target_resets_),
+                           std::move(pending_document_updates_),
+                           std::move(resolved_limbo_documents)};
 
   // Re-initialize the current state to ensure that we do not modify the
   // generated `RemoteEvent`.
@@ -313,10 +322,10 @@ void WatchChangeAggregator::AddDocumentToTarget(TargetId target_id,
     return;
   }
 
-  DocumentViewChangeType change_type =
+  DocumentViewChange::Type change_type =
       TargetContainsDocument(target_id, document.key)
-          ? DocumentViewChangeType::kModified
-          : DocumentViewChangeType::kAdded;
+          ? DocumentViewChange::Type::kModified
+          : DocumentViewChange::Type::kAdded;
 
   TargetState& target_state = EnsureTargetState(target_id);
   target_state.AddDocumentChange(document.key, change_type);
@@ -335,7 +344,7 @@ void WatchChangeAggregator::RemoveDocumentFromTarget(
 
   TargetState& target_state = EnsureTargetState(target_id);
   if (TargetContainsDocument(target_id, key)) {
-    target_state.AddDocumentChange(key, DocumentViewChangeType::kRemoved);
+    target_state.AddDocumentChange(key, DocumentViewChange::Type::kRemoved);
   } else {
     // The document may have entered and left the target before we raised a
     // snapshot, so we can just ignore the change.
@@ -355,10 +364,10 @@ void WatchChangeAggregator::RemoveTarget(TargetId target_id) {
 int WatchChangeAggregator::GetCurrentDocumentCountForTarget(
     TargetId target_id) {
   TargetState& target_state = EnsureTargetState(target_id);
-  FSTTargetChange* target_change = target_state.ToTargetChange();
-  return ([target_metadata_provider_ remoteKeysForTarget:target_id].size() +
-          target_change.addedDocuments.size() -
-          target_change.removedDocuments.size());
+  TargetChange target_change = target_state.ToTargetChange();
+  return target_metadata_provider_->GetRemoteKeysForTarget(target_id).size() +
+         target_change.added_documents().size() -
+         target_change.removed_documents().size();
 }
 
 void WatchChangeAggregator::RecordPendingTargetRequest(TargetId target_id) {
@@ -381,7 +390,7 @@ FSTQueryData* WatchChangeAggregator::QueryDataForActiveTarget(
   return target_state != target_states_.end() &&
                  target_state->second.IsPending()
              ? nil
-             : [target_metadata_provider_ queryDataForTarget:target_id];
+             : target_metadata_provider_->GetQueryDataForTarget(target_id);
 }
 
 void WatchChangeAggregator::ResetTarget(TargetId target_id) {
@@ -396,7 +405,7 @@ void WatchChangeAggregator::ResetTarget(TargetId target_id) {
   // removals will be part of the initial snapshot if Watch does not resend
   // these documents.
   DocumentKeySet existingKeys =
-      [target_metadata_provider_ remoteKeysForTarget:target_id];
+      target_metadata_provider_->GetRemoteKeysForTarget(target_id);
 
   for (const DocumentKey& key : existingKeys) {
     RemoveDocumentFromTarget(target_id, key, nil);
@@ -406,7 +415,7 @@ void WatchChangeAggregator::ResetTarget(TargetId target_id) {
 bool WatchChangeAggregator::TargetContainsDocument(TargetId target_id,
                                                    const DocumentKey& key) {
   const DocumentKeySet& existing_keys =
-      [target_metadata_provider_ remoteKeysForTarget:target_id];
+      target_metadata_provider_->GetRemoteKeysForTarget(target_id);
   return existing_keys.contains(key);
 }
 

@@ -34,7 +34,7 @@ NS_SWIFT_NAME(GameCenterAuthSignInMethod);
 /** @typedef FIRGameCenterCredentialCallback
     @brief The type of block invoked when the Game Center credential code has finished.
     @param credential On success, the credential will be provided, nil otherwise.
-    @param error On error, the error that occured, nil otherwise.
+    @param error On error, the error that occurred, nil otherwise.
  */
 typedef void (^FIRGameCenterCredentialCallback)(FIRAuthCredential *_Nullable credential,
                                                 NSError *_Nullable error)

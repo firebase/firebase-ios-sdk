@@ -27,15 +27,25 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     bundle exec pod install --project-directory=Example --repo-update
     bundle exec pod install --project-directory=Functions/Example
     bundle exec pod install --project-directory=GoogleUtilities/Example
-    bundle exec pod install --project-directory=InAppMessagingDisplay/Example
 
     # Set up GoogleService-Info.plist for Storage and Database integration tests. The decrypting
     # is not supported for pull requests. See https://docs.travis-ci.com/user/encrypting-files/
     if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
-        openssl aes-256-cbc -K $encrypted_2c8d10c8cc1d_key -iv $encrypted_2c8d10c8cc1d_iv \
-            -in scripts/travis-encrypted/database-storage/GoogleService-Info.plist.enc \
-            -out Example/Storage/App/GoogleService-Info.plist -d
-        cp Example/Storage/App/GoogleService-Info.plist Example/Database/App/GoogleService-Info.plist
+      openssl aes-256-cbc -K $encrypted_824e27188cd5_key -iv $encrypted_824e27188cd5_iv \
+      -in scripts/travis-encrypted/Secrets.tar.enc \
+      -out scripts/travis-encrypted/Secrets.tar -d
+
+      tar xvf scripts/travis-encrypted/Secrets.tar
+
+      cp Secrets/Auth/Sample/Application.plist Example/Auth/Sample/Application.plist
+      cp Secrets/Auth/Sample/AuthCredentials.h Example/Auth/Sample/AuthCredentials.h
+      cp Secrets/Auth/Sample/GoogleService-Info_multi.plist Example/Auth/Sample/GoogleService-Info_multi.plist
+      cp Secrets/Auth/Sample/GoogleService-Info.plist Example/Auth/Sample/GoogleService-Info.plist
+      cp Secrets/Auth/Sample/Sample.entitlements Example/Auth/Sample/Sample.entitlements
+      cp Secrets/Auth/ApiTests/AuthCredentials.h Example/Auth/ApiTests/AuthCredentials.h
+
+      cp Secrets/Storage/App/GoogleService-Info.plist Example/Storage/App/GoogleService-Info.plist
+      cp Secrets/Storage/App/GoogleService-Info.plist Example/Database/App/GoogleService-Info.plist
     fi
     ;;
 
@@ -45,9 +55,16 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     bundle exec pod install --project-directory=GoogleUtilities/Example
     ;;
 
-  InAppMessagingDisplay-iOS-xcodebuild)
+  Functions-*)
+    bundle exec pod repo update
+    # Start server for Functions integration tests.
+    ./Functions/Backend/start.sh synchronous
+    ;;
+
+  InAppMessaging-iOS-xcodebuild)
     gem install xcpretty
     bundle exec pod install --project-directory=InAppMessagingDisplay/Example --repo-update
+    bundle exec pod install --project-directory=InAppMessaging/Example --repo-update
     ;;
 
   Firestore-*-xcodebuild | Firestore-*-fuzz)

@@ -5,16 +5,26 @@
 Follow the subsequent instructions to develop, debug, unit test, and
 integration test FirebaseFunctions:
 
-```
-$ git clone git@github.com:firebase/firebase-ios-sdk.git
-$ cd firebase-ios-sdk/Functions/Example
-$ pod update
-$ open FirebaseFunctions.xcworkspace
-```
+### Prereqs
+
+- At least CocoaPods 1.6.0
+- Install [cocoapods-generate](https://github.com/square/cocoapods-generate)
+
+### To Develop
+
+- Run `pod gen FirebaseFunctions.podspec`
+- `open gen/FirebaseFunctions/FirebaseFunctions.xcworkspace`
+
+OR these two commands can be combined with
+
+- `pod gen FirebaseFunctions.podspec --auto-open --gen-directory="gen" --clean`
+
+You're now in an Xcode workspace generate for building, debugging and
+testing the FirebaseFunctions CocoaPod.
 
 ### Running Unit Tests
 
-Choose the FirebaseFunctions_Tests scheme and press Command-u.
+Choose the FirebaseFunctions-Unit-unit scheme and press Command-u.
 
 ## Running Integration Tests
 
@@ -29,5 +39,5 @@ for them to talk to.
     You can put anything you like. It will be ignored.
 3.  Create the workspace in Functions/Example with `pod install`.
 4.  `open FirebaseFunctions.xcworkspace`
-5.  Choose the FirebaseFunctions_IntegrationTests scheme and press Command-u.
+5.  Choose the FirebaseFunctions-Unit-integration scheme and press Command-u.
 6.  When you are finished, you can press any key to stop the backend.

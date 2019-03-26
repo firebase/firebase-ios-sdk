@@ -31,6 +31,8 @@
 @class FIRAuthSettings;
 @class FIRUser;
 @protocol FIRAuthStateListener;
+@protocol FIRAuthUIDelegate;
+@protocol FIRFederatedAuthProvider;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -463,6 +465,54 @@ NS_SWIFT_NAME(Auth)
                                       "Please use signInAndRetrieveDataWithCredential:completion:"
                                       " for Objective-C or signInAndRetrieveData(with:completion:)"
                                       " for Swift instead.");
+
+/** @fn signInWithProvider:UIDelegate:completion:
+    @brief Signs in using the provided auth provider instance.
+
+    @param provider An isntance of an auth provider used to initiate the sign-in flow.
+    @param UIDelegate Optionally an instance of a class conforming to the FIRAuthUIDelegate
+        protocol, this is used for presenting the web context. If nil, a default FIRAuthUIDelegate
+        will be used.
+    @param completion Optionally; a block which is invoked when the sign in flow finishes, or is
+        canceled. Invoked asynchronously on the main thread in the future.
+
+    @remarks Possible error codes:
+    <ul>
+        <li>@c FIRAuthErrorCodeOperationNotAllowed - Indicates that email and password
+            accounts are not enabled. Enable them in the Auth section of the
+            Firebase console.
+        </li>
+        <li>@c FIRAuthErrorCodeUserDisabled - Indicates the user's account is disabled.
+        </li>
+        <li>@c FIRAuthErrorCodeWebNetworkRequestFailed - Indicates that a network request within a
+            SFSafariViewController or UIWebview failed.
+        </li>
+        <li>@c FIRAuthErrorCodeWebInternalError - Indicates that an internal error occurred within a
+            SFSafariViewController or UIWebview.
+        </li>
+        <li>@c FIRAuthErrorCodeWebSignInUserInteractionFailure - Indicates a general failure during
+            a web sign-in flow.
+        </li>
+        <li>@c FIRAuthErrorCodeWebContextAlreadyPresented - Indicates that an attempt was made to
+            present a new web context while one was already being presented.
+        </li>
+        <li>@c FIRAuthErrorCodeWebContextCancelled - Indicates that the URL presentation was cancelled prematurely
+            by the user.
+        </li>
+        <li>@c FIRAuthErrorCodeAccountExistsWithDifferentCredential - Indicates the email asserted
+            by the credential (e.g. the email in a Facebook access token) is already in use by an
+            existing account, that cannot be authenticated with this sign-in method. Call
+            fetchProvidersForEmail for this user’s email and then prompt them to sign in with any of
+            the sign-in providers returned. This error will only be thrown if the "One account per
+            email address" setting is enabled in the Firebase console, under Auth settings.
+        </li>
+    </ul>
+
+    @remarks See @c FIRAuthErrors for a list of error codes that are common to all API methods.
+ */
+- (void)signInWithProvider:(id<FIRFederatedAuthProvider>)provider
+                UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
+                completion:(nullable FIRAuthDataResultCallback)completion;
 
 /** @fn signInAndRetrieveDataWithCredential:completion:
     @brief Asynchronously signs in to Firebase with the given 3rd-party credentials (e.g. a Facebook

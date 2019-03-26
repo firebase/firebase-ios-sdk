@@ -23,6 +23,7 @@
 #include <utility>
 #include <vector>
 
+#include "Firestore/core/src/firebase/firestore/immutable/sorted_map.h"
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/memory/memory.h"
@@ -35,23 +36,6 @@ namespace model {
 
 using Type = FieldValue::Type;
 using firebase::firestore::util::ComparisonResult;
-
-namespace {
-
-// Makes a copy excluding the specified child, which is expected to be assigned
-// different value afterwards.
-ObjectValue::Map CopyExcept(const ObjectValue::Map& object_map,
-                            const std::string exclude) {
-  ObjectValue::Map copy;
-  for (const auto& kv : object_map) {
-    if (kv.first != exclude) {
-      copy[kv.first] = kv.second;
-    }
-  }
-  return copy;
-}
-
-}  // namespace
 
 FieldValue::FieldValue(const FieldValue& value) {
   *this = value;
@@ -108,8 +92,8 @@ FieldValue& FieldValue::operator=(const FieldValue& value) {
     }
     case Type::Object: {
       // copy-and-swap
-      ObjectValue::Map tmp = value.object_value_->internal_value;
-      std::swap(object_value_->internal_value, tmp);
+      Map tmp = *value.object_value_;
+      std::swap(*object_value_, tmp);
       break;
     }
     default:
@@ -160,73 +144,58 @@ bool FieldValue::Comparable(Type lhs, Type rhs) {
   }
 }
 
-FieldValue FieldValue::Set(const FieldPath& field_path,
-                           FieldValue value) const {
-  HARD_ASSERT(type() == Type::Object,
-              "Cannot set field for non-object FieldValue");
+// TODO(rsgowman): Reorder this file to match its header.
+ObjectValue ObjectValue::Set(const FieldPath& field_path,
+                             const FieldValue& value) const {
   HARD_ASSERT(!field_path.empty(),
               "Cannot set field for empty path on FieldValue");
   // Set the value by recursively calling on child object.
   const std::string& child_name = field_path.first_segment();
-  const ObjectValue::Map& object_map = object_value_->internal_value;
   if (field_path.size() == 1) {
-    // TODO(zxu): Once immutable type is available, rewrite these.
-    ObjectValue::Map copy = CopyExcept(object_map, child_name);
-    copy[child_name] = std::move(value);
-    return FieldValue::FromMap(std::move(copy));
+    return SetChild(child_name, value);
   } else {
-    ObjectValue::Map copy = CopyExcept(object_map, child_name);
-    const auto iter = object_map.find(child_name);
-    if (iter == object_map.end() || iter->second.type() != Type::Object) {
-      copy[child_name] =
-          FieldValue::FromMap({}).Set(field_path.PopFirst(), std::move(value));
-    } else {
-      copy[child_name] =
-          iter->second.Set(field_path.PopFirst(), std::move(value));
+    ObjectValue child = ObjectValue::Empty();
+    const auto iter = fv_.object_value_->find(child_name);
+    if (iter != fv_.object_value_->end() &&
+        iter->second.type() == Type::Object) {
+      child = ObjectValue(iter->second);
     }
-    return FieldValue::FromMap(std::move(copy));
+    ObjectValue new_child = child.Set(field_path.PopFirst(), value);
+    return SetChild(child_name, new_child.fv_);
   }
 }
 
-FieldValue FieldValue::Delete(const FieldPath& field_path) const {
-  HARD_ASSERT(type() == Type::Object,
-              "Cannot delete field for non-object FieldValue");
+ObjectValue ObjectValue::Delete(const FieldPath& field_path) const {
   HARD_ASSERT(!field_path.empty(),
               "Cannot delete field for empty path on FieldValue");
   // Delete the value by recursively calling on child object.
   const std::string& child_name = field_path.first_segment();
-  const ObjectValue::Map& object_map = object_value_->internal_value;
   if (field_path.size() == 1) {
-    // TODO(zxu): Once immutable type is available, rewrite these.
-    ObjectValue::Map copy = CopyExcept(object_map, child_name);
-    return FieldValue::FromMap(std::move(copy));
+    return ObjectValue::FromMap(fv_.object_value_->erase(child_name));
   } else {
-    const auto iter = object_map.find(child_name);
-    if (iter == object_map.end() || iter->second.type() != Type::Object) {
+    const auto iter = fv_.object_value_->find(child_name);
+    if (iter != fv_.object_value_->end() &&
+        iter->second.type() == Type::Object) {
+      ObjectValue new_child =
+          ObjectValue(iter->second).Delete(field_path.PopFirst());
+      return SetChild(child_name, new_child.fv_);
+    } else {
       // If the found value isn't an object, it cannot contain the remaining
       // segments of the path. We don't actually change a primitive value to
       // an object for a delete.
       return *this;
-    } else {
-      ObjectValue::Map copy = CopyExcept(object_map, child_name);
-      copy[child_name] =
-          object_map.at(child_name).Delete(field_path.PopFirst());
-      return FieldValue::FromMap(std::move(copy));
     }
   }
 }
 
-absl::optional<FieldValue> FieldValue::Get(const FieldPath& field_path) const {
-  HARD_ASSERT(type() == Type::Object,
-              "Cannot get field for non-object FieldValue");
-  const FieldValue* current = this;
+absl::optional<FieldValue> ObjectValue::Get(const FieldPath& field_path) const {
+  const FieldValue* current = &this->fv_;
   for (const auto& path : field_path) {
     if (current->type() != Type::Object) {
       return absl::nullopt;
     }
-    const ObjectValue::Map& object_map = current->object_value_->internal_value;
-    const auto iter = object_map.find(path);
-    if (iter == object_map.end()) {
+    const auto iter = current->object_value_->find(path);
+    if (iter == current->object_value_->end()) {
       return absl::nullopt;
     } else {
       current = &iter->second;
@@ -235,28 +204,33 @@ absl::optional<FieldValue> FieldValue::Get(const FieldPath& field_path) const {
   return *current;
 }
 
-const FieldValue& FieldValue::Null() {
-  static const FieldValue kNullInstance;
-  return kNullInstance;
+ObjectValue ObjectValue::SetChild(const std::string& child_name,
+                                  const FieldValue& value) const {
+  return ObjectValue::FromMap(fv_.object_value_->insert(child_name, value));
 }
 
-const FieldValue& FieldValue::True() {
-  static const FieldValue kTrueInstance(true);
-  return kTrueInstance;
+FieldValue FieldValue::Null() {
+  return FieldValue();
 }
 
-const FieldValue& FieldValue::False() {
-  static const FieldValue kFalseInstance(false);
-  return kFalseInstance;
+FieldValue FieldValue::True() {
+  return FieldValue(true);
 }
 
-const FieldValue& FieldValue::FromBoolean(bool value) {
+FieldValue FieldValue::False() {
+  return FieldValue(false);
+}
+
+FieldValue FieldValue::FromBoolean(bool value) {
   return value ? True() : False();
 }
 
-const FieldValue& FieldValue::Nan() {
-  static const FieldValue kNanInstance = FieldValue::FromDouble(NAN);
-  return kNanInstance;
+FieldValue FieldValue::Nan() {
+  return FieldValue::FromDouble(NAN);
+}
+
+FieldValue FieldValue::EmptyObject() {
+  return FieldValue::FromMap(FieldValue::Map());
 }
 
 FieldValue FieldValue::FromInteger(int64_t value) {
@@ -361,16 +335,21 @@ FieldValue FieldValue::FromArray(std::vector<FieldValue>&& value) {
   return result;
 }
 
-FieldValue FieldValue::FromMap(const ObjectValue::Map& value) {
-  ObjectValue::Map copy(value);
+FieldValue FieldValue::FromMap(const FieldValue::Map& value) {
+  FieldValue::Map copy(value);
   return FromMap(std::move(copy));
 }
 
-FieldValue FieldValue::FromMap(ObjectValue::Map&& value) {
+FieldValue FieldValue::FromMap(FieldValue::Map&& value) {
   FieldValue result;
   result.SwitchTo(Type::Object);
-  std::swap(result.object_value_->internal_value, value);
+  std::swap(*result.object_value_, value);
   return result;
+}
+
+bool operator<(const FieldValue::Map& lhs, const FieldValue::Map& rhs) {
+  return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(),
+                                      rhs.end());
 }
 
 bool operator<(const FieldValue& lhs, const FieldValue& rhs) {
@@ -466,7 +445,7 @@ void FieldValue::SwitchTo(const Type type) {
       array_value_.~unique_ptr<std::vector<FieldValue>>();
       break;
     case Type::Object:
-      object_value_.~unique_ptr<ObjectValue>();
+      object_value_.~unique_ptr<Map>();
       break;
     default: {}  // The other types where there is nothing to worry about.
   }
@@ -503,11 +482,18 @@ void FieldValue::SwitchTo(const Type type) {
           absl::make_unique<std::vector<FieldValue>>());
       break;
     case Type::Object:
-      new (&object_value_)
-          std::unique_ptr<ObjectValue>(absl::make_unique<ObjectValue>());
+      new (&object_value_) std::unique_ptr<Map>(absl::make_unique<Map>());
       break;
     default: {}  // The other types where there is nothing to worry about.
   }
+}
+
+ObjectValue ObjectValue::FromMap(const FieldValue::Map& value) {
+  return ObjectValue(FieldValue::FromMap(value));
+}
+
+ObjectValue ObjectValue::FromMap(FieldValue::Map&& value) {
+  return ObjectValue(FieldValue::FromMap(std::move(value)));
 }
 
 }  // namespace model

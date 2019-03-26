@@ -38,6 +38,8 @@ static NSString *const kOSVersionMatcherForUsingUserDefaults = @"^10\\.[01](\\..
  */
 static NSString *const kAccountPrefix = @"firebase_auth_1_";
 
+NS_ASSUME_NONNULL_BEGIN
+
 @implementation FIRAuthKeychain {
   /** @var _service
       @brief The name of the keychain service.
@@ -75,7 +77,7 @@ static NSString *const kAccountPrefix = @"firebase_auth_1_";
   return self;
 }
 
-- (NSData *)dataForKey:(NSString *)key error:(NSError **_Nullable)error {
+- (nullable NSData *)dataForKey:(NSString *)key error:(NSError **_Nullable)error {
   if (!key.length) {
     [NSException raise:NSInvalidArgumentException
                 format:@"%@", @"The key cannot be nil or empty."];
@@ -254,3 +256,5 @@ static NSString *const kAccountPrefix = @"firebase_auth_1_";
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -16,6 +16,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
@@ -172,11 +173,11 @@ TEST_F(DatastoreTest, WhitelistedHeaders) {
 // Normal operation
 
 TEST_F(DatastoreTest, CommitMutationsSuccess) {
-  __block bool done = false;
-  __block NSError* resulting_error = nullptr;
-  datastore->CommitMutations(@[], ^(NSError* _Nullable error) {
+  bool done = false;
+  Status resulting_status;
+  datastore->CommitMutations({}, [&](const Status& status) {
     done = true;
-    resulting_error = error;
+    resulting_status = status;
   });
   // Make sure Auth has a chance to run.
   worker_queue.EnqueueBlocking([] {});
@@ -184,20 +185,20 @@ TEST_F(DatastoreTest, CommitMutationsSuccess) {
   ForceFinish({{Type::Finish, grpc::Status::OK}});
 
   EXPECT_TRUE(done);
-  EXPECT_EQ(resulting_error, nullptr);
+  EXPECT_TRUE(resulting_status.ok());
 }
 
 TEST_F(DatastoreTest, LookupDocumentsOneSuccessfulRead) {
-  __block bool done = false;
-  __block NSArray<FSTMaybeDocument*>* resulting_docs = nullptr;
-  __block NSError* resulting_error = nullptr;
-  datastore->LookupDocuments({},
-                             ^(NSArray<FSTMaybeDocument*>* _Nullable documents,
-                               NSError* _Nullable error) {
-                               done = true;
-                               resulting_docs = documents;
-                               resulting_error = error;
-                             });
+  bool done = false;
+  std::vector<FSTMaybeDocument*> resulting_docs;
+  Status resulting_status;
+  datastore->LookupDocuments(
+      {}, [&](const std::vector<FSTMaybeDocument*>& documents,
+              const Status& status) {
+        done = true;
+        resulting_docs = documents;
+        resulting_status = status;
+      });
   // Make sure Auth has a chance to run.
   worker_queue.EnqueueBlocking([] {});
 
@@ -207,23 +208,22 @@ TEST_F(DatastoreTest, LookupDocumentsOneSuccessfulRead) {
   ForceFinish({{Type::Finish, grpc::Status::OK}});
 
   EXPECT_TRUE(done);
-  ASSERT_NE(resulting_docs, nullptr);
-  EXPECT_EQ(resulting_docs.count, 1);
-  EXPECT_EQ([[resulting_docs objectAtIndex:0] key].ToString(), "foo/1");
-  EXPECT_EQ(resulting_error, nullptr);
+  EXPECT_EQ(resulting_docs.size(), 1);
+  EXPECT_EQ(resulting_docs[0].key.ToString(), "foo/1");
+  EXPECT_TRUE(resulting_status.ok());
 }
 
 TEST_F(DatastoreTest, LookupDocumentsTwoSuccessfulReads) {
-  __block bool done = false;
-  __block NSArray<FSTMaybeDocument*>* resulting_docs = nullptr;
-  __block NSError* resulting_error = nullptr;
-  datastore->LookupDocuments({},
-                             ^(NSArray<FSTMaybeDocument*>* _Nullable documents,
-                               NSError* _Nullable error) {
-                               done = true;
-                               resulting_docs = documents;
-                               resulting_error = error;
-                             });
+  bool done = false;
+  std::vector<FSTMaybeDocument*> resulting_docs;
+  Status resulting_status;
+  datastore->LookupDocuments(
+      {}, [&](const std::vector<FSTMaybeDocument*>& documents,
+              const Status& status) {
+        done = true;
+        resulting_docs = documents;
+        resulting_status = status;
+      });
   // Make sure Auth has a chance to run.
   worker_queue.EnqueueBlocking([] {});
 
@@ -234,21 +234,20 @@ TEST_F(DatastoreTest, LookupDocumentsTwoSuccessfulReads) {
   ForceFinish({{Type::Finish, grpc::Status::OK}});
 
   EXPECT_TRUE(done);
-  ASSERT_NE(resulting_docs, nullptr);
-  EXPECT_EQ(resulting_docs.count, 2);
-  EXPECT_EQ([[resulting_docs objectAtIndex:0] key].ToString(), "foo/1");
-  EXPECT_EQ([[resulting_docs objectAtIndex:1] key].ToString(), "foo/2");
-  EXPECT_EQ(resulting_error, nullptr);
+  EXPECT_EQ(resulting_docs.size(), 2);
+  EXPECT_EQ(resulting_docs[0].key.ToString(), "foo/1");
+  EXPECT_EQ(resulting_docs[1].key.ToString(), "foo/2");
+  EXPECT_TRUE(resulting_status.ok());
 }
 
 // gRPC errors
 
 TEST_F(DatastoreTest, CommitMutationsError) {
-  __block bool done = false;
-  __block NSError* resulting_error = nullptr;
-  datastore->CommitMutations(@[], ^(NSError* _Nullable error) {
+  bool done = false;
+  Status resulting_status;
+  datastore->CommitMutations({}, [&](const Status& status) {
     done = true;
-    resulting_error = error;
+    resulting_status = status;
   });
   // Make sure Auth has a chance to run.
   worker_queue.EnqueueBlocking([] {});
@@ -256,18 +255,19 @@ TEST_F(DatastoreTest, CommitMutationsError) {
   ForceFinish({{Type::Finish, grpc::Status{grpc::UNAVAILABLE, ""}}});
 
   EXPECT_TRUE(done);
-  EXPECT_NE(resulting_error, nullptr);
+  EXPECT_FALSE(resulting_status.ok());
+  EXPECT_EQ(resulting_status.code(), FirestoreErrorCode::Unavailable);
 }
 
 TEST_F(DatastoreTest, LookupDocumentsErrorBeforeFirstRead) {
-  __block bool done = false;
-  __block NSError* resulting_error = nullptr;
-  datastore->LookupDocuments({},
-                             ^(NSArray<FSTMaybeDocument*>* _Nullable documents,
-                               NSError* _Nullable error) {
-                               done = true;
-                               resulting_error = error;
-                             });
+  bool done = false;
+  Status resulting_status;
+  datastore->LookupDocuments(
+      {}, [&](const std::vector<FSTMaybeDocument*>& documents,
+              const Status& status) {
+        done = true;
+        resulting_status = status;
+      });
   // Make sure Auth has a chance to run.
   worker_queue.EnqueueBlocking([] {});
 
@@ -275,19 +275,20 @@ TEST_F(DatastoreTest, LookupDocumentsErrorBeforeFirstRead) {
   ForceFinish({{Type::Finish, grpc::Status{grpc::UNAVAILABLE, ""}}});
 
   EXPECT_TRUE(done);
-  EXPECT_NE(resulting_error, nullptr);
+  EXPECT_FALSE(resulting_status.ok());
+  EXPECT_EQ(resulting_status.code(), FirestoreErrorCode::Unavailable);
 }
 
 TEST_F(DatastoreTest, LookupDocumentsErrorAfterFirstRead) {
-  __block bool done = false;
-  __block NSArray<FSTMaybeDocument*>* resulting_docs = nullptr;
-  __block NSError* resulting_error = nullptr;
-  datastore->LookupDocuments({},
-                             ^(NSArray<FSTMaybeDocument*>* _Nullable documents,
-                               NSError* _Nullable error) {
-                               done = true;
-                               resulting_error = error;
-                             });
+  bool done = false;
+  std::vector<FSTMaybeDocument*> resulting_docs;
+  Status resulting_status;
+  datastore->LookupDocuments(
+      {}, [&](const std::vector<FSTMaybeDocument*>& documents,
+              const Status& status) {
+        done = true;
+        resulting_status = status;
+      });
   // Make sure Auth has a chance to run.
   worker_queue.EnqueueBlocking([] {});
 
@@ -297,8 +298,9 @@ TEST_F(DatastoreTest, LookupDocumentsErrorAfterFirstRead) {
   ForceFinish({{Type::Finish, grpc::Status{grpc::UNAVAILABLE, ""}}});
 
   EXPECT_TRUE(done);
-  EXPECT_EQ(resulting_docs, nullptr);
-  EXPECT_NE(resulting_error, nullptr);
+  EXPECT_TRUE(resulting_docs.empty());
+  EXPECT_FALSE(resulting_status.ok());
+  EXPECT_EQ(resulting_status.code(), FirestoreErrorCode::Unavailable);
 }
 
 // Auth errors
@@ -306,31 +308,30 @@ TEST_F(DatastoreTest, LookupDocumentsErrorAfterFirstRead) {
 TEST_F(DatastoreTest, CommitMutationsAuthFailure) {
   credentials.FailGetToken();
 
-  __block NSError* resulting_error = nullptr;
-  datastore->CommitMutations(@[], ^(NSError* _Nullable error) {
-    resulting_error = error;
-  });
+  Status resulting_status;
+  datastore->CommitMutations(
+      {}, [&](const Status& status) { resulting_status = status; });
   worker_queue.EnqueueBlocking([] {});
-  EXPECT_NE(resulting_error, nullptr);
+  EXPECT_FALSE(resulting_status.ok());
 }
 
 TEST_F(DatastoreTest, LookupDocumentsAuthFailure) {
   credentials.FailGetToken();
 
-  __block NSError* resulting_error = nullptr;
+  Status resulting_status;
   datastore->LookupDocuments(
-      {}, ^(NSArray<FSTMaybeDocument*>* docs, NSError* _Nullable error) {
-        resulting_error = error;
+      {}, [&](const std::vector<FSTMaybeDocument*>&, const Status& status) {
+        resulting_status = status;
       });
   worker_queue.EnqueueBlocking([] {});
-  EXPECT_NE(resulting_error, nullptr);
+  EXPECT_FALSE(resulting_status.ok());
 }
 
 TEST_F(DatastoreTest, AuthAfterDatastoreHasBeenShutDown) {
   credentials.DelayGetToken();
 
   worker_queue.EnqueueBlocking([&] {
-    datastore->CommitMutations(@[], ^(NSError* _Nullable error) {
+    datastore->CommitMutations({}, [](const Status& status) {
       FAIL() << "Callback shouldn't be invoked";
     });
   });
@@ -343,7 +344,7 @@ TEST_F(DatastoreTest, AuthOutlivesDatastore) {
   credentials.DelayGetToken();
 
   worker_queue.EnqueueBlocking([&] {
-    datastore->CommitMutations(@[], ^(NSError* _Nullable error) {
+    datastore->CommitMutations({}, [](const Status& status) {
       FAIL() << "Callback shouldn't be invoked";
     });
   });

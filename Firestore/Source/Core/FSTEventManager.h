@@ -16,36 +16,17 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Firestore/Source/Core/FSTViewSnapshot.h"
-#import "Firestore/Source/Remote/FSTRemoteStore.h"
-
+#include "Firestore/core/src/firebase/firestore/core/listen_options.h"
+#include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
 
 @class FSTQuery;
 @class FSTSyncEngine;
 
 NS_ASSUME_NONNULL_BEGIN
 
-#pragma mark - FSTListenOptions
-
-@interface FSTListenOptions : NSObject
-
-+ (instancetype)defaultOptions;
-
-- (instancetype)initWithIncludeQueryMetadataChanges:(BOOL)includeQueryMetadataChanges
-                     includeDocumentMetadataChanges:(BOOL)includeDocumentMetadataChanges
-                              waitForSyncWhenOnline:(BOOL)waitForSyncWhenOnline
-    NS_DESIGNATED_INITIALIZER;
-
-- (instancetype)init NS_UNAVAILABLE;
-
-@property(nonatomic, assign, readonly) BOOL includeQueryMetadataChanges;
-
-@property(nonatomic, assign, readonly) BOOL includeDocumentMetadataChanges;
-
-@property(nonatomic, assign, readonly) BOOL waitForSyncWhenOnline;
-
-@end
+using firebase::firestore::core::ListenOptions;
 
 #pragma mark - FSTQueryListener
 
@@ -56,13 +37,14 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FSTQueryListener : NSObject
 
 - (instancetype)initWithQuery:(FSTQuery *)query
-                      options:(FSTListenOptions *)options
-          viewSnapshotHandler:(FSTViewSnapshotHandler)viewSnapshotHandler NS_DESIGNATED_INITIALIZER;
+                      options:(ListenOptions)options
+          viewSnapshotHandler:(firebase::firestore::core::ViewSnapshotHandler &&)viewSnapshotHandler
+    NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)init NS_UNAVAILABLE;
 
-- (void)queryDidChangeViewSnapshot:(FSTViewSnapshot *)snapshot;
-- (void)queryDidError:(NSError *)error;
+- (void)queryDidChangeViewSnapshot:(firebase::firestore::core::ViewSnapshot)snapshot;
+- (void)queryDidError:(const firebase::firestore::util::Status &)error;
 - (void)applyChangedOnlineState:(firebase::firestore::model::OnlineState)onlineState;
 
 @property(nonatomic, strong, readonly) FSTQuery *query;
@@ -75,7 +57,7 @@ NS_ASSUME_NONNULL_BEGIN
  * EventManager is responsible for mapping queries to query event emitters. It handles "fan-out."
  * (Identical queries will re-use the same watch on the backend.)
  */
-@interface FSTEventManager : NSObject <FSTOnlineStateDelegate>
+@interface FSTEventManager : NSObject
 
 + (instancetype)eventManagerWithSyncEngine:(FSTSyncEngine *)syncEngine;
 
@@ -83,6 +65,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (firebase::firestore::model::TargetId)addListener:(FSTQueryListener *)listener;
 - (void)removeListener:(FSTQueryListener *)listener;
+
+- (void)applyChangedOnlineState:(firebase::firestore::model::OnlineState)onlineState;
 
 @end
 

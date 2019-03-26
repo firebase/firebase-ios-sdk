@@ -54,4 +54,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property(strong, nonatomic, readonly) NSArray<id> *elements;
 @end
 
+/** FIRFieldValue class for number increments. */
+@interface FSTNumericIncrementFieldValue : FIRFieldValue
+- (instancetype)init NS_UNAVAILABLE;
+@property(strong, nonatomic, readonly) NSNumber *operand;
+@end
+
 NS_ASSUME_NONNULL_END

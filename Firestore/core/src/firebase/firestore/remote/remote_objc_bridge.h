@@ -39,7 +39,6 @@
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
-#import "Firestore/Source/Remote/FSTStream.h"
 
 namespace firebase {
 namespace firestore {
@@ -111,9 +110,9 @@ class WriteStreamSerializer {
 
   GCFSWriteRequest* CreateHandshake() const;
   GCFSWriteRequest* CreateWriteMutationsRequest(
-      NSArray<FSTMutation*>* mutations) const;
+      const std::vector<FSTMutation*>& mutations) const;
   GCFSWriteRequest* CreateEmptyMutationsList() {
-    return CreateWriteMutationsRequest(@[]);
+    return CreateWriteMutationsRequest({});
   }
   static grpc::ByteBuffer ToByteBuffer(GCFSWriteRequest* request);
 
@@ -125,7 +124,7 @@ class WriteStreamSerializer {
   GCFSWriteResponse* ParseResponse(const grpc::ByteBuffer& message,
                                    util::Status* out_status) const;
   model::SnapshotVersion ToCommitVersion(GCFSWriteResponse* proto) const;
-  NSArray<FSTMutationResult*>* ToMutationResults(
+  std::vector<FSTMutationResult*> ToMutationResults(
       GCFSWriteResponse* proto) const;
 
   /** Creates a pretty-printed description of the proto for debugging. */
@@ -147,7 +146,7 @@ class DatastoreSerializer {
   explicit DatastoreSerializer(const core::DatabaseInfo& database_info);
 
   GCFSCommitRequest* CreateCommitRequest(
-      NSArray<FSTMutation*>* mutations) const;
+      const std::vector<FSTMutation*>& mutations) const;
   static grpc::ByteBuffer ToByteBuffer(GCFSCommitRequest* request);
 
   GCFSBatchGetDocumentsRequest* CreateLookupRequest(
@@ -158,7 +157,7 @@ class DatastoreSerializer {
    * Merges results of the streaming read together. The array is sorted by the
    * document key.
    */
-  NSArray<FSTMaybeDocument*>* MergeLookupResponses(
+  std::vector<FSTMaybeDocument*> MergeLookupResponses(
       const std::vector<grpc::ByteBuffer>& responses,
       util::Status* out_status) const;
   FSTMaybeDocument* ToMaybeDocument(
@@ -170,39 +169,6 @@ class DatastoreSerializer {
 
  private:
   FSTSerializerBeta* serializer_;
-};
-
-/** A C++ bridge that invokes methods on an `FSTWatchStreamDelegate`. */
-class WatchStreamDelegate {
- public:
-  explicit WatchStreamDelegate(id<FSTWatchStreamDelegate> delegate)
-      : delegate_{delegate} {
-  }
-
-  void NotifyDelegateOnOpen();
-  void NotifyDelegateOnChange(const WatchChange& change,
-                              const model::SnapshotVersion& snapshot_version);
-  void NotifyDelegateOnClose(const util::Status& status);
-
- private:
-  __weak id<FSTWatchStreamDelegate> delegate_;
-};
-
-/** A C++ bridge that invokes methods on an `FSTWriteStreamDelegate`. */
-class WriteStreamDelegate {
- public:
-  explicit WriteStreamDelegate(id<FSTWriteStreamDelegate> delegate)
-      : delegate_{delegate} {
-  }
-
-  void NotifyDelegateOnOpen();
-  void NotifyDelegateOnHandshakeComplete();
-  void NotifyDelegateOnCommit(const model::SnapshotVersion& commit_version,
-                              NSArray<FSTMutationResult*>* results);
-  void NotifyDelegateOnClose(const util::Status& status);
-
- private:
-  __weak id<FSTWriteStreamDelegate> delegate_;
 };
 
 }  // namespace bridge

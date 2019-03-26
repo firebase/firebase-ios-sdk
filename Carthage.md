@@ -44,6 +44,7 @@ binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseInvitesBinary.jso
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMessagingBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMLModelInterpreterBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMLNLLanguageIDBinary.json"
+binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMLNLSmartReplyBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMLNaturalLanguageBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMLVisionBarcodeModelBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMLVisionBinary.json"
@@ -65,7 +66,7 @@ binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseStorageBinary.jso
     into the Xcode project and make sure they're added to the
     `Copy Bundle Resources` Build Phase :
     - For Firestore:
-        - ./Carthage/Build/iOS/FirebaseFirestore.framework/gRPCCertificates-Firestore.bundle
+        - ./Carthage/Build/iOS/FirebaseFirestore.framework/gRPCCertificates.bundle
     - For Invites:
         - ./Carthage/Build/iOS/FirebaseInvites.framework/GoogleSignIn.bundle
         - ./Carthage/Build/iOS/FirebaseInvites.framework/GPPACLPickerResources.bundle

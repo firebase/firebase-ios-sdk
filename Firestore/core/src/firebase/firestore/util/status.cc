@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 
+#include <ostream>
+
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
 #include "absl/memory/memory.h"
 
@@ -125,6 +127,11 @@ std::string Status::ToString() const {
     result += state_->msg;
     return result;
   }
+}
+
+std::ostream& operator<<(std::ostream& out, const Status& status) {
+  out << status.ToString();
+  return out;
 }
 
 void Status::IgnoreError() const {

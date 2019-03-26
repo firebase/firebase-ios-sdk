@@ -14,17 +14,23 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/Core/FSTViewSnapshot.h"
-
 #import <XCTest/XCTest.h>
+
+#include <vector>
 
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentSet.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
-using firebase::firestore::core::DocumentViewChangeType;
+#include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
+#include "Firestore/core/src/firebase/firestore/model/document_set.h"
+
+using firebase::firestore::core::DocumentViewChange;
+using firebase::firestore::core::DocumentViewChangeSet;
+using firebase::firestore::core::ViewSnapshot;
+using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::DocumentSet;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -35,14 +41,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testDocumentChangeConstructor {
   FSTDocument *doc = FSTTestDoc("a/b", 0, @{}, FSTDocumentStateSynced);
-  DocumentViewChangeType type = DocumentViewChangeType::kModified;
-  FSTDocumentViewChange *change = [FSTDocumentViewChange changeWithDocument:doc type:type];
-  XCTAssertEqual(change.document, doc);
-  XCTAssertEqual(change.type, type);
+  DocumentViewChange::Type type = DocumentViewChange::Type::kModified;
+  DocumentViewChange change{doc, type};
+  XCTAssertEqual(change.document(), doc);
+  XCTAssertEqual(change.type(), type);
 }
 
 - (void)testTrack {
-  FSTDocumentViewChangeSet *set = [FSTDocumentViewChangeSet changeSet];
+  DocumentViewChangeSet set;
 
   FSTDocument *docAdded = FSTTestDoc("a/1", 0, @{}, FSTDocumentStateSynced);
   FSTDocument *docRemoved = FSTTestDoc("a/2", 0, @{}, FSTDocumentStateSynced);
@@ -54,89 +60,73 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocument *docModifiedThenRemoved = FSTTestDoc("b/4", 0, @{}, FSTDocumentStateSynced);
   FSTDocument *docModifiedThenModified = FSTTestDoc("b/5", 0, @{}, FSTDocumentStateSynced);
 
-  [set addChange:[FSTDocumentViewChange changeWithDocument:docAdded
-                                                      type:DocumentViewChangeType::kAdded]];
-  [set addChange:[FSTDocumentViewChange changeWithDocument:docRemoved
-                                                      type:DocumentViewChangeType::kRemoved]];
-  [set addChange:[FSTDocumentViewChange changeWithDocument:docModified
-                                                      type:DocumentViewChangeType::kModified]];
+  set.AddChange(DocumentViewChange{docAdded, DocumentViewChange::Type::kAdded});
+  set.AddChange(DocumentViewChange{docRemoved, DocumentViewChange::Type::kRemoved});
+  set.AddChange(DocumentViewChange{docModified, DocumentViewChange::Type::kModified});
+  set.AddChange(DocumentViewChange{docAddedThenModified, DocumentViewChange::Type::kAdded});
+  set.AddChange(DocumentViewChange{docAddedThenModified, DocumentViewChange::Type::kModified});
+  set.AddChange(DocumentViewChange{docAddedThenRemoved, DocumentViewChange::Type::kAdded});
+  set.AddChange(DocumentViewChange{docAddedThenRemoved, DocumentViewChange::Type::kRemoved});
+  set.AddChange(DocumentViewChange{docRemovedThenAdded, DocumentViewChange::Type::kRemoved});
+  set.AddChange(DocumentViewChange{docRemovedThenAdded, DocumentViewChange::Type::kAdded});
+  set.AddChange(DocumentViewChange{docModifiedThenRemoved, DocumentViewChange::Type::kModified});
+  set.AddChange(DocumentViewChange{docModifiedThenRemoved, DocumentViewChange::Type::kRemoved});
+  set.AddChange(DocumentViewChange{docModifiedThenModified, DocumentViewChange::Type::kModified});
+  set.AddChange(DocumentViewChange{docModifiedThenModified, DocumentViewChange::Type::kModified});
 
-  [set addChange:[FSTDocumentViewChange changeWithDocument:docAddedThenModified
-                                                      type:DocumentViewChangeType::kAdded]];
-  [set addChange:[FSTDocumentViewChange changeWithDocument:docAddedThenModified
-                                                      type:DocumentViewChangeType::kModified]];
-  [set addChange:[FSTDocumentViewChange changeWithDocument:docAddedThenRemoved
-                                                      type:DocumentViewChangeType::kAdded]];
-  [set addChange:[FSTDocumentViewChange changeWithDocument:docAddedThenRemoved
-                                                      type:DocumentViewChangeType::kRemoved]];
-  [set addChange:[FSTDocumentViewChange changeWithDocument:docRemovedThenAdded
-                                                      type:DocumentViewChangeType::kRemoved]];
-  [set addChange:[FSTDocumentViewChange changeWithDocument:docRemovedThenAdded
-                                                      type:DocumentViewChangeType::kAdded]];
-  [set addChange:[FSTDocumentViewChange changeWithDocument:docModifiedThenRemoved
-                                                      type:DocumentViewChangeType::kModified]];
-  [set addChange:[FSTDocumentViewChange changeWithDocument:docModifiedThenRemoved
-                                                      type:DocumentViewChangeType::kRemoved]];
-  [set addChange:[FSTDocumentViewChange changeWithDocument:docModifiedThenModified
-                                                      type:DocumentViewChangeType::kModified]];
-  [set addChange:[FSTDocumentViewChange changeWithDocument:docModifiedThenModified
-                                                      type:DocumentViewChangeType::kModified]];
+  std::vector<DocumentViewChange> changes = set.GetChanges();
+  XCTAssertEqual(changes.size(), 7);
 
-  NSArray<FSTDocumentViewChange *> *changes = [set changes];
-  XCTAssertEqual(changes.count, 7);
+  XCTAssertEqual(changes[0].document(), docAdded);
+  XCTAssertEqual(changes[0].type(), DocumentViewChange::Type::kAdded);
 
-  XCTAssertEqual(changes[0].document, docAdded);
-  XCTAssertEqual(changes[0].type, DocumentViewChangeType::kAdded);
+  XCTAssertEqual(changes[1].document(), docRemoved);
+  XCTAssertEqual(changes[1].type(), DocumentViewChange::Type::kRemoved);
 
-  XCTAssertEqual(changes[1].document, docRemoved);
-  XCTAssertEqual(changes[1].type, DocumentViewChangeType::kRemoved);
+  XCTAssertEqual(changes[2].document(), docModified);
+  XCTAssertEqual(changes[2].type(), DocumentViewChange::Type::kModified);
 
-  XCTAssertEqual(changes[2].document, docModified);
-  XCTAssertEqual(changes[2].type, DocumentViewChangeType::kModified);
+  XCTAssertEqual(changes[3].document(), docAddedThenModified);
+  XCTAssertEqual(changes[3].type(), DocumentViewChange::Type::kAdded);
 
-  XCTAssertEqual(changes[3].document, docAddedThenModified);
-  XCTAssertEqual(changes[3].type, DocumentViewChangeType::kAdded);
+  XCTAssertEqual(changes[4].document(), docRemovedThenAdded);
+  XCTAssertEqual(changes[4].type(), DocumentViewChange::Type::kModified);
 
-  XCTAssertEqual(changes[4].document, docRemovedThenAdded);
-  XCTAssertEqual(changes[4].type, DocumentViewChangeType::kModified);
+  XCTAssertEqual(changes[5].document(), docModifiedThenRemoved);
+  XCTAssertEqual(changes[5].type(), DocumentViewChange::Type::kRemoved);
 
-  XCTAssertEqual(changes[5].document, docModifiedThenRemoved);
-  XCTAssertEqual(changes[5].type, DocumentViewChangeType::kRemoved);
-
-  XCTAssertEqual(changes[6].document, docModifiedThenModified);
-  XCTAssertEqual(changes[6].type, DocumentViewChangeType::kModified);
+  XCTAssertEqual(changes[6].document(), docModifiedThenModified);
+  XCTAssertEqual(changes[6].type(), DocumentViewChange::Type::kModified);
 }
 
 - (void)testViewSnapshotConstructor {
   FSTQuery *query = FSTTestQuery("a");
-  FSTDocumentSet *documents = [FSTDocumentSet documentSetWithComparator:FSTDocumentComparatorByKey];
-  FSTDocumentSet *oldDocuments = documents;
-  documents =
-      [documents documentSetByAddingDocument:FSTTestDoc("c/a", 1, @{}, FSTDocumentStateSynced)];
-  NSArray<FSTDocumentViewChange *> *documentChanges =
-      @[ [FSTDocumentViewChange changeWithDocument:FSTTestDoc("c/a", 1, @{}, FSTDocumentStateSynced)
-                                              type:DocumentViewChangeType::kAdded] ];
+  DocumentSet documents = DocumentSet{FSTDocumentComparatorByKey};
+  DocumentSet oldDocuments = documents;
+  documents = documents.insert(FSTTestDoc("c/a", 1, @{}, FSTDocumentStateSynced));
+  std::vector<DocumentViewChange> documentChanges{DocumentViewChange{
+      FSTTestDoc("c/a", 1, @{}, FSTDocumentStateSynced), DocumentViewChange::Type::kAdded}};
 
-  BOOL fromCache = YES;
+  bool fromCache = true;
   DocumentKeySet mutatedKeys;
-  BOOL syncStateChanged = YES;
+  bool syncStateChanged = true;
 
-  FSTViewSnapshot *snapshot = [[FSTViewSnapshot alloc] initWithQuery:query
-                                                           documents:documents
-                                                        oldDocuments:oldDocuments
-                                                     documentChanges:documentChanges
-                                                           fromCache:fromCache
-                                                         mutatedKeys:mutatedKeys
-                                                    syncStateChanged:syncStateChanged
-                                             excludesMetadataChanges:NO];
+  ViewSnapshot snapshot{query,
+                        documents,
+                        oldDocuments,
+                        documentChanges,
+                        mutatedKeys,
+                        fromCache,
+                        syncStateChanged,
+                        /*excludes_metadata_changes=*/false};
 
-  XCTAssertEqual(snapshot.query, query);
-  XCTAssertEqual(snapshot.documents, documents);
-  XCTAssertEqual(snapshot.oldDocuments, oldDocuments);
-  XCTAssertEqual(snapshot.documentChanges, documentChanges);
-  XCTAssertEqual(snapshot.fromCache, fromCache);
-  XCTAssertEqual(snapshot.mutatedKeys, mutatedKeys);
-  XCTAssertEqual(snapshot.syncStateChanged, syncStateChanged);
+  XCTAssertEqual(snapshot.query(), query);
+  XCTAssertEqual(snapshot.documents(), documents);
+  XCTAssertEqual(snapshot.old_documents(), oldDocuments);
+  XCTAssertEqual(snapshot.document_changes(), documentChanges);
+  XCTAssertEqual(snapshot.from_cache(), fromCache);
+  XCTAssertEqual(snapshot.mutated_keys(), mutatedKeys);
+  XCTAssertEqual(snapshot.sync_state_changed(), syncStateChanged);
 }
 
 @end

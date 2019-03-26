@@ -65,8 +65,8 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
     const char *path,
     NSDictionary<NSString *, NSDictionary<NSString *, id> *> *oldDocs,
     NSDictionary<NSString *, NSDictionary<NSString *, id> *> *docsToAdd,
-    BOOL hasPendingWrites,
-    BOOL fromCache);
+    bool hasPendingWrites,
+    bool fromCache);
 
 #if __cplusplus
 }  // extern "C"

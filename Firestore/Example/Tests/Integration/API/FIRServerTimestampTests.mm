@@ -220,7 +220,8 @@
                              serverTimestampBehavior:FIRServerTimestampBehaviorPrevious],
                         @42);
 
-  [_docRef updateData:@{@"a" : [FIRFieldValue fieldValueForServerTimestamp]}];
+  // include b=1 to ensure there's a change resulting in a new snapshot.
+  [_docRef updateData:@{@"a" : [FIRFieldValue fieldValueForServerTimestamp], @"b" : @1}];
   localSnapshot = [_accumulator awaitLocalEvent];
   XCTAssertEqualObjects([localSnapshot valueForField:@"a"
                              serverTimestampBehavior:FIRServerTimestampBehaviorPrevious],
@@ -263,7 +264,7 @@
 
 - (void)testServerTimestampsWorkViaTransactionSet {
   [self runTransactionBlock:^(FIRTransaction *transaction) {
-    [transaction setData:_setData forDocument:_docRef];
+    [transaction setData:self->_setData forDocument:self->_docRef];
   }];
 
   [self verifySnapshotWithResolvedTimestamps:[_accumulator awaitRemoteEvent]];
@@ -272,7 +273,7 @@
 - (void)testServerTimestampsWorkViaTransactionUpdate {
   [self writeInitialData];
   [self runTransactionBlock:^(FIRTransaction *transaction) {
-    [transaction updateData:_updateData forDocument:_docRef];
+    [transaction updateData:self->_updateData forDocument:self->_docRef];
   }];
   [self verifySnapshotWithResolvedTimestamps:[_accumulator awaitRemoteEvent]];
 }
@@ -293,7 +294,7 @@
   XCTestExpectation *expectation = [self expectationWithDescription:@"transaction complete"];
   [_docRef.firestore
       runTransactionWithBlock:^id(FIRTransaction *transaction, NSError **pError) {
-        [transaction updateData:_updateData forDocument:_docRef];
+        [transaction updateData:self->_updateData forDocument:self->_docRef];
         return nil;
       }
       completion:^(id result, NSError *error) {

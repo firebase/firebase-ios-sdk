@@ -17,6 +17,7 @@
 #include "Firestore/core/src/firebase/firestore/local/leveldb_mutation_queue.h"
 
 #include <memory>
+#include <utility>
 
 #import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
 #import "Firestore/Source/Core/FSTQuery.h"
@@ -29,6 +30,7 @@
 #include "Firestore/core/src/firebase/firestore/model/mutation_batch.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/string_util.h"
+#include "Firestore/core/src/firebase/firestore/util/to_string.h"
 #include "absl/strings/match.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -154,14 +156,17 @@ void LevelDbMutationQueue::AcknowledgeBatch(FSTMutationBatch* batch,
 }
 
 FSTMutationBatch* LevelDbMutationQueue::AddMutationBatch(
-    FIRTimestamp* local_write_time, NSArray<FSTMutation*>* mutations) {
+    FIRTimestamp* local_write_time,
+    std::vector<FSTMutation*>&& base_mutations,
+    std::vector<FSTMutation*>&& mutations) {
   BatchId batch_id = next_batch_id_;
   next_batch_id_++;
 
   FSTMutationBatch* batch =
       [[FSTMutationBatch alloc] initWithBatchID:batch_id
                                  localWriteTime:local_write_time
-                                      mutations:mutations];
+                                  baseMutations:std::move(base_mutations)
+                                      mutations:std::move(mutations)];
   std::string key = mutation_batch_key(batch_id);
   db_.currentTransaction->Put(key, [serializer_ encodedMutationBatch:batch]);
 
@@ -171,9 +176,11 @@ FSTMutationBatch* LevelDbMutationQueue::AddMutationBatch(
   // buffer (and the parser will see all default values).
   std::string empty_buffer;
 
-  for (FSTMutation* mutation in mutations) {
+  for (FSTMutation* mutation : [batch mutations]) {
     key = LevelDbDocumentMutationKey::Key(user_id_, mutation.key, batch_id);
     db_.currentTransaction->Put(key, empty_buffer);
+
+    db_.indexManager->AddToCollectionParentIndex(mutation.key.path().PopLast());
   }
 
   return batch;
@@ -197,7 +204,7 @@ void LevelDbMutationQueue::RemoveMutationBatch(FSTMutationBatch* batch) {
 
   db_.currentTransaction->Delete(key);
 
-  for (FSTMutation* mutation in batch.mutations) {
+  for (FSTMutation* mutation : [batch mutations]) {
     key = LevelDbDocumentMutationKey::Key(user_id_, mutation.key, batch_id);
     db_.currentTransaction->Delete(key);
     [db_.referenceDelegate removeMutationReference:mutation.key];
@@ -265,6 +272,9 @@ std::vector<FSTMutationBatch*>
 LevelDbMutationQueue::AllMutationBatchesAffectingQuery(FSTQuery* query) {
   HARD_ASSERT(![query isDocumentQuery],
               "Document queries shouldn't go down this path");
+  HARD_ASSERT(
+      ![query isCollectionGroupQuery],
+      "CollectionGroup queries should be handled in LocalDocumentsView");
 
   const ResourcePath& query_path = query.path;
   size_t immediate_children_path_length = query_path.size() + 1;

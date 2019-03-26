@@ -18,6 +18,7 @@
 
 #include <memory>
 #include <unordered_map>
+#include <vector>
 
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
@@ -39,8 +40,8 @@ class MockDatastore : public Datastore {
                 util::AsyncQueue* worker_queue,
                 auth::CredentialsProvider* credentials);
 
-  std::shared_ptr<WatchStream> CreateWatchStream(id<FSTWatchStreamDelegate> delegate) override;
-  std::shared_ptr<WriteStream> CreateWriteStream(id<FSTWriteStreamDelegate> delegate) override;
+  std::shared_ptr<WatchStream> CreateWatchStream(WatchStreamCallback* callback) override;
+  std::shared_ptr<WriteStream> CreateWriteStream(WriteStreamCallback* callback) override;
 
   /**
    * A count of the total number of requests sent to the watch stream since the beginning of the
@@ -77,12 +78,12 @@ class MockDatastore : public Datastore {
   /**
    * Returns the next write that was "sent to the backend", failing if there are no queued sent
    */
-  NSArray<FSTMutation*>* NextSentWrite();
+  std::vector<FSTMutation*> NextSentWrite();
   /** Returns the number of writes that have been sent to the backend but not waited on yet. */
   int WritesSent() const;
 
   /** Injects a write ack as though it had come from the backend in response to a write. */
-  void AckWrite(const model::SnapshotVersion& version, NSArray<FSTMutationResult*>* results);
+  void AckWrite(const model::SnapshotVersion& version, std::vector<FSTMutationResult*> results);
 
   /** Injects a stream failure as though it had come from the backend. */
   void FailWrite(const util::Status& error);

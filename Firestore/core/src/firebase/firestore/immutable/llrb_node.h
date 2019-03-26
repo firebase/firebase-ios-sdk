@@ -21,7 +21,7 @@
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/immutable/llrb_node_iterator.h"
-#include "Firestore/core/src/firebase/firestore/immutable/sorted_map_base.h"
+#include "Firestore/core/src/firebase/firestore/immutable/sorted_container.h"
 
 namespace firebase {
 namespace firestore {

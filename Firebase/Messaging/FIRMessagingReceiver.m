@@ -19,6 +19,7 @@
 #import <UIKit/UIKit.h>
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
+#import <GoogleUtilities/GULUserDefaults.h>
 
 #import "FIRMessaging.h"
 #import "FIRMessagingLogger.h"
@@ -36,7 +37,21 @@ NSString *const kFIRMessagingPlistUseMessagingDelegate =
 
 static int downstreamMessageID = 0;
 
+@interface FIRMessagingReceiver ()
+@property(nonatomic, strong) GULUserDefaults *defaults;
+@end
+
 @implementation FIRMessagingReceiver
+
+#pragma mark - Initializer
+
+- (instancetype)initWithUserDefaults:(GULUserDefaults *)defaults {
+  self = [super init];
+  if (self != nil) {
+    _defaults = defaults;
+  }
+  return self;
+}
 
 #pragma mark - FIRMessagingDataMessageManager protocol
 
@@ -152,9 +167,8 @@ static int downstreamMessageID = 0;
 
 - (BOOL)useDirectChannel {
   // Check storage
-  NSUserDefaults *messagingDefaults = [NSUserDefaults standardUserDefaults];
   id shouldUseMessagingDelegate =
-      [messagingDefaults objectForKey:kFIRMessagingUserDefaultsKeyUseMessagingDelegate];
+      [_defaults objectForKey:kFIRMessagingUserDefaultsKeyUseMessagingDelegate];
   if (shouldUseMessagingDelegate) {
     return [shouldUseMessagingDelegate boolValue];
   }
@@ -170,12 +184,10 @@ static int downstreamMessageID = 0;
 }
 
 - (void)setUseDirectChannel:(BOOL)useDirectChannel {
-  NSUserDefaults *messagingDefaults = [NSUserDefaults standardUserDefaults];
   BOOL shouldUseMessagingDelegate = [self useDirectChannel];
   if (useDirectChannel != shouldUseMessagingDelegate) {
-    [messagingDefaults setBool:useDirectChannel
-                        forKey:kFIRMessagingUserDefaultsKeyUseMessagingDelegate];
-    [messagingDefaults synchronize];
+    [_defaults setBool:useDirectChannel forKey:kFIRMessagingUserDefaultsKeyUseMessagingDelegate];
+    [_defaults synchronize];
   }
 }
 

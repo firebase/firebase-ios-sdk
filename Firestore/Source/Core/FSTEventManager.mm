@@ -16,50 +16,27 @@
 
 #import "Firestore/Source/Core/FSTEventManager.h"
 
+#include <utility>
+#include <vector>
+
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSyncEngine.h"
-#import "Firestore/Source/Model/FSTDocumentSet.h"
 
+#include "Firestore/core/src/firebase/firestore/model/document_set.h"
+#include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
-
-using firebase::firestore::core::DocumentViewChangeType;
-using firebase::firestore::model::OnlineState;
-using firebase::firestore::model::TargetId;
+#include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "absl/types/optional.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-#pragma mark - FSTListenOptions
-
-@implementation FSTListenOptions
-
-+ (instancetype)defaultOptions {
-  static FSTListenOptions *defaultOptions;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    defaultOptions = [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:NO
-                                                    includeDocumentMetadataChanges:NO
-                                                             waitForSyncWhenOnline:NO];
-  });
-  return defaultOptions;
-}
-
-- (instancetype)initWithIncludeQueryMetadataChanges:(BOOL)includeQueryMetadataChanges
-                     includeDocumentMetadataChanges:(BOOL)includeDocumentMetadataChanges
-                              waitForSyncWhenOnline:(BOOL)waitForSyncWhenOnline {
-  if (self = [super init]) {
-    _includeQueryMetadataChanges = includeQueryMetadataChanges;
-    _includeDocumentMetadataChanges = includeDocumentMetadataChanges;
-    _waitForSyncWhenOnline = waitForSyncWhenOnline;
-  }
-  return self;
-}
-
-- (instancetype)init {
-  HARD_FAIL("FSTListenOptions init not supported");
-  return nil;
-}
-
-@end
+using firebase::firestore::core::DocumentViewChange;
+using firebase::firestore::core::ViewSnapshot;
+using firebase::firestore::core::ViewSnapshotHandler;
+using firebase::firestore::model::OnlineState;
+using firebase::firestore::model::TargetId;
+using firebase::firestore::util::MakeStatus;
+using firebase::firestore::util::Status;
 
 #pragma mark - FSTQueryListenersInfo
 
@@ -68,12 +45,25 @@ NS_ASSUME_NONNULL_BEGIN
  * EventManager.
  */
 @interface FSTQueryListenersInfo : NSObject
-@property(nonatomic, strong, nullable, readwrite) FSTViewSnapshot *viewSnapshot;
 @property(nonatomic, assign, readwrite) TargetId targetID;
 @property(nonatomic, strong, readonly) NSMutableArray<FSTQueryListener *> *listeners;
+
+- (const absl::optional<ViewSnapshot> &)viewSnapshot;
+- (void)setViewSnapshot:(const absl::optional<ViewSnapshot> &)snapshot;
+
 @end
 
-@implementation FSTQueryListenersInfo
+@implementation FSTQueryListenersInfo {
+  absl::optional<ViewSnapshot> _viewSnapshot;
+}
+
+- (const absl::optional<ViewSnapshot> &)viewSnapshot {
+  return _viewSnapshot;
+}
+- (void)setViewSnapshot:(const absl::optional<ViewSnapshot> &)snapshot {
+  _viewSnapshot = snapshot;
+}
+
 - (instancetype)init {
   if (self = [super init]) {
     _listeners = [NSMutableArray array];
@@ -88,12 +78,10 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FSTQueryListener ()
 
 /** The last received view snapshot. */
-@property(nonatomic, strong, nullable) FSTViewSnapshot *snapshot;
-
-@property(nonatomic, strong, readonly) FSTListenOptions *options;
+- (const absl::optional<ViewSnapshot> &)snapshot;
 
 /**
- * Initial snapshots (e.g. from cache) may not be propagated to the FSTViewSnapshotHandler.
+ * Initial snapshots (e.g. from cache) may not be propagated to the ViewSnapshotHandler.
  * This flag is set to YES once we've actually raised an event.
  */
 @property(nonatomic, assign, readwrite) BOOL raisedInitialEvent;
@@ -101,45 +89,54 @@ NS_ASSUME_NONNULL_BEGIN
 /** The last online state this query listener got. */
 @property(nonatomic, assign, readwrite) OnlineState onlineState;
 
-/** The FSTViewSnapshotHandler associated with this query listener. */
-@property(nonatomic, copy, nullable) FSTViewSnapshotHandler viewSnapshotHandler;
-
 @end
 
-@implementation FSTQueryListener
+@implementation FSTQueryListener {
+  ListenOptions _options;
+
+  absl::optional<ViewSnapshot> _snapshot;
+
+  /** The ViewSnapshotHandler associated with this query listener. */
+  ViewSnapshotHandler _viewSnapshotHandler;
+}
 
 - (instancetype)initWithQuery:(FSTQuery *)query
-                      options:(FSTListenOptions *)options
-          viewSnapshotHandler:(FSTViewSnapshotHandler)viewSnapshotHandler {
+                      options:(ListenOptions)options
+          viewSnapshotHandler:(ViewSnapshotHandler &&)viewSnapshotHandler {
   if (self = [super init]) {
     _query = query;
-    _options = options;
-    _viewSnapshotHandler = viewSnapshotHandler;
+    _options = std::move(options);
+    _viewSnapshotHandler = std::move(viewSnapshotHandler);
     _raisedInitialEvent = NO;
   }
   return self;
 }
 
-- (void)queryDidChangeViewSnapshot:(FSTViewSnapshot *)snapshot {
-  HARD_ASSERT(snapshot.documentChanges.count > 0 || snapshot.syncStateChanged,
+- (const absl::optional<ViewSnapshot> &)snapshot {
+  return _snapshot;
+}
+
+- (void)queryDidChangeViewSnapshot:(ViewSnapshot)snapshot {
+  HARD_ASSERT(!snapshot.document_changes().empty() || snapshot.sync_state_changed(),
               "We got a new snapshot with no changes?");
 
-  if (!self.options.includeDocumentMetadataChanges) {
+  if (!_options.include_document_metadata_changes()) {
     // Remove the metadata-only changes.
-    NSMutableArray<FSTDocumentViewChange *> *changes = [NSMutableArray array];
-    for (FSTDocumentViewChange *change in snapshot.documentChanges) {
-      if (change.type != DocumentViewChangeType::kMetadata) {
-        [changes addObject:change];
+    std::vector<DocumentViewChange> changes;
+    for (const DocumentViewChange &change : snapshot.document_changes()) {
+      if (change.type() != DocumentViewChange::Type::kMetadata) {
+        changes.push_back(change);
       }
     }
-    snapshot = [[FSTViewSnapshot alloc] initWithQuery:snapshot.query
-                                            documents:snapshot.documents
-                                         oldDocuments:snapshot.oldDocuments
-                                      documentChanges:changes
-                                            fromCache:snapshot.fromCache
-                                          mutatedKeys:snapshot.mutatedKeys
-                                     syncStateChanged:snapshot.syncStateChanged
-                              excludesMetadataChanges:YES];
+
+    snapshot = ViewSnapshot{snapshot.query(),
+                            snapshot.documents(),
+                            snapshot.old_documents(),
+                            std::move(changes),
+                            snapshot.mutated_keys(),
+                            snapshot.from_cache(),
+                            snapshot.sync_state_changed(),
+                            /*excludes_metadata_changes=*/true};
   }
 
   if (!self.raisedInitialEvent) {
@@ -147,31 +144,31 @@ NS_ASSUME_NONNULL_BEGIN
       [self raiseInitialEventForSnapshot:snapshot];
     }
   } else if ([self shouldRaiseEventForSnapshot:snapshot]) {
-    self.viewSnapshotHandler(snapshot, nil);
+    _viewSnapshotHandler(snapshot);
   }
 
-  self.snapshot = snapshot;
+  _snapshot = std::move(snapshot);
 }
 
-- (void)queryDidError:(NSError *)error {
-  self.viewSnapshotHandler(nil, error);
+- (void)queryDidError:(const Status &)error {
+  _viewSnapshotHandler(error);
 }
 
 - (void)applyChangedOnlineState:(OnlineState)onlineState {
   self.onlineState = onlineState;
-  if (self.snapshot && !self.raisedInitialEvent &&
-      [self shouldRaiseInitialEventForSnapshot:self.snapshot onlineState:onlineState]) {
-    [self raiseInitialEventForSnapshot:self.snapshot];
+  if (_snapshot.has_value() && !self.raisedInitialEvent &&
+      [self shouldRaiseInitialEventForSnapshot:_snapshot.value() onlineState:onlineState]) {
+    [self raiseInitialEventForSnapshot:_snapshot.value()];
   }
 }
 
-- (BOOL)shouldRaiseInitialEventForSnapshot:(FSTViewSnapshot *)snapshot
+- (BOOL)shouldRaiseInitialEventForSnapshot:(const ViewSnapshot &)snapshot
                                onlineState:(OnlineState)onlineState {
   HARD_ASSERT(!self.raisedInitialEvent,
               "Determining whether to raise initial event, but already had first event.");
 
   // Always raise the first event when we're synced
-  if (!snapshot.fromCache) {
+  if (!snapshot.from_cache()) {
     return YES;
   }
 
@@ -180,27 +177,27 @@ NS_ASSUME_NONNULL_BEGIN
   BOOL maybeOnline = onlineState != OnlineState::Offline;
   // Don't raise the event if we're online, aren't synced yet (checked
   // above) and are waiting for a sync.
-  if (self.options.waitForSyncWhenOnline && maybeOnline) {
-    HARD_ASSERT(snapshot.fromCache, "Waiting for sync, but snapshot is not from cache.");
+  if (_options.wait_for_sync_when_online() && maybeOnline) {
+    HARD_ASSERT(snapshot.from_cache(), "Waiting for sync, but snapshot is not from cache.");
     return NO;
   }
 
   // Raise data from cache if we have any documents or we are offline
-  return !snapshot.documents.isEmpty || onlineState == OnlineState::Offline;
+  return !snapshot.documents().empty() || onlineState == OnlineState::Offline;
 }
 
-- (BOOL)shouldRaiseEventForSnapshot:(FSTViewSnapshot *)snapshot {
+- (BOOL)shouldRaiseEventForSnapshot:(const ViewSnapshot &)snapshot {
   // We don't need to handle includeDocumentMetadataChanges here because the Metadata only changes
   // have already been stripped out if needed. At this point the only changes we will see are the
   // ones we should propagate.
-  if (snapshot.documentChanges.count > 0) {
+  if (!snapshot.document_changes().empty()) {
     return YES;
   }
 
-  BOOL hasPendingWritesChanged =
-      self.snapshot && self.snapshot.hasPendingWrites != snapshot.hasPendingWrites;
-  if (snapshot.syncStateChanged || hasPendingWritesChanged) {
-    return self.options.includeQueryMetadataChanges;
+  BOOL hasPendingWritesChanged = _snapshot.has_value() && _snapshot.value().has_pending_writes() !=
+                                                              snapshot.has_pending_writes();
+  if (snapshot.sync_state_changed() || hasPendingWritesChanged) {
+    return _options.include_query_metadata_changes();
   }
 
   // Generally we should have hit one of the cases above, but it's possible to get here if there
@@ -208,15 +205,13 @@ NS_ASSUME_NONNULL_BEGIN
   return NO;
 }
 
-- (void)raiseInitialEventForSnapshot:(FSTViewSnapshot *)snapshot {
+- (void)raiseInitialEventForSnapshot:(const ViewSnapshot &)snapshot {
   HARD_ASSERT(!self.raisedInitialEvent, "Trying to raise initial events for second time");
-  snapshot = [FSTViewSnapshot snapshotForInitialDocuments:snapshot.documents
-                                                    query:snapshot.query
-                                              mutatedKeys:snapshot.mutatedKeys
-                                                fromCache:snapshot.fromCache
-                                  excludesMetadataChanges:snapshot.excludesMetadataChanges];
+  ViewSnapshot modifiedSnapshot = ViewSnapshot::FromInitialDocuments(
+      snapshot.query(), snapshot.documents(), snapshot.mutated_keys(), snapshot.from_cache(),
+      snapshot.excludes_metadata_changes());
   self.raisedInitialEvent = YES;
-  self.viewSnapshotHandler(snapshot, nil);
+  _viewSnapshotHandler(modifiedSnapshot);
 }
 
 @end
@@ -264,8 +259,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   [listener applyChangedOnlineState:self.onlineState];
 
-  if (queryInfo.viewSnapshot) {
-    [listener queryDidChangeViewSnapshot:queryInfo.viewSnapshot];
+  if (queryInfo.viewSnapshot.has_value()) {
+    [listener queryDidChangeViewSnapshot:queryInfo.viewSnapshot.value()];
   }
 
   if (firstListen) {
@@ -290,15 +285,15 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-- (void)handleViewSnapshots:(NSArray<FSTViewSnapshot *> *)viewSnapshots {
-  for (FSTViewSnapshot *viewSnapshot in viewSnapshots) {
-    FSTQuery *query = viewSnapshot.query;
+- (void)handleViewSnapshots:(std::vector<ViewSnapshot> &&)viewSnapshots {
+  for (ViewSnapshot &viewSnapshot : viewSnapshots) {
+    FSTQuery *query = viewSnapshot.query();
     FSTQueryListenersInfo *queryInfo = self.queries[query];
     if (queryInfo) {
       for (FSTQueryListener *listener in queryInfo.listeners) {
         [listener queryDidChangeViewSnapshot:viewSnapshot];
       }
-      queryInfo.viewSnapshot = viewSnapshot;
+      [queryInfo setViewSnapshot:std::move(viewSnapshot)];
     }
   }
 }
@@ -307,7 +302,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQueryListenersInfo *queryInfo = self.queries[query];
   if (queryInfo) {
     for (FSTQueryListener *listener in queryInfo.listeners) {
-      [listener queryDidError:error];
+      [listener queryDidError:MakeStatus(error)];
     }
   }
 
