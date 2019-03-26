@@ -50,7 +50,7 @@ NSDictionary<NSString *, NSValue *> *testInfosByKey;
 
 // If the user focuses on GoogleTests itself, this means force all C++ tests to
 // run.
-BOOL forceAllTests = NO;
+bool forceAllTests = false;
 
 /**
  * Loads this XCTest runner's configuration file and figures out which tests to
@@ -216,7 +216,7 @@ void ReportTestResult(XCTestCase *self, SEL _cmd) {
                               atLine:(part.line_number() > 0
                                           ? part.line_number()
                                           : 0)
-                            expected:YES];
+                            expected:true];
   }
 }
 
@@ -305,15 +305,15 @@ void RunGoogleTestTests() {
 
   // Convert XCTest's testToRun set to the equivalent --gtest_filter flag.
   //
-  // Note that we only set forceAllTests to YES if the user specifically focused
-  // on GoogleTests. This prevents XCTest double-counting test cases (and
-  // failures) when a user asks for all tests.
+  // Note that we only set forceAllTests to true if the user specifically
+  // focused on GoogleTests. This prevents XCTest double-counting test cases
+  // (and failures) when a user asks for all tests.
   NSSet<NSString *> *allTests = [NSSet setWithObject:masterTestCaseName];
   NSSet<NSString *> *testsToRun = LoadXCTestConfigurationTestsToRun();
   if (testsToRun) {
     if ([allTests isEqual:testsToRun]) {
       NSLog(@"Forcing all tests to run");
-      forceAllTests = YES;
+      forceAllTests = true;
     } else {
       NSString *filters = CreateTestFiltersFromTestsToRun(testsToRun);
       NSLog(@"Using --gtest_filter=%@", filters);
