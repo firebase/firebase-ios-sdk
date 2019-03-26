@@ -110,8 +110,8 @@ bool QueryListener::ShouldRaiseInitialEvent(const ViewSnapshot& snapshot,
 }
 
 bool QueryListener::ShouldRaiseEvent(const ViewSnapshot& snapshot) const {
-  // We don't need to handle include_document_metadata_changes() here because the
-  // Metadata only changes have already been stripped out if needed. At this
+  // We don't need to handle include_document_metadata_changes() here because
+  // the Metadata only changes have already been stripped out if needed. At this
   // point the only changes we will see are the ones we should propagate.
   if (!snapshot.document_changes().empty()) {
     return true;
