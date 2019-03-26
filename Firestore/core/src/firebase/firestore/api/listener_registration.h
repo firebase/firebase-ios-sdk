@@ -26,9 +26,9 @@
 #include <memory>
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/core/event_listener.h"
 #include "Firestore/core/src/firebase/firestore/core/query_listener.h"
 
-@class FSTAsyncQueryListener;
 @class FSTFirestoreClient;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -54,23 +54,17 @@ namespace api {
  *   * calls to Remove() after we send an error,
  *   * calls to Remove() even after deleting the App in which the listener was
  *     started.
- *
- * ListenerRegistration is default constructible to facilitate the pattern in
- * DocumentReference::GetDocument, where the closure that implements a listener
- * needs to be able to use the ListenerRegistration thats returned from
- * starting the listener. The default ListenerRegistration acts as a shared
- * placeholder that's filled in later once the listener is started.
  */
 class ListenerRegistration {
  public:
-  ListenerRegistration() = default;
-
-  ListenerRegistration(FSTFirestoreClient* client,
-                       FSTAsyncQueryListener* async_listener,
-                       std::shared_ptr<core::QueryListener> internal_listener)
+  ListenerRegistration(
+      FSTFirestoreClient* client,
+      std::shared_ptr<core::AsyncEventListener<core::ViewSnapshot>>
+          async_listener,
+      std::shared_ptr<core::QueryListener> query_listener)
       : client_(client),
-        async_listener_(async_listener),
-        internal_listener_(std::move(internal_listener)) {
+        async_listener_(std::move(async_listener)),
+        query_listener_(std::move(query_listener)) {
   }
 
   /**
@@ -84,10 +78,10 @@ class ListenerRegistration {
   FSTFirestoreClient* client_ = nil;
 
   /** The async listener that is used to mute events synchronously. */
-  FSTAsyncQueryListener* async_listener_ = nil;
+  std::weak_ptr<core::AsyncEventListener<core::ViewSnapshot>> async_listener_;
 
   /** The internal QueryListener that can be used to unlisten the query. */
-  std::weak_ptr<core::QueryListener> internal_listener_;
+  std::weak_ptr<core::QueryListener> query_listener_;
 };
 
 }  // namespace api

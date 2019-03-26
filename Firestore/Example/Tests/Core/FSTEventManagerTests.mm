@@ -35,25 +35,26 @@
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "Firestore/core/test/firebase/firestore/testutil/xcgmock.h"
 
+using firebase::firestore::core::EventListener;
 using firebase::firestore::core::ListenOptions;
 using firebase::firestore::core::ViewSnapshot;
-using firebase::firestore::core::ViewSnapshotHandler;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentSet;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::util::StatusOr;
+using firebase::firestore::util::StatusOrCallback;
 using testing::ElementsAre;
 
 NS_ASSUME_NONNULL_BEGIN
 
 namespace {
 
-ViewSnapshotHandler NoopViewSnapshotHandler() {
-  return [](const StatusOr<ViewSnapshot> &) {};
+ViewSnapshot::Listener NoopViewSnapshotHandler() {
+  return EventListener<ViewSnapshot>::Create([](const StatusOr<ViewSnapshot> &) {});
 }
 
 std::shared_ptr<QueryListener> NoopQueryListener(FSTQuery *query) {
-  return QueryListener::Create(query, NoopViewSnapshotHandler());
+  return QueryListener::Create(query, ListenOptions::DefaultOptions(), NoopViewSnapshotHandler());
 }
 
 }  // namespace
@@ -112,17 +113,14 @@ std::shared_ptr<QueryListener> NoopQueryListener(FSTQuery *query) {
   FSTQuery *query2 = FSTTestQuery("bar/baz");
   NSMutableArray *eventOrder = [NSMutableArray array];
 
-  auto listener1 = QueryListener::Create(query1, [eventOrder](const StatusOr<ViewSnapshot> &) {
-    [eventOrder addObject:@"listener1"];
-  });
+  auto listener1 = QueryListener::Create(
+      query1, [eventOrder](StatusOr<ViewSnapshot>) { [eventOrder addObject:@"listener1"]; });
 
-  auto listener2 = QueryListener::Create(query2, [eventOrder](const StatusOr<ViewSnapshot> &) {
-    [eventOrder addObject:@"listener2"];
-  });
+  auto listener2 = QueryListener::Create(
+      query2, [eventOrder](StatusOr<ViewSnapshot>) { [eventOrder addObject:@"listener2"]; });
 
-  auto listener3 = QueryListener::Create(query1, [eventOrder](const StatusOr<ViewSnapshot> &) {
-    [eventOrder addObject:@"listener3"];
-  });
+  auto listener3 = QueryListener::Create(
+      query1, [eventOrder](StatusOr<ViewSnapshot>) { [eventOrder addObject:@"listener3"]; });
 
   FSTSyncEngine *syncEngineMock = OCMClassMock([FSTSyncEngine class]);
   FSTEventManager *eventManager = [FSTEventManager eventManagerWithSyncEngine:syncEngineMock];

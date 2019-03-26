@@ -65,14 +65,14 @@ void QueryListener::OnViewSnapshot(ViewSnapshot snapshot) {
       RaiseInitialEvent(snapshot);
     }
   } else if (ShouldRaiseEvent(snapshot)) {
-    listener_(snapshot);
+    listener_->OnEvent(snapshot);
   }
 
   snapshot_ = std::move(snapshot);
 }
 
 void QueryListener::OnError(Status error) {
-  listener_(std::move(error));
+  listener_->OnEvent(std::move(error));
 }
 
 void QueryListener::OnOnlineStateChanged(OnlineState online_state) {
@@ -137,7 +137,7 @@ void QueryListener::RaiseInitialEvent(const ViewSnapshot& snapshot) {
       snapshot.query(), snapshot.documents(), snapshot.mutated_keys(),
       snapshot.from_cache(), snapshot.excludes_metadata_changes());
   raised_initial_event_ = true;
-  listener_(modified_snapshot);
+  listener_->OnEvent(std::move(modified_snapshot));
 }
 
 }  // namespace core

@@ -51,8 +51,6 @@ class Firestore;
 class DocumentReference {
  public:
   using Completion = void (^)(NSError* _Nullable error) _Nullable;
-  using DocumentCompletion = void (^)(FIRDocumentSnapshot* _Nullable document,
-                                      NSError* _Nullable error) _Nullable;
 
   DocumentReference() = default;
   DocumentReference(model::ResourcePath path, Firestore* firestore);
@@ -87,11 +85,10 @@ class DocumentReference {
   void DeleteDocument(Completion completion);
 
   void GetDocument(FIRFirestoreSource source,
-                   util::StatusOrCallback<DocumentSnapshot>&& completion);
+                   DocumentSnapshot::Listener&& completion);
 
   ListenerRegistration AddSnapshotListener(
-      util::StatusOrCallback<DocumentSnapshot>&& listener,
-      core::ListenOptions options);
+      core::ListenOptions options, DocumentSnapshot::Listener&& listener);
 
  private:
   Firestore* firestore_ = nullptr;

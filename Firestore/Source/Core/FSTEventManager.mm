@@ -36,7 +36,6 @@ NS_ASSUME_NONNULL_BEGIN
 namespace objc = firebase::firestore::util::objc;
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::ViewSnapshot;
-using firebase::firestore::core::ViewSnapshotHandler;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::util::MakeStatus;
