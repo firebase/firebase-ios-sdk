@@ -87,6 +87,11 @@ FIRCollectionReference *FSTTestCollectionRef(const char *path) {
                                          firestore:FSTTestFirestore()];
 }
 
+FIRDocumentReference *FSTTestDocRef(const char *path) {
+    return [[FIRDocumentReference alloc] initWithPath:testutil::Resource(path)
+                                            firestore:FSTTestFirestore().wrapped];
+}
+
 FIRDocumentReference *FSTTestDocRef(const absl::string_view path) {
   return [[FIRDocumentReference alloc] initWithPath:testutil::Resource(path)
                                           firestore:FSTTestFirestore().wrapped];

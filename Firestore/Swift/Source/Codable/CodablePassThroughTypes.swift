@@ -20,5 +20,6 @@ import FirebaseFirestore
 internal func isFirestorePassthroughType<T: Any>(_ value: T) -> Bool {
   return
     T.self == GeoPoint.self ||
-    T.self == Timestamp.self
+    T.self == Timestamp.self ||
+    T.self == DocumentReference.self
 }
