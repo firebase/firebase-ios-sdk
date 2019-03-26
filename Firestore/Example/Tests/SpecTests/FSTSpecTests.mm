@@ -728,7 +728,7 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
   NSBundle *bundle = [NSBundle bundleForClass:[self class]];
   NSFileManager *fs = [NSFileManager defaultManager];
   BOOL exclusiveMode = NO;
-  for (NSString *file in [fs enumeratorAtPath:[bundle bundlePath]]) {
+  for (NSString *file in [fs enumeratorAtPath:[bundle resourcePath]]) {
     if (![@"json" isEqual:[file pathExtension]]) {
       continue;
     }

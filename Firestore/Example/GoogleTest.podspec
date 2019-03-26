@@ -34,6 +34,8 @@ Google's C++ test framework.
   }
 
   s.ios.deployment_target = '8.0'
+  s.osx.deployment_target = '10.10'
+
   s.requires_arc = false
 
   # Exclude include/gtest/internal/custom files from public headers. These
