@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -93,7 +93,7 @@ bool QueryListener::ShouldRaiseInitialEvent(const ViewSnapshot& snapshot,
     return true;
   }
 
-  // NOTE: We consider OnlineState.Unknown as online (it should become Offline
+  // NOTE: We consider OnlineState::Unknown as online (it should become Offline
   // or Online if we wait long enough).
   bool maybe_online = online_state != OnlineState::Offline;
 
@@ -110,7 +110,7 @@ bool QueryListener::ShouldRaiseInitialEvent(const ViewSnapshot& snapshot,
 }
 
 bool QueryListener::ShouldRaiseEvent(const ViewSnapshot& snapshot) const {
-  // We don't need to handle includeDocumentMetadataChanges here because the
+  // We don't need to handle include_document_metadata_changes() here because the
   // Metadata only changes have already been stripped out if needed. At this
   // point the only changes we will see are the ones we should propagate.
   if (!snapshot.document_changes().empty()) {
@@ -132,6 +132,7 @@ bool QueryListener::ShouldRaiseEvent(const ViewSnapshot& snapshot) const {
 void QueryListener::RaiseInitialEvent(const ViewSnapshot& snapshot) {
   HARD_ASSERT(!raised_initial_event_,
               "Trying to raise initial events for second time");
+
   ViewSnapshot modified_snapshot = ViewSnapshot::FromInitialDocuments(
       snapshot.query(), snapshot.documents(), snapshot.mutated_keys(),
       snapshot.from_cache(), snapshot.excludes_metadata_changes());

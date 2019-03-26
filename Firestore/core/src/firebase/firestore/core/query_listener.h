@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -103,7 +103,7 @@ class QueryListener {
   bool ShouldRaiseEvent(const ViewSnapshot& snapshot) const;
   void RaiseInitialEvent(const ViewSnapshot& snapshot);
 
-  FSTQuery* query_;
+  FSTQuery* query_ = nil;
   ListenOptions options_;
 
   /**

@@ -15,7 +15,6 @@
  */
 
 #include <memory>
-#include <utility>
 
 #import "Firestore/Source/API/FIRListenerRegistration+Internal.h"
 
