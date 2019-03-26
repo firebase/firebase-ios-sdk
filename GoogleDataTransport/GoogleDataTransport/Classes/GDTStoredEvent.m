@@ -81,9 +81,7 @@ static NSString *kCustomPrioritizationParamsKey = @"GDTStoredEventcustomPrioriti
   return self;
 }
 
-- (BOOL)isEqual:(id)object {
-  NSAssert([object isKindOfClass:[self class]], @"You must compare like classes.");
-  GDTStoredEvent *other = (GDTStoredEvent *)object;
+- (BOOL)isEqual:(GDTStoredEvent *)other {
   return [self hash] == [other hash];
 }
 
