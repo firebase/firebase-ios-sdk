@@ -96,7 +96,7 @@ class QueryListener {
 
   /**
    * Initial snapshots (e.g. from cache) may not be propagated to the
-   * ViewSnapshotHandler. This flag is set to YES once we've actually raised an
+   * ViewSnapshotHandler. This flag is set to true once we've actually raised an
    * event.
    */
   bool raised_initial_event_ = false;

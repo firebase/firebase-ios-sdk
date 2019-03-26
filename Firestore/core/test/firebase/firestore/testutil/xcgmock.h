@@ -60,7 +60,7 @@ class XcTestRecorder {
         recordFailureWithDescription:[NSString stringWithUTF8String:message]
                               inFile:[NSString stringWithUTF8String:file_]
                               atLine:line_
-                            expected:YES];
+                            expected:true];
   }
 
  private:
