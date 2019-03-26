@@ -60,7 +60,7 @@ class XcTestRecorder {
         recordFailureWithDescription:[NSString stringWithUTF8String:message]
                               inFile:[NSString stringWithUTF8String:file_]
                               atLine:line_
-                            expected:YES];
+                            expected:true];
   }
 
  private:
@@ -191,7 +191,6 @@ OBJC_PRINT_TO(FSTObjectValue);
 OBJC_PRINT_TO(FSTPatchMutation);
 OBJC_PRINT_TO(FSTQuery);
 OBJC_PRINT_TO(FSTQueryData);
-OBJC_PRINT_TO(FSTQueryListener);
 OBJC_PRINT_TO(FSTReferenceValue);
 OBJC_PRINT_TO(FSTRelationFilter);
 OBJC_PRINT_TO(FSTSerializerBeta);
