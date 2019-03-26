@@ -188,7 +188,6 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
     return extensionHelper;
 }
 
-
 - (instancetype)initWithAnalytics:(nullable id<FIRAnalyticsInterop>)analytics
                    withInstanceID:(FIRInstanceID *)instanceID
                  withUserDefaults:(GULUserDefaults *)defaults {

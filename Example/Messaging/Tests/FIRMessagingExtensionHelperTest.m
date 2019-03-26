@@ -14,69 +14,68 @@
  * limitations under the License.
  */
 
- #import <UIKit/UIKit.h>
+#import <UIKit/UIKit.h>
 #import <XCTest/XCTest.h>
 
- #import <OCMock/OCMock.h>
+#import <OCMock/OCMock.h>
 
- #import "FIRMessaging.h"
+#import "FIRMessaging.h"
 #import "FIRMessagingExtensionHelper.h"
 
- typedef void (^FIRMessagingContentHandler)(UNNotificationContent *content);
+typedef void (^FIRMessagingContentHandler)(UNNotificationContent *content);
 
- static NSString *const kFCMPayloadOptionsName = @"fcm_options";
+static NSString *const kFCMPayloadOptionsName = @"fcm_options";
 static NSString *const kFCMPayloadOptionsImageURLName = @"image";
 static NSString *const kValidImageURL =
     @"https://firebasestorage.googleapis.com/v0/b/fcm-ios-f7f9c.appspot.com/o/"
     @"chubbyBunny.jpg?alt=media&token=d6c56a57-c007-4b27-b20f-f267cc83e9e5";
 
- @interface FIRMessagingExtensionHelper (ExposedForTest)
+@interface FIRMessagingExtensionHelper (ExposedForTest)
 #if TARGET_OS_IOS && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 - (void)loadAttachmentForURL:(NSURL *)attachmentURL
            completionHandler:(void (^)(UNNotificationAttachment *))completionHandler;
 #endif
 @end
 
- @interface FIRMessagingExtensionHelperTest : XCTestCase {
+@interface FIRMessagingExtensionHelperTest : XCTestCase {
   id _mockExtensionHelper;
 }
+@end
 
- @end
+@implementation FIRMessagingExtensionHelperTest
 
- @implementation FIRMessagingExtensionHelperTest
-
- - (void)setUp {
+- (void)setUp {
   [super setUp];
   FIRMessagingExtensionHelper *extensionHelper = [FIRMessaging extensionHelper];
   _mockExtensionHelper = OCMPartialMock(extensionHelper);
 }
 
- - (void)tearDown {
+- (void)tearDown {
   [_mockExtensionHelper stopMocking];
 }
 
- #if TARGET_OS_IOS && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
+#if TARGET_OS_IOS && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 - (void)testModifyNotificationWithValidPayloadData {
   XCTestExpectation *validPayloadExpectation =
       [self expectationWithDescription:@"Test payload is valid."];
 
-   UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
+  UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
   content.userInfo = @{kFCMPayloadOptionsName : @{kFCMPayloadOptionsImageURLName : kValidImageURL}};
   FIRMessagingContentHandler handler = ^(UNNotificationContent *content) {
     [validPayloadExpectation fulfill];
   };
   [_mockExtensionHelper populateNotificationContent:content withContentHandler:handler];
 
-   OCMVerify([_mockExtensionHelper loadAttachmentForURL:[OCMArg any]
+  OCMVerify([_mockExtensionHelper loadAttachmentForURL:[OCMArg any]
                                      completionHandler:[OCMArg any]]);
   [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
 
- - (void)testModifyNotificationWithInvalidPayloadData {
+- (void)testModifyNotificationWithInvalidPayloadData {
   XCTestExpectation *validPayloadExpectation =
       [self expectationWithDescription:@"Test payload is valid."];
 
-   UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
+  UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
   content.userInfo =
       @{kFCMPayloadOptionsName : @{kFCMPayloadOptionsImageURLName : @"a invalid URL"}};
   FIRMessagingContentHandler handler = ^(UNNotificationContent *content) {
@@ -84,16 +83,16 @@ static NSString *const kValidImageURL =
   };
   [_mockExtensionHelper populateNotificationContent:content withContentHandler:handler];
 
-   OCMReject([_mockExtensionHelper loadAttachmentForURL:[OCMArg any]
+  OCMReject([_mockExtensionHelper loadAttachmentForURL:[OCMArg any]
                                      completionHandler:[OCMArg any]]);
   [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
 
- - (void)testModifyNotificationWithEmptyPayloadData {
+- (void)testModifyNotificationWithEmptyPayloadData {
   XCTestExpectation *validPayloadExpectation =
       [self expectationWithDescription:@"Test payload is valid."];
 
-   UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
+  UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
   content.userInfo =
       @{kFCMPayloadOptionsName : @{kFCMPayloadOptionsImageURLName : @"a invalid URL"}};
   FIRMessagingContentHandler handler = ^(UNNotificationContent *content) {
@@ -101,7 +100,7 @@ static NSString *const kValidImageURL =
   };
   [_mockExtensionHelper populateNotificationContent:content withContentHandler:handler];
 
-   OCMReject([_mockExtensionHelper loadAttachmentForURL:[OCMArg any]
+  OCMReject([_mockExtensionHelper loadAttachmentForURL:[OCMArg any]
                                      completionHandler:[OCMArg any]]);
   [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
