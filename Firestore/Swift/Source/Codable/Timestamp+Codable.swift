@@ -24,7 +24,7 @@ import FirebaseFirestore
  * to be marked required but that can't be done in an extension. Declaring the extension on the
  * protocol sidesteps this issue.
  */
-fileprivate protocol CodableTimestamp: Codable {
+private protocol CodableTimestamp: Codable {
   var seconds: Int64 { get }
   var nanoseconds: Int32 { get }
 
@@ -32,7 +32,7 @@ fileprivate protocol CodableTimestamp: Codable {
 }
 
 /** The keys in a GeoPoint. Must match the properties of CodableGeoPoint. */
-fileprivate enum TimestampKeys: String, CodingKey {
+private enum TimestampKeys: String, CodingKey {
   case seconds
   case nanoseconds
 }
