@@ -27,7 +27,7 @@ USAGE: $0 product [platform] [method]
 product can be one of:
   Firebase
   Firestore
-  InAppMessagingDisplay
+  InAppMessaging
   SymbolCollision
 
 platform can be one of:
@@ -69,6 +69,7 @@ fi
 # Runs xcodebuild with the given flags, piping output to xcpretty
 # If xcodebuild fails with known error codes, retries once.
 function RunXcodebuild() {
+  echo xcodebuild "$@"
 
   xcodebuild "$@" | xcpretty; result=$?
   if [[ $result == 65 ]]; then
@@ -115,6 +116,7 @@ xcb_flags+=(
   ONLY_ACTIVE_ARCH=YES
   CODE_SIGNING_REQUIRED=NO
   CODE_SIGNING_ALLOWED=YES
+  COMPILER_INDEX_STORE_ENABLE=NO
 )
 
 # TODO(varconst): --warn-unused-vars - right now, it makes the log overflow on
@@ -183,15 +185,15 @@ case "$product-$method-$platform" in
         test
 
     if [[ $platform == 'iOS' ]]; then
-      RunXcodebuild \
-          -workspace 'Functions/Example/FirebaseFunctions.xcworkspace' \
-          -scheme "FirebaseFunctions_Tests" \
+      # Run integration tests (not allowed on PRs)
+      if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+        RunXcodebuild \
+          -workspace 'Example/Firebase.xcworkspace' \
+          -scheme "Auth_ApiTests" \
           "${xcb_flags[@]}" \
           build \
           test
 
-      # Run integration tests (not allowed on PRs)
-      if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
         RunXcodebuild \
           -workspace 'Example/Firebase.xcworkspace' \
           -scheme "Storage_IntegrationTests_iOS" \
@@ -218,21 +220,21 @@ case "$product-$method-$platform" in
           "${xcb_flags[@]}" \
           build \
           test
-
-      cd Functions/Example
-      sed -i -e 's/use_frameworks/\#use_frameworks/' Podfile
-      pod update --no-repo-update
-      cd ../..
-      RunXcodebuild \
-          -workspace 'Functions/Example/FirebaseFunctions.xcworkspace' \
-          -scheme "FirebaseFunctions_Tests" \
-          "${xcb_flags[@]}" \
-          build \
-          test
     fi
     ;;
 
-  InAppMessagingDisplay-xcodebuild-iOS)
+  InAppMessaging-xcodebuild-iOS)
+    RunXcodebuild \
+        -workspace 'InAppMessaging/Example/InAppMessaging-Example-iOS.xcworkspace'  \
+        -scheme 'InAppMessaging_Example_iOS' \
+        "${xcb_flags[@]}" \
+        build \
+        test
+
+    cd InAppMessaging/Example
+    sed -i -e 's/use_frameworks/\#use_frameworks/' Podfile
+    pod update --no-repo-update
+    cd ../..
     RunXcodebuild \
         -workspace 'InAppMessaging/Example/InAppMessaging-Example-iOS.xcworkspace'  \
         -scheme 'InAppMessaging_Example_iOS' \

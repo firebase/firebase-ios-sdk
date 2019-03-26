@@ -151,6 +151,93 @@ using firebase::firestore::model::TransformOperation;
   XCTAssertEqualObjects(transformedDoc, expectedDoc);
 }
 
+- (void)testAppliesIncrementTransformToDocument {
+  NSDictionary *baseDoc = @{
+    @"longPlusLong" : @1,
+    @"longPlusDouble" : @2,
+    @"doublePlusLong" : @3.3,
+    @"doublePlusDouble" : @4.0,
+    @"longPlusNan" : @5,
+    @"doublePlusNan" : @6.6,
+    @"longPlusInfinity" : @7,
+    @"doublePlusInfinity" : @8.8
+  };
+  NSDictionary *transform = @{
+    @"longPlusLong" : [FIRFieldValue fieldValueForIntegerIncrement:1],
+    @"longPlusDouble" : [FIRFieldValue fieldValueForDoubleIncrement:2.2],
+    @"doublePlusLong" : [FIRFieldValue fieldValueForIntegerIncrement:3],
+    @"doublePlusDouble" : [FIRFieldValue fieldValueForDoubleIncrement:4.4],
+    @"longPlusNan" : [FIRFieldValue fieldValueForDoubleIncrement:NAN],
+    @"doublePlusNan" : [FIRFieldValue fieldValueForDoubleIncrement:NAN],
+    @"longPlusInfinity" : [FIRFieldValue fieldValueForDoubleIncrement:INFINITY],
+    @"doublePlusInfinity" : [FIRFieldValue fieldValueForDoubleIncrement:INFINITY]
+  };
+  NSDictionary *expected = @{
+    @"longPlusLong" : @2L,
+    @"longPlusDouble" : @4.2,
+    @"doublePlusLong" : @6.3,
+    @"doublePlusDouble" : @8.4,
+    @"longPlusNan" : @(NAN),
+    @"doublePlusNan" : @(NAN),
+    @"longPlusInfinity" : @(INFINITY),
+    @"doublePlusInfinity" : @(INFINITY)
+  };
+  [self transformBaseDoc:baseDoc applyTransform:transform expecting:expected];
+}
+
+- (void)testAppliesIncrementTransformToUnexpectedType {
+  NSDictionary *baseDoc = @{@"string" : @"zero"};
+  NSDictionary *transform = @{@"string" : [FIRFieldValue fieldValueForIntegerIncrement:1]};
+  NSDictionary *expected = @{@"string" : @1};
+  [self transformBaseDoc:baseDoc applyTransform:transform expecting:expected];
+}
+
+- (void)testAppliesIncrementTransformToMissingField {
+  NSDictionary *baseDoc = @{};
+  NSDictionary *transform = @{@"missing" : [FIRFieldValue fieldValueForIntegerIncrement:1]};
+  NSDictionary *expected = @{@"missing" : @1};
+  [self transformBaseDoc:baseDoc applyTransform:transform expecting:expected];
+}
+
+- (void)testAppliesIncrementTransformsConsecutively {
+  NSDictionary *baseDoc = @{@"number" : @1};
+  NSDictionary *transform1 = @{@"number" : [FIRFieldValue fieldValueForIntegerIncrement:2]};
+  NSDictionary *transform2 = @{@"number" : [FIRFieldValue fieldValueForIntegerIncrement:3]};
+  NSDictionary *transform3 = @{@"number" : [FIRFieldValue fieldValueForIntegerIncrement:4]};
+  NSDictionary *expected = @{@"number" : @10};
+  [self transformBaseDoc:baseDoc
+         applyTransforms:@[ transform1, transform2, transform3 ]
+               expecting:expected];
+}
+
+- (void)testAppliesIncrementWithoutOverflow {
+  NSDictionary *baseDoc =
+      @{@"a" : @(LONG_MAX - 1), @"b" : @(LONG_MAX - 1), @"c" : @(LONG_MAX), @"d" : @(LONG_MAX)};
+  NSDictionary *transform = @{
+    @"a" : [FIRFieldValue fieldValueForIntegerIncrement:1],
+    @"b" : [FIRFieldValue fieldValueForIntegerIncrement:LONG_MAX],
+    @"c" : [FIRFieldValue fieldValueForIntegerIncrement:1],
+    @"d" : [FIRFieldValue fieldValueForIntegerIncrement:LONG_MAX]
+  };
+  NSDictionary *expected =
+      @{@"a" : @LONG_MAX, @"b" : @LONG_MAX, @"c" : @LONG_MAX, @"d" : @LONG_MAX};
+  [self transformBaseDoc:baseDoc applyTransform:transform expecting:expected];
+}
+
+- (void)testAppliesIncrementWithoutUnderflow {
+  NSDictionary *baseDoc =
+      @{@"a" : @(LONG_MIN + 1), @"b" : @(LONG_MIN + 1), @"c" : @(LONG_MIN), @"d" : @(LONG_MIN)};
+  NSDictionary *transform = @{
+    @"a" : [FIRFieldValue fieldValueForIntegerIncrement:-1],
+    @"b" : [FIRFieldValue fieldValueForIntegerIncrement:LONG_MIN],
+    @"c" : [FIRFieldValue fieldValueForIntegerIncrement:-1],
+    @"d" : [FIRFieldValue fieldValueForIntegerIncrement:LONG_MIN]
+  };
+  NSDictionary *expected =
+      @{@"a" : @(LONG_MIN), @"b" : @(LONG_MIN), @"c" : @(LONG_MIN), @"d" : @(LONG_MIN)};
+  [self transformBaseDoc:baseDoc applyTransform:transform expecting:expected];
+}
+
 // NOTE: This is more a test of FSTUserDataConverter code than FSTMutation code but we don't have
 // unit tests for it currently. We could consider removing this test once we have integration tests.
 - (void)testCreateArrayUnionTransform {
@@ -201,28 +288,28 @@ using firebase::firestore::model::TransformOperation;
   auto baseDoc = @{};
   auto transform = @{@"missing" : [FIRFieldValue fieldValueForArrayUnion:@[ @1, @2 ]]};
   auto expected = @{@"missing" : @[ @1, @2 ]};
-  [self transformBaseDoc:baseDoc with:transform expecting:expected];
+  [self transformBaseDoc:baseDoc applyTransform:transform expecting:expected];
 }
 
 - (void)testAppliesLocalArrayUnionTransformToNonArrayField {
   auto baseDoc = @{@"non-array" : @42};
   auto transform = @{@"non-array" : [FIRFieldValue fieldValueForArrayUnion:@[ @1, @2 ]]};
   auto expected = @{@"non-array" : @[ @1, @2 ]};
-  [self transformBaseDoc:baseDoc with:transform expecting:expected];
+  [self transformBaseDoc:baseDoc applyTransform:transform expecting:expected];
 }
 
 - (void)testAppliesLocalArrayUnionTransformWithNonExistingElements {
   auto baseDoc = @{@"array" : @[ @1, @3 ]};
   auto transform = @{@"array" : [FIRFieldValue fieldValueForArrayUnion:@[ @2, @4 ]]};
   auto expected = @{@"array" : @[ @1, @3, @2, @4 ]};
-  [self transformBaseDoc:baseDoc with:transform expecting:expected];
+  [self transformBaseDoc:baseDoc applyTransform:transform expecting:expected];
 }
 
 - (void)testAppliesLocalArrayUnionTransformWithExistingElements {
   auto baseDoc = @{@"array" : @[ @1, @3 ]};
   auto transform = @{@"array" : [FIRFieldValue fieldValueForArrayUnion:@[ @1, @3 ]]};
   auto expected = @{@"array" : @[ @1, @3 ]};
-  [self transformBaseDoc:baseDoc with:transform expecting:expected];
+  [self transformBaseDoc:baseDoc applyTransform:transform expecting:expected];
 }
 
 - (void)testAppliesLocalArrayUnionTransformWithDuplicateExistingElements {
@@ -230,7 +317,7 @@ using firebase::firestore::model::TransformOperation;
   auto baseDoc = @{@"array" : @[ @1, @2, @2, @3 ]};
   auto transform = @{@"array" : [FIRFieldValue fieldValueForArrayUnion:@[ @2 ]]};
   auto expected = @{@"array" : @[ @1, @2, @2, @3 ]};
-  [self transformBaseDoc:baseDoc with:transform expecting:expected];
+  [self transformBaseDoc:baseDoc applyTransform:transform expecting:expected];
 }
 
 - (void)testAppliesLocalArrayUnionTransformWithDuplicateUnionElements {
@@ -238,7 +325,7 @@ using firebase::firestore::model::TransformOperation;
   auto baseDoc = @{@"array" : @[ @1, @3 ]};
   auto transform = @{@"array" : [FIRFieldValue fieldValueForArrayUnion:@[ @2, @2 ]]};
   auto expected = @{@"array" : @[ @1, @3, @2 ]};
-  [self transformBaseDoc:baseDoc with:transform expecting:expected];
+  [self transformBaseDoc:baseDoc applyTransform:transform expecting:expected];
 }
 
 - (void)testAppliesLocalArrayUnionTransformWithNonPrimitiveElements {
@@ -247,7 +334,7 @@ using firebase::firestore::model::TransformOperation;
   auto transform =
       @{@"array" : [FIRFieldValue fieldValueForArrayUnion:@[ @{@"a" : @"b"}, @{@"c" : @"d"} ]]};
   auto expected = @{@"array" : @[ @1, @{@"a" : @"b"}, @{@"c" : @"d"} ]};
-  [self transformBaseDoc:baseDoc with:transform expecting:expected];
+  [self transformBaseDoc:baseDoc applyTransform:transform expecting:expected];
 }
 
 - (void)testAppliesLocalArrayUnionTransformWithPartiallyOverlappingElements {
@@ -257,35 +344,35 @@ using firebase::firestore::model::TransformOperation;
       @{@"array" : [FIRFieldValue fieldValueForArrayUnion:@[ @{@"a" : @"b"}, @{@"c" : @"d"} ]]};
   auto expected =
       @{@"array" : @[ @1, @{@"a" : @"b", @"c" : @"d"}, @{@"a" : @"b"}, @{@"c" : @"d"} ]};
-  [self transformBaseDoc:baseDoc with:transform expecting:expected];
+  [self transformBaseDoc:baseDoc applyTransform:transform expecting:expected];
 }
 
 - (void)testAppliesLocalArrayRemoveTransformToMissingField {
   auto baseDoc = @{};
   auto transform = @{@"missing" : [FIRFieldValue fieldValueForArrayRemove:@[ @1, @2 ]]};
   auto expected = @{@"missing" : @[]};
-  [self transformBaseDoc:baseDoc with:transform expecting:expected];
+  [self transformBaseDoc:baseDoc applyTransform:transform expecting:expected];
 }
 
 - (void)testAppliesLocalArrayRemoveTransformToNonArrayField {
   auto baseDoc = @{@"non-array" : @42};
   auto transform = @{@"non-array" : [FIRFieldValue fieldValueForArrayRemove:@[ @1, @2 ]]};
   auto expected = @{@"non-array" : @[]};
-  [self transformBaseDoc:baseDoc with:transform expecting:expected];
+  [self transformBaseDoc:baseDoc applyTransform:transform expecting:expected];
 }
 
 - (void)testAppliesLocalArrayRemoveTransformWithNonExistingElements {
   auto baseDoc = @{@"array" : @[ @1, @3 ]};
   auto transform = @{@"array" : [FIRFieldValue fieldValueForArrayRemove:@[ @2, @4 ]]};
   auto expected = @{@"array" : @[ @1, @3 ]};
-  [self transformBaseDoc:baseDoc with:transform expecting:expected];
+  [self transformBaseDoc:baseDoc applyTransform:transform expecting:expected];
 }
 
 - (void)testAppliesLocalArrayRemoveTransformWithExistingElements {
   auto baseDoc = @{@"array" : @[ @1, @2, @3, @4 ]};
   auto transform = @{@"array" : [FIRFieldValue fieldValueForArrayRemove:@[ @1, @3 ]]};
   auto expected = @{@"array" : @[ @2, @4 ]};
-  [self transformBaseDoc:baseDoc with:transform expecting:expected];
+  [self transformBaseDoc:baseDoc applyTransform:transform expecting:expected];
 }
 
 - (void)testAppliesLocalArrayRemoveTransformWithNonPrimitiveElements {
@@ -294,27 +381,53 @@ using firebase::firestore::model::TransformOperation;
   auto transform =
       @{@"array" : [FIRFieldValue fieldValueForArrayRemove:@[ @{@"a" : @"b"}, @{@"c" : @"d"} ]]};
   auto expected = @{@"array" : @[ @1 ]};
-  [self transformBaseDoc:baseDoc with:transform expecting:expected];
+  [self transformBaseDoc:baseDoc applyTransform:transform expecting:expected];
 }
 
 // Helper to test a particular transform scenario.
 - (void)transformBaseDoc:(NSDictionary<NSString *, id> *)baseData
-                    with:(NSDictionary<NSString *, id> *)transformData
+         applyTransforms:(NSArray<NSDictionary<NSString *, id> *> *)transforms
                expecting:(NSDictionary<NSString *, id> *)expectedData {
-  FSTDocument *baseDoc = FSTTestDoc("collection/key", 0, baseData, FSTDocumentStateSynced);
+  FSTMaybeDocument *currentDoc = FSTTestDoc("collection/key", 0, baseData, FSTDocumentStateSynced);
 
-  FSTMutation *transform = FSTTestTransformMutation(@"collection/key", transformData);
-
-  FSTMaybeDocument *transformedDoc = [transform applyToLocalDocument:baseDoc
-                                                        baseDocument:baseDoc
-                                                      localWriteTime:_timestamp];
+  for (NSDictionary<NSString *, id> *transformData in transforms) {
+    FSTMutation *transform = FSTTestTransformMutation(@"collection/key", transformData);
+    currentDoc = [transform applyToLocalDocument:currentDoc
+                                    baseDocument:currentDoc
+                                  localWriteTime:_timestamp];
+  }
 
   FSTDocument *expectedDoc = [FSTDocument documentWithData:FSTTestObjectValue(expectedData)
                                                        key:FSTTestDocKey(@"collection/key")
                                                    version:testutil::Version(0)
                                                      state:FSTDocumentStateLocalMutations];
 
-  XCTAssertEqualObjects(transformedDoc, expectedDoc);
+  XCTAssertEqualObjects(currentDoc, expectedDoc);
+}
+
+- (void)transformBaseDoc:(NSDictionary<NSString *, id> *)baseData
+          applyTransform:(NSDictionary<NSString *, id> *)transformData
+               expecting:(NSDictionary<NSString *, id> *)expectedData {
+  [self transformBaseDoc:baseData applyTransforms:@[ transformData ] expecting:expectedData];
+}
+
+- (void)testAppliesServerAckedIncrementTransformToDocuments {
+  NSDictionary *docData = @{@"sum" : @1};
+  FSTDocument *baseDoc = FSTTestDoc("collection/key", 0, docData, FSTDocumentStateSynced);
+
+  FSTMutation *transform = FSTTestTransformMutation(
+      @"collection/key", @{@"sum" : [FIRFieldValue fieldValueForIntegerIncrement:2]});
+
+  FSTMutationResult *mutationResult =
+      [[FSTMutationResult alloc] initWithVersion:testutil::Version(1)
+                                transformResults:@[ [FSTIntegerValue integerValue:3] ]];
+
+  FSTMaybeDocument *transformedDoc = [transform applyToRemoteDocument:baseDoc
+                                                       mutationResult:mutationResult];
+
+  NSDictionary *expectedData = @{@"sum" : @3};
+  XCTAssertEqualObjects(transformedDoc, FSTTestDoc("collection/key", 1, expectedData,
+                                                   FSTDocumentStateCommittedMutations));
 }
 
 - (void)testAppliesServerAckedServerTimestampTransformToDocuments {

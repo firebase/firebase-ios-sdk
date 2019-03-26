@@ -30,7 +30,10 @@ extern void FIRSetLoggerLevel(FIRLoggerLevel loggerLevel);
 - (instancetype)init {
   self = [super init];
   if (self) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     _analyticsConfiguration = [FIRAnalyticsConfiguration sharedInstance];
+#pragma clang diagnostic pop
   }
   return self;
 }

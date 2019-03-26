@@ -19,6 +19,8 @@
 
 #import <XCTest/XCTest.h>
 
+#import "Firestore/core/src/firebase/firestore/util/warnings.h"
+
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
@@ -161,8 +163,8 @@ NSDictionary<NSString *, id> *testDataWithTimestamps(FIRTimestamp *timestamp) {
   [self writeDocumentRef:doc data:testData];
   [self updateDocumentRef:doc
                      data:@{
-                       [[FIRFieldPath alloc] initWithFields:@[ @"b.dot" ]] : @100,
-                       @"c\\slash" : @200
+                       (id)[[FIRFieldPath alloc] initWithFields:@[ @"b.dot" ]] : @100,
+                       (id) @"c\\slash" : @200
                      }];
 
   FIRDocumentSnapshot *result = [self readDocumentForRef:doc];
@@ -266,10 +268,9 @@ NSDictionary<NSString *, id> *testDataWithTimestamps(FIRTimestamp *timestamp) {
   [super setUp];
   // Settings can only be redefined before client is initialized, so this has to happen in setUp.
   FIRFirestoreSettings *settings = self.db.settings;
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+  SUPPRESS_DEPRECATED_DECLARATIONS_BEGIN()
   settings.timestampsInSnapshotsEnabled = NO;
-#pragma clang diagnostic pop
+  SUPPRESS_END()
   self.db.settings = settings;
 }
 

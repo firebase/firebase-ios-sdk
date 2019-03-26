@@ -16,210 +16,65 @@
 
 #import "Firestore/Source/Core/FSTEventManager.h"
 
+#include <unordered_map>
+#include <utility>
+#include <vector>
+
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSyncEngine.h"
-#import "Firestore/Source/Model/FSTDocumentSet.h"
 
+#include "Firestore/core/src/firebase/firestore/model/document_set.h"
+#include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
-
-using firebase::firestore::core::DocumentViewChangeType;
-using firebase::firestore::model::OnlineState;
-using firebase::firestore::model::TargetId;
+#include "Firestore/core/src/firebase/firestore/util/objc_compatibility.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "absl/algorithm/container.h"
+#include "absl/types/optional.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-#pragma mark - FSTListenOptions
-
-@implementation FSTListenOptions
-
-+ (instancetype)defaultOptions {
-  static FSTListenOptions *defaultOptions;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    defaultOptions = [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:NO
-                                                    includeDocumentMetadataChanges:NO
-                                                             waitForSyncWhenOnline:NO];
-  });
-  return defaultOptions;
-}
-
-- (instancetype)initWithIncludeQueryMetadataChanges:(BOOL)includeQueryMetadataChanges
-                     includeDocumentMetadataChanges:(BOOL)includeDocumentMetadataChanges
-                              waitForSyncWhenOnline:(BOOL)waitForSyncWhenOnline {
-  if (self = [super init]) {
-    _includeQueryMetadataChanges = includeQueryMetadataChanges;
-    _includeDocumentMetadataChanges = includeDocumentMetadataChanges;
-    _waitForSyncWhenOnline = waitForSyncWhenOnline;
-  }
-  return self;
-}
-
-- (instancetype)init {
-  HARD_FAIL("FSTListenOptions init not supported");
-  return nil;
-}
-
-@end
+namespace objc = firebase::firestore::util::objc;
+using firebase::firestore::core::DocumentViewChange;
+using firebase::firestore::core::ViewSnapshot;
+using firebase::firestore::model::OnlineState;
+using firebase::firestore::model::TargetId;
+using firebase::firestore::util::MakeStatus;
+using firebase::firestore::util::Status;
 
 #pragma mark - FSTQueryListenersInfo
+
+namespace {
 
 /**
  * Holds the listeners and the last received ViewSnapshot for a query being tracked by
  * EventManager.
  */
-@interface FSTQueryListenersInfo : NSObject
-@property(nonatomic, strong, nullable, readwrite) FSTViewSnapshot *viewSnapshot;
-@property(nonatomic, assign, readwrite) TargetId targetID;
-@property(nonatomic, strong, readonly) NSMutableArray<FSTQueryListener *> *listeners;
-@end
+struct QueryListenersInfo {
+  TargetId target_id;
+  std::vector<std::shared_ptr<QueryListener>> listeners;
 
-@implementation FSTQueryListenersInfo
-- (instancetype)init {
-  if (self = [super init]) {
-    _listeners = [NSMutableArray array];
-  }
-  return self;
-}
-
-@end
-
-#pragma mark - FSTQueryListener
-
-@interface FSTQueryListener ()
-
-/** The last received view snapshot. */
-@property(nonatomic, strong, nullable) FSTViewSnapshot *snapshot;
-
-@property(nonatomic, strong, readonly) FSTListenOptions *options;
-
-/**
- * Initial snapshots (e.g. from cache) may not be propagated to the FSTViewSnapshotHandler.
- * This flag is set to YES once we've actually raised an event.
- */
-@property(nonatomic, assign, readwrite) BOOL raisedInitialEvent;
-
-/** The last online state this query listener got. */
-@property(nonatomic, assign, readwrite) OnlineState onlineState;
-
-/** The FSTViewSnapshotHandler associated with this query listener. */
-@property(nonatomic, copy, nullable) FSTViewSnapshotHandler viewSnapshotHandler;
-
-@end
-
-@implementation FSTQueryListener
-
-- (instancetype)initWithQuery:(FSTQuery *)query
-                      options:(FSTListenOptions *)options
-          viewSnapshotHandler:(FSTViewSnapshotHandler)viewSnapshotHandler {
-  if (self = [super init]) {
-    _query = query;
-    _options = options;
-    _viewSnapshotHandler = viewSnapshotHandler;
-    _raisedInitialEvent = NO;
-  }
-  return self;
-}
-
-- (void)queryDidChangeViewSnapshot:(FSTViewSnapshot *)snapshot {
-  HARD_ASSERT(snapshot.documentChanges.count > 0 || snapshot.syncStateChanged,
-              "We got a new snapshot with no changes?");
-
-  if (!self.options.includeDocumentMetadataChanges) {
-    // Remove the metadata-only changes.
-    NSMutableArray<FSTDocumentViewChange *> *changes = [NSMutableArray array];
-    for (FSTDocumentViewChange *change in snapshot.documentChanges) {
-      if (change.type != DocumentViewChangeType::kMetadata) {
-        [changes addObject:change];
-      }
+  void Erase(const std::shared_ptr<QueryListener> &listener) {
+    auto found = absl::c_find(listeners, listener);
+    if (found != listeners.end()) {
+      listeners.erase(found);
     }
-    snapshot = [[FSTViewSnapshot alloc] initWithQuery:snapshot.query
-                                            documents:snapshot.documents
-                                         oldDocuments:snapshot.oldDocuments
-                                      documentChanges:changes
-                                            fromCache:snapshot.fromCache
-                                          mutatedKeys:snapshot.mutatedKeys
-                                     syncStateChanged:snapshot.syncStateChanged
-                              excludesMetadataChanges:YES];
   }
 
-  if (!self.raisedInitialEvent) {
-    if ([self shouldRaiseInitialEventForSnapshot:snapshot onlineState:self.onlineState]) {
-      [self raiseInitialEventForSnapshot:snapshot];
-    }
-  } else if ([self shouldRaiseEventForSnapshot:snapshot]) {
-    self.viewSnapshotHandler(snapshot, nil);
+  const absl::optional<ViewSnapshot> &view_snapshot() const {
+    return snapshot_;
   }
 
-  self.snapshot = snapshot;
-}
-
-- (void)queryDidError:(NSError *)error {
-  self.viewSnapshotHandler(nil, error);
-}
-
-- (void)applyChangedOnlineState:(OnlineState)onlineState {
-  self.onlineState = onlineState;
-  if (self.snapshot && !self.raisedInitialEvent &&
-      [self shouldRaiseInitialEventForSnapshot:self.snapshot onlineState:onlineState]) {
-    [self raiseInitialEventForSnapshot:self.snapshot];
-  }
-}
-
-- (BOOL)shouldRaiseInitialEventForSnapshot:(FSTViewSnapshot *)snapshot
-                               onlineState:(OnlineState)onlineState {
-  HARD_ASSERT(!self.raisedInitialEvent,
-              "Determining whether to raise initial event, but already had first event.");
-
-  // Always raise the first event when we're synced
-  if (!snapshot.fromCache) {
-    return YES;
+  void set_view_snapshot(const absl::optional<ViewSnapshot> &snapshot) {
+    snapshot_ = snapshot;
   }
 
-  // NOTE: We consider OnlineState.Unknown as online (it should become Offline or Online if we
-  // wait long enough).
-  BOOL maybeOnline = onlineState != OnlineState::Offline;
-  // Don't raise the event if we're online, aren't synced yet (checked
-  // above) and are waiting for a sync.
-  if (self.options.waitForSyncWhenOnline && maybeOnline) {
-    HARD_ASSERT(snapshot.fromCache, "Waiting for sync, but snapshot is not from cache.");
-    return NO;
-  }
+ private:
+  // Other members are public in this struct, ensure that any reads are
+  // copies by requiring reads to go through a const getter.
+  absl::optional<ViewSnapshot> snapshot_;
+};
 
-  // Raise data from cache if we have any documents or we are offline
-  return !snapshot.documents.isEmpty || onlineState == OnlineState::Offline;
-}
-
-- (BOOL)shouldRaiseEventForSnapshot:(FSTViewSnapshot *)snapshot {
-  // We don't need to handle includeDocumentMetadataChanges here because the Metadata only changes
-  // have already been stripped out if needed. At this point the only changes we will see are the
-  // ones we should propagate.
-  if (snapshot.documentChanges.count > 0) {
-    return YES;
-  }
-
-  BOOL hasPendingWritesChanged =
-      self.snapshot && self.snapshot.hasPendingWrites != snapshot.hasPendingWrites;
-  if (snapshot.syncStateChanged || hasPendingWritesChanged) {
-    return self.options.includeQueryMetadataChanges;
-  }
-
-  // Generally we should have hit one of the cases above, but it's possible to get here if there
-  // were only metadata docChanges and they got stripped out.
-  return NO;
-}
-
-- (void)raiseInitialEventForSnapshot:(FSTViewSnapshot *)snapshot {
-  HARD_ASSERT(!self.raisedInitialEvent, "Trying to raise initial events for second time");
-  snapshot = [FSTViewSnapshot snapshotForInitialDocuments:snapshot.documents
-                                                    query:snapshot.query
-                                              mutatedKeys:snapshot.mutatedKeys
-                                                fromCache:snapshot.fromCache
-                                  excludesMetadataChanges:snapshot.excludesMetadataChanges];
-  self.raisedInitialEvent = YES;
-  self.viewSnapshotHandler(snapshot, nil);
-}
-
-@end
+}  // namespace
 
 #pragma mark - FSTEventManager
 
@@ -228,13 +83,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithSyncEngine:(FSTSyncEngine *)syncEngine NS_DESIGNATED_INITIALIZER;
 
 @property(nonatomic, strong, readonly) FSTSyncEngine *syncEngine;
-@property(nonatomic, strong, readonly)
-    NSMutableDictionary<FSTQuery *, FSTQueryListenersInfo *> *queries;
 @property(nonatomic, assign) OnlineState onlineState;
 
 @end
 
-@implementation FSTEventManager
+@implementation FSTEventManager {
+  objc::unordered_map<FSTQuery *, QueryListenersInfo> _queries;
+}
 
 + (instancetype)eventManagerWithSyncEngine:(FSTSyncEngine *)syncEngine {
   return [[FSTEventManager alloc] initWithSyncEngine:syncEngine];
@@ -243,83 +98,84 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithSyncEngine:(FSTSyncEngine *)syncEngine {
   if (self = [super init]) {
     _syncEngine = syncEngine;
-    _queries = [NSMutableDictionary dictionary];
-
     _syncEngine.syncEngineDelegate = self;
   }
   return self;
 }
 
-- (TargetId)addListener:(FSTQueryListener *)listener {
-  FSTQuery *query = listener.query;
-  BOOL firstListen = NO;
+- (TargetId)addListener:(std::shared_ptr<QueryListener>)listener {
+  FSTQuery *query = listener->query();
 
-  FSTQueryListenersInfo *queryInfo = self.queries[query];
-  if (!queryInfo) {
-    firstListen = YES;
-    queryInfo = [[FSTQueryListenersInfo alloc] init];
-    self.queries[query] = queryInfo;
-  }
-  [queryInfo.listeners addObject:listener];
+  auto inserted = _queries.emplace(query, QueryListenersInfo{});
+  bool first_listen = inserted.second;
+  QueryListenersInfo &query_info = inserted.first->second;
 
-  [listener applyChangedOnlineState:self.onlineState];
+  query_info.listeners.push_back(listener);
 
-  if (queryInfo.viewSnapshot) {
-    [listener queryDidChangeViewSnapshot:queryInfo.viewSnapshot];
+  listener->OnOnlineStateChanged(self.onlineState);
+
+  if (query_info.view_snapshot().has_value()) {
+    listener->OnViewSnapshot(query_info.view_snapshot().value());
   }
 
-  if (firstListen) {
-    queryInfo.targetID = [self.syncEngine listenToQuery:query];
+  if (first_listen) {
+    query_info.target_id = [self.syncEngine listenToQuery:query];
   }
-  return queryInfo.targetID;
+  return query_info.target_id;
 }
 
-- (void)removeListener:(FSTQueryListener *)listener {
-  FSTQuery *query = listener.query;
-  BOOL lastListen = NO;
+- (void)removeListener:(const std::shared_ptr<QueryListener> &)listener {
+  FSTQuery *query = listener->query();
+  bool last_listen = false;
 
-  FSTQueryListenersInfo *queryInfo = self.queries[query];
-  if (queryInfo) {
-    [queryInfo.listeners removeObject:listener];
-    lastListen = (queryInfo.listeners.count == 0);
+  auto found_iter = _queries.find(query);
+  if (found_iter != _queries.end()) {
+    QueryListenersInfo &query_info = found_iter->second;
+    query_info.Erase(listener);
+    last_listen = query_info.listeners.empty();
   }
 
-  if (lastListen) {
-    [self.queries removeObjectForKey:query];
+  if (last_listen) {
+    _queries.erase(found_iter);
     [self.syncEngine stopListeningToQuery:query];
   }
 }
 
-- (void)handleViewSnapshots:(NSArray<FSTViewSnapshot *> *)viewSnapshots {
-  for (FSTViewSnapshot *viewSnapshot in viewSnapshots) {
-    FSTQuery *query = viewSnapshot.query;
-    FSTQueryListenersInfo *queryInfo = self.queries[query];
-    if (queryInfo) {
-      for (FSTQueryListener *listener in queryInfo.listeners) {
-        [listener queryDidChangeViewSnapshot:viewSnapshot];
+- (void)handleViewSnapshots:(std::vector<ViewSnapshot> &&)viewSnapshots {
+  for (ViewSnapshot &viewSnapshot : viewSnapshots) {
+    FSTQuery *query = viewSnapshot.query();
+    auto found_iter = _queries.find(query);
+    if (found_iter != _queries.end()) {
+      QueryListenersInfo &query_info = found_iter->second;
+      for (const auto &listener : query_info.listeners) {
+        listener->OnViewSnapshot(viewSnapshot);
       }
-      queryInfo.viewSnapshot = viewSnapshot;
+      query_info.set_view_snapshot(std::move(viewSnapshot));
     }
   }
 }
 
 - (void)handleError:(NSError *)error forQuery:(FSTQuery *)query {
-  FSTQueryListenersInfo *queryInfo = self.queries[query];
-  if (queryInfo) {
-    for (FSTQueryListener *listener in queryInfo.listeners) {
-      [listener queryDidError:error];
+  auto found_iter = _queries.find(query);
+  if (found_iter != _queries.end()) {
+    QueryListenersInfo &query_info = found_iter->second;
+    for (const auto &listener : query_info.listeners) {
+      listener->OnError(MakeStatus(error));
     }
-  }
 
-  // Remove all listeners. NOTE: We don't need to call [FSTSyncEngine stopListening] after an error.
-  [self.queries removeObjectForKey:query];
+    // Remove all listeners. NOTE: We don't need to call [FSTSyncEngine stopListening] after an
+    // error.
+    _queries.erase(found_iter);
+  }
 }
 
 - (void)applyChangedOnlineState:(OnlineState)onlineState {
   self.onlineState = onlineState;
-  for (FSTQueryListenersInfo *info in self.queries.objectEnumerator) {
-    for (FSTQueryListener *listener in info.listeners) {
-      [listener applyChangedOnlineState:onlineState];
+
+  for (auto &&kv : _queries) {
+    QueryListenersInfo &info = kv.second;
+    for (auto &&listener : info.listeners) {
+      listener->OnOnlineStateChanged(onlineState);
     }
   }
 }

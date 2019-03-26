@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFunctions'
-  s.version          = '2.2.0'
+  s.version          = '2.4.0'
   s.summary          = 'Cloud Functions for Firebase iOS SDK.'
 
   s.description      = <<-DESC
@@ -16,6 +16,8 @@ iOS SDK for Cloud Functions for Firebase.
   }
 
   s.ios.deployment_target = '8.0'
+  s.osx.deployment_target = '10.11'
+  s.tvos.deployment_target = '10.0'
 
   s.cocoapods_version = '>= 1.4.0'
   s.static_framework = true
@@ -32,4 +34,14 @@ iOS SDK for Cloud Functions for Firebase.
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' => 'FIRFunctions_VERSION=' + s.version.to_s
   }
+
+  s.test_spec 'unit' do |unit_tests|
+    unit_tests.source_files = 'Functions/Example/Test*/*.[mh]', 'Example/Shared/FIRAuthInteropFake*'
+  end
+
+  s.test_spec 'integration' do |int_tests|
+    int_tests.source_files = 'Functions/Example/IntegrationTests/*.[mh]',
+                             'Functions/Example/TestUtils/*.[mh]',
+                             'Example/Shared/FIRAuthInteropFake*'
+  end
 end

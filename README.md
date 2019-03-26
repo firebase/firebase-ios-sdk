@@ -2,8 +2,8 @@
 
 This repository contains a subset of the Firebase iOS SDK source. It currently
 includes FirebaseCore, FirebaseAuth, FirebaseDatabase, FirebaseFirestore,
-FirebaseFunctions, FirebaseInAppMessagingDisplay, FirebaseMessaging and
-FirebaseStorage.
+FirebaseFunctions, FirebaseInstanceID, FirebaseInAppMessaging,
+FirebaseInAppMessagingDisplay, FirebaseMessaging and FirebaseStorage.
 
 The repository also includes GoogleUtilities source. The
 [GoogleUtilities](GoogleUtilities/README.md) pod is
@@ -86,6 +86,10 @@ Firestore and Functions have self contained Xcode projects. See
 
 ### Code Formatting
 
+To ensure that the code is formatted consistently, run the script
+[./scripts/style.sh](https://github.com/firebase/firebase-ios-sdk/blob/master/scripts/style.sh)
+before creating a PR.
+
 Travis will verify that any code changes are done in a style compliant way. Install
 `clang-format` and `swiftformat`.
 This command will get the right `clang-format` version:
@@ -95,6 +99,14 @@ This command will get the right `clang-format` version:
 ### Running Unit Tests
 
 Select a scheme and press Command-u to build a component and run its unit tests.
+
+#### Viewing Code Coverage
+
+First, make sure that [xcov](https://github.com/nakiostudio/xcov) is installed with `gem install xcov`.
+
+After running the `AllUnitTests_iOS` scheme in Xcode, execute
+`xcov --workspace Firebase.xcworkspace --scheme AllUnitTests_iOS --output_directory xcov_output`
+at Example/ in the terminal. This will aggregate the coverage, and you can run `open xcov_output/index.html` to see the results.
 
 ### Running Sample Apps
 In order to run the sample apps and integration tests, you'll need valid
@@ -157,10 +169,9 @@ very grateful!  We'd like to empower as many developers as we can to be able to 
 participate in the Firebase community.
 
 ### macOS and tvOS
-FirebaseAuth, FirebaseCore, FirebaseDatabase and FirebaseStorage now compile, run unit tests, and
-work on macOS and tvOS, thanks to contributions from the community. There are a few tweaks needed,
-like ensuring iOS-only, macOS-only, or tvOS-only code is correctly guarded with checks for
-`TARGET_OS_IOS`, `TARGET_OS_OSX` and `TARGET_OS_TV`.
+Thanks to contributions from the community, FirebaseAuth, FirebaseCore, FirebaseDatabase,
+FirebaseFunctions and FirebaseStorage now compile, run unit tests, and work on macOS and tvOS.
+FirebaseFirestore is availiable for macOS and FirebaseMessaging for tvOS.
 
 For tvOS, checkout the [Sample](Example/tvOSSample).
 
@@ -169,10 +180,19 @@ actively developed primarily for iOS. While we can catch basic unit test issues 
 may be some changes where the SDK no longer works as expected on macOS or tvOS. If you encounter
 this, please [file an issue](https://github.com/firebase/firebase-ios-sdk/issues).
 
-For installation instructions, see [above](README.md#accessing-firebase-source-snapshots).
+Note that the Firebase pod is not available for macOS and tvOS.
 
-Note that the Firebase pod is not available for macOS and tvOS. Install a selection of the
-`FirebaseAuth`, `FirebaseCore`, `FirebaseDatabase` and `FirebaseStorage` CocoaPods.
+To install, add a subset of the following to the Podfile:
+
+```
+pod 'FirebaseAuth'
+pod 'FirebaseCore'
+pod 'FirebaseDatabase'
+pod 'FirebaseFirestore'  # Only iOS and macOS
+pod 'FirebaseFunctions'
+pod 'FirebaseMessaging'  # Only iOS and tvOS
+pod 'FirebaseStorage'
+```
 
 ## Roadmap
 

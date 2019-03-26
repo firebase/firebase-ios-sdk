@@ -245,14 +245,18 @@ cc_library(
     comparison.cc
     comparison.h
     config.h
+    delayed_constructor.h
     hashing.h
     iterator_adaptors.h
+    objc_compatibility.h
     ordered_code.cc
     ordered_code.h
     range.h
     string_util.cc
     string_util.h
+    to_string.h
     type_traits.h
+    warnings.h
   DEPENDS
     absl_base
     firebase_firestore_util_async

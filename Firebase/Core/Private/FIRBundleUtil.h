@@ -45,8 +45,9 @@
 + (NSArray *)relevantURLSchemes;
 
 /**
- * Checks if the bundle identifier exists in the given bundles.
+ * Checks if any of the given bundles have a matching bundle identifier prefix (removing extension
+ * suffixes).
  */
-+ (BOOL)hasBundleIdentifier:(NSString *)bundleIdentifier inBundles:(NSArray *)bundles;
++ (BOOL)hasBundleIdentifierPrefix:(NSString *)bundleIdentifier inBundles:(NSArray *)bundles;
 
 @end

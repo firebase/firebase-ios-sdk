@@ -535,21 +535,6 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
   ResourcePath _path;
 }
 
-/**
- * Initializes the receiver with the given query constraints.
- *
- * @param path The base path of the query.
- * @param filters Filters specify which documents to include in the results.
- * @param sortOrders The fields and directions to sort the results.
- * @param limit If not NSNotFound, only this many results will be returned.
- */
-- (instancetype)initWithPath:(ResourcePath)path
-                    filterBy:(NSArray<FSTFilter *> *)filters
-                     orderBy:(NSArray<FSTSortOrder *> *)sortOrders
-                       limit:(NSInteger)limit
-                     startAt:(nullable FSTBound *)startAtBound
-                       endAt:(nullable FSTBound *)endAtBound NS_DESIGNATED_INITIALIZER;
-
 /** A list of fields given to sort by. This does not include the implicit key sort at the end. */
 @property(nonatomic, strong, readonly) NSArray<FSTSortOrder *> *explicitSortOrders;
 
@@ -563,7 +548,13 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 #pragma mark - Constructors
 
 + (instancetype)queryWithPath:(ResourcePath)path {
+  return [FSTQuery queryWithPath:std::move(path) collectionGroup:nil];
+}
+
++ (instancetype)queryWithPath:(ResourcePath)path
+              collectionGroup:(nullable NSString *)collectionGroup {
   return [[FSTQuery alloc] initWithPath:std::move(path)
+                        collectionGroup:collectionGroup
                                filterBy:@[]
                                 orderBy:@[]
                                   limit:NSNotFound
@@ -572,6 +563,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 }
 
 - (instancetype)initWithPath:(ResourcePath)path
+             collectionGroup:(nullable NSString *)collectionGroup
                     filterBy:(NSArray<FSTFilter *> *)filters
                      orderBy:(NSArray<FSTSortOrder *> *)sortOrders
                        limit:(NSInteger)limit
@@ -579,6 +571,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
                        endAt:(nullable FSTBound *)endAtBound {
   if (self = [super init]) {
     _path = std::move(path);
+    _collectionGroup = collectionGroup;
     _filters = filters;
     _explicitSortOrders = sortOrders;
     _limit = limit;
@@ -662,7 +655,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 }
 
 - (instancetype)queryByAddingFilter:(FSTFilter *)filter {
-  HARD_ASSERT(!DocumentKey::IsDocumentKey(_path), "No filtering allowed for document query");
+  HARD_ASSERT(![self isDocumentQuery], "No filtering allowed for document query");
 
   const FieldPath *newInequalityField = nullptr;
   if ([filter isKindOfClass:[FSTRelationFilter class]] &&
@@ -675,6 +668,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
       "Query must only have one inequality field.");
 
   return [[FSTQuery alloc] initWithPath:self.path
+                        collectionGroup:self.collectionGroup
                                filterBy:[self.filters arrayByAddingObject:filter]
                                 orderBy:self.explicitSortOrders
                                   limit:self.limit
@@ -683,10 +677,11 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 }
 
 - (instancetype)queryByAddingSortOrder:(FSTSortOrder *)sortOrder {
-  HARD_ASSERT(!DocumentKey::IsDocumentKey(_path), "No ordering is allowed for a document query.");
+  HARD_ASSERT(![self isDocumentQuery], "No ordering is allowed for a document query.");
 
   // TODO(klimt): Validate that the same key isn't added twice.
   return [[FSTQuery alloc] initWithPath:self.path
+                        collectionGroup:self.collectionGroup
                                filterBy:self.filters
                                 orderBy:[self.explicitSortOrders arrayByAddingObject:sortOrder]
                                   limit:self.limit
@@ -696,6 +691,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 
 - (instancetype)queryBySettingLimit:(NSInteger)limit {
   return [[FSTQuery alloc] initWithPath:self.path
+                        collectionGroup:self.collectionGroup
                                filterBy:self.filters
                                 orderBy:self.explicitSortOrders
                                   limit:limit
@@ -705,6 +701,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 
 - (instancetype)queryByAddingStartAt:(FSTBound *)bound {
   return [[FSTQuery alloc] initWithPath:self.path
+                        collectionGroup:self.collectionGroup
                                filterBy:self.filters
                                 orderBy:self.explicitSortOrders
                                   limit:self.limit
@@ -714,6 +711,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 
 - (instancetype)queryByAddingEndAt:(FSTBound *)bound {
   return [[FSTQuery alloc] initWithPath:self.path
+                        collectionGroup:self.collectionGroup
                                filterBy:self.filters
                                 orderBy:self.explicitSortOrders
                                   limit:self.limit
@@ -721,13 +719,28 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
                                   endAt:bound];
 }
 
+- (instancetype)collectionQueryAtPath:(firebase::firestore::model::ResourcePath)path {
+  return [[FSTQuery alloc] initWithPath:path
+                        collectionGroup:nil
+                               filterBy:self.filters
+                                orderBy:self.explicitSortOrders
+                                  limit:self.limit
+                                startAt:self.startAt
+                                  endAt:self.endAt];
+}
+
 - (BOOL)isDocumentQuery {
-  return DocumentKey::IsDocumentKey(_path) && self.filters.count == 0;
+  return DocumentKey::IsDocumentKey(_path) && !self.collectionGroup && self.filters.count == 0;
+}
+
+- (BOOL)isCollectionGroupQuery {
+  return self.collectionGroup != nil;
 }
 
 - (BOOL)matchesDocument:(FSTDocument *)document {
-  return [self pathMatchesDocument:document] && [self orderByMatchesDocument:document] &&
-         [self filtersMatchDocument:document] && [self boundsMatchDocument:document];
+  return [self pathAndCollectionGroupMatchDocument:document] &&
+         [self orderByMatchesDocument:document] && [self filtersMatchDocument:document] &&
+         [self boundsMatchDocument:document];
 }
 
 - (NSComparator)comparator {
@@ -787,6 +800,10 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
   NSMutableString *canonicalID = [NSMutableString string];
   [canonicalID appendFormat:@"%s", _path.CanonicalString().c_str()];
 
+  if (self.collectionGroup) {
+    [canonicalID appendFormat:@"|cg:%@", self.collectionGroup];
+  }
+
   // Add filters.
   [canonicalID appendString:@"|f:"];
   for (FSTFilter *predicate in self.filters) {
@@ -819,16 +836,24 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 #pragma mark - Private methods
 
 - (BOOL)isEqualToQuery:(FSTQuery *)other {
-  return self.path == other.path && self.limit == other.limit &&
-         [self.filters isEqual:other.filters] && [self.sortOrders isEqual:other.sortOrders] &&
+  return self.path == other.path &&
+         (self.collectionGroup == other.collectionGroup ||
+          [self.collectionGroup isEqual:other.collectionGroup]) &&
+         self.limit == other.limit && [self.filters isEqual:other.filters] &&
+         [self.sortOrders isEqual:other.sortOrders] &&
          (self.startAt == other.startAt || [self.startAt isEqual:other.startAt]) &&
          (self.endAt == other.endAt || [self.endAt isEqual:other.endAt]);
 }
 
-/* Returns YES if the document matches the path for the receiver. */
-- (BOOL)pathMatchesDocument:(FSTDocument *)document {
+/* Returns YES if the document matches the path and collection group for the receiver. */
+- (BOOL)pathAndCollectionGroupMatchDocument:(FSTDocument *)document {
   const ResourcePath &documentPath = document.key.path();
-  if (DocumentKey::IsDocumentKey(_path)) {
+  if (self.collectionGroup) {
+    // NOTE: self.path is currently always empty since we don't expose Collection Group queries
+    // rooted at a document path yet.
+    return document.key.HasCollectionId(util::MakeString(self.collectionGroup)) &&
+           self.path.IsPrefixOf(documentPath);
+  } else if (DocumentKey::IsDocumentKey(_path)) {
     // Exact match for document queries.
     return self.path == documentPath;
   } else {

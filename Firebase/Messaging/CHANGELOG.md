@@ -1,3 +1,12 @@
+# 2019-03-19 -- v3.4.0
+- Adding community support for tvOS. (#2428)
+
+# 2019-03-05 -- v3.3.2
+- Replaced `NSUserDefaults` with `GULUserDefaults` to avoid potential crashes. (#2443)
+
+# 2019-02-20 -- v3.3.1
+- Internal code cleanup.
+
 # 2019-01-22 -- v3.3.0
 - Use the new registerInternalLibrary API to register with FirebaseCore. (#2137)
 

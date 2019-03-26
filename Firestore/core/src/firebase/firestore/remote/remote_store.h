@@ -27,6 +27,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
@@ -177,7 +178,9 @@ class RemoteStore : public TargetMetadataProvider,
   void AddToWritePipeline(FSTMutationBatch* batch);
 
   /** Returns a new transaction backed by this remote store. */
-  FSTTransaction* CreateTransaction();
+  // TODO(c++14): return a plain value when it becomes possible to move
+  // `Transaction` into lambdas.
+  std::shared_ptr<core::Transaction> CreateTransaction();
 
   model::DocumentKeySet GetRemoteKeysForTarget(
       model::TargetId target_id) const override;

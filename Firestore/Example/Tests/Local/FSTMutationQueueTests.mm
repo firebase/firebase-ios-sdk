@@ -201,7 +201,7 @@ NS_ASSUME_NONNULL_BEGIN
     NSMutableArray<FSTMutationBatch *> *batches = [NSMutableArray array];
     for (FSTMutation *mutation in mutations) {
       FSTMutationBatch *batch =
-          self.mutationQueue->AddMutationBatch([FIRTimestamp timestamp], { mutation });
+          self.mutationQueue->AddMutationBatch([FIRTimestamp timestamp], {}, {mutation});
       [batches addObject:batch];
     }
 
@@ -228,7 +228,7 @@ NS_ASSUME_NONNULL_BEGIN
     NSMutableArray<FSTMutationBatch *> *batches = [NSMutableArray array];
     for (FSTMutation *mutation in mutations) {
       FSTMutationBatch *batch =
-          self.mutationQueue->AddMutationBatch([FIRTimestamp timestamp], { mutation });
+          self.mutationQueue->AddMutationBatch([FIRTimestamp timestamp], {}, {mutation});
       [batches addObject:batch];
     }
 
@@ -254,16 +254,16 @@ NS_ASSUME_NONNULL_BEGIN
         FSTTestSetMutation(@"foo/baz", @{@"a" : @1}),
     };
     FSTMutationBatch *batch1 =
-        self.mutationQueue->AddMutationBatch([FIRTimestamp timestamp], std::move(group1));
+        self.mutationQueue->AddMutationBatch([FIRTimestamp timestamp], {}, std::move(group1));
 
     std::vector<FSTMutation *> group2 = {FSTTestSetMutation(@"food/bar", @{@"a" : @1})};
-    self.mutationQueue->AddMutationBatch([FIRTimestamp timestamp], std::move(group2));
+    self.mutationQueue->AddMutationBatch([FIRTimestamp timestamp], {}, std::move(group2));
 
     std::vector<FSTMutation *> group3 = {
         FSTTestSetMutation(@"foo/bar", @{@"b" : @1}),
     };
     FSTMutationBatch *batch3 =
-        self.mutationQueue->AddMutationBatch([FIRTimestamp timestamp], std::move(group3));
+        self.mutationQueue->AddMutationBatch([FIRTimestamp timestamp], {}, std::move(group3));
 
     DocumentKeySet keys{
         Key("foo/bar"),
@@ -293,7 +293,7 @@ NS_ASSUME_NONNULL_BEGIN
     NSMutableArray<FSTMutationBatch *> *batches = [NSMutableArray array];
     for (FSTMutation *mutation in mutations) {
       FSTMutationBatch *batch =
-          self.mutationQueue->AddMutationBatch([FIRTimestamp timestamp], { mutation });
+          self.mutationQueue->AddMutationBatch([FIRTimestamp timestamp], {}, {mutation});
       [batches addObject:batch];
     }
 
@@ -397,7 +397,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTSetMutation *mutation = FSTTestSetMutation(key, @{@"a" : @1});
 
   FSTMutationBatch *batch =
-      self.mutationQueue->AddMutationBatch([FIRTimestamp timestamp], { mutation });
+      self.mutationQueue->AddMutationBatch([FIRTimestamp timestamp], {}, {mutation});
   return batch;
 }
 

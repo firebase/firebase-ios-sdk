@@ -15,7 +15,8 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
+
+@class UIViewController;
 
 NS_ASSUME_NONNULL_BEGIN
 

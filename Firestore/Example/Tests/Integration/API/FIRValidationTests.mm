@@ -18,10 +18,14 @@
 
 #import <XCTest/XCTest.h>
 
+#include <limits>
+
 #import "Firestore/Source/API/FIRFieldValue+Internal.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
+// TODO(b/116617988): Remove Internal include once CG queries are public.
+#import "Firestore/Source/API/FIRFirestore+Internal.h"
 
 // We have tests for passing nil when nil is not supposed to be allowed. So suppress the warnings.
 #pragma clang diagnostic ignored "-Wnonnull"
@@ -226,7 +230,7 @@
 }
 
 - (void)testWritesWithLargeNumbersFail {
-  NSNumber *num = @((unsigned long long)LONG_MAX + 1);
+  NSNumber *num = @(static_cast<uint64_t>(std::numeric_limits<int64_t>::max()) + 1);
   NSString *reason =
       [NSString stringWithFormat:@"NSNumber (%@) is too large (found in field num)", num];
   [self expectWrite:@{@"num" : num} toFailWithReason:reason];
@@ -420,6 +424,55 @@
   FSTAssertThrows([query queryEndingAtDocument:snapshot], reason);
 }
 
+- (void)testQueriesCannotBeSortedByAnUncommittedServerTimestamp {
+  __weak FIRCollectionReference *collection = [self collectionRef];
+  FIRFirestore *db = [self firestore];
+
+  [db disableNetworkWithCompletion:[self completionForExpectationWithName:@"Disable network"]];
+  [self awaitExpectations];
+
+  XCTestExpectation *offlineCallbackDone =
+      [self expectationWithDescription:@"offline callback done"];
+  XCTestExpectation *onlineCallbackDone = [self expectationWithDescription:@"online callback done"];
+
+  [collection addSnapshotListener:^(FIRQuerySnapshot *snapshot, NSError *error) {
+    XCTAssertNil(error);
+
+    // Skip the initial empty snapshot.
+    if (snapshot.empty) return;
+
+    XCTAssertEqual(snapshot.count, 1);
+    FIRQueryDocumentSnapshot *docSnap = snapshot.documents[0];
+
+    if (snapshot.metadata.pendingWrites) {
+      // Offline snapshot. Since the server timestamp is uncommitted, we
+      // shouldn't be able to query by it.
+      NSString *reason =
+          @"Invalid query. You are trying to start or end a query using a document for which the "
+          @"field 'timestamp' is an uncommitted server timestamp. (Since the value of this field "
+          @"is unknown, you cannot start/end a query with it.)";
+      FSTAssertThrows([[[collection queryOrderedByField:@"timestamp"] queryEndingAtDocument:docSnap]
+                          addSnapshotListener:^(FIRQuerySnapshot *, NSError *){
+                          }],
+                      reason);
+      [offlineCallbackDone fulfill];
+    } else {
+      // Online snapshot. Since the server timestamp is committed, we should be able to query by it.
+      [[[collection queryOrderedByField:@"timestamp"] queryEndingAtDocument:docSnap]
+          addSnapshotListener:^(FIRQuerySnapshot *, NSError *){
+          }];
+      [onlineCallbackDone fulfill];
+    }
+  }];
+
+  FIRDocumentReference *document = [collection documentWithAutoID];
+  [document setData:@{@"timestamp" : [FIRFieldValue fieldValueForServerTimestamp]}];
+  [self awaitExpectations];
+
+  [db enableNetworkWithCompletion:[self completionForExpectationWithName:@"Enable network"]];
+  [self awaitExpectations];
+}
+
 - (void)testQueryBoundMustNotHaveMoreComponentsThanSortOrders {
   FIRCollectionReference *testCollection = [self collectionRef];
   FIRQuery *query = [testCollection queryOrderedByField:@"foo"];
@@ -433,12 +486,19 @@
 }
 
 - (void)testQueryOrderedByKeyBoundMustBeAStringWithoutSlashes {
-  FIRCollectionReference *testCollection = [self collectionRef];
-  FIRQuery *query = [testCollection queryOrderedByFieldPath:[FIRFieldPath documentID]];
+  FIRQuery *query = [[self.db collectionWithPath:@"collection"]
+      queryOrderedByFieldPath:[FIRFieldPath documentID]];
+  FIRQuery *cgQuery = [[self.db collectionGroupWithID:@"collection"]
+      queryOrderedByFieldPath:[FIRFieldPath documentID]];
   FSTAssertThrows([query queryStartingAtValues:@[ @1 ]],
                   @"Invalid query. Expected a string for the document ID.");
   FSTAssertThrows([query queryStartingAtValues:@[ @"foo/bar" ]],
-                  @"Invalid query. Document ID 'foo/bar' contains a slash.");
+                  @"Invalid query. When querying a collection and ordering by document "
+                   "ID, you must pass a plain document ID, but 'foo/bar' contains a slash.");
+  FSTAssertThrows([cgQuery queryStartingAtValues:@[ @"foo" ]],
+                  @"Invalid query. When querying a collection group and ordering by "
+                   "document ID, you must pass a value that results in a valid document path, "
+                   "but 'foo' is not because it contains an odd number of segments.");
 }
 
 - (void)testQueryMustNotSpecifyStartingOrEndingPointAfterOrder {
@@ -459,14 +519,22 @@
                       "document ID, but it was an empty string.";
   FSTAssertThrows([collection queryWhereFieldPath:[FIRFieldPath documentID] isEqualTo:@""], reason);
 
-  reason = @"Invalid query. When querying by document ID you must provide a valid document ID, "
-            "but 'foo/bar/baz' contains a '/' character.";
+  reason = @"Invalid query. When querying a collection by document ID you must provide a "
+            "plain document ID, but 'foo/bar/baz' contains a '/' character.";
   FSTAssertThrows(
       [collection queryWhereFieldPath:[FIRFieldPath documentID] isEqualTo:@"foo/bar/baz"], reason);
 
   reason = @"Invalid query. When querying by document ID you must provide a valid string or "
             "DocumentReference, but it was of type: __NSCFNumber";
   FSTAssertThrows([collection queryWhereFieldPath:[FIRFieldPath documentID] isEqualTo:@1], reason);
+
+  reason = @"Invalid query. When querying a collection group by document ID, the value "
+            "provided must result in a valid document path, but 'foo/bar/baz' is not because it "
+            "has an odd number of segments.";
+  FSTAssertThrows(
+      [[self.db collectionGroupWithID:@"collection"] queryWhereFieldPath:[FIRFieldPath documentID]
+                                                               isEqualTo:@"foo/bar/baz"],
+      reason);
 
   reason =
       @"Invalid query. You can't perform arrayContains queries on document ID since document IDs "

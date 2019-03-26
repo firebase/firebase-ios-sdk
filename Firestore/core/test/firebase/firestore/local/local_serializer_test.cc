@@ -58,6 +58,7 @@ using model::MaybeDocument;
 using model::Mutation;
 using model::MutationBatch;
 using model::NoDocument;
+using model::ObjectValue;
 using model::PatchMutation;
 using model::Precondition;
 using model::SetMutation;
@@ -258,8 +259,8 @@ TEST_F(LocalSerializerTest, EncodesMutationBatch) {
                                         {"num", FieldValue::FromInteger(1)}});
   std::unique_ptr<Mutation> patch = absl::make_unique<PatchMutation>(
       Key("bar/baz"),
-      FieldValue::FromMap({{"a", FieldValue::FromString("b")},
-                           {"num", FieldValue::FromInteger(1)}}),
+      ObjectValue::FromMap({{"a", FieldValue::FromString("b")},
+                            {"num", FieldValue::FromInteger(1)}}),
       FieldMask({FieldPath({"a"})}), Precondition::Exists(true));
   std::unique_ptr<Mutation> del = testutil::DeleteMutation("baz/quux");
 
@@ -309,8 +310,8 @@ TEST_F(LocalSerializerTest, EncodesMutationBatch) {
 }
 
 TEST_F(LocalSerializerTest, EncodesDocumentAsMaybeDocument) {
-  Document doc = Doc("some/path", /*version=*/42,
-                     {{"foo", FieldValue::FromString("bar")}});
+  Document doc = *Doc("some/path", /*version=*/42,
+                      {{"foo", FieldValue::FromString("bar")}});
 
   ::firestore::client::MaybeDocument maybe_doc_proto;
   maybe_doc_proto.mutable_document()->set_name(
@@ -326,7 +327,7 @@ TEST_F(LocalSerializerTest, EncodesDocumentAsMaybeDocument) {
 }
 
 TEST_F(LocalSerializerTest, EncodesNoDocumentAsMaybeDocument) {
-  NoDocument no_doc = DeletedDoc("some/path", /*version=*/42);
+  NoDocument no_doc = *DeletedDoc("some/path", /*version=*/42);
 
   ::firestore::client::MaybeDocument maybe_doc_proto;
   maybe_doc_proto.mutable_no_document()->set_name(
@@ -338,7 +339,7 @@ TEST_F(LocalSerializerTest, EncodesNoDocumentAsMaybeDocument) {
 }
 
 TEST_F(LocalSerializerTest, EncodesUnknownDocumentAsMaybeDocument) {
-  UnknownDocument unknown_doc = UnknownDoc("some/path", /*version=*/42);
+  UnknownDocument unknown_doc = *UnknownDoc("some/path", /*version=*/42);
 
   ::firestore::client::MaybeDocument maybe_doc_proto;
   maybe_doc_proto.mutable_unknown_document()->set_name(

@@ -1,16 +1,15 @@
-Example/Auth/Sample/Sample.entitlements
-Example/Auth/Sample/GoogleService-Info_multi.plist
-Example/Auth/Sample/AuthCredentials.h
-Example/Auth/Sample/GoogleService-Info.plist
 Example/Auth/Sample/Application.plist
-Example/Auth/SwiftSample/GoogleService-Info.plist
-Example/Auth/SwiftSample/Info.plist
-Example/Auth/SwiftSample/AuthCredentials.swift
+Example/Auth/Sample/AuthCredentials.h
+Example/Auth/Sample/GoogleService-Info_multi.plist
+Example/Auth/Sample/GoogleService-Info.plist
+Example/Auth/Sample/Sample.entitlements
 Example/Auth/ApiTests/AuthCredentials.h
 
 Example/Database/App/GoogleService-Info.plist
 
 Example/Storage/App/GoogleService-Info.plist
+
+Secrets.tar
 
 # OS X
 .DS_Store
@@ -32,6 +31,13 @@ profile
 DerivedData
 *.hmap
 *.ipa
+
+# Swift Package Manager
+*/.build
+ZipBuilder/Packages
+ZipBuilder/*.xcodeproj
+ZipBuilder/Package.resolved
+
 
 # IntelliJ
 .idea
@@ -75,3 +81,9 @@ Ninja
 
 # Visual Studio
 /.vs
+
+# CocoaPods generate
+gen/
+
+# b/111916494
+default.profraw

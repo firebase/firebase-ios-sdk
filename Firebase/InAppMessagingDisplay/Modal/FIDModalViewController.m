@@ -18,7 +18,6 @@
 
 #import "FIDModalViewController.h"
 #import "FIRCore+InAppMessagingDisplay.h"
-#import "FIRInAppMessagingRendering.h"
 
 @interface FIDModalViewController ()
 

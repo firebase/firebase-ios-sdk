@@ -19,27 +19,45 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
+#include <memory>
+#include <utility>
+#include <vector>
+
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSyncEngine.h"
-#import "Firestore/Source/Model/FSTDocumentSet.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
+#include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
+#include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
+#include "Firestore/core/test/firebase/firestore/testutil/xcgmock.h"
 
+using firebase::firestore::core::EventListener;
+using firebase::firestore::core::ListenOptions;
+using firebase::firestore::core::ViewSnapshot;
+using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::DocumentSet;
 using firebase::firestore::model::OnlineState;
+using firebase::firestore::util::StatusOr;
+using firebase::firestore::util::StatusOrCallback;
+using testing::ElementsAre;
 
 NS_ASSUME_NONNULL_BEGIN
 
-/**
- * Converts an OnlineState to an NSNumber, usually for the purpose of adding
- * it to an NSArray or similar container. There's no direct conversion from a
- * strongly-typed enum to an integral type that could be passed to an NSNumber
- * initializer.
- */
-static NSNumber *ToNSNumber(OnlineState state) {
-  return @(static_cast<std::underlying_type<OnlineState>::type>(state));
+namespace {
+
+ViewSnapshot::Listener NoopViewSnapshotHandler() {
+  return EventListener<ViewSnapshot>::Create([](const StatusOr<ViewSnapshot> &) {});
 }
+
+std::shared_ptr<QueryListener> NoopQueryListener(FSTQuery *query) {
+  return QueryListener::Create(query, ListenOptions::DefaultOptions(), NoopViewSnapshotHandler());
+}
+
+}  // namespace
 
 // FSTEventManager implements this delegate privately
 @interface FSTEventManager () <FSTSyncEngineDelegate>
@@ -50,18 +68,10 @@ static NSNumber *ToNSNumber(OnlineState state) {
 
 @implementation FSTEventManagerTests
 
-- (FSTQueryListener *)noopListenerForQuery:(FSTQuery *)query {
-  return [[FSTQueryListener alloc]
-            initWithQuery:query
-                  options:[FSTListenOptions defaultOptions]
-      viewSnapshotHandler:^(FSTViewSnapshot *_Nullable snapshot, NSError *_Nullable error){
-      }];
-}
-
 - (void)testHandlesManyListenersPerQuery {
   FSTQuery *query = FSTTestQuery("foo/bar");
-  FSTQueryListener *listener1 = [self noopListenerForQuery:query];
-  FSTQueryListener *listener2 = [self noopListenerForQuery:query];
+  auto listener1 = NoopQueryListener(query);
+  auto listener2 = NoopQueryListener(query);
 
   FSTSyncEngine *syncEngineMock = OCMStrictClassMock([FSTSyncEngine class]);
   OCMExpect([syncEngineMock setSyncEngineDelegate:[OCMArg any]]);
@@ -81,7 +91,7 @@ static NSNumber *ToNSNumber(OnlineState state) {
 
 - (void)testHandlesUnlistenOnUnknownListenerGracefully {
   FSTQuery *query = FSTTestQuery("foo/bar");
-  FSTQueryListener *listener = [self noopListenerForQuery:query];
+  auto listener = NoopQueryListener(query);
 
   FSTSyncEngine *syncEngineMock = OCMStrictClassMock([FSTSyncEngine class]);
   OCMExpect([syncEngineMock setSyncEngineDelegate:[OCMArg any]]);
@@ -91,14 +101,11 @@ static NSNumber *ToNSNumber(OnlineState state) {
   OCMVerifyAll((id)syncEngineMock);
 }
 
-- (FSTQueryListener *)makeMockListenerForQuery:(FSTQuery *)query
-                           viewSnapshotHandler:(void (^)())handler {
-  FSTQueryListener *listener = OCMClassMock([FSTQueryListener class]);
-  OCMStub([listener query]).andReturn(query);
-  OCMStub([listener queryDidChangeViewSnapshot:[OCMArg any]]).andDo(^(NSInvocation *invocation) {
-    handler();
-  });
-  return listener;
+- (ViewSnapshot)makeEmptyViewSnapshotWithQuery:(FSTQuery *)query {
+  DocumentSet emptyDocs{query.comparator};
+  // sync_state_changed has to be `true` to prevent an assertion about a meaningless view snapshot.
+  return ViewSnapshot{
+      query, emptyDocs, emptyDocs, {}, DocumentKeySet{}, false, /*sync_state_changed=*/true, false};
 }
 
 - (void)testNotifiesListenersInTheRightOrder {
@@ -106,20 +113,14 @@ static NSNumber *ToNSNumber(OnlineState state) {
   FSTQuery *query2 = FSTTestQuery("bar/baz");
   NSMutableArray *eventOrder = [NSMutableArray array];
 
-  FSTQueryListener *listener1 = [self makeMockListenerForQuery:query1
-                                           viewSnapshotHandler:^{
-                                             [eventOrder addObject:@"listener1"];
-                                           }];
+  auto listener1 = QueryListener::Create(
+      query1, [eventOrder](StatusOr<ViewSnapshot>) { [eventOrder addObject:@"listener1"]; });
 
-  FSTQueryListener *listener2 = [self makeMockListenerForQuery:query2
-                                           viewSnapshotHandler:^{
-                                             [eventOrder addObject:@"listener2"];
-                                           }];
+  auto listener2 = QueryListener::Create(
+      query2, [eventOrder](StatusOr<ViewSnapshot>) { [eventOrder addObject:@"listener2"]; });
 
-  FSTQueryListener *listener3 = [self makeMockListenerForQuery:query1
-                                           viewSnapshotHandler:^{
-                                             [eventOrder addObject:@"listener3"];
-                                           }];
+  auto listener3 = QueryListener::Create(
+      query1, [eventOrder](StatusOr<ViewSnapshot>) { [eventOrder addObject:@"listener3"]; });
 
   FSTSyncEngine *syncEngineMock = OCMClassMock([FSTSyncEngine class]);
   FSTEventManager *eventManager = [FSTEventManager eventManagerWithSyncEngine:syncEngineMock];
@@ -130,12 +131,9 @@ static NSNumber *ToNSNumber(OnlineState state) {
   OCMVerify([syncEngineMock listenToQuery:query1]);
   OCMVerify([syncEngineMock listenToQuery:query2]);
 
-  FSTViewSnapshot *snapshot1 = OCMClassMock([FSTViewSnapshot class]);
-  OCMStub([snapshot1 query]).andReturn(query1);
-  FSTViewSnapshot *snapshot2 = OCMClassMock([FSTViewSnapshot class]);
-  OCMStub([snapshot2 query]).andReturn(query2);
-
-  [eventManager handleViewSnapshots:@[ snapshot1, snapshot2 ]];
+  ViewSnapshot snapshot1 = [self makeEmptyViewSnapshotWithQuery:query1];
+  ViewSnapshot snapshot2 = [self makeEmptyViewSnapshotWithQuery:query2];
+  [eventManager handleViewSnapshots:{snapshot1, snapshot2}];
 
   NSArray *expected = @[ @"listener1", @"listener3", @"listener2" ];
   XCTAssertEqualObjects(eventOrder, expected);
@@ -143,27 +141,31 @@ static NSNumber *ToNSNumber(OnlineState state) {
 
 - (void)testWillForwardOnlineStateChanges {
   FSTQuery *query = FSTTestQuery("foo/bar");
-  FSTQueryListener *fakeListener = OCMClassMock([FSTQueryListener class]);
-  NSMutableArray *events = [NSMutableArray array];
-  OCMStub([fakeListener query]).andReturn(query);
-  OCMStub([fakeListener applyChangedOnlineState:OnlineState::Unknown])
-      .andDo(^(NSInvocation *invocation) {
-        [events addObject:ToNSNumber(OnlineState::Unknown)];
-      });
-  OCMStub([fakeListener applyChangedOnlineState:OnlineState::Online])
-      .andDo(^(NSInvocation *invocation) {
-        [events addObject:ToNSNumber(OnlineState::Online)];
-      });
+
+  class FakeQueryListener : public QueryListener {
+   public:
+    explicit FakeQueryListener(FSTQuery *query)
+        : QueryListener(query, ListenOptions::DefaultOptions(), NoopViewSnapshotHandler()) {
+    }
+
+    void OnOnlineStateChanged(OnlineState online_state) override {
+      events.push_back(online_state);
+    }
+
+    std::vector<OnlineState> events;
+  };
+
+  auto fake_listener = std::make_shared<FakeQueryListener>(query);
 
   FSTSyncEngine *syncEngineMock = OCMClassMock([FSTSyncEngine class]);
   OCMExpect([syncEngineMock setSyncEngineDelegate:[OCMArg any]]);
   FSTEventManager *eventManager = [FSTEventManager eventManagerWithSyncEngine:syncEngineMock];
 
-  [eventManager addListener:fakeListener];
-  XCTAssertEqualObjects(events, @[ ToNSNumber(OnlineState::Unknown) ]);
+  [eventManager addListener:fake_listener];
+  XC_ASSERT_THAT(fake_listener->events, ElementsAre(OnlineState::Unknown));
+
   [eventManager applyChangedOnlineState:OnlineState::Online];
-  XCTAssertEqualObjects(events,
-                        (@[ ToNSNumber(OnlineState::Unknown), ToNSNumber(OnlineState::Online) ]));
+  XC_ASSERT_THAT(fake_listener->events, ElementsAre(OnlineState::Unknown, OnlineState::Online));
 }
 
 @end

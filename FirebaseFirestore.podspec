@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFirestore'
-  s.version          = '1.0.0'
+  s.version          = '1.1.0'
   s.summary          = 'Google Cloud Firestore for iOS'
 
   s.description      = <<-DESC
@@ -95,10 +95,19 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
       'Firestore/third_party/abseil-cpp/**/*.cc'
     ]
     ss.exclude_files = [
+      # Exclude tests and benchmarks from the framework.
       'Firestore/third_party/abseil-cpp/**/*_benchmark.cc',
       'Firestore/third_party/abseil-cpp/**/*test*.cc',
       'Firestore/third_party/abseil-cpp/absl/hash/internal/print_hash_of.cc',
-      'Firestore/third_party/abseil-cpp/absl/synchronization/internal/mutex_nonprod.cc',
+
+      # Avoid the debugging package which uses code that isn't portable to
+      # ARM (see stack_consumption.cc) and uses syscalls not available on
+      # tvOS (e.g. sigaltstack).
+      'Firestore/third_party/abseil-cpp/absl/debugging/**/*.cc',
+
+      # Exclude the synchronization package because it's dead weight: we don't
+      # write the kind of heavily threaded code that might benefit from it.
+      'Firestore/third_party/abseil-cpp/absl/synchronization/**/*.cc',
     ]
 
     ss.library = 'c++'

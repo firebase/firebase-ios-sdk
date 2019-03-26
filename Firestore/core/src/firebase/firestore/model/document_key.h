@@ -51,10 +51,6 @@ class DocumentKey {
   explicit DocumentKey(ResourcePath&& path);
 
 #if defined(__OBJC__)
-  operator FSTDocumentKey*() const {
-    return [FSTDocumentKey keyWithDocumentKey:*this];
-  }
-
   NSUInteger Hash() const {
     return util::Hash(ToString());
   }
@@ -68,7 +64,7 @@ class DocumentKey {
    * Creates and returns a new document key using '/' to split the string into
    * segments.
    */
-  static DocumentKey FromPathString(const absl::string_view path) {
+  static DocumentKey FromPathString(absl::string_view path) {
     return DocumentKey{ResourcePath::FromString(path)};
   }
 
@@ -88,6 +84,12 @@ class DocumentKey {
   /** The path to the document. */
   const ResourcePath& path() const {
     return path_ ? *path_ : Empty().path();
+  }
+
+  /** Returns true if the document is in the specified collectionId. */
+  bool HasCollectionId(absl::string_view collection_id) const {
+    size_t size = path().size();
+    return size >= 2 && path()[size - 2] == collection_id;
   }
 
  private:

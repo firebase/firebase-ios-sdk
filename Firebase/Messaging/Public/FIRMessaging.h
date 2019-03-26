@@ -321,7 +321,8 @@ NS_SWIFT_NAME(Messaging)
  * If true, the data message sent by direct channel will be delivered via
  * `FIRMessagingDelegate messaging(_:didReceive:)` and across all iOS versions.
  */
-@property(nonatomic, assign) BOOL useMessagingDelegateForDirectChannel;
+@property(nonatomic, assign) BOOL useMessagingDelegateForDirectChannel
+  __deprecated_msg("This is soon to be deprecated. All direct messages will by default delivered in `FIRMessagingDelegate messaging(_:didReceive:)` across all iOS versions");
 
 /**
  *  FIRMessaging

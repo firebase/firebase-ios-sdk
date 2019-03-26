@@ -18,6 +18,8 @@
 
 #import <FirebaseCore/FIRAppInternal.h>
 
+#import <FirebaseInAppMessaging/FIRInAppMessaging.h>
+#import <FirebaseInAppMessaging/FIRInAppMessagingRendering.h>
 #import "FIDBannerViewController.h"
 #import "FIDCardViewController.h"
 #import "FIDImageOnlyViewController.h"
@@ -26,8 +28,6 @@
 #import "FIDTimeFetcher.h"
 #import "FIRCore+InAppMessagingDisplay.h"
 #import "FIRIAMDefaultDisplayImpl.h"
-#import "FIRInAppMessaging.h"
-#import "FIRInAppMessagingRendering.h"
 
 @implementation FIRIAMDefaultDisplayImpl
 

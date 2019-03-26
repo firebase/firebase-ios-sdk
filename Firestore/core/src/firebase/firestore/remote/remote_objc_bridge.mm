@@ -273,7 +273,7 @@ grpc::ByteBuffer DatastoreSerializer::ToByteBuffer(
   return ConvertToByteBuffer([request data]);
 }
 
-NSArray<FSTMaybeDocument*>* DatastoreSerializer::MergeLookupResponses(
+std::vector<FSTMaybeDocument*> DatastoreSerializer::MergeLookupResponses(
     const std::vector<grpc::ByteBuffer>& responses, Status* out_status) const {
   // Sort by key.
   std::map<DocumentKey, FSTMaybeDocument*> results;
@@ -281,17 +281,17 @@ NSArray<FSTMaybeDocument*>* DatastoreSerializer::MergeLookupResponses(
   for (const auto& response : responses) {
     auto* proto = ToProto<GCFSBatchGetDocumentsResponse>(response, out_status);
     if (!out_status->ok()) {
-      return nil;
+      return {};
     }
     FSTMaybeDocument* doc = [serializer_ decodedMaybeDocumentFromBatch:proto];
     results[doc.key] = doc;
   }
-  NSMutableArray<FSTMaybeDocument*>* docs =
-      [NSMutableArray arrayWithCapacity:results.size()];
-  for (const auto& kv : results) {
-    [docs addObject:kv.second];
-  }
 
+  std::vector<FSTMaybeDocument*> docs;
+  docs.reserve(results.size());
+  for (const auto& kv : results) {
+    docs.push_back(kv.second);
+  }
   return docs;
 }
 

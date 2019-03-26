@@ -58,6 +58,7 @@ using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::FieldTransform;
+using firebase::firestore::model::NumericIncrementTransform;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::ServerTimestampTransform;
 using firebase::firestore::model::TransformOperation;
@@ -342,6 +343,15 @@ NS_ASSUME_NONNULL_BEGIN
                                                           std::move(parsedElements));
     context.AddToFieldTransforms(*context.path(), std::move(array_remove));
 
+  } else if ([fieldValue isKindOfClass:[FSTNumericIncrementFieldValue class]]) {
+    FSTNumericIncrementFieldValue *numericIncrementFieldValue =
+        (FSTNumericIncrementFieldValue *)fieldValue;
+    FSTNumberValue *operand =
+        (FSTNumberValue *)[self parsedQueryValue:numericIncrementFieldValue.operand];
+    auto numeric_increment = absl::make_unique<NumericIncrementTransform>(operand);
+
+    context.AddToFieldTransforms(*context.path(), std::move(numeric_increment));
+
   } else {
     HARD_FAIL("Unknown FIRFieldValue type: %s", NSStringFromClass([fieldValue class]));
   }
@@ -455,7 +465,8 @@ NS_ASSUME_NONNULL_BEGIN
           self.databaseID->project_id().c_str(), self.databaseID->database_id().c_str(),
           context.FieldDescription().c_str());
     }
-    return [FSTReferenceValue referenceValue:reference.key databaseID:self.databaseID];
+    return [FSTReferenceValue referenceValue:[FSTDocumentKey keyWithDocumentKey:reference.key]
+                                  databaseID:self.databaseID];
 
   } else {
     FSTThrowInvalidArgument(@"Unsupported type: %@%s", NSStringFromClass([input class]),

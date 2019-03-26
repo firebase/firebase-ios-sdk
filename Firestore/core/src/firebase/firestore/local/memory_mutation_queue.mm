@@ -25,7 +25,7 @@
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 
-#include "Firestore/core/src/firebase/firestore/local/document_reference.h"
+#include "Firestore/core/src/firebase/firestore/local/document_key_reference.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
@@ -74,7 +74,9 @@ void MemoryMutationQueue::Start() {
 }
 
 FSTMutationBatch* MemoryMutationQueue::AddMutationBatch(
-    FIRTimestamp* local_write_time, std::vector<FSTMutation*>&& mutations) {
+    FIRTimestamp* local_write_time,
+    std::vector<FSTMutation*>&& base_mutations,
+    std::vector<FSTMutation*>&& mutations) {
   HARD_ASSERT(!mutations.empty(), "Mutation batches should not be empty");
 
   BatchId batch_id = next_batch_id_;
@@ -89,13 +91,17 @@ FSTMutationBatch* MemoryMutationQueue::AddMutationBatch(
   FSTMutationBatch* batch =
       [[FSTMutationBatch alloc] initWithBatchID:batch_id
                                  localWriteTime:local_write_time
+                                  baseMutations:std::move(base_mutations)
                                       mutations:std::move(mutations)];
   queue_.push_back(batch);
 
-  // Track references by document key.
+  // Track references by document key and index collection parents.
   for (FSTMutation* mutation : [batch mutations]) {
     batches_by_document_key_ = batches_by_document_key_.insert(
-        DocumentReference{mutation.key, batch_id});
+        DocumentKeyReference{mutation.key, batch_id});
+
+    persistence_.indexManager->AddToCollectionParentIndex(
+        mutation.key.path().PopLast());
   }
 
   return batch;
@@ -115,7 +121,7 @@ void MemoryMutationQueue::RemoveMutationBatch(FSTMutationBatch* batch) {
     const DocumentKey& key = mutation.key;
     [persistence_.referenceDelegate removeMutationReference:key];
 
-    DocumentReference reference{key, batch.batchID};
+    DocumentKeyReference reference{key, batch.batchID};
     batches_by_document_key_ = batches_by_document_key_.erase(reference);
   }
 }
@@ -126,7 +132,7 @@ MemoryMutationQueue::AllMutationBatchesAffectingDocumentKeys(
   // First find the set of affected batch IDs.
   std::set<BatchId> batch_ids;
   for (const DocumentKey& key : document_keys) {
-    DocumentReference start{key, 0};
+    DocumentKeyReference start{key, 0};
 
     for (const auto& reference : batches_by_document_key_.values_from(start)) {
       if (key != reference.key()) break;
@@ -143,7 +149,7 @@ MemoryMutationQueue::AllMutationBatchesAffectingDocumentKey(
     const DocumentKey& key) {
   std::vector<FSTMutationBatch*> result;
 
-  DocumentReference start{key, 0};
+  DocumentKeyReference start{key, 0};
   for (const auto& reference : batches_by_document_key_.values_from(start)) {
     if (key != reference.key()) break;
 
@@ -156,6 +162,10 @@ MemoryMutationQueue::AllMutationBatchesAffectingDocumentKey(
 
 std::vector<FSTMutationBatch*>
 MemoryMutationQueue::AllMutationBatchesAffectingQuery(FSTQuery* query) {
+  HARD_ASSERT(
+      ![query isCollectionGroupQuery],
+      "CollectionGroup queries should be handled in LocalDocumentsView");
+
   // Use the query path as a prefix for testing if a document matches the query.
   const ResourcePath& prefix = query.path;
   size_t immediate_children_path_length = prefix.size() + 1;
@@ -168,7 +178,7 @@ MemoryMutationQueue::AllMutationBatchesAffectingQuery(FSTQuery* query) {
   if (!DocumentKey::IsDocumentKey(start_path)) {
     start_path = start_path.Append("");
   }
-  DocumentReference start{DocumentKey{start_path}, 0};
+  DocumentKeyReference start{DocumentKey{start_path}, 0};
 
   // Find unique batchIDs referenced by all documents potentially matching the
   // query.
@@ -232,7 +242,7 @@ void MemoryMutationQueue::PerformConsistencyCheck() {
 bool MemoryMutationQueue::ContainsKey(const model::DocumentKey& key) {
   // Create a reference with a zero ID as the start position to find any
   // document reference with this key.
-  DocumentReference reference{key, 0};
+  DocumentKeyReference reference{key, 0};
   auto range = batches_by_document_key_.values_from(reference);
   auto begin = range.begin();
   return begin != range.end() && begin->key() == key;

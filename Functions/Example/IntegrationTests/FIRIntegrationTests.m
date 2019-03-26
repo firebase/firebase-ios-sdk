@@ -48,7 +48,7 @@ static NSString *const kProjectID = @"functions-integration-test";
   NSDictionary *data = @{
     @"bool" : @YES,
     @"int" : @2,
-    @"long" : @3L,
+    @"long" : @9876543210L,
     @"string" : @"four",
     @"array" : @[ @5, @6 ],
     @"null" : [NSNull null],
@@ -193,6 +193,21 @@ static NSString *const kProjectID = @"functions-integration-test";
                   XCTAssertEqual(FIRFunctionsErrorCodeInvalidArgument, error.code);
                   [expectation fulfill];
                 }];
+  [self waitForExpectations:@[ expectation ] timeout:10];
+}
+
+- (void)testTimeout {
+  XCTestExpectation *expectation = [[XCTestExpectation alloc] init];
+  FIRHTTPSCallable *function = [_functions HTTPSCallableWithName:@"timeoutTest"];
+  function.timeoutInterval = 0.05;
+  [function
+      callWithCompletion:^(FIRHTTPSCallableResult *_Nullable result, NSError *_Nullable error) {
+        XCTAssertNotNil(error);
+        XCTAssertEqual(FIRFunctionsErrorCodeDeadlineExceeded, error.code);
+        XCTAssertEqualObjects(@"DEADLINE EXCEEDED", error.userInfo[NSLocalizedDescriptionKey]);
+        XCTAssertNil(error.userInfo[FIRFunctionsErrorDetailsKey]);
+        [expectation fulfill];
+      }];
   [self waitForExpectations:@[ expectation ] timeout:10];
 }
 

@@ -16,15 +16,77 @@
 
 #import <Foundation/Foundation.h>
 
-@class FIRAuthCredential;
+#import "FIRFederatedAuthProvider.h"
+
+@class FIRAuth;
+@class FIROAuthCredential;
 
 NS_ASSUME_NONNULL_BEGIN
+
+/**
+    @brief A string constant identifying the Microsoft identity provider.
+ */
+extern NSString *const FIRMicrosoftAuthProviderID NS_SWIFT_NAME(MicrosoftAuthProviderID)
+    DEPRECATED_MSG_ATTRIBUTE("Please use \"microsoft.com\" instead.");
+
+/**
+    @brief A string constant identifying the Yahoo identity provider.
+ */
+extern NSString *const FIRYahooAuthProviderID NS_SWIFT_NAME(YahooAuthProviderID)
+    DEPRECATED_MSG_ATTRIBUTE("Please use \"yahoo.com\" instead.");
 
 /** @class FIROAuthProvider
     @brief A concrete implementation of `FIRAuthProvider` for generic OAuth Providers.
  */
 NS_SWIFT_NAME(OAuthProvider)
-@interface FIROAuthProvider : NSObject
+@interface FIROAuthProvider : NSObject<FIRFederatedAuthProvider>
+
+/** @property scopes
+    @brief Array used to configure the OAuth scopes.
+ */
+@property(nonatomic, copy, nullable) NSArray<NSString *> *scopes;
+
+/** @property customParameters
+    @brief Dictionary used to configure the OAuth custom parameters.
+ */
+@property(nonatomic, copy, nullable) NSDictionary<NSString *, NSString*> *customParameters;
+
+/** @property providerID
+    @brief The provider ID indicating the specific OAuth provider this OAuthProvider instance
+          represents.
+ */
+@property(nonatomic, copy, readonly) NSString *providerID;
+
+/** @fn providerWithProviderID:
+    @param providerID The provider ID of the IDP for which this auth provider instance will be
+        configured.
+    @return An instance of FIROAuthProvider corresponding to the specified provider ID.
+ */
++ (FIROAuthProvider *)providerWithProviderID:(NSString *)providerID;
+
+/** @fn providerWithProviderID:auth:
+    @param providerID The provider ID of the IDP for which this auth provider instance will be
+        configured.
+    @param auth The auth instance to be associated with the FIROAuthProvider instance.
+    @return An instance of FIROAuthProvider corresponding to the specified provider ID.
+ */
++ (FIROAuthProvider *)providerWithProviderID:(NSString *)providerID auth:(FIRAuth *)auth;
+
+/** @fn credentialWithProviderID:IDToken:accessToken:
+    @brief Creates an `FIRAuthCredential` for that OAuth 2 provider identified by providerID, ID
+        token and access token.
+
+    @param providerID The provider ID associated with the Auth credential being created.
+    @param IDToken The IDToken associated with the Auth credential being created.
+    @param accessToken The accessstoken associated with the Auth credential be created, if
+        available.
+    @param pendingToken The pending token used when completing the headful-lite flow.
+    @return A FIRAuthCredential for the specified provider ID, ID token and access token.
+ */
++ (FIROAuthCredential *)credentialWithProviderID:(NSString *)providerID
+                                         IDToken:(NSString *)IDToken
+                                     accessToken:(nullable NSString *)accessToken
+                                    pendingToken:(nullable NSString *)pendingToken;
 
 /** @fn credentialWithProviderID:IDToken:accessToken:
     @brief Creates an `FIRAuthCredential` for that OAuth 2 provider identified by providerID, ID
@@ -36,10 +98,9 @@ NS_SWIFT_NAME(OAuthProvider)
         available.
     @return A FIRAuthCredential for the specified provider ID, ID token and access token.
  */
-+ (FIRAuthCredential *)credentialWithProviderID:(NSString *)providerID
-                                        IDToken:(NSString *)IDToken
-                                    accessToken:(nullable NSString *)accessToken;
-
++ (FIROAuthCredential *)credentialWithProviderID:(NSString *)providerID
+                                         IDToken:(NSString *)IDToken
+                                     accessToken:(nullable NSString *)accessToken;
 
 /** @fn credentialWithProviderID:accessToken:
     @brief Creates an `FIRAuthCredential` for that OAuth 2 provider identified by providerID using
@@ -49,8 +110,8 @@ NS_SWIFT_NAME(OAuthProvider)
     @param accessToken The accessstoken associated with the Auth credential be created
     @return A FIRAuthCredential.
  */
-+ (FIRAuthCredential *)credentialWithProviderID:(NSString *)providerID
-                                    accessToken:(NSString *)accessToken;
++ (FIROAuthCredential *)credentialWithProviderID:(NSString *)providerID
+                                     accessToken:(NSString *)accessToken;
 
 /** @fn init
     @brief This class is not meant to be initialized.

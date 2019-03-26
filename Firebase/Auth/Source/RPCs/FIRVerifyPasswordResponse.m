@@ -16,6 +16,8 @@
 
 #import "FIRVerifyPasswordResponse.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @implementation FIRVerifyPasswordResponse
 
 - (BOOL)setWithDictionary:(NSDictionary *)dictionary
@@ -32,3 +34,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

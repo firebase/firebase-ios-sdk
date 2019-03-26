@@ -20,6 +20,7 @@
 
 #include <map>
 #include <memory>
+#include <string>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -42,17 +43,25 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_store.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
+#include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
+#include "Firestore/core/src/firebase/firestore/util/objc_compatibility.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
+#include "Firestore/core/src/firebase/firestore/util/string_format.h"
+#include "Firestore/core/src/firebase/firestore/util/to_string.h"
 #include "absl/memory/memory.h"
 
+namespace objc = firebase::firestore::util::objc;
 using firebase::firestore::FirestoreErrorCode;
 using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::auth::HashUser;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
+using firebase::firestore::core::ListenOptions;
+using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
@@ -65,17 +74,33 @@ using firebase::firestore::remote::WatchChange;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::TimerId;
 using firebase::firestore::util::ExecutorLibdispatch;
+using firebase::firestore::util::MakeNSError;
 using firebase::firestore::util::MakeString;
 using firebase::firestore::util::Status;
+using firebase::firestore::util::StatusOr;
+using firebase::firestore::util::StringFormat;
+using firebase::firestore::util::ToString;
+using firebase::firestore::util::WrapNSString;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@implementation FSTQueryEvent
+@implementation FSTQueryEvent {
+  absl::optional<ViewSnapshot> _maybeViewSnapshot;
+}
+
+- (const absl::optional<ViewSnapshot> &)viewSnapshot {
+  return _maybeViewSnapshot;
+}
+
+- (void)setViewSnapshot:(absl::optional<ViewSnapshot>)snapshot {
+  _maybeViewSnapshot = std::move(snapshot);
+}
 
 - (NSString *)description {
   // The Query is also included in the view, so we skip it.
-  return [NSString stringWithFormat:@"<FSTQueryEvent: viewSnapshot=%@, error=%@>",
-                                    self.viewSnapshot, self.error];
+  std::string str = StringFormat("<FSTQueryEvent: viewSnapshot=%s, error=%s>",
+                                 ToString(_maybeViewSnapshot), self.error);
+  return WrapNSString(str);
 }
 
 @end
@@ -98,9 +123,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong, readonly) void (^eventHandler)(FSTQueryEvent *);
 /** The events received by our eventHandler and not yet retrieved via capturedEventsSinceLastCall */
 @property(nonatomic, strong, readonly) NSMutableArray<FSTQueryEvent *> *events;
-/** A dictionary for tracking the listens on queries. */
-@property(nonatomic, strong, readonly)
-    NSMutableDictionary<FSTQuery *, FSTQueryListener *> *queryListeners;
 
 #pragma mark - Data structures for holding events sent by the write stream.
 
@@ -121,6 +143,9 @@ NS_ASSUME_NONNULL_BEGIN
   // ivar is declared as mutable.
   std::unordered_map<User, NSMutableArray<FSTOutstandingWrite *> *, HashUser> _outstandingWrites;
   DocumentKeySet _expectedLimboDocuments;
+
+  /** A dictionary for tracking the listens on queries. */
+  objc::unordered_map<FSTQuery *, std::shared_ptr<QueryListener>> _queryListeners;
 
   DatabaseInfo _databaseInfo;
   User _currentUser;
@@ -176,8 +201,6 @@ NS_ASSUME_NONNULL_BEGIN
       [events addObject:e];
     };
     _events = events;
-
-    _queryListeners = [NSMutableDictionary dictionary];
 
     _currentUser = initialUser;
 
@@ -327,29 +350,33 @@ NS_ASSUME_NONNULL_BEGIN
 - (TargetId)addUserListenerWithQuery:(FSTQuery *)query {
   // TODO(dimond): Allow customizing listen options in spec tests
   // TODO(dimond): Change spec tests to verify isFromCache on snapshots
-  FSTListenOptions *options = [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:YES
-                                                             includeDocumentMetadataChanges:YES
-                                                                      waitForSyncWhenOnline:NO];
-  FSTQueryListener *listener = [[FSTQueryListener alloc]
-            initWithQuery:query
-                  options:options
-      viewSnapshotHandler:^(FSTViewSnapshot *_Nullable snapshot, NSError *_Nullable error) {
+  ListenOptions options = ListenOptions::FromIncludeMetadataChanges(true);
+  auto listener = QueryListener::Create(
+      query, options, [self, query](const StatusOr<ViewSnapshot> &maybe_snapshot) {
         FSTQueryEvent *event = [[FSTQueryEvent alloc] init];
         event.query = query;
-        event.viewSnapshot = snapshot;
-        event.error = error;
+        if (maybe_snapshot.ok()) {
+          [event setViewSnapshot:maybe_snapshot.ValueOrDie()];
+        } else {
+          event.error = MakeNSError(maybe_snapshot.status());
+        }
+
         [self.events addObject:event];
-      }];
-  self.queryListeners[query] = listener;
+      });
+  _queryListeners[query] = listener;
   TargetId targetID;
   _workerQueue->EnqueueBlocking([&] { targetID = [self.eventManager addListener:listener]; });
   return targetID;
 }
 
 - (void)removeUserListenerWithQuery:(FSTQuery *)query {
-  FSTQueryListener *listener = self.queryListeners[query];
-  [self.queryListeners removeObjectForKey:query];
-  _workerQueue->EnqueueBlocking([&] { [self.eventManager removeListener:listener]; });
+  auto found_iter = _queryListeners.find(query);
+  if (found_iter != _queryListeners.end()) {
+    std::shared_ptr<QueryListener> listener = found_iter->second;
+    _queryListeners.erase(found_iter);
+
+    _workerQueue->EnqueueBlocking([&] { [self.eventManager removeListener:listener]; });
+  }
 }
 
 - (void)writeUserMutation:(FSTMutation *)mutation {
@@ -387,7 +414,7 @@ NS_ASSUME_NONNULL_BEGIN
   _workerQueue->EnqueueBlocking([&] {
     _datastore->FailWatchStream(error);
     // Unlike web, stream should re-open synchronously (if we have any listeners)
-    if (self.queryListeners.count > 0) {
+    if (!_queryListeners.empty()) {
       HARD_ASSERT(_datastore->IsWatchStreamOpen(), "Watch stream is open");
     }
   });

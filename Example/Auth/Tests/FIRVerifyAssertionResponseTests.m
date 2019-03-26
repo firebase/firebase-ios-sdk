@@ -254,6 +254,7 @@ static const double kAllowedTimeDifference = 0.1;
   XCTAssertEqual(RPCError.code, FIRAuthErrorCodeUserDisabled);
 }
 
+#if TARGET_OS_IOS
 /** @fn testCredentialAlreadyInUseError
     @brief This test simulates a @c FIRAuthErrorCodeCredentialAlreadyInUse error.
  */
@@ -280,6 +281,7 @@ static const double kAllowedTimeDifference = 0.1;
   XCTAssertNil(RPCResponse);
   XCTAssertEqual(RPCError.code, FIRAuthErrorCodeCredentialAlreadyInUse);
 }
+#endif  // TARGET_OS_IOS
 
 /** @fn testOperationNotAllowedError
     @brief This test simulates a @c FIRAuthErrorCodeOperationNotAllowed error.

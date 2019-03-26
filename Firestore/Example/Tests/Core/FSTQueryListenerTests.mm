@@ -15,63 +15,90 @@
  */
 
 #import <XCTest/XCTest.h>
+
 #include <memory>
+#include <utility>
+#include <vector>
 
 #import "Firestore/Source/Core/FSTEventManager.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTView.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentSet.h"
-#import "Firestore/Source/Util/FSTAsyncQueryListener.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
+#include "Firestore/core/include/firebase/firestore/firestore_errors.h"
+#include "Firestore/core/src/firebase/firestore/core/event_listener.h"
+#include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
+#include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
+#include "Firestore/core/src/firebase/firestore/util/delayed_constructor.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
-#include "absl/memory/memory.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
+#include "Firestore/core/test/firebase/firestore/testutil/xcgmock.h"
 
-using firebase::firestore::core::DocumentViewChangeType;
+using firebase::firestore::FirestoreErrorCode;
+using firebase::firestore::core::AsyncEventListener;
+using firebase::firestore::core::EventListener;
+using firebase::firestore::core::DocumentViewChange;
+using firebase::firestore::core::EventListener;
+using firebase::firestore::core::ListenOptions;
+using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::DocumentSet;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::remote::TargetChange;
+using firebase::firestore::util::DelayedConstructor;
 using firebase::firestore::util::ExecutorLibdispatch;
+using firebase::firestore::util::Status;
+using firebase::firestore::util::StatusOr;
+using testing::ElementsAre;
+using testing::IsEmpty;
 
 NS_ASSUME_NONNULL_BEGIN
+
+namespace {
+
+ViewSnapshot ExcludingMetadataChanges(const ViewSnapshot &snapshot) {
+  return ViewSnapshot{
+      snapshot.query(),
+      snapshot.documents(),
+      snapshot.old_documents(),
+      snapshot.document_changes(),
+      snapshot.mutated_keys(),
+      snapshot.from_cache(),
+      snapshot.sync_state_changed(),
+      /*excludes_metadata_changes=*/true,
+  };
+}
+
+ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
+  return EventListener<ViewSnapshot>::Create(
+      [values](const StatusOr<ViewSnapshot> &maybe_snapshot) {
+        values->push_back(maybe_snapshot.ValueOrDie());
+      });
+}
+
+}  // namespace
 
 @interface FSTQueryListenerTests : XCTestCase
 @end
 
 @implementation FSTQueryListenerTests {
-  std::unique_ptr<ExecutorLibdispatch> _executor;
-  FSTListenOptions *_includeMetadataChanges;
+  DelayedConstructor<ExecutorLibdispatch> _executor;
+  ListenOptions _includeMetadataChanges;
 }
 
 - (void)setUp {
-  // TODO(varconst): moving this test to C++, it should be possible to store Executor as a value,
-  // not a pointer, and initialize it in the constructor.
-  _executor = absl::make_unique<ExecutorLibdispatch>(
-      dispatch_queue_create("FSTQueryListenerTests Queue", DISPATCH_QUEUE_SERIAL));
-  _includeMetadataChanges = [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:YES
-                                                           includeDocumentMetadataChanges:YES
-                                                                    waitForSyncWhenOnline:NO];
-}
-
-- (FSTViewSnapshot *)setExcludesMetadataChanges:(BOOL)excludesMetadataChanges
-                                       snapshot:(FSTViewSnapshot *)snapshot {
-  return [[FSTViewSnapshot alloc] initWithQuery:snapshot.query
-                                      documents:snapshot.documents
-                                   oldDocuments:snapshot.oldDocuments
-                                documentChanges:snapshot.documentChanges
-                                      fromCache:snapshot.fromCache
-                                    mutatedKeys:snapshot.mutatedKeys
-                               syncStateChanged:snapshot.syncStateChanged
-                        excludesMetadataChanges:excludesMetadataChanges];
+  _executor.Init(dispatch_queue_create("FSTQueryListenerTests Queue", DISPATCH_QUEUE_SERIAL));
+  _includeMetadataChanges = ListenOptions::FromIncludeMetadataChanges(true);
 }
 
 - (void)testRaisesCollectionEvents {
-  NSMutableArray<FSTViewSnapshot *> *accum = [NSMutableArray array];
-  NSMutableArray<FSTViewSnapshot *> *otherAccum = [NSMutableArray array];
+  std::vector<ViewSnapshot> accum;
+  std::vector<ViewSnapshot> otherAccum;
 
   FSTQuery *query = FSTTestQuery("rooms");
   FSTDocument *doc1 = FSTTestDoc("rooms/Eros", 1, @{@"name" : @"Eros"}, FSTDocumentStateSynced);
@@ -79,101 +106,89 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocument *doc2prime = FSTTestDoc("rooms/Hades", 3, @{@"name" : @"Hades", @"owner" : @"Jonny"},
                                       FSTDocumentStateSynced);
 
-  FSTQueryListener *listener = [self listenToQuery:query
-                                           options:_includeMetadataChanges
-                             accumulatingSnapshots:accum];
-  FSTQueryListener *otherListener = [self listenToQuery:query accumulatingSnapshots:otherAccum];
+  auto listener = QueryListener::Create(query, _includeMetadataChanges, Accumulating(&accum));
+  auto otherListener = QueryListener::Create(query, Accumulating(&otherAccum));
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
-  FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[ doc1, doc2 ], absl::nullopt);
-  FSTViewSnapshot *snap2 = FSTTestApplyChanges(view, @[ doc2prime ], absl::nullopt);
+  ViewSnapshot snap1 = FSTTestApplyChanges(view, @[ doc1, doc2 ], absl::nullopt).value();
+  ViewSnapshot snap2 = FSTTestApplyChanges(view, @[ doc2prime ], absl::nullopt).value();
 
-  FSTDocumentViewChange *change1 =
-      [FSTDocumentViewChange changeWithDocument:doc1 type:DocumentViewChangeType::kAdded];
-  FSTDocumentViewChange *change2 =
-      [FSTDocumentViewChange changeWithDocument:doc2 type:DocumentViewChangeType::kAdded];
-  FSTDocumentViewChange *change3 =
-      [FSTDocumentViewChange changeWithDocument:doc2prime type:DocumentViewChangeType::kModified];
-  FSTDocumentViewChange *change4 =
-      [FSTDocumentViewChange changeWithDocument:doc2prime type:DocumentViewChangeType::kAdded];
+  DocumentViewChange change1{doc1, DocumentViewChange::Type::kAdded};
+  DocumentViewChange change2{doc2, DocumentViewChange::Type::kAdded};
+  DocumentViewChange change3{doc2prime, DocumentViewChange::Type::kModified};
+  DocumentViewChange change4{doc2prime, DocumentViewChange::Type::kAdded};
 
-  [listener queryDidChangeViewSnapshot:snap1];
-  [listener queryDidChangeViewSnapshot:snap2];
-  [otherListener queryDidChangeViewSnapshot:snap2];
+  listener->OnViewSnapshot(snap1);
+  listener->OnViewSnapshot(snap2);
+  otherListener->OnViewSnapshot(snap2);
 
-  XCTAssertEqualObjects(accum, (@[ snap1, snap2 ]));
-  XCTAssertEqualObjects(accum[0].documentChanges, (@[ change1, change2 ]));
-  XCTAssertEqualObjects(accum[1].documentChanges, (@[ change3 ]));
+  XC_ASSERT_THAT(accum, ElementsAre(snap1, snap2));
+  XC_ASSERT_THAT(accum[0].document_changes(), ElementsAre(change1, change2));
+  XC_ASSERT_THAT(accum[1].document_changes(), ElementsAre(change3));
 
-  FSTViewSnapshot *expectedSnap2 = [[FSTViewSnapshot alloc]
-                initWithQuery:snap2.query
-                    documents:snap2.documents
-                 oldDocuments:[FSTDocumentSet documentSetWithComparator:snap2.query.comparator]
-              documentChanges:@[ change1, change4 ]
-                    fromCache:snap2.fromCache
-                  mutatedKeys:snap2.mutatedKeys
-             syncStateChanged:YES
-      excludesMetadataChanges:YES];
-  XCTAssertEqualObjects(otherAccum, (@[ expectedSnap2 ]));
+  ViewSnapshot expectedSnap2{snap2.query(),
+                             snap2.documents(),
+                             /*old_documents=*/DocumentSet{snap2.query().comparator},
+                             /*document_changes=*/{change1, change4},
+                             snap2.mutated_keys(),
+                             snap2.from_cache(),
+                             /*sync_state_changed=*/true,
+                             /*excludes_metadata_changes=*/true};
+  XC_ASSERT_THAT(otherAccum, ElementsAre(expectedSnap2));
 }
 
 - (void)testRaisesErrorEvent {
-  NSMutableArray<NSError *> *accum = [NSMutableArray array];
+  __block std::vector<Status> accum;
   FSTQuery *query = FSTTestQuery("rooms/Eros");
 
-  FSTQueryListener *listener = [self listenToQuery:query
-                                           handler:^(FSTViewSnapshot *snapshot, NSError *error) {
-                                             [accum addObject:error];
-                                           }];
+  auto listener = QueryListener::Create(query, ^(const StatusOr<ViewSnapshot> &maybe_snapshot) {
+    accum.push_back(maybe_snapshot.status());
+  });
 
-  NSError *testError = [NSError errorWithDomain:@"com.google.firestore.test"
-                                           code:42
-                                       userInfo:@{@"some" : @"info"}];
-  [listener queryDidError:testError];
+  Status testError{FirestoreErrorCode::Unauthenticated, "Some info"};
+  listener->OnError(testError);
 
-  XCTAssertEqualObjects(accum, @[ testError ]);
+  XC_ASSERT_THAT(accum, ElementsAre(testError));
 }
 
 - (void)testRaisesEventForEmptyCollectionAfterSync {
-  NSMutableArray<FSTViewSnapshot *> *accum = [NSMutableArray array];
+  std::vector<ViewSnapshot> accum;
   FSTQuery *query = FSTTestQuery("rooms");
 
-  FSTQueryListener *listener = [self listenToQuery:query
-                                           options:_includeMetadataChanges
-                             accumulatingSnapshots:accum];
+  auto listener = QueryListener::Create(query, _includeMetadataChanges, Accumulating(&accum));
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
-  FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[], absl::nullopt);
-  FSTViewSnapshot *snap2 = FSTTestApplyChanges(view, @[], FSTTestTargetChangeMarkCurrent());
+  ViewSnapshot snap1 = FSTTestApplyChanges(view, @[], absl::nullopt).value();
+  ViewSnapshot snap2 = FSTTestApplyChanges(view, @[], FSTTestTargetChangeMarkCurrent()).value();
 
-  [listener queryDidChangeViewSnapshot:snap1];
-  XCTAssertEqualObjects(accum, @[]);
+  listener->OnViewSnapshot(snap1);
+  XC_ASSERT_THAT(accum, IsEmpty());
 
-  [listener queryDidChangeViewSnapshot:snap2];
-  XCTAssertEqualObjects(accum, @[ snap2 ]);
+  listener->OnViewSnapshot(snap2);
+  XC_ASSERT_THAT(accum, ElementsAre(snap2));
 }
 
 - (void)testMutingAsyncListenerPreventsAllSubsequentEvents {
-  NSMutableArray<FSTViewSnapshot *> *accum = [NSMutableArray array];
+  std::vector<ViewSnapshot> accum;
 
   FSTQuery *query = FSTTestQuery("rooms/Eros");
   FSTDocument *doc1 = FSTTestDoc("rooms/Eros", 3, @{@"name" : @"Eros"}, FSTDocumentStateSynced);
   FSTDocument *doc2 = FSTTestDoc("rooms/Eros", 4, @{@"name" : @"Eros2"}, FSTDocumentStateSynced);
 
-  __block FSTAsyncQueryListener *listener =
-      [[FSTAsyncQueryListener alloc] initWithExecutor:_executor.get()
-                                      snapshotHandler:^(FSTViewSnapshot *snapshot, NSError *error) {
-                                        [accum addObject:snapshot];
-                                        [listener mute];
-                                      }];
+  std::shared_ptr<AsyncEventListener<ViewSnapshot>> listener =
+      AsyncEventListener<ViewSnapshot>::Create(
+          _executor.get(), EventListener<ViewSnapshot>::Create(
+                               [&accum, &listener](const StatusOr<ViewSnapshot> &maybe_snapshot) {
+                                 accum.push_back(maybe_snapshot.ValueOrDie());
+                                 listener->Mute();
+                               }));
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
-  FSTViewSnapshot *viewSnapshot1 = FSTTestApplyChanges(view, @[ doc1 ], absl::nullopt);
-  FSTViewSnapshot *viewSnapshot2 = FSTTestApplyChanges(view, @[ doc2 ], absl::nullopt);
+  ViewSnapshot viewSnapshot1 = FSTTestApplyChanges(view, @[ doc1 ], absl::nullopt).value();
+  ViewSnapshot viewSnapshot2 = FSTTestApplyChanges(view, @[ doc2 ], absl::nullopt).value();
 
-  FSTViewSnapshotHandler handler = listener.asyncSnapshotHandler;
-  handler(viewSnapshot1, nil);
-  handler(viewSnapshot2, nil);
+  listener->OnEvent(viewSnapshot1);
+  listener->OnEvent(viewSnapshot2);
 
   // Drain queue
   XCTestExpectation *expectation = [self expectationWithDescription:@"Queue drained"];
@@ -187,48 +202,44 @@ NS_ASSUME_NONNULL_BEGIN
                                }];
 
   // We should get the first snapshot but not the second.
-  XCTAssertEqualObjects(accum, @[ viewSnapshot1 ]);
+  XC_ASSERT_THAT(accum, ElementsAre(viewSnapshot1));
 }
 
 - (void)testDoesNotRaiseEventsForMetadataChangesUnlessSpecified {
-  NSMutableArray<FSTViewSnapshot *> *filteredAccum = [NSMutableArray array];
-  NSMutableArray<FSTViewSnapshot *> *fullAccum = [NSMutableArray array];
+  std::vector<ViewSnapshot> filteredAccum;
+  std::vector<ViewSnapshot> fullAccum;
 
   FSTQuery *query = FSTTestQuery("rooms");
   FSTDocument *doc1 = FSTTestDoc("rooms/Eros", 1, @{@"name" : @"Eros"}, FSTDocumentStateSynced);
   FSTDocument *doc2 = FSTTestDoc("rooms/Hades", 2, @{@"name" : @"Hades"}, FSTDocumentStateSynced);
 
-  FSTQueryListener *filteredListener = [self listenToQuery:query
-                                     accumulatingSnapshots:filteredAccum];
-  FSTQueryListener *fullListener = [self listenToQuery:query
-                                               options:_includeMetadataChanges
-                                 accumulatingSnapshots:fullAccum];
+  auto filteredListener = QueryListener::Create(query, Accumulating(&filteredAccum));
+  auto fullListener =
+      QueryListener::Create(query, _includeMetadataChanges, Accumulating(&fullAccum));
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
-  FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[ doc1 ], absl::nullopt);
+  ViewSnapshot snap1 = FSTTestApplyChanges(view, @[ doc1 ], absl::nullopt).value();
 
   TargetChange ackTarget = FSTTestTargetChangeAckDocuments({doc1.key});
-  FSTViewSnapshot *snap2 = FSTTestApplyChanges(view, @[], ackTarget);
-  FSTViewSnapshot *snap3 = FSTTestApplyChanges(view, @[ doc2 ], absl::nullopt);
+  ViewSnapshot snap2 = FSTTestApplyChanges(view, @[], ackTarget).value();
+  ViewSnapshot snap3 = FSTTestApplyChanges(view, @[ doc2 ], absl::nullopt).value();
 
-  [filteredListener queryDidChangeViewSnapshot:snap1];  // local event
-  [filteredListener queryDidChangeViewSnapshot:snap2];  // no event
-  [filteredListener queryDidChangeViewSnapshot:snap3];  // doc2 update
+  filteredListener->OnViewSnapshot(snap1);  // local event
+  filteredListener->OnViewSnapshot(snap2);  // no event
+  filteredListener->OnViewSnapshot(snap3);  // doc2 update
 
-  [fullListener queryDidChangeViewSnapshot:snap1];  // local event
-  [fullListener queryDidChangeViewSnapshot:snap2];  // state change event
-  [fullListener queryDidChangeViewSnapshot:snap3];  // doc2 update
+  fullListener->OnViewSnapshot(snap1);  // local event
+  fullListener->OnViewSnapshot(snap2);  // state change event
+  fullListener->OnViewSnapshot(snap3);  // doc2 update
 
-  XCTAssertEqualObjects(filteredAccum, (@[
-                          [self setExcludesMetadataChanges:YES snapshot:snap1],
-                          [self setExcludesMetadataChanges:YES snapshot:snap3]
-                        ]));
-  XCTAssertEqualObjects(fullAccum, (@[ snap1, snap2, snap3 ]));
+  XC_ASSERT_THAT(filteredAccum,
+                 ElementsAre(ExcludingMetadataChanges(snap1), ExcludingMetadataChanges(snap3)));
+  XC_ASSERT_THAT(fullAccum, ElementsAre(snap1, snap2, snap3));
 }
 
 - (void)testRaisesDocumentMetadataEventsOnlyWhenSpecified {
-  NSMutableArray<FSTViewSnapshot *> *filteredAccum = [NSMutableArray array];
-  NSMutableArray<FSTViewSnapshot *> *fullAccum = [NSMutableArray array];
+  std::vector<ViewSnapshot> filteredAccum;
+  std::vector<ViewSnapshot> fullAccum;
 
   FSTQuery *query = FSTTestQuery("rooms");
   FSTDocument *doc1 =
@@ -238,52 +249,44 @@ NS_ASSUME_NONNULL_BEGIN
       FSTTestDoc("rooms/Eros", 1, @{@"name" : @"Eros"}, FSTDocumentStateSynced);
   FSTDocument *doc3 = FSTTestDoc("rooms/Other", 3, @{@"name" : @"Other"}, FSTDocumentStateSynced);
 
-  FSTListenOptions *options = [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:NO
-                                                             includeDocumentMetadataChanges:YES
-                                                                      waitForSyncWhenOnline:NO];
+  ListenOptions options(
+      /*include_query_metadata_changes=*/false,
+      /*include_document_metadata_changes=*/true,
+      /*wait_for_sync_when_online=*/false);
 
-  FSTQueryListener *filteredListener = [self listenToQuery:query
-                                     accumulatingSnapshots:filteredAccum];
-  FSTQueryListener *fullListener = [self listenToQuery:query
-                                               options:options
-                                 accumulatingSnapshots:fullAccum];
+  auto filteredListener = QueryListener::Create(query, Accumulating(&filteredAccum));
+  auto fullListener = QueryListener::Create(query, options, Accumulating(&fullAccum));
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
-  FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[ doc1, doc2 ], absl::nullopt);
-  FSTViewSnapshot *snap2 = FSTTestApplyChanges(view, @[ doc1Prime ], absl::nullopt);
-  FSTViewSnapshot *snap3 = FSTTestApplyChanges(view, @[ doc3 ], absl::nullopt);
+  ViewSnapshot snap1 = FSTTestApplyChanges(view, @[ doc1, doc2 ], absl::nullopt).value();
+  ViewSnapshot snap2 = FSTTestApplyChanges(view, @[ doc1Prime ], absl::nullopt).value();
+  ViewSnapshot snap3 = FSTTestApplyChanges(view, @[ doc3 ], absl::nullopt).value();
 
-  FSTDocumentViewChange *change1 =
-      [FSTDocumentViewChange changeWithDocument:doc1 type:DocumentViewChangeType::kAdded];
-  FSTDocumentViewChange *change2 =
-      [FSTDocumentViewChange changeWithDocument:doc2 type:DocumentViewChangeType::kAdded];
-  FSTDocumentViewChange *change3 =
-      [FSTDocumentViewChange changeWithDocument:doc1Prime type:DocumentViewChangeType::kMetadata];
-  FSTDocumentViewChange *change4 =
-      [FSTDocumentViewChange changeWithDocument:doc3 type:DocumentViewChangeType::kAdded];
+  DocumentViewChange change1{doc1, DocumentViewChange::Type::kAdded};
+  DocumentViewChange change2{doc2, DocumentViewChange::Type::kAdded};
+  DocumentViewChange change3{doc1Prime, DocumentViewChange::Type::kMetadata};
+  DocumentViewChange change4{doc3, DocumentViewChange::Type::kAdded};
 
-  [filteredListener queryDidChangeViewSnapshot:snap1];
-  [filteredListener queryDidChangeViewSnapshot:snap2];
-  [filteredListener queryDidChangeViewSnapshot:snap3];
-  [fullListener queryDidChangeViewSnapshot:snap1];
-  [fullListener queryDidChangeViewSnapshot:snap2];
-  [fullListener queryDidChangeViewSnapshot:snap3];
+  filteredListener->OnViewSnapshot(snap1);
+  filteredListener->OnViewSnapshot(snap2);
+  filteredListener->OnViewSnapshot(snap3);
+  fullListener->OnViewSnapshot(snap1);
+  fullListener->OnViewSnapshot(snap2);
+  fullListener->OnViewSnapshot(snap3);
 
-  XCTAssertEqualObjects(filteredAccum, (@[
-                          [self setExcludesMetadataChanges:YES snapshot:snap1],
-                          [self setExcludesMetadataChanges:YES snapshot:snap3]
-                        ]));
-  XCTAssertEqualObjects(filteredAccum[0].documentChanges, (@[ change1, change2 ]));
-  XCTAssertEqualObjects(filteredAccum[1].documentChanges, (@[ change4 ]));
+  XC_ASSERT_THAT(filteredAccum,
+                 ElementsAre(ExcludingMetadataChanges(snap1), ExcludingMetadataChanges(snap3)));
+  XC_ASSERT_THAT(filteredAccum[0].document_changes(), ElementsAre(change1, change2));
+  XC_ASSERT_THAT(filteredAccum[1].document_changes(), ElementsAre(change4));
 
-  XCTAssertEqualObjects(fullAccum, (@[ snap1, snap2, snap3 ]));
-  XCTAssertEqualObjects(fullAccum[0].documentChanges, (@[ change1, change2 ]));
-  XCTAssertEqualObjects(fullAccum[1].documentChanges, (@[ change3 ]));
-  XCTAssertEqualObjects(fullAccum[2].documentChanges, (@[ change4 ]));
+  XC_ASSERT_THAT(fullAccum, ElementsAre(snap1, snap2, snap3));
+  XC_ASSERT_THAT(fullAccum[0].document_changes(), ElementsAre(change1, change2));
+  XC_ASSERT_THAT(fullAccum[1].document_changes(), ElementsAre(change3));
+  XC_ASSERT_THAT(fullAccum[2].document_changes(), ElementsAre(change4));
 }
 
 - (void)testRaisesQueryMetadataEventsOnlyWhenHasPendingWritesOnTheQueryChanges {
-  NSMutableArray<FSTViewSnapshot *> *fullAccum = [NSMutableArray array];
+  std::vector<ViewSnapshot> fullAccum;
 
   FSTQuery *query = FSTTestQuery("rooms");
   FSTDocument *doc1 =
@@ -296,41 +299,40 @@ NS_ASSUME_NONNULL_BEGIN
       FSTTestDoc("rooms/Hades", 2, @{@"name" : @"Hades"}, FSTDocumentStateSynced);
   FSTDocument *doc3 = FSTTestDoc("rooms/Other", 3, @{@"name" : @"Other"}, FSTDocumentStateSynced);
 
-  FSTListenOptions *options = [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:YES
-                                                             includeDocumentMetadataChanges:NO
-                                                                      waitForSyncWhenOnline:NO];
-  FSTQueryListener *fullListener = [self listenToQuery:query
-                                               options:options
-                                 accumulatingSnapshots:fullAccum];
+  ListenOptions options(
+      /*include_query_metadata_changes=*/true,
+      /*include_document_metadata_changes=*/false,
+      /*wait_for_sync_when_online=*/false);
+  auto fullListener = QueryListener::Create(query, options, Accumulating(&fullAccum));
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
-  FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[ doc1, doc2 ], absl::nullopt);
-  FSTViewSnapshot *snap2 = FSTTestApplyChanges(view, @[ doc1Prime ], absl::nullopt);
-  FSTViewSnapshot *snap3 = FSTTestApplyChanges(view, @[ doc3 ], absl::nullopt);
-  FSTViewSnapshot *snap4 = FSTTestApplyChanges(view, @[ doc2Prime ], absl::nullopt);
+  ViewSnapshot snap1 = FSTTestApplyChanges(view, @[ doc1, doc2 ], absl::nullopt).value();
+  ViewSnapshot snap2 = FSTTestApplyChanges(view, @[ doc1Prime ], absl::nullopt).value();
+  ViewSnapshot snap3 = FSTTestApplyChanges(view, @[ doc3 ], absl::nullopt).value();
+  ViewSnapshot snap4 = FSTTestApplyChanges(view, @[ doc2Prime ], absl::nullopt).value();
 
-  [fullListener queryDidChangeViewSnapshot:snap1];
-  [fullListener queryDidChangeViewSnapshot:snap2];  // Emits no events.
-  [fullListener queryDidChangeViewSnapshot:snap3];
-  [fullListener queryDidChangeViewSnapshot:snap4];  // Metadata change event.
+  fullListener->OnViewSnapshot(snap1);
+  fullListener->OnViewSnapshot(snap2);  // Emits no events.
+  fullListener->OnViewSnapshot(snap3);
+  fullListener->OnViewSnapshot(snap4);  // Metadata change event.
 
-  FSTViewSnapshot *expectedSnap4 =
-      [[FSTViewSnapshot alloc] initWithQuery:snap4.query
-                                   documents:snap4.documents
-                                oldDocuments:snap3.documents
-                             documentChanges:@[]
-                                   fromCache:snap4.fromCache
-                                 mutatedKeys:snap4.mutatedKeys
-                            syncStateChanged:snap4.syncStateChanged
-                     excludesMetadataChanges:YES];  // This test excludes document metadata changes
-  XCTAssertEqualObjects(fullAccum, (@[
-                          [self setExcludesMetadataChanges:YES snapshot:snap1],
-                          [self setExcludesMetadataChanges:YES snapshot:snap3], expectedSnap4
-                        ]));
+  ViewSnapshot expectedSnap4{
+      snap4.query(),
+      snap4.documents(),
+      snap3.documents(),
+      /*document_changes=*/{},
+      snap4.mutated_keys(),
+      snap4.from_cache(),
+      snap4.sync_state_changed(),
+      /*excludes_metadata_changes=*/true  // This test excludes document metadata changes
+  };
+
+  XC_ASSERT_THAT(fullAccum, ElementsAre(ExcludingMetadataChanges(snap1),
+                                        ExcludingMetadataChanges(snap3), expectedSnap4));
 }
 
 - (void)testMetadataOnlyDocumentChangesAreFilteredOutWhenIncludeDocumentMetadataChangesIsFalse {
-  NSMutableArray<FSTViewSnapshot *> *filteredAccum = [NSMutableArray array];
+  std::vector<ViewSnapshot> filteredAccum;
 
   FSTQuery *query = FSTTestQuery("rooms");
   FSTDocument *doc1 =
@@ -340,195 +342,159 @@ NS_ASSUME_NONNULL_BEGIN
       FSTTestDoc("rooms/Eros", 1, @{@"name" : @"Eros"}, FSTDocumentStateSynced);
   FSTDocument *doc3 = FSTTestDoc("rooms/Other", 3, @{@"name" : @"Other"}, FSTDocumentStateSynced);
 
-  FSTQueryListener *filteredListener = [self listenToQuery:query
-                                     accumulatingSnapshots:filteredAccum];
+  auto filteredListener = QueryListener::Create(query, Accumulating(&filteredAccum));
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
-  FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[ doc1, doc2 ], absl::nullopt);
-  FSTViewSnapshot *snap2 = FSTTestApplyChanges(view, @[ doc1Prime, doc3 ], absl::nullopt);
+  ViewSnapshot snap1 = FSTTestApplyChanges(view, @[ doc1, doc2 ], absl::nullopt).value();
+  ViewSnapshot snap2 = FSTTestApplyChanges(view, @[ doc1Prime, doc3 ], absl::nullopt).value();
 
-  FSTDocumentViewChange *change3 =
-      [FSTDocumentViewChange changeWithDocument:doc3 type:DocumentViewChangeType::kAdded];
+  DocumentViewChange change3{doc3, DocumentViewChange::Type::kAdded};
 
-  [filteredListener queryDidChangeViewSnapshot:snap1];
-  [filteredListener queryDidChangeViewSnapshot:snap2];
+  filteredListener->OnViewSnapshot(snap1);
+  filteredListener->OnViewSnapshot(snap2);
 
-  FSTViewSnapshot *expectedSnap2 = [[FSTViewSnapshot alloc] initWithQuery:snap2.query
-                                                                documents:snap2.documents
-                                                             oldDocuments:snap1.documents
-                                                          documentChanges:@[ change3 ]
-                                                                fromCache:snap2.isFromCache
-                                                              mutatedKeys:snap2.mutatedKeys
-                                                         syncStateChanged:snap2.syncStateChanged
-                                                  excludesMetadataChanges:YES];
-  XCTAssertEqualObjects(filteredAccum,
-                        (@[ [self setExcludesMetadataChanges:YES snapshot:snap1], expectedSnap2 ]));
+  ViewSnapshot expectedSnap2{snap2.query(),
+                             snap2.documents(),
+                             snap1.documents(),
+                             /*document_changes=*/{change3},
+                             snap2.mutated_keys(),
+                             snap2.from_cache(),
+                             snap2.sync_state_changed(),
+                             /*excludes_metadata_changes=*/true};
+  XC_ASSERT_THAT(filteredAccum, ElementsAre(ExcludingMetadataChanges(snap1), expectedSnap2));
 }
 
 - (void)testWillWaitForSyncIfOnline {
-  NSMutableArray<FSTViewSnapshot *> *events = [NSMutableArray array];
+  std::vector<ViewSnapshot> events;
 
   FSTQuery *query = FSTTestQuery("rooms");
   FSTDocument *doc1 = FSTTestDoc("rooms/Eros", 1, @{@"name" : @"Eros"}, FSTDocumentStateSynced);
   FSTDocument *doc2 = FSTTestDoc("rooms/Hades", 2, @{@"name" : @"Hades"}, FSTDocumentStateSynced);
-  FSTQueryListener *listener =
-      [self listenToQuery:query
-                        options:[[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:NO
-                                                               includeDocumentMetadataChanges:NO
-                                                                        waitForSyncWhenOnline:YES]
-          accumulatingSnapshots:events];
+
+  ListenOptions options(
+      /*include_query_metadata_changes=*/false,
+      /*include_document_metadata_changes=*/false,
+      /*wait_for_sync_when_online=*/true);
+  auto listener = QueryListener::Create(query, options, Accumulating(&events));
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
-  FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[ doc1 ], absl::nullopt);
-  FSTViewSnapshot *snap2 = FSTTestApplyChanges(view, @[ doc2 ], absl::nullopt);
-  FSTViewSnapshot *snap3 =
-      FSTTestApplyChanges(view, @[], FSTTestTargetChangeAckDocuments({doc1.key, doc2.key}));
+  ViewSnapshot snap1 = FSTTestApplyChanges(view, @[ doc1 ], absl::nullopt).value();
+  ViewSnapshot snap2 = FSTTestApplyChanges(view, @[ doc2 ], absl::nullopt).value();
+  ViewSnapshot snap3 =
+      FSTTestApplyChanges(view, @[], FSTTestTargetChangeAckDocuments({doc1.key, doc2.key})).value();
 
-  [listener applyChangedOnlineState:OnlineState::Online];  // no event
-  [listener queryDidChangeViewSnapshot:snap1];
-  [listener applyChangedOnlineState:OnlineState::Unknown];
-  [listener applyChangedOnlineState:OnlineState::Online];
-  [listener queryDidChangeViewSnapshot:snap2];
-  [listener queryDidChangeViewSnapshot:snap3];
+  listener->OnOnlineStateChanged(OnlineState::Online);  // no event
+  listener->OnViewSnapshot(snap1);
+  listener->OnOnlineStateChanged(OnlineState::Unknown);
+  listener->OnOnlineStateChanged(OnlineState::Online);
+  listener->OnViewSnapshot(snap2);
+  listener->OnViewSnapshot(snap3);
 
-  FSTDocumentViewChange *change1 =
-      [FSTDocumentViewChange changeWithDocument:doc1 type:DocumentViewChangeType::kAdded];
-  FSTDocumentViewChange *change2 =
-      [FSTDocumentViewChange changeWithDocument:doc2 type:DocumentViewChangeType::kAdded];
-  FSTViewSnapshot *expectedSnap = [[FSTViewSnapshot alloc]
-                initWithQuery:snap3.query
-                    documents:snap3.documents
-                 oldDocuments:[FSTDocumentSet documentSetWithComparator:snap3.query.comparator]
-              documentChanges:@[ change1, change2 ]
-                    fromCache:NO
-                  mutatedKeys:snap3.mutatedKeys
-             syncStateChanged:YES
-      excludesMetadataChanges:YES];
-  XCTAssertEqualObjects(events, (@[ expectedSnap ]));
+  DocumentViewChange change1{doc1, DocumentViewChange::Type::kAdded};
+  DocumentViewChange change2{doc2, DocumentViewChange::Type::kAdded};
+  ViewSnapshot expectedSnap{snap3.query(),
+                            snap3.documents(),
+                            /*old_documents=*/DocumentSet{snap3.query().comparator},
+                            /*document_changes=*/{change1, change2},
+                            snap3.mutated_keys(),
+                            /*from_cache=*/false,
+                            /*sync_state_changed=*/true,
+                            /*excludes_metadata_changes=*/true};
+  XC_ASSERT_THAT(events, ElementsAre(expectedSnap));
 }
 
 - (void)testWillRaiseInitialEventWhenGoingOffline {
-  NSMutableArray<FSTViewSnapshot *> *events = [NSMutableArray array];
+  std::vector<ViewSnapshot> events;
 
   FSTQuery *query = FSTTestQuery("rooms");
   FSTDocument *doc1 = FSTTestDoc("rooms/Eros", 1, @{@"name" : @"Eros"}, FSTDocumentStateSynced);
   FSTDocument *doc2 = FSTTestDoc("rooms/Hades", 2, @{@"name" : @"Hades"}, FSTDocumentStateSynced);
-  FSTQueryListener *listener =
-      [self listenToQuery:query
-                        options:[[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:NO
-                                                               includeDocumentMetadataChanges:NO
-                                                                        waitForSyncWhenOnline:YES]
-          accumulatingSnapshots:events];
+
+  ListenOptions options(
+      /*include_query_metadata_changes=*/false,
+      /*include_document_metadata_changes=*/false,
+      /*wait_for_sync_when_online=*/true);
+
+  auto listener = QueryListener::Create(query, options, Accumulating(&events));
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
-  FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[ doc1 ], absl::nullopt);
-  FSTViewSnapshot *snap2 = FSTTestApplyChanges(view, @[ doc2 ], absl::nullopt);
+  ViewSnapshot snap1 = FSTTestApplyChanges(view, @[ doc1 ], absl::nullopt).value();
+  ViewSnapshot snap2 = FSTTestApplyChanges(view, @[ doc2 ], absl::nullopt).value();
 
-  [listener applyChangedOnlineState:OnlineState::Online];   // no event
-  [listener queryDidChangeViewSnapshot:snap1];              // no event
-  [listener applyChangedOnlineState:OnlineState::Offline];  // event
-  [listener applyChangedOnlineState:OnlineState::Unknown];  // no event
-  [listener applyChangedOnlineState:OnlineState::Offline];  // no event
-  [listener queryDidChangeViewSnapshot:snap2];              // another event
+  listener->OnOnlineStateChanged(OnlineState::Online);   // no event
+  listener->OnViewSnapshot(snap1);                       // no event
+  listener->OnOnlineStateChanged(OnlineState::Offline);  // event
+  listener->OnOnlineStateChanged(OnlineState::Unknown);  // no event
+  listener->OnOnlineStateChanged(OnlineState::Offline);  // no event
+  listener->OnViewSnapshot(snap2);                       // another event
 
-  FSTDocumentViewChange *change1 =
-      [FSTDocumentViewChange changeWithDocument:doc1 type:DocumentViewChangeType::kAdded];
-  FSTDocumentViewChange *change2 =
-      [FSTDocumentViewChange changeWithDocument:doc2 type:DocumentViewChangeType::kAdded];
-  FSTViewSnapshot *expectedSnap1 = [[FSTViewSnapshot alloc]
-                initWithQuery:query
-                    documents:snap1.documents
-                 oldDocuments:[FSTDocumentSet documentSetWithComparator:snap1.query.comparator]
-              documentChanges:@[ change1 ]
-                    fromCache:YES
-                  mutatedKeys:snap1.mutatedKeys
-             syncStateChanged:YES
-      excludesMetadataChanges:YES];
-  FSTViewSnapshot *expectedSnap2 = [[FSTViewSnapshot alloc] initWithQuery:query
-                                                                documents:snap2.documents
-                                                             oldDocuments:snap1.documents
-                                                          documentChanges:@[ change2 ]
-                                                                fromCache:YES
-                                                              mutatedKeys:snap2.mutatedKeys
-                                                         syncStateChanged:NO
-                                                  excludesMetadataChanges:YES];
-  XCTAssertEqualObjects(events, (@[ expectedSnap1, expectedSnap2 ]));
+  DocumentViewChange change1{doc1, DocumentViewChange::Type::kAdded};
+  DocumentViewChange change2{doc2, DocumentViewChange::Type::kAdded};
+  ViewSnapshot expectedSnap1{query,
+                             /*documents=*/snap1.documents(),
+                             /*old_documents=*/DocumentSet{snap1.query().comparator},
+                             /*document_changes=*/{change1},
+                             snap1.mutated_keys(),
+                             /*from_cache=*/true,
+                             /*sync_state_changed=*/true,
+                             /*excludes_metadata_changes=*/true};
+
+  ViewSnapshot expectedSnap2{query,
+                             /*documents=*/snap2.documents(),
+                             /*old_documents=*/snap1.documents(),
+                             /*document_changes=*/{change2},
+                             snap2.mutated_keys(),
+                             /*from_cache=*/true,
+                             /*sync_state_changed=*/false,
+                             /*excludes_metadata_changes=*/true};
+  XC_ASSERT_THAT(events, ElementsAre(expectedSnap1, expectedSnap2));
 }
 
 - (void)testWillRaiseInitialEventWhenGoingOfflineAndThereAreNoDocs {
-  NSMutableArray<FSTViewSnapshot *> *events = [NSMutableArray array];
+  std::vector<ViewSnapshot> events;
 
   FSTQuery *query = FSTTestQuery("rooms");
-  FSTQueryListener *listener = [self listenToQuery:query
-                                           options:[FSTListenOptions defaultOptions]
-                             accumulatingSnapshots:events];
+  auto listener = QueryListener::Create(query, Accumulating(&events));
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
-  FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[], absl::nullopt);
+  ViewSnapshot snap1 = FSTTestApplyChanges(view, @[], absl::nullopt).value();
 
-  [listener applyChangedOnlineState:OnlineState::Online];   // no event
-  [listener queryDidChangeViewSnapshot:snap1];              // no event
-  [listener applyChangedOnlineState:OnlineState::Offline];  // event
+  listener->OnOnlineStateChanged(OnlineState::Online);   // no event
+  listener->OnViewSnapshot(snap1);                       // no event
+  listener->OnOnlineStateChanged(OnlineState::Offline);  // event
 
-  FSTViewSnapshot *expectedSnap = [[FSTViewSnapshot alloc]
-                initWithQuery:query
-                    documents:snap1.documents
-                 oldDocuments:[FSTDocumentSet documentSetWithComparator:snap1.query.comparator]
-              documentChanges:@[]
-                    fromCache:YES
-                  mutatedKeys:snap1.mutatedKeys
-             syncStateChanged:YES
-      excludesMetadataChanges:YES];
-  XCTAssertEqualObjects(events, (@[ expectedSnap ]));
+  ViewSnapshot expectedSnap{query,
+                            /*documents=*/snap1.documents(),
+                            /*old_documents=*/DocumentSet{snap1.query().comparator},
+                            /*document_changes=*/{},
+                            snap1.mutated_keys(),
+                            /*from_cache=*/true,
+                            /*sync_state_changed=*/true,
+                            /*excludes_metadata_changes=*/true};
+  XC_ASSERT_THAT(events, ElementsAre(expectedSnap));
 }
 
 - (void)testWillRaiseInitialEventWhenStartingOfflineAndThereAreNoDocs {
-  NSMutableArray<FSTViewSnapshot *> *events = [NSMutableArray array];
+  std::vector<ViewSnapshot> events;
 
   FSTQuery *query = FSTTestQuery("rooms");
-  FSTQueryListener *listener = [self listenToQuery:query
-                                           options:[FSTListenOptions defaultOptions]
-                             accumulatingSnapshots:events];
+  auto listener = QueryListener::Create(query, Accumulating(&events));
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
-  FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[], absl::nullopt);
+  ViewSnapshot snap1 = FSTTestApplyChanges(view, @[], absl::nullopt).value();
 
-  [listener applyChangedOnlineState:OnlineState::Offline];  // no event
-  [listener queryDidChangeViewSnapshot:snap1];              // event
+  listener->OnOnlineStateChanged(OnlineState::Offline);  // no event
+  listener->OnViewSnapshot(snap1);                       // event
 
-  FSTViewSnapshot *expectedSnap = [[FSTViewSnapshot alloc]
-                initWithQuery:query
-                    documents:snap1.documents
-                 oldDocuments:[FSTDocumentSet documentSetWithComparator:snap1.query.comparator]
-              documentChanges:@[]
-                    fromCache:YES
-                  mutatedKeys:snap1.mutatedKeys
-             syncStateChanged:YES
-      excludesMetadataChanges:YES];
-  XCTAssertEqualObjects(events, (@[ expectedSnap ]));
-}
-
-- (FSTQueryListener *)listenToQuery:(FSTQuery *)query handler:(FSTViewSnapshotHandler)handler {
-  return [[FSTQueryListener alloc] initWithQuery:query
-                                         options:[FSTListenOptions defaultOptions]
-                             viewSnapshotHandler:handler];
-}
-
-- (FSTQueryListener *)listenToQuery:(FSTQuery *)query
-                            options:(FSTListenOptions *)options
-              accumulatingSnapshots:(NSMutableArray<FSTViewSnapshot *> *)values {
-  return [[FSTQueryListener alloc] initWithQuery:query
-                                         options:options
-                             viewSnapshotHandler:^(FSTViewSnapshot *snapshot, NSError *error) {
-                               [values addObject:snapshot];
-                             }];
-}
-
-- (FSTQueryListener *)listenToQuery:(FSTQuery *)query
-              accumulatingSnapshots:(NSMutableArray<FSTViewSnapshot *> *)values {
-  return [self listenToQuery:query
-                     options:[FSTListenOptions defaultOptions]
-       accumulatingSnapshots:values];
+  ViewSnapshot expectedSnap{query,
+                            /*documents=*/snap1.documents(),
+                            /*old_documents=*/DocumentSet{snap1.query().comparator},
+                            /*document_changes=*/{},
+                            snap1.mutated_keys(),
+                            /*from_cache=*/true,
+                            /*sync_state_changed=*/true,
+                            /*excludes_metadata_changes=*/true};
+  XC_ASSERT_THAT(events, ElementsAre(expectedSnap));
 }
 
 @end
