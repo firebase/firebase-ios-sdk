@@ -54,17 +54,9 @@ namespace api {
  *   * calls to Remove() after we send an error,
  *   * calls to Remove() even after deleting the App in which the listener was
  *     started.
- *
- * ListenerRegistration is default constructible to facilitate the pattern in
- * DocumentReference::GetDocument, where the closure that implements a listener
- * needs to be able to use the ListenerRegistration thats returned from
- * starting the listener. The default ListenerRegistration acts as a shared
- * placeholder that's filled in later once the listener is started.
  */
 class ListenerRegistration {
  public:
-  ListenerRegistration() = default;
-
   ListenerRegistration(
       FSTFirestoreClient* client,
       std::shared_ptr<core::AsyncEventListener<core::ViewSnapshot>>
