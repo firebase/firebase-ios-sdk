@@ -166,9 +166,11 @@ static NSMutableDictionary *sLibraryVersions;
       }
     }
 
-    if (sAllApps && sAllApps[name]) {
-      [NSException raise:kFirebaseCoreErrorDomain
-                  format:@"App named %@ has already been configured.", name];
+    @synchronized(self) {
+      if (sAllApps && sAllApps[name]) {
+        [NSException raise:kFirebaseCoreErrorDomain
+                    format:@"App named %@ has already been configured.", name];
+      }
     }
 
     FIRLogDebug(kFIRLoggerCore, @"I-COR000002", @"Configuring app named %@", name);
@@ -214,18 +216,19 @@ static NSMutableDictionary *sLibraryVersions;
     if (!sAllApps) {
       FIRLogError(kFIRLoggerCore, @"I-COR000005", @"No app has been configured yet.");
     }
-    NSDictionary *dict = [NSDictionary dictionaryWithDictionary:sAllApps];
-    return dict;
+    return [sAllApps copy];
   }
 }
 
 // Public only for tests
 + (void)resetApps {
-  sDefaultApp = nil;
-  [sAllApps removeAllObjects];
-  sAllApps = nil;
-  [sLibraryVersions removeAllObjects];
-  sLibraryVersions = nil;
+  @synchronized(self) {
+    sDefaultApp = nil;
+    [sAllApps removeAllObjects];
+    sAllApps = nil;
+    [sLibraryVersions removeAllObjects];
+    sLibraryVersions = nil;
+  }
 }
 
 - (void)deleteApp:(FIRAppVoidBoolCallback)completion {
@@ -423,8 +426,10 @@ static NSMutableDictionary *sLibraryVersions;
 
   // This is the new way of sending information to SDKs.
   // TODO: Do we want this on a background thread, maybe?
-  for (Class<FIRLibrary> library in sRegisteredAsConfigurable) {
-    [library configureWithApp:app];
+  @synchronized(self) {
+    for (Class<FIRLibrary> library in sRegisteredAsConfigurable) {
+      [library configureWithApp:app];
+    }
   }
 }
 
@@ -476,10 +481,12 @@ static NSMutableDictionary *sLibraryVersions;
   // add the name/version pair to the dictionary.
   if ([name rangeOfCharacterFromSet:disallowedSet].location == NSNotFound &&
       [version rangeOfCharacterFromSet:disallowedSet].location == NSNotFound) {
-    if (!sLibraryVersions) {
-      sLibraryVersions = [[NSMutableDictionary alloc] init];
+    @synchronized(self) {
+      if (!sLibraryVersions) {
+        sLibraryVersions = [[NSMutableDictionary alloc] init];
+      }
+      sLibraryVersions[name] = version;
     }
-    sLibraryVersions[name] = version;
   } else {
     FIRLogError(kFIRLoggerCore, @"I-COR000027",
                 @"The library name (%@) or version number (%@) contain invalid characters. "
@@ -508,20 +515,24 @@ static NSMutableDictionary *sLibraryVersions;
     dispatch_once(&onceToken, ^{
       sRegisteredAsConfigurable = [[NSMutableArray alloc] init];
     });
-    [sRegisteredAsConfigurable addObject:library];
+    @synchronized(self) {
+      [sRegisteredAsConfigurable addObject:library];
+    }
   }
   [self registerLibrary:name withVersion:version];
 }
 
 + (NSString *)firebaseUserAgent {
-  NSMutableArray<NSString *> *libraries =
-      [[NSMutableArray<NSString *> alloc] initWithCapacity:sLibraryVersions.count];
-  for (NSString *libraryName in sLibraryVersions) {
-    [libraries
-        addObject:[NSString stringWithFormat:@"%@/%@", libraryName, sLibraryVersions[libraryName]]];
+  @synchronized(self) {
+    NSMutableArray<NSString *> *libraries =
+        [[NSMutableArray<NSString *> alloc] initWithCapacity:sLibraryVersions.count];
+    for (NSString *libraryName in sLibraryVersions) {
+      [libraries addObject:[NSString stringWithFormat:@"%@/%@", libraryName,
+                                                      sLibraryVersions[libraryName]]];
+    }
+    [libraries sortUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
+    return [libraries componentsJoinedByString:@" "];
   }
-  [libraries sortUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
-  return [libraries componentsJoinedByString:@" "];
 }
 
 - (void)checkExpectedBundleID {
