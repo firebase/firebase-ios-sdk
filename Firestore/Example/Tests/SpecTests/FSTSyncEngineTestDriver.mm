@@ -60,6 +60,7 @@ using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::auth::HashUser;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
+using firebase::firestore::core::ListenOptions;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
@@ -144,11 +145,7 @@ NS_ASSUME_NONNULL_BEGIN
   DocumentKeySet _expectedLimboDocuments;
 
   /** A dictionary for tracking the listens on queries. */
-  std::unordered_map<FSTQuery *,
-                     std::shared_ptr<QueryListener>,
-                     objc::Hash<FSTQuery *>,
-                     objc::EqualTo<FSTQuery *>>
-      _queryListeners;
+  objc::unordered_map<FSTQuery *, std::shared_ptr<QueryListener>> _queryListeners;
 
   DatabaseInfo _databaseInfo;
   User _currentUser;
@@ -417,7 +414,7 @@ NS_ASSUME_NONNULL_BEGIN
   _workerQueue->EnqueueBlocking([&] {
     _datastore->FailWatchStream(error);
     // Unlike web, stream should re-open synchronously (if we have any listeners)
-    if (_queryListeners.size() > 0) {
+    if (!_queryListeners.empty()) {
       HARD_ASSERT(_datastore->IsWatchStreamOpen(), "Watch stream is open");
     }
   });

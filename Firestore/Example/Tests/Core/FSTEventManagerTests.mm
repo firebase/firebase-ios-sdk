@@ -35,6 +35,7 @@
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "Firestore/core/test/firebase/firestore/testutil/xcgmock.h"
 
+using firebase::firestore::core::ListenOptions;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::core::ViewSnapshotHandler;
 using firebase::firestore::model::DocumentKeySet;
