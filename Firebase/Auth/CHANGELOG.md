@@ -1,3 +1,6 @@
+# v5.4.2
+- Support new error code ERROR_INVALID_PROVIDER_ID. (#2629)
+
 # v5.4.1
 - Deprecate Microsoft and Yahoo OAuth Provider ID (#2517)
 - Fix an issue where an exception was thrown when linking OAuth credentials. (#2521)
