@@ -207,15 +207,15 @@ GUL_LOGGING_FUNCTION(Debug)
 
 // NSUserDefaults cannot be used due to a bug described in GULUserDefaults
 // GULUserDefaults cannot be used because GULLogger is a dependency for GULUserDefaults
-// We have to use C API deireclty here
+// We have to use C API direclty here
 
-CFStringRef getGULLoggerUsetDefaultsSuiteName(void) {
+CFStringRef getGULLoggerUserDefaultsSuiteName(void) {
   return (__bridge CFStringRef) @"GoogleUtilities.Logger.GULLogger";
 }
 
 NSInteger GULGetUserDefaultsIntegerForKey(NSString *key) {
   id value = (__bridge_transfer id)CFPreferencesCopyAppValue((__bridge CFStringRef)key,
-                                                             getGULLoggerUsetDefaultsSuiteName());
+                                                             getGULLoggerUserDefaultsSuiteName());
   if (![value isKindOfClass:[NSNumber class]]) {
     return 0;
   }
@@ -226,8 +226,8 @@ NSInteger GULGetUserDefaultsIntegerForKey(NSString *key) {
 void GULLoggerUserDefaultsSetIntegerForKey(NSInteger count, NSString *key) {
   NSNumber *countNumber = @(count);
   CFPreferencesSetAppValue((__bridge CFStringRef)key, (__bridge CFNumberRef)countNumber,
-                           getGULLoggerUsetDefaultsSuiteName());
-  CFPreferencesAppSynchronize(getGULLoggerUsetDefaultsSuiteName());
+                           getGULLoggerUserDefaultsSuiteName());
+  CFPreferencesAppSynchronize(getGULLoggerUserDefaultsSuiteName());
 }
 
 #pragma mark - Number of errors and warnings
