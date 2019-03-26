@@ -27,6 +27,12 @@ NS_ASSUME_NONNULL_BEGIN
 /** The offset from UTC in seconds. */
 @property(nonatomic, readonly) int64_t timezoneOffsetSeconds;
 
+/** The kernel boot time when this clock was created. */
+@property(nonatomic, readonly) int64_t kernelBootTime;
+
+/** The device uptime when this clock was created. */
+@property(nonatomic, readonly) int64_t uptime;
+
 /** Creates a GDTClock object using the current time and offsets.
  *
  * @return A new GDTClock object representing the current time state.

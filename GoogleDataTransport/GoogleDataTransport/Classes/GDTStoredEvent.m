@@ -81,4 +81,13 @@ static NSString *kCustomPrioritizationParamsKey = @"GDTStoredEventcustomPrioriti
   return self;
 }
 
+- (BOOL)isEqual:(GDTStoredEvent *)other {
+  return [self hash] == [other hash];
+}
+
+- (NSUInteger)hash {
+  return
+      [_eventFileURL hash] ^ [_mappingID hash] ^ [_target hash] ^ [_clockSnapshot hash] ^ _qosTier;
+}
+
 @end

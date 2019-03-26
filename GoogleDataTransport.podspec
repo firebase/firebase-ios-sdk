@@ -46,7 +46,6 @@ Shared library for iOS SDK data transport needs.
   s.test_spec 'Tests-Integration' do |test_spec|
     test_spec.requires_app_host = false
     test_spec.source_files = ['GoogleDataTransport/Tests/Integration/**/*.{h,m}'] + common_test_sources
-    test_spec.compiler_flags = '-DGDT_LOG_TRACE_ENABLED=1'
     test_spec.dependency 'GCDWebServer'
   end
 end
