@@ -113,10 +113,8 @@ std::shared_ptr<QueryListener> NoopQueryListener(FSTQuery *query) {
   FSTQuery *query2 = FSTTestQuery("bar/baz");
   NSMutableArray *eventOrder = [NSMutableArray array];
 
-  StatusOrCallback<ViewSnapshot> callback1 = [eventOrder](StatusOr<ViewSnapshot>) {
-    [eventOrder addObject:@"listener1"];
-  };
-  auto listener1 = QueryListener::Create(query1, std::move(callback1));
+  auto listener1 = QueryListener::Create(
+      query1, [eventOrder](StatusOr<ViewSnapshot>) { [eventOrder addObject:@"listener1"]; });
 
   auto listener2 = QueryListener::Create(
       query2, [eventOrder](StatusOr<ViewSnapshot>) { [eventOrder addObject:@"listener2"]; });
