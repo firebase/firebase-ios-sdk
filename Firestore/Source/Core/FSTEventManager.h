@@ -18,7 +18,6 @@
 
 #include <memory>
 
-#include "Firestore/core/src/firebase/firestore/core/listen_options.h"
 #include "Firestore/core/src/firebase/firestore/core/query_listener.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
@@ -29,7 +28,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-using firebase::firestore::core::ListenOptions;
 using firebase::firestore::core::QueryListener;
 
 #pragma mark - FSTEventManager

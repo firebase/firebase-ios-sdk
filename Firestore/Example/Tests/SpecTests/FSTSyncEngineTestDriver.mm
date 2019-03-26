@@ -60,6 +60,7 @@ using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::auth::HashUser;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
+using firebase::firestore::core::ListenOptions;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;

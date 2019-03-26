@@ -41,6 +41,7 @@
 
 using firebase::firestore::FirestoreErrorCode;
 using firebase::firestore::core::DocumentViewChange;
+using firebase::firestore::core::ListenOptions;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::core::ViewSnapshotHandler;
 using firebase::firestore::model::DocumentKeySet;
