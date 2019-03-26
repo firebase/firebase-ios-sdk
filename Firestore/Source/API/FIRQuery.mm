@@ -598,7 +598,7 @@ NS_ASSUME_NONNULL_BEGIN
     } else {
       FSTFieldValue *value = [document fieldForPath:sortOrder.field];
 
-      if ([value isKindOfClass:[FSTServerTimestampValue class]]) {
+      if ([value type] == FSTFieldValueTypeServerTimestamp) {
         FSTThrowInvalidUsage(@"InvalidQueryException",
                              @"Invalid query. You are trying to start or end a query using a "
                               "document for which the field '%s' is an uncommitted server "

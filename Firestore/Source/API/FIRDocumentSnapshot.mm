@@ -185,11 +185,11 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
 }
 
 - (id)convertedValue:(FSTFieldValue *)value options:(FSTFieldValueOptions *)options {
-  if ([value isKindOfClass:[FSTObjectValue class]]) {
+  if ([value type] == FSTFieldValueTypeObject) {
     return [self convertedObject:(FSTObjectValue *)value options:options];
-  } else if ([value isKindOfClass:[FSTArrayValue class]]) {
+  } else if ([value type] == FSTFieldValueTypeArray) {
     return [self convertedArray:(FSTArrayValue *)value options:options];
-  } else if ([value isKindOfClass:[FSTReferenceValue class]]) {
+  } else if ([value type] == FSTFieldValueTypeReference) {
     FSTReferenceValue *ref = (FSTReferenceValue *)value;
     const DatabaseId *refDatabase = ref.databaseID;
     const DatabaseId *database = &_snapshot.firestore()->database_id();

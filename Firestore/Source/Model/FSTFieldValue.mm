@@ -219,7 +219,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSComparisonResult)compare:(FSTFieldValue *)other {
-  if ([other isKindOfClass:[FSTBooleanValue class]]) {
+  if ([other type] == FSTFieldValueTypeBoolean) {
     return WrapCompare<bool>(self.internalValue, ((FSTBooleanValue *)other).internalValue);
   } else {
     return [self defaultCompare:other];
@@ -237,26 +237,24 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSComparisonResult)compare:(FSTFieldValue *)other {
-  if (![other isKindOfClass:[FSTNumberValue class]]) {
+  if (!([other type] == FSTFieldValueTypeInteger || [other type] == FSTFieldValueTypeDouble)) {
     return [self defaultCompare:other];
   } else {
-    if ([self isKindOfClass:[FSTDoubleValue class]]) {
+    if ([self type] == FSTFieldValueTypeDouble) {
       double thisDouble = ((FSTDoubleValue *)self).internalValue;
-      if ([other isKindOfClass:[FSTDoubleValue class]]) {
+      if ([other type] == FSTFieldValueTypeDouble) {
         return WrapCompare(thisDouble, ((FSTDoubleValue *)other).internalValue);
       } else {
-        HARD_ASSERT([other isKindOfClass:[FSTIntegerValue class]], "Unknown number value: %s",
-                    other);
+        HARD_ASSERT([other type] == FSTFieldValueTypeInteger, "Unknown number value: %s", other);
         auto result = CompareMixedNumber(thisDouble, ((FSTIntegerValue *)other).internalValue);
         return static_cast<NSComparisonResult>(result);
       }
     } else {
       int64_t thisInt = ((FSTIntegerValue *)self).internalValue;
-      if ([other isKindOfClass:[FSTIntegerValue class]]) {
+      if ([other type] == FSTFieldValueTypeInteger) {
         return WrapCompare(thisInt, ((FSTIntegerValue *)other).internalValue);
       } else {
-        HARD_ASSERT([other isKindOfClass:[FSTDoubleValue class]], "Unknown number value: %s",
-                    other);
+        HARD_ASSERT([other type] == FSTFieldValueTypeDouble, "Unknown number value: %s", other);
         double otherDouble = ((FSTDoubleValue *)other).internalValue;
         auto result = ReverseOrder(CompareMixedNumber(otherDouble, thisInt));
         return static_cast<NSComparisonResult>(result);
@@ -298,7 +296,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isEqual:(id)other {
   // NOTE: DoubleValue and LongValue instances may compare: the same, but that doesn't make them
   // equal via isEqual:
-  return [other isKindOfClass:[FSTIntegerValue class]] &&
+  return [other isKindOfClass:[FSTFieldValue class]] &&
+         [(FSTFieldValue *)other type] == FSTFieldValueTypeInteger &&
          self.internalValue == ((FSTIntegerValue *)other).internalValue;
 }
 
@@ -357,7 +356,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   // NOTE: isEqual: should compare NaN equal to itself and -0.0 not equal to 0.0.
 
-  return [other isKindOfClass:[FSTDoubleValue class]] &&
+  return [other isKindOfClass:[FSTFieldValue class]] &&
+         [(FSTFieldValue *)other type] == FSTFieldValueTypeDouble &&
          DoubleBitwiseEquals(self.internalValue, ((FSTDoubleValue *)other).internalValue);
 }
 
@@ -414,7 +414,8 @@ struct Comparator<NSString *> {
 }
 
 - (BOOL)isEqual:(id)other {
-  return [other isKindOfClass:[FSTStringValue class]] &&
+  return [other isKindOfClass:[FSTFieldValue class]] &&
+         [(FSTFieldValue *)other type] == FSTFieldValueTypeString &&
          [self.internalValue isEqualToString:((FSTStringValue *)other).internalValue];
 }
 
@@ -423,7 +424,7 @@ struct Comparator<NSString *> {
 }
 
 - (NSComparisonResult)compare:(FSTFieldValue *)other {
-  if ([other isKindOfClass:[FSTStringValue class]]) {
+  if ([other type] == FSTFieldValueTypeString) {
     return WrapCompare(self.internalValue, ((FSTStringValue *)other).internalValue);
   } else {
     return [self defaultCompare:other];
@@ -473,7 +474,8 @@ struct Comparator<NSString *> {
 }
 
 - (BOOL)isEqual:(id)other {
-  return [other isKindOfClass:[FSTTimestampValue class]] &&
+  return [other isKindOfClass:[FSTFieldValue class]] &&
+         [(FSTFieldValue *)other type] == FSTFieldValueTypeTimestamp &&
          [self.internalValue isEqual:((FSTTimestampValue *)other).internalValue];
 }
 
@@ -482,9 +484,9 @@ struct Comparator<NSString *> {
 }
 
 - (NSComparisonResult)compare:(FSTFieldValue *)other {
-  if ([other isKindOfClass:[FSTTimestampValue class]]) {
+  if ([other type] == FSTFieldValueTypeTimestamp) {
     return [self.internalValue compare:((FSTTimestampValue *)other).internalValue];
-  } else if ([other isKindOfClass:[FSTServerTimestampValue class]]) {
+  } else if ([other type] == FSTFieldValueTypeServerTimestamp) {
     // Concrete timestamps come before server timestamps.
     return NSOrderedAscending;
   } else {
@@ -539,7 +541,8 @@ struct Comparator<NSString *> {
 }
 
 - (BOOL)isEqual:(id)other {
-  return [other isKindOfClass:[FSTServerTimestampValue class]] &&
+  return [other isKindOfClass:[FSTFieldValue class]] &&
+         [(FSTFieldValue *)other type] == FSTFieldValueTypeServerTimestamp &&
          [self.localWriteTime isEqual:((FSTServerTimestampValue *)other).localWriteTime];
 }
 
@@ -552,9 +555,9 @@ struct Comparator<NSString *> {
 }
 
 - (NSComparisonResult)compare:(FSTFieldValue *)other {
-  if ([other isKindOfClass:[FSTServerTimestampValue class]]) {
+  if ([other type] == FSTFieldValueTypeServerTimestamp) {
     return [self.localWriteTime compare:((FSTServerTimestampValue *)other).localWriteTime];
-  } else if ([other isKindOfClass:[FSTTimestampValue class]]) {
+  } else if ([other type] == FSTFieldValueTypeTimestamp) {
     // Server timestamps come after all concrete timestamps.
     return NSOrderedDescending;
   } else {
@@ -597,7 +600,8 @@ struct Comparator<NSString *> {
 }
 
 - (BOOL)isEqual:(id)other {
-  return [other isKindOfClass:[FSTGeoPointValue class]] &&
+  return [other isKindOfClass:[FSTFieldValue class]] &&
+         [(FSTFieldValue *)other type] == FSTFieldValueTypeGeoPoint &&
          [self.internalValue isEqual:((FSTGeoPointValue *)other).internalValue];
 }
 
@@ -606,7 +610,7 @@ struct Comparator<NSString *> {
 }
 
 - (NSComparisonResult)compare:(FSTFieldValue *)other {
-  if ([other isKindOfClass:[FSTGeoPointValue class]]) {
+  if ([other type] == FSTFieldValueTypeGeoPoint) {
     return [self.internalValue compare:((FSTGeoPointValue *)other).internalValue];
   } else {
     return [self defaultCompare:other];
@@ -664,7 +668,8 @@ static NSComparisonResult CompareBytes(NSData *left, NSData *right) {
 }
 
 - (BOOL)isEqual:(id)other {
-  return [other isKindOfClass:[FSTBlobValue class]] &&
+  return [other isKindOfClass:[FSTFieldValue class]] &&
+         [(FSTFieldValue *)other type] == FSTFieldValueTypeBlob &&
          [self.internalValue isEqual:((FSTBlobValue *)other).internalValue];
 }
 
@@ -673,7 +678,7 @@ static NSComparisonResult CompareBytes(NSData *left, NSData *right) {
 }
 
 - (NSComparisonResult)compare:(FSTFieldValue *)other {
-  if ([other isKindOfClass:[FSTBlobValue class]]) {
+  if ([other type] == FSTFieldValueTypeBlob) {
     return CompareBytes(self.internalValue, ((FSTBlobValue *)other).internalValue);
   } else {
     return [self defaultCompare:other];
@@ -719,7 +724,8 @@ static NSComparisonResult CompareBytes(NSData *left, NSData *right) {
   if (other == self) {
     return YES;
   }
-  if (![other isKindOfClass:[FSTReferenceValue class]]) {
+  if (!([other isKindOfClass:[FSTFieldValue class]] &&
+        [(FSTFieldValue *)other type] == FSTFieldValueTypeReference)) {
     return NO;
   }
 
@@ -734,7 +740,7 @@ static NSComparisonResult CompareBytes(NSData *left, NSData *right) {
 }
 
 - (NSComparisonResult)compare:(FSTFieldValue *)other {
-  if ([other isKindOfClass:[FSTReferenceValue class]]) {
+  if ([other type] == FSTFieldValueTypeReference) {
     FSTReferenceValue *ref = (FSTReferenceValue *)other;
     NSComparisonResult cmp =
         WrapCompare(self.databaseID->project_id(), ref.databaseID->project_id());
@@ -820,7 +826,8 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
   if (other == self) {
     return YES;
   }
-  if (![other isKindOfClass:[FSTObjectValue class]]) {
+  if (!([other isKindOfClass:[FSTFieldValue class]] &&
+        [(FSTFieldValue *)other type] == FSTFieldValueTypeObject)) {
     return NO;
   }
 
@@ -833,7 +840,7 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
 }
 
 - (NSComparisonResult)compare:(FSTFieldValue *)other {
-  if ([other isKindOfClass:[FSTObjectValue class]]) {
+  if ([other type] == FSTFieldValueTypeObject) {
     FSTImmutableSortedDictionary *selfDict = self.internalValue;
     FSTImmutableSortedDictionary *otherDict = ((FSTObjectValue *)other).internalValue;
     NSEnumerator *enumerator1 = [selfDict keyEnumerator];
@@ -886,7 +893,7 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
     // around the result.
     FSTFieldValue *child = [_internalValue objectForKey:childName];
     FSTObjectValue *childObject;
-    if ([child isKindOfClass:[FSTObjectValue class]]) {
+    if ([child type] == FSTFieldValueTypeObject) {
       childObject = (FSTObjectValue *)child;
     } else {
       // If the child is not found or is a primitive type, pretend as if an empty object lived
@@ -906,7 +913,7 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
         initWithImmutableDictionary:[_internalValue dictionaryByRemovingObjectForKey:childName]];
   } else {
     FSTFieldValue *child = _internalValue[childName];
-    if ([child isKindOfClass:[FSTObjectValue class]]) {
+    if ([child type] == FSTFieldValueTypeObject) {
       FSTObjectValue *newChild =
           [((FSTObjectValue *)child) objectByDeletingPath:fieldPath.PopFirst()];
       return [self objectBySettingValue:newChild forField:childName];
@@ -998,7 +1005,7 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
 }
 
 - (NSComparisonResult)compare:(FSTFieldValue *)other {
-  if ([other isKindOfClass:[FSTArrayValue class]]) {
+  if ([other type] == FSTFieldValueTypeArray) {
     NSArray<FSTFieldValue *> *selfArray = self.internalValue;
     NSArray<FSTFieldValue *> *otherArray = ((FSTArrayValue *)other).internalValue;
     NSUInteger minLength = MIN(selfArray.count, otherArray.count);

@@ -259,18 +259,18 @@ class NumericIncrementTransform : public TransformOperation {
       FIRTimestamp* /* localWriteTime */) const override {
     // Return an integer value only if the previous value and the operand is an
     // integer.
-    if ([previousValue isKindOfClass:[FSTIntegerValue class]] &&
-        [operand_ isKindOfClass:[FSTIntegerValue class]]) {
+    if ([previousValue type] == FSTFieldValueTypeInteger &&
+        [operand_ type] == FSTFieldValueTypeInteger) {
       int64_t sum = SafeIncrement(
           (static_cast<FSTIntegerValue*>(previousValue)).internalValue,
           (static_cast<FSTIntegerValue*>(operand_)).internalValue);
       return [FSTIntegerValue integerValue:sum];
-    } else if ([previousValue isKindOfClass:[FSTIntegerValue class]]) {
+    } else if ([previousValue type] == FSTFieldValueTypeInteger) {
       double sum =
           (static_cast<FSTIntegerValue*>(previousValue)).internalValue +
           OperandAsDouble();
       return [FSTDoubleValue doubleValue:sum];
-    } else if ([previousValue isKindOfClass:[FSTDoubleValue class]]) {
+    } else if ([previousValue type] == FSTFieldValueTypeDouble) {
       double sum = (static_cast<FSTDoubleValue*>(previousValue)).internalValue +
                    OperandAsDouble();
       return [FSTDoubleValue doubleValue:sum];
@@ -329,9 +329,9 @@ class NumericIncrementTransform : public TransformOperation {
   }
 
   double OperandAsDouble() const {
-    if ([operand_ isKindOfClass:[FSTDoubleValue class]]) {
+    if ([operand_ type] == FSTFieldValueTypeDouble) {
       return (static_cast<FSTDoubleValue*>(operand_)).internalValue;
-    } else if ([operand_ isKindOfClass:[FSTIntegerValue class]]) {
+    } else if ([operand_ type] == FSTFieldValueTypeInteger) {
       return (static_cast<FSTIntegerValue*>(operand_)).internalValue;
     } else {
       HARD_FAIL("Expected 'operand' to be of FSTNumerValue type, but was %s",

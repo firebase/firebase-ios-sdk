@@ -147,7 +147,7 @@ FSTFieldValue *FSTTestFieldValue(id _Nullable value) {
 
 FSTObjectValue *FSTTestObjectValue(NSDictionary<NSString *, id> *data) {
   FSTFieldValue *wrapped = FSTTestFieldValue(data);
-  HARD_ASSERT([wrapped isKindOfClass:[FSTObjectValue class]], "Unsupported value: %s", data);
+  HARD_ASSERT([wrapped type] == FSTFieldValueTypeObject, "Unsupported value: %s", data);
   return (FSTObjectValue *)wrapped;
 }
 
