@@ -56,7 +56,6 @@ struct QueryListenersInfo {
 
   void Erase(const std::shared_ptr<QueryListener> &listener) {
     auto found = absl::c_find(listeners, listener);
-    HARD_ASSERT(found != listeners.end(), "Shouldn't remove listeners that don't exist");
     if (found != listeners.end()) {
       listeners.erase(found);
     }
@@ -71,7 +70,8 @@ struct QueryListenersInfo {
   }
 
  private:
-  // Enforce constness of this ViewSnapshot
+  // Other members are public in this struct, ensure that any reads are
+  // copies by requiring reads to go through a const getter.
   absl::optional<ViewSnapshot> snapshot_;
 };
 
@@ -107,7 +107,7 @@ struct QueryListenersInfo {
 - (TargetId)addListener:(std::shared_ptr<QueryListener>)listener {
   FSTQuery *query = listener->query();
 
-  auto inserted = _queries.insert({query, {}});
+  auto inserted = _queries.emplace(query, QueryListenersInfo{});
   bool first_listen = inserted.second;
   QueryListenersInfo &query_info = inserted.first->second;
 
@@ -127,13 +127,13 @@ struct QueryListenersInfo {
 
 - (void)removeListener:(const std::shared_ptr<QueryListener> &)listener {
   FSTQuery *query = listener->query();
-  bool last_listen = NO;
+  bool last_listen = false;
 
   auto found_iter = _queries.find(query);
   if (found_iter != _queries.end()) {
     QueryListenersInfo &query_info = found_iter->second;
     query_info.Erase(listener);
-    last_listen = (query_info.listeners.empty());
+    last_listen = query_info.listeners.empty();
   }
 
   if (last_listen) {

@@ -413,7 +413,7 @@ NS_ASSUME_NONNULL_BEGIN
   _workerQueue->EnqueueBlocking([&] {
     _datastore->FailWatchStream(error);
     // Unlike web, stream should re-open synchronously (if we have any listeners)
-    if (_queryListeners.size() > 0) {
+    if (!_queryListeners.empty()) {
       HARD_ASSERT(_datastore->IsWatchStreamOpen(), "Watch stream is open");
     }
   });
