@@ -29,6 +29,19 @@ extension Firestore {
   }
 }
 
+extension DocumentSnapshot {
+    public func toObject<T: Decodable>(_ type: T.Type, with serverTimestampBehavior: ServerTimestampBehavior = .none) throws -> T {
+        guard let data: [String: Any] = self.data(with: serverTimestampBehavior) else {
+            throw DecodingError.valueNotFound(T.self, DecodingError.Context(codingPath: [], debugDescription: "The DocumentSnapshot has not data"))
+        }
+        let decoder = _FirestoreDecoder(referencing: data)
+        guard let value = try decoder.unbox(data, as: T.self) else {
+            throw DecodingError.valueNotFound(T.self, DecodingError.Context(codingPath: [], debugDescription: "The given dictionary was invalid"))
+        }
+        return value
+    }
+}
+
 class _FirestoreDecoder: Decoder {
   /// Options set on the top-level encoder to pass down the decoding hierarchy.
 
