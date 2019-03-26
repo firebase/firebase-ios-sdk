@@ -21,6 +21,7 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/model/field_value.h"
 
 @class FSTDocumentKey;
 @class FIRTimestamp;
@@ -28,25 +29,6 @@
 @class FIRGeoPoint;
 
 NS_ASSUME_NONNULL_BEGIN
-
-/**
- * The 'type' of this FSTFieldValue. Used for RTTI (rather than isKindOfClass)
- * to ease migration to C++.
- */
-typedef NS_ENUM(NSInteger, FSTFieldValueType) {
-  FSTFieldValueTypeNull,
-  FSTFieldValueTypeBoolean,
-  FSTFieldValueTypeInteger,
-  FSTFieldValueTypeDouble,
-  FSTFieldValueTypeTimestamp,
-  FSTFieldValueTypeServerTimestamp,
-  FSTFieldValueTypeString,
-  FSTFieldValueTypeBlob,
-  FSTFieldValueTypeReference,
-  FSTFieldValueTypeGeoPoint,
-  FSTFieldValueTypeArray,
-  FSTFieldValueTypeObject,
-};
 
 /** The order of types in Firestore; this order is defined by the backend. */
 typedef NS_ENUM(NSInteger, FSTTypeOrder) {
@@ -108,7 +90,7 @@ enum class ServerTimestampBehavior { None, Estimate, Previous };
  * Returns the 'type' of this FSTFieldValue. Used for RTTI (rather than isKindOfClass)
  * to ease migration to C++.
  */
-- (FSTFieldValueType)type;
+- (firebase::firestore::model::FieldValue::Type)type;
 
 /** Returns the FSTTypeOrder for this value. */
 - (FSTTypeOrder)typeOrder;

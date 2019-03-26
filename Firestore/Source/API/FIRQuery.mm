@@ -43,6 +43,7 @@
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
@@ -54,6 +55,7 @@ using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::core::ViewSnapshotHandler;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldPath;
+using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::util::MakeNSError;
 using firebase::firestore::util::StatusOr;
@@ -598,7 +600,7 @@ NS_ASSUME_NONNULL_BEGIN
     } else {
       FSTFieldValue *value = [document fieldForPath:sortOrder.field];
 
-      if ([value type] == FSTFieldValueTypeServerTimestamp) {
+      if ([value type] == FieldValue::Type::ServerTimestamp) {
         FSTThrowInvalidUsage(@"InvalidQueryException",
                              @"Invalid query. You are trying to start or end a query using a "
                               "document for which the field '%s' is an uncommitted server "
