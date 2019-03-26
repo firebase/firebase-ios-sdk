@@ -108,28 +108,6 @@ static const NSInteger kOldCheckinPlistCount = 6;
     return;
   }
 
-  // Save the deviceID and secret in the Keychain
-  __block BOOL shouldContinue = YES;
-  if (!preferences.hasPreCachedAuthCredentials) {
-    NSData *data = [checkinKeychainContent dataUsingEncoding:NSUTF8StringEncoding];
-    [self.keychain setData:data
-                forService:kFIRInstanceIDCheckinKeychainService
-             accessibility:nil
-                   account:self.bundleIdentifierForKeychainAccount
-                   handler:^(NSError *error) {
-                     if (error) {
-                       if (handler) {
-                         handler(error);
-                       }
-                       shouldContinue = NO;
-                       return;
-                     }
-                   }];
-  }
-  if (!shouldContinue) {
-    return;
-  }
-
   // Save all other checkin preferences in a plist
   NSError *error;
   if (![self.plist writeDictionary:checkinPlistContents error:&error]) {
@@ -144,7 +122,27 @@ static const NSInteger kOldCheckinPlistCount = 6;
     }
     return;
   }
-  handler(nil);
+  // Save the deviceID and secret in the Keychain
+  if (!preferences.hasPreCachedAuthCredentials) {
+    NSData *data = [checkinKeychainContent dataUsingEncoding:NSUTF8StringEncoding];
+    [self.keychain setData:data
+                forService:kFIRInstanceIDCheckinKeychainService
+             accessibility:nil
+                   account:self.bundleIdentifierForKeychainAccount
+                   handler:^(NSError *error) {
+                     if (error) {
+                       if (handler) {
+                         handler(error);
+                       }
+                       return;
+                     }
+                     if (handler) {
+                       handler(nil);
+                     }
+                   }];
+  } else {
+    handler(nil);
+  }
 }
 
 - (void)removeCheckinPreferencesWithHandler:(void (^)(NSError *error))handler {

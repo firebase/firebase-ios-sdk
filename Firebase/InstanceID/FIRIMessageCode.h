@@ -77,6 +77,8 @@ typedef NS_ENUM(NSInteger, FIRInstanceIDMessageCode) {
   kFIRInstanceIDMessageCodeKeyPair002 = 9002,
   kFIRInstanceIDMessageCodeKeyPairMigrationError = 9004,
   kFIRInstanceIDMessageCodeKeyPairMigrationSuccess = 9005,
+  kFIRInstanceIDMessageCodeKeyPairNoLegacyKeyPair = 9006,
+
   // FIRInstanceIDKeyPairStore.m
   kFIRInstanceIDMessageCodeKeyPairStore000 = 10000,
   kFIRInstanceIDMessageCodeKeyPairStore001 = 10001,

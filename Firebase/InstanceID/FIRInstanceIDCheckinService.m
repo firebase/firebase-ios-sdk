@@ -133,8 +133,9 @@ static FIRInstanceIDURLRequestTestBlock testBlock;
         // Somehow the server clock gets out of sync with the device clock.
         // Reset the last checkin timestamp in case this happens.
         if (lastCheckinTimestampMillis > currentTimestampMillis) {
-          FIRInstanceIDLoggerDebug(kFIRInstanceIDMessageCodeService002,
-                                   @"Invalid last checkin timestamp in future.");
+          FIRInstanceIDLoggerDebug(
+              kFIRInstanceIDMessageCodeService002, @"Invalid last checkin timestamp %@ in future.",
+              [NSDate dateWithTimeIntervalSince1970:lastCheckinTimestampMillis / 1000.0]);
           lastCheckinTimestampMillis = currentTimestampMillis;
         }
 

@@ -153,11 +153,13 @@ static NSString *const kFIRInstanceIDLibraryVersion = @"GMSInstanceID-version";
   if (oldCheckinPreferences) {
     [self.checkinStore removeCheckinPreferencesWithHandler:^(NSError *error) {
       if (!error) {
-        FIRInstanceIDLoggerDebug(kFIRInstanceIDMessageCodeStore002,
-                                 @"Removed cached checkin preferences from Keychain.");
+        FIRInstanceIDLoggerDebug(
+            kFIRInstanceIDMessageCodeStore002,
+            @"Removed cached checkin preferences from Keychain because this is a fresh install.");
       } else {
-        FIRInstanceIDLoggerError(kFIRInstanceIDMessageCodeStore003,
-                                 @"Couldn't remove cached checkin preferences. Error: %@", error);
+        FIRInstanceIDLoggerError(
+            kFIRInstanceIDMessageCodeStore003,
+            @"Couldn't remove cached checkin preferences for a fresh install. Error: %@", error);
       }
       if (oldCheckinPreferences.deviceID.length && oldCheckinPreferences.secretToken.length) {
         FIRInstanceIDLoggerDebug(kFIRInstanceIDMessageCodeStore006,
