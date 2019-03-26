@@ -91,6 +91,7 @@ NSArray *FSTWrapGroups(NSArray *groups) {
     FSTFieldValue *wrapped = FSTTestFieldValue(value);
     XCTAssertEqualObjects([wrapped class], [FSTIntegerValue class]);
     XCTAssertEqualObjects([wrapped value], @([value longLongValue]));
+    XCTAssertEqual([wrapped type], FSTFieldValueTypeInteger);
   }
 }
 
@@ -105,6 +106,7 @@ NSArray *FSTWrapGroups(NSArray *groups) {
     FSTFieldValue *wrapped = FSTTestFieldValue(value);
     XCTAssertEqualObjects([wrapped class], [FSTDoubleValue class]);
     XCTAssertEqualObjects([wrapped value], value);
+    XCTAssertEqual([wrapped type], FSTFieldValueTypeDouble);
   }
 }
 
@@ -113,6 +115,7 @@ NSArray *FSTWrapGroups(NSArray *groups) {
   XCTAssertEqual(FSTTestFieldValue(nil), nullValue);
   XCTAssertEqual(FSTTestFieldValue([NSNull null]), nullValue);
   XCTAssertEqual([nullValue value], [NSNull null]);
+  XCTAssertEqual([nullValue type], FSTFieldValueTypeNull);
 }
 
 - (void)testWrapsBooleans {
@@ -121,6 +124,7 @@ NSArray *FSTWrapGroups(NSArray *groups) {
     FSTFieldValue *wrapped = FSTTestFieldValue(value);
     XCTAssertEqualObjects([wrapped class], [FSTBooleanValue class]);
     XCTAssertEqualObjects([wrapped value], value);
+    XCTAssertEqual([wrapped type], FSTFieldValueTypeBoolean);
   }
 
   // Unsigned chars could conceivably be handled consistently with signed chars but on arm64 these
@@ -219,6 +223,7 @@ union DoubleBits {
     FSTFieldValue *wrapped = FSTTestFieldValue(value);
     XCTAssertEqualObjects([wrapped class], [FSTStringValue class]);
     XCTAssertEqualObjects([wrapped value], value);
+    XCTAssertEqual([wrapped type], FSTFieldValueTypeString);
   }
 }
 
@@ -229,6 +234,7 @@ union DoubleBits {
     XCTAssertEqualObjects([wrapped class], [FSTTimestampValue class]);
     XCTAssertEqualObjects([[wrapped value] class], [FIRTimestamp class]);
     XCTAssertEqualObjects([wrapped value], [FIRTimestamp timestampWithDate:value]);
+    XCTAssertEqual([wrapped type], FSTFieldValueTypeTimestamp);
   }
 }
 
@@ -239,6 +245,7 @@ union DoubleBits {
     FSTFieldValue *wrapped = FSTTestFieldValue(value);
     XCTAssertEqualObjects([wrapped class], [FSTGeoPointValue class]);
     XCTAssertEqualObjects([wrapped value], value);
+    XCTAssertEqual([wrapped type], FSTFieldValueTypeGeoPoint);
   }
 }
 
@@ -248,6 +255,7 @@ union DoubleBits {
     FSTFieldValue *wrapped = FSTTestFieldValue(value);
     XCTAssertEqualObjects([wrapped class], [FSTBlobValue class]);
     XCTAssertEqualObjects([wrapped value], value);
+    XCTAssertEqual([wrapped type], FSTFieldValueTypeBlob);
   }
 }
 
@@ -262,11 +270,13 @@ union DoubleBits {
     XCTAssertEqualObjects([wrapped value], [FSTDocumentKey keyWithDocumentKey:value.key]);
     XCTAssertTrue(*((FSTReferenceValue *)wrapped).databaseID ==
                   *(const DatabaseId *)(value.databaseID));
+    XCTAssertEqual([wrapped type], FSTFieldValueTypeReference);
   }
 }
 
 - (void)testWrapsEmptyObjects {
   XCTAssertEqualObjects(FSTTestFieldValue(@{}), [FSTObjectValue objectValue]);
+  XCTAssertEqual([FSTTestFieldValue(@{}) type], FSTFieldValueTypeObject);
 }
 
 - (void)testWrapsSimpleObjects {
@@ -279,6 +289,7 @@ union DoubleBits {
     @"d" : [FSTNullValue nullValue]
   }];
   XCTAssertEqualObjects(actual, expected);
+  XCTAssertEqual([actual type], FSTFieldValueTypeObject);
 }
 
 - (void)testWrapsNestedObjects {
@@ -291,6 +302,7 @@ union DoubleBits {
     }]
   }];
   XCTAssertEqualObjects(actual, expected);
+  XCTAssertEqual([actual type], FSTFieldValueTypeObject);
 }
 
 - (void)testExtractsFields {
@@ -414,6 +426,7 @@ union DoubleBits {
 
   FSTArrayValue *actual = (FSTArrayValue *)FSTTestFieldValue(@[ @"value", @YES ]);
   XCTAssertEqualObjects(actual, expected);
+  XCTAssertEqual([actual type], FSTFieldValueTypeArray);
 }
 
 - (void)testValueEquality {

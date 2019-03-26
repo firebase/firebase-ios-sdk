@@ -29,6 +29,25 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/**
+ * The 'type' of this FSTFieldValue. Used for RTTI (rather than isKindOfClass)
+ * to ease migration to C++.
+ */
+typedef NS_ENUM(NSInteger, FSTFieldValueType) {
+  FSTFieldValueTypeNull,
+  FSTFieldValueTypeBoolean,
+  FSTFieldValueTypeInteger,
+  FSTFieldValueTypeDouble,
+  FSTFieldValueTypeTimestamp,
+  FSTFieldValueTypeServerTimestamp,
+  FSTFieldValueTypeString,
+  FSTFieldValueTypeBlob,
+  FSTFieldValueTypeReference,
+  FSTFieldValueTypeGeoPoint,
+  FSTFieldValueTypeArray,
+  FSTFieldValueTypeObject,
+};
+
 /** The order of types in Firestore; this order is defined by the backend. */
 typedef NS_ENUM(NSInteger, FSTTypeOrder) {
   FSTTypeOrderNull,
@@ -84,6 +103,12 @@ enum class ServerTimestampBehavior { None, Estimate, Previous };
  *  - Object
  */
 @interface FSTFieldValue<__covariant T> : NSObject
+
+/**
+ * Returns the 'type' of this FSTFieldValue. Used for RTTI (rather than isKindOfClass)
+ * to ease migration to C++.
+ */
+- (FSTFieldValueType)type;
 
 /** Returns the FSTTypeOrder for this value. */
 - (FSTTypeOrder)typeOrder;

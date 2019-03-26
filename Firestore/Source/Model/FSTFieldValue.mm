@@ -69,6 +69,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTFieldValue
 
+- (FSTFieldValueType)type {
+  @throw FSTAbstractMethodException();  // NOLINT
+}
+
 - (FSTTypeOrder)typeOrder {
   @throw FSTAbstractMethodException();  // NOLINT
 }
@@ -121,6 +125,10 @@ NS_ASSUME_NONNULL_BEGIN
     sharedInstance = [[FSTNullValue alloc] init];
   });
   return sharedInstance;
+}
+
+- (FSTFieldValueType)type {
+  return FSTFieldValueTypeNull;
 }
 
 - (FSTTypeOrder)typeOrder {
@@ -187,6 +195,10 @@ NS_ASSUME_NONNULL_BEGIN
     _internalValue = value;
   }
   return self;
+}
+
+- (FSTFieldValueType)type {
+  return FSTFieldValueTypeBoolean;
 }
 
 - (FSTTypeOrder)typeOrder {
@@ -279,6 +291,10 @@ NS_ASSUME_NONNULL_BEGIN
   return @(self.internalValue);
 }
 
+- (FSTFieldValueType)type {
+  return FSTFieldValueTypeInteger;
+}
+
 - (BOOL)isEqual:(id)other {
   // NOTE: DoubleValue and LongValue instances may compare: the same, but that doesn't make them
   // equal via isEqual:
@@ -331,6 +347,10 @@ NS_ASSUME_NONNULL_BEGIN
   return @(self.internalValue);
 }
 
+- (FSTFieldValueType)type {
+  return FSTFieldValueTypeDouble;
+}
+
 - (BOOL)isEqual:(id)other {
   // NOTE: DoubleValue and LongValue instances may compare: the same, but that doesn't make them
   // equal via isEqual:
@@ -381,6 +401,10 @@ struct Comparator<NSString *> {
   return self;
 }
 
+- (FSTFieldValueType)type {
+  return FSTFieldValueTypeString;
+}
+
 - (FSTTypeOrder)typeOrder {
   return FSTTypeOrderString;
 }
@@ -426,6 +450,10 @@ struct Comparator<NSString *> {
     _internalValue = value;  // FIRTimestamp is immutable.
   }
   return self;
+}
+
+- (FSTFieldValueType)type {
+  return FSTFieldValueTypeTimestamp;
 }
 
 - (FSTTypeOrder)typeOrder {
@@ -483,6 +511,10 @@ struct Comparator<NSString *> {
     _previousValue = previousValue;
   }
   return self;
+}
+
+- (FSTFieldValueType)type {
+  return FSTFieldValueTypeServerTimestamp;
 }
 
 - (FSTTypeOrder)typeOrder {
@@ -552,6 +584,10 @@ struct Comparator<NSString *> {
   return self;
 }
 
+- (FSTFieldValueType)type {
+  return FSTFieldValueTypeGeoPoint;
+}
+
 - (FSTTypeOrder)typeOrder {
   return FSTTypeOrderGeoPoint;
 }
@@ -615,6 +651,10 @@ static NSComparisonResult CompareBytes(NSData *left, NSData *right) {
   return self;
 }
 
+- (FSTFieldValueType)type {
+  return FSTFieldValueTypeBlob;
+}
+
 - (FSTTypeOrder)typeOrder {
   return FSTTypeOrderBlob;
 }
@@ -665,6 +705,10 @@ static NSComparisonResult CompareBytes(NSData *left, NSData *right) {
 
 - (id)value {
   return self.key;
+}
+
+- (FSTFieldValueType)type {
+  return FSTFieldValueTypeReference;
 }
 
 - (FSTTypeOrder)typeOrder {
@@ -762,6 +806,10 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
         result[key] = [obj valueWithOptions:options];
       }];
   return result;
+}
+
+- (FSTFieldValueType)type {
+  return FSTFieldValueTypeObject;
 }
 
 - (FSTTypeOrder)typeOrder {
@@ -939,6 +987,10 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
     [result addObject:[obj valueWithOptions:options]];
   }];
   return result;
+}
+
+- (FSTFieldValueType)type {
+  return FSTFieldValueTypeArray;
 }
 
 - (FSTTypeOrder)typeOrder {
