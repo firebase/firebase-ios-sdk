@@ -63,6 +63,9 @@ class AsyncEventListener
 
   AsyncEventListener(util::Executor* executor, DelegateListener&& delegate)
       : executor_(executor), delegate_(std::move(delegate)) {
+    // std::atomic's constructor is not atomic, so assign after contruction
+    // (since assignment is atomic).
+    muted_ = false;
   }
 
   static std::shared_ptr<AsyncEventListener<T>> Create(
@@ -77,13 +80,13 @@ class AsyncEventListener
   void OnEvent(util::StatusOr<T> maybe_value) override;
 
   /**
-   * Synchronously mutes the listener and raise no further events. This method
-   * is thread safe can be called from any queue.
+   * Synchronously mutes the listener and raises no further events. This method
+   * is thread safe and can be called from any queue.
    */
   void Mute();
 
  private:
-  std::atomic<bool> muted_{false};
+  std::atomic<bool> muted_;
   util::Executor* executor_;
   DelegateListener delegate_;
 };
@@ -116,7 +119,7 @@ std::shared_ptr<AsyncEventListener<T>> AsyncEventListener<T>::Create(
 
 template <typename T>
 void AsyncEventListener<T>::Mute() {
-  muted_.store(true);
+  muted_ = true;
 }
 
 template <typename T>
@@ -128,7 +131,7 @@ void AsyncEventListener<T>::OnEvent(util::StatusOr<T> maybe_value) {
   std::shared_ptr<AsyncEventListener<T>> shared_this = this->shared_from_this();
 
   executor_->Execute([shared_this, maybe_value]() {
-    if (!shared_this->muted_.load()) {
+    if (!shared_this->muted_) {
       shared_this->delegate_->OnEvent(std::move(maybe_value));
     }
   });

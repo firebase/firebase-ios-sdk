@@ -27,16 +27,15 @@ void ListenerRegistration::Remove() {
   if (async_listener) {
     async_listener->Mute();
     async_listener_.reset();
-    async_listener.reset();
   }
 
-  std::shared_ptr<QueryListener> query_listener = query_listener_.lock();
+  auto query_listener = query_listener_.lock();
   if (query_listener) {
     [client_ removeListener:query_listener];
     query_listener_.reset();
-    query_listener.reset();
-    client_ = nil;
   }
+
+  client_ = nil;
 }
 
 }  // namespace api

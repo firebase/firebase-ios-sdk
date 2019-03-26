@@ -174,7 +174,7 @@ void DocumentReference::GetDocument(FIRFirestoreSource source,
       }
     }
 
-    void Release(ListenerRegistration&& registration) {
+    void Resolve(ListenerRegistration&& registration) {
       registration_promise_.set_value(std::move(registration));
     }
 
@@ -190,7 +190,7 @@ void DocumentReference::GetDocument(FIRFirestoreSource source,
   ListenerRegistration registration =
       AddSnapshotListener(std::move(options), std::move(listener));
 
-  listener_unowned->Release(std::move(registration));
+  listener_unowned->Resolve(std::move(registration));
 }
 
 ListenerRegistration DocumentReference::AddSnapshotListener(
