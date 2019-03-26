@@ -204,23 +204,15 @@ NS_ASSUME_NONNULL_BEGIN
 - (id<FIRListenerRegistration>)
     addSnapshotListenerWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
                                          listener:(FIRDocumentSnapshotBlock)listener {
-  FSTListenOptions *options =
-      [self internalOptionsForIncludeMetadataChanges:includeMetadataChanges];
+  ListenOptions options = ListenOptions::FromIncludeMetadataChanges(includeMetadataChanges);
   return [self addSnapshotListenerInternalWithOptions:options listener:listener];
 }
 
-- (id<FIRListenerRegistration>)
-    addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
-                                  listener:(FIRDocumentSnapshotBlock)listener {
+- (id<FIRListenerRegistration>)addSnapshotListenerInternalWithOptions:(ListenOptions)internalOptions
+                                                             listener:(FIRDocumentSnapshotBlock)
+                                                                          listener {
   return _documentReference.AddSnapshotListener([self wrapDocumentSnapshotBlock:listener],
-                                                internalOptions);
-}
-
-/** Converts the public API options object to the internal options object. */
-- (FSTListenOptions *)internalOptionsForIncludeMetadataChanges:(BOOL)includeMetadataChanges {
-  return [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:includeMetadataChanges
-                                        includeDocumentMetadataChanges:includeMetadataChanges
-                                                 waitForSyncWhenOnline:NO];
+                                                std::move(internalOptions));
 }
 
 - (StatusOrCallback<DocumentSnapshot>)wrapDocumentSnapshotBlock:(FIRDocumentSnapshotBlock)block {

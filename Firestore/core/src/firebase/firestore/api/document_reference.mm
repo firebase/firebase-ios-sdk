@@ -122,10 +122,10 @@ void DocumentReference::GetDocument(
     return;
   }
 
-  FSTListenOptions* options =
-      [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:true
-                                     includeDocumentMetadataChanges:true
-                                              waitForSyncWhenOnline:true];
+  ListenOptions options(
+      /*include_query_metadata_changes=*/true,
+      /*include_document_metadata_changes=*/true,
+      /*wait_for_sync_when_online=*/true);
 
   // TODO(varconst): replace with a synchronization primitive that doesn't
   // require libdispatch. See
@@ -173,12 +173,13 @@ void DocumentReference::GetDocument(
         }
       };
 
-  *listener_registration = AddSnapshotListener(std::move(listener), options);
+  *listener_registration =
+      AddSnapshotListener(std::move(listener), std::move(options));
   dispatch_semaphore_signal(registered);
 }
 
 id<FIRListenerRegistration> DocumentReference::AddSnapshotListener(
-    StatusOrCallback<DocumentSnapshot>&& listener, FSTListenOptions* options) {
+    StatusOrCallback<DocumentSnapshot>&& listener, ListenOptions options) {
   Firestore* firestore = firestore_;
   FSTQuery* query = [FSTQuery queryWithPath:key_.path()];
   DocumentKey key = key_;

@@ -78,14 +78,12 @@ ViewSnapshot ExcludingMetadataChanges(const ViewSnapshot &snapshot) {
 
 @implementation FSTQueryListenerTests {
   DelayedConstructor<ExecutorLibdispatch> _executor;
-  FSTListenOptions *_includeMetadataChanges;
+  ListenOptions _includeMetadataChanges;
 }
 
 - (void)setUp {
   _executor.Init(dispatch_queue_create("FSTQueryListenerTests Queue", DISPATCH_QUEUE_SERIAL));
-  _includeMetadataChanges = [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:YES
-                                                           includeDocumentMetadataChanges:YES
-                                                                    waitForSyncWhenOnline:NO];
+  _includeMetadataChanges = ListenOptions::FromIncludeMetadataChanges(true);
 }
 
 - (void)testRaisesCollectionEvents {
@@ -248,9 +246,10 @@ ViewSnapshot ExcludingMetadataChanges(const ViewSnapshot &snapshot) {
       FSTTestDoc("rooms/Eros", 1, @{@"name" : @"Eros"}, FSTDocumentStateSynced);
   FSTDocument *doc3 = FSTTestDoc("rooms/Other", 3, @{@"name" : @"Other"}, FSTDocumentStateSynced);
 
-  FSTListenOptions *options = [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:NO
-                                                             includeDocumentMetadataChanges:YES
-                                                                      waitForSyncWhenOnline:NO];
+  ListenOptions options(
+      /*include_query_metadata_changes=*/false,
+      /*include_document_metadata_changes=*/true,
+      /*wait_for_sync_when_online=*/false);
 
   FSTQueryListener *filteredListener = [self listenToQuery:query
                                      accumulatingSnapshots:&filteredAccum];
@@ -300,9 +299,10 @@ ViewSnapshot ExcludingMetadataChanges(const ViewSnapshot &snapshot) {
       FSTTestDoc("rooms/Hades", 2, @{@"name" : @"Hades"}, FSTDocumentStateSynced);
   FSTDocument *doc3 = FSTTestDoc("rooms/Other", 3, @{@"name" : @"Other"}, FSTDocumentStateSynced);
 
-  FSTListenOptions *options = [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:YES
-                                                             includeDocumentMetadataChanges:NO
-                                                                      waitForSyncWhenOnline:NO];
+  ListenOptions options(
+      /*include_query_metadata_changes=*/true,
+      /*include_document_metadata_changes=*/false,
+      /*wait_for_sync_when_online=*/false);
   FSTQueryListener *fullListener = [self listenToQuery:query
                                                options:options
                                  accumulatingSnapshots:&fullAccum];
@@ -373,12 +373,14 @@ ViewSnapshot ExcludingMetadataChanges(const ViewSnapshot &snapshot) {
   FSTQuery *query = FSTTestQuery("rooms");
   FSTDocument *doc1 = FSTTestDoc("rooms/Eros", 1, @{@"name" : @"Eros"}, FSTDocumentStateSynced);
   FSTDocument *doc2 = FSTTestDoc("rooms/Hades", 2, @{@"name" : @"Hades"}, FSTDocumentStateSynced);
-  FSTQueryListener *listener =
-      [self listenToQuery:query
-                        options:[[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:NO
-                                                               includeDocumentMetadataChanges:NO
-                                                                        waitForSyncWhenOnline:YES]
-          accumulatingSnapshots:&events];
+
+  ListenOptions options(
+      /*include_query_metadata_changes=*/false,
+      /*include_document_metadata_changes=*/false,
+      /*wait_for_sync_when_online=*/true);
+  FSTQueryListener *listener = [self listenToQuery:query
+                                           options:options
+                             accumulatingSnapshots:&events];
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
   ViewSnapshot snap1 = FSTTestApplyChanges(view, @[ doc1 ], absl::nullopt).value();
@@ -412,12 +414,15 @@ ViewSnapshot ExcludingMetadataChanges(const ViewSnapshot &snapshot) {
   FSTQuery *query = FSTTestQuery("rooms");
   FSTDocument *doc1 = FSTTestDoc("rooms/Eros", 1, @{@"name" : @"Eros"}, FSTDocumentStateSynced);
   FSTDocument *doc2 = FSTTestDoc("rooms/Hades", 2, @{@"name" : @"Hades"}, FSTDocumentStateSynced);
-  FSTQueryListener *listener =
-      [self listenToQuery:query
-                        options:[[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:NO
-                                                               includeDocumentMetadataChanges:NO
-                                                                        waitForSyncWhenOnline:YES]
-          accumulatingSnapshots:&events];
+
+  ListenOptions options(
+      /*include_query_metadata_changes=*/false,
+      /*include_document_metadata_changes=*/false,
+      /*wait_for_sync_when_online=*/true);
+
+  FSTQueryListener *listener = [self listenToQuery:query
+                                           options:options
+                             accumulatingSnapshots:&events];
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
   ViewSnapshot snap1 = FSTTestApplyChanges(view, @[ doc1 ], absl::nullopt).value();
@@ -457,7 +462,7 @@ ViewSnapshot ExcludingMetadataChanges(const ViewSnapshot &snapshot) {
 
   FSTQuery *query = FSTTestQuery("rooms");
   FSTQueryListener *listener = [self listenToQuery:query
-                                           options:[FSTListenOptions defaultOptions]
+                                           options:ListenOptions::DefaultOptions()
                              accumulatingSnapshots:&events];
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
@@ -483,7 +488,7 @@ ViewSnapshot ExcludingMetadataChanges(const ViewSnapshot &snapshot) {
 
   FSTQuery *query = FSTTestQuery("rooms");
   FSTQueryListener *listener = [self listenToQuery:query
-                                           options:[FSTListenOptions defaultOptions]
+                                           options:ListenOptions::DefaultOptions()
                              accumulatingSnapshots:&events];
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
@@ -505,12 +510,12 @@ ViewSnapshot ExcludingMetadataChanges(const ViewSnapshot &snapshot) {
 
 - (FSTQueryListener *)listenToQuery:(FSTQuery *)query handler:(ViewSnapshotHandler &&)handler {
   return [[FSTQueryListener alloc] initWithQuery:query
-                                         options:[FSTListenOptions defaultOptions]
+                                         options:ListenOptions::DefaultOptions()
                              viewSnapshotHandler:std::move(handler)];
 }
 
 - (FSTQueryListener *)listenToQuery:(FSTQuery *)query
-                            options:(FSTListenOptions *)options
+                            options:(ListenOptions)options
               accumulatingSnapshots:(std::vector<ViewSnapshot> *)values {
   return [[FSTQueryListener alloc] initWithQuery:query
                                          options:options
@@ -522,7 +527,7 @@ ViewSnapshot ExcludingMetadataChanges(const ViewSnapshot &snapshot) {
 - (FSTQueryListener *)listenToQuery:(FSTQuery *)query
               accumulatingSnapshots:(std::vector<ViewSnapshot> *)values {
   return [self listenToQuery:query
-                     options:[FSTListenOptions defaultOptions]
+                     options:ListenOptions::DefaultOptions()
        accumulatingSnapshots:values];
 }
 

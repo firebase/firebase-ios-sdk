@@ -19,6 +19,7 @@ cc_library(
     database_info.h
     filter.cc
     filter.h
+    listen_options.h
     target_id_generator.cc
     target_id_generator.h
     query.cc

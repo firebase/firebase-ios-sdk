@@ -25,6 +25,7 @@
 #include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
+#include "Firestore/core/src/firebase/firestore/core/listen_options.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
@@ -39,13 +40,14 @@
 @class FSTDatabaseID;
 @class FSTDatabaseInfo;
 @class FSTDocument;
-@class FSTListenOptions;
 @class FSTMutation;
 @class FSTQuery;
 @class FSTQueryListener;
 @class FSTTransaction;
 
 NS_ASSUME_NONNULL_BEGIN
+
+using firebase::firestore::core::ListenOptions;
 
 /**
  * FirestoreClient is a top-level class that constructs and owns all of the pieces of the client
@@ -80,7 +82,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Starts listening to a query. */
 - (FSTQueryListener *)listenToQuery:(FSTQuery *)query
-                            options:(FSTListenOptions *)options
+                            options:(ListenOptions)options
                 viewSnapshotHandler:
                     (firebase::firestore::core::ViewSnapshotHandler &&)viewSnapshotHandler;
 

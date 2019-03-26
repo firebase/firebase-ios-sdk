@@ -16,6 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
+#include "Firestore/core/src/firebase/firestore/core/listen_options.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
@@ -25,26 +26,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-#pragma mark - FSTListenOptions
-
-@interface FSTListenOptions : NSObject
-
-+ (instancetype)defaultOptions;
-
-- (instancetype)initWithIncludeQueryMetadataChanges:(BOOL)includeQueryMetadataChanges
-                     includeDocumentMetadataChanges:(BOOL)includeDocumentMetadataChanges
-                              waitForSyncWhenOnline:(BOOL)waitForSyncWhenOnline
-    NS_DESIGNATED_INITIALIZER;
-
-- (instancetype)init NS_UNAVAILABLE;
-
-@property(nonatomic, assign, readonly) BOOL includeQueryMetadataChanges;
-
-@property(nonatomic, assign, readonly) BOOL includeDocumentMetadataChanges;
-
-@property(nonatomic, assign, readonly) BOOL waitForSyncWhenOnline;
-
-@end
+using firebase::firestore::core::ListenOptions;
 
 #pragma mark - FSTQueryListener
 
@@ -55,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FSTQueryListener : NSObject
 
 - (instancetype)initWithQuery:(FSTQuery *)query
-                      options:(FSTListenOptions *)options
+                      options:(ListenOptions)options
           viewSnapshotHandler:(firebase::firestore::core::ViewSnapshotHandler &&)viewSnapshotHandler
     NS_DESIGNATED_INITIALIZER;
 
