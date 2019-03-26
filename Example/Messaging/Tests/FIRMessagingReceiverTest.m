@@ -47,6 +47,8 @@ NSString *const kFIRMessagingTestsReceiverSuiteName = @"com.messaging.test_recei
 }
 
 - (void)testUseMessagingDelegate {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   XCTAssertFalse(_messaging.useMessagingDelegateForDirectChannel);
 
   _messaging.useMessagingDelegateForDirectChannel = YES;
@@ -67,7 +69,7 @@ NSString *const kFIRMessagingTestsReceiverSuiteName = @"com.messaging.test_recei
   OCMStub([bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistUseMessagingDelegate])
       .andReturn(@YES);
   XCTAssertTrue(_messaging.useMessagingDelegateForDirectChannel);
-
+#pragma clang diagnostic pop
   [bundleMock stopMocking];
 }
 @end
