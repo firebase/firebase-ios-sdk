@@ -149,6 +149,8 @@
 		511DD2A92225C8C40094D78D /* FIRMessagingAnalyticsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE37C63A2163D5F30025D03E /* FIRMessagingAnalyticsTest.m */; };
 		511DD2AA2225C8D50094D78D /* FIRMessagingTestUtilities.h in Sources */ = {isa = PBXBuildFile; fileRef = EDF5242A21EA364600BB24C6 /* FIRMessagingTestUtilities.h */; };
 		511DD2AB2225C8D50094D78D /* FIRMessagingTestUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = EDF5242B21EA364600BB24C6 /* FIRMessagingTestUtilities.m */; };
+		51284D16224ABD6A00274321 /* FIRMessagingExtensionHelperTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 51284D15224ABD6A00274321 /* FIRMessagingExtensionHelperTest.m */; };
+		51284D17224ABE1E00274321 /* FIRMessagingExtensionHelperTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 51284D15224ABD6A00274321 /* FIRMessagingExtensionHelperTest.m */; };
 		518854D92230652900CA4141 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 518854D82230652900CA4141 /* AppDelegate.m */; };
 		518854DC2230652900CA4141 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 518854DB2230652900CA4141 /* ViewController.m */; };
 		518854DF2230652900CA4141 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 518854DD2230652900CA4141 /* Main.storyboard */; };
@@ -1068,6 +1070,7 @@
 		511DD27F2225C4D20094D78D /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		511DD2882225C5A80094D78D /* Messaging_Tests_tvOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Messaging_Tests_tvOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		511DD2AC2226005D0094D78D /* FirebaseMessaging.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = FirebaseMessaging.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		51284D15224ABD6A00274321 /* FIRMessagingExtensionHelperTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRMessagingExtensionHelperTest.m; sourceTree = "<group>"; };
 		518854D52230652900CA4141 /* InstanceID_Example_tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = InstanceID_Example_tvOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		518854D72230652900CA4141 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		518854D82230652900CA4141 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -2539,6 +2542,7 @@
 		DE9315C21E8738B70083EDBF /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				51284D15224ABD6A00274321 /* FIRMessagingExtensionHelperTest.m */,
 				DE8DB550221F5B470068BB0E /* FIRInstanceIDWithFCMTest.m */,
 				DE9315C81E8738B70083EDBF /* FIRMessagingFakeConnection.h */,
 				DE9315CA1E8738B70083EDBF /* FIRMessagingFakeSocket.h */,
@@ -3790,6 +3794,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 				Base,
 				"es-MX",
@@ -4307,6 +4312,7 @@
 				511DD2972225C8C40094D78D /* FIRMessagingCodedInputStreamTest.m in Sources */,
 				511DD2982225C8C40094D78D /* FIRMessagingConnectionTest.m in Sources */,
 				511DD2992225C8C40094D78D /* FIRMessagingContextManagerServiceTest.m in Sources */,
+				51284D17224ABE1E00274321 /* FIRMessagingExtensionHelperTest.m in Sources */,
 				511DD29A2225C8C40094D78D /* FIRMessagingDataMessageManagerTest.m in Sources */,
 				511DD29B2225C8C40094D78D /* FIRMessagingFakeConnection.m in Sources */,
 				511DD29C2225C8C40094D78D /* FIRMessagingFakeSocket.m in Sources */,
@@ -4937,6 +4943,7 @@
 				DE9315FF1E8738E60083EDBF /* FIRMessagingRemoteNotificationsProxyTest.m in Sources */,
 				DEF61BFD216E8B1100A738D4 /* FIRMessagingReceiverTest.m in Sources */,
 				DE9315F81E8738E60083EDBF /* FIRMessagingDataMessageManagerTest.m in Sources */,
+				51284D16224ABD6A00274321 /* FIRMessagingExtensionHelperTest.m in Sources */,
 				DE9316051E8738E60083EDBF /* FIRMessagingTestNotificationUtilities.m in Sources */,
 				DE37C63B2163D5F30025D03E /* FIRMessagingAnalyticsTest.m in Sources */,
 				DE9315F61E8738E60083EDBF /* FIRMessagingConnectionTest.m in Sources */,
