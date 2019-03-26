@@ -1,3 +1,6 @@
+# v3.4.3
+-Fixed an issue where matchesshortlinkformat was returning true for certain FDL long links.
+
 # v3.4.2
 - Fixes an issue with certain analytics attribution parameters not being recorded on an app install. (#2462)
 
