@@ -237,6 +237,12 @@
                                         <exclude reference="8qu-C8-A9u"/>
                                         <exclude reference="Ln4-8U-D7V"/>
                                         <exclude reference="MCf-U1-0tP"/>
+                                        <exclude reference="7vK-9V-j5H"/>
+                                        <exclude reference="9La-QV-ftg"/>
+                                        <exclude reference="Ait-Na-aVF"/>
+                                        <exclude reference="FTB-yV-c00"/>
+                                        <exclude reference="JJo-tI-mvn"/>
+                                        <exclude reference="RbZ-9Q-1S3"/>
                                         <exclude reference="0Fp-k2-48a"/>
                                         <exclude reference="Hm8-0s-RTs"/>
                                         <exclude reference="JUy-lx-oR6"/>
@@ -245,12 +251,6 @@
                                         <exclude reference="ivB-jb-LVl"/>
                                         <exclude reference="pyI-1U-ujR"/>
                                         <exclude reference="ysk-iC-Hz4"/>
-                                        <exclude reference="7vK-9V-j5H"/>
-                                        <exclude reference="9La-QV-ftg"/>
-                                        <exclude reference="Ait-Na-aVF"/>
-                                        <exclude reference="FTB-yV-c00"/>
-                                        <exclude reference="JJo-tI-mvn"/>
-                                        <exclude reference="RbZ-9Q-1S3"/>
                                         <exclude reference="RdS-Ao-GH0"/>
                                         <exclude reference="qgb-13-uT4"/>
                                         <exclude reference="CSN-TG-E9H"/>
@@ -261,12 +261,12 @@
                                 <variation key="heightClass=compact">
                                     <mask key="constraints">
                                         <include reference="MCf-U1-0tP"/>
-                                        <include reference="Hm8-0s-RTs"/>
-                                        <include reference="pyI-1U-ujR"/>
-                                        <include reference="ysk-iC-Hz4"/>
                                         <include reference="7vK-9V-j5H"/>
                                         <include reference="9La-QV-ftg"/>
                                         <include reference="Ait-Na-aVF"/>
+                                        <include reference="Hm8-0s-RTs"/>
+                                        <include reference="pyI-1U-ujR"/>
+                                        <include reference="ysk-iC-Hz4"/>
                                         <include reference="qgb-13-uT4"/>
                                         <include reference="xXr-od-zOM"/>
                                     </mask>
@@ -274,23 +274,23 @@
                                 <variation key="widthClass=regular">
                                     <mask key="constraints">
                                         <include reference="MCf-U1-0tP"/>
-                                        <include reference="Hm8-0s-RTs"/>
-                                        <include reference="ysk-iC-Hz4"/>
                                         <include reference="7vK-9V-j5H"/>
                                         <include reference="9La-QV-ftg"/>
                                         <include reference="Ait-Na-aVF"/>
+                                        <include reference="Hm8-0s-RTs"/>
+                                        <include reference="ysk-iC-Hz4"/>
                                         <include reference="qgb-13-uT4"/>
                                         <include reference="xXr-od-zOM"/>
                                     </mask>
                                 </variation>
                                 <variation key="heightClass=regular-widthClass=compact">
                                     <mask key="constraints">
-                                        <include reference="JUy-lx-oR6"/>
-                                        <include reference="Kec-yq-1Pz"/>
-                                        <include reference="bD7-OU-bEW"/>
                                         <include reference="FTB-yV-c00"/>
                                         <include reference="JJo-tI-mvn"/>
                                         <include reference="RbZ-9Q-1S3"/>
+                                        <include reference="JUy-lx-oR6"/>
+                                        <include reference="Kec-yq-1Pz"/>
+                                        <include reference="bD7-OU-bEW"/>
                                         <include reference="RdS-Ao-GH0"/>
                                         <include reference="CSN-TG-E9H"/>
                                         <include reference="YoE-KS-uWS"/>
@@ -389,8 +389,8 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Aft-rr-icV" userLabel="Card view" customClass="RoundedCornersView">
-                                <rect key="frame" x="67.666666666666686" y="67.666666666666686" width="240" height="240"/>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Aft-rr-icV" userLabel="Card view" customClass="RoundedCornersView">
+                                <rect key="frame" x="67.666666666666686" y="232" width="240" height="348"/>
                                 <subviews>
                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="gB0-8W-G9z">
                                         <rect key="frame" x="0.0" y="0.0" width="240" height="160"/>
@@ -433,18 +433,18 @@
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" scrollEnabled="NO" contentInsetAdjustmentBehavior="never" editable="NO" text="Label" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="elG-N9-aqH" userLabel="Body text view">
-                                        <rect key="frame" x="264" y="71.999999999999986" width="356" height="33"/>
+                                    <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" contentInsetAdjustmentBehavior="never" editable="NO" text="Label" textAlignment="natural" selectable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="elG-N9-aqH" userLabel="Body text view">
+                                        <rect key="frame" x="24" y="232" width="192" height="38"/>
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                                     </textView>
-                                    <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" horizontalCompressionResistancePriority="251" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aZE-3x-WHk" userLabel="Primary action button">
-                                        <rect key="frame" x="163" y="186" width="53" height="30"/>
+                                    <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" horizontalCompressionResistancePriority="251" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aZE-3x-WHk" userLabel="Primary action button">
+                                        <rect key="frame" x="163" y="294" width="53" height="30"/>
                                         <state key="normal" title="Primary"/>
                                     </button>
-                                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" horizontalCompressionResistancePriority="250" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Feg-VM-jUf" userLabel="Secondary action button">
-                                        <rect key="frame" x="65" y="186" width="74.000000000000014" height="30"/>
+                                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" horizontalCompressionResistancePriority="250" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Feg-VM-jUf" userLabel="Secondary action button">
+                                        <rect key="frame" x="64.999999999999986" y="294" width="74.000000000000014" height="30"/>
                                         <state key="normal" title="Secondary"/>
                                     </button>
                                 </subviews>

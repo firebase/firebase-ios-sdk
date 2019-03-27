@@ -53,7 +53,8 @@
 - (void)viewDidLoad {
   [super viewDidLoad];
   
-  self.bodyTextView.contentInset = UIEdgeInsetsMake(0, 0, 0, 0);
+  self.bodyTextView.contentInset = UIEdgeInsetsZero;
+  self.bodyTextView.textContainer.lineFragmentPadding = 0;
   
   // make the background half transparent
   [self.view setBackgroundColor:[UIColor.grayColor colorWithAlphaComponent:0.5]];
@@ -63,11 +64,15 @@
 
   [self.primaryActionButton setTitle:self.cardDisplayMessage.primaryActionButton.buttonText
                             forState:UIControlStateNormal];
+  [self.primaryActionButton setTitleColor:self.cardDisplayMessage.primaryActionButton.buttonTextColor
+                                 forState:UIControlStateNormal];
   
   if (self.cardDisplayMessage.secondaryActionButton) {
     self.secondaryActionButton.hidden = NO;
     [self.secondaryActionButton setTitle:self.cardDisplayMessage.secondaryActionButton.buttonText
                                 forState:UIControlStateNormal];
+    [self.secondaryActionButton setTitleColor:self.cardDisplayMessage.secondaryActionButton.buttonTextColor
+                                     forState:UIControlStateNormal];
   }
 }
 
@@ -82,9 +87,20 @@
     self.imageView.image = [UIImage imageWithData:self.cardDisplayMessage.portraitImageData.imageRawData];
   }
   
-  BOOL enableScrolling =
-      self.bodyTextView.frame.size.height < self.bodyTextView.contentSize.height;
-  self.bodyTextView.scrollEnabled = enableScrolling;
+  CGFloat textViewWidth = self.bodyTextView.frame.size.width;
+  CGFloat textHeight = [self determineTextAreaViewFitHeightForView:self.bodyTextView withWidth:textViewWidth];
+  self.bodyTextView.contentSize = CGSizeMake(textViewWidth, textHeight);
+  self.bodyTextView.scrollEnabled = textHeight > self.bodyTextView.frame.size.height;
+  
+  if (self.bodyTextView.scrollEnabled) {
+    [self.bodyTextView setContentOffset:CGPointZero animated:YES];
+  }
+}
+
+- (CGFloat)determineTextAreaViewFitHeightForView:(UIView *)textView
+                                       withWidth:(CGFloat)displayWidth {
+  CGSize displaySize = CGSizeMake(displayWidth, FLT_MAX);
+  return [textView sizeThatFits:displaySize].height;
 }
 
 @end
