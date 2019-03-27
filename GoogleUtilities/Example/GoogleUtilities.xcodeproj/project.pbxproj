@@ -13,6 +13,7 @@
 		6003F5B0195388D20070C39A /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F5AF195388D20070C39A /* XCTest.framework */; };
 		6003F5B1195388D20070C39A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F58D195388D20070C39A /* Foundation.framework */; };
 		6003F5B2195388D20070C39A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F591195388D20070C39A /* UIKit.framework */; };
+		9A7C37C2224BD9C600033B0D /* GULAppDelegateSwizzlerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EFBE67F92101401100E756A7 /* GULAppDelegateSwizzlerTest.m */; };
 		DE5CF98E20F686310063FFDD /* GULAppEnvironmentUtilTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5CF98C20F686290063FFDD /* GULAppEnvironmentUtilTest.m */; };
 		DE84BBC421D7EC900048A176 /* GULUserDefaultsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE84BBC321D7EC900048A176 /* GULUserDefaultsTests.m */; };
 		DE84BBC521D7EC900048A176 /* GULUserDefaultsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE84BBC321D7EC900048A176 /* GULUserDefaultsTests.m */; };
@@ -618,6 +619,7 @@
 				DEC977D920F68C3300014E20 /* GULNetworkTest.m in Sources */,
 				EFBE67FA2101401100E756A7 /* GULSwizzlerTest.m in Sources */,
 				EFBE67FD2101401100E756A7 /* GULObjectSwizzlerTest.m in Sources */,
+				9A7C37C2224BD9C600033B0D /* GULAppDelegateSwizzlerTest.m in Sources */,
 				EFBE67FE2101401100E756A7 /* GULRuntimeClassSnapshotTests.m in Sources */,
 				EFBE67FC2101401100E756A7 /* GULRuntimeClassDiffTests.m in Sources */,
 				DE5CF98E20F686310063FFDD /* GULAppEnvironmentUtilTest.m in Sources */,
