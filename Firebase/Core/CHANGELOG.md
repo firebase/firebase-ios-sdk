@@ -1,3 +1,8 @@
+# 2019-04-02 -- v5.4.1 -- M46
+- [changed] Avoid using NSRegularExpression in FIRApp.
+- [changed] Improve error meessage for invalid app names. (#2614)
+- [changed] FIRApp thread safety fixes. (#2639)
+
 # 2019-03-19 -- v5.4.0 -- M45
 - [changed] Allow Bundle IDs that have a valid prefix to enable richer extension support. (#2515)
 - [changed] Deprecated `FIRAnalyticsConfiguration` API in favor of new methods on the Analytics SDK.
