@@ -185,7 +185,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 
 - (BOOL)matchesDocument:(FSTDocument *)document {
   if (_field.IsKeyFieldPath()) {
-    HARD_ASSERT([self.value type] == FieldValue::Type::Reference,
+    HARD_ASSERT(self.value.type == FieldValue::Type::Reference,
                 "Comparing on key, but filter value not a FSTReferenceValue.");
     HARD_ASSERT(self.filterOperator != FSTRelationFilterOperatorArrayContains,
                 "arrayContains queries don't make sense on document keys.");
@@ -474,7 +474,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
     FSTSortOrder *sortOrderComponent = sortOrder[idx];
     NSComparisonResult comparison;
     if (sortOrderComponent.field == FieldPath::KeyFieldPath()) {
-      HARD_ASSERT([fieldValue type] == FieldValue::Type::Reference,
+      HARD_ASSERT(fieldValue.type == FieldValue::Type::Reference,
                   "FSTBound has a non-key value where the key path is being used %s", fieldValue);
       FSTReferenceValue *refValue = (FSTReferenceValue *)fieldValue;
       comparison = CompareKeys(refValue.value.key, document.key);
