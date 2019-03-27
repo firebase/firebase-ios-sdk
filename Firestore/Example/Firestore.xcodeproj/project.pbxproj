@@ -452,6 +452,20 @@
 			remoteGlobalIDString = DAFF0CF421E64AC30062958F;
 			remoteInfo = Firestore_Example_macOS;
 		};
+		54AA33AB224BFE0A006CE580 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6003F582195388D10070C39A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 54AA338E224BF935006CE580;
+			remoteInfo = Firestore_Example_tvOS;
+		};
+		54AA33B9224C0035006CE580 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6003F582195388D10070C39A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 54AA338E224BF935006CE580;
+			remoteInfo = Firestore_Example_tvOS;
+		};
 		54B8E4AF224BDC4100930F18 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 6003F582195388D10070C39A /* Project object */;
@@ -650,6 +664,8 @@
 		54AA339A224BF936006CE580 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		54AA339C224BF936006CE580 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		54AA339D224BF936006CE580 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		54AA33A6224BFE09006CE580 /* Firestore_Tests_tvOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Firestore_Tests_tvOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		54AA33B4224C0035006CE580 /* Firestore_IntegrationTests_tvOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Firestore_IntegrationTests_tvOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		54B8E4AA224BDC4100930F18 /* Firestore_IntegrationTests_macOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Firestore_IntegrationTests_macOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		54C2294E1FECABAE007D065B /* log_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = log_test.cc; sourceTree = "<group>"; };
 		54C9EDF12040E16300A969CD /* Firestore_SwiftTests_iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Firestore_SwiftTests_iOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -838,6 +854,20 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		54AA338C224BF935006CE580 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		54AA33A3224BFE09006CE580 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		54AA33B1224C0035006CE580 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1164,6 +1194,8 @@
 				6003F5AE195388D20070C39A /* Firestore_Tests_iOS.xctest */,
 				544AB1922248072200F851E6 /* Firestore_Tests_macOS.xctest */,
 				54AA338F224BF935006CE580 /* Firestore_Example_tvOS.app */,
+				54AA33A6224BFE09006CE580 /* Firestore_Tests_tvOS.xctest */,
+				54AA33B4224C0035006CE580 /* Firestore_IntegrationTests_tvOS.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1656,6 +1688,42 @@
 			productReference = 54AA338F224BF935006CE580 /* Firestore_Example_tvOS.app */;
 			productType = "com.apple.product-type.application";
 		};
+		54AA33A5224BFE09006CE580 /* Firestore_Tests_tvOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 54AA33AF224BFE0A006CE580 /* Build configuration list for PBXNativeTarget "Firestore_Tests_tvOS" */;
+			buildPhases = (
+				54AA33A2224BFE09006CE580 /* Sources */,
+				54AA33A3224BFE09006CE580 /* Frameworks */,
+				54AA33A4224BFE09006CE580 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				54AA33AC224BFE0A006CE580 /* PBXTargetDependency */,
+			);
+			name = Firestore_Tests_tvOS;
+			productName = Firestore_Tests_tvOS;
+			productReference = 54AA33A6224BFE09006CE580 /* Firestore_Tests_tvOS.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		54AA33B3224C0035006CE580 /* Firestore_IntegrationTests_tvOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 54AA33BB224C0035006CE580 /* Build configuration list for PBXNativeTarget "Firestore_IntegrationTests_tvOS" */;
+			buildPhases = (
+				54AA33B0224C0035006CE580 /* Sources */,
+				54AA33B1224C0035006CE580 /* Frameworks */,
+				54AA33B2224C0035006CE580 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				54AA33BA224C0035006CE580 /* PBXTargetDependency */,
+			);
+			name = Firestore_IntegrationTests_tvOS;
+			productName = Firestore_IntegrationTests_tvOS;
+			productReference = 54AA33B4224C0035006CE580 /* Firestore_IntegrationTests_tvOS.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		54B8E4A9224BDC4100930F18 /* Firestore_IntegrationTests_macOS */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 54B8E4B3224BDC4100930F18 /* Build configuration list for PBXNativeTarget "Firestore_IntegrationTests_macOS" */;
@@ -1835,6 +1903,16 @@
 						CreatedOnToolsVersion = 10.1;
 						ProvisioningStyle = Automatic;
 					};
+					54AA33A5224BFE09006CE580 = {
+						CreatedOnToolsVersion = 10.1;
+						ProvisioningStyle = Automatic;
+						TestTargetID = 54AA338E224BF935006CE580;
+					};
+					54AA33B3224C0035006CE580 = {
+						CreatedOnToolsVersion = 10.1;
+						ProvisioningStyle = Automatic;
+						TestTargetID = 54AA338E224BF935006CE580;
+					};
 					54B8E4A9224BDC4100930F18 = {
 						CreatedOnToolsVersion = 10.1;
 						ProvisioningStyle = Automatic;
@@ -1903,6 +1981,8 @@
 				544AB1912248072200F851E6 /* Firestore_Tests_macOS */,
 				54B8E4A9224BDC4100930F18 /* Firestore_IntegrationTests_macOS */,
 				54AA338E224BF935006CE580 /* Firestore_Example_tvOS */,
+				54AA33A5224BFE09006CE580 /* Firestore_Tests_tvOS */,
+				54AA33B3224C0035006CE580 /* Firestore_IntegrationTests_tvOS */,
 			);
 		};
 /* End PBXProject section */
@@ -1934,6 +2014,20 @@
 			files = (
 				54AA339B224BF936006CE580 /* Assets.xcassets in Resources */,
 				54AA3399224BF935006CE580 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		54AA33A4224BFE09006CE580 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		54AA33B2224C0035006CE580 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2612,6 +2706,20 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		54AA33A2224BFE09006CE580 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		54AA33B0224C0035006CE580 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		54B8E4A6224BDC4100930F18 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -2880,6 +2988,16 @@
 			isa = PBXTargetDependency;
 			target = DAFF0CF421E64AC30062958F /* Firestore_Example_macOS */;
 			targetProxy = 544AB1972248072200F851E6 /* PBXContainerItemProxy */;
+		};
+		54AA33AC224BFE0A006CE580 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 54AA338E224BF935006CE580 /* Firestore_Example_tvOS */;
+			targetProxy = 54AA33AB224BFE0A006CE580 /* PBXContainerItemProxy */;
+		};
+		54AA33BA224C0035006CE580 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 54AA338E224BF935006CE580 /* Firestore_Example_tvOS */;
+			targetProxy = 54AA33B9224C0035006CE580 /* PBXContainerItemProxy */;
 		};
 		54B8E4B0224BDC4100930F18 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -3171,6 +3289,112 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
 				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 12.1;
+			};
+			name = Release;
+		};
+		54AA33AD224BFE0A006CE580 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = Firestore_Tests_tvOS/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Firestore-Tests-tvOS";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				TARGETED_DEVICE_FAMILY = 3;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Firestore_Example_tvOS.app/Firestore_Example_tvOS";
+				TVOS_DEPLOYMENT_TARGET = 12.1;
+			};
+			name = Debug;
+		};
+		54AA33AE224BFE0A006CE580 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = Firestore_Tests_tvOS/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Firestore-Tests-tvOS";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				TARGETED_DEVICE_FAMILY = 3;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Firestore_Example_tvOS.app/Firestore_Example_tvOS";
+				TVOS_DEPLOYMENT_TARGET = 12.1;
+			};
+			name = Release;
+		};
+		54AA33BC224C0035006CE580 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = Firestore_IntegrationTests_tvOS/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Firestore-IntegrationTests-tvOS";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				TARGETED_DEVICE_FAMILY = 3;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Firestore_Example_tvOS.app/Firestore_Example_tvOS";
+				TVOS_DEPLOYMENT_TARGET = 12.1;
+			};
+			name = Debug;
+		};
+		54AA33BD224C0035006CE580 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = Firestore_IntegrationTests_tvOS/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Firestore-IntegrationTests-tvOS";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				TARGETED_DEVICE_FAMILY = 3;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Firestore_Example_tvOS.app/Firestore_Example_tvOS";
 				TVOS_DEPLOYMENT_TARGET = 12.1;
 			};
 			name = Release;
@@ -4166,6 +4390,24 @@
 			buildConfigurations = (
 				54AA339F224BF936006CE580 /* Debug */,
 				54AA33A0224BF936006CE580 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		54AA33AF224BFE0A006CE580 /* Build configuration list for PBXNativeTarget "Firestore_Tests_tvOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				54AA33AD224BFE0A006CE580 /* Debug */,
+				54AA33AE224BFE0A006CE580 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		54AA33BB224C0035006CE580 /* Build configuration list for PBXNativeTarget "Firestore_IntegrationTests_tvOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				54AA33BC224C0035006CE580 /* Debug */,
+				54AA33BD224C0035006CE580 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
