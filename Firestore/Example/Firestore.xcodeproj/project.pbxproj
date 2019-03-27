@@ -203,6 +203,11 @@
 		54A0352F20A3B3D8003E0143 /* status_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54A0352C20A3B3D7003E0143 /* status_test.cc */; };
 		54A0353020A3B3D8003E0143 /* statusor_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54A0352D20A3B3D7003E0143 /* statusor_test.cc */; };
 		54A0353520A3D8CB003E0143 /* iterator_adaptors_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54A0353420A3D8CB003E0143 /* iterator_adaptors_test.cc */; };
+		54AA3393224BF935006CE580 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 54AA3392224BF935006CE580 /* AppDelegate.m */; };
+		54AA3396224BF935006CE580 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 54AA3395224BF935006CE580 /* ViewController.m */; };
+		54AA3399224BF935006CE580 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 54AA3397224BF935006CE580 /* Main.storyboard */; };
+		54AA339B224BF936006CE580 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 54AA339A224BF936006CE580 /* Assets.xcassets */; };
+		54AA339E224BF936006CE580 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 54AA339D224BF936006CE580 /* main.m */; };
 		54C2294F1FECABAE007D065B /* log_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54C2294E1FECABAE007D065B /* log_test.cc */; };
 		54D400D42148BACE001D2BCC /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 54D400D32148BACE001D2BCC /* GoogleService-Info.plist */; };
 		54DA12A61F315EE100DD57A1 /* collection_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 54DA129C1F315EE100DD57A1 /* collection_spec_test.json */; };
@@ -636,6 +641,15 @@
 		54A0352C20A3B3D7003E0143 /* status_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = status_test.cc; sourceTree = "<group>"; };
 		54A0352D20A3B3D7003E0143 /* statusor_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = statusor_test.cc; sourceTree = "<group>"; };
 		54A0353420A3D8CB003E0143 /* iterator_adaptors_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = iterator_adaptors_test.cc; sourceTree = "<group>"; };
+		54AA338F224BF935006CE580 /* Firestore_Example_tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Firestore_Example_tvOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		54AA3391224BF935006CE580 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		54AA3392224BF935006CE580 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		54AA3394224BF935006CE580 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		54AA3395224BF935006CE580 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		54AA3398224BF935006CE580 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		54AA339A224BF936006CE580 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		54AA339C224BF936006CE580 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		54AA339D224BF936006CE580 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		54B8E4AA224BDC4100930F18 /* Firestore_IntegrationTests_macOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Firestore_IntegrationTests_macOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		54C2294E1FECABAE007D065B /* log_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = log_test.cc; sourceTree = "<group>"; };
 		54C9EDF12040E16300A969CD /* Firestore_SwiftTests_iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Firestore_SwiftTests_iOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -823,6 +837,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		54AA338C224BF935006CE580 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		54B8E4A7224BDC4100930F18 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -907,6 +928,7 @@
 			children = (
 				6003F593195388D20070C39A /* iOS */,
 				DAFF0CF621E64AC30062958F /* macOS */,
+				54AA3390224BF935006CE580 /* tvOS */,
 				54D400D32148BACE001D2BCC /* GoogleService-Info.plist */,
 			);
 			path = App;
@@ -1057,6 +1079,21 @@
 			path = local;
 			sourceTree = "<group>";
 		};
+		54AA3390224BF935006CE580 /* tvOS */ = {
+			isa = PBXGroup;
+			children = (
+				54AA3391224BF935006CE580 /* AppDelegate.h */,
+				54AA3392224BF935006CE580 /* AppDelegate.m */,
+				54AA3394224BF935006CE580 /* ViewController.h */,
+				54AA3395224BF935006CE580 /* ViewController.m */,
+				54AA3397224BF935006CE580 /* Main.storyboard */,
+				54AA339A224BF936006CE580 /* Assets.xcassets */,
+				54AA339C224BF936006CE580 /* Info.plist */,
+				54AA339D224BF936006CE580 /* main.m */,
+			);
+			path = tvOS;
+			sourceTree = "<group>";
+		};
 		54C9EDF22040E16300A969CD /* SwiftTests */ = {
 			isa = PBXGroup;
 			children = (
@@ -1126,6 +1163,7 @@
 				54C9EDF12040E16300A969CD /* Firestore_SwiftTests_iOS.xctest */,
 				6003F5AE195388D20070C39A /* Firestore_Tests_iOS.xctest */,
 				544AB1922248072200F851E6 /* Firestore_Tests_macOS.xctest */,
+				54AA338F224BF935006CE580 /* Firestore_Example_tvOS.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1601,6 +1639,23 @@
 			productReference = 544AB1922248072200F851E6 /* Firestore_Tests_macOS.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		54AA338E224BF935006CE580 /* Firestore_Example_tvOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 54AA33A1224BF936006CE580 /* Build configuration list for PBXNativeTarget "Firestore_Example_tvOS" */;
+			buildPhases = (
+				54AA338B224BF935006CE580 /* Sources */,
+				54AA338C224BF935006CE580 /* Frameworks */,
+				54AA338D224BF935006CE580 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Firestore_Example_tvOS;
+			productName = Firestore_Example_tvOS;
+			productReference = 54AA338F224BF935006CE580 /* Firestore_Example_tvOS.app */;
+			productType = "com.apple.product-type.application";
+		};
 		54B8E4A9224BDC4100930F18 /* Firestore_IntegrationTests_macOS */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 54B8E4B3224BDC4100930F18 /* Build configuration list for PBXNativeTarget "Firestore_IntegrationTests_macOS" */;
@@ -1776,6 +1831,10 @@
 						ProvisioningStyle = Automatic;
 						TestTargetID = DAFF0CF421E64AC30062958F;
 					};
+					54AA338E224BF935006CE580 = {
+						CreatedOnToolsVersion = 10.1;
+						ProvisioningStyle = Automatic;
+					};
 					54B8E4A9224BDC4100930F18 = {
 						CreatedOnToolsVersion = 10.1;
 						ProvisioningStyle = Automatic;
@@ -1788,15 +1847,18 @@
 					};
 					5CAE131820FFFED600BE9A4A = {
 						CreatedOnToolsVersion = 9.3.1;
+						DevelopmentTeam = EQHXZ8M8AV;
 						ProvisioningStyle = Automatic;
 						TestTargetID = 6003F589195388D20070C39A;
 					};
 					6003F5AD195388D20070C39A = {
 						CreatedOnToolsVersion = 9.0;
+						DevelopmentTeam = EQHXZ8M8AV;
 						TestTargetID = 6003F589195388D20070C39A;
 					};
 					6EDD3AD120BF247500C33877 = {
 						CreatedOnToolsVersion = 9.0;
+						DevelopmentTeam = EQHXZ8M8AV;
 					};
 					DAFF0CF421E64AC30062958F = {
 						CreatedOnToolsVersion = 10.0;
@@ -1809,9 +1871,11 @@
 					};
 					DE03B2941F2149D600A30B9C = {
 						CreatedOnToolsVersion = 9.0;
+						DevelopmentTeam = EQHXZ8M8AV;
 					};
 					DE29E7F51F2174B000909613 = {
 						CreatedOnToolsVersion = 9.0;
+						DevelopmentTeam = EQHXZ8M8AV;
 					};
 				};
 			};
@@ -1838,6 +1902,7 @@
 				DAFF0CF421E64AC30062958F /* Firestore_Example_macOS */,
 				544AB1912248072200F851E6 /* Firestore_Tests_macOS */,
 				54B8E4A9224BDC4100930F18 /* Firestore_IntegrationTests_macOS */,
+				54AA338E224BF935006CE580 /* Firestore_Example_tvOS */,
 			);
 		};
 /* End PBXProject section */
@@ -1860,6 +1925,15 @@
 				546877DF2248206A005E3DE0 /* remote_store_spec_test.json in Resources */,
 				546877E02248206A005E3DE0 /* resume_token_spec_test.json in Resources */,
 				546877E12248206A005E3DE0 /* write_spec_test.json in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		54AA338D224BF935006CE580 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				54AA339B224BF936006CE580 /* Assets.xcassets in Resources */,
+				54AA3399224BF935006CE580 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2528,6 +2602,16 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		54AA338B224BF935006CE580 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				54AA3396224BF935006CE580 /* ViewController.m in Sources */,
+				54AA339E224BF936006CE580 /* main.m in Sources */,
+				54AA3393224BF935006CE580 /* AppDelegate.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		54B8E4A6224BDC4100930F18 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -2845,6 +2929,14 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
+		54AA3397224BF935006CE580 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				54AA3398224BF935006CE580 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
 		6003F596195388D20070C39A /* InfoPlist.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -3027,6 +3119,59 @@
 				SDKROOT = macosx;
 				SYSTEM_HEADER_SEARCH_PATHS = "\"${PODS_ROOT}/nanopb\"";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Firestore_Example_macOS.app/Contents/MacOS/Firestore_Example_macOS";
+			};
+			name = Release;
+		};
+		54AA339F224BF936006CE580 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = Firestore_Example_tvOS/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Firestore-Example-tvOS";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 12.1;
+			};
+			name = Debug;
+		};
+		54AA33A0224BF936006CE580 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = Firestore_Example_tvOS/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Firestore-Example-tvOS";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 12.1;
 			};
 			name = Release;
 		};
@@ -4012,6 +4157,15 @@
 			buildConfigurations = (
 				544AB1992248072200F851E6 /* Debug */,
 				544AB19A2248072200F851E6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		54AA33A1224BF936006CE580 /* Build configuration list for PBXNativeTarget "Firestore_Example_tvOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				54AA339F224BF936006CE580 /* Debug */,
+				54AA33A0224BF936006CE580 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
