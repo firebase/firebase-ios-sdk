@@ -46,6 +46,23 @@
   return cardVC;
 }
 
+- (IBAction)primaryActionButtonTapped:(id)sender {
+  if (self.cardDisplayMessage.primaryActionURL) {
+    [self followActionURL];
+  } else {
+    [self dismissView:FIRInAppMessagingDismissTypeUserTapClose];
+  }
+}
+
+- (IBAction)secondaryActionButtonTapped:(id)sender {
+  if (!self.cardDisplayMessage.secondaryActionURL) {
+    [self dismissView:FIRInAppMessagingDismissTypeUserTapClose];
+  } else {
+    // Follow secondary Action URL.
+  }
+}
+
+
 - (FIRInAppMessagingDisplayMessage *)inAppMessage {
   return self.cardDisplayMessage;
 }
@@ -60,6 +77,8 @@
   [self.view setBackgroundColor:[UIColor.grayColor colorWithAlphaComponent:0.5]];
   
   self.titleLabel.text = self.cardDisplayMessage.title;
+  self.titleLabel.textColor = self.cardDisplayMessage.textColor;
+  
   self.bodyTextView.text = self.cardDisplayMessage.body;
 
   [self.primaryActionButton setTitle:self.cardDisplayMessage.primaryActionButton.buttonText

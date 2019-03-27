@@ -442,10 +442,16 @@
                                     <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" horizontalCompressionResistancePriority="251" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aZE-3x-WHk" userLabel="Primary action button">
                                         <rect key="frame" x="163" y="294" width="53" height="30"/>
                                         <state key="normal" title="Primary"/>
+                                        <connections>
+                                            <action selector="primaryActionButtonTapped:" destination="oTF-1C-LZP" eventType="touchUpInside" id="Jk0-dp-Qgj"/>
+                                        </connections>
                                     </button>
                                     <button hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" horizontalCompressionResistancePriority="250" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Feg-VM-jUf" userLabel="Secondary action button">
                                         <rect key="frame" x="64.999999999999986" y="294" width="74.000000000000014" height="30"/>
                                         <state key="normal" title="Secondary"/>
+                                        <connections>
+                                            <action selector="secondaryActionButtonTapped:" destination="oTF-1C-LZP" eventType="touchUpInside" id="jCJ-3T-fim"/>
+                                        </connections>
                                     </button>
                                 </subviews>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>

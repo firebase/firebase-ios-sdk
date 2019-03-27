@@ -44,6 +44,7 @@
                       triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
                         titleText:(NSString *)title
                          bodyText:(nullable NSString *)body
+                        textColor:(UIColor *)textColor
                 portraitImageData:(FIRInAppMessagingImageData *)portraitImageData
                landscapeImageData:(nullable FIRInAppMessagingImageData *)landscapeImageData
                   backgroundColor:(UIColor *)backgroundColor
@@ -58,6 +59,7 @@
                           triggerType:triggerType]) {
     _title = title;
     _body = body;
+    _textColor = textColor;
     _portraitImageData = portraitImageData;
     _landscapeImageData = landscapeImageData;
     _displayBackgroundColor = backgroundColor;

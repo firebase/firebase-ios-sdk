@@ -388,10 +388,10 @@
   }
 
   FIRInAppMessagingActionButton *secondaryActionButton = nil;
-  if (definition.renderData.contentData.actionButtonText) {
+  if (definition.renderData.contentData.secondaryActionButtonText) {
     secondaryActionButton = [[FIRInAppMessagingActionButton alloc]
         initWithButtonText:renderData.contentData.secondaryActionButtonText
-           buttonTextColor:renderData.renderingEffectSettings.btnTextColor
+           buttonTextColor:renderData.renderingEffectSettings.secondaryActionBtnTextColor
            backgroundColor:renderData.renderingEffectSettings.btnBGColor];
   }
 
@@ -402,6 +402,7 @@
                 triggerType:triggerType
                   titleText:title
                    bodyText:body
+                  textColor:renderData.renderingEffectSettings.textColor
           portraitImageData:portraitImageData
          landscapeImageData:landscapeImageData
             backgroundColor:renderData.renderingEffectSettings.displayBGColor

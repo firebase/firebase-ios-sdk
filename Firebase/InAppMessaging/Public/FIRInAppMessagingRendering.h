@@ -110,6 +110,10 @@ NS_SWIFT_NAME(InAppMessagingCardDisplay)
 
 @property(nonatomic, nonnull, copy, readonly) NSString *title;
 @property(nonatomic, nullable, copy, readonly) NSString *body;
+/**
+ * Gets the color for text in card FIAM message. It applies to both title and body text.
+ */
+@property(nonatomic, copy, nonnull) UIColor *textColor;
 @property(nonatomic, nonnull, copy, readonly) FIRInAppMessagingImageData *portraitImageData;
 @property(nonatomic, nullable, copy, readonly) FIRInAppMessagingImageData *landscapeImageData;
 @property(nonatomic, copy, nonnull) UIColor *displayBackgroundColor;
@@ -125,6 +129,7 @@ NS_SWIFT_NAME(InAppMessagingCardDisplay)
                       triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
                         titleText:(NSString *)title
                          bodyText:(nullable NSString *)body
+                         textColor:(UIColor *)textColor
                 portraitImageData:(FIRInAppMessagingImageData *)portraitImageData
                landscapeImageData:(nullable FIRInAppMessagingImageData *)landscapeImageData
                   backgroundColor:(UIColor *)backgroundColor

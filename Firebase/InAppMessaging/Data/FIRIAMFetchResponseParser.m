@@ -178,7 +178,7 @@
 
     NSDictionary *content = (NSDictionary *)contentNode;
     FIRIAMRenderingMode mode;
-    UIColor *viewCardBackgroundColor, *btnBgColor, *btnTxtColor, *titleTextColor;
+    UIColor *viewCardBackgroundColor, *btnBgColor, *btnTxtColor, *secondaryBtnTxtColor, *titleTextColor;
     viewCardBackgroundColor = btnBgColor = btnTxtColor = titleTextColor = nil;
 
     NSString *title, *body, *imageURLStr, *landscapeImageURLStr, *actionURLStr, *secondaryActionURLStr,
@@ -233,7 +233,7 @@
       mode = FIRIAMRenderAsCardView;
       NSDictionary *cardNode = (NSDictionary *)contentNode[@"card"];
       title = cardNode[@"title"][@"text"];
-      titleTextColor = [UIColor blackColor];
+      titleTextColor = [UIColor firiam_colorWithHexString:cardNode[@"title"][@"hexColor"]];
       
       body = cardNode[@"body"][@"text"];
       
@@ -243,7 +243,10 @@
       viewCardBackgroundColor = [UIColor firiam_colorWithHexString:@"backgroundHexColor"];
       
       actionButtonText = cardNode[@"primaryActionButton"][@"text"][@"text"];
+      btnTxtColor = [UIColor firiam_colorWithHexString:cardNode[@"primaryActionButton"][@"text"][@"hexColor"]];
+      
       secondaryActionButtonText = cardNode[@"secondaryActionButton"][@"text"][@"text"];
+      secondaryBtnTxtColor = [UIColor firiam_colorWithHexString:cardNode[@"secondaryActionButton"][@"text"][@"hexColor"]];
       
       actionURLStr = cardNode[@"primaryAction"][@"actionUrl"];
       secondaryActionURLStr = cardNode[@"secondaryAction"][@"actionUrl"];
@@ -282,6 +285,10 @@
 
     if (btnTxtColor) {
       renderEffect.btnTextColor = btnTxtColor;
+    }
+    
+    if (secondaryBtnTxtColor) {
+      renderEffect.secondaryActionBtnTextColor = secondaryBtnTxtColor;
     }
 
     if (titleTextColor) {
