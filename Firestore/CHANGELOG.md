@@ -1,4 +1,7 @@
 # Unreleased
+
+# 1.2.0
+- [feature] Added community support for macOS (#434).
 - [fixed] Fixed the way gRPC certificates are loaded on macOS (#2604).
 
 # 1.1.0

@@ -34,6 +34,7 @@
 #include "Firestore/core/src/firebase/firestore/api/firestore.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
@@ -42,6 +43,7 @@ using firebase::firestore::api::DocumentSnapshot;
 using firebase::firestore::api::Firestore;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::FieldValue;
 using firebase::firestore::util::WrapNSString;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -185,11 +187,11 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
 }
 
 - (id)convertedValue:(FSTFieldValue *)value options:(FSTFieldValueOptions *)options {
-  if ([value isKindOfClass:[FSTObjectValue class]]) {
+  if (value.type == FieldValue::Type::Object) {
     return [self convertedObject:(FSTObjectValue *)value options:options];
-  } else if ([value isKindOfClass:[FSTArrayValue class]]) {
+  } else if (value.type == FieldValue::Type::Array) {
     return [self convertedArray:(FSTArrayValue *)value options:options];
-  } else if ([value isKindOfClass:[FSTReferenceValue class]]) {
+  } else if (value.type == FieldValue::Type::Reference) {
     FSTReferenceValue *ref = (FSTReferenceValue *)value;
     const DatabaseId *refDatabase = ref.databaseID;
     const DatabaseId *database = &_snapshot.firestore()->database_id();

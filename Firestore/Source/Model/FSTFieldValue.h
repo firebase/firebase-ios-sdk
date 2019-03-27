@@ -21,6 +21,9 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/model/field_value.h"
+
+using firebase::firestore::model::FieldValue;
 
 @class FSTDocumentKey;
 @class FIRTimestamp;
@@ -85,8 +88,14 @@ enum class ServerTimestampBehavior { None, Estimate, Previous };
  */
 @interface FSTFieldValue<__covariant T> : NSObject
 
+/**
+ * Returns the 'type' of this FSTFieldValue. Used for RTTI (rather than isKindOfClass)
+ * to ease migration to C++.
+ */
+@property(nonatomic, assign, readonly) FieldValue::Type type;
+
 /** Returns the FSTTypeOrder for this value. */
-- (FSTTypeOrder)typeOrder;
+@property(nonatomic, assign, readonly) FSTTypeOrder typeOrder;
 
 /**
  * Converts an FSTFieldValue into the value that users will see in document snapshots.
