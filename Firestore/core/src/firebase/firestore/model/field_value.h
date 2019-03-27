@@ -80,6 +80,14 @@ class FieldValue {
     // position instead, see the doc comment above.
   };
 
+  /**
+   * Checks if the given type is a numeric, such as Type::Integer or
+   * Type::Double.
+   */
+  static bool IsNumber(Type type) {
+    return type == Type::Integer || type == Type::Double;
+  }
+
   FieldValue() {
   }
 

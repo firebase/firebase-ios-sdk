@@ -70,6 +70,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTFieldValue
 
+@dynamic type;
+@dynamic typeOrder;
+
 - (FieldValue::Type)type {
   @throw FSTAbstractMethodException();  // NOLINT
 }
