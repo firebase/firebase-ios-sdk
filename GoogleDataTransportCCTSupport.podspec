@@ -39,12 +39,13 @@ Support library to provide event prioritization and uploading for the GoogleData
       # (or larger) fields, so we'd have to set at least PB_FIELD_16BIT
       # anyways.)
       'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',
-  }
+  }  
 
   # Test specs
   s.test_spec 'Tests-Unit' do |test_spec|
     test_spec.requires_app_host = false
     test_spec.source_files = 'GoogleDataTransportCCTSupport/Tests/Unit/**/*.{h,m}'
+    test_spec.resources = ['GoogleDataTransportCCTSupport/Tests/Data/**/*']
   end
 
 end
