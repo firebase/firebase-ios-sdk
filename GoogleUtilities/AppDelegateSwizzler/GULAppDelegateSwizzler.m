@@ -407,19 +407,28 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
       [NSValue valueWithPointer:didFailToRegisterForRemoteNotificationsIMP];
 
   // For application:didReceiveRemoteNotification:fetchCompletionHandler:
+  NSValue *didReceiveRemoteNotificationWithCompletionIMPPointer;
   SEL didReceiveRemoteNotificationWithCompletionSEL =
       @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:);
-  [GULAppDelegateSwizzler
-      addInstanceMethodWithSelector:didReceiveRemoteNotificationWithCompletionSEL
-                          fromClass:[GULAppDelegateSwizzler class]
-                            toClass:appDelegateSubClass];
-  GULRealDidReceiveRemoteNotificationWithCompletionIMP
-      didReceiveRemoteNotificationWithCompletionIMP =
-          (GULRealDidReceiveRemoteNotificationWithCompletionIMP)[GULAppDelegateSwizzler
-              implementationOfMethodSelector:didReceiveRemoteNotificationWithCompletionSEL
-                                   fromClass:realClass];
-  NSValue *didReceiveRemoteNotificationWithCompletionIMPPointer =
-      [NSValue valueWithPointer:didReceiveRemoteNotificationWithCompletionIMP];
+  if ([anObject respondsToSelector:didReceiveRemoteNotificationWithCompletionSEL]) {
+    // Only add the application:didReceiveRemoteNotification:fetchCompletionHandler: method if
+    // the original AppDelegate implements it.
+    // This fixes a bug if an app only implements application:didReceiveRemoteNotification:
+    // (if we add the method with completion, iOS sees that one exists and does not call
+    // the method without the completion, which in this case is the only one the app implements).
+
+    [GULAppDelegateSwizzler
+        addInstanceMethodWithSelector:didReceiveRemoteNotificationWithCompletionSEL
+                            fromClass:[GULAppDelegateSwizzler class]
+                              toClass:appDelegateSubClass];
+    GULRealDidReceiveRemoteNotificationWithCompletionIMP
+        didReceiveRemoteNotificationWithCompletionIMP =
+            (GULRealDidReceiveRemoteNotificationWithCompletionIMP)[GULAppDelegateSwizzler
+                implementationOfMethodSelector:didReceiveRemoteNotificationWithCompletionSEL
+                                     fromClass:realClass];
+    didReceiveRemoteNotificationWithCompletionIMPPointer =
+        [NSValue valueWithPointer:didReceiveRemoteNotificationWithCompletionIMP];
+  }
 
   // For application:didReceiveRemoteNotification:
   SEL didReceiveRemoteNotificationSEL = @selector(application:didReceiveRemoteNotification:);
