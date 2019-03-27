@@ -292,7 +292,8 @@ NS_SWIFT_NAME(InAppMessagingDisplayDelegate)
  * @param inAppMessage the message that was clicked.
  * @param actionURL the URL for the action that was cliked.
  */
-- (void)messageClicked:(FIRInAppMessagingDisplayMessage *)inAppMessage action:(FIRInAppMessagingActionButton *)actionURL;
+- (void)messageClicked:(FIRInAppMessagingDisplayMessage *)inAppMessage
+             actionURL:(FIRInAppMessagingActionButton *)actionURL;
 
 /**
  * Use this to mark a message as having gone through enough impression so that
