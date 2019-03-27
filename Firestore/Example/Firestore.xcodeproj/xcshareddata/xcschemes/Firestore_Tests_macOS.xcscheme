@@ -26,16 +26,6 @@
                referenceType = "1">
             </LocationScenarioReference>
          </TestableReference>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "54B8E4A9224BDC4100930F18"
-               BuildableName = "Firestore_IntegrationTests_macOS.xctest"
-               BlueprintName = "Firestore_IntegrationTests_macOS"
-               ReferencedContainer = "container:Firestore.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference
@@ -78,15 +68,6 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "DAFF0CF421E64AC30062958F"
-            BuildableName = "Firestore_Example_macOS.app"
-            BlueprintName = "Firestore_Example_macOS"
-            ReferencedContainer = "container:Firestore.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">
