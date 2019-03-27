@@ -243,6 +243,15 @@ static BOOL gRespondsToHandleBackgroundSession;
   XCTAssertTrue([realAppDelegate
       respondsToSelector:@selector(application:
                              handleEventsForBackgroundURLSession:completionHandler:)]);
+  XCTAssertTrue([realAppDelegate
+      respondsToSelector:@selector(application:didRegisterForRemoteNotificationsWithDeviceToken:)]);
+  XCTAssertTrue([realAppDelegate
+      respondsToSelector:@selector(application:didFailToRegisterForRemoteNotificationsWithError:)]);
+  XCTAssertTrue([realAppDelegate
+      respondsToSelector:@selector(application:
+                             didReceiveRemoteNotification:fetchCompletionHandler:)]);
+  XCTAssertTrue([realAppDelegate respondsToSelector:@selector(application:
+                                                        didReceiveRemoteNotification:)]);
   // Make sure that the class has changed.
   XCTAssertNotEqualObjects([realAppDelegate class], realAppDelegateClassBefore);
 
