@@ -47,11 +47,12 @@
 }
 
 #pragma mark - FIRInAppMessagingDisplayDelegate methods
-- (void)messageClicked:(FIRInAppMessagingDisplayMessage *)inAppMessage {
+- (void)messageClicked:(FIRInAppMessagingDisplayMessage *)inAppMessage
+             actionURL:(nonnull NSURL *)actionURL {
   // Call through to app-side delegate.
   __weak id<FIRInAppMessagingDisplayDelegate> appSideDelegate = self.inAppMessaging.delegate;
-  if ([appSideDelegate respondsToSelector:@selector(messageClicked:)]) {
-    [appSideDelegate messageClicked:inAppMessage];
+  if ([appSideDelegate respondsToSelector:@selector(messageClicked:actionURL:)]) {
+    [appSideDelegate messageClicked:inAppMessage actionURL:actionURL];
   }
 
   self.isMsgBeingDisplayed = NO;
@@ -103,8 +104,6 @@
                                     success ? @"succeeded" : @"failed");
                       }];
   }
-
-  NSURL *actionURL = _currentMsgBeingDisplayed.renderData.contentData.actionURL;
 
   if (!actionURL) {
     FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400033",

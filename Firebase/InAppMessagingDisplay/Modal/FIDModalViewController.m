@@ -102,7 +102,7 @@ static CGFloat LandScapePaddingBetweenImageAndTextColumn = 24;
 }
 
 - (IBAction)actionButtonTapped:(id)sender {
-  [self followActionURL];
+  [self followActionURL:self.modalDisplayMessage.actionURL];
 }
 
 - (void)viewDidLoad {

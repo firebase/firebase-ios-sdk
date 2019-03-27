@@ -73,7 +73,7 @@
 }
 
 - (void)messageTapped:(UITapGestureRecognizer *)recognizer {
-  [self followActionURL];
+  [self followActionURL:self.imageOnlyMessage.actionURL];
 }
 
 - (void)viewDidLoad {

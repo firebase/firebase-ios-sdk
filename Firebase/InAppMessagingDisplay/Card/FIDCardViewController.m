@@ -48,17 +48,17 @@
 
 - (IBAction)primaryActionButtonTapped:(id)sender {
   if (self.cardDisplayMessage.primaryActionURL) {
-    [self followActionURL];
+    [self followActionURL:self.cardDisplayMessage.primaryActionURL];
   } else {
     [self dismissView:FIRInAppMessagingDismissTypeUserTapClose];
   }
 }
 
 - (IBAction)secondaryActionButtonTapped:(id)sender {
-  if (!self.cardDisplayMessage.secondaryActionURL) {
-    [self dismissView:FIRInAppMessagingDismissTypeUserTapClose];
+  if (self.cardDisplayMessage.secondaryActionURL) {
+    [self followActionURL:self.cardDisplayMessage.secondaryActionURL];
   } else {
-    // Follow secondary Action URL.
+    [self dismissView:FIRInAppMessagingDismissTypeUserTapClose];
   }
 }
 
