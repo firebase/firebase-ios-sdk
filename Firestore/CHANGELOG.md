@@ -1,4 +1,5 @@
 # Unreleased
+- [feature] Added community support for tvOS.
 
 # 1.2.0
 - [feature] Added community support for macOS (#434).
