@@ -78,13 +78,12 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
                           value:(FSTFieldValue *)value {
   if ([value isEqual:[FSTNullValue nullValue]]) {
     if (op != FSTRelationFilterOperatorEqual) {
-      ThrowInvalidArgument(
-          "Invalid Query. You can only perform equality comparisons on nil / NSNull.");
+      ThrowInvalidArgument("Invalid Query. Nil and NSNull only support equality comparisons.");
     }
     return [[FSTNullFilter alloc] initWithField:field];
   } else if ([value isEqual:[FSTDoubleValue nanValue]]) {
     if (op != FSTRelationFilterOperatorEqual) {
-      ThrowInvalidArgument("Invalid Query. You can only perform equality comparisons on NaN.");
+      ThrowInvalidArgument("Invalid Query. NaN only supports equality comparisons.");
     }
     return [[FSTNanFilter alloc] initWithField:field];
   } else {

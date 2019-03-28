@@ -627,7 +627,7 @@ NS_ASSUME_NONNULL_BEGIN
       NSString *documentID = (NSString *)rawValue;
       if (![self.query isCollectionGroupQuery] && [documentID containsString:@"/"]) {
         ThrowInvalidArgument("Invalid query. When querying a collection and ordering by document "
-                             "ID, you must pass a plain document ID, but '%@' contains a slash.",
+                             "ID, you must pass a plain document ID, but '%s' contains a slash.",
                              documentID);
       }
       ResourcePath path = self.query.path.Append(ResourcePath::FromString([documentID UTF8String]));

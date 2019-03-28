@@ -30,13 +30,8 @@ namespace {
 
 template <typename T>
 [[noreturn]] void Throw(const char* kind, const T& error) {
-#ifdef ABSL_HAVE_EXCEPTIONS
-  (void)kind;
-  throw error;
-#else
   LOG_ERROR(ERROR, "%s: %s", kind, error.what());
-  abort();
-#endif
+  std::abort();
 }
 
 }  // namespace

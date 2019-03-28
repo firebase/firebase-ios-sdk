@@ -74,9 +74,9 @@ enum LogLevel {
 #define LOG_ERROR(...)                                         \
   do {                                                         \
     namespace _util = firebase::firestore::util;               \
-    if (_util::LogIsLoggable(_util::kLogLevelWarning)) {       \
+    if (_util::LogIsLoggable(_util::kLogLevelError)) {         \
       std::string _message = _util::StringFormat(__VA_ARGS__); \
-      _util::LogMessage(_util::kLogLevelWarning, _message);    \
+      _util::LogMessage(_util::kLogLevelError, _message);      \
     }                                                          \
   } while (0)
 

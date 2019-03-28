@@ -89,7 +89,7 @@ static const BOOL kDefaultTimestampsInSnapshotsEnabled = YES;
 
 - (void)setHost:(NSString *)host {
   if (!host) {
-    ThrowInvalidArgument("host setting may not be nil. You should generally just use the default "
+    ThrowInvalidArgument("Host setting may not be nil. You should generally just use the default "
                          "value (which is %s)",
                          kDefaultHost);
   }
@@ -99,7 +99,7 @@ static const BOOL kDefaultTimestampsInSnapshotsEnabled = YES;
 - (void)setDispatchQueue:(dispatch_queue_t)dispatchQueue {
   if (!dispatchQueue) {
     ThrowInvalidArgument(
-        "dispatch queue setting may not be nil. Create a new dispatch queue with "
+        "Dispatch queue setting may not be nil. Create a new dispatch queue with "
         "dispatch_queue_create(\"com.example.MyQueue\", NULL) or just use the default (which is "
         "the main queue, returned from dispatch_get_main_queue())");
   }

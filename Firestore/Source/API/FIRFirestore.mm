@@ -128,7 +128,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
                          "to use the default FirebaseApp instance.");
   }
   if (!database) {
-    ThrowInvalidArgument("database identifier may not be nil. Use '%s' if you want the default "
+    ThrowInvalidArgument("Database identifier may not be nil. Use '%s' if you want the default "
                          "database",
                          DatabaseId::kDefault);
   }

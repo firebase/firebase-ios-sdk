@@ -74,7 +74,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FIRFirestore *)firestoreForDatabase:(NSString *)database {
   if (!database) {
-    ThrowInvalidArgument("database identifier may not be nil.");
+    ThrowInvalidArgument("Database identifier may not be nil.");
   }
 
   NSString *key = [NSString stringWithFormat:@"%@|%@", self.app.name, database];

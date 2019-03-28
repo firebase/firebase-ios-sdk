@@ -177,7 +177,7 @@ void ParseContext::ValidatePathSegment(absl::string_view segment) const {
   if (write() && absl::StartsWith(segment, designator) &&
       absl::EndsWith(segment, designator)) {
     ThrowInvalidArgument("Document fields cannot begin and end with %s%s",
-                         RESERVED_FIELD_DESIGNATOR, FieldDescription().c_str());
+                         RESERVED_FIELD_DESIGNATOR, FieldDescription());
   }
 }
 
