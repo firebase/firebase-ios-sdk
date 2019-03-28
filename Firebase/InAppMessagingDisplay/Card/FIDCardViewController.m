@@ -48,7 +48,10 @@
 
 - (IBAction)primaryActionButtonTapped:(id)sender {
   if (self.cardDisplayMessage.primaryActionURL) {
-    [self followActionURL:self.cardDisplayMessage.primaryActionURL];
+    FIRInAppMessagingAction *primaryAction =
+        [[FIRInAppMessagingAction alloc] initWithActionText:self.cardDisplayMessage.primaryActionButton.buttonText
+                                                  actionURL:self.cardDisplayMessage.primaryActionURL];
+    [self followAction:primaryAction];
   } else {
     [self dismissView:FIRInAppMessagingDismissTypeUserTapClose];
   }
@@ -56,7 +59,10 @@
 
 - (IBAction)secondaryActionButtonTapped:(id)sender {
   if (self.cardDisplayMessage.secondaryActionURL) {
-    [self followActionURL:self.cardDisplayMessage.secondaryActionURL];
+    FIRInAppMessagingAction *secondaryAction =
+        [[FIRInAppMessagingAction alloc] initWithActionText:self.cardDisplayMessage.secondaryActionButton.buttonText
+                                                  actionURL:self.cardDisplayMessage.secondaryActionURL];
+    [self followAction:secondaryAction];
   } else {
     [self dismissView:FIRInAppMessagingDismissTypeUserTapClose];
   }

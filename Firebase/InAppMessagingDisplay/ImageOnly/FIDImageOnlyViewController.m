@@ -73,7 +73,10 @@
 }
 
 - (void)messageTapped:(UITapGestureRecognizer *)recognizer {
-  [self followActionURL:self.imageOnlyMessage.actionURL];
+  FIRInAppMessagingAction *action =
+      [[FIRInAppMessagingAction alloc] initWithActionText:nil
+                                                actionURL:self.imageOnlyMessage.actionURL];
+  [self followAction:action];
 }
 
 - (void)viewDidLoad {

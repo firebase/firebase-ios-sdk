@@ -87,6 +87,22 @@ NS_SWIFT_NAME(InAppMessagingImageData)
 
 @end
 
+/** Defines the metadata for a FIAM action.
+ */
+@interface FIRInAppMessagingAction : NSObject
+
+/*
+ * The text of the action button, if applicable.
+ */
+@property(nonatomic, nullable, copy, readonly) NSString *actionText;
+@property(nonatomic, nonnull, copy, readonly) NSURL *actionURL;
+
+- (instancetype)init NS_UNAVAILABLE;
+- (instancetype)initWithActionText:(nullable NSString *)actionText
+                         actionURL:(NSURL *)actionURL;
+
+@end
+
 /**
  * Base class representing a FIAM message to be displayed. Don't create instance
  * of this class directly. Instantiate one of its subclasses instead.
@@ -290,10 +306,10 @@ NS_SWIFT_NAME(InAppMessagingDisplayDelegate)
 /**
  * Called when the message's action button is followed by the user.
  * @param inAppMessage the message that was clicked.
- * @param actionURL the URL for the action that was cliked.
+ * @param action the URL for the action that was clicked.
  */
 - (void)messageClicked:(FIRInAppMessagingDisplayMessage *)inAppMessage
-             actionURL:(NSURL *)actionURL;
+            withAction:(FIRInAppMessagingAction *)action;
 
 /**
  * Use this to mark a message as having gone through enough impression so that

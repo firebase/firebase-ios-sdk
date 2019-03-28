@@ -48,11 +48,11 @@
 
 #pragma mark - FIRInAppMessagingDisplayDelegate methods
 - (void)messageClicked:(FIRInAppMessagingDisplayMessage *)inAppMessage
-             actionURL:(nonnull NSURL *)actionURL {
+            withAction:(FIRInAppMessagingAction *)action {
   // Call through to app-side delegate.
   __weak id<FIRInAppMessagingDisplayDelegate> appSideDelegate = self.inAppMessaging.delegate;
-  if ([appSideDelegate respondsToSelector:@selector(messageClicked:actionURL:)]) {
-    [appSideDelegate messageClicked:inAppMessage actionURL:actionURL];
+  if ([appSideDelegate respondsToSelector:@selector(messageClicked:withAction:)]) {
+    [appSideDelegate messageClicked:inAppMessage withAction:action];
   }
 
   self.isMsgBeingDisplayed = NO;
@@ -105,6 +105,8 @@
                       }];
   }
 
+  NSURL *actionURL = action.actionURL;
+  
   if (!actionURL) {
     FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400033",
                 @"messageClicked called but "
