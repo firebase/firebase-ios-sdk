@@ -67,6 +67,7 @@
   }
   gdt_cct_BatchedLogRequest batch;
   XCTAssertNoThrow((batch = GDTCCTConstructBatchedLogRequest(@{@"1018" : storedEvents})));
+  pb_release(gdt_cct_BatchedLogRequest_fields, &batch);
 }
 
 /** Tests encoding a batched log request generates bytes equivalent to canonical protobuf. */
