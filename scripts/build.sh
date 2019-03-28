@@ -303,7 +303,8 @@ case "$product-$method-$platform" in
         -workspace 'Firestore/Example/Firestore.xcworkspace' \
         -scheme "Firestore_IntegrationTests_$platform" \
         "${xcb_flags[@]}" \
-        build
+        build \
+        test
     ;;
 
   Firestore-xcodebuild-macOS)
