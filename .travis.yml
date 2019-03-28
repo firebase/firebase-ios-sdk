@@ -235,3 +235,4 @@ jobs:
 branches:
   only:
     - master
+    - wilhuff/firestore-secrets
