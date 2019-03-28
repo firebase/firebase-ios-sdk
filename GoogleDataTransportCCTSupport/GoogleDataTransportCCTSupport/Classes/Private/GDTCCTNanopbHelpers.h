@@ -79,21 +79,21 @@ gdt_cct_LogRequest GDTCCTConstructLogRequest(int32_t logSource, NSSet<GDTStoredE
  * @param event The GDTStoredEvent to convert.
  * @return The new gdt_cct_LogEvent object.
  */
-FOUNDATION_EXPORT
+FOUNDATION_EXTERN
 gdt_cct_LogEvent GDTCCTConstructLogEvent(GDTStoredEvent *event);
 
 /** Constructs a gdt_cct_ClientInfo representing the client device.
  *
  * @return The new gdt_cct_ClientInfo object.
  */
-FOUNDATION_EXPORT
+FOUNDATION_EXTERN
 gdt_cct_ClientInfo GDTCCTConstructClientInfo(void);
 
 /** Constructs a gdt_cct_IosClientInfo representing the client device.
  *
  * @return The new gdt_cct_IosClientInfo object.
  */
-FOUNDATION_EXPORT
+FOUNDATION_EXTERN
 gdt_cct_IosClientInfo GDTCCTConstructiOSClientInfo(void);
 
 #pragma mark - CCT object decoders
@@ -105,7 +105,7 @@ gdt_cct_IosClientInfo GDTCCTConstructiOSClientInfo(void);
  * @param data The proto bytes of the gdt_cct_LogResponse.
  * @return A newly allocated gdt_cct_LogResponse from the data, if the bytes decoded properly.
  */
-FOUNDATION_EXPORT
+FOUNDATION_EXTERN
 gdt_cct_LogResponse GDTCCTDecodeLogResponse(NSData *data);
 
 NS_ASSUME_NONNULL_END
