@@ -168,8 +168,6 @@ if [[ -n "${SANITIZERS:-}" ]]; then
   done
 fi
 
-set -x
-
 # Travis sets TRAVIS_PULL_REQUEST to true or false depending which kind of
 # build it is. Handle both not-pull-request and interactive builds together.
 if [ "${TRAVIS_PULL_REQUEST:-}" != "false" ]; then
