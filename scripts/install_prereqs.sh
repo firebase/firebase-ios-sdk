@@ -31,7 +31,7 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     # Set up GoogleService-Info.plist for Storage and Database integration tests. The decrypting
     # is not supported for pull requests. See https://docs.travis-ci.com/user/encrypting-files/
     if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
-      openssl aes-256-cbc -K $encrypted_824e27188cd5_key -iv $encrypted_824e27188cd5_iv \
+      openssl aes-256-cbc -K $encrypted_d03dc241e43c_key -iv $encrypted_d03dc241e43c_iv \
       -in scripts/travis-encrypted/Secrets.tar.enc \
       -out scripts/travis-encrypted/Secrets.tar -d
 
