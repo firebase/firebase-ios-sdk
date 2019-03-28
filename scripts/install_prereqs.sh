@@ -44,6 +44,8 @@ case "$PROJECT-$PLATFORM-$METHOD" in
       cp Secrets/Auth/Sample/Sample.entitlements Example/Auth/Sample/Sample.entitlements
       cp Secrets/Auth/ApiTests/AuthCredentials.h Example/Auth/ApiTests/AuthCredentials.h
 
+      cp Secrets/Firestore/App/GoogleService-Info.plist Firestore/Example/App/GoogleService-Info.plist
+
       cp Secrets/Storage/App/GoogleService-Info.plist Example/Storage/App/GoogleService-Info.plist
       cp Secrets/Storage/App/GoogleService-Info.plist Example/Database/App/GoogleService-Info.plist
     fi
