@@ -65,7 +65,7 @@
     XCTAssertNotNil(fileURL);
     [storedEvents addObject:[_generator generateStoredEvent:GDTEventQosDefault fileURL:fileURL]];
   }
-  gdt_cct_BatchedLogRequest batch;
+  gdt_cct_BatchedLogRequest batch = gdt_cct_BatchedLogRequest_init_default;
   XCTAssertNoThrow((batch = GDTCCTConstructBatchedLogRequest(@{@"1018" : storedEvents})));
   pb_release(gdt_cct_BatchedLogRequest_fields, &batch);
 }
@@ -91,12 +91,12 @@
 }
 
 /** Tests that the bytes generated are decodable. */
-- (void)testByteEquivalenceToCanonicalProto {
+- (void)testBytesAreDecodable {
   NSArray<GDTStoredEvent *> *storedEventsA = [self.generator generateTheFiveConsistentStoredEvents];
   NSSet<GDTStoredEvent *> *storedEvents = [NSSet setWithArray:storedEventsA];
   gdt_cct_BatchedLogRequest batch = GDTCCTConstructBatchedLogRequest(@{@"1018" : storedEvents});
   NSData *encodedBatchLogRequest = GDTCCTEncodeBatchedLogRequest(&batch);
-  gdt_cct_BatchedLogRequest decodedBatch;
+  gdt_cct_BatchedLogRequest decodedBatch = gdt_cct_BatchedLogRequest_init_default;
   pb_istream_t istream =
       pb_istream_from_buffer([encodedBatchLogRequest bytes], [encodedBatchLogRequest length]);
   XCTAssertTrue(pb_decode(&istream, gdt_cct_BatchedLogRequest_fields, &decodedBatch));
