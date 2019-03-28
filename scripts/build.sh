@@ -168,6 +168,14 @@ if [[ -n "${SANITIZERS:-}" ]]; then
   done
 fi
 
+# Travis sets TRAVIS_PULL_REQUEST to true or false depending which kind of
+# build it is. Handle both not-pull-request and interactive builds together.
+if [ "${TRAVIS_PULL_REQUEST:-}" != "false" ]; then
+  xcb_integration_targets=(build test)
+else
+  xcb_integration_targets=(build)
+fi
+
 case "$product-$method-$platform" in
   Firebase-xcodebuild-*)
     RunXcodebuild \
@@ -303,8 +311,7 @@ case "$product-$method-$platform" in
         -workspace 'Firestore/Example/Firestore.xcworkspace' \
         -scheme "Firestore_IntegrationTests_$platform" \
         "${xcb_flags[@]}" \
-        build \
-        test
+        "${xcb_integration_targets[@]}"
     ;;
 
   Firestore-xcodebuild-macOS)
