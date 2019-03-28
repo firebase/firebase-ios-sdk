@@ -1066,7 +1066,8 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
             [[FIROAuthCredential alloc] initWithProviderID:verifyAssertion.providerID
                                                    IDToken:verifyAssertion.oauthIDToken
                                                accessToken:verifyAssertion.oauthAccessToken
-                                              pendingToken:verifyAssertion.pendingToken];
+                                              pendingToken:verifyAssertion.pendingToken
+                                                    secret:verifyAssertion.oauthSecretToken];
       }
       email = verifyAssertion.email;
     }

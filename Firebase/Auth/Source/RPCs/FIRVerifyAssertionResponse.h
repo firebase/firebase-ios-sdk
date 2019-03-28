@@ -196,6 +196,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, strong, readonly, nullable) NSString *oauthAccessToken;
 
+/** @property oauthSecretToken
+    @brief The secret for the OpenID OAuth extention.
+ */
+@property(nonatomic, readonly, nullable) NSString *oauthSecretToken;
+
 /** @property pendingToken
     @brief The pending ID Token string.
  */

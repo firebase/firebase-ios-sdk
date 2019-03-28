@@ -40,12 +40,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithProviderID:(NSString *)providerID
                            IDToken:(nullable NSString *)IDToken
                        accessToken:(nullable NSString *)accessToken
-                      pendingToken:(nullable NSString *)pendingToken {
+                      pendingToken:(nullable NSString *)pendingToken
+                            secret:(nullable NSString *)secret {
   self = [super initWithProvider:providerID];
   if (self) {
     _IDToken = IDToken;
     _accessToken = accessToken;
     _pendingToken = pendingToken;
+    _secret = secret;
   }
   return self;
 }
@@ -53,7 +55,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithProviderID:(NSString *)providerID
                          sessionID:(NSString *)sessionID
             OAuthResponseURLString:(NSString *)OAuthResponseURLString {
-  self = [self initWithProviderID:providerID IDToken:nil accessToken:nil pendingToken:nil];
+  self =
+      [self initWithProviderID:providerID IDToken:nil accessToken:nil pendingToken:nil secret:nil];
   if (self) {
     _OAuthResponseURLString = OAuthResponseURLString;
     _sessionID = sessionID;
@@ -76,10 +79,12 @@ NS_ASSUME_NONNULL_BEGIN
   NSString *IDToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"IDToken"];
   NSString *accessToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"accessToken"];
   NSString *pendingToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"pendingToken"];
+  NSString *secret = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"secret"];
   self = [self initWithProviderID:self.provider
                           IDToken:IDToken
                       accessToken:accessToken
-                     pendingToken:pendingToken];
+                     pendingToken:pendingToken
+                           secret:secret];
   return self;
 }
 
@@ -87,6 +92,7 @@ NS_ASSUME_NONNULL_BEGIN
   [aCoder encodeObject:self.IDToken forKey:@"IDToken"];
   [aCoder encodeObject:self.accessToken forKey:@"accessToken"];
   [aCoder encodeObject:self.pendingToken forKey:@"pendingToken"];
+  [aCoder encodeObject:self.secret forKey:@"secret"];
 }
 
 @end

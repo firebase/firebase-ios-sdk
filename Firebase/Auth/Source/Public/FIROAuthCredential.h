@@ -41,6 +41,11 @@ NS_SWIFT_NAME(OAuthCredential)
  */
 @property(nonatomic, readonly, nullable) NSString *pendingToken;
 
+/** @property secret
+    @brief The OAuth secret associated with this credential.
+ */
+@property(nonatomic, readonly, nullable) NSString *secret;
+
 /** @fn init
     @brief This class is not supposed to be instantiated directly.
  */

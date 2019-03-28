@@ -81,6 +81,24 @@ NS_SWIFT_NAME(OAuthProvider)
     @param accessToken The accessstoken associated with the Auth credential be created, if
         available.
     @param pendingToken The pending token used when completing the headful-lite flow.
+    @param secret The secret used when completing the headful-lite flow.
+    @return A FIRAuthCredential for the specified provider ID, ID token and access token.
+ */
++ (FIROAuthCredential *)credentialWithProviderID:(NSString *)providerID
+                                         IDToken:(NSString *)IDToken
+                                     accessToken:(nullable NSString *)accessToken
+                                    pendingToken:(nullable NSString *)pendingToken
+                                          secret:(nullable NSString *)secret;
+
+/** @fn credentialWithProviderID:IDToken:accessToken:
+    @brief Creates an `FIRAuthCredential` for that OAuth 2 provider identified by providerID, ID
+        token and access token.
+
+    @param providerID The provider ID associated with the Auth credential being created.
+    @param IDToken The IDToken associated with the Auth credential being created.
+    @param accessToken The accessstoken associated with the Auth credential be created, if
+        available.
+    @param pendingToken The pending token used when completing the headful-lite flow.
     @return A FIRAuthCredential for the specified provider ID, ID token and access token.
  */
 + (FIROAuthCredential *)credentialWithProviderID:(NSString *)providerID
