@@ -96,7 +96,9 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
   self.willPresentWasCalled = YES;
 }
 #if TARGET_OS_IOS
-- (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler {
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center
+didReceiveNotificationResponse:(UNNotificationResponse *)response
+         withCompletionHandler:(void (^)(void))completionHandler {
   self.didReceiveResponseWasCalled = YES;
 }
 #endif // TARGET_OS_IOS
@@ -346,9 +348,9 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
   id mockNotification = [self userNotificationWithMessage:message];
   OCMStub([mockNotificationResponse notification]).andReturn(mockNotification);
   return mockNotificationResponse;
-#else
+#else // TARGET_OS_IOS
   return nil;
-#endif
+#endif // TARGET_OS_IOS
 }
 
 - (UNNotification *)userNotificationWithMessage:(NSDictionary *)message {
