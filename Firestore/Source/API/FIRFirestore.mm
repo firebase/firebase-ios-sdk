@@ -32,9 +32,9 @@
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FSTFirestoreComponent.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
-#import "Firestore/Source/Util/FSTUsageValidation.h"
 
 #include "Firestore/core/src/firebase/firestore/api/firestore.h"
+#include "Firestore/core/src/firebase/firestore/api/input_validation.h"
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
@@ -46,6 +46,8 @@
 namespace util = firebase::firestore::util;
 using firebase::firestore::api::DocumentReference;
 using firebase::firestore::api::Firestore;
+using firebase::firestore::api::ThrowIllegalState;
+using firebase::firestore::api::ThrowInvalidArgument;
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::util::AsyncQueue;
@@ -109,9 +111,8 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 + (instancetype)firestore {
   FIRApp *app = [FIRApp defaultApp];
   if (!app) {
-    FSTThrowInvalidUsage(@"FIRAppNotConfiguredException",
-                         @"Failed to get FirebaseApp instance. Please call FirebaseApp.configure() "
-                         @"before using Firestore");
+    ThrowIllegalState("Failed to get FirebaseApp instance. Please call FirebaseApp.configure() "
+                      "before using Firestore");
   }
   return [self firestoreForApp:app database:util::WrapNSString(DatabaseId::kDefault)];
 }
@@ -123,13 +124,13 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 // TODO(b/62410906): make this public
 + (instancetype)firestoreForApp:(FIRApp *)app database:(NSString *)database {
   if (!app) {
-    FSTThrowInvalidArgument(@"FirebaseApp instance may not be nil. Use FirebaseApp.app() if you'd "
-                             "like to use the default FirebaseApp instance.");
+    ThrowInvalidArgument("FirebaseApp instance may not be nil. Use FirebaseApp.app() if you'd like "
+                         "to use the default FirebaseApp instance.");
   }
   if (!database) {
-    FSTThrowInvalidArgument(@"database identifier may not be nil. Use '%s' if you want the default "
-                             "database",
-                            DatabaseId::kDefault);
+    ThrowInvalidArgument("database identifier may not be nil. Use '%s' if you want the default "
+                         "database",
+                         DatabaseId::kDefault);
   }
 
   id<FSTFirestoreMultiDBProvider> provider =
@@ -182,11 +183,10 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 
 - (FIRCollectionReference *)collectionWithPath:(NSString *)collectionPath {
   if (!collectionPath) {
-    FSTThrowInvalidArgument(@"Collection path cannot be nil.");
+    ThrowInvalidArgument("Collection path cannot be nil.");
   }
   if ([collectionPath containsString:@"//"]) {
-    FSTThrowInvalidArgument(@"Invalid path (%@). Paths must not contain // in them.",
-                            collectionPath);
+    ThrowInvalidArgument("Invalid path (%s). Paths must not contain // in them.", collectionPath);
   }
 
   return _firestore->GetCollection(util::MakeString(collectionPath));
@@ -194,10 +194,10 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 
 - (FIRDocumentReference *)documentWithPath:(NSString *)documentPath {
   if (!documentPath) {
-    FSTThrowInvalidArgument(@"Document path cannot be nil.");
+    ThrowInvalidArgument("Document path cannot be nil.");
   }
   if ([documentPath containsString:@"//"]) {
-    FSTThrowInvalidArgument(@"Invalid path (%@). Paths must not contain // in them.", documentPath);
+    ThrowInvalidArgument("Invalid path (%s). Paths must not contain // in them.", documentPath);
   }
 
   DocumentReference documentReference = _firestore->GetDocument(util::MakeString(documentPath));
@@ -215,9 +215,9 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
   // We wrap the function they provide in order to use internal implementation classes for
   // transaction, and to run the user callback block on the proper queue.
   if (!updateBlock) {
-    FSTThrowInvalidArgument(@"Transaction block cannot be nil.");
+    ThrowInvalidArgument("Transaction block cannot be nil.");
   } else if (!completion) {
-    FSTThrowInvalidArgument(@"Transaction completion block cannot be nil.");
+    ThrowInvalidArgument("Transaction completion block cannot be nil.");
   }
 
   _firestore->RunTransaction(updateBlock, queue, completion);
@@ -275,11 +275,11 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 
 - (FIRQuery *)collectionGroupWithID:(NSString *)collectionID {
   if (!collectionID) {
-    FSTThrowInvalidArgument(@"Collection ID cannot be nil.");
+    ThrowInvalidArgument("Collection ID cannot be nil.");
   }
   if ([collectionID containsString:@"/"]) {
-    FSTThrowInvalidArgument(
-        @"Invalid collection ID (%@). Collection IDs must not contain / in them.", collectionID);
+    ThrowInvalidArgument("Invalid collection ID (%s). Collection IDs must not contain / in them.",
+                         collectionID);
   }
 
   return _firestore->GetCollectionGroup(collectionID);

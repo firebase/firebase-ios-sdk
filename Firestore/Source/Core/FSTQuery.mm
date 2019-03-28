@@ -24,8 +24,8 @@
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Util/FSTClasses.h"
-#import "Firestore/Source/Util/FSTUsageValidation.h"
 
+#include "Firestore/core/src/firebase/firestore/api/input_validation.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
@@ -35,6 +35,7 @@
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::api::ThrowInvalidArgument;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::FieldValue;
@@ -77,15 +78,13 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
                           value:(FSTFieldValue *)value {
   if ([value isEqual:[FSTNullValue nullValue]]) {
     if (op != FSTRelationFilterOperatorEqual) {
-      FSTThrowInvalidUsage(@"InvalidQueryException",
-                           @"Invalid Query. You can only perform equality comparisons on nil / "
-                            "NSNull.");
+      ThrowInvalidArgument(
+          "Invalid Query. You can only perform equality comparisons on nil / NSNull.");
     }
     return [[FSTNullFilter alloc] initWithField:field];
   } else if ([value isEqual:[FSTDoubleValue nanValue]]) {
     if (op != FSTRelationFilterOperatorEqual) {
-      FSTThrowInvalidUsage(@"InvalidQueryException",
-                           @"Invalid Query. You can only perform equality comparisons on NaN.");
+      ThrowInvalidArgument("Invalid Query. You can only perform equality comparisons on NaN.");
     }
     return [[FSTNanFilter alloc] initWithField:field];
   } else {
