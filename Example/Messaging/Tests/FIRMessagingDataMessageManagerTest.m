@@ -108,7 +108,6 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
                error:[OCMArg anyObjectRef]];
 
   // should be logged into the service
-  [self addFakeFIRMessagingRegistrationToken];
   [self.dataMessageManager setDeviceAuthID:@"auth-id" secretToken:@"secret-token"];
   // try to send messages with no connection should be queued into RMQ
   NSMutableDictionary *message = [self upstreamMessageWithID:messageID ttl:-1 delay:0];
@@ -158,7 +157,6 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
                           }]]);
 
   // should be logged into the service
-  [self addFakeFIRMessagingRegistrationToken];
   [self.dataMessageManager setDeviceAuthID:@"auth-id" secretToken:@"secret-token"];
   [self.dataMessageManager sendDataMessageStanza:message];
 
@@ -187,7 +185,6 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
                             return NO;
                           }]]);
 
-  [self addFakeFIRMessagingRegistrationToken];
   // should be logged into the service
   [self.dataMessageManager setDeviceAuthID:@"auth-id" secretToken:@"secret-token"];
   [self.dataMessageManager sendDataMessageStanza:message];
@@ -215,7 +212,6 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
 
   // should be logged into the service
   [self.dataMessageManager setDeviceAuthID:@"auth-id" secretToken:@"secret-token"];
-  [self addFakeFIRMessagingRegistrationToken];
   [self.dataMessageManager sendDataMessageStanza:message];
 
   OCMVerifyAll(self.mockReceiver);
@@ -240,7 +236,6 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
   OCMExpect([self.mockClient sendMessage:[OCMArg checkWithBlock:isValidStanza]]);
 
   [self.dataMessageManager setDeviceAuthID:@"auth-id" secretToken:@"secret-token"];
-  [self addFakeFIRMessagingRegistrationToken];
   [self.dataMessageManager sendDataMessageStanza:message];
 
   OCMVerifyAll(self.mockClient);
@@ -276,7 +271,6 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
   OCMExpect([self.mockClient retryConnectionImmediately:[OCMArg isEqual:@YES]]);
 
   [self.dataMessageManager setDeviceAuthID:@"auth-id" secretToken:@"secret-token"];
-  [self addFakeFIRMessagingRegistrationToken];
   [self.dataMessageManager sendDataMessageStanza:message];
 
   OCMVerifyAll(self.mockClient);
@@ -302,7 +296,6 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
   }]]);
 
   [self.dataMessageManager setDeviceAuthID:@"auth-id" secretToken:@"secret-token"];
-  [self addFakeFIRMessagingRegistrationToken];
   [self.dataMessageManager sendDataMessageStanza:message];
 
   OCMVerifyAll(self.mockReceiver);
@@ -329,7 +322,6 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
                                                    error:[OCMArg isNil]]);
 
   [self.dataMessageManager setDeviceAuthID:@"auth-id" secretToken:@"secret-token"];
-  [self addFakeFIRMessagingRegistrationToken];
   [self.dataMessageManager sendDataMessageStanza:message];
 
   __block FIRMessagingDataMessageHandler dataMessageHandler;
@@ -496,7 +488,6 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
   // have a real RMQ store
   [self.dataMessageManager setRmq2Manager:newRmqManager];
 
-  [self addFakeFIRMessagingRegistrationToken];
   [self.dataMessageManager setDeviceAuthID:@"auth-id" secretToken:@"secret-token"];
 
   // send a couple of message with no connection should be saved to RMQ
@@ -574,12 +565,6 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
     XCTFail(@"RMQ should not have any message");
   }
                         dataMessageHandler:nil];
-}
-
-#pragma mark - Private
-
-- (void)addFakeFIRMessagingRegistrationToken {
-  // [[FIRMessagingDefaultsManager sharedInstance] saveAppIDToken:kFIRMessagingAppIDToken];
 }
 
 #pragma mark - Create Packet
