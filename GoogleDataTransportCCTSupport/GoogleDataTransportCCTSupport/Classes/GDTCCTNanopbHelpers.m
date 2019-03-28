@@ -27,10 +27,7 @@
 
 pb_bytes_array_t *GDTCCTEncodeString(NSString *string) {
   NSData *stringBytes = [string dataUsingEncoding:NSUTF8StringEncoding];
-  pb_bytes_array_t *pbBytes = malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(stringBytes.length));
-  memcpy(pbBytes->bytes, [stringBytes bytes], stringBytes.length);
-  pbBytes->size = (pb_size_t)stringBytes.length;
-  return pbBytes;
+  return GDTCCTEncodeData(stringBytes);
 }
 
 pb_bytes_array_t *GDTCCTEncodeData(NSData *data) {
@@ -43,7 +40,7 @@ pb_bytes_array_t *GDTCCTEncodeData(NSData *data) {
 #pragma mark - CCT object constructors
 
 NSData *_Nullable GDTCCTEncodeBatchedLogRequest(gdt_cct_BatchedLogRequest *batchedLogRequest) {
-  pb_ostream_t sizestream = {0};
+  pb_ostream_t sizestream = PB_OSTREAM_SIZING;
   // Encode 1 time to determine the size.
   if (!pb_encode(&sizestream, gdt_cct_BatchedLogRequest_fields, batchedLogRequest)) {
     NSCAssert(NO, @"Error in nanopb encoding for size: %s", PB_GET_ERROR(&sizestream));
@@ -63,7 +60,7 @@ NSData *_Nullable GDTCCTEncodeBatchedLogRequest(gdt_cct_BatchedLogRequest *batch
 
 gdt_cct_BatchedLogRequest GDTCCTConstructBatchedLogRequest(
     NSDictionary<NSString *, NSSet<GDTStoredEvent *> *> *logMappingIDToLogSet) {
-  gdt_cct_BatchedLogRequest batchedLogRequest = gdt_cct_BatchedLogRequest_init_zero;
+  gdt_cct_BatchedLogRequest batchedLogRequest = gdt_cct_BatchedLogRequest_init_default;
   NSUInteger numberOfLogRequests = logMappingIDToLogSet.count;
   gdt_cct_LogRequest *logRequests = malloc(sizeof(gdt_cct_LogRequest) * numberOfLogRequests);
 
@@ -85,7 +82,7 @@ gdt_cct_BatchedLogRequest GDTCCTConstructBatchedLogRequest(
 gdt_cct_LogRequest GDTCCTConstructLogRequest(int32_t logSource,
                                              NSSet<GDTStoredEvent *> *_Nonnull logSet) {
   NSCAssert(logSet.count, @"An empty event set can't be serialized to proto.");
-  gdt_cct_LogRequest logRequest = gdt_cct_LogRequest_init_zero;
+  gdt_cct_LogRequest logRequest = gdt_cct_LogRequest_init_default;
   logRequest.log_source = logSource;
   logRequest.has_log_source = 1;
   logRequest.client_info = GDTCCTConstructClientInfo();
@@ -103,7 +100,7 @@ gdt_cct_LogRequest GDTCCTConstructLogRequest(int32_t logSource,
 }
 
 gdt_cct_LogEvent GDTCCTConstructLogEvent(GDTStoredEvent *event) {
-  gdt_cct_LogEvent logEvent = gdt_cct_LogEvent_init_zero;
+  gdt_cct_LogEvent logEvent = gdt_cct_LogEvent_init_default;
   logEvent.event_time_ms = event.clockSnapshot.timeMillis;
   logEvent.has_event_time_ms = 1;
   logEvent.event_uptime_ms = event.clockSnapshot.uptime;
@@ -120,7 +117,7 @@ gdt_cct_LogEvent GDTCCTConstructLogEvent(GDTStoredEvent *event) {
 }
 
 gdt_cct_ClientInfo GDTCCTConstructClientInfo() {
-  gdt_cct_ClientInfo clientInfo = gdt_cct_ClientInfo_init_zero;
+  gdt_cct_ClientInfo clientInfo = gdt_cct_ClientInfo_init_default;
   clientInfo.client_type = gdt_cct_ClientInfo_ClientType_IOS_FIREBASE;
   clientInfo.has_client_type = 1;
   clientInfo.ios_client_info = GDTCCTConstructiOSClientInfo();
@@ -129,7 +126,7 @@ gdt_cct_ClientInfo GDTCCTConstructClientInfo() {
 }
 
 gdt_cct_IosClientInfo GDTCCTConstructiOSClientInfo() {
-  gdt_cct_IosClientInfo iOSClientInfo = gdt_cct_IosClientInfo_init_zero;
+  gdt_cct_IosClientInfo iOSClientInfo = gdt_cct_IosClientInfo_init_default;
   UIDevice *device = [UIDevice currentDevice];
   NSBundle *bundle = [NSBundle mainBundle];
   NSLocale *locale = [NSLocale currentLocale];
@@ -154,6 +151,8 @@ gdt_cct_IosClientInfo GDTCCTConstructiOSClientInfo() {
 gdt_cct_LogResponse GDTCCTDecodeLogResponse(NSData *data) {
   gdt_cct_LogResponse response;
   pb_istream_t istream = pb_istream_from_buffer([data bytes], [data length]);
-  pb_decode(&istream, gdt_cct_LogResponse_fields, &response);
+  if (!pb_decode(&istream, gdt_cct_LogResponse_fields, &response)) {
+    NSCAssert(NO, @"Error in nanopb decoding for bytes: %s", PB_GET_ERROR(&istream));
+  }
   return response;
 }

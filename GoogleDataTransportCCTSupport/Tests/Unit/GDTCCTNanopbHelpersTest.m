@@ -98,7 +98,7 @@
   gdt_cct_BatchedLogRequest decodedBatch;
   pb_istream_t istream =
       pb_istream_from_buffer([encodedBatchLogRequest bytes], [encodedBatchLogRequest length]);
-  XCTAssertNoThrow(pb_decode(&istream, gdt_cct_BatchedLogRequest_fields, &decodedBatch));
+  XCTAssertTrue(pb_decode(&istream, gdt_cct_BatchedLogRequest_fields, &decodedBatch));
   XCTAssert(decodedBatch.log_request_count == batch.log_request_count);
   XCTAssert(decodedBatch.log_request[0].log_event_count == batch.log_request[0].log_event_count);
   XCTAssert(decodedBatch.log_request[0].log_event[0].event_time_ms ==

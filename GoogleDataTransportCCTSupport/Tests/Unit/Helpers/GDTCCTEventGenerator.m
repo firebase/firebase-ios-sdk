@@ -62,10 +62,10 @@ static volatile NSUInteger gCounter = 0;
   {
     GDTEvent *event = [[GDTEvent alloc] initWithMappingID:@"1018" target:kGDTTargetCCT];
     event.clockSnapshot = [GDTClock snapshot];
-    [event.clockSnapshot setValue:@(1553536373134) forKeyPath:@"timeMillis"];
+    [event.clockSnapshot setValue:@(1111111111111) forKeyPath:@"timeMillis"];
     [event.clockSnapshot setValue:@(-25200) forKeyPath:@"timezoneOffsetSeconds"];
-    [event.clockSnapshot setValue:@(1552576634359451) forKeyPath:@"kernelBootTime"];
-    [event.clockSnapshot setValue:@(961141987648) forKeyPath:@"uptime"];
+    [event.clockSnapshot setValue:@(1111111111111222) forKeyPath:@"kernelBootTime"];
+    [event.clockSnapshot setValue:@(1235567890) forKeyPath:@"uptime"];
     event.qosTier = GDTEventQosDefault;
     event.customPrioritizationParams = @{@"customParam" : @1337};
     GDTStoredEvent *storedEvent =
@@ -77,10 +77,10 @@ static volatile NSUInteger gCounter = 0;
   {
     GDTEvent *event = [[GDTEvent alloc] initWithMappingID:@"1018" target:kGDTTargetCCT];
     event.clockSnapshot = [GDTClock snapshot];
-    [event.clockSnapshot setValue:@(1553536573957) forKeyPath:@"timeMillis"];
+    [event.clockSnapshot setValue:@(1111111111111) forKeyPath:@"timeMillis"];
     [event.clockSnapshot setValue:@(-25200) forKeyPath:@"timezoneOffsetSeconds"];
-    [event.clockSnapshot setValue:@(1552576634359451) forKeyPath:@"kernelBootTime"];
-    [event.clockSnapshot setValue:@(961141764308) forKeyPath:@"uptime"];
+    [event.clockSnapshot setValue:@(1111111111111333) forKeyPath:@"kernelBootTime"];
+    [event.clockSnapshot setValue:@(1236567890) forKeyPath:@"uptime"];
     event.qosTier = GDTEventQoSWifiOnly;
     GDTStoredEvent *storedEvent =
         [event storedEventWithFileURL:[testBundle URLForResource:@"message-35458880.dat"
@@ -91,10 +91,10 @@ static volatile NSUInteger gCounter = 0;
   {
     GDTEvent *event = [[GDTEvent alloc] initWithMappingID:@"1018" target:kGDTTargetCCT];
     event.clockSnapshot = [GDTClock snapshot];
-    [event.clockSnapshot setValue:@(1553536673239) forKeyPath:@"timeMillis"];
+    [event.clockSnapshot setValue:@(1111111111111) forKeyPath:@"timeMillis"];
     [event.clockSnapshot setValue:@(-25200) forKeyPath:@"timezoneOffsetSeconds"];
-    [event.clockSnapshot setValue:@(1552576634359451) forKeyPath:@"kernelBootTime"];
-    [event.clockSnapshot setValue:@(961142164964) forKeyPath:@"uptime"];
+    [event.clockSnapshot setValue:@(1111111111111444) forKeyPath:@"kernelBootTime"];
+    [event.clockSnapshot setValue:@(1237567890) forKeyPath:@"uptime"];
     event.qosTier = GDTEventQosDefault;
     GDTStoredEvent *storedEvent =
         [event storedEventWithFileURL:[testBundle URLForResource:@"message-39882816.dat"
@@ -105,10 +105,10 @@ static volatile NSUInteger gCounter = 0;
   {
     GDTEvent *event = [[GDTEvent alloc] initWithMappingID:@"1018" target:kGDTTargetCCT];
     event.clockSnapshot = [GDTClock snapshot];
-    [event.clockSnapshot setValue:@(1553534573010) forKeyPath:@"timeMillis"];
+    [event.clockSnapshot setValue:@(1111111111111) forKeyPath:@"timeMillis"];
     [event.clockSnapshot setValue:@(-25200) forKeyPath:@"timezoneOffsetSeconds"];
-    [event.clockSnapshot setValue:@(1552576634359451) forKeyPath:@"kernelBootTime"];
-    [event.clockSnapshot setValue:@(961141365197) forKeyPath:@"uptime"];
+    [event.clockSnapshot setValue:@(1111111111111555) forKeyPath:@"kernelBootTime"];
+    [event.clockSnapshot setValue:@(1238567890) forKeyPath:@"uptime"];
     event.qosTier = GDTEventQosDefault;
     event.customPrioritizationParams = @{@"customParam1" : @"aValue1"};
     GDTStoredEvent *storedEvent =
@@ -120,10 +120,10 @@ static volatile NSUInteger gCounter = 0;
   {
     GDTEvent *event = [[GDTEvent alloc] initWithMappingID:@"1018" target:kGDTTargetCCT];
     event.clockSnapshot = [GDTClock snapshot];
-    [event.clockSnapshot setValue:@(1553536543875) forKeyPath:@"timeMillis"];
+    [event.clockSnapshot setValue:@(1111111111111) forKeyPath:@"timeMillis"];
     [event.clockSnapshot setValue:@(-25200) forKeyPath:@"timezoneOffsetSeconds"];
-    [event.clockSnapshot setValue:@(1552576634359451) forKeyPath:@"kernelBootTime"];
-    [event.clockSnapshot setValue:@(961141562094) forKeyPath:@"uptime"];
+    [event.clockSnapshot setValue:@(1111111111111666) forKeyPath:@"kernelBootTime"];
+    [event.clockSnapshot setValue:@(1239567890) forKeyPath:@"uptime"];
     event.qosTier = GDTEventQoSTelemetry;
     event.customPrioritizationParams = @{@"customParam2" : @(34)};
     GDTStoredEvent *storedEvent =
