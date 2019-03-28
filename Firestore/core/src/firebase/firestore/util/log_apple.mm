@@ -39,6 +39,8 @@ FIRLoggerLevel ToFIRLoggerLevel(LogLevel level) {
       return FIRLoggerLevelDebug;
     case kLogLevelWarning:
       return FIRLoggerLevelWarning;
+    case kLogLevelError:
+      return FIRLoggerLevelError;
     default:
       // Unsupported log level. FIRSetLoggerLevel will deal with it.
       return static_cast<FIRLoggerLevel>(-1);
@@ -64,7 +66,7 @@ void LogSetLevel(LogLevel level) {
 }
 
 bool LogIsLoggable(LogLevel level) {
-  return FIRIsLoggableLevel(ToFIRLoggerLevel(level), NO);
+  return FIRIsLoggableLevel(ToFIRLoggerLevel(level), false);
 }
 
 void LogMessage(LogLevel level, const std::string& message) {
