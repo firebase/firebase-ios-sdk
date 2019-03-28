@@ -24,7 +24,7 @@
 #import "FIRMessaging.h"
 #import "FIRMessagingRemoteNotificationsProxy.h"
 
-#pragma mark - Invalid App Delegate
+#pragma mark - Invalid App Delegate or UNNotificationCenter
 
 @interface RandomObject : NSObject
 @property(nonatomic, weak) id delegate;
