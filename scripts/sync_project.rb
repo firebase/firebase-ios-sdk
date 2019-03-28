@@ -62,7 +62,7 @@ def sync_firestore()
     'SwiftTests',
   ]
 
-  ['iOS', 'macOS'].each do |platform|
+  ['iOS', 'macOS', 'tvOS'].each do |platform|
     s.target "Firestore_Tests_#{platform}" do |t|
       t.source_files = [
         'Firestore/Example/Tests/**',
@@ -80,7 +80,7 @@ def sync_firestore()
     end
   end
 
-  ['iOS', 'macOS'].each do |platform|
+  ['iOS', 'macOS', 'tvOS'].each do |platform|
     s.target "Firestore_IntegrationTests_#{platform}" do |t|
       t.source_files = [
         'Firestore/Example/Tests/Integration/**',

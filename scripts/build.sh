@@ -306,7 +306,7 @@ case "$product-$method-$platform" in
         build
     ;;
 
-  Firestore-xcodebuild-macOS)
+  Firestore-xcodebuild-macOS | Firestore-xcodebuild-tvOS)
     # TODO(wilhuff): Combine with above once all targets exist
     RunXcodebuild \
         -workspace 'Firestore/Example/Firestore.xcworkspace' \
