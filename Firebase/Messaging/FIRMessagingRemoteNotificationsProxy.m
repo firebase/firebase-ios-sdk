@@ -23,8 +23,8 @@
 #import "FIRMessagingLogger.h"
 #import "FIRMessagingUtilities.h"
 #import "FIRMessaging_Private.h"
+#import <GoogleUtilities/GULAppDelegateSwizzler.h>
 
-static const BOOL kDefaultAutoRegisterEnabledValue = YES;
 static void * UserNotificationObserverContext = &UserNotificationObserverContext;
 
 static NSString *kUserNotificationWillPresentSelectorString =
@@ -33,7 +33,7 @@ static NSString *kUserNotificationDidReceiveResponseSelectorString =
     @"userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:";
 static NSString *kReceiveDataMessageSelectorString = @"messaging:didReceiveMessage:";
 
-@interface FIRMessagingRemoteNotificationsProxy ()
+@interface FIRMessagingRemoteNotificationsProxy () <UIApplicationDelegate>
 
 @property(strong, nonatomic) NSMutableDictionary<NSString *, NSValue *> *originalAppDelegateImps;
 @property(strong, nonatomic) NSMutableDictionary<NSString *, NSArray *> *swizzledSelectorsByClass;
@@ -47,20 +47,14 @@ static NSString *kReceiveDataMessageSelectorString = @"messaging:didReceiveMessa
 @property(strong, nonatomic) id userNotificationCenter;
 @property(strong, nonatomic) id currentUserNotificationCenterDelegate;
 
+@property(strong, nonatomic) GULAppDelegateInterceptorID appDelegateInterceptorID;
+
 @end
 
 @implementation FIRMessagingRemoteNotificationsProxy
 
 + (BOOL)canSwizzleMethods {
-  id canSwizzleValue =
-      [[NSBundle mainBundle]
-          objectForInfoDictionaryKey: kFIRMessagingRemoteNotificationsProxyEnabledInfoPlistKey];
-  if (canSwizzleValue && [canSwizzleValue isKindOfClass:[NSNumber class]]) {
-    NSNumber *canSwizzleNumberValue = (NSNumber *)canSwizzleValue;
-    return canSwizzleNumberValue.boolValue;
-  } else {
-    return kDefaultAutoRegisterEnabledValue;
-  }
+  return [GULAppDelegateSwizzler isAppDelegateProxyEnabled];
 }
 
 + (void)swizzleMethods {
@@ -99,7 +93,10 @@ static NSString *kReceiveDataMessageSelectorString = @"messaging:didReceiveMessa
     return;
   }
 
-  UIApplication *application = FIRMessagingUIApplication();
+  [GULAppDelegateSwizzler proxyOriginalDelegate];
+  self.appDelegateInterceptorID = [GULAppDelegateSwizzler registerAppDelegateInterceptor:self];
+
+  UIApplication *application = [GULAppDelegateSwizzler sharedApplication];
   if (!application) {
     return;
   }
@@ -122,6 +119,7 @@ static NSString *kReceiveDataMessageSelectorString = @"messaging:didReceiveMessa
 }
 
 - (void)unswizzleAllMethods {
+  [GULAppDelegateSwizzler unregisterAppDelegateInterceptorWithID:self.appDelegateInterceptorID];
   for (NSString *className in self.swizzledSelectorsByClass) {
     Class klass = NSClassFromString(className);
     NSArray *selectorStrings = self.swizzledSelectorsByClass[className];
@@ -134,46 +132,9 @@ static NSString *kReceiveDataMessageSelectorString = @"messaging:didReceiveMessa
 }
 
 - (void)swizzleAppDelegateMethods:(id<UIApplicationDelegate>)appDelegate {
-  if (![appDelegate conformsToProtocol:@protocol(UIApplicationDelegate)]) {
-    return;
-  }
   Class appDelegateClass = [appDelegate class];
 
   BOOL didSwizzleAppDelegate = NO;
-  // Message receiving handler for iOS 9, 8, 7 devices (both display notification and data message).
-  SEL remoteNotificationSelector =
-      @selector(application:didReceiveRemoteNotification:);
-
-  SEL remoteNotificationWithFetchHandlerSelector =
-      @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:);
-
-  // For recording when APNS tokens are registered (or fail to register)
-  SEL registerForAPNSFailSelector =
-      @selector(application:didFailToRegisterForRemoteNotificationsWithError:);
-
-  SEL registerForAPNSSuccessSelector =
-      @selector(application:didRegisterForRemoteNotificationsWithDeviceToken:);
-
-
-  // Receive Remote Notifications.
-  BOOL selectorWithFetchHandlerImplemented = NO;
-  if ([appDelegate respondsToSelector:remoteNotificationWithFetchHandlerSelector]) {
-    selectorWithFetchHandlerImplemented = YES;
-    [self swizzleSelector:remoteNotificationWithFetchHandlerSelector
-                  inClass:appDelegateClass
-       withImplementation:(IMP)FCM_swizzle_appDidReceiveRemoteNotificationWithHandler
-               inProtocol:@protocol(UIApplicationDelegate)];
-    didSwizzleAppDelegate = YES;
-  }
-
-  if ([appDelegate respondsToSelector:remoteNotificationSelector] ||
-      !selectorWithFetchHandlerImplemented) {
-    [self swizzleSelector:remoteNotificationSelector
-                  inClass:appDelegateClass
-       withImplementation:(IMP)FCM_swizzle_appDidReceiveRemoteNotification
-               inProtocol:@protocol(UIApplicationDelegate)];
-    didSwizzleAppDelegate = YES;
-  }
 
   // For data message from MCS.
   SEL receiveDataMessageSelector = NSSelectorFromString(kReceiveDataMessageSelectorString);
@@ -184,17 +145,6 @@ static NSString *kReceiveDataMessageSelectorString = @"messaging:didReceiveMessa
                 inProtocol:@protocol(UIApplicationDelegate)];
     didSwizzleAppDelegate = YES;
   }
-
-  // Receive APNS token
-  [self swizzleSelector:registerForAPNSSuccessSelector
-                inClass:appDelegateClass
-     withImplementation:(IMP)FCM_swizzle_appDidRegisterForRemoteNotifications
-             inProtocol:@protocol(UIApplicationDelegate)];
-
-  [self swizzleSelector:registerForAPNSFailSelector
-                inClass:appDelegateClass
-     withImplementation:(IMP)FCM_swizzle_appDidFailToRegisterForRemoteNotifications
-             inProtocol:@protocol(UIApplicationDelegate)];
 
   self.didSwizzleAppDelegateMethods = didSwizzleAppDelegate;
 }
@@ -468,6 +418,34 @@ id getNamedPropertyFromObject(id object, NSString *propertyName, Class klass) {
     return nil;
   }
   return property;
+}
+
+#pragma mark - UIApplicationDelegate
+
+- (void)application:(UIApplication *)application
+didReceiveRemoteNotification:(NSDictionary *)userInfo {
+  [[FIRMessaging messaging] appDidReceiveMessage:userInfo];
+}
+
+- (void)application:(UIApplication *)application
+didReceiveRemoteNotification:(NSDictionary *)userInfo
+fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
+  [[FIRMessaging messaging] appDidReceiveMessage:userInfo];
+}
+
+- (void)application:(UIApplication *)application
+didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+  // Pass the APNSToken along to FIRMessaging (and auto-detect the token type)
+  [FIRMessaging messaging].APNSToken = deviceToken;
+}
+
+- (void)application:(UIApplication *)application
+didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
+  // Log the fact that we failed to register for remote notifications
+  FIRMessagingLoggerError(kFIRMessagingMessageCodeRemoteNotificationsProxyAPNSFailed,
+                          @"Error in "
+                          @"application:didFailToRegisterForRemoteNotificationsWithError: %@",
+                          error.localizedDescription);
 }
 
 #pragma mark - Swizzled Methods
