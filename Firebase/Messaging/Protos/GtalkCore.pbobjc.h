@@ -300,9 +300,9 @@ typedef GPB_ENUM(GtalkHeartbeatPing_FieldNumber) {
 
 @property(nonatomic, readwrite) BOOL hasStatus;
 
-@property(nonatomic, readwrite, strong, null_resettable) GtalkCellTower *cellTower GPB_DEPRECATED_MSG("mobilegtalk.HeartbeatPing.cell_tower is deprecated (see buzz/mobile/proto/gtalk_core.proto).");
+@property(nonatomic, readwrite, strong, null_resettable) GtalkCellTower *cellTower DEPRECATED_ATTRIBUTE;
 /** Test to see if @c cellTower has been set. */
-@property(nonatomic, readwrite) BOOL hasCellTower GPB_DEPRECATED_MSG("mobilegtalk.HeartbeatPing.cell_tower is deprecated (see buzz/mobile/proto/gtalk_core.proto).");
+@property(nonatomic, readwrite) BOOL hasCellTower DEPRECATED_ATTRIBUTE;
 
 
 @property(nonatomic, readwrite) int32_t intervalMs;
@@ -335,9 +335,9 @@ typedef GPB_ENUM(GtalkHeartbeatAck_FieldNumber) {
 
 @property(nonatomic, readwrite) BOOL hasStatus;
 
-@property(nonatomic, readwrite, strong, null_resettable) GtalkCellTower *cellTower GPB_DEPRECATED_MSG("mobilegtalk.HeartbeatAck.cell_tower is deprecated (see buzz/mobile/proto/gtalk_core.proto).");
+@property(nonatomic, readwrite, strong, null_resettable) GtalkCellTower *cellTower DEPRECATED_ATTRIBUTE;
 /** Test to see if @c cellTower has been set. */
-@property(nonatomic, readwrite) BOOL hasCellTower GPB_DEPRECATED_MSG("mobilegtalk.HeartbeatAck.cell_tower is deprecated (see buzz/mobile/proto/gtalk_core.proto).");
+@property(nonatomic, readwrite) BOOL hasCellTower DEPRECATED_ATTRIBUTE;
 
 
 @property(nonatomic, readwrite) int32_t intervalMs;
@@ -560,9 +560,9 @@ typedef GPB_ENUM(GtalkLoginRequest_FieldNumber) {
 @property(nonatomic, readwrite) BOOL hasTokenVersionInfo;
 
 
-@property(nonatomic, readwrite, strong, null_resettable) GtalkCellTower *cellTower GPB_DEPRECATED_MSG("mobilegtalk.LoginRequest.cell_tower is deprecated (see buzz/mobile/proto/gtalk_core.proto).");
+@property(nonatomic, readwrite, strong, null_resettable) GtalkCellTower *cellTower DEPRECATED_ATTRIBUTE;
 /** Test to see if @c cellTower has been set. */
-@property(nonatomic, readwrite) BOOL hasCellTower GPB_DEPRECATED_MSG("mobilegtalk.LoginRequest.cell_tower is deprecated (see buzz/mobile/proto/gtalk_core.proto).");
+@property(nonatomic, readwrite) BOOL hasCellTower DEPRECATED_ATTRIBUTE;
 
 
 @property(nonatomic, readwrite) uint64_t gcmStartTimeMs;
@@ -1315,9 +1315,9 @@ typedef GPB_ENUM(GtalkDataMessageStanza_FieldNumber) {
 
 @property(nonatomic, readwrite) BOOL hasFlags;
 
-@property(nonatomic, readwrite, strong, null_resettable) GtalkCellTower *cellTower GPB_DEPRECATED_MSG("mobilegtalk.DataMessageStanza.cell_tower is deprecated (see buzz/mobile/proto/gtalk_core.proto).");
+@property(nonatomic, readwrite, strong, null_resettable) GtalkCellTower *cellTower DEPRECATED_ATTRIBUTE;
 /** Test to see if @c cellTower has been set. */
-@property(nonatomic, readwrite) BOOL hasCellTower GPB_DEPRECATED_MSG("mobilegtalk.DataMessageStanza.cell_tower is deprecated (see buzz/mobile/proto/gtalk_core.proto).");
+@property(nonatomic, readwrite) BOOL hasCellTower DEPRECATED_ATTRIBUTE;
 
 
 @property(nonatomic, readwrite) int32_t priority;
@@ -1346,7 +1346,7 @@ typedef GPB_ENUM(GtalkCellTower_FieldNumber) {
   GtalkCellTower_FieldNumber_KnownCongestionStatus = 2,
 };
 
-GPB_DEPRECATED_MSG("mobilegtalk.CellTower is deprecated (see buzz/mobile/proto/gtalk_core.proto).")
+DEPRECATED_ATTRIBUTE
 @interface GtalkCellTower : GPBMessage
 
 
