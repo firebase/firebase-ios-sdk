@@ -32,9 +32,14 @@
 + (BOOL)canSwizzleMethods;
 
 /**
+ * A shared instance of `FIRMessagingRemoteNotificationsProxy`
+ */
++ (instancetype)sharedProxy;
+
+/**
  *  Swizzles Application Delegate's remote-notification callbacks and User Notification Center
  *  delegate callback, and invokes the original selectors once done.
  */
-+ (void)swizzleMethods;
+- (void)swizzleMethodsIfPossible;
 
 @end
