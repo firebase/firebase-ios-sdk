@@ -152,7 +152,7 @@ gdt_cct_LogResponse GDTCCTDecodeLogResponse(NSData *data) {
   gdt_cct_LogResponse response = gdt_cct_LogResponse_init_default;
   pb_istream_t istream = pb_istream_from_buffer([data bytes], [data length]);
   if (!pb_decode(&istream, gdt_cct_LogResponse_fields, &response)) {
-    response = gdt_cct_LogResponse_init_default;
+    NSCAssert(NO, @"Error in nanopb decoding for bytes: %s", PB_GET_ERROR(&istream));
   }
   return response;
 }

@@ -51,7 +51,7 @@ pb_bytes_array_t *GDTCCTEncodeData(NSData *data);
  * @param batchedLogRequest A pointer to the log batch to encode to bytes.
  * @return An NSData object representing the bytes of the log request batch.
  */
-FOUNDATION_EXTERN
+FOUNDATION_EXPORT
 NSData *GDTCCTEncodeBatchedLogRequest(gdt_cct_BatchedLogRequest *batchedLogRequest);
 
 /** Constructs a gdt_cct_BatchedLogRequest given sets of events segemented by mapping ID.
@@ -61,7 +61,7 @@ NSData *GDTCCTEncodeBatchedLogRequest(gdt_cct_BatchedLogRequest *batchedLogReque
  * @param logMappingIDToLogSet A map of mapping IDs to sets of events to convert into a batch.
  * @return A newly created gdt_cct_BatchedLogRequest.
  */
-FOUNDATION_EXTERN
+FOUNDATION_EXPORT
 gdt_cct_BatchedLogRequest GDTCCTConstructBatchedLogRequest(
     NSDictionary<NSString *, NSSet<GDTStoredEvent *> *> *logMappingIDToLogSet);
 
@@ -71,7 +71,7 @@ gdt_cct_BatchedLogRequest GDTCCTConstructBatchedLogRequest(
  * @param logSource The CCT log source to put into the log request.
  * @param logSet The set of events to send in this log request.
  */
-FOUNDATION_EXTERN
+FOUNDATION_EXPORT
 gdt_cct_LogRequest GDTCCTConstructLogRequest(int32_t logSource, NSSet<GDTStoredEvent *> *logSet);
 
 /** Constructs a gdt_cct_LogEvent given a GDTStoredEvent*.
@@ -79,21 +79,21 @@ gdt_cct_LogRequest GDTCCTConstructLogRequest(int32_t logSource, NSSet<GDTStoredE
  * @param event The GDTStoredEvent to convert.
  * @return The new gdt_cct_LogEvent object.
  */
-FOUNDATION_EXTERN
+FOUNDATION_EXPORT
 gdt_cct_LogEvent GDTCCTConstructLogEvent(GDTStoredEvent *event);
 
 /** Constructs a gdt_cct_ClientInfo representing the client device.
  *
  * @return The new gdt_cct_ClientInfo object.
  */
-FOUNDATION_EXTERN
+FOUNDATION_EXPORT
 gdt_cct_ClientInfo GDTCCTConstructClientInfo(void);
 
 /** Constructs a gdt_cct_IosClientInfo representing the client device.
  *
  * @return The new gdt_cct_IosClientInfo object.
  */
-FOUNDATION_EXTERN
+FOUNDATION_EXPORT
 gdt_cct_IosClientInfo GDTCCTConstructiOSClientInfo(void);
 
 #pragma mark - CCT object decoders
@@ -105,7 +105,7 @@ gdt_cct_IosClientInfo GDTCCTConstructiOSClientInfo(void);
  * @param data The proto bytes of the gdt_cct_LogResponse.
  * @return A newly allocated gdt_cct_LogResponse from the data, if the bytes decoded properly.
  */
-FOUNDATION_EXTERN
+FOUNDATION_EXPORT
 gdt_cct_LogResponse GDTCCTDecodeLogResponse(NSData *data);
 
 NS_ASSUME_NONNULL_END
