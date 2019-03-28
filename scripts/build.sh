@@ -194,28 +194,23 @@ case "$product-$method-$platform" in
 
     if [[ $platform == 'iOS' ]]; then
       # Run integration tests (not allowed on PRs)
-      if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
-        RunXcodebuild \
-          -workspace 'Example/Firebase.xcworkspace' \
-          -scheme "Auth_ApiTests" \
-          "${xcb_flags[@]}" \
-          build \
-          test
+      RunXcodebuild \
+        -workspace 'Example/Firebase.xcworkspace' \
+        -scheme "Auth_ApiTests" \
+        "${xcb_flags[@]}" \
+        "${xcb_integration_targets[@]}"
 
-        RunXcodebuild \
-          -workspace 'Example/Firebase.xcworkspace' \
-          -scheme "Storage_IntegrationTests_iOS" \
-          "${xcb_flags[@]}" \
-          build \
-          test
+      RunXcodebuild \
+        -workspace 'Example/Firebase.xcworkspace' \
+        -scheme "Storage_IntegrationTests_iOS" \
+        "${xcb_flags[@]}" \
+        "${xcb_integration_targets[@]}"
 
-        RunXcodebuild \
-          -workspace 'Example/Firebase.xcworkspace' \
-          -scheme "Database_IntegrationTests_iOS" \
-          "${xcb_flags[@]}" \
-          build \
-          test
-      fi
+      RunXcodebuild \
+        -workspace 'Example/Firebase.xcworkspace' \
+        -scheme "Database_IntegrationTests_iOS" \
+        "${xcb_flags[@]}" \
+        "${xcb_integration_targets[@]}"
 
       # Test iOS Objective-C static library build
       cd Example
