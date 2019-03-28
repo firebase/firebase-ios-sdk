@@ -30,7 +30,7 @@
 
 #import <stdatomic.h>
 
-#import "buzz/mobile/proto/GtalkExtensions.pbobjc.h"
+#import "GtalkExtensions.pbobjc.h"
 // @@protoc_insertion_point(imports)
 
 #pragma clang diagnostic push
