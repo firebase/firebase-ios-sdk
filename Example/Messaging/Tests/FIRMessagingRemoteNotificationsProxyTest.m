@@ -42,10 +42,12 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
 completionHandler {
 }
 
+#if TARGET_OS_IOS
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center
 didReceiveNotificationResponse:(UNNotificationResponse *)response
          withCompletionHandler:(void(^)(void))completionHandler {
 }
+#endif // TARGET_OS_IOS
 
 #endif // __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 @end
