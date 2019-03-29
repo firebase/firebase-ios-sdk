@@ -835,11 +835,13 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
 
 + (void)proxyAppDelegate:(id<UIApplicationDelegate>)appDelegate {
   if (![appDelegate conformsToProtocol:@protocol(UIApplicationDelegate)]) {
-    GULLogNotice(kGULLoggerSwizzler, NO,
-                 [NSString stringWithFormat:@"I-SWZ%06ld",
-                  (long)kGULSwizzlerMessageCodeAppDelegateSwizzlingInvalidAppDelegate],
-                 @"App Delegate does not conform to UIApplicationDelegate protocol. %@",
-                 [GULAppDelegateSwizzler correctAlternativeWhenAppDelegateProxyNotCreated]);
+    GULLogNotice(
+        kGULLoggerSwizzler, NO,
+        [NSString
+            stringWithFormat:@"I-SWZ%06ld",
+                             (long)kGULSwizzlerMessageCodeAppDelegateSwizzlingInvalidAppDelegate],
+        @"App Delegate does not conform to UIApplicationDelegate protocol. %@",
+        [GULAppDelegateSwizzler correctAlternativeWhenAppDelegateProxyNotCreated]);
     return;
   }
 
