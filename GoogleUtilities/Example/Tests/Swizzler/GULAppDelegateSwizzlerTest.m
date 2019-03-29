@@ -240,6 +240,12 @@ static BOOL gRespondsToHandleBackgroundSession;
   [super tearDown];
 }
 
+- (void)testNotAppDelegateIsNotSwizzled {
+  NSObject *notAppDelegate = [[NSObject alloc] init];
+  [GULAppDelegateSwizzler proxyAppDelegate:(id<UIApplicationDelegate>)notAppDelegate];
+  XCTAssertEqualObjects(NSStringFromClass([notAppDelegate class]), @"NSObject");
+}
+
 /** Tests proxying an object that responds to UIApplicationDelegate protocol and makes sure that
  *  it is isa swizzled and that the object after proxying responds to the expected methods
  *  and doesn't have its ivars modified.
