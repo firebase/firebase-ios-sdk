@@ -360,24 +360,6 @@ struct ZipBuilder {
       fatalError("Could not write README to Zip directory: \(error)")
     }
 
-    // TODO: Remove this manual copy once FirebaseCrash is removed from the Zip file.
-    // Copy over the Crash scripts, if Crash should be installed
-    if subspecsToInstall.contains(.crash) {
-      do {
-        let crashDir = paths.templateDir.appendingPathComponent(Constants.ProjectPath.crashDir)
-        let crashFiles = try FileManager.default.contentsOfDirectory(at: crashDir,
-                                                                     includingPropertiesForKeys: nil,
-                                                                     options: [])
-        let crashZipDir = zipDir.appendingPathComponent("Crash")
-        for file in crashFiles {
-          let destination = crashZipDir.appendingPathComponent(file.lastPathComponent)
-          try FileManager.default.copyItem(at: file, to: destination)
-        }
-      } catch {
-        fatalError("Could not copy extra Crash tools: \(error)")
-      }
-    }
-
     print("Contents of the Zip file were assembled at: \(zipDir)")
     return zipDir
   }
