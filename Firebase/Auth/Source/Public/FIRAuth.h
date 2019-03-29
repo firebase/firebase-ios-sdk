@@ -34,6 +34,8 @@
 @protocol FIRAuthUIDelegate;
 @protocol FIRFederatedAuthProvider;
 
+extern FIRLoggerService kFIRLoggerAdMob;
+
 NS_ASSUME_NONNULL_BEGIN
 
 /** @typedef FIRUserUpdateCallback
