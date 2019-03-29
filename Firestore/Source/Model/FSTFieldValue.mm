@@ -16,6 +16,9 @@
 
 #import "Firestore/Source/Model/FSTFieldValue.h"
 
+#include <functional>
+#include <utility>
+
 #import "FIRDocumentSnapshot.h"
 #import "FIRTimestamp.h"
 
