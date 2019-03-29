@@ -327,28 +327,27 @@ static NSString *const kPublicKeyPairTag = @"com.iid.regclient.test.public";
       [self setCheckinPreferencesWithLastCheckinTime:0];
 
   FIRInstanceIDTokenFetchOperation *operation =
-  [[FIRInstanceIDTokenFetchOperation alloc] initWithAuthorizedEntity:kAuthorizedEntity
-                                                               scope:kScope
-                                                             options:nil
-                                                  checkinPreferences:checkinPreferences
-                                                             keyPair:self.keyPair];
+      [[FIRInstanceIDTokenFetchOperation alloc] initWithAuthorizedEntity:kAuthorizedEntity
+                                                                   scope:kScope
+                                                                 options:nil
+                                                      checkinPreferences:checkinPreferences
+                                                                 keyPair:self.keyPair];
   operation.testBlock =
-  ^(NSURLRequest *request, FIRInstanceIDURLRequestTestResponseBlock response) {
-    NSString *userAgentValue = request.allHTTPHeaderFields[kFIRInstanceIDFirebaseUserAgentKey];
-    XCTAssertEqualObjects(userAgentValue, [FIRApp firebaseUserAgent]);
+      ^(NSURLRequest *request, FIRInstanceIDURLRequestTestResponseBlock response) {
+        NSString *userAgentValue = request.allHTTPHeaderFields[kFIRInstanceIDFirebaseUserAgentKey];
+        XCTAssertEqualObjects(userAgentValue, [FIRApp firebaseUserAgent]);
 
-    // Return a response with Error=RST
-    NSData *responseBody = [self dataForFetchRequest:request returnValidToken:NO];
-    NSHTTPURLResponse *responseObject = [[NSHTTPURLResponse alloc] initWithURL:request.URL
-                                                                    statusCode:200
-                                                                   HTTPVersion:@"HTTP/1.1"
-                                                                  headerFields:nil];
-    response(responseBody, responseObject, nil);
-  };
+        // Return a response with Error=RST
+        NSData *responseBody = [self dataForFetchRequest:request returnValidToken:NO];
+        NSHTTPURLResponse *responseObject = [[NSHTTPURLResponse alloc] initWithURL:request.URL
+                                                                        statusCode:200
+                                                                       HTTPVersion:@"HTTP/1.1"
+                                                                      headerFields:nil];
+        response(responseBody, responseObject, nil);
+      };
 
   [operation addCompletionHandler:^(FIRInstanceIDTokenOperationResult result,
                                     NSString *_Nullable token, NSError *_Nullable error) {
-
     [completionExpectation fulfill];
   }];
 

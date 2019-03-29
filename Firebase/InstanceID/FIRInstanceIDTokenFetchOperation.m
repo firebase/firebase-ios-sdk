@@ -59,7 +59,7 @@ NSString *const kFIRInstanceIDFirebaseUserAgentKey = @"X-firebase-client";
   NSString *checkinVersionInfo = self.checkinPreferences.versionInfo;
   [request setValue:checkinVersionInfo forHTTPHeaderField:@"info"];
   [request setValue:[FIRApp firebaseUserAgent]
-     forHTTPHeaderField:kFIRInstanceIDFirebaseUserAgentKey];
+      forHTTPHeaderField:kFIRInstanceIDFirebaseUserAgentKey];
 
   // Build form-encoded body
   NSString *deviceAuthID = self.checkinPreferences.deviceID;
