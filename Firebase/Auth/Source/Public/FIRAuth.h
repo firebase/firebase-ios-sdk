@@ -296,6 +296,11 @@ NS_SWIFT_NAME(Auth)
  */
 @property (nonatomic, copy, nullable) FIRAuthSettings *settings;
 
+/** @property userAccessGroup
+    @brief The current user access group that the Auth instance is using. Default is nil.
+ */
+@property (readonly, nonatomic, copy, nullable) NSString *userAccessGroup;
+
 #if TARGET_OS_IOS
 /** @property APNSToken
     @brief The APNs token used for phone number authentication. The type of the token (production
@@ -908,6 +913,21 @@ NS_SWIFT_NAME(Auth)
 - (BOOL)canHandleNotification:(NSDictionary *)userInfo;
 
 #endif  // TARGET_OS_IOS
+
+#pragma mark - User sharing
+
+/** @fn useUserAccessGroup:error:
+    @brief Switch userAccessGroup and current user to the given accessGroup and the user stored in
+        it.
+ */
+- (BOOL)useUserAccessGroup:(NSString *_Nullable)accessGroup
+                     error:(NSError *_Nullable *_Nullable)outError;
+
+/** @fn getStoredUserForAccessGroup:error:
+    @brief Get the stored user in the given accessGroup.
+ */
+- (FIRUser *)getStoredUserForAccessGroup:(NSString *_Nullable)accessGroup
+                                   error:(NSError *_Nullable *_Nullable)outError;
 
 @end
 
