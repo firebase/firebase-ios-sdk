@@ -36,11 +36,6 @@ NS_SWIFT_NAME(OAuthCredential)
  */
 @property(nonatomic, readonly, nullable) NSString *accessToken;
 
-/** @property pendingToken
-    @brief The pending token used when completing the headful-lite flow.
- */
-@property(nonatomic, readonly, nullable) NSString *pendingToken;
-
 /** @fn init
     @brief This class is not supposed to be instantiated directly.
  */
