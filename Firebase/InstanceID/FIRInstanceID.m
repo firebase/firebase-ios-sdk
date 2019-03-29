@@ -303,6 +303,7 @@ static FIRInstanceID *gInstanceID;
     });
   };
 
+
   if (errorCode != noError) {
     newHandler(nil, [NSError errorWithFIRInstanceIDErrorCode:errorCode]);
     return;
