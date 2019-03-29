@@ -31,7 +31,6 @@ static NSString *kUserNotificationWillPresentSelectorString =
     @"userNotificationCenter:willPresentNotification:withCompletionHandler:";
 static NSString *kUserNotificationDidReceiveResponseSelectorString =
     @"userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:";
-static NSString *kReceiveDataMessageSelectorString = @"messaging:didReceiveMessage:";
 
 @interface FIRMessagingRemoteNotificationsProxy () <UIApplicationDelegate>
 
@@ -39,7 +38,6 @@ static NSString *kReceiveDataMessageSelectorString = @"messaging:didReceiveMessa
 @property(strong, nonatomic) NSMutableDictionary<NSString *, NSArray *> *swizzledSelectorsByClass;
 
 @property(nonatomic) BOOL didSwizzleMethods;
-@property(nonatomic) BOOL didSwizzleAppDelegateMethods;
 
 @property(nonatomic) BOOL hasSwizzledUserNotificationDelegate;
 @property(nonatomic) BOOL isObservingUserNotificationDelegateChanges;
@@ -92,13 +90,6 @@ static NSString *kReceiveDataMessageSelectorString = @"messaging:didReceiveMessa
   [GULAppDelegateSwizzler proxyOriginalDelegate];
   self.appDelegateInterceptorID = [GULAppDelegateSwizzler registerAppDelegateInterceptor:self];
 
-  UIApplication *application = [GULAppDelegateSwizzler sharedApplication];
-  if (!application) {
-    return;
-  }
-  NSObject<UIApplicationDelegate> *appDelegate = [application delegate];
-  [self swizzleAppDelegateMethods:appDelegate];
-
   // Add KVO listener on [UNUserNotificationCenter currentNotificationCenter]'s delegate property
   Class notificationCenterClass = NSClassFromString(@"UNUserNotificationCenter");
   if (notificationCenterClass) {
@@ -125,24 +116,6 @@ static NSString *kReceiveDataMessageSelectorString = @"messaging:didReceiveMessa
     }
   }
   [self.swizzledSelectorsByClass removeAllObjects];
-}
-
-- (void)swizzleAppDelegateMethods:(id<UIApplicationDelegate>)appDelegate {
-  Class appDelegateClass = [appDelegate class];
-
-  BOOL didSwizzleAppDelegate = NO;
-
-  // For data message from MCS.
-  SEL receiveDataMessageSelector = NSSelectorFromString(kReceiveDataMessageSelectorString);
-  if ([appDelegate respondsToSelector:receiveDataMessageSelector]) {
-    [self swizzleSelector:receiveDataMessageSelector
-                   inClass:appDelegateClass
-        withImplementation:(IMP)FCM_swizzle_messagingDidReceiveMessage
-                inProtocol:@protocol(UIApplicationDelegate)];
-    didSwizzleAppDelegate = YES;
-  }
-
-  self.didSwizzleAppDelegateMethods = didSwizzleAppDelegate;
 }
 
 - (void)listenForDelegateChangesInUserNotificationCenter:(id)notificationCenter {
@@ -446,37 +419,6 @@ didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
 
 #pragma mark - Swizzled Methods
 
-void FCM_swizzle_appDidReceiveRemoteNotification(id self,
-                                                 SEL _cmd,
-                                                 UIApplication *app,
-                                                 NSDictionary *userInfo) {
-  [[FIRMessaging messaging] appDidReceiveMessage:userInfo];
-
-  IMP original_imp =
-      [[FIRMessagingRemoteNotificationsProxy sharedProxy] originalImplementationForSelector:_cmd];
-  if (original_imp) {
-    ((void (*)(id, SEL, UIApplication *, NSDictionary *))original_imp)(self,
-                                                                       _cmd,
-                                                                       app,
-                                                                       userInfo);
-  }
-}
-
-void FCM_swizzle_appDidReceiveRemoteNotificationWithHandler(
-    id self, SEL _cmd, UIApplication *app, NSDictionary *userInfo,
-    void (^handler)(UIBackgroundFetchResult)) {
-
-  [[FIRMessaging messaging] appDidReceiveMessage:userInfo];
-
-  IMP original_imp =
-      [[FIRMessagingRemoteNotificationsProxy sharedProxy] originalImplementationForSelector:_cmd];
-  if (original_imp) {
-    ((void (*)(id, SEL, UIApplication *, NSDictionary *,
-               void (^)(UIBackgroundFetchResult)))original_imp)(
-        self, _cmd, app, userInfo, handler);
-  }
-}
-
 /**
  * Swizzle the notification handler for iOS 10+ devices.
  * Signature of original handler is as below:
@@ -650,48 +592,6 @@ id userInfoFromNotification(id notification) {
   }
 
   return notificationUserInfo;
-}
-
-void FCM_swizzle_messagingDidReceiveMessage(id self, SEL _cmd, FIRMessaging *message,
-                                            FIRMessagingRemoteMessage *remoteMessage) {
-  [[FIRMessaging messaging] appDidReceiveMessage:remoteMessage.appData];
-
-  IMP original_imp =
-      [[FIRMessagingRemoteNotificationsProxy sharedProxy] originalImplementationForSelector:_cmd];
-  if (original_imp) {
-    ((void (*)(id, SEL, FIRMessaging *, FIRMessagingRemoteMessage *))original_imp)(
-        self, _cmd, message, remoteMessage);
-  }
-}
-
-void FCM_swizzle_appDidFailToRegisterForRemoteNotifications(id self,
-                                                            SEL _cmd,
-                                                            UIApplication *app,
-                                                            NSError *error) {
-  // Log the fact that we failed to register for remote notifications
-  FIRMessagingLoggerError(kFIRMessagingMessageCodeRemoteNotificationsProxyAPNSFailed,
-                          @"Error in "
-                          @"application:didFailToRegisterForRemoteNotificationsWithError: %@",
-                          error.localizedDescription);
-  IMP original_imp =
-      [[FIRMessagingRemoteNotificationsProxy sharedProxy] originalImplementationForSelector:_cmd];
-  if (original_imp) {
-    ((void (*)(id, SEL, UIApplication *, NSError *))original_imp)(self, _cmd, app, error);
-  }
-}
-
-void FCM_swizzle_appDidRegisterForRemoteNotifications(id self,
-                                                      SEL _cmd,
-                                                      UIApplication *app,
-                                                      NSData *deviceToken) {
-  // Pass the APNSToken along to FIRMessaging (and auto-detect the token type)
-  [FIRMessaging messaging].APNSToken = deviceToken;
-
-  IMP original_imp =
-      [[FIRMessagingRemoteNotificationsProxy sharedProxy] originalImplementationForSelector:_cmd];
-  if (original_imp) {
-    ((void (*)(id, SEL, UIApplication *, NSData *))original_imp)(self, _cmd, app, deviceToken);
-  }
 }
 
 @end

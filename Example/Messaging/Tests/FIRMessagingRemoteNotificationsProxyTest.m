@@ -65,6 +65,8 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 @interface FakeAppDelegate : NSObject <UIApplicationDelegate>
 @property(nonatomic) BOOL remoteNotificationMethodWasCalled;
 @property(nonatomic) BOOL remoteNotificationWithFetchHandlerWasCalled;
+@property(nonatomic, strong) NSData *deviceToken;
+@property(nonatomic, strong) NSError *registerForRemoteNotificationsError;
 @end
 @implementation FakeAppDelegate
 #if TARGET_OS_IOS
@@ -78,6 +80,17 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
     fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
   self.remoteNotificationWithFetchHandlerWasCalled = YES;
 }
+
+- (void)application:(UIApplication *)application
+    didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+  self.deviceToken = deviceToken;
+}
+
+- (void)application:(UIApplication *)application
+    didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
+  self.registerForRemoteNotificationsError = error;
+}
+
 @end
 
 #pragma mark - Incompete UNUserNotificationCenterDelegate
@@ -145,8 +158,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
   OCMStub([_mockProxyClass sharedProxy]).andReturn(self.proxy);
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
-  _mockUserNotificationCenter = OCMClassMock([UNUserNotificationCenter class]);
-  OCMStub([_mockUserNotificationCenter currentNotificationCenter]).andReturn(_mockUserNotificationCenter);
+  _mockUserNotificationCenter = OCMPartialMock([UNUserNotificationCenter currentNotificationCenter]);
 #endif
 }
 
@@ -159,6 +171,9 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 
   [_mockSharedApplication stopMocking];
   _mockSharedApplication = nil;
+
+  [_mockUserNotificationCenter stopMocking];
+  _mockUserNotificationCenter = nil;
 
   _proxy = nil;
   [super tearDown];
@@ -238,6 +253,26 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
   XCTAssertTrue(appDelegate.remoteNotificationWithFetchHandlerWasCalled);
 
   [self.mockMessaging verify];
+
+  // Verify application:didRegisterForRemoteNotificationsWithDeviceToken:
+  NSData *deviceToken = [NSData data];
+
+  OCMExpect([self.mockMessaging setAPNSToken:deviceToken]);
+
+  [appDelegate application:self.mockSharedApplication
+      didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
+
+  XCTAssertEqual(appDelegate.deviceToken, deviceToken);
+  [self.mockMessaging verify];
+
+  // Verify application:didFailToRegisterForRemoteNotificationsWithError:
+  NSError *error = [NSError errorWithDomain:@"tests" code:-1 userInfo:nil];
+
+  [appDelegate application:self.mockSharedApplication
+      didFailToRegisterForRemoteNotificationsWithError:error];
+
+  XCTAssertEqual(appDelegate.registerForRemoteNotificationsError, error);
+
 #endif
 }
 
