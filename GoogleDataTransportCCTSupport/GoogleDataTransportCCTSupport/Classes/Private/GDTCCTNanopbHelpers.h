@@ -103,9 +103,10 @@ gdt_cct_IosClientInfo GDTCCTConstructiOSClientInfo(void);
  * @note malloc is called in this method. Ensure that pb_release is called on the return value.
  *
  * @param data The proto bytes of the gdt_cct_LogResponse.
+ * @param error An error that will be populated if something went wrong during decoding.
  * @return A newly allocated gdt_cct_LogResponse from the data, if the bytes decoded properly.
  */
 FOUNDATION_EXPORT
-gdt_cct_LogResponse GDTCCTDecodeLogResponse(NSData *data);
+gdt_cct_LogResponse GDTCCTDecodeLogResponse(NSData *data, NSError **error);
 
 NS_ASSUME_NONNULL_END
