@@ -25,7 +25,7 @@ typedef void (^GDTAssertionBlock)(void);
  *
  * @return A block that can be run instead of calling NSAssert, or nil.
  */
-FOUNDATION_EXTERN GDTAssertionBlock _Nullable GDTAssertionBlockToRunInsteadOfNSAssert(void);
+FOUNDATION_EXPORT GDTAssertionBlock _Nullable GDTAssertionBlockToRunInsteadOfNSAssert(void);
 
 #if !defined(NS_BLOCK_ASSERTIONS)
 

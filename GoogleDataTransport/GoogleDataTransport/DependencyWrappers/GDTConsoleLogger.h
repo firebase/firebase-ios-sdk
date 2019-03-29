@@ -50,13 +50,13 @@ typedef NS_ENUM(NSInteger, GDTMessageCode) {
 };
 
 /** */
-FOUNDATION_EXTERN NSString *_Nonnull GDTMessageCodeEnumToString(GDTMessageCode code);
+FOUNDATION_EXPORT NSString *_Nonnull GDTMessageCodeEnumToString(GDTMessageCode code);
 
 /** Logs the warningMessage string to the console at the warning level.
  *
  * @param warningMessageFormat The format string to log to the console.
  */
-FOUNDATION_EXTERN void GDTLogWarning(GDTMessageCode messageCode,
+FOUNDATION_EXPORT void GDTLogWarning(GDTMessageCode messageCode,
                                      NSString *_Nonnull warningMessageFormat,
                                      ...) NS_FORMAT_FUNCTION(2, 3);
 
