@@ -57,10 +57,6 @@ static NSString *kReceiveDataMessageSelectorString = @"messaging:didReceiveMessa
   return [GULAppDelegateSwizzler isAppDelegateProxyEnabled];
 }
 
-+ (void)swizzleMethods {
-  [[FIRMessagingRemoteNotificationsProxy sharedProxy] swizzleMethodsIfPossible];
-}
-
 + (instancetype)sharedProxy {
   static FIRMessagingRemoteNotificationsProxy *proxy;
   static dispatch_once_t onceToken;

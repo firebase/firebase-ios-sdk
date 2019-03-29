@@ -32,6 +32,7 @@ Pod::Spec.new do |s|
   # iOS 9.
   s.ios.deployment_target = '9.0'
   s.osx.deployment_target = '10.10'
+  s.tvos.deployment_target = '10.0'
 
   # Check out only libFuzzer folder.
   s.source              = {

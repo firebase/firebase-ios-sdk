@@ -26,13 +26,14 @@
 #import "Firestore/Source/API/FIRTransaction+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Util/FSTUsageValidation.h"
 
+#include "Firestore/core/src/firebase/firestore/api/input_validation.h"
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 
+using firebase::firestore::api::ThrowInvalidArgument;
 using firebase::firestore::core::ParsedSetData;
 using firebase::firestore::core::ParsedUpdateData;
 using firebase::firestore::core::Transaction;
@@ -171,7 +172,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)validateReference:(FIRDocumentReference *)reference {
   if (reference.firestore != self.firestore) {
-    FSTThrowInvalidArgument(@"Provided document reference is from a different Firestore instance.");
+    ThrowInvalidArgument("Provided document reference is from a different Firestore instance.");
   }
 }
 

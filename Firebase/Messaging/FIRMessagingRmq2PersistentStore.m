@@ -126,7 +126,7 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
   self = [super init];
   if (self) {
     _databaseName = [databaseName copy];
-#if TARGET_OS_iOS
+#if TARGET_OS_IOS
     BOOL didMoveToApplicationSupport =
         [self moveToApplicationSupportSubDirectory:kFIRMessagingSubDirectoryName];
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/Util/FSTUsageValidation.h"
+#import "ViewController.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@interface ViewController ()
 
-NSException *FSTInvalidUsage(NSString *exceptionName, NSString *format, ...) {
-  va_list arg_list;
-  va_start(arg_list, format);
-  NSString *formattedString = [[NSString alloc] initWithFormat:format arguments:arg_list];
-  va_end(arg_list);
+@end
 
-  return [[NSException alloc] initWithName:exceptionName reason:formattedString userInfo:nil];
+@implementation ViewController
+
+- (void)viewDidLoad {
+  [super viewDidLoad];
+  // Do any additional setup after loading the view, typically from a nib.
 }
 
-NS_ASSUME_NONNULL_END
+@end
