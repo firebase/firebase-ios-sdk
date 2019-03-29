@@ -161,77 +161,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-#pragma mark - FSTBooleanValue
-
-@interface FSTBooleanValue ()
-@property(nonatomic, assign, readonly) BOOL internalValue;
-@end
-
-@implementation FSTBooleanValue
-
-+ (instancetype)trueValue {
-  static FSTBooleanValue *sharedInstance = nil;
-  static dispatch_once_t onceToken;
-
-  dispatch_once(&onceToken, ^{
-    sharedInstance = [[FSTBooleanValue alloc] initWithValue:YES];
-  });
-  return sharedInstance;
-}
-
-+ (instancetype)falseValue {
-  static FSTBooleanValue *sharedInstance = nil;
-  static dispatch_once_t onceToken;
-
-  dispatch_once(&onceToken, ^{
-    sharedInstance = [[FSTBooleanValue alloc] initWithValue:NO];
-  });
-  return sharedInstance;
-}
-
-+ (instancetype)booleanValue:(BOOL)value {
-  return value ? [FSTBooleanValue trueValue] : [FSTBooleanValue falseValue];
-}
-
-- (id)initWithValue:(BOOL)value {
-  self = [super init];
-  if (self) {
-    _internalValue = value;
-  }
-  return self;
-}
-
-- (FieldValue::Type)type {
-  return FieldValue::Type::Boolean;
-}
-
-- (FSTTypeOrder)typeOrder {
-  return FSTTypeOrderBoolean;
-}
-
-- (id)value {
-  return self.internalValue ? @YES : @NO;
-}
-
-- (BOOL)isEqual:(id)other {
-  // Since we create shared instances for true / false, we can use reference equality.
-  return self == other;
-}
-
-- (NSUInteger)hash {
-  return self.internalValue ? 1231 : 1237;
-}
-
-- (NSComparisonResult)compare:(FSTFieldValue *)other {
-  if (other.type == FieldValue::Type::Boolean) {
-    return WrapCompare<bool>(self.internalValue, ((FSTBooleanValue *)other).internalValue);
-  } else {
-    return [self defaultCompare:other];
-  }
-}
-
-@end
-
 #pragma mark - FSTNumberValue
 
 @implementation FSTNumberValue
@@ -1026,5 +955,115 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
 }
 
 @end
+
+@interface FSTDelegateValue ()
+@property(nonatomic, assign, readonly) FieldValue internalValue;
+@end
+
+@implementation FSTDelegateValue
++ (instancetype)delegateValue:(FieldValue &&)value {
+  return [[FSTDelegateValue alloc] initWithValue:std::move(value)];
+}
+
+- (id)initWithValue:(FieldValue &&)value {
+  self = [super init];
+  if (self) {
+    _internalValue = std::move(value);
+  }
+  return self;
+}
+
+- (FieldValue::Type)type {
+  return self.internalValue.type();
+}
+
+- (FSTTypeOrder)typeOrder {
+  switch (self.internalValue.type()) {
+    case FieldValue::Type::Null:
+      return FSTTypeOrderNull;
+    case FieldValue::Type::Boolean:
+      return FSTTypeOrderBoolean;
+    case FieldValue::Type::Integer:
+    case FieldValue::Type::Double:
+      return FSTTypeOrderNumber;
+    case FieldValue::Type::Timestamp:
+    case FieldValue::Type::ServerTimestamp:
+      return FSTTypeOrderTimestamp;
+    case FieldValue::Type::String:
+      return FSTTypeOrderString;
+    case FieldValue::Type::Blob:
+      return FSTTypeOrderBlob;
+    case FieldValue::Type::Reference:
+      return FSTTypeOrderReference;
+    case FieldValue::Type::GeoPoint:
+      return FSTTypeOrderGeoPoint;
+    case FieldValue::Type::Array:
+      return FSTTypeOrderArray;
+    case FieldValue::Type::Object:
+      return FSTTypeOrderObject;
+  }
+  UNREACHABLE();
+}
+
+- (BOOL)isEqual:(id)other {
+  // Simplification: We'll assume that (eg) FSTBooleanValue(true) !=
+  // FSTDelegateValue(FieldValue::FromBoolean(true)). That's not great. We'll
+  // handle this by ensuring that we remove (eg) FSTBooleanValue at the same
+  // time that FSTDelegateValue handles (eg) booleans to ensure this case never
+  // occurs.
+
+  if (other == self) {
+    return YES;
+  }
+  if (![other isKindOfClass:[self class]]) {
+    return NO;
+  }
+
+  return self.internalValue == ((FSTDelegateValue *)other).internalValue;
+}
+
+- (id)value {
+  switch (self.internalValue.type()) {
+    case FieldValue::Type::Null:
+      HARD_FAIL("TODO(rsgowman): implement");
+    case FieldValue::Type::Boolean:
+      return self.internalValue.boolean_value() ? @YES : @NO;
+    case FieldValue::Type::Integer:
+    case FieldValue::Type::Double:
+    case FieldValue::Type::Timestamp:
+    case FieldValue::Type::ServerTimestamp:
+    case FieldValue::Type::String:
+    case FieldValue::Type::Blob:
+    case FieldValue::Type::Reference:
+    case FieldValue::Type::GeoPoint:
+    case FieldValue::Type::Array:
+    case FieldValue::Type::Object:
+      HARD_FAIL("TODO(rsgowman): implement");
+  }
+  UNREACHABLE();
+}
+
+- (NSComparisonResult)compare:(FSTFieldValue *)other {
+  // Simplification: We'll assume that if self.type == other.type, then other
+  // must be a FSTDelegateValue. That's not great. We'll handle this by
+  // ensuring that we remove (eg) FSTBooleanValue at the same time that
+  // FSTDelegateValue handles (eg) booleans to ensure this case never occurs.
+
+  if (self.type == other.type) {
+    HARD_ASSERT([other isKindOfClass:[FSTDelegateValue class]]);
+    return WrapCompare<FieldValue>(self.internalValue, ((FSTDelegateValue *)other).internalValue);
+  } else {
+    return [self defaultCompare:other];
+  }
+}
+
+- (NSUInteger)hash {
+  return std::hash<FieldValue>{}(self.internalValue);
+}
+
+@end
+
+template <>
+struct Comparator<FieldValue> : public std::less<FieldValue> {};
 
 NS_ASSUME_NONNULL_END

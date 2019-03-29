@@ -124,7 +124,7 @@ NSArray *FSTWrapGroups(NSArray *groups) {
   NSArray *values = @[ @YES, @NO ];
   for (id value in values) {
     FSTFieldValue *wrapped = FSTTestFieldValue(value);
-    XCTAssertEqualObjects([wrapped class], [FSTBooleanValue class]);
+    XCTAssertEqualObjects([wrapped class], [FSTDelegateValue class]);
     XCTAssertEqualObjects([wrapped value], value);
     XCTAssertEqual(wrapped.type, FieldValue::Type::Boolean);
   }
@@ -287,7 +287,7 @@ union DoubleBits {
   FSTObjectValue *expected = [[FSTObjectValue alloc] initWithDictionary:@{
     @"a" : [FSTStringValue stringValue:@"foo"],
     @"b" : [FSTIntegerValue integerValue:1LL],
-    @"c" : [FSTBooleanValue trueValue],
+    @"c" : [FSTDelegateValue delegateValue:FieldValue::True()],
     @"d" : [FSTNullValue nullValue]
   }];
   XCTAssertEqualObjects(actual, expected);
@@ -300,7 +300,7 @@ union DoubleBits {
     @"a" : [[FSTObjectValue alloc] initWithDictionary:@{
       @"b" :
           [[FSTObjectValue alloc] initWithDictionary:@{@"c" : [FSTStringValue stringValue:@"foo"]}],
-      @"d" : [FSTBooleanValue booleanValue:YES]
+      @"d" : [FSTDelegateValue delegateValue:FieldValue::True()]
     }]
   }];
   XCTAssertEqualObjects(actual, expected);
@@ -312,7 +312,8 @@ union DoubleBits {
   FSTAssertIsKindOfClass(obj, FSTObjectValue);
 
   FSTAssertIsKindOfClass([obj valueForPath:testutil::Field("foo")], FSTObjectValue);
-  XCTAssertEqualObjects([obj valueForPath:testutil::Field("foo.a")], [FSTBooleanValue trueValue]);
+  XCTAssertEqualObjects([obj valueForPath:testutil::Field("foo.a")],
+                        [FSTDelegateValue delegateValue:FieldValue::True()]);
   XCTAssertEqualObjects([obj valueForPath:testutil::Field("foo.b")],
                         [FSTStringValue stringValue:@"string"]);
 
@@ -423,8 +424,9 @@ union DoubleBits {
 }
 
 - (void)testArrays {
-  FSTArrayValue *expected = [[FSTArrayValue alloc]
-      initWithValueNoCopy:@[ [FSTStringValue stringValue:@"value"], [FSTBooleanValue trueValue] ]];
+  FSTArrayValue *expected = [[FSTArrayValue alloc] initWithValueNoCopy:@[
+    [FSTStringValue stringValue:@"value"], [FSTDelegateValue delegateValue:FieldValue::True()]
+  ]];
 
   FSTArrayValue *actual = (FSTArrayValue *)FSTTestFieldValue(@[ @"value", @YES ]);
   XCTAssertEqualObjects(actual, expected);
@@ -434,8 +436,8 @@ union DoubleBits {
 - (void)testValueEquality {
   DatabaseId database_id = DatabaseId("project", DatabaseId::kDefault);
   NSArray *groups = @[
-    @[ FSTTestFieldValue(@YES), [FSTBooleanValue booleanValue:YES] ],
-    @[ FSTTestFieldValue(@NO), [FSTBooleanValue booleanValue:NO] ],
+    @[ FSTTestFieldValue(@YES), [FSTDelegateValue delegateValue:FieldValue::True()] ],
+    @[ FSTTestFieldValue(@NO), [FSTDelegateValue delegateValue:FieldValue::False()] ],
     @[ FSTTestFieldValue([NSNull null]), [FSTNullValue nullValue] ],
     @[ FSTTestFieldValue(@(0.0 / 0.0)), FSTTestFieldValue(@(NAN)), [FSTDoubleValue nanValue] ],
     // -0.0 and 0.0 compare: the same (but are not isEqual:)

@@ -246,7 +246,8 @@ NS_ASSUME_NONNULL_BEGIN
       return [FSTNullValue nullValue];
 
     case GCFSValue_ValueType_OneOfCase_BooleanValue:
-      return [FSTBooleanValue booleanValue:valueProto.booleanValue];
+      return [FSTDelegateValue<NSNumber *>
+          delegateValue:FieldValue::FromBoolean(valueProto.booleanValue)];
 
     case GCFSValue_ValueType_OneOfCase_IntegerValue:
       return [FSTIntegerValue integerValue:valueProto.integerValue];

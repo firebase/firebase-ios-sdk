@@ -328,4 +328,11 @@ inline bool operator==(const ObjectValue& lhs, const ObjectValue& rhs) {
 }  // namespace firestore
 }  // namespace firebase
 
+namespace std {
+template <>
+struct hash<firebase::firestore::model::FieldValue> {
+  size_t operator()(const firebase::firestore::model::FieldValue& fv) const;
+};
+}  // namespace std
+
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_FIELD_VALUE_H_
