@@ -1,4 +1,8 @@
 # Unreleased
+- [fixed] Fixed a use-after-free bug that could be observed when using snapshot
+  listeners on temporary document references (#2682).
+
+# 1.2.0
 - [fixed] Fixed the way gRPC certificates are loaded on macOS (#2604).
 
 # 1.1.0

@@ -202,7 +202,9 @@ ListenerRegistration DocumentReference::AddSnapshotListener(
    public:
     Converter(DocumentReference* parent,
               DocumentSnapshot::Listener&& user_listener)
-        : parent_(parent), user_listener_(std::move(user_listener)) {
+        : firestore_(parent->firestore_),
+          key_(parent->key_),
+          user_listener_(std::move(user_listener)) {
     }
 
     void OnEvent(StatusOr<ViewSnapshot> maybe_snapshot) override {
@@ -210,26 +212,25 @@ ListenerRegistration DocumentReference::AddSnapshotListener(
         user_listener_->OnEvent(maybe_snapshot.status());
         return;
       }
-      Firestore* firestore = parent_->firestore_;
-      DocumentKey key = parent_->key_;
 
       ViewSnapshot snapshot = std::move(maybe_snapshot).ValueOrDie();
       HARD_ASSERT(snapshot.documents().size() <= 1,
                   "Too many documents returned on a document query");
-      FSTDocument* document = snapshot.documents().GetDocument(key);
+      FSTDocument* document = snapshot.documents().GetDocument(key_);
 
       bool has_pending_writes =
-          document ? snapshot.mutated_keys().contains(key)
+          document ? snapshot.mutated_keys().contains(key_)
                    // We don't raise `has_pending_writes` for deleted documents.
                    : false;
 
-      DocumentSnapshot result{firestore, std::move(key), document,
-                              snapshot.from_cache(), has_pending_writes};
+      DocumentSnapshot result{firestore_, key_, document, snapshot.from_cache(),
+                              has_pending_writes};
       user_listener_->OnEvent(std::move(result));
     }
 
    private:
-    DocumentReference* parent_;
+    Firestore* firestore_;
+    DocumentKey key_;
     DocumentSnapshot::Listener user_listener_;
   };
   auto view_listener =
