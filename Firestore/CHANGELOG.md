@@ -1,4 +1,6 @@
 # Unreleased
+
+# 1.2.1
 - [fixed] Fixed a use-after-free bug that could be observed when using snapshot
   listeners on temporary document references (#2682).
 
