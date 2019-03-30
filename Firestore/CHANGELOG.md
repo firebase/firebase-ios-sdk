@@ -1,5 +1,7 @@
 # Unreleased
 - [feature] Added community support for tvOS.
+- [fixed] Fixed a use-after-free bug that could be observed when using snapshot
+  listeners on temporary document references (#2682).
 
 # 1.2.0
 - [feature] Added community support for macOS (#434).
