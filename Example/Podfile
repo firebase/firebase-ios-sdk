@@ -149,7 +149,7 @@ target 'Auth_Sample' do
 end
 
 target 'Core_Example_macOS' do
-  platform :osx, '10.10'
+  platform :osx, '10.11'
 
   pod 'FirebaseCore', :path => '../'
 
@@ -160,7 +160,7 @@ target 'Core_Example_macOS' do
 end
 
 target 'Auth_Example_macOS' do
-  platform :osx, '10.10'
+  platform :osx, '10.11'
 
   pod 'FirebaseAuth', :path => '../'
 
@@ -171,7 +171,7 @@ target 'Auth_Example_macOS' do
 end
 
 target 'Database_Example_macOS' do
-  platform :osx, '10.10'
+  platform :osx, '10.11'
 
   pod 'FirebaseDatabase', :path => '../'
 
@@ -185,7 +185,7 @@ target 'Database_Example_macOS' do
 end
 
 target 'Storage_Example_macOS' do
-  platform :osx, '10.10'
+  platform :osx, '10.11'
 
   pod 'FirebaseStorage', :path => '../'
 

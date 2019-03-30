@@ -62,8 +62,8 @@ def sync_firestore()
     'SwiftTests',
   ]
 
-  ['Firestore_Tests_iOS', 'Firestore_Tests_macOS'].each do |target_name|
-    s.target target_name do |t|
+  ['iOS', 'macOS', 'tvOS'].each do |platform|
+    s.target "Firestore_Tests_#{platform}" do |t|
       t.source_files = [
         'Firestore/Example/Tests/**',
         'Firestore/core/test/**',
@@ -80,16 +80,18 @@ def sync_firestore()
     end
   end
 
-  s.target 'Firestore_IntegrationTests_iOS' do |t|
-    t.source_files = [
-      'Firestore/Example/Tests/Integration/**',
-      'Firestore/Example/Tests/Util/FSTEventAccumulator.mm',
-      'Firestore/Example/Tests/Util/FSTHelpers.mm',
-      'Firestore/Example/Tests/Util/FSTIntegrationTestCase.mm',
-      'Firestore/Example/Tests/Util/XCTestCase+Await.mm',
-      'Firestore/Example/Tests/en.lproj/InfoPlist.strings',
-      'Firestore/core/test/firebase/firestore/testutil/**',
-    ]
+  ['iOS', 'macOS', 'tvOS'].each do |platform|
+    s.target "Firestore_IntegrationTests_#{platform}" do |t|
+      t.source_files = [
+        'Firestore/Example/Tests/Integration/**',
+        'Firestore/Example/Tests/Util/FSTEventAccumulator.mm',
+        'Firestore/Example/Tests/Util/FSTHelpers.mm',
+        'Firestore/Example/Tests/Util/FSTIntegrationTestCase.mm',
+        'Firestore/Example/Tests/Util/XCTestCase+Await.mm',
+        'Firestore/Example/Tests/en.lproj/InfoPlist.strings',
+        'Firestore/core/test/firebase/firestore/testutil/**',
+      ]
+    end
   end
 
   s.sync()

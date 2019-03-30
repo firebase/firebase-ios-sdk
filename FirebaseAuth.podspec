@@ -18,7 +18,7 @@ supports email and password accounts, as well as several 3rd party authenticatio
   }
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '8.0'
-  s.osx.deployment_target = '10.10'
+  s.osx.deployment_target = '10.11'
   s.tvos.deployment_target = '10.0'
 
   s.cocoapods_version = '>= 1.4.0'

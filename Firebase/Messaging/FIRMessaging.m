@@ -259,7 +259,7 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
                              @"proper integration.",
                              kFIRMessagingRemoteNotificationsProxyEnabledInfoPlistKey,
                              docsURLString);
-    [FIRMessagingRemoteNotificationsProxy swizzleMethods];
+    [[FIRMessagingRemoteNotificationsProxy sharedProxy] swizzleMethodsIfPossible];
   }
 }
 
