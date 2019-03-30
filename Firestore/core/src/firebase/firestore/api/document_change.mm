@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,24 @@
  * limitations under the License.
  */
 
-#import "FIRDocumentChange.h"
-
-#import <Foundation/Foundation.h>
-
 #include "Firestore/core/src/firebase/firestore/api/document_change.h"
 
-using firebase::firestore::api::DocumentChange;
+#include "Firestore/core/src/firebase/firestore/util/hashing.h"
 
-NS_ASSUME_NONNULL_BEGIN
+namespace firebase {
+namespace firestore {
+namespace api {
 
-@interface FIRDocumentChange (/* Init */)
+size_t DocumentChange::Hash() const {
+  return util::Hash(static_cast<int>(type_), document_, old_index_, new_index_);
+}
 
-- (instancetype)initWithDocumentChange:(DocumentChange)documentChange NS_DESIGNATED_INITIALIZER;
+bool operator==(const DocumentChange& lhs, const DocumentChange& rhs) {
+  return lhs.type() == rhs.type() && lhs.document() == rhs.document() &&
+         lhs.old_index() == rhs.old_index() &&
+         lhs.new_index() == rhs.new_index();
+}
 
-@end
-
-NS_ASSUME_NONNULL_END
+}  // namespace api
+}  // namespace firestore
+}  // namespace firebase

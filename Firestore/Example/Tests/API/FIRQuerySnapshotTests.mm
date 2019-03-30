@@ -42,16 +42,6 @@ using firebase::firestore::model::DocumentSet;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRDocumentChange ()
-
-// Expose initializer for testing.
-- (instancetype)initWithType:(FIRDocumentChangeType)type
-                    document:(FIRQueryDocumentSnapshot *)document
-                    oldIndex:(NSUInteger)oldIndex
-                    newIndex:(NSUInteger)newIndex;
-
-@end
-
 @interface FIRQuerySnapshotTests : XCTestCase
 @end
 
@@ -111,36 +101,23 @@ NS_ASSUME_NONNULL_BEGIN
                                                                   snapshot:std::move(viewSnapshot)
                                                                   metadata:std::move(metadata)];
 
-  FIRQueryDocumentSnapshot *doc1Snap =
-      [[FIRQueryDocumentSnapshot alloc] initWithFirestore:firestore
-                                              documentKey:doc1New.key
-                                                 document:doc1New
-                                                fromCache:false
-                                         hasPendingWrites:false];
-  FIRQueryDocumentSnapshot *doc2Snap =
-      [[FIRQueryDocumentSnapshot alloc] initWithFirestore:firestore
-                                              documentKey:doc2New.key
-                                                 document:doc2New
-                                                fromCache:false
-                                         hasPendingWrites:false];
+  DocumentSnapshot doc1Snap{firestore, doc1New.key, doc1New, SnapshotMetadata{}};
+  DocumentSnapshot doc2Snap{firestore, doc2New.key, doc2New, SnapshotMetadata{}};
 
   NSArray<FIRDocumentChange *> *changesWithoutMetadata = @[
-    [[FIRDocumentChange alloc] initWithType:FIRDocumentChangeTypeModified
-                                   document:doc2Snap
-                                   oldIndex:1
-                                   newIndex:1],
+    [[FIRDocumentChange alloc]
+        initWithDocumentChange:DocumentChange{DocumentChange::Type::Modified, doc2Snap,
+                                              /*oldIndex=*/1, /*newIndex=*/1}],
   ];
   XCTAssertEqualObjects(snapshot.documentChanges, changesWithoutMetadata);
 
   NSArray<FIRDocumentChange *> *changesWithMetadata = @[
-    [[FIRDocumentChange alloc] initWithType:FIRDocumentChangeTypeModified
-                                   document:doc1Snap
-                                   oldIndex:0
-                                   newIndex:0],
-    [[FIRDocumentChange alloc] initWithType:FIRDocumentChangeTypeModified
-                                   document:doc2Snap
-                                   oldIndex:1
-                                   newIndex:1],
+    [[FIRDocumentChange alloc]
+        initWithDocumentChange:DocumentChange{DocumentChange::Type::Modified, doc1Snap,
+                                              /*oldIndex=*/0, /*newIndex=*/0}],
+    [[FIRDocumentChange alloc]
+        initWithDocumentChange:DocumentChange{DocumentChange::Type::Modified, doc2Snap,
+                                              /*oldIndex=*/1, /*newIndex=*/1}],
   ];
   XCTAssertEqualObjects([snapshot documentChangesWithIncludeMetadataChanges:YES],
                         changesWithMetadata);
