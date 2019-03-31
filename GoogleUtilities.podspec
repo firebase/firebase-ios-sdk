@@ -19,7 +19,7 @@ other Google CocoaPods. They're not intended for direct public usage.
   # Technically GoogleUtilites requires iOS 7, but it supports a dependency pod with a minimum
   # iOS 6, that will do runtime checking to avoid calling into GoogleUtilities.
   s.ios.deployment_target = '6.0'
-  s.osx.deployment_target = '10.10'
+  s.osx.deployment_target = '10.11'
   s.tvos.deployment_target = '10.0'
 
   s.cocoapods_version = '>= 1.4.0'
