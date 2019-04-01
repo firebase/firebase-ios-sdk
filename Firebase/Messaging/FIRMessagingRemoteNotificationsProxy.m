@@ -678,4 +678,46 @@ id userInfoFromNotification(id notification) {
   return notificationUserInfo;
 }
 
+void FCM_swizzle_messagingDidReceiveMessage(id self, SEL _cmd, FIRMessaging *message,
+                                            FIRMessagingRemoteMessage *remoteMessage) {
+  [[FIRMessaging messaging] appDidReceiveMessage:remoteMessage.appData];
+
+  IMP original_imp =
+      [[FIRMessagingRemoteNotificationsProxy sharedProxy] originalImplementationForSelector:_cmd];
+  if (original_imp) {
+    ((void (*)(id, SEL, FIRMessaging *, FIRMessagingRemoteMessage *))original_imp)(
+        self, _cmd, message, remoteMessage);
+  }
+}
+
+void FCM_swizzle_appDidFailToRegisterForRemoteNotifications(id self,
+                                                            SEL _cmd,
+                                                            UIApplication *app,
+                                                            NSError *error) {
+  // Log the fact that we failed to register for remote notifications
+  FIRMessagingLoggerError(kFIRMessagingMessageCodeRemoteNotificationsProxyAPNSFailed,
+                          @"Error in "
+                          @"application:didFailToRegisterForRemoteNotificationsWithError: %@",
+                          error.localizedDescription);
+  IMP original_imp =
+      [[FIRMessagingRemoteNotificationsProxy sharedProxy] originalImplementationForSelector:_cmd];
+  if (original_imp) {
+    ((void (*)(id, SEL, UIApplication *, NSError *))original_imp)(self, _cmd, app, error);
+  }
+}
+
+void FCM_swizzle_appDidRegisterForRemoteNotifications(id self,
+                                                      SEL _cmd,
+                                                      UIApplication *app,
+                                                      NSData *deviceToken) {
+  // Pass the APNSToken along to FIRMessaging (and auto-detect the token type)
+  [FIRMessaging messaging].APNSToken = deviceToken;
+
+  IMP original_imp =
+      [[FIRMessagingRemoteNotificationsProxy sharedProxy] originalImplementationForSelector:_cmd];
+  if (original_imp) {
+    ((void (*)(id, SEL, UIApplication *, NSData *))original_imp)(self, _cmd, app, deviceToken);
+  }
+}
+
 @end
