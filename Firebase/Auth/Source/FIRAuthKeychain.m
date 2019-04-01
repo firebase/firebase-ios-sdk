@@ -21,14 +21,6 @@
 #import "FIRAuthErrorUtils.h"
 #import "FIRAuthUserDefaultsStorage.h"
 
-#import <UIKit/UIKit.h>
-
-/** @var kOSVersionMatcherForUsingUserDefaults
-    @brief The regular expression to match all OS versions that @c FIRAuthUserDefaultsStorage is
-        used instead if available.
- */
-static NSString *const kOSVersionMatcherForUsingUserDefaults = @"^10\\.[01](\\..*)?$";
-
 /** @var kAccountPrefix
     @brief The prefix string for keychain item account attribute before the key.
     @remarks A number "1" is encoded in the prefix in case we need to upgrade the scheme in future.
