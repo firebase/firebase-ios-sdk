@@ -106,7 +106,10 @@ static NSString *kUserNotificationDidReceiveResponseSelectorString =
 }
 
 - (void)unswizzleAllMethods {
-  [GULAppDelegateSwizzler unregisterAppDelegateInterceptorWithID:self.appDelegateInterceptorID];
+  if (self.appDelegateInterceptorID) {
+    [GULAppDelegateSwizzler unregisterAppDelegateInterceptorWithID:self.appDelegateInterceptorID];
+  }
+
   for (NSString *className in self.swizzledSelectorsByClass) {
     Class klass = NSClassFromString(className);
     NSArray *selectorStrings = self.swizzledSelectorsByClass[className];
@@ -391,10 +394,12 @@ id getNamedPropertyFromObject(id object, NSString *propertyName, Class klass) {
 
 #pragma mark - UIApplicationDelegate
 
+#if TARGET_OS_IOS
 - (void)application:(UIApplication *)application
 didReceiveRemoteNotification:(NSDictionary *)userInfo {
   [[FIRMessaging messaging] appDidReceiveMessage:userInfo];
 }
+#endif // TARGET_OS_IOS
 
 - (void)application:(UIApplication *)application
 didReceiveRemoteNotification:(NSDictionary *)userInfo

@@ -194,6 +194,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 }
 
 - (void)testSwizzledIncompleteAppDelegateRemoteNotificationMethod {
+#if TARGET_OS_IOS
   IncompleteAppDelegate *incompleteAppDelegate = [[IncompleteAppDelegate alloc] init];
   [OCMStub([self.mockSharedApplication delegate]) andReturn:incompleteAppDelegate];
   [self.proxy swizzleMethodsIfPossible];
@@ -205,6 +206,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
         didReceiveRemoteNotification:notification];
 
   [self.mockMessaging verify];
+#endif // TARGET_OS_IOS
 }
 
 - (void)testIncompleteAppDelegateRemoteNotificationWithFetchHandlerMethod {
@@ -215,8 +217,11 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
   SEL remoteNotificationWithFetchHandler =
       @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:);
   XCTAssertFalse([incompleteAppDelegate respondsToSelector:remoteNotificationWithFetchHandler]);
+
+#if TARGET_OS_IOS
   SEL remoteNotification = @selector(application:didReceiveRemoteNotification:);
   XCTAssertTrue([incompleteAppDelegate respondsToSelector:remoteNotification]);
+#endif // TARGET_OS_IOS
 }
 
 - (void)testSwizzledAppDelegateRemoteNotificationMethods {
