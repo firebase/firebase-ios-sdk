@@ -55,6 +55,8 @@ static NSString *const kValidImageURL =
 }
 
 #if TARGET_OS_IOS && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
+#ifdef COCOAPODS
+// This test requires internet access.
 - (void)testModifyNotificationWithValidPayloadData {
   XCTestExpectation *validPayloadExpectation =
       [self expectationWithDescription:@"Test payload is valid."];
@@ -70,6 +72,7 @@ static NSString *const kValidImageURL =
                                      completionHandler:[OCMArg any]]);
   [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
+#endif
 
 - (void)testModifyNotificationWithInvalidPayloadData {
   XCTestExpectation *validPayloadExpectation =

@@ -31,7 +31,7 @@ Pod::Spec.new do |s|
   # LibFuzzer uses thread_local which does not appear to be supported before
   # iOS 9.
   s.ios.deployment_target = '9.0'
-  s.osx.deployment_target = '10.10'
+  s.osx.deployment_target = '10.11'
   s.tvos.deployment_target = '10.0'
 
   # Check out only libFuzzer folder.
