@@ -52,7 +52,7 @@ For release engineers (Googlers packaging an upcoming Firebase release) these co
   - This pulls the latest podspecs from the CocoaPods staging area.
 - `-releasingSDKs <PATH_TO_current.textproto>` and
 - `-existingVersions <PATH_TO_all_firebase_ios_sdks.textproto>`
-  - Validates the version numbers fetched from CocoaPods staging against the expected released versions from these 
+  - Validates the version numbers fetched from CocoaPods staging against the expected released versions from these
     textprotos.
 
 Putting them all together, here's a common command to build a releaseable Zip file:
