@@ -71,7 +71,7 @@ static char const *const kGULOpenURLOptionsSourceAnnotationsIMPKey =
     "GUL_openURLSourceApplicationAnnotationIMP";
 static char const *const kGULRealDidReceiveRemoteNotificationIMPKey =
     "GUL_didReceiveRemoteNotificationIMP";
-#endif // TARGET_OS_IOS
+#endif  // TARGET_OS_IOS
 
 static char const *const kGULRealDidRegisterForRemoteNotificationsIMPKey =
     "GUL_didRegisterForRemoteNotificationsIMP";
@@ -379,12 +379,12 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
                                               fromClass:[GULAppDelegateSwizzler class]
                                                 toClass:appDelegateSubClass];
   GULRealDidReceiveRemoteNotificationIMP didReceiveRemoteNotificationIMP =
-  (GULRealDidReceiveRemoteNotificationIMP)
-  [GULAppDelegateSwizzler implementationOfMethodSelector:didReceiveRemoteNotificationSEL
-                                               fromClass:realClass];
+      (GULRealDidReceiveRemoteNotificationIMP)
+          [GULAppDelegateSwizzler implementationOfMethodSelector:didReceiveRemoteNotificationSEL
+                                                       fromClass:realClass];
   NSValue *didReceiveRemoteNotificationIMPPointer =
-  [NSValue valueWithPointer:didReceiveRemoteNotificationIMP];
-#endif // TARGET_OS_IOS
+      [NSValue valueWithPointer:didReceiveRemoteNotificationIMP];
+#endif  // TARGET_OS_IOS
 
   // For application:handleEventsForBackgroundURLSession:completionHandler:
   SEL handleEventsForBackgroundURLSessionSEL = @selector(application:
@@ -472,8 +472,8 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
   objc_setAssociatedObject(anObject, &kGULRealDidReceiveRemoteNotificationIMPKey,
                            didReceiveRemoteNotificationIMPPointer,
                            OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-#endif // TARGET_OS_IOS
-  
+#endif  // TARGET_OS_IOS
+
   objc_setAssociatedObject(anObject, &kGULRealDidRegisterForRemoteNotificationsIMPKey,
                            didRegisterForRemoteNotificationsIMPPointer,
                            OBJC_ASSOCIATION_RETAIN_NONATOMIC);
@@ -697,7 +697,7 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
   return returnedValue;
 }
 
-#endif // TARGET_OS_IOS
+#endif  // TARGET_OS_IOS
 
 #pragma mark - [Donor Methods] Network overridden handler methods
 
@@ -852,7 +852,7 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
   }
 }
 
-#endif // TARGET_OS_IOS
+#endif  // TARGET_OS_IOS
 
 + (void)proxyAppDelegate:(id<UIApplicationDelegate>)appDelegate {
   if (![appDelegate conformsToProtocol:@protocol(UIApplicationDelegate)]) {

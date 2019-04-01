@@ -161,7 +161,7 @@ static BOOL gRespondsToHandleBackgroundSession;
   self.application = application;
   self.remoteNotification = userInfo;
 }
-#endif // TARGET_OS_IOS
+#endif  // TARGET_OS_IOS
 
 - (void)application:(UIApplication *)application
     didReceiveRemoteNotification:(NSDictionary *)userInfo
@@ -217,7 +217,7 @@ static BOOL gRespondsToHandleBackgroundSession;
   _URLForIOS8 = [url copy];
   return YES;
 }
-#endif // TARGET_OS_IOS
+#endif  // TARGET_OS_IOS
 
 #if SDK_HAS_USERACTIVITY
 
@@ -288,8 +288,8 @@ static BOOL gRespondsToHandleBackgroundSession;
       respondsToSelector:@selector(application:openURL:sourceApplication:annotation:)]);
 
   XCTAssertTrue([realAppDelegate respondsToSelector:@selector(application:
-                                                              didReceiveRemoteNotification:)]);
-#endif // TARGET_OS_IOS
+                                                        didReceiveRemoteNotification:)]);
+#endif  // TARGET_OS_IOS
 
   XCTAssertTrue([realAppDelegate respondsToSelector:@selector(application:
                                                         continueUserActivity:restorationHandler:)]);
@@ -603,7 +603,7 @@ static BOOL gRespondsToHandleBackgroundSession;
   // The result is YES if one of the interceptors returns YES.
   XCTAssertTrue(shouldOpen);
 }
-#endif // TARGET_OS_IOS
+#endif  // TARGET_OS_IOS
 
 /** Tests that application:handleEventsForBackgroundURLSession:completionHandler: is invoked on the
  *  interceptors if it exists.
@@ -785,7 +785,7 @@ static BOOL gRespondsToHandleBackgroundSession;
 
   XCTAssertEqual(testAppDelegate.application, application);
   XCTAssertEqual(testAppDelegate.remoteNotification, notification);
-#endif // TARGET_OS_IOS
+#endif  // TARGET_OS_IOS
 }
 
 - (void)testApplicationDidReceiveRemoteNotificationWithCompletionIsInvokedOnInterceptors {
