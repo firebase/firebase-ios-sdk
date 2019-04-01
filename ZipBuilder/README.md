@@ -35,11 +35,15 @@ Scheme" and adding them in the "Arguments Passed On Launch" section.
 
 ### Common Arguments
 
-Some common arguments (when run from the `ZipBuilder` directory):
+These arguments assume you're running the command from the `ZipBuilder` directory.
+
+**Required** arguments:
 - `-templateDir $(pwd)/Template`
   - This should always be the same.
 - `-coreDiagnosticsDir <PATH_TO_FirebaseCoreDiagnostics.framework>`
   - Needed to overwrite the existing Core Diagnostics framework.
+
+Optional comon arguments:
 - `-updatePodRepo false`
   - This is for speedups when `pod repo update` has already been run recently.
 
@@ -51,7 +55,7 @@ For release engineers (Googlers packaging an upcoming Firebase release) these co
   - Validates the version numbers fetched from CocoaPods staging against the expected released versions from these 
     textprotos.
 
-Putting them all together, here's the command:
+Putting them all together, here's a common command to build a releaseable Zip file:
 
 ```
 swift run ZipBuilder -templateDir $(pwd)/Template -updatePodRepo false \
