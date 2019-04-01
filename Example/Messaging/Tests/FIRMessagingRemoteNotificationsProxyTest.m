@@ -136,6 +136,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
   _mockUserNotificationCenter = OCMClassMock([UNUserNotificationCenter class]);
   OCMStub([_mockUserNotificationCenter currentNotificationCenter]).andReturn(_mockUserNotificationCenter);
+
 #endif
 }
 
