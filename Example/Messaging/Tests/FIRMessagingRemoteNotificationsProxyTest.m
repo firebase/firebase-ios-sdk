@@ -24,9 +24,6 @@
 #import "FIRMessaging.h"
 #import "FIRMessagingRemoteNotificationsProxy.h"
 
-#import <GoogleUtilities/GULLogger.h>
-#import <GoogleUtilities/GULAppDelegateSwizzler.h>
-
 #pragma mark - Invalid App Delegate or UNNotificationCenter
 
 @interface RandomObject : NSObject
@@ -110,10 +107,6 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 @end
 #endif // __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 
-@interface GULAppDelegateSwizzler (FIRMessagingRemoteNotificationsProxyTest)
-+ (void)resetProxyOriginalDelegateOnceToken;
-@end
-
 #pragma mark - Local, Per-Test Properties
 
 @interface FIRMessagingRemoteNotificationsProxyTest : XCTestCase
@@ -130,10 +123,6 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 
 - (void)setUp {
   [super setUp];
-
-  GULLoggerForceDebug();
-  [GULAppDelegateSwizzler resetProxyOriginalDelegateOnceToken];
-
   _mockSharedApplication = OCMPartialMock([UIApplication sharedApplication]);
 
   _mockMessaging = OCMClassMock([FIRMessaging class]);
@@ -198,7 +187,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
   [self.proxy swizzleMethodsIfPossible];
 
   SEL remoteNotificationWithFetchHandler =
-      @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:);
+  @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:);
   XCTAssertFalse([incompleteAppDelegate respondsToSelector:remoteNotificationWithFetchHandler]);
   SEL remoteNotification = @selector(application:didReceiveRemoteNotification:);
   XCTAssertTrue([incompleteAppDelegate respondsToSelector:remoteNotification]);
@@ -230,7 +219,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
   // Verify our swizzled method was called
   OCMExpect([self.mockMessaging appDidReceiveMessage:notification]);
 
-  [appDelegate application:self.mockSharedApplication
+  [appDelegate application:OCMClassMock([UIApplication class])
       didReceiveRemoteNotification:notification
       fetchCompletionHandler:^(UIBackgroundFetchResult result) {}];
 
