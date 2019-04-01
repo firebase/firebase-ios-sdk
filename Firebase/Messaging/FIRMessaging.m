@@ -880,7 +880,6 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 - (void)receiver:(FIRMessagingReceiver *)receiver
       receivedRemoteMessage:(FIRMessagingRemoteMessage *)remoteMessage {
   if ([self.delegate respondsToSelector:@selector(messaging:didReceiveMessage:)]) {
-    [self appDidReceiveMessage:remoteMessage.appData];
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunguarded-availability"
     [self.delegate messaging:self didReceiveMessage:remoteMessage];
