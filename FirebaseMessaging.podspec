@@ -41,7 +41,6 @@ device, and it is completely free.
   s.dependency 'FirebaseAnalyticsInterop', '~> 1.1'
   s.dependency 'FirebaseCore', '~> 5.2'
   s.dependency 'FirebaseInstanceID', '~> 3.6'
-  s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 5.3'
   s.dependency 'GoogleUtilities/Reachability', '~> 5.3'
   s.dependency 'GoogleUtilities/Environment', '~> 5.3'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 5.3'
