@@ -289,17 +289,17 @@ NS_SWIFT_NAME(Auth)
 
     @remarks The string used to set this property must be a language code that follows BCP 47.
  */
-@property (nonatomic, copy, nullable) NSString *languageCode;
+@property(nonatomic, copy, nullable) NSString *languageCode;
 
 /** @property settings
     @brief Contains settings related to the auth object.
  */
-@property (nonatomic, copy, nullable) FIRAuthSettings *settings;
+@property(nonatomic, copy, nullable) FIRAuthSettings *settings;
 
 /** @property userAccessGroup
     @brief The current user access group that the Auth instance is using. Default is nil.
  */
-@property (readonly, nonatomic, copy, nullable) NSString *userAccessGroup;
+@property(readonly, nonatomic, copy, nullable) NSString *userAccessGroup;
 
 #if TARGET_OS_IOS
 /** @property APNSToken

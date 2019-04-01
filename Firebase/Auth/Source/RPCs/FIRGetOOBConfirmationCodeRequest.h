@@ -99,7 +99,7 @@ typedef NS_ENUM(NSInteger, FIRGetOOBConfirmationCodeRequestType) {
 /** @property dynamicLinkDomain
     @brief The Firebase Dynamic Link domain used for out of band code flow.
  */
-@property (copy, nonatomic, nullable) NSString *dynamicLinkDomain;
+@property(copy, nonatomic, nullable) NSString *dynamicLinkDomain;
 
 
 /** @fn passwordResetRequestWithEmail:actionCodeSettings:requestConfiguration:
