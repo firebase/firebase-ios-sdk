@@ -30,7 +30,7 @@ namespace {
 
 template <typename T>
 [[noreturn]] void Throw(const char* kind, const T& error) {
-  LOG_ERROR(ERROR, "%s: %s", kind, error.what());
+  LOG_ERROR("%s: %s", kind, error.what());
   std::abort();
 }
 
