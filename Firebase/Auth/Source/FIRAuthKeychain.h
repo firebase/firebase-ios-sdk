@@ -65,6 +65,33 @@ NS_ASSUME_NONNULL_BEGIN
     @brief The utility class to manipulate data in iOS Keychain.
  */
 @interface FIRAuthKeychain : NSObject <FIRAuthStorage>
+
+/** @fn getItemWithQuery:error:
+    @brief Get the item from keychain by given query.
+    @param query The query to query the keychain.
+    @param outError The address to store any error that occurs during the process, if not nil.
+    @return The item of the given query. nil if not exsit.
+ */
+- (NSData *)getItemWithQuery:(NSDictionary *)query error:(NSError *_Nullable *_Nullable)outError;
+
+/** @fn setItem:withQuery:error:
+    @brief Set the item into keychain with given query.
+    @param item The item to be added into keychain.
+    @param query The query to query the keychain.
+    @param outError The address to store any error that occurs during the process, if not nil.
+    @return Whether the operation succeed.
+ */
+- (BOOL)setItem:(NSData *)item withQuery:(NSDictionary *)query
+          error:(NSError *_Nullable *_Nullable)outError;
+
+/** @fn getItemWithQuery:error:
+    @brief Remove the item with given queryfrom keychain.
+    @param query The query to query the keychain.
+    @param outError The address to store any error that occurs during the process, if not nil.
+    @return Whether the operation succeed.
+ */
+- (BOOL)removeItemWithQuery:(NSDictionary *)query error:(NSError *_Nullable *_Nullable)outError;
+
 @end
 
 NS_ASSUME_NONNULL_END
