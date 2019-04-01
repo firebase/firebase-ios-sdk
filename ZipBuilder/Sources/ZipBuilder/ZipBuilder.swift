@@ -33,8 +33,6 @@ private struct Constants {
     public static let modulemap = "module.modulemap"
     public static let notices = "NOTICES"
 
-    // Directory containing extra FirebaseCrash scripts.
-    public static let crashDir = "Crash"
 
     /// All required files for distribution. Note: the readmeTemplate is also needed for
     /// distribution but is copied separately since it's modified.
