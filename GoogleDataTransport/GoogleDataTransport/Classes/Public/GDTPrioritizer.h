@@ -32,6 +32,9 @@ typedef NS_OPTIONS(NSInteger, GDTUploadConditions) {
 
   /** An upload would likely use wifi data. */
   GDTUploadConditionWifiData,
+
+  /** A high priority event has occurred. */
+  GDTUploadConditionHighPriority,
 };
 
 /** This protocol defines the common interface of event prioritization. Prioritizers are

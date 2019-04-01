@@ -152,7 +152,7 @@
   [testServer stop];
 }
 
-/** Generates and events a bunch of random events. */
+/** Generates a bunch of random events. */
 - (void)generateEvents {
   for (int i = 0; i < 50; i++) {
     // Choose a random transport, and randomly choose if it's a telemetry event.
