@@ -4,9 +4,11 @@ This project builds the Firebase iOS Zip file for distribution.
 
 ## Overview
 
-This is a small Swift Package Manager project that allows users to package a Firebase iOS Zip file. With no launch arguments, it will use the most recent public versions of all SDKs included in the zip file.
+This is a small Swift Package Manager project that allows users to package a Firebase iOS Zip file. With no launch
+arguments, it will use the most recent public versions of all SDKs included in the zip file.
 
-It was designed to fail fast with an explanation of what went wrong, so you can fix issues or dig in without having to dig too deep into the code.
+It was designed to fail fast with an explanation of what went wrong, so you can fix issues or dig in without having to dig
+too deep into the code.
 
 ## Requirements
 
@@ -18,17 +20,51 @@ In order to build the Zip file, you will need:
 
 ## Running the Tool
 
-You can run the tool with `swift run ZipBuilder [ARGS]` or generate an Xcode project with `swift package generate-xcodeproj` and run within Xcode.
+You can run the tool with `swift run ZipBuilder [ARGS]` or generate an Xcode project with
+`swift package generate-xcodeproj` and run within Xcode.
+
+In the near future, releases will be built via a builder server instead of on the release engineer's machine, making these
+instructions more of a reference to understand what's going on instead of how to build it yourself.
 
 ## Launch Arguments
 
 See `main.swift` and the `LaunchArgs` struct for information on specific launch arguments.
 
-You can pass in launch arguments with Xcode by clicking "ZipBuilder" beside the Run/Stop buttons, clicking "Edit Scheme" and adding them in the "Arguments Passed On Launch" section. 
+You can pass in launch arguments with Xcode by clicking "ZipBuilder" beside the Run/Stop buttons, clicking "Edit
+Scheme" and adding them in the "Arguments Passed On Launch" section.
+
+### Common Arguments
+
+Some common arguments (when run from the `ZipBuilder` directory):
+- `-templateDir $(pwd)/Template`
+  - This should always be the same.
+- `-coreDiagnosticsDir <PATH_TO_FirebaseCoreDiagnostics.framework>`
+  - Needed to overwrite the existing Core Diagnostics framework.
+- `-updatePodRepo false`
+  - This is for speedups when `pod repo update` has already been run recently.
+
+For release engineers (Googlers packaging an upcoming Firebase release) these commands should also be used:
+-  `-customSpecRepos sso://cpdc-internal/firebase`
+  - This pulls the latest podspecs from the CocoaPods staging area.
+- `-releasingSDKs <PATH_TO_current.textproto>` and
+- `-existingVersions <PATH_TO_all_firebase_ios_sdks.textproto>`
+  - Validates the version numbers fetched from CocoaPods staging against the expected released versions from these 
+    textprotos.
+
+Putting them all together, here's the command:
+
+```
+swift run ZipBuilder -templateDir $(pwd)/Template -updatePodRepo false \
+-coreDiagnosticsDir /private/tmp/tmpUqBxKN/FirebaseCoreDiagnostics.framework \
+-releasingSDKs <PATH_TO_current.textproto> \
+-existingVersions <PATH_TO_all_firebase_ios_sdks.textproto> \
+-customSpecRepos sso://cpdc-internal/firebase
+```
 
 ## Debugging
 
-You can generate an Xcode project for the tool by running `swift package generate-xcodeproj` in this directory. See the above instructions for adding Launch Arguments to the Xcode build.
+You can generate an Xcode project for the tool by running `swift package generate-xcodeproj` in this directory.
+See the above instructions for adding Launch Arguments to the Xcode build.
 
 ## Priorities
 
