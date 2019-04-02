@@ -16,18 +16,16 @@
 
 #import "FIRListenerRegistration.h"
 
-@class FSTAsyncQueryListener;
-@class FSTFirestoreClient;
-@class FSTQueryListener;
+#include "Firestore/core/src/firebase/firestore/api/listener_registration.h"
 
 NS_ASSUME_NONNULL_BEGIN
+
+using firebase::firestore::api::ListenerRegistration;
 
 /** Private implementation of the FIRListenerRegistration protocol. */
 @interface FSTListenerRegistration : NSObject <FIRListenerRegistration>
 
-- (instancetype)initWithClient:(FSTFirestoreClient *)client
-                 asyncListener:(FSTAsyncQueryListener *)asyncListener
-              internalListener:(FSTQueryListener *)internalListener;
+- (instancetype)initWithRegistration:(ListenerRegistration &&)registration;
 
 @end
 

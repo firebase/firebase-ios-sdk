@@ -29,6 +29,7 @@
 #import "FIRMessagingContextManagerService.h"
 #import "FIRMessagingDataMessageManager.h"
 #import "FIRMessagingDefines.h"
+#import "FIRMessagingExtensionHelper.h"
 #import "FIRMessagingLogger.h"
 #import "FIRMessagingPubSub.h"
 #import "FIRMessagingReceiver.h"
@@ -178,6 +179,15 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
   return messaging;
 }
 
++ (FIRMessagingExtensionHelper *)extensionHelper {
+    static dispatch_once_t once;
+    static FIRMessagingExtensionHelper *extensionHelper;
+    dispatch_once(&once, ^{
+        extensionHelper = [[FIRMessagingExtensionHelper alloc] init];
+    });
+    return extensionHelper;
+}
+
 - (instancetype)initWithAnalytics:(nullable id<FIRAnalyticsInterop>)analytics
                    withInstanceID:(FIRInstanceID *)instanceID
                  withUserDefaults:(GULUserDefaults *)defaults {
@@ -249,7 +259,7 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
                              @"proper integration.",
                              kFIRMessagingRemoteNotificationsProxyEnabledInfoPlistKey,
                              docsURLString);
-    [FIRMessagingRemoteNotificationsProxy swizzleMethods];
+    [[FIRMessagingRemoteNotificationsProxy sharedProxy] swizzleMethodsIfPossible];
   }
 }
 

@@ -424,6 +424,12 @@ static NSString *const kFIRAuthErrorMessageAppVerificationUserInteractionFailure
 static NSString *const kFIRAuthErrorMessageNullUser = @"A null user object was provided as the "
     "argument for an operation which requires a non-null user object.";
 
+/** @var kFIRAuthErrorMessageInvalidProviderID
+    @brief Message for @c FIRAuthErrorCodeInvalidProviderID error code.
+ */
+static NSString *const kFIRAuthErrorMessageInvalidProviderID = @"The provider ID provided for the "
+    "attempted web operation is invalid.";
+
 /** @var kFIRAuthErrorMessageInvalidDynamicLinkDomain
     @brief Message for @c kFIRAuthErrorMessageInvalidDynamicLinkDomain error code.
  */
@@ -559,6 +565,8 @@ static NSString *FIRAuthErrorDescription(FIRAuthErrorCode code) {
       return kFIRAuthErrorMessageWebRequestFailed;
     case FIRAuthErrorCodeNullUser:
       return kFIRAuthErrorMessageNullUser;
+    case FIRAuthErrorCodeInvalidProviderID:
+      return kFIRAuthErrorMessageInvalidProviderID;
     case FIRAuthErrorCodeInvalidDynamicLinkDomain:
       return kFIRAuthErrorMessageInvalidDynamicLinkDomain;
     case FIRAuthErrorCodeWebInternalError:
@@ -690,6 +698,8 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
       return @"ERROR_WEB_NETWORK_REQUEST_FAILED";
     case FIRAuthErrorCodeNullUser:
       return @"ERROR_NULL_USER";
+    case FIRAuthErrorCodeInvalidProviderID:
+      return @"ERROR_INVALID_PROVIDER_ID";
     case FIRAuthErrorCodeInvalidDynamicLinkDomain:
       return @"ERROR_INVALID_DYNAMIC_LINK_DOMAIN";
     case FIRAuthErrorCodeWebInternalError:
@@ -1134,6 +1144,10 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
 
 + (NSError *)nullUserErrorWithMessage:(nullable NSString *)message {
   return [self errorWithCode:FIRAuthInternalErrorCodeNullUser message:message];
+}
+
++ (NSError *)invalidProviderIDErrorWithMessage:(nullable NSString *)message {
+  return [self errorWithCode:FIRAuthInternalErrorCodeInvalidProviderID message:message];
 }
 
 + (NSError *)invalidDynamicLinkDomainErrorWithMessage:(nullable NSString *)message {

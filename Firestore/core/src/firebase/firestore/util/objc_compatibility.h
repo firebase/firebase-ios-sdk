@@ -26,6 +26,7 @@
 #include <algorithm>
 #include <string>
 #include <type_traits>
+#include <unordered_map>
 
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/to_string.h"
@@ -100,6 +101,15 @@ class Hash {
     return static_cast<size_t>([value hash]);
   }
 };
+
+/**
+ * The equivalent of std::unordered_map, where the Key type is an Objective-C
+ * class.
+ */
+template <typename K,
+          typename V,
+          typename = absl::enable_if_t<is_objective_c_pointer<K>::value>>
+using unordered_map = std::unordered_map<K, V, Hash<K>, EqualTo<K>>;
 
 /**
  * Creates a debug description of the given `value` by calling `ToString` on it,

@@ -277,9 +277,8 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
   // Create GUL_<RealAppDelegate>_<timestampMs>
   NSString *classNameWithPrefix =
       [kGULAppDelegatePrefix stringByAppendingString:NSStringFromClass(realClass)];
-  NSTimeInterval timestamp = [NSDate date].timeIntervalSince1970;
   NSString *newClassName =
-      [NSString stringWithFormat:@"%@-%0.0f", classNameWithPrefix, timestamp * 1000];
+      [NSString stringWithFormat:@"%@-%@", classNameWithPrefix, [NSUUID UUID].UUIDString];
 
   if (NSClassFromString(newClassName)) {
     GULLogError(kGULLoggerSwizzler, NO,

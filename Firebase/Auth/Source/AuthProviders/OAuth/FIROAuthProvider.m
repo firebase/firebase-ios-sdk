@@ -65,36 +65,13 @@ static NSString *const kAuthTypeSignInWithRedirect = @"signInWithRedirect";
 }
 
 + (FIROAuthCredential *)credentialWithProviderID:(NSString *)providerID
-                                         IDToken:(NSString *)IDToken
-                                     accessToken:(nullable NSString *)accessToken
-                                    pendingToken:(nullable NSString *)pendingToken
-                                          secret:(nullable NSString *)secret {
+                                        IDToken:(NSString *)IDToken
+                                    accessToken:(nullable NSString *)accessToken {
   return [[FIROAuthCredential alloc] initWithProviderID:providerID
                                                 IDToken:IDToken
                                             accessToken:accessToken
-                                           pendingToken:pendingToken
-                                                 secret:secret];
-}
-
-+ (FIROAuthCredential *)credentialWithProviderID:(NSString *)providerID
-                                         IDToken:(NSString *)IDToken
-                                     accessToken:(nullable NSString *)accessToken
-                                    pendingToken:(nullable NSString *)pendingToken {
-  return [self credentialWithProviderID:providerID
-                                IDToken:IDToken
-                            accessToken:accessToken
-                           pendingToken:pendingToken
-                                 secret:nil];
-}
-
-+ (FIROAuthCredential *)credentialWithProviderID:(NSString *)providerID
-                                         IDToken:(NSString *)IDToken
-                                     accessToken:(nullable NSString *)accessToken {
-  return [self credentialWithProviderID:providerID
-                                IDToken:IDToken
-                            accessToken:accessToken
-                           pendingToken:nil
-                                 secret:nil];
+                                           pendingToken:nil
+                                                 secret:nil];
 }
 
 + (FIROAuthCredential *)credentialWithProviderID:(NSString *)providerID
@@ -107,7 +84,7 @@ static NSString *const kAuthTypeSignInWithRedirect = @"signInWithRedirect";
 }
 
 + (instancetype)providerWithProviderID:(NSString *)providerID {
-  return [[self alloc] initWithProviderID:providerID auth:[FIRAuth auth]];
+  return [[self alloc]initWithProviderID:providerID auth:[FIRAuth auth]];
 }
 
 + (instancetype)providerWithProviderID:(NSString *)providerID auth:(FIRAuth *)auth {

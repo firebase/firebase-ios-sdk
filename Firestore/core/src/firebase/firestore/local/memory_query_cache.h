@@ -106,11 +106,7 @@ class MemoryQueryCache : public QueryCache {
   model::SnapshotVersion last_remote_snapshot_version_;
 
   /** Maps a query to the data about that query. */
-  std::unordered_map<FSTQuery*,
-                     FSTQueryData*,
-                     util::objc::Hash<FSTQuery*>,
-                     util::objc::EqualTo<FSTQuery*>>
-      queries_;
+  util::objc::unordered_map<FSTQuery*, FSTQueryData*> queries_;
 
   /**
    * A ordered bidirectional mapping between documents and the remote target

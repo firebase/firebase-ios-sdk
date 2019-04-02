@@ -196,18 +196,6 @@ TEST_F(GrpcStreamTest, CanGetResponseHeadersAfterFinishing) {
   });
 }
 
-// Death tests should contain the word "DeathTest" in their name -- see
-// https://github.com/google/googletest/blob/master/googletest/docs/advanced.md#death-test-naming
-using GrpcStreamDeathTest = GrpcStreamTest;
-
-TEST_F(GrpcStreamDeathTest, CannotRestart) {
-  worker_queue.EnqueueBlocking([&] { stream->Start(); });
-  KeepPollingGrpcQueue();
-  worker_queue.EnqueueBlocking([&] { stream->FinishImmediately(); });
-  worker_queue.EnqueueBlocking(
-      [&] { EXPECT_DEATH_IF_SUPPORTED(stream->Start(), ""); });
-}
-
 // Read and write
 
 TEST_F(GrpcStreamTest, ReadIsAutomaticallyReadded) {

@@ -34,6 +34,9 @@ Google's C++ benchmark framework.
   }
 
   s.ios.deployment_target = '8.0'
+  s.osx.deployment_target = '10.11'
+  s.tvos.deployment_target = '10.0'
+
   s.requires_arc = false
 
   s.public_header_files = [

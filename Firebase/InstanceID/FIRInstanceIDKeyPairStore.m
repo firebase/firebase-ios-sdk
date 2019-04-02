@@ -159,7 +159,7 @@ NSString *FIRInstanceIDCreationTimeKeyWithSubtype(NSString *subtype) {
   if ([self cachedKeyPairWithSubtype:kFIRInstanceIDKeyPairSubType error:&error] == nil) {
     if (error) {
       FIRInstanceIDLoggerDebug(kFIRInstanceIDMessageCodeKeyPairStore000,
-                               @"Failed to get cached keyPair %@", error);
+                               @"Failed to get the cached keyPair %@", error);
     }
     error = nil;
     [self removeKeyPairCreationTimePlistWithError:&error];
@@ -316,7 +316,7 @@ NSString *FIRInstanceIDCreationTimeKeyWithSubtype(NSString *subtype) {
       *error = [NSError errorWithFIRInstanceIDErrorCode:kFIRInstanceIDErrorCodeMissingKeyPair];
     }
     FIRInstanceIDLoggerDebug(kFIRInstanceIDMessageCodeKeyPair000,
-                             @"No keypair info is retrieved with tag %@", privateKeyTag);
+                             @"No keypair info is found with tag %@", privateKeyTag);
     return nil;
   }
 
@@ -344,6 +344,8 @@ NSString *FIRInstanceIDCreationTimeKeyWithSubtype(NSString *subtype) {
                                             publicKeyTag:legacyPublicKeyTag
                                                    error:&error];
   if (![keyPair isValid]) {
+    FIRInstanceIDLoggerDebug(kFIRInstanceIDMessageCodeKeyPairNoLegacyKeyPair,
+                             @"There's no legacy keypair so no need to do migration.");
     if (handler) {
       handler(nil);
     }

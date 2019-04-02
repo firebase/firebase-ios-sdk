@@ -16,8 +16,6 @@
 
 #import "FIRAuthUserDefaultsStorage.h"
 
-#if FIRAUTH_USER_DEFAULTS_STORAGE_AVAILABLE
-
 NS_ASSUME_NONNULL_BEGIN
 
 static NSString *const kPersistentDomainNamePrefix = @"com.google.Firebase.Auth.";
@@ -74,5 +72,3 @@ static NSString *const kPersistentDomainNamePrefix = @"com.google.Firebase.Auth.
 @end
 
 NS_ASSUME_NONNULL_END
-
-#endif  // FIRAUTH_USER_DEFAULTS_STORAGE_AVAILABLE

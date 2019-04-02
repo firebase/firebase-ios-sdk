@@ -199,6 +199,7 @@ static BOOL gRespondsToHandleBackgroundSession;
 
 - (void)tearDown {
   [GULAppDelegateSwizzler clearInterceptors];
+  [super tearDown];
 }
 
 /** Tests proxying an object that responds to UIApplicationDelegate protocol and makes sure that

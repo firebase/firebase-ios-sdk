@@ -29,9 +29,10 @@
 
 #import "FIRDocumentReference.h"
 #import "FIRFirestoreSource.h"
-#import "FIRListenerRegistration.h"
 
 #include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
+#include "Firestore/core/src/firebase/firestore/api/listener_registration.h"
+#include "Firestore/core/src/firebase/firestore/core/listen_options.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor_callback.h"
@@ -39,7 +40,6 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class FIRFirestore;
-@class FSTListenOptions;
 @class FSTMutation;
 
 namespace firebase {
@@ -51,8 +51,6 @@ class Firestore;
 class DocumentReference {
  public:
   using Completion = void (^)(NSError* _Nullable error) _Nullable;
-  using DocumentCompletion = void (^)(FIRDocumentSnapshot* _Nullable document,
-                                      NSError* _Nullable error) _Nullable;
 
   DocumentReference() = default;
   DocumentReference(model::ResourcePath path, Firestore* firestore);
@@ -87,11 +85,10 @@ class DocumentReference {
   void DeleteDocument(Completion completion);
 
   void GetDocument(FIRFirestoreSource source,
-                   util::StatusOrCallback<DocumentSnapshot>&& completion);
+                   DocumentSnapshot::Listener&& completion);
 
-  id<FIRListenerRegistration> AddSnapshotListener(
-      util::StatusOrCallback<DocumentSnapshot>&& listener,
-      FSTListenOptions* options);
+  ListenerRegistration AddSnapshotListener(
+      core::ListenOptions options, DocumentSnapshot::Listener&& listener);
 
  private:
   Firestore* firestore_ = nullptr;

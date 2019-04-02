@@ -30,10 +30,11 @@
 #import "Firestore/Source/Core/FSTEventManager.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
-#import "Firestore/Source/Util/FSTUsageValidation.h"
 
 #include "Firestore/core/src/firebase/firestore/api/document_reference.h"
 #include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
+#include "Firestore/core/src/firebase/firestore/api/input_validation.h"
+#include "Firestore/core/src/firebase/firestore/core/event_listener.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
@@ -48,6 +49,9 @@ namespace util = firebase::firestore::util;
 using firebase::firestore::api::DocumentReference;
 using firebase::firestore::api::DocumentSnapshot;
 using firebase::firestore::api::Firestore;
+using firebase::firestore::api::ThrowInvalidArgument;
+using firebase::firestore::core::EventListener;
+using firebase::firestore::core::ListenOptions;
 using firebase::firestore::core::ParsedSetData;
 using firebase::firestore::core::ParsedUpdateData;
 using firebase::firestore::model::DocumentKey;
@@ -74,9 +78,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithPath:(ResourcePath)path firestore:(Firestore *)firestore {
   if (path.size() % 2 != 0) {
-    FSTThrowInvalidArgument(@"Invalid document reference. Document references must have an even "
-                             "number of segments, but %s has %zu",
-                            path.CanonicalString().c_str(), path.size());
+    ThrowInvalidArgument("Invalid document reference. Document references must have an even "
+                         "number of segments, but %s has %s",
+                         path.CanonicalString(), path.size());
   }
   return [self initWithKey:DocumentKey{std::move(path)} firestore:firestore];
 }
@@ -122,7 +126,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FIRCollectionReference *)collectionWithPath:(NSString *)collectionPath {
   if (!collectionPath) {
-    FSTThrowInvalidArgument(@"Collection path cannot be nil.");
+    ThrowInvalidArgument("Collection path cannot be nil.");
   }
 
   ResourcePath subPath = ResourcePath::FromString(util::MakeString(collectionPath));
@@ -204,36 +208,38 @@ NS_ASSUME_NONNULL_BEGIN
 - (id<FIRListenerRegistration>)
     addSnapshotListenerWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
                                          listener:(FIRDocumentSnapshotBlock)listener {
-  FSTListenOptions *options =
-      [self internalOptionsForIncludeMetadataChanges:includeMetadataChanges];
+  ListenOptions options = ListenOptions::FromIncludeMetadataChanges(includeMetadataChanges);
   return [self addSnapshotListenerInternalWithOptions:options listener:listener];
 }
 
-- (id<FIRListenerRegistration>)
-    addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
-                                  listener:(FIRDocumentSnapshotBlock)listener {
-  return _documentReference.AddSnapshotListener([self wrapDocumentSnapshotBlock:listener],
-                                                internalOptions);
+- (id<FIRListenerRegistration>)addSnapshotListenerInternalWithOptions:(ListenOptions)internalOptions
+                                                             listener:(FIRDocumentSnapshotBlock)
+                                                                          listener {
+  ListenerRegistration result = _documentReference.AddSnapshotListener(
+      std::move(internalOptions), [self wrapDocumentSnapshotBlock:listener]);
+  return [[FSTListenerRegistration alloc] initWithRegistration:std::move(result)];
 }
 
-/** Converts the public API options object to the internal options object. */
-- (FSTListenOptions *)internalOptionsForIncludeMetadataChanges:(BOOL)includeMetadataChanges {
-  return [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:includeMetadataChanges
-                                        includeDocumentMetadataChanges:includeMetadataChanges
-                                                 waitForSyncWhenOnline:NO];
-}
-
-- (StatusOrCallback<DocumentSnapshot>)wrapDocumentSnapshotBlock:(FIRDocumentSnapshotBlock)block {
-  FIRFirestore *firestore = self.firestore;
-  return [block, firestore](StatusOr<DocumentSnapshot> maybe_snapshot) {
-    if (maybe_snapshot.ok()) {
-      FIRDocumentSnapshot *result =
-          [[FIRDocumentSnapshot alloc] initWithSnapshot:std::move(maybe_snapshot).ValueOrDie()];
-      block(result, nil);
-    } else {
-      block(nil, util::MakeNSError(maybe_snapshot.status()));
+- (DocumentSnapshot::Listener)wrapDocumentSnapshotBlock:(FIRDocumentSnapshotBlock)block {
+  class Converter : public EventListener<DocumentSnapshot> {
+   public:
+    explicit Converter(FIRDocumentSnapshotBlock block) : block_(block) {
     }
+
+    void OnEvent(StatusOr<DocumentSnapshot> maybe_snapshot) override {
+      if (maybe_snapshot.ok()) {
+        FIRDocumentSnapshot *result =
+            [[FIRDocumentSnapshot alloc] initWithSnapshot:std::move(maybe_snapshot).ValueOrDie()];
+        block_(result, nil);
+      } else {
+        block_(nil, util::MakeNSError(maybe_snapshot.status()));
+      }
+    }
+
+   private:
+    FIRDocumentSnapshotBlock block_;
   };
+  return absl::make_unique<Converter>(block);
 }
 
 @end
