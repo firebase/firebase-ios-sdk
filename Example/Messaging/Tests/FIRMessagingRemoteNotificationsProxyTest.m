@@ -24,7 +24,6 @@
 #import "FIRMessaging.h"
 #import "FIRMessagingRemoteNotificationsProxy.h"
 
-#import <GoogleUtilities/GULLogger.h>
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
 
 #pragma mark - Invalid App Delegate or UNNotificationCenter
@@ -144,7 +143,6 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 - (void)setUp {
   [super setUp];
 
-  GULLoggerForceDebug();
   [GULAppDelegateSwizzler resetProxyOriginalDelegateOnceToken];
 
   _mockSharedApplication = OCMPartialMock([UIApplication sharedApplication]);
