@@ -25,10 +25,6 @@ const static NSUInteger kMillisPerDay = 8.64e+7;
   [[GDTRegistrar sharedInstance] registerPrioritizer:prioritizer target:kGDTTargetCCT];
 }
 
-/** Creates and returns the singleton instance of this class.
- *
- * @return The singleton instance of this class.
- */
 + (instancetype)sharedInstance {
   static GDTCCTPrioritizer *sharedInstance;
   static dispatch_once_t onceToken;
@@ -67,6 +63,12 @@ const static NSUInteger kMillisPerDay = 8.64e+7;
   GDTUploadPackage *package = [[GDTUploadPackage alloc] init];
   dispatch_sync(_queue, ^{
     NSSet<GDTStoredEvent *> *logEventsThatWillBeSent;
+    // A high priority event effectively flushes all events to be sent.
+    if ((conditions & GDTUploadConditionHighPriority) == GDTUploadConditionHighPriority) {
+      package.events = self.events;
+      return;
+    }
+
     if ((conditions & GDTUploadConditionWifiData) == GDTUploadConditionWifiData) {
       logEventsThatWillBeSent = [self logEventsOkToSendOnWifi];
     } else {

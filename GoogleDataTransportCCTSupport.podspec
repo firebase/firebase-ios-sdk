@@ -46,6 +46,13 @@ Support library to provide event prioritization and uploading for the GoogleData
     test_spec.requires_app_host = false
     test_spec.source_files = 'GoogleDataTransportCCTSupport/Tests/Unit/**/*.{h,m}'
     test_spec.resources = ['GoogleDataTransportCCTSupport/Tests/Data/**/*']
+    test_spec.dependency 'GCDWebServer'
+  end
+
+  s.test_spec 'Tests-Integration' do |test_spec|
+    test_spec.requires_app_host = false
+    test_spec.source_files = 'GoogleDataTransportCCTSupport/Tests/Integration/**/*.{h,m}'
+    test_spec.resources = ['GoogleDataTransportCCTSupport/Tests/Data/**/*']
   end
 
 end

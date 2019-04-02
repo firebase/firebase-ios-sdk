@@ -18,10 +18,29 @@
 
 #import <GoogleDataTransport/GoogleDataTransport.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 /** Class capable of uploading events to the CCT backend. */
 @interface GDTCCTUploader : NSObject <GDTUploader>
 
-/** Creates/returns the single instance. */
+/** The queue on which all CCT uploading will occur. */
+@property(nonatomic, readonly) dispatch_queue_t uploaderQueue;
+
+/** The server URL to upload to. Look at .m for the default value. */
+@property(nonatomic) NSURL *serverURL;
+
+/** The URL session that will attempt upload. */
+@property(nonatomic, readonly) NSURLSession *uploaderSession;
+
+/** The current upload task. */
+@property(nullable, nonatomic, readonly) NSURLSessionUploadTask *currentTask;
+
+/** Creates and/or returns the singleton instance of this class.
+ *
+ * @return The singleton instance of this class.
+ */
 + (instancetype)sharedInstance;
 
 @end
+
+NS_ASSUME_NONNULL_END

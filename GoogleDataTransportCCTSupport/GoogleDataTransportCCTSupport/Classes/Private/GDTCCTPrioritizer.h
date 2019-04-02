@@ -18,6 +18,8 @@
 
 #import <GoogleDataTransport/GoogleDataTransport.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 /** Manages the prioritization of events from GoogleDataTransport. */
 @interface GDTCCTPrioritizer : NSObject <GDTPrioritizer>
 
@@ -30,7 +32,12 @@
 /** The most recent attempted upload of daily uploaded logs. */
 @property(nonatomic) GDTClock *timeOfLastDailyUpload;
 
-/** Creates and/or returns the singleton instance of the prioritizer. */
+/** Creates and/or returns the singleton instance of this class.
+ *
+ * @return The singleton instance of this class.
+ */
 + (instancetype)sharedInstance;
+
+NS_ASSUME_NONNULL_END
 
 @end
