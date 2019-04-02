@@ -83,9 +83,9 @@ static DocumentChange::Type DocumentChangeTypeForChange(
 }
 
 void QuerySnapshot::ForEachChange(
-    bool includeMetadataChanges,
+    bool include_metadata_changes,
     const std::function<void(DocumentChange)>& callback) const {
-  if (includeMetadataChanges && snapshot_.excludes_metadata_changes()) {
+  if (include_metadata_changes && snapshot_.excludes_metadata_changes()) {
     ThrowInvalidArgument("To include metadata changes with your document "
                          "changes, you must call "
                          "addSnapshotListener(includeMetadataChanges:true).");
@@ -95,59 +95,57 @@ void QuerySnapshot::ForEachChange(
     // Special case the first snapshot because index calculation is easy and
     // fast. Also all changes on the first snapshot are adds so there are also
     // no metadata-only changes to filter out.
-    FSTDocument* lastDocument = nil;
+    FSTDocument* last_document = nil;
     size_t index = 0;
     for (const DocumentViewChange& change : snapshot_.document_changes()) {
       FSTDocument* doc = change.document();
-      SnapshotMetadata metadata = SnapshotMetadata(
-          /*hasPendingWrites=*/snapshot_.mutated_keys().contains(doc.key),
-          /*fromCache=*/snapshot_.from_cache());
-      DocumentSnapshot document =
-          DocumentSnapshot(firestore_, doc.key, doc, std::move(metadata));
+      SnapshotMetadata metadata(
+          /*pending_writes=*/snapshot_.mutated_keys().contains(doc.key),
+          /*from_cache=*/snapshot_.from_cache());
+      DocumentSnapshot document(firestore_, doc.key, doc, std::move(metadata));
 
       HARD_ASSERT(change.type() == DocumentViewChange::Type::kAdded,
                   "Invalid event type for first snapshot");
-      HARD_ASSERT(!lastDocument || snapshot_.query().comparator(
-                                       lastDocument, change.document()) ==
-                                       NSOrderedAscending,
+      HARD_ASSERT(!last_document || snapshot_.query().comparator(
+                                        last_document, change.document()) ==
+                                        NSOrderedAscending,
                   "Got added events in wrong order");
 
-      callback(DocumentChange(DocumentChange::Type::Added, document,
+      callback(DocumentChange(DocumentChange::Type::Added, std::move(document),
                               DocumentChange::npos, index++));
     }
 
   } else {
     // A DocumentSet that is updated incrementally as changes are applied to use
     // to lookup the index of a document.
-    DocumentSet indexTracker = snapshot_.old_documents();
+    DocumentSet index_tracker = snapshot_.old_documents();
     for (const DocumentViewChange& change : snapshot_.document_changes()) {
-      if (!includeMetadataChanges &&
+      if (!include_metadata_changes &&
           change.type() == DocumentViewChange::Type::kMetadata) {
         continue;
       }
 
       FSTDocument* doc = change.document();
-      SnapshotMetadata metadata = SnapshotMetadata(
-          /*hasPendingWrites=*/snapshot_.mutated_keys().contains(doc.key),
-          /*fromCache=*/snapshot_.from_cache());
-      DocumentSnapshot document =
-          DocumentSnapshot(firestore_, doc.key, doc, std::move(metadata));
+      SnapshotMetadata metadata(
+          /*pending_writes=*/snapshot_.mutated_keys().contains(doc.key),
+          /*from_cache=*/snapshot_.from_cache());
+      DocumentSnapshot document(firestore_, doc.key, doc, std::move(metadata));
 
-      size_t oldIndex = DocumentChange::npos;
-      size_t newIndex = DocumentChange::npos;
+      size_t old_index = DocumentChange::npos;
+      size_t new_index = DocumentChange::npos;
       if (change.type() != DocumentViewChange::Type::kAdded) {
-        oldIndex = indexTracker.IndexOf(change.document().key);
-        HARD_ASSERT(oldIndex != DocumentSet::npos,
+        old_index = index_tracker.IndexOf(change.document().key);
+        HARD_ASSERT(old_index != DocumentSet::npos,
                     "Index for document not found");
-        indexTracker = indexTracker.erase(change.document().key);
+        index_tracker = index_tracker.erase(change.document().key);
       }
       if (change.type() != DocumentViewChange::Type::kRemoved) {
-        indexTracker = indexTracker.insert(change.document());
-        newIndex = indexTracker.IndexOf(change.document().key);
+        index_tracker = index_tracker.insert(change.document());
+        new_index = index_tracker.IndexOf(change.document().key);
       }
 
       DocumentChange::Type type = DocumentChangeTypeForChange(change);
-      callback(DocumentChange(type, document, oldIndex, newIndex));
+      callback(DocumentChange(type, std::move(document), old_index, new_index));
     }
   }
 }

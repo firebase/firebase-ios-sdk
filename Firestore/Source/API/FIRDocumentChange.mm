@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
   DocumentChange _documentChange;
 }
 
-- (instancetype)initWithDocumentChange:(DocumentChange)documentChange {
+- (instancetype)initWithDocumentChange:(DocumentChange &&)documentChange {
   if (self = [super init]) {
     _documentChange = std::move(documentChange);
   }

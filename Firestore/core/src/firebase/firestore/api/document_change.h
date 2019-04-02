@@ -34,10 +34,10 @@ class DocumentChange {
                  DocumentSnapshot document,
                  size_t old_index,
                  size_t new_index)
-      : type_{type},
-        document_{std::move(document)},
-        old_index_{old_index},
-        new_index_{new_index} {
+      : type_(type),
+        document_(std::move(document)),
+        old_index_(old_index),
+        new_index_(new_index) {
   }
 
   size_t Hash() const;

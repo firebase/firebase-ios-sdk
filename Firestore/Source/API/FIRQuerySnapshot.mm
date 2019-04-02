@@ -126,7 +126,7 @@ NS_ASSUME_NONNULL_BEGIN
   if (!_documentChanges || _documentChangesIncludeMetadataChanges != includeMetadataChanges) {
     NSMutableArray *documentChanges = [NSMutableArray array];
     _snapshot->ForEachChange(
-        includeMetadataChanges == YES, [&documentChanges](DocumentChange change) {
+        static_cast<bool>(includeMetadataChanges), [&documentChanges](DocumentChange change) {
           [documentChanges
               addObject:[[FIRDocumentChange alloc] initWithDocumentChange:std::move(change)]];
         });

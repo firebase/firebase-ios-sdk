@@ -93,7 +93,7 @@ class QuerySnapshot {
    * Iterates over the `DocumentChanges` representing the changes between
    * the prior snapshot and this one.
    */
-  void ForEachChange(bool includeMetadataChanges,
+  void ForEachChange(bool include_metadata_changes,
                      const std::function<void(DocumentChange)>& callback) const;
 
   friend bool operator==(const QuerySnapshot& lhs, const QuerySnapshot& rhs);

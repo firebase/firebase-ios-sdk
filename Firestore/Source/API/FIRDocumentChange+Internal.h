@@ -26,7 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRDocumentChange (/* Init */)
 
-- (instancetype)initWithDocumentChange:(DocumentChange)documentChange NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithDocumentChange:(DocumentChange &&)documentChange NS_DESIGNATED_INITIALIZER;
 
 @end
 
