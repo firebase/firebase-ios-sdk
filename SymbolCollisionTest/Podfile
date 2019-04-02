@@ -10,7 +10,6 @@ target 'SymbolCollisionTest' do
     pod 'FirebaseAnalytics'
     pod 'FirebaseAuth'
     pod 'FirebaseCore'
-    pod 'FirebaseCrash'
     pod 'FirebaseDatabase'
     pod 'FirebaseDynamicLinks'
     pod 'FirebaseFirestore'
