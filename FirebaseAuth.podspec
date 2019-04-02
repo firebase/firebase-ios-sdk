@@ -28,7 +28,6 @@ supports email and password accounts, as well as several 3rd party authenticatio
   source = 'Firebase/Auth/Source/'
   s.source_files = source + '**/*.[mh]'
   s.osx.exclude_files = [
-    source + '**/FIRAuthAppDelegateProxy.[mh]',
     source + '**/FIRAuthNotificationManager.[mh]',
     source + '**/FIRAuthAppCredentialManager.[mh]',
     source + '**/FIRAuthAPNSTokenManager.[mh]',
