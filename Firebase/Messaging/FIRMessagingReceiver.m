@@ -19,7 +19,6 @@
 #import <UIKit/UIKit.h>
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
-#import <GoogleUtilities/GULUserDefaults.h>
 
 #import "FIRMessaging.h"
 #import "FIRMessagingLogger.h"
@@ -31,19 +30,12 @@ static NSString *const kUpstreamErrorUserInfoKey = @"error";
 
 static int downstreamMessageID = 0;
 
-@interface FIRMessagingReceiver ()
-@property(nonatomic, strong) GULUserDefaults *defaults;
-@end
-
 @implementation FIRMessagingReceiver
 
 #pragma mark - Initializer
 
-- (instancetype)initWithUserDefaults:(GULUserDefaults *)defaults {
+- (instancetype)init {
   self = [super init];
-  if (self != nil) {
-    _defaults = defaults;
-  }
   return self;
 }
 

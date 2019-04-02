@@ -20,7 +20,6 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class FIRMessagingReceiver;
-@class GULUserDefaults;
 @protocol FIRMessagingReceiverDelegate <NSObject>
 
 - (void)receiver:(FIRMessagingReceiver *)receiver
@@ -30,11 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRMessagingReceiver : NSObject <FIRMessagingDataMessageManagerDelegate>
 
-/// Default initializer for creating the messaging receiver.
-- (instancetype)initWithUserDefaults:(GULUserDefaults *)defaults NS_DESIGNATED_INITIALIZER;
-
-/// Use `initWithUserDefaults:` instead.
-- (instancetype)init NS_UNAVAILABLE;
+- (instancetype)init NS_DESIGNATED_INITIALIZER;
 
 @end
 
