@@ -55,20 +55,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** @class FIRAuthAppDelegateProxy
     @brief A manager for swizzling @c UIApplicationDelegate methods.
  */
-@interface FIRAuthAppDelegateProxy : NSObject
-
-/** @fn initWithApplication
-    @brief Initialize the instance with the given @c UIApplication.
-    @returns An initialized instance, or @c nil if a proxy cannot be established.
-    @remarks This method should only be called from tests if called outside of this class.
- */
-- (nullable instancetype)initWithApplication:(nullable UIApplication *)application
-    NS_DESIGNATED_INITIALIZER;
-
-/** @fn init
-    @brief Call @c sharedInstance to get an instance of this class.
- */
-- (instancetype)init NS_UNAVAILABLE;
+@interface FIRAuthAppDelegateProxy : NSObject <UIApplicationDelegate>
 
 /** @fn addHandler:
     @brief Adds a handler for UIApplicationDelegate methods.

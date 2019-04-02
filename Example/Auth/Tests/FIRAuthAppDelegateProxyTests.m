@@ -20,9 +20,15 @@
 #import <objc/runtime.h>
 
 #import "FIRAuthAppDelegateProxy.h"
+#import <GoogleUtilities/GULAppDelegateSwizzler.h>
+
 #import <OCMock/OCMock.h>
 
 NS_ASSUME_NONNULL_BEGIN
+
+@interface GULAppDelegateSwizzler (FIRAuthAppDelegateProxyTests)
++ (void)proxyAppDelegate:(id<UIApplicationDelegate>)appDelegate;
+@end
 
 /** @class FIRAuthEmptyAppDelegate
     @brief A @c UIApplicationDelegate implementation that does nothing.
@@ -208,56 +214,6 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqual(proxy1, proxy2);
 }
 
-/** @fn testNilApplication
-    @brief Tests that initialization fails if the application is nil.
- */
-- (void)testNilApplication {
-  XCTAssertNil([[FIRAuthAppDelegateProxy alloc] initWithApplication:nil]);
-}
-
-/** @fn testNilDelegate
-    @brief Tests that initialization fails if the application's delegate is nil.
- */
-- (void)testNilDelegate {
-  OCMExpect([_mockApplication delegate]).andReturn(nil);
-  XCTAssertNil([[FIRAuthAppDelegateProxy alloc] initWithApplication:_mockApplication]);
-}
-
-/** @fn testNonconformingDelegate
-    @brief Tests that initialization fails if the application's delegate does not conform to
-        @c UIApplicationDelegate protocol.
- */
-- (void)testNonconformingDelegate {
-  OCMExpect([_mockApplication delegate]).andReturn(@"abc");
-  XCTAssertNil([[FIRAuthAppDelegateProxy alloc] initWithApplication:_mockApplication]);
-}
-
-/** @fn testDisabledByBundleEntry
-    @brief Tests that initialization fails if the proxy is disabled by a bundle entry.
- */
-- (void)testDisabledByBundleEntry {
-  // Swizzle NSBundle's objectForInfoDictionaryKey to return @NO for the specific key.
-  Method method = class_getInstanceMethod([NSBundle class], @selector(objectForInfoDictionaryKey:));
-  __block IMP originalImplementation;
-  IMP newImplmentation = imp_implementationWithBlock(^id(id object, NSString *key) {
-    if ([key isEqualToString:@"FirebaseAppDelegateProxyEnabled"]) {
-      return @NO;
-    }
-    typedef id (*Implementation)(id object, SEL cmd, NSString *key);
-    return ((Implementation)originalImplementation)(object, @selector(objectForInfoDictionaryKey:),
-                                                    key);
-  });
-  originalImplementation = method_setImplementation(method, newImplmentation);
-
-  // Verify that initialization fails.
-  FIRAuthEmptyAppDelegate *delegate = [[FIRAuthEmptyAppDelegate alloc] init];
-  OCMStub([_mockApplication delegate]).andReturn(delegate);
-  XCTAssertNil([[FIRAuthAppDelegateProxy alloc] initWithApplication:_mockApplication]);
-
-  // Unswizzle.
-  imp_removeBlock(method_setImplementation(method, originalImplementation));
-}
-
 // Deprecated methods are call intentionally in tests to verify behaviors on older iOS systems.
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -268,10 +224,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testEmptyDelegateOneHandler {
   FIRAuthEmptyAppDelegate *delegate = [[FIRAuthEmptyAppDelegate alloc] init];
   OCMExpect([_mockApplication delegate]).andReturn(delegate);
+
+  [GULAppDelegateSwizzler proxyAppDelegate:delegate];
+
   __weak id weakProxy;
   @autoreleasepool {
-    FIRAuthAppDelegateProxy *proxy =
-        [[FIRAuthAppDelegateProxy alloc] initWithApplication:_mockApplication];
+    FIRAuthAppDelegateProxy *proxy = [[FIRAuthAppDelegateProxy alloc] init];
+    [GULAppDelegateSwizzler registerAppDelegateInterceptor:proxy];
+
     XCTAssertNotNil(proxy);
 
     // Verify certain methods are swizzled while others are not.
@@ -391,10 +351,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testLegacyDelegateTwoHandlers {
   FIRAuthLegacyAppDelegate *delegate = [[FIRAuthLegacyAppDelegate alloc] init];
   OCMExpect([_mockApplication delegate]).andReturn(delegate);
+
+  [GULAppDelegateSwizzler proxyAppDelegate:delegate];
+
   __weak id weakProxy;
   @autoreleasepool {
-    FIRAuthAppDelegateProxy *proxy =
-        [[FIRAuthAppDelegateProxy alloc] initWithApplication:_mockApplication];
+    FIRAuthAppDelegateProxy *proxy = [[FIRAuthAppDelegateProxy alloc] init];
+    [GULAppDelegateSwizzler registerAppDelegateInterceptor:proxy];
     XCTAssertNotNil(proxy);
 
     // Verify certain methods are swizzled while others are not.
@@ -539,10 +502,13 @@ NS_ASSUME_NONNULL_BEGIN
   FIRAuthModernAppDelegate *delegate = [[FIRAuthModernAppDelegate alloc] init];
   OCMExpect([_mockApplication delegate]).andReturn(delegate);
   FIRAuthModernAppDelegate *unaffectedDelegate = [[FIRAuthModernAppDelegate alloc] init];
+
+  [GULAppDelegateSwizzler proxyAppDelegate:delegate];
+
   __weak id weakProxy;
   @autoreleasepool {
-    FIRAuthAppDelegateProxy *proxy =
-        [[FIRAuthAppDelegateProxy alloc] initWithApplication:_mockApplication];
+    FIRAuthAppDelegateProxy *proxy = [[FIRAuthAppDelegateProxy alloc] init];
+    [GULAppDelegateSwizzler registerAppDelegateInterceptor:proxy];
     XCTAssertNotNil(proxy);
 
     // Verify certain methods are swizzled while others are not.
@@ -703,10 +669,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testOtherLegacyDelegateHandleOpenURL {
   FIRAuthOtherLegacyAppDelegate *delegate = [[FIRAuthOtherLegacyAppDelegate alloc] init];
   OCMExpect([_mockApplication delegate]).andReturn(delegate);
+  [GULAppDelegateSwizzler proxyAppDelegate:delegate];
+
   __weak id weakProxy;
   @autoreleasepool {
-    FIRAuthAppDelegateProxy *proxy =
-        [[FIRAuthAppDelegateProxy alloc] initWithApplication:_mockApplication];
+    FIRAuthAppDelegateProxy *proxy = [[FIRAuthAppDelegateProxy alloc] init];
+    [GULAppDelegateSwizzler registerAppDelegateInterceptor:proxy];
     XCTAssertNotNil(proxy);
 
     // Verify certain methods are swizzled while others are not.
