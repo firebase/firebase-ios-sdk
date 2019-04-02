@@ -380,7 +380,7 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
   self.mockApplication = nil;
   self.fakeApplicationDelegate = nil;
 #endif // TARGET_OS_IOS
-  
+
   [super tearDown];
 }
 
