@@ -30,7 +30,6 @@
 #import <FirebaseCore/FIRLogger.h>
 #import <FirebaseCore/FIROptions.h>
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
-#import <GoogleUtilities/GULAppDelegateSwizzler.h>
 
 #import "AuthProviders/EmailPassword/FIREmailPasswordAuthCredential.h"
 #import "FIRAdditionalUserInfo_Internal.h"
@@ -380,12 +379,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     }
     UIApplication *application = [applicationClass sharedApplication];
 
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-      [GULAppDelegateSwizzler proxyOriginalDelegate];
-      [GULAppDelegateSwizzler registerAppDelegateInterceptor:[FIRAuthAppDelegateProxy sharedInstance]];
-    });
-
+    // Initialize the shared FIRAuthAppDelegateProxy instance in the main thread if not already.
+    [FIRAuthAppDelegateProxy sharedInstance];
     #endif
 
     // Continue with the rest of initialization in the work thread.

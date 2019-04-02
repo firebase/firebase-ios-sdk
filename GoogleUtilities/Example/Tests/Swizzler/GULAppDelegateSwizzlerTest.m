@@ -155,11 +155,13 @@ static BOOL gRespondsToHandleBackgroundSession;
   self.failToRegisterForRemoteNotificationsError = error;
 }
 
+#if TARGET_OS_IOS
 - (void)application:(UIApplication *)application
     didReceiveRemoteNotification:(NSDictionary *)userInfo {
   self.application = application;
   self.remoteNotification = userInfo;
 }
+#endif  // TARGET_OS_IOS
 
 - (void)application:(UIApplication *)application
     didReceiveRemoteNotification:(NSDictionary *)userInfo
@@ -207,6 +209,7 @@ static BOOL gRespondsToHandleBackgroundSession;
   return YES;
 }
 
+#if TARGET_OS_IOS
 - (BOOL)application:(UIApplication *)application
               openURL:(nonnull NSURL *)url
     sourceApplication:(nullable NSString *)sourceApplication
@@ -214,6 +217,7 @@ static BOOL gRespondsToHandleBackgroundSession;
   _URLForIOS8 = [url copy];
   return YES;
 }
+#endif  // TARGET_OS_IOS
 
 #if SDK_HAS_USERACTIVITY
 
@@ -238,6 +242,12 @@ static BOOL gRespondsToHandleBackgroundSession;
 - (void)tearDown {
   [GULAppDelegateSwizzler clearInterceptors];
   [super tearDown];
+}
+
+- (void)testNotAppDelegateIsNotSwizzled {
+  NSObject *notAppDelegate = [[NSObject alloc] init];
+  [GULAppDelegateSwizzler proxyAppDelegate:(id<UIApplicationDelegate>)notAppDelegate];
+  XCTAssertEqualObjects(NSStringFromClass([notAppDelegate class]), @"NSObject");
 }
 
 /** Tests proxying an object that responds to UIApplicationDelegate protocol and makes sure that
@@ -273,8 +283,14 @@ static BOOL gRespondsToHandleBackgroundSession;
   XCTAssertEqual(sizeBefore, sizeAfter);
 
   // After being proxied, it should be able to respond to the required method selector.
+#if TARGET_OS_IOS
   XCTAssertTrue([realAppDelegate
       respondsToSelector:@selector(application:openURL:sourceApplication:annotation:)]);
+
+  XCTAssertTrue([realAppDelegate respondsToSelector:@selector(application:
+                                                        didReceiveRemoteNotification:)]);
+#endif  // TARGET_OS_IOS
+
   XCTAssertTrue([realAppDelegate respondsToSelector:@selector(application:
                                                         continueUserActivity:restorationHandler:)]);
   XCTAssertTrue([realAppDelegate respondsToSelector:@selector(application:openURL:options:)]);
@@ -288,8 +304,7 @@ static BOOL gRespondsToHandleBackgroundSession;
   XCTAssertTrue([realAppDelegate
       respondsToSelector:@selector(application:
                              didReceiveRemoteNotification:fetchCompletionHandler:)]);
-  XCTAssertTrue([realAppDelegate respondsToSelector:@selector(application:
-                                                        didReceiveRemoteNotification:)]);
+
   // Make sure that the class has changed.
   XCTAssertNotEqualObjects([realAppDelegate class], realAppDelegateClassBefore);
 
@@ -505,6 +520,7 @@ static BOOL gRespondsToHandleBackgroundSession;
   XCTAssertTrue(shouldOpen);
 }
 
+#if TARGET_OS_IOS
 /** Tests that application:openURL:sourceApplication:annotation: is invoked on the interceptors if
  *  it exists.
  */
@@ -587,6 +603,7 @@ static BOOL gRespondsToHandleBackgroundSession;
   // The result is YES if one of the interceptors returns YES.
   XCTAssertTrue(shouldOpen);
 }
+#endif  // TARGET_OS_IOS
 
 /** Tests that application:handleEventsForBackgroundURLSession:completionHandler: is invoked on the
  *  interceptors if it exists.
@@ -747,6 +764,7 @@ static BOOL gRespondsToHandleBackgroundSession;
 }
 
 - (void)testApplicationDidReceiveRemoteNotificationIsInvokedOnInterceptors {
+#if TARGET_OS_IOS
   NSDictionary *notification = @{};
   UIApplication *application = [UIApplication sharedApplication];
 
@@ -767,6 +785,7 @@ static BOOL gRespondsToHandleBackgroundSession;
 
   XCTAssertEqual(testAppDelegate.application, application);
   XCTAssertEqual(testAppDelegate.remoteNotification, notification);
+#endif  // TARGET_OS_IOS
 }
 
 - (void)testApplicationDidReceiveRemoteNotificationWithCompletionIsInvokedOnInterceptors {
