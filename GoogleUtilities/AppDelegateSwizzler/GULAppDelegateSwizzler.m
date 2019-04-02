@@ -76,7 +76,7 @@ static char const *const kGULRealDidRegisterForRemoteNotificationsIMPKey =
 static char const *const kGULRealDidFailToRegisterForRemoteNotificationsIMPKey =
     "GUL_didFailToRegisterForRemoteNotificationsIMP";
 static char const *const kGULRealDidReceiveRemoteNotificationIMPKey =
-"GUL_didReceiveRemoteNotificationIMP";
+    "GUL_didReceiveRemoteNotificationIMP";
 static char const *const kGULRealDidReceiveRemoteNotificationWithCompletionIMPKey =
     "GUL_didReceiveRemoteNotificationWithCompletionIMP";
 
@@ -418,11 +418,11 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
                                               fromClass:[GULAppDelegateSwizzler class]
                                                 toClass:appDelegateSubClass];
   GULRealDidReceiveRemoteNotificationIMP didReceiveRemoteNotificationIMP =
-  (GULRealDidReceiveRemoteNotificationIMP)
-  [GULAppDelegateSwizzler implementationOfMethodSelector:didReceiveRemoteNotificationSEL
-                                               fromClass:realClass];
+      (GULRealDidReceiveRemoteNotificationIMP)
+          [GULAppDelegateSwizzler implementationOfMethodSelector:didReceiveRemoteNotificationSEL
+                                                       fromClass:realClass];
   NSValue *didReceiveRemoteNotificationIMPPointer =
-  [NSValue valueWithPointer:didReceiveRemoteNotificationIMP];
+      [NSValue valueWithPointer:didReceiveRemoteNotificationIMP];
 
   // For application:didReceiveRemoteNotification:fetchCompletionHandler:
   NSValue *didReceiveRemoteNotificationWithCompletionIMPPointer;

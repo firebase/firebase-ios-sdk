@@ -300,7 +300,7 @@ static BOOL gRespondsToHandleBackgroundSession;
   XCTAssertTrue([realAppDelegate
       respondsToSelector:@selector(application:didFailToRegisterForRemoteNotificationsWithError:)]);
   XCTAssertTrue([realAppDelegate respondsToSelector:@selector(application:
-                                                              didReceiveRemoteNotification:)]);
+                                                        didReceiveRemoteNotification:)]);
   XCTAssertTrue([realAppDelegate
       respondsToSelector:@selector(application:
                              didReceiveRemoteNotification:fetchCompletionHandler:)]);
