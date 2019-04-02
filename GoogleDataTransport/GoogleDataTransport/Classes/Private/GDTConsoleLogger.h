@@ -14,12 +14,7 @@
  * limitations under the License.
  */
 
-#import "GULLogger.h"
-
 #import "GDTAssert.h"
-
-/** The console logger prefix. */
-static GULLoggerService kGDTConsoleLogger = @"[GoogleDataTransport]";
 
 /** A list of message codes to print in the logger that help to correspond printed messages with
  * code locations.
@@ -50,23 +45,21 @@ typedef NS_ENUM(NSInteger, GDTMessageCode) {
 };
 
 /** */
+FOUNDATION_EXPORT
+void GDTLog(GDTMessageCode code, NSString *format, ...);
+
+/** Returns the string that represents some message code.
+ *
+ * @param code The code to convert to a string.
+ * @return The string representing the message code.
+ */
 FOUNDATION_EXPORT NSString *_Nonnull GDTMessageCodeEnumToString(GDTMessageCode code);
 
-/** Logs the warningMessage string to the console at the warning level.
- *
- * @param warningMessageFormat The format string to log to the console.
- */
-FOUNDATION_EXPORT void GDTLogWarning(GDTMessageCode messageCode,
-                                     NSString *_Nonnull warningMessageFormat,
-                                     ...) NS_FORMAT_FUNCTION(2, 3);
-
 // A define to wrap GULLogWarning with slightly more convenient usage.
-#define GDTLogWarning(MESSAGE_CODE, MESSAGE_FORMAT, ...)                                          \
-  GULLogWarning(kGDTConsoleLogger, YES, GDTMessageCodeEnumToString(MESSAGE_CODE), MESSAGE_FORMAT, \
-                __VA_ARGS__);
+#define GDTLogWarning(MESSAGE_CODE, MESSAGE_FORMAT, ...)                                           \
+  GDTLog(MESSAGE_CODE, MESSAGE_FORMAT, __VA_ARGS__);
 
 // A define to wrap GULLogError with slightly more convenient usage and a failing assert.
-#define GDTLogError(MESSAGE_CODE, MESSAGE_FORMAT, ...)                                          \
-  GULLogError(kGDTConsoleLogger, YES, GDTMessageCodeEnumToString(MESSAGE_CODE), MESSAGE_FORMAT, \
-              __VA_ARGS__);                                                                     \
+#define GDTLogError(MESSAGE_CODE, MESSAGE_FORMAT, ...)                                             \
+  GDTLog(MESSAGE_CODE, MESSAGE_FORMAT, __VA_ARGS__);                   \
   GDTAssert(NO, MESSAGE_FORMAT, __VA_ARGS__);
