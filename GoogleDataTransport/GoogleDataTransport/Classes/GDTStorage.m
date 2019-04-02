@@ -83,42 +83,37 @@ static NSString *GDTStoragePath() {
     // Add event to tracking collections.
     [self addEventToTrackingCollections:storedEvent];
 
-    // Check the QoS, if it's high priority, notify the target that it has a high priority event.
-    if (event.qosTier == GDTEventQoSFast) {
-      NSSet<GDTStoredEvent *> *allEventsForTarget = self.targetToEventSet[storedEvent.target];
-      [self.uploader forceUploadEvents:allEventsForTarget target:target];
-    }
-
     // Have the prioritizer prioritize the event.
     [prioritizer prioritizeEvent:storedEvent];
+
+    // Check the QoS, if it's high priority, notify the target that it has a high priority event.
+    if (event.qosTier == GDTEventQoSFast) {
+      [self.uploader forceUploadForTarget:target];
+    }
   });
 }
 
 - (void)removeEvents:(NSSet<GDTStoredEvent *> *)events {
   NSSet<GDTStoredEvent *> *eventsToRemove = [events copy];
-  dispatch_async(_storageQueue, ^{
-    // Check that a prioritizer is available for this target.
-    id<GDTPrioritizer> prioritizer;
+  GDTStoredEvent *anyEvent = [eventsToRemove anyObject];
+  id<GDTPrioritizer> prioritizer =
+      [GDTRegistrar sharedInstance].targetToPrioritizer[anyEvent.target];
+  GDTAssert(prioritizer, @"There must be a prioritizer.");
+  [prioritizer unprioritizeEvents:events];
 
+  dispatch_async(_storageQueue, ^{
     for (GDTStoredEvent *event in eventsToRemove) {
       // Remove from disk, first and foremost.
       NSError *error;
       [[NSFileManager defaultManager] removeItemAtURL:event.eventFileURL error:&error];
       GDTAssert(error == nil, @"There was an error removing an event file: %@", error);
-
-      if (!prioritizer) {
-        prioritizer = [GDTRegistrar sharedInstance].targetToPrioritizer[event.target];
-      } else {
-        GDTAssert(prioritizer == [GDTRegistrar sharedInstance].targetToPrioritizer[event.target],
-                  @"All logs within an upload set should have the same prioritizer.");
-      }
+      GDTAssert([GDTRegistrar sharedInstance].targetToPrioritizer[event.target] == prioritizer,
+                @"All logs within an upload set should have the same prioritizer.");
 
       // Remove from the tracking collections.
       [self.storedEvents removeObject:event];
       [self.targetToEventSet[event.target] removeObject:event];
     }
-    GDTAssert(prioritizer, @"There's no prioritizer registered for the given target.");
-    [prioritizer unprioritizeEvents:events];
   });
 }
 

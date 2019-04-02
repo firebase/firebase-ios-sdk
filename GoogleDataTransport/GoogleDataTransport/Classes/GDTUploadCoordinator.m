@@ -51,19 +51,23 @@
   return self;
 }
 
-- (void)forceUploadEvents:(NSSet<GDTStoredEvent *> *)events target:(GDTTarget)target {
+- (void)forceUploadForTarget:(GDTTarget)target {
   dispatch_async(_coordinationQueue, ^{
     GDTLogWarning(GDTMCWForcedUpload, @"%@", @"A high priority event has caused an upload.");
     NSNumber *targetNumber = @(target);
-    GDTRegistrar *registrar = self->_registrar;
     GDTUploadCoordinatorForceUploadBlock forceUploadBlock = ^{
-      GDTAssert(events.count, @"It doesn't make sense to force upload of 0 events");
-      id<GDTUploader> uploader = registrar.targetToUploader[targetNumber];
-      GDTUploadPackage *package = [[GDTUploadPackage alloc] init];
-      package.events = [events copy];
-      GDTAssert(uploader, @"Target '%@' is missing an implementation", targetNumber);
+      id<GDTPrioritizer> prioritizer = self->_registrar.targetToPrioritizer[targetNumber];
+      id<GDTUploader> uploader = self->_registrar.targetToUploader[targetNumber];
+      GDTAssert(prioritizer && uploader, @"Target '%@' is missing an implementation", targetNumber);
+      GDTUploadConditions conds = [self uploadConditions];
+      conds |= GDTUploadConditionHighPriority;
+      GDTUploadPackage *package = [[prioritizer uploadPackageWithConditions:conds] copy];
+      package.storage = self.storage;
+      NSAssert(package.events && package.events.count,
+               @"A high priority event should produce events to upload.");
+      self->_targetToInFlightEventSet[targetNumber] = package.events;
       [uploader uploadPackage:package onComplete:self.onCompleteBlock];
-      self->_targetToInFlightEventSet[targetNumber] = events;
+      [self->_forcedUploadQueue removeLastObject];
     };
 
     // Enqueue the force upload block if there's an in-flight upload for that target already.
@@ -112,9 +116,10 @@
             GDTUploadCoordinatorForceUploadBlock queuedBlock =
                 [strongSelf->_forcedUploadQueue lastObject];
             if (queuedBlock) {
-              queuedBlock();
+              dispatch_async(strongSelf->_coordinationQueue, ^{
+                queuedBlock();
+              });
             }
-            [strongSelf->_forcedUploadQueue removeLastObject];
           }
         });
       }

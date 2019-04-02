@@ -81,7 +81,8 @@ static int64_t UptimeInNanoseconds() {
   if (self) {
     _kernelBootTime = KernelBootTimeInNanoseconds();
     _uptime = UptimeInNanoseconds();
-    _timeMillis = CFAbsoluteTimeGetCurrent() * NSEC_PER_USEC;
+    _timeMillis =
+        (int64_t)((CFAbsoluteTimeGetCurrent() + kCFAbsoluteTimeIntervalSince1970) * NSEC_PER_USEC);
     CFTimeZoneRef timeZoneRef = CFTimeZoneCopySystem();
     _timezoneOffsetSeconds = CFTimeZoneGetSecondsFromGMT(timeZoneRef, 0);
     CFRelease(timeZoneRef);

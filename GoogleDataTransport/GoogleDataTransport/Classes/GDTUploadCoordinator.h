@@ -34,10 +34,9 @@ NS_ASSUME_NONNULL_BEGIN
 /** Forces the backend specified by the target to upload the provided set of events. This should
  * only ever happen when the QoS tier of an event requires it.
  *
- * @param events The set of event hashes to force upload.
  * @param target The target that should force an upload.
  */
-- (void)forceUploadEvents:(NSSet<GDTStoredEvent *> *)events target:(GDTTarget)target;
+- (void)forceUploadForTarget:(GDTTarget)target;
 
 @end
 

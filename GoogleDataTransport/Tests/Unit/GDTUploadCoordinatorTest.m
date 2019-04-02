@@ -79,17 +79,16 @@
 
 /** Tests that forcing a event upload works. */
 - (void)testForceUploadEvents {
+  GDTTestUploadPackage *uploadPackage = [[GDTTestUploadPackage alloc] init];
+  uploadPackage.events = [GDTEventGenerator generate3StoredEvents];
+  self.prioritizer.uploadPackage = uploadPackage;
   XCTestExpectation *expectation = [self expectationWithDescription:@"uploader will upload"];
   self.uploader.uploadEventsBlock =
       ^(GDTUploadPackage *_Nonnull package, GDTUploaderCompletionBlock _Nonnull completionBlock) {
         [expectation fulfill];
       };
-  NSSet<GDTStoredEvent *> *eventSet = [GDTEventGenerator generate3StoredEvents];
-  XCTAssertNoThrow([[GDTUploadCoordinator sharedInstance] forceUploadEvents:eventSet
-                                                                     target:_target]);
-  dispatch_sync([GDTUploadCoordinator sharedInstance].coordinationQueue, ^{
-    [self waitForExpectations:@[ expectation ] timeout:0.1];
-  });
+  XCTAssertNoThrow([[GDTUploadCoordinator sharedInstance] forceUploadForTarget:_target]);
+  [self waitForExpectations:@[ expectation ] timeout:0.1];
 }
 
 /** Tests forcing an upload while that target currently has a request in flight queues. */
@@ -101,21 +100,20 @@
       ^(GDTUploadPackage *_Nonnull package, GDTUploaderCompletionBlock _Nonnull completionBlock) {
         [expectation fulfill];
       };
-  NSSet<GDTStoredEvent *> *eventSet = [GDTEventGenerator generate3StoredEvents];
+  GDTTestUploadPackage *uploadPackage = [[GDTTestUploadPackage alloc] init];
+  uploadPackage.events = [GDTEventGenerator generate3StoredEvents];
+  self.prioritizer.uploadPackage = uploadPackage;
   dispatch_sync([GDTUploadCoordinator sharedInstance].coordinationQueue, ^{
     [GDTUploadCoordinator sharedInstance].targetToInFlightEventSet[@(self->_target)] =
         [[NSSet alloc] init];
   });
-  XCTAssertNoThrow([[GDTUploadCoordinator sharedInstance] forceUploadEvents:eventSet
-                                                                     target:_target]);
+  XCTAssertNoThrow([[GDTUploadCoordinator sharedInstance] forceUploadForTarget:_target]);
   dispatch_sync([GDTUploadCoordinator sharedInstance].coordinationQueue, ^{
     XCTAssertEqual([GDTUploadCoordinator sharedInstance].forcedUploadQueue.count, 1);
     [GDTUploadCoordinator sharedInstance].onCompleteBlock(
         self.target, [GDTClock clockSnapshotInTheFuture:1000], nil);
   });
-  dispatch_sync([GDTUploadCoordinator sharedInstance].coordinationQueue, ^{
-    [self waitForExpectations:@[ expectation ] timeout:0.1];
-  });
+  [self waitForExpectations:@[ expectation ] timeout:1.0];
 }
 
 /** Tests the timer is running at the desired frequency. */
