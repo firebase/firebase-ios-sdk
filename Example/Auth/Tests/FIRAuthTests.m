@@ -71,7 +71,7 @@
 #import <OCMock/OCMock.h>
 #import "FIRActionCodeSettings.h"
 
-#if TARGET_OS_IOS || TAGRET_OS_TV
+#if TARGET_OS_IOS
 #import "FIRAuthAPNSToken.h"
 #import "FIRAuthAPNSTokenManager.h"
 #import "FIRAuthNotificationManager.h"
@@ -79,7 +79,7 @@
 #import "FIRAuthURLPresenter.h"
 #import "FIRPhoneAuthCredential.h"
 #import "FIRPhoneAuthProvider.h"
-#endif // TARGET_OS_IOS || TAGRET_OS_TV
+#endif // TARGET_OS_IOS
 
 /** @var kAPIKey
     @brief The fake API key.
@@ -526,7 +526,7 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
   OCMVerifyAll(_mockBackend);
 }
-#if TARGET_OS_IOS || TAGRET_OS_TV
+#if TARGET_OS_IOS
 /** @fn testPhoneAuthSuccess
     @brief Tests the flow of a successful @c signInWithCredential:completion for phone auth.
  */
@@ -1222,7 +1222,7 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
 }
 
-#if TARGET_OS_IOS || TAGRET_OS_TV
+#if TARGET_OS_IOS
 /** @fn testSignInWithProviderSuccess
     @brief Tests a successful @c signInWithProvider:UIDelegate:completion: call with an OAuth
         provider configured for Google.
@@ -1442,7 +1442,7 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
   [self assertUserGoogle:[FIRAuth auth].currentUser];
   OCMVerifyAll(_mockBackend);
 }
-#endif  // TARGET_OS_IOS || TAGRET_OS_TV
+#endif  // TARGET_OS_IOS
 
 /** @fn testSignInAndRetrieveDataWithCredentialSuccess
     @brief Tests the flow of a successful @c signInAndRetrieveDataWithCredential:completion: call
@@ -2340,7 +2340,7 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
   OCMVerifyAll(_mockBackend);
 }
 
-#if TARGET_OS_IOS || TAGRET_OS_TV
+#if TARGET_OS_IOS
 /** @fn testAutomaticTokenRefreshInvalidTokenFailure
     @brief Tests that app foreground notification triggers the scheduling of an automatic token
         refresh task.
@@ -2378,7 +2378,7 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
 }
 #endif
 
-#if TARGET_OS_IOS || TAGRET_OS_TV
+#if TARGET_OS_IOS
 #pragma mark - Application Delegate tests
 - (void)testAppDidRegisterForRemoteNotifications_APNSTokenUpdated {
   NSData *apnsToken = [NSData data];
@@ -2460,7 +2460,7 @@ didFailToRegisterForRemoteNotificationsWithError:error];
   [self.mockAuthURLPresenter verify];
 }
 
-#endif // TARGET_OS_IOS || TAGRET_OS_TV
+#endif // TARGET_OS_IOS
 
 #pragma mark - Interoperability Tests
 
