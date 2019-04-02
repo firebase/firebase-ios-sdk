@@ -155,13 +155,14 @@ static BOOL gRespondsToHandleBackgroundSession;
   self.failToRegisterForRemoteNotificationsError = error;
 }
 
-#if TARGET_OS_IOS
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
 - (void)application:(UIApplication *)application
     didReceiveRemoteNotification:(NSDictionary *)userInfo {
   self.application = application;
   self.remoteNotification = userInfo;
 }
-#endif  // TARGET_OS_IOS
+#pragma clang diagnostic pop
 
 - (void)application:(UIApplication *)application
     didReceiveRemoteNotification:(NSDictionary *)userInfo
@@ -286,9 +287,6 @@ static BOOL gRespondsToHandleBackgroundSession;
 #if TARGET_OS_IOS
   XCTAssertTrue([realAppDelegate
       respondsToSelector:@selector(application:openURL:sourceApplication:annotation:)]);
-
-  XCTAssertTrue([realAppDelegate respondsToSelector:@selector(application:
-                                                        didReceiveRemoteNotification:)]);
 #endif  // TARGET_OS_IOS
 
   XCTAssertTrue([realAppDelegate respondsToSelector:@selector(application:
@@ -301,6 +299,8 @@ static BOOL gRespondsToHandleBackgroundSession;
       respondsToSelector:@selector(application:didRegisterForRemoteNotificationsWithDeviceToken:)]);
   XCTAssertTrue([realAppDelegate
       respondsToSelector:@selector(application:didFailToRegisterForRemoteNotificationsWithError:)]);
+  XCTAssertTrue([realAppDelegate respondsToSelector:@selector(application:
+                                                              didReceiveRemoteNotification:)]);
   XCTAssertTrue([realAppDelegate
       respondsToSelector:@selector(application:
                              didReceiveRemoteNotification:fetchCompletionHandler:)]);
@@ -763,8 +763,9 @@ static BOOL gRespondsToHandleBackgroundSession;
   XCTAssertEqual(testAppDelegate.failToRegisterForRemoteNotificationsError, error);
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (void)testApplicationDidReceiveRemoteNotificationIsInvokedOnInterceptors {
-#if TARGET_OS_IOS
   NSDictionary *notification = @{};
   UIApplication *application = [UIApplication sharedApplication];
 
@@ -785,8 +786,8 @@ static BOOL gRespondsToHandleBackgroundSession;
 
   XCTAssertEqual(testAppDelegate.application, application);
   XCTAssertEqual(testAppDelegate.remoteNotification, notification);
-#endif  // TARGET_OS_IOS
 }
+#pragma clang diagnostic pop
 
 - (void)testApplicationDidReceiveRemoteNotificationWithCompletionIsInvokedOnInterceptors {
   NSDictionary *notification = @{};
