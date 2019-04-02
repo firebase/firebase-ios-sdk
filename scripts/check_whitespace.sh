@@ -30,7 +30,7 @@ git grep "${options[@]}" -- \
     ':(exclude)Firestore/Protos/cpp' \
     ':(exclude)Firestore/Protos/objc' \
     ':(exclude)Firestore/third_party/abseil-cpp' \
-    ':(exclude)GoogleDataTransportCCTSupport/GoogleDataTransportCCTSupport/Classes/Protos' \
+    ':(exclude)GoogleDataTransportCCTSupport/GoogleDataTransportCCTSupport/Protos' \
     ':(exclude)GoogleDataTransportCCTSupport/GoogleDataTransportCCTSupport/Classes/Protogen' \
     ':(exclude)GoogleDataTransportCCTSupport/GoogleDataTransportCCTSupport/ProtoSupport'
 
