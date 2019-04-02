@@ -2,11 +2,11 @@
 Pod::Spec.new do |s|
   s.name             = 'GoogleDataTransportCCTSupport'
   s.version          = '0.1.0'
-  s.summary          = 'Support library for the GoogleDataTransport CCT log target.'
+  s.summary          = 'Support library for the GoogleDataTransport CCT backend target.'
 
 
   s.description      = <<-DESC
-Support library to provide event prioritization and uploading for the GoogleDataTransport CCT log target.
+Support library to provide event prioritization and uploading for the GoogleDataTransport CCT backend target.
                        DESC
 
   s.homepage         = 'https://developers.google.com/'
@@ -14,12 +14,13 @@ Support library to provide event prioritization and uploading for the GoogleData
   s.authors          = 'Google, Inc.'
   s.source           = {
     :git => 'https://github.com/firebase/firebase-ios-sdk.git',
-    :tag => 'GoogleDataLoggerCCTSupport-' + s.version.to_s
+    :tag => 'GoogleDataTransportCCTSupport-' + s.version.to_s
   }
 
   s.ios.deployment_target = '8.0'
 
-  s.cocoapods_version = '>= 1.6.0'
+  # To develop or run the tests, >= 1.6.0 must be installed.
+  s.cocoapods_version = '>= 1.5.3'
 
   s.static_framework = true
   s.prefix_header_file = false
