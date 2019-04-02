@@ -50,6 +50,7 @@ cc_library(
   DEPENDS
     absl_optional
     absl_strings
+    firebase_firestore_api_input_validation
     firebase_firestore_immutable
     firebase_firestore_util
     firebase_firestore_types

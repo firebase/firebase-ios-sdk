@@ -19,6 +19,7 @@
 #include <algorithm>
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/api/input_validation.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/strings/str_join.h"
 #include "absl/strings/str_replace.h"
@@ -29,6 +30,8 @@ namespace firestore {
 namespace model {
 
 namespace {
+
+using api::ThrowInvalidArgument;
 
 /**
  * True if the string could be used as a segment in a field path without
@@ -77,6 +80,56 @@ struct JoinEscaped {
   }
 };
 }  // namespace
+
+FieldPath FieldPath::FromDotSeparatedString(absl::string_view path) {
+  if (path.find_first_of("~*/[]") != absl::string_view::npos) {
+    ThrowInvalidArgument(
+        "Invalid field path (%s). Paths must not contain '~', '*', '/', '[', "
+        "or ']'",
+        path);
+  }
+
+  SegmentsT segments;
+  std::string segment;
+  segment.reserve(path.size());
+
+  const auto finish_segment = [&segments, &segment, &path] {
+    if (segment.empty()) {
+      ThrowInvalidArgument(
+          "Invalid field path (%s). Paths must not be empty, begin with "
+          "'.', end with '.', or contain '..'",
+          path);
+    }
+    // Move operation will clear segment, but capacity will remain the same
+    // (not, strictly speaking, required by the standard, but true in practice).
+    segments.push_back(std::move(segment));
+  };
+
+  size_t i = 0;
+  while (i < path.size()) {
+    const char c = path[i];
+    // std::string (and string_view) may contain embedded nulls. For full
+    // compatibility with Objective C behavior, finish upon encountering the
+    // first terminating null.
+    if (c == '\0') {
+      break;
+    }
+
+    switch (c) {
+      case '.':
+        finish_segment();
+        break;
+
+      default:
+        segment += c;
+        break;
+    }
+    ++i;
+  }
+  finish_segment();
+
+  return FieldPath{std::move(segments)};
+}
 
 FieldPath FieldPath::FromServerFormat(const absl::string_view path) {
   SegmentsT segments;
