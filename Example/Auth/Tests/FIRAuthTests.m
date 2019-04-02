@@ -32,13 +32,10 @@
 
 #import "FIRAdditionalUserInfo.h"
 #import "FIRAuth_Internal.h"
-#import "FIRAuthAPNSToken.h"
 #import "FIRAuthOperationType.h"
 #import "FIRAuthErrorUtils.h"
 #import "FIRAuthDispatcher.h"
 #import "FIRAuthGlobalWorkQueue.h"
-#import "FIRAuthNotificationManager.h"
-#import "FIRAuthURLPresenter.h"
 #import "FIRUser_Internal.h"
 #import "FIRAuthBackend.h"
 #import "FIRCreateAuthURIRequest.h"
@@ -74,12 +71,15 @@
 #import <OCMock/OCMock.h>
 #import "FIRActionCodeSettings.h"
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TAGRET_OS_TV
+#import "FIRAuthAPNSToken.h"
+#import "FIRAuthAPNSTokenManager.h"
+#import "FIRAuthNotificationManager.h"
 #import "FIRAuthUIDelegate.h"
+#import "FIRAuthURLPresenter.h"
 #import "FIRPhoneAuthCredential.h"
 #import "FIRPhoneAuthProvider.h"
-#import "FIRAuthAPNSTokenManager.h"
-#endif
+#endif // TARGET_OS_IOS || TAGRET_OS_TV
 
 /** @var kAPIKey
     @brief The fake API key.
@@ -242,7 +242,7 @@ static const NSTimeInterval kExpectationTimeout = 2;
  */
 static const NSTimeInterval kWaitInterval = .5;
 
-#if TARGET_OS_IOS || TARGET_OS_TV
+#if TARGET_OS_IOS
 /** @class FIRAuthAppDelegate
     @brief Application delegate implementation to test the app delegate proxying
  */
@@ -270,7 +270,7 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
 
 @end
 
-#endif // TARGET_OS_IOS || TARGET_OS_TV
+#endif // TARGET_OS_IOS
 
 @interface GULAppDelegateSwizzler (FIRMessagingRemoteNotificationsProxyTest)
 + (void)resetProxyOriginalDelegateOnceToken;
@@ -284,6 +284,7 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
     @brief Tests for @c FIRAuth.
  */
 @interface FIRAuthTests : XCTestCase
+#if TARGET_OS_IOS
 /// A partial mock of `[FIRAuth auth].tokenManager`
 @property(nonatomic, strong) id mockTokenManager;
 /// A partial mock of `[FIRAuth auth].notificationManager`
@@ -294,6 +295,7 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
 @property(nonatomic, strong) id mockApplication;
 /// An application delegate instance returned by `self.mockApplication.delegate`
 @property(nonatomic, strong) FIRAuthAppDelegate *fakeApplicationDelegate;
+#endif // TARGET_OS_IOS
 @end
 
 @implementation FIRAuthTests {
@@ -329,14 +331,14 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
 - (void)setUp {
   [super setUp];
 
-#if TARGET_OS_IOS || TARGET_OS_TV
+#if TARGET_OS_IOS
   // Make sure the `self.fakeApplicationDelegate` will be swizzled on FIRAuth init.
   [GULAppDelegateSwizzler resetProxyOriginalDelegateOnceToken];
 
   self.fakeApplicationDelegate = [[FIRAuthAppDelegate alloc] init];
   self.mockApplication = OCMPartialMock([UIApplication sharedApplication]);
   OCMStub([self.mockApplication delegate]).andReturn(self.fakeApplicationDelegate);
-#endif // TARGET_OS_IOS || TARGET_OS_TV
+#endif // TARGET_OS_IOS
 
   _mockBackend = OCMProtocolMock(@protocol(FIRAuthBackendImplementation));
   [FIRAuthBackend setBackendImplementation:_mockBackend];
@@ -354,17 +356,20 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
     _FIRAuthDispatcherCallback = task;
   }];
 
+#if TARGET_OS_IOS
   // Wait until FIRAuth initialization completes
   [self waitForAuthGlobalWorkQueueDrain];
   self.mockTokenManager = OCMPartialMock([FIRAuth auth].tokenManager);
   self.mockNotificationManager = OCMPartialMock([FIRAuth auth].notificationManager);
   self.mockAuthURLPresenter = OCMPartialMock([FIRAuth auth].authURLPresenter);
+#endif // TARGET_OS_IOS
 }
 
 - (void)tearDown {
   [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:nil];
   [[FIRAuthDispatcher sharedInstance] setDispatchAfterImplementation:nil];
 
+#if TARGET_OS_IOS
   [self.mockAuthURLPresenter stopMocking];
   self.mockAuthURLPresenter = nil;
   [self.mockNotificationManager stopMocking];
@@ -374,7 +379,8 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
   [self.mockApplication stopMocking];
   self.mockApplication = nil;
   self.fakeApplicationDelegate = nil;
-
+#endif // TARGET_OS_IOS
+  
   [super tearDown];
 }
 
@@ -520,7 +526,7 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
   OCMVerifyAll(_mockBackend);
 }
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TAGRET_OS_TV
 /** @fn testPhoneAuthSuccess
     @brief Tests the flow of a successful @c signInWithCredential:completion for phone auth.
  */
@@ -1216,7 +1222,7 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
 }
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TAGRET_OS_TV
 /** @fn testSignInWithProviderSuccess
     @brief Tests a successful @c signInWithProvider:UIDelegate:completion: call with an OAuth
         provider configured for Google.
@@ -1436,7 +1442,7 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
   [self assertUserGoogle:[FIRAuth auth].currentUser];
   OCMVerifyAll(_mockBackend);
 }
-#endif  // TARGET_OS_IOS
+#endif  // TARGET_OS_IOS || TAGRET_OS_TV
 
 /** @fn testSignInAndRetrieveDataWithCredentialSuccess
     @brief Tests the flow of a successful @c signInAndRetrieveDataWithCredential:completion: call
@@ -2334,7 +2340,7 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
   OCMVerifyAll(_mockBackend);
 }
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TAGRET_OS_TV
 /** @fn testAutomaticTokenRefreshInvalidTokenFailure
     @brief Tests that app foreground notification triggers the scheduling of an automatic token
         refresh task.
@@ -2372,8 +2378,8 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
 }
 #endif
 
+#if TARGET_OS_IOS || TAGRET_OS_TV
 #pragma mark - Application Delegate tests
-
 - (void)testAppDidRegisterForRemoteNotifications_APNSTokenUpdated {
   NSData *apnsToken = [NSData data];
 
@@ -2453,6 +2459,8 @@ didFailToRegisterForRemoteNotificationsWithError:error];
 
   [self.mockAuthURLPresenter verify];
 }
+
+#endif // TARGET_OS_IOS || TAGRET_OS_TV
 
 #pragma mark - Interoperability Tests
 
