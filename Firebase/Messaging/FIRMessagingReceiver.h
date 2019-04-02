@@ -36,10 +36,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// Use `initWithUserDefaults:` instead.
 - (instancetype)init NS_UNAVAILABLE;
 
-@property(nonatomic, weak, nullable) id<FIRMessagingReceiverDelegate> delegate;
-/// Whether to use direct channel for direct channel message callback handler in all iOS versions.
-@property(nonatomic, assign) BOOL useDirectChannel;
-
 @end
 
 NS_ASSUME_NONNULL_END

@@ -266,15 +266,10 @@ NS_SWIFT_NAME(MessagingDelegate)
     didReceiveRegistrationToken:(NSString *)fcmToken
     NS_SWIFT_NAME(messaging(_:didReceiveRegistrationToken:));
 
-/// This method is called on iOS 10+ devices to handle data messages received via FCM
-/// direct channel (not via APNS). For iOS 9 and below, the direct channel data message
-/// is handled by the UIApplicationDelegate's -application:didReceiveRemoteNotification: method.
-/// You can enable all direct channel data messages to be delivered in FIRMessagingDelegate
-/// by setting the flag `useMessagingDelegateForDirectMessages` to true.
+/// Handle data messages received via FCM direct channel (not via APNS).
 - (void)messaging:(FIRMessaging *)messaging
     didReceiveMessage:(FIRMessagingRemoteMessage *)remoteMessage
     NS_SWIFT_NAME(messaging(_:didReceive:))
-    __IOS_AVAILABLE(10.0);
 
 @end
 
@@ -308,23 +303,6 @@ NS_SWIFT_NAME(Messaging)
  *  Returns `YES` if the direct channel to the FCM server is active, and `NO` otherwise.
  */
 @property(nonatomic, readonly) BOOL isDirectChannelEstablished;
-
-/*
- * Whether direct channel message should only use FIRMessagingDelegate messaging(_:didReceive:)
- * for message delivery callback. The default value is false. If you need to change
- * the default, set FirebaseMessagingUseMessagingDelegateForDirectChannel to true in
- * your application’s Info.plist.
- *
- * If false, the message via direct channel for iOS 9 and below is still delivered in
- * `-UIApplicationDelegate application(_:didReceiveRemoteNotification:fetchCompletionHandler:)`,
- * and the FIRMessagingRemoteMessage object and its associated data will be unavailable.
- * For iOS 10 and above, it is still delivered in `FIRMessagingDelegate messaging(_:didReceive:)`.
- *
- * If true, the data message sent by direct channel will be delivered via
- * `FIRMessagingDelegate messaging(_:didReceive:)` and across all iOS versions.
- */
-@property(nonatomic, assign) BOOL useMessagingDelegateForDirectChannel
-  __deprecated_msg("This is soon to be deprecated. All direct messages will by default delivered in `FIRMessagingDelegate messaging(_:didReceive:)` across all iOS versions");
 
 /**
  *  FIRMessaging
