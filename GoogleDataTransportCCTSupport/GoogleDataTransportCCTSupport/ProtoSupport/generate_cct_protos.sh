@@ -46,9 +46,9 @@ rm -rf "GoogleDataTransportCCTSupport/GoogleDataTransportCCTSupport/Classes/Prot
 echo "Generating CCT protos..."
 python "${DIR}"/proto_generator.py \
   --nanopb \
-  --protos_dir=GoogleDataTransportCCTSupport/GoogleDataTransportCCTSupport/Classes/Protos/ \
+  --protos_dir=GoogleDataTransportCCTSupport/GoogleDataTransportCCTSupport/Protos/ \
   --pythonpath="${NANOPB_TEMPDIR}/${NANOPB_BIN_DIR}/generator" \
   --output_dir=GoogleDataTransportCCTSupport/GoogleDataTransportCCTSupport/Classes/Protogen/ \
-  --include=GoogleDataTransportCCTSupport/GoogleDataTransportCCTSupport/Classes/Protos/
+  --include=GoogleDataTransportCCTSupport/GoogleDataTransportCCTSupport/Protos/
 
 rm -rf "${NANOPB_TEMPDIR}"
