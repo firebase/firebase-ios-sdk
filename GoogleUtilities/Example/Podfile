@@ -22,7 +22,7 @@ target 'Example_iOS' do
 end
 
 target 'Example_macOS' do
-  platform :osx, '10.10'
+  platform :osx, '10.11'
 
   pod 'GoogleUtilities', :path => '../../'
 

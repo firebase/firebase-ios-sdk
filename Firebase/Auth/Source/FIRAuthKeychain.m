@@ -21,17 +21,6 @@
 #import "FIRAuthErrorUtils.h"
 #import "FIRAuthUserDefaultsStorage.h"
 
-#if FIRAUTH_USER_DEFAULTS_STORAGE_AVAILABLE
-#import <UIKit/UIKit.h>
-
-/** @var kOSVersionMatcherForUsingUserDefaults
-    @brief The regular expression to match all OS versions that @c FIRAuthUserDefaultsStorage is
-        used instead if available.
- */
-static NSString *const kOSVersionMatcherForUsingUserDefaults = @"^10\\.[01](\\..*)?$";
-
-#endif  // FIRAUTH_USER_DEFAULTS_STORAGE_AVAILABLE
-
 /** @var kAccountPrefix
     @brief The prefix string for keychain item account attribute before the key.
     @remarks A number "1" is encoded in the prefix in case we need to upgrade the scheme in future.
@@ -55,19 +44,6 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (id<FIRAuthStorage>)initWithService:(NSString *)service {
-
-#if FIRAUTH_USER_DEFAULTS_STORAGE_AVAILABLE
-
-  NSString *OSVersion = [UIDevice currentDevice].systemVersion;
-  NSRegularExpression *regex =
-      [NSRegularExpression regularExpressionWithPattern:kOSVersionMatcherForUsingUserDefaults
-                                                options:0
-                                                  error:NULL];
-  if ([regex numberOfMatchesInString:OSVersion options:0 range:NSMakeRange(0, OSVersion.length)]) {
-    return (id<FIRAuthStorage>)[[FIRAuthUserDefaultsStorage alloc] initWithService:service];
-  }
-
-#endif  // FIRAUTH_USER_DEFAULTS_STORAGE_AVAILABLE
 
   self = [super init];
   if (self) {
@@ -141,7 +117,7 @@ NS_ASSUME_NONNULL_BEGIN
   return YES;
 }
 
-#pragma mark - Private
+#pragma mark - Private methods for non-sharing keychain operations
 
 - (NSData *)itemWithQuery:(NSDictionary *)query error:(NSError **_Nullable)error {
   NSMutableDictionary *returningQuery = [query mutableCopy];
@@ -156,7 +132,7 @@ NS_ASSUME_NONNULL_BEGIN
                                         (CFTypeRef *)&result);
 
   if (status == noErr && result != NULL) {
-   NSArray *items = (__bridge_transfer NSArray *)result;
+    NSArray *items = (__bridge_transfer NSArray *)result;
     if (items.count != 1) {
       if (error) {
         *error = [FIRAuthErrorUtils keychainErrorWithFunction:@"SecItemCopyMatching"
@@ -253,6 +229,96 @@ NS_ASSUME_NONNULL_BEGIN
     (__bridge id)kSecClass : (__bridge id)kSecClassGenericPassword,
     (__bridge id)kSecAttrAccount : key,
   };
+}
+
+#pragma mark - Private methods for shared keychain operations
+
+- (NSData *)getItemWithQuery:(NSDictionary *)query error:(NSError *_Nullable *_Nullable)outError {
+  NSMutableDictionary *mutableQuery = [query mutableCopy];
+
+  mutableQuery[(__bridge id)kSecReturnData] = @YES;
+  mutableQuery[(__bridge id)kSecReturnAttributes] = @YES;
+  mutableQuery[(__bridge id)kSecMatchLimit] = @2;
+
+  CFArrayRef result = NULL;
+  OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)mutableQuery,
+                                        (CFTypeRef *)&result);
+
+  if (status == noErr && result != NULL) {
+    NSArray *items = (__bridge_transfer NSArray *)result;
+    if (items.count != 1) {
+      if (outError) {
+        *outError = [FIRAuthErrorUtils keychainErrorWithFunction:@"SecItemCopyMatching"
+                                                          status:status];
+      }
+      return nil;
+    }
+
+    if (outError) {
+      *outError = nil;
+    }
+    NSDictionary *item = items[0];
+    return item[(__bridge id)kSecValueData];
+  }
+
+  if (status == errSecItemNotFound) {
+    if (outError) {
+      *outError = nil;
+    }
+  } else {
+    if (outError) {
+      *outError = [FIRAuthErrorUtils keychainErrorWithFunction:@"SecItemCopyMatching" status:status];
+    }
+  }
+  return nil;
+}
+
+- (BOOL)setItem:(NSData *)item
+      withQuery:(NSDictionary *)query
+          error:(NSError *_Nullable *_Nullable)outError {
+  NSData *existingItem = [self getItemWithQuery:query error:outError];
+  if (outError && *outError) {
+    return NO;
+  }
+
+  OSStatus status;
+  if (!existingItem) {
+    NSMutableDictionary *queryWithItem = [query mutableCopy];
+    [queryWithItem setObject:item forKey:(__bridge id)kSecValueData];
+    status = SecItemAdd((__bridge CFDictionaryRef)queryWithItem, NULL);
+  } else {
+    NSDictionary *attributes = @{(__bridge id)kSecValueData: item};
+    status = SecItemUpdate((__bridge CFDictionaryRef)query, (__bridge CFDictionaryRef)attributes);
+  }
+
+  if (status == noErr) {
+    if (outError) {
+      *outError = nil;
+    }
+    return YES;
+  }
+
+  NSString *function = existingItem ? @"SecItemUpdate" : @"SecItemAdd";
+  if (outError) {
+    *outError = [FIRAuthErrorUtils keychainErrorWithFunction:function status:status];
+  }
+  return NO;
+}
+
+- (BOOL)removeItemWithQuery:(NSDictionary *)query error:(NSError *_Nullable *_Nullable)outError {
+  OSStatus status = SecItemDelete((__bridge CFDictionaryRef)query);
+
+  if (status == noErr || status == errSecItemNotFound) {
+    if (outError) {
+      *outError = nil;
+    }
+    return YES;
+  }
+
+  if (outError) {
+    *outError = [FIRAuthErrorUtils keychainErrorWithFunction:@"SecItemDelete" status:status];
+  }
+  return NO;
 }
 
 @end

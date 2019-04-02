@@ -30,10 +30,10 @@
 #import "Firestore/Source/Core/FSTEventManager.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
-#import "Firestore/Source/Util/FSTUsageValidation.h"
 
 #include "Firestore/core/src/firebase/firestore/api/document_reference.h"
 #include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
+#include "Firestore/core/src/firebase/firestore/api/input_validation.h"
 #include "Firestore/core/src/firebase/firestore/core/event_listener.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
@@ -49,6 +49,7 @@ namespace util = firebase::firestore::util;
 using firebase::firestore::api::DocumentReference;
 using firebase::firestore::api::DocumentSnapshot;
 using firebase::firestore::api::Firestore;
+using firebase::firestore::api::ThrowInvalidArgument;
 using firebase::firestore::core::EventListener;
 using firebase::firestore::core::ListenOptions;
 using firebase::firestore::core::ParsedSetData;
@@ -77,9 +78,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithPath:(ResourcePath)path firestore:(Firestore *)firestore {
   if (path.size() % 2 != 0) {
-    FSTThrowInvalidArgument(@"Invalid document reference. Document references must have an even "
-                             "number of segments, but %s has %zu",
-                            path.CanonicalString().c_str(), path.size());
+    ThrowInvalidArgument("Invalid document reference. Document references must have an even "
+                         "number of segments, but %s has %s",
+                         path.CanonicalString(), path.size());
   }
   return [self initWithKey:DocumentKey{std::move(path)} firestore:firestore];
 }
@@ -125,7 +126,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FIRCollectionReference *)collectionWithPath:(NSString *)collectionPath {
   if (!collectionPath) {
-    FSTThrowInvalidArgument(@"Collection path cannot be nil.");
+    ThrowInvalidArgument("Collection path cannot be nil.");
   }
 
   ResourcePath subPath = ResourcePath::FromString(util::MakeString(collectionPath));

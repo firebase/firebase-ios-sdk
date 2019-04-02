@@ -28,10 +28,10 @@
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
-#import "Firestore/Source/Util/FSTUsageValidation.h"
 
 #include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/api/firestore.h"
+#include "Firestore/core/src/firebase/firestore/api/input_validation.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
@@ -41,6 +41,7 @@
 namespace util = firebase::firestore::util;
 using firebase::firestore::api::DocumentSnapshot;
 using firebase::firestore::api::Firestore;
+using firebase::firestore::api::ThrowInvalidArgument;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldValue;
@@ -163,7 +164,7 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
   } else if ([field isKindOfClass:[FIRFieldPath class]]) {
     fieldPath = field;
   } else {
-    FSTThrowInvalidArgument(@"Subscript key must be an NSString or FIRFieldPath.");
+    ThrowInvalidArgument("Subscript key must be an NSString or FIRFieldPath.");
   }
 
   FSTFieldValue *fieldValue = _snapshot.GetValue(fieldPath.internalValue);

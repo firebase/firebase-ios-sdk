@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFirestore'
-  s.version          = '1.1.0'
+  s.version          = '1.2.1'
   s.summary          = 'Google Cloud Firestore for iOS'
 
   s.description      = <<-DESC
@@ -17,7 +17,8 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   }
 
   s.ios.deployment_target = '8.0'
-  s.osx.deployment_target = '10.10'
+  s.osx.deployment_target = '10.11'
+  s.tvos.deployment_target = '10.0'
 
   s.cocoapods_version = '>= 1.4.0'
   s.static_framework = true
@@ -40,6 +41,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
     'Firestore/third_party/Immutable/Tests/**',
 
     # Exclude alternate implementations for other platforms
+    'Firestore/core/src/firebase/firestore/api/input_validation_std.cc',
     'Firestore/core/src/firebase/firestore/remote/connectivity_monitor_noop.cc',
     'Firestore/core/src/firebase/firestore/remote/grpc_root_certificate_finder_generated.cc',
     'Firestore/core/src/firebase/firestore/util/filesystem_win.cc',
@@ -51,13 +53,14 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
 
   s.dependency 'FirebaseAuthInterop', '~> 1.0'
   s.dependency 'FirebaseCore', '~> 5.2'
-  s.dependency 'gRPC-C++', '0.0.6'
+  s.dependency 'gRPC-C++', '0.0.8'
   s.dependency 'leveldb-library', '~> 1.20'
   s.dependency 'Protobuf', '~> 3.1'
   s.dependency 'nanopb', '~> 0.3.901'
 
   s.ios.frameworks = 'MobileCoreServices', 'SystemConfiguration'
   s.osx.frameworks = 'SystemConfiguration'
+  s.tvos.frameworks = 'SystemConfiguration'
 
   s.library = 'c++'
   s.pod_target_xcconfig = {

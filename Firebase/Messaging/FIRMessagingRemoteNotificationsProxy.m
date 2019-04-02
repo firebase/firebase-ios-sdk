@@ -63,10 +63,6 @@ static NSString *kReceiveDataMessageSelectorString = @"messaging:didReceiveMessa
   }
 }
 
-+ (void)swizzleMethods {
-  [[FIRMessagingRemoteNotificationsProxy sharedProxy] swizzleMethodsIfPossible];
-}
-
 + (instancetype)sharedProxy {
   static FIRMessagingRemoteNotificationsProxy *proxy;
   static dispatch_once_t onceToken;

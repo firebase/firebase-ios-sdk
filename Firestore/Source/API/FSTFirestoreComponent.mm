@@ -29,9 +29,9 @@
 #include <utility>
 
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
-#import "Firestore/Source/Util/FSTUsageValidation.h"
 #include "Firestore/core/include/firebase/firestore/firestore_version.h"
 #include "Firestore/core/src/firebase/firestore/api/firestore.h"
+#include "Firestore/core/src/firebase/firestore/api/input_validation.h"
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/auth/firebase_credentials_provider_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
@@ -41,6 +41,7 @@
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::api::Firestore;
+using firebase::firestore::api::ThrowInvalidArgument;
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::FirebaseCredentialsProvider;
 using util::AsyncQueue;
@@ -73,7 +74,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FIRFirestore *)firestoreForDatabase:(NSString *)database {
   if (!database) {
-    FSTThrowInvalidArgument(@"database identifier may not be nil.");
+    ThrowInvalidArgument("Database identifier may not be nil.");
   }
 
   NSString *key = [NSString stringWithFormat:@"%@|%@", self.app.name, database];

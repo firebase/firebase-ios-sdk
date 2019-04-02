@@ -35,6 +35,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, readonly, nullable) NSString *sessionID;
 
+/** @property pendingToken
+    @brief The pending token used when completing the headful-lite flow.
+ */
+@property(nonatomic, readonly, nullable) NSString *pendingToken;
+
 /** @fn initWithProviderId:IDToken:accessToken:pendingToken
     @brief Designated initializer.
     @param providerID The provider ID associated with the credential being created.

@@ -848,7 +848,7 @@ static void UnswizzleDynamicLinkNetworking() {
 - (void)testFailMatchesShortLinkFormat {
   NSArray<NSString *> *urlStrings = @[
     @"https://test.app.goo.gl", @"https://test.app.goo.gl?link=", @"https://test.app.goo.gl/",
-    @"https://sample.page.link?link=https://google.com/test&ibi=com.google.sample&ius=79306483"
+    @"https://sample.page.link?link=https://google.com/test&ibi=com.google.sample&ius=79306483",
     @"https://sample.page.link/?link=https://google.com/test&ibi=com.google.sample&ius=79306483"
   ];
 

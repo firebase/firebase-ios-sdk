@@ -30,7 +30,8 @@ Pod::Spec.new do |s|
   }
 
   s.ios.deployment_target = '8.0'
-  s.osx.deployment_target = '10.10'
+  s.osx.deployment_target = '10.11'
+  s.tvos.deployment_target = '10.0'
 
   s.source_files = 'src/**/*.{h,cc}'
   s.exclude_files = # skip test files. (Yes, the test files are intermixed with

@@ -68,15 +68,6 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "DAFF0CF421E64AC30062958F"
-            BuildableName = "Firestore_Example_macOS.app"
-            BlueprintName = "Firestore_Example_macOS"
-            ReferencedContainer = "container:Firestore.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

@@ -16,7 +16,6 @@
 
 #import <XCTest/XCTest.h>
 
-#import <FirebaseCore/FIRAppInternal.h>
 #import <OCMock/OCMock.h>
 #import "Firebase/InstanceID/FIRInstanceIDCheckinPreferences+Internal.h"
 #import "Firebase/InstanceID/FIRInstanceIDCheckinPreferences.h"
@@ -92,37 +91,6 @@ static NSString *const kVersionInfo = @"1.0";
                         XCTAssertNil(preferences.deviceID);
                         XCTAssertNil(preferences.secretToken);
                         XCTAssertFalse([preferences hasValidCheckinInfo]);
-                        [checkinCompletionExpectation fulfill];
-                      }];
-
-  [self waitForExpectationsWithTimeout:5
-                               handler:^(NSError *error) {
-                                 if (error) {
-                                   XCTFail(@"Checkin Timeout Error: %@", error);
-                                 }
-                               }];
-}
-
-- (void)testCheckinServiceAddsFirebaseUserAgentToHTTPHeader {
-  NSString *expectedFirebaseUserAgent = [FIRApp firebaseUserAgent];
-
-  FIRInstanceIDURLRequestTestBlock successHandler = [self successfulCheckinCompletionHandler];
-
-  [FIRInstanceIDCheckinService
-      setCheckinTestBlock:^(NSURLRequest *request,
-                            FIRInstanceIDURLRequestTestResponseBlock response) {
-        NSString *requestFirebaseUserAgentValue =
-            request.allHTTPHeaderFields[kFIRInstanceIDFirebaseUserAgentKey];
-        XCTAssertEqualObjects(requestFirebaseUserAgentValue, expectedFirebaseUserAgent);
-        successHandler(request, response);
-      }];
-
-  XCTestExpectation *checkinCompletionExpectation =
-      [self expectationWithDescription:@"Checkin Completion"];
-
-  [self.checkinService
-      checkinWithExistingCheckin:nil
-                      completion:^(FIRInstanceIDCheckinPreferences *preferences, NSError *error) {
                         [checkinCompletionExpectation fulfill];
                       }];
 

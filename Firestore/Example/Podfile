@@ -14,7 +14,7 @@ target 'Firestore_Example_iOS' do
   # The next line is the forcing function for the Firebase pod. The Firebase
   # version's subspecs should depend on the component versions in their
   # corresponding podspec's.
-  pod 'Firebase/CoreOnly', '5.19.0'
+  pod 'Firebase/CoreOnly', '5.20.1'
 
   pod 'FirebaseAuth', :path => '../../'
   pod 'FirebaseAuthInterop', :path => '../../'
@@ -61,7 +61,7 @@ target 'Firestore_Example_iOS' do
 end
 
 target 'Firestore_Example_macOS' do
-  platform :osx, '10.10'
+  platform :osx, '10.11'
 
   pod 'FirebaseAuth', :path => '../../'
   pod 'FirebaseCore', :path => '../../'
@@ -72,6 +72,42 @@ target 'Firestore_Example_macOS' do
 
     pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
     pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
+
+    pod 'OCMock'
+    pod 'leveldb-library'
+  end
+
+  target 'Firestore_IntegrationTests_macOS' do
+    inherit! :search_paths
+
+    pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
+
+    pod 'OCMock'
+    pod 'leveldb-library'
+  end
+end
+
+target 'Firestore_Example_tvOS' do
+  platform :tvos, '10.0'
+
+  pod 'FirebaseAuth', :path => '../../'
+  pod 'FirebaseCore', :path => '../../'
+  pod 'FirebaseFirestore', :path => '../../'
+
+  target 'Firestore_Tests_tvOS' do
+    inherit! :search_paths
+
+    pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
+    pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
+
+    pod 'OCMock'
+    pod 'leveldb-library'
+  end
+
+  target 'Firestore_IntegrationTests_tvOS' do
+    inherit! :search_paths
+
+    pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
 
     pod 'OCMock'
     pod 'leveldb-library'
