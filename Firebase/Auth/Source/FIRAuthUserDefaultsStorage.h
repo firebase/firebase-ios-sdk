@@ -16,15 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-// This class is only available in the simulator.
-#if TARGET_OS_SIMULATOR
-#ifndef FIRAUTH_USER_DEFAULTS_STORAGE_AVAILABLE
-#define FIRAUTH_USER_DEFAULTS_STORAGE_AVAILABLE 1
-#endif
-#endif
-
-#if FIRAUTH_USER_DEFAULTS_STORAGE_AVAILABLE
-
 #import "FIRAuthKeychain.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -43,5 +34,3 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
-
-#endif  // FIRAUTH_USER_DEFAULTS_STORAGE_AVAILABLE
