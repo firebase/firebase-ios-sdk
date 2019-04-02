@@ -56,10 +56,10 @@ void GDTLog(GDTMessageCode code, NSString *format, ...);
 FOUNDATION_EXPORT NSString *_Nonnull GDTMessageCodeEnumToString(GDTMessageCode code);
 
 // A define to wrap GULLogWarning with slightly more convenient usage.
-#define GDTLogWarning(MESSAGE_CODE, MESSAGE_FORMAT, ...)                                           \
+#define GDTLogWarning(MESSAGE_CODE, MESSAGE_FORMAT, ...) \
   GDTLog(MESSAGE_CODE, MESSAGE_FORMAT, __VA_ARGS__);
 
 // A define to wrap GULLogError with slightly more convenient usage and a failing assert.
-#define GDTLogError(MESSAGE_CODE, MESSAGE_FORMAT, ...)                                             \
-  GDTLog(MESSAGE_CODE, MESSAGE_FORMAT, __VA_ARGS__);                   \
+#define GDTLogError(MESSAGE_CODE, MESSAGE_FORMAT, ...) \
+  GDTLog(MESSAGE_CODE, MESSAGE_FORMAT, __VA_ARGS__);   \
   GDTAssert(NO, MESSAGE_FORMAT, __VA_ARGS__);

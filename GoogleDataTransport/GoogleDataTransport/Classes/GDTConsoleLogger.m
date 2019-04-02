@@ -19,17 +19,18 @@
 /** The console logger prefix. */
 static NSString *kGDTConsoleLogger = @"[GoogleDataTransport]";
 
-NSString* GDTMessageCodeEnumToString(GDTMessageCode code) {
+NSString *GDTMessageCodeEnumToString(GDTMessageCode code) {
   return [[NSString alloc] initWithFormat:@"I-GDT%06ld", (long)code];
 }
 
 void GDTLog(GDTMessageCode code, NSString *format, ...) {
 // Don't log anything in not debug builds.
 #ifndef NDEBUG
-  NSString *logFormat = [NSString stringWithFormat:@"%@[%@] %@", kGDTConsoleLogger, GDTMessageCodeEnumToString(code), format];
+  NSString *logFormat = [NSString
+      stringWithFormat:@"%@[%@] %@", kGDTConsoleLogger, GDTMessageCodeEnumToString(code), format];
   va_list args;
   va_start(args, format);
   NSLogv(logFormat, args);
   va_end(args);
-#endif // NDEBUG
+#endif  // NDEBUG
 }
