@@ -106,7 +106,7 @@ class FieldValue {
   FieldValue& operator=(FieldValue&& value);
 
 #if __OBJC__
-  inline FSTFieldValue* Wrap() &&;
+  FSTFieldValue* Wrap() &&;
 #endif  // __OBJC__
 
   /** Returns the true type for this value. */
