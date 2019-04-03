@@ -29,8 +29,8 @@
 #import <FirebaseCore/FIRLibrary.h>
 #import <FirebaseCore/FIRLogger.h>
 #import <FirebaseCore/FIROptions.h>
-#import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
 
 #import "AuthProviders/EmailPassword/FIREmailPasswordAuthCredential.h"
 #import "FIRAdditionalUserInfo_Internal.h"
