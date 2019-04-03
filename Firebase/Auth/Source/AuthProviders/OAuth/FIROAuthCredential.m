@@ -20,6 +20,7 @@
 #import "FIRAuthExceptionUtils.h"
 #import "FIROAuthCredential_Internal.h"
 #import "FIRVerifyAssertionRequest.h"
+#import "FIRVerifyAssertionResponse.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -64,9 +65,26 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
+
+- (nullable instancetype)initWithVerifyAssertionResponse:(FIRVerifyAssertionResponse *)response {
+  if (response.oauthIDToken.length || response.oauthAccessToken.length ||
+      response.oauthSecretToken.length) {
+    return [self initWithProviderID:response.providerID
+                            IDToken:response.oauthIDToken
+                        accessToken:response.oauthAccessToken
+                       pendingToken:response.pendingToken
+                             secret:response.oauthSecretToken];
+  }
+  return nil;
+}
+
 - (void)prepareVerifyAssertionRequest:(FIRVerifyAssertionRequest *)request {
   request.providerIDToken = _IDToken;
   request.providerAccessToken = _accessToken;
+  request.requestURI = _OAuthResponseURLString;
+  request.sessionID = _sessionID;
+  request.pendingToken = _pendingToken;
+  request.providerOAuthTokenSecret = _secret;
 }
 
 #pragma mark - NSSecureCoding

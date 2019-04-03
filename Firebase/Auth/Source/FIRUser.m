@@ -18,6 +18,7 @@
 
 #import <FirebaseCore/FIRLogger.h>
 
+#import "AuthProviders/OAuth/FIROAuthCredential_Internal.h"
 #import "FIRAdditionalUserInfo_Internal.h"
 #import "FIRAuth.h"
 #import "FIRAuthCredential_Internal.h"
@@ -1110,8 +1111,12 @@ static void callInMainThreadWithAuthDataResultAndError(
           }
           FIRAdditionalUserInfo *additionalUserInfo =
               [FIRAdditionalUserInfo userInfoWithVerifyAssertionResponse:response];
+          FIROAuthCredential *updatedOAuthCredential =
+              [[FIROAuthCredential alloc] initWithVerifyAssertionResponse:response];
           FIRAuthDataResult *result =
-              [[FIRAuthDataResult alloc] initWithUser:self additionalUserInfo:additionalUserInfo];
+              [[FIRAuthDataResult alloc] initWithUser:self
+                                   additionalUserInfo:additionalUserInfo
+                                           credential:updatedOAuthCredential];
           // Update the new token and refresh user info again.
           self->_tokenService = [[FIRSecureTokenService alloc]
               initWithRequestConfiguration:requestConfiguration

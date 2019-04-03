@@ -18,6 +18,8 @@
 
 #import "FIROAuthCredential.h"
 
+@class FIRVerifyAssertionResponse;
+
 NS_ASSUME_NONNULL_BEGIN
 
 /** @extension FIROAuthCredential
@@ -63,6 +65,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithProviderID:(NSString *)providerID
                          sessionID:(NSString *)sessionID
             OAuthResponseURLString:(NSString *)OAuthResponseURLString;
+
+/** @fn initWithVerifyAssertionResponse
+    @brief Intitializer which takes an verifyAssertion response.
+    @param response The verifyAssertion Response to create the credential instance.
+ */
+- (nullable instancetype)initWithVerifyAssertionResponse:(FIRVerifyAssertionResponse *)response;
 
 @end
 
