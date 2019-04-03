@@ -57,7 +57,7 @@
 
 #if TARGET_OS_IOS
 #import "FIRPhoneAuthProvider.h"
-#import "AuthProviders/Phone/FIRPhoneAuthCredential_Internal.h"
+#import "FIRPhoneAuthCredential_Internal.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
