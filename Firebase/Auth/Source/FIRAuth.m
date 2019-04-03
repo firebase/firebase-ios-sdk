@@ -42,6 +42,7 @@
 #import "FIRAuthKeychain.h"
 #import "FIRAuthOperationType.h"
 #import "FIRAuthSettings.h"
+#import "FIRAuthStoredUserManager.h"
 #import "FIRUser_Internal.h"
 #import "FirebaseAuth.h"
 #import "FIRAuthBackend.h"
@@ -245,6 +246,11 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
  */
 @property(nonatomic, copy, nullable) NSString *additionalFrameworkMarker;
 
+/** @property storedUserManager
+    @brief The stored user manager.
+ */
+@property(nonatomic, strong, nullable) FIRAuthStoredUserManager *storedUserManager;
+
 /** @fn initWithApp:
     @brief Creates a @c FIRAuth instance associated with the provided @c FIRApp instance.
     @param app The application to associate the auth instance with.
@@ -390,11 +396,29 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       if (keychainServiceName) {
         strongSelf->_keychain = [[FIRAuthKeychain alloc] initWithService:keychainServiceName];
       }
-      FIRUser *user;
+
+      strongSelf.storedUserManager =
+          [[FIRAuthStoredUserManager alloc] initWithServiceName:keychainServiceName];
+
       NSError *error;
-      if ([strongSelf getUser:&user error:&error]) {
-        [strongSelf updateCurrentUser:user byForce:NO savingToDisk:NO error:&error];
-        self->_lastNotifiedUserToken = user.rawAccessToken;
+      NSString *storedUserAccessGroup = [strongSelf.storedUserManager getStoredUserAccessGroupWithError:&error];
+      if (!error) {
+        if (!storedUserAccessGroup) {
+          FIRUser *user;
+          if ([strongSelf getUser:&user error:&error]) {
+            [strongSelf updateCurrentUser:user byForce:NO savingToDisk:NO error:&error];
+            self->_lastNotifiedUserToken = user.rawAccessToken;
+          } else {
+            FIRLogError(kFIRLoggerAuth, @"I-AUT000001",
+                        @"Error loading saved user when starting up: %@", error);
+          }
+        } else {
+          [strongSelf useUserAccessGroup:storedUserAccessGroup error:&error];
+          if (error) {
+            FIRLogError(kFIRLoggerAuth, @"I-AUT000001",
+                        @"Error loading saved user when starting up: %@", error);
+          }
+        }
       } else {
         FIRLogError(kFIRLoggerAuth, @"I-AUT000001",
                     @"Error loading saved user when starting up: %@", error);
@@ -1855,26 +1879,40 @@ static NSDictionary<NSString *, NSString *> *FIRAuthParseURL(NSString *urlString
 /** @fn saveUser:error:
     @brief Persists user.
     @param user The user to save.
-    @param error Return value for any error which occurs.
+    @param outError Return value for any error which occurs.
     @return @YES on success, @NO otherwise.
  */
 - (BOOL)saveUser:(FIRUser *)user
-           error:(NSError *_Nullable *_Nullable)error {
+           error:(NSError *_Nullable *_Nullable)outError {
   BOOL success;
-  NSString *userKey = [NSString stringWithFormat:kUserKey, _firebaseAppName];
 
-  if (!user) {
-    success = [_keychain removeDataForKey:userKey error:error];
+  if (!self.userAccessGroup) {
+    NSString *userKey = [NSString stringWithFormat:kUserKey, _firebaseAppName];
+    if (!user) {
+      success = [_keychain removeDataForKey:userKey error:outError];
+    } else {
+      // Encode the user object.
+      NSMutableData *archiveData = [NSMutableData data];
+      NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData:archiveData];
+      [archiver encodeObject:user forKey:userKey];
+      [archiver finishEncoding];
+
+      // Save the user object's encoded value.
+      success = [_keychain setData:archiveData forKey:userKey error:outError];
+    }
   } else {
-    // Encode the user object.
-    NSMutableData *archiveData = [NSMutableData data];
-    NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData:archiveData];
-    [archiver encodeObject:user forKey:userKey];
-    [archiver finishEncoding];
-
-    // Save the user object's encoded value.
-    success = [_keychain setData:archiveData forKey:userKey error:error];
+    if (!user) {
+      success = [self.storedUserManager removeStoredUserForAccessGroup:self.userAccessGroup
+                                                     projectIdentifier:self.app.options.APIKey
+                                                                 error:outError];
+    } else {
+      success = [self.storedUserManager setStoredUser:user
+                                       forAccessGroup:self.userAccessGroup
+                                    projectIdentifier:self.app.options.APIKey
+                                                error:outError];
+    }
   }
+
   return success;
 }
 
@@ -1887,26 +1925,44 @@ static NSDictionary<NSString *, NSString *> *FIRAuthParseURL(NSString *urlString
  */
 - (BOOL)getUser:(FIRUser *_Nullable *)outUser
           error:(NSError *_Nullable *_Nullable)error {
-  NSString *userKey = [NSString stringWithFormat:kUserKey, _firebaseAppName];
+  if (!self.userAccessGroup) {
+    NSString *userKey = [NSString stringWithFormat:kUserKey, _firebaseAppName];
 
-  NSError *keychainError;
-  NSData *encodedUserData = [_keychain dataForKey:userKey error:&keychainError];
-  if (keychainError) {
-    if (error) {
-      *error = keychainError;
+    NSError *keychainError;
+    NSData *encodedUserData = [_keychain dataForKey:userKey error:&keychainError];
+    if (keychainError) {
+      if (error) {
+        *error = keychainError;
+      }
+      return NO;
     }
-    return NO;
-  }
-  if (!encodedUserData) {
-    *outUser = nil;
+    if (!encodedUserData) {
+      *outUser = nil;
+      return YES;
+    }
+    NSKeyedUnarchiver *unarchiver =
+        [[NSKeyedUnarchiver alloc] initForReadingWithData:encodedUserData];
+    FIRUser *user = [unarchiver decodeObjectOfClass:[FIRUser class] forKey:userKey];
+    user.auth = self;
+    *outUser = user;
+
     return YES;
+  } else {
+    FIRUser *user = [self.storedUserManager getStoredUserForAccessGroup:self.userAccessGroup
+                                                      projectIdentifier:self.app.options.APIKey
+                                                                  error:error];
+    user.auth = self;
+    *outUser = user;
+    if (user) {
+      return YES;
+    } else {
+      if (error && *error) {
+        return NO;
+      } else {
+        return YES;
+      }
+    }
   }
-  NSKeyedUnarchiver *unarchiver =
-      [[NSKeyedUnarchiver alloc] initForReadingWithData:encodedUserData];
-  FIRUser *user = [unarchiver decodeObjectOfClass:[FIRUser class] forKey:userKey];
-  user.auth = self;
-  *outUser = user;
-  return YES;
 }
 
 #pragma mark - Interoperability
@@ -2009,6 +2065,58 @@ static NSDictionary<NSString *, NSString *> *FIRAuthParseURL(NSString *urlString
 
 - (nullable NSString *)getUserID {
   return _currentUser.uid;
+}
+
+#pragma mark - Keychain sharing
+
+- (BOOL)useUserAccessGroup:(NSString *_Nullable)accessGroup
+                     error:(NSError *_Nullable *_Nullable)outError {
+  BOOL success;
+  success = [self.storedUserManager setStoredUserAccessGroup:accessGroup error:outError];
+  if (!success) {
+    return NO;
+  }
+
+  FIRUser *user = [self getStoredUserForAccessGroup:accessGroup error:outError];
+  if (!user && outError && *outError) {
+    return NO;
+  }
+  success = [self updateCurrentUser:user byForce:NO savingToDisk:NO error:outError];
+  if (!success) {
+    return NO;
+  }
+
+  if(_userAccessGroup == nil && accessGroup != nil) {
+    NSString *userKey = [NSString stringWithFormat:kUserKey, _firebaseAppName];
+    [_keychain removeDataForKey:userKey error:outError];
+  }
+  _userAccessGroup = accessGroup;
+  self->_lastNotifiedUserToken = user.rawAccessToken;
+
+  return YES;
+}
+
+- (FIRUser *)getStoredUserForAccessGroup:(NSString *_Nullable)accessGroup
+                                   error:(NSError *_Nullable *_Nullable)outError {
+  FIRUser *user;
+  if (!accessGroup) {
+    NSString *userKey = [NSString stringWithFormat:kUserKey, _firebaseAppName];
+    NSData *encodedUserData = [_keychain dataForKey:userKey error:outError];
+    if (!encodedUserData) {
+      return nil;
+    }
+
+    NSKeyedUnarchiver *unarchiver =
+        [[NSKeyedUnarchiver alloc] initForReadingWithData:encodedUserData];
+    user = [unarchiver decodeObjectOfClass:[FIRUser class] forKey:userKey];
+    user.auth = self;
+  } else {
+    user = [self.storedUserManager getStoredUserForAccessGroup:self.userAccessGroup
+                                             projectIdentifier:self.app.options.APIKey
+                                                         error:outError];
+  }
+
+  return user;
 }
 
 @end

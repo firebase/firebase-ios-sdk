@@ -18,8 +18,6 @@
 
 #import "FIRAuthUserDefaultsStorage.h"
 
-#if FIRAUTH_USER_DEFAULTS_STORAGE_AVAILABLE
-
 NS_ASSUME_NONNULL_BEGIN
 
 /** @var kKey
@@ -151,5 +149,3 @@ static NSError *fakeError() {
 @end
 
 NS_ASSUME_NONNULL_END
-
-#endif  // FIRAUTH_USER_DEFAULTS_STORAGE_AVAILABLE

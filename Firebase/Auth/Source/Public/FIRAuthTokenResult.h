@@ -28,36 +28,36 @@ NS_SWIFT_NAME(AuthTokenResult)
 /** @property token
     @brief Stores the JWT string of the ID token.
  */
-@property (nonatomic, readonly) NSString *token;
+@property(nonatomic, readonly) NSString *token;
 
 /** @property expirationDate
     @brief Stores the ID token's expiration date.
  */
-@property (nonatomic, readonly) NSDate *expirationDate;
+@property(nonatomic, readonly) NSDate *expirationDate;
 
 /** @property authDate
     @brief Stores the ID token's authentication date.
     @remarks This is the date the user was signed in and NOT the date the token was refreshed.
  */
-@property (nonatomic, readonly) NSDate *authDate;
+@property(nonatomic, readonly) NSDate *authDate;
 
 /** @property issuedAtDate
     @brief Stores the date that the ID token was issued.
     @remarks This is the date last refreshed and NOT the last authentication date.
  */
-@property (nonatomic, readonly) NSDate *issuedAtDate;
+@property(nonatomic, readonly) NSDate *issuedAtDate;
 
 /** @property signInProvider
     @brief Stores sign-in provider through which the token was obtained.
     @remarks This does not necessarily map to provider IDs.
  */
-@property (nonatomic, readonly) NSString *signInProvider;
+@property(nonatomic, readonly) NSString *signInProvider;
 
 /** @property claims
     @brief Stores the entire payload of claims found on the ID token. This includes the standard
         reserved claims as well as custom claims set by the developer via the Admin SDK.
  */
-@property (nonatomic, readonly) NSDictionary<NSString *, id> *claims;
+@property(nonatomic, readonly) NSDictionary<NSString *, id> *claims;
 
 
 
