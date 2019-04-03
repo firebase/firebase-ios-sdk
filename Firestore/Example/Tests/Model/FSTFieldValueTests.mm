@@ -312,8 +312,7 @@ union DoubleBits {
   FSTAssertIsKindOfClass(obj, FSTObjectValue);
 
   FSTAssertIsKindOfClass([obj valueForPath:testutil::Field("foo")], FSTObjectValue);
-  XCTAssertEqualObjects([obj valueForPath:testutil::Field("foo.a")],
-                        FieldValue::True().Wrap());
+  XCTAssertEqualObjects([obj valueForPath:testutil::Field("foo.a")], FieldValue::True().Wrap());
   XCTAssertEqualObjects([obj valueForPath:testutil::Field("foo.b")],
                         [FSTStringValue stringValue:@"string"]);
 
@@ -424,9 +423,8 @@ union DoubleBits {
 }
 
 - (void)testArrays {
-  FSTArrayValue *expected = [[FSTArrayValue alloc] initWithValueNoCopy:@[
-    [FSTStringValue stringValue:@"value"], FieldValue::True().Wrap()
-  ]];
+  FSTArrayValue *expected = [[FSTArrayValue alloc]
+      initWithValueNoCopy:@[ [FSTStringValue stringValue:@"value"], FieldValue::True().Wrap() ]];
 
   FSTArrayValue *actual = (FSTArrayValue *)FSTTestFieldValue(@[ @"value", @YES ]);
   XCTAssertEqualObjects(actual, expected);
