@@ -28,7 +28,21 @@ static NSString *const kUpstreamErrorUserInfoKey = @"error";
 
 static int downstreamMessageID = 0;
 
+@interface FIRMessagingReceiver ()
+@property(nonatomic, strong) GULUserDefaults *defaults;
+@end
+
 @implementation FIRMessagingReceiver
+
+#pragma mark - Initializer
+
+- (instancetype)initWithUserDefaults:(GULUserDefaults *)defaults {
+  self = [super init];
+  if (self != nil) {
+    _defaults = defaults;
+  }
+  return self;
+}
 
 #pragma mark - FIRMessagingDataMessageManager protocol
 
