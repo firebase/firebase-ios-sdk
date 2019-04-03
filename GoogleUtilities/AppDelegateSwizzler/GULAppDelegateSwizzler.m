@@ -436,16 +436,16 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
 #if TARGET_OS_IOS
   // For application:openURL:sourceApplication:annotation:
   SEL openURLSourceApplicationAnnotationSEL = @selector(application:
-                                                        openURL:sourceApplication:annotation:);
+                                                            openURL:sourceApplication:annotation:);
   [GULAppDelegateSwizzler addInstanceMethodWithSelector:openURLSourceApplicationAnnotationSEL
                                               fromClass:[GULAppDelegateSwizzler class]
                                                 toClass:appDelegateSubClass];
   GULRealOpenURLSourceApplicationAnnotationIMP openURLSourceApplicationAnnotationIMP =
-  (GULRealOpenURLSourceApplicationAnnotationIMP)[GULAppDelegateSwizzler
-                                                 implementationOfMethodSelector:openURLSourceApplicationAnnotationSEL
-                                                 fromClass:realClass];
+      (GULRealOpenURLSourceApplicationAnnotationIMP)[GULAppDelegateSwizzler
+          implementationOfMethodSelector:openURLSourceApplicationAnnotationSEL
+                               fromClass:realClass];
   NSValue *openURLSourceAppAnnotationIMPPointer =
-  [NSValue valueWithPointer:openURLSourceApplicationAnnotationIMP];
+      [NSValue valueWithPointer:openURLSourceApplicationAnnotationIMP];
 #endif  // TARGET_OS_IOS
 
   // Override the description too so the custom class name will not show up.
