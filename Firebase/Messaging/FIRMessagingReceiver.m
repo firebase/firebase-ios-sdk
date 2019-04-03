@@ -18,8 +18,6 @@
 
 #import <UIKit/UIKit.h>
 
-#import <GoogleUtilities/GULAppEnvironmentUtil.h>
-
 #import "FIRMessaging.h"
 #import "FIRMessagingLogger.h"
 #import "FIRMessagingUtilities.h"
@@ -46,7 +44,6 @@ static int downstreamMessageID = 0;
     messageID = [[self class] nextMessageID];
   }
 
-  NSInteger majorOSVersion = [[GULAppEnvironmentUtil systemVersion] integerValue];
   [self handleDirectChannelMessage:message withIdentifier:messageID];
 }
 
