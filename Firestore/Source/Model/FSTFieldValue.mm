@@ -964,7 +964,7 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
 @end
 
 @implementation FSTDelegateValue
-+ (instancetype)delegateValue:(FieldValue &&)value {
++ (instancetype)delegateWithValue:(FieldValue &&)value {
   return [[FSTDelegateValue alloc] initWithValue:std::move(value)];
 }
 
@@ -1009,6 +1009,8 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
 }
 
 - (BOOL)isEqual:(id)other {
+  // TODO(rsgowman): Port the other FST*Value's, and then remove this comment:
+  //
   // Simplification: We'll assume that (eg) FSTBooleanValue(true) !=
   // FSTDelegateValue(FieldValue::FromBoolean(true)). That's not great. We'll
   // handle this by ensuring that we remove (eg) FSTBooleanValue at the same
@@ -1047,12 +1049,14 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
 }
 
 - (NSComparisonResult)compare:(FSTFieldValue *)other {
-  // Simplification: We'll assume that if self.type == other.type, then other
-  // must be a FSTDelegateValue. That's not great. We'll handle this by
-  // ensuring that we remove (eg) FSTBooleanValue at the same time that
+  // TODO(rsgowman): Port the other FST*Value's, and then remove this comment:
+  //
+  // Simplification: We'll assume that if Comparable(self.type, other.type),
+  // then other must be a FSTDelegateValue. That's not great. We'll handle this
+  // by ensuring that we remove (eg) FSTBooleanValue at the same time that
   // FSTDelegateValue handles (eg) booleans to ensure this case never occurs.
 
-  if (self.type == other.type) {
+  if (FieldValue::Comparable(self.type, other.type)) {
     HARD_ASSERT([other isKindOfClass:[FSTDelegateValue class]]);
     return WrapCompare<FieldValue>(self.internalValue, ((FSTDelegateValue *)other).internalValue);
   } else {
@@ -1061,7 +1065,7 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
 }
 
 - (NSUInteger)hash {
-  return std::hash<FieldValue>{}(self.internalValue);
+  return self.internalValue.Hash();
 }
 
 @end

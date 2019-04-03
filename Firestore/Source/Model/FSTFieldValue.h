@@ -282,8 +282,8 @@ enum class ServerTimestampBehavior { None, Estimate, Previous };
 /**
  * A value that delegates to the c++ model::FieldValue.
  */
-@interface FSTDelegateValue<__covariant T> : FSTFieldValue <T>
-+ (instancetype)delegateValue:(FieldValue &&)value;
+@interface FSTDelegateValue : FSTFieldValue <id>
++ (instancetype)delegateWithValue:(FieldValue &&)value;
 @end
 
 NS_ASSUME_NONNULL_END

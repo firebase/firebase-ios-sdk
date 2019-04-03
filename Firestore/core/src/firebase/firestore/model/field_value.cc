@@ -347,6 +347,30 @@ FieldValue FieldValue::FromMap(FieldValue::Map&& value) {
   return result;
 }
 
+size_t FieldValue::Hash() const {
+  switch (type()) {
+    case FieldValue::Type::Null:
+      HARD_FAIL("TODO(rsgowman): Implement");
+
+    case FieldValue::Type::Boolean:
+      return boolean_value() ? 1231 : 1237;
+
+    case FieldValue::Type::Integer:
+    case FieldValue::Type::Double:
+    case FieldValue::Type::Timestamp:
+    case FieldValue::Type::ServerTimestamp:
+    case FieldValue::Type::String:
+    case FieldValue::Type::Blob:
+    case FieldValue::Type::Reference:
+    case FieldValue::Type::GeoPoint:
+    case FieldValue::Type::Array:
+    case FieldValue::Type::Object:
+      HARD_FAIL("TODO(rsgowman): Implement");
+  }
+
+  UNREACHABLE();
+}
+
 bool operator<(const FieldValue::Map& lhs, const FieldValue::Map& rhs) {
   return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(),
                                       rhs.end());
@@ -499,33 +523,3 @@ ObjectValue ObjectValue::FromMap(FieldValue::Map&& value) {
 }  // namespace model
 }  // namespace firestore
 }  // namespace firebase
-
-namespace std {
-
-using firebase::firestore::model::FieldValue;
-
-size_t hash<FieldValue>::operator()(const FieldValue& fv) const {
-  switch (fv.type()) {
-    case FieldValue::Type::Null:
-      HARD_FAIL("TODO(rsgowman): Implement");
-
-    case FieldValue::Type::Boolean:
-      return fv.boolean_value() ? 1231 : 1237;
-
-    case FieldValue::Type::Integer:
-    case FieldValue::Type::Double:
-    case FieldValue::Type::Timestamp:
-    case FieldValue::Type::ServerTimestamp:
-    case FieldValue::Type::String:
-    case FieldValue::Type::Blob:
-    case FieldValue::Type::Reference:
-    case FieldValue::Type::GeoPoint:
-    case FieldValue::Type::Array:
-    case FieldValue::Type::Object:
-      HARD_FAIL("TODO(rsgowman): Implement");
-  }
-
-  UNREACHABLE();
-}
-
-}  // namespace std

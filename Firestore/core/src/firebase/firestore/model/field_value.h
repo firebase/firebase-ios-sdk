@@ -32,6 +32,10 @@
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/types/optional.h"
 
+#if __OBJC__
+@class FSTFieldValue;
+#endif  // __OBJC__
+
 namespace firebase {
 namespace firestore {
 namespace model {
@@ -100,6 +104,10 @@ class FieldValue {
 
   FieldValue& operator=(const FieldValue& value);
   FieldValue& operator=(FieldValue&& value);
+
+#if __OBJC__
+  inline FSTFieldValue* Wrap() &&;
+#endif  // __OBJC__
 
   /** Returns the true type for this value. */
   Type type() const {
@@ -181,6 +189,8 @@ class FieldValue {
   static FieldValue FromArray(std::vector<FieldValue>&& value);
   static FieldValue FromMap(const Map& value);
   static FieldValue FromMap(Map&& value);
+
+  size_t Hash() const;
 
   friend bool operator<(const FieldValue& lhs, const FieldValue& rhs);
 
@@ -327,12 +337,5 @@ inline bool operator==(const ObjectValue& lhs, const ObjectValue& rhs) {
 }  // namespace model
 }  // namespace firestore
 }  // namespace firebase
-
-namespace std {
-template <>
-struct hash<firebase::firestore::model::FieldValue> {
-  size_t operator()(const firebase::firestore::model::FieldValue& fv) const;
-};
-}  // namespace std
 
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_FIELD_VALUE_H_
