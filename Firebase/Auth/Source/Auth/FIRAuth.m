@@ -31,7 +31,7 @@
 #import <FirebaseCore/FIROptions.h>
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 
-#import "AuthProviders/EmailPassword/FIREmailPasswordAuthCredential.h"
+#import "FIREmailPasswordAuthCredential.h"
 #import "FIRAdditionalUserInfo_Internal.h"
 #import "FIRAuthCredential_Internal.h"
 #import "FIRAuthDataResult_Internal.h"
@@ -79,7 +79,7 @@
 #import "FIRAuthAPNSTokenManager.h"
 #import "FIRAuthAppCredentialManager.h"
 #import "FIRAuthAppDelegateProxy.h"
-#import "AuthProviders/Phone/FIRPhoneAuthCredential_Internal.h"
+#import "FIRPhoneAuthCredential_Internal.h"
 #import "FIRAuthNotificationManager.h"
 #import "FIRAuthURLPresenter.h"
 #endif
