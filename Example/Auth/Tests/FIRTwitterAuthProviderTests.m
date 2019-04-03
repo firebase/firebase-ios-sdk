@@ -47,8 +47,6 @@ static NSString *const kAPIKey = @"APIKey";
         the appropriate fields in a verify assertion request.
  */
 - (void)testCredentialWithToken {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   FIRAuthCredential *credential =
       [FIRTwitterAuthProvider credentialWithToken:kTwitterToken secret:kTwitterSecret];
   FIRAuthRequestConfiguration *requestConfiguration =
@@ -59,7 +57,6 @@ static NSString *const kAPIKey = @"APIKey";
   [credential prepareVerifyAssertionRequest:request];
   XCTAssertEqualObjects(request.providerAccessToken, kTwitterToken);
   XCTAssertEqualObjects(request.providerOAuthTokenSecret, kTwitterSecret);
-#pragma clang diagnostic pop
 }
 
 @end

@@ -42,19 +42,19 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, readonly, nullable) NSString *pendingToken;
 
-/** @fn initWithProviderId:IDToken:accessToken:pendingToken
+/** @fn initWithProviderId:IDToken:accessToken:secret:pendingToken
     @brief Designated initializer.
     @param providerID The provider ID associated with the credential being created.
     @param IDToken The ID Token associated with the credential being created.
     @param accessToken The access token associated with the credential being created.
-    @param pendingToken The pending token associated with the credential being created.
     @param secret The secret associated with the credential being created.
+    @param pendingToken The pending token associated with the credential being created.
  */
 - (instancetype)initWithProviderID:(NSString *)providerID
                            IDToken:(nullable NSString *)IDToken
                        accessToken:(nullable NSString *)accessToken
-                      pendingToken:(nullable NSString *)pendingToken
-                            secret:(nullable NSString *)secret NS_DESIGNATED_INITIALIZER;
+                            secret:(nullable NSString *)secret
+                      pendingToken:(nullable NSString *)pendingToken NS_DESIGNATED_INITIALIZER;
 
 /** @fn initWithProviderId:sessionID:OAuthResponseURLString:
     @brief Intitializer which takes a sessionID and an OAuthResponseURLString.

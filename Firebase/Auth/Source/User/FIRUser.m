@@ -18,7 +18,6 @@
 
 #import <FirebaseCore/FIRLogger.h>
 
-#import "AuthProviders/OAuth/FIROAuthCredential_Internal.h"
 #import "FIRAdditionalUserInfo_Internal.h"
 #import "FIRAuth.h"
 #import "FIRAuthCredential_Internal.h"
@@ -40,6 +39,7 @@
 #import "FIRGetAccountInfoResponse.h"
 #import "FIRGetOOBConfirmationCodeRequest.h"
 #import "FIRGetOOBConfirmationCodeResponse.h"
+#import "FIROAuthCredential_Internal.h"
 #import "FIRSecureTokenService.h"
 #import "FIRSetAccountInfoRequest.h"
 #import "FIRSetAccountInfoResponse.h"

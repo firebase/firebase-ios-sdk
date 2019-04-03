@@ -41,8 +41,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithProviderID:(NSString *)providerID
                            IDToken:(nullable NSString *)IDToken
                        accessToken:(nullable NSString *)accessToken
-                      pendingToken:(nullable NSString *)pendingToken
-                            secret:(nullable NSString *)secret {
+                            secret:(nullable NSString *)secret
+                      pendingToken:(nullable NSString *)pendingToken {
   self = [super initWithProvider:providerID];
   if (self) {
     _IDToken = IDToken;
@@ -57,7 +57,7 @@ NS_ASSUME_NONNULL_BEGIN
                          sessionID:(NSString *)sessionID
             OAuthResponseURLString:(NSString *)OAuthResponseURLString {
   self =
-      [self initWithProviderID:providerID IDToken:nil accessToken:nil pendingToken:nil secret:nil];
+      [self initWithProviderID:providerID IDToken:nil accessToken:nil secret:nil pendingToken:nil];
   if (self) {
     _OAuthResponseURLString = OAuthResponseURLString;
     _sessionID = sessionID;
@@ -72,8 +72,8 @@ NS_ASSUME_NONNULL_BEGIN
     return [self initWithProviderID:response.providerID
                             IDToken:response.oauthIDToken
                         accessToken:response.oauthAccessToken
-                       pendingToken:response.pendingToken
-                             secret:response.oauthSecretToken];
+                             secret:response.oauthSecretToken
+                       pendingToken:response.pendingToken];
   }
   return nil;
 }
@@ -83,8 +83,8 @@ NS_ASSUME_NONNULL_BEGIN
   request.providerAccessToken = _accessToken;
   request.requestURI = _OAuthResponseURLString;
   request.sessionID = _sessionID;
-  request.pendingToken = _pendingToken;
   request.providerOAuthTokenSecret = _secret;
+  request.pendingToken = _pendingToken;
 }
 
 #pragma mark - NSSecureCoding
@@ -101,8 +101,8 @@ NS_ASSUME_NONNULL_BEGIN
   self = [self initWithProviderID:self.provider
                           IDToken:IDToken
                       accessToken:accessToken
-                     pendingToken:pendingToken
-                           secret:secret];
+                           secret:secret
+                     pendingToken:pendingToken];
   return self;
 }
 
