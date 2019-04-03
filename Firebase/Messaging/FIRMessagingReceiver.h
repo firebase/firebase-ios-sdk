@@ -29,6 +29,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRMessagingReceiver : NSObject <FIRMessagingDataMessageManagerDelegate>
 
+@property(nonatomic, weak, nullable) id<FIRMessagingReceiverDelegate> delegate;
+
 @end
 
 NS_ASSUME_NONNULL_END

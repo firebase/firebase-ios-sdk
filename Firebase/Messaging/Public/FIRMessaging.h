@@ -269,7 +269,7 @@ NS_SWIFT_NAME(MessagingDelegate)
 /// Handle data messages received via FCM direct channel (not via APNS).
 - (void)messaging:(FIRMessaging *)messaging
     didReceiveMessage:(FIRMessagingRemoteMessage *)remoteMessage
-    NS_SWIFT_NAME(messaging(_:didReceive:))
+NS_SWIFT_NAME(messaging(_:didReceive:));
 
 @end
 
