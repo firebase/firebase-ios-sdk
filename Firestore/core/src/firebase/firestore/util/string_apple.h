@@ -51,7 +51,7 @@ inline NSString* WrapNSStringNoCopy(const char* c_str, size_t size) {
       initWithBytesNoCopy:const_cast<void*>(static_cast<const void*>(c_str))
                    length:size
                  encoding:NSUTF8StringEncoding
-             freeWhenDone:NO];
+             freeWhenDone:false];
 }
 
 // Translates a string_view to the equivalent NSString without making a copy.
