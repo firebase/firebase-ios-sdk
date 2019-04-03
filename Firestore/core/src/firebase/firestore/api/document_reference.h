@@ -27,7 +27,6 @@
 #include <utility>
 #include <vector>
 
-#import "FIRDocumentReference.h"
 #import "FIRFirestoreSource.h"
 
 #include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
@@ -39,7 +38,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class FIRFirestore;
 @class FSTMutation;
 
 namespace firebase {

@@ -59,9 +59,9 @@
 #import "FIRVerifyPhoneNumberRequest.h"
 #import "FIRVerifyPhoneNumberResponse.h"
 
-#import "../AuthProviders/OAuth/FIROAuthCredential_Internal.h"
+#import "FIROAuthCredential_Internal.h"
 #if TARGET_OS_IOS
-#import "../AuthProviders/Phone/FIRPhoneAuthCredential_Internal.h"
+#import "FIRPhoneAuthCredential_Internal.h"
 #import "FIRPhoneAuthProvider.h"
 #endif
 
