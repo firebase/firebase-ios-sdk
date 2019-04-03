@@ -18,9 +18,6 @@
 
 #import <UIKit/UIKit.h>
 
-#import <GoogleUtilities/GULAppEnvironmentUtil.h>
-#import <GoogleUtilities/GULUserDefaults.h>
-
 #import "FIRMessaging.h"
 #import "FIRMessagingLogger.h"
 #import "FIRMessagingUtilities.h"
@@ -28,30 +25,10 @@
 
 static NSString *const kUpstreamMessageIDUserInfoKey = @"messageID";
 static NSString *const kUpstreamErrorUserInfoKey = @"error";
-/// "Should use Messaging delegate" key stored in NSUserDefaults
-NSString *const kFIRMessagingUserDefaultsKeyUseMessagingDelegate =
-    @"com.firebase.messaging.useMessagingDelegate";
-/// "Should use Messaging Delegate" key stored in Info.plist
-NSString *const kFIRMessagingPlistUseMessagingDelegate =
-    @"FirebaseMessagingUseMessagingDelegateForDirectChannel";
 
 static int downstreamMessageID = 0;
 
-@interface FIRMessagingReceiver ()
-@property(nonatomic, strong) GULUserDefaults *defaults;
-@end
-
 @implementation FIRMessagingReceiver
-
-#pragma mark - Initializer
-
-- (instancetype)initWithUserDefaults:(GULUserDefaults *)defaults {
-  self = [super init];
-  if (self != nil) {
-    _defaults = defaults;
-  }
-  return self;
-}
 
 #pragma mark - FIRMessagingDataMessageManager protocol
 
@@ -60,14 +37,7 @@ static int downstreamMessageID = 0;
     messageID = [[self class] nextMessageID];
   }
 
-  NSInteger majorOSVersion = [[GULAppEnvironmentUtil systemVersion] integerValue];
-  if (majorOSVersion >= 10 || self.useDirectChannel) {
-    // iOS 10 and above or use direct channel is enabled.
-    [self scheduleIos10NotificationForMessage:message withIdentifier:messageID];
-  } else {
-    // Post notification directly to AppDelegate handlers. This is valid pre-iOS 10.
-    [self scheduleNotificationForMessage:message];
-  }
+  [self handleDirectChannelMessage:message withIdentifier:messageID];
 }
 
 - (void)willSendDataMessageWithID:(NSString *)messageID error:(NSError *)error {
@@ -112,82 +82,17 @@ static int downstreamMessageID = 0;
 }
 
 #pragma mark - Private Helpers
-// As the new UserNotifications framework in iOS 10 doesn't support constructor/mutation for
-// UNNotification object, FCM can't inject the message to the app with UserNotifications framework.
-// Define our own protocol, which means app developers need to implement two interfaces to receive
-// display notifications and data messages respectively for devices running iOS 10 or above. Devices
-// running iOS 9 or below are not affected.
-- (void)scheduleIos10NotificationForMessage:(NSDictionary *)message
-                             withIdentifier:(NSString *)messageID {
+- (void)handleDirectChannelMessage:(NSDictionary *)message withIdentifier:(NSString *)messageID {
   FIRMessagingRemoteMessage *wrappedMessage = [[FIRMessagingRemoteMessage alloc] init];
-  // TODO: wrap title, body, badge and other fields
   wrappedMessage.appData = [message copy];
   wrappedMessage.messageID = messageID;
   [self.delegate receiver:self receivedRemoteMessage:wrappedMessage];
-}
-
-- (void)scheduleNotificationForMessage:(NSDictionary *)message {
-  SEL newNotificationSelector =
-      @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:);
-  SEL oldNotificationSelector = @selector(application:didReceiveRemoteNotification:);
-
-  dispatch_async(dispatch_get_main_queue(), ^{
-    UIApplication *application = FIRMessagingUIApplication();
-    if (!application) {
-      return;
-    }
-    id<UIApplicationDelegate> appDelegate = [application delegate];
-    if ([appDelegate respondsToSelector:newNotificationSelector]) {
-      // Try the new remote notification callback
-      [appDelegate application:application
-          didReceiveRemoteNotification:message
-                fetchCompletionHandler:^(UIBackgroundFetchResult result) {
-                }];
-
-    } else if ([appDelegate respondsToSelector:oldNotificationSelector]) {
-      // Try the old remote notification callback
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-      [appDelegate application:application didReceiveRemoteNotification:message];
-#pragma clang diagnostic pop
-    } else {
-      FIRMessagingLoggerError(kFIRMessagingMessageCodeReceiver005,
-                              @"None of the remote notification callbacks implemented by "
-                              @"UIApplicationDelegate");
-    }
-  });
 }
 
 + (NSString *)nextMessageID {
   @synchronized (self) {
     ++downstreamMessageID;
     return [NSString stringWithFormat:@"gcm-%d", downstreamMessageID];
-  }
-}
-
-- (BOOL)useDirectChannel {
-  // Check storage
-  id shouldUseMessagingDelegate =
-      [_defaults objectForKey:kFIRMessagingUserDefaultsKeyUseMessagingDelegate];
-  if (shouldUseMessagingDelegate) {
-    return [shouldUseMessagingDelegate boolValue];
-  }
-
-  // Check Info.plist
-  shouldUseMessagingDelegate =
-      [[NSBundle mainBundle] objectForInfoDictionaryKey:kFIRMessagingPlistUseMessagingDelegate];
-  if (shouldUseMessagingDelegate) {
-    return [shouldUseMessagingDelegate boolValue];
-  }
-  // If none of above exists, we go back to default behavior which is NO.
-  return NO;
-}
-
-- (void)setUseDirectChannel:(BOOL)useDirectChannel {
-  BOOL shouldUseMessagingDelegate = [self useDirectChannel];
-  if (useDirectChannel != shouldUseMessagingDelegate) {
-    [_defaults setBool:useDirectChannel forKey:kFIRMessagingUserDefaultsKeyUseMessagingDelegate];
-    [_defaults synchronize];
   }
 }
 
