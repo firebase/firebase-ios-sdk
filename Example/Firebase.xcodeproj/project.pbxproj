@@ -6137,9 +6137,7 @@
 				DEVELOPMENT_TEAM = "";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"${PODS_ROOT}/../../Firebase/Auth/Source/RPCs\"",
-					"\"${PODS_ROOT}/../../Firebase/Auth/Source\"",
-					"\"${PODS_ROOT}/../../Firebase/Auth/Source/AuthProviders\"",
+					"\"${PODS_ROOT}/../../Firebase/Auth/Source\"/**",
 				);
 				INFOPLIST_FILE = "Auth/Tests/Tests-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -6162,9 +6160,7 @@
 				DEVELOPMENT_TEAM = "";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"${PODS_ROOT}/../../Firebase/Auth/Source/RPCs\"",
-					"\"${PODS_ROOT}/../../Firebase/Auth/Source\"",
-					"\"${PODS_ROOT}/../../Firebase/Auth/Source/AuthProviders\"",
+					"\"${PODS_ROOT}/../../Firebase/Auth/Source\"/**",
 				);
 				INFOPLIST_FILE = "Auth/Tests/Tests-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -6669,7 +6665,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 4ANB9W7R3P;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = "$SRCROOT/DynamicLinks/FDLBuilderTestAppObjC/Info.plist";
+				INFOPLIST_FILE = $SRCROOT/DynamicLinks/FDLBuilderTestAppObjC/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.4;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
@@ -6703,7 +6699,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 4ANB9W7R3P;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = "$SRCROOT/DynamicLinks/FDLBuilderTestAppObjC/Info.plist";
+				INFOPLIST_FILE = $SRCROOT/DynamicLinks/FDLBuilderTestAppObjC/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.4;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -7308,9 +7304,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"${PODS_ROOT}/../../Firebase/Auth/Source/RPCs\"",
-					"\"${PODS_ROOT}/../../Firebase/Auth/Source\"",
-					"\"${PODS_ROOT}/../../Firebase/Auth/Source/AuthProviders\"",
+					"\"${PODS_ROOT}/../../Firebase/Auth/Source\"/**",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/Auth/App/iOS/Auth-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -7348,9 +7342,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"${PODS_ROOT}/../../Firebase/Auth/Source/RPCs\"",
-					"\"${PODS_ROOT}/../../Firebase/Auth/Source\"",
-					"\"${PODS_ROOT}/../../Firebase/Auth/Source/AuthProviders\"",
+					"\"${PODS_ROOT}/../../Firebase/Auth/Source\"/**",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/Auth/App/iOS/Auth-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -7560,9 +7552,7 @@
 				DEVELOPMENT_TEAM = "";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"${PODS_ROOT}/../../Firebase/Auth/Source/RPCs\"",
-					"\"${PODS_ROOT}/../../Firebase/Auth/Source\"",
-					"\"${PODS_ROOT}/../../Firebase/Auth/Source/AuthProviders\"",
+					"\"${PODS_ROOT}/../../Firebase/Auth/Source\"/**",
 					"\"${PODS_ROOT}/Headers/Private\"",
 				);
 				INFOPLIST_FILE = "Auth/Tests/Tests-Info.plist";
@@ -7586,9 +7576,7 @@
 				DEVELOPMENT_TEAM = "";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"${PODS_ROOT}/../../Firebase/Auth/Source/RPCs\"",
-					"\"${PODS_ROOT}/../../Firebase/Auth/Source\"",
-					"\"${PODS_ROOT}/../../Firebase/Auth/Source/AuthProviders\"",
+					"\"${PODS_ROOT}/../../Firebase/Auth/Source\"/**",
 					"\"${PODS_ROOT}/Headers/Private\"",
 				);
 				INFOPLIST_FILE = "Auth/Tests/Tests-Info.plist";
