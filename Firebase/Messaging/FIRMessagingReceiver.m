@@ -30,13 +30,6 @@ static int downstreamMessageID = 0;
 
 @implementation FIRMessagingReceiver
 
-#pragma mark - Initializer
-
-- (instancetype)init {
-  self = [super init];
-  return self;
-}
-
 #pragma mark - FIRMessagingDataMessageManager protocol
 
 - (void)didReceiveMessage:(NSDictionary *)message withIdentifier:(nullable NSString *)messageID {
