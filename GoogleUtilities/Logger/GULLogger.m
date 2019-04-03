@@ -203,41 +203,23 @@ GUL_LOGGING_FUNCTION(Debug)
 
 #undef GUL_MAKE_LOGGER
 
-#pragma mark - User defaults
-
-// NSUserDefaults cannot be used due to a bug described in GULUserDefaults
-// GULUserDefaults cannot be used because GULLogger is a dependency for GULUserDefaults
-// We have to use C API deireclty here
-
-CFStringRef getGULLoggerUsetDefaultsSuiteName(void) {
-  return (__bridge CFStringRef) @"GoogleUtilities.Logger.GULLogger";
-}
-
-NSInteger GULGetUserDefaultsIntegerForKey(NSString *key) {
-  id value = (__bridge_transfer id)CFPreferencesCopyAppValue((__bridge CFStringRef)key,
-                                                             getGULLoggerUsetDefaultsSuiteName());
-  if (![value isKindOfClass:[NSNumber class]]) {
-    return 0;
-  }
-
-  return [(NSNumber *)value integerValue];
-}
-
-void GULLoggerUserDefaultsSetIntegerForKey(NSInteger count, NSString *key) {
-  NSNumber *countNumber = @(count);
-  CFPreferencesSetAppValue((__bridge CFStringRef)key, (__bridge CFNumberRef)countNumber,
-                           getGULLoggerUsetDefaultsSuiteName());
-  CFPreferencesAppSynchronize(getGULLoggerUsetDefaultsSuiteName());
-}
-
 #pragma mark - Number of errors and warnings
+
+NSUserDefaults *getGULLoggerUsetDefaults(void) {
+  static NSUserDefaults *_userDefaults = nil;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    _userDefaults = [[NSUserDefaults alloc] initWithSuiteName:@"GoogleUtilities.Logger.GULLogger"];
+  });
+
+  return _userDefaults;
+}
 
 dispatch_queue_t getGULLoggerCounterQueue(void) {
   static dispatch_queue_t queue;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
-    queue =
-        dispatch_queue_create("GoogleUtilities.GULLogger.counterQueue", DISPATCH_QUEUE_CONCURRENT);
+    queue = dispatch_queue_create("GoogleUtilities.GULLogger.counterQueue", DISPATCH_QUEUE_SERIAL);
     dispatch_set_target_queue(queue,
                               dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0));
   });
@@ -245,37 +227,38 @@ dispatch_queue_t getGULLoggerCounterQueue(void) {
   return queue;
 }
 
-NSInteger GULSyncGetUserDefaultsIntegerForKey(NSString *key) {
-  __block NSInteger integerValue = 0;
-  dispatch_sync(getGULLoggerCounterQueue(), ^{
-    integerValue = GULGetUserDefaultsIntegerForKey(key);
+void GULAsyncGetUserDefaultsIntegerForKey(NSString *key, void (^completion)(NSInteger)) {
+  dispatch_async(getGULLoggerCounterQueue(), ^{
+    NSInteger count = [getGULLoggerUsetDefaults() integerForKey:key];
+    dispatch_async(dispatch_get_main_queue(), ^{
+      completion(count);
+    });
   });
-
-  return integerValue;
 }
 
-NSInteger GULNumberOfErrorsLogged(void) {
-  return GULSyncGetUserDefaultsIntegerForKey(kGULLoggerErrorCountKey);
+void GULNumberOfErrorsLogged(void (^completion)(NSInteger)) {
+  GULAsyncGetUserDefaultsIntegerForKey(kGULLoggerErrorCountKey, completion);
 }
 
-NSInteger GULNumberOfWarningsLogged(void) {
-  return GULSyncGetUserDefaultsIntegerForKey(kGULLoggerWarningCountKey);
+void GULNumberOfWarningsLogged(void (^completion)(NSInteger)) {
+  GULAsyncGetUserDefaultsIntegerForKey(kGULLoggerWarningCountKey, completion);
 }
 
 void GULResetNumberOfIssuesLogged(void) {
-  dispatch_barrier_async(getGULLoggerCounterQueue(), ^{
-    GULLoggerUserDefaultsSetIntegerForKey(0, kGULLoggerErrorCountKey);
-    GULLoggerUserDefaultsSetIntegerForKey(0, kGULLoggerWarningCountKey);
+  dispatch_async(getGULLoggerCounterQueue(), ^{
+    [getGULLoggerUsetDefaults() setInteger:0 forKey:kGULLoggerErrorCountKey];
+    [getGULLoggerUsetDefaults() setInteger:0 forKey:kGULLoggerWarningCountKey];
   });
 }
 
 void GULIncrementUserDefaultsIntegerForKey(NSString *key) {
-  NSInteger value = GULGetUserDefaultsIntegerForKey(key);
-  GULLoggerUserDefaultsSetIntegerForKey(value + 1, key);
+  NSUserDefaults *defaults = getGULLoggerUsetDefaults();
+  NSInteger errorCount = [defaults integerForKey:key];
+  [defaults setInteger:errorCount + 1 forKey:key];
 }
 
 void GULIncrementLogCountForLevel(GULLoggerLevel level) {
-  dispatch_barrier_async(getGULLoggerCounterQueue(), ^{
+  dispatch_async(getGULLoggerCounterQueue(), ^{
     if (level == GULLoggerLevelError) {
       GULIncrementUserDefaultsIntegerForKey(kGULLoggerErrorCountKey);
     } else if (level == GULLoggerLevelWarning) {
