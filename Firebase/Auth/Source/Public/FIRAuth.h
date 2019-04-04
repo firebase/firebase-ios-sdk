@@ -467,7 +467,7 @@ NS_SWIFT_NAME(Auth)
 DEPRECATED_MSG_ATTRIBUTE("Please use signInWithCredential:completion: for Objective-C or "
                          "signIn(with:completion:) for Swift instead.");
 
-/** @fn signInAndRetrieveDataWithCredential:completion:
+/** @fn signInWithCredential:completion:
     @brief Asynchronously signs in to Firebase with the given 3rd-party credentials (e.g. a Facebook
         login Access Token, a Google ID Token/Access Token pair, etc.) and returns additional
         identity provider data.
