@@ -7,6 +7,7 @@
 //
 
 #import "AppDelegate.h"
+#import <FirebaseCore/FirebaseCore.h>
 
 @interface AppDelegate ()
 
