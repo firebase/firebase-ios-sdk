@@ -53,6 +53,7 @@ void LogMessageV(LogLevel level, NSString* format, ...) {
   va_list list;
   va_start(list, format);
 
+  FIRLoggerService kFIRLoggerFirestore = @"[Firebase/Firestore]";
   FIRLogBasic(ToFIRLoggerLevel(level), kFIRLoggerFirestore, @"I-FST000001",
               format, list);
 

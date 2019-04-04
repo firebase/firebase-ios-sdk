@@ -87,11 +87,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - Constants
 
-/** @var kFIRLoggerAuth
- @brief Identify Auth to FIRLogger.
- */
-FIRLoggerService kFIRLoggerAuth = @"[Firebase/Auth]";
-
 #if defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 const NSNotificationName FIRAuthStateDidChangeNotification = @"FIRAuthStateDidChangeNotification";
 #else

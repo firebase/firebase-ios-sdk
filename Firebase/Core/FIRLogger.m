@@ -22,10 +22,11 @@
 
 FIRLoggerService kFIRLoggerCore = @"[Firebase/Core]";
 
-// All the FIRLoggerService definitions should be migrated to the clients. Do not add.
+// All the FIRLoggerService definitions should be migrated to clients. Do not add new ones!
 FIRLoggerService kFIRLoggerABTesting = @"[Firebase/ABTesting]";
 FIRLoggerService kFIRLoggerAdMob = @"[Firebase/AdMob]";
 FIRLoggerService kFIRLoggerAnalytics = @"[Firebase/Analytics]";
+FIRLoggerService kFIRLoggerAuth = @"[Firebase/Auth]";
 FIRLoggerService kFIRLoggerMLKit = @"[Firebase/MLKit]";
 FIRLoggerService kFIRLoggerPerf = @"[Firebase/Performance]";
 FIRLoggerService kFIRLoggerRemoteConfig = @"[Firebase/RemoteConfig]";
