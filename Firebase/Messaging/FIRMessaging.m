@@ -720,7 +720,7 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
         // It means we connected. Fire connection change notification
         [self notifyOfDirectChannelConnectionChange];
       } else {
-        FIRMessagingLoggerError(kFIRMessagingDirectChannelConnectionFailed,
+        FIRMessagingLoggerError(kFIRMessagingMessageCodeDirectChannelConnectionFailed,
                                 @"Failed to connect to direct channel, error: %@\n", error);
       }
     }];
