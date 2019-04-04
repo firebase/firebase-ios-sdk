@@ -21,6 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** @class FIRAuthSettings
     @brief Determines settings related to an auth object.
  */
+NS_SWIFT_NAME(AuthSettings)
 @interface FIRAuthSettings : NSObject
 
 /** @property appVerificationDisabledForTesting
