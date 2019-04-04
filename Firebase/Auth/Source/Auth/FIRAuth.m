@@ -79,7 +79,6 @@
 #import "FIRAuthAPNSToken.h"
 #import "FIRAuthAPNSTokenManager.h"
 #import "FIRAuthAppCredentialManager.h"
-#import "FIRAuthAppDelegateProxy.h"
 #import "FIRPhoneAuthCredential_Internal.h"
 #import "FIRAuthNotificationManager.h"
 #import "FIRAuthURLPresenter.h"
