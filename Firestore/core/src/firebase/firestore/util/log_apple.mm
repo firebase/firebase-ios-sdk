@@ -32,6 +32,8 @@ namespace util {
 
 namespace {
 
+const FIRLoggerService kFIRLoggerFirestore = @"[Firebase/Firestore]";
+
 // Translates a C++ LogLevel to the equivalent Objective-C FIRLoggerLevel
 FIRLoggerLevel ToFIRLoggerLevel(LogLevel level) {
   switch (level) {
@@ -53,7 +55,6 @@ void LogMessageV(LogLevel level, NSString* format, ...) {
   va_list list;
   va_start(list, format);
 
-  FIRLoggerService kFIRLoggerFirestore = @"[Firebase/Firestore]";
   FIRLogBasic(ToFIRLoggerLevel(level), kFIRLoggerFirestore, @"I-FST000001",
               format, list);
 
