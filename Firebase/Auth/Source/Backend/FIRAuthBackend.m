@@ -1067,13 +1067,8 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
     NSString *email;
     if ([response isKindOfClass:[FIRVerifyAssertionResponse class]]) {
       FIRVerifyAssertionResponse *verifyAssertion = (FIRVerifyAssertionResponse *)response;
-      if (verifyAssertion.oauthIDToken.length || verifyAssertion.oauthAccessToken.length) {
-        credential =
-            [[FIROAuthCredential alloc] initWithProviderID:verifyAssertion.providerID
-                                                   IDToken:verifyAssertion.oauthIDToken
-                                               accessToken:verifyAssertion.oauthAccessToken
-                                              pendingToken:verifyAssertion.pendingToken];
-      }
+      credential =
+          [[FIROAuthCredential alloc] initWithVerifyAssertionResponse:verifyAssertion];
       email = verifyAssertion.email;
     }
     return [FIRAuthErrorUtils credentialAlreadyInUseErrorWithMessage:serverDetailErrorMessage

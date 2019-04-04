@@ -219,10 +219,12 @@ NS_ASSUME_NONNULL_BEGIN
 /** @fn accountExistsWithDifferentCredentialErrorWithEmail:
     @brief Constructs an @c NSError with the @c FIRAuthErrorAccountExistsWithDifferentCredential
         code.
-    @param Email The email address that is already associated with an existing account
+    @param email The email address that is already associated with an existing account
+    @param updatedCredential The updated credential for the existing account
     @return The NSError instance associated with the given FIRAuthError.
  */
-+ (NSError *)accountExistsWithDifferentCredentialErrorWithEmail:(nullable NSString *)Email;
++ (NSError *)accountExistsWithDifferentCredentialErrorWithEmail:(nullable NSString *)email
+    updatedCredential:(nullable FIRAuthCredential *)updatedCredential;
 
 /** @fn providerAlreadyLinkedErrorWithMessage:
     @brief Constructs an @c NSError with the @c FIRAuthErrorCodeProviderAlreadyLinked code.

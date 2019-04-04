@@ -23,17 +23,20 @@ NS_ASSUME_NONNULL_BEGIN
 /**
     @brief A string constant identifying the Twitter identity provider.
  */
-extern NSString *const FIRTwitterAuthProviderID NS_SWIFT_NAME(TwitterAuthProviderID);
+extern NSString *const FIRTwitterAuthProviderID NS_SWIFT_NAME(TwitterAuthProviderID)
+    DEPRECATED_MSG_ATTRIBUTE("Please use \"twitter.com\" instead.");
 
 /**
     @brief A string constant identifying the Twitter sign-in method.
  */
-extern NSString *const _Nonnull FIRTwitterAuthSignInMethod NS_SWIFT_NAME(TwitterAuthSignInMethod);
+extern NSString *const _Nonnull FIRTwitterAuthSignInMethod NS_SWIFT_NAME(TwitterAuthSignInMethod)
+    DEPRECATED_MSG_ATTRIBUTE("Please use \"twitter.com\" instead.");
 
 
 /** @class FIRTwitterAuthProvider
     @brief Utility class for constructing Twitter credentials.
  */
+DEPRECATED_MSG_ATTRIBUTE("Please use FIROAuthProvider instead of FIRTwitterAuthProvider.")
 NS_SWIFT_NAME(TwitterAuthProvider)
 @interface FIRTwitterAuthProvider : NSObject
 
