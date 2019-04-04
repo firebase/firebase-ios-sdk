@@ -27,7 +27,6 @@ cc_test(
     resource_path_test.cc
     snapshot_version_test.cc
   DEPENDS
-    firebase_firestore_api_input_validation
     firebase_firestore_model
     firebase_firestore_testutil
 )
