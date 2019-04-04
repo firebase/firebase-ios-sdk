@@ -192,13 +192,13 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 }
 
 - (void)testSwizzledIncompleteAppDelegateRemoteNotificationMethod {
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && __IPHONE_OS_VERSION_MAX_ALLOWED < __IPHONE_10_0
   IncompleteAppDelegate *incompleteAppDelegate = [[IncompleteAppDelegate alloc] init];
   [OCMStub([self.mockSharedApplication delegate]) andReturn:incompleteAppDelegate];
   [self.proxy swizzleMethodsIfPossible];
 
   NSDictionary *notification = @{@"test" : @""};
-  OCMExpect([self.mockMessaging appDidReceiveMessage:notification]);
+  OCMReject([self.mockMessaging appDidReceiveMessage:notification]);
 
   [incompleteAppDelegate application:self.mockSharedApplication
         didReceiveRemoteNotification:notification];
@@ -216,10 +216,8 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
       @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:);
   XCTAssertFalse([incompleteAppDelegate respondsToSelector:remoteNotificationWithFetchHandler]);
 
-#if TARGET_OS_IOS
   SEL remoteNotification = @selector(application:didReceiveRemoteNotification:);
-  XCTAssertTrue([incompleteAppDelegate respondsToSelector:remoteNotification]);
-#endif // TARGET_OS_IOS
+  XCTAssertFalse([incompleteAppDelegate respondsToSelector:remoteNotification]);
 }
 
 - (void)testSwizzledAppDelegateRemoteNotificationMethods {
@@ -229,7 +227,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
   [self.proxy swizzleMethodsIfPossible];
 
   NSDictionary *notification = @{@"test" : @""};
-
+#if __IPHONE_OS_VERSION_MAX_ALLOWED < __IPHONE_10_0
   //Test application:didReceiveRemoteNotification:
 
   // Verify our swizzled method was called
@@ -242,6 +240,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
   // Verify our original method was called
   XCTAssertTrue(appDelegate.remoteNotificationMethodWasCalled);
   [self.mockMessaging verify];
+#endif //__IPHONE_OS_VERSION_MAX_ALLOWED < __IPHONE_10_0
 
   //Test application:didReceiveRemoteNotification:fetchCompletionHandler:
 
