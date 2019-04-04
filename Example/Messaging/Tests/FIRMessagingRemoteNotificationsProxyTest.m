@@ -239,7 +239,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 
   // Verify our original method was called
   XCTAssertTrue(appDelegate.remoteNotificationMethodWasCalled);
-  [self.mockMessaging verify];
+  OCMVerify(self.mockMessaging);
 #endif //__IPHONE_OS_VERSION_MAX_ALLOWED < __IPHONE_10_0
 
   //Test application:didReceiveRemoteNotification:fetchCompletionHandler:
@@ -254,7 +254,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
   // Verify our original method was called
   XCTAssertTrue(appDelegate.remoteNotificationWithFetchHandlerWasCalled);
 
-  [self.mockMessaging verify];
+  OCMVerify(self.mockMessaging);
 
   // Verify application:didRegisterForRemoteNotificationsWithDeviceToken:
   NSData *deviceToken = [NSData data];
@@ -265,7 +265,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
       didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
 
   XCTAssertEqual(appDelegate.deviceToken, deviceToken);
-  [self.mockMessaging verify];
+  OCMVerify(self.mockMessaging);
 
   // Verify application:didFailToRegisterForRemoteNotificationsWithError:
   NSError *error = [NSError errorWithDomain:@"tests" code:-1 userInfo:nil];
