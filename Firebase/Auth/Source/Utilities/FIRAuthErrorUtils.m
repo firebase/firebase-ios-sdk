@@ -915,12 +915,14 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
   return [self errorWithCode:FIRAuthInternalErrorCodeInvalidEmail message:message];
 }
 
-+ (NSError *)accountExistsWithDifferentCredentialErrorWithEmail:(nullable NSString *)email {
-  NSDictionary *userInfo;
-  if (email.length) {
-    userInfo = @{
-      FIRAuthErrorUserInfoEmailKey : email,
-    };
++ (NSError *)accountExistsWithDifferentCredentialErrorWithEmail:(nullable NSString *)email
+    updatedCredential:(nullable FIRAuthCredential *)updatedCredential {
+  NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
+  if (email) {
+    userInfo[FIRAuthErrorUserInfoEmailKey] = email;
+  }
+  if (updatedCredential) {
+    userInfo[FIRAuthErrorUserInfoUpdatedCredentialKey] = updatedCredential;
   }
   return [self errorWithCode:FIRAuthInternalErrorCodeAccountExistsWithDifferentCredential
                     userInfo:userInfo];
