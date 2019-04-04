@@ -1257,7 +1257,8 @@ static const NSTimeInterval kExpectationTimeout = 2;
     });
     FIRAuthCredential *emailCredential =
         [FIREmailAuthProvider credentialWithEmail:kEmail password:kFakePassword];
-    [user reauthenticateWithCredential:emailCredential completion:^(NSError *_Nullable error) {
+    [user reauthenticateWithCredential:emailCredential completion:^(FIRAuthDataResult * _Nullable result,
+                                                                    NSError *_Nullable error) {
       XCTAssertTrue([NSThread isMainThread]);
       XCTAssertNil(error);
       // Verify that the current user is unchanged.
@@ -1285,9 +1286,9 @@ static const NSTimeInterval kExpectationTimeout = 2;
   [[FIRAuth auth] signOut:NULL];
   FIRAuthCredential *googleCredential =
       [FIRGoogleAuthProvider credentialWithIDToken:kGoogleIDToken accessToken:kGoogleAccessToken];
-  [[FIRAuth auth] signInAndRetrieveDataWithCredential:googleCredential
-                                           completion:^(FIRAuthDataResult *_Nullable authResult,
-                                                        NSError *_Nullable error) {
+  [[FIRAuth auth] signInWithCredential:googleCredential
+                            completion:^(FIRAuthDataResult *_Nullable authResult,
+                                         NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
     [self assertUserGoogle:authResult.user];
     XCTAssertEqualObjects(authResult.additionalUserInfo.profile, [[self class] googleProfile]);
@@ -1305,10 +1306,9 @@ static const NSTimeInterval kExpectationTimeout = 2;
     FIRAuthCredential *reauthenticateGoogleCredential =
       [FIRGoogleAuthProvider credentialWithIDToken:kGoogleIDToken accessToken:kGoogleAccessToken];
     [authResult.user
-        reauthenticateAndRetrieveDataWithCredential:reauthenticateGoogleCredential
-                                         completion:^(FIRAuthDataResult *_Nullable
-                                                          reauthenticateAuthResult,
-                                                      NSError *_Nullable error) {
+      reauthenticateWithCredential:reauthenticateGoogleCredential
+      completion:^(FIRAuthDataResult *_Nullable reauthenticateAuthResult,
+                   NSError *_Nullable error) {
       XCTAssertTrue([NSThread isMainThread]);
       XCTAssertNil(error);
       // Verify that the current user is unchanged.
@@ -1373,7 +1373,8 @@ static const NSTimeInterval kExpectationTimeout = 2;
     });
     FIRAuthCredential *emailCredential =
         [FIREmailAuthProvider credentialWithEmail:kEmail password:kFakePassword];
-    [user reauthenticateWithCredential:emailCredential completion:^(NSError *_Nullable error) {
+    [user reauthenticateWithCredential:emailCredential completion:^(FIRAuthDataResult * _Nullable result,
+                                                                    NSError *_Nullable error) {
       XCTAssertTrue([NSThread isMainThread]);
       // Verify user mismatch error.
       XCTAssertEqual(error.code, FIRAuthErrorCodeUserMismatch);
@@ -1408,7 +1409,9 @@ static const NSTimeInterval kExpectationTimeout = 2;
     });
     FIRAuthCredential *googleCredential =
       [FIRGoogleAuthProvider credentialWithIDToken:kGoogleIDToken accessToken:kGoogleAccessToken];
-    [user reauthenticateWithCredential:googleCredential completion:^(NSError *_Nullable error) {
+    [user reauthenticateWithCredential:googleCredential
+                            completion:^(FIRAuthDataResult * _Nullable result,
+                                         NSError *_Nullable error) {
       XCTAssertTrue([NSThread isMainThread]);
       // Verify user mismatch error.
       XCTAssertEqual(error.code, FIRAuthErrorCodeUserMismatch);
@@ -1437,9 +1440,9 @@ static const NSTimeInterval kExpectationTimeout = 2;
   [[FIRAuth auth] signOut:NULL];
   FIRAuthCredential *facebookCredential =
       [FIRFacebookAuthProvider credentialWithAccessToken:kFacebookAccessToken];
-  [[FIRAuth auth] signInAndRetrieveDataWithCredential:facebookCredential
-                                           completion:^(FIRAuthDataResult *_Nullable authResult,
-                                                        NSError *_Nullable error) {
+  [[FIRAuth auth] signInWithCredential:facebookCredential
+                            completion:^(FIRAuthDataResult *_Nullable authResult,
+                                         NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
     [self assertUserFacebook:authResult.user];
     XCTAssertEqualObjects(authResult.additionalUserInfo.profile, [[self class] googleProfile]);
@@ -1456,10 +1459,9 @@ static const NSTimeInterval kExpectationTimeout = 2;
 
     FIRAuthCredential *linkGoogleCredential =
       [FIRGoogleAuthProvider credentialWithIDToken:kGoogleIDToken accessToken:kGoogleAccessToken];
-    [authResult.user linkAndRetrieveDataWithCredential:linkGoogleCredential
-                                            completion:^(FIRAuthDataResult *_Nullable
-                                                            linkAuthResult,
-                                                         NSError *_Nullable error) {
+    [authResult.user linkWithCredential:linkGoogleCredential
+                             completion:^(FIRAuthDataResult *_Nullable linkAuthResult,
+                                          NSError *_Nullable error) {
       XCTAssertTrue([NSThread isMainThread]);
       XCTAssertNil(error);
       // Verify that the current user is unchanged.
@@ -1498,9 +1500,9 @@ static const NSTimeInterval kExpectationTimeout = 2;
   [[FIRAuth auth] signOut:NULL];
   FIRAuthCredential *facebookCredential =
       [FIRFacebookAuthProvider credentialWithAccessToken:kFacebookAccessToken];
-  [[FIRAuth auth] signInAndRetrieveDataWithCredential:facebookCredential
-                                           completion:^(FIRAuthDataResult *_Nullable authResult,
-                                                        NSError *_Nullable error) {
+  [[FIRAuth auth] signInWithCredential:facebookCredential
+                            completion:^(FIRAuthDataResult *_Nullable authResult,
+                                         NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
     [self assertUserFacebook:authResult.user];
     XCTAssertEqualObjects(authResult.additionalUserInfo.profile, [[self class] googleProfile]);
@@ -1519,10 +1521,9 @@ static const NSTimeInterval kExpectationTimeout = 2;
 
     FIRAuthCredential *linkGoogleCredential =
         [FIRGoogleAuthProvider credentialWithIDToken:kGoogleIDToken accessToken:kGoogleAccessToken];
-    [authResult.user linkAndRetrieveDataWithCredential:linkGoogleCredential
-                                            completion:^(FIRAuthDataResult *_Nullable
-                                                            linkAuthResult,
-                                                         NSError *_Nullable error) {
+    [authResult.user linkWithCredential:linkGoogleCredential
+                             completion:^(FIRAuthDataResult *_Nullable linkAuthResult,
+                                          NSError *_Nullable error) {
       XCTAssertTrue([NSThread isMainThread]);
       XCTAssertNil(linkAuthResult);
       XCTAssertEqual(error.code, FIRAuthErrorCodeAccountExistsWithDifferentCredential);
@@ -1550,9 +1551,9 @@ static const NSTimeInterval kExpectationTimeout = 2;
   [[FIRAuth auth] signOut:NULL];
   FIRAuthCredential *facebookCredential =
       [FIRFacebookAuthProvider credentialWithAccessToken:kFacebookAccessToken];
-  [[FIRAuth auth] signInAndRetrieveDataWithCredential:facebookCredential
-                                           completion:^(FIRAuthDataResult *_Nullable authResult,
-                                                        NSError *_Nullable error) {
+  [[FIRAuth auth] signInWithCredential:facebookCredential
+                            completion:^(FIRAuthDataResult *_Nullable authResult,
+                                         NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
     [self assertUserFacebook:authResult.user];
     XCTAssertEqualObjects(authResult.additionalUserInfo.profile, [[self class] googleProfile]);
@@ -1562,10 +1563,9 @@ static const NSTimeInterval kExpectationTimeout = 2;
 
     FIRAuthCredential *linkFacebookCredential =
         [FIRFacebookAuthProvider credentialWithAccessToken:kFacebookAccessToken];
-    [authResult.user linkAndRetrieveDataWithCredential:linkFacebookCredential
-                                            completion:^(FIRAuthDataResult *_Nullable
-                                                            linkAuthResult,
-                                                         NSError *_Nullable error) {
+    [authResult.user linkWithCredential:linkFacebookCredential
+                             completion:^(FIRAuthDataResult *_Nullable linkAuthResult,
+                                          NSError *_Nullable error) {
       XCTAssertTrue([NSThread isMainThread]);
       XCTAssertNil(linkAuthResult);
       XCTAssertEqual(error.code, FIRAuthErrorCodeProviderAlreadyLinked);
@@ -1592,9 +1592,9 @@ static const NSTimeInterval kExpectationTimeout = 2;
   [[FIRAuth auth] signOut:NULL];
   FIRAuthCredential *facebookCredential =
       [FIRFacebookAuthProvider credentialWithAccessToken:kFacebookAccessToken];
-  [[FIRAuth auth] signInAndRetrieveDataWithCredential:facebookCredential
-                                           completion:^(FIRAuthDataResult *_Nullable authResult,
-                                                        NSError *_Nullable error) {
+  [[FIRAuth auth] signInWithCredential:facebookCredential
+                            completion:^(FIRAuthDataResult *_Nullable authResult,
+                                         NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
     [self assertUserFacebook:authResult.user];
     XCTAssertEqualObjects(authResult.additionalUserInfo.profile, [[self class] googleProfile]);
@@ -1612,10 +1612,9 @@ static const NSTimeInterval kExpectationTimeout = 2;
 
     FIRAuthCredential *linkGoogleCredential =
         [FIRGoogleAuthProvider credentialWithIDToken:kGoogleIDToken accessToken:kGoogleAccessToken];
-    [authResult.user linkAndRetrieveDataWithCredential:linkGoogleCredential
-                                            completion:^(FIRAuthDataResult *_Nullable
-                                                            linkAuthResult,
-                                                         NSError *_Nullable error) {
+    [authResult.user linkWithCredential:linkGoogleCredential
+                             completion:^(FIRAuthDataResult *_Nullable linkAuthResult,
+                                          NSError *_Nullable error) {
       XCTAssertTrue([NSThread isMainThread]);
       XCTAssertNil(linkAuthResult);
       XCTAssertEqual(error.code, FIRAuthErrorCodeUserDisabled);
@@ -1671,9 +1670,9 @@ static const NSTimeInterval kExpectationTimeout = 2;
     });
     XCTAssertTrue(user.isAnonymous);
 
-    [user linkAndRetrieveDataWithCredential:linkEmailCredential
-                                 completion:^(FIRAuthDataResult *_Nullable linkAuthResult,
-                                              NSError *_Nullable error) {
+    [user linkWithCredential:linkEmailCredential
+                  completion:^(FIRAuthDataResult *_Nullable linkAuthResult,
+                                 NSError *_Nullable error) {
       XCTAssertTrue([NSThread isMainThread]);
       XCTAssertNil(error);
       XCTAssertEqualObjects(user.email, kEmail);
@@ -1701,9 +1700,9 @@ static const NSTimeInterval kExpectationTimeout = 2;
   [[FIRAuth auth] signOut:NULL];
   FIRAuthCredential *facebookCredential =
       [FIRFacebookAuthProvider credentialWithAccessToken:kFacebookAccessToken];
-  [[FIRAuth auth] signInAndRetrieveDataWithCredential:facebookCredential
-                                           completion:^(FIRAuthDataResult *_Nullable authResult,
-                                                        NSError *_Nullable error) {
+  [[FIRAuth auth] signInWithCredential:facebookCredential
+                            completion:^(FIRAuthDataResult *_Nullable authResult,
+                                         NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
     [self assertUserFacebook:authResult.user];
     XCTAssertEqualObjects(authResult.additionalUserInfo.profile, [[self class] googleProfile]);
@@ -1736,10 +1735,9 @@ static const NSTimeInterval kExpectationTimeout = 2;
 
     FIRAuthCredential *linkEmailCredential =
         [FIREmailAuthProvider credentialWithEmail:kEmail password:kFakePassword];
-    [authResult.user linkAndRetrieveDataWithCredential:linkEmailCredential
-                                            completion:^(FIRAuthDataResult *_Nullable
-                                                             linkAuthResult,
-                                                         NSError *_Nullable error) {
+    [authResult.user linkWithCredential:linkEmailCredential
+                             completion:^(FIRAuthDataResult *_Nullable linkAuthResult,
+                                          NSError *_Nullable error) {
       XCTAssertTrue([NSThread isMainThread]);
       XCTAssertNil(error);
       XCTAssertEqualObjects(linkAuthResult.user.email, kEmail);
@@ -1769,9 +1767,9 @@ static const NSTimeInterval kExpectationTimeout = 2;
   [[FIRAuth auth] signOut:NULL];
   FIRAuthCredential *facebookCredential =
       [FIRFacebookAuthProvider credentialWithAccessToken:kFacebookAccessToken];
-  [[FIRAuth auth] signInAndRetrieveDataWithCredential:facebookCredential
-                                           completion:^(FIRAuthDataResult *_Nullable authResult,
-                                                        NSError *_Nullable error) {
+  [[FIRAuth auth] signInWithCredential:facebookCredential
+                            completion:^(FIRAuthDataResult *_Nullable authResult,
+                                         NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
     [self assertUserFacebook:authResult.user];
     XCTAssertEqualObjects(authResult.additionalUserInfo.profile, [[self class] googleProfile]);
@@ -1804,19 +1802,17 @@ static const NSTimeInterval kExpectationTimeout = 2;
 
     FIRAuthCredential *linkEmailCredential =
         [FIREmailAuthProvider credentialWithEmail:kEmail password:kFakePassword];
-    [authResult.user linkAndRetrieveDataWithCredential:linkEmailCredential
-                                            completion:^(FIRAuthDataResult *_Nullable
-                                                             linkAuthResult,
-                                                         NSError *_Nullable error) {
+    [authResult.user linkWithCredential:linkEmailCredential
+                             completion:^(FIRAuthDataResult *_Nullable linkAuthResult,
+                                          NSError *_Nullable error) {
       XCTAssertNil(error);
       XCTAssertEqualObjects(linkAuthResult.user.email, kEmail);
       XCTAssertEqualObjects(linkAuthResult.user.displayName, kEmailDisplayName);
 
       // Try linking same credential a second time to trigger client side error.
-      [authResult.user linkAndRetrieveDataWithCredential:linkEmailCredential
-                                              completion:^(FIRAuthDataResult *_Nullable
-                                                              linkAuthResult,
-                                                           NSError *_Nullable error) {
+    [authResult.user linkWithCredential:linkEmailCredential
+                             completion:^(FIRAuthDataResult *_Nullable linkAuthResult,
+                                          NSError *_Nullable error) {
         XCTAssertTrue([NSThread isMainThread]);
         XCTAssertNil(linkAuthResult);
         XCTAssertEqual(error.code, FIRAuthErrorCodeProviderAlreadyLinked);
@@ -1845,9 +1841,9 @@ static const NSTimeInterval kExpectationTimeout = 2;
   [[FIRAuth auth] signOut:NULL];
   FIRAuthCredential *facebookCredential =
       [FIRFacebookAuthProvider credentialWithAccessToken:kFacebookAccessToken];
-  [[FIRAuth auth] signInAndRetrieveDataWithCredential:facebookCredential
-                                           completion:^(FIRAuthDataResult *_Nullable authResult,
-                                                        NSError *_Nullable error) {
+  [[FIRAuth auth] signInWithCredential:facebookCredential
+                            completion:^(FIRAuthDataResult *_Nullable authResult,
+                                         NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
     [self assertUserFacebook:authResult.user];
     XCTAssertEqualObjects(authResult.additionalUserInfo.profile, [[self class] googleProfile]);
@@ -1866,11 +1862,10 @@ static const NSTimeInterval kExpectationTimeout = 2;
     });
 
     FIRAuthCredential *linkEmailCredential =
-        [FIREmailAuthProvider credentialWithEmail:kEmail password:kFakePassword];
-    [authResult.user linkAndRetrieveDataWithCredential:linkEmailCredential
-                                            completion:^(FIRAuthDataResult *_Nullable
-                                                            linkAuthResult,
-                                                         NSError *_Nullable error) {
+    [FIREmailAuthProvider credentialWithEmail:kEmail password:kFakePassword];
+                          [authResult.user linkWithCredential:linkEmailCredential
+                                                   completion:^(FIRAuthDataResult *_Nullable linkAuthResult,
+                                                                NSError *_Nullable error) {
       XCTAssertTrue([NSThread isMainThread]);
       XCTAssertNil(linkAuthResult);
       XCTAssertEqual(error.code, FIRAuthErrorCodeTooManyRequests);
@@ -1898,9 +1893,9 @@ static const NSTimeInterval kExpectationTimeout = 2;
   [[FIRAuth auth] signOut:NULL];
   FIRAuthCredential *facebookCredential =
       [FIRFacebookAuthProvider credentialWithAccessToken:kFacebookAccessToken];
-  [[FIRAuth auth] signInAndRetrieveDataWithCredential:facebookCredential
-                                           completion:^(FIRAuthDataResult *_Nullable authResult,
-                                                        NSError *_Nullable error) {
+  [[FIRAuth auth] signInWithCredential:facebookCredential
+                            completion:^(FIRAuthDataResult *_Nullable authResult,
+                                         NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
     [self assertUserFacebook:authResult.user];
     XCTAssertEqualObjects(authResult.additionalUserInfo.profile, [[self class] googleProfile]);
@@ -1920,10 +1915,9 @@ static const NSTimeInterval kExpectationTimeout = 2;
 
     FIRAuthCredential *linkEmailCredential =
         [FIREmailAuthProvider credentialWithEmail:kEmail password:kFakePassword];
-    [authResult.user linkAndRetrieveDataWithCredential:linkEmailCredential
-                                            completion:^(FIRAuthDataResult *_Nullable
-                                                            linkAuthResult,
-                                                         NSError *_Nullable error) {
+    [authResult.user linkWithCredential:linkEmailCredential
+                             completion:^(FIRAuthDataResult *_Nullable linkAuthResult,
+                                          NSError *_Nullable error) {
       XCTAssertTrue([NSThread isMainThread]);
       XCTAssertNil(linkAuthResult);
       XCTAssertEqual(error.code, FIRAuthErrorCodeUserTokenExpired);
@@ -1951,9 +1945,9 @@ static const NSTimeInterval kExpectationTimeout = 2;
   [[FIRAuth auth] signOut:NULL];
   FIRAuthCredential *facebookCredential =
       [FIRFacebookAuthProvider credentialWithAccessToken:kFacebookAccessToken];
-  [[FIRAuth auth] signInAndRetrieveDataWithCredential:facebookCredential
-                                           completion:^(FIRAuthDataResult *_Nullable authResult,
-                                                        NSError *_Nullable error) {
+  [[FIRAuth auth] signInWithCredential:facebookCredential
+                            completion:^(FIRAuthDataResult *_Nullable authResult,
+                                         NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
     [self assertUserFacebook:authResult.user];
     XCTAssertEqualObjects(authResult.additionalUserInfo.profile, [[self class] googleProfile]);
@@ -1971,10 +1965,10 @@ static const NSTimeInterval kExpectationTimeout = 2;
     FIRAuthCredential *linkGoogleCredential =
       [FIRGoogleAuthProvider credentialWithIDToken:kGoogleIDToken accessToken:kGoogleAccessToken];
     [authResult.user linkWithCredential:linkGoogleCredential
-                             completion:^(FIRUser *_Nullable user,
+                             completion:^(FIRAuthDataResult * _Nullable result,
                                           NSError *_Nullable error) {
       XCTAssertNil(error);
-      id<FIRUserInfo> userInfo = user.providerData.firstObject;
+      id<FIRUserInfo> userInfo = result.user.providerData.firstObject;
       XCTAssertEqual(userInfo.providerID, FIRGoogleAuthProviderID);
       XCTAssertEqual([FIRAuth auth].currentUser, authResult.user);
       [expectation fulfill];
@@ -2001,9 +1995,9 @@ static const NSTimeInterval kExpectationTimeout = 2;
   [[FIRAuth auth] signOut:NULL];
   FIRAuthCredential *facebookCredential =
       [FIRFacebookAuthProvider credentialWithAccessToken:kFacebookAccessToken];
-  [[FIRAuth auth] signInAndRetrieveDataWithCredential:facebookCredential
-                                           completion:^(FIRAuthDataResult *_Nullable authResult,
-                                                        NSError *_Nullable error) {
+  [[FIRAuth auth] signInWithCredential:facebookCredential
+                            completion:^(FIRAuthDataResult *_Nullable authResult,
+                                         NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
     [self assertUserFacebook:authResult.user];
     XCTAssertEqualObjects(authResult.additionalUserInfo.profile, [[self class] googleProfile]);
@@ -2022,9 +2016,9 @@ static const NSTimeInterval kExpectationTimeout = 2;
     FIRAuthCredential *linkGoogleCredential =
       [FIRGoogleAuthProvider credentialWithIDToken:kGoogleIDToken accessToken:kGoogleAccessToken];
     [authResult.user linkWithCredential:linkGoogleCredential
-                             completion:^(FIRUser *_Nullable user,
+                             completion:^(FIRAuthDataResult * _Nullable result,
                                           NSError *_Nullable error) {
-      XCTAssertNil(user);
+      XCTAssertNil(result.user);
       XCTAssertEqual(error.code, FIRAuthErrorCodeUserDisabled);
       [expectation fulfill];
     }];
@@ -2049,9 +2043,9 @@ static const NSTimeInterval kExpectationTimeout = 2;
   [[FIRAuth auth] signOut:NULL];
   FIRAuthCredential *facebookCredential =
       [FIRFacebookAuthProvider credentialWithAccessToken:kFacebookAccessToken];
-  [[FIRAuth auth] signInAndRetrieveDataWithCredential:facebookCredential
-                                           completion:^(FIRAuthDataResult *_Nullable authResult,
-                                                        NSError *_Nullable error) {
+  [[FIRAuth auth] signInWithCredential:facebookCredential
+                            completion:^(FIRAuthDataResult *_Nullable authResult,
+                                         NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
     [self assertUserFacebook:authResult.user];
     XCTAssertEqualObjects(authResult.additionalUserInfo.profile, [[self class] googleProfile]);
@@ -2062,9 +2056,9 @@ static const NSTimeInterval kExpectationTimeout = 2;
     FIRAuthCredential *linkFacebookCredential =
         [FIRFacebookAuthProvider credentialWithAccessToken:kGoogleAccessToken];
     [authResult.user linkWithCredential:linkFacebookCredential
-                             completion:^(FIRUser *_Nullable user,
+                             completion:^(FIRAuthDataResult * _Nullable result,
                                           NSError *_Nullable error) {
-      XCTAssertNil(user);
+      XCTAssertNil(result.user);
       XCTAssertEqual(error.code, FIRAuthErrorCodeProviderAlreadyLinked);
       [expectation fulfill];
     }];
@@ -2105,10 +2099,8 @@ static const NSTimeInterval kExpectationTimeout = 2;
     FIRPhoneAuthCredential *credential =
         [[FIRPhoneAuthProvider provider] credentialWithVerificationID:kVerificationID
                                                      verificationCode:kVerificationCode];
-    [user linkAndRetrieveDataWithCredential:credential
-                                 completion:^(FIRAuthDataResult *_Nullable
-                                              linkAuthResult,
-                                              NSError *_Nullable error) {
+    [user linkWithCredential:credential completion:^(FIRAuthDataResult *_Nullable linkAuthResult,
+                                                     NSError *_Nullable error) {
       XCTAssertNil(error);
       XCTAssertEqualObjects([FIRAuth auth].currentUser.providerData.firstObject.providerID,
                             FIRPhoneAuthProviderID);
@@ -2170,10 +2162,8 @@ static const NSTimeInterval kExpectationTimeout = 2;
         [[FIRPhoneAuthProvider provider] credentialWithVerificationID:kVerificationID
                                                      verificationCode:kVerificationCode];
     // Link phone credential.
-    [user linkAndRetrieveDataWithCredential:credential
-                                 completion:^(FIRAuthDataResult *_Nullable
-                                              linkAuthResult,
-                                              NSError *_Nullable error) {
+    [user linkWithCredential:credential completion:^(FIRAuthDataResult *_Nullable linkAuthResult,
+                                                     NSError *_Nullable error) {
       XCTAssertNil(error);
       XCTAssertEqualObjects([FIRAuth auth].currentUser.providerData.firstObject.providerID,
                             FIRPhoneAuthProviderID);
@@ -2216,10 +2206,8 @@ static const NSTimeInterval kExpectationTimeout = 2;
     FIRPhoneAuthCredential *credential =
         [[FIRPhoneAuthProvider provider] credentialWithVerificationID:kVerificationID
                                                      verificationCode:kVerificationCode];
-    [user linkAndRetrieveDataWithCredential:credential
-                                 completion:^(FIRAuthDataResult *_Nullable
-                                              linkAuthResult,
-                                              NSError *_Nullable error) {
+    [user linkWithCredential:credential completion:^(FIRAuthDataResult *_Nullable linkAuthResult,
+                                                     NSError *_Nullable error) {
       XCTAssertEqual(error.code, FIRAuthErrorCodeProviderAlreadyLinked);
       [expectation fulfill];
     }];
@@ -2274,10 +2262,9 @@ static const NSTimeInterval kExpectationTimeout = 2;
     FIRPhoneAuthCredential *credential =
         [[FIRPhoneAuthProvider provider] credentialWithVerificationID:kVerificationID
                                                      verificationCode:kVerificationCode];
-    [user linkAndRetrieveDataWithCredential:credential
-                                 completion:^(FIRAuthDataResult *_Nullable
-                                              linkAuthResult,
-                                              NSError *_Nullable error) {
+    [user linkWithCredential:credential
+                  completion:^(FIRAuthDataResult *_Nullable linkAuthResult,
+                               NSError *_Nullable error) {
       XCTAssertNil(linkAuthResult);
       XCTAssertEqual(error.code, FIRAuthErrorCodeCredentialAlreadyInUse);
       FIRPhoneAuthCredential *credential = error.userInfo[FIRAuthErrorUserInfoUpdatedCredentialKey];

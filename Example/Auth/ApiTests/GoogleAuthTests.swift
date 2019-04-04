@@ -35,7 +35,7 @@ class GoogleAuthTestsSwift: FIRAuthApiTestsBase {
     let credential = GoogleAuthProvider.credential(withIDToken: googleIdToken, accessToken: googleAccessToken)
 
     let expectation = self.expectation(description: "Signing in with Google finished.")
-    auth.signInAndRetrieveData(with: credential) { _, error in
+    auth.signIn(with: credential) { _, error in
       if error != nil {
         print("Signing in with Google had error: %@", error!)
       }

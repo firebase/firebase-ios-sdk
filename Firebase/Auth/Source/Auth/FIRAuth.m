@@ -728,10 +728,13 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   }];
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (void)signInWithCredential:(FIRAuthCredential *)credential
                   completion:(nullable FIRAuthDataResultCallback)completion {
   [self signInAndRetrieveDataWithCredential:credential completion:completion];
 }
+#pragma clang diagnostic pop
 
 - (void)signInAndRetrieveDataWithCredential:(FIRAuthCredential *)credential
                                  completion:(nullable FIRAuthDataResultCallback)completion {
