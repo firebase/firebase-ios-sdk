@@ -319,7 +319,7 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 }
 
 - (void)setupReceiver {
-  self.receiver = [[FIRMessagingReceiver alloc] initWithUserDefaults:self.messagingUserDefaults];
+  self.receiver = [[FIRMessagingReceiver alloc] init];
   self.receiver.delegate = self;
 }
 
@@ -657,15 +657,6 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
   if ([self.delegate respondsToSelector:@selector(messaging:didReceiveRegistrationToken:)]) {
     [self.delegate messaging:self didReceiveRegistrationToken:self.defaultFcmToken];
   }
-}
-
-
-- (void)setUseMessagingDelegateForDirectChannel:(BOOL)useMessagingDelegateForDirectChannel {
-  self.receiver.useDirectChannel = useMessagingDelegateForDirectChannel;
-}
-
-- (BOOL)useMessagingDelegateForDirectChannel {
-  return self.receiver.useDirectChannel;
 }
 
 #pragma mark - Application State Changes

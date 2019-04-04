@@ -13,7 +13,6 @@
 		6003F5B0195388D20070C39A /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F5AF195388D20070C39A /* XCTest.framework */; };
 		6003F5B1195388D20070C39A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F58D195388D20070C39A /* Foundation.framework */; };
 		6003F5B2195388D20070C39A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F591195388D20070C39A /* UIKit.framework */; };
-		9A414672225259F900B08D77 /* GULAppDelegateSwizzlerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EFBE67F92101401100E756A7 /* GULAppDelegateSwizzlerTest.m */; };
 		9A7C37C2224BD9C600033B0D /* GULAppDelegateSwizzlerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EFBE67F92101401100E756A7 /* GULAppDelegateSwizzlerTest.m */; };
 		DE5CF98E20F686310063FFDD /* GULAppEnvironmentUtilTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5CF98C20F686290063FFDD /* GULAppEnvironmentUtilTest.m */; };
 		DE84BBC421D7EC900048A176 /* GULUserDefaultsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE84BBC321D7EC900048A176 /* GULUserDefaultsTests.m */; };
@@ -94,7 +93,7 @@
 		6003F5AE195388D20070C39A /* Tests_iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Tests_iOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		6003F5AF195388D20070C39A /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		6003F5B7195388D20070C39A /* Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Tests-Info.plist"; sourceTree = "<group>"; };
-		7BEA793625C8DE7C8EC60006 /* GoogleUtilities.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = GoogleUtilities.podspec; path = ../../GoogleUtilities.podspec; sourceTree = "<group>"; };
+		7BEA793625C8DE7C8EC60006 /* GoogleUtilities.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = GoogleUtilities.podspec; path = ../GoogleUtilities.podspec; sourceTree = "<group>"; };
 		DE5CF98C20F686290063FFDD /* GULAppEnvironmentUtilTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GULAppEnvironmentUtilTest.m; sourceTree = "<group>"; };
 		DE84BBC321D7EC900048A176 /* GULUserDefaultsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GULUserDefaultsTests.m; sourceTree = "<group>"; };
 		DEC977D320F68C3300014E20 /* GULReachabilityCheckerTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GULReachabilityCheckerTest.m; sourceTree = "<group>"; };
@@ -672,7 +671,6 @@
 				DEC9786A20F6D66300014E20 /* GULMutableDictionaryTest.m in Sources */,
 				DE84BBC621D7EC900048A176 /* GULUserDefaultsTests.m in Sources */,
 				DEC9786C20F6D66700014E20 /* GULReachabilityCheckerTest.m in Sources */,
-				9A414672225259F900B08D77 /* GULAppDelegateSwizzlerTest.m in Sources */,
 				DEC9786820F6D65B00014E20 /* GULLoggerTest.m in Sources */,
 				DEC9786D20F6D66B00014E20 /* GULAppEnvironmentUtilTest.m in Sources */,
 			);
@@ -1103,7 +1101,6 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../Reachability",
-					"$(SRCROOT)/../AppDelegateSwizzler/Internal",
 				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -1134,7 +1131,6 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../Reachability",
-					"$(SRCROOT)/../AppDelegateSwizzler/Internal",
 				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
