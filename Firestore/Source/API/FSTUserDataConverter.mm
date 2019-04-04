@@ -426,7 +426,7 @@ NS_ASSUME_NONNULL_BEGIN
         // legitimate usage of signed chars is impossible, but this should be rare.
         //
         // Additionally, for consistency, map unsigned chars to bools in the same way.
-        return [FSTBooleanValue booleanValue:[input boolValue]];
+        return FieldValue::FromBoolean([input boolValue]).Wrap();
 
       default:
         // All documented codes should be handled above, so this shouldn't happen.
