@@ -395,10 +395,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
           [FIRAuth keychainServiceNameForAppName:strongSelf->_firebaseAppName];
       if (keychainServiceName) {
         strongSelf->_keychain = [[FIRAuthKeychain alloc] initWithService:keychainServiceName];
+        strongSelf.storedUserManager =
+            [[FIRAuthStoredUserManager alloc] initWithServiceName:keychainServiceName];
       }
-
-      strongSelf.storedUserManager =
-          [[FIRAuthStoredUserManager alloc] initWithServiceName:keychainServiceName];
 
       NSError *error;
       NSString *storedUserAccessGroup = [strongSelf.storedUserManager getStoredUserAccessGroupWithError:&error];
