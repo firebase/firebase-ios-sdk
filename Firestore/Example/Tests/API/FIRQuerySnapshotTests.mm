@@ -42,16 +42,6 @@ using firebase::firestore::model::DocumentSet;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRDocumentChange ()
-
-// Expose initializer for testing.
-- (instancetype)initWithType:(FIRDocumentChangeType)type
-                    document:(FIRQueryDocumentSnapshot *)document
-                    oldIndex:(NSUInteger)oldIndex
-                    newIndex:(NSUInteger)newIndex;
-
-@end
-
 @interface FIRQuerySnapshotTests : XCTestCase
 @end
 
@@ -91,56 +81,40 @@ NS_ASSUME_NONNULL_BEGIN
   DocumentSet oldDocuments = FSTTestDocSet(FSTDocumentComparatorByKey, @[ doc1Old, doc2Old ]);
   DocumentSet newDocuments = FSTTestDocSet(FSTDocumentComparatorByKey, @[ doc2New, doc2New ]);
   std::vector<DocumentViewChange> documentChanges{
-      DocumentViewChange{doc1New, DocumentViewChange::Type::kMetadata},
-      DocumentViewChange{doc2New, DocumentViewChange::Type::kModified},
+      DocumentViewChange(doc1New, DocumentViewChange::Type::kMetadata),
+      DocumentViewChange(doc2New, DocumentViewChange::Type::kModified),
   };
 
   Firestore *firestore = FSTTestFirestore().wrapped;
   FSTQuery *query = FSTTestQuery("foo");
-  ViewSnapshot viewSnapshot{query,
-                            newDocuments,
-                            oldDocuments,
-                            std::move(documentChanges),
-                            /*mutated_keys=*/DocumentKeySet{},
+  ViewSnapshot viewSnapshot(query, newDocuments, oldDocuments, std::move(documentChanges),
+                            /*mutated_keys=*/DocumentKeySet(),
                             /*from_cache=*/false,
                             /*sync_state_changed=*/true,
-                            /*excludes_metadata_changes=*/false};
+                            /*excludes_metadata_changes=*/false);
   SnapshotMetadata metadata(/*pending_writes=*/false, /*from_cache=*/false);
   FIRQuerySnapshot *snapshot = [[FIRQuerySnapshot alloc] initWithFirestore:firestore
                                                              originalQuery:query
                                                                   snapshot:std::move(viewSnapshot)
                                                                   metadata:std::move(metadata)];
 
-  FIRQueryDocumentSnapshot *doc1Snap =
-      [[FIRQueryDocumentSnapshot alloc] initWithFirestore:firestore
-                                              documentKey:doc1New.key
-                                                 document:doc1New
-                                                fromCache:false
-                                         hasPendingWrites:false];
-  FIRQueryDocumentSnapshot *doc2Snap =
-      [[FIRQueryDocumentSnapshot alloc] initWithFirestore:firestore
-                                              documentKey:doc2New.key
-                                                 document:doc2New
-                                                fromCache:false
-                                         hasPendingWrites:false];
+  DocumentSnapshot doc1Snap(firestore, doc1New.key, doc1New, SnapshotMetadata());
+  DocumentSnapshot doc2Snap(firestore, doc2New.key, doc2New, SnapshotMetadata());
 
   NSArray<FIRDocumentChange *> *changesWithoutMetadata = @[
-    [[FIRDocumentChange alloc] initWithType:FIRDocumentChangeTypeModified
-                                   document:doc2Snap
-                                   oldIndex:1
-                                   newIndex:1],
+    [[FIRDocumentChange alloc]
+        initWithDocumentChange:DocumentChange(DocumentChange::Type::Modified, doc2Snap,
+                                              /*old_index=*/1, /*new_index=*/1)],
   ];
   XCTAssertEqualObjects(snapshot.documentChanges, changesWithoutMetadata);
 
   NSArray<FIRDocumentChange *> *changesWithMetadata = @[
-    [[FIRDocumentChange alloc] initWithType:FIRDocumentChangeTypeModified
-                                   document:doc1Snap
-                                   oldIndex:0
-                                   newIndex:0],
-    [[FIRDocumentChange alloc] initWithType:FIRDocumentChangeTypeModified
-                                   document:doc2Snap
-                                   oldIndex:1
-                                   newIndex:1],
+    [[FIRDocumentChange alloc]
+        initWithDocumentChange:DocumentChange(DocumentChange::Type::Modified, doc1Snap,
+                                              /*old_index=*/0, /*new_index=*/0)],
+    [[FIRDocumentChange alloc]
+        initWithDocumentChange:DocumentChange(DocumentChange::Type::Modified, doc2Snap,
+                                              /*old_index=*/1, /*new_index=*/1)],
   ];
   XCTAssertEqualObjects([snapshot documentChangesWithIncludeMetadataChanges:YES],
                         changesWithMetadata);

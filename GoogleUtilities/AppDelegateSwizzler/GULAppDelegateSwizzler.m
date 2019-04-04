@@ -66,11 +66,6 @@ static char const *const kGULContinueUserActivityIMPKey = "GUL_continueUserActiv
 static char const *const kGULHandleBackgroundSessionIMPKey = "GUL_handleBackgroundSessionIMP";
 static char const *const kGULOpenURLOptionsIMPKey = "GUL_openURLOptionsIMP";
 
-#if TARGET_OS_IOS
-static char const *const kGULOpenURLOptionsSourceAnnotationsIMPKey =
-    "GUL_openURLSourceApplicationAnnotationIMP";
-#endif  // TARGET_OS_IOS
-
 static char const *const kGULRealDidRegisterForRemoteNotificationsIMPKey =
     "GUL_didRegisterForRemoteNotificationsIMP";
 static char const *const kGULRealDidFailToRegisterForRemoteNotificationsIMPKey =
@@ -79,6 +74,11 @@ static char const *const kGULRealDidReceiveRemoteNotificationIMPKey =
     "GUL_didReceiveRemoteNotificationIMP";
 static char const *const kGULRealDidReceiveRemoteNotificationWithCompletionIMPKey =
     "GUL_didReceiveRemoteNotificationWithCompletionIMP";
+#if TARGET_OS_IOS
+// The method application:openURL:sourceApplication:annotation: is not available on tvOS
+static char const *const kGULOpenURLOptionsSourceAnnotationsIMPKey =
+    "GUL_openURLSourceApplicationAnnotationIMP";
+#endif  // TARGET_OS_IOS
 
 static char const *const kGULRealClassKey = "GUL_realClass";
 static NSString *const kGULAppDelegateKeyPath = @"delegate";
@@ -358,21 +358,6 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
                                                    fromClass:realClass];
   NSValue *continueUserActivityIMPPointer = [NSValue valueWithPointer:continueUserActivityIMP];
 
-#if TARGET_OS_IOS
-  // For application:openURL:sourceApplication:annotation:
-  SEL openURLSourceApplicationAnnotationSEL = @selector(application:
-                                                            openURL:sourceApplication:annotation:);
-  [GULAppDelegateSwizzler addInstanceMethodWithSelector:openURLSourceApplicationAnnotationSEL
-                                              fromClass:[GULAppDelegateSwizzler class]
-                                                toClass:appDelegateSubClass];
-  GULRealOpenURLSourceApplicationAnnotationIMP openURLSourceApplicationAnnotationIMP =
-      (GULRealOpenURLSourceApplicationAnnotationIMP)[GULAppDelegateSwizzler
-          implementationOfMethodSelector:openURLSourceApplicationAnnotationSEL
-                               fromClass:realClass];
-  NSValue *openURLSourceAppAnnotationIMPPointer =
-      [NSValue valueWithPointer:openURLSourceApplicationAnnotationIMP];
-#endif  // TARGET_OS_IOS
-
   // For application:handleEventsForBackgroundURLSession:completionHandler:
   SEL handleEventsForBackgroundURLSessionSEL = @selector(application:
                                  handleEventsForBackgroundURLSession:completionHandler:);
@@ -448,6 +433,21 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
         [NSValue valueWithPointer:didReceiveRemoteNotificationWithCompletionIMP];
   }
 
+#if TARGET_OS_IOS
+  // For application:openURL:sourceApplication:annotation:
+  SEL openURLSourceApplicationAnnotationSEL = @selector(application:
+                                                            openURL:sourceApplication:annotation:);
+  [GULAppDelegateSwizzler addInstanceMethodWithSelector:openURLSourceApplicationAnnotationSEL
+                                              fromClass:[GULAppDelegateSwizzler class]
+                                                toClass:appDelegateSubClass];
+  GULRealOpenURLSourceApplicationAnnotationIMP openURLSourceApplicationAnnotationIMP =
+      (GULRealOpenURLSourceApplicationAnnotationIMP)[GULAppDelegateSwizzler
+          implementationOfMethodSelector:openURLSourceApplicationAnnotationSEL
+                               fromClass:realClass];
+  NSValue *openURLSourceAppAnnotationIMPPointer =
+      [NSValue valueWithPointer:openURLSourceApplicationAnnotationIMP];
+#endif  // TARGET_OS_IOS
+
   // Override the description too so the custom class name will not show up.
   [GULAppDelegateSwizzler addInstanceMethodWithDestinationSelector:@selector(description)
                               withImplementationFromSourceSelector:@selector(fakeDescription)
@@ -464,11 +464,6 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
                              OBJC_ASSOCIATION_RETAIN_NONATOMIC);
   }
 
-#if TARGET_OS_IOS
-  objc_setAssociatedObject(anObject, &kGULOpenURLOptionsSourceAnnotationsIMPKey,
-                           openURLSourceAppAnnotationIMPPointer, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-#endif  // TARGET_OS_IOS
-
   objc_setAssociatedObject(anObject, &kGULRealDidRegisterForRemoteNotificationsIMPKey,
                            didRegisterForRemoteNotificationsIMPPointer,
                            OBJC_ASSOCIATION_RETAIN_NONATOMIC);
@@ -481,6 +476,10 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
   objc_setAssociatedObject(anObject, &kGULRealDidReceiveRemoteNotificationWithCompletionIMPKey,
                            didReceiveRemoteNotificationWithCompletionIMPPointer,
                            OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+#if TARGET_OS_IOS
+  objc_setAssociatedObject(anObject, &kGULOpenURLOptionsSourceAnnotationsIMPKey,
+                           openURLSourceAppAnnotationIMPPointer, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+#endif  // TARGET_OS_IOS
 
   objc_setAssociatedObject(anObject, &kGULRealClassKey, realClass,
                            OBJC_ASSOCIATION_RETAIN_NONATOMIC);

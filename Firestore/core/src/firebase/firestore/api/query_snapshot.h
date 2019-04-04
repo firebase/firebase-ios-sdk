@@ -26,6 +26,7 @@
 #include <functional>
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/api/document_change.h"
 #include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/api/snapshot_metadata.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
@@ -76,10 +77,6 @@ class QuerySnapshot {
     return internal_query_;
   }
 
-  const core::ViewSnapshot& view_snapshot() const {
-    return snapshot_;
-  }
-
   /**
    * Metadata about this snapshot, concerning its source and if it has local
    * modifications.
@@ -91,6 +88,13 @@ class QuerySnapshot {
   /** Iterates over the `DocumentSnapshots` that make up this query snapshot. */
   void ForEachDocument(
       const std::function<void(DocumentSnapshot)>& callback) const;
+
+  /**
+   * Iterates over the `DocumentChanges` representing the changes between
+   * the prior snapshot and this one.
+   */
+  void ForEachChange(bool include_metadata_changes,
+                     const std::function<void(DocumentChange)>& callback) const;
 
   friend bool operator==(const QuerySnapshot& lhs, const QuerySnapshot& rhs);
 
