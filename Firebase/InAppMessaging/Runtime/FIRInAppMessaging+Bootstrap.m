@@ -26,7 +26,6 @@
 #import "FIRIAMClearcutUploader.h"
 #import "FIRIAMRuntimeManager.h"
 #import "FIRIAMSDKSettings.h"
-#import "FIROptionsInternal.h"
 #import "NSString+FIRInterlaceStrings.h"
 
 @implementation FIRInAppMessaging (Bootstrap)

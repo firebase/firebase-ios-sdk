@@ -16,8 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRAnalyticsConfiguration.h"
-#import "FIRLoggerLevel.h"
+#import <FirebaseCore/FIRAnalyticsConfiguration.h>
+#import <FirebaseCore/FIRLoggerLevel.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

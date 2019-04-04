@@ -33,7 +33,7 @@
 #import <FirebaseCore/FIROptions.h>
 
 #import <GTMSessionFetcher/GTMSessionFetcher.h>
-#import "GTMSessionFetcherService.h"
+#import <GTMSessionFetcher/GTMSessionFetcherService.h>
 
 @implementation FIRStorageReference
 
