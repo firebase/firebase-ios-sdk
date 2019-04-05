@@ -57,23 +57,6 @@ typedef void(^FIRMessagingDeleteFCMTokenCompletion)(NSError * _Nullable error)
  */
 typedef void (^FIRMessagingTopicOperationCompletion)(NSError *_Nullable error);
 
-/**
- *  The completion handler invoked once the data connection with FIRMessaging is
- *  established.  The data connection is used to send a continuous stream of
- *  data and all the FIRMessaging data notifications arrive through this connection.
- *  Once the connection is established we invoke the callback with `nil` error.
- *  Correspondingly if we get an error while trying to establish a connection
- *  we invoke the handler with an appropriate error object and do an
- *  exponential backoff to try and connect again unless successful.
- *
- *  @param error The error object if any describing why the data connection
- *               to FIRMessaging failed.
- */
-typedef void(^FIRMessagingConnectCompletion)(NSError * __nullable error)
-    NS_SWIFT_NAME(MessagingConnectCompletion)
-    __deprecated_msg("Please listen for the FIRMessagingConnectionStateChangedNotification "
-                     "NSNotification instead.");
-
 #if defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 /**
  *  Notification sent when the upstream message has been delivered
@@ -425,36 +408,6 @@ NS_SWIFT_NAME(Messaging)
 - (void)deleteFCMTokenForSenderID:(NSString *)senderID
                        completion:(FIRMessagingDeleteFCMTokenCompletion)completion
     NS_SWIFT_NAME(deleteFCMToken(forSenderID:completion:));
-
-
-#pragma mark - FCM Direct Channel
-
-/**
- *  Create a FIRMessaging data connection which will be used to send the data notifications
- *  sent by your server. It will also be used to send ACKS and other messages based
- *  on the FIRMessaging ACKS and other messages based  on the FIRMessaging protocol.
- *
- *
- *  @param handler  The handler to be invoked once the connection is established.
- *                  If the connection fails we invoke the handler with an
- *                  appropriate error code letting you know why it failed. At
- *                  the same time, FIRMessaging performs exponential backoff to retry
- *                  establishing a connection and invoke the handler when successful.
- */
-- (void)connectWithCompletion:(FIRMessagingConnectCompletion)handler
-    NS_SWIFT_NAME(connect(handler:))
-    __deprecated_msg("Please use the shouldEstablishDirectChannel property instead.");
-
-/**
- *  Disconnect the current FIRMessaging data connection. This stops any attempts to
- *  connect to FIRMessaging. Calling this on an already disconnected client is a no-op.
- *
- *  Call this before `teardown` when your app is going to the background.
- *  Since the FIRMessaging connection won't be allowed to live when in the background, it is
- *  prudent to close the connection.
- */
-- (void)disconnect
-      __deprecated_msg("Please use the shouldEstablishDirectChannel property instead.");
 
 #pragma mark - Topics
 

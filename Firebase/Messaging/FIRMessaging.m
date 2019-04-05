@@ -710,6 +710,9 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
       if (!error) {
         // It means we connected. Fire connection change notification
         [self notifyOfDirectChannelConnectionChange];
+      } else {
+        FIRMessagingLoggerError(kFIRMessagingMessageCodeDirectChannelConnectionFailed,
+                                @"Failed to connect to direct channel, error: %@\n", error);
       }
     }];
   } else if (!shouldBeConnected && self.client.isConnected) {
@@ -721,33 +724,6 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 - (void)notifyOfDirectChannelConnectionChange {
   NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
   [center postNotificationName:FIRMessagingConnectionStateChangedNotification object:self];
-}
-
-#pragma mark - Connect
-
-- (void)connectWithCompletion:(FIRMessagingConnectCompletion)handler {
-  _FIRMessagingDevAssert([NSThread isMainThread],
-                         @"FIRMessaging connect should be called from main thread only.");
-  _FIRMessagingDevAssert(self.isClientSetup, @"FIRMessaging client not setup.");
-  [self.client connectWithHandler:^(NSError *error) {
-    if (handler) {
-      handler(error);
-    }
-    if (!error) {
-      // It means we connected. Fire connection change notification
-      [self notifyOfDirectChannelConnectionChange];
-    }
-  }];
-
-}
-
-- (void)disconnect {
-  _FIRMessagingDevAssert([NSThread isMainThread],
-                         @"FIRMessaging should be called from main thread only.");
-  if ([self.client isConnected]) {
-    [self.client disconnect];
-    [self notifyOfDirectChannelConnectionChange];
-  }
 }
 
 #pragma mark - Topics
