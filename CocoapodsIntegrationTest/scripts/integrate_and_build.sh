@@ -37,6 +37,9 @@ function runXcodebuild() {
 # Accepts path to Gemfile
 function prepareBundle() {
   cp -f "$@" ./Gemfile
+
+  # Travis sets this variable. We should unset it otherwise `bundle exec` will
+  # use the Gemfile by the path from the variable.
   unset BUNDLE_GEMFILE
 
   bundle update
@@ -80,17 +83,19 @@ if [ -z ${PODFILE+x} ]; then
   exit -1
 fi
 
-# Convert path to absolute one in case the script is run from another directory
+# Convert path to absolute one in case the script is run from another directory.
 RESOLVED_GEMFILE="$(realpath ${GEMFILE})"
 RESLOVED_PODFILE="$(realpath ${PODFILE})"
 
 echo "Gemfile  = ${RESOLVED_GEMFILE}"
 echo "Podfile     = ${RESLOVED_PODFILE}"
 
-pushd "$(dirname "$0")"
+# Make sure we build from the project root dir.
+pushd "$(dirname "$0")/.."
 
 prepareBundle "${RESOLVED_GEMFILE}"
 prepareCocoapods "${RESLOVED_PODFILE}"
 runXcodebuild
 
+# Recover original directory just in case
 popd
