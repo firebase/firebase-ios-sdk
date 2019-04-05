@@ -39,7 +39,7 @@ NSString *const kFIRIsAnalyticsCollectionDeactivated = @"FIREBASE_ANALYTICS_COLL
 NSString *const kFIRIsAnalyticsEnabled = @"IS_ANALYTICS_ENABLED";
 NSString *const kFIRIsSignInEnabled = @"IS_SIGNIN_ENABLED";
 
-// Library version ID.
+// Library version ID. - TODO generate this automatically
 NSString *const kFIRLibraryVersionID = @"5"     // Major version (one or more digits)
                                        @"04"    // Minor version (exactly 2 digits)
                                        @"01"    // Build number (exactly 2 digits)
