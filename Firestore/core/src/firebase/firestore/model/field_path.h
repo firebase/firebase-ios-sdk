@@ -48,13 +48,13 @@ class FieldPath : public impl::BasePath<FieldPath> {
   FieldPath(const IterT begin, const IterT end) : BasePath{begin, end} {
   }
   FieldPath(std::initializer_list<std::string> list) : BasePath{list} {
-    if (size() == 0) {
+    if (empty()) {
       api::ThrowInvalidArgument(
           "Invalid field path. Provided names must not be empty.");
     }
 
     for (size_t i = 0; i < size(); i++) {
-      if ((*this)[i].size() == 0) {
+      if ((*this)[i].empty()) {
         api::ThrowInvalidArgument(
             "Invalid field name at index %s. Field names must not be empty.",
             i);
@@ -65,7 +65,7 @@ class FieldPath : public impl::BasePath<FieldPath> {
   }
 
   /**
-   * Creates and returns a new path from a dot-separatedfield-path string,
+   * Creates and returns a new path from a dot-separated field-path string,
    * where path segments are separated by a dot ".".
    */
   static FieldPath FromDotSeparatedString(absl::string_view path);

@@ -89,44 +89,16 @@ FieldPath FieldPath::FromDotSeparatedString(absl::string_view path) {
         path);
   }
 
-  SegmentsT segments;
-  std::string segment;
-  segment.reserve(path.size());
-
-  const auto finish_segment = [&segments, &segment, &path] {
-    if (segment.empty()) {
-      ThrowInvalidArgument(
-          "Invalid field path (%s). Paths must not be empty, begin with "
-          "'.', end with '.', or contain '..'",
-          path);
-    }
-    // Move operation will clear segment, but capacity will remain the same
-    // (not, strictly speaking, required by the standard, but true in practice).
-    segments.push_back(std::move(segment));
-  };
-
-  size_t i = 0;
-  while (i < path.size()) {
-    const char c = path[i];
-    // std::string (and string_view) may contain embedded nulls. For full
-    // compatibility with Objective C behavior, finish upon encountering the
-    // first terminating null.
-    if (c == '\0') {
-      break;
-    }
-
-    switch (c) {
-      case '.':
-        finish_segment();
-        break;
-
-      default:
-        segment += c;
-        break;
-    }
-    ++i;
-  }
-  finish_segment();
+  SegmentsT segments =
+      absl::StrSplit(path, '.', [path](absl::string_view segment) {
+        if (segment.empty()) {
+          ThrowInvalidArgument(
+              "Invalid field path (%s). Paths must not be empty, begin with "
+              "'.', end with '.', or contain '..'",
+              path);
+        }
+        return true;
+      });
 
   return FieldPath{std::move(segments)};
 }
