@@ -3679,7 +3679,7 @@
 					DE26D25C1F7049F1004AE1D3 = {
 						CreatedOnToolsVersion = 9.0;
 						DevelopmentTeam = EQHXZ8M8AV;
-						LastSwiftMigration = 1010;
+						LastSwiftMigration = 1020;
 						ProvisioningStyle = Automatic;
 						TestTargetID = DE26D22D1F70398A004AE1D3;
 					};
@@ -7034,7 +7034,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Auth/ApiTests/Auth_ApiTests-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Sample.app/Sample";
 			};
@@ -7069,7 +7069,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Auth-ApiTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Auth/ApiTests/Auth_ApiTests-Bridging-Header.h";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Sample.app/Sample";
 			};

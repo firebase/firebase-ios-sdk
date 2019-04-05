@@ -459,7 +459,7 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
   NSArray<NSString *> *allProviders =
-      @[ FIRGoogleAuthProviderID, FIREmailPasswordAuthProviderID ];
+  @[ FIRGoogleAuthProviderID, FIREmailAuthProviderID ];
 #pragma clang diagnostic pop
   OCMExpect([_mockBackend createAuthURI:[OCMArg any]
                                callback:[OCMArg any]])
@@ -552,9 +552,9 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
       [[FIRPhoneAuthProvider provider] credentialWithVerificationID:kVerificationID
                                                    verificationCode:kVerificationCode];
 
-  [[FIRAuth auth] signInAndRetrieveDataWithCredential:credential
-                                           completion:^(FIRAuthDataResult *_Nullable authDataResult,
-                                                        NSError *_Nullable error) {
+  [[FIRAuth auth] signInWithCredential:credential
+                            completion:^(FIRAuthDataResult *_Nullable authDataResult,
+                                         NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
     [self assertUser:authDataResult.user];
     XCTAssertTrue(authDataResult.additionalUserInfo.isNewUser);
@@ -578,10 +578,10 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
       [[FIRPhoneAuthProvider provider] credentialWithVerificationID:kVerificationID
                                                    verificationCode:@""];
 
-  [[FIRAuth auth] signInWithCredential:credential completion:^(FIRUser *_Nullable user,
+  [[FIRAuth auth] signInWithCredential:credential completion:^(FIRAuthDataResult * _Nullable result,
                                                                NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
-    XCTAssertNil(user);
+    XCTAssertNil(result);
     XCTAssertEqual(error.code, FIRAuthErrorCodeMissingVerificationCode);
     [expectation fulfill];
   }];
@@ -600,10 +600,10 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
       [[FIRPhoneAuthProvider provider] credentialWithVerificationID:@""
                                                    verificationCode:kVerificationCode];
 
-  [[FIRAuth auth] signInWithCredential:credential completion:^(FIRUser *_Nullable user,
+  [[FIRAuth auth] signInWithCredential:credential completion:^(FIRAuthDataResult * _Nullable result,
                                                                NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
-    XCTAssertNil(user);
+    XCTAssertNil(result);
     XCTAssertEqual(error.code, FIRAuthErrorCodeMissingVerificationID);
     [expectation fulfill];
   }];
@@ -784,10 +784,9 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
   [self expectGetAccountInfo];
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
   [[FIRAuth auth] signOut:NULL];
-  [[FIRAuth auth] signInAndRetrieveDataWithEmail:kEmail
-                                        password:kFakePassword
-                                      completion:^(FIRAuthDataResult *_Nullable result,
-                                                   NSError *_Nullable error) {
+  [[FIRAuth auth] signInWithEmail:kEmail
+                         password:kFakePassword
+                       completion:^(FIRAuthDataResult *_Nullable result, NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
     [self assertUser:result.user];
     XCTAssertFalse(result.additionalUserInfo.isNewUser);
@@ -808,10 +807,9 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
       .andDispatchError2([FIRAuthErrorUtils wrongPasswordErrorWithMessage:nil]);
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
   [[FIRAuth auth] signOut:NULL];
-  [[FIRAuth auth] signInAndRetrieveDataWithEmail:kEmail
-                                        password:kFakePassword
-                                      completion:^(FIRAuthDataResult *_Nullable result,
-                                                   NSError *_Nullable error) {
+  [[FIRAuth auth] signInWithEmail:kEmail
+                         password:kFakePassword
+                       completion:^(FIRAuthDataResult *_Nullable result, NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
     XCTAssertNil(result);
     XCTAssertEqual(error.code, FIRAuthErrorCodeWrongPassword);
@@ -1060,9 +1058,9 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
   [[FIRAuth auth] signOut:NULL];
   FIRAuthCredential *emailCredential =
   [FIREmailAuthProvider credentialWithEmail:kEmail link:kFakeEmailSignInlink];
-  [[FIRAuth auth] signInAndRetrieveDataWithCredential:emailCredential
-                                           completion:^(FIRAuthDataResult *_Nullable authResult,
-                                                        NSError *_Nullable error) {
+  [[FIRAuth auth] signInWithCredential:emailCredential
+                            completion:^(FIRAuthDataResult *_Nullable authResult,
+                                         NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
     XCTAssertNotNil(authResult.user);
     XCTAssertEqualObjects(authResult.user.refreshToken, kRefreshToken);
@@ -1088,10 +1086,10 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
   FIRAuthCredential *emailCredential =
       [FIREmailAuthProvider credentialWithEmail:kEmail link:kFakeEmailSignInlink];
   [[FIRAuth auth] signInWithCredential:emailCredential
-                            completion:^(FIRUser *_Nullable user,
+                            completion:^(FIRAuthDataResult * _Nullable result,
                                          NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
-    XCTAssertNil(user);
+    XCTAssertNil(result);
     XCTAssertEqual(error.code, FIRAuthErrorCodeUserDisabled);
     XCTAssertNotNil(error.userInfo[NSLocalizedDescriptionKey]);
     [expectation fulfill];
@@ -1125,10 +1123,10 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
   FIRAuthCredential *emailCredential =
       [FIREmailAuthProvider credentialWithEmail:kEmail password:kFakePassword];
   [[FIRAuth auth] signInWithCredential:emailCredential
-                            completion:^(FIRUser *_Nullable user,
+                            completion:^(FIRAuthDataResult * _Nullable result,
                                          NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
-    [self assertUser:user];
+    [self assertUser:result.user];
     XCTAssertNil(error);
     [expectation fulfill];
   }];
@@ -1161,13 +1159,13 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
   FIRAuthCredential *emailCredential =
-      [FIREmailPasswordAuthProvider credentialWithEmail:kEmail password:kFakePassword];
+      [FIREmailAuthProvider credentialWithEmail:kEmail password:kFakePassword];
 #pragma clang diagnostic pop
   [[FIRAuth auth] signInWithCredential:emailCredential
-                            completion:^(FIRUser *_Nullable user,
+                            completion:^(FIRAuthDataResult * _Nullable result,
                                         NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
-    [self assertUser:user];
+    [self assertUser:result.user];
     XCTAssertNil(error);
     [expectation fulfill];
   }];
@@ -1188,10 +1186,10 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
   FIRAuthCredential *emailCredential =
       [FIREmailAuthProvider credentialWithEmail:kEmail password:kFakePassword];
   [[FIRAuth auth] signInWithCredential:emailCredential
-                            completion:^(FIRUser *_Nullable user,
+                            completion:^(FIRAuthDataResult * _Nullable result,
                                          NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
-    XCTAssertNil(user);
+    XCTAssertNil(result);
     XCTAssertEqual(error.code, FIRAuthErrorCodeUserDisabled);
     XCTAssertNotNil(error.userInfo[NSLocalizedDescriptionKey]);
     [expectation fulfill];
@@ -1214,7 +1212,8 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
   FIRAuthCredential *emailCredential =
       [FIREmailAuthProvider credentialWithEmail:kEmail password:emptyString];
   [[FIRAuth auth] signInWithCredential:emailCredential
-                            completion:^(FIRUser *_Nullable user, NSError *_Nullable error) {
+                            completion:^(FIRAuthDataResult * _Nullable result,
+                                         NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
     XCTAssertEqual(error.code, FIRAuthErrorCodeWrongPassword);
     [expectation fulfill];
@@ -1334,7 +1333,7 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
   FIRAuthCredential *googleCredential =
       [FIRGoogleAuthProvider credentialWithIDToken:kGoogleIDToken accessToken:kGoogleAccessToken];
   [[FIRAuth auth] signInWithCredential:googleCredential
-                            completion:^(FIRUser *_Nullable user,
+                            completion:^(FIRAuthDataResult * _Nullable result,
                                          NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
     XCTAssertEqual(error.code, FIRAuthErrorCodeAccountExistsWithDifferentCredential);
@@ -1374,10 +1373,10 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
   FIRAuthCredential *googleCredential =
       [FIRGoogleAuthProvider credentialWithIDToken:kGoogleIDToken accessToken:kGoogleAccessToken];
   [[FIRAuth auth] signInWithCredential:googleCredential
-                            completion:^(FIRUser *_Nullable user,
+                            completion:^(FIRAuthDataResult * _Nullable result,
                                          NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
-    [self assertUserGoogle:user];
+    [self assertUserGoogle:result.user];
     XCTAssertNil(error);
     [expectation fulfill];
   }];
@@ -1430,10 +1429,11 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
     FIROAuthCredential *OAuthCredential = (FIROAuthCredential *)credential;
     XCTAssertEqualObjects(OAuthCredential.OAuthResponseURLString, kOAuthRequestURI);
     XCTAssertEqualObjects(OAuthCredential.sessionID, kOAuthSessionID);
-    [[FIRAuth auth] signInWithCredential:OAuthCredential completion:^(FIRUser *_Nullable user,
-                                                                      NSError *_Nullable error) {
+    [[FIRAuth auth] signInWithCredential:OAuthCredential
+                              completion:^(FIRAuthDataResult * _Nullable result,
+                                           NSError *_Nullable error) {
       XCTAssertTrue([NSThread isMainThread]);
-      [self assertUserGoogle:user];
+      [self assertUserGoogle:result.user];
       XCTAssertNil(error);
       [expectation fulfill];
     }];
@@ -1474,9 +1474,9 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
   [[FIRAuth auth] signOut:NULL];
   FIRAuthCredential *googleCredential =
       [FIRGoogleAuthProvider credentialWithIDToken:kGoogleIDToken accessToken:kGoogleAccessToken];
-  [[FIRAuth auth] signInAndRetrieveDataWithCredential:googleCredential
-                                           completion:^(FIRAuthDataResult *_Nullable authResult,
-                                                        NSError *_Nullable error) {
+  [[FIRAuth auth] signInWithCredential:googleCredential
+                            completion:^(FIRAuthDataResult *_Nullable authResult,
+                                         NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
     [self assertUserGoogle:authResult.user];
     XCTAssertEqualObjects(authResult.additionalUserInfo.profile, [[self class] googleProfile]);
@@ -1502,10 +1502,10 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
   FIRAuthCredential *googleCredential =
       [FIRGoogleAuthProvider credentialWithIDToken:kGoogleIDToken accessToken:kGoogleAccessToken];
   [[FIRAuth auth] signInWithCredential:googleCredential
-                            completion:^(FIRUser *_Nullable user,
+                            completion:^(FIRAuthDataResult * _Nullable result,
                                          NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
-    XCTAssertNil(user);
+    XCTAssertNil(result.user);
     XCTAssertEqual(error.code, FIRAuthErrorCodeEmailAlreadyInUse);
     XCTAssertNotNil(error.userInfo[NSLocalizedDescriptionKey]);
     [expectation fulfill];
@@ -1588,7 +1588,7 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
   [self expectGetAccountInfoAnonymous];
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
   [[FIRAuth auth] signOut:NULL];
-  [[FIRAuth auth] signInAnonymouslyAndRetrieveDataWithCompletion:
+  [[FIRAuth auth] signInAnonymouslyWithCompletion:
       ^(FIRAuthDataResult *_Nullable result, NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
     [self assertUserAnonymous:result.user];
@@ -1608,7 +1608,7 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
       .andDispatchError2([FIRAuthErrorUtils operationNotAllowedErrorWithMessage:nil]);
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
   [[FIRAuth auth] signOut:NULL];
-  [[FIRAuth auth] signInAnonymouslyAndRetrieveDataWithCompletion:
+  [[FIRAuth auth] signInAnonymouslyWithCompletion:
       ^(FIRAuthDataResult *_Nullable result, NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
     XCTAssertNil(result);
@@ -1693,9 +1693,9 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
   [self expectGetAccountInfo];
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
   [[FIRAuth auth] signOut:NULL];
-  [[FIRAuth auth] signInAndRetrieveDataWithCustomToken:kCustomToken
-                                            completion:^(FIRAuthDataResult *_Nullable result,
-                                                         NSError *_Nullable error) {
+  [[FIRAuth auth] signInWithCustomToken:kCustomToken
+                             completion:^(FIRAuthDataResult *_Nullable result,
+                                          NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
     [self assertUser:result.user];
     XCTAssertFalse(result.additionalUserInfo.isNewUser);
@@ -1715,9 +1715,9 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
       .andDispatchError2([FIRAuthErrorUtils invalidCustomTokenErrorWithMessage:nil]);
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
   [[FIRAuth auth] signOut:NULL];
-  [[FIRAuth auth] signInAndRetrieveDataWithCustomToken:kCustomToken
-                                            completion:^(FIRAuthDataResult *_Nullable result,
-                                                         NSError *_Nullable error) {
+  [[FIRAuth auth] signInWithCustomToken:kCustomToken
+                             completion:^(FIRAuthDataResult *_Nullable result,
+                                          NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
     XCTAssertNil(result);
     XCTAssertEqual(error.code, FIRAuthErrorCodeInvalidCustomToken);
@@ -1808,10 +1808,10 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
   [self expectGetAccountInfo];
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
   [[FIRAuth auth] signOut:NULL];
-  [[FIRAuth auth] createUserAndRetrieveDataWithEmail:kEmail
-                                            password:kFakePassword
-                                          completion:^(FIRAuthDataResult *_Nullable result,
-                                                       NSError *_Nullable error) {
+  [[FIRAuth auth] createUserWithEmail:kEmail
+                             password:kFakePassword
+                           completion:^(FIRAuthDataResult *_Nullable result,
+                                        NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
     [self assertUser:result.user];
     XCTAssertTrue(result.additionalUserInfo.isNewUser);
@@ -1833,10 +1833,10 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
       .andDispatchError2([FIRAuthErrorUtils weakPasswordErrorWithServerResponseReason:reason]);
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
   [[FIRAuth auth] signOut:NULL];
-  [[FIRAuth auth] createUserAndRetrieveDataWithEmail:kEmail
-                                            password:kFakePassword
-                                          completion:^(FIRAuthDataResult *_Nullable result,
-                                                       NSError *_Nullable error) {
+  [[FIRAuth auth] createUserWithEmail:kEmail
+                             password:kFakePassword
+                           completion:^(FIRAuthDataResult *_Nullable result,
+                                        NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
     XCTAssertNil(result);
     XCTAssertEqual(error.code, FIRAuthErrorCodeWeakPassword);
