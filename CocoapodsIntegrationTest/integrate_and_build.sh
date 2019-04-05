@@ -36,12 +36,13 @@ function runXcodebuild() {
 
 # Accepts path to Gemfile
 function prepareBundle() {
-  bundle update --gemfile="$@"
+  cp -f "$@" ./Gemfile
+  bundle update
 }
 
 # 
 function prepareCocoapods() {
-  bundle update
+  cp -f "$@" ./Podfile
   bundle exec pod deintegrate
   bundle exec pod update
 }
@@ -74,12 +75,16 @@ if [ -z ${PODFILE+x} ]; then
   exit -1
 fi
 
-echo "Gemfile  = ${GEMFILE}"
-echo "Podfile     = ${PODFILE}"
+# Convert path to absolute one in case the script is run from another directory
+RESOLVED_GEMFILE="$(realpath ${GEMFILE})"
+RESLOVED_PODFILE="$(realpath ${PODFILE})"
+
+echo "Gemfile  = ${RESOLVED_GEMFILE}"
+echo "Podfile     = ${RESLOVED_PODFILE}"
 
 pushd "$(dirname "$0")"
 
-prepareBundle "${Gemfile}"
-prepareCocoapods "${Podfile}"
+prepareBundle "${RESOLVED_GEMFILE}"
+prepareCocoapods "${RESLOVED_PODFILE}"
 
 popd
