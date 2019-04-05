@@ -36,8 +36,8 @@ function runXcodebuild() {
 
 # Accepts path to Gemfile
 function prepareBundle() {
-  cp -f "$@" ./_Gemfile
-  bundle install --no-deployment --gemfile=_Gemfile
+  cp -f "$@" ./Gemfile
+  bundle install
 }
 
 # 

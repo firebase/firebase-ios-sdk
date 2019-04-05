@@ -87,6 +87,3 @@ gen/
 
 # b/111916494
 default.profraw
-
-# CocoapodsIntegrationTest
-CocoapodsIntegrationTest/Gemfile.lock
