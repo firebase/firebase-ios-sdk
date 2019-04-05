@@ -311,11 +311,7 @@ static NSMutableDictionary *sLibraryVersions;
   // always initialize first by itself before the other SDKs.
   if ([self.name isEqualToString:kFIRDefaultAppName]) {
     Class firAnalyticsClass = NSClassFromString(@"FIRAnalytics");
-    if (!firAnalyticsClass) {
-      FIRLogWarning(kFIRLoggerCore, @"I-COR000022",
-                    @"Firebase Analytics is not available. To add it, include Firebase/Core in the "
-                    @"Podfile or add FirebaseAnalytics.framework to the Link Build Phase");
-    } else {
+    if (firAnalyticsClass) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
       SEL startWithConfigurationSelector = @selector(startWithConfiguration:options:);
