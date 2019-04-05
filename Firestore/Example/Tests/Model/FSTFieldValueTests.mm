@@ -298,8 +298,8 @@ union DoubleBits {
   FSTObjectValue *actual = FSTTestObjectValue(@{@"a" : @{@"b" : @{@"c" : @"foo"}, @"d" : @YES}});
   FSTObjectValue *expected = [[FSTObjectValue alloc] initWithDictionary:@{
     @"a" : [[FSTObjectValue alloc] initWithDictionary:@{
-      @"b" :
-          [[FSTObjectValue alloc] initWithDictionary:@{@"c" : FieldValue::FromString("foo").Wrap()}],
+      @"b" : [[FSTObjectValue alloc]
+          initWithDictionary:@{@"c" : FieldValue::FromString("foo").Wrap()}],
       @"d" : FieldValue::True().Wrap()
     }]
   }];
