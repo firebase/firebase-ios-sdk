@@ -212,7 +212,7 @@ jobs:
     # Validate Cocoapods versions compatibility
     - stage: cocoapods
       env:
-        - GEMFILE=./CocoapodsIntegrationTest/TestEnvironments/Cocoapods1_7_0_multiprojects/Gemfile PODFILE=./CocoapodsIntegrationTest/TestEnvironments/Cocoapods1_7_0_multiprojects/Podfile
+        - GEMFILE=./CocoapodsIntegrationTest/TestEnvironments/Cocoapods1_7_0_multiprojects_frameworks/Gemfile PODFILE=./CocoapodsIntegrationTest/TestEnvironments/Cocoapods1_7_0_multiprojects_frameworks/Podfile
       # before_install:
       #   - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
