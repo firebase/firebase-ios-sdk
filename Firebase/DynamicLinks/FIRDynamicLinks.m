@@ -55,6 +55,12 @@ NSString *const kFIRDLVersion = @STR(FIRDynamicLinks_VERSION);
 NSString *const kFIRDLReadDeepLinkAfterInstallKey =
     @"com.google.appinvite.readDeeplinkAfterInstall";
 
+// Label exceptions from FDL.
+NSString *const kFirebaseDurableDeepLinkErrorDomain = @"com.firebase.durabledeeplink";
+
+// Error code from FDL.
+static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
+
 // We should only open url once. We use the following key to store the state in the user defaults.
 static NSString *const kFIRDLOpenURLKey = @"com.google.appinvite.openURL";
 
