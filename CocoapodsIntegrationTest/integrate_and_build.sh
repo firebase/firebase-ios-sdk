@@ -39,7 +39,6 @@ function prepareBundle() {
   cp -f "$@" ./Gemfile
   unset BUNDLE_GEMFILE
 
-  echo "bundle env: $(bundle env)"
   bundle update
   echo "bundle env: $(bundle env)"
 }
@@ -92,5 +91,6 @@ pushd "$(dirname "$0")"
 
 prepareBundle "${RESOLVED_GEMFILE}"
 prepareCocoapods "${RESLOVED_PODFILE}"
+runXcodebuild
 
 popd
