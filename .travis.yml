@@ -214,9 +214,9 @@ jobs:
       env:
         - GEMFILE=./CocoapodsIntegrationTest/TestEnvironments/Cocoapods1_7_0_multiprojects/Gemfile PODFILE=./CocoapodsIntegrationTest/TestEnvironments/Cocoapods1_7_0_multiprojects/Podfile
       before_install:
-        - ./scripts/if_cron.sh ./scripts/install_prereqs.sh
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
-        - travis_retry ./scripts/if_cron.sh ./CocoapodsIntegrationTest/integrate_and_build.sh --gemfile=$GEMFILE --podfile=$PODFILE
+        - travis_retry ./scripts/if_changed.sh ./CocoapodsIntegrationTest/integrate_and_build.sh --gemfile=$GEMFILE --podfile=$PODFILE
 
       branches:
         only:
