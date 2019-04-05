@@ -987,7 +987,7 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
     case FieldValue::Type::ServerTimestamp:
       HARD_FAIL("TODO(rsgowman): implement");
     case FieldValue::Type::String:
-      return util::WrapNSStringNoCopy(self.internalValue.string_value());
+      return util::WrapNSString(self.internalValue.string_value());
     case FieldValue::Type::Blob:
     case FieldValue::Type::Reference:
     case FieldValue::Type::GeoPoint:
