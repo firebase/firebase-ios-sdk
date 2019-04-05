@@ -26,6 +26,7 @@
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_map.h"
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/hashing.h"
 #include "absl/memory/memory.h"
 
 using firebase::firestore::util::Comparator;
@@ -345,6 +346,30 @@ FieldValue FieldValue::FromMap(FieldValue::Map&& value) {
   result.SwitchTo(Type::Object);
   std::swap(*result.object_value_, value);
   return result;
+}
+
+size_t FieldValue::Hash() const {
+  switch (type()) {
+    case FieldValue::Type::Null:
+      HARD_FAIL("TODO(rsgowman): Implement");
+
+    case FieldValue::Type::Boolean:
+      return util::Hash(boolean_value());
+
+    case FieldValue::Type::Integer:
+    case FieldValue::Type::Double:
+    case FieldValue::Type::Timestamp:
+    case FieldValue::Type::ServerTimestamp:
+    case FieldValue::Type::String:
+    case FieldValue::Type::Blob:
+    case FieldValue::Type::Reference:
+    case FieldValue::Type::GeoPoint:
+    case FieldValue::Type::Array:
+    case FieldValue::Type::Object:
+      HARD_FAIL("TODO(rsgowman): Implement");
+  }
+
+  UNREACHABLE();
 }
 
 bool operator<(const FieldValue::Map& lhs, const FieldValue::Map& rhs) {

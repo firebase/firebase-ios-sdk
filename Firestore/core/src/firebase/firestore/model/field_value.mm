@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,10 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#include "Firestore/core/src/firebase/firestore/model/field_value.h"
 
-NS_ASSUME_NONNULL_BEGIN
+#import "Firestore/Source/Model/FSTFieldValue.h"
 
-/** @class FIRAuthSettings
-    @brief Determines settings related to an auth object.
- */
-NS_SWIFT_NAME(AuthSettings)
-@interface FIRAuthSettings : NSObject
-
-/** @property appVerificationDisabledForTesting
-    @brief Flag to determine whether app verification should be disabled for testing or not.
- */
-@property(nonatomic, assign, getter=isAppVerificationDisabledForTesting) BOOL
-    appVerificationDisabledForTesting;
-
-@end
-
-NS_ASSUME_NONNULL_END
+FSTFieldValue* FieldValue::Wrap() && {
+  return [FSTDelegateValue delegateWithValue:std::move(*this)];
+}
