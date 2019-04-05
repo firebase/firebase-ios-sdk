@@ -209,18 +209,25 @@ jobs:
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
-    # Validate Cocoapods versions compatibility
-    - stage: cocoapods
+    # Validate Cocoapods 1.7.0 compatibility
+    - stage: cocoapods_compatibility_check
       env:
         - GEMFILE=./CocoapodsIntegrationTest/TestEnvironments/Cocoapods1_7_0_multiprojects_frameworks/Gemfile PODFILE=./CocoapodsIntegrationTest/TestEnvironments/Cocoapods1_7_0_multiprojects_frameworks/Podfile
-      # before_install:
-      #   - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
-        - travis_retry ./scripts/if_changed.sh ./CocoapodsIntegrationTest/integrate_and_build.sh --gemfile=$GEMFILE --podfile=$PODFILE
+        - travis_retry ./scripts/if_changed.sh ./CocoapodsIntegrationTest/scripts/build_with_environment.sh --gemfile=$GEMFILE --podfile=$PODFILE
 
-      branches:
-        only:
-          - mm/cocoapods-1_7
+    # Validate Cocoapods 1.6.1 compatibility
+    - stage: cocoapods_compatibility_check
+      env:
+        - GEMFILE=./CocoapodsIntegrationTest/TestEnvironments/Cocoapods1_6_1_staticLibs/Gemfile PODFILE=./CocoapodsIntegrationTest/TestEnvironments/Cocoapods1_6_1_staticLibs/Podfile
+      script:
+        - travis_retry ./scripts/if_changed.sh ./CocoapodsIntegrationTest/scripts/build_with_environment.sh --gemfile=$GEMFILE --podfile=$PODFILE
+
+    # Validate all Cocoapods configurations
+    - stage: cocoapods_compatibility_check
+      name: Validate all Cocoapods configurations 
+      script:
+        - travis_retry ./scripts/if_changed.sh ./CocoapodsIntegrationTest/scripts/build_all_environments.sh
 
   allow_failures:
     # Run fuzz tests only on cron jobs.
@@ -260,7 +267,7 @@ jobs:
 stages:
   - name: checks
     if: branch = master
-  - name: cocoapods
+  - name: cocoapods_compatibility_check
     if: branch = mm/cocoapods-1_7
   - name: test
     if: branch = master

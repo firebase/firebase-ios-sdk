@@ -43,13 +43,11 @@ function prepareBundle() {
   unset BUNDLE_GEMFILE
 
   bundle update
-  echo "bundle env: $(bundle env)"
 }
 
 # 
 function prepareCocoapods() {
   cp -f "$@" ./Podfile
-  echo "pwd: $(pwd)"
   echo "Cocoapods version: $(bundle exec pod --version)"
   bundle exec pod deintegrate
   bundle exec pod update
@@ -91,7 +89,8 @@ echo "Gemfile  = ${RESOLVED_GEMFILE}"
 echo "Podfile     = ${RESLOVED_PODFILE}"
 
 # Make sure we build from the project root dir.
-pushd "$(dirname "$0")/.."
+scriptDir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+pushd "${scriptDir}/.."
 
 prepareBundle "${RESOLVED_GEMFILE}"
 prepareCocoapods "${RESLOVED_PODFILE}"
