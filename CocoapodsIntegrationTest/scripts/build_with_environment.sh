@@ -30,8 +30,6 @@ function runXcodebuild() {
 
   echo xcodebuild "${parameters[@]}"
   xcodebuild "${parameters[@]}" | xcpretty; result=$?
-
-  exit $result
 }
 
 # Accepts path to Gemfile
