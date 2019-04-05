@@ -28,6 +28,7 @@
 #import <FirebaseCore/FIRLibrary.h>
 #import <FirebaseCore/FIRLogger.h>
 #import <FirebaseCore/FIROptions.h>
+#import <GoogleUtilities/GULAppDelegateSwizzler.h>
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 
 #import "FIREmailPasswordAuthCredential.h"
@@ -77,7 +78,6 @@
 #import "FIRAuthAPNSToken.h"
 #import "FIRAuthAPNSTokenManager.h"
 #import "FIRAuthAppCredentialManager.h"
-#import "FIRAuthAppDelegateProxy.h"
 #import "FIRPhoneAuthCredential_Internal.h"
 #import "FIRAuthNotificationManager.h"
 #import "FIRAuthURLPresenter.h"
@@ -230,7 +230,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 #pragma mark - FIRAuth
 
 #if TARGET_OS_IOS
-@interface FIRAuth () <FIRAuthAppDelegateHandler, FIRLibrary, FIRComponentLifecycleMaintainer>
+@interface FIRAuth () <UIApplicationDelegate, FIRLibrary, FIRComponentLifecycleMaintainer>
 #else
 @interface FIRAuth () <FIRLibrary, FIRComponentLifecycleMaintainer>
 #endif
@@ -378,8 +378,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     }
     UIApplication *application = [applicationClass sharedApplication];
 
-    // Initialize the shared FIRAuthAppDelegateProxy instance in the main thread if not already.
-    [FIRAuthAppDelegateProxy sharedInstance];
+    [GULAppDelegateSwizzler proxyOriginalDelegate];
     #endif
 
     // Continue with the rest of initialization in the work thread.
@@ -434,7 +433,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
            initWithApplication:application
           appCredentialManager:strongSelf->_appCredentialManager];
 
-      [[FIRAuthAppDelegateProxy sharedInstance] addHandler:strongSelf];
+      [GULAppDelegateSwizzler registerAppDelegateInterceptor:strongSelf];
       #endif
     });
   }
@@ -1442,19 +1441,47 @@ static NSDictionary<NSString *, NSString *> *FIRAuthParseURL(NSString *urlString
   return result;
 }
 
-- (void)setAPNSToken:(nullable NSData *)APNSToken {
-  [self setAPNSToken:APNSToken type:FIRAuthAPNSTokenTypeUnknown];
+#pragma mark - UIApplicationDelegate
+
+- (void)application:(UIApplication *)application
+didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+  [self setAPNSToken:deviceToken type:FIRAuthAPNSTokenTypeUnknown];
+}
+
+- (void)application:(UIApplication *)application
+didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
+  dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
+    [self->_tokenManager cancelWithError:error];
+  });
+}
+
+- (void)application:(UIApplication *)application
+didReceiveRemoteNotification:(NSDictionary *)userInfo
+fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
+  [self canHandleNotification:userInfo];
+}
+
+- (void)application:(UIApplication *)application
+didReceiveRemoteNotification:(NSDictionary *)userInfo {
+  [self canHandleNotification:userInfo];
+}
+
+- (BOOL)application:(UIApplication *)app
+            openURL:(NSURL *)url
+            options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {
+  return [self canHandleURL:url];
+}
+
+- (BOOL)application:(UIApplication *)application
+            openURL:(NSURL *)url
+  sourceApplication:(nullable NSString *)sourceApplication
+         annotation:(id)annotation {
+  return [self canHandleURL:url];
 }
 
 - (void)setAPNSToken:(NSData *)token type:(FIRAuthAPNSTokenType)type {
   dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
     self->_tokenManager.token = [[FIRAuthAPNSToken alloc] initWithData:token type:type];
-  });
-}
-
-- (void)handleAPNSTokenError:(NSError *)error {
-  dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
-    [self->_tokenManager cancelWithError:error];
   });
 }
 

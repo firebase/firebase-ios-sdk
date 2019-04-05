@@ -28,6 +28,8 @@
 #import <FirebaseCore/FIRComponent.h>
 #import <FirebaseCore/FIRLibrary.h>
 
+#import <GoogleUtilities/GULAppDelegateSwizzler.h>
+
 #import "FIRAdditionalUserInfo.h"
 #import "FIRAuth_Internal.h"
 #import "FIRAuthOperationType.h"
@@ -70,10 +72,14 @@
 #import "FIRActionCodeSettings.h"
 
 #if TARGET_OS_IOS
+#import "FIRAuthAPNSToken.h"
+#import "FIRAuthAPNSTokenManager.h"
+#import "FIRAuthNotificationManager.h"
 #import "FIRAuthUIDelegate.h"
+#import "FIRAuthURLPresenter.h"
 #import "FIRPhoneAuthCredential.h"
 #import "FIRPhoneAuthProvider.h"
-#endif
+#endif // TARGET_OS_IOS
 
 /** @var kAPIKey
     @brief The fake API key.
@@ -236,6 +242,40 @@ static const NSTimeInterval kExpectationTimeout = 2;
  */
 static const NSTimeInterval kWaitInterval = .5;
 
+#if TARGET_OS_IOS
+/** @class FIRAuthAppDelegate
+    @brief Application delegate implementation to test the app delegate proxying
+ */
+@interface FIRAuthAppDelegate : NSObject <UIApplicationDelegate>
+@end
+
+@implementation FIRAuthAppDelegate
+- (void)application:(UIApplication *)application
+didReceiveRemoteNotification:(NSDictionary *)userInfo
+fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
+}
+
+- (BOOL)application:(UIApplication *)app
+            openURL:(NSURL *)url
+            options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {
+  return NO;
+}
+
+- (BOOL)application:(UIApplication *)application
+            openURL:(NSURL *)url
+  sourceApplication:(nullable NSString *)sourceApplication
+         annotation:(id)annotation {
+  return NO;
+}
+
+@end
+
+#endif // TARGET_OS_IOS
+
+@interface GULAppDelegateSwizzler (FIRMessagingRemoteNotificationsProxyTest)
++ (void)resetProxyOriginalDelegateOnceToken;
+@end
+
 /** Category for FIRAuth to expose FIRComponentRegistrant conformance. */
 @interface FIRAuth () <FIRLibrary>
 @end
@@ -244,7 +284,20 @@ static const NSTimeInterval kWaitInterval = .5;
     @brief Tests for @c FIRAuth.
  */
 @interface FIRAuthTests : XCTestCase
+#if TARGET_OS_IOS
+/// A partial mock of `[FIRAuth auth].tokenManager`
+@property(nonatomic, strong) id mockTokenManager;
+/// A partial mock of `[FIRAuth auth].notificationManager`
+@property(nonatomic, strong) id mockNotificationManager;
+/// A partial mock of `[FIRAuth auth].authURLPresenter`
+@property(nonatomic, strong) id mockAuthURLPresenter;
+/// A partial mock of `[UIApplication sharedApplication]`
+@property(nonatomic, strong) id mockApplication;
+/// An application delegate instance returned by `self.mockApplication.delegate`
+@property(nonatomic, strong) FIRAuthAppDelegate *fakeApplicationDelegate;
+#endif // TARGET_OS_IOS
 @end
+
 @implementation FIRAuthTests {
 
   /** @var _mockBackend
@@ -277,6 +330,16 @@ static const NSTimeInterval kWaitInterval = .5;
 
 - (void)setUp {
   [super setUp];
+
+#if TARGET_OS_IOS
+  // Make sure the `self.fakeApplicationDelegate` will be swizzled on FIRAuth init.
+  [GULAppDelegateSwizzler resetProxyOriginalDelegateOnceToken];
+
+  self.fakeApplicationDelegate = [[FIRAuthAppDelegate alloc] init];
+  self.mockApplication = OCMPartialMock([UIApplication sharedApplication]);
+  OCMStub([self.mockApplication delegate]).andReturn(self.fakeApplicationDelegate);
+#endif // TARGET_OS_IOS
+
   _mockBackend = OCMProtocolMock(@protocol(FIRAuthBackendImplementation));
   [FIRAuthBackend setBackendImplementation:_mockBackend];
   [FIRApp resetAppForAuthUnitTests];
@@ -292,11 +355,32 @@ static const NSTimeInterval kWaitInterval = .5;
     XCTAssertEqualObjects(FIRAuthGlobalWorkQueue(), queue);
     _FIRAuthDispatcherCallback = task;
   }];
+
+#if TARGET_OS_IOS
+  // Wait until FIRAuth initialization completes
+  [self waitForAuthGlobalWorkQueueDrain];
+  self.mockTokenManager = OCMPartialMock([FIRAuth auth].tokenManager);
+  self.mockNotificationManager = OCMPartialMock([FIRAuth auth].notificationManager);
+  self.mockAuthURLPresenter = OCMPartialMock([FIRAuth auth].authURLPresenter);
+#endif // TARGET_OS_IOS
 }
 
 - (void)tearDown {
   [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:nil];
   [[FIRAuthDispatcher sharedInstance] setDispatchAfterImplementation:nil];
+
+#if TARGET_OS_IOS
+  [self.mockAuthURLPresenter stopMocking];
+  self.mockAuthURLPresenter = nil;
+  [self.mockNotificationManager stopMocking];
+  self.mockNotificationManager = nil;
+  [self.mockTokenManager stopMocking];
+  self.mockTokenManager = nil;
+  [self.mockApplication stopMocking];
+  self.mockApplication = nil;
+  self.fakeApplicationDelegate = nil;
+#endif // TARGET_OS_IOS
+
   [super tearDown];
 }
 
@@ -2294,6 +2378,90 @@ static const NSTimeInterval kWaitInterval = .5;
 }
 #endif
 
+#if TARGET_OS_IOS
+#pragma mark - Application Delegate tests
+- (void)testAppDidRegisterForRemoteNotifications_APNSTokenUpdated {
+  NSData *apnsToken = [NSData data];
+
+  OCMExpect([self.mockTokenManager setToken:[OCMArg checkWithBlock:^BOOL(FIRAuthAPNSToken *token) {
+    XCTAssertEqual(token.data, apnsToken);
+    XCTAssertEqual(token.type, FIRAuthAPNSTokenTypeUnknown);
+    return YES;
+  }]]);
+
+  [self.fakeApplicationDelegate application:self.mockApplication
+didRegisterForRemoteNotificationsWithDeviceToken:apnsToken];
+
+  [self.mockTokenManager verify];
+}
+
+- (void)testAppDidFailToRegisterForRemoteNotifications_TokenManagerCancels {
+  NSError *error = [NSError errorWithDomain:@"FIRAuthTests" code:-1 userInfo:nil];
+
+  OCMExpect([self.mockTokenManager cancelWithError:error]);
+
+  [self.fakeApplicationDelegate application:self.mockApplication
+didFailToRegisterForRemoteNotificationsWithError:error];
+
+  [self.mockTokenManager verify];
+}
+
+- (void)testAppDidReceiveRemoteNotification_NotificationManagerHandleCanNotification {
+  NSDictionary *notification = @{@"test" : @""};
+
+  OCMExpect([self.mockNotificationManager canHandleNotification:notification]);
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+  [self.fakeApplicationDelegate application:self.mockApplication
+               didReceiveRemoteNotification:notification];
+#pragma clang diagnostic pop
+
+  [self.mockNotificationManager verify];
+}
+
+- (void)testAppDidReceiveRemoteNotificationWithCompletion_NotificationManagerHandleCanNotification {
+  NSDictionary *notification = @{@"test" : @""};
+
+  OCMExpect([self.mockNotificationManager canHandleNotification:notification]);
+
+  [self.fakeApplicationDelegate application:self.mockApplication
+               didReceiveRemoteNotification:notification
+                     fetchCompletionHandler:^(UIBackgroundFetchResult result) {}];
+
+  [self.mockNotificationManager verify];
+}
+
+- (void)testAppOpenURL_AuthPresenterCanHandleURL {
+  NSURL *url = [NSURL URLWithString:@"https://localhost"];
+
+  [OCMExpect([self.mockAuthURLPresenter canHandleURL:url]) andReturnValue:@(YES)];
+
+  XCTAssertTrue([self.fakeApplicationDelegate application:self.mockApplication
+                                                  openURL:url
+                                                  options:@{}]);
+
+  [self.mockAuthURLPresenter verify];
+}
+
+- (void)testAppOpenURLWithSourceApplication_AuthPresenterCanHandleURL {
+  NSURL *url = [NSURL URLWithString:@"https://localhost"];
+
+  [OCMExpect([self.mockAuthURLPresenter canHandleURL:url]) andReturnValue:@(YES)];
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+  XCTAssertTrue([self.fakeApplicationDelegate application:self.mockApplication
+                                                  openURL:url
+                                                  sourceApplication:@""
+                                               annotation:[[NSObject alloc] init]]);
+#pragma clang diagnostic pop
+
+  [self.mockAuthURLPresenter verify];
+}
+
+#endif // TARGET_OS_IOS
+
 #pragma mark - Interoperability Tests
 
 /** @fn testComponentsBeingRegistered
@@ -2550,6 +2718,14 @@ static const NSTimeInterval kWaitInterval = .5;
     [expectation fulfill];
   });
   [self waitForExpectationsWithTimeout:timeInterval + kExpectationTimeout handler:nil];
+}
+
+- (void)waitForAuthGlobalWorkQueueDrain {
+  dispatch_semaphore_t workerSemaphore = dispatch_semaphore_create(0);
+  dispatch_async(FIRAuthGlobalWorkQueue(), ^{
+    dispatch_semaphore_signal(workerSemaphore);
+  });
+  dispatch_semaphore_wait(workerSemaphore, DISPATCH_TIME_FOREVER /*DISPATCH_TIME_NOW + 10 * NSEC_PER_SEC*/);
 }
 
 @end
