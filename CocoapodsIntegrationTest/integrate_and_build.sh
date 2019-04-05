@@ -37,12 +37,15 @@ function runXcodebuild() {
 # Accepts path to Gemfile
 function prepareBundle() {
   cp -f "$@" ./Gemfile
-  bundle install
+  echo "bundle env: $(bundle env)"
+  bundle update
+  echo "bundle env: $(bundle env)"
 }
 
 # 
 function prepareCocoapods() {
   cp -f "$@" ./Podfile
+  echo "pwd: $(pwd)"
   echo "Cocoapods version: $(bundle exec pod --version)"
   bundle exec pod deintegrate
   bundle exec pod update
