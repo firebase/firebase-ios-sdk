@@ -37,8 +37,8 @@ function runXcodebuild() {
 # Accepts path to Gemfile
 function prepareBundle() {
   cp -f "$@" ./Gemfile
-  export BUNDLE_GEMFILE=$PWD/Gemfile
-  
+  unset BUNDLE_GEMFILE
+
   echo "bundle env: $(bundle env)"
   bundle update
   echo "bundle env: $(bundle env)"
