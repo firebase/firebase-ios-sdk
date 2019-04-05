@@ -52,4 +52,12 @@
  */
 - (nullable NSString *)appInstanceID:(NSError *_Nullable *_Nullable)error;
 
+/**
+ *  Returns a Firebase Messaging scoped token for the firebase app.
+ *
+ *  @return Returns the stored token if the device has registered with Firebase Messaging, otherwise
+ *          returns nil.
+ */
+- (nullable NSString *)token;
+
 @end

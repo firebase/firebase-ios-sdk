@@ -490,10 +490,7 @@ static FIRInstanceID *gInstanceID;
     // When getID is explicitly called, trigger getToken to make sure token always exists.
     // This is to avoid ID conflict (ID is not checked for conflict until we generate a token)
     if (appIdentity) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
       [self token];
-#pragma clang diagnostic pop
     }
     callHandlerOnMainThread(appIdentity, error);
   });
@@ -707,20 +704,14 @@ static FIRInstanceID *gInstanceID;
       [self defaultTokenWithHandler:nil];
     }
     // Notify FCM with the default token.
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     self.defaultFCMToken = [self token];
-#pragma clang diagnostic pop
   } else if ([self isFCMAutoInitEnabled]) {
     // When there is no cached token, must check auto init is enabled.
     // If it's disabled, don't initiate token generation/refresh.
     // If no cache token and auto init is enabled, fetch a token from server.
     [self defaultTokenWithHandler:nil];
     // Notify FCM with the default token.
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     self.defaultFCMToken = [self token];
-#pragma clang diagnostic pop
   }
   // ONLY checkin when auto data collection is turned on.
   if ([self isFCMAutoInitEnabled]) {
