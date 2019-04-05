@@ -43,6 +43,7 @@ function prepareBundle() {
 # 
 function prepareCocoapods() {
   cp -f "$@" ./Podfile
+  echo "Cocoapods version: $(bundle exec pod --version)"
   bundle exec pod deintegrate
   bundle exec pod update
 }
