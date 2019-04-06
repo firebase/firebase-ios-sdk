@@ -42,7 +42,7 @@ NSString *const kFIRIsSignInEnabled = @"IS_SIGNIN_ENABLED";
 // Library version ID. - TODO generate this automatically
 NSString *const kFIRLibraryVersionID = @"5"     // Major version (one or more digits)
                                        @"04"    // Minor version (exactly 2 digits)
-                                       @"01"    // Build number (exactly 2 digits)
+                                       @"90"    // Build number (exactly 2 digits)
                                        @"000";  // Fixed "000"
 // Plist file name.
 NSString *const kServiceInfoFileName = @"GoogleService-Info";
