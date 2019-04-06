@@ -13,6 +13,9 @@ pod 'FirebaseAuthInterop', :path => '../'
 pod 'FirebaseCore', :path => '../'
 pod 'GoogleUtilities', :path => '../'
 
+# Workaround https://github.com/firebase/firebase-ios-sdk/issues/2665
+pod 'Protobuf', :inhibit_warnings => true
+
 target 'Core_Example_iOS' do
   platform :ios, '8.0'
 
