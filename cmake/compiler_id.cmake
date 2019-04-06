@@ -12,12 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Adds cheap tests for various compilers
+# Within Travis, check if running in a cron job.
+#
+# Examines the following Travis-supplied environment variables:
+#   - TRAVIS_EVENT_TYPE - to check if this is a cron job
+#
 
-if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  set(CXX_CLANG TRUE)
-endif()
-
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  set(CXX_GNU TRUE)
-endif()
+if [[ "$TRAVIS_EVENT_TYPE" != "cron" ]]; then
+  "$@"
+else
+  echo "skipped $*"
+fi
