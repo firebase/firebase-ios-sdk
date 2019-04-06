@@ -40,6 +40,7 @@ NSString *const kFIRIsAnalyticsCollectionDeactivated = @"FIREBASE_ANALYTICS_COLL
 NSString *const kFIRIsAnalyticsEnabled = @"IS_ANALYTICS_ENABLED";
 NSString *const kFIRIsSignInEnabled = @"IS_SIGNIN_ENABLED";
 
+<<<<<<< HEAD
 // Library version ID formatted like:
 // @"5"     // Major version (one or more digits)
 // @"04"    // Minor version (exactly 2 digits)
@@ -47,6 +48,13 @@ NSString *const kFIRIsSignInEnabled = @"IS_SIGNIN_ENABLED";
 // @"000";  // Fixed "000"
 NSString *kFIRLibraryVersionID;
 
+=======
+// Library version ID. - TODO generate this automatically
+NSString *const kFIRLibraryVersionID = @"5"     // Major version (one or more digits)
+                                       @"04"    // Minor version (exactly 2 digits)
+                                       @"90"    // Build number (exactly 2 digits)
+                                       @"000";  // Fixed "000"
+>>>>>>> Core patches can only be 2 digits
 // Plist file name.
 NSString *const kServiceInfoFileName = @"GoogleService-Info";
 // Plist file type.
