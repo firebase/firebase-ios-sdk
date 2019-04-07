@@ -21,12 +21,12 @@
 
 #import "FIRDocumentReference.h"
 #import "FIRFirestoreErrors.h"
-#import "FIRFirestoreSource.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
 #import "Firestore/Source/API/FIRFieldValue+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
+#import "Firestore/Source/API/FIRFirestoreSource+Internal.h"
 #import "Firestore/Source/API/FIRListenerRegistration+Internal.h"
 #import "Firestore/Source/API/FIRQuery+Internal.h"
 #import "Firestore/Source/API/FIRQuerySnapshot+Internal.h"
@@ -50,6 +50,8 @@
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::api::MakeSource;
+using firebase::firestore::api::Source;
 using firebase::firestore::api::ThrowInvalidArgument;
 using firebase::firestore::core::AsyncEventListener;
 using firebase::firestore::core::EventListener;
@@ -114,10 +116,11 @@ NS_ASSUME_NONNULL_BEGIN
   [self getDocumentsWithSource:FIRFirestoreSourceDefault completion:completion];
 }
 
-- (void)getDocumentsWithSource:(FIRFirestoreSource)source
+- (void)getDocumentsWithSource:(FIRFirestoreSource)publicSource
                     completion:(void (^)(FIRQuerySnapshot *_Nullable snapshot,
                                          NSError *_Nullable error))completion {
-  if (source == FIRFirestoreSourceCache) {
+  Source source = MakeSource(publicSource);
+  if (source == Source::Cache) {
     [self.firestore.client getDocumentsFromLocalCache:self completion:completion];
     return;
   }
@@ -140,17 +143,16 @@ NS_ASSUME_NONNULL_BEGIN
     dispatch_semaphore_wait(registered, DISPATCH_TIME_FOREVER);
     [listenerRegistration remove];
 
-    if (snapshot.metadata.fromCache && source == FIRFirestoreSourceServer) {
-      completion(nil,
-                 [NSError errorWithDomain:FIRFirestoreErrorDomain
-                                     code:FIRFirestoreErrorCodeUnavailable
-                                 userInfo:@{
-                                   NSLocalizedDescriptionKey :
-                                       @"Failed to get documents from server. (However, these "
-                                       @"documents may exist in the local cache. Run again "
-                                       @"without setting source to FIRFirestoreSourceServer to "
-                                       @"retrieve the cached documents.)"
-                                 }]);
+    if (snapshot.metadata.fromCache && source == Source::Server) {
+      completion(nil, [NSError errorWithDomain:FIRFirestoreErrorDomain
+                                          code:FIRFirestoreErrorCodeUnavailable
+                                      userInfo:@{
+                                        NSLocalizedDescriptionKey :
+                                            @"Failed to get documents from server. (However, these "
+                                            @"documents may exist in the local cache. Run again "
+                                            @"without setting source to FirestoreSourceServer to "
+                                            @"retrieve the cached documents.)"
+                                      }]);
     } else {
       completion(snapshot, nil);
     }
