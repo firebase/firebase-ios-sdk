@@ -17,7 +17,9 @@
 #include "Firestore/core/src/firebase/firestore/core/relation_filter.h"
 
 #include <utility>
+#include <vector>
 
+#include "absl/algorithm/container.h"
 #include "absl/types/optional.h"
 
 namespace firebase {
@@ -48,9 +50,16 @@ bool RelationFilter::Matches(const model::Document& doc) const {
 }
 
 bool RelationFilter::MatchesValue(const FieldValue& other) const {
-  // Only compare types with matching backend order (such as double and int).
-  return FieldValue::Comparable(other.type(), value_rhs_.type()) &&
-         MatchesComparison(other);
+  if (op_ == Filter::Operator::ArrayContains) {
+    if (other.type() != FieldValue::Type::Array) return false;
+
+    const std::vector<FieldValue>& contents = other.array_value();
+    return absl::c_linear_search(contents, value_rhs_);
+  } else {
+    // Only compare types with matching backend order (such as double and int).
+    return FieldValue::Comparable(other.type(), value_rhs_.type()) &&
+           MatchesComparison(other);
+  }
 }
 
 bool RelationFilter::MatchesComparison(const FieldValue& other) const {
@@ -65,6 +74,8 @@ bool RelationFilter::MatchesComparison(const FieldValue& other) const {
       return other > value_rhs_;
     case Operator::GreaterThanOrEqual:
       return other >= value_rhs_;
+    case Operator::ArrayContains:
+      HARD_FAIL("Should have been handled in MatchesValue()");
   }
   UNREACHABLE();
 }
