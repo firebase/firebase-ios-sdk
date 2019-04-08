@@ -469,7 +469,7 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
   if ([GULAppEnvironmentUtil isIOS7OrHigher]) {
     NSValue *didReceiveRemoteNotificationWithCompletionIMPPointer;
     SEL didReceiveRemoteNotificationWithCompletionSEL =
-    @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:);
+        @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:);
     if ([anObject respondsToSelector:didReceiveRemoteNotificationWithCompletionSEL]) {
       // Only add the application:didReceiveRemoteNotification:fetchCompletionHandler: method if
       // the original AppDelegate implements it.
@@ -478,23 +478,23 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
       // the method without the completion, which in this case is the only one the app implements).
 
       [GULAppDelegateSwizzler
-       addInstanceMethodWithSelector:didReceiveRemoteNotificationWithCompletionSEL
-       fromClass:[GULAppDelegateSwizzler class]
-       toClass:appDelegateSubClass];
+          addInstanceMethodWithSelector:didReceiveRemoteNotificationWithCompletionSEL
+                              fromClass:[GULAppDelegateSwizzler class]
+                                toClass:appDelegateSubClass];
       GULRealDidReceiveRemoteNotificationWithCompletionIMP
-      didReceiveRemoteNotificationWithCompletionIMP =
-      (GULRealDidReceiveRemoteNotificationWithCompletionIMP)[GULAppDelegateSwizzler
-                                                             implementationOfMethodSelector:didReceiveRemoteNotificationWithCompletionSEL
-                                                             fromClass:realClass];
+          didReceiveRemoteNotificationWithCompletionIMP =
+              (GULRealDidReceiveRemoteNotificationWithCompletionIMP)[GULAppDelegateSwizzler
+                  implementationOfMethodSelector:didReceiveRemoteNotificationWithCompletionSEL
+                                       fromClass:realClass];
       didReceiveRemoteNotificationWithCompletionIMPPointer =
-      [NSValue valueWithPointer:didReceiveRemoteNotificationWithCompletionIMP];
+          [NSValue valueWithPointer:didReceiveRemoteNotificationWithCompletionIMP];
     }
 
     objc_setAssociatedObject(anObject, &kGULRealDidReceiveRemoteNotificationWithCompletionIMPKey,
                              didReceiveRemoteNotificationWithCompletionIMPPointer,
                              OBJC_ASSOCIATION_RETAIN_NONATOMIC);
   }
-#endif // __IPHONE_OS_VERSION_MIN_REQUIRED >= 70000
+#endif  // __IPHONE_OS_VERSION_MIN_REQUIRED >= 70000
 
   // The subclass size has to be exactly the same size with the original class size. The subclass
   // cannot have more ivars/properties than its superclass since it will cause an offset in memory
