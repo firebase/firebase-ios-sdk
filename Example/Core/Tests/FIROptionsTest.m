@@ -575,7 +575,7 @@ extern NSString *const kFIRLibraryVersionID;
   XCTAssertEqual(numberOfMatches, 1, @"Incorrect library version format.");
 }
 
-// TODO: The version tests will break when the Firebase major version hits 10.
+// TODO: The version test will break when the Firebase major version hits 10.
 - (void)testVersionConsistency {
   const char *versionString = [kFIRLibraryVersionID UTF8String];
   int major = versionString[0] - '0';
@@ -586,6 +586,7 @@ extern NSString *const kFIRLibraryVersionID;
 }
 
 // Repeat test with more Objective C.
+// TODO: The version test will break when the Firebase major version hits 10.
 - (void)testVersionConsistency2 {
   NSRange major = NSMakeRange(0, 1);
   NSRange minor = NSMakeRange(1, 2);
