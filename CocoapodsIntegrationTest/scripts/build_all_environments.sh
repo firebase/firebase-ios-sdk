@@ -14,6 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# The script uses combinations of Gemfile/Podfile to validate Firebase 
+# compatibility with Cocoapods versions and settings.
+# To add a new configuration:
+# - create a new directory in `CocoapodsIntegrationTest/TestEnvironments`
+# - place Gemfile and Pod file to the created directory
+# The script attempts to build the test project for each configuration from
+# `CocoapodsIntegrationTest/TestEnvironments`.
+
 set -euo pipefail
 
 scriptsDir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"

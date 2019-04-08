@@ -14,6 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# The script uses combination of Gemfile/Podfile to validate Firebase 
+# compatibility with Cocoapods versions and settings.
+# See `printUsage` for usage.
+
 set -euo pipefail
 
 # 
