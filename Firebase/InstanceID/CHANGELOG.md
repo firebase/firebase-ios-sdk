@@ -1,3 +1,6 @@
+# Unreleased
+- Send `firebaseUserAgent` with a register request (#2679)
+
 # 2019-04-02 -- v3.8.1
 - Fixed handling the multiple calls of instanceIDWithHandler. (#2445)
 - Fixed a race condition where token kept getting refreshed at app start. (#2438)
