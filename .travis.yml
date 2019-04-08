@@ -211,7 +211,7 @@ jobs:
 
     # Validate all Cocoapods configurations
     # This may take long time, so we would like to run it only once all other tests pass
-    - stage: cocoapods_compatibility_check
+    - stage: Cocoapods compatibility check
       name: Validate all Cocoapods configurations 
       script:
         # TODO: ./scripts/if_changed.sh to ./scripts/if_cron.sh once testing finished
