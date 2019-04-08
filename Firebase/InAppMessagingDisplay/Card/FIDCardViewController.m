@@ -12,6 +12,7 @@
 
 @property(nonatomic, readwrite) FIRInAppMessagingCardDisplay *cardDisplayMessage;
 
+@property (weak, nonatomic) IBOutlet UIView *cardView;
 @property (weak, nonatomic) IBOutlet UIImageView *imageView;
 @property (weak, nonatomic) IBOutlet UILabel *titleLabel;
 @property (weak, nonatomic) IBOutlet UIButton *primaryActionButton;
@@ -75,6 +76,8 @@
 
 - (void)viewDidLoad {
   [super viewDidLoad];
+  
+  self.cardView.backgroundColor = self.cardDisplayMessage.displayBackgroundColor;
   
   self.bodyTextView.contentInset = UIEdgeInsetsZero;
   self.bodyTextView.textContainer.lineFragmentPadding = 0;

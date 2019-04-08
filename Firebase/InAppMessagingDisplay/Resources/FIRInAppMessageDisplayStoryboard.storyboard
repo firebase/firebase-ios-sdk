@@ -435,7 +435,7 @@
                                     </label>
                                     <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" contentInsetAdjustmentBehavior="never" editable="NO" text="Label" textAlignment="natural" selectable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="elG-N9-aqH" userLabel="Body text view">
                                         <rect key="frame" x="24" y="232" width="192" height="38"/>
-                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                                     </textView>
@@ -555,6 +555,7 @@
                     </view>
                     <connections>
                         <outlet property="bodyTextView" destination="elG-N9-aqH" id="lfH-LZ-eyr"/>
+                        <outlet property="cardView" destination="Aft-rr-icV" id="eCl-9O-NOJ"/>
                         <outlet property="imageView" destination="gB0-8W-G9z" id="4aL-wh-SFa"/>
                         <outlet property="primaryActionButton" destination="aZE-3x-WHk" id="0s0-YO-XU5"/>
                         <outlet property="secondaryActionButton" destination="Feg-VM-jUf" id="LmG-nQ-Wne"/>
