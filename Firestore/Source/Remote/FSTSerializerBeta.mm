@@ -255,7 +255,7 @@ NS_ASSUME_NONNULL_BEGIN
       return [FSTDoubleValue doubleValue:valueProto.doubleValue];
 
     case GCFSValue_ValueType_OneOfCase_StringValue:
-      return [FSTStringValue stringValue:valueProto.stringValue];
+      return FieldValue::FromString(util::MakeString(valueProto.stringValue)).Wrap();
 
     case GCFSValue_ValueType_OneOfCase_TimestampValue: {
       Timestamp value = [self decodedTimestamp:valueProto.timestampValue];
