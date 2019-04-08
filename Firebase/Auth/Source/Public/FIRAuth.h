@@ -326,22 +326,13 @@ NS_SWIFT_NAME(Auth)
 - (void)updateCurrentUser:(FIRUser *)user completion:(nullable FIRUserUpdateCallback)completion;
 
 /** @fn fetchProvidersForEmail:completion:
-    @brief Fetches the list of IdPs that can be used for signing in with the provided email address.
-        Useful for an "identifier-first" sign-in flow.
-
-    @param email The email address for which to obtain a list of identity providers.
-    @param completion Optionally; a block which is invoked when the list of providers for the
-        specified email address is ready or an error was encountered. Invoked asynchronously on the
-        main thread in the future.
-
-    @remarks Possible error codes:
-
-        + `FIRAuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
-
-    @remarks See `FIRAuthErrors` for a list of error codes that are common to all API methods.
+    @brief Please use fetchSignInMethodsForEmail:completion: for Objective-C or
+        fetchSignInMethods(forEmail:completion:) for Swift instead.
  */
 - (void)fetchProvidersForEmail:(NSString *)email
-                    completion:(nullable FIRProviderQueryCallback)completion;
+                    completion:(nullable FIRProviderQueryCallback)completion
+DEPRECATED_MSG_ATTRIBUTE("Please use fetchSignInMethodsForEmail:completion: for Objective-C or "
+                         "fetchSignInMethods(forEmail:completion:) for Swift instead.");
 
 /** @fn fetchSignInMethodsForEmail:completion:
     @brief Fetches the list of all sign-in methods previously used for the provided email address.
