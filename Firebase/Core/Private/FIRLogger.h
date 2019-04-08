@@ -30,16 +30,9 @@ extern FIRLoggerService kFIRLoggerAdMob;
 extern FIRLoggerService kFIRLoggerAnalytics;
 extern FIRLoggerService kFIRLoggerAuth;
 extern FIRLoggerService kFIRLoggerCore;
-extern FIRLoggerService kFIRLoggerDatabase;
-extern FIRLoggerService kFIRLoggerDynamicLinks;
-extern FIRLoggerService kFIRLoggerFirestore;
-extern FIRLoggerService kFIRLoggerInstanceID;
 extern FIRLoggerService kFIRLoggerMLKit;
-extern FIRLoggerService kFIRLoggerMessaging;
 extern FIRLoggerService kFIRLoggerPerf;
 extern FIRLoggerService kFIRLoggerRemoteConfig;
-extern FIRLoggerService kFIRLoggerStorage;
-extern FIRLoggerService kFIRLoggerSwizzler;
 
 /**
  * The key used to store the logger's error count.

@@ -15,6 +15,8 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <FirebaseCore/FIRLogger.h>
+
 #import "FParsedUrl.h"
 
 @interface FUtilities : NSObject
@@ -70,6 +72,7 @@ FOUNDATION_EXPORT NSString *const kFPersistenceLogTag;
   } \
 } while(0)
 
+extern FIRLoggerService kFIRLoggerDatabase;
 BOOL FFIsLoggingEnabled(FLogLevel logLevel);
 void firebaseUncaughtExceptionHandler(NSException *exception);
 void firebaseJobsTroll(void);
