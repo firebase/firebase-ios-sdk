@@ -16,7 +16,6 @@
 
 #import "FIRTestCase.h"
 
-#import <FirebaseCore/FIRAnalyticsConfiguration+Internal.h>
 #import <FirebaseCore/FIRAnalyticsConfiguration.h>
 
 @interface FIRAnalyticsConfigurationTest : FIRTestCase
@@ -46,73 +45,6 @@
 - (void)testSharedInstance {
   FIRAnalyticsConfiguration *analyticsConfig = [FIRAnalyticsConfiguration sharedInstance];
   XCTAssertNotNil(analyticsConfig);
-}
-
-/// Test that setting the minimum session interval on the singleton fires a notification.
-- (void)testMinimumSessionIntervalNotification {
-  // Pick a value to set as the session interval and verify it's in the userInfo dictionary of the
-  // posted notification.
-  NSNumber *sessionInterval = @2601;
-
-  // Set up the expectation for the notification.
-  FIRAnalyticsConfiguration *config = [FIRAnalyticsConfiguration sharedInstance];
-  NSString *notificationName = kFIRAnalyticsConfigurationSetMinimumSessionIntervalNotification;
-  [self expectNotificationForObserver:self.observerMock
-                     notificationName:notificationName
-                               object:config
-                             userInfo:@{notificationName : sessionInterval}];
-
-  // Trigger the notification.
-  [config setMinimumSessionInterval:[sessionInterval integerValue]];
-
-  // Verify the observer mock.
-  OCMVerifyAll(self.observerMock);
-}
-
-/// Test that setting the minimum session timeout interval on the singleton fires a notification.
-- (void)testSessionTimeoutIntervalNotification {
-  // Pick a value to set as the timeout interval and verify it's in the userInfo dictionary of the
-  // posted notification.
-  NSNumber *timeoutInterval = @1000;
-
-  // Set up the expectation for the notification.
-  FIRAnalyticsConfiguration *config = [FIRAnalyticsConfiguration sharedInstance];
-  NSString *notificationName = kFIRAnalyticsConfigurationSetSessionTimeoutIntervalNotification;
-  [self expectNotificationForObserver:self.observerMock
-                     notificationName:notificationName
-                               object:config
-                             userInfo:@{notificationName : timeoutInterval}];
-
-  // Trigger the notification.
-  [config setSessionTimeoutInterval:[timeoutInterval integerValue]];
-
-  /// Verify the observer mock.
-  OCMVerifyAll(self.observerMock);
-}
-
-- (void)testSettingAnalyticsCollectionEnabled {
-  // Test setting to enabled. The ordering matters for these notifications.
-  FIRAnalyticsConfiguration *config = [FIRAnalyticsConfiguration sharedInstance];
-  NSString *notificationName = kFIRAnalyticsConfigurationSetEnabledNotification;
-  [self.notificationCenter addMockObserver:self.observerMock name:notificationName object:config];
-
-  [self.observerMock setExpectationOrderMatters:YES];
-  [[self.observerMock expect] notificationWithName:notificationName
-                                            object:config
-                                          userInfo:@{notificationName : @YES}];
-
-  // Test setting to enabled.
-  [config setAnalyticsCollectionEnabled:YES];
-
-  // Expect the second notification.
-  [[self.observerMock expect] notificationWithName:notificationName
-                                            object:config
-                                          userInfo:@{notificationName : @NO}];
-
-  // Test setting to disabled.
-  [config setAnalyticsCollectionEnabled:NO];
-
-  OCMVerifyAll(self.observerMock);
 }
 
 - (void)testSettingAnalyticsCollectionPersistence {

@@ -304,7 +304,22 @@ case "$product-$method-$platform" in
         -scheme "Firestore_IntegrationTests_$platform" \
         "${xcb_flags[@]}" \
         build
+    ;;
 
+  Firestore-xcodebuild-macOS | Firestore-xcodebuild-tvOS)
+    # TODO(wilhuff): Combine with above once all targets exist
+    RunXcodebuild \
+        -workspace 'Firestore/Example/Firestore.xcworkspace' \
+        -scheme "Firestore_Tests_$platform" \
+        "${xcb_flags[@]}" \
+        build \
+        test
+
+    RunXcodebuild \
+        -workspace 'Firestore/Example/Firestore.xcworkspace' \
+        -scheme "Firestore_IntegrationTests_$platform" \
+        "${xcb_flags[@]}" \
+        build
     ;;
 
   Firestore-cmake-macOS)

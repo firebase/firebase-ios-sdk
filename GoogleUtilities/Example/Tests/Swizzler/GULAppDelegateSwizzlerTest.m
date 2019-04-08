@@ -60,7 +60,17 @@ static NSString *const kGULGoogleAppDelegateProxyEnabledPlistKey =
 /** A URL property that is set by the app delegate methods, which is then used to verify if the app
  *  delegate methods were properly called.
  */
-@property(nonatomic, copy) NSString *url;
+@property(nonatomic, copy) NSURL *url;
+
+@property(nonatomic, strong) NSData *remoteNotificationsDeviceToken;
+@property(nonatomic, strong) NSError *failToRegisterForRemoteNotificationsError;
+@property(nonatomic, strong) NSDictionary *remoteNotification;
+@property(nonatomic, copy) void (^remoteNotificationCompletionHandler)(UIBackgroundFetchResult);
+
+/**
+ * The application is set each time a UIApplicationDelegate method is called
+ */
+@property(nonatomic, weak) UIApplication *application;
 
 @end
 
@@ -120,7 +130,8 @@ static BOOL gRespondsToHandleBackgroundSession;
 - (BOOL)application:(UIApplication *)app
             openURL:(NSURL *)url
             options:(NSDictionary<NSString *, id> *)options {
-  _url = [url copy];
+  self.application = app;
+  self.url = url;
   _isOpenURLOptionsMethodCalled = YES;
   return NO;
 }
@@ -128,7 +139,37 @@ static BOOL gRespondsToHandleBackgroundSession;
 - (void)application:(UIApplication *)application
     handleEventsForBackgroundURLSession:(nonnull NSString *)identifier
                       completionHandler:(nonnull void (^)(void))completionHandler {
+  self.application = application;
   _backgroundSessionID = [identifier copy];
+}
+
+- (void)application:(UIApplication *)application
+    didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+  self.application = application;
+  self.remoteNotificationsDeviceToken = deviceToken;
+}
+
+- (void)application:(UIApplication *)application
+    didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
+  self.application = application;
+  self.failToRegisterForRemoteNotificationsError = error;
+}
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
+- (void)application:(UIApplication *)application
+    didReceiveRemoteNotification:(NSDictionary *)userInfo {
+  self.application = application;
+  self.remoteNotification = userInfo;
+}
+#pragma clang diagnostic pop
+
+- (void)application:(UIApplication *)application
+    didReceiveRemoteNotification:(NSDictionary *)userInfo
+          fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
+  self.application = application;
+  self.remoteNotification = userInfo;
+  self.remoteNotificationCompletionHandler = completionHandler;
 }
 
 // These are methods to test whether changing the class still maintains behavior that the app
@@ -169,6 +210,7 @@ static BOOL gRespondsToHandleBackgroundSession;
   return YES;
 }
 
+#if TARGET_OS_IOS
 - (BOOL)application:(UIApplication *)application
               openURL:(nonnull NSURL *)url
     sourceApplication:(nullable NSString *)sourceApplication
@@ -176,6 +218,7 @@ static BOOL gRespondsToHandleBackgroundSession;
   _URLForIOS8 = [url copy];
   return YES;
 }
+#endif  // TARGET_OS_IOS
 
 #if SDK_HAS_USERACTIVITY
 
@@ -199,6 +242,13 @@ static BOOL gRespondsToHandleBackgroundSession;
 
 - (void)tearDown {
   [GULAppDelegateSwizzler clearInterceptors];
+  [super tearDown];
+}
+
+- (void)testNotAppDelegateIsNotSwizzled {
+  NSObject *notAppDelegate = [[NSObject alloc] init];
+  [GULAppDelegateSwizzler proxyAppDelegate:(id<UIApplicationDelegate>)notAppDelegate];
+  XCTAssertEqualObjects(NSStringFromClass([notAppDelegate class]), @"NSObject");
 }
 
 /** Tests proxying an object that responds to UIApplicationDelegate protocol and makes sure that
@@ -234,14 +284,27 @@ static BOOL gRespondsToHandleBackgroundSession;
   XCTAssertEqual(sizeBefore, sizeAfter);
 
   // After being proxied, it should be able to respond to the required method selector.
+#if TARGET_OS_IOS
   XCTAssertTrue([realAppDelegate
       respondsToSelector:@selector(application:openURL:sourceApplication:annotation:)]);
+#endif  // TARGET_OS_IOS
+
   XCTAssertTrue([realAppDelegate respondsToSelector:@selector(application:
                                                         continueUserActivity:restorationHandler:)]);
   XCTAssertTrue([realAppDelegate respondsToSelector:@selector(application:openURL:options:)]);
   XCTAssertTrue([realAppDelegate
       respondsToSelector:@selector(application:
                              handleEventsForBackgroundURLSession:completionHandler:)]);
+  XCTAssertTrue([realAppDelegate
+      respondsToSelector:@selector(application:didRegisterForRemoteNotificationsWithDeviceToken:)]);
+  XCTAssertTrue([realAppDelegate
+      respondsToSelector:@selector(application:didFailToRegisterForRemoteNotificationsWithError:)]);
+  XCTAssertTrue([realAppDelegate respondsToSelector:@selector(application:
+                                                        didReceiveRemoteNotification:)]);
+  XCTAssertTrue([realAppDelegate
+      respondsToSelector:@selector(application:
+                             didReceiveRemoteNotification:fetchCompletionHandler:)]);
+
   // Make sure that the class has changed.
   XCTAssertNotEqualObjects([realAppDelegate class], realAppDelegateClassBefore);
 
@@ -457,6 +520,7 @@ static BOOL gRespondsToHandleBackgroundSession;
   XCTAssertTrue(shouldOpen);
 }
 
+#if TARGET_OS_IOS
 /** Tests that application:openURL:sourceApplication:annotation: is invoked on the interceptors if
  *  it exists.
  */
@@ -539,6 +603,7 @@ static BOOL gRespondsToHandleBackgroundSession;
   // The result is YES if one of the interceptors returns YES.
   XCTAssertTrue(shouldOpen);
 }
+#endif  // TARGET_OS_IOS
 
 /** Tests that application:handleEventsForBackgroundURLSession:completionHandler: is invoked on the
  *  interceptors if it exists.
@@ -645,6 +710,131 @@ static BOOL gRespondsToHandleBackgroundSession;
 
   // The result is YES if one of the interceptors returns YES.
   XCTAssertTrue(shouldContinueUserActvitiy);
+}
+
+- (void)testApplicationDidRegisterForRemoteNotificationsIsInvokedOnInterceptors {
+  NSData *deviceToken = [NSData data];
+  UIApplication *application = [UIApplication sharedApplication];
+
+  id interceptor = OCMProtocolMock(@protocol(UIApplicationDelegate));
+  OCMExpect([interceptor application:application
+      didRegisterForRemoteNotificationsWithDeviceToken:deviceToken]);
+
+  id interceptor2 = OCMProtocolMock(@protocol(UIApplicationDelegate));
+  OCMExpect([interceptor2 application:application
+      didRegisterForRemoteNotificationsWithDeviceToken:deviceToken]);
+
+  GULTestAppDelegate *testAppDelegate = [[GULTestAppDelegate alloc] init];
+  [GULAppDelegateSwizzler proxyAppDelegate:testAppDelegate];
+  [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor];
+  [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor2];
+
+  [testAppDelegate application:application
+      didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
+  OCMVerifyAll(interceptor);
+  OCMVerifyAll(interceptor2);
+
+  XCTAssertEqual(testAppDelegate.application, application);
+  XCTAssertEqual(testAppDelegate.remoteNotificationsDeviceToken, deviceToken);
+}
+
+- (void)testApplicationDidFailToRegisterForRemoteNotificationsIsInvokedOnInterceptors {
+  NSError *error = [NSError errorWithDomain:@"test" code:-1 userInfo:nil];
+  UIApplication *application = [UIApplication sharedApplication];
+
+  id interceptor = OCMProtocolMock(@protocol(UIApplicationDelegate));
+  OCMExpect([interceptor application:application
+      didFailToRegisterForRemoteNotificationsWithError:error]);
+
+  id interceptor2 = OCMProtocolMock(@protocol(UIApplicationDelegate));
+  OCMExpect([interceptor2 application:application
+      didFailToRegisterForRemoteNotificationsWithError:error]);
+
+  GULTestAppDelegate *testAppDelegate = [[GULTestAppDelegate alloc] init];
+  [GULAppDelegateSwizzler proxyAppDelegate:testAppDelegate];
+  [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor];
+  [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor2];
+
+  [testAppDelegate application:application didFailToRegisterForRemoteNotificationsWithError:error];
+  OCMVerifyAll(interceptor);
+  OCMVerifyAll(interceptor2);
+
+  XCTAssertEqual(testAppDelegate.application, application);
+  XCTAssertEqual(testAppDelegate.failToRegisterForRemoteNotificationsError, error);
+}
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+- (void)testApplicationDidReceiveRemoteNotificationIsInvokedOnInterceptors {
+  NSDictionary *notification = @{};
+  UIApplication *application = [UIApplication sharedApplication];
+
+  id interceptor = OCMProtocolMock(@protocol(UIApplicationDelegate));
+  OCMExpect([interceptor application:application didReceiveRemoteNotification:notification]);
+
+  id interceptor2 = OCMProtocolMock(@protocol(UIApplicationDelegate));
+  OCMExpect([interceptor2 application:application didReceiveRemoteNotification:notification]);
+
+  GULTestAppDelegate *testAppDelegate = [[GULTestAppDelegate alloc] init];
+  [GULAppDelegateSwizzler proxyAppDelegate:testAppDelegate];
+  [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor];
+  [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor2];
+
+  [testAppDelegate application:application didReceiveRemoteNotification:notification];
+  OCMVerifyAll(interceptor);
+  OCMVerifyAll(interceptor2);
+
+  XCTAssertEqual(testAppDelegate.application, application);
+  XCTAssertEqual(testAppDelegate.remoteNotification, notification);
+}
+#pragma clang diagnostic pop
+
+- (void)testApplicationDidReceiveRemoteNotificationWithCompletionIsInvokedOnInterceptors {
+  NSDictionary *notification = @{};
+  UIApplication *application = [UIApplication sharedApplication];
+  void (^completion)(UIBackgroundFetchResult) = ^(UIBackgroundFetchResult result) {
+  };
+
+  id interceptor = OCMProtocolMock(@protocol(UIApplicationDelegate));
+  OCMExpect([interceptor application:application
+        didReceiveRemoteNotification:notification
+              fetchCompletionHandler:completion]);
+
+  id interceptor2 = OCMProtocolMock(@protocol(UIApplicationDelegate));
+  OCMExpect([interceptor2 application:application
+         didReceiveRemoteNotification:notification
+               fetchCompletionHandler:completion]);
+
+  GULTestAppDelegate *testAppDelegate = [[GULTestAppDelegate alloc] init];
+  [GULAppDelegateSwizzler proxyAppDelegate:testAppDelegate];
+  [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor];
+  [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor2];
+
+  [testAppDelegate application:application
+      didReceiveRemoteNotification:notification
+            fetchCompletionHandler:completion];
+  OCMVerifyAll(interceptor);
+  OCMVerifyAll(interceptor2);
+
+  XCTAssertEqual(testAppDelegate.application, application);
+  XCTAssertEqual(testAppDelegate.remoteNotification, notification);
+  XCTAssertEqual(testAppDelegate.remoteNotificationCompletionHandler, completion);
+}
+
+- (void)testApplicationDidReceiveRemoteNotificationWithCompletionImplementationIsNotAdded {
+  // The delegate without application:didReceiveRemoteNotification:fetchCompletionHandler:
+  // implementation
+  GULTestInterceptorAppDelegate *legacyDelegate = [[GULTestInterceptorAppDelegate alloc] init];
+
+  XCTAssertFalse([legacyDelegate
+      respondsToSelector:@selector(application:
+                             didReceiveRemoteNotification:fetchCompletionHandler:)]);
+
+  [GULAppDelegateSwizzler proxyAppDelegate:legacyDelegate];
+
+  XCTAssertFalse([legacyDelegate
+      respondsToSelector:@selector(application:
+                             didReceiveRemoteNotification:fetchCompletionHandler:)]);
 }
 
 #pragma mark - Tests to test that Plist flag is honored

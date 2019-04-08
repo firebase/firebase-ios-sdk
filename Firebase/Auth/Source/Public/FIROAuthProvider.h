@@ -23,18 +23,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/**
-    @brief A string constant identifying the Microsoft identity provider.
- */
-extern NSString *const FIRMicrosoftAuthProviderID NS_SWIFT_NAME(MicrosoftAuthProviderID)
-    DEPRECATED_MSG_ATTRIBUTE("Please use \"microsoft.com\" instead.");
-
-/**
-    @brief A string constant identifying the Yahoo identity provider.
- */
-extern NSString *const FIRYahooAuthProviderID NS_SWIFT_NAME(YahooAuthProviderID)
-    DEPRECATED_MSG_ATTRIBUTE("Please use \"yahoo.com\" instead.");
-
 /** @class FIROAuthProvider
     @brief A concrete implementation of `FIRAuthProvider` for generic OAuth Providers.
  */
@@ -71,22 +59,6 @@ NS_SWIFT_NAME(OAuthProvider)
     @return An instance of FIROAuthProvider corresponding to the specified provider ID.
  */
 + (FIROAuthProvider *)providerWithProviderID:(NSString *)providerID auth:(FIRAuth *)auth;
-
-/** @fn credentialWithProviderID:IDToken:accessToken:
-    @brief Creates an `FIRAuthCredential` for that OAuth 2 provider identified by providerID, ID
-        token and access token.
-
-    @param providerID The provider ID associated with the Auth credential being created.
-    @param IDToken The IDToken associated with the Auth credential being created.
-    @param accessToken The accessstoken associated with the Auth credential be created, if
-        available.
-    @param pendingToken The pending token used when completing the headful-lite flow.
-    @return A FIRAuthCredential for the specified provider ID, ID token and access token.
- */
-+ (FIROAuthCredential *)credentialWithProviderID:(NSString *)providerID
-                                         IDToken:(NSString *)IDToken
-                                     accessToken:(nullable NSString *)accessToken
-                                    pendingToken:(nullable NSString *)pendingToken;
 
 /** @fn credentialWithProviderID:IDToken:accessToken:
     @brief Creates an `FIRAuthCredential` for that OAuth 2 provider identified by providerID, ID

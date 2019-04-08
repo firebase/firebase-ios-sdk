@@ -29,6 +29,7 @@
 #import "FIRMessagingContextManagerService.h"
 #import "FIRMessagingDataMessageManager.h"
 #import "FIRMessagingDefines.h"
+#import "FIRMessagingExtensionHelper.h"
 #import "FIRMessagingLogger.h"
 #import "FIRMessagingPubSub.h"
 #import "FIRMessagingReceiver.h"
@@ -178,6 +179,15 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
   return messaging;
 }
 
++ (FIRMessagingExtensionHelper *)extensionHelper {
+    static dispatch_once_t once;
+    static FIRMessagingExtensionHelper *extensionHelper;
+    dispatch_once(&once, ^{
+        extensionHelper = [[FIRMessagingExtensionHelper alloc] init];
+    });
+    return extensionHelper;
+}
+
 - (instancetype)initWithAnalytics:(nullable id<FIRAnalyticsInterop>)analytics
                    withInstanceID:(FIRInstanceID *)instanceID
                  withUserDefaults:(GULUserDefaults *)defaults {
@@ -249,7 +259,7 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
                              @"proper integration.",
                              kFIRMessagingRemoteNotificationsProxyEnabledInfoPlistKey,
                              docsURLString);
-    [FIRMessagingRemoteNotificationsProxy swizzleMethods];
+    [[FIRMessagingRemoteNotificationsProxy sharedProxy] swizzleMethodsIfPossible];
   }
 }
 
@@ -309,7 +319,7 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 }
 
 - (void)setupReceiver {
-  self.receiver = [[FIRMessagingReceiver alloc] initWithUserDefaults:self.messagingUserDefaults];
+  self.receiver = [[FIRMessagingReceiver alloc] init];
   self.receiver.delegate = self;
 }
 
@@ -649,15 +659,6 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
   }
 }
 
-
-- (void)setUseMessagingDelegateForDirectChannel:(BOOL)useMessagingDelegateForDirectChannel {
-  self.receiver.useDirectChannel = useMessagingDelegateForDirectChannel;
-}
-
-- (BOOL)useMessagingDelegateForDirectChannel {
-  return self.receiver.useDirectChannel;
-}
-
 #pragma mark - Application State Changes
 
 - (void)applicationStateChanged {
@@ -709,6 +710,9 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
       if (!error) {
         // It means we connected. Fire connection change notification
         [self notifyOfDirectChannelConnectionChange];
+      } else {
+        FIRMessagingLoggerError(kFIRMessagingMessageCodeDirectChannelConnectionFailed,
+                                @"Failed to connect to direct channel, error: %@\n", error);
       }
     }];
   } else if (!shouldBeConnected && self.client.isConnected) {
@@ -720,33 +724,6 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 - (void)notifyOfDirectChannelConnectionChange {
   NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
   [center postNotificationName:FIRMessagingConnectionStateChangedNotification object:self];
-}
-
-#pragma mark - Connect
-
-- (void)connectWithCompletion:(FIRMessagingConnectCompletion)handler {
-  _FIRMessagingDevAssert([NSThread isMainThread],
-                         @"FIRMessaging connect should be called from main thread only.");
-  _FIRMessagingDevAssert(self.isClientSetup, @"FIRMessaging client not setup.");
-  [self.client connectWithHandler:^(NSError *error) {
-    if (handler) {
-      handler(error);
-    }
-    if (!error) {
-      // It means we connected. Fire connection change notification
-      [self notifyOfDirectChannelConnectionChange];
-    }
-  }];
-
-}
-
-- (void)disconnect {
-  _FIRMessagingDevAssert([NSThread isMainThread],
-                         @"FIRMessaging should be called from main thread only.");
-  if ([self.client isConnected]) {
-    [self.client disconnect];
-    [self notifyOfDirectChannelConnectionChange];
-  }
 }
 
 #pragma mark - Topics
@@ -870,6 +847,7 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 - (void)receiver:(FIRMessagingReceiver *)receiver
       receivedRemoteMessage:(FIRMessagingRemoteMessage *)remoteMessage {
   if ([self.delegate respondsToSelector:@selector(messaging:didReceiveMessage:)]) {
+    [self appDidReceiveMessage:remoteMessage.appData];
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunguarded-availability"
     [self.delegate messaging:self didReceiveMessage:remoteMessage];

@@ -26,14 +26,15 @@
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Util/FSTUsageValidation.h"
 
+#include "Firestore/core/src/firebase/firestore/api/input_validation.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/util/delayed_constructor.h"
 
 using firebase::firestore::api::Firestore;
 using firebase::firestore::api::QuerySnapshot;
+using firebase::firestore::api::ThrowInvalidArgument;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::util::DelayedConstructor;
 
@@ -122,16 +123,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSArray<FIRDocumentChange *> *)documentChangesWithIncludeMetadataChanges:
     (BOOL)includeMetadataChanges {
-  if (includeMetadataChanges && _snapshot->view_snapshot().excludes_metadata_changes()) {
-    FSTThrowInvalidArgument(
-        @"To include metadata changes with your document changes, you must call "
-        @"addSnapshotListener(includeMetadataChanges: true).");
-  }
-
   if (!_documentChanges || _documentChangesIncludeMetadataChanges != includeMetadataChanges) {
-    _documentChanges = [FIRDocumentChange documentChangesForSnapshot:_snapshot->view_snapshot()
-                                              includeMetadataChanges:includeMetadataChanges
-                                                           firestore:_snapshot->firestore()];
+    NSMutableArray *documentChanges = [NSMutableArray array];
+    _snapshot->ForEachChange(
+        static_cast<bool>(includeMetadataChanges), [&documentChanges](DocumentChange change) {
+          [documentChanges
+              addObject:[[FIRDocumentChange alloc] initWithDocumentChange:std::move(change)]];
+        });
+
+    _documentChanges = documentChanges;
     _documentChangesIncludeMetadataChanges = includeMetadataChanges;
   }
   return _documentChanges;

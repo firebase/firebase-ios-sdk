@@ -62,32 +62,36 @@ def sync_firestore()
     'SwiftTests',
   ]
 
-  s.target 'Firestore_Tests_iOS' do |t|
-    t.source_files = [
-      'Firestore/Example/Tests/**',
-      'Firestore/core/test/**',
-      'Firestore/Protos/cpp/**',
-      'Firestore/third_party/Immutable/Tests/**',
-    ]
-    t.exclude_files = [
-      # needs to be in project but not in target
-      'Firestore/Example/Tests/Tests-Info.plist',
+  ['iOS', 'macOS', 'tvOS'].each do |platform|
+    s.target "Firestore_Tests_#{platform}" do |t|
+      t.source_files = [
+        'Firestore/Example/Tests/**',
+        'Firestore/core/test/**',
+        'Firestore/Protos/cpp/**',
+        'Firestore/third_party/Immutable/Tests/**',
+      ]
+      t.exclude_files = [
+        # needs to be in project but not in target
+        'Firestore/Example/Tests/Tests-Info.plist',
 
-      # These files are integration tests, handled below
-      'Firestore/Example/Tests/Integration/**',
-    ]
+        # These files are integration tests, handled below
+        'Firestore/Example/Tests/Integration/**',
+      ]
+    end
   end
 
-  s.target 'Firestore_IntegrationTests_iOS' do |t|
-    t.source_files = [
-      'Firestore/Example/Tests/Integration/**',
-      'Firestore/Example/Tests/Util/FSTEventAccumulator.mm',
-      'Firestore/Example/Tests/Util/FSTHelpers.mm',
-      'Firestore/Example/Tests/Util/FSTIntegrationTestCase.mm',
-      'Firestore/Example/Tests/Util/XCTestCase+Await.mm',
-      'Firestore/Example/Tests/en.lproj/InfoPlist.strings',
-      'Firestore/core/test/firebase/firestore/testutil/**',
-    ]
+  ['iOS', 'macOS', 'tvOS'].each do |platform|
+    s.target "Firestore_IntegrationTests_#{platform}" do |t|
+      t.source_files = [
+        'Firestore/Example/Tests/Integration/**',
+        'Firestore/Example/Tests/Util/FSTEventAccumulator.mm',
+        'Firestore/Example/Tests/Util/FSTHelpers.mm',
+        'Firestore/Example/Tests/Util/FSTIntegrationTestCase.mm',
+        'Firestore/Example/Tests/Util/XCTestCase+Await.mm',
+        'Firestore/Example/Tests/en.lproj/InfoPlist.strings',
+        'Firestore/core/test/firebase/firestore/testutil/**',
+      ]
+    end
   end
 
   s.sync()

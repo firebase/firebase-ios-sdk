@@ -1,3 +1,6 @@
+# 2019-04-02 -- v3.5.0
+- Add image support for notification. (#2644)
+
 # 2019-03-19 -- v3.4.0
 - Adding community support for tvOS. (#2428)
 

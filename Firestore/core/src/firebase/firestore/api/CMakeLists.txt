@@ -13,11 +13,36 @@
 # limitations under the License.
 
 cc_library(
+  firebase_firestore_api_input_validation_std
+  SOURCES
+    input_validation.h
+    input_validation_std.cc
+  DEPENDS
+    firebase_firestore_util
+)
+
+cc_library(
+  firebase_firestore_api_input_validation_apple
+  SOURCES
+    input_validation.h
+    input_validation_apple.mm
+  DEPENDS
+    firebase_firestore_util
+)
+
+cc_select(
+  firebase_firestore_api_input_validation
+  APPLE   firebase_firestore_api_input_validation_apple
+  DEFAULT firebase_firestore_api_input_validation_std
+)
+
+cc_library(
   firebase_firestore_api
   SOURCES
     snapshot_metadata.cc
     snapshot_metadata.h
   DEPENDS
     absl_meta
+    firebase_firestore_api_input_validation
     firebase_firestore_util
 )

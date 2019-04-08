@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/util/warnings.h"
-
 #import "FIRFirestoreSettings.h"
 
-#import "Firestore/Source/Util/FSTUsageValidation.h"
+#include "Firestore/core/src/firebase/firestore/api/input_validation.h"
+#include "Firestore/core/src/firebase/firestore/util/warnings.h"
 
 NS_ASSUME_NONNULL_BEGIN
+
+using firebase::firestore::api::ThrowInvalidArgument;
 
 static NSString *const kDefaultHost = @"firestore.googleapis.com";
 static const BOOL kDefaultSSLEnabled = YES;
@@ -88,20 +89,19 @@ static const BOOL kDefaultTimestampsInSnapshotsEnabled = YES;
 
 - (void)setHost:(NSString *)host {
   if (!host) {
-    FSTThrowInvalidArgument(
-        @"host setting may not be nil. You should generally just use the default value "
-         "(which is %@)",
-        kDefaultHost);
+    ThrowInvalidArgument("Host setting may not be nil. You should generally just use the default "
+                         "value (which is %s)",
+                         kDefaultHost);
   }
   _host = [host mutableCopy];
 }
 
 - (void)setDispatchQueue:(dispatch_queue_t)dispatchQueue {
   if (!dispatchQueue) {
-    FSTThrowInvalidArgument(
-        @"dispatch queue setting may not be nil. Create a new dispatch queue with "
-         "dispatch_queue_create(\"com.example.MyQueue\", NULL) or just use the default "
-         "(which is the main queue, returned from dispatch_get_main_queue())");
+    ThrowInvalidArgument(
+        "Dispatch queue setting may not be nil. Create a new dispatch queue with "
+        "dispatch_queue_create(\"com.example.MyQueue\", NULL) or just use the default (which is "
+        "the main queue, returned from dispatch_get_main_queue())");
   }
   _dispatchQueue = dispatchQueue;
 }
@@ -109,7 +109,7 @@ static const BOOL kDefaultTimestampsInSnapshotsEnabled = YES;
 - (void)setCacheSizeBytes:(int64_t)cacheSizeBytes {
   if (cacheSizeBytes != kFIRFirestoreCacheSizeUnlimited &&
       cacheSizeBytes < kMinimumCacheSizeBytes) {
-    FSTThrowInvalidArgument(@"Cache size must be set to at least %i bytes", kMinimumCacheSizeBytes);
+    ThrowInvalidArgument("Cache size must be set to at least %s bytes", kMinimumCacheSizeBytes);
   }
   _cacheSizeBytes = cacheSizeBytes;
 }

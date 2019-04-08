@@ -199,49 +199,45 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - FSTFieldValue <=> Value proto
 
 - (GCFSValue *)encodedFieldValue:(FSTFieldValue *)fieldValue {
-  Class fieldClass = [fieldValue class];
-  if (fieldClass == [FSTNullValue class]) {
-    return [self encodedNull];
+  switch (fieldValue.type) {
+    case FieldValue::Type::Null:
+      return [self encodedNull];
+    case FieldValue::Type::Boolean:
+      return [self encodedBool:[[fieldValue value] boolValue]];
+    case FieldValue::Type::Integer:
+      return [self encodedInteger:[[fieldValue value] longLongValue]];
+    case FieldValue::Type::Double:
+      return [self encodedDouble:[[fieldValue value] doubleValue]];
+    case FieldValue::Type::Timestamp: {
+      FIRTimestamp *value = static_cast<FIRTimestamp *>([fieldValue value]);
+      return [self encodedTimestampValue:Timestamp{value.seconds, value.nanoseconds}];
+    }
+    case FieldValue::Type::String:
+      return [self encodedString:[fieldValue value]];
+    case FieldValue::Type::Blob:
+      return [self encodedBlobValue:[fieldValue value]];
+    case FieldValue::Type::Reference: {
+      FSTReferenceValue *ref = (FSTReferenceValue *)fieldValue;
+      DocumentKey key = [[ref value] key];
+      return [self encodedReferenceValueForDatabaseID:[ref databaseID] key:key];
+    }
+    case FieldValue::Type::GeoPoint:
+      return [self encodedGeoPointValue:[fieldValue value]];
+    case FieldValue::Type::Array: {
+      GCFSValue *result = [GCFSValue message];
+      result.arrayValue = [self encodedArrayValue:(FSTArrayValue *)fieldValue];
+      return result;
+    }
+    case FieldValue::Type::Object: {
+      GCFSValue *result = [GCFSValue message];
+      result.mapValue = [self encodedMapValue:(FSTObjectValue *)fieldValue];
+      return result;
+    }
 
-  } else if (fieldClass == [FSTBooleanValue class]) {
-    return [self encodedBool:[[fieldValue value] boolValue]];
-
-  } else if (fieldClass == [FSTIntegerValue class]) {
-    return [self encodedInteger:[[fieldValue value] longLongValue]];
-
-  } else if (fieldClass == [FSTDoubleValue class]) {
-    return [self encodedDouble:[[fieldValue value] doubleValue]];
-
-  } else if (fieldClass == [FSTStringValue class]) {
-    return [self encodedString:[fieldValue value]];
-
-  } else if (fieldClass == [FSTTimestampValue class]) {
-    FIRTimestamp *value = static_cast<FIRTimestamp *>([fieldValue value]);
-    return [self encodedTimestampValue:Timestamp{value.seconds, value.nanoseconds}];
-  } else if (fieldClass == [FSTGeoPointValue class]) {
-    return [self encodedGeoPointValue:[fieldValue value]];
-
-  } else if (fieldClass == [FSTBlobValue class]) {
-    return [self encodedBlobValue:[fieldValue value]];
-
-  } else if (fieldClass == [FSTReferenceValue class]) {
-    FSTReferenceValue *ref = (FSTReferenceValue *)fieldValue;
-    DocumentKey key = [[ref value] key];
-    return [self encodedReferenceValueForDatabaseID:[ref databaseID] key:key];
-
-  } else if (fieldClass == [FSTObjectValue class]) {
-    GCFSValue *result = [GCFSValue message];
-    result.mapValue = [self encodedMapValue:(FSTObjectValue *)fieldValue];
-    return result;
-
-  } else if (fieldClass == [FSTArrayValue class]) {
-    GCFSValue *result = [GCFSValue message];
-    result.arrayValue = [self encodedArrayValue:(FSTArrayValue *)fieldValue];
-    return result;
-
-  } else {
-    HARD_FAIL("Unhandled type %s on %s", NSStringFromClass([fieldValue class]), fieldValue);
+    case FieldValue::Type::ServerTimestamp:
+      HARD_FAIL("Unhandled type %s on %s", NSStringFromClass([fieldValue class]), fieldValue);
   }
+  UNREACHABLE();
 }
 
 - (FSTFieldValue *)decodedFieldValue:(GCFSValue *)valueProto {
@@ -250,7 +246,7 @@ NS_ASSUME_NONNULL_BEGIN
       return [FSTNullValue nullValue];
 
     case GCFSValue_ValueType_OneOfCase_BooleanValue:
-      return [FSTBooleanValue booleanValue:valueProto.booleanValue];
+      return FieldValue::FromBoolean(valueProto.booleanValue).Wrap();
 
     case GCFSValue_ValueType_OneOfCase_IntegerValue:
       return [FSTIntegerValue integerValue:valueProto.integerValue];
