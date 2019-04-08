@@ -585,7 +585,7 @@ extern NSString *const kFIRLibraryVersionID;
   XCTAssertEqualObjects(str, [NSString stringWithUTF8String:(const char *)FIRCoreVersionString]);
 }
 
-// Repeat test with more Objective C.
+// Repeat test with more Objective-C.
 // TODO: The version test will break when the Firebase major version hits 10.
 - (void)testVersionConsistency2 {
   NSRange major = NSMakeRange(0, 1);
