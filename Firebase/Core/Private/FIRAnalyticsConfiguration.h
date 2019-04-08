@@ -16,8 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRAnalyticsConfiguration.h"
-
 /// Values stored in analyticsEnabledState. Never alter these constants since they must match with
 /// values persisted to disk.
 typedef NS_ENUM(int64_t, FIRAnalyticsEnabledState) {
