@@ -35,7 +35,7 @@ services.
       'FIRInstanceID_LIB_VERSION=' + String(s.version)
   }
   s.framework = 'Security'
-  s.dependency 'FirebaseCore', '~> 5.2'
+  s.dependency 'FirebaseCore', '~> 6.0'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 5.2'
   s.dependency 'GoogleUtilities/Environment', '~> 5.2'
 end

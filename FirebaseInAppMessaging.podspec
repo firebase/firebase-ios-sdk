@@ -32,7 +32,7 @@ See more product details at https://firebase.google.com/products/in-app-messagin
       'FIRInAppMessaging_LIB_VERSION=' + String(s.version)
   }
 
-  s.dependency 'FirebaseCore'
+  s.dependency 'FirebaseCore', '~> 6.0'
   s.ios.dependency 'FirebaseAnalyticsInterop'
-  s.dependency 'FirebaseInstanceID'
+  s.dependency 'FirebaseInstanceID', '~> 3.6'
 end

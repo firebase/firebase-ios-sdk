@@ -39,7 +39,7 @@ device, and it is completely free.
   }
   s.framework = 'SystemConfiguration'
   s.dependency 'FirebaseAnalyticsInterop', '~> 1.1'
-  s.dependency 'FirebaseCore', '~> 5.2'
+  s.dependency 'FirebaseCore', '~> 6.0'
   s.dependency 'FirebaseInstanceID', '~> 3.6'
   s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 5.6'
   s.dependency 'GoogleUtilities/Reachability', '~> 5.6'
