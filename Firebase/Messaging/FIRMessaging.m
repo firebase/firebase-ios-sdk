@@ -47,7 +47,7 @@
 #import <FirebaseCore/FIRDependency.h>
 #import <FirebaseCore/FIRLibrary.h>
 #import <FirebaseInstanceID/FirebaseInstanceID.h>
-#import <FirebaseInstanceID/FirebaseInstanceID+Private.h>
+#import <FirebaseInstanceID/FIRInstanceID+Private.h>
 #import <GoogleUtilities/GULReachabilityChecker.h>
 #import <GoogleUtilities/GULUserDefaults.h>
 

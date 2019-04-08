@@ -18,6 +18,7 @@
 
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIROptionsInternal.h>
+#import <FirebaseInstanceID/FIRInstanceID_Private.h>
 #import <OCMock/OCMock.h>
 
 #import "Firebase/InstanceID/FIRInstanceID+Testing.h"
