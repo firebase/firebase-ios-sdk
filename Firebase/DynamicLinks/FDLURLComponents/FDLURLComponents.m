@@ -18,6 +18,7 @@
 
 #import "DynamicLinks/FDLURLComponents/FDLURLComponents+Private.h"
 #import "DynamicLinks/FDLURLComponents/FIRDynamicLinkComponentsKeyProvider.h"
+#import "DynamicLinks/FIRDynamicLinks+Private.h"
 #import "DynamicLinks/Public/FDLURLComponents.h"
 
 #import "DynamicLinks/Logging/FDLLogging.h"
@@ -45,7 +46,6 @@ static NSString *const kFDLUTMMediumKey = @"utm_medium";
 static NSString *const kFDLUTMCampaignKey = @"utm_campaign";
 static NSString *const kFDLUTMTermKey = @"utm_term";
 static NSString *const kFDLUTMContentKey = @"utm_content";
-static NSString *const kFirebaseDurableDeepLinkErrorDomain = @"com.firebase.durabledeeplink";
 
 + (instancetype)parameters {
   return [[self alloc] init];
