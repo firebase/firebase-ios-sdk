@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# The script uses combinations of Gemfile/Podfile to validate Firebase 
+# The script uses combinations of Gemfile/Podfile to validate Firebase
 # compatibility with Cocoapods versions and settings.
 # To add a new configuration:
 # - create a new directory in `CocoapodsIntegrationTest/TestEnvironments`
