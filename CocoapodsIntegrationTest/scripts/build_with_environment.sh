@@ -32,7 +32,7 @@ function runXcodebuild() {
   xcodebuild "${parameters[@]}" | xcpretty; result=$?
 }
 
-# Accepts path to Gemfile
+# Configures bundler environment using Gemfile at the specified path.
 function prepareBundle() {
   cp -f "$@" ./Gemfile
 
@@ -43,7 +43,7 @@ function prepareBundle() {
   bundle update
 }
 
-# 
+# Updates Cocoapods using Podfile at the specified path.
 function prepareCocoapods() {
   cp -f "$@" ./Podfile
   echo "Cocoapods version: $(bundle exec pod --version)"
@@ -51,21 +51,25 @@ function prepareCocoapods() {
   bundle exec pod update
 }
 
+function printUsage() {
+  echo "USAGE: build_with_environment.sh --gemfile=<path_to_gemfile> --podfile=<path_to_podfile>"
+}
+
 for i in "$@"
 do
   case $i in
     --gemfile=*)
-    GEMFILE="${i#*=}"
-    shift
-    ;;
+      GEMFILE="${i#*=}"
+      shift
+      ;;
     --podfile=*)
-    PODFILE="${i#*=}"
-    shift
-    ;;
+      PODFILE="${i#*=}"
+      shift
+      ;;
     *)
-      echo "Unknown option ${i}"
+      printUsage
       exit -1
-    ;;
+      ;;
   esac
 done
 
