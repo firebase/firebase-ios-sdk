@@ -27,9 +27,6 @@ NSString *const FIRFacebookAuthProviderID = @"facebook.com";
 // Declared 'extern' in FIREmailAuthProvider.h
 NSString *const FIREmailAuthProviderID = @"password";
 
-// Declared 'extern' in FIREmailAuthProvider.h
-NSString *const FIREmailPasswordAuthProviderID = @"password";
-
 // Declared 'extern' in FIRTwitterAuthProvider.h
 NSString *const FIRTwitterAuthProviderID = @"twitter.com";
 
