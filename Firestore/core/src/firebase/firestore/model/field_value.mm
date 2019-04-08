@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#include "Firestore/core/src/firebase/firestore/model/field_value.h"
 
-#include "FIRErrorCode.h"
+#import "Firestore/Source/Model/FSTFieldValue.h"
 
-extern NSString *const kFirebaseErrorDomain;
-extern NSString *const kFirebaseConfigErrorDomain;
-extern NSString *const kFirebaseCoreErrorDomain;
-extern NSString *const kFirebasePerfErrorDomain;
+FSTFieldValue* FieldValue::Wrap() && {
+  return [FSTDelegateValue delegateWithValue:std::move(*this)];
+}

@@ -126,15 +126,6 @@ enum class ServerTimestampBehavior { None, Estimate, Previous };
 @end
 
 /**
- * A boolean value stored in Firestore.
- */
-@interface FSTBooleanValue : FSTFieldValue <NSNumber *>
-+ (instancetype)trueValue;
-+ (instancetype)falseValue;
-+ (instancetype)booleanValue:(BOOL)value;
-@end
-
-/**
  * Base class inherited from by FSTIntegerValue and FSTDoubleValue. It implements proper number
  * comparisons between the two types.
  */
@@ -286,6 +277,13 @@ enum class ServerTimestampBehavior { None, Estimate, Previous };
 
 - (NSArray<FSTFieldValue *> *)internalValue;
 
+@end
+
+/**
+ * A value that delegates to the c++ model::FieldValue.
+ */
+@interface FSTDelegateValue : FSTFieldValue <id>
++ (instancetype)delegateWithValue:(FieldValue &&)value;
 @end
 
 NS_ASSUME_NONNULL_END

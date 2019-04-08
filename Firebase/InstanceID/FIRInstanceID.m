@@ -71,7 +71,6 @@ static NSString *const kFIRIIDAppNameKey = @"FIRAppNameKey";
 static NSString *const kFIRIIDErrorDomain = @"com.firebase.instanceid";
 static NSString *const kFIRIIDServiceInstanceID = @"InstanceID";
 
-// This should be the same value as FIRErrorCodeInstanceIDFailed, which we can't import directly
 static NSInteger const kFIRIIDErrorCodeInstanceIDFailed = -121;
 
 typedef void (^FIRInstanceIDKeyPairHandler)(FIRInstanceIDKeyPair *keyPair, NSError *error);

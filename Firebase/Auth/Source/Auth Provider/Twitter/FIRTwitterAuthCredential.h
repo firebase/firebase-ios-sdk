@@ -23,6 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** @class FIRTwitterAuthCredential
     @brief Internal implementation of FIRAuthCredential for Twitter credentials.
  */
+DEPRECATED_MSG_ATTRIBUTE("Please use FIROAuthCredential instead of FIRTwitterAuthCredential.")
 @interface FIRTwitterAuthCredential : FIRAuthCredential <NSSecureCoding>
 
 /** @property token
