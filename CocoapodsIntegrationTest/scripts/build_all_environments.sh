@@ -32,7 +32,7 @@ echo "Dir: ${environmentsDir}"
 
 pushd "${environmentsDir}"
 
-for environmentDir in `find . -type d -mindepth 1 -maxdepth 1` 
+for environmentDir in `find . -type d -mindepth 1 -maxdepth 1`
 do
   echo ""
   echo "--- Build for environment from ${environmentDir} ---"

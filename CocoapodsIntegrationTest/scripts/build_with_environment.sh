@@ -20,7 +20,7 @@
 
 set -euo pipefail
 
-# 
+#
 function runXcodebuild() {
   parameters=(
     -workspace 'CocoapodsIntegrationTest.xcworkspace'
