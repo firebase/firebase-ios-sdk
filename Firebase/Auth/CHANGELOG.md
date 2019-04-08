@@ -1,3 +1,6 @@
+# Unreleased
+- `GULAppDelegateSwizzler` is used for the app delegate swizzling (#2591)
+
 # v5.4.2
 - Support new error code ERROR_INVALID_PROVIDER_ID. (#2629)
 

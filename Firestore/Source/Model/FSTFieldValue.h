@@ -150,13 +150,6 @@ enum class ServerTimestampBehavior { None, Estimate, Previous };
 @end
 
 /**
- * A string stored in Firestore.
- */
-@interface FSTStringValue : FSTFieldValue <NSString *>
-+ (instancetype)stringValue:(NSString *)value;
-@end
-
-/**
  * A timestamp value stored in Firestore.
  */
 @interface FSTTimestampValue : FSTFieldValue <FIRTimestamp *>
