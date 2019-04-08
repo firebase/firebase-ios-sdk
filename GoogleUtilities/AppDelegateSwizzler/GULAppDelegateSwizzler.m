@@ -57,8 +57,12 @@ typedef void (*GULRealDidFailToRegisterForRemoteNotificationsIMP)(id,
 typedef void (*GULRealDidReceiveRemoteNotificationIMP)(id, SEL, UIApplication *, NSDictionary *);
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000
+// This is needed to for the library to be warning free on iOS versions < 7.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunguarded-availability"
 typedef void (*GULRealDidReceiveRemoteNotificationWithCompletionIMP)(
     id, SEL, UIApplication *, NSDictionary *, void (^)(UIBackgroundFetchResult));
+#pragma clang diagnostic pop
 #endif  // __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000
 
 typedef void (^GULAppDelegateInterceptorCallback)(id<UIApplicationDelegate>);
@@ -814,6 +818,9 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
 }
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000
+// This is needed to for the library to be warning free on iOS versions < 7.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunguarded-availability"
 - (void)application:(UIApplication *)application
     didReceiveRemoteNotification:(NSDictionary *)userInfo
           fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
@@ -838,6 +845,7 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
                                                   completionHandler);
   }
 }
+#pragma clang diagnostic pop
 #endif  // __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000
 
 - (void)application:(UIApplication *)application
