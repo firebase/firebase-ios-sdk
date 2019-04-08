@@ -15,11 +15,11 @@
 #include <sys/utsname.h>
 
 #import "FIRApp.h"
-#import "FIRConfiguration.h"
-#import "Private/FIRAnalyticsConfiguration+Internal.h"
+#import "Private/FIRAnalyticsConfiguration.h"
 #import "Private/FIRAppInternal.h"
 #import "Private/FIRBundleUtil.h"
 #import "Private/FIRComponentContainerInternal.h"
+#import "Private/FIRConfigurationInternal.h"
 #import "Private/FIRLibrary.h"
 #import "Private/FIRLogger.h"
 #import "Private/FIROptionsInternal.h"

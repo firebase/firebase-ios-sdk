@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRAnalyticsConfiguration.h"
+#import <Foundation/Foundation.h>
 
 /// Values stored in analyticsEnabledState. Never alter these constants since they must match with
 /// values persisted to disk.
@@ -38,7 +38,10 @@ static NSString *const kFIRAnalyticsConfigurationSetMinimumSessionIntervalNotifi
 static NSString *const kFIRAnalyticsConfigurationSetSessionTimeoutIntervalNotification =
     @"FIRAnalyticsConfigurationSetSessionTimeoutIntervalNotification";
 
-@interface FIRAnalyticsConfiguration (Internal)
+@interface FIRAnalyticsConfiguration : NSObject
+
+/// Returns the shared instance of FIRAnalyticsConfiguration.
++ (FIRAnalyticsConfiguration *)sharedInstance;
 
 /// Sets whether analytics collection is enabled for this app on this device, and a flag to persist
 /// the value or not. The setting should not be persisted if being set by the global data collection
