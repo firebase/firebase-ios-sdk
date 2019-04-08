@@ -33,6 +33,6 @@ See more product details at https://firebase.google.com/products/in-app-messagin
   }
 
   s.dependency 'FirebaseCore', '~> 6.0'
-  s.ios.dependency 'FirebaseAnalyticsInterop'
-  s.dependency 'FirebaseInstanceID', '~> 3.6'
+  s.ios.dependency 'FirebaseAnalyticsInterop', '~> 1.2'
+  s.dependency 'FirebaseInstanceID', '~> 4.0'
 end
