@@ -14,11 +14,7 @@
  * limitations under the License.
  */
 
-#ifdef COCOAPODS
-#import "FIRInstanceID.h"
-#else
-#import "third_party/firebase/ios/Releases/FirebaseInstanceID/Library/Public/FIRInstanceID.h"
-#endif
+#import <FirebaseInstanceID/FIRInstanceID.h>
 
 /**
  * Private API used by other Firebase SDKs.
