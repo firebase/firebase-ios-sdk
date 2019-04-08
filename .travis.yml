@@ -263,10 +263,10 @@ jobs:
 #   only:
 #     - master
 
-stages:
-  - name: test
-    if: branch = master
-  - name: checks
-    if: branch = master
-  - name: if_cron
+stages:	
+  - name: checks	
+    if: branch = master	
+  - name: if_cron	
     if: branch = mm/travis-if-cron
+  - name: test	
+    if: branch = master
