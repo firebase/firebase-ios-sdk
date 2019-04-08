@@ -212,23 +212,6 @@ jobs:
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
-    - stage: if_cron
-      name: Run cron only
-      if: type = cron
-      script:
-        - echo Run cron only - Success!
-
-    - stage: if_cron
-      name: Run push only
-      if: type = push
-      script:
-        - echo Run push only - Success!
-
-    - stage: if_cron
-      name: No Conditions
-      script:
-        - echo No Conditions - Success!
-
   allow_failures:
     # Run fuzz tests only on cron jobs.
     - stage: test
