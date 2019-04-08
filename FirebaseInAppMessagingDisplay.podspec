@@ -41,5 +41,5 @@ Firebase In-App Messaging SDK.
   }
 
   s.dependency 'FirebaseCore', '~> 6.0'
-  s.dependency 'FirebaseInAppMessaging', '>=0.12.0'
+  s.dependency 'FirebaseInAppMessaging', '>=0.14.0'
 end
