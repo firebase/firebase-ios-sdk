@@ -211,15 +211,13 @@ jobs:
 
     - stage: if_cron
       name: Run cron only
-      if: 
-        - env(TRAVIS_EVENT_TYPE) = cron
+      if: type = cron
       script:
         - echo Run cron only - Success!
 
     - stage: if_cron
       name: Run push only
-      if: 
-        - env(TRAVIS_EVENT_TYPE) = push
+      if: type = push
       script:
         - echo Run push only - Success!
 
@@ -263,10 +261,10 @@ jobs:
 #   only:
 #     - master
 
-stages:	
-  - name: checks	
-    if: branch = master	
-  - name: if_cron	
-    if: branch = mm/travis-if-cron
-  - name: test	
+stages:
+  - name: checks
+    if: branch IN (master, mm/travis-if-cron)
+  - name: if_cron
+    if: branch IN (master, mm/travis-if-cron)
+  - name: test
     if: branch = master
