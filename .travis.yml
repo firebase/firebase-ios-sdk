@@ -209,24 +209,12 @@ jobs:
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
-    # Validate Cocoapods 1.7.0 compatibility
-    - stage: cocoapods_compatibility_check
-      env:
-        - GEMFILE=./CocoapodsIntegrationTest/TestEnvironments/Cocoapods1_7_0_multiprojects_frameworks/Gemfile PODFILE=./CocoapodsIntegrationTest/TestEnvironments/Cocoapods1_7_0_multiprojects_frameworks/Podfile
-      script:
-        - travis_retry ./scripts/if_changed.sh ./CocoapodsIntegrationTest/scripts/build_with_environment.sh --gemfile=$GEMFILE --podfile=$PODFILE
-
-    # Validate Cocoapods 1.6.1 compatibility
-    - stage: cocoapods_compatibility_check
-      env:
-        - GEMFILE=./CocoapodsIntegrationTest/TestEnvironments/Cocoapods1_6_1_staticLibs/Gemfile PODFILE=./CocoapodsIntegrationTest/TestEnvironments/Cocoapods1_6_1_staticLibs/Podfile
-      script:
-        - travis_retry ./scripts/if_changed.sh ./CocoapodsIntegrationTest/scripts/build_with_environment.sh --gemfile=$GEMFILE --podfile=$PODFILE
-
     # Validate all Cocoapods configurations
+    # This may take long time, so we would like to run it only once all other tests pass
     - stage: cocoapods_compatibility_check
       name: Validate all Cocoapods configurations 
       script:
+        # TODO: ./scripts/if_changed.sh to ./scripts/if_cron.sh once testing finished
         - travis_retry ./scripts/if_changed.sh ./CocoapodsIntegrationTest/scripts/build_all_environments.sh
 
   allow_failures:
@@ -260,14 +248,6 @@ jobs:
   # before reporting the results.
   # fast_finish: true
 
-# branches:
-#   only:
-#     - master
-
-stages:
-  - name: checks
-    if: branch = master
-  - name: cocoapods_compatibility_check
-    if: branch = mm/cocoapods-1_7
-  - name: test
-    if: branch = master
+branches:
+  only:
+    - master
