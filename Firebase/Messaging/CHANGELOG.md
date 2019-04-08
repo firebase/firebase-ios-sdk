@@ -1,3 +1,6 @@
+# Unreleased
+- `GULAppDelegateSwizzler` is used for the app delegate swizzling (#2683)
+
 # 2019-04-02 -- v3.5.0
 - Add image support for notification. (#2644)
 

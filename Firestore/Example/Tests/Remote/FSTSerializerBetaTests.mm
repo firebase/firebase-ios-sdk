@@ -476,7 +476,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                        commitVersion:commitVersion];
 
   XCTAssertEqual(result.version, updateVersion);
-  XCTAssertEqualObjects(result.transformResults, @[ [FSTStringValue stringValue:@"result"] ]);
+  XCTAssertEqualObjects(result.transformResults, @[ FieldValue::FromString("result").Wrap() ]);
 }
 
 - (void)testDecodesDeleteMutationResult {

@@ -56,8 +56,14 @@ typedef void (*GULRealDidFailToRegisterForRemoteNotificationsIMP)(id,
 
 typedef void (*GULRealDidReceiveRemoteNotificationIMP)(id, SEL, UIApplication *, NSDictionary *);
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000
+// This is needed to for the library to be warning free on iOS versions < 7.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunguarded-availability"
 typedef void (*GULRealDidReceiveRemoteNotificationWithCompletionIMP)(
     id, SEL, UIApplication *, NSDictionary *, void (^)(UIBackgroundFetchResult));
+#pragma clang diagnostic pop
+#endif  // __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000
 
 typedef void (^GULAppDelegateInterceptorCallback)(id<UIApplicationDelegate>);
 
@@ -72,8 +78,12 @@ static char const *const kGULRealDidFailToRegisterForRemoteNotificationsIMPKey =
     "GUL_didFailToRegisterForRemoteNotificationsIMP";
 static char const *const kGULRealDidReceiveRemoteNotificationIMPKey =
     "GUL_didReceiveRemoteNotificationIMP";
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000
 static char const *const kGULRealDidReceiveRemoteNotificationWithCompletionIMPKey =
     "GUL_didReceiveRemoteNotificationWithCompletionIMP";
+#endif  // __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000
+
 #if TARGET_OS_IOS
 // The method application:openURL:sourceApplication:annotation: is not available on tvOS
 static char const *const kGULOpenURLOptionsSourceAnnotationsIMPKey =
@@ -409,30 +419,6 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
   NSValue *didReceiveRemoteNotificationIMPPointer =
       [NSValue valueWithPointer:didReceiveRemoteNotificationIMP];
 
-  // For application:didReceiveRemoteNotification:fetchCompletionHandler:
-  NSValue *didReceiveRemoteNotificationWithCompletionIMPPointer;
-  SEL didReceiveRemoteNotificationWithCompletionSEL =
-      @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:);
-  if ([anObject respondsToSelector:didReceiveRemoteNotificationWithCompletionSEL]) {
-    // Only add the application:didReceiveRemoteNotification:fetchCompletionHandler: method if
-    // the original AppDelegate implements it.
-    // This fixes a bug if an app only implements application:didReceiveRemoteNotification:
-    // (if we add the method with completion, iOS sees that one exists and does not call
-    // the method without the completion, which in this case is the only one the app implements).
-
-    [GULAppDelegateSwizzler
-        addInstanceMethodWithSelector:didReceiveRemoteNotificationWithCompletionSEL
-                            fromClass:[GULAppDelegateSwizzler class]
-                              toClass:appDelegateSubClass];
-    GULRealDidReceiveRemoteNotificationWithCompletionIMP
-        didReceiveRemoteNotificationWithCompletionIMP =
-            (GULRealDidReceiveRemoteNotificationWithCompletionIMP)[GULAppDelegateSwizzler
-                implementationOfMethodSelector:didReceiveRemoteNotificationWithCompletionSEL
-                                     fromClass:realClass];
-    didReceiveRemoteNotificationWithCompletionIMPPointer =
-        [NSValue valueWithPointer:didReceiveRemoteNotificationWithCompletionIMP];
-  }
-
 #if TARGET_OS_IOS
   // For application:openURL:sourceApplication:annotation:
   SEL openURLSourceApplicationAnnotationSEL = @selector(application:
@@ -473,9 +459,7 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
   objc_setAssociatedObject(anObject, &kGULRealDidReceiveRemoteNotificationIMPKey,
                            didReceiveRemoteNotificationIMPPointer,
                            OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-  objc_setAssociatedObject(anObject, &kGULRealDidReceiveRemoteNotificationWithCompletionIMPKey,
-                           didReceiveRemoteNotificationWithCompletionIMPPointer,
-                           OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+
 #if TARGET_OS_IOS
   objc_setAssociatedObject(anObject, &kGULOpenURLOptionsSourceAnnotationsIMPKey,
                            openURLSourceAppAnnotationIMPPointer, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
@@ -483,6 +467,38 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
 
   objc_setAssociatedObject(anObject, &kGULRealClassKey, realClass,
                            OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+
+  // For application:didReceiveRemoteNotification:fetchCompletionHandler:
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000
+  if ([GULAppEnvironmentUtil isIOS7OrHigher]) {
+    NSValue *didReceiveRemoteNotificationWithCompletionIMPPointer;
+    SEL didReceiveRemoteNotificationWithCompletionSEL =
+        @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:);
+    if ([anObject respondsToSelector:didReceiveRemoteNotificationWithCompletionSEL]) {
+      // Only add the application:didReceiveRemoteNotification:fetchCompletionHandler: method if
+      // the original AppDelegate implements it.
+      // This fixes a bug if an app only implements application:didReceiveRemoteNotification:
+      // (if we add the method with completion, iOS sees that one exists and does not call
+      // the method without the completion, which in this case is the only one the app implements).
+
+      [GULAppDelegateSwizzler
+          addInstanceMethodWithSelector:didReceiveRemoteNotificationWithCompletionSEL
+                              fromClass:[GULAppDelegateSwizzler class]
+                                toClass:appDelegateSubClass];
+      GULRealDidReceiveRemoteNotificationWithCompletionIMP
+          didReceiveRemoteNotificationWithCompletionIMP =
+              (GULRealDidReceiveRemoteNotificationWithCompletionIMP)[GULAppDelegateSwizzler
+                  implementationOfMethodSelector:didReceiveRemoteNotificationWithCompletionSEL
+                                       fromClass:realClass];
+      didReceiveRemoteNotificationWithCompletionIMPPointer =
+          [NSValue valueWithPointer:didReceiveRemoteNotificationWithCompletionIMP];
+    }
+
+    objc_setAssociatedObject(anObject, &kGULRealDidReceiveRemoteNotificationWithCompletionIMPKey,
+                             didReceiveRemoteNotificationWithCompletionIMPPointer,
+                             OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+  }
+#endif  // __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000
 
   // The subclass size has to be exactly the same size with the original class size. The subclass
   // cannot have more ivars/properties than its superclass since it will cause an offset in memory
@@ -801,6 +817,10 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
   }
 }
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000
+// This is needed to for the library to be warning free on iOS versions < 7.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunguarded-availability"
 - (void)application:(UIApplication *)application
     didReceiveRemoteNotification:(NSDictionary *)userInfo
           fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
@@ -825,6 +845,8 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
                                                   completionHandler);
   }
 }
+#pragma clang diagnostic pop
+#endif  // __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000
 
 - (void)application:(UIApplication *)application
     didReceiveRemoteNotification:(NSDictionary *)userInfo {
