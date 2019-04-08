@@ -56,10 +56,10 @@ typedef void (*GULRealDidFailToRegisterForRemoteNotificationsIMP)(id,
 
 typedef void (*GULRealDidReceiveRemoteNotificationIMP)(id, SEL, UIApplication *, NSDictionary *);
 
-#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 70000
+#if __IPHONE_OS_VERSION_MAX_REQUIRED >= 70000
 typedef void (*GULRealDidReceiveRemoteNotificationWithCompletionIMP)(
     id, SEL, UIApplication *, NSDictionary *, void (^)(UIBackgroundFetchResult));
-#endif  // __IPHONE_OS_VERSION_MIN_REQUIRED >= 70000
+#endif  // __IPHONE_OS_VERSION_MAX_REQUIRED >= 70000
 
 typedef void (^GULAppDelegateInterceptorCallback)(id<UIApplicationDelegate>);
 
@@ -75,10 +75,10 @@ static char const *const kGULRealDidFailToRegisterForRemoteNotificationsIMPKey =
 static char const *const kGULRealDidReceiveRemoteNotificationIMPKey =
     "GUL_didReceiveRemoteNotificationIMP";
 
-#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 70000
+#if __IPHONE_OS_VERSION_MAX_REQUIRED >= 70000
 static char const *const kGULRealDidReceiveRemoteNotificationWithCompletionIMPKey =
     "GUL_didReceiveRemoteNotificationWithCompletionIMP";
-#endif  // __IPHONE_OS_VERSION_MIN_REQUIRED >= 70000
+#endif  // __IPHONE_OS_VERSION_MAX_REQUIRED >= 70000
 
 #if TARGET_OS_IOS
 // The method application:openURL:sourceApplication:annotation: is not available on tvOS
@@ -465,7 +465,7 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
                            OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 
   // For application:didReceiveRemoteNotification:fetchCompletionHandler:
-#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 70000
+#if __IPHONE_OS_VERSION_MAX_REQUIRED >= 70000
   if ([GULAppEnvironmentUtil isIOS7OrHigher]) {
     NSValue *didReceiveRemoteNotificationWithCompletionIMPPointer;
     SEL didReceiveRemoteNotificationWithCompletionSEL =
@@ -494,7 +494,7 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
                              didReceiveRemoteNotificationWithCompletionIMPPointer,
                              OBJC_ASSOCIATION_RETAIN_NONATOMIC);
   }
-#endif  // __IPHONE_OS_VERSION_MIN_REQUIRED >= 70000
+#endif  // __IPHONE_OS_VERSION_MAX_REQUIRED >= 70000
 
   // The subclass size has to be exactly the same size with the original class size. The subclass
   // cannot have more ivars/properties than its superclass since it will cause an offset in memory
@@ -813,7 +813,7 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
   }
 }
 
-#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 70000
+#if __IPHONE_OS_VERSION_MAX_REQUIRED >= 70000
 - (void)application:(UIApplication *)application
     didReceiveRemoteNotification:(NSDictionary *)userInfo
           fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
@@ -838,7 +838,7 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
                                                   completionHandler);
   }
 }
-#endif  // __IPHONE_OS_VERSION_MIN_REQUIRED >= 70000
+#endif  // __IPHONE_OS_VERSION_MAX_REQUIRED >= 70000
 
 - (void)application:(UIApplication *)application
     didReceiveRemoteNotification:(NSDictionary *)userInfo {
