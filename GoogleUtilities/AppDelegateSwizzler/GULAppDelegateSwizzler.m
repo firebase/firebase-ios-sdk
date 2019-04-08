@@ -56,8 +56,10 @@ typedef void (*GULRealDidFailToRegisterForRemoteNotificationsIMP)(id,
 
 typedef void (*GULRealDidReceiveRemoteNotificationIMP)(id, SEL, UIApplication *, NSDictionary *);
 
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 70000
 typedef void (*GULRealDidReceiveRemoteNotificationWithCompletionIMP)(
     id, SEL, UIApplication *, NSDictionary *, void (^)(UIBackgroundFetchResult));
+#endif // __IPHONE_OS_VERSION_MIN_REQUIRED >= 70000
 
 typedef void (^GULAppDelegateInterceptorCallback)(id<UIApplicationDelegate>);
 
@@ -72,8 +74,12 @@ static char const *const kGULRealDidFailToRegisterForRemoteNotificationsIMPKey =
     "GUL_didFailToRegisterForRemoteNotificationsIMP";
 static char const *const kGULRealDidReceiveRemoteNotificationIMPKey =
     "GUL_didReceiveRemoteNotificationIMP";
+
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 70000
 static char const *const kGULRealDidReceiveRemoteNotificationWithCompletionIMPKey =
     "GUL_didReceiveRemoteNotificationWithCompletionIMP";
+#endif // __IPHONE_OS_VERSION_MIN_REQUIRED >= 70000
+
 #if TARGET_OS_IOS
 // The method application:openURL:sourceApplication:annotation: is not available on tvOS
 static char const *const kGULOpenURLOptionsSourceAnnotationsIMPKey =
@@ -410,6 +416,7 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
       [NSValue valueWithPointer:didReceiveRemoteNotificationIMP];
 
   // For application:didReceiveRemoteNotification:fetchCompletionHandler:
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 70000
   NSValue *didReceiveRemoteNotificationWithCompletionIMPPointer;
   SEL didReceiveRemoteNotificationWithCompletionSEL =
       @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:);
@@ -432,6 +439,7 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
     didReceiveRemoteNotificationWithCompletionIMPPointer =
         [NSValue valueWithPointer:didReceiveRemoteNotificationWithCompletionIMP];
   }
+#endif // __IPHONE_OS_VERSION_MIN_REQUIRED >= 70000
 
 #if TARGET_OS_IOS
   // For application:openURL:sourceApplication:annotation:
@@ -473,9 +481,13 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
   objc_setAssociatedObject(anObject, &kGULRealDidReceiveRemoteNotificationIMPKey,
                            didReceiveRemoteNotificationIMPPointer,
                            OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 70000
   objc_setAssociatedObject(anObject, &kGULRealDidReceiveRemoteNotificationWithCompletionIMPKey,
                            didReceiveRemoteNotificationWithCompletionIMPPointer,
                            OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+#endif // __IPHONE_OS_VERSION_MIN_REQUIRED >= 70000
+
 #if TARGET_OS_IOS
   objc_setAssociatedObject(anObject, &kGULOpenURLOptionsSourceAnnotationsIMPKey,
                            openURLSourceAppAnnotationIMPPointer, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
@@ -801,6 +813,7 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
   }
 }
 
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 70000
 - (void)application:(UIApplication *)application
     didReceiveRemoteNotification:(NSDictionary *)userInfo
           fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
@@ -825,6 +838,7 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
                                                   completionHandler);
   }
 }
+#endif // __IPHONE_OS_VERSION_MIN_REQUIRED >= 70000
 
 - (void)application:(UIApplication *)application
     didReceiveRemoteNotification:(NSDictionary *)userInfo {
