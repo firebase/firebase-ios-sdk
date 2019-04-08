@@ -214,8 +214,8 @@ jobs:
     - stage: Cocoapods compatibility check
       name: Validate all Cocoapods configurations
       script:
-        # TODO: ./scripts/if_changed.sh to ./scripts/if_cron.sh once testing finished
-        - travis_retry ./scripts/if_changed.sh ./CocoapodsIntegrationTest/scripts/build_all_environments.sh
+        # TODO: add ./scripts/if_cron.sh once testing finished
+        - travis_retry ./CocoapodsIntegrationTest/scripts/build_all_environments.sh
 
   allow_failures:
     # Run fuzz tests only on cron jobs.
