@@ -317,8 +317,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 }
 
 + (void)load {
-  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self
-                 withName:@"fire-auth"
+  [FIRApp registerLibrary:@"fire-auth"  // As per go/firebase-sdk-platform-info
               withVersion:[NSString stringWithUTF8String:FirebaseAuthVersionStr]];
 }
 
