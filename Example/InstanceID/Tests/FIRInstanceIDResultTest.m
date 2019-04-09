@@ -17,8 +17,8 @@
 #import <XCTest/XCTest.h>
 
 #import <OCMock/OCMock.h>
-#import "Firebase/InstanceID/Public/FIRInstanceID.h"
 #import "Firebase/InstanceID/NSError+FIRInstanceID.h"
+#import "Firebase/InstanceID/Public/FIRInstanceID.h"
 
 static NSString *const kFakeIID = @"fE1e1PZJFSQ";
 static NSString *const kFakeToken =
