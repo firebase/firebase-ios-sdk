@@ -46,24 +46,15 @@ class FieldPath : public impl::BasePath<FieldPath> {
   /** Constructs the path from segments. */
   template <typename IterT>
   FieldPath(const IterT begin, const IterT end) : BasePath{begin, end} {
+    // NOTE: We don't call ValidatePath() here since this constructor is used
+    // to construct new paths from existing paths which could be "invalid"
+    // (e.g. it's expected that PopLast() may return an empty path).
   }
   FieldPath(std::initializer_list<std::string> list) : BasePath{list} {
-    // PORTING NOTE: We do API Validation in the model class to avoid needing
-    // to define a tiny api::FieldPath wrapper.
-    if (empty()) {
-      api::ThrowInvalidArgument(
-          "Invalid field path. Provided names must not be empty.");
-    }
-
-    for (size_t i = 0; i < size(); i++) {
-      if ((*this)[i].empty()) {
-        api::ThrowInvalidArgument(
-            "Invalid field name at index %s. Field names must not be empty.",
-            i);
-      }
-    }
+    ValidatePath();
   }
   explicit FieldPath(SegmentsT&& segments) : BasePath{std::move(segments)} {
+    ValidatePath();
   }
 
   /**
@@ -108,6 +99,24 @@ class FieldPath : public impl::BasePath<FieldPath> {
   }
   bool operator>=(const FieldPath& rhs) const {
     return BasePath::operator>=(rhs);
+  }
+
+ private:
+  void ValidatePath() {
+    // PORTING NOTE: We do API Validation in the model class to avoid needing
+    // to define a tiny api::FieldPath wrapper.
+    if (empty()) {
+      api::ThrowInvalidArgument(
+          "Invalid field path. Provided names must not be empty.");
+    }
+
+    for (size_t i = 0; i < size(); i++) {
+      if ((*this)[i].empty()) {
+        api::ThrowInvalidArgument(
+            "Invalid field name at index %s. Field names must not be empty.",
+            i);
+      }
+    }
   }
 };
 
