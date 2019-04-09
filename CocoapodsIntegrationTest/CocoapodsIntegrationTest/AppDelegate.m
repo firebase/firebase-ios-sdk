@@ -16,20 +16,11 @@
 
 #import "AppDelegate.h"
 #import <FirebaseCore/FirebaseCore.h>
-#import <FirebaseFirestore/FirebaseFirestore.h>
 
 @interface AppDelegate ()
 
-@property(weak) IBOutlet NSWindow *window;
 @end
 
 @implementation AppDelegate
-
-- (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-}
-
-- (void)applicationWillTerminate:(NSNotification *)aNotification {
-  // Insert code here to tear down your application
-}
 
 @end

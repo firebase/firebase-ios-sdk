@@ -1,4 +1,6 @@
 # Unreleased
+- `GULAppDelegateSwizzler`: support of remote notification methods. (#2698)
+- `GULAppDelegateSwizzler`: tvOS support. (#2698)
 
 # 5.5.0
 - Revert 5.4.x changes restoring 5.3.7 version.

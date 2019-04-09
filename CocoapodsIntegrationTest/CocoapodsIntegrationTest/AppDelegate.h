@@ -14,22 +14,10 @@
  * limitations under the License.
  */
 
-#import "AppDelegate.h"
-#import <FirebaseCore/FirebaseCore.h>
-#import <FirebaseFirestore/FirebaseFirestore.h>
+#import <UIKit/UIKit.h>
 
-@interface AppDelegate ()
+@interface AppDelegate : UIResponder <UIApplicationDelegate>
 
-@property(weak) IBOutlet NSWindow *window;
-@end
-
-@implementation AppDelegate
-
-- (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-}
-
-- (void)applicationWillTerminate:(NSNotification *)aNotification {
-  // Insert code here to tear down your application
-}
+@property(strong, nonatomic) UIWindow *window;
 
 @end

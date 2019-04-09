@@ -22,7 +22,7 @@
 #import "FIRStorageTask_Private.h"
 #import "FIRStorage_Private.h"
 
-#import "GTMSessionFetcherService.h"
+#import <GTMSessionFetcher/GTMSessionFetcherService.h>
 
 @implementation FIRStorageTask
 

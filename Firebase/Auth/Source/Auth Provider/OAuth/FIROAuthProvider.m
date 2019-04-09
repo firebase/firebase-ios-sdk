@@ -17,7 +17,9 @@
 #include <CommonCrypto/CommonCrypto.h>
 #import "FIROAuthProvider.h"
 
-#import "FIRApp.h"
+#import <FirebaseCore/FIRApp.h>
+#import <FirebaseCore/FIROptions.h>
+
 #import "FIRAuthBackend.h"
 #import "FIRAuth_Internal.h"
 #import "FIRAuthErrorUtils.h"
@@ -26,7 +28,6 @@
 #import "FIRAuthWebUtils.h"
 #import "FIROAuthCredential_Internal.h"
 #import "FIROAuthCredential.h"
-#import "FIROptions.h"
 
 #if TARGET_OS_IOS
 #import "FIRAuthURLPresenter.h"
