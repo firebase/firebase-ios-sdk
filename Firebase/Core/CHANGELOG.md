@@ -1,5 +1,7 @@
-# Unreleased
-- [changed] Added support for new CocoaPods 1.7.x `:generate_multiple_pod_projects` feature (#2751)
+# v6.0.0 -- M47
+- [changed] Added support for CocoaPods 1.7.x `:generate_multiple_pod_projects` feature. (#2751)
+- [removed] Remove FIRAnalyticsConfiguration from Public header. Use from FirebaseAnalytics. (#2728)
+- [changed] Remove runtime warning for missing analytics in favor of one at build time. (#2734)
 
 # 2019-04-02 -- v5.4.1 -- M46
 - [changed] Avoid using NSRegularExpression in FIRApp.
