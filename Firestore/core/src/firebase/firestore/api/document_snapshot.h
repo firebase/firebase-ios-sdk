@@ -17,26 +17,22 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_API_DOCUMENT_SNAPSHOT_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_API_DOCUMENT_SNAPSHOT_H_
 
-#if !defined(__OBJC__)
-#error "This header only supports Objective-C++"
-#endif  // !defined(__OBJC__)
-
-#import <Foundation/Foundation.h>
+#include <objc/objc.h>  // for id
 
 #include <memory>
 #include <string>
 #include <utility>
 
-#import "Firestore/Source/Model/FSTFieldValue.h"
-
 #include "Firestore/core/src/firebase/firestore/api/snapshot_metadata.h"
 #include "Firestore/core/src/firebase/firestore/core/event_listener.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/util/objc_class.h"
 
-NS_ASSUME_NONNULL_BEGIN
+OBJC_CLASS(FSTDocument);
+OBJC_CLASS(FSTObjectValue);
 
-@class FSTDocument;
+#pragma clang assume_nonnull begin
 
 namespace firebase {
 namespace firestore {
@@ -49,37 +45,23 @@ class DocumentSnapshot {
  public:
   using Listener = std::unique_ptr<core::EventListener<DocumentSnapshot>>;
 
-  DocumentSnapshot() = default;
+  DocumentSnapshot();
 
   DocumentSnapshot(Firestore* firestore,
                    model::DocumentKey document_key,
                    FSTDocument* _Nullable document,
-                   SnapshotMetadata metadata)
-      : firestore_{firestore},
-        internal_key_{std::move(document_key)},
-        internal_document_{document},
-        metadata_{std::move(metadata)} {
-  }
+                   SnapshotMetadata metadata);
 
   DocumentSnapshot(Firestore* firestore,
                    model::DocumentKey document_key,
                    FSTDocument* _Nullable document,
                    bool from_cache,
-                   bool has_pending_writes)
-      : firestore_{firestore},
-        internal_key_{std::move(document_key)},
-        internal_document_{document},
-        metadata_{has_pending_writes, from_cache} {
-  }
+                   bool has_pending_writes);
 
   size_t Hash() const;
 
-  bool exists() const {
-    return internal_document_ != nil;
-  }
-  FSTDocument* internal_document() const {
-    return internal_document_;
-  }
+  bool exists() const;
+  FSTDocument* internal_document() const;
   std::string document_id() const;
 
   const SnapshotMetadata& metadata() const {
@@ -109,6 +91,7 @@ class DocumentSnapshot {
 }  // namespace firestore
 }  // namespace firebase
 
-NS_ASSUME_NONNULL_END
+#pragma clang assume_nonnull end
+
 
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_API_DOCUMENT_SNAPSHOT_H_

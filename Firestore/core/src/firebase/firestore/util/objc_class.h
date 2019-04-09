@@ -43,11 +43,21 @@
 #define OBJC_CLASS(name) @class name
 
 #else
-// Forward declaration from objc/objc.h
-struct objc_object;
-
 #define OBJC_CLASS(name) using name = struct objc_object
 
 #endif  // __OBJC__
+
+// Define NS_ASSUME_NONNULL_BEGIN for straight C++ so that everything gets the
+// correct nullability specifier.
+#if !defined(NS_ASSUME_NONNULL_BEGIN)
+#if __clang__
+#define NS_ASSUME_NONNULL_BEGIN _Pragma("clang assume_nonnull begin")
+#define NS_ASSUME_NONNULL_END   _Pragma("clang assume_nonnull end")
+
+#else
+#define NS_ASSUME_NONNULL_BEGIN
+#define NS_ASSUME_NONNULL_END
+#endif  // __clang__
+#endif  // !defined(NS_ASSUME_NONNULL_BEGIN)
 
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_OBJC_CLASS_H_

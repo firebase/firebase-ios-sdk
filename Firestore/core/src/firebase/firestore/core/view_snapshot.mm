@@ -170,6 +170,11 @@ ViewSnapshot ViewSnapshot::FromInitialDocuments(
                       /*sync_state_changed=*/true, excludes_metadata_changes};
 }
 
+FSTQuery* ViewSnapshot::query() const {
+  return query_;
+}
+
+
 std::string ViewSnapshot::ToString() const {
   return StringFormat(
       "<ViewSnapshot query: %s documents: %s old_documents: %s changes: %s "

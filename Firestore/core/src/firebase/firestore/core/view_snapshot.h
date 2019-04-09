@@ -17,10 +17,6 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_VIEW_SNAPSHOT_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_VIEW_SNAPSHOT_H_
 
-#if !defined(__OBJC__)
-#error "This header only supports Objective-C++"
-#endif  // !defined(__OBJC__)
-
 #include <functional>
 #include <iosfwd>
 #include <memory>
@@ -33,12 +29,13 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
+#include "Firestore/core/src/firebase/firestore/util/objc_class.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class FSTDocument;
-@class FSTQuery;
+OBJC_CLASS(FSTDocument);
+OBJC_CLASS(FSTQuery);
 
 namespace firebase {
 namespace firestore {
@@ -131,9 +128,7 @@ class ViewSnapshot {
                                            bool excludes_metadata_changes);
 
   /** The query this view is tracking the results for. */
-  FSTQuery* query() const {
-    return query_;
-  }
+  FSTQuery* query() const;
 
   /** The documents currently known to be results of the query. */
   const model::DocumentSet& documents() const {
@@ -198,6 +193,6 @@ bool operator==(const ViewSnapshot& lhs, const ViewSnapshot& rhs);
 }  // namespace firestore
 }  // namespace firebase
 
-NS_ASSUME_NONNULL_END
+#pragma clang assume_nonnull end
 
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_VIEW_SNAPSHOT_H_
