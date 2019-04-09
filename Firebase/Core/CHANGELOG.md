@@ -1,5 +1,5 @@
 # Unreleased
-- [changed] Cocoapods 1.7.0.beta.3 compatibility (#2751)
+- [changed] Added support for new CocoaPods 1.7.x `:generate_multiple_pod_projects` feature (#2751)
 
 # 2019-04-02 -- v5.4.1 -- M46
 - [changed] Avoid using NSRegularExpression in FIRApp.
