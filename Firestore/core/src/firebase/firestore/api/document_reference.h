@@ -27,8 +27,6 @@
 #include <utility>
 #include <vector>
 
-#import "FIRFirestoreSource.h"
-
 #include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/api/listener_registration.h"
 #include "Firestore/core/src/firebase/firestore/core/listen_options.h"
@@ -45,6 +43,7 @@ namespace firestore {
 namespace api {
 
 class Firestore;
+enum class Source;
 
 class DocumentReference {
  public:
@@ -82,8 +81,7 @@ class DocumentReference {
 
   void DeleteDocument(Completion completion);
 
-  void GetDocument(FIRFirestoreSource source,
-                   DocumentSnapshot::Listener&& completion);
+  void GetDocument(Source source, DocumentSnapshot::Listener&& completion);
 
   ListenerRegistration AddSnapshotListener(
       core::ListenOptions options, DocumentSnapshot::Listener&& listener);

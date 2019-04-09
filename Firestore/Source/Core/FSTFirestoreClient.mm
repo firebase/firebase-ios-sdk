@@ -345,7 +345,7 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
       maybe_snapshot = Status{FirestoreErrorCode::Unavailable,
                               "Failed to get document from cache. (However, this document "
                               "may exist on the server. Run again without setting source to "
-                              "FIRFirestoreSourceCache to attempt to retrieve the document "};
+                              "FirestoreSourceCache to attempt to retrieve the document "};
     }
 
     if (shared_completion) {
