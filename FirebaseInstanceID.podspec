@@ -28,7 +28,7 @@ services.
   base_dir = "Firebase/InstanceID/"
   s.source_files = base_dir + '**/*.[mh]'
   s.requires_arc = base_dir + '*.m'
-  s.public_header_files = base_dir + 'Public/*.h'
+  s.public_header_files = base_dir + 'Public/*.h', base_dir + 'Private/*.h'
   s.private_header_files = base_dir + 'Private/*.h'
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
