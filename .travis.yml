@@ -233,50 +233,50 @@ jobs:
       env:
         - POD_CONFIG_DIR=Cocoapods1_7_0_multiprojects_frameworks
       script:
-        - travis_retry ./CocoapodsIntegrationTest/scripts/build_with_environment.sh \
-          --gemfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Gemfile \
-          --podfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Podfile
+        - travis_retry ./CocoapodsIntegrationTest/scripts/build_with_environment.sh master
+    --gemfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Gemfile master
+    --podfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Podfile
 
     - stage: cocoapods_compatibility_check
       env:
         - POD_CONFIG_DIR=Cocoapods1_7_0_frameworks
       script:
-        - travis_retry ./CocoapodsIntegrationTest/scripts/build_with_environment.sh \
-          --gemfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Gemfile \
-          --podfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Podfile
+        - travis_retry ./CocoapodsIntegrationTest/scripts/build_with_environment.sh master
+    --gemfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Gemfile master
+    --podfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Podfile
 
     - stage: cocoapods_compatibility_check
       env:
         - POD_CONFIG_DIR=Cocoapods1_7_0_multiprojects_staticLibs
       script:
-        - travis_retry ./CocoapodsIntegrationTest/scripts/build_with_environment.sh \
-          --gemfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Gemfile \
-          --podfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Podfile
+        - travis_retry ./CocoapodsIntegrationTest/scripts/build_with_environment.sh master
+    --gemfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Gemfile master
+    --podfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Podfile
 
     - stage: cocoapods_compatibility_check
       env:
         - POD_CONFIG_DIR=Cocoapods1_7_0_staticLibs
       script:
-        - travis_retry ./CocoapodsIntegrationTest/scripts/build_with_environment.sh \
-          --gemfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Gemfile \
-          --podfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Podfile
+        - travis_retry ./CocoapodsIntegrationTest/scripts/build_with_environment.sh master
+    --gemfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Gemfile master
+    --podfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Podfile
 
     # Validate Cocoapods 1.6.1 compatibility
     - stage: cocoapods_compatibility_check
       env:
         - POD_CONFIG_DIR=Cocoapods1_6_1_frameworks
       script:
-        - travis_retry ./CocoapodsIntegrationTest/scripts/build_with_environment.sh \
-          --gemfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Gemfile \
-          --podfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Podfile
+        - travis_retry ./CocoapodsIntegrationTest/scripts/build_with_environment.sh master
+    --gemfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Gemfile master
+    --podfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Podfile
 
     - stage: cocoapods_compatibility_check
       env:
         - POD_CONFIG_DIR=Cocoapods1_6_1_staticLibs
       script:
-        - travis_retry ./CocoapodsIntegrationTest/scripts/build_with_environment.sh \
-          --gemfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Gemfile \
-          --podfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Podfile
+        - travis_retry ./CocoapodsIntegrationTest/scripts/build_with_environment.sh master
+    --gemfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Gemfile master
+    --podfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Podfile
 
   allow_failures:
     # Run fuzz tests only on cron jobs.
