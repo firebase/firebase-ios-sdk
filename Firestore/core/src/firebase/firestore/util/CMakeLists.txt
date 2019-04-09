@@ -248,6 +248,7 @@ cc_library(
     delayed_constructor.h
     hashing.h
     iterator_adaptors.h
+    objc_class.h
     objc_compatibility.h
     ordered_code.cc
     ordered_code.h
