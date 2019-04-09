@@ -18,6 +18,7 @@
 
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIROptionsInternal.h>
+#import <FirebaseInstanceID/FIRInstanceID_Private.h>
 #import <OCMock/OCMock.h>
 
 #import "Firebase/InstanceID/FIRInstanceID+Testing.h"
@@ -535,7 +536,6 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   [[[self.mockTokenManager stub] andReturn:sTokenInfo]
       cachedTokenInfoWithAuthorizedEntity:kAuthorizedEntity
                                     scope:@"*"];
-
   [[self.mockInstanceID reject] defaultTokenWithHandler:nil];
   NSString *token = [self.mockInstanceID token];
   XCTAssertEqualObjects(token, kToken);
@@ -590,10 +590,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
                 cachedTokenInfo = sTokenInfo;
 
                 notificationPostCount++;
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
                 notificationToken = [[self.instanceID token] copy];
-#pragma clang diagnostic pop
                 [defaultTokenExpectation fulfill];
               }];
 
@@ -670,10 +667,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
                 cachedTokenInfo = sTokenInfo;
 
                 notificationPostCount++;
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
                 notificationToken = [[self.instanceID token] copy];
-#pragma clang diagnostic pop
                 [defaultTokenExpectation fulfill];
               }];
 
@@ -741,10 +735,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
                 cachedTokenInfo = sTokenInfo;
 
                 notificationPostCount++;
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
                 notificationToken = [[self.instanceID token] copy];
-#pragma clang diagnostic pop
                 [defaultTokenExpectation fulfill];
               }];
 

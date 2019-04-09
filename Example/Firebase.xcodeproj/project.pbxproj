@@ -344,7 +344,6 @@
 		DE0E5BBB1EA7D92E00FAA825 /* FIRVerifyClientRequestTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE0E5BB91EA7D92E00FAA825 /* FIRVerifyClientRequestTest.m */; };
 		DE0E5BBC1EA7D92E00FAA825 /* FIRVerifyClientResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE0E5BBA1EA7D92E00FAA825 /* FIRVerifyClientResponseTests.m */; };
 		DE0E5BBD1EA7D93100FAA825 /* FIRAuthAppCredentialTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE0E5BB51EA7D91C00FAA825 /* FIRAuthAppCredentialTests.m */; };
-		DE0E5BBE1EA7D93500FAA825 /* FIRAuthAppDelegateProxyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE0E5BB61EA7D91C00FAA825 /* FIRAuthAppDelegateProxyTests.m */; };
 		DE17A2BA214215C0002A15ED /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F58F195388D20070C39A /* CoreGraphics.framework */; };
 		DE17A2BB214215C0002A15ED /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F591195388D20070C39A /* UIKit.framework */; };
 		DE17A2BC214215C0002A15ED /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F58D195388D20070C39A /* Foundation.framework */; };
@@ -1136,7 +1135,6 @@
 		D92C82C51F578DF000D5EAFF /* FIRGetProjectConfigResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRGetProjectConfigResponseTests.m; sourceTree = "<group>"; };
 		D92C82C61F578DF000D5EAFF /* FIRGetProjectConfigRequestTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRGetProjectConfigRequestTests.m; sourceTree = "<group>"; };
 		DE0E5BB51EA7D91C00FAA825 /* FIRAuthAppCredentialTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRAuthAppCredentialTests.m; sourceTree = "<group>"; };
-		DE0E5BB61EA7D91C00FAA825 /* FIRAuthAppDelegateProxyTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRAuthAppDelegateProxyTests.m; sourceTree = "<group>"; };
 		DE0E5BB91EA7D92E00FAA825 /* FIRVerifyClientRequestTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRVerifyClientRequestTest.m; sourceTree = "<group>"; };
 		DE0E5BBA1EA7D92E00FAA825 /* FIRVerifyClientResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRVerifyClientResponseTests.m; sourceTree = "<group>"; };
 		DE17A2A02141FA61002A15ED /* DL-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "DL-Info.plist"; sourceTree = "<group>"; };
@@ -2467,7 +2465,6 @@
 				DE750DB61EB3DD4000A75E47 /* FIRAuthAPNSTokenTests.m */,
 				DE750DB71EB3DD4000A75E47 /* FIRAuthAppCredentialManagerTests.m */,
 				DE0E5BB51EA7D91C00FAA825 /* FIRAuthAppCredentialTests.m */,
-				DE0E5BB61EA7D91C00FAA825 /* FIRAuthAppDelegateProxyTests.m */,
 				DE9314FD1E86C6FF0083EDBF /* FIRAuthBackendCreateAuthURITests.m */,
 				DE9314FE1E86C6FF0083EDBF /* FIRAuthBackendRPCImplementationTests.m */,
 				DE9314FF1E86C6FF0083EDBF /* FIRAuthDispatcherTests.m */,
@@ -4910,7 +4907,6 @@
 				7E9485421F578AC4005A3939 /* FIRAuthURLPresenterTests.m in Sources */,
 				7E21E0731F857DFC00D0AC1C /* FIROAuthProviderTests.m in Sources */,
 				DE750DBD1EB3DD5B00A75E47 /* FIRAuthAPNSTokenTests.m in Sources */,
-				DE0E5BBE1EA7D93500FAA825 /* FIRAuthAppDelegateProxyTests.m in Sources */,
 				7EFA2E041F71C93300DD354F /* FIRUserMetadataTests.m in Sources */,
 				DE0E5BBC1EA7D92E00FAA825 /* FIRVerifyClientResponseTests.m in Sources */,
 				DE9315751E86C71C0083EDBF /* FIRUserTests.m in Sources */,

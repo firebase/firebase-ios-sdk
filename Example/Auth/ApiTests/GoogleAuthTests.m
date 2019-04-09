@@ -48,7 +48,7 @@ NSString *kGoogleTestAccountRefreshToken = KGOOGLE_TEST_ACCOUNT_REFRESH_TOKEN;
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"Signing in with Google finished."];
   [auth signInWithCredential:credential
-                  completion:^(FIRUser *user, NSError *error) {
+                  completion:^(FIRAuthDataResult *result, NSError *error) {
                     if (error) {
                       NSLog(@"Signing in with Google had error: %@", error);
                     }

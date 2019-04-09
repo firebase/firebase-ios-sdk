@@ -18,8 +18,6 @@
 
 #import "FIREmailPasswordAuthCredential.h"
 
-// FIREmailPasswordAuthProviderID is defined in FIRAuthProvider.m.
-
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIREmailAuthProvider

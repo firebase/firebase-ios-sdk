@@ -28,7 +28,6 @@ supports email and password accounts, as well as several 3rd party authenticatio
   source = 'Firebase/Auth/Source/'
   s.source_files = source + '**/*.[mh]'
   s.osx.exclude_files = [
-    source + '**/FIRAuthAppDelegateProxy.[mh]',
     source + '**/FIRAuthNotificationManager.[mh]',
     source + '**/FIRAuthAppCredentialManager.[mh]',
     source + '**/FIRAuthAPNSTokenManager.[mh]',
@@ -63,7 +62,8 @@ supports email and password accounts, as well as several 3rd party authenticatio
   s.framework = 'Security'
   s.ios.framework = 'SafariServices'
   s.dependency 'FirebaseAuthInterop', '~> 1.0'
-  s.dependency 'FirebaseCore', '~> 5.2'
-  s.dependency 'GoogleUtilities/Environment', '~> 5.2'
+  s.dependency 'FirebaseCore', '~> 6.0'
+  s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 5.6'
+  s.dependency 'GoogleUtilities/Environment', '~> 5.6'
   s.dependency 'GTMSessionFetcher/Core', '~> 1.1'
 end

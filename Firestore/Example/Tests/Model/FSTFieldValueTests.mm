@@ -223,7 +223,7 @@ union DoubleBits {
   NSArray *values = @[ @"", @"abc" ];
   for (id value in values) {
     FSTFieldValue *wrapped = FSTTestFieldValue(value);
-    XCTAssertEqualObjects([wrapped class], [FSTStringValue class]);
+    XCTAssertEqualObjects([wrapped class], [FSTDelegateValue class]);
     XCTAssertEqualObjects([wrapped value], value);
     XCTAssertEqual(wrapped.type, FieldValue::Type::String);
   }
@@ -285,7 +285,7 @@ union DoubleBits {
   FSTObjectValue *actual =
       FSTTestObjectValue(@{@"a" : @"foo", @"b" : @(1L), @"c" : @YES, @"d" : [NSNull null]});
   FSTObjectValue *expected = [[FSTObjectValue alloc] initWithDictionary:@{
-    @"a" : [FSTStringValue stringValue:@"foo"],
+    @"a" : FieldValue::FromString("foo").Wrap(),
     @"b" : [FSTIntegerValue integerValue:1LL],
     @"c" : FieldValue::True().Wrap(),
     @"d" : [FSTNullValue nullValue]
@@ -298,8 +298,8 @@ union DoubleBits {
   FSTObjectValue *actual = FSTTestObjectValue(@{@"a" : @{@"b" : @{@"c" : @"foo"}, @"d" : @YES}});
   FSTObjectValue *expected = [[FSTObjectValue alloc] initWithDictionary:@{
     @"a" : [[FSTObjectValue alloc] initWithDictionary:@{
-      @"b" :
-          [[FSTObjectValue alloc] initWithDictionary:@{@"c" : [FSTStringValue stringValue:@"foo"]}],
+      @"b" : [[FSTObjectValue alloc]
+          initWithDictionary:@{@"c" : FieldValue::FromString("foo").Wrap()}],
       @"d" : FieldValue::True().Wrap()
     }]
   }];
@@ -314,7 +314,7 @@ union DoubleBits {
   FSTAssertIsKindOfClass([obj valueForPath:testutil::Field("foo")], FSTObjectValue);
   XCTAssertEqualObjects([obj valueForPath:testutil::Field("foo.a")], FieldValue::True().Wrap());
   XCTAssertEqualObjects([obj valueForPath:testutil::Field("foo.b")],
-                        [FSTStringValue stringValue:@"string"]);
+                        FieldValue::FromString("string").Wrap());
 
   XCTAssertNil([obj valueForPath:testutil::Field("foo.a.b")]);
   XCTAssertNil([obj valueForPath:testutil::Field("bar")]);
@@ -424,7 +424,7 @@ union DoubleBits {
 
 - (void)testArrays {
   FSTArrayValue *expected = [[FSTArrayValue alloc]
-      initWithValueNoCopy:@[ [FSTStringValue stringValue:@"value"], FieldValue::True().Wrap() ]];
+      initWithValueNoCopy:@[ FieldValue::FromString("value").Wrap(), FieldValue::True().Wrap() ]];
 
   FSTArrayValue *actual = (FSTArrayValue *)FSTTestFieldValue(@[ @"value", @YES ]);
   XCTAssertEqualObjects(actual, expected);
@@ -448,7 +448,7 @@ union DoubleBits {
       FSTTestFieldValue(FSTTestData(0, 1, 2, -1)), [FSTBlobValue blobValue:FSTTestData(0, 1, 2, -1)]
     ],
     @[ FSTTestFieldValue(FSTTestData(0, 1, -1)) ],
-    @[ FSTTestFieldValue(@"string"), [FSTStringValue stringValue:@"string"] ],
+    @[ FSTTestFieldValue(@"string"), FieldValue::FromString("string").Wrap() ],
     @[ FSTTestFieldValue(@"strin") ],
     @[ FSTTestFieldValue(@"e\u0301b") ],  // latin small letter e + combining acute accent
     @[ FSTTestFieldValue(@"\u00e9a") ],   // latin small letter e with acute accent

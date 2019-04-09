@@ -221,18 +221,6 @@ NS_SWIFT_NAME(User)
 - (void)reloadWithCompletion:(nullable FIRUserProfileChangeCallback)completion;
 
 /** @fn reauthenticateWithCredential:completion:
-    @brief Please use reauthenticateAndRetrieveDataWithCredential:completion: for Objective-C or
-        reauthenticateAndRetrieveData(WithCredential:completion:) for Swift instead.
- */
-- (void)reauthenticateWithCredential:(FIRAuthCredential *)credential
-                          completion:(nullable FIRUserProfileChangeCallback)completion
-                              DEPRECATED_MSG_ATTRIBUTE( "Please use"
-                                      " reauthenticateAndRetrieveDataWithCredential:completion: for"
-                                      " Objective-C or"
-                                      " reauthenticateAndRetrieveData(WithCredential:completion:)"
-                                      " for Swift instead.");
-
-/** @fn reauthenticateAndRetrieveDataWithCredential:completion:
     @brief Renews the user's authentication tokens by validating a fresh set of credentials supplied
         by the user  and returns additional identity provider data.
 
@@ -268,8 +256,18 @@ NS_SWIFT_NAME(User)
 
     @remarks See `FIRAuthErrors` for a list of error codes that are common to all API methods.
  */
-- (void)reauthenticateAndRetrieveDataWithCredential:(FIRAuthCredential *) credential
-                                         completion:(nullable FIRAuthDataResultCallback) completion;
+- (void)reauthenticateWithCredential:(FIRAuthCredential *)credential
+                          completion:(nullable FIRAuthDataResultCallback)completion;
+
+/** @fn reauthenticateAndRetrieveDataWithCredential:completion:
+    @brief Please use linkWithCredential:completion: for Objective-C
+        or link(withCredential:completion:) for Swift instead.
+ */
+- (void)reauthenticateAndRetrieveDataWithCredential:(FIRAuthCredential *)credential
+                                         completion:(nullable FIRAuthDataResultCallback)completion
+DEPRECATED_MSG_ATTRIBUTE( "Please use reauthenticateWithCredential:completion: for"
+                         " Objective-C or reauthenticate(withCredential:completion:)"
+                         " for Swift instead.");
 
 /** @fn getIDTokenResultWithCompletion:
     @brief Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
@@ -326,20 +324,18 @@ NS_SWIFT_NAME(User)
 - (void)getIDTokenForcingRefresh:(BOOL)forceRefresh
                       completion:(nullable FIRAuthTokenCallback)completion;
 
-/** @fn linkWithCredential:completion:
-    @brief Please use linkAndRetrieveDataWithCredential:completion: for Objective-C or
-        linkAndRetrieveData(WithCredential:completion:) for Swift instead.
- */
-- (void)linkWithCredential:(FIRAuthCredential *)credential
-                completion:(nullable FIRAuthResultCallback)completion DEPRECATED_MSG_ATTRIBUTE(
-                                      "Please use linkAndRetrieveDataWithCredential:completion: for"
-                                      " Objective-C or"
-                                      " linkAndRetrieveData(WithCredential:completion:) for"
-                                      " Swift instead.");
-
 /** @fn linkAndRetrieveDataWithCredential:completion:
+    @brief Please use linkWithCredential:completion: for Objective-C
+        or link(withCredential:completion:) for Swift instead.
+ */
+- (void)linkAndRetrieveDataWithCredential:(FIRAuthCredential *)credential
+                               completion:(nullable FIRAuthDataResultCallback)completion
+DEPRECATED_MSG_ATTRIBUTE("Please use linkWithCredential:completion: for Objective-C "
+                         "or link(withCredential:completion:) for Swift instead.");
+
+/** @fn linkWithCredential:completion:
     @brief Associates a user account from a third-party identity provider with this user and
-    returns additional identity provider data.
+        returns additional identity provider data.
 
     @param credential The credential for the identity provider.
     @param completion Optionally; the block invoked when the unlinking is complete, or fails.
@@ -350,19 +346,18 @@ NS_SWIFT_NAME(User)
         + `FIRAuthErrorCodeProviderAlreadyLinked` - Indicates an attempt to link a provider of a
             type already linked to this account.
         + `FIRAuthErrorCodeCredentialAlreadyInUse` - Indicates an attempt to link with a
-            credential
-            that has already been linked with a different Firebase account.
+            credential that has already been linked with a different Firebase account.
         + `FIRAuthErrorCodeOperationNotAllowed` - Indicates that accounts with the identity
             provider represented by the credential are not enabled. Enable them in the Auth section
             of the Firebase console.
 
     @remarks This method may also return error codes associated with updateEmail:completion: and
-            updatePassword:completion: on FIRUser.
+        updatePassword:completion: on FIRUser.
 
     @remarks See `FIRAuthErrors` for a list of error codes that are common to all FIRUser methods.
  */
-- (void)linkAndRetrieveDataWithCredential:(FIRAuthCredential *) credential
-                               completion:(nullable FIRAuthDataResultCallback) completion;
+- (void)linkWithCredential:(FIRAuthCredential *)credential
+                completion:(nullable FIRAuthDataResultCallback)completion;
 
 /** @fn unlinkFromProvider:completion:
     @brief Disassociates a user account from a third-party identity provider with this user.

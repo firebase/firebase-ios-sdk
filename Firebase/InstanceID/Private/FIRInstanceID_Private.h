@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,19 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import <FirebaseInstanceID/FIRInstanceID.h>
 
-#include "FIRErrorCode.h"
+/**
+ * Private API used by other Firebase SDKs.
+ */
+@interface FIRInstanceID ()
 
-extern NSString *const kFirebaseErrorDomain;
-extern NSString *const kFirebaseConfigErrorDomain;
-extern NSString *const kFirebaseCoreErrorDomain;
-extern NSString *const kFirebasePerfErrorDomain;
+/**
+ *  Returns a Firebase Messaging scoped token for the firebase app.
+ *
+ *  @return Returns the stored token if the device has registered with Firebase Messaging, otherwise
+ *          returns nil.
+ */
+- (nullable NSString *)token;
+
+@end

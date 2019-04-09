@@ -22,9 +22,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-implementations"
-
 @interface FIRTwitterAuthCredential ()
 
 - (nullable instancetype)initWithProvider:(NSString *)provider NS_UNAVAILABLE;
@@ -72,7 +69,5 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 @end
-
-#pragma clang diagnostic pop
 
 NS_ASSUME_NONNULL_END

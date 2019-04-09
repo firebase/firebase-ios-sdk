@@ -751,18 +751,16 @@ static void callInMainThreadWithAuthDataResultAndError(
 
 #pragma mark -
 
-- (void)reauthenticateWithCredential:(FIRAuthCredential *)credential
-                          completion:(nullable FIRUserProfileChangeCallback)completion {
-  FIRAuthDataResultCallback callback = ^(FIRAuthDataResult *_Nullable authResult,
-                                         NSError *_Nullable error) {
-    completion(error);
-  };
-  [self reauthenticateAndRetrieveDataWithCredential:credential completion:callback];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+- (void)reauthenticateWithCredential:(FIRAuthCredential *) credential
+                                         completion:(nullable FIRAuthDataResultCallback) completion {
+  [self reauthenticateAndRetrieveDataWithCredential:credential completion:completion];
 }
+#pragma clang diagnostic pop
 
-- (void)
-    reauthenticateAndRetrieveDataWithCredential:(FIRAuthCredential *) credential
-                                     completion:(nullable FIRAuthDataResultCallback) completion {
+- (void)reauthenticateAndRetrieveDataWithCredential:(FIRAuthCredential *) credential
+                                         completion:(nullable FIRAuthDataResultCallback) completion {
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
     [self->_auth internalSignInAndRetrieveDataWithCredential:credential
                                           isReauthentication:YES
@@ -973,14 +971,13 @@ static void callInMainThreadWithAuthDataResultAndError(
   }];
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (void)linkWithCredential:(FIRAuthCredential *)credential
-                completion:(nullable FIRAuthResultCallback)completion {
-  FIRAuthDataResultCallback callback = ^(FIRAuthDataResult *_Nullable authResult,
-                                         NSError *_Nullable error) {
-    completion(authResult.user, error);
-  };
-  [self linkAndRetrieveDataWithCredential:credential completion:callback];
+                completion:(nullable FIRAuthDataResultCallback)completion {
+  [self linkAndRetrieveDataWithCredential:credential completion:completion];
 }
+#pragma clang diagnostic pop
 
 - (void)linkAndRetrieveDataWithCredential:(FIRAuthCredential *)credential
                                completion:(nullable FIRAuthDataResultCallback)completion {

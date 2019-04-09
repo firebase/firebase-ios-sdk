@@ -3,8 +3,8 @@
 #source 'https://github.com/CocoaPods/Specs.git'
 
 # Uncomment the next two lines for pre-release testing on public repo
-#source 'https://github.com/Firebase/SpecsStaging.git'
-#source 'https://github.com/CocoaPods/Specs.git'
+source 'https://github.com/Firebase/SpecsStaging.git'
+source 'https://github.com/CocoaPods/Specs.git'
 
 use_frameworks!
 
@@ -19,7 +19,7 @@ target 'Core_Example_iOS' do
   # The next line is the forcing function for the Firebase pod. The Firebase
   # version's subspecs should depend on the component versions in their
   # corresponding podspec's.
-  pod 'Firebase/CoreOnly', '5.20.1'
+  pod 'Firebase/CoreOnly', '6.0.0-pre'
 
   target 'Core_Tests_iOS' do
     inherit! :search_paths
