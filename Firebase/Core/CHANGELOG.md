@@ -1,3 +1,6 @@
+# Unreleased
+- [changed] Cocoapods 1.7.0.beta.3 compatibility (#2751)
+
 # 2019-04-02 -- v5.4.1 -- M46
 - [changed] Avoid using NSRegularExpression in FIRApp.
 - [changed] Improve error meessage for invalid app names. (#2614)
