@@ -21,6 +21,7 @@
 #include <string>
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/api/input_validation.h"
 #include "Firestore/core/src/firebase/firestore/model/base_path.h"
 #include "absl/strings/string_view.h"
 
@@ -47,9 +48,32 @@ class FieldPath : public impl::BasePath<FieldPath> {
   FieldPath(const IterT begin, const IterT end) : BasePath{begin, end} {
   }
   FieldPath(std::initializer_list<std::string> list) : BasePath{list} {
+    // PORTING NOTE: We do API Validation in the model class to avoid needing
+    // to define a tiny api::FieldPath wrapper.
+    if (empty()) {
+      api::ThrowInvalidArgument(
+          "Invalid field path. Provided names must not be empty.");
+    }
+
+    for (size_t i = 0; i < size(); i++) {
+      if ((*this)[i].empty()) {
+        api::ThrowInvalidArgument(
+            "Invalid field name at index %s. Field names must not be empty.",
+            i);
+      }
+    }
   }
   explicit FieldPath(SegmentsT&& segments) : BasePath{std::move(segments)} {
   }
+
+  /**
+   * Creates and returns a new path from a dot-separated field-path string,
+   * where path segments are separated by a dot ".".
+   *
+   * PORTING NOTE: We define this on the model class to avoid having a tiny
+   * api::FieldPath wrapper class.
+   */
+  static FieldPath FromDotSeparatedString(absl::string_view path);
 
   /**
    * Creates and returns a new path from the server formatted field-path string,
