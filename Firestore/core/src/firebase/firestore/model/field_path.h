@@ -48,20 +48,6 @@ class FieldPath : public impl::BasePath<FieldPath> {
   FieldPath(const IterT begin, const IterT end) : BasePath{begin, end} {
   }
   FieldPath(std::initializer_list<std::string> list) : BasePath{list} {
-    // PORTING NOTE: We do API Validation in the model class to avoid needing
-    // to define a tiny api::FieldPath wrapper.
-    if (empty()) {
-      api::ThrowInvalidArgument(
-          "Invalid field path. Provided names must not be empty.");
-    }
-
-    for (size_t i = 0; i < size(); i++) {
-      if ((*this)[i].empty()) {
-        api::ThrowInvalidArgument(
-            "Invalid field name at index %s. Field names must not be empty.",
-            i);
-      }
-    }
   }
   explicit FieldPath(SegmentsT&& segments) : BasePath{std::move(segments)} {
   }
@@ -74,6 +60,16 @@ class FieldPath : public impl::BasePath<FieldPath> {
    * api::FieldPath wrapper class.
    */
   static FieldPath FromDotSeparatedString(absl::string_view path);
+
+  /**
+   * Creates and returns a new path from a set of segments received from the
+   * public API.
+   */
+  static FieldPath FromSegments(SegmentsT&& segments) {
+    ValidateSegments(segments);
+    FieldPath path(std::move(segments));
+    return path;
+  }
 
   /**
    * Creates and returns a new path from the server formatted field-path string,
@@ -108,6 +104,22 @@ class FieldPath : public impl::BasePath<FieldPath> {
   }
   bool operator>=(const FieldPath& rhs) const {
     return BasePath::operator>=(rhs);
+  }
+
+ private:
+  static void ValidateSegments(const SegmentsT& segments) {
+    if (segments.empty()) {
+      api::ThrowInvalidArgument(
+          "Invalid field path. Provided names must not be empty.");
+    }
+
+    for (size_t i = 0; i < segments.size(); i++) {
+      if (segments[i].empty()) {
+        api::ThrowInvalidArgument(
+            "Invalid field name at index %s. Field names must not be empty.",
+            i);
+      }
+    }
   }
 };
 

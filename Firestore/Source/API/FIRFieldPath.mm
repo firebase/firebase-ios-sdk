@@ -54,7 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
     field_names.emplace_back(util::MakeString(fieldNames[i]));
   }
 
-  return [self initPrivate:FieldPath(std::move(field_names))];
+  return [self initPrivate:FieldPath::FromSegments(std::move(field_names))];
 }
 
 + (instancetype)documentID {

@@ -100,7 +100,7 @@ FieldPath FieldPath::FromDotSeparatedString(absl::string_view path) {
         return true;
       });
 
-  return FieldPath{std::move(segments)};
+  return FieldPath(std::move(segments));
 }
 
 FieldPath FieldPath::FromServerFormat(const absl::string_view path) {
