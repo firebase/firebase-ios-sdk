@@ -48,6 +48,8 @@ class FieldPath : public impl::BasePath<FieldPath> {
   FieldPath(const IterT begin, const IterT end) : BasePath{begin, end} {
   }
   FieldPath(std::initializer_list<std::string> list) : BasePath{list} {
+    // PORTING NOTE: We do API Validation in the model class to avoid needing
+    // to define a tiny api::FieldPath wrapper.
     if (empty()) {
       api::ThrowInvalidArgument(
           "Invalid field path. Provided names must not be empty.");
@@ -67,6 +69,9 @@ class FieldPath : public impl::BasePath<FieldPath> {
   /**
    * Creates and returns a new path from a dot-separated field-path string,
    * where path segments are separated by a dot ".".
+   *
+   * PORTING NOTE: We define this on the model class to avoid having a tiny
+   * api::FieldPath wrapper class.
    */
   static FieldPath FromDotSeparatedString(absl::string_view path);
 
