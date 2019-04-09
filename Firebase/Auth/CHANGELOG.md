@@ -1,5 +1,7 @@
 # Unreleased
-- `GULAppDelegateSwizzler` is used for the app delegate swizzling (#2591)
+- Add support of single sign on. (#2684)
+- Deprecate `reauthenticateAndRetrieveDataWithCredential:completion:`, `signInAndRetrieveDataWithCredential:completion:`, `linkAndRetrieveDataWithCredential:completion:`, `fetchProvidersForEmail:completion:`.
+- `GULAppDelegateSwizzler` is used for the app delegate swizzling. (#2591)
 
 # v5.4.2
 - Support new error code ERROR_INVALID_PROVIDER_ID. (#2629)
