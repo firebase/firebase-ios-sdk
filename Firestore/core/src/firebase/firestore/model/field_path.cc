@@ -29,9 +29,9 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-namespace {
-
 using api::ThrowInvalidArgument;
+
+namespace {
 
 /**
  * True if the string could be used as a segment in a field path without
