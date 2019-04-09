@@ -5,6 +5,20 @@ cache:
   - bundler
   - cocoapods
 
+# TODO: Remove before merge
+stages:
+  - name: checks
+    if: true = false
+  - name: test
+    if: true = false
+  - name: cocoapods_compatibility_check
+    if: branch = master
+
+# TODO: Uncomment before merge
+# stages:
+#   - name: cocoapods_compatibility_check
+#     if: type = cron
+
 jobs:
   include:
     - stage: checks
@@ -299,17 +313,3 @@ jobs:
 branches:
   only:
     - master
-
-# TODO: Remove before merge
-stages:
-  - name: checks
-    if: false
-  - name: test
-    if: false
-  - name: cocoapods_compatibility_check
-    if: branch = master
-
-# TODO: Uncomment before merge
-# stages:
-#   - name: cocoapods_compatibility_check
-#     if: type = cron
