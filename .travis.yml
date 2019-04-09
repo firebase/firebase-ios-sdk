@@ -302,11 +302,12 @@ branches:
 
 # TODO: Remove before merge
 stages:
-  - name: checks:
-    if: 1 != 1
-  - name: test:
-    if: 1 != 1
+  - name: checks
+    if: false
+  - name: test
+    if: false
   - name: cocoapods_compatibility_check
+    if: branch = master
 
 # TODO: Uncomment before merge
 # stages:
