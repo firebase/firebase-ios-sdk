@@ -17,7 +17,7 @@
 #import <XCTest/XCTest.h>
 
 #import <OCMock/OCMock.h>
-#import "Firebase/InstanceID/FIRInstanceID+Testing.h"
+#import "Firebase/InstanceID/Public/FIRInstanceID.h"
 #import "Firebase/InstanceID/NSError+FIRInstanceID.h"
 
 static NSString *const kFakeIID = @"fE1e1PZJFSQ";
@@ -29,6 +29,8 @@ static NSString *const kFakeToken =
 @interface FIRInstanceID (ExposedForTest)
 - (NSString *)cachedTokenIfAvailable;
 - (void)defaultTokenWithHandler:(FIRInstanceIDTokenHandler)handler;
+- (instancetype)initPrivately;
+- (void)start;
 @end
 
 @interface FIRInstanceIDResultTest : XCTestCase {

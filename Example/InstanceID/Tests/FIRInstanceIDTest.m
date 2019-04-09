@@ -21,7 +21,6 @@
 #import <FirebaseInstanceID/FIRInstanceID_Private.h>
 #import <OCMock/OCMock.h>
 
-#import "Firebase/InstanceID/FIRInstanceID+Testing.h"
 #import "Firebase/InstanceID/FIRInstanceIDAuthService.h"
 #import "Firebase/InstanceID/FIRInstanceIDCheckinPreferences+Internal.h"
 #import "Firebase/InstanceID/FIRInstanceIDConstants.h"
@@ -30,6 +29,8 @@
 #import "Firebase/InstanceID/FIRInstanceIDTokenManager.h"
 #import "Firebase/InstanceID/FIRInstanceIDUtilities.h"
 #import "Firebase/InstanceID/NSError+FIRInstanceID.h"
+#import "Firebase/InstanceID/FIRInstanceIDKeyPairStore.h"
+#import "Firebase/InstanceID/Public/FIRInstanceID.h"
 
 static NSString *const kFakeIID = @"12345678";
 static NSString *const kFakeAPNSToken = @"this is a fake apns token";
@@ -47,6 +48,11 @@ static NSString *const kGCMSenderID = @"correct_gcm_sender_id";
 static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 
 @interface FIRInstanceID (ExposedForTest)
+
+@property(nonatomic, readwrite, strong) FIRInstanceIDTokenManager *tokenManager;
+@property(nonatomic, readwrite, strong) FIRInstanceIDKeyPairStore *keyPairStore;
+@property(nonatomic, readwrite, copy) NSString *fcmSenderID;
+
 - (NSInteger)retryIntervalToFetchDefaultToken;
 - (BOOL)isFCMAutoInitEnabled;
 - (void)didCompleteConfigure;
@@ -54,6 +60,12 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 - (void)deleteIdentityWithHandler:(FIRInstanceIDDeleteHandler)handler;
 + (FIRInstanceID *)instanceIDForTests;
 - (void)defaultTokenWithHandler:(FIRInstanceIDTokenHandler)handler;
+- (instancetype)initPrivately;
+- (void)start;
++ (int64_t)maxRetryCountForDefaultToken;
++ (int64_t)minIntervalForDefaultTokenRetry;
++ (int64_t)maxRetryIntervalForDefaultTokenInSeconds;
+
 @end
 
 @interface FIRInstanceIDTest : XCTestCase
