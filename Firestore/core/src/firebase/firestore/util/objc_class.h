@@ -23,8 +23,22 @@
 // be usable from straight C++.
 //
 // Care must be taken to not use the forward declaration (even implicitly) in
-// the header. Constructors, getters and setters all must be defined out of
-// line to avoid problems where ARC does not see changes to the reference.
+// any inline definitions in the header. Even though Objective-C object
+// pointers look like raw pointers, under ARC they're more like
+// std::shared_ptr, where assignments and copies all potentially change the
+// refcount of the pointee. When methods that affect the reference count are
+// compiled inline in regular C++ this additional behavior won't get compiled
+// in and the Objective-C reference counts will be off.
+//
+// Note that this may even appear to work, though it does so through undefined
+// behavior: inline definitions are deduplicated at link time, and if the
+// linker happens to choose a definition that was generated in an ARC-enabled
+// translation unit then that specific build will work.
+//
+// Concretely this means that any method manipulating an Objective-C object
+// pointer (constructors, destructors, getters, and setters) all must be
+// defined out of line to avoid problems where ARC does not see changes to the
+// reference.
 #if __OBJC__
 #define OBJC_CLASS(name) @class name
 
