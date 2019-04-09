@@ -1,6 +1,6 @@
 # Unreleased
 - Add support of single sign on. (#2684)
-- Deprecate `reauthenticateAndRetrieveDataWithCredential:completion:`, `signInAndRetrieveDataWithCredential:completion:`, `linkAndRetrieveDataWithCredential:completion:`, `fetchProvidersForEmail:completion:`.
+- Deprecate `reauthenticateAndRetrieveDataWithCredential:completion:`, `signInAndRetrieveDataWithCredential:completion:`, `linkAndRetrieveDataWithCredential:completion:`, `fetchProvidersForEmail:completion:`. (#2723, #2756)
 - Implement oauth secret token in headful-lite. (#2663)
 - Remove pendingToken from public API. (#2676)
 - `GULAppDelegateSwizzler` is used for the app delegate swizzling. (#2591)
