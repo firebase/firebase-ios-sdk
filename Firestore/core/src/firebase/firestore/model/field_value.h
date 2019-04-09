@@ -33,6 +33,7 @@
 #include "absl/types/optional.h"
 
 #if __OBJC__
+@class FIRGeoPoint;
 @class FSTFieldValue;
 #endif  // __OBJC__
 
@@ -185,6 +186,9 @@ class FieldValue {
   static FieldValue FromReference(DocumentKey&& value,
                                   const DatabaseId* database_id);
   static FieldValue FromGeoPoint(const GeoPoint& value);
+#if __OBJC__
+  static FieldValue FromGeoPoint(FIRGeoPoint* gp);
+#endif
   static FieldValue FromArray(const std::vector<FieldValue>& value);
   static FieldValue FromArray(std::vector<FieldValue>&& value);
   static FieldValue FromMap(const Map& value);

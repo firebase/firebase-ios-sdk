@@ -245,7 +245,7 @@ union DoubleBits {
 
   for (id value in values) {
     FSTFieldValue *wrapped = FSTTestFieldValue(value);
-    XCTAssertEqualObjects([wrapped class], [FSTGeoPointValue class]);
+    XCTAssertEqualObjects([wrapped class], [FSTDelegateValue class]);
     XCTAssertEqualObjects([wrapped value], value);
     XCTAssertEqual(wrapped.type, FieldValue::Type::GeoPoint);
   }
@@ -471,7 +471,7 @@ union DoubleBits {
                                  previousValue:nil] ],
     @[
       FSTTestFieldValue(FSTTestGeoPoint(0, 1)),
-      [FSTGeoPointValue geoPointValue:FSTTestGeoPoint(0, 1)]
+      FieldValue::FromGeoPoint(FSTTestGeoPoint(0, 1)).Wrap()
     ],
     @[ FSTTestFieldValue(FSTTestGeoPoint(1, 0)) ],
     @[

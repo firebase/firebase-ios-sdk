@@ -447,8 +447,7 @@ NS_ASSUME_NONNULL_BEGIN
     return [FSTTimestampValue timestampValue:truncatedTimestamp];
 
   } else if ([input isKindOfClass:[FIRGeoPoint class]]) {
-    return [FSTGeoPointValue geoPointValue:input];
-
+    return FieldValue::FromGeoPoint((FIRGeoPoint *)input).Wrap();
   } else if ([input isKindOfClass:[NSData class]]) {
     return [FSTBlobValue blobValue:input];
 

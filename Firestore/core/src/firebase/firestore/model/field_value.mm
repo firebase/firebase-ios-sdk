@@ -16,8 +16,15 @@
 
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 
+#import "FIRGeoPoint.h"
+
 #import "Firestore/Source/Model/FSTFieldValue.h"
 
 FSTFieldValue* FieldValue::Wrap() && {
   return [FSTDelegateValue delegateWithValue:std::move(*this)];
+}
+
+/* static */
+FieldValue FieldValue::FromGeoPoint(FIRGeoPoint* gp) {
+  return FromGeoPoint(GeoPoint(gp.latitude, gp.longitude));
 }

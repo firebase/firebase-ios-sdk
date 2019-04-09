@@ -178,13 +178,6 @@ enum class ServerTimestampBehavior { None, Estimate, Previous };
 @end
 
 /**
- * A geo point value stored in Firestore.
- */
-@interface FSTGeoPointValue : FSTFieldValue <FIRGeoPoint *>
-+ (instancetype)geoPointValue:(FIRGeoPoint *)value;
-@end
-
-/**
  * A blob value stored in Firestore.
  */
 @interface FSTBlobValue : FSTFieldValue <NSData *>

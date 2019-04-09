@@ -367,7 +367,13 @@ size_t FieldValue::Hash() const {
 
     case FieldValue::Type::Blob:
     case FieldValue::Type::Reference:
-    case FieldValue::Type::GeoPoint:
+      HARD_FAIL("TODO(rsgowman): Implement");
+
+    case FieldValue::Type::GeoPoint: {
+      const GeoPoint& gp = geo_point_value();
+      return util::Hash(gp.latitude(), gp.longitude());
+    }
+
     case FieldValue::Type::Array:
     case FieldValue::Type::Object:
       HARD_FAIL("TODO(rsgowman): Implement");
