@@ -1,4 +1,5 @@
-# Unreleased
+# 2019-05-07 -- 4.0.0
+- Remove deprecated `token` method. Use `instanceIDWithHandler:` instead. (#2741)
 - Send `firebaseUserAgent` with a register request (#2679)
 
 # 2019-04-02 -- v3.8.1
