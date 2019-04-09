@@ -1,3 +1,6 @@
+# v6.0.0
+- [removed] Remove deprecated `childByAppendingPath` API. (#2763)
+
 # v5.1.1
 - [fixed] Fixed crash in FSRWebSocket. (#2485)
 
