@@ -528,7 +528,7 @@ static NSString *const kFDLURLCustomDomain = @"https://foo.com/path";
   NSURL *link = [NSURL URLWithString:linkString];
 
   FIRDynamicLinkComponents *components =
-      [FIRDynamicLinkComponents componentsWithLink:link domain:@"http://xyz.page.link"];
+      [FIRDynamicLinkComponents componentsWithLink:link domainURIPrefix:@"https://xyz.page.link"];
 
   XCTAssertNotNil(components);
 }
@@ -538,7 +538,7 @@ static NSString *const kFDLURLCustomDomain = @"https://foo.com/path";
   NSURL *link = [NSURL URLWithString:linkString];
 
   FIRDynamicLinkComponents *components =
-      [FIRDynamicLinkComponents componentsWithLink:link domain:@"https://xyz.page.link"];
+      [FIRDynamicLinkComponents componentsWithLink:link domainURIPrefix:@"https://xyz.page.link"];
 
   XCTAssertNotNil(components);
 }
@@ -549,10 +549,9 @@ static NSString *const kFDLURLCustomDomain = @"https://foo.com/path";
 
   FIRDynamicLinkComponents *components =
       [FIRDynamicLinkComponents componentsWithLink:link
-                                            domain:@"this is invalid domain URI Prefix"];
+                                   domainURIPrefix:@"this is invalid domain URI Prefix"];
 
-  XCTAssertNotNil(components);
-  XCTAssertNil(components.url);
+  XCTAssertNil(components);
 }
 
 - (void)testFDLComponentsCreatesFullLinkCorrectly {
@@ -694,79 +693,6 @@ static NSString *const kFDLURLCustomDomain = @"https://foo.com/path";
   NSURL *link = [NSURL URLWithString:@"https://google.com/abc"];
   FIRDynamicLinkComponents *components =
       [FIRDynamicLinkComponents componentsWithLink:link domainURIPrefix:kFDLURLDomain];
-  [components
-      shortenWithCompletion:^(NSURL *_Nullable shortURL, NSArray<NSString *> *_Nullable warnings,
-                              NSError *_Nullable error) {
-        XCTAssertEqualObjects(shortURL.absoluteString, shortURLString);
-        [expectation fulfill];
-      }];
-  [self waitForExpectationsWithTimeout:0.1 handler:nil];
-
-  [keyProviderClassMock verify];
-  [keyProviderClassMock stopMocking];
-  [componentsClassMock verify];
-  [componentsClassMock stopMocking];
-}
-
-- (void)testDeprecatedMethodComponentsWithLinkForDomain {
-  NSString *shortURLString = @"https://xyz.page.link/abcd";
-
-  // Mock key provider
-  id keyProviderClassMock = OCMClassMock([FIRDynamicLinkComponentsKeyProvider class]);
-  [[[keyProviderClassMock expect] andReturn:@"fake-api-key"] APIKey];
-
-  id componentsClassMock = OCMClassMock([FIRDynamicLinkComponents class]);
-  [[componentsClassMock expect]
-      sendHTTPRequest:OCMOCK_ANY
-           completion:[OCMArg checkWithBlock:^BOOL(id obj) {
-             void (^completion)(NSData *_Nullable, NSError *_Nullable) = obj;
-             NSDictionary *JSON = @{@"shortLink" : shortURLString};
-             NSData *JSONData = [NSJSONSerialization dataWithJSONObject:JSON options:0 error:0];
-             completion(JSONData, nil);
-             return YES;
-           }]];
-
-  XCTestExpectation *expectation = [self expectationWithDescription:@"completion called"];
-  NSURL *link = [NSURL URLWithString:@"https://google.com/abc"];
-  FIRDynamicLinkComponents *components =
-      [FIRDynamicLinkComponents componentsWithLink:link domain:@"xyz.page.link"];
-  [components
-      shortenWithCompletion:^(NSURL *_Nullable shortURL, NSArray<NSString *> *_Nullable warnings,
-                              NSError *_Nullable error) {
-        XCTAssertEqualObjects(shortURL.absoluteString, shortURLString);
-        [expectation fulfill];
-      }];
-  [self waitForExpectationsWithTimeout:0.1 handler:nil];
-
-  [keyProviderClassMock verify];
-  [keyProviderClassMock stopMocking];
-  [componentsClassMock verify];
-  [componentsClassMock stopMocking];
-}
-
-- (void)testDeprecatedMethodComponentsWithLinkForDomainWithInvalidDomainScheme {
-  NSString *shortURLString = @"https://xyz.page.link/abcd";
-
-  // Mock key provider
-  id keyProviderClassMock = OCMClassMock([FIRDynamicLinkComponentsKeyProvider class]);
-  [[[keyProviderClassMock expect] andReturn:@"fake-api-key"] APIKey];
-
-  id componentsClassMock = OCMClassMock([FIRDynamicLinkComponents class]);
-  [[componentsClassMock expect]
-      sendHTTPRequest:OCMOCK_ANY
-           completion:[OCMArg checkWithBlock:^BOOL(id obj) {
-             void (^completion)(NSData *_Nullable, NSError *_Nullable) = obj;
-             NSDictionary *JSON = @{@"shortLink" : shortURLString};
-             NSData *JSONData = [NSJSONSerialization dataWithJSONObject:JSON options:0 error:0];
-             completion(JSONData, nil);
-             return YES;
-           }]];
-
-  XCTestExpectation *expectation = [self expectationWithDescription:@"completion called"];
-  NSURL *link = [NSURL URLWithString:@"https://google.com/abc"];
-  FIRDynamicLinkComponents *components =
-      [FIRDynamicLinkComponents componentsWithLink:link domain:@"http://xyz.page.link"];
-  XCTAssertNotNil(components);
   [components
       shortenWithCompletion:^(NSURL *_Nullable shortURL, NSArray<NSString *> *_Nullable warnings,
                               NSError *_Nullable error) {
