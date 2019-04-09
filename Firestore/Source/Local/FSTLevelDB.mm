@@ -395,9 +395,14 @@ static const char *kReservedPathComponent = "firestore";
 }
 
 + (Path)documentsDirectory {
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IOS
   NSArray<NSString *> *directories =
       NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+  return Path::FromNSString(directories[0]).AppendUtf8(kReservedPathComponent);
+
+#elif TARGET_OS_TV
+  NSArray<NSString *> *directories =
+      NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
   return Path::FromNSString(directories[0]).AppendUtf8(kReservedPathComponent);
 
 #elif TARGET_OS_OSX
@@ -405,9 +410,7 @@ static const char *kReservedPathComponent = "firestore";
   return Path::FromNSString(NSHomeDirectory()).AppendUtf8(dotPrefixed);
 
 #else
-#error "local storage on tvOS"
-  // TODO(mcg): Writing to NSDocumentsDirectory on tvOS will fail; we need to write to Caches
-  // https://developer.apple.com/library/content/documentation/General/Conceptual/AppleTV_PG/
+#error "Don't know where to store documents on this platform."
 
 #endif
 }
