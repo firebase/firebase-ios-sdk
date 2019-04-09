@@ -30,7 +30,6 @@
 #import "Firebase/InstanceID/FIRInstanceIDTokenManager.h"
 #import "Firebase/InstanceID/FIRInstanceIDUtilities.h"
 #import "Firebase/InstanceID/NSError+FIRInstanceID.h"
-#import "Firebase/InstanceID/Public/FIRInstanceID.h"
 
 static NSString *const kFakeIID = @"12345678";
 static NSString *const kFakeAPNSToken = @"this is a fake apns token";
