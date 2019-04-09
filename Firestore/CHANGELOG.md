@@ -1,4 +1,6 @@
 # Unreleased
+
+# 1.3.0
 - [feature] Added community support for tvOS.
 
 # 1.2.1
