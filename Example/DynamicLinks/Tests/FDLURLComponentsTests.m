@@ -549,7 +549,7 @@ static NSString *const kFDLURLCustomDomain = @"https://foo.com/path";
 
   FIRDynamicLinkComponents *components =
       [FIRDynamicLinkComponents componentsWithLink:link
-                                            domainURIPrefix:@"this is invalid domain URI Prefix"];
+                                   domainURIPrefix:@"this is invalid domain URI Prefix"];
 
   XCTAssertNil(components);
 }
