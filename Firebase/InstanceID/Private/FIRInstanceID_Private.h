@@ -22,6 +22,11 @@
 @interface FIRInstanceID ()
 
 /**
+ *  Private initializer.
+ */
+- (nonnull instancetype)initPrivately;
+
+/**
  *  Returns a Firebase Messaging scoped token for the firebase app.
  *
  *  @return Returns the stored token if the device has registered with Firebase Messaging, otherwise
