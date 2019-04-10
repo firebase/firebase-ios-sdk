@@ -36,6 +36,18 @@
   return sharedUploader;
 }
 
++ (NSString *)archivePath {
+  static NSString *archivePath;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    NSString *cachePath =
+        NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)[0];
+    NSString *storagePath = [NSString stringWithFormat:@"%@/google-sdks-events", cachePath];
+    archivePath = [storagePath stringByAppendingPathComponent:@"GDTUploadCoordinator"];
+  });
+  return archivePath;
+}
+
 - (instancetype)init {
   self = [super init];
   if (self) {

@@ -58,8 +58,21 @@ NS_ASSUME_NONNULL_BEGIN
 /** The registrar object the coordinator will use. Generally used for testing. */
 @property(nonatomic) GDTRegistrar *registrar;
 
+/** If YES, completion and other operations will result in serializing the singleton to disk. */
+@property(nonatomic, readonly) BOOL runningInBackground;
+
+/** Returns the path to the keyed archive of the singleton. This is where the singleton is saved
+ * to disk during certain app lifecycle events.
+ *
+ * @return File path to serialized singleton.
+ */
++ (NSString *)archivePath;
+
 /** Starts the upload timer. */
 - (void)startTimer;
+
+/** Stops the upload timer from running. */
+- (void)stopTimer;
 
 @end
 
