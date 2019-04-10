@@ -29,7 +29,9 @@
 #import "DynamicLinks/FIRDLScionLogging.h"
 #endif
 
+#ifdef FIRDynamicLinks3P
 #import "DynamicLinks/FDLURLComponents/FDLURLComponents+Private.h"
+#endif
 #import "DynamicLinks/FIRDLRetrievalProcessFactory.h"
 #import "DynamicLinks/FIRDLRetrievalProcessProtocols.h"
 #import "DynamicLinks/FIRDLRetrievalProcessResult.h"
@@ -55,9 +57,6 @@ NSString *const kFIRDLVersion = @STR(FIRDynamicLinks_VERSION);
 // in the user defaults.
 NSString *const kFIRDLReadDeepLinkAfterInstallKey =
     @"com.google.appinvite.readDeeplinkAfterInstall";
-
-// Error code from FDL.
-static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
 
 // We should only open url once. We use the following key to store the state in the user defaults.
 static NSString *const kFIRDLOpenURLKey = @"com.google.appinvite.openURL";
@@ -86,6 +85,9 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 #ifdef FIRDynamicLinks3P
+// Error code from FDL.
+static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
+
 @interface FIRDynamicLinks () {
   /// Stored Analytics reference, if it exists.
   id<FIRAnalyticsInterop> _Nullable _analytics;
