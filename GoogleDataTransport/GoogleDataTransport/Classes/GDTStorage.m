@@ -23,6 +23,7 @@
 #import "GDTAssert.h"
 #import "GDTConsoleLogger.h"
 #import "GDTEvent_Private.h"
+#import "GDTLifecycle.h"
 #import "GDTRegistrar_Private.h"
 #import "GDTUploadCoordinator.h"
 
@@ -75,6 +76,13 @@ static NSString *GDTStoragePath() {
 - (void)storeEvent:(GDTEvent *)event {
   [self createEventDirectoryIfNotExists];
 
+  __block UIBackgroundTaskIdentifier bgID = UIBackgroundTaskInvalid;
+  if (_runningInBackground) {
+    bgID = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
+      [[UIApplication sharedApplication] endBackgroundTask:bgID];
+    }];
+  }
+
   dispatch_async(_storageQueue, ^{
     // Check that a backend implementation is available for this target.
     NSInteger target = event.target;
@@ -98,6 +106,12 @@ static NSString *GDTStoragePath() {
     // Check the QoS, if it's high priority, notify the target that it has a high priority event.
     if (event.qosTier == GDTEventQoSFast) {
       [self.uploader forceUploadForTarget:target];
+    }
+
+    // If running in the background, save state to disk and end the associated background task.
+    if (bgID != UIBackgroundTaskInvalid) {
+      [NSKeyedArchiver archiveRootObject:self toFile:[GDTStorage archivePath]];
+      [[UIApplication sharedApplication] endBackgroundTask:bgID];
     }
   });
 }
@@ -178,6 +192,29 @@ static NSString *GDTStoragePath() {
   events = events ? events : [[NSMutableSet alloc] init];
   [events addObject:event];
   _targetToEventSet[event.target] = events;
+}
+
+#pragma mark - GDTLifecycleProtocol
+
+- (void)appWillForeground:(UIApplication *)app {
+  [NSKeyedUnarchiver unarchiveObjectWithFile:[GDTStorage archivePath]];
+  self->_runningInBackground = NO;
+}
+
+- (void)appWillBackground:(UIApplication *)app {
+  self->_runningInBackground = YES;
+  [NSKeyedArchiver archiveRootObject:self toFile:[GDTStorage archivePath]];
+  // Create an immediate background task to run until the end of the current queue of work.
+  __block UIBackgroundTaskIdentifier bgID = [app beginBackgroundTaskWithExpirationHandler:^{
+    [app endBackgroundTask:bgID];
+  }];
+  dispatch_async(_storageQueue, ^{
+    [app endBackgroundTask:bgID];
+  });
+}
+
+- (void)appWillTerminate:(UIApplication *)application {
+  [NSKeyedArchiver archiveRootObject:self toFile:[GDTStorage archivePath]];
 }
 
 #pragma mark - NSSecureCoding

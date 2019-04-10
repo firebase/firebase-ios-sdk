@@ -89,4 +89,39 @@
   return targetToPrioritizer;
 }
 
+#pragma mark - GDTLifecycleProtocol
+
+- (void)appWillBackground:(nonnull UIApplication *)app {
+  dispatch_async(_registrarQueue, ^{
+    for (id<GDTUploader> uploader in [self->_targetToUploader allValues]) {
+      [uploader appWillBackground:app];
+    }
+    for (id<GDTPrioritizer> prioritizer in [self->_targetToPrioritizer allValues]) {
+      [prioritizer appWillBackground:app];
+    }
+  });
+}
+
+- (void)appWillForeground:(nonnull UIApplication *)app {
+  dispatch_async(_registrarQueue, ^{
+    for (id<GDTUploader> uploader in [self->_targetToUploader allValues]) {
+      [uploader appWillForeground:app];
+    }
+    for (id<GDTPrioritizer> prioritizer in [self->_targetToPrioritizer allValues]) {
+      [prioritizer appWillForeground:app];
+    }
+  });
+}
+
+- (void)appWillTerminate:(nonnull UIApplication *)app {
+  dispatch_sync(_registrarQueue, ^{
+    for (id<GDTUploader> uploader in [self->_targetToUploader allValues]) {
+      [uploader appWillTerminate:app];
+    }
+    for (id<GDTPrioritizer> prioritizer in [self->_targetToPrioritizer allValues]) {
+      [prioritizer appWillTerminate:app];
+    }
+  });
+}
+
 @end

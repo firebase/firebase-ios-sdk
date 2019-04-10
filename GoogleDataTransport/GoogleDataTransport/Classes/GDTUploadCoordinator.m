@@ -82,8 +82,12 @@
       [self->_forcedUploadQueue removeLastObject];
     };
 
-    // Enqueue the force upload block if there's an in-flight upload for that target already.
-    if (self->_targetToInFlightEventSet[targetNumber]) {
+    if (self->_runningInBackground) {
+      [self->_forcedUploadQueue insertObject:forceUploadBlock atIndex:0];
+      [NSKeyedArchiver archiveRootObject:self toFile:[GDTUploadCoordinator archivePath]];
+
+      // Enqueue the force upload block if there's an in-flight upload for that target already.
+    } else if (self->_targetToInFlightEventSet[targetNumber]) {
       [self->_forcedUploadQueue insertObject:forceUploadBlock atIndex:0];
     } else {
       forceUploadBlock();
@@ -102,7 +106,8 @@
   return _storage;
 }
 
-// This should always be called in a thread-safe manner.
+// This should always be called in a thread-safe manner. When running the background, in theory,
+// the uploader's background task should be calling this.
 - (GDTUploaderCompletionBlock)onCompleteBlock {
   __weak GDTUploadCoordinator *weakSelf = self;
   static GDTUploaderCompletionBlock onCompleteBlock;
@@ -124,7 +129,9 @@
           GDTAssert(events, @"There should be an in-flight event set to remove.");
           [strongSelf.storage removeEvents:events];
           [strongSelf->_targetToInFlightEventSet removeObjectForKey:targetNumber];
-          if (strongSelf->_forcedUploadQueue.count) {
+          if (strongSelf->_runningInBackground) {
+            [NSKeyedArchiver archiveRootObject:self toFile:[GDTUploadCoordinator archivePath]];
+          } else if (strongSelf->_forcedUploadQueue.count) {
             GDTUploadCoordinatorForceUploadBlock queuedBlock =
                 [strongSelf->_forcedUploadQueue lastObject];
             if (queuedBlock) {
@@ -155,7 +162,9 @@
     dispatch_source_set_timer(strongSelf->_timer, DISPATCH_TIME_NOW, strongSelf->_timerInterval,
                               strongSelf->_timerLeeway);
     dispatch_source_set_event_handler(strongSelf->_timer, ^{
-      [self checkPrioritizersAndUploadEvents];
+      if (!strongSelf->_runningInBackground) {
+        [strongSelf checkPrioritizersAndUploadEvents];
+      }
     });
     dispatch_resume(strongSelf->_timer);
   });
@@ -174,6 +183,9 @@
 - (void)checkPrioritizersAndUploadEvents {
   __weak GDTUploadCoordinator *weakSelf = self;
   dispatch_async(_coordinationQueue, ^{
+    if (self->_runningInBackground) {
+      return;
+    }
     static int count = 0;
     count++;
     GDTUploadCoordinator *strongSelf = weakSelf;
@@ -222,6 +234,79 @@
     }
   }
   return targetsReadyForUpload;
+}
+
+#pragma mark - NSSecureCoding support
+
+/** The keyed archiver key for the _targetToNextUploadTimes property. */
+static NSString *const kTargetToNextUploadTimesKey =
+    @"GDTUploadCoordinatorTargetToNextUploadTimesKey";
+
+/** The keyed archiver key for the _targetToInFlightEventSet property. */
+static NSString *const kTargetToInFlightEventSetKey =
+    @"GDTUploadCoordinatorTargetToInFlightEventSetKey";
+
+/** The keyed archiver key for the _forcedUploadQueue property. */
+static NSString *const kForcedUploadQueueKey = @"GDTUploadCoordinatorForcedUploadQueueKey";
+
++ (BOOL)supportsSecureCoding {
+  return YES;
+}
+
+- (instancetype)initWithCoder:(NSCoder *)aDecoder {
+  GDTUploadCoordinator *sharedInstance = [self.class sharedInstance];
+  dispatch_sync(sharedInstance->_coordinationQueue, ^{
+    sharedInstance->_targetToNextUploadTimes =
+        [aDecoder decodeObjectOfClass:[NSMutableDictionary class]
+                               forKey:kTargetToNextUploadTimesKey];
+    sharedInstance->_targetToInFlightEventSet =
+        [aDecoder decodeObjectOfClass:[NSMutableDictionary class]
+                               forKey:kTargetToInFlightEventSetKey];
+    sharedInstance->_forcedUploadQueue = [aDecoder decodeObjectOfClass:[NSMutableArray class]
+                                                                forKey:kForcedUploadQueueKey];
+  });
+  return sharedInstance;
+}
+
+// Needs to always be called on the queue to be thread-safe.
+- (void)encodeWithCoder:(NSCoder *)aCoder {
+  [aCoder encodeObject:self->_targetToNextUploadTimes forKey:kTargetToNextUploadTimesKey];
+  [aCoder encodeObject:self->_targetToInFlightEventSet forKey:kTargetToInFlightEventSetKey];
+  [aCoder encodeObject:self->_forcedUploadQueue forKey:kForcedUploadQueueKey];
+}
+
+#pragma mark - GDTLifecycleProtocol
+
+- (void)appWillForeground:(UIApplication *)app {
+  // Not entirely thread-safe, but it should be fine.
+  self->_runningInBackground = NO;
+  [self startTimer];
+  [NSKeyedUnarchiver unarchiveObjectWithFile:[GDTUploadCoordinator archivePath]];
+}
+
+- (void)appWillBackground:(UIApplication *)app {
+  // Not entirely thread-safe, but it should be fine.
+  self->_runningInBackground = YES;
+
+  // Should be thread-safe. If it ends up not being, put this in a dispatch_sync.
+  [self stopTimer];
+
+  // Create an immediate background task to run until the end of the current queue of work.
+  __block UIBackgroundTaskIdentifier bgID = [app beginBackgroundTaskWithExpirationHandler:^{
+    [NSKeyedArchiver archiveRootObject:self toFile:[GDTUploadCoordinator archivePath]];
+    [app endBackgroundTask:bgID];
+  }];
+  dispatch_async(_coordinationQueue, ^{
+    [NSKeyedArchiver archiveRootObject:self toFile:[GDTUploadCoordinator archivePath]];
+    [app endBackgroundTask:bgID];
+  });
+}
+
+- (void)appWillTerminate:(UIApplication *)application {
+  dispatch_sync(_coordinationQueue, ^{
+    [self stopTimer];
+    [NSKeyedArchiver archiveRootObject:self toFile:[GDTUploadCoordinator archivePath]];
+  });
 }
 
 @end

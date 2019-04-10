@@ -17,6 +17,7 @@
 #import <Foundation/Foundation.h>
 
 #import <GoogleDataTransport/GDTClock.h>
+#import <GoogleDataTransport/GDTLifecycle.h>
 #import <GoogleDataTransport/GDTTargets.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -33,7 +34,7 @@ typedef void (^GDTUploaderCompletionBlock)(GDTTarget target,
                                            NSError *_Nullable uploadError);
 
 /** This protocol defines the common interface for uploader implementations. */
-@protocol GDTUploader <NSObject>
+@protocol GDTUploader <NSObject, GDTLifecycleProtocol>
 
 @required
 

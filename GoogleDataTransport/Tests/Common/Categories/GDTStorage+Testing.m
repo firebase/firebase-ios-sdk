@@ -16,12 +16,16 @@
 
 #import "GDTStorage+Testing.h"
 
+#import "GDTStorage_Private.h"
+
 @implementation GDTStorage (Testing)
 
 - (void)reset {
   dispatch_sync(self.storageQueue, ^{
     [self.targetToEventSet removeAllObjects];
     [self.storedEvents removeAllObjects];
+    NSError *error;
+    [[NSFileManager defaultManager] removeItemAtPath:[GDTStorage archivePath] error:&error];
   });
 }
 

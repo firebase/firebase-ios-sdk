@@ -41,6 +41,11 @@ Shared library for iOS SDK data transport needs.
     test_spec.source_files = ['GoogleDataTransport/Tests/Unit/**/*.{h,m}'] + common_test_sources
   end
 
+  s.test_spec 'Tests-Lifecycle' do |test_spec|
+    test_spec.requires_app_host = false
+    test_spec.source_files = ['GoogleDataTransport/Tests/Lifecycle/**/*.{h,m}'] + common_test_sources
+  end
+
   # Integration test specs
   s.test_spec 'Tests-Integration' do |test_spec|
     test_spec.requires_app_host = false

@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+#import <GoogleDataTransport/GDTLifecycle.h>
+
 @class GDTEvent;
 
 @protocol GDTEventTransformer;
@@ -28,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
  * maintain state (or at least, there's nothing to stop them from doing that) and the same instances
  * may be used across multiple instances.
  */
-@interface GDTTransformer : NSObject
+@interface GDTTransformer : NSObject <GDTLifecycleProtocol>
 
 /** Instantiates or returns the event transformer singleton.
  *
@@ -37,6 +39,9 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)sharedInstance;
 
 /** Writes the result of applying the given transformers' -transform method on the given event.
+ *
+ * @note If the app is suspended, a background task will be created to complete work in-progress,
+ * but this method will not send any further events until the app is resumed.
  *
  * @param event The event to apply transformers on.
  * @param transformers The list of transformers to apply.

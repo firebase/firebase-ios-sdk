@@ -21,6 +21,7 @@
 
 #import "GDTAssert.h"
 #import "GDTConsoleLogger.h"
+#import "GDTLifecycle.h"
 #import "GDTStorage.h"
 
 @implementation GDTTransformer
@@ -46,6 +47,13 @@
 - (void)transformEvent:(GDTEvent *)event
       withTransformers:(NSArray<id<GDTEventTransformer>> *)transformers {
   GDTAssert(event, @"You can't write a nil event");
+
+  __block UIBackgroundTaskIdentifier bgID = UIBackgroundTaskInvalid;
+  if (_runningInBackground) {
+    bgID = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
+      [[UIApplication sharedApplication] endBackgroundTask:bgID];
+    }];
+  }
   dispatch_async(_eventWritingQueue, ^{
     GDTEvent *transformedEvent = event;
     for (id<GDTEventTransformer> transformer in transformers) {
@@ -61,7 +69,34 @@
       }
     }
     [self.storageInstance storeEvent:transformedEvent];
+    if (self->_runningInBackground) {
+      [[UIApplication sharedApplication] endBackgroundTask:bgID];
+    }
   });
+}
+
+#pragma mark - GDTLifecycleProtocol
+
+- (void)appWillForeground:(UIApplication *)app {
+  dispatch_async(_eventWritingQueue, ^{
+    self->_runningInBackground = NO;
+  });
+}
+
+- (void)appWillBackground:(UIApplication *)app {
+  // Create an immediate background task to run until the end of the current queue of work.
+  __block UIBackgroundTaskIdentifier bgID = [app beginBackgroundTaskWithExpirationHandler:^{
+    [app endBackgroundTask:bgID];
+  }];
+  dispatch_async(_eventWritingQueue, ^{
+    [app endBackgroundTask:bgID];
+  });
+}
+
+- (void)appWillTerminate:(UIApplication *)application {
+  // Flush the queue immediately.
+  dispatch_sync(_eventWritingQueue, ^{
+                });
 }
 
 @end
