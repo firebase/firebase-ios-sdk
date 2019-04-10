@@ -18,7 +18,6 @@
 
 #import "DynamicLinks/FDLURLComponents/FDLURLComponents+Private.h"
 #import "DynamicLinks/FDLURLComponents/FIRDynamicLinkComponentsKeyProvider.h"
-#import "DynamicLinks/FIRDynamicLinks+Private.h"
 #import "DynamicLinks/Public/FDLURLComponents.h"
 
 #import "DynamicLinks/Logging/FDLLogging.h"
