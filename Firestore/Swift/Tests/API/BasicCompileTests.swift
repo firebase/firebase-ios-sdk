@@ -90,7 +90,7 @@ func makeRefs(database db: Firestore) -> (CollectionReference, DocumentReference
 }
 
 func makeQuery(collection collectionRef: CollectionReference) -> Query {
-  let query = collectionRef.whereField(FieldPath(["name"]), isEqualTo: "Fred")
+  var query = collectionRef.whereField(FieldPath(["name"]), isEqualTo: "Fred")
     .whereField("age", isGreaterThanOrEqualTo: 24)
     .whereField("tags", arrayContains: "active")
     .whereField(FieldPath(["tags"]), arrayContains: "active")
@@ -99,8 +99,7 @@ func makeQuery(collection collectionRef: CollectionReference) -> Query {
     .order(by: "name", descending: true)
     .limit(to: 10)
 
-  // TODO(b/116617988): collectionGroup query.
-  // query = collectionRef.firestore.collectionGroup("collection")
+  query = collectionRef.firestore.collectionGroup("collection")
 
   return query
 }

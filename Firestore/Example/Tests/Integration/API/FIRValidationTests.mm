@@ -24,8 +24,6 @@
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
-// TODO(b/116617988): Remove Internal include once CG queries are public.
-#import "Firestore/Source/API/FIRFirestore+Internal.h"
 
 // We have tests for passing nil when nil is not supposed to be allowed. So suppress the warnings.
 #pragma clang diagnostic ignored "-Wnonnull"

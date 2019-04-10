@@ -20,8 +20,6 @@
 
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
-// TODO(b/116617988): Remove Internal include once CG queries are public.
-#import "Firestore/Source/API/FIRFirestore+Internal.h"
 
 @interface FIRQueryTests : FSTIntegrationTestCase
 @end
