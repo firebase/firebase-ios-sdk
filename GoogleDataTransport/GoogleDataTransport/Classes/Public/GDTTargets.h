@@ -21,6 +21,9 @@
  */
 typedef NS_ENUM(NSInteger, GDTTarget) {
 
+  /** A target only used in testing. */
+  kGDTTargetTest = 999,
+
   /** The CCT target. */
   kGDTTargetCCT = 1000,
 };
