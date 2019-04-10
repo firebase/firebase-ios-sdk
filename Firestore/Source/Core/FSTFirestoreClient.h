@@ -23,6 +23,7 @@
 
 #include "Firestore/core/src/firebase/firestore/api/document_reference.h"
 #include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
+#include "Firestore/core/src/firebase/firestore/api/settings.h"
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/core/listen_options.h"
@@ -35,7 +36,6 @@
 
 @class FIRDocumentReference;
 @class FIRDocumentSnapshot;
-@class FIRFirestoreSettings;
 @class FIRQuery;
 @class FIRQuerySnapshot;
 @class FSTDatabaseID;
@@ -48,6 +48,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 using firebase::firestore::api::DocumentSnapshot;
+using firebase::firestore::api::Settings;
 using firebase::firestore::core::ListenOptions;
 using firebase::firestore::core::QueryListener;
 using firebase::firestore::core::ViewSnapshot;
@@ -66,7 +67,7 @@ using firebase::firestore::core::ViewSnapshot;
  */
 + (instancetype)
     clientWithDatabaseInfo:(const firebase::firestore::core::DatabaseInfo &)databaseInfo
-                  settings:(FIRFirestoreSettings *)settings
+                  settings:(const Settings &)settings
        credentialsProvider:(firebase::firestore::auth::CredentialsProvider *)
                                credentialsProvider  // no passing ownership
               userExecutor:(std::unique_ptr<firebase::firestore::util::Executor>)userExecutor
