@@ -15,6 +15,7 @@
  */
 
 #import "GDTUploadCoordinator.h"
+#import "GDTUploadCoordinator_Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -22,9 +23,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Resets the properties of the singleton, but does not reallocate a new singleton. */
 - (void)reset;
-
-/** Stops the upload timer from running. */
-- (void)stopTimer;
 
 /** The time interval, in nanoseconds, that the time should be called on. */
 @property(nonatomic, readwrite) uint64_t timerInterval;

@@ -161,6 +161,13 @@
   });
 }
 
+/** Stops the currently running timer. */
+- (void)stopTimer {
+  if (_timer) {
+    dispatch_source_cancel(_timer);
+  }
+}
+
 /** Checks the next upload time for each target and makes a determination on whether to upload
  * events for that target or not. If so, queries the prioritizers
  */
