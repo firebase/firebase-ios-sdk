@@ -23,7 +23,6 @@
 #import "DynamicLinks/Logging/FDLLogging.h"
 #import "DynamicLinks/Utilities/FDLUtilities.h"
 
-
 // Label exceptions from FDL.
 NSString *const kFirebaseDurableDeepLinkErrorDomain = @"com.firebase.durabledeeplink";
 
