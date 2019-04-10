@@ -1,4 +1,5 @@
 # v4.0
+- FirebaseAnalytics is no longer a hard dependency in the DynamicLinks pod. If you were installing Dynamic Links via pod ''Firebase/DynamicLinks'', you should add 'pod 'Firebase/Analytics'' to the Podfile to maintain full Dynamic Links functionality. If you previously have 'pod 'Firebase/Core'' in the Podfile, no change is necessary. (#2738)
 - Remove deprecated API in FDLURLComponents. (#2768)
 
 # v3.4.3
