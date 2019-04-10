@@ -264,7 +264,25 @@ static NSInteger target = 1337;
     XCTAssertNil([[GDTStorage sharedInstance].storedEvents lastObject]);
   });
 
-  // TODO(mikehaney24): Ensure that the object created by alloc is discarded?
+  GDTStorage *unarchivedStorage = [NSKeyedUnarchiver unarchiveObjectWithData:storageData];
+  XCTAssertNotNil([unarchivedStorage.storedEvents lastObject]);
+}
+
+/** Tests encoding and decoding the storage singleton when calling -sharedInstance. */
+- (void)testNSSecureCodingWithSharedInstance {
+  GDTEvent *event = [[GDTEvent alloc] initWithMappingID:@"404" target:target];
+  event.dataObjectTransportBytes = [@"testString" dataUsingEncoding:NSUTF8StringEncoding];
+  XCTAssertNoThrow([[GDTStorage sharedInstance] storeEvent:event]);
+  event = nil;
+  NSData *storageData = [NSKeyedArchiver archivedDataWithRootObject:[GDTStorage sharedInstance]];
+  dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
+    XCTAssertNotNil([[GDTStorage sharedInstance].storedEvents lastObject]);
+  });
+  [[GDTStorage sharedInstance] removeEvents:[GDTStorage sharedInstance].storedEvents.set];
+  dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
+    XCTAssertNil([[GDTStorage sharedInstance].storedEvents lastObject]);
+  });
+
   GDTStorage *unarchivedStorage = [NSKeyedUnarchiver unarchiveObjectWithData:storageData];
   XCTAssertNotNil([unarchivedStorage.storedEvents lastObject]);
 }

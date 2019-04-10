@@ -36,6 +36,18 @@
   return sharedUploader;
 }
 
++ (NSString *)archivePath {
+  static NSString *archivePath;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    NSString *cachePath =
+        NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)[0];
+    NSString *storagePath = [NSString stringWithFormat:@"%@/google-sdks-events", cachePath];
+    archivePath = [storagePath stringByAppendingPathComponent:@"GDTUploadCoordinator"];
+  });
+  return archivePath;
+}
+
 - (instancetype)init {
   self = [super init];
   if (self) {
@@ -147,6 +159,13 @@
     });
     dispatch_resume(strongSelf->_timer);
   });
+}
+
+/** Stops the currently running timer. */
+- (void)stopTimer {
+  if (_timer) {
+    dispatch_source_cancel(_timer);
+  }
 }
 
 /** Checks the next upload time for each target and makes a determination on whether to upload

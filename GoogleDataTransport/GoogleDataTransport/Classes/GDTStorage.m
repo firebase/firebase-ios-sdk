@@ -43,6 +43,15 @@ static NSString *GDTStoragePath() {
 
 @implementation GDTStorage
 
++ (NSString *)archivePath {
+  static NSString *archivePath;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    archivePath = [GDTStoragePath() stringByAppendingPathComponent:@"GDTStorageArchive"];
+  });
+  return archivePath;
+}
+
 + (instancetype)sharedInstance {
   static GDTStorage *sharedStorage;
   static dispatch_once_t onceToken;
