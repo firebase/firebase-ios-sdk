@@ -29,7 +29,9 @@
 #import "DynamicLinks/FIRDLScionLogging.h"
 #endif
 
+#ifdef FIRDynamicLinks3P
 #import "DynamicLinks/FDLURLComponents/FDLURLComponents+Private.h"
+#endif
 #import "DynamicLinks/FIRDLRetrievalProcessFactory.h"
 #import "DynamicLinks/FIRDLRetrievalProcessProtocols.h"
 #import "DynamicLinks/FIRDLRetrievalProcessResult.h"
