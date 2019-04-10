@@ -204,6 +204,18 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
   return [[FIRDocumentReference alloc] initWithReference:std::move(documentReference)];
 }
 
+- (FIRQuery *)collectionGroupWithID:(NSString *)collectionID {
+  if (!collectionID) {
+    ThrowInvalidArgument("Collection ID cannot be nil.");
+  }
+  if ([collectionID containsString:@"/"]) {
+    ThrowInvalidArgument("Invalid collection ID (%s). Collection IDs must not contain / in them.",
+                         collectionID);
+  }
+
+  return _firestore->GetCollectionGroup(collectionID);
+}
+
 - (FIRWriteBatch *)batch {
   return _firestore->GetBatch();
 }
@@ -271,18 +283,6 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 
 + (FIRFirestore *)recoverFromFirestore:(Firestore *)firestore {
   return (__bridge FIRFirestore *)firestore->extension();
-}
-
-- (FIRQuery *)collectionGroupWithID:(NSString *)collectionID {
-  if (!collectionID) {
-    ThrowInvalidArgument("Collection ID cannot be nil.");
-  }
-  if ([collectionID containsString:@"/"]) {
-    ThrowInvalidArgument("Invalid collection ID (%s). Collection IDs must not contain / in them.",
-                         collectionID);
-  }
-
-  return _firestore->GetCollectionGroup(collectionID);
 }
 
 - (void)shutdownWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
