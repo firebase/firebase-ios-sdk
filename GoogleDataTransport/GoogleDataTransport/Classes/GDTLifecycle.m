@@ -18,10 +18,10 @@
 
 #import <GoogleDataTransport/GDTEvent.h>
 
+#import "GDTRegistrar_Private.h"
 #import "GDTStorage_Private.h"
 #import "GDTTransformer_Private.h"
 #import "GDTUploadCoordinator_Private.h"
-#import "GDTRegistrar_Private.h"
 
 @implementation GDTLifecycle
 

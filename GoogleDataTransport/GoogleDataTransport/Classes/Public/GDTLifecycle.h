@@ -50,9 +50,9 @@ NS_ASSUME_NONNULL_BEGIN
 /** This class manages the library's response to app lifecycle events.
  *
  * When backgrounding, the library doesn't stop processing events, it's just that several background
- * tasks will end up being created for every event that's sent, and the stateful objects of the library
- * (GDTStorage and GDTUploadCoordinator singletons) will deserialize themselves from and to disk
- * before and after every operation, respectively.
+ * tasks will end up being created for every event that's sent, and the stateful objects of the
+ * library (GDTStorage and GDTUploadCoordinator singletons) will deserialize themselves from and to
+ * disk before and after every operation, respectively.
  */
 @interface GDTLifecycle : NSObject <UIApplicationDelegate>
 
