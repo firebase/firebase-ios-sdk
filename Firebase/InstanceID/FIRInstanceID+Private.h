@@ -25,6 +25,11 @@
 @interface FIRInstanceID (Private)
 
 /**
+ *  Private initializer.
+ */
+- (nonnull instancetype)initPrivately;
+
+/**
  *  Return the cached checkin preferences on the disk. This is used internally only by Messaging.
  *
  *  @return The cached checkin preferences on the client.
