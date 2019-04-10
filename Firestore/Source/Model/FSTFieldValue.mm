@@ -907,13 +907,16 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
 
 @end
 
-@interface FSTDelegateValue ()
-@property(nonatomic, assign, readonly) FieldValue internalValue;
-@end
+@implementation FSTDelegateValue {
+  FieldValue _internalValue;
+}
 
-@implementation FSTDelegateValue
 + (instancetype)delegateWithValue:(FieldValue &&)value {
   return [[FSTDelegateValue alloc] initWithValue:std::move(value)];
+}
+
+- (const FieldValue &)internalValue {
+  return _internalValue;
 }
 
 - (id)initWithValue:(FieldValue &&)value {

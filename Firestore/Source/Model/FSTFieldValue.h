@@ -277,6 +277,7 @@ enum class ServerTimestampBehavior { None, Estimate, Previous };
  */
 @interface FSTDelegateValue : FSTFieldValue <id>
 + (instancetype)delegateWithValue:(FieldValue &&)value;
+- (const FieldValue &)internalValue;
 @end
 
 NS_ASSUME_NONNULL_END
