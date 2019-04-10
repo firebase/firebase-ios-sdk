@@ -1,4 +1,4 @@
-# Unreleased
+# v6.0.0
 - Add support of single sign on. (#2684)
 - Deprecate `reauthenticateAndRetrieveDataWithCredential:completion:`, `signInAndRetrieveDataWithCredential:completion:`, `linkAndRetrieveDataWithCredential:completion:`, `fetchProvidersForEmail:completion:`. (#2723, #2756)
 - Implement oauth secret token in headful-lite. (#2663)
