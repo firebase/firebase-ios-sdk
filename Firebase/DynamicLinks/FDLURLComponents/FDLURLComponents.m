@@ -23,6 +23,9 @@
 #import "DynamicLinks/Logging/FDLLogging.h"
 #import "DynamicLinks/Utilities/FDLUtilities.h"
 
+// Label exceptions from FDL.
+NSString *const kFirebaseDurableDeepLinkErrorDomain = @"com.firebase.durabledeeplink";
+
 /// The exact behavior of dict[key] = value is unclear when value is nil. This function safely adds
 /// the key-value pair to the dictionary, even when value is nil.
 /// This function will treat empty string in the same way as nil.

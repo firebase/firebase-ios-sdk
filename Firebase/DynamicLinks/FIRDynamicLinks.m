@@ -29,6 +29,7 @@
 #import "DynamicLinks/FIRDLScionLogging.h"
 #endif
 
+#import "DynamicLinks/FDLURLComponents/FDLURLComponents+Private.h"
 #import "DynamicLinks/FIRDLRetrievalProcessFactory.h"
 #import "DynamicLinks/FIRDLRetrievalProcessProtocols.h"
 #import "DynamicLinks/FIRDLRetrievalProcessResult.h"
@@ -54,9 +55,6 @@ NSString *const kFIRDLVersion = @STR(FIRDynamicLinks_VERSION);
 // in the user defaults.
 NSString *const kFIRDLReadDeepLinkAfterInstallKey =
     @"com.google.appinvite.readDeeplinkAfterInstall";
-
-// Label exceptions from FDL.
-NSString *const kFirebaseDurableDeepLinkErrorDomain = @"com.firebase.durabledeeplink";
 
 // Error code from FDL.
 static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
