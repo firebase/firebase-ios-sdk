@@ -1,3 +1,6 @@
+# v4.0
+- Remove deprecated API in FDLURLComponents. (#2768)
+
 # v3.4.3
 - Fixed an issue where matchesshortlinkformat was returning true for certain FDL long links.
 
