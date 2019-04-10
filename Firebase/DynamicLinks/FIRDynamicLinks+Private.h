@@ -30,11 +30,6 @@ FOUNDATION_EXPORT NSString *const kFIRDLVersion;
  */
 FOUNDATION_EXPORT NSString *const kFIRDLReadDeepLinkAfterInstallKey;
 
-/**
- * Label exceptions from FDL.
- */
-FOUNDATION_EXPORT NSString *const kFirebaseDurableDeepLinkErrorDomain;
-
 @interface FIRDynamicLinks (Private)
 
 /**
