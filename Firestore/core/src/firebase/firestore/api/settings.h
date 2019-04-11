@@ -34,7 +34,7 @@ class Settings {
  public:
   Settings() = default;
 
-  void set_host(const std::string_view& value) {
+  void set_host(const std::string& value) {
     host_ = value;
   }
   const std::string& host() const {
@@ -75,10 +75,10 @@ class Settings {
 
  private:
   std::string host_;
-  bool ssl_enabled_;
-  bool persistence_enabled_;
-  bool timestamps_in_snapshots_enabled_;
-  int64_t cache_size_bytes_;
+  bool ssl_enabled_ = false;
+  bool persistence_enabled_ = false;
+  bool timestamps_in_snapshots_enabled_ = false;
+  int64_t cache_size_bytes_ = 0;
 };
 
 }  // namespace api
