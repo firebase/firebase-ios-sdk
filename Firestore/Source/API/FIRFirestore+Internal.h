@@ -68,7 +68,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 // FIRFirestore ownes the DatabaseId instance.
 @property(nonatomic, assign, readonly) const firebase::firestore::model::DatabaseId *databaseID;
-@property(nonatomic, nullable, strong, readonly) FSTFirestoreClient *client;
 @property(nonatomic, strong, readonly) FSTUserDataConverter *dataConverter;
 
 @end

@@ -174,13 +174,6 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
   _firestore->set_settings(settings);
 }
 
-/**
- * Returns the FirestoreClient if it is configured.
- */
-- (nullable FSTFirestoreClient *)client {
-  return _firestore->client();
-}
-
 - (FIRCollectionReference *)collectionWithPath:(NSString *)collectionPath {
   if (!collectionPath) {
     ThrowInvalidArgument("Collection path cannot be nil.");

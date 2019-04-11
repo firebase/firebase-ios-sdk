@@ -395,14 +395,13 @@ static FIRFirestoreSettings *defaultSettings;
 }
 
 - (void)disableNetwork {
-  [self.db.client
+  [self.db
       disableNetworkWithCompletion:[self completionForExpectationWithName:@"Disable Network."]];
   [self awaitExpectations];
 }
 
 - (void)enableNetwork {
-  [self.db.client
-      enableNetworkWithCompletion:[self completionForExpectationWithName:@"Enable Network."]];
+  [self.db enableNetworkWithCompletion:[self completionForExpectationWithName:@"Enable Network."]];
   [self awaitExpectations];
 }
 

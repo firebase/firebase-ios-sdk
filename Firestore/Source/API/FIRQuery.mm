@@ -121,7 +121,7 @@ NS_ASSUME_NONNULL_BEGIN
                                          NSError *_Nullable error))completion {
   Source source = MakeSource(publicSource);
   if (source == Source::Cache) {
-    [self.firestore.client getDocumentsFromLocalCache:self completion:completion];
+    [self.firestore.wrapped->client() getDocumentsFromLocalCache:self completion:completion];
     return;
   }
 
