@@ -28,8 +28,8 @@
 #include "Firestore/core/src/firebase/firestore/api/input_validation.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
+#include "Firestore/core/src/firebase/firestore/objc/objc_compatibility.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
-#include "Firestore/core/src/firebase/firestore/util/objc_compatibility.h"
 #include "absl/types/optional.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -38,7 +38,6 @@ namespace firebase {
 namespace firestore {
 namespace api {
 
-namespace objc = util::objc;
 using api::Firestore;
 using core::DocumentViewChange;
 using core::ViewSnapshot;

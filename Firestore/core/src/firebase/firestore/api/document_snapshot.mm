@@ -19,8 +19,8 @@
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 
+#include "Firestore/core/src/firebase/firestore/objc/objc_compatibility.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
-#include "Firestore/core/src/firebase/firestore/util/objc_compatibility.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -28,7 +28,6 @@ namespace firebase {
 namespace firestore {
 namespace api {
 
-namespace objc = util::objc;
 using model::DocumentKey;
 using model::FieldPath;
 

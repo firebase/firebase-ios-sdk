@@ -231,6 +231,12 @@ function(add_objc_flags target)
       PRIVATE
       ${OBJC_FLAGS}
     )
+
+    target_link_libraries(
+      ${target}
+      PRIVATE
+      "-framework Foundation"
+    )
   endif()
 endfunction()
 

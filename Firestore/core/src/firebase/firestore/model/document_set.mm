@@ -23,7 +23,7 @@
 
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
-#include "Firestore/core/src/firebase/firestore/util/objc_compatibility.h"
+#include "Firestore/core/src/firebase/firestore/objc/objc_compatibility.h"
 #include "absl/algorithm/container.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -32,7 +32,6 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-namespace objc = util::objc;
 using immutable::SortedSet;
 
 DocumentSet::DocumentSet(NSComparator comparator)

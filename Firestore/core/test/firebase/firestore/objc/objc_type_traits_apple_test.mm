@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/util/type_traits.h"
+#include "Firestore/core/src/firebase/firestore/objc/objc_type_traits.h"
 
 #import <Foundation/NSArray.h>
 #import <Foundation/NSObject.h>
@@ -24,27 +24,27 @@
 
 namespace firebase {
 namespace firestore {
-namespace util {
+namespace objc {
 
 TEST(TypeTraitsTest, IsObjectiveCPointer) {
-  static_assert(is_objective_c_pointer<NSObject*>{}, "NSObject");
-  static_assert(is_objective_c_pointer<NSString*>{}, "NSString");
-  static_assert(is_objective_c_pointer<NSArray<NSString*>*>{},
+  static_assert(is_objc_pointer<NSObject*>{}, "NSObject");
+  static_assert(is_objc_pointer<NSString*>{}, "NSString");
+  static_assert(is_objc_pointer<NSArray<NSString*>*>{},
                 "NSArray<NSString*>");
 
-  static_assert(is_objective_c_pointer<id>{}, "id");
-  static_assert(is_objective_c_pointer<id<NSCopying>>{}, "id<NSCopying>");
+  static_assert(is_objc_pointer<id>{}, "id");
+  static_assert(is_objc_pointer<id<NSCopying>>{}, "id<NSCopying>");
 
-  static_assert(!is_objective_c_pointer<int*>{}, "int*");
-  static_assert(!is_objective_c_pointer<void*>{}, "void*");
-  static_assert(!is_objective_c_pointer<int>{}, "int");
-  static_assert(!is_objective_c_pointer<void>{}, "void");
+  static_assert(!is_objc_pointer<int*>{}, "int*");
+  static_assert(!is_objc_pointer<void*>{}, "void*");
+  static_assert(!is_objc_pointer<int>{}, "int");
+  static_assert(!is_objc_pointer<void>{}, "void");
 
   struct Foo {};
-  static_assert(!is_objective_c_pointer<Foo>{}, "Foo");
-  static_assert(!is_objective_c_pointer<Foo*>{}, "Foo");
+  static_assert(!is_objc_pointer<Foo>{}, "Foo");
+  static_assert(!is_objc_pointer<Foo*>{}, "Foo");
 }
 
-}  // namespace util
+}  // namespace objc
 }  // namespace firestore
 }  // namespace firebase

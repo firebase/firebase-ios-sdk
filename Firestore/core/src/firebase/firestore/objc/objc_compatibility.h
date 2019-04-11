@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_OBJC_COMPATIBILITY_H_
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_OBJC_COMPATIBILITY_H_
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_OBJC_OBJC_COMPATIBILITY_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_OBJC_OBJC_COMPATIBILITY_H_
 
 #if !defined(__OBJC__)
 #error "This header only supports Objective-C++"
@@ -28,6 +28,7 @@
 #include <type_traits>
 #include <unordered_map>
 
+#include "Firestore/core/src/firebase/firestore/objc/objc_type_traits.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/to_string.h"
 #include "Firestore/core/src/firebase/firestore/util/type_traits.h"
@@ -40,15 +41,14 @@
 
 namespace firebase {
 namespace firestore {
-namespace util {
 namespace objc {
 
 namespace internal {
 
 template <typename T>
 using is_container_of_objc =
-    absl::conjunction<is_iterable<T>,
-                      is_objective_c_pointer<typename T::value_type>>;
+    absl::conjunction<util::is_iterable<T>,
+                      is_objc_pointer<typename T::value_type>>;
 
 }
 
@@ -57,7 +57,7 @@ using is_container_of_objc =
  * are considered equal, unlike the behavior of `isEqual`.
  */
 template <typename T,
-          typename = absl::enable_if_t<is_objective_c_pointer<T*>::value>>
+          typename = absl::enable_if_t<is_objc_pointer<T*>::value>>
 bool Equals(T* lhs, T* rhs) {
   return (lhs == nil && rhs == nil) || [lhs isEqual:rhs];
 }
@@ -80,7 +80,7 @@ bool Equals(const T& lhs, const T& rhs) {
  * keys in STL associative containers.
  */
 template <typename T,
-          typename = absl::enable_if_t<is_objective_c_pointer<T>::value>>
+          typename = absl::enable_if_t<is_objc_pointer<T>::value>>
 class EqualTo {
  public:
   bool operator()(T lhs, T rhs) const {
@@ -94,7 +94,7 @@ class EqualTo {
  * as keys in std::unordered_map.
  */
 template <typename T,
-          typename = absl::enable_if_t<is_objective_c_pointer<T>::value>>
+          typename = absl::enable_if_t<objc::is_objc_pointer<T>::value>>
 class Hash {
  public:
   size_t operator()(T value) const {
@@ -108,7 +108,7 @@ class Hash {
  */
 template <typename K,
           typename V,
-          typename = absl::enable_if_t<is_objective_c_pointer<K>::value>>
+          typename = absl::enable_if_t<objc::is_objc_pointer<K>::value>>
 using unordered_map = std::unordered_map<K, V, Hash<K>, EqualTo<K>>;
 
 /**
@@ -118,12 +118,11 @@ using unordered_map = std::unordered_map<K, V, Hash<K>, EqualTo<K>>;
  */
 template <typename T>
 NSString* Description(const T& value) {
-  return WrapNSString(ToString(value));
+  return util::WrapNSString(util::ToString(value));
 }
 
 }  // namespace objc
-}  // namespace util
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_OBJC_COMPATIBILITY_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_OBJC_OBJC_COMPATIBILITY_H_
