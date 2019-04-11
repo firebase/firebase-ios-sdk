@@ -204,7 +204,7 @@ def PushPodspecs(version_data):
 
     podspec = '{}.podspec'.format(pod)
     json = os.path.join(tmp_dir, '{}.json'.format(podspec))
-    os.system('pod ipc spec {} > {}'.format(podspec, json))
+    LogOrRun('pod ipc spec {} > {}'.format(podspec, json))
     LogOrRun('pod repo push {} {}{}'.format(GetCpdcInternal(), json,
                                             warnings_ok))
   os.system('rm -rf {}'.format(tmp_dir))
