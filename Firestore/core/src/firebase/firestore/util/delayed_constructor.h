@@ -75,17 +75,17 @@ class DelayedConstructor {
                               void(DelayedConstructor)>::value,
                 int>::type = 0>
   void Init(Ts&&... args) {
-    new (&space_) T(std::forward<Ts>(args)...);
+    new (&space_.value) T(std::forward<Ts>(args)...);
   }
 
   /**
    * Forwards copy and move construction for T.
    */
   void Init(const T& x) {
-    new (&space_) T(x);
+    new (&space_.value) T(x);
   }
   void Init(T&& x) {
-    new (&space_) T(std::move(x));
+    new (&space_.value) T(std::move(x));
   }
 
   // No copying.
@@ -100,7 +100,7 @@ class DelayedConstructor {
     return get();
   }
   T* get() {
-    return reinterpret_cast<T*>(&space_);
+    return &space_.value;
   }
   const T& operator*() const {
     return *get();
@@ -109,7 +109,7 @@ class DelayedConstructor {
     return get();
   }
   const T* get() const {
-    return reinterpret_cast<const T*>(&space_);
+    return &space_.value;
   }
 
  private:
