@@ -17,6 +17,7 @@
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 
 #include <ostream>
+#include <utility>
 
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
 #include "absl/memory/memory.h"
@@ -38,6 +39,7 @@ void Status::Update(const Status& new_status) {
   }
 }
 
+#if !__APPLE__
 Status& Status::CausedBy(const Status& cause) {
   if (cause.ok() || this == &cause) {
     return *this;
@@ -49,6 +51,14 @@ Status& Status::CausedBy(const Status& cause) {
   }
 
   absl::StrAppend(&state_->msg, ": ", cause.error_message());
+  return *this;
+}
+#endif  // !__APPLE__
+
+Status& Status::WithPlatformError(std::unique_ptr<PlatformError> error) {
+  if (!ok()) {
+    state_->wrapped = std::move(error);
+  }
   return *this;
 }
 
@@ -145,6 +155,9 @@ std::string StatusCheckOpHelperOutOfLine(const Status& v, const char* msg) {
   r += " status: ";
   r += v.ToString();
   return r;
+}
+
+PlatformError::~PlatformError() {
 }
 
 }  // namespace util

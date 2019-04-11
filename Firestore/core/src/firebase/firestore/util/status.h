@@ -35,6 +35,8 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
+class PlatformError;
+
 /// Denotes success or failure of a call.
 class ABSL_MUST_USE_RESULT Status {
  public:
@@ -63,6 +65,8 @@ class ABSL_MUST_USE_RESULT Status {
 
 #if defined(__OBJC__)
   static Status FromNSError(NSError* error);
+
+  NSError* ToNSError() const;
 #endif  // defined(__OBJC__)
 
   /// Returns true iff the status indicates success.
@@ -97,6 +101,8 @@ class ABSL_MUST_USE_RESULT Status {
   /// \return *this
   Status& CausedBy(const Status& cause);
 
+  Status& WithPlatformError(std::unique_ptr<PlatformError> error);
+
   /// \brief Return a string representation of this status suitable for
   /// printing. Returns the string `"OK"` for success.
   std::string ToString() const;
@@ -110,18 +116,35 @@ class ABSL_MUST_USE_RESULT Status {
  private:
   static const std::string& empty_string();
   struct State {
+    State() = default;
+    State(const State& other);
+
     FirestoreErrorCode code;
     std::string msg;
+    std::unique_ptr<PlatformError> wrapped;
   };
-  // OK status has a `NULL` state_.  Otherwise, `state_` points to
+  // OK status has a `nullptr` state_.  Otherwise, `state_` points to
   // a `State` structure containing the error code and message(s)
   std::unique_ptr<State> state_;
 
   void SlowCopyFrom(const State* src);
 };
 
+class PlatformError {
+ public:
+  virtual ~PlatformError();
+
+  virtual std::unique_ptr<PlatformError> Copy() = 0;
+};
+
 inline Status::Status(const Status& s)
     : state_((s.state_ == nullptr) ? nullptr : new State(*s.state_)) {
+}
+
+inline Status::State::State(const State& s)
+    : code(s.code),
+      msg(s.msg),
+      wrapped((s.wrapped == nullptr) ? nullptr : s.wrapped->Copy()) {
 }
 
 inline void Status::operator=(const Status& s) {
