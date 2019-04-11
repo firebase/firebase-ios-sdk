@@ -55,7 +55,6 @@ using core::ViewSnapshot;
 using model::DocumentKey;
 using model::Precondition;
 using model::ResourcePath;
-using util::MakeNSError;
 using util::Status;
 using util::StatusOr;
 using util::StatusOrCallback;

@@ -34,21 +34,23 @@
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "absl/memory/memory.h"
 
 namespace firebase {
 namespace firestore {
 namespace api {
 
-using firebase::firestore::api::Firestore;
-using firebase::firestore::auth::CredentialsProvider;
-using firebase::firestore::core::DatabaseInfo;
-using firebase::firestore::core::Transaction;
-using firebase::firestore::model::DocumentKey;
-using firebase::firestore::model::ResourcePath;
+using api::Firestore;
+using auth::CredentialsProvider;
+using core::DatabaseInfo;
+using core::Transaction;
+using model::DocumentKey;
+using model::ResourcePath;
 using util::AsyncQueue;
 using util::Executor;
 using util::ExecutorLibdispatch;
+using util::Status;
 
 Firestore::Firestore(std::string project_id,
                      std::string database,
@@ -153,24 +155,24 @@ void Firestore::RunTransaction(TransactionBlock update_block,
                        completion:completion];
 }
 
-void Firestore::Shutdown(ErrorCompletion completion) {
+void Firestore::Shutdown(util::StatusCallback completion) {
   if (!client_) {
     if (completion) {
       // We should be dispatching the callback on the user dispatch queue
       // but if the client is nil here that queue was never created.
-      completion(nil);
+      completion(Status::OK());
     }
   } else {
     [client_ shutdownWithCompletion:completion];
   }
 }
 
-void Firestore::EnableNetwork(ErrorCompletion completion) {
+void Firestore::EnableNetwork(util::StatusCallback completion) {
   EnsureClientConfigured();
   [client_ enableNetworkWithCompletion:completion];
 }
 
-void Firestore::DisableNetwork(ErrorCompletion completion) {
+void Firestore::DisableNetwork(util::StatusCallback completion) {
   EnsureClientConfigured();
   [client_ disableNetworkWithCompletion:completion];
 }

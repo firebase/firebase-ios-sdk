@@ -77,7 +77,6 @@ using firebase::firestore::model::OnlineState;
 using firebase::firestore::remote::Datastore;
 using firebase::firestore::remote::RemoteStore;
 using firebase::firestore::util::Path;
-using firebase::firestore::util::Status;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::DelayedOperation;
 using firebase::firestore::util::Executor;
@@ -281,25 +280,25 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
   [self.syncEngine credentialDidChangeWithUser:user];
 }
 
-- (void)disableNetworkWithCompletion:(nullable FSTVoidErrorBlock)completion {
+- (void)disableNetworkWithCompletion:(util::StatusCallback)completion {
   _workerQueue->Enqueue([self, completion] {
     _remoteStore->DisableNetwork();
     if (completion) {
-      self->_userExecutor->Execute([=] { completion(nil); });
+      self->_userExecutor->Execute([=] { completion(Status::OK()); });
     }
   });
 }
 
-- (void)enableNetworkWithCompletion:(nullable FSTVoidErrorBlock)completion {
+- (void)enableNetworkWithCompletion:(util::StatusCallback)completion {
   _workerQueue->Enqueue([self, completion] {
     _remoteStore->EnableNetwork();
     if (completion) {
-      self->_userExecutor->Execute([=] { completion(nil); });
+      self->_userExecutor->Execute([=] { completion(Status::OK()); });
     }
   });
 }
 
-- (void)shutdownWithCompletion:(nullable FSTVoidErrorBlock)completion {
+- (void)shutdownWithCompletion:(util::StatusCallback)completion {
   _workerQueue->Enqueue([self, completion] {
     self->_credentialsProvider->SetCredentialChangeListener(nullptr);
 
@@ -310,13 +309,13 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
     _remoteStore->Shutdown();
     [self.persistence shutdown];
     if (completion) {
-      self->_userExecutor->Execute([=] { completion(nil); });
+      self->_userExecutor->Execute([=] { completion(Status::OK()); });
     }
   });
 }
 
 - (std::shared_ptr<QueryListener>)listenToQuery:(FSTQuery *)query
-                                        options:(ListenOptions)options
+                                        options:(core::ListenOptions)options
                                        listener:(ViewSnapshot::SharedListener &&)listener {
   auto query_listener = QueryListener::Create(query, std::move(options), std::move(listener));
 

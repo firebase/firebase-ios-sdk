@@ -72,16 +72,16 @@ NS_ASSUME_NONNULL_BEGIN
                           userExecutor:(std::unique_ptr<util::Executor>)userExecutor
                            workerQueue:(std::unique_ptr<util::AsyncQueue>)workerQueue;
 
-- (instancetype)init __attribute__((unavailable("Use static constructor method.")));
+- (instancetype)init NS_UNAVAILABLE;
 
 /** Shuts down this client, cancels all writes / listeners, and releases all resources. */
-- (void)shutdownWithCompletion:(nullable FSTVoidErrorBlock)completion;
+- (void)shutdownWithCompletion:(util::StatusCallback)completion;
 
 /** Disables the network connection. Pending operations will not complete. */
-- (void)disableNetworkWithCompletion:(nullable FSTVoidErrorBlock)completion;
+- (void)disableNetworkWithCompletion:(util::StatusCallback)completion;
 
 /** Enables the network connection and requeues all pending operations. */
-- (void)enableNetworkWithCompletion:(nullable FSTVoidErrorBlock)completion;
+- (void)enableNetworkWithCompletion:(util::StatusCallback)completion;
 
 /** Starts listening to a query. */
 - (std::shared_ptr<core::QueryListener>)listenToQuery:(FSTQuery *)query

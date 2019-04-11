@@ -40,6 +40,7 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/delayed_constructor.h"
+#include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
@@ -257,11 +258,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)enableNetworkWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
-  _firestore->EnableNetwork(completion);
+  _firestore->EnableNetwork(util::MakeCallback(completion));
 }
 
 - (void)disableNetworkWithCompletion:(nullable void (^)(NSError *_Nullable))completion {
-  _firestore->DisableNetwork(completion);
+  _firestore->DisableNetwork(util::MakeCallback(completion));
 }
 
 @end
@@ -289,7 +290,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)shutdownWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
-  _firestore->Shutdown(completion);
+  _firestore->Shutdown(util::MakeCallback(completion));
 }
 
 @end

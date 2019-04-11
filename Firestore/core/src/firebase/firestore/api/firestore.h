@@ -34,6 +34,7 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -54,7 +55,6 @@ class DocumentReference;
 class Firestore {
  public:
   using TransactionBlock = id _Nullable (^)(FIRTransaction*, NSError** error);
-  using ErrorCompletion = void (^)(NSError* _Nullable error);
   using ResultOrErrorCompletion = void (^)(id _Nullable result,
                                            NSError* _Nullable error);
 
@@ -100,10 +100,10 @@ class Firestore {
                       dispatch_queue_t queue,
                       ResultOrErrorCompletion completion);
 
-  void Shutdown(ErrorCompletion completion);
+  void Shutdown(util::StatusCallback completion);
 
-  void EnableNetwork(ErrorCompletion completion);
-  void DisableNetwork(ErrorCompletion completion);
+  void EnableNetwork(util::StatusCallback completion);
+  void DisableNetwork(util::StatusCallback completion);
 
  private:
   void EnsureClientConfigured();
