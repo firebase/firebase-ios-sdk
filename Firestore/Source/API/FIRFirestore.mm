@@ -175,9 +175,9 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 }
 
 /**
- * Ensures that the FirestoreClient is configured and returns it.
+ * Returns the FirestoreClient if it is configured.
  */
-- (FSTFirestoreClient *)client {
+- (nullable FSTFirestoreClient *)client {
   return _firestore->client();
 }
 
