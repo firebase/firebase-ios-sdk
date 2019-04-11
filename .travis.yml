@@ -293,3 +293,4 @@ jobs:
 branches:
   only:
     - master
+    - firestore-master
