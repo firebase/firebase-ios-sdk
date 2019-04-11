@@ -22,6 +22,8 @@
 
 #import <Foundation/Foundation.h>
 
+#include <functional>
+
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "absl/strings/string_view.h"
@@ -48,6 +50,10 @@ inline NSError* MakeNSError(const util::Status& status) {
 }
 
 Status MakeStatus(NSError* error);
+
+using VoidErrorBlock = void (^)(NSError* _Nullable error);
+
+util::StatusCallback MakeCallback(VoidErrorBlock _Nullable block);
 
 }  // namespace util
 }  // namespace firestore

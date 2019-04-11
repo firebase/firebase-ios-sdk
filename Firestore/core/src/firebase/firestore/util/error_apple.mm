@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 
+#include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
@@ -61,6 +62,16 @@ Status MakeStatus(NSError* error) {
               "Unknown error code");
   return Status{static_cast<FirestoreErrorCode>(error_code),
                 MakeString(error.localizedDescription)};
+}
+
+using VoidErrorBlock = void (^)(NSError* _Nullable error);
+
+util::StatusCallback MakeCallback(VoidErrorBlock _Nullable block) {
+  if (block) {
+    return [block](Status status) { block(MakeNSError(status)); };
+  } else {
+    return [](Status status) {};
+  }
 }
 
 }  // namespace util
