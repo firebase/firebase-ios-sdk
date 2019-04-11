@@ -23,7 +23,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** Manages the registration of targets with the transport SDK. */
-@interface GDTRegistrar : NSObject
+@interface GDTRegistrar : NSObject <GDTLifecycleProtocol>
 
 /** Creates and/or returns the singleton instance.
  *

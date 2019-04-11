@@ -69,27 +69,27 @@
 }
 
 - (void)applicationDidEnterBackground:(NSNotification *)notification {
-  //  UIApplication *application = [UIApplication sharedApplication];
-  //  [[GDTTransformer sharedInstance] appWillBackground:application];
-  //  [[GDTStorage sharedInstance] appWillBackground:application];
-  //  [[GDTUploadCoordinator sharedInstance] appWillBackground:application];
-  //  [[GDTRegistrar sharedInstance] appWillBackground:application];
+  UIApplication *application = [UIApplication sharedApplication];
+  [[GDTTransformer sharedInstance] appWillBackground:application];
+  [[GDTStorage sharedInstance] appWillBackground:application];
+  [[GDTUploadCoordinator sharedInstance] appWillBackground:application];
+  [[GDTRegistrar sharedInstance] appWillBackground:application];
 }
 
 - (void)applicationWillEnterForeground:(NSNotification *)notification {
-  //  UIApplication *application = [UIApplication sharedApplication];
-  //  [[GDTTransformer sharedInstance] appWillForeground:application];
-  //  [[GDTStorage sharedInstance] appWillForeground:application];
-  //  [[GDTUploadCoordinator sharedInstance] appWillForeground:application];
-  //  [[GDTRegistrar sharedInstance] appWillForeground:application];
+  UIApplication *application = [UIApplication sharedApplication];
+  [[GDTTransformer sharedInstance] appWillForeground:application];
+  [[GDTStorage sharedInstance] appWillForeground:application];
+  [[GDTUploadCoordinator sharedInstance] appWillForeground:application];
+  [[GDTRegistrar sharedInstance] appWillForeground:application];
 }
 
 - (void)applicationWillTerminate:(NSNotification *)notification {
-  //  UIApplication *application = [UIApplication sharedApplication];
-  //  [[GDTTransformer sharedInstance] appWillTerminate:application];
-  //  [[GDTStorage sharedInstance] appWillTerminate:application];
-  //  [[GDTUploadCoordinator sharedInstance] appWillTerminate:application];
-  //  [[GDTRegistrar sharedInstance] appWillTerminate:application];
+  UIApplication *application = [UIApplication sharedApplication];
+  [[GDTTransformer sharedInstance] appWillTerminate:application];
+  [[GDTStorage sharedInstance] appWillTerminate:application];
+  [[GDTUploadCoordinator sharedInstance] appWillTerminate:application];
+  [[GDTRegistrar sharedInstance] appWillTerminate:application];
 }
 
 @end

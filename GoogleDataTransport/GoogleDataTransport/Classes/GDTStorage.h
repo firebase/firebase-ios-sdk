@@ -16,13 +16,15 @@
 
 #import <Foundation/Foundation.h>
 
+#import <GoogleDataTransport/GDTLifecycle.h>
+
 @class GDTEvent;
 @class GDTStoredEvent;
 
 NS_ASSUME_NONNULL_BEGIN
 
 /** Manages the storage of events. This class is thread-safe. */
-@interface GDTStorage : NSObject <NSSecureCoding>
+@interface GDTStorage : NSObject <NSSecureCoding, GDTLifecycleProtocol>
 
 /** Creates and/or returns the storage singleton.
  *

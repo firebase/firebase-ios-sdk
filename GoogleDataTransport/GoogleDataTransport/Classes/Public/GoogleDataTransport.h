@@ -18,6 +18,7 @@
 #import "GDTEvent.h"
 #import "GDTEventDataObject.h"
 #import "GDTEventTransformer.h"
+#import "GDTLifecycle.h"
 #import "GDTPrioritizer.h"
 #import "GDTRegistrar.h"
 #import "GDTStoredEvent.h"

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,18 @@
  * limitations under the License.
  */
 
-#import "GDTTestUploader.h"
+#import "GDTLifecycleTestUploader.h"
 
-@implementation GDTTestUploader
+@implementation GDTLifecycleTestUploader
 
 - (void)uploadPackage:(GDTUploadPackage *)package
            onComplete:(GDTUploaderCompletionBlock)onComplete {
-  if (_uploadEventsBlock) {
-    _uploadEventsBlock(package, onComplete);
-  } else if (onComplete) {
-    onComplete(kGDTTargetCCT, [GDTClock snapshot], nil);
-  }
 }
 
-- (void)appWillBackground:(nonnull UIApplication *)app {
+- (void)appWillBackground:(UIApplication *)app {
 }
 
-- (void)appWillForeground:(nonnull UIApplication *)app {
+- (void)appWillForeground:(UIApplication *)app {
 }
 
 - (void)appWillTerminate:(UIApplication *)application {

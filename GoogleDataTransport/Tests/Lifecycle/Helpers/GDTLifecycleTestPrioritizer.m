@@ -14,65 +14,48 @@
  * limitations under the License.
  */
 
-#import "GDTIntegrationTestPrioritizer.h"
+#import "GDTLifecycleTestPrioritizer.h"
 
-#import "GDTIntegrationTestUploadPackage.h"
-
-@interface GDTIntegrationTestPrioritizer ()
+@interface GDTLifecycleTestPrioritizer ()
 
 /** Events that are only supposed to be uploaded whilst on wifi. */
-@property(nonatomic) NSMutableSet<GDTStoredEvent *> *wifiOnlyEvents;
-
-/** Events that can be uploaded on any type of connection. */
-@property(nonatomic) NSMutableSet<GDTStoredEvent *> *nonWifiEvents;
+@property(nonatomic) NSMutableSet<GDTStoredEvent *> *events;
 
 /** The queue on which this prioritizer operates. */
 @property(nonatomic) dispatch_queue_t queue;
 
 @end
 
-@implementation GDTIntegrationTestPrioritizer
+@implementation GDTLifecycleTestPrioritizer
 
 - (instancetype)init {
   self = [super init];
   if (self) {
-    _queue =
-        dispatch_queue_create("com.google.GDTIntegrationTestPrioritizer", DISPATCH_QUEUE_SERIAL);
-    _wifiOnlyEvents = [[NSMutableSet alloc] init];
-    _nonWifiEvents = [[NSMutableSet alloc] init];
-    [[GDTRegistrar sharedInstance] registerPrioritizer:self target:kGDTIntegrationTestTarget];
+    _queue = dispatch_queue_create("com.google.GDTLifecycleTestPrioritizer", DISPATCH_QUEUE_SERIAL);
+    _events = [[NSMutableSet alloc] init];
+    [[GDTRegistrar sharedInstance] registerPrioritizer:self target:kGDTTargetTest];
   }
   return self;
 }
 
 - (void)prioritizeEvent:(GDTStoredEvent *)event {
   dispatch_async(_queue, ^{
-    if (event.qosTier == GDTEventQoSWifiOnly) {
-      [self.wifiOnlyEvents addObject:event];
-    } else {
-      [self.nonWifiEvents addObject:event];
-    }
+    [self.events addObject:event];
   });
 }
 
 - (void)unprioritizeEvents:(NSSet<GDTStoredEvent *> *)events {
   dispatch_async(_queue, ^{
     for (GDTStoredEvent *event in events) {
-      [self.wifiOnlyEvents removeObject:event];
-      [self.nonWifiEvents removeObject:event];
+      [self.events removeObject:event];
     }
   });
 }
 
 - (GDTUploadPackage *)uploadPackageWithConditions:(GDTUploadConditions)conditions {
-  __block GDTIntegrationTestUploadPackage *uploadPackage =
-      [[GDTIntegrationTestUploadPackage alloc] init];
+  __block GDTUploadPackage *uploadPackage = [[GDTUploadPackage alloc] init];
   dispatch_sync(_queue, ^{
-    if ((conditions & GDTUploadConditionWifiData) == GDTUploadConditionWifiData) {
-      uploadPackage.events = self.wifiOnlyEvents;
-    } else {
-      uploadPackage.events = self.nonWifiEvents;
-    }
+    uploadPackage.events = self.events;
   });
   return uploadPackage;
 }

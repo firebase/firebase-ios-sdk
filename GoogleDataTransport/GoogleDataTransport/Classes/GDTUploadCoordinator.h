@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+#import <GoogleDataTransport/GDTLifecycle.h>
+
 #import "GDTRegistrar.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -23,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** This class connects storage and uploader implementations, providing events to an uploader
  * and informing the storage what events were successfully uploaded or not.
  */
-@interface GDTUploadCoordinator : NSObject
+@interface GDTUploadCoordinator : NSObject <NSSecureCoding, GDTLifecycleProtocol>
 
 /** Creates and/or returrns the singleton.
  *

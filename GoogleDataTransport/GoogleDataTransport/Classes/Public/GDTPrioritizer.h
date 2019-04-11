@@ -16,6 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
+#import <GoogleDataTransport/GDTLifecycle.h>
 #import <GoogleDataTransport/GDTUploadPackage.h>
 
 @class GDTStoredEvent;
@@ -41,7 +42,7 @@ typedef NS_OPTIONS(NSInteger, GDTUploadConditions) {
  * stateful objects that prioritize events upon insertion into storage and remain prepared to return
  * a set of filenames to the storage system.
  */
-@protocol GDTPrioritizer <NSObject>
+@protocol GDTPrioritizer <NSObject, GDTLifecycleProtocol>
 
 @required
 
