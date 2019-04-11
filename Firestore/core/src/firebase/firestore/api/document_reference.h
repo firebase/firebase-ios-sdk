@@ -47,7 +47,7 @@ enum class Source;
 
 class DocumentReference {
  public:
-  using Completion = void (^)(NSError* _Nullable error) _Nullable;
+  using Completion = std::function<void(util::Status)>;
 
   DocumentReference() = default;
   DocumentReference(model::ResourcePath path, Firestore* firestore);

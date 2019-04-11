@@ -109,7 +109,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Write mutations. completion will be notified when it's written to the backend. */
 - (void)writeMutations:(std::vector<FSTMutation *> &&)mutations
-            completion:(nullable FSTVoidErrorBlock)completion;
+            completion:(util::StatusCallback)completion;
 
 /** Tries to execute the transaction in updateBlock up to retries times. */
 - (void)transactionWithRetries:(int)retries

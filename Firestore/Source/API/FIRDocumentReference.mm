@@ -163,7 +163,8 @@ NS_ASSUME_NONNULL_BEGIN
   ParsedSetData parsed = merge ? [dataConverter parsedMergeData:documentData fieldMask:nil]
                                : [dataConverter parsedSetData:documentData];
   _documentReference.SetData(
-      std::move(parsed).ToMutations(_documentReference.key(), Precondition::None()), completion);
+      std::move(parsed).ToMutations(_documentReference.key(), Precondition::None()),
+      util::MakeCallback(completion));
 }
 
 - (void)setData:(NSDictionary<NSString *, id> *)documentData
@@ -172,7 +173,8 @@ NS_ASSUME_NONNULL_BEGIN
   ParsedSetData parsed = [self.firestore.dataConverter parsedMergeData:documentData
                                                              fieldMask:mergeFields];
   _documentReference.SetData(
-      std::move(parsed).ToMutations(_documentReference.key(), Precondition::None()), completion);
+      std::move(parsed).ToMutations(_documentReference.key(), Precondition::None()),
+      util::MakeCallback(completion));
 }
 
 - (void)updateData:(NSDictionary<id, id> *)fields {
@@ -184,7 +186,7 @@ NS_ASSUME_NONNULL_BEGIN
   ParsedUpdateData parsed = [self.firestore.dataConverter parsedUpdateData:fields];
   _documentReference.UpdateData(
       std::move(parsed).ToMutations(_documentReference.key(), Precondition::Exists(true)),
-      completion);
+      util::MakeCallback(completion));
 }
 
 - (void)deleteDocument {
@@ -192,7 +194,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)deleteDocumentWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
-  _documentReference.DeleteDocument(completion);
+  _documentReference.DeleteDocument(util::MakeCallback(completion));
 }
 
 - (void)getDocumentWithCompletion:(FIRDocumentSnapshotBlock)completion {
