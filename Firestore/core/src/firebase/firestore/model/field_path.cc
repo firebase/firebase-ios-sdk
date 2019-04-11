@@ -19,6 +19,7 @@
 #include <algorithm>
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/api/input_validation.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/strings/str_join.h"
 #include "absl/strings/str_replace.h"
@@ -27,6 +28,8 @@
 namespace firebase {
 namespace firestore {
 namespace model {
+
+using api::ThrowInvalidArgument;
 
 namespace {
 
@@ -77,6 +80,28 @@ struct JoinEscaped {
   }
 };
 }  // namespace
+
+FieldPath FieldPath::FromDotSeparatedString(absl::string_view path) {
+  if (path.find_first_of("~*/[]") != absl::string_view::npos) {
+    ThrowInvalidArgument(
+        "Invalid field path (%s). Paths must not contain '~', '*', '/', '[', "
+        "or ']'",
+        path);
+  }
+
+  SegmentsT segments =
+      absl::StrSplit(path, '.', [path](absl::string_view segment) {
+        if (segment.empty()) {
+          ThrowInvalidArgument(
+              "Invalid field path (%s). Paths must not be empty, begin with "
+              "'.', end with '.', or contain '..'",
+              path);
+        }
+        return true;
+      });
+
+  return FieldPath(std::move(segments));
+}
 
 FieldPath FieldPath::FromServerFormat(const absl::string_view path) {
   SegmentsT segments;
