@@ -131,6 +131,8 @@ while [[ $# -gt 0 ]]; do
   shift
 done
 
+set -x
+
 if [[ "${TEST_ONLY}" == true && "${COMMIT_METHOD}" != "none" ]]; then
   echo "--test-only cannot be combined with --amend, --fixup, or --commit"
   exit 1
