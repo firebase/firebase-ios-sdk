@@ -62,11 +62,7 @@ class DelayedConstructor {
  public:
   typedef T element_type;
 
-  /**
-   * Default constructor does nothing.
-   */
-  DelayedConstructor() {
-  }
+  DelayedConstructor() = default;
 
   /**
    * Forwards arguments to the T's constructor: calls T(args...).
@@ -96,10 +92,6 @@ class DelayedConstructor {
   DelayedConstructor(const DelayedConstructor&) = delete;
   DelayedConstructor& operator=(const DelayedConstructor&) = delete;
 
-  ~DelayedConstructor() {
-    get()->~T();
-  }
-
   // Pretend to be a smart pointer to T.
   T& operator*() {
     return *get();
@@ -121,7 +113,16 @@ class DelayedConstructor {
   }
 
  private:
-  typename std::aligned_storage<sizeof(T), alignof(T)>::type space_;
+  union Space {
+    /** Default constructor does nothing. */
+    Space() {
+    }
+    ~Space() {
+      value.~T();
+    }
+    char empty;
+    T value;
+  } space_;
 };
 
 }  // namespace util
