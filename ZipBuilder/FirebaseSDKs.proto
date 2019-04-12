@@ -32,6 +32,13 @@ message SDK {
 
   // Whether or not to strip the i386 architecture from the build.
   bool strip_i386 = 8;
+
+  // List of build targets. For internal use only.
+  repeated string build_target = 9;
+
+  // Whether or not to strip both the i386 and armv7 architectures from the
+  // build. All SDKs that use this flag are built internally so this should be ignored.
+  bool strip_32bits = 10;
 }
 
 // Any extra build flags needed to build the SDK. For internal use only.
