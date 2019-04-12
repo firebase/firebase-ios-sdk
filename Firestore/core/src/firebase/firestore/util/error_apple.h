@@ -22,12 +22,16 @@
 
 #import <Foundation/Foundation.h>
 
-#import <FirebaseFirestore/FIRFirestoreErrors.h>  // for FIRFirestoreErrorDomain
-
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "absl/strings/string_view.h"
+
+// The Cloud Firestore error domain. Keep in sync with FIRFirestoreErrors.h.
+// Exposed here to make it possible to build in CMake without bringing in the
+// sources under Firestore/Source.
+FOUNDATION_EXPORT NSString* const FIRFirestoreErrorDomain
+    NS_SWIFT_NAME(FirestoreErrorDomain);
 
 namespace firebase {
 namespace firestore {

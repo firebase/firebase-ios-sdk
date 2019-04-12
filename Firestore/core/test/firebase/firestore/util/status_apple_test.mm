@@ -16,10 +16,9 @@
 
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 
-#import <FirebaseFirestore/FIRFirestoreErrors.h>  // for FIRFirestoreErrorDomain
-
 #include <cerrno>
 
+#include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/test/firebase/firestore/util/status_test_util.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
