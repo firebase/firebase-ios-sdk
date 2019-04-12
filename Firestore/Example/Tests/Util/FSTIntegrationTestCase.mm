@@ -85,6 +85,7 @@ static FIRFirestoreSettings *defaultSettings;
   [super setUp];
 
   [self clearPersistence];
+  [self primeBackend];
 
   _firestores = [NSMutableArray array];
   self.db = [self firestore];
@@ -202,14 +203,13 @@ static FIRFirestoreSettings *defaultSettings;
 
   [_firestores addObject:firestore];
 
-  [self primeBackend:firestore];
-
   return firestore;
 }
 
-- (void)primeBackend:(FIRFirestore *)db {
+- (void)primeBackend {
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
+    FIRFirestore *db = [self firestore];
     XCTestExpectation *watchInitialized =
         [self expectationWithDescription:@"Prime backend: Watch initialized"];
     __block XCTestExpectation *watchUpdateReceived;
@@ -247,6 +247,8 @@ static FIRFirestoreSettings *defaultSettings;
                                  }];
 
     [listenerRegistration remove];
+
+    [self shutdownFirestore:db];
   });
 }
 
@@ -393,14 +395,13 @@ static FIRFirestoreSettings *defaultSettings;
 }
 
 - (void)disableNetwork {
-  [self.db.client
+  [self.db
       disableNetworkWithCompletion:[self completionForExpectationWithName:@"Disable Network."]];
   [self awaitExpectations];
 }
 
 - (void)enableNetwork {
-  [self.db.client
-      enableNetworkWithCompletion:[self completionForExpectationWithName:@"Enable Network."]];
+  [self.db enableNetworkWithCompletion:[self completionForExpectationWithName:@"Enable Network."]];
   [self awaitExpectations];
 }
 

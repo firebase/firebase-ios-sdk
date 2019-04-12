@@ -26,6 +26,7 @@
 #import "Firestore/Source/Util/FSTClasses.h"
 
 #include "Firestore/core/src/firebase/firestore/api/input_validation.h"
+#include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
@@ -36,6 +37,7 @@
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::api::ThrowInvalidArgument;
+using firebase::firestore::core::Filter;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::FieldValue;
@@ -43,7 +45,7 @@ using firebase::firestore::model::ResourcePath;
 
 NS_ASSUME_NONNULL_BEGIN
 
-#pragma mark - FSTRelationFilterOperator functions
+#pragma mark - Filter::Operator functions
 
 /**
  * Returns the reverse order (i.e. Ascending => Descending) etc.
@@ -52,37 +54,37 @@ static constexpr NSComparisonResult ReverseOrder(NSComparisonResult result) {
   return static_cast<NSComparisonResult>(-static_cast<NSInteger>(result));
 }
 
-NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOperator) {
+NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
   switch (filterOperator) {
-    case FSTRelationFilterOperatorLessThan:
+    case Filter::Operator::LessThan:
       return @"<";
-    case FSTRelationFilterOperatorLessThanOrEqual:
+    case Filter::Operator::LessThanOrEqual:
       return @"<=";
-    case FSTRelationFilterOperatorEqual:
+    case Filter::Operator::Equal:
       return @"==";
-    case FSTRelationFilterOperatorGreaterThanOrEqual:
+    case Filter::Operator::GreaterThanOrEqual:
       return @">=";
-    case FSTRelationFilterOperatorGreaterThan:
+    case Filter::Operator::GreaterThan:
       return @">";
-    case FSTRelationFilterOperatorArrayContains:
+    case Filter::Operator::ArrayContains:
       return @"array_contains";
     default:
-      HARD_FAIL("Unknown FSTRelationFilterOperator %s", filterOperator);
+      HARD_FAIL("Unknown Filter::Operator %s", filterOperator);
   }
 }
 
 @implementation FSTFilter
 
 + (instancetype)filterWithField:(const FieldPath &)field
-                 filterOperator:(FSTRelationFilterOperator)op
+                 filterOperator:(Filter::Operator)op
                           value:(FSTFieldValue *)value {
   if ([value isEqual:[FSTNullValue nullValue]]) {
-    if (op != FSTRelationFilterOperatorEqual) {
+    if (op != Filter::Operator::Equal) {
       ThrowInvalidArgument("Invalid Query. Nil and NSNull only support equality comparisons.");
     }
     return [[FSTNullFilter alloc] initWithField:field];
   } else if ([value isEqual:[FSTDoubleValue nanValue]]) {
-    if (op != FSTRelationFilterOperatorEqual) {
+    if (op != Filter::Operator::Equal) {
       ThrowInvalidArgument("Invalid Query. NaN only supports equality comparisons.");
     }
     return [[FSTNanFilter alloc] initWithField:field];
@@ -120,7 +122,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
  * @param value A constant value to compare @a field to. The RHS of the expression.
  */
 - (instancetype)initWithField:(FieldPath)field
-               filterOperator:(FSTRelationFilterOperator)filterOperator
+               filterOperator:(Filter::Operator)filterOperator
                         value:(FSTFieldValue *)value NS_DESIGNATED_INITIALIZER;
 
 /** Returns YES if @a document matches the receiver's constraint. */
@@ -139,7 +141,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 #pragma mark - Constructor methods
 
 - (instancetype)initWithField:(FieldPath)field
-               filterOperator:(FSTRelationFilterOperator)filterOperator
+               filterOperator:(Filter::Operator)filterOperator
                         value:(FSTFieldValue *)value {
   self = [super init];
   if (self) {
@@ -153,8 +155,8 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 #pragma mark - Public Methods
 
 - (BOOL)isInequality {
-  return self.filterOperator != FSTRelationFilterOperatorEqual &&
-         self.filterOperator != FSTRelationFilterOperatorArrayContains;
+  return self.filterOperator != Filter::Operator::Equal &&
+         self.filterOperator != Filter::Operator::ArrayContains;
 }
 
 - (const firebase::firestore::model::FieldPath &)field {
@@ -185,7 +187,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
   if (_field.IsKeyFieldPath()) {
     HARD_ASSERT(self.value.type == FieldValue::Type::Reference,
                 "Comparing on key, but filter value not a FSTReferenceValue.");
-    HARD_ASSERT(self.filterOperator != FSTRelationFilterOperatorArrayContains,
+    HARD_ASSERT(self.filterOperator != Filter::Operator::ArrayContains,
                 "arrayContains queries don't make sense on document keys.");
     FSTReferenceValue *refValue = (FSTReferenceValue *)self.value;
     NSComparisonResult comparison = CompareKeys(document.key, refValue.value.key);
@@ -217,7 +219,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 
 /** Returns YES if receiver is true with the given value as its LHS. */
 - (BOOL)matchesValue:(FSTFieldValue *)other {
-  if (self.filterOperator == FSTRelationFilterOperatorArrayContains) {
+  if (self.filterOperator == Filter::Operator::ArrayContains) {
     if ([other isMemberOfClass:[FSTArrayValue class]]) {
       FSTArrayValue *arrayValue = (FSTArrayValue *)other;
       return [arrayValue.internalValue containsObject:self.value];
@@ -234,15 +236,15 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 
 - (BOOL)matchesComparison:(NSComparisonResult)comparison {
   switch (self.filterOperator) {
-    case FSTRelationFilterOperatorLessThan:
+    case Filter::Operator::LessThan:
       return comparison == NSOrderedAscending;
-    case FSTRelationFilterOperatorLessThanOrEqual:
+    case Filter::Operator::LessThanOrEqual:
       return comparison == NSOrderedAscending || comparison == NSOrderedSame;
-    case FSTRelationFilterOperatorEqual:
+    case Filter::Operator::Equal:
       return comparison == NSOrderedSame;
-    case FSTRelationFilterOperatorGreaterThanOrEqual:
+    case Filter::Operator::GreaterThanOrEqual:
       return comparison == NSOrderedDescending || comparison == NSOrderedSame;
-    case FSTRelationFilterOperatorGreaterThan:
+    case Filter::Operator::GreaterThan:
       return comparison == NSOrderedDescending;
     default:
       HARD_FAIL("Unknown operator: %s", self.filterOperator);
@@ -771,7 +773,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 - (BOOL)hasArrayContainsFilter {
   for (FSTFilter *filter in self.filters) {
     if ([filter isKindOfClass:[FSTRelationFilter class]] &&
-        ((FSTRelationFilter *)filter).filterOperator == FSTRelationFilterOperatorArrayContains) {
+        ((FSTRelationFilter *)filter).filterOperator == Filter::Operator::ArrayContains) {
       return YES;
     }
   }
