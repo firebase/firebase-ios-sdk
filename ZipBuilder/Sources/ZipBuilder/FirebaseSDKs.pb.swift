@@ -106,6 +106,19 @@ struct ZipBuilder_SDK {
     set {_uniqueStorage()._stripI386 = newValue}
   }
 
+  /// List of build targets. For internal use only.
+  var buildTarget: [String] {
+    get {return _storage._buildTarget}
+    set {_uniqueStorage()._buildTarget = newValue}
+  }
+
+  /// Whether or not to strip both the i386 and armv7 architectures from the
+  /// build. For internal use only.
+  var strip32Bits: Bool {
+    get {return _storage._strip32Bits}
+    set {_uniqueStorage()._strip32Bits = newValue}
+  }
+
   var unknownFields = SwiftProtobuf.UnknownStorage()
 
   init() {}
@@ -171,6 +184,8 @@ extension ZipBuilder_SDK: SwiftProtobuf.Message, SwiftProtobuf._MessageImplement
     6: .standard(proto: "nightly_mpm_pattern"),
     7: .standard(proto: "open_source"),
     8: .standard(proto: "strip_i386"),
+    9: .standard(proto: "build_target"),
+    10: .standard(proto: "strip_32bits"),
   ]
 
   fileprivate class _StorageClass {
@@ -182,6 +197,8 @@ extension ZipBuilder_SDK: SwiftProtobuf.Message, SwiftProtobuf._MessageImplement
     var _nightlyMpmPattern: [String] = []
     var _openSource: Bool = false
     var _stripI386: Bool = false
+    var _buildTarget: [String] = []
+    var _strip32Bits: Bool = false
 
     static let defaultInstance = _StorageClass()
 
@@ -196,6 +213,8 @@ extension ZipBuilder_SDK: SwiftProtobuf.Message, SwiftProtobuf._MessageImplement
       _nightlyMpmPattern = source._nightlyMpmPattern
       _openSource = source._openSource
       _stripI386 = source._stripI386
+      _buildTarget = source._buildTarget
+      _strip32Bits = source._strip32Bits
     }
   }
 
@@ -219,6 +238,8 @@ extension ZipBuilder_SDK: SwiftProtobuf.Message, SwiftProtobuf._MessageImplement
         case 6: try decoder.decodeRepeatedStringField(value: &_storage._nightlyMpmPattern)
         case 7: try decoder.decodeSingularBoolField(value: &_storage._openSource)
         case 8: try decoder.decodeSingularBoolField(value: &_storage._stripI386)
+        case 9: try decoder.decodeRepeatedStringField(value: &_storage._buildTarget)
+        case 10: try decoder.decodeSingularBoolField(value: &_storage._strip32Bits)
         default: break
         }
       }
@@ -251,6 +272,12 @@ extension ZipBuilder_SDK: SwiftProtobuf.Message, SwiftProtobuf._MessageImplement
       if _storage._stripI386 != false {
         try visitor.visitSingularBoolField(value: _storage._stripI386, fieldNumber: 8)
       }
+      if !_storage._buildTarget.isEmpty {
+        try visitor.visitRepeatedStringField(value: _storage._buildTarget, fieldNumber: 9)
+      }
+      if _storage._strip32Bits != false {
+        try visitor.visitSingularBoolField(value: _storage._strip32Bits, fieldNumber: 10)
+      }
     }
     try unknownFields.traverse(visitor: &visitor)
   }
@@ -268,6 +295,8 @@ extension ZipBuilder_SDK: SwiftProtobuf.Message, SwiftProtobuf._MessageImplement
         if _storage._nightlyMpmPattern != rhs_storage._nightlyMpmPattern {return false}
         if _storage._openSource != rhs_storage._openSource {return false}
         if _storage._stripI386 != rhs_storage._stripI386 {return false}
+        if _storage._buildTarget != rhs_storage._buildTarget {return false}
+        if _storage._strip32Bits != rhs_storage._strip32Bits {return false}
         return true
       }
       if !storagesAreEqual {return false}
