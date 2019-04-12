@@ -23,12 +23,7 @@ function remove_valid_names() {
     # Xcode-generated asset files
     /Assets.xcassets/ d
 
-    # CocoaPods-generated cruft
-    /Target Support Files/ d
-    /Local Podspecs/ d
-
     # Grandfathered files
-    /Interop\/Firebase Component System.md/ d
 
     # Files without spaces
     /^[^ ]*$/ d
