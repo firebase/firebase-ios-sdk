@@ -30,7 +30,6 @@ static void GDTReachabilityCallback(SCNetworkReachabilityRef reachability,
                                     void *info);
 
 @implementation GDTReachability {
-  
   /** The reachability object. */
   SCNetworkReachabilityRef _reachabilityRef;
 
