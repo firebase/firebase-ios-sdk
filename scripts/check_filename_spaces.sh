@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright 2019 Google
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,19 +15,32 @@
 # limitations under the License.
 
 # Fail on spaces in file names, excluding the patterns listed below.
-#
 
-options=(
-  ! -path '*/Assets.xcassets/*'
-  ! -path '*/Target Support Files'
-  ! -path '*/Local Podspecs'
-  ! -path './Interop/Firebase Component System.md'
-)
+# A sed program that removes filename patterns that are allowed to have spaces
+# in them.
+function remove_valid_names() {
+  sed '
+    # Xcode-generated asset files
+    /Assets.xcassets/ d
 
-result=`find . -name "* *" "${options[@]}"`
+    # CocoaPods-generated cruft
+    /Target Support Files/ d
+    /Local Podspecs/ d
 
-if [[ ! -z ${result} ]]; then
-  echo "ERROR: Spaces in filenames are not permitted in this repo. Please fix."
-  echo ${result}
+    # Grandfathered files
+    /Interop\/Firebase Component System.md/ d
+
+    # Files without spaces
+    /^[^ ]*$/ d
+  '
+}
+
+count=$(git ls-files | remove_valid_names | wc -l | xargs)
+
+if [[ ${count} != 0 ]]; then
+  echo 'ERROR: Spaces in filenames are not permitted in this repo. Please fix.'
+  echo ''
+
+  git ls-files | remove_valid_names
   exit 1
 fi
