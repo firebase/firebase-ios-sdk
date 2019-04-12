@@ -16,11 +16,11 @@
 
 #import <XCTest/XCTest.h>
 
+#import <FirebaseInstanceID/FIRInstanceID_Private.h>
 #import <OCMock/OCMock.h>
 
 #import "Protos/GtalkCore.pbobjc.h"
 
-#import "FIRMessagingCheckinService.h"
 #import "FIRMessagingClient.h"
 #import "FIRMessagingConnection.h"
 #import "FIRMessagingDataMessageManager.h"
@@ -44,9 +44,9 @@ static NSString *const kDeletedSubscriptionID = @"deleted-abcdef-subscription-id
 static NSString *const kFIRMessagingAppIDToken = @"1234xyzdef56789";
 static NSString *const kTopicToSubscribeTo = @"/topics/abcdef/hello-world";
 
-@interface FIRMessagingRegistrar ()
+@interface FIRInstanceID (exposedForTests)
 
-@property(nonatomic, readwrite, strong) FIRMessagingCheckinService *checkinService;
++ (FIRInstanceID *)instanceIDForTests;
 
 @end
 
@@ -91,6 +91,8 @@ static NSString *const kTopicToSubscribeTo = @"/topics/abcdef/hello-world";
 @property(nonatomic, readwrite, strong) id mockClientDelegate;
 @property(nonatomic, readwrite, strong) id mockDataMessageManager;
 @property(nonatomic, readwrite, strong) id mockRegistrar;
+@property(nonatomic, readwrite, strong) id mockInstanceID;
+
 
 // argument callback blocks
 @property(nonatomic, readwrite, copy) FIRMessagingConnectCompletionHandler connectCompletion;
@@ -131,6 +133,7 @@ static NSString *const kTopicToSubscribeTo = @"/topics/abcdef/hello-world";
 - (void)tearDownMocksAndHandlers {
   self.connectCompletion = nil;
   self.subscribeCompletion = nil;
+    [self.mockInstanceID stopMocking];
 }
 
 - (void)setupConnectionWithFakeLoginResult:(BOOL)loginResult
@@ -296,12 +299,11 @@ static NSString *const kTopicToSubscribeTo = @"/topics/abcdef/hello-world";
 }
 
 - (void)addFIRMessagingPreferenceKeysToUserDefaults {
-  id mockCheckinService = OCMClassMock([FIRMessagingCheckinService class]);
-  [[[mockCheckinService stub] andReturn:kDeviceAuthId] deviceAuthID];
-  [[[mockCheckinService stub] andReturn:kSecretToken] secretToken];
-  [[[mockCheckinService stub] andReturnValue:@YES] hasValidCheckinInfo];
-
-  [[[self.mockRegistrar stub] andReturn:mockCheckinService] checkinService];
+    self.mockInstanceID = OCMPartialMock([FIRInstanceID instanceIDForTests]);
+    
+    OCMStub([self.mockInstanceID tryToLoadValidCheckinInfo]).andReturn(YES);
+    OCMStub([self.mockInstanceID deviceAuthID]).andReturn(kDeviceAuthId);
+    OCMStub([self.mockInstanceID secretToken]).andReturn(kSecretToken);
 }
 
 @end
