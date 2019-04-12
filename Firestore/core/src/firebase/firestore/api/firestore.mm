@@ -40,7 +40,6 @@ namespace firebase {
 namespace firestore {
 namespace api {
 
-using firebase::firestore::api::Firestore;
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::core::Transaction;
@@ -94,24 +93,27 @@ FIRCollectionReference* Firestore::GetCollection(
   ResourcePath path = ResourcePath::FromString(collection_path);
   return [FIRCollectionReference
       referenceWithPath:path
-              firestore:[FIRFirestore recoverFromFirestore:this]];
+              firestore:[FIRFirestore recoverFromFirestore:shared_from_this()]];
 }
 
 DocumentReference Firestore::GetDocument(absl::string_view document_path) {
   EnsureClientConfigured();
-  return DocumentReference{ResourcePath::FromString(document_path), this};
+  return DocumentReference{ResourcePath::FromString(document_path),
+                           shared_from_this()};
 }
 
 FIRWriteBatch* Firestore::GetBatch() {
   EnsureClientConfigured();
-  FIRFirestore* wrapper = [FIRFirestore recoverFromFirestore:this];
+  FIRFirestore* wrapper =
+      [FIRFirestore recoverFromFirestore:shared_from_this()];
 
   return [FIRWriteBatch writeBatchWithFirestore:wrapper];
 }
 
 FIRQuery* Firestore::GetCollectionGroup(NSString* collection_id) {
   EnsureClientConfigured();
-  FIRFirestore* wrapper = [FIRFirestore recoverFromFirestore:this];
+  FIRFirestore* wrapper =
+      [FIRFirestore recoverFromFirestore:shared_from_this()];
 
   return
       [FIRQuery referenceWithQuery:[FSTQuery queryWithPath:ResourcePath::Empty()
@@ -123,7 +125,8 @@ void Firestore::RunTransaction(TransactionBlock update_block,
                                dispatch_queue_t queue,
                                ResultOrErrorCompletion completion) {
   EnsureClientConfigured();
-  FIRFirestore* wrapper = [FIRFirestore recoverFromFirestore:this];
+  FIRFirestore* wrapper =
+      [FIRFirestore recoverFromFirestore:shared_from_this()];
 
   FSTTransactionBlock wrapped_update =
       ^(std::shared_ptr<Transaction> internal_transaction,

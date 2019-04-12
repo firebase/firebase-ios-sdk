@@ -16,6 +16,8 @@
 
 #import "FIRQuerySnapshot.h"
 
+#include <memory>
+
 #include "Firestore/core/src/firebase/firestore/api/firestore.h"
 #include "Firestore/core/src/firebase/firestore/api/query_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/api/snapshot_metadata.h"
@@ -35,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithSnapshot:(api::QuerySnapshot &&)snapshot NS_DESIGNATED_INITIALIZER;
 
-- (instancetype)initWithFirestore:(api::Firestore *)firestore
+- (instancetype)initWithFirestore:(std::shared_ptr<api::Firestore>)firestore
                     originalQuery:(FSTQuery *)query
                          snapshot:(core::ViewSnapshot &&)snapshot
                          metadata:(api::SnapshotMetadata)metadata;

@@ -51,7 +51,7 @@ bool operator==(const QuerySnapshot& lhs, const QuerySnapshot& rhs) {
 }
 
 size_t QuerySnapshot::Hash() const {
-  return util::Hash(firestore_, internal_query_, snapshot_, metadata_);
+  return util::Hash(firestore_.get(), internal_query_, snapshot_, metadata_);
 }
 
 void QuerySnapshot::ForEachDocument(

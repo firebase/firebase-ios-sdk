@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRDocumentSnapshot.h"
+#import "FIRDocumentSnapshot+Internal.h"
 
 #include <utility>
 
@@ -83,7 +83,7 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
   return self;
 }
 
-- (instancetype)initWithFirestore:(Firestore *)firestore
+- (instancetype)initWithFirestore:(std::shared_ptr<Firestore>)firestore
                       documentKey:(DocumentKey)documentKey
                          document:(nullable FSTDocument *)document
                          metadata:(SnapshotMetadata)metadata {
@@ -91,7 +91,7 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
   return [self initWithSnapshot:std::move(wrapped)];
 }
 
-- (instancetype)initWithFirestore:(Firestore *)firestore
+- (instancetype)initWithFirestore:(std::shared_ptr<Firestore>)firestore
                       documentKey:(DocumentKey)documentKey
                          document:(nullable FSTDocument *)document
                         fromCache:(bool)fromCache
@@ -121,7 +121,7 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
   return _snapshot.exists();
 }
 
-- (FSTDocument *)internalDocument {
+- (nullable FSTDocument *)internalDocument {
   return _snapshot.internal_document();
 }
 

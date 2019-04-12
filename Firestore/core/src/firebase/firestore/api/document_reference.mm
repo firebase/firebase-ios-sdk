@@ -61,7 +61,7 @@ using util::StatusOr;
 using util::StatusOrCallback;
 
 DocumentReference::DocumentReference(model::ResourcePath path,
-                                     Firestore* firestore)
+                                     std::shared_ptr<Firestore> firestore)
     : firestore_{firestore} {
   if (path.size() % 2 != 0) {
     HARD_FAIL(
@@ -73,7 +73,7 @@ DocumentReference::DocumentReference(model::ResourcePath path,
 }
 
 size_t DocumentReference::Hash() const {
-  return util::Hash(firestore_, key_);
+  return util::Hash(firestore_.get(), key_);
 }
 
 const std::string& DocumentReference::document_id() const {
@@ -230,7 +230,7 @@ ListenerRegistration DocumentReference::AddSnapshotListener(
     }
 
    private:
-    Firestore* firestore_;
+    std::shared_ptr<Firestore> firestore_;
     DocumentKey key_;
     DocumentSnapshot::Listener user_listener_;
   };
