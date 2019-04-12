@@ -1,4 +1,9 @@
 # Unreleased
+
+# 5.7.0
+-  Restore to 5.5.0 tag after increased App Store warnings. (#2807)
+
+# 5.6.0
 - `GULAppDelegateSwizzler`: support of remote notification methods. (#2698)
 - `GULAppDelegateSwizzler`: tvOS support. (#2698)
 
