@@ -26,9 +26,10 @@
 @class FSTQuery;
 @class FSTSyncEngine;
 
-NS_ASSUME_NONNULL_BEGIN
+namespace core = firebase::firestore::core;
+namespace model = firebase::firestore::model;
 
-using firebase::firestore::core::QueryListener;
+NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTEventManager
 
@@ -40,12 +41,12 @@ using firebase::firestore::core::QueryListener;
 
 + (instancetype)eventManagerWithSyncEngine:(FSTSyncEngine *)syncEngine;
 
-- (instancetype)init __attribute__((unavailable("Use static constructor method.")));
+- (instancetype)init NS_UNAVAILABLE;
 
-- (firebase::firestore::model::TargetId)addListener:(std::shared_ptr<QueryListener>)listener;
-- (void)removeListener:(const std::shared_ptr<QueryListener> &)listener;
+- (model::TargetId)addListener:(std::shared_ptr<core::QueryListener>)listener;
+- (void)removeListener:(const std::shared_ptr<core::QueryListener> &)listener;
 
-- (void)applyChangedOnlineState:(firebase::firestore::model::OnlineState)onlineState;
+- (void)applyChangedOnlineState:(model::OnlineState)onlineState;
 
 @end
 

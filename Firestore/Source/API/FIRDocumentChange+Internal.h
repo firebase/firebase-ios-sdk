@@ -20,13 +20,14 @@
 
 #include "Firestore/core/src/firebase/firestore/api/document_change.h"
 
-using firebase::firestore::api::DocumentChange;
+namespace api = firebase::firestore::api;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRDocumentChange (/* Init */)
 
-- (instancetype)initWithDocumentChange:(DocumentChange &&)documentChange NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithDocumentChange:(api::DocumentChange &&)documentChange
+    NS_DESIGNATED_INITIALIZER;
 
 @end
 

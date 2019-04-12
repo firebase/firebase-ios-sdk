@@ -18,14 +18,14 @@
 
 #include "Firestore/core/src/firebase/firestore/api/listener_registration.h"
 
-NS_ASSUME_NONNULL_BEGIN
+namespace api = firebase::firestore::api;
 
-using firebase::firestore::api::ListenerRegistration;
+NS_ASSUME_NONNULL_BEGIN
 
 /** Private implementation of the FIRListenerRegistration protocol. */
 @interface FSTListenerRegistration : NSObject <FIRListenerRegistration>
 
-- (instancetype)initWithRegistration:(ListenerRegistration &&)registration;
+- (instancetype)initWithRegistration:(api::ListenerRegistration &&)registration;
 
 @end
 
