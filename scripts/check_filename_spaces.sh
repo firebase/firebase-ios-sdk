@@ -23,8 +23,6 @@ function remove_valid_names() {
     # Xcode-generated asset files
     /Assets.xcassets/ d
 
-    # Grandfathered files
-
     # Files without spaces
     /^[^ ]*$/ d
   '
