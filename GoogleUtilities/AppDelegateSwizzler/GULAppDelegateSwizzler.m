@@ -815,9 +815,13 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
   [GULAppDelegateSwizzler
       notifyInterceptorsWithMethodSelector:methodSelector
                                   callback:^(id<UIApplicationDelegate> interceptor) {
-                                    [interceptor application:application
-                                        didRegisterForRemoteNotificationsWithDeviceToken:
-                                            deviceToken];
+                                    NSInvocation *invocation = [GULAppDelegateSwizzler
+                                        appDelegateInvocationForSelector:methodSelector];
+                                    [invocation setTarget:interceptor];
+                                    [invocation setSelector:methodSelector];
+                                    [invocation setArgument:(void *)(&application) atIndex:2];
+                                    [invocation setArgument:(void *)(&deviceToken) atIndex:3];
+                                    [invocation invoke];
                                   }];
   // Call the real implementation if the real App Delegate has any.
   if (didRegisterForRemoteNotificationsIMP) {
@@ -837,8 +841,13 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
   [GULAppDelegateSwizzler
       notifyInterceptorsWithMethodSelector:methodSelector
                                   callback:^(id<UIApplicationDelegate> interceptor) {
-                                    [interceptor application:application
-                                        didFailToRegisterForRemoteNotificationsWithError:error];
+                                    NSInvocation *invocation = [GULAppDelegateSwizzler
+                                        appDelegateInvocationForSelector:methodSelector];
+                                    [invocation setTarget:interceptor];
+                                    [invocation setSelector:methodSelector];
+                                    [invocation setArgument:(void *)(&application) atIndex:2];
+                                    [invocation setArgument:(void *)(&error) atIndex:3];
+                                    [invocation invoke];
                                   }];
   // Call the real implementation if the real App Delegate has any.
   if (didFailToRegisterForRemoteNotificationsIMP) {
@@ -864,9 +873,14 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
   [GULAppDelegateSwizzler
       notifyInterceptorsWithMethodSelector:methodSelector
                                   callback:^(id<UIApplicationDelegate> interceptor) {
-                                    [interceptor application:application
-                                        didReceiveRemoteNotification:userInfo
-                                              fetchCompletionHandler:completionHandler];
+                                    NSInvocation *invocation = [GULAppDelegateSwizzler
+                                        appDelegateInvocationForSelector:methodSelector];
+                                    [invocation setTarget:interceptor];
+                                    [invocation setSelector:methodSelector];
+                                    [invocation setArgument:(void *)(&application) atIndex:2];
+                                    [invocation setArgument:(void *)(&userInfo) atIndex:3];
+                                    [invocation setArgument:(void *)(&completionHandler) atIndex:4];
+                                    [invocation invoke];
                                   }];
   // Call the real implementation if the real App Delegate has any.
   if (didReceiveRemoteNotificationWithCompletionIMP) {
@@ -891,14 +905,30 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
   [GULAppDelegateSwizzler
       notifyInterceptorsWithMethodSelector:methodSelector
                                   callback:^(id<UIApplicationDelegate> interceptor) {
-                                    [interceptor application:application
-                                        didReceiveRemoteNotification:userInfo];
+                                    NSInvocation *invocation = [GULAppDelegateSwizzler
+                                        appDelegateInvocationForSelector:methodSelector];
+                                    [invocation setTarget:interceptor];
+                                    [invocation setSelector:methodSelector];
+                                    [invocation setArgument:(void *)(&application) atIndex:2];
+                                    [invocation setArgument:(void *)(&userInfo) atIndex:3];
+                                    [invocation invoke];
                                   }];
 #pragma clang diagnostic pop
   // Call the real implementation if the real App Delegate has any.
   if (didReceiveRemoteNotificationIMP) {
     didReceiveRemoteNotificationIMP(self, methodSelector, application, userInfo);
   }
+}
+
++ (nullable NSInvocation *)appDelegateInvocationForSelector:(SEL)selector {
+  struct objc_method_description methodDescription =
+      protocol_getMethodDescription(@protocol(UIApplicationDelegate), selector, NO, YES);
+  if (methodDescription.types == NULL) {
+    return nil;
+  }
+
+  NSMethodSignature *signature = [NSMethodSignature signatureWithObjCTypes:methodDescription.types];
+  return [NSInvocation invocationWithMethodSignature:signature];
 }
 
 + (void)proxyAppDelegate:(id<UIApplicationDelegate>)appDelegate {
