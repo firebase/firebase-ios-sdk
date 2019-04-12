@@ -20,6 +20,7 @@
 #import "GDTAssert.h"
 #import "GDTClock.h"
 #import "GDTConsoleLogger.h"
+#import "GDTReachability.h"
 #import "GDTRegistrar_Private.h"
 #import "GDTStorage.h"
 #import "GDTUploadPackage_Private.h"
@@ -85,8 +86,11 @@
     if (self->_runningInBackground) {
       [self->_forcedUploadQueue insertObject:forceUploadBlock atIndex:0];
       [NSKeyedArchiver archiveRootObject:self toFile:[GDTUploadCoordinator archivePath]];
-
-      // Enqueue the force upload block if there's an in-flight upload for that target already.
+      // Enqueue the force upload block if conditions are bad or if there's an in-flight upload for
+      // that target already.
+    } else if (([self uploadConditions] & GDTUploadConditionNoNetwork) ==
+               GDTUploadConditionNoNetwork) {
+      [self->_forcedUploadQueue insertObject:forceUploadBlock atIndex:0];
     } else if (self->_targetToInFlightEventSet[targetNumber]) {
       [self->_forcedUploadQueue insertObject:forceUploadBlock atIndex:0];
     } else {
@@ -109,39 +113,34 @@
 // This should always be called in a thread-safe manner. When running the background, in theory,
 // the uploader's background task should be calling this.
 - (GDTUploaderCompletionBlock)onCompleteBlock {
-  __weak GDTUploadCoordinator *weakSelf = self;
   static GDTUploaderCompletionBlock onCompleteBlock;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
     onCompleteBlock = ^(GDTTarget target, GDTClock *nextUploadAttemptUTC, NSError *error) {
-      GDTUploadCoordinator *strongSelf = weakSelf;
-      if (strongSelf) {
-        dispatch_async(strongSelf.coordinationQueue, ^{
-          NSNumber *targetNumber = @(target);
-          if (error) {
-            GDTLogWarning(GDTMCWUploadFailed, @"Error during upload: %@", error);
-            [strongSelf->_targetToInFlightEventSet removeObjectForKey:targetNumber];
-            return;
+      dispatch_async(self->_coordinationQueue, ^{
+        NSNumber *targetNumber = @(target);
+        if (error) {
+          GDTLogWarning(GDTMCWUploadFailed, @"Error during upload: %@", error);
+          [self->_targetToInFlightEventSet removeObjectForKey:targetNumber];
+          return;
+        }
+        self->_targetToNextUploadTimes[targetNumber] = nextUploadAttemptUTC;
+        NSSet<GDTStoredEvent *> *events =
+            [self->_targetToInFlightEventSet objectForKey:targetNumber];
+        GDTAssert(events, @"There should be an in-flight event set to remove.");
+        [self->_storage removeEvents:events];
+        [self->_targetToInFlightEventSet removeObjectForKey:targetNumber];
+        if (self->_runningInBackground) {
+          [NSKeyedArchiver archiveRootObject:self toFile:[GDTUploadCoordinator archivePath]];
+        } else if (self->_forcedUploadQueue.count) {
+          GDTUploadCoordinatorForceUploadBlock queuedBlock = [self->_forcedUploadQueue lastObject];
+          if (queuedBlock) {
+            dispatch_async(self->_coordinationQueue, ^{
+              queuedBlock();
+            });
           }
-          strongSelf->_targetToNextUploadTimes[targetNumber] = nextUploadAttemptUTC;
-          NSSet<GDTStoredEvent *> *events =
-              [strongSelf->_targetToInFlightEventSet objectForKey:targetNumber];
-          GDTAssert(events, @"There should be an in-flight event set to remove.");
-          [strongSelf.storage removeEvents:events];
-          [strongSelf->_targetToInFlightEventSet removeObjectForKey:targetNumber];
-          if (strongSelf->_runningInBackground) {
-            [NSKeyedArchiver archiveRootObject:self toFile:[GDTUploadCoordinator archivePath]];
-          } else if (strongSelf->_forcedUploadQueue.count) {
-            GDTUploadCoordinatorForceUploadBlock queuedBlock =
-                [strongSelf->_forcedUploadQueue lastObject];
-            if (queuedBlock) {
-              dispatch_async(strongSelf->_coordinationQueue, ^{
-                queuedBlock();
-              });
-            }
-          }
-        });
-      }
+        }
+      });
     };
   });
   return onCompleteBlock;
@@ -153,20 +152,17 @@
  * check the next-upload clocks of all targets to determine if an upload attempt can be made.
  */
 - (void)startTimer {
-  __weak GDTUploadCoordinator *weakSelf = self;
   dispatch_sync(_coordinationQueue, ^{
-    GDTUploadCoordinator *strongSelf = weakSelf;
-    GDTAssert(strongSelf, @"self must be real to start a timer.");
-    strongSelf->_timer =
-        dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, strongSelf->_coordinationQueue);
-    dispatch_source_set_timer(strongSelf->_timer, DISPATCH_TIME_NOW, strongSelf->_timerInterval,
-                              strongSelf->_timerLeeway);
-    dispatch_source_set_event_handler(strongSelf->_timer, ^{
-      if (!strongSelf->_runningInBackground) {
-        [strongSelf checkPrioritizersAndUploadEvents];
+    self->_timer =
+        dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, self->_coordinationQueue);
+    dispatch_source_set_timer(self->_timer, DISPATCH_TIME_NOW, self->_timerInterval,
+                              self->_timerLeeway);
+    dispatch_source_set_event_handler(self->_timer, ^{
+      if (!self->_runningInBackground) {
+        [self checkPrioritizersAndUploadEvents];
       }
     });
-    dispatch_resume(strongSelf->_timer);
+    dispatch_resume(self->_timer);
   });
 }
 
@@ -181,36 +177,72 @@
  * events for that target or not. If so, queries the prioritizers
  */
 - (void)checkPrioritizersAndUploadEvents {
-  __weak GDTUploadCoordinator *weakSelf = self;
   dispatch_async(_coordinationQueue, ^{
     if (self->_runningInBackground) {
       return;
     }
+
+    GDTUploadConditions conds = [self uploadConditions];
+    if ((conds & GDTUploadConditionNoNetwork) == GDTUploadConditionNoNetwork) {
+      return;
+    }
+
     static int count = 0;
     count++;
-    GDTUploadCoordinator *strongSelf = weakSelf;
-    if (strongSelf) {
-      NSArray<NSNumber *> *targetsReadyForUpload = [self targetsReadyForUpload];
-      for (NSNumber *target in targetsReadyForUpload) {
-        id<GDTPrioritizer> prioritizer = strongSelf->_registrar.targetToPrioritizer[target];
-        id<GDTUploader> uploader = strongSelf->_registrar.targetToUploader[target];
-        GDTAssert(prioritizer && uploader, @"Target '%@' is missing an implementation", target);
-        GDTUploadConditions conds = [self uploadConditions];
-        GDTUploadPackage *package = [[prioritizer uploadPackageWithConditions:conds] copy];
-        package.storage = strongSelf.storage;
-        if (package.events && package.events.count > 0) {
-          strongSelf->_targetToInFlightEventSet[target] = package.events;
-          [uploader uploadPackage:package onComplete:self.onCompleteBlock];
-        }
+    NSArray<NSNumber *> *targetsReadyForUpload = [self targetsReadyForUpload];
+    for (NSNumber *target in targetsReadyForUpload) {
+      id<GDTPrioritizer> prioritizer = self->_registrar.targetToPrioritizer[target];
+      id<GDTUploader> uploader = self->_registrar.targetToUploader[target];
+      GDTAssert(prioritizer && uploader, @"Target '%@' is missing an implementation", target);
+      GDTUploadPackage *package = [[prioritizer uploadPackageWithConditions:conds] copy];
+      package.storage = self.storage;
+      if (package.events && package.events.count > 0) {
+        self->_targetToInFlightEventSet[target] = package.events;
+        [uploader uploadPackage:package onComplete:self.onCompleteBlock];
       }
     }
   });
 }
 
-/** */
+/** Returns the current upload conditions after making determinations about the network connection.
+ *
+ * @return The current upload conditions.
+ */
 - (GDTUploadConditions)uploadConditions {
-  // TODO: Compute the real upload conditions.
-  return GDTUploadConditionMobileData;
+  SCNetworkReachabilityFlags currentFlags = [GDTReachability currentFlags];
+
+  BOOL reachable =
+      (currentFlags & kSCNetworkReachabilityFlagsReachable) == kSCNetworkReachabilityFlagsReachable;
+  BOOL connectionRequired = (currentFlags & kSCNetworkReachabilityFlagsConnectionRequired) ==
+                            kSCNetworkReachabilityFlagsConnectionRequired;
+  BOOL interventionRequired = (currentFlags & kSCNetworkReachabilityFlagsInterventionRequired) ==
+                              kSCNetworkReachabilityFlagsInterventionRequired;
+  BOOL connectionOnDemand = (currentFlags & kSCNetworkReachabilityFlagsConnectionOnDemand) ==
+                            kSCNetworkReachabilityFlagsConnectionOnDemand;
+  BOOL connectionOnTraffic = (currentFlags & kSCNetworkReachabilityFlagsConnectionOnTraffic) ==
+                             kSCNetworkReachabilityFlagsConnectionOnTraffic;
+  BOOL isWWAN =
+      (currentFlags & kSCNetworkReachabilityFlagsIsWWAN) == kSCNetworkReachabilityFlagsIsWWAN;
+
+  if (!reachable) {
+    return GDTUploadConditionNoNetwork;
+  }
+
+  GDTUploadConditions conditions = 0;
+  conditions |= !connectionRequired ? GDTUploadConditionWifiData : conditions;
+  conditions |= isWWAN ? GDTUploadConditionMobileData : conditions;
+  if ((connectionOnTraffic || connectionOnDemand) && !interventionRequired) {
+    conditions = GDTUploadConditionWifiData;
+  }
+
+  BOOL wifi = (conditions & GDTUploadConditionWifiData) == GDTUploadConditionWifiData;
+  BOOL cell = (conditions & GDTUploadConditionMobileData) == GDTUploadConditionMobileData;
+
+  if (!(wifi || cell)) {
+    conditions = GDTUploadConditionUnclearConnection;
+  }
+
+  return conditions;
 }
 
 /** Checks the next upload time for each target and returns an array of targets that are

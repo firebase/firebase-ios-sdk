@@ -16,11 +16,13 @@
 
 #import "GDTTestCase.h"
 
+#import "GDTReachability_Private.h"
 #import "GDTUploadCoordinator+Testing.h"
 
 @implementation GDTTestCase
 
 - (void)setUp {
+  [GDTReachability sharedInstance].flags = kSCNetworkReachabilityFlagsReachable;
   [[GDTUploadCoordinator sharedInstance] stopTimer];
 }
 
