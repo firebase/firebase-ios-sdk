@@ -31,23 +31,27 @@ class UnderlyingNSError : public PlatformError {
   explicit UnderlyingNSError(NSError* error) : error_(error) {
   }
 
-  ~UnderlyingNSError() {
-  }
-
   static std::unique_ptr<UnderlyingNSError> Create(NSError* error) {
     return absl::make_unique<UnderlyingNSError>(error);
   }
 
-  static NSError* Recover(const std::unique_ptr<PlatformError>& wrapped) {
-    if (wrapped == nullptr) {
+  static NSError* Recover(
+      const std::unique_ptr<PlatformError>& platform_error) {
+    if (platform_error == nullptr) {
       return nil;
     }
 
-    return static_cast<UnderlyingNSError*>(wrapped.get())->error();
+    return static_cast<UnderlyingNSError*>(platform_error.get())->error();
   }
 
   std::unique_ptr<PlatformError> Copy() override {
     return absl::make_unique<UnderlyingNSError>(error_);
+  }
+
+  std::unique_ptr<PlatformError> WrapWith(FirestoreErrorCode code,
+                                          std::string message) override {
+    NSError* chain = MakeNSError(code, message, error_);
+    return Create(chain);
   }
 
   NSError* error() const {
@@ -83,34 +87,10 @@ Status Status::FromNSError(NSError* error) {
 NSError* Status::ToNSError() const {
   if (ok()) return nil;
 
-  NSError* error = UnderlyingNSError::Recover(state_->wrapped);
+  NSError* error = UnderlyingNSError::Recover(state_->platform_error);
   if (error) return error;
 
   return MakeNSError(code(), error_message());
-}
-
-Status& Status::CausedBy(const Status& cause) {
-  if (cause.ok() || this == &cause) {
-    return *this;
-  }
-
-  if (ok()) {
-    *this = cause;
-    return *this;
-  }
-
-  absl::StrAppend(&state_->msg, ": ", cause.error_message());
-
-  // If this Status has no wrapped NSError but the cause does, create an NSError
-  // for this Status ahead of time to preserve the causal chain that Status
-  // doesn't otherwise support.
-  NSError* cause_nserror = UnderlyingNSError::Recover(cause.state_->wrapped);
-  if (state_->wrapped == nullptr && cause_nserror) {
-    NSError* chain = MakeNSError(code(), error_message(), cause_nserror);
-    state_->wrapped = UnderlyingNSError::Create(chain);
-  }
-
-  return *this;
 }
 
 }  // namespace util

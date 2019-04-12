@@ -39,7 +39,6 @@ void Status::Update(const Status& new_status) {
   }
 }
 
-#if !__APPLE__
 Status& Status::CausedBy(const Status& cause) {
   if (cause.ok() || this == &cause) {
     return *this;
@@ -51,14 +50,22 @@ Status& Status::CausedBy(const Status& cause) {
   }
 
   absl::StrAppend(&state_->msg, ": ", cause.error_message());
+
+  // If this Status has no accompanying PlatformError but the cause does, create
+  // an PlatformError for this Status ahead of time to preserve the causal chain
+  // that Status doesn't otherwise support.
+  if (state_->platform_error == nullptr &&
+      cause.state_->platform_error != nullptr) {
+    state_->platform_error =
+        cause.state_->platform_error->WrapWith(code(), error_message());
+  }
+
   return *this;
 }
-#endif  // !__APPLE__
 
 Status& Status::WithPlatformError(std::unique_ptr<PlatformError> error) {
-  if (!ok()) {
-    state_->wrapped = std::move(error);
-  }
+  HARD_ASSERT(!ok(), "Platform errors should not be applied to Status::OK()");
+  state_->platform_error = std::move(error);
   return *this;
 }
 
@@ -155,9 +162,6 @@ std::string StatusCheckOpHelperOutOfLine(const Status& v, const char* msg) {
   r += " status: ";
   r += v.ToString();
   return r;
-}
-
-PlatformError::~PlatformError() {
 }
 
 }  // namespace util

@@ -121,7 +121,12 @@ class ABSL_MUST_USE_RESULT Status {
 
     FirestoreErrorCode code;
     std::string msg;
-    std::unique_ptr<PlatformError> wrapped;
+
+    // An additional platform-specific error representation that was used to
+    // generate this Status. The PlatformError does not meaningfully contribute
+    // to the identity of this Status: it exists to allow tunneling e.g.
+    // NSError* to Status and back to NSError* losslessly.
+    std::unique_ptr<PlatformError> platform_error;
   };
   // OK status has a `nullptr` state_.  Otherwise, `state_` points to
   // a `State` structure containing the error code and message(s)
@@ -132,9 +137,17 @@ class ABSL_MUST_USE_RESULT Status {
 
 class PlatformError {
  public:
-  virtual ~PlatformError();
+  virtual ~PlatformError() {
+  }
 
   virtual std::unique_ptr<PlatformError> Copy() = 0;
+
+  /**
+   * Creates a new PlatformError with the given code and message, whose cause is
+   * this PlatformError.
+   */
+  virtual std::unique_ptr<PlatformError> WrapWith(FirestoreErrorCode code,
+                                                  std::string message) = 0;
 };
 
 inline Status::Status(const Status& s)
@@ -144,7 +157,8 @@ inline Status::Status(const Status& s)
 inline Status::State::State(const State& s)
     : code(s.code),
       msg(s.msg),
-      wrapped((s.wrapped == nullptr) ? nullptr : s.wrapped->Copy()) {
+      platform_error((s.platform_error == nullptr) ? nullptr
+                                                   : s.platform_error->Copy()) {
 }
 
 inline void Status::operator=(const Status& s) {
