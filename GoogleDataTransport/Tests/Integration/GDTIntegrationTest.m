@@ -22,6 +22,7 @@
 #import "GDTIntegrationTestUploader.h"
 #import "GDTTestServer.h"
 
+#import "GDTReachability_Private.h"
 #import "GDTStorage_Private.h"
 #import "GDTUploadCoordinator+Testing.h"
 
@@ -83,6 +84,9 @@
 - (void)testEndToEndEvent {
   XCTestExpectation *expectation = [self expectationWithDescription:@"server got the request"];
   expectation.assertForOverFulfill = NO;
+
+  // Manually set the reachability flag.
+  [GDTReachability sharedInstance].flags = kSCNetworkReachabilityFlagsReachable;
 
   // Create the server.
   GDTTestServer *testServer = [[GDTTestServer alloc] init];

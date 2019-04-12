@@ -28,14 +28,20 @@ NS_ASSUME_NONNULL_BEGIN
  */
 typedef NS_OPTIONS(NSInteger, GDTUploadConditions) {
 
+  /** An upload shouldn't be attempted, because there's no network. */
+  GDTUploadConditionNoNetwork = 1 << 0,
+
   /** An upload would likely use mobile data. */
-  GDTUploadConditionMobileData,
+  GDTUploadConditionMobileData = 1 << 1,
 
   /** An upload would likely use wifi data. */
-  GDTUploadConditionWifiData,
+  GDTUploadConditionWifiData = 1 << 2,
+
+  /** An upload uses some sort of network connection, but it's unclear which. */
+  GDTUploadConditionUnclearConnection = 1 << 3,
 
   /** A high priority event has occurred. */
-  GDTUploadConditionHighPriority,
+  GDTUploadConditionHighPriority = 1 << 4,
 };
 
 /** This protocol defines the common interface of event prioritization. Prioritizers are

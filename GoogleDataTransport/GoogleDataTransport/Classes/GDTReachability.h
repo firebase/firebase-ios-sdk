@@ -14,20 +14,18 @@
  * limitations under the License.
  */
 
-#import "GDTTestCase.h"
+#import <Foundation/Foundation.h>
 
-#import "GDTReachability_Private.h"
-#import "GDTUploadCoordinator+Testing.h"
+#import <SystemConfiguration/SCNetworkReachability.h>
 
-@implementation GDTTestCase
+NS_ASSUME_NONNULL_BEGIN
 
-- (void)setUp {
-  [GDTReachability sharedInstance].flags = kSCNetworkReachabilityFlagsReachable;
-  [[GDTUploadCoordinator sharedInstance] stopTimer];
-}
+/** This class helps determine upload conditions by determining connectivity. */
+@interface GDTReachability : NSObject
 
-- (void)tearDown {
-  [GDTAssertHelper setAssertionBlock:nil];
-}
+/** The current set flags indicating network conditions */
++ (SCNetworkReachabilityFlags)currentFlags;
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -14,20 +14,17 @@
  * limitations under the License.
  */
 
-#import "GDTTestCase.h"
+#import "GDTReachability.h"
 
-#import "GDTReachability_Private.h"
-#import "GDTUploadCoordinator+Testing.h"
+@interface GDTReachability ()
 
-@implementation GDTTestCase
+/** Allows manually setting the flags for testing purposes. */
+@property(nonatomic, readwrite) SCNetworkReachabilityFlags flags;
 
-- (void)setUp {
-  [GDTReachability sharedInstance].flags = kSCNetworkReachabilityFlagsReachable;
-  [[GDTUploadCoordinator sharedInstance] stopTimer];
-}
-
-- (void)tearDown {
-  [GDTAssertHelper setAssertionBlock:nil];
-}
+/** Creates/returns the singleton instance of this class.
+ *
+ * @return The singleton instance of this class.
+ */
++ (instancetype)sharedInstance;
 
 @end
