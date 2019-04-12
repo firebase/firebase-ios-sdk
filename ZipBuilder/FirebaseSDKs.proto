@@ -37,7 +37,7 @@ message SDK {
   repeated string build_target = 9;
 
   // Whether or not to strip both the i386 and armv7 architectures from the
-  // build. For internal use only.
+  // build. All SDKs that use this flag are built internally so this should be ignored.
   bool strip_32bits = 10;
 }
 
