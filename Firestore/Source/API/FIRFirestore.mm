@@ -55,8 +55,6 @@ using firebase::firestore::util::DelayedConstructor;
 
 NS_ASSUME_NONNULL_BEGIN
 
-extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
-
 #pragma mark - FIRFirestore
 
 @interface FIRFirestore ()
