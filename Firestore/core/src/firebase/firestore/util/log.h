@@ -31,6 +31,8 @@ enum LogLevel {
   kLogLevelDebug,
   // Warning Log Level
   kLogLevelWarning,
+  // Error Log Level
+  kLogLevelError,
 };
 
 // Log a message if kLogLevelDebug is enabled. Arguments are not evaluated if
@@ -60,6 +62,21 @@ enum LogLevel {
     if (_util::LogIsLoggable(_util::kLogLevelWarning)) {       \
       std::string _message = _util::StringFormat(__VA_ARGS__); \
       _util::LogMessage(_util::kLogLevelWarning, _message);    \
+    }                                                          \
+  } while (0)
+
+// Log a message if kLogLevelError is enabled (it is by default). Arguments are
+// not evaluated if logging is disabled.
+//
+// @param format A format string suitable for use with `util::StringFormat`
+// @param ... C++ variadic arguments that match the format string. Not C
+//     varargs.
+#define LOG_ERROR(...)                                         \
+  do {                                                         \
+    namespace _util = firebase::firestore::util;               \
+    if (_util::LogIsLoggable(_util::kLogLevelError)) {         \
+      std::string _message = _util::StringFormat(__VA_ARGS__); \
+      _util::LogMessage(_util::kLogLevelError, _message);      \
     }                                                          \
   } while (0)
 

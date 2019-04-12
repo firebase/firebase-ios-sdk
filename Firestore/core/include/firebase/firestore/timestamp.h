@@ -19,6 +19,7 @@
 
 #include <cstdint>
 #include <ctime>
+#include <iosfwd>
 #include <string>
 
 #if !defined(_STLPORT_VERSION)
@@ -148,6 +149,8 @@ class Timestamp {
    * don't rely on the format of the string.
    */
   std::string ToString() const;
+  friend std::ostream& operator<<(std::ostream& out,
+                                  const Timestamp& timestamp);
 
  private:
   // Checks that the number of seconds is within the supported date range, and

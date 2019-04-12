@@ -52,8 +52,8 @@ Then do the following steps:
    `file Rome/*/* | grep universal | grep dynamic`
 1. Drag each dynamic framework to the "Embed Frameworks" section on the
    Xcode Build Target's "General" page.
-1. If you're using FirebaseML, FirebaseInAppMessaging, FirebaseFirestore, or
-   FirebaseInvites, find
+1. If you're using FirebaseML, FirebaseInAppMessaging, or FirebaseFirestore,
+   find
    the resources to the project: `ls -ld Pods/*/Resources/*`. More details on
    this below.
 1. Drag all of those resources into the Project Navigator, just
@@ -85,10 +85,6 @@ Then do the following steps:
         - ./Rome/GRPCClient.framework/gRPCCertificates.bundle
     - For InAppMessagingDisplay:
         - ./Rome/FirebaseInAppMessagingDisplay.framework/InAppMessagingDisplayResources.bundle
-    - For Invites:
-        - ./Pods/FirebaseInvites/Resources/GINInviteResources.bundle
-        - ./Pods/FirebaseInvites/Resources/GPPACLPickerResources.bundle
-        - ./Pods/GoogleSignIn/Resources/GoogleSignIn.bundle
     - For FirebaseMLVisionFaceModel:
         - ./Pods/GoogleMobileVision/FaceDetector/Resources/GoogleMVFaceDetectorResources
     - For FirebaseMLVisionTextModel:

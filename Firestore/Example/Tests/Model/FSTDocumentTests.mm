@@ -64,9 +64,9 @@ NS_ASSUME_NONNULL_BEGIN
                                              state:FSTDocumentStateSynced];
 
   XCTAssertEqualObjects([doc fieldForPath:testutil::Field("desc")],
-                        [FSTStringValue stringValue:@"Discuss all the project related stuff"]);
+                        FieldValue::FromString("Discuss all the project related stuff").Wrap());
   XCTAssertEqualObjects([doc fieldForPath:testutil::Field("owner.title")],
-                        [FSTStringValue stringValue:@"scallywag"]);
+                        FieldValue::FromString("scallywag").Wrap());
 }
 
 - (void)testIsEqual {

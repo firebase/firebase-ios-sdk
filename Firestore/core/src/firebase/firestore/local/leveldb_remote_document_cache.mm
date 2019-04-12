@@ -47,6 +47,8 @@ void LevelDbRemoteDocumentCache::Add(FSTMaybeDocument* document) {
   std::string ldb_key = LevelDbRemoteDocumentKey::Key(document.key);
   db_.currentTransaction->Put(ldb_key,
                               [serializer_ encodedMaybeDocument:document]);
+
+  db_.indexManager->AddToCollectionParentIndex(document.key.path().PopLast());
 }
 
 void LevelDbRemoteDocumentCache::Remove(const DocumentKey& key) {
@@ -90,6 +92,10 @@ MaybeDocumentMap LevelDbRemoteDocumentCache::GetAll(
 }
 
 DocumentMap LevelDbRemoteDocumentCache::GetMatching(FSTQuery* query) {
+  HARD_ASSERT(
+      ![query isCollectionGroupQuery],
+      "CollectionGroup queries should be handled in LocalDocumentsView");
+
   DocumentMap results;
 
   // Use the query path as a prefix for testing if a document matches the query.

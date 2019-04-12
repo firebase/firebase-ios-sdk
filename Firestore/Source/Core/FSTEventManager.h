@@ -16,6 +16,9 @@
 
 #import <Foundation/Foundation.h>
 
+#include <memory>
+
+#include "Firestore/core/src/firebase/firestore/core/query_listener.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
@@ -25,49 +28,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-#pragma mark - FSTListenOptions
-
-@interface FSTListenOptions : NSObject
-
-+ (instancetype)defaultOptions;
-
-- (instancetype)initWithIncludeQueryMetadataChanges:(BOOL)includeQueryMetadataChanges
-                     includeDocumentMetadataChanges:(BOOL)includeDocumentMetadataChanges
-                              waitForSyncWhenOnline:(BOOL)waitForSyncWhenOnline
-    NS_DESIGNATED_INITIALIZER;
-
-- (instancetype)init NS_UNAVAILABLE;
-
-@property(nonatomic, assign, readonly) BOOL includeQueryMetadataChanges;
-
-@property(nonatomic, assign, readonly) BOOL includeDocumentMetadataChanges;
-
-@property(nonatomic, assign, readonly) BOOL waitForSyncWhenOnline;
-
-@end
-
-#pragma mark - FSTQueryListener
-
-/**
- * FSTQueryListener takes a series of internal view snapshots and determines when to raise
- * user-facing events.
- */
-@interface FSTQueryListener : NSObject
-
-- (instancetype)initWithQuery:(FSTQuery *)query
-                      options:(FSTListenOptions *)options
-          viewSnapshotHandler:(firebase::firestore::core::ViewSnapshotHandler &&)viewSnapshotHandler
-    NS_DESIGNATED_INITIALIZER;
-
-- (instancetype)init NS_UNAVAILABLE;
-
-- (void)queryDidChangeViewSnapshot:(firebase::firestore::core::ViewSnapshot)snapshot;
-- (void)queryDidError:(const firebase::firestore::util::Status &)error;
-- (void)applyChangedOnlineState:(firebase::firestore::model::OnlineState)onlineState;
-
-@property(nonatomic, strong, readonly) FSTQuery *query;
-
-@end
+using firebase::firestore::core::QueryListener;
 
 #pragma mark - FSTEventManager
 
@@ -81,8 +42,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init __attribute__((unavailable("Use static constructor method.")));
 
-- (firebase::firestore::model::TargetId)addListener:(FSTQueryListener *)listener;
-- (void)removeListener:(FSTQueryListener *)listener;
+- (firebase::firestore::model::TargetId)addListener:(std::shared_ptr<QueryListener>)listener;
+- (void)removeListener:(const std::shared_ptr<QueryListener> &)listener;
 
 - (void)applyChangedOnlineState:(firebase::firestore::model::OnlineState)onlineState;
 

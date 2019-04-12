@@ -29,10 +29,10 @@
 #import "FUNSerializer.h"
 #import "FUNUsageValidation.h"
 
-#import "FIRApp.h"
-#import "FIRAppInternal.h"
-#import "FIROptions.h"
-#import "GTMSessionFetcherService.h"
+#import <FirebaseCore/FIRApp.h>
+#import <FirebaseCore/FIRAppInternal.h>
+#import <FirebaseCore/FIROptions.h>
+#import <GTMSessionFetcher/GTMSessionFetcherService.h>
 
 // The following two macros supply the incantation so that the C
 // preprocessor does not try to parse the version as a floating

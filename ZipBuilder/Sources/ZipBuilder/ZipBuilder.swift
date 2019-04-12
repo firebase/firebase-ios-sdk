@@ -33,9 +33,6 @@ private struct Constants {
     public static let modulemap = "module.modulemap"
     public static let notices = "NOTICES"
 
-    // Directory containing extra FirebaseCrash scripts.
-    public static let crashDir = "Crash"
-
     /// All required files for distribution. Note: the readmeTemplate is also needed for
     /// distribution but is copied separately since it's modified.
     public static let requiredFilesForDistribution: [String] = [firebaseHeader, modulemap, notices]
@@ -182,6 +179,10 @@ struct ZipBuilder {
     // builds to just install a subset: `[.core, .analytics, .storage, .firestore]` for example.
     let subspecsToInstall = Subspec.allCases
 
+    // Remove CocoaPods cache so the build gets updates after a version is rebuilt during the
+    // release process.
+    CocoaPodUtils.cleanPodCache()
+
     // We need to install all the subpsecs in order to get every single framework that we'll need
     // for the zip file. We can't install each one individually since some pods depend on different
     // subspecs from the same pod (ex: GoogleUtilities, GoogleToolboxForMac, etc). All of the code
@@ -205,12 +206,33 @@ struct ZipBuilder {
     // Create an array that has the Pod name as the key and the array of frameworks needed - this
     // will be used as the source of truth for all frameworks to be copied in each product's
     // directory.
-    let frameworks = filesToInstall.mapValues { $0.frameworks }
+    var frameworks = filesToInstall.mapValues { $0.frameworks }
     for (framework, paths) in frameworks {
       print("Frameworks for pod: \(framework) were compiled at \(paths)")
     }
 
-    // TODO: Overwrite the `CoreDiagnostics.framework` in the generated framework.
+    // Overwrite the `FirebaseCoreDiagnostics.framework` in the `FirebaseAnalytics` folder. This is
+    // needed because it was compiled specifically with the `ZIP` bit enabled, helping us understand
+    // the distribution of CocoaPods vs Zip file integrations.
+    if subspecsToInstall.contains(.analytics) {
+      let overriddenAnalytics: [URL] = {
+        guard let currentFrameworks = frameworks["FirebaseAnalytics"] else {
+          fatalError("Attempted to replace CoreDiagnostics framework but the FirebaseAnalytics " +
+            "directory does not exist. Existing directories: \(frameworks.keys)")
+        }
+
+        // Filter out any CoreDiagnostics directories from the frameworks to install. There should
+        // only be one.
+        let withoutDiagnostics: [URL] = currentFrameworks.filter { url in
+          url.lastPathComponent != "FirebaseCoreDiagnostics.framework"
+        }
+
+        return withoutDiagnostics + [paths.coreDiagnosticsDir]
+      }()
+
+      // Set the newly required framework paths for Analytics.
+      frameworks["FirebaseAnalytics"] = overriddenAnalytics
+    }
 
     // TODO: The folder heirarchy should change in Firebase 6.
     // Time to assemble the folder structure of the Zip file. In order to get the frameworks
@@ -333,24 +355,6 @@ struct ZipBuilder {
                            encoding: .utf8)
     } catch {
       fatalError("Could not write README to Zip directory: \(error)")
-    }
-
-    // TODO: Remove this manual copy once FirebaseCrash is removed from the Zip file.
-    // Copy over the Crash scripts, if Crash should be installed
-    if subspecsToInstall.contains(.crash) {
-      do {
-        let crashDir = paths.templateDir.appendingPathComponent(Constants.ProjectPath.crashDir)
-        let crashFiles = try FileManager.default.contentsOfDirectory(at: crashDir,
-                                                                     includingPropertiesForKeys: nil,
-                                                                     options: [])
-        let crashZipDir = zipDir.appendingPathComponent("Crash")
-        for file in crashFiles {
-          let destination = crashZipDir.appendingPathComponent(file.lastPathComponent)
-          try FileManager.default.copyItem(at: file, to: destination)
-        }
-      } catch {
-        fatalError("Could not copy extra Crash tools: \(error)")
-      }
     }
 
     print("Contents of the Zip file were assembled at: \(zipDir)")
@@ -733,6 +737,17 @@ struct ZipBuilder {
                                                                 to: podResourceDir)
         } catch {
           fatalError("Cannot move Resource bundles for \(pod.name): \(error)")
+        }
+
+        // Smart Reply packages Resources separately from other MLKit subspecs.
+        if pod.name == "FirebaseMLNLSmartReply" {
+          do {
+            resourceBundles = try ResourcesManager.createBundleForFoldersInResourcesDirs(
+              containedIn: pod.installedLocation, destinationDir: podResourceDir
+            )
+          } catch {
+            fatalError("Could not generate Resource bundles for \(pod.name): \(error)")
+          }
         }
 
         // Special case for MLKit *Model subspecs, explicitly copy directories from

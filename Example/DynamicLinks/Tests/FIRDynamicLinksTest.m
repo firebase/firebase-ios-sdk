@@ -21,6 +21,7 @@
 #import <FirebaseCore/FIROptions.h>
 #import <GoogleUtilities/GULSwizzler.h>
 #import "DynamicLinks/FIRDLRetrievalProcessFactory.h"
+#import "DynamicLinks/FIRDLRetrievalProcessResult+Private.h"
 #import "DynamicLinks/FIRDynamicLink+Private.h"
 #import "DynamicLinks/FIRDynamicLinkNetworking+Private.h"
 #import "DynamicLinks/FIRDynamicLinks+FirstParty.h"
@@ -76,6 +77,7 @@ typedef NSURL * (^FakeShortLinkResolverHandler)(NSURL *shortLink);
                       clientID:(NSString *)clientID
                      urlScheme:(nullable NSString *)urlScheme
                   userDefaults:(nullable NSUserDefaults *)userDefaults;
+- (BOOL)canParseUniversalLinkURL:(nullable NSURL *)url;
 @end
 
 @interface FakeShortLinkResolver : FIRDynamicLinkNetworking
@@ -773,13 +775,90 @@ static void UnswizzleDynamicLinkNetworking() {
   XCTAssertEqualObjects(dynamicLink.url.absoluteString, parsedDeepLinkString);
 }
 
-- (void)testMatchesUnversalLinkWithLongDurableLink {
-  NSString *urlString =
-      @"https://sample.page.link?link=https://google.com/test&ibi=com.google.sample&ius=79306483";
-  NSURL *url = [NSURL URLWithString:urlString];
-  BOOL matchesShort = [self.service matchesShortLinkFormat:url];
+- (void)testMatchesShortLinkFormat {
+  NSArray<NSString *> *urlStrings =
+      @[ @"https://test.app.goo.gl/xyz", @"https://test.app.goo.gl/xyz?link=" ];
 
-  XCTAssertFalse(matchesShort, @"Long Durable Link should not match short link format");
+  for (NSString *urlString in urlStrings) {
+    NSURL *url = [NSURL URLWithString:urlString];
+    BOOL matchesShortLinkFormat = [self.service matchesShortLinkFormat:url];
+
+    XCTAssertTrue(matchesShortLinkFormat,
+                  @"Non-DDL domain URL matched short link format with URL: %@", url);
+  }
+}
+
+// Custom domain entries in plist file:
+//  https://google.com
+//  https://google.com/one
+//  https://a.firebase.com/mypath
+- (void)testFailMatchesShortLinkFormatForCustomDomains {
+  NSArray<NSString *> *urlStrings = @[
+    @"https://google.com",
+    @"https://google.com?link=",
+    @"https://a.firebase.com",
+    @"https://a.firebase.com/mypath?link=",
+  ];
+
+  for (NSString *urlString in urlStrings) {
+    NSURL *url = [NSURL URLWithString:urlString];
+    BOOL matchesShortLinkFormat = [self.service matchesShortLinkFormat:url];
+
+    XCTAssertFalse(matchesShortLinkFormat,
+                   @"Non-DDL domain URL matched short link format with URL: %@", url);
+  }
+}
+
+// Custom domain entries in plist file:
+//  https://google.com
+//  https://google.com/one
+//  https://a.firebase.com/mypath
+- (void)testPassMatchesShortLinkFormatForCustomDomains {
+  NSArray<NSString *> *urlStrings = @[
+    @"https://google.com/xyz", @"https://google.com/xyz/?link=", @"https://google.com/xyz?link=",
+    @"https://google.com/one/xyz", @"https://google.com/one/xyz?link=",
+    @"https://google.com/one?utm_campaignlink=", @"https://google.com/mylink",
+    @"https://google.com/one/mylink", @"https://a.firebase.com/mypath/mylink"
+  ];
+
+  for (NSString *urlString in urlStrings) {
+    NSURL *url = [NSURL URLWithString:urlString];
+    BOOL matchesShortLinkFormat = [self.service matchesShortLinkFormat:url];
+
+    XCTAssertTrue(matchesShortLinkFormat,
+                  @"Non-DDL domain URL matched short link format with URL: %@", url);
+  }
+}
+
+- (void)testPassMatchesShortLinkFormat {
+  NSArray<NSString *> *urlStrings = @[
+    @"https://test.app.goo.gl/xyz",
+    @"https://test.app.goo.gl/xyz?link=",
+  ];
+
+  for (NSString *urlString in urlStrings) {
+    NSURL *url = [NSURL URLWithString:urlString];
+    BOOL matchesShortLinkFormat = [self.service matchesShortLinkFormat:url];
+
+    XCTAssertTrue(matchesShortLinkFormat,
+                  @"Non-DDL domain URL matched short link format with URL: %@", url);
+  }
+}
+
+- (void)testFailMatchesShortLinkFormat {
+  NSArray<NSString *> *urlStrings = @[
+    @"https://test.app.goo.gl", @"https://test.app.goo.gl?link=", @"https://test.app.goo.gl/",
+    @"https://sample.page.link?link=https://google.com/test&ibi=com.google.sample&ius=79306483",
+    @"https://sample.page.link/?link=https://google.com/test&ibi=com.google.sample&ius=79306483"
+  ];
+
+  for (NSString *urlString in urlStrings) {
+    NSURL *url = [NSURL URLWithString:urlString];
+    BOOL matchesShortLinkFormat = [self.service matchesShortLinkFormat:url];
+
+    XCTAssertFalse(matchesShortLinkFormat,
+                   @"Non-DDL domain URL matched short link format with URL: %@", url);
+  }
 }
 
 - (void)testMatchesUnversalLinkWithShortDurableLink {
@@ -967,6 +1046,49 @@ static void UnswizzleDynamicLinkNetworking() {
   [mockService stopMocking];
 }
 
+- (void)testRetrievalProcessResultURLContainsAllParametersPassedToDynamicLinkInitializer {
+  NSDictionary<NSString *, NSString *> *linkParameters = @{
+    @"deep_link_id" : @"https://mmaksym.com/test-app1",
+    @"match_message" : @"Link is uniquely matched for this device.",
+    @"match_type" : @"unique",
+    @"utm_campaign" : @"Maksym M Test",
+    @"utm_medium" : @"test_medium",
+    @"utm_source" : @"test_source",
+    @"a_parameter" : @"a_value"
+  };
+
+  FIRDynamicLink *dynamicLink =
+      [[FIRDynamicLink alloc] initWithParametersDictionary:linkParameters];
+  FIRDLRetrievalProcessResult *result =
+      [[FIRDLRetrievalProcessResult alloc] initWithDynamicLink:dynamicLink
+                                                         error:nil
+                                                       message:nil
+                                                   matchSource:nil];
+
+  NSURL *customSchemeURL = [result URLWithCustomURLScheme:@"scheme"];
+  XCTAssertNotNil(customSchemeURL);
+
+  // Validate URL parameters
+  NSURLComponents *urlComponents = [NSURLComponents componentsWithURL:customSchemeURL
+                                              resolvingAgainstBaseURL:NO];
+  XCTAssertNotNil(urlComponents);
+  XCTAssertEqualObjects(urlComponents.scheme, @"scheme");
+
+  NSMutableDictionary<NSString *, NSString *> *notEncodedParameters = [linkParameters mutableCopy];
+
+  for (NSURLQueryItem *queryItem in urlComponents.queryItems) {
+    NSString *expectedValue = notEncodedParameters[queryItem.name];
+    XCTAssertNotNil(expectedValue, @"Extra parameter encoded: %@ = %@", queryItem.name,
+                    queryItem.value);
+
+    XCTAssertEqualObjects(queryItem.value, expectedValue);
+    [notEncodedParameters removeObjectForKey:queryItem.name];
+  }
+
+  XCTAssertEqual(notEncodedParameters.count, 0, @"The parameters must have been encoded: %@",
+                 notEncodedParameters);
+}
+
 - (void)test_multipleRequestsToRetrievePendingDeepLinkShouldNotCrash {
   id mockService = OCMPartialMock(self.service);
   [[mockService expect] handlePendingDynamicLinkRetrievalFailureWithErrorCode:-1
@@ -1029,19 +1151,26 @@ static void UnswizzleDynamicLinkNetworking() {
   NSArray<NSString *> *urlStrings = @[
     @"https://google.com/mylink",             // Short FDL starting with 'https://google.com'
     @"https://google.com/one",                // Short FDL starting with 'https://google.com'
-    @"https://google.com/?link=abcd",         // Long FDL starting with  'https://google.com'
-    @"https://google.com/one/mylink",         // Long FDL starting with  'https://google.com/one'
+    @"https://google.com/one/mylink",         // Short FDL starting with  'https://google.com/one'
     @"https://a.firebase.com/mypath/mylink",  // Short FDL starting https://a.firebase.com/mypath
-    @"https://a.firebase.com/mypath/?link=abcd&test=1",  // Long FDL starting with
-                                                         // https://a.firebase.com/mypath
   ];
 
+  NSArray<NSString *> *longFDLURLStrings = @[
+    @"https://a.firebase.com/mypath/?link=abcd&test=1",  // Long FDL starting with
+                                                         // https://a.firebase.com/mypath
+    @"https://google.com/?link=abcd",  // Long FDL starting with  'https://google.com'
+  ];
   for (NSString *urlString in urlStrings) {
     NSURL *url = [NSURL URLWithString:urlString];
     BOOL matchesShortLinkFormat = [self.service matchesShortLinkFormat:url];
 
-    XCTAssertTrue(matchesShortLinkFormat,
-                  @"Non-DDL domain URL matched short link format with URL: %@", url);
+    XCTAssertTrue(matchesShortLinkFormat, @"URL did not validate as short link: %@", url);
+  }
+  for (NSString *urlString in longFDLURLStrings) {
+    NSURL *url = [NSURL URLWithString:urlString];
+    BOOL matchesLongLinkFormat = [self.service canParseUniversalLinkURL:url];
+
+    XCTAssertTrue(matchesLongLinkFormat, @"URL did not validate as long link: %@", url);
   }
 }
 

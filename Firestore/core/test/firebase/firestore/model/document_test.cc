@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 
+#include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/unknown_document.h"
 
 #include "absl/strings/string_view.h"
@@ -32,7 +33,7 @@ inline Document MakeDocument(const absl::string_view data,
                              const Timestamp& timestamp,
                              DocumentState document_state) {
   return Document(
-      FieldValue::FromMap({{"field", FieldValue::FromString(data.data())}}),
+      ObjectValue::FromMap({{"field", FieldValue::FromString(data.data())}}),
       DocumentKey::FromPathString(path.data()), SnapshotVersion(timestamp),
       document_state);
 }
@@ -43,7 +44,7 @@ TEST(Document, Getter) {
   const Document& doc = MakeDocument("foo", "i/am/a/path", Timestamp(123, 456),
                                      DocumentState::kLocalMutations);
   EXPECT_EQ(MaybeDocument::Type::Document, doc.type());
-  EXPECT_EQ(FieldValue::FromMap({{"field", FieldValue::FromString("foo")}}),
+  EXPECT_EQ(ObjectValue::FromMap({{"field", FieldValue::FromString("foo")}}),
             doc.data());
   EXPECT_EQ(DocumentKey::FromPathString("i/am/a/path"), doc.key());
   EXPECT_EQ(SnapshotVersion(Timestamp(123, 456)), doc.version());
@@ -74,11 +75,11 @@ TEST(Document, Comparison) {
 
   // Document and MaybeDocument will not equal. In particular, Document and
   // NoDocument will not equal, which I won't test here.
-  EXPECT_NE(Document(FieldValue(FieldValue::EmptyObject()),
-                     DocumentKey::FromPathString("same/path"),
-                     SnapshotVersion(Timestamp()), DocumentState::kSynced),
-            UnknownDocument(DocumentKey::FromPathString("same/path"),
-                            SnapshotVersion(Timestamp())));
+  EXPECT_NE(
+      Document(ObjectValue::Empty(), DocumentKey::FromPathString("same/path"),
+               SnapshotVersion(Timestamp()), DocumentState::kSynced),
+      UnknownDocument(DocumentKey::FromPathString("same/path"),
+                      SnapshotVersion(Timestamp())));
 }
 
 }  // namespace model

@@ -26,7 +26,10 @@ endif()
 cc_test(
   firebase_firestore_local_test
   SOURCES
+    #index_manager_test.mm
+    #leveldb_index_manager_test.mm
     local_serializer_test.cc
+    #memory_index_manager_test.mm
   DEPENDS
     firebase_firestore_local
     firebase_firestore_model

@@ -19,6 +19,7 @@
 #import <Foundation/NSArray.h>
 
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
@@ -68,6 +69,60 @@ TEST(ObjCCompatibilityTest, NilEquals) {
 TEST(ObjCCompatibilityTest, Description) {
   std::vector<std::string> v{"foo", "bar"};
   EXPECT_TRUE([Description(v) isEqual:@"[foo, bar]"]);
+}
+
+TEST(ObjCCompatibilityTest, EqualToAndHash) {
+  EqualTo<NSString*> equals;
+  Hash<NSString*> hash;
+
+  NSMutableString* source = [NSMutableString stringWithUTF8String:"value"];
+  NSString* value = [source copy];
+  NSString* copy = [source copy];
+
+  EXPECT_TRUE(equals(value, value));
+  EXPECT_EQ(hash(value), hash(value));
+
+  // Same type, different instance
+  EXPECT_TRUE(equals(value, copy));
+  EXPECT_EQ(hash(value), hash(copy));
+
+  // Different type, same value
+  EXPECT_TRUE(equals(source, value));
+  EXPECT_EQ(hash(source), hash(value));
+
+  NSString* other = @"other";
+  EXPECT_FALSE(equals(value, other));
+  EXPECT_FALSE(equals(value, nil));
+  EXPECT_FALSE(equals(nil, value));
+  EXPECT_FALSE(equals(nil, nil));
+}
+
+TEST(ObjCCompatibilityTest, UnorderedMap) {
+  using MapType = std::unordered_map<NSString*, NSNumber*, Hash<NSString*>,
+                                     EqualTo<NSString*>>;
+  MapType map;
+
+  auto inserted = map.insert({ @"foo", @1 });
+  ASSERT_TRUE(inserted.second);
+
+  inserted = map.insert({ @"bar", @2 });
+  ASSERT_TRUE(inserted.second);
+  ASSERT_EQ(map.size(), 2);
+
+  auto foo_iter = map.find(@"foo");
+  ASSERT_NE(foo_iter, map.end());
+  ASSERT_EQ(foo_iter->first, @"foo");
+
+  auto bar_iter = map.find(@"bar");
+  ASSERT_NE(bar_iter, map.end());
+  ASSERT_EQ(bar_iter->first, @"bar");
+
+  auto result = map.insert({ @"foo", @3 });
+  ASSERT_FALSE(result.second);                    // not inserted
+  ASSERT_TRUE(Equals(result.first->second, @1));  // old value preserved
+
+  map.erase(@"foo");
+  ASSERT_EQ(map.size(), 1);
 }
 
 }  // namespace objc

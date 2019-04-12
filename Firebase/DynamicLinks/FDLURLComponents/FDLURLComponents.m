@@ -23,6 +23,9 @@
 #import "DynamicLinks/Logging/FDLLogging.h"
 #import "DynamicLinks/Utilities/FDLUtilities.h"
 
+// Label exceptions from FDL.
+NSString *const kFirebaseDurableDeepLinkErrorDomain = @"com.firebase.durabledeeplink";
+
 /// The exact behavior of dict[key] = value is unclear when value is nil. This function safely adds
 /// the key-value pair to the dictionary, even when value is nil.
 /// This function will treat empty string in the same way as nil.
@@ -45,7 +48,6 @@ static NSString *const kFDLUTMMediumKey = @"utm_medium";
 static NSString *const kFDLUTMCampaignKey = @"utm_campaign";
 static NSString *const kFDLUTMTermKey = @"utm_term";
 static NSString *const kFDLUTMContentKey = @"utm_content";
-static NSString *const kFirebaseDurableDeepLinkErrorDomain = @"com.firebase.durabledeeplink";
 
 + (instancetype)parameters {
   return [[self alloc] init];

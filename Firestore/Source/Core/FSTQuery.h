@@ -16,26 +16,16 @@
 
 #import <Foundation/Foundation.h>
 
+#include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 
 @class FSTDocument;
 @class FSTFieldValue;
 
-NS_ASSUME_NONNULL_BEGIN
+using firebase::firestore::core::Filter;
 
-/**
- * FSTRelationFilterOperator is a value relation operator that can be used to filter documents.
- * It is similar to NSPredicateOperatorType, but only has operators supported by Firestore.
- */
-typedef NS_ENUM(NSInteger, FSTRelationFilterOperator) {
-  FSTRelationFilterOperatorLessThan = 0,
-  FSTRelationFilterOperatorLessThanOrEqual,
-  FSTRelationFilterOperatorEqual,
-  FSTRelationFilterOperatorGreaterThanOrEqual,
-  FSTRelationFilterOperatorGreaterThan,
-  FSTRelationFilterOperatorArrayContains,
-};
+NS_ASSUME_NONNULL_BEGIN
 
 /** Interface used for all query filters. */
 @interface FSTFilter : NSObject
@@ -43,13 +33,13 @@ typedef NS_ENUM(NSInteger, FSTRelationFilterOperator) {
 /**
  * Creates a filter for the provided path, operator, and value.
  *
- * Note that if the relational operator is FSTRelationFilterOperatorEqual and
+ * Note that if the relational operator is Filter::Operator::Equal and
  * the value is [FSTNullValue nullValue] or [FSTDoubleValue nanValue], this
  * will return the appropriate FSTNullFilter or FSTNanFilter class instead of a
  * FSTRelationFilter.
  */
 + (instancetype)filterWithField:(const firebase::firestore::model::FieldPath &)field
-                 filterOperator:(FSTRelationFilterOperator)op
+                 filterOperator:(Filter::Operator)op
                           value:(FSTFieldValue *)value;
 
 /** Returns the field the Filter operates over. Abstract method. */
@@ -78,7 +68,7 @@ typedef NS_ENUM(NSInteger, FSTRelationFilterOperator) {
  * @return A new instance of FSTRelationFilter.
  */
 - (instancetype)initWithField:(firebase::firestore::model::FieldPath)field
-               filterOperator:(FSTRelationFilterOperator)filterOperator
+               filterOperator:(Filter::Operator)filterOperator
                         value:(FSTFieldValue *)value;
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -90,7 +80,7 @@ typedef NS_ENUM(NSInteger, FSTRelationFilterOperator) {
 - (const firebase::firestore::model::FieldPath &)field;
 
 /** The type of equality/inequality operator to use in the relation. */
-@property(nonatomic, assign, readonly) FSTRelationFilterOperator filterOperator;
+@property(nonatomic, assign, readonly) Filter::Operator filterOperator;
 
 /** The right hand side of the relation. A constant value to compare to. */
 @property(nonatomic, strong, readonly) FSTFieldValue *value;
@@ -174,6 +164,7 @@ typedef NS_ENUM(NSInteger, FSTRelationFilterOperator) {
  * Initializes a query with all of its components directly.
  */
 - (instancetype)initWithPath:(firebase::firestore::model::ResourcePath)path
+             collectionGroup:(nullable NSString *)collectionGroup
                     filterBy:(NSArray<FSTFilter *> *)filters
                      orderBy:(NSArray<FSTSortOrder *> *)sortOrders
                        limit:(NSInteger)limit
@@ -187,6 +178,18 @@ typedef NS_ENUM(NSInteger, FSTRelationFilterOperator) {
  * @return A new instance of FSTQuery.
  */
 + (instancetype)queryWithPath:(firebase::firestore::model::ResourcePath)path;
+
+/**
+ * Creates and returns a new FSTQuery.
+ *
+ * @param path The path to the location to be queried over. Must currently be
+ *     empty in the case of a collection group query.
+ * @param collectionGroup The collection group to be queried over. nil if this
+ *     is not a collection group query.
+ * @return A new instance of FSTQuery.
+ */
++ (instancetype)queryWithPath:(firebase::firestore::model::ResourcePath)path
+              collectionGroup:(nullable NSString *)collectionGroup;
 
 /**
  * Returns the list of ordering constraints that were explicitly requested on the query by the
@@ -244,8 +247,18 @@ typedef NS_ENUM(NSInteger, FSTRelationFilterOperator) {
  */
 - (instancetype)queryByAddingEndAt:(FSTBound *)bound;
 
+/**
+ * Helper to convert a collection group query into a collection query at a specific path. This is
+ * used when executing collection group queries, since we have to split the query into a set of
+ * collection queries at multiple paths.
+ */
+- (instancetype)collectionQueryAtPath:(firebase::firestore::model::ResourcePath)path;
+
 /** Returns YES if the receiver is query for a specific document. */
 - (BOOL)isDocumentQuery;
+
+/** Returns YES if the receiver is a collection group query. */
+- (BOOL)isCollectionGroupQuery;
 
 /** Returns YES if the @a document matches the constraints of the receiver. */
 - (BOOL)matchesDocument:(FSTDocument *)document;
@@ -265,6 +278,9 @@ typedef NS_ENUM(NSInteger, FSTRelationFilterOperator) {
 
 /** The base path of the query. */
 - (const firebase::firestore::model::ResourcePath &)path;
+
+/** The collection group of the query. */
+@property(nonatomic, nullable, strong, readonly) NSString *collectionGroup;
 
 /** The filters on the documents returned by the query. */
 @property(nonatomic, strong, readonly) NSArray<FSTFilter *> *filters;

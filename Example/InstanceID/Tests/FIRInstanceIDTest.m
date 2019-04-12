@@ -18,13 +18,14 @@
 
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIROptionsInternal.h>
+#import <FirebaseInstanceID/FIRInstanceID_Private.h>
 #import <OCMock/OCMock.h>
 
-#import "Firebase/InstanceID/FIRInstanceID+Testing.h"
 #import "Firebase/InstanceID/FIRInstanceIDAuthService.h"
 #import "Firebase/InstanceID/FIRInstanceIDCheckinPreferences+Internal.h"
 #import "Firebase/InstanceID/FIRInstanceIDConstants.h"
 #import "Firebase/InstanceID/FIRInstanceIDKeyPair.h"
+#import "Firebase/InstanceID/FIRInstanceIDKeyPairStore.h"
 #import "Firebase/InstanceID/FIRInstanceIDTokenInfo.h"
 #import "Firebase/InstanceID/FIRInstanceIDTokenManager.h"
 #import "Firebase/InstanceID/FIRInstanceIDUtilities.h"
@@ -46,12 +47,24 @@ static NSString *const kGCMSenderID = @"correct_gcm_sender_id";
 static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 
 @interface FIRInstanceID (ExposedForTest)
+
+@property(nonatomic, readwrite, strong) FIRInstanceIDTokenManager *tokenManager;
+@property(nonatomic, readwrite, strong) FIRInstanceIDKeyPairStore *keyPairStore;
+@property(nonatomic, readwrite, copy) NSString *fcmSenderID;
+
 - (NSInteger)retryIntervalToFetchDefaultToken;
 - (BOOL)isFCMAutoInitEnabled;
 - (void)didCompleteConfigure;
 - (NSString *)cachedTokenIfAvailable;
 - (void)deleteIdentityWithHandler:(FIRInstanceIDDeleteHandler)handler;
 + (FIRInstanceID *)instanceIDForTests;
+- (void)defaultTokenWithHandler:(FIRInstanceIDTokenHandler)handler;
+- (instancetype)initPrivately;
+- (void)start;
++ (int64_t)maxRetryCountForDefaultToken;
++ (int64_t)minIntervalForDefaultTokenRetry;
++ (int64_t)maxRetryIntervalForDefaultTokenInSeconds;
+
 @end
 
 @interface FIRInstanceIDTest : XCTestCase
@@ -157,7 +170,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
                        handler:[OCMArg any]];
 
   [self.mockInstanceID didCompleteConfigure];
-  OCMVerify([self.mockInstanceID fetchDefaultToken]);
+  OCMVerify([self.mockInstanceID defaultTokenWithHandler:nil]);
   XCTAssertEqualObjects([self.mockInstanceID token], kToken);
 }
 
@@ -172,7 +185,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 
   [self.mockInstanceID didCompleteConfigure];
 
-  OCMVerify([self.mockInstanceID fetchDefaultToken]);
+  OCMVerify([self.mockInstanceID defaultTokenWithHandler:nil]);
 }
 
 - (void)testTokenIsDeletedAlongWithIdentity {
@@ -519,11 +532,11 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
       cachedTokenInfoWithAuthorizedEntity:kAuthorizedEntity
                                     scope:@"*"];
 
-  OCMExpect([self.mockInstanceID fetchDefaultToken]);
+  OCMExpect([self.mockInstanceID defaultTokenWithHandler:nil]);
   NSString *token = [self.mockInstanceID token];
   XCTAssertNil(token);
   [self.mockInstanceID stopMocking];
-  OCMVerify([self.mockInstanceID fetchDefaultToken]);
+  OCMVerify([self.mockInstanceID defaultTokenWithHandler:nil]);
 }
 
 /**
@@ -534,8 +547,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   [[[self.mockTokenManager stub] andReturn:sTokenInfo]
       cachedTokenInfoWithAuthorizedEntity:kAuthorizedEntity
                                     scope:@"*"];
-
-  [[self.mockInstanceID reject] fetchDefaultToken];
+  [[self.mockInstanceID reject] defaultTokenWithHandler:nil];
   NSString *token = [self.mockInstanceID token];
   XCTAssertEqualObjects(token, kToken);
 }
@@ -589,10 +601,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
                 cachedTokenInfo = sTokenInfo;
 
                 notificationPostCount++;
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
                 notificationToken = [[self.instanceID token] copy];
-#pragma clang diagnostic pop
                 [defaultTokenExpectation fulfill];
               }];
 
@@ -669,10 +678,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
                 cachedTokenInfo = sTokenInfo;
 
                 notificationPostCount++;
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
                 notificationToken = [[self.instanceID token] copy];
-#pragma clang diagnostic pop
                 [defaultTokenExpectation fulfill];
               }];
 
@@ -740,10 +746,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
                 cachedTokenInfo = sTokenInfo;
 
                 notificationPostCount++;
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
                 notificationToken = [[self.instanceID token] copy];
-#pragma clang diagnostic pop
                 [defaultTokenExpectation fulfill];
               }];
 
@@ -808,6 +811,182 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   [self waitForExpectationsWithTimeout:1.0 handler:nil];
   XCTAssertNil(token);
   XCTAssertEqual(newTokenFetchCount, [FIRInstanceID maxRetryCountForDefaultToken]);
+}
+
+- (void)testInstanceIDWithHandler_WhileRequesting_Success {
+  [self stubKeyPairStoreToReturnValidKeypair];
+  [self mockAuthServiceToAlwaysReturnValidCheckin];
+
+  // Expect `fetchNewTokenWithAuthorizedEntity` to be called once
+  XCTestExpectation *fetchNewTokenExpectation =
+      [self expectationWithDescription:@"fetchNewTokenExpectation"];
+  __block FIRInstanceIDTokenHandler tokenHandler;
+
+  [[[self.mockTokenManager stub] andDo:^(NSInvocation *invocation) {
+    [invocation getArgument:&tokenHandler atIndex:6];
+    [fetchNewTokenExpectation fulfill];
+  }] fetchNewTokenWithAuthorizedEntity:kAuthorizedEntity
+                                 scope:kFIRInstanceIDDefaultTokenScope
+                               keyPair:[OCMArg any]
+                               options:[OCMArg any]
+                               handler:[OCMArg any]];
+
+  // Make 1st call
+  XCTestExpectation *handlerExpectation1 = [self expectationWithDescription:@"handlerExpectation1"];
+  FIRInstanceIDResultHandler handler1 =
+      ^(FIRInstanceIDResult *_Nullable result, NSError *_Nullable error) {
+        [handlerExpectation1 fulfill];
+        XCTAssertNotNil(result);
+        XCTAssertEqual(result.token, kToken);
+        XCTAssertNil(error);
+      };
+
+  [self.mockInstanceID instanceIDWithHandler:handler1];
+
+  // Make 2nd call
+  XCTestExpectation *handlerExpectation2 = [self expectationWithDescription:@"handlerExpectation1"];
+  FIRInstanceIDResultHandler handler2 =
+      ^(FIRInstanceIDResult *_Nullable result, NSError *_Nullable error) {
+        [handlerExpectation2 fulfill];
+        XCTAssertNotNil(result);
+        XCTAssertEqual(result.token, kToken);
+        XCTAssertNil(error);
+      };
+
+  [self.mockInstanceID instanceIDWithHandler:handler2];
+
+  // Wait for `fetchNewTokenWithAuthorizedEntity` to be performed
+  [self waitForExpectations:@[ fetchNewTokenExpectation ] timeout:1 enforceOrder:false];
+  // Finish token fetch request
+  tokenHandler(kToken, nil);
+
+  // Wait for completion handlers for both calls to be performed
+  [self waitForExpectationsWithTimeout:1 handler:NULL];
+}
+
+- (void)testInstanceIDWithHandler_WhileRequesting_RetrySuccess {
+  [self stubKeyPairStoreToReturnValidKeypair];
+  [self mockAuthServiceToAlwaysReturnValidCheckin];
+
+  // Expect `fetchNewTokenWithAuthorizedEntity` to be called twice
+  XCTestExpectation *fetchNewTokenExpectation1 =
+      [self expectationWithDescription:@"fetchNewTokenExpectation1"];
+  XCTestExpectation *fetchNewTokenExpectation2 =
+      [self expectationWithDescription:@"fetchNewTokenExpectation2"];
+  NSArray *fetchNewTokenExpectations = @[ fetchNewTokenExpectation1, fetchNewTokenExpectation2 ];
+
+  __block NSInteger fetchNewTokenCallCount = 0;
+  __block FIRInstanceIDTokenHandler tokenHandler;
+
+  [[[self.mockTokenManager stub] andDo:^(NSInvocation *invocation) {
+    [invocation getArgument:&tokenHandler atIndex:6];
+    [fetchNewTokenExpectations[fetchNewTokenCallCount] fulfill];
+    fetchNewTokenCallCount += 1;
+  }] fetchNewTokenWithAuthorizedEntity:kAuthorizedEntity
+                                 scope:kFIRInstanceIDDefaultTokenScope
+                               keyPair:[OCMArg any]
+                               options:[OCMArg any]
+                               handler:[OCMArg any]];
+
+  // Mock Instance ID's retry interval to 0, to vastly speed up this test.
+  [[[self.mockInstanceID stub] andReturnValue:@(0)] retryIntervalToFetchDefaultToken];
+
+  // Make 1st call
+  XCTestExpectation *handlerExpectation1 = [self expectationWithDescription:@"handlerExpectation1"];
+  FIRInstanceIDResultHandler handler1 =
+      ^(FIRInstanceIDResult *_Nullable result, NSError *_Nullable error) {
+        [handlerExpectation1 fulfill];
+        XCTAssertNotNil(result);
+        XCTAssertEqual(result.token, kToken);
+        XCTAssertNil(error);
+      };
+
+  [self.mockInstanceID instanceIDWithHandler:handler1];
+
+  // Make 2nd call
+  XCTestExpectation *handlerExpectation2 = [self expectationWithDescription:@"handlerExpectation1"];
+  FIRInstanceIDResultHandler handler2 =
+      ^(FIRInstanceIDResult *_Nullable result, NSError *_Nullable error) {
+        [handlerExpectation2 fulfill];
+        XCTAssertNotNil(result);
+        XCTAssertEqual(result.token, kToken);
+        XCTAssertNil(error);
+      };
+
+  [self.mockInstanceID instanceIDWithHandler:handler2];
+
+  // Wait for the 1st `fetchNewTokenWithAuthorizedEntity` to be performed
+  [self waitForExpectations:@[ fetchNewTokenExpectation1 ] timeout:1 enforceOrder:false];
+  // Fail for the 1st time
+  tokenHandler(nil, [NSError errorWithFIRInstanceIDErrorCode:kFIRInstanceIDErrorCodeUnknown]);
+
+  // Wait for the 2nd token feth
+  [self waitForExpectations:@[ fetchNewTokenExpectation2 ] timeout:1 enforceOrder:false];
+  // Finish with success
+  tokenHandler(kToken, nil);
+
+  // Wait for completion handlers for both calls to be performed
+  [self waitForExpectationsWithTimeout:1 handler:NULL];
+}
+
+- (void)testInstanceIDWithHandler_WhileRequesting_RetryFailure {
+  [self stubKeyPairStoreToReturnValidKeypair];
+  [self mockAuthServiceToAlwaysReturnValidCheckin];
+
+  // Expect `fetchNewTokenWithAuthorizedEntity` to be called once
+  NSMutableArray<XCTestExpectation *> *fetchNewTokenExpectations = [NSMutableArray array];
+  for (NSInteger i = 0; i < [[self.instanceID class] maxRetryCountForDefaultToken]; ++i) {
+    NSString *name = [NSString stringWithFormat:@"fetchNewTokenExpectation-%ld", (long)i];
+    [fetchNewTokenExpectations addObject:[self expectationWithDescription:name]];
+  }
+
+  __block NSInteger fetchNewTokenCallCount = 0;
+  __block FIRInstanceIDTokenHandler tokenHandler;
+
+  [[[self.mockTokenManager stub] andDo:^(NSInvocation *invocation) {
+    [invocation getArgument:&tokenHandler atIndex:6];
+    [fetchNewTokenExpectations[fetchNewTokenCallCount] fulfill];
+    fetchNewTokenCallCount += 1;
+  }] fetchNewTokenWithAuthorizedEntity:kAuthorizedEntity
+                                 scope:kFIRInstanceIDDefaultTokenScope
+                               keyPair:[OCMArg any]
+                               options:[OCMArg any]
+                               handler:[OCMArg any]];
+
+  // Mock Instance ID's retry interval to 0, to vastly speed up this test.
+  [[[self.mockInstanceID stub] andReturnValue:@(0)] retryIntervalToFetchDefaultToken];
+
+  // Make 1st call
+  XCTestExpectation *handlerExpectation1 = [self expectationWithDescription:@"handlerExpectation1"];
+  FIRInstanceIDResultHandler handler1 =
+      ^(FIRInstanceIDResult *_Nullable result, NSError *_Nullable error) {
+        [handlerExpectation1 fulfill];
+        XCTAssertNil(result);
+        XCTAssertNotNil(error);
+      };
+
+  [self.mockInstanceID instanceIDWithHandler:handler1];
+
+  // Make 2nd call
+  XCTestExpectation *handlerExpectation2 = [self expectationWithDescription:@"handlerExpectation1"];
+  FIRInstanceIDResultHandler handler2 =
+      ^(FIRInstanceIDResult *_Nullable result, NSError *_Nullable error) {
+        [handlerExpectation2 fulfill];
+        XCTAssertNil(result);
+        XCTAssertNotNil(error);
+      };
+
+  [self.mockInstanceID instanceIDWithHandler:handler2];
+
+  for (NSInteger i = 0; i < [[self.instanceID class] maxRetryCountForDefaultToken]; ++i) {
+    // Wait for the i `fetchNewTokenWithAuthorizedEntity` to be performed
+    [self waitForExpectations:@[ fetchNewTokenExpectations[i] ] timeout:1 enforceOrder:false];
+    // Fail for the i time
+    tokenHandler(nil, [NSError errorWithFIRInstanceIDErrorCode:kFIRInstanceIDErrorCodeUnknown]);
+  }
+
+  // Wait for completion handlers for both calls to be performed
+  [self waitForExpectationsWithTimeout:1 handler:NULL];
 }
 
 /**

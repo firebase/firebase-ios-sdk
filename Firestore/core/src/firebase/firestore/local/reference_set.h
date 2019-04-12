@@ -18,7 +18,7 @@
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_REFERENCE_SET_H_
 
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_set.h"
-#include "Firestore/core/src/firebase/firestore/local/document_reference.h"
+#include "Firestore/core/src/firebase/firestore/local/document_key_reference.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 
@@ -31,7 +31,7 @@ namespace local {
  * (either a TargetId or BatchId). As references are added to or removed from
  * the set corresponding events are emitted to a registered garbage collector.
  *
- * Each reference is represented by a DocumentReference object. Each of them
+ * Each reference is represented by a DocumentKeyReference object. Each of them
  * contains enough information to uniquely identify the reference. They are all
  * stored primarily in a set sorted by key. A document is considered garbage if
  * there's no references in that set (this can be efficiently checked thanks to
@@ -81,10 +81,11 @@ class ReferenceSet {
   bool ContainsKey(const model::DocumentKey& key);
 
  private:
-  void RemoveReference(const DocumentReference& reference);
+  void RemoveReference(const DocumentKeyReference& reference);
 
-  immutable::SortedSet<DocumentReference, DocumentReference::ByKey> by_key_;
-  immutable::SortedSet<DocumentReference, DocumentReference::ById> by_id_;
+  immutable::SortedSet<DocumentKeyReference, DocumentKeyReference::ByKey>
+      by_key_;
+  immutable::SortedSet<DocumentKeyReference, DocumentKeyReference::ById> by_id_;
 };
 
 }  // namespace local

@@ -1,4 +1,18 @@
-# Unreleased
+# v6.0.0 -- M47
+- [changed] Added support for CocoaPods 1.7.x `:generate_multiple_pod_projects` feature. (#2751)
+- [removed] Remove FIRAnalyticsConfiguration from Public header. Use from FirebaseAnalytics. (#2728)
+- [changed] Remove runtime warning for missing analytics in favor of one at build time. (#2734)
+
+# 2019-04-02 -- v5.4.1 -- M46
+- [changed] Avoid using NSRegularExpression in FIRApp.
+- [changed] Improve error meessage for invalid app names. (#2614)
+- [changed] FIRApp thread safety fixes. (#2639)
+
+# 2019-03-19 -- v5.4.0 -- M45
+- [changed] Allow Bundle IDs that have a valid prefix to enable richer extension support. (#2515)
+- [changed] Deprecated `FIRAnalyticsConfiguration` API in favor of new methods on the Analytics SDK.
+  Please call the new APIs directly: Enable/disable Analytics with `Analytics.setAnalyticsCollectionEnabled(_)`
+  and modify the session timeout interval with `Analytics.setSessionTimeoutInterval(_)`.
 
 # 2019-01-22 -- v5.2.0 -- M41
 - [changed] Added a registerInternalLibrary API. Now other Firebase libraries register with FirebaseCore

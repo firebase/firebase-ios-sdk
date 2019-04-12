@@ -245,8 +245,12 @@ cc_library(
     comparison.cc
     comparison.h
     config.h
+    delayed_constructor.h
+    error_apple.h
+    error_apple.mm
     hashing.h
     iterator_adaptors.h
+    objc_compatibility.h
     ordered_code.cc
     ordered_code.h
     range.h

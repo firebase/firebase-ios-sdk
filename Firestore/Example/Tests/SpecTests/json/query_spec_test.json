@@ -1,0 +1,1170 @@
+{
+  "Collection Group query": {
+    "describeName": "Queries:",
+    "itName": "Collection Group query",
+    "tags": [],
+    "config": {
+      "useGarbageCollection": true,
+      "numClients": 1
+    },
+    "steps": [
+      {
+        "userListen": [
+          2,
+          {
+            "path": "cg/1",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "cg/1",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            {
+              "key": "cg/1",
+              "version": 1000,
+              "value": {
+                "val": 1
+              },
+              "options": {
+                "hasLocalMutations": false,
+                "hasCommittedMutations": false
+              }
+            }
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1000"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000,
+          "targetIds": []
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "cg/1",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              {
+                "key": "cg/1",
+                "version": 1000,
+                "value": {
+                  "val": 1
+                },
+                "options": {
+                  "hasLocalMutations": false,
+                  "hasCommittedMutations": false
+                }
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ]
+      },
+      {
+        "userListen": [
+          4,
+          {
+            "path": "cg/2",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "cg/1",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            },
+            "4": {
+              "query": {
+                "path": "cg/2",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          4
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            {
+              "key": "cg/2",
+              "version": 1000,
+              "value": {
+                "val": 2
+              },
+              "options": {
+                "hasLocalMutations": false,
+                "hasCommittedMutations": false
+              }
+            }
+          ],
+          "targets": [
+            4
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            4
+          ],
+          "resume-token-1000"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000,
+          "targetIds": []
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "cg/2",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              {
+                "key": "cg/2",
+                "version": 1000,
+                "value": {
+                  "val": 2
+                },
+                "options": {
+                  "hasLocalMutations": false,
+                  "hasCommittedMutations": false
+                }
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ]
+      },
+      {
+        "userListen": [
+          6,
+          {
+            "path": "not-cg/nope/cg/3",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "cg/1",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            },
+            "4": {
+              "query": {
+                "path": "cg/2",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            },
+            "6": {
+              "query": {
+                "path": "not-cg/nope/cg/3",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          6
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            {
+              "key": "not-cg/nope/cg/3",
+              "version": 1000,
+              "value": {
+                "val": 1
+              },
+              "options": {
+                "hasLocalMutations": false,
+                "hasCommittedMutations": false
+              }
+            }
+          ],
+          "targets": [
+            6
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            6
+          ],
+          "resume-token-1000"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000,
+          "targetIds": []
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "not-cg/nope/cg/3",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              {
+                "key": "not-cg/nope/cg/3",
+                "version": 1000,
+                "value": {
+                  "val": 1
+                },
+                "options": {
+                  "hasLocalMutations": false,
+                  "hasCommittedMutations": false
+                }
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ]
+      },
+      {
+        "userListen": [
+          8,
+          {
+            "path": "not-cg/nope",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "cg/1",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            },
+            "4": {
+              "query": {
+                "path": "cg/2",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            },
+            "6": {
+              "query": {
+                "path": "not-cg/nope/cg/3",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            },
+            "8": {
+              "query": {
+                "path": "not-cg/nope",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          8
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            {
+              "key": "not-cg/nope",
+              "version": 1000,
+              "value": {
+                "val": 1
+              },
+              "options": {
+                "hasLocalMutations": false,
+                "hasCommittedMutations": false
+              }
+            }
+          ],
+          "targets": [
+            8
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            8
+          ],
+          "resume-token-1000"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000,
+          "targetIds": []
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "not-cg/nope",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              {
+                "key": "not-cg/nope",
+                "version": 1000,
+                "value": {
+                  "val": 1
+                },
+                "options": {
+                  "hasLocalMutations": false,
+                  "hasCommittedMutations": false
+                }
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ]
+      },
+      {
+        "userListen": [
+          10,
+          {
+            "path": "cg/1/not-cg/nope",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "cg/1",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            },
+            "4": {
+              "query": {
+                "path": "cg/2",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            },
+            "6": {
+              "query": {
+                "path": "not-cg/nope/cg/3",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            },
+            "8": {
+              "query": {
+                "path": "not-cg/nope",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            },
+            "10": {
+              "query": {
+                "path": "cg/1/not-cg/nope",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          10
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            {
+              "key": "cg/1/not-cg/nope",
+              "version": 1000,
+              "value": {
+                "val": 1
+              },
+              "options": {
+                "hasLocalMutations": false,
+                "hasCommittedMutations": false
+              }
+            }
+          ],
+          "targets": [
+            10
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            10
+          ],
+          "resume-token-1000"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000,
+          "targetIds": []
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "cg/1/not-cg/nope",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              {
+                "key": "cg/1/not-cg/nope",
+                "version": 1000,
+                "value": {
+                  "val": 1
+                },
+                "options": {
+                  "hasLocalMutations": false,
+                  "hasCommittedMutations": false
+                }
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ]
+      },
+      {
+        "userListen": [
+          12,
+          {
+            "path": "",
+            "collectionGroup": "cg",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "cg/1",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            },
+            "4": {
+              "query": {
+                "path": "cg/2",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            },
+            "6": {
+              "query": {
+                "path": "not-cg/nope/cg/3",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            },
+            "8": {
+              "query": {
+                "path": "not-cg/nope",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            },
+            "10": {
+              "query": {
+                "path": "cg/1/not-cg/nope",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            },
+            "12": {
+              "query": {
+                "path": "",
+                "collectionGroup": "cg",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "",
+              "collectionGroup": "cg",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              {
+                "key": "cg/1",
+                "version": 1000,
+                "value": {
+                  "val": 1
+                },
+                "options": {
+                  "hasLocalMutations": false,
+                  "hasCommittedMutations": false
+                }
+              },
+              {
+                "key": "cg/2",
+                "version": 1000,
+                "value": {
+                  "val": 2
+                },
+                "options": {
+                  "hasLocalMutations": false,
+                  "hasCommittedMutations": false
+                }
+              },
+              {
+                "key": "not-cg/nope/cg/3",
+                "version": 1000,
+                "value": {
+                  "val": 1
+                },
+                "options": {
+                  "hasLocalMutations": false,
+                  "hasCommittedMutations": false
+                }
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false
+          }
+        ]
+      },
+      {
+        "userListen": [
+          14,
+          {
+            "path": "",
+            "collectionGroup": "cg",
+            "filters": [
+              [
+                "val",
+                "==",
+                1
+              ]
+            ],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "cg/1",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            },
+            "4": {
+              "query": {
+                "path": "cg/2",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            },
+            "6": {
+              "query": {
+                "path": "not-cg/nope/cg/3",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            },
+            "8": {
+              "query": {
+                "path": "not-cg/nope",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            },
+            "10": {
+              "query": {
+                "path": "cg/1/not-cg/nope",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            },
+            "12": {
+              "query": {
+                "path": "",
+                "collectionGroup": "cg",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            },
+            "14": {
+              "query": {
+                "path": "",
+                "collectionGroup": "cg",
+                "filters": [
+                  [
+                    "val",
+                    "==",
+                    1
+                  ]
+                ],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "",
+              "collectionGroup": "cg",
+              "filters": [
+                [
+                  "val",
+                  "==",
+                  1
+                ]
+              ],
+              "orderBys": []
+            },
+            "added": [
+              {
+                "key": "cg/1",
+                "version": 1000,
+                "value": {
+                  "val": 1
+                },
+                "options": {
+                  "hasLocalMutations": false,
+                  "hasCommittedMutations": false
+                }
+              },
+              {
+                "key": "not-cg/nope/cg/3",
+                "version": 1000,
+                "value": {
+                  "val": 1
+                },
+                "options": {
+                  "hasLocalMutations": false,
+                  "hasCommittedMutations": false
+                }
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false
+          }
+        ]
+      }
+    ]
+  },
+  "Collection Group query with mutations": {
+    "describeName": "Queries:",
+    "itName": "Collection Group query with mutations",
+    "tags": [],
+    "config": {
+      "useGarbageCollection": true,
+      "numClients": 1
+    },
+    "steps": [
+      {
+        "userListen": [
+          2,
+          {
+            "path": "cg/1",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "cg/1",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            {
+              "key": "cg/1",
+              "version": 1000,
+              "value": {
+                "val": 1
+              },
+              "options": {
+                "hasLocalMutations": false,
+                "hasCommittedMutations": false
+              }
+            }
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1000"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000,
+          "targetIds": []
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "cg/1",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              {
+                "key": "cg/1",
+                "version": 1000,
+                "value": {
+                  "val": 1
+                },
+                "options": {
+                  "hasLocalMutations": false,
+                  "hasCommittedMutations": false
+                }
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ]
+      },
+      {
+        "userListen": [
+          4,
+          {
+            "path": "not-cg/nope",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "cg/1",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            },
+            "4": {
+              "query": {
+                "path": "not-cg/nope",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          4
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            {
+              "key": "not-cg/nope",
+              "version": 1000,
+              "value": {
+                "val": 1
+              },
+              "options": {
+                "hasLocalMutations": false,
+                "hasCommittedMutations": false
+              }
+            }
+          ],
+          "targets": [
+            4
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            4
+          ],
+          "resume-token-1000"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000,
+          "targetIds": []
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "not-cg/nope",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              {
+                "key": "not-cg/nope",
+                "version": 1000,
+                "value": {
+                  "val": 1
+                },
+                "options": {
+                  "hasLocalMutations": false,
+                  "hasCommittedMutations": false
+                }
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ]
+      },
+      {
+        "userSet": [
+          "cg/2",
+          {
+            "val": 2
+          }
+        ]
+      },
+      {
+        "userSet": [
+          "not-cg/nope/cg/3",
+          {
+            "val": 1
+          }
+        ]
+      },
+      {
+        "userSet": [
+          "not-cg2/nope",
+          {
+            "val": 1
+          }
+        ]
+      },
+      {
+        "userListen": [
+          6,
+          {
+            "path": "",
+            "collectionGroup": "cg",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "cg/1",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            },
+            "4": {
+              "query": {
+                "path": "not-cg/nope",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            },
+            "6": {
+              "query": {
+                "path": "",
+                "collectionGroup": "cg",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "",
+              "collectionGroup": "cg",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              {
+                "key": "cg/1",
+                "version": 1000,
+                "value": {
+                  "val": 1
+                },
+                "options": {
+                  "hasLocalMutations": false,
+                  "hasCommittedMutations": false
+                }
+              },
+              {
+                "key": "cg/2",
+                "version": 0,
+                "value": {
+                  "val": 2
+                },
+                "options": {
+                  "hasLocalMutations": true,
+                  "hasCommittedMutations": false
+                }
+              },
+              {
+                "key": "not-cg/nope/cg/3",
+                "version": 0,
+                "value": {
+                  "val": 1
+                },
+                "options": {
+                  "hasLocalMutations": true,
+                  "hasCommittedMutations": false
+                }
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": true
+          }
+        ]
+      },
+      {
+        "userListen": [
+          8,
+          {
+            "path": "",
+            "collectionGroup": "cg",
+            "filters": [
+              [
+                "val",
+                "==",
+                1
+              ]
+            ],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "cg/1",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            },
+            "4": {
+              "query": {
+                "path": "not-cg/nope",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            },
+            "6": {
+              "query": {
+                "path": "",
+                "collectionGroup": "cg",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            },
+            "8": {
+              "query": {
+                "path": "",
+                "collectionGroup": "cg",
+                "filters": [
+                  [
+                    "val",
+                    "==",
+                    1
+                  ]
+                ],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "",
+              "collectionGroup": "cg",
+              "filters": [
+                [
+                  "val",
+                  "==",
+                  1
+                ]
+              ],
+              "orderBys": []
+            },
+            "added": [
+              {
+                "key": "cg/1",
+                "version": 1000,
+                "value": {
+                  "val": 1
+                },
+                "options": {
+                  "hasLocalMutations": false,
+                  "hasCommittedMutations": false
+                }
+              },
+              {
+                "key": "not-cg/nope/cg/3",
+                "version": 0,
+                "value": {
+                  "val": 1
+                },
+                "options": {
+                  "hasLocalMutations": true,
+                  "hasCommittedMutations": false
+                }
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": true
+          }
+        ]
+      }
+    ]
+  }
+}

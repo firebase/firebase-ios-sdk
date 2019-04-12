@@ -36,6 +36,7 @@
 #include "Firestore/Protos/cpp/google/firestore/v1/firestore.pb.h"
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
+#include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
@@ -195,11 +196,10 @@ class SerializerTest : public ::testing::Test {
 
   std::vector<uint8_t> EncodeDocument(Serializer* serializer,
                                       const DocumentKey& key,
-                                      const FieldValue& value) {
+                                      const ObjectValue& value) {
     std::vector<uint8_t> bytes;
     Writer writer = Writer::Wrap(&bytes);
-    google_firestore_v1_Document proto =
-        serializer->EncodeDocument(key, value.object_value());
+    google_firestore_v1_Document proto = serializer->EncodeDocument(key, value);
     writer.WriteNanopbMessage(google_firestore_v1_Document_fields, &proto);
     serializer->FreeNanopbMessage(google_firestore_v1_Document_fields, &proto);
     return bytes;
@@ -232,6 +232,16 @@ class SerializerTest : public ::testing::Test {
     return proto;
   }
 
+  v1::Value ValueProto(double d) {
+    std::vector<uint8_t> bytes =
+        EncodeFieldValue(&serializer, FieldValue::FromDouble(d));
+    v1::Value proto;
+    bool ok =
+        proto.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
+    EXPECT_TRUE(ok);
+    return proto;
+  }
+
   v1::Value ValueProto(const char* s) {
     return ValueProto(std::string(s));
   }
@@ -249,6 +259,36 @@ class SerializerTest : public ::testing::Test {
   v1::Value ValueProto(const Timestamp& ts) {
     std::vector<uint8_t> bytes =
         EncodeFieldValue(&serializer, FieldValue::FromTimestamp(ts));
+    v1::Value proto;
+    bool ok =
+        proto.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
+    EXPECT_TRUE(ok);
+    return proto;
+  }
+
+  v1::Value ValueProto(const std::vector<uint8_t>& blob) {
+    std::vector<uint8_t> bytes = EncodeFieldValue(
+        &serializer, FieldValue::FromBlob(blob.data(), blob.size()));
+    v1::Value proto;
+    bool ok =
+        proto.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
+    EXPECT_TRUE(ok);
+    return proto;
+  }
+
+  v1::Value ValueProto(const GeoPoint& geo_point) {
+    std::vector<uint8_t> bytes =
+        EncodeFieldValue(&serializer, FieldValue::FromGeoPoint(geo_point));
+    v1::Value proto;
+    bool ok =
+        proto.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
+    EXPECT_TRUE(ok);
+    return proto;
+  }
+
+  v1::Value ValueProto(const std::vector<FieldValue>& array) {
+    std::vector<uint8_t> bytes =
+        EncodeFieldValue(&serializer, FieldValue::FromArray(array));
     v1::Value proto;
     bool ok =
         proto.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
@@ -316,7 +356,7 @@ class SerializerTest : public ::testing::Test {
 
   void ExpectSerializationRoundTrip(
       const DocumentKey& key,
-      const FieldValue& value,
+      const ObjectValue& value,
       const SnapshotVersion& update_time,
       const v1::BatchGetDocumentsResponse& proto) {
     std::vector<uint8_t> bytes = EncodeDocument(&serializer, key, value);
@@ -349,7 +389,7 @@ class SerializerTest : public ::testing::Test {
 
   void ExpectDeserializationRoundTrip(
       const DocumentKey& key,
-      const absl::optional<FieldValue> value,
+      const absl::optional<ObjectValue> value,
       const SnapshotVersion& version,  // either update_time or read_time
       const v1::BatchGetDocumentsResponse& proto) {
     size_t size = proto.ByteSizeLong();
@@ -424,6 +464,40 @@ TEST_F(SerializerTest, EncodesIntegers) {
   }
 }
 
+TEST_F(SerializerTest, EncodesDoubles) {
+  // Not technically required at all. But if we run into a platform where this
+  // is false, then we'll have to eliminate a few of our test cases in this
+  // test.
+  static_assert(std::numeric_limits<double>::is_iec559,
+                "IEC559/IEEE764 floating point required");
+
+  std::vector<double> cases{-std::numeric_limits<double>::infinity(),
+                            std::numeric_limits<double>::lowest(),
+                            std::numeric_limits<int64_t>::min() - 1.0,
+                            -2.0,
+                            -1.1,
+                            -1.0,
+                            -std::numeric_limits<double>::epsilon(),
+                            -std::numeric_limits<double>::min(),
+                            -std::numeric_limits<double>::denorm_min(),
+                            -0.0,
+                            0.0,
+                            std::numeric_limits<double>::denorm_min(),
+                            std::numeric_limits<double>::min(),
+                            std::numeric_limits<double>::epsilon(),
+                            1.0,
+                            1.1,
+                            2.0,
+                            std::numeric_limits<int64_t>::max() + 1.0,
+                            std::numeric_limits<double>::max(),
+                            std::numeric_limits<double>::infinity()};
+
+  for (double double_value : cases) {
+    FieldValue model = FieldValue::FromDouble(double_value);
+    ExpectRoundTrip(model, ValueProto(double_value), FieldValue::Type::Double);
+  }
+}
+
 TEST_F(SerializerTest, EncodesString) {
   std::vector<std::string> cases{
       "",
@@ -464,6 +538,54 @@ TEST_F(SerializerTest, EncodesTimestamps) {
   }
 }
 
+TEST_F(SerializerTest, EncodesBlobs) {
+  std::vector<std::vector<uint8_t>> cases{
+      {},
+      {0, 1, 2, 3},
+      {0xff, 0x00, 0xff, 0x00},
+  };
+
+  for (const std::vector<uint8_t>& blob_value : cases) {
+    FieldValue model =
+        FieldValue::FromBlob(blob_value.data(), blob_value.size());
+    ExpectRoundTrip(model, ValueProto(blob_value), FieldValue::Type::Blob);
+  }
+}
+
+TEST_F(SerializerTest, EncodesGeoPoint) {
+  std::vector<GeoPoint> cases{
+      {1.23, 4.56},
+  };
+
+  for (const GeoPoint& geo_value : cases) {
+    FieldValue model = FieldValue::FromGeoPoint(geo_value);
+    ExpectRoundTrip(model, ValueProto(geo_value), FieldValue::Type::GeoPoint);
+  }
+}
+
+TEST_F(SerializerTest, EncodesArray) {
+  std::vector<std::vector<FieldValue>> cases{
+      // Empty Array.
+      {},
+      // Typical Array.
+      {FieldValue::FromBoolean(true), FieldValue::FromString("foo")},
+      // Nested Array. NB: the protos explicitly state that directly nested
+      // arrays are not allowed, however arrays *can* contain a map which
+      // contains another array.
+      {FieldValue::FromString("foo"),
+       FieldValue::FromMap(
+           {{"nested array",
+             FieldValue::FromArray(
+                 {FieldValue::FromString("nested array value 1"),
+                  FieldValue::FromString("nested array value 2")})}}),
+       FieldValue::FromString("bar")}};
+
+  for (const std::vector<FieldValue>& array_value : cases) {
+    FieldValue model = FieldValue::FromArray(array_value);
+    ExpectRoundTrip(model, ValueProto(array_value), FieldValue::Type::Array);
+  }
+}
+
 TEST_F(SerializerTest, EncodesEmptyMap) {
   FieldValue model = FieldValue::EmptyObject();
 
@@ -476,13 +598,13 @@ TEST_F(SerializerTest, EncodesEmptyMap) {
 TEST_F(SerializerTest, EncodesNestedObjects) {
   FieldValue model = FieldValue::FromMap({
       {"b", FieldValue::True()},
-      // TODO(rsgowman): add doubles (once they're supported)
-      // {"d", FieldValue::DoubleValue(std::numeric_limits<double>::max())},
+      {"d", FieldValue::FromDouble(std::numeric_limits<double>::max())},
       {"i", FieldValue::FromInteger(1)},
       {"n", FieldValue::Null()},
       {"s", FieldValue::FromString("foo")},
-      // TODO(rsgowman): add arrays (once they're supported)
-      // {"a", [2, "bar", {"b", false}]},
+      {"a", FieldValue::FromArray(
+                {FieldValue::FromInteger(2), FieldValue::FromString("bar"),
+                 FieldValue::FromMap({{"b", FieldValue::False()}})})},
       {"o", FieldValue::FromMap({
                 {"d", FieldValue::FromInteger(100)},
                 {"nested", FieldValue::FromMap({
@@ -506,13 +628,24 @@ TEST_F(SerializerTest, EncodesNestedObjects) {
   (*middle_fields)["d"] = ValueProto(int64_t{100});
   (*middle_fields)["nested"] = inner_proto;
 
+  v1::Value array_proto;
+  *array_proto.mutable_array_value()->add_values() = ValueProto(int64_t{2});
+  *array_proto.mutable_array_value()->add_values() = ValueProto("bar");
+  v1::Value array_inner_proto;
+  google::protobuf::Map<std::string, v1::Value>* array_inner_fields =
+      array_inner_proto.mutable_map_value()->mutable_fields();
+  (*array_inner_fields)["b"] = ValueProto(false);
+  *array_proto.mutable_array_value()->add_values() = array_inner_proto;
+
   v1::Value proto;
   google::protobuf::Map<std::string, v1::Value>* fields =
       proto.mutable_map_value()->mutable_fields();
   (*fields)["b"] = ValueProto(true);
+  (*fields)["d"] = ValueProto(std::numeric_limits<double>::max());
   (*fields)["i"] = ValueProto(int64_t{1});
   (*fields)["n"] = ValueProto(nullptr);
   (*fields)["s"] = ValueProto("foo");
+  (*fields)["a"] = array_proto;
   (*fields)["o"] = middle_proto;
 
   ExpectRoundTrip(model, proto, FieldValue::Type::Object);
@@ -797,7 +930,7 @@ TEST_F(SerializerTest, BadKey) {
 
 TEST_F(SerializerTest, EncodesEmptyDocument) {
   DocumentKey key = DocumentKey::FromPathString("path/to/the/doc");
-  FieldValue empty_value = FieldValue::EmptyObject();
+  ObjectValue empty_value = ObjectValue::Empty();
   SnapshotVersion update_time = SnapshotVersion{{1234, 5678}};
 
   v1::BatchGetDocumentsResponse proto;
@@ -817,7 +950,7 @@ TEST_F(SerializerTest, EncodesEmptyDocument) {
 
 TEST_F(SerializerTest, EncodesNonEmptyDocument) {
   DocumentKey key = DocumentKey::FromPathString("path/to/the/doc");
-  FieldValue fields = FieldValue::FromMap({
+  ObjectValue fields = ObjectValue::FromMap({
       {"foo", FieldValue::FromString("bar")},
       {"two", FieldValue::FromInteger(2)},
       {"nested", FieldValue::FromMap({

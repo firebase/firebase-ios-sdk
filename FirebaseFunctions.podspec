@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFunctions'
-  s.version          = '2.3.0'
+  s.version          = '2.4.0'
   s.summary          = 'Cloud Functions for Firebase iOS SDK.'
 
   s.description      = <<-DESC
@@ -16,6 +16,8 @@ iOS SDK for Cloud Functions for Firebase.
   }
 
   s.ios.deployment_target = '8.0'
+  s.osx.deployment_target = '10.11'
+  s.tvos.deployment_target = '10.0'
 
   s.cocoapods_version = '>= 1.4.0'
   s.static_framework = true
@@ -25,7 +27,7 @@ iOS SDK for Cloud Functions for Firebase.
   s.public_header_files = 'Functions/FirebaseFunctions/Public/*.h'
 
   s.dependency 'FirebaseAuthInterop', '~> 1.0'
-  s.dependency 'FirebaseCore', '~> 5.2'
+  s.dependency 'FirebaseCore', '~> 6.0'
   s.dependency 'GTMSessionFetcher/Core', '~> 1.1'
 
   s.pod_target_xcconfig = {

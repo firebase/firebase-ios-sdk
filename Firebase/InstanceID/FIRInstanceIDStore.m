@@ -40,8 +40,8 @@ static NSString *const kFIRInstanceIDLibraryVersion = @"GMSInstanceID-version";
 
 - (instancetype)initWithDelegate:(NSObject<FIRInstanceIDStoreDelegate> *)delegate {
   FIRInstanceIDCheckinStore *checkinStore = [[FIRInstanceIDCheckinStore alloc]
-        initWithCheckinPlistFileName:kCheckinFileName
-      applicationSupportSubDirectory:kFIRInstanceIDApplicationSupportSubDirectory];
+      initWithCheckinPlistFileName:kCheckinFileName
+                  subDirectoryName:kFIRInstanceIDSubDirectoryName];
 
   FIRInstanceIDTokenStore *tokenStore = [FIRInstanceIDTokenStore defaultStore];
 
@@ -63,8 +63,8 @@ static NSString *const kFIRInstanceIDLibraryVersion = @"GMSInstanceID-version";
 
 #pragma mark - Upgrades
 
-+ (BOOL)hasApplicationSupportSubDirectory:(NSString *)subDirectoryName {
-  NSString *subDirectoryPath = [self pathForApplicationSupportSubDirectory:subDirectoryName];
++ (BOOL)hasSubDirectory:(NSString *)subDirectoryName {
+  NSString *subDirectoryPath = [self pathForSupportSubDirectory:subDirectoryName];
   BOOL isDirectory;
   if (![[NSFileManager defaultManager] fileExistsAtPath:subDirectoryPath
                                             isDirectory:&isDirectory]) {
@@ -75,16 +75,24 @@ static NSString *const kFIRInstanceIDLibraryVersion = @"GMSInstanceID-version";
   return YES;
 }
 
-+ (NSString *)pathForApplicationSupportSubDirectory:(NSString *)subDirectoryName {
++ (NSSearchPathDirectory)supportedDirectory {
+#if TARGET_OS_TV
+  return NSCachesDirectory;
+#else
+  return NSApplicationSupportDirectory;
+#endif
+}
+
++ (NSString *)pathForSupportSubDirectory:(NSString *)subDirectoryName {
   NSArray *directoryPaths =
-      NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
-  NSString *applicationSupportDirPath = directoryPaths.lastObject;
-  NSArray *components = @[ applicationSupportDirPath, subDirectoryName ];
+      NSSearchPathForDirectoriesInDomains([self supportedDirectory], NSUserDomainMask, YES);
+  NSString *dirPath = directoryPaths.lastObject;
+  NSArray *components = @[ dirPath, subDirectoryName ];
   return [NSString pathWithComponents:components];
 }
 
-+ (BOOL)createApplicationSupportSubDirectory:(NSString *)subDirectoryName {
-  NSString *subDirectoryPath = [self pathForApplicationSupportSubDirectory:subDirectoryName];
++ (BOOL)createSubDirectory:(NSString *)subDirectoryName {
+  NSString *subDirectoryPath = [self pathForSupportSubDirectory:subDirectoryName];
   BOOL hasSubDirectory;
 
   if (![[NSFileManager defaultManager] fileExistsAtPath:subDirectoryPath
@@ -109,9 +117,9 @@ static NSString *const kFIRInstanceIDLibraryVersion = @"GMSInstanceID-version";
   return YES;
 }
 
-+ (BOOL)removeApplicationSupportSubDirectory:(NSString *)subDirectoryName error:(NSError **)error {
-  if ([self hasApplicationSupportSubDirectory:subDirectoryName]) {
-    NSString *subDirectoryPath = [self pathForApplicationSupportSubDirectory:subDirectoryName];
++ (BOOL)removeSubDirectory:(NSString *)subDirectoryName error:(NSError **)error {
+  if ([self hasSubDirectory:subDirectoryName]) {
+    NSString *subDirectoryPath = [self pathForSupportSubDirectory:subDirectoryName];
     BOOL isDirectory;
     if ([[NSFileManager defaultManager] fileExistsAtPath:subDirectoryPath
                                              isDirectory:&isDirectory]) {
@@ -145,11 +153,13 @@ static NSString *const kFIRInstanceIDLibraryVersion = @"GMSInstanceID-version";
   if (oldCheckinPreferences) {
     [self.checkinStore removeCheckinPreferencesWithHandler:^(NSError *error) {
       if (!error) {
-        FIRInstanceIDLoggerDebug(kFIRInstanceIDMessageCodeStore002,
-                                 @"Removed cached checkin preferences from Keychain.");
+        FIRInstanceIDLoggerDebug(
+            kFIRInstanceIDMessageCodeStore002,
+            @"Removed cached checkin preferences from Keychain because this is a fresh install.");
       } else {
-        FIRInstanceIDLoggerError(kFIRInstanceIDMessageCodeStore003,
-                                 @"Couldn't remove cached checkin preferences. Error: %@", error);
+        FIRInstanceIDLoggerError(
+            kFIRInstanceIDMessageCodeStore003,
+            @"Couldn't remove cached checkin preferences for a fresh install. Error: %@", error);
       }
       if (oldCheckinPreferences.deviceID.length && oldCheckinPreferences.secretToken.length) {
         FIRInstanceIDLoggerDebug(kFIRInstanceIDMessageCodeStore006,

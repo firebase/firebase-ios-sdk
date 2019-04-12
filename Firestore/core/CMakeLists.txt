@@ -15,6 +15,7 @@
 add_subdirectory(include/firebase/firestore)
 
 add_subdirectory(src/firebase/firestore)
+add_subdirectory(src/firebase/firestore/api)
 add_subdirectory(src/firebase/firestore/auth)
 add_subdirectory(src/firebase/firestore/core)
 add_subdirectory(src/firebase/firestore/immutable)

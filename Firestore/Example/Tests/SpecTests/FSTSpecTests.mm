@@ -39,6 +39,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
+#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/remote/existence_filter.h"
@@ -59,6 +60,7 @@ using firebase::firestore::auth::User;
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::remote::ExistenceFilter;
@@ -170,7 +172,10 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
   } else if ([querySpec isKindOfClass:[NSDictionary class]]) {
     NSDictionary *queryDict = (NSDictionary *)querySpec;
     NSString *path = queryDict[@"path"];
-    __block FSTQuery *query = FSTTestQuery(util::MakeString(path));
+    ResourcePath resource_path = ResourcePath::FromString(util::MakeString(path));
+    NSString *_Nullable collectionGroup = queryDict[@"collectionGroup"];
+    __block FSTQuery *query = [FSTQuery queryWithPath:resource_path
+                                      collectionGroup:collectionGroup];
     if (queryDict[@"limit"]) {
       NSNumber *limit = queryDict[@"limit"];
       query = [query queryBySettingLimit:limit.integerValue];
@@ -723,7 +728,7 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
   NSBundle *bundle = [NSBundle bundleForClass:[self class]];
   NSFileManager *fs = [NSFileManager defaultManager];
   BOOL exclusiveMode = NO;
-  for (NSString *file in [fs enumeratorAtPath:[bundle bundlePath]]) {
+  for (NSString *file in [fs enumeratorAtPath:[bundle resourcePath]]) {
     if (![@"json" isEqual:[file pathExtension]]) {
       continue;
     }

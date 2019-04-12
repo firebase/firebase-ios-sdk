@@ -33,17 +33,16 @@ binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseABTestingBinary.j
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseAdMobBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseAnalyticsBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseAuthBinary.json"
-binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseCrashBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseDatabaseBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseDynamicLinksBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseFirestoreBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseFunctionsBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseInAppMessagingBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseInAppMessagingDisplayBinary.json"
-binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseInvitesBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMessagingBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMLModelInterpreterBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMLNLLanguageIDBinary.json"
+binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMLNLSmartReplyBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMLNaturalLanguageBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMLVisionBarcodeModelBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMLVisionBinary.json"
@@ -66,10 +65,6 @@ binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseStorageBinary.jso
     `Copy Bundle Resources` Build Phase :
     - For Firestore:
         - ./Carthage/Build/iOS/FirebaseFirestore.framework/gRPCCertificates.bundle
-    - For Invites:
-        - ./Carthage/Build/iOS/FirebaseInvites.framework/GoogleSignIn.bundle
-        - ./Carthage/Build/iOS/FirebaseInvites.framework/GPPACLPickerResources.bundle
-        - ./Carthage/Build/iOS/FirebaseInvites.framework/GINInviteResources.bundle
     - For FirebaseMLVisionFaceModel:
         - ./Carthage/Build/iOS/FaceDetector.framework/GoogleMVFaceDetectorResources.bundle
     - For FirebaseMLVisionTextModel:

@@ -21,6 +21,9 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/model/field_value.h"
+
+using firebase::firestore::model::FieldValue;
 
 @class FSTDocumentKey;
 @class FIRTimestamp;
@@ -85,8 +88,14 @@ enum class ServerTimestampBehavior { None, Estimate, Previous };
  */
 @interface FSTFieldValue<__covariant T> : NSObject
 
+/**
+ * Returns the 'type' of this FSTFieldValue. Used for RTTI (rather than isKindOfClass)
+ * to ease migration to C++.
+ */
+@property(nonatomic, assign, readonly) FieldValue::Type type;
+
 /** Returns the FSTTypeOrder for this value. */
-- (FSTTypeOrder)typeOrder;
+@property(nonatomic, assign, readonly) FSTTypeOrder typeOrder;
 
 /**
  * Converts an FSTFieldValue into the value that users will see in document snapshots.
@@ -117,15 +126,6 @@ enum class ServerTimestampBehavior { None, Estimate, Previous };
 @end
 
 /**
- * A boolean value stored in Firestore.
- */
-@interface FSTBooleanValue : FSTFieldValue <NSNumber *>
-+ (instancetype)trueValue;
-+ (instancetype)falseValue;
-+ (instancetype)booleanValue:(BOOL)value;
-@end
-
-/**
  * Base class inherited from by FSTIntegerValue and FSTDoubleValue. It implements proper number
  * comparisons between the two types.
  */
@@ -147,13 +147,6 @@ enum class ServerTimestampBehavior { None, Estimate, Previous };
 + (instancetype)doubleValue:(double)value;
 + (instancetype)nanValue;
 - (double)internalValue;
-@end
-
-/**
- * A string stored in Firestore.
- */
-@interface FSTStringValue : FSTFieldValue <NSString *>
-+ (instancetype)stringValue:(NSString *)value;
 @end
 
 /**
@@ -277,6 +270,14 @@ enum class ServerTimestampBehavior { None, Estimate, Previous };
 
 - (NSArray<FSTFieldValue *> *)internalValue;
 
+@end
+
+/**
+ * A value that delegates to the c++ model::FieldValue.
+ */
+@interface FSTDelegateValue : FSTFieldValue <id>
++ (instancetype)delegateWithValue:(FieldValue &&)value;
+- (const FieldValue &)internalValue;
 @end
 
 NS_ASSUME_NONNULL_END

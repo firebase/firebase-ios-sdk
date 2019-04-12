@@ -41,11 +41,11 @@ typedef NS_ENUM(NSUInteger, FIRDynamicLinkMatchConfidence) {
 
 @property(nonatomic, copy, nullable) NSString *matchMessage;
 
-@property(nonatomic, copy, readonly) NSDictionary *parametersDictionary;
+@property(nonatomic, copy, readonly) NSDictionary<NSString *, id> *parametersDictionary;
 
 @property(nonatomic, assign, readwrite) FIRDLMatchType matchType;
 
-- (instancetype)initWithParametersDictionary:(NSDictionary *)parametersDictionary;
+- (instancetype)initWithParametersDictionary:(NSDictionary<NSString *, id> *)parametersDictionary;
 
 @end
 

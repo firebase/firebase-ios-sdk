@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(Transaction)
 @interface FIRTransaction : NSObject
 
-/**   */
+/** :nodoc: */
 - (id)init __attribute__((unavailable("FIRTransaction cannot be created directly.")));
 
 /**

@@ -28,10 +28,12 @@
                                     self.minimumAppVersion ?: @"N/A", self.matchMessage];
 }
 
-- (instancetype)initWithParametersDictionary:(NSDictionary *)parameters {
+- (instancetype)initWithParametersDictionary:(NSDictionary<NSString *, id> *)parameters {
   NSParameterAssert(parameters.count > 0);
 
   if (self = [super init]) {
+    _parametersDictionary = [parameters copy];
+
     NSString *urlString = parameters[kFIRDLParameterDeepLinkIdentifier];
     _url = [NSURL URLWithString:urlString];
     _inviteId = parameters[kFIRDLParameterInviteId];
@@ -39,26 +41,62 @@
     _minimumAppVersion = parameters[kFIRDLParameterMinimumAppVersion];
 
     if (parameters[kFIRDLParameterMatchType]) {
-      _matchType = [[self class] matchTypeWithString:parameters[kFIRDLParameterMatchType]];
+      [self setMatchType:[[self class] matchTypeWithString:parameters[kFIRDLParameterMatchType]]];
     } else if (_url || _inviteId) {
       // If matchType not present assume unique match for compatibility with server side behavior
       // on iOS 8.
-      _matchType = FIRDLMatchTypeUnique;
+      [self setMatchType:FIRDLMatchTypeUnique];
     }
+
     _matchMessage = parameters[kFIRDLParameterMatchMessage];
   }
   return self;
 }
 
-- (NSDictionary *)parametersDictionary {
-  NSMutableDictionary *parametersDictionary = [NSMutableDictionary dictionary];
-  parametersDictionary[kFIRDLParameterInviteId] = _inviteId;
-  parametersDictionary[kFIRDLParameterDeepLinkIdentifier] = [_url absoluteString];
-  parametersDictionary[kFIRDLParameterMatchType] = [[self class] stringWithMatchType:_matchType];
-  parametersDictionary[kFIRDLParameterWeakMatchEndpoint] = _weakMatchEndpoint;
-  parametersDictionary[kFIRDLParameterMinimumAppVersion] = _minimumAppVersion;
-  parametersDictionary[kFIRDLParameterMatchMessage] = _matchMessage;
-  return parametersDictionary;
+#pragma mark - Properties
+
+- (void)setUrl:(NSURL *)url {
+  _url = [url copy];
+  [self setParametersDictionaryValue:[_url absoluteString]
+                              forKey:kFIRDLParameterDeepLinkIdentifier];
+}
+
+- (void)setMinimumAppVersion:(NSString *)minimumAppVersion {
+  _minimumAppVersion = [minimumAppVersion copy];
+  [self setParametersDictionaryValue:_minimumAppVersion forKey:kFIRDLParameterMinimumAppVersion];
+}
+
+- (void)setInviteId:(NSString *)inviteId {
+  _inviteId = [inviteId copy];
+  [self setParametersDictionaryValue:_inviteId forKey:kFIRDLParameterInviteId];
+}
+
+- (void)setWeakMatchEndpoint:(NSString *)weakMatchEndpoint {
+  _weakMatchEndpoint = [weakMatchEndpoint copy];
+  [self setParametersDictionaryValue:_weakMatchEndpoint forKey:kFIRDLParameterWeakMatchEndpoint];
+}
+
+- (void)setMatchType:(FIRDLMatchType)matchType {
+  _matchType = matchType;
+  [self setParametersDictionaryValue:[[self class] stringWithMatchType:_matchType]
+                              forKey:kFIRDLParameterMatchType];
+}
+
+- (void)setMatchMessage:(NSString *)matchMessage {
+  _matchMessage = [matchMessage copy];
+  [self setParametersDictionaryValue:_matchMessage forKey:kFIRDLParameterMatchMessage];
+}
+
+- (void)setParametersDictionaryValue:(id)value forKey:(NSString *)key {
+  NSMutableDictionary<NSString *, id> *parametersDictionary =
+      [self.parametersDictionary mutableCopy];
+  if (value == nil) {
+    [parametersDictionary removeObjectForKey:key];
+  } else {
+    parametersDictionary[key] = value;
+  }
+
+  _parametersDictionary = [parametersDictionary copy];
 }
 
 - (FIRDynamicLinkMatchConfidence)matchConfidence {

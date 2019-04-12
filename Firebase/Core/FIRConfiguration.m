@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRConfiguration.h"
+#import "Private/FIRConfigurationInternal.h"
+
+#import "Private/FIRAnalyticsConfiguration.h"
 
 extern void FIRSetLoggerLevel(FIRLoggerLevel loggerLevel);
 

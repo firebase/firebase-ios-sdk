@@ -69,6 +69,30 @@
                         ]));
 }
 
+- (void)testGetDocumentError {
+  FIRDocumentReference *doc = [self.db documentWithPath:@"foo/__invalid__"];
+
+  XCTestExpectation *completed = [self expectationWithDescription:@"get completed"];
+  [doc getDocumentWithCompletion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
+    XCTAssertNotNil(error);
+    [completed fulfill];
+  }];
+
+  [self awaitExpectations];
+}
+
+- (void)testGetCollectionError {
+  FIRCollectionReference *col = [self.db collectionWithPath:@"__invalid__"];
+
+  XCTestExpectation *completed = [self expectationWithDescription:@"get completed"];
+  [col getDocumentsWithCompletion:^(FIRQuerySnapshot *snapshot, NSError *error) {
+    XCTAssertNotNil(error);
+    [completed fulfill];
+  }];
+
+  [self awaitExpectations];
+}
+
 - (void)testGetDocumentWhileOfflineWithDefaultSource {
   FIRDocumentReference *doc = [self documentRef];
 

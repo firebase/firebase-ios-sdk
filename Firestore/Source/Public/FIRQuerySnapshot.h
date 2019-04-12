@@ -31,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(QuerySnapshot)
 @interface FIRQuerySnapshot : NSObject
 
-/**   */
+/** :nodoc: */
 - (id)init __attribute__((unavailable("FIRQuerySnapshot cannot be created directly.")));
 
 /**

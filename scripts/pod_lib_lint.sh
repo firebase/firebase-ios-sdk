@@ -18,6 +18,8 @@
 #
 # Runs pod lib lint for the given podspec
 
+set -euo pipefail
+
 if [[ $# -lt 1 ]]; then
   cat 1>&2 <<EOF
 USAGE: $0 podspec [options]
@@ -27,8 +29,8 @@ podspec is the podspec to lint
 options can be any options for pod spec lint
 
 Optionally, ALT_SOURCES can be set in the script to add extra repos to the
-search path. This is useful when API's to core dependencies like FirebaseCore
-or GoogleUtilities and the public podspecs are not yet updated.
+search path. This is useful when APIs to core dependencies like FirebaseCore or
+GoogleUtilities and the public podspecs are not yet updated.
 EOF
   exit 1
 fi
@@ -39,20 +41,17 @@ fi
 # https://guides.cocoapods.org/making/private-cocoapods.
 ALT_SOURCES="--sources=https://github.com/Firebase/SpecsStaging.git,https://github.com/CocoaPods/Specs.git"
 
-podspec="$1"
-if [[ $# -gt 1 ]]; then
-  options="${@:2}"
-else
-  options=
+command=(bundle exec pod lib lint "$@")
+
+if [[ -n "${ALT_SOURCES:-}" ]]; then
+  command+=("${ALT_SOURCES}")
 fi
 
-command="bundle exec pod lib lint $podspec $options $ALT_SOURCES"
-echo $command
-
-$command ; result=$?
+echo "${command[*]}"
+"${command[@]}"; result=$?
 
 if [[ $result != 0 ]]; then
   # retry because of occasional network flakiness
-  $command ; result=$?
+  "${command[@]}"; result=$?
 fi
 exit $result

@@ -30,7 +30,7 @@ function(cc_library name)
 
   maybe_remove_objc_sources(sources ${ccl_SOURCES})
   add_library(${name} ${sources})
-  add_objc_flags(${name} ccl)
+  add_objc_flags(${name} ${ccl_SOURCES})
   target_include_directories(
     ${name}
     PUBLIC
@@ -107,7 +107,7 @@ function(cc_binary name)
 
   maybe_remove_objc_sources(sources ${ccb_SOURCES})
   add_executable(${name} ${sources})
-  add_objc_flags(${name} ccb)
+  add_objc_flags(${name} ${ccb_SOURCES})
   add_test(${name} ${name})
 
   target_include_directories(${name} PUBLIC ${FIREBASE_SOURCE_DIR})
@@ -137,7 +137,7 @@ function(cc_test name)
 
   maybe_remove_objc_sources(sources ${cct_SOURCES})
   add_executable(${name} ${sources})
-  add_objc_flags(${name} cct)
+  add_objc_flags(${name} ${cct_SOURCES})
   add_test(${name} ${name})
 
   target_include_directories(${name} PUBLIC ${FIREBASE_SOURCE_DIR})

@@ -294,4 +294,112 @@
   // of anything else interesting to test.
 }
 
+- (void)testCollectionGroupQueries {
+  // Use .document() to get a random collection group name to use but ensure it starts with 'b'
+  // for predictable ordering.
+  NSString *collectionGroup = [NSString
+      stringWithFormat:@"b%@", [[self.db collectionWithPath:@"foo"] documentWithAutoID].documentID];
+
+  NSArray *docPaths = @[
+    @"abc/123/${collectionGroup}/cg-doc1", @"abc/123/${collectionGroup}/cg-doc2",
+    @"${collectionGroup}/cg-doc3", @"${collectionGroup}/cg-doc4",
+    @"def/456/${collectionGroup}/cg-doc5", @"${collectionGroup}/virtual-doc/nested-coll/not-cg-doc",
+    @"x${collectionGroup}/not-cg-doc", @"${collectionGroup}x/not-cg-doc",
+    @"abc/123/${collectionGroup}x/not-cg-doc", @"abc/123/x${collectionGroup}/not-cg-doc",
+    @"abc/${collectionGroup}"
+  ];
+
+  FIRWriteBatch *batch = [self.db batch];
+  for (NSString *docPath in docPaths) {
+    NSString *path = [docPath stringByReplacingOccurrencesOfString:@"${collectionGroup}"
+                                                        withString:collectionGroup];
+    [batch setData:@{@"x" : @1} forDocument:[self.db documentWithPath:path]];
+  }
+  XCTestExpectation *expectation = [self expectationWithDescription:@"batch written"];
+  [batch commitWithCompletion:^(NSError *error) {
+    XCTAssertNil(error);
+    [expectation fulfill];
+  }];
+  [self awaitExpectations];
+
+  FIRQuerySnapshot *querySnapshot =
+      [self readDocumentSetForRef:[self.db collectionGroupWithID:collectionGroup]];
+  NSArray<NSString *> *ids = FIRQuerySnapshotGetIDs(querySnapshot);
+  XCTAssertEqualObjects(ids, (@[ @"cg-doc1", @"cg-doc2", @"cg-doc3", @"cg-doc4", @"cg-doc5" ]));
+}
+
+- (void)testCollectionGroupQueriesWithStartAtEndAtWithArbitraryDocumentIDs {
+  // Use .document() to get a random collection group name to use but ensure it starts with 'b'
+  // for predictable ordering.
+  NSString *collectionGroup = [NSString
+      stringWithFormat:@"b%@", [[self.db collectionWithPath:@"foo"] documentWithAutoID].documentID];
+
+  NSArray *docPaths = @[
+    @"a/a/${collectionGroup}/cg-doc1", @"a/b/a/b/${collectionGroup}/cg-doc2",
+    @"a/b/${collectionGroup}/cg-doc3", @"a/b/c/d/${collectionGroup}/cg-doc4",
+    @"a/c/${collectionGroup}/cg-doc5", @"${collectionGroup}/cg-doc6", @"a/b/nope/nope"
+  ];
+
+  FIRWriteBatch *batch = [self.db batch];
+  for (NSString *docPath in docPaths) {
+    NSString *path = [docPath stringByReplacingOccurrencesOfString:@"${collectionGroup}"
+                                                        withString:collectionGroup];
+    [batch setData:@{@"x" : @1} forDocument:[self.db documentWithPath:path]];
+  }
+  XCTestExpectation *expectation = [self expectationWithDescription:@"batch written"];
+  [batch commitWithCompletion:^(NSError *error) {
+    XCTAssertNil(error);
+    [expectation fulfill];
+  }];
+  [self awaitExpectations];
+
+  FIRQuerySnapshot *querySnapshot = [self
+      readDocumentSetForRef:[[[[self.db collectionGroupWithID:collectionGroup]
+                                queryOrderedByFieldPath:[FIRFieldPath documentID]]
+                                queryStartingAfterValues:@[ @"a/b" ]]
+                                queryEndingBeforeValues:@[
+                                  [NSString stringWithFormat:@"a/b/%@/cg-doc3", collectionGroup]
+                                ]]];
+
+  NSArray<NSString *> *ids = FIRQuerySnapshotGetIDs(querySnapshot);
+  XCTAssertEqualObjects(ids, (@[ @"cg-doc2" ]));
+}
+
+- (void)testCollectionGroupQueriesWithWhereFiltersOnArbitraryDocumentIDs {
+  // Use .document() to get a random collection group name to use but ensure it starts with 'b'
+  // for predictable ordering.
+  NSString *collectionGroup = [NSString
+      stringWithFormat:@"b%@", [[self.db collectionWithPath:@"foo"] documentWithAutoID].documentID];
+
+  NSArray *docPaths = @[
+    @"a/a/${collectionGroup}/cg-doc1", @"a/b/a/b/${collectionGroup}/cg-doc2",
+    @"a/b/${collectionGroup}/cg-doc3", @"a/b/c/d/${collectionGroup}/cg-doc4",
+    @"a/c/${collectionGroup}/cg-doc5", @"${collectionGroup}/cg-doc6", @"a/b/nope/nope"
+  ];
+
+  FIRWriteBatch *batch = [self.db batch];
+  for (NSString *docPath in docPaths) {
+    NSString *path = [docPath stringByReplacingOccurrencesOfString:@"${collectionGroup}"
+                                                        withString:collectionGroup];
+    [batch setData:@{@"x" : @1} forDocument:[self.db documentWithPath:path]];
+  }
+  XCTestExpectation *expectation = [self expectationWithDescription:@"batch written"];
+  [batch commitWithCompletion:^(NSError *error) {
+    XCTAssertNil(error);
+    [expectation fulfill];
+  }];
+  [self awaitExpectations];
+
+  FIRQuerySnapshot *querySnapshot = [self
+      readDocumentSetForRef:[[[self.db collectionGroupWithID:collectionGroup]
+                                   queryWhereFieldPath:[FIRFieldPath documentID]
+                                isGreaterThanOrEqualTo:@"a/b"]
+                                queryWhereFieldPath:[FIRFieldPath documentID]
+                                         isLessThan:[NSString stringWithFormat:@"a/b/%@/cg-doc3",
+                                                                               collectionGroup]]];
+
+  NSArray<NSString *> *ids = FIRQuerySnapshotGetIDs(querySnapshot);
+  XCTAssertEqualObjects(ids, (@[ @"cg-doc2" ]));
+}
+
 @end

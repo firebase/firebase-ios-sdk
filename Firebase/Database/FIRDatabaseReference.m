@@ -90,10 +90,6 @@
 #pragma mark -
 #pragma mark Child methods
 
-- (FIRDatabaseReference *)childByAppendingPath:(NSString *)pathString {
-    return [self child:pathString];
-}
-
 - (FIRDatabaseReference *)child:(NSString *)pathString {
     if ([self.path getFront] == nil) {
         // we're at the root

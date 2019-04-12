@@ -16,53 +16,49 @@
 
 #import "FIRSnapshotMetadata.h"
 
+#include <utility>
+
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
+
+#include "Firestore/core/src/firebase/firestore/api/snapshot_metadata.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRSnapshotMetadata ()
-
-- (instancetype)initWithPendingWrites:(BOOL)pendingWrites fromCache:(BOOL)fromCache;
-
-@end
-
-@implementation FIRSnapshotMetadata (Internal)
-
-+ (instancetype)snapshotMetadataWithPendingWrites:(BOOL)pendingWrites fromCache:(BOOL)fromCache {
-  return [[FIRSnapshotMetadata alloc] initWithPendingWrites:pendingWrites fromCache:fromCache];
+@implementation FIRSnapshotMetadata {
+  SnapshotMetadata _metadata;
 }
 
-@end
-
-@implementation FIRSnapshotMetadata
-
-- (instancetype)initWithPendingWrites:(BOOL)pendingWrites fromCache:(BOOL)fromCache {
+- (instancetype)initWithMetadata:(SnapshotMetadata)metadata {
   if (self = [super init]) {
-    _pendingWrites = pendingWrites;
-    _fromCache = fromCache;
+    _metadata = std::move(metadata);
   }
   return self;
+}
+
+- (instancetype)initWithPendingWrites:(bool)pendingWrites fromCache:(bool)fromCache {
+  SnapshotMetadata wrapped(pendingWrites, fromCache);
+  return [self initWithMetadata:std::move(wrapped)];
 }
 
 // NSObject Methods
 - (BOOL)isEqual:(nullable id)other {
   if (other == self) return YES;
-  if (![[other class] isEqual:[self class]]) return NO;
+  if (![other isKindOfClass:[FIRSnapshotMetadata class]]) return NO;
 
-  return [self isEqualToMetadata:other];
-}
-
-- (BOOL)isEqualToMetadata:(nullable FIRSnapshotMetadata *)metadata {
-  if (self == metadata) return YES;
-  if (metadata == nil) return NO;
-
-  return self.pendingWrites == metadata.pendingWrites && self.fromCache == metadata.fromCache;
+  FIRSnapshotMetadata *otherMetadata = other;
+  return _metadata == otherMetadata->_metadata;
 }
 
 - (NSUInteger)hash {
-  NSUInteger hash = self.pendingWrites ? 1 : 0;
-  hash = hash * 31u + (self.fromCache ? 1 : 0);
-  return hash;
+  return _metadata.Hash();
+}
+
+- (BOOL)hasPendingWrites {
+  return _metadata.pending_writes();
+}
+
+- (BOOL)isFromCache {
+  return _metadata.from_cache();
 }
 
 @end

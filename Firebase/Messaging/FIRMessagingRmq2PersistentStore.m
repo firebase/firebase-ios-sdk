@@ -126,12 +126,16 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
   self = [super init];
   if (self) {
     _databaseName = [databaseName copy];
+#if TARGET_OS_IOS
     BOOL didMoveToApplicationSupport =
-        [self moveToApplicationSupportSubDirectory:kFIRMessagingApplicationSupportSubDirectory];
+        [self moveToApplicationSupportSubDirectory:kFIRMessagingSubDirectoryName];
 
     _currentDirectory = didMoveToApplicationSupport
                             ? FIRMessagingRmqDirectoryApplicationSupport
                             : FIRMessagingRmqDirectoryDocuments;
+#else
+    _currentDirectory = FIRMessagingRmqDirectoryApplicationSupport;
+#endif
 
     [self openDatabase:_databaseName];
   }
@@ -143,7 +147,7 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
 }
 
 - (BOOL)moveToApplicationSupportSubDirectory:(NSString *)subDirectoryName {
-  NSArray *directoryPaths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory,
+  NSArray *directoryPaths = NSSearchPathForDirectoriesInDomains(FIRMessagingSupportedDirectory(),
                                                                 NSUserDomainMask, YES);
   NSString *applicationSupportDirPath = directoryPaths.lastObject;
   NSArray *components = @[applicationSupportDirPath, subDirectoryName];
@@ -205,12 +209,12 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
       break;
 
     case FIRMessagingRmqDirectoryApplicationSupport:
-      paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory,
+      paths = NSSearchPathForDirectoriesInDomains(FIRMessagingSupportedDirectory(),
                                                   NSUserDomainMask,
                                                   YES);
       components = @[
                      paths.lastObject,
-                     kFIRMessagingApplicationSupportSubDirectory,
+                     kFIRMessagingSubDirectoryName,
                      dbNameWithExtension
                      ];
       break;
@@ -262,10 +266,10 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
 + (void)removeDatabase:(NSString *)dbName {
   NSString *documentsDirPath = [self pathForDatabase:dbName
                                          inDirectory:FIRMessagingRmqDirectoryDocuments];
-  NSString *applicationSupportDirPath =
+  NSString *standardDirPath =
       [self pathForDatabase:dbName inDirectory:FIRMessagingRmqDirectoryApplicationSupport];
   [[NSFileManager defaultManager] removeItemAtPath:documentsDirPath error:nil];
-  [[NSFileManager defaultManager] removeItemAtPath:applicationSupportDirPath error:nil];
+  [[NSFileManager defaultManager] removeItemAtPath:standardDirPath error:nil];
 }
 
 - (void)openDatabase:(NSString *)dbName {

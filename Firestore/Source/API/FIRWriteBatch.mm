@@ -26,10 +26,12 @@
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 #import "Firestore/Source/Model/FSTMutation.h"
-#import "Firestore/Source/Util/FSTUsageValidation.h"
 
+#include "Firestore/core/src/firebase/firestore/api/input_validation.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 
+using firebase::firestore::api::ThrowIllegalState;
+using firebase::firestore::api::ThrowInvalidArgument;
 using firebase::firestore::core::ParsedSetData;
 using firebase::firestore::core::ParsedUpdateData;
 using firebase::firestore::model::Precondition;
@@ -131,19 +133,18 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)commitWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
   [self verifyNotCommitted];
   self.committed = TRUE;
-  [self.firestore.client writeMutations:std::move(_mutations) completion:completion];
+  [self.firestore.wrapped->client() writeMutations:std::move(_mutations) completion:completion];
 }
 
 - (void)verifyNotCommitted {
   if (self.committed) {
-    FSTThrowInvalidUsage(@"FIRIllegalStateException",
-                         @"A write batch can no longer be used after commit has been called.");
+    ThrowIllegalState("A write batch can no longer be used after commit has been called.");
   }
 }
 
 - (void)validateReference:(FIRDocumentReference *)reference {
   if (reference.firestore != self.firestore) {
-    FSTThrowInvalidArgument(@"Provided document reference is from a different Firestore instance.");
+    ThrowInvalidArgument("Provided document reference is from a different Firestore instance.");
   }
 }
 

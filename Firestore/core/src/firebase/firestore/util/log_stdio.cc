@@ -49,6 +49,9 @@ void LogMessage(LogLevel log_level, const std::string& message) {
     case kLogLevelWarning:
       level_word = "WARNING";
       break;
+    case kLogLevelError:
+      level_word = "ERROR";
+      break;
     default:
       UNREACHABLE();
       break;

@@ -19,7 +19,7 @@
 
 import Foundation
 import XCTest
-import FirebaseFirestore
+import Firebase
 
 class BasicCompileTests: XCTestCase {
   func testCompiled() {
@@ -90,7 +90,7 @@ func makeRefs(database db: Firestore) -> (CollectionReference, DocumentReference
 }
 
 func makeQuery(collection collectionRef: CollectionReference) -> Query {
-  let query = collectionRef.whereField(FieldPath(["name"]), isEqualTo: "Fred")
+  var query = collectionRef.whereField(FieldPath(["name"]), isEqualTo: "Fred")
     .whereField("age", isGreaterThanOrEqualTo: 24)
     .whereField("tags", arrayContains: "active")
     .whereField(FieldPath(["tags"]), arrayContains: "active")
@@ -98,6 +98,8 @@ func makeQuery(collection collectionRef: CollectionReference) -> Query {
     .order(by: FieldPath(["age"]))
     .order(by: "name", descending: true)
     .limit(to: 10)
+
+  query = collectionRef.firestore.collectionGroup("collection")
 
   return query
 }
@@ -410,7 +412,11 @@ func types() {
   let _: Firestore
   let _: FirestoreSettings
   let _: GeoPoint
+  let _: Firebase.GeoPoint
+  let _: FirebaseFirestore.GeoPoint
   let _: Timestamp
+  let _: Firebase.Timestamp
+  let _: FirebaseFirestore.Timestamp
   let _: ListenerRegistration
   let _: Query
   let _: QuerySnapshot

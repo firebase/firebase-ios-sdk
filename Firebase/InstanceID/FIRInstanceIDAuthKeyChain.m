@@ -33,7 +33,7 @@ NSString *const kFIRInstanceIDKeychainWildcardIdentifier = @"*";
 // cachedKeychainData is keyed by service and account, the value is an array of NSData.
 // It is used to cache the tokens per service, per account, as well as checkin data per service,
 // per account inside the keychain.
-@property(nonatomic, copy)
+@property(nonatomic)
     NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, NSArray<NSData *> *> *>
         *cachedKeychainData;
 
@@ -89,7 +89,8 @@ NSString *const kFIRInstanceIDKeychainWildcardIdentifier = @"*";
   keychainQuery[(__bridge id)kSecReturnAttributes] = (__bridge id)kCFBooleanTrue;
   keychainQuery[(__bridge id)kSecMatchLimit] = (__bridge id)kSecMatchLimitAll;
   // FIRInstanceIDKeychain should only take a query and return a result, will handle the query here.
-  CFArrayRef passwordInfos = [[FIRInstanceIDKeychain sharedInstance] itemWithQuery:keychainQuery];
+  NSArray *passwordInfos =
+      CFBridgingRelease([[FIRInstanceIDKeychain sharedInstance] itemWithQuery:keychainQuery]);
 
   if (!passwordInfos) {
     // Nothing was found, simply return from this sync block.
@@ -105,18 +106,13 @@ NSString *const kFIRInstanceIDKeychainWildcardIdentifier = @"*";
     }
     return @[];
   }
-  NSInteger numPasswords = CFArrayGetCount(passwordInfos);
+  NSInteger numPasswords = passwordInfos.count;
   results = [[NSMutableArray alloc] init];
-  if (0 < numPasswords) {
-    for (NSUInteger i = 0; i < numPasswords; i++) {
-      NSDictionary *passwordInfo = [((__bridge NSArray *)passwordInfos) objectAtIndex:i];
-      if (passwordInfo[(__bridge id)kSecValueData]) {
-        [results addObject:passwordInfo[(__bridge id)kSecValueData]];
-      }
+  for (NSUInteger i = 0; i < numPasswords; i++) {
+    NSDictionary *passwordInfo = [passwordInfos objectAtIndex:i];
+    if (passwordInfo[(__bridge id)kSecValueData]) {
+      [results addObject:passwordInfo[(__bridge id)kSecValueData]];
     }
-  }
-  if (passwordInfos != NULL) {
-    CFRelease(passwordInfos);
   }
 
   // We query the keychain because it didn't exist in cache, now query is done, update the result in

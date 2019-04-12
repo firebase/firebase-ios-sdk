@@ -16,14 +16,15 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/grpc_root_certificate_finder.h"
 
+#import <objc/runtime.h>
+
 #include <string>
 
 #include "Firestore/core/src/firebase/firestore/util/filesystem.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
-
-#import "Firestore/Source/Core/FSTFirestoreClient.h"
+#include "absl/strings/str_cat.h"
 
 namespace firebase {
 namespace firestore {
@@ -34,44 +35,105 @@ using util::ReadFile;
 using util::StatusOr;
 using util::StringFormat;
 
+namespace {
+
+/**
+ * Finds the roots.pem certificate file in the given resource bundle and logs
+ * the outcome.
+ *
+ * @param bundle The bundle to check. Can be a nested bundle in Resources or
+ *     an app or framework bundle to look in directly.
+ * @param parent The parent bundle of the bundle to search. Used for logging.
+ */
+NSString* _Nullable FindCertFileInResourceBundle(NSBundle* _Nullable bundle,
+                                                 NSBundle* _Nullable parent) {
+  if (!bundle) return nil;
+
+  NSString* path = [bundle pathForResource:@"roots" ofType:@"pem"];
+  if (util::LogIsDebugEnabled()) {
+    std::string message =
+        absl::StrCat("roots.pem ", path ? "found " : "not found ", "in bundle ",
+                     util::MakeString([bundle bundleIdentifier]));
+    if (parent) {
+      absl::StrAppend(&message, " (in parent ",
+                      util::MakeString([parent bundleIdentifier]), ")");
+    }
+    LOG_DEBUG("%s", message);
+  }
+
+  return path;
+}
+
+/**
+ * Finds gRPCCertificates.bundle inside the given parent, if it exists.
+ *
+ * This function exists mostly to handle differences in platforms.
+ * On iOS, resources are nested directly within the top-level of the parent
+ * bundle, but on macOS this will actually be in Contents/Resources.
+ *
+ * @param parent A framework or app bundle to check.
+ * @return The nested gRPCCertificates.bundle if found, otherwise nil.
+ */
+NSBundle* _Nullable FindCertBundleInParent(NSBundle* _Nullable parent) {
+  if (!parent) return nil;
+
+  NSString* path = [parent pathForResource:@"gRPCCertificates"
+                                    ofType:@"bundle"];
+  if (!path) return nil;
+
+  return [[NSBundle alloc] initWithPath:path];
+}
+
+NSBundle* _Nullable FindFirestoreFrameworkBundle() {
+  // Load FIRFirestore reflectively to avoid a circular reference at build time.
+  Class firestore_class = objc_getClass("FIRFirestore");
+  if (!firestore_class) return nil;
+
+  return [NSBundle bundleForClass:firestore_class];
+}
+
+/**
+ * Finds the path to the roots.pem certificates file, wherever it may be.
+ *
+ * Carthage users will find roots.pem inside gRPCCertificates.bundle in
+ * the main bundle.
+ *
+ * There have been enough variations and workarounds posted on this that
+ * this also accepts the roots.pem file outside gRPCCertificates.bundle.
+ */
 NSString* FindPathToCertificatesFile() {
-  // Certificates file might be present in either the gRPC-C++ bundle or (for
+  // Certificates file might be present in either the gRPC-C++ framework or (for
   // some projects) in the main bundle.
   NSBundle* bundles[] = {
-      // Try to load certificates bundled by gRPC-C++.
+      // CocoaPods: try to load from the gRPC-C++ Framework.
       [NSBundle bundleWithIdentifier:@"org.cocoapods.grpcpp"],
-      // Users manually adding resources to the project may add the
-      // certificate to the main application bundle. Note that `mainBundle` is
-      // nil for unit tests of library projects, so it cannot fully substitute
-      // for checking the framework bundle.
+
+      // Carthage: try to load from the FirebaseFirestore.framework
+      FindFirestoreFrameworkBundle(),
+
+      // Carthage and manual projects: users manually adding resources to the
+      // project may add the certificate to the main application bundle. Note
+      // that `mainBundle` is nil for unit tests of library projects.
       [NSBundle mainBundle],
   };
 
-  // search for the roots.pem file in each of these resource locations
-  NSString* possibleResources[] = {
-      @"gRPCCertificates.bundle/roots",
-      @"roots",
-  };
+  NSString* path = nil;
 
-  for (NSBundle* bundle : bundles) {
-    if (!bundle) {
-      continue;
-    }
+  for (NSBundle* parent : bundles) {
+    if (!parent) continue;
 
-    for (NSString* resource : possibleResources) {
-      NSString* path = [bundle pathForResource:resource ofType:@"pem"];
-      if (path) {
-        LOG_DEBUG("%s.pem found in bundle %s", resource,
-                  [bundle bundleIdentifier]);
-        return path;
-      } else {
-        LOG_DEBUG("%s.pem not found in bundle %s", resource,
-                  [bundle bundleIdentifier]);
-      }
-    }
+    NSBundle* certs_bundle = FindCertBundleInParent(parent);
+    path = FindCertFileInResourceBundle(certs_bundle, parent);
+    if (path) break;
+
+    path = FindCertFileInResourceBundle(parent, nil);
+    if (path) break;
   }
-  return nil;
+
+  return path;
 }
+
+}  // namespace
 
 std::string LoadGrpcRootCertificate() {
   NSString* path = FindPathToCertificatesFile();

@@ -119,23 +119,6 @@ TEST_F(GrpcUnaryCallTest, CanGetResponseHeadersAfterFinishing) {
   });
 }
 
-// Method prerequisites -- incorrect usage
-
-// Death tests should contain the word "DeathTest" in their name -- see
-// https://github.com/google/googletest/blob/master/googletest/docs/advanced.md#death-test-naming
-using GrpcUnaryCallDeathTest = GrpcUnaryCallTest;
-
-TEST_F(GrpcUnaryCallDeathTest, CannotStartTwice) {
-  StartCall();
-  EXPECT_DEATH_IF_SUPPORTED(StartCall(), "");
-}
-
-TEST_F(GrpcUnaryCallDeathTest, CannotRestart) {
-  StartCall();
-  ForceFinish({{Type::Finish, CompletionResult::Ok}});
-  EXPECT_DEATH_IF_SUPPORTED(StartCall(), "");
-}
-
 TEST_F(GrpcUnaryCallTest, CannotFinishAndNotifyBeforeStarting) {
   // No callback has been assigned.
   worker_queue.EnqueueBlocking(

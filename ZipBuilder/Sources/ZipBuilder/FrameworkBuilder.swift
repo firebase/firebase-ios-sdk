@@ -83,24 +83,26 @@ struct FrameworkBuilder {
                              cacheEnabled: Bool = false) -> (framework: URL, resources: URL) {
     print("Building \(podName)")
 
+//  Cache is temporarily disabled due to pod cache list issues.
     // Get the CocoaPods cache to see if we can pull from any frameworks already built.
-    let podsCache = CocoaPodUtils.listPodCache(inDir: projectDir)
-
-    guard let cachedVersions = podsCache[podName] else {
-      fatalError("Cannot find a pod cache for framework \(podName).")
-    }
-
-    guard let podInfo = cachedVersions[version] else {
-      fatalError("""
-      Cannot find a pod cache for framework \(podName) at version \(version).
-      Something could be wrong with your CocoaPods cache - try running the following:
-
-      pod cache clean '\(podName)' --all
-      """)
-    }
-
-    // TODO: Figure out if we need the MD5 at all.
-    let md5 = Shell.calculateMD5(for: podInfo.installedLocation)
+//    let podsCache = CocoaPodUtils.listPodCache(inDir: projectDir)
+//
+//    guard let cachedVersions = podsCache[podName] else {
+//      fatalError("Cannot find a pod cache for framework \(podName).")
+//    }
+//
+//    guard let podInfo = cachedVersions[version] else {
+//      fatalError("""
+//      Cannot find a pod cache for framework \(podName) at version \(version).
+//      Something could be wrong with your CocoaPods cache - try running the following:
+//
+//      pod cache clean '\(podName)' --all
+//      """)
+//    }
+//
+//    // TODO: Figure out if we need the MD5 at all.
+    let md5 = podName
+//    let md5 = Shell.calculateMD5(for: podInfo.installedLocation)
 
     // Get (or create) the cache directory for storing built frameworks.
     let fileManager = FileManager.default

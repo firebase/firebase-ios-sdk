@@ -128,4 +128,30 @@
   [two remove];
 }
 
+- (void)testCanOutliveDocumentReference {
+  FIRCollectionReference *collectionRef = [self collectionRef];
+
+  XCTestExpectation *seen = [self expectationWithDescription:@"seen document"];
+
+  __block id<FIRListenerRegistration> registration;
+  NSString *documentID;
+  @autoreleasepool {
+    FIRDocumentReference *docRef = [collectionRef documentWithAutoID];
+    documentID = docRef.documentID;
+    registration = [docRef addSnapshotListener:^(FIRDocumentSnapshot *snapshot, NSError *error) {
+      if (snapshot.exists) {
+        [seen fulfill];
+      }
+    }];
+    docRef = nil;
+  }
+
+  XCTAssertNotNil(registration);
+
+  FIRDocumentReference *docRef2 = [collectionRef documentWithPath:documentID];
+  [self writeDocumentRef:docRef2 data:@{@"foo" : @"bar"}];
+
+  [registration remove];
+}
+
 @end

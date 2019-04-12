@@ -31,7 +31,7 @@ NSString *const kFIRInstanceIDIdentityInvalidatedNotification = @"com.google.iid
 // Miscellaneous
 NSString *const kFIRInstanceIDAllScopeIdentifier = @"iid-all";
 NSString *const kFIRInstanceIDDefaultTokenScope = @"*";
-NSString *const kFIRInstanceIDApplicationSupportSubDirectory = @"Google/FirebaseInstanceID";
+NSString *const kFIRInstanceIDSubDirectoryName = @"Google/FirebaseInstanceID";
 
 // Registration Options
 NSString *const kFIRInstanceIDTokenOptionsAPNSKey = @"apns_token";

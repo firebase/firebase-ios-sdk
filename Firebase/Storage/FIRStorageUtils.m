@@ -27,7 +27,7 @@
 
 #import "FirebaseStorage.h"
 
-#import "GTMSessionFetcher.h"
+#import <GTMSessionFetcher/GTMSessionFetcher.h>
 
 // This is the list at https://cloud.google.com/storage/docs/json_api/ without &, ; and +.
 NSString *const kGCSObjectAllowedCharacterSet =

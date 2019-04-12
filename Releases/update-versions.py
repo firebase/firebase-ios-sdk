@@ -114,24 +114,6 @@ def CreateReleaseBranch(release_branch, base_branch):
                                                               release_branch))
 
 
-def UpdateFIROptions(git_root, version_data):
-  """Update version specifier in FIROptions.m.
-
-  Args:
-    git_root: root of git checkout.
-    version_data: dictionary of versions to be updated.
-  """
-  core_version = version_data['FirebaseCore']
-  major, minor, patch = core_version.split('.')
-  path = os.path.join(git_root, 'Firebase', 'Core', 'FIROptions.m')
-  os.system("sed -E -i.bak 's/[[:digit:]]+\"[[:space:]]*\\/\\/ Major/"
-            "{}\"     \\/\\/ Major/' {}".format(major, path))
-  os.system("sed -E -i.bak 's/[[:digit:]]+\"[[:space:]]*\\/\\/ Minor/"
-            "{}\"    \\/\\/ Minor/' {}".format(minor.zfill(2), path))
-  os.system("sed -E -i.bak 's/[[:digit:]]+\"[[:space:]]*\\/\\/ Build/"
-            "{}\"    \\/\\/ Build/' {}".format(patch.zfill(2), path))
-
-
 def UpdatePodSpecs(git_root, version_data, firebase_version):
   """Update the podspecs with the right version.
 
@@ -181,6 +163,7 @@ def UpdateTags(version_data, firebase_version, first=False):
     LogOrRun("git push --delete origin '{}'".format(firebase_version))
     LogOrRun("git tag --delete  '{}'".format(firebase_version))
   LogOrRun("git tag '{}'".format(firebase_version))
+  LogOrRun("git push origin '{}'".format(firebase_version))
   for pod, version in version_data.items():
     name = pod[len('Firebase'):]
     tag = '{}-{}'.format(name, version)
@@ -222,9 +205,9 @@ def PushPodspecs(version_data):
 
     podspec = '{}.podspec'.format(pod)
     json = os.path.join(tmp_dir, '{}.json'.format(podspec))
-    os.system('pod ipc spec {} > {}'.format(podspec, json))
-    LogOrRun('pod repo push {} {}{}'.format(GetCpdcInternal(), json,
-                                            warnings_ok))
+    LogOrRun('pod ipc spec {} > {}'.format(podspec, json))
+    LogOrRun('pod repo push --skip-tests {} {}{}'.format(GetCpdcInternal(),
+                                                         json, warnings_ok))
   os.system('rm -rf {}'.format(tmp_dir))
 
 
@@ -253,7 +236,6 @@ def UpdateVersions():
 
     release_branch = 'release-{}'.format(args.version)
     CreateReleaseBranch(release_branch, args.base_branch)
-    UpdateFIROptions(git_root, version_data)
     UpdatePodSpecs(git_root, version_data, args.version)
     UpdatePodfiles(git_root, args.version)
 

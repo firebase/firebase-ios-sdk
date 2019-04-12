@@ -44,7 +44,7 @@ using firebase::firestore::local::RemoteDocumentCache;
 
   self.persistence = [FSTPersistenceTestHelpers eagerGCMemoryPersistence];
   HARD_ASSERT(!_cache, "Previous cache not torn down");
-  _cache = absl::make_unique<MemoryRemoteDocumentCache>();
+  _cache = absl::make_unique<MemoryRemoteDocumentCache>(self.persistence);
 }
 
 - (RemoteDocumentCache *)remoteDocumentCache {

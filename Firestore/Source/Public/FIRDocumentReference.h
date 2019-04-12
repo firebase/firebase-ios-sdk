@@ -37,7 +37,7 @@ typedef void (^FIRDocumentSnapshotBlock)(FIRDocumentSnapshot *_Nullable snapshot
 NS_SWIFT_NAME(DocumentReference)
 @interface FIRDocumentReference : NSObject
 
-/**   */
+/** :nodoc: */
 - (instancetype)init
     __attribute__((unavailable("FIRDocumentReference cannot be created directly.")));
 

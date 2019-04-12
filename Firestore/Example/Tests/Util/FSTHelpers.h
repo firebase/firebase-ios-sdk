@@ -24,6 +24,7 @@
 
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_map.h"
+#include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
@@ -37,7 +38,6 @@
 @class FSTDeletedDocument;
 @class FSTDocument;
 @class FSTDocumentKeyReference;
-@class FSTDocumentSet;
 @class FSTFieldValue;
 @class FSTFilter;
 @class FSTLocalViewChanges;
@@ -82,9 +82,9 @@ NS_ASSUME_NONNULL_BEGIN
             NSComparisonResult result = [left compare:right];                                      \
             NSComparisonResult inverseResult = [right compare:left];                               \
             XCTAssertEqual(result, expected, @"comparing %@ with %@ at (%lu, %lu)", left, right,   \
-                           i, j);                                                                  \
+                           (unsigned long)i, (unsigned long)j);                                    \
             XCTAssertEqual(inverseResult, -expected, @"comparing %@ with %@ at (%lu, %lu)", right, \
-                           left, j, i);                                                            \
+                           left, (unsigned long)j, (unsigned long)i);                              \
           }                                                                                        \
         }                                                                                          \
       }                                                                                            \
@@ -275,10 +275,11 @@ FSTSortOrder *FSTTestOrderBy(const absl::string_view field, NSString *direction)
 NSComparator FSTTestDocComparator(const absl::string_view fieldPath);
 
 /**
- * Creates a FSTDocumentSet based on the given comparator, initially containing the given
+ * Creates a DocumentSet based on the given comparator, initially containing the given
  * documents.
  */
-FSTDocumentSet *FSTTestDocSet(NSComparator comp, NSArray<FSTDocument *> *docs);
+firebase::firestore::model::DocumentSet FSTTestDocSet(NSComparator comp,
+                                                      NSArray<FSTDocument *> *docs);
 
 /** Computes changes to the view with the docs and then applies them and returns the snapshot. */
 absl::optional<firebase::firestore::core::ViewSnapshot> FSTTestApplyChanges(

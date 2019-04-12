@@ -22,13 +22,14 @@
 #include <vector>
 
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
-#import "Firestore/Source/Util/FSTUsageValidation.h"
 
+#include "Firestore/core/src/firebase/firestore/api/input_validation.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::api::ThrowInvalidArgument;
 using firebase::firestore::model::FieldPath;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -44,19 +45,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithFields:(NSArray<NSString *> *)fieldNames {
   if (fieldNames.count == 0) {
-    FSTThrowInvalidArgument(@"Invalid field path. Provided names must not be empty.");
+    ThrowInvalidArgument("Invalid field path. Provided names must not be empty.");
   }
 
   std::vector<std::string> field_names;
   field_names.reserve(fieldNames.count);
   for (int i = 0; i < fieldNames.count; ++i) {
-    if (fieldNames[i].length == 0) {
-      FSTThrowInvalidArgument(@"Invalid field name at index %d. Field names must not be empty.", i);
-    }
     field_names.emplace_back(util::MakeString(fieldNames[i]));
   }
 
-  return [self initPrivate:FieldPath(std::move(field_names))];
+  return [self initPrivate:FieldPath::FromSegments(std::move(field_names))];
 }
 
 + (instancetype)documentID {
@@ -71,21 +69,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (instancetype)pathWithDotSeparatedString:(NSString *)path {
-  if ([[FIRFieldPath reservedCharactersRegex]
-          numberOfMatchesInString:path
-                          options:0
-                            range:NSMakeRange(0, path.length)] > 0) {
-    FSTThrowInvalidArgument(
-        @"Invalid field path (%@). Paths must not contain '~', '*', '/', '[', or ']'", path);
-  }
-  @try {
-    return [[FIRFieldPath alloc] initWithFields:[path componentsSeparatedByString:@"."]];
-  } @catch (NSException *exception) {
-    FSTThrowInvalidArgument(
-        @"Invalid field path (%@). Paths must not be empty, begin with '.', end with '.', or "
-        @"contain '..'",
-        path);
-  }
+  return
+      [[FIRFieldPath alloc] initPrivate:FieldPath::FromDotSeparatedString(util::MakeString(path))];
 }
 
 /** Matches any characters in a field path string that are reserved. */

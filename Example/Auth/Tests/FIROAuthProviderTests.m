@@ -80,7 +80,7 @@ static NSString *const kFakeClientID = @"123456.apps.googleusercontent.com";
 static NSString *const kFakeReverseClientID = @"com.googleusercontent.apps.123456";
 
 /** @var kFakeOAuthResponseURL
-    @brief A fake OAuth reponse URL used in test.
+    @brief A fake OAuth response URL used in test.
  */
 static NSString *const kFakeOAuthResponseURL = @"fakeOAuthResponseURL";
 

@@ -15,12 +15,16 @@
  */
 
 #include "Firestore/core/src/firebase/firestore/local/memory_query_cache.h"
+
 #import <Protobuf/GPBMessage.h>
+
+#include <vector>
 
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
+
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
 using firebase::firestore::model::DocumentKey;
@@ -40,7 +44,7 @@ MemoryQueryCache::MemoryQueryCache(FSTMemoryPersistence* persistence)
       highest_listen_sequence_number_(ListenSequenceNumber(0)),
       highest_target_id_(TargetId(0)),
       last_remote_snapshot_version_(SnapshotVersion::None()),
-      queries_([NSMutableDictionary dictionary]) {
+      queries_() {
 }
 
 void MemoryQueryCache::AddTarget(FSTQueryData* query_data) {
@@ -59,36 +63,41 @@ void MemoryQueryCache::UpdateTarget(FSTQueryData* query_data) {
 }
 
 void MemoryQueryCache::RemoveTarget(FSTQueryData* query_data) {
-  [queries_ removeObjectForKey:query_data.query];
+  queries_.erase(query_data.query);
   references_.RemoveReferences(query_data.targetID);
 }
 
 FSTQueryData* _Nullable MemoryQueryCache::GetTarget(FSTQuery* query) {
-  return queries_[query];
+  auto iter = queries_.find(query);
+  return iter == queries_.end() ? nil : iter->second;
 }
 
-void MemoryQueryCache::EnumerateTargets(TargetEnumerator block) {
-  [queries_ enumerateKeysAndObjectsUsingBlock:^(
-                FSTQuery* query, FSTQueryData* query_data, BOOL* stop) {
-    block(query_data, stop);
-  }];
+void MemoryQueryCache::EnumerateTargets(const TargetCallback& callback) {
+  for (const auto& kv : queries_) {
+    callback(kv.second);
+  }
 }
 
 int MemoryQueryCache::RemoveTargets(
     model::ListenSequenceNumber upper_bound,
     const std::unordered_map<TargetId, FSTQueryData*>& live_targets) {
-  NSMutableArray<FSTQuery*>* toRemove = [NSMutableArray array];
-  [queries_ enumerateKeysAndObjectsUsingBlock:^(
-                FSTQuery* query, FSTQueryData* queryData, BOOL* stop) {
-    if (queryData.sequenceNumber <= upper_bound) {
-      if (live_targets.find(queryData.targetID) == live_targets.end()) {
-        [toRemove addObject:query];
-        references_.RemoveReferences(queryData.targetID);
+  std::vector<FSTQuery*> to_remove;
+  for (const auto& kv : queries_) {
+    FSTQuery* query = kv.first;
+    FSTQueryData* query_data = kv.second;
+
+    if (query_data.sequenceNumber <= upper_bound) {
+      if (live_targets.find(query_data.targetID) == live_targets.end()) {
+        to_remove.push_back(query);
+        references_.RemoveReferences(query_data.targetID);
       }
     }
-  }];
-  [queries_ removeObjectsForKeys:toRemove];
-  return static_cast<int>([toRemove count]);
+  }
+
+  for (FSTQuery* element : to_remove) {
+    queries_.erase(element);
+  }
+  return static_cast<int>(to_remove.size());
 }
 
 void MemoryQueryCache::AddMatchingKeys(const DocumentKeySet& keys,
@@ -116,11 +125,11 @@ bool MemoryQueryCache::Contains(const DocumentKey& key) {
 }
 
 size_t MemoryQueryCache::CalculateByteSize(FSTLocalSerializer* serializer) {
-  __block size_t count = 0;
-  [queries_ enumerateKeysAndObjectsUsingBlock:^(
-                FSTQuery* query, FSTQueryData* query_data, BOOL* stop) {
+  size_t count = 0;
+  for (const auto& kv : queries_) {
+    FSTQueryData* query_data = kv.second;
     count += [[serializer encodedQueryData:query_data] serializedSize];
-  }];
+  }
   return count;
 }
 

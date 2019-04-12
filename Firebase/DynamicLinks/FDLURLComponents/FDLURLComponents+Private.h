@@ -16,6 +16,11 @@
 
 #import "DynamicLinks/Public/FDLURLComponents.h"
 
+/**
+ * Label exceptions from FDL.
+ */
+FOUNDATION_EXPORT NSString *_Nonnull const kFirebaseDurableDeepLinkErrorDomain;
+
 NS_ASSUME_NONNULL_BEGIN
 
 /// Each of the parameter classes used in FIRDynamicLinkURLComponents needs to be able to

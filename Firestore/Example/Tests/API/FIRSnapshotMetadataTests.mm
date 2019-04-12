@@ -28,14 +28,11 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRSnapshotMetadataTests
 
 - (void)testEquals {
-  FIRSnapshotMetadata *foo = [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:YES
-                                                                          fromCache:YES];
-  FIRSnapshotMetadata *fooDup = [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:YES
-                                                                             fromCache:YES];
-  FIRSnapshotMetadata *bar = [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:YES
-                                                                          fromCache:NO];
-  FIRSnapshotMetadata *baz = [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:NO
-                                                                          fromCache:YES];
+  FIRSnapshotMetadata *foo = [[FIRSnapshotMetadata alloc] initWithPendingWrites:YES fromCache:YES];
+  FIRSnapshotMetadata *fooDup = [[FIRSnapshotMetadata alloc] initWithPendingWrites:YES
+                                                                         fromCache:YES];
+  FIRSnapshotMetadata *bar = [[FIRSnapshotMetadata alloc] initWithPendingWrites:YES fromCache:NO];
+  FIRSnapshotMetadata *baz = [[FIRSnapshotMetadata alloc] initWithPendingWrites:NO fromCache:YES];
   XCTAssertEqualObjects(foo, fooDup);
   XCTAssertNotEqualObjects(foo, bar);
   XCTAssertNotEqualObjects(foo, baz);
@@ -45,6 +42,16 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertNotEqual([foo hash], [bar hash]);
   XCTAssertNotEqual([foo hash], [baz hash]);
   XCTAssertNotEqual([bar hash], [baz hash]);
+}
+
+- (void)testProperties {
+  FIRSnapshotMetadata *metadata = [[FIRSnapshotMetadata alloc] initWithPendingWrites:YES
+                                                                           fromCache:NO];
+  XCTAssertTrue(metadata.hasPendingWrites);
+  XCTAssertTrue(metadata.pendingWrites);
+
+  XCTAssertFalse(metadata.isFromCache);
+  XCTAssertFalse(metadata.fromCache);
 }
 
 @end

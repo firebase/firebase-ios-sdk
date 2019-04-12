@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFirestore'
-  s.version          = '1.0.2'
+  s.version          = '1.2.1'
   s.summary          = 'Google Cloud Firestore for iOS'
 
   s.description      = <<-DESC
@@ -17,7 +17,8 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   }
 
   s.ios.deployment_target = '8.0'
-  s.osx.deployment_target = '10.10'
+  s.osx.deployment_target = '10.11'
+  s.tvos.deployment_target = '10.0'
 
   s.cocoapods_version = '>= 1.4.0'
   s.static_framework = true
@@ -40,6 +41,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
     'Firestore/third_party/Immutable/Tests/**',
 
     # Exclude alternate implementations for other platforms
+    'Firestore/core/src/firebase/firestore/api/input_validation_std.cc',
     'Firestore/core/src/firebase/firestore/remote/connectivity_monitor_noop.cc',
     'Firestore/core/src/firebase/firestore/remote/grpc_root_certificate_finder_generated.cc',
     'Firestore/core/src/firebase/firestore/util/filesystem_win.cc',
@@ -50,14 +52,15 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   s.public_header_files = 'Firestore/Source/Public/*.h'
 
   s.dependency 'FirebaseAuthInterop', '~> 1.0'
-  s.dependency 'FirebaseCore', '~> 5.2'
-  s.dependency 'gRPC-C++', '0.0.6'
+  s.dependency 'FirebaseCore', '~> 6.0'
+  s.dependency 'gRPC-C++', '0.0.8'
   s.dependency 'leveldb-library', '~> 1.20'
   s.dependency 'Protobuf', '~> 3.1'
   s.dependency 'nanopb', '~> 0.3.901'
 
   s.ios.frameworks = 'MobileCoreServices', 'SystemConfiguration'
   s.osx.frameworks = 'SystemConfiguration'
+  s.tvos.frameworks = 'SystemConfiguration'
 
   s.library = 'c++'
   s.pod_target_xcconfig = {
@@ -95,10 +98,19 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
       'Firestore/third_party/abseil-cpp/**/*.cc'
     ]
     ss.exclude_files = [
+      # Exclude tests and benchmarks from the framework.
       'Firestore/third_party/abseil-cpp/**/*_benchmark.cc',
       'Firestore/third_party/abseil-cpp/**/*test*.cc',
       'Firestore/third_party/abseil-cpp/absl/hash/internal/print_hash_of.cc',
-      'Firestore/third_party/abseil-cpp/absl/synchronization/internal/mutex_nonprod.cc',
+
+      # Avoid the debugging package which uses code that isn't portable to
+      # ARM (see stack_consumption.cc) and uses syscalls not available on
+      # tvOS (e.g. sigaltstack).
+      'Firestore/third_party/abseil-cpp/absl/debugging/**/*.cc',
+
+      # Exclude the synchronization package because it's dead weight: we don't
+      # write the kind of heavily threaded code that might benefit from it.
+      'Firestore/third_party/abseil-cpp/absl/synchronization/**/*.cc',
     ]
 
     ss.library = 'c++'

@@ -20,16 +20,17 @@
 
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentSet.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
+#include "Firestore/core/src/firebase/firestore/model/document_set.h"
 
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::DocumentViewChangeSet;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::DocumentSet;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -100,16 +101,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testViewSnapshotConstructor {
   FSTQuery *query = FSTTestQuery("a");
-  FSTDocumentSet *documents = [FSTDocumentSet documentSetWithComparator:FSTDocumentComparatorByKey];
-  FSTDocumentSet *oldDocuments = documents;
-  documents =
-      [documents documentSetByAddingDocument:FSTTestDoc("c/a", 1, @{}, FSTDocumentStateSynced)];
+  DocumentSet documents = DocumentSet{FSTDocumentComparatorByKey};
+  DocumentSet oldDocuments = documents;
+  documents = documents.insert(FSTTestDoc("c/a", 1, @{}, FSTDocumentStateSynced));
   std::vector<DocumentViewChange> documentChanges{DocumentViewChange{
       FSTTestDoc("c/a", 1, @{}, FSTDocumentStateSynced), DocumentViewChange::Type::kAdded}};
 
-  BOOL fromCache = YES;
+  bool fromCache = true;
   DocumentKeySet mutatedKeys;
-  BOOL syncStateChanged = YES;
+  bool syncStateChanged = true;
 
   ViewSnapshot snapshot{query,
                         documents,

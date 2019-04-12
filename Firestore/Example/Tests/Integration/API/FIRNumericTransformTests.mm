@@ -70,9 +70,9 @@ double DOUBLE_EPSILON = 0.000001;
 
 - (void)expectLocalAndRemoteValue:(int64_t)expectedSum {
   FIRDocumentSnapshot *snap = [_accumulator awaitLocalEvent];
-  XCTAssertEqual(@(expectedSum), snap[@"sum"]);
+  XCTAssertEqualObjects(@(expectedSum), snap[@"sum"]);
   snap = [_accumulator awaitRemoteEvent];
-  XCTAssertEqual(@(expectedSum), snap[@"sum"]);
+  XCTAssertEqualObjects(@(expectedSum), snap[@"sum"]);
 }
 
 - (void)expectApproximateLocalAndRemoteValue:(double)expectedSum {

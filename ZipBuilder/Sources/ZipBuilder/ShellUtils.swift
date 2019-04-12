@@ -54,9 +54,10 @@ extension Shell {
       scriptPath = tempScriptsDir.appendingPathComponent("wrapper.sh")
 
       // Write the temporary script contents to the script's path. CocoaPods complains when LANG
-      // isn't set in the environment, so explicitly set it here.
+      // isn't set in the environment, so explicitly set it here. The `/usr/local/git/current/bin`
+      // is to allow the `sso` protocol if it's there.
       let contents = """
-      export PATH="/usr/local/bin:$PATH"
+      export PATH="/usr/local/bin:/usr/local/git/current/bin:$PATH"
       export LANG="en_US.UTF-8"
       source ~/.bash_profile
       \(command)

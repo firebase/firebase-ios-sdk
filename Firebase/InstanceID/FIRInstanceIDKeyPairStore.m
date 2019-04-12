@@ -60,7 +60,7 @@ NSData *FIRInstanceIDKeyDataWithTag(NSString *tag) {
 // Query the key given a tag
 SecKeyRef FIRInstanceIDCachedKeyRefWithTag(NSString *tag) {
   _FIRInstanceIDDevAssert([tag length], @"Invalid tag for keychain specified");
-  if (![tag length]) {
+  if (!tag.length) {
     return NULL;
   }
   NSDictionary *queryKey = FIRInstanceIDKeyPairQuery(tag, YES, NO);
@@ -130,9 +130,9 @@ NSString *FIRInstanceIDCreationTimeKeyWithSubtype(NSString *subtype) {
   self = [super init];
   if (self) {
     NSString *fileName = [[self class] keyStoreFileName];
-    _plist = [[FIRInstanceIDBackupExcludedPlist alloc]
-                      initWithFileName:fileName
-        applicationSupportSubDirectory:kFIRInstanceIDApplicationSupportSubDirectory];
+    _plist =
+        [[FIRInstanceIDBackupExcludedPlist alloc] initWithFileName:fileName
+                                                      subDirectory:kFIRInstanceIDSubDirectoryName];
   }
   return self;
 }
@@ -159,7 +159,7 @@ NSString *FIRInstanceIDCreationTimeKeyWithSubtype(NSString *subtype) {
   if ([self cachedKeyPairWithSubtype:kFIRInstanceIDKeyPairSubType error:&error] == nil) {
     if (error) {
       FIRInstanceIDLoggerDebug(kFIRInstanceIDMessageCodeKeyPairStore000,
-                               @"Failed to get cached keyPair %@", error);
+                               @"Failed to get the cached keyPair %@", error);
     }
     error = nil;
     [self removeKeyPairCreationTimePlistWithError:&error];
@@ -279,7 +279,9 @@ NSString *FIRInstanceIDCreationTimeKeyWithSubtype(NSString *subtype) {
     // There is no need to reset keypair again here as FIRInstanceID init call is always
     // going to be ahead of this call, which already trigger keypair reset if it's new install
     FIRInstanceIDErrorCode code = kFIRInstanceIDErrorCodeInvalidKeyPairCreationTime;
-    *error = [NSError errorWithFIRInstanceIDErrorCode:code];
+    if (error) {
+      *error = [NSError errorWithFIRInstanceIDErrorCode:code];
+    }
     return nil;
   }
 }
@@ -314,7 +316,7 @@ NSString *FIRInstanceIDCreationTimeKeyWithSubtype(NSString *subtype) {
       *error = [NSError errorWithFIRInstanceIDErrorCode:kFIRInstanceIDErrorCodeMissingKeyPair];
     }
     FIRInstanceIDLoggerDebug(kFIRInstanceIDMessageCodeKeyPair000,
-                             @"No keypair info is retrieved with tag %@", privateKeyTag);
+                             @"No keypair info is found with tag %@", privateKeyTag);
     return nil;
   }
 
@@ -342,6 +344,8 @@ NSString *FIRInstanceIDCreationTimeKeyWithSubtype(NSString *subtype) {
                                             publicKeyTag:legacyPublicKeyTag
                                                    error:&error];
   if (![keyPair isValid]) {
+    FIRInstanceIDLoggerDebug(kFIRInstanceIDMessageCodeKeyPairNoLegacyKeyPair,
+                             @"There's no legacy keypair so no need to do migration.");
     if (handler) {
       handler(nil);
     }

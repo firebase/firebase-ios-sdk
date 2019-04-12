@@ -246,7 +246,7 @@ NS_ASSUME_NONNULL_BEGIN
   return [[FSTSetMutation alloc]
        initWithKey:DocumentKey::FromPathString("rooms/eros")
              value:[[FSTObjectValue alloc]
-                       initWithDictionary:@{@"name" : [FSTStringValue stringValue:@"Eros"]}]
+                       initWithDictionary:@{@"name" : FieldValue::FromString("Eros").Wrap()}]
       precondition:Precondition::None()];
 }
 

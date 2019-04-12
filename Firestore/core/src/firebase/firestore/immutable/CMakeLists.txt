@@ -20,9 +20,9 @@ cc_library(
     llrb_node.h
     llrb_node_iterator.h
     map_entry.h
+    sorted_container.h
+    sorted_container.cc
     sorted_map.h
-    sorted_map_base.h
-    sorted_map_base.cc
     sorted_map_iterator.h
     sorted_set.h
     tree_sorted_map.h

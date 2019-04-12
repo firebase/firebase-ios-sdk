@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(GeoPoint)
 @interface FIRGeoPoint : NSObject <NSCopying>
 
-/**   */
+/** :nodoc: */
 - (instancetype)init NS_UNAVAILABLE;
 
 /**

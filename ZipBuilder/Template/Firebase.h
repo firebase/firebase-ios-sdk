@@ -36,10 +36,6 @@ Firebase services work as intended."
 #import <FirebaseAuth/FirebaseAuth.h>
 #endif
 
-#if __has_include(<FirebaseCrash/FirebaseCrash.h>)
-#import <FirebaseCrash/FirebaseCrash.h>
-#endif
-
 #if __has_include(<FirebaseDatabase/FirebaseDatabase.h>)
 #import <FirebaseDatabase/FirebaseDatabase.h>
 #endif
@@ -62,10 +58,6 @@ Firebase services work as intended."
 
 #if __has_include(<FirebaseInstanceID/FirebaseInstanceID.h>)
 #import <FirebaseInstanceID/FirebaseInstanceID.h>
-#endif
-
-#if __has_include(<FirebaseInvites/FirebaseInvites.h>)
-#import <FirebaseInvites/FirebaseInvites.h>
 #endif
 
 #if __has_include(<FirebaseMessaging/FirebaseMessaging.h>)

@@ -20,6 +20,7 @@
 #import "Firebase/InstanceID/FIRInstanceIDConstants.h"
 #import "Firebase/InstanceID/FIRInstanceIDKeyPair.h"
 #import "Firebase/InstanceID/FIRInstanceIDKeychain.h"
+#import "Firebase/InstanceID/FIRInstanceIDStore.h"
 
 #import <OCMock/OCMock.h>
 #import "Firebase/InstanceID/FIRInstanceIDKeyPair.h"
@@ -53,6 +54,10 @@
   [super setUp];
   id mockStoreClass = OCMClassMock([FIRInstanceIDKeyPairStore class]);
   [[[mockStoreClass stub] andReturn:@"com.google.iid-keypairmanager-test"] keyStoreFileName];
+  // Should make sure the standard directory is created.
+  if (![FIRInstanceIDStore hasSubDirectory:kFIRInstanceIDSubDirectoryName]) {
+    [FIRInstanceIDStore createSubDirectory:kFIRInstanceIDSubDirectoryName];
+  }
   _keyPairStore = [[FIRInstanceIDKeyPairStore alloc] init];
 }
 

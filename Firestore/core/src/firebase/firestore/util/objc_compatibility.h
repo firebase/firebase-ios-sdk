@@ -26,6 +26,7 @@
 #include <algorithm>
 #include <string>
 #include <type_traits>
+#include <unordered_map>
 
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/to_string.h"
@@ -72,6 +73,43 @@ bool Equals(const T& lhs, const T& rhs) {
          std::equal(lhs.begin(), lhs.end(), rhs.begin(),
                     [](Ptr o1, Ptr o2) { return Equals(o1, o2); });
 }
+
+/**
+ * A function object that implements equality for an Objective-C pointer by
+ * delegating to -isEqual:. This is useful for using Objective-C objects as
+ * keys in STL associative containers.
+ */
+template <typename T,
+          typename = absl::enable_if_t<is_objective_c_pointer<T>::value>>
+class EqualTo {
+ public:
+  bool operator()(T lhs, T rhs) const {
+    return [lhs isEqual:rhs];
+  }
+};
+
+/**
+ * A function object that implements STL-compatible hash code for an Objective-C
+ * pointer by delegating to -hash. This is useful for using Objective-C objects
+ * as keys in std::unordered_map.
+ */
+template <typename T,
+          typename = absl::enable_if_t<is_objective_c_pointer<T>::value>>
+class Hash {
+ public:
+  size_t operator()(T value) const {
+    return static_cast<size_t>([value hash]);
+  }
+};
+
+/**
+ * The equivalent of std::unordered_map, where the Key type is an Objective-C
+ * class.
+ */
+template <typename K,
+          typename V,
+          typename = absl::enable_if_t<is_objective_c_pointer<K>::value>>
+using unordered_map = std::unordered_map<K, V, Hash<K>, EqualTo<K>>;
 
 /**
  * Creates a debug description of the given `value` by calling `ToString` on it,

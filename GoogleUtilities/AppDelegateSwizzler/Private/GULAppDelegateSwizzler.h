@@ -16,6 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
+@class UIApplication;
 @protocol UIApplicationDelegate;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -54,6 +55,12 @@ typedef NSString *const GULAppDelegateInterceptorID;
  *  @return YES if AppDelegateProxy is Enabled, NO otherwise.
  */
 + (BOOL)isAppDelegateProxyEnabled;
+
+/** Returns the current sharedApplication.
+ *
+ *  @return the current UIApplication if in an app, or nil if in extension or if it doesn't exist.
+ */
++ (nullable UIApplication *)sharedApplication;
 
 /** Do not initialize this class. */
 - (instancetype)init NS_UNAVAILABLE;

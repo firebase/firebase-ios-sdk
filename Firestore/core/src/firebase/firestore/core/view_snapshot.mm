@@ -16,10 +16,12 @@
 
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 
+#include <ostream>
+
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentSet.h"
 
+#include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
 #include "Firestore/core/src/firebase/firestore/util/objc_compatibility.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
@@ -32,6 +34,7 @@ namespace core {
 namespace objc = util::objc;
 using model::DocumentKey;
 using model::DocumentKeySet;
+using model::DocumentSet;
 using util::StringFormat;
 
 // DocumentViewChange
@@ -132,16 +135,16 @@ std::string DocumentViewChangeSet::ToString() const {
 // ViewSnapshot
 
 ViewSnapshot::ViewSnapshot(FSTQuery* query,
-                           FSTDocumentSet* documents,
-                           FSTDocumentSet* old_documents,
+                           DocumentSet documents,
+                           DocumentSet old_documents,
                            std::vector<DocumentViewChange> document_changes,
                            model::DocumentKeySet mutated_keys,
                            bool from_cache,
                            bool sync_state_changed,
                            bool excludes_metadata_changes)
     : query_{query},
-      documents_{documents},
-      old_documents_{old_documents},
+      documents_{std::move(documents)},
+      old_documents_{std::move(old_documents)},
       document_changes_{std::move(document_changes)},
       mutated_keys_{std::move(mutated_keys)},
       from_cache_{from_cache},
@@ -151,21 +154,20 @@ ViewSnapshot::ViewSnapshot(FSTQuery* query,
 
 ViewSnapshot ViewSnapshot::FromInitialDocuments(
     FSTQuery* query,
-    FSTDocumentSet* documents,
+    DocumentSet documents,
     DocumentKeySet mutated_keys,
     bool from_cache,
     bool excludes_metadata_changes) {
   std::vector<DocumentViewChange> view_changes;
-  for (FSTDocument* doc in documents.documentEnumerator) {
+  for (FSTDocument* doc : documents) {
     view_changes.emplace_back(doc, DocumentViewChange::Type::kAdded);
   }
 
-  return ViewSnapshot{
-      query, documents,
-      /*old_documents=*/
-      [FSTDocumentSet documentSetWithComparator:query.comparator],
-      std::move(view_changes), std::move(mutated_keys), from_cache,
-      /*sync_state_changed=*/true, excludes_metadata_changes};
+  return ViewSnapshot{query, documents,
+                      /*old_documents=*/
+                      DocumentSet{query.comparator}, std::move(view_changes),
+                      std::move(mutated_keys), from_cache,
+                      /*sync_state_changed=*/true, excludes_metadata_changes};
 }
 
 std::string ViewSnapshot::ToString() const {
@@ -173,9 +175,13 @@ std::string ViewSnapshot::ToString() const {
       "<ViewSnapshot query: %s documents: %s old_documents: %s changes: %s "
       "from_cache: %s mutated_keys: %s sync_state_changed: %s "
       "excludes_metadata_changes: %s>",
-      query(), documents(), old_documents(),
+      query(), documents_.ToString(), old_documents_.ToString(),
       objc::Description(document_changes()), from_cache(),
       mutated_keys().size(), sync_state_changed(), excludes_metadata_changes());
+}
+
+std::ostream& operator<<(std::ostream& out, const ViewSnapshot& value) {
+  return out << value.ToString();
 }
 
 size_t ViewSnapshot::Hash() const {
@@ -183,15 +189,15 @@ size_t ViewSnapshot::Hash() const {
   // straightforward way to compute its hash value. Since `ViewSnapshot` is
   // currently not stored in any dictionaries, this has no side effects.
 
-  return util::Hash([query() hash], [documents() hash], [old_documents() hash],
+  return util::Hash([query() hash], documents(), old_documents(),
                     document_changes(), from_cache(), sync_state_changed(),
                     excludes_metadata_changes());
 }
 
 bool operator==(const ViewSnapshot& lhs, const ViewSnapshot& rhs) {
   return objc::Equals(lhs.query(), rhs.query()) &&
-         objc::Equals(lhs.documents(), rhs.documents()) &&
-         objc::Equals(lhs.old_documents(), rhs.old_documents()) &&
+         lhs.documents() == rhs.documents() &&
+         lhs.old_documents() == rhs.old_documents() &&
          lhs.document_changes() == rhs.document_changes() &&
          lhs.from_cache() == rhs.from_cache() &&
          lhs.mutated_keys() == rhs.mutated_keys() &&

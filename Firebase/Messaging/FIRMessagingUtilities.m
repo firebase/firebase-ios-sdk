@@ -186,3 +186,11 @@ UIApplication *FIRMessagingUIApplication(void) {
   }
   return [applicationClass sharedApplication];
 }
+
+NSSearchPathDirectory FIRMessagingSupportedDirectory(void) {
+#if TARGET_OS_TV
+    return NSCachesDirectory;
+#else
+    return NSApplicationSupportDirectory;
+#endif
+}

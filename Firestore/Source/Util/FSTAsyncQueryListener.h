@@ -21,10 +21,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class FSTQueryListener;
-
 /**
- * A wrapper class around FSTQueryListener that dispatches events asynchronously.
+ * A wrapper class around QueryListener that dispatches events asynchronously.
  */
 @interface FSTAsyncQueryListener : NSObject
 

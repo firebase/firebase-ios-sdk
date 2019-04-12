@@ -34,7 +34,6 @@ class TargetChange;
 }  // namespace firestore
 }  // namespace firebase
 
-@class FSTDocumentSet;
 @class FSTQuery;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -49,7 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (const firebase::firestore::model::DocumentKeySet &)mutatedKeys;
 
 /** The new set of docs that should be in the view. */
-@property(nonatomic, strong, readonly) FSTDocumentSet *documentSet;
+- (const firebase::firestore::model::DocumentSet &)documentSet;
 
 /** The diff of this these docs with the previous set of docs. */
 - (const firebase::firestore::core::DocumentViewChangeSet &)changeSet;

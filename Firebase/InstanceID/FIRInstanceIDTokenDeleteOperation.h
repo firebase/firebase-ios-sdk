@@ -21,7 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FIRInstanceIDTokenDeleteOperation : FIRInstanceIDTokenOperation
 
 - (instancetype)initWithAuthorizedEntity:(nullable NSString *)authorizedEntity
-                                   scope:(NSString *)scope
+                                   scope:(nullable NSString *)scope
                       checkinPreferences:(FIRInstanceIDCheckinPreferences *)checkinPreferences
                                  keyPair:(nullable FIRInstanceIDKeyPair *)keyPair
                                   action:(FIRInstanceIDTokenAction)action;

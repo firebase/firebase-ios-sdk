@@ -201,11 +201,11 @@ TEST(LevelDbDocumentMutationKeyTest, Description) {
   auto key = LevelDbDocumentMutationKey::KeyPrefix(
       "user1", testutil::Resource("foo/bar"));
   AssertExpectedKeyDescription(
-      "[document_mutation: user_id=user1 key=foo/bar incomplete key]", key);
+      "[document_mutation: user_id=user1 path=foo/bar incomplete key]", key);
 
   key = LevelDbDocumentMutationKey::Key("user1", testutil::Key("foo/bar"), 42);
   AssertExpectedKeyDescription(
-      "[document_mutation: user_id=user1 key=foo/bar batch_id=42]", key);
+      "[document_mutation: user_id=user1 path=foo/bar batch_id=42]", key);
 }
 
 TEST(LevelDbTargetGlobalKeyTest, EncodeDecodeCycle) {
@@ -279,7 +279,7 @@ TEST(TargetDocumentKeyTest, Ordering) {
 
 TEST(TargetDocumentKeyTest, Description) {
   auto key = LevelDbTargetDocumentKey::Key(42, testutil::Key("foo/bar"));
-  ASSERT_EQ("[target_document: target_id=42 key=foo/bar]", DescribeKey(key));
+  ASSERT_EQ("[target_document: target_id=42 path=foo/bar]", DescribeKey(key));
 }
 
 TEST(DocumentTargetKeyTest, EncodeDecodeCycle) {
@@ -294,7 +294,7 @@ TEST(DocumentTargetKeyTest, EncodeDecodeCycle) {
 
 TEST(DocumentTargetKeyTest, Description) {
   auto key = LevelDbDocumentTargetKey::Key(testutil::Key("foo/bar"), 42);
-  ASSERT_EQ("[document_target: key=foo/bar target_id=42]", DescribeKey(key));
+  ASSERT_EQ("[document_target: path=foo/bar target_id=42]", DescribeKey(key));
 }
 
 TEST(DocumentTargetKeyTest, Ordering) {
@@ -352,7 +352,7 @@ TEST(RemoteDocumentKeyTest, EncodeDecodeCycle) {
 
 TEST(RemoteDocumentKeyTest, Description) {
   AssertExpectedKeyDescription(
-      "[remote_document: key=foo/bar/baz/quux]",
+      "[remote_document: path=foo/bar/baz/quux]",
       LevelDbRemoteDocumentKey::Key(testutil::Key("foo/bar/baz/quux")));
 }
 

@@ -398,7 +398,7 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqual(10, removed);
   // Make sure we removed the even targets with targetID <= 20.
   _persistence.run("verify remaining targets are > 20 or odd", [&]() {
-    _queryCache->EnumerateTargets(^(FSTQueryData *queryData, BOOL *stop) {
+    _queryCache->EnumerateTargets([&](FSTQueryData *queryData) {
       XCTAssertTrue(queryData.targetID > 20 || queryData.targetID % 2 == 1);
     });
   });

@@ -1040,7 +1040,8 @@ using firebase::firestore::util::TimerId;
 
   [self writeDocumentRef:doc data:@{@"a.b" : @"old", @"c.d" : @"old"}];
 
-  [self updateDocumentRef:doc data:@{[[FIRFieldPath alloc] initWithFields:@[ @"a.b" ]] : @"new"}];
+  [self updateDocumentRef:doc
+                     data:@{(id)[[FIRFieldPath alloc] initWithFields:@[ @"a.b" ]] : @"new"}];
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"testUpdateFieldsWithDots"];
 
@@ -1065,8 +1066,8 @@ using firebase::firestore::util::TimerId;
 
   [self updateDocumentRef:doc
                      data:@{
-                       @"a.b" : @"new",
-                       [[FIRFieldPath alloc] initWithFields:@[ @"c", @"d" ]] : @"new"
+                       (id) @"a.b" : @"new",
+                       (id)[[FIRFieldPath alloc] initWithFields:@[ @"c", @"d" ]] : @"new"
                      }];
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"testUpdateNestedFields"];

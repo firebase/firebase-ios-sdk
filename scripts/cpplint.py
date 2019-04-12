@@ -211,6 +211,7 @@ _ERROR_CATEGORIES = [
     'readability/namespace',
     'readability/nolint',
     'readability/nul',
+    'readability/objc',
     'readability/strings',
     'readability/todo',
     'readability/utf8',
@@ -553,6 +554,9 @@ _valid_extensions = set(['cc', 'h', 'cpp', 'cu', 'cuh'])
 # This is set by --headers flag.
 _hpp_headers = set(['h'])
 
+# Source filename extensions
+_cpp_extensions = set(['cc', 'mm'])
+
 # {str, bool}: a map from error categories to booleans which indicate if the
 # category should be suppressed for every line.
 _global_error_suppressions = {}
@@ -568,6 +572,15 @@ def ProcessHppHeadersOption(val):
 
 def IsHeaderExtension(file_extension):
   return file_extension in _hpp_headers
+
+def IsSourceExtension(file_extension):
+  return file_extension in _cpp_extensions
+
+def IsSourceFilename(filename):
+  global _cpp_extensions
+  ext = os.path.splitext(filename)[-1].lower()
+  ext = ext[1:]  # leading dot
+  return IsSourceExtension(ext)
 
 def ParseNolintSuppressions(filename, raw_line, linenum, error):
   """Updates the global list of line error-suppressions.
@@ -4579,7 +4592,7 @@ def CheckIncludeLine(filename, clean_lines, linenum, include_state, error):
       error(filename, linenum, 'build/include', 4,
             '"%s" already included at %s:%s' %
             (include, filename, duplicate_line))
-    elif (include.endswith('.cc') and
+    elif (IsSourceFilename(include) and
           os.path.dirname(fileinfo.RepositoryName()) != os.path.dirname(include)):
       error(filename, linenum, 'build/include', 4,
             'Do not include .cc files from other packages')
@@ -4609,6 +4622,30 @@ def CheckIncludeLine(filename, clean_lines, linenum, include_state, error):
         error(filename, linenum, 'build/include_alpha', 4,
               'Include "%s" not in alphabetical order' % include)
       include_state.SetLastHeader(canonical_include)
+
+
+_BANNED_OBJC_WORDS = (r'\bYES\b', r'\bNO\b', r'\bBOOL\b')
+_BANNED_OBJC_REPLACEMENTS = {
+    'YES': 'true',
+    'NO': 'false',
+    'BOOL': 'bool',
+}
+
+_BANNED_OBJC_WORDS_RE = re.compile('(' + '|'.join(_BANNED_OBJC_WORDS) + ')')
+
+
+def CheckObjcConversion(filename, lines, error):
+  if 'Firestore/core/' not in filename:
+    return
+
+  for linenum, line in enumerate(lines):
+    match = _BANNED_OBJC_WORDS_RE.search(line)
+    if match:
+      word = match.group(1)
+      replacement = _BANNED_OBJC_REPLACEMENTS[word]
+      error(filename, linenum, 'readability/objc', 4,
+            'Migrate %s to %s' %
+            (word, replacement))
 
 
 
@@ -5390,6 +5427,7 @@ _HEADERS_CONTAINING_TEMPLATES = (
     ('<map>', ('map', 'multimap',)),
     ('<memory>', ('allocator', 'make_shared', 'make_unique', 'shared_ptr',
                   'unique_ptr', 'weak_ptr')),
+    ('<ostream>', ('ostream',)),
     ('<queue>', ('queue', 'priority_queue',)),
     ('<set>', ('set', 'multiset',)),
     ('<stack>', ('stack',)),
@@ -5415,6 +5453,7 @@ _HEADERS_MAYBE_TEMPLATES = (
     )
 
 _RE_PATTERN_STRING = re.compile(r'\bstring\b')
+_RE_PATTERN_OSTREAM = re.compile(r'\bostream\b')
 
 _re_pattern_headers_maybe_templates = []
 for _header, _templates in _HEADERS_MAYBE_TEMPLATES:
@@ -5536,8 +5575,17 @@ def CheckForIncludeWhatYouUse(filename, clean_lines, include_state, error,
     io: The IO factory to use to read the header file. Provided for unittest
         injection.
   """
-  required = {}  # A map of header name to linenumber and the template entity.
-                 # Example of required: { '<functional>': (1219, 'less<>') }
+  # A map of entity to a tuple of line number and tuple of headers.
+  # Example: { 'less<>': (1219, ('<functional>',)) }
+  # Example: { 'ostream': (1234, ('<iosfwd>', '<ostream>', '<iostream>')) }
+  required = {}
+
+  def Require(entity, linenum, *headers):
+    """Adds an entity at the given line, along with a list of possible headers
+    in which to find it. The first header is treated as the preferred header.
+    """
+    required[entity] = (linenum, headers)
+
 
   for linenum in xrange(clean_lines.NumLines()):
     line = clean_lines.elided[linenum]
@@ -5551,11 +5599,19 @@ def CheckForIncludeWhatYouUse(filename, clean_lines, include_state, error,
       # (We check only the first match per line; good enough.)
       prefix = line[:matched.start()]
       if prefix.endswith('std::') or not prefix.endswith('::'):
-        required['<string>'] = (linenum, 'string')
+        Require('string', linenum, '<string>')
+
+    # Ostream is special too -- also non-templatized
+    matched = _RE_PATTERN_OSTREAM.search(line)
+    if matched:
+      if IsSourceFilename(filename):
+        Require('ostream', linenum, '<ostream>', '<iostream>')
+      else:
+        Require('ostream', linenum, '<iosfwd>', '<ostream>', '<iostream>')
 
     for pattern, template, header in _re_pattern_headers_maybe_templates:
       if pattern.search(line):
-        required[header] = (linenum, template)
+        Require(template, linenum, header)
 
     # The following function is just a speed up, no semantics are changed.
     if not '<' in line:  # Reduces the cpu time usage by skipping lines.
@@ -5568,7 +5624,7 @@ def CheckForIncludeWhatYouUse(filename, clean_lines, include_state, error,
         # (We check only the first match per line; good enough.)
         prefix = line[:matched.start()]
         if prefix.endswith('std::') or not prefix.endswith('::'):
-          required[header] = (linenum, template)
+          Require(template, linenum, header)
 
   # The policy is that if you #include something in foo.h you don't need to
   # include it again in foo.cc. Here, we will look at possible includes.
@@ -5605,16 +5661,37 @@ def CheckForIncludeWhatYouUse(filename, clean_lines, include_state, error,
   # didn't include it in the .h file.
   # TODO(unknown): Do a better job of finding .h files so we are confident that
   # not having the .h file means there isn't one.
-  if filename.endswith('.cc') and not header_found:
+  if IsSourceFilename(filename) and not header_found:
     return
 
+  # Keep track of which headers have been reported already
+  reported = set()
+
   # All the lines have been processed, report the errors found.
-  for required_header_unstripped in required:
-    template = required[required_header_unstripped][1]
-    if required_header_unstripped.strip('<>"') not in include_dict:
-      error(filename, required[required_header_unstripped][0],
+  for template in required:
+    line_and_headers = required[template]
+    headers = line_and_headers[1]
+    found = False
+    for required_header_unstripped in headers:
+      if required_header_unstripped in reported:
+        found = True
+        break
+
+      if required_header_unstripped.strip('<>"') in include_dict:
+        found = True
+        break
+
+    if not found:
+      preferred_header = headers[0]
+      reported.add(preferred_header)
+      if len(headers) < 2:
+        alternatives = ''
+      else:
+        alternatives = ' (or ' + ', '.join(headers[1:]) + ')'
+      error(filename, line_and_headers[0],
             'build/include_what_you_use', 4,
-            'Add #include ' + required_header_unstripped + ' for ' + template)
+            'Add #include ' + preferred_header + ' for ' + template +
+            alternatives)
 
 
 _RE_PATTERN_EXPLICIT_MAKEPAIR = re.compile(r'\bmake_pair\s*<')
@@ -5949,6 +6026,8 @@ def ProcessFileData(filename, file_extension, lines, error,
   nesting_state = NestingState()
 
   ResetNolintSuppressions()
+
+  CheckObjcConversion(filename, lines, error)
 
   CheckForCopyright(filename, lines, error)
   ProcessGlobalSuppresions(lines)

@@ -18,7 +18,7 @@
 
 /**
  * Register the device with Checkin Service and get back the `authID`, `secret token` etc. for the
- * client. Checkin results are cached in the `FIRMessagingDefaultsManager` and periodically refreshed to
+ * client. Checkin results are cached and periodically refreshed to
  * prevent them from being stale. Each client needs to register with checkin before registering
  * with FIRMessaging.
  */

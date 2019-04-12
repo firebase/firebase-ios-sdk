@@ -96,8 +96,8 @@ NS_ASSUME_NONNULL_BEGIN
  *  @return The cached token info if any for the given authorizedEntity and scope else
  *          returns nil.
  */
-- (FIRInstanceIDTokenInfo *)tokenInfoWithAuthorizedEntity:(NSString *)authorizedEntity
-                                                    scope:(NSString *)scope;
+- (nullable FIRInstanceIDTokenInfo *)tokenInfoWithAuthorizedEntity:(NSString *)authorizedEntity
+                                                             scope:(NSString *)scope;
 /**
  *  Return all cached token infos from the Keychain.
  *
@@ -153,21 +153,21 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)removeCheckinPreferencesWithHandler:(nullable void (^)(NSError *error))handler;
 
-#pragma mark - ApplicationSupport sub-directory
+#pragma mark - Standard Directory sub-directory
 
 /**
- *  Check if Application Support directory has InstanceID subdirectory
+ *  Check if supported directory has InstanceID subdirectory
  *
  *  @return YES if the Application Support directory has InstanceID subdirectory else NO.
  */
-+ (BOOL)hasApplicationSupportSubDirectory:(NSString *)subDirectoryName;
++ (BOOL)hasSubDirectory:(NSString *)subDirectoryName;
 
 /**
  *  Create InstanceID subdirectory in Application support directory.
  *
  *  @return YES if the subdirectory was created successfully else NO.
  */
-+ (BOOL)createApplicationSupportSubDirectory:(NSString *)subDirectoryName;
++ (BOOL)createSubDirectory:(NSString *)subDirectoryName;
 
 /**
  *  Removes Application Support subdirectory for InstanceID.
@@ -176,7 +176,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  *  @return YES if the deletion was successful else NO.
  */
-+ (BOOL)removeApplicationSupportSubDirectory:(NSString *)subDirectoryName error:(NSError **)error;
++ (BOOL)removeSubDirectory:(NSString *)subDirectoryName error:(NSError **)error;
 
 @end
 

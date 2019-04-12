@@ -61,7 +61,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
 
   try {
     LevelDbMutationKey key;
-    key.Decode(str);
+    (void)key.Decode(str);
   } catch (...) {
     // Ignore caught errors and assertions.
   }
@@ -75,7 +75,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
 
   try {
     LevelDbDocumentMutationKey key;
-    key.Decode(str);
+    (void)key.Decode(str);
   } catch (...) {
     // Ignore caught errors and assertions.
   }
@@ -89,7 +89,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
 
   try {
     LevelDbMutationQueueKey key;
-    key.Decode(slice);
+    (void)key.Decode(str);
   } catch (...) {
     // Ignore caught errors and assertions.
   }
@@ -97,7 +97,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
   // Test LevelDbTargetGlobalKey methods.
   try {
     LevelDbTargetGlobalKey key;
-    key.Decode(slice);
+    (void)key.Decode(slice);
   } catch (...) {
     // ignore caught errors and assertions.
   }
@@ -105,7 +105,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
   // Test LevelDbTargetKey methods.
   try {
     LevelDbTargetKey key;
-    key.Decode(slice);
+    (void)key.Decode(slice);
   } catch (...) {
     // ignore caught errors and assertions.
   }
@@ -119,7 +119,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
 
   try {
     LevelDbQueryTargetKey key;
-    key.Decode(str);
+    (void)key.Decode(str);
   } catch (...) {
     // Ignore caught errors and assertions.
   }
@@ -127,7 +127,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
   // Test LevelDbTargetDocumentKey methods.
   try {
     LevelDbTargetDocumentKey key;
-    key.Decode(str);
+    (void)key.Decode(str);
   } catch (...) {
     // Ignore caught errors and assertions.
   }
@@ -142,7 +142,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
 
   try {
     LevelDbDocumentTargetKey key;
-    key.Decode(str);
+    (void)key.Decode(str);
   } catch (...) {
     // Ignore caught errors and assertions.
   }
@@ -157,7 +157,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
 
   try {
     LevelDbRemoteDocumentKey key;
-    key.Decode(str);
+    (void)key.Decode(str);
   } catch (...) {
     // Ignore caught errors and assertions.
   }

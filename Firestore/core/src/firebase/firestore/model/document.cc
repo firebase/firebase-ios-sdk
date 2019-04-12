@@ -24,7 +24,7 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-Document::Document(FieldValue&& data,
+Document::Document(ObjectValue&& data,
                    DocumentKey key,
                    SnapshotVersion version,
                    DocumentState document_state)
@@ -32,7 +32,6 @@ Document::Document(FieldValue&& data,
       data_(std::move(data)),
       document_state_(document_state) {
   set_type(Type::Document);
-  HARD_ASSERT(FieldValue::Type::Object == data.type());
 }
 
 bool Document::Equals(const MaybeDocument& other) const {

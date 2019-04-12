@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(FieldValue)
 @interface FIRFieldValue : NSObject
 
-/**   */
+/** :nodoc: */
 - (instancetype)init NS_UNAVAILABLE;
 
 /** Used with updateData() to mark a field for deletion. */

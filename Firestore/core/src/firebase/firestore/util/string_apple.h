@@ -46,17 +46,17 @@ inline CFStringRef MakeCFString(absl::string_view contents) {
 #if defined(__OBJC__)
 
 // Translates a C string to the equivalent NSString without making a copy.
-inline NSString* WrapNSStringNoCopy(const char* c_str) {
+inline NSString* WrapNSStringNoCopy(const char* c_str, size_t size) {
   return [[NSString alloc]
       initWithBytesNoCopy:const_cast<void*>(static_cast<const void*>(c_str))
-                   length:strlen(c_str)
+                   length:size
                  encoding:NSUTF8StringEncoding
-             freeWhenDone:NO];
+             freeWhenDone:false];
 }
 
 // Translates a string_view to the equivalent NSString without making a copy.
 inline NSString* WrapNSStringNoCopy(const absl::string_view str) {
-  return WrapNSStringNoCopy(str.data());
+  return WrapNSStringNoCopy(str.data(), str.size());
 }
 
 // Translates a string_view string to the equivalent NSString by making a copy.

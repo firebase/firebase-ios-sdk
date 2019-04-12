@@ -37,7 +37,7 @@ static const NSTimeInterval kExpectationTimeout = 12;
 
 // Testing constants
 static NSString *const kFakeCheckinPlistName = @"com.google.test.IIDStoreTestCheckin";
-static NSString *const kApplicationSupportSubDirectoryName = @"FirebaseInstanceIDCheckinTest";
+static NSString *const kSubDirectoryName = @"FirebaseInstanceIDCheckinTest";
 
 static NSString *const kAuthorizedEntity = @"test-audience";
 static NSString *const kAuthID = @"test-auth-id";
@@ -45,6 +45,8 @@ static NSString *const kDigest = @"test-digest";
 static NSString *const kScope = @"test-scope";
 static NSString *const kSecret = @"test-secret";
 static NSString *const kToken = @"test-token";
+static NSString *const kFakeErrorDomain = @"fakeDomain";
+static const NSUInteger kFakeErrorCode = -1;
 
 static int64_t const kLastCheckinTimestamp = 123456;
 
@@ -56,7 +58,7 @@ static int64_t const kLastCheckinTimestamp = 123456;
 
 - (void)setUp {
   [super setUp];
-  [FIRInstanceIDStore createApplicationSupportSubDirectory:kApplicationSupportSubDirectoryName];
+  [FIRInstanceIDStore createSubDirectory:kSubDirectoryName];
 }
 
 - (void)tearDown {
@@ -65,8 +67,7 @@ static int64_t const kLastCheckinTimestamp = 123456;
     NSError *error;
     [[NSFileManager defaultManager] removeItemAtPath:path error:&error];
   }
-  [FIRInstanceIDStore removeApplicationSupportSubDirectory:kApplicationSupportSubDirectoryName
-                                                     error:nil];
+  [FIRInstanceIDStore removeSubDirectory:kSubDirectoryName error:nil];
   [super tearDown];
 }
 
@@ -76,9 +77,9 @@ static int64_t const kLastCheckinTimestamp = 123456;
 - (void)testInvalidCheckinPreferencesOnKeychainFail {
   XCTestExpectation *checkinInvalidExpectation = [self
       expectationWithDescription:@"Checkin preference should be invalid after keychain failure"];
-  FIRInstanceIDBackupExcludedPlist *checkinPlist = [[FIRInstanceIDBackupExcludedPlist alloc]
-                    initWithFileName:kFakeCheckinPlistName
-      applicationSupportSubDirectory:kApplicationSupportSubDirectoryName];
+  FIRInstanceIDBackupExcludedPlist *checkinPlist =
+      [[FIRInstanceIDBackupExcludedPlist alloc] initWithFileName:kFakeCheckinPlistName
+                                                    subDirectory:kSubDirectoryName];
 
   FIRInstanceIDFakeKeychain *fakeKeychain = [[FIRInstanceIDFakeKeychain alloc] init];
 
@@ -109,10 +110,9 @@ static int64_t const kLastCheckinTimestamp = 123456;
 - (void)testCheckinSaveFailsOnKeychainWriteFailure {
   XCTestExpectation *checkinSaveFailsExpectation =
       [self expectationWithDescription:@"Checkin save should fail after keychain write failure"];
-  FIRInstanceIDBackupExcludedPlist *checkinPlist = [[FIRInstanceIDBackupExcludedPlist alloc]
-                    initWithFileName:kFakeCheckinPlistName
-      applicationSupportSubDirectory:kApplicationSupportSubDirectoryName];
-
+  FIRInstanceIDBackupExcludedPlist *checkinPlist =
+      [[FIRInstanceIDBackupExcludedPlist alloc] initWithFileName:kFakeCheckinPlistName
+                                                    subDirectory:kSubDirectoryName];
   FIRInstanceIDFakeKeychain *fakeKeychain = [[FIRInstanceIDFakeKeychain alloc] init];
   fakeKeychain.cannotWriteToKeychain = YES;
 
@@ -135,14 +135,73 @@ static int64_t const kLastCheckinTimestamp = 123456;
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
 }
 
+- (void)testCheckinSaveFailsOnPlistWriteFailure {
+  XCTestExpectation *checkinSaveFailsExpectation =
+      [self expectationWithDescription:@"Checkin save should fail after plist write failure"];
+  FIRInstanceIDBackupExcludedPlist *checkinPlist =
+      [[FIRInstanceIDBackupExcludedPlist alloc] initWithFileName:kFakeCheckinPlistName
+                                                    subDirectory:kSubDirectoryName];
+  id plistMock = OCMPartialMock(checkinPlist);
+  NSError *error = [NSError errorWithDomain:kFakeErrorDomain code:kFakeErrorCode userInfo:nil];
+  OCMStub([plistMock writeDictionary:[OCMArg any] error:[OCMArg setTo:error]]).andReturn(NO);
+
+  FIRInstanceIDFakeKeychain *fakeKeychain = [[FIRInstanceIDFakeKeychain alloc] init];
+
+  FIRInstanceIDCheckinStore *checkinStore =
+      [[FIRInstanceIDCheckinStore alloc] initWithCheckinPlist:plistMock keychain:fakeKeychain];
+
+  __block FIRInstanceIDCheckinPreferences *preferences =
+      [[FIRInstanceIDCheckinPreferences alloc] initWithDeviceID:kAuthID secretToken:kSecret];
+  [preferences updateWithCheckinPlistContents:[[self class] newCheckinPlistPreferences]];
+  [checkinStore saveCheckinPreferences:preferences
+                               handler:^(NSError *error) {
+                                 XCTAssertNotNil(error);
+                                 XCTAssertEqual(error.code, kFakeErrorCode);
+
+                                 preferences = [checkinStore cachedCheckinPreferences];
+                                 XCTAssertNil(preferences.deviceID);
+                                 XCTAssertNil(preferences.secretToken);
+                                 XCTAssertFalse([preferences hasValidCheckinInfo]);
+                                 [checkinSaveFailsExpectation fulfill];
+                               }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+}
+
+- (void)testCheckinSaveSuccess {
+  XCTestExpectation *checkinSaveSuccessExpectation =
+      [self expectationWithDescription:@"Checkin save should succeed"];
+  FIRInstanceIDBackupExcludedPlist *checkinPlist =
+      [[FIRInstanceIDBackupExcludedPlist alloc] initWithFileName:kFakeCheckinPlistName
+                                                    subDirectory:kSubDirectoryName];
+  id plistMock = OCMPartialMock(checkinPlist);
+
+  FIRInstanceIDFakeKeychain *fakeKeychain = [[FIRInstanceIDFakeKeychain alloc] init];
+  FIRInstanceIDCheckinStore *checkinStore =
+      [[FIRInstanceIDCheckinStore alloc] initWithCheckinPlist:plistMock keychain:fakeKeychain];
+
+  __block FIRInstanceIDCheckinPreferences *preferences =
+      [[FIRInstanceIDCheckinPreferences alloc] initWithDeviceID:kAuthID secretToken:kSecret];
+  [preferences updateWithCheckinPlistContents:[[self class] newCheckinPlistPreferences]];
+  [checkinStore saveCheckinPreferences:preferences
+                               handler:^(NSError *error) {
+                                 XCTAssertNil(error);
+
+                                 preferences = [checkinStore cachedCheckinPreferences];
+                                 XCTAssertEqualObjects(preferences.deviceID, kAuthID);
+                                 XCTAssertEqualObjects(preferences.secretToken, kSecret);
+                                 [checkinSaveSuccessExpectation fulfill];
+                               }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+}
+
 // Write fake checkin data to legacy location, then test if migration worked.
 - (void)testCheckinMigrationMovesToNewLocationInKeychain {
   XCTestExpectation *checkinMigrationExpectation =
       [self expectationWithDescription:@"checkin migration should move to the new location"];
   // Create checkin store class.
-  FIRInstanceIDBackupExcludedPlist *checkinPlist = [[FIRInstanceIDBackupExcludedPlist alloc]
-                    initWithFileName:kFakeCheckinPlistName
-      applicationSupportSubDirectory:kApplicationSupportSubDirectoryName];
+  FIRInstanceIDBackupExcludedPlist *checkinPlist =
+      [[FIRInstanceIDBackupExcludedPlist alloc] initWithFileName:kFakeCheckinPlistName
+                                                    subDirectory:kSubDirectoryName];
 
   FIRInstanceIDFakeKeychain *fakeKeychain = [[FIRInstanceIDFakeKeychain alloc] init];
   FIRInstanceIDFakeKeychain *weakKeychain = fakeKeychain;

@@ -26,7 +26,7 @@
 #include "Firestore/core/src/firebase/firestore/immutable/keys_view.h"
 #include "Firestore/core/src/firebase/firestore/immutable/llrb_node.h"
 #include "Firestore/core/src/firebase/firestore/immutable/map_entry.h"
-#include "Firestore/core/src/firebase/firestore/immutable/sorted_map_base.h"
+#include "Firestore/core/src/firebase/firestore/immutable/sorted_container.h"
 #include "Firestore/core/src/firebase/firestore/util/comparator_holder.h"
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
 

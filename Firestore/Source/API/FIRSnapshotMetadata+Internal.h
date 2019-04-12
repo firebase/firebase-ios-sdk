@@ -18,11 +18,17 @@
 
 #import <Foundation/Foundation.h>
 
+#include "Firestore/core/src/firebase/firestore/api/snapshot_metadata.h"
+
+using firebase::firestore::api::SnapshotMetadata;
+
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRSnapshotMetadata (Internal)
+@interface FIRSnapshotMetadata (/* Init */)
 
-+ (instancetype)snapshotMetadataWithPendingWrites:(BOOL)pendingWrites fromCache:(BOOL)fromCache;
+- (instancetype)initWithMetadata:(SnapshotMetadata)metadata NS_DESIGNATED_INITIALIZER;
+
+- (instancetype)initWithPendingWrites:(bool)pendingWrites fromCache:(bool)fromCache;
 
 @end
 

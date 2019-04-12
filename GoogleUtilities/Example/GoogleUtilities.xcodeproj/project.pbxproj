@@ -13,13 +13,9 @@
 		6003F5B0195388D20070C39A /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F5AF195388D20070C39A /* XCTest.framework */; };
 		6003F5B1195388D20070C39A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F58D195388D20070C39A /* Foundation.framework */; };
 		6003F5B2195388D20070C39A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F591195388D20070C39A /* UIKit.framework */; };
-		C8042CCE220C7B69009A8CCF /* GULASLLoggerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = C8042CCD220C7B69009A8CCF /* GULASLLoggerTest.m */; };
-		C8BE7EFC22110DA200AC306B /* GULOSLoggerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = C8BE7EFB22110DA200AC306B /* GULOSLoggerTest.m */; };
-		C8BE7EFD22110DA200AC306B /* GULOSLoggerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = C8BE7EFB22110DA200AC306B /* GULOSLoggerTest.m */; };
-		C8BE7EFE22110DA200AC306B /* GULOSLoggerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = C8BE7EFB22110DA200AC306B /* GULOSLoggerTest.m */; };
+		9A414672225259F900B08D77 /* GULAppDelegateSwizzlerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EFBE67F92101401100E756A7 /* GULAppDelegateSwizzlerTest.m */; };
+		9A7C37C2224BD9C600033B0D /* GULAppDelegateSwizzlerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EFBE67F92101401100E756A7 /* GULAppDelegateSwizzlerTest.m */; };
 		DE5CF98E20F686310063FFDD /* GULAppEnvironmentUtilTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5CF98C20F686290063FFDD /* GULAppEnvironmentUtilTest.m */; };
-		DE83CAE122230DEC002003C1 /* GULASLLoggerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = C8042CCD220C7B69009A8CCF /* GULASLLoggerTest.m */; };
-		DE83CAE222230DED002003C1 /* GULASLLoggerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = C8042CCD220C7B69009A8CCF /* GULASLLoggerTest.m */; };
 		DE84BBC421D7EC900048A176 /* GULUserDefaultsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE84BBC321D7EC900048A176 /* GULUserDefaultsTests.m */; };
 		DE84BBC521D7EC900048A176 /* GULUserDefaultsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE84BBC321D7EC900048A176 /* GULUserDefaultsTests.m */; };
 		DE84BBC621D7EC900048A176 /* GULUserDefaultsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE84BBC321D7EC900048A176 /* GULUserDefaultsTests.m */; };
@@ -98,9 +94,7 @@
 		6003F5AE195388D20070C39A /* Tests_iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Tests_iOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		6003F5AF195388D20070C39A /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		6003F5B7195388D20070C39A /* Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Tests-Info.plist"; sourceTree = "<group>"; };
-		7BEA793625C8DE7C8EC60006 /* GoogleUtilities.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = GoogleUtilities.podspec; path = ../GoogleUtilities.podspec; sourceTree = "<group>"; };
-		C8042CCD220C7B69009A8CCF /* GULASLLoggerTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GULASLLoggerTest.m; sourceTree = "<group>"; };
-		C8BE7EFB22110DA200AC306B /* GULOSLoggerTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GULOSLoggerTest.m; sourceTree = "<group>"; };
+		7BEA793625C8DE7C8EC60006 /* GoogleUtilities.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = GoogleUtilities.podspec; path = ../../GoogleUtilities.podspec; sourceTree = "<group>"; };
 		DE5CF98C20F686290063FFDD /* GULAppEnvironmentUtilTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GULAppEnvironmentUtilTest.m; sourceTree = "<group>"; };
 		DE84BBC321D7EC900048A176 /* GULUserDefaultsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GULUserDefaultsTests.m; sourceTree = "<group>"; };
 		DEC977D320F68C3300014E20 /* GULReachabilityCheckerTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GULReachabilityCheckerTest.m; sourceTree = "<group>"; };
@@ -319,8 +313,6 @@
 			isa = PBXGroup;
 			children = (
 				DEC977DF20F6A7A700014E20 /* GULLoggerTest.m */,
-				C8042CCD220C7B69009A8CCF /* GULASLLoggerTest.m */,
-				C8BE7EFB22110DA200AC306B /* GULOSLoggerTest.m */,
 			);
 			path = Logger;
 			sourceTree = "<group>";
@@ -626,14 +618,13 @@
 				DEC977D820F68C3300014E20 /* GULMutableDictionaryTest.m in Sources */,
 				DEC977E120F6A7C100014E20 /* GULLoggerTest.m in Sources */,
 				DEC977D920F68C3300014E20 /* GULNetworkTest.m in Sources */,
-				C8042CCE220C7B69009A8CCF /* GULASLLoggerTest.m in Sources */,
 				EFBE67FA2101401100E756A7 /* GULSwizzlerTest.m in Sources */,
 				EFBE67FD2101401100E756A7 /* GULObjectSwizzlerTest.m in Sources */,
+				9A7C37C2224BD9C600033B0D /* GULAppDelegateSwizzlerTest.m in Sources */,
 				EFBE67FE2101401100E756A7 /* GULRuntimeClassSnapshotTests.m in Sources */,
 				EFBE67FC2101401100E756A7 /* GULRuntimeClassDiffTests.m in Sources */,
 				DE5CF98E20F686310063FFDD /* GULAppEnvironmentUtilTest.m in Sources */,
 				DEC977D720F68C3300014E20 /* GULReachabilityCheckerTest.m in Sources */,
-				C8BE7EFC22110DA200AC306B /* GULOSLoggerTest.m in Sources */,
 				EFBE67FB2101401100E756A7 /* GULSwizzlingCacheTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -658,8 +649,6 @@
 				DE84BBC521D7EC900048A176 /* GULUserDefaultsTests.m in Sources */,
 				DEC9781D20F6D39900014E20 /* GTMHTTPServer.m in Sources */,
 				DEC9781B20F6D39500014E20 /* GULMutableDictionaryTest.m in Sources */,
-				DE83CAE122230DEC002003C1 /* GULASLLoggerTest.m in Sources */,
-				C8BE7EFD22110DA200AC306B /* GULOSLoggerTest.m in Sources */,
 				DEC9781C20F6D39500014E20 /* GULNetworkTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -683,9 +672,8 @@
 				DEC9786A20F6D66300014E20 /* GULMutableDictionaryTest.m in Sources */,
 				DE84BBC621D7EC900048A176 /* GULUserDefaultsTests.m in Sources */,
 				DEC9786C20F6D66700014E20 /* GULReachabilityCheckerTest.m in Sources */,
+				9A414672225259F900B08D77 /* GULAppDelegateSwizzlerTest.m in Sources */,
 				DEC9786820F6D65B00014E20 /* GULLoggerTest.m in Sources */,
-				DE83CAE222230DED002003C1 /* GULASLLoggerTest.m in Sources */,
-				C8BE7EFE22110DA200AC306B /* GULOSLoggerTest.m in Sources */,
 				DEC9786D20F6D66B00014E20 /* GULAppEnvironmentUtilTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -902,7 +890,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../Reachability",
-					"$(SRCROOT)/../Logger",
+					"$(SRCROOT)/../AppDelegateSwizzler/Internal",
 				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
@@ -926,7 +914,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../Reachability",
-					"$(SRCROOT)/../Logger",
+					"$(SRCROOT)/../AppDelegateSwizzler/Internal",
 				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
@@ -1005,7 +993,6 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../Reachability",
-					"$(SRCROOT)/../Logger",
 				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
@@ -1037,7 +1024,6 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../Reachability",
-					"$(SRCROOT)/../Logger",
 				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
@@ -1117,7 +1103,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../Reachability",
-					"$(SRCROOT)/../Logger",
+					"$(SRCROOT)/../AppDelegateSwizzler/Internal",
 				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -1148,7 +1134,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../Reachability",
-					"$(SRCROOT)/../Logger",
+					"$(SRCROOT)/../AppDelegateSwizzler/Internal",
 				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";

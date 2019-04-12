@@ -1,3 +1,19 @@
+# v6.0.0
+- Add support of single sign on. (#2684)
+- Deprecate `reauthenticateAndRetrieveDataWithCredential:completion:`, `signInAndRetrieveDataWithCredential:completion:`, `linkAndRetrieveDataWithCredential:completion:`, `fetchProvidersForEmail:completion:`. (#2723, #2756)
+- Implement oauth secret token in headful-lite. (#2663)
+- Remove pendingToken from public API. (#2676)
+- `GULAppDelegateSwizzler` is used for the app delegate swizzling. (#2591)
+
+# v5.4.2
+- Support new error code ERROR_INVALID_PROVIDER_ID. (#2629)
+
+# v5.4.1
+- Deprecate Microsoft and Yahoo OAuth Provider ID (#2517)
+- Fix an issue where an exception was thrown when linking OAuth credentials. (#2521)
+- Fix an issue where a wrong error was thrown when handling error with
+  FEDERATED_USER_ID_ALREADY_LINKED. (#2522)
+
 # v5.4.0
 - Add support of Generic IDP (#2405).
 

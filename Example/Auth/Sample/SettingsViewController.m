@@ -58,6 +58,11 @@ static NSString *const kGoogleServiceInfoPlists[] = {
   @"GoogleService-Info_multi"
 };
 
+/** @var kSharedKeychainAccessGroup
+    @brief The shared keychain access group for testing.
+ */
+static NSString *const kSharedKeychainAccessGroup = @"com.google.firebase.auth.keychainGroup1";
+
 /** @var gAPIEndpoints
     @brief List of API Hosts by request class name.
  */
@@ -155,6 +160,9 @@ static NSString *truncatedString(NSString *string, NSUInteger length) {
 }
 
 - (void)loadTableView {
+  NSString *appIdentifierPrefix = NSBundle.mainBundle.infoDictionary[@"AppIdentifierPrefix"];
+  NSString *fullKeychainAccessGroup = [appIdentifierPrefix stringByAppendingString:kSharedKeychainAccessGroup];
+
   __weak typeof(self) weakSelf = self;
   _tableViewManager.contents = [StaticContentTableViewContent contentWithSections:@[
     [StaticContentTableViewSection sectionWithTitle:@"Versions" cells:@[
@@ -189,6 +197,23 @@ static NSString *truncatedString(NSString *string, NSUInteger length) {
                                           value:[self projectIDForAppAtIndex:1]
                                          action:^{
         [weakSelf toggleProjectForAppAtIndex:1];
+      }],
+    ]],
+    [StaticContentTableViewSection sectionWithTitle:@"Keychain Access Groups" cells:@[
+      [StaticContentTableViewCell cellWithTitle:@"Current Access Group"
+                                          value:[AppManager auth].userAccessGroup ? [AppManager auth].userAccessGroup : @"[none]"
+      ],
+      [StaticContentTableViewCell cellWithTitle:@"Default Group"
+                                          value:@"[none]"
+                                         action:^{
+                                           [[AppManager auth] useUserAccessGroup:nil error:nil];
+                                           [self loadTableView];
+      }],
+      [StaticContentTableViewCell cellWithTitle:@"Shared Group"
+                                          value:fullKeychainAccessGroup
+                                         action:^{
+                                           [[AppManager auth] useUserAccessGroup:fullKeychainAccessGroup error:nil];
+                                           [self loadTableView];
       }],
     ]],
     [StaticContentTableViewSection sectionWithTitle:@"Phone Auth" cells:@[
@@ -281,19 +306,14 @@ static NSString *truncatedString(NSString *string, NSUInteger length) {
   return @"[none]";
 }
 
-/** @fn googleAppIDForAppAtIndex:
- @brief Returns the Google App ID for the Firebase app at the given index.
- @param index The index for the app in the app manager.
- @return The Google App ID of the project.
+/** @fn projectIDForAppAtIndex:
+    @brief Returns the Firebase project ID for the Firebase app at the given index.
+    @param index The index for the app in the app manager.
+    @return The ID of the project.
  */
-- (NSString *)googleAppIDForAppAtIndex:(int)index {
-  NSString *APIKey = [[AppManager sharedInstance] appAtIndex:index].options.APIKey;
-  for (FIROptions *options in gFirebaseAppOptions) {
-    if ([options.APIKey isEqualToString:APIKey]) {
-      return options.googleAppID;
-    }
-  }
-  return @"[none]";
+- (NSString *)keychainAccessGroupAtIndex:(int)index {
+  NSArray *array = @[@"123", @"456"];
+  return array[index];
 }
 
 /** @fn toggleProjectForAppAtIndex:

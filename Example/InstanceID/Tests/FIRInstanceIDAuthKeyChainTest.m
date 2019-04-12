@@ -24,7 +24,6 @@
 static NSString *const kFIRInstanceIDTestKeychainId = @"com.google.iid-tests";
 
 static NSString *const kFakeCheckinPlistName = @"com.google.test.IIDStoreTestCheckin";
-static NSString *const kApplicationSupportSubDirectoryName = @"FirebaseInstanceIDCheckinTest";
 
 static NSString *const kAuthorizedEntity = @"test-audience";
 static NSString *const kScope = @"test-scope";

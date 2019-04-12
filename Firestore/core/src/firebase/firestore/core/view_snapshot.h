@@ -22,20 +22,23 @@
 #endif  // !defined(__OBJC__)
 
 #include <functional>
+#include <iosfwd>
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
 
+#include "Firestore/core/src/firebase/firestore/core/event_listener.h"
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_map.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
+#include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class FSTDocument;
 @class FSTQuery;
-@class FSTDocumentSet;
 
 namespace firebase {
 namespace firestore {
@@ -99,22 +102,18 @@ class DocumentViewChangeSet {
   immutable::SortedMap<model::DocumentKey, DocumentViewChange> change_map_;
 };
 
-class ViewSnapshot;
-
-using ViewSnapshotHandler =
-    std::function<void(const util::StatusOr<ViewSnapshot>&)>;
-
 /**
  * A view snapshot is an immutable capture of the results of a query and the
  * changes to them.
  */
 class ViewSnapshot {
  public:
-  ViewSnapshot() = default;
+  using Listener = std::unique_ptr<EventListener<ViewSnapshot>>;
+  using SharedListener = std::shared_ptr<EventListener<ViewSnapshot>>;
 
   ViewSnapshot(FSTQuery* query,
-               FSTDocumentSet* documents,
-               FSTDocumentSet* old_documents,
+               model::DocumentSet documents,
+               model::DocumentSet old_documents,
                std::vector<DocumentViewChange> document_changes,
                model::DocumentKeySet mutated_keys,
                bool from_cache,
@@ -126,7 +125,7 @@ class ViewSnapshot {
    * added.
    */
   static ViewSnapshot FromInitialDocuments(FSTQuery* query,
-                                           FSTDocumentSet* documents,
+                                           model::DocumentSet documents,
                                            model::DocumentKeySet mutated_keys,
                                            bool from_cache,
                                            bool excludes_metadata_changes);
@@ -137,12 +136,12 @@ class ViewSnapshot {
   }
 
   /** The documents currently known to be results of the query. */
-  FSTDocumentSet* documents() const {
+  const model::DocumentSet& documents() const {
     return documents_;
   }
 
   /** The documents of the last snapshot. */
-  FSTDocumentSet* old_documents() const {
+  const model::DocumentSet& old_documents() const {
     return old_documents_;
   }
 
@@ -177,13 +176,14 @@ class ViewSnapshot {
   }
 
   std::string ToString() const;
+  friend std::ostream& operator<<(std::ostream& out, const ViewSnapshot& value);
   size_t Hash() const;
 
  private:
   FSTQuery* query_ = nil;
 
-  FSTDocumentSet* documents_ = nil;
-  FSTDocumentSet* old_documents_ = nil;
+  model::DocumentSet documents_;
+  model::DocumentSet old_documents_;
   std::vector<DocumentViewChange> document_changes_;
   model::DocumentKeySet mutated_keys_;
 

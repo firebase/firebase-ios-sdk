@@ -38,15 +38,15 @@ static NSString *const kVersionInfo = @"1.0";
 
 - (void)setUp {
   [super setUp];
+  self.checkinService = [[FIRInstanceIDCheckinService alloc] init];
 }
 
 - (void)tearDown {
+  self.checkinService = nil;
   [super tearDown];
 }
 
 - (void)testCheckinWithSuccessfulCompletion {
-  self.checkinService = [[FIRInstanceIDCheckinService alloc] init];
-
   FIRInstanceIDCheckinPreferences *existingCheckin = [self stubCheckinCacheWithValidData];
 
   [FIRInstanceIDCheckinService setCheckinTestBlock:[self successfulCheckinCompletionHandler]];
@@ -79,8 +79,6 @@ static NSString *const kVersionInfo = @"1.0";
 }
 
 - (void)testFailedCheckinService {
-  self.checkinService = [[FIRInstanceIDCheckinService alloc] init];
-
   [FIRInstanceIDCheckinService setCheckinTestBlock:[self failCheckinCompletionHandler]];
 
   XCTestExpectation *checkinCompletionExpectation =
@@ -94,6 +92,29 @@ static NSString *const kVersionInfo = @"1.0";
                         XCTAssertNil(preferences.secretToken);
                         XCTAssertFalse([preferences hasValidCheckinInfo]);
                         [checkinCompletionExpectation fulfill];
+                      }];
+
+  [self waitForExpectationsWithTimeout:5
+                               handler:^(NSError *error) {
+                                 if (error) {
+                                   XCTFail(@"Checkin Timeout Error: %@", error);
+                                 }
+                               }];
+}
+
+- (void)testCheckinServiceFailsWithErrorAfterStopFetching {
+  [self.checkinService stopFetching];
+
+  XCTestExpectation *checkinCompletionExpectation =
+      [self expectationWithDescription:@"Checkin Completion"];
+
+  [self.checkinService
+      checkinWithExistingCheckin:nil
+                      completion:^(FIRInstanceIDCheckinPreferences *preferences, NSError *error) {
+                        [checkinCompletionExpectation fulfill];
+                        XCTAssertNil(preferences);
+                        XCTAssertNotNil(error);
+                        XCTAssertEqual(error.code, kFIRInstanceIDErrorCodeRegistrarFailedToCheckIn);
                       }];
 
   [self waitForExpectationsWithTimeout:5

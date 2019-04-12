@@ -25,6 +25,7 @@
 #import "FIRFirestoreSettings.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
+#import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRQuery+Internal.h"
 #import "Firestore/Source/API/FIRQuerySnapshot+Internal.h"
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
@@ -38,28 +39,31 @@
 #import "Firestore/Source/Local/FSTLocalStore.h"
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentSet.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_store.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "absl/memory/memory.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::FirestoreErrorCode;
 using firebase::firestore::api::DocumentReference;
+using firebase::firestore::api::DocumentSnapshot;
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::core::ViewSnapshot;
-using firebase::firestore::core::ViewSnapshotHandler;
 using firebase::firestore::local::LruParams;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKeySet;
@@ -73,6 +77,9 @@ using firebase::firestore::util::Status;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::DelayedOperation;
 using firebase::firestore::util::Executor;
+using firebase::firestore::util::Status;
+using firebase::firestore::util::StatusOr;
+using firebase::firestore::util::StatusOrCallback;
 using firebase::firestore::util::TimerId;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -304,58 +311,45 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
   });
 }
 
-- (FSTQueryListener *)listenToQuery:(FSTQuery *)query
-                            options:(FSTListenOptions *)options
-                viewSnapshotHandler:(ViewSnapshotHandler &&)viewSnapshotHandler {
-  FSTQueryListener *listener =
-      [[FSTQueryListener alloc] initWithQuery:query
-                                      options:options
-                          viewSnapshotHandler:std::move(viewSnapshotHandler)];
+- (std::shared_ptr<QueryListener>)listenToQuery:(FSTQuery *)query
+                                        options:(ListenOptions)options
+                                       listener:(ViewSnapshot::SharedListener &&)listener {
+  auto query_listener = QueryListener::Create(query, std::move(options), std::move(listener));
 
-  _workerQueue->Enqueue([self, listener] { [self.eventManager addListener:listener]; });
+  _workerQueue->Enqueue([self, query_listener] { [self.eventManager addListener:query_listener]; });
 
-  return listener;
+  return query_listener;
 }
 
-- (void)removeListener:(FSTQueryListener *)listener {
+- (void)removeListener:(const std::shared_ptr<QueryListener> &)listener {
   _workerQueue->Enqueue([self, listener] { [self.eventManager removeListener:listener]; });
 }
 
 - (void)getDocumentFromLocalCache:(const DocumentReference &)doc
-                       completion:(void (^)(FIRDocumentSnapshot *_Nullable document,
-                                            NSError *_Nullable error))completion {
-  _workerQueue->Enqueue([self, doc, completion] {
+                       completion:(DocumentSnapshot::Listener &&)completion {
+  auto shared_completion = absl::ShareUniquePtr(std::move(completion));
+  _workerQueue->Enqueue([self, doc, shared_completion] {
     FSTMaybeDocument *maybeDoc = [self.localStore readDocument:doc.key()];
-    FIRDocumentSnapshot *_Nullable result = nil;
-    NSError *_Nullable error = nil;
+    StatusOr<DocumentSnapshot> maybe_snapshot;
 
     if ([maybeDoc isKindOfClass:[FSTDocument class]]) {
       FSTDocument *document = (FSTDocument *)maybeDoc;
-      result = [FIRDocumentSnapshot snapshotWithFirestore:doc.firestore()
-                                              documentKey:doc.key()
-                                                 document:document
-                                                fromCache:YES
-                                         hasPendingWrites:document.hasLocalMutations];
+      maybe_snapshot = DocumentSnapshot{doc.firestore(), doc.key(), document,
+                                        /*from_cache=*/true,
+                                        /*has_pending_writes=*/document.hasLocalMutations};
     } else if ([maybeDoc isKindOfClass:[FSTDeletedDocument class]]) {
-      result = [FIRDocumentSnapshot snapshotWithFirestore:doc.firestore()
-                                              documentKey:doc.key()
-                                                 document:nil
-                                                fromCache:YES
-                                         hasPendingWrites:NO];
+      maybe_snapshot = DocumentSnapshot{doc.firestore(), doc.key(), nil,
+                                        /*from_cache=*/true,
+                                        /*has_pending_writes=*/false};
     } else {
-      error = [NSError errorWithDomain:FIRFirestoreErrorDomain
-                                  code:FIRFirestoreErrorCodeUnavailable
-                              userInfo:@{
-                                NSLocalizedDescriptionKey :
-                                    @"Failed to get document from cache. (However, this document "
-                                    @"may exist on the server. Run again without setting source to "
-                                    @"FIRFirestoreSourceCache to attempt to retrieve the document "
-                                    @"from the server.)",
-                              }];
+      maybe_snapshot = Status{FirestoreErrorCode::Unavailable,
+                              "Failed to get document from cache. (However, this document "
+                              "may exist on the server. Run again without setting source to "
+                              "FirestoreSourceCache to attempt to retrieve the document "};
     }
 
-    if (completion) {
-      self->_userExecutor->Execute([=] { completion(result, error); });
+    if (shared_completion) {
+      self->_userExecutor->Execute([=] { shared_completion->OnEvent(std::move(maybe_snapshot)); });
     }
   });
 }
@@ -375,14 +369,12 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
     HARD_ASSERT(viewChange.snapshot.has_value(), "Expected a snapshot");
 
     ViewSnapshot snapshot = std::move(viewChange.snapshot).value();
-    FIRSnapshotMetadata *metadata =
-        [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:snapshot.has_pending_writes()
-                                                     fromCache:snapshot.from_cache()];
+    SnapshotMetadata metadata(snapshot.has_pending_writes(), snapshot.from_cache());
 
-    FIRQuerySnapshot *result = [FIRQuerySnapshot snapshotWithFirestore:query.firestore
-                                                         originalQuery:query.query
-                                                              snapshot:std::move(snapshot)
-                                                              metadata:metadata];
+    FIRQuerySnapshot *result = [[FIRQuerySnapshot alloc] initWithFirestore:query.firestore.wrapped
+                                                             originalQuery:query.query
+                                                                  snapshot:std::move(snapshot)
+                                                                  metadata:std::move(metadata)];
 
     if (completion) {
       self->_userExecutor->Execute([=] { completion(result, nil); });
