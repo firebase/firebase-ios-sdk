@@ -112,6 +112,19 @@ static NSString *const kGULAppDelegatePrefix = @"GUL_";
 /** The original instance of App Delegate. */
 static id<UIApplicationDelegate> gOriginalAppDelegate;
 
+/** Remote notification methods
+ *  TODO: Add why we have to do this!
+ */
+
+static NSString *const kGULDidRegisterForRemoteNotificationsSEL =
+    @"application:didRegisterForRemoteNotificationsWithDeviceToken:";
+static NSString *const kGULDidFailToRegisterForRemoteNotificationsSEL =
+    @"application:didFailToRegisterForRemoteNotificationsWithError:";
+static NSString *const kGULDidReceiveRemoteNotificationSEL =
+    @"application:didReceiveRemoteNotification:";
+static NSString *const kGULDidReceiveRemoteNotificationWithCompletionSEL =
+    @"application:didReceiveRemoteNotification:fetchCompletionHandler:";
+
 /**
  * This class is necessary to store the delegates in an NSArray without retaining them.
  * [NSValue valueWithNonRetainedObject] also provides this functionality, but does not provide a
@@ -382,11 +395,16 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
       [NSValue valueWithPointer:handleBackgroundSessionIMP];
 
   // For application:didRegisterForRemoteNotificationsWithDeviceToken:
-  SEL didRegisterForRemoteNotificationsSEL = @selector(application:
-                  didRegisterForRemoteNotificationsWithDeviceToken:);
-  [GULAppDelegateSwizzler addInstanceMethodWithSelector:didRegisterForRemoteNotificationsSEL
-                                              fromClass:[GULAppDelegateSwizzler class]
-                                                toClass:appDelegateSubClass];
+  SEL didRegisterForRemoteNotificationsSEL =
+      NSSelectorFromString(kGULDidRegisterForRemoteNotificationsSEL);
+  SEL didRegisterForRemoteNotificationsDonorSEL = @selector(application:
+                 donor_didRegisterForRemoteNotificationsWithDeviceToken:);
+
+  [self addInstanceMethodWithDestinationSelector:didRegisterForRemoteNotificationsSEL
+            withImplementationFromSourceSelector:didRegisterForRemoteNotificationsDonorSEL
+                                       fromClass:[GULAppDelegateSwizzler class]
+                                         toClass:appDelegateSubClass];
+
   GULRealDidRegisterForRemoteNotificationsIMP didRegisterForRemoteNotificationsIMP =
       (GULRealDidRegisterForRemoteNotificationsIMP)[GULAppDelegateSwizzler
           implementationOfMethodSelector:didRegisterForRemoteNotificationsSEL
@@ -395,11 +413,15 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
       [NSValue valueWithPointer:didRegisterForRemoteNotificationsIMP];
 
   // For application:didFailToRegisterForRemoteNotificationsWithError:
-  SEL didFailToRegisterForRemoteNotificationsSEL = @selector(application:
-                        didFailToRegisterForRemoteNotificationsWithError:);
-  [GULAppDelegateSwizzler addInstanceMethodWithSelector:didFailToRegisterForRemoteNotificationsSEL
-                                              fromClass:[GULAppDelegateSwizzler class]
-                                                toClass:appDelegateSubClass];
+  SEL didFailToRegisterForRemoteNotificationsSEL =
+      NSSelectorFromString(kGULDidFailToRegisterForRemoteNotificationsSEL);
+  SEL didFailToRegisterForRemoteNotificationsDonorSEL = @selector(application:
+                       donor_didFailToRegisterForRemoteNotificationsWithError:);
+
+  [self addInstanceMethodWithDestinationSelector:didFailToRegisterForRemoteNotificationsSEL
+            withImplementationFromSourceSelector:didFailToRegisterForRemoteNotificationsDonorSEL
+                                       fromClass:[GULAppDelegateSwizzler class]
+                                         toClass:appDelegateSubClass];
   GULRealDidFailToRegisterForRemoteNotificationsIMP didFailToRegisterForRemoteNotificationsIMP =
       (GULRealDidFailToRegisterForRemoteNotificationsIMP)[GULAppDelegateSwizzler
           implementationOfMethodSelector:didFailToRegisterForRemoteNotificationsSEL
@@ -408,10 +430,14 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
       [NSValue valueWithPointer:didFailToRegisterForRemoteNotificationsIMP];
 
   // For application:didReceiveRemoteNotification:
-  SEL didReceiveRemoteNotificationSEL = @selector(application:didReceiveRemoteNotification:);
-  [GULAppDelegateSwizzler addInstanceMethodWithSelector:didReceiveRemoteNotificationSEL
-                                              fromClass:[GULAppDelegateSwizzler class]
-                                                toClass:appDelegateSubClass];
+  SEL didReceiveRemoteNotificationSEL = NSSelectorFromString(kGULDidReceiveRemoteNotificationSEL);
+  SEL didReceiveRemoteNotificationDonotSEL = @selector(application:
+                                donor_didReceiveRemoteNotification:);
+
+  [self addInstanceMethodWithDestinationSelector:didReceiveRemoteNotificationSEL
+            withImplementationFromSourceSelector:didReceiveRemoteNotificationDonotSEL
+                                       fromClass:[GULAppDelegateSwizzler class]
+                                         toClass:appDelegateSubClass];
   GULRealDidReceiveRemoteNotificationIMP didReceiveRemoteNotificationIMP =
       (GULRealDidReceiveRemoteNotificationIMP)
           [GULAppDelegateSwizzler implementationOfMethodSelector:didReceiveRemoteNotificationSEL
@@ -473,7 +499,9 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
   if ([GULAppEnvironmentUtil isIOS7OrHigher]) {
     NSValue *didReceiveRemoteNotificationWithCompletionIMPPointer;
     SEL didReceiveRemoteNotificationWithCompletionSEL =
-        @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:);
+        NSSelectorFromString(kGULDidReceiveRemoteNotificationWithCompletionSEL);
+    SEL didReceiveRemoteNotificationWithCompletionDonorSEL =
+        @selector(application:donor_didReceiveRemoteNotification:fetchCompletionHandler:);
     if ([anObject respondsToSelector:didReceiveRemoteNotificationWithCompletionSEL]) {
       // Only add the application:didReceiveRemoteNotification:fetchCompletionHandler: method if
       // the original AppDelegate implements it.
@@ -481,10 +509,11 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
       // (if we add the method with completion, iOS sees that one exists and does not call
       // the method without the completion, which in this case is the only one the app implements).
 
-      [GULAppDelegateSwizzler
-          addInstanceMethodWithSelector:didReceiveRemoteNotificationWithCompletionSEL
-                              fromClass:[GULAppDelegateSwizzler class]
-                                toClass:appDelegateSubClass];
+      [self addInstanceMethodWithDestinationSelector:didReceiveRemoteNotificationWithCompletionSEL
+                withImplementationFromSourceSelector:
+                    didReceiveRemoteNotificationWithCompletionDonorSEL
+                                           fromClass:[GULAppDelegateSwizzler class]
+                                             toClass:appDelegateSubClass];
       GULRealDidReceiveRemoteNotificationWithCompletionIMP
           didReceiveRemoteNotificationWithCompletionIMP =
               (GULRealDidReceiveRemoteNotificationWithCompletionIMP)[GULAppDelegateSwizzler
@@ -775,14 +804,14 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
 #pragma mark - [Donor Methods] Remote Notifications
 
 - (void)application:(UIApplication *)application
-    didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+    donor_didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
   NSValue *didRegisterForRemoteNotificationsIMPPointer =
       objc_getAssociatedObject(self, &kGULRealDidRegisterForRemoteNotificationsIMPKey);
   GULRealDidRegisterForRemoteNotificationsIMP didRegisterForRemoteNotificationsIMP =
       [didRegisterForRemoteNotificationsIMPPointer pointerValue];
 
   // Notify interceptors.
-  SEL methodSelector = @selector(application:didRegisterForRemoteNotificationsWithDeviceToken:);
+  SEL methodSelector = NSSelectorFromString(kGULDidRegisterForRemoteNotificationsSEL);
   [GULAppDelegateSwizzler
       notifyInterceptorsWithMethodSelector:methodSelector
                                   callback:^(id<UIApplicationDelegate> interceptor) {
@@ -797,14 +826,14 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
 }
 
 - (void)application:(UIApplication *)application
-    didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
+    donor_didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
   NSValue *didFailToRegisterForRemoteNotificationsIMPPointer =
       objc_getAssociatedObject(self, &kGULRealDidFailToRegisterForRemoteNotificationsIMPKey);
   GULRealDidFailToRegisterForRemoteNotificationsIMP didFailToRegisterForRemoteNotificationsIMP =
       [didFailToRegisterForRemoteNotificationsIMPPointer pointerValue];
 
   // Notify interceptors.
-  SEL methodSelector = @selector(application:didFailToRegisterForRemoteNotificationsWithError:);
+  SEL methodSelector = NSSelectorFromString(kGULDidFailToRegisterForRemoteNotificationsSEL);
   [GULAppDelegateSwizzler
       notifyInterceptorsWithMethodSelector:methodSelector
                                   callback:^(id<UIApplicationDelegate> interceptor) {
@@ -822,8 +851,8 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunguarded-availability"
 - (void)application:(UIApplication *)application
-    didReceiveRemoteNotification:(NSDictionary *)userInfo
-          fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
+    donor_didReceiveRemoteNotification:(NSDictionary *)userInfo
+                fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
   NSValue *didReceiveRemoteNotificationWithCompletionIMPPointer =
       objc_getAssociatedObject(self, &kGULRealDidReceiveRemoteNotificationWithCompletionIMPKey);
   GULRealDidReceiveRemoteNotificationWithCompletionIMP
@@ -831,7 +860,7 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
           [didReceiveRemoteNotificationWithCompletionIMPPointer pointerValue];
 
   // Notify interceptors.
-  SEL methodSelector = @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:);
+  SEL methodSelector = NSSelectorFromString(kGULDidReceiveRemoteNotificationWithCompletionSEL);
   [GULAppDelegateSwizzler
       notifyInterceptorsWithMethodSelector:methodSelector
                                   callback:^(id<UIApplicationDelegate> interceptor) {
@@ -849,14 +878,14 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
 #endif  // __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000
 
 - (void)application:(UIApplication *)application
-    didReceiveRemoteNotification:(NSDictionary *)userInfo {
+    donor_didReceiveRemoteNotification:(NSDictionary *)userInfo {
   NSValue *didReceiveRemoteNotificationIMPPointer =
       objc_getAssociatedObject(self, &kGULRealDidReceiveRemoteNotificationIMPKey);
   GULRealDidReceiveRemoteNotificationIMP didReceiveRemoteNotificationIMP =
       [didReceiveRemoteNotificationIMPPointer pointerValue];
 
   // Notify interceptors.
-  SEL methodSelector = @selector(application:didReceiveRemoteNotification:);
+  SEL methodSelector = NSSelectorFromString(kGULDidReceiveRemoteNotificationSEL);
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
   [GULAppDelegateSwizzler
