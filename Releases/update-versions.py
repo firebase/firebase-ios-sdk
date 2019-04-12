@@ -163,6 +163,7 @@ def UpdateTags(version_data, firebase_version, first=False):
     LogOrRun("git push --delete origin '{}'".format(firebase_version))
     LogOrRun("git tag --delete  '{}'".format(firebase_version))
   LogOrRun("git tag '{}'".format(firebase_version))
+  LogOrRun("git push origin '{}'".format(firebase_version))
   for pod, version in version_data.items():
     name = pod[len('Firebase'):]
     tag = '{}-{}'.format(name, version)
