@@ -16,11 +16,7 @@
 
 #import "FIRMessagingTopicOperation.h"
 
-#ifdef COCOAPODS
 #import <FirebaseInstanceID/FIRInstanceID_Private.h>
-#else
-#import "third_party/firebase/ios/Releases/FirebaseInstanceID/Library/Private/FIRInstanceID_Private.h"
-#endif
 
 #import "FIRMessagingDefines.h"
 #import "FIRMessagingLogger.h"

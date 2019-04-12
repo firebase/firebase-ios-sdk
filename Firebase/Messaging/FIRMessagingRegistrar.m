@@ -50,15 +50,11 @@
                      shouldDelete:(BOOL)shouldDelete
                           handler:(FIRMessagingTopicOperationCompletion)handler {
   _FIRMessagingDevAssert(handler, @"Invalid nil handler");
-
-
-    [self doUpdateSubscriptionForTopic:topic
-                                 token:token
-                               options:options
-                          shouldDelete:shouldDelete
-                            completion:handler];
-
-  
+    [self.pubsubRegistrar updateSubscriptionToTopic:topic
+                                          withToken:token
+                                            options:options
+                                       shouldDelete:shouldDelete
+                                            handler:handler];
 }
 
 - (void)cancelAllRequests {
@@ -66,19 +62,6 @@
   [self.pubsubRegistrar stopAllSubscriptionRequests];
 }
 
-#pragma mark - Private
 
-- (void)doUpdateSubscriptionForTopic:(NSString *)topic
-                               token:(NSString *)token
-                             options:(NSDictionary *)options
-                        shouldDelete:(BOOL)shouldDelete
-                          completion:(FIRMessagingTopicOperationCompletion)completion {
-
-  [self.pubsubRegistrar updateSubscriptionToTopic:topic
-                                        withToken:token
-                                          options:options
-                                     shouldDelete:shouldDelete
-                                          handler:completion];
-}
 
 @end
