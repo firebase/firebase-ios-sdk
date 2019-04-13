@@ -131,8 +131,8 @@ jobs:
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
-        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
-        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh GoogleDataTransport.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh GoogleDataTransport.podspec
 
     # GoogleDataTransportCCTSupport unit tests and pod linting using the default Xcode version.
     - stage: test
