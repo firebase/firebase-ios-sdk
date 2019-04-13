@@ -124,6 +124,26 @@ jobs:
         # The travis_wait is necessary because the command takes more than 10 minutes.
         - travis_wait 45 ./scripts/pod_lib_lint.sh FirebaseFirestore.podspec --use-libraries --allow-warnings --no-subspecs
 
+    # GoogleDataTransport unit tests and pod linting using the default Xcode version.
+    - stage: test
+      env:
+        - PROJECT=GoogleDataTransport PLATFORM=iOS METHOD=xcodebuild
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh GoogleDataTransport.podspec
+
+    # GoogleDataTransportCCTSupport unit tests and pod linting using the default Xcode version.
+    - stage: test
+      env:
+        - PROJECT=GoogleDataTransportCCTSupport PLATFORM=iOS METHOD=xcodebuild
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+      script:
+        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
+        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh GoogleDataTransportCCTSupport.podspec
+
     # Daily test for symbol collisions between Firebase and CocoaPods.
     - stage: test
       if: type = cron
