@@ -45,6 +45,7 @@ using firebase::firestore::core::EventListener;
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::EventListener;
 using firebase::firestore::core::ListenOptions;
+using firebase::firestore::core::QueryListener;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentSet;

@@ -23,24 +23,22 @@
 @class FIRFirestore;
 @class FSTDocument;
 
-using firebase::firestore::api::DocumentSnapshot;
-using firebase::firestore::api::Firestore;
-using firebase::firestore::api::SnapshotMetadata;
-using firebase::firestore::model::DocumentKey;
+namespace api = firebase::firestore::api;
+namespace model = firebase::firestore::model;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRDocumentSnapshot (/* Init */)
 
-- (instancetype)initWithSnapshot:(DocumentSnapshot &&)snapshot NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithSnapshot:(api::DocumentSnapshot &&)snapshot NS_DESIGNATED_INITIALIZER;
 
-- (instancetype)initWithFirestore:(Firestore *)firestore
-                      documentKey:(DocumentKey)documentKey
+- (instancetype)initWithFirestore:(api::Firestore *)firestore
+                      documentKey:(model::DocumentKey)documentKey
                          document:(nullable FSTDocument *)document
-                         metadata:(SnapshotMetadata)metadata;
+                         metadata:(api::SnapshotMetadata)metadata;
 
-- (instancetype)initWithFirestore:(Firestore *)firestore
-                      documentKey:(DocumentKey)documentKey
+- (instancetype)initWithFirestore:(api::Firestore *)firestore
+                      documentKey:(model::DocumentKey)documentKey
                          document:(nullable FSTDocument *)document
                         fromCache:(bool)fromCache
                  hasPendingWrites:(bool)hasPendingWrites;

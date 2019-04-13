@@ -50,6 +50,7 @@ namespace util = firebase::firestore::util;
 using firebase::firestore::api::DocumentReference;
 using firebase::firestore::api::DocumentSnapshot;
 using firebase::firestore::api::Firestore;
+using firebase::firestore::api::ListenerRegistration;
 using firebase::firestore::api::Source;
 using firebase::firestore::api::MakeSource;
 using firebase::firestore::api::ThrowInvalidArgument;

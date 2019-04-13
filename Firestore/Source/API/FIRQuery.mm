@@ -51,12 +51,16 @@
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
-using firebase::firestore::api::MakeSource;
+using firebase::firestore::api::Firestore;
+using firebase::firestore::api::ListenerRegistration;
+using firebase::firestore::api::SnapshotMetadata;
 using firebase::firestore::api::Source;
 using firebase::firestore::api::ThrowInvalidArgument;
 using firebase::firestore::core::AsyncEventListener;
 using firebase::firestore::core::EventListener;
 using firebase::firestore::core::Filter;
+using firebase::firestore::core::ListenOptions;
+using firebase::firestore::core::QueryListener;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldPath;
@@ -121,7 +125,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)getDocumentsWithSource:(FIRFirestoreSource)publicSource
                     completion:(void (^)(FIRQuerySnapshot *_Nullable snapshot,
                                          NSError *_Nullable error))completion {
-  Source source = MakeSource(publicSource);
+  Source source = api::MakeSource(publicSource);
   if (source == Source::Cache) {
     [self.firestore.wrapped->client() getDocumentsFromLocalCache:self completion:completion];
     return;
