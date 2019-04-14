@@ -119,7 +119,7 @@ static const BOOL kDefaultTimestampsInSnapshotsEnabled = YES;
   _cacheSizeBytes = cacheSizeBytes;
 }
 
-- (firebase::firestore::api::Settings)internalSettings {
+- (Settings)internalSettings {
   Settings settings;
   settings.set_host(MakeString(_host));
   settings.set_ssl_enabled(_sslEnabled);

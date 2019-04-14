@@ -22,12 +22,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-using firebase::firestore::api::Settings;
-
 @interface FIRFirestoreSettings (Internal)
 
 /** Converts this FIRFirestoreSettings instance into an api::Settings object. */
-- (Settings)internalSettings;
+- (firebase::firestore::api::Settings)internalSettings;
 
 @end
 

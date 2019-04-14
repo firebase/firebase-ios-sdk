@@ -72,7 +72,7 @@ const Settings& Firestore::settings() const {
   return settings_;
 }
 
-void Firestore::set_settings(Settings&& settings) {
+void Firestore::set_settings(const Settings& settings) {
   std::lock_guard<std::mutex> lock{mutex_};
   if (client_) {
     HARD_FAIL(
@@ -80,11 +80,11 @@ void Firestore::set_settings(Settings&& settings) {
         "no longer be changed. You can only set settings before calling any "
         "other methods on a Firestore instance.");
   }
-  settings_ = std::move(settings);
+  settings_ = settings;
 }
 
 void Firestore::set_user_executor(
-    std::unique_ptr<util::Executor>&& user_executor) {
+    std::unique_ptr<util::Executor> user_executor) {
   std::lock_guard<std::mutex> lock{mutex_};
   HARD_ASSERT(!client_ && user_executor,
               "set_user_executor() must be called with a valid executor, "

@@ -87,9 +87,9 @@ class Firestore {
   }
 
   const Settings& settings() const;
-  void set_settings(Settings&& settings);
+  void set_settings(const Settings& settings);
 
-  void set_user_executor(std::unique_ptr<util::Executor>&& user_executor);
+  void set_user_executor(std::unique_ptr<util::Executor> user_executor);
 
   FIRCollectionReference* GetCollection(absl::string_view collection_path);
   DocumentReference GetDocument(absl::string_view document_path);
