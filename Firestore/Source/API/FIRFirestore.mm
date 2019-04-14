@@ -26,7 +26,7 @@
 #include <string>
 #include <utility>
 
-#import "FIRFirestore.h"
+#import "FIRFirestoreSettings+Internal.h"
 
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
@@ -40,6 +40,7 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/delayed_constructor.h"
+#include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
@@ -65,6 +66,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRFirestore {
   DelayedConstructor<Firestore> _firestore;
+  FIRFirestoreSettings *_settings;
 }
 
 + (NSMutableDictionary<NSString *, FIRFirestore *> *)instances {
@@ -160,16 +162,26 @@ NS_ASSUME_NONNULL_BEGIN
 
     _dataConverter = [[FSTUserDataConverter alloc] initWithDatabaseID:&_firestore->database_id()
                                                          preConverter:block];
+    // Use the property setter so the default settings get plumbed into _firestoreClient.
+    self.settings = [[FIRFirestoreSettings alloc] init];
   }
   return self;
 }
 
 - (FIRFirestoreSettings *)settings {
-  return _firestore->settings();
+  // Disallow mutation of our internal settings
+  return [_settings copy];
 }
 
 - (void)setSettings:(FIRFirestoreSettings *)settings {
-  _firestore->set_settings(settings);
+  if (![settings isEqual:_settings]) {
+    _settings = settings;
+    _firestore->set_settings([settings internalSettings]);
+
+    std::unique_ptr<util::Executor> user_executor =
+        absl::make_unique<util::ExecutorLibdispatch>(settings.dispatchQueue);
+    _firestore->set_user_executor(std::move(user_executor));
+  }
 }
 
 - (FIRCollectionReference *)collectionWithPath:(NSString *)collectionPath {

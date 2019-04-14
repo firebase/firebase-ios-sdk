@@ -23,6 +23,7 @@
 
 #include "Firestore/core/src/firebase/firestore/api/document_reference.h"
 #include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
+#include "Firestore/core/src/firebase/firestore/api/settings.h"
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/core/listen_options.h"
@@ -35,7 +36,6 @@
 
 @class FIRDocumentReference;
 @class FIRDocumentSnapshot;
-@class FIRFirestoreSettings;
 @class FIRQuery;
 @class FIRQuerySnapshot;
 @class FSTDatabaseID;
@@ -66,7 +66,7 @@ NS_ASSUME_NONNULL_BEGIN
  * All callbacks and events will be triggered on the provided userExecutor.
  */
 + (instancetype)clientWithDatabaseInfo:(const core::DatabaseInfo &)databaseInfo
-                              settings:(FIRFirestoreSettings *)settings
+                              settings:(const api::Settings &)settings
                    credentialsProvider:
                        (auth::CredentialsProvider *)credentialsProvider  // no passing ownership
                           userExecutor:(std::unique_ptr<util::Executor>)userExecutor
