@@ -49,6 +49,8 @@ namespace api {
 namespace objc = util::objc;
 using core::AsyncEventListener;
 using core::EventListener;
+using core::ListenOptions;
+using core::QueryListener;
 using core::ViewSnapshot;
 using model::DocumentKey;
 using model::Precondition;

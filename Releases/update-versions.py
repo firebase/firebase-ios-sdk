@@ -163,6 +163,7 @@ def UpdateTags(version_data, firebase_version, first=False):
     LogOrRun("git push --delete origin '{}'".format(firebase_version))
     LogOrRun("git tag --delete  '{}'".format(firebase_version))
   LogOrRun("git tag '{}'".format(firebase_version))
+  LogOrRun("git push origin '{}'".format(firebase_version))
   for pod, version in version_data.items():
     name = pod[len('Firebase'):]
     tag = '{}-{}'.format(name, version)
@@ -204,9 +205,9 @@ def PushPodspecs(version_data):
 
     podspec = '{}.podspec'.format(pod)
     json = os.path.join(tmp_dir, '{}.json'.format(podspec))
-    os.system('pod ipc spec {} > {}'.format(podspec, json))
-    LogOrRun('pod repo push {} {}{}'.format(GetCpdcInternal(), json,
-                                            warnings_ok))
+    LogOrRun('pod ipc spec {} > {}'.format(podspec, json))
+    LogOrRun('pod repo push --skip-tests {} {}{}'.format(GetCpdcInternal(),
+                                                         json, warnings_ok))
   os.system('rm -rf {}'.format(tmp_dir))
 
 

@@ -33,6 +33,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -75,6 +76,7 @@ class Firestore {
   }
 
   FSTFirestoreClient* client() {
+    HARD_ASSERT(client_, "Client is not yet configured.");
     return client_;
   }
 

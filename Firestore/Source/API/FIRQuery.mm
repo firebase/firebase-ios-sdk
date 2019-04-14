@@ -40,6 +40,7 @@
 #import "Firestore/Source/Model/FSTFieldValue.h"
 
 #include "Firestore/core/src/firebase/firestore/api/input_validation.h"
+#include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
@@ -50,11 +51,16 @@
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
-using firebase::firestore::api::MakeSource;
+using firebase::firestore::api::Firestore;
+using firebase::firestore::api::ListenerRegistration;
+using firebase::firestore::api::SnapshotMetadata;
 using firebase::firestore::api::Source;
 using firebase::firestore::api::ThrowInvalidArgument;
 using firebase::firestore::core::AsyncEventListener;
 using firebase::firestore::core::EventListener;
+using firebase::firestore::core::Filter;
+using firebase::firestore::core::ListenOptions;
+using firebase::firestore::core::QueryListener;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldPath;
@@ -119,9 +125,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)getDocumentsWithSource:(FIRFirestoreSource)publicSource
                     completion:(void (^)(FIRQuerySnapshot *_Nullable snapshot,
                                          NSError *_Nullable error))completion {
-  Source source = MakeSource(publicSource);
+  Source source = api::MakeSource(publicSource);
   if (source == Source::Cache) {
-    [self.firestore.client getDocumentsFromLocalCache:self completion:completion];
+    [self.firestore.wrapped->client() getDocumentsFromLocalCache:self completion:completion];
     return;
   }
 
@@ -211,69 +217,61 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FIRQuery *)queryWhereField:(NSString *)field isEqualTo:(id)value {
-  return [self queryWithFilterOperator:FSTRelationFilterOperatorEqual field:field value:value];
+  return [self queryWithFilterOperator:Filter::Operator::Equal field:field value:value];
 }
 
 - (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path isEqualTo:(id)value {
-  return [self queryWithFilterOperator:FSTRelationFilterOperatorEqual
-                                  path:path.internalValue
-                                 value:value];
+  return [self queryWithFilterOperator:Filter::Operator::Equal path:path.internalValue value:value];
 }
 
 - (FIRQuery *)queryWhereField:(NSString *)field isLessThan:(id)value {
-  return [self queryWithFilterOperator:FSTRelationFilterOperatorLessThan field:field value:value];
+  return [self queryWithFilterOperator:Filter::Operator::LessThan field:field value:value];
 }
 
 - (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path isLessThan:(id)value {
-  return [self queryWithFilterOperator:FSTRelationFilterOperatorLessThan
+  return [self queryWithFilterOperator:Filter::Operator::LessThan
                                   path:path.internalValue
                                  value:value];
 }
 
 - (FIRQuery *)queryWhereField:(NSString *)field isLessThanOrEqualTo:(id)value {
-  return [self queryWithFilterOperator:FSTRelationFilterOperatorLessThanOrEqual
-                                 field:field
-                                 value:value];
+  return [self queryWithFilterOperator:Filter::Operator::LessThanOrEqual field:field value:value];
 }
 
 - (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path isLessThanOrEqualTo:(id)value {
-  return [self queryWithFilterOperator:FSTRelationFilterOperatorLessThanOrEqual
+  return [self queryWithFilterOperator:Filter::Operator::LessThanOrEqual
                                   path:path.internalValue
                                  value:value];
 }
 
 - (FIRQuery *)queryWhereField:(NSString *)field isGreaterThan:(id)value {
-  return [self queryWithFilterOperator:FSTRelationFilterOperatorGreaterThan
-                                 field:field
-                                 value:value];
+  return [self queryWithFilterOperator:Filter::Operator::GreaterThan field:field value:value];
 }
 
 - (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path isGreaterThan:(id)value {
-  return [self queryWithFilterOperator:FSTRelationFilterOperatorGreaterThan
+  return [self queryWithFilterOperator:Filter::Operator::GreaterThan
                                   path:path.internalValue
                                  value:value];
 }
 
 - (FIRQuery *)queryWhereField:(NSString *)field arrayContains:(id)value {
-  return [self queryWithFilterOperator:FSTRelationFilterOperatorArrayContains
-                                 field:field
-                                 value:value];
+  return [self queryWithFilterOperator:Filter::Operator::ArrayContains field:field value:value];
 }
 
 - (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path arrayContains:(id)value {
-  return [self queryWithFilterOperator:FSTRelationFilterOperatorArrayContains
+  return [self queryWithFilterOperator:Filter::Operator::ArrayContains
                                   path:path.internalValue
                                  value:value];
 }
 
 - (FIRQuery *)queryWhereField:(NSString *)field isGreaterThanOrEqualTo:(id)value {
-  return [self queryWithFilterOperator:FSTRelationFilterOperatorGreaterThanOrEqual
+  return [self queryWithFilterOperator:Filter::Operator::GreaterThanOrEqual
                                  field:field
                                  value:value];
 }
 
 - (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path isGreaterThanOrEqualTo:(id)value {
-  return [self queryWithFilterOperator:FSTRelationFilterOperatorGreaterThanOrEqual
+  return [self queryWithFilterOperator:Filter::Operator::GreaterThanOrEqual
                                   path:path.internalValue
                                  value:value];
 }
@@ -452,7 +450,7 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Private Methods
 
 /** Private helper for all of the queryWhereField: methods. */
-- (FIRQuery *)queryWithFilterOperator:(FSTRelationFilterOperator)filterOperator
+- (FIRQuery *)queryWithFilterOperator:(Filter::Operator)filterOperator
                                 field:(NSString *)field
                                 value:(id)value {
   return [self queryWithFilterOperator:filterOperator
@@ -460,12 +458,12 @@ NS_ASSUME_NONNULL_BEGIN
                                  value:value];
 }
 
-- (FIRQuery *)queryWithFilterOperator:(FSTRelationFilterOperator)filterOperator
+- (FIRQuery *)queryWithFilterOperator:(Filter::Operator)filterOperator
                                  path:(const FieldPath &)fieldPath
                                 value:(id)value {
   FSTFieldValue *fieldValue;
   if (fieldPath.IsKeyFieldPath()) {
-    if (filterOperator == FSTRelationFilterOperatorArrayContains) {
+    if (filterOperator == Filter::Operator::ArrayContains) {
       ThrowInvalidArgument("Invalid query. You can't perform arrayContains queries on document ID "
                            "since document IDs are not arrays.");
     }
@@ -531,7 +529,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (firstOrderByField) {
       [self validateOrderByField:*firstOrderByField matchesInequalityField:filter.field];
     }
-  } else if (filter.filterOperator == FSTRelationFilterOperatorArrayContains) {
+  } else if (filter.filterOperator == Filter::Operator::ArrayContains) {
     if ([self.query hasArrayContainsFilter]) {
       ThrowInvalidArgument("Invalid Query. Queries only support a single arrayContains filter.");
     }

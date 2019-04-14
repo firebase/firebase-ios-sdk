@@ -40,6 +40,7 @@
 
 namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
+using firebase::firestore::api::SnapshotMetadata;
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::model::DocumentKeySet;

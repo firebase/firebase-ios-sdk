@@ -246,6 +246,8 @@ cc_library(
     comparison.h
     config.h
     delayed_constructor.h
+    error_apple.h
+    error_apple.mm
     hashing.h
     iterator_adaptors.h
     objc_compatibility.h

@@ -35,6 +35,10 @@
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::api::DocumentChange;
+using firebase::firestore::api::DocumentSnapshot;
+using firebase::firestore::api::Firestore;
+using firebase::firestore::api::SnapshotMetadata;
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::model::DocumentKeySet;

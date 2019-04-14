@@ -56,8 +56,6 @@ using firebase::firestore::util::DelayedConstructor;
 
 NS_ASSUME_NONNULL_BEGIN
 
-extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
-
 #pragma mark - FIRFirestore
 
 @interface FIRFirestore ()
@@ -186,13 +184,6 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
   }
 }
 
-/**
- * Ensures that the FirestoreClient is configured and returns it.
- */
-- (FSTFirestoreClient *)client {
-  return _firestore->client();
-}
-
 - (FIRCollectionReference *)collectionWithPath:(NSString *)collectionPath {
   if (!collectionPath) {
     ThrowInvalidArgument("Collection path cannot be nil.");
@@ -214,6 +205,18 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 
   DocumentReference documentReference = _firestore->GetDocument(util::MakeString(documentPath));
   return [[FIRDocumentReference alloc] initWithReference:std::move(documentReference)];
+}
+
+- (FIRQuery *)collectionGroupWithID:(NSString *)collectionID {
+  if (!collectionID) {
+    ThrowInvalidArgument("Collection ID cannot be nil.");
+  }
+  if ([collectionID containsString:@"/"]) {
+    ThrowInvalidArgument("Invalid collection ID (%s). Collection IDs must not contain / in them.",
+                         collectionID);
+  }
+
+  return _firestore->GetCollectionGroup(collectionID);
 }
 
 - (FIRWriteBatch *)batch {
@@ -283,18 +286,6 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 
 + (FIRFirestore *)recoverFromFirestore:(Firestore *)firestore {
   return (__bridge FIRFirestore *)firestore->extension();
-}
-
-- (FIRQuery *)collectionGroupWithID:(NSString *)collectionID {
-  if (!collectionID) {
-    ThrowInvalidArgument("Collection ID cannot be nil.");
-  }
-  if ([collectionID containsString:@"/"]) {
-    ThrowInvalidArgument("Invalid collection ID (%s). Collection IDs must not contain / in them.",
-                         collectionID);
-  }
-
-  return _firestore->GetCollectionGroup(collectionID);
 }
 
 - (void)shutdownWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {

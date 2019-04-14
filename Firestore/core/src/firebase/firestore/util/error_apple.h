@@ -22,12 +22,16 @@
 
 #import <Foundation/Foundation.h>
 
-#import <FirebaseFirestore/FIRFirestoreErrors.h>  // for FIRFirestoreErrorDomain
-
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "absl/strings/string_view.h"
+
+// The Cloud Firestore error domain. Keep in sync with FIRFirestoreErrors.h.
+// Exposed here to make it possible to build in CMake without bringing in the
+// sources under Firestore/Source.
+FOUNDATION_EXPORT NSString* const FIRFirestoreErrorDomain
+    NS_SWIFT_NAME(FirestoreErrorDomain);
 
 namespace firebase {
 namespace firestore {
@@ -35,18 +39,26 @@ namespace util {
 
 // Translates a set of error_code and error_msg to an NSError.
 inline NSError* MakeNSError(const int64_t error_code,
-                            const absl::string_view error_msg) {
+                            const absl::string_view error_msg,
+                            NSError* cause = nil) {
   if (error_code == FirestoreErrorCode::Ok) {
     return nil;
   }
-  return [NSError
-      errorWithDomain:FIRFirestoreErrorDomain
-                 code:static_cast<NSInteger>(error_code)
-             userInfo:@{NSLocalizedDescriptionKey : WrapNSString(error_msg)}];
+
+  NSMutableDictionary<NSString*, id>* user_info =
+      [NSMutableDictionary dictionary];
+  user_info[NSLocalizedDescriptionKey] = WrapNSString(error_msg);
+  if (cause) {
+    user_info[NSUnderlyingErrorKey] = cause;
+  }
+
+  return [NSError errorWithDomain:FIRFirestoreErrorDomain
+                             code:static_cast<NSInteger>(error_code)
+                         userInfo:user_info];
 }
 
 inline NSError* MakeNSError(const util::Status& status) {
-  return MakeNSError(status.code(), status.error_message());
+  return status.ToNSError();
 }
 
 inline Status MakeStatus(NSError* error) {

@@ -45,13 +45,13 @@
 @class FSTQuery;
 @class FSTTransaction;
 
-NS_ASSUME_NONNULL_BEGIN
+namespace api = firebase::firestore::api;
+namespace auth = firebase::firestore::auth;
+namespace core = firebase::firestore::core;
+namespace model = firebase::firestore::model;
+namespace util = firebase::firestore::util;
 
-using firebase::firestore::api::DocumentSnapshot;
-using firebase::firestore::api::Settings;
-using firebase::firestore::core::ListenOptions;
-using firebase::firestore::core::QueryListener;
-using firebase::firestore::core::ViewSnapshot;
+NS_ASSUME_NONNULL_BEGIN
 
 /**
  * FirestoreClient is a top-level class that constructs and owns all of the pieces of the client
@@ -65,13 +65,12 @@ using firebase::firestore::core::ViewSnapshot;
  *
  * All callbacks and events will be triggered on the provided userExecutor.
  */
-+ (instancetype)
-    clientWithDatabaseInfo:(const firebase::firestore::core::DatabaseInfo &)databaseInfo
-                  settings:(const Settings &)settings
-       credentialsProvider:(firebase::firestore::auth::CredentialsProvider *)
-                               credentialsProvider  // no passing ownership
-              userExecutor:(std::unique_ptr<firebase::firestore::util::Executor>)userExecutor
-               workerQueue:(std::unique_ptr<firebase::firestore::util::AsyncQueue>)workerQueue;
++ (instancetype)clientWithDatabaseInfo:(const core::DatabaseInfo &)databaseInfo
+                              settings:(const api::Settings &)settings
+                   credentialsProvider:
+                       (auth::CredentialsProvider *)credentialsProvider  // no passing ownership
+                          userExecutor:(std::unique_ptr<util::Executor>)userExecutor
+                           workerQueue:(std::unique_ptr<util::AsyncQueue>)workerQueue;
 
 - (instancetype)init __attribute__((unavailable("Use static constructor method.")));
 
@@ -85,19 +84,20 @@ using firebase::firestore::core::ViewSnapshot;
 - (void)enableNetworkWithCompletion:(nullable FSTVoidErrorBlock)completion;
 
 /** Starts listening to a query. */
-- (std::shared_ptr<QueryListener>)listenToQuery:(FSTQuery *)query
-                                        options:(ListenOptions)options
-                                       listener:(ViewSnapshot::SharedListener &&)listener;
+- (std::shared_ptr<core::QueryListener>)listenToQuery:(FSTQuery *)query
+                                              options:(core::ListenOptions)options
+                                             listener:
+                                                 (core::ViewSnapshot::SharedListener &&)listener;
 
 /** Stops listening to a query previously listened to. */
-- (void)removeListener:(const std::shared_ptr<QueryListener> &)listener;
+- (void)removeListener:(const std::shared_ptr<core::QueryListener> &)listener;
 
 /**
  * Retrieves a document from the cache via the indicated completion. If the doc
  * doesn't exist, an error will be sent to the completion.
  */
-- (void)getDocumentFromLocalCache:(const firebase::firestore::api::DocumentReference &)doc
-                       completion:(DocumentSnapshot::Listener &&)completion;
+- (void)getDocumentFromLocalCache:(const api::DocumentReference &)doc
+                       completion:(api::DocumentSnapshot::Listener &&)completion;
 
 /**
  * Retrieves a (possibly empty) set of documents from the cache via the
@@ -118,16 +118,16 @@ using firebase::firestore::core::ViewSnapshot;
 
 /** The database ID of the databaseInfo this client was initialized with. */
 // Ownes a DatabaseInfo instance, which contains the id here.
-@property(nonatomic, assign, readonly) const firebase::firestore::model::DatabaseId *databaseID;
+@property(nonatomic, assign, readonly) const model::DatabaseId *databaseID;
 
 /**
  * Dispatch queue for user callbacks / events. This will often be the "Main Dispatch Queue" of the
  * app but the developer can configure it to a different queue if they so choose.
  */
-- (firebase::firestore::util::Executor *)userExecutor;
+- (util::Executor *)userExecutor;
 
 /** For testing only. */
-- (firebase::firestore::util::AsyncQueue *)workerQueue;
+- (util::AsyncQueue *)workerQueue;
 
 @end
 

@@ -84,6 +84,14 @@ else
       check_changes '^(Firestore/(core|third_party)|cmake|GoogleUtilities)'
       ;;
 
+    GoogleDataTransport-*)
+      check_changes '^(GoogleDataTransport|GoogleDataTransport.podspec)'
+      ;;
+
+    GoogleDataTransportCCTSupport-*)
+      check_changes '^(GoogleDataTransportCCTSupport|GoogleDataTransportCCTSupport.podspec|GoogleDataTransport|GoogleDataTransport.podspec)'
+      ;;
+
     *)
       echo "Unknown project-method combo" 1>&2
       echo "  PROJECT=$PROJECT" 1>&2

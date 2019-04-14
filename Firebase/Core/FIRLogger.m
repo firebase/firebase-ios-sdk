@@ -27,6 +27,7 @@ FIRLoggerService kFIRLoggerABTesting = @"[Firebase/ABTesting]";
 FIRLoggerService kFIRLoggerAdMob = @"[Firebase/AdMob]";
 FIRLoggerService kFIRLoggerAnalytics = @"[Firebase/Analytics]";
 FIRLoggerService kFIRLoggerAuth = @"[Firebase/Auth]";
+FIRLoggerService kFIRLoggerCrash = @"[Firebase/Crash]";
 FIRLoggerService kFIRLoggerMLKit = @"[Firebase/MLKit]";
 FIRLoggerService kFIRLoggerPerf = @"[Firebase/Performance]";
 FIRLoggerService kFIRLoggerRemoteConfig = @"[Firebase/RemoteConfig]";
