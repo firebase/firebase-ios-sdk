@@ -322,7 +322,7 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
 + (void)createSubclassWithObject:(id<UIApplicationDelegate>)anObject {
   Class realClass = [anObject class];
 
-  // Create GUL_<RealAppDelegate>_<timestampMs>
+  // Create GUL_<RealAppDelegate>_<UUID>
   NSString *classNameWithPrefix =
       [kGULAppDelegatePrefix stringByAppendingString:NSStringFromClass(realClass)];
   NSString *newClassName =
