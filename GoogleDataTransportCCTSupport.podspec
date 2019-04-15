@@ -25,8 +25,8 @@ Support library to provide event prioritization and uploading for the GoogleData
   s.static_framework = true
   s.prefix_header_file = false
 
-  s.source_files = 'GoogleDataTransportCCTSupport/GoogleDataTransportCCTSupport/Classes/**/*'
-  s.private_header_files = 'GoogleDataTransportCCTSupport/GoogleDataTransportCCTSupport/Classes/Private/*.h'
+  s.source_files = 'GoogleDataTransportCCTSupport/Library/**/*'
+  s.private_header_files = 'GoogleDataTransportCCTSupport/Library/Private/*.h'
 
   s.dependency 'GoogleDataTransport'
   s.dependency 'nanopb'
