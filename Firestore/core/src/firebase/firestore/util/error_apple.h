@@ -23,9 +23,11 @@
 #import <Foundation/Foundation.h>
 
 #include <functional>
+#include <utility>
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor_callback.h"
 #include "absl/strings/string_view.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -54,6 +56,25 @@ Status MakeStatus(NSError* error);
 using VoidErrorBlock = void (^)(NSError* _Nullable error);
 
 util::StatusCallback MakeCallback(VoidErrorBlock _Nullable block);
+
+template <typename T>
+using VoidValueErrorBlock = void (^)(T _Nullable value,
+                                     NSError* _Nullable error);
+
+template <typename T>
+util::StatusOrCallback<T> MakeCallback(VoidValueErrorBlock<T> _Nullable block) {
+  if (block) {
+    return [block](StatusOr<T> maybe_value) {
+      if (maybe_value.ok()) {
+        block(std::move(maybe_value).ValueOrDie(), nil);
+      } else {
+        block(nil, MakeNSError(std::move(maybe_value).status()));
+      }
+    };
+  } else {
+    return [](StatusOr<T> maybe_value) {};
+  }
+}
 
 }  // namespace util
 }  // namespace firestore

@@ -28,6 +28,7 @@
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/core/listen_options.h"
 #include "Firestore/core/src/firebase/firestore/core/query_listener.h"
+#include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
@@ -113,8 +114,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Tries to execute the transaction in updateBlock up to retries times. */
 - (void)transactionWithRetries:(int)retries
-                   updateBlock:(FSTTransactionBlock)updateBlock
-                    completion:(FSTVoidIDErrorBlock)completion;
+                   updateBlock:(core::TransactionUpdateBlock)updateBlock
+                    completion:(core::TransactionCompletion)completion;
 
 /** The database ID of the databaseInfo this client was initialized with. */
 // Ownes a DatabaseInfo instance, which contains the id here.

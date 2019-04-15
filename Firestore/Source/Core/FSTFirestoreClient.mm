@@ -407,19 +407,20 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
 };
 
 - (void)transactionWithRetries:(int)retries
-                   updateBlock:(FSTTransactionBlock)updateBlock
-                    completion:(FSTVoidIDErrorBlock)completion {
-  _workerQueue->Enqueue([self, retries, updateBlock, completion] {
-    [self.syncEngine
-        transactionWithRetries:retries
-                   workerQueue:_workerQueue.get()
-                   updateBlock:updateBlock
-                    completion:^(id _Nullable result, NSError *_Nullable error) {
-                      // Dispatch the result back onto the user dispatch queue.
-                      if (completion) {
-                        self->_userExecutor->Execute([=] { completion(result, error); });
-                      }
-                    }];
+                   updateBlock:(core::TransactionUpdateBlock)update_block
+                    completion:(core::TransactionCompletion)completion {
+  // Dispatch the result back onto the user dispatch queue.
+  auto async_completion = [self, completion](util::StatusOr<absl::any> maybe_value) {
+    if (completion) {
+      self->_userExecutor->Execute([=] { completion(std::move(maybe_value)); });
+    }
+  };
+
+  _workerQueue->Enqueue([self, retries, update_block, async_completion] {
+    [self.syncEngine transactionWithRetries:retries
+                                workerQueue:_workerQueue.get()
+                                updateBlock:std::move(update_block)
+                                 completion:std::move(async_completion)];
   });
 }
 

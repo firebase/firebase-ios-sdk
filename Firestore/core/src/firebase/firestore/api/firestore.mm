@@ -125,34 +125,13 @@ FIRQuery* Firestore::GetCollectionGroup(NSString* collection_id) {
                          firestore:wrapper];
 }
 
-void Firestore::RunTransaction(TransactionBlock update_block,
-                               dispatch_queue_t queue,
-                               ResultOrErrorCompletion completion) {
+void Firestore::RunTransaction(core::TransactionUpdateBlock update_block,
+                               core::TransactionCompletion completion) {
   EnsureClientConfigured();
-  FIRFirestore* wrapper = [FIRFirestore recoverFromFirestore:this];
-
-  FSTTransactionBlock wrapped_update =
-      ^(std::shared_ptr<Transaction> internal_transaction,
-        void (^internal_completion)(id _Nullable, NSError* _Nullable)) {
-        FIRTransaction* transaction = [FIRTransaction
-            transactionWithInternalTransaction:std::move(internal_transaction)
-                                     firestore:wrapper];
-
-        dispatch_async(queue, ^{
-          NSError* _Nullable error = nil;
-          id _Nullable result = update_block(transaction, &error);
-          if (error) {
-            // Force the result to be nil in the case of an error, in case the
-            // user set both.
-            result = nil;
-          }
-          internal_completion(result, error);
-        });
-      };
 
   [client_ transactionWithRetries:5
-                      updateBlock:wrapped_update
-                       completion:completion];
+                      updateBlock:std::move(update_block)
+                       completion:std::move(completion)];
 }
 
 void Firestore::Shutdown(util::StatusCallback completion) {

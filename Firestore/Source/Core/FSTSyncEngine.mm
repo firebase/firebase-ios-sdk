@@ -33,6 +33,7 @@
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 
+#include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
@@ -49,6 +50,7 @@
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "absl/types/optional.h"
 
+using firebase::firestore::FirestoreErrorCode;
 using firebase::firestore::auth::HashUser;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::TargetIdGenerator;
@@ -293,36 +295,33 @@ class LimboResolution {
  */
 - (void)transactionWithRetries:(int)retries
                    workerQueue:(AsyncQueue *)workerQueue
-                   updateBlock:(FSTTransactionBlock)updateBlock
-                    completion:(FSTVoidIDErrorBlock)completion {
+                   updateBlock:(core::TransactionUpdateBlock)updateBlock
+                    completion:(core::TransactionCompletion)completion {
   workerQueue->VerifyIsCurrentQueue();
   HARD_ASSERT(retries >= 0, "Got negative number of retries for transaction");
 
   std::shared_ptr<Transaction> transaction = _remoteStore->CreateTransaction();
-  updateBlock(transaction, ^(id _Nullable result, NSError *_Nullable error) {
+  updateBlock(transaction, [=](util::StatusOr<absl::any> maybe_result) {
     workerQueue->Enqueue(
-        [self, retries, workerQueue, updateBlock, completion, transaction, result, error] {
-          if (error) {
-            completion(nil, error);
+        [self, retries, workerQueue, updateBlock, completion, transaction, maybe_result] {
+          if (!maybe_result.ok()) {
+            completion(std::move(maybe_result));
             return;
           }
+
           transaction->Commit([self, retries, workerQueue, updateBlock, completion,
-                               result](const Status &status) {
+                               maybe_result](Status status) {
             if (status.ok()) {
-              completion(result, nil);
+              completion(std::move(status));
               return;
             }
 
             // TODO(b/35201829): Only retry on real transaction failures.
             if (retries == 0) {
-              NSError *wrappedError =
-                  [NSError errorWithDomain:FIRFirestoreErrorDomain
-                                      code:FIRFirestoreErrorCodeFailedPrecondition
-                                  userInfo:@{
-                                    NSLocalizedDescriptionKey : @"Transaction failed all retries.",
-                                    NSUnderlyingErrorKey : MakeNSError(status)
-                                  }];
-              completion(nil, wrappedError);
+              Status wrappedError =
+                  Status(FirestoreErrorCode::FailedPrecondition, "Transaction failed all retries.")
+                      .CausedBy(std::move(status));
+              completion(std::move(wrappedError));
               return;
             }
             workerQueue->VerifyIsCurrentQueue();

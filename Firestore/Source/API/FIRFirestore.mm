@@ -30,6 +30,7 @@
 
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
+#import "Firestore/Source/API/FIRTransaction+Internal.h"
 #import "Firestore/Source/API/FSTFirestoreComponent.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 
@@ -37,6 +38,7 @@
 #include "Firestore/core/src/firebase/firestore/api/input_validation.h"
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
+#include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/delayed_constructor.h"
@@ -228,15 +230,50 @@ NS_ASSUME_NONNULL_BEGIN
                   dispatchQueue:(dispatch_queue_t)queue
                      completion:
                          (void (^)(id _Nullable result, NSError *_Nullable error))completion {
-  // We wrap the function they provide in order to use internal implementation classes for
-  // transaction, and to run the user callback block on the proper queue.
   if (!updateBlock) {
     ThrowInvalidArgument("Transaction block cannot be nil.");
-  } else if (!completion) {
+  }
+  if (!completion) {
     ThrowInvalidArgument("Transaction completion block cannot be nil.");
   }
 
-  _firestore->RunTransaction(updateBlock, queue, completion);
+  // Wrap the user-supplied updateBlock in a core C++ compatible callback. Wrap the result of the
+  // updateBlock invocation up in an absl::any for tunneling through the internals of the system.
+  auto internalUpdateBlock = [self, updateBlock, queue](
+                                 std::shared_ptr<core::Transaction> internalTransaction,
+                                 core::TransactionCompletion internalCompletion) {
+    FIRTransaction *transaction =
+        [FIRTransaction transactionWithInternalTransaction:std::move(internalTransaction)
+                                                 firestore:self];
+
+    dispatch_async(queue, ^{
+      NSError *_Nullable error = nil;
+      id _Nullable result = updateBlock(transaction, &error);
+
+      // If the user set an error, diregard the result.
+      if (error) {
+        internalCompletion(util::MakeStatus(error));
+      } else {
+        internalCompletion(absl::make_any<id>(result));
+      }
+    });
+  };
+
+  // Unpacks the absl::any value and calls the user completion handler.
+  //
+  // PORTING NOTE: Other platforms where the user return value is internally representable don't
+  // need this wrapper.
+  auto objcTranslator = [completion](util::StatusOr<absl::any> maybeValue) {
+    if (!maybeValue.ok()) {
+      completion(nil, util::MakeNSError(maybeValue.status()));
+      return;
+    }
+
+    absl::any value = std::move(maybeValue).ValueOrDie();
+    completion(absl::any_cast<id>(value), nil);
+  };
+
+  _firestore->RunTransaction(std::move(internalUpdateBlock), std::move(objcTranslator));
 }
 
 - (void)runTransactionWithBlock:(id _Nullable (^)(FIRTransaction *, NSError **error))updateBlock

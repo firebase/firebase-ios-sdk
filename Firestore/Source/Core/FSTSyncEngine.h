@@ -21,9 +21,11 @@
 #import "Firestore/Source/Core/FSTTypes.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_store.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor_callback.h"
 
 @class FSTLocalStore;
 @class FSTMutation;
@@ -106,8 +108,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)transactionWithRetries:(int)retries
                    workerQueue:(util::AsyncQueue *)workerQueue
-                   updateBlock:(FSTTransactionBlock)updateBlock
-                    completion:(FSTVoidIDErrorBlock)completion;
+                   updateBlock:(core::TransactionUpdateBlock)updateBlock
+                    completion:(core::TransactionCompletion)completion;
 
 - (void)credentialDidChangeWithUser:(const auth::User &)user;
 
