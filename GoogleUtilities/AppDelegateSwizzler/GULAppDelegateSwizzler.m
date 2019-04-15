@@ -69,17 +69,8 @@ typedef void (^GULAppDelegateInterceptorCallback)(id<UIApplicationDelegate>);
 
 // The strings below are the keys for associated objects.
 static char const *const kGULRealIMPBySelectorKey = "GUL_realIMPBySelector";
-static char const *const kGULContinueUserActivityIMPKey = "GUL_continueUserActivityIMP";
-static char const *const kGULHandleBackgroundSessionIMPKey = "GUL_handleBackgroundSessionIMP";
-static char const *const kGULOpenURLOptionsIMPKey = "GUL_openURLOptionsIMP";
-
-#if TARGET_OS_IOS
-// The method application:openURL:sourceApplication:annotation: is not available on tvOS
-static char const *const kGULOpenURLOptionsSourceAnnotationsIMPKey =
-    "GUL_openURLSourceApplicationAnnotationIMP";
-#endif  // TARGET_OS_IOS
-
 static char const *const kGULRealClassKey = "GUL_realClass";
+
 static NSString *const kGULAppDelegateKeyPath = @"delegate";
 
 static GULLoggerService kGULLoggerSwizzler = @"[GoogleUtilities/AppDelegateSwizzler]";
@@ -346,7 +337,6 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
   // Add the following methods from GULAppDelegate class, and store the real implementation so it
   // can forward to the real one.
   // For application:openURL:options:
-  NSValue *openURLOptionsIMPPointer;
   SEL applicationOpenURLOptionsSEL = @selector(application:openURL:options:);
   if ([anObject respondsToSelector:applicationOpenURLOptionsSEL]) {
     // Only add the application:openURL:options: method if the original AppDelegate implements it.
@@ -354,37 +344,32 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
     // (if we add the `options` method, iOS sees that one exists and does not call the
     // `sourceApplication` method, which in this case is the only one the app implements).
 
-    [GULAppDelegateSwizzler addInstanceMethodWithSelector:applicationOpenURLOptionsSEL
-                                                fromClass:[GULAppDelegateSwizzler class]
-                                                  toClass:appDelegateSubClass];
-    GULRealOpenURLOptionsIMP openURLOptionsIMP = (GULRealOpenURLOptionsIMP)
-        [GULAppDelegateSwizzler implementationOfMethodSelector:applicationOpenURLOptionsSEL
-                                                     fromClass:realClass];
-    openURLOptionsIMPPointer = [NSValue valueWithPointer:openURLOptionsIMP];
+    [self swizzleDestinationSelector:applicationOpenURLOptionsSEL
+        implementationFromSourceSelector:applicationOpenURLOptionsSEL
+                               fromClass:[GULAppDelegateSwizzler class]
+                                 toClass:appDelegateSubClass
+                               realClass:realClass
+        storeDestinationImplementationTo:realImplementationBySelector];
   }
 
   // For application:continueUserActivity:restorationHandler:
   SEL continueUserActivitySEL = @selector(application:continueUserActivity:restorationHandler:);
-  [GULAppDelegateSwizzler addInstanceMethodWithSelector:continueUserActivitySEL
-                                              fromClass:[GULAppDelegateSwizzler class]
-                                                toClass:appDelegateSubClass];
-  GULRealContinueUserActivityIMP continueUserActivityIMP = (GULRealContinueUserActivityIMP)
-      [GULAppDelegateSwizzler implementationOfMethodSelector:continueUserActivitySEL
-                                                   fromClass:realClass];
-  NSValue *continueUserActivityIMPPointer = [NSValue valueWithPointer:continueUserActivityIMP];
+  [self swizzleDestinationSelector:continueUserActivitySEL
+      implementationFromSourceSelector:continueUserActivitySEL
+                             fromClass:[GULAppDelegateSwizzler class]
+                               toClass:appDelegateSubClass
+                             realClass:realClass
+      storeDestinationImplementationTo:realImplementationBySelector];
 
   // For application:handleEventsForBackgroundURLSession:completionHandler:
   SEL handleEventsForBackgroundURLSessionSEL = @selector(application:
                                  handleEventsForBackgroundURLSession:completionHandler:);
-  [GULAppDelegateSwizzler addInstanceMethodWithSelector:handleEventsForBackgroundURLSessionSEL
-                                              fromClass:[GULAppDelegateSwizzler class]
-                                                toClass:appDelegateSubClass];
-  GULRealHandleEventsForBackgroundURLSessionIMP handleBackgroundSessionIMP =
-      (GULRealHandleEventsForBackgroundURLSessionIMP)[GULAppDelegateSwizzler
-          implementationOfMethodSelector:handleEventsForBackgroundURLSessionSEL
-                               fromClass:realClass];
-  NSValue *handleBackgroundSessionIMPPointer =
-      [NSValue valueWithPointer:handleBackgroundSessionIMP];
+  [self swizzleDestinationSelector:handleEventsForBackgroundURLSessionSEL
+      implementationFromSourceSelector:handleEventsForBackgroundURLSessionSEL
+                             fromClass:[GULAppDelegateSwizzler class]
+                               toClass:appDelegateSubClass
+                             realClass:realClass
+      storeDestinationImplementationTo:realImplementationBySelector];
 
   // For application:didRegisterForRemoteNotificationsWithDeviceToken:
   SEL didRegisterForRemoteNotificationsSEL =
@@ -393,11 +378,11 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
                  donor_didRegisterForRemoteNotificationsWithDeviceToken:);
 
   [self swizzleDestinationSelector:didRegisterForRemoteNotificationsSEL
-  implementationFromSourceSelector:didRegisterForRemoteNotificationsDonorSEL
-                         fromClass:[GULAppDelegateSwizzler class]
-                           toClass:appDelegateSubClass
-                         realClass:realClass
-  storeDestinationImplementationTo:realImplementationBySelector];
+      implementationFromSourceSelector:didRegisterForRemoteNotificationsDonorSEL
+                             fromClass:[GULAppDelegateSwizzler class]
+                               toClass:appDelegateSubClass
+                             realClass:realClass
+      storeDestinationImplementationTo:realImplementationBySelector];
 
   // For application:didFailToRegisterForRemoteNotificationsWithError:
   SEL didFailToRegisterForRemoteNotificationsSEL =
@@ -406,11 +391,11 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
                        donor_didFailToRegisterForRemoteNotificationsWithError:);
 
   [self swizzleDestinationSelector:didFailToRegisterForRemoteNotificationsSEL
-  implementationFromSourceSelector:didFailToRegisterForRemoteNotificationsDonorSEL
-                         fromClass:[GULAppDelegateSwizzler class]
-                           toClass:appDelegateSubClass
-                         realClass:realClass
-  storeDestinationImplementationTo:realImplementationBySelector];
+      implementationFromSourceSelector:didFailToRegisterForRemoteNotificationsDonorSEL
+                             fromClass:[GULAppDelegateSwizzler class]
+                               toClass:appDelegateSubClass
+                             realClass:realClass
+      storeDestinationImplementationTo:realImplementationBySelector];
 
   // For application:didReceiveRemoteNotification:
   SEL didReceiveRemoteNotificationSEL = NSSelectorFromString(kGULDidReceiveRemoteNotificationSEL);
@@ -418,25 +403,23 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
                                 donor_didReceiveRemoteNotification:);
 
   [self swizzleDestinationSelector:didReceiveRemoteNotificationSEL
-  implementationFromSourceSelector:didReceiveRemoteNotificationDonotSEL
-                         fromClass:[GULAppDelegateSwizzler class]
-                           toClass:appDelegateSubClass
-                         realClass:realClass
-  storeDestinationImplementationTo:realImplementationBySelector];
+      implementationFromSourceSelector:didReceiveRemoteNotificationDonotSEL
+                             fromClass:[GULAppDelegateSwizzler class]
+                               toClass:appDelegateSubClass
+                             realClass:realClass
+      storeDestinationImplementationTo:realImplementationBySelector];
 
 #if TARGET_OS_IOS
   // For application:openURL:sourceApplication:annotation:
   SEL openURLSourceApplicationAnnotationSEL = @selector(application:
                                                             openURL:sourceApplication:annotation:);
-  [GULAppDelegateSwizzler addInstanceMethodWithSelector:openURLSourceApplicationAnnotationSEL
-                                              fromClass:[GULAppDelegateSwizzler class]
-                                                toClass:appDelegateSubClass];
-  GULRealOpenURLSourceApplicationAnnotationIMP openURLSourceApplicationAnnotationIMP =
-      (GULRealOpenURLSourceApplicationAnnotationIMP)[GULAppDelegateSwizzler
-          implementationOfMethodSelector:openURLSourceApplicationAnnotationSEL
-                               fromClass:realClass];
-  NSValue *openURLSourceAppAnnotationIMPPointer =
-      [NSValue valueWithPointer:openURLSourceApplicationAnnotationIMP];
+
+  [self swizzleDestinationSelector:openURLSourceApplicationAnnotationSEL
+      implementationFromSourceSelector:openURLSourceApplicationAnnotationSEL
+                             fromClass:[GULAppDelegateSwizzler class]
+                               toClass:appDelegateSubClass
+                             realClass:realClass
+      storeDestinationImplementationTo:realImplementationBySelector];
 #endif  // TARGET_OS_IOS
 
   // Override the description too so the custom class name will not show up.
@@ -444,26 +427,6 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
                               withImplementationFromSourceSelector:@selector(fakeDescription)
                                                          fromClass:[self class]
                                                            toClass:appDelegateSubClass];
-
-  // Create fake properties for the real app delegate object.
-
-
-  objc_setAssociatedObject(anObject, &kGULContinueUserActivityIMPKey,
-                           continueUserActivityIMPPointer, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-  objc_setAssociatedObject(anObject, &kGULHandleBackgroundSessionIMPKey,
-                           handleBackgroundSessionIMPPointer, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-  if (openURLOptionsIMPPointer) {
-    objc_setAssociatedObject(anObject, &kGULOpenURLOptionsIMPKey, openURLOptionsIMPPointer,
-                             OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-  }
-
-#if TARGET_OS_IOS
-  objc_setAssociatedObject(anObject, &kGULOpenURLOptionsSourceAnnotationsIMPKey,
-                           openURLSourceAppAnnotationIMPPointer, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-#endif  // TARGET_OS_IOS
-
-  objc_setAssociatedObject(anObject, &kGULRealClassKey, realClass,
-                           OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 
   // For application:didReceiveRemoteNotification:fetchCompletionHandler:
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000
@@ -480,18 +443,20 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
       // the method without the completion, which in this case is the only one the app implements).
 
       [self swizzleDestinationSelector:didReceiveRemoteNotificationWithCompletionSEL
-      implementationFromSourceSelector:didReceiveRemoteNotificationWithCompletionDonorSEL
-                             fromClass:[GULAppDelegateSwizzler class]
-                               toClass:appDelegateSubClass
-                             realClass:realClass
-      storeDestinationImplementationTo:realImplementationBySelector];
+          implementationFromSourceSelector:didReceiveRemoteNotificationWithCompletionDonorSEL
+                                 fromClass:[GULAppDelegateSwizzler class]
+                                   toClass:appDelegateSubClass
+                                 realClass:realClass
+          storeDestinationImplementationTo:realImplementationBySelector];
     }
   }
 #endif  // __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000
 
   // Store original implementations to a fake property of the original delegate
-  objc_setAssociatedObject(anObject, &kGULRealIMPBySelectorKey,
-                           [realImplementationBySelector copy], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+  objc_setAssociatedObject(anObject, &kGULRealIMPBySelectorKey, [realImplementationBySelector copy],
+                           OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+  objc_setAssociatedObject(anObject, &kGULRealClassKey, realClass,
+                           OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 
   // The subclass size has to be exactly the same size with the original class size. The subclass
   // cannot have more ivars/properties than its superclass since it will cause an offset in memory
@@ -552,12 +517,12 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
 }
 
 + (void)swizzleDestinationSelector:(SEL)destinationSelector
-  implementationFromSourceSelector:(SEL)sourceSelector
-                         fromClass:(Class)sourceClass
-                           toClass:(Class)destinationClass
-                         realClass:(Class)realClass
-  storeDestinationImplementationTo:(NSMutableDictionary<NSString *, NSValue *> *)destinationImplementationBySelector {
-
+    implementationFromSourceSelector:(SEL)sourceSelector
+                           fromClass:(Class)sourceClass
+                             toClass:(Class)destinationClass
+                           realClass:(Class)realClass
+    storeDestinationImplementationTo:
+        (NSMutableDictionary<NSString *, NSValue *> *)destinationImplementationBySelector {
   [self addInstanceMethodWithDestinationSelector:destinationSelector
             withImplementationFromSourceSelector:sourceSelector
                                        fromClass:sourceClass
@@ -677,12 +642,13 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
 - (BOOL)application:(UIApplication *)application
             openURL:(NSURL *)url
             options:(NSDictionary<NSString *, id> *)options {
+  SEL methodSelector = @selector(application:openURL:options:);
   // Call the real implementation if the real App Delegate has any.
-  NSValue *openURLIMPPointer = objc_getAssociatedObject(self, &kGULOpenURLOptionsIMPKey);
+  NSValue *openURLIMPPointer =
+      [[GULAppDelegateSwizzler class] originalImplementationForSelector:methodSelector object:self];
   GULRealOpenURLOptionsIMP openURLOptionsIMP = [openURLIMPPointer pointerValue];
 
   __block BOOL returnedValue = NO;
-  SEL methodSelector = @selector(application:openURL:options:);
 
 // This is needed to for the library to be warning free on iOS versions < 9.
 #pragma clang diagnostic push
@@ -707,14 +673,15 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
               openURL:(NSURL *)url
     sourceApplication:(NSString *)sourceApplication
            annotation:(id)annotation {
+  SEL methodSelector = @selector(application:openURL:sourceApplication:annotation:);
+
   // Call the real implementation if the real App Delegate has any.
   NSValue *openURLSourceAppAnnotationIMPPointer =
-      objc_getAssociatedObject(self, &kGULOpenURLOptionsSourceAnnotationsIMPKey);
+      [[GULAppDelegateSwizzler class] originalImplementationForSelector:methodSelector object:self];
   GULRealOpenURLSourceApplicationAnnotationIMP openURLSourceApplicationAnnotationIMP =
       [openURLSourceAppAnnotationIMPPointer pointerValue];
 
   __block BOOL returnedValue = NO;
-  SEL methodSelector = @selector(application:openURL:sourceApplication:annotation:);
   [GULAppDelegateSwizzler
       notifyInterceptorsWithMethodSelector:methodSelector
                                   callback:^(id<UIApplicationDelegate> interceptor) {
@@ -743,14 +710,14 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
     handleEventsForBackgroundURLSession:(NSString *)identifier
                       completionHandler:(void (^)())completionHandler API_AVAILABLE(ios(7.0)) {
 #pragma clang diagnostic pop
+  SEL methodSelector = @selector(application:
+         handleEventsForBackgroundURLSession:completionHandler:);
   NSValue *handleBackgroundSessionPointer =
-      objc_getAssociatedObject(self, &kGULHandleBackgroundSessionIMPKey);
+      [[GULAppDelegateSwizzler class] originalImplementationForSelector:methodSelector object:self];
   GULRealHandleEventsForBackgroundURLSessionIMP handleBackgroundSessionIMP =
       [handleBackgroundSessionPointer pointerValue];
 
   // Notify interceptors.
-  SEL methodSelector = @selector(application:
-         handleEventsForBackgroundURLSession:completionHandler:);
   [GULAppDelegateSwizzler
       notifyInterceptorsWithMethodSelector:methodSelector
                                   callback:^(id<UIApplicationDelegate> interceptor) {
@@ -772,13 +739,13 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
 - (BOOL)application:(UIApplication *)application
     continueUserActivity:(NSUserActivity *)userActivity
       restorationHandler:(void (^)(NSArray *restorableObjects))restorationHandler {
+  SEL methodSelector = @selector(application:continueUserActivity:restorationHandler:);
   NSValue *continueUserActivityIMPPointer =
-      objc_getAssociatedObject(self, &kGULContinueUserActivityIMPKey);
+      [[GULAppDelegateSwizzler class] originalImplementationForSelector:methodSelector object:self];
   GULRealContinueUserActivityIMP continueUserActivityIMP =
       continueUserActivityIMPPointer.pointerValue;
 
   __block BOOL returnedValue = NO;
-  SEL methodSelector = @selector(application:continueUserActivity:restorationHandler:);
   [GULAppDelegateSwizzler
       notifyInterceptorsWithMethodSelector:methodSelector
                                   callback:^(id<UIApplicationDelegate> interceptor) {

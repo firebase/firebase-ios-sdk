@@ -143,9 +143,9 @@ static BOOL gRespondsToHandleBackgroundSession;
 }
 
 - (BOOL)application:(UIApplication *)application
-            openURL:(NSURL *)url
-  sourceApplication:(NSString *)sourceApplication
-         annotation:(id)annotation {
+              openURL:(NSURL *)url
+    sourceApplication:(NSString *)sourceApplication
+           annotation:(id)annotation {
   self.application = application;
   self.url = url;
   self.openURLSourceApplication = sourceApplication;
@@ -154,9 +154,9 @@ static BOOL gRespondsToHandleBackgroundSession;
 }
 
 - (BOOL)application:(UIApplication *)application
-continueUserActivity:(NSUserActivity *)userActivity
- restorationHandler:(void (^)(NSArray<id<UIUserActivityRestoring>> *__nullable
-                              restorableObjects))restorationHandler {
+    continueUserActivity:(NSUserActivity *)userActivity
+      restorationHandler:(void (^)(NSArray<id<UIUserActivityRestoring>> *__nullable
+                                       restorableObjects))restorationHandler {
   self.application = application;
   self.userActivity = userActivity;
   return NO;
@@ -285,10 +285,10 @@ continueUserActivity:(NSUserActivity *)userActivity
   GULTestAppDelegate *realAppDelegate = [[GULTestAppDelegate alloc] init];
   size_t sizeBefore = class_getInstanceSize([GULTestAppDelegate class]);
 
-//  XCTAssertTrue(gRespondsToOpenURLHandler_iOS9);
-//  XCTAssertFalse(gRespondsToOpenURLHandler_iOS8);
-//  XCTAssertFalse(gRespondsToContinueUserActivity);
-//  XCTAssertTrue(gRespondsToHandleBackgroundSession);
+  //  XCTAssertTrue(gRespondsToOpenURLHandler_iOS9);
+  //  XCTAssertFalse(gRespondsToOpenURLHandler_iOS8);
+  //  XCTAssertFalse(gRespondsToContinueUserActivity);
+  //  XCTAssertTrue(gRespondsToHandleBackgroundSession);
 
   Class realAppDelegateClassBefore = [realAppDelegate class];
 
