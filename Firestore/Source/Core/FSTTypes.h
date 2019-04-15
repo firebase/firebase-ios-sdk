@@ -35,9 +35,6 @@ typedef void (^FSTVoidBlock)(void);
  */
 typedef void (^FSTVoidErrorBlock)(NSError *_Nullable error);
 
-/** FSTVoidIDErrorBlock is a block that takes an optional value and error. */
-typedef void (^FSTVoidIDErrorBlock)(id _Nullable, NSError *_Nullable);
-
 /**
  * FSTVoidMaybeDocumentErrorBlock is a block that gets either a list of documents or an error.
  *
