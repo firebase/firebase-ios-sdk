@@ -54,7 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** Checks to see if logging is is globally enabled for the Firestore client. */
 + (BOOL)isLoggingEnabled;
 
-+ (FIRFirestore *)recoverFromFirestore:(api::Firestore *)firestore;
++ (FIRFirestore *)recoverFromFirestore:(std::shared_ptr<api::Firestore>)firestore;
 
 /**
  * Shutdown this `FIRFirestore`, releasing all resources (abandoning any outstanding writes,
@@ -65,11 +65,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)shutdownWithCompletion:(nullable void (^)(NSError *_Nullable error))completion
     NS_SWIFT_NAME(shutdown(completion:));
 
-@property(nonatomic, assign, readonly) api::Firestore *wrapped;
+@property(nonatomic, assign, readonly) std::shared_ptr<api::Firestore> wrapped;
 
 @property(nonatomic, assign, readonly) util::AsyncQueue *workerQueue;
 
-// FIRFirestore ownes the DatabaseId instance.
+// FIRFirestore owns the DatabaseId instance.
 @property(nonatomic, assign, readonly) const model::DatabaseId *databaseID;
 @property(nonatomic, strong, readonly) FSTUserDataConverter *dataConverter;
 

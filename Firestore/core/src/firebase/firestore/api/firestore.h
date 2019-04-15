@@ -51,7 +51,7 @@ namespace api {
 
 class DocumentReference;
 
-class Firestore {
+class Firestore : public std::enable_shared_from_this<Firestore> {
  public:
   using TransactionBlock = id _Nullable (^)(FIRTransaction*, NSError** error);
   using ErrorCompletion = void (^)(NSError* _Nullable error);

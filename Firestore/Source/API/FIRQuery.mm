@@ -183,7 +183,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (id<FIRListenerRegistration>)addSnapshotListenerInternalWithOptions:(ListenOptions)internalOptions
                                                              listener:
                                                                  (FIRQuerySnapshotBlock)listener {
-  Firestore *firestore = self.firestore.wrapped;
+  std::shared_ptr<Firestore> firestore = self.firestore.wrapped;
   FSTQuery *query = self.query;
 
   // Convert from ViewSnapshots to QuerySnapshots.

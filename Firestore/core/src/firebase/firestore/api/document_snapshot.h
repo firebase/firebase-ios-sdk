@@ -51,7 +51,7 @@ class DocumentSnapshot {
 
   DocumentSnapshot() = default;
 
-  DocumentSnapshot(Firestore* firestore,
+  DocumentSnapshot(std::shared_ptr<Firestore> firestore,
                    model::DocumentKey document_key,
                    FSTDocument* _Nullable document,
                    SnapshotMetadata metadata)
@@ -61,7 +61,7 @@ class DocumentSnapshot {
         metadata_{std::move(metadata)} {
   }
 
-  DocumentSnapshot(Firestore* firestore,
+  DocumentSnapshot(std::shared_ptr<Firestore> firestore,
                    model::DocumentKey document_key,
                    FSTDocument* _Nullable document,
                    bool from_cache,
@@ -91,7 +91,7 @@ class DocumentSnapshot {
   FSTObjectValue* _Nullable GetData() const;
   id _Nullable GetValue(const model::FieldPath& field_path) const;
 
-  Firestore* firestore() const {
+  const std::shared_ptr<Firestore>& firestore() const {
     return firestore_;
   }
 
@@ -99,7 +99,7 @@ class DocumentSnapshot {
                          const DocumentSnapshot& rhs);
 
  private:
-  Firestore* firestore_ = nullptr;
+  std::shared_ptr<Firestore> firestore_;
   model::DocumentKey internal_key_;
   FSTDocument* internal_document_ = nil;
   SnapshotMetadata metadata_;

@@ -18,6 +18,7 @@
 
 #import <XCTest/XCTest.h>
 
+#include <memory>
 #include <utility>
 #include <vector>
 
@@ -89,7 +90,7 @@ NS_ASSUME_NONNULL_BEGIN
       DocumentViewChange(doc2New, DocumentViewChange::Type::kModified),
   };
 
-  Firestore *firestore = FSTTestFirestore().wrapped;
+  std::shared_ptr<Firestore> firestore = FSTTestFirestore().wrapped;
   FSTQuery *query = FSTTestQuery("foo");
   ViewSnapshot viewSnapshot(query, newDocuments, oldDocuments, std::move(documentChanges),
                             /*mutated_keys=*/DocumentKeySet(),
