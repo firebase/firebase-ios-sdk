@@ -50,6 +50,10 @@ typedef NSString *const GULAppDelegateInterceptorID;
 + (void)proxyOriginalDelegate NS_EXTENSION_UNAVAILABLE(
     "App delegate proxy doesn't support extensions.");
 
+// TODO: AppleDoc
++ (void)proxyOriginalDelegateRemoteNotificationMethods NS_EXTENSION_UNAVAILABLE(
+    "App delegate proxy doesn't support extensions.");
+
 /** Indicates whether app delegate proxy is explicitly disabled or enabled. Enabled by default.
  *
  *  @return YES if AppDelegateProxy is Enabled, NO otherwise.
