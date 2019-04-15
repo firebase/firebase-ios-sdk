@@ -375,28 +375,29 @@ static BOOL gRespondsToHandleBackgroundSession;
   // After being proxied, it should be able to respond to the required method selector.
 #if TARGET_OS_IOS
   XCTAssertTrue([realAppDelegate
-                 respondsToSelector:@selector(application:openURL:sourceApplication:annotation:)]);
+      respondsToSelector:@selector(application:openURL:sourceApplication:annotation:)]);
 #endif  // TARGET_OS_IOS
 
   XCTAssertTrue([realAppDelegate respondsToSelector:@selector(application:
-                                                              continueUserActivity:restorationHandler:)]);
+                                                        continueUserActivity:restorationHandler:)]);
 
   // The implementation should not be added if there is no original implementation
   XCTAssertFalse([realAppDelegate respondsToSelector:@selector(application:openURL:options:)]);
   XCTAssertTrue([realAppDelegate
-                 respondsToSelector:@selector(application:
-                                              handleEventsForBackgroundURLSession:completionHandler:)]);
+      respondsToSelector:@selector(application:
+                             handleEventsForBackgroundURLSession:completionHandler:)]);
 
-  // Remote notifications methods should be added only by -proxyOriginalDelegateRemoteNotificationMethods
+  // Remote notifications methods should be added only by
+  // -proxyOriginalDelegateRemoteNotificationMethods
   XCTAssertFalse([realAppDelegate
-                 respondsToSelector:@selector(application:didRegisterForRemoteNotificationsWithDeviceToken:)]);
+      respondsToSelector:@selector(application:didRegisterForRemoteNotificationsWithDeviceToken:)]);
   XCTAssertFalse([realAppDelegate
-                 respondsToSelector:@selector(application:didFailToRegisterForRemoteNotificationsWithError:)]);
+      respondsToSelector:@selector(application:didFailToRegisterForRemoteNotificationsWithError:)]);
   XCTAssertFalse([realAppDelegate respondsToSelector:@selector(application:
-                                                              didReceiveRemoteNotification:)]);
+                                                         didReceiveRemoteNotification:)]);
   XCTAssertFalse([realAppDelegate
-                 respondsToSelector:@selector(application:
-                                              didReceiveRemoteNotification:fetchCompletionHandler:)]);
+      respondsToSelector:@selector(application:
+                             didReceiveRemoteNotification:fetchCompletionHandler:)]);
 
   // Make sure that the class has changed.
   XCTAssertNotEqualObjects([realAppDelegate class], realAppDelegateClassBefore);
@@ -427,30 +428,31 @@ static BOOL gRespondsToHandleBackgroundSession;
   // After being proxied, it should be able to respond to the required method selector.
 #if TARGET_OS_IOS
   XCTAssertTrue([realAppDelegate
-                 respondsToSelector:@selector(application:openURL:sourceApplication:annotation:)]);
+      respondsToSelector:@selector(application:openURL:sourceApplication:annotation:)]);
 #endif  // TARGET_OS_IOS
 
   XCTAssertTrue([realAppDelegate respondsToSelector:@selector(application:
-                                                              continueUserActivity:restorationHandler:)]);
+                                                        continueUserActivity:restorationHandler:)]);
 
   // The implementation should not be added if there is no original implementation
   XCTAssertFalse([realAppDelegate respondsToSelector:@selector(application:openURL:options:)]);
   XCTAssertTrue([realAppDelegate
-                 respondsToSelector:@selector(application:
-                                              handleEventsForBackgroundURLSession:completionHandler:)]);
+      respondsToSelector:@selector(application:
+                             handleEventsForBackgroundURLSession:completionHandler:)]);
 
-  // Remote notifications methods should be added only by -proxyOriginalDelegateRemoteNotificationMethods
+  // Remote notifications methods should be added only by
+  // -proxyOriginalDelegateRemoteNotificationMethods
   XCTAssertTrue([realAppDelegate
-                  respondsToSelector:@selector(application:didRegisterForRemoteNotificationsWithDeviceToken:)]);
+      respondsToSelector:@selector(application:didRegisterForRemoteNotificationsWithDeviceToken:)]);
   XCTAssertTrue([realAppDelegate
-                  respondsToSelector:@selector(application:didFailToRegisterForRemoteNotificationsWithError:)]);
+      respondsToSelector:@selector(application:didFailToRegisterForRemoteNotificationsWithError:)]);
   XCTAssertTrue([realAppDelegate respondsToSelector:@selector(application:
-                                                               didReceiveRemoteNotification:)]);
+                                                        didReceiveRemoteNotification:)]);
 
   // The implementation should not be added if there is no original implementation
   XCTAssertFalse([realAppDelegate
-                  respondsToSelector:@selector(application:
-                                               didReceiveRemoteNotification:fetchCompletionHandler:)]);
+      respondsToSelector:@selector(application:
+                             didReceiveRemoteNotification:fetchCompletionHandler:)]);
 
   // Make sure that the class has changed.
   XCTAssertNotEqualObjects([realAppDelegate class], realAppDelegateClassBefore);
@@ -481,33 +483,32 @@ static BOOL gRespondsToHandleBackgroundSession;
   // After being proxied, it should be able to respond to the required method selector.
 #if TARGET_OS_IOS
   XCTAssertTrue([realAppDelegate
-                 respondsToSelector:@selector(application:openURL:sourceApplication:annotation:)]);
+      respondsToSelector:@selector(application:openURL:sourceApplication:annotation:)]);
 #endif  // TARGET_OS_IOS
 
   XCTAssertTrue([realAppDelegate respondsToSelector:@selector(application:
-                                                              continueUserActivity:restorationHandler:)]);
+                                                        continueUserActivity:restorationHandler:)]);
 
   // The implementation should not be added if there is no original implementation
   XCTAssertFalse([realAppDelegate respondsToSelector:@selector(application:openURL:options:)]);
   XCTAssertTrue([realAppDelegate
-                 respondsToSelector:@selector(application:
-                                              handleEventsForBackgroundURLSession:completionHandler:)]);
-
+      respondsToSelector:@selector(application:
+                             handleEventsForBackgroundURLSession:completionHandler:)]);
 
   // Proxy remote notifications methods
   [GULAppDelegateSwizzler proxyOriginalDelegateRemoteNotificationMethods];
 
   XCTAssertTrue([realAppDelegate
-                 respondsToSelector:@selector(application:didRegisterForRemoteNotificationsWithDeviceToken:)]);
+      respondsToSelector:@selector(application:didRegisterForRemoteNotificationsWithDeviceToken:)]);
   XCTAssertTrue([realAppDelegate
-                 respondsToSelector:@selector(application:didFailToRegisterForRemoteNotificationsWithError:)]);
+      respondsToSelector:@selector(application:didFailToRegisterForRemoteNotificationsWithError:)]);
   XCTAssertTrue([realAppDelegate respondsToSelector:@selector(application:
-                                                              didReceiveRemoteNotification:)]);
+                                                        didReceiveRemoteNotification:)]);
 
   // The implementation should not be added if there is no original implementation
   XCTAssertFalse([realAppDelegate
-                  respondsToSelector:@selector(application:
-                                               didReceiveRemoteNotification:fetchCompletionHandler:)]);
+      respondsToSelector:@selector(application:
+                             didReceiveRemoteNotification:fetchCompletionHandler:)]);
 
   // Make sure that the class has changed.
   XCTAssertNotEqualObjects([realAppDelegate class], realAppDelegateClassBefore);
