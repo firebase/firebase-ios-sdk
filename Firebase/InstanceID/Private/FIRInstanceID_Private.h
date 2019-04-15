@@ -27,7 +27,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, readonly, strong) NSString *deviceAuthID;
 @property(nonatomic, readonly, strong) NSString *secretToken;
 @property(nonatomic, readonly, strong) NSString *versionInfo;
-@property(nonatomic, readonly, assign) BOOL hasValidCheckinInfo;
 
 /**
  *  Private initializer.

@@ -632,14 +632,6 @@ static FIRInstanceID *gInstanceID;
   return [self.tokenManager.authService checkinPreferences].versionInfo;
 }
 
-- (NSString *)digest {
-  return [self.tokenManager.authService checkinPreferences].digest;
-}
-
-- (BOOL)hasValidCheckinInfo {
-  return [[self.tokenManager.authService checkinPreferences] hasValidCheckinInfo];
-}
-
 #pragma mark - Config
 
 + (void)load {

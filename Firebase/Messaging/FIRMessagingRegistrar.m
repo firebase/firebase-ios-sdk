@@ -35,8 +35,7 @@
 - (instancetype)init {
   self = [super init];
   if (self) {
-    // TODO(chliangGoogle): Merge pubsubRegistrar with Registrar as it is hard to track how many
-    // checkinService instances by separating classes too often.
+    // TODO(chliangGoogle): Get rid of FIRMessagingRegistrar class.
     _pubsubRegistrar = [[FIRMessagingPubSubRegistrar alloc] init];
   }
   return self;
