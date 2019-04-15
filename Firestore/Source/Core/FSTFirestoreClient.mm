@@ -22,7 +22,6 @@
 #include <utility>
 
 #import "FIRFirestoreErrors.h"
-#import "FIRFirestoreSettings.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
@@ -42,6 +41,7 @@
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 
+#include "Firestore/core/src/firebase/firestore/api/settings.h"
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
@@ -60,6 +60,7 @@ namespace util = firebase::firestore::util;
 using firebase::firestore::FirestoreErrorCode;
 using firebase::firestore::api::DocumentReference;
 using firebase::firestore::api::DocumentSnapshot;
+using firebase::firestore::api::Settings;
 using firebase::firestore::api::SnapshotMetadata;
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::User;
@@ -97,7 +98,7 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
 }
 
 - (instancetype)initWithDatabaseInfo:(const DatabaseInfo &)databaseInfo
-                            settings:(FIRFirestoreSettings *)settings
+                            settings:(const Settings &)settings
                  credentialsProvider:
                      (CredentialsProvider *)credentialsProvider  // no passing ownership
                         userExecutor:(std::unique_ptr<Executor>)userExecutor
@@ -142,7 +143,7 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
 }
 
 + (instancetype)clientWithDatabaseInfo:(const DatabaseInfo &)databaseInfo
-                              settings:(FIRFirestoreSettings *)settings
+                              settings:(const Settings &)settings
                    credentialsProvider:
                        (CredentialsProvider *)credentialsProvider  // no passing ownership
                           userExecutor:(std::unique_ptr<Executor>)userExecutor
@@ -155,7 +156,7 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
 }
 
 - (instancetype)initWithDatabaseInfo:(const DatabaseInfo &)databaseInfo
-                            settings:(FIRFirestoreSettings *)settings
+                            settings:(const Settings &)settings
                  credentialsProvider:
                      (CredentialsProvider *)credentialsProvider  // no passing ownership
                         userExecutor:(std::unique_ptr<Executor>)userExecutor
@@ -199,7 +200,7 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
   return self;
 }
 
-- (void)initializeWithUser:(const User &)user settings:(FIRFirestoreSettings *)settings {
+- (void)initializeWithUser:(const User &)user settings:(const Settings &)settings {
   // Do all of our initialization on our own dispatch queue.
   _workerQueue->VerifyIsCurrentQueue();
   LOG_DEBUG("Initializing. Current user: %s", user.uid());
@@ -207,7 +208,7 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
   // Note: The initialization work must all be synchronous (we can't dispatch more work) since
   // external write/listen operations could get queued to run before that subsequent work
   // completes.
-  if (settings.isPersistenceEnabled) {
+  if (settings.persistence_enabled()) {
     Path dir = [FSTLevelDB storageDirectoryForDatabaseInfo:*self.databaseInfo
                                         documentsDirectory:[FSTLevelDB documentsDirectory]];
 
@@ -219,7 +220,7 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
     Status levelDbStatus =
         [FSTLevelDB dbWithDirectory:std::move(dir)
                          serializer:serializer
-                          lruParams:LruParams::WithCacheSize(settings.cacheSizeBytes)
+                          lruParams:LruParams::WithCacheSize(settings.cache_size_bytes())
                                 ptr:&ldb];
     if (!levelDbStatus.ok()) {
       // If leveldb fails to start then just throw up our hands: the error is unrecoverable.

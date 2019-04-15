@@ -20,8 +20,6 @@
 
 #include "Firestore/core/src/firebase/firestore/util/warnings.h"
 
-#import "FIRFirestoreSettings.h"
-
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
@@ -32,6 +30,7 @@
 #include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/api/firestore.h"
 #include "Firestore/core/src/firebase/firestore/api/input_validation.h"
+#include "Firestore/core/src/firebase/firestore/api/settings.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
@@ -184,7 +183,7 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
       initWithServerTimestampBehavior:InternalServerTimestampBehavior(serverTimestampBehavior)
          timestampsInSnapshotsEnabled:_snapshot.firestore()
                                           ->settings()
-                                          .timestampsInSnapshotsEnabled];
+                                          .timestamps_in_snapshots_enabled()];
   SUPPRESS_END()
 }
 
