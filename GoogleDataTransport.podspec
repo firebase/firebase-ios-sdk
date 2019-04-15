@@ -23,9 +23,9 @@ Shared library for iOS SDK data transport needs.
   s.static_framework = true
   s.prefix_header_file = false
 
-  s.source_files = 'GoogleDataTransport/GoogleDataTransport/**/*'
-  s.public_header_files = 'GoogleDataTransport/GoogleDataTransport/Classes/Public/*.h'
-  s.private_header_files = 'GoogleDataTransport/GoogleDataTransport/Classes/Private/*.h'
+  s.source_files = 'GoogleDataTransport/Library/**/*'
+  s.public_header_files = 'GoogleDataTransport/Library/Public/*.h'
+  s.private_header_files = 'GoogleDataTransport/Library/Private/*.h'
 
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
