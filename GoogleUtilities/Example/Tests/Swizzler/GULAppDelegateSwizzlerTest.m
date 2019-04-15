@@ -261,19 +261,27 @@ static BOOL gRespondsToHandleBackgroundSession;
 @end
 
 @interface GULAppDelegateSwizzlerTest : XCTestCase
-
+@property(nonatomic, strong) id mockSharedApplication;
 @end
 
 @implementation GULAppDelegateSwizzlerTest
 
+- (void)setUp {
+  [super setUp];
+  self.mockSharedApplication = OCMPartialMock([UIApplication sharedApplication]);
+}
+
 - (void)tearDown {
   [GULAppDelegateSwizzler clearInterceptors];
+  [GULAppDelegateSwizzler resetProxyOriginalDelegateOnceToken];
+  self.mockSharedApplication = nil;
   [super tearDown];
 }
 
 - (void)testNotAppDelegateIsNotSwizzled {
   NSObject *notAppDelegate = [[NSObject alloc] init];
-  [GULAppDelegateSwizzler proxyAppDelegate:(id<UIApplicationDelegate>)notAppDelegate];
+  OCMStub([self.mockSharedApplication delegate]).andReturn(notAppDelegate);
+  [GULAppDelegateSwizzler proxyOriginalDelegate];
   XCTAssertEqualObjects(NSStringFromClass([notAppDelegate class]), @"NSObject");
 }
 
@@ -283,6 +291,7 @@ static BOOL gRespondsToHandleBackgroundSession;
  */
 - (void)testProxyAppDelegate {
   GULTestAppDelegate *realAppDelegate = [[GULTestAppDelegate alloc] init];
+  OCMStub([self.mockSharedApplication delegate]).andReturn(realAppDelegate);
   size_t sizeBefore = class_getInstanceSize([GULTestAppDelegate class]);
 
   //  XCTAssertTrue(gRespondsToOpenURLHandler_iOS9);
@@ -293,7 +302,7 @@ static BOOL gRespondsToHandleBackgroundSession;
   Class realAppDelegateClassBefore = [realAppDelegate class];
 
   // Create the proxy.
-  [GULAppDelegateSwizzler proxyAppDelegate:realAppDelegate];
+  [GULAppDelegateSwizzler proxyOriginalDelegate];
 
   XCTAssertTrue([realAppDelegate isKindOfClass:[GULTestAppDelegate class]]);
 
@@ -343,9 +352,10 @@ static BOOL gRespondsToHandleBackgroundSession;
 #if SDK_HAS_USERACTIVITY
 - (void)testHandleBackgroundSessionMethod {
   GULTestAppDelegate *realAppDelegate = [[GULTestAppDelegate alloc] init];
+  OCMStub([self.mockSharedApplication delegate]).andReturn(realAppDelegate);
 
   // Create the proxy.
-  [GULAppDelegateSwizzler proxyAppDelegate:realAppDelegate];
+  [GULAppDelegateSwizzler proxyOriginalDelegate];
 
   UIApplication *currentApplication = [UIApplication sharedApplication];
   NSString *sessionID = @"123";
@@ -412,10 +422,11 @@ static BOOL gRespondsToHandleBackgroundSession;
 /** Tests that the description of appDelegate object doesn't change even after proxying it. */
 - (void)testDescription {
   GULTestAppDelegate *realAppDelegate = [[GULTestAppDelegate alloc] init];
+  OCMStub([self.mockSharedApplication delegate]).andReturn(realAppDelegate);
   Class classBefore = [realAppDelegate class];
   NSString *descriptionBefore = [realAppDelegate description];
 
-  [GULAppDelegateSwizzler proxyAppDelegate:realAppDelegate];
+  [GULAppDelegateSwizzler proxyOriginalDelegate];
 
   Class classAfter = [realAppDelegate class];
   NSString *descriptionAfter = [realAppDelegate description];
@@ -432,9 +443,10 @@ static BOOL gRespondsToHandleBackgroundSession;
 /** Tests that methods that are not overriden by the App Delegate Proxy still work as expected. */
 - (void)testNotOverriddenMethods {
   GULTestAppDelegate *realAppDelegate = [[GULTestAppDelegate alloc] init];
+  OCMStub([self.mockSharedApplication delegate]).andReturn(realAppDelegate);
 
   // Create the proxy.
-  [GULAppDelegateSwizzler proxyAppDelegate:realAppDelegate];
+  [GULAppDelegateSwizzler proxyOriginalDelegate];
 
   // Make sure that original class instance method still works.
   XCTAssertEqualObjects([realAppDelegate someArbitraryMethod], @"blabla");
@@ -455,7 +467,7 @@ static BOOL gRespondsToHandleBackgroundSession;
   GULTestAppDelegate *realAppDelegate = [[GULTestAppDelegate alloc] init];
 
   [UIApplication sharedApplication].delegate = realAppDelegate;
-  [GULAppDelegateSwizzler proxyAppDelegate:realAppDelegate];
+  [GULAppDelegateSwizzler proxyOriginalDelegate];
 
   XCTAssertEqualObjects([GULAppDelegateSwizzler originalDelegate], realAppDelegate);
 
@@ -466,7 +478,7 @@ static BOOL gRespondsToHandleBackgroundSession;
   // Make sure that the new delegate is swizzled out and set correctly.
   XCTAssertNil([GULAppDelegateSwizzler originalDelegate]);
 
-  [GULAppDelegateSwizzler proxyAppDelegate:anotherAppDelegate];
+  [GULAppDelegateSwizzler proxyOriginalDelegate];
   XCTAssertEqualObjects([GULAppDelegateSwizzler originalDelegate], anotherAppDelegate);
 
   // Make sure that it is set to nil correctly.
@@ -495,7 +507,9 @@ static BOOL gRespondsToHandleBackgroundSession;
   NSDictionary *testOpenURLOptions = @{UIApplicationOpenURLOptionUniversalLinksOnly : @"test"};
 
   GULTestAppDelegate *testAppDelegate = [[GULTestAppDelegate alloc] init];
-  [GULAppDelegateSwizzler proxyAppDelegate:testAppDelegate];
+  OCMStub([self.mockSharedApplication delegate]).andReturn(testAppDelegate);
+
+  [GULAppDelegateSwizzler proxyOriginalDelegate];
   [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor];
   [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor2];
 
@@ -516,7 +530,8 @@ static BOOL gRespondsToHandleBackgroundSession;
   NSDictionary *testOpenURLOptions = @{UIApplicationOpenURLOptionUniversalLinksOnly : @"test"};
 
   GULTestAppDelegate *testAppDelegate = [[GULTestAppDelegate alloc] init];
-  [GULAppDelegateSwizzler proxyAppDelegate:testAppDelegate];
+  OCMStub([self.mockSharedApplication delegate]).andReturn(testAppDelegate);
+  [GULAppDelegateSwizzler proxyOriginalDelegate];
 
   BOOL shouldOpen = [testAppDelegate application:[UIApplication sharedApplication]
                                          openURL:testURL
@@ -570,7 +585,9 @@ static BOOL gRespondsToHandleBackgroundSession;
   NSURL *testURL = [[NSURL alloc] initWithString:@"https://www.google.com"];
 
   GULTestAppDelegate *testAppDelegate = [[GULTestAppDelegate alloc] init];
-  [GULAppDelegateSwizzler proxyAppDelegate:testAppDelegate];
+  OCMStub([self.mockSharedApplication delegate]).andReturn(testAppDelegate);
+  [GULAppDelegateSwizzler proxyOriginalDelegate];
+
   [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor];
   [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor2];
 
@@ -596,8 +613,9 @@ static BOOL gRespondsToHandleBackgroundSession;
  */
 - (void)testApplicationOpenURLSourceApplicationAnnotationResultIsORed {
   GULTestAppDelegate *testAppDelegate = [[GULTestAppDelegate alloc] init];
+  OCMStub([self.mockSharedApplication delegate]).andReturn(testAppDelegate);
   NSURL *testURL = [[NSURL alloc] initWithString:@"https://www.google.com"];
-  [GULAppDelegateSwizzler proxyAppDelegate:testAppDelegate];
+  [GULAppDelegateSwizzler proxyOriginalDelegate];
 
   BOOL shouldOpen = [testAppDelegate application:[UIApplication sharedApplication]
                                          openURL:testURL
@@ -656,7 +674,9 @@ static BOOL gRespondsToHandleBackgroundSession;
                         completionHandler:OCMOCK_ANY]);
 
   GULTestAppDelegate *testAppDelegate = [[GULTestAppDelegate alloc] init];
-  [GULAppDelegateSwizzler proxyAppDelegate:testAppDelegate];
+  OCMStub([self.mockSharedApplication delegate]).andReturn(testAppDelegate);
+  [GULAppDelegateSwizzler proxyOriginalDelegate];
+  
   [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor];
   [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor2];
 
@@ -693,7 +713,9 @@ static BOOL gRespondsToHandleBackgroundSession;
   NSUserActivity *testUserActivity = [[NSUserActivity alloc] initWithActivityType:@"test"];
 
   GULTestAppDelegate *testAppDelegate = [[GULTestAppDelegate alloc] init];
-  [GULAppDelegateSwizzler proxyAppDelegate:testAppDelegate];
+  OCMStub([self.mockSharedApplication delegate]).andReturn(testAppDelegate);
+  [GULAppDelegateSwizzler proxyOriginalDelegate];
+
   [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor];
   [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor2];
 
@@ -714,7 +736,8 @@ static BOOL gRespondsToHandleBackgroundSession;
  */
 - (void)testApplicationContinueUserActivityRestorationHandlerResultsAreORed {
   GULTestAppDelegate *testAppDelegate = [[GULTestAppDelegate alloc] init];
-  [GULAppDelegateSwizzler proxyAppDelegate:testAppDelegate];
+  OCMStub([self.mockSharedApplication delegate]).andReturn(testAppDelegate);
+  [GULAppDelegateSwizzler proxyOriginalDelegate];
   NSUserActivity *testUserActivity = [[NSUserActivity alloc] initWithActivityType:@"test"];
 
   BOOL shouldContinueUserActvitiy = [testAppDelegate application:[UIApplication sharedApplication]
@@ -770,7 +793,9 @@ static BOOL gRespondsToHandleBackgroundSession;
       didRegisterForRemoteNotificationsWithDeviceToken:deviceToken]);
 
   GULTestAppDelegate *testAppDelegate = [[GULTestAppDelegate alloc] init];
-  [GULAppDelegateSwizzler proxyAppDelegate:testAppDelegate];
+  OCMStub([self.mockSharedApplication delegate]).andReturn(testAppDelegate);
+  [GULAppDelegateSwizzler proxyOriginalDelegate];
+
   [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor];
   [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor2];
 
@@ -796,7 +821,9 @@ static BOOL gRespondsToHandleBackgroundSession;
       didFailToRegisterForRemoteNotificationsWithError:error]);
 
   GULTestAppDelegate *testAppDelegate = [[GULTestAppDelegate alloc] init];
-  [GULAppDelegateSwizzler proxyAppDelegate:testAppDelegate];
+  OCMStub([self.mockSharedApplication delegate]).andReturn(testAppDelegate);
+  [GULAppDelegateSwizzler proxyOriginalDelegate];
+
   [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor];
   [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor2];
 
@@ -821,7 +848,9 @@ static BOOL gRespondsToHandleBackgroundSession;
   OCMExpect([interceptor2 application:application didReceiveRemoteNotification:notification]);
 
   GULTestAppDelegate *testAppDelegate = [[GULTestAppDelegate alloc] init];
-  [GULAppDelegateSwizzler proxyAppDelegate:testAppDelegate];
+  OCMStub([self.mockSharedApplication delegate]).andReturn(testAppDelegate);
+  [GULAppDelegateSwizzler proxyOriginalDelegate];
+
   [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor];
   [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor2];
 
@@ -851,7 +880,9 @@ static BOOL gRespondsToHandleBackgroundSession;
                fetchCompletionHandler:completion]);
 
   GULTestAppDelegate *testAppDelegate = [[GULTestAppDelegate alloc] init];
-  [GULAppDelegateSwizzler proxyAppDelegate:testAppDelegate];
+  OCMStub([self.mockSharedApplication delegate]).andReturn(testAppDelegate);
+  [GULAppDelegateSwizzler proxyOriginalDelegate];
+
   [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor];
   [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor2];
 
@@ -870,12 +901,13 @@ static BOOL gRespondsToHandleBackgroundSession;
   // The delegate without application:didReceiveRemoteNotification:fetchCompletionHandler:
   // implementation
   GULTestInterceptorAppDelegate *legacyDelegate = [[GULTestInterceptorAppDelegate alloc] init];
+  OCMStub([self.mockSharedApplication delegate]).andReturn(legacyDelegate);
 
   XCTAssertFalse([legacyDelegate
       respondsToSelector:@selector(application:
                              didReceiveRemoteNotification:fetchCompletionHandler:)]);
 
-  [GULAppDelegateSwizzler proxyAppDelegate:legacyDelegate];
+  [GULAppDelegateSwizzler proxyOriginalDelegate];
 
   XCTAssertFalse([legacyDelegate
       respondsToSelector:@selector(application:
@@ -1036,8 +1068,9 @@ static BOOL gRespondsToHandleBackgroundSession;
   id originalAppDelegate = OCMProtocolMock(@protocol(UIApplicationDelegate));
   Class originalAppDelegateClass = [originalAppDelegate class];
   XCTAssertNotNil(originalAppDelegate);
+  OCMStub([self.mockSharedApplication delegate]).andReturn(originalAppDelegate);
 
-  [GULAppDelegateSwizzler proxyAppDelegate:originalAppDelegate];
+  [GULAppDelegateSwizzler proxyOriginalDelegate];
   XCTAssertEqualObjects([originalAppDelegate class], originalAppDelegateClass);
 
   [mainBundleMock stopMocking];
@@ -1055,8 +1088,9 @@ static BOOL gRespondsToHandleBackgroundSession;
   id originalAppDelegate = [[GULTestAppDelegate alloc] init];
   Class originalAppDelegateClass = [originalAppDelegate class];
   XCTAssertNotNil(originalAppDelegate);
+  OCMStub([self.mockSharedApplication delegate]).andReturn(originalAppDelegate);
 
-  [GULAppDelegateSwizzler proxyAppDelegate:originalAppDelegate];
+  [GULAppDelegateSwizzler proxyOriginalDelegate];
   XCTAssertNotEqualObjects([originalAppDelegate class], originalAppDelegateClass);
 }
 
