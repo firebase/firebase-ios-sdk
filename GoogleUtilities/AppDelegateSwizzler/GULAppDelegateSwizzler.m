@@ -290,7 +290,6 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
 
     NSMutableDictionary *realImplementationsBySelector =
         [objc_getAssociatedObject(appDelegate, &kGULRealIMPBySelectorKey) mutableCopy];
-    NSParameterAssert(realImplementationsBySelector);
 
     [self proxyRemoteNotificationsMethodsWithAppDelegateSubClass:gAppDelegateSubclass
                                                        realClass:gOriginalAppDelegateClass
@@ -457,6 +456,12 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
                                                    appDelegate:(id)appDelegate
                                  realImplementationsBySelector:
                                      (NSMutableDictionary *)realImplementationsBySelector {
+  if (realClass == nil || appDelegateSubClass == nil || appDelegate == nil ||
+      realImplementationsBySelector == nil) {
+    // The App Delegate has not been swizzled.
+    return;
+  }
+
   // For application:didRegisterForRemoteNotificationsWithDeviceToken:
   SEL didRegisterForRemoteNotificationsSEL =
       NSSelectorFromString(kGULDidRegisterForRemoteNotificationsSEL);
