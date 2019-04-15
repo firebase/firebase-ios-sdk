@@ -112,9 +112,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)writeMutations:(std::vector<FSTMutation *> &&)mutations
             completion:(util::StatusCallback)completion;
 
-/** Tries to execute the transaction in updateBlock up to retries times. */
+/** Tries to execute the transaction in updateCallback up to retries times. */
 - (void)transactionWithRetries:(int)retries
-                   updateBlock:(core::TransactionUpdateBlock)updateBlock
+                updateCallback:(core::TransactionUpdateCallback)updateCallback
                     completion:(core::TransactionCompletion)completion;
 
 /** The database ID of the databaseInfo this client was initialized with. */

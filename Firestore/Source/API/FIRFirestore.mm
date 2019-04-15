@@ -250,7 +250,7 @@ NS_ASSUME_NONNULL_BEGIN
       NSError *_Nullable error = nil;
       id _Nullable result = updateBlock(transaction, &error);
 
-      // If the user set an error, diregard the result.
+      // If the user set an error, disregard the result.
       if (error) {
         internalCompletion(util::MakeStatus(error));
       } else {

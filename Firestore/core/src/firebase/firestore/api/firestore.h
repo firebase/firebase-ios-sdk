@@ -97,7 +97,7 @@ class Firestore {
   FIRWriteBatch* GetBatch();
   FIRQuery* GetCollectionGroup(NSString* collection_id);
 
-  void RunTransaction(core::TransactionUpdateBlock update_block,
+  void RunTransaction(core::TransactionUpdateCallback update_callback,
                       core::TransactionCompletion completion);
 
   void Shutdown(util::StatusCallback completion);

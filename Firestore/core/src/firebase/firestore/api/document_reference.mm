@@ -97,22 +97,23 @@ std::string DocumentReference::Path() const {
 // }
 
 void DocumentReference::SetData(std::vector<FSTMutation*>&& mutations,
-                                Completion completion) {
+                                util::StatusCallback completion) {
   [firestore_->client() writeMutations:std::move(mutations)
-                            completion:completion];
+                            completion:std::move(completion)];
 }
 
 void DocumentReference::UpdateData(std::vector<FSTMutation*>&& mutations,
-                                   Completion completion) {
+                                   util::StatusCallback completion) {
   return [firestore_->client() writeMutations:std::move(mutations)
-                                   completion:completion];
+                                   completion:std::move(completion)];
 }
 
-void DocumentReference::DeleteDocument(Completion completion) {
+void DocumentReference::DeleteDocument(util::StatusCallback completion) {
   FSTDeleteMutation* mutation =
       [[FSTDeleteMutation alloc] initWithKey:key_
                                 precondition:Precondition::None()];
-  [firestore_->client() writeMutations:{mutation} completion:completion];
+  [firestore_->client() writeMutations:{mutation}
+                            completion:std::move(completion)];
 }
 
 void DocumentReference::GetDocument(Source source,

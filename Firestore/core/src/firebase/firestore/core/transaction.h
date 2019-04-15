@@ -138,7 +138,7 @@ class Transaction {
 using TransactionCompletion = util::StatusOrCallback<absl::any>;
 
 /**
- * TransactionUpdateBlock is a block that wraps a user's transaction update
+ * TransactionUpdateCallback is a block that wraps a user's transaction update
  * block internally.
  *
  * The update block will be called with two parameters:
@@ -147,8 +147,8 @@ using TransactionCompletion = util::StatusOrCallback<absl::any>;
  *   * The completion: to be called by the block once the user's code is
  * finished.
  */
-using TransactionUpdateBlock = std::function<void(
-    std::shared_ptr<core::Transaction>, TransactionCompletion)>;
+using TransactionUpdateCallback =
+    std::function<void(std::shared_ptr<Transaction>, TransactionCompletion)>;
 
 }  // namespace core
 }  // namespace firestore

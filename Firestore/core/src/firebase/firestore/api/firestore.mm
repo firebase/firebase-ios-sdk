@@ -125,12 +125,12 @@ FIRQuery* Firestore::GetCollectionGroup(NSString* collection_id) {
                          firestore:wrapper];
 }
 
-void Firestore::RunTransaction(core::TransactionUpdateBlock update_block,
+void Firestore::RunTransaction(core::TransactionUpdateCallback update_callback,
                                core::TransactionCompletion completion) {
   EnsureClientConfigured();
 
   [client_ transactionWithRetries:5
-                      updateBlock:std::move(update_block)
+                   updateCallback:std::move(update_callback)
                        completion:std::move(completion)];
 }
 
@@ -142,18 +142,18 @@ void Firestore::Shutdown(util::StatusCallback completion) {
       completion(Status::OK());
     }
   } else {
-    [client_ shutdownWithCompletion:completion];
+    [client_ shutdownWithCompletion:std::move(completion)];
   }
 }
 
 void Firestore::EnableNetwork(util::StatusCallback completion) {
   EnsureClientConfigured();
-  [client_ enableNetworkWithCompletion:completion];
+  [client_ enableNetworkWithCompletion:std::move(completion)];
 }
 
 void Firestore::DisableNetwork(util::StatusCallback completion) {
   EnsureClientConfigured();
-  [client_ disableNetworkWithCompletion:completion];
+  [client_ disableNetworkWithCompletion:std::move(completion)];
 }
 
 void Firestore::EnsureClientConfigured() {

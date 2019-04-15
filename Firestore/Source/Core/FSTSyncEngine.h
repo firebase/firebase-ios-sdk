@@ -103,12 +103,12 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param retries The number of times to try before giving up.
  * @param workerQueue The queue to dispatch sync engine calls to.
- * @param updateBlock The block to call to execute the user's transaction.
+ * @param updateCallback The callback to call to execute the user's transaction.
  * @param completion The block to call when the transaction is finished or failed.
  */
 - (void)transactionWithRetries:(int)retries
                    workerQueue:(util::AsyncQueue *)workerQueue
-                   updateBlock:(core::TransactionUpdateBlock)updateBlock
+                updateCallback:(core::TransactionUpdateCallback)updateCallback
                     completion:(core::TransactionCompletion)completion;
 
 - (void)credentialDidChangeWithUser:(const auth::User &)user;
