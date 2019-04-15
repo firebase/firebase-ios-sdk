@@ -300,7 +300,6 @@ static NSString *const kTopicToSubscribeTo = @"/topics/abcdef/hello-world";
 
 - (void)addFIRMessagingPreferenceKeysToUserDefaults {
     self.mockInstanceID = OCMPartialMock([FIRInstanceID instanceIDForTests]);
-    
     OCMStub([self.mockInstanceID tryToLoadValidCheckinInfo]).andReturn(YES);
     OCMStub([self.mockInstanceID deviceAuthID]).andReturn(kDeviceAuthId);
     OCMStub([self.mockInstanceID secretToken]).andReturn(kSecretToken);

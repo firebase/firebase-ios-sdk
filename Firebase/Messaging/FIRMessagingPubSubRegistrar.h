@@ -16,8 +16,6 @@
 
 #import "FIRMessagingTopicOperation.h"
 
-@class FIRInstanceIDCheckinPreferences;
-
 @interface FIRMessagingPubSubRegistrar : NSObject
 
 /**
