@@ -55,9 +55,10 @@ typedef NSString *const GULAppDelegateInterceptorID;
  *    - application:didReceiveRemoteNotification:
  *  @endcode
  *
- *  To proxy these methods use +[GULAppDelegateSwizzler proxyOriginalDelegateRemoteNotificationMethods].
- *  The methods have to be proxied separately to avoid potential warnings from Apple review
- *  about missing Push Notification Entitlement (e.g. https://github.com/firebase/firebase-ios-sdk/issues/2807)
+ *  To proxy these methods use +[GULAppDelegateSwizzler
+ * proxyOriginalDelegateRemoteNotificationMethods]. The methods have to be proxied separately to
+ * avoid potential warnings from Apple review about missing Push Notification Entitlement (e.g.
+ * https://github.com/firebase/firebase-ios-sdk/issues/2807)
  *  @see proxyOriginalDelegateRemoteNotificationMethods
  */
 + (void)proxyOriginalDelegate NS_EXTENSION_UNAVAILABLE(
