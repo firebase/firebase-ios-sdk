@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "GDTStorageFake.h"
+#import "Tests/Common/Fakes/GDTStorageFake.h"
 
 @implementation GDTStorageFake
 

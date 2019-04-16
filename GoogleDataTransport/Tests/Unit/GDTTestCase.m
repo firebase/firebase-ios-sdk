@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-#import "GDTTestCase.h"
+#import "Tests/Unit/GDTTestCase.h"
 
-#import "GDTReachability_Private.h"
-#import "GDTUploadCoordinator+Testing.h"
+#import "Tests/Common/Categories/GDTUploadCoordinator+Testing.h"
+
+#import "Library/Private/GDTReachability_Private.h"
 
 @implementation GDTTestCase
 

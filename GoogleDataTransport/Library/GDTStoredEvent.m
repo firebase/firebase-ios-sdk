@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "GDTStoredEvent.h"
+#import <GoogleDataTransport/GDTStoredEvent.h>
 
 #import <GoogleDataTransport/GDTClock.h>
 

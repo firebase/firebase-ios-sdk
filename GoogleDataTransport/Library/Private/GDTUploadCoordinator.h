@@ -17,8 +17,7 @@
 #import <Foundation/Foundation.h>
 
 #import <GoogleDataTransport/GDTLifecycle.h>
-
-#import "GDTRegistrar.h"
+#import <GoogleDataTransport/GDTRegistrar.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "GDTAssertHelper.h"
+#import "Tests/Unit/Helpers/GDTAssertHelper.h"
 
 @implementation GDTAssertHelper
 

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "GDTIntegrationTestPrioritizer.h"
+#import "Tests/Integration/Helpers/GDTIntegrationTestPrioritizer.h"
 
-#import "GDTIntegrationTestUploadPackage.h"
+#import "Tests/Integration/Helpers/GDTIntegrationTestUploadPackage.h"
 
 @interface GDTIntegrationTestPrioritizer ()
 

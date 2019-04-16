@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "GDTEventDataObject.h"
+#import <GoogleDataTransport/GDTEventDataObject.h>
 
 @class GDTClock;
 @class GDTStoredEvent;

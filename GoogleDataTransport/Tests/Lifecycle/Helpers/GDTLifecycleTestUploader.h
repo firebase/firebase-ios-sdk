@@ -18,7 +18,7 @@
 
 #import <GoogleDataTransport/GoogleDataTransport.h>
 
-#import "GDTLifecycleTestUploader.h"
+#import "Tests/Lifecycle/Helpers/GDTLifecycleTestUploader.h"
 
 /** An integration test uploader. */
 @interface GDTLifecycleTestUploader : NSObject <GDTUploader>

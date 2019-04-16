@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,17 @@
  * limitations under the License.
  */
 
-#import "GDTTransformer.h"
+#import <GoogleDataTransport/GDTReachability.h>
 
-@class GDTStorage;
+@interface GDTReachability ()
 
-NS_ASSUME_NONNULL_BEGIN
+/** Allows manually setting the flags for testing purposes. */
+@property(nonatomic, readwrite) SCNetworkReachabilityFlags flags;
 
-@interface GDTTransformer ()
-
-/** The queue on which all work will occur. */
-@property(nonatomic) dispatch_queue_t eventWritingQueue;
-
-/** The storage instance used to store events. Should only be used to inject a testing fake. */
-@property(nonatomic) GDTStorage *storageInstance;
-
-/** If YES, every call to -transformEvent will result in a background task. */
-@property(nonatomic, readonly) BOOL runningInBackground;
+/** Creates/returns the singleton instance of this class.
+ *
+ * @return The singleton instance of this class.
+ */
++ (instancetype)sharedInstance;
 
 @end
-
-NS_ASSUME_NONNULL_END

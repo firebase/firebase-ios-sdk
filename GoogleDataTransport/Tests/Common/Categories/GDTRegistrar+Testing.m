@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "GDTRegistrar+Testing.h"
+#import "Tests/Common/Categories/GDTRegistrar+Testing.h"
 
-#import "GDTRegistrar_Private.h"
+#import "Library/Private/GDTRegistrar_Private.h"
 
 @implementation GDTRegistrar (Testing)
 

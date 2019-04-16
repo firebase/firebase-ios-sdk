@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "GDTRegistrar.h"
+#import "Library/Public/GDTRegistrar.h"
 
-#import "GDTRegistrar_Private.h"
+#import "Library/Private/GDTRegistrar_Private.h"
 
 @implementation GDTRegistrar {
   /** Backing ivar for targetToUploader property. */

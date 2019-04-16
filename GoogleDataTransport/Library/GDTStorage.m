@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-#import "GDTStorage.h"
-#import "GDTStorage_Private.h"
+#import "Library/Private/GDTStorage.h"
+#import "Library/Private/GDTStorage_Private.h"
 
+#import <GoogleDataTransport/GDTLifecycle.h>
 #import <GoogleDataTransport/GDTPrioritizer.h>
 #import <GoogleDataTransport/GDTStoredEvent.h>
 
-#import "GDTAssert.h"
-#import "GDTConsoleLogger.h"
-#import "GDTEvent_Private.h"
-#import "GDTLifecycle.h"
-#import "GDTRegistrar_Private.h"
-#import "GDTUploadCoordinator.h"
+#import "Library/Private/GDTAssert.h"
+#import "Library/Private/GDTConsoleLogger.h"
+#import "Library/Private/GDTEvent_Private.h"
+#import "Library/Private/GDTRegistrar_Private.h"
+#import "Library/Private/GDTUploadCoordinator.h"
 
 /** Creates and/or returns a singleton NSString that is the shared storage path.
  *

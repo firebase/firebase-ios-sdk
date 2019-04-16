@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#import "GDTTransformer.h"
-#import "GDTTransformer_Private.h"
+#import "Library/Private/GDTTransformer.h"
+#import "Library/Private/GDTTransformer_Private.h"
 
 #import <GoogleDataTransport/GDTEventTransformer.h>
+#import <GoogleDataTransport/GDTLifecycle.h>
 
-#import "GDTAssert.h"
-#import "GDTConsoleLogger.h"
-#import "GDTLifecycle.h"
-#import "GDTStorage.h"
+#import "Library/Private/GDTAssert.h"
+#import "Library/Private/GDTConsoleLogger.h"
+#import "Library/Private/GDTStorage.h"
 
 @implementation GDTTransformer
 

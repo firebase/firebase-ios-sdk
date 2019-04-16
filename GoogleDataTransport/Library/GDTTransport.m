@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-#import "GDTTransport.h"
-#import "GDTTransport_Private.h"
+#import <GoogleDataTransport/GDTTransport.h>
+#import "Library/Private/GDTTransport_Private.h"
 
-#import "GDTAssert.h"
-#import "GDTClock.h"
-#import "GDTEvent.h"
-#import "GDTTransformer.h"
+#import <GoogleDataTransport/GDTClock.h>
+#import <GoogleDataTransport/GDTEvent.h>
+
+#import "Library/Private/GDTAssert.h"
+#import "Library/Private/GDTTransformer.h"
 
 @implementation GDTTransport
 

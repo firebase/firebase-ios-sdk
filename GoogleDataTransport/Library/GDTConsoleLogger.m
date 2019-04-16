@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "GDTConsoleLogger.h"
+#import "Library/Private/GDTConsoleLogger.h"
 
 /** The console logger prefix. */
 static NSString *kGDTConsoleLogger = @"[GoogleDataTransport]";

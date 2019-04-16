@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "GDTTestCase.h"
+#import "Tests/Unit/GDTTestCase.h"
 
 #import <GoogleDataTransport/GDTClock.h>
 #import <GoogleDataTransport/GDTStoredEvent.h>
