@@ -64,8 +64,6 @@ Status MakeStatus(NSError* error) {
                 MakeString(error.localizedDescription)};
 }
 
-using VoidErrorBlock = void (^)(NSError* _Nullable error);
-
 util::StatusCallback MakeCallback(VoidErrorBlock _Nullable block) {
   if (block) {
     return [block](Status status) { block(MakeNSError(status)); };
