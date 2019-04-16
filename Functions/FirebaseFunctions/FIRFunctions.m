@@ -276,7 +276,7 @@ NSString *const kFUNDefaultRegion = @"us-central1";
     }
     if (!dataJSON) {
       NSDictionary *userInfo =
-          @{NSLocalizedDescriptionKey : @"Response did not include data field."};
+          @{NSLocalizedDescriptionKey : @"Response is missing data field."};
       error = [NSError errorWithDomain:FIRFunctionsErrorDomain
                                   code:FIRFunctionsErrorCodeInternal
                               userInfo:userInfo];

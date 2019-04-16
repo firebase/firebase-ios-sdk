@@ -139,6 +139,7 @@ static NSString *const kProjectID = @"functions-integration-test";
       callWithCompletion:^(FIRHTTPSCallableResult *_Nullable result, NSError *_Nullable error) {
         XCTAssertNotNil(error);
         XCTAssertEqual(FIRFunctionsErrorCodeInternal, error.code);
+          XCTAssertEqualObjects(@"Response is missing data field.", error.localizedDescription);
         [expectation fulfill];
       }];
   [self waitForExpectations:@[ expectation ] timeout:10];
@@ -163,6 +164,7 @@ static NSString *const kProjectID = @"functions-integration-test";
                 completion:^(FIRHTTPSCallableResult *_Nullable result, NSError *_Nullable error) {
                   XCTAssertNotNil(error);
                   XCTAssertEqual(FIRFunctionsErrorCodeInternal, error.code);
+                  XCTAssertEqualObjects(@"INTERNAL", error.localizedDescription);
                   [expectation fulfill];
                 }];
   [self waitForExpectations:@[ expectation ] timeout:10];
