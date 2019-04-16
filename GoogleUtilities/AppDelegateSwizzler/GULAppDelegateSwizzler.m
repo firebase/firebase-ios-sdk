@@ -323,11 +323,11 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
  *  object to the new subclass. Additionally this copies methods to that new subclass that allow us
  *  to intercept UIApplicationDelegate methods. This is better known as isa swizzling.
  *
- *  @param appDeleagate The object to which you want to isa swizzle. This has to conform to the
+ *  @param appDelegate The object to which you want to isa swizzle. This has to conform to the
  *      UIApplicationDelegate subclass.
  */
-+ (nullable Class)createSubclassWithObject:(id<UIApplicationDelegate>)appDeleagate {
-  Class realClass = [appDeleagate class];
++ (nullable Class)createSubclassWithObject:(id<UIApplicationDelegate>)appDelegate {
+  Class realClass = [appDelegate class];
 
   // Create GUL_<RealAppDelegate>_<UUID>
   NSString *classNameWithPrefix =
@@ -365,7 +365,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
   // can forward to the real one.
   // For application:openURL:options:
   SEL applicationOpenURLOptionsSEL = @selector(application:openURL:options:);
-  if ([appDeleagate respondsToSelector:applicationOpenURLOptionsSEL]) {
+  if ([appDelegate respondsToSelector:applicationOpenURLOptionsSEL]) {
     // Only add the application:openURL:options: method if the original AppDelegate implements it.
     // This fixes a bug if an app only implements application:openURL:sourceApplication:annotation:
     // (if we add the `options` method, iOS sees that one exists and does not call the
@@ -418,9 +418,9 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
                                                            toClass:appDelegateSubClass];
 
   // Store original implementations to a fake property of the original delegate
-  objc_setAssociatedObject(appDeleagate, &kGULRealIMPBySelectorKey,
+  objc_setAssociatedObject(appDelegate, &kGULRealIMPBySelectorKey,
                            [realImplementationsBySelector copy], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-  objc_setAssociatedObject(appDeleagate, &kGULRealClassKey, realClass,
+  objc_setAssociatedObject(appDelegate, &kGULRealClassKey, realClass,
                            OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 
   // The subclass size has to be exactly the same size with the original class size. The subclass
@@ -439,7 +439,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
 
   // Make the newly created class to be the subclass of the real App Delegate class.
   objc_registerClassPair(appDelegateSubClass);
-  if (object_setClass(appDeleagate, appDelegateSubClass)) {
+  if (object_setClass(appDelegate, appDelegateSubClass)) {
     GULLogDebug(kGULLoggerSwizzler, NO,
                 [NSString stringWithFormat:@"I-SWZ%06ld",
                                            (long)kGULSwizzlerMessageCodeAppDelegateSwizzling008],
