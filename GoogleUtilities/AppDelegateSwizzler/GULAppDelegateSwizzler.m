@@ -100,9 +100,8 @@ static Class gAppDelegateSubclass;
 
 /** Remote notification methods selectors
  *
- *  We have to opt out of referencing APNS related App Delegate methods directly. If we do, then
- *  it may be a reason of an Apple review warning email about missing Push Notification Entitlement
- *  during the app review process
+ *  We have to opt out of referencing APNS related App Delegate methods directly to prevent
+ *  an Apple review warning email about missing Push Notification Entitlement
  *  (like here: https://github.com/firebase/firebase-ios-sdk/issues/2807). From our experience, the
  *  warning is triggered when any of the symbols is present in the application sent to review, even
  *  if the code is never executed. Because GULAppDelegateSwizzler may be used by applications that
@@ -308,7 +307,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
 
     objc_setAssociatedObject(appDelegate, &kGULRealIMPBySelectorKey,
                              [realImplementationsBySelector copy], OBJC_ASSOCIATION_RETAIN);
-    [self reassignAppDeleagte];
+    [self reassignAppDelegate];
   });
 }
 
@@ -427,7 +426,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
                                                          fromClass:[self class]
                                                            toClass:appDelegateSubClass];
 
-  // Store original implementations to a fake property of the original delegate
+  // Store original implementations to a fake property of the original delegate.
   objc_setAssociatedObject(appDelegate, &kGULRealIMPBySelectorKey,
                            [realImplementationsBySelector copy], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
   objc_setAssociatedObject(appDelegate, &kGULRealClassKey, realClass,
@@ -540,7 +539,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
 /// checks and caches them.
 /// Register KVO only once. Otherwise, the observing method will be called as many times as
 /// being registered.
-+ (void)reassignAppDeleagte {
++ (void)reassignAppDelegate {
   id<UIApplicationDelegate> delegate = [self sharedApplication].delegate;
   [self sharedApplication].delegate = nil;
   [self sharedApplication].delegate = delegate;
@@ -977,7 +976,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
   @try {
     gOriginalAppDelegateClass = [originalDelegate class];
     gAppDelegateSubclass = [self createSubclassWithObject:originalDelegate];
-    [self reassignAppDeleagte];
+    [self reassignAppDelegate];
   } @catch (NSException *exception) {
     GULLogError(kGULLoggerSwizzler, NO,
                 [NSString stringWithFormat:@"I-SWZ%06ld",

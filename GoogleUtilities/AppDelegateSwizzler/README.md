@@ -132,8 +132,6 @@ MYAppDelegateInterceptor.m
 
 3. Register your interceptor when it makes sense to do so.
 
-// TODO: Update for [GULAppDelegateSwizzler proxyOriginalDelegateRemoteNotificationMethods]
-
 For eg.
 
 ```objc
