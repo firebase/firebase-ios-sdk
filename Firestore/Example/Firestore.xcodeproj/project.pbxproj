@@ -259,6 +259,9 @@
 		5492E0BF2021555100B64F25 /* FSTFieldValueTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E0B82021555100B64F25 /* FSTFieldValueTests.mm */; };
 		5492E0C72021557E00B64F25 /* FSTSerializerBetaTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E0C12021557E00B64F25 /* FSTSerializerBetaTests.mm */; };
 		5492E0C92021557E00B64F25 /* FSTRemoteEventTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E0C32021557E00B64F25 /* FSTRemoteEventTests.mm */; };
+		5493A424225F9990006DE7BA /* status_apple_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5493A423225F9990006DE7BA /* status_apple_test.mm */; };
+		5493A425225F9990006DE7BA /* status_apple_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5493A423225F9990006DE7BA /* status_apple_test.mm */; };
+		5493A426225F9990006DE7BA /* status_apple_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5493A423225F9990006DE7BA /* status_apple_test.mm */; };
 		5495EB032040E90200EBA509 /* CodableGeoPointTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5495EB022040E90200EBA509 /* CodableGeoPointTests.swift */; };
 		54995F6F205B6E12004EFFA0 /* leveldb_key_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54995F6E205B6E12004EFFA0 /* leveldb_key_test.cc */; };
 		549CCA5020A36DBC00BCEB75 /* sorted_set_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 549CCA4C20A36DBB00BCEB75 /* sorted_set_test.cc */; };
@@ -831,6 +834,7 @@
 		5492E0B82021555100B64F25 /* FSTFieldValueTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTFieldValueTests.mm; sourceTree = "<group>"; };
 		5492E0C12021557E00B64F25 /* FSTSerializerBetaTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTSerializerBetaTests.mm; sourceTree = "<group>"; };
 		5492E0C32021557E00B64F25 /* FSTRemoteEventTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTRemoteEventTests.mm; sourceTree = "<group>"; };
+		5493A423225F9990006DE7BA /* status_apple_test.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = status_apple_test.mm; sourceTree = "<group>"; };
 		5495EB022040E90200EBA509 /* CodableGeoPointTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CodableGeoPointTests.swift; sourceTree = "<group>"; };
 		54995F6E205B6E12004EFFA0 /* leveldb_key_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = leveldb_key_test.cc; sourceTree = "<group>"; };
 		549CCA4C20A36DBB00BCEB75 /* sorted_set_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sorted_set_test.cc; sourceTree = "<group>"; };
@@ -1251,6 +1255,7 @@
 				AB380D03201BC6E400D97691 /* ordered_code_test.cc */,
 				403DBF6EFB541DFD01582AA3 /* path_test.cc */,
 				54740A531FC913E500713A1A /* secure_random_test.cc */,
+				5493A423225F9990006DE7BA /* status_apple_test.mm */,
 				54A0352C20A3B3D7003E0143 /* status_test.cc */,
 				54A0352B20A3B3D7003E0143 /* status_test_util.h */,
 				54A0352D20A3B3D7003E0143 /* statusor_test.cc */,
@@ -2411,7 +2416,7 @@
 				"${PODS_ROOT}/Target Support Files/Pods-Firestore_Example_tvOS/Pods-Firestore_Example_tvOS-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/BoringSSL-GRPC-tvOS/openssl_grpc.framework",
 				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher-tvOS/GTMSessionFetcher.framework",
-				"${BUILT_PRODUCTS_DIR}/GoogleUtilities-Environment-Logger-tvOS/GoogleUtilities.framework",
+				"${BUILT_PRODUCTS_DIR}/GoogleUtilities-85d94889/GoogleUtilities.framework",
 				"${BUILT_PRODUCTS_DIR}/Protobuf-tvOS10.0/Protobuf.framework",
 				"${BUILT_PRODUCTS_DIR}/gRPC-C++-tvOS/grpcpp.framework",
 				"${BUILT_PRODUCTS_DIR}/gRPC-Core-tvOS/grpc.framework",
@@ -2553,7 +2558,7 @@
 				"${PODS_ROOT}/Target Support Files/Pods-Firestore_Example_macOS/Pods-Firestore_Example_macOS-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/BoringSSL-GRPC-macOS/openssl_grpc.framework",
 				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher-macOS/GTMSessionFetcher.framework",
-				"${BUILT_PRODUCTS_DIR}/GoogleUtilities-Environment-Logger-macOS/GoogleUtilities.framework",
+				"${BUILT_PRODUCTS_DIR}/GoogleUtilities-65885a2c/GoogleUtilities.framework",
 				"${BUILT_PRODUCTS_DIR}/Protobuf-macOS10.11/Protobuf.framework",
 				"${BUILT_PRODUCTS_DIR}/gRPC-C++-macOS/grpcpp.framework",
 				"${BUILT_PRODUCTS_DIR}/gRPC-Core-macOS/grpc.framework",
@@ -3051,6 +3056,7 @@
 				862B1AC9EDAB309BBF4FB18C /* sorted_map_test.cc in Sources */,
 				4A62B708A6532DD45414DA3A /* sorted_set_test.cc in Sources */,
 				C9F96C511F45851D38EC449C /* status.pb.cc in Sources */,
+				5493A425225F9990006DE7BA /* status_apple_test.mm in Sources */,
 				4DC660A62BC2B6369DA5C563 /* status_test.cc in Sources */,
 				74985DE2C7EF4150D7A455FD /* statusor_test.cc in Sources */,
 				C5C01A1FB216DA4BA8BF1A02 /* stream_test.mm in Sources */,
@@ -3218,6 +3224,7 @@
 				86E6FC2B7657C35B342E1436 /* sorted_map_test.cc in Sources */,
 				8413BD9958F6DD52C466D70F /* sorted_set_test.cc in Sources */,
 				0D2D25522A94AA8195907870 /* status.pb.cc in Sources */,
+				5493A426225F9990006DE7BA /* status_apple_test.mm in Sources */,
 				C0AD8DB5A84CAAEE36230899 /* status_test.cc in Sources */,
 				DC48407370E87F2233D7AB7E /* statusor_test.cc in Sources */,
 				215643858470A449D3A3E168 /* stream_test.mm in Sources */,
@@ -3460,6 +3467,7 @@
 				549CCA5220A36DBC00BCEB75 /* sorted_map_test.cc in Sources */,
 				549CCA5020A36DBC00BCEB75 /* sorted_set_test.cc in Sources */,
 				618BBEB120B89AAC00B5BCE7 /* status.pb.cc in Sources */,
+				5493A424225F9990006DE7BA /* status_apple_test.mm in Sources */,
 				54A0352F20A3B3D8003E0143 /* status_test.cc in Sources */,
 				54A0353020A3B3D8003E0143 /* statusor_test.cc in Sources */,
 				B66D8996213609EE0086DA0C /* stream_test.mm in Sources */,

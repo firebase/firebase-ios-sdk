@@ -92,6 +92,18 @@ NS_SWIFT_NAME(Firestore)
  */
 - (FIRDocumentReference *)documentWithPath:(NSString *)documentPath NS_SWIFT_NAME(document(_:));
 
+#pragma mark - Collection Group Queries
+
+/**
+ * Creates and returns a new `Query` that includes all documents in the database that are contained
+ * in a collection or subcollection with the given collectionID.
+ *
+ * @param collectionID Identifies the collections to query over. Every collection or subcollection
+ *     with this ID as the last segment of its path will be included. Cannot contain a slash.
+ * @return The created `Query`.
+ */
+- (FIRQuery *)collectionGroupWithID:(NSString *)collectionID NS_SWIFT_NAME(collectionGroup(_:));
+
 #pragma mark - Transactions and Write Batches
 
 /**
@@ -137,9 +149,7 @@ NS_SWIFT_NAME(Firestore)
 #pragma mark - Logging
 
 /** Enables or disables logging from the Firestore client. */
-+ (void)enableLogging:(BOOL)logging
-    DEPRECATED_MSG_ATTRIBUTE("Use FirebaseConfiguration.shared.setLoggerLevel(.debug) to enable "
-                             "logging.");
++ (void)enableLogging:(BOOL)logging;
 
 #pragma mark - Network
 

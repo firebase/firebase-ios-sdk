@@ -451,42 +451,6 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
   OCMVerifyAll(_mockBackend);
 }
 
-/** @fn testFetchProvidersForEmailSuccessDeprecatedProviderID
-    @brief Tests the flow of a successful @c fetchProvidersForEmail:completion: call using the
-        deprecated FIREmailPasswordAuthProviderID.
- */
-- (void)testFetchProvidersForEmailSuccessDeprecatedProviderID {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  NSArray<NSString *> *allProviders =
-  @[ FIRGoogleAuthProviderID, FIREmailAuthProviderID ];
-#pragma clang diagnostic pop
-  OCMExpect([_mockBackend createAuthURI:[OCMArg any]
-                               callback:[OCMArg any]])
-      .andCallBlock2(^(FIRCreateAuthURIRequest *_Nullable request,
-                       FIRCreateAuthURIResponseCallback callback) {
-    XCTAssertEqualObjects(request.identifier, kEmail);
-    XCTAssertNotNil(request.endpoint);
-    XCTAssertEqualObjects(request.APIKey, kAPIKey);
-    dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
-      id mockCreateAuthURIResponse = OCMClassMock([FIRCreateAuthURIResponse class]);
-      OCMStub([mockCreateAuthURIResponse allProviders]).andReturn(allProviders);
-      callback(mockCreateAuthURIResponse, nil);
-    });
-  });
-  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
-  [[FIRAuth auth] fetchProvidersForEmail:kEmail
-                              completion:^(NSArray<NSString *> *_Nullable providers,
-                                           NSError *_Nullable error) {
-    XCTAssertTrue([NSThread isMainThread]);
-    XCTAssertEqualObjects(providers, allProviders);
-    XCTAssertNil(error);
-    [expectation fulfill];
-  }];
-  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
-  OCMVerifyAll(_mockBackend);
-}
-
 /** @fn testFetchProvidersForEmailFailure
     @brief Tests the flow of a failed @c fetchProvidersForEmail:completion: call.
  */
@@ -1125,45 +1089,6 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
   [[FIRAuth auth] signInWithCredential:emailCredential
                             completion:^(FIRAuthDataResult * _Nullable result,
                                          NSError *_Nullable error) {
-    XCTAssertTrue([NSThread isMainThread]);
-    [self assertUser:result.user];
-    XCTAssertNil(error);
-    [expectation fulfill];
-  }];
-  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
-  [self assertUser:[FIRAuth auth].currentUser];
-  OCMVerifyAll(_mockBackend);
-}
-
-/** @fn testSignInWithEmailCredentialSuccess
-    @brief Tests the flow of a successfully @c signInWithCredential:completion: call with an
-        email-password credential using the deprecated FIREmailPasswordAuthProvider.
- */
-- (void)testSignInWithEmailCredentialSuccessWithDepricatedProvider {
-  OCMExpect([_mockBackend verifyPassword:[OCMArg any] callback:[OCMArg any]])
-      .andCallBlock2(^(FIRVerifyPasswordRequest *_Nullable request,
-                       FIRVerifyPasswordResponseCallback callback) {
-    XCTAssertEqualObjects(request.APIKey, kAPIKey);
-    XCTAssertEqualObjects(request.email, kEmail);
-    XCTAssertEqualObjects(request.password, kFakePassword);
-    XCTAssertTrue(request.returnSecureToken);
-    dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
-      id mockVeriyPasswordResponse = OCMClassMock([FIRVerifyPasswordResponse class]);
-      [self stubTokensWithMockResponse:mockVeriyPasswordResponse];
-      callback(mockVeriyPasswordResponse, nil);
-    });
-  });
-  [self expectGetAccountInfo];
-  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
-  [[FIRAuth auth] signOut:NULL];
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  FIRAuthCredential *emailCredential =
-      [FIREmailAuthProvider credentialWithEmail:kEmail password:kFakePassword];
-#pragma clang diagnostic pop
-  [[FIRAuth auth] signInWithCredential:emailCredential
-                            completion:^(FIRAuthDataResult * _Nullable result,
-                                        NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
     [self assertUser:result.user];
     XCTAssertNil(error);

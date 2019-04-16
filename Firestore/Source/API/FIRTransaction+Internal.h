@@ -22,10 +22,15 @@
 
 @class FIRFirestore;
 
+namespace core = firebase::firestore::core;
+
+NS_ASSUME_NONNULL_BEGIN
+
 @interface FIRTransaction (Internal)
 
-+ (instancetype)transactionWithInternalTransaction:
-                    (std::shared_ptr<firebase::firestore::core::Transaction>)transaction
++ (instancetype)transactionWithInternalTransaction:(std::shared_ptr<core::Transaction>)transaction
                                          firestore:(FIRFirestore *)firestore;
 
 @end
+
+NS_ASSUME_NONNULL_END

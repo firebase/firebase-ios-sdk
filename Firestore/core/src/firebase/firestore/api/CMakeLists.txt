@@ -39,6 +39,8 @@ cc_select(
 cc_library(
   firebase_firestore_api
   SOURCES
+    settings.cc
+    settings.h
     snapshot_metadata.cc
     snapshot_metadata.h
   DEPENDS

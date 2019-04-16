@@ -28,14 +28,19 @@ private struct Constants {
     public static let requiredFilesForBuilding: [String] = [projectFile, infoPlist]
 
     // Required for distribution.
-    public static let firebaseHeader = "Firebase.h"
     public static let readmeName = "README.md"
-    public static let modulemap = "module.modulemap"
     public static let notices = "NOTICES"
 
     /// All required files for distribution. Note: the readmeTemplate is also needed for
     /// distribution but is copied separately since it's modified.
-    public static let requiredFilesForDistribution: [String] = [firebaseHeader, modulemap, notices]
+    public static let requiredFilesForDistribution: [String] = [notices]
+
+    // Required from the Firebase pod.
+    public static let firebaseHeader = "Firebase.h"
+    public static let modulemap = "module.modulemap"
+
+    // All required files needed from the Firebase pod.
+    public static let requiredFilesFromFirebasePod: [String] = [firebaseHeader, modulemap]
 
     // Make the struct un-initializable.
     @available(*, unavailable)
@@ -124,6 +129,9 @@ struct ZipBuilder {
     self.useCache = useCache
   }
 
+  // TODO: This function contains a lot of "copy these paths to this directory, fail if there are
+  //   errors" code. It could probably be broken out into a cleaner interface or broken out into
+  //   separate functions.
   /// Try to build and package the contents of the Zip file. This will throw an error as soon as it
   /// encounters an error, or will quit due to a fatal error with the appropriate log.
   ///
@@ -198,6 +206,7 @@ struct ZipBuilder {
     // throw a fatalError if any versions are mismatched.
     validateExpectedVersions(inProjectDir: projectDir)
 
+    // Find out what pods were installed with the above commands.
     let installedPods = CocoaPodUtils.installedPodsInfo(inProjectDir: projectDir)
     let filesToInstall = generateFrameworksWithResources(fromPods: installedPods,
                                                          inProjectDir: projectDir,
@@ -259,6 +268,16 @@ struct ZipBuilder {
                                               attributes: nil)
     }
 
+    // Get the Firebase pod in order to copy the `Firebase.h` and `module.modulemap` file from it.
+    guard let firebasePod = installedPods.filter({ $0.name == "Firebase" }).first else {
+      fatalError("Could not get the Firebase pod from list of installed pods. All pods " +
+        "installed: \(installedPods)")
+    }
+
+    // Copy all required files from the Firebase pod. This will cause a fatalError if anything
+    // fails.
+    copyFirebasePodFiles(fromDir: firebasePod.installedLocation, to: zipDir)
+
     // Copy all the other required files to the Zip directory.
     let distributionFiles = Constants.ProjectPath.requiredFilesForDistribution.map {
       paths.templateDir.appendingPathComponent($0)
@@ -301,7 +320,7 @@ struct ZipBuilder {
 
     // Loop through all the other subspecs that aren't Core and Analytics and write them to their
     // final destination, including resources.
-    let resourceBundles = filesToInstall.mapValues({ $0.resourceBundles }).filter({ !$0.value.isEmpty })
+    let resourceBundles = filesToInstall.mapValues { $0.resourceBundles }.filter { !$0.value.isEmpty }
     let remainingSubspecs = subspecsToInstall.filter { $0 != .analytics && $0 != .core }
     for spec in remainingSubspecs {
       do {
@@ -413,6 +432,34 @@ struct ZipBuilder {
 
         let destination = dir.appendingPathComponent(frameworkName)
         try fileManager.copyItem(at: framework, to: destination)
+      }
+    }
+  }
+
+  /// Copies required files from the Firebase pod (i.e. `Firebase.h`, `module.modulemap`, etc) into
+  /// the given `zipDir`. Will cause a fatalError if anything fails since the zip file can't exist
+  /// without these files.
+  private func copyFirebasePodFiles(fromDir firebasePodDir: URL, to zipDir: URL) {
+    // The `Firebase.h` and `module.modulemap` file are in the "CoreOnly/Sources" directory. We are
+    // hardcoding this instead of trying a recurisve search in the `firebasePodDir` directory
+    // because if the location changes we'll want to know.
+    let firebaseFiles = firebasePodDir.appendingPathComponent("CoreOnly/Sources")
+    let firebaseFilesToCopy = Constants.ProjectPath.requiredFilesFromFirebasePod.map {
+      firebaseFiles.appendingPathComponent($0)
+    }
+
+    // Copy each Firebase file.
+    for file in firebaseFilesToCopy {
+      // Each file should be copied to the destination project directory with the same name.
+      let destination = zipDir.appendingPathComponent(file.lastPathComponent)
+      do {
+        if !FileManager.default.fileExists(atPath: destination.path) {
+          print("Copying final distribution file \(file) to \(destination)...")
+          try FileManager.default.copyItem(at: file, to: destination)
+        }
+      } catch {
+        fatalError("Could not copy final distribution files to temporary directory before " +
+          "building. Failed while attempting to copy \(file) to \(destination). \(error)")
       }
     }
   }

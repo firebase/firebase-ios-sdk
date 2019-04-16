@@ -59,6 +59,7 @@ using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::FieldTransform;
+using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::NumericIncrementTransform;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::ServerTimestampTransform;
@@ -434,7 +435,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
   } else if ([input isKindOfClass:[NSString class]]) {
-    return [FSTStringValue stringValue:input];
+    return FieldValue::FromString(util::MakeString(input)).Wrap();
 
   } else if ([input isKindOfClass:[NSDate class]]) {
     return [FSTTimestampValue timestampValue:[FIRTimestamp timestampWithDate:input]];

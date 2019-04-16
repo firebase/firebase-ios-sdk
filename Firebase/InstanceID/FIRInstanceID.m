@@ -24,6 +24,7 @@
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import "FIRInstanceID+Private.h"
 #import "FIRInstanceIDAuthService.h"
+#import "FIRInstanceIDCheckinPreferences.h"
 #import "FIRInstanceIDCombinedHandler.h"
 #import "FIRInstanceIDConstants.h"
 #import "FIRInstanceIDDefines.h"
@@ -71,7 +72,6 @@ static NSString *const kFIRIIDAppNameKey = @"FIRAppNameKey";
 static NSString *const kFIRIIDErrorDomain = @"com.firebase.instanceid";
 static NSString *const kFIRIIDServiceInstanceID = @"InstanceID";
 
-// This should be the same value as FIRErrorCodeInstanceIDFailed, which we can't import directly
 static NSInteger const kFIRIIDErrorCodeInstanceIDFailed = -121;
 
 typedef void (^FIRInstanceIDKeyPairHandler)(FIRInstanceIDKeyPair *keyPair, NSError *error);
@@ -490,10 +490,7 @@ static FIRInstanceID *gInstanceID;
     // When getID is explicitly called, trigger getToken to make sure token always exists.
     // This is to avoid ID conflict (ID is not checked for conflict until we generate a token)
     if (appIdentity) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
       [self token];
-#pragma clang diagnostic pop
     }
     callHandlerOnMainThread(appIdentity, error);
   });
@@ -615,6 +612,26 @@ static FIRInstanceID *gInstanceID;
   }];
 }
 
+#pragma mark - Checkin
+
+- (BOOL)tryToLoadValidCheckinInfo {
+  FIRInstanceIDCheckinPreferences *checkinPreferences =
+      [self.tokenManager.authService checkinPreferences];
+  return [checkinPreferences hasValidCheckinInfo];
+}
+
+- (NSString *)deviceAuthID {
+  return [self.tokenManager.authService checkinPreferences].deviceID;
+}
+
+- (NSString *)secretToken {
+  return [self.tokenManager.authService checkinPreferences].secretToken;
+}
+
+- (NSString *)versionInfo {
+  return [self.tokenManager.authService checkinPreferences].versionInfo;
+}
+
 #pragma mark - Config
 
 + (void)load {
@@ -707,20 +724,14 @@ static FIRInstanceID *gInstanceID;
       [self defaultTokenWithHandler:nil];
     }
     // Notify FCM with the default token.
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     self.defaultFCMToken = [self token];
-#pragma clang diagnostic pop
   } else if ([self isFCMAutoInitEnabled]) {
     // When there is no cached token, must check auto init is enabled.
     // If it's disabled, don't initiate token generation/refresh.
     // If no cache token and auto init is enabled, fetch a token from server.
     [self defaultTokenWithHandler:nil];
     // Notify FCM with the default token.
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     self.defaultFCMToken = [self token];
-#pragma clang diagnostic pop
   }
   // ONLY checkin when auto data collection is turned on.
   if ([self isFCMAutoInitEnabled]) {

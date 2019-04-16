@@ -14,7 +14,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRAnalyticsConfiguration.h"
+#import "Private/FIRAnalyticsConfiguration.h"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-implementations"
@@ -37,6 +37,10 @@
   [[NSNotificationCenter defaultCenter] postNotificationName:name
                                                       object:self
                                                     userInfo:@{name : value}];
+}
+
+- (void)setAnalyticsCollectionEnabled:(BOOL)analyticsCollectionEnabled {
+  [self setAnalyticsCollectionEnabled:analyticsCollectionEnabled persistSetting:YES];
 }
 
 - (void)setAnalyticsCollectionEnabled:(BOOL)analyticsCollectionEnabled

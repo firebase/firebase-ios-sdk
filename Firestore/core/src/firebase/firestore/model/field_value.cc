@@ -360,7 +360,11 @@ size_t FieldValue::Hash() const {
     case FieldValue::Type::Double:
     case FieldValue::Type::Timestamp:
     case FieldValue::Type::ServerTimestamp:
+      HARD_FAIL("TODO(rsgowman): Implement");
+
     case FieldValue::Type::String:
+      return util::Hash(string_value());
+
     case FieldValue::Type::Blob:
     case FieldValue::Type::Reference:
     case FieldValue::Type::GeoPoint:

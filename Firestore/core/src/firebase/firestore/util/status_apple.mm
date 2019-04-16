@@ -18,30 +18,79 @@
 
 #if defined(__APPLE__)
 
+#include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
+#include "absl/memory/memory.h"
 
 namespace firebase {
 namespace firestore {
 namespace util {
+
+class UnderlyingNSError : public PlatformError {
+ public:
+  explicit UnderlyingNSError(NSError* error) : error_(error) {
+  }
+
+  static std::unique_ptr<UnderlyingNSError> Create(NSError* error) {
+    return absl::make_unique<UnderlyingNSError>(error);
+  }
+
+  static NSError* Recover(
+      const std::unique_ptr<PlatformError>& platform_error) {
+    if (platform_error == nullptr) {
+      return nil;
+    }
+
+    return static_cast<UnderlyingNSError*>(platform_error.get())->error();
+  }
+
+  std::unique_ptr<PlatformError> Copy() override {
+    return absl::make_unique<UnderlyingNSError>(error_);
+  }
+
+  std::unique_ptr<PlatformError> WrapWith(FirestoreErrorCode code,
+                                          std::string message) override {
+    NSError* chain = MakeNSError(code, message, error_);
+    return Create(chain);
+  }
+
+  NSError* error() const {
+    return error_;
+  }
+
+ private:
+  NSError* error_;
+};
 
 Status Status::FromNSError(NSError* error) {
   if (!error) {
     return Status::OK();
   }
 
-  NSError* original = error;
+  auto original = UnderlyingNSError::Create(error);
 
   while (error) {
     if ([error.domain isEqualToString:NSPOSIXErrorDomain]) {
       return FromErrno(static_cast<int>(error.code),
-                       MakeString(original.localizedDescription));
+                       MakeString(original->error().localizedDescription))
+          .WithPlatformError(std::move(original));
     }
 
     error = error.userInfo[NSUnderlyingErrorKey];
   }
 
   return Status{FirestoreErrorCode::Unknown,
-                StringFormat("Unknown error: %s", original)};
+                StringFormat("Unknown error: %s", original->error())}
+      .WithPlatformError(std::move(original));
+}
+
+NSError* Status::ToNSError() const {
+  if (ok()) return nil;
+
+  NSError* error = UnderlyingNSError::Recover(state_->platform_error);
+  if (error) return error;
+
+  return MakeNSError(code(), error_message());
 }
 
 }  // namespace util

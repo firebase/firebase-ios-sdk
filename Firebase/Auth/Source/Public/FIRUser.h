@@ -260,8 +260,8 @@ NS_SWIFT_NAME(User)
                           completion:(nullable FIRAuthDataResultCallback)completion;
 
 /** @fn reauthenticateAndRetrieveDataWithCredential:completion:
-    @brief Please use linkWithCredential:completion: for Objective-C "
-        "or link(withCredential:completion:) for Swift instead.
+    @brief Please use linkWithCredential:completion: for Objective-C
+        or link(withCredential:completion:) for Swift instead.
  */
 - (void)reauthenticateAndRetrieveDataWithCredential:(FIRAuthCredential *)credential
                                          completion:(nullable FIRAuthDataResultCallback)completion
@@ -325,8 +325,8 @@ DEPRECATED_MSG_ATTRIBUTE( "Please use reauthenticateWithCredential:completion: f
                       completion:(nullable FIRAuthTokenCallback)completion;
 
 /** @fn linkAndRetrieveDataWithCredential:completion:
-    @brief Please use linkWithCredential:completion: for Objective-C "
-        "or link(withCredential:completion:) for Swift instead.
+    @brief Please use linkWithCredential:completion: for Objective-C
+        or link(withCredential:completion:) for Swift instead.
  */
 - (void)linkAndRetrieveDataWithCredential:(FIRAuthCredential *)credential
                                completion:(nullable FIRAuthDataResultCallback)completion

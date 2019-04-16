@@ -305,70 +305,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-#pragma mark - FSTStringValue
-
-/**
- * Specialization of Comparator for NSStrings.
- */
-template <>
-struct Comparator<NSString *> {
-  bool operator()(NSString *left, NSString *right) const {
-    Comparator<absl::string_view> lessThan;
-    return lessThan(MakeString(left), MakeString(right));
-  }
-};
-
-@interface FSTStringValue ()
-@property(nonatomic, copy, readonly) NSString *internalValue;
-@end
-
-// TODO(b/37267885): Add truncation support
-@implementation FSTStringValue
-
-+ (instancetype)stringValue:(NSString *)value {
-  return [[FSTStringValue alloc] initWithValue:value];
-}
-
-- (id)initWithValue:(NSString *)value {
-  self = [super init];
-  if (self) {
-    _internalValue = [value copy];
-  }
-  return self;
-}
-
-- (FieldValue::Type)type {
-  return FieldValue::Type::String;
-}
-
-- (FSTTypeOrder)typeOrder {
-  return FSTTypeOrderString;
-}
-
-- (id)value {
-  return self.internalValue;
-}
-
-- (BOOL)isEqual:(id)other {
-  return [other isKindOfClass:[FSTFieldValue class]] &&
-         ((FSTFieldValue *)other).type == FieldValue::Type::String &&
-         [self.internalValue isEqualToString:((FSTStringValue *)other).internalValue];
-}
-
-- (NSUInteger)hash {
-  return self.internalValue ? 1 : 0;
-}
-
-- (NSComparisonResult)compare:(FSTFieldValue *)other {
-  if (other.type == FieldValue::Type::String) {
-    return WrapCompare(self.internalValue, ((FSTStringValue *)other).internalValue);
-  } else {
-    return [self defaultCompare:other];
-  }
-}
-
-@end
-
 #pragma mark - FSTTimestampValue
 
 @interface FSTTimestampValue ()
@@ -694,6 +630,18 @@ static NSComparisonResult CompareBytes(NSData *left, NSData *right) {
 
 #pragma mark - FSTObjectValue
 
+/**
+ * Specialization of Comparator for NSStrings.
+ */
+// TODO(b/37267885): Add truncation support
+template <>
+struct Comparator<NSString *> {
+  bool operator()(NSString *left, NSString *right) const {
+    Comparator<absl::string_view> lessThan;
+    return lessThan(MakeString(left), MakeString(right));
+  }
+};
+
 static const NSComparator StringComparator = ^NSComparisonResult(NSString *left, NSString *right) {
   return WrapCompare(left, right);
 };
@@ -959,13 +907,16 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
 
 @end
 
-@interface FSTDelegateValue ()
-@property(nonatomic, assign, readonly) FieldValue internalValue;
-@end
+@implementation FSTDelegateValue {
+  FieldValue _internalValue;
+}
 
-@implementation FSTDelegateValue
 + (instancetype)delegateWithValue:(FieldValue &&)value {
   return [[FSTDelegateValue alloc] initWithValue:std::move(value)];
+}
+
+- (const FieldValue &)internalValue {
+  return _internalValue;
 }
 
 - (id)initWithValue:(FieldValue &&)value {
@@ -1037,7 +988,9 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
     case FieldValue::Type::Double:
     case FieldValue::Type::Timestamp:
     case FieldValue::Type::ServerTimestamp:
+      HARD_FAIL("TODO(rsgowman): implement");
     case FieldValue::Type::String:
+      return util::WrapNSString(self.internalValue.string_value());
     case FieldValue::Type::Blob:
     case FieldValue::Type::Reference:
     case FieldValue::Type::GeoPoint:

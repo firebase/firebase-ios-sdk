@@ -23,11 +23,10 @@
 
 #import <Foundation/Foundation.h>
 
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
-
-#import "FIRFirestoreSource.h"
 
 #include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/api/listener_registration.h"
@@ -45,20 +44,23 @@ namespace firestore {
 namespace api {
 
 class Firestore;
+enum class Source;
 
 class DocumentReference {
  public:
   using Completion = void (^)(NSError* _Nullable error) _Nullable;
 
   DocumentReference() = default;
-  DocumentReference(model::ResourcePath path, Firestore* firestore);
-  DocumentReference(model::DocumentKey document_key, Firestore* firestore)
+  DocumentReference(model::ResourcePath path,
+                    std::shared_ptr<Firestore> firestore);
+  DocumentReference(model::DocumentKey document_key,
+                    std::shared_ptr<Firestore> firestore)
       : firestore_{firestore}, key_{std::move(document_key)} {
   }
 
   size_t Hash() const;
 
-  Firestore* firestore() const {
+  const std::shared_ptr<Firestore>& firestore() const {
     return firestore_;
   }
   const model::DocumentKey& key() const {
@@ -82,14 +84,13 @@ class DocumentReference {
 
   void DeleteDocument(Completion completion);
 
-  void GetDocument(FIRFirestoreSource source,
-                   DocumentSnapshot::Listener&& completion);
+  void GetDocument(Source source, DocumentSnapshot::Listener&& completion);
 
   ListenerRegistration AddSnapshotListener(
       core::ListenOptions options, DocumentSnapshot::Listener&& listener);
 
  private:
-  Firestore* firestore_ = nullptr;
+  std::shared_ptr<Firestore> firestore_;
   model::DocumentKey key_;
 };
 

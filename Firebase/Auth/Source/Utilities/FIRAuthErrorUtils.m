@@ -37,10 +37,6 @@ NSString *const FIRAuthErrorUserInfoUpdatedCredentialKey =
 
 NSString *const FIRAuthErrorUserInfoNameKey = @"FIRAuthErrorUserInfoNameKey";
 
-NSString *const FIRAuthErrorNameKey = @"error_name";
-
-NSString *const FIRAuthUpdatedCredentialKey = @"FIRAuthUpdatedCredentialKey";
-
 /** @var kServerErrorDetailMarker
     @brief This marker indicates that the server error message contains a detail error message which
         should be used instead of the hardcoded client error message.
@@ -753,11 +749,6 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
     if (!errorUserInfo[NSLocalizedDescriptionKey]) {
       errorUserInfo[NSLocalizedDescriptionKey] = FIRAuthErrorDescription(errorCode);
     }
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    // TODO(wangyue): Remove the deprecated code on next breaking change.
-    errorUserInfo[FIRAuthErrorNameKey] = FIRAuthErrorCodeString(errorCode);
-#pragma clang diagnostic pop
     errorUserInfo[FIRAuthErrorUserInfoNameKey] = FIRAuthErrorCodeString(errorCode);
     return [NSError errorWithDomain:FIRAuthErrorDomain code:errorCode userInfo:errorUserInfo];
   } else {
@@ -957,11 +948,6 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
                                               email:(nullable NSString *)email {
   NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
   if (credential) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    // TODO(wangyue): Remove the deprecated code on next breaking change.
-    userInfo[FIRAuthUpdatedCredentialKey] = credential;
-#pragma clang diagnostic pop
     userInfo[FIRAuthErrorUserInfoUpdatedCredentialKey] = credential;
   }
   if (email.length) {

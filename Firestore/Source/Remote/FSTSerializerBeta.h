@@ -46,6 +46,9 @@
 
 @class GPBTimestamp;
 
+namespace model = firebase::firestore::model;
+namespace remote = firebase::firestore::remote;
+
 NS_ASSUME_NONNULL_BEGIN
 
 /**
@@ -60,14 +63,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init NS_UNAVAILABLE;
 
-- (instancetype)initWithDatabaseID:(const firebase::firestore::model::DatabaseId *)databaseID
-    NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithDatabaseID:(const model::DatabaseId *)databaseID NS_DESIGNATED_INITIALIZER;
 
 - (GPBTimestamp *)encodedTimestamp:(const firebase::Timestamp &)timestamp;
 - (firebase::Timestamp)decodedTimestamp:(GPBTimestamp *)timestamp;
 
-- (GPBTimestamp *)encodedVersion:(const firebase::firestore::model::SnapshotVersion &)version;
-- (firebase::firestore::model::SnapshotVersion)decodedVersion:(GPBTimestamp *)version;
+- (GPBTimestamp *)encodedVersion:(const model::SnapshotVersion &)version;
+- (model::SnapshotVersion)decodedVersion:(GPBTimestamp *)version;
 
 /** Returns the database ID, such as `projects/{project id}/databases/{database_id}`. */
 - (NSString *)encodedDatabaseID;
@@ -76,8 +78,8 @@ NS_ASSUME_NONNULL_BEGIN
  * Encodes the given document key as a fully qualified name. This includes the
  * databaseId associated with this FSTSerializerBeta and the key path.
  */
-- (NSString *)encodedDocumentKey:(const firebase::firestore::model::DocumentKey &)key;
-- (firebase::firestore::model::DocumentKey)decodedDocumentKey:(NSString *)key;
+- (NSString *)encodedDocumentKey:(const model::DocumentKey &)key;
+- (model::DocumentKey)decodedDocumentKey:(NSString *)key;
 
 - (GCFSValue *)encodedFieldValue:(FSTFieldValue *)fieldValue;
 - (FSTFieldValue *)decodedFieldValue:(GCFSValue *)valueProto;
@@ -86,8 +88,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTMutation *)decodedMutation:(GCFSWrite *)mutation;
 
 - (FSTMutationResult *)decodedMutationResult:(GCFSWriteResult *)mutation
-                               commitVersion:(const firebase::firestore::model::SnapshotVersion &)
-                                                 commitVersion;
+                               commitVersion:(const model::SnapshotVersion &)commitVersion;
 
 - (nullable NSMutableDictionary<NSString *, NSString *> *)encodedListenRequestLabelsForQueryData:
     (FSTQueryData *)queryData;
@@ -100,13 +101,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (GCFSTarget_QueryTarget *)encodedQueryTarget:(FSTQuery *)query;
 - (FSTQuery *)decodedQueryFromQueryTarget:(GCFSTarget_QueryTarget *)target;
 
-- (std::unique_ptr<firebase::firestore::remote::WatchChange>)decodedWatchChange:
-    (GCFSListenResponse *)watchChange;
-- (firebase::firestore::model::SnapshotVersion)versionFromListenResponse:
-    (GCFSListenResponse *)watchChange;
+- (std::unique_ptr<remote::WatchChange>)decodedWatchChange:(GCFSListenResponse *)watchChange;
+- (model::SnapshotVersion)versionFromListenResponse:(GCFSListenResponse *)watchChange;
 
 - (GCFSDocument *)encodedDocumentWithFields:(FSTObjectValue *)objectValue
-                                        key:(const firebase::firestore::model::DocumentKey &)key;
+                                        key:(const model::DocumentKey &)key;
 
 /**
  * Encodes an FSTObjectValue into a dictionary.

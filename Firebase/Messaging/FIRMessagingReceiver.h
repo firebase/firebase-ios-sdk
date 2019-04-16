@@ -20,7 +20,6 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class FIRMessagingReceiver;
-@class GULUserDefaults;
 @protocol FIRMessagingReceiverDelegate <NSObject>
 
 - (void)receiver:(FIRMessagingReceiver *)receiver

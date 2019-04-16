@@ -55,6 +55,7 @@ using firebase::firestore::model::BatchId;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::TargetId;
@@ -246,7 +247,7 @@ NS_ASSUME_NONNULL_BEGIN
   return [[FSTSetMutation alloc]
        initWithKey:DocumentKey::FromPathString("rooms/eros")
              value:[[FSTObjectValue alloc]
-                       initWithDictionary:@{@"name" : [FSTStringValue stringValue:@"Eros"]}]
+                       initWithDictionary:@{@"name" : FieldValue::FromString("Eros").Wrap()}]
       precondition:Precondition::None()];
 }
 

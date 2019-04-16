@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseInstanceID'
-  s.version          = '3.8.1'
+  s.version          = '4.1.0'
   s.summary          = 'Firebase InstanceID for iOS'
 
   s.description      = <<-DESC
@@ -28,14 +28,15 @@ services.
   base_dir = "Firebase/InstanceID/"
   s.source_files = base_dir + '**/*.[mh]'
   s.requires_arc = base_dir + '*.m'
-  s.public_header_files = base_dir + 'Public/*.h'
+  s.public_header_files = base_dir + 'Public/*.h', base_dir + 'Private/*.h'
+  s.private_header_files = base_dir + 'Private/*.h'
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
       'FIRInstanceID_LIB_VERSION=' + String(s.version)
   }
   s.framework = 'Security'
-  s.dependency 'FirebaseCore', '~> 5.2'
+  s.dependency 'FirebaseCore', '~> 6.0'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 5.2'
   s.dependency 'GoogleUtilities/Environment', '~> 5.2'
 end

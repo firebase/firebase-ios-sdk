@@ -32,6 +32,8 @@ namespace util {
 
 namespace {
 
+const FIRLoggerService kFIRLoggerFirestore = @"[Firebase/Firestore]";
+
 // Translates a C++ LogLevel to the equivalent Objective-C FIRLoggerLevel
 FIRLoggerLevel ToFIRLoggerLevel(LogLevel level) {
   switch (level) {

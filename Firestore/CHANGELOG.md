@@ -1,4 +1,8 @@
 # Unreleased
+
+# 1.3.0
+- [feature] You can now query across all collections in your database with a
+  given collection ID using the `Firestore.collectionGroup()` method.
 - [feature] Added community support for tvOS.
 
 # 1.2.1

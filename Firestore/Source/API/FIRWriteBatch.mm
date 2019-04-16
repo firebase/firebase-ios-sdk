@@ -133,7 +133,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)commitWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
   [self verifyNotCommitted];
   self.committed = TRUE;
-  [self.firestore.client writeMutations:std::move(_mutations) completion:completion];
+  [self.firestore.wrapped->client() writeMutations:std::move(_mutations) completion:completion];
 }
 
 - (void)verifyNotCommitted {

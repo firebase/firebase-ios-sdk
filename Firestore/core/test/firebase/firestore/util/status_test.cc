@@ -111,6 +111,9 @@ TEST(Status, FromErrno) {
       a.ToString(),
       testing::MatchesRegex(
           "Already exists: Cannot write file \\(errno .*: File exists\\)"));
+
+  Status b = Status::FromErrno(0, "Nothing wrong");
+  ASSERT_EQ(Status::OK(), b);
 }
 
 TEST(Status, CausedBy_OK) {

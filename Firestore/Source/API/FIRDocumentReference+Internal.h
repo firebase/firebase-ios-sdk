@@ -16,29 +16,33 @@
 
 #import "FIRDocumentReference.h"
 
+#include <memory>
+
 #include "Firestore/core/src/firebase/firestore/api/document_reference.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+
+namespace api = firebase::firestore::api;
+namespace model = firebase::firestore::model;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRDocumentReference (/* Init */)
 
-- (instancetype)initWithReference:(firebase::firestore::api::DocumentReference &&)reference
-    NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithReference:(api::DocumentReference &&)reference NS_DESIGNATED_INITIALIZER;
 
-- (instancetype)initWithPath:(firebase::firestore::model::ResourcePath)path
-                   firestore:(firebase::firestore::api::Firestore *)firestore;
+- (instancetype)initWithPath:(model::ResourcePath)path
+                   firestore:(std::shared_ptr<api::Firestore>)firestore;
 
-- (instancetype)initWithKey:(firebase::firestore::model::DocumentKey)key
-                  firestore:(firebase::firestore::api::Firestore *)firestore;
+- (instancetype)initWithKey:(model::DocumentKey)key
+                  firestore:(std::shared_ptr<api::Firestore>)firestore;
 
 @end
 
 /** Internal FIRDocumentReference API we don't want exposed in our public header files. */
 @interface FIRDocumentReference (Internal)
 
-- (const firebase::firestore::model::DocumentKey &)key;
+- (const model::DocumentKey &)key;
 
 @end
 

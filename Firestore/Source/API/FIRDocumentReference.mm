@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-#import "FIRDocumentReference.h"
+#import "FIRDocumentReference+Internal.h"
 
 #include <memory>
 #include <utility>
 
 #import "FIRFirestoreErrors.h"
-#import "FIRFirestoreSource.h"
 #import "Firestore/Source/API/FIRCollectionReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
+#import "Firestore/Source/API/FIRFirestoreSource+Internal.h"
 #import "Firestore/Source/API/FIRListenerRegistration+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Core/FSTEventManager.h"
@@ -34,6 +34,7 @@
 #include "Firestore/core/src/firebase/firestore/api/document_reference.h"
 #include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/api/input_validation.h"
+#include "Firestore/core/src/firebase/firestore/api/source.h"
 #include "Firestore/core/src/firebase/firestore/core/event_listener.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
@@ -49,6 +50,9 @@ namespace util = firebase::firestore::util;
 using firebase::firestore::api::DocumentReference;
 using firebase::firestore::api::DocumentSnapshot;
 using firebase::firestore::api::Firestore;
+using firebase::firestore::api::ListenerRegistration;
+using firebase::firestore::api::Source;
+using firebase::firestore::api::MakeSource;
 using firebase::firestore::api::ThrowInvalidArgument;
 using firebase::firestore::core::EventListener;
 using firebase::firestore::core::ListenOptions;
@@ -76,7 +80,7 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-- (instancetype)initWithPath:(ResourcePath)path firestore:(Firestore *)firestore {
+- (instancetype)initWithPath:(ResourcePath)path firestore:(std::shared_ptr<Firestore>)firestore {
   if (path.size() % 2 != 0) {
     ThrowInvalidArgument("Invalid document reference. Document references must have an even "
                          "number of segments, but %s has %s",
@@ -85,7 +89,7 @@ NS_ASSUME_NONNULL_BEGIN
   return [self initWithKey:DocumentKey{std::move(path)} firestore:firestore];
 }
 
-- (instancetype)initWithKey:(DocumentKey)key firestore:(Firestore *)firestore {
+- (instancetype)initWithKey:(DocumentKey)key firestore:(std::shared_ptr<Firestore>)firestore {
   DocumentReference delegate{std::move(key), firestore};
   return [self initWithReference:std::move(delegate)];
 }
@@ -192,13 +196,12 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)getDocumentWithCompletion:(FIRDocumentSnapshotBlock)completion {
-  _documentReference.GetDocument(FIRFirestoreSourceDefault,
-                                 [self wrapDocumentSnapshotBlock:completion]);
+  _documentReference.GetDocument(Source::Default, [self wrapDocumentSnapshotBlock:completion]);
 }
 
 - (void)getDocumentWithSource:(FIRFirestoreSource)source
                    completion:(FIRDocumentSnapshotBlock)completion {
-  _documentReference.GetDocument(source, [self wrapDocumentSnapshotBlock:completion]);
+  _documentReference.GetDocument(MakeSource(source), [self wrapDocumentSnapshotBlock:completion]);
 }
 
 - (id<FIRListenerRegistration>)addSnapshotListener:(FIRDocumentSnapshotBlock)listener {

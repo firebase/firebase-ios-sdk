@@ -23,12 +23,12 @@
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 
-using firebase::firestore::model::FieldValue;
-
 @class FSTDocumentKey;
 @class FIRTimestamp;
 @class FSTFieldValueOptions;
 @class FIRGeoPoint;
+
+namespace model = firebase::firestore::model;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -92,7 +92,7 @@ enum class ServerTimestampBehavior { None, Estimate, Previous };
  * Returns the 'type' of this FSTFieldValue. Used for RTTI (rather than isKindOfClass)
  * to ease migration to C++.
  */
-@property(nonatomic, assign, readonly) FieldValue::Type type;
+@property(nonatomic, assign, readonly) model::FieldValue::Type type;
 
 /** Returns the FSTTypeOrder for this value. */
 @property(nonatomic, assign, readonly) FSTTypeOrder typeOrder;
@@ -150,13 +150,6 @@ enum class ServerTimestampBehavior { None, Estimate, Previous };
 @end
 
 /**
- * A string stored in Firestore.
- */
-@interface FSTStringValue : FSTFieldValue <NSString *>
-+ (instancetype)stringValue:(NSString *)value;
-@end
-
-/**
  * A timestamp value stored in Firestore.
  */
 @interface FSTTimestampValue : FSTFieldValue <FIRTimestamp *>
@@ -203,9 +196,9 @@ enum class ServerTimestampBehavior { None, Estimate, Previous };
  */
 @interface FSTReferenceValue : FSTFieldValue <FSTDocumentKey *>
 + (instancetype)referenceValue:(FSTDocumentKey *)value
-                    databaseID:(const firebase::firestore::model::DatabaseId *)databaseID;
+                    databaseID:(const model::DatabaseId *)databaseID;
 // Does not own this DatabaseId.
-@property(nonatomic, assign, readonly) const firebase::firestore::model::DatabaseId *databaseID;
+@property(nonatomic, assign, readonly) const model::DatabaseId *databaseID;
 @end
 
 /**
@@ -234,28 +227,27 @@ enum class ServerTimestampBehavior { None, Estimate, Previous };
 - (FSTImmutableSortedDictionary<NSString *, FSTFieldValue *> *)internalValue;
 
 /** Returns the value at the given path if it exists. Returns nil otherwise. */
-- (nullable FSTFieldValue *)valueForPath:(const firebase::firestore::model::FieldPath &)fieldPath;
+- (nullable FSTFieldValue *)valueForPath:(const model::FieldPath &)fieldPath;
 
 /**
  * Returns a new object where the field at the named path has its value set to the given value.
  * This object remains unmodified.
  */
 - (FSTObjectValue *)objectBySettingValue:(FSTFieldValue *)value
-                                 forPath:(const firebase::firestore::model::FieldPath &)fieldPath;
+                                 forPath:(const model::FieldPath &)fieldPath;
 
 /**
  * Returns a new object where the field at the named path has been removed. If any segment of the
  * path does not exist within this object's structure, no change is performed.
  */
-- (FSTObjectValue *)objectByDeletingPath:(const firebase::firestore::model::FieldPath &)fieldPath;
+- (FSTObjectValue *)objectByDeletingPath:(const model::FieldPath &)fieldPath;
 
 /**
  * Applies this field mask to the provided object value and returns an object that only contains
  * fields that are specified in both the input object and this field mask.
  */
 // TODO(mrschmidt): Once FieldValues are C++, move this to FieldMask to match other platforms.
-- (FSTObjectValue *)objectByApplyingFieldMask:
-    (const firebase::firestore::model::FieldMask &)fieldMask;
+- (FSTObjectValue *)objectByApplyingFieldMask:(const model::FieldMask &)fieldMask;
 @end
 
 /**
@@ -283,7 +275,8 @@ enum class ServerTimestampBehavior { None, Estimate, Previous };
  * A value that delegates to the c++ model::FieldValue.
  */
 @interface FSTDelegateValue : FSTFieldValue <id>
-+ (instancetype)delegateWithValue:(FieldValue &&)value;
++ (instancetype)delegateWithValue:(model::FieldValue &&)value;
+- (const model::FieldValue &)internalValue;
 @end
 
 NS_ASSUME_NONNULL_END

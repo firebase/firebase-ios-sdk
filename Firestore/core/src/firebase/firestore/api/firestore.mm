@@ -16,7 +16,6 @@
 
 #include "Firestore/core/src/firebase/firestore/api/firestore.h"
 
-#import "FIRFirestoreSettings.h"
 #import "Firestore/Source/API/FIRCollectionReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
@@ -27,6 +26,7 @@
 #import "Firestore/Source/Core/FSTQuery.h"
 
 #include "Firestore/core/src/firebase/firestore/api/document_reference.h"
+#include "Firestore/core/src/firebase/firestore/api/settings.h"
 #include "Firestore/core/src/firebase/firestore/auth/firebase_credentials_provider_apple.h"
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -40,7 +40,6 @@ namespace firebase {
 namespace firestore {
 namespace api {
 
-using firebase::firestore::api::Firestore;
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::core::Transaction;
@@ -61,31 +60,35 @@ Firestore::Firestore(std::string project_id,
       persistence_key_{std::move(persistence_key)},
       worker_queue_{std::move(worker_queue)},
       extension_{extension} {
-  settings_ = [[FIRFirestoreSettings alloc] init];
 }
 
 AsyncQueue* Firestore::worker_queue() {
   return [client_ workerQueue];
 }
 
-FIRFirestoreSettings* Firestore::settings() const {
+const Settings& Firestore::settings() const {
   std::lock_guard<std::mutex> lock{mutex_};
-  // Disallow mutation of our internal settings
-  return [settings_ copy];
+  return settings_;
 }
 
-void Firestore::set_settings(FIRFirestoreSettings* settings) {
+void Firestore::set_settings(const Settings& settings) {
   std::lock_guard<std::mutex> lock{mutex_};
-  // As a special exception, don't throw if the same settings are passed
-  // repeatedly. This should make it more friendly to create a Firestore
-  // instance.
-  if (client_ && ![settings_ isEqual:settings]) {
+  if (client_) {
     HARD_FAIL(
         "Firestore instance has already been started and its settings can "
         "no longer be changed. You can only set settings before calling any "
         "other methods on a Firestore instance.");
   }
-  settings_ = [settings copy];
+  settings_ = settings;
+}
+
+void Firestore::set_user_executor(
+    std::unique_ptr<util::Executor> user_executor) {
+  std::lock_guard<std::mutex> lock{mutex_};
+  HARD_ASSERT(!client_ && user_executor,
+              "set_user_executor() must be called with a valid executor, "
+              "before the client is initialized.");
+  user_executor_ = std::move(user_executor);
 }
 
 FIRCollectionReference* Firestore::GetCollection(
@@ -94,24 +97,27 @@ FIRCollectionReference* Firestore::GetCollection(
   ResourcePath path = ResourcePath::FromString(collection_path);
   return [FIRCollectionReference
       referenceWithPath:path
-              firestore:[FIRFirestore recoverFromFirestore:this]];
+              firestore:[FIRFirestore recoverFromFirestore:shared_from_this()]];
 }
 
 DocumentReference Firestore::GetDocument(absl::string_view document_path) {
   EnsureClientConfigured();
-  return DocumentReference{ResourcePath::FromString(document_path), this};
+  return DocumentReference{ResourcePath::FromString(document_path),
+                           shared_from_this()};
 }
 
 FIRWriteBatch* Firestore::GetBatch() {
   EnsureClientConfigured();
-  FIRFirestore* wrapper = [FIRFirestore recoverFromFirestore:this];
+  FIRFirestore* wrapper =
+      [FIRFirestore recoverFromFirestore:shared_from_this()];
 
   return [FIRWriteBatch writeBatchWithFirestore:wrapper];
 }
 
 FIRQuery* Firestore::GetCollectionGroup(NSString* collection_id) {
   EnsureClientConfigured();
-  FIRFirestore* wrapper = [FIRFirestore recoverFromFirestore:this];
+  FIRFirestore* wrapper =
+      [FIRFirestore recoverFromFirestore:shared_from_this()];
 
   return
       [FIRQuery referenceWithQuery:[FSTQuery queryWithPath:ResourcePath::Empty()
@@ -123,7 +129,8 @@ void Firestore::RunTransaction(TransactionBlock update_block,
                                dispatch_queue_t queue,
                                ResultOrErrorCompletion completion) {
   EnsureClientConfigured();
-  FIRFirestore* wrapper = [FIRFirestore recoverFromFirestore:this];
+  FIRFirestore* wrapper =
+      [FIRFirestore recoverFromFirestore:shared_from_this()];
 
   FSTTransactionBlock wrapped_update =
       ^(std::shared_ptr<Transaction> internal_transaction,
@@ -175,24 +182,15 @@ void Firestore::EnsureClientConfigured() {
   std::lock_guard<std::mutex> lock{mutex_};
 
   if (!client_) {
-    // These values are validated elsewhere; this is just double-checking:
-    HARD_ASSERT(settings_.host, "FirestoreSettings.host cannot be nil.");
-    HARD_ASSERT(settings_.dispatchQueue,
-                "FirestoreSettings.dispatchQueue cannot be nil.");
-
-    DatabaseInfo database_info(database_id_, persistence_key_,
-                               util::MakeString(settings_.host),
-                               settings_.sslEnabled);
-
-    std::unique_ptr<Executor> user_executor =
-        absl::make_unique<ExecutorLibdispatch>(settings_.dispatchQueue);
+    DatabaseInfo database_info(database_id_, persistence_key_, settings_.host(),
+                               settings_.ssl_enabled());
 
     HARD_ASSERT(worker_queue_, "Expected non-null worker queue");
     client_ =
         [FSTFirestoreClient clientWithDatabaseInfo:database_info
                                           settings:settings_
                                credentialsProvider:credentials_provider_.get()
-                                      userExecutor:std::move(user_executor)
+                                      userExecutor:std::move(user_executor_)
                                        workerQueue:std::move(worker_queue_)];
   }
 }

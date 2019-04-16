@@ -76,15 +76,9 @@ static NSString *const kMessageCode = @"I-COR000001";
   XCTAssertEqualObjects(kFIRLoggerABTesting, @"[Firebase/ABTesting]");
   XCTAssertEqualObjects(kFIRLoggerAdMob, @"[Firebase/AdMob]");
   XCTAssertEqualObjects(kFIRLoggerAnalytics, @"[Firebase/Analytics]");
-  XCTAssertEqualObjects(kFIRLoggerAuth, @"[Firebase/Auth]");
   XCTAssertEqualObjects(kFIRLoggerCore, @"[Firebase/Core]");
-  XCTAssertEqualObjects(kFIRLoggerDatabase, @"[Firebase/Database]");
-  XCTAssertEqualObjects(kFIRLoggerDynamicLinks, @"[Firebase/DynamicLinks]");
-  XCTAssertEqualObjects(kFIRLoggerInstanceID, @"[Firebase/InstanceID]");
   XCTAssertEqualObjects(kFIRLoggerMLKit, @"[Firebase/MLKit]");
-  XCTAssertEqualObjects(kFIRLoggerMessaging, @"[Firebase/Messaging]");
   XCTAssertEqualObjects(kFIRLoggerRemoteConfig, @"[Firebase/RemoteConfig]");
-  XCTAssertEqualObjects(kFIRLoggerStorage, @"[Firebase/Storage]");
 }
 
 - (void)testInitializeASLForNonDebugMode {

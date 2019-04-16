@@ -20,7 +20,7 @@
 #import "FIRStorageTask_Private.h"
 #import "FIRStorageUploadTask_Private.h"
 
-#import "GTMSessionUploadFetcher.h"
+#import <GTMSessionFetcher/GTMSessionUploadFetcher.h>
 
 @implementation FIRStorageUploadTask
 

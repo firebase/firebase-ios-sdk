@@ -53,7 +53,8 @@ else
 'FirebaseMessaging.podspec|FirebaseStorage.podspec|'\
 'FirebaseStorage.podspec|Firebase/InAppMessagingDisplay|InAppMessagingDisplay|'\
 'InAppMessaging|Firebase/InAppMessaging|'\
-'FirebaseInAppMessaging.podspec|FirebaseInAppMessagingDisplay.podspec)'
+'FirebaseInAppMessaging.podspec|FirebaseInAppMessagingDisplay.podspec|'\
+'Firebase/InstanceID|FirebaseInstanceID.podspec)'
       ;;
 
     Firebase-*)
@@ -62,7 +63,7 @@ else
 'FirebaseAnalyticsIntop.podspec|FirebaseAuth.podspec|FirebaseAuthInterop.podspec|'\
 'FirebaseCore.podspec|FirebaseDatabase.podspec|FirebaseDynamicLinks.podspec|'\
 'FirebaseMessaging.podspec|FirebaseStorage.podspec|'\
-'FirebaseStorage.podspec)'
+'FirebaseStorage.podspec|Firebase/InstanceID|FirebaseInstanceID.podspec)'
       ;;
 
     Functions-*)
@@ -81,6 +82,14 @@ else
 
     Firestore-cmake)
       check_changes '^(Firestore/(core|third_party)|cmake|GoogleUtilities)'
+      ;;
+
+    GoogleDataTransport-*)
+      check_changes '^(GoogleDataTransport|GoogleDataTransport.podspec)'
+      ;;
+
+    GoogleDataTransportCCTSupport-*)
+      check_changes '^(GoogleDataTransportCCTSupport|GoogleDataTransportCCTSupport.podspec|GoogleDataTransport|GoogleDataTransport.podspec)'
       ;;
 
     *)

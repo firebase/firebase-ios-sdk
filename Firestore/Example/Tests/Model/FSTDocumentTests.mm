@@ -27,6 +27,7 @@
 
 namespace testutil = firebase::firestore::testutil;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::SnapshotVersion;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -64,9 +65,9 @@ NS_ASSUME_NONNULL_BEGIN
                                              state:FSTDocumentStateSynced];
 
   XCTAssertEqualObjects([doc fieldForPath:testutil::Field("desc")],
-                        [FSTStringValue stringValue:@"Discuss all the project related stuff"]);
+                        FieldValue::FromString("Discuss all the project related stuff").Wrap());
   XCTAssertEqualObjects([doc fieldForPath:testutil::Field("owner.title")],
-                        [FSTStringValue stringValue:@"scallywag"]);
+                        FieldValue::FromString("scallywag").Wrap());
 }
 
 - (void)testIsEqual {

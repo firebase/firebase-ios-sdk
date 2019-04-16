@@ -5,6 +5,12 @@ cache:
   - bundler
   - cocoapods
 
+stages:
+  - checks
+  - test
+  - name: cocoapods_compatibility_check
+    if: type = cron
+
 jobs:
   include:
     - stage: checks
@@ -87,43 +93,66 @@ jobs:
 
     # pod lib lint to check build and warnings for static library build - only on cron jobs
     - stage: test
+      if: type = cron
       env:
         - PROJECT=Firebase PLATFORM=iOS METHOD=pod-lib-lint
       before_install:
-        - ./scripts/if_cron.sh ./scripts/install_prereqs.sh
+        - ./scripts/install_prereqs.sh
       script:
-        - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh GoogleUtilities.podspec --use-libraries
-        - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseCore.podspec --use-libraries
-        - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseAnalyticsInterop.podspec --use-libraries
-        - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseAuth.podspec --use-libraries
-        - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseAuthInterop.podspec --use-libraries
-        - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseDatabase.podspec --use-libraries
-        - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseDynamicLinks.podspec --use-libraries
-        - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseInstanceID.podspec --use-libraries
+        - travis_retry ./scripts/pod_lib_lint.sh GoogleUtilities.podspec --use-libraries
+        - travis_retry ./scripts/pod_lib_lint.sh FirebaseCore.podspec --use-libraries
+        - travis_retry ./scripts/pod_lib_lint.sh FirebaseAnalyticsInterop.podspec --use-libraries
+        - travis_retry ./scripts/pod_lib_lint.sh FirebaseAuth.podspec --use-libraries
+        - travis_retry ./scripts/pod_lib_lint.sh FirebaseAuthInterop.podspec --use-libraries
+        - travis_retry ./scripts/pod_lib_lint.sh FirebaseDatabase.podspec --use-libraries
+        - travis_retry ./scripts/pod_lib_lint.sh FirebaseDynamicLinks.podspec --use-libraries
+        - travis_retry ./scripts/pod_lib_lint.sh FirebaseInstanceID.podspec --use-libraries
         # The Protobuf dependency of FirebaseMessaging has warnings with --use-libraries
-        - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseMessaging.podspec --use-libraries --allow-warnings
-        - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseStorage.podspec --use-libraries
-        - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseInAppMessaging.podspec --use-libraries
-        - travis_retry ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseInAppMessagingDisplay.podspec --use-libraries
+        - travis_retry ./scripts/pod_lib_lint.sh FirebaseMessaging.podspec --use-libraries --allow-warnings
+        - travis_retry ./scripts/pod_lib_lint.sh FirebaseStorage.podspec --use-libraries
+        - travis_retry ./scripts/pod_lib_lint.sh FirebaseInAppMessaging.podspec --use-libraries
+        - travis_retry ./scripts/pod_lib_lint.sh FirebaseInAppMessagingDisplay.podspec --use-libraries
 
     - stage: test
+      if: type = cron
       env:
         - PROJECT=Firestore PLATFORM=iOS METHOD=pod-lib-lint
       before_install:
-        - ./scripts/if_cron.sh ./scripts/install_prereqs.sh
+        - ./scripts/install_prereqs.sh
       script:
         # TBD - non-portable path warnings
         # The travis_wait is necessary because the command takes more than 10 minutes.
-        - travis_wait 45 ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseFirestore.podspec --use-libraries --allow-warnings --no-subspecs
+        - travis_wait 45 ./scripts/pod_lib_lint.sh FirebaseFirestore.podspec --use-libraries --allow-warnings --no-subspecs
+
+    # GoogleDataTransport unit tests and pod linting using the default Xcode version.
+    - stage: test
+      env:
+        - PROJECT=GoogleDataTransport PLATFORM=iOS METHOD=xcodebuild
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh GoogleDataTransport.podspec
+
+    # GoogleDataTransportCCTSupport unit tests and pod linting using the default Xcode version.
+    - stage: test
+      env:
+        - PROJECT=GoogleDataTransportCCTSupport PLATFORM=iOS METHOD=xcodebuild
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+      script:
+        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
+        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh GoogleDataTransportCCTSupport.podspec
 
     # Daily test for symbol collisions between Firebase and CocoaPods.
     - stage: test
+      if: type = cron
       env:
         - PROJECT=SymbolCollision PLATFORM=iOS METHOD=xcodebuild
       before_install:
-        - ./scripts/if_cron.sh ./scripts/install_prereqs.sh
+        - ./scripts/install_prereqs.sh
       script:
-        - travis_retry ./scripts/if_cron.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+        - travis_retry ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
     # Alternative platforms
 
@@ -209,16 +238,57 @@ jobs:
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
+    # Validate Cocoapods configurations
+    # This may take long time, so we would like to run it only once all other tests pass
+    # Validate Cocoapods 1.7.0 compatibility
+    - stage: cocoapods_compatibility_check
+      env:
+        - POD_CONFIG_DIR=Cocoapods1_7_0_multiprojects_frameworks
+      script:
+        - travis_retry ./CocoapodsIntegrationTest/scripts/build_with_environment.sh --gemfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Gemfile --podfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Podfile
+
+    - stage: cocoapods_compatibility_check
+      env:
+        - POD_CONFIG_DIR=Cocoapods1_7_0_frameworks
+      script:
+        - travis_retry ./CocoapodsIntegrationTest/scripts/build_with_environment.sh --gemfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Gemfile --podfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Podfile
+
+    - stage: cocoapods_compatibility_check
+      env:
+        - POD_CONFIG_DIR=Cocoapods1_7_0_multiprojects_staticLibs
+      script:
+        - travis_retry ./CocoapodsIntegrationTest/scripts/build_with_environment.sh --gemfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Gemfile --podfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Podfile
+
+    - stage: cocoapods_compatibility_check
+      env:
+        - POD_CONFIG_DIR=Cocoapods1_7_0_staticLibs
+      script:
+        - travis_retry ./CocoapodsIntegrationTest/scripts/build_with_environment.sh --gemfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Gemfile --podfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Podfile
+
+    # Validate Cocoapods 1.6.1 compatibility
+    - stage: cocoapods_compatibility_check
+      env:
+        - POD_CONFIG_DIR=Cocoapods1_6_1_frameworks
+      script:
+        - travis_retry ./CocoapodsIntegrationTest/scripts/build_with_environment.sh --gemfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Gemfile --podfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Podfile
+
+    - stage: cocoapods_compatibility_check
+      env:
+        - POD_CONFIG_DIR=Cocoapods1_6_1_staticLibs
+      script:
+        - travis_retry ./CocoapodsIntegrationTest/scripts/build_with_environment.sh --gemfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Gemfile --podfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Podfile
+
   allow_failures:
     # Run fuzz tests only on cron jobs.
     - stage: test
+      if: type = cron
       env:
         - PROJECT=Firestore PLATFORM=iOS METHOD=fuzz
       before_install:
-        - ./scripts/if_cron.sh ./scripts/install_prereqs.sh
+        - ./scripts/install_prereqs.sh
       script:
         # The travis_wait is necessary because fuzzing runs for 40 minutes.
-        - travis_wait 45 ./scripts/if_cron.sh ./scripts/fuzzing_ci.sh
+        - travis_wait 45 ./scripts/fuzzing_ci.sh
 
     # TODO(varconst): UBSan for CMake. UBSan failures are non-fatal by default,
     # need to make them fatal for the purposes of the test run.

@@ -29,16 +29,17 @@
 #include <utility>
 #include "dispatch/dispatch.h"
 
+#include "Firestore/core/src/firebase/firestore/api/settings.h"
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class FIRApp;
 @class FIRCollectionReference;
 @class FIRFirestore;
-@class FIRFirestoreSettings;
 @class FIRQuery;
 @class FIRTransaction;
 @class FIRWriteBatch;
@@ -50,7 +51,7 @@ namespace api {
 
 class DocumentReference;
 
-class Firestore {
+class Firestore : public std::enable_shared_from_this<Firestore> {
  public:
   using TransactionBlock = id _Nullable (^)(FIRTransaction*, NSError** error);
   using ErrorCompletion = void (^)(NSError* _Nullable error);
@@ -75,6 +76,7 @@ class Firestore {
   }
 
   FSTFirestoreClient* client() {
+    HARD_ASSERT(client_, "Client is not yet configured.");
     return client_;
   }
 
@@ -84,8 +86,10 @@ class Firestore {
     return extension_;
   }
 
-  FIRFirestoreSettings* settings() const;
-  void set_settings(FIRFirestoreSettings* settings);
+  const Settings& settings() const;
+  void set_settings(const Settings& settings);
+
+  void set_user_executor(std::unique_ptr<util::Executor> user_executor);
 
   FIRCollectionReference* GetCollection(absl::string_view collection_path);
   DocumentReference GetDocument(absl::string_view document_path);
@@ -109,13 +113,14 @@ class Firestore {
   std::string persistence_key_;
   FSTFirestoreClient* client_ = nil;
 
-  // Ownership will be transferred to `FSTFirestoreClient` as soon as the
-  // client is created.
+  // Ownership of these will be transferred to `FSTFirestoreClient` as soon as
+  // the client is created.
+  std::unique_ptr<util::Executor> user_executor_;
   std::unique_ptr<util::AsyncQueue> worker_queue_;
 
   void* extension_ = nullptr;
 
-  FIRFirestoreSettings* settings_ = nil;
+  Settings settings_;
 
   mutable std::mutex mutex_;
 };

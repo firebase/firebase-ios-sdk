@@ -29,6 +29,7 @@
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
+#include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
@@ -38,6 +39,7 @@
 
 namespace testutil = firebase::firestore::testutil;
 using firebase::firestore::core::DocumentViewChange;
+using firebase::firestore::core::Filter;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::DocumentKeySet;
@@ -169,10 +171,9 @@ inline ContainsDocsMatcherP<std::vector<FSTDocument *>> ContainsDocs(
 
 - (void)testFiltersDocumentsBasedOnQueryWithFilter {
   FSTQuery *query = [self queryForMessages];
-  FSTRelationFilter *filter =
-      [FSTRelationFilter filterWithField:testutil::Field("sort")
-                          filterOperator:FSTRelationFilterOperatorLessThanOrEqual
-                                   value:[FSTDoubleValue doubleValue:2]];
+  FSTRelationFilter *filter = [FSTRelationFilter filterWithField:testutil::Field("sort")
+                                                  filterOperator:Filter::Operator::LessThanOrEqual
+                                                           value:[FSTDoubleValue doubleValue:2]];
   query = [query queryByAddingFilter:filter];
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
@@ -208,10 +209,9 @@ inline ContainsDocsMatcherP<std::vector<FSTDocument *>> ContainsDocs(
 
 - (void)testUpdatesDocumentsBasedOnQueryWithFilter {
   FSTQuery *query = [self queryForMessages];
-  FSTRelationFilter *filter =
-      [FSTRelationFilter filterWithField:testutil::Field("sort")
-                          filterOperator:FSTRelationFilterOperatorLessThanOrEqual
-                                   value:[FSTDoubleValue doubleValue:2]];
+  FSTRelationFilter *filter = [FSTRelationFilter filterWithField:testutil::Field("sort")
+                                                  filterOperator:Filter::Operator::LessThanOrEqual
+                                                           value:[FSTDoubleValue doubleValue:2]];
   query = [query queryByAddingFilter:filter];
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
