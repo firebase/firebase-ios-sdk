@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-#import "GDTCCTUploader.h"
+#import "Library/Private/GDTCCTUploader.h"
 
 #import <GoogleDataTransport/GDTRegistrar.h>
+
 #import <nanopb/pb.h>
 #import <nanopb/pb_decode.h>
 #import <nanopb/pb_encode.h>
 
-#import "GDTCCTNanopbHelpers.h"
-#import "GDTCCTPrioritizer.h"
-#import "cct.nanopb.h"
+#import "Library/Private/GDTCCTNanopbHelpers.h"
+#import "Library/Private/GDTCCTPrioritizer.h"
+
+#import "Library/Protogen/nanopb/cct.nanopb.h"
 
 @interface GDTCCTUploader ()
 

@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-#import "GDTCCTTestServer.h"
+#import "Tests/Unit/TestServer/GDTCCTTestServer.h"
 
 #import <nanopb/pb_decode.h>
 #import <nanopb/pb_encode.h>
 
-#import "GDTCCTNanopbHelpers.h"
-#import "cct.nanopb.h"
+#import "Library/Private/GDTCCTNanopbHelpers.h"
+
+#import "Library/Protogen/nanopb/cct.nanopb.h"
 
 @interface GDTCCTTestServer ()
 

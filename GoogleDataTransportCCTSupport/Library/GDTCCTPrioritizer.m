@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "GDTCCTPrioritizer.h"
+#import "Library/Private/GDTCCTPrioritizer.h"
 
 const static NSUInteger kMillisPerDay = 8.64e+7;
 

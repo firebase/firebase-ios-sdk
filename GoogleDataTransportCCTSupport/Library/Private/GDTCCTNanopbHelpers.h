@@ -18,7 +18,7 @@
 
 #import <GoogleDataTransport/GoogleDataTransport.h>
 
-#import "cct.nanopb.h"
+#import "Library/Protogen/nanopb/cct.nanopb.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
