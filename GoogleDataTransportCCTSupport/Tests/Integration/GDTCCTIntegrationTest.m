@@ -19,8 +19,8 @@
 #import <GoogleDataTransport/GoogleDataTransport.h>
 #import <SystemConfiguration/SCNetworkReachability.h>
 
-#import "GDTCCTPrioritizer.h"
-#import "GDTCCTUploader.h"
+#import "Library/Private/GDTCCTPrioritizer.h"
+#import "Library/Private/GDTCCTUploader.h"
 
 typedef void (^GDTCCTIntegrationTestBlock)(NSURLSessionUploadTask *_Nullable);
 

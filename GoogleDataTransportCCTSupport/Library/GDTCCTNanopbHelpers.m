@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#import "GDTCCTNanopbHelpers.h"
+#import "Library/Private/GDTCCTNanopbHelpers.h"
 
 #import <UIKit/UIKit.h>
 #import <nanopb/pb.h>
 #import <nanopb/pb_decode.h>
 #import <nanopb/pb_encode.h>
 
-#import "GDTCCTPrioritizer.h"
+#import "Library/Private/GDTCCTPrioritizer.h"
 
 #pragma mark - General purpose encoders
 

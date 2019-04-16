@@ -18,8 +18,9 @@
 
 #import <nanopb/pb_decode.h>
 
-#import "GDTCCTEventGenerator.h"
-#import "GDTCCTNanopbHelpers.h"
+#import "Tests/Unit/Helpers/GDTCCTEventGenerator.h"
+
+#import "Library/Private/GDTCCTNanopbHelpers.h"
 
 @interface GDTCCTNanopbHelpersTest : XCTestCase
 

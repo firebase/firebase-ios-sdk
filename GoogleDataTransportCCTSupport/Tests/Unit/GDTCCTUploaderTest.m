@@ -16,10 +16,11 @@
 
 #import <XCTest/XCTest.h>
 
-#import "GDTCCTEventGenerator.h"
-#import "GDTCCTNanopbHelpers.h"
-#import "GDTCCTTestServer.h"
-#import "GDTCCTUploader.h"
+#import "Library/Private/GDTCCTNanopbHelpers.h"
+#import "Library/Private/GDTCCTUploader.h"
+
+#import "Tests/Unit/Helpers/GDTCCTEventGenerator.h"
+#import "Tests/Unit/TestServer/GDTCCTTestServer.h"
 
 @interface GDTCCTUploaderTest : XCTestCase
 
