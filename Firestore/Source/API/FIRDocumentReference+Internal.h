@@ -42,6 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** Internal FIRDocumentReference API we don't want exposed in our public header files. */
 @interface FIRDocumentReference (Internal)
 
+- (const api::DocumentReference &)internalReference;
 - (const model::DocumentKey &)key;
 
 @end
