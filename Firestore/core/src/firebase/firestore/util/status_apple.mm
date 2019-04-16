@@ -62,9 +62,33 @@ class UnderlyingNSError : public PlatformError {
   NSError* error_;
 };
 
+namespace {
+
+/**
+ * Converts a Firestore-generated NSError to the equivalent status.
+ */
+Status FromFirestoreNSError(NSError* error) {
+  auto error_code = static_cast<int>(error.code);
+  HARD_ASSERT(error_code >= FirestoreErrorCode::Cancelled &&
+                  error_code <= FirestoreErrorCode::Unauthenticated,
+              "Unknown error code");
+
+  auto original = UnderlyingNSError::Create(error);
+
+  return Status(static_cast<FirestoreErrorCode>(error_code),
+                MakeString(error.localizedDescription))
+                .WithPlatformError(std::move(original));
+}
+
+}  // namespace
+
 Status Status::FromNSError(NSError* error) {
   if (!error) {
     return Status::OK();
+  }
+
+  if ([error.domain isEqual:FIRFirestoreErrorDomain]) {
+    return FromFirestoreNSError(error);
   }
 
   auto original = UnderlyingNSError::Create(error);

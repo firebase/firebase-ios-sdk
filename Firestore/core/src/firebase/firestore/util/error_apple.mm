@@ -49,21 +49,6 @@ NSError* MakeNSError(const int64_t error_code,
                          userInfo:user_info];
 }
 
-Status MakeStatus(NSError* error) {
-  if (!error) {
-    return Status::OK();
-  }
-
-  HARD_ASSERT(error.domain == FIRFirestoreErrorDomain,
-              "Can only translate a Firestore error to a status");
-  auto error_code = static_cast<int>(error.code);
-  HARD_ASSERT(error_code >= FirestoreErrorCode::Cancelled &&
-                  error_code <= FirestoreErrorCode::Unauthenticated,
-              "Unknown error code");
-  return Status{static_cast<FirestoreErrorCode>(error_code),
-                MakeString(error.localizedDescription)};
-}
-
 util::StatusCallback MakeCallback(VoidErrorBlock _Nullable block) {
   if (block) {
     return [block](Status status) { block(MakeNSError(status)); };

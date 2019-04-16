@@ -312,7 +312,7 @@ class LimboResolution {
           transaction->Commit([self, retries, workerQueue, updateCallback, resultCallback,
                                maybe_result](Status status) {
             if (status.ok()) {
-              resultCallback(std::move(status));
+              resultCallback(std::move(maybe_result));
               return;
             }
 

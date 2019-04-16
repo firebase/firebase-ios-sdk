@@ -161,7 +161,7 @@ struct QueryListenersInfo {
   if (found_iter != _queries.end()) {
     QueryListenersInfo &query_info = found_iter->second;
     for (const auto &listener : query_info.listeners) {
-      listener->OnError(MakeStatus(error));
+      listener->OnError(Status::FromNSError(error));
     }
 
     // Remove all listeners. NOTE: We don't need to call [FSTSyncEngine stopListening] after an
