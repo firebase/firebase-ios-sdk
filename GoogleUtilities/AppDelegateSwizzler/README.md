@@ -155,6 +155,28 @@ For eg.
     [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor];
 }
 ```
+## Swizzling of App Delegate APNS methods
+
+Swizzling of the APNS related App Delegate methods may lead to an Apple review warning email about
+missing Push Notification Entitlement during the app review process 
+(like here: https://github.com/firebase/firebase-ios-sdk/issues/2807) if Push Notifications are 
+actually not used by the app. To avoid the warning the methods below are not swizzled 
+by `[GULAppDelegateSwizzler proxyOriginalDelegate]`:
+
+```objc
+
+- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken;
+
+- (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error;
+
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo;
+
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult result))completionHandler
+```
+
+If you need to swizzle these methods you can call
+`[GULAppDelegateSwizzler proxyOriginalDelegateRemoteNotificationMethods]`. The method can be safely
+called instead or after `[GULAppDelegateSwizzler proxyOriginalDelegate]`.
 
 ## Disabling App Delegate Swizzling by App Developers
 
@@ -163,8 +185,3 @@ added support for developers to disable any sort of app delegate swizzling that 
 is achieved by adding the Plist flag `GoogleUtilitiesAppDelegateProxyEnabled` to `NO` (Boolean). If
 this is set, even if you call `[GULAppDelegateSwizzler proxyOriginalDelegate]`, it won't have any
 effect.
-
-
-
-
-
