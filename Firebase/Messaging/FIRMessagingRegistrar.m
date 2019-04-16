@@ -26,37 +26,19 @@
 
 @property(nonatomic, readwrite, assign) BOOL stopAllSubscriptions;
 
-@property(nonatomic, readwrite, strong) FIRMessagingCheckinService *checkinService;
 @property(nonatomic, readwrite, strong) FIRMessagingPubSubRegistrar *pubsubRegistrar;
 
 @end
 
 @implementation FIRMessagingRegistrar
 
-- (NSString *)deviceAuthID {
-  return self.checkinService.deviceAuthID;
-}
-
-- (NSString *)secretToken {
-  return self.checkinService.secretToken;
-}
-
 - (instancetype)init {
   self = [super init];
   if (self) {
-    _checkinService = [[FIRMessagingCheckinService alloc] init];
-    // TODO(chliangGoogle): Merge pubsubRegistrar with Registrar as it is hard to track how many
-    // checkinService instances by separating classes too often.
-    _pubsubRegistrar = [[FIRMessagingPubSubRegistrar alloc] initWithCheckinService:_checkinService];
+    // TODO(chliangGoogle): Get rid of FIRMessagingRegistrar class.
+    _pubsubRegistrar = [[FIRMessagingPubSubRegistrar alloc] init];
   }
   return self;
-}
-
-#pragma mark - Checkin
-
-- (BOOL)tryToLoadValidCheckinInfo {
-  [self.checkinService tryToLoadPrefetchedCheckinPreferences];
-  return [self.checkinService hasValidCheckinInfo];
 }
 
 #pragma mark - Subscribe/Unsubscribe
@@ -67,20 +49,11 @@
                      shouldDelete:(BOOL)shouldDelete
                           handler:(FIRMessagingTopicOperationCompletion)handler {
   _FIRMessagingDevAssert(handler, @"Invalid nil handler");
-
-  if ([self tryToLoadValidCheckinInfo]) {
-    [self doUpdateSubscriptionForTopic:topic
-                                 token:token
-                               options:options
-                          shouldDelete:shouldDelete
-                            completion:handler];
-
-  } else {
-    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeRegistrar000,
-                            @"Device check in error, no auth credentials found");
-    NSError *error = [NSError errorWithFCMErrorCode:kFIRMessagingErrorCodeMissingDeviceID];
-    handler(error);
-  }
+    [self.pubsubRegistrar updateSubscriptionToTopic:topic
+                                          withToken:token
+                                            options:options
+                                       shouldDelete:shouldDelete
+                                            handler:handler];
 }
 
 - (void)cancelAllRequests {
@@ -88,21 +61,6 @@
   [self.pubsubRegistrar stopAllSubscriptionRequests];
 }
 
-#pragma mark - Private
 
-- (void)doUpdateSubscriptionForTopic:(NSString *)topic
-                               token:(NSString *)token
-                             options:(NSDictionary *)options
-                        shouldDelete:(BOOL)shouldDelete
-                          completion:(FIRMessagingTopicOperationCompletion)completion {
-  _FIRMessagingDevAssert([self.checkinService hasValidCheckinInfo],
-                @"No valid checkin info found before subscribe");
-
-  [self.pubsubRegistrar updateSubscriptionToTopic:topic
-                                        withToken:token
-                                          options:options
-                                     shouldDelete:shouldDelete
-                                          handler:completion];
-}
 
 @end

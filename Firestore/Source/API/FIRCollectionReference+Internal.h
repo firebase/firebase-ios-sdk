@@ -18,11 +18,13 @@
 
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 
+namespace model = firebase::firestore::model;
+
 NS_ASSUME_NONNULL_BEGIN
 
 /** Internal FIRCollectionReference API we don't want exposed in our public header files. */
 @interface FIRCollectionReference (Internal)
-+ (instancetype)referenceWithPath:(const firebase::firestore::model::ResourcePath &)path
++ (instancetype)referenceWithPath:(const model::ResourcePath &)path
                         firestore:(FIRFirestore *)firestore;
 @end
 

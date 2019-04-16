@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-#import "FIRDocumentSnapshot.h"
+#import "FIRDocumentSnapshot+Internal.h"
 
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/util/warnings.h"
-
-#import "FIRFirestoreSettings.h"
 
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
@@ -32,6 +30,7 @@
 #include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/api/firestore.h"
 #include "Firestore/core/src/firebase/firestore/api/input_validation.h"
+#include "Firestore/core/src/firebase/firestore/api/settings.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
@@ -41,6 +40,7 @@
 namespace util = firebase::firestore::util;
 using firebase::firestore::api::DocumentSnapshot;
 using firebase::firestore::api::Firestore;
+using firebase::firestore::api::SnapshotMetadata;
 using firebase::firestore::api::ThrowInvalidArgument;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
@@ -82,7 +82,7 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
   return self;
 }
 
-- (instancetype)initWithFirestore:(Firestore *)firestore
+- (instancetype)initWithFirestore:(std::shared_ptr<Firestore>)firestore
                       documentKey:(DocumentKey)documentKey
                          document:(nullable FSTDocument *)document
                          metadata:(SnapshotMetadata)metadata {
@@ -90,7 +90,7 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
   return [self initWithSnapshot:std::move(wrapped)];
 }
 
-- (instancetype)initWithFirestore:(Firestore *)firestore
+- (instancetype)initWithFirestore:(std::shared_ptr<Firestore>)firestore
                       documentKey:(DocumentKey)documentKey
                          document:(nullable FSTDocument *)document
                         fromCache:(bool)fromCache
@@ -120,7 +120,7 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
   return _snapshot.exists();
 }
 
-- (FSTDocument *)internalDocument {
+- (nullable FSTDocument *)internalDocument {
   return _snapshot.internal_document();
 }
 
@@ -183,7 +183,7 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
       initWithServerTimestampBehavior:InternalServerTimestampBehavior(serverTimestampBehavior)
          timestampsInSnapshotsEnabled:_snapshot.firestore()
                                           ->settings()
-                                          .timestampsInSnapshotsEnabled];
+                                          .timestamps_in_snapshots_enabled()];
   SUPPRESS_END()
 }
 

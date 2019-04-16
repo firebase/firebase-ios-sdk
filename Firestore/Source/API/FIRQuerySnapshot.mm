@@ -32,8 +32,11 @@
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/util/delayed_constructor.h"
 
+using firebase::firestore::api::DocumentChange;
+using firebase::firestore::api::DocumentSnapshot;
 using firebase::firestore::api::Firestore;
 using firebase::firestore::api::QuerySnapshot;
+using firebase::firestore::api::SnapshotMetadata;
 using firebase::firestore::api::ThrowInvalidArgument;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::util::DelayedConstructor;
@@ -60,7 +63,7 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-- (instancetype)initWithFirestore:(Firestore *)firestore
+- (instancetype)initWithFirestore:(std::shared_ptr<Firestore>)firestore
                     originalQuery:(FSTQuery *)query
                          snapshot:(ViewSnapshot &&)snapshot
                          metadata:(SnapshotMetadata)metadata {

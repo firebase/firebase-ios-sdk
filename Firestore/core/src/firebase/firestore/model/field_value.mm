@@ -18,6 +18,14 @@
 
 #import "Firestore/Source/Model/FSTFieldValue.h"
 
+namespace firebase {
+namespace firestore {
+namespace model {
+
 FSTFieldValue* FieldValue::Wrap() && {
   return [FSTDelegateValue delegateWithValue:std::move(*this)];
 }
+
+}  // namespace model
+}  // namespace firestore
+}  // namespace firebase

@@ -19,7 +19,6 @@
 
 #import <OCMock/OCMock.h>
 
-#import "FIRMessagingCheckinService.h"
 #import "FIRMessagingPubSubRegistrar.h"
 #import "FIRMessagingRegistrar.h"
 #import "FIRMessagingUtilities.h"
@@ -38,7 +37,6 @@ static NSString *const kSubscriptionID = @"sample-subscription-id-xyz";
 @interface FIRMessagingRegistrar ()
 
 @property(nonatomic, readwrite, strong) FIRMessagingPubSubRegistrar *pubsubRegistrar;
-@property(nonatomic, readwrite, strong) FIRMessagingCheckinService *checkinService;
 
 @end
 
@@ -46,7 +44,6 @@ static NSString *const kSubscriptionID = @"sample-subscription-id-xyz";
 
 @property(nonatomic, readwrite, strong) FIRMessagingRegistrar *registrar;
 @property(nonatomic, readwrite, strong) id mockRegistrar;
-@property(nonatomic, readwrite, strong) id mockCheckin;
 @property(nonatomic, readwrite, strong) id mockPubsubRegistrar;
 
 @end
@@ -57,15 +54,11 @@ static NSString *const kSubscriptionID = @"sample-subscription-id-xyz";
   [super setUp];
   _registrar = [[FIRMessagingRegistrar alloc] init];
   _mockRegistrar = OCMPartialMock(_registrar);
-  _mockCheckin = OCMPartialMock(_registrar.checkinService);
-  _registrar.checkinService = _mockCheckin;
   _registrar.pubsubRegistrar = OCMClassMock([FIRMessagingPubSubRegistrar class]);
   _mockPubsubRegistrar = _registrar.pubsubRegistrar;
 }
 
 - (void)testUpdateSubscriptionWithValidCheckinData {
-  [self stubCheckinService];
-
   [self.registrar updateSubscriptionToTopic:kTopicToSubscribeTo
                                   withToken:kFIRMessagingAppIDToken
                                     options:nil
@@ -81,8 +74,6 @@ static NSString *const kSubscriptionID = @"sample-subscription-id-xyz";
 }
 
 - (void)testUpdateSubscription {
-  [self stubCheckinService];
-
   __block FIRMessagingTopicOperationCompletion pubsubCompletion;
   [[[self.mockPubsubRegistrar stub] andDo:^(NSInvocation *invocation) {
     pubsubCompletion(nil);
@@ -102,26 +93,4 @@ static NSString *const kSubscriptionID = @"sample-subscription-id-xyz";
                                       XCTAssertNil(error);
                                     }];
 }
-
-- (void)testFailedUpdateSubscriptionWithNoCheckin {
-  // Mock checkin service to always return NO for hasValidCheckinInfo
-  [[[self.mockCheckin stub] andReturnValue:@NO] hasValidCheckinInfo];
-  // This should not create a network request since we don't have checkin info
-  [self.registrar updateSubscriptionToTopic:kTopicToSubscribeTo
-                                  withToken:kFIRMessagingAppIDToken
-                                    options:nil
-                               shouldDelete:NO
-                                    handler:^(NSError *error) {
-                                      XCTAssertNotNil(error);
-                                    }];
-}
-
-#pragma mark - Private Helpers
-
-- (void)stubCheckinService {
-  [[[self.mockCheckin stub] andReturn:kDeviceAuthId] deviceAuthID];
-  [[[self.mockCheckin stub] andReturn:kSecretToken] secretToken];
-  [[[self.mockCheckin stub] andReturnValue:@YES] hasValidCheckinInfo];
-}
-
 @end

@@ -17,11 +17,16 @@
 #import "FIRFirestoreSettings.h"
 
 #include "Firestore/core/src/firebase/firestore/api/input_validation.h"
+#include "Firestore/core/src/firebase/firestore/api/settings.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/warnings.h"
+#include "absl/memory/memory.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
+using firebase::firestore::api::Settings;
 using firebase::firestore::api::ThrowInvalidArgument;
+using firebase::firestore::util::MakeString;
 
 static NSString *const kDefaultHost = @"firestore.googleapis.com";
 static const BOOL kDefaultSSLEnabled = YES;
@@ -112,6 +117,16 @@ static const BOOL kDefaultTimestampsInSnapshotsEnabled = YES;
     ThrowInvalidArgument("Cache size must be set to at least %s bytes", kMinimumCacheSizeBytes);
   }
   _cacheSizeBytes = cacheSizeBytes;
+}
+
+- (Settings)internalSettings {
+  Settings settings;
+  settings.set_host(MakeString(_host));
+  settings.set_ssl_enabled(_sslEnabled);
+  settings.set_persistence_enabled(_persistenceEnabled);
+  settings.set_timestamps_in_snapshots_enabled(_timestampsInSnapshotsEnabled);
+  settings.set_cache_size_bytes(_cacheSizeBytes);
+  return settings;
 }
 
 @end
