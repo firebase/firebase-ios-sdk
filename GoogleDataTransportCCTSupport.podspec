@@ -42,11 +42,16 @@ Support library to provide event prioritization and uploading for the GoogleData
       'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',
   }
 
+  common_test_settings = {
+    'HEADER_SEARCH_PATHS' => __dir__ + '/GoogleDataTransportCCTSupport/Library/'
+  }
+
   # Test specs
   s.test_spec 'Tests-Unit' do |test_spec|
     test_spec.requires_app_host = false
     test_spec.source_files = 'GoogleDataTransportCCTSupport/Tests/Unit/**/*.{h,m}'
     test_spec.resources = ['GoogleDataTransportCCTSupport/Tests/Data/**/*']
+    test_spec.pod_target_xcconfig = common_test_settings
     test_spec.dependency 'GCDWebServer'
   end
 
@@ -54,6 +59,7 @@ Support library to provide event prioritization and uploading for the GoogleData
     test_spec.requires_app_host = false
     test_spec.source_files = 'GoogleDataTransportCCTSupport/Tests/Integration/**/*.{h,m}'
     test_spec.resources = ['GoogleDataTransportCCTSupport/Tests/Data/**/*']
+    test_spec.pod_target_xcconfig = common_test_settings
   end
 
 end
