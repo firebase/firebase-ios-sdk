@@ -158,9 +158,9 @@ For eg.
 ## Swizzling of App Delegate APNS methods
 
 Swizzling of the APNS related App Delegate methods may lead to an Apple review warning email about
-missing Push Notification Entitlement during the app review process 
-(like here: https://github.com/firebase/firebase-ios-sdk/issues/2807) if Push Notifications are 
-actually not used by the app. To avoid the warning the methods below are not swizzled 
+missing Push Notification Entitlement during the app review process
+(like here: https://github.com/firebase/firebase-ios-sdk/issues/2807) if Push Notifications are
+actually not used by the app. To avoid the warning the methods below are not swizzled
 by `[GULAppDelegateSwizzler proxyOriginalDelegate]`:
 
 ```objc
