@@ -693,7 +693,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
   SEL methodSelector = @selector(application:openURL:options:);
   // Call the real implementation if the real App Delegate has any.
   NSValue *openURLIMPPointer =
-      [[GULAppDelegateSwizzler class] originalImplementationForSelector:methodSelector object:self];
+      [GULAppDelegateSwizzler originalImplementationForSelector:methodSelector object:self];
   GULRealOpenURLOptionsIMP openURLOptionsIMP = [openURLIMPPointer pointerValue];
 
   __block BOOL returnedValue = NO;
@@ -725,7 +725,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
 
   // Call the real implementation if the real App Delegate has any.
   NSValue *openURLSourceAppAnnotationIMPPointer =
-      [[GULAppDelegateSwizzler class] originalImplementationForSelector:methodSelector object:self];
+      [GULAppDelegateSwizzler originalImplementationForSelector:methodSelector object:self];
   GULRealOpenURLSourceApplicationAnnotationIMP openURLSourceApplicationAnnotationIMP =
       [openURLSourceAppAnnotationIMPPointer pointerValue];
 
@@ -761,7 +761,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
   SEL methodSelector = @selector(application:
          handleEventsForBackgroundURLSession:completionHandler:);
   NSValue *handleBackgroundSessionPointer =
-      [[GULAppDelegateSwizzler class] originalImplementationForSelector:methodSelector object:self];
+      [GULAppDelegateSwizzler originalImplementationForSelector:methodSelector object:self];
   GULRealHandleEventsForBackgroundURLSessionIMP handleBackgroundSessionIMP =
       [handleBackgroundSessionPointer pointerValue];
 
@@ -789,7 +789,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
       restorationHandler:(void (^)(NSArray *restorableObjects))restorationHandler {
   SEL methodSelector = @selector(application:continueUserActivity:restorationHandler:);
   NSValue *continueUserActivityIMPPointer =
-      [[GULAppDelegateSwizzler class] originalImplementationForSelector:methodSelector object:self];
+      [GULAppDelegateSwizzler originalImplementationForSelector:methodSelector object:self];
   GULRealContinueUserActivityIMP continueUserActivityIMP =
       continueUserActivityIMPPointer.pointerValue;
 
@@ -817,7 +817,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
   SEL methodSelector = NSSelectorFromString(kGULDidRegisterForRemoteNotificationsSEL);
 
   NSValue *didRegisterForRemoteNotificationsIMPPointer =
-      [[GULAppDelegateSwizzler class] originalImplementationForSelector:methodSelector object:self];
+      [GULAppDelegateSwizzler originalImplementationForSelector:methodSelector object:self];
   GULRealDidRegisterForRemoteNotificationsIMP didRegisterForRemoteNotificationsIMP =
       [didRegisterForRemoteNotificationsIMPPointer pointerValue];
 
@@ -843,7 +843,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
     donor_didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
   SEL methodSelector = NSSelectorFromString(kGULDidFailToRegisterForRemoteNotificationsSEL);
   NSValue *didFailToRegisterForRemoteNotificationsIMPPointer =
-      [[GULAppDelegateSwizzler class] originalImplementationForSelector:methodSelector object:self];
+      [GULAppDelegateSwizzler originalImplementationForSelector:methodSelector object:self];
   GULRealDidFailToRegisterForRemoteNotificationsIMP didFailToRegisterForRemoteNotificationsIMP =
       [didFailToRegisterForRemoteNotificationsIMPPointer pointerValue];
 
@@ -874,7 +874,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
                 fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
   SEL methodSelector = NSSelectorFromString(kGULDidReceiveRemoteNotificationWithCompletionSEL);
   NSValue *didReceiveRemoteNotificationWithCompletionIMPPointer =
-      [[GULAppDelegateSwizzler class] originalImplementationForSelector:methodSelector object:self];
+      [GULAppDelegateSwizzler originalImplementationForSelector:methodSelector object:self];
   GULRealDidReceiveRemoteNotificationWithCompletionIMP
       didReceiveRemoteNotificationWithCompletionIMP =
           [didReceiveRemoteNotificationWithCompletionIMPPointer pointerValue];
@@ -905,7 +905,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
     donor_didReceiveRemoteNotification:(NSDictionary *)userInfo {
   SEL methodSelector = NSSelectorFromString(kGULDidReceiveRemoteNotificationSEL);
   NSValue *didReceiveRemoteNotificationIMPPointer =
-      [[GULAppDelegateSwizzler class] originalImplementationForSelector:methodSelector object:self];
+      [GULAppDelegateSwizzler originalImplementationForSelector:methodSelector object:self];
   GULRealDidReceiveRemoteNotificationIMP didReceiveRemoteNotificationIMP =
       [didReceiveRemoteNotificationIMPPointer pointerValue];
 
