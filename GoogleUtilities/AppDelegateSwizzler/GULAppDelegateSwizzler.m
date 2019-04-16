@@ -334,6 +334,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
  *
  *  @param appDelegate The object to which you want to isa swizzle. This has to conform to the
  *      UIApplicationDelegate subclass.
+ *  @return Returns the new subclass.
  */
 + (nullable Class)createSubclassWithObject:(id<UIApplicationDelegate>)appDelegate {
   Class realClass = [appDelegate class];
