@@ -98,10 +98,20 @@ static Class gOriginalAppDelegateClass;
 /** The subclass of the original App Delegate. */
 static Class gAppDelegateSubclass;
 
-/** Remote notification methods
- *  TODO: Add why we have to do this!
+/** Remote notification methods selectors
+ *
+ *  We have to opt out of referencing APNS related App Delegate methods directly. If we do, then
+ *  it may be a reason of an Apple review warning email about missing Push Notification Entitlement
+ *  during the app review process
+ *  (like here: https://github.com/firebase/firebase-ios-sdk/issues/2807). From our experience, the
+ *  warning is triggered when any of the symbols is present in the application sent to review, even
+ *  if the code is never executed. Because GULAppDelegateSwizzler may be used by applications that
+ *  are not using APNS we have to refer to the methods indirectly using selector constructed from
+ *  string.
+ *
+ *  NOTE: None of the methods is proxied unless it is explicitly requested by calling the method
+ *  +[GULAppDelegateSwizzler proxyOriginalDelegateRemoteNotificationMethods]
  */
-
 static NSString *const kGULDidRegisterForRemoteNotificationsSEL =
     @"application:didRegisterForRemoteNotificationsWithDeviceToken:";
 static NSString *const kGULDidFailToRegisterForRemoteNotificationsSEL =
