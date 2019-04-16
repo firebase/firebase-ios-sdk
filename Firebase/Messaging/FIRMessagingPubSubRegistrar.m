@@ -16,15 +16,12 @@
 
 #import "FIRMessagingPubSubRegistrar.h"
 
-#import "FIRMessagingCheckinService.h"
 #import "FIRMessagingDefines.h"
 #import "FIRMessagingPubSubRegistrar.h"
 #import "FIRMessagingTopicsCommon.h"
 #import "NSError+FIRMessaging.h"
 
 @interface FIRMessagingPubSubRegistrar ()
-
-@property(nonatomic, readwrite, strong) FIRMessagingCheckinService *checkinService;
 
 @property(nonatomic, readonly, strong) NSOperationQueue *topicOperations;
 // Common errors, instantiated, to avoid generating multiple copies
@@ -35,13 +32,8 @@
 @implementation FIRMessagingPubSubRegistrar
 
 - (instancetype)init {
-  FIRMessagingInvalidateInitializer();
-}
-
-- (instancetype)initWithCheckinService:(FIRMessagingCheckinService *)checkinService {
   self = [super init];
   if (self) {
-    _checkinService = checkinService;
     _topicOperations = [[NSOperationQueue alloc] init];
     // Do 10 topic operations at a time; it's enough to keep the TCP connection to the host alive,
     // saving hundreds of milliseconds on each request (compared to a serial queue).
@@ -69,7 +61,6 @@
                                                  action:action
                                                   token:token
                                                 options:options
-                                         checkinService:self.checkinService
                                              completion:handler];
   [self.topicOperations addOperation:operation];
 

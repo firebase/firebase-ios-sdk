@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
+#import <FirebaseInstanceID/FIRInstanceID_Private.h>
+
 #import "FIRMessaging.h"
-#import "FIRMessagingCheckinService.h"
 
 @class FIRMessagingCheckinStore;
 @class FIRMessagingPubSubRegistrar;
@@ -27,8 +28,6 @@
 @interface FIRMessagingRegistrar : NSObject
 
 @property(nonatomic, readonly, strong) FIRMessagingPubSubRegistrar *pubsubRegistrar;
-@property(nonatomic, readonly, strong) NSString *deviceAuthID;
-@property(nonatomic, readonly, strong) NSString *secretToken;
 
 /**
  *  Initialize a FIRMessaging Registrar.
@@ -36,15 +35,6 @@
  *  @return A FIRMessaging Registrar object.
  */
 - (instancetype)init NS_DESIGNATED_INITIALIZER;
-
-#pragma mark - Checkin
-
-/**
- *  Try to load checkin info from the disk if not currently loaded into memory.
- *
- *  @return YES if successfully loaded valid checkin info to memory else NO.
- */
-- (BOOL)tryToLoadValidCheckinInfo;
 
 #pragma mark - Subscribe/Unsubscribe
 
