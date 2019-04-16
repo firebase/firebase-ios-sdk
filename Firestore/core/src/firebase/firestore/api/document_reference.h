@@ -75,14 +75,14 @@ class DocumentReference {
   //     const std::string& collection_path) const;
 
   void SetData(std::vector<FSTMutation*>&& mutations,
-               util::StatusCallback completion);
+               util::StatusCallback callback);
 
   void UpdateData(std::vector<FSTMutation*>&& mutations,
-                  util::StatusCallback completion);
+                  util::StatusCallback callback);
 
-  void DeleteDocument(util::StatusCallback completion);
+  void DeleteDocument(util::StatusCallback callback);
 
-  void GetDocument(Source source, DocumentSnapshot::Listener&& completion);
+  void GetDocument(Source source, DocumentSnapshot::Listener&& callback);
 
   ListenerRegistration AddSnapshotListener(
       core::ListenOptions options, DocumentSnapshot::Listener&& listener);

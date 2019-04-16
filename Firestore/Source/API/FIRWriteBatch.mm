@@ -136,7 +136,7 @@ NS_ASSUME_NONNULL_BEGIN
   [self verifyNotCommitted];
   self.committed = TRUE;
   [self.firestore.wrapped->client() writeMutations:std::move(_mutations)
-                                        completion:util::MakeCallback(completion)];
+                                          callback:util::MakeCallback(completion)];
 }
 
 - (void)verifyNotCommitted {

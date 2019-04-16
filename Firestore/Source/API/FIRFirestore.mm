@@ -241,7 +241,7 @@ NS_ASSUME_NONNULL_BEGIN
   // updateBlock invocation up in an absl::any for tunneling through the internals of the system.
   auto internalUpdateBlock = [self, updateBlock, queue](
                                  std::shared_ptr<core::Transaction> internalTransaction,
-                                 core::TransactionCompletion internalCompletion) {
+                                 core::TransactionResultCallback internalCallback) {
     FIRTransaction *transaction =
         [FIRTransaction transactionWithInternalTransaction:std::move(internalTransaction)
                                                  firestore:self];
@@ -252,9 +252,9 @@ NS_ASSUME_NONNULL_BEGIN
 
       // If the user set an error, disregard the result.
       if (error) {
-        internalCompletion(util::MakeStatus(error));
+        internalCallback(util::MakeStatus(error));
       } else {
-        internalCompletion(absl::make_any<id>(result));
+        internalCallback(absl::make_any<id>(result));
       }
     });
   };

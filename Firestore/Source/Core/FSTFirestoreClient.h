@@ -76,13 +76,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init NS_UNAVAILABLE;
 
 /** Shuts down this client, cancels all writes / listeners, and releases all resources. */
-- (void)shutdownWithCompletion:(util::StatusCallback)completion;
+- (void)shutdownWithCallback:(util::StatusCallback)callback;
 
 /** Disables the network connection. Pending operations will not complete. */
-- (void)disableNetworkWithCompletion:(util::StatusCallback)completion;
+- (void)disableNetworkWithCallback:(util::StatusCallback)callback;
 
 /** Enables the network connection and requeues all pending operations. */
-- (void)enableNetworkWithCompletion:(util::StatusCallback)completion;
+- (void)enableNetworkWithCallback:(util::StatusCallback)callback;
 
 /** Starts listening to a query. */
 - (std::shared_ptr<core::QueryListener>)listenToQuery:(FSTQuery *)query
@@ -94,11 +94,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)removeListener:(const std::shared_ptr<core::QueryListener> &)listener;
 
 /**
- * Retrieves a document from the cache via the indicated completion. If the doc
- * doesn't exist, an error will be sent to the completion.
+ * Retrieves a document from the cache via the indicated callback. If the doc
+ * doesn't exist, an error will be sent to the callback.
  */
 - (void)getDocumentFromLocalCache:(const api::DocumentReference &)doc
-                       completion:(api::DocumentSnapshot::Listener &&)completion;
+                         callback:(api::DocumentSnapshot::Listener &&)callback;
 
 /**
  * Retrieves a (possibly empty) set of documents from the cache via the
@@ -108,14 +108,14 @@ NS_ASSUME_NONNULL_BEGIN
                         completion:(void (^)(FIRQuerySnapshot *_Nullable query,
                                              NSError *_Nullable error))completion;
 
-/** Write mutations. completion will be notified when it's written to the backend. */
+/** Write mutations. callback will be notified when it's written to the backend. */
 - (void)writeMutations:(std::vector<FSTMutation *> &&)mutations
-            completion:(util::StatusCallback)completion;
+              callback:(util::StatusCallback)callback;
 
 /** Tries to execute the transaction in updateCallback up to retries times. */
 - (void)transactionWithRetries:(int)retries
                 updateCallback:(core::TransactionUpdateCallback)updateCallback
-                    completion:(core::TransactionCompletion)completion;
+                resultCallback:(core::TransactionResultCallback)resultCallback;
 
 /** The database ID of the databaseInfo this client was initialized with. */
 // Ownes a DatabaseInfo instance, which contains the id here.

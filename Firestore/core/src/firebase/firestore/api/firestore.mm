@@ -125,35 +125,36 @@ FIRQuery* Firestore::GetCollectionGroup(NSString* collection_id) {
                          firestore:wrapper];
 }
 
-void Firestore::RunTransaction(core::TransactionUpdateCallback update_callback,
-                               core::TransactionCompletion completion) {
+void Firestore::RunTransaction(
+    core::TransactionUpdateCallback update_callback,
+    core::TransactionResultCallback result_callback) {
   EnsureClientConfigured();
 
   [client_ transactionWithRetries:5
                    updateCallback:std::move(update_callback)
-                       completion:std::move(completion)];
+                   resultCallback:std::move(result_callback)];
 }
 
-void Firestore::Shutdown(util::StatusCallback completion) {
+void Firestore::Shutdown(util::StatusCallback callback) {
   if (!client_) {
-    if (completion) {
+    if (callback) {
       // We should be dispatching the callback on the user dispatch queue
       // but if the client is nil here that queue was never created.
-      completion(Status::OK());
+      callback(Status::OK());
     }
   } else {
-    [client_ shutdownWithCompletion:std::move(completion)];
+    [client_ shutdownWithCallback:std::move(callback)];
   }
 }
 
-void Firestore::EnableNetwork(util::StatusCallback completion) {
+void Firestore::EnableNetwork(util::StatusCallback callback) {
   EnsureClientConfigured();
-  [client_ enableNetworkWithCompletion:std::move(completion)];
+  [client_ enableNetworkWithCallback:std::move(callback)];
 }
 
-void Firestore::DisableNetwork(util::StatusCallback completion) {
+void Firestore::DisableNetwork(util::StatusCallback callback) {
   EnsureClientConfigured();
-  [client_ disableNetworkWithCompletion:std::move(completion)];
+  [client_ disableNetworkWithCallback:std::move(callback)];
 }
 
 void Firestore::EnsureClientConfigured() {

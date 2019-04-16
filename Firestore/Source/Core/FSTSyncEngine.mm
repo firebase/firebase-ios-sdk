@@ -296,23 +296,23 @@ class LimboResolution {
 - (void)transactionWithRetries:(int)retries
                    workerQueue:(AsyncQueue *)workerQueue
                 updateCallback:(core::TransactionUpdateCallback)updateCallback
-                    completion:(core::TransactionCompletion)completion {
+                resultCallback:(core::TransactionResultCallback)resultCallback {
   workerQueue->VerifyIsCurrentQueue();
   HARD_ASSERT(retries >= 0, "Got negative number of retries for transaction");
 
   std::shared_ptr<Transaction> transaction = _remoteStore->CreateTransaction();
   updateCallback(transaction, [=](util::StatusOr<absl::any> maybe_result) {
     workerQueue->Enqueue(
-        [self, retries, workerQueue, updateCallback, completion, transaction, maybe_result] {
+        [self, retries, workerQueue, updateCallback, resultCallback, transaction, maybe_result] {
           if (!maybe_result.ok()) {
-            completion(std::move(maybe_result));
+            resultCallback(std::move(maybe_result));
             return;
           }
 
-          transaction->Commit([self, retries, workerQueue, updateCallback, completion,
+          transaction->Commit([self, retries, workerQueue, updateCallback, resultCallback,
                                maybe_result](Status status) {
             if (status.ok()) {
-              completion(std::move(status));
+              resultCallback(std::move(status));
               return;
             }
 
@@ -321,14 +321,14 @@ class LimboResolution {
               Status wrappedError =
                   Status(FirestoreErrorCode::FailedPrecondition, "Transaction failed all retries.")
                       .CausedBy(std::move(status));
-              completion(std::move(wrappedError));
+              resultCallback(std::move(wrappedError));
               return;
             }
             workerQueue->VerifyIsCurrentQueue();
             return [self transactionWithRetries:(retries - 1)
                                     workerQueue:workerQueue
                                  updateCallback:updateCallback
-                                     completion:completion];
+                                 resultCallback:resultCallback];
           });
         });
   });

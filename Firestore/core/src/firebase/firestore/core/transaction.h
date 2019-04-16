@@ -125,7 +125,7 @@ class Transaction {
 
   /**
    * An error that may have occurred as a consequence of a write. If set, needs
-   * to be raised in the completion handler instead of trying to commit.
+   * to be raised in the callback instead of trying to commit.
    */
   util::Status last_write_error_;
 
@@ -135,7 +135,7 @@ class Transaction {
       read_versions_;
 };
 
-using TransactionCompletion = util::StatusOrCallback<absl::any>;
+using TransactionResultCallback = util::StatusOrCallback<absl::any>;
 
 /**
  * TransactionUpdateCallback is a block that wraps a user's transaction update
@@ -144,11 +144,10 @@ using TransactionCompletion = util::StatusOrCallback<absl::any>;
  * The update block will be called with two parameters:
  *   * The transaction: an object with methods for performing reads and writes
  * within the transaction.
- *   * The completion: to be called by the block once the user's code is
- * finished.
+ *   * The callback: to be called by the block once the user's code is finished.
  */
-using TransactionUpdateCallback =
-    std::function<void(std::shared_ptr<Transaction>, TransactionCompletion)>;
+using TransactionUpdateCallback = std::function<void(
+    std::shared_ptr<Transaction>, TransactionResultCallback)>;
 
 }  // namespace core
 }  // namespace firestore

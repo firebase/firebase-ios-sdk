@@ -98,12 +98,12 @@ class Firestore {
   FIRQuery* GetCollectionGroup(NSString* collection_id);
 
   void RunTransaction(core::TransactionUpdateCallback update_callback,
-                      core::TransactionCompletion completion);
+                      core::TransactionResultCallback result_callback);
 
-  void Shutdown(util::StatusCallback completion);
+  void Shutdown(util::StatusCallback callback);
 
-  void EnableNetwork(util::StatusCallback completion);
-  void DisableNetwork(util::StatusCallback completion);
+  void EnableNetwork(util::StatusCallback callback);
+  void DisableNetwork(util::StatusCallback callback);
 
  private:
   void EnsureClientConfigured();
