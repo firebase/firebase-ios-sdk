@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRFirestore.h"
+#import "FIRFirestore+Internal.h"
 
 #import <FirebaseCore/FIRApp.h>
 #import <FirebaseCore/FIRAppInternal.h>
@@ -26,7 +26,7 @@
 #include <string>
 #include <utility>
 
-#import "FIRFirestore.h"
+#import "FIRFirestoreSettings+Internal.h"
 
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
@@ -39,7 +39,7 @@
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
-#include "Firestore/core/src/firebase/firestore/util/delayed_constructor.h"
+#include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
@@ -51,11 +51,8 @@ using firebase::firestore::api::ThrowInvalidArgument;
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::util::AsyncQueue;
-using firebase::firestore::util::DelayedConstructor;
 
 NS_ASSUME_NONNULL_BEGIN
-
-extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 
 #pragma mark - FIRFirestore
 
@@ -66,7 +63,8 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 @end
 
 @implementation FIRFirestore {
-  DelayedConstructor<Firestore> _firestore;
+  std::shared_ptr<Firestore> _firestore;
+  FIRFirestoreSettings *_settings;
 }
 
 + (NSMutableDictionary<NSString *, FIRFirestore *> *)instances {
@@ -145,8 +143,9 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
                       workerQueue:(std::unique_ptr<AsyncQueue>)workerQueue
                       firebaseApp:(FIRApp *)app {
   if (self = [super init]) {
-    _firestore.Init(std::move(projectID), std::move(database), std::move(persistenceKey),
-                    std::move(credentialsProvider), std::move(workerQueue), (__bridge void *)self);
+    _firestore = std::make_shared<Firestore>(
+        std::move(projectID), std::move(database), std::move(persistenceKey),
+        std::move(credentialsProvider), std::move(workerQueue), (__bridge void *)self);
 
     _app = app;
 
@@ -162,23 +161,26 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 
     _dataConverter = [[FSTUserDataConverter alloc] initWithDatabaseID:&_firestore->database_id()
                                                          preConverter:block];
+    // Use the property setter so the default settings get plumbed into _firestoreClient.
+    self.settings = [[FIRFirestoreSettings alloc] init];
   }
   return self;
 }
 
 - (FIRFirestoreSettings *)settings {
-  return _firestore->settings();
+  // Disallow mutation of our internal settings
+  return [_settings copy];
 }
 
 - (void)setSettings:(FIRFirestoreSettings *)settings {
-  _firestore->set_settings(settings);
-}
+  if (![settings isEqual:_settings]) {
+    _settings = settings;
+    _firestore->set_settings([settings internalSettings]);
 
-/**
- * Ensures that the FirestoreClient is configured and returns it.
- */
-- (FSTFirestoreClient *)client {
-  return _firestore->client();
+    std::unique_ptr<util::Executor> user_executor =
+        absl::make_unique<util::ExecutorLibdispatch>(settings.dispatchQueue);
+    _firestore->set_user_executor(std::move(user_executor));
+  }
 }
 
 - (FIRCollectionReference *)collectionWithPath:(NSString *)collectionPath {
@@ -265,8 +267,8 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 
 @implementation FIRFirestore (Internal)
 
-- (Firestore *)wrapped {
-  return _firestore.get();
+- (std::shared_ptr<Firestore>)wrapped {
+  return _firestore;
 }
 
 - (AsyncQueue *)workerQueue {
@@ -281,7 +283,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
   return FIRIsLoggableLevel(FIRLoggerLevelDebug, NO);
 }
 
-+ (FIRFirestore *)recoverFromFirestore:(Firestore *)firestore {
++ (FIRFirestore *)recoverFromFirestore:(std::shared_ptr<Firestore>)firestore {
   return (__bridge FIRFirestore *)firestore->extension();
 }
 

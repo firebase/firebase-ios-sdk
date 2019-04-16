@@ -212,6 +212,7 @@ fi
 
 # Check lint errors.
 "${top_dir}/scripts/check_whitespace.sh"
+"${top_dir}/scripts/check_filename_spaces.sh"
 "${top_dir}/scripts/check_copyright.sh"
 "${top_dir}/scripts/check_no_module_imports.sh"
 "${top_dir}/scripts/check_test_inclusion.py"

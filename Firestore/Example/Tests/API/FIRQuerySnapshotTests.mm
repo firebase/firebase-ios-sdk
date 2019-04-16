@@ -18,6 +18,7 @@
 
 #import <XCTest/XCTest.h>
 
+#include <memory>
 #include <utility>
 #include <vector>
 
@@ -35,6 +36,10 @@
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::api::DocumentChange;
+using firebase::firestore::api::DocumentSnapshot;
+using firebase::firestore::api::Firestore;
+using firebase::firestore::api::SnapshotMetadata;
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::model::DocumentKeySet;
@@ -85,7 +90,7 @@ NS_ASSUME_NONNULL_BEGIN
       DocumentViewChange(doc2New, DocumentViewChange::Type::kModified),
   };
 
-  Firestore *firestore = FSTTestFirestore().wrapped;
+  std::shared_ptr<Firestore> firestore = FSTTestFirestore().wrapped;
   FSTQuery *query = FSTTestQuery("foo");
   ViewSnapshot viewSnapshot(query, newDocuments, oldDocuments, std::move(documentChanges),
                             /*mutated_keys=*/DocumentKeySet(),

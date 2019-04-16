@@ -28,7 +28,9 @@
 
 @class FSTLRUGarbageCollector;
 
-extern const firebase::firestore::model::ListenSequenceNumber kFSTListenSequenceNumberInvalid;
+namespace model = firebase::firestore::model;
+
+extern const model::ListenSequenceNumber kFSTListenSequenceNumberInvalid;
 
 namespace firebase {
 namespace firestore {
@@ -71,6 +73,8 @@ struct LruResults {
 }  // namespace firestore
 }  // namespace firebase
 
+namespace local = firebase::firestore::local;
+
 /**
  * Persistence layers intending to use LRU Garbage collection should implement this protocol. This
  * protocol defines the operations that the LRU garbage collector needs from the persistence layer.
@@ -81,30 +85,27 @@ struct LruResults {
  * Enumerates all the targets that the delegate is aware of. This is typically all of the targets in
  * an FSTQueryCache.
  */
-- (void)enumerateTargetsUsingCallback:(const firebase::firestore::local::TargetCallback &)callback;
+- (void)enumerateTargetsUsingCallback:(const local::TargetCallback &)callback;
 
 /**
  * Enumerates all of the outstanding mutations.
  */
-- (void)enumerateMutationsUsingCallback:
-    (const firebase::firestore::local::OrphanedDocumentCallback &)callback;
+- (void)enumerateMutationsUsingCallback:(const local::OrphanedDocumentCallback &)callback;
 
 /**
  * Removes all unreferenced documents from the cache that have a sequence number less than or equal
  * to the given sequence number. Returns the number of documents removed.
  */
-- (int)removeOrphanedDocumentsThroughSequenceNumber:
-    (firebase::firestore::model::ListenSequenceNumber)sequenceNumber;
+- (int)removeOrphanedDocumentsThroughSequenceNumber:(model::ListenSequenceNumber)sequenceNumber;
 
 /**
  * Removes all targets that are not currently being listened to and have a sequence number less than
  * or equal to the given sequence number. Returns the number of targets removed.
  */
-- (int)removeTargetsThroughSequenceNumber:
-           (firebase::firestore::model::ListenSequenceNumber)sequenceNumber
+- (int)removeTargetsThroughSequenceNumber:(model::ListenSequenceNumber)sequenceNumber
                               liveQueries:
-                                  (const std::unordered_map<firebase::firestore::model::TargetId,
-                                                            FSTQueryData *> &)liveQueries;
+                                  (const std::unordered_map<model::TargetId, FSTQueryData *> &)
+                                      liveQueries;
 
 - (size_t)byteSize;
 
@@ -123,8 +124,7 @@ struct LruResults {
 @interface FSTLRUGarbageCollector : NSObject
 
 - (instancetype)initWithDelegate:(id<FSTLRUDelegate>)delegate
-                          params:(firebase::firestore::local::LruParams)params
-    NS_DESIGNATED_INITIALIZER;
+                          params:(local::LruParams)params NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -138,29 +138,26 @@ struct LruResults {
 /**
  * Given a number of queries n, return the nth sequence number in the cache.
  */
-- (firebase::firestore::model::ListenSequenceNumber)sequenceNumberForQueryCount:
-    (NSUInteger)queryCount;
+- (model::ListenSequenceNumber)sequenceNumberForQueryCount:(NSUInteger)queryCount;
 
 /**
  * Removes queries that are not currently live (as indicated by presence in the liveQueries map) and
  * have a sequence number less than or equal to the given sequence number.
  */
-- (int)removeQueriesUpThroughSequenceNumber:
-           (firebase::firestore::model::ListenSequenceNumber)sequenceNumber
+- (int)removeQueriesUpThroughSequenceNumber:(model::ListenSequenceNumber)sequenceNumber
                                 liveQueries:
-                                    (const std::unordered_map<firebase::firestore::model::TargetId,
-                                                              FSTQueryData *> &)liveQueries;
+                                    (const std::unordered_map<model::TargetId, FSTQueryData *> &)
+                                        liveQueries;
 
 /**
  * Removes all unreferenced documents from the cache that have a sequence number less than or equal
  * to the given sequence number. Returns the number of documents removed.
  */
-- (int)removeOrphanedDocumentsThroughSequenceNumber:
-    (firebase::firestore::model::ListenSequenceNumber)sequenceNumber;
+- (int)removeOrphanedDocumentsThroughSequenceNumber:(model::ListenSequenceNumber)sequenceNumber;
 
 - (size_t)byteSize;
 
-- (firebase::firestore::local::LruResults)collectWithLiveTargets:
-    (const std::unordered_map<firebase::firestore::model::TargetId, FSTQueryData *> &)liveTargets;
+- (local::LruResults)collectWithLiveTargets:
+    (const std::unordered_map<model::TargetId, FSTQueryData *> &)liveTargets;
 
 @end

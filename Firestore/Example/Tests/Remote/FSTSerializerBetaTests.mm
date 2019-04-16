@@ -65,6 +65,7 @@ using firebase::firestore::FirestoreErrorCode;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldTransform;
+using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::remote::DocumentWatchChange;

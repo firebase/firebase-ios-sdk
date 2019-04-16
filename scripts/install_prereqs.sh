@@ -89,6 +89,18 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     bundle exec pod install --project-directory=SymbolCollisionTest --repo-update
     ;;
 
+  GoogleDataTransport-iOS-xcodebuild)
+    gem install xcpretty
+    bundle exec pod gen GoogleDataTransport.podspec --gen-directory=GoogleDataTransport/gen
+    ;;
+
+  GoogleDataTransportCCTSupport-iOS-xcodebuild)
+    gem install xcpretty
+    # TODO(mikehaney24): Remove the SpecsStaging repo once GDT is published.
+    bundle exec pod gen GoogleDataTransportCCTSupport.podspec \
+--gen-directory=GoogleDataTransportCCTSupport/gen  \
+--sources=https://github.com/Firebase/SpecsStaging.git,https://github.com/CocoaPods/Specs.git
+    ;;
   *)
     echo "Unknown project-platform-method combo" 1>&2
     echo "  PROJECT=$PROJECT" 1>&2

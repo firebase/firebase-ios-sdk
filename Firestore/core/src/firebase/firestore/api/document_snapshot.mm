@@ -33,7 +33,8 @@ using model::DocumentKey;
 using model::FieldPath;
 
 size_t DocumentSnapshot::Hash() const {
-  return util::Hash(firestore_, internal_key_, internal_document_, metadata_);
+  return util::Hash(firestore_.get(), internal_key_, internal_document_,
+                    metadata_);
 }
 
 DocumentReference DocumentSnapshot::CreateReference() const {
