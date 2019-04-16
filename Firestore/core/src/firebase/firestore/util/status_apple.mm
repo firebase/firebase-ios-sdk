@@ -77,7 +77,7 @@ Status FromFirestoreNSError(NSError* error) {
 
   return Status(static_cast<FirestoreErrorCode>(error_code),
                 MakeString(error.localizedDescription))
-                .WithPlatformError(std::move(original));
+      .WithPlatformError(std::move(original));
 }
 
 }  // namespace
