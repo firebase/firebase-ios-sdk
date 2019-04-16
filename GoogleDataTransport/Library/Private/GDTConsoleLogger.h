@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "GDTAssert.h"
+#import <GoogleDataTransport/GDTAssert.h>
 
 /** A list of message codes to print in the logger that help to correspond printed messages with
  * code locations.

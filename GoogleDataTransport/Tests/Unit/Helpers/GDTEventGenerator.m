@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#import "GDTEventGenerator.h"
+#import "Tests/Unit/Helpers/GDTEventGenerator.h"
 
 #import <GoogleDataTransport/GDTClock.h>
 #import <GoogleDataTransport/GDTEvent.h>
 #import <GoogleDataTransport/GDTStoredEvent.h>
 
-#import "GDTEvent_Private.h"
+#import "Library/Private/GDTEvent_Private.h"
 
 @implementation GDTEventGenerator
 

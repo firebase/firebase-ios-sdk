@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#import "GDTUploadCoordinator+Testing.h"
+#import "Tests/Common/Categories/GDTUploadCoordinator+Testing.h"
 
 #import <objc/runtime.h>
 
-#import "GDTRegistrar.h"
-#import "GDTStorage.h"
-#import "GDTUploadCoordinator_Private.h"
+#import "Library/Private/GDTStorage.h"
+#import "Library/Private/GDTUploadCoordinator_Private.h"
+#import "Library/Public/GDTRegistrar.h"
 
 @implementation GDTUploadCoordinator (Testing)
 

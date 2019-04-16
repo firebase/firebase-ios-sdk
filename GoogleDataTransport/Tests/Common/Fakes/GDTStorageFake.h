@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "GDTStorage.h"
+#import "Library/Private/GDTStorage.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

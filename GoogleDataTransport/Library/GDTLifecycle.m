@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#import "GDTLifecycle.h"
+#import "Library/Public/GDTLifecycle.h"
 
 #import <GoogleDataTransport/GDTEvent.h>
 
-#import "GDTRegistrar_Private.h"
-#import "GDTStorage_Private.h"
-#import "GDTTransformer_Private.h"
-#import "GDTUploadCoordinator_Private.h"
+#import "Library/Private/GDTRegistrar_Private.h"
+#import "Library/Private/GDTStorage_Private.h"
+#import "Library/Private/GDTTransformer_Private.h"
+#import "Library/Private/GDTUploadCoordinator_Private.h"
 
 @implementation GDTLifecycle
 

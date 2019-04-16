@@ -18,7 +18,7 @@
 
 #import <GoogleDataTransport/GoogleDataTransport.h>
 
-#import "GDTIntegrationTestPrioritizer.h"
+#import "Tests/Integration/Helpers/GDTIntegrationTestPrioritizer.h"
 
 /** An integration test uploader. */
 @interface GDTIntegrationTestUploader : NSObject <GDTUploader>

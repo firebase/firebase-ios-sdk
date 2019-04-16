@@ -16,8 +16,8 @@
 
 #import <GoogleDataTransport/GDTUploadPackage.h>
 
-#import "GDTStorage_Private.h"
-#import "GDTUploadPackage_Private.h"
+#import "Library/Private/GDTStorage_Private.h"
+#import "Library/Private/GDTUploadPackage_Private.h"
 
 @implementation GDTUploadPackage
 

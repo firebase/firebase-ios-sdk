@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "GDTClock.h"
+#import "Library/Public/GDTClock.h"
 
 #import <sys/sysctl.h>
 

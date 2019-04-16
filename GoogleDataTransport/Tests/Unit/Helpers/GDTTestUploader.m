@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "GDTTestUploader.h"
+#import "Tests/Unit/Helpers/GDTTestUploader.h"
 
 @implementation GDTTestUploader
 

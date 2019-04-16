@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-#import "GDTUploadCoordinator.h"
-#import "GDTUploadCoordinator_Private.h"
+#import "Library/Private/GDTUploadCoordinator.h"
+#import "Library/Private/GDTUploadCoordinator_Private.h"
 
-#import "GDTAssert.h"
-#import "GDTClock.h"
-#import "GDTConsoleLogger.h"
-#import "GDTReachability.h"
-#import "GDTRegistrar_Private.h"
-#import "GDTStorage.h"
-#import "GDTUploadPackage_Private.h"
+#import <GoogleDataTransport/GDTClock.h>
+
+#import "Library/Private/GDTAssert.h"
+#import "Library/Private/GDTConsoleLogger.h"
+#import "Library/Private/GDTReachability.h"
+#import "Library/Private/GDTRegistrar_Private.h"
+#import "Library/Private/GDTStorage.h"
+#import "Library/Private/GDTUploadPackage_Private.h"
 
 @implementation GDTUploadCoordinator
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "GDTUploadCoordinatorFake.h"
+#import "Tests/Common/Fakes/GDTUploadCoordinatorFake.h"
 
 @implementation GDTUploadCoordinatorFake
 

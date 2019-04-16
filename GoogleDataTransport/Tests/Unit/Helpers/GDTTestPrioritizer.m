@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "GDTTestPrioritizer.h"
+#import "Tests/Unit/Helpers/GDTTestPrioritizer.h"
 
-#import "GDTTestUploadPackage.h"
+#import "Tests/Unit/Helpers/GDTTestUploadPackage.h"
 
 @implementation GDTTestPrioritizer
 

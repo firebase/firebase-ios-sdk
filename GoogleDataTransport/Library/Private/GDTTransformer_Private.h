@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "GDTTransformer.h"
+#import <GoogleDataTransport/GDTTransformer.h>
 
 @class GDTStorage;
 

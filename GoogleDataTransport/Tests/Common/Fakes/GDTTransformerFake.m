@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "GDTTransformerFake.h"
+#import "Tests/Common/Fakes/GDTTransformerFake.h"
 
 @implementation GDTTransformerFake
 

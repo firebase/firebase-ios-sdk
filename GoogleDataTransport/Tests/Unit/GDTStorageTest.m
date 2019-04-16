@@ -14,24 +14,25 @@
  * limitations under the License.
  */
 
-#import "GDTTestCase.h"
+#import "Tests/Unit/GDTTestCase.h"
 
 #import <GoogleDataTransport/GDTEvent.h>
 #import <GoogleDataTransport/GDTStoredEvent.h>
 
-#import "GDTEvent_Private.h"
-#import "GDTRegistrar.h"
-#import "GDTRegistrar_Private.h"
-#import "GDTStorage.h"
-#import "GDTStorage_Private.h"
+#import "Library/Private/GDTEvent_Private.h"
+#import "Library/Private/GDTRegistrar_Private.h"
+#import "Library/Private/GDTStorage.h"
+#import "Library/Private/GDTStorage_Private.h"
+#import "Library/Public/GDTRegistrar.h"
 
-#import "GDTTestPrioritizer.h"
-#import "GDTTestUploader.h"
+#import "Tests/Unit/Helpers/GDTAssertHelper.h"
+#import "Tests/Unit/Helpers/GDTTestPrioritizer.h"
+#import "Tests/Unit/Helpers/GDTTestUploader.h"
 
-#import "GDTAssertHelper.h"
-#import "GDTRegistrar+Testing.h"
-#import "GDTStorage+Testing.h"
-#import "GDTUploadCoordinatorFake.h"
+#import "Tests/Common/Fakes/GDTUploadCoordinatorFake.h"
+
+#import "Tests/Common/Categories/GDTRegistrar+Testing.h"
+#import "Tests/Common/Categories/GDTStorage+Testing.h"
 
 static NSInteger target = 1337;
 

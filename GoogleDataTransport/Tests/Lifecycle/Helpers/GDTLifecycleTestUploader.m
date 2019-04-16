@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "GDTLifecycleTestUploader.h"
+#import "Tests/Lifecycle/Helpers/GDTLifecycleTestUploader.h"
 
 @implementation GDTLifecycleTestUploader
 

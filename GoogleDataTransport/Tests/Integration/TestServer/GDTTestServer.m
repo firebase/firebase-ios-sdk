@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "GDTTestServer.h"
+#import "Tests/Integration/TestServer/GDTTestServer.h"
 
 @interface GDTTestServer ()
 

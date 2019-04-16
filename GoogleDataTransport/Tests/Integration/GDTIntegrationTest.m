@@ -18,13 +18,14 @@
 
 #import <GoogleDataTransport/GoogleDataTransport.h>
 
-#import "GDTIntegrationTestPrioritizer.h"
-#import "GDTIntegrationTestUploader.h"
-#import "GDTTestServer.h"
+#import "Tests/Common/Categories/GDTUploadCoordinator+Testing.h"
 
-#import "GDTReachability_Private.h"
-#import "GDTStorage_Private.h"
-#import "GDTUploadCoordinator+Testing.h"
+#import "Tests/Integration/Helpers/GDTIntegrationTestPrioritizer.h"
+#import "Tests/Integration/Helpers/GDTIntegrationTestUploader.h"
+#import "Tests/Integration/TestServer/GDTTestServer.h"
+
+#import "Library/Private/GDTReachability_Private.h"
+#import "Library/Private/GDTStorage_Private.h"
 
 /** A test-only event data object used in this integration test. */
 @interface GDTIntegrationTestEvent : NSObject <GDTEventDataObject>

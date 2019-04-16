@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "GDTRegistrar.h"
-#import "GDTRegistrar_Private.h"
+#import <GoogleDataTransport/GDTRegistrar.h>
+#import "Library/Private/GDTRegistrar_Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

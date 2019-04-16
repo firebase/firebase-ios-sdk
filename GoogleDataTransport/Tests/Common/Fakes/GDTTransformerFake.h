@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "GDTTransformer.h"
+#import "Library/Private/GDTTransformer.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

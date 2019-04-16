@@ -16,8 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import "GDTStorage.h"
-#import "GDTStorage_Private.h"
+#import "Library/Private/GDTStorage.h"
+#import "Library/Private/GDTStorage_Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

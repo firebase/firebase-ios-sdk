@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-#import "GDTTestCase.h"
+#import "Tests/Unit/GDTTestCase.h"
 
+#import <GoogleDataTransport/GDTEvent.h>
 #import <GoogleDataTransport/GDTEventTransformer.h>
 
-#import "GDTDataObjectTesterClasses.h"
-#import "GDTEvent.h"
-#import "GDTStorage.h"
-#import "GDTTransformer.h"
-#import "GDTTransformer_Private.h"
+#import "Library/Private/GDTStorage.h"
+#import "Library/Private/GDTTransformer.h"
+#import "Library/Private/GDTTransformer_Private.h"
 
-#import "GDTAssertHelper.h"
-#import "GDTStorageFake.h"
+#import "Tests/Unit/Helpers/GDTAssertHelper.h"
+#import "Tests/Unit/Helpers/GDTDataObjectTesterClasses.h"
+
+#import "Tests/Common/Fakes/GDTStorageFake.h"
 
 @interface GDTTransformerTestNilingTransformer : NSObject <GDTEventTransformer>
 

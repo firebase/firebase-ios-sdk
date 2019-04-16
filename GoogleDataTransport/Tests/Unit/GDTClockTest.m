@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "GDTTestCase.h"
+#import "Tests/Unit/GDTTestCase.h"
 
-#import "GDTClock.h"
+#import "Library/Public/GDTClock.h"
 
 @interface GDTClockTest : GDTTestCase
 

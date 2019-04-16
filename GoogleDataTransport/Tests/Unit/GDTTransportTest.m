@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#import "GDTTestCase.h"
+#import "Tests/Unit/GDTTestCase.h"
 
 #import <GoogleDataTransport/GDTEvent.h>
 #import <GoogleDataTransport/GDTTransport.h>
 
-#import "GDTTransport_Private.h"
+#import "Library/Private/GDTTransport_Private.h"
 
-#import "GDTDataObjectTesterClasses.h"
-#import "GDTTransformerFake.h"
+#import "Tests/Common/Fakes/GDTTransformerFake.h"
+#import "Tests/Unit/Helpers/GDTDataObjectTesterClasses.h"
 
 @interface GDTTransportTest : GDTTestCase
 

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "GDTEvent.h"
+#import <GoogleDataTransport/GDTEvent.h>
 
-#import "GDTClock.h"
+#import <GoogleDataTransport/GDTClock.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
