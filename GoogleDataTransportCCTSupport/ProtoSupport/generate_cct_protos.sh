@@ -27,6 +27,10 @@ readonly DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 readonly NANOPB_VERSION="0.3.9.2"
 readonly NANOPB_TEMPDIR="${DIR}/nanopb_temp"
 
+readonly LIBRARY_DIR="${DIR}/../Library/"
+readonly PROTO_DIR="${DIR}/Protos/"
+readonly PROTOGEN_DIR="${LIBRARY_DIR}/Protogen/"
+
 rm -rf "${NANOPB_TEMPDIR}"
 
 echo "Downloading nanopb..."
@@ -40,15 +44,14 @@ NANOPB_BIN_DIR="dist/${GIT_DESCRIPTION}"
 popd
 
 echo "Removing existing CCT protos..."
-rm -rf "GoogleDataTransportCCTSupport/GoogleDataTransportCCTSupport/Classes/Protogen/*"
-
+rm -rf "${PROTOGEN_DIR}/*"
 
 echo "Generating CCT protos..."
 python "${DIR}"/proto_generator.py \
   --nanopb \
-  --protos_dir=GoogleDataTransportCCTSupport/GoogleDataTransportCCTSupport/Protos/ \
+  --protos_dir="${PROTO_DIR}" \
   --pythonpath="${NANOPB_TEMPDIR}/${NANOPB_BIN_DIR}/generator" \
-  --output_dir=GoogleDataTransportCCTSupport/GoogleDataTransportCCTSupport/Classes/Protogen/ \
-  --include=GoogleDataTransportCCTSupport/GoogleDataTransportCCTSupport/Protos/
+  --output_dir="${PROTOGEN_DIR}" \
+  --include="${PROTO_DIR}"
 
 rm -rf "${NANOPB_TEMPDIR}"

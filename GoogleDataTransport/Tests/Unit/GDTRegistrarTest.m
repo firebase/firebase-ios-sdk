@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#import "GDTTestCase.h"
+#import "Tests/Unit/GDTTestCase.h"
 
 #import <GoogleDataTransport/GDTRegistrar.h>
 
-#import "GDTRegistrar_Private.h"
-#import "GDTTestPrioritizer.h"
-#import "GDTTestUploader.h"
+#import "Library/Private/GDTRegistrar_Private.h"
+#import "Tests/Unit/Helpers/GDTTestPrioritizer.h"
+#import "Tests/Unit/Helpers/GDTTestUploader.h"
 
 @interface GDTRegistrarTest : GDTTestCase
 

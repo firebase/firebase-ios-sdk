@@ -16,6 +16,8 @@
 
 #import "FIRDocumentReference.h"
 
+#include <memory>
+
 #include "Firestore/core/src/firebase/firestore/api/document_reference.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
@@ -29,9 +31,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithReference:(api::DocumentReference &&)reference NS_DESIGNATED_INITIALIZER;
 
-- (instancetype)initWithPath:(model::ResourcePath)path firestore:(api::Firestore *)firestore;
+- (instancetype)initWithPath:(model::ResourcePath)path
+                   firestore:(std::shared_ptr<api::Firestore>)firestore;
 
-- (instancetype)initWithKey:(model::DocumentKey)key firestore:(api::Firestore *)firestore;
+- (instancetype)initWithKey:(model::DocumentKey)key
+                  firestore:(std::shared_ptr<api::Firestore>)firestore;
 
 @end
 

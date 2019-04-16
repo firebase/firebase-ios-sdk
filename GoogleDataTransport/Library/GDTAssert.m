@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "GDTAssert.h"
+#import "Library/Private/GDTAssert.h"
 
 GDTAssertionBlock GDTAssertionBlockToRunInsteadOfNSAssert(void) {
   // This class is only compiled in by unit tests, and this should fail quickly in optimized builds.

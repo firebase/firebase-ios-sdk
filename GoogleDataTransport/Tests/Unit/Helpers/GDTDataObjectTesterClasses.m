@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "GDTDataObjectTesterClasses.h"
+#import "Tests/Unit/Helpers/GDTDataObjectTesterClasses.h"
 
 @implementation GDTDataObjectTesterSimple
 

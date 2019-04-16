@@ -23,6 +23,7 @@
 
 #import <Foundation/Foundation.h>
 
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
@@ -49,14 +50,16 @@ enum class Source;
 class DocumentReference {
  public:
   DocumentReference() = default;
-  DocumentReference(model::ResourcePath path, Firestore* firestore);
-  DocumentReference(model::DocumentKey document_key, Firestore* firestore)
+  DocumentReference(model::ResourcePath path,
+                    std::shared_ptr<Firestore> firestore);
+  DocumentReference(model::DocumentKey document_key,
+                    std::shared_ptr<Firestore> firestore)
       : firestore_{firestore}, key_{std::move(document_key)} {
   }
 
   size_t Hash() const;
 
-  Firestore* firestore() const {
+  const std::shared_ptr<Firestore>& firestore() const {
     return firestore_;
   }
   const model::DocumentKey& key() const {
@@ -88,7 +91,7 @@ class DocumentReference {
       core::ListenOptions options, DocumentSnapshot::Listener&& listener);
 
  private:
-  Firestore* firestore_ = nullptr;
+  std::shared_ptr<Firestore> firestore_;
   model::DocumentKey key_;
 };
 

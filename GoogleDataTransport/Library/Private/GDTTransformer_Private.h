@@ -14,16 +14,22 @@
  * limitations under the License.
  */
 
-#import "GDTEvent.h"
+#import <GoogleDataTransport/GDTTransformer.h>
 
-#import "GDTClock.h"
+@class GDTStorage;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface GDTEvent ()
+@interface GDTTransformer ()
 
-/** The serialized bytes of the event data object. */
-@property(nonatomic) NSData *dataObjectTransportBytes;
+/** The queue on which all work will occur. */
+@property(nonatomic) dispatch_queue_t eventWritingQueue;
+
+/** The storage instance used to store events. Should only be used to inject a testing fake. */
+@property(nonatomic) GDTStorage *storageInstance;
+
+/** If YES, every call to -transformEvent will result in a background task. */
+@property(nonatomic, readonly) BOOL runningInBackground;
 
 @end
 

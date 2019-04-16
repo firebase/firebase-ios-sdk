@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import "GDTIntegrationTestUploader.h"
+#import "Tests/Integration/Helpers/GDTIntegrationTestUploader.h"
 
-#import "GDTIntegrationTestPrioritizer.h"
+#import "Tests/Integration/Helpers/GDTIntegrationTestPrioritizer.h"
 
-#import "GDTTestServer.h"
+#import "Tests/Integration/TestServer/GDTTestServer.h"
 
 @implementation GDTIntegrationTestUploader {
   /** The current upload task. */

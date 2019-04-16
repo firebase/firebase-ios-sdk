@@ -16,6 +16,8 @@
 
 #import "FIRDocumentSnapshot.h"
 
+#include <memory>
+
 #include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/api/snapshot_metadata.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -32,12 +34,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithSnapshot:(api::DocumentSnapshot &&)snapshot NS_DESIGNATED_INITIALIZER;
 
-- (instancetype)initWithFirestore:(api::Firestore *)firestore
+- (instancetype)initWithFirestore:(std::shared_ptr<api::Firestore>)firestore
                       documentKey:(model::DocumentKey)documentKey
                          document:(nullable FSTDocument *)document
                          metadata:(api::SnapshotMetadata)metadata;
 
-- (instancetype)initWithFirestore:(api::Firestore *)firestore
+- (instancetype)initWithFirestore:(std::shared_ptr<api::Firestore>)firestore
                       documentKey:(model::DocumentKey)documentKey
                          document:(nullable FSTDocument *)document
                         fromCache:(bool)fromCache

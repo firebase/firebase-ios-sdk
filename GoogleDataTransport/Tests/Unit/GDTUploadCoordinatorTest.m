@@ -14,18 +14,20 @@
  * limitations under the License.
  */
 
-#import "GDTTestCase.h"
+#import "Tests/Unit/GDTTestCase.h"
 
-#import "GDTUploadCoordinator.h"
-#import "GDTUploadCoordinator_Private.h"
+#import "Library/Private/GDTUploadCoordinator.h"
+#import "Library/Private/GDTUploadCoordinator_Private.h"
 
-#import "GDTEventGenerator.h"
-#import "GDTRegistrar+Testing.h"
-#import "GDTStorageFake.h"
-#import "GDTTestPrioritizer.h"
-#import "GDTTestUploadPackage.h"
-#import "GDTTestUploader.h"
-#import "GDTUploadCoordinator+Testing.h"
+#import "Tests/Common/Categories/GDTRegistrar+Testing.h"
+#import "Tests/Common/Categories/GDTUploadCoordinator+Testing.h"
+
+#import "Tests/Common/Fakes/GDTStorageFake.h"
+
+#import "Tests/Unit/Helpers/GDTEventGenerator.h"
+#import "Tests/Unit/Helpers/GDTTestPrioritizer.h"
+#import "Tests/Unit/Helpers/GDTTestUploadPackage.h"
+#import "Tests/Unit/Helpers/GDTTestUploader.h"
 
 @interface GDTUploadCoordinatorTest : GDTTestCase
 

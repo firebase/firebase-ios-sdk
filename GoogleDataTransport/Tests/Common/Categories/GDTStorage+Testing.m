@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "GDTStorage+Testing.h"
+#import "Tests/Common/Categories/GDTStorage+Testing.h"
 
-#import "GDTStorage_Private.h"
+#import "Library/Private/GDTStorage_Private.h"
 
 @implementation GDTStorage (Testing)
 

@@ -18,8 +18,8 @@
 
 #import <GoogleDataTransport/GDTStoredEvent.h>
 
-#import "GDTAssert.h"
-#import "GDTEvent_Private.h"
+#import "Library/Private/GDTAssert.h"
+#import "Library/Private/GDTEvent_Private.h"
 
 @implementation GDTEvent
 

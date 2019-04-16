@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "GDTTestPrioritizer.h"
+#import "Tests/Unit/Helpers/GDTTestPrioritizer.h"
 
 /** An upload package used in testing. */
 @interface GDTIntegrationTestUploadPackage : GDTUploadPackage

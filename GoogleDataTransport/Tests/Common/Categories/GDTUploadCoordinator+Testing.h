@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "GDTUploadCoordinator.h"
-#import "GDTUploadCoordinator_Private.h"
+#import "Library/Private/GDTUploadCoordinator.h"
+#import "Library/Private/GDTUploadCoordinator_Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

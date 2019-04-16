@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRDocumentReference.h"
+#import "FIRDocumentReference+Internal.h"
 
 #include <memory>
 #include <utility>
@@ -80,7 +80,7 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-- (instancetype)initWithPath:(ResourcePath)path firestore:(Firestore *)firestore {
+- (instancetype)initWithPath:(ResourcePath)path firestore:(std::shared_ptr<Firestore>)firestore {
   if (path.size() % 2 != 0) {
     ThrowInvalidArgument("Invalid document reference. Document references must have an even "
                          "number of segments, but %s has %s",
@@ -89,7 +89,7 @@ NS_ASSUME_NONNULL_BEGIN
   return [self initWithKey:DocumentKey{std::move(path)} firestore:firestore];
 }
 
-- (instancetype)initWithKey:(DocumentKey)key firestore:(Firestore *)firestore {
+- (instancetype)initWithKey:(DocumentKey)key firestore:(std::shared_ptr<Firestore>)firestore {
   DocumentReference delegate{std::move(key), firestore};
   return [self initWithReference:std::move(delegate)];
 }

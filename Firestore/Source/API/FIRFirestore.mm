@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRFirestore.h"
+#import "FIRFirestore+Internal.h"
 
 #import <FirebaseCore/FIRApp.h>
 #import <FirebaseCore/FIRAppInternal.h>
@@ -41,7 +41,6 @@
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
-#include "Firestore/core/src/firebase/firestore/util/delayed_constructor.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
@@ -55,7 +54,6 @@ using firebase::firestore::api::ThrowInvalidArgument;
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::util::AsyncQueue;
-using firebase::firestore::util::DelayedConstructor;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -68,7 +66,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @implementation FIRFirestore {
-  DelayedConstructor<Firestore> _firestore;
+  std::shared_ptr<Firestore> _firestore;
   FIRFirestoreSettings *_settings;
 }
 
@@ -148,8 +146,9 @@ NS_ASSUME_NONNULL_BEGIN
                       workerQueue:(std::unique_ptr<AsyncQueue>)workerQueue
                       firebaseApp:(FIRApp *)app {
   if (self = [super init]) {
-    _firestore.Init(std::move(projectID), std::move(database), std::move(persistenceKey),
-                    std::move(credentialsProvider), std::move(workerQueue), (__bridge void *)self);
+    _firestore = std::make_shared<Firestore>(
+        std::move(projectID), std::move(database), std::move(persistenceKey),
+        std::move(credentialsProvider), std::move(workerQueue), (__bridge void *)self);
 
     _app = app;
 
@@ -306,8 +305,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRFirestore (Internal)
 
-- (Firestore *)wrapped {
-  return _firestore.get();
+- (std::shared_ptr<Firestore>)wrapped {
+  return _firestore;
 }
 
 - (AsyncQueue *)workerQueue {
@@ -322,7 +321,7 @@ NS_ASSUME_NONNULL_BEGIN
   return FIRIsLoggableLevel(FIRLoggerLevelDebug, NO);
 }
 
-+ (FIRFirestore *)recoverFromFirestore:(Firestore *)firestore {
++ (FIRFirestore *)recoverFromFirestore:(std::shared_ptr<Firestore>)firestore {
   return (__bridge FIRFirestore *)firestore->extension();
 }
 

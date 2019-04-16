@@ -25,11 +25,15 @@ Support library to provide event prioritization and uploading for the GoogleData
   s.static_framework = true
   s.prefix_header_file = false
 
-  s.source_files = 'GoogleDataTransportCCTSupport/GoogleDataTransportCCTSupport/Classes/**/*'
-  s.private_header_files = 'GoogleDataTransportCCTSupport/GoogleDataTransportCCTSupport/Classes/Private/*.h'
+  s.source_files = 'GoogleDataTransportCCTSupport/Library/**/*'
+  s.private_header_files = 'GoogleDataTransportCCTSupport/Library/Private/*.h'
 
   s.dependency 'GoogleDataTransport'
   s.dependency 'nanopb'
+
+  header_search_paths = {
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}/GoogleDataTransportCCTSupport/"'
+  }
 
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
@@ -40,13 +44,14 @@ Support library to provide event prioritization and uploading for the GoogleData
       # (or larger) fields, so we'd have to set at least PB_FIELD_16BIT
       # anyways.)
       'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',
-  }
+  }.merge(header_search_paths)
 
   # Test specs
   s.test_spec 'Tests-Unit' do |test_spec|
     test_spec.requires_app_host = false
     test_spec.source_files = 'GoogleDataTransportCCTSupport/Tests/Unit/**/*.{h,m}'
     test_spec.resources = ['GoogleDataTransportCCTSupport/Tests/Data/**/*']
+    test_spec.pod_target_xcconfig = header_search_paths
     test_spec.dependency 'GCDWebServer'
   end
 
@@ -54,6 +59,7 @@ Support library to provide event prioritization and uploading for the GoogleData
     test_spec.requires_app_host = false
     test_spec.source_files = 'GoogleDataTransportCCTSupport/Tests/Integration/**/*.{h,m}'
     test_spec.resources = ['GoogleDataTransportCCTSupport/Tests/Data/**/*']
+    test_spec.pod_target_xcconfig = header_search_paths
   end
 
 end

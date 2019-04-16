@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#import "GDTTestCase.h"
+#import "Tests/Unit/GDTTestCase.h"
 
 #import <GoogleDataTransport/GDTUploadPackage.h>
 
-#import "GDTEventGenerator.h"
-#import "GDTUploadPackage_Private.h"
+#import "Library/Private/GDTUploadPackage_Private.h"
+#import "Tests/Unit/Helpers/GDTEventGenerator.h"
 
 @interface GDTUploadPackageTest : GDTTestCase
 

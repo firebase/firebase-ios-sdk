@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2018 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-#import "GDTReachability.h"
+#import <GoogleDataTransport/GDTEvent.h>
 
-@interface GDTReachability ()
+#import <GoogleDataTransport/GDTClock.h>
 
-/** Allows manually setting the flags for testing purposes. */
-@property(nonatomic, readwrite) SCNetworkReachabilityFlags flags;
+NS_ASSUME_NONNULL_BEGIN
 
-/** Creates/returns the singleton instance of this class.
- *
- * @return The singleton instance of this class.
- */
-+ (instancetype)sharedInstance;
+@interface GDTEvent ()
+
+/** The serialized bytes of the event data object. */
+@property(nonatomic) NSData *dataObjectTransportBytes;
 
 @end
+
+NS_ASSUME_NONNULL_END

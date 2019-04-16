@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "GDTEventTransformer.h"
+#import <GoogleDataTransport/GDTEventTransformer.h>
 
 @class GDTEvent;
 

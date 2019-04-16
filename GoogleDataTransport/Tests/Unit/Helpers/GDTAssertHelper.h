@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "GDTAssert.h"
+#import "Library/Private/GDTAssert.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

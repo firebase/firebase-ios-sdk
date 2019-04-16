@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "GDTLifecycleTestPrioritizer.h"
+#import "Tests/Lifecycle/Helpers/GDTLifecycleTestPrioritizer.h"
 
 @interface GDTLifecycleTestPrioritizer ()
 

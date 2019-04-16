@@ -18,14 +18,15 @@
 
 #import <GoogleDataTransport/GoogleDataTransport.h>
 
-#import "GDTStorage_Private.h"
-#import "GDTTransformer_Private.h"
-#import "GDTUploadCoordinator_Private.h"
+#import "Library/Private/GDTStorage_Private.h"
+#import "Library/Private/GDTTransformer_Private.h"
+#import "Library/Private/GDTUploadCoordinator_Private.h"
 
-#import "GDTLifecycleTestPrioritizer.h"
-#import "GDTLifecycleTestUploader.h"
-#import "GDTStorage+Testing.h"
-#import "GDTUploadCoordinator+Testing.h"
+#import "Tests/Lifecycle/Helpers/GDTLifecycleTestPrioritizer.h"
+#import "Tests/Lifecycle/Helpers/GDTLifecycleTestUploader.h"
+
+#import "Tests/Common/Categories/GDTStorage+Testing.h"
+#import "Tests/Common/Categories/GDTUploadCoordinator+Testing.h"
 
 /** Waits for the result of waitBlock to be YES, or times out and fails.
  *

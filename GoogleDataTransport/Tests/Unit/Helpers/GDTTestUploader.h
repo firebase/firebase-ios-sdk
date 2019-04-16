@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "GDTUploader.h"
+#import <GoogleDataTransport/GDTUploader.h>
 
 @class GDTUploadPackage;
 

@@ -24,6 +24,7 @@
 #import <Foundation/Foundation.h>
 
 #include <functional>
+#include <memory>
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/api/document_change.h"
@@ -45,7 +46,7 @@ namespace api {
  */
 class QuerySnapshot {
  public:
-  QuerySnapshot(Firestore* firestore,
+  QuerySnapshot(std::shared_ptr<Firestore> firestore,
                 FSTQuery* query,
                 core::ViewSnapshot&& snapshot,
                 SnapshotMetadata metadata)
@@ -69,7 +70,7 @@ class QuerySnapshot {
     return snapshot_.documents().size();
   }
 
-  Firestore* firestore() const {
+  const std::shared_ptr<Firestore>& firestore() const {
     return firestore_;
   }
 
@@ -99,7 +100,7 @@ class QuerySnapshot {
   friend bool operator==(const QuerySnapshot& lhs, const QuerySnapshot& rhs);
 
  private:
-  Firestore* firestore_ = nullptr;
+  std::shared_ptr<Firestore> firestore_;
   FSTQuery* internal_query_ = nil;
   core::ViewSnapshot snapshot_;
   SnapshotMetadata metadata_;

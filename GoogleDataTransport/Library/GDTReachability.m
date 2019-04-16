@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "GDTReachability.h"
-#import "GDTReachability_Private.h"
+#import "Library/Private/GDTReachability.h"
+#import "Library/Private/GDTReachability_Private.h"
 
 #import <netinet/in.h>
 

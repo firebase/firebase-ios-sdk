@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "GDTAssertHelper.h"
+#import "Tests/Unit/Helpers/GDTAssertHelper.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
