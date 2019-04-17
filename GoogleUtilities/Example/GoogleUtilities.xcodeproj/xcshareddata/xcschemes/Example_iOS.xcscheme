@@ -39,16 +39,6 @@
                ReferencedContainer = "container:GoogleUtilities.xcodeproj">
             </BuildableReference>
          </TestableReference>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "7CBFAA7D205702AB00A65866"
-               BuildableName = "GoogleUtilities_IntegrationTests.xctest"
-               BlueprintName = "GoogleUtilities_IntegrationTests"
-               ReferencedContainer = "container:GoogleUtilities.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference
