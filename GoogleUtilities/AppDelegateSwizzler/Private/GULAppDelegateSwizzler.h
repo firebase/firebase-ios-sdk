@@ -48,10 +48,9 @@ typedef NSString *const GULAppDelegateInterceptorID;
  *  times (but it only proxies the app delegate once) or
  *  after +[GULAppDelegateSwizzler proxyOriginalDelegateWithoutRemoteNotificationMethods]
  *
- *  This method calls +[GULAppDelegateSwizzler
- * proxyOriginalDelegateWithoutRemoteNotificationMethods] under the hood. After calling this method
- * the following App Delegate methods will be proxied in addition to the methods proxied by
- * proxyOriginalDelegateWithoutRemoteNotificationMethods:
+ *  This method calls +[GULAppDelegateSwizzler proxyOriginalDelegateWithoutRemoteNotificationMethods] under the hood.
+ *  After calling this method the following App Delegate methods will be proxied in addition to
+ *  the methods proxied by proxyOriginalDelegateWithoutRemoteNotificationMethods:
  *  @code
  *    - application:didRegisterForRemoteNotificationsWithDeviceToken:
  *    - application:didFailToRegisterForRemoteNotificationsWithError:
