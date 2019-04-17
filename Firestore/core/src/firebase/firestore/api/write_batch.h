@@ -23,17 +23,10 @@
 
 #import <Foundation/Foundation.h>
 
-#include <algorithm>
 #include <memory>
 #include <utility>
 #include <vector>
 
-#import "Firestore/Source/Core/FSTFirestoreClient.h"
-#import "Firestore/Source/Model/FSTMutation.h"
-
-#include "Firestore/core/src/firebase/firestore/api/document_reference.h"
-#include "Firestore/core/src/firebase/firestore/api/firestore.h"
-#include "Firestore/core/src/firebase/firestore/api/input_validation.h"
 #include "Firestore/core/src/firebase/firestore/core/user_data.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 
@@ -45,6 +38,9 @@ namespace firebase {
 namespace firestore {
 namespace api {
 
+class Firestore;
+class DocumentReference;
+
 class WriteBatch {
  public:
   WriteBatch() = delete;
@@ -53,63 +49,20 @@ class WriteBatch {
   }
 
   void SetData(const DocumentReference& reference,
-               core::ParsedSetData&& setData) {
-    VerifyNotCommitted();
-    ValidateReference(reference);
-
-    std::vector<FSTMutation*> append_mutations = std::move(setData).ToMutations(
-        reference.key(), model::Precondition::None());
-    std::move(append_mutations.begin(), append_mutations.end(),
-              std::back_inserter(mutations_));
-  }
-
+               core::ParsedSetData&& setData);
   void UpdateData(const DocumentReference& reference,
-                  core::ParsedUpdateData&& updateData) {
-    VerifyNotCommitted();
-    ValidateReference(reference);
+                  core::ParsedUpdateData&& updateData);
+  void DeleteData(const DocumentReference& reference);
 
-    std::vector<FSTMutation*> append_mutations =
-        std::move(updateData)
-            .ToMutations(reference.key(), model::Precondition::Exists(true));
-    std::move(append_mutations.begin(), append_mutations.end(),
-              std::back_inserter(mutations_));
-  }
-
-  void DeleteData(const DocumentReference& reference) {
-    VerifyNotCommitted();
-    ValidateReference(reference);
-
-    mutations_.push_back([[FSTDeleteMutation alloc]
-         initWithKey:reference.key()
-        precondition:model::Precondition::None()]);
-  }
-
-  void Commit(util::StatusCallback callback) {
-    VerifyNotCommitted();
-
-    committed_ = true;
-    [firestore_->client() writeMutations:std::move(mutations_)
-                                callback:std::move(callback)];
-  }
+  void Commit(util::StatusCallback callback);
 
  private:
   std::shared_ptr<Firestore> firestore_;
   std::vector<FSTMutation*> mutations_;
   bool committed_ = false;
 
-  void VerifyNotCommitted() const {
-    if (committed_) {
-      ThrowIllegalState(
-          "A write batch can no longer be used after commit has been called.");
-    }
-  }
-
-  void ValidateReference(const DocumentReference& reference) const {
-    if (reference.firestore() != firestore_) {
-      ThrowInvalidArgument("Provided document reference is from a different "
-                           "Firestore instance.");
-    }
-  }
+  void VerifyNotCommitted() const;
+  void ValidateReference(const DocumentReference& reference) const;
 };
 
 }  // namespace api
