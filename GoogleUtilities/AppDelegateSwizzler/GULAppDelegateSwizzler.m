@@ -284,6 +284,10 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
 }
 
 + (void)proxyOriginalDelegate {
+  if ([GULAppEnvironmentUtil isAppExtension]) {
+    return;
+  }
+
   dispatch_once(&sProxyAppDelegateOnceToken, ^{
     id<UIApplicationDelegate> originalDelegate =
         [GULAppDelegateSwizzler sharedApplication].delegate;
@@ -292,6 +296,10 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
 }
 
 + (void)proxyOriginalDelegateRemoteNotificationMethods {
+  if ([GULAppEnvironmentUtil isAppExtension]) {
+    return;
+  }
+
   [self proxyOriginalDelegate];
 
   dispatch_once(&sProxyAppDelegateRemoteNotificationOnceToken, ^{

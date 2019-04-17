@@ -56,13 +56,15 @@ typedef NSString *const GULAppDelegateInterceptorID;
  *  @endcode
  *
  *  To proxy these methods use +[GULAppDelegateSwizzler
- * proxyOriginalDelegateRemoteNotificationMethods]. The methods have to be proxied separately to
- * avoid potential warnings from Apple review about missing Push Notification Entitlement (e.g.
- * https://github.com/firebase/firebase-ios-sdk/issues/2807)
+ *  proxyOriginalDelegateRemoteNotificationMethods]. The methods have to be proxied separately to
+ *  avoid potential warnings from Apple review about missing Push Notification Entitlement (e.g.
+ *  https://github.com/firebase/firebase-ios-sdk/issues/2807)
+ *
+ *  The method has no effect for extensions.
+ *
  *  @see proxyOriginalDelegateRemoteNotificationMethods
  */
-+ (void)proxyOriginalDelegate NS_EXTENSION_UNAVAILABLE(
-    "App delegate proxy doesn't support extensions.");
++ (void)proxyOriginalDelegate;
 
 /** This method ensures that the original app delegate has been proxied including APNS related
  *  methods. Call this before registering your interceptor. This method is safe to call multiple
@@ -78,10 +80,12 @@ typedef NSString *const GULAppDelegateInterceptorID;
  *    - application:didReceiveRemoteNotification:fetchCompletionHandler:
  *    - application:didReceiveRemoteNotification:
  *  @endcode
+ *
+ *  The method has no effect for extensions.
+ *
  *  @see proxyOriginalDelegate
  */
-+ (void)proxyOriginalDelegateRemoteNotificationMethods NS_EXTENSION_UNAVAILABLE(
-    "App delegate proxy doesn't support extensions.");
++ (void)proxyOriginalDelegateRemoteNotificationMethods;
 
 /** Indicates whether app delegate proxy is explicitly disabled or enabled. Enabled by default.
  *
