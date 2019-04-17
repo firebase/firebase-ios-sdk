@@ -87,7 +87,7 @@ static NSString *kUserNotificationDidReceiveResponseSelectorString =
     return;
   }
 
-  [GULAppDelegateSwizzler proxyOriginalDelegateRemoteNotificationMethods];
+  [GULAppDelegateSwizzler proxyOriginalDelegate];
   self.appDelegateInterceptorID = [GULAppDelegateSwizzler registerAppDelegateInterceptor:self];
 
   // Add KVO listener on [UNUserNotificationCenter currentNotificationCenter]'s delegate property

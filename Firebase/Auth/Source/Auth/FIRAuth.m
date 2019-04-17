@@ -378,7 +378,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     }
     UIApplication *application = [applicationClass sharedApplication];
 
-    [GULAppDelegateSwizzler proxyOriginalDelegateRemoteNotificationMethods];
+    [GULAppDelegateSwizzler proxyOriginalDelegate];
     #endif
 
     // Continue with the rest of initialization in the work thread.
