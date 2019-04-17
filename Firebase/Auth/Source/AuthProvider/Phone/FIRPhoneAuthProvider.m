@@ -274,16 +274,18 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?";
     FIRSendVerificationCodeRequest *request;
     if (appCredential) {
       request =
-      [[FIRSendVerificationCodeRequest alloc] initWithPhoneNumber:phoneNumber
-                                                    appCredential:appCredential
-                                                   reCAPTCHAToken:nil
-                                             requestConfiguration:self->_auth.requestConfiguration];
+          [[FIRSendVerificationCodeRequest alloc]
+              initWithPhoneNumber:phoneNumber
+                    appCredential:appCredential
+                   reCAPTCHAToken:nil
+             requestConfiguration:self->_auth.requestConfiguration];
     } else if (reCAPTCHAToken) {
       request =
-      [[FIRSendVerificationCodeRequest alloc] initWithPhoneNumber:phoneNumber
-                                                    appCredential:nil
-                                                   reCAPTCHAToken:reCAPTCHAToken
-                                             requestConfiguration:self->_auth.requestConfiguration];
+          [[FIRSendVerificationCodeRequest alloc]
+              initWithPhoneNumber:phoneNumber
+                    appCredential:nil
+                   reCAPTCHAToken:reCAPTCHAToken
+             requestConfiguration:self->_auth.requestConfiguration];
     }
     [FIRAuthBackend sendVerificationCode:request
                                 callback:^(FIRSendVerificationCodeResponse *_Nullable response,
@@ -323,7 +325,6 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?";
   [_auth.tokenManager getTokenWithCallback:^(FIRAuthAPNSToken *_Nullable token,
                                              NSError *_Nullable error) {
     if (!token) {
-//      completion(nil, nil, [FIRAuthErrorUtils missingAppTokenErrorWithUnderlyingError:error]);
       [self reCAPTCHAFlowWithUIDelegate:UIDelegate completion:completion];
       return;
     }
@@ -381,20 +382,20 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?";
                              callbackMatcher:callbackMatcher
                                   completion:^(NSURL *_Nullable callbackURL,
                                                NSError *_Nullable error) {
-                                    if (error) {
-                                      completion(nil, nil, error);
-                                      return;
-                                    }
-                                    NSError *reCAPTCHAError;
-                                    NSString *reCAPTCHAToken = [self reCAPTCHATokenForURL:callbackURL error:&reCAPTCHAError];
-                                    if (!reCAPTCHAToken) {
-                                      completion(nil, nil, reCAPTCHAError);
-                                      return;
-                                    } else {
-                                      completion(nil, reCAPTCHAToken, nil);
-                                      return;
-                                    }
-                                  }];
+      if (error) {
+        completion(nil, nil, error);
+        return;
+      }
+      NSError *reCAPTCHAError;
+      NSString *reCAPTCHAToken = [self reCAPTCHATokenForURL:callbackURL error:&reCAPTCHAError];
+      if (!reCAPTCHAToken) {
+        completion(nil, nil, reCAPTCHAError);
+        return;
+      } else {
+        completion(nil, reCAPTCHAToken, nil);
+        return;
+      }
+    }];
   }];
 }
 
