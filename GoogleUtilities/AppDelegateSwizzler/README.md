@@ -173,7 +173,7 @@ by `[GULAppDelegateSwizzler proxyOriginalDelegate]`:
 ```
 
 If you need to swizzle these methods you can call
-`[GULAppDelegateSwizzler proxyOriginalDelegateRemoteNotificationMethods]`. The method can be safely
+`[GULAppDelegateSwizzler proxyOriginalDelegateIncludingAPNSMethods]`. The method can be safely
 called instead or after `[GULAppDelegateSwizzler proxyOriginalDelegate]`.
 
 ## Disabling App Delegate Swizzling by App Developers

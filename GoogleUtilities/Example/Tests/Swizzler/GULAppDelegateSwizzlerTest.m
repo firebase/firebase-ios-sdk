@@ -388,7 +388,7 @@ static BOOL gRespondsToHandleBackgroundSession;
                              handleEventsForBackgroundURLSession:completionHandler:)]);
 
   // Remote notifications methods should be added only by
-  // -proxyOriginalDelegateRemoteNotificationMethods
+  // -proxyOriginalDelegateIncludingAPNSMethods
   XCTAssertFalse([realAppDelegate
       respondsToSelector:@selector(application:didRegisterForRemoteNotificationsWithDeviceToken:)]);
   XCTAssertFalse([realAppDelegate
@@ -411,7 +411,7 @@ static BOOL gRespondsToHandleBackgroundSession;
   Class realAppDelegateClassBefore = [realAppDelegate class];
 
   // Create the proxy.
-  [GULAppDelegateSwizzler proxyOriginalDelegateRemoteNotificationMethods];
+  [GULAppDelegateSwizzler proxyOriginalDelegateIncludingAPNSMethods];
 
   XCTAssertTrue([realAppDelegate isKindOfClass:[GULEmptyTestAppDelegate class]]);
 
@@ -441,7 +441,7 @@ static BOOL gRespondsToHandleBackgroundSession;
                              handleEventsForBackgroundURLSession:completionHandler:)]);
 
   // Remote notifications methods should be added only by
-  // -proxyOriginalDelegateRemoteNotificationMethods
+  // -proxyOriginalDelegateIncludingAPNSMethods
   XCTAssertTrue([realAppDelegate
       respondsToSelector:@selector(application:didRegisterForRemoteNotificationsWithDeviceToken:)]);
   XCTAssertTrue([realAppDelegate
@@ -496,7 +496,7 @@ static BOOL gRespondsToHandleBackgroundSession;
                              handleEventsForBackgroundURLSession:completionHandler:)]);
 
   // Proxy remote notifications methods
-  [GULAppDelegateSwizzler proxyOriginalDelegateRemoteNotificationMethods];
+  [GULAppDelegateSwizzler proxyOriginalDelegateIncludingAPNSMethods];
 
   XCTAssertTrue([realAppDelegate
       respondsToSelector:@selector(application:didRegisterForRemoteNotificationsWithDeviceToken:)]);
@@ -959,7 +959,7 @@ static BOOL gRespondsToHandleBackgroundSession;
 
   GULTestAppDelegate *testAppDelegate = [[GULTestAppDelegate alloc] init];
   OCMStub([self.mockSharedApplication delegate]).andReturn(testAppDelegate);
-  [GULAppDelegateSwizzler proxyOriginalDelegateRemoteNotificationMethods];
+  [GULAppDelegateSwizzler proxyOriginalDelegateIncludingAPNSMethods];
 
   [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor];
   [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor2];
@@ -987,7 +987,7 @@ static BOOL gRespondsToHandleBackgroundSession;
 
   GULTestAppDelegate *testAppDelegate = [[GULTestAppDelegate alloc] init];
   OCMStub([self.mockSharedApplication delegate]).andReturn(testAppDelegate);
-  [GULAppDelegateSwizzler proxyOriginalDelegateRemoteNotificationMethods];
+  [GULAppDelegateSwizzler proxyOriginalDelegateIncludingAPNSMethods];
 
   [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor];
   [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor2];
@@ -1014,7 +1014,7 @@ static BOOL gRespondsToHandleBackgroundSession;
 
   GULTestAppDelegate *testAppDelegate = [[GULTestAppDelegate alloc] init];
   OCMStub([self.mockSharedApplication delegate]).andReturn(testAppDelegate);
-  [GULAppDelegateSwizzler proxyOriginalDelegateRemoteNotificationMethods];
+  [GULAppDelegateSwizzler proxyOriginalDelegateIncludingAPNSMethods];
 
   [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor];
   [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor2];
@@ -1046,7 +1046,7 @@ static BOOL gRespondsToHandleBackgroundSession;
 
   GULTestAppDelegate *testAppDelegate = [[GULTestAppDelegate alloc] init];
   OCMStub([self.mockSharedApplication delegate]).andReturn(testAppDelegate);
-  [GULAppDelegateSwizzler proxyOriginalDelegateRemoteNotificationMethods];
+  [GULAppDelegateSwizzler proxyOriginalDelegateIncludingAPNSMethods];
 
   [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor];
   [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor2];
@@ -1072,7 +1072,7 @@ static BOOL gRespondsToHandleBackgroundSession;
       respondsToSelector:@selector(application:
                              didReceiveRemoteNotification:fetchCompletionHandler:)]);
 
-  [GULAppDelegateSwizzler proxyOriginalDelegateRemoteNotificationMethods];
+  [GULAppDelegateSwizzler proxyOriginalDelegateIncludingAPNSMethods];
 
   XCTAssertFalse([legacyDelegate
       respondsToSelector:@selector(application:

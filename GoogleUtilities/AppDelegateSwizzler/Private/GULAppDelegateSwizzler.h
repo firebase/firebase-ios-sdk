@@ -56,13 +56,13 @@ typedef NSString *const GULAppDelegateInterceptorID;
  *  @endcode
  *
  *  To proxy these methods use +[GULAppDelegateSwizzler
- *  proxyOriginalDelegateRemoteNotificationMethods]. The methods have to be proxied separately to
+ *  proxyOriginalDelegateIncludingAPNSMethods]. The methods have to be proxied separately to
  *  avoid potential warnings from Apple review about missing Push Notification Entitlement (e.g.
  *  https://github.com/firebase/firebase-ios-sdk/issues/2807)
  *
  *  The method has no effect for extensions.
  *
- *  @see proxyOriginalDelegateRemoteNotificationMethods
+ *  @see proxyOriginalDelegateIncludingAPNSMethods
  */
 + (void)proxyOriginalDelegate;
 
@@ -85,7 +85,7 @@ typedef NSString *const GULAppDelegateInterceptorID;
  *
  *  @see proxyOriginalDelegate
  */
-+ (void)proxyOriginalDelegateRemoteNotificationMethods;
++ (void)proxyOriginalDelegateIncludingAPNSMethods;
 
 /** Indicates whether app delegate proxy is explicitly disabled or enabled. Enabled by default.
  *

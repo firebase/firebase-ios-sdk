@@ -109,7 +109,7 @@ static Class gAppDelegateSubclass;
  *  string.
  *
  *  NOTE: None of the methods is proxied unless it is explicitly requested by calling the method
- *  +[GULAppDelegateSwizzler proxyOriginalDelegateRemoteNotificationMethods]
+ *  +[GULAppDelegateSwizzler proxyOriginalDelegateIncludingAPNSMethods]
  */
 static NSString *const kGULDidRegisterForRemoteNotificationsSEL =
     @"application:didRegisterForRemoteNotificationsWithDeviceToken:";
@@ -295,7 +295,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
   });
 }
 
-+ (void)proxyOriginalDelegateRemoteNotificationMethods {
++ (void)proxyOriginalDelegateIncludingAPNSMethods {
   if ([GULAppEnvironmentUtil isAppExtension]) {
     return;
   }
