@@ -25,11 +25,11 @@
 #import "FIRMessagingDataMessageManager.h"
 #import "FIRMessagingDefines.h"
 #import "FIRMessagingLogger.h"
-#import "FIRMessagingRegistrar.h"
 #import "FIRMessagingRmqManager.h"
 #import "FIRMessagingTopicsCommon.h"
 #import "FIRMessagingUtilities.h"
 #import "NSError+FIRMessaging.h"
+#import "FIRMessagingPubSubRegistrar.h"
 
 static const NSTimeInterval kConnectTimeoutInterval = 40.0;
 static const NSTimeInterval kReconnectDelayInSeconds = 2 * 60; // 2 minutes
@@ -77,8 +77,7 @@ static NSUInteger FIRMessagingServerPort() {
 
 @property(nonatomic, readwrite, weak) id<FIRMessagingClientDelegate> clientDelegate;
 @property(nonatomic, readwrite, strong) FIRMessagingConnection *connection;
-@property(nonatomic, readwrite, strong) FIRMessagingRegistrar *registrar;
-
+@property(nonatomic, readonly, strong) FIRMessagingPubSubRegistrar *registrar;
 @property(nonatomic, readwrite, strong) NSString *senderId;
 
 // FIRMessagingService owns these instances
@@ -119,7 +118,7 @@ static NSUInteger FIRMessagingServerPort() {
     _reachability = reachability;
     _clientDelegate = delegate;
     _rmq2Manager = rmq2Manager;
-    _registrar = [[FIRMessagingRegistrar alloc] init];
+    _registrar = [[FIRMessagingPubSubRegistrar alloc] init];
     _connectionTimeoutInterval = kConnectTimeoutInterval;
     // Listen for checkin fetch notifications, as connecting to MCS may have failed due to
     // missing checkin info (while it was being fetched).
@@ -141,7 +140,7 @@ static NSUInteger FIRMessagingServerPort() {
   [self.connection teardown];
 
   // Stop all subscription requests
-  [self.registrar cancelAllRequests];
+    [self.registrar stopAllSubscriptionRequests];
 
   _FIRMessagingDevAssert(self.connection.state == kFIRMessagingConnectionNotConnected, @"Did not disconnect");
   [NSObject cancelPreviousPerformRequestsWithTarget:self];
@@ -151,7 +150,7 @@ static NSUInteger FIRMessagingServerPort() {
 
 - (void)cancelAllRequests {
   // Stop any checkin requests or any subscription requests
-  [self.registrar cancelAllRequests];
+    [self.registrar stopAllSubscriptionRequests];
 
   // Stop any future connection requests to MCS
   if (self.stayConnected && self.isConnected && !self.isConnectionActive) {
