@@ -109,7 +109,7 @@ static Class gAppDelegateSubclass;
  *  string.
  *
  *  NOTE: None of the methods is proxied unless it is explicitly requested by calling the method
- *  +[GULAppDelegateSwizzler proxyOriginalDelegateRemoteNotificationMethods]
+ *  +[GULAppDelegateSwizzler proxyOriginalDelegate]
  */
 static NSString *const kGULDidRegisterForRemoteNotificationsSEL =
     @"application:didRegisterForRemoteNotificationsWithDeviceToken:";
@@ -283,7 +283,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
   [[GULAppDelegateSwizzler interceptors] removeObjectForKey:interceptorID];
 }
 
-+ (void)proxyOriginalDelegate {
++ (void)proxyOriginalDelegateWithoutRemoteNotificationMethods {
   if ([GULAppEnvironmentUtil isAppExtension]) {
     return;
   }
@@ -295,12 +295,12 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
   });
 }
 
-+ (void)proxyOriginalDelegateRemoteNotificationMethods {
++ (void)proxyOriginalDelegate {
   if ([GULAppEnvironmentUtil isAppExtension]) {
     return;
   }
 
-  [self proxyOriginalDelegate];
+  [self proxyOriginalDelegateWithoutRemoteNotificationMethods];
 
   dispatch_once(&sProxyAppDelegateRemoteNotificationOnceToken, ^{
     id<UIApplicationDelegate> appDelegate = [GULAppDelegateSwizzler sharedApplication].delegate;
