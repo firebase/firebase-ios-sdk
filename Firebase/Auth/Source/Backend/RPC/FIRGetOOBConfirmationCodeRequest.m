@@ -38,6 +38,11 @@ static NSString *const kRequestTypeKey = @"requestType";
  */
 static NSString *const kEmailKey = @"email";
 
+/** @var kNewEmailKey
+    @brief The name of the "newEmail" property in the request.
+ */
+static NSString *const kNewEmailKey = @"newEmail";
+
 /** @var kIDTokenKey
     @brief The key for the "idToken" value in the request. This is actually the STS Access Token,
         despite it's confusing (backwards compatiable) parameter name.
@@ -96,12 +101,18 @@ static NSString *const kEmailLinkSignInTypeValue= @"EMAIL_SIGNIN";
  */
 static NSString *const kVerifyEmailRequestTypeValue = @"VERIFY_EMAIL";
 
+/** @var kVerifyBeforeUpdateEmailRequestTypeValue
+    @brief The value for the "VERIFY_BEFORE_UPDATE_EMAIL" request type.
+ */
+static NSString *const kVerifyBeforeUpdateEmailRequestTypeValue = @"VERIFY_BEFORE_UPDATE_EMAIL";
+
 @interface FIRGetOOBConfirmationCodeRequest ()
 
 /** @fn initWithRequestType:email:APIKey:
     @brief Designated initializer.
     @param requestType The types of OOB Confirmation Code to request.
     @param email The email of the user.
+    @param newEmail The email of the user to be updated.
     @param accessToken The STS Access Token of the currently signed in user.
     @param actionCodeSettings An object of FIRActionCodeSettings which specifies action code
         settings to be applied to the OOB code request.
@@ -109,6 +120,7 @@ static NSString *const kVerifyEmailRequestTypeValue = @"VERIFY_EMAIL";
  */
 - (nullable instancetype)initWithRequestType:(FIRGetOOBConfirmationCodeRequestType)requestType
                                        email:(nullable NSString *)email
+                                    newEmail:(nullable NSString *)newEmail
                                  accessToken:(nullable NSString *)accessToken
                           actionCodeSettings:(nullable FIRActionCodeSettings *)actionCodeSettings
                         requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
@@ -130,6 +142,8 @@ static NSString *const kVerifyEmailRequestTypeValue = @"VERIFY_EMAIL";
       return kVerifyEmailRequestTypeValue;
     case FIRGetOOBConfirmationCodeRequestTypeEmailLink:
       return kEmailLinkSignInTypeValue;
+    case FIRGetOOBConfirmationCodeRequestTypeVerifyBeforeUpdateEmail:
+      return kVerifyEmailRequestTypeValue;
     // No default case so that we get a compiler warning if a new value was added to the enum.
   }
 }
@@ -140,6 +154,7 @@ static NSString *const kVerifyEmailRequestTypeValue = @"VERIFY_EMAIL";
              requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
   return [[self alloc] initWithRequestType:FIRGetOOBConfirmationCodeRequestTypePasswordReset
                                      email:email
+                                  newEmail:nil
                                accessToken:nil
                         actionCodeSettings:actionCodeSettings
                       requestConfiguration:requestConfiguration];
@@ -151,6 +166,7 @@ static NSString *const kVerifyEmailRequestTypeValue = @"VERIFY_EMAIL";
                  requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
   return [[self alloc] initWithRequestType:FIRGetOOBConfirmationCodeRequestTypeVerifyEmail
                                      email:nil
+                                  newEmail:nil
                                accessToken:accessToken
                         actionCodeSettings:actionCodeSettings
                       requestConfiguration:requestConfiguration];
@@ -162,13 +178,29 @@ static NSString *const kVerifyEmailRequestTypeValue = @"VERIFY_EMAIL";
           requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
   return [[self alloc] initWithRequestType:FIRGetOOBConfirmationCodeRequestTypeEmailLink
                                      email:email
+                                  newEmail:nil
                                accessToken:nil
                         actionCodeSettings:actionCodeSettings
                       requestConfiguration:requestConfiguration];
 }
 
++ (nullable FIRGetOOBConfirmationCodeRequest *)
+    verifyBeforeUpdateEmailWithAccessToken:(NSString *)accessToken
+                                  newEmail:(NSString *)newEmail
+                        actionCodeSettings:(nullable FIRActionCodeSettings *)actionCodeSettings
+                      requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
+  return [[self alloc]
+      initWithRequestType:FIRGetOOBConfirmationCodeRequestTypeVerifyBeforeUpdateEmail
+                    email:nil
+                 newEmail:newEmail
+              accessToken:accessToken
+       actionCodeSettings:actionCodeSettings
+     requestConfiguration:requestConfiguration];
+}
+
 - (nullable instancetype)initWithRequestType:(FIRGetOOBConfirmationCodeRequestType)requestType
                                        email:(nullable NSString *)email
+                                    newEmail:(nullable NSString *)newEmail
                                  accessToken:(nullable NSString *)accessToken
                           actionCodeSettings:(nullable FIRActionCodeSettings *)actionCodeSettings
                         requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
@@ -177,6 +209,7 @@ static NSString *const kVerifyEmailRequestTypeValue = @"VERIFY_EMAIL";
   if (self) {
     _requestType = requestType;
     _email = email;
+    _updatedEmail = newEmail;
     _accessToken = accessToken;
     _continueURL = actionCodeSettings.URL.absoluteString;
     _iOSBundleID = actionCodeSettings.iOSBundleID;
@@ -210,6 +243,13 @@ static NSString *const kVerifyEmailRequestTypeValue = @"VERIFY_EMAIL";
   // required fields.
   if (_requestType == FIRGetOOBConfirmationCodeRequestTypeEmailLink) {
     body[kEmailKey] = _email;
+  }
+
+  // For email sign-in link requests, we only need an STS Access Token, a new email address in
+  // addition to the already required fields.
+  if (_requestType == FIRGetOOBConfirmationCodeRequestTypeVerifyBeforeUpdateEmail) {
+    body[kNewEmailKey] = _updatedEmail;
+    body[kIDTokenKey] = _accessToken;
   }
 
   if (_continueURL) {
