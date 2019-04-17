@@ -243,8 +243,8 @@ NS_ASSUME_NONNULL_BEGIN
   // Wrap the user-supplied updateBlock in a core C++ compatible callback. Wrap the result of the
   // updateBlock invocation up in an absl::any for tunneling through the internals of the system.
   auto internalUpdateBlock = [self, updateBlock, queue](
-                                 std::shared_ptr<core::Transaction> internalTransaction,
-                                 core::TransactionResultCallback internalCallback) {
+                                 std::shared_ptr<api::Transaction> internalTransaction,
+                                 api::TransactionResultCallback internalCallback) {
     FIRTransaction *transaction =
         [FIRTransaction transactionWithInternalTransaction:std::move(internalTransaction)
                                                  firestore:self];
@@ -266,7 +266,7 @@ NS_ASSUME_NONNULL_BEGIN
   //
   // PORTING NOTE: Other platforms where the user return value is internally representable don't
   // need this wrapper.
-  auto objcTranslator = [completion](util::StatusOr<absl::any> maybeValue) {
+  auto internalResultBlock = [completion](util::StatusOr<absl::any> maybeValue) {
     if (!maybeValue.ok()) {
       completion(nil, util::MakeNSError(maybeValue.status()));
       return;
@@ -276,7 +276,7 @@ NS_ASSUME_NONNULL_BEGIN
     completion(absl::any_cast<id>(value), nil);
   };
 
-  _firestore->RunTransaction(std::move(internalUpdateBlock), std::move(objcTranslator));
+  _firestore->RunTransaction(std::move(internalUpdateBlock), std::move(internalResultBlock));
 }
 
 - (void)runTransactionWithBlock:(id _Nullable (^)(FIRTransaction *, NSError **error))updateBlock

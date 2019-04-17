@@ -125,13 +125,26 @@ FIRQuery* Firestore::GetCollectionGroup(NSString* collection_id) {
 }
 
 void Firestore::RunTransaction(
-    core::TransactionUpdateCallback update_callback,
-    core::TransactionResultCallback result_callback) {
+    api::TransactionUpdateCallback api_update_callback,
+    api::TransactionResultCallback api_result_callback) {
   EnsureClientConfigured();
 
+  // core::TransactionResultCallback and api::TransactionResultCallback are compatible
+  // so we can pass through api_result_callback as-is.
+  auto core_result_callback = std::move(api_result_callback);
+
+  // Wrap the api::TransactionUpdateCallback in a core::TransactionUpdateCallback.
+  auto core_update_callback = [api_update_callback](
+      std::shared_ptr<core::Transaction> core_transaction,
+      core::TransactionResultCallback core_result_callback) {
+    std::shared_ptr<api::Transaction> = std::make_shared(std::move(core_transaction), shared_from_this());
+
+    update_callback(api_transaction, core_result_callback);
+  };
+
   [client_ transactionWithRetries:5
-                   updateCallback:std::move(update_callback)
-                   resultCallback:std::move(result_callback)];
+                   updateCallback:std::move(core_update_callback)
+                   resultCallback:std::move(core_result_callback)];
 }
 
 void Firestore::Shutdown(util::StatusCallback callback) {
