@@ -971,6 +971,33 @@ static void callInMainThreadWithAuthDataResultAndError(
   }];
 }
 
+- (void)internalVerifyBeforeUpdateEmailWithNewEmail:(NSString *)newEmail
+    actionCodeSettings:(nullable FIRActionCodeSettings *)actionCodeSettings
+    completion:(FIRVerifyBeforeUpdateEmailCallback)completion {
+  dispatch_async(FIRAuthGlobalWorkQueue(), ^{
+    [self internalGetTokenWithCallback:^(NSString *_Nullable accessToken,
+                                         NSError *_Nullable error) {
+      if (error) {
+        callInMainThreadWithError(completion, error);
+        return;
+      }
+      FIRAuthRequestConfiguration *configuration = self->_auth.requestConfiguration;
+      FIRActionCodeSettings *settings = actionCodeSettings;
+      FIRGetOOBConfirmationCodeRequest *request =
+          [FIRGetOOBConfirmationCodeRequest verifyBeforeUpdateEmailWithAccessToken:accessToken
+                                                                          newEmail:newEmail
+                                                                actionCodeSettings:settings
+                                                              requestConfiguration:configuration];
+      [FIRAuthBackend getOOBConfirmationCode:request
+                                    callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable
+                                                   response,
+                                               NSError *_Nullable error) {
+        callInMainThreadWithError(completion, error);
+      }];
+    }];
+  });
+}
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (void)linkWithCredential:(FIRAuthCredential *)credential
