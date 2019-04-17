@@ -61,7 +61,7 @@ using util::StatusOrCallback;
 
 DocumentReference::DocumentReference(model::ResourcePath path,
                                      std::shared_ptr<Firestore> firestore)
-    : firestore_{firestore} {
+    : firestore_{std::move(firestore)} {
   if (path.size() % 2 != 0) {
     HARD_FAIL(
         "Invalid document reference. Document references must have an even "

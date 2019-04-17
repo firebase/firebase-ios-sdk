@@ -47,36 +47,35 @@ namespace api {
 
 class WriteBatch {
  public:
-  WriteBatch() = default;
+  WriteBatch() = delete;
   explicit WriteBatch(std::shared_ptr<Firestore> firestore)
-      : firestore_{firestore} {
+      : firestore_{std::move(firestore)} {
   }
 
-  void SetData(const DocumentReference &reference,
-               core::ParsedSetData &&setData) {
+  void SetData(const DocumentReference& reference,
+               core::ParsedSetData&& setData) {
     VerifyNotCommitted();
     ValidateReference(reference);
 
-    std::vector<FSTMutation *> append_mutations =
-        std::move(setData).ToMutations(reference.key(),
-                                       model::Precondition::None());
+    std::vector<FSTMutation*> append_mutations = std::move(setData).ToMutations(
+        reference.key(), model::Precondition::None());
     std::move(append_mutations.begin(), append_mutations.end(),
               std::back_inserter(mutations_));
   }
 
-  void UpdateData(const DocumentReference &reference,
-                  core::ParsedUpdateData &&updateData) {
+  void UpdateData(const DocumentReference& reference,
+                  core::ParsedUpdateData&& updateData) {
     VerifyNotCommitted();
     ValidateReference(reference);
 
-    std::vector<FSTMutation *> append_mutations =
+    std::vector<FSTMutation*> append_mutations =
         std::move(updateData)
             .ToMutations(reference.key(), model::Precondition::Exists(true));
     std::move(append_mutations.begin(), append_mutations.end(),
               std::back_inserter(mutations_));
   }
 
-  void DeleteData(const DocumentReference &reference) {
+  void DeleteData(const DocumentReference& reference) {
     VerifyNotCommitted();
     ValidateReference(reference);
 
@@ -90,22 +89,22 @@ class WriteBatch {
 
     committed_ = true;
     [firestore_->client() writeMutations:std::move(mutations_)
-                                callback:callback];
+                                callback:std::move(callback)];
   }
 
  private:
   std::shared_ptr<Firestore> firestore_;
-  std::vector<FSTMutation *> mutations_;
+  std::vector<FSTMutation*> mutations_;
   bool committed_ = false;
 
-  void VerifyNotCommitted() {
+  void VerifyNotCommitted() const {
     if (committed_) {
       ThrowIllegalState(
           "A write batch can no longer be used after commit has been called.");
     }
   }
 
-  void ValidateReference(const DocumentReference &reference) {
+  void ValidateReference(const DocumentReference& reference) const {
     if (reference.firestore() != firestore_) {
       ThrowInvalidArgument("Provided document reference is from a different "
                            "Firestore instance.");

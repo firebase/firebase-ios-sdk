@@ -20,6 +20,7 @@
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 
 #include "Firestore/core/src/firebase/firestore/api/write_batch.h"
+#include "Firestore/core/src/firebase/firestore/util/delayed_constructor.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 
 namespace util = firebase::firestore::util;
@@ -51,7 +52,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @implementation FIRWriteBatch {
-  api::WriteBatch _writeBatch;
+  util::DelayedConstructor<api::WriteBatch> _writeBatch;
 }
 
 - (instancetype)initWithDataConverter:(FSTUserDataConverter *)dataConverter
@@ -59,7 +60,7 @@ NS_ASSUME_NONNULL_BEGIN
   self = [super init];
   if (self) {
     _dataConverter = dataConverter;
-    _writeBatch = writeBatch;
+    _writeBatch.Init(std::move(writeBatch));
   }
   return self;
 }
@@ -74,7 +75,7 @@ NS_ASSUME_NONNULL_BEGIN
                      merge:(BOOL)merge {
   ParsedSetData parsed = merge ? [self.dataConverter parsedMergeData:data fieldMask:nil]
                                : [self.dataConverter parsedSetData:data];
-  _writeBatch.SetData(document.internalReference, std::move(parsed));
+  _writeBatch->SetData(document.internalReference, std::move(parsed));
 
   return self;
 }
@@ -83,7 +84,7 @@ NS_ASSUME_NONNULL_BEGIN
                forDocument:(FIRDocumentReference *)document
                mergeFields:(NSArray<id> *)mergeFields {
   ParsedSetData parsed = [self.dataConverter parsedMergeData:data fieldMask:mergeFields];
-  _writeBatch.SetData(document.internalReference, std::move(parsed));
+  _writeBatch->SetData(document.internalReference, std::move(parsed));
 
   return self;
 }
@@ -91,13 +92,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (FIRWriteBatch *)updateData:(NSDictionary<id, id> *)fields
                   forDocument:(FIRDocumentReference *)document {
   ParsedUpdateData parsed = [self.dataConverter parsedUpdateData:fields];
-  _writeBatch.UpdateData(document.internalReference, std::move(parsed));
+  _writeBatch->UpdateData(document.internalReference, std::move(parsed));
 
   return self;
 }
 
 - (FIRWriteBatch *)deleteDocument:(FIRDocumentReference *)document {
-  _writeBatch.DeleteData(document.internalReference);
+  _writeBatch->DeleteData(document.internalReference);
 
   return self;
 }
@@ -107,7 +108,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)commitWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
-  _writeBatch.Commit(util::MakeCallback(completion));
+  _writeBatch->Commit(util::MakeCallback(completion));
 }
 
 @end
