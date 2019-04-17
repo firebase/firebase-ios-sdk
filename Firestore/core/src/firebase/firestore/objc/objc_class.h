@@ -17,6 +17,14 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_OBJC_OBJC_CLASS_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_OBJC_OBJC_CLASS_H_
 
+#include <objc/objc.h>
+
+#include <functional>
+
+namespace firebase {
+namespace firestore {
+namespace objc {
+
 // The OBJC_CLASS macro defines a forward declaration for an Objective-C class
 // that's compatible both with Objective-C++ and regular C++. It's useful in
 // headers that reference Objective-C types as members of C++ classes that must
@@ -39,13 +47,104 @@
 // pointer (constructors, destructors, getters, and setters) all must be
 // defined out of line to avoid problems where ARC does not see changes to the
 // reference.
+//
+// To make this safe, any members of a type declared with OBJC_CLASS should be
+// held in a Handle object, defined below.
 #if __OBJC__
 #define OBJC_CLASS(name) @class name
 
 #else
-// Forward declaration for struct objc_object from objc/objc.h
-#define OBJC_CLASS(name) using name = struct objc_object
-
+// Objective-C classes correspond to a C struct of the same name. Use a forward
+// declaration of that struct as the pointer type to help C++ generate the
+// correct mangled names.
+//
+// An alternative implementation would be to make this an alias for objc_object.
+// While that's appealing because it makes interaction with functions taking id
+// easier, any parameters of that type will be mangled differently in C++ vs
+// Objective-C++ leading undefined symbol errors at link time.
+#define OBJC_CLASS(name) struct name
 #endif  // __OBJC__
+
+/**
+ * A base class for implementing Handle, below, in such a way that allows all
+ * the major operations to be defined out-of-line in an ARC-managed translation
+ * unit.
+ */
+class HandleBase {
+ public:
+  HandleBase();
+
+  explicit HandleBase(id object);
+
+  ~HandleBase();
+
+  void Assign(id object);
+
+  void Release();
+
+ protected:
+  id object_;
+};
+
+/**
+ * A holder for a pointer to an Objective-C class, that can be declared in
+ * headers meant to be shared with plain C++. All useful operations on the
+ * handle are only available in Objective-C++.
+ */
+template <typename ObjcType>
+class Handle : public HandleBase {
+ public:
+  Handle() = default;
+
+  explicit Handle(ObjcType* object) : HandleBase(object) {
+  }
+
+#if __OBJC__
+  operator ObjcType*() const {
+    return static_cast<ObjcType*>(object_);
+  }
+
+  friend bool operator==(const Handle& lhs, const Handle& rhs) {
+    return (lhs.object_ == nil && rhs.object_ == nil) ||
+           [lhs.object_ isEqual:rhs.object_];
+  }
+
+  friend bool operator!=(const Handle& lhs, const Handle& rhs) {
+    return !(lhs == rhs);
+  }
+
+  friend bool operator==(const Handle& lhs, ObjcType* rhs) {
+    return (lhs.object_ == nil && rhs == nil) || [lhs.object_ isEqual:rhs];
+  }
+
+  friend bool operator!=(const Handle& lhs, ObjcType* rhs) {
+    return !(lhs == rhs);
+  }
+#endif
+};
+
+#if __OBJC__
+template <typename T>
+bool Equals(const Handle<T>& lhs, const Handle<T>& rhs) {
+  return lhs == rhs;
+}
+#endif
+
+// Define NS_ASSUME_NONNULL_BEGIN for straight C++ so that everything gets the
+// correct nullability specifier.
+#if !defined(NS_ASSUME_NONNULL_BEGIN)
+#if __clang__
+#define NS_ASSUME_NONNULL_BEGIN _Pragma("clang assume_nonnull begin")
+#define NS_ASSUME_NONNULL_END _Pragma("clang assume_nonnull end")
+
+#else  // !__clang__
+#define NS_ASSUME_NONNULL_BEGIN
+#define NS_ASSUME_NONNULL_END
+#endif  // __clang__
+#endif  // !defined(NS_ASSUME_NONNULL_BEGIN)
+
+}  // namespace objc
+}  // namespace firestore
+}  // namespace firebase
 
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_OBJC_OBJC_CLASS_H_
