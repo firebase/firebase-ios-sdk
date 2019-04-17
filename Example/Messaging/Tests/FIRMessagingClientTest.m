@@ -25,7 +25,6 @@
 #import "FIRMessagingConnection.h"
 #import "FIRMessagingDataMessageManager.h"
 #import "FIRMessagingFakeConnection.h"
-#import "FIRMessagingRegistrar.h"
 #import "FIRMessagingRmqManager.h"
 #import "FIRMessagingSecureSocket.h"
 #import "FIRMessagingUtilities.h"
@@ -53,8 +52,6 @@ static NSString *const kTopicToSubscribeTo = @"/topics/abcdef/hello-world";
 @interface FIRMessagingClient () <FIRMessagingConnectionDelegate>
 
 @property(nonatomic, readwrite, strong) FIRMessagingConnection *connection;
-@property(nonatomic, readwrite, strong) FIRMessagingRegistrar *registrar;
-
 @property(nonatomic, readwrite, assign) int64_t lastConnectedTimestamp;
 @property(nonatomic, readwrite, assign) int64_t lastDisconnectedTimestamp;
 @property(nonatomic, readwrite, assign) NSUInteger subscribeRetryCount;
@@ -90,7 +87,6 @@ static NSString *const kTopicToSubscribeTo = @"/topics/abcdef/hello-world";
 @property(nonatomic, readwrite, strong) id mockRmqManager;
 @property(nonatomic, readwrite, strong) id mockClientDelegate;
 @property(nonatomic, readwrite, strong) id mockDataMessageManager;
-@property(nonatomic, readwrite, strong) id mockRegistrar;
 @property(nonatomic, readwrite, strong) id mockInstanceID;
 
 
@@ -112,8 +108,6 @@ static NSString *const kTopicToSubscribeTo = @"/topics/abcdef/hello-world";
                                    reachability:_mockReachability
                                     rmq2Manager:_mockRmqManager];
   _mockClient = OCMPartialMock(_client);
-  _mockRegistrar = OCMPartialMock([_client registrar]);
-  [_mockClient setRegistrar:_mockRegistrar];
   _mockDataMessageManager = OCMClassMock([FIRMessagingDataMessageManager class]);
   [_mockClient setDataMessageManager:_mockDataMessageManager];
 }
