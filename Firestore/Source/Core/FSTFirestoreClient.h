@@ -28,6 +28,7 @@
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/core/listen_options.h"
 #include "Firestore/core/src/firebase/firestore/core/query_listener.h"
+#include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
@@ -72,16 +73,16 @@ NS_ASSUME_NONNULL_BEGIN
                           userExecutor:(std::unique_ptr<util::Executor>)userExecutor
                            workerQueue:(std::unique_ptr<util::AsyncQueue>)workerQueue;
 
-- (instancetype)init __attribute__((unavailable("Use static constructor method.")));
+- (instancetype)init NS_UNAVAILABLE;
 
 /** Shuts down this client, cancels all writes / listeners, and releases all resources. */
-- (void)shutdownWithCompletion:(nullable FSTVoidErrorBlock)completion;
+- (void)shutdownWithCallback:(util::StatusCallback)callback;
 
 /** Disables the network connection. Pending operations will not complete. */
-- (void)disableNetworkWithCompletion:(nullable FSTVoidErrorBlock)completion;
+- (void)disableNetworkWithCallback:(util::StatusCallback)callback;
 
 /** Enables the network connection and requeues all pending operations. */
-- (void)enableNetworkWithCompletion:(nullable FSTVoidErrorBlock)completion;
+- (void)enableNetworkWithCallback:(util::StatusCallback)callback;
 
 /** Starts listening to a query. */
 - (std::shared_ptr<core::QueryListener>)listenToQuery:(FSTQuery *)query
@@ -93,11 +94,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)removeListener:(const std::shared_ptr<core::QueryListener> &)listener;
 
 /**
- * Retrieves a document from the cache via the indicated completion. If the doc
- * doesn't exist, an error will be sent to the completion.
+ * Retrieves a document from the cache via the indicated callback. If the doc
+ * doesn't exist, an error will be sent to the callback.
  */
 - (void)getDocumentFromLocalCache:(const api::DocumentReference &)doc
-                       completion:(api::DocumentSnapshot::Listener &&)completion;
+                         callback:(api::DocumentSnapshot::Listener &&)callback;
 
 /**
  * Retrieves a (possibly empty) set of documents from the cache via the
@@ -107,14 +108,14 @@ NS_ASSUME_NONNULL_BEGIN
                         completion:(void (^)(FIRQuerySnapshot *_Nullable query,
                                              NSError *_Nullable error))completion;
 
-/** Write mutations. completion will be notified when it's written to the backend. */
+/** Write mutations. callback will be notified when it's written to the backend. */
 - (void)writeMutations:(std::vector<FSTMutation *> &&)mutations
-            completion:(nullable FSTVoidErrorBlock)completion;
+              callback:(util::StatusCallback)callback;
 
-/** Tries to execute the transaction in updateBlock up to retries times. */
+/** Tries to execute the transaction in updateCallback up to retries times. */
 - (void)transactionWithRetries:(int)retries
-                   updateBlock:(FSTTransactionBlock)updateBlock
-                    completion:(FSTVoidIDErrorBlock)completion;
+                updateCallback:(core::TransactionUpdateCallback)updateCallback
+                resultCallback:(core::TransactionResultCallback)resultCallback;
 
 /** The database ID of the databaseInfo this client was initialized with. */
 // Ownes a DatabaseInfo instance, which contains the id here.

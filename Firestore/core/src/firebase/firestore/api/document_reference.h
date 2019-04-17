@@ -33,6 +33,7 @@
 #include "Firestore/core/src/firebase/firestore/core/listen_options.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor_callback.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -48,8 +49,6 @@ enum class Source;
 
 class DocumentReference {
  public:
-  using Completion = void (^)(NSError* _Nullable error) _Nullable;
-
   DocumentReference() = default;
   DocumentReference(model::ResourcePath path,
                     std::shared_ptr<Firestore> firestore);
@@ -78,13 +77,15 @@ class DocumentReference {
   // CollectionReference GetCollectionReference(
   //     const std::string& collection_path) const;
 
-  void SetData(std::vector<FSTMutation*>&& mutations, Completion completion);
+  void SetData(std::vector<FSTMutation*>&& mutations,
+               util::StatusCallback callback);
 
-  void UpdateData(std::vector<FSTMutation*>&& mutations, Completion completion);
+  void UpdateData(std::vector<FSTMutation*>&& mutations,
+                  util::StatusCallback callback);
 
-  void DeleteDocument(Completion completion);
+  void DeleteDocument(util::StatusCallback callback);
 
-  void GetDocument(Source source, DocumentSnapshot::Listener&& completion);
+  void GetDocument(Source source, DocumentSnapshot::Listener&& callback);
 
   ListenerRegistration AddSnapshotListener(
       core::ListenOptions options, DocumentSnapshot::Listener&& listener);

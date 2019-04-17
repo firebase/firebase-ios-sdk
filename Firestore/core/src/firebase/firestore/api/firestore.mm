@@ -34,20 +34,22 @@
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "absl/memory/memory.h"
 
 namespace firebase {
 namespace firestore {
 namespace api {
 
-using firebase::firestore::auth::CredentialsProvider;
-using firebase::firestore::core::DatabaseInfo;
-using firebase::firestore::core::Transaction;
-using firebase::firestore::model::DocumentKey;
-using firebase::firestore::model::ResourcePath;
+using auth::CredentialsProvider;
+using core::DatabaseInfo;
+using core::Transaction;
+using model::DocumentKey;
+using model::ResourcePath;
 using util::AsyncQueue;
 using util::Executor;
 using util::ExecutorLibdispatch;
+using util::Status;
 
 Firestore::Firestore(std::string project_id,
                      std::string database,
@@ -125,57 +127,36 @@ FIRQuery* Firestore::GetCollectionGroup(NSString* collection_id) {
                          firestore:wrapper];
 }
 
-void Firestore::RunTransaction(TransactionBlock update_block,
-                               dispatch_queue_t queue,
-                               ResultOrErrorCompletion completion) {
+void Firestore::RunTransaction(
+    core::TransactionUpdateCallback update_callback,
+    core::TransactionResultCallback result_callback) {
   EnsureClientConfigured();
-  FIRFirestore* wrapper =
-      [FIRFirestore recoverFromFirestore:shared_from_this()];
-
-  FSTTransactionBlock wrapped_update =
-      ^(std::shared_ptr<Transaction> internal_transaction,
-        void (^internal_completion)(id _Nullable, NSError* _Nullable)) {
-        FIRTransaction* transaction = [FIRTransaction
-            transactionWithInternalTransaction:std::move(internal_transaction)
-                                     firestore:wrapper];
-
-        dispatch_async(queue, ^{
-          NSError* _Nullable error = nil;
-          id _Nullable result = update_block(transaction, &error);
-          if (error) {
-            // Force the result to be nil in the case of an error, in case the
-            // user set both.
-            result = nil;
-          }
-          internal_completion(result, error);
-        });
-      };
 
   [client_ transactionWithRetries:5
-                      updateBlock:wrapped_update
-                       completion:completion];
+                   updateCallback:std::move(update_callback)
+                   resultCallback:std::move(result_callback)];
 }
 
-void Firestore::Shutdown(ErrorCompletion completion) {
+void Firestore::Shutdown(util::StatusCallback callback) {
   if (!client_) {
-    if (completion) {
+    if (callback) {
       // We should be dispatching the callback on the user dispatch queue
       // but if the client is nil here that queue was never created.
-      completion(nil);
+      callback(Status::OK());
     }
   } else {
-    [client_ shutdownWithCompletion:completion];
+    [client_ shutdownWithCallback:std::move(callback)];
   }
 }
 
-void Firestore::EnableNetwork(ErrorCompletion completion) {
+void Firestore::EnableNetwork(util::StatusCallback callback) {
   EnsureClientConfigured();
-  [client_ enableNetworkWithCompletion:completion];
+  [client_ enableNetworkWithCallback:std::move(callback)];
 }
 
-void Firestore::DisableNetwork(ErrorCompletion completion) {
+void Firestore::DisableNetwork(util::StatusCallback callback) {
   EnsureClientConfigured();
-  [client_ disableNetworkWithCompletion:completion];
+  [client_ disableNetworkWithCallback:std::move(callback)];
 }
 
 void Firestore::EnsureClientConfigured() {

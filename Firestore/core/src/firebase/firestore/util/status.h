@@ -177,7 +177,7 @@ inline bool Status::operator!=(const Status& x) const {
   return !(*this == x);
 }
 
-typedef std::function<void(const Status&)> StatusCallback;
+typedef std::function<void(Status)> StatusCallback;
 
 extern std::string StatusCheckOpHelperOutOfLine(const Status& v,
                                                 const char* msg);

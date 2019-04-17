@@ -29,7 +29,9 @@
 
 #include "Firestore/core/src/firebase/firestore/api/input_validation.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
+#include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 
+namespace util = firebase::firestore::util;
 using firebase::firestore::api::ThrowIllegalState;
 using firebase::firestore::api::ThrowInvalidArgument;
 using firebase::firestore::core::ParsedSetData;
@@ -133,7 +135,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)commitWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
   [self verifyNotCommitted];
   self.committed = TRUE;
-  [self.firestore.wrapped->client() writeMutations:std::move(_mutations) completion:completion];
+  [self.firestore.wrapped->client() writeMutations:std::move(_mutations)
+                                          callback:util::MakeCallback(completion)];
 }
 
 - (void)verifyNotCommitted {

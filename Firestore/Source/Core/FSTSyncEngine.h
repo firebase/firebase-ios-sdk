@@ -21,9 +21,11 @@
 #import "Firestore/Source/Core/FSTTypes.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_store.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor_callback.h"
 
 @class FSTLocalStore;
 @class FSTMutation;
@@ -101,13 +103,13 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param retries The number of times to try before giving up.
  * @param workerQueue The queue to dispatch sync engine calls to.
- * @param updateBlock The block to call to execute the user's transaction.
- * @param completion The block to call when the transaction is finished or failed.
+ * @param updateCallback The callback to call to execute the user's transaction.
+ * @param resultCallback The callback to call when the transaction is finished or failed.
  */
 - (void)transactionWithRetries:(int)retries
                    workerQueue:(util::AsyncQueue *)workerQueue
-                   updateBlock:(FSTTransactionBlock)updateBlock
-                    completion:(FSTVoidIDErrorBlock)completion;
+                updateCallback:(core::TransactionUpdateCallback)updateCallback
+                resultCallback:(core::TransactionResultCallback)resultCallback;
 
 - (void)credentialDidChangeWithUser:(const auth::User &)user;
 
