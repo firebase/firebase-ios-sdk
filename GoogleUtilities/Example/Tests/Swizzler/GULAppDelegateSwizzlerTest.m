@@ -1236,6 +1236,7 @@ static BOOL gRespondsToHandleBackgroundSession;
   OCMStub([self.mockSharedApplication delegate]).andReturn(originalAppDelegate);
 
   [GULAppDelegateSwizzler proxyOriginalDelegate];
+  [GULAppDelegateSwizzler proxyOriginalDelegateIncludingAPNSMethods];
   XCTAssertEqualObjects([originalAppDelegate class], originalAppDelegateClass);
 
   [mainBundleMock stopMocking];
@@ -1256,6 +1257,19 @@ static BOOL gRespondsToHandleBackgroundSession;
   OCMStub([self.mockSharedApplication delegate]).andReturn(originalAppDelegate);
 
   [GULAppDelegateSwizzler proxyOriginalDelegate];
+  XCTAssertNotEqualObjects([originalAppDelegate class], originalAppDelegateClass);
+}
+
+- (void)testAppDelegateIsProxiedIncludingAPNSMethodsWhenEnabled {
+  // App Delegate Proxying is enabled by default.
+  XCTAssertTrue([GULAppDelegateSwizzler isAppDelegateProxyEnabled]);
+
+  id originalAppDelegate = [[GULTestAppDelegate alloc] init];
+  Class originalAppDelegateClass = [originalAppDelegate class];
+  XCTAssertNotNil(originalAppDelegate);
+  OCMStub([self.mockSharedApplication delegate]).andReturn(originalAppDelegate);
+
+  [GULAppDelegateSwizzler proxyOriginalDelegateIncludingAPNSMethods];
   XCTAssertNotEqualObjects([originalAppDelegate class], originalAppDelegateClass);
 }
 
