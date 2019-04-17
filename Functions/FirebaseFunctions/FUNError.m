@@ -64,7 +64,7 @@ FIRFunctionsErrorCode FIRFunctionsErrorCodeForHTTPStatus(NSInteger status) {
  * @param name An error name.
  * @return The error code with this name, or FIRFunctionsErrorCodeUnknown if none.
  */
-NSNumber* FIRFunctionsErrorCodeForName(NSString *name) {
+NSNumber *FIRFunctionsErrorCodeForName(NSString *name) {
   static NSDictionary<NSString *, NSNumber *> *errors;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
