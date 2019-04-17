@@ -46,9 +46,46 @@ typedef NSString *const GULAppDelegateInterceptorID;
 /** This method ensures that the original app delegate has been proxied. Call this before
  *  registering your interceptor. This method is safe to call multiple times (but it only proxies
  *  the app delegate once).
+ *
+ *  This method doesn't proxy APNS related methods:
+ *  @code
+ *    - application:didRegisterForRemoteNotificationsWithDeviceToken:
+ *    - application:didFailToRegisterForRemoteNotificationsWithError:
+ *    - application:didReceiveRemoteNotification:fetchCompletionHandler:
+ *    - application:didReceiveRemoteNotification:
+ *  @endcode
+ *
+ *  To proxy these methods use +[GULAppDelegateSwizzler
+ *  proxyOriginalDelegateIncludingAPNSMethods]. The methods have to be proxied separately to
+ *  avoid potential warnings from Apple review about missing Push Notification Entitlement (e.g.
+ *  https://github.com/firebase/firebase-ios-sdk/issues/2807)
+ *
+ *  The method has no effect for extensions.
+ *
+ *  @see proxyOriginalDelegateIncludingAPNSMethods
  */
-+ (void)proxyOriginalDelegate NS_EXTENSION_UNAVAILABLE(
-    "App delegate proxy doesn't support extensions.");
++ (void)proxyOriginalDelegate;
+
+/** This method ensures that the original app delegate has been proxied including APNS related
+ *  methods. Call this before registering your interceptor. This method is safe to call multiple
+ *  times (but it only proxies the app delegate once) or
+ *  after +[GULAppDelegateSwizzler proxyOriginalDelegate]
+ *
+ *  This method calls +[GULAppDelegateSwizzler proxyOriginalDelegate] under the hood.
+ *  After calling this method the following App Delegate methods will be proxied in addition to
+ *  the methods proxied by proxyOriginalDelegate:
+ *  @code
+ *    - application:didRegisterForRemoteNotificationsWithDeviceToken:
+ *    - application:didFailToRegisterForRemoteNotificationsWithError:
+ *    - application:didReceiveRemoteNotification:fetchCompletionHandler:
+ *    - application:didReceiveRemoteNotification:
+ *  @endcode
+ *
+ *  The method has no effect for extensions.
+ *
+ *  @see proxyOriginalDelegate
+ */
++ (void)proxyOriginalDelegateIncludingAPNSMethods;
 
 /** Indicates whether app delegate proxy is explicitly disabled or enabled. Enabled by default.
  *
