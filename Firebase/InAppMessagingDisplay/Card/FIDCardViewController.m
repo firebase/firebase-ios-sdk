@@ -18,6 +18,7 @@
 @property (weak, nonatomic) IBOutlet UIButton *primaryActionButton;
 @property (weak, nonatomic) IBOutlet UIButton *secondaryActionButton;
 @property (weak, nonatomic) IBOutlet UITextView *bodyTextView;
+@property (weak, nonatomic) IBOutlet UIScrollView *textAreaScrollView;
 
 @end
 
@@ -114,15 +115,9 @@
   } else {
     self.imageView.image = [UIImage imageWithData:self.cardDisplayMessage.portraitImageData.imageRawData];
   }
-  
-  CGFloat textViewWidth = self.bodyTextView.frame.size.width;
-  CGFloat textHeight = [self determineTextAreaViewFitHeightForView:self.bodyTextView withWidth:textViewWidth];
-  self.bodyTextView.contentSize = CGSizeMake(textViewWidth, textHeight);
-  self.bodyTextView.scrollEnabled = textHeight > self.bodyTextView.frame.size.height;
-  
-  if (self.bodyTextView.scrollEnabled) {
-    [self.bodyTextView setContentOffset:CGPointZero animated:NO];
-  }
+
+  self.textAreaScrollView.contentSize = self.bodyTextView.frame.size;
+  [self.textAreaScrollView setContentOffset:CGPointZero];
 }
 
 - (CGFloat)determineTextAreaViewFitHeightForView:(UIView *)textView
