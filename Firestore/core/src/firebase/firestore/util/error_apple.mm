@@ -53,9 +53,7 @@ util::StatusCallback MakeCallback(VoidErrorBlock _Nullable block) {
   if (block) {
     return [block](Status status) { block(MakeNSError(status)); };
   } else {
-    return [](Status status) {
-      (void)status;
-    };
+    return [](Status status) { (void)status; };
   }
 }
 

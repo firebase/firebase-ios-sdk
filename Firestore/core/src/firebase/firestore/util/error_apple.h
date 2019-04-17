@@ -72,9 +72,7 @@ util::StatusOrCallback<T> MakeCallback(VoidValueErrorBlock<T> _Nullable block) {
       }
     };
   } else {
-    return [](StatusOr<T> maybe_value) {
-      (void)maybe_value;
-    };
+    return [](StatusOr<T> maybe_value) { (void)maybe_value; };
   }
 }
 
