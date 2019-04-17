@@ -26,19 +26,17 @@
 #include <memory>
 #include <string>
 #include <utility>
-#include <vector>
 
 #include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/api/listener_registration.h"
 #include "Firestore/core/src/firebase/firestore/core/listen_options.h"
+#include "Firestore/core/src/firebase/firestore/core/user_data.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor_callback.h"
 
 NS_ASSUME_NONNULL_BEGIN
-
-@class FSTMutation;
 
 namespace firebase {
 namespace firestore {
@@ -77,10 +75,9 @@ class DocumentReference {
   // CollectionReference GetCollectionReference(
   //     const std::string& collection_path) const;
 
-  void SetData(std::vector<FSTMutation*>&& mutations,
-               util::StatusCallback callback);
+  void SetData(core::ParsedSetData&& setData, util::StatusCallback callback);
 
-  void UpdateData(std::vector<FSTMutation*>&& mutations,
+  void UpdateData(core::ParsedUpdateData&& updateData,
                   util::StatusCallback callback);
 
   void DeleteDocument(util::StatusCallback callback);

@@ -25,7 +25,6 @@
 #import "Firestore/Source/Core/FSTEventManager.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 #import "Firestore/Source/Core/FSTQuery.h"
-#import "Firestore/Source/Model/FSTMutation.h"
 
 #include "Firestore/core/src/firebase/firestore/api/source.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
@@ -96,16 +95,19 @@ std::string DocumentReference::Path() const {
 //   return CollectionReference{firestore_, path};
 // }
 
-void DocumentReference::SetData(std::vector<FSTMutation*>&& mutations,
+void DocumentReference::SetData(core::ParsedSetData&& setData,
                                 util::StatusCallback callback) {
-  [firestore_->client() writeMutations:std::move(mutations)
-                              callback:std::move(callback)];
+  [firestore_->client()
+      writeMutations:std::move(setData).ToMutations(key(), Precondition::None())
+            callback:std::move(callback)];
 }
 
-void DocumentReference::UpdateData(std::vector<FSTMutation*>&& mutations,
+void DocumentReference::UpdateData(core::ParsedUpdateData&& updateData,
                                    util::StatusCallback callback) {
-  return [firestore_->client() writeMutations:std::move(mutations)
-                                     callback:std::move(callback)];
+  return [firestore_->client()
+      writeMutations:std::move(updateData)
+                         .ToMutations(key(), Precondition::Exists(true))
+            callback:std::move(callback)];
 }
 
 void DocumentReference::DeleteDocument(util::StatusCallback callback) {
