@@ -137,7 +137,6 @@
 		511DD29D2225C8C40094D78D /* FIRMessagingLinkHandlingTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315CC1E8738B70083EDBF /* FIRMessagingLinkHandlingTest.m */; };
 		511DD29E2225C8C40094D78D /* FIRMessagingPendingTopicsListTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315CD1E8738B70083EDBF /* FIRMessagingPendingTopicsListTest.m */; };
 		511DD29F2225C8C40094D78D /* FIRMessagingPubSubTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315CE1E8738B70083EDBF /* FIRMessagingPubSubTest.m */; };
-		511DD2A12225C8C40094D78D /* FIRMessagingRegistrarTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315CF1E8738B70083EDBF /* FIRMessagingRegistrarTest.m */; };
 		511DD2A22225C8C40094D78D /* FIRMessagingRemoteNotificationsProxyTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315D01E8738B70083EDBF /* FIRMessagingRemoteNotificationsProxyTest.m */; };
 		511DD2A32225C8C40094D78D /* FIRMessagingRmqManagerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315D11E8738B70083EDBF /* FIRMessagingRmqManagerTest.m */; };
 		511DD2A42225C8C40094D78D /* FIRMessagingSecureSocketTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315D21E8738B70083EDBF /* FIRMessagingSecureSocketTest.m */; };
@@ -4311,7 +4310,6 @@
 				511DD29D2225C8C40094D78D /* FIRMessagingLinkHandlingTest.m in Sources */,
 				511DD29E2225C8C40094D78D /* FIRMessagingPendingTopicsListTest.m in Sources */,
 				511DD29F2225C8C40094D78D /* FIRMessagingPubSubTest.m in Sources */,
-				511DD2A12225C8C40094D78D /* FIRMessagingRegistrarTest.m in Sources */,
 				511DD2A22225C8C40094D78D /* FIRMessagingRemoteNotificationsProxyTest.m in Sources */,
 				511DD2A32225C8C40094D78D /* FIRMessagingRmqManagerTest.m in Sources */,
 				511DD2A42225C8C40094D78D /* FIRMessagingSecureSocketTest.m in Sources */,
