@@ -121,7 +121,7 @@
   self.bodyTextView.scrollEnabled = textHeight > self.bodyTextView.frame.size.height;
   
   if (self.bodyTextView.scrollEnabled) {
-    [self.bodyTextView setContentOffset:CGPointZero animated:YES];
+    [self.bodyTextView setContentOffset:CGPointZero animated:NO];
   }
 }
 
