@@ -626,7 +626,7 @@ static BOOL gRespondsToHandleBackgroundSession;
 /** Tests that if the app delegate changes after it has been proxied, the App Delegate Swizzler
  *  handles it correctly.
  */
-- (void)skipped_testAppDelegateInstance {
+- (void)testAppDelegateInstance {
   id originalDelegate = [UIApplication sharedApplication].delegate;
 
   GULTestAppDelegate *realAppDelegate = [[GULTestAppDelegate alloc] init];
