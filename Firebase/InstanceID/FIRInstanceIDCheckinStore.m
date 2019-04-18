@@ -151,8 +151,7 @@ static const NSInteger kOldCheckinPlistCount = 6;
 - (void)removeCheckinPreferencesWithHandler:(void (^)(NSError *error))handler {
   // Delete the checkin preferences plist first to avoid delay.
   NSError *deletePlistError;
-  [self.plist deleteFile:&deletePlistError];
-  if (deletePlistError) {
+  if (![self.plist deleteFile:&deletePlistError]) {
     handler(deletePlistError);
     return;
   }
