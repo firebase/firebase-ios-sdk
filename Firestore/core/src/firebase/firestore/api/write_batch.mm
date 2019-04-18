@@ -19,7 +19,6 @@
 #include <algorithm>
 
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
-#import "Firestore/Source/Model/FSTMutation.h"
 
 #include "Firestore/core/src/firebase/firestore/api/document_reference.h"
 #include "Firestore/core/src/firebase/firestore/api/firestore.h"
