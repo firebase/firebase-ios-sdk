@@ -18,10 +18,10 @@
 
 cc_library(
   firebase_firestore_objc
+  HEADER_ONLY
   SOURCES
     objc_compatibility.h
     objc_type_traits.h
-    empty.mm  # cmake fails to link without at least one non-header
   DEPENDS
     absl_meta
 )

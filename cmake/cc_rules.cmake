@@ -24,9 +24,29 @@ include(CMakeParseArguments)
 # Defines a new library target with the given target name, sources, and
 # dependencies.
 function(cc_library name)
-  set(flag EXCLUDE_FROM_ALL)
+  set(flag EXCLUDE_FROM_ALL HEADER_ONLY)
   set(multi DEPENDS SOURCES)
   cmake_parse_arguments(ccl "${flag}" "" "${multi}" ${ARGN})
+
+  if(ccl_HEADER_ONLY)
+    set(__empty_header_only_file "${CMAKE_CURRENT_BINARY_DIR}/${name}_header_only_empty.cc")
+
+    if(NOT EXISTS ${__empty_header_only_file})
+      file(WRITE ${__empty_header_only_file}
+        "// Generated file that keeps header-only CMake libraries happy.
+
+        namespace firebase {
+
+        // single meaningless symbol
+        void ${name}_header_only_fakesym() {}
+
+        }  // namespace firebase
+        "
+      )
+    endif()
+
+    list(APPEND ccl_SOURCES ${__empty_header_only_file})
+  endif()
 
   maybe_remove_objc_sources(sources ${ccl_SOURCES})
   add_library(${name} ${sources})
