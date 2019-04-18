@@ -4,5 +4,6 @@ ColumnLimit: 80
 BinPackParameters: false
 AllowAllParametersOfDeclarationOnNextLine: true
 SpacesInContainerLiterals: true
+DerivePointerAlignment: false
 PointerAlignment: Left
 AllowShortFunctionsOnASingleLine: None
