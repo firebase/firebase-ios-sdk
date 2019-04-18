@@ -56,8 +56,7 @@ using is_container_of_objc =
  * Checks two Objective-C objects for equality using `isEqual`. Two nil objects
  * are considered equal, unlike the behavior of `isEqual`.
  */
-template <typename T,
-          typename = absl::enable_if_t<is_objc_pointer<T*>::value>>
+template <typename T, typename = absl::enable_if_t<is_objc_pointer<T*>::value>>
 bool Equals(T* lhs, T* rhs) {
   return (lhs == nil && rhs == nil) || [lhs isEqual:rhs];
 }
@@ -79,8 +78,7 @@ bool Equals(const T& lhs, const T& rhs) {
  * delegating to -isEqual:. This is useful for using Objective-C objects as
  * keys in STL associative containers.
  */
-template <typename T,
-          typename = absl::enable_if_t<is_objc_pointer<T>::value>>
+template <typename T, typename = absl::enable_if_t<is_objc_pointer<T>::value>>
 class EqualTo {
  public:
   bool operator()(T lhs, T rhs) const {

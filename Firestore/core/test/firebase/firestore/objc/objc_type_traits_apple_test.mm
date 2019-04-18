@@ -29,8 +29,7 @@ namespace objc {
 TEST(TypeTraitsTest, IsObjectiveCPointer) {
   static_assert(is_objc_pointer<NSObject*>{}, "NSObject");
   static_assert(is_objc_pointer<NSString*>{}, "NSString");
-  static_assert(is_objc_pointer<NSArray<NSString*>*>{},
-                "NSArray<NSString*>");
+  static_assert(is_objc_pointer<NSArray<NSString*>*>{}, "NSArray<NSString*>");
 
   static_assert(is_objc_pointer<id>{}, "id");
   static_assert(is_objc_pointer<id<NSCopying>>{}, "id<NSCopying>");
