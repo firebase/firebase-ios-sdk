@@ -31,11 +31,13 @@
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRTransaction+Internal.h"
+#import "Firestore/Source/API/FIRWriteBatch+Internal.h"
 #import "Firestore/Source/API/FSTFirestoreComponent.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 
 #include "Firestore/core/src/firebase/firestore/api/firestore.h"
 #include "Firestore/core/src/firebase/firestore/api/input_validation.h"
+#include "Firestore/core/src/firebase/firestore/api/write_batch.h"
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
@@ -223,7 +225,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FIRWriteBatch *)batch {
-  return _firestore->GetBatch();
+  return [FIRWriteBatch writeBatchWithDataConverter:self.dataConverter
+                                         writeBatch:_firestore->GetBatch()];
 }
 
 - (void)runTransactionWithBlock:(id _Nullable (^)(FIRTransaction *, NSError **))updateBlock

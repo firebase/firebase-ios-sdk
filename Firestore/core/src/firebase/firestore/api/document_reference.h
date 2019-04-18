@@ -52,7 +52,7 @@ class DocumentReference {
                     std::shared_ptr<Firestore> firestore);
   DocumentReference(model::DocumentKey document_key,
                     std::shared_ptr<Firestore> firestore)
-      : firestore_{firestore}, key_{std::move(document_key)} {
+      : firestore_{std::move(firestore)}, key_{std::move(document_key)} {
   }
 
   size_t Hash() const;
