@@ -32,6 +32,8 @@ namespace api {
  */
 class Settings {
  public:
+  static const int64_t CacheSizeUnlimited = -1;
+
   Settings() = default;
 
   void set_host(const std::string& value) {
@@ -67,6 +69,9 @@ class Settings {
   }
   int64_t cache_size_bytes() const {
     return cache_size_bytes_;
+  }
+  bool gc_enabled() const {
+    return cache_size_bytes_ != CacheSizeUnlimited;
   }
 
   friend bool operator==(const Settings& lhs, const Settings& rhs);

@@ -24,9 +24,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-using firebase::firestore::api::Settings;
-using firebase::firestore::api::ThrowInvalidArgument;
-using firebase::firestore::util::MakeString;
+namespace api = firebase::firestore::api;
+namespace util = firebase::firestore::util;
+using api::ThrowInvalidArgument;
 
 static NSString *const kDefaultHost = @"firestore.googleapis.com";
 static const BOOL kDefaultSSLEnabled = YES;
@@ -34,6 +34,9 @@ static const BOOL kDefaultPersistenceEnabled = YES;
 static const int64_t kDefaultCacheSizeBytes = 100 * 1024 * 1024;
 static const int64_t kMinimumCacheSizeBytes = 1 * 1024 * 1024;
 static const BOOL kDefaultTimestampsInSnapshotsEnabled = YES;
+
+// Public constant
+extern "C" const int64_t kFIRFirestoreCacheSizeUnlimited = api::Settings::CacheSizeUnlimited;
 
 @implementation FIRFirestoreSettings
 
@@ -119,9 +122,9 @@ static const BOOL kDefaultTimestampsInSnapshotsEnabled = YES;
   _cacheSizeBytes = cacheSizeBytes;
 }
 
-- (Settings)internalSettings {
-  Settings settings;
-  settings.set_host(MakeString(_host));
+- (api::Settings)internalSettings {
+  api::Settings settings;
+  settings.set_host(util::MakeString(_host));
   settings.set_ssl_enabled(_sslEnabled);
   settings.set_persistence_enabled(_persistenceEnabled);
   settings.set_timestamps_in_snapshots_enabled(_timestampsInSnapshotsEnabled);
