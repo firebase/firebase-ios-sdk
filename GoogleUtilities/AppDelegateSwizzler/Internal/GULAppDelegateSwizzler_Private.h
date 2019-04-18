@@ -37,13 +37,13 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (GULMutableDictionary *)interceptors;
 
+/** Resets the token that prevents the app delegate proxy from being isa swizzled multiple times. */
++ (void)resetProxyOriginalDelegateOnceToken;
+
 #ifdef GUL_APP_DELEGATE_TESTING  // Methods only used in tests.
 
 /** Deletes all the registered interceptors. */
 + (void)clearInterceptors;
-
-/** Resets the token that prevents the app delegate proxy from being isa swizzled multiple times. */
-+ (void)resetProxyOriginalDelegateOnceToken;
 
 /** Returns the original app delegate that was proxied.
  *
