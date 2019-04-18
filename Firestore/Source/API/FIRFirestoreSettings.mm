@@ -31,7 +31,8 @@ using api::Settings;
 using api::ThrowInvalidArgument;
 
 // Public constant
-ABSL_CONST_INIT extern "C" const int64_t kFIRFirestoreCacheSizeUnlimited = api::Settings::CacheSizeUnlimited;
+ABSL_CONST_INIT extern "C" const int64_t kFIRFirestoreCacheSizeUnlimited =
+    api::Settings::CacheSizeUnlimited;
 
 @implementation FIRFirestoreSettings
 
@@ -112,7 +113,8 @@ ABSL_CONST_INIT extern "C" const int64_t kFIRFirestoreCacheSizeUnlimited = api::
 - (void)setCacheSizeBytes:(int64_t)cacheSizeBytes {
   if (cacheSizeBytes != kFIRFirestoreCacheSizeUnlimited &&
       cacheSizeBytes < Settings::MinimumCacheSizeBytes) {
-    ThrowInvalidArgument("Cache size must be set to at least %s bytes", Settings::MinimumCacheSizeBytes);
+    ThrowInvalidArgument("Cache size must be set to at least %s bytes",
+                         Settings::MinimumCacheSizeBytes);
   }
   _cacheSizeBytes = cacheSizeBytes;
 }
