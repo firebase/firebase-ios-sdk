@@ -32,7 +32,13 @@ namespace api {
  */
 class Settings {
  public:
-  static const int64_t CacheSizeUnlimited = -1;
+  static constexpr char DefaultHost[] = "firestore.googleapis.com";
+  static constexpr bool DefaultSslEnabled = true;
+  static constexpr bool DefaultPersistenceEnabled = true;
+  static constexpr int64_t DefaultCacheSizeBytes = 100 * 1024 * 1024;
+  static constexpr int64_t MinimumCacheSizeBytes = 1 * 1024 * 1024;
+  static constexpr int64_t CacheSizeUnlimited = -1;
+  static constexpr bool DefaultTimestampsInSnapshotsEnabled = true;
 
   Settings() = default;
 
@@ -79,11 +85,11 @@ class Settings {
   size_t Hash() const;
 
  private:
-  std::string host_;
-  bool ssl_enabled_ = false;
-  bool persistence_enabled_ = false;
-  bool timestamps_in_snapshots_enabled_ = false;
-  int64_t cache_size_bytes_ = 0;
+  std::string host_ = DefaultHost;
+  bool ssl_enabled_ = DefaultSslEnabled;
+  bool persistence_enabled_ = DefaultPersistenceEnabled;
+  bool timestamps_in_snapshots_enabled_ = DefaultTimestampsInSnapshotsEnabled;
+  int64_t cache_size_bytes_ = DefaultCacheSizeBytes;
 };
 
 }  // namespace api

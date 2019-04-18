@@ -138,9 +138,8 @@ static FIRFirestoreSettings *defaultSettings;
     return;
   }
 
-  // Otherwise fall back on assuming Hexa on localhost.
+  // Otherwise fall back on assuming the emulator or Hexa on localhost.
   defaultProjectId = @"test-db";
-  defaultSettings.host = @"localhost:8081";
 
   // Hexa uses a self-signed cert: the first bundle location is used by bazel builds. The second is
   // used for github clones.
@@ -153,14 +152,23 @@ static FIRFirestoreSettings *defaultSettings;
   unsigned long long fileSize =
       [[[NSFileManager defaultManager] attributesOfItemAtPath:certsPath error:nil] fileSize];
 
-  if (fileSize == 0) {
+  if (fileSize != 0) {
+    defaultSettings.host = @"localhost:8081";
+
+    GrpcConnection::UseTestCertificate(util::MakeString(defaultSettings.host),
+                                       Path::FromNSString(certsPath), "test_cert_2");
+  } else {
+    // If no cert is set up, configure for the Firestore emulator.
+    defaultSettings.host = @"localhost:8080";
+    defaultSettings.sslEnabled = false;
+
+    // Also issue a warning because the Firestore emulator doesn't completely work yet.
     NSLog(@"Please set up a GoogleServices-Info.plist for Firestore in Firestore/Example/App using "
-           "instructions at <https://github.com/firebase/firebase-ios-sdk#running-sample-apps>. "
-           "Alternatively, if you're a Googler with a Hexa preproduction environment, run "
-           "setup_integration_tests.py to properly configure testing SSL certificates.");
+       "instructions at <https://github.com/firebase/firebase-ios-sdk#running-sample-apps>. "
+       "Alternatively, if you're a Googler with a Hexa preproduction environment, run "
+       "setup_integration_tests.py to properly configure testing SSL certificates.");
+
   }
-  GrpcConnection::UseTestCertificate(util::MakeString(defaultSettings.host),
-                                     Path::FromNSString(certsPath), "test_cert_2");
 }
 
 + (NSString *)projectID {

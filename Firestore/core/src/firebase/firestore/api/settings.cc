@@ -22,6 +22,13 @@ namespace firebase {
 namespace firestore {
 namespace api {
 
+constexpr char Settings::DefaultHost[];
+constexpr bool Settings::DefaultSslEnabled;
+constexpr bool Settings::DefaultPersistenceEnabled;
+constexpr int64_t Settings::DefaultCacheSizeBytes;
+constexpr int64_t Settings::MinimumCacheSizeBytes;
+constexpr bool Settings::DefaultTimestampsInSnapshotsEnabled;
+
 size_t Settings::Hash() const {
   return util::Hash(host_, ssl_enabled_, persistence_enabled_,
                     timestamps_in_snapshots_enabled_, cache_size_bytes_);
