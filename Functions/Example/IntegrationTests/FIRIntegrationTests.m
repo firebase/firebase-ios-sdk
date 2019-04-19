@@ -14,6 +14,8 @@
 
 #import <XCTest/XCTest.h>
 
+#import <FirebaseCore/FIROptions.h>
+
 #import "FIRAuthInteropFake.h"
 #import "FIRError.h"
 #import "FIRFunctions+Internal.h"
@@ -33,11 +35,24 @@ static NSString *const kProjectID = @"functions-integration-test";
 
 - (void)setUp {
   [super setUp];
+
+    NSString *projectID = kProjectID;
+    BOOL useLocalhost = YES;
+    
+    // Check for configuration of a prod project via GoogleServices-Info.plist.
+    FIROptions *options = [FIROptions defaultOptions];
+    if (options && ![options.projectID isEqualToString:@"abc-xyz-123"]) {
+        projectID = options.projectID;
+        useLocalhost = NO;
+    }
+    
   _functions = [[FIRFunctions alloc]
       initWithProjectID:kProjectID
                  region:@"us-central1"
                    auth:[[FIRAuthInteropFake alloc] initWithToken:nil userID:nil error:nil]];
-  [_functions useLocalhost];
+    if (useLocalhost) {
+        [_functions useLocalhost];
+    }
 }
 
 - (void)tearDown {
