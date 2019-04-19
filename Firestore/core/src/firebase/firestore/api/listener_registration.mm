@@ -35,7 +35,7 @@ void ListenerRegistration::Remove() {
     query_listener_.reset();
   }
 
-  client_ = nil;
+  client_.Release();
 }
 
 }  // namespace api
