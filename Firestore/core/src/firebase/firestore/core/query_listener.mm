@@ -36,6 +36,10 @@ using model::TargetId;
 using util::MakeStatus;
 using util::Status;
 
+FSTQuery* QueryListener::query() const {
+  return query_;
+}
+
 void QueryListener::OnViewSnapshot(ViewSnapshot snapshot) {
   HARD_ASSERT(
       !snapshot.document_changes().empty() || snapshot.sync_state_changed(),
