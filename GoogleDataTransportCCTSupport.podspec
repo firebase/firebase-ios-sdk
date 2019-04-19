@@ -23,10 +23,10 @@ Support library to provide event prioritization and uploading for the GoogleData
   s.cocoapods_version = '>= 1.4.0'
 
   s.static_framework = true
-  s.prefix_header_file = false
+  s.prefix_header_file = false 
 
-  s.source_files = 'GoogleDataTransportCCTSupport/Library/**/*'
-  s.private_header_files = 'GoogleDataTransportCCTSupport/Library/Private/*.h'
+  s.source_files = 'GoogleDataTransportCCTSupport/GDTCCTLibrary/**/*'
+  s.private_header_files = 'GoogleDataTransportCCTSupport/GDTCCTLibrary/Private/*.h'
 
   s.dependency 'GoogleDataTransport'
   s.dependency 'nanopb'
@@ -49,16 +49,16 @@ Support library to provide event prioritization and uploading for the GoogleData
   # Test specs
   s.test_spec 'Tests-Unit' do |test_spec|
     test_spec.requires_app_host = false
-    test_spec.source_files = 'GoogleDataTransportCCTSupport/Tests/Unit/**/*.{h,m}'
-    test_spec.resources = ['GoogleDataTransportCCTSupport/Tests/Data/**/*']
+    test_spec.source_files = 'GoogleDataTransportCCTSupport/GDTCCTTests/Unit/**/*.{h,m}'
+    test_spec.resources = ['GoogleDataTransportCCTSupport/GDTCCTTests/Data/**/*']
     test_spec.pod_target_xcconfig = header_search_paths
     test_spec.dependency 'GCDWebServer'
   end
 
   s.test_spec 'Tests-Integration' do |test_spec|
     test_spec.requires_app_host = false
-    test_spec.source_files = 'GoogleDataTransportCCTSupport/Tests/Integration/**/*.{h,m}'
-    test_spec.resources = ['GoogleDataTransportCCTSupport/Tests/Data/**/*']
+    test_spec.source_files = 'GoogleDataTransportCCTSupport/GDTCCTTests/Integration/**/*.{h,m}'
+    test_spec.resources = ['GoogleDataTransportCCTSupport/GDTCCTTests/Data/**/*']
     test_spec.pod_target_xcconfig = header_search_paths
   end
 
