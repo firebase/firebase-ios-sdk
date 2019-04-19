@@ -24,10 +24,12 @@
 #import "FUNFakeInstanceID.h"
 
 // Project ID used by these tests.
-static NSString *const kProjectID = @"functions-integration-test";
+static NSString *const kDefaultProjectID = @"functions-integration-test";
 
 @interface FIRIntegrationTests : XCTestCase {
   FIRFunctions *_functions;
+  NSString *_projectID;
+  BOOL _useLocalhost;
 }
 @end
 
@@ -36,21 +38,21 @@ static NSString *const kProjectID = @"functions-integration-test";
 - (void)setUp {
   [super setUp];
 
-    NSString *projectID = kProjectID;
-    BOOL useLocalhost = YES;
+    _projectID = kDefaultProjectID;
+    _useLocalhost = YES;
     
     // Check for configuration of a prod project via GoogleServices-Info.plist.
     FIROptions *options = [FIROptions defaultOptions];
     if (options && ![options.projectID isEqualToString:@"abc-xyz-123"]) {
-        projectID = options.projectID;
-        useLocalhost = NO;
+        _projectID = options.projectID;
+        _useLocalhost = NO;
     }
     
   _functions = [[FIRFunctions alloc]
-      initWithProjectID:kProjectID
+      initWithProjectID:_projectID
                  region:@"us-central1"
                    auth:[[FIRAuthInteropFake alloc] initWithToken:nil userID:nil error:nil]];
-    if (useLocalhost) {
+    if (_useLocalhost) {
         [_functions useLocalhost];
     }
 }
@@ -97,10 +99,12 @@ static NSString *const kProjectID = @"functions-integration-test";
 - (void)testToken {
   // Recreate _functions with a token.
   FIRFunctions *functions = [[FIRFunctions alloc]
-      initWithProjectID:kProjectID
+      initWithProjectID:_projectID
                  region:@"us-central1"
                    auth:[[FIRAuthInteropFake alloc] initWithToken:@"token" userID:nil error:nil]];
-  [functions useLocalhost];
+    if (_useLocalhost) {
+        [functions useLocalhost];
+    }
 
   XCTestExpectation *expectation = [[XCTestExpectation alloc] init];
   FIRHTTPSCallable *function = [functions HTTPSCallableWithName:@"tokenTest"];
