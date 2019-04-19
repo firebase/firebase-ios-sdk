@@ -38,23 +38,23 @@ static NSString *const kDefaultProjectID = @"functions-integration-test";
 - (void)setUp {
   [super setUp];
 
-    _projectID = kDefaultProjectID;
-    _useLocalhost = YES;
-    
-    // Check for configuration of a prod project via GoogleServices-Info.plist.
-    FIROptions *options = [FIROptions defaultOptions];
-    if (options && ![options.projectID isEqualToString:@"abc-xyz-123"]) {
-        _projectID = options.projectID;
-        _useLocalhost = NO;
-    }
-    
+  _projectID = kDefaultProjectID;
+  _useLocalhost = YES;
+
+  // Check for configuration of a prod project via GoogleServices-Info.plist.
+  FIROptions *options = [FIROptions defaultOptions];
+  if (options && ![options.projectID isEqualToString:@"abc-xyz-123"]) {
+    _projectID = options.projectID;
+    _useLocalhost = NO;
+  }
+
   _functions = [[FIRFunctions alloc]
       initWithProjectID:_projectID
                  region:@"us-central1"
                    auth:[[FIRAuthInteropFake alloc] initWithToken:nil userID:nil error:nil]];
-    if (_useLocalhost) {
-        [_functions useLocalhost];
-    }
+  if (_useLocalhost) {
+    [_functions useLocalhost];
+  }
 }
 
 - (void)tearDown {
@@ -102,9 +102,9 @@ static NSString *const kDefaultProjectID = @"functions-integration-test";
       initWithProjectID:_projectID
                  region:@"us-central1"
                    auth:[[FIRAuthInteropFake alloc] initWithToken:@"token" userID:nil error:nil]];
-    if (_useLocalhost) {
-        [functions useLocalhost];
-    }
+  if (_useLocalhost) {
+    [functions useLocalhost];
+  }
 
   XCTestExpectation *expectation = [[XCTestExpectation alloc] init];
   FIRHTTPSCallable *function = [functions HTTPSCallableWithName:@"tokenTest"];
