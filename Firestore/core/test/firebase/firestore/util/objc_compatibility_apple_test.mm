@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/util/objc_compatibility.h"
+#include "Firestore/core/src/firebase/firestore/objc/objc_compatibility.h"
 
 #import <Foundation/NSArray.h>
 
@@ -32,7 +32,6 @@
 
 namespace firebase {
 namespace firestore {
-namespace util {
 namespace objc {
 
 TEST(ObjCCompatibilityTest, Equals) {
@@ -126,6 +125,5 @@ TEST(ObjCCompatibilityTest, UnorderedMap) {
 }
 
 }  // namespace objc
-}  // namespace util
 }  // namespace firestore
 }  // namespace firebase

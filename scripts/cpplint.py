@@ -419,8 +419,9 @@ _C_SYSTEM_DIRECTORIES = frozenset([
     'SystemConfiguration',
     'dispatch',
     'libkern',
-    'netinet',
     'mach',
+    'netinet',
+    'objc',
     'sys',
 ])
 

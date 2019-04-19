@@ -32,7 +32,7 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
-#include "Firestore/core/src/firebase/firestore/util/objc_compatibility.h"
+#include "Firestore/core/src/firebase/firestore/objc/objc_compatibility.h"
 
 @class FSTLocalSerializer;
 @class FSTMemoryPersistence;
@@ -106,7 +106,7 @@ class MemoryQueryCache : public QueryCache {
   model::SnapshotVersion last_remote_snapshot_version_;
 
   /** Maps a query to the data about that query. */
-  util::objc::unordered_map<FSTQuery*, FSTQueryData*> queries_;
+  objc::unordered_map<FSTQuery*, FSTQueryData*> queries_;
 
   /**
    * A ordered bidirectional mapping between documents and the remote target

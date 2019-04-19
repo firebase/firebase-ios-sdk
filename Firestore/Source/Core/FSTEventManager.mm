@@ -24,16 +24,16 @@
 #import "Firestore/Source/Core/FSTSyncEngine.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
+#include "Firestore/core/src/firebase/firestore/objc/objc_compatibility.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
-#include "Firestore/core/src/firebase/firestore/util/objc_compatibility.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "absl/algorithm/container.h"
 #include "absl/types/optional.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-namespace objc = firebase::firestore::util::objc;
+namespace objc = firebase::firestore::objc;
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::QueryListener;
 using firebase::firestore::core::ViewSnapshot;

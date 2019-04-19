@@ -22,8 +22,8 @@
 #import "Firestore/Source/Model/FSTDocument.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
+#include "Firestore/core/src/firebase/firestore/objc/objc_compatibility.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
-#include "Firestore/core/src/firebase/firestore/util/objc_compatibility.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
 #include "Firestore/core/src/firebase/firestore/util/to_string.h"
 
@@ -31,7 +31,6 @@ namespace firebase {
 namespace firestore {
 namespace core {
 
-namespace objc = util::objc;
 using model::DocumentKey;
 using model::DocumentKeySet;
 using model::DocumentSet;

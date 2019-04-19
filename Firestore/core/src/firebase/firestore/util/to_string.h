@@ -17,16 +17,13 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_TO_STRING_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_TO_STRING_H_
 
-#if __OBJC__
-#import <Foundation/Foundation.h>
-#endif  // __OBJC__
-
 #include <algorithm>
 #include <numeric>
 #include <string>
 #include <type_traits>
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/objc/objc_type_traits.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
 #include "Firestore/core/src/firebase/firestore/util/type_traits.h"
@@ -124,7 +121,7 @@ struct ToStringChoice<6> {};
 
 // Objective-C class
 template <typename T,
-          typename = absl::enable_if_t<is_objective_c_pointer<T>::value>>
+          typename = absl::enable_if_t<objc::is_objc_pointer<T>::value>>
 std::string ToStringImpl(T value, ToStringChoice<0>) {
   return MakeString([value description]);
 }
