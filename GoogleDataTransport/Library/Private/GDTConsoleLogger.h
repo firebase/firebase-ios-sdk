@@ -46,7 +46,7 @@ typedef NS_ENUM(NSInteger, GDTMessageCode) {
 
 /** */
 FOUNDATION_EXPORT
-void GDTLog(GDTMessageCode code, NSString * _Nonnull format, ...);
+void GDTLog(GDTMessageCode code, NSString *_Nonnull format, ...);
 
 /** Returns the string that represents some message code.
  *

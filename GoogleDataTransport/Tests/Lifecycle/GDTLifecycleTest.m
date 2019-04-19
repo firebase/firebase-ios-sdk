@@ -16,9 +16,9 @@
 
 #import <XCTest/XCTest.h>
 
+#import <GoogleDataTransport/GDTEvent.h>
 #import <GoogleDataTransport/GDTEventDataObject.h>
 #import <GoogleDataTransport/GDTTransport.h>
-#import <GoogleDataTransport/GDTEvent.h>
 
 #import "Library/Private/GDTStorage_Private.h"
 #import "Library/Private/GDTTransformer_Private.h"
