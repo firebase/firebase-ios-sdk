@@ -16,7 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import <GoogleDataTransport/GoogleDataTransport.h>
+#import <GoogleDataTransport/GDTPrioritizer.h>
+#import <GoogleDataTransport/GDTTargets.h>
 
 /** The integration test target. Normally, you should use a value in GDTTargets.h. */
 static GDTTarget kGDTIntegrationTestTarget = 100;

@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import <GoogleDataTransport/GoogleDataTransport.h>
+#import <GoogleDataTransport/GDTPrioritizer.h>
 
 /** An integration test prioritization class. */
 @interface GDTLifecycleTestPrioritizer : NSObject <GDTPrioritizer>

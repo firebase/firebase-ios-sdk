@@ -16,6 +16,9 @@
 
 #import "Tests/Integration/Helpers/GDTIntegrationTestPrioritizer.h"
 
+#import <GoogleDataTransport/GDTRegistrar.h>
+#import <GoogleDataTransport/GDTStoredEvent.h>
+
 #import "Tests/Integration/Helpers/GDTIntegrationTestUploadPackage.h"
 
 @interface GDTIntegrationTestPrioritizer ()

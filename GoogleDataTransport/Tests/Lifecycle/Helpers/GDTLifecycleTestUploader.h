@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import <GoogleDataTransport/GoogleDataTransport.h>
+#import <GoogleDataTransport/GDTUploader.h>
 
 #import "Tests/Lifecycle/Helpers/GDTLifecycleTestUploader.h"
 

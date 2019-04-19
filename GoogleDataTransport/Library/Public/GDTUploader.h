@@ -20,6 +20,8 @@
 #import <GoogleDataTransport/GDTLifecycle.h>
 #import <GoogleDataTransport/GDTTargets.h>
 
+@class GDTUploadPackage;
+
 NS_ASSUME_NONNULL_BEGIN
 
 /** A convenient typedef to define the block to be called upon completion of an upload to the

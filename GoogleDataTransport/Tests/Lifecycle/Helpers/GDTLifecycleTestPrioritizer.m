@@ -16,6 +16,8 @@
 
 #import "Tests/Lifecycle/Helpers/GDTLifecycleTestPrioritizer.h"
 
+#import <GoogleDataTransport/GDTRegistrar.h>
+
 @interface GDTLifecycleTestPrioritizer ()
 
 /** Events that are only supposed to be uploaded whilst on wifi. */

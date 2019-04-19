@@ -81,9 +81,10 @@ typedef enum _gdt_cct_NetworkConnectionInfo_MobileSubtype {
 #define _gdt_cct_NetworkConnectionInfo_MobileSubtype_ARRAYSIZE ((gdt_cct_NetworkConnectionInfo_MobileSubtype)(gdt_cct_NetworkConnectionInfo_MobileSubtype_COMBINED+1))
 
 typedef enum _gdt_cct_ClientInfo_ClientType {
+    gdt_cct_ClientInfo_ClientType_CLIENT_UNKNOWN = 0,
     gdt_cct_ClientInfo_ClientType_IOS_FIREBASE = 15
 } gdt_cct_ClientInfo_ClientType;
-#define _gdt_cct_ClientInfo_ClientType_MIN gdt_cct_ClientInfo_ClientType_IOS_FIREBASE
+#define _gdt_cct_ClientInfo_ClientType_MIN gdt_cct_ClientInfo_ClientType_CLIENT_UNKNOWN
 #define _gdt_cct_ClientInfo_ClientType_MAX gdt_cct_ClientInfo_ClientType_IOS_FIREBASE
 #define _gdt_cct_ClientInfo_ClientType_ARRAYSIZE ((gdt_cct_ClientInfo_ClientType)(gdt_cct_ClientInfo_ClientType_IOS_FIREBASE+1))
 
