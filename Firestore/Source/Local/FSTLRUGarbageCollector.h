@@ -19,9 +19,9 @@
 #include <string>
 #include <unordered_map>
 
-#import "FIRFirestoreSettings.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 
+#include "Firestore/core/src/firebase/firestore/api/settings.h"
 #include "Firestore/core/src/firebase/firestore/local/query_cache.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
@@ -37,14 +37,12 @@ namespace firestore {
 namespace local {
 
 struct LruParams {
-  static const int64_t CacheSizeUnlimited = -1;
-
   static LruParams Default() {
     return LruParams{100 * 1024 * 1024, 10, 1000};
   }
 
   static LruParams Disabled() {
-    return LruParams{kFIRFirestoreCacheSizeUnlimited, 0, 0};
+    return LruParams{api::Settings::CacheSizeUnlimited, 0, 0};
   }
 
   static LruParams WithCacheSize(int64_t cacheSize) {
