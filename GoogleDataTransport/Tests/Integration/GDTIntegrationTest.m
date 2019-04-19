@@ -16,7 +16,10 @@
 
 #import <XCTest/XCTest.h>
 
-#import <GoogleDataTransport/GoogleDataTransport.h>
+#import <GoogleDataTransport/GDTEventDataObject.h>
+#import <GoogleDataTransport/GDTEventTransformer.h>
+#import <GoogleDataTransport/GDTEvent.h>
+#import <GoogleDataTransport/GDTTransport.h>
 
 #import "Tests/Common/Categories/GDTUploadCoordinator+Testing.h"
 

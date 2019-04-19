@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <GoogleDataTransport/GDTReachability.h>
+#import "Library/Private/GDTReachability.h"
 
 @interface GDTReachability ()
 

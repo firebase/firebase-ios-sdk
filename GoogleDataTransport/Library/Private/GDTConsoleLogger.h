@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <GoogleDataTransport/GDTAssert.h>
+#import "Library/Private/GDTAssert.h"
 
 /** A list of message codes to print in the logger that help to correspond printed messages with
  * code locations.
@@ -46,7 +46,7 @@ typedef NS_ENUM(NSInteger, GDTMessageCode) {
 
 /** */
 FOUNDATION_EXPORT
-void GDTLog(GDTMessageCode code, NSString *format, ...);
+void GDTLog(GDTMessageCode code, NSString * _Nonnull format, ...);
 
 /** Returns the string that represents some message code.
  *

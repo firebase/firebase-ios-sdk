@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <GoogleDataTransport/GDTStorage.h>
+#import "Library/Private/GDTStorage.h"
 
 @class GDTUploadCoordinator;
 
