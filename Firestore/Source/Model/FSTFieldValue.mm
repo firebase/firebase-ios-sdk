@@ -620,7 +620,7 @@ static NSComparisonResult CompareBytes(NSData *left, NSData *right) {
       return cmp;
     }
     cmp = WrapCompare(self.databaseID->database_id(), ref.databaseID->database_id());
-    return cmp != NSOrderedSame ? cmp : CompareKeys(self.key.key, ref.key.key);
+    return cmp != NSOrderedSame ? cmp : WrapCompare(self.key.key, ref.key.key);
   } else {
     return [self defaultCompare:other];
   }

@@ -22,10 +22,6 @@
 #include <memory>
 #include <string>
 
-#if defined(__OBJC__)
-#import "Firestore/Source/Model/FSTDocumentKey.h"
-#endif  // defined(__OBJC__)
-
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
@@ -50,11 +46,9 @@ class DocumentKey {
   /** Creates a new document key, taking ownership of the given path. */
   explicit DocumentKey(ResourcePath&& path);
 
-#if defined(__OBJC__)
-  NSUInteger Hash() const {
+  size_t Hash() const {
     return util::Hash(ToString());
   }
-#endif  // defined(__OBJC__)
 
   std::string ToString() const {
     return path().CanonicalString();
@@ -122,20 +116,6 @@ struct DocumentKeyHash {
     return util::Hash(key.path());
   }
 };
-
-#if defined(__OBJC__)
-inline NSComparisonResult CompareKeys(const DocumentKey& lhs,
-                                      const DocumentKey& rhs) {
-  if (lhs < rhs) {
-    return NSOrderedAscending;
-  }
-  if (lhs > rhs) {
-    return NSOrderedDescending;
-  }
-  return NSOrderedSame;
-}
-
-#endif  // defined(__OBJC__)
 
 }  // namespace model
 
