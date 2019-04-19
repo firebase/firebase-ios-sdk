@@ -17,26 +17,20 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_API_DOCUMENT_SNAPSHOT_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_API_DOCUMENT_SNAPSHOT_H_
 
-#if !defined(__OBJC__)
-#error "This header only supports Objective-C++"
-#endif  // !defined(__OBJC__)
-
-#import <Foundation/Foundation.h>
-
 #include <memory>
 #include <string>
 #include <utility>
-
-#import "Firestore/Source/Model/FSTFieldValue.h"
 
 #include "Firestore/core/src/firebase/firestore/api/snapshot_metadata.h"
 #include "Firestore/core/src/firebase/firestore/core/event_listener.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/objc/objc_class.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class FSTDocument;
+OBJC_CLASS(FSTDocument);
+OBJC_CLASS(FSTObjectValue);
 
 namespace firebase {
 namespace firestore {
@@ -74,12 +68,8 @@ class DocumentSnapshot {
 
   size_t Hash() const;
 
-  bool exists() const {
-    return internal_document_ != nil;
-  }
-  FSTDocument* internal_document() const {
-    return internal_document_;
-  }
+  bool exists() const;
+  FSTDocument* internal_document() const;
   std::string document_id() const;
 
   const SnapshotMetadata& metadata() const {
@@ -101,7 +91,7 @@ class DocumentSnapshot {
  private:
   std::shared_ptr<Firestore> firestore_;
   model::DocumentKey internal_key_;
-  FSTDocument* internal_document_ = nil;
+  objc::Handle<FSTDocument> internal_document_;
   SnapshotMetadata metadata_;
 };
 

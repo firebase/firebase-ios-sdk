@@ -36,6 +36,14 @@ size_t DocumentSnapshot::Hash() const {
                     metadata_);
 }
 
+bool DocumentSnapshot::exists() const {
+  return internal_document_ != nil;
+}
+
+FSTDocument* DocumentSnapshot::internal_document() const {
+  return internal_document_;
+}
+
 DocumentReference DocumentSnapshot::CreateReference() const {
   return DocumentReference{internal_key_, firestore_};
 }
