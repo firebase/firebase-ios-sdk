@@ -22,12 +22,14 @@
  __IOS_AVAILABLE(10.0)
 @interface FIRMessagingExtensionHelper : NSObject
 
- /// Call this API to complete your notification content modification. If you like to
+#if TARGET_OS_IOS
+/// Call this API to complete your notification content modification. If you like to
 /// overwrite some properties of the content instead of using the default payload,
 /// make sure to make your customized motification to the content before passing it to
 /// this call.
 - (void)populateNotificationContent:(UNMutableNotificationContent *)content
                  withContentHandler:(void (^)(UNNotificationContent *_Nonnull))contentHandler;
+#endif
 
  @end
 

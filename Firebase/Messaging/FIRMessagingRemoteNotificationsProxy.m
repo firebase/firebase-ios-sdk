@@ -17,7 +17,9 @@
 #import "FIRMessagingRemoteNotificationsProxy.h"
 
 #import <objc/runtime.h>
+#if TARGET_OS_IOS ||TARGET_OS_TVOS
 #import <UIKit/UIKit.h>
+#endif
 
 #import "FIRMessagingConstants.h"
 #import "FIRMessagingLogger.h"
@@ -32,7 +34,11 @@ static NSString *kUserNotificationWillPresentSelectorString =
 static NSString *kUserNotificationDidReceiveResponseSelectorString =
     @"userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:";
 
+#if TARGET_OS_IOS ||TARGET_OS_TVOS
 @interface FIRMessagingRemoteNotificationsProxy () <UIApplicationDelegate>
+#else
+@interface FIRMessagingRemoteNotificationsProxy ()
+#endif
 
 @property(strong, nonatomic) NSMutableDictionary<NSString *, NSValue *> *originalAppDelegateImps;
 @property(strong, nonatomic) NSMutableDictionary<NSString *, NSArray *> *swizzledSelectorsByClass;
@@ -401,11 +407,13 @@ didReceiveRemoteNotification:(NSDictionary *)userInfo {
 }
 #endif // TARGET_OS_IOS
 
+#if TARGET_OS_IOS || TARGET_OS_TVOS
 - (void)application:(UIApplication *)application
 didReceiveRemoteNotification:(NSDictionary *)userInfo
 fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
   [[FIRMessaging messaging] appDidReceiveMessage:userInfo];
 }
+#endif
 
 - (void)application:(UIApplication *)application
 didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {

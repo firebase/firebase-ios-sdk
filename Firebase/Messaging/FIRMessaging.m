@@ -21,7 +21,9 @@
 #import "FIRMessaging.h"
 #import "FIRMessaging_Private.h"
 
+#if TARGET_OS_IOS ||TARGET_OS_TVOS
 #import <UIKit/UIKit.h>
+#endif
 
 #import "FIRMessagingAnalytics.h"
 #import "FIRMessagingClient.h"
@@ -309,6 +311,7 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
              selector:@selector(defaultInstanceIDTokenWasRefreshed:)
                  name:kFIRMessagingRegistrationTokenRefreshNotification
                object:nil];
+#if TARGET_OS_IOS ||TARGET_OS_TVOS
   [center addObserver:self
              selector:@selector(applicationStateChanged)
                  name:UIApplicationDidBecomeActiveNotification
@@ -317,6 +320,7 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
              selector:@selector(applicationStateChanged)
                  name:UIApplicationDidEnterBackgroundNotification
                object:nil];
+#endif
 }
 
 - (void)setupReceiver {
@@ -442,6 +446,9 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
     });
     return;
   }
+#if TARGET_OS_OSX
+    return;
+#else
   UIApplication *application = FIRMessagingUIApplication();
   if (!application) {
     return;
@@ -494,6 +501,7 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 #pragma clang diagnostic pop
 #endif
   }
+#endif // TARGET_OS_OSX
 }
 
 - (NSURL *)linkURLFromMessage:(NSDictionary *)message {
@@ -677,8 +685,12 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 }
 
 - (BOOL)shouldBeConnectedAutomatically {
-  // We require a token from Instance ID
-  NSString *token = self.defaultFcmToken;
+  // MCS channel should be disabled in macOS
+#if TARGET_OS_OSX
+    return NO;
+#else
+    // We require a token from Instance ID
+    NSString *token = self.defaultFcmToken;
   // Only on foreground connections
   UIApplication *application = FIRMessagingUIApplication();
   if (!application) {
@@ -689,6 +701,7 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
                            (token.length > 0) &&
                            applicationState == UIApplicationStateActive;
   return shouldBeConnected;
+#endif
 }
 
 - (void)updateAutomaticClientConnection {

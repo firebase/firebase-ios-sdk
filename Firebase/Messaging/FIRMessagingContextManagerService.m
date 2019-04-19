@@ -16,7 +16,9 @@
 
 #import "FIRMessagingContextManagerService.h"
 
+#if TARGET_OS_IOS ||TARGET_OS_TVOS
 #import <UIKit/UIKit.h>
+#endif
 
 #import "FIRMessagingDefines.h"
 #import "FIRMessagingLogger.h"

@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
+#if TARGET_OS_IOS ||TARGET_OS_TVOS
 #import <UIKit/UIKit.h>
+#else
+#import <Foundation/Foundation.h>
+#endif
 
 typedef NS_ENUM(int8_t, FIRMessagingProtoTag) {
   kFIRMessagingProtoTagInvalid = -1,
@@ -54,7 +58,9 @@ FOUNDATION_EXPORT NSString *FIRMessagingAppIdentifier(void);
 #pragma mark - Others
 
 FOUNDATION_EXPORT uint64_t FIRMessagingGetFreeDiskSpaceInMB(void);
+#if TARGET_OS_IOS ||TARGET_OS_TVOS
 FOUNDATION_EXPORT UIApplication *FIRMessagingUIApplication(void);
+#endif
 FOUNDATION_EXPORT NSSearchPathDirectory FIRMessagingSupportedDirectory(void);
 
 

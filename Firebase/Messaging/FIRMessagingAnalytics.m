@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
+#if TARGET_OS_IOS ||TARGET_OS_TVOS
 #import <UIKit/UIKit.h>
+#endif
 
 #import "FIRMessagingAnalytics.h"
 #import "FIRMessagingLogger.h"
@@ -186,7 +188,7 @@ withNotification:(NSDictionary *)notification
   if (![self canLogNotification:notification]) {
     return;
   }
-
+#if TARGET_OS_IOS ||TARGET_OS_TVOS
   UIApplication *application = [self currentUIApplication];
   if (!application) {
     return;
@@ -209,8 +211,9 @@ withNotification:(NSDictionary *)notification
       // is in the background. These messages aren't loggable anyway.
       break;
   }
+#endif
 }
-
+#if TARGET_OS_IOS ||TARGET_OS_TVOS
 + (UIApplication *)currentUIApplication {
   Class applicationClass = nil;
   if (![GULAppEnvironmentUtil isAppExtension]) {
@@ -221,5 +224,6 @@ withNotification:(NSDictionary *)notification
   }
   return [applicationClass sharedApplication];
 }
+#endif
 
 @end
