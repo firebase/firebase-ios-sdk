@@ -355,7 +355,6 @@ case "$product-$method-$platform" in
         "${xcb_flags[@]}" \
         build \
         test
-    ;;
 
     RunXcodebuild \
         -workspace 'GoogleDataTransport/gen/GoogleDataTransport/GoogleDataTransport.xcworkspace' \
@@ -372,7 +371,6 @@ case "$product-$method-$platform" in
         "${xcb_flags[@]}" \
         build \
         test
-    ;;
 
         RunXcodebuild \
         -workspace 'GoogleDataTransportCCTSupport/gen/GoogleDataTransportCCTSupport/GoogleDataTransportCCTSupport.xcworkspace' \
