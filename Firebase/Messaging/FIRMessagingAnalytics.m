@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#if TARGET_OS_IOS ||TARGET_OS_TVOS
+#if TARGET_OS_IOS ||TARGET_OS_TV
 #import <UIKit/UIKit.h>
 #endif
 
@@ -188,7 +188,7 @@ withNotification:(NSDictionary *)notification
   if (![self canLogNotification:notification]) {
     return;
   }
-#if TARGET_OS_IOS ||TARGET_OS_TVOS
+#if TARGET_OS_IOS ||TARGET_OS_TV
   UIApplication *application = [self currentUIApplication];
   if (!application) {
     return;
@@ -213,7 +213,8 @@ withNotification:(NSDictionary *)notification
   }
 #endif
 }
-#if TARGET_OS_IOS ||TARGET_OS_TVOS
+
+#if TARGET_OS_IOS ||TARGET_OS_TV
 + (UIApplication *)currentUIApplication {
   Class applicationClass = nil;
   if (![GULAppEnvironmentUtil isAppExtension]) {

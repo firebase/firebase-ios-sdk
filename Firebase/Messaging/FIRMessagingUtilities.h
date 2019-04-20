@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-#if TARGET_OS_IOS ||TARGET_OS_TVOS
+#if TARGET_OS_IOS || TARGET_OS_TV
 #import <UIKit/UIKit.h>
 #else
+#import <UIKit/UIKit.h>
+
 #import <Foundation/Foundation.h>
 #endif
 
@@ -58,7 +60,7 @@ FOUNDATION_EXPORT NSString *FIRMessagingAppIdentifier(void);
 #pragma mark - Others
 
 FOUNDATION_EXPORT uint64_t FIRMessagingGetFreeDiskSpaceInMB(void);
-#if TARGET_OS_IOS ||TARGET_OS_TVOS
+#if TARGET_OS_IOS || TARGET_OS_TV
 FOUNDATION_EXPORT UIApplication *FIRMessagingUIApplication(void);
 #endif
 FOUNDATION_EXPORT NSSearchPathDirectory FIRMessagingSupportedDirectory(void);

@@ -17,7 +17,7 @@
 #import "FIRMessagingRemoteNotificationsProxy.h"
 
 #import <objc/runtime.h>
-#if TARGET_OS_IOS ||TARGET_OS_TVOS
+#if TARGET_OS_IOS ||TARGET_OS_TV
 #import <UIKit/UIKit.h>
 #endif
 
@@ -34,7 +34,7 @@ static NSString *kUserNotificationWillPresentSelectorString =
 static NSString *kUserNotificationDidReceiveResponseSelectorString =
     @"userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:";
 
-#if TARGET_OS_IOS ||TARGET_OS_TVOS
+#if TARGET_OS_IOS ||TARGET_OS_TV
 @interface FIRMessagingRemoteNotificationsProxy () <UIApplicationDelegate>
 #else
 @interface FIRMessagingRemoteNotificationsProxy ()
@@ -407,7 +407,7 @@ didReceiveRemoteNotification:(NSDictionary *)userInfo {
 }
 #endif // TARGET_OS_IOS
 
-#if TARGET_OS_IOS || TARGET_OS_TVOS
+#if TARGET_OS_IOS || TARGET_OS_TV
 - (void)application:(UIApplication *)application
 didReceiveRemoteNotification:(NSDictionary *)userInfo
 fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
