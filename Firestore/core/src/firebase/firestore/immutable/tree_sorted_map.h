@@ -27,8 +27,8 @@
 #include "Firestore/core/src/firebase/firestore/immutable/llrb_node.h"
 #include "Firestore/core/src/firebase/firestore/immutable/map_entry.h"
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_container.h"
-#include "Firestore/core/src/firebase/firestore/util/comparator_holder.h"
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
+#include "Firestore/core/src/firebase/firestore/util/compressed_member.h"
 
 namespace firebase {
 namespace firestore {
@@ -40,7 +40,9 @@ namespace impl {
  * methods to efficiently create new maps that are mutations of it.
  */
 template <typename K, typename V, typename C = util::Comparator<K>>
-class TreeSortedMap : public SortedMapBase, public util::ComparatorHolder<C> {
+class TreeSortedMap : public SortedMapBase, private util::CompressedMember<C> {
+  using ComparatorMember = util::CompressedMember<C>;
+
  public:
   /**
    * The type of the entries stored in the map.
@@ -58,7 +60,7 @@ class TreeSortedMap : public SortedMapBase, public util::ComparatorHolder<C> {
    * Creates an empty TreeSortedMap.
    */
   explicit TreeSortedMap(const C& comparator = {})
-      : util::ComparatorHolder<C>{comparator} {
+      : ComparatorMember{comparator} {
   }
 
   /**
@@ -85,6 +87,10 @@ class TreeSortedMap : public SortedMapBase, public util::ComparatorHolder<C> {
 
   const node_type& root() const {
     return root_;
+  }
+
+  const C& comparator() const {
+    return ComparatorMember::get();
   }
 
   /**
@@ -245,7 +251,7 @@ class TreeSortedMap : public SortedMapBase, public util::ComparatorHolder<C> {
 
  private:
   TreeSortedMap(node_type&& root, const C& comparator) noexcept
-      : util::ComparatorHolder<C>{comparator}, root_{std::move(root)} {
+      : ComparatorMember{comparator}, root_{std::move(root)} {
   }
 
   TreeSortedMap Wrap(node_type&& root) noexcept {
