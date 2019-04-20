@@ -51,7 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)recreateAppAtIndex:(int)index
                withOptions:(nullable FIROptions *)options
-                completion:(void (^)())completion {
+                completion:(void (^)(void))completion {
   [self deleteAppAtIndex:index completion:^() {
     if (index == 0) {
       if (options) {
@@ -109,7 +109,7 @@ NS_ASSUME_NONNULL_BEGIN
     @param completion The block to call when completes.
  */
 - (void)deleteAppAtIndex:(int)index
-              completion:(void (^)())completion {
+              completion:(void (^)(void))completion {
   FIRApp *app = [self appAtIndex:index];
   if (app) {
     [app deleteApp:^(BOOL success) {

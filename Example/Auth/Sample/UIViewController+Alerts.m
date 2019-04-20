@@ -117,13 +117,10 @@ static NSString *const kCancel = @"Cancel";
     }
     [self presentViewController:alert animated:YES completion:nil];
   } else {
-    UIAlertView *alert =
-        [[UIAlertView alloc] initWithTitle:title
-                                   message:message
-                                  delegate:nil
-                         cancelButtonTitle:nil
-                         otherButtonTitles:kOK, nil];
-    [alert show];
+    UIAlertController* alert = [UIAlertController alertControllerWithTitle:title
+                                                                   message:message
+                                                            preferredStyle:UIAlertControllerStyleAlert];
+    [self presentViewController:alert animated:YES completion:nil];
   }
 }
 

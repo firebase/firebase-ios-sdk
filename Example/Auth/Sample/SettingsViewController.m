@@ -86,7 +86,7 @@ static NSArray<FIROptions *> *gFirebaseAppOptions;
     @param string The version in string form.
     @param number The version in number form.
  */
-static NSString *versionString(const unsigned char *string, const double number) {
+static NSString *versionString(const char *string, const double number) {
   return [NSString stringWithFormat:@"\"%s\" (%g)", string, number];
 }
 

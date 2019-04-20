@@ -53,7 +53,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)recreateAppAtIndex:(int)index
                withOptions:(nullable FIROptions *)options
-                completion:(void (^)())completion;
+                completion:(void (^)(void))completion;
 
 /** @fn sharedInstance
     @brief Gets a shared instance of the class.

@@ -19,11 +19,6 @@
 @class StaticContentTableViewManager;
 @class UserTableViewCell;
 
-/** @var kCreateUserAccessibilityID
-    @brief The "Create User" button accessibility ID.
- */
-extern NSString *const kCreateUserAccessibilityID;
-
 /** @class MainViewController
     @brief The first view controller presented when the application is started.
  */
@@ -60,27 +55,6 @@ extern NSString *const kCreateUserAccessibilityID;
     @brief A UITextView with a log of the actions performed in the sample app.
  */
 @property(nonatomic, weak) IBOutlet UITextView *consoleTextView;
-
-/** @fn userToUseDidChange:
-    @brief Should be invoked when the user wishes to switch which user to use for user-related
-        operations in the sample app.
-    @param sender The UISegmentedControl which prompted the change in value. It is assumed that the
-        segment at index 0 represents the "signed-in user" and the segment at index 1 represents the
-        "user in memeory".
- */
-- (IBAction)userToUseDidChange:(UISegmentedControl *)sender;
-
-/** @fn memoryPlus
-    @brief Works like the "M+" button on a calculator; stores the currently signed-in user as the
-        "user in memory" for the application.
- */
-- (IBAction)memoryPlus;
-
-/** @fn memoryClear
-    @brief Works like the "MC" button on a calculator; clears the currently stored "user in memory"
-        for the application.
- */
-- (IBAction)memoryClear;
 
 /** @fn handleIncomingLinkWithURL:
     @brief Handles an incoming link to trigger the appropriate OOBCode if possible.
