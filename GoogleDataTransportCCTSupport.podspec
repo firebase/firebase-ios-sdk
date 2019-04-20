@@ -23,7 +23,7 @@ Support library to provide event prioritization and uploading for the GoogleData
   s.cocoapods_version = '>= 1.4.0'
 
   s.static_framework = true
-  s.prefix_header_file = false 
+  s.prefix_header_file = false
 
   s.source_files = 'GoogleDataTransportCCTSupport/GDTCCTLibrary/**/*'
   s.private_header_files = 'GoogleDataTransportCCTSupport/GDTCCTLibrary/Private/*.h'
