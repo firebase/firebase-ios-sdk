@@ -122,7 +122,7 @@ class TreeSortedMap : public SortedMapBase, private util::CompressedMember<C> {
     const C& comparator = this->comparator();
     const node_type* node = &root();
     while (!node->empty()) {
-      util::ComparisonResult cmp = util::Compare(key, node->key(), comparator);
+      util::ComparisonResult cmp = comparator.Compare(key, node->key());
       if (cmp == util::ComparisonResult::Same) {
         return true;
       } else if (cmp == util::ComparisonResult::Ascending) {
@@ -143,7 +143,8 @@ class TreeSortedMap : public SortedMapBase, private util::CompressedMember<C> {
    */
   const_iterator find(const K& key) const {
     const_iterator found = lower_bound(key);
-    if (!found.is_end() && !this->comparator()(key, found->first)) {
+    if (!found.is_end() &&
+        util::Same(this->comparator().Compare(key, found->first))) {
       return found;
     } else {
       return end();
@@ -162,7 +163,7 @@ class TreeSortedMap : public SortedMapBase, private util::CompressedMember<C> {
     size_type pruned_nodes = 0;
     const node_type* node = &root_;
     while (!node->empty()) {
-      util::ComparisonResult cmp = util::Compare(key, node->key(), comparator);
+      util::ComparisonResult cmp = comparator.Compare(key, node->key());
       if (cmp == util::ComparisonResult::Same) {
         return pruned_nodes + node->left().size();
 

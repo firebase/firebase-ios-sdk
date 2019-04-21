@@ -117,7 +117,7 @@ class LlrbNodeIterator {
 
     const node_type* node = root;
     while (!node->empty()) {
-      util::ComparisonResult cmp = util::Compare(key, node->key(), comparator);
+      util::ComparisonResult cmp = comparator.Compare(key, node->key());
       if (cmp == util::ComparisonResult::Same) {
         // Found exactly what we're looking for so we're done.
         stack.push(node);
