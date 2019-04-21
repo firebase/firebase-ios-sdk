@@ -122,7 +122,8 @@ struct DocumentKeyHash {
 namespace util {
 
 template <>
-struct Comparator<model::DocumentKey> : public std::less<model::DocumentKey> {};
+struct Comparator<model::DocumentKey>
+    : public DefaultComparator<model::DocumentKey> {};
 
 }  // namespace util
 }  // namespace firestore

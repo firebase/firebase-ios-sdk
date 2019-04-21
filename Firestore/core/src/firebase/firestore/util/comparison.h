@@ -173,6 +173,21 @@ constexpr bool EqualValue(ComparisonResult lhs, NSComparisonResult rhs) {
   return static_cast<int>(lhs) == static_cast<int>(rhs);
 }
 
+static_assert(EqualValue(ComparisonResult::Ascending, NSOrderedAscending),
+              "Ascending invalid");
+static_assert(EqualValue(ComparisonResult::Same, NSOrderedSame),
+              "Same invalid");
+static_assert(EqualValue(ComparisonResult::Descending, NSOrderedDescending),
+              "Descending invalid");
+
+constexpr ComparisonResult MakeComparisonResult(NSComparisonResult value) {
+  return static_cast<ComparisonResult>(value);
+}
+
+constexpr NSComparisonResult MakeNSComparisonResult(ComparisonResult value) {
+  return static_cast<NSComparisonResult>(value);
+}
+
 /**
  * Performs a three-way comparison, identically to Compare, but converts the
  * result to an NSComparisonResult.
@@ -182,14 +197,7 @@ constexpr bool EqualValue(ComparisonResult lhs, NSComparisonResult rhs) {
  */
 template <typename T>
 inline NSComparisonResult WrapCompare(const T& left, const T& right) {
-  static_assert(EqualValue(ComparisonResult::Ascending, NSOrderedAscending),
-                "Ascending invalid");
-  static_assert(EqualValue(ComparisonResult::Same, NSOrderedSame),
-                "Same invalid");
-  static_assert(EqualValue(ComparisonResult::Descending, NSOrderedDescending),
-                "Descending invalid");
-
-  return static_cast<NSComparisonResult>(Compare<T>(left, right));
+  return MakeNSComparisonResult(Compare<T>(left, right));
 }
 #endif
 

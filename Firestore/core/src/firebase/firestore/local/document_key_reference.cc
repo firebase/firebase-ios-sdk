@@ -45,14 +45,27 @@ std::string DocumentKeyReference::ToString() const {
 }
 
 /** Sorts document references by key then ID. */
+ComparisonResult DocumentKeyReference::ByKey::Compare(
+    const DocumentKeyReference& lhs, const DocumentKeyReference& rhs) const {
+  ComparisonResult result = util::Compare(lhs.key_, rhs.key_);
+  if (!util::Same(result)) return result;
+
+  return util::Compare(lhs.ref_id_, rhs.ref_id_);
+}
+
+/** Sorts document references by key then ID. */
 bool DocumentKeyReference::ByKey::operator()(
     const DocumentKeyReference& lhs, const DocumentKeyReference& rhs) const {
-  util::Comparator<model::DocumentKey> key_less;
-  if (key_less(lhs.key_, rhs.key_)) return true;
-  if (key_less(rhs.key_, lhs.key_)) return false;
+  return util::Ascending(Compare(lhs, rhs));
+}
 
-  util::Comparator<int32_t> id_less;
-  return id_less(lhs.ref_id_, rhs.ref_id_);
+/** Sorts document references by ID then key. */
+ComparisonResult DocumentKeyReference::ById::Compare(
+    const DocumentKeyReference& lhs, const DocumentKeyReference& rhs) const {
+  ComparisonResult result = util::Compare(lhs.ref_id_, rhs.ref_id_);
+  if (!util::Same(result)) return result;
+
+  return util::Compare(lhs.key_, rhs.key_);
 }
 
 /** Sorts document references by ID then key. */

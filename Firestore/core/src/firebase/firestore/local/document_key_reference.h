@@ -72,12 +72,18 @@ class DocumentKeyReference {
 
   /** Sorts document references by key then Id. */
   struct ByKey : public util::Comparator<DocumentKeyReference> {
+    util::ComparisonResult Compare(const DocumentKeyReference& lhs,
+                                   const DocumentKeyReference& rhs) const;
+
     bool operator()(const DocumentKeyReference& lhs,
                     const DocumentKeyReference& rhs) const;
   };
 
   /** Sorts document references by Id then key. */
   struct ById : public util::Comparator<DocumentKeyReference> {
+    util::ComparisonResult Compare(const DocumentKeyReference& lhs,
+                                   const DocumentKeyReference& rhs) const;
+
     bool operator()(const DocumentKeyReference& lhs,
                     const DocumentKeyReference& rhs) const;
   };

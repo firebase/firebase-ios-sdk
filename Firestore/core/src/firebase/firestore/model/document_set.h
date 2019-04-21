@@ -52,8 +52,12 @@ class DocumentSetComparator {
       : delegate_(delegate) {
   }
 
+  util::ComparisonResult Compare(FSTDocument* lhs, FSTDocument* rhs) const {
+    return util::MakeComparisonResult(delegate_(lhs, rhs));
+  }
+
   bool operator()(FSTDocument* lhs, FSTDocument* rhs) const {
-    return delegate_(lhs, rhs) == NSOrderedAscending;
+    return util::Ascending(Compare(lhs, rhs));
   }
 
  private:

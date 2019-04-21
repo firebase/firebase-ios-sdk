@@ -636,9 +636,13 @@ static NSComparisonResult CompareBytes(NSData *left, NSData *right) {
 // TODO(b/37267885): Add truncation support
 template <>
 struct Comparator<NSString *> {
+  ComparisonResult Compare(NSString *left, NSString *right) const {
+    Comparator<absl::string_view> comparator;
+    return comparator.Compare(MakeString(left), MakeString(right));
+  }
+
   bool operator()(NSString *left, NSString *right) const {
-    Comparator<absl::string_view> lessThan;
-    return lessThan(MakeString(left), MakeString(right));
+    return util::Ascending(Compare(left, right));
   }
 };
 
@@ -1024,6 +1028,6 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
 @end
 
 template <>
-struct Comparator<FieldValue> : public std::less<FieldValue> {};
+struct Comparator<FieldValue> : public util::DefaultComparator<FieldValue> {};
 
 NS_ASSUME_NONNULL_END
