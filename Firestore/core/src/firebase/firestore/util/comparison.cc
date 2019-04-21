@@ -16,7 +16,9 @@
 
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
 
+#include <algorithm>
 #include <cmath>
+#include <cstring>
 #include <limits>
 
 namespace firebase {
@@ -24,28 +26,77 @@ namespace firestore {
 namespace util {
 using std::isnan;
 
+/**
+ * Creates a ComparisonResult from a typical integer return value, where
+ * 0 means "same", less than zero means "ascending", and greater than zero
+ * means "descending".
+ */
+constexpr ComparisonResult ComparisonResultFromInt(int value) {
+  return value < 0 ? ComparisonResult::Ascending
+                   : (value > 0 ? ComparisonResult::Descending
+                                : ComparisonResult::Same);
+}
+
+ComparisonResult Comparator<absl::string_view>::Compare(
+    absl::string_view left, absl::string_view right) const {
+  return ComparisonResultFromInt(left.compare(right));
+}
+
 bool Comparator<absl::string_view>::operator()(absl::string_view left,
                                                absl::string_view right) const {
   // TODO(wilhuff): truncation aware comparison
-  return left < right;
+  return Ascending(Compare(left, right));
+}
+
+ComparisonResult Comparator<std::string>::Compare(
+    const std::string& left, const std::string& right) const {
+  return ComparisonResultFromInt(left.compare(right));
 }
 
 bool Comparator<std::string>::operator()(const std::string& left,
                                          const std::string& right) const {
   // TODO(wilhuff): truncation aware comparison
-  return left < right;
+  return Ascending(Compare(left, right));
+}
+
+ComparisonResult Comparator<std::vector<uint8_t>>::Compare(
+    const std::vector<uint8_t>& left, const std::vector<uint8_t>& right) const {
+  size_t min_length = std::min(left.size(), right.size());
+  if (min_length > 0) {
+    int r = memcmp(left.data(), right.data(), min_length);
+    if (r < 0) return ComparisonResult::Ascending;
+    if (r > 0) return ComparisonResult::Descending;
+  }
+  if (left.size() < right.size()) return ComparisonResult::Ascending;
+  if (left.size() > right.size()) return ComparisonResult::Descending;
+  return ComparisonResult::Same;
+}
+
+ComparisonResult Comparator<double>::Compare(double left, double right) const {
+  // NaN sorts equal to itself and before any other number.
+  if (left < right) {
+    return ComparisonResult::Ascending;
+  } else if (left > right) {
+    return ComparisonResult::Descending;
+  } else if (left == right) {
+    return ComparisonResult::Same;
+  } else {
+    // One or both left and right is NaN.
+    if (!isnan(right)) {
+      // Only left is NaN.
+      return ComparisonResult::Ascending;
+    } else if (!isnan(left)) {
+      // Only right is NaN.
+      return ComparisonResult::Descending;
+    } else {
+      // Both are NaN.
+      return ComparisonResult::Same;
+    }
+  }
 }
 
 bool Comparator<double>::operator()(double left, double right) const {
-  // NaN sorts equal to itself and before any other number.
-  if (left < right) {
-    return true;
-  } else if (left >= right) {
-    return false;
-  } else {
-    // One or both left and right is NaN.
-    return isnan(left) && !isnan(right);
-  }
+  return Ascending(Compare(left, right));
 }
 
 static constexpr double INT64_MIN_VALUE_AS_DOUBLE =

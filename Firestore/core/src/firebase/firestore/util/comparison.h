@@ -59,6 +59,18 @@ enum class ComparisonResult {
   Descending = 1
 };
 
+constexpr bool Ascending(ComparisonResult result) noexcept {
+  return result == ComparisonResult::Ascending;
+}
+
+constexpr bool Same(ComparisonResult result) noexcept {
+  return result == ComparisonResult::Same;
+}
+
+constexpr bool Descending(ComparisonResult result) noexcept {
+  return result == ComparisonResult::Descending;
+}
+
 /**
  * Returns the reverse order (i.e. Ascending => Descending) etc.
  */
@@ -82,29 +94,50 @@ struct Comparator {
 /** Compares two strings. */
 template <>
 struct Comparator<absl::string_view> {
+  ComparisonResult Compare(absl::string_view left,
+                           absl::string_view right) const;
+
   bool operator()(absl::string_view left, absl::string_view right) const;
 };
 
 template <>
 struct Comparator<std::string> {
+  ComparisonResult Compare(const std::string& left,
+                           const std::string& right) const;
+
   bool operator()(const std::string& left, const std::string& right) const;
+};
+
+template <typename T>
+struct DefaultComparator : public std::less<T> {
+  ComparisonResult Compare(const T& left, const T& right) const {
+    if (this->operator()(left, right)) {
+      return ComparisonResult::Ascending;
+    } else if (this->operator()(right, left)) {
+      return ComparisonResult::Descending;
+    } else {
+      return ComparisonResult::Same;
+    }
+  }
 };
 
 /** Compares two bools: false < true. */
 template <>
-struct Comparator<bool> : public std::less<bool> {};
+struct Comparator<bool> : public DefaultComparator<bool> {};
 
 /** Compares two int32_t. */
 template <>
-struct Comparator<int32_t> : public std::less<int32_t> {};
+struct Comparator<int32_t> : public DefaultComparator<int32_t> {};
 
 /** Compares two int64_t. */
 template <>
-struct Comparator<int64_t> : public std::less<int64_t> {};
+struct Comparator<int64_t> : public DefaultComparator<int64_t> {};
 
 /** Compares two doubles (using Firestore semantics for NaN). */
 template <>
 struct Comparator<double> {
+  ComparisonResult Compare(double left, double right) const;
+
   bool operator()(double left, double right) const;
 };
 
@@ -112,23 +145,23 @@ struct Comparator<double> {
 // TODO(wilhuff): perhaps absl::Span<uint8_t> would be better?
 template <>
 struct Comparator<std::vector<uint8_t>>
-    : public std::less<std::vector<uint8_t>> {};
+    : public std::less<std::vector<uint8_t>> {
+  ComparisonResult Compare(const std::vector<uint8_t>& left,
+                           const std::vector<uint8_t>& right) const;
+};
 
 /**
  * Perform a three-way comparison between the left and right values using
  * the appropriate Comparator for the values based on their type.
+ *
+ * Essentially a shortcut for Comparator<T>().Compare(left, right), where
+ * Comparator<T> is default constructible.
  */
 template <typename T, typename C = Comparator<T>>
 ComparisonResult Compare(const T& left,
                          const T& right,
-                         const C& less_than = C()) {
-  if (less_than(left, right)) {
-    return ComparisonResult::Ascending;
-  } else if (less_than(right, left)) {
-    return ComparisonResult::Descending;
-  } else {
-    return ComparisonResult::Same;
-  }
+                         const C& comparator = C()) {
+  return comparator.Compare(left, right);
 }
 
 #if __OBJC__
