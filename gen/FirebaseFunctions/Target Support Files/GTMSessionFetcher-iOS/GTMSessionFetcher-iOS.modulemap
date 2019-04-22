@@ -1,0 +1,6 @@
+framework module GTMSessionFetcher {
+  umbrella header "GTMSessionFetcher-iOS-umbrella.h"
+
+  export *
+  module * { export * }
+}

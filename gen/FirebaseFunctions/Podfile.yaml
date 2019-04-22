@@ -1,0 +1,40 @@
+---
+installation_method:
+  name: cocoapods
+  options:
+    :deterministic_uuids: true
+    :share_schemes_for_development_pods: true
+    :warn_for_multiple_pod_sources: false
+workspace: FirebaseFunctions.xcworkspace
+sources:
+  - "git@github.com:crashlytics/podspecs.git"
+  - https://github.com/CocoaPods/Specs.git
+  - https://github.com/Firebase/SpecsStaging.git
+  - sso://cpdc-internal/firebase.git
+  - sso://cpdc-internal/spec.git
+plugins:
+  cocoapods-generate:
+    {}
+target_definitions:
+  - abstract: true
+    children:
+      - abstract: true
+        name: Transitive Dependencies
+      - name: App-iOS
+      - name: App-macOS
+      - name: App-tvOS
+    dependencies:
+      - FirebaseFunctions:
+        - :path: "../../FirebaseFunctions.podspec"
+      - FirebaseFunctions/integration:
+        - :path: "../../FirebaseFunctions.podspec"
+      - FirebaseFunctions/unit:
+        - :path: "../../FirebaseFunctions.podspec"
+    name: Pods
+    use_modular_headers:
+      for_pods:
+        - FirebaseFunctions
+        - FirebaseFunctions
+        - FirebaseFunctions
+    user_project_path: FirebaseFunctions.xcodeproj
+    uses_frameworks: true

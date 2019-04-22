@@ -1,0 +1,10 @@
+CODE_SIGN_IDENTITY =
+FRAMEWORK_SEARCH_PATHS = $(inherited) "${PODS_CONFIGURATION_BUILD_DIR}/FirebaseCore-macOS" "${PODS_CONFIGURATION_BUILD_DIR}/FirebaseFunctions-macOS" "${PODS_CONFIGURATION_BUILD_DIR}/GTMSessionFetcher-macOS" "${PODS_CONFIGURATION_BUILD_DIR}/GoogleUtilities-macOS"
+GCC_PREPROCESSOR_DEFINITIONS = $(inherited) COCOAPODS=1
+HEADER_SEARCH_PATHS = $(inherited) "${PODS_CONFIGURATION_BUILD_DIR}/FirebaseCore-macOS/FirebaseCore.framework/Headers" "${PODS_CONFIGURATION_BUILD_DIR}/FirebaseFunctions-macOS/FirebaseFunctions.framework/Headers" "${PODS_CONFIGURATION_BUILD_DIR}/GTMSessionFetcher-macOS/GTMSessionFetcher.framework/Headers" "${PODS_CONFIGURATION_BUILD_DIR}/GoogleUtilities-macOS/GoogleUtilities.framework/Headers" "${PODS_ROOT}/Headers/Public" "${PODS_ROOT}/Headers/Public/FirebaseAuthInterop"
+LD_RUNPATH_SEARCH_PATHS = $(inherited) '@executable_path/../Frameworks' '@loader_path/Frameworks'
+OTHER_LDFLAGS = $(inherited) -ObjC -framework "FirebaseCore" -framework "FirebaseFunctions" -framework "Foundation" -framework "GTMSessionFetcher" -framework "GoogleUtilities" -framework "Security"
+PODS_BUILD_DIR = ${BUILD_DIR}
+PODS_CONFIGURATION_BUILD_DIR = ${PODS_BUILD_DIR}/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)
+PODS_PODFILE_DIR_PATH = ${SRCROOT}/.
+PODS_ROOT = ${SRCROOT}/.

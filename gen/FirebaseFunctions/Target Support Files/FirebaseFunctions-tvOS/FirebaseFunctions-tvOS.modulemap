@@ -1,0 +1,6 @@
+framework module FirebaseFunctions {
+  umbrella header "FirebaseFunctions-tvOS-umbrella.h"
+
+  export *
+  module * { export * }
+}

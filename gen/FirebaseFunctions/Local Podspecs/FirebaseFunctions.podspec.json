@@ -1,0 +1,61 @@
+{
+  "name": "FirebaseFunctions",
+  "version": "2.4.0",
+  "summary": "Cloud Functions for Firebase iOS SDK.",
+  "description": "iOS SDK for Cloud Functions for Firebase.",
+  "homepage": "https://developers.google.com/",
+  "license": {
+    "type": "Apache",
+    "file": "LICENSE"
+  },
+  "authors": "Google, Inc.",
+  "source": {
+    "git": "https://github.com/firebase/firebase-ios-sdk.git",
+    "tag": "Functions-2.4.0"
+  },
+  "platforms": {
+    "ios": "8.0",
+    "osx": "10.11",
+    "tvos": "10.0"
+  },
+  "cocoapods_version": ">= 1.4.0",
+  "static_framework": true,
+  "prefix_header_file": false,
+  "source_files": "Functions/FirebaseFunctions/**/*",
+  "public_header_files": "Functions/FirebaseFunctions/Public/*.h",
+  "dependencies": {
+    "FirebaseAuthInterop": [
+      "~> 1.0"
+    ],
+    "FirebaseCore": [
+      "~> 6.0"
+    ],
+    "GTMSessionFetcher/Core": [
+      "~> 1.1"
+    ]
+  },
+  "pod_target_xcconfig": {
+    "GCC_C_LANGUAGE_STANDARD": "c99",
+    "GCC_PREPROCESSOR_DEFINITIONS": "FIRFunctions_VERSION=2.4.0"
+  },
+  "testspecs": [
+    {
+      "name": "unit",
+      "test_type": "unit",
+      "source_files": [
+        "Functions/Example/Test*/*.[mh]",
+        "Example/Shared/FIRAuthInteropFake*"
+      ]
+    },
+    {
+      "name": "integration",
+      "test_type": "unit",
+      "source_files": [
+        "Functions/Example/IntegrationTests/*.[mh]",
+        "Functions/Example/TestUtils/*.[mh]",
+        "Example/Shared/FIRAuthInteropFake*",
+        "Functions/Example/GoogleService-Info.plist"
+      ]
+    }
+  ]
+}

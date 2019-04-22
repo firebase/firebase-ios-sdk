@@ -1,0 +1,6 @@
+framework module GoogleUtilities {
+  umbrella header "GoogleUtilities-tvOS-umbrella.h"
+
+  export *
+  module * { export * }
+}

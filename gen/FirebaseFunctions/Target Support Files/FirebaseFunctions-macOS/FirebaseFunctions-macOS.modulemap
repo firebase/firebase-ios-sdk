@@ -1,0 +1,6 @@
+framework module FirebaseFunctions {
+  umbrella header "FirebaseFunctions-macOS-umbrella.h"
+
+  export *
+  module * { export * }
+}

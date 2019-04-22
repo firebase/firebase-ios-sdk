@@ -1,0 +1,49 @@
+PODS:
+  - FirebaseAuthInterop (1.0.0)
+  - FirebaseCore (6.0.0):
+    - GoogleUtilities/Environment (~> 5.2)
+    - GoogleUtilities/Logger (~> 5.2)
+  - FirebaseFunctions (2.4.0):
+    - FirebaseAuthInterop (~> 1.0)
+    - FirebaseCore (~> 6.0)
+    - GTMSessionFetcher/Core (~> 1.1)
+  - FirebaseFunctions/integration (2.4.0):
+    - FirebaseAuthInterop (~> 1.0)
+    - FirebaseCore (~> 6.0)
+    - GTMSessionFetcher/Core (~> 1.1)
+  - FirebaseFunctions/unit (2.4.0):
+    - FirebaseAuthInterop (~> 1.0)
+    - FirebaseCore (~> 6.0)
+    - GTMSessionFetcher/Core (~> 1.1)
+  - GoogleUtilities/Environment (5.8.0)
+  - GoogleUtilities/Logger (5.8.0):
+    - GoogleUtilities/Environment
+  - GTMSessionFetcher/Core (1.2.1)
+
+DEPENDENCIES:
+  - FirebaseFunctions (from `../../FirebaseFunctions.podspec`)
+  - FirebaseFunctions/integration (from `../../FirebaseFunctions.podspec`)
+  - FirebaseFunctions/unit (from `../../FirebaseFunctions.podspec`)
+
+SPEC REPOS:
+  https://github.com/cocoapods/specs.git:
+    - FirebaseAuthInterop
+    - GTMSessionFetcher
+  https://github.com/Firebase/SpecsStaging.git:
+    - FirebaseCore
+    - GoogleUtilities
+
+EXTERNAL SOURCES:
+  FirebaseFunctions:
+    :path: "../../FirebaseFunctions.podspec"
+
+SPEC CHECKSUMS:
+  FirebaseAuthInterop: 0ffa57668be100582bb7643d4fcb7615496c41fc
+  FirebaseCore: 0807431a5f79a67c5570d3fb3d80c6e7c60ec8c0
+  FirebaseFunctions: a48495a81021f781f84d29e37b9d1c7f2ed69a75
+  GoogleUtilities: 79f2338a97e76d5fdfd813e3955a86c0f855c981
+  GTMSessionFetcher: 32aeca0aa144acea523e1c8e053089dec2cb98ca
+
+PODFILE CHECKSUM: afebbb9cf555fd07a4819d1e67adcba863f39b65
+
+COCOAPODS: 1.6.1
