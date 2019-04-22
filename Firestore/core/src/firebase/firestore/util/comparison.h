@@ -78,6 +78,33 @@ constexpr ComparisonResult ReverseOrder(ComparisonResult result) {
   return static_cast<ComparisonResult>(-static_cast<int>(result));
 }
 
+#if __OBJC__
+/**
+ * Returns true if the given ComparisonResult and NSComparisonResult have the
+ * same integer values (at compile time).
+ */
+constexpr bool EqualValue(ComparisonResult lhs, NSComparisonResult rhs) {
+  return static_cast<int>(lhs) == static_cast<int>(rhs);
+}
+
+static_assert(EqualValue(ComparisonResult::Ascending, NSOrderedAscending),
+              "Ascending invalid");
+static_assert(EqualValue(ComparisonResult::Same, NSOrderedSame),
+              "Same invalid");
+static_assert(EqualValue(ComparisonResult::Descending, NSOrderedDescending),
+              "Descending invalid");
+
+/** Converts NSComparisonResult to ComparisonResult. */
+constexpr ComparisonResult MakeComparisonResult(NSComparisonResult value) {
+  return static_cast<ComparisonResult>(value);
+}
+
+/** Converts ComparisonResult to NSComparisonResult. */
+constexpr NSComparisonResult MakeNSComparisonResult(ComparisonResult value) {
+  return static_cast<NSComparisonResult>(value);
+}
+#endif  // __OBJC__
+
 /**
  * A generalized comparator for types in Firestore, with ordering defined
  * according to Firestore's semantics. This is useful as argument to e.g.
@@ -89,6 +116,18 @@ constexpr ComparisonResult ReverseOrder(ComparisonResult result) {
 template <typename T>
 struct Comparator {
   // By default comparison is not defined
+
+template <typename T>
+struct DefaultComparator {
+  ComparisonResult Compare(const T& left, const T& right) const {
+    if (left < right) {
+      return ComparisonResult::Ascending;
+    } else if (right < left) {
+      return ComparisonResult::Descending;
+    } else {
+      return ComparisonResult::Same;
+    }
+  }
 };
 
 /** Compares two strings. */
@@ -102,19 +141,6 @@ template <>
 struct Comparator<std::string> {
   ComparisonResult Compare(const std::string& left,
                            const std::string& right) const;
-};
-
-template <typename T>
-struct DefaultComparator {
-  ComparisonResult Compare(const T& left, const T& right) const {
-    if (left < right) {
-      return ComparisonResult::Ascending;
-    } else if (right < left) {
-      return ComparisonResult::Descending;
-    } else {
-      return ComparisonResult::Same;
-    }
-  }
 };
 
 /** Compares two bools: false < true. */
@@ -158,29 +184,6 @@ ComparisonResult Compare(const T& left,
 }
 
 #if __OBJC__
-/**
- * Returns true if the given ComparisonResult and NSComparisonResult have the
- * same integer values (at compile time).
- */
-constexpr bool EqualValue(ComparisonResult lhs, NSComparisonResult rhs) {
-  return static_cast<int>(lhs) == static_cast<int>(rhs);
-}
-
-static_assert(EqualValue(ComparisonResult::Ascending, NSOrderedAscending),
-              "Ascending invalid");
-static_assert(EqualValue(ComparisonResult::Same, NSOrderedSame),
-              "Same invalid");
-static_assert(EqualValue(ComparisonResult::Descending, NSOrderedDescending),
-              "Descending invalid");
-
-constexpr ComparisonResult MakeComparisonResult(NSComparisonResult value) {
-  return static_cast<ComparisonResult>(value);
-}
-
-constexpr NSComparisonResult MakeNSComparisonResult(ComparisonResult value) {
-  return static_cast<NSComparisonResult>(value);
-}
-
 /**
  * Performs a three-way comparison, identically to Compare, but converts the
  * result to an NSComparisonResult.
