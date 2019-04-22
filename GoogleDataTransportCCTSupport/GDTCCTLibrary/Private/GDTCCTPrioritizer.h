@@ -16,7 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import <GoogleDataTransport/GoogleDataTransport.h>
+#import <GoogleDataTransport/GDTClock.h>
+#import <GoogleDataTransport/GDTPrioritizer.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -16,7 +16,10 @@
 
 #import <XCTest/XCTest.h>
 
-#import <GoogleDataTransport/GoogleDataTransport.h>
+#import <GoogleDataTransport/GDTEvent.h>
+#import <GoogleDataTransport/GDTEventDataObject.h>
+#import <GoogleDataTransport/GDTTransport.h>
+
 #import <SystemConfiguration/SCNetworkReachability.h>
 
 #import "GDTCCTLibrary/Private/GDTCCTPrioritizer.h"

@@ -16,6 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
+#import <GoogleDataTransport/GDTUploadPackage.h>
+
 #import "GDTCCTLibrary/Private/GDTCCTNanopbHelpers.h"
 #import "GDTCCTLibrary/Private/GDTCCTUploader.h"
 
