@@ -118,14 +118,6 @@ struct DocumentKeyHash {
 };
 
 }  // namespace model
-
-namespace util {
-
-template <>
-struct Comparator<model::DocumentKey>
-    : public DefaultComparator<model::DocumentKey> {};
-
-}  // namespace util
 }  // namespace firestore
 }  // namespace firebase
 

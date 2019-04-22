@@ -1014,7 +1014,4 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
 
 @end
 
-template <>
-struct Comparator<FieldValue> : public util::DefaultComparator<FieldValue> {};
-
 NS_ASSUME_NONNULL_END
