@@ -1,0 +1,112 @@
+# Copyright 2019 Google
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# This script runs when the developer commits. 
+# To skip the execution of this file, use add the --no-verify flag to the git commit command.
+#
+# This file is used to help generate and check in a new version of the XCode workspace. 
+#
+
+echo >&2 "Running Git pre-commit script in: $0"
+
+update_generated_xcode_files() {
+  # Step 1 - Undo changes in the gen folder which may conflict with the auto-generation
+  echo >&2 "Undo changes in the gen folder."
+  git checkout gen
+
+  gitCheckoutExitCode=$?
+  if [[ $gitCheckoutExitCode -eq 0 ]]; then
+    echo >&2 "Undo changes in the gen folder succeeded."
+  elif [[ $gitCheckoutExitCode -eq 1 ]]; then
+    echo >&2 "Gen folder is not tracked in git, continue."
+  else 
+    echo >&2 "Undo changes in the gen folder failed with exit code: $gitCheckoutExitCode" 
+    exit 1
+  fi
+
+  # Step 2 - Remove existing XCode workspace
+
+  echo >&2 "Remove existing XCode workspace."
+  if [ -d gen/$FirebaseProduct ]; then
+    git rm -r gen/$FirebaseProduct/ -q
+  fi
+
+  gitRemoveExitCode=$?
+  if [[ $gitRemoveExitCode -eq 0 ]] || [[ $gitRemoveExitCode -eq 128 ]]; then
+    echo >&2 "Remove existing XCode workspace succeeded."
+  else 
+    echo >&2 "Remove existing XCode workspace failed with exit code: $gitRemoveExitCode" 
+    exit 2
+  fi
+
+  # Step 3 - Generate XCode workspace
+
+  echo >&2 "Found changes to $FirebaseProduct. Running `pod gen $FirebaseProduct.podspec` to update generated XCode workspace."
+  "/usr/local/bin/pod" gen $FirebaseProduct.podspec --deterministic-uuids --sources=https://github.com/Firebase/SpecsStaging.git,https://github.com/CocoaPods/Specs.git
+
+  podGenExitCode=$?
+  if [[ $podGenExitCode -eq 0 ]]; then
+    echo >&2 "Generation of the XCode workspace succeeded."
+  else 
+    echo >&2 "Generation of the XCode workspace failed with exit code: $podGenExitCode" 
+    exit 3
+  fi
+
+  # Step 4 - Git add generated files
+
+  echo >&2 "Git add the generated XCode workspace files."
+  git add -A gen/$FirebaseProduct/ -f
+  gitAddExitCode=$?
+
+  if [[ $gitAddExitCode -eq 0 ]]; then
+    echo >&2 "Adding generated files succeeded."
+  else 
+    echo >&2 "Adding generated failed with exit code: $gitAddExitCode" 
+    exit 4
+  fi
+
+  # Step 5 - Remove xcuserdata files (in the githook, it looks like .gitignore is not honored)
+
+  #echo >&2 "Git removing xcuserdata files in generated Pods.xcodeproj"
+  if [ -d gen/$FirebaseProduct/Pods.xcodeproj/xcuserdata ]; then
+    git rm -r gen/$FirebaseProduct/Pods.xcodeproj/xcuserdata -f -q
+  fi
+ 
+  echo >&2 "Git removing xcuserdata files in generated $FirebaseProduct.xcodeproj"
+  if [ -d gen/$FirebaseProduct/$FirebaseProduct.xcodeproj/xcuserdata ]; then
+    git rm -r gen/$FirebaseProduct/$FirebaseProduct.xcodeproj/xcuserdata -f -q
+  fi
+
+  echo >&2 "Git removing xcuserdata files in generated $FirebaseProduct.xcworkspace"
+  if [ -d gen/$FirebaseProduct/$FirebaseProduct.xcworkspace/xcuserdata ]; then
+    git rm -r gen/$FirebaseProduct/$FirebaseProduct.xcworkspace/xcuserdata -f -q
+  fi
+}
+
+
+# ========================== FUNCTIONS HOOK ==========================
+
+# Check 2: If there are changes to Functions files, then re-generate XCode project.
+#          If one of the Functions' dependencies is updated (and there are no file changes with `Functions` in its path),
+#          then manually generate the project with --deterministic-uuids and commit with the --no-verify flag.
+
+if git diff --stat origin/master --name-only | grep --quiet "Functions"; then 
+  FirebaseProduct="FirebaseFunctions"
+  echo "$FirebaseProduct"
+  update_generated_xcode_files
+fi
+
+# ====================== END OF FUNCTIONS HOOK ======================
+
+exit 0 	 # Allow git commit to proceed

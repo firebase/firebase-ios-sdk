@@ -19,6 +19,7 @@ See the three subsections for details about three different installation methods
 1. [Standard pod install](README.md#standard-pod-install)
 1. [Installing from the GitHub repo](README.md#installing-from-github)
 1. [Experimental Carthage](README.md#carthage-ios-only)
+1. [Install Githooks](README.md#install-githooks)
 
 ### Standard pod install
 
@@ -62,6 +63,19 @@ pod 'FirebaseMessaging', :path => '/path/to/firebase-ios-sdk'
 
 Instructions for the experimental Carthage distribution are at
 [Carthage](Carthage.md).
+
+### Install GitHooks
+
+Git have [known hooks](https://git-scm.com/docs/githooks) that developers can use for customizations during various git events.
+Due to security restrictions, Git does not allow us to check in files directly into .git/hooks. 
+As such, developers will have to run ./scripts/install_githooks.sh to install the git hooks.
+
+Currently, the git hook is only used to automate the generation and checking in of the generated XCode project for Functions.
+
+```
+# Copies /scripts/git-hooks into .git/hooks
+./scripts/install_githooks.sh
+```
 
 ### Rome
 
