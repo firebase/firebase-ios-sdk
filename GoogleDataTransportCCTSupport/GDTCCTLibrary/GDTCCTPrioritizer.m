@@ -16,6 +16,11 @@
 
 #import "GDTCCTLibrary/Private/GDTCCTPrioritizer.h"
 
+#import <GoogleDataTransport/GDTEvent.h>
+#import <GoogleDataTransport/GDTRegistrar.h>
+#import <GoogleDataTransport/GDTStoredEvent.h>
+#import <GoogleDataTransport/GDTTargets.h>
+
 const static NSUInteger kMillisPerDay = 8.64e+7;
 
 @implementation GDTCCTPrioritizer

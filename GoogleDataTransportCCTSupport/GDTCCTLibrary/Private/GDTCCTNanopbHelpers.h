@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import <GoogleDataTransport/GoogleDataTransport.h>
+#import <GoogleDataTransport/GDTStoredEvent.h>
 
 #import "GDTCCTLibrary/Protogen/nanopb/cct.nanopb.h"
 
