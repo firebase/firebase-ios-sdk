@@ -24,6 +24,7 @@
 #include <utility>
 #include <vector>
 
+#include "Firestore/core/src/firebase/firestore/util/comparison.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
 
@@ -149,23 +150,8 @@ class BasePath {
            std::equal(begin(), end(), potential_child.begin());
   }
 
-  bool operator==(const BasePath& rhs) const {
-    return segments_ == rhs.segments_;
-  }
-  bool operator!=(const BasePath& rhs) const {
-    return segments_ != rhs.segments_;
-  }
-  bool operator<(const BasePath& rhs) const {
-    return segments_ < rhs.segments_;
-  }
-  bool operator>(const BasePath& rhs) const {
-    return segments_ > rhs.segments_;
-  }
-  bool operator<=(const BasePath& rhs) const {
-    return segments_ <= rhs.segments_;
-  }
-  bool operator>=(const BasePath& rhs) const {
-    return segments_ >= rhs.segments_;
+  util::ComparisonResult CompareTo(const T& rhs) const {
+    return util::Compare(segments_, rhs.segments_);
   }
 
  protected:

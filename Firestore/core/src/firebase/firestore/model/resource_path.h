@@ -22,6 +22,7 @@
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/model/base_path.h"
+#include "Firestore/core/src/firebase/firestore/util/comparison.h"
 #include "absl/strings/string_view.h"
 
 namespace firebase {
@@ -32,7 +33,8 @@ namespace model {
  * A slash-separated path for navigating resources (documents and collections)
  * within Firestore. Immutable; all instances are fully independent.
  */
-class ResourcePath : public impl::BasePath<ResourcePath> {
+class ResourcePath : public impl::BasePath<ResourcePath>,
+                     public util::Comparable<ResourcePath> {
  public:
   ResourcePath() = default;
   /** Constructs the path from segments. */
@@ -55,25 +57,6 @@ class ResourcePath : public impl::BasePath<ResourcePath> {
 
   /** Returns a standardized string representation of this path. */
   std::string CanonicalString() const;
-
-  bool operator==(const ResourcePath& rhs) const {
-    return BasePath::operator==(rhs);
-  }
-  bool operator!=(const ResourcePath& rhs) const {
-    return BasePath::operator!=(rhs);
-  }
-  bool operator<(const ResourcePath& rhs) const {
-    return BasePath::operator<(rhs);
-  }
-  bool operator>(const ResourcePath& rhs) const {
-    return BasePath::operator>(rhs);
-  }
-  bool operator<=(const ResourcePath& rhs) const {
-    return BasePath::operator<=(rhs);
-  }
-  bool operator>=(const ResourcePath& rhs) const {
-    return BasePath::operator>=(rhs);
-  }
 };
 
 }  // namespace model

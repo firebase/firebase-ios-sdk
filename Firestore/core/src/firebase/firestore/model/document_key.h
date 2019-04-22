@@ -34,7 +34,7 @@ namespace model {
 /**
  * DocumentKey represents the location of a document in the Firestore database.
  */
-class DocumentKey {
+class DocumentKey : public util::Comparable<DocumentKey> {
  public:
   /** Creates a "blank" document key not associated with any document. */
   DocumentKey() : path_{std::make_shared<ResourcePath>()} {
@@ -45,14 +45,6 @@ class DocumentKey {
 
   /** Creates a new document key, taking ownership of the given path. */
   explicit DocumentKey(ResourcePath&& path);
-
-  size_t Hash() const {
-    return util::Hash(ToString());
-  }
-
-  std::string ToString() const {
-    return path().CanonicalString();
-  }
 
   /**
    * Creates and returns a new document key using '/' to split the string into
@@ -75,6 +67,16 @@ class DocumentKey {
     return path.size() % 2 == 0;
   }
 
+  util::ComparisonResult CompareTo(const DocumentKey& other) const;
+
+  size_t Hash() const {
+    return util::Hash(ToString());
+  }
+
+  std::string ToString() const {
+    return path().CanonicalString();
+  }
+
   /** The path to the document. */
   const ResourcePath& path() const {
     return path_ ? *path_ : Empty().path();
@@ -91,25 +93,6 @@ class DocumentKey {
   // copied often).
   std::shared_ptr<const ResourcePath> path_;
 };
-
-inline bool operator==(const DocumentKey& lhs, const DocumentKey& rhs) {
-  return lhs.path() == rhs.path();
-}
-inline bool operator!=(const DocumentKey& lhs, const DocumentKey& rhs) {
-  return lhs.path() != rhs.path();
-}
-inline bool operator<(const DocumentKey& lhs, const DocumentKey& rhs) {
-  return lhs.path() < rhs.path();
-}
-inline bool operator<=(const DocumentKey& lhs, const DocumentKey& rhs) {
-  return lhs.path() <= rhs.path();
-}
-inline bool operator>(const DocumentKey& lhs, const DocumentKey& rhs) {
-  return lhs.path() > rhs.path();
-}
-inline bool operator>=(const DocumentKey& lhs, const DocumentKey& rhs) {
-  return lhs.path() >= rhs.path();
-}
 
 struct DocumentKeyHash {
   size_t operator()(const DocumentKey& key) const {
