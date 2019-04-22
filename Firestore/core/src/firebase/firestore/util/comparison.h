@@ -152,6 +152,17 @@ struct Comparator<std::string> {
                            const std::string& right) const;
 };
 
+#if __OBJC__
+template <>
+struct Comparator<NSString*> {
+  ComparisonResult Compare(NSString* left, NSString* right) const {
+    // Delegate to the string_view implementation so these are consistent.
+    Comparator<absl::string_view> delegate;
+    return delegate.Compare(MakeString(left), MakeString(right));
+  }
+};
+#endif  // __OBJC__
+
 /** Compares two bools: false < true. */
 template <>
 struct Comparator<bool> : public DefaultComparator<bool> {};

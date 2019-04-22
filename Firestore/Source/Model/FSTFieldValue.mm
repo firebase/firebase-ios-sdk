@@ -633,15 +633,6 @@ static NSComparisonResult CompareBytes(NSData *left, NSData *right) {
 /**
  * Specialization of Comparator for NSStrings.
  */
-// TODO(b/37267885): Add truncation support
-template <>
-struct Comparator<NSString *> {
-  ComparisonResult Compare(NSString *left, NSString *right) const {
-    Comparator<absl::string_view> comparator;
-    return comparator.Compare(MakeString(left), MakeString(right));
-  }
-};
-
 static const NSComparator StringComparator = ^NSComparisonResult(NSString *left, NSString *right) {
   return WrapCompare(left, right);
 };
