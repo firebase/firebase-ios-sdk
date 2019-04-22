@@ -271,6 +271,26 @@ struct Comparator {
   }
 };
 
+template <typename T>
+ComparisonResult CompareContainer(const T& lhs, const T& rhs) {
+  auto lhs_iter = lhs.begin();
+  auto lhs_end = lhs.end();
+  auto rhs_iter = rhs.begin();
+  auto rhs_end = rhs.end();
+
+  while (lhs_iter != lhs_end && rhs_iter != rhs_end) {
+    ComparisonResult cmp = Compare(*lhs_iter, *rhs_iter);
+    if (!Same(cmp)) return cmp;
+
+    ++lhs_iter;
+    ++rhs_iter;
+  }
+
+  if (rhs_iter != rhs_end) return ComparisonResult::Ascending;
+  if (lhs_iter != lhs_end) return ComparisonResult::Descending;
+  return ComparisonResult::Same;
+}
+
 /** Compares a double and an int64_t. */
 ComparisonResult CompareMixedNumber(double doubleValue, int64_t longValue);
 
