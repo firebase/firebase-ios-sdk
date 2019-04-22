@@ -14,7 +14,7 @@
             buildForArchiving = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "306B8757D53ACF7BA8A7FEFB"
+               BlueprintIdentifier = "A406DADE9F4EDD6B63E73043"
                BuildableName = "App-tvOS.app"
                BlueprintName = "App-tvOS"
                ReferencedContainer = "container:FirebaseFunctions.xcodeproj">
@@ -32,7 +32,7 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "306B8757D53ACF7BA8A7FEFB"
+            BlueprintIdentifier = "A406DADE9F4EDD6B63E73043"
             BuildableName = "App-tvOS.app"
             BlueprintName = "App-tvOS"
             ReferencedContainer = "container:FirebaseFunctions.xcodeproj">
@@ -77,7 +77,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "306B8757D53ACF7BA8A7FEFB"
+            BlueprintIdentifier = "A406DADE9F4EDD6B63E73043"
             BuildableName = "App-tvOS.app"
             BlueprintName = "App-tvOS"
             ReferencedContainer = "container:FirebaseFunctions.xcodeproj">
@@ -93,7 +93,7 @@
       <BuildableProductRunnable>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "306B8757D53ACF7BA8A7FEFB"
+            BlueprintIdentifier = "A406DADE9F4EDD6B63E73043"
             BuildableName = "App-tvOS.app"
             BlueprintName = "App-tvOS"
             ReferencedContainer = "container:FirebaseFunctions.xcodeproj">

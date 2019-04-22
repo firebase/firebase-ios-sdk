@@ -14,7 +14,7 @@
             buildForArchiving = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "DD82C1E86FF7A1A54CA95E90"
+               BlueprintIdentifier = "B5C5EA73ADBAC43165F063B7"
                BuildableName = "App-macOS.app"
                BlueprintName = "App-macOS"
                ReferencedContainer = "container:FirebaseFunctions.xcodeproj">
@@ -32,7 +32,7 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "DD82C1E86FF7A1A54CA95E90"
+            BlueprintIdentifier = "B5C5EA73ADBAC43165F063B7"
             BuildableName = "App-macOS.app"
             BlueprintName = "App-macOS"
             ReferencedContainer = "container:FirebaseFunctions.xcodeproj">
@@ -77,7 +77,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "DD82C1E86FF7A1A54CA95E90"
+            BlueprintIdentifier = "B5C5EA73ADBAC43165F063B7"
             BuildableName = "App-macOS.app"
             BlueprintName = "App-macOS"
             ReferencedContainer = "container:FirebaseFunctions.xcodeproj">
@@ -93,7 +93,7 @@
       <BuildableProductRunnable>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "DD82C1E86FF7A1A54CA95E90"
+            BlueprintIdentifier = "B5C5EA73ADBAC43165F063B7"
             BuildableName = "App-macOS.app"
             BlueprintName = "App-macOS"
             ReferencedContainer = "container:FirebaseFunctions.xcodeproj">
