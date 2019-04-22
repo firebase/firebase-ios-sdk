@@ -28,7 +28,9 @@
 #include <string>
 #include <vector>
 
+#include "Firestore/core/src/firebase/firestore/objc/objc_type_traits.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "absl/meta/type_traits.h"
 #include "absl/strings/string_view.h"
 
 namespace firebase {
@@ -107,15 +109,22 @@ constexpr NSComparisonResult MakeNSComparisonResult(ComparisonResult value) {
 
 /**
  * A generalized comparator for types in Firestore, with ordering defined
- * according to Firestore's semantics. This is useful as argument to e.g.
- * std::sort.
+ * according to Firestore's semantics.
  *
- * Comparators are only defined for the limited set of types for which
- * Firestore defines an ordering.
+ * How a given type is compared depends on the type itself:
+ *
+ *   - (Objective-C++-only) If T* is an Objective-C object pointer then
+ *     invokes the `-compare:` member. Note that if T does not actually define
+ *     `-compare:` this will fail. This is unconditional this way because no
+ *     other alternative is valid for pointer types.
+ *
+ *   - If T defines a `CompareTo(T) const` member function, then Compare will
+ *     invoke `lhs.CompareTo(rhs)`.
+ *
+ *   - Otherwise, invokes `DefaultCompare(lhs, rhs)`.
  */
 template <typename T>
-struct Comparator {
-  // By default comparison is not defined
+struct Comparator;
 
 template <typename T>
 struct DefaultComparator {
@@ -195,7 +204,61 @@ template <typename T>
 inline NSComparisonResult WrapCompare(const T& left, const T& right) {
   return MakeNSComparisonResult(Compare<T>(left, right));
 }
-#endif
+#endif  // __OBJC__
+
+namespace impl {
+
+/**
+ * Checks wither the type T has a `CompareTo` member.
+ */
+template <typename T, typename = absl::void_t<>>
+struct has_compare_to : public std::false_type {};
+
+template <typename T>
+struct has_compare_to<
+    T,
+    absl::void_t<decltype(std::declval<T>().CompareTo(std::declval<T>()))>>
+    : public std::true_type {};
+
+/**
+ * Implements ranked choice among overloads below.
+ */
+template <int I>
+struct CompareChoice : CompareChoice<I + 1> {};
+
+template <>
+struct CompareChoice<2> {};
+
+#if __OBJC__
+// For Objective-C pointer types, use the Objective-C -compare: method.
+template <typename T,
+          typename = absl::enable_if_t<objc::is_objc_pointer<T>::value>>
+ComparisonResult CompareImpl(T* lhs, T* rhs, CompareChoice<0>) {
+  return MakeComparisonResult([lhs compare:rhs]);
+}
+#endif  // __OBJC__
+
+// Use a `CompareTo` member, if available
+template <typename T, typename = absl::enable_if_t<has_compare_to<T>::value>>
+ComparisonResult CompareImpl(const T& lhs, const T& rhs, CompareChoice<1>) {
+  return lhs.CompareTo(rhs);
+}
+
+// Otherwise, fall back on less than.
+template <typename T, typename = void>
+ComparisonResult CompareImpl(const T& lhs, const T& rhs, CompareChoice<2>) {
+  DefaultComparator<T> comparator;
+  return comparator.Compare(lhs, rhs);
+}
+
+}  // namespace impl
+
+template <typename T>
+struct Comparator {
+  ComparisonResult Compare(const T& lhs, const T& rhs) const {
+    return impl::CompareImpl(lhs, rhs, impl::CompareChoice<0>{});
+  }
+};
 
 /** Compares a double and an int64_t. */
 ComparisonResult CompareMixedNumber(double doubleValue, int64_t longValue);
