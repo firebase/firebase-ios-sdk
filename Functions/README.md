@@ -1,4 +1,4 @@
-# Cloud Functions for Firebase iOS SDK
+# Cloud Functions for Firebase iOS SDK 
 
 ## Development
 
