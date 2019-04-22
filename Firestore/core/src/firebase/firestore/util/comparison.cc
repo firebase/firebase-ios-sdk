@@ -44,21 +44,9 @@ ComparisonResult Comparator<absl::string_view>::Compare(
   return ComparisonResultFromInt(left.compare(right));
 }
 
-bool Comparator<absl::string_view>::operator()(absl::string_view left,
-                                               absl::string_view right) const {
-  // TODO(wilhuff): truncation aware comparison
-  return Ascending(Compare(left, right));
-}
-
 ComparisonResult Comparator<std::string>::Compare(
     const std::string& left, const std::string& right) const {
   return ComparisonResultFromInt(left.compare(right));
-}
-
-bool Comparator<std::string>::operator()(const std::string& left,
-                                         const std::string& right) const {
-  // TODO(wilhuff): truncation aware comparison
-  return Ascending(Compare(left, right));
 }
 
 ComparisonResult Comparator<std::vector<uint8_t>>::Compare(
@@ -95,10 +83,6 @@ ComparisonResult Comparator<double>::Compare(double left, double right) const {
       return ComparisonResult::Same;
     }
   }
-}
-
-bool Comparator<double>::operator()(double left, double right) const {
-  return Ascending(Compare(left, right));
 }
 
 static constexpr double INT64_MIN_VALUE_AS_DOUBLE =

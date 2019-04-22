@@ -53,12 +53,6 @@ ComparisonResult DocumentKeyReference::ByKey::Compare(
   return util::Compare(lhs.ref_id_, rhs.ref_id_);
 }
 
-/** Sorts document references by key then ID. */
-bool DocumentKeyReference::ByKey::operator()(
-    const DocumentKeyReference& lhs, const DocumentKeyReference& rhs) const {
-  return util::Ascending(Compare(lhs, rhs));
-}
-
 /** Sorts document references by ID then key. */
 ComparisonResult DocumentKeyReference::ById::Compare(
     const DocumentKeyReference& lhs, const DocumentKeyReference& rhs) const {
@@ -66,17 +60,6 @@ ComparisonResult DocumentKeyReference::ById::Compare(
   if (!util::Same(result)) return result;
 
   return util::Compare(lhs.key_, rhs.key_);
-}
-
-/** Sorts document references by ID then key. */
-bool DocumentKeyReference::ById::operator()(
-    const DocumentKeyReference& lhs, const DocumentKeyReference& rhs) const {
-  util::Comparator<int32_t> id_less;
-  if (id_less(lhs.ref_id_, rhs.ref_id_)) return true;
-  if (id_less(rhs.ref_id_, lhs.ref_id_)) return false;
-
-  util::Comparator<model::DocumentKey> key_less;
-  return key_less(lhs.key_, rhs.key_);
 }
 
 }  // namespace local

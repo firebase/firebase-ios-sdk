@@ -640,10 +640,6 @@ struct Comparator<NSString *> {
     Comparator<absl::string_view> comparator;
     return comparator.Compare(MakeString(left), MakeString(right));
   }
-
-  bool operator()(NSString *left, NSString *right) const {
-    return util::Ascending(Compare(left, right));
-  }
 };
 
 static const NSComparator StringComparator = ^NSComparisonResult(NSString *left, NSString *right) {

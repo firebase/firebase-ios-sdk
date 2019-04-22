@@ -30,6 +30,7 @@
 #include "absl/memory/memory.h"
 
 using firebase::firestore::util::Comparator;
+using firebase::firestore::util::Compare;
 
 namespace firebase {
 namespace firestore {
@@ -390,10 +391,10 @@ bool operator<(const FieldValue& lhs, const FieldValue& rhs) {
     case Type::Null:
       return false;
     case Type::Boolean:
-      return Comparator<bool>()(lhs.boolean_value_, rhs.boolean_value_);
+      return util::Ascending(Compare(lhs.boolean_value_, rhs.boolean_value_));
     case Type::Integer:
       if (rhs.type() == Type::Integer) {
-        return Comparator<int64_t>()(lhs.integer_value_, rhs.integer_value_);
+        return util::Ascending(Compare(lhs.integer_value_, rhs.integer_value_));
       } else {
         return util::CompareMixedNumber(rhs.double_value_,
                                         lhs.integer_value_) ==
@@ -401,7 +402,7 @@ bool operator<(const FieldValue& lhs, const FieldValue& rhs) {
       }
     case Type::Double:
       if (rhs.type() == Type::Double) {
-        return Comparator<double>()(lhs.double_value_, rhs.double_value_);
+        return util::Ascending(Compare(lhs.double_value_, rhs.double_value_));
       } else {
         return util::CompareMixedNumber(lhs.double_value_,
                                         rhs.integer_value_) ==

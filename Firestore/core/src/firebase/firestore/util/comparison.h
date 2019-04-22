@@ -96,24 +96,20 @@ template <>
 struct Comparator<absl::string_view> {
   ComparisonResult Compare(absl::string_view left,
                            absl::string_view right) const;
-
-  bool operator()(absl::string_view left, absl::string_view right) const;
 };
 
 template <>
 struct Comparator<std::string> {
   ComparisonResult Compare(const std::string& left,
                            const std::string& right) const;
-
-  bool operator()(const std::string& left, const std::string& right) const;
 };
 
 template <typename T>
-struct DefaultComparator : public std::less<T> {
+struct DefaultComparator {
   ComparisonResult Compare(const T& left, const T& right) const {
-    if (this->operator()(left, right)) {
+    if (left < right) {
       return ComparisonResult::Ascending;
-    } else if (this->operator()(right, left)) {
+    } else if (right < left) {
       return ComparisonResult::Descending;
     } else {
       return ComparisonResult::Same;
@@ -137,15 +133,12 @@ struct Comparator<int64_t> : public DefaultComparator<int64_t> {};
 template <>
 struct Comparator<double> {
   ComparisonResult Compare(double left, double right) const;
-
-  bool operator()(double left, double right) const;
 };
 
 /** Compare two byte sequences. */
 // TODO(wilhuff): perhaps absl::Span<uint8_t> would be better?
 template <>
-struct Comparator<std::vector<uint8_t>>
-    : public std::less<std::vector<uint8_t>> {
+struct Comparator<std::vector<uint8_t>> {
   ComparisonResult Compare(const std::vector<uint8_t>& left,
                            const std::vector<uint8_t>& right) const;
 };
