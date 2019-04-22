@@ -21,6 +21,8 @@
 #include <cstring>
 #include <limits>
 
+#include "absl/base/casts.h"
+
 namespace firebase {
 namespace firestore {
 namespace util {
@@ -144,13 +146,7 @@ uint64_t DoubleBits(double d) {
     d = NAN;
   }
 
-  // Unlike C, C++ does not define type punning through a union type.
-
-  // TODO(wilhuff): replace with absl::bit_cast
-  static_assert(sizeof(double) == sizeof(uint64_t), "doubles must be 8 bytes");
-  uint64_t bits;
-  memcpy(&bits, &d, sizeof(bits));
-  return bits;
+  return absl::bit_cast<uint64_t>(d);
 }
 
 bool DoubleBitwiseEquals(double left, double right) {
