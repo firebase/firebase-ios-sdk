@@ -220,19 +220,26 @@ bool DoubleBitwiseEquals(double left, double right);
  */
 size_t DoubleBitwiseHash(double d);
 
+/**
+ * A mixin that defines all six relational operators for a type T in terms of a
+ * CompareTo() member.
+ *
+ * @tparam T The type that should get comparison operators.
+ */
 template <typename T>
-class Equatable {
+class Comparable {
  public:
+  friend bool operator==(const T& lhs, const T& rhs) {
+    return Same(lhs.CompareTo(rhs));
+  }
   friend bool operator!=(const T& lhs, const T& rhs) {
     return !(lhs == rhs);
   }
-};
-
-template <typename T>
-class Comparable : public Equatable<T> {
- public:
+  friend bool operator<(const T& lhs, const T& rhs) {
+    return Ascending(lhs.CompareTo(rhs));
+  }
   friend bool operator>(const T& lhs, const T& rhs) {
-    return rhs < lhs;
+    return Descending(lhs.CompareTo(rhs));
   }
   friend bool operator<=(const T& lhs, const T& rhs) {
     return !(rhs < lhs);
