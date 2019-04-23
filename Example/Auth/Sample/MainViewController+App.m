@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,14 +22,40 @@
 #import "FIRAuthAppCredential.h"
 #import "FIRAuthAppCredentialManager.h"
 #import "FIRAuth_Internal.h"
-#import "MainViewController_Internal.h"
+#import "MainViewController+Internal.h"
 #import "FIRVerifyClientRequest.h"
 #import "FIRVerifyClientResponse.h"
 #import "FIRSendVerificationCodeRequest.h"
 #import "FIRAuthBackend.h"
 #import "FIRApp.h"
 
+static NSString *const kTokenRefreshErrorAlertTitle = @"Get Token Error";
+
+static NSString *const kTokenRefreshedAlertTitle = @"Token";
+
 @implementation MainViewController (App)
+
+- (StaticContentTableViewSection *)appSection {
+  __weak typeof(self) weakSelf = self;
+  return [StaticContentTableViewSection sectionWithTitle:@"APP" cells:@[
+    [StaticContentTableViewCell cellWithTitle:@"Get Token"
+                                       action:^{ [weakSelf getUserTokenResultWithForce:NO]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Get Token Force Refresh"
+                                       action:^{ [weakSelf getUserTokenResultWithForce:YES]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Add Auth State Change Listener"
+                                       action:^{ [weakSelf addAuthStateListener]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Remove Last Auth State Change Listener"
+                                       action:^{ [weakSelf removeAuthStateListener]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Add ID Token Change Listener"
+                                       action:^{ [weakSelf addIDTokenListener]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Remove Last ID Token Change Listener"
+                                       action:^{ [weakSelf removeIDTokenListener]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Verify Client"
+                                       action:^{ [weakSelf verifyClient]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Delete App"
+                                       action:^{ [weakSelf deleteApp]; }],
+    ]];
+}
 
 - (void)getUserTokenResultWithForce:(BOOL)force {
   [[self user] getIDTokenResultForcingRefresh:force

@@ -14,29 +14,15 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-
 #import "MainViewController.h"
+
+#import "StaticContentTableViewManager.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-static NSString *const kGoogleAuthSectionTitle = @"Google Auth";
-
-static NSString *const kSignInGoogleTitle = @"Sign in with Google";
-
-static NSString *const kLinkWithGoogleTitle = @"Link with Google Provider";
-
-static NSString *const kUnlinkfromGoogleTitle = @"Unlink from Google";
-
-static NSString *const kReauthenticateGoogleText = @"Reauthenticate Google";
-
 @interface MainViewController (Google)
 
-- (void)signInGoogle;
-
-- (void)linkWithGoogle;
-
-- (void)reauthenticateGoogle;
+- (StaticContentTableViewSection *)googleAuthSection;
 
 @end
 

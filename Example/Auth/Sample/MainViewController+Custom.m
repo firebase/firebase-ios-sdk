@@ -17,10 +17,20 @@
 #import "MainViewController+Custom.h"
 
 #import "AppManager.h"
-#import "MainViewController_Internal.h"
+#import "MainViewController+Internal.h"
 #import "CustomTokenDataEntryViewController.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @implementation MainViewController (Custom)
+
+- (StaticContentTableViewSection *)customAuthSection {
+  __weak typeof(self) weakSelf = self;
+  return [StaticContentTableViewSection sectionWithTitle:@"Custom Auth" cells:@[
+    [StaticContentTableViewCell cellWithTitle:@"Sign in with Custom Token"
+                                      action:^{ [weakSelf signInWithCustomToken]; }],
+    ]];
+}
 
 - (void)signInWithCustomToken {
   CustomTokenDataEntryViewControllerCompletion action =
@@ -41,20 +51,22 @@
   [[AppManager auth] signInWithCustomToken:userEnteredTokenText
                                 completion:^(FIRAuthDataResult *_Nullable result,
                                              NSError *_Nullable error) {
-                                  if (error) {
-                                    [self logFailure:@"sign-in with custom token failed" error:error];
-                                    [self showMessagePromptWithTitle:kSignInErrorAlertTitle
-                                                             message:error.localizedDescription
-                                                    showCancelButton:NO
-                                                          completion:nil];
-                                    return;
-                                  }
-                                  [self logSuccess:@"sign-in with custom token succeeded."];
-                                  [self showMessagePromptWithTitle:kSignedInAlertTitle
-                                                           message:result.user.displayName
-                                                  showCancelButton:NO
-                                                        completion:nil];
-                                }];
+  if (error) {
+    [self logFailure:@"sign-in with custom token failed" error:error];
+    [self showMessagePromptWithTitle:kSignInErrorAlertTitle
+                             message:error.localizedDescription
+                    showCancelButton:NO
+                          completion:nil];
+    return;
+  }
+  [self logSuccess:@"sign-in with custom token succeeded."];
+  [self showMessagePromptWithTitle:kSignedInAlertTitle
+                           message:result.user.displayName
+                  showCancelButton:NO
+                        completion:nil];
+  }];
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

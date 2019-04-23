@@ -14,29 +14,15 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-
 #import "MainViewController.h"
+
+#import "StaticContentTableViewManager.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-static NSString *const kFacebookAuthSectionTitle = @"Facebook Auth";
-
-static NSString *const kSignInFacebookTitle = @"Sign in with Facebook";
-
-static NSString *const kLinkWithFacebookText = @"Link with Facebook";
-
-static NSString *const kUnlinkFromFacebook = @"Unlink from Facebook";
-
-static NSString *const kReauthenticateFacebookTitle = @"Reauthenticate Facebook";
-
 @interface MainViewController (Facebook)
 
-- (void)signInFacebook;
-
-- (void)linkWithFacebook;
-
-- (void)reauthenticateFacebook;
+- (StaticContentTableViewSection *)facebookAuthSection;
 
 @end
 

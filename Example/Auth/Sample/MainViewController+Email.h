@@ -19,44 +19,19 @@
 #import "FIRAuthCredential.h"
 #import "MainViewController.h"
 #import "FIRAuth.h"
+#import "StaticContentTableViewManager.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 typedef void (^ShowEmailPasswordDialogCompletion)(FIRAuthCredential *credential);
 
-static NSString *const kEmailAuthSectionTitle = @"Email Auth";
-
-static NSString *const kCreateUserTitle = @"Create User";
-
-static NSString *const kSignInEmailPasswordTitle = @"Sign in with Email password";
-
-static NSString *const kLinkWithEmailPasswordText = @"Link with Email password";
-
-static NSString *const kUnlinkFromEmailPassword = @"Unlink from Email Password";
-
-static NSString *const kReauthenticateEmailText = @"Reauthenticate Email password";
-
-static NSString *const kSignInWithEmailLink = @"Sign in with Email link";
-
-static NSString *const kSendEmailSignInLink = @"Send Email Sign in link";
-
 @interface MainViewController (Email)
 
-- (void)createUser;
+- (StaticContentTableViewSection *)emailAuthSection;
 
 - (void)signUpNewEmail:(NSString *)email
               password:(NSString *)password
               callback:(nullable FIRAuthResultCallback)callback;
-
-- (void)signInEmailPassword;
-
-- (void)linkWithEmailPassword;
-
-- (void)reauthenticateEmailPassword;
-
-- (void)signInWithEmailLink;
-
-- (void)sendEmailSignInLink;
 
 @end
 

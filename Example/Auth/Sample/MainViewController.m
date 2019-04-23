@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@
 #import "UserInfoViewController.h"
 #import "UserTableViewCell.h"
 #import "FIRAuth_Internal.h"
-#import "MainViewController_Internal.h"
+#import "MainViewController+Internal.h"
 #import "MainViewController+GameCenter.h"
 #import "MainViewController+Phone.h"
 #import "MainViewController+User.h"
@@ -135,26 +135,26 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
   if ([mode isEqualToString:kPasswordResetAction]) {
     [self showTextInputPromptWithMessage:@"New Password:"
                          completionBlock:^(BOOL userPressedOK, NSString *_Nullable newPassword) {
-                           if (!userPressedOK || !newPassword.length) {
-                             [UIPasteboard generalPasteboard].string = actionCode;
-                             return;
-                           }
-                           [self showSpinner:^() {
-                             [[AppManager auth] confirmPasswordResetWithCode:actionCode
-                                                                 newPassword:newPassword
-                                                                  completion:^(NSError *_Nullable error) {
-                                                                    [self hideSpinner:^{
-                                                                      if (error) {
-                                                                        [self logFailure:@"Password reset in app failed" error:error];
-                                                                        [self showMessagePrompt:error.localizedDescription];
-                                                                        return;
-                                                                      }
-                                                                      [self logSuccess:@"Password reset in app succeeded."];
-                                                                      [self showMessagePrompt:@"Password reset in app succeeded."];
-                                                                    }];
-                                                                  }];
-                           }];
-                         }];
+    if (!userPressedOK || !newPassword.length) {
+     [UIPasteboard generalPasteboard].string = actionCode;
+     return;
+    }
+    [self showSpinner:^() {
+      [[AppManager auth] confirmPasswordResetWithCode:actionCode
+                                         newPassword:newPassword
+                                          completion:^(NSError *_Nullable error) {
+          [self hideSpinner:^{
+            if (error) {
+              [self logFailure:@"Password reset in app failed" error:error];
+              [self showMessagePrompt:error.localizedDescription];
+              return;
+            }
+            [self logSuccess:@"Password reset in app succeeded."];
+            [self showMessagePrompt:@"Password reset in app succeeded."];
+          }];
+        }];
+      }];
+    }];
     return YES;
   }
   if ([mode isEqualToString:kVerifyEmailAction]) {
@@ -162,23 +162,23 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
                              message:actionCode
                     showCancelButton:YES
                           completion:^(BOOL userPressedOK, NSString *_Nullable userInput) {
-                            if (!userPressedOK) {
-                              return;
-                            }
-                            [self showSpinner:^() {
-                              [[AppManager auth] applyActionCode:actionCode completion:^(NSError *_Nullable error) {
-                                [self hideSpinner:^{
-                                  if (error) {
-                                    [self logFailure:@"Verify email in app failed" error:error];
-                                    [self showMessagePrompt:error.localizedDescription];
-                                    return;
-                                  }
-                                  [self logSuccess:@"Verify email in app succeeded."];
-                                  [self showMessagePrompt:@"Verify email in app succeeded."];
-                                }];
-                              }];
-                            }];
-                          }];
+      if (!userPressedOK) {
+        return;
+      }
+      [self showSpinner:^() {
+        [[AppManager auth] applyActionCode:actionCode completion:^(NSError *_Nullable error) {
+          [self hideSpinner:^{
+            if (error) {
+              [self logFailure:@"Verify email in app failed" error:error];
+              [self showMessagePrompt:error.localizedDescription];
+              return;
+            }
+            [self logSuccess:@"Verify email in app succeeded."];
+            [self showMessagePrompt:@"Verify email in app succeeded."];
+          }];
+        }];
+      }];
+    }];
     return YES;
   }
   return NO;
@@ -208,6 +208,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
   __weak typeof(self) weakSelf = self;
   _tableViewManager.contents =
     [StaticContentTableViewContent contentWithSections:@[
+      // User Defaults
       [StaticContentTableViewSection sectionWithTitle:kSectionTitleUserDetails cells:@[
         [StaticContentTableViewCell cellWithCustomCell:_userInfoTableViewCell action:^{
           [weakSelf presentUserInfo];
@@ -217,6 +218,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
           [weakSelf presentUserInMemoryInfo];
         }],
       ]],
+      // Settings
       [StaticContentTableViewSection sectionWithTitle:kSectionTitleSettings cells:@[
         [StaticContentTableViewCell cellWithTitle:kSectionTitleSettings
                                            action:^{ [weakSelf presentSettings]; }],
@@ -228,156 +230,30 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
         [StaticContentTableViewCell cellWithTitle:kSwitchToInMemoryUserTitle
                                            action:^{ [weakSelf updateToSavedUser]; }],
         ]],
-      [StaticContentTableViewSection sectionWithTitle:kAuthSectionTitle cells:@[
-        [StaticContentTableViewCell cellWithTitle:kSignInAnonymouslyTitle
-                                           action:^{ [weakSelf signInAnonymously]; }],
-        [StaticContentTableViewCell cellWithTitle:kSignOutTitle
-                                           action:^{ [weakSelf signOut]; }]
-        ]],
-      [StaticContentTableViewSection sectionWithTitle:kUserSectionTitle cells:@[
-        [StaticContentTableViewCell cellWithTitle:kSetDisplayNameTitle
-                                          action:^{ [weakSelf setDisplayName]; }],
-        [StaticContentTableViewCell cellWithTitle:kSetPhotoURLText
-                                          action:^{ [weakSelf setPhotoURL]; }],
-        [StaticContentTableViewCell cellWithTitle:kUpdateEmailText
-                                          action:^{ [weakSelf updateEmail]; }],
-        [StaticContentTableViewCell cellWithTitle:kUpdatePasswordText
-                                          action:^{ [weakSelf updatePassword]; }],
-        [StaticContentTableViewCell cellWithTitle:kUpdatePhoneNumber
-                                           action:^{ [weakSelf updatePhoneNumber]; }],
-        [StaticContentTableViewCell cellWithTitle:kGetProvidersForEmail
-                                           action:^{ [weakSelf getProvidersForEmail]; }],
-        [StaticContentTableViewCell cellWithTitle:kGetAllSignInMethodsForEmail
-                                           action:^{ [weakSelf getAllSignInMethodsForEmail]; }],
-        [StaticContentTableViewCell cellWithTitle:kReloadText
-                                           action:^{ [weakSelf reloadUser]; }],
-        [StaticContentTableViewCell cellWithTitle:kDeleteUserText
-                                           action:^{ [weakSelf deleteAccount]; }],
-        ]],
-      [StaticContentTableViewSection sectionWithTitle:kEmailAuthSectionTitle cells:@[
-        [StaticContentTableViewCell cellWithTitle:kCreateUserTitle
-                                          action:^{ [weakSelf createUser]; }],
-        [StaticContentTableViewCell cellWithTitle:kSignInEmailPasswordTitle
-                                           action:^{ [weakSelf signInEmailPassword]; }],
-        [StaticContentTableViewCell cellWithTitle:kLinkWithEmailPasswordText
-                                           action:^{ [weakSelf linkWithEmailPassword]; }],
-        [StaticContentTableViewCell cellWithTitle:kUnlinkFromEmailPassword
-                                           action:^{ [weakSelf unlinkFromProvider:FIREmailAuthProviderID completion:nil]; }],
-        [StaticContentTableViewCell cellWithTitle:kReauthenticateEmailText
-                                           action:^{ [weakSelf reauthenticateEmailPassword]; }],
-        [StaticContentTableViewCell cellWithTitle:kSendEmailSignInLink
-                                           action:^{ [weakSelf sendEmailSignInLink]; }],
-        [StaticContentTableViewCell cellWithTitle:kSignInWithEmailLink
-                                           action:^{ [weakSelf signInWithEmailLink]; }],
-        ]],
-      [StaticContentTableViewSection sectionWithTitle:kPhoneAuthSectionTitle cells:@[
-        [StaticContentTableViewCell cellWithTitle:kPhoneNumberSignInReCaptchaTitle
-                                          action:^{ [weakSelf signInWithPhoneNumberWithPrompt]; }],
-        [StaticContentTableViewCell cellWithTitle:kLinkPhoneNumber
-                                          action:^{ [weakSelf linkPhoneNumberWithPrompt]; }],
-        [StaticContentTableViewCell cellWithTitle:kUnlinkPhoneNumber
-                                          action:^{ [weakSelf unlinkFromProvider:FIRPhoneAuthProviderID completion:nil]; }],
-        ]],
-      [StaticContentTableViewSection sectionWithTitle:kGoogleAuthSectionTitle cells:@[
-        [StaticContentTableViewCell cellWithTitle:kSignInGoogleTitle
-                                           action:^{ [weakSelf signInGoogle]; }],
-        [StaticContentTableViewCell cellWithTitle:kLinkWithGoogleTitle
-                                           action:^{ [weakSelf linkWithGoogle]; }],
-        [StaticContentTableViewCell cellWithTitle:kUnlinkfromGoogleTitle
-                                           action:^{ [weakSelf unlinkFromProvider:FIRGoogleAuthProviderID completion:nil]; }],
-        [StaticContentTableViewCell cellWithTitle:kReauthenticateGoogleText
-                                           action:^{ [weakSelf reauthenticateGoogle]; }],
-        ]],
-      [StaticContentTableViewSection sectionWithTitle:kFacebookAuthSectionTitle cells:@[
-        [StaticContentTableViewCell cellWithTitle:kSignInFacebookTitle
-                                           action:^{ [weakSelf signInFacebook]; }],
-        [StaticContentTableViewCell cellWithTitle:kLinkWithFacebookText
-                                           action:^{ [weakSelf linkWithFacebook]; }],
-        [StaticContentTableViewCell cellWithTitle:kUnlinkFromFacebook
-                                           action:^{
-                                             [weakSelf unlinkFromProvider:FIRFacebookAuthProviderID completion:nil];
-                                           }],
-        [StaticContentTableViewCell cellWithTitle:kReauthenticateFacebookTitle
-                                           action:^{ [weakSelf reauthenticateFacebook]; }],
-        ]],
-      [StaticContentTableViewSection sectionWithTitle:kOAuthSectionTitle cells:@[
-        [StaticContentTableViewCell cellWithTitle:kSignInGoogleHeadfulLiteTitle
-                                          action:^{ [weakSelf signInGoogleHeadfulLite]; }],
-        [StaticContentTableViewCell cellWithTitle:kSignInMicrosoftHeadfulLite
-                                           action:^{ [weakSelf signInMicrosoftHeadfulLite]; }],
-        [StaticContentTableViewCell cellWithTitle:kGitHubSignInButtonText
-                                           action:^{ [weakSelf signInWithGitHub]; }],
-        ]],
-      [StaticContentTableViewSection sectionWithTitle:kCustomAuthSectionTitle cells:@[
-        [StaticContentTableViewCell cellWithTitle:kSignInWithCustomTokenTitle
-                                          action:^{ [weakSelf signInWithCustomToken]; }],
-        ]],
-      [StaticContentTableViewSection sectionWithTitle:kGameCenterAuthSectionTitle cells:@[
-        [StaticContentTableViewCell cellWithTitle:kLogInWithSystemGameCenterTitle
-                                           action:^{ [weakSelf logInWithSystemGameCenter]; }],
-        [StaticContentTableViewCell cellWithTitle:kSignInWithGameCenterTitle
-                                           action:^{ [weakSelf signInWithGameCenter]; }],
-        [StaticContentTableViewCell cellWithTitle:kLinkWithGameCenterTitle
-                                           action:^{ [weakSelf linkWithGameCenter]; }],
-        [StaticContentTableViewCell cellWithTitle:kUnlinkWithGameCenterTitle
-                                           action:^{ [weakSelf unlinkFromProvider:FIRGameCenterAuthProviderID completion:nil]; }],
-        [StaticContentTableViewCell cellWithTitle:kReauthenticateWithGameCenterTitle
-                                           action:^{ [weakSelf reauthenticateWithGameCenter]; }],
-        ]],
-      [StaticContentTableViewSection sectionWithTitle:kAppSectionTitle cells:@[
-        [StaticContentTableViewCell cellWithTitle:kGetTokenTitle
-                                          action:^{ [weakSelf getUserTokenResultWithForce:NO]; }],
-        [StaticContentTableViewCell cellWithTitle:kGetTokenForceRefreshTitle
-                                          action:^{ [weakSelf getUserTokenResultWithForce:YES]; }],
-        [StaticContentTableViewCell cellWithTitle:kAddAuthStateListenerTitle
-                                          action:^{ [weakSelf addAuthStateListener]; }],
-        [StaticContentTableViewCell cellWithTitle:kRemoveAuthStateListenerTitle
-                                          action:^{ [weakSelf removeAuthStateListener]; }],
-        [StaticContentTableViewCell cellWithTitle:kAddIDTokenListenerTitle
-                                          action:^{ [weakSelf addIDTokenListener]; }],
-        [StaticContentTableViewCell cellWithTitle:kRemoveIDTokenListenerTitle
-                                          action:^{ [weakSelf removeIDTokenListener]; }],
-        [StaticContentTableViewCell cellWithTitle:kVerifyClientTitle
-                                           action:^{ [weakSelf verifyClient]; }],
-        [StaticContentTableViewCell cellWithTitle:kDeleteAppTitle
-                                           action:^{ [weakSelf deleteApp]; }],
-        ]],
-      [StaticContentTableViewSection sectionWithTitle:kOOBSectionTitle cells:@[
-        [StaticContentTableViewCell cellWithTitle:kActionCodeTypeDescription
-                                            value:[self actionCodeRequestTypeString]
-                                           action:^{ [weakSelf toggleActionCodeRequestType]; }],
-        [StaticContentTableViewCell cellWithTitle:kContinueURLDescription
-                                            value:_actionCodeContinueURL.absoluteString ?: @"(nil)"
-                                           action:^{ [weakSelf changeActionCodeContinueURL]; }],
-        [StaticContentTableViewCell cellWithTitle:kRequestVerifyEmail
-                                           action:^{ [weakSelf requestVerifyEmail]; }],
-        [StaticContentTableViewCell cellWithTitle:kRequestPasswordReset
-                                           action:^{ [weakSelf requestPasswordReset]; }],
-        [StaticContentTableViewCell cellWithTitle:kResetPassword
-                                           action:^{ [weakSelf resetPassword]; }],
-        [StaticContentTableViewCell cellWithTitle:kCheckActionCode
-                                           action:^{ [weakSelf checkActionCode]; }],
-        [StaticContentTableViewCell cellWithTitle:kApplyActionCode
-                                           action:^{ [weakSelf applyActionCode]; }],
-        [StaticContentTableViewCell cellWithTitle:kVerifyPasswordResetCode
-                                           action:^{ [weakSelf verifyPasswordResetCode]; }],
-      ]],
-      [StaticContentTableViewSection sectionWithTitle:kSectionTitleManualTests cells:@[
-        [StaticContentTableViewCell cellWithTitle:kAutoBYOAuthTitle
-                                           action:^{ [weakSelf automatedBYOAuth]; }],
-        [StaticContentTableViewCell cellWithTitle:kAutoSignInGoogle
-                                           action:^{ [weakSelf automatedSignInGoogle]; }],
-        [StaticContentTableViewCell cellWithTitle:kAutoSignInFacebook
-                                           action:^{ [weakSelf automatedSignInFacebook]; }],
-        [StaticContentTableViewCell cellWithTitle:kAutoSignUpEmailPassword
-                                           action:^{ [weakSelf automatedEmailSignUp]; }],
-        [StaticContentTableViewCell cellWithTitle:kAutoSignInAnonymously
-                                           action:^{ [weakSelf automatedAnonymousSignIn]; }],
-        [StaticContentTableViewCell cellWithTitle:kAutoAccountLinking
-                                           action:^{ [weakSelf automatedAccountLinking]; }],
-        [StaticContentTableViewCell cellWithTitle:kAutoPhoneNumberSignIn
-                                           action:^{ [weakSelf automatedPhoneNumberSignIn]; }]
-      ]]
+      // Auth
+      [weakSelf authSection],
+      // Email Auth
+      [weakSelf emailAuthSection],
+      // Phone Auth
+      [weakSelf phoneAuthSection],
+      // Google Auth
+      [weakSelf googleAuthSection],
+      // Facebook Auth
+      [weakSelf facebookAuthSection],
+      // OAuth
+      [weakSelf oAuthSection],
+      // Custom Auth
+      [weakSelf customAuthSection],
+      // Game Center Auth
+      [weakSelf gameCenterAuthSection],
+      // User
+      [weakSelf userSection],
+      // App
+      [weakSelf appSection],
+      // OOB
+      [weakSelf oobSection],
+      // Auto Tests
+      [weakSelf autoTestsSection],
     ]];
 }
 

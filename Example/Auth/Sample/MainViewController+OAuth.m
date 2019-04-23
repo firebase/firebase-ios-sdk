@@ -18,9 +18,23 @@
 
 #import "AppManager.h"
 #import "FIROAuthProvider.h"
-#import "MainViewController_Internal.h"
+#import "MainViewController+Internal.h"
+
+NS_ASSUME_NONNULL_BEGIN
 
 @implementation MainViewController (OAuth)
+
+- (StaticContentTableViewSection *)oAuthSection {
+  __weak typeof(self) weakSelf = self;
+  return [StaticContentTableViewSection sectionWithTitle:@"OAuth" cells:@[
+    [StaticContentTableViewCell cellWithTitle:@"Sign in with Google"
+                                       action:^{ [weakSelf signInGoogleHeadfulLite]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Sign in with Microsoft"
+                                       action:^{ [weakSelf signInMicrosoftHeadfulLite]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Sign In with GitHub"
+                                       action:^{ [weakSelf signInWithGitHub]; }],
+    ]];
+}
 
 - (void)signInGoogleHeadfulLite {
   FIROAuthProvider *provider = self.googleOAuthProvider;
@@ -109,3 +123,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

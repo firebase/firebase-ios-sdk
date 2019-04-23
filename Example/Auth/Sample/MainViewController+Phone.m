@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,18 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation MainViewController (Phone)
+
+- (StaticContentTableViewSection *)phoneAuthSection {
+  __weak typeof(self) weakSelf = self;
+  return [StaticContentTableViewSection sectionWithTitle:@"Phone Auth" cells:@[
+    [StaticContentTableViewCell cellWithTitle:@"Sign in With Phone Number"
+                                       action:^{ [weakSelf signInWithPhoneNumberWithPrompt]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Link Phone Number"
+                                       action:^{ [weakSelf linkPhoneNumberWithPrompt]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Unlink Phone Number"
+                                       action:^{ [weakSelf unlinkFromProvider:FIRPhoneAuthProviderID completion:nil]; }],
+    ]];
+}
 
 - (void)signInWithPhoneNumber:(NSString *_Nullable)phoneNumber
                    completion:(nullable testAutomationCallback)completion {

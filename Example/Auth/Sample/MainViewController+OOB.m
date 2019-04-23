@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,35 @@
 #import "MainViewController+OOB.h"
 
 #import "AppManager.h"
-#import "MainViewController_Internal.h"
+#import "MainViewController+Internal.h"
+
+NS_ASSUME_NONNULL_BEGIN
 
 @implementation MainViewController (OOB)
+
+- (StaticContentTableViewSection *)oobSection {
+  __weak typeof(self) weakSelf = self;
+  return [StaticContentTableViewSection sectionWithTitle:@"OOB" cells:@[
+    [StaticContentTableViewCell cellWithTitle:@"Action Type"
+                                        value:[self actionCodeRequestTypeString]
+                                       action:^{ [weakSelf toggleActionCodeRequestType]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Continue URL"
+                                        value:self.actionCodeContinueURL.absoluteString ?: @"(nil)"
+                                       action:^{ [weakSelf changeActionCodeContinueURL]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Request Verify Email"
+                                       action:^{ [weakSelf requestVerifyEmail]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Request Password Reset"
+                                       action:^{ [weakSelf requestPasswordReset]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Reset Password"
+                                       action:^{ [weakSelf resetPassword]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Check Action Code"
+                                       action:^{ [weakSelf checkActionCode]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Apply Action Code"
+                                       action:^{ [weakSelf applyActionCode]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Verify Password Reset Code"
+                                       action:^{ [weakSelf verifyPasswordResetCode]; }],
+    ]];
+}
 
 - (void)toggleActionCodeRequestType {
   switch (self.actionCodeRequestType) {
@@ -63,7 +89,7 @@
 }
 
 - (void)changeActionCodeContinueURL {
-  [self showTextInputPromptWithMessage:kContinueURLDescription
+  [self showTextInputPromptWithMessage:@"Continue URL"
                        completionBlock:^(BOOL userPressedOK, NSString *_Nullable userInput) {
    if (userPressedOK) {
      self.actionCodeContinueURL = userInput.length ? [NSURL URLWithString:userInput] : nil;
@@ -239,3 +265,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

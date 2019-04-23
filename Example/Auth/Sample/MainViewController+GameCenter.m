@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,27 @@
 
 #import "AppManager.h"
 #import "FirebaseAuth.h"
-#import "MainViewController_Internal.h"
+#import "MainViewController+Internal.h"
+
+NS_ASSUME_NONNULL_BEGIN
 
 @implementation MainViewController (GameCenter)
+
+- (StaticContentTableViewSection *)gameCenterAuthSection {
+  __weak typeof(self) weakSelf = self;
+  return [StaticContentTableViewSection sectionWithTitle:@"Game Center Auth" cells:@[
+    [StaticContentTableViewCell cellWithTitle:@"Log in System Game Center"
+                                      action:^{ [weakSelf logInWithSystemGameCenter]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Sign in Game Center"
+                                      action:^{ [weakSelf signInWithGameCenter]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Link Game Center"
+                                      action:^{ [weakSelf linkWithGameCenter]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Unlink Game Center"
+                                      action:^{ [weakSelf unlinkFromProvider:FIRGameCenterAuthProviderID completion:nil]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Reauthenticate Game Center"
+                                      action:^{ [weakSelf reauthenticateWithGameCenter]; }],
+    ]];
+}
 
 - (void)logInWithSystemGameCenter {
   GKLocalPlayer *localPlayer = [GKLocalPlayer localPlayer];
@@ -101,3 +119,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

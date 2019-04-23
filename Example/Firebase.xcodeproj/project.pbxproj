@@ -1083,7 +1083,7 @@
 		40CC550C221B9B4700032423 /* FIRAuthApiTestsBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRAuthApiTestsBase.h; sourceTree = "<group>"; };
 		40EE3B802256B23200BE59CE /* MainViewController+GameCenter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MainViewController+GameCenter.h"; sourceTree = "<group>"; };
 		40EE3B812256B23200BE59CE /* MainViewController+GameCenter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "MainViewController+GameCenter.m"; sourceTree = "<group>"; };
-		40EE3B832256B39800BE59CE /* MainViewController_Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MainViewController_Internal.h; sourceTree = "<group>"; };
+		40EE3B832256B39800BE59CE /* MainViewController+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MainViewController+Internal.h"; sourceTree = "<group>"; };
 		40EE3B842256B5A000BE59CE /* MainViewController+Phone.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MainViewController+Phone.h"; sourceTree = "<group>"; };
 		40EE3B852256B5A000BE59CE /* MainViewController+Phone.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "MainViewController+Phone.m"; sourceTree = "<group>"; };
 		40EE3B872256B9A600BE59CE /* MainViewController+User.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MainViewController+User.h"; sourceTree = "<group>"; };
@@ -2308,7 +2308,7 @@
 				40EE3B812256B23200BE59CE /* MainViewController+GameCenter.m */,
 				40EE3B992256C66700BE59CE /* MainViewController+Google.h */,
 				40EE3B9A2256C66800BE59CE /* MainViewController+Google.m */,
-				40EE3B832256B39800BE59CE /* MainViewController_Internal.h */,
+				40EE3B832256B39800BE59CE /* MainViewController+Internal.h */,
 				40EE3BA42256C8DE00BE59CE /* MainViewController+OAuth.h */,
 				40EE3BA12256C8DD00BE59CE /* MainViewController+OAuth.m */,
 				40EE3B8A2256BBB200BE59CE /* MainViewController+OOB.h */,

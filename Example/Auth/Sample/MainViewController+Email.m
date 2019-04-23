@@ -17,13 +17,32 @@
 #import "MainViewController+Email.h"
 
 #import "AppManager.h"
-#import "MainViewController_Internal.h"
+#import "MainViewController+Internal.h"
+
+NS_ASSUME_NONNULL_BEGIN
 
 @implementation MainViewController (Email)
 
-/** @fn createUser
- @brief Creates a new user.
- */
+- (StaticContentTableViewSection *)emailAuthSection {
+  __weak typeof(self) weakSelf = self;
+  return [StaticContentTableViewSection sectionWithTitle:@"Email Auth" cells:@[
+    [StaticContentTableViewCell cellWithTitle:@"Create User"
+                                       action:^{ [weakSelf createUser]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Sign in with Email Password"
+                                       action:^{ [weakSelf signInEmailPassword]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Link with Email Password"
+                                       action:^{ [weakSelf linkWithEmailPassword]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Unlink from Email Password"
+                                       action:^{ [weakSelf unlinkFromProvider:FIREmailAuthProviderID completion:nil]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Reauthenticate Email Password"
+                                       action:^{ [weakSelf reauthenticateEmailPassword]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Sign in with Email Link"
+                                       action:^{ [weakSelf sendEmailSignInLink]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Send Email Sign in Link"
+                                       action:^{ [weakSelf signInWithEmailLink]; }],
+    ]];
+}
+
 - (void)createUser {
   [self showTextInputPromptWithMessage:@"Email:"
                           keyboardType:UIKeyboardTypeEmailAddress
@@ -48,7 +67,7 @@
             [self log:result.user.uid];
           }
           [self hideSpinner:^{
-            [self showTypicalUIForUserUpdateResultsWithTitle:kCreateUserTitle error:error];
+            [self showTypicalUIForUserUpdateResultsWithTitle:@"Create User" error:error];
           }];
         }];
       }];
@@ -121,7 +140,7 @@
           [self logSuccess:@"link Email Password succeeded."];
         }
         [self hideSpinner:^{
-          [self showTypicalUIForUserUpdateResultsWithTitle:kLinkWithEmailPasswordText error:error];
+          [self showTypicalUIForUserUpdateResultsWithTitle:@"Link with Email Password" error:error];
         }];
       }];
     }];
@@ -147,7 +166,7 @@
           [self logSuccess:@"reauthicate with email password succeeded."];
         }
         [self hideSpinner:^{
-          [self showTypicalUIForUserUpdateResultsWithTitle:kReauthenticateEmailText error:error];
+          [self showTypicalUIForUserUpdateResultsWithTitle:@"Reauthenticate Email Password" error:error];
         }];
       }];
     }];
@@ -236,3 +255,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

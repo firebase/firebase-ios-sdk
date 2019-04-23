@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,34 @@
 #import "MainViewController+User.h"
 
 #import "AppManager.h"
-#import "MainViewController_Internal.h"
+
+NS_ASSUME_NONNULL_BEGIN
 
 @implementation MainViewController (User)
+
+- (StaticContentTableViewSection *)userSection {
+  __weak typeof(self) weakSelf = self;
+  return [StaticContentTableViewSection sectionWithTitle:@"User" cells:@[
+    [StaticContentTableViewCell cellWithTitle:@"Set Display Name"
+                                      action:^{ [weakSelf setDisplayName]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Set Photo URL"
+                                      action:^{ [weakSelf setPhotoURL]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Update Email"
+                                      action:^{ [weakSelf updateEmail]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Update Password"
+                                      action:^{ [weakSelf updatePassword]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Update Phone Number"
+                                      action:^{ [weakSelf updatePhoneNumber]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Get Provider IDs for Email"
+                                      action:^{ [weakSelf getProvidersForEmail]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Get Sign-in methods for Email"
+                                      action:^{ [weakSelf getAllSignInMethodsForEmail]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Reload User"
+                                      action:^{ [weakSelf reloadUser]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Delete User"
+                                      action:^{ [weakSelf deleteAccount]; }],
+    ]];
+}
 
 - (void)setDisplayName {
   [self showTextInputPromptWithMessage:@"Display Name:"
@@ -37,7 +62,7 @@
          } else {
            [self logSuccess:@"set display name succeeded."];
          }
-         [self showTypicalUIForUserUpdateResultsWithTitle:kSetDisplayNameTitle error:error];
+         [self showTypicalUIForUserUpdateResultsWithTitle:@"Set Display Name" error:error];
        }];
      }];
    }];
@@ -60,7 +85,7 @@
          [self logSuccess:@"set Photo URL succeeded."];
        }
        [self hideSpinner:^{
-         [self showTypicalUIForUserUpdateResultsWithTitle:kSetPhotoURLText error:error];
+         [self showTypicalUIForUserUpdateResultsWithTitle:@"Set Photo URL" error:error];
        }];
      }];
    }];
@@ -76,7 +101,7 @@
         [self logSuccess:@"reload user succeeded."];
       }
       [self hideSpinner:^() {
-        [self showTypicalUIForUserUpdateResultsWithTitle:kReloadText error:error];
+        [self showTypicalUIForUserUpdateResultsWithTitle:@"Reload User" error:error];
       }];
     }];
   }];
@@ -149,7 +174,7 @@
          [self logSuccess:@"update email succeeded."];
        }
        [self hideSpinner:^{
-         [self showTypicalUIForUserUpdateResultsWithTitle:kUpdateEmailText error:error];
+         [self showTypicalUIForUserUpdateResultsWithTitle:@"Update Email" error:error];
        }];
      }];
    }];
@@ -170,7 +195,7 @@
          [self logSuccess:@"update password succeeded."];
        }
        [self hideSpinner:^{
-         [self showTypicalUIForUserUpdateResultsWithTitle:kUpdatePasswordText error:error];
+         [self showTypicalUIForUserUpdateResultsWithTitle:@"Update Password" error:error];
        }];
      }];
    }];
@@ -183,7 +208,7 @@
     if (error) {
       [self logFailure:@"delete account failed" error:error];
     }
-    [self showTypicalUIForUserUpdateResultsWithTitle:kDeleteUserText error:error];
+    [self showTypicalUIForUserUpdateResultsWithTitle:@"Delete User" error:error];
   }];
 }
 
@@ -248,3 +273,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

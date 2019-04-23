@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,35 +18,23 @@
 
 #import "MainViewController.h"
 
-#import "MainViewController_Internal.h"
+#import "MainViewController+Internal.h"
+#import "StaticContentTableViewManager.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-static NSString *const kPhoneAuthSectionTitle = @"Phone Auth";
-
-static NSString *const kPhoneNumberSignInReCaptchaTitle = @"Sign in With Phone Number";
-
-static NSString *const kLinkPhoneNumber = @"Link Phone Number";
-
-static NSString *const kUnlinkPhoneNumber = @"Unlink Phone Number";
-
 @interface MainViewController (Phone)
 
-- (void)signInWithPhoneNumber:(NSString *_Nullable)phoneNumber
-                   completion:(nullable testAutomationCallback)completion;
-
-- (void)signInWithPhoneNumberWithPrompt;
+- (StaticContentTableViewSection *)phoneAuthSection;
 
 - (void)commonPhoneNumberInputWithTitle:(NSString *)title
                              Completion:(textInputCompletionBlock)completion;
 
-- (void)commontPhoneVerificationWithVerificationID:(NSString *)verificationID
-                                  verificationCode:(NSString *)verificationCode;
+- (void)signInWithPhoneNumber:(NSString *_Nullable)phoneNumber
+                   completion:(nullable testAutomationCallback)completion;
 
 - (void)linkPhoneNumber:(NSString *_Nullable)phoneNumber
              completion:(nullable testAutomationCallback)completion;
-
-- (void)linkPhoneNumberWithPrompt;
 
 @end
 

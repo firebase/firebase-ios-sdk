@@ -18,7 +18,7 @@
 
 #import "AppManager.h"
 #import "AuthProviders.h"
-#import "MainViewController_Internal.h"
+#import "MainViewController+Internal.h"
 #import "MainViewController+GameCenter.h"
 #import "MainViewController+Phone.h"
 #import "MainViewController+User.h"
@@ -32,7 +32,55 @@
 #import "MainViewController+Custom.h"
 #import "MainViewController+AutoTests.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
+static NSString *const kCustomTokenUrl = @"https://fb-sa-1211.appspot.com/token";
+
+static NSString *const kExpiredCustomTokenUrl = @"https://fb-sa-1211.appspot.com/expired_token";
+
+static NSString *const kInvalidCustomToken = @"invalid custom token.";
+
+static NSString *const kSafariGoogleSignOutMessagePrompt = @"This automated test assumes that no "
+"Google account is signed in on Safari, if your are not prompted for a password, sign out on "
+"Safari and rerun the test.";
+
+static NSString *const kSafariFacebookSignOutMessagePrompt = @"This automated test assumes that no "
+"Facebook account is signed in on Safari, if your are not prompted for a password, sign out on "
+"Safari and rerun the test.";
+
+static NSString *const kUnlinkAccountMessagePrompt = @"Sign into gmail with an email address "
+"that has not been linked to this sample application before. Delete account if necessary.";
+
+static NSString *const kFakeDisplayPhotoUrl =
+@"https://www.gstatic.com/images/branding/product/1x/play_apps_48dp.png";
+
+static NSString *const kFakeDisplayName = @"John GoogleSpeed";
+
+static NSString *const kFakeEmail = @"firemail@example.com";
+
+static NSString *const kFakePassword = @"fakePassword";
+
 @implementation MainViewController (AutoTests)
+
+- (StaticContentTableViewSection *)autoTestsSection {
+  __weak typeof(self) weakSelf = self;
+  return [StaticContentTableViewSection sectionWithTitle:@"Automated Tests" cells:@[
+    [StaticContentTableViewCell cellWithTitle:@"BYOAuth"
+                                       action:^{ [weakSelf automatedBYOAuth]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Sign In With Google"
+                                       action:^{ [weakSelf automatedSignInGoogle]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Sign In With Facebook"
+                                       action:^{ [weakSelf automatedSignInFacebook]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Sign Up With Email/Password"
+                                       action:^{ [weakSelf automatedEmailSignUp]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Sign In Anonymously"
+                                       action:^{ [weakSelf automatedAnonymousSignIn]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Link with Google"
+                                       action:^{ [weakSelf automatedAccountLinking]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Sign in With Phone Number"
+                                       action:^{ [weakSelf automatedPhoneNumberSignIn]; }]
+    ]];
+}
 
 - (void)automatedBYOAuth {
   [self log:@"INITIATING AUTOMATED MANUAL TEST FOR BYOAUTH:"];
@@ -98,7 +146,7 @@
 }
 
 - (void)automatedSignInGoogle {
-  [self showMessagePromptWithTitle:kAutoSignInGoogle
+  [self showMessagePromptWithTitle:@"Sign In With Google"
                            message:kSafariGoogleSignOutMessagePrompt
                   showCancelButton:NO
                         completion:^(BOOL userPressedOK, NSString *_Nullable userInput) {
@@ -132,7 +180,7 @@
 }
 
 - (void)automatedSignInFacebook {
-  [self showMessagePromptWithTitle:kAutoSignInFacebook
+  [self showMessagePromptWithTitle:@"Sign In With Facebook"
                            message:kSafariFacebookSignOutMessagePrompt
                   showCancelButton:NO
                         completion:^(BOOL userPressedOK, NSString *_Nullable userInput) {
@@ -448,3 +496,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

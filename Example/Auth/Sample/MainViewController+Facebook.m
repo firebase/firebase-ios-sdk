@@ -17,9 +17,27 @@
 #import "MainViewController+Facebook.h"
 
 #import "AuthProviders.h"
-#import "MainViewController_Internal.h"
+#import "MainViewController+Internal.h"
+
+NS_ASSUME_NONNULL_BEGIN
 
 @implementation MainViewController (Facebook)
+
+- (StaticContentTableViewSection *)facebookAuthSection {
+  __weak typeof(self) weakSelf = self;
+  return [StaticContentTableViewSection sectionWithTitle:@"Facebook Auth" cells:@[
+    [StaticContentTableViewCell cellWithTitle:@"Sign in with Facebook"
+                                      action:^{ [weakSelf signInFacebook]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Link with Facebook"
+                                      action:^{ [weakSelf linkWithFacebook]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Unlink from Facebook"
+                                      action:^{
+                                        [weakSelf unlinkFromProvider:FIRFacebookAuthProviderID completion:nil];
+                                      }],
+    [StaticContentTableViewCell cellWithTitle:@"Reauthenticate Facebook"
+                                      action:^{ [weakSelf reauthenticateFacebook]; }],
+    ]];
+}
 
 - (void)signInFacebook {
   [self signinWithProvider:[AuthProviders facebook] retrieveData:YES];
@@ -34,3 +52,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

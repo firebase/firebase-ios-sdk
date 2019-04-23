@@ -14,27 +14,15 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-
 #import "MainViewController.h"
+
+#import "StaticContentTableViewManager.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-static NSString *const kOAuthSectionTitle = @"OAuth";
-
-static NSString *const kSignInGoogleHeadfulLiteTitle = @"Sign in with Google";
-
-static NSString *const kSignInMicrosoftHeadfulLite = @"Sign in with Microsoft";
-
-static NSString *const kGitHubSignInButtonText = @"Sign In with GitHub";
-
 @interface MainViewController (OAuth)
 
-- (void)signInGoogleHeadfulLite;
-
-- (void)signInMicrosoftHeadfulLite;
-
-- (void)signInWithGitHub;
+- (StaticContentTableViewSection *)oAuthSection;
 
 @end
 

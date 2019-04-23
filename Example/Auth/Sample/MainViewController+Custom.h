@@ -14,19 +14,15 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-
 #import "MainViewController.h"
+
+#import "StaticContentTableViewManager.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-static NSString *const kCustomAuthSectionTitle = @"Custom Auth";
-
-static NSString *const kSignInWithCustomTokenTitle = @"Sign in with Custom Token";
-
 @interface MainViewController (Custom)
 
-- (void)signInWithCustomToken;
+- (StaticContentTableViewSection *)customAuthSection;
 
 @end
 

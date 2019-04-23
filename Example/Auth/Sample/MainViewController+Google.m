@@ -19,9 +19,25 @@
 #import "AuthProviders.h"
 #import "AppManager.h"
 #import "FIROAuthProvider.h"
-#import "MainViewController_Internal.h"
+#import "MainViewController+Internal.h"
+
+NS_ASSUME_NONNULL_BEGIN
 
 @implementation MainViewController (Google)
+
+- (StaticContentTableViewSection *)googleAuthSection {
+  __weak typeof(self) weakSelf = self;
+  return [StaticContentTableViewSection sectionWithTitle:@"Google Auth" cells:@[
+    [StaticContentTableViewCell cellWithTitle:@"Sign in with Google"
+                                      action:^{ [weakSelf signInGoogle]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Link with Google"
+                                      action:^{ [weakSelf linkWithGoogle]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Unlink from Google"
+                                      action:^{ [weakSelf unlinkFromProvider:FIRGoogleAuthProviderID completion:nil]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Reauthenticate Google"
+                                      action:^{ [weakSelf reauthenticateGoogle]; }],
+    ]];
+}
 
 - (void)signInGoogle {
   FIRAuth *auth = [AppManager auth];
@@ -66,3 +82,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -17,9 +17,21 @@
 #import "MainViewController+Auth.h"
 
 #import "AppManager.h"
-#import "MainViewController_Internal.h"
+#import "MainViewController+Internal.h"
+
+NS_ASSUME_NONNULL_BEGIN
 
 @implementation MainViewController (Auth)
+
+- (StaticContentTableViewSection *)authSection {
+  __weak typeof(self) weakSelf = self;
+  return [StaticContentTableViewSection sectionWithTitle:@"Auth" cells:@[
+    [StaticContentTableViewCell cellWithTitle:@"Sign in Anonymously"
+                                      action:^{ [weakSelf signInAnonymously]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Sign out"
+                                      action:^{ [weakSelf signOut]; }]
+    ]];
+}
 
 - (void)signInAnonymously {
   [[AppManager auth] signInAnonymouslyWithCompletion:^(FIRAuthDataResult *_Nullable result,
@@ -30,7 +42,7 @@
       [self logSuccess:@"sign-in anonymously succeeded."];
       [self log:[NSString stringWithFormat:@"User ID : %@", result.user.uid]];
     }
-    [self showTypicalUIForUserUpdateResultsWithTitle:kSignInAnonymouslyTitle error:error];
+    [self showTypicalUIForUserUpdateResultsWithTitle:@"Sign in Anonymously" error:error];
   }];
 }
 
@@ -61,3 +73,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

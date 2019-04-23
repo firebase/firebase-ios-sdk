@@ -14,26 +14,18 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-
 #import "MainViewController.h"
+
 #import "FIRAuth.h"
+#import "StaticContentTableViewManager.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-static NSString *const kAuthSectionTitle = @"Auth";
-
-static NSString *const kSignInAnonymouslyTitle = @"Sign in Anonymously";
-
-static NSString *const kSignOutTitle = @"Sign out";
-
 @interface MainViewController (Auth)
 
-- (void)signInAnonymously;
+- (StaticContentTableViewSection *)authSection;
 
 - (void)signInAnonymouslyWithCallback:(nullable FIRAuthDataResultCallback)callback;
-
-- (void)signOut;
 
 @end
 

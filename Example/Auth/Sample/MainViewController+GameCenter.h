@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,36 +14,18 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
 #import <GameKit/GameKit.h>
 
 #import "MainViewController.h"
 
 #import "FIRGameCenterAuthProvider.h"
+#import "StaticContentTableViewManager.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-static NSString *const kGameCenterAuthSectionTitle = @"Game Center Auth";
-
-static NSString *const kLogInWithSystemGameCenterTitle = @"Log In System Game Center";
-
-static NSString *const kSignInWithGameCenterTitle = @"Sign in Game Center";
-
-static NSString *const kLinkWithGameCenterTitle = @"Link Game Center";
-
-static NSString *const kUnlinkWithGameCenterTitle = @"Unlink Game Center";
-
-static NSString *const kReauthenticateWithGameCenterTitle = @"Reauthenticate Game Center";
-
 @interface MainViewController (GameCenter)
 
-- (void)logInWithSystemGameCenter;
-
-- (void)signInWithGameCenter;
-
-- (void)linkWithGameCenter;
-
-- (void)reauthenticateWithGameCenter;
+- (StaticContentTableViewSection *)gameCenterAuthSection;
 
 @end
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,50 +17,13 @@
 #import <Foundation/Foundation.h>
 
 #import "MainViewController.h"
+#import "StaticContentTableViewManager.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-static NSString *const kAppSectionTitle = @"APP";
-
-static NSString *const kGetTokenTitle = @"Get Token";
-
-static NSString *const kGetTokenForceRefreshTitle = @"Get Token Force Refresh";
-
-static NSString *const kGetTokenResultButtonText = @"Get Token Result";
-
-static NSString *const kGetTokenResultForceButtonText = @"Force Token Result";
-
-static NSString *const kAddAuthStateListenerTitle = @"Add Auth State Change Listener";
-
-static NSString *const kRemoveAuthStateListenerTitle = @"Remove Last Auth State Change Listener";
-
-static NSString *const kAddIDTokenListenerTitle = @"Add ID Token Change Listener";
-
-static NSString *const kRemoveIDTokenListenerTitle = @"Remove Last ID Token Change Listener";
-
-static NSString *const kVerifyClientTitle = @"Verify Client";
-
-static NSString *const kDeleteAppTitle = @"Delete App";
-
-static NSString *const kTokenRefreshErrorAlertTitle = @"Get Token Error";
-
-static NSString *const kTokenRefreshedAlertTitle = @"Token";
-
 @interface MainViewController (App)
 
-- (void)getUserTokenResultWithForce:(BOOL)force;
-
-- (void)addAuthStateListener;
-
-- (void)removeAuthStateListener;
-
-- (void)addIDTokenListener;
-
-- (void)removeIDTokenListener;
-
-- (void)verifyClient;
-
-- (void)deleteApp;
+- (StaticContentTableViewSection *)appSection;
 
 @end
 
