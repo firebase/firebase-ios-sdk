@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_TV
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 #import <UserNotifications/UserNotifications.h>
 #endif
 #import <XCTest/XCTest.h>
-
 #import <OCMock/OCMock.h>
+
+#import <GoogleUtilities/GULAppDelegateSwizzler.h>
 
 #import "FIRMessaging.h"
 #import "FIRMessagingRemoteNotificationsProxy.h"
-
-#import <GoogleUtilities/GULAppDelegateSwizzler.h>
 
 #pragma mark - Invalid App Delegate or UNNotificationCenter
 

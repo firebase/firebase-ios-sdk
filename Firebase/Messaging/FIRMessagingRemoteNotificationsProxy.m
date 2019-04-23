@@ -85,7 +85,6 @@ static NSString *kUserNotificationDidReceiveResponseSelectorString =
 
 - (void)dealloc {
 #if TARGET_OS_IOS ||TARGET_OS_TV
-
   [self unswizzleAllMethods];
   self.swizzledSelectorsByClass = nil;
   [self.originalAppDelegateImps removeAllObjects];
@@ -120,8 +119,8 @@ static NSString *kUserNotificationDidReceiveResponseSelectorString =
   self.didSwizzleMethods = YES;
 #endif
 }
-#if TARGET_OS_IOS ||TARGET_OS_TV
 
+#if TARGET_OS_IOS ||TARGET_OS_TV
 - (void)unswizzleAllMethods {
   if (self.appDelegateInterceptorID) {
     [GULAppDelegateSwizzler unregisterAppDelegateInterceptorWithID:self.appDelegateInterceptorID];
@@ -418,13 +417,11 @@ didReceiveRemoteNotification:(NSDictionary *)userInfo {
 }
 #endif // TARGET_OS_IOS
 
-#if TARGET_OS_IOS || TARGET_OS_TV
 - (void)application:(UIApplication *)application
 didReceiveRemoteNotification:(NSDictionary *)userInfo
 fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
   [[FIRMessaging messaging] appDidReceiveMessage:userInfo];
 }
-#endif
 
 - (void)application:(UIApplication *)application
 didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
