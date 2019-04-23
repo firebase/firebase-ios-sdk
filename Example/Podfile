@@ -155,7 +155,7 @@ target 'Core_Example_macOS' do
 end
 
 target 'Auth_Example_macOS' do
-  platform :osx, '10.14'
+  platform :osx, '10.11'
 
   pod 'FirebaseAuth', :path => '../'
 
