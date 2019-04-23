@@ -407,6 +407,7 @@ withNotification:(NSDictionary *)notification
   [FIRMessagingAnalytics logUserPropertyForConversionTracking:notification toAnalytics:analytics];
 }
 
+#if TARGET_OS_IOS || TARGET_OS_TV
 - (void)testLogMessage {
   NSDictionary *notification = @{
                                  @"google.c.a.e" : @"1",
@@ -414,6 +415,7 @@ withNotification:(NSDictionary *)notification
   [FIRMessagingAnalytics logMessage:notification toAnalytics:nil];
   OCMVerify([self.logClassMock logEvent:OCMOCK_ANY withNotification:notification toAnalytics:nil]);
 }
+#endif
 
 - (void)testLogOpenNotification {
   NSDictionary *notification = @{

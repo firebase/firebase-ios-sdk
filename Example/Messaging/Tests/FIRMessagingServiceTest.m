@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
+#if TARGET_OS_IOS || TARGET_OS_TV
 #import <UIKit/UIKit.h>
-#import <XCTest/XCTest.h>
+#endif
 
+#import <XCTest/XCTest.h>
 #import <OCMock/OCMock.h>
 
 #import "FIRMessaging.h"

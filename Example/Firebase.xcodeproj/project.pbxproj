@@ -149,6 +149,39 @@
 		511DD2AB2225C8D50094D78D /* FIRMessagingTestUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = EDF5242B21EA364600BB24C6 /* FIRMessagingTestUtilities.m */; };
 		51284D16224ABD6A00274321 /* FIRMessagingExtensionHelperTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 51284D15224ABD6A00274321 /* FIRMessagingExtensionHelperTest.m */; };
 		51284D17224ABE1E00274321 /* FIRMessagingExtensionHelperTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 51284D15224ABD6A00274321 /* FIRMessagingExtensionHelperTest.m */; };
+		5177FECF226E7030007E8794 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 5177FECE226E7030007E8794 /* AppDelegate.m */; };
+		5177FED2226E7030007E8794 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 5177FED1226E7030007E8794 /* ViewController.m */; };
+		5177FED4226E7031007E8794 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5177FED3226E7031007E8794 /* Assets.xcassets */; };
+		5177FED7226E7031007E8794 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5177FED5226E7031007E8794 /* Main.storyboard */; };
+		5177FEDA226E7031007E8794 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 5177FED9226E7031007E8794 /* main.m */; };
+		5177FEFF226E849D007E8794 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 5177FEFE226E849D007E8794 /* AppDelegate.m */; };
+		5177FF02226E849D007E8794 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 5177FF01226E849D007E8794 /* ViewController.m */; };
+		5177FF04226E849D007E8794 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5177FF03226E849D007E8794 /* Assets.xcassets */; };
+		5177FF07226E849D007E8794 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5177FF05226E849D007E8794 /* Main.storyboard */; };
+		5177FF0A226E849D007E8794 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 5177FF09226E849D007E8794 /* main.m */; };
+		5177FF1E226E8FA6007E8794 /* FIRMessagingExtensionHelperTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 51284D15224ABD6A00274321 /* FIRMessagingExtensionHelperTest.m */; };
+		5177FF1F226E8FA6007E8794 /* FIRInstanceIDWithFCMTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE8DB550221F5B470068BB0E /* FIRInstanceIDWithFCMTest.m */; };
+		5177FF22226E8FA6007E8794 /* FIRMessagingTestNotificationUtilities.h in Sources */ = {isa = PBXBuildFile; fileRef = DE9315D61E8738B70083EDBF /* FIRMessagingTestNotificationUtilities.h */; };
+		5177FF23226E8FA6007E8794 /* FIRMessagingClientTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315C31E8738B70083EDBF /* FIRMessagingClientTest.m */; };
+		5177FF24226E8FA6007E8794 /* FIRMessagingCodedInputStreamTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315C41E8738B70083EDBF /* FIRMessagingCodedInputStreamTest.m */; };
+		5177FF25226E8FA6007E8794 /* FIRMessagingConnectionTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315C51E8738B70083EDBF /* FIRMessagingConnectionTest.m */; };
+		5177FF26226E8FA6007E8794 /* FIRMessagingContextManagerServiceTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315C61E8738B70083EDBF /* FIRMessagingContextManagerServiceTest.m */; };
+		5177FF27226E8FA6007E8794 /* FIRMessagingDataMessageManagerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315C71E8738B70083EDBF /* FIRMessagingDataMessageManagerTest.m */; };
+		5177FF28226E8FA6007E8794 /* FIRMessagingFakeConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315C91E8738B70083EDBF /* FIRMessagingFakeConnection.m */; };
+		5177FF29226E8FA6007E8794 /* FIRMessagingFakeSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315CB1E8738B70083EDBF /* FIRMessagingFakeSocket.m */; };
+		5177FF2A226E8FA6007E8794 /* FIRMessagingLinkHandlingTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315CC1E8738B70083EDBF /* FIRMessagingLinkHandlingTest.m */; };
+		5177FF2B226E8FA6007E8794 /* FIRMessagingPendingTopicsListTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315CD1E8738B70083EDBF /* FIRMessagingPendingTopicsListTest.m */; };
+		5177FF2C226E8FA6007E8794 /* FIRMessagingPubSubTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315CE1E8738B70083EDBF /* FIRMessagingPubSubTest.m */; };
+		5177FF2E226E8FA6007E8794 /* FIRMessagingRemoteNotificationsProxyTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315D01E8738B70083EDBF /* FIRMessagingRemoteNotificationsProxyTest.m */; };
+		5177FF2F226E8FA6007E8794 /* FIRMessagingRmqManagerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315D11E8738B70083EDBF /* FIRMessagingRmqManagerTest.m */; };
+		5177FF30226E8FA6007E8794 /* FIRMessagingSecureSocketTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315D21E8738B70083EDBF /* FIRMessagingSecureSocketTest.m */; };
+		5177FF31226E8FA6007E8794 /* FIRMessagingServiceTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315D31E8738B70083EDBF /* FIRMessagingServiceTest.m */; };
+		5177FF32226E8FA6007E8794 /* FIRMessagingSyncMessageManagerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315D41E8738B70083EDBF /* FIRMessagingSyncMessageManagerTest.m */; };
+		5177FF33226E8FA6007E8794 /* FIRMessagingTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315D51E8738B70083EDBF /* FIRMessagingTest.m */; };
+		5177FF34226E8FA6007E8794 /* FIRMessagingTestNotificationUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315D71E8738B70083EDBF /* FIRMessagingTestNotificationUtilities.m */; };
+		5177FF35226E8FA6007E8794 /* FIRMessagingAnalyticsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE37C63A2163D5F30025D03E /* FIRMessagingAnalyticsTest.m */; };
+		5177FF37226E8FA6007E8794 /* FIRMessagingTestUtilities.h in Sources */ = {isa = PBXBuildFile; fileRef = EDF5242A21EA364600BB24C6 /* FIRMessagingTestUtilities.h */; };
+		5177FF38226E8FA6007E8794 /* FIRMessagingTestUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = EDF5242B21EA364600BB24C6 /* FIRMessagingTestUtilities.m */; };
 		518854D92230652900CA4141 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 518854D82230652900CA4141 /* AppDelegate.m */; };
 		518854DC2230652900CA4141 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 518854DB2230652900CA4141 /* ViewController.m */; };
 		518854DF2230652900CA4141 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 518854DD2230652900CA4141 /* Main.storyboard */; };
@@ -727,6 +760,13 @@
 			remoteGlobalIDString = 511DD2702225C4D00094D78D;
 			remoteInfo = Messaging_Example_tvOS;
 		};
+		5177FF19226E8F64007E8794 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6003F582195388D10070C39A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 5177FECA226E7030007E8794;
+			remoteInfo = Messaging_Example_macOS;
+		};
 		518854F1223066BF00CA4141 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 6003F582195388D10070C39A /* Project object */;
@@ -1086,6 +1126,27 @@
 		511DD2882225C5A80094D78D /* Messaging_Tests_tvOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Messaging_Tests_tvOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		511DD2AC2226005D0094D78D /* FirebaseMessaging.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = FirebaseMessaging.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		51284D15224ABD6A00274321 /* FIRMessagingExtensionHelperTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRMessagingExtensionHelperTest.m; sourceTree = "<group>"; };
+		5177FECB226E7030007E8794 /* Messaging_Example_macOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Messaging_Example_macOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		5177FECD226E7030007E8794 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		5177FECE226E7030007E8794 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		5177FED0226E7030007E8794 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		5177FED1226E7030007E8794 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		5177FED3226E7031007E8794 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		5177FED6226E7031007E8794 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		5177FED8226E7031007E8794 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		5177FED9226E7031007E8794 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		5177FEDB226E7031007E8794 /* Messaging_Example_macOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Messaging_Example_macOS.entitlements; sourceTree = "<group>"; };
+		5177FEFB226E849C007E8794 /* InstanceID_Example_macOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = InstanceID_Example_macOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		5177FEFD226E849D007E8794 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		5177FEFE226E849D007E8794 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		5177FF00226E849D007E8794 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		5177FF01226E849D007E8794 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		5177FF03226E849D007E8794 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		5177FF06226E849D007E8794 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		5177FF08226E849D007E8794 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		5177FF09226E849D007E8794 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		5177FF0B226E849D007E8794 /* InstanceID_Example_macOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = InstanceID_Example_macOS.entitlements; sourceTree = "<group>"; };
+		5177FF14226E8F64007E8794 /* Messaging_Tests_macOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Messaging_Tests_macOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		518854D52230652900CA4141 /* InstanceID_Example_tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = InstanceID_Example_tvOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		518854D72230652900CA4141 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		518854D82230652900CA4141 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -1540,6 +1601,27 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		5177FEC8226E7030007E8794 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5177FEF8226E849C007E8794 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5177FF11226E8F64007E8794 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		518854D22230652900CA4141 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -1923,6 +2005,38 @@
 			path = tvOS;
 			sourceTree = "<group>";
 		};
+		5177FECC226E7030007E8794 /* macOS */ = {
+			isa = PBXGroup;
+			children = (
+				5177FECD226E7030007E8794 /* AppDelegate.h */,
+				5177FECE226E7030007E8794 /* AppDelegate.m */,
+				5177FED0226E7030007E8794 /* ViewController.h */,
+				5177FED1226E7030007E8794 /* ViewController.m */,
+				5177FED3226E7031007E8794 /* Assets.xcassets */,
+				5177FED5226E7031007E8794 /* Main.storyboard */,
+				5177FED8226E7031007E8794 /* Info.plist */,
+				5177FED9226E7031007E8794 /* main.m */,
+				5177FEDB226E7031007E8794 /* Messaging_Example_macOS.entitlements */,
+			);
+			path = macOS;
+			sourceTree = "<group>";
+		};
+		5177FEFC226E849C007E8794 /* macOS */ = {
+			isa = PBXGroup;
+			children = (
+				5177FEFD226E849D007E8794 /* AppDelegate.h */,
+				5177FEFE226E849D007E8794 /* AppDelegate.m */,
+				5177FF00226E849D007E8794 /* ViewController.h */,
+				5177FF01226E849D007E8794 /* ViewController.m */,
+				5177FF03226E849D007E8794 /* Assets.xcassets */,
+				5177FF05226E849D007E8794 /* Main.storyboard */,
+				5177FF08226E849D007E8794 /* Info.plist */,
+				5177FF09226E849D007E8794 /* main.m */,
+				5177FF0B226E849D007E8794 /* InstanceID_Example_macOS.entitlements */,
+			);
+			path = macOS;
+			sourceTree = "<group>";
+		};
 		518854D62230652900CA4141 /* tvOS */ = {
 			isa = PBXGroup;
 			children = (
@@ -1969,9 +2083,9 @@
 				DE7B8D051E8EF077009EB6DF /* Database_Example_iOS.app */,
 				DE7B8D1D1E8EF078009EB6DF /* Database_Tests_iOS.xctest */,
 				AFD562E51EB13C6D00EA2233 /* Messaging_Example_iOS.app */,
-        9AB3705B226765A900ACD3AE /* Messaging_NotificationService_iOS.appex */,
-        511DD2712225C4D00094D78D /* Messaging_Example_tvOS.app */,
-        511DD2882225C5A80094D78D /* Messaging_Tests_tvOS.xctest */,
+				9AB3705B226765A900ACD3AE /* Messaging_NotificationService_iOS.appex */,
+				511DD2712225C4D00094D78D /* Messaging_Example_tvOS.app */,
+				511DD2882225C5A80094D78D /* Messaging_Tests_tvOS.xctest */,
 				0624F3E11EC0ECFA00E5940D /* Database_IntegrationTests_iOS.xctest */,
 				06121EBC1EC399C50008D70E /* Storage_IntegrationTests_iOS.xctest */,
 				D064E6961ED9B1BF001956DF /* Core_Example_macOS.app */,
@@ -2004,6 +2118,9 @@
 				DE958B9421F7D15900E6C1C5 /* InstanceID_Tests_iOS.xctest */,
 				518854D52230652900CA4141 /* InstanceID_Example_tvOS.app */,
 				518854EC223066BE00CA4141 /* InstanceID_Tests_tvOS.xctest */,
+				5177FECB226E7030007E8794 /* Messaging_Example_macOS.app */,
+				5177FEFB226E849C007E8794 /* InstanceID_Example_macOS.app */,
+				5177FF14226E8F64007E8794 /* Messaging_Tests_macOS.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -2338,6 +2455,7 @@
 		DE47C131207ACAA900B1AEDF /* App */ = {
 			isa = PBXGroup;
 			children = (
+				5177FECC226E7030007E8794 /* macOS */,
 				511DD2722225C4D00094D78D /* tvOS */,
 				DE47C133207ACAA900B1AEDF /* iOS */,
 			);
@@ -2620,6 +2738,7 @@
 		DE958B9921F7D32200E6C1C5 /* App */ = {
 			isa = PBXGroup;
 			children = (
+				5177FEFC226E849C007E8794 /* macOS */,
 				518854D62230652900CA4141 /* tvOS */,
 				DE958B9A21F7D32200E6C1C5 /* iOS */,
 			);
@@ -2893,6 +3012,58 @@
 			name = Messaging_Tests_tvOS;
 			productName = Messaging_Tests_tvOS;
 			productReference = 511DD2882225C5A80094D78D /* Messaging_Tests_tvOS.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		5177FECA226E7030007E8794 /* Messaging_Example_macOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5177FEDE226E7031007E8794 /* Build configuration list for PBXNativeTarget "Messaging_Example_macOS" */;
+			buildPhases = (
+				5177FEC7226E7030007E8794 /* Sources */,
+				5177FEC8226E7030007E8794 /* Frameworks */,
+				5177FEC9226E7030007E8794 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Messaging_Example_macOS;
+			productName = Messaging_Example_macOS;
+			productReference = 5177FECB226E7030007E8794 /* Messaging_Example_macOS.app */;
+			productType = "com.apple.product-type.application";
+		};
+		5177FEFA226E849C007E8794 /* InstanceID_Example_macOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5177FF0C226E849D007E8794 /* Build configuration list for PBXNativeTarget "InstanceID_Example_macOS" */;
+			buildPhases = (
+				5177FEF7226E849C007E8794 /* Sources */,
+				5177FEF8226E849C007E8794 /* Frameworks */,
+				5177FEF9226E849C007E8794 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = InstanceID_Example_macOS;
+			productName = InstanceID_Example_macOS;
+			productReference = 5177FEFB226E849C007E8794 /* InstanceID_Example_macOS.app */;
+			productType = "com.apple.product-type.application";
+		};
+		5177FF13226E8F64007E8794 /* Messaging_Tests_macOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5177FF1B226E8F64007E8794 /* Build configuration list for PBXNativeTarget "Messaging_Tests_macOS" */;
+			buildPhases = (
+				5177FF10226E8F64007E8794 /* Sources */,
+				5177FF11226E8F64007E8794 /* Frameworks */,
+				5177FF12226E8F64007E8794 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				5177FF1A226E8F64007E8794 /* PBXTargetDependency */,
+			);
+			name = Messaging_Tests_macOS;
+			productName = Messaging_Tests_macOS;
+			productReference = 5177FF14226E8F64007E8794 /* Messaging_Tests_macOS.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		518854D42230652900CA4141 /* InstanceID_Example_tvOS */ = {
@@ -3644,6 +3815,20 @@
 						ProvisioningStyle = Automatic;
 						TestTargetID = 511DD2702225C4D00094D78D;
 					};
+					5177FECA226E7030007E8794 = {
+						CreatedOnToolsVersion = 10.2;
+						ProvisioningStyle = Automatic;
+					};
+					5177FEFA226E849C007E8794 = {
+						CreatedOnToolsVersion = 10.2;
+						ProvisioningStyle = Automatic;
+					};
+					5177FF13226E8F64007E8794 = {
+						CreatedOnToolsVersion = 10.2;
+						DevelopmentTeam = 88834532KK;
+						ProvisioningStyle = Automatic;
+						TestTargetID = 5177FECA226E7030007E8794;
+					};
 					518854D42230652900CA4141 = {
 						CreatedOnToolsVersion = 10.0;
 						ProvisioningStyle = Automatic;
@@ -3912,6 +4097,9 @@
 				DE3373891E73773400881891 /* AllUnitTests_iOS */,
 				D0FE8A041ED9C32C003F6722 /* AllUnitTests_macOS */,
 				DE545C7F1FBCA3F000C637AE /* AllUnitTests_tvOS */,
+				5177FECA226E7030007E8794 /* Messaging_Example_macOS */,
+				5177FEFA226E849C007E8794 /* InstanceID_Example_macOS */,
+				5177FF13226E8F64007E8794 /* Messaging_Tests_macOS */,
 			);
 		};
 /* End PBXProject section */
@@ -3941,6 +4129,31 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		511DD2862225C5A80094D78D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5177FEC9226E7030007E8794 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5177FED4226E7031007E8794 /* Assets.xcassets in Resources */,
+				5177FED7226E7031007E8794 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5177FEF9226E849C007E8794 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5177FF04226E849D007E8794 /* Assets.xcassets in Resources */,
+				5177FF07226E849D007E8794 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5177FF12226E8F64007E8794 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -4392,6 +4605,56 @@
 				511DD2A72225C8C40094D78D /* FIRMessagingTest.m in Sources */,
 				511DD2A82225C8C40094D78D /* FIRMessagingTestNotificationUtilities.m in Sources */,
 				511DD2A92225C8C40094D78D /* FIRMessagingAnalyticsTest.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5177FEC7226E7030007E8794 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5177FED2226E7030007E8794 /* ViewController.m in Sources */,
+				5177FEDA226E7031007E8794 /* main.m in Sources */,
+				5177FECF226E7030007E8794 /* AppDelegate.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5177FEF7226E849C007E8794 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5177FF02226E849D007E8794 /* ViewController.m in Sources */,
+				5177FF0A226E849D007E8794 /* main.m in Sources */,
+				5177FEFF226E849D007E8794 /* AppDelegate.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5177FF10226E8F64007E8794 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5177FF1E226E8FA6007E8794 /* FIRMessagingExtensionHelperTest.m in Sources */,
+				5177FF1F226E8FA6007E8794 /* FIRInstanceIDWithFCMTest.m in Sources */,
+				5177FF22226E8FA6007E8794 /* FIRMessagingTestNotificationUtilities.h in Sources */,
+				5177FF23226E8FA6007E8794 /* FIRMessagingClientTest.m in Sources */,
+				5177FF24226E8FA6007E8794 /* FIRMessagingCodedInputStreamTest.m in Sources */,
+				5177FF25226E8FA6007E8794 /* FIRMessagingConnectionTest.m in Sources */,
+				5177FF26226E8FA6007E8794 /* FIRMessagingContextManagerServiceTest.m in Sources */,
+				5177FF27226E8FA6007E8794 /* FIRMessagingDataMessageManagerTest.m in Sources */,
+				5177FF28226E8FA6007E8794 /* FIRMessagingFakeConnection.m in Sources */,
+				5177FF29226E8FA6007E8794 /* FIRMessagingFakeSocket.m in Sources */,
+				5177FF2A226E8FA6007E8794 /* FIRMessagingLinkHandlingTest.m in Sources */,
+				5177FF2B226E8FA6007E8794 /* FIRMessagingPendingTopicsListTest.m in Sources */,
+				5177FF2C226E8FA6007E8794 /* FIRMessagingPubSubTest.m in Sources */,
+				5177FF2E226E8FA6007E8794 /* FIRMessagingRemoteNotificationsProxyTest.m in Sources */,
+				5177FF2F226E8FA6007E8794 /* FIRMessagingRmqManagerTest.m in Sources */,
+				5177FF30226E8FA6007E8794 /* FIRMessagingSecureSocketTest.m in Sources */,
+				5177FF31226E8FA6007E8794 /* FIRMessagingServiceTest.m in Sources */,
+				5177FF32226E8FA6007E8794 /* FIRMessagingSyncMessageManagerTest.m in Sources */,
+				5177FF33226E8FA6007E8794 /* FIRMessagingTest.m in Sources */,
+				5177FF34226E8FA6007E8794 /* FIRMessagingTestNotificationUtilities.m in Sources */,
+				5177FF35226E8FA6007E8794 /* FIRMessagingAnalyticsTest.m in Sources */,
+				5177FF37226E8FA6007E8794 /* FIRMessagingTestUtilities.h in Sources */,
+				5177FF38226E8FA6007E8794 /* FIRMessagingTestUtilities.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5195,6 +5458,11 @@
 			target = 511DD2702225C4D00094D78D /* Messaging_Example_tvOS */;
 			targetProxy = 511DD28D2225C5A80094D78D /* PBXContainerItemProxy */;
 		};
+		5177FF1A226E8F64007E8794 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 5177FECA226E7030007E8794 /* Messaging_Example_macOS */;
+			targetProxy = 5177FF19226E8F64007E8794 /* PBXContainerItemProxy */;
+		};
 		518854F2223066BF00CA4141 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 518854D42230652900CA4141 /* InstanceID_Example_tvOS */;
@@ -5372,6 +5640,22 @@
 			isa = PBXVariantGroup;
 			children = (
 				511DD27A2225C4D00094D78D /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		5177FED5226E7031007E8794 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				5177FED6226E7031007E8794 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		5177FF05226E849D007E8794 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				5177FF06226E849D007E8794 /* Base */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";
@@ -5853,6 +6137,249 @@
 				TARGETED_DEVICE_FAMILY = 3;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Messaging_Example_tvOS.app/Messaging_Example_tvOS";
 				TVOS_DEPLOYMENT_TARGET = 11.4;
+			};
+			name = Release;
+		};
+		5177FEDC226E7031007E8794 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = "Messaging/Sample/macOS/Messaging_Example_macOS.entitlements ";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = "$(SRCROOT)/Messaging/App/macOS/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Messaging-Example-macOS";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		5177FEDD226E7031007E8794 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = "Messaging/Sample/macOS/Messaging_Example_macOS.entitlements ";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = "$(SRCROOT)/Messaging/App/macOS/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Messaging-Example-macOS";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		5177FF0D226E849D007E8794 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = InstanceID_Example_macOS/InstanceID_Example_macOS.entitlements;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = "$(SRCROOT)/InstanceID/App/macOS/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.google.InstanceID-Example-macOS.InstanceID-Example-macOS";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		5177FF0E226E849D007E8794 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = InstanceID_Example_macOS/InstanceID_Example_macOS.entitlements;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = "$(SRCROOT)/InstanceID/App/macOS/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.google.InstanceID-Example-macOS.InstanceID-Example-macOS";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		5177FF1C226E8F64007E8794 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 88834532KK;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/FirebaseCore-macOS10.14/FirebaseCore.framework/Headers\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/FirebaseInstanceID-macOS/FirebaseInstanceID.framework/Headers\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/FirebaseMessaging-macOS/FirebaseMessaging.framework/Headers\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/GoogleUtilities-macOS10.14/GoogleUtilities.framework/Headers\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/OCMock-macOS10.14/OCMock.framework/Headers\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Protobuf-macOS/Protobuf.framework/Headers\"",
+					"\"${PODS_ROOT}/Headers/Public\"",
+					"\"${PODS_ROOT}/Headers/Public/FirebaseAnalyticsInterop\"",
+					"\"${PODS_ROOT}/Headers/Public/FirebaseAuthInterop\"",
+					"\"${PODS_ROOT}/../../Firebase/Messaging\"",
+				);
+				INFOPLIST_FILE = Messaging/Tests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.google.InstanceID-Tests-macOS.Messaging-Tests-macOS";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Messaging_Example_macOS.app/Contents/MacOS/Messaging_Example_macOS";
+			};
+			name = Debug;
+		};
+		5177FF1D226E8F64007E8794 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 88834532KK;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/FirebaseCore-macOS10.14/FirebaseCore.framework/Headers\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/FirebaseInstanceID-macOS/FirebaseInstanceID.framework/Headers\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/FirebaseMessaging-macOS/FirebaseMessaging.framework/Headers\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/GoogleUtilities-macOS10.14/GoogleUtilities.framework/Headers\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/OCMock-macOS10.14/OCMock.framework/Headers\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Protobuf-macOS/Protobuf.framework/Headers\"",
+					"\"${PODS_ROOT}/Headers/Public\"",
+					"\"${PODS_ROOT}/Headers/Public/FirebaseAnalyticsInterop\"",
+					"\"${PODS_ROOT}/Headers/Public/FirebaseAuthInterop\"",
+					"\"${PODS_ROOT}/../../Firebase/Messaging\"",
+				);
+				INFOPLIST_FILE = Messaging/Tests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.google.InstanceID-Tests-macOS.Messaging-Tests-macOS";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Messaging_Example_macOS.app/Contents/MacOS/Messaging_Example_macOS";
 			};
 			name = Release;
 		};
@@ -8490,6 +9017,33 @@
 			buildConfigurations = (
 				511DD2902225C5A80094D78D /* Debug */,
 				511DD2912225C5A80094D78D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		5177FEDE226E7031007E8794 /* Build configuration list for PBXNativeTarget "Messaging_Example_macOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5177FEDC226E7031007E8794 /* Debug */,
+				5177FEDD226E7031007E8794 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		5177FF0C226E849D007E8794 /* Build configuration list for PBXNativeTarget "InstanceID_Example_macOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5177FF0D226E849D007E8794 /* Debug */,
+				5177FF0E226E849D007E8794 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		5177FF1B226E8F64007E8794 /* Build configuration list for PBXNativeTarget "Messaging_Tests_macOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5177FF1C226E8F64007E8794 /* Debug */,
+				5177FF1D226E8F64007E8794 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

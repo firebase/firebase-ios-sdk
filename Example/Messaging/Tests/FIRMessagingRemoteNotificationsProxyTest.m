@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#if TARGET_OS_IOS
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 #import <UserNotifications/UserNotifications.h>
 #endif
@@ -418,3 +419,5 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 #endif // __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 
 @end
+
+#endif

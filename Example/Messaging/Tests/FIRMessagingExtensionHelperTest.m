@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#if TARGET_OS_IOS
 #import <UIKit/UIKit.h>
 #import <XCTest/XCTest.h>
 
@@ -110,3 +111,5 @@ static NSString *const kValidImageURL =
 #endif
 
 @end
+
+#endif

@@ -58,7 +58,11 @@ static NSString *kUserNotificationDidReceiveResponseSelectorString =
 @implementation FIRMessagingRemoteNotificationsProxy
 
 + (BOOL)canSwizzleMethods {
+#if TARGET_OS_IOS ||TARGET_OS_TV
   return [GULAppDelegateSwizzler isAppDelegateProxyEnabled];
+#else
+    return NO;
+#endif
 }
 
 + (instancetype)sharedProxy {
@@ -80,14 +84,19 @@ static NSString *kUserNotificationDidReceiveResponseSelectorString =
 }
 
 - (void)dealloc {
+#if TARGET_OS_IOS ||TARGET_OS_TV
+
   [self unswizzleAllMethods];
   self.swizzledSelectorsByClass = nil;
   [self.originalAppDelegateImps removeAllObjects];
   self.originalAppDelegateImps = nil;
   [self removeUserNotificationCenterDelegateObserver];
+#endif
 }
 
 - (void)swizzleMethodsIfPossible {
+#if TARGET_OS_IOS ||TARGET_OS_TV
+
   // Already swizzled.
   if (self.didSwizzleMethods) {
     return;
@@ -109,7 +118,9 @@ static NSString *kUserNotificationDidReceiveResponseSelectorString =
   }
 
   self.didSwizzleMethods = YES;
+#endif
 }
+#if TARGET_OS_IOS ||TARGET_OS_TV
 
 - (void)unswizzleAllMethods {
   if (self.appDelegateInterceptorID) {
@@ -606,5 +617,7 @@ id userInfoFromNotification(id notification) {
 
   return notificationUserInfo;
 }
+#endif
+
 
 @end
