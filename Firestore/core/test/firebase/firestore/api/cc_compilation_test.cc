@@ -22,6 +22,7 @@
 #include "Firestore/core/src/firebase/firestore/api/settings.h"
 #include "Firestore/core/src/firebase/firestore/api/snapshot_metadata.h"
 #include "Firestore/core/src/firebase/firestore/api/source.h"
+#include "Firestore/core/src/firebase/firestore/api/write_batch.h"
 #include "Firestore/core/src/firebase/firestore/core/query_listener.h"
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
