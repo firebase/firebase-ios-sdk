@@ -104,6 +104,12 @@ class Handle : public HandleBase {
     return static_cast<ObjcType*>(object_);
   }
 
+  Handle& operator=(const Handle&) = default;
+  Handle& operator=(ObjcType* value) {
+    HandleBase::Assign(value);
+    return *this;
+  }
+
   friend bool operator==(const Handle& lhs, const Handle& rhs) {
     return (lhs.object_ == nil && rhs.object_ == nil) ||
            [lhs.object_ isEqual:rhs.object_];

@@ -17,34 +17,30 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_API_FIRESTORE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_API_FIRESTORE_H_
 
-#if !defined(__OBJC__)
-#error "This header only supports Objective-C++"
-#endif  // !defined(__OBJC__)
-
-#import <Foundation/Foundation.h>
-
 #include <memory>
 #include <mutex>  // NOLINT(build/c++11)
 #include <string>
 #include <utility>
-#include "dispatch/dispatch.h"
+
+#include <dispatch/dispatch.h>
 
 #include "Firestore/core/src/firebase/firestore/api/settings.h"
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/objc/objc_class.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
-#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor_callback.h"
 #include "absl/types/any.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class FIRCollectionReference;
-@class FIRQuery;
-@class FIRTransaction;
-@class FSTFirestoreClient;
+OBJC_CLASS(FIRCollectionReference);
+OBJC_CLASS(FIRQuery);
+OBJC_CLASS(FIRTransaction);
+OBJC_CLASS(FSTFirestoreClient);
+OBJC_CLASS(NSString);
 
 namespace firebase {
 namespace firestore {
@@ -55,8 +51,6 @@ class WriteBatch;
 
 class Firestore : public std::enable_shared_from_this<Firestore> {
  public:
-  using TransactionBlock = id _Nullable (^)(FIRTransaction*, NSError** error);
-
   Firestore() = default;
 
   Firestore(std::string project_id,
@@ -74,10 +68,7 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
     return persistence_key_;
   }
 
-  FSTFirestoreClient* client() {
-    HARD_ASSERT(client_, "Client is not yet configured.");
-    return client_;
-  }
+  FSTFirestoreClient* client();
 
   util::AsyncQueue* worker_queue();
 
@@ -109,7 +100,7 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
   model::DatabaseId database_id_;
   std::unique_ptr<auth::CredentialsProvider> credentials_provider_;
   std::string persistence_key_;
-  FSTFirestoreClient* client_ = nil;
+  objc::Handle<FSTFirestoreClient> client_;
 
   // Ownership of these will be transferred to `FSTFirestoreClient` as soon as
   // the client is created.

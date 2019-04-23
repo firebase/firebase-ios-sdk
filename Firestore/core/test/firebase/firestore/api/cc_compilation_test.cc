@@ -17,6 +17,7 @@
 #include "Firestore/core/src/firebase/firestore/api/document_change.h"
 #include "Firestore/core/src/firebase/firestore/api/document_reference.h"
 #include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
+#include "Firestore/core/src/firebase/firestore/api/firestore.h"
 #include "Firestore/core/src/firebase/firestore/api/listener_registration.h"
 #include "Firestore/core/src/firebase/firestore/api/query_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/api/settings.h"
