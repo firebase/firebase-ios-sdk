@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-#import <UIKit/UIKit.h>
+#import <GameKit/GameKit.h>
 
-#import "AuthProviders.h"
+#import "MainViewController.h"
+
+#import "FIRGameCenterAuthProvider.h"
+#import "StaticContentTableViewManager.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** @class GoogleAuthProvider
-    @brief The implementation for Google auth provider related methods.
- */
-@interface GoogleAuthProvider : NSObject <AuthProvider>
+@interface MainViewController (GameCenter)
+
+- (StaticContentTableViewSection *)gameCenterAuthSection;
+
 @end
 
 NS_ASSUME_NONNULL_END

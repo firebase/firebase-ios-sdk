@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-#import <UIKit/UIKit.h>
+#import "MainViewController.h"
 
-#import "AuthProviders.h"
+#import "StaticContentTableViewManager.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** @class GoogleAuthProvider
-    @brief The implementation for Google auth provider related methods.
- */
-@interface GoogleAuthProvider : NSObject <AuthProvider>
+@interface MainViewController (Facebook)
+
+- (StaticContentTableViewSection *)facebookAuthSection;
+
 @end
 
 NS_ASSUME_NONNULL_END

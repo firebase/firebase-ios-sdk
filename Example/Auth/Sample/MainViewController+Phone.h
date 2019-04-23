@@ -14,16 +14,28 @@
  * limitations under the License.
  */
 
-#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
 
-#import "AuthProviders.h"
+#import "MainViewController.h"
+
+#import "MainViewController+Internal.h"
+#import "StaticContentTableViewManager.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** @class GoogleAuthProvider
-    @brief The implementation for Google auth provider related methods.
- */
-@interface GoogleAuthProvider : NSObject <AuthProvider>
+@interface MainViewController (Phone)
+
+- (StaticContentTableViewSection *)phoneAuthSection;
+
+- (void)commonPhoneNumberInputWithTitle:(NSString *)title
+                             completion:(TextInputCompletionBlock)completion;
+
+- (void)signInWithPhoneNumber:(NSString *_Nullable)phoneNumber
+                   completion:(nullable TestAutomationCallback)completion;
+
+- (void)linkPhoneNumber:(NSString *_Nullable)phoneNumber
+             completion:(nullable TestAutomationCallback)completion;
+
 @end
 
 NS_ASSUME_NONNULL_END

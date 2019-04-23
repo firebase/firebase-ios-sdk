@@ -14,16 +14,21 @@
  * limitations under the License.
  */
 
-#import <UIKit/UIKit.h>
+#import "MainViewController.h"
 
-#import "AuthProviders.h"
+#import "FirebaseAuth.h"
+#import "StaticContentTableViewManager.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** @class GoogleAuthProvider
-    @brief The implementation for Google auth provider related methods.
- */
-@interface GoogleAuthProvider : NSObject <AuthProvider>
+static NSString *const kPasswordResetAction = @"resetPassword";
+
+static NSString *const kVerifyEmailAction = @"verifyEmail";
+
+@interface MainViewController (OOB)
+
+- (StaticContentTableViewSection *)oobSection;
+
 @end
 
 NS_ASSUME_NONNULL_END

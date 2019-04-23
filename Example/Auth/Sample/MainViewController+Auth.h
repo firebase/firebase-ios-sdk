@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-#import <UIKit/UIKit.h>
+#import "MainViewController.h"
 
-#import "AuthProviders.h"
+#import "FIRAuth.h"
+#import "StaticContentTableViewManager.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** @class GoogleAuthProvider
-    @brief The implementation for Google auth provider related methods.
- */
-@interface GoogleAuthProvider : NSObject <AuthProvider>
+@interface MainViewController (Auth)
+
+- (StaticContentTableViewSection *)authSection;
+
+- (void)signInAnonymouslyWithCallback:(nullable FIRAuthDataResultCallback)callback;
+
 @end
 
 NS_ASSUME_NONNULL_END

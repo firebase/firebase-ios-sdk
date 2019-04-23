@@ -14,16 +14,25 @@
  * limitations under the License.
  */
 
-#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
 
-#import "AuthProviders.h"
+#import "FIRAuthCredential.h"
+#import "MainViewController.h"
+#import "FIRAuth.h"
+#import "StaticContentTableViewManager.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** @class GoogleAuthProvider
-    @brief The implementation for Google auth provider related methods.
- */
-@interface GoogleAuthProvider : NSObject <AuthProvider>
+typedef void (^ShowEmailPasswordDialogCompletion)(FIRAuthCredential *credential);
+
+@interface MainViewController (Email)
+
+- (StaticContentTableViewSection *)emailAuthSection;
+
+- (void)signUpNewEmail:(NSString *)email
+              password:(NSString *)password
+              callback:(nullable FIRAuthResultCallback)callback;
+
 @end
 
 NS_ASSUME_NONNULL_END
