@@ -17,20 +17,15 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_TRANSACTION_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_TRANSACTION_H_
 
-#if !defined(__OBJC__)
-#error "This header only supports Objective-C++"
-#endif  // !defined(__OBJC__)
-
 #include <functional>
 #include <memory>
 #include <unordered_map>
 #include <vector>
 
-#include "Firestore/core/src/firebase/firestore/core/user_data.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
-#include "Firestore/core/src/firebase/firestore/remote/datastore.h"
+#include "Firestore/core/src/firebase/firestore/objc/objc_class.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor_callback.h"
@@ -39,12 +34,21 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class FSTMaybeDocument;
-@class FSTMutation;
+OBJC_CLASS(FSTMaybeDocument);
+OBJC_CLASS(FSTMutation);
 
 namespace firebase {
 namespace firestore {
+namespace remote {
+
+class Datastore;
+
+}  // namespace remote
+
 namespace core {
+
+class ParsedSetData;
+class ParsedUpdateData;
 
 class Transaction {
  public:
