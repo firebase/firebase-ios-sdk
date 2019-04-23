@@ -3825,7 +3825,6 @@
 					};
 					5177FF13226E8F64007E8794 = {
 						CreatedOnToolsVersion = 10.2;
-						DevelopmentTeam = 88834532KK;
 						ProvisioningStyle = Automatic;
 						TestTargetID = 5177FECA226E7030007E8794;
 					};
@@ -6304,7 +6303,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = 88834532KK;
+				DEVELOPMENT_TEAM = "";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -6355,7 +6354,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = 88834532KK;
+				DEVELOPMENT_TEAM = "";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
