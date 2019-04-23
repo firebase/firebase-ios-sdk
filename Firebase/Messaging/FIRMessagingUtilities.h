@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#if TARGET_OS_IOS || TARGET_OS_TV
+#if __has_include(<UIKit/UIKit.h>)
 #import <UIKit/UIKit.h>
 #else
 #import <Foundation/Foundation.h>
