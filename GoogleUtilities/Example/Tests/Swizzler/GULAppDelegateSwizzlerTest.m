@@ -14,6 +14,7 @@
 
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
 #import "GULAppDelegateSwizzler_Private.h"
+#import <GoogleUtilities/GULAppDelegateSwizzler+Notifications.h>
 
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
@@ -280,6 +281,7 @@ static BOOL gRespondsToHandleBackgroundSession;
 - (void)tearDown {
   [GULAppDelegateSwizzler clearInterceptors];
   [GULAppDelegateSwizzler resetProxyOriginalDelegateOnceToken];
+  [GULAppDelegateSwizzler resetProxyOriginalDelegateIncludingAPNSMethodsOnceToken];
   self.mockSharedApplication = nil;
   [super tearDown];
 }
