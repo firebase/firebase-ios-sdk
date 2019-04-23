@@ -72,7 +72,8 @@ NS_ASSUME_NONNULL_BEGIN
     @param outError The address to store any error that occurs during the process, if not nil.
     @return The item of the given query. nil if not exsit.
  */
-- (NSData *)getItemWithQuery:(NSDictionary *)query error:(NSError *_Nullable *_Nullable)outError;
+- (nullable NSData *)getItemWithQuery:(NSDictionary *)query
+                                error:(NSError *_Nullable *_Nullable)outError;
 
 /** @fn setItem:withQuery:error:
     @brief Set the item into keychain with given query.
