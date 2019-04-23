@@ -268,7 +268,7 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
   // should save the message to be sent when we reconnect the next time
   OCMExpect([self.mockClient sendOnConnectOrDrop:[OCMArg checkWithBlock:isValidStanza]]);
   // should also try to reconnect immediately
-  OCMExpect([self.mockClient retryConnectionImmediately:[OCMArg isEqual:@YES]]);
+  OCMExpect([self.mockClient retryConnectionImmediately:YES]);
 
   [self.dataMessageManager setDeviceAuthID:@"auth-id" secretToken:@"secret-token"];
   [self.dataMessageManager sendDataMessageStanza:message];

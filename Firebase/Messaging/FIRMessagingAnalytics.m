@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#if TARGET_OS_IOS
+#if __has_include(<UIKit/UIKit.h>)
 #import <UIKit/UIKit.h>
 #endif
 

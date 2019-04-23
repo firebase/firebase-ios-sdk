@@ -174,7 +174,7 @@ uint64_t FIRMessagingGetFreeDiskSpaceInMB(void) {
   }
 }
 
-#if TARGET_OS_IOS||TARGET_OS_TV
+#if TARGET_OS_IOS || TARGET_OS_TV
 UIApplication *FIRMessagingUIApplication(void) {
   static Class applicationClass = nil;
   // iOS App extensions should not call [UIApplication sharedApplication], even if UIApplication

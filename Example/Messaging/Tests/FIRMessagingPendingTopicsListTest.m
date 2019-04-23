@@ -25,6 +25,7 @@ typedef void (^MockDelegateSubscriptionHandler)(NSString *topic,
                                                 FIRMessagingTopicAction action,
                                                 FIRMessagingTopicOperationCompletion completion);
 
+typedef void (^UpdateHandler)(void);
 /**
  * This object lets us provide a stub delegate where we can customize the behavior by providing
  * blocks. We need to use this instead of stubbing a OCMockProtocol because our delegate methods
@@ -35,7 +36,7 @@ typedef void (^MockDelegateSubscriptionHandler)(NSString *topic,
 
 @property(nonatomic, assign) BOOL isReady;
 @property(nonatomic, copy) MockDelegateSubscriptionHandler subscriptionHandler;
-@property(nonatomic, copy) void(^updateHandler)();
+@property(nonatomic, copy) UpdateHandler updateHandler;
 
 @end
 
