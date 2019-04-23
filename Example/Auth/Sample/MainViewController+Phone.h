@@ -28,13 +28,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (StaticContentTableViewSection *)phoneAuthSection;
 
 - (void)commonPhoneNumberInputWithTitle:(NSString *)title
-                             Completion:(textInputCompletionBlock)completion;
+                             completion:(TextInputCompletionBlock)completion;
 
 - (void)signInWithPhoneNumber:(NSString *_Nullable)phoneNumber
-                   completion:(nullable testAutomationCallback)completion;
+                   completion:(nullable TestAutomationCallback)completion;
 
 - (void)linkPhoneNumber:(NSString *_Nullable)phoneNumber
-             completion:(nullable testAutomationCallback)completion;
+             completion:(nullable TestAutomationCallback)completion;
 
 @end
 

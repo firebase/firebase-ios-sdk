@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)reloadUser;
 
 - (void)updatePhoneNumber:(NSString *_Nullable)phoneNumber
-               completion:(nullable testAutomationCallback)completion;
+               completion:(nullable TestAutomationCallback)completion;
 
 @end
 

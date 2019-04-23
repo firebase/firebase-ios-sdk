@@ -35,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)signInWithPhoneNumber:(NSString *_Nullable)phoneNumber
-                   completion:(nullable testAutomationCallback)completion {
+                   completion:(nullable TestAutomationCallback)completion {
   [self showSpinner:^{
     [[AppManager phoneAuthProvider] verifyPhoneNumber:phoneNumber
                                            UIDelegate:nil
@@ -52,7 +52,7 @@ NS_ASSUME_NONNULL_BEGIN
        }
        [self logSuccess:@"Code sent"];
        [self commonPhoneNumberInputWithTitle:@"Code"
-                                  Completion:^(NSString *_Nullable verificationCode) {
+                                  completion:^(NSString *_Nullable verificationCode) {
         [self commontPhoneVerificationWithVerificationID:verificationID
                                         verificationCode:verificationCode];
         if (completion) {
@@ -66,13 +66,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)signInWithPhoneNumberWithPrompt {
   [self commonPhoneNumberInputWithTitle:@"Phone #"
-                             Completion:^(NSString *_Nullable phone) {
+                             completion:^(NSString *_Nullable phone) {
                                [self signInWithPhoneNumber:phone completion:nil];
                              }];
 }
 
 - (void)commonPhoneNumberInputWithTitle:(NSString *)title
-                             Completion:(textInputCompletionBlock)completion {
+                             completion:(TextInputCompletionBlock)completion {
   [self showTextInputPromptWithMessage:title
                           keyboardType:UIKeyboardTypePhonePad
                        completionBlock:^(BOOL userPressedOK, NSString *_Nullable phoneNumber) {
@@ -112,7 +112,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)linkPhoneNumber:(NSString *_Nullable)phoneNumber
-             completion:(nullable testAutomationCallback)completion {
+             completion:(nullable TestAutomationCallback)completion {
   [self showSpinner:^{
     [[AppManager phoneAuthProvider] verifyPhoneNumber:phoneNumber
                                            UIDelegate:nil

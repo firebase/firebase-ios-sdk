@@ -214,7 +214,7 @@ static NSString *const kFakePassword = @"fakePassword";
   [auth signOut:NULL];
   [self log:@"INITIATING AUTOMATED MANUAL TEST FOR PHONE NUMBER SIGN IN:"];
   [self commonPhoneNumberInputWithTitle:@"Phone for automation"
-                             Completion:^(NSString *_Nullable phone) {
+                             completion:^(NSString *_Nullable phone) {
      [self signInWithPhoneNumber:phone completion:^(NSError *error) {
        if (error) {
          [self logFailedTest:@"Could not sign in with phone number reCAPTCHA."];

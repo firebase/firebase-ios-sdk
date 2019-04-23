@@ -398,7 +398,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
 }
 
 - (void)unlinkFromProvider:(NSString *)provider
-                completion:(nullable testAutomationCallback)completion {
+                completion:(nullable TestAutomationCallback)completion {
   [[self user] unlinkFromProvider:provider
                        completion:^(FIRUser *_Nullable user,
                                     NSError *_Nullable error) {

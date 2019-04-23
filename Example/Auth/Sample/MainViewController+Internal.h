@@ -37,9 +37,9 @@ typedef enum {
   ActionCodeRequestTypeInApp,
 } ActionCodeRequestType;
 
-typedef void (^textInputCompletionBlock)(NSString *_Nullable userInput);
+typedef void (^TextInputCompletionBlock)(NSString *_Nullable userInput);
 
-typedef void (^testAutomationCallback)(NSError *_Nullable error);
+typedef void (^TestAutomationCallback)(NSError *_Nullable error);
 
 @interface MainViewController ()
 
@@ -67,7 +67,7 @@ typedef void (^testAutomationCallback)(NSError *_Nullable error);
 
 - (void)linkWithAuthProvider:(id<AuthProvider>)authProvider retrieveData:(BOOL)retrieveData;
 
-- (void)unlinkFromProvider:(NSString *)provider completion:(nullable testAutomationCallback)completion;
+- (void)unlinkFromProvider:(NSString *)provider completion:(nullable TestAutomationCallback)completion;
 
 - (void)reauthenticate:(id<AuthProvider>)authProvider retrieveData:(BOOL)retrieveData;
 
