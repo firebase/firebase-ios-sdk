@@ -43,6 +43,10 @@ using core::DocumentViewChange;
 using core::ViewSnapshot;
 using model::DocumentSet;
 
+FSTQuery* QuerySnapshot::internal_query() const {
+  return internal_query_;
+}
+
 bool operator==(const QuerySnapshot& lhs, const QuerySnapshot& rhs) {
   return lhs.firestore_ == rhs.firestore_ &&
          objc::Equals(lhs.internal_query_, rhs.internal_query_) &&

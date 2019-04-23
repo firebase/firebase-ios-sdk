@@ -17,12 +17,6 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_API_QUERY_SNAPSHOT_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_API_QUERY_SNAPSHOT_H_
 
-#if !defined(__OBJC__)
-#error "This header only supports Objective-C++"
-#endif  // !defined(__OBJC__)
-
-#import <Foundation/Foundation.h>
-
 #include <functional>
 #include <memory>
 #include <utility>
@@ -32,10 +26,11 @@
 #include "Firestore/core/src/firebase/firestore/api/snapshot_metadata.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
+#include "Firestore/core/src/firebase/firestore/objc/objc_class.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class FSTQuery;
+OBJC_CLASS(FSTQuery);
 
 namespace firebase {
 namespace firestore {
@@ -74,9 +69,7 @@ class QuerySnapshot {
     return firestore_;
   }
 
-  FSTQuery* internal_query() const {
-    return internal_query_;
-  }
+  FSTQuery* internal_query() const;
 
   /**
    * Metadata about this snapshot, concerning its source and if it has local
@@ -101,7 +94,7 @@ class QuerySnapshot {
 
  private:
   std::shared_ptr<Firestore> firestore_;
-  FSTQuery* internal_query_ = nil;
+  objc::Handle<FSTQuery> internal_query_;
   core::ViewSnapshot snapshot_;
   SnapshotMetadata metadata_;
 };
