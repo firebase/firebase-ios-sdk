@@ -38,7 +38,6 @@
 #include "Firestore/core/src/firebase/firestore/core/event_listener.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
-#include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
@@ -59,7 +58,6 @@ using firebase::firestore::core::ListenOptions;
 using firebase::firestore::core::ParsedSetData;
 using firebase::firestore::core::ParsedUpdateData;
 using firebase::firestore::model::DocumentKey;
-using firebase::firestore::model::Precondition;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::util::Status;
 using firebase::firestore::util::StatusOr;
@@ -162,8 +160,7 @@ NS_ASSUME_NONNULL_BEGIN
   auto dataConverter = self.firestore.dataConverter;
   ParsedSetData parsed = merge ? [dataConverter parsedMergeData:documentData fieldMask:nil]
                                : [dataConverter parsedSetData:documentData];
-  _documentReference.SetData(
-      std::move(parsed).ToMutations(_documentReference.key(), Precondition::None()), completion);
+  _documentReference.SetData(std::move(parsed), util::MakeCallback(completion));
 }
 
 - (void)setData:(NSDictionary<NSString *, id> *)documentData
@@ -171,8 +168,7 @@ NS_ASSUME_NONNULL_BEGIN
      completion:(nullable void (^)(NSError *_Nullable error))completion {
   ParsedSetData parsed = [self.firestore.dataConverter parsedMergeData:documentData
                                                              fieldMask:mergeFields];
-  _documentReference.SetData(
-      std::move(parsed).ToMutations(_documentReference.key(), Precondition::None()), completion);
+  _documentReference.SetData(std::move(parsed), util::MakeCallback(completion));
 }
 
 - (void)updateData:(NSDictionary<id, id> *)fields {
@@ -182,9 +178,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)updateData:(NSDictionary<id, id> *)fields
         completion:(nullable void (^)(NSError *_Nullable error))completion {
   ParsedUpdateData parsed = [self.firestore.dataConverter parsedUpdateData:fields];
-  _documentReference.UpdateData(
-      std::move(parsed).ToMutations(_documentReference.key(), Precondition::Exists(true)),
-      completion);
+  _documentReference.UpdateData(std::move(parsed), util::MakeCallback(completion));
 }
 
 - (void)deleteDocument {
@@ -192,7 +186,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)deleteDocumentWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
-  _documentReference.DeleteDocument(completion);
+  _documentReference.DeleteDocument(util::MakeCallback(completion));
 }
 
 - (void)getDocumentWithCompletion:(FIRDocumentSnapshotBlock)completion {
@@ -250,6 +244,10 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - FIRDocumentReference (Internal)
 
 @implementation FIRDocumentReference (Internal)
+
+- (const api::DocumentReference &)internalReference {
+  return _documentReference;
+}
 
 - (const DocumentKey &)key {
   return _documentReference.key();

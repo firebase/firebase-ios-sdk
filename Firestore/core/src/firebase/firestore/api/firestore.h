@@ -31,18 +31,19 @@
 
 #include "Firestore/core/src/firebase/firestore/api/settings.h"
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
+#include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor_callback.h"
+#include "absl/types/any.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class FIRApp;
 @class FIRCollectionReference;
-@class FIRFirestore;
 @class FIRQuery;
 @class FIRTransaction;
-@class FIRWriteBatch;
 @class FSTFirestoreClient;
 
 namespace firebase {
@@ -50,13 +51,11 @@ namespace firestore {
 namespace api {
 
 class DocumentReference;
+class WriteBatch;
 
 class Firestore : public std::enable_shared_from_this<Firestore> {
  public:
   using TransactionBlock = id _Nullable (^)(FIRTransaction*, NSError** error);
-  using ErrorCompletion = void (^)(NSError* _Nullable error);
-  using ResultOrErrorCompletion = void (^)(id _Nullable result,
-                                           NSError* _Nullable error);
 
   Firestore() = default;
 
@@ -93,17 +92,16 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
 
   FIRCollectionReference* GetCollection(absl::string_view collection_path);
   DocumentReference GetDocument(absl::string_view document_path);
-  FIRWriteBatch* GetBatch();
+  WriteBatch GetBatch();
   FIRQuery* GetCollectionGroup(NSString* collection_id);
 
-  void RunTransaction(TransactionBlock update_block,
-                      dispatch_queue_t queue,
-                      ResultOrErrorCompletion completion);
+  void RunTransaction(core::TransactionUpdateCallback update_callback,
+                      core::TransactionResultCallback result_callback);
 
-  void Shutdown(ErrorCompletion completion);
+  void Shutdown(util::StatusCallback callback);
 
-  void EnableNetwork(ErrorCompletion completion);
-  void DisableNetwork(ErrorCompletion completion);
+  void EnableNetwork(util::StatusCallback callback);
+  void DisableNetwork(util::StatusCallback callback);
 
  private:
   void EnsureClientConfigured();

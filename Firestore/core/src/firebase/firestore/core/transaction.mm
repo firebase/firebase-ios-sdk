@@ -159,7 +159,7 @@ void Transaction::Delete(const DocumentKey& key) {
   read_versions_[key] = SnapshotVersion::None();
 }
 
-void Transaction::Commit(CommitCallback&& callback) {
+void Transaction::Commit(util::StatusCallback&& callback) {
   EnsureCommitNotCalled();
 
   // If there was an error writing, raise that error now

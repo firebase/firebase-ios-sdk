@@ -98,6 +98,12 @@ target 'Messaging_Example_iOS' do
   end
 end
 
+target 'Messaging_NotificationService_iOS' do
+  platform :ios, '8.0'
+
+  pod 'FirebaseMessaging' , :path => '../'
+end
+
 target 'Messaging_Sample_iOS' do
   platform :ios, '8.0'
   pod 'FirebaseMessaging' , :path => '../'

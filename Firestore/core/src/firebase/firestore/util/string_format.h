@@ -21,6 +21,7 @@
 #include <string>
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/objc/objc_type_traits.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/type_traits.h"
 #include "absl/base/attributes.h"
@@ -88,7 +89,7 @@ class FormatArg : public absl::AlphaNum {
    */
   template <
       typename T,
-      typename = typename std::enable_if<is_objective_c_pointer<T>{}>::type>
+      typename = typename std::enable_if<objc::is_objc_pointer<T>{}>::type>
   FormatArg(T object, internal::FormatChoice<1>)
       : AlphaNum{MakeStringView([object description])} {
   }

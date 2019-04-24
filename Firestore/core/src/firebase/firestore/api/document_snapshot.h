@@ -55,7 +55,7 @@ class DocumentSnapshot {
                    model::DocumentKey document_key,
                    FSTDocument* _Nullable document,
                    SnapshotMetadata metadata)
-      : firestore_{firestore},
+      : firestore_{std::move(firestore)},
         internal_key_{std::move(document_key)},
         internal_document_{document},
         metadata_{std::move(metadata)} {
@@ -66,7 +66,7 @@ class DocumentSnapshot {
                    FSTDocument* _Nullable document,
                    bool from_cache,
                    bool has_pending_writes)
-      : firestore_{firestore},
+      : firestore_{std::move(firestore)},
         internal_key_{std::move(document_key)},
         internal_document_{document},
         metadata_{has_pending_writes, from_cache} {

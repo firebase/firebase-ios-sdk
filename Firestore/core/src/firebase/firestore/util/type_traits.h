@@ -17,10 +17,6 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_TYPE_TRAITS_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_TYPE_TRAITS_H_
 
-#if __OBJC__
-#import <objc/objc.h>  // for id
-#endif
-
 #include <type_traits>
 #include <utility>
 
@@ -29,28 +25,6 @@
 namespace firebase {
 namespace firestore {
 namespace util {
-
-#if __OBJC__
-
-/**
- * A type trait that identifies whether or not the given pointer points to an
- * Objective-C object.
- *
- * is_objective_c_pointer<NSObject*>::value == true
- * is_objective_c_pointer<NSArray<NSString*>*>::value == true
- *
- * // id is a dynamically typed pointer to an Objective-C object.
- * is_objective_c_pointer<id>::value == true
- *
- * // pointers to C++ classes are not Objective-C pointers.
- * is_objective_c_pointer<void*>::value == false
- * is_objective_c_pointer<std::string*>::value == false
- * is_objective_c_pointer<std::unique_ptr<int>>::value == false
- */
-template <typename T>
-using is_objective_c_pointer = std::is_convertible<T, id>;
-
-#endif  // __OBJC__
 
 // is_iterable
 

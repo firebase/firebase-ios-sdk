@@ -118,6 +118,18 @@
 		40CC5511221B9B4700032423 /* GoogleAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 40CC5509221B9B4700032423 /* GoogleAuthTests.m */; };
 		40CC5512221B9B4700032423 /* AnonymousAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 40CC550A221B9B4700032423 /* AnonymousAuthTests.m */; };
 		40CC5513221B9B4700032423 /* FacebookAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 40CC550B221B9B4700032423 /* FacebookAuthTests.m */; };
+		40EE3B822256B23200BE59CE /* MainViewController+GameCenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 40EE3B812256B23200BE59CE /* MainViewController+GameCenter.m */; };
+		40EE3B862256B5A000BE59CE /* MainViewController+Phone.m in Sources */ = {isa = PBXBuildFile; fileRef = 40EE3B852256B5A000BE59CE /* MainViewController+Phone.m */; };
+		40EE3B892256B9A600BE59CE /* MainViewController+User.m in Sources */ = {isa = PBXBuildFile; fileRef = 40EE3B882256B9A600BE59CE /* MainViewController+User.m */; };
+		40EE3B8C2256BBB200BE59CE /* MainViewController+OOB.m in Sources */ = {isa = PBXBuildFile; fileRef = 40EE3B8B2256BBB200BE59CE /* MainViewController+OOB.m */; };
+		40EE3B8F2256C0AD00BE59CE /* MainViewController+App.m in Sources */ = {isa = PBXBuildFile; fileRef = 40EE3B8E2256C0AD00BE59CE /* MainViewController+App.m */; };
+		40EE3B922256C2E800BE59CE /* MainViewController+AutoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 40EE3B912256C2E800BE59CE /* MainViewController+AutoTests.m */; };
+		40EE3B952256C5AC00BE59CE /* MainViewController+Email.m in Sources */ = {isa = PBXBuildFile; fileRef = 40EE3B942256C5AC00BE59CE /* MainViewController+Email.m */; };
+		40EE3B9B2256C66800BE59CE /* MainViewController+Facebook.m in Sources */ = {isa = PBXBuildFile; fileRef = 40EE3B972256C66700BE59CE /* MainViewController+Facebook.m */; };
+		40EE3B9D2256C66800BE59CE /* MainViewController+Google.m in Sources */ = {isa = PBXBuildFile; fileRef = 40EE3B9A2256C66800BE59CE /* MainViewController+Google.m */; };
+		40EE3BA02256C77200BE59CE /* MainViewController+Custom.m in Sources */ = {isa = PBXBuildFile; fileRef = 40EE3B9F2256C77200BE59CE /* MainViewController+Custom.m */; };
+		40EE3BA52256C8DE00BE59CE /* MainViewController+OAuth.m in Sources */ = {isa = PBXBuildFile; fileRef = 40EE3BA12256C8DD00BE59CE /* MainViewController+OAuth.m */; };
+		40EE3BA62256C8DE00BE59CE /* MainViewController+Auth.m in Sources */ = {isa = PBXBuildFile; fileRef = 40EE3BA32256C8DE00BE59CE /* MainViewController+Auth.m */; };
 		511DD2752225C4D00094D78D /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 511DD2742225C4D00094D78D /* AppDelegate.m */; };
 		511DD2782225C4D00094D78D /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 511DD2772225C4D00094D78D /* ViewController.m */; };
 		511DD27B2225C4D00094D78D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 511DD2792225C4D00094D78D /* Main.storyboard */; };
@@ -137,7 +149,6 @@
 		511DD29D2225C8C40094D78D /* FIRMessagingLinkHandlingTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315CC1E8738B70083EDBF /* FIRMessagingLinkHandlingTest.m */; };
 		511DD29E2225C8C40094D78D /* FIRMessagingPendingTopicsListTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315CD1E8738B70083EDBF /* FIRMessagingPendingTopicsListTest.m */; };
 		511DD29F2225C8C40094D78D /* FIRMessagingPubSubTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315CE1E8738B70083EDBF /* FIRMessagingPubSubTest.m */; };
-		511DD2A12225C8C40094D78D /* FIRMessagingRegistrarTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315CF1E8738B70083EDBF /* FIRMessagingRegistrarTest.m */; };
 		511DD2A22225C8C40094D78D /* FIRMessagingRemoteNotificationsProxyTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315D01E8738B70083EDBF /* FIRMessagingRemoteNotificationsProxyTest.m */; };
 		511DD2A32225C8C40094D78D /* FIRMessagingRmqManagerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315D11E8738B70083EDBF /* FIRMessagingRmqManagerTest.m */; };
 		511DD2A42225C8C40094D78D /* FIRMessagingSecureSocketTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315D21E8738B70083EDBF /* FIRMessagingSecureSocketTest.m */; };
@@ -186,6 +197,8 @@
 		923F824F206C4DA500034974 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE45C6641E7DA8CB009E6ACD /* XCTest.framework */; };
 		923F8251206C4DC600034974 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 923F8250206C4DC500034974 /* UserNotifications.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		923F8252206C4DD500034974 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F591195388D20070C39A /* UIKit.framework */; };
+		9AB3705F226765A900ACD3AE /* NotificationService.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AB3705E226765A900ACD3AE /* NotificationService.m */; };
+		9AB37063226765A900ACD3AE /* Messaging_NotificationService_iOS.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 9AB3705B226765A900ACD3AE /* Messaging_NotificationService_iOS.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		AFAF36F51EC28C25004BDEE5 /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
 		AFAF36F61EC28C25004BDEE5 /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
 		AFAF36F71EC28C25004BDEE5 /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
@@ -376,9 +389,7 @@
 		DE1FAEB21FBCF60D00897AAA /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5389501FBB635400199FC2 /* main.m */; };
 		DE1FAEB31FBCF60D00897AAA /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5389531FBB635400199FC2 /* ViewController.m */; };
 		DE1FAEB51FBCF60D00897AAA /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DE5389511FBB635400199FC2 /* Main.storyboard */; };
-		DE1FAEB61FBCF60D00897AAA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DE53894E1FBB635400199FC2 /* Assets.xcassets */; };
 		DE1FAEB71FBCF6CA00897AAA /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DE9314F61E86C6FF0083EDBF /* GoogleService-Info.plist */; };
-		DE26D20E1F70333E004AE1D3 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = DE26D1DA1F70333E004AE1D3 /* Localizable.strings */; };
 		DE26D2131F70333E004AE1D3 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DE26D1E41F70333E004AE1D3 /* Images.xcassets */; };
 		DE26D2441F7039BC004AE1D3 /* ApplicationDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DE26D1D01F70333E004AE1D3 /* ApplicationDelegate.m */; };
 		DE26D2451F7039BC004AE1D3 /* AppManager.m in Sources */ = {isa = PBXBuildFile; fileRef = DE26D1D31F70333E004AE1D3 /* AppManager.m */; };
@@ -398,7 +409,6 @@
 		DE26D2541F7040B2004AE1D3 /* MainViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = DE26D1E81F70333E004AE1D3 /* MainViewController.xib */; };
 		DE26D2551F7040B2004AE1D3 /* SettingsViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = DE26D1EE1F70333E004AE1D3 /* SettingsViewController.xib */; };
 		DE26D2561F7040B2004AE1D3 /* UserInfoViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = DE26D1F51F70333E004AE1D3 /* UserInfoViewController.xib */; };
-		DE26D2571F7040E0004AE1D3 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = DE26D1DA1F70333E004AE1D3 /* Localizable.strings */; };
 		DE26D2581F7040E4004AE1D3 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DE26D1E41F70333E004AE1D3 /* Images.xcassets */; };
 		DE26D2681F704A0C004AE1D3 /* EmailPasswordAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE26D1C91F70330A004AE1D3 /* EmailPasswordAuthTests.m */; };
 		DE26D2771F705CB5004AE1D3 /* FIRAuthE2eTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE26D1FA1F70333E004AE1D3 /* FIRAuthE2eTests.m */; };
@@ -478,7 +488,6 @@
 		DE90374A1FBA675D00E239D3 /* FTupleEventTypeString.m in Sources */ = {isa = PBXBuildFile; fileRef = DE7B8D8B1E8EF203009EB6DF /* FTupleEventTypeString.m */; };
 		DE90374B1FBA675D00E239D3 /* SenTest+FWaiter.m in Sources */ = {isa = PBXBuildFile; fileRef = DE7B8D8D1E8EF203009EB6DF /* SenTest+FWaiter.m */; };
 		DE90374D1FBA70E400E239D3 /* syncPointSpec.json in Resources */ = {isa = PBXBuildFile; fileRef = DE7B8D8E1E8EF203009EB6DF /* syncPointSpec.json */; };
-		DE9315261E86C6FF0083EDBF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DE9314ED1E86C6FF0083EDBF /* LaunchScreen.storyboard */; };
 		DE9315271E86C6FF0083EDBF /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DE9314EF1E86C6FF0083EDBF /* Main.storyboard */; };
 		DE9315291E86C6FF0083EDBF /* FIRAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9314F31E86C6FF0083EDBF /* FIRAppDelegate.m */; };
 		DE93152A1E86C6FF0083EDBF /* FIRViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9314F51E86C6FF0083EDBF /* FIRViewController.m */; };
@@ -533,7 +542,6 @@
 		DE9315FB1E8738E60083EDBF /* FIRMessagingLinkHandlingTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315CC1E8738B70083EDBF /* FIRMessagingLinkHandlingTest.m */; };
 		DE9315FC1E8738E60083EDBF /* FIRMessagingPendingTopicsListTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315CD1E8738B70083EDBF /* FIRMessagingPendingTopicsListTest.m */; };
 		DE9315FD1E8738E60083EDBF /* FIRMessagingPubSubTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315CE1E8738B70083EDBF /* FIRMessagingPubSubTest.m */; };
-		DE9315FE1E8738E60083EDBF /* FIRMessagingRegistrarTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315CF1E8738B70083EDBF /* FIRMessagingRegistrarTest.m */; };
 		DE9315FF1E8738E60083EDBF /* FIRMessagingRemoteNotificationsProxyTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315D01E8738B70083EDBF /* FIRMessagingRemoteNotificationsProxyTest.m */; };
 		DE9316001E8738E60083EDBF /* FIRMessagingRmqManagerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315D11E8738B70083EDBF /* FIRMessagingRmqManagerTest.m */; };
 		DE9316011E8738E60083EDBF /* FIRMessagingSecureSocketTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315D21E8738B70083EDBF /* FIRMessagingSecureSocketTest.m */; };
@@ -632,7 +640,6 @@
 		DEE14D921E84468D006FA992 /* FIRLoggerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE14D791E844677006FA992 /* FIRLoggerTest.m */; };
 		DEE14D931E84468D006FA992 /* FIROptionsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE14D7A1E844677006FA992 /* FIROptionsTest.m */; };
 		DEE14D941E84468D006FA992 /* FIRTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE14D7C1E844677006FA992 /* FIRTestCase.m */; };
-		DEF288411F9AB6E100D480CF /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = DEF288401F9AB6E100D480CF /* Default-568h@2x.png */; };
 		DEF6C30D1FBCE72F005D0740 /* FIRAuthDispatcherTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9314FF1E86C6FF0083EDBF /* FIRAuthDispatcherTests.m */; };
 		DEF6C30F1FBCE775005D0740 /* FIRAdditionalUserInfoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9314FA1E86C6FF0083EDBF /* FIRAdditionalUserInfoTests.m */; };
 		DEF6C3101FBCE775005D0740 /* FIRApp+FIRAuthUnitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9314FC1E86C6FF0083EDBF /* FIRApp+FIRAuthUnitTests.m */; };
@@ -733,6 +740,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 518854D42230652900CA4141;
 			remoteInfo = InstanceID_Example_tvOS;
+		};
+		9AB37061226765A900ACD3AE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6003F582195388D10070C39A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9AB3705A226765A900ACD3AE;
+			remoteInfo = Messaging_NotificationService_iOS;
 		};
 		AFD563111EB140E100EA2233 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -961,6 +975,17 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		9AB37067226765A900ACD3AE /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				9AB37063226765A900ACD3AE /* Messaging_NotificationService_iOS.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D09005361EDB331700154410 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1056,6 +1081,31 @@
 		40CC550A221B9B4700032423 /* AnonymousAuthTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AnonymousAuthTests.m; sourceTree = "<group>"; };
 		40CC550B221B9B4700032423 /* FacebookAuthTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FacebookAuthTests.m; sourceTree = "<group>"; };
 		40CC550C221B9B4700032423 /* FIRAuthApiTestsBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRAuthApiTestsBase.h; sourceTree = "<group>"; };
+		40EE3B802256B23200BE59CE /* MainViewController+GameCenter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MainViewController+GameCenter.h"; sourceTree = "<group>"; };
+		40EE3B812256B23200BE59CE /* MainViewController+GameCenter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "MainViewController+GameCenter.m"; sourceTree = "<group>"; };
+		40EE3B832256B39800BE59CE /* MainViewController+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MainViewController+Internal.h"; sourceTree = "<group>"; };
+		40EE3B842256B5A000BE59CE /* MainViewController+Phone.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MainViewController+Phone.h"; sourceTree = "<group>"; };
+		40EE3B852256B5A000BE59CE /* MainViewController+Phone.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "MainViewController+Phone.m"; sourceTree = "<group>"; };
+		40EE3B872256B9A600BE59CE /* MainViewController+User.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MainViewController+User.h"; sourceTree = "<group>"; };
+		40EE3B882256B9A600BE59CE /* MainViewController+User.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "MainViewController+User.m"; sourceTree = "<group>"; };
+		40EE3B8A2256BBB200BE59CE /* MainViewController+OOB.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MainViewController+OOB.h"; sourceTree = "<group>"; };
+		40EE3B8B2256BBB200BE59CE /* MainViewController+OOB.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "MainViewController+OOB.m"; sourceTree = "<group>"; };
+		40EE3B8D2256C0AD00BE59CE /* MainViewController+App.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MainViewController+App.h"; sourceTree = "<group>"; };
+		40EE3B8E2256C0AD00BE59CE /* MainViewController+App.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "MainViewController+App.m"; sourceTree = "<group>"; };
+		40EE3B902256C2E800BE59CE /* MainViewController+AutoTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MainViewController+AutoTests.h"; sourceTree = "<group>"; };
+		40EE3B912256C2E800BE59CE /* MainViewController+AutoTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "MainViewController+AutoTests.m"; sourceTree = "<group>"; };
+		40EE3B932256C5AC00BE59CE /* MainViewController+Email.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MainViewController+Email.h"; sourceTree = "<group>"; };
+		40EE3B942256C5AC00BE59CE /* MainViewController+Email.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "MainViewController+Email.m"; sourceTree = "<group>"; };
+		40EE3B962256C66600BE59CE /* MainViewController+Facebook.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MainViewController+Facebook.h"; sourceTree = "<group>"; };
+		40EE3B972256C66700BE59CE /* MainViewController+Facebook.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MainViewController+Facebook.m"; sourceTree = "<group>"; };
+		40EE3B992256C66700BE59CE /* MainViewController+Google.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MainViewController+Google.h"; sourceTree = "<group>"; };
+		40EE3B9A2256C66800BE59CE /* MainViewController+Google.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MainViewController+Google.m"; sourceTree = "<group>"; };
+		40EE3B9E2256C77100BE59CE /* MainViewController+Custom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MainViewController+Custom.h"; sourceTree = "<group>"; };
+		40EE3B9F2256C77200BE59CE /* MainViewController+Custom.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MainViewController+Custom.m"; sourceTree = "<group>"; };
+		40EE3BA12256C8DD00BE59CE /* MainViewController+OAuth.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MainViewController+OAuth.m"; sourceTree = "<group>"; };
+		40EE3BA22256C8DD00BE59CE /* MainViewController+Auth.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MainViewController+Auth.h"; sourceTree = "<group>"; };
+		40EE3BA32256C8DE00BE59CE /* MainViewController+Auth.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MainViewController+Auth.m"; sourceTree = "<group>"; };
+		40EE3BA42256C8DE00BE59CE /* MainViewController+OAuth.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MainViewController+OAuth.h"; sourceTree = "<group>"; };
 		511DD2712225C4D00094D78D /* Messaging_Example_tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Messaging_Example_tvOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		511DD2732225C4D00094D78D /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		511DD2742225C4D00094D78D /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -1089,6 +1139,10 @@
 		8496034D8156555C5FCF8F14 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		923F824B206C4D8000034974 /* SafariServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SafariServices.framework; path = System/Library/Frameworks/SafariServices.framework; sourceTree = SDKROOT; };
 		923F8250206C4DC500034974 /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
+		9AB3705B226765A900ACD3AE /* Messaging_NotificationService_iOS.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Messaging_NotificationService_iOS.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		9AB3705D226765A900ACD3AE /* NotificationService.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NotificationService.h; sourceTree = "<group>"; };
+		9AB3705E226765A900ACD3AE /* NotificationService.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NotificationService.m; sourceTree = "<group>"; };
+		9AB37060226765A900ACD3AE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Shared.xcassets; path = Shared/Shared.xcassets; sourceTree = "<group>"; };
 		AFC8BAA11EC257D700B8EEAE /* Messaging_Example-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Messaging_Example-Bridging-Header.h"; sourceTree = "<group>"; };
 		AFC8BAA21EC257D800B8EEAE /* FIRSampleAppUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FIRSampleAppUtilities.h; path = Shared/FIRSampleAppUtilities.h; sourceTree = "<group>"; };
@@ -1179,11 +1233,8 @@
 		DE26D1D71F70333E004AE1D3 /* AuthProviders.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AuthProviders.m; sourceTree = "<group>"; };
 		DE26D1D81F70333E004AE1D3 /* CustomTokenDataEntryViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomTokenDataEntryViewController.h; sourceTree = "<group>"; };
 		DE26D1D91F70333E004AE1D3 /* CustomTokenDataEntryViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomTokenDataEntryViewController.m; sourceTree = "<group>"; };
-		DE26D1DB1F70333E004AE1D3 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
-		DE26D1DC1F70333E004AE1D3 /* es-MX */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "es-MX"; path = "es-MX.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		DE26D1DD1F70333E004AE1D3 /* FacebookAuthProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FacebookAuthProvider.h; sourceTree = "<group>"; };
 		DE26D1DE1F70333E004AE1D3 /* FacebookAuthProvider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FacebookAuthProvider.m; sourceTree = "<group>"; };
-		DE26D1DF1F70333E004AE1D3 /* fr-FR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "fr-FR"; path = "fr-FR.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		DE26D1E01F70333E004AE1D3 /* GoogleAuthProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GoogleAuthProvider.h; sourceTree = "<group>"; };
 		DE26D1E11F70333E004AE1D3 /* GoogleAuthProvider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GoogleAuthProvider.m; sourceTree = "<group>"; };
 		DE26D1E21F70333E004AE1D3 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
@@ -1193,7 +1244,6 @@
 		DE26D1E61F70333E004AE1D3 /* MainViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainViewController.h; sourceTree = "<group>"; };
 		DE26D1E71F70333E004AE1D3 /* MainViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainViewController.m; sourceTree = "<group>"; };
 		DE26D1E81F70333E004AE1D3 /* MainViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MainViewController.xib; sourceTree = "<group>"; };
-		DE26D1E91F70333E004AE1D3 /* ru-RU */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "ru-RU"; path = "ru-RU.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		DE26D1EA1F70333E004AE1D3 /* Sample.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = Sample.entitlements; sourceTree = "<group>"; };
 		DE26D1EB1F70333E004AE1D3 /* SampleTemplate.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = SampleTemplate.entitlements; sourceTree = "<group>"; };
 		DE26D1EC1F70333E004AE1D3 /* SettingsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SettingsViewController.h; sourceTree = "<group>"; };
@@ -1208,7 +1258,6 @@
 		DE26D1F51F70333E004AE1D3 /* UserInfoViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = UserInfoViewController.xib; sourceTree = "<group>"; };
 		DE26D1F61F70333E004AE1D3 /* UserTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UserTableViewCell.h; sourceTree = "<group>"; };
 		DE26D1F71F70333E004AE1D3 /* UserTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UserTableViewCell.m; sourceTree = "<group>"; };
-		DE26D1F81F70333E004AE1D3 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		DE26D1FA1F70333E004AE1D3 /* FIRAuthE2eTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRAuthE2eTests.m; sourceTree = "<group>"; };
 		DE26D1FB1F70333E004AE1D3 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		DE26D22E1F70398A004AE1D3 /* Sample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sample.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1240,7 +1289,6 @@
 		DE53893E1FBB62E100199FC2 /* Auth_Tests_tvOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Auth_Tests_tvOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE53894C1FBB635400199FC2 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		DE53894D1FBB635400199FC2 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		DE53894E1FBB635400199FC2 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		DE53894F1FBB635400199FC2 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		DE5389501FBB635400199FC2 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		DE5389511FBB635400199FC2 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
@@ -1287,7 +1335,6 @@
 		DE8DB550221F5B470068BB0E /* FIRInstanceIDWithFCMTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRInstanceIDWithFCMTest.m; sourceTree = "<group>"; };
 		DE9314C61E86C6BD0083EDBF /* Auth_Example_iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Auth_Example_iOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE9314DE1E86C6BE0083EDBF /* Auth_Tests_iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Auth_Tests_iOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		DE9314EE1E86C6FF0083EDBF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		DE9314F01E86C6FF0083EDBF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		DE9314F21E86C6FF0083EDBF /* FIRAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRAppDelegate.h; sourceTree = "<group>"; };
 		DE9314F31E86C6FF0083EDBF /* FIRAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRAppDelegate.m; sourceTree = "<group>"; };
@@ -1473,7 +1520,6 @@
 		DEE14D7B1E844677006FA992 /* FIRTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRTestCase.h; sourceTree = "<group>"; };
 		DEE14D7C1E844677006FA992 /* FIRTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRTestCase.m; sourceTree = "<group>"; };
 		DEE14D7D1E844677006FA992 /* Tests-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Tests-Info.plist"; sourceTree = "<group>"; };
-		DEF288401F9AB6E100D480CF /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		E2C2834C90DBAB56D568189F /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 		ED34CF4A20DC16DC000EA5D1 /* FIRComponentContainerTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRComponentContainerTest.m; sourceTree = "<group>"; };
 		ED34CF4B20DC16DC000EA5D1 /* FIRTestComponents.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRTestComponents.m; sourceTree = "<group>"; };
@@ -1526,6 +1572,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		518854E9223066BE00CA4141 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9AB37058226765A900ACD3AE /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1923,7 +1976,6 @@
 				DEB139B31E734D9D00AC236D /* Storage */,
 				6003F58C195388D20070C39A /* Frameworks */,
 				6003F58B195388D20070C39A /* Products */,
-				73F3D26B690BF932AE286CD5 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -1940,6 +1992,9 @@
 				DE7B8D051E8EF077009EB6DF /* Database_Example_iOS.app */,
 				DE7B8D1D1E8EF078009EB6DF /* Database_Tests_iOS.xctest */,
 				AFD562E51EB13C6D00EA2233 /* Messaging_Example_iOS.app */,
+				9AB3705B226765A900ACD3AE /* Messaging_NotificationService_iOS.appex */,
+				511DD2712225C4D00094D78D /* Messaging_Example_tvOS.app */,
+				511DD2882225C5A80094D78D /* Messaging_Tests_tvOS.xctest */,
 				0624F3E11EC0ECFA00E5940D /* Database_IntegrationTests_iOS.xctest */,
 				06121EBC1EC399C50008D70E /* Storage_IntegrationTests_iOS.xctest */,
 				D064E6961ED9B1BF001956DF /* Core_Example_macOS.app */,
@@ -1970,8 +2025,6 @@
 				DE4A62DD214816BD00670B27 /* FDLBuilderTestAppObjCEarlGrey.xctest */,
 				DE958B7221F7D13E00E6C1C5 /* InstanceID_Example_iOS.app */,
 				DE958B9421F7D15900E6C1C5 /* InstanceID_Tests_iOS.xctest */,
-				511DD2712225C4D00094D78D /* Messaging_Example_tvOS.app */,
-				511DD2882225C5A80094D78D /* Messaging_Tests_tvOS.xctest */,
 				518854D52230652900CA4141 /* InstanceID_Example_tvOS.app */,
 				518854EC223066BE00CA4141 /* InstanceID_Tests_tvOS.xctest */,
 			);
@@ -2002,11 +2055,14 @@
 			name = "Podspec Metadata";
 			sourceTree = "<group>";
 		};
-		73F3D26B690BF932AE286CD5 /* Pods */ = {
+		9AB3705C226765A900ACD3AE /* NotificationService */ = {
 			isa = PBXGroup;
 			children = (
+				9AB3705D226765A900ACD3AE /* NotificationService.h */,
+				9AB3705E226765A900ACD3AE /* NotificationService.m */,
+				9AB37060226765A900ACD3AE /* Info.plist */,
 			);
-			path = Pods;
+			path = NotificationService;
 			sourceTree = "<group>";
 		};
 		AFC8BAA01EC24B1600B8EEAE /* Shared */ = {
@@ -2027,13 +2083,12 @@
 			isa = PBXGroup;
 			children = (
 				DE9315801E86C7F70083EDBF /* Auth-Info.plist */,
-				DE9314ED1E86C6FF0083EDBF /* LaunchScreen.storyboard */,
-				DE9314EF1E86C6FF0083EDBF /* Main.storyboard */,
 				DE9314F21E86C6FF0083EDBF /* FIRAppDelegate.h */,
 				DE9314F31E86C6FF0083EDBF /* FIRAppDelegate.m */,
 				DE9314F41E86C6FF0083EDBF /* FIRViewController.h */,
 				DE9314F51E86C6FF0083EDBF /* FIRViewController.m */,
 				DE9314F81E86C6FF0083EDBF /* main.m */,
+				DE9314EF1E86C6FF0083EDBF /* Main.storyboard */,
 			);
 			path = iOS;
 			sourceTree = "<group>";
@@ -2041,13 +2096,13 @@
 		D01853471EDACC10003A645C /* macOS */ = {
 			isa = PBXGroup;
 			children = (
-				D018537B1EDAD0E6003A645C /* Main.storyboard */,
+				D01853821EDAD0E6003A645C /* Auth-Info.plist */,
 				D018537D1EDAD0E6003A645C /* FIRAppDelegate.h */,
 				D018537E1EDAD0E6003A645C /* FIRAppDelegate.m */,
 				D018537F1EDAD0E6003A645C /* FIRViewController.h */,
 				D01853801EDAD0E6003A645C /* FIRViewController.m */,
 				D01853811EDAD0E6003A645C /* main.m */,
-				D01853821EDAD0E6003A645C /* Auth-Info.plist */,
+				D018537B1EDAD0E6003A645C /* Main.storyboard */,
 			);
 			path = macOS;
 			sourceTree = "<group>";
@@ -2214,45 +2269,68 @@
 		DE26D1CD1F70333E004AE1D3 /* Sample */ = {
 			isa = PBXGroup;
 			children = (
-				DEF288401F9AB6E100D480CF /* Default-568h@2x.png */,
-				DE26D1EA1F70333E004AE1D3 /* Sample.entitlements */,
-				DE26D1EB1F70333E004AE1D3 /* SampleTemplate.entitlements */,
+				DE26D1CE1F70333E004AE1D3 /* Application.plist */,
 				DE26D1CF1F70333E004AE1D3 /* ApplicationDelegate.h */,
+				DE26D1D01F70333E004AE1D3 /* ApplicationDelegate.m */,
+				DE26D1D11F70333E004AE1D3 /* ApplicationTemplate.plist */,
 				DE26D1D21F70333E004AE1D3 /* AppManager.h */,
+				DE26D1D31F70333E004AE1D3 /* AppManager.m */,
 				DE26D1D41F70333E004AE1D3 /* AuthCredentials.h */,
 				DE26D1D51F70333E004AE1D3 /* AuthCredentialsTemplate.h */,
 				DE26D1D61F70333E004AE1D3 /* AuthProviders.h */,
-				DE26D1D81F70333E004AE1D3 /* CustomTokenDataEntryViewController.h */,
-				DE26D1DD1F70333E004AE1D3 /* FacebookAuthProvider.h */,
-				DE26D1E01F70333E004AE1D3 /* GoogleAuthProvider.h */,
-				DE26D1E61F70333E004AE1D3 /* MainViewController.h */,
-				DE26D1EC1F70333E004AE1D3 /* SettingsViewController.h */,
-				DE26D1EF1F70333E004AE1D3 /* StaticContentTableViewManager.h */,
-				DE26D1F11F70333E004AE1D3 /* UIViewController+Alerts.h */,
-				DE26D1F31F70333E004AE1D3 /* UserInfoViewController.h */,
-				DE26D1F61F70333E004AE1D3 /* UserTableViewCell.h */,
-				DE26D1D01F70333E004AE1D3 /* ApplicationDelegate.m */,
-				DE26D1D31F70333E004AE1D3 /* AppManager.m */,
 				DE26D1D71F70333E004AE1D3 /* AuthProviders.m */,
+				DE26D1D81F70333E004AE1D3 /* CustomTokenDataEntryViewController.h */,
 				DE26D1D91F70333E004AE1D3 /* CustomTokenDataEntryViewController.m */,
+				DE26D1DD1F70333E004AE1D3 /* FacebookAuthProvider.h */,
 				DE26D1DE1F70333E004AE1D3 /* FacebookAuthProvider.m */,
+				DE26D1E01F70333E004AE1D3 /* GoogleAuthProvider.h */,
 				DE26D1E11F70333E004AE1D3 /* GoogleAuthProvider.m */,
-				DE26D1E51F70333E004AE1D3 /* main.m */,
-				DE26D1E71F70333E004AE1D3 /* MainViewController.m */,
-				DE26D1ED1F70333E004AE1D3 /* SettingsViewController.m */,
-				DE26D1F01F70333E004AE1D3 /* StaticContentTableViewManager.m */,
-				DE26D1F21F70333E004AE1D3 /* UIViewController+Alerts.m */,
-				DE26D1F41F70333E004AE1D3 /* UserInfoViewController.m */,
-				DE26D1F71F70333E004AE1D3 /* UserTableViewCell.m */,
-				DE26D1CE1F70333E004AE1D3 /* Application.plist */,
-				DE26D1D11F70333E004AE1D3 /* ApplicationTemplate.plist */,
 				DE26D1E31F70333E004AE1D3 /* GoogleService-Info_multi.plist */,
 				DE26D1E21F70333E004AE1D3 /* GoogleService-Info.plist */,
 				DE26D1E41F70333E004AE1D3 /* Images.xcassets */,
+				DE26D1E51F70333E004AE1D3 /* main.m */,
+				DE26D1E61F70333E004AE1D3 /* MainViewController.h */,
+				DE26D1E71F70333E004AE1D3 /* MainViewController.m */,
 				DE26D1E81F70333E004AE1D3 /* MainViewController.xib */,
+				40EE3B8D2256C0AD00BE59CE /* MainViewController+App.h */,
+				40EE3B8E2256C0AD00BE59CE /* MainViewController+App.m */,
+				40EE3BA22256C8DD00BE59CE /* MainViewController+Auth.h */,
+				40EE3BA32256C8DE00BE59CE /* MainViewController+Auth.m */,
+				40EE3B902256C2E800BE59CE /* MainViewController+AutoTests.h */,
+				40EE3B912256C2E800BE59CE /* MainViewController+AutoTests.m */,
+				40EE3B9E2256C77100BE59CE /* MainViewController+Custom.h */,
+				40EE3B9F2256C77200BE59CE /* MainViewController+Custom.m */,
+				40EE3B932256C5AC00BE59CE /* MainViewController+Email.h */,
+				40EE3B942256C5AC00BE59CE /* MainViewController+Email.m */,
+				40EE3B962256C66600BE59CE /* MainViewController+Facebook.h */,
+				40EE3B972256C66700BE59CE /* MainViewController+Facebook.m */,
+				40EE3B802256B23200BE59CE /* MainViewController+GameCenter.h */,
+				40EE3B812256B23200BE59CE /* MainViewController+GameCenter.m */,
+				40EE3B992256C66700BE59CE /* MainViewController+Google.h */,
+				40EE3B9A2256C66800BE59CE /* MainViewController+Google.m */,
+				40EE3B832256B39800BE59CE /* MainViewController+Internal.h */,
+				40EE3BA42256C8DE00BE59CE /* MainViewController+OAuth.h */,
+				40EE3BA12256C8DD00BE59CE /* MainViewController+OAuth.m */,
+				40EE3B8A2256BBB200BE59CE /* MainViewController+OOB.h */,
+				40EE3B8B2256BBB200BE59CE /* MainViewController+OOB.m */,
+				40EE3B842256B5A000BE59CE /* MainViewController+Phone.h */,
+				40EE3B852256B5A000BE59CE /* MainViewController+Phone.m */,
+				40EE3B872256B9A600BE59CE /* MainViewController+User.h */,
+				40EE3B882256B9A600BE59CE /* MainViewController+User.m */,
+				DE26D1EA1F70333E004AE1D3 /* Sample.entitlements */,
+				DE26D1EB1F70333E004AE1D3 /* SampleTemplate.entitlements */,
+				DE26D1EC1F70333E004AE1D3 /* SettingsViewController.h */,
+				DE26D1ED1F70333E004AE1D3 /* SettingsViewController.m */,
 				DE26D1EE1F70333E004AE1D3 /* SettingsViewController.xib */,
+				DE26D1EF1F70333E004AE1D3 /* StaticContentTableViewManager.h */,
+				DE26D1F01F70333E004AE1D3 /* StaticContentTableViewManager.m */,
+				DE26D1F11F70333E004AE1D3 /* UIViewController+Alerts.h */,
+				DE26D1F21F70333E004AE1D3 /* UIViewController+Alerts.m */,
+				DE26D1F31F70333E004AE1D3 /* UserInfoViewController.h */,
+				DE26D1F41F70333E004AE1D3 /* UserInfoViewController.m */,
 				DE26D1F51F70333E004AE1D3 /* UserInfoViewController.xib */,
-				DE26D1DA1F70333E004AE1D3 /* Localizable.strings */,
+				DE26D1F61F70333E004AE1D3 /* UserTableViewCell.h */,
+				DE26D1F71F70333E004AE1D3 /* UserTableViewCell.m */,
 			);
 			path = Sample;
 			sourceTree = "<group>";
@@ -2307,6 +2385,7 @@
 		DE47C133207ACAA900B1AEDF /* iOS */ = {
 			isa = PBXGroup;
 			children = (
+				9AB3705C226765A900ACD3AE /* NotificationService */,
 				DE47C134207ACAA900B1AEDF /* FIRAppDelegate.h */,
 				DE47C135207ACAA900B1AEDF /* FIRViewController.h */,
 				DE47C136207ACAA900B1AEDF /* LaunchScreen.storyboard */,
@@ -2322,13 +2401,12 @@
 			isa = PBXGroup;
 			children = (
 				DE53894C1FBB635400199FC2 /* AppDelegate.h */,
-				DE5389521FBB635400199FC2 /* ViewController.h */,
 				DE53894D1FBB635400199FC2 /* AppDelegate.m */,
-				DE5389501FBB635400199FC2 /* main.m */,
-				DE5389531FBB635400199FC2 /* ViewController.m */,
 				DE53894F1FBB635400199FC2 /* Info.plist */,
+				DE5389501FBB635400199FC2 /* main.m */,
 				DE5389511FBB635400199FC2 /* Main.storyboard */,
-				DE53894E1FBB635400199FC2 /* Assets.xcassets */,
+				DE5389521FBB635400199FC2 /* ViewController.h */,
+				DE5389531FBB635400199FC2 /* ViewController.m */,
 			);
 			path = tvOS;
 			sourceTree = "<group>";
@@ -2889,6 +2967,23 @@
 			productReference = 518854EC223066BE00CA4141 /* InstanceID_Tests_tvOS.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		9AB3705A226765A900ACD3AE /* Messaging_NotificationService_iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9AB37066226765A900ACD3AE /* Build configuration list for PBXNativeTarget "Messaging_NotificationService_iOS" */;
+			buildPhases = (
+				9AB37057226765A900ACD3AE /* Sources */,
+				9AB37058226765A900ACD3AE /* Frameworks */,
+				9AB37059226765A900ACD3AE /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Messaging_NotificationService_iOS;
+			productName = Messaging_NotificationService_iOS;
+			productReference = 9AB3705B226765A900ACD3AE /* Messaging_NotificationService_iOS.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		AFD562E41EB13C6D00EA2233 /* Messaging_Example_iOS */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = AFD562F41EB13C6D00EA2233 /* Build configuration list for PBXNativeTarget "Messaging_Example_iOS" */;
@@ -2896,10 +2991,12 @@
 				AFD562E11EB13C6D00EA2233 /* Sources */,
 				AFD562E21EB13C6D00EA2233 /* Frameworks */,
 				AFD562E31EB13C6D00EA2233 /* Resources */,
+				9AB37067226765A900ACD3AE /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				9AB37062226765A900ACD3AE /* PBXTargetDependency */,
 			);
 			name = Messaging_Example_iOS;
 			productName = Messaging_Example_iOS;
@@ -3593,6 +3690,10 @@
 						ProvisioningStyle = Automatic;
 						TestTargetID = 518854D42230652900CA4141;
 					};
+					9AB3705A226765A900ACD3AE = {
+						CreatedOnToolsVersion = 10.2;
+						ProvisioningStyle = Automatic;
+					};
 					AFD562E41EB13C6D00EA2233 = {
 						CreatedOnToolsVersion = 8.3.2;
 						LastSwiftMigration = 0830;
@@ -3705,8 +3806,7 @@
 					};
 					DE53893D1FBB62E100199FC2 = {
 						CreatedOnToolsVersion = 9.1;
-						DevelopmentTeam = EQHXZ8M8AV;
-						ProvisioningStyle = Automatic;
+						ProvisioningStyle = Manual;
 						TestTargetID = DE5389291FBB62E100199FC2;
 					};
 					DE545C7F1FBCA3F000C637AE = {
@@ -3730,7 +3830,7 @@
 					};
 					DE9314DD1E86C6BE0083EDBF = {
 						CreatedOnToolsVersion = 8.2.1;
-						ProvisioningStyle = Automatic;
+						ProvisioningStyle = Manual;
 						TestTargetID = DE9314C51E86C6BD0083EDBF;
 					};
 					DE9315A61E8738460083EDBF = {
@@ -3832,6 +3932,7 @@
 				518854D42230652900CA4141 /* InstanceID_Example_tvOS */,
 				518854EB223066BE00CA4141 /* InstanceID_Tests_tvOS */,
 				AFD562E41EB13C6D00EA2233 /* Messaging_Example_iOS */,
+				9AB3705A226765A900ACD3AE /* Messaging_NotificationService_iOS */,
 				DE9315A61E8738460083EDBF /* Messaging_Tests_iOS */,
 				DE47C0DC207AC87D00B1AEDF /* Messaging_Sample_iOS */,
 				511DD2702225C4D00094D78D /* Messaging_Example_tvOS */,
@@ -3892,6 +3993,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		518854EA223066BE00CA4141 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9AB37059226765A900ACD3AE /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -4040,7 +4148,6 @@
 			files = (
 				DE1FAEB71FBCF6CA00897AAA /* GoogleService-Info.plist in Resources */,
 				DE1FAEB51FBCF60D00897AAA /* Main.storyboard in Resources */,
-				DE1FAEB61FBCF60D00897AAA /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4052,8 +4159,6 @@
 				DE26D2521F704072004AE1D3 /* GoogleService-Info.plist in Resources */,
 				DE26D2561F7040B2004AE1D3 /* UserInfoViewController.xib in Resources */,
 				DE26D2541F7040B2004AE1D3 /* MainViewController.xib in Resources */,
-				DE26D2571F7040E0004AE1D3 /* Localizable.strings in Resources */,
-				DEF288411F9AB6E100D480CF /* Default-568h@2x.png in Resources */,
 				DE26D2551F7040B2004AE1D3 /* SettingsViewController.xib in Resources */,
 				DE26D2581F7040E4004AE1D3 /* Images.xcassets in Resources */,
 			);
@@ -4126,9 +4231,7 @@
 			files = (
 				DE93152B1E86C6FF0083EDBF /* GoogleService-Info.plist in Resources */,
 				AFAF36F51EC28C25004BDEE5 /* Shared.xcassets in Resources */,
-				DE9315261E86C6FF0083EDBF /* LaunchScreen.storyboard in Resources */,
 				DE26D2131F70333E004AE1D3 /* Images.xcassets in Resources */,
-				DE26D20E1F70333E004AE1D3 /* Localizable.strings in Resources */,
 				DE9315271E86C6FF0083EDBF /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4312,7 +4415,6 @@
 				511DD29D2225C8C40094D78D /* FIRMessagingLinkHandlingTest.m in Sources */,
 				511DD29E2225C8C40094D78D /* FIRMessagingPendingTopicsListTest.m in Sources */,
 				511DD29F2225C8C40094D78D /* FIRMessagingPubSubTest.m in Sources */,
-				511DD2A12225C8C40094D78D /* FIRMessagingRegistrarTest.m in Sources */,
 				511DD2A22225C8C40094D78D /* FIRMessagingRemoteNotificationsProxyTest.m in Sources */,
 				511DD2A32225C8C40094D78D /* FIRMessagingRmqManagerTest.m in Sources */,
 				511DD2A42225C8C40094D78D /* FIRMessagingSecureSocketTest.m in Sources */,
@@ -4359,6 +4461,14 @@
 				51885508223067E900CA4141 /* FIRInstanceIDTokenManagerTest.m in Sources */,
 				51885509223067E900CA4141 /* FIRInstanceIDTokenOperationsTest.m in Sources */,
 				5188550A223067E900CA4141 /* FIRInstanceIDUtilitiesTest.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9AB37057226765A900ACD3AE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9AB3705F226765A900ACD3AE /* NotificationService.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4679,15 +4789,27 @@
 			files = (
 				DE26D2501F7039BC004AE1D3 /* UserTableViewCell.m in Sources */,
 				DE26D24D1F7039BC004AE1D3 /* StaticContentTableViewManager.m in Sources */,
+				40EE3B892256B9A600BE59CE /* MainViewController+User.m in Sources */,
+				40EE3B8F2256C0AD00BE59CE /* MainViewController+App.m in Sources */,
+				40EE3B9B2256C66800BE59CE /* MainViewController+Facebook.m in Sources */,
 				DE26D24E1F7039BC004AE1D3 /* UIViewController+Alerts.m in Sources */,
 				DE26D24B1F7039BC004AE1D3 /* MainViewController.m in Sources */,
+				40EE3BA02256C77200BE59CE /* MainViewController+Custom.m in Sources */,
+				40EE3B8C2256BBB200BE59CE /* MainViewController+OOB.m in Sources */,
 				DE26D24A1F7039BC004AE1D3 /* main.m in Sources */,
 				DE26D2481F7039BC004AE1D3 /* FacebookAuthProvider.m in Sources */,
+				40EE3B922256C2E800BE59CE /* MainViewController+AutoTests.m in Sources */,
 				DE26D24F1F7039BC004AE1D3 /* UserInfoViewController.m in Sources */,
+				40EE3BA52256C8DE00BE59CE /* MainViewController+OAuth.m in Sources */,
+				40EE3B9D2256C66800BE59CE /* MainViewController+Google.m in Sources */,
 				DE26D24C1F7039BC004AE1D3 /* SettingsViewController.m in Sources */,
+				40EE3B822256B23200BE59CE /* MainViewController+GameCenter.m in Sources */,
 				DE26D2461F7039BC004AE1D3 /* AuthProviders.m in Sources */,
 				DE26D2441F7039BC004AE1D3 /* ApplicationDelegate.m in Sources */,
+				40EE3BA62256C8DE00BE59CE /* MainViewController+Auth.m in Sources */,
 				DE26D2451F7039BC004AE1D3 /* AppManager.m in Sources */,
+				40EE3B952256C5AC00BE59CE /* MainViewController+Email.m in Sources */,
+				40EE3B862256B5A000BE59CE /* MainViewController+Phone.m in Sources */,
 				DE26D2491F7039BC004AE1D3 /* GoogleAuthProvider.m in Sources */,
 				DE26D2471F7039BC004AE1D3 /* CustomTokenDataEntryViewController.m in Sources */,
 			);
@@ -4928,7 +5050,6 @@
 				DE8DB551221F5B480068BB0E /* FIRInstanceIDWithFCMTest.m in Sources */,
 				DE9315F91E8738E60083EDBF /* FIRMessagingFakeConnection.m in Sources */,
 				DE9316021E8738E60083EDBF /* FIRMessagingServiceTest.m in Sources */,
-				DE9315FE1E8738E60083EDBF /* FIRMessagingRegistrarTest.m in Sources */,
 				EDF5242C21EA37AA00BB24C6 /* FIRMessagingTestUtilities.m in Sources */,
 				DE9316031E8738E60083EDBF /* FIRMessagingSyncMessageManagerTest.m in Sources */,
 				DE9315FF1E8738E60083EDBF /* FIRMessagingRemoteNotificationsProxyTest.m in Sources */,
@@ -5121,6 +5242,11 @@
 			isa = PBXTargetDependency;
 			target = 518854D42230652900CA4141 /* InstanceID_Example_tvOS */;
 			targetProxy = 518854F1223066BF00CA4141 /* PBXContainerItemProxy */;
+		};
+		9AB37062226765A900ACD3AE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9AB3705A226765A900ACD3AE /* Messaging_NotificationService_iOS */;
+			targetProxy = 9AB37061226765A900ACD3AE /* PBXContainerItemProxy */;
 		};
 		AFD563121EB140E100EA2233 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -5341,18 +5467,6 @@
 			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";
 		};
-		DE26D1DA1F70333E004AE1D3 /* Localizable.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				DE26D1DB1F70333E004AE1D3 /* en */,
-				DE26D1DC1F70333E004AE1D3 /* es-MX */,
-				DE26D1DF1F70333E004AE1D3 /* fr-FR */,
-				DE26D1E91F70333E004AE1D3 /* ru-RU */,
-				DE26D1F81F70333E004AE1D3 /* zh-Hans */,
-			);
-			name = Localizable.strings;
-			sourceTree = "<group>";
-		};
 		DE47C10C207AC94A00B1AEDF /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -5407,14 +5521,6 @@
 				DE7B8D6A1E8EF202009EB6DF /* en */,
 			);
 			name = InfoPlist.strings;
-			sourceTree = "<group>";
-		};
-		DE9314ED1E86C6FF0083EDBF /* LaunchScreen.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				DE9314EE1E86C6FF0083EDBF /* Base */,
-			);
-			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";
 		};
 		DE9314EF1E86C6FF0083EDBF /* Main.storyboard */ = {
@@ -6012,6 +6118,75 @@
 			};
 			name = Release;
 		};
+		9AB37064226765A900ACD3AE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = Messaging/App/iOS/NotificationService/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.google.FirebaseMessagingSample.dev.Messaging-NotificationService-iOS";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		9AB37065226765A900ACD3AE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = Messaging/App/iOS/NotificationService/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.google.FirebaseMessagingSample.dev.Messaging-NotificationService-iOS";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		AFD562F51EB13C6D00EA2233 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -6020,6 +6195,7 @@
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CODE_SIGN_ENTITLEMENTS = Messaging/Sample/iOS/Messaging_Example.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = "";
@@ -6048,6 +6224,7 @@
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CODE_SIGN_ENTITLEMENTS = Messaging/Sample/iOS/Messaging_Example.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -6071,7 +6248,6 @@
 		D01853771EDAD084003A645C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
@@ -6095,7 +6271,6 @@
 		D01853781EDAD084003A645C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
@@ -6655,7 +6830,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 4ANB9W7R3P;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = "$SRCROOT/DynamicLinks/FDLBuilderTestAppObjC/Info.plist";
+				INFOPLIST_FILE = $SRCROOT/DynamicLinks/FDLBuilderTestAppObjC/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.4;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
@@ -6689,7 +6864,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 4ANB9W7R3P;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = "$SRCROOT/DynamicLinks/FDLBuilderTestAppObjC/Info.plist";
+				INFOPLIST_FILE = $SRCROOT/DynamicLinks/FDLBuilderTestAppObjC/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.4;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -6866,8 +7041,6 @@
 		DE1FAEAC1FBCF5E200897AAA /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
-				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -6898,8 +7071,6 @@
 		DE1FAEAD1FBCF5E200897AAA /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
-				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -6957,7 +7128,7 @@
 					"\"${PODS_ROOT}/../../Firebase/Auth/Source\"/**",
 				);
 				INFOPLIST_FILE = Auth/Sample/Application.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.FirebaseExperimental1;
@@ -6996,7 +7167,7 @@
 					"\"${PODS_ROOT}/../../Firebase/Auth/Source\"/**",
 				);
 				INFOPLIST_FILE = Auth/Sample/Application.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.FirebaseExperimental1;
@@ -7288,9 +7459,9 @@
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = EQHXZ8M8AV;
+				DEVELOPMENT_TEAM = "";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -7301,6 +7472,7 @@
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Auth-Example-tvOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = appletvos;
 				TARGETED_DEVICE_FAMILY = 3;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Auth_Example_tvOS.app/Auth_Example_tvOS";
@@ -7325,10 +7497,10 @@
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = EQHXZ8M8AV;
+				DEVELOPMENT_TEAM = "";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -7339,6 +7511,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Auth-Example-tvOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = appletvos;
 				TARGETED_DEVICE_FAMILY = 3;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Auth_Example_tvOS.app/Auth_Example_tvOS";
@@ -7485,7 +7658,6 @@
 		DE9314E51E86C6BE0083EDBF /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
@@ -7510,7 +7682,6 @@
 		DE9314E61E86C6BE0083EDBF /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
@@ -7538,6 +7709,7 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CODE_SIGN_STYLE = Manual;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = "";
 				HEADER_SEARCH_PATHS = (
@@ -7551,6 +7723,7 @@
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Auth-Tests-iOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Auth_Example_iOS.app/Auth_Example_iOS";
 			};
 			name = Debug;
@@ -7561,6 +7734,7 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";
@@ -7575,6 +7749,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Auth-Tests-iOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Auth_Example_iOS.app/Auth_Example_iOS";
 			};
 			name = Release;
@@ -8363,6 +8538,15 @@
 			buildConfigurations = (
 				6003F5BD195388D20070C39A /* Debug */,
 				6003F5BE195388D20070C39A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9AB37066226765A900ACD3AE /* Build configuration list for PBXNativeTarget "Messaging_NotificationService_iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9AB37064226765A900ACD3AE /* Debug */,
+				9AB37065226765A900ACD3AE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -16,10 +16,21 @@
 
 #import "FIRWriteBatch.h"
 
-@class FIRFirestore;
+#import <Foundation/Foundation.h>
+
+#include "Firestore/core/src/firebase/firestore/api/write_batch.h"
+
+@class FSTUserDataConverter;
+
+namespace api = firebase::firestore::api;
+
+NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRWriteBatch (Internal)
 
-+ (instancetype)writeBatchWithFirestore:(FIRFirestore *)firestore;
++ (instancetype)writeBatchWithDataConverter:(FSTUserDataConverter *)dataConverter
+                                 writeBatch:(api::WriteBatch &&)writeBatch;
 
 @end
+
+NS_ASSUME_NONNULL_END

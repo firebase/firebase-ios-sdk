@@ -22,9 +22,11 @@
 
 #import "Firestore/Source/Local/FSTPersistence.h"
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
+#include "Firestore/core/src/firebase/firestore/api/settings.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 
+namespace api = firebase::firestore::api;
 using Millis = std::chrono::milliseconds;
 using firebase::Timestamp;
 using firebase::firestore::local::LruParams;
@@ -33,12 +35,13 @@ using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::ListenSequenceNumber;
 using firebase::firestore::model::TargetId;
 
-const int64_t kFIRFirestoreCacheSizeUnlimited = LruParams::CacheSizeUnlimited;
 const ListenSequenceNumber kFSTListenSequenceNumberInvalid = -1;
 
 static Millis::rep millisecondsBetween(const Timestamp &start, const Timestamp &end) {
   return std::chrono::duration_cast<Millis>(end.ToTimePoint() - start.ToTimePoint()).count();
 }
+
+namespace {
 
 /**
  * RollingSequenceNumberBuffer tracks the nth sequence number in a series. Sequence numbers may be
@@ -79,6 +82,8 @@ class RollingSequenceNumberBuffer {
   const size_t max_elements_;
 };
 
+}  // namespace
+
 @implementation FSTLRUGarbageCollector {
   __weak id<FSTLRUDelegate> _delegate;
   LruParams _params;
@@ -95,7 +100,7 @@ class RollingSequenceNumberBuffer {
 
 - (LruResults)collectWithLiveTargets:
     (const std::unordered_map<TargetId, FSTQueryData *> &)liveTargets {
-  if (_params.minBytesThreshold == kFIRFirestoreCacheSizeUnlimited) {
+  if (_params.minBytesThreshold == api::Settings::CacheSizeUnlimited) {
     LOG_DEBUG("Garbage collection skipped; disabled");
     return LruResults::DidNotRun();
   }

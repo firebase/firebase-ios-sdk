@@ -28,6 +28,12 @@ NS_ASSUME_NONNULL_BEGIN
  */
 typedef void(^FIRRetrieveUserCallback)(FIRUser *_Nullable user, NSError *_Nullable error);
 
+/** @typedef FIRVerifyBeforeUpdateEmailCallback
+    @brief The type of block called when a request to verify before update email has finished.
+    @param error Optionally; the error which occurred - or nil if the request was successful.
+ */
+typedef void (^FIRVerifyBeforeUpdateEmailCallback)(NSError *_Nullable error);
+
 @interface FIRUser () <NSSecureCoding>
 
 /** @property rawAccessToken
@@ -80,6 +86,22 @@ typedef void(^FIRRetrieveUserCallback)(FIRUser *_Nullable user, NSError *_Nullab
  */
 - (void)internalGetTokenForcingRefresh:(BOOL)forceRefresh
                               callback:(nonnull FIRAuthTokenCallback)callback;
+
+
+/** @fn internalVerifyBeforeUpdateEmailWithNewEmail:actionCodeSettings:callback:
+    @brief Sends a verification email to newEmail. Upon redemption of the link in the email,
+        this user's email will be changed to newEmail and that email will be marked verified.
+    @param newEmail the user's new email.
+    @param actionCodeSettings the optional FIRActionCodeSettings object to allow linking back
+        to your app in the email.
+    @param completion The block to invoke when the call succeeds or fails. Invoked asynchronously on
+        the global work thread in the future.
+
+ */
+- (void)internalVerifyBeforeUpdateEmailWithNewEmail:(NSString *)newEmail
+    actionCodeSettings:(nullable FIRActionCodeSettings *)actionCodeSettings
+    completion:(FIRVerifyBeforeUpdateEmailCallback)completion;
+
 
 @end
 

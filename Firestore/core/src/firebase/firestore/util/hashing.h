@@ -22,6 +22,7 @@
 #include <string>
 #include <type_traits>
 
+#include "Firestore/core/src/firebase/firestore/objc/objc_type_traits.h"
 #include "Firestore/core/src/firebase/firestore/util/type_traits.h"
 #include "absl/meta/type_traits.h"
 
@@ -145,7 +146,7 @@ auto RankedInvokeHash(const K& value, HashChoice<0>) -> decltype(value.Hash()) {
  * @return The result of `[value hash]`, converted to `size_t`.
  */
 template <typename K,
-          typename = absl::enable_if_t<is_objective_c_pointer<K>::value>>
+          typename = absl::enable_if_t<objc::is_objc_pointer<K>::value>>
 size_t RankedInvokeHash(const K& value, HashChoice<1>) {
   return static_cast<size_t>([value hash]);
 }

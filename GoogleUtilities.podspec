@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'GoogleUtilities'
-  s.version          = '5.8.0'
+  s.version          = '6.0.0'
   s.summary          = 'Google Utilities for iOS (plus community support for macOS and tvOS)'
 
   s.description      = <<-DESC
@@ -16,9 +16,8 @@ other Google CocoaPods. They're not intended for direct public usage.
     :git => 'https://github.com/firebase/firebase-ios-sdk.git',
     :tag => 'Utilities-' + s.version.to_s
   }
-  # Technically GoogleUtilites requires iOS 7, but it supports a dependency pod with a minimum
-  # iOS 6, that will do runtime checking to avoid calling into GoogleUtilities.
-  s.ios.deployment_target = '6.0'
+
+  s.ios.deployment_target = '8.0'
   s.osx.deployment_target = '10.11'
   s.tvos.deployment_target = '10.0'
 

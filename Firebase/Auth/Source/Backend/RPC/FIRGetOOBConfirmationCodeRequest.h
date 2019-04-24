@@ -41,6 +41,11 @@ typedef NS_ENUM(NSInteger, FIRGetOOBConfirmationCodeRequestType) {
       @brief Requests an email sign-in link.
    */
   FIRGetOOBConfirmationCodeRequestTypeEmailLink,
+
+  /** @var FIRGetOOBConfirmationCodeRequestTypeVerifyBeforeUpdateEmail
+      @brief Requests an verify before update email.
+   */
+  FIRGetOOBConfirmationCodeRequestTypeVerifyBeforeUpdateEmail,
 };
 
 /** @enum FIRGetOOBConfirmationCodeRequest
@@ -58,6 +63,12 @@ typedef NS_ENUM(NSInteger, FIRGetOOBConfirmationCodeRequestType) {
     @remarks For password reset.
  */
 @property(nonatomic, copy, nullable, readonly) NSString *email;
+
+/** @property updatedEmail
+    @brief The new email to be updated.
+    @remarks For verifyBeforeUpdateEmail.
+ */
+@property(nonatomic, copy, nullable, readonly) NSString *updatedEmail;
 
 /** @property accessToken
     @brief The STS Access Token of the authenticated user.
@@ -140,6 +151,22 @@ typedef NS_ENUM(NSInteger, FIRGetOOBConfirmationCodeRequestType) {
     signInWithEmailLinkRequest:(NSString *)email
             actionCodeSettings:(nullable FIRActionCodeSettings *)actionCodeSettings
           requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration;
+
+
+/** @fn verifyBeforeUpdateEmailWithAccessToken:newEmail:actionCodeSettings:requestConfiguration:
+    @brief Creates a verifyBeforeUpdateEmail request.
+    @param accessToken The user's STS Access Token.
+    @param newEmail The user's email address to be updated.
+    @param actionCodeSettings An object of FIRActionCodeSettings which specifies action code
+        settings to be applied to the password reset request.
+    @param requestConfiguration An object containing configurations to be added to the request.
+    @return A verifyBeforeUpdateEmail request.
+ */
++ (nullable FIRGetOOBConfirmationCodeRequest *)
+    verifyBeforeUpdateEmailWithAccessToken:(NSString *)accessToken
+                                  newEmail:(NSString *)newEmail
+                        actionCodeSettings:(nullable FIRActionCodeSettings *)actionCodeSettings
+                      requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration;
 
 /** @fn init
     @brief Please use a factory method.

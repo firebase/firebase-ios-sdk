@@ -27,7 +27,7 @@ readonly DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 readonly NANOPB_VERSION="0.3.9.2"
 readonly NANOPB_TEMPDIR="${DIR}/nanopb_temp"
 
-readonly LIBRARY_DIR="${DIR}/../Library/"
+readonly LIBRARY_DIR="${DIR}/../GDTCCTLibrary/"
 readonly PROTO_DIR="${DIR}/Protos/"
 readonly PROTOGEN_DIR="${LIBRARY_DIR}/Protogen/"
 
