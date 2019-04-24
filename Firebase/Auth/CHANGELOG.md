@@ -1,7 +1,7 @@
 # v6.0.0
 - Add support of single sign on. (#2684)
 - Deprecate `reauthenticateAndRetrieveDataWithCredential:completion:`, `signInAndRetrieveDataWithCredential:completion:`, `linkAndRetrieveDataWithCredential:completion:`, `fetchProvidersForEmail:completion:`. (#2723, #2756)
-- Returned oauth secret token in generic IdP sign-in for Twitter. (#2663)
+- Returned oauth secret token in Generic IDP sign-in for Twitter. (#2663)
 - Remove pendingToken from public API. (#2676)
 - `GULAppDelegateSwizzler` is used for the app delegate swizzling. (#2591)
 
