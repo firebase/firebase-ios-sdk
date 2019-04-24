@@ -55,12 +55,11 @@ struct AllocationTracker {
 class ObjcClassWrapper {
  public:
   /** Creates the tester with no backing test value. */
-  ObjcClassWrapper();
+  explicit ObjcClassWrapper(AllocationTracker* tracker = nullptr);
 
-  /** Creates the tester with a backing test value. */
-  explicit ObjcClassWrapper(AllocationTracker* tracker);
+  void CreateValue(AllocationTracker* tracker = nullptr);
 
-  void set_value(Handle<FSTObjcClassTestValue> helper);
+  void SetValue(Handle<FSTObjcClassTestValue> helper);
 
   std::string ToString() const;
 

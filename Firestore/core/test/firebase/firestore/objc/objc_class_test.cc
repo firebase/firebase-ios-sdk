@@ -24,7 +24,8 @@ namespace firestore {
 namespace objc {
 
 TEST(ObjcClassTest, CanSendMessages) {
-  ObjcClassWrapper tester(nullptr);
+  ObjcClassWrapper tester;
+  tester.CreateValue();
   ASSERT_EQ("FSTObjcClassTestValue", tester.ToString());
 }
 
@@ -44,7 +45,6 @@ TEST(ObjcClassTest, Deallocates) {
 
 TEST(ObjcClassTest, MultipleReleasesAreAllowed) {
   AllocationTracker tracker;
-  ObjcClassWrapper wrapper(&tracker);
 
   tracker.ScopedRun([&]() {
     ObjcClassWrapper wrapper(&tracker);
@@ -83,24 +83,22 @@ TEST(ObjcClassTest, SupportsCopying) {
 
 TEST(ObjcClassTest, SupportsMoving) {
   AllocationTracker tracker;
+  ObjcClassWrapper first;
 
   tracker.ScopedRun([&]() {
-    ObjcClassWrapper first(&tracker);
+    // Create the value separately inside the autorelease pool so that any
+    // unintentional autorelease doesn't invalidate the test.
+    first.CreateValue(&tracker);
 
-    tracker.ScopedRun([&]() {
-      // Moving does not bump reference count.
-      ObjcClassWrapper second = std::move(first);
-
-      ASSERT_EQ(1, tracker.init_calls);
-      ASSERT_EQ(0, tracker.dealloc_calls);
-    });
-
-    // If moving has succeeded, then `first` no longer has a reference to the
-    // value and the destruction of `second` in the inner block should trigger
-    // dealloc.
-    ASSERT_EQ(1, tracker.dealloc_calls);
+    // Ownership transfered, so the value's lifetime should be bound to
+    // `second`.
+    ObjcClassWrapper second = std::move(first);
+    ASSERT_EQ(0, tracker.dealloc_calls);
   });
 
+  // If moving has succeeded, then `first` no longer has a reference to the
+  // value and the destruction of `second` in the inner block should trigger
+  // dealloc.
   ASSERT_EQ(1, tracker.dealloc_calls);
 }
 
@@ -116,8 +114,10 @@ TEST(ObjcClassTest, Reassigns) {
       // Reassigning should deallocate the initial object allocated in the
       // constructor.
       ObjcClassWrapper wrapper2(&tracker);
-      wrapper.set_value(wrapper2.handle);
       ASSERT_EQ(2, tracker.init_calls);
+      ASSERT_EQ(0, tracker.dealloc_calls);
+
+      wrapper.SetValue(wrapper2.handle);
       ASSERT_EQ(1, tracker.dealloc_calls);
 
       // Transfer ownership to the helper

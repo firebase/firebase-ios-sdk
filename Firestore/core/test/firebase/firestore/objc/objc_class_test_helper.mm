@@ -66,14 +66,17 @@ void AllocationTracker::ScopedRun(const std::function<void()>& callback) {
   }
 }
 
-ObjcClassWrapper::ObjcClassWrapper() : handle(nil) {
+ObjcClassWrapper::ObjcClassWrapper(AllocationTracker* tracker) {
+  if (tracker) {
+    CreateValue(tracker);
+  }
 }
 
-ObjcClassWrapper::ObjcClassWrapper(AllocationTracker* tracker)
-    : handle([[FSTObjcClassTestValue alloc] initWithTracker:tracker]) {
+void ObjcClassWrapper::CreateValue(AllocationTracker* tracker) {
+  handle.Assign([[FSTObjcClassTestValue alloc] initWithTracker:tracker]);
 }
 
-void ObjcClassWrapper::set_value(Handle<FSTObjcClassTestValue> helper) {
+void ObjcClassWrapper::SetValue(Handle<FSTObjcClassTestValue> helper) {
   handle.Assign(helper);
 }
 
