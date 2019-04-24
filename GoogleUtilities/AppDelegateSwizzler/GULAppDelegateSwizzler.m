@@ -714,7 +714,9 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
   }
 }
 
-#pragma mark -
+// The methods below are required to simplify implementation of GULAppDelegateSwizzler extensions
+// like GULAppDelegateSwizzler+Notifications.
+#pragma mark - Private API
 
 + (Class)appDelegateSubclass {
   return gAppDelegateSubclass;
