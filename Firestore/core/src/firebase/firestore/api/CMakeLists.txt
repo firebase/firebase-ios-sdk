@@ -39,6 +39,8 @@ cc_select(
 cc_library(
   firebase_firestore_api
   SOURCES
+    query_core.h
+    query_core.mm
     settings.cc
     settings.h
     snapshot_metadata.cc

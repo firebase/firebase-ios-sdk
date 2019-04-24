@@ -375,14 +375,14 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
   });
 }
 
-- (void)getDocumentsFromLocalCache:(FIRQuery *)query
-                        completion:(void (^)(FIRQuerySnapshot *_Nullable query,
-                                             NSError *_Nullable error))completion {
+- (void)getDocumentsFromLocalCache:(const api::Query &)query
+                          callback:(api::QuerySnapshot::Listener &&)callback {
   [self verifyNotShutdown];
-  _workerQueue->Enqueue([self, query, completion] {
-    DocumentMap docs = [self.localStore executeQuery:query.query];
+  auto shared_callback = absl::ShareUniquePtr(std::move(callback));
+  _workerQueue->Enqueue([self, query, shared_callback] {
+    DocumentMap docs = [self.localStore executeQuery:query.query()];
 
-    FSTView *view = [[FSTView alloc] initWithQuery:query.query remoteDocuments:DocumentKeySet{}];
+    FSTView *view = [[FSTView alloc] initWithQuery:query.query() remoteDocuments:DocumentKeySet{}];
     FSTViewDocumentChanges *viewDocChanges =
         [view computeChangesWithDocuments:docs.underlying_map()];
     FSTViewChange *viewChange = [view applyChangesToDocuments:viewDocChanges];
@@ -393,13 +393,11 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
     ViewSnapshot snapshot = std::move(viewChange.snapshot).value();
     SnapshotMetadata metadata(snapshot.has_pending_writes(), snapshot.from_cache());
 
-    FIRQuerySnapshot *result = [[FIRQuerySnapshot alloc] initWithFirestore:query.firestore.wrapped
-                                                             originalQuery:query.query
-                                                                  snapshot:std::move(snapshot)
-                                                                  metadata:std::move(metadata)];
+    api::QuerySnapshot result(query.firestore(), query.query(), std::move(snapshot),
+                              std::move(metadata));
 
-    if (completion) {
-      self->_userExecutor->Execute([=] { completion(result, nil); });
+    if (shared_callback) {
+      self->_userExecutor->Execute([=] { shared_callback->OnEvent(std::move(result)); });
     }
   });
 }
