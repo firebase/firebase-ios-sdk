@@ -81,38 +81,6 @@ typedef NSString *const GULAppDelegateInterceptorID;
 /** Do not initialize this class. */
 - (instancetype)init NS_UNAVAILABLE;
 
-// TODO: move the methods below to a separate header
-typedef void (^GULAppDelegateInterceptorCallback)(id<UIApplicationDelegate>);
-
-+ (nullable Class)appDelegateSubclass;
-
-+ (nullable Class)originalAppDelegateClass;
-
-+ (nullable NSDictionary *)originalImplementationBySelectorString;
-
-+ (void)setOriginalImplementationBySelectorString:(nullable NSDictionary *)implementationBySelector;
-
-+ (void)reassignAppDelegate;
-
-+ (nullable NSValue *)originalImplementationForSelector:(SEL)selector object:(id)object;
-
-+ (void)proxyDestinationSelector:(SEL)destinationSelector
-implementationsFromSourceSelector:(SEL)sourceSelector
-                       fromClass:(Class)sourceClass
-                         toClass:(Class)destinationClass
-                       realClass:(Class)realClass
-storeDestinationImplementationTo:
-(NSMutableDictionary<NSString *, NSValue *> *)destinationImplementationsBySelector;
-
-/** Enumerates through all the interceptors and if they respond to a given selector, executes a
- *  GULAppDelegateInterceptorCallback with the interceptor.
- *
- *  @param methodSelector The SEL to check if an interceptor responds to.
- *  @param callback the GULAppDelegateInterceptorCallback.
- */
-+ (void)notifyInterceptorsWithMethodSelector:(SEL)methodSelector
-                                    callback:(GULAppDelegateInterceptorCallback)callback;
-
 NS_ASSUME_NONNULL_END
 
 @end
