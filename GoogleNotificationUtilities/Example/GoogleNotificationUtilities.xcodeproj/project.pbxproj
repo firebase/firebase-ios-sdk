@@ -21,7 +21,7 @@
 		6003F5BA195388D20070C39A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6003F5B8195388D20070C39A /* InfoPlist.strings */; };
 		71719F9F1E33DC2100824A3D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 71719F9D1E33DC2100824A3D /* LaunchScreen.storyboard */; };
 		873B8AEB1B1F5CCA007FD442 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 873B8AEA1B1F5CCA007FD442 /* Main.storyboard */; };
-		9A9C1A13226FB918003CF183 /* GULAppDelegateSwizzlerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A9C1A12226FB918003CF183 /* GULAppDelegateSwizzlerTest.m */; };
+		9A9C1A13226FB918003CF183 /* GULAppDelegateSwizzlerNotificationsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A9C1A12226FB918003CF183 /* GULAppDelegateSwizzlerNotificationsTest.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -57,7 +57,7 @@
 		606FC2411953D9B200FFA9A0 /* Tests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Tests-Prefix.pch"; sourceTree = "<group>"; };
 		71719F9E1E33DC2100824A3D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		873B8AEA1B1F5CCA007FD442 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = Main.storyboard; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		9A9C1A12226FB918003CF183 /* GULAppDelegateSwizzlerTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GULAppDelegateSwizzlerTest.m; sourceTree = "<group>"; };
+		9A9C1A12226FB918003CF183 /* GULAppDelegateSwizzlerNotificationsTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GULAppDelegateSwizzlerNotificationsTest.m; sourceTree = "<group>"; };
 		C8955AFBC32CAC7F9F9D6E9D /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -183,7 +183,7 @@
 		9A9C1A11226FB918003CF183 /* GULAppDelegateSwizzler_Notifications */ = {
 			isa = PBXGroup;
 			children = (
-				9A9C1A12226FB918003CF183 /* GULAppDelegateSwizzlerTest.m */,
+				9A9C1A12226FB918003CF183 /* GULAppDelegateSwizzlerNotificationsTest.m */,
 			);
 			path = GULAppDelegateSwizzler_Notifications;
 			sourceTree = "<group>";
@@ -298,7 +298,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9A9C1A13226FB918003CF183 /* GULAppDelegateSwizzlerTest.m in Sources */,
+				9A9C1A13226FB918003CF183 /* GULAppDelegateSwizzlerNotificationsTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
