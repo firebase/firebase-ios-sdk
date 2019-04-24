@@ -239,14 +239,9 @@ class ArraySortedMap : public SortedMapBase {
    *     not found.
    */
   const_iterator find(const K& key) const {
-    const_iterator iter = begin();
-    const_iterator iter_end = end();
-    for (; iter != iter_end; ++iter) {
-      if (util::Same(comparator_.Compare(key, iter->first))) {
-        return iter;
-      }
-    }
-    return iter_end;
+    return std::find_if(begin(), end(), [&](const std::pair<K, V>& kv) {
+      return util::Same(comparator_.Compare(key, kv.first));
+    });
   }
 
   /**
@@ -270,16 +265,10 @@ class ArraySortedMap : public SortedMapBase {
    *     requested key.
    */
   const_iterator lower_bound(const K& key) const {
-    const_iterator iter = begin();
-    const_iterator iter_end = end();
-
-    for (; iter != iter_end; ++iter) {
-      auto cmp = comparator_.Compare(iter->first, key);
-      if (cmp != util::ComparisonResult::Ascending) {
-        return iter;
-      }
-    }
-    return iter_end;
+    return std::lower_bound(
+        begin(), end(), key, [&](const std::pair<K, V>& el, const K& key) {
+          return util::Ascending(comparator_.Compare(el.first, key));
+        });
   }
 
   const_iterator min() const {
