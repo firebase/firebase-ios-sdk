@@ -18,7 +18,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace objc = firebase::firestore::objc;
 
@@ -60,7 +60,7 @@ namespace firebase {
 namespace firestore {
 namespace objc {
 
-void AllocationTracker::Run(const std::function<void()>& callback) {
+void AllocationTracker::ScopedRun(const std::function<void()>& callback) {
   @autoreleasepool {
     callback();
   }
