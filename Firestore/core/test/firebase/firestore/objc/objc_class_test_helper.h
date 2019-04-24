@@ -18,34 +18,41 @@
 #define FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_OBJC_OBJC_CLASS_TEST_HELPER_H_
 
 #include <cstddef>
+#include <functional>
 #include <string>
 
 #include "Firestore/core/src/firebase/firestore/objc/objc_class.h"
 
-OBJC_CLASS(FSTObjcClassTestHelper);
+OBJC_CLASS(FSTObjcClassTestValue);
 
 namespace firebase {
 namespace firestore {
 namespace objc {
 
-class ObjcClassTester {
+struct AllocationTracker {
+  int init_calls = 0;
+  int dealloc_calls = 0;
+
+  void Run(const std::function<void()>& callback);
+};
+
+class ObjcClassWrapper {
  public:
-  /** Creates the tester with a backing test helper. */
-  ObjcClassTester();
+  /** Creates a new, unmanaged test value. */
+  static FSTObjcClassTestValue* CreateTestValue();
 
-  /** Creates the tester with no backing test helper. */
-  explicit ObjcClassTester(std::nullptr_t);
+  /** Creates the tester with no backing test value. */
+  ObjcClassWrapper();
 
-  /** Creates a new, unmanaged test helper. */
-  static FSTObjcClassTestHelper* CreateHelper();
+  /** Creates the tester with a backing test value. */
+  explicit ObjcClassWrapper(AllocationTracker* tracker);
 
-  void set_helper(FSTObjcClassTestHelper* helper);
+  void set_value(Handle<FSTObjcClassTestValue> helper);
 
   std::string ToString() const;
 
-  int init_calls = 0;
-  int dealloc_calls = 0;
-  Handle<FSTObjcClassTestHelper> handle;
+  AllocationTracker* tracker;
+  Handle<FSTObjcClassTestValue> handle;
 };
 
 }  // namespace objc

@@ -22,36 +22,36 @@
 
 namespace objc = firebase::firestore::objc;
 
-@interface FSTObjcClassTestHelper : NSObject
+@interface FSTObjcClassTestValue : NSObject
 
-- (instancetype)initWithTester:(objc::ObjcClassTester*)tester
+- (instancetype)initWithTracker:(objc::AllocationTracker*)tracker
     NS_DESIGNATED_INITIALIZER;
 - (instancetype)init NS_UNAVAILABLE;
 
-@property(nonatomic, assign, readwrite) objc::ObjcClassTester* tester;
-
 @end
 
-@implementation FSTObjcClassTestHelper
+@implementation FSTObjcClassTestValue {
+  objc::AllocationTracker* _tracker;
+}
 
-- (instancetype)initWithTester:(objc::ObjcClassTester*)tester {
+- (instancetype)initWithTracker:(objc::AllocationTracker*)tracker {
   if (self = [super init]) {
-    _tester = tester;
-    if (_tester) {
-      _tester->init_calls += 1;
+    _tracker = tracker;
+    if (_tracker) {
+      _tracker->init_calls += 1;
     }
   }
   return self;
 }
 
 - (void)dealloc {
-  if (_tester) {
-    _tester->dealloc_calls += 1;
+  if (_tracker) {
+    _tracker->dealloc_calls += 1;
   }
 }
 
 - (NSString*)description {
-  return @"hello world";
+  return NSStringFromClass([self class]);
 }
 
 @end
@@ -60,24 +60,30 @@ namespace firebase {
 namespace firestore {
 namespace objc {
 
-ObjcClassTester::ObjcClassTester()
-    : handle([[FSTObjcClassTestHelper alloc] initWithTester:this]) {
+void AllocationTracker::Run(const std::function<void()>& callback) {
+  @autoreleasepool {
+    callback();
+  }
 }
 
-ObjcClassTester::ObjcClassTester(std::nullptr_t) : handle(nil) {
+FSTObjcClassTestValue* ObjcClassWrapper::CreateTestValue() CF_RETURNS_RETAINED {
+  FSTObjcClassTestValue* value = [[FSTObjcClassTestValue alloc] initWithTracker:nullptr];
+  return value;
 }
 
-FSTObjcClassTestHelper* ObjcClassTester::CreateHelper() {
-  return [[FSTObjcClassTestHelper alloc] initWithTester:nullptr];
+ObjcClassWrapper::ObjcClassWrapper() : handle(nil) {
 }
 
-void ObjcClassTester::set_helper(FSTObjcClassTestHelper* helper) {
-  helper.tester = this;
+ObjcClassWrapper::ObjcClassWrapper(AllocationTracker* tracker)
+    : handle([[FSTObjcClassTestValue alloc] initWithTracker:tracker]) {
+}
+
+void ObjcClassWrapper::set_value(Handle<FSTObjcClassTestValue> helper) {
   handle.Assign(helper);
 }
 
-std::string ObjcClassTester::ToString() const {
-  return util::MakeString([handle description]);
+std::string ObjcClassWrapper::ToString() const {
+  return util::ToString(handle);
 }
 
 }  // namespace objc
