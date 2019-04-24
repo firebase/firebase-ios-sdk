@@ -74,14 +74,20 @@ TEST(ObjcClassTest, SupportsCopying) {
 TEST(ObjcClassTest, SupportsMoving) {
   AllocationTracker tracker;
 
-  // Moving does not bump reference count. Moving changes where the allocations
-  // are tracked.
-  ObjcClassWrapper first(&tracker);
-  ObjcClassWrapper second = std::move(first);
-  ASSERT_EQ(1, tracker.init_calls);
-  ASSERT_EQ(0, tracker.dealloc_calls);
+  tracker.Run([&]() {
+    ObjcClassWrapper second;
+    tracker.Run([&]() {
+      // Moving does not bump reference count.
+      ObjcClassWrapper first(&tracker);
+      second = std::move(first);
 
-  second.handle.Release();
+      ASSERT_EQ(1, tracker.init_calls);
+      ASSERT_EQ(0, tracker.dealloc_calls);
+    });
+
+    ASSERT_EQ(0, tracker.dealloc_calls);
+  });
+
   ASSERT_EQ(1, tracker.dealloc_calls);
 }
 

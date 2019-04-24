@@ -38,9 +38,6 @@ struct AllocationTracker {
 
 class ObjcClassWrapper {
  public:
-  /** Creates a new, unmanaged test value. */
-  static FSTObjcClassTestValue* CreateTestValue();
-
   /** Creates the tester with no backing test value. */
   ObjcClassWrapper();
 
@@ -51,7 +48,6 @@ class ObjcClassWrapper {
 
   std::string ToString() const;
 
-  AllocationTracker* tracker;
   Handle<FSTObjcClassTestValue> handle;
 };
 

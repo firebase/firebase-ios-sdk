@@ -66,11 +66,6 @@ void AllocationTracker::Run(const std::function<void()>& callback) {
   }
 }
 
-FSTObjcClassTestValue* ObjcClassWrapper::CreateTestValue() CF_RETURNS_RETAINED {
-  FSTObjcClassTestValue* value = [[FSTObjcClassTestValue alloc] initWithTracker:nullptr];
-  return value;
-}
-
 ObjcClassWrapper::ObjcClassWrapper() : handle(nil) {
 }
 
