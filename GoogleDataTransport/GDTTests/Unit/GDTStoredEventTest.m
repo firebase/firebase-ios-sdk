@@ -29,8 +29,8 @@
 - (void)testInit {
   GDTEvent *event = [[GDTEvent alloc] initWithMappingID:@"testing" target:1];
   event.clockSnapshot = [GDTClock snapshot];
-  GDTStoredEvent *storedEvent = [[GDTStoredEvent alloc] initWithFileURL:[NSURL URLWithString:@"1"]
-                                                                  event:event];
+  GDTDataFuture *dataFuture = [[GDTDataFuture alloc] initWithFileURL:[NSURL URLWithString:@"1"]];
+  GDTStoredEvent *storedEvent = [[GDTStoredEvent alloc] initWithEvent:event dataFuture:dataFuture];
   XCTAssertNotNil(storedEvent);
 }
 
@@ -40,15 +40,15 @@
   GDTEvent *event = [[GDTEvent alloc] initWithMappingID:@"testing" target:1];
   event.clockSnapshot = [GDTClock snapshot];
   event.qosTier = GDTEventQoSTelemetry;
-  GDTStoredEvent *storedEvent = [[GDTStoredEvent alloc] initWithFileURL:[NSURL URLWithString:@"1"]
-                                                                  event:event];
+  GDTDataFuture *dataFuture = [[GDTDataFuture alloc] initWithFileURL:[NSURL URLWithString:@"1"]];
+  GDTStoredEvent *storedEvent = [[GDTStoredEvent alloc] initWithEvent:event dataFuture:dataFuture];
   XCTAssertNotNil(storedEvent);
   XCTAssertNotNil(storedEvent.mappingID);
   XCTAssertNotNil(storedEvent.target);
   XCTAssertEqual(storedEvent.qosTier, GDTEventQoSTelemetry);
   XCTAssertNotNil(storedEvent.clockSnapshot);
   XCTAssertNil(storedEvent.customPrioritizationParams);
-  XCTAssertNotNil(storedEvent.eventFileURL);
+  XCTAssertNotNil(storedEvent.dataFuture.fileURL);
 }
 
 /** Tests equality between GDTStoredEvents. */
@@ -61,8 +61,10 @@
   [event1.clockSnapshot setValue:@(961141365197) forKeyPath:@"uptime"];
   event1.qosTier = GDTEventQosDefault;
   event1.customPrioritizationParams = @{@"customParam1" : @"aValue1"};
-  GDTStoredEvent *storedEvent1 =
-      [event1 storedEventWithFileURL:[NSURL fileURLWithPath:@"/tmp/fake.txt"]];
+  GDTDataFuture *dataFuture1 =
+      [[GDTDataFuture alloc] initWithFileURL:[NSURL fileURLWithPath:@"/tmp/fake.txt"]];
+  GDTStoredEvent *storedEvent1 = [[GDTStoredEvent alloc] initWithEvent:event1
+                                                            dataFuture:dataFuture1];
 
   GDTEvent *event2 = [[GDTEvent alloc] initWithMappingID:@"1018" target:1];
   event2.clockSnapshot = [GDTClock snapshot];
@@ -72,8 +74,10 @@
   [event2.clockSnapshot setValue:@(961141365197) forKeyPath:@"uptime"];
   event2.qosTier = GDTEventQosDefault;
   event2.customPrioritizationParams = @{@"customParam1" : @"aValue1"};
-  GDTStoredEvent *storedEvent2 =
-      [event2 storedEventWithFileURL:[NSURL fileURLWithPath:@"/tmp/fake.txt"]];
+  GDTDataFuture *dataFuture2 =
+      [[GDTDataFuture alloc] initWithFileURL:[NSURL fileURLWithPath:@"/tmp/fake.txt"]];
+  GDTStoredEvent *storedEvent2 = [[GDTStoredEvent alloc] initWithEvent:event2
+                                                            dataFuture:dataFuture2];
 
   XCTAssertEqual([storedEvent1 hash], [storedEvent2 hash]);
   XCTAssertEqualObjects(storedEvent1, storedEvent2);

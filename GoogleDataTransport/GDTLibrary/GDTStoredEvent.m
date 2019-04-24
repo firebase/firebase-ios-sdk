@@ -18,12 +18,14 @@
 
 #import <GoogleDataTransport/GDTClock.h>
 
+#import "GDTStorage_Private.h"
+
 @implementation GDTStoredEvent
 
-- (instancetype)initWithFileURL:(NSURL *)URL event:(GDTEvent *)event {
+- (instancetype)initWithEvent:(GDTEvent *)event dataFuture:(nonnull GDTDataFuture *)dataFuture {
   self = [super init];
   if (self) {
-    _eventFileURL = URL;
+    _dataFuture = dataFuture;
     _mappingID = event.mappingID;
     _target = @(event.target);
     _qosTier = event.qosTier;
@@ -35,8 +37,8 @@
 
 #pragma mark - NSSecureCoding
 
-/** Coding key for eventFileURL ivar. */
-static NSString *kEventFileURLKey = @"GDTStoredEventEventFileURLKey";
+/** Coding key for the dataFuture ivar. */
+static NSString *kDataFutureKey = @"GDTStoredEventDataFutureKey";
 
 /** Coding key for mappingID ivar. */
 static NSString *kMappingIDKey = @"GDTStoredEventMappingIDKey";
@@ -58,7 +60,7 @@ static NSString *kCustomPrioritizationParamsKey = @"GDTStoredEventcustomPrioriti
 }
 
 - (void)encodeWithCoder:(nonnull NSCoder *)aCoder {
-  [aCoder encodeObject:_eventFileURL forKey:kEventFileURLKey];
+  [aCoder encodeObject:_dataFuture forKey:kDataFutureKey];
   [aCoder encodeObject:_mappingID forKey:kMappingIDKey];
   [aCoder encodeObject:_target forKey:kTargetKey];
   [aCoder encodeObject:@(_qosTier) forKey:kQosTierKey];
@@ -69,7 +71,7 @@ static NSString *kCustomPrioritizationParamsKey = @"GDTStoredEventcustomPrioriti
 - (nullable instancetype)initWithCoder:(nonnull NSCoder *)aDecoder {
   self = [self init];
   if (self) {
-    _eventFileURL = [aDecoder decodeObjectOfClass:[NSURL class] forKey:kEventFileURLKey];
+    _dataFuture = [aDecoder decodeObjectOfClass:[GDTDataFuture class] forKey:kDataFutureKey];
     _mappingID = [aDecoder decodeObjectOfClass:[NSString class] forKey:kMappingIDKey];
     _target = [aDecoder decodeObjectOfClass:[NSNumber class] forKey:kTargetKey];
     NSNumber *qosTier = [aDecoder decodeObjectOfClass:[NSNumber class] forKey:kQosTierKey];
@@ -86,8 +88,7 @@ static NSString *kCustomPrioritizationParamsKey = @"GDTStoredEventcustomPrioriti
 }
 
 - (NSUInteger)hash {
-  return
-      [_eventFileURL hash] ^ [_mappingID hash] ^ [_target hash] ^ [_clockSnapshot hash] ^ _qosTier;
+  return [_dataFuture hash] ^ [_mappingID hash] ^ [_target hash] ^ [_clockSnapshot hash] ^ _qosTier;
 }
 
 @end
