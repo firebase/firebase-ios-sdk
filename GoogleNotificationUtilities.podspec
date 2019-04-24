@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   s.name             = 'GoogleNotificationUtilities'
   s.version          = '6.0.0'
-  s.summary          = 'A short description of GoogleNotificationUtilities.'
+  s.summary          = 'Google Utilities for iOS Remote Notifications'
 
   s.description      = <<-DESC
 TODO: Add long description of the pod here.
