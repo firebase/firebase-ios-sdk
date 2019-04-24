@@ -9,9 +9,8 @@
 @import UIKit;
 #import "GULAppDelegate.h"
 
-int main(int argc, char * argv[])
-{
-    @autoreleasepool {
-        return UIApplicationMain(argc, argv, nil, NSStringFromClass([GULAppDelegate class]));
-    }
+int main(int argc, char* argv[]) {
+  @autoreleasepool {
+    return UIApplicationMain(argc, argv, nil, NSStringFromClass([GULAppDelegate class]));
+  }
 }

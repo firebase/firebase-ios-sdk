@@ -371,8 +371,7 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
   // Store original implementations to a fake property of the original delegate.
   objc_setAssociatedObject(appDelegate, &kGULRealIMPBySelectorKey,
                            [realImplementationsBySelector copy], OBJC_ASSOCIATION_RETAIN);
-  objc_setAssociatedObject(appDelegate, &kGULRealClassKey, realClass,
-                           OBJC_ASSOCIATION_RETAIN);
+  objc_setAssociatedObject(appDelegate, &kGULRealClassKey, realClass, OBJC_ASSOCIATION_RETAIN);
 
   // The subclass size has to be exactly the same size with the original class size. The subclass
   // cannot have more ivars/properties than its superclass since it will cause an offset in memory
@@ -450,26 +449,6 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
 
   NSString *destinationSelectorString = NSStringFromSelector(destinationSelector);
   destinationImplementationsBySelector[destinationSelectorString] = sourceImplementationPointer;
-}
-
-/** Copies a method identified by the methodSelector from one class to the other. After this method
- *  is called, performing [toClassInstance methodSelector] will be similar to calling
- *  [fromClassInstance methodSelector]. This method does nothing if toClass already has a method
- *  identified by methodSelector.
- *
- *  @param methodSelector The SEL that identifies both the method on the fromClass as well as the
- *      one on the toClass.
- *  @param fromClass The class from which a method is sourced.
- *  @param toClass The class to which the method is added. If the class already has a method with
- *      the same selector, this has no effect.
- */
-+ (void)addInstanceMethodWithSelector:(SEL)methodSelector
-                            fromClass:(Class)fromClass
-                              toClass:(Class)toClass {
-  [self addInstanceMethodWithDestinationSelector:methodSelector
-            withImplementationFromSourceSelector:methodSelector
-                                       fromClass:fromClass
-                                         toClass:toClass];
 }
 
 /** Copies a method identified by the sourceSelector from the fromClass as a method for the
@@ -752,8 +731,8 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
 
 + (void)setOriginalImplementationBySelectorString:(NSDictionary *)implementationBySelector {
   id appDelegate = [GULAppDelegateSwizzler sharedApplication].delegate;
-  objc_setAssociatedObject(appDelegate, &kGULRealIMPBySelectorKey,
-                           [implementationBySelector copy], OBJC_ASSOCIATION_RETAIN);
+  objc_setAssociatedObject(appDelegate, &kGULRealIMPBySelectorKey, [implementationBySelector copy],
+                           OBJC_ASSOCIATION_RETAIN);
 }
 
 #pragma mark - Methods to print correct debug logs
