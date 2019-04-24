@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "6003F589195388D20070C39A"
-               BuildableName = "GoogleNotificationUtilities_Example.app"
-               BlueprintName = "GoogleNotificationUtilities_Example"
+               BuildableName = "Example_iOS.app"
+               BlueprintName = "Example_iOS"
                ReferencedContainer = "container:GoogleNotificationUtilities.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -33,8 +33,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "6003F5AD195388D20070C39A"
-               BuildableName = "GoogleNotificationUtilities_Tests.xctest"
-               BlueprintName = "GoogleNotificationUtilities_Tests"
+               BuildableName = "Tests_iOS.xctest"
+               BlueprintName = "Tests_iOS"
                ReferencedContainer = "container:GoogleNotificationUtilities.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -43,8 +43,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "6003F589195388D20070C39A"
-            BuildableName = "GoogleNotificationUtilities_Example.app"
-            BlueprintName = "GoogleNotificationUtilities_Example"
+            BuildableName = "Example_iOS.app"
+            BlueprintName = "Example_iOS"
             ReferencedContainer = "container:GoogleNotificationUtilities.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -66,8 +66,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "6003F589195388D20070C39A"
-            BuildableName = "GoogleNotificationUtilities_Example.app"
-            BlueprintName = "GoogleNotificationUtilities_Example"
+            BuildableName = "Example_iOS.app"
+            BlueprintName = "Example_iOS"
             ReferencedContainer = "container:GoogleNotificationUtilities.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -85,8 +85,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "6003F589195388D20070C39A"
-            BuildableName = "GoogleNotificationUtilities_Example.app"
-            BlueprintName = "GoogleNotificationUtilities_Example"
+            BuildableName = "Example_iOS.app"
+            BlueprintName = "Example_iOS"
             ReferencedContainer = "container:GoogleNotificationUtilities.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

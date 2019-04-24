@@ -22,6 +22,12 @@
 		71719F9F1E33DC2100824A3D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 71719F9D1E33DC2100824A3D /* LaunchScreen.storyboard */; };
 		873B8AEB1B1F5CCA007FD442 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 873B8AEA1B1F5CCA007FD442 /* Main.storyboard */; };
 		9A9C1A13226FB918003CF183 /* GULAppDelegateSwizzlerNotificationsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A9C1A12226FB918003CF183 /* GULAppDelegateSwizzlerNotificationsTest.m */; };
+		9ADACF5D2270C74100C5272A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 9ADACF5C2270C74100C5272A /* AppDelegate.m */; };
+		9ADACF602270C74100C5272A /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9ADACF5F2270C74100C5272A /* ViewController.m */; };
+		9ADACF632270C74100C5272A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9ADACF612270C74100C5272A /* Main.storyboard */; };
+		9ADACF652270C74300C5272A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9ADACF642270C74300C5272A /* Assets.xcassets */; };
+		9ADACF682270C74300C5272A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 9ADACF672270C74300C5272A /* main.m */; };
+		9ADACF7A2270C9EF00C5272A /* GULAppDelegateSwizzlerNotificationsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A9C1A12226FB918003CF183 /* GULAppDelegateSwizzlerNotificationsTest.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -32,12 +38,19 @@
 			remoteGlobalIDString = 6003F589195388D20070C39A;
 			remoteInfo = GoogleNotificationUtilities;
 		};
+		9ADACF752270C7EE00C5272A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6003F582195388D10070C39A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9ADACF582270C74100C5272A;
+			remoteInfo = Example_tvOS;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		2BA0B4ABF28C519DC1C0ED32 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
-		4BC6E6FD21A8D6800694112A /* GoogleNotificationUtilities.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file; name = GoogleNotificationUtilities.podspec; path = ../GoogleNotificationUtilities.podspec; sourceTree = "<group>"; };
-		6003F58A195388D20070C39A /* GoogleNotificationUtilities_Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GoogleNotificationUtilities_Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		4BC6E6FD21A8D6800694112A /* GoogleNotificationUtilities.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = GoogleNotificationUtilities.podspec; path = ../../GoogleNotificationUtilities.podspec; sourceTree = "<group>"; };
+		6003F58A195388D20070C39A /* Example_iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Example_iOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6003F58D195388D20070C39A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		6003F58F195388D20070C39A /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		6003F591195388D20070C39A /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -50,7 +63,7 @@
 		6003F5A5195388D20070C39A /* GULViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GULViewController.h; sourceTree = "<group>"; };
 		6003F5A6195388D20070C39A /* GULViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GULViewController.m; sourceTree = "<group>"; };
 		6003F5A8195388D20070C39A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
-		6003F5AE195388D20070C39A /* GoogleNotificationUtilities_Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GoogleNotificationUtilities_Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		6003F5AE195388D20070C39A /* Tests_iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Tests_iOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		6003F5AF195388D20070C39A /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		6003F5B7195388D20070C39A /* Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Tests-Info.plist"; sourceTree = "<group>"; };
 		6003F5B9195388D20070C39A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -58,7 +71,16 @@
 		71719F9E1E33DC2100824A3D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		873B8AEA1B1F5CCA007FD442 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = Main.storyboard; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		9A9C1A12226FB918003CF183 /* GULAppDelegateSwizzlerNotificationsTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GULAppDelegateSwizzlerNotificationsTest.m; sourceTree = "<group>"; };
-		C8955AFBC32CAC7F9F9D6E9D /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
+		9ADACF592270C74100C5272A /* Example_tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Example_tvOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9ADACF5B2270C74100C5272A /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		9ADACF5C2270C74100C5272A /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		9ADACF5E2270C74100C5272A /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		9ADACF5F2270C74100C5272A /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		9ADACF622270C74100C5272A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		9ADACF642270C74300C5272A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		9ADACF662270C74300C5272A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		9ADACF672270C74300C5272A /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		9ADACF702270C7EE00C5272A /* Tests_tvOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Tests_tvOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -82,6 +104,20 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		9ADACF562270C74100C5272A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9ADACF6D2270C7EE00C5272A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -96,7 +132,8 @@
 			isa = PBXGroup;
 			children = (
 				60FF7A9C1954A5C5007DD14C /* Podspec Metadata */,
-				6003F593195388D20070C39A /* Example for GoogleNotificationUtilities */,
+				6003F593195388D20070C39A /* iOS */,
+				9ADACF5A2270C74100C5272A /* tvOS */,
 				6003F5B5195388D20070C39A /* Tests */,
 				6003F58C195388D20070C39A /* Frameworks */,
 				6003F58B195388D20070C39A /* Products */,
@@ -107,8 +144,10 @@
 		6003F58B195388D20070C39A /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				6003F58A195388D20070C39A /* GoogleNotificationUtilities_Example.app */,
-				6003F5AE195388D20070C39A /* GoogleNotificationUtilities_Tests.xctest */,
+				6003F58A195388D20070C39A /* Example_iOS.app */,
+				6003F5AE195388D20070C39A /* Tests_iOS.xctest */,
+				9ADACF592270C74100C5272A /* Example_tvOS.app */,
+				9ADACF702270C7EE00C5272A /* Tests_tvOS.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -124,7 +163,7 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		6003F593195388D20070C39A /* Example for GoogleNotificationUtilities */ = {
+		6003F593195388D20070C39A /* iOS */ = {
 			isa = PBXGroup;
 			children = (
 				6003F59C195388D20070C39A /* GULAppDelegate.h */,
@@ -136,7 +175,7 @@
 				6003F5A8195388D20070C39A /* Images.xcassets */,
 				6003F594195388D20070C39A /* Supporting Files */,
 			);
-			name = "Example for GoogleNotificationUtilities";
+			name = iOS;
 			path = GoogleNotificationUtilities;
 			sourceTree = "<group>";
 		};
@@ -175,7 +214,6 @@
 			children = (
 				4BC6E6FD21A8D6800694112A /* GoogleNotificationUtilities.podspec */,
 				2BA0B4ABF28C519DC1C0ED32 /* README.md */,
-				C8955AFBC32CAC7F9F9D6E9D /* LICENSE */,
 			);
 			name = "Podspec Metadata";
 			sourceTree = "<group>";
@@ -188,12 +226,27 @@
 			path = GULAppDelegateSwizzler_Notifications;
 			sourceTree = "<group>";
 		};
+		9ADACF5A2270C74100C5272A /* tvOS */ = {
+			isa = PBXGroup;
+			children = (
+				9ADACF5B2270C74100C5272A /* AppDelegate.h */,
+				9ADACF5C2270C74100C5272A /* AppDelegate.m */,
+				9ADACF5E2270C74100C5272A /* ViewController.h */,
+				9ADACF5F2270C74100C5272A /* ViewController.m */,
+				9ADACF612270C74100C5272A /* Main.storyboard */,
+				9ADACF642270C74300C5272A /* Assets.xcassets */,
+				9ADACF662270C74300C5272A /* Info.plist */,
+				9ADACF672270C74300C5272A /* main.m */,
+			);
+			path = tvOS;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		6003F589195388D20070C39A /* GoogleNotificationUtilities_Example */ = {
+		6003F589195388D20070C39A /* Example_iOS */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 6003F5BF195388D20070C39A /* Build configuration list for PBXNativeTarget "GoogleNotificationUtilities_Example" */;
+			buildConfigurationList = 6003F5BF195388D20070C39A /* Build configuration list for PBXNativeTarget "Example_iOS" */;
 			buildPhases = (
 				6003F586195388D20070C39A /* Sources */,
 				6003F587195388D20070C39A /* Frameworks */,
@@ -203,14 +256,14 @@
 			);
 			dependencies = (
 			);
-			name = GoogleNotificationUtilities_Example;
+			name = Example_iOS;
 			productName = GoogleNotificationUtilities;
-			productReference = 6003F58A195388D20070C39A /* GoogleNotificationUtilities_Example.app */;
+			productReference = 6003F58A195388D20070C39A /* Example_iOS.app */;
 			productType = "com.apple.product-type.application";
 		};
-		6003F5AD195388D20070C39A /* GoogleNotificationUtilities_Tests */ = {
+		6003F5AD195388D20070C39A /* Tests_iOS */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 6003F5C2195388D20070C39A /* Build configuration list for PBXNativeTarget "GoogleNotificationUtilities_Tests" */;
+			buildConfigurationList = 6003F5C2195388D20070C39A /* Build configuration list for PBXNativeTarget "Tests_iOS" */;
 			buildPhases = (
 				6003F5AA195388D20070C39A /* Sources */,
 				6003F5AB195388D20070C39A /* Frameworks */,
@@ -221,9 +274,44 @@
 			dependencies = (
 				6003F5B4195388D20070C39A /* PBXTargetDependency */,
 			);
-			name = GoogleNotificationUtilities_Tests;
+			name = Tests_iOS;
 			productName = GoogleNotificationUtilitiesTests;
-			productReference = 6003F5AE195388D20070C39A /* GoogleNotificationUtilities_Tests.xctest */;
+			productReference = 6003F5AE195388D20070C39A /* Tests_iOS.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		9ADACF582270C74100C5272A /* Example_tvOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9ADACF692270C74300C5272A /* Build configuration list for PBXNativeTarget "Example_tvOS" */;
+			buildPhases = (
+				9ADACF552270C74100C5272A /* Sources */,
+				9ADACF562270C74100C5272A /* Frameworks */,
+				9ADACF572270C74100C5272A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Example_tvOS;
+			productName = Example_tvOS;
+			productReference = 9ADACF592270C74100C5272A /* Example_tvOS.app */;
+			productType = "com.apple.product-type.application";
+		};
+		9ADACF6F2270C7EE00C5272A /* Tests_tvOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9ADACF772270C7EE00C5272A /* Build configuration list for PBXNativeTarget "Tests_tvOS" */;
+			buildPhases = (
+				9ADACF6C2270C7EE00C5272A /* Sources */,
+				9ADACF6D2270C7EE00C5272A /* Frameworks */,
+				9ADACF6E2270C7EE00C5272A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				9ADACF762270C7EE00C5272A /* PBXTargetDependency */,
+			);
+			name = Tests_tvOS;
+			productName = Tests_tvOS;
+			productReference = 9ADACF702270C7EE00C5272A /* Tests_tvOS.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -238,6 +326,15 @@
 				TargetAttributes = {
 					6003F5AD195388D20070C39A = {
 						TestTargetID = 6003F589195388D20070C39A;
+					};
+					9ADACF582270C74100C5272A = {
+						CreatedOnToolsVersion = 10.2;
+						ProvisioningStyle = Automatic;
+					};
+					9ADACF6F2270C7EE00C5272A = {
+						CreatedOnToolsVersion = 10.2;
+						ProvisioningStyle = Automatic;
+						TestTargetID = 9ADACF582270C74100C5272A;
 					};
 				};
 			};
@@ -255,8 +352,10 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				6003F589195388D20070C39A /* GoogleNotificationUtilities_Example */,
-				6003F5AD195388D20070C39A /* GoogleNotificationUtilities_Tests */,
+				6003F589195388D20070C39A /* Example_iOS */,
+				6003F5AD195388D20070C39A /* Tests_iOS */,
+				9ADACF582270C74100C5272A /* Example_tvOS */,
+				9ADACF6F2270C7EE00C5272A /* Tests_tvOS */,
 			);
 		};
 /* End PBXProject section */
@@ -281,6 +380,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		9ADACF572270C74100C5272A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9ADACF652270C74300C5272A /* Assets.xcassets in Resources */,
+				9ADACF632270C74100C5272A /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9ADACF6E2270C7EE00C5272A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -302,13 +417,36 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		9ADACF552270C74100C5272A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9ADACF602270C74100C5272A /* ViewController.m in Sources */,
+				9ADACF682270C74300C5272A /* main.m in Sources */,
+				9ADACF5D2270C74100C5272A /* AppDelegate.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9ADACF6C2270C7EE00C5272A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9ADACF7A2270C9EF00C5272A /* GULAppDelegateSwizzlerNotificationsTest.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
 		6003F5B4195388D20070C39A /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 6003F589195388D20070C39A /* GoogleNotificationUtilities_Example */;
+			target = 6003F589195388D20070C39A /* Example_iOS */;
 			targetProxy = 6003F5B3195388D20070C39A /* PBXContainerItemProxy */;
+		};
+		9ADACF762270C7EE00C5272A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9ADACF582270C74100C5272A /* Example_tvOS */;
+			targetProxy = 9ADACF752270C7EE00C5272A /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -335,6 +473,14 @@
 				71719F9E1E33DC2100824A3D /* Base */,
 			);
 			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		9ADACF612270C74100C5272A /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				9ADACF622270C74100C5272A /* Base */,
+			);
+			name = Main.storyboard;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -373,7 +519,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -406,7 +552,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
@@ -465,7 +611,7 @@
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/GoogleNotificationUtilities_Example.app/GoogleNotificationUtilities_Example";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Example_iOS.app/Example_iOS";
 				WRAPPER_EXTENSION = xctest;
 			};
 			name = Debug;
@@ -484,8 +630,171 @@
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/GoogleNotificationUtilities_Example.app/GoogleNotificationUtilities_Example";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Example_iOS.app/Example_iOS";
 				WRAPPER_EXTENSION = xctest;
+			};
+			name = Release;
+		};
+		9ADACF6A2270C74300C5272A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				INFOPLIST_FILE = tvOS/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Example-tvOS";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
+		9ADACF6B2270C74300C5272A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				INFOPLIST_FILE = tvOS/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Example-tvOS";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
+		9ADACF782270C7EE00C5272A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"COCOAPODS=1",
+					"GUL_APP_DELEGATE_TESTING=1",
+				);
+				INFOPLIST_FILE = "Tests/Tests-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "google.com.Tests-tvOS";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				TARGETED_DEVICE_FAMILY = 3;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Example_tvOS.app/Example_tvOS";
+				TVOS_DEPLOYMENT_TARGET = 12.2;
+			};
+			name = Debug;
+		};
+		9ADACF792270C7EE00C5272A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				INFOPLIST_FILE = "Tests/Tests-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "google.com.Tests-tvOS";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				TARGETED_DEVICE_FAMILY = 3;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Example_tvOS.app/Example_tvOS";
+				TVOS_DEPLOYMENT_TARGET = 12.2;
 			};
 			name = Release;
 		};
@@ -501,7 +810,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		6003F5BF195388D20070C39A /* Build configuration list for PBXNativeTarget "GoogleNotificationUtilities_Example" */ = {
+		6003F5BF195388D20070C39A /* Build configuration list for PBXNativeTarget "Example_iOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				6003F5C0195388D20070C39A /* Debug */,
@@ -510,11 +819,29 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		6003F5C2195388D20070C39A /* Build configuration list for PBXNativeTarget "GoogleNotificationUtilities_Tests" */ = {
+		6003F5C2195388D20070C39A /* Build configuration list for PBXNativeTarget "Tests_iOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				6003F5C3195388D20070C39A /* Debug */,
 				6003F5C4195388D20070C39A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9ADACF692270C74300C5272A /* Build configuration list for PBXNativeTarget "Example_tvOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9ADACF6A2270C74300C5272A /* Debug */,
+				9ADACF6B2270C74300C5272A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9ADACF772270C7EE00C5272A /* Build configuration list for PBXNativeTarget "Tests_tvOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9ADACF782270C7EE00C5272A /* Debug */,
+				9ADACF792270C7EE00C5272A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

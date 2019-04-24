@@ -2,18 +2,30 @@ source 'https://github.com/CocoaPods/Specs.git'
 
 use_frameworks!
 
-platform :ios, '8.0'
-
-target 'GoogleNotificationUtilities_Example' do
+abstract_target 'Example' do
   pod 'GoogleUtilities/AppDelegateSwizzler', :path => '../../'
-
   pod 'GoogleNotificationUtilities', :path => '../../'
 
-  target 'GoogleNotificationUtilities_Tests' do
-    inherit! :search_paths
+  target 'Example_iOS' do
+    platform :ios, '8.0'
 
-    pod 'OCMock'
+    target 'Tests_iOS' do
+      inherit! :search_paths
+
+      pod 'OCMock'
+    end
   end
+
+  target 'Example_tvOS' do
+    platform :tvos, '10.0'
+
+    target 'Tests_tvOS' do
+      inherit! :search_paths
+
+      pod 'OCMock'
+    end
+  end
+
 end
 
 # Set define to turn on GUL_UNSWIZZLING and GUL_APP_DELEGATE_TESTING for the unit tests
