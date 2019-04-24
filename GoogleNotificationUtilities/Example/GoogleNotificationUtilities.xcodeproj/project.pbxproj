@@ -28,6 +28,12 @@
 		9ADACF652270C74300C5272A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9ADACF642270C74300C5272A /* Assets.xcassets */; };
 		9ADACF682270C74300C5272A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 9ADACF672270C74300C5272A /* main.m */; };
 		9ADACF7A2270C9EF00C5272A /* GULAppDelegateSwizzlerNotificationsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A9C1A12226FB918003CF183 /* GULAppDelegateSwizzlerNotificationsTest.m */; };
+		9ADACFB22270E53E00C5272A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 9ADACFB12270E53E00C5272A /* AppDelegate.m */; };
+		9ADACFB52270E53E00C5272A /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9ADACFB42270E53E00C5272A /* ViewController.m */; };
+		9ADACFB72270E53F00C5272A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9ADACFB62270E53F00C5272A /* Assets.xcassets */; };
+		9ADACFBA2270E53F00C5272A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9ADACFB82270E53F00C5272A /* Main.storyboard */; };
+		9ADACFBD2270E53F00C5272A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 9ADACFBC2270E53F00C5272A /* main.m */; };
+		9ADACFD22270E5E100C5272A /* TestsPlaceholder.m in Sources */ = {isa = PBXBuildFile; fileRef = 9ADACFD12270E5E100C5272A /* TestsPlaceholder.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,6 +50,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 9ADACF582270C74100C5272A;
 			remoteInfo = Example_tvOS;
+		};
+		9ADACFCB2270E55B00C5272A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6003F582195388D10070C39A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9ADACFAD2270E53E00C5272A;
+			remoteInfo = Example_macOS;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -81,6 +94,18 @@
 		9ADACF662270C74300C5272A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9ADACF672270C74300C5272A /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		9ADACF702270C7EE00C5272A /* Tests_tvOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Tests_tvOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		9ADACFAE2270E53E00C5272A /* Example_macOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Example_macOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9ADACFB02270E53E00C5272A /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		9ADACFB12270E53E00C5272A /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		9ADACFB32270E53E00C5272A /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		9ADACFB42270E53E00C5272A /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		9ADACFB62270E53F00C5272A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		9ADACFB92270E53F00C5272A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		9ADACFBB2270E53F00C5272A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		9ADACFBC2270E53F00C5272A /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		9ADACFBE2270E53F00C5272A /* Example_macOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Example_macOS.entitlements; sourceTree = "<group>"; };
+		9ADACFC62270E55B00C5272A /* Tests_macOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Tests_macOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		9ADACFD12270E5E100C5272A /* TestsPlaceholder.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestsPlaceholder.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -118,6 +143,20 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		9ADACFAB2270E53E00C5272A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9ADACFC32270E55B00C5272A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -135,6 +174,7 @@
 				6003F593195388D20070C39A /* iOS */,
 				9ADACF5A2270C74100C5272A /* tvOS */,
 				6003F5B5195388D20070C39A /* Tests */,
+				9ADACFAF2270E53E00C5272A /* Example_macOS */,
 				6003F58C195388D20070C39A /* Frameworks */,
 				6003F58B195388D20070C39A /* Products */,
 				5CE6771A8688457A3D1F5593 /* Pods */,
@@ -148,6 +188,8 @@
 				6003F5AE195388D20070C39A /* Tests_iOS.xctest */,
 				9ADACF592270C74100C5272A /* Example_tvOS.app */,
 				9ADACF702270C7EE00C5272A /* Tests_tvOS.xctest */,
+				9ADACFAE2270E53E00C5272A /* Example_macOS.app */,
+				9ADACFC62270E55B00C5272A /* Tests_macOS.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -193,6 +235,7 @@
 		6003F5B5195388D20070C39A /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				9ADACFD02270E5BF00C5272A /* macOS */,
 				9A9C1A11226FB918003CF183 /* GULAppDelegateSwizzler_Notifications */,
 				6003F5B6195388D20070C39A /* Supporting Files */,
 			);
@@ -239,6 +282,30 @@
 				9ADACF672270C74300C5272A /* main.m */,
 			);
 			path = tvOS;
+			sourceTree = "<group>";
+		};
+		9ADACFAF2270E53E00C5272A /* Example_macOS */ = {
+			isa = PBXGroup;
+			children = (
+				9ADACFB02270E53E00C5272A /* AppDelegate.h */,
+				9ADACFB12270E53E00C5272A /* AppDelegate.m */,
+				9ADACFB32270E53E00C5272A /* ViewController.h */,
+				9ADACFB42270E53E00C5272A /* ViewController.m */,
+				9ADACFB62270E53F00C5272A /* Assets.xcassets */,
+				9ADACFB82270E53F00C5272A /* Main.storyboard */,
+				9ADACFBB2270E53F00C5272A /* Info.plist */,
+				9ADACFBC2270E53F00C5272A /* main.m */,
+				9ADACFBE2270E53F00C5272A /* Example_macOS.entitlements */,
+			);
+			path = Example_macOS;
+			sourceTree = "<group>";
+		};
+		9ADACFD02270E5BF00C5272A /* macOS */ = {
+			isa = PBXGroup;
+			children = (
+				9ADACFD12270E5E100C5272A /* TestsPlaceholder.m */,
+			);
+			path = macOS;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -314,6 +381,41 @@
 			productReference = 9ADACF702270C7EE00C5272A /* Tests_tvOS.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		9ADACFAD2270E53E00C5272A /* Example_macOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9ADACFBF2270E53F00C5272A /* Build configuration list for PBXNativeTarget "Example_macOS" */;
+			buildPhases = (
+				9ADACFAA2270E53E00C5272A /* Sources */,
+				9ADACFAB2270E53E00C5272A /* Frameworks */,
+				9ADACFAC2270E53E00C5272A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Example_macOS;
+			productName = Example_macOS;
+			productReference = 9ADACFAE2270E53E00C5272A /* Example_macOS.app */;
+			productType = "com.apple.product-type.application";
+		};
+		9ADACFC52270E55B00C5272A /* Tests_macOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9ADACFCD2270E55B00C5272A /* Build configuration list for PBXNativeTarget "Tests_macOS" */;
+			buildPhases = (
+				9ADACFC22270E55B00C5272A /* Sources */,
+				9ADACFC32270E55B00C5272A /* Frameworks */,
+				9ADACFC42270E55B00C5272A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				9ADACFCC2270E55B00C5272A /* PBXTargetDependency */,
+			);
+			name = Tests_macOS;
+			productName = Tests_macOS;
+			productReference = 9ADACFC62270E55B00C5272A /* Tests_macOS.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -336,6 +438,15 @@
 						ProvisioningStyle = Automatic;
 						TestTargetID = 9ADACF582270C74100C5272A;
 					};
+					9ADACFAD2270E53E00C5272A = {
+						CreatedOnToolsVersion = 10.2;
+						ProvisioningStyle = Automatic;
+					};
+					9ADACFC52270E55B00C5272A = {
+						CreatedOnToolsVersion = 10.2;
+						ProvisioningStyle = Automatic;
+						TestTargetID = 9ADACFAD2270E53E00C5272A;
+					};
 				};
 			};
 			buildConfigurationList = 6003F585195388D10070C39A /* Build configuration list for PBXProject "GoogleNotificationUtilities" */;
@@ -356,6 +467,8 @@
 				6003F5AD195388D20070C39A /* Tests_iOS */,
 				9ADACF582270C74100C5272A /* Example_tvOS */,
 				9ADACF6F2270C7EE00C5272A /* Tests_tvOS */,
+				9ADACFAD2270E53E00C5272A /* Example_macOS */,
+				9ADACFC52270E55B00C5272A /* Tests_macOS */,
 			);
 		};
 /* End PBXProject section */
@@ -390,6 +503,22 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		9ADACF6E2270C7EE00C5272A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9ADACFAC2270E53E00C5272A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9ADACFB72270E53F00C5272A /* Assets.xcassets in Resources */,
+				9ADACFBA2270E53F00C5272A /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9ADACFC42270E55B00C5272A /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -435,6 +564,24 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		9ADACFAA2270E53E00C5272A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9ADACFB52270E53E00C5272A /* ViewController.m in Sources */,
+				9ADACFBD2270E53F00C5272A /* main.m in Sources */,
+				9ADACFB22270E53E00C5272A /* AppDelegate.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9ADACFC22270E55B00C5272A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9ADACFD22270E5E100C5272A /* TestsPlaceholder.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -447,6 +594,11 @@
 			isa = PBXTargetDependency;
 			target = 9ADACF582270C74100C5272A /* Example_tvOS */;
 			targetProxy = 9ADACF752270C7EE00C5272A /* PBXContainerItemProxy */;
+		};
+		9ADACFCC2270E55B00C5272A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9ADACFAD2270E53E00C5272A /* Example_macOS */;
+			targetProxy = 9ADACFCB2270E55B00C5272A /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -479,6 +631,14 @@
 			isa = PBXVariantGroup;
 			children = (
 				9ADACF622270C74100C5272A /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		9ADACFB82270E53F00C5272A /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				9ADACFB92270E53F00C5272A /* Base */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";
@@ -798,6 +958,168 @@
 			};
 			name = Release;
 		};
+		9ADACFC02270E53F00C5272A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_ENTITLEMENTS = Example_macOS/Example_macOS.entitlements;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				INFOPLIST_FILE = Example_macOS/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "google.com.Example-macOS";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		9ADACFC12270E53F00C5272A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_ENTITLEMENTS = Example_macOS/Example_macOS.entitlements;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				INFOPLIST_FILE = Example_macOS/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "google.com.Example-macOS";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		9ADACFCE2270E55B00C5272A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				INFOPLIST_FILE = "Tests/Tests-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "google.com.Tests-macOS";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Example_macOS.app/Contents/MacOS/Example_macOS";
+			};
+			name = Debug;
+		};
+		9ADACFCF2270E55B00C5272A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				INFOPLIST_FILE = "Tests/Tests-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "google.com.Tests-macOS";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Example_macOS.app/Contents/MacOS/Example_macOS";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -842,6 +1164,24 @@
 			buildConfigurations = (
 				9ADACF782270C7EE00C5272A /* Debug */,
 				9ADACF792270C7EE00C5272A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9ADACFBF2270E53F00C5272A /* Build configuration list for PBXNativeTarget "Example_macOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9ADACFC02270E53F00C5272A /* Debug */,
+				9ADACFC12270E53F00C5272A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9ADACFCD2270E55B00C5272A /* Build configuration list for PBXNativeTarget "Tests_macOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9ADACFCE2270E55B00C5272A /* Debug */,
+				9ADACFCF2270E55B00C5272A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
