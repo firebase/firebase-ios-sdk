@@ -1,10 +1,11 @@
 Pod::Spec.new do |s|
   s.name             = 'GoogleNotificationUtilities'
   s.version          = '6.0.0'
-  s.summary          = 'Google Utilities for iOS Remote Notifications'
+  s.summary          = 'Google Utilities for iOS Push Notifications'
 
   s.description      = <<-DESC
-TODO: Add long description of the pod here.
+  Internal Google Utilities for iOS Remote Notifications. The part of code from GoogleUtilities
+  requiring specific Push Notifications entitlements.
                        DESC
 
   s.homepage         = 'https://github.com/firebase/firebase-ios-sdk/tree/master/GoogleNotificationUtilities'
