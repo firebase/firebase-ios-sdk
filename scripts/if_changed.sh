@@ -47,7 +47,7 @@ else
   case "$PROJECT-$METHOD" in
     Firebase-pod-lib-lint) # Combines Firebase-* and InAppMessaging*
       check_changes '^(Firebase/Auth|Firebase/Core|Firebase/Database|Firebase/DynamicLinks|'\
-'Firebase/Messaging|Firebase/Storage|GoogleUtilities|Interop|Example|'\
+'Firebase/Messaging|Firebase/Storage|GoogleUtilities|GoogleNotificationUtilities|Interop|Example|'\
 'FirebaseAnalyticsIntop.podspec|FirebaseAuth.podspec|FirebaseAuthInterop.podspec|'\
 'FirebaseCore.podspec|FirebaseDatabase.podspec|FirebaseDynamicLinks.podspec|'\
 'FirebaseMessaging.podspec|FirebaseStorage.podspec|'\
@@ -59,7 +59,7 @@ else
 
     Firebase-*)
       check_changes '^(Firebase/Auth|Firebase/Core|Firebase/Database|Firebase/DynamicLinks|'\
-'Firebase/Messaging|Firebase/Storage|GoogleUtilities|Interop|Example|'\
+'Firebase/Messaging|Firebase/Storage|GoogleUtilities|GoogleNotificationUtilities|Interop|Example|'\
 'FirebaseAnalyticsIntop.podspec|FirebaseAuth.podspec|FirebaseAuthInterop.podspec|'\
 'FirebaseCore.podspec|FirebaseDatabase.podspec|FirebaseDynamicLinks.podspec|'\
 'FirebaseMessaging.podspec|FirebaseStorage.podspec|'\

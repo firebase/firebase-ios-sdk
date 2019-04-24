@@ -313,3 +313,5 @@ jobs:
 branches:
   only:
     - master
+    # TODO: Remove
+    - mm/swizzling-separate-lib

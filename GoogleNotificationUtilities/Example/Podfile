@@ -26,6 +26,16 @@ abstract_target 'Example' do
     end
   end
 
+  target 'Example_macOS' do
+    platform :osx, '10.11'
+
+    target 'Tests_macOS' do
+      inherit! :search_paths
+
+      pod 'OCMock'
+    end
+  end
+
 end
 
 # Set define to turn on GUL_UNSWIZZLING and GUL_APP_DELEGATE_TESTING for the unit tests

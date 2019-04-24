@@ -53,6 +53,7 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     gem install xcpretty
     bundle exec pod install --project-directory=Example --repo-update
     bundle exec pod install --project-directory=GoogleUtilities/Example
+    bundle exec pod install --project-directory=GoogleNotificationUtilities/Example
     ;;
 
   Functions-*)
