@@ -14,22 +14,20 @@
  * limitations under the License.
  */
 
-#import "GULViewController.h"
+#import "ViewController.h"
 
-@interface GULViewController ()
-
-@end
-
-@implementation GULViewController
+@implementation ViewController
 
 - (void)viewDidLoad {
   [super viewDidLoad];
-  // Do any additional setup after loading the view, typically from a nib.
+
+  // Do any additional setup after loading the view.
 }
 
-- (void)didReceiveMemoryWarning {
-  [super didReceiveMemoryWarning];
-  // Dispose of any resources that can be recreated.
+- (void)setRepresentedObject:(id)representedObject {
+  [super setRepresentedObject:representedObject];
+
+  // Update the view, if already loaded.
 }
 
 @end

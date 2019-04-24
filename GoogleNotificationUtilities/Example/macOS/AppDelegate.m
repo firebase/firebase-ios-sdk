@@ -14,22 +14,20 @@
  * limitations under the License.
  */
 
-#import "GULViewController.h"
+#import "AppDelegate.h"
 
-@interface GULViewController ()
+@interface AppDelegate ()
 
 @end
 
-@implementation GULViewController
+@implementation AppDelegate
 
-- (void)viewDidLoad {
-  [super viewDidLoad];
-  // Do any additional setup after loading the view, typically from a nib.
+- (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+  // Insert code here to initialize your application
 }
 
-- (void)didReceiveMemoryWarning {
-  [super didReceiveMemoryWarning];
-  // Dispose of any resources that can be recreated.
+- (void)applicationWillTerminate:(NSNotification *)aNotification {
+  // Insert code here to tear down your application
 }
 
 @end

@@ -174,7 +174,7 @@
 				6003F593195388D20070C39A /* iOS */,
 				9ADACF5A2270C74100C5272A /* tvOS */,
 				6003F5B5195388D20070C39A /* Tests */,
-				9ADACFAF2270E53E00C5272A /* Example_macOS */,
+				9ADACFAF2270E53E00C5272A /* macOS */,
 				6003F58C195388D20070C39A /* Frameworks */,
 				6003F58B195388D20070C39A /* Products */,
 				5CE6771A8688457A3D1F5593 /* Pods */,
@@ -284,7 +284,7 @@
 			path = tvOS;
 			sourceTree = "<group>";
 		};
-		9ADACFAF2270E53E00C5272A /* Example_macOS */ = {
+		9ADACFAF2270E53E00C5272A /* macOS */ = {
 			isa = PBXGroup;
 			children = (
 				9ADACFB02270E53E00C5272A /* AppDelegate.h */,
@@ -297,7 +297,7 @@
 				9ADACFBC2270E53F00C5272A /* main.m */,
 				9ADACFBE2270E53F00C5272A /* Example_macOS.entitlements */,
 			);
-			path = Example_macOS;
+			path = macOS;
 			sourceTree = "<group>";
 		};
 		9ADACFD02270E5BF00C5272A /* macOS */ = {
@@ -979,7 +979,7 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CODE_SIGN_ENTITLEMENTS = Example_macOS/Example_macOS.entitlements;
+				CODE_SIGN_ENTITLEMENTS = macOS/Example_macOS.entitlements;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -987,7 +987,7 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
-				INFOPLIST_FILE = Example_macOS/Info.plist;
+				INFOPLIST_FILE = macOS/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -1019,7 +1019,7 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CODE_SIGN_ENTITLEMENTS = Example_macOS/Example_macOS.entitlements;
+				CODE_SIGN_ENTITLEMENTS = macOS/Example_macOS.entitlements;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -1028,7 +1028,7 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
-				INFOPLIST_FILE = Example_macOS/Info.plist;
+				INFOPLIST_FILE = macOS/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = NO;
