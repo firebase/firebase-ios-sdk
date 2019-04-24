@@ -240,7 +240,7 @@
       imageURLStr = cardNode[@"portraitImageUrl"];
       landscapeImageURLStr = cardNode[@"landscapeImageUrl"];
       
-      viewCardBackgroundColor = [UIColor firiam_colorWithHexString:@"backgroundHexColor"];
+      viewCardBackgroundColor = [UIColor firiam_colorWithHexString:cardNode[@"backgroundHexColor"]];
       
       actionButtonText = cardNode[@"primaryActionButton"][@"text"][@"text"];
       btnTxtColor = [UIColor firiam_colorWithHexString:cardNode[@"primaryActionButton"][@"text"][@"hexColor"]];

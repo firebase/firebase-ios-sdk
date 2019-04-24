@@ -108,20 +108,22 @@ static NSInteger const SuccessHTTPStatusCode = 200;
                   }];
   } else {
     // Fetch both images separately, call completion when they're both fetched.
-    NSData *portrait;
-    NSData *landscape;
+    __block NSData *portrait;
+    __block NSData *landscape;
 
     [self fetchImageFromURL:_imageURL
                   withBlock:^(NSData *_Nullable imageData, NSError *_Nullable error) {
+                    portrait = imageData;
                     if (landscape) {
-                      block(imageData, landscape, nil);
+                      block(portrait, landscape, nil);
                     }
                   }];
 
     [self fetchImageFromURL:_landscapeImageURL
                   withBlock:^(NSData *_Nullable imageData, NSError *_Nullable error) {
+                    landscape = imageData;
                     if (portrait) {
-                      block(portrait, imageData, nil);
+                      block(portrait, landscape, nil);
                     }
                   }];
   }
