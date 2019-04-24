@@ -184,6 +184,13 @@ case "$product-$method-$platform" in
         build \
         test
 
+    RunXcodebuild \
+        -workspace 'GoogleNotificationUtilities/Example/GoogleNotificationUtilities.xcworkspace' \
+        -scheme "Example_$platform" \
+        "${xcb_flags[@]}" \
+        build \
+        test
+
     if [[ $platform == 'iOS' ]]; then
       # Run integration tests (not allowed on PRs)
       if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
