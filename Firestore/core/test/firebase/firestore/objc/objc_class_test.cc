@@ -16,78 +16,104 @@
 
 #include "Firestore/core/src/firebase/firestore/objc/objc_class.h"
 
-#include <objc/objc.h>
-
 #include "Firestore/core/test/firebase/firestore/objc/objc_class_test_helper.h"
 #include "gtest/gtest.h"
-
-// Runtime function that's not declared anywhere I can find, but specified here
-// https://clang.llvm.org/docs/AutomaticReferenceCounting.html#void-objc-release-id-value
-//
-// This should be declared as taking `id`, but this declaration makes it easier
-// to invoke without casting in the tests below.
-extern "C" void objc_release(void* value);
 
 namespace firebase {
 namespace firestore {
 namespace objc {
 
 TEST(ObjcClassTest, CanSendMessages) {
-  ObjcClassTester tester;
-  ASSERT_EQ("hello world", tester.ToString());
+  ObjcClassWrapper tester(nullptr);
+  ASSERT_EQ("FSTObjcClassTestValue", tester.ToString());
 }
 
 TEST(ObjcClassTest, Deallocates) {
-  ObjcClassTester tester;
-  ASSERT_EQ(1, tester.init_calls);
-  ASSERT_EQ(0, tester.dealloc_calls);
+  AllocationTracker tracker;
+  ObjcClassWrapper wrapper(&tracker);
+  ASSERT_EQ(1, tracker.init_calls);
+  ASSERT_EQ(0, tracker.dealloc_calls);
 
-  tester.handle.Release();
-  ASSERT_EQ(1, tester.init_calls);
-  ASSERT_EQ(1, tester.dealloc_calls);
+  wrapper.handle.Release();
+  ASSERT_EQ(1, tracker.init_calls);
+  ASSERT_EQ(1, tracker.dealloc_calls);
 }
 
-TEST(ObjcClassTest, RetainsBehaveAsExpected) {
-  ObjcClassTester tester(nullptr);
-  ASSERT_EQ(0, tester.init_calls);
-  ASSERT_EQ(0, tester.dealloc_calls);
+TEST(ObjcClassTest, MultipleReleasesAreAllowed) {
+  AllocationTracker tracker;
+  ObjcClassWrapper wrapper(&tracker);
 
-  // This is plain C++, so ARC isn't managing this pointer. Initial retain count
-  // is 1 though.
-  FSTObjcClassTestHelper* helper = ObjcClassTester::CreateHelper();
+  wrapper.handle.Release();
+  ASSERT_EQ(1, tracker.dealloc_calls);
 
-  // Assign to the handle, bumping retain count
-  tester.set_helper(helper);
-  ASSERT_EQ(0, tester.init_calls);
-  ASSERT_EQ(0, tester.dealloc_calls);
+  wrapper.handle.Release();
+  ASSERT_EQ(1, tracker.dealloc_calls);
+}
 
-  // Transfer ownership to the helper
-  objc_release(helper);
-  ASSERT_EQ(0, tester.dealloc_calls);
+TEST(ObjcClassTest, SupportsCopying) {
+  AllocationTracker tracker;
 
-  // And release
-  tester.handle.Release();
-  ASSERT_EQ(1, tester.dealloc_calls);
+  tracker.Run([&]() {
+    ObjcClassWrapper second;
+
+    tracker.Run([&]() {
+      ObjcClassWrapper first(&tracker);
+      second = first;
+      ASSERT_EQ(1, tracker.init_calls);
+      ASSERT_EQ(0, tracker.dealloc_calls);
+    });
+
+    // first deallocated, but the value should survive
+    ASSERT_EQ(0, tracker.dealloc_calls);
+  });
+
+  // second deallocated
+  ASSERT_EQ(1, tracker.dealloc_calls);
+}
+
+TEST(ObjcClassTest, SupportsMoving) {
+  AllocationTracker tracker;
+
+  tracker.Run([&]() {
+    ObjcClassWrapper second;
+    tracker.Run([&]() {
+      // Moving does not bump reference count.
+      ObjcClassWrapper first(&tracker);
+      second = std::move(first);
+
+      ASSERT_EQ(1, tracker.init_calls);
+      ASSERT_EQ(0, tracker.dealloc_calls);
+    });
+
+    ASSERT_EQ(0, tracker.dealloc_calls);
+  });
+
+  ASSERT_EQ(1, tracker.dealloc_calls);
 }
 
 TEST(ObjcClassTest, Reassigns) {
-  ObjcClassTester tester;
-  ASSERT_EQ(1, tester.init_calls);
-  ASSERT_EQ(0, tester.dealloc_calls);
+  AllocationTracker tracker;
 
-  // Reassigning should deallocate the initial object allocated in the
-  // constructor.
-  FSTObjcClassTestHelper* helper = ObjcClassTester::CreateHelper();
-  tester.set_helper(helper);
-  ASSERT_EQ(1, tester.init_calls);
-  ASSERT_EQ(1, tester.dealloc_calls);
+  tracker.Run([&]() {
+    ObjcClassWrapper wrapper(&tracker);
+    ASSERT_EQ(1, tracker.init_calls);
+    ASSERT_EQ(0, tracker.dealloc_calls);
 
-  // Transfer ownership to the helper
-  objc_release(helper);
-  ASSERT_EQ(1, tester.dealloc_calls);
+    tracker.Run([&]() {
+      // Reassigning should deallocate the initial object allocated in the
+      // constructor.
+      ObjcClassWrapper wrapper2(&tracker);
+      wrapper.set_value(wrapper2.handle);
+      ASSERT_EQ(2, tracker.init_calls);
+      ASSERT_EQ(1, tracker.dealloc_calls);
 
-  tester.handle.Release();
-  ASSERT_EQ(2, tester.dealloc_calls);
+      // Transfer ownership to the helper
+    });
+
+    ASSERT_EQ(1, tracker.dealloc_calls);
+  });
+
+  ASSERT_EQ(2, tracker.dealloc_calls);
 }
 
 }  // namespace objc

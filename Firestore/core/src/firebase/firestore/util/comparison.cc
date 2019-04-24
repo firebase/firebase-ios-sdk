@@ -34,6 +34,7 @@ using std::isnan;
  * means "descending".
  */
 constexpr ComparisonResult ComparisonResultFromInt(int value) {
+  // TODO(c++14): convert this to an if statement.
   return value < 0 ? ComparisonResult::Ascending
                    : (value > 0 ? ComparisonResult::Descending
                                 : ComparisonResult::Same);
@@ -51,6 +52,7 @@ ComparisonResult Comparator<std::string>::Compare(
 
 ComparisonResult Comparator<std::vector<uint8_t>>::Compare(
     const std::vector<uint8_t>& left, const std::vector<uint8_t>& right) const {
+  // This is essentially CompareContainer with `memcmp` for the main check
   size_t min_length = std::min(left.size(), right.size());
   if (min_length > 0) {
     int r = memcmp(left.data(), right.data(), min_length);
