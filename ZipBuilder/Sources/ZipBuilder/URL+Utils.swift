@@ -22,7 +22,7 @@ public extension URL {
   func appendingPathComponents(_ components: [String]) -> URL {
     // Append multiple path components in a single call to prevent long lines of multiple calls.
     var result = self
-    components.forEach({ result.appendPathComponent($0) })
+    components.forEach { result.appendPathComponent($0) }
     return result
   }
 }
