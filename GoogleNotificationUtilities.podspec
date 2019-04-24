@@ -9,7 +9,7 @@ TODO: Add long description of the pod here.
 
   s.homepage         = 'https://github.com/firebase/firebase-ios-sdk/tree/master/GoogleNotificationUtilities'
   s.license          = { :type => 'Apache', :file => 'LICENSE' }
-  s.author           = { 'Maksym Malyhin' => 'mmaksym@google.com' }
+  s.authors          = 'Google, Inc.'
 
   s.source           = {
     :git => 'https://github.com/firebase/firebase-ios-sdk.git',
@@ -25,6 +25,6 @@ TODO: Add long description of the pod here.
   s.source_files = 'GoogleNotificationUtilities/AppDelegateSwizzler_Notifications/**/*.[mh]'
   s.public_header_files = 'GoogleNotificationUtilities/AppDelegateSwizzler_Notifications/Private/*.h'
   s.private_header_files = 'GoogleNotificationUtilities/AppDelegateSwizzler_Notifications/Private/*.h'
-  s.dependency 'GoogleUtilities/AppDelegateSwizzler' # TODO: Uncomment , '~> 6.0'
+  s.dependency 'GoogleUtilities/AppDelegateSwizzler' # TODO: Uncomment , '~> 7.0'
   
 end
