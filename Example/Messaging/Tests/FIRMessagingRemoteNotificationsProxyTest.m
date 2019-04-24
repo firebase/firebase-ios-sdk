@@ -24,7 +24,8 @@
 #import "FIRMessaging.h"
 #import "FIRMessagingRemoteNotificationsProxy.h"
 
-#import <GoogleUtilities/GULAppDelegateSwizzler.h>
+#import <GoogleUtilities/GULAppDelegateSwizzler_Private.h>
+#import <GoogleNotificationUtilities/GULAppDelegateSwizzler+Notifications.h>
 
 #pragma mark - Invalid App Delegate or UNNotificationCenter
 
@@ -122,10 +123,6 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 @end
 #endif // __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 
-@interface GULAppDelegateSwizzler (FIRMessagingRemoteNotificationsProxyTest)
-+ (void)resetProxyOriginalDelegateOnceToken;
-@end
-
 #pragma mark - Local, Per-Test Properties
 
 @interface FIRMessagingRemoteNotificationsProxyTest : XCTestCase
@@ -144,6 +141,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
   [super setUp];
 
   [GULAppDelegateSwizzler resetProxyOriginalDelegateOnceToken];
+  [GULAppDelegateSwizzler resetProxyOriginalDelegateIncludingAPNSMethodsOnceToken];
 
   _mockSharedApplication = OCMPartialMock([UIApplication sharedApplication]);
 

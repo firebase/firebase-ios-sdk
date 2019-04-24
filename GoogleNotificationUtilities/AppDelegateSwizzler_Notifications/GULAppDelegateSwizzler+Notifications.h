@@ -40,8 +40,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (void)proxyOriginalDelegateIncludingAPNSMethods;
 
+#ifdef GUL_APP_DELEGATE_TESTING  // Methods only used in tests.
 /** Resets the token that prevents the app delegate proxy from being isa swizzled multiple times. */
 + (void)resetProxyOriginalDelegateIncludingAPNSMethodsOnceToken;
+
+#endif  // GUL_APP_DELEGATE_TESTING
 
 @end
 

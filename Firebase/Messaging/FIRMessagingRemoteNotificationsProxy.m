@@ -23,7 +23,7 @@
 #import "FIRMessagingLogger.h"
 #import "FIRMessagingUtilities.h"
 #import "FIRMessaging_Private.h"
-#import <GoogleUtilities/GULAppDelegateSwizzler.h>
+#import <GoogleNotificationUtilities/GULAppDelegateSwizzler+Notifications.h>
 
 static void * UserNotificationObserverContext = &UserNotificationObserverContext;
 
