@@ -85,17 +85,20 @@ TEST(ObjcClassTest, SupportsMoving) {
   AllocationTracker tracker;
 
   tracker.ScopedRun([&]() {
-    ObjcClassWrapper second;
+    ObjcClassWrapper first(&tracker);
+
     tracker.ScopedRun([&]() {
       // Moving does not bump reference count.
-      ObjcClassWrapper first(&tracker);
-      second = std::move(first);
+      ObjcClassWrapper second = std::move(first);
 
       ASSERT_EQ(1, tracker.init_calls);
       ASSERT_EQ(0, tracker.dealloc_calls);
     });
 
-    ASSERT_EQ(0, tracker.dealloc_calls);
+    // If moving has succeeded, then `first` no longer has a reference to the
+    // value and the destruction of `second` in the inner block should trigger
+    // dealloc.
+    ASSERT_EQ(1, tracker.dealloc_calls);
   });
 
   ASSERT_EQ(1, tracker.dealloc_calls);
