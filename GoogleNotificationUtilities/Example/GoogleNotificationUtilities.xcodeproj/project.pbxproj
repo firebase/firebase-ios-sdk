@@ -103,7 +103,6 @@
 		9ADACFB92270E53F00C5272A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		9ADACFBB2270E53F00C5272A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9ADACFBC2270E53F00C5272A /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		9ADACFBE2270E53F00C5272A /* Example_macOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Example_macOS.entitlements; sourceTree = "<group>"; };
 		9ADACFC62270E55B00C5272A /* Tests_macOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Tests_macOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9ADACFD12270E5E100C5272A /* TestsPlaceholder.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestsPlaceholder.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -295,7 +294,6 @@
 				9ADACFB82270E53F00C5272A /* Main.storyboard */,
 				9ADACFBB2270E53F00C5272A /* Info.plist */,
 				9ADACFBC2270E53F00C5272A /* main.m */,
-				9ADACFBE2270E53F00C5272A /* Example_macOS.entitlements */,
 			);
 			path = macOS;
 			sourceTree = "<group>";
