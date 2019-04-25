@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'GoogleNotificationUtilities'
-  s.version          = '6.0.0'
+  s.version          = '7.0.0'
   s.summary          = 'Google Utilities for iOS Push Notifications'
 
   s.description      = <<-DESC
@@ -26,6 +26,6 @@ Pod::Spec.new do |s|
 
   s.source_files = 'GoogleNotificationUtilities/AppDelegateSwizzler_Notifications/**/*.[mh]'
   s.public_header_files = 'GoogleNotificationUtilities/AppDelegateSwizzler_Notifications/*.h'
-  s.dependency 'GoogleUtilities/AppDelegateSwizzler' # TODO: Uncomment , '~> 7.0'
+  s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 7.0'
 
 end

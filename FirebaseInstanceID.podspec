@@ -37,6 +37,6 @@ services.
   }
   s.framework = 'Security'
   s.dependency 'FirebaseCore', '~> 6.0'
-  s.dependency 'GoogleUtilities/UserDefaults', '~> 6.0'
-  s.dependency 'GoogleUtilities/Environment', '~> 6.0'
+  s.dependency 'GoogleUtilities/UserDefaults', '~> 7.0'
+  s.dependency 'GoogleUtilities/Environment', '~> 7.0'
 end
