@@ -28,6 +28,7 @@
 #import "GDTTests/Integration/TestServer/GDTTestServer.h"
 
 #import "GDTLibrary/Private/GDTReachability_Private.h"
+#import "GDTLibrary/Private/GDTTransformer_Private.h"
 #import "GDTLibrary/Private/GDTStorage_Private.h"
 
 /** A test-only event data object used in this integration test. */
@@ -123,21 +124,18 @@
   XCTAssertEqual([GDTStorage sharedInstance].storedEvents.count, 0);
   XCTAssertEqual([GDTStorage sharedInstance].targetToEventSet.count, 0);
 
-  for (int i = 0; i < 5; i++) {
-    __block BOOL eventsFoundOnDisk = NO;
 
-    // Generate some events data.
-    [self generateEvents];
+  // Generate some events data.
+  [self generateEvents];
 
-    // Confirm events are on disk. This is written this way because it can be a flaky check.
-    dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
-      eventsFoundOnDisk = [GDTStorage sharedInstance].storedEvents.count > 0 &&
-                          [GDTStorage sharedInstance].targetToEventSet.count > 0;
-    });
-    if (eventsFoundOnDisk) {
-      break;
-    }
-  }
+  // Flush the transformer queue.
+  dispatch_sync([GDTTransformer sharedInstance].eventWritingQueue, ^{});
+
+  // Confirm events are on disk.
+  dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
+    XCTAssertGreaterThan([GDTStorage sharedInstance].storedEvents.count, 0);
+    XCTAssertGreaterThan([GDTStorage sharedInstance].targetToEventSet.count, 0);
+  });
 
   // Confirm events were sent and received.
   [self waitForExpectations:@[ expectation ] timeout:10.0];
