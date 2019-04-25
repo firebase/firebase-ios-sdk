@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -117,13 +117,10 @@ static NSString *const kCancel = @"Cancel";
     }
     [self presentViewController:alert animated:YES completion:nil];
   } else {
-    UIAlertView *alert =
-        [[UIAlertView alloc] initWithTitle:title
-                                   message:message
-                                  delegate:nil
-                         cancelButtonTitle:nil
-                         otherButtonTitles:kOK, nil];
-    [alert show];
+    UIAlertController* alert = [UIAlertController alertControllerWithTitle:title
+                                                                   message:message
+                                                            preferredStyle:UIAlertControllerStyleAlert];
+    [self presentViewController:alert animated:YES completion:nil];
   }
 }
 

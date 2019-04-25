@@ -40,7 +40,9 @@
     [[NSFileManager defaultManager] createFileAtPath:filePath
                                             contents:[NSData data]
                                           attributes:nil];
-    [set addObject:[event storedEventWithFileURL:[NSURL fileURLWithPath:filePath]]];
+    GDTDataFuture *dataFuture =
+        [[GDTDataFuture alloc] initWithFileURL:[NSURL fileURLWithPath:filePath]];
+    [set addObject:[event storedEventWithDataFuture:dataFuture]];
     counter++;
   }
   return set;
