@@ -33,8 +33,10 @@
 namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::DocumentComparator;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::ResourcePath;
+using firebase::firestore::util::ComparisonResult;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -348,11 +350,12 @@ NS_ASSUME_NONNULL_BEGIN
  * Checks that an ordered array of elements yields the correct pair-wise comparison result for the
  * supplied comparator.
  */
-- (void)assertCorrectComparisonsWithArray:(NSArray *)array comparator:(NSComparator)comp {
+- (void)assertCorrectComparisonsWithArray:(NSArray *)array
+                               comparator:(const DocumentComparator &)comp {
   [array enumerateObjectsUsingBlock:^(id iObj, NSUInteger i, BOOL *outerStop) {
     [array enumerateObjectsUsingBlock:^(id _Nonnull jObj, NSUInteger j, BOOL *innerStop) {
-      NSComparisonResult expected = [@(i) compare:@(j)];
-      NSComparisonResult actual = comp(iObj, jObj);
+      ComparisonResult expected = util::Compare(i, j);
+      ComparisonResult actual = comp.Compare(iObj, jObj);
       XCTAssertEqual(actual, expected, @"Compared %@ to %@ at (%lu, %lu).", iObj, jObj,
                      (unsigned long)i, (unsigned long)j);
     }];

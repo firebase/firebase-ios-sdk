@@ -105,9 +105,9 @@ void QuerySnapshot::ForEachChange(
 
       HARD_ASSERT(change.type() == DocumentViewChange::Type::kAdded,
                   "Invalid event type for first snapshot");
-      HARD_ASSERT(!last_document || snapshot_.query().comparator(
-                                        last_document, change.document()) ==
-                                        NSOrderedAscending,
+      HARD_ASSERT(!last_document ||
+                      util::Ascending(snapshot_.query().comparator.Compare(
+                          last_document, change.document())),
                   "Got added events in wrong order");
 
       callback(DocumentChange(DocumentChange::Type::Added, std::move(document),

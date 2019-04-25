@@ -42,26 +42,11 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-/**
- * A C++ comparator that returns less-than, implemented by delegating to
- * an NSComparator.
- */
-class DocumentSetComparator {
+class DocumentComparator : public util::FunctionComparator<FSTDocument*> {
  public:
-  explicit DocumentSetComparator(NSComparator delegate = nil)
-      : delegate_(delegate) {
-  }
+  using FunctionComparator<FSTDocument*>::FunctionComparator;
 
-  util::ComparisonResult Compare(FSTDocument* lhs, FSTDocument* rhs) const {
-    return util::MakeComparisonResult(delegate_(lhs, rhs));
-  }
-
-  bool operator()(FSTDocument* lhs, FSTDocument* rhs) const {
-    return util::Ascending(Compare(lhs, rhs));
-  }
-
- private:
-  NSComparator delegate_;
+  static DocumentComparator ByKey();
 };
 
 /**
@@ -76,7 +61,7 @@ class DocumentSet : public immutable::SortedContainer {
    * The type of the main collection of documents in an DocumentSet.
    * @see sorted_set_.
    */
-  using SetType = immutable::SortedSet<FSTDocument*, DocumentSetComparator>;
+  using SetType = immutable::SortedSet<FSTDocument*, DocumentComparator>;
 
   // STL container types
   using value_type = FSTDocument*;
@@ -86,7 +71,7 @@ class DocumentSet : public immutable::SortedContainer {
    * Creates a new, empty DocumentSet sorted by the given comparator, then by
    * keys.
    */
-  explicit DocumentSet(NSComparator comparator);
+  explicit DocumentSet(DocumentComparator&& comparator);
 
   size_t size() const {
     return index_.size();

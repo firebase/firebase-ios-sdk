@@ -59,6 +59,7 @@ using firebase::firestore::core::Filter;
 using firebase::firestore::core::ParsedUpdateData;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::DocumentComparator;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentSet;
@@ -232,15 +233,15 @@ FSTSortOrder *FSTTestOrderBy(const absl::string_view field, NSString *direction)
   return [FSTSortOrder sortOrderWithFieldPath:path ascending:ascending];
 }
 
-NSComparator FSTTestDocComparator(const absl::string_view fieldPath) {
+DocumentComparator FSTTestDocComparator(const absl::string_view fieldPath) {
   FSTQuery *query = [FSTTestQuery("docs")
       queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:testutil::Field(fieldPath)
                                                         ascending:YES]];
   return [query comparator];
 }
 
-DocumentSet FSTTestDocSet(NSComparator comp, NSArray<FSTDocument *> *docs) {
-  DocumentSet docSet{comp};
+DocumentSet FSTTestDocSet(DocumentComparator comp, NSArray<FSTDocument *> *docs) {
+  DocumentSet docSet{std::move(comp)};
   for (FSTDocument *doc in docs) {
     docSet = docSet.insert(doc);
   }

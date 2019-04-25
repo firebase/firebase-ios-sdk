@@ -93,7 +93,4 @@ typedef NS_ENUM(NSInteger, FSTDocumentState) {
 + (instancetype)documentWithKey:(model::DocumentKey)key version:(model::SnapshotVersion)version;
 @end
 
-/** An NSComparator suitable for comparing docs using only their keys. */
-extern const NSComparator FSTDocumentComparatorByKey;
-
 NS_ASSUME_NONNULL_END

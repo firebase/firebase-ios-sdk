@@ -264,9 +264,4 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-const NSComparator FSTDocumentComparatorByKey =
-    ^NSComparisonResult(FSTMaybeDocument *doc1, FSTMaybeDocument *doc2) {
-      return util::WrapCompare(doc1.key, doc2.key);
-    };
-
 NS_ASSUME_NONNULL_END

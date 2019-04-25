@@ -26,6 +26,7 @@
 #include <cstdint>
 #include <functional>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/objc/objc_type_traits.h"
@@ -269,6 +270,27 @@ struct Comparator {
   ComparisonResult Compare(const T& lhs, const T& rhs) const {
     return impl::CompareImpl(lhs, rhs, impl::CompareChoice<0>{});
   }
+};
+
+/**
+ * A Comparator whose behavior is defined by a std::function.
+ */
+template <typename T>
+class FunctionComparator {
+ public:
+  using ComparisonFunction =
+      std::function<ComparisonResult(const T&, const T&)>;
+
+  explicit FunctionComparator(ComparisonFunction&& function)
+      : function_(std::move(function)) {
+  }
+
+  ComparisonResult Compare(const T& lhs, const T& rhs) const {
+    return function_(lhs, rhs);
+  }
+
+ private:
+  ComparisonFunction function_;
 };
 
 template <typename T>
