@@ -88,7 +88,7 @@ static NSInteger target = 1337;
   dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
     XCTAssertEqual([GDTStorage sharedInstance].storedEvents.count, 1);
     XCTAssertEqual([GDTStorage sharedInstance].targetToEventSet[@(target)].count, 1);
-    NSURL *eventFile = [[GDTStorage sharedInstance].storedEvents lastObject].eventFileURL;
+    NSURL *eventFile = [[GDTStorage sharedInstance].storedEvents lastObject].dataFuture.fileURL;
     XCTAssertNotNil(eventFile);
     XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:eventFile.path]);
     NSError *error;
@@ -107,7 +107,7 @@ static NSInteger target = 1337;
   }
   __block NSURL *eventFile;
   dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
-    eventFile = [[GDTStorage sharedInstance].storedEvents lastObject].eventFileURL;
+    eventFile = [[GDTStorage sharedInstance].storedEvents lastObject].dataFuture.fileURL;
     XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:eventFile.path]);
   });
   [[GDTStorage sharedInstance] removeEvents:[GDTStorage sharedInstance].storedEvents.set];
@@ -155,7 +155,8 @@ static NSInteger target = 1337;
     XCTAssertFalse([storage.storedEvents containsObject:storedEvent3]);
     XCTAssertEqual(storage.targetToEventSet[@(target)].count, 0);
     for (GDTStoredEvent *event in eventSet) {
-      XCTAssertFalse([[NSFileManager defaultManager] fileExistsAtPath:event.eventFileURL.path]);
+      XCTAssertFalse(
+          [[NSFileManager defaultManager] fileExistsAtPath:event.dataFuture.fileURL.path]);
     }
   });
 }
@@ -191,21 +192,21 @@ static NSInteger target = 1337;
     XCTAssertEqual([GDTStorage sharedInstance].storedEvents.count, 3);
     XCTAssertEqual([GDTStorage sharedInstance].targetToEventSet[@(target)].count, 3);
 
-    NSURL *event1File = storedEvent1.eventFileURL;
+    NSURL *event1File = storedEvent1.dataFuture.fileURL;
     XCTAssertNotNil(event1File);
     XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:event1File.path]);
     NSError *error;
     XCTAssertTrue([[NSFileManager defaultManager] removeItemAtURL:event1File error:&error]);
     XCTAssertNil(error, @"There was an error deleting the eventFile: %@", error);
 
-    NSURL *event2File = storedEvent2.eventFileURL;
+    NSURL *event2File = storedEvent2.dataFuture.fileURL;
     XCTAssertNotNil(event2File);
     XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:event2File.path]);
     error = nil;
     XCTAssertTrue([[NSFileManager defaultManager] removeItemAtURL:event2File error:&error]);
     XCTAssertNil(error, @"There was an error deleting the eventFile: %@", error);
 
-    NSURL *event3File = storedEvent3.eventFileURL;
+    NSURL *event3File = storedEvent3.dataFuture.fileURL;
     XCTAssertNotNil(event3File);
     XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:event3File.path]);
     error = nil;
@@ -225,7 +226,9 @@ static NSInteger target = 1337;
 
     // Store the event and wait for the expectation.
     [[GDTStorage sharedInstance] storeEvent:event];
-    storedEvent = [event storedEventWithFileURL:[NSURL fileURLWithPath:@"/test"]];
+    GDTDataFuture *dataFuture =
+        [[GDTDataFuture alloc] initWithFileURL:[NSURL fileURLWithPath:@"/test"]];
+    storedEvent = [event storedEventWithDataFuture:dataFuture];
   }
   dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
     XCTAssertNil(weakEvent);
@@ -233,7 +236,7 @@ static NSInteger target = 1337;
   });
 
   NSURL *eventFile;
-  eventFile = [[GDTStorage sharedInstance].storedEvents lastObject].eventFileURL;
+  eventFile = [[GDTStorage sharedInstance].storedEvents lastObject].dataFuture.fileURL;
 
   // This isn't strictly necessary because of the -waitForExpectations above.
   dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
@@ -302,7 +305,7 @@ static NSInteger target = 1337;
     XCTAssertTrue(self.uploaderFake.forceUploadCalled);
     XCTAssertEqual([GDTStorage sharedInstance].storedEvents.count, 1);
     XCTAssertEqual([GDTStorage sharedInstance].targetToEventSet[@(target)].count, 1);
-    NSURL *eventFile = [[GDTStorage sharedInstance].storedEvents lastObject].eventFileURL;
+    NSURL *eventFile = [[GDTStorage sharedInstance].storedEvents lastObject].dataFuture.fileURL;
     XCTAssertNotNil(eventFile);
     XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:eventFile.path]);
     NSError *error;

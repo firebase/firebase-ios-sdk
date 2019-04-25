@@ -21,12 +21,6 @@ import Foundation
 public enum CocoaPodUtils {
   // MARK: - Public API
 
-  /// Errors associated with generating or installing subspecs.
-  public enum PodfileError: Error {
-    /// No subspecs were specified to install.
-    case noSubspecs
-  }
-
   /// Information associated with an installed pod.
   public struct PodInfo {
     /// Public name of the pod.
@@ -117,32 +111,33 @@ public enum CocoaPodUtils {
     return installedPods
   }
 
-  /// Install an array of subspecs from the Firebase pod in a specific directory, returning an array
-  /// of PodInfo for each pod that was installed.
+  /// Install an array of pods in a specific directory, returning an array of PodInfo for each pod
+  /// that was installed.
   @discardableResult
-  public static func installSubspecs(_ subspecs: [Subspec],
-                                     inDir directory: URL,
-                                     customSpecRepos: [URL]? = nil) -> [PodInfo] {
+  public static func installPods(_ pods: [CocoaPod],
+                                 inDir directory: URL,
+                                 customSpecRepos: [URL]? = nil) -> [PodInfo] {
     let fileManager = FileManager.default
     // Ensure the directory exists, otherwise we can't install all subspecs.
     guard fileManager.directoryExists(at: directory) else {
-      fatalError("Attempted to install subpecs (\(subspecs)) in a directory that doesn't exist: \(directory)")
+      fatalError("Attempted to install subpecs (\(pods)) in a directory that doesn't exist: " +
+        "\(directory)")
     }
 
     // Ensure there are actual podspecs to install.
-    guard !subspecs.isEmpty else {
+    guard !pods.isEmpty else {
       fatalError("Attempted to install an empty array of subspecs")
     }
 
     // Attempt to write the Podfile to disk.
     do {
-      try writePodfile(for: subspecs, toDirectory: directory, customSpecRepos: customSpecRepos)
+      try writePodfile(for: pods, toDirectory: directory, customSpecRepos: customSpecRepos)
     } catch let FileManager.FileError.directoryNotFound(path) {
-      fatalError("Failed to write Podfile with subspecs \(subspecs) at path \(path)")
+      fatalError("Failed to write Podfile with pods \(pods) at path \(path)")
     } catch let FileManager.FileError.writeToFileFailed(path, error) {
-      fatalError("Failed to write Podfile for all subspecs at path: \(path), error: \(error)")
+      fatalError("Failed to write Podfile for all pods at path: \(path), error: \(error)")
     } catch {
-      fatalError("Unspecified error writing Podfile for all subspecs to disk: \(error)")
+      fatalError("Unspecified error writing Podfile for all pods to disk: \(error)")
     }
 
     // Run pod install on the directory that contains the Podfile and blank Xcode project.
@@ -150,8 +145,8 @@ public enum CocoaPodUtils {
     switch result {
     case let .error(code, output):
       fatalError("""
-      `pod install` failed with exit code \(code) while trying to install subspecs:
-      \(subspecs)
+      `pod install` failed with exit code \(code) while trying to install pods:
+      \(pods)
 
       Output from `pod install`:
       \(output)
@@ -302,10 +297,10 @@ public enum CocoaPodUtils {
 
   /// Create the contents of a Podfile for an array of subspecs. This assumes the array of subspecs
   /// is not empty.
-  private static func generatePodfile(for subspecs: [Subspec],
+  private static func generatePodfile(for pods: [CocoaPod],
                                       customSpecsRepos: [URL]? = nil) -> String {
     // Get the largest minimum supported iOS version from the array of subspecs.
-    let minVersions = subspecs.map { $0.minSupportedIOSVersion() }
+    let minVersions = pods.map { $0.minSupportedIOSVersion() }
 
     // Get the maximum version out of all the minimum versions supported.
     guard let largestMinVersion = minVersions.max() else {
@@ -339,8 +334,8 @@ public enum CocoaPodUtils {
     """
 
     // Loop through the subspecs passed in and use the rawValue (actual Pod name).
-    for subspec in subspecs {
-      podfile += "  pod 'Firebase/\(subspec.rawValue)'\n"
+    for pod in pods {
+      podfile += "  pod '\(pod.podName)'\n"
     }
 
     podfile += "end"
@@ -384,9 +379,9 @@ public enum CocoaPodUtils {
     return podsCache
   }
 
-  /// Write a podfile that contains all the subspecs passed in to the directory passed in with a
-  /// name "Podfile".
-  private static func writePodfile(for subspecs: [Subspec],
+  /// Write a podfile that contains all the pods passed in to the directory passed in with a name
+  /// "Podfile".
+  private static func writePodfile(for pods: [CocoaPod],
                                    toDirectory directory: URL,
                                    customSpecRepos: [URL]?) throws {
     guard FileManager.default.directoryExists(at: directory) else {
@@ -396,7 +391,7 @@ public enum CocoaPodUtils {
 
     // Generate the full path of the Podfile and attempt to write it to disk.
     let path = directory.appendingPathComponent("Podfile")
-    let podfile = generatePodfile(for: subspecs, customSpecsRepos: customSpecRepos)
+    let podfile = generatePodfile(for: pods, customSpecsRepos: customSpecRepos)
     do {
       try podfile.write(toFile: path.path, atomically: true, encoding: .utf8)
     } catch {

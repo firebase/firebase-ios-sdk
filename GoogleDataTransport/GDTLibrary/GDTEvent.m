@@ -63,8 +63,8 @@
   }
 }
 
-- (GDTStoredEvent *)storedEventWithFileURL:(NSURL *)fileURL {
-  return [[GDTStoredEvent alloc] initWithFileURL:fileURL event:self];
+- (GDTStoredEvent *)storedEventWithDataFuture:(GDTDataFuture *)dataFuture {
+  return [[GDTStoredEvent alloc] initWithEvent:self dataFuture:dataFuture];
 }
 
 #pragma mark - NSSecureCoding and NSCoding Protocols
