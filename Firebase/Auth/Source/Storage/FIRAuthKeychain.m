@@ -119,7 +119,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - Private methods for non-sharing keychain operations
 
-- (NSData *)itemWithQuery:(NSDictionary *)query error:(NSError **_Nullable)error {
+- (nullable NSData *)itemWithQuery:(NSDictionary *)query error:(NSError **_Nullable)error {
   NSMutableDictionary *returningQuery = [query mutableCopy];
   returningQuery[(__bridge id)kSecReturnData] = @YES;
   returningQuery[(__bridge id)kSecReturnAttributes] = @YES;
@@ -233,7 +233,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - Private methods for shared keychain operations
 
-- (NSData *)getItemWithQuery:(NSDictionary *)query error:(NSError *_Nullable *_Nullable)outError {
+- (nullable NSData *)getItemWithQuery:(NSDictionary *)query
+                                error:(NSError *_Nullable *_Nullable)outError {
   NSMutableDictionary *mutableQuery = [query mutableCopy];
 
   mutableQuery[(__bridge id)kSecReturnData] = @YES;

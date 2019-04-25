@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)recreateAppAtIndex:(int)index
                withOptions:(nullable FIROptions *)options
-                completion:(void (^)())completion;
+                completion:(void (^)(void))completion;
 
 /** @fn sharedInstance
     @brief Gets a shared instance of the class.
