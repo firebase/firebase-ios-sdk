@@ -100,6 +100,7 @@ template <typename ObjcType>
 class Handle : public HandleBase {
  public:
   Handle() = default;
+
 #if __OBJC__
   explicit Handle(ObjcType* object) : HandleBase(object) {
   }
@@ -132,7 +133,7 @@ class Handle : public HandleBase {
   }
 
   friend bool operator==(const Handle& lhs, ObjcType* rhs) {
-    return Equals(lhs.object_, rhs);
+    return Equals(static_cast<ObjcType*>(lhs.object_), rhs);
   }
 
   friend bool operator!=(const Handle& lhs, ObjcType* rhs) {

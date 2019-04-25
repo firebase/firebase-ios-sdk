@@ -36,6 +36,14 @@ using model::TargetId;
 using util::MakeStatus;
 using util::Status;
 
+QueryListener::QueryListener(FSTQuery* query,
+                             ListenOptions options,
+                             ViewSnapshot::SharedListener&& listener)
+    : query_(query),
+      options_(std::move(options)),
+      listener_(std::move(listener)) {
+}
+
 FSTQuery* QueryListener::query() const {
   return query_;
 }

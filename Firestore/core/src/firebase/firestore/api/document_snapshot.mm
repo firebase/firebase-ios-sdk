@@ -32,6 +32,27 @@ namespace api {
 using model::DocumentKey;
 using model::FieldPath;
 
+DocumentSnapshot::DocumentSnapshot(std::shared_ptr<Firestore> firestore,
+                                   model::DocumentKey document_key,
+                                   FSTDocument* _Nullable document,
+                                   SnapshotMetadata metadata)
+    : firestore_{std::move(firestore)},
+      internal_key_{std::move(document_key)},
+      internal_document_{document},
+      metadata_{std::move(metadata)} {
+}
+
+DocumentSnapshot::DocumentSnapshot(std::shared_ptr<Firestore> firestore,
+                                   model::DocumentKey document_key,
+                                   FSTDocument* _Nullable document,
+                                   bool from_cache,
+                                   bool has_pending_writes)
+    : firestore_{std::move(firestore)},
+      internal_key_{std::move(document_key)},
+      internal_document_{document},
+      metadata_{has_pending_writes, from_cache} {
+}
+
 size_t DocumentSnapshot::Hash() const {
   return util::Hash(firestore_.get(), internal_key_, internal_document_,
                     metadata_);

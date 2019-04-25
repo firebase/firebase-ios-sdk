@@ -56,11 +56,7 @@ class ListenerRegistration {
       FSTFirestoreClient* client,
       std::shared_ptr<core::AsyncEventListener<core::ViewSnapshot>>
           async_listener,
-      std::shared_ptr<core::QueryListener> query_listener)
-      : client_(client),
-        async_listener_(std::move(async_listener)),
-        query_listener_(std::move(query_listener)) {
-  }
+      std::shared_ptr<core::QueryListener> query_listener);
 
   /**
    * Removes the listener being tracked by this FIRListenerRegistration. After

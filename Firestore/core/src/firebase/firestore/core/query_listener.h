@@ -71,11 +71,7 @@ class QueryListener {
 
   QueryListener(FSTQuery* query,
                 ListenOptions options,
-                ViewSnapshot::SharedListener&& listener)
-      : query_(query),
-        options_(std::move(options)),
-        listener_(std::move(listener)) {
-  }
+                ViewSnapshot::SharedListener&& listener);
 
   virtual ~QueryListener() {
   }

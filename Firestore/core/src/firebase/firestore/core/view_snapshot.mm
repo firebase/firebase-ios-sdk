@@ -38,6 +38,10 @@ using util::StringFormat;
 
 // DocumentViewChange
 
+DocumentViewChange::DocumentViewChange(FSTDocument* document, Type type)
+    : document_{document}, type_{type} {
+}
+
 FSTDocument* DocumentViewChange::document() const {
   return document_;
 }

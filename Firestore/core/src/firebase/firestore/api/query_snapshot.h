@@ -44,12 +44,7 @@ class QuerySnapshot {
   QuerySnapshot(std::shared_ptr<Firestore> firestore,
                 FSTQuery* query,
                 core::ViewSnapshot&& snapshot,
-                SnapshotMetadata metadata)
-      : firestore_(firestore),
-        internal_query_(query),
-        snapshot_(std::move(snapshot)),
-        metadata_(std::move(metadata)) {
-  }
+                SnapshotMetadata metadata);
 
   size_t Hash() const;
 

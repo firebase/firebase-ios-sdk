@@ -53,9 +53,7 @@ class DocumentViewChange {
 
   DocumentViewChange() = default;
 
-  DocumentViewChange(FSTDocument* document, Type type)
-      : document_{document}, type_{type} {
-  }
+  DocumentViewChange(FSTDocument* document, Type type);
 
   FSTDocument* document() const;
   DocumentViewChange::Type type() const {
