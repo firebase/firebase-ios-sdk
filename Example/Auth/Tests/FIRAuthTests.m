@@ -28,7 +28,8 @@
 #import <FirebaseCore/FIRComponent.h>
 #import <FirebaseCore/FIRLibrary.h>
 
-#import <GoogleUtilities/GULAppDelegateSwizzler.h>
+#import <GoogleUtilities/GULAppDelegateSwizzler_Private.h>
+#import <GoogleNotificationUtilities/GULAppDelegateSwizzler+Notifications.h>
 
 #import "FIRAdditionalUserInfo.h"
 #import "FIRAuth_Internal.h"
@@ -272,10 +273,6 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
 
 #endif // TARGET_OS_IOS
 
-@interface GULAppDelegateSwizzler (FIRMessagingRemoteNotificationsProxyTest)
-+ (void)resetProxyOriginalDelegateOnceToken;
-@end
-
 /** Category for FIRAuth to expose FIRComponentRegistrant conformance. */
 @interface FIRAuth () <FIRLibrary>
 @end
@@ -334,6 +331,7 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
 #if TARGET_OS_IOS
   // Make sure the `self.fakeApplicationDelegate` will be swizzled on FIRAuth init.
   [GULAppDelegateSwizzler resetProxyOriginalDelegateOnceToken];
+  [GULAppDelegateSwizzler resetProxyOriginalDelegateIncludingAPNSMethodsOnceToken];
 
   self.fakeApplicationDelegate = [[FIRAuthAppDelegate alloc] init];
   self.mockApplication = OCMPartialMock([UIApplication sharedApplication]);
