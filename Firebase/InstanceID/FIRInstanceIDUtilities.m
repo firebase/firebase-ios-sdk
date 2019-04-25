@@ -188,7 +188,7 @@ NSString *FIRInstanceIDCurrentLocale() {
     return systemLanguage;
   }
 
-  if (@available(iOS 10.0, *)) {
+  if (@available(macOS 10.12, iOS 10.0, *)) {
     return [NSLocale currentLocale].languageCode;
   } else {
     return nil;
