@@ -31,9 +31,8 @@ HandleBase::HandleBase(id object) : object_(object) {
 HandleBase::HandleBase(const HandleBase& other) : object_(other.object_) {
 }
 
-HandleBase::HandleBase(HandleBase&& other) noexcept : object_(nil) {
-  using std::swap;
-  swap(object_, other.object_);
+HandleBase::HandleBase(HandleBase&& other) noexcept : object_(other.object_) {
+  other.Release();
 }
 
 HandleBase::~HandleBase() {
@@ -46,8 +45,8 @@ HandleBase& HandleBase::operator=(const HandleBase& other) {
 }
 
 HandleBase& HandleBase::operator=(HandleBase&& other) noexcept {
-  using std::swap;
-  swap(object_, other.object_);
+  object_ = other.object_;
+  other.Release();
   return *this;
 }
 
