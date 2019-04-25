@@ -27,5 +27,5 @@ Pod::Spec.new do |s|
   s.source_files = 'GoogleNotificationUtilities/AppDelegateSwizzler_Notifications/**/*.[mh]'
   s.public_header_files = 'GoogleNotificationUtilities/AppDelegateSwizzler_Notifications/*.h'
   s.dependency 'GoogleUtilities/AppDelegateSwizzler' # TODO: Uncomment , '~> 7.0'
-  
+
 end
