@@ -123,14 +123,22 @@
   XCTAssertEqual([GDTStorage sharedInstance].storedEvents.count, 0);
   XCTAssertEqual([GDTStorage sharedInstance].targetToEventSet.count, 0);
 
-  // Generate some events data.
-  [self generateEvents];
 
-  // Confirm events are on disk.
-  dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
-    XCTAssertGreaterThan([GDTStorage sharedInstance].storedEvents.count, 0);
-    XCTAssertGreaterThan([GDTStorage sharedInstance].targetToEventSet.count, 0);
-  });
+  for (int i = 0; i < 5; i++) {
+    __block BOOL eventsFoundOnDisk = NO;
+
+    // Generate some events data.
+    [self generateEvents];
+
+    // Confirm events are on disk. This is written this way because it can be a flaky check.
+    dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
+      eventsFoundOnDisk = [GDTStorage sharedInstance].storedEvents.count > 0 &&
+                          [GDTStorage sharedInstance].targetToEventSet.count > 0;
+    });
+    if (eventsFoundOnDisk) {
+      break;
+    }
+  }
 
   // Confirm events were sent and received.
   [self waitForExpectations:@[ expectation ] timeout:10.0];
@@ -162,7 +170,7 @@
 
 /** Generates a bunch of random events. */
 - (void)generateEvents {
-  for (int i = 0; i < 50; i++) {
+  for (int i = 0; i < arc4random_uniform(10); i++) {
     // Choose a random transport, and randomly choose if it's a telemetry event.
     GDTTransport *transport = arc4random_uniform(2) ? self.transport1 : self.transport2;
     BOOL isTelemetryEvent = arc4random_uniform(2);
