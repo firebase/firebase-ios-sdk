@@ -19,7 +19,7 @@
 
 #include <objc/objc.h>
 
-#include <functional>
+#include "Firestore/core/src/firebase/firestore/objc/objc_compatibility.h"
 
 namespace firebase {
 namespace firestore {
@@ -61,7 +61,7 @@ namespace objc {
 // An alternative implementation would be to make this an alias for objc_object.
 // While that's appealing because it makes interaction with functions taking id
 // easier, any parameters of that type will be mangled differently in C++ vs
-// Objective-C++ leading undefined symbol errors at link time.
+// Objective-C++ leading to undefined symbol errors at link time.
 #define OBJC_CLASS(name) struct name
 #endif  // __OBJC__
 
@@ -73,10 +73,15 @@ namespace objc {
 class HandleBase {
  public:
   HandleBase();
+  HandleBase(const HandleBase& other);
+  HandleBase(HandleBase&& other) noexcept;
 
   explicit HandleBase(id object);
 
   ~HandleBase();
+
+  HandleBase& operator=(const HandleBase& other);
+  HandleBase& operator=(HandleBase&& other) noexcept;
 
   void Assign(id object);
 
@@ -95,18 +100,25 @@ template <typename ObjcType>
 class Handle : public HandleBase {
  public:
   Handle() = default;
-
+#if __OBJC__
   explicit Handle(ObjcType* object) : HandleBase(object) {
   }
 
-#if __OBJC__
+  // In most cases, just using the handle as an Objective-C pointer works.
   operator ObjcType*() const {
+    return get();
+  }
+
+  // Explicit conversion to the Objective-C pointer type is required when
+  // accessing Objective-C properties. C++ doesn't have an operator overload
+  // that makes that work, and the compiler doesn't attempt to coerce to the
+  // Objective-C type to find it.
+  ObjcType* get() const {
     return static_cast<ObjcType*>(object_);
   }
 
   friend bool operator==(const Handle& lhs, const Handle& rhs) {
-    return (lhs.object_ == nil && rhs.object_ == nil) ||
-           [lhs.object_ isEqual:rhs.object_];
+    return Equals(lhs.object_, rhs.object_);
   }
 
   friend bool operator!=(const Handle& lhs, const Handle& rhs) {
@@ -114,7 +126,7 @@ class Handle : public HandleBase {
   }
 
   friend bool operator==(const Handle& lhs, ObjcType* rhs) {
-    return (lhs.object_ == nil && rhs == nil) || [lhs.object_ isEqual:rhs];
+    return Equals(lhs.object_, rhs);
   }
 
   friend bool operator!=(const Handle& lhs, ObjcType* rhs) {

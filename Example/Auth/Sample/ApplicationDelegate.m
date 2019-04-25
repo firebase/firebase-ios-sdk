@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,8 +83,8 @@ static __weak id<OpenURLDelegate> gOpenURLDelegate;
 }
 
 - (BOOL)application:(UIApplication *)application
-   continueUserActivity:(NSUserActivity *)userActivity
-     restorationHandler:(void (^)(NSArray *))restorationHandler {
+continueUserActivity:(NSUserActivity *)userActivity
+ restorationHandler:(void (^)(NSArray<id<UIUserActivityRestoring>> * _Nullable))restorationHandler {
   if (userActivity.webpageURL) {
     return [_sampleAppMainViewController handleIncomingLinkWithURL:userActivity.webpageURL];
   }

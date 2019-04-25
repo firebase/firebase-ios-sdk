@@ -95,7 +95,8 @@ static NSString *GDTStoragePath() {
     GDTAssert(event.dataObjectTransportBytes, @"The event should have been serialized to bytes");
     NSURL *eventFile = [self saveEventBytesToDisk:event.dataObjectTransportBytes
                                         eventHash:event.hash];
-    GDTStoredEvent *storedEvent = [event storedEventWithFileURL:eventFile];
+    GDTDataFuture *dataFuture = [[GDTDataFuture alloc] initWithFileURL:eventFile];
+    GDTStoredEvent *storedEvent = [event storedEventWithDataFuture:dataFuture];
 
     // Add event to tracking collections.
     [self addEventToTrackingCollections:storedEvent];
@@ -128,10 +129,13 @@ static NSString *GDTStoragePath() {
     for (GDTStoredEvent *event in eventsToRemove) {
       // Remove from disk, first and foremost.
       NSError *error;
-      [[NSFileManager defaultManager] removeItemAtURL:event.eventFileURL error:&error];
-      GDTAssert(error == nil, @"There was an error removing an event file: %@", error);
-      GDTAssert([GDTRegistrar sharedInstance].targetToPrioritizer[event.target] == prioritizer,
-                @"All logs within an upload set should have the same prioritizer.");
+      if (event.dataFuture.fileURL) {
+        NSURL *fileURL = event.dataFuture.fileURL;
+        [[NSFileManager defaultManager] removeItemAtURL:fileURL error:&error];
+        GDTAssert(error == nil, @"There was an error removing an event file: %@", error);
+        GDTAssert([GDTRegistrar sharedInstance].targetToPrioritizer[event.target] == prioritizer,
+                  @"All logs within an upload set should have the same prioritizer.");
+      }
 
       // Remove from the tracking collections.
       [self.storedEvents removeObject:event];

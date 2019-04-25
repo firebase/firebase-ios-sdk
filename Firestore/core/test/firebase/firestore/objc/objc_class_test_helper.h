@@ -17,35 +17,53 @@
 #ifndef FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_OBJC_OBJC_CLASS_TEST_HELPER_H_
 #define FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_OBJC_OBJC_CLASS_TEST_HELPER_H_
 
-#include <cstddef>
+#include <functional>
 #include <string>
 
 #include "Firestore/core/src/firebase/firestore/objc/objc_class.h"
 
-OBJC_CLASS(FSTObjcClassTestHelper);
+OBJC_CLASS(FSTObjcClassTestValue);
 
 namespace firebase {
 namespace firestore {
 namespace objc {
 
-class ObjcClassTester {
+struct AllocationTracker {
+  int init_calls = 0;
+  int dealloc_calls = 0;
+
+  /**
+   * Runs the given code block in an autorelease pool to prevent Clang's
+   * generation of implicit `autorelease` calls from interfering with the test.
+   *
+   * Checking whether or not an object is deallocated after the a release is
+   * fragile. The problem is that Clang will sometimes infer that an object
+   * should be added to the autorelease pool which typically extends the
+   * lifetime of the object beyond the duration of the test. While this process
+   * is predictable, it's also highly opaque and we're better off avoiding any
+   * dependency on that behavior at all.
+   *
+   * Instead, at any point where you want to check that a deallocation happens,
+   * do so after the close of a ScopedRun block. ScopedRun runs the given
+   * callback in an explicit AutoRelease pool, and this guarantees that even if
+   * Clang does autorelease the deallocation will actually happen by the time
+   * ScopedRun returns.
+   */
+  void ScopedRun(const std::function<void()>& callback);
+};
+
+class ObjcClassWrapper {
  public:
-  /** Creates the tester with a backing test helper. */
-  ObjcClassTester();
+  /** Creates the tester with no backing test value. */
+  explicit ObjcClassWrapper(AllocationTracker* tracker = nullptr);
 
-  /** Creates the tester with no backing test helper. */
-  explicit ObjcClassTester(std::nullptr_t);
+  void CreateValue(AllocationTracker* tracker = nullptr);
 
-  /** Creates a new, unmanaged test helper. */
-  static FSTObjcClassTestHelper* CreateHelper();
-
-  void set_helper(FSTObjcClassTestHelper* helper);
+  void SetValue(Handle<FSTObjcClassTestValue> helper);
 
   std::string ToString() const;
 
-  int init_calls = 0;
-  int dealloc_calls = 0;
-  Handle<FSTObjcClassTestHelper> handle;
+  Handle<FSTObjcClassTestValue> handle;
 };
 
 }  // namespace objc

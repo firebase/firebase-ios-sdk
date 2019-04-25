@@ -271,7 +271,7 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?";
       callback(nil, error);
       return;
     }
-    FIRSendVerificationCodeRequest *request;
+    FIRSendVerificationCodeRequest * _Nullable request;
     if (appCredential) {
       request =
           [[FIRSendVerificationCodeRequest alloc]
@@ -287,28 +287,30 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?";
                    reCAPTCHAToken:reCAPTCHAToken
              requestConfiguration:self->_auth.requestConfiguration];
     }
-    [FIRAuthBackend sendVerificationCode:request
-                                callback:^(FIRSendVerificationCodeResponse *_Nullable response,
-                                           NSError *_Nullable error) {
-      if (error) {
-        if (error.code == FIRAuthErrorCodeInvalidAppCredential) {
-          if (retryOnInvalidAppCredential) {
-            [self->_auth.appCredentialManager clearCredential];
-            [self verifyClientAndSendVerificationCodeToPhoneNumber:phoneNumber
-                                       retryOnInvalidAppCredential:NO
-                                                        UIDelegate:UIDelegate
-                                                          callback:callback];
+    if (request) {
+      [FIRAuthBackend sendVerificationCode:request
+                                  callback:^(FIRSendVerificationCodeResponse *_Nullable response,
+                                             NSError *_Nullable error) {
+        if (error) {
+          if (error.code == FIRAuthErrorCodeInvalidAppCredential) {
+            if (retryOnInvalidAppCredential) {
+              [self->_auth.appCredentialManager clearCredential];
+              [self verifyClientAndSendVerificationCodeToPhoneNumber:phoneNumber
+                                         retryOnInvalidAppCredential:NO
+                                                          UIDelegate:UIDelegate
+                                                            callback:callback];
+              return;
+            }
+            callback(nil, [FIRAuthErrorUtils unexpectedResponseWithDeserializedResponse:nil
+                                                                        underlyingError:error]);
             return;
           }
-          callback(nil, [FIRAuthErrorUtils unexpectedResponseWithDeserializedResponse:nil
-                                                                      underlyingError:error]);
+          callback(nil, error);
           return;
         }
-        callback(nil, error);
-        return;
-      }
-      callback(response.verificationID, nil);
-    }];
+        callback(response.verificationID, nil);
+      }];
+    }
   }];
 }
 
@@ -436,7 +438,9 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?";
     NSURLComponents *components = [[NSURLComponents alloc] initWithString:
       [NSString stringWithFormat:kReCAPTCHAURLStringFormat, authDomain]];
     [components setQueryItems:queryItems];
-    completion([components URL], nil);
+    if (completion) {
+      completion([components URL], nil);
+    }
   }];
 }
 

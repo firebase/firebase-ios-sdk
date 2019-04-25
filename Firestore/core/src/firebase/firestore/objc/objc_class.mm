@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/objc/objc_class.h"
 
+#include <utility>
+
 namespace firebase {
 namespace firestore {
 namespace objc {
@@ -26,8 +28,26 @@ HandleBase::HandleBase() : object_(nil) {
 HandleBase::HandleBase(id object) : object_(object) {
 }
 
+HandleBase::HandleBase(const HandleBase& other) : object_(other.object_) {
+}
+
+HandleBase::HandleBase(HandleBase&& other) noexcept : object_(other.object_) {
+  other.Release();
+}
+
 HandleBase::~HandleBase() {
   Release();
+}
+
+HandleBase& HandleBase::operator=(const HandleBase& other) {
+  object_ = other.object_;
+  return *this;
+}
+
+HandleBase& HandleBase::operator=(HandleBase&& other) noexcept {
+  object_ = other.object_;
+  other.Release();
+  return *this;
 }
 
 void HandleBase::Assign(id object) {
@@ -35,7 +55,7 @@ void HandleBase::Assign(id object) {
 }
 
 void HandleBase::Release() {
-  Assign(nil);
+  object_ = nil;
 }
 
 }  // namespace objc
