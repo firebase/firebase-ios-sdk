@@ -19,8 +19,6 @@
 #   - PROJECT - Firebase or Firestore
 #   - METHOD - xcodebuild or cmake; default is xcodebuild
 
-set -ev
-
 bundle install
 
 case "$PROJECT-$PLATFORM-$METHOD" in
