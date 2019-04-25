@@ -43,6 +43,20 @@ using core::DocumentViewChange;
 using core::ViewSnapshot;
 using model::DocumentSet;
 
+QuerySnapshot::QuerySnapshot(std::shared_ptr<Firestore> firestore,
+                             FSTQuery* query,
+                             core::ViewSnapshot&& snapshot,
+                             SnapshotMetadata metadata)
+    : firestore_(firestore),
+      internal_query_(query),
+      snapshot_(std::move(snapshot)),
+      metadata_(std::move(metadata)) {
+}
+
+FSTQuery* QuerySnapshot::internal_query() const {
+  return internal_query_;
+}
+
 bool operator==(const QuerySnapshot& lhs, const QuerySnapshot& rhs) {
   return lhs.firestore_ == rhs.firestore_ &&
          objc::Equals(lhs.internal_query_, rhs.internal_query_) &&
