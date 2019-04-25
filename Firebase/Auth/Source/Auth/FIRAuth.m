@@ -1677,9 +1677,9 @@ didReceiveRemoteNotification:(NSDictionary *)userInfo {
     @param callback Called when the user has been signed in or when an error occurred. Invoked
         asynchronously on the global auth work queue in the future.
  */
-- (void)completeSignInWithAccessToken:(NSString *)accessToken
-            accessTokenExpirationDate:(NSDate *)accessTokenExpirationDate
-                         refreshToken:(NSString *)refreshToken
+- (void)completeSignInWithAccessToken:(nullable NSString *)accessToken
+            accessTokenExpirationDate:(nullable NSDate *)accessTokenExpirationDate
+                         refreshToken:(nullable NSString *)refreshToken
                             anonymous:(BOOL)anonymous
                              callback:(FIRAuthResultCallback)callback {
   [FIRUser retrieveUserWithAuth:self
@@ -1800,7 +1800,7 @@ didReceiveRemoteNotification:(NSDictionary *)userInfo {
     @param outError Return value for any error which occurs.
     @return @YES on success, @NO otherwise.
  */
-- (BOOL)saveUser:(FIRUser *)user
+- (BOOL)saveUser:(nullable FIRUser *)user
            error:(NSError *_Nullable *_Nullable)outError {
   BOOL success;
 
@@ -2014,8 +2014,8 @@ didReceiveRemoteNotification:(NSDictionary *)userInfo {
   return YES;
 }
 
-- (FIRUser *)getStoredUserForAccessGroup:(NSString *_Nullable)accessGroup
-                                   error:(NSError *_Nullable *_Nullable)outError {
+- (nullable FIRUser *)getStoredUserForAccessGroup:(NSString *_Nullable)accessGroup
+                                            error:(NSError *_Nullable *_Nullable)outError {
   FIRUser *user;
   if (!accessGroup) {
     NSString *userKey = [NSString stringWithFormat:kUserKey, _firebaseAppName];

@@ -15,6 +15,7 @@
  */
 
 #import "GDTClock.h"
+#import "GDTDataFuture.h"
 #import "GDTEvent.h"
 #import "GDTEventDataObject.h"
 #import "GDTEventTransformer.h"
@@ -22,5 +23,7 @@
 #import "GDTPrioritizer.h"
 #import "GDTRegistrar.h"
 #import "GDTStoredEvent.h"
+#import "GDTTargets.h"
 #import "GDTTransport.h"
+#import "GDTUploadPackage.h"
 #import "GDTUploader.h"

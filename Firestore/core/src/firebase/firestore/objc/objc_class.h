@@ -19,8 +19,6 @@
 
 #include <objc/objc.h>
 
-#include <functional>
-
 #include "Firestore/core/src/firebase/firestore/objc/objc_compatibility.h"
 
 namespace firebase {
