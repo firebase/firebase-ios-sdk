@@ -123,7 +123,6 @@
   XCTAssertEqual([GDTStorage sharedInstance].storedEvents.count, 0);
   XCTAssertEqual([GDTStorage sharedInstance].targetToEventSet.count, 0);
 
-
   for (int i = 0; i < 5; i++) {
     __block BOOL eventsFoundOnDisk = NO;
 
