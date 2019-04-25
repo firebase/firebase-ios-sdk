@@ -17,12 +17,12 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_API_FIRESTORE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_API_FIRESTORE_H_
 
+#include <dispatch/dispatch.h>
+
 #include <memory>
 #include <mutex>  // NOLINT(build/c++11)
 #include <string>
 #include <utility>
-
-#include <dispatch/dispatch.h>
 
 #include "Firestore/core/src/firebase/firestore/api/settings.h"
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
