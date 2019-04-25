@@ -19,6 +19,8 @@
 #   - PROJECT - Firebase or Firestore
 #   - METHOD - xcodebuild or cmake; default is xcodebuild
 
+set -ev
+
 bundle install
 
 case "$PROJECT-$PLATFORM-$METHOD" in
@@ -27,6 +29,7 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     bundle exec pod install --project-directory=Example --repo-update
     bundle exec pod install --project-directory=Functions/Example
     bundle exec pod install --project-directory=GoogleUtilities/Example
+    bundle exec pod install --project-directory=GoogleNotificationUtilities/Example
 
     # Set up GoogleService-Info.plist for Storage and Database integration tests. The decrypting
     # is not supported for pull requests. See https://docs.travis-ci.com/user/encrypting-files/
