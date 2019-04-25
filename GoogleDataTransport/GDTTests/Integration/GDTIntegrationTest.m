@@ -28,8 +28,8 @@
 #import "GDTTests/Integration/TestServer/GDTTestServer.h"
 
 #import "GDTLibrary/Private/GDTReachability_Private.h"
-#import "GDTLibrary/Private/GDTTransformer_Private.h"
 #import "GDTLibrary/Private/GDTStorage_Private.h"
+#import "GDTLibrary/Private/GDTTransformer_Private.h"
 
 /** A test-only event data object used in this integration test. */
 @interface GDTIntegrationTestEvent : NSObject <GDTEventDataObject>
@@ -124,12 +124,12 @@
   XCTAssertEqual([GDTStorage sharedInstance].storedEvents.count, 0);
   XCTAssertEqual([GDTStorage sharedInstance].targetToEventSet.count, 0);
 
-
   // Generate some events data.
   [self generateEvents];
 
   // Flush the transformer queue.
-  dispatch_sync([GDTTransformer sharedInstance].eventWritingQueue, ^{});
+  dispatch_sync([GDTTransformer sharedInstance].eventWritingQueue, ^{
+                });
 
   // Confirm events are on disk.
   dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
