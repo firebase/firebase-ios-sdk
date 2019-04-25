@@ -238,4 +238,4 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
 
 @end
 
-#endif // TARGET_OS_IOS || TARGET_OS_TV
+#endif  // TARGET_OS_IOS || TARGET_OS_TV
