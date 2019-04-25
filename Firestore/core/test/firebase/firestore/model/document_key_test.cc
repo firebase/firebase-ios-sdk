@@ -21,6 +21,7 @@
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/util/comparison.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 #include "gtest/gtest.h"
 
@@ -154,7 +155,8 @@ TEST(DocumentKey, Comparison) {
 TEST(DocumentKey, Comparator) {
   DocumentKey abcd = Key("a/b/c/d");
   DocumentKey xyzw = Key("x/y/z/w");
-  EXPECT_TRUE(util::Comparator<DocumentKey>{}(abcd, xyzw));
+  util::Comparator<DocumentKey> comparator;
+  EXPECT_EQ(comparator.Compare(abcd, xyzw), util::ComparisonResult::Ascending);
 }
 
 }  // namespace model

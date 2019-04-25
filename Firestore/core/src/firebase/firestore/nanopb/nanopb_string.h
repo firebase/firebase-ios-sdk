@@ -119,12 +119,7 @@ class String : public util::Comparable<String> {
    */
   friend void swap(String& lhs, String& rhs) noexcept;
 
-  friend bool operator==(const String& lhs, const String& rhs) {
-    return absl::string_view{lhs} == absl::string_view{rhs};
-  }
-  friend bool operator<(const String& lhs, const String& rhs) {
-    return absl::string_view{lhs} < absl::string_view{rhs};
-  }
+  util::ComparisonResult CompareTo(const String& rhs) const;
 
   friend bool operator==(const String& lhs, absl::string_view rhs) {
     absl::string_view lhs_view{lhs};

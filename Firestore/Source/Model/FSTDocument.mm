@@ -23,6 +23,7 @@
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/util/comparison.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
@@ -265,7 +266,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 const NSComparator FSTDocumentComparatorByKey =
     ^NSComparisonResult(FSTMaybeDocument *doc1, FSTMaybeDocument *doc2) {
-      return CompareKeys(doc1.key, doc2.key);
+      return util::WrapCompare(doc1.key, doc2.key);
     };
 
 NS_ASSUME_NONNULL_END

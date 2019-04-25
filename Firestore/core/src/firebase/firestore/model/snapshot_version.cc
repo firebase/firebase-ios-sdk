@@ -29,6 +29,15 @@ const SnapshotVersion& SnapshotVersion::None() {
   return kNone;
 }
 
+util::ComparisonResult SnapshotVersion::CompareTo(
+    const SnapshotVersion& rhs) const {
+  return util::Compare(timestamp(), rhs.timestamp());
+}
+
+size_t SnapshotVersion::Hash() const {
+  return std::hash<Timestamp>{}(timestamp_);
+}
+
 }  // namespace model
 }  // namespace firestore
 }  // namespace firebase

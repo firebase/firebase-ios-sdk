@@ -52,8 +52,12 @@ class DocumentSetComparator {
       : delegate_(delegate) {
   }
 
+  util::ComparisonResult Compare(FSTDocument* lhs, FSTDocument* rhs) const {
+    return util::MakeComparisonResult(delegate_(lhs, rhs));
+  }
+
   bool operator()(FSTDocument* lhs, FSTDocument* rhs) const {
-    return delegate_(lhs, rhs) == NSOrderedAscending;
+    return util::Ascending(Compare(lhs, rhs));
   }
 
  private:
@@ -66,8 +70,7 @@ class DocumentSetComparator {
  * comparator on top of what is provided to guarantee document equality based on
  * the key.
  */
-class DocumentSet : public immutable::SortedContainer,
-                    public util::Equatable<DocumentSet> {
+class DocumentSet : public immutable::SortedContainer {
  public:
   /**
    * The type of the main collection of documents in an DocumentSet.
@@ -164,6 +167,10 @@ class DocumentSet : public immutable::SortedContainer,
    */
   SetType sorted_set_;
 };
+
+inline bool operator!=(const DocumentSet& lhs, const DocumentSet& rhs) {
+  return !(lhs == rhs);
+}
 
 }  // namespace model
 }  // namespace firestore

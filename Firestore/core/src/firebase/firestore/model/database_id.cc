@@ -19,6 +19,7 @@
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/hashing.h"
 
 namespace firebase {
 namespace firestore {
@@ -30,6 +31,18 @@ DatabaseId::DatabaseId(std::string project_id, std::string database_id)
     : project_id_{std::move(project_id)}, database_id_{std::move(database_id)} {
   HARD_ASSERT(!project_id_.empty());
   HARD_ASSERT(!database_id_.empty());
+}
+
+util::ComparisonResult DatabaseId::CompareTo(
+    const firebase::firestore::model::DatabaseId& rhs) const {
+  util::ComparisonResult cmp = util::Compare(project_id_, rhs.project_id_);
+  if (!util::Same(cmp)) return cmp;
+
+  return util::Compare(database_id_, rhs.database_id_);
+}
+
+size_t DatabaseId::Hash() const {
+  return util::Hash(project_id_, database_id_);
 }
 
 }  // namespace model

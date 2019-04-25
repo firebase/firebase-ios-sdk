@@ -16,35 +16,74 @@
 
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
 
+#include <algorithm>
 #include <cmath>
+#include <cstring>
 #include <limits>
+
+#include "absl/base/casts.h"
 
 namespace firebase {
 namespace firestore {
 namespace util {
 using std::isnan;
 
-bool Comparator<absl::string_view>::operator()(absl::string_view left,
-                                               absl::string_view right) const {
-  // TODO(wilhuff): truncation aware comparison
-  return left < right;
+/**
+ * Creates a ComparisonResult from a typical integer return value, where
+ * 0 means "same", less than zero means "ascending", and greater than zero
+ * means "descending".
+ */
+constexpr ComparisonResult ComparisonResultFromInt(int value) {
+  // TODO(c++14): convert this to an if statement.
+  return value < 0 ? ComparisonResult::Ascending
+                   : (value > 0 ? ComparisonResult::Descending
+                                : ComparisonResult::Same);
 }
 
-bool Comparator<std::string>::operator()(const std::string& left,
-                                         const std::string& right) const {
-  // TODO(wilhuff): truncation aware comparison
-  return left < right;
+ComparisonResult Comparator<absl::string_view>::Compare(
+    absl::string_view left, absl::string_view right) const {
+  return ComparisonResultFromInt(left.compare(right));
 }
 
-bool Comparator<double>::operator()(double left, double right) const {
+ComparisonResult Comparator<std::string>::Compare(
+    const std::string& left, const std::string& right) const {
+  return ComparisonResultFromInt(left.compare(right));
+}
+
+ComparisonResult Comparator<std::vector<uint8_t>>::Compare(
+    const std::vector<uint8_t>& left, const std::vector<uint8_t>& right) const {
+  // This is essentially CompareContainer with `memcmp` for the main check
+  size_t min_length = std::min(left.size(), right.size());
+  if (min_length > 0) {
+    int r = memcmp(left.data(), right.data(), min_length);
+    if (r < 0) return ComparisonResult::Ascending;
+    if (r > 0) return ComparisonResult::Descending;
+  }
+  if (left.size() < right.size()) return ComparisonResult::Ascending;
+  if (left.size() > right.size()) return ComparisonResult::Descending;
+  return ComparisonResult::Same;
+}
+
+ComparisonResult Comparator<double>::Compare(double left, double right) const {
   // NaN sorts equal to itself and before any other number.
   if (left < right) {
-    return true;
-  } else if (left >= right) {
-    return false;
+    return ComparisonResult::Ascending;
+  } else if (left > right) {
+    return ComparisonResult::Descending;
+  } else if (left == right) {
+    return ComparisonResult::Same;
   } else {
     // One or both left and right is NaN.
-    return isnan(left) && !isnan(right);
+    if (!isnan(right)) {
+      // Only left is NaN.
+      return ComparisonResult::Ascending;
+    } else if (!isnan(left)) {
+      // Only right is NaN.
+      return ComparisonResult::Descending;
+    } else {
+      // Both are NaN.
+      return ComparisonResult::Same;
+    }
   }
 }
 
@@ -93,13 +132,7 @@ uint64_t DoubleBits(double d) {
     d = NAN;
   }
 
-  // Unlike C, C++ does not define type punning through a union type.
-
-  // TODO(wilhuff): replace with absl::bit_cast
-  static_assert(sizeof(double) == sizeof(uint64_t), "doubles must be 8 bytes");
-  uint64_t bits;
-  memcpy(&bits, &d, sizeof(bits));
-  return bits;
+  return absl::bit_cast<uint64_t>(d);
 }
 
 bool DoubleBitwiseEquals(double left, double right) {
