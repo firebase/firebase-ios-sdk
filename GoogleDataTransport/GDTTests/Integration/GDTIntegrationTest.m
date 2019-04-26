@@ -167,7 +167,7 @@
 
 /** Generates a bunch of random events. */
 - (void)generateEvents {
-  for (int i = 0; i < arc4random_uniform(10); i++) {
+  for (int i = 0; i < arc4random_uniform(10) + 1; i++) {
     // Choose a random transport, and randomly choose if it's a telemetry event.
     GDTTransport *transport = arc4random_uniform(2) ? self.transport1 : self.transport2;
     BOOL isTelemetryEvent = arc4random_uniform(2);
