@@ -20,7 +20,7 @@
 #include <cstdint>
 #include <string>
 
-#include "Firestore/core/src/firebase/firestore/util/hashing.h"
+#include "Firestore/core/src/firebase/firestore/util/comparison.h"
 #include "absl/strings/string_view.h"
 
 namespace firebase {
@@ -28,7 +28,7 @@ namespace firestore {
 namespace model {
 
 /** A DatabaseId represents a particular database in the Firestore. */
-class DatabaseId {
+class DatabaseId : public util::Comparable<DatabaseId> {
  public:
   /** The default name for "unset" database ID in resource names. */
   static constexpr const char* kDefault = "(default)";
@@ -60,47 +60,14 @@ class DatabaseId {
     return database_id_ == kDefault;
   }
 
-#if defined(__OBJC__)
-  // For objective-c++ hash; to be removed after migration.
-  // Do NOT use in C++ code.
-  size_t Hash() const {
-    return util::Hash(project_id_, database_id_);
-  }
-#endif  // defined(__OBJC__)
+  util::ComparisonResult CompareTo(const DatabaseId& rhs) const;
 
-  friend bool operator<(const DatabaseId& lhs, const DatabaseId& rhs);
+  size_t Hash() const;
 
  private:
   std::string project_id_;
   std::string database_id_;
 };
-
-/** Compares against another DatabaseId. */
-inline bool operator<(const DatabaseId& lhs, const DatabaseId& rhs) {
-  return lhs.project_id_ < rhs.project_id_ ||
-         (lhs.project_id_ == rhs.project_id_ &&
-          lhs.database_id_ < rhs.database_id_);
-}
-
-inline bool operator>(const DatabaseId& lhs, const DatabaseId& rhs) {
-  return rhs < lhs;
-}
-
-inline bool operator>=(const DatabaseId& lhs, const DatabaseId& rhs) {
-  return !(lhs < rhs);
-}
-
-inline bool operator<=(const DatabaseId& lhs, const DatabaseId& rhs) {
-  return !(lhs > rhs);
-}
-
-inline bool operator!=(const DatabaseId& lhs, const DatabaseId& rhs) {
-  return lhs < rhs || lhs > rhs;
-}
-
-inline bool operator==(const DatabaseId& lhs, const DatabaseId& rhs) {
-  return !(lhs != rhs);
-}
 
 }  // namespace model
 }  // namespace firestore

@@ -17,12 +17,6 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_API_DOCUMENT_REFERENCE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_API_DOCUMENT_REFERENCE_H_
 
-#if !defined(__OBJC__)
-#error "This header only supports Objective-C++"
-#endif  // !defined(__OBJC__)
-
-#import <Foundation/Foundation.h>
-
 #include <memory>
 #include <string>
 #include <utility>
@@ -30,7 +24,6 @@
 #include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/api/listener_registration.h"
 #include "Firestore/core/src/firebase/firestore/core/listen_options.h"
-#include "Firestore/core/src/firebase/firestore/core/user_data.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
@@ -40,6 +33,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 namespace firebase {
 namespace firestore {
+namespace core {
+
+class ParsedSetData;
+class ParsedUpdateData;
+
+}  // namespace core
+
 namespace api {
 
 class Firestore;
@@ -52,7 +52,7 @@ class DocumentReference {
                     std::shared_ptr<Firestore> firestore);
   DocumentReference(model::DocumentKey document_key,
                     std::shared_ptr<Firestore> firestore)
-      : firestore_{firestore}, key_{std::move(document_key)} {
+      : firestore_{std::move(firestore)}, key_{std::move(document_key)} {
   }
 
   size_t Hash() const;

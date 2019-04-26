@@ -19,12 +19,13 @@
 
 #include <utility>
 
-#import "Firestore/Source/Model/FSTDocument.h"
-
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_map.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
-
+#include "Firestore/core/src/firebase/firestore/objc/objc_class.h"
 #include "absl/base/attributes.h"
+
+OBJC_CLASS(FSTDocument);
+OBJC_CLASS(FSTMaybeDocument);
 
 namespace firebase {
 namespace firestore {
@@ -58,13 +59,9 @@ class DocumentMap {
   DocumentMap() = default;
 
   ABSL_MUST_USE_RESULT DocumentMap insert(const DocumentKey& key,
-                                          FSTDocument* value) const {
-    return DocumentMap{map_.insert(key, value)};
-  }
+                                          FSTDocument* value) const;
 
-  ABSL_MUST_USE_RESULT DocumentMap erase(const DocumentKey& key) const {
-    return DocumentMap{map_.erase(key)};
-  }
+  ABSL_MUST_USE_RESULT DocumentMap erase(const DocumentKey& key) const;
 
   bool empty() const {
     return map_.empty();
@@ -85,16 +82,9 @@ class DocumentMap {
   MaybeDocumentMap map_;
 };
 
-inline FSTDocument* GetFSTDocumentOrNil(FSTMaybeDocument* maybeDoc) {
-  if ([maybeDoc isKindOfClass:[FSTDocument class]]) {
-    return static_cast<FSTDocument*>(maybeDoc);
-  }
-  return nil;
-}
+FSTDocument* GetFSTDocumentOrNil(FSTMaybeDocument* maybeDoc);
 
-inline FSTDocument* GetFSTDocumentOrNil(FSTDocument* doc) {
-  return doc;
-}
+FSTDocument* GetFSTDocumentOrNil(FSTDocument* doc);
 
 }  // namespace model
 }  // namespace firestore

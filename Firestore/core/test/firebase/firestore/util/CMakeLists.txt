@@ -163,7 +163,6 @@ cc_test(
     string_format_test.cc
     string_util_test.cc
     string_win_test.cc
-    type_traits_apple_test.mm
   DEPENDS
     absl_base
     absl_strings

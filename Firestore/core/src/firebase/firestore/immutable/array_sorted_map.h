@@ -26,7 +26,6 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/immutable/keys_view.h"
-#include "Firestore/core/src/firebase/firestore/immutable/map_entry.h"
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_container.h"
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
@@ -124,8 +123,6 @@ class FixedArray {
 template <typename K, typename V, typename C = util::Comparator<K>>
 class ArraySortedMap : public SortedMapBase {
  public:
-  using key_comparator_type = KeyComparator<K, V, C>;
-
   /**
    * The type of the entries stored in the map.
    */
@@ -144,7 +141,7 @@ class ArraySortedMap : public SortedMapBase {
    * Creates an empty ArraySortedMap.
    */
   explicit ArraySortedMap(const C& comparator = C())
-      : array_{EmptyArray()}, key_comparator_{comparator} {
+      : array_{EmptyArray()}, comparator_{comparator} {
   }
 
   /**
@@ -152,7 +149,7 @@ class ArraySortedMap : public SortedMapBase {
    */
   ArraySortedMap(std::initializer_list<value_type> entries,
                  const C& comparator = C())
-      : array_{SortedArray(entries, comparator)}, key_comparator_{comparator} {
+      : array_{SortedArray(entries, comparator)}, comparator_{comparator} {
   }
 
   /** Returns true if the map contains no elements. */
@@ -166,7 +163,7 @@ class ArraySortedMap : public SortedMapBase {
   }
 
   const C& comparator() const {
-    return key_comparator_.comparator();
+    return comparator_;
   }
 
   /**
@@ -185,7 +182,8 @@ class ArraySortedMap : public SortedMapBase {
     if (pos != current_end) {
       // lower_bound found an entry where pos->first >= pair.first. Reversing
       // the argument order here tests pair.first < pos->first.
-      replacing_entry = !key_comparator_(key, *pos);
+      auto cmp = comparator_.Compare(key, pos->first);
+      replacing_entry = cmp == util::ComparisonResult::Same;
       if (replacing_entry && value == pos->second) {
         return *this;
       }
@@ -241,13 +239,9 @@ class ArraySortedMap : public SortedMapBase {
    *     not found.
    */
   const_iterator find(const K& key) const {
-    const_iterator not_found = end();
-    const_iterator bound = lower_bound(key);
-    if (bound != not_found && !key_comparator_(key, *bound)) {
-      return bound;
-    } else {
-      return not_found;
-    }
+    return std::find_if(begin(), end(), [&](const std::pair<K, V>& kv) {
+      return util::Same(comparator_.Compare(key, kv.first));
+    });
   }
 
   /**
@@ -271,7 +265,10 @@ class ArraySortedMap : public SortedMapBase {
    *     requested key.
    */
   const_iterator lower_bound(const K& key) const {
-    return std::lower_bound(begin(), end(), key, key_comparator_);
+    return std::lower_bound(
+        begin(), end(), key, [&](const std::pair<K, V>& el, const K& key) {
+          return util::Ascending(comparator_.Compare(el.first, key));
+        });
   }
 
   const_iterator min() const {
@@ -337,24 +334,24 @@ class ArraySortedMap : public SortedMapBase {
   static array_pointer SortedArray(std::initializer_list<value_type> entries,
                                    const C& comparator) {
     std::vector<value_type> sorted{entries.begin(), entries.end()};
-    std::sort(sorted.begin(), sorted.end(),
-              [&comparator](const value_type& lhs, const value_type& rhs) {
-                return comparator(lhs.first, rhs.first);
-              });
+    std::sort(
+        sorted.begin(), sorted.end(),
+        [&comparator](const value_type& lhs, const value_type& rhs) {
+          return util::Ascending(comparator.Compare(lhs.first, rhs.first));
+        });
     return std::make_shared<const array_type>(sorted.begin(), sorted.end());
   }
 
-  ArraySortedMap(const array_pointer& array,
-                 const key_comparator_type& key_comparator) noexcept
-      : array_{array}, key_comparator_{key_comparator} {
+  ArraySortedMap(const array_pointer& array, const C& comparator) noexcept
+      : array_{array}, comparator_{comparator} {
   }
 
   ArraySortedMap wrap(const array_pointer& array) const noexcept {
-    return ArraySortedMap{array, key_comparator_};
+    return ArraySortedMap{array, comparator_};
   }
 
   array_pointer array_;
-  key_comparator_type key_comparator_;
+  C comparator_;
 };
 
 }  // namespace impl

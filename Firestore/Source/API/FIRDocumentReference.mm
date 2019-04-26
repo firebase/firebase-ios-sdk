@@ -245,6 +245,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRDocumentReference (Internal)
 
+- (const api::DocumentReference &)internalReference {
+  return _documentReference;
+}
+
 - (const DocumentKey &)key {
   return _documentReference.key();
 }

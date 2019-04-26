@@ -37,16 +37,16 @@ namespace {
 
 // A testing::TestCase named "Foo" corresponds to an XCTestCase named
 // "FooTests".
-NSString *const kTestCaseSuffix = @"Tests";
+NSString* const kTestCaseSuffix = @"Tests";
 
 // A testing::TestInfo named "Foo" corresponds to test method named "testFoo".
-NSString *const kTestMethodPrefix = @"test";
+NSString* const kTestMethodPrefix = @"test";
 
 // A map of keys created by TestInfoKey to the corresponding testing::TestInfo
 // (wrapped in an NSValue). The generated XCTestCase classes are discovered and
 // instantiated by XCTest so this is the only means of plumbing per-test-method
 // state into these methods.
-NSDictionary<NSString *, NSValue *> *testInfosByKey;
+NSDictionary<NSString*, NSValue*>* testInfosByKey;
 
 // If the user focuses on GoogleTests itself, this means force all C++ tests to
 // run.
@@ -59,7 +59,7 @@ bool forceAllTests = false;
  * @return the set of tests to run, or nil if the user asked for all tests or if
  * there's any problem loading or parsing the configuration.
  */
-NSSet<NSString *> *_Nullable LoadXCTestConfigurationTestsToRun() {
+NSSet<NSString*>* _Nullable LoadXCTestConfigurationTestsToRun() {
   // Xcode invokes the test runner with an XCTestConfigurationFilePath
   // environment variable set to the path of a configuration file containing,
   // among other things, the set of tests to run. The configuration file
@@ -70,11 +70,11 @@ NSSet<NSString *> *_Nullable LoadXCTestConfigurationTestsToRun() {
   // something should fail here, the mechanism complains but fails open. This
   // way the worst that can happen is that users end up running more tests than
   // they intend, but we never accidentally show a green run that wasn't.
-  static NSString *const configEnvVar = @"XCTestConfigurationFilePath";
+  static NSString* const configEnvVar = @"XCTestConfigurationFilePath";
 
-  NSDictionary<NSString *, NSString *> *env =
+  NSDictionary<NSString*, NSString*>* env =
       [[NSProcessInfo processInfo] environment];
-  NSString *filePath = [env objectForKey:configEnvVar];
+  NSString* filePath = [env objectForKey:configEnvVar];
   if (!filePath) {
     NSLog(@"Missing %@ environment variable; assuming all tests", configEnvVar);
     return nil;
@@ -97,7 +97,7 @@ NSSet<NSString *> *_Nullable LoadXCTestConfigurationTestsToRun() {
   // Invoke the testsToRun selector safely. This indirection is required because
   // just calling -performSelector: fails to properly retain the NSSet under
   // ARC.
-  typedef NSSet<NSString *> *(*TestsToRunFunction)(id, SEL);
+  typedef NSSet<NSString*>* (*TestsToRunFunction)(id, SEL);
   IMP testsToRunMethod = [config methodForSelector:testsToRunSelector];
   auto testsToRunFunction =
       reinterpret_cast<TestsToRunFunction>(testsToRunMethod);
@@ -119,23 +119,23 @@ NSSet<NSString *> *_Nullable LoadXCTestConfigurationTestsToRun() {
  * @see
  * https://github.com/google/googletest/blob/master/googletest/docs/AdvancedGuide.md
  */
-NSString *CreateTestFiltersFromTestsToRun(NSSet<NSString *> *testsToRun) {
-  NSMutableString *result = [[NSMutableString alloc] init];
-  for (NSString *spec in testsToRun) {
-    NSArray<NSString *> *parts = [spec componentsSeparatedByString:@"/"];
+NSString* CreateTestFiltersFromTestsToRun(NSSet<NSString*>* testsToRun) {
+  NSMutableString* result = [[NSMutableString alloc] init];
+  for (NSString* spec in testsToRun) {
+    NSArray<NSString*>* parts = [spec componentsSeparatedByString:@"/"];
 
-    NSString *gtestCaseName = nil;
+    NSString* gtestCaseName = nil;
     if (parts.count > 0) {
-      NSString *className = parts[0];
+      NSString* className = parts[0];
       if ([className hasSuffix:kTestCaseSuffix]) {
         gtestCaseName = [className
             substringToIndex:className.length - kTestCaseSuffix.length];
       }
     }
 
-    NSString *gtestMethodName = nil;
+    NSString* gtestMethodName = nil;
     if (parts.count > 1) {
-      NSString *methodName = parts[1];
+      NSString* methodName = parts[1];
       if ([methodName hasPrefix:kTestMethodPrefix]) {
         gtestMethodName =
             [methodName substringFromIndex:kTestMethodPrefix.length];
@@ -157,13 +157,13 @@ NSString *CreateTestFiltersFromTestsToRun(NSSet<NSString *> *testsToRun) {
 
 /** Returns the name of the selector for the test method representing this
  * specific test. */
-NSString *SelectorNameForTestInfo(const testing::TestInfo *testInfo) {
+NSString* SelectorNameForTestInfo(const testing::TestInfo* testInfo) {
   return
       [NSString stringWithFormat:@"%@%s", kTestMethodPrefix, testInfo->name()];
 }
 
 /** Returns the name of the class representing the given testing::TestCase. */
-NSString *ClassNameForTestCase(const testing::TestCase *testCase) {
+NSString* ClassNameForTestCase(const testing::TestCase* testCase) {
   return [NSString stringWithFormat:@"%s%@", testCase->name(), kTestCaseSuffix];
 }
 
@@ -171,7 +171,7 @@ NSString *ClassNameForTestCase(const testing::TestCase *testCase) {
  * Returns a key name for the testInfosByKey dictionary. Each (class, selector)
  * pair corresponds to a unique GoogleTest result.
  */
-NSString *TestInfoKey(Class testClass, SEL testSelector) {
+NSString* TestInfoKey(Class testClass, SEL testSelector) {
   return [NSString stringWithFormat:@"%@.%@", NSStringFromClass(testClass),
                                     NSStringFromSelector(testSelector)];
 }
@@ -185,10 +185,10 @@ NSString *TestInfoKey(Class testClass, SEL testSelector) {
  * with the implicit parameters passed to any Objective-C method. Naming them
  * this way here allows XCTAssert and friends to work.
  */
-void ReportTestResult(XCTestCase *self, SEL _cmd) {
-  NSString *testInfoKey = TestInfoKey([self class], _cmd);
-  NSValue *holder = testInfosByKey[testInfoKey];
-  auto testInfo = static_cast<const testing::TestInfo *>(holder.pointerValue);
+void ReportTestResult(XCTestCase* self, SEL _cmd) {
+  NSString* testInfoKey = TestInfoKey([self class], _cmd);
+  NSValue* holder = testInfosByKey[testInfoKey];
+  auto testInfo = static_cast<const testing::TestInfo*>(holder.pointerValue);
   if (!testInfo) {
     return;
   }
@@ -198,7 +198,7 @@ void ReportTestResult(XCTestCase *self, SEL _cmd) {
     return;
   }
 
-  const testing::TestResult *result = testInfo->result();
+  const testing::TestResult* result = testInfo->result();
   if (result->Passed()) {
     // Let XCode know that the test ran and succeeded.
     XCTAssertTrue(true);
@@ -209,7 +209,7 @@ void ReportTestResult(XCTestCase *self, SEL _cmd) {
   // to the file:line.
   int parts = result->total_part_count();
   for (int i = 0; i < parts; i++) {
-    const testing::TestPartResult &part = result->GetTestPartResult(i);
+    const testing::TestPartResult& part = result->GetTestPartResult(i);
     [self
         recordFailureWithDescription:@(part.message())
                               inFile:@(part.file_name() ? part.file_name() : "")
@@ -232,19 +232,18 @@ void ReportTestResult(XCTestCase *self, SEL _cmd) {
  * @return A new Class that's a subclass of XCTestCase, that's been registered
  * with the Objective-C runtime.
  */
-Class CreateXCTestCaseClass(
-    const testing::TestCase *testCase,
-    NSMutableDictionary<NSString *, NSValue *> *infoMap) {
-  NSString *testCaseName = ClassNameForTestCase(testCase);
+Class CreateXCTestCaseClass(const testing::TestCase* testCase,
+                            NSMutableDictionary<NSString*, NSValue*>* infoMap) {
+  NSString* testCaseName = ClassNameForTestCase(testCase);
   Class testClass =
       objc_allocateClassPair([XCTestCase class], [testCaseName UTF8String], 0);
 
   // Create a method for each TestInfo.
   int testInfos = testCase->total_test_count();
   for (int j = 0; j < testInfos; j++) {
-    const testing::TestInfo *testInfo = testCase->GetTestInfo(j);
+    const testing::TestInfo* testInfo = testCase->GetTestInfo(j);
 
-    NSString *selectorName = SelectorNameForTestInfo(testInfo);
+    NSString* selectorName = SelectorNameForTestInfo(testInfo);
     SEL selector = sel_registerName([selectorName UTF8String]);
 
     // Use the ReportTestResult function as the method implementation. The v@:
@@ -253,8 +252,8 @@ Class CreateXCTestCaseClass(
     IMP method = reinterpret_cast<IMP>(ReportTestResult);
     class_addMethod(testClass, selector, method, "v@:");
 
-    NSString *infoKey = TestInfoKey(testClass, selector);
-    NSValue *holder = [NSValue valueWithPointer:testInfo];
+    NSString* infoKey = TestInfoKey(testClass, selector);
+    NSValue* holder = [NSValue valueWithPointer:testInfo];
     infoMap[infoKey] = holder;
   }
   objc_registerClassPair(testClass);
@@ -272,18 +271,18 @@ Class CreateXCTestCaseClass(
  * force XCTest to see more tests than it would normally look at so that the
  * indicators in the test navigator update properly.
  */
-XCTestSuite *CreateAllTestsTestSuite() {
-  XCTestSuite *allTestsSuite =
+XCTestSuite* CreateAllTestsTestSuite() {
+  XCTestSuite* allTestsSuite =
       [[XCTestSuite alloc] initWithName:@"All GoogleTest Tests"];
   [allTestsSuite
       addTest:[XCTestSuite testSuiteForTestCaseClass:[GoogleTests class]]];
 
-  const testing::UnitTest *master = testing::UnitTest::GetInstance();
+  const testing::UnitTest* master = testing::UnitTest::GetInstance();
 
   int testCases = master->total_test_case_count();
   for (int i = 0; i < testCases; i++) {
-    const testing::TestCase *testCase = master->GetTestCase(i);
-    NSString *testCaseName = ClassNameForTestCase(testCase);
+    const testing::TestCase* testCase = master->GetTestCase(i);
+    NSString* testCaseName = ClassNameForTestCase(testCase);
     Class testClass = objc_getClass([testCaseName UTF8String]);
     [allTestsSuite addTest:[XCTestSuite testSuiteForTestCaseClass:testClass]];
   }
@@ -296,26 +295,26 @@ XCTestSuite *CreateAllTestsTestSuite() {
  * current test invocation.
  */
 void RunGoogleTestTests() {
-  NSString *masterTestCaseName = NSStringFromClass([GoogleTests class]);
+  NSString* masterTestCaseName = NSStringFromClass([GoogleTests class]);
 
   // Initialize GoogleTest but don't run the tests yet.
   int argc = 1;
-  const char *argv[] = {[masterTestCaseName UTF8String]};
-  testing::InitGoogleTest(&argc, const_cast<char **>(argv));
+  const char* argv[] = {[masterTestCaseName UTF8String]};
+  testing::InitGoogleTest(&argc, const_cast<char**>(argv));
 
   // Convert XCTest's testToRun set to the equivalent --gtest_filter flag.
   //
   // Note that we only set forceAllTests to true if the user specifically
   // focused on GoogleTests. This prevents XCTest double-counting test cases
   // (and failures) when a user asks for all tests.
-  NSSet<NSString *> *allTests = [NSSet setWithObject:masterTestCaseName];
-  NSSet<NSString *> *testsToRun = LoadXCTestConfigurationTestsToRun();
+  NSSet<NSString*>* allTests = [NSSet setWithObject:masterTestCaseName];
+  NSSet<NSString*>* testsToRun = LoadXCTestConfigurationTestsToRun();
   if (testsToRun) {
     if ([allTests isEqual:testsToRun]) {
       NSLog(@"Forcing all tests to run");
       forceAllTests = true;
     } else {
-      NSString *filters = CreateTestFiltersFromTestsToRun(testsToRun);
+      NSString* filters = CreateTestFiltersFromTestsToRun(testsToRun);
       NSLog(@"Using --gtest_filter=%@", filters);
       if (filters) {
         testing::GTEST_FLAG(filter) = [filters UTF8String];
@@ -324,13 +323,13 @@ void RunGoogleTestTests() {
   }
 
   // Create XCTestCases and populate the testInfosByKey map
-  const testing::UnitTest *master = testing::UnitTest::GetInstance();
-  NSMutableDictionary<NSString *, NSValue *> *infoMap =
+  const testing::UnitTest* master = testing::UnitTest::GetInstance();
+  NSMutableDictionary<NSString*, NSValue*>* infoMap =
       [NSMutableDictionary dictionaryWithCapacity:master->total_test_count()];
 
   int testCases = master->total_test_case_count();
   for (int i = 0; i < testCases; i++) {
-    const testing::TestCase *testCase = master->GetTestCase(i);
+    const testing::TestCase* testCase = master->GetTestCase(i);
     CreateXCTestCaseClass(testCase, infoMap);
   }
   testInfosByKey = infoMap;
@@ -350,7 +349,7 @@ void RunGoogleTestTests() {
 
 @implementation GoogleTests
 
-+ (XCTestSuite *)defaultTestSuite {
++ (XCTestSuite*)defaultTestSuite {
   // Only return all tests beyond GoogleTests if the user is focusing on
   // GoogleTests.
   if (forceAllTests) {
@@ -364,7 +363,7 @@ void RunGoogleTestTests() {
 - (void)testGoogleTestsActuallyRun {
   // This whole mechanism is sufficiently tricky that we should verify that the
   // build actually plumbed this together correctly.
-  const testing::UnitTest *master = testing::UnitTest::GetInstance();
+  const testing::UnitTest* master = testing::UnitTest::GetInstance();
   XCTAssertGreaterThan(master->total_test_case_count(), 0);
 }
 

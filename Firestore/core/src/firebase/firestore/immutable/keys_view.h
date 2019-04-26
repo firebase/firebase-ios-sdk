@@ -19,6 +19,7 @@
 
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/util/comparison.h"
 #include "Firestore/core/src/firebase/firestore/util/iterator_adaptors.h"
 #include "Firestore/core/src/firebase/firestore/util/range.h"
 
@@ -68,7 +69,7 @@ auto KeysViewIn(const Range& range,
   // Forward iterators can't ever reach the end if the end is behind the start:
   // they just keep incrementing until address space runs out. Adjust the range
   // accordingly.
-  bool empty_range = !comparator(start_key, end_key);
+  bool empty_range = !util::Ascending(comparator.Compare(start_key, end_key));
   if (empty_range) {
     return MakeKeysRange(std::end(range), std::end(range));
   }

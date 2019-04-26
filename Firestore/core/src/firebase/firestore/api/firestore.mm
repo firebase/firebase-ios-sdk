@@ -21,12 +21,12 @@
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRQuery+Internal.h"
 #import "Firestore/Source/API/FIRTransaction+Internal.h"
-#import "Firestore/Source/API/FIRWriteBatch+Internal.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 
 #include "Firestore/core/src/firebase/firestore/api/document_reference.h"
 #include "Firestore/core/src/firebase/firestore/api/settings.h"
+#include "Firestore/core/src/firebase/firestore/api/write_batch.h"
 #include "Firestore/core/src/firebase/firestore/auth/firebase_credentials_provider_apple.h"
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -62,6 +62,11 @@ Firestore::Firestore(std::string project_id,
       persistence_key_{std::move(persistence_key)},
       worker_queue_{std::move(worker_queue)},
       extension_{extension} {
+}
+
+FSTFirestoreClient* Firestore::client() {
+  HARD_ASSERT(client_, "Client is not yet configured.");
+  return client_;
 }
 
 AsyncQueue* Firestore::worker_queue() {
@@ -108,12 +113,9 @@ DocumentReference Firestore::GetDocument(absl::string_view document_path) {
                            shared_from_this()};
 }
 
-FIRWriteBatch* Firestore::GetBatch() {
+WriteBatch Firestore::GetBatch() {
   EnsureClientConfigured();
-  FIRFirestore* wrapper =
-      [FIRFirestore recoverFromFirestore:shared_from_this()];
-
-  return [FIRWriteBatch writeBatchWithFirestore:wrapper];
+  return WriteBatch(shared_from_this());
 }
 
 FIRQuery* Firestore::GetCollectionGroup(NSString* collection_id) {

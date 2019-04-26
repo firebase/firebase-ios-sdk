@@ -22,8 +22,8 @@
 #import "Firestore/Source/Model/FSTDocument.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
+#include "Firestore/core/src/firebase/firestore/objc/objc_compatibility.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
-#include "Firestore/core/src/firebase/firestore/util/objc_compatibility.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
 #include "Firestore/core/src/firebase/firestore/util/to_string.h"
 
@@ -31,13 +31,20 @@ namespace firebase {
 namespace firestore {
 namespace core {
 
-namespace objc = util::objc;
 using model::DocumentKey;
 using model::DocumentKeySet;
 using model::DocumentSet;
 using util::StringFormat;
 
 // DocumentViewChange
+
+DocumentViewChange::DocumentViewChange(FSTDocument* document, Type type)
+    : document_{document}, type_{type} {
+}
+
+FSTDocument* DocumentViewChange::document() const {
+  return document_;
+}
 
 std::string DocumentViewChange::ToString() const {
   return StringFormat("<DocumentViewChange doc:%s type:%s>",
@@ -168,6 +175,10 @@ ViewSnapshot ViewSnapshot::FromInitialDocuments(
                       DocumentSet{query.comparator}, std::move(view_changes),
                       std::move(mutated_keys), from_cache,
                       /*sync_state_changed=*/true, excludes_metadata_changes};
+}
+
+FSTQuery* ViewSnapshot::query() const {
+  return query_;
 }
 
 std::string ViewSnapshot::ToString() const {

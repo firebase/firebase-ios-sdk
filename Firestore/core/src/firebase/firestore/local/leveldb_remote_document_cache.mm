@@ -24,6 +24,8 @@
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
+#import "Firestore/Source/Model/FSTDocument.h"
+
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "leveldb/db.h"
@@ -137,7 +139,7 @@ FSTMaybeDocument* LevelDbRemoteDocumentCache::DecodeMaybeDocument(
     absl::string_view encoded, const DocumentKey& key) {
   NSData* data = [[NSData alloc] initWithBytesNoCopy:(void*)encoded.data()
                                               length:encoded.size()
-                                        freeWhenDone:NO];
+                                        freeWhenDone:false];
 
   NSError* error;
   FSTPBMaybeDocument* proto = [FSTPBMaybeDocument parseFromData:data

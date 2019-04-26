@@ -745,7 +745,10 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
   if (isPublic) {
     // This is a public error. Return it as a public error and add a description.
     NSInteger errorCode = code & ~FIRAuthPublicErrorCodeFlag;
-    NSMutableDictionary *errorUserInfo = [NSMutableDictionary dictionaryWithDictionary:userInfo];
+    NSMutableDictionary *errorUserInfo = [NSMutableDictionary dictionary];
+    if (userInfo) {
+      [errorUserInfo addEntriesFromDictionary:userInfo];
+    }
     if (!errorUserInfo[NSLocalizedDescriptionKey]) {
       errorUserInfo[NSLocalizedDescriptionKey] = FIRAuthErrorDescription(errorCode);
     }

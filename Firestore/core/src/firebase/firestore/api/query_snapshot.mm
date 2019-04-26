@@ -28,8 +28,8 @@
 #include "Firestore/core/src/firebase/firestore/api/input_validation.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
+#include "Firestore/core/src/firebase/firestore/objc/objc_compatibility.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
-#include "Firestore/core/src/firebase/firestore/util/objc_compatibility.h"
 #include "absl/types/optional.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -38,11 +38,24 @@ namespace firebase {
 namespace firestore {
 namespace api {
 
-namespace objc = util::objc;
 using api::Firestore;
 using core::DocumentViewChange;
 using core::ViewSnapshot;
 using model::DocumentSet;
+
+QuerySnapshot::QuerySnapshot(std::shared_ptr<Firestore> firestore,
+                             FSTQuery* query,
+                             core::ViewSnapshot&& snapshot,
+                             SnapshotMetadata metadata)
+    : firestore_(firestore),
+      internal_query_(query),
+      snapshot_(std::move(snapshot)),
+      metadata_(std::move(metadata)) {
+}
+
+FSTQuery* QuerySnapshot::internal_query() const {
+  return internal_query_;
+}
 
 bool operator==(const QuerySnapshot& lhs, const QuerySnapshot& rhs) {
   return lhs.firestore_ == rhs.firestore_ &&
@@ -106,9 +119,9 @@ void QuerySnapshot::ForEachChange(
 
       HARD_ASSERT(change.type() == DocumentViewChange::Type::kAdded,
                   "Invalid event type for first snapshot");
-      HARD_ASSERT(!last_document || snapshot_.query().comparator(
-                                        last_document, change.document()) ==
-                                        NSOrderedAscending,
+      HARD_ASSERT(!last_document ||
+                      util::Ascending(snapshot_.query().comparator.Compare(
+                          last_document, change.document())),
                   "Got added events in wrong order");
 
       callback(DocumentChange(DocumentChange::Type::Added, std::move(document),

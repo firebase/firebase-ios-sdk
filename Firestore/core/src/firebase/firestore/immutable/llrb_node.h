@@ -263,21 +263,18 @@ LlrbNode<K, V> LlrbNode<K, V>::InnerInsert(const K& key,
   LlrbNode result = Clone();
 
   const K& this_key = this->key();
-  bool descending = comparator(key, this_key);
-  if (descending) {
+  util::ComparisonResult cmp = comparator.Compare(this_key, key);
+  if (cmp == util::ComparisonResult::Descending) {
     result.set_left(result.left().InnerInsert(key, value, comparator));
     result.FixUp();
 
-  } else {
-    bool ascending = comparator(this_key, key);
-    if (ascending) {
-      result.set_right(result.right().InnerInsert(key, value, comparator));
-      result.FixUp();
+  } else if (cmp == util::ComparisonResult::Ascending) {
+    result.set_right(result.right().InnerInsert(key, value, comparator));
+    result.FixUp();
 
-    } else {
-      // keys are equal so update the value.
-      result.set_value(value);
-    }
+  } else {
+    // keys are equal so update the value.
+    result.set_value(value);
   }
   return result;
 }
@@ -302,8 +299,7 @@ LlrbNode<K, V> LlrbNode<K, V>::InnerErase(const K& key,
 
   LlrbNode n = Clone();
 
-  bool descending = comparator(key, n.key());
-  if (descending) {
+  if (util::Ascending(comparator.Compare(key, n.key()))) {
     if (!n.left().empty() && !n.left().red() && !n.left().left().red()) {
       n.MoveRedLeft();
     }
@@ -318,8 +314,7 @@ LlrbNode<K, V> LlrbNode<K, V>::InnerErase(const K& key,
       n.MoveRedRight();
     }
 
-    if (util::Compare(key, n.key(), comparator) ==
-        util::ComparisonResult::Same) {
+    if (util::Same(comparator.Compare(key, n.key()))) {
       if (n.right().empty()) {
         return LlrbNode{};
 

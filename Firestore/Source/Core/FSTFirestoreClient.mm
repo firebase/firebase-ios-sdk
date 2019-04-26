@@ -231,7 +231,9 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
     }
     _lruDelegate = ldb.referenceDelegate;
     _persistence = ldb;
-    [self scheduleLruGarbageCollection];
+    if (settings.gc_enabled()) {
+      [self scheduleLruGarbageCollection];
+    }
   } else {
     _persistence = [FSTMemoryPersistence persistenceWithEagerGC];
   }

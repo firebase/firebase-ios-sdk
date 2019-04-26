@@ -113,7 +113,7 @@ NS_SWIFT_NAME(StorageMetadata)
 @property(strong, nonatomic, readonly, nullable) FIRStorageReference *storageReference;
 
 /**
- * Creates an instanece of FIRStorageMetadata from the contents of a dictionary.
+ * Creates an instance of FIRStorageMetadata from the contents of a dictionary.
  * @return An instance of FIRStorageMetadata that represents the contents of a dictionary.
  */
 - (nullable instancetype)initWithDictionary:(NSDictionary<NSString *, id> *)dictionary

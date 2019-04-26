@@ -35,24 +35,20 @@
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
+namespace core = firebase::firestore::core;
 namespace util = firebase::firestore::util;
 using firebase::firestore::api::ThrowInvalidArgument;
 using firebase::firestore::core::Filter;
+using firebase::firestore::model::DocumentComparator;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::ResourcePath;
+using firebase::firestore::util::ComparisonResult;
 
 NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - Filter::Operator functions
-
-/**
- * Returns the reverse order (i.e. Ascending => Descending) etc.
- */
-static constexpr NSComparisonResult ReverseOrder(NSComparisonResult result) {
-  return static_cast<NSComparisonResult>(-static_cast<NSInteger>(result));
-}
 
 NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
   switch (filterOperator) {
@@ -190,7 +186,7 @@ NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
     HARD_ASSERT(self.filterOperator != Filter::Operator::ArrayContains,
                 "arrayContains queries don't make sense on document keys.");
     FSTReferenceValue *refValue = (FSTReferenceValue *)self.value;
-    NSComparisonResult comparison = CompareKeys(document.key, refValue.value.key);
+    NSComparisonResult comparison = util::WrapCompare(document.key, refValue.value.key);
     return [self matchesComparison:comparison];
   } else {
     return [self matchesValue:[document fieldForPath:self.field]];
@@ -380,19 +376,19 @@ NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
 
 #pragma mark - Public methods
 
-- (NSComparisonResult)compareDocument:(FSTDocument *)document1 toDocument:(FSTDocument *)document2 {
-  NSComparisonResult result;
+- (ComparisonResult)compareDocument:(FSTDocument *)document1 toDocument:(FSTDocument *)document2 {
+  ComparisonResult result;
   if (_field == FieldPath::KeyFieldPath()) {
-    result = CompareKeys(document1.key, document2.key);
+    result = util::Compare(document1.key, document2.key);
   } else {
     FSTFieldValue *value1 = [document1 fieldForPath:self.field];
     FSTFieldValue *value2 = [document2 fieldForPath:self.field];
     HARD_ASSERT(value1 != nil && value2 != nil,
                 "Trying to compare documents on fields that don't exist.");
-    result = [value1 compare:value2];
+    result = util::MakeComparisonResult([value1 compare:value2]);
   }
   if (!self.isAscending) {
-    result = ReverseOrder(result);
+    result = util::ReverseOrder(result);
   }
   return result;
 }
@@ -468,34 +464,34 @@ NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
              usingSortOrder:(NSArray<FSTSortOrder *> *)sortOrder {
   HARD_ASSERT(self.position.count <= sortOrder.count,
               "FSTIndexPosition has more components than provided sort order.");
-  __block NSComparisonResult result = NSOrderedSame;
+  __block ComparisonResult result = ComparisonResult::Same;
   [self.position enumerateObjectsUsingBlock:^(FSTFieldValue *fieldValue, NSUInteger idx,
                                               BOOL *stop) {
     FSTSortOrder *sortOrderComponent = sortOrder[idx];
-    NSComparisonResult comparison;
+    ComparisonResult comparison;
     if (sortOrderComponent.field == FieldPath::KeyFieldPath()) {
       HARD_ASSERT(fieldValue.type == FieldValue::Type::Reference,
                   "FSTBound has a non-key value where the key path is being used %s", fieldValue);
       FSTReferenceValue *refValue = (FSTReferenceValue *)fieldValue;
-      comparison = CompareKeys(refValue.value.key, document.key);
+      comparison = util::Compare(refValue.value.key, document.key);
     } else {
       FSTFieldValue *docValue = [document fieldForPath:sortOrderComponent.field];
       HARD_ASSERT(docValue != nil,
                   "Field should exist since document matched the orderBy already.");
-      comparison = [fieldValue compare:docValue];
+      comparison = util::MakeComparisonResult([fieldValue compare:docValue]);
     }
 
     if (!sortOrderComponent.isAscending) {
-      comparison = ReverseOrder(comparison);
+      comparison = util::ReverseOrder(comparison);
     }
 
-    if (comparison != 0) {
+    if (!util::Same(comparison)) {
       result = comparison;
       *stop = YES;
     }
   }];
 
-  return self.isBefore ? result <= NSOrderedSame : result < NSOrderedSame;
+  return self.isBefore ? result <= ComparisonResult::Same : result < ComparisonResult::Same;
 }
 
 #pragma mark - NSObject methods
@@ -745,19 +741,20 @@ NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
          [self boundsMatchDocument:document];
 }
 
-- (NSComparator)comparator {
-  return ^NSComparisonResult(id document1, id document2) {
-    BOOL didCompareOnKeyField = NO;
-    for (FSTSortOrder *orderBy in self.sortOrders) {
-      NSComparisonResult comp = [orderBy compareDocument:document1 toDocument:document2];
-      if (comp != NSOrderedSame) {
-        return comp;
-      }
+- (DocumentComparator)comparator {
+  NSArray<FSTSortOrder *> *sortOrders = self.sortOrders;
+
+  return DocumentComparator([sortOrders](id document1, id document2) {
+    bool didCompareOnKeyField = false;
+    for (FSTSortOrder *orderBy in sortOrders) {
+      ComparisonResult comp = [orderBy compareDocument:document1 toDocument:document2];
+      if (!util::Same(comp)) return comp;
+
       didCompareOnKeyField = didCompareOnKeyField || orderBy.field == FieldPath::KeyFieldPath();
     }
     HARD_ASSERT(didCompareOnKeyField, "sortOrder of query did not include key ordering");
-    return NSOrderedSame;
-  };
+    return ComparisonResult::Same;
+  });
 }
 
 - (nullable const FieldPath *)inequalityFilterField {

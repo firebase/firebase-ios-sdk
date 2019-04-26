@@ -23,7 +23,7 @@
 
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
-#include "Firestore/core/src/firebase/firestore/util/objc_compatibility.h"
+#include "Firestore/core/src/firebase/firestore/objc/objc_compatibility.h"
 #include "absl/algorithm/container.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -32,11 +32,16 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-namespace objc = util::objc;
 using immutable::SortedSet;
 
-DocumentSet::DocumentSet(NSComparator comparator)
-    : index_{}, sorted_set_{DocumentSetComparator{comparator}} {
+DocumentComparator DocumentComparator::ByKey() {
+  return DocumentComparator([](FSTDocument* lhs, FSTDocument* rhs) {
+    return util::Compare(lhs.key, rhs.key);
+  });
+}
+
+DocumentSet::DocumentSet(DocumentComparator&& comparator)
+    : index_{}, sorted_set_{std::move(comparator)} {
 }
 
 bool operator==(const DocumentSet& lhs, const DocumentSet& rhs) {

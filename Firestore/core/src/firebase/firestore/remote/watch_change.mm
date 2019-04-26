@@ -18,9 +18,7 @@
 
 #import "Firestore/Source/Model/FSTDocument.h"
 
-#include "Firestore/core/src/firebase/firestore/util/objc_compatibility.h"
-
-namespace objc = firebase::firestore::util::objc;
+#include "Firestore/core/src/firebase/firestore/objc/objc_compatibility.h"
 
 namespace firebase {
 namespace firestore {

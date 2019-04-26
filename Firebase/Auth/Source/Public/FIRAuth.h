@@ -818,8 +818,8 @@ DEPRECATED_MSG_ATTRIBUTE("Please use signInWithCredential:completion: for Object
 /** @fn getStoredUserForAccessGroup:error:
     @brief Get the stored user in the given accessGroup.
  */
-- (FIRUser *)getStoredUserForAccessGroup:(NSString *_Nullable)accessGroup
-                                   error:(NSError *_Nullable *_Nullable)outError;
+- (nullable FIRUser *)getStoredUserForAccessGroup:(NSString *_Nullable)accessGroup
+                                            error:(NSError *_Nullable *_Nullable)outError;
 
 @end
 

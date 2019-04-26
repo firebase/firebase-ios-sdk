@@ -25,17 +25,19 @@
 #import "Firestore/Source/Core/FSTEventManager.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 #import "Firestore/Source/Core/FSTQuery.h"
+#import "Firestore/Source/Model/FSTMutation.h"
 
 #include "Firestore/core/src/firebase/firestore/api/source.h"
+#include "Firestore/core/src/firebase/firestore/core/user_data.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/objc/objc_compatibility.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
-#include "Firestore/core/src/firebase/firestore/util/objc_compatibility.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
 
@@ -45,7 +47,6 @@ namespace firebase {
 namespace firestore {
 namespace api {
 
-namespace objc = util::objc;
 using core::AsyncEventListener;
 using core::EventListener;
 using core::ListenOptions;
@@ -60,7 +61,7 @@ using util::StatusOrCallback;
 
 DocumentReference::DocumentReference(model::ResourcePath path,
                                      std::shared_ptr<Firestore> firestore)
-    : firestore_{firestore} {
+    : firestore_{std::move(firestore)} {
   if (path.size() % 2 != 0) {
     HARD_FAIL(
         "Invalid document reference. Document references must have an even "

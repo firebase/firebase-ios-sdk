@@ -60,6 +60,8 @@ class RemoteEvent;
 }  // namespace firestore
 }  // namespace firebase
 
+namespace model = firebase::firestore::model;
+
 NS_ASSUME_NONNULL_BEGIN
 
 #define FSTAssertIsKindOfClass(value, classType)             \
@@ -272,14 +274,13 @@ FSTSortOrder *FSTTestOrderBy(const absl::string_view field, NSString *direction)
  * Creates an NSComparator that will compare FSTDocuments by the given fieldPath string then by
  * key.
  */
-NSComparator FSTTestDocComparator(const absl::string_view fieldPath);
+model::DocumentComparator FSTTestDocComparator(const absl::string_view fieldPath);
 
 /**
  * Creates a DocumentSet based on the given comparator, initially containing the given
  * documents.
  */
-firebase::firestore::model::DocumentSet FSTTestDocSet(NSComparator comp,
-                                                      NSArray<FSTDocument *> *docs);
+model::DocumentSet FSTTestDocSet(model::DocumentComparator comp, NSArray<FSTDocument *> *docs);
 
 /** Computes changes to the view with the docs and then applies them and returns the snapshot. */
 absl::optional<firebase::firestore::core::ViewSnapshot> FSTTestApplyChanges(

@@ -31,13 +31,13 @@ namespace local {
 
 using model::ResourcePath;
 
-void IndexManagerTest::AssertParents(const std::string &collection_id,
+void IndexManagerTest::AssertParents(const std::string& collection_id,
                                      std::vector<std::string> expected) {
-  IndexManager *index_manager = persistence.indexManager;
+  IndexManager* index_manager = persistence.indexManager;
   std::vector<ResourcePath> actual_paths =
       index_manager->GetCollectionParents(collection_id);
   std::vector<std::string> actual;
-  for (const ResourcePath &actual_path : actual_paths) {
+  for (const ResourcePath& actual_path : actual_paths) {
     actual.push_back(actual_path.CanonicalString());
   }
   std::sort(expected.begin(), expected.end());
@@ -52,7 +52,7 @@ IndexManagerTest::~IndexManagerTest() {
 }
 
 TEST_P(IndexManagerTest, AddAndReadCollectionParentIndexEntries) {
-  IndexManager *index_manager = persistence.indexManager;
+  IndexManager* index_manager = persistence.indexManager;
   persistence.run("AddAndReadCollectionParentIndexEntries", [&]() {
     index_manager->AddToCollectionParentIndex(ResourcePath{"messages"});
     index_manager->AddToCollectionParentIndex(ResourcePath{"messages"});

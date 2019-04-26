@@ -43,6 +43,7 @@ namespace util = firebase::firestore::util;
 using firebase::firestore::api::SnapshotMetadata;
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::ViewSnapshot;
+using firebase::firestore::model::DocumentComparator;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentSet;
 
@@ -100,7 +101,7 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
     bool hasPendingWrites,
     bool fromCache) {
   SnapshotMetadata metadata(hasPendingWrites, fromCache);
-  DocumentSet oldDocuments = FSTTestDocSet(FSTDocumentComparatorByKey, @[]);
+  DocumentSet oldDocuments = FSTTestDocSet(DocumentComparator::ByKey(), @[]);
   DocumentKeySet mutatedKeys;
   for (NSString *key in oldDocs) {
     oldDocuments = oldDocuments.insert(

@@ -120,6 +120,8 @@ message IosClientInfo {
 message ClientInfo {
 
   enum ClientType {
+    CLIENT_UNKNOWN = 0;
+
     IOS_FIREBASE = 15;
   }
 
