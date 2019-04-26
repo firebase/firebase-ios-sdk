@@ -29,6 +29,7 @@
 
 #import "GDTLibrary/Private/GDTReachability_Private.h"
 #import "GDTLibrary/Private/GDTStorage_Private.h"
+#import "GDTLibrary/Private/GDTTransformer_Private.h"
 
 /** A test-only event data object used in this integration test. */
 @interface GDTIntegrationTestEvent : NSObject <GDTEventDataObject>
@@ -126,6 +127,10 @@
   // Generate some events data.
   [self generateEvents];
 
+  // Flush the transformer queue.
+  dispatch_sync([GDTTransformer sharedInstance].eventWritingQueue, ^{
+                });
+
   // Confirm events are on disk.
   dispatch_sync([GDTStorage sharedInstance].storageQueue, ^{
     XCTAssertGreaterThan([GDTStorage sharedInstance].storedEvents.count, 0);
@@ -162,7 +167,7 @@
 
 /** Generates a bunch of random events. */
 - (void)generateEvents {
-  for (int i = 0; i < 50; i++) {
+  for (int i = 0; i < arc4random_uniform(10) + 1; i++) {
     // Choose a random transport, and randomly choose if it's a telemetry event.
     GDTTransport *transport = arc4random_uniform(2) ? self.transport1 : self.transport2;
     BOOL isTelemetryEvent = arc4random_uniform(2);
