@@ -144,29 +144,17 @@ const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7 days.
 
   FIRInstanceIDAPNSInfo *APNSInfo = nil;
   if (rawAPNSInfo) {
-    if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-      NSError *error;
-      APNSInfo = [NSKeyedUnarchiver unarchivedObjectOfClass:[FIRInstanceIDAPNSInfo class]
-                                                   fromData:rawAPNSInfo
-                                                      error:&error];
-      if (error) {
-        FIRInstanceIDLoggerInfo(
-            kFIRInstanceIDMessageCodeTokenInfoBadAPNSInfo,
-            @"Could not parse raw APNS Info while parsing archived token info, error: %@.", error);
-      }
-    } else {
-      @try {
+    // TODO(chliangGoogle: Use the new API and secureCoding protocol.
+    @try {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        APNSInfo = [NSKeyedUnarchiver unarchiveObjectWithData:rawAPNSInfo];
+      APNSInfo = [NSKeyedUnarchiver unarchiveObjectWithData:rawAPNSInfo];
 #pragma clang diagnostic pop
-      } @catch (NSException *exception) {
-        FIRInstanceIDLoggerInfo(
-            kFIRInstanceIDMessageCodeTokenInfoBadAPNSInfo,
-            @"Could not parse raw APNS Info while parsing archived token info.");
-        APNSInfo = nil;
-      } @finally {
-      }
+    } @catch (NSException *exception) {
+      FIRInstanceIDLoggerInfo(kFIRInstanceIDMessageCodeTokenInfoBadAPNSInfo,
+                              @"Could not parse raw APNS Info while parsing archived token info.");
+      APNSInfo = nil;
+    } @finally {
     }
   }
 
@@ -196,17 +184,11 @@ const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7 days.
   [aCoder encodeObject:self.firebaseAppID forKey:kFIRInstanceIDFirebaseAppIDKey];
   NSData *rawAPNSInfo;
   if (self.APNSInfo) {
-    if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-      NSError *error;
-      rawAPNSInfo = [NSKeyedArchiver archivedDataWithRootObject:self.APNSInfo
-                                          requiringSecureCoding:YES
-                                                          error:&error];
-    } else {
+    // TODO(chliangGoogle: Use the new API and secureCoding protocol.
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-      rawAPNSInfo = [NSKeyedArchiver archivedDataWithRootObject:self.APNSInfo];
+    rawAPNSInfo = [NSKeyedArchiver archivedDataWithRootObject:self.APNSInfo];
 #pragma clang diagnostic pop
-    }
 
     [aCoder encodeObject:rawAPNSInfo forKey:kFIRInstanceIDAPNSInfoKey];
   }

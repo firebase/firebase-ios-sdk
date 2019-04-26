@@ -86,33 +86,19 @@ static NSString *const kFIRInstanceIDTokenKeychainId = @"com.google.iid-tokens";
   // NOTE: Passing in nil to unarchiveObjectWithData will result in an iOS error logged
   // in the console on iOS 10 and below. Avoid by checking item.data's existence.
   if (item) {
-    if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-      NSError *error;
-      [NSKeyedUnarchiver unarchivedObjectOfClass:[FIRInstanceIDTokenInfo class]
-                                        fromData:item
-                                           error:&error];
-      if (error) {
-        FIRInstanceIDLoggerDebug(kFIRInstanceIDMessageCodeTokenStoreExceptionUnarchivingTokenInfo,
-                                 @"Unable to parse token info from Keychain item; item was in an "
-                                 @"invalid format, error %@",
-                                 error);
-        tokenInfo = nil;
-      }
-
-    } else {
-      @try {
+    // TODO(chliangGoogle: Use the new API and secureCoding protocol.
+    @try {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        tokenInfo = [NSKeyedUnarchiver unarchiveObjectWithData:item];
+      tokenInfo = [NSKeyedUnarchiver unarchiveObjectWithData:item];
 #pragma clang diagnostic pop
 
-      } @catch (NSException *exception) {
-        FIRInstanceIDLoggerDebug(kFIRInstanceIDMessageCodeTokenStoreExceptionUnarchivingTokenInfo,
-                                 @"Unable to parse token info from Keychain item; item was in an "
-                                 @"invalid format");
-        tokenInfo = nil;
-      } @finally {
-      }
+    } @catch (NSException *exception) {
+      FIRInstanceIDLoggerDebug(kFIRInstanceIDMessageCodeTokenStoreExceptionUnarchivingTokenInfo,
+                               @"Unable to parse token info from Keychain item; item was in an "
+                               @"invalid format");
+      tokenInfo = nil;
+    } @finally {
     }
   }
   return tokenInfo;
@@ -127,17 +113,11 @@ static NSString *const kFIRInstanceIDTokenKeychainId = @"com.google.iid-tokens";
   tokenInfo.cacheTime = [NSDate date];
   // Always write to the Keychain, so that the cacheTime is up-to-date.
   NSData *tokenInfoData;
-  if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-    NSError *error;
-    tokenInfoData = [NSKeyedArchiver archivedDataWithRootObject:tokenInfo
-                                          requiringSecureCoding:YES
-                                                          error:&error];
-  } else {
+  // TODO(chliangGoogle: Use the new API and secureCoding protocol.
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    tokenInfoData = [NSKeyedArchiver archivedDataWithRootObject:tokenInfo];
+  tokenInfoData = [NSKeyedArchiver archivedDataWithRootObject:tokenInfo];
 #pragma clang diagnostic pop
-  }
   NSString *account = FIRInstanceIDAppIdentifier();
   NSString *service = [[self class] serviceKeyForAuthorizedEntity:tokenInfo.authorizedEntity
                                                             scope:tokenInfo.scope];
