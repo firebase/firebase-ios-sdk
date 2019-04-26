@@ -70,7 +70,7 @@ DocumentReference DocumentSnapshot::CreateReference() const {
   return DocumentReference{internal_key_, firestore_};
 }
 
-std::string DocumentSnapshot::document_id() const {
+const std::string& DocumentSnapshot::document_id() const {
   return internal_key_.path().last_segment();
 }
 
