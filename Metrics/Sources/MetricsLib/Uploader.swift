@@ -23,6 +23,7 @@ public class Uploader {
     try FileManager.default.removeItem(atPath: json)
   }
 
+  /// Writes the metrics to a local file in a JSON format and returns that path.
   private class func writeJson(metrics: UploadMetrics) throws -> String {
     try metrics.json().write(to: NSURL(fileURLWithPath: JSON_PATH) as URL,
                              atomically: false,
@@ -30,12 +31,14 @@ public class Uploader {
     return JSON_PATH
   }
 
+  /// Downloads the uploader JAR and returns the path to it.
   private class func downloadJar() throws -> String {
     let jarData = try Data(contentsOf: URL(string: JAR_URL)!)
     try jarData.write(to: NSURL(fileURLWithPath: JAR_LOCAL_PATH) as URL)
     return JAR_LOCAL_PATH
   }
 
+  /// Executes the uploader jar and returns the exit code.
   private class func runJar(jar: String, json: String, config: String) -> Int32 {
     let task = Process()
     task.launchPath = "/usr/bin/java"
