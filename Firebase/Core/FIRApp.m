@@ -172,7 +172,7 @@ static NSMutableDictionary *sLibraryVersions;
     if (![[self applicationNameAllowedCharacters] isSupersetOfSet:nameCharacters]) {
       [NSException raise:kFirebaseCoreErrorDomain
                   format:@"App name can only contain alphanumeric, "
-       @"hyphen (-), and underscore (_) characters"];
+                         @"hyphen (-), and underscore (_) characters"];
     }
 
     @synchronized(self) {
