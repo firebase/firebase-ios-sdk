@@ -183,7 +183,6 @@ static NSString *const kGULDidReceiveRemoteNotificationWithCompletionSEL =
       [[GULAppDelegateSwizzler sharedApplication] removeObserver:self
                                                       forKeyPath:kGULAppDelegateKeyPath];
       _isObserving = NO;
-      [GULAppDelegateSwizzler resetProxyOriginalDelegateOnceToken];
     }
   }
 }
@@ -684,11 +683,6 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
   }];
 }
 
-+ (void)resetProxyOriginalDelegateOnceToken {
-  sProxyAppDelegateOnceToken = 0;
-  sProxyAppDelegateRemoteNotificationOnceToken = 0;
-}
-
 // The methods below are donor methods which are added to the dynamic subclass of the App Delegate.
 // They are called within the scope of the real App Delegate so |self| does not refer to the
 // GULAppDelegateSwizzler instance but the real App Delegate instance.
@@ -1022,6 +1016,11 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
 
 + (void)clearInterceptors {
   [[self interceptors] removeAllObjects];
+}
+
++ (void)resetProxyOriginalDelegateOnceToken {
+  sProxyAppDelegateOnceToken = 0;
+  sProxyAppDelegateRemoteNotificationOnceToken = 0;
 }
 
 + (id<UIApplicationDelegate>)originalDelegate {

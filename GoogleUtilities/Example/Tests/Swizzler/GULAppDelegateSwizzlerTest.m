@@ -627,8 +627,6 @@ static BOOL gRespondsToHandleBackgroundSession;
  *  handles it correctly.
  */
 - (void)testAppDelegateInstance {
-  id originalDelegate = [UIApplication sharedApplication].delegate;
-
   GULTestAppDelegate *realAppDelegate = [[GULTestAppDelegate alloc] init];
 
   [UIApplication sharedApplication].delegate = realAppDelegate;
@@ -644,15 +642,8 @@ static BOOL gRespondsToHandleBackgroundSession;
   XCTAssertNil([GULAppDelegateSwizzler originalDelegate]);
 
   [GULAppDelegateSwizzler proxyOriginalDelegate];
-  XCTAssertEqualObjects([GULAppDelegateSwizzler originalDelegate], anotherAppDelegate);
 
-  // Make sure that it is set to nil correctly.
-  [UIApplication sharedApplication].delegate = nil;
-  XCTAssertNil([UIApplication sharedApplication].delegate);
-  XCTAssertNil([GULAppDelegateSwizzler originalDelegate]);
-
-  [UIApplication sharedApplication].delegate = originalDelegate;
-  XCTAssertEqualObjects([UIApplication sharedApplication].delegate, originalDelegate);
+  // Swizzling of an updated app delegate is not supported so far.
   XCTAssertNil([GULAppDelegateSwizzler originalDelegate]);
 }
 
