@@ -60,7 +60,7 @@ class DocumentSnapshot {
 
   bool exists() const;
   FSTDocument* internal_document() const;
-  std::string document_id() const;
+  const std::string& document_id() const;
 
   const SnapshotMetadata& metadata() const {
     return metadata_;

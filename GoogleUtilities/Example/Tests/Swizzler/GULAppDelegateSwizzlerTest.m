@@ -626,9 +626,7 @@ static BOOL gRespondsToHandleBackgroundSession;
 /** Tests that if the app delegate changes after it has been proxied, the App Delegate Swizzler
  *  handles it correctly.
  */
-- (void)skipped_testAppDelegateInstance {
-  id originalDelegate = [UIApplication sharedApplication].delegate;
-
+- (void)testAppDelegateInstance {
   GULTestAppDelegate *realAppDelegate = [[GULTestAppDelegate alloc] init];
 
   [UIApplication sharedApplication].delegate = realAppDelegate;
@@ -644,15 +642,8 @@ static BOOL gRespondsToHandleBackgroundSession;
   XCTAssertNil([GULAppDelegateSwizzler originalDelegate]);
 
   [GULAppDelegateSwizzler proxyOriginalDelegate];
-  XCTAssertEqualObjects([GULAppDelegateSwizzler originalDelegate], anotherAppDelegate);
 
-  // Make sure that it is set to nil correctly.
-  [UIApplication sharedApplication].delegate = nil;
-  XCTAssertNil([UIApplication sharedApplication].delegate);
-  XCTAssertNil([GULAppDelegateSwizzler originalDelegate]);
-
-  [UIApplication sharedApplication].delegate = originalDelegate;
-  XCTAssertEqualObjects([UIApplication sharedApplication].delegate, originalDelegate);
+  // Swizzling of an updated app delegate is not supported so far.
   XCTAssertNil([GULAppDelegateSwizzler originalDelegate]);
 }
 
@@ -1236,6 +1227,7 @@ static BOOL gRespondsToHandleBackgroundSession;
   OCMStub([self.mockSharedApplication delegate]).andReturn(originalAppDelegate);
 
   [GULAppDelegateSwizzler proxyOriginalDelegate];
+  [GULAppDelegateSwizzler proxyOriginalDelegateIncludingAPNSMethods];
   XCTAssertEqualObjects([originalAppDelegate class], originalAppDelegateClass);
 
   [mainBundleMock stopMocking];
@@ -1256,6 +1248,19 @@ static BOOL gRespondsToHandleBackgroundSession;
   OCMStub([self.mockSharedApplication delegate]).andReturn(originalAppDelegate);
 
   [GULAppDelegateSwizzler proxyOriginalDelegate];
+  XCTAssertNotEqualObjects([originalAppDelegate class], originalAppDelegateClass);
+}
+
+- (void)testAppDelegateIsProxiedIncludingAPNSMethodsWhenEnabled {
+  // App Delegate Proxying is enabled by default.
+  XCTAssertTrue([GULAppDelegateSwizzler isAppDelegateProxyEnabled]);
+
+  id originalAppDelegate = [[GULTestAppDelegate alloc] init];
+  Class originalAppDelegateClass = [originalAppDelegate class];
+  XCTAssertNotNil(originalAppDelegate);
+  OCMStub([self.mockSharedApplication delegate]).andReturn(originalAppDelegate);
+
+  [GULAppDelegateSwizzler proxyOriginalDelegateIncludingAPNSMethods];
   XCTAssertNotEqualObjects([originalAppDelegate class], originalAppDelegateClass);
 }
 
