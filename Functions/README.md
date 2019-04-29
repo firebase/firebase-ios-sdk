@@ -7,7 +7,9 @@ integration test FirebaseFunctions:
 
 ### Prereqs
 
-- At least CocoaPods 1.6.0
+- Install [rvm](https://rvm.io/rvm/install)
+- `gem install bundle`
+- `bundle install`
 
 ### To Develop
 
