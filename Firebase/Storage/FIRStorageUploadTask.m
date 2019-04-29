@@ -196,14 +196,17 @@
   NSError *fileReachabilityError;
   if (![_fileURL checkResourceIsReachableAndReturnError:&fileReachabilityError]) {
     if (outError != NULL) {
-      NSString *description =
+      NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithCapacity:2];
+      userInfo[NSLocalizedDescriptionKey] =
           [NSString stringWithFormat:@"File at URL: %@ is not reachable.", _fileURL.absoluteString];
+
+      if (fileReachabilityError) {
+        userInfo[NSUnderlyingErrorKey] = fileReachabilityError;
+      }
+
       *outError = [NSError errorWithDomain:FIRStorageErrorDomain
                                       code:FIRStorageErrorCodeUnknown
-                                  userInfo:@{
-                                    NSUnderlyingErrorKey : fileReachabilityError,
-                                    NSLocalizedDescriptionKey : description
-                                  }];
+                                  userInfo:userInfo];
     }
 
     return NO;
