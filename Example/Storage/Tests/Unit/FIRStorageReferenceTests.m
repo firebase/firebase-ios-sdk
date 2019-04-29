@@ -204,8 +204,7 @@
 
         XCTAssertEqualObjects(error.domain, FIRStorageErrorDomain);
         XCTAssertEqual(error.code, FIRStorageErrorCodeUnknown);
-        NSString *expectedDescription = [NSString
-            stringWithFormat:@"File at URL: %@ is not reachable.", dummyFileURL.absoluteString];
+        NSString *expectedDescription = @"File at URL: (null) is not reachable.";
         XCTAssertEqualObjects(error.localizedDescription, expectedDescription);
       }];
 
