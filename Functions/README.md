@@ -8,16 +8,15 @@ integration test FirebaseFunctions:
 ### Prereqs
 
 - At least CocoaPods 1.6.0
-- Install [cocoapods-generate](https://github.com/square/cocoapods-generate)
 
 ### To Develop
 
-- Run `pod gen FirebaseFunctions.podspec`
+- Run `bundle exec pod gen FirebaseFunctions.podspec`
 - `open gen/FirebaseFunctions/FirebaseFunctions.xcworkspace`
 
 OR these two commands can be combined with
 
-- `pod gen FirebaseFunctions.podspec --auto-open --gen-directory="gen" --clean`
+- `bundle exec pod gen FirebaseFunctions.podspec --auto-open --gen-directory="gen" --clean`
 
 You're now in an Xcode workspace generate for building, debugging and
 testing the FirebaseFunctions CocoaPod.
