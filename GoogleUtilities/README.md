@@ -21,14 +21,15 @@ integration test FirebaseFunctions:
 ### Prereqs
 
 - At least CocoaPods 1.6.0
-- Install [cocoapods-generate](https://github.com/square/cocoapods-generate)
 
-- Run `pod gen GoogleUtilities.podspec`
+### To Develop
+
+- Run `bundle exec pod gen GoogleUtilities.podspec`
 - `open gen/GoogleUtilities/GoogleUtilities.xcworkspace`
 
 OR these two commands can be combined with
 
-- `pod gen GoogleUtilities.podspec --auto-open --gen-directory="gen" --clean`
+- `bundle exec pod gen GoogleUtilities.podspec --auto-open --gen-directory="gen" --clean`
 
 You're now in an Xcode workspace generate for building, debugging and
 testing the GoogleUtilities CocoaPod.
