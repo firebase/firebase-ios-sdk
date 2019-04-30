@@ -18,4 +18,14 @@ cc_test(
     objc_type_traits_apple_test.mm
   DEPENDS
     firebase_firestore_objc
+    firebase_firestore_util
 )
+
+if(APPLE)
+  target_sources(
+    firebase_firestore_objc_test PUBLIC
+    objc_class_test.cc
+    objc_class_test_helper.h
+    objc_class_test_helper.mm
+  )
+endif()

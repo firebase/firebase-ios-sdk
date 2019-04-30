@@ -22,6 +22,16 @@ namespace firebase {
 namespace firestore {
 namespace api {
 
+ListenerRegistration::ListenerRegistration(
+    FSTFirestoreClient* client,
+    std::shared_ptr<core::AsyncEventListener<core::ViewSnapshot>>
+        async_listener,
+    std::shared_ptr<core::QueryListener> query_listener)
+    : client_(client),
+      async_listener_(std::move(async_listener)),
+      query_listener_(std::move(query_listener)) {
+}
+
 void ListenerRegistration::Remove() {
   auto async_listener = async_listener_.lock();
   if (async_listener) {
@@ -35,7 +45,7 @@ void ListenerRegistration::Remove() {
     query_listener_.reset();
   }
 
-  client_ = nil;
+  client_.Release();
 }
 
 }  // namespace api

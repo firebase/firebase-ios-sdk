@@ -56,7 +56,7 @@ struct ReferenceValue {
  * Firestore. FieldValue represents all the different kinds of values
  * that can be stored in fields in a document.
  */
-class FieldValue {
+class FieldValue : public util::Comparable<FieldValue> {
  public:
   using Map = immutable::SortedMap<std::string, FieldValue>;
 
@@ -192,7 +192,7 @@ class FieldValue {
 
   size_t Hash() const;
 
-  friend bool operator<(const FieldValue& lhs, const FieldValue& rhs);
+  util::ComparisonResult CompareTo(const FieldValue& rhs) const;
 
  private:
   friend class ObjectValue;
@@ -224,7 +224,7 @@ class FieldValue {
 };
 
 /** A structured object value stored in Firestore. */
-class ObjectValue {
+class ObjectValue : public util::Comparable<ObjectValue> {
  public:
   explicit ObjectValue(FieldValue fv) : fv_(std::move(fv)) {
     HARD_ASSERT(fv_.type() == FieldValue::Type::Object);
@@ -275,64 +275,14 @@ class ObjectValue {
     return *fv_.object_value_;
   }
 
- private:
-  friend bool operator<(const ObjectValue& lhs, const ObjectValue& rhs);
+  util::ComparisonResult CompareTo(const ObjectValue& rhs) const;
 
+ private:
   ObjectValue SetChild(const std::string& child_name,
                        const FieldValue& value) const;
 
   FieldValue fv_;
 };
-
-bool operator<(const FieldValue::Map& lhs, const FieldValue::Map& rhs);
-
-/** Compares against another FieldValue. */
-bool operator<(const FieldValue& lhs, const FieldValue& rhs);
-
-inline bool operator>(const FieldValue& lhs, const FieldValue& rhs) {
-  return rhs < lhs;
-}
-
-inline bool operator>=(const FieldValue& lhs, const FieldValue& rhs) {
-  return !(lhs < rhs);
-}
-
-inline bool operator<=(const FieldValue& lhs, const FieldValue& rhs) {
-  return !(lhs > rhs);
-}
-
-inline bool operator!=(const FieldValue& lhs, const FieldValue& rhs) {
-  return lhs < rhs || lhs > rhs;
-}
-
-inline bool operator==(const FieldValue& lhs, const FieldValue& rhs) {
-  return !(lhs != rhs);
-}
-
-/** Compares against another ObjectValue. */
-inline bool operator<(const ObjectValue& lhs, const ObjectValue& rhs) {
-  return lhs.fv_ < rhs.fv_;
-}
-
-inline bool operator>(const ObjectValue& lhs, const ObjectValue& rhs) {
-  return rhs < lhs;
-}
-
-inline bool operator>=(const ObjectValue& lhs, const ObjectValue& rhs) {
-  return !(lhs < rhs);
-}
-
-inline bool operator<=(const ObjectValue& lhs, const ObjectValue& rhs) {
-  return !(lhs > rhs);
-}
-
-inline bool operator!=(const ObjectValue& lhs, const ObjectValue& rhs) {
-  return lhs < rhs || lhs > rhs;
-}
-
-inline bool operator==(const ObjectValue& lhs, const ObjectValue& rhs) {
-  return !(lhs != rhs);
-}
 
 }  // namespace model
 }  // namespace firestore

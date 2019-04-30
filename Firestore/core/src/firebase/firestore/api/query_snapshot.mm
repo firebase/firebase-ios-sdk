@@ -43,6 +43,20 @@ using core::DocumentViewChange;
 using core::ViewSnapshot;
 using model::DocumentSet;
 
+QuerySnapshot::QuerySnapshot(std::shared_ptr<Firestore> firestore,
+                             FSTQuery* query,
+                             core::ViewSnapshot&& snapshot,
+                             SnapshotMetadata metadata)
+    : firestore_(firestore),
+      internal_query_(query),
+      snapshot_(std::move(snapshot)),
+      metadata_(std::move(metadata)) {
+}
+
+FSTQuery* QuerySnapshot::internal_query() const {
+  return internal_query_;
+}
+
 bool operator==(const QuerySnapshot& lhs, const QuerySnapshot& rhs) {
   return lhs.firestore_ == rhs.firestore_ &&
          objc::Equals(lhs.internal_query_, rhs.internal_query_) &&
@@ -105,9 +119,9 @@ void QuerySnapshot::ForEachChange(
 
       HARD_ASSERT(change.type() == DocumentViewChange::Type::kAdded,
                   "Invalid event type for first snapshot");
-      HARD_ASSERT(!last_document || snapshot_.query().comparator(
-                                        last_document, change.document()) ==
-                                        NSOrderedAscending,
+      HARD_ASSERT(!last_document ||
+                      util::Ascending(snapshot_.query().comparator.Compare(
+                          last_document, change.document())),
                   "Got added events in wrong order");
 
       callback(DocumentChange(DocumentChange::Type::Added, std::move(document),

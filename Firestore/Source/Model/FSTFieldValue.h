@@ -16,6 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
+#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/third_party/Immutable/FSTImmutableSortedDictionary.h"
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
@@ -23,7 +24,6 @@
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 
-@class FSTDocumentKey;
 @class FIRTimestamp;
 @class FSTFieldValueOptions;
 @class FIRGeoPoint;

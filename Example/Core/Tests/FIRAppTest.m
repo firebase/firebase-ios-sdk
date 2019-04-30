@@ -208,6 +208,8 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 
 - (void)testValidName {
   XCTAssertNoThrow([FIRApp configureWithName:@"aA1_" options:[FIROptions defaultOptions]]);
+  XCTAssertNoThrow([FIRApp configureWithName:@"aA1-" options:[FIROptions defaultOptions]]);
+  XCTAssertNoThrow([FIRApp configureWithName:@"aAē1_" options:[FIROptions defaultOptions]]);
   XCTAssertThrows([FIRApp configureWithName:@"aA1%" options:[FIROptions defaultOptions]]);
   XCTAssertThrows([FIRApp configureWithName:@"aA1?" options:[FIROptions defaultOptions]]);
   XCTAssertThrows([FIRApp configureWithName:@"aA1!" options:[FIROptions defaultOptions]]);

@@ -71,15 +71,15 @@ class DocumentKeyReference {
   std::string ToString() const;
 
   /** Sorts document references by key then Id. */
-  struct ByKey : public util::Comparator<DocumentKeyReference> {
-    bool operator()(const DocumentKeyReference& lhs,
-                    const DocumentKeyReference& rhs) const;
+  struct ByKey {
+    util::ComparisonResult Compare(const DocumentKeyReference& lhs,
+                                   const DocumentKeyReference& rhs) const;
   };
 
   /** Sorts document references by Id then key. */
-  struct ById : public util::Comparator<DocumentKeyReference> {
-    bool operator()(const DocumentKeyReference& lhs,
-                    const DocumentKeyReference& rhs) const;
+  struct ById {
+    util::ComparisonResult Compare(const DocumentKeyReference& lhs,
+                                   const DocumentKeyReference& rhs) const;
   };
 
  private:

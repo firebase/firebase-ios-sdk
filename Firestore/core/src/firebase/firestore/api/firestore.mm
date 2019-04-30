@@ -64,6 +64,11 @@ Firestore::Firestore(std::string project_id,
       extension_{extension} {
 }
 
+FSTFirestoreClient* Firestore::client() {
+  HARD_ASSERT(client_, "Client is not yet configured.");
+  return client_;
+}
+
 AsyncQueue* Firestore::worker_queue() {
   return [client_ workerQueue];
 }

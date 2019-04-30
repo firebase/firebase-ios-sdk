@@ -187,4 +187,28 @@
   [self waitForExpectationsWithTimeout:0.5 handler:NULL];
 }
 
+- (void)testReferenceWithNilFileURLFailsWithCompletion {
+  NSString *tempFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"temp.data"];
+  FIRStorageReference *ref = [self.storage referenceWithPath:tempFilePath];
+
+  NSURL *dummyFileURL = nil;
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"completionExpectation"];
+
+  [ref putFile:dummyFileURL
+        metadata:nil
+      completion:^(FIRStorageMetadata *_Nullable metadata, NSError *_Nullable error) {
+        [expectation fulfill];
+        XCTAssertNotNil(error);
+        XCTAssertNil(metadata);
+
+        XCTAssertEqualObjects(error.domain, FIRStorageErrorDomain);
+        XCTAssertEqual(error.code, FIRStorageErrorCodeUnknown);
+        NSString *expectedDescription = @"File at URL: (null) is not reachable.";
+        XCTAssertEqualObjects(error.localizedDescription, expectedDescription);
+      }];
+
+  [self waitForExpectationsWithTimeout:0.5 handler:NULL];
+}
+
 @end
