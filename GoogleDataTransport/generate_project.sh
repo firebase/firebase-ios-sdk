@@ -18,4 +18,4 @@
 # From https://stackoverflow.com/questions/59895/getting-the-source-directory-of-a-bash-script-from-within
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
-bundle exec pod gen "$DIR/../GoogleDataTransport.podspec" --auto-open --gen-directory="$DIR/gen" --clean
+pod gen "$DIR/../GoogleDataTransport.podspec" --auto-open --gen-directory="$DIR/gen" --clean

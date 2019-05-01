@@ -7,18 +7,17 @@ integration test FirebaseFunctions:
 
 ### Prereqs
 
-- Install [rvm](https://rvm.io/rvm/install)
-- `gem install bundle`
-- `bundle install`
+- At least CocoaPods 1.6.0
+- Install [cocoapods-generate](https://github.com/square/cocoapods-generate)
 
 ### To Develop
 
-- Run `bundle exec pod gen FirebaseFunctions.podspec`
+- Run `pod gen FirebaseFunctions.podspec`
 - `open gen/FirebaseFunctions/FirebaseFunctions.xcworkspace`
 
 OR these two commands can be combined with
 
-- `bundle exec pod gen FirebaseFunctions.podspec --auto-open --gen-directory="gen" --clean`
+- `pod gen FirebaseFunctions.podspec --auto-open --gen-directory="gen" --clean`
 
 You're now in an Xcode workspace generate for building, debugging and
 testing the FirebaseFunctions CocoaPod.
