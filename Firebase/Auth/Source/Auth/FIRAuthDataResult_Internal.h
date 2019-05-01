@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** @property credential
     @brief The updated OAuth credential after the the sign-in, link and reauthenticate action.
-    @detial This property is for OAuth sign in only.
+    @detail This property is for OAuth sign in only.
  */
 @property(nonatomic, readonly, nullable) FIROAuthCredential *credential;
 
