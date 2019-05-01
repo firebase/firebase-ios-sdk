@@ -84,7 +84,7 @@ cd "${top_dir}"
 
 ALLOW_DIRTY=false
 COMMIT_METHOD="none"
-START_REVISION="master"
+START_REVISION="origin/master"
 TEST_ONLY=false
 
 while [[ $# -gt 0 ]]; do
