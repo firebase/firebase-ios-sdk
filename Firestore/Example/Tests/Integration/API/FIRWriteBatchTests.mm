@@ -133,6 +133,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testUpdateFieldsWithDots {
+  if ([FSTIntegrationTestCase isRunningAgainstEmulator]) return;
+
   FIRDocumentReference *doc = [self documentRef];
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"testUpdateFieldsWithDots"];
@@ -324,6 +326,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testCanWriteVeryLargeBatches {
+  if ([FSTIntegrationTestCase isRunningAgainstEmulator]) return;
+
   // On Android, SQLite Cursors are limited reading no more than 2 MB per row (despite being able
   // to write very large values). This test verifies that the local MutationQueue is not subject
   // to this limitation.
