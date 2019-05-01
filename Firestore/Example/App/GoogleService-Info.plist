@@ -2,35 +2,27 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CLIENT_ID</key>
-	<string>791224220659-s32obieg320nh0asd66domjtjpdpfsv8.apps.googleusercontent.com</string>
-	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.791224220659-s32obieg320nh0asd66domjtjpdpfsv8</string>
 	<key>API_KEY</key>
-	<string>AIzaSyD4YPmb0v2vsa1Ja3hFhN84hFgQ0UcrGzs</string>
+	<string>correct_api_key</string>
+	<key>TRACKING_ID</key>
+	<string>correct_tracking_id</string>
+	<key>CLIENT_ID</key>
+	<string>correct_client_id</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>correct_reversed_client_id</string>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:123:ios:123abc</string>
 	<key>GCM_SENDER_ID</key>
-	<string>791224220659</string>
+	<string>correct_gcm_sender_id</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.google.Firestore-example</string>
+	<string>com.google.FirebaseSDKTests</string>
 	<key>PROJECT_ID</key>
-	<string>chenbrian-ios</string>
-	<key>STORAGE_BUCKET</key>
-	<string>chenbrian-ios.appspot.com</string>
-	<key>IS_ADS_ENABLED</key>
-	<false></false>
-	<key>IS_ANALYTICS_ENABLED</key>
-	<false></false>
-	<key>IS_APPINVITE_ENABLED</key>
-	<true></true>
-	<key>IS_GCM_ENABLED</key>
-	<true></true>
-	<key>IS_SIGNIN_ENABLED</key>
-	<true></true>
-	<key>GOOGLE_APP_ID</key>
-	<string>1:791224220659:ios:2b64169fb6d47da1</string>
+	<string>abc-xyz-123</string>
 	<key>DATABASE_URL</key>
-	<string>https://chenbrian-ios.firebaseio.com</string>
+	<string>https://abc-xyz-123.firebaseio.com</string>
+	<key>STORAGE_BUCKET</key>
+	<string>project-id-123.storage.firebase.com</string>
 </dict>
 </plist>
