@@ -148,7 +148,7 @@ NS_SWIFT_NAME(Firestore)
  * The maximum number of writes allowed in a single batch is 500, but note that each usage of
  * `FieldValue.serverTimestamp()`, `FieldValue.arrayUnion()`, `FieldValue.arrayRemove()`, or
  * `FieldValue.increment()` inside a batch counts as an additional write.
- 
+
  * Unlike transactions, write batches are persisted offline and therefore are preferable when you
  * don't need to condition your writes on read data.
  */
