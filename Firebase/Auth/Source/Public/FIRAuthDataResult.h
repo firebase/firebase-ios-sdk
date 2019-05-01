@@ -37,7 +37,7 @@ NS_SWIFT_NAME(AuthDataResult)
 /** @property user
     @brief The signed in user.
  */
-@property(nonatomic, readonly, nullable) FIRUser *user;
+@property(nonatomic, readonly) FIRUser *user;
 
 /** @property additionalUserInfo
     @brief If available contains the additional IdP specific information about signed in user.
