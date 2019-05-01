@@ -19,7 +19,6 @@
 #import <FirebaseCore/FIRApp.h>
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponentContainer.h>
-#import <FirebaseCore/FIRLogger.h>
 #import <FirebaseCore/FIROptions.h>
 
 #include <memory>
@@ -294,7 +293,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (void)enableLogging:(BOOL)logging {
-  FIRSetLoggerLevel(logging ? FIRLoggerLevelDebug : FIRLoggerLevelNotice);
+  util::LogSetLevel(logging ? util::kLogLevelDebug : util::kLogLevelNotice);
 }
 
 - (void)enableNetworkWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
@@ -322,7 +321,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (BOOL)isLoggingEnabled {
-  return FIRIsLoggableLevel(FIRLoggerLevelDebug, NO);
+  return util::LogIsLoggable(util::kLogLevelDebug);
 }
 
 + (FIRFirestore *)recoverFromFirestore:(std::shared_ptr<Firestore>)firestore {
