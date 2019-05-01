@@ -88,7 +88,7 @@ case "$platform" in
   iOS)
     xcb_flags=(
       -sdk 'iphonesimulator'
-      -destination 'platform=iOS Simulator,name=iPhone 7'
+      -destination 'platform=iOS Simulator,name=iPhone 7 Plus'
     )
     ;;
 
