@@ -77,6 +77,8 @@ static const double kPrimingTimeout = 45.0;
 static NSString *defaultProjectId;
 static FIRFirestoreSettings *defaultSettings;
 
+static bool runningAgainstEmulator = false;
+
 @implementation FSTIntegrationTestCase {
   NSMutableArray<FIRFirestore *> *_firestores;
 }
@@ -161,6 +163,7 @@ static FIRFirestoreSettings *defaultSettings;
     // If no cert is set up, configure for the Firestore emulator.
     defaultSettings.host = @"localhost:8080";
     defaultSettings.sslEnabled = false;
+    runningAgainstEmulator = true;
 
     // Also issue a warning because the Firestore emulator doesn't completely work yet.
     NSLog(@"Please set up a GoogleServices-Info.plist for Firestore in Firestore/Example/App using "
@@ -175,6 +178,13 @@ static FIRFirestoreSettings *defaultSettings;
     [self setUpDefaults];
   }
   return defaultProjectId;
+}
+
++ (bool)isRunningAgainstEmulator {
+  if (!defaultProjectId) {
+    [self setUpDefaults];
+  }
+  return runningAgainstEmulator;
 }
 
 + (FIRFirestoreSettings *)settings {

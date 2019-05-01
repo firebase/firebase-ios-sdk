@@ -43,6 +43,8 @@ extern "C" {
 /** Returns the default Firestore project ID for testing. */
 + (NSString *)projectID;
 
++ (bool)isRunningAgainstEmulator;
+
 /** Returns a FirestoreSettings configured to use either hexa or the emulator. */
 + (FIRFirestoreSettings *)settings;
 
