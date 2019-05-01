@@ -17,7 +17,6 @@
 #import <Foundation/Foundation.h>
 
 @class FIRAdditionalUserInfo;
-@class FIROAuthCredential;
 @class FIRUser;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -39,13 +38,6 @@ NS_SWIFT_NAME(AuthDataResult)
     @brief The signed in user.
  */
 @property(nonatomic, readonly, nullable) FIRUser *user;
-
-/** @property credential
-    @brief The updated OAuth credential after the the sign-in, link and reauthenticate action.
-    @detial This property is for OAuth sign in only.
- */
-@property(nonatomic, readonly, nullable) FIROAuthCredential *credential;
-
 
 /** @property additionalUserInfo
     @brief If available contains the additional IdP specific information about signed in user.
