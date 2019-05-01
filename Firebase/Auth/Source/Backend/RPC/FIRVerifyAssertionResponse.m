@@ -76,7 +76,6 @@ NS_ASSUME_NONNULL_BEGIN
   _oauthExpirationDate =  [dictionary[@"oauthExpireIn"] isKindOfClass:[NSString class]] ?
       [NSDate dateWithTimeIntervalSinceNow:[dictionary[@"oauthExpireIn"] doubleValue]] : nil;
   _oauthAccessToken = [dictionary[@"oauthAccessToken"] copy];
-  _oauthSecretToken = [dictionary[@"oauthTokenSecret"] copy];
   _pendingToken = [dictionary[@"pendingToken"] copy];
   return YES;
 }

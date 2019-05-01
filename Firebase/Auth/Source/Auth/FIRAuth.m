@@ -841,6 +841,12 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                        requestConfiguration:_requestConfiguration];
   request.autoCreate = !isReauthentication;
   [credential prepareVerifyAssertionRequest:request];
+  if ([credential isKindOfClass:[FIROAuthCredential class]]) {
+    FIROAuthCredential *OAuthCredential = (FIROAuthCredential *)credential;
+    request.requestURI = OAuthCredential.OAuthResponseURLString;
+    request.sessionID = OAuthCredential.sessionID;
+    request.pendingToken = OAuthCredential.pendingToken;
+  }
   [FIRAuthBackend verifyAssertion:request
                          callback:^(FIRVerifyAssertionResponse *response, NSError *error) {
     if (error) {
@@ -853,10 +859,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     if (response.needConfirmation) {
       if (callback) {
         NSString *email = response.email;
-        FIROAuthCredential *credential =
-            [[FIROAuthCredential alloc] initWithVerifyAssertionResponse:response];
-        callback(nil, [FIRAuthErrorUtils accountExistsWithDifferentCredentialErrorWithEmail:email
-            updatedCredential:credential]);
+        callback(nil, [FIRAuthErrorUtils accountExistsWithDifferentCredentialErrorWithEmail:email]);
       }
       return;
     }
@@ -875,12 +878,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       if (callback) {
         FIRAdditionalUserInfo *additionalUserInfo =
             [FIRAdditionalUserInfo userInfoWithVerifyAssertionResponse:response];
-        FIROAuthCredential *updatedOAuthCredential =
-            [[FIROAuthCredential alloc] initWithVerifyAssertionResponse:response];
         FIRAuthDataResult *result = user ?
             [[FIRAuthDataResult alloc] initWithUser:user
-                                 additionalUserInfo:additionalUserInfo
-                                         credential:updatedOAuthCredential] : nil;
+                                 additionalUserInfo:additionalUserInfo] : nil;
         callback(result, error);
       }
     }];

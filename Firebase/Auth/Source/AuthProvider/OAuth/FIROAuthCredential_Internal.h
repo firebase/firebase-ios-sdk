@@ -18,8 +18,6 @@
 
 #import "FIROAuthCredential.h"
 
-@class FIRVerifyAssertionResponse;
-
 NS_ASSUME_NONNULL_BEGIN
 
 /** @extension FIROAuthCredential
@@ -42,18 +40,16 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, readonly, nullable) NSString *pendingToken;
 
-/** @fn initWithProviderId:IDToken:accessToken:secret:pendingToken
+/** @fn initWithProviderId:IDToken:accessToken:pendingToken
     @brief Designated initializer.
     @param providerID The provider ID associated with the credential being created.
     @param IDToken The ID Token associated with the credential being created.
     @param accessToken The access token associated with the credential being created.
-    @param secret The secret associated with the credential being created.
     @param pendingToken The pending token associated with the credential being created.
  */
 - (instancetype)initWithProviderID:(NSString *)providerID
                            IDToken:(nullable NSString *)IDToken
                        accessToken:(nullable NSString *)accessToken
-                            secret:(nullable NSString *)secret
                       pendingToken:(nullable NSString *)pendingToken NS_DESIGNATED_INITIALIZER;
 
 /** @fn initWithProviderId:sessionID:OAuthResponseURLString:
@@ -65,12 +61,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithProviderID:(NSString *)providerID
                          sessionID:(NSString *)sessionID
             OAuthResponseURLString:(NSString *)OAuthResponseURLString;
-
-/** @fn initWithVerifyAssertionResponse
-    @brief Intitializer which takes an verifyAssertion response.
-    @param response The verifyAssertion Response to create the credential instance.
- */
-- (nullable instancetype)initWithVerifyAssertionResponse:(FIRVerifyAssertionResponse *)response;
 
 @end
 

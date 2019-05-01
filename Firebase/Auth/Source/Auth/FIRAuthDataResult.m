@@ -18,7 +18,6 @@
 
 #import "FIRAdditionalUserInfo.h"
 #import "FIRUser.h"
-#import "FIROAuthCredential.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -34,24 +33,12 @@ static NSString *const kAdditionalUserInfoCodingKey = @"additionalUserInfo";
  */
 static NSString *const kUserCodingKey = @"user";
 
-/** @var kCredentialCodingKey
-    @brief The key used to encode the credential for NSSecureCoding.
- */
-static NSString *const kCredentialCodingKey = @"credential";
-
 - (nullable instancetype)initWithUser:(nullable FIRUser *)user
                    additionalUserInfo:(nullable FIRAdditionalUserInfo *)additionalUserInfo {
-  return [self initWithUser:user additionalUserInfo:additionalUserInfo credential:nil];
-}
-
-- (nullable instancetype)initWithUser:(nullable FIRUser *)user
-                   additionalUserInfo:(nullable FIRAdditionalUserInfo *)additionalUserInfo
-                           credential:(nullable FIROAuthCredential *)credential {
   self = [super init];
   if (self) {
     _additionalUserInfo = additionalUserInfo;
     _user = user;
-    _credential = credential;
   }
   return self;
 }
@@ -68,16 +55,13 @@ static NSString *const kCredentialCodingKey = @"credential";
   FIRAdditionalUserInfo *additionalUserInfo =
       [aDecoder decodeObjectOfClass:[FIRAdditionalUserInfo class]
                              forKey:kAdditionalUserInfoCodingKey];
-  FIROAuthCredential *credential =
-      [aDecoder decodeObjectOfClass:[FIROAuthCredential class]
-                             forKey:kCredentialCodingKey];
-  return [self initWithUser:user additionalUserInfo:additionalUserInfo credential:credential];
+
+  return [self initWithUser:user additionalUserInfo:additionalUserInfo];
 }
 
 - (void)encodeWithCoder:(NSCoder *)aCoder {
   [aCoder encodeObject:_user forKey:kUserCodingKey];
   [aCoder encodeObject:_additionalUserInfo forKey:kAdditionalUserInfoCodingKey];
-  [aCoder encodeObject:_credential forKey:kCredentialCodingKey];
 }
 
 @end

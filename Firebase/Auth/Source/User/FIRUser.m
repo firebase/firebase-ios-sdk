@@ -39,7 +39,6 @@
 #import "FIRGetAccountInfoResponse.h"
 #import "FIRGetOOBConfirmationCodeRequest.h"
 #import "FIRGetOOBConfirmationCodeResponse.h"
-#import "FIROAuthCredential_Internal.h"
 #import "FIRSecureTokenService.h"
 #import "FIRSetAccountInfoRequest.h"
 #import "FIRSetAccountInfoResponse.h"
@@ -1135,12 +1134,8 @@ static void callInMainThreadWithAuthDataResultAndError(
           }
           FIRAdditionalUserInfo *additionalUserInfo =
               [FIRAdditionalUserInfo userInfoWithVerifyAssertionResponse:response];
-          FIROAuthCredential *updatedOAuthCredential =
-              [[FIROAuthCredential alloc] initWithVerifyAssertionResponse:response];
           FIRAuthDataResult *result =
-              [[FIRAuthDataResult alloc] initWithUser:self
-                                   additionalUserInfo:additionalUserInfo
-                                           credential:updatedOAuthCredential];
+              [[FIRAuthDataResult alloc] initWithUser:self additionalUserInfo:additionalUserInfo];
           // Update the new token and refresh user info again.
           self->_tokenService = [[FIRSecureTokenService alloc]
               initWithRequestConfiguration:requestConfiguration

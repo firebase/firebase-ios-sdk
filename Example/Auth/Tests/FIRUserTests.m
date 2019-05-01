@@ -1515,8 +1515,7 @@ static const NSTimeInterval kExpectationTimeout = 2;
                        FIRVerifyAssertionResponseCallback callback) {
         dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
             callback(nil,
-                     [FIRAuthErrorUtils accountExistsWithDifferentCredentialErrorWithEmail:kEmail
-                                                                         updatedCredential:nil]);
+                     [FIRAuthErrorUtils accountExistsWithDifferentCredentialErrorWithEmail:kEmail]);
       });
     });
 
