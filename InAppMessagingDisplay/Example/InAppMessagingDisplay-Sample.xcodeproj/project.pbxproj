@@ -3,12 +3,12 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 51;
+	objectVersion = 50;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		2544AF6B2230656D00C5B420 /* CardMessageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2544AF6A2230656D00C5B420 /* CardMessageViewController.swift */; };
-		4265DE16D92C99B9A6E56539 /* Pods_FiamDisplaySwiftExample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5C72088F73776B875CB106D8 /* Pods_FiamDisplaySwiftExample.framework */; };
+		65EEF8062812F4285CE916C6 /* Pods_FiamDisplaySwiftExample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC4D5F99DA1A0238D59C7185 /* Pods_FiamDisplaySwiftExample.framework */; };
 		AD7200B52124D19200AFD5F3 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD7200B42124D19200AFD5F3 /* AppDelegate.swift */; };
 		AD7200BA2124D19200AFD5F3 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AD7200B82124D19200AFD5F3 /* Main.storyboard */; };
 		AD7200BC2124D19400AFD5F3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AD7200BB2124D19400AFD5F3 /* Assets.xcassets */; };
@@ -34,11 +34,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		0F66149C0079E8409F390CBE /* Pods-InAppMessagingDisplay-Sample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-InAppMessagingDisplay-Sample.release.xcconfig"; path = "Pods/Target Support Files/Pods-InAppMessagingDisplay-Sample/Pods-InAppMessagingDisplay-Sample.release.xcconfig"; sourceTree = "<group>"; };
 		2544AF6A2230656D00C5B420 /* CardMessageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardMessageViewController.swift; sourceTree = "<group>"; };
-		46449F37C45EA76C97C32634 /* Pods-FiamDisplaySwiftExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FiamDisplaySwiftExample.release.xcconfig"; path = "Pods/Target Support Files/Pods-FiamDisplaySwiftExample/Pods-FiamDisplaySwiftExample.release.xcconfig"; sourceTree = "<group>"; };
-		5C72088F73776B875CB106D8 /* Pods_FiamDisplaySwiftExample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FiamDisplaySwiftExample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		8FF302EB136148B923534F2E /* Pods-FiamDisplaySwiftExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FiamDisplaySwiftExample.debug.xcconfig"; path = "Pods/Target Support Files/Pods-FiamDisplaySwiftExample/Pods-FiamDisplaySwiftExample.debug.xcconfig"; sourceTree = "<group>"; };
+		AC6B055EA6ABACFAF95EAEA6 /* Pods-FiamDisplaySwiftExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FiamDisplaySwiftExample.release.xcconfig"; path = "Pods/Target Support Files/Pods-FiamDisplaySwiftExample/Pods-FiamDisplaySwiftExample.release.xcconfig"; sourceTree = "<group>"; };
 		AD7200B22124D19200AFD5F3 /* FiamDisplaySwiftExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FiamDisplaySwiftExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AD7200B42124D19200AFD5F3 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		AD7200B92124D19200AFD5F3 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -55,6 +52,8 @@
 		AD7200DB2126136D00AFD5F3 /* InAppMessagingDisplayUITestsBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppMessagingDisplayUITestsBase.swift; sourceTree = "<group>"; };
 		AD7200DD2126147100AFD5F3 /* InAppMessagingDisplayBannerViewUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppMessagingDisplayBannerViewUITests.swift; sourceTree = "<group>"; };
 		AD7200DF2126150600AFD5F3 /* InAppMessagingDisplayImageOnlyViewUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppMessagingDisplayImageOnlyViewUITests.swift; sourceTree = "<group>"; };
+		B8776021E73E0BF1940A1D04 /* Pods-FiamDisplaySwiftExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FiamDisplaySwiftExample.debug.xcconfig"; path = "Pods/Target Support Files/Pods-FiamDisplaySwiftExample/Pods-FiamDisplaySwiftExample.debug.xcconfig"; sourceTree = "<group>"; };
+		CC4D5F99DA1A0238D59C7185 /* Pods_FiamDisplaySwiftExample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FiamDisplaySwiftExample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -62,6 +61,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				65EEF8062812F4285CE916C6 /* Pods_FiamDisplaySwiftExample.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -82,12 +82,12 @@
 				AD7200C62124E24300AFD5F3 /* BannerMessageViewController.swift */,
 				AD7200C52124E24200AFD5F3 /* ImageOnlyMessageViewController.swift */,
 				AD7200C72124E24300AFD5F3 /* ModalMessageViewController.swift */,
+				2544AF6A2230656D00C5B420 /* CardMessageViewController.swift */,
 				AD7200B42124D19200AFD5F3 /* AppDelegate.swift */,
 				AD7200B82124D19200AFD5F3 /* Main.storyboard */,
 				AD7200BB2124D19400AFD5F3 /* Assets.xcassets */,
 				AD7200BD2124D19400AFD5F3 /* LaunchScreen.storyboard */,
 				AD7200C02124D19400AFD5F3 /* Info.plist */,
-				2544AF6A2230656D00C5B420 /* CardMessageViewController.swift */,
 			);
 			path = FiamDisplaySwiftExample;
 			sourceTree = "<group>";
@@ -110,6 +110,8 @@
 				AD7200B32124D19200AFD5F3 /* FiamDisplaySwiftExample */,
 				AD7200D22125F92100AFD5F3 /* InAppMessagingDisplay-UITests */,
 				ADA7B5B921223CED00B1C614 /* Products */,
+				FCA66209D7188F744DAD2262 /* Pods */,
+				E245F88BD78CC8A8280F329F /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -122,6 +124,23 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		E245F88BD78CC8A8280F329F /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				CC4D5F99DA1A0238D59C7185 /* Pods_FiamDisplaySwiftExample.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		FCA66209D7188F744DAD2262 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				B8776021E73E0BF1940A1D04 /* Pods-FiamDisplaySwiftExample.debug.xcconfig */,
+				AC6B055EA6ABACFAF95EAEA6 /* Pods-FiamDisplaySwiftExample.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -129,9 +148,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = AD7200C32124D19400AFD5F3 /* Build configuration list for PBXNativeTarget "FiamDisplaySwiftExample" */;
 			buildPhases = (
+				6749464D694A4DE6A1B9B34A /* [CP] Check Pods Manifest.lock */,
 				AD7200AE2124D19200AFD5F3 /* Sources */,
 				AD7200AF2124D19200AFD5F3 /* Frameworks */,
 				AD7200B02124D19200AFD5F3 /* Resources */,
+				13715CF1BB8FE93FA5796D7C /* [CP] Embed Pods Frameworks */,
+				03AE05BD4DCE9E3FAD6572E8 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -218,6 +240,75 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		03AE05BD4DCE9E3FAD6572E8 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-FiamDisplaySwiftExample/Pods-FiamDisplaySwiftExample-resources.sh",
+				"${PODS_CONFIGURATION_BUILD_DIR}/FirebaseInAppMessagingDisplay/InAppMessagingDisplayResources.bundle",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/InAppMessagingDisplayResources.bundle",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-FiamDisplaySwiftExample/Pods-FiamDisplaySwiftExample-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		13715CF1BB8FE93FA5796D7C /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-FiamDisplaySwiftExample/Pods-FiamDisplaySwiftExample-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/GoogleUtilities/GoogleUtilities.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleUtilities.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-FiamDisplaySwiftExample/Pods-FiamDisplaySwiftExample-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		6749464D694A4DE6A1B9B34A /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-FiamDisplaySwiftExample-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		AD7200AE2124D19200AFD5F3 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -275,6 +366,7 @@
 /* Begin XCBuildConfiguration section */
 		AD7200C12124D19400AFD5F3 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = B8776021E73E0BF1940A1D04 /* Pods-FiamDisplaySwiftExample.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
@@ -295,6 +387,7 @@
 		};
 		AD7200C22124D19400AFD5F3 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = AC6B055EA6ABACFAF95EAEA6 /* Pods-FiamDisplaySwiftExample.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;

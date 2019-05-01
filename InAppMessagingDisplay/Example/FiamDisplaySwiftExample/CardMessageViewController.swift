@@ -26,6 +26,7 @@ class CardMessageViewController: CommonMessageTestVC {
                                                 triggerType: .onAnalyticsEvent,
                                                 titleText: normalMessageTitle,
                                                 bodyText: normalMessageBody,
+                                                textColor: UIColor.black,
                                                 portraitImageData: portraitImageData,
                                                 landscapeImageData: landscapeImageData,
                                                 backgroundColor: UIColor.white,
@@ -47,6 +48,7 @@ class CardMessageViewController: CommonMessageTestVC {
                                                 triggerType: .onAnalyticsEvent,
                                                 titleText: normalMessageTitle,
                                                 bodyText: normalMessageBody,
+                                                textColor: UIColor.black,
                                                 portraitImageData: portraitImageData,
                                                 landscapeImageData: nil,
                                                 backgroundColor: UIColor.white,
@@ -71,6 +73,7 @@ class CardMessageViewController: CommonMessageTestVC {
                                                 triggerType: .onAnalyticsEvent,
                                                 titleText: normalMessageTitle,
                                                 bodyText: normalMessageBody,
+                                                textColor: UIColor.black,
                                                 portraitImageData: portraitImageData,
                                                 landscapeImageData: landscapeImageData,
                                                 backgroundColor: UIColor.white,
@@ -82,7 +85,29 @@ class CardMessageViewController: CommonMessageTestVC {
     displayImpl.displayMessage(cardMessage, displayDelegate: self)
   }
   
-  @IBAction func showRegularTwoButtonWithOnlyPortrait(_ sender: Any) {
+  @IBAction func showLongTitleRegularBody(_ sender: Any) {
+    let portraitImageRawData = produceImageOfSize(size: CGSize(width: 300, height: 200))
+    let portraitImageData = InAppMessagingImageData(imageURL: "url not important", imageData: portraitImageRawData!)
+    
+    let cardMessage = InAppMessagingCardDisplay(messageID: "testID",
+                                                campaignName: "testCampaign",
+                                                renderAsTestMessage: false,
+                                                triggerType: .onAnalyticsEvent,
+                                                titleText: longTitleText,
+                                                bodyText: normalMessageBody,
+                                                textColor: UIColor.black,
+                                                portraitImageData: portraitImageData,
+                                                landscapeImageData: nil,
+                                                backgroundColor: UIColor.white,
+                                                primaryActionButton: defaultActionButton,
+                                                primaryActionURL: URL(string: "http://google.com")!,
+                                                secondaryActionButton: defaultSecondaryActionButton,
+                                                secondaryActionURL: nil)
+    
+    displayImpl.displayMessage(cardMessage, displayDelegate: self)
+  }
+  
+  @IBAction func showRegularTitleLongBody(_ sender: Any) {
     let portraitImageRawData = produceImageOfSize(size: CGSize(width: 300, height: 200))
     let portraitImageData = InAppMessagingImageData(imageURL: "url not important", imageData: portraitImageRawData!)
     
@@ -91,13 +116,124 @@ class CardMessageViewController: CommonMessageTestVC {
                                                 renderAsTestMessage: false,
                                                 triggerType: .onAnalyticsEvent,
                                                 titleText: normalMessageTitle,
-                                                bodyText: normalMessageBody,
+                                                bodyText: longBodyText,
+                                                textColor: UIColor.black,
                                                 portraitImageData: portraitImageData,
                                                 landscapeImageData: nil,
                                                 backgroundColor: UIColor.white,
                                                 primaryActionButton: defaultActionButton,
                                                 primaryActionURL: URL(string: "http://google.com")!,
                                                 secondaryActionButton: defaultSecondaryActionButton,
+                                                secondaryActionURL: nil)
+    
+    displayImpl.displayMessage(cardMessage, displayDelegate: self)
+  }
+  
+  @IBAction func showLongTitleNoBody(_ sender: Any) {
+    let portraitImageRawData = produceImageOfSize(size: CGSize(width: 300, height: 200))
+    let portraitImageData = InAppMessagingImageData(imageURL: "url not important", imageData: portraitImageRawData!)
+    
+    let cardMessage = InAppMessagingCardDisplay(messageID: "testID",
+                                                campaignName: "testCampaign",
+                                                renderAsTestMessage: false,
+                                                triggerType: .onAnalyticsEvent,
+                                                titleText: longTitleText,
+                                                bodyText: nil,
+                                                textColor: UIColor.black,
+                                                portraitImageData: portraitImageData,
+                                                landscapeImageData: nil,
+                                                backgroundColor: UIColor.white,
+                                                primaryActionButton: defaultActionButton,
+                                                primaryActionURL: URL(string: "http://google.com")!,
+                                                secondaryActionButton: defaultSecondaryActionButton,
+                                                secondaryActionURL: nil)
+    
+    displayImpl.displayMessage(cardMessage, displayDelegate: self)
+  }
+  
+  @IBAction func showLongPrimaryButton(_ sender: Any) {
+    let portraitImageRawData = produceImageOfSize(size: CGSize(width: 300, height: 200))
+    let portraitImageData = InAppMessagingImageData(imageURL: "url not important", imageData: portraitImageRawData!)
+    
+    let cardMessage = InAppMessagingCardDisplay(messageID: "testID",
+                                                campaignName: "testCampaign",
+                                                renderAsTestMessage: false,
+                                                triggerType: .onAnalyticsEvent,
+                                                titleText: longTitleText,
+                                                bodyText: normalMessageBody,
+                                                textColor: UIColor.black,
+                                                portraitImageData: portraitImageData,
+                                                landscapeImageData: nil,
+                                                backgroundColor: UIColor.white,
+                                                primaryActionButton: longTextButton,
+                                                primaryActionURL: URL(string: "http://google.com")!,
+                                                secondaryActionButton: defaultSecondaryActionButton,
+                                                secondaryActionURL: nil)
+    
+    displayImpl.displayMessage(cardMessage, displayDelegate: self)
+  }
+  
+  @IBAction func showLongSecondaryButton(_ sender: Any) {
+    let portraitImageRawData = produceImageOfSize(size: CGSize(width: 300, height: 200))
+    let portraitImageData = InAppMessagingImageData(imageURL: "url not important", imageData: portraitImageRawData!)
+    
+    let cardMessage = InAppMessagingCardDisplay(messageID: "testID",
+                                                campaignName: "testCampaign",
+                                                renderAsTestMessage: false,
+                                                triggerType: .onAnalyticsEvent,
+                                                titleText: longTitleText,
+                                                bodyText: normalMessageBody,
+                                                textColor: UIColor.black,
+                                                portraitImageData: portraitImageData,
+                                                landscapeImageData: nil,
+                                                backgroundColor: UIColor.white,
+                                                primaryActionButton: defaultActionButton,
+                                                primaryActionURL: URL(string: "http://google.com")!,
+                                                secondaryActionButton: longTextButton,
+                                                secondaryActionURL: nil)
+    
+    displayImpl.displayMessage(cardMessage, displayDelegate: self)
+  }
+  
+  @IBAction func showSmallImage(_ sender: Any) {
+    let portraitImageRawData = produceImageOfSize(size: CGSize(width: 30, height: 20))
+    let portraitImageData = InAppMessagingImageData(imageURL: "url not important", imageData: portraitImageRawData!)
+    
+    let cardMessage = InAppMessagingCardDisplay(messageID: "testID",
+                                                campaignName: "testCampaign",
+                                                renderAsTestMessage: false,
+                                                triggerType: .onAnalyticsEvent,
+                                                titleText: normalMessageTitle,
+                                                bodyText: normalMessageBody,
+                                                textColor: UIColor.black,
+                                                portraitImageData: portraitImageData,
+                                                landscapeImageData: nil,
+                                                backgroundColor: UIColor.white,
+                                                primaryActionButton: defaultActionButton,
+                                                primaryActionURL: URL(string: "http://google.com")!,
+                                                secondaryActionButton: nil,
+                                                secondaryActionURL: nil)
+    
+    displayImpl.displayMessage(cardMessage, displayDelegate: self)
+  }
+  
+  @IBAction func showHugeImage(_ sender: Any) {
+    let portraitImageRawData = produceImageOfSize(size: CGSize(width: 3000, height: 2000))
+    let portraitImageData = InAppMessagingImageData(imageURL: "url not important", imageData: portraitImageRawData!)
+    
+    let cardMessage = InAppMessagingCardDisplay(messageID: "testID",
+                                                campaignName: "testCampaign",
+                                                renderAsTestMessage: false,
+                                                triggerType: .onAnalyticsEvent,
+                                                titleText: normalMessageTitle,
+                                                bodyText: normalMessageBody,
+                                                textColor: UIColor.black,
+                                                portraitImageData: portraitImageData,
+                                                landscapeImageData: nil,
+                                                backgroundColor: UIColor.white,
+                                                primaryActionButton: defaultActionButton,
+                                                primaryActionURL: URL(string: "http://google.com")!,
+                                                secondaryActionButton: nil,
                                                 secondaryActionURL: nil)
     
     displayImpl.displayMessage(cardMessage, displayDelegate: self)
