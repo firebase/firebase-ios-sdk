@@ -49,8 +49,36 @@ let builder = ZipBuilder(paths: paths,
 
 do {
   // Build the zip file and get the path.
-  let location = try builder.buildAndAssembleZipDir()
-  print("Location of directory to be Zipped: \(location)")
+  let location = try builder.buildAndAssembleReleaseDir()
+  print("Location of directory to be packaged: \(location)")
+
+  // TODO: Package the Carthage distribution with the current Zip structure.
+
+  // Prepare the release directory for zip packaging.
+  do {
+    // Move the Resources out of each directory in order to maintain the existing Zip structure.
+    let fileManager = FileManager.default
+    let contents = try fileManager.contentsOfDirectory(atPath: location.path)
+    for fileOrFolder in contents {
+      let fullPath = location.appendingPathComponent(fileOrFolder)
+
+      // Ignore any files.
+      guard fileManager.isDirectory(at: fullPath) else { continue }
+
+      // Move all the bundles in the frameworks out to a common "Resources" directory to match the
+      // existing Zip structure.
+      let resourcesDir = fullPath.appendingPathComponent("Resources")
+      let bundles = try ResourcesManager.moveAllBundles(inDirectory: fullPath, to: resourcesDir)
+
+      // Remove any extra bundles that were packaged, if possible, by using the folder name and
+      // getting the CocoaPod selected.
+      if let pod = CocoaPod(rawValue: fileOrFolder) {
+        let duplicateResources = pod.duplicateResourcesToRemove()
+        let toRemove = bundles.filter { duplicateResources.contains($0.lastPathComponent) }
+        try toRemove.forEach(fileManager.removeItem(at:))
+      }
+    }
+  }
 
   print("Attempting to Zip the directory...")
   let zipped = Zip.zipContents(ofDir: location)
