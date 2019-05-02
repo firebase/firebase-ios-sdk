@@ -20,7 +20,7 @@ import Foundation
 enum ResourcesManager {}
 
 extension ResourcesManager {
-  /// Recursively earches a directory for any sign of resources: `.bundle` folders, or a non-empty
+  /// Recursively searches a directory for any sign of resources: `.bundle` folders, or a non-empty
   /// directory called "Resources".
   ///
   /// - Parameter dir: The directory to search for any sign of resources.
