@@ -146,7 +146,7 @@ using firebase::firestore::util::TimerId;
 }
 
 - (void)testCanMergeDataWithAnExistingDocumentUsingSet {
-  if ([FSTIntegrationTestCase isRunningAgainstEmulator]) return;
+  if ([FSTIntegrationTestCase isRunningAgainstEmulator]) return;  // b/112104025
 
   FIRDocumentReference *doc = [[self.db collectionWithPath:@"rooms"] documentWithAutoID];
 
@@ -1038,7 +1038,7 @@ using firebase::firestore::util::TimerId;
 }
 
 - (void)testUpdateFieldsWithDots {
-  if ([FSTIntegrationTestCase isRunningAgainstEmulator]) return;
+  if ([FSTIntegrationTestCase isRunningAgainstEmulator]) return;  // b/112104025
 
   FIRDocumentReference *doc = [self documentRef];
 

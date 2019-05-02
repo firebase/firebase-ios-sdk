@@ -133,7 +133,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testUpdateFieldsWithDots {
-  if ([FSTIntegrationTestCase isRunningAgainstEmulator]) return;
+  if ([FSTIntegrationTestCase isRunningAgainstEmulator]) return;  // b/112104025
 
   FIRDocumentReference *doc = [self documentRef];
 
