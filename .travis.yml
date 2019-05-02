@@ -313,4 +313,3 @@ jobs:
 branches:
   only:
     - master
-    - secretPresubmit
