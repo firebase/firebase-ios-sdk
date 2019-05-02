@@ -143,7 +143,7 @@ static NSString *const kVerifyBeforeUpdateEmailRequestTypeValue = @"VERIFY_BEFOR
     case FIRGetOOBConfirmationCodeRequestTypeEmailLink:
       return kEmailLinkSignInTypeValue;
     case FIRGetOOBConfirmationCodeRequestTypeVerifyBeforeUpdateEmail:
-      return kVerifyEmailRequestTypeValue;
+      return kVerifyBeforeUpdateEmailRequestTypeValue;
     // No default case so that we get a compiler warning if a new value was added to the enum.
   }
 }
