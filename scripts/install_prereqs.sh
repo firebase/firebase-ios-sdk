@@ -31,7 +31,7 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     # Set up secrets for integration tests and metrics collection. This does not work for pull
     # requests from forks. See
     # https://docs.travis-ci.com/user/pull-requests#pull-requests-and-security-restrictions
-    if [ -v $encrypted_d6a88994a5ab_key ]; then
+    if [[ -z $encrypted_d6a88994a5ab_key ]]; then
       openssl aes-256-cbc -K $encrypted_d6a88994a5ab_key -iv $encrypted_d6a88994a5ab_iv \
       -in scripts/travis-encrypted/Secrets.tar.enc \
       -out scripts/travis-encrypted/Secrets.tar -d
