@@ -102,9 +102,9 @@ static NSString *const kEmailLinkSignInTypeValue= @"EMAIL_SIGNIN";
 static NSString *const kVerifyEmailRequestTypeValue = @"VERIFY_EMAIL";
 
 /** @var kVerifyBeforeUpdateEmailRequestTypeValue
-    @brief The value for the "VERIFY_BEFORE_UPDATE_EMAIL" request type.
+    @brief The value for the "VERIFY_AND_CHANGE_EMAIL" request type.
  */
-static NSString *const kVerifyBeforeUpdateEmailRequestTypeValue = @"VERIFY_BEFORE_UPDATE_EMAIL";
+static NSString *const kVerifyBeforeUpdateEmailRequestTypeValue = @"VERIFY_AND_CHANGE_EMAIL";
 
 @interface FIRGetOOBConfirmationCodeRequest ()
 
