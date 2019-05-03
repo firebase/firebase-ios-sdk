@@ -115,6 +115,19 @@ static bool runningAgainstEmulator = false;
   return [self firestoreWithProjectID:[FSTIntegrationTestCase projectID]];
 }
 
+/**
+ * Figures out what kind of testing environment we're using, and sets up testing defaults to make
+ * that work.
+ *
+ * Several configurations are supported:
+ *   * Mobile Harness, running periocally against prod and nightly, using live SSL certs
+ *   * Hexa built from google3, running on a companion gLinux machine, using self-signed test SSL
+ *     certs
+ *   * Firestore emulator, running on localhost, with SSL disabled
+ *
+ * See Firestore/README.md for detailed setup instructions or comments below for which specific
+ * values trigger which configurations.
+ */
 + (void)setUpDefaults {
   defaultSettings = [[FIRFirestoreSettings alloc] init];
   defaultSettings.persistenceEnabled = YES;
@@ -181,6 +194,9 @@ static bool runningAgainstEmulator = false;
 }
 
 + (bool)isRunningAgainstEmulator {
+  // The only way to determine whether or not we're running against the emulator is to figure out
+  // which testing environment we're using.  Essentially `setUpDefaults` determines
+  // `runningAgainstEmulator` as a side effect.
   if (!defaultProjectId) {
     [self setUpDefaults];
   }
