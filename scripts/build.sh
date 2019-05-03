@@ -177,7 +177,7 @@ case "$product-$method-$platform" in
         build \
         test
 
-    ./Metrics/collect_and_upload.sh
+    ./scripts/collect_metrics.sh
 
     RunXcodebuild \
         -workspace 'GoogleUtilities/Example/GoogleUtilities.xcworkspace' \
