@@ -102,9 +102,9 @@ static NSString *const kEmailLinkSignInTypeValue= @"EMAIL_SIGNIN";
 static NSString *const kVerifyEmailRequestTypeValue = @"VERIFY_EMAIL";
 
 /** @var kVerifyBeforeUpdateEmailRequestTypeValue
-    @brief The value for the "VERIFY_BEFORE_UPDATE_EMAIL" request type.
+    @brief The value for the "VERIFY_AND_CHANGE_EMAIL" request type.
  */
-static NSString *const kVerifyBeforeUpdateEmailRequestTypeValue = @"VERIFY_BEFORE_UPDATE_EMAIL";
+static NSString *const kVerifyBeforeUpdateEmailRequestTypeValue = @"VERIFY_AND_CHANGE_EMAIL";
 
 @interface FIRGetOOBConfirmationCodeRequest ()
 
@@ -143,7 +143,7 @@ static NSString *const kVerifyBeforeUpdateEmailRequestTypeValue = @"VERIFY_BEFOR
     case FIRGetOOBConfirmationCodeRequestTypeEmailLink:
       return kEmailLinkSignInTypeValue;
     case FIRGetOOBConfirmationCodeRequestTypeVerifyBeforeUpdateEmail:
-      return kVerifyEmailRequestTypeValue;
+      return kVerifyBeforeUpdateEmailRequestTypeValue;
     // No default case so that we get a compiler warning if a new value was added to the enum.
   }
 }
