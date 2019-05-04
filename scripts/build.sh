@@ -66,6 +66,9 @@ if [[ -n "${SANITIZERS:-}" ]]; then
   echo "Using sanitizers: $SANITIZERS"
 fi
 
+scripts_dir=$(dirname "${BASH_SOURCE[0]}")
+firestore_emulator="${scripts_dir}/run_firestore_emulator.sh"
+
 # Runs xcodebuild with the given flags, piping output to xcpretty
 # If xcodebuild fails with known error codes, retries once.
 function RunXcodebuild() {
@@ -282,6 +285,7 @@ case "$product-$method-$platform" in
     ;;
 
   Firestore-xcodebuild-iOS)
+    "${firestore_emulator}" start
     RunXcodebuild \
         -workspace 'Firestore/Example/Firestore.xcworkspace' \
         -scheme "Firestore_Tests_$platform" \
@@ -303,11 +307,15 @@ case "$product-$method-$platform" in
         -workspace 'Firestore/Example/Firestore.xcworkspace' \
         -scheme "Firestore_IntegrationTests_$platform" \
         "${xcb_flags[@]}" \
-        build
+        build \
+        test
+
+    "${firestore_emulator}" stop
     ;;
 
   Firestore-xcodebuild-macOS | Firestore-xcodebuild-tvOS)
     # TODO(wilhuff): Combine with above once all targets exist
+    "${firestore_emulator}" start
     RunXcodebuild \
         -workspace 'Firestore/Example/Firestore.xcworkspace' \
         -scheme "Firestore_Tests_$platform" \
@@ -319,7 +327,10 @@ case "$product-$method-$platform" in
         -workspace 'Firestore/Example/Firestore.xcworkspace' \
         -scheme "Firestore_IntegrationTests_$platform" \
         "${xcb_flags[@]}" \
-        build
+        build \
+        test
+
+    "${firestore_emulator}" stop
     ;;
 
   Firestore-cmake-macOS)
