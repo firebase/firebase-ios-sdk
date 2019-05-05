@@ -131,8 +131,8 @@ inline static int AdvanceIfNoSpecialBytes(uint32_t v_32, const char* p) {
 inline static const char* SkipToNextSpecialByte(const char* start,
                                                 const char* limit) {
   // If these constants were ever changed, this routine needs to change
-  HARD_ASSERT(kEscape1 == 0);
-  HARD_ASSERT((kEscape2 & 0xff) == 255);
+  static_assert(kEscape1 == 0, "bit fiddling needs readjusting");
+  static_assert((kEscape2 & 0xff) == 255, "bit fiddling needs readjusting");
   const char* p = start;
   while (p + 8 <= limit) {
     // Find out if any of the next 8 bytes are either 0 or 255 (our
