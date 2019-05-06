@@ -34,11 +34,7 @@ static NSString *kUserNotificationWillPresentSelectorString =
 static NSString *kUserNotificationDidReceiveResponseSelectorString =
     @"userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:";
 
-#if TARGET_OS_IOS ||TARGET_OS_TV
-@interface FIRMessagingRemoteNotificationsProxy () <UIApplicationDelegate>
-#else
-@interface FIRMessagingRemoteNotificationsProxy ()
-#endif
+@interface FIRMessagingRemoteNotificationsProxy () <GULApplicationDelegate>
 
 @property(strong, nonatomic) NSMutableDictionary<NSString *, NSValue *> *originalAppDelegateImps;
 @property(strong, nonatomic) NSMutableDictionary<NSString *, NSArray *> *swizzledSelectorsByClass;
