@@ -94,3 +94,5 @@ cloud-firestore-emulator.pid
 
 # Let Gemfiles in CocoaPodsIntegrationTest float to catch issues asap
 CocoaPodsIntegrationTest/**/Gemfile.lock
+CocoaPodsIntegrationTest/Gemfile
+CocoaPodsIntegrationTest/Podfile
