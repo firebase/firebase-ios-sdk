@@ -240,28 +240,28 @@ jobs:
     # This may take long time, so we would like to run it only once all other tests pass
     # Validate Cocoapods 1.7.0 compatibility
     - stage: test
-#      if: type = cron
+      if: type = cron
       env:
         - POD_CONFIG_DIR=Cocoapods1_7_0_multiprojects_frameworks
       script:
         - travis_retry ./CocoapodsIntegrationTest/scripts/build_with_environment.sh --gemfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Gemfile --podfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Podfile
 
     - stage: test
-#      if: type = cron
+      if: type = cron
       env:
         - POD_CONFIG_DIR=Cocoapods1_7_0_frameworks
       script:
         - travis_retry ./CocoapodsIntegrationTest/scripts/build_with_environment.sh --gemfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Gemfile --podfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Podfile
 
     - stage: test
-#      if: type = cron
+      if: type = cron
       env:
         - POD_CONFIG_DIR=Cocoapods1_7_0_multiprojects_staticLibs
       script:
         - travis_retry ./CocoapodsIntegrationTest/scripts/build_with_environment.sh --gemfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Gemfile --podfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Podfile
 
     - stage: test
-#      if: type = cron
+      if: type = cron
       env:
         - POD_CONFIG_DIR=Cocoapods1_7_0_staticLibs
       script:
@@ -269,14 +269,14 @@ jobs:
 
     # Validate Cocoapods 1.6.1 compatibility
     - stage: test
-#      if: type = cron
+      if: type = cron
       env:
         - POD_CONFIG_DIR=Cocoapods1_6_1_frameworks
       script:
         - travis_retry ./CocoapodsIntegrationTest/scripts/build_with_environment.sh --gemfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Gemfile --podfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Podfile
 
     - stage: test
-#      if: type = cron
+      if: type = cron
       env:
         - POD_CONFIG_DIR=Cocoapods1_6_1_staticLibs
       script:
