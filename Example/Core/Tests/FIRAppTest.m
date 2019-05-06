@@ -672,6 +672,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   OCMStub([configurationMock sharedInstance]).andReturn(configurationMock);
 
   // Reject any changes to Analytics when the data collection changes.
+  OCMReject([configurationMock setAnalyticsCollectionEnabled:YES persistSetting:YES]);
   OCMReject([configurationMock setAnalyticsCollectionEnabled:YES persistSetting:NO]);
   [app setDataCollectionDefaultEnabled:YES];
 
