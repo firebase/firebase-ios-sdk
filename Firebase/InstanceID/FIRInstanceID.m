@@ -1160,7 +1160,7 @@ static FIRInstanceID *gInstanceID;
                              @"most likely a Dev profile.");
   }
 
-#if TARGET_OS_IOS || TARGET_OS_TVOS
+#if TARGET_OS_IOS || TARGET_OS_TV
   NSString *apsEnvironment = [plistMap valueForKeyPath:kEntitlementsAPSEnvironmentKey];
 #elif TARGET_OS_OSX
   NSDictionary *entitlements = [plistMap valueForKey:kEntitlementsKeyForMac];
