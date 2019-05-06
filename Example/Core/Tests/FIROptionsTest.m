@@ -98,8 +98,10 @@ extern NSString *const kFIRLibraryVersionID;
 }
 
 - (void)testInitWithContentsOfFile {
-  NSString *filePath = [[NSBundle mainBundle] pathForResource:@"GoogleService-Info"
-                                                       ofType:@"plist"];
+  // Use bundleForClass to support GoogleService-Info.plist being in either the main bundle
+  // or the test target's bundle.
+  NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+  NSString *filePath = [bundle pathForResource:@"GoogleService-Info" ofType:@"plist"];
   FIROptions *options = [[FIROptions alloc] initWithContentsOfFile:filePath];
   [self assertOptionsMatchDefaults:options andProjectID:YES];
   XCTAssertNil(options.deepLinkURLScheme);
