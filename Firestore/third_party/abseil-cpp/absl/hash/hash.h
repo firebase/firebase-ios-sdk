@@ -4,7 +4,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//      http://www.apache.org/licenses/LICENSE-2.0
+//      https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -35,6 +35,10 @@
 // implementation) entirely. Instead, a type invokes the Abseil hashing
 // framework by simply combining its state with the state of known, hashable
 // types. Hashing of that combined state is separately done by `absl::Hash`.
+//
+// One should assume that a hash algorithm is chosen randomly at the start of
+// each process.  E.g., absl::Hash<int>()(9) in one process and
+// absl::Hash<int>()(9) in another process are likely to differ.
 //
 // Example:
 //
@@ -243,7 +247,7 @@ using Hash = absl::hash_internal::Hash<T>;
 //       absl::HashState::combine(std::move(state), v1_, v2_);
 //     }
 //     int v1_;
-//     string v2_;
+//     std::string v2_;
 //   };
 class HashState : public hash_internal::HashStateBase<HashState> {
  public:
@@ -309,4 +313,5 @@ class HashState : public hash_internal::HashStateBase<HashState> {
 };
 
 }  // namespace absl
+
 #endif  // ABSL_HASH_HASH_H_
