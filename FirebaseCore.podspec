@@ -36,4 +36,10 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
       'FIRCore_VERSION=' + s.version.to_s + ' Firebase_VERSION=5.20.0',
     'OTHER_CFLAGS' => '-fno-autolink'
   }
+  s.test_spec 'unit' do |unit_tests|
+    unit_tests.source_files = 'Example/Core/Tests/**/*.[mh]'
+    unit_tests.requires_app_host = true
+    unit_tests.dependency 'OCMock'
+    unit_tests.resources = 'Example/Core/App/GoogleService-Info.plist'
+  end
 end
