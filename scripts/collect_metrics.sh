@@ -14,10 +14,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# USAGE: ./collect_metrics.sh workspace scheme
+#
+# Collects project health metrics and uploads them to a database. Currently just collects code
+# coverage for the provided workspace and scheme. Assumes that those tests have already been
+# executed.
+
 set -euo pipefail
 
+if [[ $# -lt 2 ]]; then
+  cat 1>&2 <<EOF
+USAGE: $0 workspace scheme
+
+Collects project health metrics and uploads them to a database. Currently just collects code
+coverage for the provided workspace and scheme. Assumes that those tests have already been
+executed.
+EOF
+  exit 1
+fi
+
+WORKSPACE="$1"
+SCHEME="$2"
+
 gem install xcov
-xcov --workspace Example/Firebase.xcworkspace --scheme AllUnitTests_iOS --output_directory Metrics --json_report
+xcov --workspace "${WORKSPACE}" --scheme ${SCHEME}  --output_directory Metrics --json_report
 cd Metrics
 swift build
 .build/debug/Metrics -c report.json -p "${TRAVIS_PULL_REQUEST}"

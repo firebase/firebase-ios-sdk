@@ -177,7 +177,7 @@ case "$product-$method-$platform" in
         build \
         test
 
-    ./scripts/collect_metrics.sh
+    ./scripts/collect_metrics.sh 'Example/Firebase.xcworkspace' "AllUnitTests_$platform"
 
     RunXcodebuild \
         -workspace 'GoogleUtilities/Example/GoogleUtilities.xcworkspace' \
