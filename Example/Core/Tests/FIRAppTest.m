@@ -676,6 +676,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   OCMReject([configurationMock setAnalyticsCollectionEnabled:YES persistSetting:NO]);
   [app setDataCollectionDefaultEnabled:YES];
 
+  OCMReject([configurationMock setAnalyticsCollectionEnabled:YES persistSetting:YES]);
   OCMReject([configurationMock setAnalyticsCollectionEnabled:NO persistSetting:NO]);
   [app setDataCollectionDefaultEnabled:NO];
 }
