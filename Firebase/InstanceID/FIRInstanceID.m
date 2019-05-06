@@ -59,6 +59,9 @@ int64_t const kMinRetryIntervalForDefaultTokenInSeconds = 10;       // 10 second
 NSInteger const kMaxRetryCountForDefaultToken = 5;
 
 static NSString *const kEntitlementsAPSEnvironmentKey = @"Entitlements.aps-environment";
+static NSString *const kEntitlementsAPSEnvironmentKeyForMac =
+    @"com.apple.developer.aps-environment";
+static NSString *const kEntitlementsKeyForMac = @"Entitlements";
 static NSString *const kAPSEnvironmentDevelopmentValue = @"development";
 /// FIRMessaging selector that returns the current FIRMessaging auto init
 /// enabled flag.
@@ -1064,43 +1067,27 @@ static FIRInstanceID *gInstanceID;
   const BOOL defaultAppTypeProd = YES;
 
   NSError *error = nil;
-
-  Class envClass = NSClassFromString(@"FIRAppEnvironmentUtil");
-  SEL isSimulatorSelector = NSSelectorFromString(@"isSimulator");
-  if ([envClass respondsToSelector:isSimulatorSelector]) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-    if ([envClass performSelector:isSimulatorSelector]) {
-#pragma clang diagnostic pop
-      [self logAPNSConfigurationError:@"Running InstanceID on a simulator doesn't have APNS. "
-                                      @"Use prod profile by default."];
-      return defaultAppTypeProd;
-    }
+  if ([GULAppEnvironmentUtil isSimulator]) {
+    [self logAPNSConfigurationError:@"Running InstanceID on a simulator doesn't have APNS. "
+                                    @"Use prod profile by default."];
+    return defaultAppTypeProd;
   }
 
+  if ([GULAppEnvironmentUtil isFromAppStore]) {
+    // Apps distributed via AppStore or TestFlight use the Production APNS certificates.
+    return defaultAppTypeProd;
+  }
+#if TARGET_OS_IOS || TARGET_OS_TV
   NSString *path = [[[NSBundle mainBundle] bundlePath]
       stringByAppendingPathComponent:@"embedded.mobileprovision"];
+#elif TARGET_OS_OSX
+  NSString *path = [[[[NSBundle mainBundle] resourcePath] stringByDeletingLastPathComponent]
+      stringByAppendingPathComponent:@"embedded.provisionprofile"];
+#endif
 
-  // Apps distributed via AppStore or TestFlight use the Production APNS certificates.
-  SEL isFromAppStoreSelector = NSSelectorFromString(@"isFromAppStore");
-  if ([envClass respondsToSelector:isFromAppStoreSelector]) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-    if ([envClass performSelector:isFromAppStoreSelector]) {
-#pragma clang diagnostic pop
-      return defaultAppTypeProd;
-    }
-  }
-
-  SEL isAppStoreReceiptSandboxSelector = NSSelectorFromString(@"isAppStoreReceiptSandbox");
-  if ([envClass respondsToSelector:isAppStoreReceiptSandboxSelector]) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-    if ([envClass performSelector:isAppStoreReceiptSandboxSelector] && !path.length) {
-#pragma clang diagnostic pop
-      // Distributed via TestFlight
-      return defaultAppTypeProd;
-    }
+  if ([GULAppEnvironmentUtil isAppStoreReceiptSandbox] && !path.length) {
+    // Distributed via TestFlight
+    return defaultAppTypeProd;
   }
 
   NSMutableData *profileData = [NSMutableData dataWithContentsOfFile:path options:0 error:&error];
@@ -1173,7 +1160,13 @@ static FIRInstanceID *gInstanceID;
                              @"most likely a Dev profile.");
   }
 
+#if TARGET_OS_IOS || TARGET_OS_TVOS
   NSString *apsEnvironment = [plistMap valueForKeyPath:kEntitlementsAPSEnvironmentKey];
+#elif TARGET_OS_OSX
+  NSDictionary *entitlements = [plistMap valueForKey:kEntitlementsKeyForMac];
+  NSString *apsEnvironment = [entitlements valueForKey:kEntitlementsAPSEnvironmentKeyForMac];
+#endif
+
   NSString *debugString __unused =
       [NSString stringWithFormat:@"APNS Environment in profile: %@", apsEnvironment];
   FIRInstanceIDLoggerDebug(kFIRInstanceIDMessageCodeInstanceID013, @"%@", debugString);
