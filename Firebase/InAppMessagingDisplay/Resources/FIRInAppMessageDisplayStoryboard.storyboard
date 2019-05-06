@@ -460,6 +460,9 @@
                                     <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" horizontalCompressionResistancePriority="251" verticalCompressionResistancePriority="1000" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aZE-3x-WHk" userLabel="Primary action button">
                                         <rect key="frame" x="163" y="294" width="53" height="30"/>
                                         <accessibility key="accessibilityConfiguration" identifier="card-primary-action-button"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="44" id="pxm-yD-xhm"/>
+                                        </constraints>
                                         <state key="normal" title="Primary"/>
                                         <connections>
                                             <action selector="primaryActionButtonTapped:" destination="oTF-1C-LZP" eventType="touchUpInside" id="Jk0-dp-Qgj"/>
@@ -468,6 +471,9 @@
                                     <button hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" horizontalCompressionResistancePriority="250" verticalCompressionResistancePriority="1000" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Feg-VM-jUf" userLabel="Secondary action button">
                                         <rect key="frame" x="64.999999999999986" y="294" width="74.000000000000014" height="30"/>
                                         <accessibility key="accessibilityConfiguration" identifier="card-secondary-action-button"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="44" id="bpF-9w-pDe"/>
+                                        </constraints>
                                         <state key="normal" title="Secondary"/>
                                         <connections>
                                             <action selector="secondaryActionButtonTapped:" destination="oTF-1C-LZP" eventType="touchUpInside" id="jCJ-3T-fim"/>

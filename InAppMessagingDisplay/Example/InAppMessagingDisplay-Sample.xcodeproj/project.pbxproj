@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		2544AF6B2230656D00C5B420 /* CardMessageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2544AF6A2230656D00C5B420 /* CardMessageViewController.swift */; };
+		25574C3322795A4C0083735E /* InAppMessagingDisplayCardViewUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25574C3222795A4C0083735E /* InAppMessagingDisplayCardViewUITests.swift */; };
 		65EEF8062812F4285CE916C6 /* Pods_FiamDisplaySwiftExample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC4D5F99DA1A0238D59C7185 /* Pods_FiamDisplaySwiftExample.framework */; };
 		AD7200B52124D19200AFD5F3 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD7200B42124D19200AFD5F3 /* AppDelegate.swift */; };
 		AD7200BA2124D19200AFD5F3 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AD7200B82124D19200AFD5F3 /* Main.storyboard */; };
@@ -35,6 +36,7 @@
 
 /* Begin PBXFileReference section */
 		2544AF6A2230656D00C5B420 /* CardMessageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardMessageViewController.swift; sourceTree = "<group>"; };
+		25574C3222795A4C0083735E /* InAppMessagingDisplayCardViewUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppMessagingDisplayCardViewUITests.swift; sourceTree = "<group>"; };
 		AC6B055EA6ABACFAF95EAEA6 /* Pods-FiamDisplaySwiftExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FiamDisplaySwiftExample.release.xcconfig"; path = "Pods/Target Support Files/Pods-FiamDisplaySwiftExample/Pods-FiamDisplaySwiftExample.release.xcconfig"; sourceTree = "<group>"; };
 		AD7200B22124D19200AFD5F3 /* FiamDisplaySwiftExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FiamDisplaySwiftExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AD7200B42124D19200AFD5F3 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -99,6 +101,7 @@
 				AD7200DB2126136D00AFD5F3 /* InAppMessagingDisplayUITestsBase.swift */,
 				AD7200DD2126147100AFD5F3 /* InAppMessagingDisplayBannerViewUITests.swift */,
 				AD7200DF2126150600AFD5F3 /* InAppMessagingDisplayImageOnlyViewUITests.swift */,
+				25574C3222795A4C0083735E /* InAppMessagingDisplayCardViewUITests.swift */,
 				AD7200D52125F92100AFD5F3 /* Info.plist */,
 			);
 			path = "InAppMessagingDisplay-UITests";
@@ -331,6 +334,7 @@
 				AD7200DE2126147100AFD5F3 /* InAppMessagingDisplayBannerViewUITests.swift in Sources */,
 				AD7200DC2126136D00AFD5F3 /* InAppMessagingDisplayUITestsBase.swift in Sources */,
 				AD7200E02126150600AFD5F3 /* InAppMessagingDisplayImageOnlyViewUITests.swift in Sources */,
+				25574C3322795A4C0083735E /* InAppMessagingDisplayCardViewUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

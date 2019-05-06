@@ -12,6 +12,18 @@ class CardMessageViewController: CommonMessageTestVC {
   let displayImpl = InAppMessagingDefaultDisplayImpl()
 
   @IBOutlet var verifyLabel: UILabel!
+  
+  override func messageClicked(_ inAppMessage: InAppMessagingDisplayMessage,
+                               with action: FIRInAppMessagingAction) {
+    super.messageClicked(inAppMessage, with: action)
+    verifyLabel.text = "message clicked!"
+  }
+  
+  override func messageDismissed(_ inAppMessage: InAppMessagingDisplayMessage,
+                                 dismissType: FIRInAppMessagingDismissType) {
+    super.messageDismissed(inAppMessage, dismissType: dismissType)
+    verifyLabel.text = "message dismissed!"
+  }
 
   @IBAction func showRegularOneButtonWithBothImages(_ sender: Any) {
     let portraitImageRawData = produceImageOfSize(size: CGSize(width: 300, height: 200))
