@@ -99,7 +99,7 @@ extern NSString *const kFIRLibraryVersionID;
 
 - (void)testInitWithContentsOfFile {
   NSString *filePath = [[NSBundle mainBundle] pathForResource:@"GoogleService-Info"
-                           -                                                       ofType:@"plist"];
+                                                       ofType:@"plist"];
   if (filePath == nil) {
     // Use bundleForClass to allow GoogleService-Info.plist to be in the test target's bundle.
     NSBundle *bundle = [NSBundle bundleForClass:[self class]];
