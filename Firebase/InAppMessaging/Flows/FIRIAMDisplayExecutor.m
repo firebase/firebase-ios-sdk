@@ -49,10 +49,13 @@
 #pragma mark - FIRInAppMessagingDisplayDelegate methods
 - (void)messageClicked:(FIRInAppMessagingDisplayMessage *)inAppMessage
             withAction:(FIRInAppMessagingAction *)action {
-  // Call through to app-side delegate.
+  // Call through to app-side delegate..
   __weak id<FIRInAppMessagingDisplayDelegate> appSideDelegate = self.inAppMessaging.delegate;
   if ([appSideDelegate respondsToSelector:@selector(messageClicked:withAction:)]) {
     [appSideDelegate messageClicked:inAppMessage withAction:action];
+  } else if ([appSideDelegate respondsToSelector:@selector(messageClicked:)]) {
+    // Deprecated method is called only as a fall-back.
+    [appSideDelegate messageClicked:inAppMessage];
   }
 
   self.isMsgBeingDisplayed = NO;

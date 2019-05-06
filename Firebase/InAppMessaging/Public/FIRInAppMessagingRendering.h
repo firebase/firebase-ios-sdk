@@ -295,6 +295,9 @@ typedef NS_ENUM(NSInteger, FIAMDisplayRenderErrorType) {
  */
 NS_SWIFT_NAME(InAppMessagingDisplayDelegate)
 @protocol FIRInAppMessagingDisplayDelegate <NSObject>
+
+@optional
+
 /**
  * Called when the message is dismissed. Should be called from main thread.
  * @param inAppMessage the message that was dismissed.
@@ -302,6 +305,12 @@ NS_SWIFT_NAME(InAppMessagingDisplayDelegate)
  */
 - (void)messageDismissed:(FIRInAppMessagingDisplayMessage *)inAppMessage
              dismissType:(FIRInAppMessagingDismissType)dismissType;
+
+/**
+ * Called when the message's action button is followed by the user.
+ * @param inAppMessage the message that was clicked.
+ */
+- (void)messageClicked:(FIRInAppMessagingDisplayMessage *)inAppMessage __deprecated;
 
 /**
  * Called when the message's action button is followed by the user.
