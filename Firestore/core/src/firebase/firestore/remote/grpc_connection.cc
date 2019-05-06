@@ -72,8 +72,6 @@ class HostConfigMap {
   using Guard = std::lock_guard<std::mutex>;
 
  public:
-  using const_iterator = ConfigByHost::const_iterator;
-
   const HostConfig* _Nullable find(const std::string& host) const {
     Guard guard{mutex_};
     auto iter = map_.find(host);
