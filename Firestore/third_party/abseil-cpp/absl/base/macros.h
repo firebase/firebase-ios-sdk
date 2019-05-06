@@ -192,11 +192,11 @@ enum LinkerInitialized {
 // https://akrzemi1.wordpress.com/2017/05/18/asserts-in-constexpr-functions/
 #if defined(NDEBUG)
 #define ABSL_ASSERT(expr) \
-  (false ? static_cast<void>(expr) : static_cast<void>(0))
+  static_cast<void>(false ? static_cast<void>(expr) : static_cast<void>(0))
 #else
 #define ABSL_ASSERT(expr)                           \
-  (ABSL_PREDICT_TRUE((expr)) ? static_cast<void>(0) \
-                             : [] { assert(false && #expr); }())  // NOLINT
+  static_cast<void>(ABSL_PREDICT_TRUE((expr)) ? static_cast<void>(0) \
+                                              : [] { assert(false && #expr); }())  // NOLINT
 #endif
 
 #ifdef ABSL_HAVE_EXCEPTIONS
