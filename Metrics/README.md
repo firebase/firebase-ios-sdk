@@ -3,15 +3,25 @@
 A swift utility for collecting project health metrics on Travis and uploading to a database. It
 currently only supports parsing a Code Coverage report generated from XCov.
 
-## Run the coverage parser
+## Run the metrics uploader
+
+Make sure that a valid database.config is in the current directory.
+
+```
+host:<Cloud SQL IP address>
+database:<Database Name>
+user:<Username>
+password:<Password>
+```
+
+Use the following commands to build and run.  This will parse the example coverage report and
+upload the results to the database.
 
 ```
 swift build
-.build/debug/Metrics -c=example_report.json -o=database.json -p=99
+.build/debug/Metrics -c Tests/MetricsTests/example_report.json -p 99
 ```
 
-This generates a database.json file that can be executed through a pre-existing Java uploader that
-will push the data to a Cloud SQL database.
 
 ## Run the unit tests
 

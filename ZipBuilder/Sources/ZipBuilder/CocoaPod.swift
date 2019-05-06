@@ -16,9 +16,9 @@
 
 import Foundation
 
-// TODO: Auto generate this list from the Firebase.podspec, probably with a script.
-/// All the subspecs available in the Firebase pod.
-public enum Subspec: String, CaseIterable {
+// TODO: Auto generate this list from the Firebase.podspec and others, probably with a script.
+/// All the CocoaPods related to packaging and distributing Firebase.
+public enum CocoaPod: String, CaseIterable {
   case abTesting = "ABTesting"
   case adMob = "AdMob"
   case analytics = "Analytics"
@@ -28,6 +28,7 @@ public enum Subspec: String, CaseIterable {
   case dynamicLinks = "DynamicLinks"
   case firestore = "Firestore"
   case functions = "Functions"
+  case googleSignIn = "GoogleSignIn"
   case inAppMessaging = "InAppMessaging"
   case inAppMessagingDisplay = "InAppMessagingDisplay"
   case messaging = "Messaging"
@@ -54,6 +55,14 @@ public enum Subspec: String, CaseIterable {
     }
   }
 
+  /// The name of the pod in the CocoaPods repo.
+  public var podName: String {
+    switch self {
+    case .googleSignIn: return rawValue
+    default: return "Firebase/\(rawValue)"
+    }
+  }
+
   /// The minimum supported iOS version.
   public func minSupportedIOSVersion() -> OperatingSystemVersion {
     // All ML pods have a minimum iOS version of 9.0.
@@ -66,8 +75,9 @@ public enum Subspec: String, CaseIterable {
 
   /// Describes the dependency on other frameworks for the README file.
   public func readmeHeader() -> String {
+    // Remove any instances of "Firebase/" in the name, if it exists.
     var header = "## \(rawValue)"
-    if self != .analytics {
+    if !(self == .analytics || self == .googleSignIn) {
       header += " (~> Analytics)"
     }
     header += "\n"
@@ -76,7 +86,7 @@ public enum Subspec: String, CaseIterable {
 
   // TODO: Evaluate if there's a way to do this that doesn't require the hardcoded values to be
   //   maintained.
-  /// Returns folders to remove from the Zip file from a specific subspec for de-duplication. This
+  /// Returns folders to remove from the Zip file from a specific pod for de-duplication. This
   /// is necessary for the MLKit frameworks because of their unique structure, an unnecessary amount
   /// of frameworks get pulled in.
   public func duplicateFrameworksToRemove() -> [String] {

@@ -19,6 +19,7 @@
 #import <GoogleDataTransport/GDTEventDataObject.h>
 
 @class GDTClock;
+@class GDTDataFuture;
 @class GDTStoredEvent;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -83,10 +84,10 @@ typedef NS_ENUM(NSInteger, GDTEventQoS) {
 
 /** Returns the GDTStoredEvent equivalent of self.
  *
- * @param fileURL The file URL of the result of the dataObject's -transportBytes.
+ * @param dataFuture The data future representing the transport bytes of the original event.
  * @return An equivalent GDTStoredEvent.
  */
-- (GDTStoredEvent *)storedEventWithFileURL:(NSURL *)fileURL;
+- (GDTStoredEvent *)storedEventWithDataFuture:(GDTDataFuture *)dataFuture;
 
 @end
 

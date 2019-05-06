@@ -39,6 +39,7 @@ device, and it is completely free.
       'FIRMessaging_LIB_VERSION=' + String(s.version)
   }
   s.framework = 'SystemConfiguration'
+  s.weak_framework = 'UserNotifications'
   s.dependency 'FirebaseAnalyticsInterop', '~> 1.1'
   s.dependency 'FirebaseCore', '~> 6.0'
   s.dependency 'FirebaseInstanceID', '~> 4.1'

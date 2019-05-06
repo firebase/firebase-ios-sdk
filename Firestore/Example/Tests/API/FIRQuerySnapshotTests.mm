@@ -42,6 +42,7 @@ using firebase::firestore::api::Firestore;
 using firebase::firestore::api::SnapshotMetadata;
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::ViewSnapshot;
+using firebase::firestore::model::DocumentComparator;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentSet;
 
@@ -83,8 +84,8 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocument *doc2Old = FSTTestDoc("foo/baz", 1, @{@"a" : @"b"}, FSTDocumentStateSynced);
   FSTDocument *doc2New = FSTTestDoc("foo/baz", 1, @{@"a" : @"c"}, FSTDocumentStateSynced);
 
-  DocumentSet oldDocuments = FSTTestDocSet(FSTDocumentComparatorByKey, @[ doc1Old, doc2Old ]);
-  DocumentSet newDocuments = FSTTestDocSet(FSTDocumentComparatorByKey, @[ doc2New, doc2New ]);
+  DocumentSet oldDocuments = FSTTestDocSet(DocumentComparator::ByKey(), @[ doc1Old, doc2Old ]);
+  DocumentSet newDocuments = FSTTestDocSet(DocumentComparator::ByKey(), @[ doc2New, doc2New ]);
   std::vector<DocumentViewChange> documentChanges{
       DocumentViewChange(doc1New, DocumentViewChange::Type::kMetadata),
       DocumentViewChange(doc2New, DocumentViewChange::Type::kModified),

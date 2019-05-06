@@ -17,6 +17,7 @@
 #import <Foundation/Foundation.h>
 
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
+#include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 
@@ -25,6 +26,7 @@
 
 namespace core = firebase::firestore::core;
 namespace model = firebase::firestore::model;
+namespace util = firebase::firestore::util;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -109,7 +111,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init NS_UNAVAILABLE;
 
 /** Compares two documents based on the field and direction of this sort order. */
-- (NSComparisonResult)compareDocument:(FSTDocument *)document1 toDocument:(FSTDocument *)document2;
+- (util::ComparisonResult)compareDocument:(FSTDocument *)document1
+                               toDocument:(FSTDocument *)document2;
 
 /** The field to sort by. */
 - (const model::FieldPath &)field;
@@ -262,7 +265,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)matchesDocument:(FSTDocument *)document;
 
 /** Returns a comparator that will sort documents according to the receiver's sort order. */
-- (NSComparator)comparator;
+- (model::DocumentComparator)comparator;
 
 /** Returns the field of the first filter on the receiver that's an inequality, or nullptr if none.
  */

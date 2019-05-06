@@ -87,3 +87,10 @@ gen/
 
 # b/111916494
 default.profraw
+
+# Firestore emulator
+cloud-firestore-emulator.log
+cloud-firestore-emulator.pid
+
+# Let Gemfiles in CocoaPodsIntegrationTest float to catch issues asap
+CocoaPodsIntegrationTest/**/Gemfile.lock

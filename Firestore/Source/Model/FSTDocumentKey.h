@@ -19,18 +19,10 @@
 #include <initializer_list>
 #include <string>
 
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 
 namespace model = firebase::firestore::model;
-
-// Using forward declaration to avoid circular dependency (`document_key.h` includes this header).`
-namespace firebase {
-namespace firestore {
-namespace model {
-class DocumentKey;
-}
-}
-}
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -40,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FSTDocumentKey : NSObject <NSCopying>
 
-+ (instancetype)keyWithDocumentKey:(const model::DocumentKey &)documentKey;
++ (instancetype)keyWithDocumentKey:(model::DocumentKey)documentKey;
 
 /** Gets the underlying C++ representation. */
 - (const model::DocumentKey &)key;

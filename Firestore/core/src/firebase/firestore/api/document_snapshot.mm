@@ -18,6 +18,7 @@
 
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/Model/FSTDocument.h"
+#import "Firestore/Source/Model/FSTFieldValue.h"
 
 #include "Firestore/core/src/firebase/firestore/objc/objc_compatibility.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
@@ -31,16 +32,45 @@ namespace api {
 using model::DocumentKey;
 using model::FieldPath;
 
+DocumentSnapshot::DocumentSnapshot(std::shared_ptr<Firestore> firestore,
+                                   model::DocumentKey document_key,
+                                   FSTDocument* _Nullable document,
+                                   SnapshotMetadata metadata)
+    : firestore_{std::move(firestore)},
+      internal_key_{std::move(document_key)},
+      internal_document_{document},
+      metadata_{std::move(metadata)} {
+}
+
+DocumentSnapshot::DocumentSnapshot(std::shared_ptr<Firestore> firestore,
+                                   model::DocumentKey document_key,
+                                   FSTDocument* _Nullable document,
+                                   bool from_cache,
+                                   bool has_pending_writes)
+    : firestore_{std::move(firestore)},
+      internal_key_{std::move(document_key)},
+      internal_document_{document},
+      metadata_{has_pending_writes, from_cache} {
+}
+
 size_t DocumentSnapshot::Hash() const {
   return util::Hash(firestore_.get(), internal_key_, internal_document_,
                     metadata_);
+}
+
+bool DocumentSnapshot::exists() const {
+  return internal_document_ != nil;
+}
+
+FSTDocument* DocumentSnapshot::internal_document() const {
+  return internal_document_;
 }
 
 DocumentReference DocumentSnapshot::CreateReference() const {
   return DocumentReference{internal_key_, firestore_};
 }
 
-std::string DocumentSnapshot::document_id() const {
+const std::string& DocumentSnapshot::document_id() const {
   return internal_key_.path().last_segment();
 }
 

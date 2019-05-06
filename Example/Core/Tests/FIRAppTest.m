@@ -208,6 +208,8 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 
 - (void)testValidName {
   XCTAssertNoThrow([FIRApp configureWithName:@"aA1_" options:[FIROptions defaultOptions]]);
+  XCTAssertNoThrow([FIRApp configureWithName:@"aA1-" options:[FIROptions defaultOptions]]);
+  XCTAssertNoThrow([FIRApp configureWithName:@"aAē1_" options:[FIROptions defaultOptions]]);
   XCTAssertThrows([FIRApp configureWithName:@"aA1%" options:[FIROptions defaultOptions]]);
   XCTAssertThrows([FIRApp configureWithName:@"aA1?" options:[FIROptions defaultOptions]]);
   XCTAssertThrows([FIRApp configureWithName:@"aA1!" options:[FIROptions defaultOptions]]);
@@ -651,7 +653,6 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 
   id configurationMock = OCMClassMock([FIRAnalyticsConfiguration class]);
   OCMStub([configurationMock sharedInstance]).andReturn(configurationMock);
-  OCMStub([configurationMock setAnalyticsCollectionEnabled:OCMOCK_ANY persistSetting:OCMOCK_ANY]);
 
   // Ensure Analytics is set after the global flag is set. It needs to
   [defaultApp setDataCollectionDefaultEnabled:YES];
@@ -669,14 +670,15 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 
   id configurationMock = OCMClassMock([FIRAnalyticsConfiguration class]);
   OCMStub([configurationMock sharedInstance]).andReturn(configurationMock);
-  OCMStub([configurationMock setAnalyticsCollectionEnabled:OCMOCK_ANY persistSetting:OCMOCK_ANY]);
 
   // Reject any changes to Analytics when the data collection changes.
+  OCMReject([configurationMock setAnalyticsCollectionEnabled:YES persistSetting:YES]);
+  OCMReject([configurationMock setAnalyticsCollectionEnabled:YES persistSetting:NO]);
   [app setDataCollectionDefaultEnabled:YES];
-  OCMReject([configurationMock setAnalyticsCollectionEnabled:OCMOCK_ANY persistSetting:OCMOCK_ANY]);
 
+  OCMReject([configurationMock setAnalyticsCollectionEnabled:NO persistSetting:YES]);
+  OCMReject([configurationMock setAnalyticsCollectionEnabled:NO persistSetting:NO]);
   [app setDataCollectionDefaultEnabled:NO];
-  OCMReject([configurationMock setAnalyticsCollectionEnabled:OCMOCK_ANY persistSetting:OCMOCK_ANY]);
 }
 
 #pragma mark - Internal Methods

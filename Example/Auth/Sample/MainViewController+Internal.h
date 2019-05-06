@@ -67,7 +67,8 @@ typedef void (^TestAutomationCallback)(NSError *_Nullable error);
 
 - (void)linkWithAuthProvider:(id<AuthProvider>)authProvider retrieveData:(BOOL)retrieveData;
 
-- (void)unlinkFromProvider:(NSString *)provider completion:(nullable TestAutomationCallback)completion;
+- (void)unlinkFromProvider:(NSString *)provider
+                completion:(nullable TestAutomationCallback)completion;
 
 - (void)reauthenticate:(id<AuthProvider>)authProvider retrieveData:(BOOL)retrieveData;
 
@@ -75,14 +76,14 @@ typedef void (^TestAutomationCallback)(NSError *_Nullable error);
 
 - (void)logSuccess:(NSString *)string;
 
-- (void)logFailure:(NSString *)string error:(NSError *) error;
+- (void)logFailure:(NSString *)string error:(NSError * _Nullable) error;
 
 - (void)logFailedTest:(NSString *)reason;
 
 - (NSString *)stringWithAdditionalUserInfo:(nullable FIRAdditionalUserInfo *)additionalUserInfo;
 
 - (void)showTypicalUIForUserUpdateResultsWithTitle:(NSString *)resultsTitle
-                                             error:(NSError *)error;
+                                             error:(NSError  * _Nullable)error;
 
 - (FIRActionCodeSettings *)actionCodeSettings;
 

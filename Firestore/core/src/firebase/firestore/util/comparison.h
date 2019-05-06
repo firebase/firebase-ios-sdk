@@ -26,9 +26,12 @@
 #include <cstdint>
 #include <functional>
 #include <string>
+#include <utility>
 #include <vector>
 
+#include "Firestore/core/src/firebase/firestore/objc/objc_type_traits.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "absl/meta/type_traits.h"
 #include "absl/strings/string_view.h"
 
 namespace firebase {
@@ -59,76 +62,23 @@ enum class ComparisonResult {
   Descending = 1
 };
 
+constexpr bool Ascending(ComparisonResult result) noexcept {
+  return result == ComparisonResult::Ascending;
+}
+
+constexpr bool Same(ComparisonResult result) noexcept {
+  return result == ComparisonResult::Same;
+}
+
+constexpr bool Descending(ComparisonResult result) noexcept {
+  return result == ComparisonResult::Descending;
+}
+
 /**
  * Returns the reverse order (i.e. Ascending => Descending) etc.
  */
 constexpr ComparisonResult ReverseOrder(ComparisonResult result) {
   return static_cast<ComparisonResult>(-static_cast<int>(result));
-}
-
-/**
- * A generalized comparator for types in Firestore, with ordering defined
- * according to Firestore's semantics. This is useful as argument to e.g.
- * std::sort.
- *
- * Comparators are only defined for the limited set of types for which
- * Firestore defines an ordering.
- */
-template <typename T>
-struct Comparator {
-  // By default comparison is not defined
-};
-
-/** Compares two strings. */
-template <>
-struct Comparator<absl::string_view> {
-  bool operator()(absl::string_view left, absl::string_view right) const;
-};
-
-template <>
-struct Comparator<std::string> {
-  bool operator()(const std::string& left, const std::string& right) const;
-};
-
-/** Compares two bools: false < true. */
-template <>
-struct Comparator<bool> : public std::less<bool> {};
-
-/** Compares two int32_t. */
-template <>
-struct Comparator<int32_t> : public std::less<int32_t> {};
-
-/** Compares two int64_t. */
-template <>
-struct Comparator<int64_t> : public std::less<int64_t> {};
-
-/** Compares two doubles (using Firestore semantics for NaN). */
-template <>
-struct Comparator<double> {
-  bool operator()(double left, double right) const;
-};
-
-/** Compare two byte sequences. */
-// TODO(wilhuff): perhaps absl::Span<uint8_t> would be better?
-template <>
-struct Comparator<std::vector<uint8_t>>
-    : public std::less<std::vector<uint8_t>> {};
-
-/**
- * Perform a three-way comparison between the left and right values using
- * the appropriate Comparator for the values based on their type.
- */
-template <typename T, typename C = Comparator<T>>
-ComparisonResult Compare(const T& left,
-                         const T& right,
-                         const C& less_than = C()) {
-  if (less_than(left, right)) {
-    return ComparisonResult::Ascending;
-  } else if (less_than(right, left)) {
-    return ComparisonResult::Descending;
-  } else {
-    return ComparisonResult::Same;
-  }
 }
 
 #if __OBJC__
@@ -140,6 +90,121 @@ constexpr bool EqualValue(ComparisonResult lhs, NSComparisonResult rhs) {
   return static_cast<int>(lhs) == static_cast<int>(rhs);
 }
 
+static_assert(EqualValue(ComparisonResult::Ascending, NSOrderedAscending),
+              "Ascending invalid");
+static_assert(EqualValue(ComparisonResult::Same, NSOrderedSame),
+              "Same invalid");
+static_assert(EqualValue(ComparisonResult::Descending, NSOrderedDescending),
+              "Descending invalid");
+
+/** Converts NSComparisonResult to ComparisonResult. */
+constexpr ComparisonResult MakeComparisonResult(NSComparisonResult value) {
+  return static_cast<ComparisonResult>(value);
+}
+
+/** Converts ComparisonResult to NSComparisonResult. */
+constexpr NSComparisonResult MakeNSComparisonResult(ComparisonResult value) {
+  return static_cast<NSComparisonResult>(value);
+}
+#endif  // __OBJC__
+
+/**
+ * A generalized comparator for types in Firestore, with ordering defined
+ * according to Firestore's semantics.
+ *
+ * How a given type is compared depends on the type itself:
+ *
+ *   - (Objective-C++-only) If T* is an Objective-C object pointer then
+ *     invokes the `-compare:` member. Note that if T does not actually define
+ *     `-compare:` this will fail. This is unconditional this way because no
+ *     other alternative is valid for pointer types.
+ *
+ *   - If T defines a `CompareTo(T) const` member function, then Compare will
+ *     invoke `lhs.CompareTo(rhs)`.
+ *
+ *   - Otherwise, invokes `DefaultCompare(lhs, rhs)`.
+ */
+template <typename T>
+struct Comparator;
+
+template <typename T>
+struct DefaultComparator {
+  ComparisonResult Compare(const T& left, const T& right) const {
+    if (left < right) {
+      return ComparisonResult::Ascending;
+    } else if (right < left) {
+      return ComparisonResult::Descending;
+    } else {
+      return ComparisonResult::Same;
+    }
+  }
+};
+
+/** Compares two strings. */
+template <>
+struct Comparator<absl::string_view> {
+  ComparisonResult Compare(absl::string_view left,
+                           absl::string_view right) const;
+};
+
+template <>
+struct Comparator<std::string> {
+  ComparisonResult Compare(const std::string& left,
+                           const std::string& right) const;
+};
+
+#if __OBJC__
+template <>
+struct Comparator<NSString*> {
+  ComparisonResult Compare(NSString* left, NSString* right) const {
+    // Delegate to the string_view implementation so these are consistent.
+    Comparator<absl::string_view> delegate;
+    return delegate.Compare(MakeString(left), MakeString(right));
+  }
+};
+#endif  // __OBJC__
+
+/** Compares two bools: false < true. */
+template <>
+struct Comparator<bool> : public DefaultComparator<bool> {};
+
+/** Compares two int32_t. */
+template <>
+struct Comparator<int32_t> : public DefaultComparator<int32_t> {};
+
+/** Compares two int64_t. */
+template <>
+struct Comparator<int64_t> : public DefaultComparator<int64_t> {};
+
+/** Compares two doubles (using Firestore semantics for NaN). */
+template <>
+struct Comparator<double> {
+  ComparisonResult Compare(double left, double right) const;
+};
+
+/** Compare two byte sequences. */
+// TODO(wilhuff): perhaps absl::Span<uint8_t> would be better?
+template <>
+struct Comparator<std::vector<uint8_t>> {
+  ComparisonResult Compare(const std::vector<uint8_t>& left,
+                           const std::vector<uint8_t>& right) const;
+};
+
+/**
+ * Perform a three-way comparison between the left and right values using
+ * the appropriate Comparator for the values based on their type.
+ *
+ * Essentially a shortcut for Comparator<T>().Compare(left, right), where
+ * Comparator<T> is default constructible.
+ */
+template <typename T, typename C = Comparator<T>>
+ComparisonResult Compare(const T& left,
+                         const T& right,
+                         const C& comparator = C()) {
+  return comparator.Compare(left, right);
+}
+
+#if __OBJC__
 /**
  * Performs a three-way comparison, identically to Compare, but converts the
  * result to an NSComparisonResult.
@@ -149,16 +214,104 @@ constexpr bool EqualValue(ComparisonResult lhs, NSComparisonResult rhs) {
  */
 template <typename T>
 inline NSComparisonResult WrapCompare(const T& left, const T& right) {
-  static_assert(EqualValue(ComparisonResult::Ascending, NSOrderedAscending),
-                "Ascending invalid");
-  static_assert(EqualValue(ComparisonResult::Same, NSOrderedSame),
-                "Same invalid");
-  static_assert(EqualValue(ComparisonResult::Descending, NSOrderedDescending),
-                "Descending invalid");
-
-  return static_cast<NSComparisonResult>(Compare<T>(left, right));
+  return MakeNSComparisonResult(Compare<T>(left, right));
 }
-#endif
+#endif  // __OBJC__
+
+namespace impl {
+
+/**
+ * Checks wither the type T has a `CompareTo` member.
+ */
+template <typename T, typename = absl::void_t<>>
+struct has_compare_to : public std::false_type {};
+
+template <typename T>
+struct has_compare_to<
+    T,
+    absl::void_t<decltype(std::declval<T>().CompareTo(std::declval<T>()))>>
+    : public std::true_type {};
+
+/**
+ * Implements ranked choice among overloads below.
+ */
+template <int I>
+struct CompareChoice : CompareChoice<I + 1> {};
+
+template <>
+struct CompareChoice<2> {};
+
+#if __OBJC__
+// For Objective-C pointer types, use the Objective-C -compare: method.
+template <typename T,
+          typename = absl::enable_if_t<objc::is_objc_pointer<T>::value>>
+ComparisonResult CompareImpl(T* lhs, T* rhs, CompareChoice<0>) {
+  return MakeComparisonResult([lhs compare:rhs]);
+}
+#endif  // __OBJC__
+
+// Use a `CompareTo` member, if available
+template <typename T, typename = absl::enable_if_t<has_compare_to<T>::value>>
+ComparisonResult CompareImpl(const T& lhs, const T& rhs, CompareChoice<1>) {
+  return lhs.CompareTo(rhs);
+}
+
+// Otherwise, fall back on less than.
+template <typename T, typename = void>
+ComparisonResult CompareImpl(const T& lhs, const T& rhs, CompareChoice<2>) {
+  DefaultComparator<T> comparator;
+  return comparator.Compare(lhs, rhs);
+}
+
+}  // namespace impl
+
+template <typename T>
+struct Comparator {
+  ComparisonResult Compare(const T& lhs, const T& rhs) const {
+    return impl::CompareImpl(lhs, rhs, impl::CompareChoice<0>{});
+  }
+};
+
+/**
+ * A Comparator whose behavior is defined by a std::function.
+ */
+template <typename T>
+class FunctionComparator {
+ public:
+  using ComparisonFunction =
+      std::function<ComparisonResult(const T&, const T&)>;
+
+  explicit FunctionComparator(ComparisonFunction&& function)
+      : function_(std::move(function)) {
+  }
+
+  ComparisonResult Compare(const T& lhs, const T& rhs) const {
+    return function_(lhs, rhs);
+  }
+
+ private:
+  ComparisonFunction function_;
+};
+
+template <typename T>
+ComparisonResult CompareContainer(const T& lhs, const T& rhs) {
+  auto lhs_iter = lhs.begin();
+  auto lhs_end = lhs.end();
+  auto rhs_iter = rhs.begin();
+  auto rhs_end = rhs.end();
+
+  while (lhs_iter != lhs_end && rhs_iter != rhs_end) {
+    ComparisonResult cmp = Compare(*lhs_iter, *rhs_iter);
+    if (!Same(cmp)) return cmp;
+
+    ++lhs_iter;
+    ++rhs_iter;
+  }
+
+  if (rhs_iter != rhs_end) return ComparisonResult::Ascending;
+  if (lhs_iter != lhs_end) return ComparisonResult::Descending;
+  return ComparisonResult::Same;
+}
 
 /** Compares a double and an int64_t. */
 ComparisonResult CompareMixedNumber(double doubleValue, int64_t longValue);
@@ -179,19 +332,26 @@ bool DoubleBitwiseEquals(double left, double right);
  */
 size_t DoubleBitwiseHash(double d);
 
+/**
+ * A mixin that defines all six relational operators for a type T in terms of a
+ * CompareTo() member.
+ *
+ * @tparam T The type that should get comparison operators.
+ */
 template <typename T>
-class Equatable {
+class Comparable {
  public:
+  friend bool operator==(const T& lhs, const T& rhs) {
+    return Same(lhs.CompareTo(rhs));
+  }
   friend bool operator!=(const T& lhs, const T& rhs) {
     return !(lhs == rhs);
   }
-};
-
-template <typename T>
-class Comparable : public Equatable<T> {
- public:
+  friend bool operator<(const T& lhs, const T& rhs) {
+    return Ascending(lhs.CompareTo(rhs));
+  }
   friend bool operator>(const T& lhs, const T& rhs) {
-    return rhs < lhs;
+    return Descending(lhs.CompareTo(rhs));
   }
   friend bool operator<=(const T& lhs, const T& rhs) {
     return !(rhs < lhs);

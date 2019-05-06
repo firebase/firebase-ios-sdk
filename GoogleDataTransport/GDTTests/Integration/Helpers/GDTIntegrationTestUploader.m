@@ -54,7 +54,7 @@
 
   // In real usage, you'd create an instance of whatever request proto your server needs.
   for (GDTStoredEvent *event in package.events) {
-    NSData *fileData = [NSData dataWithContentsOfURL:event.eventFileURL];
+    NSData *fileData = [NSData dataWithContentsOfURL:event.dataFuture.fileURL];
     NSAssert(fileData, @"An event file shouldn't be empty");
     [uploadData appendData:fileData];
   }

@@ -17,23 +17,18 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_QUERY_LISTENER_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_QUERY_LISTENER_H_
 
-#if !defined(__OBJC__)
-#error "This header only supports Objective-C++"
-#endif  // !defined(__OBJC__)
-
-#import <Foundation/Foundation.h>
-
 #include <memory>
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/core/listen_options.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/objc/objc_class.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor_callback.h"
 #include "absl/types/optional.h"
 
-@class FSTQuery;
+OBJC_CLASS(FSTQuery);
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -76,17 +71,12 @@ class QueryListener {
 
   QueryListener(FSTQuery* query,
                 ListenOptions options,
-                ViewSnapshot::SharedListener&& listener)
-      : query_(query),
-        options_(std::move(options)),
-        listener_(std::move(listener)) {
-  }
+                ViewSnapshot::SharedListener&& listener);
+
   virtual ~QueryListener() {
   }
 
-  FSTQuery* query() const {
-    return query_;
-  }
+  FSTQuery* query() const;
 
   /** The last received view snapshot. */
   const absl::optional<ViewSnapshot>& snapshot() const {
@@ -103,7 +93,7 @@ class QueryListener {
   bool ShouldRaiseEvent(const ViewSnapshot& snapshot) const;
   void RaiseInitialEvent(const ViewSnapshot& snapshot);
 
-  FSTQuery* query_ = nil;
+  objc::Handle<FSTQuery> query_;
   ListenOptions options_;
 
   /**

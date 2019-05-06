@@ -38,6 +38,14 @@ using util::StringFormat;
 
 // DocumentViewChange
 
+DocumentViewChange::DocumentViewChange(FSTDocument* document, Type type)
+    : document_{document}, type_{type} {
+}
+
+FSTDocument* DocumentViewChange::document() const {
+  return document_;
+}
+
 std::string DocumentViewChange::ToString() const {
   return StringFormat("<DocumentViewChange doc:%s type:%s>",
                       util::ToString(document()), type());
@@ -167,6 +175,10 @@ ViewSnapshot ViewSnapshot::FromInitialDocuments(
                       DocumentSet{query.comparator}, std::move(view_changes),
                       std::move(mutated_keys), from_cache,
                       /*sync_state_changed=*/true, excludes_metadata_changes};
+}
+
+FSTQuery* ViewSnapshot::query() const {
+  return query_;
 }
 
 std::string ViewSnapshot::ToString() const {

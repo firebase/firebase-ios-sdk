@@ -60,22 +60,7 @@ private struct Constants {
   init() { fatalError() }
 }
 
-/// A package of files to install for a specific Pod. Used for closed source SDKs in the framework
-/// generation step to determine the files required during packaging.
-private struct FilesToInstall {
-  /// All frameworks required for the product to function.
-  let frameworks: [URL]
-  /// Any resources required for the product.
-  let resourceBundles: [URL]
-
-  /// Default initializer.
-  init(frameworks: [URL], resourceBundles: [URL] = []) {
-    self.frameworks = frameworks
-    self.resourceBundles = resourceBundles
-  }
-}
-
-/// A zip file builder. The zip file can be built with the `build()` function.
+/// A zip file builder. The zip file can be built with the `buildAndAssembleReleaseDir()` function.
 struct ZipBuilder {
   struct FilesystemPaths {
     // MARK: - Required Paths
@@ -137,7 +122,7 @@ struct ZipBuilder {
   ///
   /// - Returns: A URL to the folder that should be compressed and distributed.
   /// - Throws: One of many errors that could have happened during the build phase.
-  func buildAndAssembleZipDir() throws -> URL {
+  func buildAndAssembleReleaseDir() throws -> URL {
     let projectDir = FileManager.default.temporaryDirectory(withName: "project")
 
     // If it exists, remove it before we re-create it. This is simpler than removing all objects.
@@ -183,23 +168,24 @@ struct ZipBuilder {
       fatalError("Could not get contents of the README template: \(error)")
     }
 
-    // Break the `subspecsToInstall` into a variable since it's helpful when debugging non-cache
-    // builds to just install a subset: `[.core, .analytics, .storage, .firestore]` for example.
-    let subspecsToInstall = Subspec.allCases
+    // Break the `podsToInstall` into a variable since it's helpful when debugging non-cache builds
+    // to just install a subset of pods, like the following line:
+    // let podsToInstall: [CocoaPod] = [.core, .analytics, .storage, .firestore]
+    let podsToInstall = CocoaPod.allCases
 
     // Remove CocoaPods cache so the build gets updates after a version is rebuilt during the
     // release process.
     CocoaPodUtils.cleanPodCache()
 
-    // We need to install all the subpsecs in order to get every single framework that we'll need
+    // We need to install all the pods in order to get every single framework that we'll need
     // for the zip file. We can't install each one individually since some pods depend on different
     // subspecs from the same pod (ex: GoogleUtilities, GoogleToolboxForMac, etc). All of the code
     // wouldn't be included so we need to install all of the subspecs to catch the superset of all
     // required frameworks, then use that as the source of frameworks to pull from when including
     // the folders in each product directory.
-    CocoaPodUtils.installSubspecs(subspecsToInstall,
-                                  inDir: projectDir,
-                                  customSpecRepos: customSpecRepos)
+    CocoaPodUtils.installPods(podsToInstall,
+                              inDir: projectDir,
+                              customSpecRepos: customSpecRepos)
 
     // If any expected versions were passed in, we should verify that those were actually installed
     // and get the list of actual versions we'll be using to build the Zip file. This method will
@@ -208,14 +194,13 @@ struct ZipBuilder {
 
     // Find out what pods were installed with the above commands.
     let installedPods = CocoaPodUtils.installedPodsInfo(inProjectDir: projectDir)
-    let filesToInstall = generateFrameworksWithResources(fromPods: installedPods,
-                                                         inProjectDir: projectDir,
-                                                         useCache: useCache)
 
-    // Create an array that has the Pod name as the key and the array of frameworks needed - this
-    // will be used as the source of truth for all frameworks to be copied in each product's
-    // directory.
-    var frameworks = filesToInstall.mapValues { $0.frameworks }
+    // Generate the frameworks. Each key is the pod name and the URLs are all frameworks to be
+    // copied in each product's directory.
+    var frameworks = generateFrameworks(fromPods: installedPods,
+                                        inProjectDir: projectDir,
+                                        useCache: useCache)
+
     for (framework, paths) in frameworks {
       print("Frameworks for pod: \(framework) were compiled at \(paths)")
     }
@@ -223,7 +208,7 @@ struct ZipBuilder {
     // Overwrite the `FirebaseCoreDiagnostics.framework` in the `FirebaseAnalytics` folder. This is
     // needed because it was compiled specifically with the `ZIP` bit enabled, helping us understand
     // the distribution of CocoaPods vs Zip file integrations.
-    if subspecsToInstall.contains(.analytics) {
+    if podsToInstall.contains(.analytics) {
       let overriddenAnalytics: [URL] = {
         guard let currentFrameworks = frameworks["FirebaseAnalytics"] else {
           fatalError("Attempted to replace CoreDiagnostics framework but the FirebaseAnalytics " +
@@ -243,7 +228,6 @@ struct ZipBuilder {
       frameworks["FirebaseAnalytics"] = overriddenAnalytics
     }
 
-    // TODO: The folder heirarchy should change in Firebase 6.
     // Time to assemble the folder structure of the Zip file. In order to get the frameworks
     // required, we will `pod install` only those subspecs and then fetch the information for all
     // the frameworks that were installed, copying the frameworks from our list of compiled
@@ -279,22 +263,7 @@ struct ZipBuilder {
     copyFirebasePodFiles(fromDir: firebasePod.installedLocation, to: zipDir)
 
     // Copy all the other required files to the Zip directory.
-    let distributionFiles = Constants.ProjectPath.requiredFilesForDistribution.map {
-      paths.templateDir.appendingPathComponent($0)
-    }
-    for file in distributionFiles {
-      // Each file should be copied to the destination project directory with the same name.
-      let destination = zipDir.appendingPathComponent(file.lastPathComponent)
-      do {
-        if !FileManager.default.fileExists(atPath: destination.path) {
-          print("Copying final distribution file \(file) to \(destination)...")
-          try FileManager.default.copyItem(at: file, to: destination)
-        }
-      } catch {
-        fatalError("Could not copy final distribution files to temporary directory before " +
-          "building. Failed while attempting to copy \(file) to \(destination). \(error)")
-      }
-    }
+    copyRequiredFilesForDistribution(to: zipDir)
 
     // Start with installing Analytics, since we'll need to exclude those frameworks from the rest
     // of the folders.
@@ -303,7 +272,7 @@ struct ZipBuilder {
     do {
       // This returns the Analytics directory and a list of framework names that Analytics reqires.
       /// Example: ["FirebaseInstanceID", "GoogleAppMeasurement", "nanopb", <...>]
-      let (dir, frameworks) = try installAndCopyFrameworks(forSubspec: .analytics,
+      let (dir, frameworks) = try installAndCopyFrameworks(forPod: .analytics,
                                                            projectDir: projectDir,
                                                            rootZipDir: zipDir,
                                                            builtFrameworks: frameworks)
@@ -320,46 +289,20 @@ struct ZipBuilder {
 
     // Loop through all the other subspecs that aren't Core and Analytics and write them to their
     // final destination, including resources.
-    let resourceBundles = filesToInstall.mapValues { $0.resourceBundles }.filter { !$0.value.isEmpty }
-    let remainingSubspecs = subspecsToInstall.filter { $0 != .analytics && $0 != .core }
-    for spec in remainingSubspecs {
+    let remainingPods = podsToInstall.filter { $0 != .analytics && $0 != .core }
+    for pod in remainingPods {
       do {
-        let (specDir, podFrameworks) =
-          try installAndCopyFrameworks(forSubspec: spec,
+        let (productDir, podFrameworks) =
+          try installAndCopyFrameworks(forPod: pod,
                                        projectDir: projectDir,
                                        rootZipDir: zipDir,
                                        builtFrameworks: frameworks,
-                                       podsToIgnore: analyticsFrameworks,
-                                       foldersToIgnore: spec.duplicateFrameworksToRemove())
+                                       podsToIgnore: analyticsFrameworks)
 
-        // Copy any Resources from closed source pods into their destination folder. Open source
-        // pods have already had the Resources taken care of.
-        for pod in podFrameworks {
-          guard let bundles = resourceBundles[pod] else { continue }
-
-          // If Resources should be excluded (for example from MLKit), move on to the next one.
-          guard !spec.excludeResources else { continue }
-
-          // There are bundles to copy! Create a Resources directory.
-          let resourceDir = specDir.appendingPathComponent("Resources", isDirectory: true)
-          try FileManager.default.createDirectory(at: resourceDir,
-                                                  withIntermediateDirectories: true,
-                                                  attributes: nil)
-
-          // Copy each bundle individually, skipping duplicates.
-          let bundlesToSkip = spec.duplicateResourcesToRemove()
-          for bundle in bundles {
-            let name = bundle.lastPathComponent
-            guard !bundlesToSkip.contains(name) else { continue }
-
-            let destination = resourceDir.appendingPathComponent(name, isDirectory: true)
-            try FileManager.default.copyItem(at: bundle, to: destination)
-          }
-        }
-
-        readmeDeps += dependencyString(for: spec, in: specDir, frameworks: podFrameworks)
+        // Update the README.
+        readmeDeps += dependencyString(for: pod, in: productDir, frameworks: podFrameworks)
       } catch {
-        fatalError("Could not copy frameworks from \(spec.rawValue) into the zip file: \(error)")
+        fatalError("Could not copy frameworks from \(pod.rawValue) into the zip file: \(error)")
       }
     }
 
@@ -386,7 +329,7 @@ struct ZipBuilder {
   /// them to the destination directory.
   ///
   /// - Parameters:
-  ///   - installedPods: All the Pods installed for a given set of subspecs, which will be used as a
+  ///   - installedPods: All the Pods installed for a given set of pods, which will be used as a
   ///               list to find out what frameworks to copy to the destination.
   ///   - dir: Destination directory for all the frameworks.
   ///   - frameworkLocations: A dictionary containing the pod name as the key and a location to
@@ -464,19 +407,40 @@ struct ZipBuilder {
     }
   }
 
-  /// Creates the String required for this subspec to be added to the README. Creates a header and
+  /// Copies required files based on the project
+  private func copyRequiredFilesForDistribution(to zipDir: URL) {
+    let distributionFiles = Constants.ProjectPath.requiredFilesForDistribution.map {
+      paths.templateDir.appendingPathComponent($0)
+    }
+
+    for file in distributionFiles {
+      // Each file should be copied to the destination project directory with the same name.
+      let destination = zipDir.appendingPathComponent(file.lastPathComponent)
+      do {
+        if !FileManager.default.fileExists(atPath: destination.path) {
+          print("Copying final distribution file \(file) to \(destination)...")
+          try FileManager.default.copyItem(at: file, to: destination)
+        }
+      } catch {
+        fatalError("Could not copy final distribution files to temporary directory before " +
+          "building. Failed while attempting to copy \(file) to \(destination). \(error)")
+      }
+    }
+  }
+
+  /// Creates the String required for this pod to be added to the README. Creates a header and
   /// lists each framework in alphabetical order with the appropriate indentation, as well as a
   /// message about resources if they exist.
   ///
   /// - Parameters:
   ///   - subspec: The subspec that requires documentation.
-  ///   - dir: The directory where everything lives. Used to check if the spec has resources.
   ///   - frameworks: All the frameworks required by the subspec.
+  ///   - includesResources: A flag to include or exclude the text for adding Resources.
   /// - Returns: A string with a header for the subspec name, and a list of frameworks required to
   ///            integrate for the product to work. Formatted and ready for insertion into the
   ///            README.
-  private func dependencyString(for subspec: Subspec, in dir: URL, frameworks: [String]) -> String {
-    var result = subspec.readmeHeader()
+  private func dependencyString(for pod: CocoaPod, in dir: URL, frameworks: [String]) -> String {
+    var result = pod.readmeHeader()
     for framework in frameworks.sorted() {
       result += "- \(framework).framework\n"
     }
@@ -494,7 +458,7 @@ struct ZipBuilder {
       }
     } catch {
       fatalError("""
-      Tried to find Resources directory for \(subspec) in order to build the README, but an error
+      Tried to find Resources directory for \(pod) in order to build the README, but an error
       occurred: \(error).
       """)
     }
@@ -538,8 +502,7 @@ struct ZipBuilder {
 
   /// Installs a subspec and attempts to copy all the frameworks required for it from
   /// `buildFramework` and puts them into a new directory in the `rootZipDir` matching the
-  /// subspec's name. This also will move any Resources directory outside of the frameworks and
-  /// place them in the same directory as the rest of the frameworks.
+  /// subspec's name.
   ///
   /// - Parameters:
   ///   - subspec: The subspec to install and get the dependencies list.
@@ -548,26 +511,25 @@ struct ZipBuilder {
   ///   - builtFrameworks: All frameworks that have been built, with the framework name as the key
   ///                      and the framework's location as the value.
   ///   - podsToIgnore: Pods to avoid copying, if any.
-  ///   - foldersToIgnore: Specific folders to avoid copying, if any.
   /// - Throws: Throws various errors from copying frameworks.
-  /// - Returns: The directory containing all the frameworks and the names of the frameworks that
-  ///            were copied for this subspec.
+  /// - Returns: The product directory containing all frameworks and the names of the frameworks
+  ///            that were copied for this subspec.
   @discardableResult
   func installAndCopyFrameworks(
-    forSubspec subspec: Subspec,
+    forPod pod: CocoaPod,
     projectDir: URL,
     rootZipDir: URL,
     builtFrameworks: [String: [URL]],
-    podsToIgnore: [String] = [],
-    foldersToIgnore: [String] = []
-  ) throws -> (output: URL, frameworks: [String]) {
-    let installedPods = CocoaPodUtils.installSubspecs([subspec], inDir: projectDir, customSpecRepos: customSpecRepos)
-    let productDir = rootZipDir.appendingPathComponent(subspec.rawValue)
+    podsToIgnore: [String] = []
+  ) throws -> (productDir: URL, frameworks: [String]) {
+    let installedPods = CocoaPodUtils.installPods([pod], inDir: projectDir, customSpecRepos: customSpecRepos)
+    // Copy the frameworks into the proper product directory.
+    let productDir = rootZipDir.appendingPathComponent(pod.rawValue)
     try copyFrameworks(fromPods: installedPods,
                        toDirectory: productDir,
                        frameworkLocations: builtFrameworks,
                        podsToIgnore: podsToIgnore,
-                       foldersToIgnore: foldersToIgnore)
+                       foldersToIgnore: pod.duplicateFrameworksToRemove())
 
     // Return the names of all the installed frameworks.
     let namedFrameworks = installedPods.map { $0.name }
@@ -686,10 +648,11 @@ struct ZipBuilder {
   /// Generates all the .framework files from a Pods directory. This will go through the contents of
   /// the directory, copy the .frameworks to a temporary directory and compile any source based
   /// CocoaPods. Returns a dictionary with the framework name for the key and all information for
-  /// files to install (frameworks and resources).
-  private func generateFrameworksWithResources(fromPods pods: [CocoaPodUtils.PodInfo],
-                                               inProjectDir projectDir: URL,
-                                               useCache: Bool = false) -> [String: FilesToInstall] {
+  /// frameworks to install EXCLUDING resources, as they are handled later (if not included in the
+  /// .framework file already).
+  private func generateFrameworks(fromPods pods: [CocoaPodUtils.PodInfo],
+                                  inProjectDir projectDir: URL,
+                                  useCache: Bool = false) -> [String: [URL]] {
     // Verify the Pods folder exists and we can get the contents of it.
     let fileManager = FileManager.default
 
@@ -711,7 +674,7 @@ struct ZipBuilder {
 
     // Loop through each pod folder and check if the frameworks already exist, or they need to be
     // compiled. If they exist, add them to the frameworks dictionary.
-    var toInstall: [String: FilesToInstall] = [:]
+    var toInstall: [String: [URL]] = [:]
     for pod in pods {
       var frameworks: [URL] = []
       // Ignore any Interop pods or the Firebase umbrella pod.
@@ -729,32 +692,26 @@ struct ZipBuilder {
           "\(pod.installedLocation): \(error)")
       }
 
-      // Get the resulting folder that will contain all resources for that Pod.
-      let podResourceDir = tempResourceDir.appendingPathComponent(pod.name)
-      var resourceBundles: [URL] = []
-
       // If there are no frameworks, it's an open source pod and we need to compile the source to
       // get a framework.
       if foundFrameworks.isEmpty {
         let builder = FrameworkBuilder(projectDir: projectDir)
-        let (framework, resourceDir) = builder.buildFramework(withName: pod.name,
-                                                              version: pod.version,
-                                                              cacheKey: pod.cacheKey,
-                                                              cacheEnabled: useCache)
-
-        // Move all the Resources that are contained in the resourceDir returned.
-        do {
-          resourceBundles = try ResourcesManager.moveAllBundles(inDirectory: resourceDir,
-                                                                to: podResourceDir)
-        } catch {
-          fatalError("Could not move Resource bundles for \(pod.name): \(error)")
-        }
+        let framework = builder.buildFramework(withName: pod.name,
+                                               version: pod.version,
+                                               cacheKey: pod.cacheKey,
+                                               cacheEnabled: useCache)
 
         frameworks = [framework]
       } else {
-        // Copy found frameworks to a known temporary directory, and store that location. Also move
-        // the resources inside the .framework to be consistent with the compiled frameworks, which
-        // they'll be moved out afterwards.
+        // Package all resources into the frameworks since that's how Carthage needs it packaged.
+        do {
+          // TODO: Figure out if we need to exclude bundles here or not.
+          try ResourcesManager.packageAllResources(containedIn: pod.installedLocation)
+        } catch {
+          fatalError("Tried to package resources for \(pod.name) but it failed: \(error)")
+        }
+
+        // Copy each of the frameworks to a known temporary directory and store the location.
         for framework in foundFrameworks {
           // Copy it to the temporary directory and save it to our list of frameworks.
           let copiedLocation = tempDir.appendingPathComponent(framework.lastPathComponent)
@@ -770,51 +727,9 @@ struct ZipBuilder {
 
           frameworks.append(copiedLocation)
         }
-
-        // There are two sitautions for Resources in closed source Pods depending on what they use
-        // in their Podspec. Pods can define either pre-built bundles or a list of files for any
-        // number of bundles to be created. We'll search for any pre-built bundles, and if there
-        // aren't any, look in all the included Pods to see if there are Resources folders
-        // available to build bundles from. The latter is necessary for GoogleMobileVision and
-        // MLKit.
-
-        // Search for any pre-built bundles.
-        do {
-          resourceBundles = try ResourcesManager.moveAllBundles(inDirectory: pod.installedLocation,
-                                                                to: podResourceDir)
-        } catch {
-          fatalError("Cannot move Resource bundles for \(pod.name): \(error)")
-        }
-
-        // Smart Reply packages Resources separately from other MLKit subspecs.
-        if pod.name == "FirebaseMLNLSmartReply" {
-          do {
-            resourceBundles = try ResourcesManager.createBundleForFoldersInResourcesDirs(
-              containedIn: pod.installedLocation, destinationDir: podResourceDir
-            )
-          } catch {
-            fatalError("Could not generate Resource bundles for \(pod.name): \(error)")
-          }
-        }
-
-        // Special case for MLKit *Model subspecs, explicitly copy directories from
-        // GoogleMobileVision. This should be fixed in the future to pull all compiled resources
-        // from Xcode's build directory.
-        if pod.name == "FirebaseMLVisionTextModel" || pod.name == "FirebaseMLVisionFaceModel" {
-          do {
-            let podsDir = pod.installedLocation.deletingLastPathComponent()
-            let gmvDir = podsDir.appendingPathComponent("GoogleMobileVision")
-            resourceBundles = try ResourcesManager.createBundleForFoldersInResourcesDirs(
-              containedIn: gmvDir, destinationDir: podResourceDir
-            )
-          } catch {
-            fatalError("Could not generate Resource bundles for \(pod.name): \(error)")
-          }
-        }
       }
 
-      let podFiles = FilesToInstall(frameworks: frameworks, resourceBundles: resourceBundles)
-      toInstall[pod.name] = podFiles
+      toInstall[pod.name] = frameworks
     }
 
     return toInstall

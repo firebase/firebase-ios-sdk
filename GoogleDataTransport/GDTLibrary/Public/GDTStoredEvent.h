@@ -15,6 +15,7 @@
  */
 #import <Foundation/Foundation.h>
 
+#import <GoogleDataTransport/GDTDataFuture.h>
 #import <GoogleDataTransport/GDTEvent.h>
 
 @class GDTEvent;
@@ -23,8 +24,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface GDTStoredEvent : NSObject <NSSecureCoding>
 
-/** The file URL containing the transport bytes of this event. */
-@property(readonly, nonatomic) NSURL *eventFileURL;
+/** The data future representing the original event's transport bytes. */
+@property(readonly, nonatomic) GDTDataFuture *dataFuture;
 
 /** The mapping identifier, to allow backends to map the transport bytes to a proto. */
 @property(readonly, nonatomic) NSString *mappingID;
@@ -46,11 +47,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Initializes a stored event with the given URL and event.
  *
- * @param URL The file URL of the transport bytes associated with the event.
  * @param event The event this stored event represents.
+ * @param dataFuture The dataFuture this event represents.
  * @return An instance of this class.
  */
-- (instancetype)initWithFileURL:(NSURL *)URL event:(GDTEvent *)event;
+- (instancetype)initWithEvent:(GDTEvent *)event dataFuture:(GDTDataFuture *)dataFuture;
 
 @end
 

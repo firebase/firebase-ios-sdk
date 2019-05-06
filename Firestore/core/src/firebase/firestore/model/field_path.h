@@ -34,7 +34,8 @@ namespace model {
  *
  * Immutable; all instances are fully independent.
  */
-class FieldPath : public impl::BasePath<FieldPath> {
+class FieldPath : public impl::BasePath<FieldPath>,
+                  public util::Comparable<FieldPath> {
  public:
   /** The field path string that represents the document's key. */
   static constexpr const char* kDocumentKeyPath = "__name__";
@@ -86,25 +87,6 @@ class FieldPath : public impl::BasePath<FieldPath> {
   std::string CanonicalString() const;
   /** True if this FieldPath represents a document key. */
   bool IsKeyFieldPath() const;
-
-  bool operator==(const FieldPath& rhs) const {
-    return BasePath::operator==(rhs);
-  }
-  bool operator!=(const FieldPath& rhs) const {
-    return BasePath::operator!=(rhs);
-  }
-  bool operator<(const FieldPath& rhs) const {
-    return BasePath::operator<(rhs);
-  }
-  bool operator>(const FieldPath& rhs) const {
-    return BasePath::operator>(rhs);
-  }
-  bool operator<=(const FieldPath& rhs) const {
-    return BasePath::operator<=(rhs);
-  }
-  bool operator>=(const FieldPath& rhs) const {
-    return BasePath::operator>=(rhs);
-  }
 
  private:
   static void ValidateSegments(const SegmentsT& segments) {

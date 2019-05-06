@@ -41,14 +41,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTDocumentKey
 
-+ (instancetype)keyWithDocumentKey:(const firebase::firestore::model::DocumentKey &)documentKey {
-  return [[FSTDocumentKey alloc] initWithDocumentKey:documentKey];
++ (instancetype)keyWithDocumentKey:(firebase::firestore::model::DocumentKey)documentKey {
+  return [[FSTDocumentKey alloc] initWithDocumentKey:std::move(documentKey)];
 }
 
 /** Designated initializer. */
-- (instancetype)initWithDocumentKey:(const DocumentKey &)key {
+- (instancetype)initWithDocumentKey:(DocumentKey)key {
   if (self = [super init]) {
-    _delegate = key;
+    _delegate = std::move(key);
   }
   return self;
 }

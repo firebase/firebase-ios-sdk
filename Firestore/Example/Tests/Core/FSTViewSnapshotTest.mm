@@ -29,6 +29,7 @@
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::DocumentViewChangeSet;
 using firebase::firestore::core::ViewSnapshot;
+using firebase::firestore::model::DocumentComparator;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentSet;
 
@@ -101,7 +102,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testViewSnapshotConstructor {
   FSTQuery *query = FSTTestQuery("a");
-  DocumentSet documents = DocumentSet{FSTDocumentComparatorByKey};
+  DocumentSet documents = DocumentSet{DocumentComparator::ByKey()};
   DocumentSet oldDocuments = documents;
   documents = documents.insert(FSTTestDoc("c/a", 1, @{}, FSTDocumentStateSynced));
   std::vector<DocumentViewChange> documentChanges{DocumentViewChange{

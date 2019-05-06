@@ -58,6 +58,10 @@ void swap(String& lhs, String& rhs) noexcept {
   swap(lhs.bytes_, rhs.bytes_);
 }
 
+util::ComparisonResult String::CompareTo(const String& rhs) const {
+  return util::Compare(absl::string_view{*this}, absl::string_view{rhs});
+}
+
 /* static */ String String::Wrap(pb_bytes_array_t* bytes) {
   return String{bytes};
 }

@@ -241,9 +241,9 @@ cc_library(
   SOURCES
     bits.cc
     bits.h
-    comparator_holder.h
     comparison.cc
     comparison.h
+    compressed_member.h
     config.h
     delayed_constructor.h
     error_apple.h

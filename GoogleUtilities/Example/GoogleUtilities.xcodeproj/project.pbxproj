@@ -15,6 +15,7 @@
 		6003F5B2195388D20070C39A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F591195388D20070C39A /* UIKit.framework */; };
 		9A414672225259F900B08D77 /* GULAppDelegateSwizzlerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EFBE67F92101401100E756A7 /* GULAppDelegateSwizzlerTest.m */; };
 		9A7C37C2224BD9C600033B0D /* GULAppDelegateSwizzlerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EFBE67F92101401100E756A7 /* GULAppDelegateSwizzlerTest.m */; };
+		9ADED4F6227747E600BFB3CF /* GULAppDelegateSwizzlerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EFBE67F92101401100E756A7 /* GULAppDelegateSwizzlerTest.m */; };
 		DE5CF98E20F686310063FFDD /* GULAppEnvironmentUtilTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5CF98C20F686290063FFDD /* GULAppEnvironmentUtilTest.m */; };
 		DE84BBC421D7EC900048A176 /* GULUserDefaultsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE84BBC321D7EC900048A176 /* GULUserDefaultsTests.m */; };
 		DE84BBC521D7EC900048A176 /* GULUserDefaultsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE84BBC321D7EC900048A176 /* GULUserDefaultsTests.m */; };
@@ -648,6 +649,7 @@
 				DEC9781820F6D37400014E20 /* GULLoggerTest.m in Sources */,
 				DE84BBC521D7EC900048A176 /* GULUserDefaultsTests.m in Sources */,
 				DEC9781D20F6D39900014E20 /* GTMHTTPServer.m in Sources */,
+				9ADED4F6227747E600BFB3CF /* GULAppDelegateSwizzlerTest.m in Sources */,
 				DEC9781B20F6D39500014E20 /* GULMutableDictionaryTest.m in Sources */,
 				DEC9781C20F6D39500014E20 /* GULNetworkTest.m in Sources */,
 			);
@@ -993,6 +995,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../Reachability",
+					"$(SRCROOT)/../AppDelegateSwizzler/Internal",
 				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";

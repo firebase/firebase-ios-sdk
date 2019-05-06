@@ -19,7 +19,6 @@ cc_library(
     keys_view.h
     llrb_node.h
     llrb_node_iterator.h
-    map_entry.h
     sorted_container.h
     sorted_container.cc
     sorted_map.h
