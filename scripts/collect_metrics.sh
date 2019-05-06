@@ -37,7 +37,7 @@ WORKSPACE="$1"
 SCHEME="$2"
 
 gem install xcov
-xcov --workspace "${WORKSPACE}" --scheme ${SCHEME}  --output_directory Metrics --json_report
+xcov --workspace "${WORKSPACE}" --scheme "${SCHEME}" --output_directory Metrics --json_report
 cd Metrics
 swift build
 .build/debug/Metrics -c report.json -p "${TRAVIS_PULL_REQUEST}"
