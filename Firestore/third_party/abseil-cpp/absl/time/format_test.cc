@@ -4,7 +4,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//      http://www.apache.org/licenses/LICENSE-2.0
+//      https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,8 +27,8 @@ namespace {
 
 // A helper that tests the given format specifier by itself, and with leading
 // and trailing characters.  For example: TestFormatSpecifier(t, "%a", "Thu").
-void TestFormatSpecifier(absl::Time t, absl::TimeZone tz, const std::string& fmt,
-                         const std::string& ans) {
+void TestFormatSpecifier(absl::Time t, absl::TimeZone tz,
+                         const std::string& fmt, const std::string& ans) {
   EXPECT_EQ(ans, absl::FormatTime(fmt, t, tz));
   EXPECT_EQ("xxx " + ans, absl::FormatTime("xxx " + fmt, t, tz));
   EXPECT_EQ(ans + " yyy", absl::FormatTime(fmt + " yyy", t, tz));
@@ -375,7 +375,8 @@ TEST(FormatParse, RoundTrip) {
   // RFC3339, which renders subseconds.
   {
     absl::Time out;
-    const std::string s = absl::FormatTime(absl::RFC3339_full, in + subseconds, lax);
+    const std::string s =
+        absl::FormatTime(absl::RFC3339_full, in + subseconds, lax);
     EXPECT_TRUE(absl::ParseTime(absl::RFC3339_full, s, &out, &err))
         << s << ": " << err;
     EXPECT_EQ(in + subseconds, out);  // RFC3339_full includes %Ez
@@ -394,7 +395,12 @@ TEST(FormatParse, RoundTrip) {
   // work. On Windows, `absl::ParseTime()` falls back to std::get_time() which
   // appears to fail on "%c" (or at least on the "%c" text produced by
   // `strftime()`). This makes it fail the round-trip test.
-#ifndef _MSC_VER
+  //
+  // Under the emscripten compiler `absl::ParseTime() falls back to
+  // `strptime()`, but that ends up using a different definition for "%c"
+  // compared to `strftime()`, also causing the round-trip test to fail
+  // (see https://github.com/kripken/emscripten/pull/7491).
+#if !defined(_MSC_VER) && !defined(__EMSCRIPTEN__)
   // Even though we don't know what %c will produce, it should roundtrip,
   // but only in the 0-offset timezone.
   {
@@ -403,7 +409,7 @@ TEST(FormatParse, RoundTrip) {
     EXPECT_TRUE(absl::ParseTime("%c", s, &out, &err)) << s << ": " << err;
     EXPECT_EQ(in, out);
   }
-#endif  // _MSC_VER
+#endif  // !_MSC_VER && !__EMSCRIPTEN__
 }
 
 TEST(FormatParse, RoundTripDistantFuture) {

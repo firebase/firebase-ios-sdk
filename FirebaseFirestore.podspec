@@ -103,10 +103,18 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
       'Firestore/third_party/abseil-cpp/**/*test*.cc',
       'Firestore/third_party/abseil-cpp/absl/hash/internal/print_hash_of.cc',
 
+      # Exclude CMake-related everything, including tests
+      'Firestore/third_party/abseil-cpp/CMake/**/*.cc',
+
       # Avoid the debugging package which uses code that isn't portable to
       # ARM (see stack_consumption.cc) and uses syscalls not available on
       # tvOS (e.g. sigaltstack).
       'Firestore/third_party/abseil-cpp/absl/debugging/**/*.cc',
+
+      # Dropping the debugging package prevents downstream usage of this in the
+      # abseil sources.
+      'Firestore/third_party/abseil-cpp/absl/container/internal/hashtable_debug*',
+      'Firestore/third_party/abseil-cpp/absl/container/internal/hashtablez_sampler*',
 
       # Exclude the synchronization package because it's dead weight: we don't
       # write the kind of heavily threaded code that might benefit from it.
