@@ -124,18 +124,54 @@ NS_SWIFT_NAME(InAppMessagingDisplayMessage)
 NS_SWIFT_NAME(InAppMessagingCardDisplay)
 @interface FIRInAppMessagingCardDisplay : FIRInAppMessagingDisplayMessage
 
+/*
+ * Gets the title text for a card FIAM message.
+ */
 @property(nonatomic, nonnull, copy, readonly) NSString *title;
+
+/*
+ * Gets the body text for a card FIAM message.
+ */
 @property(nonatomic, nullable, copy, readonly) NSString *body;
+
 /**
  * Gets the color for text in card FIAM message. It applies to both title and body text.
  */
 @property(nonatomic, copy, nonnull) UIColor *textColor;
+
+/*
+ * Image data for the supplied portrait image for a card FIAM messasge.
+ */
 @property(nonatomic, nonnull, copy, readonly) FIRInAppMessagingImageData *portraitImageData;
+
+/**
+ * Image data for the supplied landscape image for a card FIAM message.
+ */
 @property(nonatomic, nullable, copy, readonly) FIRInAppMessagingImageData *landscapeImageData;
+
+/**
+ * The background color for a card FIAM message.
+ */
 @property(nonatomic, copy, nonnull) UIColor *displayBackgroundColor;
+
+/**
+ * Metadata for a card FIAM message's primary action button.
+ */
 @property(nonatomic, nonnull, readonly) FIRInAppMessagingActionButton *primaryActionButton;
+
+/**
+ * The action URL for a card FIAM message's primary action button.
+ */
 @property(nonatomic, nonnull, readonly) NSURL *primaryActionURL;
+
+/**
+ * Metadata for a card FIAM message's secondary action button.
+ */
 @property(nonatomic, nullable, readonly) FIRInAppMessagingActionButton *secondaryActionButton;
+
+/**
+ * The action URL for a card FIAM message's secondary action button.
+ */
 @property(nonatomic, nullable, readonly) NSURL *secondaryActionURL;
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -315,7 +351,7 @@ NS_SWIFT_NAME(InAppMessagingDisplayDelegate)
 /**
  * Called when the message's action button is followed by the user.
  * @param inAppMessage the message that was clicked.
- * @param action the URL for the action that was clicked.
+ * @param action contains the text and URL for the action that was clicked.
  */
 - (void)messageClicked:(FIRInAppMessagingDisplayMessage *)inAppMessage
             withAction:(FIRInAppMessagingAction *)action;
