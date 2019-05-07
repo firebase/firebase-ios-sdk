@@ -33,7 +33,13 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
-      'FIRCore_VERSION=' + s.version.to_s + ' Firebase_VERSION=5.20.0',
+      'FIRCore_VERSION=' + s.version.to_s + ' Firebase_VERSION=6.0.0',
     'OTHER_CFLAGS' => '-fno-autolink'
   }
+  s.test_spec 'unit' do |unit_tests|
+    unit_tests.source_files = 'Example/Core/Tests/**/*.[mh]'
+    unit_tests.requires_app_host = true
+    unit_tests.dependency 'OCMock'
+    unit_tests.resources = 'Example/Core/App/GoogleService-Info.plist'
+  end
 end

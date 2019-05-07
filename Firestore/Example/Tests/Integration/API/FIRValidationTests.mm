@@ -169,6 +169,8 @@
 }
 
 - (void)testWritesWithIndirectlyNestedArraysSucceed {
+  if ([FSTIntegrationTestCase isRunningAgainstEmulator]) return;
+
   NSDictionary<NSString *, id> *data = @{@"nested-array" : @[ @1, @{@"foo" : @[ @2 ]} ]};
 
   FIRDocumentReference *ref = [self documentRef];

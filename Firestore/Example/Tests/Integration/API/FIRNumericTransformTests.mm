@@ -39,6 +39,12 @@ double DOUBLE_EPSILON = 0.000001;
   id<FIRListenerRegistration> _listenerRegistration;
 }
 
+- (void)invokeTest {
+  // None of these tests work in the emulator as of 1.4.5.
+  if ([FSTIntegrationTestCase isRunningAgainstEmulator]) return;
+  [super invokeTest];
+}
+
 - (void)setUp {
   [super setUp];
 

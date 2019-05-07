@@ -5,7 +5,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//      http://www.apache.org/licenses/LICENSE-2.0
+//      https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,7 +24,6 @@
 // This code is compiled directly on many platforms, including client
 // platforms like Windows, Mac, and embedded systems.  Before making
 // any changes here, make sure that you're not breaking any platforms.
-//
 
 #ifndef ABSL_BASE_MACROS_H_
 #define ABSL_BASE_MACROS_H_
@@ -192,11 +191,12 @@ enum LinkerInitialized {
 // This macro is inspired by
 // https://akrzemi1.wordpress.com/2017/05/18/asserts-in-constexpr-functions/
 #if defined(NDEBUG)
-#define ABSL_ASSERT(expr) (void) (false ? (void)(expr) : (void)0)
+#define ABSL_ASSERT(expr) \
+  static_cast<void>(false ? static_cast<void>(expr) : static_cast<void>(0))
 #else
-#define ABSL_ASSERT(expr)              \
-  (void) (ABSL_PREDICT_TRUE((expr)) ? (void)0 \
-                                    : [] { assert(false && #expr); }())  // NOLINT
+#define ABSL_ASSERT(expr)                           \
+  static_cast<void>(ABSL_PREDICT_TRUE((expr)) ? static_cast<void>(0) \
+                                              : [] { assert(false && #expr); }())  // NOLINT
 #endif
 
 #ifdef ABSL_HAVE_EXCEPTIONS
