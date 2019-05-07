@@ -408,13 +408,24 @@ def process(podspec_file, cmake_file, *req_subspecs)
   end
 end
 
+# Returns true if test specifications are supported by the current version of
+# CocoaPods and the given +spec+ is a test specification.
+def test_specification?(spec)
+  # CocoaPods 1.3.0 added test specifications.
+  if !spec.respond_to?(:test_specification?)
+    return false
+  end
+
+  return spec.test_specification?
+end
+
 # Translates the (possibly empty) list of requested subspecs into the list of
 # subspecs to actually include. If +req_subspecs+ is empty, returns all
 # subspecs. If non-empty, all subspecs are returned as qualified names, e.g.
 # "Logger" may become "GoogleUtilities/Logger".
 def normalize_requested_subspecs(spec, req_subspecs)
-  subspecs = spec.subspecs
   if req_subspecs.empty?
+    subspecs = spec.subspecs.select { |s| not test_specification?(s) }
     return subspecs.map { |s| s.name }
   else
     return req_subspecs.map do |name|
