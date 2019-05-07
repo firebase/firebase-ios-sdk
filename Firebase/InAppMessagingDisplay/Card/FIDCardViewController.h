@@ -25,7 +25,8 @@ NS_ASSUME_NONNULL_BEGIN
 + (FIDCardViewController *)
     instantiateViewControllerWithResourceBundle:(NSBundle *)resourceBundle
                                  displayMessage:(FIRInAppMessagingCardDisplay *)cardMessage
-                                displayDelegate:(id<FIRInAppMessagingDisplayDelegate>)displayDelegate
+                                displayDelegate:
+                                    (id<FIRInAppMessagingDisplayDelegate>)displayDelegate
                                     timeFetcher:(id<FIDTimeFetcher>)timeFetcher;
 
 @end

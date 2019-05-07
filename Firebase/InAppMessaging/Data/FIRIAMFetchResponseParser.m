@@ -178,13 +178,14 @@
 
     NSDictionary *content = (NSDictionary *)contentNode;
     FIRIAMRenderingMode mode;
-    UIColor *viewCardBackgroundColor, *btnBgColor, *btnTxtColor, *secondaryBtnTxtColor, *titleTextColor;
+    UIColor *viewCardBackgroundColor, *btnBgColor, *btnTxtColor, *secondaryBtnTxtColor,
+        *titleTextColor;
     viewCardBackgroundColor = btnBgColor = btnTxtColor = titleTextColor = nil;
 
-    NSString *title, *body, *imageURLStr, *landscapeImageURLStr, *actionURLStr, *secondaryActionURLStr,
-        *actionButtonText, *secondaryActionButtonText;
-    title = body = imageURLStr = landscapeImageURLStr = actionButtonText = secondaryActionButtonText =
-        actionURLStr = secondaryActionURLStr = nil;
+    NSString *title, *body, *imageURLStr, *landscapeImageURLStr, *actionURLStr,
+        *secondaryActionURLStr, *actionButtonText, *secondaryActionButtonText;
+    title = body = imageURLStr = landscapeImageURLStr = actionButtonText =
+        secondaryActionButtonText = actionURLStr = secondaryActionURLStr = nil;
 
     if ([content[@"banner"] isKindOfClass:[NSDictionary class]]) {
       NSDictionary *bannerNode = (NSDictionary *)contentNode[@"banner"];
@@ -234,24 +235,25 @@
       NSDictionary *cardNode = (NSDictionary *)contentNode[@"card"];
       title = cardNode[@"title"][@"text"];
       titleTextColor = [UIColor firiam_colorWithHexString:cardNode[@"title"][@"hexColor"]];
-      
+
       body = cardNode[@"body"][@"text"];
-      
+
       imageURLStr = cardNode[@"portraitImageUrl"];
       landscapeImageURLStr = cardNode[@"landscapeImageUrl"];
-      
+
       viewCardBackgroundColor = [UIColor firiam_colorWithHexString:cardNode[@"backgroundHexColor"]];
-      
+
       actionButtonText = cardNode[@"primaryActionButton"][@"text"][@"text"];
-      btnTxtColor = [UIColor firiam_colorWithHexString:cardNode[@"primaryActionButton"][@"text"][@"hexColor"]];
-      
+      btnTxtColor = [UIColor
+          firiam_colorWithHexString:cardNode[@"primaryActionButton"][@"text"][@"hexColor"]];
+
       secondaryActionButtonText = cardNode[@"secondaryActionButton"][@"text"][@"text"];
-      secondaryBtnTxtColor = [UIColor firiam_colorWithHexString:cardNode[@"secondaryActionButton"][@"text"][@"hexColor"]];
-      
+      secondaryBtnTxtColor = [UIColor
+          firiam_colorWithHexString:cardNode[@"secondaryActionButton"][@"text"][@"hexColor"]];
+
       actionURLStr = cardNode[@"primaryAction"][@"actionUrl"];
       secondaryActionURLStr = cardNode[@"secondaryAction"][@"actionUrl"];
-      
-      
+
     } else {
       // Unknown message type
       FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM900003",
@@ -266,11 +268,11 @@
     }
 
     NSURL *imageURL = (imageURLStr.length == 0) ? nil : [NSURL URLWithString:imageURLStr];
-    NSURL *landscapeImageURL = (landscapeImageURLStr.length == 0) ?
-        nil : [NSURL URLWithString:landscapeImageURLStr];
+    NSURL *landscapeImageURL =
+        (landscapeImageURLStr.length == 0) ? nil : [NSURL URLWithString:landscapeImageURLStr];
     NSURL *actionURL = (actionURLStr.length == 0) ? nil : [NSURL URLWithString:actionURLStr];
-    NSURL *secondaryActionURL = (secondaryActionURLStr.length == 0) ?
-        nil : [NSURL URLWithString:secondaryActionURLStr];
+    NSURL *secondaryActionURL =
+        (secondaryActionURLStr.length == 0) ? nil : [NSURL URLWithString:secondaryActionURLStr];
     FIRIAMRenderingEffectSetting *renderEffect =
         [FIRIAMRenderingEffectSetting getDefaultRenderingEffectSetting];
     renderEffect.viewMode = mode;
@@ -286,7 +288,7 @@
     if (btnTxtColor) {
       renderEffect.btnTextColor = btnTxtColor;
     }
-    
+
     if (secondaryBtnTxtColor) {
       renderEffect.secondaryActionBtnTextColor = secondaryBtnTxtColor;
     }

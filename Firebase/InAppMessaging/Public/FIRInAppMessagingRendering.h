@@ -98,8 +98,7 @@ NS_SWIFT_NAME(InAppMessagingImageData)
 @property(nonatomic, nonnull, copy, readonly) NSURL *actionURL;
 
 - (instancetype)init NS_UNAVAILABLE;
-- (instancetype)initWithActionText:(nullable NSString *)actionText
-                         actionURL:(NSURL *)actionURL;
+- (instancetype)initWithActionText:(nullable NSString *)actionText actionURL:(NSURL *)actionURL;
 
 @end
 
@@ -145,7 +144,7 @@ NS_SWIFT_NAME(InAppMessagingCardDisplay)
                       triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
                         titleText:(NSString *)title
                          bodyText:(nullable NSString *)body
-                         textColor:(UIColor *)textColor
+                        textColor:(UIColor *)textColor
                 portraitImageData:(FIRInAppMessagingImageData *)portraitImageData
                landscapeImageData:(nullable FIRInAppMessagingImageData *)landscapeImageData
                   backgroundColor:(UIColor *)backgroundColor

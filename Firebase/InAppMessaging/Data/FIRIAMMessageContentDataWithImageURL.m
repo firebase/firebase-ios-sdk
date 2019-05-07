@@ -55,7 +55,7 @@ static NSInteger const SuccessHTTPStatusCode = 200;
     _secondaryActionButtonText = secondaryActionButtonText;
     _actionURL = actionURL;
     _secondaryActionURL = secondaryActionURL;
-    
+
     if (imageURL) {
       _URLSession = URLSession ? URLSession : [NSURLSession sharedSession];
     }
@@ -67,8 +67,8 @@ static NSInteger const SuccessHTTPStatusCode = 200;
 
 - (NSString *)description {
   return [NSString stringWithFormat:@"Message content: title '%@',"
-          "body '%@', imageURL '%@', action URL '%@'",
-          self.titleText, self.bodyText, self.imageURL, self.actionURL];
+                                     "body '%@', imageURL '%@', action URL '%@'",
+                                    self.titleText, self.bodyText, self.imageURL, self.actionURL];
 }
 
 - (NSString *)getTitleText {
@@ -90,7 +90,7 @@ static NSInteger const SuccessHTTPStatusCode = 200;
     // no need for any further action if block is nil
     return;
   }
-  
+
   if (!_imageURL && !_landscapeImageURL) {
     // no image data since image url is nil
     block(nil, nil, nil);
@@ -111,7 +111,7 @@ static NSInteger const SuccessHTTPStatusCode = 200;
     __block NSData *portrait;
     __block NSData *landscape;
     __block NSError *landscapeImageLoadError;
-    
+
     [self fetchImageFromURL:_imageURL
                   withBlock:^(NSData *_Nullable imageData, NSError *_Nullable error) {
                     // If the portrait image fails to load, we treat this as a failure.
@@ -119,13 +119,13 @@ static NSInteger const SuccessHTTPStatusCode = 200;
                       block(nil, nil, error);
                       return;
                     }
-                    
+
                     portrait = imageData;
                     if (landscape || landscapeImageLoadError) {
                       block(portrait, landscape, nil);
                     }
                   }];
-    
+
     [self fetchImageFromURL:_landscapeImageURL
                   withBlock:^(NSData *_Nullable imageData, NSError *_Nullable error) {
                     if (error) {
@@ -133,7 +133,7 @@ static NSInteger const SuccessHTTPStatusCode = 200;
                     } else {
                       landscape = imageData;
                     }
-                    
+
                     if (portrait) {
                       block(portrait, landscape, nil);
                     }
@@ -145,50 +145,50 @@ static NSInteger const SuccessHTTPStatusCode = 200;
                 withBlock:(void (^)(NSData *_Nullable imageData, NSError *_Nullable error))block {
   NSURLRequest *imageDataRequest = [NSURLRequest requestWithURL:imageURL];
   NSURLSessionDataTask *task = [_URLSession
-                                dataTaskWithRequest:imageDataRequest
-                                completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-                                  if (error) {
-                                    FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM000003", @"Error in fetching image: %@",
-                                                  error);
-                                    block(nil, error);
-                                  } else {
-                                    if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
-                                      NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
-                                      if (httpResponse.statusCode == SuccessHTTPStatusCode) {
-                                        if (httpResponse.MIMEType == nil || ![httpResponse.MIMEType hasPrefix:@"image"]) {
-                                          NSString *errorDesc =
-                                          [NSString stringWithFormat:@"None image MIME type %@"
-                                           " detected for url %@",
-                                           httpResponse.MIMEType, self.imageURL];
-                                          FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM000004", @"%@", errorDesc);
-                                          
-                                          NSError *error =
-                                          [NSError errorWithDomain:kFirebaseInAppMessagingErrorDomain
-                                                              code:FIRIAMSDKRuntimeErrorNonImageMimetypeFromImageURL
-                                                          userInfo:@{NSLocalizedDescriptionKey : errorDesc}];
-                                          block(nil, error);
-                                        } else {
-                                          block(data, nil);
-                                        }
-                                      } else {
-                                        NSString *errorDesc =
-                                        [NSString stringWithFormat:@"Failed HTTP request to crawl image %@: "
-                                         "HTTP status code as %ld",
-                                         self->_imageURL, (long)httpResponse.statusCode];
-                                        FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM000001", @"%@", errorDesc);
-                                        NSError *error = [NSError errorWithDomain:NSURLErrorDomain
-                                                                             code:httpResponse.statusCode
-                                                                         userInfo:@{NSLocalizedDescriptionKey : errorDesc}];
-                                        block(nil, error);
-                                      }
-                                    } else {
-                                      FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM000002",
-                                                    @"Internal error: got a non http response from fetching image for "
-                                                    @"image url as %@",
-                                                    self->_imageURL);
-                                    }
-                                  }
-                                }];
+      dataTaskWithRequest:imageDataRequest
+        completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+          if (error) {
+            FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM000003", @"Error in fetching image: %@",
+                          error);
+            block(nil, error);
+          } else {
+            if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
+              NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+              if (httpResponse.statusCode == SuccessHTTPStatusCode) {
+                if (httpResponse.MIMEType == nil || ![httpResponse.MIMEType hasPrefix:@"image"]) {
+                  NSString *errorDesc =
+                      [NSString stringWithFormat:@"None image MIME type %@"
+                                                  " detected for url %@",
+                                                 httpResponse.MIMEType, self.imageURL];
+                  FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM000004", @"%@", errorDesc);
+
+                  NSError *error =
+                      [NSError errorWithDomain:kFirebaseInAppMessagingErrorDomain
+                                          code:FIRIAMSDKRuntimeErrorNonImageMimetypeFromImageURL
+                                      userInfo:@{NSLocalizedDescriptionKey : errorDesc}];
+                  block(nil, error);
+                } else {
+                  block(data, nil);
+                }
+              } else {
+                NSString *errorDesc =
+                    [NSString stringWithFormat:@"Failed HTTP request to crawl image %@: "
+                                                "HTTP status code as %ld",
+                                               self->_imageURL, (long)httpResponse.statusCode];
+                FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM000001", @"%@", errorDesc);
+                NSError *error = [NSError errorWithDomain:NSURLErrorDomain
+                                                     code:httpResponse.statusCode
+                                                 userInfo:@{NSLocalizedDescriptionKey : errorDesc}];
+                block(nil, error);
+              }
+            } else {
+              FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM000002",
+                            @"Internal error: got a non http response from fetching image for "
+                            @"image url as %@",
+                            self->_imageURL);
+            }
+          }
+        }];
   [task resume];
 }
 

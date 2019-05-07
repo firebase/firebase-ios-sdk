@@ -109,7 +109,7 @@
   }
 
   NSURL *actionURL = action.actionURL;
-  
+
   if (!actionURL) {
     FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400033",
                 @"messageClicked called but "
