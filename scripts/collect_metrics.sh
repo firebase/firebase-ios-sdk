@@ -22,7 +22,7 @@
 
 set -euo pipefail
 
-if [[ $# -lt 2 ]]; then
+if [[ $# -ne 2 ]]; then
   cat 1>&2 <<EOF
 USAGE: $0 workspace scheme
 
