@@ -35,13 +35,4 @@ iOS SDK for Cloud Functions for Firebase.
     'GCC_PREPROCESSOR_DEFINITIONS' => 'FIRFunctions_VERSION=' + s.version.to_s
   }
 
-  s.test_spec 'unit' do |unit_tests|
-    unit_tests.source_files = 'Functions/Example/Test*/*.[mh]', 'Example/Shared/FIRAuthInteropFake*'
-  end
-
-  s.test_spec 'integration' do |int_tests|
-    int_tests.source_files = 'Functions/Example/IntegrationTests/*.[mh]',
-                             'Functions/Example/TestUtils/*.[mh]',
-                             'Example/Shared/FIRAuthInteropFake*'
-  end
 end
