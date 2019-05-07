@@ -408,6 +408,14 @@ NSString *FIRInstanceIDCreationTimeKeyWithSubtype(NSString *subtype) {
     (__bridge id)kSecReturnRef : @(YES),
   };
 
+  NSDictionary *addQuery = @{
+     (__bridge id)kSecAttrApplicationTag : updatedTagData,
+     (__bridge id)kSecClass : (__bridge id)kSecClassKey,
+     (__bridge id)kSecValueRef : (__bridge id)keyRef,
+     (__bridge id)
+     kSecAttrAccessible : (__bridge id)kSecAttrAccessibleAlwaysThisDeviceOnly,
+   };
+
   [[FIRInstanceIDKeychain sharedInstance]
       removeItemWithQuery:deleteQuery
                   handler:^(NSError *error) {
@@ -417,13 +425,7 @@ NSString *FIRInstanceIDCreationTimeKeyWithSubtype(NSString *subtype) {
                       }
                       return;
                     }
-                    NSDictionary *addQuery = @{
-                      (__bridge id)kSecAttrApplicationTag : updatedTagData,
-                      (__bridge id)kSecClass : (__bridge id)kSecClassKey,
-                      (__bridge id)kSecValueRef : (__bridge id)keyRef,
-                      (__bridge id)
-                      kSecAttrAccessible : (__bridge id)kSecAttrAccessibleAlwaysThisDeviceOnly,
-                    };
+
                     [[FIRInstanceIDKeychain sharedInstance] addItemWithQuery:addQuery
                                                                      handler:^(NSError *addError) {
                                                                        if (handler) {

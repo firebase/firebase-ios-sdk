@@ -44,6 +44,10 @@ NSString *FIRInstanceIDPrivateTagWithSubtype(NSString *subtype);
                             handler:(void (^)(NSError *))handler;
 - (void)migrateKeyPairCacheIfNeededWithHandler:(void (^)(NSError *error))handler;
 + (NSString *)keyStoreFileName;
+
+- (void)updateKeyRef:(SecKeyRef)keyRef
+             withTag:(NSString *)tag
+             handler:(void (^)(NSError *error))handler;
 @end
 
 // Need to separate the tests from FIRInstanceIDKeyPairStoreTest for separate keychain operations
@@ -134,4 +138,44 @@ NSString *FIRInstanceIDPrivateTagWithSubtype(NSString *subtype);
 
   [self waitForExpectationsWithTimeout:1000 handler:nil];
 }
+
+- (void)testUpdateKeyRefWithTagRetainsAndReleasesKeyRef {
+  SecKeyRef publicKeyRef;
+
+  @autoreleasepool {
+    NSString *legacyPublicKeyTag =
+      FIRInstanceIDLegacyPublicTagWithSubtype(kFIRInstanceIDKeyPairSubType);
+    NSString *legacyPrivateKeyTag =
+      FIRInstanceIDLegacyPrivateTagWithSubtype(kFIRInstanceIDKeyPairSubType);
+    FIRInstanceIDKeyPair *keyPair =
+    [[FIRInstanceIDKeychain sharedInstance] generateKeyPairWithPrivateTag:legacyPrivateKeyTag
+                                                                publicTag:legacyPublicKeyTag];
+    XCTAssertTrue([keyPair isValid]);
+
+    publicKeyRef = keyPair.publicKey;
+
+    // Retain to keep publicKeyRef alive to verify its reatin count
+    CFRetain(publicKeyRef);
+
+    // 2 = 1 from keyPair + 1 from CFRetain()
+    XCTAssertEqual(CFGetRetainCount(publicKeyRef), 2);
+
+    XCTestExpectation *completionExpectaion = [self expectationWithDescription:@"completionExpectaion"];
+    [self.keyPairStore updateKeyRef:keyPair.publicKey withTag:@"test" handler:^(NSError *error) {
+      [completionExpectaion fulfill];
+    }];
+
+    // 3 = from keyPair + 1 from CFRetain() + 1 retained by `updateKeyRef`
+    XCTAssertEqual(CFGetRetainCount(publicKeyRef), 3);
+  }
+
+  // 2 = 1 from CFRetain() + 1 retained by `updateKeyRef`
+  XCTAssertEqual(CFGetRetainCount(publicKeyRef), 2);
+
+  [self waitForExpectationsWithTimeout:0.5 handler:NULL];
+
+  // No one else owns publicKeyRef except the test
+  XCTAssertEqual(CFGetRetainCount(publicKeyRef), 1);
+}
+
 @end
