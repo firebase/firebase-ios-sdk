@@ -125,10 +125,4 @@
   [self.textAreaScrollView setContentOffset:CGPointZero];
 }
 
-- (CGFloat)determineTextAreaViewFitHeightForView:(UIView *)textView
-                                       withWidth:(CGFloat)displayWidth {
-  CGSize displaySize = CGSizeMake(displayWidth, FLT_MAX);
-  return [textView sizeThatFits:displaySize].height;
-}
-
 @end
