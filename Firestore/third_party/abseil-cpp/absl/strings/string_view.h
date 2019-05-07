@@ -5,7 +5,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//      http://www.apache.org/licenses/LICENSE-2.0
+//      https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,7 +32,7 @@
 
 #ifdef ABSL_HAVE_STD_STRING_VIEW
 
-#include <string_view>
+#include <string_view>  // IWYU pragma: export
 
 namespace absl {
 using std::string_view;
@@ -100,7 +100,6 @@ namespace absl {
 // A `string_view` may represent a whole string or just part of a string. For
 // example, when splitting a string, `std::vector<absl::string_view>` is a
 // natural data type for the output.
-//
 //
 // When constructed from a source which is nul-terminated, the `string_view`
 // itself will not include the nul-terminator unless a specific size (including
@@ -277,7 +276,7 @@ class string_view {
   // Checks if the `string_view` is empty (refers to no characters).
   constexpr bool empty() const noexcept { return length_ == 0; }
 
-  // std::string:view::operator[]
+  // string_view::operator[]
   //
   // Returns the ith element of an `string_view` using the array operator.
   // Note that this operator does not perform any bounds checking.
@@ -355,7 +354,7 @@ class string_view {
   string_view substr(size_type pos, size_type n = npos) const {
     if (ABSL_PREDICT_FALSE(pos > length_))
       base_internal::ThrowStdOutOfRange("absl::string_view::substr");
-    n = std::min(n, length_ - pos);
+    n = (std::min)(n, length_ - pos);
     return string_view(ptr_ + pos, n);
   }
 
@@ -368,7 +367,7 @@ class string_view {
   // on the respective sizes of the two `string_view`s to determine which is
   // smaller, equal, or greater.
   int compare(string_view x) const noexcept {
-    auto min_length = std::min(length_, x.length_);
+    auto min_length = (std::min)(length_, x.length_);
     if (min_length > 0) {
       int r = memcmp(ptr_, x.ptr_, min_length);
       if (r < 0) return -1;
@@ -508,6 +507,7 @@ inline bool operator==(string_view x, string_view y) noexcept {
   if (len != y.size()) {
     return false;
   }
+
   return x.data() == y.data() || len <= 0 ||
          memcmp(x.data(), y.data(), len) == 0;
 }
@@ -517,7 +517,7 @@ inline bool operator!=(string_view x, string_view y) noexcept {
 }
 
 inline bool operator<(string_view x, string_view y) noexcept {
-  auto min_size = std::min(x.size(), y.size());
+  auto min_size = (std::min)(x.size(), y.size());
   const int r = min_size == 0 ? 0 : memcmp(x.data(), y.data(), min_size);
   return (r < 0) || (r == 0 && x.size() < y.size());
 }
@@ -547,7 +547,7 @@ namespace absl {
 // Provided because std::string_view::substr throws if `pos > size()`
 inline string_view ClippedSubstr(string_view s, size_t pos,
                                  size_t n = string_view::npos) {
-  pos = std::min(pos, static_cast<size_t>(s.size()));
+  pos = (std::min)(pos, static_cast<size_t>(s.size()));
   return s.substr(pos, n);
 }
 

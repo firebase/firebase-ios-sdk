@@ -157,6 +157,8 @@ NSDictionary<NSString *, id> *testDataWithTimestamps(FIRTimestamp *timestamp) {
 }
 
 - (void)testFieldsWithSpecialCharsCanBeUpdated {
+  if ([FSTIntegrationTestCase isRunningAgainstEmulator]) return;  // b/112104025
+
   NSDictionary<NSString *, id> *testData = [self testDottedDataNumbered:1];
 
   FIRDocumentReference *doc = [self documentRef];
@@ -172,6 +174,8 @@ NSDictionary<NSString *, id> *testDataWithTimestamps(FIRTimestamp *timestamp) {
 }
 
 - (void)testFieldsWithSpecialCharsCanBeUsedInQueryFilters {
+  if ([FSTIntegrationTestCase isRunningAgainstEmulator]) return;  // b/112104025
+
   NSDictionary<NSString *, NSDictionary<NSString *, id> *> *testDocs = @{
     @"1" : [self testDottedDataNumbered:300],
     @"2" : [self testDottedDataNumbered:100],
@@ -196,6 +200,8 @@ NSDictionary<NSString *, id> *testDataWithTimestamps(FIRTimestamp *timestamp) {
 }
 
 - (void)testFieldsWithSpecialCharsCanBeUsedInOrderBy {
+  if ([FSTIntegrationTestCase isRunningAgainstEmulator]) return;  // b/112104025
+
   NSDictionary<NSString *, NSDictionary<NSString *, id> *> *testDocs = @{
     @"1" : [self testDottedDataNumbered:300],
     @"2" : [self testDottedDataNumbered:100],

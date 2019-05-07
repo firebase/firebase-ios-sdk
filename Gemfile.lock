@@ -34,7 +34,7 @@ GEM
       nap (~> 1.0)
     cocoapods-deintegrate (1.0.4)
     cocoapods-downloader (1.2.2)
-    cocoapods-generate (1.4.0)
+    cocoapods-generate (1.4.1)
     cocoapods-plugins (1.0.0)
       nap
     cocoapods-search (1.0.0)
@@ -72,7 +72,7 @@ PLATFORMS
 
 DEPENDENCIES
   cocoapods (= 1.6.1)
-  cocoapods-generate
+  cocoapods-generate (= 1.4.1)
 
 BUNDLED WITH
    1.17.3

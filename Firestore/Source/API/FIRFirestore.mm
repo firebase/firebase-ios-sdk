@@ -19,7 +19,6 @@
 #import <FirebaseCore/FIRApp.h>
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponentContainer.h>
-#import <FirebaseCore/FIRLogger.h>
 #import <FirebaseCore/FIROptions.h>
 
 #include <memory>
@@ -71,45 +70,6 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRFirestore {
   std::shared_ptr<Firestore> _firestore;
   FIRFirestoreSettings *_settings;
-}
-
-+ (NSMutableDictionary<NSString *, FIRFirestore *> *)instances {
-  static dispatch_once_t token = 0;
-  static NSMutableDictionary<NSString *, FIRFirestore *> *instances;
-  dispatch_once(&token, ^{
-    instances = [NSMutableDictionary dictionary];
-  });
-  return instances;
-}
-
-+ (void)initialize {
-  NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
-  [center addObserverForName:kFIRAppDeleteNotification
-                      object:nil
-                       queue:nil
-                  usingBlock:^(NSNotification *_Nonnull note) {
-                    NSString *appName = note.userInfo[kFIRAppNameKey];
-                    if (appName == nil) return;
-
-                    NSMutableDictionary *instances = [self instances];
-                    @synchronized(instances) {
-                      // Since the key for instances isn't just the app name, iterate over all the
-                      // keys to get the one(s) we have to delete. There could be multiple in case
-                      // the user calls firestoreForApp:database:.
-                      NSMutableArray *keysToDelete = [[NSMutableArray alloc] init];
-                      NSString *keyPrefix = [NSString stringWithFormat:@"%@|", appName];
-                      for (NSString *key in instances.allKeys) {
-                        if ([key hasPrefix:keyPrefix]) {
-                          [keysToDelete addObject:key];
-                        }
-                      }
-
-                      // Loop through the keys found and delete them from the stored instances.
-                      for (NSString *key in keysToDelete) {
-                        [instances removeObjectForKey:key];
-                      }
-                    }
-                  }];
 }
 
 + (instancetype)firestore {
@@ -294,7 +254,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (void)enableLogging:(BOOL)logging {
-  FIRSetLoggerLevel(logging ? FIRLoggerLevelDebug : FIRLoggerLevelNotice);
+  util::LogSetLevel(logging ? util::kLogLevelDebug : util::kLogLevelNotice);
 }
 
 - (void)enableNetworkWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
@@ -322,7 +282,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (BOOL)isLoggingEnabled {
-  return FIRIsLoggableLevel(FIRLoggerLevelDebug, NO);
+  return util::LogIsLoggable(util::kLogLevelDebug);
 }
 
 + (FIRFirestore *)recoverFromFirestore:(std::shared_ptr<Firestore>)firestore {

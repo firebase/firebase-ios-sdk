@@ -4,7 +4,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//      http://www.apache.org/licenses/LICENSE-2.0
+//      https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -1234,23 +1234,29 @@ using VariantCopyBase = absl::conditional_t<
 // Base that is dependent on whether or not the move-assign can be trivial.
 template <class... T>
 using VariantMoveAssignBase = absl::conditional_t<
-    absl::disjunction<absl::conjunction<absl::is_move_assignable<Union<T...>>,
-                                        std::is_move_constructible<Union<T...>>,
-                                        std::is_destructible<Union<T...>>>,
-                      absl::negation<absl::conjunction<
-                          std::is_move_constructible<T>...,
-                          absl::is_move_assignable<T>...>>>::value,
+    absl::disjunction<
+        absl::conjunction<absl::is_move_assignable<Union<T...>>,
+                          std::is_move_constructible<Union<T...>>,
+                          std::is_destructible<Union<T...>>>,
+        absl::negation<absl::conjunction<std::is_move_constructible<T>...,
+                                         // Note: We're not qualifying this with
+                                         // absl:: because it doesn't compile
+                                         // under MSVC.
+                                         is_move_assignable<T>...>>>::value,
     VariantCopyBase<T...>, VariantMoveAssignBaseNontrivial<T...>>;
 
 // Base that is dependent on whether or not the copy-assign can be trivial.
 template <class... T>
 using VariantCopyAssignBase = absl::conditional_t<
-    absl::disjunction<absl::conjunction<absl::is_copy_assignable<Union<T...>>,
-                                        std::is_copy_constructible<Union<T...>>,
-                                        std::is_destructible<Union<T...>>>,
-                      absl::negation<absl::conjunction<
-                          std::is_copy_constructible<T>...,
-                          absl::is_copy_assignable<T>...>>>::value,
+    absl::disjunction<
+        absl::conjunction<absl::is_copy_assignable<Union<T...>>,
+                          std::is_copy_constructible<Union<T...>>,
+                          std::is_destructible<Union<T...>>>,
+        absl::negation<absl::conjunction<std::is_copy_constructible<T>...,
+                                         // Note: We're not qualifying this with
+                                         // absl:: because it doesn't compile
+                                         // under MSVC.
+                                         is_copy_assignable<T>...>>>::value,
     VariantMoveAssignBase<T...>, VariantCopyAssignBaseNontrivial<T...>>;
 
 template <class... T>
@@ -1542,8 +1548,8 @@ struct SwapSameIndex {
   variant<Types...>* w;
   template <std::size_t I>
   void operator()(SizeT<I>) const {
-    using std::swap;
-    swap(VariantCoreAccess::Access<I>(*v), VariantCoreAccess::Access<I>(*w));
+    type_traits_internal::Swap(VariantCoreAccess::Access<I>(*v),
+                               VariantCoreAccess::Access<I>(*w));
   }
 
   void operator()(SizeT<variant_npos>) const {}
@@ -1598,11 +1604,12 @@ struct VariantHashVisitor {
 template <typename Variant, typename... Ts>
 struct VariantHashBase<Variant,
                        absl::enable_if_t<absl::conjunction<
-                           type_traits_internal::IsHashEnabled<Ts>...>::value>,
+                           type_traits_internal::IsHashable<Ts>...>::value>,
                        Ts...> {
   using argument_type = Variant;
   using result_type = size_t;
   size_t operator()(const Variant& var) const {
+    type_traits_internal::AssertHashEnabled<Ts...>();
     if (var.valueless_by_exception()) {
       return 239799884;
     }

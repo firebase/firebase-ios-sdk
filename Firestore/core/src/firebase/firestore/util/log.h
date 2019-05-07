@@ -29,6 +29,8 @@ namespace util {
 enum LogLevel {
   // Debug Log Level
   kLogLevelDebug,
+  // Notice Log Level
+  kLogLevelNotice,
   // Warning Log Level
   kLogLevelWarning,
   // Error Log Level

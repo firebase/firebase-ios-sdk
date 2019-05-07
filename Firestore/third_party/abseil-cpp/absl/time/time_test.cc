@@ -4,7 +4,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//      http://www.apache.org/licenses/LICENSE-2.0
+//      https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,7 +28,7 @@
 
 namespace {
 
-#if GTEST_USES_SIMPLE_RE
+#if defined(GTEST_USES_SIMPLE_RE) && GTEST_USES_SIMPLE_RE
 const char kZoneAbbrRE[] = ".*";  // just punt
 #else
 const char kZoneAbbrRE[] = "[A-Za-z]{3,4}|[-+][0-9]{2}([0-9]{2})?";

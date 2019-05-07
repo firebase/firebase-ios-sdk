@@ -28,10 +28,11 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     bundle exec pod install --project-directory=Functions/Example
     bundle exec pod install --project-directory=GoogleUtilities/Example
 
-    # Set up GoogleService-Info.plist for Storage and Database integration tests. The decrypting
-    # is not supported for pull requests. See https://docs.travis-ci.com/user/encrypting-files/
-    if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
-      openssl aes-256-cbc -K $encrypted_cd4b967a71ff_key -iv $encrypted_cd4b967a71ff_iv \
+    # Set up secrets for integration tests and metrics collection. This does not work for pull
+    # requests from forks. See
+    # https://docs.travis-ci.com/user/pull-requests#pull-requests-and-security-restrictions
+    if [[ ! -z $encrypted_d6a88994a5ab_key ]]; then
+      openssl aes-256-cbc -K $encrypted_d6a88994a5ab_key -iv $encrypted_d6a88994a5ab_iv \
       -in scripts/travis-encrypted/Secrets.tar.enc \
       -out scripts/travis-encrypted/Secrets.tar -d
 
