@@ -27,7 +27,8 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDisplayMessageType) {
 
 typedef NS_ENUM(NSInteger, FIRInAppMessagingDisplayTriggerType) {
   FIRInAppMessagingDisplayTriggerTypeOnAppForeground,
-  FIRInAppMessagingDisplayTriggerTypeOnAnalyticsEvent
+  FIRInAppMessagingDisplayTriggerTypeOnAnalyticsEvent,
+  FIRInAppMessagingDisplayTriggerTypeProgrammatic
 };
 
 /** Contains the display information for an action button.

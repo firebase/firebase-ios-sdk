@@ -372,6 +372,41 @@
   }
 }
 
+- (void)checkAndDisplayNextContextualMessageFromProgrammaticTrigger:(NSString *)triggerName {
+  // synchronizing on self so that we won't potentially enter the render flow from two
+  // threads: example like showing analytics triggered message and a regular app open
+  // triggered message
+  @synchronized(self) {
+    if (self.suppressMessageDisplay) {
+      FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400040",
+                  @"Message display is being suppressed. No message rendering from "
+                  "programmatic trigger.");
+      return;
+    }
+    
+    if (!self.messageDisplayComponent) {
+      FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400041",
+                  @"Message display component is not present yet. No display should happen.");
+      return;
+    }
+    
+    if (self.isMsgBeingDisplayed) {
+      FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400042",
+                  @"An in-app message display is in progress, do not render programmatically "
+                  "triggered message.");
+      return;
+    }
+    
+    FIRIAMMessageDefinition *nextTriggerBasedMessage =
+        [self.messageCache nextOnFirebaseAnalyticEventDisplayMsg:triggerName];
+    
+    if (nextTriggerBasedMessage) {
+      [self displayForMessage:nextTriggerBasedMessage
+                  triggerType:FIRInAppMessagingDisplayTriggerTypeProgrammatic];
+    }
+  }
+}
+
 - (FIRInAppMessagingCardDisplay *)
     cardMessageWithMessageDefinition:(FIRIAMMessageDefinition *)definition
                    portraitImageData:(FIRInAppMessagingImageData *)portraitImageData
@@ -523,7 +558,8 @@
   _currentMsgBeingDisplayed = message;
   [message.renderData.contentData
       loadImageDataWithBlock:^(NSData *_Nullable standardImageRawData,
-                               NSData *_Nullable landscapeImageRawData, NSError *_Nullable error) {
+                               NSData *_Nullable landscapeImageRawData,
+                               NSError *_Nullable error) {
         FIRInAppMessagingImageData *imageData = nil;
         FIRInAppMessagingImageData *landscapeImageData = nil;
 
