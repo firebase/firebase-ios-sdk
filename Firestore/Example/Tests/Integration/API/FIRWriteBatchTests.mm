@@ -406,7 +406,7 @@ int64_t GetCurrentMemoryUsedInMb() {
     XCTAssertNotEqual(memoryUsedAfterCommitMb, -1);
     const int64_t memoryDeltaMb = memoryUsedAfterCommitMb - memoryUsedBeforeCommitMb;
 
-#if !defined(THREAD_SANITIZER)
+#if !defined(THREAD_SANITIZER) && !defined(ADDRESS_SANITIZER)
     // This by its nature cannot be a precise value. Runs on simulator seem to give an increase of
     // 10MB in debug mode pretty consistently. A regression would be on the scale of 500Mb.
     //
