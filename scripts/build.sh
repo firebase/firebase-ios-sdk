@@ -284,8 +284,10 @@ case "$product-$method-$platform" in
         test
     ;;
 
-  Firestore-xcodebuild-iOS)
+  Firestore-xcodebuild-*)
     "${firestore_emulator}" start
+    trap '"${firestore_emulator}" stop' ERR EXIT
+
     RunXcodebuild \
         -workspace 'Firestore/Example/Firestore.xcworkspace' \
         -scheme "Firestore_Tests_$platform" \
@@ -294,10 +296,10 @@ case "$product-$method-$platform" in
         test
 
     # Firestore_SwiftTests_iOS require Swift 4, which needs Xcode 9
-    if [[ "$xcode_major" -ge 9 ]]; then
+    if [[ "$platform" == 'iOS' && "$xcode_major" -ge 9 ]]; then
       RunXcodebuild \
           -workspace 'Firestore/Example/Firestore.xcworkspace' \
-          -scheme "Firestore_SwiftTests_$platform" \
+          -scheme "Firestore_SwiftTests_iOS" \
           "${xcb_flags[@]}" \
           build \
           test
@@ -309,28 +311,6 @@ case "$product-$method-$platform" in
         "${xcb_flags[@]}" \
         build \
         test
-
-    "${firestore_emulator}" stop
-    ;;
-
-  Firestore-xcodebuild-macOS | Firestore-xcodebuild-tvOS)
-    # TODO(wilhuff): Combine with above once all targets exist
-    "${firestore_emulator}" start
-    RunXcodebuild \
-        -workspace 'Firestore/Example/Firestore.xcworkspace' \
-        -scheme "Firestore_Tests_$platform" \
-        "${xcb_flags[@]}" \
-        build \
-        test
-
-    RunXcodebuild \
-        -workspace 'Firestore/Example/Firestore.xcworkspace' \
-        -scheme "Firestore_IntegrationTests_$platform" \
-        "${xcb_flags[@]}" \
-        build \
-        test
-
-    "${firestore_emulator}" stop
     ;;
 
   Firestore-cmake-macOS)
