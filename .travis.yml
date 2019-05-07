@@ -165,9 +165,9 @@ jobs:
       env:
         - PROJECT=Firestore PLATFORM=macOS METHOD=cmake
       before_install:
-        - ./scripts/if_cron.sh ./scripts/install_prereqs.sh
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
-        - travis_retry ./scripts/if_cron.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
     # Test Firestore on Xcode 8 to use old llvm to ensure C++ portability.
     - stage: test
