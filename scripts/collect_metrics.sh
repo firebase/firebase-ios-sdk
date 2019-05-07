@@ -33,12 +33,14 @@ EOF
   exit 1
 fi
 
-WORKSPACE="$1"
-SCHEME="$2"
+if [[ ! -z "${TRAVIS_PULL_REQUEST}" ]]; then
+  WORKSPACE="$1"
+  SCHEME="$2"
 
-gem install xcov
-xcov --workspace "${WORKSPACE}" --scheme "${SCHEME}" --output_directory Metrics --json_report
-cd Metrics
-swift build
-.build/debug/Metrics -c report.json -p "${TRAVIS_PULL_REQUEST}"
-cd ..
+  gem install xcov
+  xcov --workspace "${WORKSPACE}" --scheme "${SCHEME}" --output_directory Metrics --json_report
+  cd Metrics
+  swift build
+  .build/debug/Metrics -c report.json -p "${TRAVIS_PULL_REQUEST}"
+  cd ..
+fi
