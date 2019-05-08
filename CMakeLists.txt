@@ -202,12 +202,12 @@ set(nanopb_MSVC_STATIC_RUNTIME OFF CACHE BOOL "Link static runtime libraries")
 add_external_subdirectory(nanopb)
 
 target_compile_definitions(
-  protobuf-nanopb
+  protobuf-nanopb-static
   PUBLIC -DPB_FIELD_32BIT -DPB_ENABLE_MALLOC
 )
 
 target_include_directories(
-  protobuf-nanopb
+  protobuf-nanopb-static
   INTERFACE $<BUILD_INTERFACE:${FIREBASE_EXTERNAL_SOURCE_DIR}/nanopb>
 )
 
