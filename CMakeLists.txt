@@ -16,10 +16,28 @@
 
 cmake_minimum_required(VERSION 2.8.11)
 
+# Disallow mixing keyword and non-keyword forms of target_link_libraries
+if(POLICY CMP0023)
+  cmake_policy(SET CMP0023 NEW)
+endif()
+
 # Report AppleClang separately from Clang. Their version numbers are different.
 # https://cmake.org/cmake/help/v3.0/policy/CMP0025.html
 if(POLICY CMP0025)
   cmake_policy(SET CMP0025 NEW)
+endif()
+
+# Enable rpath by default
+if(POLICY CMP0042)
+  cmake_policy(SET CMP0042 NEW)
+endif()
+
+# Generate Ninja phony rules for unknown dependencies in the build tree and
+# don't complain about doing so. Our dependencies aren't good about declaring
+# BYPRODUCTS and we mix them all into a single uber build so we can't enable
+# this policy until all dependencies are capable of doing so.
+if(POLICY CMP0058)
+  cmake_policy(SET CMP0058 OLD)
 endif()
 
 # Defer enabling any languages.
