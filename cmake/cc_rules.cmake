@@ -128,7 +128,6 @@ function(cc_binary name)
   maybe_remove_objc_sources(sources ${ccb_SOURCES})
   add_executable(${name} ${sources})
   add_objc_flags(${name} ${ccb_SOURCES})
-  add_test(${name} ${name})
 
   target_include_directories(${name} PUBLIC ${FIREBASE_SOURCE_DIR})
   target_link_libraries(${name} ${ccb_DEPENDS})
