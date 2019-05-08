@@ -27,6 +27,11 @@ if(POLICY CMP0025)
   cmake_policy(SET CMP0025 NEW)
 endif()
 
+# Enable rpath by default
+if(POLICY CMP0042)
+  cmake_policy(SET CMP0042 NEW)
+endif()
+
 # Defer enabling any languages.
 project(firebase NONE)
 
