@@ -76,7 +76,7 @@ typedef void (^ImageFetchExpectationsBlock)(NSData *, NSData *, NSError *);
         return YES;
       }]
         completionHandler:[OCMArg any]  // second parameter is the callback which we don't care in
-      // this unit testing
+                                        // this unit testing
   ]);
 
   FIRIAMMessageContentDataWithImageURL *portraitOnlyContentData =
@@ -116,7 +116,7 @@ typedef void (^ImageFetchExpectationsBlock)(NSData *, NSData *, NSError *);
         return YES;
       }]
         completionHandler:[OCMArg any]  // second parameter is the callback which we don't care in
-      // this unit testing
+                                        // this unit testing
   ]);
 
   [_defaultContentDataWithImageURL
