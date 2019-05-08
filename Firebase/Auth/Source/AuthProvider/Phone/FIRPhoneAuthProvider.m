@@ -66,10 +66,6 @@ typedef void (^FIRVerifyClientCallback)(FIRAuthAppCredential *_Nullable appCrede
  */
 typedef void (^FIRFetchAuthDomainCallback)(NSString *_Nullable authDomain,
                                            NSError *_Nullable error);
-/** @var kAuthDomainSuffix
-    @brief The suffix of the auth domain pertiaining to a given Firebase project.
- */
-static NSString *const kAuthDomainSuffix = @"firebaseapp.com";
 
 /** @var kauthTypeVerifyApp
     @brief The auth type to be specified in the app verification request.
