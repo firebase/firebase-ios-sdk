@@ -129,7 +129,7 @@ function(cc_binary name)
   add_executable(${name} ${sources})
   add_objc_flags(${name} ${ccb_SOURCES})
 
-  target_include_directories(${name} PUBLIC ${FIREBASE_SOURCE_DIR})
+  target_include_directories(${name} PRIVATE ${FIREBASE_SOURCE_DIR})
   target_link_libraries(${name} PRIVATE ${ccb_DEPENDS})
 
   if(ccb_EXCLUDE_FROM_ALL)
@@ -159,7 +159,7 @@ function(cc_test name)
   add_objc_flags(${name} ${cct_SOURCES})
   add_test(${name} ${name})
 
-  target_include_directories(${name} PUBLIC ${FIREBASE_SOURCE_DIR})
+  target_include_directories(${name} PRIVATE ${FIREBASE_SOURCE_DIR})
   target_link_libraries(${name} PRIVATE ${cct_DEPENDS})
 endfunction()
 
