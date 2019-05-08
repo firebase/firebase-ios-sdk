@@ -16,6 +16,11 @@
 
 cmake_minimum_required(VERSION 2.8.11)
 
+# Disallow mixing keyword and non-keyword forms of target_link_libraries
+if(POLICY CMP0023)
+  cmake_policy(SET CMP0023 NEW)
+endif()
+
 # Report AppleClang separately from Clang. Their version numbers are different.
 # https://cmake.org/cmake/help/v3.0/policy/CMP0025.html
 if(POLICY CMP0025)
