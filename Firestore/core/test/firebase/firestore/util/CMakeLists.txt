@@ -190,3 +190,15 @@ cc_library(
     firebase_firestore_util
     grpc++
 )
+
+# Benchmarks
+
+cc_binary(
+  firebase_firestore_util_ordered_code_benchmark
+  SOURCES
+  ordered_code_benchmark.mm
+  DEPENDS
+  benchmark
+  benchmark_main
+  firebase_firestore_util
+)
