@@ -32,6 +32,14 @@ if(POLICY CMP0042)
   cmake_policy(SET CMP0042 NEW)
 endif()
 
+# Generate Ninja phony rules for unknown dependencies in the build tree and
+# don't complain about doing so. Our dependencies aren't good about declaring
+# BYPRODUCTS and we mix them all into a single uber build so we can't enable
+# this policy until all dependencies are capable of doing so.
+if(POLICY CMP0058)
+  cmake_policy(SET CMP0058 OLD)
+endif()
+
 # Defer enabling any languages.
 project(firebase NONE)
 
