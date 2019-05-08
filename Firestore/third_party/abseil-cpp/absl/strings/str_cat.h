@@ -5,7 +5,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//      http://www.apache.org/licenses/LICENSE-2.0
+//      https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -42,7 +42,6 @@
 // Floating point numbers are formatted with six-digit precision, which is
 // the default for "std::cout <<" or printf "%g" (the same as "%.6g").
 //
-//
 // You can convert to hexadecimal output rather than decimal output using the
 // `Hex` type contained here. To do so, pass `Hex(my_int)` as a parameter to
 // `StrCat()` or `StrAppend()`. You may specify a minimum hex field width using
@@ -78,8 +77,8 @@ struct AlphaNumBuffer {
 
 // Enum that specifies the number of significant digits to return in a `Hex` or
 // `Dec` conversion and fill character to use. A `kZeroPad2` value, for example,
-// would produce hexadecimal strings such as "0A","0F" and a 'kSpacePad5' value
-// would produce hexadecimal strings such as "    A","    F".
+// would produce hexadecimal strings such as "0a","0f" and a 'kSpacePad5' value
+// would produce hexadecimal strings such as "    a","    f".
 enum PadSpec : uint8_t {
   kNoPad = 1,
   kZeroPad2,
@@ -97,6 +96,10 @@ enum PadSpec : uint8_t {
   kZeroPad14,
   kZeroPad15,
   kZeroPad16,
+  kZeroPad17,
+  kZeroPad18,
+  kZeroPad19,
+  kZeroPad20,
 
   kSpacePad2 = kZeroPad2 + 64,
   kSpacePad3,
@@ -113,6 +116,10 @@ enum PadSpec : uint8_t {
   kSpacePad14,
   kSpacePad15,
   kSpacePad16,
+  kSpacePad17,
+  kSpacePad18,
+  kSpacePad19,
+  kSpacePad20,
 };
 
 // -----------------------------------------------------------------------------
@@ -237,6 +244,7 @@ class AlphaNum {
 
   AlphaNum(const char* c_str) : piece_(c_str) {}  // NOLINT(runtime/explicit)
   AlphaNum(absl::string_view pc) : piece_(pc) {}  // NOLINT(runtime/explicit)
+
   template <typename Allocator>
   AlphaNum(  // NOLINT(runtime/explicit)
       const std::basic_string<char, std::char_traits<char>, Allocator>& str)
@@ -309,16 +317,15 @@ ABSL_MUST_USE_RESULT inline std::string StrCat(const AlphaNum& a) {
 
 ABSL_MUST_USE_RESULT std::string StrCat(const AlphaNum& a, const AlphaNum& b);
 ABSL_MUST_USE_RESULT std::string StrCat(const AlphaNum& a, const AlphaNum& b,
-                                   const AlphaNum& c);
+                                        const AlphaNum& c);
 ABSL_MUST_USE_RESULT std::string StrCat(const AlphaNum& a, const AlphaNum& b,
-                                   const AlphaNum& c, const AlphaNum& d);
+                                        const AlphaNum& c, const AlphaNum& d);
 
 // Support 5 or more arguments
 template <typename... AV>
-ABSL_MUST_USE_RESULT inline std::string StrCat(const AlphaNum& a, const AlphaNum& b,
-                                          const AlphaNum& c, const AlphaNum& d,
-                                          const AlphaNum& e,
-                                          const AV&... args) {
+ABSL_MUST_USE_RESULT inline std::string StrCat(
+    const AlphaNum& a, const AlphaNum& b, const AlphaNum& c, const AlphaNum& d,
+    const AlphaNum& e, const AV&... args) {
   return strings_internal::CatPieces(
       {a.Piece(), b.Piece(), c.Piece(), d.Piece(), e.Piece(),
        static_cast<const AlphaNum&>(args).Piece()...});
@@ -336,18 +343,18 @@ ABSL_MUST_USE_RESULT inline std::string StrCat(const AlphaNum& a, const AlphaNum
 // not try to check each of its input arguments to be sure that they are not
 // a subset of the string being appended to. That is, while this will work:
 //
-//   string s = "foo";
+//   std::string s = "foo";
 //   s += s;
 //
 // This output is undefined:
 //
-//   string s = "foo";
+//   std::string s = "foo";
 //   StrAppend(&s, s);
 //
 // This output is undefined as well, since `absl::string_view` does not own its
 // data:
 //
-//   string s = "foobar";
+//   std::string s = "foobar";
 //   absl::string_view p = s;
 //   StrAppend(&s, p);
 
