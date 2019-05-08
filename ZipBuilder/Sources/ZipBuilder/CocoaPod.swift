@@ -87,7 +87,7 @@ public enum CocoaPod: String, CaseIterable {
   }
 
   // TODO: Evaluate if there's a way to do this that doesn't require the hardcoded values to be
-  //   maintained.
+  //   maintained. Likely looking at the `vendored_frameworks` from each Pod's Podspec.
   /// Returns folders to remove from the Zip file from a specific pod for de-duplication. This
   /// is necessary for the MLKit frameworks because of their unique structure, an unnecessary amount
   /// of frameworks get pulled in.
