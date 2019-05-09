@@ -35,7 +35,11 @@
     _target = target;
     _storage = [GDTStorage sharedInstance];
     _deliverByTime = [GDTClock clockSnapshotInTheFuture:180000];
-    _expirationTimer = [NSTimer scheduledTimerWithTimeInterval:5.0 target:self selector:@selector(checkIfPackageIsExpired:) userInfo:nil repeats:YES];
+    _expirationTimer = [NSTimer scheduledTimerWithTimeInterval:5.0
+                                                        target:self
+                                                      selector:@selector(checkIfPackageIsExpired:)
+                                                      userInfo:nil
+                                                       repeats:YES];
   }
   return self;
 }

@@ -16,8 +16,8 @@
 
 #import "GDTTests/Unit/GDTTestCase.h"
 
-#import <GoogleDataTransport/GDTUploadPackage.h>
 #import <GoogleDataTransport/GDTClock.h>
+#import <GoogleDataTransport/GDTUploadPackage.h>
 
 #import "GDTLibrary/Private/GDTUploadPackage_Private.h"
 #import "GDTTests/Unit/Helpers/GDTEventGenerator.h"
@@ -116,10 +116,11 @@
   GDTUploadPackage *uploadPackage = [[GDTUploadPackage alloc] initWithTarget:kGDTTargetTest];
   uploadPackage.deliverByTime = [GDTClock clockSnapshotInTheFuture:1000];
   uploadPackage.handler = self;
-  NSPredicate *pred = [NSPredicate predicateWithBlock:^BOOL(id _Nullable evaluatedObject,
-                                        NSDictionary<NSString *, id> *_Nullable bindings) {
-    return self.packageExpiredCalled;
-  }];
+  NSPredicate *pred =
+      [NSPredicate predicateWithBlock:^BOOL(id _Nullable evaluatedObject,
+                                            NSDictionary<NSString *, id> *_Nullable bindings) {
+        return self.packageExpiredCalled;
+      }];
   XCTestExpectation *expectation = [self expectationForPredicate:pred
                                              evaluatedWithObject:self
                                                          handler:nil];
