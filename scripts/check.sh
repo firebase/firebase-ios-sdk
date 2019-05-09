@@ -75,7 +75,7 @@ EXAMPLES:
 EOF
 }
 
-set -euo pipefail
+set -x
 unset CDPATH
 
 # Change to the top-directory of the working tree
@@ -84,7 +84,7 @@ cd "${top_dir}"
 
 ALLOW_DIRTY=false
 COMMIT_METHOD="none"
-START_REVISION="origin/master"
+START_REVISION="master"
 TEST_ONLY=false
 
 while [[ $# -gt 0 ]]; do
