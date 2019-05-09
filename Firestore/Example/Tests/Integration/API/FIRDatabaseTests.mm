@@ -1231,7 +1231,6 @@ using firebase::firestore::util::TimerId;
   [self awaitExpectations];
   [firestore shutdownWithCompletion:[self completionForExpectationWithName:@"Shutdown"]];
   [self awaitExpectations];
-  NSLog(@"Shutdown success");
 
   XCTAssertThrowsSpecific(
       {
@@ -1239,7 +1238,6 @@ using firebase::firestore::util::TimerId;
          disableNetworkWithCompletion:^(NSError* error ){}];
       },
       NSException, @"The client has already been shutdown.");
-  NSLog(@"Test complete");
 }
 
 @end
