@@ -141,6 +141,10 @@ if [[ "${ALLOW_DIRTY}" == true && "${COMMIT_METHOD}" == "message" ]]; then
   exit 1
 fi
 
+# Prevent travis failures like
+# fatal: ambiguous argument 'master': unknown revision or path not in the working tree.
+git symbolic-ref refs/remotes/origin/HEAD refs/remotes/origin/master
+
 if ! git diff-index --quiet HEAD --; then
   if [[ "${ALLOW_DIRTY}" != true ]]; then
     echo "You have local changes that could be overwritten by this script."
