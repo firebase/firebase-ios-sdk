@@ -332,4 +332,3 @@ jobs:
 branches:
   only:
     - master
-    - pb-fix-check-script
