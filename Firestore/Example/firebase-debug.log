@@ -1,0 +1,209 @@
+[debug] [2019-05-09T23:12:28.810Z] ----------------------------------------------------------------------
+[debug] [2019-05-09T23:12:28.812Z] Command:       /Users/chenbrian/.nvm/versions/node/v8.14.0/bin/node /Users/chenbrian/.nvm/versions/node/v8.14.0/bin/firebase serve --only firestore
+[debug] [2019-05-09T23:12:28.812Z] CLI Version:   6.9.1
+[debug] [2019-05-09T23:12:28.812Z] Platform:      darwin
+[debug] [2019-05-09T23:12:28.812Z] Node Version:  v8.14.0
+[debug] [2019-05-09T23:12:28.813Z] Time:          Thu May 09 2019 16:12:28 GMT-0700 (PDT)
+[debug] [2019-05-09T23:12:28.813Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2019-05-09T23:12:28.820Z] Starting emulator firestore with args {"port":8080}
+[info] i  firestore: Logging to firestore-debug.log
+[info] ✔  firestore: Emulator started at http://localhost:8080
+[debug] [2019-05-09T23:12:30.423Z] API endpoint: http://[::1]:
+[debug] [2019-05-09T23:12:30.423Z] 8080
+
+[debug] [2019-05-09T23:12:30.427Z] API endpoint: http://127.0.0.1:
+[debug] [2019-05-09T23:12:30.427Z] 8080
+
+[debug] [2019-05-09T23:12:30.429Z] If you are using a library that supports the FIRESTORE_EMULATOR_HOST environment variable, run:
+
+[debug] [2019-05-09T23:12:30.429Z] 
+   export FIRESTORE_EMULATOR_HOST=[::1]:8080,127.0.0.1:8080
+
+Dev App Server is now running.
+
+
+[debug] [2019-05-09T23:14:34.198Z] May 09, 2019 4:14:34 PM io.gapi.emulators.grpc.GrpcServer$3 operationComplete
+INFO: Adding handler(s) to newly registered Channel.
+
+[debug] [2019-05-09T23:14:34.212Z] May 09, 2019 4:14:34 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+INFO: Detected HTTP/2 connection.
+
+[debug] [2019-05-09T23:14:36.328Z] May 09, 2019 4:14:36 PM com.google.cloud.datastore.emulator.impl.util.WrappedStreamObserver onError
+INFO: operation failed: no entity to update: app: "dev~test-db"
+path <
+  Element {
+    type: "rooms"
+    name: "0Q24ufxyJFQujicqRqBh"
+  }
+>
+
+
+[debug] [2019-05-09T23:14:39.410Z] May 09, 2019 4:14:39 PM com.google.cloud.datastore.emulator.impl.util.WrappedStreamObserver onError
+INFO: operation failed: no entity to update: app: "dev~test-db"
+path <
+  Element {
+    type: "test-collection"
+    name: "PIXzAiqURapbsZASeA5B"
+  }
+>
+
+
+[debug] [2019-05-09T23:14:39.432Z] May 09, 2019 4:14:39 PM com.google.cloud.datastore.emulator.impl.util.WrappedStreamObserver onError
+INFO: operation failed: no entity to update: app: "dev~test-db"
+path <
+  Element {
+    type: "test-collection"
+    name: "PIXzAiqURapbsZASeA5B"
+  }
+>
+
+
+[debug] [2019-05-09T23:14:39.450Z] May 09, 2019 4:14:39 PM com.google.cloud.datastore.emulator.impl.util.WrappedStreamObserver onError
+INFO: operation failed: no entity to update: app: "dev~test-db"
+path <
+  Element {
+    type: "test-collection"
+    name: "PIXzAiqURapbsZASeA5B"
+  }
+>
+
+
+[debug] [2019-05-09T23:14:39.471Z] May 09, 2019 4:14:39 PM com.google.cloud.datastore.emulator.impl.util.WrappedStreamObserver onError
+INFO: operation failed: no entity to update: app: "dev~test-db"
+path <
+  Element {
+    type: "test-collection"
+    name: "PIXzAiqURapbsZASeA5B"
+  }
+>
+
+
+[debug] [2019-05-09T23:14:39.490Z] May 09, 2019 4:14:39 PM com.google.cloud.datastore.emulator.impl.util.WrappedStreamObserver onError
+INFO: operation failed: no entity to update: app: "dev~test-db"
+path <
+  Element {
+    type: "test-collection"
+    name: "PIXzAiqURapbsZASeA5B"
+  }
+>
+
+
+[debug] [2019-05-09T23:14:39.511Z] May 09, 2019 4:14:39 PM com.google.cloud.datastore.emulator.impl.util.WrappedStreamObserver onError
+INFO: operation failed: no entity to update: app: "dev~test-db"
+path <
+  Element {
+    type: "test-collection"
+    name: "PIXzAiqURapbsZASeA5B"
+  }
+>
+
+
+[debug] [2019-05-09T23:14:39.582Z] May 09, 2019 4:14:39 PM com.google.cloud.datastore.emulator.impl.util.WrappedStreamObserver onError
+INFO: operation failed: no entity to update: app: "dev~test-db"
+path <
+  Element {
+    type: "test-collection"
+    name: "XHpm8tbWtzSGy1NQGUDV"
+  }
+>
+
+
+[debug] [2019-05-09T23:14:40.941Z] May 09, 2019 4:14:40 PM com.google.cloud.datastore.emulator.impl.util.WrappedStreamObserver onError
+INFO: operation failed: no entity to update: app: "dev~test-db"
+path <
+  Element {
+    type: "test-collection-LNCLeQbhCFp5hQIfKYO0"
+    name: "b"
+  }
+>
+
+
+[debug] [2019-05-09T23:14:40.990Z] May 09, 2019 4:14:40 PM com.google.cloud.datastore.emulator.impl.util.WrappedStreamObserver onError
+INFO: operation failed: no entity to update: app: "dev~test-db"
+path <
+  Element {
+    type: "test-collection"
+    name: "KJHJQA3fCWoyEDmF48PY"
+  }
+>
+
+
+[debug] [2019-05-09T23:14:48.740Z] May 09, 2019 4:14:48 PM com.google.cloud.datastore.emulator.impl.util.WrappedStreamObserver onError
+INFO: operation failed: no entity to update: app: "dev~test-db"
+path <
+  Element {
+    type: "towns"
+    name: "5mR01hbE2vvZSFfH4xZC"
+  }
+>
+
+
+[debug] [2019-05-09T23:14:48.760Z] May 09, 2019 4:14:48 PM com.google.cloud.datastore.emulator.impl.util.WrappedStreamObserver onError
+INFO: operation failed: no entity to update: app: "dev~test-db"
+path <
+  Element {
+    type: "towns"
+    name: "5mR01hbE2vvZSFfH4xZC"
+  }
+>
+
+
+[debug] [2019-05-09T23:14:48.781Z] May 09, 2019 4:14:48 PM com.google.cloud.datastore.emulator.impl.util.WrappedStreamObserver onError
+INFO: operation failed: no entity to update: app: "dev~test-db"
+path <
+  Element {
+    type: "towns"
+    name: "5mR01hbE2vvZSFfH4xZC"
+  }
+>
+
+
+[debug] [2019-05-09T23:14:48.801Z] May 09, 2019 4:14:48 PM com.google.cloud.datastore.emulator.impl.util.WrappedStreamObserver onError
+INFO: operation failed: no entity to update: app: "dev~test-db"
+path <
+  Element {
+    type: "towns"
+    name: "5mR01hbE2vvZSFfH4xZC"
+  }
+>
+
+
+[debug] [2019-05-09T23:14:48.820Z] May 09, 2019 4:14:48 PM com.google.cloud.datastore.emulator.impl.util.WrappedStreamObserver onError
+INFO: operation failed: no entity to update: app: "dev~test-db"
+path <
+  Element {
+    type: "towns"
+    name: "5mR01hbE2vvZSFfH4xZC"
+  }
+>
+
+
+[debug] [2019-05-09T23:14:48.840Z] May 09, 2019 4:14:48 PM com.google.cloud.datastore.emulator.impl.util.WrappedStreamObserver onError
+INFO: operation failed: no entity to update: app: "dev~test-db"
+path <
+  Element {
+    type: "towns"
+    name: "5mR01hbE2vvZSFfH4xZC"
+  }
+>
+
+
+[debug] [2019-05-09T23:14:48.986Z] May 09, 2019 4:14:48 PM com.google.cloud.datastore.emulator.impl.util.WrappedStreamObserver onError
+INFO: operation failed: Cannot collapse mutations with different base versions (1557443688971000 and 0)
+
+[debug] [2019-05-09T23:14:48.992Z] May 09, 2019 4:14:48 PM com.google.cloud.datastore.emulator.impl.util.WrappedStreamObserver onError
+INFO: operation failed: Cannot collapse mutations with different base versions (1557443688971000 and 0)
+
+[debug] [2019-05-09T23:14:49.003Z] May 09, 2019 4:14:49 PM com.google.cloud.datastore.emulator.impl.util.WrappedStreamObserver onError
+INFO: operation failed: Cannot collapse mutations with different base versions (1557443688971000 and 0)
+
+[debug] [2019-05-09T23:14:49.012Z] May 09, 2019 4:14:49 PM com.google.cloud.datastore.emulator.impl.util.WrappedStreamObserver onError
+INFO: operation failed: Cannot collapse mutations with different base versions (1557443688971000 and 0)
+
+[debug] [2019-05-09T23:14:49.022Z] May 09, 2019 4:14:49 PM com.google.cloud.datastore.emulator.impl.util.WrappedStreamObserver onError
+INFO: operation failed: Cannot collapse mutations with different base versions (1557443688971000 and 0)
+
+[debug] [2019-05-09T23:14:49.033Z] May 09, 2019 4:14:49 PM com.google.cloud.datastore.emulator.impl.util.WrappedStreamObserver onError
+INFO: operation failed: Cannot collapse mutations with different base versions (1557443688971000 and 0)
+
