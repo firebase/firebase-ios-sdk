@@ -55,7 +55,8 @@
 }
 
 - (GDTUploadPackage *)uploadPackageWithConditions:(GDTUploadConditions)conditions {
-  __block GDTUploadPackage *uploadPackage = [[GDTUploadPackage alloc] initWithTarget:kGDTTargetTest];
+  __block GDTUploadPackage *uploadPackage =
+      [[GDTUploadPackage alloc] initWithTarget:kGDTTargetTest];
   dispatch_sync(_queue, ^{
     uploadPackage.events = self.events;
   });
