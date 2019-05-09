@@ -86,6 +86,12 @@ ALLOW_DIRTY=false
 COMMIT_METHOD="none"
 START_REVISION="master"
 TEST_ONLY=false
+VERBOSE=false
+
+# Default to verbose operation if this isn't an interactive build.
+if [[ ! -t 1 ]]; then
+  VERBOSE=true
+fi
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -114,6 +120,10 @@ while [[ $# -gt 0 ]]; do
       COMMIT_METHOD=message
       ;;
 
+    --verbose)
+      VERBOSE=true
+      ;;
+
     --test-only)
       # In test-only mode, no changes are made, so there's no reason to
       # require a clean source tree.
@@ -122,10 +132,9 @@ while [[ $# -gt 0 ]]; do
       ;;
 
     *)
-      if git rev-parse "$1" >& /dev/null; then
-        START_REVISION="$1"
-        break
-      fi
+      START_REVISION="$1"
+      shift
+      break
       ;;
   esac
   shift
@@ -149,12 +158,38 @@ if ! git diff-index --quiet HEAD --; then
   fi
 fi
 
-# Record actual start, but only if the revision is specified as a single
-# commit. Ranges specified with .. or ... are left alone.
+# Show Travis-related environment variables, to help with debuging failures.
+if [[ "${VERBOSE}" == true ]]; then
+  env | egrep '^TRAVIS_(BRANCH|COMMIT|PULL)' | sort || true
+fi
+
+# When travis clones a repo for building, it uses a shallow clone. When
+# building a branch it can sometimes give a revision range that refers to
+# commits that don't exist in the shallow clone. This has been observed in a
+# branch build where the branch only has a single commit. The cause of this
+# behavior is unclear but as a workaround ...
 if [[ "${START_REVISION}" == *..* ]]; then
+  RANGE_START="${START_REVISION/..*/}"
+  RANGE_END="${START_REVISION/*../}"
+
+  # Figure out if we have access to master. If not add it to the repo.
+  if ! git rev-parse origin/master >& /dev/null; then
+    git remote set-branches --add origin master
+    git fetch origin
+  fi
+
+  NEW_RANGE_START=$(git merge-base origin/master "${RANGE_END}")
+  START_REVISION="${START_REVISION/$RANGE_START/$NEW_RANGE_START}"
+
   START_SHA="${START_REVISION}"
+
 else
   START_SHA=$(git rev-parse "${START_REVISION}")
+fi
+
+if [[ "${VERBOSE}" == true ]]; then
+  echo "START_REVISION=$START_REVISION"
+  echo "START_SHA=$START_SHA"
 fi
 
 # If committing --fixup, avoid messages with fixup! fixup! that might come from

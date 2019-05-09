@@ -332,3 +332,4 @@ jobs:
 branches:
   only:
     - master
+    - wilhuff/fix-check
