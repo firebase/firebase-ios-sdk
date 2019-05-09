@@ -343,7 +343,7 @@ jobs:
 stages:
   - name: test
     if: branch = master
-  - name: check
+  - name: checks
     if: branch = master
   - name: matrix
     if: branch = mm/travis-matrix
