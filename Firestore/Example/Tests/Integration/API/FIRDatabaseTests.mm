@@ -1234,8 +1234,8 @@ using firebase::firestore::util::TimerId;
 
   XCTAssertThrowsSpecific(
       {
-        [firestore
-         disableNetworkWithCompletion:^(NSError* error ){}];
+        [firestore disableNetworkWithCompletion:^(NSError *error){
+        }];
       },
       NSException, @"The client has already been shutdown.");
 }
