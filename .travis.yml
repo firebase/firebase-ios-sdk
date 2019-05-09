@@ -297,6 +297,13 @@ jobs:
       script:
         - travis_retry ./CocoapodsIntegrationTest/scripts/build_with_environment.sh --gemfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Gemfile --podfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Podfile
 
+    - stage: matrix
+      matrix:
+        include:
+          - env: POD_CONFIG_DIR=Cocoapods1_6_1_staticLibs
+          - env: POD_CONFIG_DIR=Cocoapods1_6_1_frameworks
+      script: echo ${POD_CONFIG_DIR}
+
   allow_failures:
     # Run fuzz tests only on cron jobs.
     - stage: test
@@ -329,6 +336,14 @@ jobs:
   # before reporting the results.
   # fast_finish: true
 
-branches:
-  only:
-    - master
+# branches:
+#   only:
+#     - master
+
+stages:
+  - name: test
+    if: branch = master
+  - name: check
+    if: branch = master
+  - name: matrix
+    if: branch = mm/travis-matrix
