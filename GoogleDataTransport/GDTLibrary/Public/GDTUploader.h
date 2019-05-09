@@ -19,8 +19,7 @@
 #import <GoogleDataTransport/GDTClock.h>
 #import <GoogleDataTransport/GDTLifecycle.h>
 #import <GoogleDataTransport/GDTTargets.h>
-
-@class GDTUploadPackage;
+#import <GoogleDataTransport/GDTUploadPackage.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
