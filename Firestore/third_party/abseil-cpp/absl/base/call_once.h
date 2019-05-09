@@ -4,7 +4,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//      http://www.apache.org/licenses/LICENSE-2.0
+//      https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -150,12 +150,8 @@ void CallOnceImpl(std::atomic<uint32_t>* control,
         old_control != kOnceRunning &&
         old_control != kOnceWaiter &&
         old_control != kOnceDone) {
-      ABSL_RAW_LOG(
-          FATAL,
-          "Unexpected value for control word: %lx. Either the control word "
-          "has non-static storage duration (where GoogleOnceDynamic might "
-          "be appropriate), or there's been a memory corruption.",
-          static_cast<unsigned long>(old_control)); // NOLINT
+      ABSL_RAW_LOG(FATAL, "Unexpected value for control word: 0x%lx",
+                   static_cast<unsigned long>(old_control));  // NOLINT
     }
   }
 #endif  // NDEBUG

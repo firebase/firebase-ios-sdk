@@ -39,6 +39,8 @@ FIRLoggerLevel ToFIRLoggerLevel(LogLevel level) {
   switch (level) {
     case kLogLevelDebug:
       return FIRLoggerLevelDebug;
+    case kLogLevelNotice:
+      return FIRLoggerLevelNotice;
     case kLogLevelWarning:
       return FIRLoggerLevelWarning;
     case kLogLevelError:

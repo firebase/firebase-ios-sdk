@@ -4,8 +4,7 @@ use_frameworks!
 source 'https://github.com/Firebase/SpecsStaging.git'
 source 'https://github.com/CocoaPods/Specs.git'
 
-# Remove version from FirebaseAnalytics after 6.0 goes public.
-pod 'FirebaseAnalytics', '6.0.0-pre'
+pod 'FirebaseAnalytics'
 pod 'FirebaseCore', :path => '../..'
 
 target 'InAppMessaging_Example_iOS' do

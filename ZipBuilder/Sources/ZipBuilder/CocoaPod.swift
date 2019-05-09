@@ -36,7 +36,10 @@ public enum CocoaPod: String, CaseIterable {
   case mlNaturalLanguage = "MLNaturalLanguage"
   case mlNLLanguageID = "MLNLLanguageID"
   case mlNLSmartReply = "MLNLSmartReply"
+  case mlNLTranslate = "MLNLTranslate"
   case mlVision = "MLVision"
+  case mlVisionAutoML = "MLVisionAutoML"
+  case mlVisionObjectDetection = "MLVisionObjectDetection"
   case mlVisionBarcodeModel = "MLVisionBarcodeModel"
   case mlVisionFaceModel = "MLVisionFaceModel"
   case mlVisionLabelModel = "MLVisionLabelModel"
@@ -75,7 +78,6 @@ public enum CocoaPod: String, CaseIterable {
 
   /// Describes the dependency on other frameworks for the README file.
   public func readmeHeader() -> String {
-    // Remove any instances of "Firebase/" in the name, if it exists.
     var header = "## \(rawValue)"
     if !(self == .analytics || self == .googleSignIn) {
       header += " (~> Analytics)"
@@ -85,7 +87,7 @@ public enum CocoaPod: String, CaseIterable {
   }
 
   // TODO: Evaluate if there's a way to do this that doesn't require the hardcoded values to be
-  //   maintained.
+  //   maintained. Likely looking at the `vendored_frameworks` from each Pod's Podspec.
   /// Returns folders to remove from the Zip file from a specific pod for de-duplication. This
   /// is necessary for the MLKit frameworks because of their unique structure, an unnecessary amount
   /// of frameworks get pulled in.
@@ -124,8 +126,39 @@ public enum CocoaPod: String, CaseIterable {
               "GoogleMobileVision.framework",
               "LabelDetector.framework",
               "Protobuf.framework"]
-    default:
-      // By default, no folders need to be removed.
+    case .mlVisionAutoML:
+      return ["BarcodeDetector.framework",
+              "FaceDetector.framework",
+              "LabelDetector.framework",
+              "TextDetector.framework"]
+    case .mlVisionObjectDetection:
+      return ["BarcodeDetector.framework",
+              "FaceDetector.framework",
+              "LabelDetector.framework",
+              "TextDetector.framework"]
+    case .abTesting,
+         .adMob,
+         .analytics,
+         .auth,
+         .core,
+         .database,
+         .dynamicLinks,
+         .firestore,
+         .functions,
+         .googleSignIn,
+         .inAppMessaging,
+         .inAppMessagingDisplay,
+         .messaging,
+         .mlModelInterpreter,
+         .mlNaturalLanguage,
+         .mlNLLanguageID,
+         .mlNLSmartReply,
+         .mlNLTranslate,
+         .performance,
+         .remoteConfig,
+         .storage:
+      // By default, no folders need to be removed. Explicitly declare each case so we make an
+      // intentional decision to not exclude frameworks.
       return []
     }
   }

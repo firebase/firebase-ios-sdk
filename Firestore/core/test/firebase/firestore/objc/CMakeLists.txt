@@ -23,7 +23,7 @@ cc_test(
 
 if(APPLE)
   target_sources(
-    firebase_firestore_objc_test PUBLIC
+    firebase_firestore_objc_test PRIVATE
     objc_class_test.cc
     objc_class_test_helper.h
     objc_class_test_helper.mm
