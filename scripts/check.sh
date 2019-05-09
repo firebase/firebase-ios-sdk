@@ -75,6 +75,7 @@ EXAMPLES:
 EOF
 }
 
+set -x
 set -euo pipefail
 unset CDPATH
 
