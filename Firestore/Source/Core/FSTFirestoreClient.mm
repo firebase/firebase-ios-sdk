@@ -62,6 +62,7 @@ using firebase::firestore::api::DocumentReference;
 using firebase::firestore::api::DocumentSnapshot;
 using firebase::firestore::api::Settings;
 using firebase::firestore::api::SnapshotMetadata;
+using firebase::firestore::api::ThrowIllegalState;
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
@@ -129,6 +130,7 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
   std::chrono::milliseconds _initialGcDelay;
   std::chrono::milliseconds _regularGcDelay;
   BOOL _gcHasRun;
+  std::atomic<bool> _isShutdown;
   _Nullable id<FSTLRUDelegate> _lruDelegate;
   DelayedOperation _lruCallback;
 }
@@ -166,6 +168,7 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
     _userExecutor = std::move(userExecutor);
     _workerQueue = std::move(workerQueue);
     _gcHasRun = NO;
+    _isShutdown = NO;
     _initialGcDelay = FSTLruGcInitialDelay;
     _regularGcDelay = FSTLruGcRegularDelay;
 
@@ -283,6 +286,7 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
 }
 
 - (void)disableNetworkWithCallback:(util::StatusCallback)callback {
+  [self verifyNotShutdown];
   _workerQueue->Enqueue([self, callback] {
     _remoteStore->DisableNetwork();
     if (callback) {
@@ -292,6 +296,7 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
 }
 
 - (void)enableNetworkWithCallback:(util::StatusCallback)callback {
+  [self verifyNotShutdown];
   _workerQueue->Enqueue([self, callback] {
     _remoteStore->EnableNetwork();
     if (callback) {
@@ -302,18 +307,27 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
 
 - (void)shutdownWithCallback:(util::StatusCallback)callback {
   _workerQueue->Enqueue([self, callback] {
-    self->_credentialsProvider->SetCredentialChangeListener(nullptr);
+    if (!_isShutdown) {
+      self->_credentialsProvider->SetCredentialChangeListener(nullptr);
 
-    // If we've scheduled LRU garbage collection, cancel it.
-    if (self->_lruCallback) {
-      self->_lruCallback.Cancel();
+      // If we've scheduled LRU garbage collection, cancel it.
+      if (self->_lruCallback) {
+        self->_lruCallback.Cancel();
+      }
+      _remoteStore->Shutdown();
+      [self.persistence shutdown];
+      self->_isShutdown = YES;
     }
-    _remoteStore->Shutdown();
-    [self.persistence shutdown];
     if (callback) {
       self->_userExecutor->Execute([=] { callback(Status::OK()); });
     }
   });
+}
+
+- (void)verifyNotShutdown {
+  if (_isShutdown) {
+    ThrowIllegalState("The client has already been shutdown.");
+  }
 }
 
 - (std::shared_ptr<QueryListener>)listenToQuery:(FSTQuery *)query
@@ -327,11 +341,13 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
 }
 
 - (void)removeListener:(const std::shared_ptr<QueryListener> &)listener {
+  [self verifyNotShutdown];
   _workerQueue->Enqueue([self, listener] { [self.eventManager removeListener:listener]; });
 }
 
 - (void)getDocumentFromLocalCache:(const DocumentReference &)doc
                          callback:(DocumentSnapshot::Listener &&)callback {
+  [self verifyNotShutdown];
   auto shared_callback = absl::ShareUniquePtr(std::move(callback));
   _workerQueue->Enqueue([self, doc, shared_callback] {
     FSTMaybeDocument *maybeDoc = [self.localStore readDocument:doc.key()];
@@ -362,6 +378,7 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
 - (void)getDocumentsFromLocalCache:(FIRQuery *)query
                         completion:(void (^)(FIRQuerySnapshot *_Nullable query,
                                              NSError *_Nullable error))completion {
+  [self verifyNotShutdown];
   _workerQueue->Enqueue([self, query, completion] {
     DocumentMap docs = [self.localStore executeQuery:query.query];
 
@@ -391,6 +408,7 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
               callback:(util::StatusCallback)callback {
   // TODO(c++14): move `mutations` into lambda (C++14).
   _workerQueue->Enqueue([self, mutations, callback]() mutable {
+    [self verifyNotShutdown];
     if (mutations.empty()) {
       if (callback) {
         self->_userExecutor->Execute([=] { callback(Status::OK()); });
@@ -413,6 +431,7 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
                 resultCallback:(core::TransactionResultCallback)resultCallback {
   // Dispatch the result back onto the user dispatch queue.
   auto async_callback = [self, resultCallback](util::StatusOr<absl::any> maybe_value) {
+    [self verifyNotShutdown];
     if (resultCallback) {
       self->_userExecutor->Execute([=] { resultCallback(std::move(maybe_value)); });
     }

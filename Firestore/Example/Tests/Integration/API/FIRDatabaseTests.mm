@@ -1219,4 +1219,23 @@ using firebase::firestore::util::TimerId;
   [self awaitExpectations];
 }
 
+- (void)testClientCallsAfterShutdownFail {
+  FIRDocumentReference *doc = [self documentRef];
+  FIRFirestore *firestore = doc.firestore;
+
+  [firestore enableNetworkWithCompletion:[self completionForExpectationWithName:@"Enable network"]];
+  [self awaitExpectations];
+  [firestore shutdownWithCompletion:[self completionForExpectationWithName:@"Shutdown"]];
+  [self awaitExpectations];
+  NSLog(@"Shutdown success");
+
+  XCTAssertThrowsSpecific(
+      {
+        [firestore
+         disableNetworkWithCompletion:^(NSError* error ){}];
+      },
+      NSException, @"The client has already been shutdown.");
+  NSLog(@"Test complete");
+}
+
 @end
