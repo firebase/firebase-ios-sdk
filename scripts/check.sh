@@ -75,7 +75,7 @@ EXAMPLES:
 EOF
 }
 
-set -x
+set -euo pipefail
 unset CDPATH
 
 # Change to the top-directory of the working tree
