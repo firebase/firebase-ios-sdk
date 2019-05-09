@@ -45,15 +45,16 @@
 @interface FIRInstanceIDKeyPairStoreTest : XCTestCase
 
 @property(nonatomic, readwrite, strong) FIRInstanceIDKeyPairStore *keyPairStore;
-
+@property(nonatomic, readwrite, strong) id mockStoreClass;
 @end
 
 @implementation FIRInstanceIDKeyPairStoreTest
 
 - (void)setUp {
   [super setUp];
-  id mockStoreClass = OCMClassMock([FIRInstanceIDKeyPairStore class]);
-  [[[mockStoreClass stub] andReturn:@"com.google.iid-keypairmanager-test"] keyStoreFileName];
+  self.mockStoreClass = OCMClassMock([FIRInstanceIDKeyPairStore class]);
+  [[[self.mockStoreClass stub] andReturn:@"com.google.iid-keypairmanager-test"] keyStoreFileName];
+
   // Should make sure the standard directory is created.
   if (![FIRInstanceIDStore hasSubDirectory:kFIRInstanceIDSubDirectoryName]) {
     [FIRInstanceIDStore createSubDirectory:kFIRInstanceIDSubDirectoryName];
@@ -65,7 +66,21 @@
   [super tearDown];
   NSError *error = nil;
   [self.keyPairStore removeKeyPairCreationTimePlistWithError:&error];
-  [self.keyPairStore deleteSavedKeyPairWithSubtype:kFIRInstanceIDKeyPairSubType handler:nil];
+
+  // Wait until keypair deleted
+  XCTestExpectation *deleteKeypairExpectation =
+      [self expectationWithDescription:@"deleteKeypairExpectation"];
+  [self.keyPairStore deleteSavedKeyPairWithSubtype:kFIRInstanceIDKeyPairSubType
+                                           handler:^(NSError *error) {
+                                             [deleteKeypairExpectation fulfill];
+                                           }];
+
+  [self waitForExpectations:@[ deleteKeypairExpectation ] timeout:100];
+
+  [self.mockStoreClass stopMocking];
+  self.mockStoreClass = nil;
+
+  self.keyPairStore = nil;
 }
 
 /**
@@ -95,10 +110,12 @@
   [[[plistMock stub] andReturnValue:OCMOCK_VALUE(NO)] doesFileExist];
   // Mock the keypair store, to check if key pair deletes are requested
   id storeMock = OCMPartialMock(self.keyPairStore);
+  // Expect that delete will be called
+  OCMExpect([storeMock deleteSavedKeyPairWithSubtype:[OCMArg any] handler:[OCMArg any]]);
   // Now trigger a possible invalidation.
   [self.keyPairStore invalidateKeyPairsIfNeeded];
-  // Verify that delete was called
-  OCMVerify([storeMock deleteSavedKeyPairWithSubtype:[OCMArg any] handler:[OCMArg any]]);
+
+  OCMVerifyAllWithDelay(storeMock, 3);
 }
 
 - (void)testMigrationWhenPlistExist {
@@ -108,10 +125,13 @@
   [[[plistMock stub] andReturnValue:OCMOCK_VALUE(YES)] doesFileExist];
   // Mock the keypair store, to check if key pair deletes are requested
   id storeMock = OCMPartialMock(self.keyPairStore);
+  // Expect that delete will be called
+  OCMExpect([storeMock migrateKeyPairCacheIfNeededWithHandler:[OCMArg any]])
+      .andForwardToRealObject();
   // Now trigger a possible invalidation.
   [self.keyPairStore invalidateKeyPairsIfNeeded];
-  // Verify that delete was called
-  OCMVerify([storeMock migrateKeyPairCacheIfNeededWithHandler:nil]);
+
+  OCMVerifyAllWithDelay(storeMock, 3);
 }
 
 /**
@@ -132,16 +152,15 @@
                               [self.keyPairStore removeKeyPairCreationTimePlistWithError:&error];
                               XCTAssertNil(error);
 
-                              // regenerate instance-id
-                              FIRInstanceIDKeyPair *keyPair =
-                                  [self.keyPairStore loadKeyPairWithError:&error];
-                              XCTAssertNil(error);
-                              NSString *iid2 = FIRInstanceIDAppIdentity(keyPair);
-
-                              XCTAssertNotEqualObjects(iid1, iid2);
                               [identityResetExpectation fulfill];
                             }];
   [self waitForExpectationsWithTimeout:1 handler:nil];
+
+  // regenerate instance-id
+  FIRInstanceIDKeyPair *keyPair2 = [self.keyPairStore loadKeyPairWithError:&error];
+  XCTAssertNil(error);
+  NSString *iid2 = FIRInstanceIDAppIdentity(keyPair2);
+  XCTAssertNotEqualObjects(iid1, iid2);
 }
 
 /**

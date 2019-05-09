@@ -144,12 +144,12 @@ NSString *FIRInstanceIDPrivateTagWithSubtype(NSString *subtype);
 
   @autoreleasepool {
     NSString *legacyPublicKeyTag =
-      FIRInstanceIDLegacyPublicTagWithSubtype(kFIRInstanceIDKeyPairSubType);
+        FIRInstanceIDLegacyPublicTagWithSubtype(kFIRInstanceIDKeyPairSubType);
     NSString *legacyPrivateKeyTag =
-      FIRInstanceIDLegacyPrivateTagWithSubtype(kFIRInstanceIDKeyPairSubType);
+        FIRInstanceIDLegacyPrivateTagWithSubtype(kFIRInstanceIDKeyPairSubType);
     FIRInstanceIDKeyPair *keyPair =
-    [[FIRInstanceIDKeychain sharedInstance] generateKeyPairWithPrivateTag:legacyPrivateKeyTag
-                                                                publicTag:legacyPublicKeyTag];
+        [[FIRInstanceIDKeychain sharedInstance] generateKeyPairWithPrivateTag:legacyPrivateKeyTag
+                                                                    publicTag:legacyPublicKeyTag];
     XCTAssertTrue([keyPair isValid]);
 
     publicKeyRef = keyPair.publicKey;
@@ -160,10 +160,13 @@ NSString *FIRInstanceIDPrivateTagWithSubtype(NSString *subtype);
     // 2 = 1 from keyPair + 1 from CFRetain()
     XCTAssertEqual(CFGetRetainCount(publicKeyRef), 2);
 
-    XCTestExpectation *completionExpectaion = [self expectationWithDescription:@"completionExpectaion"];
-    [self.keyPairStore updateKeyRef:keyPair.publicKey withTag:@"test" handler:^(NSError *error) {
-      [completionExpectaion fulfill];
-    }];
+    XCTestExpectation *completionExpectaion =
+        [self expectationWithDescription:@"completionExpectaion"];
+    [self.keyPairStore updateKeyRef:keyPair.publicKey
+                            withTag:@"test"
+                            handler:^(NSError *error) {
+                              [completionExpectaion fulfill];
+                            }];
 
     // 3 = from keyPair + 1 from CFRetain() + 1 retained by `updateKeyRef`
     XCTAssertEqual(CFGetRetainCount(publicKeyRef), 3);
