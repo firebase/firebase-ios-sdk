@@ -17,24 +17,64 @@
 #import "GDTTests/Unit/GDTTestCase.h"
 
 #import <GoogleDataTransport/GDTUploadPackage.h>
+#import <GoogleDataTransport/GDTClock.h>
 
 #import "GDTLibrary/Private/GDTUploadPackage_Private.h"
 #import "GDTTests/Unit/Helpers/GDTEventGenerator.h"
 
-@interface GDTUploadPackageTest : GDTTestCase
+@interface GDTUploadPackageTest : GDTTestCase <NSSecureCoding, GDTUploadPackageProtocol>
+
+/** If YES, -packageDelivered: was called. */
+@property(nonatomic) BOOL packageDeliveredCalled;
+
+/** If YES, -packageDeliveryFailed: was called. */
+@property(nonatomic) BOOL packageDeliveryFailedCalled;
+
+/** If YES, -packageExpired: was called. */
+@property(nonatomic) BOOL packageExpiredCalled;
 
 @end
 
 @implementation GDTUploadPackageTest
 
+- (void)setUp {
+  [super setUp];
+  _packageExpiredCalled = NO;
+  _packageDeliveryFailedCalled = NO;
+  _packageDeliveredCalled = NO;
+}
+
+- (void)packageDelivered:(GDTUploadPackage *)package {
+  self.packageDeliveredCalled = YES;
+}
+
+- (void)packageDeliveryFailed:(GDTUploadPackage *)package {
+  self.packageDeliveryFailedCalled = YES;
+}
+
+- (void)packageExpired:(GDTUploadPackage *)package {
+  self.packageExpiredCalled = YES;
+}
+
++ (BOOL)supportsSecureCoding {
+  return YES;
+}
+
+- (void)encodeWithCoder:(nonnull NSCoder *)aCoder {
+}
+
+- (nullable instancetype)initWithCoder:(nonnull NSCoder *)aDecoder {
+  return [[[self class] alloc] init];
+}
+
 /** Tests the default initializer. */
 - (void)testInit {
-  XCTAssertNotNil([[GDTUploadPackage alloc] init]);
+  XCTAssertNotNil([[GDTUploadPackage alloc] initWithTarget:kGDTTargetTest]);
 }
 
 /** Tests copying indicates that the underlying sets of events can't be changed from underneath. */
 - (void)testRegisterUpload {
-  GDTUploadPackage *uploadPackage = [[GDTUploadPackage alloc] init];
+  GDTUploadPackage *uploadPackage = [[GDTUploadPackage alloc] initWithTarget:kGDTTargetTest];
   GDTUploadPackage *uploadPackageCopy = [uploadPackage copy];
   XCTAssertNotEqual(uploadPackage, uploadPackageCopy);
   XCTAssertEqualObjects(uploadPackage.events, uploadPackageCopy.events);
@@ -58,6 +98,32 @@
   [set removeObject:newEvent];
   XCTAssertEqualObjects(uploadPackage.events, uploadPackageCopy.events);
   XCTAssertEqualObjects(uploadPackage, uploadPackageCopy);
+}
+
+- (void)testEncoding {
+  GDTUploadPackage *uploadPackage = [[GDTUploadPackage alloc] initWithTarget:kGDTTargetTest];
+  NSMutableSet<GDTStoredEvent *> *set = [GDTEventGenerator generate3StoredEvents];
+  uploadPackage.events = set;
+  uploadPackage.handler = self;
+
+  NSData *packageData = [NSKeyedArchiver archivedDataWithRootObject:uploadPackage];
+  GDTUploadPackage *recreatedPackage = [NSKeyedUnarchiver unarchiveObjectWithData:packageData];
+  XCTAssertEqualObjects(uploadPackage, recreatedPackage);
+}
+
+- (void)testExpiration {
+  XCTAssertFalse(self.packageExpiredCalled);
+  GDTUploadPackage *uploadPackage = [[GDTUploadPackage alloc] initWithTarget:kGDTTargetTest];
+  uploadPackage.deliverByTime = [GDTClock clockSnapshotInTheFuture:1000];
+  uploadPackage.handler = self;
+  NSPredicate *pred = [NSPredicate predicateWithBlock:^BOOL(id _Nullable evaluatedObject,
+                                        NSDictionary<NSString *, id> *_Nullable bindings) {
+    return self.packageExpiredCalled;
+  }];
+  XCTestExpectation *expectation = [self expectationForPredicate:pred
+                                             evaluatedWithObject:self
+                                                         handler:nil];
+  [self waitForExpectations:@[ expectation ] timeout:30];
 }
 
 @end
