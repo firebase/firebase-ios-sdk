@@ -30,21 +30,22 @@ static void BM_SkipToNextSpecialByte(benchmark::State& state) {
   int64_t sizes[kNumSizes];
   for (int i = 0; i < kNumSizes; i++) {
     // Make a size that is uniform in range of [arg - arg/4..arg + arg/4].
-    sizes[i] = len - len / 4 + rnd.Uniform(static_cast<int32_t>(len / 2 + 1));
+    sizes[i] = len - len / 4 + rnd.Uniform(static_cast<uint32_t>(len / 2 + 1));
   }
 
   std::vector<std::string> values(kValues);
   for (int i = 0; i < kValues; ++i) {
     std::string s;
     std::generate_n(std::back_inserter(s), sizes[i % kNumSizes],
-                    [&]() { return rnd.Uniform(254) + 1; });
+                    [&] { return rnd.Uniform(254) + 1; });
     s[s.size() - 1] = static_cast<char>(rnd.OneIn(2) ? 0 : 255);
     values[i] = s;
   }
+
   int index = 0;
   int64_t total_bytes = 0;
   for (auto _ : state) {
-    absl::string_view sp = absl::string_view(values[index++ % kValues]);
+    absl::string_view sp(values[index++ % kValues]);
     const char* p = sp.data();
     const char* q = OrderedCode::TEST_SkipToNextSpecialByte(p, p + sp.size());
     total_bytes += (q - p);
