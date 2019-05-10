@@ -140,15 +140,10 @@ void Firestore::RunTransaction(
 }
 
 void Firestore::Shutdown(util::StatusCallback callback) {
-  if (!client_) {
-    if (callback) {
-      // We should be dispatching the callback on the user dispatch queue
-      // but if the client is nil here that queue was never created.
-      callback(Status::OK());
-    }
-  } else {
-    [client_ shutdownWithCallback:std::move(callback)];
-  }
+  // The client must be initialized to ensure that all subsequent API usage
+  // throws an exception.
+  EnsureClientConfigured();
+  [client_ shutdownWithCallback:std::move(callback)];
 }
 
 void Firestore::EnableNetwork(util::StatusCallback callback) {
