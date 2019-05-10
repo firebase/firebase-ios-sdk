@@ -69,7 +69,7 @@
 
 - (GDTUploadPackage *)uploadPackageWithConditions:(GDTUploadConditions)conditions {
   __block GDTIntegrationTestUploadPackage *uploadPackage =
-      [[GDTIntegrationTestUploadPackage alloc] init];
+      [[GDTIntegrationTestUploadPackage alloc] initWithTarget:kGDTIntegrationTestTarget];
   dispatch_sync(_queue, ^{
     if ((conditions & GDTUploadConditionWifiData) == GDTUploadConditionWifiData) {
       uploadPackage.events = [self.wifiOnlyEvents setByAddingObjectsFromSet:self.nonWifiEvents];
