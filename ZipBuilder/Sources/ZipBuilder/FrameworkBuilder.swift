@@ -150,25 +150,53 @@ struct FrameworkBuilder {
   /// This runs a command and immediately returns a Shell result.
   /// NOTE: This exists in conjunction with the `Shell.execute...` due to issues with different
   ///       `.bash_profile` environment variables. This should be consolidated in the future.
-  private func syncExec(command: String, args: [String] = []) -> Shell.Result {
+  private func syncExec(command: String, args: [String] = [], captureOutput: Bool = false) -> Shell.Result {
     let task = Process()
     task.launchPath = command
     task.arguments = args
+
+    // If we want to output to the console, create a readabilityHandler and save each line along the
+    // way. Otherwise, we can just read the pipe at the end. By disabling outputToConsole, some
+    // commands (such as any xcodebuild) can run much, much faster.
+    var output: [String] = []
+    if captureOutput {
+      let pipe = Pipe()
+      task.standardOutput = pipe
+      let outHandle = pipe.fileHandleForReading
+
+      outHandle.readabilityHandler = { pipe in
+        // This will be run any time data is sent to the pipe. We want to print it and store it for
+        // later. Ignore any non-valid Strings.
+        guard let line = String(data: pipe.availableData, encoding: .utf8) else {
+          print("Could not get data from pipe for command \(command): \(pipe.availableData)")
+          return
+        }
+        output.append(line)
+      }
+      // Also set the termination handler on the task in order to stop the readabilityHandler from
+      // parsing any more data from the task.
+      task.terminationHandler = { t in
+        guard let stdOut = t.standardOutput as? Pipe else { return }
+
+        stdOut.fileHandleForReading.readabilityHandler = nil
+      }
+    } else {
+      // No capturing output, just mark it as complete.
+      output = ["The task completed"]
+    }
+
     task.launch()
     task.waitUntilExit()
-//
-//    var pipe = Pipe()
-//    task.standardOutput = pipe
-//    let handle = pipe.fileHandleForReading
+
+    let fullOutput = output.joined(separator: "\n")
 
     // Normally we'd use a pipe to retrieve the output, but for whatever reason it slows things down
     // tremendously for xcodebuild.
-    let output = "The task completed."
     guard task.terminationStatus == 0 else {
-      return .error(code: task.terminationStatus, output: output)
+      return .error(code: task.terminationStatus, output: fullOutput)
     }
 
-    return .success(output: output)
+    return .success(output: fullOutput)
   }
 
   /// Uses `xcodebuild` to build a framework for a specific architecture slice.
@@ -204,7 +232,7 @@ struct FrameworkBuilder {
     let logFileName = "\(framework)-\(arch.rawValue)-\(platform.rawValue).txt"
     let logFile = logRoot.appendingPathComponent(logFileName)
 
-    let result = syncExec(command: "/usr/bin/xcodebuild", args: args)
+    let result = syncExec(command: "/usr/bin/xcodebuild", args: args, captureOutput: true)
     switch result {
     case let .error(code, output):
       // Write output to disk and print the location of it. Force unwrapping here since it's going
@@ -218,6 +246,9 @@ struct FrameworkBuilder {
       // Try to write the output to the log file but if it fails it's not a huge deal since it was
       // a successful build.
       try? output.write(to: logFile, atomically: true, encoding: .utf8)
+      print("""
+      Successfully built \(framework) for \(arch.rawValue). Build log can be found at \(logFile)
+      """)
 
       // Use the Xcode-generated path to return the path to the compiled library.
       let libPath = buildDir.appendingPathComponents(["Release-\(platform.rawValue)",
@@ -454,7 +485,6 @@ struct FrameworkBuilder {
         try fileManager.createDirectory(at: parentDir, withIntermediateDirectories: true)
       }
 
-      print("Attempting to copy \(location) to \(finalPath)")
       try fileManager.copyItem(at: location, to: finalPath)
     }
   }
