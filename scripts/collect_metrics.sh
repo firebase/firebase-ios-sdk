@@ -33,7 +33,7 @@ EOF
   exit 1
 fi
 
-if [[ ! -z "${TRAVIS_PULL_REQUEST}" ]]; then
+if [[ "${TRAVIS_PULL_REQUEST}" != "false" ]]; then
   WORKSPACE="$1"
   SCHEME="$2"
 
