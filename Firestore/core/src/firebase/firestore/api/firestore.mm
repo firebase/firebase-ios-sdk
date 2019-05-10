@@ -23,6 +23,7 @@
 #import "Firestore/Source/API/FIRTransaction+Internal.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 #import "Firestore/Source/Core/FSTQuery.h"
+#import "Firestore/Source/Local/FSTLevelDB.h"
 
 #include "Firestore/core/src/firebase/firestore/api/document_reference.h"
 #include "Firestore/core/src/firebase/firestore/api/settings.h"
@@ -144,6 +145,10 @@ void Firestore::Shutdown(util::StatusCallback callback) {
   // throws an exception.
   EnsureClientConfigured();
   [client_ shutdownWithCallback:std::move(callback)];
+}
+
+void Firestore::ClearPersistence(util::StatusCallback callback) {
+  [FSTLevelDB clearPersistence];
 }
 
 void Firestore::EnableNetwork(util::StatusCallback callback) {

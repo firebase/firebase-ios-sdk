@@ -265,7 +265,8 @@ NS_ASSUME_NONNULL_BEGIN
   _firestore->DisableNetwork(util::MakeCallback(completion));
 }
 
-- (void)clearPersistence:(nullable void (^)(NSError *_Nullable error))completion {
+- (void)clearPersistenceWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
+  _firestore->ClearPersistence(util::MakeCallback(completion));
 }
 
 @end
