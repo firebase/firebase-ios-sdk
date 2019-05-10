@@ -39,13 +39,7 @@
  *
  * @param package The package that was delivered.
  */
-- (void)packageDelivered:(GDTUploadPackage *)package;
-
-/** Indicates that delivery of the package failed.
- *
- * @param package The package that was not delivered.
- */
-- (void)packageDeliveryFailed:(GDTUploadPackage *)package;
+- (void)packageDelivered:(GDTUploadPackage *)package successful:(BOOL)successful;
 
 @end
 

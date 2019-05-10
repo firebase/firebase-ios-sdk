@@ -24,11 +24,11 @@
 
 @interface GDTUploadPackageTest : GDTTestCase <NSSecureCoding, GDTUploadPackageProtocol>
 
-/** If YES, -packageDelivered: was called. */
-@property(nonatomic) BOOL packageDeliveredCalled;
+/** If YES, -packageDelivered:successful was called. */
+@property(nonatomic) BOOL packageDeliveredCalledSuccessful;
 
 /** If YES, -packageDeliveryFailed: was called. */
-@property(nonatomic) BOOL packageDeliveryFailedCalled;
+@property(nonatomic) BOOL packageDeliveredCalledFailed;
 
 /** If YES, -packageExpired: was called. */
 @property(nonatomic) BOOL packageExpiredCalled;
@@ -40,16 +40,16 @@
 - (void)setUp {
   [super setUp];
   _packageExpiredCalled = NO;
-  _packageDeliveryFailedCalled = NO;
-  _packageDeliveredCalled = NO;
+  _packageDeliveredCalledFailed = NO;
+  _packageDeliveredCalledSuccessful = NO;
 }
 
-- (void)packageDelivered:(GDTUploadPackage *)package {
-  self.packageDeliveredCalled = YES;
-}
-
-- (void)packageDeliveryFailed:(GDTUploadPackage *)package {
-  self.packageDeliveryFailedCalled = YES;
+- (void)packageDelivered:(GDTUploadPackage *)package successful:(BOOL)successful {
+  if (successful) {
+    self.packageDeliveredCalledSuccessful = YES;
+  } else {
+    self.packageDeliveredCalledFailed = YES;
+  }
 }
 
 - (void)packageExpired:(GDTUploadPackage *)package {

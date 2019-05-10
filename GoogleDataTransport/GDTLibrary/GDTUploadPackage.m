@@ -69,18 +69,18 @@
 }
 
 - (void)completeDelivery {
-  if (!_isHandled && _handler && [_handler respondsToSelector:@selector(packageDelivered:)]) {
+  if (!_isHandled && _handler && [_handler respondsToSelector:@selector(packageDelivered:successful:)]) {
     [_expirationTimer invalidate];
     _isHandled = YES;
-    [_handler packageDelivered:self];
+    [_handler packageDelivered:self successful:YES];
   }
 }
 
 - (void)retryDeliveryInTheFuture {
-  if (!_isHandled && _handler && [_handler respondsToSelector:@selector(packageDeliveryFailed:)]) {
+  if (!_isHandled && _handler && [_handler respondsToSelector:@selector(packageDelivered:successful:)]) {
     [_expirationTimer invalidate];
     _isHandled = YES;
-    [_handler packageDeliveryFailed:self];
+    [_handler packageDelivered:self successful:NO];
   }
 }
 
