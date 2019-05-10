@@ -90,6 +90,7 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
                       core::TransactionResultCallback result_callback);
 
   void Shutdown(util::StatusCallback callback);
+  void ClearPersistence(util::StatusCallback callback);
 
   void EnableNetwork(util::StatusCallback callback);
   void DisableNetwork(util::StatusCallback callback);
