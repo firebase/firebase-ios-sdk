@@ -106,6 +106,8 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
   std::shared_ptr<util::Executor> user_executor_;
   std::shared_ptr<util::AsyncQueue> worker_queue_;
 
+  bool client_running_ = false;
+
   void* extension_ = nullptr;
 
   Settings settings_;

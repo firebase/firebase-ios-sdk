@@ -76,7 +76,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (const leveldb::ReadOptions)standardReadOptions;
 
-+ (void)clearPersistence;
++ (util::Status)clearPersistence;
 
 /** The native db pointer, allocated during start. */
 @property(nonatomic, assign, readonly) leveldb::DB *ptr;
