@@ -70,7 +70,7 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
 
   FSTFirestoreClient* client();
 
-  util::AsyncQueue* worker_queue();
+  const std::shared_ptr<util::AsyncQueue>& worker_queue();
 
   void* extension() {
     return extension_;
@@ -103,10 +103,9 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
   std::string persistence_key_;
   objc::Handle<FSTFirestoreClient> client_;
 
-  // Ownership of these will be transferred to `FSTFirestoreClient` as soon as
-  // the client is created.
-  std::unique_ptr<util::Executor> user_executor_;
-  std::unique_ptr<util::AsyncQueue> worker_queue_;
+  std::shared_ptr<util::Executor> user_executor_;
+  std::shared_ptr<util::AsyncQueue> worker_queue_;
+  bool client_running_ = false;
 
   void* extension_ = nullptr;
 
