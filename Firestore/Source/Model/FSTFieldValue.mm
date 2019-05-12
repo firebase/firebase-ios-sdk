@@ -38,6 +38,8 @@ using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::FieldValue;
+using firebase::firestore::model::FieldValueOptions;
+using firebase::firestore::model::ServerTimestampBehavior;
 using firebase::firestore::util::Comparator;
 using firebase::firestore::util::CompareMixedNumber;
 using firebase::firestore::util::DoubleBitwiseEquals;
@@ -47,23 +49,6 @@ using firebase::firestore::util::ReverseOrder;
 using firebase::firestore::util::WrapCompare;
 
 NS_ASSUME_NONNULL_BEGIN
-
-#pragma mark - FSTFieldValueOptions
-
-@implementation FSTFieldValueOptions
-
-- (instancetype)initWithServerTimestampBehavior:(ServerTimestampBehavior)serverTimestampBehavior
-                   timestampsInSnapshotsEnabled:(BOOL)timestampsInSnapshotsEnabled {
-  self = [super init];
-
-  if (self) {
-    _serverTimestampBehavior = serverTimestampBehavior;
-    _timestampsInSnapshotsEnabled = timestampsInSnapshotsEnabled;
-  }
-  return self;
-}
-
-@end
 
 #pragma mark - FSTFieldValue
 
@@ -88,7 +73,7 @@ NS_ASSUME_NONNULL_BEGIN
   @throw FSTAbstractMethodException();  // NOLINT
 }
 
-- (id)valueWithOptions:(FSTFieldValueOptions *)options {
+- (id)valueWithOptions:(const FieldValueOptions &)options {
   return [self value];
 }
 
@@ -337,8 +322,8 @@ NS_ASSUME_NONNULL_BEGIN
   return self.internalValue;
 }
 
-- (id)valueWithOptions:(FSTFieldValueOptions *)options {
-  if (options.timestampsInSnapshotsEnabled) {
+- (id)valueWithOptions:(const FieldValueOptions &)options {
+  if (options.timestamps_in_snapshots_enabled()) {
     return self.value;
   } else {
     return [self.value dateValue];
@@ -399,8 +384,8 @@ NS_ASSUME_NONNULL_BEGIN
   return [NSNull null];
 }
 
-- (id)valueWithOptions:(FSTFieldValueOptions *)options {
-  switch (options.serverTimestampBehavior) {
+- (id)valueWithOptions:(const FieldValueOptions &)options {
+  switch (options.server_timestamp_behavior()) {
     case ServerTimestampBehavior::None:
       return [NSNull null];
     case ServerTimestampBehavior::Estimate:
@@ -408,7 +393,7 @@ NS_ASSUME_NONNULL_BEGIN
     case ServerTimestampBehavior::Previous:
       return self.previousValue ? [self.previousValue valueWithOptions:options] : [NSNull null];
     default:
-      HARD_FAIL("Unexpected server timestamp option: %s", options.serverTimestampBehavior);
+      HARD_FAIL("Unexpected server timestamp option: %s", options.server_timestamp_behavior());
   }
 }
 
@@ -680,7 +665,7 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
   return result;
 }
 
-- (id)valueWithOptions:(FSTFieldValueOptions *)options {
+- (id)valueWithOptions:(const FieldValueOptions &)options {
   NSMutableDictionary *result = [NSMutableDictionary dictionary];
   [self.internalValue
       enumerateKeysAndObjectsUsingBlock:^(NSString *key, FSTFieldValue *obj, BOOL *stop) {
@@ -863,7 +848,7 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
   return result;
 }
 
-- (id)valueWithOptions:(FSTFieldValueOptions *)options {
+- (id)valueWithOptions:(const FieldValueOptions &)options {
   NSMutableArray *result = [NSMutableArray arrayWithCapacity:_internalValue.count];
   [self.internalValue enumerateObjectsUsingBlock:^(FSTFieldValue *obj, NSUInteger idx, BOOL *stop) {
     [result addObject:[obj valueWithOptions:options]];

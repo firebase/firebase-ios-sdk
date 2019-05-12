@@ -157,7 +157,6 @@ OBJC_PRINT_TO(FSTDocumentSet);
 OBJC_PRINT_TO(FSTDoubleValue);
 OBJC_PRINT_TO(FSTEventManager);
 OBJC_PRINT_TO(FSTFieldValue);
-OBJC_PRINT_TO(FSTFieldValueOptions);
 OBJC_PRINT_TO(FSTFilter);
 OBJC_PRINT_TO(FSTFirestoreClient);
 OBJC_PRINT_TO(FSTFirestoreComponent);
