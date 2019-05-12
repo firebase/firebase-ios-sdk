@@ -28,6 +28,8 @@ namespace model {
 
 using Type = FieldValue::Type;
 
+using testutil::Key;
+
 namespace {
 
 const uint8_t* Bytes(const char* value) {
@@ -35,6 +37,53 @@ const uint8_t* Bytes(const char* value) {
 }
 
 }  // namespace
+
+TEST(FieldValue, ToString) {
+  EXPECT_EQ("null", FieldValue::Null().ToString());
+  EXPECT_EQ("nan", FieldValue::Nan().ToString());
+  EXPECT_EQ("true", FieldValue::True().ToString());
+  EXPECT_EQ("false", FieldValue::False().ToString());
+
+  EXPECT_EQ("-1234", FieldValue::FromInteger(-1234).ToString());
+  EXPECT_EQ("0", FieldValue::FromInteger(0).ToString());
+
+  EXPECT_EQ("-0", FieldValue::FromDouble(-0.0).ToString());
+  EXPECT_EQ("0", FieldValue::FromDouble(0.0).ToString());
+  EXPECT_EQ("0.5", FieldValue::FromDouble(0.5).ToString());
+  EXPECT_EQ("1e+10", FieldValue::FromDouble(1.0E10).ToString());
+
+  EXPECT_EQ("Timestamp(seconds=12, nanoseconds=42)",
+            FieldValue::FromTimestamp(Timestamp(12, 42)).ToString());
+
+  EXPECT_EQ(
+      "ServerTimestamp(local_write_time=Timestamp(seconds=12, nanoseconds=42))",
+      FieldValue::FromServerTimestamp(Timestamp(12, 42)).ToString());
+
+  EXPECT_EQ("", FieldValue::FromString("").ToString());
+  EXPECT_EQ("foo", FieldValue::FromString("foo").ToString());
+
+  // Bytes escaped as hex
+  const char* hi = "HI";
+  auto blob = FieldValue::FromBlob(reinterpret_cast<const uint8_t*>(hi), 2);
+  EXPECT_EQ("<4849>", blob.ToString());
+
+  DatabaseId database_id("p", "d");
+  auto ref = FieldValue::FromReference(Key("foo/bar"), &database_id);
+  EXPECT_EQ("Reference(key=foo/bar)", ref.ToString());
+
+  auto geo_point = FieldValue::FromGeoPoint(GeoPoint(41.8781, -87.6298));
+  EXPECT_EQ("GeoPoint(latitude=41.8781, longitude=-87.6298)",
+            geo_point.ToString());
+
+  auto array =
+      FieldValue::FromArray({FieldValue::Null(), FieldValue::FromString("foo"),
+                             FieldValue::FromInteger(42)});
+  EXPECT_EQ("[null, foo, 42]", array.ToString());
+
+  auto object = FieldValue::FromMap({{"key1", FieldValue::FromString("value")},
+                                     {"key2", FieldValue::FromInteger(42)}});
+  EXPECT_EQ("{key1: value, key2: 42}", object.ToString());
+}
 
 TEST(FieldValue, NullType) {
   const FieldValue value = FieldValue::Null();

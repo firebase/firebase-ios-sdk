@@ -18,6 +18,7 @@
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_FIELD_VALUE_H_
 
 #include <cstdint>
+#include <iosfwd>
 #include <memory>
 #include <string>
 #include <utility>
@@ -43,12 +44,20 @@ namespace model {
 struct ServerTimestamp {
   Timestamp local_write_time;
   absl::optional<Timestamp> previous_value;
+
+  std::string ToString() const;
+  friend std::ostream& operator<<(std::ostream& os,
+                                  const ServerTimestamp& value);
 };
 
 struct ReferenceValue {
   DocumentKey reference;
   // Does not own the DatabaseId instance.
   const DatabaseId* database_id;
+
+  std::string ToString() const;
+  friend std::ostream& operator<<(std::ostream& os,
+                                  const ReferenceValue& value);
 };
 
 /**
@@ -153,6 +162,12 @@ class FieldValue : public util::Comparable<FieldValue> {
     return *blob_value_;
   }
 
+  /**
+   * Returns a string_view of the blob_value(). This can be useful when using
+   * abseil bytewise APIs that accept this type.
+   */
+  absl::string_view blob_value_as_string_view() const;
+
   const GeoPoint& geo_point_value() const {
     HARD_ASSERT(tag_ == Type::GeoPoint);
     return *geo_point_value_;
@@ -189,10 +204,15 @@ class FieldValue : public util::Comparable<FieldValue> {
   static FieldValue FromArray(std::vector<FieldValue>&& value);
   static FieldValue FromMap(const Map& value);
   static FieldValue FromMap(Map&& value);
+  static FieldValue FromMap(
+      std::initializer_list<std::pair<std::string, FieldValue>> value);
 
   size_t Hash() const;
 
   util::ComparisonResult CompareTo(const FieldValue& rhs) const;
+
+  std::string ToString() const;
+  friend std::ostream& operator<<(std::ostream& os, const FieldValue& value);
 
  private:
   friend class ObjectValue;
@@ -276,6 +296,9 @@ class ObjectValue : public util::Comparable<ObjectValue> {
   }
 
   util::ComparisonResult CompareTo(const ObjectValue& rhs) const;
+
+  std::string ToString() const;
+  friend std::ostream& operator<<(std::ostream& os, const ObjectValue& value);
 
  private:
   ObjectValue SetChild(const std::string& child_name,

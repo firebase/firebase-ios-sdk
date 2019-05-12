@@ -18,6 +18,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <iostream>
 #include <memory>
 #include <new>
 #include <utility>
@@ -27,7 +28,9 @@
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
+#include "Firestore/core/src/firebase/firestore/util/to_string.h"
 #include "absl/memory/memory.h"
+#include "absl/strings/escaping.h"
 
 namespace firebase {
 namespace firestore {
@@ -37,6 +40,23 @@ using Type = FieldValue::Type;
 
 using util::Compare;
 using util::ComparisonResult;
+
+std::string ServerTimestamp::ToString() const {
+  std::string time = local_write_time.ToString();
+  return absl::StrCat("ServerTimestamp(local_write_time=", time, ")");
+}
+
+std::ostream& operator<<(std::ostream& os, const ServerTimestamp& value) {
+  return os << value.ToString();
+}
+
+std::string ReferenceValue::ToString() const {
+  return absl::StrCat("Reference(key=", reference.ToString(), ")");
+}
+
+std::ostream& operator<<(std::ostream& os, const ReferenceValue& value) {
+  return os << value.ToString();
+}
 
 FieldValue::FieldValue(const FieldValue& value) {
   *this = value;
@@ -210,6 +230,14 @@ ObjectValue ObjectValue::SetChild(const std::string& child_name,
   return ObjectValue::FromMap(fv_.object_value_->insert(child_name, value));
 }
 
+absl::string_view FieldValue::blob_value_as_string_view() const {
+  const std::vector<uint8_t>& blob = blob_value();
+
+  // string_view accepts const char*, but treats it internally as unsigned.
+  auto data = reinterpret_cast<const char*>(blob.data());
+  return absl::string_view(data, blob.size());
+}
+
 FieldValue FieldValue::Null() {
   return FieldValue();
 }
@@ -348,6 +376,12 @@ FieldValue FieldValue::FromMap(FieldValue::Map&& value) {
   return result;
 }
 
+FieldValue FieldValue::FromMap(
+    std::initializer_list<std::pair<std::string, FieldValue>> value) {
+  Map wrapped{std::move(value)};
+  return FromMap(std::move(wrapped));
+}
+
 size_t FieldValue::Hash() const {
   switch (type()) {
     case FieldValue::Type::Null:
@@ -438,6 +472,45 @@ ComparisonResult FieldValue::CompareTo(const FieldValue& rhs) const {
   }
 }
 
+std::string FieldValue::ToString() const {
+  switch (tag_) {
+    case Type::Null:
+      return util::ToString(nullptr);
+    case Type::Boolean:
+      return util::ToString(boolean_value_);
+    case Type::Integer:
+      return util::ToString(integer_value_);
+    case Type::Double:
+      return util::ToString(double_value_);
+    case Type::Timestamp:
+      return util::ToString(*timestamp_value_);
+    case Type::ServerTimestamp:
+      return util::ToString(*server_timestamp_value_);
+    case Type::String:
+      return util::ToString(*string_value_);
+    case Type::Blob:
+      return absl::StrCat(
+          "<", absl::BytesToHexString(blob_value_as_string_view()), ">");
+    case Type::Reference:
+      return util::ToString(*reference_value_);
+    case Type::GeoPoint:
+      return util::ToString(*geo_point_value_);
+    case Type::Array:
+      return util::ToString(*array_value_);
+    case Type::Object:
+      return util::ToString(*object_value_);
+    default:
+      HARD_FAIL("Unsupported type %s", type());
+      // return false if assertion does not abort the program. We will say
+      // each unsupported type takes only one value thus everything is equal.
+      return {};
+  }
+}
+
+std::ostream& operator<<(std::ostream& os, const FieldValue& value) {
+  return os << value.ToString();
+}
+
 void FieldValue::SwitchTo(const Type type) {
   if (tag_ == type) {
     return;
@@ -520,6 +593,14 @@ ObjectValue ObjectValue::FromMap(FieldValue::Map&& value) {
 
 ComparisonResult ObjectValue::CompareTo(const ObjectValue& rhs) const {
   return fv_.CompareTo(rhs.fv_);
+}
+
+std::string ObjectValue::ToString() const {
+  return fv_.ToString();
+}
+
+std::ostream& operator<<(std::ostream& os, const ObjectValue& value) {
+  return os << value.ToString();
 }
 
 }  // namespace model
