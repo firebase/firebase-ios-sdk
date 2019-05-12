@@ -394,15 +394,16 @@
     imageOnlyMessageWithMessageDefinition:(FIRIAMMessageDefinition *)definition
                                 imageData:(FIRInAppMessagingImageData *)imageData
                               triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType {
-  FIRInAppMessagingImageOnlyDisplay *imageOnlyMessage = [[FIRInAppMessagingImageOnlyDisplay alloc]
-        initWithMessageID:definition.renderData.messageID
-             campaignName:definition.renderData.name
-      renderAsTestMessage:definition.isTestMessage
-              triggerType:triggerType
-                imageData:imageData
-                actionURL:definition.renderData.contentData.actionURL];
-
-  return imageOnlyMessage;
+    
+        FIRInAppMessagingImageOnlyDisplay *imageOnlyMessage = [[FIRInAppMessagingImageOnlyDisplay alloc]
+                                                               initWithMessageID:definition.renderData.messageID
+                                                               campaignName:definition.renderData.name
+                                                               renderAsTestMessage:definition.isTestMessage
+                                                               triggerType:triggerType
+                                                               imageData:imageData
+                                                               actionURL:definition.renderData.contentData.actionURL];
+        
+        return imageOnlyMessage;
 }
 
 - (FIRInAppMessagingModalDisplay *)

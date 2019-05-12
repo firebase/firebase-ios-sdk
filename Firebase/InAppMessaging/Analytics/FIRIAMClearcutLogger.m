@@ -145,7 +145,7 @@
                              IID:(NSString *)iid
                       completion:(void (^)(BOOL success))completion {
   NSTimeInterval nowInMs = [self.timeFetcher currentTimestampInSeconds] * 1000;
-  if (!eventTimeInMs) {
+  if (eventTimeInMs == nil) {
     eventTimeInMs = @((long)nowInMs);
   }
 
