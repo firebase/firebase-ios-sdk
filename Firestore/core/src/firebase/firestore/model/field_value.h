@@ -284,6 +284,8 @@ class ObjectValue : public util::Comparable<ObjectValue> {
   std::string ToString() const;
   friend std::ostream& operator<<(std::ostream& os, const ObjectValue& value);
 
+  size_t Hash() const;
+
  private:
   ObjectValue SetChild(const std::string& child_name,
                        const FieldValue& value) const;
@@ -298,6 +300,8 @@ struct ServerTimestamp {
   std::string ToString() const;
   friend std::ostream& operator<<(std::ostream& os,
                                   const ServerTimestamp& value);
+
+  size_t Hash() const;
 };
 
 struct ReferenceValue {
@@ -308,6 +312,8 @@ struct ReferenceValue {
   std::string ToString() const;
   friend std::ostream& operator<<(std::ostream& os,
                                   const ReferenceValue& value);
+
+  size_t Hash() const;
 };
 
 }  // namespace model

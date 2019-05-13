@@ -50,12 +50,26 @@ std::ostream& operator<<(std::ostream& os, const ServerTimestamp& value) {
   return os << value.ToString();
 }
 
+size_t ServerTimestamp::Hash() const {
+  size_t result =
+      util::Hash(local_write_time.seconds(), local_write_time.nanoseconds());
+
+  if (previous_value) {
+    result = util::Hash(result, *previous_value);
+  }
+  return result;
+}
+
 std::string ReferenceValue::ToString() const {
   return absl::StrCat("Reference(key=", reference.ToString(), ")");
 }
 
 std::ostream& operator<<(std::ostream& os, const ReferenceValue& value) {
   return os << value.ToString();
+}
+
+size_t ReferenceValue::Hash() const {
+  return util::Hash(reference, *database_id);
 }
 
 FieldValue::FieldValue(const FieldValue& value) {
@@ -382,29 +396,43 @@ FieldValue FieldValue::FromMap(
   return FromMap(std::move(wrapped));
 }
 
+static size_t HashObject(const FieldValue::Map& object) {
+  size_t result = 0;
+  for (auto&& entry : object) {
+    result = util::Hash(result, entry.first, entry.second);
+  }
+  return result;
+}
+
 size_t FieldValue::Hash() const {
   switch (type()) {
     case FieldValue::Type::Null:
-      HARD_FAIL("TODO(rsgowman): Implement");
-
+      // std::hash is not defined for nullptr_t.
+      return util::Hash(static_cast<void*>(nullptr));
     case FieldValue::Type::Boolean:
-      return util::Hash(boolean_value());
-
+      return util::Hash(boolean_value_);
     case FieldValue::Type::Integer:
+      return util::Hash(integer_value_);
     case FieldValue::Type::Double:
+      return util::Hash(double_value_);
     case FieldValue::Type::Timestamp:
+      return util::Hash(timestamp_value_->seconds(),
+                        timestamp_value_->nanoseconds());
     case FieldValue::Type::ServerTimestamp:
-      HARD_FAIL("TODO(rsgowman): Implement");
-
+      return util::Hash(*server_timestamp_value_);
     case FieldValue::Type::String:
-      return util::Hash(string_value());
-
+      return util::Hash(*string_value_);
     case FieldValue::Type::Blob:
+      return util::Hash(*blob_value_);
     case FieldValue::Type::Reference:
+      return util::Hash(*reference_value_);
     case FieldValue::Type::GeoPoint:
+      return util::Hash(geo_point_value_->latitude(),
+                        geo_point_value_->longitude());
     case FieldValue::Type::Array:
+      return util::Hash(*array_value_);
     case FieldValue::Type::Object:
-      HARD_FAIL("TODO(rsgowman): Implement");
+      return HashObject(*object_value_);
   }
 
   UNREACHABLE();
@@ -601,6 +629,10 @@ std::string ObjectValue::ToString() const {
 
 std::ostream& operator<<(std::ostream& os, const ObjectValue& value) {
   return os << value.ToString();
+}
+
+size_t ObjectValue::Hash() const {
+  return fv_.Hash();
 }
 
 }  // namespace model
