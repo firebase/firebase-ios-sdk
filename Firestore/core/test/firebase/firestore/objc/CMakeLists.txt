@@ -1,4 +1,4 @@
-# Copyright 2017 Google
+# Copyright 2019 Google
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,20 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cc_test(
-  firebase_firestore_objc_test
-  SOURCES
-    objc_type_traits_apple_test.mm
-  DEPENDS
-    firebase_firestore_objc
-    firebase_firestore_util
-)
-
 if(APPLE)
-  target_sources(
-    firebase_firestore_objc_test PRIVATE
-    objc_class_test.cc
-    objc_class_test_helper.h
-    objc_class_test_helper.mm
+  cc_test(
+    firebase_firestore_objc_test
+    SOURCES
+      objc_class_test.cc
+      objc_class_test_helper.h
+      objc_class_test_helper.mm
+      objc_type_traits_apple_test.mm
+    DEPENDS
+      firebase_firestore_objc
+      firebase_firestore_util
   )
 endif()
