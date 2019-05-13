@@ -66,13 +66,12 @@ class GeoPoint {
    * don't rely on the format of the string.
    */
   std::string ToString() const;
+  friend std::ostream& operator<<(std::ostream& out, const GeoPoint& geo_point);
 
  private:
   double latitude_;
   double longitude_;
 };
-
-std::ostream& operator<<(std::ostream& out, const GeoPoint& geo_point);
 
 /** Compares against another GeoPoint. */
 bool operator<(const GeoPoint& lhs, const GeoPoint& rhs);
