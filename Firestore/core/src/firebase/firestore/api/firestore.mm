@@ -150,12 +150,13 @@ void Firestore::Shutdown(util::StatusCallback callback) {
 
 void Firestore::ClearPersistence(util::StatusCallback callback) {
   if (client_running_) {
-    ThrowIllegalState("Persistence cannot be cleared while the client is running.");
+    ThrowIllegalState(
+        "Persistence cannot be cleared while the client is running.");
   }
-  worker_queue()->Enqueue([this, callback]{
+  worker_queue()->Enqueue([this, callback] {
     util::Status status = [FSTLevelDB clearPersistence];
     if (callback) {
-      this -> user_executor_ -> Execute([=] { callback(status); });
+      this->user_executor_->Execute([=] { callback(status); });
     }
   });
 }
