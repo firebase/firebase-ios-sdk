@@ -666,8 +666,7 @@ NS_ASSUME_NONNULL_BEGIN
       }
 
       case GCFSDocumentTransform_FieldTransform_TransformType_OneOfCase_Increment: {
-        FSTNumberValue *operand =
-            static_cast<FSTNumberValue *>([self decodedFieldValue:proto.increment]);
+        FSTFieldValue *operand = [self decodedFieldValue:proto.increment];
         fieldTransforms.emplace_back(FieldPath::FromServerFormat(util::MakeString(proto.fieldPath)),
                                      absl::make_unique<NumericIncrementTransform>(operand));
         break;

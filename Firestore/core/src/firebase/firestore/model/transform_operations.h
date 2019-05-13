@@ -28,6 +28,7 @@
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 namespace firebase {
 namespace firestore {
@@ -247,8 +248,9 @@ class ArrayTransform : public TransformOperation {
  */
 class NumericIncrementTransform : public TransformOperation {
  public:
-  explicit NumericIncrementTransform(FSTNumberValue* operand)
+  explicit NumericIncrementTransform(FSTFieldValue* operand)
       : operand_(operand) {
+    HARD_ASSERT(FieldValue::IsNumber(operand.type));
   }
 
   Type type() const override {
@@ -283,7 +285,7 @@ class NumericIncrementTransform : public TransformOperation {
     return transformResult;
   }
 
-  FSTNumberValue* operand() const {
+  FSTFieldValue* operand() const {
     return operand_;
   }
 
@@ -308,7 +310,7 @@ class NumericIncrementTransform : public TransformOperation {
   }
 
  private:
-  FSTNumberValue* operand_;
+  FSTFieldValue* operand_;
 
   /**
    * Implements integer addition. Overflows are resolved to LONG_MAX/LONG_MIN.

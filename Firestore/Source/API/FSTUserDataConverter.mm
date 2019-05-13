@@ -350,8 +350,7 @@ NS_ASSUME_NONNULL_BEGIN
   } else if ([fieldValue isKindOfClass:[FSTNumericIncrementFieldValue class]]) {
     FSTNumericIncrementFieldValue *numericIncrementFieldValue =
         (FSTNumericIncrementFieldValue *)fieldValue;
-    FSTNumberValue *operand =
-        (FSTNumberValue *)[self parsedQueryValue:numericIncrementFieldValue.operand];
+    FSTFieldValue *operand = [self parsedQueryValue:numericIncrementFieldValue.operand];
     auto numeric_increment = absl::make_unique<NumericIncrementTransform>(operand);
 
     context.AddToFieldTransforms(*context.path(), std::move(numeric_increment));

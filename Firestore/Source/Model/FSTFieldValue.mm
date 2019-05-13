@@ -118,20 +118,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-#pragma mark - FSTNumberValue
-
-@implementation FSTNumberValue
-
-- (FSTTypeOrder)typeOrder {
-  return FSTTypeOrderNumber;
-}
-
-- (NSComparisonResult)compare:(FSTFieldValue *)other {
-  return NSOrderedSame;
-}
-
-@end
-
 #pragma mark - FSTTimestampValue
 
 @interface FSTTimestampValue ()

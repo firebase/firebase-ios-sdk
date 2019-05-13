@@ -105,13 +105,6 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
 @end
 
 /**
- * Base class inherited from by FSTIntegerValue and FSTDoubleValue. It implements proper number
- * comparisons between the two types.
- */
-@interface FSTNumberValue : FSTFieldValue <NSNumber *>
-@end
-
-/**
  * A timestamp value stored in Firestore.
  */
 @interface FSTTimestampValue : FSTFieldValue <FIRTimestamp *>
