@@ -32,6 +32,8 @@
 @class FIRQuery;
 @class FSTEventAccumulator;
 
+namespace util = firebase::firestore::util;
+
 NS_ASSUME_NONNULL_BEGIN
 
 #if __cplusplus
@@ -101,7 +103,7 @@ extern "C" {
 
 - (void)enableNetwork;
 
-- (firebase::firestore::util::AsyncQueue *)queueForFirestore:(FIRFirestore *)firestore;
+- (const std::shared_ptr<util::AsyncQueue> &)queueForFirestore:(FIRFirestore *)firestore;
 
 /**
  * "Blocks" the current thread/run loop until the block returns YES.

@@ -213,7 +213,7 @@ static bool runningAgainstEmulator = false;
   std::unique_ptr<AsyncQueue> workerQueue =
       absl::make_unique<AsyncQueue>(absl::make_unique<ExecutorLibdispatch>(queue));
 
-  FIRSetLoggerLevel(FIRLoggerLevelDebug);
+FIRSetLoggerLevel(FIRLoggerLevelDebug);
 
   FIRApp *app = AppForUnitTesting();
   std::unique_ptr<CredentialsProvider> credentials_provider =
@@ -432,7 +432,7 @@ static bool runningAgainstEmulator = false;
   [self awaitExpectations];
 }
 
-- (AsyncQueue *)queueForFirestore:(FIRFirestore *)firestore {
+- (const std::shared_ptr<util::AsyncQueue> &)queueForFirestore:(FIRFirestore *)firestore {
   return [firestore workerQueue];
 }
 
