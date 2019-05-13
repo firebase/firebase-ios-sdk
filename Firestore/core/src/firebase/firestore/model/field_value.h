@@ -41,24 +41,8 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-struct ServerTimestamp {
-  Timestamp local_write_time;
-  absl::optional<Timestamp> previous_value;
-
-  std::string ToString() const;
-  friend std::ostream& operator<<(std::ostream& os,
-                                  const ServerTimestamp& value);
-};
-
-struct ReferenceValue {
-  DocumentKey reference;
-  // Does not own the DatabaseId instance.
-  const DatabaseId* database_id;
-
-  std::string ToString() const;
-  friend std::ostream& operator<<(std::ostream& os,
-                                  const ReferenceValue& value);
-};
+struct ReferenceValue;
+struct ServerTimestamp;
 
 /**
  * tagged-union class representing an immutable data value as stored in
@@ -189,7 +173,7 @@ class FieldValue : public util::Comparable<FieldValue> {
   static FieldValue FromDouble(double value);
   static FieldValue FromTimestamp(const Timestamp& value);
   static FieldValue FromServerTimestamp(const Timestamp& local_write_time,
-                                        const Timestamp& previous_value);
+                                        const FieldValue& previous_value);
   static FieldValue FromServerTimestamp(const Timestamp& local_write_time);
   static FieldValue FromString(const char* value);
   static FieldValue FromString(const std::string& value);
@@ -305,6 +289,25 @@ class ObjectValue : public util::Comparable<ObjectValue> {
                        const FieldValue& value) const;
 
   FieldValue fv_;
+};
+
+struct ServerTimestamp {
+  Timestamp local_write_time;
+  absl::optional<FieldValue> previous_value;
+
+  std::string ToString() const;
+  friend std::ostream& operator<<(std::ostream& os,
+                                  const ServerTimestamp& value);
+};
+
+struct ReferenceValue {
+  DocumentKey reference;
+  // Does not own the DatabaseId instance.
+  const DatabaseId* database_id;
+
+  std::string ToString() const;
+  friend std::ostream& operator<<(std::ostream& os,
+                                  const ReferenceValue& value);
 };
 
 }  // namespace model

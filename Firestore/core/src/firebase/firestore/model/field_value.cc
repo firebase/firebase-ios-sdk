@@ -284,7 +284,7 @@ FieldValue FieldValue::FromTimestamp(const Timestamp& value) {
 }
 
 FieldValue FieldValue::FromServerTimestamp(const Timestamp& local_write_time,
-                                           const Timestamp& previous_value) {
+                                           const FieldValue& previous_value) {
   FieldValue result;
   result.SwitchTo(Type::ServerTimestamp);
   result.server_timestamp_value_->local_write_time = local_write_time;
