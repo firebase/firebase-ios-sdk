@@ -188,8 +188,6 @@ class FieldValue : public util::Comparable<FieldValue> {
   static FieldValue FromArray(std::vector<FieldValue>&& value);
   static FieldValue FromMap(const Map& value);
   static FieldValue FromMap(Map&& value);
-  static FieldValue FromMap(
-      std::initializer_list<std::pair<std::string, FieldValue>> value);
 
   size_t Hash() const;
 
@@ -307,7 +305,7 @@ struct ServerTimestamp {
 struct ReferenceValue {
   DocumentKey reference;
   // Does not own the DatabaseId instance.
-  const DatabaseId* database_id;
+  const DatabaseId* database_id = nullptr;
 
   std::string ToString() const;
   friend std::ostream& operator<<(std::ostream& os,

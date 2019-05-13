@@ -131,8 +131,6 @@ FieldValue& FieldValue::operator=(const FieldValue& value) {
       std::swap(*object_value_, tmp);
       break;
     }
-    default:
-      HARD_FAIL("Unsupported type %s", value.type());
   }
   return *this;
 }
@@ -390,12 +388,6 @@ FieldValue FieldValue::FromMap(FieldValue::Map&& value) {
   return result;
 }
 
-FieldValue FieldValue::FromMap(
-    std::initializer_list<std::pair<std::string, FieldValue>> value) {
-  Map wrapped{std::move(value)};
-  return FromMap(std::move(wrapped));
-}
-
 static size_t HashObject(const FieldValue::Map& object) {
   size_t result = 0;
   for (auto&& entry : object) {
@@ -492,12 +484,9 @@ ComparisonResult FieldValue::CompareTo(const FieldValue& rhs) const {
       return CompareContainer(*array_value_, *rhs.array_value_);
     case Type::Object:
       return CompareContainer(*object_value_, *rhs.object_value_);
-    default:
-      HARD_FAIL("Unsupported type %s", type());
-      // return false if assertion does not abort the program. We will say
-      // each unsupported type takes only one value thus everything is equal.
-      return ComparisonResult::Same;
   }
+
+  UNREACHABLE();
 }
 
 std::string FieldValue::ToString() const {
@@ -527,12 +516,9 @@ std::string FieldValue::ToString() const {
       return util::ToString(*array_value_);
     case Type::Object:
       return util::ToString(*object_value_);
-    default:
-      HARD_FAIL("Unsupported type %s", type());
-      // return false if assertion does not abort the program. We will say
-      // each unsupported type takes only one value thus everything is equal.
-      return {};
   }
+
+  UNREACHABLE();
 }
 
 std::ostream& operator<<(std::ostream& os, const FieldValue& value) {
