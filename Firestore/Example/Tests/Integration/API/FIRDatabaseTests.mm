@@ -1247,14 +1247,14 @@ using firebase::firestore::util::TimerId;
   FIRApp *app = firestore.app;
   NSString *appName = app.name;
   FIROptions *options = app.options;
-
   NSDictionary<NSString *, id> *initialData =
       @{@"desc" : @"Description", @"owner" : @{@"name" : @"Jonny", @"email" : @"abc@xyz.com"}};
   [self writeDocumentRef:doc data:initialData];
+
+  // Shutdown firestore and delete the app.
   [firestore shutdownWithCompletion:[self completionForExpectationWithName:@"Shutdown"]];
   [self awaitExpectations];
   [self.firestores removeObject:firestore];
-
   XCTestExpectation *expectation = [self expectationWithDescription:@"Delete app"];
   [app deleteApp:^(BOOL completion) {
     XCTAssertTrue(completion);
@@ -1262,11 +1262,13 @@ using firebase::firestore::util::TimerId;
   }];
   [self awaitExpectations];
 
+  // Reconfigure the app and assert that persistent storage persisted.
   [FIRApp configureWithName:appName options:options];
-  FIRFirestore *firestore2 = self.firestore;
+  FIRApp *app2 = [FIRApp appNamed:appName];
+  FIRFirestore *firestore2 = [self firestoreWithApp:app2];
   FIRDocumentReference *docRef2 = [firestore2 documentWithPath:doc.path];
   XCTestExpectation *expectation2 = [self expectationWithDescription:@"getData"];
-  [docRef2 getDocumentWithSource:FIRFirestoreSourceDefault
+  [docRef2 getDocumentWithSource:FIRFirestoreSourceCache
                   completion:^(FIRDocumentSnapshot *doc2, NSError *_Nullable error) {
                     XCTAssertNil(error);
                     XCTAssertTrue(doc2.exists);
@@ -1281,17 +1283,17 @@ using firebase::firestore::util::TimerId;
   FIRApp *app = firestore.app;
   NSString *appName = app.name;
   FIROptions *options = app.options;
-
   NSDictionary<NSString *, id> *initialData =
       @{@"desc" : @"Description", @"owner" : @{@"name" : @"Jonny", @"email" : @"abc@xyz.com"}};
   [self writeDocumentRef:doc data:initialData];
+
+  // Shutdown firestore and delete the app.
   [firestore shutdownWithCompletion:[self completionForExpectationWithName:@"Shutdown"]];
   [self awaitExpectations];
   [firestore
       clearPersistenceWithCompletion:[self completionForExpectationWithName:@"Enable network"]];
   [self awaitExpectations];
   [self.firestores removeObject:firestore];
-
   XCTestExpectation *expectation = [self expectationWithDescription:@"Delete app"];
   [app deleteApp:^(BOOL completion) {
     XCTAssertTrue(completion);
@@ -1299,8 +1301,10 @@ using firebase::firestore::util::TimerId;
   }];
   [self awaitExpectations];
 
+  // Reconfigure the app and assert that persistence was cleared.
   [FIRApp configureWithName:appName options:options];
-  FIRFirestore *firestore2 = self.firestore;
+  FIRApp *app2 = [FIRApp appNamed:appName];
+  FIRFirestore *firestore2 = [self firestoreWithApp:app2];
   FIRDocumentReference *docRef2 = [firestore2 documentWithPath:doc.path];
   XCTestExpectation *expectation2 = [self expectationWithDescription:@"getData"];
   [docRef2 getDocumentWithSource:FIRFirestoreSourceCache
