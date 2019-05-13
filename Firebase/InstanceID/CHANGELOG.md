@@ -1,5 +1,6 @@
 # 2019-05-21 -- 4.1.0
-- Fix race condition checkin is deleted before writing during app start. This cleans up the corrupted checkin and fixes #2438. (#2860)
+- Fix a race condition where checkin is deleted before writing during app start. This cleans up the corrupted checkin and fixes #2438. (#2860)
+- Fix a keychain migration crash (#2731)
 - Remove reflection call to get checkin info from Firebase Messaging and calling the private API directly. (#2825)
 
 # 2019-05-07 -- 4.0.0
