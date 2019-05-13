@@ -414,7 +414,7 @@ size_t FieldValue::Hash() const {
     case FieldValue::Type::Integer:
       return util::Hash(integer_value_);
     case FieldValue::Type::Double:
-      return util::Hash(double_value_);
+      return util::DoubleBitwiseHash(double_value_);
     case FieldValue::Type::Timestamp:
       return util::Hash(timestamp_value_->seconds(),
                         timestamp_value_->nanoseconds());
