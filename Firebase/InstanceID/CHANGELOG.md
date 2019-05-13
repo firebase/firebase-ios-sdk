@@ -1,3 +1,7 @@
+# 2019-05-21 -- 4.1.0
+- Fix race condition checkin is deleted before writing during app start. This cleans up the corrupted checkin and fixes #2438. (#2860)
+- Remove reflection call to get checkin info from Firebase Messaging and calling the private API directly. (#2825)
+
 # 2019-05-07 -- 4.0.0
 - Remove deprecated `token` method. Use `instanceIDWithHandler:` instead. (#2741)
 - Send `firebaseUserAgent` with a register request (#2679)
