@@ -365,12 +365,8 @@ NSString *FIRInstanceIDCreationTimeKeyWithSubtype(NSString *subtype) {
   self.keyPair = keyPair;
 
   // Either new key pair doesn't exist or it's different than legacy key pair, start the migration.
-
-  // Use a dispatch group to call handler when both private and public keys are updated.
-  dispatch_group_t dispatchGroup = dispatch_group_create();
   __block NSError *updateKeyRefError;
 
-  dispatch_group_enter(dispatchGroup);
   NSString *privateKeyTag = FIRInstanceIDPrivateTagWithSubtype(kFIRInstanceIDKeyPairSubType);
   [self updateKeyRef:keyPair.publicKey
              withTag:publicKeyTag
@@ -380,10 +376,8 @@ NSString *FIRInstanceIDCreationTimeKeyWithSubtype(NSString *subtype) {
                                           @"Unable to migrate key pair from legacy ones.");
                  updateKeyRefError = error;
                }
-               dispatch_group_leave(dispatchGroup);
              }];
 
-  dispatch_group_enter(dispatchGroup);
   [self updateKeyRef:keyPair.privateKey
              withTag:privateKeyTag
              handler:^(NSError *error) {
@@ -392,16 +386,11 @@ NSString *FIRInstanceIDCreationTimeKeyWithSubtype(NSString *subtype) {
                                           @"Unable to migrate key pair from legacy ones.");
                  updateKeyRefError = error;
                }
-               dispatch_group_leave(dispatchGroup);
-             }];
 
-  dispatch_group_notify(dispatchGroup, dispatch_get_main_queue(), ^{
-    FIRInstanceIDLoggerDebug(kFIRInstanceIDMessageCodeKeyPairMigrationSuccess,
-                             @"Successfully migrated the key pair from legacy ones.");
-    if (handler) {
-      handler(updateKeyRefError);
-    }
-  });
+               if (handler) {
+                 handler(updateKeyRefError);
+               }
+             }];
 }
 
 // Used for migrating from legacy tags to updated tags. The legacy keychain is not deleted for
@@ -412,11 +401,8 @@ NSString *FIRInstanceIDCreationTimeKeyWithSubtype(NSString *subtype) {
              handler:(void (^)(NSError *error))handler {
   NSData *updatedTagData = [tag dataUsingEncoding:NSUTF8StringEncoding];
 
-  // Use a dispatch group to call handler when both operations completed.
-  dispatch_group_t dispatchGroup = dispatch_group_create();
   __block NSError *keychainError;
 
-  dispatch_group_enter(dispatchGroup);
   // Always delete the old keychain before adding a new one to avoid conflicts.
   NSDictionary *deleteQuery = @{
     (__bridge id)kSecAttrApplicationTag : updatedTagData,
@@ -429,10 +415,8 @@ NSString *FIRInstanceIDCreationTimeKeyWithSubtype(NSString *subtype) {
                                                         if (error) {
                                                           keychainError = error;
                                                         }
-                                                        dispatch_group_leave(dispatchGroup);
                                                       }];
 
-  dispatch_group_enter(dispatchGroup);
   NSDictionary *addQuery = @{
     (__bridge id)kSecAttrApplicationTag : updatedTagData,
     (__bridge id)kSecClass : (__bridge id)kSecClassKey,
@@ -444,14 +428,11 @@ NSString *FIRInstanceIDCreationTimeKeyWithSubtype(NSString *subtype) {
                                                      if (addError) {
                                                        keychainError = addError;
                                                      }
-                                                     dispatch_group_leave(dispatchGroup);
-                                                   }];
 
-  dispatch_group_notify(dispatchGroup, dispatch_get_main_queue(), ^{
-    if (handler) {
-      handler(keychainError);
-    }
-  });
+                                                     if (handler) {
+                                                       handler(keychainError);
+                                                     }
+                                                   }];
 }
 
 - (void)deleteSavedKeyPairWithSubtype:(NSString *)subtype
@@ -511,34 +492,26 @@ NSString *FIRInstanceIDCreationTimeKeyWithSubtype(NSString *subtype) {
   NSDictionary *queryPublicKey = FIRInstanceIDKeyPairQuery(publicTag, NO, NO);
   NSDictionary *queryPrivateKey = FIRInstanceIDKeyPairQuery(privateTag, NO, NO);
 
-  // Use a dispatch group to call handler when both private and public keys are updated.
-  dispatch_group_t dispatchGroup = dispatch_group_create();
   __block NSError *keychainError;
 
   // Always remove public key first because it is the key we generate IID.
-  dispatch_group_enter(dispatchGroup);
   [[FIRInstanceIDKeychain sharedInstance] removeItemWithQuery:queryPublicKey
                                                       handler:^(NSError *error) {
                                                         if (error) {
                                                           keychainError = error;
                                                         }
-                                                        dispatch_group_leave(dispatchGroup);
                                                       }];
 
-  dispatch_group_enter(dispatchGroup);
   [[FIRInstanceIDKeychain sharedInstance] removeItemWithQuery:queryPrivateKey
                                                       handler:^(NSError *error) {
                                                         if (error) {
                                                           keychainError = error;
                                                         }
-                                                        dispatch_group_leave(dispatchGroup);
-                                                      }];
 
-  dispatch_group_notify(dispatchGroup, dispatch_get_main_queue(), ^{
-    if (handler) {
-      handler(keychainError);
-    }
-  });
+                                                        if (handler) {
+                                                          handler(keychainError);
+                                                        }
+                                                      }];
 }
 
 - (BOOL)removeKeyPairCreationTimePlistWithError:(NSError *__autoreleasing *)error {
