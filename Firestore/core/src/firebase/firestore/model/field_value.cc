@@ -29,6 +29,7 @@
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
 #include "Firestore/core/src/firebase/firestore/util/to_string.h"
+#include "absl/algorithm/container.h"
 #include "absl/base/casts.h"
 #include "absl/memory/memory.h"
 #include "absl/strings/escaping.h"
@@ -41,6 +42,7 @@ using BaseValue = FieldValue::BaseValue;
 using Type = FieldValue::Type;
 
 using util::Compare;
+using util::CompareContainer;
 using util::ComparisonResult;
 
 template <typename T>
@@ -78,6 +80,13 @@ class NullValue : public FieldValue::BaseValue {
     return util::ToString(nullptr);
   }
 
+  bool Equals(const BaseValue& other) const override {
+    if (type() != other.type()) return false;
+
+    // NullValue is the only instance of itself
+    return true;
+  }
+
   ComparisonResult CompareTo(const BaseValue& other) const override {
     ComparisonResult cmp = CompareTypes(other);
     if (!util::Same(cmp)) return cmp;
@@ -106,11 +115,19 @@ class SimpleFieldValue : public FieldValue::BaseValue {
     return util::ToString(value_);
   }
 
+  bool Equals(const BaseValue& other) const override {
+    if (type() != other.type()) return false;
+
+    auto& other_value = Cast<SimpleFieldValue>(other);
+    return value_ == other_value.value();
+  }
+
   ComparisonResult CompareTo(const BaseValue& other) const override {
     ComparisonResult cmp = CompareTypes(other);
     if (!util::Same(cmp)) return cmp;
 
-    return Compare(value_, Cast<SimpleFieldValue>(other).value());
+    auto& other_value = Cast<SimpleFieldValue>(other);
+    return Compare(value_, other_value.value());
   }
 
   size_t Hash() const override {
@@ -146,6 +163,17 @@ class IntegerValue : public NumberValue<Type::Integer, int64_t> {
 class DoubleValue : public NumberValue<Type::Double, double> {
  public:
   using NumberValue<Type::Double, double>::NumberValue;
+
+  bool Equals(const BaseValue& other) const override {
+    if (type() != other.type()) return false;
+
+    auto& other_value = Cast<DoubleValue>(other);
+    return util::DoubleBitwiseEquals(value(), other_value.value());
+  }
+
+  size_t Hash() const override {
+    return util::DoubleBitwiseHash(value());
+  }
 };
 
 template <Type type_enum, typename ValueType>
@@ -193,6 +221,13 @@ class TimestampValue : public BaseValue {
     return util::ToString(value_);
   }
 
+  bool Equals(const BaseValue& other) const override {
+    if (type() != other.type()) return false;
+
+    auto& other_value = Cast<TimestampValue>(other);
+    return value_ == other_value.value_;
+  }
+
   ComparisonResult CompareTo(const BaseValue& other) const override {
     ComparisonResult cmp = CompareTypes(other);
     if (!util::Same(cmp)) return cmp;
@@ -235,6 +270,13 @@ class ServerTimestampValue : public FieldValue::BaseValue {
   std::string ToString() const override {
     std::string time = local_write_time_.ToString();
     return absl::StrCat("ServerTimestamp(local_write_time=", time, ")");
+  }
+
+  bool Equals(const BaseValue& other) const override {
+    if (type() != other.type()) return false;
+
+    auto& other_value = Cast<ServerTimestampValue>(other);
+    return local_write_time_ == other_value.local_write_time_;
   }
 
   ComparisonResult CompareTo(const BaseValue& other) const override {
@@ -298,6 +340,13 @@ class ReferenceValue : public FieldValue::BaseValue {
     return Type::Reference;
   }
 
+  bool Equals(const BaseValue& other) const override {
+    if (type() != other.type()) return false;
+
+    auto& other_value = Cast<ReferenceValue>(other);
+    return database_id_ == other_value.database_id_ && key_ == other_value.key_;
+  }
+
   ComparisonResult CompareTo(const BaseValue& other) const override {
     ComparisonResult cmp = CompareTypes(other);
     if (!util::Same(cmp)) return cmp;
@@ -335,6 +384,13 @@ class GeoPointValue : public BaseValue {
     return util::ToString(value_);
   }
 
+  bool Equals(const BaseValue& other) const override {
+    if (type() != other.type()) return false;
+
+    auto& other_value = Cast<GeoPointValue>(other);
+    return value_ == other_value.value_;
+  }
+
   ComparisonResult CompareTo(const BaseValue& other) const override {
     ComparisonResult cmp = CompareTypes(other);
     if (!util::Same(cmp)) return cmp;
@@ -362,6 +418,13 @@ class ArrayContents : public FieldValue::BaseValue {
 
   Type type() const override {
     return Type::Array;
+  }
+
+  bool Equals(const BaseValue& other) const override {
+    if (type() != other.type()) return false;
+
+    auto& other_value = Cast<ArrayContents>(other);
+    return absl::c_equal(value_, other_value.value_);
   }
 
   ComparisonResult CompareTo(const BaseValue& other) const override {
@@ -395,6 +458,13 @@ class MapContents : public FieldValue::BaseValue {
 
   Type type() const override {
     return Type::Object;
+  }
+
+  bool Equals(const BaseValue& other) const override {
+    if (type() != other.type()) return false;
+
+    auto& other_value = Cast<MapContents>(other);
+    return absl::c_equal(value_, other_value.value_);
   }
 
   ComparisonResult CompareTo(const BaseValue& other) const override {
@@ -657,6 +727,10 @@ FieldValue FieldValue::FromMap(const Map& value) {
 
 FieldValue FieldValue::FromMap(FieldValue::Map&& value) {
   return FieldValue(std::make_shared<MapContents>(std::move(value)));
+}
+
+bool operator==(const FieldValue& lhs, const FieldValue& rhs) {
+  return lhs.rep_->Equals(*rhs.rep_);
 }
 
 std::ostream& operator<<(std::ostream& os, const FieldValue& value) {

@@ -50,7 +50,7 @@ ABSL_CONST_INIT extern const uint64_t kCanonicalNanBits;
  * Firestore. FieldValue represents all the different kinds of values
  * that can be stored in fields in a document.
  */
-class FieldValue : public util::Comparable<FieldValue> {
+class FieldValue {
  public:
   using Array = std::vector<FieldValue>;
   using Map = immutable::SortedMap<std::string, FieldValue>;
@@ -157,6 +157,8 @@ class FieldValue : public util::Comparable<FieldValue> {
     return rep_->CompareTo(*rhs.rep_);
   }
 
+  friend bool operator==(const FieldValue& lhs, const FieldValue& rhs);
+
   std::string ToString() const {
     return rep_->ToString();
   }
@@ -171,6 +173,8 @@ class FieldValue : public util::Comparable<FieldValue> {
     virtual Type type() const = 0;
 
     virtual std::string ToString() const = 0;
+
+    virtual bool Equals(const BaseValue& other) const = 0;
 
     virtual util::ComparisonResult CompareTo(const BaseValue& other) const = 0;
 
@@ -250,6 +254,24 @@ class ObjectValue : public util::Comparable<ObjectValue> {
 
   FieldValue fv_;
 };
+
+inline bool operator!=(const FieldValue& lhs, const FieldValue& rhs) {
+  // See operator== for why this isn't using util::Same().
+  return !(lhs == rhs);
+}
+
+inline bool operator<(const FieldValue& lhs, const FieldValue& rhs) {
+  return util::Ascending(lhs.CompareTo(rhs));
+}
+inline bool operator>(const FieldValue& lhs, const FieldValue& rhs) {
+  return util::Descending(lhs.CompareTo(rhs));
+}
+inline bool operator<=(const FieldValue& lhs, const FieldValue& rhs) {
+  return !(rhs < lhs);
+}
+inline bool operator>=(const FieldValue& lhs, const FieldValue& rhs) {
+  return !(lhs < rhs);
+}
 
 }  // namespace model
 }  // namespace firestore
