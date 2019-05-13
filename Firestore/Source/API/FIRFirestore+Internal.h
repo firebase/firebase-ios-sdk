@@ -44,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
                          database:(std::string)database
                    persistenceKey:(std::string)persistenceKey
               credentialsProvider:(std::unique_ptr<auth::CredentialsProvider>)credentialsProvider
-                      workerQueue:(std::unique_ptr<util::AsyncQueue>)workerQueue
+                      workerQueue:(std::shared_ptr<util::AsyncQueue>)workerQueue
                       firebaseApp:(FIRApp *)app;
 @end
 
@@ -65,7 +65,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)shutdownWithCompletion:(nullable void (^)(NSError *_Nullable error))completion
     NS_SWIFT_NAME(shutdown(completion:));
 
-- (const std::shared_ptr<util::AsyncQueue>&) workerQueue;
+- (const std::shared_ptr<util::AsyncQueue> &)workerQueue;
 
 @property(nonatomic, assign, readonly) std::shared_ptr<api::Firestore> wrapped;
 

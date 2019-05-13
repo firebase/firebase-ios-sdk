@@ -277,7 +277,7 @@ NS_ASSUME_NONNULL_BEGIN
   return _firestore;
 }
 
-- (const std::shared_ptr<util::AsyncQueue>&)workerQueue {
+- (const std::shared_ptr<util::AsyncQueue> &)workerQueue {
   return _firestore->worker_queue();
 }
 
