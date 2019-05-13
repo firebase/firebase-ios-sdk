@@ -82,6 +82,4 @@ extern NSString *const kFIRInstanceIDKeyPairSubType;
  */
 - (NSString *)appIdentityWithError:(NSError *__autoreleasing *)error;
 
-- (void)waitForAllAperationsToComplete:(dispatch_block_t)handler;
-
 @end

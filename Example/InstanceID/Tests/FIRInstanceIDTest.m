@@ -104,8 +104,6 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   self.instanceID = nil;
   self.mockTokenManager = nil;
   self.mockInstanceID = nil;
-  self.mockKeyPairStore = nil;
-
   [super tearDown];
 }
 
@@ -121,14 +119,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   self.mockTokenManager = OCMClassMock([FIRInstanceIDTokenManager class]);
   [[[self.mockTokenManager stub] andReturn:self.mockAuthService] authService];
 
-  XCTestExpectation *keyStoreOperationsFinished =
-      [self expectationWithDescription:@"keyStoreOperationsFinished"];
-  [self.instanceID.keyPairStore waitForAllAperationsToComplete:^{
-    [keyStoreOperationsFinished fulfill];
-  }];
-  [self waitForExpectations:@[ keyStoreOperationsFinished ] timeout:100];
   self.mockKeyPairStore = OCMClassMock([FIRInstanceIDKeyPairStore class]);
-
   _instanceID.fcmSenderID = kAuthorizedEntity;
   self.mockInstanceID = OCMPartialMock(_instanceID);
   [self.mockInstanceID setTokenManager:self.mockTokenManager];
