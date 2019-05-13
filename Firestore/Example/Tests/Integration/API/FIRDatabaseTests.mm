@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseFirestore/FirebaseFirestore.h>
 
 #import <XCTest/XCTest.h>
@@ -1238,6 +1239,92 @@ using firebase::firestore::util::TimerId;
         }];
       },
       NSException, @"The client has already been shutdown.");
+}
+
+- (void)testMaintainsPersistenceAfterRestarting {
+  FIRDocumentReference *doc = [self documentRef];
+  FIRFirestore *firestore = doc.firestore;
+  FIRApp *app = firestore.app;
+  NSString *appName = app.name;
+  FIROptions *options = app.options;
+
+  NSDictionary<NSString *, id> *initialData =
+      @{@"desc" : @"Description", @"owner" : @{@"name" : @"Jonny", @"email" : @"abc@xyz.com"}};
+  [self writeDocumentRef:doc data:initialData];
+  [firestore shutdownWithCompletion:[self completionForExpectationWithName:@"Shutdown"]];
+  [self awaitExpectations];
+  [self.firestores removeObject:firestore];
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"Delete app"];
+  [app deleteApp:^(BOOL completion) {
+    XCTAssertTrue(completion);
+    [expectation fulfill];
+  }];
+  [self awaitExpectations];
+
+  [FIRApp configureWithName:appName options:options];
+  FIRFirestore *firestore2 = self.firestore;
+  FIRDocumentReference *docRef2 = [firestore2 documentWithPath:doc.path];
+  XCTestExpectation *expectation2 = [self expectationWithDescription:@"getData"];
+  [docRef2 getDocumentWithSource:FIRFirestoreSourceDefault
+                  completion:^(FIRDocumentSnapshot *doc2, NSError *_Nullable error) {
+                    XCTAssertNil(error);
+                    XCTAssertTrue(doc2.exists);
+                    [expectation2 fulfill];
+                  }];
+  [self awaitExpectations];
+}
+
+- (void)testCanClearPersistenceAfterRestarting {
+  FIRDocumentReference *doc = [self documentRef];
+  FIRFirestore *firestore = doc.firestore;
+  FIRApp *app = firestore.app;
+  NSString *appName = app.name;
+  FIROptions *options = app.options;
+
+  NSDictionary<NSString *, id> *initialData =
+      @{@"desc" : @"Description", @"owner" : @{@"name" : @"Jonny", @"email" : @"abc@xyz.com"}};
+  [self writeDocumentRef:doc data:initialData];
+  [firestore shutdownWithCompletion:[self completionForExpectationWithName:@"Shutdown"]];
+  [self awaitExpectations];
+  [firestore
+      clearPersistenceWithCompletion:[self completionForExpectationWithName:@"Enable network"]];
+  [self awaitExpectations];
+  [self.firestores removeObject:firestore];
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"Delete app"];
+  [app deleteApp:^(BOOL completion) {
+    XCTAssertTrue(completion);
+    [expectation fulfill];
+  }];
+  [self awaitExpectations];
+
+  [FIRApp configureWithName:appName options:options];
+  FIRFirestore *firestore2 = self.firestore;
+  FIRDocumentReference *docRef2 = [firestore2 documentWithPath:doc.path];
+  XCTestExpectation *expectation2 = [self expectationWithDescription:@"getData"];
+  [docRef2 getDocumentWithSource:FIRFirestoreSourceCache
+                      completion:^(FIRDocumentSnapshot *doc2, NSError *_Nullable error) {
+                        XCTAssertNotNil(error);
+                        XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
+                        XCTAssertEqual(error.code, FIRFirestoreErrorCodeUnavailable);
+                        [expectation2 fulfill];
+                     }];
+  [self awaitExpectations];
+}
+
+- (void)testClearPersistenceWhileRunningFails {
+  FIRDocumentReference *doc = [self documentRef];
+  FIRFirestore *firestore = doc.firestore;
+
+  [firestore enableNetworkWithCompletion:[self completionForExpectationWithName:@"Enable network"]];
+  [self awaitExpectations];
+  XCTAssertThrowsSpecific(
+      {
+        [firestore clearPersistenceWithCompletion:^(NSError *error){
+        }];
+      },
+      NSException, @"Persistence cannot be cleared while the client is running.");
 }
 
 @end

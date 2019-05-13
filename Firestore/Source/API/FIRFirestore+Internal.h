@@ -65,6 +65,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)shutdownWithCompletion:(nullable void (^)(NSError *_Nullable error))completion
     NS_SWIFT_NAME(shutdown(completion:));
 
+- (void)clearPersistenceWithCompletion:(nullable void (^)(NSError *_Nullable error))completion;
+
 - (const std::shared_ptr<util::AsyncQueue> &)workerQueue;
 
 @property(nonatomic, assign, readonly) std::shared_ptr<api::Firestore> wrapped;
