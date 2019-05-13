@@ -4,8 +4,9 @@
 - [fixed] Disabling garbage collection now avoids even scheduling the
   collection process. This can be used to prevent crashes in the background when
   using `NSFileProtectionComplete`. Note that Firestore does not support
-  operating in this mode--nearly all API calls will fail while file protection
-  is enabled. This change just prevents a crash when Firestore is idle (#2846).
+  operating in this mode--nearly all API calls will cause crashes while file
+  protection is enabled. This change just prevents a crash when Firestore is
+  idle (#2846).
 
 # 1.3.0
 - [feature] You can now query across all collections in your database with a
