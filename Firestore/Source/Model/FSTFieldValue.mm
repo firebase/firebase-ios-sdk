@@ -386,11 +386,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (id)valueWithOptions:(const FieldValueOptions &)options {
   switch (options.server_timestamp_behavior()) {
-    case ServerTimestampBehavior::None:
+    case ServerTimestampBehavior::kNone:
       return [NSNull null];
-    case ServerTimestampBehavior::Estimate:
+    case ServerTimestampBehavior::kEstimate:
       return [[FSTTimestampValue timestampValue:self.localWriteTime] valueWithOptions:options];
-    case ServerTimestampBehavior::Previous:
+    case ServerTimestampBehavior::kPrevious:
       return self.previousValue ? [self.previousValue valueWithOptions:options] : [NSNull null];
     default:
       HARD_FAIL("Unexpected server timestamp option: %s", options.server_timestamp_behavior());

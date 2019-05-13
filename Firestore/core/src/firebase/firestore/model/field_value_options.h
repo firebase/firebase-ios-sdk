@@ -22,7 +22,7 @@ namespace firestore {
 namespace model {
 
 /** Defines the return value for pending server timestamps. */
-enum class ServerTimestampBehavior { None, Estimate, Previous };
+enum class ServerTimestampBehavior { kNone, kEstimate, kPrevious };
 
 /** Holds properties that define field value deserialization options. */
 class FieldValueOptions {

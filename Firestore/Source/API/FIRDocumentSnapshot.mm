@@ -60,11 +60,11 @@ namespace {
 ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavior behavior) {
   switch (behavior) {
     case FIRServerTimestampBehaviorNone:
-      return ServerTimestampBehavior::None;
+      return ServerTimestampBehavior::kNone;
     case FIRServerTimestampBehaviorEstimate:
-      return ServerTimestampBehavior::Estimate;
+      return ServerTimestampBehavior::kEstimate;
     case FIRServerTimestampBehaviorPrevious:
-      return ServerTimestampBehavior::Previous;
+      return ServerTimestampBehavior::kPrevious;
     default:
       HARD_FAIL("Unexpected server timestamp option: %s", behavior);
   }
