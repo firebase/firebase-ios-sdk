@@ -84,7 +84,7 @@ struct ZipBuilder {
 
     /// The path to a directory to move all build logs to. If nil, a temporary directory will be
     /// used.
-    var logOutputDir: URL?
+    var logsOutputDir: URL?
 
     /// Default initializer with all required paths.
     init(templateDir: URL, coreDiagnosticsDir: URL) {
@@ -709,7 +709,7 @@ struct ZipBuilder {
                                                version: pod.version,
                                                cacheKey: pod.cacheKey,
                                                cacheEnabled: useCache,
-                                               logOutputDir: paths.logOutputDir)
+                                               logsOutputDir: paths.logsOutputDir)
 
         frameworks = [framework]
       } else {
