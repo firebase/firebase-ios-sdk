@@ -20,6 +20,8 @@
 
 #import <FirebaseCore/FIRAppInternal.h>
 
+#import <FirebaseCore/FIRAppInternal.h>
+
 #import "Firestore/Example/Tests/Util/XCTestCase+Await.h"
 
 #import "FIRFirestoreSource.h"
@@ -58,6 +60,9 @@ extern "C" {
 
 /** Returns a new Firestore connected to the project with the given projectID. */
 - (FIRFirestore *)firestoreWithProjectID:(NSString *)projectID;
+
+/** Returns a new Firestore connected to the project with the given app */
+- (FIRFirestore *)firestoreWithApp:(FIRApp *)app;
 
 /** Synchronously shuts down the given firestore. */
 - (void)shutdownFirestore:(FIRFirestore *)firestore;
