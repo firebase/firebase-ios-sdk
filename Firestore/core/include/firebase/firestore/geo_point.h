@@ -17,6 +17,9 @@
 #ifndef FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_GEO_POINT_H_
 #define FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_GEO_POINT_H_
 
+#include <iosfwd>
+#include <string>
+
 namespace firebase {
 namespace firestore {
 
@@ -54,6 +57,16 @@ class GeoPoint {
   double longitude() const {
     return longitude_;
   }
+
+  /**
+   * Returns a string representation of this `GeoPoint` for logging/debugging
+   * purposes.
+   *
+   * Note: the exact string representation is unspecified and subject to change;
+   * don't rely on the format of the string.
+   */
+  std::string ToString() const;
+  friend std::ostream& operator<<(std::ostream& out, const GeoPoint& geo_point);
 
  private:
   double latitude_;

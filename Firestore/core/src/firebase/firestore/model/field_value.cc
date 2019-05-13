@@ -18,6 +18,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <iostream>
 #include <memory>
 #include <new>
 #include <utility>
@@ -27,7 +28,9 @@
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
+#include "Firestore/core/src/firebase/firestore/util/to_string.h"
 #include "absl/memory/memory.h"
+#include "absl/strings/escaping.h"
 
 namespace firebase {
 namespace firestore {
@@ -37,6 +40,37 @@ using Type = FieldValue::Type;
 
 using util::Compare;
 using util::ComparisonResult;
+
+std::string ServerTimestamp::ToString() const {
+  std::string time = local_write_time.ToString();
+  return absl::StrCat("ServerTimestamp(local_write_time=", time, ")");
+}
+
+std::ostream& operator<<(std::ostream& os, const ServerTimestamp& value) {
+  return os << value.ToString();
+}
+
+size_t ServerTimestamp::Hash() const {
+  size_t result =
+      util::Hash(local_write_time.seconds(), local_write_time.nanoseconds());
+
+  if (previous_value) {
+    result = util::Hash(result, *previous_value);
+  }
+  return result;
+}
+
+std::string ReferenceValue::ToString() const {
+  return absl::StrCat("Reference(key=", reference.ToString(), ")");
+}
+
+std::ostream& operator<<(std::ostream& os, const ReferenceValue& value) {
+  return os << value.ToString();
+}
+
+size_t ReferenceValue::Hash() const {
+  return util::Hash(reference, *database_id);
+}
 
 FieldValue::FieldValue(const FieldValue& value) {
   *this = value;
@@ -97,8 +131,6 @@ FieldValue& FieldValue::operator=(const FieldValue& value) {
       std::swap(*object_value_, tmp);
       break;
     }
-    default:
-      HARD_FAIL("Unsupported type %s", value.type());
   }
   return *this;
 }
@@ -210,6 +242,14 @@ ObjectValue ObjectValue::SetChild(const std::string& child_name,
   return ObjectValue::FromMap(fv_.object_value_->insert(child_name, value));
 }
 
+absl::string_view FieldValue::blob_value_as_string_view() const {
+  const std::vector<uint8_t>& blob = blob_value();
+
+  // string_view accepts const char*, but treats it internally as unsigned.
+  auto data = reinterpret_cast<const char*>(blob.data());
+  return absl::string_view(data, blob.size());
+}
+
 FieldValue FieldValue::Null() {
   return FieldValue();
 }
@@ -256,7 +296,7 @@ FieldValue FieldValue::FromTimestamp(const Timestamp& value) {
 }
 
 FieldValue FieldValue::FromServerTimestamp(const Timestamp& local_write_time,
-                                           const Timestamp& previous_value) {
+                                           const FieldValue& previous_value) {
   FieldValue result;
   result.SwitchTo(Type::ServerTimestamp);
   result.server_timestamp_value_->local_write_time = local_write_time;
@@ -348,29 +388,43 @@ FieldValue FieldValue::FromMap(FieldValue::Map&& value) {
   return result;
 }
 
+static size_t HashObject(const FieldValue::Map& object) {
+  size_t result = 0;
+  for (auto&& entry : object) {
+    result = util::Hash(result, entry.first, entry.second);
+  }
+  return result;
+}
+
 size_t FieldValue::Hash() const {
   switch (type()) {
     case FieldValue::Type::Null:
-      HARD_FAIL("TODO(rsgowman): Implement");
-
+      // std::hash is not defined for nullptr_t.
+      return util::Hash(static_cast<void*>(nullptr));
     case FieldValue::Type::Boolean:
-      return util::Hash(boolean_value());
-
+      return util::Hash(boolean_value_);
     case FieldValue::Type::Integer:
+      return util::Hash(integer_value_);
     case FieldValue::Type::Double:
+      return util::DoubleBitwiseHash(double_value_);
     case FieldValue::Type::Timestamp:
+      return util::Hash(timestamp_value_->seconds(),
+                        timestamp_value_->nanoseconds());
     case FieldValue::Type::ServerTimestamp:
-      HARD_FAIL("TODO(rsgowman): Implement");
-
+      return util::Hash(*server_timestamp_value_);
     case FieldValue::Type::String:
-      return util::Hash(string_value());
-
+      return util::Hash(*string_value_);
     case FieldValue::Type::Blob:
+      return util::Hash(*blob_value_);
     case FieldValue::Type::Reference:
+      return util::Hash(*reference_value_);
     case FieldValue::Type::GeoPoint:
+      return util::Hash(geo_point_value_->latitude(),
+                        geo_point_value_->longitude());
     case FieldValue::Type::Array:
+      return util::Hash(*array_value_);
     case FieldValue::Type::Object:
-      HARD_FAIL("TODO(rsgowman): Implement");
+      return HashObject(*object_value_);
   }
 
   UNREACHABLE();
@@ -430,12 +484,45 @@ ComparisonResult FieldValue::CompareTo(const FieldValue& rhs) const {
       return CompareContainer(*array_value_, *rhs.array_value_);
     case Type::Object:
       return CompareContainer(*object_value_, *rhs.object_value_);
-    default:
-      HARD_FAIL("Unsupported type %s", type());
-      // return false if assertion does not abort the program. We will say
-      // each unsupported type takes only one value thus everything is equal.
-      return ComparisonResult::Same;
   }
+
+  UNREACHABLE();
+}
+
+std::string FieldValue::ToString() const {
+  switch (tag_) {
+    case Type::Null:
+      return util::ToString(nullptr);
+    case Type::Boolean:
+      return util::ToString(boolean_value_);
+    case Type::Integer:
+      return util::ToString(integer_value_);
+    case Type::Double:
+      return util::ToString(double_value_);
+    case Type::Timestamp:
+      return util::ToString(*timestamp_value_);
+    case Type::ServerTimestamp:
+      return util::ToString(*server_timestamp_value_);
+    case Type::String:
+      return util::ToString(*string_value_);
+    case Type::Blob:
+      return absl::StrCat(
+          "<", absl::BytesToHexString(blob_value_as_string_view()), ">");
+    case Type::Reference:
+      return util::ToString(*reference_value_);
+    case Type::GeoPoint:
+      return util::ToString(*geo_point_value_);
+    case Type::Array:
+      return util::ToString(*array_value_);
+    case Type::Object:
+      return util::ToString(*object_value_);
+  }
+
+  UNREACHABLE();
+}
+
+std::ostream& operator<<(std::ostream& os, const FieldValue& value) {
+  return os << value.ToString();
 }
 
 void FieldValue::SwitchTo(const Type type) {
@@ -520,6 +607,18 @@ ObjectValue ObjectValue::FromMap(FieldValue::Map&& value) {
 
 ComparisonResult ObjectValue::CompareTo(const ObjectValue& rhs) const {
   return fv_.CompareTo(rhs.fv_);
+}
+
+std::string ObjectValue::ToString() const {
+  return fv_.ToString();
+}
+
+std::ostream& operator<<(std::ostream& os, const ObjectValue& value) {
+  return os << value.ToString();
+}
+
+size_t ObjectValue::Hash() const {
+  return fv_.Hash();
 }
 
 }  // namespace model
