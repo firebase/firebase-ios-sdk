@@ -76,9 +76,10 @@
   if (self.errorEncountered) {
     block(nil, nil, [NSError errorWithDomain:@"image error" code:0 userInfo:nil]);
   } else {
-    NSString *str = @"image data";
-    NSData *data = [str dataUsingEncoding:NSUTF8StringEncoding];
-    block(data, nil, nil);
+    NSData *imageData = [@"image data" dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *landscapeImageData = [@"landscape image data" dataUsingEncoding:NSUTF8StringEncoding];
+
+    block(imageData, landscapeImageData, nil);
   }
 }
 @end
