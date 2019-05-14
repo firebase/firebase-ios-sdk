@@ -432,7 +432,7 @@ static bool runningAgainstEmulator = false;
   [self awaitExpectations];
 }
 
-- (AsyncQueue *)queueForFirestore:(FIRFirestore *)firestore {
+- (const std::shared_ptr<util::AsyncQueue> &)queueForFirestore:(FIRFirestore *)firestore {
   return [firestore workerQueue];
 }
 

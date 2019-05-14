@@ -55,7 +55,7 @@ Firestore::Firestore(std::string project_id,
                      std::string database,
                      std::string persistence_key,
                      std::unique_ptr<CredentialsProvider> credentials_provider,
-                     std::unique_ptr<AsyncQueue> worker_queue,
+                     std::shared_ptr<AsyncQueue> worker_queue,
                      void* extension)
     : database_id_{std::move(project_id), std::move(database)},
       credentials_provider_{std::move(credentials_provider)},
@@ -69,8 +69,8 @@ FSTFirestoreClient* Firestore::client() {
   return client_;
 }
 
-AsyncQueue* Firestore::worker_queue() {
-  return [client_ workerQueue];
+const std::shared_ptr<AsyncQueue>& Firestore::worker_queue() {
+  return worker_queue_;
 }
 
 const Settings& Firestore::settings() const {
@@ -168,8 +168,8 @@ void Firestore::EnsureClientConfigured() {
         [FSTFirestoreClient clientWithDatabaseInfo:database_info
                                           settings:settings_
                                credentialsProvider:credentials_provider_.get()
-                                      userExecutor:std::move(user_executor_)
-                                       workerQueue:std::move(worker_queue_)];
+                                      userExecutor:user_executor_
+                                       workerQueue:worker_queue_];
   }
 }
 
