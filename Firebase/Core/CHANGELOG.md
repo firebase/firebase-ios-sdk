@@ -1,5 +1,5 @@
 # v6.0.1 -- M48
-- [changed] `FirebaseApp` name accepts any alpha-numeric character not only ASCII (#2609)
+- [changed] Allowed `FirebaseApp` name to accept any alpha-numeric character instead of only ASCII (#2609)
 
 # v6.0.0 -- M47
 - [changed] Added support for CocoaPods 1.7.x `:generate_multiple_pod_projects` feature. (#2751)
