@@ -92,7 +92,7 @@
   self.bodyTextView.contentInset = UIEdgeInsetsZero;
   self.bodyTextView.textContainer.lineFragmentPadding = 0;
 
-  // make the background half transparent
+  // Make the background half transparent.
   [self.view setBackgroundColor:[UIColor.grayColor colorWithAlphaComponent:0.5]];
 
   self.titleLabel.text = self.cardDisplayMessage.title;
@@ -119,6 +119,9 @@
 - (void)viewDidLayoutSubviews {
   [super viewDidLayoutSubviews];
 
+  // The landscape image is optional and only displayed if:
+  // 1. Landscape image exists.
+  // 2. The iOS device is in "landscape" mode (regular width or compact height).
   if (self.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassRegular ||
       self.traitCollection.verticalSizeClass == UIUserInterfaceSizeClassCompact) {
     NSData *imageData = self.cardDisplayMessage.landscapeImageData

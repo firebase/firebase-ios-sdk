@@ -49,7 +49,7 @@
 #pragma mark - FIRInAppMessagingDisplayDelegate methods
 - (void)messageClicked:(FIRInAppMessagingDisplayMessage *)inAppMessage
             withAction:(FIRInAppMessagingAction *)action {
-  // Call through to app-side delegate..
+  // Call through to app-side delegate.
   __weak id<FIRInAppMessagingDisplayDelegate> appSideDelegate = self.inAppMessaging.delegate;
   if ([appSideDelegate respondsToSelector:@selector(messageClicked:withAction:)]) {
     [appSideDelegate messageClicked:inAppMessage withAction:action];
@@ -373,10 +373,11 @@
 }
 
 - (FIRInAppMessagingCardDisplay *)
-    cardMessageWithMessageDefinition:(FIRIAMMessageDefinition *)definition
-                   portraitImageData:(FIRInAppMessagingImageData *)portraitImageData
-                  landscapeImageData:(nullable FIRInAppMessagingImageData *)landscapeImageData
-                         triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType {
+    cardDisplayMessageWithMessageDefinition:(FIRIAMMessageDefinition *)definition
+                          portraitImageData:(FIRInAppMessagingImageData *)portraitImageData
+                         landscapeImageData:
+                             (nullable FIRInAppMessagingImageData *)landscapeImageData
+                                triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType {
   // For easier reference in this method.
   FIRIAMMessageRenderData *renderData = definition.renderData;
 
@@ -419,9 +420,9 @@
 }
 
 - (FIRInAppMessagingBannerDisplay *)
-    bannerMessageWithMessageDefinition:(FIRIAMMessageDefinition *)definition
-                             imageData:(FIRInAppMessagingImageData *)imageData
-                           triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType {
+    bannerDisplayMessageWithMessageDefinition:(FIRIAMMessageDefinition *)definition
+                                    imageData:(FIRInAppMessagingImageData *)imageData
+                                  triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType {
   NSString *title = definition.renderData.contentData.titleText;
   NSString *body = definition.renderData.contentData.bodyText;
 
@@ -441,9 +442,9 @@
 }
 
 - (FIRInAppMessagingImageOnlyDisplay *)
-    imageOnlyMessageWithMessageDefinition:(FIRIAMMessageDefinition *)definition
-                                imageData:(FIRInAppMessagingImageData *)imageData
-                              triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType {
+    imageOnlyDisplayMessageWithMessageDefinition:(FIRIAMMessageDefinition *)definition
+                                       imageData:(FIRInAppMessagingImageData *)imageData
+                                     triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType {
   FIRInAppMessagingImageOnlyDisplay *imageOnlyMessage = [[FIRInAppMessagingImageOnlyDisplay alloc]
         initWithMessageID:definition.renderData.messageID
              campaignName:definition.renderData.name
@@ -456,9 +457,9 @@
 }
 
 - (FIRInAppMessagingModalDisplay *)
-    modalViewMessageWithMessageDefinition:(FIRIAMMessageDefinition *)definition
-                                imageData:(FIRInAppMessagingImageData *)imageData
-                              triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType {
+    modalDisplayMessageWithMessageDefinition:(FIRIAMMessageDefinition *)definition
+                                   imageData:(FIRInAppMessagingImageData *)imageData
+                                 triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType {
   // For easier reference in this method.
   FIRIAMMessageRenderData *renderData = definition.renderData;
 
@@ -497,22 +498,22 @@
                             triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType {
   switch (definition.renderData.renderingEffectSettings.viewMode) {
     case FIRIAMRenderAsCardView:
-      return [self cardMessageWithMessageDefinition:definition
-                                  portraitImageData:imageData
-                                 landscapeImageData:landscapeImageData
-                                        triggerType:triggerType];
+      return [self cardDisplayMessageWithMessageDefinition:definition
+                                         portraitImageData:imageData
+                                        landscapeImageData:landscapeImageData
+                                               triggerType:triggerType];
     case FIRIAMRenderAsBannerView:
-      return [self bannerMessageWithMessageDefinition:definition
-                                            imageData:imageData
-                                          triggerType:triggerType];
+      return [self bannerDisplayMessageWithMessageDefinition:definition
+                                                   imageData:imageData
+                                                 triggerType:triggerType];
     case FIRIAMRenderAsModalView:
-      return [self modalViewMessageWithMessageDefinition:definition
-                                               imageData:imageData
-                                             triggerType:triggerType];
+      return [self modalDisplayMessageWithMessageDefinition:definition
+                                                  imageData:imageData
+                                                triggerType:triggerType];
     case FIRIAMRenderAsImageOnlyView:
-      return [self imageOnlyMessageWithMessageDefinition:definition
-                                               imageData:imageData
-                                             triggerType:triggerType];
+      return [self imageOnlyDisplayMessageWithMessageDefinition:definition
+                                                      imageData:imageData
+                                                    triggerType:triggerType];
     default:
       return nil;
   }

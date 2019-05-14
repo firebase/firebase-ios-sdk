@@ -75,10 +75,10 @@
   NSBundle *resourceBundle = [self getViewResourceBundle];
 
   if (resourceBundle == nil) {
-    NSError *error = [NSError errorWithDomain:kFirebaseInAppMessagingDisplayErrorDomain
-                                         code:FIAMDisplayRenderErrorTypeUnspecifiedError
-                                     userInfo:@{NSLocalizedDescriptionKey :
-                                                  @"Resource bundle is missing."}];
+    NSError *error =
+        [NSError errorWithDomain:kFirebaseInAppMessagingDisplayErrorDomain
+                            code:FIAMDisplayRenderErrorTypeUnspecifiedError
+                        userInfo:@{NSLocalizedDescriptionKey : @"Resource bundle is missing."}];
     [displayDelegate displayErrorForMessage:cardMessage error:error];
     return;
   }
@@ -94,10 +94,10 @@
     if (cardVC == nil) {
       FIRLogWarning(kFIRLoggerInAppMessagingDisplay, @"I-FID100011",
                     @"View controller can not be created.");
-      NSError *error = [NSError errorWithDomain:kFirebaseInAppMessagingDisplayErrorDomain
-                                           code:FIAMDisplayRenderErrorTypeUnspecifiedError
-                                       userInfo:@{NSLocalizedDescriptionKey:
-                                                    @"View controller could not be created"}];
+      NSError *error = [NSError
+          errorWithDomain:kFirebaseInAppMessagingDisplayErrorDomain
+                     code:FIAMDisplayRenderErrorTypeUnspecifiedError
+                 userInfo:@{NSLocalizedDescriptionKey : @"View controller could not be created"}];
       [displayDelegate displayErrorForMessage:cardMessage error:error];
       return;
     }
