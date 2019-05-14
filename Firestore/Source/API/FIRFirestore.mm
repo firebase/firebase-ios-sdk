@@ -106,7 +106,7 @@ NS_ASSUME_NONNULL_BEGIN
                          database:(std::string)database
                    persistenceKey:(std::string)persistenceKey
               credentialsProvider:(std::unique_ptr<CredentialsProvider>)credentialsProvider
-                      workerQueue:(std::shared_ptr<AsyncQueue>)workerQueue
+                      workerQueue:(std::unique_ptr<AsyncQueue>)workerQueue
                       firebaseApp:(FIRApp *)app {
   if (self = [super init]) {
     _firestore = std::make_shared<Firestore>(
@@ -277,7 +277,7 @@ NS_ASSUME_NONNULL_BEGIN
   return _firestore;
 }
 
-- (const std::shared_ptr<util::AsyncQueue> &)workerQueue {
+- (AsyncQueue *)workerQueue {
   return _firestore->worker_queue();
 }
 
