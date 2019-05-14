@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #import <Foundation/Foundation.h>
-#include <memory>
 
 #import <FirebaseFirestore/FIRFirestore.h>
+
+#include <memory>
 
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 
