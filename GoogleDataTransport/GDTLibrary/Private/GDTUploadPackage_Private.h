@@ -23,4 +23,7 @@
 /** The storage object this upload package will use to resolve event hashes to files. */
 @property(nonatomic) GDTStorage *storage;
 
+/** A handler that will receive callbacks for certain events. */
+@property(nonatomic) id<NSSecureCoding, GDTUploadPackageProtocol> handler;
+
 @end

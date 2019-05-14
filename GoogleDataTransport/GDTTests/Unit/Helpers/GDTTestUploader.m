@@ -25,6 +25,7 @@
   } else if (onComplete) {
     onComplete(kGDTTargetCCT, [GDTClock snapshot], nil);
   }
+  [package completeDelivery];
 }
 
 - (void)appWillBackground:(nonnull UIApplication *)app {

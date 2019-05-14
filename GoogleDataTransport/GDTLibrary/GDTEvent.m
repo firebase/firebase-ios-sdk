@@ -53,6 +53,10 @@
   return mappingIDHash ^ _target ^ dataObjectTransportBytesHash ^ _qosTier ^ timeHash;
 }
 
+- (BOOL)isEqual:(id)object {
+  return [self hash] == [object hash];
+}
+
 - (void)setDataObject:(id<GDTEventDataObject>)dataObject {
   // If you're looking here because of a performance issue in -transportBytes slowing the assignment
   // of -dataObject, one way to address this is to add a queue to this class,
