@@ -86,7 +86,7 @@ static bool runningAgainstEmulator = false;
 - (void)setUp {
   [super setUp];
 
-  [FSTLevelDB clearPersistence];
+  [self clearPersistence];
   [self primeBackend];
 
   _firestores = [NSMutableArray array];
@@ -103,6 +103,12 @@ static bool runningAgainstEmulator = false;
     _firestores = nil;
     [super tearDown];
   }
+}
+
+- (void)clearPersistence {
+  Path levelDBDir = [FSTLevelDB documentsDirectory];
+  Status status = util::RecursivelyDelete(levelDBDir);
+  ASSERT_OK(status);
 }
 
 - (FIRFirestore *)firestore {
