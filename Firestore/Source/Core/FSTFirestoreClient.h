@@ -23,6 +23,7 @@
 
 #include "Firestore/core/src/firebase/firestore/api/document_reference.h"
 #include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
+#include "Firestore/core/src/firebase/firestore/api/query_core.h"
 #include "Firestore/core/src/firebase/firestore/api/settings.h"
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
@@ -104,9 +105,8 @@ NS_ASSUME_NONNULL_BEGIN
  * Retrieves a (possibly empty) set of documents from the cache via the
  * indicated completion.
  */
-- (void)getDocumentsFromLocalCache:(FIRQuery *)query
-                        completion:(void (^)(FIRQuerySnapshot *_Nullable query,
-                                             NSError *_Nullable error))completion;
+- (void)getDocumentsFromLocalCache:(const api::Query &)query
+                          callback:(api::QuerySnapshot::Listener &&)callback;
 
 /** Write mutations. callback will be notified when it's written to the backend. */
 - (void)writeMutations:(std::vector<FSTMutation *> &&)mutations
