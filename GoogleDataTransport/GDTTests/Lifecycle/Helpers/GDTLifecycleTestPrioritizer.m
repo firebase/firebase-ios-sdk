@@ -46,14 +46,6 @@
   });
 }
 
-- (void)unprioritizeEvents:(NSSet<GDTStoredEvent *> *)events {
-  dispatch_async(_queue, ^{
-    for (GDTStoredEvent *event in events) {
-      [self.events removeObject:event];
-    }
-  });
-}
-
 - (GDTUploadPackage *)uploadPackageWithConditions:(GDTUploadConditions)conditions {
   __block GDTUploadPackage *uploadPackage =
       [[GDTUploadPackage alloc] initWithTarget:kGDTTargetTest];
@@ -61,6 +53,14 @@
     uploadPackage.events = self.events;
   });
   return uploadPackage;
+}
+
+- (void)packageDelivered:(GDTUploadPackage *)package successful:(BOOL)successful {
+  dispatch_async(_queue, ^{
+    for (GDTStoredEvent *event in package.events) {
+      [self.events removeObject:event];
+    }
+  });
 }
 
 - (void)appWillBackground:(UIApplication *)app {

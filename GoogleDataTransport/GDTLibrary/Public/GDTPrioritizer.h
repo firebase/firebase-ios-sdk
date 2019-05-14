@@ -48,7 +48,7 @@ typedef NS_OPTIONS(NSInteger, GDTUploadConditions) {
  * stateful objects that prioritize events upon insertion into storage and remain prepared to return
  * a set of filenames to the storage system.
  */
-@protocol GDTPrioritizer <NSObject, GDTLifecycleProtocol>
+@protocol GDTPrioritizer <NSObject, GDTLifecycleProtocol, GDTUploadPackageProtocol>
 
 @required
 
@@ -59,16 +59,6 @@ typedef NS_OPTIONS(NSInteger, GDTUploadConditions) {
  * @param event The event to prioritize.
  */
 - (void)prioritizeEvent:(GDTStoredEvent *)event;
-
-/** Unprioritizes a set of events. This method is called after all the events in the set have been
- * removed from storage and from disk. It's passed as a set so that instead of having N blocks
- * dispatched to a queue, it can be a single block--this prevents possible race conditions in which
- * the storage system has removed the events, but the prioritizers haven't unprioritized the events
- * because it was being done one at a time.
- *
- * @param events The set of events to unprioritize.
- */
-- (void)unprioritizeEvents:(NSSet<GDTStoredEvent *> *)events;
 
 /** Returns a set of events to upload given a set of conditions.
  *
