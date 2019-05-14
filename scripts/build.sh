@@ -345,18 +345,19 @@ case "$product-$method-$platform" in
 
     RunXcodebuild \
         -workspace 'GoogleDataTransport/gen/GoogleDataTransport/GoogleDataTransport.xcworkspace' \
-        -scheme "GoogleDataTransport-Unit-Tests-Integration" \
-        "${xcb_flags[@]}" \
-        build \
-        test
-
-    RunXcodebuild \
-        -workspace 'GoogleDataTransport/gen/GoogleDataTransport/GoogleDataTransport.xcworkspace' \
         -scheme "GoogleDataTransport-Unit-Tests-Lifecycle" \
         "${xcb_flags[@]}" \
         build \
         test
     ;;
+
+  GoogleDataTransportIntegrationTest-xcodebuild-iOS)
+    RunXcodebuild \
+        -workspace 'GoogleDataTransport/gen/GoogleDataTransport/GoogleDataTransport.xcworkspace' \
+        -scheme "GoogleDataTransport-Unit-Tests-Integration" \
+        "${xcb_flags[@]}" \
+        build \
+        test
 
   GoogleDataTransportCCTSupport-xcodebuild-iOS)
     RunXcodebuild \

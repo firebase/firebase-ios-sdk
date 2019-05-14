@@ -329,6 +329,14 @@ jobs:
   # before reporting the results.
   # fast_finish: true
 
+    - stage: test
+      env:
+        - PROJECT=GoogleDataTransportIntegrationTest PLATFORM=iOS METHOD=xcodebuild
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
+
 branches:
   only:
     - master
