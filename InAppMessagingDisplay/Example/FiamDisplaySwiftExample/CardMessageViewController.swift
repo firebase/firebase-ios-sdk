@@ -115,7 +115,7 @@ class CardMessageViewController: CommonMessageTestVC {
                                                 primaryActionURL: URL(string: "http://google.com")!)
     cardMessage.body = normalMessageBody
     cardMessage.secondaryActionButton = defaultSecondaryActionButton
-    
+
     displayImpl.displayMessage(cardMessage, displayDelegate: self)
   }
 

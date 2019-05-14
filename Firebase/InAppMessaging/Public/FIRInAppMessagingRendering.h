@@ -89,12 +89,16 @@ NS_SWIFT_NAME(InAppMessagingImageData)
 
 /** Defines the metadata for a FIAM action.
  */
+NS_SWIFT_NAME(InAppMessagingAction)
 @interface FIRInAppMessagingAction : NSObject
 
 /*
  * The text of the action button, if applicable.
  */
 @property(nonatomic, nullable, copy, readonly) NSString *actionText;
+/*
+ * The URL to follow if the action is clicked.
+ */
 @property(nonatomic, nonnull, copy, readonly) NSURL *actionURL;
 
 - (instancetype)init NS_UNAVAILABLE;

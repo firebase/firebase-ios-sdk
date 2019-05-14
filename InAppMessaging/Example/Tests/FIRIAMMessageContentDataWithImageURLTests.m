@@ -232,8 +232,8 @@ typedef void (^ImageFetchExpectationsBlock)(NSData *, NSData *, NSError *);
       loadImageDataWithBlock:^(NSData *_Nullable imageData, NSData *_Nullable landscapeImageData,
                                NSError *error) {
         XCTAssertNil(imageData);
-        XCTAssertNotNil(error);  // we should report error due to the http response
-        // content type being invalid
+        // We should report error due to the HTTP response content type being invalid.
+        XCTAssertNotNil(error);
         [expectation fulfill];
       }];
 
@@ -292,7 +292,7 @@ typedef void (^ImageFetchExpectationsBlock)(NSData *, NSData *, NSError *);
     [expectation fulfill];
   }];
 
-  // verify that the dataTaskWithRequest:completionHandler: is triggered for NSURLSession object
+  // Verify that the dataTaskWithRequest:completionHandler: is triggered for NSURLSession object.
   OCMVerify([self.mockedNSURLSession dataTaskWithRequest:[OCMArg any]
                                        completionHandler:[OCMArg any]]);
 
@@ -302,7 +302,7 @@ typedef void (^ImageFetchExpectationsBlock)(NSData *, NSData *, NSError *);
                                   statusCode:200
                                  HTTPVersion:nil
                                 headerFields:@{@"Content-Type" : @"image/jpeg"}];
-  // by this time we should have capturedCompletionHandler being the callback block for the
+  // By this time we should have capturedCompletionHandler being the callback block for the
   // NSURLSessionDataTask, now feed it with image data to see how the block from
   // loadImageDataWithBlock: would react to it.
   for (int i = 0; i < completionHandlers.count; i++) {

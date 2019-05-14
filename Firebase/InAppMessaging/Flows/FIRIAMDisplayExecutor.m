@@ -401,17 +401,17 @@
   }
 
   FIRInAppMessagingCardDisplay *cardMessage = [[FIRInAppMessagingCardDisplay alloc]
-          initWithMessageID:renderData.messageID
-               campaignName:renderData.name
-        renderAsTestMessage:definition.isTestMessage
-                triggerType:triggerType
-                  titleText:title
-                  textColor:renderData.renderingEffectSettings.textColor
-          portraitImageData:portraitImageData
-            backgroundColor:renderData.renderingEffectSettings.displayBGColor
-        primaryActionButton:primaryActionButton
-           primaryActionURL:definition.renderData.contentData.actionURL];
-  
+        initWithMessageID:renderData.messageID
+             campaignName:renderData.name
+      renderAsTestMessage:definition.isTestMessage
+              triggerType:triggerType
+                titleText:title
+                textColor:renderData.renderingEffectSettings.textColor
+        portraitImageData:portraitImageData
+          backgroundColor:renderData.renderingEffectSettings.displayBGColor
+      primaryActionButton:primaryActionButton
+         primaryActionURL:definition.renderData.contentData.actionURL];
+
   cardMessage.body = body;
   cardMessage.landscapeImageData = landscapeImageData;
   cardMessage.secondaryActionButton = secondaryActionButton;

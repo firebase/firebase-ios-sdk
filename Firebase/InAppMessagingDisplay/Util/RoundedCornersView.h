@@ -16,6 +16,8 @@
 
 #import <UIKit/UIKit.h>
 IB_DESIGNABLE
+
+// A UIView subclass that allows for tweaking corner radius via a storyboard.
 @interface RoundedCornersView : UIView
 @property(nonatomic) IBInspectable CGFloat cornerRadius;
 @end

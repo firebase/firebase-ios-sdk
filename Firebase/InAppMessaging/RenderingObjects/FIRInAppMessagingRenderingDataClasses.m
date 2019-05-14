@@ -169,7 +169,7 @@
   FIRInAppMessagingImageData *imageData = [[[self class] allocWithZone:zone] init];
   imageData->_imageURL = [_imageURL copyWithZone:zone];
   imageData->_imageRawData = [_imageRawData copyWithZone:zone];
-  
+
   return imageData;
 }
 
