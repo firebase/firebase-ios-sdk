@@ -70,8 +70,8 @@ NS_ASSUME_NONNULL_BEGIN
                               settings:(const api::Settings &)settings
                    credentialsProvider:
                        (auth::CredentialsProvider *)credentialsProvider  // no passing ownership
-                          userExecutor:(std::unique_ptr<util::Executor>)userExecutor
-                           workerQueue:(std::unique_ptr<util::AsyncQueue>)workerQueue;
+                          userExecutor:(std::shared_ptr<util::Executor>)userExecutor
+                           workerQueue:(std::shared_ptr<util::AsyncQueue>)workerQueue;
 
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -125,10 +125,10 @@ NS_ASSUME_NONNULL_BEGIN
  * Dispatch queue for user callbacks / events. This will often be the "Main Dispatch Queue" of the
  * app but the developer can configure it to a different queue if they so choose.
  */
-- (util::Executor *)userExecutor;
+- (const std::shared_ptr<util::Executor> &)userExecutor;
 
 /** For testing only. */
-- (util::AsyncQueue *)workerQueue;
+- (const std::shared_ptr<util::AsyncQueue> &)workerQueue;
 
 @end
 
