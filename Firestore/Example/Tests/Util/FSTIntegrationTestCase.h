@@ -20,6 +20,8 @@
 
 #import <FirebaseCore/FIRAppInternal.h>
 
+#import <FirebaseCore/FIRAppInternal.h>
+
 #import "Firestore/Example/Tests/Util/XCTestCase+Await.h"
 
 #import "FIRFirestoreSource.h"
@@ -34,6 +36,8 @@
 @class FIRFirestoreSettings;
 @class FIRQuery;
 @class FSTEventAccumulator;
+
+namespace util = firebase::firestore::util;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -56,6 +60,9 @@ extern "C" {
 
 /** Returns a new Firestore connected to the project with the given projectID. */
 - (FIRFirestore *)firestoreWithProjectID:(NSString *)projectID;
+
+/** Returns a new Firestore connected to the project with the given app */
+- (FIRFirestore *)firestoreWithApp:(FIRApp *)app;
 
 /** Synchronously shuts down the given firestore. */
 - (void)shutdownFirestore:(FIRFirestore *)firestore;
@@ -104,7 +111,7 @@ extern "C" {
 
 - (void)enableNetwork;
 
-- (firebase::firestore::util::AsyncQueue *)queueForFirestore:(FIRFirestore *)firestore;
+- (const std::shared_ptr<util::AsyncQueue> &)queueForFirestore:(FIRFirestore *)firestore;
 
 /**
  * "Blocks" the current thread/run loop until the block returns YES.
@@ -116,6 +123,7 @@ extern "C" {
 
 @property(nonatomic, strong) FIRFirestore *db;
 @property(nonatomic, strong) FSTEventAccumulator *eventAccumulator;
+@property(nonatomic, strong) NSMutableArray<FIRFirestore *> *firestores;
 @end
 
 /** Converts the FIRQuerySnapshot to an NSArray containing the data of the documents in order. */
