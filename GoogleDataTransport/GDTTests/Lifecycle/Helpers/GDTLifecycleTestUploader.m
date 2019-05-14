@@ -18,8 +18,11 @@
 
 @implementation GDTLifecycleTestUploader
 
-- (void)uploadPackage:(GDTUploadPackage *)package
-           onComplete:(GDTUploaderCompletionBlock)onComplete {
+- (void)uploadPackage:(GDTUploadPackage *)package {
+}
+
+- (BOOL)readyToUploadWithConditions:(GDTUploadConditions)conditions {
+  return YES;
 }
 
 - (void)appWillBackground:(UIApplication *)app {

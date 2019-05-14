@@ -119,12 +119,6 @@ static NSString *GDTStoragePath() {
 
 - (void)removeEvents:(NSSet<GDTStoredEvent *> *)events {
   NSSet<GDTStoredEvent *> *eventsToRemove = [events copy];
-  GDTStoredEvent *anyEvent = [eventsToRemove anyObject];
-  id<GDTPrioritizer> prioritizer =
-      [GDTRegistrar sharedInstance].targetToPrioritizer[anyEvent.target];
-  GDTAssert(prioritizer, @"There must be a prioritizer.");
-  [prioritizer unprioritizeEvents:events];
-
   dispatch_async(_storageQueue, ^{
     for (GDTStoredEvent *event in eventsToRemove) {
       // Remove from disk, first and foremost.
@@ -133,8 +127,6 @@ static NSString *GDTStoragePath() {
         NSURL *fileURL = event.dataFuture.fileURL;
         [[NSFileManager defaultManager] removeItemAtURL:fileURL error:&error];
         GDTAssert(error == nil, @"There was an error removing an event file: %@", error);
-        GDTAssert([GDTRegistrar sharedInstance].targetToPrioritizer[event.target] == prioritizer,
-                  @"All logs within an upload set should have the same prioritizer.");
       }
 
       // Remove from the tracking collections.

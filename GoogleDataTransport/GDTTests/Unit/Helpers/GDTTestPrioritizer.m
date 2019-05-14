@@ -41,9 +41,6 @@
   }
 }
 
-- (void)unprioritizeEvents:(NSSet<GDTStoredEvent *> *)events {
-}
-
 - (void)appWillBackground:(UIApplication *)app {
 }
 
