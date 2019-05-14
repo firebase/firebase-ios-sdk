@@ -131,7 +131,7 @@ NS_SWIFT_NAME(InAppMessagingCardDisplay)
 /*
  * Gets the body text for a card FIAM message.
  */
-@property(nonatomic, nullable, copy, readonly) NSString *body;
+@property(nonatomic, nullable, copy) NSString *body;
 
 /**
  * Gets the color for text in card FIAM message. It applies to both title and body text.
@@ -146,7 +146,7 @@ NS_SWIFT_NAME(InAppMessagingCardDisplay)
 /**
  * Image data for the supplied landscape image for a card FIAM message.
  */
-@property(nonatomic, nullable, copy, readonly) FIRInAppMessagingImageData *landscapeImageData;
+@property(nonatomic, nullable, copy) FIRInAppMessagingImageData *landscapeImageData;
 
 /**
  * The background color for a card FIAM message.
@@ -166,12 +166,12 @@ NS_SWIFT_NAME(InAppMessagingCardDisplay)
 /**
  * Metadata for a card FIAM message's secondary action button.
  */
-@property(nonatomic, nullable, readonly) FIRInAppMessagingActionButton *secondaryActionButton;
+@property(nonatomic, nullable) FIRInAppMessagingActionButton *secondaryActionButton;
 
 /**
  * The action URL for a card FIAM message's secondary action button.
  */
-@property(nonatomic, nullable, readonly) NSURL *secondaryActionURL;
+@property(nonatomic, nullable) NSURL *secondaryActionURL;
 
 - (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithMessageID:(NSString *)messageID
@@ -179,15 +179,11 @@ NS_SWIFT_NAME(InAppMessagingCardDisplay)
               renderAsTestMessage:(BOOL)renderAsTestMessage
                       triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
                         titleText:(NSString *)title
-                         bodyText:(nullable NSString *)body
                         textColor:(UIColor *)textColor
                 portraitImageData:(FIRInAppMessagingImageData *)portraitImageData
-               landscapeImageData:(nullable FIRInAppMessagingImageData *)landscapeImageData
                   backgroundColor:(UIColor *)backgroundColor
               primaryActionButton:(FIRInAppMessagingActionButton *)primaryActionButton
-                 primaryActionURL:(NSURL *)primaryActionURL
-            secondaryActionButton:(nullable FIRInAppMessagingActionButton *)secondaryActionButton
-               secondaryActionURL:(nullable NSURL *)secondaryActionURL;
+                 primaryActionURL:(NSURL *)primaryActionURL;
 
 @end
 

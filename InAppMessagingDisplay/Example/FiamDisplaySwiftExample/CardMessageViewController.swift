@@ -45,15 +45,13 @@ class CardMessageViewController: CommonMessageTestVC {
                                                 renderAsTestMessage: false,
                                                 triggerType: .onAnalyticsEvent,
                                                 titleText: normalMessageTitle,
-                                                bodyText: normalMessageBody,
                                                 textColor: UIColor.black,
                                                 portraitImageData: portraitImageData,
-                                                landscapeImageData: landscapeImageData,
                                                 backgroundColor: UIColor.white,
                                                 primaryActionButton: defaultActionButton,
-                                                primaryActionURL: URL(string: "http://google.com")!,
-                                                secondaryActionButton: nil,
-                                                secondaryActionURL: nil)
+                                                primaryActionURL: URL(string: "http://google.com")!)
+    cardMessage.body = normalMessageBody
+    cardMessage.landscapeImageData = landscapeImageData
 
     displayImpl.displayMessage(cardMessage, displayDelegate: self)
   }
@@ -67,15 +65,12 @@ class CardMessageViewController: CommonMessageTestVC {
                                                 renderAsTestMessage: false,
                                                 triggerType: .onAnalyticsEvent,
                                                 titleText: normalMessageTitle,
-                                                bodyText: normalMessageBody,
                                                 textColor: UIColor.black,
                                                 portraitImageData: portraitImageData,
-                                                landscapeImageData: nil,
                                                 backgroundColor: UIColor.white,
                                                 primaryActionButton: defaultActionButton,
-                                                primaryActionURL: URL(string: "http://google.com")!,
-                                                secondaryActionButton: nil,
-                                                secondaryActionURL: nil)
+                                                primaryActionURL: URL(string: "http://google.com")!)
+    cardMessage.body = normalMessageBody
 
     displayImpl.displayMessage(cardMessage, displayDelegate: self)
   }
@@ -92,15 +87,14 @@ class CardMessageViewController: CommonMessageTestVC {
                                                 renderAsTestMessage: false,
                                                 triggerType: .onAnalyticsEvent,
                                                 titleText: normalMessageTitle,
-                                                bodyText: normalMessageBody,
                                                 textColor: UIColor.black,
                                                 portraitImageData: portraitImageData,
-                                                landscapeImageData: landscapeImageData,
                                                 backgroundColor: UIColor.white,
                                                 primaryActionButton: defaultActionButton,
-                                                primaryActionURL: URL(string: "http://google.com")!,
-                                                secondaryActionButton: defaultSecondaryActionButton,
-                                                secondaryActionURL: nil)
+                                                primaryActionURL: URL(string: "http://google.com")!)
+    cardMessage.body = normalMessageBody
+    cardMessage.landscapeImageData = landscapeImageData
+    cardMessage.secondaryActionButton = defaultSecondaryActionButton
 
     displayImpl.displayMessage(cardMessage, displayDelegate: self)
   }
@@ -114,16 +108,14 @@ class CardMessageViewController: CommonMessageTestVC {
                                                 renderAsTestMessage: false,
                                                 triggerType: .onAnalyticsEvent,
                                                 titleText: longTitleText,
-                                                bodyText: normalMessageBody,
                                                 textColor: UIColor.black,
                                                 portraitImageData: portraitImageData,
-                                                landscapeImageData: nil,
                                                 backgroundColor: UIColor.white,
                                                 primaryActionButton: defaultActionButton,
-                                                primaryActionURL: URL(string: "http://google.com")!,
-                                                secondaryActionButton: defaultSecondaryActionButton,
-                                                secondaryActionURL: nil)
-
+                                                primaryActionURL: URL(string: "http://google.com")!)
+    cardMessage.body = normalMessageBody
+    cardMessage.secondaryActionButton = defaultSecondaryActionButton
+    
     displayImpl.displayMessage(cardMessage, displayDelegate: self)
   }
 
@@ -136,15 +128,13 @@ class CardMessageViewController: CommonMessageTestVC {
                                                 renderAsTestMessage: false,
                                                 triggerType: .onAnalyticsEvent,
                                                 titleText: normalMessageTitle,
-                                                bodyText: longBodyText,
                                                 textColor: UIColor.black,
                                                 portraitImageData: portraitImageData,
-                                                landscapeImageData: nil,
                                                 backgroundColor: UIColor.white,
                                                 primaryActionButton: defaultActionButton,
-                                                primaryActionURL: URL(string: "http://google.com")!,
-                                                secondaryActionButton: defaultSecondaryActionButton,
-                                                secondaryActionURL: nil)
+                                                primaryActionURL: URL(string: "http://google.com")!)
+    cardMessage.body = longBodyText
+    cardMessage.secondaryActionButton = defaultSecondaryActionButton
 
     displayImpl.displayMessage(cardMessage, displayDelegate: self)
   }
@@ -158,15 +148,12 @@ class CardMessageViewController: CommonMessageTestVC {
                                                 renderAsTestMessage: false,
                                                 triggerType: .onAnalyticsEvent,
                                                 titleText: longTitleText,
-                                                bodyText: nil,
                                                 textColor: UIColor.black,
                                                 portraitImageData: portraitImageData,
-                                                landscapeImageData: nil,
                                                 backgroundColor: UIColor.white,
                                                 primaryActionButton: defaultActionButton,
-                                                primaryActionURL: URL(string: "http://google.com")!,
-                                                secondaryActionButton: defaultSecondaryActionButton,
-                                                secondaryActionURL: nil)
+                                                primaryActionURL: URL(string: "http://google.com")!)
+    cardMessage.secondaryActionButton = defaultSecondaryActionButton
 
     displayImpl.displayMessage(cardMessage, displayDelegate: self)
   }
@@ -180,15 +167,13 @@ class CardMessageViewController: CommonMessageTestVC {
                                                 renderAsTestMessage: false,
                                                 triggerType: .onAnalyticsEvent,
                                                 titleText: longTitleText,
-                                                bodyText: normalMessageBody,
                                                 textColor: UIColor.black,
                                                 portraitImageData: portraitImageData,
-                                                landscapeImageData: nil,
                                                 backgroundColor: UIColor.white,
                                                 primaryActionButton: longTextButton,
-                                                primaryActionURL: URL(string: "http://google.com")!,
-                                                secondaryActionButton: defaultSecondaryActionButton,
-                                                secondaryActionURL: nil)
+                                                primaryActionURL: URL(string: "http://google.com")!)
+    cardMessage.body = normalMessageBody
+    cardMessage.secondaryActionButton = defaultSecondaryActionButton
 
     displayImpl.displayMessage(cardMessage, displayDelegate: self)
   }
@@ -202,15 +187,13 @@ class CardMessageViewController: CommonMessageTestVC {
                                                 renderAsTestMessage: false,
                                                 triggerType: .onAnalyticsEvent,
                                                 titleText: longTitleText,
-                                                bodyText: normalMessageBody,
                                                 textColor: UIColor.black,
                                                 portraitImageData: portraitImageData,
-                                                landscapeImageData: nil,
                                                 backgroundColor: UIColor.white,
                                                 primaryActionButton: defaultActionButton,
-                                                primaryActionURL: URL(string: "http://google.com")!,
-                                                secondaryActionButton: longTextButton,
-                                                secondaryActionURL: nil)
+                                                primaryActionURL: URL(string: "http://google.com")!)
+    cardMessage.body = normalMessageBody
+    cardMessage.secondaryActionButton = longTextButton
 
     displayImpl.displayMessage(cardMessage, displayDelegate: self)
   }
@@ -224,15 +207,12 @@ class CardMessageViewController: CommonMessageTestVC {
                                                 renderAsTestMessage: false,
                                                 triggerType: .onAnalyticsEvent,
                                                 titleText: normalMessageTitle,
-                                                bodyText: normalMessageBody,
                                                 textColor: UIColor.black,
                                                 portraitImageData: portraitImageData,
-                                                landscapeImageData: nil,
                                                 backgroundColor: UIColor.white,
                                                 primaryActionButton: defaultActionButton,
-                                                primaryActionURL: URL(string: "http://google.com")!,
-                                                secondaryActionButton: nil,
-                                                secondaryActionURL: nil)
+                                                primaryActionURL: URL(string: "http://google.com")!)
+    cardMessage.body = normalMessageBody
 
     displayImpl.displayMessage(cardMessage, displayDelegate: self)
   }
@@ -246,15 +226,12 @@ class CardMessageViewController: CommonMessageTestVC {
                                                 renderAsTestMessage: false,
                                                 triggerType: .onAnalyticsEvent,
                                                 titleText: normalMessageTitle,
-                                                bodyText: normalMessageBody,
                                                 textColor: UIColor.black,
                                                 portraitImageData: portraitImageData,
-                                                landscapeImageData: nil,
                                                 backgroundColor: UIColor.white,
                                                 primaryActionButton: defaultActionButton,
-                                                primaryActionURL: URL(string: "http://google.com")!,
-                                                secondaryActionButton: nil,
-                                                secondaryActionURL: nil)
+                                                primaryActionURL: URL(string: "http://google.com")!)
+    cardMessage.body = normalMessageBody
 
     displayImpl.displayMessage(cardMessage, displayDelegate: self)
   }

@@ -406,15 +406,16 @@
         renderAsTestMessage:definition.isTestMessage
                 triggerType:triggerType
                   titleText:title
-                   bodyText:body
                   textColor:renderData.renderingEffectSettings.textColor
           portraitImageData:portraitImageData
-         landscapeImageData:landscapeImageData
             backgroundColor:renderData.renderingEffectSettings.displayBGColor
         primaryActionButton:primaryActionButton
-           primaryActionURL:definition.renderData.contentData.actionURL
-      secondaryActionButton:secondaryActionButton
-         secondaryActionURL:definition.renderData.contentData.secondaryActionURL];
+           primaryActionURL:definition.renderData.contentData.actionURL];
+  
+  cardMessage.body = body;
+  cardMessage.landscapeImageData = landscapeImageData;
+  cardMessage.secondaryActionButton = secondaryActionButton;
+  cardMessage.secondaryActionURL = definition.renderData.contentData.secondaryActionURL;
 
   return cardMessage;
 }

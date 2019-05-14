@@ -43,30 +43,22 @@
               renderAsTestMessage:(BOOL)renderAsTestMessage
                       triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
                         titleText:(NSString *)title
-                         bodyText:(nullable NSString *)body
                         textColor:(UIColor *)textColor
                 portraitImageData:(FIRInAppMessagingImageData *)portraitImageData
-               landscapeImageData:(nullable FIRInAppMessagingImageData *)landscapeImageData
                   backgroundColor:(UIColor *)backgroundColor
               primaryActionButton:(FIRInAppMessagingActionButton *)primaryActionButton
-                 primaryActionURL:(NSURL *)primaryActionURL
-            secondaryActionButton:(nullable FIRInAppMessagingActionButton *)secondaryActionButton
-               secondaryActionURL:(nullable NSURL *)secondaryActionURL {
+                 primaryActionURL:(NSURL *)primaryActionURL {
   if (self = [super initWithMessageID:messageID
                          campaignName:campaignName
                   renderAsTestMessage:renderAsTestMessage
                           messageType:FIRInAppMessagingDisplayMessageTypeCard
                           triggerType:triggerType]) {
     _title = title;
-    _body = body;
     _textColor = textColor;
     _portraitImageData = portraitImageData;
-    _landscapeImageData = landscapeImageData;
     _displayBackgroundColor = backgroundColor;
     _primaryActionButton = primaryActionButton;
     _primaryActionURL = primaryActionURL;
-    _secondaryActionButton = secondaryActionButton;
-    _secondaryActionURL = secondaryActionURL;
   }
   return self;
 }
@@ -172,6 +164,15 @@
   }
   return self;
 }
+
+- (id)copyWithZone:(NSZone *)zone {
+  FIRInAppMessagingImageData *imageData = [[[self class] allocWithZone:zone] init];
+  imageData->_imageURL = [_imageURL copyWithZone:zone];
+  imageData->_imageRawData = [_imageRawData copyWithZone:zone];
+  
+  return imageData;
+}
+
 @end
 
 @implementation FIRInAppMessagingCampaignInfo
