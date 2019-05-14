@@ -108,14 +108,19 @@ static NSInteger const SuccessHTTPStatusCode = 200;
                   }];
   } else {
     // Fetch both images separately, call completion when they're both fetched.
-    __block NSData *portrait;
-    __block NSData *landscape;
-    __block NSError *landscapeImageLoadError;
+    __block NSData *portrait = nil;
+    __block NSData *landscape = nil;
+    __block NSError *landscapeImageLoadError = nil;
 
     [self fetchImageFromURL:_imageURL
                   withBlock:^(NSData *_Nullable imageData, NSError *_Nullable error) {
+                    __weak FIRIAMMessageContentDataWithImageURL *weakSelf = self;
+                    
                     // If the portrait image fails to load, we treat this as a failure.
                     if (error) {
+                      // Cancel landscape image fetch.
+                      [weakSelf.URLSession invalidateAndCancel];
+                      
                       block(nil, nil, error);
                       return;
                     }
@@ -157,8 +162,8 @@ static NSInteger const SuccessHTTPStatusCode = 200;
               if (httpResponse.statusCode == SuccessHTTPStatusCode) {
                 if (httpResponse.MIMEType == nil || ![httpResponse.MIMEType hasPrefix:@"image"]) {
                   NSString *errorDesc =
-                      [NSString stringWithFormat:@"None image MIME type %@"
-                                                  " detected for url %@",
+                      [NSString stringWithFormat:@"No image MIME type %@"
+                                                  " detected for URL %@",
                                                  httpResponse.MIMEType, self.imageURL];
                   FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM000004", @"%@", errorDesc);
 
