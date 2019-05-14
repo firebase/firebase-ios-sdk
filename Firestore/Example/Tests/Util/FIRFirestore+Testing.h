@@ -15,6 +15,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#include <memory>
 
 #import <FirebaseFirestore/FIRFirestore.h>
 

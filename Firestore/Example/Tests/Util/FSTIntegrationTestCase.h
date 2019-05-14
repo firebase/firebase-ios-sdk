@@ -16,6 +16,7 @@
 
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
+#include <memory>
 
 #import <FirebaseCore/FIRAppInternal.h>
 
