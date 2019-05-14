@@ -1,3 +1,7 @@
+# v6.1.0
+- Add support of web.app as an auth domain. (#2959) 
+- Fix an issue where the return type of `getStoredUserForAccessGroup:error:` is nonnull. (#2879)
+
 # v6.0.0
 - Add support of single sign on. (#2684)
 - Deprecate `reauthenticateAndRetrieveDataWithCredential:completion:`, `signInAndRetrieveDataWithCredential:completion:`, `linkAndRetrieveDataWithCredential:completion:`, `fetchProvidersForEmail:completion:`. (#2723, #2756)
