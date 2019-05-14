@@ -838,9 +838,9 @@ NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
 
 - (BOOL)isEqualToQuery:(FSTQuery *)other {
   return self.path == other.path && objc::Equals(self.collectionGroup, other.collectionGroup) &&
-         self.limit == other.limit && [self.filters isEqual:other.filters] &&
-         [self.sortOrders isEqual:other.sortOrders] && objc::Equals(self.startAt, other.startAt) &&
-         objc::Equals(self.endAt, other.endAt);
+         self.limit == other.limit && objc::Equals(self.filters, other.filters) &&
+         objc::Equals(self.sortOrders, other.sortOrders) &&
+         objc::Equals(self.startAt, other.startAt) && objc::Equals(self.endAt, other.endAt);
 }
 
 /* Returns YES if the document matches the path and collection group for the receiver. */

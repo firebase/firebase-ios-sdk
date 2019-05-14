@@ -76,13 +76,17 @@ using firebase::firestore::util::StatusOr;
 
 NS_ASSUME_NONNULL_BEGIN
 
-static FieldPath MakeFieldPath(NSString *field) {
+namespace {
+
+FieldPath MakeFieldPath(NSString *field) {
   return FieldPath::FromDotSeparatedString(util::MakeString(field));
 }
 
-static FIRQuery *Wrap(Query &&query) {
+FIRQuery *Wrap(Query &&query) {
   return [[FIRQuery alloc] initWithQuery:std::move(query)];
 }
+
+}  // namespace
 
 @implementation FIRQuery {
   Query _query;

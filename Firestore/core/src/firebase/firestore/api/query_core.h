@@ -152,7 +152,7 @@ class Query {
    * position is relative to the order of the query.  The bound must contain all
    * of the fields provided in the orderBy of this query.
    *
-   * @param bound The bound of the query to start at.
+   * @param bound The bound of the query to end at.
    *
    * @return The created `Query`.
    */

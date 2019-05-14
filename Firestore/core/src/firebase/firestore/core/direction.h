@@ -47,7 +47,7 @@ class Direction {
     DescendingModifier = -1,
   };
 
-  constexpr explicit Direction(int comparison_modifier) noexcept
+  constexpr explicit Direction(int comparison_modifier)
       : comparison_modifier_(comparison_modifier) {
   }
   int comparison_modifier_;

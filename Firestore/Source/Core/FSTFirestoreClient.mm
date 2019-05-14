@@ -348,6 +348,8 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
 - (void)getDocumentFromLocalCache:(const DocumentReference &)doc
                          callback:(DocumentSnapshot::Listener &&)callback {
   [self verifyNotShutdown];
+
+  // TODO(c++14): move `callback` into lambda.
   auto shared_callback = absl::ShareUniquePtr(std::move(callback));
   _workerQueue->Enqueue([self, doc, shared_callback] {
     FSTMaybeDocument *maybeDoc = [self.localStore readDocument:doc.key()];
@@ -378,6 +380,8 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
 - (void)getDocumentsFromLocalCache:(const api::Query &)query
                           callback:(api::QuerySnapshot::Listener &&)callback {
   [self verifyNotShutdown];
+
+  // TODO(c++14): move `callback` into lambda.
   auto shared_callback = absl::ShareUniquePtr(std::move(callback));
   _workerQueue->Enqueue([self, query, shared_callback] {
     DocumentMap docs = [self.localStore executeQuery:query.query()];
