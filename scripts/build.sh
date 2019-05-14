@@ -358,6 +358,7 @@ case "$product-$method-$platform" in
         "${xcb_flags[@]}" \
         build \
         test
+    ;;
 
   GoogleDataTransportCCTSupport-xcodebuild-iOS)
     RunXcodebuild \
