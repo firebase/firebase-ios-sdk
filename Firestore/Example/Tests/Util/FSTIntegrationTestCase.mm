@@ -217,18 +217,18 @@ static bool runningAgainstEmulator = false;
   return [self firestoreWithApp:app];
 }
 
-- (FIRFirestore *)firestoreWithApp:(FIRApp *) app {
+- (FIRFirestore *)firestoreWithApp:(FIRApp *)app {
   NSString *persistenceKey = [NSString stringWithFormat:@"db%lu", (unsigned long)_firestores.count];
 
   dispatch_queue_t queue =
-  dispatch_queue_create("com.google.firebase.firestore", DISPATCH_QUEUE_SERIAL);
+      dispatch_queue_create("com.google.firebase.firestore", DISPATCH_QUEUE_SERIAL);
   std::unique_ptr<AsyncQueue> workerQueue =
-  absl::make_unique<AsyncQueue>(absl::make_unique<ExecutorLibdispatch>(queue));
+      absl::make_unique<AsyncQueue>(absl::make_unique<ExecutorLibdispatch>(queue));
 
   FIRSetLoggerLevel(FIRLoggerLevelDebug);
 
   std::unique_ptr<CredentialsProvider> credentials_provider =
-  absl::make_unique<firebase::firestore::auth::EmptyCredentialsProvider>();
+      absl::make_unique<firebase::firestore::auth::EmptyCredentialsProvider>();
   NSString *projectID = app.options.projectID;
   FIRFirestore *firestore = [[FIRFirestore alloc] initWithProjectID:util::MakeString(projectID)
                                                            database:DatabaseId::kDefault

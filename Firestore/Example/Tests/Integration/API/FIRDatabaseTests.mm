@@ -1269,11 +1269,11 @@ using firebase::firestore::util::TimerId;
   FIRDocumentReference *docRef2 = [firestore2 documentWithPath:doc.path];
   XCTestExpectation *expectation2 = [self expectationWithDescription:@"getData"];
   [docRef2 getDocumentWithSource:FIRFirestoreSourceCache
-                  completion:^(FIRDocumentSnapshot *doc2, NSError *_Nullable error) {
-                    XCTAssertNil(error);
-                    XCTAssertTrue(doc2.exists);
-                    [expectation2 fulfill];
-                  }];
+                      completion:^(FIRDocumentSnapshot *doc2, NSError *_Nullable error) {
+                        XCTAssertNil(error);
+                        XCTAssertTrue(doc2.exists);
+                        [expectation2 fulfill];
+                      }];
   [self awaitExpectations];
 }
 
@@ -1313,7 +1313,7 @@ using firebase::firestore::util::TimerId;
                         XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
                         XCTAssertEqual(error.code, FIRFirestoreErrorCodeUnavailable);
                         [expectation2 fulfill];
-                     }];
+                      }];
   [self awaitExpectations];
 }
 
