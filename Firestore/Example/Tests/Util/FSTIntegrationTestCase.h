@@ -16,9 +16,10 @@
 
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
-#include <memory>
 
 #import <FirebaseCore/FIRAppInternal.h>
+
+#include <memory>
 
 #import "Firestore/Example/Tests/Util/XCTestCase+Await.h"
 
