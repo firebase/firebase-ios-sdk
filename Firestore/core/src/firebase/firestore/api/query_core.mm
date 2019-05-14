@@ -275,7 +275,7 @@ void Query::ValidateNewRelationFilter(FSTRelationFilter* filter) const {
     const FieldPath* existingField = [query_ inequalityFilterField];
     if (existingField && *existingField != filter.field) {
       ThrowInvalidArgument(
-          "Invalid Query. All 'where' filters with an inequality (lessThan, "
+          "Invalid Query. All where filters with an inequality (lessThan, "
           "lessThanOrEqual, greaterThan, or greaterThanOrEqual) must be on the "
           "same field. But you have inequality filters on '%s' and '%s'",
           existingField->CanonicalString(), filter.field.CanonicalString());
@@ -307,7 +307,7 @@ void Query::ValidateOrderByField(const FieldPath& orderByField,
                                  const FieldPath& inequalityField) const {
   if (orderByField != inequalityField) {
     ThrowInvalidArgument(
-        "Invalid query. You have a 'where' filter with an inequality "
+        "Invalid query. You have a where filter with an inequality "
         "(lessThan, lessThanOrEqual, greaterThan, or greaterThanOrEqual) on "
         "field '%s' and so you must also use '%s' as your first queryOrderedBy "
         "field, but your first queryOrderedBy is currently on field '%s' "
