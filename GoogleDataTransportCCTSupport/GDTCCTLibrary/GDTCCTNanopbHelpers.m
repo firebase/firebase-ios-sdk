@@ -110,7 +110,9 @@ gdt_cct_LogEvent GDTCCTConstructLogEvent(GDTStoredEvent *event) {
   // TODO: Read network_connection_info from the custom params dict.
 
   NSError *error;
-  NSData *extensionBytes = [NSData dataWithContentsOfURL:event.dataFuture.fileURL options:0 error:&error];
+  NSData *extensionBytes = [NSData dataWithContentsOfURL:event.dataFuture.fileURL
+                                                 options:0
+                                                   error:&error];
   NSCAssert(error == nil, @"There was an error reading extension bytes from disk: %@", error);
   logEvent.source_extension = GDTCCTEncodeData(extensionBytes);  // read bytes from the file.
   return logEvent;
