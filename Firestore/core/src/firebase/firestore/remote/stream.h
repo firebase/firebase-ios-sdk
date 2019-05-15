@@ -119,7 +119,7 @@ class Stream : public GrpcStreamObserver,
     Backoff
   };
 
-  Stream(std::shared_ptr<util::AsyncQueue> worker_queue,
+  Stream(const std::shared_ptr<util::AsyncQueue>& worker_queue,
          auth::CredentialsProvider* credentials_provider,
          GrpcConnection* grpc_connection,
          util::TimerId backoff_timer_id,

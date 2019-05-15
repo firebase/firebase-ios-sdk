@@ -75,7 +75,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
   using CommitCallback = std::function<void(const util::Status&)>;
 
   Datastore(const core::DatabaseInfo& database_info,
-            std::shared_ptr<util::AsyncQueue> worker_queue,
+            const std::shared_ptr<util::AsyncQueue>& worker_queue,
             auth::CredentialsProvider* credentials);
 
   virtual ~Datastore() {
@@ -141,7 +141,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
  protected:
   /** Test-only constructor */
   Datastore(const core::DatabaseInfo& database_info,
-            std::shared_ptr<util::AsyncQueue> worker_queue,
+            const std::shared_ptr<util::AsyncQueue>& worker_queue,
             auth::CredentialsProvider* credentials,
             std::unique_ptr<ConnectivityMonitor> connectivity_monitor);
 

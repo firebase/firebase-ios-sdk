@@ -56,7 +56,7 @@ namespace remote {
 class GrpcConnection {
  public:
   GrpcConnection(const core::DatabaseInfo& database_info,
-                 std::shared_ptr<util::AsyncQueue> worker_queue,
+                 const std::shared_ptr<util::AsyncQueue>& worker_queue,
                  grpc::CompletionQueue* grpc_queue,
                  ConnectivityMonitor* connectivity_monitor);
 

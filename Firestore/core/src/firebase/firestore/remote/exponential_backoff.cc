@@ -43,7 +43,7 @@ ExponentialBackoff::ExponentialBackoff(std::shared_ptr<AsyncQueue> queue,
       initial_delay_{initial_delay},
       max_delay_{max_delay},
       last_attempt_time_{chr::steady_clock::now()} {
-  HARD_ASSERT(queue, "Queue can't be null");
+  HARD_ASSERT(queue_, "Queue can't be null");
 
   HARD_ASSERT(backoff_factor >= 1.0, "Backoff factor must be at least 1");
 

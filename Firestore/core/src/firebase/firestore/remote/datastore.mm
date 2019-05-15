@@ -89,18 +89,20 @@ void LogGrpcCallFinished(absl::string_view rpc_name,
 
 }  // namespace
 
+// Order of evaluation in the inner constructor is not guaranteed, so don't pass
+// worker_queue by value. Each usage of worker_queue requires its own copy.
 Datastore::Datastore(const DatabaseInfo& database_info,
-                     std::shared_ptr<AsyncQueue> worker_queue,
+                     const std::shared_ptr<AsyncQueue>& worker_queue,
                      CredentialsProvider* credentials)
-    : Datastore{database_info, std::move(worker_queue), credentials,
+    : Datastore{database_info, worker_queue, credentials,
                 ConnectivityMonitor::Create(worker_queue)} {
 }
 
 Datastore::Datastore(const DatabaseInfo& database_info,
-                     std::shared_ptr<AsyncQueue> worker_queue,
+                     const std::shared_ptr<AsyncQueue>& worker_queue,
                      CredentialsProvider* credentials,
                      std::unique_ptr<ConnectivityMonitor> connectivity_monitor)
-    : worker_queue_{std::move(worker_queue)},
+    : worker_queue_{worker_queue},
       credentials_{credentials},
       rpc_executor_{CreateExecutor()},
       connectivity_monitor_{std::move(connectivity_monitor)},
