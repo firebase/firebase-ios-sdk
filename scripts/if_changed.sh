@@ -51,9 +51,9 @@ else
 'FirebaseAnalyticsIntop.podspec|FirebaseAuth.podspec|FirebaseAuthInterop.podspec|'\
 'FirebaseDatabase.podspec|FirebaseDynamicLinks.podspec|'\
 'FirebaseMessaging.podspec|FirebaseStorage.podspec|'\
-'FirebaseStorage.podspec|Firebase/InAppMessagingDisplay|InAppMessagingDisplay|'\
+'FirebaseStorage.podspec|'\
 'InAppMessaging|Firebase/InAppMessaging|'\
-'FirebaseInAppMessaging.podspec|FirebaseInAppMessagingDisplay.podspec|'\
+'FirebaseInAppMessaging.podspec|'\
 'Firebase/InstanceID|FirebaseInstanceID.podspec)'
       ;;
 
@@ -75,7 +75,7 @@ else
       ;;
 
     InAppMessaging-*)
-      check_changes '^(Firebase/InAppMessagingDisplay|InAppMessagingDisplay|InAppMessaging|'\
+      check_changes '^(InAppMessaging|'\
 'Firebase/InAppMessaging)'
       ;;
 

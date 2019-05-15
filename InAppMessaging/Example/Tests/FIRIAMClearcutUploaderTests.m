@@ -62,6 +62,8 @@
 
 - (void)testUploadTriggeredWhenWaitTimeConditionSatisfied {
   // using a real storage in this case
+  
+  // spurious change
   FIRIAMClearcutLogStorage *logStorage =
       [[FIRIAMClearcutLogStorage alloc] initWithExpireAfterInSeconds:1000
                                                      withTimeFetcher:self.mockTimeFetcher];
