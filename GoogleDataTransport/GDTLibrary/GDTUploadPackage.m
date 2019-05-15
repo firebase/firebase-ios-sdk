@@ -19,6 +19,7 @@
 #import <GoogleDataTransport/GDTClock.h>
 
 #import "GDTLibrary/Private/GDTStorage_Private.h"
+#import "GDTLibrary/Private/GDTUploadCoordinator_Private.h"
 #import "GDTLibrary/Private/GDTUploadPackage_Private.h"
 
 @implementation GDTUploadPackage {
@@ -35,6 +36,7 @@
     _target = target;
     _storage = [GDTStorage sharedInstance];
     _deliverByTime = [GDTClock clockSnapshotInTheFuture:180000];
+    _handler = [GDTUploadCoordinator sharedInstance];
     _expirationTimer = [NSTimer scheduledTimerWithTimeInterval:5.0
                                                         target:self
                                                       selector:@selector(checkIfPackageIsExpired:)

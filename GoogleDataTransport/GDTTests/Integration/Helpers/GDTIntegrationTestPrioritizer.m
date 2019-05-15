@@ -58,15 +58,6 @@
   });
 }
 
-- (void)unprioritizeEvents:(NSSet<GDTStoredEvent *> *)events {
-  dispatch_async(_queue, ^{
-    for (GDTStoredEvent *event in events) {
-      [self.wifiOnlyEvents removeObject:event];
-      [self.nonWifiEvents removeObject:event];
-    }
-  });
-}
-
 - (GDTUploadPackage *)uploadPackageWithConditions:(GDTUploadConditions)conditions {
   __block GDTIntegrationTestUploadPackage *uploadPackage =
       [[GDTIntegrationTestUploadPackage alloc] initWithTarget:kGDTIntegrationTestTarget];
@@ -87,6 +78,15 @@
 }
 
 - (void)appWillTerminate:(UIApplication *)application {
+}
+
+- (void)packageDelivered:(GDTUploadPackage *)package successful:(BOOL)successful {
+  dispatch_async(_queue, ^{
+    for (GDTStoredEvent *event in package.events) {
+      [self.wifiOnlyEvents removeObject:event];
+      [self.nonWifiEvents removeObject:event];
+    }
+  });
 }
 
 @end

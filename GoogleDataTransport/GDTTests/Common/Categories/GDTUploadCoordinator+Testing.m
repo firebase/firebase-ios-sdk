@@ -25,9 +25,6 @@
 @implementation GDTUploadCoordinator (Testing)
 
 - (void)reset {
-  [self.targetToNextUploadTimes removeAllObjects];
-  [self.targetToInFlightEventSet removeAllObjects];
-  [self.forcedUploadQueue removeAllObjects];
   self.storage = [GDTStorage sharedInstance];
   self.registrar = [GDTRegistrar sharedInstance];
 }

@@ -81,7 +81,6 @@
   // Don't check the error, because it'll be populated in cases where the file doesn't exist.
   NSError *error;
   [[NSFileManager defaultManager] removeItemAtPath:[GDTStorage archivePath] error:&error];
-  [[NSFileManager defaultManager] removeItemAtPath:[GDTUploadCoordinator archivePath] error:&error];
   self.uploader = [[GDTLifecycleTestUploader alloc] init];
   [[GDTRegistrar sharedInstance] registerUploader:self.uploader target:kGDTTargetTest];
 
@@ -113,8 +112,7 @@
   GDTWaitForBlock(
       ^BOOL {
         NSFileManager *fm = [NSFileManager defaultManager];
-        return [fm fileExistsAtPath:[GDTStorage archivePath] isDirectory:NULL] &&
-               [fm fileExistsAtPath:[GDTUploadCoordinator archivePath] isDirectory:NULL];
+        return [fm fileExistsAtPath:[GDTStorage archivePath] isDirectory:NULL];
       },
       5.0);
 }
@@ -140,8 +138,7 @@
   GDTWaitForBlock(
       ^BOOL {
         NSFileManager *fm = [NSFileManager defaultManager];
-        return [fm fileExistsAtPath:[GDTStorage archivePath] isDirectory:NULL] &&
-               [fm fileExistsAtPath:[GDTUploadCoordinator archivePath] isDirectory:NULL];
+        return [fm fileExistsAtPath:[GDTStorage archivePath] isDirectory:NULL];
       },
       5.0);
 
@@ -176,8 +173,7 @@
   GDTWaitForBlock(
       ^BOOL {
         NSFileManager *fm = [NSFileManager defaultManager];
-        return [fm fileExistsAtPath:[GDTStorage archivePath] isDirectory:NULL] &&
-               [fm fileExistsAtPath:[GDTUploadCoordinator archivePath] isDirectory:NULL];
+        return [fm fileExistsAtPath:[GDTStorage archivePath] isDirectory:NULL];
       },
       5.0);
 }

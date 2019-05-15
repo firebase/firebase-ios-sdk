@@ -27,9 +27,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface GDTTestUploader : NSObject <GDTUploader>
 
-/** A block that can be ran in -uploadPackage:onComplete:. */
-@property(nullable, nonatomic) void (^uploadEventsBlock)
-    (GDTUploadPackage *package, GDTUploaderCompletionBlock completionBlock);
+/** A block that can be ran in -uploadPackage:. */
+@property(nullable, nonatomic) void (^uploadPackageBlock)(GDTUploadPackage *package);
 
 @end
 

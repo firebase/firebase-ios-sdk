@@ -24,7 +24,6 @@
 #import "GDTLibrary/Private/GDTReachability.h"
 #import "GDTLibrary/Private/GDTRegistrar_Private.h"
 #import "GDTLibrary/Private/GDTStorage.h"
-#import "GDTLibrary/Private/GDTUploadPackage_Private.h"
 
 @implementation GDTUploadCoordinator
 
@@ -38,27 +37,12 @@
   return sharedUploader;
 }
 
-+ (NSString *)archivePath {
-  static NSString *archivePath;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    NSString *cachePath =
-        NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)[0];
-    NSString *storagePath = [NSString stringWithFormat:@"%@/google-sdks-events", cachePath];
-    archivePath = [storagePath stringByAppendingPathComponent:@"GDTUploadCoordinator"];
-  });
-  return archivePath;
-}
-
 - (instancetype)init {
   self = [super init];
   if (self) {
     _coordinationQueue =
         dispatch_queue_create("com.google.GDTUploadCoordinator", DISPATCH_QUEUE_SERIAL);
     _registrar = [GDTRegistrar sharedInstance];
-    _targetToNextUploadTimes = [[NSMutableDictionary alloc] init];
-    _targetToInFlightEventSet = [[NSMutableDictionary alloc] init];
-    _forcedUploadQueue = [[NSMutableArray alloc] init];
     _timerInterval = 30 * NSEC_PER_SEC;
     _timerLeeway = 5 * NSEC_PER_SEC;
   }
@@ -67,36 +51,9 @@
 
 - (void)forceUploadForTarget:(GDTTarget)target {
   dispatch_async(_coordinationQueue, ^{
-    GDTLogWarning(GDTMCWForcedUpload, @"%@", @"A high priority event has caused an upload.");
-    NSNumber *targetNumber = @(target);
-    GDTUploadCoordinatorForceUploadBlock forceUploadBlock = ^{
-      id<GDTPrioritizer> prioritizer = self->_registrar.targetToPrioritizer[targetNumber];
-      id<GDTUploader> uploader = self->_registrar.targetToUploader[targetNumber];
-      GDTAssert(prioritizer && uploader, @"Target '%@' is missing an implementation", targetNumber);
-      GDTUploadConditions conds = [self uploadConditions];
-      conds |= GDTUploadConditionHighPriority;
-      GDTUploadPackage *package = [[prioritizer uploadPackageWithConditions:conds] copy];
-      package.storage = self.storage;
-      NSAssert(package.events && package.events.count,
-               @"A high priority event should produce events to upload.");
-      self->_targetToInFlightEventSet[targetNumber] = package.events;
-      [uploader uploadPackage:package onComplete:self.onCompleteBlock];
-      [self->_forcedUploadQueue removeLastObject];
-    };
-
-    if (self->_runningInBackground) {
-      [self->_forcedUploadQueue insertObject:forceUploadBlock atIndex:0];
-      [NSKeyedArchiver archiveRootObject:self toFile:[GDTUploadCoordinator archivePath]];
-      // Enqueue the force upload block if conditions are bad or if there's an in-flight upload for
-      // that target already.
-    } else if (([self uploadConditions] & GDTUploadConditionNoNetwork) ==
-               GDTUploadConditionNoNetwork) {
-      [self->_forcedUploadQueue insertObject:forceUploadBlock atIndex:0];
-    } else if (self->_targetToInFlightEventSet[targetNumber]) {
-      [self->_forcedUploadQueue insertObject:forceUploadBlock atIndex:0];
-    } else {
-      forceUploadBlock();
-    }
+    GDTUploadConditions conditions = [self uploadConditions];
+    conditions |= GDTUploadConditionHighPriority;
+    [self uploadTargets:@[ @(target) ] conditions:conditions];
   });
 }
 
@@ -109,42 +66,6 @@
     _storage = [GDTStorage sharedInstance];
   }
   return _storage;
-}
-
-// This should always be called in a thread-safe manner. When running the background, in theory,
-// the uploader's background task should be calling this.
-- (GDTUploaderCompletionBlock)onCompleteBlock {
-  static GDTUploaderCompletionBlock onCompleteBlock;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    onCompleteBlock = ^(GDTTarget target, GDTClock *nextUploadAttemptUTC, NSError *error) {
-      dispatch_async(self->_coordinationQueue, ^{
-        NSNumber *targetNumber = @(target);
-        if (error) {
-          GDTLogWarning(GDTMCWUploadFailed, @"Error during upload: %@", error);
-          [self->_targetToInFlightEventSet removeObjectForKey:targetNumber];
-          return;
-        }
-        self->_targetToNextUploadTimes[targetNumber] = nextUploadAttemptUTC;
-        NSSet<GDTStoredEvent *> *events =
-            [self->_targetToInFlightEventSet objectForKey:targetNumber];
-        GDTAssert(events, @"There should be an in-flight event set to remove.");
-        [self->_storage removeEvents:events];
-        [self->_targetToInFlightEventSet removeObjectForKey:targetNumber];
-        if (self->_runningInBackground) {
-          [NSKeyedArchiver archiveRootObject:self toFile:[GDTUploadCoordinator archivePath]];
-        } else if (self->_forcedUploadQueue.count) {
-          GDTUploadCoordinatorForceUploadBlock queuedBlock = [self->_forcedUploadQueue lastObject];
-          if (queuedBlock) {
-            dispatch_async(self->_coordinationQueue, ^{
-              queuedBlock();
-            });
-          }
-        }
-      });
-    };
-  });
-  return onCompleteBlock;
 }
 
 #pragma mark - Private helper methods
@@ -160,7 +81,8 @@
                               self->_timerLeeway);
     dispatch_source_set_event_handler(self->_timer, ^{
       if (!self->_runningInBackground) {
-        [self checkPrioritizersAndUploadEvents];
+        GDTUploadConditions conditions = [self uploadConditions];
+        [self uploadTargets:[self.registrar.targetToUploader allKeys] conditions:conditions];
       }
     });
     dispatch_resume(self->_timer);
@@ -174,32 +96,19 @@
   }
 }
 
-/** Checks the next upload time for each target and makes a determination on whether to upload
- * events for that target or not. If so, queries the prioritizers
+/** Triggers the uploader implementations for the given targets to upload.
+ *
+ * @param targets An array of targets to trigger.
+ * @param conditions The set of upload conditions.
  */
-- (void)checkPrioritizersAndUploadEvents {
+- (void)uploadTargets:(NSArray<NSNumber *> *)targets conditions:(GDTUploadConditions)conditions {
   dispatch_async(_coordinationQueue, ^{
-    if (self->_runningInBackground) {
-      return;
-    }
-
-    GDTUploadConditions conds = [self uploadConditions];
-    if ((conds & GDTUploadConditionNoNetwork) == GDTUploadConditionNoNetwork) {
-      return;
-    }
-
-    static int count = 0;
-    count++;
-    NSArray<NSNumber *> *targetsReadyForUpload = [self targetsReadyForUpload];
-    for (NSNumber *target in targetsReadyForUpload) {
-      id<GDTPrioritizer> prioritizer = self->_registrar.targetToPrioritizer[target];
-      id<GDTUploader> uploader = self->_registrar.targetToUploader[target];
-      GDTAssert(prioritizer && uploader, @"Target '%@' is missing an implementation", target);
-      GDTUploadPackage *package = [[prioritizer uploadPackageWithConditions:conds] copy];
-      package.storage = self.storage;
-      if (package.events && package.events.count > 0) {
-        self->_targetToInFlightEventSet[target] = package.events;
-        [uploader uploadPackage:package onComplete:self.onCompleteBlock];
+    for (NSNumber *target in targets) {
+      id<GDTUploader> uploader = self.registrar.targetToUploader[target];
+      if ([uploader readyToUploadWithConditions:conditions]) {
+        id<GDTPrioritizer> prioritizer = self.registrar.targetToPrioritizer[target];
+        GDTUploadPackage *package = [prioritizer uploadPackageWithConditions:conditions];
+        [uploader uploadPackage:package];
       }
     }
   });
@@ -246,66 +155,17 @@
   return conditions;
 }
 
-/** Checks the next upload time for each target and returns an array of targets that are
- * able to make an upload attempt.
- *
- * @return An array of targets wrapped in NSNumbers that are ready for upload attempts.
- */
-- (NSArray<NSNumber *> *)targetsReadyForUpload {
-  NSMutableArray *targetsReadyForUpload = [[NSMutableArray alloc] init];
-  GDTClock *currentTime = [GDTClock snapshot];
-  for (NSNumber *target in self.registrar.targetToPrioritizer) {
-    // Targets in flight are not ready.
-    if (_targetToInFlightEventSet[target]) {
-      continue;
-    }
-    GDTClock *nextUploadTime = _targetToNextUploadTimes[target];
-
-    // If no next upload time was specified or if the currentTime > nextUpload time, mark as ready.
-    if (!nextUploadTime || [currentTime isAfter:nextUploadTime]) {
-      [targetsReadyForUpload addObject:target];
-    }
-  }
-  return targetsReadyForUpload;
-}
-
 #pragma mark - NSSecureCoding support
-
-/** The keyed archiver key for the _targetToNextUploadTimes property. */
-static NSString *const kTargetToNextUploadTimesKey =
-    @"GDTUploadCoordinatorTargetToNextUploadTimesKey";
-
-/** The keyed archiver key for the _targetToInFlightEventSet property. */
-static NSString *const kTargetToInFlightEventSetKey =
-    @"GDTUploadCoordinatorTargetToInFlightEventSetKey";
-
-/** The keyed archiver key for the _forcedUploadQueue property. */
-static NSString *const kForcedUploadQueueKey = @"GDTUploadCoordinatorForcedUploadQueueKey";
 
 + (BOOL)supportsSecureCoding {
   return YES;
 }
 
 - (instancetype)initWithCoder:(NSCoder *)aDecoder {
-  GDTUploadCoordinator *sharedInstance = [self.class sharedInstance];
-  dispatch_sync(sharedInstance->_coordinationQueue, ^{
-    sharedInstance->_targetToNextUploadTimes =
-        [aDecoder decodeObjectOfClass:[NSMutableDictionary class]
-                               forKey:kTargetToNextUploadTimesKey];
-    sharedInstance->_targetToInFlightEventSet =
-        [aDecoder decodeObjectOfClass:[NSMutableDictionary class]
-                               forKey:kTargetToInFlightEventSetKey];
-    sharedInstance->_forcedUploadQueue = [aDecoder decodeObjectOfClass:[NSMutableArray class]
-                                                                forKey:kForcedUploadQueueKey];
-  });
-  return sharedInstance;
+  return [GDTUploadCoordinator sharedInstance];
 }
 
-// Needs to always be called on the queue to be thread-safe.
 - (void)encodeWithCoder:(NSCoder *)aCoder {
-  [aCoder encodeObject:self->_targetToNextUploadTimes forKey:kTargetToNextUploadTimesKey];
-  [aCoder encodeObject:self->_targetToInFlightEventSet forKey:kTargetToInFlightEventSetKey];
-  [aCoder encodeObject:self->_forcedUploadQueue forKey:kForcedUploadQueueKey];
 }
 
 #pragma mark - GDTLifecycleProtocol
@@ -314,7 +174,6 @@ static NSString *const kForcedUploadQueueKey = @"GDTUploadCoordinatorForcedUploa
   // Not entirely thread-safe, but it should be fine.
   self->_runningInBackground = NO;
   [self startTimer];
-  [NSKeyedUnarchiver unarchiveObjectWithFile:[GDTUploadCoordinator archivePath]];
 }
 
 - (void)appWillBackground:(UIApplication *)app {
@@ -326,11 +185,9 @@ static NSString *const kForcedUploadQueueKey = @"GDTUploadCoordinatorForcedUploa
 
   // Create an immediate background task to run until the end of the current queue of work.
   __block UIBackgroundTaskIdentifier bgID = [app beginBackgroundTaskWithExpirationHandler:^{
-    [NSKeyedArchiver archiveRootObject:self toFile:[GDTUploadCoordinator archivePath]];
     [app endBackgroundTask:bgID];
   }];
   dispatch_async(_coordinationQueue, ^{
-    [NSKeyedArchiver archiveRootObject:self toFile:[GDTUploadCoordinator archivePath]];
     [app endBackgroundTask:bgID];
   });
 }
@@ -338,7 +195,34 @@ static NSString *const kForcedUploadQueueKey = @"GDTUploadCoordinatorForcedUploa
 - (void)appWillTerminate:(UIApplication *)application {
   dispatch_sync(_coordinationQueue, ^{
     [self stopTimer];
-    [NSKeyedArchiver archiveRootObject:self toFile:[GDTUploadCoordinator archivePath]];
+  });
+}
+
+#pragma mark - GDTUploadPackageProtocol
+
+- (void)packageDelivered:(GDTUploadPackage *)package successful:(BOOL)successful {
+  dispatch_async(_coordinationQueue, ^{
+    NSNumber *targetNumber = @(package.target);
+    id<GDTPrioritizer> prioritizer = self->_registrar.targetToPrioritizer[targetNumber];
+    NSAssert(prioritizer, @"A prioritizer should be registered for this target: %@", targetNumber);
+    if ([prioritizer respondsToSelector:@selector(packageDelivered:successful:)]) {
+      [prioritizer packageDelivered:package successful:successful];
+    }
+    [self.storage removeEvents:package.events];
+  });
+}
+
+- (void)packageExpired:(GDTUploadPackage *)package {
+  dispatch_async(_coordinationQueue, ^{
+    NSNumber *targetNumber = @(package.target);
+    id<GDTPrioritizer> prioritizer = self->_registrar.targetToPrioritizer[targetNumber];
+    id<GDTUploader> uploader = self->_registrar.targetToUploader[targetNumber];
+    if ([prioritizer respondsToSelector:@selector(packageExpired:)]) {
+      [prioritizer packageExpired:package];
+    }
+    if ([uploader respondsToSelector:@selector(packageExpired:)]) {
+      [uploader packageExpired:package];
+    }
   });
 }
 
