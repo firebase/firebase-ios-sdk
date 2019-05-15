@@ -35,6 +35,9 @@ NS_ASSUME_NONNULL_BEGIN
 /** The current upload task. */
 @property(nullable, nonatomic, readonly) NSURLSessionUploadTask *currentTask;
 
+/** The next upload time. */
+@property(nullable, nonatomic) GDTClock *nextUploadTime;
+
 /** Creates and/or returns the singleton instance of this class.
  *
  * @return The singleton instance of this class.

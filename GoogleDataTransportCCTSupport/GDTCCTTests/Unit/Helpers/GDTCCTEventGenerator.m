@@ -26,7 +26,7 @@ static volatile NSUInteger gCounter = 0;
 - (void)deleteGeneratedFilesFromDisk {
   for (GDTStoredEvent *storedEvent in self.allGeneratedEvents) {
     NSError *error;
-    [[NSFileManager defaultManager] removeItemAtURL:storedEvent.eventFileURL error:&error];
+    [[NSFileManager defaultManager] removeItemAtURL:storedEvent.dataFuture.fileURL error:&error];
     NSAssert(error == nil, @"There was an error deleting a temporary event file.");
   }
 }
@@ -41,7 +41,8 @@ static volatile NSUInteger gCounter = 0;
   event.qosTier = qosTier;
   [[NSFileManager defaultManager] createFileAtPath:filePath contents:[NSData data] attributes:nil];
   gCounter++;
-  GDTStoredEvent *storedEvent = [event storedEventWithFileURL:[NSURL fileURLWithPath:filePath]];
+  GDTDataFuture *future = [[GDTDataFuture alloc] initWithFileURL:[NSURL fileURLWithPath:filePath]];
+  GDTStoredEvent *storedEvent = [event storedEventWithDataFuture:future];
   [self.allGeneratedEvents addObject:storedEvent];
   return storedEvent;
 }
@@ -51,7 +52,9 @@ static volatile NSUInteger gCounter = 0;
   event.clockSnapshot = [GDTClock snapshot];
   event.qosTier = qosTier;
   gCounter++;
-  GDTStoredEvent *storedEvent = [event storedEventWithFileURL:[NSURL fileURLWithPath:fileURL.path]];
+  GDTDataFuture *future =
+      [[GDTDataFuture alloc] initWithFileURL:[NSURL fileURLWithPath:fileURL.path]];
+  GDTStoredEvent *storedEvent = [event storedEventWithDataFuture:future];
   [self.allGeneratedEvents addObject:storedEvent];
   return storedEvent;
 }
@@ -68,9 +71,9 @@ static volatile NSUInteger gCounter = 0;
     [event.clockSnapshot setValue:@(1235567890) forKeyPath:@"uptime"];
     event.qosTier = GDTEventQosDefault;
     event.customPrioritizationParams = @{@"customParam" : @1337};
-    GDTStoredEvent *storedEvent =
-        [event storedEventWithFileURL:[testBundle URLForResource:@"message-32347456.dat"
-                                                   withExtension:nil]];
+    GDTDataFuture *future = [[GDTDataFuture alloc]
+        initWithFileURL:[testBundle URLForResource:@"message-32347456.dat" withExtension:nil]];
+    GDTStoredEvent *storedEvent = [event storedEventWithDataFuture:future];
     [storedEvents addObject:storedEvent];
   }
 
@@ -82,9 +85,9 @@ static volatile NSUInteger gCounter = 0;
     [event.clockSnapshot setValue:@(1111111111111333) forKeyPath:@"kernelBootTime"];
     [event.clockSnapshot setValue:@(1236567890) forKeyPath:@"uptime"];
     event.qosTier = GDTEventQoSWifiOnly;
-    GDTStoredEvent *storedEvent =
-        [event storedEventWithFileURL:[testBundle URLForResource:@"message-35458880.dat"
-                                                   withExtension:nil]];
+    GDTDataFuture *future = [[GDTDataFuture alloc]
+        initWithFileURL:[testBundle URLForResource:@"message-35458880.dat" withExtension:nil]];
+    GDTStoredEvent *storedEvent = [event storedEventWithDataFuture:future];
     [storedEvents addObject:storedEvent];
   }
 
@@ -96,9 +99,9 @@ static volatile NSUInteger gCounter = 0;
     [event.clockSnapshot setValue:@(1111111111111444) forKeyPath:@"kernelBootTime"];
     [event.clockSnapshot setValue:@(1237567890) forKeyPath:@"uptime"];
     event.qosTier = GDTEventQosDefault;
-    GDTStoredEvent *storedEvent =
-        [event storedEventWithFileURL:[testBundle URLForResource:@"message-39882816.dat"
-                                                   withExtension:nil]];
+    GDTDataFuture *future = [[GDTDataFuture alloc]
+        initWithFileURL:[testBundle URLForResource:@"message-39882816.dat" withExtension:nil]];
+    GDTStoredEvent *storedEvent = [event storedEventWithDataFuture:future];
     [storedEvents addObject:storedEvent];
   }
 
@@ -111,9 +114,9 @@ static volatile NSUInteger gCounter = 0;
     [event.clockSnapshot setValue:@(1238567890) forKeyPath:@"uptime"];
     event.qosTier = GDTEventQosDefault;
     event.customPrioritizationParams = @{@"customParam1" : @"aValue1"};
-    GDTStoredEvent *storedEvent =
-        [event storedEventWithFileURL:[testBundle URLForResource:@"message-40043840.dat"
-                                                   withExtension:nil]];
+    GDTDataFuture *future = [[GDTDataFuture alloc]
+        initWithFileURL:[testBundle URLForResource:@"message-40043840.dat" withExtension:nil]];
+    GDTStoredEvent *storedEvent = [event storedEventWithDataFuture:future];
     [storedEvents addObject:storedEvent];
   }
 
@@ -126,9 +129,9 @@ static volatile NSUInteger gCounter = 0;
     [event.clockSnapshot setValue:@(1239567890) forKeyPath:@"uptime"];
     event.qosTier = GDTEventQoSTelemetry;
     event.customPrioritizationParams = @{@"customParam2" : @(34)};
-    GDTStoredEvent *storedEvent =
-        [event storedEventWithFileURL:[testBundle URLForResource:@"message-40657984.dat"
-                                                   withExtension:nil]];
+    GDTDataFuture *future = [[GDTDataFuture alloc]
+        initWithFileURL:[testBundle URLForResource:@"message-40657984.dat" withExtension:nil]];
+    GDTStoredEvent *storedEvent = [event storedEventWithDataFuture:future];
     [storedEvents addObject:storedEvent];
   }
   return storedEvents;
