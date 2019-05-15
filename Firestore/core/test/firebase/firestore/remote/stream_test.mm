@@ -66,7 +66,7 @@ const auto kBackoffTimerId = TimerId::ListenStreamConnectionBackoff;
 
 class TestStream : public Stream {
  public:
-  TestStream(AsyncQueue* worker_queue,
+  TestStream(const std::shared_ptr<AsyncQueue>& worker_queue,
              GrpcStreamTester* tester,
              CredentialsProvider* credentials_provider)
       : Stream{worker_queue, credentials_provider,
@@ -149,7 +149,7 @@ class StreamTest : public testing::Test {
         connectivity_monitor{CreateNoOpConnectivityMonitor()},
         tester{worker_queue, connectivity_monitor.get()},
         firestore_stream{std::make_shared<TestStream>(
-            &worker_queue, &tester, &credentials)} {
+            worker_queue, &tester, &credentials)} {
   }
 
   ~StreamTest() {
