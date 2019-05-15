@@ -118,10 +118,11 @@ HostConfigMap& Config() {
 
 // RegisterConnectivityMonitor requires worker_queue, so don't pass
 // worker_queue by value. Each usage of worker_queue requires its own copy.
-GrpcConnection::GrpcConnection(const DatabaseInfo& database_info,
-                               const std::shared_ptr<util::AsyncQueue>& worker_queue,
-                               grpc::CompletionQueue* grpc_queue,
-                               ConnectivityMonitor* connectivity_monitor)
+GrpcConnection::GrpcConnection(
+    const DatabaseInfo& database_info,
+    const std::shared_ptr<util::AsyncQueue>& worker_queue,
+    grpc::CompletionQueue* grpc_queue,
+    ConnectivityMonitor* connectivity_monitor)
     : database_info_{&database_info},
       worker_queue_{worker_queue},
       grpc_queue_{NOT_NULL(grpc_queue)},

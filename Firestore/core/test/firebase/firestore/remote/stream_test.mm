@@ -148,8 +148,8 @@ class StreamTest : public testing::Test {
             absl::make_unique<ExecutorStd>())},
         connectivity_monitor{CreateNoOpConnectivityMonitor()},
         tester{worker_queue, connectivity_monitor.get()},
-        firestore_stream{std::make_shared<TestStream>(
-            worker_queue, &tester, &credentials)} {
+        firestore_stream{
+            std::make_shared<TestStream>(worker_queue, &tester, &credentials)} {
   }
 
   ~StreamTest() {

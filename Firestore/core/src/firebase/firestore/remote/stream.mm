@@ -52,8 +52,8 @@ const AsyncQueue::Milliseconds kIdleTimeout{std::chrono::seconds(60)};
 
 }  // namespace
 
-  // Order of evaluation in the inner constructor is not guaranteed, so don't pass
-  // worker_queue by value. Each usage of worker_queue requires its own copy.
+// Order of evaluation in the inner constructor is not guaranteed, so don't pass
+// worker_queue by value. Each usage of worker_queue requires its own copy.
 Stream::Stream(const std::shared_ptr<AsyncQueue>& worker_queue,
                CredentialsProvider* credentials_provider,
                GrpcConnection* grpc_connection,
