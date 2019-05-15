@@ -43,6 +43,7 @@ var paths = ZipBuilder.FilesystemPaths(templateDir: args.templateDir,
                                        coreDiagnosticsDir: args.coreDiagnosticsDir)
 paths.allSDKsPath = args.allSDKsPath
 paths.currentReleasePath = args.currentReleasePath
+paths.logsOutputDir = args.outputDir?.appendingPathComponent("build_logs")
 let builder = ZipBuilder(paths: paths,
                          customSpecRepos: args.customSpecRepos,
                          useCache: args.cacheEnabled)

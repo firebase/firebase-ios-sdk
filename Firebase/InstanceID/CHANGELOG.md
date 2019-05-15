@@ -1,5 +1,7 @@
-# Unreleased
-- A keychain migration crash fix (#2731)
+# 2019-05-21 -- 4.1.0
+- Fixed a race condition where checkin was deleted before writing during app start, causing notifications to not be delivered correctly. (#2438)
+- Fixed a keychain migration crash. (#2731)
+- Remove reflection call to get checkin info from Firebase Messaging. (#2825)
 
 # 2019-05-07 -- 4.0.0
 - Remove deprecated `token` method. Use `instanceIDWithHandler:` instead. (#2741)

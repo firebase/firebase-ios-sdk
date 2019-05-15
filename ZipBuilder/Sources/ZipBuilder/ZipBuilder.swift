@@ -82,6 +82,10 @@ struct ZipBuilder {
     /// expected version numbers.
     var currentReleasePath: URL?
 
+    /// The path to a directory to move all build logs to. If nil, a temporary directory will be
+    /// used.
+    var logsOutputDir: URL?
+
     /// Default initializer with all required paths.
     init(templateDir: URL, coreDiagnosticsDir: URL) {
       self.templateDir = templateDir
@@ -704,7 +708,8 @@ struct ZipBuilder {
         let framework = builder.buildFramework(withName: pod.name,
                                                version: pod.version,
                                                cacheKey: pod.cacheKey,
-                                               cacheEnabled: useCache)
+                                               cacheEnabled: useCache,
+                                               logsOutputDir: paths.logsOutputDir)
 
         frameworks = [framework]
       } else {

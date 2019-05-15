@@ -84,8 +84,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FIRQuery *)query {
-  FIRFirestore *firestore = [FIRFirestore recoverFromFirestore:_snapshot->firestore()];
-  return [FIRQuery referenceWithQuery:_snapshot->internal_query() firestore:firestore];
+  return [[FIRQuery alloc] initWithQuery:_snapshot->query()];
 }
 
 - (FIRSnapshotMetadata *)metadata {

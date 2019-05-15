@@ -75,11 +75,13 @@ struct FrameworkBuilder {
   ///   - cacheKey: The key used for caching this framework build. If nil, the framework name will
   ///               be used.
   ///   - cacheEnabled: Flag for enabling the cache. Defaults to false.
+  /// - Parameter logsOutputDir: The path to the directory to place build logs.
   /// - Returns: A URL to the framework that was built (or pulled from the cache).
   public func buildFramework(withName podName: String,
                              version: String,
                              cacheKey: String?,
-                             cacheEnabled: Bool = false) -> URL {
+                             cacheEnabled: Bool = false,
+                             logsOutputDir: URL? = nil) -> URL {
     print("Building \(podName)")
 
 //  Cache is temporarily disabled due to pod cache list issues.
@@ -332,11 +334,13 @@ struct FrameworkBuilder {
   /// This will compile all architectures and use the lipo command to create a "fat" archive.
   ///
   /// - Parameter framework: The name of the framework to be built.
+  /// - Parameter logsOutputDir: The path to the directory to place build logs.
   /// - Returns: A path to the newly compiled framework (with any included Resources embedded).
-  private func compileFrameworkAndResources(withName framework: String) -> URL {
+  private func compileFrameworkAndResources(withName framework: String,
+                                            logsOutputDir: URL? = nil) -> URL {
     let fileManager = FileManager.default
-    let outputDir = fileManager.temporaryDirectory(withName: "frameworkBeingBuilt")
-    let logsDir = fileManager.temporaryDirectory(withName: "buildLogs")
+    let outputDir = fileManager.temporaryDirectory(withName: "frameworks_being_built")
+    let logsDir = logsOutputDir ?? fileManager.temporaryDirectory(withName: "build_logs")
     do {
       // Remove the compiled frameworks directory, this isn't the cache we're using.
       if fileManager.directoryExists(at: outputDir) {
