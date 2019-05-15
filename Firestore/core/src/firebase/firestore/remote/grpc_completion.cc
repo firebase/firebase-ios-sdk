@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/grpc_completion.h"
 
+#include <memory>
 #include <utility>
 
 namespace firebase {

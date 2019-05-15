@@ -20,6 +20,7 @@
 #include <chrono>  // NOLINT(build/c++11)
 #include <functional>
 #include <future>  // NOLINT(build/c++11)
+#include <memory>
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"

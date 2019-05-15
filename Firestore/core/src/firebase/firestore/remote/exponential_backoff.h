@@ -18,6 +18,7 @@
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_EXPONENTIAL_BACKOFF_H_
 
 #include <chrono>  // NOLINT(build/c++11)
+#include <memory>
 
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/secure_random.h"

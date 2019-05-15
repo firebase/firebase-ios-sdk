@@ -18,7 +18,9 @@
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_ONLINE_STATE_TRACKER_H_
 
 #include <functional>
+#include <memory>
 #include <string>
+#include <utility>
 
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"

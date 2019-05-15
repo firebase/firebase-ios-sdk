@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#include <utility>
+
 #include "Firestore/core/src/firebase/firestore/remote/watch_stream.h"
 
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
