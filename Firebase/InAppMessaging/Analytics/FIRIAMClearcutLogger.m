@@ -149,6 +149,13 @@
     eventTimeInMs = @((long)nowInMs);
   }
 
+  if (!iid) {
+    FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM210009",
+                  @"Instance ID is nil, event %ld for campaign ID %@ will not be sent",
+                  (long)eventType, campaignID);
+    return;
+  }
+
   NSString *sourceExtensionJsonString =
       [self constructSourceExtensionJsonForClearcutWithEventType:eventType
                                                    forCampaignID:campaignID
