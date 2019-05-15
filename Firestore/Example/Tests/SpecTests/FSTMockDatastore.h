@@ -37,7 +37,7 @@ class MockWriteStream;
 class MockDatastore : public Datastore {
  public:
   MockDatastore(const core::DatabaseInfo& database_info,
-                util::AsyncQueue* worker_queue,
+                std::shared_ptr<util::AsyncQueue> worker_queue,
                 auth::CredentialsProvider* credentials);
 
   std::shared_ptr<WatchStream> CreateWatchStream(WatchStreamCallback* callback) override;
@@ -92,7 +92,7 @@ class MockDatastore : public Datastore {
   // These are all passed to the base class; however, making `MockDatastore` store the pointers
   // reduces the number of test-only methods in `Datastore`.
   const core::DatabaseInfo* database_info_ = nullptr;
-  util::AsyncQueue* worker_queue_ = nullptr;
+  std::shared_ptr<util::AsyncQueue> worker_queue_;
   auth::CredentialsProvider* credentials_ = nullptr;
 
   std::shared_ptr<MockWatchStream> watch_stream_;

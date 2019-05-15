@@ -135,7 +135,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @implementation FSTSyncEngineTestDriver {
-  std::unique_ptr<AsyncQueue> _workerQueue;
+  std::shared_ptr<AsyncQueue> _workerQueue;
 
   std::unique_ptr<RemoteStore> _remoteStore;
 
@@ -177,14 +177,13 @@ NS_ASSUME_NONNULL_BEGIN
     // Set up the sync engine and various stores.
     dispatch_queue_t queue =
         dispatch_queue_create("sync_engine_test_driver", DISPATCH_QUEUE_SERIAL);
-    _workerQueue = absl::make_unique<AsyncQueue>(absl::make_unique<ExecutorLibdispatch>(queue));
+    _workerQueue = std::make_shared<AsyncQueue>(absl::make_unique<ExecutorLibdispatch>(queue));
     _persistence = persistence;
     _localStore = [[FSTLocalStore alloc] initWithPersistence:persistence initialUser:initialUser];
 
-    _datastore =
-        std::make_shared<MockDatastore>(_databaseInfo, _workerQueue.get(), &_credentialProvider);
+    _datastore = std::make_shared<MockDatastore>(_databaseInfo, _workerQueue, &_credentialProvider);
     _remoteStore = absl::make_unique<RemoteStore>(
-        _localStore, _datastore, _workerQueue.get(), [self](OnlineState onlineState) {
+        _localStore, _datastore, _workerQueue, [self](OnlineState onlineState) {
           [self.syncEngine applyChangedOnlineState:onlineState];
           [self.eventManager applyChangedOnlineState:onlineState];
         });

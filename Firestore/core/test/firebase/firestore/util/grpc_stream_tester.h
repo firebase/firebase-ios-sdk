@@ -133,7 +133,7 @@ class GrpcStreamTester {
  public:
   using CompletionCallback = FakeGrpcQueue::CompletionCallback;
 
-  GrpcStreamTester(AsyncQueue* worker_queue,
+  GrpcStreamTester(std::shared_ptr<AsyncQueue> worker_queue,
                    remote::ConnectivityMonitor* connectivity_monitor);
   ~GrpcStreamTester();
 
@@ -246,7 +246,7 @@ class GrpcStreamTester {
   }
 
  private:
-  AsyncQueue* worker_queue_ = nullptr;
+  std::shared_ptr<AsyncQueue> worker_queue_;
   core::DatabaseInfo database_info_;
 
   grpc::CompletionQueue grpc_queue_;

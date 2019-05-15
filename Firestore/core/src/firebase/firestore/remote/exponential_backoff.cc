@@ -36,7 +36,7 @@ ExponentialBackoff::ExponentialBackoff(std::shared_ptr<AsyncQueue> queue,
                                        double backoff_factor,
                                        Milliseconds initial_delay,
                                        Milliseconds max_delay)
-  : queue_{std::move(queue)},
+    : queue_{std::move(queue)},
       timer_id_{timer_id},
       backoff_factor_{backoff_factor},
       initial_delay_{initial_delay},

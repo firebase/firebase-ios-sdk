@@ -52,9 +52,8 @@ class ConnectivityMonitor {
   static std::unique_ptr<ConnectivityMonitor> Create(
       std::shared_ptr<util::AsyncQueue> worker_queue);
 
-  explicit ConnectivityMonitor(
-      std::shared_ptr<util::AsyncQueue> worker_queue)
-  : worker_queue_{std::move(worker_queue)} {
+  explicit ConnectivityMonitor(std::shared_ptr<util::AsyncQueue> worker_queue)
+      : worker_queue_{std::move(worker_queue)} {
   }
 
   virtual ~ConnectivityMonitor() {

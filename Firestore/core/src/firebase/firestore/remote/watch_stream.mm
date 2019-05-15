@@ -38,7 +38,7 @@ WatchStream::WatchStream(std::shared_ptr<AsyncQueue> async_queue,
                          FSTSerializerBeta* serializer,
                          GrpcConnection* grpc_connection,
                          WatchStreamCallback* callback)
-  : Stream{std::move(async_queue), credentials_provider, grpc_connection,
+    : Stream{std::move(async_queue), credentials_provider, grpc_connection,
              TimerId::ListenStreamConnectionBackoff, TimerId::ListenStreamIdle},
       serializer_bridge_{serializer},
       callback_{NOT_NULL(callback)} {
