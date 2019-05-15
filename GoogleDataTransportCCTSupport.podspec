@@ -28,7 +28,7 @@ Support library to provide event prioritization and uploading for the GoogleData
   s.source_files = 'GoogleDataTransportCCTSupport/GDTCCTLibrary/**/*'
   s.private_header_files = 'GoogleDataTransportCCTSupport/GDTCCTLibrary/Private/*.h'
 
-  s.dependency 'GoogleDataTransport'
+  s.dependency 'GoogleDataTransport', '~> 0.1.1'
   s.dependency 'nanopb'
 
   header_search_paths = {
