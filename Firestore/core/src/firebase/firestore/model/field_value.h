@@ -31,6 +31,7 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "absl/base/attributes.h"
 #include "absl/types/optional.h"
 
 #if __OBJC__
@@ -40,6 +41,9 @@
 namespace firebase {
 namespace firestore {
 namespace model {
+
+// A bit pattern for our canonical NaN value. Exposed here for testing.
+ABSL_CONST_INIT extern const uint64_t kCanonicalNanBits;
 
 /**
  * tagged-union class representing an immutable data value as stored in

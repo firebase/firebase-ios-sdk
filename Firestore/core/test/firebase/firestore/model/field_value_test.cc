@@ -16,10 +16,17 @@
 
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 
+#if __APPLE__
+#import <CoreFoundation/CoreFoundation.h>
+#endif  // __APPLE__
+
 #include <climits>
+#include <cmath>
 #include <vector>
 
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
+#include "absl/base/casts.h"
+#include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
@@ -29,6 +36,7 @@ namespace model {
 using Type = FieldValue::Type;
 
 using absl::nullopt;
+using testing::Not;
 using testutil::Field;
 using testutil::Key;
 using testutil::Object;
@@ -39,6 +47,18 @@ namespace {
 
 const uint8_t* Bytes(const char* value) {
   return reinterpret_cast<const uint8_t*>(value);
+}
+
+uint64_t ToBits(double value) {
+  return absl::bit_cast<uint64_t>(value);
+}
+
+double ToDouble(uint64_t value) {
+  return absl::bit_cast<double>(value);
+}
+
+MATCHER(IsNan, "a NaN") {
+  return std::isnan(arg);
 }
 
 }  // namespace
@@ -160,6 +180,58 @@ TEST(FieldValueTest, DeletesNestedKeys) {
   EXPECT_NE(old, mod);
   EXPECT_EQ(WrapObject(third), old);
   EXPECT_EQ(ObjectValue::Empty(), mod);
+}
+
+// All permutations of the 51 other non-MSB significand bits are also NaNs.
+const uint64_t kAlternateNanBits = 0x7fff000000000000ULL;
+
+#if __APPLE__
+// Validates that NSNumber/CFNumber normalize NaNs to the same values that
+// Firestore does. This uses CoreFoundation's CFNumber instead of NSNumber just
+// to keep the test in a single file.
+TEST(FieldValueTest, CanonicalBitsAreCanonical) {
+  double input = ToDouble(kAlternateNanBits);
+  CFNumberRef number = CFNumberCreate(nullptr, kCFNumberDoubleType, &input);
+
+  double actual = 0.0;
+  CFNumberGetValue(number, kCFNumberDoubleType, &actual);
+  CFRelease(number);
+
+  ASSERT_EQ(kCanonicalNanBits, ToBits(actual));
+}
+#endif  // __APPLE__
+
+TEST(FieldValueTest, NormalizesNaNs) {
+  // NOTE: With v1 query semantics, it's no longer as important that our NaN
+  // representation matches the backend, since all NaNs are defined to sort as
+  // equal, but we preserve the normalization and this test regardless for now.
+
+  // Bedrock assumption: our canonical NaN bits are actually a NaN.
+  double canonical = ToDouble(kCanonicalNanBits);
+  double alternate = ToDouble(kAlternateNanBits);
+  ASSERT_THAT(canonical, IsNan());
+  ASSERT_THAT(alternate, IsNan());
+  ASSERT_THAT(0.0, Not(IsNan()));
+
+  // Round trip otherwise preserves NaNs
+  EXPECT_EQ(kAlternateNanBits, ToBits(alternate));
+
+  // Creating a FieldValue from a double should normalize NaNs.
+  auto Normalize = [](uint64_t bits) -> uint64_t {
+    double value = ToDouble(bits);
+    double normalized = FieldValue::FromDouble(value).double_value();
+    return ToBits(normalized);
+  };
+
+  EXPECT_EQ(kCanonicalNanBits, Normalize(kAlternateNanBits));
+
+  // A NaN that's canonical except it has the sign bit set (would be negative if
+  // signs mattered)
+  EXPECT_EQ(kCanonicalNanBits, Normalize(0xfff8000000000000ULL));
+
+  // A signaling NaN with significand where MSB is 0, and some non-MSB bit is
+  // one.
+  EXPECT_EQ(kCanonicalNanBits, Normalize(0xfff4000000000000ULL));
 }
 
 TEST(FieldValue, ToString) {

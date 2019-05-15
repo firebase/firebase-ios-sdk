@@ -29,6 +29,7 @@
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
 #include "Firestore/core/src/firebase/firestore/util/to_string.h"
+#include "absl/base/casts.h"
 #include "absl/memory/memory.h"
 #include "absl/strings/escaping.h"
 
@@ -580,7 +581,25 @@ FieldValue FieldValue::FromInteger(int64_t value) {
   return FieldValue(std::make_shared<IntegerValue>(value));
 }
 
+// We use a canonical NaN bit pattern that's common for both Objective-C and
+// Java. Specifically:
+//
+//   - sign: 0
+//   - exponent: 11 bits, all 1
+//   - significand: 52 bits, MSB=1, rest=0
+//
+// This matches the Firestore backend which uses Double.doubleToLongBits from
+// the JDK (which is defined to normalize all NaNs to this value). This also
+// happens to be a common value for NAN in C++, but C++ does not require this
+// specific NaN value to be used, so we normalize.
+const uint64_t kCanonicalNanBits = 0x7ff8000000000000ULL;
+
 FieldValue FieldValue::FromDouble(double value) {
+  static double canonical_nan = absl::bit_cast<double>(kCanonicalNanBits);
+  if (std::isnan(value)) {
+    value = canonical_nan;
+  }
+
   return FieldValue(std::make_shared<DoubleValue>(value));
 }
 
