@@ -94,11 +94,11 @@
           if (!decodingError && logResponse.has_next_request_wait_millis) {
             self->_nextUploadTime =
                 [GDTClock clockSnapshotInTheFuture:logResponse.next_request_wait_millis];
-            pb_release(gdt_cct_LogResponse_fields, &logResponse);
           } else {
             // 15 minutes from now.
             self->_nextUploadTime = [GDTClock clockSnapshotInTheFuture:15 * 60 * 1000];
           }
+          pb_release(gdt_cct_LogResponse_fields, &logResponse);
           [self packageDelivered:package successful:error == nil];
         };
 
