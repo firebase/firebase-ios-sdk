@@ -178,16 +178,6 @@ NS_SWIFT_NAME(InAppMessagingCardDisplay)
 @property(nonatomic, nullable) NSURL *secondaryActionURL;
 
 - (instancetype)init NS_UNAVAILABLE;
-- (instancetype)initWithMessageID:(NSString *)messageID
-                     campaignName:(NSString *)campaignName
-              renderAsTestMessage:(BOOL)renderAsTestMessage
-                      triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
-                        titleText:(NSString *)title
-                        textColor:(UIColor *)textColor
-                portraitImageData:(FIRInAppMessagingImageData *)portraitImageData
-                  backgroundColor:(UIColor *)backgroundColor
-              primaryActionButton:(FIRInAppMessagingActionButton *)primaryActionButton
-                 primaryActionURL:(NSURL *)primaryActionURL;
 
 @end
 

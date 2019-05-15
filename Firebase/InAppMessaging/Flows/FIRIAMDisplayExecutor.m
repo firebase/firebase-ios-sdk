@@ -23,6 +23,7 @@
 #import "FIRIAMMessageDefinition.h"
 #import "FIRIAMSDKRuntimeErrorCodes.h"
 #import "FIRInAppMessaging.h"
+#import "FIRInAppMessagingRenderingPrivate.h"
 
 @implementation FIRIAMDisplaySetting
 @end
