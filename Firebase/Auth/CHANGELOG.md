@@ -1,5 +1,5 @@
 # v6.1.0
-- Add support of web.app as an auth domain. (#2959) 
+- Add support of web.app as an auth domain. (#2959)
 - Fix an issue where the return type of `getStoredUserForAccessGroup:error:` is nonnull. (#2879)
 
 # v6.0.0
