@@ -294,7 +294,7 @@ class LimboResolution {
  * reads are performed before any writes. Transactions must be performed while online.
  */
 - (void)transactionWithRetries:(int)retries
-                   workerQueue:(AsyncQueue *)workerQueue
+                   workerQueue:(std::shared_ptr<AsyncQueue>)workerQueue
                 updateCallback:(core::TransactionUpdateCallback)updateCallback
                 resultCallback:(core::TransactionResultCallback)resultCallback {
   workerQueue->VerifyIsCurrentQueue();

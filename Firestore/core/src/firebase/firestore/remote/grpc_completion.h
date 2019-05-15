@@ -71,7 +71,7 @@ class GrpcCompletion {
   using Callback = std::function<void(bool, const GrpcCompletion*)>;
 
   GrpcCompletion(Type type,
-                 util::AsyncQueue* firestore_queue,
+                 std::shared_ptr<util::AsyncQueue> worker_queue,
                  Callback&& callback);
 
   /**
@@ -114,7 +114,7 @@ class GrpcCompletion {
   }
 
  private:
-  util::AsyncQueue* worker_queue_ = nullptr;
+  std::shared_ptr<util::AsyncQueue> worker_queue_;
   Callback callback_;
 
   void EnsureValidFuture();

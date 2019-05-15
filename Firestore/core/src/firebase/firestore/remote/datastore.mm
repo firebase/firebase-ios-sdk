@@ -90,17 +90,17 @@ void LogGrpcCallFinished(absl::string_view rpc_name,
 }  // namespace
 
 Datastore::Datastore(const DatabaseInfo& database_info,
-                     AsyncQueue* worker_queue,
+                     std::shared_ptr<AsyncQueue> worker_queue,
                      CredentialsProvider* credentials)
-    : Datastore{database_info, worker_queue, credentials,
+  : Datastore{database_info, std::move(worker_queue), credentials,
                 ConnectivityMonitor::Create(worker_queue)} {
 }
 
 Datastore::Datastore(const DatabaseInfo& database_info,
-                     AsyncQueue* worker_queue,
+                     std::shared_ptr<AsyncQueue> worker_queue,
                      CredentialsProvider* credentials,
                      std::unique_ptr<ConnectivityMonitor> connectivity_monitor)
-    : worker_queue_{NOT_NULL(worker_queue)},
+  : worker_queue_{std::move(worker_queue)},
       credentials_{credentials},
       rpc_executor_{CreateExecutor()},
       connectivity_monitor_{std::move(connectivity_monitor)},

@@ -107,7 +107,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param resultCallback The callback to call when the transaction is finished or failed.
  */
 - (void)transactionWithRetries:(int)retries
-                   workerQueue:(util::AsyncQueue *)workerQueue
+                   workerQueue:(std::shared_ptr<util::AsyncQueue>)workerQueue
                 updateCallback:(core::TransactionUpdateCallback)updateCallback
                 resultCallback:(core::TransactionResultCallback)resultCallback;
 
