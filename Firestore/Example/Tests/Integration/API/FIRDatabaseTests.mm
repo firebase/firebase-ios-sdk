@@ -1247,14 +1247,13 @@ using firebase::firestore::util::TimerId;
   FIRApp *app = firestore.app;
   NSString *appName = app.name;
   FIROptions *options = app.options;
-  NSDictionary<NSString *, id> *initialData =
-      @{@"desc" : @"Description", @"owner" : @{@"name" : @"Jonny", @"email" : @"abc@xyz.com"}};
+
+  NSDictionary<NSString *, id> *initialData = @{@"foo": @"42"};
   [self writeDocumentRef:doc data:initialData];
 
-  // Shutdown firestore and delete the app.
-  [firestore shutdownWithCompletion:[self completionForExpectationWithName:@"Shutdown"]];
-  [self awaitExpectations];
-  [self.firestores removeObject:firestore];
+  // -clearPersistence() requires Firestore to be shut down. Shutdown FIRApp to emulate the way
+  // an end user would do this.
+  [self shutdownFirestore:firestore];
   XCTestExpectation *expectation = [self expectationWithDescription:@"Delete app"];
   [app deleteApp:^(BOOL completion) {
     XCTAssertTrue(completion);
@@ -1266,6 +1265,9 @@ using firebase::firestore::util::TimerId;
   [FIRApp configureWithName:appName options:options];
   FIRApp *app2 = [FIRApp appNamed:appName];
   FIRFirestore *firestore2 = [self firestoreWithApp:app2];
+//  FIRDocumentSnapshot *snap = [self readDocumentForRef:doc source:FIRFirestoreSourceCache];
+//  XCTAssertTrue(snap.exists);
+
   FIRDocumentReference *docRef2 = [firestore2 documentWithPath:doc.path];
   XCTestExpectation *expectation2 = [self expectationWithDescription:@"getData"];
   [docRef2 getDocumentWithSource:FIRFirestoreSourceCache
@@ -1283,13 +1285,13 @@ using firebase::firestore::util::TimerId;
   FIRApp *app = firestore.app;
   NSString *appName = app.name;
   FIROptions *options = app.options;
-  NSDictionary<NSString *, id> *initialData =
-      @{@"desc" : @"Description", @"owner" : @{@"name" : @"Jonny", @"email" : @"abc@xyz.com"}};
+
+  NSDictionary<NSString *, id> *initialData = @{@"foo": @"42"};
   [self writeDocumentRef:doc data:initialData];
 
-  // Shutdown firestore and delete the app.
-  [firestore shutdownWithCompletion:[self completionForExpectationWithName:@"Shutdown"]];
-  [self awaitExpectations];
+  // -clearPersistence() requires Firestore to be shut down. Shutdown FIRApp to emulate the way
+  // an end user would do this.
+  [self shutdownFirestore:firestore];
   [firestore
       clearPersistenceWithCompletion:[self completionForExpectationWithName:@"Enable network"]];
   [self awaitExpectations];
@@ -1321,8 +1323,7 @@ using firebase::firestore::util::TimerId;
   FIRDocumentReference *doc = [self documentRef];
   FIRFirestore *firestore = doc.firestore;
 
-  [firestore enableNetworkWithCompletion:[self completionForExpectationWithName:@"Enable network"]];
-  [self awaitExpectations];
+  [self enableNetwork];
   XCTAssertThrowsSpecific(
       {
         [firestore clearPersistenceWithCompletion:^(NSError *error){
