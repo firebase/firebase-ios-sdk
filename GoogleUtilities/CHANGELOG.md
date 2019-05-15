@@ -1,4 +1,5 @@
-# Unreleased
+# 6.1.0
+- Added `GULAppDelegateSwizzler` macOS support. (#2911)
 
 # 6.0.0
 - GULAppDelegateSwizzler - proxy APNS methods separately. (#2835)

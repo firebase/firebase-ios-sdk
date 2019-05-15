@@ -121,13 +121,10 @@ WriteBatch Firestore::GetBatch() {
 
 FIRQuery* Firestore::GetCollectionGroup(NSString* collection_id) {
   EnsureClientConfigured();
-  FIRFirestore* wrapper =
-      [FIRFirestore recoverFromFirestore:shared_from_this()];
 
-  return
-      [FIRQuery referenceWithQuery:[FSTQuery queryWithPath:ResourcePath::Empty()
-                                           collectionGroup:collection_id]
-                         firestore:wrapper];
+  FSTQuery* query = [FSTQuery queryWithPath:ResourcePath::Empty()
+                            collectionGroup:collection_id];
+  return [[FIRQuery alloc] initWithQuery:query firestore:shared_from_this()];
 }
 
 void Firestore::RunTransaction(

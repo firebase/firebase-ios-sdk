@@ -85,6 +85,11 @@ class DocumentSnapshot {
   SnapshotMetadata metadata_;
 };
 
+inline bool operator!=(const DocumentSnapshot& lhs,
+                       const DocumentSnapshot& rhs) {
+  return !(lhs == rhs);
+}
+
 }  // namespace api
 }  // namespace firestore
 }  // namespace firebase
