@@ -54,7 +54,7 @@
   NSArray<GDTStoredEvent *> *storedEventsA = [self.generator generateTheFiveConsistentStoredEvents];
   NSSet<GDTStoredEvent *> *storedEvents = [NSSet setWithArray:storedEventsA];
 
-  GDTUploadPackage *package = [[GDTUploadPackage alloc] init];
+  GDTUploadPackage *package = [[GDTUploadPackage alloc] initWithTarget:kGDTTargetCCT];
   package.events = storedEvents;
   GDTCCTUploader *uploader = [[GDTCCTUploader alloc] init];
   uploader.serverURL = [self.testServer.serverURL URLByAppendingPathComponent:@"logBatch"];
@@ -69,14 +69,11 @@
         XCTAssertEqual(response.statusCode, 200);
         XCTAssertTrue(response.hasBody);
       };
-  XCTestExpectation *uploadExpectation = [self expectationWithDescription:@"upload completes"];
-  [uploader uploadPackage:package
-               onComplete:^(GDTTarget target, GDTClock *_Nonnull nextUploadAttemptUTC,
-                            NSError *_Nullable uploadError) {
-                 [uploadExpectation fulfill];
-                 XCTAssertTrue(nextUploadAttemptUTC.timeMillis > [GDTClock snapshot].timeMillis);
-               }];
-  [self waitForExpectations:@[ responseSentExpectation, uploadExpectation ] timeout:30.0];
+  [uploader uploadPackage:package];
+  dispatch_sync(uploader.uploaderQueue, ^{
+    XCTAssertNotNil(uploader.currentTask);
+  });
+  [self waitForExpectations:@[ responseSentExpectation ] timeout:30.0];
   dispatch_sync(uploader.uploaderQueue, ^{
     XCTAssertNil(uploader.currentTask);
   });
