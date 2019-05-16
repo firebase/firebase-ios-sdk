@@ -73,11 +73,11 @@ NS_ASSUME_NONNULL_BEGIN
  * setSettings:). If the client is still running, the function's completion will contain an error
  * code of FailedPrecondition.
  *
- * Note: clearPersistence: is primarily intended to help write reliable tests that use Firestore.
- * It uses the most efficient mechanism possible for dropping existing data but does not attempt
- * to securely overwrite or otherwise make cached data unrecoverable. For applications that are
- * sensitive to the disclosure of cache data in between user sessions we strongly recommend not to
- * enable persistence in the first place.
+ * Note: clearPersistenceWithCompletion: is primarily intended to help write reliable tests that
+ * use Firestore. It uses the most efficient mechanism possible for dropping existing data but
+ * does not attempt to securely overwrite or otherwise make cached data unrecoverable. For
+ * applications that are sensitive to the disclosure of cache data in between user sessions we
+ * strongly recommend not to enable persistence in the first place.
  */
 - (void)clearPersistenceWithCompletion:(nullable void (^)(NSError *_Nullable error))completion;
 
