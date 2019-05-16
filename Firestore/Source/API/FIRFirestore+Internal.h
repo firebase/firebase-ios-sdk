@@ -65,6 +65,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)shutdownWithCompletion:(nullable void (^)(NSError *_Nullable error))completion
     NS_SWIFT_NAME(shutdown(completion:));
 
+/**
+ * Clears the persistent storage.
+ *
+ * Must be called while the client is not started (after the app is shutdown or when
+ * the app is first initialized). On startup, this method must be called before other
+ * methods (other than setSettings:).
+ */
 - (void)clearPersistenceWithCompletion:(nullable void (^)(NSError *_Nullable error))completion;
 
 - (const std::shared_ptr<util::AsyncQueue> &)workerQueue;
