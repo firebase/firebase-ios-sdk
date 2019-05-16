@@ -32,6 +32,9 @@
 // Redeclared as readwrite.
 @property(nullable, nonatomic, readwrite) NSURLSessionUploadTask *currentTask;
 
+/** If running in the background, the current background ID. */
+@property(nonatomic) UIBackgroundTaskIdentifier backgroundID;
+
 @end
 
 @implementation GDTCCTUploader
@@ -56,6 +59,7 @@
     _uploaderQueue = dispatch_queue_create("com.google.GDTCCTUploader", DISPATCH_QUEUE_SERIAL);
     NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
     _uploaderSession = [NSURLSession sessionWithConfiguration:config];
+    _backgroundID = UIBackgroundTaskInvalid;
   }
   return self;
 }
@@ -82,6 +86,7 @@
 - (void)uploadPackage:(GDTUploadPackage *)package {
   dispatch_async(_uploaderQueue, ^{
     NSAssert(!self->_currentTask, @"An upload shouldn't be initiated with another in progress.");
+    NSAssert(!self->_currentUploadPackage, @"An upload shouldn't be initiated with a new package.");
     NSURL *serverURL = self.serverURL ? self.serverURL : [self defaultServerURL];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:serverURL];
     request.HTTPMethod = @"POST";
@@ -99,9 +104,15 @@
             self->_nextUploadTime = [GDTClock clockSnapshotInTheFuture:15 * 60 * 1000];
           }
           pb_release(gdt_cct_LogResponse_fields, &logResponse);
-          [self packageDelivered:package successful:error == nil];
+          [package completeDelivery];
+          if (self->_backgroundID != UIBackgroundTaskInvalid) {
+            [[UIApplication sharedApplication] endBackgroundTask:self->_backgroundID];
+            self->_backgroundID = UIBackgroundTaskInvalid;
+          }
+          self.currentTask = nil;
+          self.currentUploadPackage = nil;
         };
-
+    self->_currentUploadPackage = package;
     NSData *requestProtoData = [self constructRequestProtoFromPackage:(GDTUploadPackage *)package];
     self.currentTask = [self.uploaderSession uploadTaskWithRequest:request
                                                           fromData:requestProtoData
@@ -113,6 +124,10 @@
 - (BOOL)readyToUploadWithConditions:(GDTUploadConditions)conditions {
   __block BOOL result;
   dispatch_sync(_uploaderQueue, ^{
+    if (self->_currentUploadPackage) {
+      result = NO;
+      return;
+    }
     if ((conditions & GDTUploadConditionHighPriority) == GDTUploadConditionHighPriority) {
       result = self.currentTask == nil;
       return;
@@ -153,33 +168,27 @@
 
 #pragma mark - GDTUploadPackageProtocol
 
-- (void)packageDelivered:(GDTUploadPackage *)package successful:(BOOL)successful {
-  dispatch_sync(_uploaderQueue, ^{
-    if (successful) {
-      [package completeDelivery];
-    } else {
-      [package retryDeliveryInTheFuture];
-    }
-    self.currentTask = nil;
-  });
-}
-
 - (void)packageExpired:(GDTUploadPackage *)package {
   dispatch_async(_uploaderQueue, ^{
     [self.currentTask cancel];
-    [self packageDelivered:package successful:YES];
+    self.currentTask = nil;
+    self.currentUploadPackage = nil;
   });
 }
 
 #pragma mark - GDTLifecycleProtocol
 
 - (void)appWillBackground:(UIApplication *)app {
-}
-
-- (void)appWillForeground:(UIApplication *)app {
+  _backgroundID = [app beginBackgroundTaskWithExpirationHandler:^{
+    [app endBackgroundTask:self->_backgroundID];
+  }];
 }
 
 - (void)appWillTerminate:(UIApplication *)application {
+  dispatch_sync(_uploaderQueue, ^{
+    [self.currentTask cancel];
+    [self.currentUploadPackage completeDelivery];
+  });
 }
 
 @end
