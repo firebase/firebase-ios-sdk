@@ -294,6 +294,15 @@ static bool runningAgainstEmulator = false;
   [self.firestores removeObject:firestore];
 }
 
+- (void)deleteApp:(FIRApp *)app {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"Delete app"];
+  [app deleteApp:^(BOOL completion) {
+    XCTAssertTrue(completion);
+    [expectation fulfill];
+  }];
+  [self awaitExpectations];
+}
+
 - (NSString *)documentPath {
   std::string autoId = CreateAutoId();
   return [NSString stringWithFormat:@"test-collection/%s", autoId.c_str()];

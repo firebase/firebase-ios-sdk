@@ -1254,12 +1254,7 @@ using firebase::firestore::util::TimerId;
   // -clearPersistence() requires Firestore to be shut down. Shutdown FIRApp to emulate the way
   // an end user would do this.
   [self shutdownFirestore:firestore];
-  XCTestExpectation *expectation = [self expectationWithDescription:@"Delete app"];
-  [app deleteApp:^(BOOL completion) {
-    XCTAssertTrue(completion);
-    [expectation fulfill];
-  }];
-  [self awaitExpectations];
+  [self deleteApp:app];
 
   // Reconfigure the app and assert that persistent storage persisted.
   [FIRApp configureWithName:appName options:options];
@@ -1294,14 +1289,7 @@ using firebase::firestore::util::TimerId;
   [self shutdownFirestore:firestore];
   [firestore
       clearPersistenceWithCompletion:[self completionForExpectationWithName:@"Enable network"]];
-  [self awaitExpectations];
-  [self.firestores removeObject:firestore];
-  XCTestExpectation *expectation = [self expectationWithDescription:@"Delete app"];
-  [app deleteApp:^(BOOL completion) {
-    XCTAssertTrue(completion);
-    [expectation fulfill];
-  }];
-  [self awaitExpectations];
+  [self deleteApp:app];
 
   // Reconfigure the app and assert that persistence was cleared.
   [FIRApp configureWithName:appName options:options];

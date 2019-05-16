@@ -66,6 +66,9 @@ extern "C" {
 /** Synchronously shuts down the given firestore. */
 - (void)shutdownFirestore:(FIRFirestore *)firestore;
 
+/** Synchronously deletes the given FIRapp. */
+- (void)deleteApp:(FIRApp *)app;
+
 - (NSString *)documentPath;
 
 - (FIRDocumentReference *)documentRef;
