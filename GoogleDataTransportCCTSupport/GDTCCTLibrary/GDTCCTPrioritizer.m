@@ -56,19 +56,6 @@ const static NSUInteger kMillisPerDay = 8.64e+7;
   });
 }
 
-- (void)packageDelivered:(GDTUploadPackage *)package successful:(BOOL)successful {
-  dispatch_async(_queue, ^{
-    NSSet<GDTStoredEvent *> *events = [package.events copy];
-    for (GDTStoredEvent *event in events) {
-      [self.events removeObject:event];
-    }
-  });
-}
-
-- (void)packageExpired:(GDTUploadPackage *)package {
-  [self packageDelivered:package successful:YES];
-}
-
 - (GDTUploadPackage *)uploadPackageWithConditions:(GDTUploadConditions)conditions {
   GDTUploadPackage *package = [[GDTUploadPackage alloc] initWithTarget:kGDTTargetCCT];
   dispatch_sync(_queue, ^{
@@ -176,6 +163,21 @@ NSNumber *GDTCCTQosTierFromGDTEventQosTier(GDTEventQoS qosTier) {
       [self.events objectsPassingTest:^BOOL(GDTStoredEvent *_Nonnull event, BOOL *_Nonnull stop) {
         return [GDTCCTQosTierFromGDTEventQosTier(event.qosTier) isEqual:@(GDTCCTQoSDaily)];
       }];
+}
+
+#pragma mark - GDTUploadPackageProtocol
+
+- (void)packageDelivered:(GDTUploadPackage *)package successful:(BOOL)successful {
+  dispatch_async(_queue, ^{
+    NSSet<GDTStoredEvent *> *events = [package.events copy];
+    for (GDTStoredEvent *event in events) {
+      [self.events removeObject:event];
+    }
+  });
+}
+
+- (void)packageExpired:(GDTUploadPackage *)package {
+  [self packageDelivered:package successful:YES];
 }
 
 @end

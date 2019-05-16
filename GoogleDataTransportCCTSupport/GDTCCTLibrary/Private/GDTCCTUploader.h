@@ -35,6 +35,9 @@ NS_ASSUME_NONNULL_BEGIN
 /** The current upload task. */
 @property(nullable, nonatomic, readonly) NSURLSessionUploadTask *currentTask;
 
+/** Current upload package. */
+@property(nullable, nonatomic) GDTUploadPackage *currentUploadPackage;
+
 /** The next upload time. */
 @property(nullable, nonatomic) GDTClock *nextUploadTime;
 
