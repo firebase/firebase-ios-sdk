@@ -108,7 +108,7 @@ NS_ASSUME_NONNULL_BEGIN
   @throw FSTAbstractMethodException();  // NOLINT
 }
 
-- (const FieldMask *)fieldMask {
+- (nullable const FieldMask *)fieldMask {
   @throw FSTAbstractMethodException();  // NOLINT
 }
 
@@ -195,7 +195,7 @@ NS_ASSUME_NONNULL_BEGIN
                                  state:FSTDocumentStateCommittedMutations];
 }
 
-- (const FieldMask *)fieldMask {
+- (nullable const FieldMask *)fieldMask {
   return nullptr;
 }
 
@@ -512,7 +512,7 @@ NS_ASSUME_NONNULL_BEGIN
   return objectValue;
 }
 
-- (const FieldMask *)fieldMask {
+- (nullable const FieldMask *)fieldMask {
   return &_fieldMask;
 }
 
@@ -585,7 +585,7 @@ NS_ASSUME_NONNULL_BEGIN
                        hasCommittedMutations:YES];
 }
 
-- (const FieldMask *)fieldMask {
+- (nullable const FieldMask *)fieldMask {
   return nullptr;
 }
 

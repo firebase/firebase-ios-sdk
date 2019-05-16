@@ -76,7 +76,7 @@ typedef NS_ENUM(NSInteger, FSTDocumentState) {
  * Memoized serialized form of the document for optimization purposes (avoids repeated
  * serialization). Might be nil.
  */
-@property(nonatomic, strong, readonly) GCFSDocument *proto;
+@property(nullable, nonatomic, strong, readonly) GCFSDocument *proto;
 
 @end
 
