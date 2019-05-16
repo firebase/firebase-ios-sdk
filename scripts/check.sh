@@ -163,25 +163,17 @@ if [[ "${VERBOSE}" == true ]]; then
   env | egrep '^TRAVIS_(BRANCH|COMMIT|PULL)' | sort || true
 fi
 
-# When travis clones a repo for building, it uses a shallow clone. When
-# building a branch it can sometimes give a revision range that refers to
-# commits that don't exist in the shallow clone. This has been observed in a
-# branch build where the branch only has a single commit. The cause of this
-# behavior is unclear but as a workaround ...
-if [[ "${START_REVISION}" == *..* ]]; then
-  RANGE_START="${START_REVISION/..*/}"
-  RANGE_END="${START_REVISION/*../}"
+# When travis clones a repo for building, it uses a shallow clone. After the
+# first commit on a non-master branch, TRAVIS_COMMIT_RANGE is not set and
+# START_REVISION is "master" instead of a range.
 
+if [[ -z "${TRAVIS_COMMIT_RANGE}" ]]; then
   # Figure out if we have access to master. If not add it to the repo.
   if ! git rev-parse origin/master >& /dev/null; then
     git remote set-branches --add origin master
     git fetch origin
   fi
-
-  NEW_RANGE_START=$(git merge-base origin/master "${RANGE_END}")
-  START_REVISION="${START_REVISION/$RANGE_START/$NEW_RANGE_START}"
-
-  START_SHA="${START_REVISION}"
+  START_SHA=$(git rev-parse origin/master)
 
 else
   START_SHA=$(git rev-parse "${START_REVISION}")
