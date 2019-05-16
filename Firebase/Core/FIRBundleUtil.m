@@ -53,7 +53,7 @@
     NSString *applicationBundleIdentifier =
         [GULAppEnvironmentUtil isAppExtension]
             ? [self bundleIdentifierByRemovingLastPartFrom:bundle.bundleIdentifier]
-            : bundleIdentifier;
+            : bundle.bundleIdentifier;
 
     if ([applicationBundleIdentifier isEqualToString:bundleIdentifier]) {
       return YES;
