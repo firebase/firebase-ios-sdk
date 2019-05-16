@@ -45,6 +45,7 @@
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/util/filesystem.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
@@ -348,6 +349,7 @@ static const char *kReservedPathComponent = "firestore";
 + (Status)clearPersistence:(const DatabaseInfo &)databaseInfo {
   Path levelDBDir = [FSTLevelDB storageDirectoryForDatabaseInfo:databaseInfo
                                              documentsDirectory:[FSTLevelDB documentsDirectory]];
+  LOG_DEBUG("Clearing persistence for path: %s", levelDBDir.ToUtf8String());
   return util::RecursivelyDelete(levelDBDir);
 }
 

@@ -291,7 +291,6 @@ static bool runningAgainstEmulator = false;
 - (void)shutdownFirestore:(FIRFirestore *)firestore {
   [firestore shutdownWithCompletion:[self completionForExpectationWithName:@"shutdown"]];
   [self awaitExpectations];
-  [self.firestores removeObject:firestore];
 }
 
 - (void)deleteApp:(FIRApp *)app {

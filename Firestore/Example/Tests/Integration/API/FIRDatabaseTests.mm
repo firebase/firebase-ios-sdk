@@ -1254,6 +1254,7 @@ using firebase::firestore::util::TimerId;
   // -clearPersistence() requires Firestore to be shut down. Shutdown FIRApp to emulate the way
   // an end user would do this.
   [self shutdownFirestore:firestore];
+  [self.firestores removeObject:firestore];
   [self deleteApp:app];
 
   // Reconfigure the app and assert that persistent storage persisted.
@@ -1278,8 +1279,10 @@ using firebase::firestore::util::TimerId;
   // -clearPersistence() requires Firestore to be shut down. Shutdown FIRApp to emulate the way
   // an end user would do this.
   [self shutdownFirestore:firestore];
+  [self.firestores removeObject:firestore];
   [firestore
       clearPersistenceWithCompletion:[self completionForExpectationWithName:@"Enable network"]];
+  [self awaitExpectations];
   [self deleteApp:app];
 
   // Reconfigure the app and assert that persistence was cleared.
