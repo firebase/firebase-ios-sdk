@@ -41,13 +41,4 @@
   }
 }
 
-- (void)appWillBackground:(UIApplication *)app {
-}
-
-- (void)appWillForeground:(UIApplication *)app {
-}
-
-- (void)appWillTerminate:(UIApplication *)application {
-}
-
 @end

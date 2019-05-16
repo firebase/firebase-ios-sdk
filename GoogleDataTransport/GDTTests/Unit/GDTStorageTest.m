@@ -58,7 +58,7 @@ static NSInteger target = 1337;
   [[GDTRegistrar sharedInstance] registerUploader:_testBackend target:target];
   [[GDTRegistrar sharedInstance] registerPrioritizer:_testPrioritizer target:target];
   self.uploaderFake = [[GDTUploadCoordinatorFake alloc] init];
-  [GDTStorage sharedInstance].uploader = self.uploaderFake;
+  [GDTStorage sharedInstance].uploadCoordinator = self.uploaderFake;
 }
 
 - (void)tearDown {
@@ -68,7 +68,7 @@ static NSInteger target = 1337;
   self.testPrioritizer = nil;
   [[GDTRegistrar sharedInstance] reset];
   [[GDTStorage sharedInstance] reset];
-  [GDTStorage sharedInstance].uploader = [GDTUploadCoordinator sharedInstance];
+  [GDTStorage sharedInstance].uploadCoordinator = [GDTUploadCoordinator sharedInstance];
   self.uploaderFake = nil;
 }
 

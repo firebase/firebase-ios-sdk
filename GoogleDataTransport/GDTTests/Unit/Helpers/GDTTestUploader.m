@@ -30,13 +30,4 @@
   return YES;
 }
 
-- (void)appWillBackground:(nonnull UIApplication *)app {
-}
-
-- (void)appWillForeground:(nonnull UIApplication *)app {
-}
-
-- (void)appWillTerminate:(UIApplication *)application {
-}
-
 @end

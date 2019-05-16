@@ -68,7 +68,7 @@ static NSString *GDTStoragePath() {
     _storageQueue = dispatch_queue_create("com.google.GDTStorage", DISPATCH_QUEUE_SERIAL);
     _targetToEventSet = [[NSMutableDictionary alloc] init];
     _storedEvents = [[NSMutableOrderedSet alloc] init];
-    _uploader = [GDTUploadCoordinator sharedInstance];
+    _uploadCoordinator = [GDTUploadCoordinator sharedInstance];
   }
   return self;
 }
@@ -106,7 +106,7 @@ static NSString *GDTStoragePath() {
 
     // Check the QoS, if it's high priority, notify the target that it has a high priority event.
     if (event.qosTier == GDTEventQoSFast) {
-      [self.uploader forceUploadForTarget:target];
+      [self.uploadCoordinator forceUploadForTarget:target];
     }
 
     // If running in the background, save state to disk and end the associated background task.
@@ -221,6 +221,9 @@ static NSString *const kGDTStorageStoredEventsKey = @"GDTStorageStoredEventsKey"
 /** The NSKeyedCoder key for the targetToEventSet property. */
 static NSString *const kGDTStorageTargetToEventSetKey = @"GDTStorageTargetToEventSetKey";
 
+/** The NSKeyedCoder key for the uploadCoordinator property. */
+static NSString *const kGDTStorageUploadCoordinatorKey = @"GDTStorageUploadCoordinatorKey";
+
 + (BOOL)supportsSecureCoding {
   return YES;
 }
@@ -234,6 +237,9 @@ static NSString *const kGDTStorageTargetToEventSetKey = @"GDTStorageTargetToEven
     sharedInstance->_targetToEventSet =
         [aDecoder decodeObjectOfClass:[NSMutableDictionary class]
                                forKey:kGDTStorageTargetToEventSetKey];
+    sharedInstance->_uploadCoordinator =
+        [aDecoder decodeObjectOfClass:[GDTUploadCoordinator class]
+                               forKey:kGDTStorageUploadCoordinatorKey];
   });
   return sharedInstance;
 }
@@ -243,6 +249,7 @@ static NSString *const kGDTStorageTargetToEventSetKey = @"GDTStorageTargetToEven
   dispatch_sync(sharedInstance.storageQueue, ^{
     [aCoder encodeObject:sharedInstance->_storedEvents forKey:kGDTStorageStoredEventsKey];
     [aCoder encodeObject:sharedInstance->_targetToEventSet forKey:kGDTStorageTargetToEventSetKey];
+    [aCoder encodeObject:sharedInstance->_uploadCoordinator forKey:kGDTStorageUploadCoordinatorKey];
   });
 }
 
