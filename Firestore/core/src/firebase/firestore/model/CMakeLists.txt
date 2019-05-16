@@ -29,6 +29,7 @@ cc_library(
     field_transform.h
     field_value.cc
     field_value.h
+    field_value_options.h
     maybe_document.cc
     maybe_document.h
     mutation.cc

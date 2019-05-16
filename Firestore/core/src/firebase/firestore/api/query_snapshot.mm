@@ -26,6 +26,7 @@
 #import "Firestore/Source/Model/FSTDocument.h"
 
 #include "Firestore/core/src/firebase/firestore/api/input_validation.h"
+#include "Firestore/core/src/firebase/firestore/api/query_core.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/objc/objc_compatibility.h"
@@ -51,6 +52,10 @@ QuerySnapshot::QuerySnapshot(std::shared_ptr<Firestore> firestore,
       internal_query_(query),
       snapshot_(std::move(snapshot)),
       metadata_(std::move(metadata)) {
+}
+
+Query QuerySnapshot::query() const {
+  return Query(internal_query_, firestore_);
 }
 
 FSTQuery* QuerySnapshot::internal_query() const {

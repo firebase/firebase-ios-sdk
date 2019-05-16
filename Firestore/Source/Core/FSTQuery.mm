@@ -31,11 +31,13 @@
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/objc/objc_compatibility.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace core = firebase::firestore::core;
+namespace objc = firebase::firestore::objc;
 namespace util = firebase::firestore::util;
 using firebase::firestore::api::ThrowInvalidArgument;
 using firebase::firestore::core::Filter;
@@ -835,13 +837,10 @@ NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
 #pragma mark - Private methods
 
 - (BOOL)isEqualToQuery:(FSTQuery *)other {
-  return self.path == other.path &&
-         (self.collectionGroup == other.collectionGroup ||
-          [self.collectionGroup isEqual:other.collectionGroup]) &&
-         self.limit == other.limit && [self.filters isEqual:other.filters] &&
-         [self.sortOrders isEqual:other.sortOrders] &&
-         (self.startAt == other.startAt || [self.startAt isEqual:other.startAt]) &&
-         (self.endAt == other.endAt || [self.endAt isEqual:other.endAt]);
+  return self.path == other.path && objc::Equals(self.collectionGroup, other.collectionGroup) &&
+         self.limit == other.limit && objc::Equals(self.filters, other.filters) &&
+         objc::Equals(self.sortOrders, other.sortOrders) &&
+         objc::Equals(self.startAt, other.startAt) && objc::Equals(self.endAt, other.endAt);
 }
 
 /* Returns YES if the document matches the path and collection group for the receiver. */
