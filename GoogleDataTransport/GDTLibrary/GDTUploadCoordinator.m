@@ -167,8 +167,8 @@ static NSString *const kInFlightUploadPackagesKey = @"GDTUploadCoordinatorInFlig
 
 - (instancetype)initWithCoder:(NSCoder *)aDecoder {
   GDTUploadCoordinator *sharedCoordinator = [GDTUploadCoordinator sharedInstance];
-  sharedCoordinator->_inFlightUploadPackages = [aDecoder decodeObjectOfClass:[NSMutableSet class]
-                                                                      forKey:kInFlightUploadPackagesKey];
+  sharedCoordinator->_inFlightUploadPackages =
+      [aDecoder decodeObjectOfClass:[NSMutableSet class] forKey:kInFlightUploadPackagesKey];
   return sharedCoordinator;
 }
 

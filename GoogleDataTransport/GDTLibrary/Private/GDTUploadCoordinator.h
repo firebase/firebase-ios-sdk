@@ -29,7 +29,8 @@ NS_ASSUME_NONNULL_BEGIN
 /** This class connects storage and uploader implementations, providing events to an uploader
  * and informing the storage what events were successfully uploaded or not.
  */
-@interface GDTUploadCoordinator : NSObject <NSSecureCoding, GDTLifecycleProtocol, GDTUploadPackageProtocol>
+@interface GDTUploadCoordinator
+    : NSObject <NSSecureCoding, GDTLifecycleProtocol, GDTUploadPackageProtocol>
 
 /** The queue on which all upload coordination will occur. Also used by a dispatch timer. */
 /** Creates and/or returrns the singleton.
