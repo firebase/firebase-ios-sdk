@@ -140,7 +140,7 @@ NS_SWIFT_NAME(InAppMessagingCardDisplay)
 /**
  * Gets the color for text in card FIAM message. It applies to both title and body text.
  */
-@property(nonatomic, copy, nonnull) UIColor *textColor;
+@property(nonatomic, copy, nonnull, readonly) UIColor *textColor;
 
 /*
  * Image data for the supplied portrait image for a card FIAM messasge.
@@ -155,7 +155,7 @@ NS_SWIFT_NAME(InAppMessagingCardDisplay)
 /**
  * The background color for a card FIAM message.
  */
-@property(nonatomic, copy, nonnull) UIColor *displayBackgroundColor;
+@property(nonatomic, copy, nonnull, readonly) UIColor *displayBackgroundColor;
 
 /**
  * Metadata for a card FIAM message's primary action button.

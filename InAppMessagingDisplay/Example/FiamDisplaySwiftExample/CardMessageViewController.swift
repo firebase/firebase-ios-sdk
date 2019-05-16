@@ -17,6 +17,58 @@
 import UIKit
 
 class CardMessageViewController: CommonMessageTestVC {
+  class TestableCardMessage: InAppMessagingCardDisplay {
+    var writableTitle: String
+    var writableTextColor: UIColor
+    var writablePortraitImageData: InAppMessagingImageData
+    var writableBackgroundColor: UIColor
+    var writablePrimaryActionButton: InAppMessagingActionButton
+    var writablePrimaryActionURL: URL
+
+    override var title: String {
+      return writableTitle
+    }
+
+    override var textColor: UIColor {
+      return writableTextColor
+    }
+
+    override var portraitImageData: InAppMessagingImageData {
+      return writablePortraitImageData
+    }
+
+    override var displayBackgroundColor: UIColor {
+      return writableBackgroundColor
+    }
+
+    override var primaryActionButton: InAppMessagingActionButton {
+      return writablePrimaryActionButton
+    }
+
+    override var primaryActionURL: URL {
+      return writablePrimaryActionURL
+    }
+
+    init(titleText: String,
+         textColor: UIColor,
+         portraitImageData: InAppMessagingImageData,
+         backgroundColor: UIColor,
+         primaryActionButton: InAppMessagingActionButton,
+         primaryActionURL: URL) {
+      writableTitle = titleText
+      writableTextColor = textColor
+      writablePortraitImageData = portraitImageData
+      writableBackgroundColor = backgroundColor
+      writablePrimaryActionButton = primaryActionButton
+      writablePrimaryActionURL = primaryActionURL
+      super.init(messageID: "testID",
+                 campaignName: "testCampaign",
+                 renderAsTestMessage: false,
+                 messageType: .card,
+                 triggerType: .onAnalyticsEvent)
+    }
+  }
+
   let displayImpl = InAppMessagingDefaultDisplayImpl()
 
   @IBOutlet var verifyLabel: UILabel!
@@ -40,16 +92,14 @@ class CardMessageViewController: CommonMessageTestVC {
     let landscapeImageRawData = produceImageOfSize(size: CGSize(width: 200, height: 200))
     let landscapeImageData = InAppMessagingImageData(imageURL: "url not important", imageData: landscapeImageRawData!)
 
-    let cardMessage = InAppMessagingCardDisplay(messageID: "testID",
-                                                campaignName: "testCampaign",
-                                                renderAsTestMessage: false,
-                                                triggerType: .onAnalyticsEvent,
-                                                titleText: normalMessageTitle,
-                                                textColor: UIColor.black,
-                                                portraitImageData: portraitImageData,
-                                                backgroundColor: UIColor.white,
-                                                primaryActionButton: defaultActionButton,
-                                                primaryActionURL: URL(string: "http://google.com")!)
+    let cardMessage = TestableCardMessage(
+      titleText: normalMessageTitle,
+      textColor: UIColor.black,
+      portraitImageData: portraitImageData,
+      backgroundColor: UIColor.white,
+      primaryActionButton: defaultActionButton,
+      primaryActionURL: URL(string: "http://google.com")!
+    )
     cardMessage.body = normalMessageBody
     cardMessage.landscapeImageData = landscapeImageData
 
@@ -60,16 +110,14 @@ class CardMessageViewController: CommonMessageTestVC {
     let portraitImageRawData = produceImageOfSize(size: CGSize(width: 300, height: 200))
     let portraitImageData = InAppMessagingImageData(imageURL: "url not important", imageData: portraitImageRawData!)
 
-    let cardMessage = InAppMessagingCardDisplay(messageID: "testID",
-                                                campaignName: "testCampaign",
-                                                renderAsTestMessage: false,
-                                                triggerType: .onAnalyticsEvent,
-                                                titleText: normalMessageTitle,
-                                                textColor: UIColor.black,
-                                                portraitImageData: portraitImageData,
-                                                backgroundColor: UIColor.white,
-                                                primaryActionButton: defaultActionButton,
-                                                primaryActionURL: URL(string: "http://google.com")!)
+    let cardMessage = TestableCardMessage(
+      titleText: normalMessageTitle,
+      textColor: UIColor.black,
+      portraitImageData: portraitImageData,
+      backgroundColor: UIColor.white,
+      primaryActionButton: defaultActionButton,
+      primaryActionURL: URL(string: "http://google.com")!
+    )
     cardMessage.body = normalMessageBody
 
     displayImpl.displayMessage(cardMessage, displayDelegate: self)
@@ -82,16 +130,14 @@ class CardMessageViewController: CommonMessageTestVC {
     let landscapeImageRawData = produceImageOfSize(size: CGSize(width: 300, height: 300))
     let landscapeImageData = InAppMessagingImageData(imageURL: "url not important", imageData: landscapeImageRawData!)
 
-    let cardMessage = InAppMessagingCardDisplay(messageID: "testID",
-                                                campaignName: "testCampaign",
-                                                renderAsTestMessage: false,
-                                                triggerType: .onAnalyticsEvent,
-                                                titleText: normalMessageTitle,
-                                                textColor: UIColor.black,
-                                                portraitImageData: portraitImageData,
-                                                backgroundColor: UIColor.white,
-                                                primaryActionButton: defaultActionButton,
-                                                primaryActionURL: URL(string: "http://google.com")!)
+    let cardMessage = TestableCardMessage(
+      titleText: normalMessageTitle,
+      textColor: UIColor.black,
+      portraitImageData: portraitImageData,
+      backgroundColor: UIColor.white,
+      primaryActionButton: defaultActionButton,
+      primaryActionURL: URL(string: "http://google.com")!
+    )
     cardMessage.body = normalMessageBody
     cardMessage.landscapeImageData = landscapeImageData
     cardMessage.secondaryActionButton = defaultSecondaryActionButton
@@ -103,16 +149,14 @@ class CardMessageViewController: CommonMessageTestVC {
     let portraitImageRawData = produceImageOfSize(size: CGSize(width: 300, height: 200))
     let portraitImageData = InAppMessagingImageData(imageURL: "url not important", imageData: portraitImageRawData!)
 
-    let cardMessage = InAppMessagingCardDisplay(messageID: "testID",
-                                                campaignName: "testCampaign",
-                                                renderAsTestMessage: false,
-                                                triggerType: .onAnalyticsEvent,
-                                                titleText: longTitleText,
-                                                textColor: UIColor.black,
-                                                portraitImageData: portraitImageData,
-                                                backgroundColor: UIColor.white,
-                                                primaryActionButton: defaultActionButton,
-                                                primaryActionURL: URL(string: "http://google.com")!)
+    let cardMessage = TestableCardMessage(
+      titleText: longTitleText,
+      textColor: UIColor.black,
+      portraitImageData: portraitImageData,
+      backgroundColor: UIColor.white,
+      primaryActionButton: defaultActionButton,
+      primaryActionURL: URL(string: "http://google.com")!
+    )
     cardMessage.body = normalMessageBody
     cardMessage.secondaryActionButton = defaultSecondaryActionButton
 
@@ -123,16 +167,14 @@ class CardMessageViewController: CommonMessageTestVC {
     let portraitImageRawData = produceImageOfSize(size: CGSize(width: 300, height: 200))
     let portraitImageData = InAppMessagingImageData(imageURL: "url not important", imageData: portraitImageRawData!)
 
-    let cardMessage = InAppMessagingCardDisplay(messageID: "testID",
-                                                campaignName: "testCampaign",
-                                                renderAsTestMessage: false,
-                                                triggerType: .onAnalyticsEvent,
-                                                titleText: normalMessageTitle,
-                                                textColor: UIColor.black,
-                                                portraitImageData: portraitImageData,
-                                                backgroundColor: UIColor.white,
-                                                primaryActionButton: defaultActionButton,
-                                                primaryActionURL: URL(string: "http://google.com")!)
+    let cardMessage = TestableCardMessage(
+      titleText: normalMessageTitle,
+      textColor: UIColor.black,
+      portraitImageData: portraitImageData,
+      backgroundColor: UIColor.white,
+      primaryActionButton: defaultActionButton,
+      primaryActionURL: URL(string: "http://google.com")!
+    )
     cardMessage.body = longBodyText
     cardMessage.secondaryActionButton = defaultSecondaryActionButton
 
@@ -143,16 +185,14 @@ class CardMessageViewController: CommonMessageTestVC {
     let portraitImageRawData = produceImageOfSize(size: CGSize(width: 300, height: 200))
     let portraitImageData = InAppMessagingImageData(imageURL: "url not important", imageData: portraitImageRawData!)
 
-    let cardMessage = InAppMessagingCardDisplay(messageID: "testID",
-                                                campaignName: "testCampaign",
-                                                renderAsTestMessage: false,
-                                                triggerType: .onAnalyticsEvent,
-                                                titleText: longTitleText,
-                                                textColor: UIColor.black,
-                                                portraitImageData: portraitImageData,
-                                                backgroundColor: UIColor.white,
-                                                primaryActionButton: defaultActionButton,
-                                                primaryActionURL: URL(string: "http://google.com")!)
+    let cardMessage = TestableCardMessage(
+      titleText: longTitleText,
+      textColor: UIColor.black,
+      portraitImageData: portraitImageData,
+      backgroundColor: UIColor.white,
+      primaryActionButton: defaultActionButton,
+      primaryActionURL: URL(string: "http://google.com")!
+    )
     cardMessage.secondaryActionButton = defaultSecondaryActionButton
 
     displayImpl.displayMessage(cardMessage, displayDelegate: self)
@@ -162,16 +202,14 @@ class CardMessageViewController: CommonMessageTestVC {
     let portraitImageRawData = produceImageOfSize(size: CGSize(width: 300, height: 200))
     let portraitImageData = InAppMessagingImageData(imageURL: "url not important", imageData: portraitImageRawData!)
 
-    let cardMessage = InAppMessagingCardDisplay(messageID: "testID",
-                                                campaignName: "testCampaign",
-                                                renderAsTestMessage: false,
-                                                triggerType: .onAnalyticsEvent,
-                                                titleText: longTitleText,
-                                                textColor: UIColor.black,
-                                                portraitImageData: portraitImageData,
-                                                backgroundColor: UIColor.white,
-                                                primaryActionButton: longTextButton,
-                                                primaryActionURL: URL(string: "http://google.com")!)
+    let cardMessage = TestableCardMessage(
+      titleText: longTitleText,
+      textColor: UIColor.black,
+      portraitImageData: portraitImageData,
+      backgroundColor: UIColor.white,
+      primaryActionButton: longTextButton,
+      primaryActionURL: URL(string: "http://google.com")!
+    )
     cardMessage.body = normalMessageBody
     cardMessage.secondaryActionButton = defaultSecondaryActionButton
 
@@ -182,16 +220,14 @@ class CardMessageViewController: CommonMessageTestVC {
     let portraitImageRawData = produceImageOfSize(size: CGSize(width: 300, height: 200))
     let portraitImageData = InAppMessagingImageData(imageURL: "url not important", imageData: portraitImageRawData!)
 
-    let cardMessage = InAppMessagingCardDisplay(messageID: "testID",
-                                                campaignName: "testCampaign",
-                                                renderAsTestMessage: false,
-                                                triggerType: .onAnalyticsEvent,
-                                                titleText: longTitleText,
-                                                textColor: UIColor.black,
-                                                portraitImageData: portraitImageData,
-                                                backgroundColor: UIColor.white,
-                                                primaryActionButton: defaultActionButton,
-                                                primaryActionURL: URL(string: "http://google.com")!)
+    let cardMessage = TestableCardMessage(
+      titleText: longTitleText,
+      textColor: UIColor.black,
+      portraitImageData: portraitImageData,
+      backgroundColor: UIColor.white,
+      primaryActionButton: defaultActionButton,
+      primaryActionURL: URL(string: "http://google.com")!
+    )
     cardMessage.body = normalMessageBody
     cardMessage.secondaryActionButton = longTextButton
 
@@ -202,16 +238,14 @@ class CardMessageViewController: CommonMessageTestVC {
     let portraitImageRawData = produceImageOfSize(size: CGSize(width: 30, height: 20))
     let portraitImageData = InAppMessagingImageData(imageURL: "url not important", imageData: portraitImageRawData!)
 
-    let cardMessage = InAppMessagingCardDisplay(messageID: "testID",
-                                                campaignName: "testCampaign",
-                                                renderAsTestMessage: false,
-                                                triggerType: .onAnalyticsEvent,
-                                                titleText: normalMessageTitle,
-                                                textColor: UIColor.black,
-                                                portraitImageData: portraitImageData,
-                                                backgroundColor: UIColor.white,
-                                                primaryActionButton: defaultActionButton,
-                                                primaryActionURL: URL(string: "http://google.com")!)
+    let cardMessage = TestableCardMessage(
+      titleText: normalMessageTitle,
+      textColor: UIColor.black,
+      portraitImageData: portraitImageData,
+      backgroundColor: UIColor.white,
+      primaryActionButton: defaultActionButton,
+      primaryActionURL: URL(string: "http://google.com")!
+    )
     cardMessage.body = normalMessageBody
 
     displayImpl.displayMessage(cardMessage, displayDelegate: self)
@@ -221,16 +255,14 @@ class CardMessageViewController: CommonMessageTestVC {
     let portraitImageRawData = produceImageOfSize(size: CGSize(width: 3000, height: 2000))
     let portraitImageData = InAppMessagingImageData(imageURL: "url not important", imageData: portraitImageRawData!)
 
-    let cardMessage = InAppMessagingCardDisplay(messageID: "testID",
-                                                campaignName: "testCampaign",
-                                                renderAsTestMessage: false,
-                                                triggerType: .onAnalyticsEvent,
-                                                titleText: normalMessageTitle,
-                                                textColor: UIColor.black,
-                                                portraitImageData: portraitImageData,
-                                                backgroundColor: UIColor.white,
-                                                primaryActionButton: defaultActionButton,
-                                                primaryActionURL: URL(string: "http://google.com")!)
+    let cardMessage = TestableCardMessage(
+      titleText: normalMessageTitle,
+      textColor: UIColor.black,
+      portraitImageData: portraitImageData,
+      backgroundColor: UIColor.white,
+      primaryActionButton: defaultActionButton,
+      primaryActionURL: URL(string: "http://google.com")!
+    )
     cardMessage.body = normalMessageBody
 
     displayImpl.displayMessage(cardMessage, displayDelegate: self)
