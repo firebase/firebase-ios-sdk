@@ -79,13 +79,4 @@
   return _currentUploadTask ? NO : YES;
 }
 
-- (void)appWillBackground:(UIApplication *)app {
-}
-
-- (void)appWillForeground:(UIApplication *)app {
-}
-
-- (void)appWillTerminate:(UIApplication *)application {
-}
-
 @end

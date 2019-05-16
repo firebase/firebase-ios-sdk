@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** A protocol defining the lifecycle events objects in the library must respond to immediately. */
 @protocol GDTLifecycleProtocol <NSObject>
 
-@required
+@optional
 
 /** Indicates an imminent app termination in the rare occurrence when -applicationWillTerminate: has
  * been called.
