@@ -23,7 +23,6 @@
 #import "GDTLibrary/Private/GDTUploadPackage_Private.h"
 
 @implementation GDTUploadPackage {
-
   /** If YES, the package's -completeDelivery method has been called. */
   BOOL _isDelivered;
 
@@ -75,7 +74,7 @@
 }
 
 - (void)completeDelivery {
-  NSAssert(_isDelivered == NO,  @"It's an API violation to call -completeDelivery twice.");
+  NSAssert(_isDelivered == NO, @"It's an API violation to call -completeDelivery twice.");
   _isDelivered = YES;
   if (!_isHandled && _handler &&
       [_handler respondsToSelector:@selector(packageDelivered:successful:)]) {

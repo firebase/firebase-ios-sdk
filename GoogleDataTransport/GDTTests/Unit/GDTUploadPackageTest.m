@@ -17,8 +17,8 @@
 #import "GDTTests/Unit/GDTTestCase.h"
 
 #import <GoogleDataTransport/GDTClock.h>
-#import <GoogleDataTransport/GDTUploadPackage.h>
 #import <GoogleDataTransport/GDTRegistrar.h>
+#import <GoogleDataTransport/GDTUploadPackage.h>
 
 #import "GDTLibrary/Private/GDTUploadPackage_Private.h"
 

@@ -164,7 +164,8 @@
 #pragma mark - NSSecureCoding support
 
 /** The NSKeyedCoder key for the targetToInFlightPackages property. */
-static NSString *const ktargetToInFlightPackagesKey = @"GDTUploadCoordinatortargetToInFlightPackages";
+static NSString *const ktargetToInFlightPackagesKey =
+    @"GDTUploadCoordinatortargetToInFlightPackages";
 
 + (BOOL)supportsSecureCoding {
   return YES;
@@ -173,7 +174,8 @@ static NSString *const ktargetToInFlightPackagesKey = @"GDTUploadCoordinatortarg
 - (instancetype)initWithCoder:(NSCoder *)aDecoder {
   GDTUploadCoordinator *sharedCoordinator = [GDTUploadCoordinator sharedInstance];
   sharedCoordinator->_targetToInFlightPackages =
-      [aDecoder decodeObjectOfClass:[NSMutableDictionary class] forKey:ktargetToInFlightPackagesKey];
+      [aDecoder decodeObjectOfClass:[NSMutableDictionary class]
+                             forKey:ktargetToInFlightPackagesKey];
   return sharedCoordinator;
 }
 

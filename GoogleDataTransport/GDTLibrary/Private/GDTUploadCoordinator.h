@@ -50,7 +50,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, readonly) uint64_t timerLeeway;
 
 /** The map of targets to in-flight packages. */
-@property(nonatomic, readonly) NSMutableDictionary<NSNumber *, GDTUploadPackage *> *targetToInFlightPackages;
+@property(nonatomic, readonly)
+    NSMutableDictionary<NSNumber *, GDTUploadPackage *> *targetToInFlightPackages;
 
 /** The storage object the coordinator will use. Generally used for testing. */
 @property(nonatomic) GDTStorage *storage;

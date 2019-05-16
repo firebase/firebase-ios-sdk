@@ -86,7 +86,7 @@
 /** Tests the timer is running at the desired frequency. */
 - (void)testTimerIsRunningAtDesiredFrequency {
   __block int numberOfTimesCalled = 0;
-  self.uploader.uploadPackageBlock = ^(GDTUploadPackage * _Nonnull package) {
+  self.uploader.uploadPackageBlock = ^(GDTUploadPackage *_Nonnull package) {
     numberOfTimesCalled++;
     [package completeDelivery];
   };
@@ -110,7 +110,7 @@
 /** Tests uploading events via the coordinator timer. */
 - (void)testUploadingEventsViaTimer {
   __block int uploadAttempts = 0;
- self.prioritizer.events = [GDTEventGenerator generate3StoredEvents];
+  self.prioritizer.events = [GDTEventGenerator generate3StoredEvents];
   self.uploader.uploadPackageBlock = ^(GDTUploadPackage *_Nonnull package) {
     [package completeDelivery];
     uploadAttempts++;
