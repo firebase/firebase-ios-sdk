@@ -460,7 +460,6 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
     TargetId targetID = queryData.targetID;
 
     auto found = _targetIDs.find(targetID);
-
     if (found != _targetIDs.end()) {
       FSTQueryData *cachedQueryData = found->second;
 
