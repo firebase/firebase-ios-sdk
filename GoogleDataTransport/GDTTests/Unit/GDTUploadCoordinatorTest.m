@@ -17,7 +17,6 @@
 #import "GDTTests/Unit/GDTTestCase.h"
 
 #import "GDTLibrary/Private/GDTUploadCoordinator.h"
-#import "GDTLibrary/Private/GDTUploadCoordinator_Private.h"
 
 #import "GDTTests/Common/Categories/GDTRegistrar+Testing.h"
 #import "GDTTests/Common/Categories/GDTUploadCoordinator+Testing.h"

@@ -19,7 +19,7 @@
 #import <GoogleDataTransport/GDTClock.h>
 
 #import "GDTLibrary/Private/GDTStorage_Private.h"
-#import "GDTLibrary/Private/GDTUploadCoordinator_Private.h"
+#import "GDTLibrary/Private/GDTUploadCoordinator.h"
 #import "GDTLibrary/Private/GDTUploadPackage_Private.h"
 
 @implementation GDTUploadPackage {

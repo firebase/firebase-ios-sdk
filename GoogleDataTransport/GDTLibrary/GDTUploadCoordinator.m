@@ -15,7 +15,6 @@
  */
 
 #import "GDTLibrary/Private/GDTUploadCoordinator.h"
-#import "GDTLibrary/Private/GDTUploadCoordinator_Private.h"
 
 #import <GoogleDataTransport/GDTClock.h>
 

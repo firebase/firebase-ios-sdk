@@ -21,7 +21,7 @@
 #import "GDTLibrary/Private/GDTRegistrar_Private.h"
 #import "GDTLibrary/Private/GDTStorage_Private.h"
 #import "GDTLibrary/Private/GDTTransformer_Private.h"
-#import "GDTLibrary/Private/GDTUploadCoordinator_Private.h"
+#import "GDTLibrary/Private/GDTUploadCoordinator.h"
 
 @implementation GDTLifecycle
 
