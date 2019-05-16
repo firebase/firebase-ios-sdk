@@ -1260,18 +1260,9 @@ using firebase::firestore::util::TimerId;
   [FIRApp configureWithName:appName options:options];
   FIRApp *app2 = [FIRApp appNamed:appName];
   FIRFirestore *firestore2 = [self firestoreWithApp:app2];
-//  FIRDocumentSnapshot *snap = [self readDocumentForRef:doc source:FIRFirestoreSourceCache];
-//  XCTAssertTrue(snap.exists);
-
   FIRDocumentReference *docRef2 = [firestore2 documentWithPath:doc.path];
-  XCTestExpectation *expectation2 = [self expectationWithDescription:@"getData"];
-  [docRef2 getDocumentWithSource:FIRFirestoreSourceCache
-                      completion:^(FIRDocumentSnapshot *doc2, NSError *_Nullable error) {
-                        XCTAssertNil(error);
-                        XCTAssertTrue(doc2.exists);
-                        [expectation2 fulfill];
-                      }];
-  [self awaitExpectations];
+  FIRDocumentSnapshot *snap = [self readDocumentForRef:docRef2 source:FIRFirestoreSourceCache];
+  XCTAssertTrue(snap.exists);
 }
 
 - (void)testCanClearPersistenceAfterRestarting {
