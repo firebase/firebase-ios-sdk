@@ -124,7 +124,7 @@ class GrpcStream : public GrpcCall {
  public:
   GrpcStream(std::unique_ptr<grpc::ClientContext> context,
              std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
-             std::shared_ptr<util::AsyncQueue> worker_queue,
+             const std::shared_ptr<util::AsyncQueue>& worker_queue,
              GrpcConnection* grpc_connection,
              GrpcStreamObserver* observer);
   ~GrpcStream();

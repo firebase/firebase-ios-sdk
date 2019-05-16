@@ -37,7 +37,7 @@ class MockWriteStream;
 class MockDatastore : public Datastore {
  public:
   MockDatastore(const core::DatabaseInfo& database_info,
-                std::shared_ptr<util::AsyncQueue> worker_queue,
+                const std::shared_ptr<util::AsyncQueue>& worker_queue,
                 auth::CredentialsProvider* credentials);
 
   std::shared_ptr<WatchStream> CreateWatchStream(WatchStreamCallback* callback) override;

@@ -32,12 +32,12 @@ using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::TimerId;
 namespace chr = std::chrono;
 
-ExponentialBackoff::ExponentialBackoff(std::shared_ptr<AsyncQueue> queue,
+ExponentialBackoff::ExponentialBackoff(const std::shared_ptr<AsyncQueue>& queue,
                                        TimerId timer_id,
                                        double backoff_factor,
                                        Milliseconds initial_delay,
                                        Milliseconds max_delay)
-    : queue_{std::move(queue)},
+    : queue_{queue},
       timer_id_{timer_id},
       backoff_factor_{backoff_factor},
       initial_delay_{initial_delay},

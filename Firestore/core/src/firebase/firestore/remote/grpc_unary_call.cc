@@ -32,13 +32,13 @@ using Type = GrpcCompletion::Type;
 GrpcUnaryCall::GrpcUnaryCall(
     std::unique_ptr<grpc::ClientContext> context,
     std::unique_ptr<grpc::GenericClientAsyncResponseReader> call,
-    std::shared_ptr<util::AsyncQueue> worker_queue,
+    const std::shared_ptr<util::AsyncQueue>& worker_queue,
     GrpcConnection* grpc_connection,
     const grpc::ByteBuffer& request)
     : context_{std::move(context)},
       call_{std::move(call)},
       request_{request},
-      worker_queue_{std::move(worker_queue)},
+      worker_queue_{worker_queue},
       grpc_connection_{grpc_connection} {
   grpc_connection_->Register(this);
 }

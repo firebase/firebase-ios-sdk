@@ -46,9 +46,9 @@ class OnlineStateTracker {
   OnlineStateTracker() = default;
 
   OnlineStateTracker(
-      std::shared_ptr<util::AsyncQueue> worker_queue,
+      const std::shared_ptr<util::AsyncQueue>& worker_queue,
       std::function<void(model::OnlineState)> online_state_handler)
-      : worker_queue_{std::move(worker_queue)},
+      : worker_queue_{worker_queue},
         online_state_handler_{online_state_handler} {
   }
 

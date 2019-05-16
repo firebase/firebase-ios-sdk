@@ -89,8 +89,6 @@ void LogGrpcCallFinished(absl::string_view rpc_name,
 
 }  // namespace
 
-// Order of evaluation in the inner constructor is not guaranteed, so don't pass
-// worker_queue by value. Each usage of worker_queue requires its own copy.
 Datastore::Datastore(const DatabaseInfo& database_info,
                      const std::shared_ptr<AsyncQueue>& worker_queue,
                      CredentialsProvider* credentials)

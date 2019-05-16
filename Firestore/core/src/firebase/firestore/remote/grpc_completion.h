@@ -72,7 +72,7 @@ class GrpcCompletion {
   using Callback = std::function<void(bool, const GrpcCompletion*)>;
 
   GrpcCompletion(Type type,
-                 std::shared_ptr<util::AsyncQueue> worker_queue,
+                 const std::shared_ptr<util::AsyncQueue>& worker_queue,
                  Callback&& callback);
 
   /**

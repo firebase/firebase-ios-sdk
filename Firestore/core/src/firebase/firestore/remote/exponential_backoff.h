@@ -55,7 +55,7 @@ class ExponentialBackoff {
    *     performed. Note that jitter will still be applied, so the actual delay
    *     could be as much as `1.5*max_delay`.
    */
-  ExponentialBackoff(std::shared_ptr<util::AsyncQueue> queue,
+  ExponentialBackoff(const std::shared_ptr<util::AsyncQueue>& queue,
                      util::TimerId timer_id,
                      double backoff_factor,
                      util::AsyncQueue::Milliseconds initial_delay,

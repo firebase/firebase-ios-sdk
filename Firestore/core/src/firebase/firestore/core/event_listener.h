@@ -61,9 +61,9 @@ class AsyncEventListener
  public:
   using DelegateListener = std::unique_ptr<EventListener<T>>;
 
-  AsyncEventListener(std::shared_ptr<util::Executor> executor,
+  AsyncEventListener(const std::shared_ptr<util::Executor>& executor,
                      DelegateListener&& delegate)
-      : executor_(std::move(executor)), delegate_(std::move(delegate)) {
+      : executor_(executor), delegate_(std::move(delegate)) {
     // std::atomic's constructor is not atomic, so assign after contruction
     // (since assignment is atomic).
     muted_ = false;
