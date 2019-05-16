@@ -44,6 +44,7 @@
     _registrar = [GDTRegistrar sharedInstance];
     _timerInterval = 30 * NSEC_PER_SEC;
     _timerLeeway = 5 * NSEC_PER_SEC;
+    _inFlightUploadPackages = [[NSMutableSet alloc] init];
   }
   return self;
 }
@@ -107,6 +108,7 @@
       if ([uploader readyToUploadWithConditions:conditions]) {
         id<GDTPrioritizer> prioritizer = self.registrar.targetToPrioritizer[target];
         GDTUploadPackage *package = [prioritizer uploadPackageWithConditions:conditions];
+        [self->_inFlightUploadPackages addObject:package];
         [uploader uploadPackage:package];
       }
     }
@@ -156,15 +158,24 @@
 
 #pragma mark - NSSecureCoding support
 
+/** The NSKeyedCoder key for the inFlightUploadPackages property. */
+static NSString *const kInFlightUploadPackagesKey = @"GDTUploadCoordinatorInFlightUploadPackages";
+
 + (BOOL)supportsSecureCoding {
   return YES;
 }
 
 - (instancetype)initWithCoder:(NSCoder *)aDecoder {
-  return [GDTUploadCoordinator sharedInstance];
+  GDTUploadCoordinator *sharedCoordinator = [GDTUploadCoordinator sharedInstance];
+  sharedCoordinator->_inFlightUploadPackages = [aDecoder decodeObjectOfClass:[NSMutableSet class]
+                                                                      forKey:kInFlightUploadPackagesKey];
+  return sharedCoordinator;
 }
 
 - (void)encodeWithCoder:(NSCoder *)aCoder {
+  // All packages that have been given to uploaders need to be tracked so that their expiration
+  // timers can be called.
+  [aCoder encodeObject:_inFlightUploadPackages forKey:kInFlightUploadPackagesKey];
 }
 
 #pragma mark - GDTLifecycleProtocol
@@ -201,6 +212,7 @@
 
 - (void)packageDelivered:(GDTUploadPackage *)package successful:(BOOL)successful {
   dispatch_async(_coordinationQueue, ^{
+    [self->_inFlightUploadPackages removeObject:package];
     NSNumber *targetNumber = @(package.target);
     id<GDTPrioritizer> prioritizer = self->_registrar.targetToPrioritizer[targetNumber];
     NSAssert(prioritizer, @"A prioritizer should be registered for this target: %@", targetNumber);
@@ -213,6 +225,7 @@
 
 - (void)packageExpired:(GDTUploadPackage *)package {
   dispatch_async(_coordinationQueue, ^{
+    [self->_inFlightUploadPackages removeObject:package];
     NSNumber *targetNumber = @(package.target);
     id<GDTPrioritizer> prioritizer = self->_registrar.targetToPrioritizer[targetNumber];
     id<GDTUploader> uploader = self->_registrar.targetToUploader[targetNumber];
