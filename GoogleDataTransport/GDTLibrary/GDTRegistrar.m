@@ -94,10 +94,14 @@
 - (void)appWillBackground:(nonnull UIApplication *)app {
   dispatch_async(_registrarQueue, ^{
     for (id<GDTUploader> uploader in [self->_targetToUploader allValues]) {
-      [uploader appWillBackground:app];
+      if ([uploader respondsToSelector:@selector(appWillBackground:)]) {
+        [uploader appWillBackground:app];
+      }
     }
     for (id<GDTPrioritizer> prioritizer in [self->_targetToPrioritizer allValues]) {
-      [prioritizer appWillBackground:app];
+      if ([prioritizer respondsToSelector:@selector(appWillBackground:)]) {
+        [prioritizer appWillBackground:app];
+      }
     }
   });
 }
@@ -105,10 +109,14 @@
 - (void)appWillForeground:(nonnull UIApplication *)app {
   dispatch_async(_registrarQueue, ^{
     for (id<GDTUploader> uploader in [self->_targetToUploader allValues]) {
-      [uploader appWillForeground:app];
+      if ([uploader respondsToSelector:@selector(appWillForeground:)]) {
+        [uploader appWillForeground:app];
+      }
     }
     for (id<GDTPrioritizer> prioritizer in [self->_targetToPrioritizer allValues]) {
-      [prioritizer appWillForeground:app];
+      if ([prioritizer respondsToSelector:@selector(appWillForeground:)]) {
+        [prioritizer appWillForeground:app];
+      }
     }
   });
 }
@@ -116,10 +124,14 @@
 - (void)appWillTerminate:(nonnull UIApplication *)app {
   dispatch_sync(_registrarQueue, ^{
     for (id<GDTUploader> uploader in [self->_targetToUploader allValues]) {
-      [uploader appWillTerminate:app];
+      if ([uploader respondsToSelector:@selector(appWillTerminate:)]) {
+        [uploader appWillTerminate:app];
+      }
     }
     for (id<GDTPrioritizer> prioritizer in [self->_targetToPrioritizer allValues]) {
-      [prioritizer appWillTerminate:app];
+      if ([prioritizer respondsToSelector:@selector(appWillTerminate:)]) {
+        [prioritizer appWillTerminate:app];
+      }
     }
   });
 }

@@ -21,7 +21,7 @@
 #import "GDTLibrary/Private/GDTRegistrar_Private.h"
 #import "GDTLibrary/Private/GDTStorage_Private.h"
 #import "GDTLibrary/Private/GDTTransformer_Private.h"
-#import "GDTLibrary/Private/GDTUploadCoordinator_Private.h"
+#import "GDTLibrary/Private/GDTUploadCoordinator.h"
 
 @implementation GDTLifecycle
 
@@ -70,26 +70,50 @@
 
 - (void)applicationDidEnterBackground:(NSNotification *)notification {
   UIApplication *application = [UIApplication sharedApplication];
-  [[GDTTransformer sharedInstance] appWillBackground:application];
-  [[GDTStorage sharedInstance] appWillBackground:application];
-  [[GDTUploadCoordinator sharedInstance] appWillBackground:application];
-  [[GDTRegistrar sharedInstance] appWillBackground:application];
+  if ([[GDTTransformer sharedInstance] respondsToSelector:@selector(appWillBackground:)]) {
+    [[GDTTransformer sharedInstance] appWillBackground:application];
+  }
+  if ([[GDTStorage sharedInstance] respondsToSelector:@selector(appWillBackground:)]) {
+    [[GDTStorage sharedInstance] appWillBackground:application];
+  }
+  if ([[GDTUploadCoordinator sharedInstance] respondsToSelector:@selector(appWillBackground:)]) {
+    [[GDTUploadCoordinator sharedInstance] appWillBackground:application];
+  }
+  if ([[GDTRegistrar sharedInstance] respondsToSelector:@selector(appWillBackground:)]) {
+    [[GDTRegistrar sharedInstance] appWillBackground:application];
+  }
 }
 
 - (void)applicationWillEnterForeground:(NSNotification *)notification {
   UIApplication *application = [UIApplication sharedApplication];
-  [[GDTTransformer sharedInstance] appWillForeground:application];
-  [[GDTStorage sharedInstance] appWillForeground:application];
-  [[GDTUploadCoordinator sharedInstance] appWillForeground:application];
-  [[GDTRegistrar sharedInstance] appWillForeground:application];
+  if ([[GDTTransformer sharedInstance] respondsToSelector:@selector(appWillForeground:)]) {
+    [[GDTTransformer sharedInstance] appWillForeground:application];
+  }
+  if ([[GDTStorage sharedInstance] respondsToSelector:@selector(appWillForeground:)]) {
+    [[GDTStorage sharedInstance] appWillForeground:application];
+  }
+  if ([[GDTUploadCoordinator sharedInstance] respondsToSelector:@selector(appWillForeground:)]) {
+    [[GDTUploadCoordinator sharedInstance] appWillForeground:application];
+  }
+  if ([[GDTRegistrar sharedInstance] respondsToSelector:@selector(appWillForeground:)]) {
+    [[GDTRegistrar sharedInstance] appWillForeground:application];
+  }
 }
 
 - (void)applicationWillTerminate:(NSNotification *)notification {
   UIApplication *application = [UIApplication sharedApplication];
-  [[GDTTransformer sharedInstance] appWillTerminate:application];
-  [[GDTStorage sharedInstance] appWillTerminate:application];
-  [[GDTUploadCoordinator sharedInstance] appWillTerminate:application];
-  [[GDTRegistrar sharedInstance] appWillTerminate:application];
+  if ([[GDTTransformer sharedInstance] respondsToSelector:@selector(appWillTerminate:)]) {
+    [[GDTTransformer sharedInstance] appWillTerminate:application];
+  }
+  if ([[GDTStorage sharedInstance] respondsToSelector:@selector(appWillTerminate:)]) {
+    [[GDTStorage sharedInstance] appWillTerminate:application];
+  }
+  if ([[GDTUploadCoordinator sharedInstance] respondsToSelector:@selector(appWillTerminate:)]) {
+    [[GDTUploadCoordinator sharedInstance] appWillTerminate:application];
+  }
+  if ([[GDTRegistrar sharedInstance] respondsToSelector:@selector(appWillTerminate:)]) {
+    [[GDTRegistrar sharedInstance] appWillTerminate:application];
+  }
 }
 
 @end

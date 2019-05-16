@@ -71,15 +71,6 @@
   return uploadPackage;
 }
 
-- (void)appWillBackground:(UIApplication *)app {
-}
-
-- (void)appWillForeground:(UIApplication *)app {
-}
-
-- (void)appWillTerminate:(UIApplication *)application {
-}
-
 - (void)packageDelivered:(GDTUploadPackage *)package successful:(BOOL)successful {
   dispatch_async(_queue, ^{
     for (GDTStoredEvent *event in package.events) {

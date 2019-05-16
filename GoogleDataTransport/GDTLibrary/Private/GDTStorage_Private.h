@@ -32,8 +32,8 @@ NS_ASSUME_NONNULL_BEGIN
 /** All the events that have been stored. */
 @property(readonly, nonatomic) NSMutableOrderedSet<GDTStoredEvent *> *storedEvents;
 
-/** The upload coordinator instance to use. */
-@property(nonatomic) GDTUploadCoordinator *uploader;
+/** The upload coordinator instance used by this storage instance. */
+@property(nonatomic) GDTUploadCoordinator *uploadCoordinator;
 
 /** If YES, every call to -storeLog results in background task and serializes the singleton to disk.
  */
