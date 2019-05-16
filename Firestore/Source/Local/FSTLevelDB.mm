@@ -345,8 +345,9 @@ static const char *kReservedPathComponent = "firestore";
   return Status::OK();
 }
 
-+ (Status)clearPersistence {
-  Path levelDBDir = [FSTLevelDB documentsDirectory];
++ (Status)clearPersistence:(const DatabaseInfo &)databaseInfo {
+  Path levelDBDir = [FSTLevelDB storageDirectoryForDatabaseInfo:databaseInfo
+                                             documentsDirectory:[FSTLevelDB documentsDirectory]];
   return util::RecursivelyDelete(levelDBDir);
 }
 

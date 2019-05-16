@@ -1248,7 +1248,7 @@ using firebase::firestore::util::TimerId;
   NSString *appName = app.name;
   FIROptions *options = app.options;
 
-  NSDictionary<NSString *, id> *initialData = @{@"foo": @"42"};
+  NSDictionary<NSString *, id> *initialData = @{@"foo" : @"42"};
   [self writeDocumentRef:doc data:initialData];
 
   // -clearPersistence() requires Firestore to be shut down. Shutdown FIRApp to emulate the way
@@ -1272,7 +1272,7 @@ using firebase::firestore::util::TimerId;
   NSString *appName = app.name;
   FIROptions *options = app.options;
 
-  NSDictionary<NSString *, id> *initialData = @{@"foo": @"42"};
+  NSDictionary<NSString *, id> *initialData = @{@"foo" : @"42"};
   [self writeDocumentRef:doc data:initialData];
 
   // -clearPersistence() requires Firestore to be shut down. Shutdown FIRApp to emulate the way
@@ -1303,12 +1303,14 @@ using firebase::firestore::util::TimerId;
   FIRFirestore *firestore = doc.firestore;
 
   [self enableNetwork];
-  XCTAssertThrowsSpecific(
-      {
-        [firestore clearPersistenceWithCompletion:^(NSError *error){
-        }];
-      },
-      NSException, @"Persistence cannot be cleared while the client is running.");
+  XCTestExpectation *expectation = [self expectationWithDescription:@"clearPersistence"];
+  [firestore clearPersistenceWithCompletion:^(NSError *_Nullable error) {
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
+    XCTAssertEqual(error.code, FIRFirestoreErrorCodeFailedPrecondition);
+    [expectation fulfill];
+  }];
+  [self awaitExpectations];
 }
 
 @end

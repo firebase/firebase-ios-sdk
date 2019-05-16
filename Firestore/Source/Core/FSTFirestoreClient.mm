@@ -143,6 +143,10 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
   return _workerQueue;
 }
 
+- (const std::atomic<bool> &)isShutdown {
+  return _isShutdown;
+}
+
 + (instancetype)clientWithDatabaseInfo:(const DatabaseInfo &)databaseInfo
                               settings:(const Settings &)settings
                    credentialsProvider:

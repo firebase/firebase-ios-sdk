@@ -141,17 +141,22 @@ void Firestore::Shutdown(util::StatusCallback callback) {
   // The client must be initialized to ensure that all subsequent API usage
   // throws an exception.
   EnsureClientConfigured();
-  client_running_ = false;
   [client_ shutdownWithCallback:std::move(callback)];
 }
 
 void Firestore::ClearPersistence(util::StatusCallback callback) {
-  if (client_running_) {
-    ThrowIllegalState(
-        "Persistence cannot be cleared while the client is running.");
-  }
   worker_queue()->Enqueue([this, callback] {
-    util::Status status = [FSTLevelDB clearPersistence];
+    std::lock_guard<std::mutex> lock{mutex_};
+    util::Status status;
+    if (!client_ || client().isShutdown) {
+      DatabaseInfo database_info(database_id_, persistence_key_,
+                                 settings_.host(), settings_.ssl_enabled());
+      status = [FSTLevelDB clearPersistence:database_info];
+    } else {
+      status = util::Status(
+          FirestoreErrorCode::FailedPrecondition,
+          "Persistence cannot be cleared while the client is running.");
+    }
     if (callback) {
       this->user_executor_->Execute([=] { callback(status); });
     }
@@ -172,7 +177,6 @@ void Firestore::EnsureClientConfigured() {
   std::lock_guard<std::mutex> lock{mutex_};
 
   if (!client_) {
-    client_running_ = true;
     DatabaseInfo database_info(database_id_, persistence_key_, settings_.host(),
                                settings_.ssl_enabled());
 
