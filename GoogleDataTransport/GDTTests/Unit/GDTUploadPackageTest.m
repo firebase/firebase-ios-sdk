@@ -17,10 +17,15 @@
 #import "GDTTests/Unit/GDTTestCase.h"
 
 #import <GoogleDataTransport/GDTClock.h>
+#import <GoogleDataTransport/GDTRegistrar.h>
 #import <GoogleDataTransport/GDTUploadPackage.h>
 
 #import "GDTLibrary/Private/GDTUploadPackage_Private.h"
+
 #import "GDTTests/Unit/Helpers/GDTEventGenerator.h"
+#import "GDTTests/Unit/Helpers/GDTTestPrioritizer.h"
+#import "GDTTests/Unit/Helpers/GDTTestUploadPackage.h"
+#import "GDTTests/Unit/Helpers/GDTTestUploader.h"
 
 @interface GDTUploadPackageTest : GDTTestCase <NSSecureCoding, GDTUploadPackageProtocol>
 
@@ -70,6 +75,19 @@
 /** Tests the default initializer. */
 - (void)testInit {
   XCTAssertNotNil([[GDTUploadPackage alloc] initWithTarget:kGDTTargetTest]);
+}
+
+/** Tests that calling -completeDelivery twice on the same package asserts. */
+- (void)testCompleteDeliveryTwiceAsserts {
+  GDTTestPrioritizer *prioritizer = [[GDTTestPrioritizer alloc] init];
+  GDTTestUploader *uploader = [[GDTTestUploader alloc] init];
+
+  [[GDTRegistrar sharedInstance] registerPrioritizer:prioritizer target:kGDTTargetTest];
+  [[GDTRegistrar sharedInstance] registerUploader:uploader target:kGDTTargetTest];
+
+  GDTUploadPackage *uploadPackage = [[GDTUploadPackage alloc] initWithTarget:kGDTTargetTest];
+  [uploadPackage completeDelivery];
+  XCTAssertThrows([uploadPackage completeDelivery]);
 }
 
 /** Tests copying indicates that the underlying sets of events can't be changed from underneath. */

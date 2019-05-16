@@ -49,8 +49,9 @@ NS_ASSUME_NONNULL_BEGIN
 /** Some leeway given to libdispatch for the timer interval event. */
 @property(nonatomic, readonly) uint64_t timerLeeway;
 
-/** The current in-flight packages. */
-@property(nonatomic, readonly) NSMutableSet<GDTUploadPackage *> *inFlightUploadPackages;
+/** The map of targets to in-flight packages. */
+@property(nonatomic, readonly)
+    NSMutableDictionary<NSNumber *, GDTUploadPackage *> *targetToInFlightPackages;
 
 /** The storage object the coordinator will use. Generally used for testing. */
 @property(nonatomic) GDTStorage *storage;

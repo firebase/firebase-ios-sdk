@@ -25,6 +25,7 @@
 - (void)setUp {
   [GDTReachability sharedInstance].flags = kSCNetworkReachabilityFlagsReachable;
   [[GDTUploadCoordinator sharedInstance] stopTimer];
+  [[GDTUploadCoordinator sharedInstance] reset];
 }
 
 - (void)tearDown {
