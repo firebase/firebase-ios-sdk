@@ -426,9 +426,10 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 }
 
 - (nullable FSTMaybeDocument *)readDocument:(const DocumentKey &)key {
-  return self.persistence.run("ReadDocument", [&]() -> FSTMaybeDocument *_Nullable {
-    return _localDocuments->GetDocument(key);
-  });
+  return self.persistence.run(
+      "ReadDocument", [&]() -> FSTMaybeDocument *_Nullable {
+        return _localDocuments->GetDocument(key);
+      });
 }
 
 - (FSTQueryData *)allocateQuery:(FSTQuery *)query {
@@ -460,10 +461,10 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
     TargetId targetID = queryData.targetID;
 
     auto found = _targetIDs.find(targetID);
-      
+
     if (found != _targetIDs.end()) {
       FSTQueryData *cachedQueryData = found->second;
-        
+
       if (cachedQueryData.snapshotVersion > queryData.snapshotVersion) {
         // If we've been avoiding persisting the resumeToken (see shouldPersistQueryData for
         // conditions and rationale) we need to persist the token now because there will no
@@ -472,7 +473,6 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
         _queryCache->UpdateTarget(queryData);
       }
     }
-    
 
     // References for documents sent via Watch are automatically removed when we delete a
     // query's target data from the reference delegate. Since this does not remove references
