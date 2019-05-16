@@ -76,7 +76,8 @@ void OnReachabilityChangedCallback(SCNetworkReachabilityRef /*unused*/,
  */
 class ConnectivityMonitorApple : public ConnectivityMonitor {
  public:
-  explicit ConnectivityMonitorApple(const std::shared_ptr<AsyncQueue>& worker_queue)
+  explicit ConnectivityMonitorApple(
+      const std::shared_ptr<AsyncQueue>& worker_queue)
       : ConnectivityMonitor{worker_queue} {
     reachability_ = CreateReachability();
     if (!reachability_) {

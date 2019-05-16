@@ -52,7 +52,8 @@ class ConnectivityMonitor {
   static std::unique_ptr<ConnectivityMonitor> Create(
       const std::shared_ptr<util::AsyncQueue>& worker_queue);
 
-  explicit ConnectivityMonitor(const std::shared_ptr<util::AsyncQueue>& worker_queue)
+  explicit ConnectivityMonitor(
+      const std::shared_ptr<util::AsyncQueue>& worker_queue)
       : worker_queue_{worker_queue} {
   }
 
