@@ -20,19 +20,13 @@
 
 @implementation GDTTestPrioritizer
 
-- (instancetype)init {
-  self = [super init];
-  if (self) {
-    _uploadPackage = [[GDTTestUploadPackage alloc] initWithTarget:kGDTTargetTest];
-  }
-  return self;
-}
-
 - (GDTUploadPackage *)uploadPackageWithConditions:(GDTUploadConditions)conditions {
   if (_uploadPackageWithConditionsBlock) {
     _uploadPackageWithConditionsBlock();
   }
-  return _uploadPackage;
+  GDTUploadPackage *uploadPackage = [[GDTUploadPackage alloc] initWithTarget:kGDTTargetTest];
+  uploadPackage.events = _events;
+  return uploadPackage;
 }
 
 - (void)prioritizeEvent:(GDTStoredEvent *)event {

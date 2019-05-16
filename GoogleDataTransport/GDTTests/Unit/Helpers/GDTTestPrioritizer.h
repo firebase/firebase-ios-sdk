@@ -25,8 +25,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface GDTTestPrioritizer : NSObject <GDTPrioritizer>
 
-/** The return value of -uploadPackageWithConditions. */
-@property(nullable, nonatomic) GDTUploadPackage *uploadPackage;
+/** The events in the package given by -uploadPackageWithConditions. */
+@property(nullable, nonatomic) NSSet<GDTStoredEvent *> *events;
 
 /** Allows the running of a block of code during -prioritizeEvent. */
 @property(nullable, nonatomic) void (^prioritizeEventBlock)(GDTStoredEvent *event);

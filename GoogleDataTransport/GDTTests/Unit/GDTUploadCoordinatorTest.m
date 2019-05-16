@@ -60,9 +60,7 @@
 
 - (void)tearDown {
   [super tearDown];
-  dispatch_sync([GDTUploadCoordinator sharedInstance].coordinationQueue, ^{
-    [[GDTUploadCoordinator sharedInstance] reset];
-  });
+  [[GDTUploadCoordinator sharedInstance] reset];
   [[GDTRegistrar sharedInstance] reset];
   self.storageFake = nil;
   self.prioritizer = nil;
@@ -76,10 +74,7 @@
 
 /** Tests that forcing a event upload works. */
 - (void)testForceUploadEvents {
-  GDTTestUploadPackage *uploadPackage =
-      [[GDTTestUploadPackage alloc] initWithTarget:kGDTTargetTest];
-  uploadPackage.events = [GDTEventGenerator generate3StoredEvents];
-  self.prioritizer.uploadPackage = uploadPackage;
+  self.prioritizer.events = [GDTEventGenerator generate3StoredEvents];
   XCTestExpectation *expectation = [self expectationWithDescription:@"uploader will upload"];
   self.uploader.uploadPackageBlock = ^(GDTUploadPackage *_Nonnull package) {
     [expectation fulfill];
@@ -91,20 +86,21 @@
 /** Tests the timer is running at the desired frequency. */
 - (void)testTimerIsRunningAtDesiredFrequency {
   __block int numberOfTimesCalled = 0;
-  self.prioritizer.uploadPackageWithConditionsBlock = ^{
+  self.uploader.uploadPackageBlock = ^(GDTUploadPackage * _Nonnull package) {
     numberOfTimesCalled++;
+    [package completeDelivery];
   };
   dispatch_sync([GDTUploadCoordinator sharedInstance].coordinationQueue, ^{
-    // Timer should fire 10 times a second.
-    [GDTUploadCoordinator sharedInstance].timerInterval = NSEC_PER_SEC / 10;
+    // Timer should fire 1 times a second.
+    [GDTUploadCoordinator sharedInstance].timerInterval = NSEC_PER_SEC;
     [GDTUploadCoordinator sharedInstance].timerLeeway = 0;
   });
   [[GDTUploadCoordinator sharedInstance] startTimer];
 
-  // Run for 1 second.
-  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1]];
+  // Run for 5 seconds.
+  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:5]];
 
-  // It's expected that the timer called the prioritizer 10 times +/- 3 during that 1 second + the
+  // It's expected that the timer called the prioritizer 5 times +/- 1 during that 1 second + the
   // coordinator running before that.
   dispatch_sync([GDTUploadCoordinator sharedInstance].coordinationQueue, ^{
     XCTAssertGreaterThan(numberOfTimesCalled, 4);  // Some latency is expected on a busy system.
@@ -114,10 +110,7 @@
 /** Tests uploading events via the coordinator timer. */
 - (void)testUploadingEventsViaTimer {
   __block int uploadAttempts = 0;
-  GDTTestUploadPackage *uploadPackage =
-      [[GDTTestUploadPackage alloc] initWithTarget:kGDTTargetTest];
-  uploadPackage.events = [GDTEventGenerator generate3StoredEvents];
-  self.prioritizer.uploadPackage = uploadPackage;
+ self.prioritizer.events = [GDTEventGenerator generate3StoredEvents];
   self.uploader.uploadPackageBlock = ^(GDTUploadPackage *_Nonnull package) {
     [package completeDelivery];
     uploadAttempts++;
@@ -137,10 +130,7 @@
 /** Tests the situation in which the uploader failed to upload the events for some reason. */
 - (void)testThatAFailedUploadResultsInAnEventualRetry {
   __block int uploadAttempts = 0;
-  GDTTestUploadPackage *uploadPackage =
-      [[GDTTestUploadPackage alloc] initWithTarget:kGDTTargetTest];
-  uploadPackage.events = [GDTEventGenerator generate3StoredEvents];
-  self.prioritizer.uploadPackage = uploadPackage;
+  self.prioritizer.events = [GDTEventGenerator generate3StoredEvents];
   self.uploader.uploadPackageBlock = ^(GDTUploadPackage *_Nonnull package) {
     [package retryDeliveryInTheFuture];
     uploadAttempts++;
