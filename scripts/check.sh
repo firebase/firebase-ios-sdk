@@ -167,17 +167,15 @@ fi
 # first commit on a non-master branch, TRAVIS_COMMIT_RANGE is not set and
 # START_REVISION is "master" instead of a range.
 
-if [[ -z "${TRAVIS_COMMIT_RANGE}" ]]; then
-  # Figure out if we have access to master. If not add it to the repo.
+# If needed, check if we have access to master and add it to the repo.
+if [[ "${START_REVISION}" == "origin/master" ]]; then
   if ! git rev-parse origin/master >& /dev/null; then
     git remote set-branches --add origin master
     git fetch origin
   fi
-  START_SHA=$(git rev-parse origin/master)
-
-else
-  START_SHA=$(git rev-parse "${START_REVISION}")
 fi
+
+START_SHA=$(git rev-parse "${START_REVISION}")
 
 if [[ "${VERBOSE}" == true ]]; then
   echo "START_REVISION=$START_REVISION"
