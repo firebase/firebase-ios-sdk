@@ -188,6 +188,9 @@ case "$product-$method-$platform" in
         test
 
     if [[ $platform == 'iOS' ]]; then
+      # Code Coverage collection is only working on iOS currently.
+      ./scripts/collect_metrics.sh 'Example/Firebase.xcworkspace' "AllUnitTests_$platform"
+
       # Run integration tests (not allowed on PRs)
       if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
         RunXcodebuild \
@@ -342,14 +345,16 @@ case "$product-$method-$platform" in
 
     RunXcodebuild \
         -workspace 'GoogleDataTransport/gen/GoogleDataTransport/GoogleDataTransport.xcworkspace' \
-        -scheme "GoogleDataTransport-Unit-Tests-Integration" \
+        -scheme "GoogleDataTransport-Unit-Tests-Lifecycle" \
         "${xcb_flags[@]}" \
         build \
         test
+    ;;
 
+  GoogleDataTransportIntegrationTest-xcodebuild-iOS)
     RunXcodebuild \
         -workspace 'GoogleDataTransport/gen/GoogleDataTransport/GoogleDataTransport.xcworkspace' \
-        -scheme "GoogleDataTransport-Unit-Tests-Lifecycle" \
+        -scheme "GoogleDataTransport-Unit-Tests-Integration" \
         "${xcb_flags[@]}" \
         build \
         test

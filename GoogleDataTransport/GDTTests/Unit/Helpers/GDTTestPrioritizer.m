@@ -23,7 +23,7 @@
 - (instancetype)init {
   self = [super init];
   if (self) {
-    _uploadPackage = [[GDTTestUploadPackage alloc] init];
+    _uploadPackage = [[GDTTestUploadPackage alloc] initWithTarget:kGDTTargetTest];
   }
   return self;
 }
@@ -39,9 +39,6 @@
   if (_prioritizeEventBlock) {
     _prioritizeEventBlock(event);
   }
-}
-
-- (void)unprioritizeEvents:(NSSet<GDTStoredEvent *> *)events {
 }
 
 - (void)appWillBackground:(UIApplication *)app {

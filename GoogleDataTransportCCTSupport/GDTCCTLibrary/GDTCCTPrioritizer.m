@@ -56,16 +56,21 @@ const static NSUInteger kMillisPerDay = 8.64e+7;
   });
 }
 
-- (void)unprioritizeEvents:(NSSet<GDTStoredEvent *> *)events {
+- (void)packageDelivered:(GDTUploadPackage *)package successful:(BOOL)successful {
   dispatch_async(_queue, ^{
+    NSSet<GDTStoredEvent *> *events = [package.events copy];
     for (GDTStoredEvent *event in events) {
       [self.events removeObject:event];
     }
   });
 }
 
+- (void)packageExpired:(GDTUploadPackage *)package {
+  [self packageDelivered:package successful:YES];
+}
+
 - (GDTUploadPackage *)uploadPackageWithConditions:(GDTUploadConditions)conditions {
-  GDTUploadPackage *package = [[GDTUploadPackage alloc] init];
+  GDTUploadPackage *package = [[GDTUploadPackage alloc] initWithTarget:kGDTTargetCCT];
   dispatch_sync(_queue, ^{
     NSSet<GDTStoredEvent *> *logEventsThatWillBeSent;
     // A high priority event effectively flushes all events to be sent.

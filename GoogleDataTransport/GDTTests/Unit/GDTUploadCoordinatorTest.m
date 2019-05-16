@@ -40,9 +40,6 @@
 /** A test uploader. */
 @property(nonatomic) GDTTestUploader *uploader;
 
-/** A target for the prioritizer and uploader to use. */
-@property(nonatomic) GDTTarget target;
-
 @end
 
 @implementation GDTUploadCoordinatorTest
@@ -50,12 +47,11 @@
 - (void)setUp {
   [super setUp];
   self.storageFake = [[GDTStorageFake alloc] init];
-  self.target = 42;
   self.prioritizer = [[GDTTestPrioritizer alloc] init];
   self.uploader = [[GDTTestUploader alloc] init];
 
-  [[GDTRegistrar sharedInstance] registerPrioritizer:_prioritizer target:_target];
-  [[GDTRegistrar sharedInstance] registerUploader:_uploader target:_target];
+  [[GDTRegistrar sharedInstance] registerPrioritizer:_prioritizer target:kGDTTargetTest];
+  [[GDTRegistrar sharedInstance] registerUploader:_uploader target:kGDTTargetTest];
 
   GDTUploadCoordinator *uploadCoordinator = [GDTUploadCoordinator sharedInstance];
   uploadCoordinator.storage = self.storageFake;
@@ -81,40 +77,15 @@
 
 /** Tests that forcing a event upload works. */
 - (void)testForceUploadEvents {
-  GDTTestUploadPackage *uploadPackage = [[GDTTestUploadPackage alloc] init];
+  GDTTestUploadPackage *uploadPackage =
+      [[GDTTestUploadPackage alloc] initWithTarget:kGDTTargetTest];
   uploadPackage.events = [GDTEventGenerator generate3StoredEvents];
   self.prioritizer.uploadPackage = uploadPackage;
   XCTestExpectation *expectation = [self expectationWithDescription:@"uploader will upload"];
-  self.uploader.uploadEventsBlock =
-      ^(GDTUploadPackage *_Nonnull package, GDTUploaderCompletionBlock _Nonnull completionBlock) {
-        [expectation fulfill];
-      };
-  XCTAssertNoThrow([[GDTUploadCoordinator sharedInstance] forceUploadForTarget:_target]);
-  [self waitForExpectations:@[ expectation ] timeout:0.1];
-}
-
-/** Tests forcing an upload while that target currently has a request in flight queues. */
-- (void)testForceUploadEventsEnqueuesIftargetAlreadyHasEventsInFlight {
-  [GDTUploadCoordinator sharedInstance].timerInterval = NSEC_PER_SEC / 100;
-  [GDTUploadCoordinator sharedInstance].timerLeeway = NSEC_PER_SEC / 1000;
-  XCTestExpectation *expectation = [self expectationWithDescription:@"uploader will upload"];
-  self.uploader.uploadEventsBlock =
-      ^(GDTUploadPackage *_Nonnull package, GDTUploaderCompletionBlock _Nonnull completionBlock) {
-        [expectation fulfill];
-      };
-  GDTTestUploadPackage *uploadPackage = [[GDTTestUploadPackage alloc] init];
-  uploadPackage.events = [GDTEventGenerator generate3StoredEvents];
-  self.prioritizer.uploadPackage = uploadPackage;
-  dispatch_sync([GDTUploadCoordinator sharedInstance].coordinationQueue, ^{
-    [GDTUploadCoordinator sharedInstance].targetToInFlightEventSet[@(self->_target)] =
-        [[NSSet alloc] init];
-  });
-  XCTAssertNoThrow([[GDTUploadCoordinator sharedInstance] forceUploadForTarget:_target]);
-  dispatch_sync([GDTUploadCoordinator sharedInstance].coordinationQueue, ^{
-    XCTAssertEqual([GDTUploadCoordinator sharedInstance].forcedUploadQueue.count, 1);
-    [GDTUploadCoordinator sharedInstance].onCompleteBlock(
-        self.target, [GDTClock clockSnapshotInTheFuture:1000], nil);
-  });
+  self.uploader.uploadPackageBlock = ^(GDTUploadPackage *_Nonnull package) {
+    [expectation fulfill];
+  };
+  XCTAssertNoThrow([[GDTUploadCoordinator sharedInstance] forceUploadForTarget:kGDTTargetTest]);
   [self waitForExpectations:@[ expectation ] timeout:1.0];
 }
 
@@ -144,16 +115,14 @@
 /** Tests uploading events via the coordinator timer. */
 - (void)testUploadingEventsViaTimer {
   __block int uploadAttempts = 0;
-  __weak GDTUploadCoordinatorTest *weakSelf = self;
-  GDTTestUploadPackage *uploadPackage = [[GDTTestUploadPackage alloc] init];
+  GDTTestUploadPackage *uploadPackage =
+      [[GDTTestUploadPackage alloc] initWithTarget:kGDTTargetTest];
   uploadPackage.events = [GDTEventGenerator generate3StoredEvents];
   self.prioritizer.uploadPackage = uploadPackage;
-  self.uploader.uploadEventsBlock =
-      ^(GDTUploadPackage *_Nonnull package, GDTUploaderCompletionBlock _Nonnull completionBlock) {
-        GDTUploadCoordinatorTest *strongSelf = weakSelf;
-        completionBlock(strongSelf->_target, [GDTClock clockSnapshotInTheFuture:100], nil);
-        uploadAttempts++;
-      };
+  self.uploader.uploadPackageBlock = ^(GDTUploadPackage *_Nonnull package) {
+    [package completeDelivery];
+    uploadAttempts++;
+  };
   [GDTUploadCoordinator sharedInstance].timerInterval = NSEC_PER_SEC / 10;
   [GDTUploadCoordinator sharedInstance].timerLeeway = 0;
 
@@ -169,17 +138,14 @@
 /** Tests the situation in which the uploader failed to upload the events for some reason. */
 - (void)testThatAFailedUploadResultsInAnEventualRetry {
   __block int uploadAttempts = 0;
-  __weak GDTUploadCoordinatorTest *weakSelf = self;
-  GDTTestUploadPackage *uploadPackage = [[GDTTestUploadPackage alloc] init];
+  GDTTestUploadPackage *uploadPackage =
+      [[GDTTestUploadPackage alloc] initWithTarget:kGDTTargetTest];
   uploadPackage.events = [GDTEventGenerator generate3StoredEvents];
   self.prioritizer.uploadPackage = uploadPackage;
-  self.uploader.uploadEventsBlock =
-      ^(GDTUploadPackage *_Nonnull package, GDTUploaderCompletionBlock _Nonnull completionBlock) {
-        GDTUploadCoordinatorTest *strongSelf = weakSelf;
-        NSError *error = [NSError errorWithDomain:NSURLErrorDomain code:1337 userInfo:nil];
-        completionBlock(strongSelf->_target, [GDTClock clockSnapshotInTheFuture:100], error);
-        uploadAttempts++;
-      };
+  self.uploader.uploadPackageBlock = ^(GDTUploadPackage *_Nonnull package) {
+    [package retryDeliveryInTheFuture];
+    uploadAttempts++;
+  };
   [GDTUploadCoordinator sharedInstance].timerInterval = NSEC_PER_SEC / 10;
   [GDTUploadCoordinator sharedInstance].timerLeeway = 0;
 

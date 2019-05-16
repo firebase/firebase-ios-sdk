@@ -20,6 +20,8 @@ package gdt_cct;
 
 message LogEvent {
   optional int64 event_time_ms = 1;
+  
+  optional int32 event_code = 11;
 
   optional int64 event_uptime_ms = 17;
 

@@ -16,21 +16,38 @@
 
 #import <GoogleDataTransport/GDTUploadPackage.h>
 
+#import <GoogleDataTransport/GDTClock.h>
+
 #import "GDTLibrary/Private/GDTStorage_Private.h"
+#import "GDTLibrary/Private/GDTUploadCoordinator_Private.h"
 #import "GDTLibrary/Private/GDTUploadPackage_Private.h"
 
-@implementation GDTUploadPackage
+@implementation GDTUploadPackage {
+  /** If YES, is being handled by the handler. */
+  BOOL _isHandled;
 
-- (instancetype)init {
+  /** A timer that will regularly check to see whether this package has expired or not. */
+  NSTimer *_expirationTimer;
+}
+
+- (instancetype)initWithTarget:(GDTTarget)target {
   self = [super init];
   if (self) {
+    _target = target;
     _storage = [GDTStorage sharedInstance];
+    _deliverByTime = [GDTClock clockSnapshotInTheFuture:180000];
+    _handler = [GDTUploadCoordinator sharedInstance];
+    _expirationTimer = [NSTimer scheduledTimerWithTimeInterval:5.0
+                                                        target:self
+                                                      selector:@selector(checkIfPackageIsExpired:)
+                                                      userInfo:nil
+                                                       repeats:YES];
   }
   return self;
 }
 
 - (instancetype)copy {
-  GDTUploadPackage *newPackage = [[GDTUploadPackage alloc] init];
+  GDTUploadPackage *newPackage = [[GDTUploadPackage alloc] initWithTarget:_target];
   newPackage->_events = [_events copy];
   return newPackage;
 }
@@ -43,10 +60,84 @@
   return [self hash] == [object hash];
 }
 
+- (void)dealloc {
+  [_expirationTimer invalidate];
+}
+
 - (void)setStorage:(GDTStorage *)storage {
   if (storage != _storage) {
     _storage = storage;
   }
+}
+
+- (void)completeDelivery {
+  if (!_isHandled && _handler &&
+      [_handler respondsToSelector:@selector(packageDelivered:successful:)]) {
+    [_expirationTimer invalidate];
+    _isHandled = YES;
+    [_handler packageDelivered:self successful:YES];
+  }
+}
+
+- (void)retryDeliveryInTheFuture {
+  if (!_isHandled && _handler &&
+      [_handler respondsToSelector:@selector(packageDelivered:successful:)]) {
+    [_expirationTimer invalidate];
+    _isHandled = YES;
+    [_handler packageDelivered:self successful:NO];
+  }
+}
+
+- (void)checkIfPackageIsExpired:(NSTimer *)timer {
+  if ([[GDTClock snapshot] isAfter:_deliverByTime]) {
+    if (_handler && [_handler respondsToSelector:@selector(packageExpired:)]) {
+      _isHandled = YES;
+      [_expirationTimer invalidate];
+      [_handler packageExpired:self];
+    }
+  }
+}
+
+#pragma mark - NSSecureCoding
+
+/** The keyed archiver key for the events property. */
+static NSString *const kEventsKey = @"GDTUploadPackageEventsKey";
+
+/** The keyed archiver key for the _isHandled property. */
+static NSString *const kDeliverByTimeKey = @"GDTUploadPackageDeliveryByTimeKey";
+
+/** The keyed archiver key for the _isHandled ivar. */
+static NSString *const kIsHandledKey = @"GDTUploadPackageIsHandledKey";
+
+/** The keyed archiver key for the handler property. */
+static NSString *const kHandlerKey = @"GDTUploadPackageHandlerKey";
+
+/** The keyed archiver key for the target property. */
+static NSString *const kTargetKey = @"GDTUploadPackageTargetKey";
+
++ (BOOL)supportsSecureCoding {
+  return YES;
+}
+
+- (void)encodeWithCoder:(nonnull NSCoder *)aCoder {
+  [aCoder encodeObject:_events forKey:kEventsKey];
+  [aCoder encodeObject:_deliverByTime forKey:kDeliverByTimeKey];
+  [aCoder encodeBool:_isHandled forKey:kIsHandledKey];
+  [aCoder encodeObject:_handler forKey:kHandlerKey];
+  [aCoder encodeInteger:_target forKey:kTargetKey];
+}
+
+- (nullable instancetype)initWithCoder:(nonnull NSCoder *)aDecoder {
+  GDTTarget target = [aDecoder decodeIntegerForKey:kTargetKey];
+  self = [self initWithTarget:target];
+  if (self) {
+    _events = [aDecoder decodeObjectOfClass:[NSSet class] forKey:kEventsKey];
+    _deliverByTime = [aDecoder decodeObjectOfClass:[GDTClock class] forKey:kDeliverByTimeKey];
+    _isHandled = [aDecoder decodeBoolForKey:kIsHandledKey];
+    // Isn't technically NSSecureCoding, because we don't know the class of this object.
+    _handler = [aDecoder decodeObjectForKey:kHandlerKey];
+  }
+  return self;
 }
 
 @end

@@ -144,7 +144,7 @@ cc_library(
   SOURCES
     ${NANOPB_GENERATED_SOURCES}
   DEPENDS
-    protobuf-nanopb
+    protobuf-nanopb-static
 )
 
 target_include_directories(

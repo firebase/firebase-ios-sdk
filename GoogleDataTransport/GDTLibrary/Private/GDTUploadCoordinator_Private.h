@@ -16,6 +16,8 @@
 
 #import "GDTLibrary/Private/GDTUploadCoordinator.h"
 
+#import "GDTLibrary/Private/GDTUploadPackage_Private.h"
+
 @class GDTClock;
 @class GDTStorage;
 
@@ -24,24 +26,10 @@ typedef void (^GDTUploadCoordinatorForceUploadBlock)(void);
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface GDTUploadCoordinator ()
+@interface GDTUploadCoordinator () <GDTUploadPackageProtocol>
 
 /** The queue on which all upload coordination will occur. Also used by a dispatch timer. */
 @property(nonatomic, readonly) dispatch_queue_t coordinationQueue;
-
-/** The completion block to run after an uploader completes. */
-@property(nonatomic, readonly) GDTUploaderCompletionBlock onCompleteBlock;
-
-/** A map of targets to their desired next upload time, if they have one. */
-@property(nonatomic, readonly) NSMutableDictionary<NSNumber *, GDTClock *> *targetToNextUploadTimes;
-
-/** A map of targets to a set of event hashes that has been handed off to the uploader. */
-@property(nonatomic, readonly)
-    NSMutableDictionary<NSNumber *, NSSet<GDTStoredEvent *> *> *targetToInFlightEventSet;
-
-/** A queue of forced uploads. Only populated if the target already had in-flight events. */
-@property(nonatomic, readonly)
-    NSMutableArray<GDTUploadCoordinatorForceUploadBlock> *forcedUploadQueue;
 
 /** A timer that will causes regular checks for events to upload. */
 @property(nonatomic, readonly) dispatch_source_t timer;
@@ -60,13 +48,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** If YES, completion and other operations will result in serializing the singleton to disk. */
 @property(nonatomic, readonly) BOOL runningInBackground;
-
-/** Returns the path to the keyed archive of the singleton. This is where the singleton is saved
- * to disk during certain app lifecycle events.
- *
- * @return File path to serialized singleton.
- */
-+ (NSString *)archivePath;
 
 /** Starts the upload timer. */
 - (void)startTimer;

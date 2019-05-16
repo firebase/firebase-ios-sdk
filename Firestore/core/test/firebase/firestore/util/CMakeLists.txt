@@ -190,3 +190,27 @@ cc_library(
     firebase_firestore_util
     grpc++
 )
+
+# Benchmarks
+
+cc_binary(
+  firebase_firestore_util_ordered_code_benchmark
+  SOURCES
+  ordered_code_benchmark.mm
+  DEPENDS
+  benchmark
+  benchmark_main
+  firebase_firestore_util
+)
+
+if(APPLE)
+  cc_binary(
+    firebase_firestore_util_string_apple_benchmark
+    SOURCES
+    string_apple_benchmark.mm
+    DEPENDS
+    benchmark
+    benchmark_main
+    firebase_firestore_util_base_apple
+  )
+endif()

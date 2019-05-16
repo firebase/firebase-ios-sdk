@@ -79,38 +79,49 @@
   return defaultServerURL;
 }
 
-- (void)uploadPackage:(GDTUploadPackage *)package
-           onComplete:(GDTUploaderCompletionBlock)onComplete {
+- (void)uploadPackage:(GDTUploadPackage *)package {
   dispatch_async(_uploaderQueue, ^{
     NSAssert(!self->_currentTask, @"An upload shouldn't be initiated with another in progress.");
     NSURL *serverURL = self.serverURL ? self.serverURL : [self defaultServerURL];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:serverURL];
     request.HTTPMethod = @"POST";
 
-    id completionHandler = ^(NSData *_Nullable data, NSURLResponse *_Nullable response,
-                             NSError *_Nullable error) {
-      NSAssert(!error, @"There should be no errors uploading events: %@", error);
-      if (onComplete) {
-        GDTClock *nextUploadTime;
-        NSError *decodingError;
-        gdt_cct_LogResponse response = GDTCCTDecodeLogResponse(data, &decodingError);
-        if (!decodingError && response.has_next_request_wait_millis) {
-          nextUploadTime = [GDTClock clockSnapshotInTheFuture:response.next_request_wait_millis];
-        } else {
-          // 15 minutes from now.
-          nextUploadTime = [GDTClock clockSnapshotInTheFuture:15 * 60 * 1000];
-        }
-        pb_release(gdt_cct_LogResponse_fields, &response);
-        onComplete(kGDTTargetCCT, nextUploadTime, error);
-      }
-      self.currentTask = nil;
-    };
+    id completionHandler =
+        ^(NSData *_Nullable data, NSURLResponse *_Nullable response, NSError *_Nullable error) {
+          NSAssert(!error, @"There should be no errors uploading events: %@", error);
+          NSError *decodingError;
+          gdt_cct_LogResponse logResponse = GDTCCTDecodeLogResponse(data, &decodingError);
+          if (!decodingError && logResponse.has_next_request_wait_millis) {
+            self->_nextUploadTime =
+                [GDTClock clockSnapshotInTheFuture:logResponse.next_request_wait_millis];
+          } else {
+            // 15 minutes from now.
+            self->_nextUploadTime = [GDTClock clockSnapshotInTheFuture:15 * 60 * 1000];
+          }
+          pb_release(gdt_cct_LogResponse_fields, &logResponse);
+          [self packageDelivered:package successful:error == nil];
+        };
+
     NSData *requestProtoData = [self constructRequestProtoFromPackage:(GDTUploadPackage *)package];
     self.currentTask = [self.uploaderSession uploadTaskWithRequest:request
                                                           fromData:requestProtoData
                                                  completionHandler:completionHandler];
     [self.currentTask resume];
   });
+}
+
+- (BOOL)readyToUploadWithConditions:(GDTUploadConditions)conditions {
+  __block BOOL result;
+  dispatch_sync(_uploaderQueue, ^{
+    if ((conditions & GDTUploadConditionHighPriority) == GDTUploadConditionHighPriority) {
+      result = self.currentTask == nil;
+      return;
+    } else if (self->_nextUploadTime) {
+      result = [[GDTClock snapshot] isAfter:self->_nextUploadTime];
+    }
+    result = result && !self->_currentTask;
+  });
+  return result;
 }
 
 #pragma mark - Private helper methods
@@ -138,6 +149,26 @@
   NSData *data = GDTCCTEncodeBatchedLogRequest(&batchedLogRequest);
   pb_release(gdt_cct_BatchedLogRequest_fields, &batchedLogRequest);
   return data ? data : [[NSData alloc] init];
+}
+
+#pragma mark - GDTUploadPackageProtocol
+
+- (void)packageDelivered:(GDTUploadPackage *)package successful:(BOOL)successful {
+  dispatch_sync(_uploaderQueue, ^{
+    if (successful) {
+      [package completeDelivery];
+    } else {
+      [package retryDeliveryInTheFuture];
+    }
+    self.currentTask = nil;
+  });
+}
+
+- (void)packageExpired:(GDTUploadPackage *)package {
+  dispatch_async(_uploaderQueue, ^{
+    [self.currentTask cancel];
+    [self packageDelivered:package successful:YES];
+  });
 }
 
 #pragma mark - GDTLifecycleProtocol
