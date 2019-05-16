@@ -1251,13 +1251,15 @@ using firebase::firestore::util::TimerId;
   NSDictionary<NSString *, id> *initialData = @{@"foo" : @"42"};
   [self writeDocumentRef:doc data:initialData];
 
-  // -clearPersistence() requires Firestore to be shut down. Shutdown FIRApp to emulate the way
-  // an end user would do this.
+  // -clearPersistence() requires Firestore to be shut down. Shutdown FIRApp and remove the
+  // firestore instance to emulate the way an end user would do this.
   [self shutdownFirestore:firestore];
   [self.firestores removeObject:firestore];
   [self deleteApp:app];
 
-  // Reconfigure the app and assert that persistent storage persisted.
+  // We restart the app with the same name and options to check that the previous instance's
+  // persistent storage persists its data after restarting. Calling [self firestore] here would
+  // create a new instance of firestore, which defeats the purpose of this test.
   [FIRApp configureWithName:appName options:options];
   FIRApp *app2 = [FIRApp appNamed:appName];
   FIRFirestore *firestore2 = [self firestoreWithApp:app2];
@@ -1276,8 +1278,8 @@ using firebase::firestore::util::TimerId;
   NSDictionary<NSString *, id> *initialData = @{@"foo" : @"42"};
   [self writeDocumentRef:doc data:initialData];
 
-  // -clearPersistence() requires Firestore to be shut down. Shutdown FIRApp to emulate the way
-  // an end user would do this.
+  // -clearPersistence() requires Firestore to be shut down. Shutdown FIRApp and remove the
+  // firestore instance to emulate the way an end user would do this.
   [self shutdownFirestore:firestore];
   [self.firestores removeObject:firestore];
   [firestore
@@ -1285,7 +1287,9 @@ using firebase::firestore::util::TimerId;
   [self awaitExpectations];
   [self deleteApp:app];
 
-  // Reconfigure the app and assert that persistence was cleared.
+  // We restart the app with the same name and options to check that the previous instance's
+  // persistent storage is actually cleared after the restart. Calling [self firestore] here would
+  // create a new instance of firestore, which defeats the purpose of this test.
   [FIRApp configureWithName:appName options:options];
   FIRApp *app2 = [FIRApp appNamed:appName];
   FIRFirestore *firestore2 = [self firestoreWithApp:app2];

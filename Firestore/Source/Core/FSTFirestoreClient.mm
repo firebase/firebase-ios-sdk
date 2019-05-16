@@ -143,7 +143,7 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
   return _workerQueue;
 }
 
-- (const std::atomic<bool> &)isShutdown {
+- (bool)isShutdown {
   return _isShutdown;
 }
 

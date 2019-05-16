@@ -130,7 +130,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** For testing only. */
 - (const std::shared_ptr<util::AsyncQueue> &)workerQueue;
 
-- (const std::atomic<bool> &)isShutdown;
+- (bool)isShutdown;
 
 @end
 

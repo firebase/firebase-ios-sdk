@@ -146,20 +146,23 @@ void Firestore::Shutdown(util::StatusCallback callback) {
 
 void Firestore::ClearPersistence(util::StatusCallback callback) {
   worker_queue()->Enqueue([this, callback] {
-    std::lock_guard<std::mutex> lock{mutex_};
-    util::Status status;
-    if (!client_ || client().isShutdown) {
-      DatabaseInfo database_info(database_id_, persistence_key_,
-                                 settings_.host(), settings_.ssl_enabled());
-      status = [FSTLevelDB clearPersistence:database_info];
-    } else {
-      status = util::Status(
-          FirestoreErrorCode::FailedPrecondition,
-          "Persistence cannot be cleared while the client is running.");
+    auto Yield = [=](Status status) {
+      if (callback) {
+        this->user_executor_->Execute([=] { callback(status); });
+      }
+    };
+
+    {
+      std::lock_guard<std::mutex> lock{mutex_};
+      if (client_ && !client().isShutdown) {
+        Yield(util::Status(
+            FirestoreErrorCode::FailedPrecondition,
+            "Persistence cannot be cleared while the client is running."));
+        return;
+      }
     }
-    if (callback) {
-      this->user_executor_->Execute([=] { callback(status); });
-    }
+
+    Yield([FSTLevelDB clearPersistence:MakeDatabaseInfo()]);
   });
 }
 
@@ -177,17 +180,19 @@ void Firestore::EnsureClientConfigured() {
   std::lock_guard<std::mutex> lock{mutex_};
 
   if (!client_) {
-    DatabaseInfo database_info(database_id_, persistence_key_, settings_.host(),
-                               settings_.ssl_enabled());
-
     HARD_ASSERT(worker_queue_, "Expected non-null worker queue");
     client_ =
-        [FSTFirestoreClient clientWithDatabaseInfo:database_info
+        [FSTFirestoreClient clientWithDatabaseInfo:MakeDatabaseInfo()
                                           settings:settings_
                                credentialsProvider:credentials_provider_.get()
                                       userExecutor:user_executor_
                                        workerQueue:worker_queue_];
   }
+}
+
+DatabaseInfo Firestore::MakeDatabaseInfo() const {
+  return DatabaseInfo(database_id_, persistence_key_, settings_.host(),
+                      settings_.ssl_enabled());
 }
 
 }  // namespace api
