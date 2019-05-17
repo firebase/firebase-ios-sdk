@@ -66,6 +66,7 @@ typedef NS_ENUM(NSInteger, FIRInstanceIDMessageCode) {
   kFIRInstanceIDMessageCodeService005 = 7005,
   kFIRInstanceIDMessageCodeService006 = 7006,
   kFIRIntsanceIDInvalidNetworkSession = 7007,
+  kFIRIntsanceIDInvalidSettingResponse = 7008,
   // FIRInstanceIDCheckinStore.m
   // DO NOT USE 8002, 8004 - 8008
   kFIRInstanceIDMessageCodeCheckinStore000 = 8000,
@@ -156,5 +157,9 @@ typedef NS_ENUM(NSInteger, FIRInstanceIDMessageCode) {
   kFIRInstanceIDKeychainDeleteItemError = 23002,
   kFIRInstanceIDKeychainCreateKeyPairError = 23003,
   kFIRInstanceIDKeychainUpdateItemError = 23004,
+
+  // FIRInstanceIDStringEncoding.m
+  kFIRInstanceIDStringEncodingBufferUnderflow = 24000,
+  kFIRInstanceIDStringEncodingBufferOverflow = 24001,
 
 };
