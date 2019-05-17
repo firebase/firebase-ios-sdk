@@ -71,7 +71,7 @@ static FIRInstanceIDURLRequestTestBlock testBlock;
 - (void)checkinWithExistingCheckin:(FIRInstanceIDCheckinPreferences *)existingCheckin
                         completion:(FIRInstanceIDDeviceCheckinCompletion)completion {
   if (self.session == nil) {
-    FIRInstanceIDLoggerError(kFIRIntsanceIDInvalidNetworkSession,
+    FIRInstanceIDLoggerError(kFIRInstanceIDInvalidNetworkSession,
                              @"Inconsistent state: NSURLSession has been invalidated");
     NSError *error =
         [NSError errorWithFIRInstanceIDErrorCode:kFIRInstanceIDErrorCodeRegistrarFailedToCheckIn];
@@ -157,7 +157,7 @@ static FIRInstanceIDURLRequestTestBlock testBlock;
           if (dict[@"name"] && dict[@"value"]) {
             gservicesData[dict[@"name"]] = dict[@"value"];
           } else {
-            FIRInstanceIDLoggerDebug(kFIRIntsanceIDInvalidSettingResponse,
+            FIRInstanceIDLoggerDebug(kFIRInstanceIDInvalidSettingResponse,
                                      @"Invalid setting in checkin response: (%@: %@)",
                                      dict[@"name"], dict[@"value"]);
           }
