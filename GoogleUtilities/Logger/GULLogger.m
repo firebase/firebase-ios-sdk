@@ -16,7 +16,14 @@
 
 #include <asl.h>
 
+#if SWIFT_PACKAGE
+#import "GULAppEnvironmentUtil.h"
+// In the future, I would expect this to work instead:
+//@import GoogleUtilities_Environment;
+#else
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
+#endif
+
 #import "Public/GULLoggerLevel.h"
 
 /// ASL client facility name used by GULLogger.
