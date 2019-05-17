@@ -162,7 +162,7 @@ NS_ASSUME_NONNULL_BEGIN
  * field mask are not modified when this mutation is applied. Mutations that replace all document
  * values return 'nullptr'.
  */
-- (const model::FieldMask *)fieldMask;
+- (nullable const model::FieldMask *)fieldMask;
 
 /** Returns whether all operations in the mutation are idempotent. */
 @property(nonatomic, readonly) BOOL idempotent;

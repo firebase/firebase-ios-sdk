@@ -142,7 +142,7 @@ NSError *FUNInvalidNumberError(id value, id wrapped) {
                          userInfo:userInfo];
 }
 
-- (id)decodeWrappedType:(NSDictionary *)wrapped error:(NSError **)error {
+- (nullable id)decodeWrappedType:(NSDictionary *)wrapped error:(NSError **)error {
   NSAssert(error, @"error must not be nil");
   NSString *type = wrapped[@"@type"];
   NSString *value = wrapped[@"value"];
@@ -177,7 +177,7 @@ NSError *FUNInvalidNumberError(id value, id wrapped) {
   return nil;
 }
 
-- (id)decode:(id)object error:(NSError **)error {
+- (nullable id)decode:(id)object error:(NSError **)error {
   NSAssert(error, @"error must not be nil");
   if ([object isKindOfClass:[NSDictionary class]]) {
     if (object[@"@type"]) {
