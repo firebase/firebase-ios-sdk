@@ -22,7 +22,7 @@ function usage() {
 USAGE: scripts/check.sh [--allow-dirty] [--commit] [<revision>]
 
 Runs auto-formatting scripts, source-tree checks, and linters on any files that
-have changed since master.
+have changed since origin/master.
 
 By default, any changes are left as uncommited changes in the working tree. You
 can review them with git diff. Pass --commit to automatically commit any changes.
@@ -50,18 +50,18 @@ OPTIONS:
     Run all checks without making any changes to local files.
 
   <revision>
-    Specifies a starting revision other than the default of master.
+    Specifies a starting revision other than the default of origin/master.
 
 
 EXAMPLES:
 
   check.sh
-    Runs automated checks and formatters on all changed files since master.
-    Check for changes with git diff.
+    Runs automated checks and formatters on all changed files since
+    origin/master. Check for changes with git diff.
 
   check.sh --commit
-    Runs automated checks and formatters on all changed files since master and
-    commits the results.
+    Runs automated checks and formatters on all changed files since
+    origin/master and commits the results.
 
   check.sh --amend HEAD
     Runs automated checks and formatters on all changed files since the last
@@ -84,7 +84,7 @@ cd "${top_dir}"
 
 ALLOW_DIRTY=false
 COMMIT_METHOD="none"
-START_REVISION="master"
+START_REVISION="origin/master"
 TEST_ONLY=false
 VERBOSE=false
 
