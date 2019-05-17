@@ -182,19 +182,26 @@ void GrpcConnection::EnsureActiveStub() {
 std::shared_ptr<grpc::Channel> GrpcConnection::CreateChannel() const {
   const std::string& host = database_info_->host();
 
+  grpc::ChannelArguments args;
+  // Ensure gRPC recovers from a dead connection. (Not typically necessary, as
+  // the OS will usually notify gRPC when a connection dies. But not always.
+  // This acts as a failsafe.)
+  args.SetInt(GRPC_ARG_KEEPALIVE_TIME_MS, 30 * 1000);
+
   const HostConfig* host_config = Config().find(host);
   if (!host_config) {
     std::string root_certificate = LoadGrpcRootCertificate();
-    return grpc::CreateChannel(host, CreateSslCredentials(root_certificate));
+    return grpc::CreateCustomChannel(
+        host, CreateSslCredentials(root_certificate), args);
   }
 
   // For the case when `Settings.sslEnabled == false`.
   if (host_config->use_insecure_channel) {
-    return grpc::CreateChannel(host, grpc::InsecureChannelCredentials());
+    return grpc::CreateCustomChannel(host, grpc::InsecureChannelCredentials(),
+                                     args);
   }
 
   // For tests only
-  grpc::ChannelArguments args;
   args.SetSslTargetNameOverride(host_config->target_name);
   Path path = host_config->certificate_path;
   StatusOr<std::string> test_certificate = ReadFile(path);
