@@ -92,6 +92,10 @@ else
       check_changes '^(GoogleDataTransport|GoogleDataTransport.podspec)'
       ;;
 
+    GoogleDataTransportIntegrationTest-*)
+      check_changes '^(GoogleDataTransport|GoogleDataTransport.podspec)'
+      ;;
+
     GoogleDataTransportCCTSupport-*)
       check_changes '^(GoogleDataTransportCCTSupport|GoogleDataTransportCCTSupport.podspec|GoogleDataTransport|GoogleDataTransport.podspec)'
       ;;

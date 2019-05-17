@@ -338,14 +338,14 @@ case "$product-$method-$platform" in
   GoogleDataTransport-xcodebuild-iOS)
     RunXcodebuild \
         -workspace 'GoogleDataTransport/gen/GoogleDataTransport/GoogleDataTransport.xcworkspace' \
-        -scheme "GoogleDataTransport-Unit-Tests-Unit" \
+        -scheme "GoogleDataTransport-iOS-Unit-Tests-Unit" \
         "${xcb_flags[@]}" \
         build \
         test
 
     RunXcodebuild \
         -workspace 'GoogleDataTransport/gen/GoogleDataTransport/GoogleDataTransport.xcworkspace' \
-        -scheme "GoogleDataTransport-Unit-Tests-Lifecycle" \
+        -scheme "GoogleDataTransport-iOS-Unit-Tests-Lifecycle" \
         "${xcb_flags[@]}" \
         build \
         test
@@ -354,7 +354,7 @@ case "$product-$method-$platform" in
   GoogleDataTransportIntegrationTest-xcodebuild-iOS)
     RunXcodebuild \
         -workspace 'GoogleDataTransport/gen/GoogleDataTransport/GoogleDataTransport.xcworkspace' \
-        -scheme "GoogleDataTransport-Unit-Tests-Integration" \
+        -scheme "GoogleDataTransport-iOS-Unit-Tests-Integration" \
         "${xcb_flags[@]}" \
         build \
         test
@@ -363,14 +363,14 @@ case "$product-$method-$platform" in
   GoogleDataTransportCCTSupport-xcodebuild-iOS)
     RunXcodebuild \
         -workspace 'GoogleDataTransportCCTSupport/gen/GoogleDataTransportCCTSupport/GoogleDataTransportCCTSupport.xcworkspace' \
-        -scheme "GoogleDataTransportCCTSupport-Unit-Tests-Unit" \
+        -scheme "GoogleDataTransportCCTSupport-iOS-Unit-Tests-Unit" \
         "${xcb_flags[@]}" \
         build \
         test
 
         RunXcodebuild \
         -workspace 'GoogleDataTransportCCTSupport/gen/GoogleDataTransportCCTSupport/GoogleDataTransportCCTSupport.xcworkspace' \
-        -scheme "GoogleDataTransportCCTSupport-Unit-Tests-Integration" \
+        -scheme "GoogleDataTransportCCTSupport-iOS-Unit-Tests-Integration" \
         "${xcb_flags[@]}" \
         build \
         test
