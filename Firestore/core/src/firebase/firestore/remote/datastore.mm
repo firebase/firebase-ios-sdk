@@ -100,7 +100,7 @@ Datastore::Datastore(const DatabaseInfo& database_info,
                      const std::shared_ptr<AsyncQueue>& worker_queue,
                      CredentialsProvider* credentials,
                      std::unique_ptr<ConnectivityMonitor> connectivity_monitor)
-    : worker_queue_{worker_queue},
+    : worker_queue_{NOT_NULL(worker_queue)},
       credentials_{credentials},
       rpc_executor_{CreateExecutor()},
       connectivity_monitor_{std::move(connectivity_monitor)},

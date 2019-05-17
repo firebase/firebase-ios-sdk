@@ -90,7 +90,7 @@ GrpcStream::GrpcStream(
     GrpcStreamObserver* observer)
     : context_{std::move(NOT_NULL(context))},
       call_{std::move(NOT_NULL(call))},
-      worker_queue_{worker_queue},
+      worker_queue_{NOT_NULL(worker_queue)},
       grpc_connection_{NOT_NULL(grpc_connection)},
       observer_{NOT_NULL(observer)} {
   grpc_connection_->Register(this);

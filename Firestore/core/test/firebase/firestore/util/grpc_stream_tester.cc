@@ -204,7 +204,7 @@ std::future<void> FakeGrpcQueue::KeepPolling(
 GrpcStreamTester::GrpcStreamTester(
     const std::shared_ptr<AsyncQueue>& worker_queue,
     ConnectivityMonitor* connectivity_monitor)
-    : worker_queue_{worker_queue},
+    : worker_queue_{NOT_NULL(worker_queue)},
       database_info_{DatabaseId{"foo", "bar"}, "", "", false},
       fake_grpc_queue_{&grpc_queue_},
       grpc_connection_{database_info_, worker_queue, fake_grpc_queue_.queue(),

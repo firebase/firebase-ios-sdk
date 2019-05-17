@@ -122,7 +122,7 @@ GrpcConnection::GrpcConnection(
     grpc::CompletionQueue* grpc_queue,
     ConnectivityMonitor* connectivity_monitor)
     : database_info_{&database_info},
-      worker_queue_{worker_queue},
+      worker_queue_{NOT_NULL(worker_queue)},
       grpc_queue_{NOT_NULL(grpc_queue)},
       connectivity_monitor_{NOT_NULL(connectivity_monitor)} {
   RegisterConnectivityMonitor();
