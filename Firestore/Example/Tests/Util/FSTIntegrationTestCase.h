@@ -25,6 +25,7 @@
 
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 
+@class FIRApp;
 @class FIRCollectionReference;
 @class FIRDocumentSnapshot;
 @class FIRDocumentReference;
@@ -58,8 +59,14 @@ extern "C" {
 /** Returns a new Firestore connected to the project with the given projectID. */
 - (FIRFirestore *)firestoreWithProjectID:(NSString *)projectID;
 
+/** Returns a new Firestore connected to the project with the given app. */
+- (FIRFirestore *)firestoreWithApp:(FIRApp *)app;
+
 /** Synchronously shuts down the given firestore. */
 - (void)shutdownFirestore:(FIRFirestore *)firestore;
+
+/** Synchronously deletes the given FIRapp. */
+- (void)deleteApp:(FIRApp *)app;
 
 - (NSString *)documentPath;
 
