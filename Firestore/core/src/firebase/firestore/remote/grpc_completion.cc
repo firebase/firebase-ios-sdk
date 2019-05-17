@@ -15,7 +15,6 @@
  */
 
 #include "Firestore/core/src/firebase/firestore/remote/grpc_completion.h"
-#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 #include <memory>
 #include <utility>
@@ -31,7 +30,6 @@ GrpcCompletion::GrpcCompletion(
     const std::shared_ptr<util::AsyncQueue>& worker_queue,
     Callback&& callback)
     : worker_queue_{worker_queue}, callback_{std::move(callback)}, type_{type} {
-  HARD_ASSERT(worker_queue_ != nullptr, "WORKER QUEUE");
 }
 
 void GrpcCompletion::Cancel() {
