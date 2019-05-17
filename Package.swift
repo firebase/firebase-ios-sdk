@@ -19,6 +19,9 @@ let package = Package(
     .library(
       name: "GoogleUtilities_Logger",
       targets: ["GoogleUtilities_Logger"]),
+    .library(
+      name: "GoogleUtilities_Reachability",
+      targets: ["GoogleUtilities_Reachability"]),
   ],
   dependencies: [
     // Dependencies declare other external packages that this package depends on.
@@ -34,12 +37,15 @@ let package = Package(
     .target(
       name: "GoogleUtilities_Environment",
       path: "GoogleUtilities/Environment/third_party",
-      sources: ["GULAppEnvironmentUtil.m"],
-      publicHeadersPath: "."),
+      sources: ["GULAppEnvironmentUtil.m"]),
     .target(
       name: "GoogleUtilities_Logger",
       dependencies: ["GoogleUtilities_Environment"],
       path: "GoogleUtilities/Logger",
-      publicHeadersPath: "Public")
+      publicHeadersPath: "Public"),
+    .target(
+      name: "GoogleUtilities_Reachability",
+      dependencies: ["GoogleUtilities_Logger"],
+      path: "GoogleUtilities/Reachability")
   ]
 )
