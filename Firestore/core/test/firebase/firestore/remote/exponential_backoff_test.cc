@@ -38,43 +38,43 @@ class ExponentialBackoffTest : public TestWithTimeoutMixin,
                                public testing::Test {
  public:
   ExponentialBackoffTest()
-      : queue{absl::make_unique<ExecutorStd>()},
-        backoff{&queue, timer_id, 1.5, chr::seconds{5}, chr::seconds{30}} {
+      : queue{std::make_shared<AsyncQueue>(absl::make_unique<ExecutorStd>())},
+        backoff{queue, timer_id, 1.5, chr::seconds{5}, chr::seconds{30}} {
   }
 
   TimerId timer_id = TimerId::ListenStreamConnectionBackoff;
-  AsyncQueue queue;
+  std::shared_ptr<AsyncQueue> queue;
   ExponentialBackoff backoff;
 };
 
 TEST_F(ExponentialBackoffTest, CanScheduleOperations) {
-  EXPECT_FALSE(queue.IsScheduled(timer_id));
+  EXPECT_FALSE(queue->IsScheduled(timer_id));
 
-  queue.EnqueueBlocking([&] {
+  queue->EnqueueBlocking([&] {
     backoff.BackoffAndRun([&] { signal_finished(); });
-    EXPECT_TRUE(queue.IsScheduled(timer_id));
+    EXPECT_TRUE(queue->IsScheduled(timer_id));
   });
 
   EXPECT_TRUE(WaitForTestToFinish());
-  EXPECT_FALSE(queue.IsScheduled(timer_id));
+  EXPECT_FALSE(queue->IsScheduled(timer_id));
 }
 
 TEST_F(ExponentialBackoffTest, CanCancelOperations) {
   std::string str{"untouched"};
-  EXPECT_FALSE(queue.IsScheduled(timer_id));
+  EXPECT_FALSE(queue->IsScheduled(timer_id));
 
-  queue.EnqueueBlocking([&] {
+  queue->EnqueueBlocking([&] {
     backoff.BackoffAndRun([&] { str = "Shouldn't be modified"; });
-    EXPECT_TRUE(queue.IsScheduled(timer_id));
+    EXPECT_TRUE(queue->IsScheduled(timer_id));
     backoff.Cancel();
   });
 
-  EXPECT_FALSE(queue.IsScheduled(timer_id));
+  EXPECT_FALSE(queue->IsScheduled(timer_id));
   EXPECT_EQ(str, "untouched");
 }
 
 TEST_F(ExponentialBackoffTest, SequentialCallsToBackoffAndRun) {
-  queue.EnqueueBlocking([&] {
+  queue->EnqueueBlocking([&] {
     backoff.BackoffAndRun([] {});
     backoff.BackoffAndRun([] {});
     backoff.BackoffAndRun([&] { signal_finished(); });
@@ -82,7 +82,7 @@ TEST_F(ExponentialBackoffTest, SequentialCallsToBackoffAndRun) {
 
   // The chosen value of initial_delay is large enough that it shouldn't be
   // realistically possible for backoff to finish already.
-  queue.RunScheduledOperationsUntil(timer_id);
+  queue->RunScheduledOperationsUntil(timer_id);
   EXPECT_TRUE(WaitForTestToFinish());
 }
 

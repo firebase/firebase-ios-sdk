@@ -116,10 +116,11 @@ HostConfigMap& Config() {
 
 }  // namespace
 
-GrpcConnection::GrpcConnection(const DatabaseInfo& database_info,
-                               util::AsyncQueue* worker_queue,
-                               grpc::CompletionQueue* grpc_queue,
-                               ConnectivityMonitor* connectivity_monitor)
+GrpcConnection::GrpcConnection(
+    const DatabaseInfo& database_info,
+    const std::shared_ptr<util::AsyncQueue>& worker_queue,
+    grpc::CompletionQueue* grpc_queue,
+    ConnectivityMonitor* connectivity_monitor)
     : database_info_{&database_info},
       worker_queue_{NOT_NULL(worker_queue)},
       grpc_queue_{NOT_NULL(grpc_queue)},

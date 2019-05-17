@@ -248,10 +248,10 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
   _localStore = [[FSTLocalStore alloc] initWithPersistence:_persistence initialUser:user];
 
   auto datastore =
-      std::make_shared<Datastore>(*self.databaseInfo, _workerQueue.get(), _credentialsProvider);
+      std::make_shared<Datastore>(*self.databaseInfo, _workerQueue, _credentialsProvider);
 
   _remoteStore = absl::make_unique<RemoteStore>(
-      _localStore, std::move(datastore), _workerQueue.get(),
+      _localStore, std::move(datastore), _workerQueue,
       [self](OnlineState onlineState) { [self.syncEngine applyChangedOnlineState:onlineState]; });
 
   _syncEngine = [[FSTSyncEngine alloc] initWithLocalStore:_localStore
@@ -445,7 +445,7 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
 
   _workerQueue->Enqueue([self, retries, update_callback, async_callback] {
     [self.syncEngine transactionWithRetries:retries
-                                workerQueue:_workerQueue.get()
+                                workerQueue:_workerQueue
                              updateCallback:std::move(update_callback)
                              resultCallback:std::move(async_callback)];
   });

@@ -52,7 +52,7 @@ const AsyncQueue::Milliseconds kIdleTimeout{std::chrono::seconds(60)};
 
 }  // namespace
 
-Stream::Stream(AsyncQueue* worker_queue,
+Stream::Stream(const std::shared_ptr<AsyncQueue>& worker_queue,
                CredentialsProvider* credentials_provider,
                GrpcConnection* grpc_connection,
                TimerId backoff_timer_id,
