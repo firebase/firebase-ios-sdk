@@ -28,7 +28,12 @@ namespace model {
 
 using Type = FieldValue::Type;
 
+using absl::nullopt;
+using testutil::Field;
 using testutil::Key;
+using testutil::Object;
+using testutil::Value;
+using testutil::WrapObject;
 
 namespace {
 
@@ -37,6 +42,125 @@ const uint8_t* Bytes(const char* value) {
 }
 
 }  // namespace
+
+TEST(FieldValueTest, ExtractsFields) {
+  ObjectValue value =
+      WrapObject("foo", Object("a", 1, "b", true, "c", "string"));
+
+  ASSERT_EQ(Type::Object, value.Get(Field("foo"))->type());
+
+  EXPECT_EQ(Value(1), value.Get(Field("foo.a")));
+  EXPECT_EQ(Value(true), value.Get(Field("foo.b")));
+  EXPECT_EQ(Value("string"), value.Get(Field("foo.c")));
+
+  EXPECT_EQ(nullopt, value.Get(Field("foo.a.b")));
+  EXPECT_EQ(nullopt, value.Get(Field("bar")));
+  EXPECT_EQ(nullopt, value.Get(Field("bar.a")));
+}
+
+TEST(FieldValueTest, OverwritesExistingFields) {
+  ObjectValue old = WrapObject("a", "old");
+  ObjectValue mod = old.Set(Field("a"), Value("mod"));
+  EXPECT_NE(old, mod);
+  EXPECT_EQ(WrapObject("a", "old"), old);
+  EXPECT_EQ(WrapObject("a", "mod"), mod);
+}
+
+TEST(FieldValueTest, AddsNewFields) {
+  ObjectValue empty = WrapObject();
+  ObjectValue mod = empty.Set(Field("a"), Value("mod"));
+  EXPECT_EQ(ObjectValue::Empty(), empty);
+  EXPECT_EQ(WrapObject("a", "mod"), mod);
+
+  ObjectValue old = mod;
+  mod = old.Set(Field("b"), Value(1));
+  EXPECT_EQ(WrapObject("a", "mod"), old);
+  EXPECT_EQ(WrapObject("a", "mod", "b", 1), mod);
+}
+
+TEST(FieldValueTest, ImplicitlyCreatesObjects) {
+  ObjectValue old = WrapObject("a", "old");
+  ObjectValue mod = old.Set(Field("b.c.d"), Value("mod"));
+
+  EXPECT_NE(old, mod);
+  EXPECT_EQ(WrapObject("a", "old"), old);
+  EXPECT_EQ(WrapObject("a", "old", "b", Object("c", Object("d", "mod"))), mod);
+}
+
+TEST(FieldValueTest, CanOverwritePrimitivesWithObjects) {
+  ObjectValue old = WrapObject("a", Object("b", "old"));
+  ObjectValue mod = old.Set(Field("a"), Object("b", "mod"));
+  EXPECT_NE(old, mod);
+  EXPECT_EQ(WrapObject("a", Object("b", "old")), old);
+  EXPECT_EQ(WrapObject("a", Object("b", "mod")), mod);
+}
+
+TEST(FieldValueTest, AddsToNestedObjects) {
+  ObjectValue old = WrapObject("a", Object("b", "old"));
+  ObjectValue mod = old.Set(Field("a.c"), Value("mod"));
+  EXPECT_NE(old, mod);
+  EXPECT_EQ(WrapObject("a", Object("b", "old")), old);
+  EXPECT_EQ(WrapObject("a", Object("b", "old", "c", "mod")), mod);
+}
+
+TEST(FieldValueTest, DeletesKey) {
+  ObjectValue old = WrapObject("a", 1, "b", 2);
+  ObjectValue mod = old.Delete(Field("a"));
+
+  EXPECT_NE(old, mod);
+  EXPECT_EQ(WrapObject("a", 1, "b", 2), old);
+  EXPECT_EQ(WrapObject("b", 2), mod);
+
+  ObjectValue empty = mod.Delete(Field("b"));
+  EXPECT_NE(mod, empty);
+  EXPECT_EQ(WrapObject("b", 2), mod);
+  EXPECT_EQ(ObjectValue::Empty(), empty);
+}
+
+TEST(FieldValueTest, DeletesHandleMissingKeys) {
+  ObjectValue old = WrapObject("a", Object("b", 1, "c", 2));
+  ObjectValue mod = old.Delete(Field("b"));
+  EXPECT_EQ(mod, old);
+  EXPECT_EQ(WrapObject("a", Object("b", 1, "c", 2)), mod);
+
+  mod = old.Delete(Field("a.d"));
+  EXPECT_EQ(mod, old);
+  EXPECT_EQ(WrapObject("a", Object("b", 1, "c", 2)), mod);
+
+  mod = old.Delete(Field("a.b.c"));
+  EXPECT_EQ(mod, old);
+  EXPECT_EQ(WrapObject("a", Object("b", 1, "c", 2)), mod);
+}
+
+TEST(FieldValueTest, DeletesNestedKeys) {
+  FieldValue::Map orig =
+      Object("a", Object("b", 1, "c", Object("d", 2, "e", 3))).object_value();
+  ObjectValue old = WrapObject(orig);
+  ObjectValue mod = old.Delete(Field("a.c.d"));
+
+  EXPECT_NE(mod, old);
+  EXPECT_EQ(WrapObject(orig), old);
+
+  FieldValue::Map second =
+      Object("a", Object("b", 1, "c", Object("e", 3))).object_value();
+  EXPECT_EQ(WrapObject(second), mod);
+
+  old = mod;
+  mod = old.Delete(Field("a.c"));
+
+  EXPECT_NE(old, mod);
+  EXPECT_EQ(WrapObject(second), old);
+
+  FieldValue::Map third = Object("a", Object("b", 1)).object_value();
+  EXPECT_EQ(WrapObject(third), mod);
+
+  old = mod;
+  mod = old.Delete(Field("a"));
+
+  EXPECT_NE(old, mod);
+  EXPECT_EQ(WrapObject(third), old);
+  EXPECT_EQ(ObjectValue::Empty(), mod);
+}
 
 TEST(FieldValue, ToString) {
   EXPECT_EQ("null", FieldValue::Null().ToString());
@@ -56,7 +180,8 @@ TEST(FieldValue, ToString) {
             FieldValue::FromTimestamp(Timestamp(12, 42)).ToString());
 
   EXPECT_EQ(
-      "ServerTimestamp(local_write_time=Timestamp(seconds=12, nanoseconds=42))",
+      "ServerTimestamp(local_write_time=Timestamp(seconds=12, "
+      "nanoseconds=42))",
       FieldValue::FromServerTimestamp(Timestamp(12, 42)).ToString());
 
   EXPECT_EQ("", FieldValue::FromString("").ToString());
@@ -539,93 +664,6 @@ TEST(FieldValue, CompareWithOperator) {
   EXPECT_FALSE(small == large);
 }
 
-TEST(FieldValue, Set) {
-  // Set a field in an object.
-  const ObjectValue value = ObjectValue::FromMap({
-      {"a", FieldValue::FromString("A")},
-      {"b", FieldValue::FromMap({
-                {"ba", FieldValue::FromString("BA")},
-            })},
-  });
-  const ObjectValue expected = ObjectValue::FromMap({
-      {"a", FieldValue::FromString("A")},
-      {"b", FieldValue::FromMap({
-                {"ba", FieldValue::FromString("BA")},
-                {"bb", FieldValue::FromString("BB")},
-            })},
-  });
-  EXPECT_EQ(expected,
-            value.Set(testutil::Field("b.bb"), FieldValue::FromString("BB")));
-}
-
-TEST(FieldValue, SetRecursive) {
-  // Set a field in a new object.
-  const ObjectValue value = ObjectValue::FromMap({
-      {"a", FieldValue::FromString("A")},
-  });
-  const ObjectValue expected = ObjectValue::FromMap({
-      {"a", FieldValue::FromString("A")},
-      {"b", FieldValue::FromMap({
-                {"bb", FieldValue::FromString("BB")},
-            })},
-  });
-  EXPECT_EQ(expected,
-            value.Set(testutil::Field("b.bb"), FieldValue::FromString("BB")));
-}
-
-TEST(FieldValue, Delete) {
-  const ObjectValue value = ObjectValue::FromMap({
-      {"a", FieldValue::FromString("A")},
-      {"b", FieldValue::FromMap({
-                {"ba", FieldValue::FromString("BA")},
-                {"bb", FieldValue::FromString("BB")},
-            })},
-  });
-  const ObjectValue expected = ObjectValue::FromMap({
-      {"a", FieldValue::FromString("A")},
-      {"b", FieldValue::FromMap({
-                {"ba", FieldValue::FromString("BA")},
-            })},
-  });
-  EXPECT_EQ(expected, value.Delete(testutil::Field("b.bb")));
-}
-
-TEST(FieldValue, DeleteNothing) {
-  const ObjectValue value = ObjectValue::FromMap({
-      {"a", FieldValue::FromString("A")},
-      {"b", FieldValue::FromMap({
-                {"ba", FieldValue::FromString("BA")},
-                {"bb", FieldValue::FromString("BB")},
-            })},
-  });
-  EXPECT_EQ(value, value.Delete(testutil::Field("aa")));
-}
-
-TEST(FieldValue, Get) {
-  const ObjectValue value = ObjectValue::FromMap({
-      {"a", FieldValue::FromString("A")},
-      {"b", FieldValue::FromMap({
-                {"ba", FieldValue::FromString("BA")},
-                {"bb", FieldValue::FromString("BB")},
-            })},
-  });
-  EXPECT_EQ(FieldValue::FromString("A"), value.Get(testutil::Field("a")));
-  EXPECT_EQ(FieldValue::FromString("BA"), value.Get(testutil::Field("b.ba")));
-  EXPECT_EQ(FieldValue::FromString("BB"), value.Get(testutil::Field("b.bb")));
-}
-
-TEST(FieldValue, GetNothing) {
-  const ObjectValue value = ObjectValue::FromMap({
-      {"a", FieldValue::FromString("A")},
-      {"b", FieldValue::FromMap({
-                {"ba", FieldValue::FromString("BA")},
-                {"bb", FieldValue::FromString("BB")},
-            })},
-  });
-  EXPECT_EQ(absl::nullopt, value.Get(testutil::Field("aa")));
-  EXPECT_EQ(absl::nullopt, value.Get(testutil::Field("a.a")));
-}
-
 TEST(FieldValue, IsSmallish) {
   // We expect the FV to use 4 bytes to track the type of the union, plus 8
   // bytes for the union contents themselves. The other 4 is for padding. We
@@ -633,6 +671,6 @@ TEST(FieldValue, IsSmallish) {
   EXPECT_LE(sizeof(FieldValue), 2 * sizeof(int64_t));
 }
 
-}  //  namespace model
-}  //  namespace firestore
-}  //  namespace firebase
+}  // namespace model
+}  // namespace firestore
+}  // namespace firebase
