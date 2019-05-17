@@ -176,6 +176,22 @@ NS_SWIFT_NAME(Firestore)
  */
 - (void)disableNetworkWithCompletion:(nullable void (^)(NSError *_Nullable error))completion;
 
+/**
+ * Clears the persistent storage. This includes pending writes and cached documents.
+ *
+ * Must be called while the firestore instance is not started (after the app is shutdown or when
+ * the app is first initialized). On startup, this method must be called before other methods
+ * (other than `FIRFirestore.settings`). If the firestore instance is still running, the function
+ * will complete with an error code of `FailedPrecondition`.
+ *
+ * Note: `clearPersistence(completion:)` is primarily intended to help write reliable tests that
+ * use Firestore. It uses the most efficient mechanism possible for dropping existing data but
+ * does not attempt to securely overwrite or otherwise make cached data unrecoverable. For
+ * applications that are sensitive to the disclosure of cache data in between user sessions we
+ * strongly recommend not to enable persistence in the first place.
+ */
+- (void)clearPersistenceWithCompletion:(nullable void (^)(NSError *_Nullable error))completion;
+
 @end
 
 NS_ASSUME_NONNULL_END

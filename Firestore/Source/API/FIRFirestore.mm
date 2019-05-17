@@ -265,6 +265,10 @@ NS_ASSUME_NONNULL_BEGIN
   _firestore->DisableNetwork(util::MakeCallback(completion));
 }
 
+- (void)clearPersistenceWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
+  _firestore->ClearPersistence(util::MakeCallback(completion));
+}
+
 @end
 
 @implementation FIRFirestore (Internal)
@@ -283,10 +287,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (BOOL)isLoggingEnabled {
   return util::LogIsLoggable(util::kLogLevelDebug);
-}
-
-- (void)clearPersistenceWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
-  _firestore->ClearPersistence(util::MakeCallback(completion));
 }
 
 + (FIRFirestore *)recoverFromFirestore:(std::shared_ptr<Firestore>)firestore {
