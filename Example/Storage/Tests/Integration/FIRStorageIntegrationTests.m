@@ -18,7 +18,7 @@
 #import <FirebaseCore/FIRApp.h>
 #import <FirebaseCore/FIROptions.h>
 
-NSTimeInterval kFIRStorageIntegrationTestTimeout = 30;
+NSTimeInterval kFIRStorageIntegrationTestTimeout = 60;
 
 /**
  * Firebase Storage Integration tests
@@ -69,8 +69,15 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 30;
     XCTestExpectation *expectation = [self expectationWithDescription:@"setup"];
 
     FIRStorageReference *ref = [[FIRStorage storage].reference child:@"ios/public/1mb"];
-    NSData *data = [NSData dataWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"1mb"
-                                                                                  ofType:@"dat"]];
+
+    NSString *filePath = [[NSBundle mainBundle] pathForResource:@"1mb" ofType:@"dat"];
+    if (filePath == nil) {
+      // Use bundleForClass to allow 1mb.dat to be in the test target's bundle.
+      NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+      filePath = [bundle pathForResource:@"1mb" ofType:@"dat"];
+    }
+    NSData *data =  [NSData dataWithContentsOfFile:filePath];
+
     XCTAssertNotNil(data, "Could not load bundled file");
     [ref putData:data
           metadata:nil
@@ -309,7 +316,7 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 30;
                               [[snapshot description] containsString:@"State: Resume"]);
                 NSProgress *progress = snapshot.progress;
                 XCTAssertGreaterThanOrEqual(progress.completedUnitCount, uploadedBytes);
-                uploadedBytes = progress.completedUnitCount;
+                uploadedBytes = (long)progress.completedUnitCount;
               }];
 
   [self waitForExpectations];
@@ -645,7 +652,7 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 30;
                               [[snapshot description] containsString:@"State: Resume"]);
                 NSProgress *progress = snapshot.progress;
                 XCTAssertGreaterThanOrEqual(progress.completedUnitCount, downloadedBytes);
-                downloadedBytes = progress.completedUnitCount;
+                downloadedBytes = (long)progress.completedUnitCount;
                 if (progress.completedUnitCount > resumeAtBytes) {
                   // Making sure the main run loop is busy.
                   for (int i = 0; i < 500; ++i) {
@@ -698,7 +705,7 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 30;
                               [[snapshot description] containsString:@"State: Resume"]);
                 NSProgress *progress = snapshot.progress;
                 XCTAssertGreaterThanOrEqual(progress.completedUnitCount, downloadedBytes);
-                downloadedBytes = progress.completedUnitCount;
+                downloadedBytes = (long)progress.completedUnitCount;
                 if (progress.completedUnitCount > resumeAtBytes) {
                   NSLog(@"Pausing");
                   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
