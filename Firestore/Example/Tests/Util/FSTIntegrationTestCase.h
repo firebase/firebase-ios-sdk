@@ -17,8 +17,6 @@
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 
-#import <FirebaseCore/FIRAppInternal.h>
-
 #include <memory>
 
 #import "Firestore/Example/Tests/Util/XCTestCase+Await.h"
@@ -27,6 +25,7 @@
 
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 
+@class FIRApp;
 @class FIRCollectionReference;
 @class FIRDocumentSnapshot;
 @class FIRDocumentReference;
