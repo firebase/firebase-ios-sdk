@@ -30,10 +30,12 @@
 #import "FIRAuthBackend.h"
 #import "FIRAuthRequestConfiguration.h"
 #import "FIRAuthTokenResult_Internal.h"
+#import "FIRAuthWebUtils.h"
 #import "FIRDeleteAccountRequest.h"
 #import "FIRDeleteAccountResponse.h"
 #import "FIREmailAuthProvider.h"
 #import "FIREmailPasswordAuthCredential.h"
+#import "FIREmailLinkSignInRequest.h"
 #import "FIRGameCenterAuthCredential.h"
 #import "FIRGetAccountInfoRequest.h"
 #import "FIRGetAccountInfoResponse.h"
@@ -1026,15 +1028,68 @@ static void callInMainThreadWithAuthDataResultAndError(
       }
       FIREmailPasswordAuthCredential *emailPasswordCredential =
           (FIREmailPasswordAuthCredential *)credential;
-      [self updateEmail:emailPasswordCredential.email
-               password:emailPasswordCredential.password
-               callback:^(NSError *error) {
-        if (error) {
-          callInMainThreadWithAuthDataResultAndError(completion, nil, error);
-        } else {
-          callInMainThreadWithAuthDataResultAndError(completion, result, nil);
-        }
-      }];
+      if (emailPasswordCredential.password) {
+        [self updateEmail:emailPasswordCredential.email
+                 password:emailPasswordCredential.password
+                 callback:^(NSError *error) {
+                   if (error) {
+                     callInMainThreadWithAuthDataResultAndError(completion, nil, error);
+                   } else {
+                     callInMainThreadWithAuthDataResultAndError(completion, result, nil);
+                   }
+                 }];
+      } else {
+        [self internalGetTokenWithCallback:^(NSString *_Nullable accessToken,
+                                             NSError *_Nullable error) {
+          NSDictionary<NSString *, NSString *> *queryItems = [FIRAuthWebUtils parseURL:emailPasswordCredential.link];
+          if (![queryItems count]) {
+            NSURLComponents *urlComponents = [NSURLComponents componentsWithString:emailPasswordCredential.link];
+            queryItems = [FIRAuthWebUtils parseURL:urlComponents.query];
+          }
+          NSString *actionCode = queryItems[@"oobCode"];
+          FIRAuthRequestConfiguration *requestConfiguration = self.auth.requestConfiguration;
+          FIREmailLinkSignInRequest *request =
+          [[FIREmailLinkSignInRequest alloc] initWithEmail:emailPasswordCredential.email
+                                                   oobCode:actionCode
+                                      requestConfiguration:requestConfiguration];
+          request.IDToken = accessToken;
+          [FIRAuthBackend emailLinkSignin:request
+                                 callback:^(FIREmailLinkSignInResponse *_Nullable response,
+                                            NSError *_Nullable error) {
+             if (error){
+               callInMainThreadWithAuthDataResultAndError(completion, nil, error);
+             } else {
+               [self internalGetTokenWithCallback:^(NSString *_Nullable accessToken,
+                                                    NSError *_Nullable error) {
+                 if (error) {
+                   callInMainThreadWithAuthDataResultAndError(completion, nil, error);
+                   return;
+                 }
+
+                 FIRGetAccountInfoRequest *getAccountInfoRequest =
+                 [[FIRGetAccountInfoRequest alloc] initWithAccessToken:accessToken
+                                                  requestConfiguration:requestConfiguration];
+                 [FIRAuthBackend getAccountInfo:getAccountInfoRequest
+                                       callback:^(FIRGetAccountInfoResponse *_Nullable response,
+                                                  NSError *_Nullable error) {
+                   if (error) {
+                     [self signOutIfTokenIsInvalidWithError:error];
+                     callInMainThreadWithAuthDataResultAndError(completion, nil, error);
+                     return;
+                   }
+                   self.anonymous = NO;
+                   [self updateWithGetAccountInfoResponse:response];
+                   if (![self updateKeychain:&error]) {
+                     callInMainThreadWithAuthDataResultAndError(completion, nil, error);
+                     return;
+                   }
+                   callInMainThreadWithAuthDataResultAndError(completion, result, nil);
+                 }];
+               }];
+             }
+           }];
+        }];
+      }
       return;
     }
 
