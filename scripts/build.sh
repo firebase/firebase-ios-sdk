@@ -86,27 +86,35 @@ function RunXcodebuild() {
   fi
 }
 
+ios_flags=(
+  -sdk 'iphonesimulator'
+  -destination 'platform=iOS Simulator,name=iPhone 7'
+)
+macos_flags=(
+  -sdk 'macosx'
+  -destination 'platform=OS X,arch=x86_64'
+)
+tvos_flags=(
+  -sdk "appletvsimulator"
+  -destination 'platform=tvOS Simulator,name=Apple TV'
+)
+
 # Compute standard flags for all platforms
 case "$platform" in
   iOS)
-    xcb_flags=(
-      -sdk 'iphonesimulator'
-      -destination 'platform=iOS Simulator,name=iPhone 7'
-    )
+    xcb_flags=ios_flags
     ;;
 
   macOS)
-    xcb_flags=(
-      -sdk 'macosx'
-      -destination 'platform=OS X,arch=x86_64'
-    )
+    xcb_flags=macos_flags
     ;;
 
   tvOS)
-    xcb_flags=(
-      -sdk "appletvsimulator"
-      -destination 'platform=tvOS Simulator,name=Apple TV'
-    )
+    xcb_flags=tvos_flags
+    ;;
+
+  all)
+    xcb_flag=()
     ;;
 
   *)
@@ -380,18 +388,21 @@ case "$product-$method-$platform" in
     RunXcodebuild \
       -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
       -scheme "FirebaseStorage-iOS-Unit-unit" \
+      "${ios_flags[@]}" \
       "${xcb_flags[@]}" \
       build \
       test
     RunXcodebuild \
       -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
       -scheme "FirebaseStorage-macOS-Unit-unit" \
+      "${macos_flags[@]}" \
       "${xcb_flags[@]}" \
       build \
       test
     RunXcodebuild \
       -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
       -scheme "FirebaseStorage-tvOS-Unit-unit" \
+      "${tvos_flags[@]}" \
       "${xcb_flags[@]}" \
       build \
       test
@@ -401,18 +412,21 @@ case "$product-$method-$platform" in
     RunXcodebuild \
       -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
       -scheme "FirebaseStorage-iOS-Unit-integration" \
+      "${ios_flags[@]}" \
       "${xcb_flags[@]}" \
       build \
       test
     RunXcodebuild \
       -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
       -scheme "FirebaseStorage-macOS-Unit-integration" \
+      "${macos_flags[@]}" \
       "${xcb_flags[@]}" \
       build \
       test
     RunXcodebuild \
       -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
       -scheme "FirebaseStorage-tvOS-Unit-integration" \
+      "${tvos_flags[@]}" \
       "${xcb_flags[@]}" \
       build \
       test

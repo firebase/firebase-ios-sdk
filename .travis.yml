@@ -45,7 +45,7 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=Storage PLATFORM=iOS METHOD=xcodebuild
+        - PROJECT=Storage PLATFORM=all METHOD=xcodebuild
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
@@ -54,7 +54,7 @@ jobs:
     - stage: test
       if: fork = false
       env:
-        - PROJECT=Storage PLATFORM=iOS METHOD=integration
+        - PROJECT=Storage PLATFORM=all METHOD=integration
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
