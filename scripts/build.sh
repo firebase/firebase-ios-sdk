@@ -336,45 +336,66 @@ case "$product-$method-$platform" in
         build
     ;;
 
-  GoogleDataTransport-xcodebuild-*)
+  GoogleDataTransport-xcodebuild-iOS)
     RunXcodebuild \
         -workspace 'GoogleDataTransport/gen/GoogleDataTransport/GoogleDataTransport.xcworkspace' \
-        -scheme "GoogleDataTransport-$platform-Unit-Tests-Unit" \
+        -scheme "GoogleDataTransport-Unit-Tests-Unit" \
         "${xcb_flags[@]}" \
         build \
         test
 
     RunXcodebuild \
         -workspace 'GoogleDataTransport/gen/GoogleDataTransport/GoogleDataTransport.xcworkspace' \
-        -scheme "GoogleDataTransport-$platform-Unit-Tests-Lifecycle" \
+        -scheme "GoogleDataTransport-Unit-Tests-Lifecycle" \
         "${xcb_flags[@]}" \
         build \
         test
     ;;
 
-  GoogleDataTransportIntegrationTest-xcodebuild-*)
+  GoogleDataTransportIntegrationTest-xcodebuild-iOS)
     RunXcodebuild \
         -workspace 'GoogleDataTransport/gen/GoogleDataTransport/GoogleDataTransport.xcworkspace' \
-        -scheme "GoogleDataTransport-$platform-Unit-Tests-Integration" \
+        -scheme "GoogleDataTransport-Unit-Tests-Integration" \
         "${xcb_flags[@]}" \
         build \
         test
     ;;
 
-  GoogleDataTransportCCTSupport-xcodebuild-*)
+  GoogleDataTransportCCTSupport-xcodebuild-iOS)
     RunXcodebuild \
         -workspace 'GoogleDataTransportCCTSupport/gen/GoogleDataTransportCCTSupport/GoogleDataTransportCCTSupport.xcworkspace' \
-        -scheme "GoogleDataTransportCCTSupport-$platform-Unit-Tests-Unit" \
+        -scheme "GoogleDataTransportCCTSupport-Unit-Tests-Unit" \
         "${xcb_flags[@]}" \
         build \
         test
 
     RunXcodebuild \
         -workspace 'GoogleDataTransportCCTSupport/gen/GoogleDataTransportCCTSupport/GoogleDataTransportCCTSupport.xcworkspace' \
-        -scheme "GoogleDataTransportCCTSupport-$platform-Unit-Tests-Integration" \
+        -scheme "GoogleDataTransportCCTSupport-Unit-Tests-Integration" \
         "${xcb_flags[@]}" \
         build \
         test
+    ;;
+
+  Storage-*-xcodebuild)
+    RunXcodebuild \
+      -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
+      -scheme "FirebaseStorage-iOS-Unit-unit" \
+      "${xcb_flags[@]}" \
+      build \
+      test
+    RunXcodebuild \
+      -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
+      -scheme "FirebaseStorage-macOS-Unit-unit" \
+      "${xcb_flags[@]}" \
+      build \
+      test
+    RunXcodebuild \
+      -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
+      -scheme "FirebaseStorage-tvOS-Unit-unit" \
+      "${xcb_flags[@]}" \
+      build \
+      test
     ;;
 
   Storage-xcodebuild-*)
@@ -385,6 +406,7 @@ case "$product-$method-$platform" in
       "${xcb_flags[@]}" \
       build \
       test
+
     RunXcodebuild \
       -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
       -scheme "FirebaseStorage-macOS-Unit-unit" \
@@ -392,6 +414,7 @@ case "$product-$method-$platform" in
       "${xcb_flags[@]}" \
       build \
       test
+
     RunXcodebuild \
       -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
       -scheme "FirebaseStorage-tvOS-Unit-unit" \
@@ -401,7 +424,7 @@ case "$product-$method-$platform" in
       test
 
     if [[ "$TRAVIS_PULL_REQUEST" == "false" ||
-          "$TRAVIS_PULL_REQUEST_SLUG" == "$TRAVIS_REPO_SLUG" ]]; then
+      "$TRAVIS_PULL_REQUEST_SLUG" == "$TRAVIS_REPO_SLUG" ]]; then
       # Integration tests are only run on iOS to minimize flake failures.
       RunXcodebuild \
         -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
