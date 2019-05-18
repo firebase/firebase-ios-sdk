@@ -381,18 +381,21 @@ case "$product-$method-$platform" in
     RunXcodebuild \
       -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
       -scheme "FirebaseStorage-iOS-Unit-unit" \
+      "${ios_flags[@]}" \
       "${xcb_flags[@]}" \
       build \
       test
     RunXcodebuild \
       -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
       -scheme "FirebaseStorage-macOS-Unit-unit" \
+      "${macos_flags[@]}" \
       "${xcb_flags[@]}" \
       build \
       test
     RunXcodebuild \
       -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
       -scheme "FirebaseStorage-tvOS-Unit-unit" \
+      "${tvos_flags[@]}" \
       "${xcb_flags[@]}" \
       build \
       test
