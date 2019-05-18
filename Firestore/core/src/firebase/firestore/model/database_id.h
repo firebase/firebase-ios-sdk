@@ -44,7 +44,8 @@ class DatabaseId : public util::Comparable<DatabaseId> {
    * @param project_id The project for the database.
    * @param database_id The database in the project to use.
    */
-  DatabaseId(std::string project_id, std::string database_id);
+  explicit DatabaseId(std::string project_id,
+                      std::string database_id = kDefault);
 
   const std::string& project_id() const {
     return rep_->project_id;
