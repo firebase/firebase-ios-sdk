@@ -94,7 +94,7 @@ class SerializerTest : public ::testing::Test {
     msg_diff.ReportDifferencesToString(&message_differences);
   }
 
-  const DatabaseId kDatabaseId{"p", "d"};
+  DatabaseId kDatabaseId{"p", "d"};
   Serializer serializer;
 
   template <typename... Args>
