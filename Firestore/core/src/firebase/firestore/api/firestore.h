@@ -54,8 +54,7 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
  public:
   Firestore() = default;
 
-  Firestore(std::string project_id,
-            std::string database,
+  Firestore(model::DatabaseId database_id,
             std::string persistence_key,
             std::unique_ptr<auth::CredentialsProvider> credentials_provider,
             std::shared_ptr<util::AsyncQueue> worker_queue,

@@ -102,16 +102,15 @@ NS_ASSUME_NONNULL_BEGIN
   return [provider firestoreForDatabase:database];
 }
 
-- (instancetype)initWithProjectID:(std::string)projectID
-                         database:(std::string)database
-                   persistenceKey:(std::string)persistenceKey
-              credentialsProvider:(std::unique_ptr<CredentialsProvider>)credentialsProvider
-                      workerQueue:(std::shared_ptr<AsyncQueue>)workerQueue
-                      firebaseApp:(FIRApp *)app {
+- (instancetype)initWithDatabaseID:(model::DatabaseId)databaseID
+                    persistenceKey:(std::string)persistenceKey
+               credentialsProvider:(std::unique_ptr<CredentialsProvider>)credentialsProvider
+                       workerQueue:(std::shared_ptr<AsyncQueue>)workerQueue
+                       firebaseApp:(FIRApp *)app {
   if (self = [super init]) {
-    _firestore = std::make_shared<Firestore>(
-        std::move(projectID), std::move(database), std::move(persistenceKey),
-        std::move(credentialsProvider), std::move(workerQueue), (__bridge void *)self);
+    _firestore = std::make_shared<Firestore>(std::move(databaseID), std::move(persistenceKey),
+                                             std::move(credentialsProvider), std::move(workerQueue),
+                                             (__bridge void *)self);
 
     _app = app;
 

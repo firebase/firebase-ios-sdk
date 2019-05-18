@@ -52,13 +52,12 @@ using util::Executor;
 using util::ExecutorLibdispatch;
 using util::Status;
 
-Firestore::Firestore(std::string project_id,
-                     std::string database,
+Firestore::Firestore(model::DatabaseId database_id,
                      std::string persistence_key,
                      std::unique_ptr<CredentialsProvider> credentials_provider,
                      std::shared_ptr<AsyncQueue> worker_queue,
                      void* extension)
-    : database_id_{std::move(project_id), std::move(database)},
+    : database_id_{std::move(database_id)},
       credentials_provider_{std::move(credentials_provider)},
       persistence_key_{std::move(persistence_key)},
       worker_queue_{std::move(worker_queue)},
