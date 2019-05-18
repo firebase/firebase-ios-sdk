@@ -61,7 +61,7 @@ size_t ServerTimestamp::Hash() const {
 }
 
 std::string ReferenceValue::ToString() const {
-  return absl::StrCat("Reference(key=", reference.ToString(), ")");
+  return absl::StrCat("Reference(key=", key.ToString(), ")");
 }
 
 std::ostream& operator<<(std::ostream& os, const ReferenceValue& value) {
@@ -69,7 +69,7 @@ std::ostream& operator<<(std::ostream& os, const ReferenceValue& value) {
 }
 
 size_t ReferenceValue::Hash() const {
-  return util::Hash(reference, *database_id);
+  return util::Hash(key, database_id);
 }
 
 FieldValue::FieldValue(const FieldValue& value) {
@@ -337,23 +337,11 @@ FieldValue FieldValue::FromBlob(const uint8_t* source, size_t size) {
   return result;
 }
 
-// Does NOT pass ownership of database_id.
-FieldValue FieldValue::FromReference(const DocumentKey& value,
-                                     const DatabaseId* database_id) {
+FieldValue FieldValue::FromReference(DatabaseId database_id, DocumentKey key) {
   FieldValue result;
   result.SwitchTo(Type::Reference);
-  result.reference_value_->reference = value;
-  result.reference_value_->database_id = database_id;
-  return result;
-}
-
-// Does NOT pass ownership of database_id.
-FieldValue FieldValue::FromReference(DocumentKey&& value,
-                                     const DatabaseId* database_id) {
-  FieldValue result;
-  result.SwitchTo(Type::Reference);
-  std::swap(result.reference_value_->reference, value);
-  result.reference_value_->database_id = database_id;
+  result.reference_value_->database_id = std::move(database_id);
+  result.reference_value_->key = std::move(key);
   return result;
 }
 
@@ -476,8 +464,7 @@ ComparisonResult FieldValue::CompareTo(const FieldValue& rhs) const {
                     rhs.reference_value_->database_id);
       if (!util::Same(cmp)) return cmp;
 
-      return Compare(reference_value_->reference,
-                     rhs.reference_value_->reference);
+      return Compare(reference_value_->key, rhs.reference_value_->key);
     case Type::GeoPoint:
       return Compare(*geo_point_value_, *rhs.geo_point_value_);
     case Type::Array:
