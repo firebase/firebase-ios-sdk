@@ -68,7 +68,7 @@ typedef id _Nullable (^FSTPreConverterBlock)(id _Nullable);
 @interface FSTUserDataConverter : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
-- (instancetype)initWithDatabaseID:(const model::DatabaseId *)databaseID
+- (instancetype)initWithDatabaseID:(model::DatabaseId)databaseID
                       preConverter:(FSTPreConverterBlock)preConverter NS_DESIGNATED_INITIALIZER;
 
 /** Parse document data from a non-merge setData call.*/

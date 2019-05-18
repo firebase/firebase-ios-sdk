@@ -124,7 +124,7 @@ NS_ASSUME_NONNULL_BEGIN
       }
     };
 
-    _dataConverter = [[FSTUserDataConverter alloc] initWithDatabaseID:&_firestore->database_id()
+    _dataConverter = [[FSTUserDataConverter alloc] initWithDatabaseID:_firestore->database_id()
                                                          preConverter:block];
     // Use the property setter so the default settings get plumbed into _firestoreClient.
     self.settings = [[FIRFirestoreSettings alloc] init];
