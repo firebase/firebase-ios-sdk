@@ -17,11 +17,10 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_DATABASE_ID_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_DATABASE_ID_H_
 
-#include <cstdint>
+#include <memory>
 #include <string>
 
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
-#include "absl/strings/string_view.h"
 
 namespace firebase {
 namespace firestore {
@@ -48,16 +47,16 @@ class DatabaseId : public util::Comparable<DatabaseId> {
   DatabaseId(std::string project_id, std::string database_id);
 
   const std::string& project_id() const {
-    return project_id_;
+    return rep_->project_id;
   }
 
   const std::string& database_id() const {
-    return database_id_;
+    return rep_->database_id;
   }
 
   /** Whether this is the default database of the project. */
   bool IsDefaultDatabase() const {
-    return database_id_ == kDefault;
+    return rep_->database_id == kDefault;
   }
 
   util::ComparisonResult CompareTo(const DatabaseId& rhs) const;
@@ -65,8 +64,12 @@ class DatabaseId : public util::Comparable<DatabaseId> {
   size_t Hash() const;
 
  private:
-  std::string project_id_;
-  std::string database_id_;
+  struct Rep {
+    std::string project_id;
+    std::string database_id;
+  };
+
+  std::shared_ptr<Rep> rep_;
 };
 
 }  // namespace model

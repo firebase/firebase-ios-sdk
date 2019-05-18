@@ -27,22 +27,25 @@ namespace model {
 
 constexpr const char* DatabaseId::kDefault;
 
-DatabaseId::DatabaseId(std::string project_id, std::string database_id)
-    : project_id_{std::move(project_id)}, database_id_{std::move(database_id)} {
-  HARD_ASSERT(!project_id_.empty());
-  HARD_ASSERT(!database_id_.empty());
+DatabaseId::DatabaseId(std::string project_id, std::string database_id) {
+  HARD_ASSERT(!project_id.empty());
+  HARD_ASSERT(!database_id.empty());
+
+  rep_ = std::make_shared<Rep>();
+  rep_->project_id = std::move(project_id);
+  rep_->database_id = std::move(database_id);
 }
 
 util::ComparisonResult DatabaseId::CompareTo(
     const firebase::firestore::model::DatabaseId& rhs) const {
-  util::ComparisonResult cmp = util::Compare(project_id_, rhs.project_id_);
+  util::ComparisonResult cmp = util::Compare(project_id(), rhs.project_id());
   if (!util::Same(cmp)) return cmp;
 
-  return util::Compare(database_id_, rhs.database_id_);
+  return util::Compare(database_id(), rhs.database_id());
 }
 
 size_t DatabaseId::Hash() const {
-  return util::Hash(project_id_, database_id_);
+  return util::Hash(project_id(), database_id());
 }
 
 }  // namespace model
