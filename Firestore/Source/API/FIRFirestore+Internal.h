@@ -84,8 +84,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic, assign, readonly) std::shared_ptr<api::Firestore> wrapped;
 
-// FIRFirestore owns the DatabaseId instance.
-@property(nonatomic, assign, readonly) const model::DatabaseId *databaseID;
+@property(nonatomic, assign, readonly) const model::DatabaseId &databaseID;
 @property(nonatomic, strong, readonly) FSTUserDataConverter *dataConverter;
 
 @end

@@ -462,7 +462,7 @@ FIRQuery *Wrap(Query &&query) {
     if (sortOrder.field == FieldPath::KeyFieldPath()) {
       [components addObject:[FSTReferenceValue
                                 referenceValue:[FSTDocumentKey keyWithDocumentKey:document.key]
-                                    databaseID:self.firestore.databaseID]];
+                                    databaseID:&self.firestore.databaseID]];
     } else {
       FSTFieldValue *value = [document fieldForPath:sortOrder.field];
 
@@ -518,7 +518,7 @@ FIRQuery *Wrap(Query &&query) {
       }
       DocumentKey key{path};
       fieldValue = [FSTReferenceValue referenceValue:[FSTDocumentKey keyWithDocumentKey:key]
-                                          databaseID:self.firestore.databaseID];
+                                          databaseID:&self.firestore.databaseID];
     }
 
     [components addObject:fieldValue];
