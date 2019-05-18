@@ -62,13 +62,14 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     ;;
 
   Functions-*)
-    bundle exec pod repo update
     # Start server for Functions integration tests.
     ./Functions/Backend/start.sh synchronous
     ;;
 
   Storage-*)
-    bundle exec pod repo update
+    # Install the workspace to have better control over test runs than
+    # pod lib lint, since the integration tests can be flaky.
+    bundle exec pod gen FirebaseStorage.podspec --local-sources=./
     install_secrets
     ;;
 

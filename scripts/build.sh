@@ -368,7 +368,7 @@ case "$product-$method-$platform" in
         build \
         test
 
-        RunXcodebuild \
+    RunXcodebuild \
         -workspace 'GoogleDataTransportCCTSupport/gen/GoogleDataTransportCCTSupport/GoogleDataTransportCCTSupport.xcworkspace' \
         -scheme "GoogleDataTransportCCTSupport-Unit-Tests-Integration" \
         "${xcb_flags[@]}" \
@@ -376,6 +376,46 @@ case "$product-$method-$platform" in
         test
     ;;
 
+  Storage-*-xcodebuild)
+    RunXcodebuild \
+      -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
+      -scheme "FirebaseStorage-iOS-Unit-unit" \
+      "${xcb_flags[@]}" \
+      build \
+      test
+    RunXcodebuild \
+      -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
+      -scheme "FirebaseStorage-macOS-Unit-unit" \
+      "${xcb_flags[@]}" \
+      build \
+      test
+    RunXcodebuild \
+      -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
+      -scheme "FirebaseStorage-tvOS-Unit-unit" \
+      "${xcb_flags[@]}" \
+      build \
+      test
+    ;;
+
+  Storage-*-integration)
+    RunXcodebuild \
+      -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
+      -scheme "FirebaseStorage-iOS-Unit-integration" \
+      "${xcb_flags[@]}" \
+      build \
+      test
+    RunXcodebuild \
+      -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
+      -scheme "FirebaseStorage-macOS-Unit-integration" \
+      "${xcb_flags[@]}" \
+      build \
+      test
+    RunXcodebuild \
+      -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
+      -scheme "FirebaseStorage-tvOS-Unit-integration" \
+      "${xcb_flags[@]}" \
+      build \
+      test
   *)
     echo "Don't know how to build this product-platform-method combination" 1>&2
     echo "  product=$product" 1>&2
