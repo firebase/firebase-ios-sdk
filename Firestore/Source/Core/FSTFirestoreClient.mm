@@ -219,7 +219,7 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
                                         documentsDirectory:[FSTLevelDB documentsDirectory]];
 
     FSTSerializerBeta *remoteSerializer =
-        [[FSTSerializerBeta alloc] initWithDatabaseID:&self.databaseInfo->database_id()];
+        [[FSTSerializerBeta alloc] initWithDatabaseID:self.databaseInfo->database_id()];
     FSTLocalSerializer *serializer =
         [[FSTLocalSerializer alloc] initWithRemoteSerializer:remoteSerializer];
     FSTLevelDB *ldb;
