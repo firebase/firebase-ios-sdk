@@ -377,7 +377,7 @@ case "$product-$method-$platform" in
         test
     ;;
 
-  Storage-*-xcodebuild)
+  Storage-xcodebuild-*)
     RunXcodebuild \
       -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
       -scheme "FirebaseStorage-iOS-Unit-unit" \
