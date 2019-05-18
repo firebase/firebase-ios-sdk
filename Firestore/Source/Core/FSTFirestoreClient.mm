@@ -455,8 +455,8 @@ static const std::chrono::milliseconds FSTLruGcRegularDelay = std::chrono::minut
   return &_databaseInfo;
 }
 
-- (const DatabaseId *)databaseID {
-  return &_databaseInfo.database_id();
+- (const DatabaseId &)databaseID {
+  return _databaseInfo.database_id();
 }
 
 @end
