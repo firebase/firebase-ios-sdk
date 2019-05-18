@@ -58,7 +58,7 @@ NSArray *FSTWrapGroups(NSArray *groups) {
         FSTDocumentKeyReference *reference = (FSTDocumentKeyReference *)value;
         wrappedValue =
             [FSTReferenceValue referenceValue:[FSTDocumentKey keyWithDocumentKey:reference.key]
-                                   databaseID:reference.databaseID];
+                                   databaseID:*reference.databaseID];
       } else {
         wrappedValue = FSTTestFieldValue(value);
       }
@@ -329,7 +329,7 @@ union DoubleBits {
     @[
       [FSTReferenceValue
           referenceValue:[FSTDocumentKey keyWithDocumentKey:FSTTestDocKey(@"coll/doc1")]
-              databaseID:&database_id],
+              databaseID:database_id],
       FSTTestFieldValue(FSTTestRef("project", DatabaseId::kDefault, @"coll/doc1"))
     ],
     @[ FSTTestRef("project", "(default)", @"coll/doc2") ],

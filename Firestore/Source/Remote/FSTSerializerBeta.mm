@@ -218,7 +218,7 @@ NS_ASSUME_NONNULL_BEGIN
     case FieldValue::Type::Reference: {
       FSTReferenceValue *ref = (FSTReferenceValue *)fieldValue;
       DocumentKey key = [[ref value] key];
-      return [self encodedReferenceValueForDatabaseID:*[ref databaseID] key:key];
+      return [self encodedReferenceValueForDatabaseID:[ref databaseID] key:key];
     }
     case FieldValue::Type::GeoPoint:
       return [self encodedGeoPointValue:[fieldValue value]];
@@ -352,7 +352,7 @@ NS_ASSUME_NONNULL_BEGIN
               _databaseID.project_id(), _databaseID.database_id(), database_id.project_id(),
               database_id.database_id());
   return [FSTReferenceValue referenceValue:[FSTDocumentKey keyWithDocumentKey:key]
-                                databaseID:&_databaseID];
+                                databaseID:_databaseID];
 }
 
 - (GCFSArrayValue *)encodedArrayValue:(FSTArrayValue *)arrayValue {

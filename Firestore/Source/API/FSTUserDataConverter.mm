@@ -463,7 +463,7 @@ NS_ASSUME_NONNULL_BEGIN
           _databaseID.database_id(), context.FieldDescription());
     }
     return [FSTReferenceValue referenceValue:[FSTDocumentKey keyWithDocumentKey:reference.key]
-                                  databaseID:&_databaseID];
+                                  databaseID:_databaseID];
 
   } else {
     ThrowInvalidArgument("Unsupported type: %s%s", NSStringFromClass([input class]),
