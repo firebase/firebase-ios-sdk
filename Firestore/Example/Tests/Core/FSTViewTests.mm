@@ -44,6 +44,7 @@ using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentSet;
+using firebase::firestore::model::FieldValue;
 using testing::ElementsAre;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -173,7 +174,7 @@ inline ContainsDocsMatcherP<std::vector<FSTDocument *>> ContainsDocs(
   FSTQuery *query = [self queryForMessages];
   FSTRelationFilter *filter = [FSTRelationFilter filterWithField:testutil::Field("sort")
                                                   filterOperator:Filter::Operator::LessThanOrEqual
-                                                           value:[FSTDoubleValue doubleValue:2]];
+                                                           value:FieldValue::FromDouble(2).Wrap()];
   query = [query queryByAddingFilter:filter];
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
@@ -211,7 +212,7 @@ inline ContainsDocsMatcherP<std::vector<FSTDocument *>> ContainsDocs(
   FSTQuery *query = [self queryForMessages];
   FSTRelationFilter *filter = [FSTRelationFilter filterWithField:testutil::Field("sort")
                                                   filterOperator:Filter::Operator::LessThanOrEqual
-                                                           value:[FSTDoubleValue doubleValue:2]];
+                                                           value:FieldValue::FromDouble(2).Wrap()];
   query = [query queryByAddingFilter:filter];
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];

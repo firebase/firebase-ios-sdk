@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_FIELD_VALUE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_FIELD_VALUE_H_
 
+#include <cmath>
 #include <cstdint>
 #include <iosfwd>
 #include <memory>
@@ -124,6 +125,11 @@ class FieldValue {
   const Array& array_value() const;
 
   const Map& object_value() const;
+
+  bool is_nan() const {
+    if (type() != Type::Double) return false;
+    return std::isnan(double_value());
+  }
 
   /** factory methods. */
   static FieldValue Null();

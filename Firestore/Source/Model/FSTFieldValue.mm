@@ -107,6 +107,15 @@ NS_ASSUME_NONNULL_BEGIN
   return static_cast<FSTDelegateValue *>(self).internalValue.integer_value();
 }
 
+- (bool)isNAN {
+  if (self.type != FieldValue::Type::Double) return false;
+  return static_cast<FSTDelegateValue *>(self).internalValue.is_nan();
+}
+
+- (double)doubleValue {
+  return static_cast<FSTDelegateValue *>(self).internalValue.double_value();
+}
+
 @end
 
 #pragma mark - FSTNumberValue
@@ -118,91 +127,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSComparisonResult)compare:(FSTFieldValue *)other {
-  if (!FieldValue::IsNumber(other.type)) {
-    return [self defaultCompare:other];
-  } else {
-    if (self.type == FieldValue::Type::Double) {
-      double thisDouble = ((FSTDoubleValue *)self).internalValue;
-      if (other.type == FieldValue::Type::Double) {
-        return WrapCompare(thisDouble, ((FSTDoubleValue *)other).internalValue);
-      } else {
-        HARD_ASSERT(other.type == FieldValue::Type::Integer, "Unknown number value: %s", other);
-        auto result = CompareMixedNumber(thisDouble, other.integerValue);
-        return static_cast<NSComparisonResult>(result);
-      }
-    } else {
-      int64_t thisInt = self.integerValue;
-      if (other.type == FieldValue::Type::Integer) {
-        return WrapCompare(thisInt, other.integerValue);
-      } else {
-        HARD_ASSERT(other.type == FieldValue::Type::Double, "Unknown number value: %s", other);
-        double otherDouble = ((FSTDoubleValue *)other).internalValue;
-        auto result = ReverseOrder(CompareMixedNumber(otherDouble, thisInt));
-        return static_cast<NSComparisonResult>(result);
-      }
-    }
-  }
+  return NSOrderedSame;
 }
-
-@end
-
-#pragma mark - FSTDoubleValue
-
-@interface FSTDoubleValue ()
-@property(nonatomic, assign, readonly) double internalValue;
-@end
-
-@implementation FSTDoubleValue
-
-+ (instancetype)doubleValue:(double)value {
-  // Normalize NaNs to match the behavior on the backend (which uses Double.doubletoLongBits()).
-  if (isnan(value)) {
-    return [FSTDoubleValue nanValue];
-  }
-  return [[FSTDoubleValue alloc] initWithValue:value];
-}
-
-+ (instancetype)nanValue {
-  static FSTDoubleValue *sharedInstance = nil;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    sharedInstance = [[FSTDoubleValue alloc] initWithValue:NAN];
-  });
-  return sharedInstance;
-}
-
-- (id)initWithValue:(double)value {
-  self = [super init];
-  if (self) {
-    _internalValue = value;
-  }
-  return self;
-}
-
-- (id)value {
-  return @(self.internalValue);
-}
-
-- (FieldValue::Type)type {
-  return FieldValue::Type::Double;
-}
-
-- (BOOL)isEqual:(id)other {
-  // NOTE: DoubleValue and LongValue instances may compare: the same, but that doesn't make them
-  // equal via isEqual:
-
-  // NOTE: isEqual: should compare NaN equal to itself and -0.0 not equal to 0.0.
-
-  return [other isKindOfClass:[FSTFieldValue class]] &&
-         ((FSTFieldValue *)other).type == FieldValue::Type::Double &&
-         DoubleBitwiseEquals(self.internalValue, ((FSTDoubleValue *)other).internalValue);
-}
-
-- (NSUInteger)hash {
-  return DoubleBitwiseHash(self.internalValue);
-}
-
-// NOTE: compare: is implemented in NumberValue.
 
 @end
 
@@ -880,6 +806,7 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
     case FieldValue::Type::Integer:
       return @(self.internalValue.integer_value());
     case FieldValue::Type::Double:
+      return @(self.internalValue.double_value());
     case FieldValue::Type::Timestamp:
     case FieldValue::Type::ServerTimestamp:
       HARD_FAIL("TODO(rsgowman): implement");

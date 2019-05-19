@@ -154,7 +154,6 @@ OBJC_PRINT_TO(FSTDocument);
 OBJC_PRINT_TO(FSTDocumentKey);
 OBJC_PRINT_TO(FSTDocumentKeyReference);
 OBJC_PRINT_TO(FSTDocumentSet);
-OBJC_PRINT_TO(FSTDoubleValue);
 OBJC_PRINT_TO(FSTEventManager);
 OBJC_PRINT_TO(FSTFieldValue);
 OBJC_PRINT_TO(FSTFilter);

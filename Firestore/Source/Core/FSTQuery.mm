@@ -81,7 +81,7 @@ NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
       ThrowInvalidArgument("Invalid Query. Nil and NSNull only support equality comparisons.");
     }
     return [[FSTNullFilter alloc] initWithField:field];
-  } else if ([value isEqual:[FSTDoubleValue nanValue]]) {
+  } else if (value.isNAN) {
     if (op != Filter::Operator::Equal) {
       ThrowInvalidArgument("Invalid Query. NaN only supports equality comparisons.");
     }
@@ -314,7 +314,7 @@ NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
 
 - (BOOL)matchesDocument:(FSTDocument *)document {
   FSTFieldValue *fieldValue = [document fieldForPath:self.field];
-  return fieldValue != nil && [fieldValue isEqual:[FSTDoubleValue nanValue]];
+  return fieldValue != nil && fieldValue.isNAN;
 }
 
 - (NSString *)canonicalID {

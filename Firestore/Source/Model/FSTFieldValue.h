@@ -97,6 +97,11 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
 /** Accesses this FSTFieldValue as an integer. */
 - (int64_t)integerValue;
 
+- (bool)isNAN;
+
+/** Accesses this FSTFieldValue as an double. */
+- (double)doubleValue;
+
 @end
 
 /**
@@ -104,15 +109,6 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
  * comparisons between the two types.
  */
 @interface FSTNumberValue : FSTFieldValue <NSNumber *>
-@end
-
-/**
- * A double-precision floating point number stored in Firestore.
- */
-@interface FSTDoubleValue : FSTNumberValue
-+ (instancetype)doubleValue:(double)value;
-+ (instancetype)nanValue;
-- (double)internalValue;
 @end
 
 /**

@@ -413,14 +413,14 @@ NS_ASSUME_NONNULL_BEGIN
         }
 
       case 'f':
-        return [FSTDoubleValue doubleValue:[input doubleValue]];
+        return FieldValue::FromDouble([input doubleValue]).Wrap();
 
       case 'd':
         // Double values are already the right type, so just reuse the existing boxed double.
         //
         // Note that NSNumber already performs NaN normalization to a single shared instance
         // so there's no need to treat NaN specially here.
-        return [FSTDoubleValue doubleValue:[input doubleValue]];
+        return FieldValue::FromDouble([input doubleValue]).Wrap();
 
       case 'B':  // Falls through.
       case 'c':  // Falls through.

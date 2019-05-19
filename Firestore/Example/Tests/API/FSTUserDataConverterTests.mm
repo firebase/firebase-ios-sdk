@@ -56,7 +56,7 @@ using firebase::firestore::model::FieldValue;
   ];
   for (id value in values) {
     FSTFieldValue *wrapped = FSTTestFieldValue(value);
-    XCTAssertEqualObjects([wrapped class], [FSTDoubleValue class]);
+    XCTAssertEqualObjects([wrapped class], [FSTDelegateValue class]);
     XCTAssertEqualObjects([wrapped value], value);
     XCTAssertEqual(wrapped.type, FieldValue::Type::Double);
   }

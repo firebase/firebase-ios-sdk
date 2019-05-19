@@ -123,22 +123,22 @@ union DoubleBits {
   // Ensure we get the same normalization behavior (currently implemented explicitly by checking
   // for isnan() and then explicitly assigning NAN).
   union DoubleBits result;
-  result.d = [[FSTDoubleValue doubleValue:canonical.d] internalValue];
+  result.d = FieldValue::FromDouble(canonical.d).double_value();
   XCTAssertEqual(result.bits, canonical.bits);
 
-  result.d = [[FSTDoubleValue doubleValue:alternate.d] internalValue];
+  result.d = FieldValue::FromDouble(alternate.d).double_value();
   XCTAssertEqual(result.bits, canonical.bits);
 
   // A NaN that's canonical except it has the sign bit set (would be negative if signs mattered)
   union DoubleBits negative = {.bits = 0xfff8000000000000ULL};
-  result.d = [[FSTDoubleValue doubleValue:negative.d] internalValue];
+  result.d = FieldValue::FromDouble(negative.d).double_value();
   XCTAssertTrue(isnan(negative.d));
   XCTAssertEqual(result.bits, canonical.bits);
 
   // A signaling NaN with significand where MSB is 0, and some non-MSB bit is one.
   union DoubleBits signaling = {.bits = 0xfff4000000000000ULL};
   XCTAssertTrue(isnan(signaling.d));
-  result.d = [[FSTDoubleValue doubleValue:signaling.d] internalValue];
+  result.d = FieldValue::FromDouble(signaling.d).double_value();
   XCTAssertEqual(result.bits, canonical.bits);
 }
 
@@ -157,15 +157,15 @@ union DoubleBits {
   XCTAssertEqual(normalized.bits, negativeZero.bits);
   XCTAssertEqualObjects([NSNumber numberWithDouble:0.0], [NSNumber numberWithDouble:-0.0]);
 
-  // FSTDoubleValue preserves positive/negative zero
+  // FieldValue::FromDouble preserves positive/negative zero
   union DoubleBits result;
-  result.d = [[[FSTDoubleValue doubleValue:zero.d] value] doubleValue];
+  result.d = FieldValue::FromDouble(zero.d).double_value();
   XCTAssertEqual(result.bits, zero.bits);
-  result.d = [[[FSTDoubleValue doubleValue:negativeZero.d] value] doubleValue];
+  result.d = FieldValue::FromDouble(negativeZero.d).double_value();
   XCTAssertEqual(result.bits, negativeZero.bits);
 
   // ... but compares positive/negative zero as unequal, compatibly with Firestore.
-  XCTAssertNotEqualObjects([FSTDoubleValue doubleValue:0.0], [FSTDoubleValue doubleValue:-0.0]);
+  XCTAssertNotEqual(FieldValue::FromDouble(0.0), FieldValue::FromDouble(-0.0));
 }
 
 - (void)testExtractsFields {
@@ -289,13 +289,13 @@ union DoubleBits {
     @[ FSTTestFieldValue(@YES), FieldValue::True().Wrap() ],
     @[ FSTTestFieldValue(@NO), FieldValue::False().Wrap() ],
     @[ FSTTestFieldValue([NSNull null]), FieldValue::Null().Wrap() ],
-    @[ FSTTestFieldValue(@(0.0 / 0.0)), FSTTestFieldValue(@(NAN)), [FSTDoubleValue nanValue] ],
+    @[ FSTTestFieldValue(@(0.0 / 0.0)), FSTTestFieldValue(@(NAN)), FieldValue::Nan().Wrap() ],
     // -0.0 and 0.0 compare: the same (but are not isEqual:)
     @[ FSTTestFieldValue(@(-0.0)) ], @[ FSTTestFieldValue(@0.0) ],
     @[ FSTTestFieldValue(@1), FSTTestFieldValue(@1LL), FieldValue::FromInteger(1LL).Wrap() ],
     // double and unit64_t values can compare: the same (but won't be isEqual:)
-    @[ FSTTestFieldValue(@1.0), [FSTDoubleValue doubleValue:1.0] ],
-    @[ FSTTestFieldValue(@1.1), [FSTDoubleValue doubleValue:1.1] ],
+    @[ FSTTestFieldValue(@1.0), FieldValue::FromDouble(1.0).Wrap() ],
+    @[ FSTTestFieldValue(@1.1), FieldValue::FromDouble(1.1).Wrap() ],
     @[
       FSTTestFieldValue(FSTTestData(0, 1, 2, -1)), [FSTBlobValue blobValue:FSTTestData(0, 1, 2, -1)]
     ],

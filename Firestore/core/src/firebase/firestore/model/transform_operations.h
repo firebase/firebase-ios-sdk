@@ -267,11 +267,10 @@ class NumericIncrementTransform : public TransformOperation {
       return FieldValue::FromInteger(sum).Wrap();
     } else if (previousValue.type == FieldValue::Type::Integer) {
       double sum = previousValue.integerValue + OperandAsDouble();
-      return [FSTDoubleValue doubleValue:sum];
+      return FieldValue::FromDouble(sum).Wrap();
     } else if (previousValue.type == FieldValue::Type::Double) {
-      double sum = (static_cast<FSTDoubleValue*>(previousValue)).internalValue +
-                   OperandAsDouble();
-      return [FSTDoubleValue doubleValue:sum];
+      double sum = previousValue.doubleValue + OperandAsDouble();
+      return FieldValue::FromDouble(sum).Wrap();
     } else {
       // If the existing value is not a number, use the value of the transform
       // as the new base value.
@@ -328,7 +327,7 @@ class NumericIncrementTransform : public TransformOperation {
 
   double OperandAsDouble() const {
     if (operand_.type == FieldValue::Type::Double) {
-      return (static_cast<FSTDoubleValue*>(operand_)).internalValue;
+      return operand_.doubleValue;
     } else if (operand_.type == FieldValue::Type::Integer) {
       return operand_.integerValue;
     } else {
