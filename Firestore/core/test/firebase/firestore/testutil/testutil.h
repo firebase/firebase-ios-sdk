@@ -27,6 +27,8 @@
 #include <vector>
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
+#include "Firestore/core/src/firebase/firestore/api/document_reference.h"
+#include "Firestore/core/src/firebase/firestore/api/firestore.h"
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/core/relation_filter.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
@@ -95,18 +97,25 @@ inline model::FieldValue Value(const std::string& value) {
   return model::FieldValue::FromString(value);
 }
 
+inline model::FieldValue Value(const api::DocumentReference& value) {
+  return model::FieldValue::FromReference(value.firestore()->database_id(),
+                                          value.key());
+}
+
 inline model::FieldValue Value(const GeoPoint& value) {
   return model::FieldValue::FromGeoPoint(value);
+}
+
+template <typename... Ints>
+model::FieldValue BlobValue(Ints... octets) {
+  std::vector<uint8_t> contents{static_cast<uint8_t>(octets)...};
+  return model::FieldValue::FromBlob(contents.data(), contents.size());
 }
 
 // This overload allows Object() to appear as a value (along with any explicitly
 // constructed FieldValues).
 inline model::FieldValue Value(const model::FieldValue& value) {
   return value;
-}
-
-inline model::FieldValue ArrayValue(std::vector<model::FieldValue>&& value) {
-  return model::FieldValue::FromArray(std::move(value));
 }
 
 namespace details {
@@ -150,6 +159,16 @@ model::FieldValue::Map MakeMap(Args... key_value_pairs) {
 
 }  // namespace details
 
+inline model::FieldValue Array(const model::FieldValue::Array& value) {
+  return model::FieldValue::FromArray(value);
+}
+
+template <typename... Args>
+inline model::FieldValue Array(Args... values) {
+  model::FieldValue::Array contents{Value(values)...};
+  return model::FieldValue::FromArray(std::move(contents));
+}
+
 /** Wraps an immutable sorted map in FieldValue with Type::Object. */
 inline model::FieldValue Object(const model::FieldValue::Map& value) {
   return model::FieldValue::FromMap(value);
@@ -188,6 +207,24 @@ inline model::DocumentKey Key(absl::string_view path) {
 
 inline model::FieldPath Field(absl::string_view field) {
   return model::FieldPath::FromServerFormat(field);
+}
+
+inline model::DatabaseId DbId(std::string project, std::string database) {
+  return model::DatabaseId(std::move(project), std::move(database));
+}
+
+inline model::DatabaseId DbId(std::string project) {
+  return model::DatabaseId(std::move(project), model::DatabaseId::kDefault);
+}
+
+inline model::DatabaseId DbId() {
+  return model::DatabaseId("project", model::DatabaseId::kDefault);
+}
+
+inline api::DocumentReference Ref(absl::string_view path) {
+  static auto firestore = std::make_shared<api::Firestore>(
+      DbId(), "persistence-key", nullptr, nullptr, nullptr);
+  return api::DocumentReference(Key(path), firestore);
 }
 
 inline model::ResourcePath Resource(absl::string_view field) {
