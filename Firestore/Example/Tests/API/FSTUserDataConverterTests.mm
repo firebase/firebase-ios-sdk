@@ -141,7 +141,7 @@ union DoubleBits {
     FSTFieldValue *wrapped = FSTTestFieldValue(value);
     XCTAssertEqualObjects([wrapped class], [FSTReferenceValue class]);
     XCTAssertEqualObjects([wrapped value], [FSTDocumentKey keyWithDocumentKey:value.key]);
-    XCTAssertTrue(((FSTReferenceValue *)wrapped).databaseID == *value.databaseID);
+    XCTAssertTrue(((FSTReferenceValue *)wrapped).databaseID == value.databaseID);
     XCTAssertEqual(wrapped.type, FieldValue::Type::Reference);
   }
 }

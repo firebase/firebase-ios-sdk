@@ -58,7 +58,7 @@ NSArray *FSTWrapGroups(NSArray *groups) {
         FSTDocumentKeyReference *reference = (FSTDocumentKeyReference *)value;
         wrappedValue =
             [FSTReferenceValue referenceValue:[FSTDocumentKey keyWithDocumentKey:reference.key]
-                                   databaseID:*reference.databaseID];
+                                   databaseID:reference.databaseID];
       } else {
         wrappedValue = FSTTestFieldValue(value);
       }

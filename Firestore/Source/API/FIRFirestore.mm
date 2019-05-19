@@ -117,9 +117,8 @@ NS_ASSUME_NONNULL_BEGIN
     FSTPreConverterBlock block = ^id _Nullable(id _Nullable input) {
       if ([input isKindOfClass:[FIRDocumentReference class]]) {
         FIRDocumentReference *documentReference = (FIRDocumentReference *)input;
-        return
-            [[FSTDocumentKeyReference alloc] initWithKey:documentReference.key
-                                              databaseID:&documentReference.firestore.databaseID];
+        return [[FSTDocumentKeyReference alloc] initWithKey:documentReference.key
+                                                 databaseID:documentReference.firestore.databaseID];
       } else {
         return input;
       }

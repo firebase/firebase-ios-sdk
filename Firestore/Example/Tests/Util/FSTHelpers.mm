@@ -184,11 +184,9 @@ FSTUnknownDocument *FSTTestUnknownDoc(const absl::string_view path,
 }
 
 FSTDocumentKeyReference *FSTTestRef(std::string projectID, std::string database, NSString *path) {
-  // This owns the DatabaseIds since we do not have FirestoreClient instance to own them.
-  static std::list<DatabaseId> database_ids;
-  database_ids.emplace_back(std::move(projectID), std::move(database));
+  DatabaseId database_id{projectID, database};
   return [[FSTDocumentKeyReference alloc] initWithKey:FSTTestDocKey(path)
-                                           databaseID:&database_ids.back()];
+                                           databaseID:std::move(database_id)];
 }
 
 FSTQuery *FSTTestQuery(const absl::string_view path) {

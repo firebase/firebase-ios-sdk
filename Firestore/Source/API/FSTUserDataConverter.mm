@@ -71,19 +71,24 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTDocumentKeyReference {
   DocumentKey _key;
+  DatabaseId _databaseID;
 }
 
-- (instancetype)initWithKey:(DocumentKey)key databaseID:(const DatabaseId *)databaseID {
+- (instancetype)initWithKey:(DocumentKey)key databaseID:(DatabaseId)databaseID {
   self = [super init];
   if (self) {
     _key = std::move(key);
-    _databaseID = databaseID;
+    _databaseID = std::move(databaseID);
   }
   return self;
 }
 
-- (const firebase::firestore::model::DocumentKey &)key {
+- (const model::DocumentKey &)key {
   return _key;
+}
+
+- (const model::DatabaseId &)databaseID {
+  return _databaseID;
 }
 
 @end
@@ -455,8 +460,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   } else if ([input isKindOfClass:[FSTDocumentKeyReference class]]) {
     FSTDocumentKeyReference *reference = input;
-    if (*reference.databaseID != _databaseID) {
-      const DatabaseId &other = *reference.databaseID;
+    if (reference.databaseID != _databaseID) {
+      const DatabaseId &other = reference.databaseID;
       ThrowInvalidArgument(
           "Document Reference is for database %s/%s but should be for database %s/%s%s",
           other.project_id(), other.database_id(), _databaseID.project_id(),
