@@ -399,40 +399,27 @@ case "$product-$method-$platform" in
       "${xcb_flags[@]}" \
       build \
       test
-    ;;
-
-  Storage-xcodebuild-*)
-    RunXcodebuild \
-      -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
-      -scheme "FirebaseStorage-iOS-Unit-unit" \
-      "${ios_flags[@]}" \
-      "${xcb_flags[@]}" \
-      build \
-      test
-
-    RunXcodebuild \
-      -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
-      -scheme "FirebaseStorage-macOS-Unit-unit" \
-      "${macos_flags[@]}" \
-      "${xcb_flags[@]}" \
-      build \
-      test
-
-    RunXcodebuild \
-      -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
-      -scheme "FirebaseStorage-tvOS-Unit-unit" \
-      "${tvos_flags[@]}" \
-      "${xcb_flags[@]}" \
-      build \
-      test
 
     if [[ "$TRAVIS_PULL_REQUEST" == "false" ||
-      "$TRAVIS_PULL_REQUEST_SLUG" == "$TRAVIS_REPO_SLUG" ]]; then
-      # Integration tests are only run on iOS to minimize flake failures.
+          "TRAVIS_PULL_REQUEST_SLUG" == "$TRAVIS_REPO_SLUG" ]]; then
       RunXcodebuild \
         -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
         -scheme "FirebaseStorage-iOS-Unit-integration" \
         "${ios_flags[@]}" \
+        "${xcb_flags[@]}" \
+        build \
+        test
+      RunXcodebuild \
+        -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
+        -scheme "FirebaseStorage-macOS-Unit-integration" \
+        "${macos_flags[@]}" \
+        "${xcb_flags[@]}" \
+        build \
+        test
+      RunXcodebuild \
+        -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
+        -scheme "FirebaseStorage-tvOS-Unit-integration" \
+        "${tvos_flags[@]}" \
         "${xcb_flags[@]}" \
         build \
         test
