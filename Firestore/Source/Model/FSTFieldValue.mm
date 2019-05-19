@@ -103,6 +103,10 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
+- (int64_t)integerValue {
+  return static_cast<FSTDelegateValue *>(self).internalValue.integer_value();
+}
+
 @end
 
 #pragma mark - FSTNumberValue
@@ -123,13 +127,13 @@ NS_ASSUME_NONNULL_BEGIN
         return WrapCompare(thisDouble, ((FSTDoubleValue *)other).internalValue);
       } else {
         HARD_ASSERT(other.type == FieldValue::Type::Integer, "Unknown number value: %s", other);
-        auto result = CompareMixedNumber(thisDouble, ((FSTIntegerValue *)other).internalValue);
+        auto result = CompareMixedNumber(thisDouble, other.integerValue);
         return static_cast<NSComparisonResult>(result);
       }
     } else {
-      int64_t thisInt = ((FSTIntegerValue *)self).internalValue;
+      int64_t thisInt = self.integerValue;
       if (other.type == FieldValue::Type::Integer) {
-        return WrapCompare(thisInt, ((FSTIntegerValue *)other).internalValue);
+        return WrapCompare(thisInt, other.integerValue);
       } else {
         HARD_ASSERT(other.type == FieldValue::Type::Double, "Unknown number value: %s", other);
         double otherDouble = ((FSTDoubleValue *)other).internalValue;
@@ -139,50 +143,6 @@ NS_ASSUME_NONNULL_BEGIN
     }
   }
 }
-
-@end
-
-#pragma mark - FSTIntegerValue
-
-@interface FSTIntegerValue ()
-@property(nonatomic, assign, readonly) int64_t internalValue;
-@end
-
-@implementation FSTIntegerValue
-
-+ (instancetype)integerValue:(int64_t)value {
-  return [[FSTIntegerValue alloc] initWithValue:value];
-}
-
-- (id)initWithValue:(int64_t)value {
-  self = [super init];
-  if (self) {
-    _internalValue = value;
-  }
-  return self;
-}
-
-- (id)value {
-  return @(self.internalValue);
-}
-
-- (FieldValue::Type)type {
-  return FieldValue::Type::Integer;
-}
-
-- (BOOL)isEqual:(id)other {
-  // NOTE: DoubleValue and LongValue instances may compare: the same, but that doesn't make them
-  // equal via isEqual:
-  return [other isKindOfClass:[FSTFieldValue class]] &&
-         ((FSTFieldValue *)other).type == FieldValue::Type::Integer &&
-         self.internalValue == ((FSTIntegerValue *)other).internalValue;
-}
-
-- (NSUInteger)hash {
-  return (((NSUInteger)self.internalValue) ^ (NSUInteger)(self.internalValue >> 32));
-}
-
-// NOTE: compare: is implemented in NumberValue.
 
 @end
 
@@ -918,6 +878,7 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
     case FieldValue::Type::Boolean:
       return self.internalValue.boolean_value() ? @YES : @NO;
     case FieldValue::Type::Integer:
+      return @(self.internalValue.integer_value());
     case FieldValue::Type::Double:
     case FieldValue::Type::Timestamp:
     case FieldValue::Type::ServerTimestamp:

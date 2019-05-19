@@ -41,7 +41,7 @@ using firebase::firestore::model::FieldValue;
   ];
   for (id value in values) {
     FSTFieldValue *wrapped = FSTTestFieldValue(value);
-    XCTAssertEqualObjects([wrapped class], [FSTIntegerValue class]);
+    XCTAssertEqualObjects([wrapped class], [FSTDelegateValue class]);
     XCTAssertEqualObjects([wrapped value], @([value longLongValue]));
     XCTAssertEqual(wrapped.type, FieldValue::Type::Integer);
   }
@@ -82,7 +82,7 @@ using firebase::firestore::model::FieldValue;
   // Unsigned chars could conceivably be handled consistently with signed chars but on arm64 these
   // end up being stored as signed shorts.
   FSTFieldValue *wrapped = FSTTestFieldValue([NSNumber numberWithUnsignedChar:1]);
-  XCTAssertEqualObjects(wrapped, [FSTIntegerValue integerValue:1]);
+  XCTAssertEqualObjects(wrapped, FieldValue::FromInteger(1).Wrap());
 }
 
 union DoubleBits {
@@ -156,7 +156,7 @@ union DoubleBits {
       FSTTestObjectValue(@{@"a" : @"foo", @"b" : @(1L), @"c" : @YES, @"d" : [NSNull null]});
   FSTObjectValue *expected = [[FSTObjectValue alloc] initWithDictionary:@{
     @"a" : FieldValue::FromString("foo").Wrap(),
-    @"b" : [FSTIntegerValue integerValue:1LL],
+    @"b" : FieldValue::FromInteger(1).Wrap(),
     @"c" : FieldValue::True().Wrap(),
     @"d" : FieldValue::Null().Wrap()
   }];

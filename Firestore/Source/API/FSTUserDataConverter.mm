@@ -385,7 +385,7 @@ NS_ASSUME_NONNULL_BEGIN
     // Articles/ocrtTypeEncodings.html
     switch (cType[0]) {
       case 'q':
-        return [FSTIntegerValue integerValue:[input longLongValue]];
+        return FieldValue::FromInteger([input longLongValue]).Wrap();
 
       case 'i':  // Falls through.
       case 's':  // Falls through.
@@ -394,7 +394,7 @@ NS_ASSUME_NONNULL_BEGIN
       case 'S':
         // Coerce integer values that aren't long long. Allow unsigned integer types that are
         // guaranteed small enough to skip a length check.
-        return [FSTIntegerValue integerValue:[input longLongValue]];
+        return FieldValue::FromInteger([input longLongValue]).Wrap();
 
       case 'L':  // Falls through.
       case 'Q':
@@ -408,7 +408,7 @@ NS_ASSUME_NONNULL_BEGIN
                                  context.FieldDescription());
 
           } else {
-            return [FSTIntegerValue integerValue:(int64_t)extended];
+            return FieldValue::FromInteger(static_cast<int64_t>(extended)).Wrap();
           }
         }
 

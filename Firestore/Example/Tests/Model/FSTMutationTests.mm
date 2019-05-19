@@ -422,7 +422,7 @@ using firebase::firestore::model::TransformOperation;
 
   FSTMutationResult *mutationResult =
       [[FSTMutationResult alloc] initWithVersion:testutil::Version(1)
-                                transformResults:@[ [FSTIntegerValue integerValue:3] ]];
+                                transformResults:@[ FieldValue::FromInteger(3).Wrap() ]];
 
   FSTMaybeDocument *transformedDoc = [transform applyToRemoteDocument:baseDoc
                                                        mutationResult:mutationResult];

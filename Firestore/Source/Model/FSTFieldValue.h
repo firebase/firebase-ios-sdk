@@ -94,6 +94,9 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
 /** Compares against another FSTFieldValue. */
 - (NSComparisonResult)compare:(FSTFieldValue *)other;
 
+/** Accesses this FSTFieldValue as an integer. */
+- (int64_t)integerValue;
+
 @end
 
 /**
@@ -101,14 +104,6 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
  * comparisons between the two types.
  */
 @interface FSTNumberValue : FSTFieldValue <NSNumber *>
-@end
-
-/**
- * An integer value stored in Firestore.
- */
-@interface FSTIntegerValue : FSTNumberValue
-+ (instancetype)integerValue:(int64_t)value;
-- (int64_t)internalValue;
 @end
 
 /**

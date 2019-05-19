@@ -248,7 +248,7 @@ NS_ASSUME_NONNULL_BEGIN
       return FieldValue::FromBoolean(valueProto.booleanValue).Wrap();
 
     case GCFSValue_ValueType_OneOfCase_IntegerValue:
-      return [FSTIntegerValue integerValue:valueProto.integerValue];
+      return FieldValue::FromInteger(valueProto.integerValue).Wrap();
 
     case GCFSValue_ValueType_OneOfCase_DoubleValue:
       return [FSTDoubleValue doubleValue:valueProto.doubleValue];

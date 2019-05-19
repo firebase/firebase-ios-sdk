@@ -262,14 +262,11 @@ class NumericIncrementTransform : public TransformOperation {
     // integer.
     if (previousValue.type == FieldValue::Type::Integer &&
         operand_.type == FieldValue::Type::Integer) {
-      int64_t sum = SafeIncrement(
-          (static_cast<FSTIntegerValue*>(previousValue)).internalValue,
-          (static_cast<FSTIntegerValue*>(operand_)).internalValue);
-      return [FSTIntegerValue integerValue:sum];
+      int64_t sum =
+          SafeIncrement(previousValue.integerValue, operand_.integerValue);
+      return FieldValue::FromInteger(sum).Wrap();
     } else if (previousValue.type == FieldValue::Type::Integer) {
-      double sum =
-          (static_cast<FSTIntegerValue*>(previousValue)).internalValue +
-          OperandAsDouble();
+      double sum = previousValue.integerValue + OperandAsDouble();
       return [FSTDoubleValue doubleValue:sum];
     } else if (previousValue.type == FieldValue::Type::Double) {
       double sum = (static_cast<FSTDoubleValue*>(previousValue)).internalValue +
@@ -333,7 +330,7 @@ class NumericIncrementTransform : public TransformOperation {
     if (operand_.type == FieldValue::Type::Double) {
       return (static_cast<FSTDoubleValue*>(operand_)).internalValue;
     } else if (operand_.type == FieldValue::Type::Integer) {
-      return (static_cast<FSTIntegerValue*>(operand_)).internalValue;
+      return operand_.integerValue;
     } else {
       HARD_FAIL("Expected 'operand' to be of FSTNumerValue type, but was %s",
                 NSStringFromClass([operand_ class]));

@@ -292,7 +292,7 @@ union DoubleBits {
     @[ FSTTestFieldValue(@(0.0 / 0.0)), FSTTestFieldValue(@(NAN)), [FSTDoubleValue nanValue] ],
     // -0.0 and 0.0 compare: the same (but are not isEqual:)
     @[ FSTTestFieldValue(@(-0.0)) ], @[ FSTTestFieldValue(@0.0) ],
-    @[ FSTTestFieldValue(@1), FSTTestFieldValue(@1LL), [FSTIntegerValue integerValue:1LL] ],
+    @[ FSTTestFieldValue(@1), FSTTestFieldValue(@1LL), FieldValue::FromInteger(1LL).Wrap() ],
     // double and unit64_t values can compare: the same (but won't be isEqual:)
     @[ FSTTestFieldValue(@1.0), [FSTDoubleValue doubleValue:1.0] ],
     @[ FSTTestFieldValue(@1.1), [FSTDoubleValue doubleValue:1.1] ],

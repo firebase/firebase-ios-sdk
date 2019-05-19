@@ -161,7 +161,6 @@ OBJC_PRINT_TO(FSTFilter);
 OBJC_PRINT_TO(FSTFirestoreClient);
 OBJC_PRINT_TO(FSTFirestoreComponent);
 OBJC_PRINT_TO(FSTGeoPointValue);
-OBJC_PRINT_TO(FSTIntegerValue);
 OBJC_PRINT_TO(FSTLRUGarbageCollector);
 OBJC_PRINT_TO(FSTLevelDB);
 OBJC_PRINT_TO(FSTLevelDBLRUDelegate);
