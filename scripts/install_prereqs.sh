@@ -70,7 +70,9 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     # Install the workspace to have better control over test runs than
     # pod lib lint, since the integration tests can be flaky.
     bundle exec pod gen FirebaseStorage.podspec --local-sources=./
-    install_secrets
+    if [[ $METHOD = "integration" ]]; then
+      install_secrets
+    fi
     ;;
 
   InAppMessaging-iOS-xcodebuild)
