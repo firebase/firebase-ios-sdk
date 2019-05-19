@@ -406,30 +406,31 @@ case "$product-$method-$platform" in
       "${xcb_flags[@]}" \
       build \
       test
-    ;;
 
-  Storage-integration-*)
-    RunXcodebuild \
-      -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
-      -scheme "FirebaseStorage-iOS-Unit-integration" \
-      "${ios_flags[@]}" \
-      "${xcb_flags[@]}" \
-      build \
-      test
-    RunXcodebuild \
-      -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
-      -scheme "FirebaseStorage-macOS-Unit-integration" \
-      "${macos_flags[@]}" \
-      "${xcb_flags[@]}" \
-      build \
-      test
-    RunXcodebuild \
-      -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
-      -scheme "FirebaseStorage-tvOS-Unit-integration" \
-      "${tvos_flags[@]}" \
-      "${xcb_flags[@]}" \
-      build \
-      test
+    if [[ "$TRAVIS_PULL_REQUEST" == "false" ||
+          "TRAVIS_PULL_REQUEST_SLUG" == "$TRAVIS_REPO_SLUG" ]]; then
+      RunXcodebuild \
+        -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
+        -scheme "FirebaseStorage-iOS-Unit-integration" \
+        "${ios_flags[@]}" \
+        "${xcb_flags[@]}" \
+        build \
+        test
+      RunXcodebuild \
+        -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
+        -scheme "FirebaseStorage-macOS-Unit-integration" \
+        "${macos_flags[@]}" \
+        "${xcb_flags[@]}" \
+        build \
+        test
+      RunXcodebuild \
+        -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
+        -scheme "FirebaseStorage-tvOS-Unit-integration" \
+        "${tvos_flags[@]}" \
+        "${xcb_flags[@]}" \
+        build \
+        test
+      fi
     ;;
   *)
     echo "Don't know how to build this product-platform-method combination" 1>&2

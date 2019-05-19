@@ -160,7 +160,7 @@ fi
 
 # Show Travis-related environment variables, to help with debuging failures.
 if [[ "${VERBOSE}" == true ]]; then
-  env | egrep '^TRAVIS_(BRANCH|COMMIT|PULL)' | sort || true
+  env | egrep '^TRAVIS_(BRANCH|COMMIT|PULL|REPO)' | sort || true
 fi
 
 # When travis clones a repo for building, it uses a shallow clone. When

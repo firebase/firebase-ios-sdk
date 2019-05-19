@@ -55,16 +55,6 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseStorage.podspec --use-libraries --skip-tests
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseStorage.podspec --use-modular-headers --skip-tests
 
-    # The Storage integration tests cannot handle the parallelism of being run from pod lib lint.
-    - stage: test
-      if: fork = false
-      env:
-        - PROJECT=Storage PLATFORM=all METHOD=integration
-      before_install:
-        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
-      script:
-        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
-
     - stage: test
       env:
         - PROJECT=Functions PLATFORM=iOS METHOD=pod-lib-lint
