@@ -102,15 +102,15 @@ tvos_flags=(
 # Compute standard flags for all platforms
 case "$platform" in
   iOS)
-    xcb_flags=("${ios_flags[@]}")
+    xcb_flags="${ios_flags[@]}"
     ;;
 
   macOS)
-    xcb_flags=("${macos_flags[@]}")
+    xcb_flags="${macos_flags[@]}"
     ;;
 
   tvOS)
-    xcb_flags=("${tvos_flags[@]}")
+    xcb_flags="${tvos_flags[@]}"
     ;;
 
   all)
