@@ -242,7 +242,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTFieldValue *)decodedFieldValue:(GCFSValue *)valueProto {
   switch (valueProto.valueTypeOneOfCase) {
     case GCFSValue_ValueType_OneOfCase_NullValue:
-      return [FSTNullValue nullValue];
+      return FieldValue::Null().Wrap();
 
     case GCFSValue_ValueType_OneOfCase_BooleanValue:
       return FieldValue::FromBoolean(valueProto.booleanValue).Wrap();

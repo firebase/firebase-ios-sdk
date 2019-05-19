@@ -289,7 +289,7 @@ NS_ASSUME_NONNULL_BEGIN
     FSTFieldValue *_Nullable parsedEntry = [self parseData:entry context:context.ChildContext(idx)];
     if (!parsedEntry) {
       // Just include nulls in the array for fields being replaced with a sentinel.
-      parsedEntry = [FSTNullValue nullValue];
+      parsedEntry = FieldValue::Null().Wrap();
     }
     [result addObject:parsedEntry];
   }];
@@ -373,7 +373,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (nullable FSTFieldValue *)parseScalarValue:(nullable id)input context:(ParseContext &&)context {
   if (!input || [input isMemberOfClass:[NSNull class]]) {
-    return [FSTNullValue nullValue];
+    return FieldValue::Null().Wrap();
 
   } else if ([input isKindOfClass:[NSNumber class]]) {
     // Recover the underlying type of the number, using the method described here:

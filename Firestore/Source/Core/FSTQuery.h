@@ -37,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Creates a filter for the provided path, operator, and value.
  *
  * Note that if the relational operator is Filter::Operator::Equal and
- * the value is [FSTNullValue nullValue] or [FSTDoubleValue nanValue], this
+ * the value is FieldValue::Null() or [FSTDoubleValue nanValue], this
  * will return the appropriate FSTNullFilter or FSTNanFilter class instead of a
  * FSTRelationFilter.
  */

@@ -288,7 +288,7 @@ union DoubleBits {
   NSArray *groups = @[
     @[ FSTTestFieldValue(@YES), FieldValue::True().Wrap() ],
     @[ FSTTestFieldValue(@NO), FieldValue::False().Wrap() ],
-    @[ FSTTestFieldValue([NSNull null]), [FSTNullValue nullValue] ],
+    @[ FSTTestFieldValue([NSNull null]), FieldValue::Null().Wrap() ],
     @[ FSTTestFieldValue(@(0.0 / 0.0)), FSTTestFieldValue(@(NAN)), [FSTDoubleValue nanValue] ],
     // -0.0 and 0.0 compare: the same (but are not isEqual:)
     @[ FSTTestFieldValue(@(-0.0)) ], @[ FSTTestFieldValue(@0.0) ],

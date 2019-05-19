@@ -105,50 +105,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-#pragma mark - FSTNullValue
-
-@implementation FSTNullValue
-
-+ (instancetype)nullValue {
-  static FSTNullValue *sharedInstance = nil;
-  static dispatch_once_t onceToken;
-
-  dispatch_once(&onceToken, ^{
-    sharedInstance = [[FSTNullValue alloc] init];
-  });
-  return sharedInstance;
-}
-
-- (FieldValue::Type)type {
-  return FieldValue::Type::Null;
-}
-
-- (FSTTypeOrder)typeOrder {
-  return FSTTypeOrderNull;
-}
-
-- (id)value {
-  return [NSNull null];
-}
-
-- (BOOL)isEqual:(id)other {
-  return [other isKindOfClass:[self class]];
-}
-
-- (NSUInteger)hash {
-  return 47;
-}
-
-- (NSComparisonResult)compare:(FSTFieldValue *)other {
-  if ([other isKindOfClass:[self class]]) {
-    return NSOrderedSame;
-  } else {
-    return [self defaultCompare:other];
-  }
-}
-
-@end
-
 #pragma mark - FSTNumberValue
 
 @implementation FSTNumberValue
@@ -958,7 +914,7 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
 - (id)value {
   switch (self.internalValue.type()) {
     case FieldValue::Type::Null:
-      HARD_FAIL("TODO(rsgowman): implement");
+      return [NSNull null];
     case FieldValue::Type::Boolean:
       return self.internalValue.boolean_value() ? @YES : @NO;
     case FieldValue::Type::Integer:

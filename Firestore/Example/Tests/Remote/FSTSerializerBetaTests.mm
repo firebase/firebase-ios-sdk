@@ -146,7 +146,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesNull {
-  FSTFieldValue *model = [FSTNullValue nullValue];
+  FSTFieldValue *model = FieldValue::Null().Wrap();
 
   GCFSValue *proto = [GCFSValue message];
   proto.nullValue = GPBNullValue_NullValue;

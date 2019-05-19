@@ -63,10 +63,10 @@ using firebase::firestore::model::FieldValue;
 }
 
 - (void)testConvertsNilAndNSNull {
-  FSTNullValue *nullValue = [FSTNullValue nullValue];
-  XCTAssertEqual(FSTTestFieldValue(nil), nullValue);
-  XCTAssertEqual(FSTTestFieldValue([NSNull null]), nullValue);
-  XCTAssertEqual([nullValue value], [NSNull null]);
+  FSTFieldValue *nullValue = FieldValue::Null().Wrap();
+  XCTAssertEqualObjects(FSTTestFieldValue(nil), nullValue);
+  XCTAssertEqualObjects(FSTTestFieldValue([NSNull null]), nullValue);
+  XCTAssertEqualObjects([nullValue value], [NSNull null]);
   XCTAssertEqual(nullValue.type, FieldValue::Type::Null);
 }
 
@@ -158,7 +158,7 @@ union DoubleBits {
     @"a" : FieldValue::FromString("foo").Wrap(),
     @"b" : [FSTIntegerValue integerValue:1LL],
     @"c" : FieldValue::True().Wrap(),
-    @"d" : [FSTNullValue nullValue]
+    @"d" : FieldValue::Null().Wrap()
   }];
   XCTAssertEqualObjects(actual, expected);
   XCTAssertEqual(actual.type, FieldValue::Type::Object);

@@ -76,7 +76,7 @@ NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
 + (instancetype)filterWithField:(const FieldPath &)field
                  filterOperator:(Filter::Operator)op
                           value:(FSTFieldValue *)value {
-  if ([value isEqual:[FSTNullValue nullValue]]) {
+  if (value.type == FieldValue::Type::Null) {
     if (op != Filter::Operator::Equal) {
       ThrowInvalidArgument("Invalid Query. Nil and NSNull only support equality comparisons.");
     }
@@ -268,7 +268,7 @@ NSString *FSTStringFromQueryRelationOperator(Filter::Operator filterOperator) {
 
 - (BOOL)matchesDocument:(FSTDocument *)document {
   FSTFieldValue *fieldValue = [document fieldForPath:self.field];
-  return fieldValue != nil && [fieldValue isEqual:[FSTNullValue nullValue]];
+  return fieldValue != nil && fieldValue.type == FieldValue::Type::Null;
 }
 
 - (NSString *)canonicalID {

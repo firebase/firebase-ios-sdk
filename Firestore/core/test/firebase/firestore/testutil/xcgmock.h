@@ -182,7 +182,6 @@ OBJC_PRINT_TO(FSTMutationBatchResult);
 OBJC_PRINT_TO(FSTMutationResult);
 OBJC_PRINT_TO(FSTNanFilter);
 OBJC_PRINT_TO(FSTNullFilter);
-OBJC_PRINT_TO(FSTNullValue);
 OBJC_PRINT_TO(FSTNumberValue);
 OBJC_PRINT_TO(FSTNumericIncrementFieldValue);
 OBJC_PRINT_TO(FSTObjectValue);

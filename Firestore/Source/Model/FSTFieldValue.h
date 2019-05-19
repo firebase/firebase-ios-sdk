@@ -97,13 +97,6 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
 @end
 
 /**
- * A null value stored in Firestore. The |value| of a FSTNullValue is [NSNull null].
- */
-@interface FSTNullValue : FSTFieldValue <NSNull *>
-+ (instancetype)nullValue;
-@end
-
-/**
  * Base class inherited from by FSTIntegerValue and FSTDoubleValue. It implements proper number
  * comparisons between the two types.
  */
