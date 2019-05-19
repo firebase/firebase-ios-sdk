@@ -401,7 +401,7 @@ case "$product-$method-$platform" in
       test
 
     if [[ "$TRAVIS_PULL_REQUEST" == "false" ||
-          "TRAVIS_PULL_REQUEST_SLUG" == "$TRAVIS_REPO_SLUG" ]]; then
+          "$TRAVIS_PULL_REQUEST_SLUG" == "$TRAVIS_REPO_SLUG" ]]; then
       RunXcodebuild \
         -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
         -scheme "FirebaseStorage-iOS-Unit-integration" \
