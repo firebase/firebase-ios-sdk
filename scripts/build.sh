@@ -210,13 +210,6 @@ case "$product-$method-$platform" in
 
         RunXcodebuild \
           -workspace 'Example/Firebase.xcworkspace' \
-          -scheme "Storage_IntegrationTests_iOS" \
-          "${xcb_flags[@]}" \
-          build \
-          test
-
-        RunXcodebuild \
-          -workspace 'Example/Firebase.xcworkspace' \
           -scheme "Database_IntegrationTests_iOS" \
           "${xcb_flags[@]}" \
           build \
