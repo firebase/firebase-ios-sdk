@@ -285,6 +285,10 @@ NS_ASSUME_NONNULL_BEGIN
   return util::LogIsLoggable(util::kLogLevelDebug);
 }
 
+- (void)clearPersistenceWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
+  _firestore->ClearPersistence(util::MakeCallback(completion));
+}
+
 + (FIRFirestore *)recoverFromFirestore:(std::shared_ptr<Firestore>)firestore {
   return (__bridge FIRFirestore *)firestore->extension();
 }

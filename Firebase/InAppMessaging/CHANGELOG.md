@@ -1,3 +1,7 @@
+# 2019-05-21 -- v0.14.1
+- Fixed an issue with messages not showing up from custom analytics event trigger (#2981).
+- Fixed crash from sending analytics events with no instance ID (#2988).
+
 # 2019-03-05 -- v0.13.0
 - Added a feature allowing developers to programmatically register a delegate for updates on in-app engagement (impression, click, display errors).
 

@@ -16,6 +16,7 @@
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
+#import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRLogger.h>
 #import <FirebaseCore/FIROptions.h>
 #import <FirebaseFirestore/FIRCollectionReference.h>
@@ -212,6 +213,11 @@ static bool runningAgainstEmulator = false;
 }
 
 - (FIRFirestore *)firestoreWithProjectID:(NSString *)projectID {
+  FIRApp *app = AppForUnitTesting(util::MakeString(projectID));
+  return [self firestoreWithApp:app];
+}
+
+- (FIRFirestore *)firestoreWithApp:(FIRApp *)app {
   NSString *persistenceKey = [NSString stringWithFormat:@"db%lu", (unsigned long)_firestores.count];
 
   dispatch_queue_t queue =
@@ -221,10 +227,9 @@ static bool runningAgainstEmulator = false;
 
   FIRSetLoggerLevel(FIRLoggerLevelDebug);
 
-  FIRApp *app = AppForUnitTesting();
   std::unique_ptr<CredentialsProvider> credentials_provider =
       absl::make_unique<firebase::firestore::auth::EmptyCredentialsProvider>();
-
+  NSString *projectID = app.options.projectID;
   FIRFirestore *firestore = [[FIRFirestore alloc] initWithProjectID:util::MakeString(projectID)
                                                            database:DatabaseId::kDefault
                                                      persistenceKey:util::MakeString(persistenceKey)
@@ -233,9 +238,7 @@ static bool runningAgainstEmulator = false;
                                                         firebaseApp:app];
 
   firestore.settings = [FSTIntegrationTestCase settings];
-
   [_firestores addObject:firestore];
-
   return firestore;
 }
 
@@ -287,6 +290,15 @@ static bool runningAgainstEmulator = false;
 
 - (void)shutdownFirestore:(FIRFirestore *)firestore {
   [firestore shutdownWithCompletion:[self completionForExpectationWithName:@"shutdown"]];
+  [self awaitExpectations];
+}
+
+- (void)deleteApp:(FIRApp *)app {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"Delete app"];
+  [app deleteApp:^(BOOL completion) {
+    XCTAssertTrue(completion);
+    [expectation fulfill];
+  }];
   [self awaitExpectations];
 }
 

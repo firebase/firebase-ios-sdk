@@ -22,7 +22,7 @@ function usage() {
 USAGE: scripts/check.sh [--allow-dirty] [--commit] [<revision>]
 
 Runs auto-formatting scripts, source-tree checks, and linters on any files that
-have changed since master.
+have changed since origin/master.
 
 By default, any changes are left as uncommited changes in the working tree. You
 can review them with git diff. Pass --commit to automatically commit any changes.
@@ -50,18 +50,18 @@ OPTIONS:
     Run all checks without making any changes to local files.
 
   <revision>
-    Specifies a starting revision other than the default of master.
+    Specifies a starting revision other than the default of origin/master.
 
 
 EXAMPLES:
 
   check.sh
-    Runs automated checks and formatters on all changed files since master.
-    Check for changes with git diff.
+    Runs automated checks and formatters on all changed files since
+    origin/master. Check for changes with git diff.
 
   check.sh --commit
-    Runs automated checks and formatters on all changed files since master and
-    commits the results.
+    Runs automated checks and formatters on all changed files since
+    origin/master and commits the results.
 
   check.sh --amend HEAD
     Runs automated checks and formatters on all changed files since the last
@@ -84,7 +84,7 @@ cd "${top_dir}"
 
 ALLOW_DIRTY=false
 COMMIT_METHOD="none"
-START_REVISION="master"
+START_REVISION="origin/master"
 TEST_ONLY=false
 VERBOSE=false
 
@@ -163,29 +163,19 @@ if [[ "${VERBOSE}" == true ]]; then
   env | egrep '^TRAVIS_(BRANCH|COMMIT|PULL)' | sort || true
 fi
 
-# When travis clones a repo for building, it uses a shallow clone. When
-# building a branch it can sometimes give a revision range that refers to
-# commits that don't exist in the shallow clone. This has been observed in a
-# branch build where the branch only has a single commit. The cause of this
-# behavior is unclear but as a workaround ...
-if [[ "${START_REVISION}" == *..* ]]; then
-  RANGE_START="${START_REVISION/..*/}"
-  RANGE_END="${START_REVISION/*../}"
+# When travis clones a repo for building, it uses a shallow clone. After the
+# first commit on a non-master branch, TRAVIS_COMMIT_RANGE is not set and
+# START_REVISION is "master" instead of a range.
 
-  # Figure out if we have access to master. If not add it to the repo.
+# If needed, check if we have access to master and add it to the repo.
+if [[ "${START_REVISION}" == "origin/master" ]]; then
   if ! git rev-parse origin/master >& /dev/null; then
     git remote set-branches --add origin master
     git fetch origin
   fi
-
-  NEW_RANGE_START=$(git merge-base origin/master "${RANGE_END}")
-  START_REVISION="${START_REVISION/$RANGE_START/$NEW_RANGE_START}"
-
-  START_SHA="${START_REVISION}"
-
-else
-  START_SHA=$(git rev-parse "${START_REVISION}")
 fi
+
+START_SHA=$(git rev-parse "${START_REVISION}")
 
 if [[ "${VERBOSE}" == true ]]; then
   echo "START_REVISION=$START_REVISION"

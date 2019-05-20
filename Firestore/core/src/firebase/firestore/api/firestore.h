@@ -26,6 +26,7 @@
 
 #include "Firestore/core/src/firebase/firestore/api/settings.h"
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
+#include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/core/transaction.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/objc/objc_class.h"
@@ -90,12 +91,14 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
                       core::TransactionResultCallback result_callback);
 
   void Shutdown(util::StatusCallback callback);
+  void ClearPersistence(util::StatusCallback callback);
 
   void EnableNetwork(util::StatusCallback callback);
   void DisableNetwork(util::StatusCallback callback);
 
  private:
   void EnsureClientConfigured();
+  core::DatabaseInfo MakeDatabaseInfo() const;
 
   model::DatabaseId database_id_;
   std::unique_ptr<auth::CredentialsProvider> credentials_provider_;

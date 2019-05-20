@@ -63,7 +63,7 @@ constexpr int kMaxPendingWrites = 10;
 RemoteStore::RemoteStore(
     FSTLocalStore* local_store,
     std::shared_ptr<Datastore> datastore,
-    AsyncQueue* worker_queue,
+    const std::shared_ptr<AsyncQueue>& worker_queue,
     std::function<void(model::OnlineState)> online_state_handler)
     : local_store_{local_store},
       datastore_{std::move(datastore)},

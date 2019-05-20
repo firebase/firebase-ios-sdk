@@ -128,7 +128,7 @@
                      campaignName:(NSString *)campaignName
               renderAsTestMessage:(BOOL)renderAsTestMessage
                       triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
-                        imageData:(FIRInAppMessagingImageData *)imageData
+                        imageData:(nullable FIRInAppMessagingImageData *)imageData
                         actionURL:(nullable NSURL *)actionURL {
   if (self = [super initWithMessageID:messageID
                          campaignName:campaignName

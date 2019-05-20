@@ -15,7 +15,6 @@
  */
 
 #import "GDTLibrary/Private/GDTUploadCoordinator.h"
-#import "GDTLibrary/Private/GDTUploadCoordinator_Private.h"
 
 #import <GoogleDataTransport/GDTClock.h>
 
@@ -45,6 +44,7 @@
     _registrar = [GDTRegistrar sharedInstance];
     _timerInterval = 30 * NSEC_PER_SEC;
     _timerLeeway = 5 * NSEC_PER_SEC;
+    _targetToInFlightPackages = [[NSMutableDictionary alloc] init];
   }
   return self;
 }
@@ -104,10 +104,16 @@
 - (void)uploadTargets:(NSArray<NSNumber *> *)targets conditions:(GDTUploadConditions)conditions {
   dispatch_async(_coordinationQueue, ^{
     for (NSNumber *target in targets) {
+      // Don't trigger uploads for targets that have an in-flight package already.
+      if (self->_targetToInFlightPackages[target]) {
+        continue;
+      }
+      // Ask the uploader if they can upload and do so, if it can.
       id<GDTUploader> uploader = self.registrar.targetToUploader[target];
       if ([uploader readyToUploadWithConditions:conditions]) {
         id<GDTPrioritizer> prioritizer = self.registrar.targetToPrioritizer[target];
         GDTUploadPackage *package = [prioritizer uploadPackageWithConditions:conditions];
+        self->_targetToInFlightPackages[target] = package;
         [uploader uploadPackage:package];
       }
     }
@@ -157,15 +163,26 @@
 
 #pragma mark - NSSecureCoding support
 
+/** The NSKeyedCoder key for the targetToInFlightPackages property. */
+static NSString *const ktargetToInFlightPackagesKey =
+    @"GDTUploadCoordinatortargetToInFlightPackages";
+
 + (BOOL)supportsSecureCoding {
   return YES;
 }
 
 - (instancetype)initWithCoder:(NSCoder *)aDecoder {
-  return [GDTUploadCoordinator sharedInstance];
+  GDTUploadCoordinator *sharedCoordinator = [GDTUploadCoordinator sharedInstance];
+  sharedCoordinator->_targetToInFlightPackages =
+      [aDecoder decodeObjectOfClass:[NSMutableDictionary class]
+                             forKey:ktargetToInFlightPackagesKey];
+  return sharedCoordinator;
 }
 
 - (void)encodeWithCoder:(NSCoder *)aCoder {
+  // All packages that have been given to uploaders need to be tracked so that their expiration
+  // timers can be called.
+  [aCoder encodeObject:_targetToInFlightPackages forKey:ktargetToInFlightPackagesKey];
 }
 
 #pragma mark - GDTLifecycleProtocol
@@ -203,6 +220,7 @@
 - (void)packageDelivered:(GDTUploadPackage *)package successful:(BOOL)successful {
   dispatch_async(_coordinationQueue, ^{
     NSNumber *targetNumber = @(package.target);
+    [self->_targetToInFlightPackages removeObjectForKey:targetNumber];
     id<GDTPrioritizer> prioritizer = self->_registrar.targetToPrioritizer[targetNumber];
     NSAssert(prioritizer, @"A prioritizer should be registered for this target: %@", targetNumber);
     if ([prioritizer respondsToSelector:@selector(packageDelivered:successful:)]) {
@@ -215,6 +233,7 @@
 - (void)packageExpired:(GDTUploadPackage *)package {
   dispatch_async(_coordinationQueue, ^{
     NSNumber *targetNumber = @(package.target);
+    [self->_targetToInFlightPackages removeObjectForKey:targetNumber];
     id<GDTPrioritizer> prioritizer = self->_registrar.targetToPrioritizer[targetNumber];
     id<GDTUploader> uploader = self->_registrar.targetToUploader[targetNumber];
     if ([prioritizer respondsToSelector:@selector(packageExpired:)]) {

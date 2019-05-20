@@ -331,8 +331,6 @@ jobs:
     - env:
       - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=tsan
     - env:
-      - PROJECT=InAppMessaging PLATFORM=iOS METHOD=xcodebuild
-    - env:
       - PROJECT=GoogleDataTransportIntegrationTest PLATFORM=iOS METHOD=xcodebuild
 
   # TODO(varconst): enable if it's possible to make this flag work on build

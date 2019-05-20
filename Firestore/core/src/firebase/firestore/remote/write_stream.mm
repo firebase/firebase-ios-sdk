@@ -32,7 +32,7 @@ using util::AsyncQueue;
 using util::TimerId;
 using util::Status;
 
-WriteStream::WriteStream(AsyncQueue* async_queue,
+WriteStream::WriteStream(const std::shared_ptr<AsyncQueue>& async_queue,
                          CredentialsProvider* credentials_provider,
                          FSTSerializerBeta* serializer,
                          GrpcConnection* grpc_connection,

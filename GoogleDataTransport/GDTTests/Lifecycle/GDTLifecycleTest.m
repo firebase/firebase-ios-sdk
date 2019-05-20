@@ -22,7 +22,7 @@
 
 #import "GDTLibrary/Private/GDTStorage_Private.h"
 #import "GDTLibrary/Private/GDTTransformer_Private.h"
-#import "GDTLibrary/Private/GDTUploadCoordinator_Private.h"
+#import "GDTLibrary/Private/GDTUploadCoordinator.h"
 
 #import "GDTTests/Lifecycle/Helpers/GDTLifecycleTestPrioritizer.h"
 #import "GDTTests/Lifecycle/Helpers/GDTLifecycleTestUploader.h"

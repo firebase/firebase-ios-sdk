@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseFirestore/FirebaseFirestore.h>
 
 #import <XCTest/XCTest.h>
@@ -1238,6 +1239,85 @@ using firebase::firestore::util::TimerId;
         }];
       },
       NSException, @"The client has already been shutdown.");
+}
+
+- (void)testMaintainsPersistenceAfterRestarting {
+  FIRDocumentReference *doc = [self documentRef];
+  FIRFirestore *firestore = doc.firestore;
+  FIRApp *app = firestore.app;
+  NSString *appName = app.name;
+  FIROptions *options = app.options;
+
+  NSDictionary<NSString *, id> *initialData = @{@"foo" : @"42"};
+  [self writeDocumentRef:doc data:initialData];
+
+  // -clearPersistence() requires Firestore to be shut down. Shutdown FIRApp and remove the
+  // firestore instance to emulate the way an end user would do this.
+  [self shutdownFirestore:firestore];
+  [self.firestores removeObject:firestore];
+  [self deleteApp:app];
+
+  // We restart the app with the same name and options to check that the previous instance's
+  // persistent storage persists its data after restarting. Calling [self firestore] here would
+  // create a new instance of firestore, which defeats the purpose of this test.
+  [FIRApp configureWithName:appName options:options];
+  FIRApp *app2 = [FIRApp appNamed:appName];
+  FIRFirestore *firestore2 = [self firestoreWithApp:app2];
+  FIRDocumentReference *docRef2 = [firestore2 documentWithPath:doc.path];
+  FIRDocumentSnapshot *snap = [self readDocumentForRef:docRef2 source:FIRFirestoreSourceCache];
+  XCTAssertTrue(snap.exists);
+}
+
+- (void)testCanClearPersistenceAfterRestarting {
+  FIRDocumentReference *doc = [self documentRef];
+  FIRFirestore *firestore = doc.firestore;
+  FIRApp *app = firestore.app;
+  NSString *appName = app.name;
+  FIROptions *options = app.options;
+
+  NSDictionary<NSString *, id> *initialData = @{@"foo" : @"42"};
+  [self writeDocumentRef:doc data:initialData];
+
+  // -clearPersistence() requires Firestore to be shut down. Shutdown FIRApp and remove the
+  // firestore instance to emulate the way an end user would do this.
+  [self shutdownFirestore:firestore];
+  [self.firestores removeObject:firestore];
+  [firestore
+      clearPersistenceWithCompletion:[self completionForExpectationWithName:@"Enable network"]];
+  [self awaitExpectations];
+  [self deleteApp:app];
+
+  // We restart the app with the same name and options to check that the previous instance's
+  // persistent storage is actually cleared after the restart. Calling [self firestore] here would
+  // create a new instance of firestore, which defeats the purpose of this test.
+  [FIRApp configureWithName:appName options:options];
+  FIRApp *app2 = [FIRApp appNamed:appName];
+  FIRFirestore *firestore2 = [self firestoreWithApp:app2];
+  FIRDocumentReference *docRef2 = [firestore2 documentWithPath:doc.path];
+  XCTestExpectation *expectation2 = [self expectationWithDescription:@"getData"];
+  [docRef2 getDocumentWithSource:FIRFirestoreSourceCache
+                      completion:^(FIRDocumentSnapshot *doc2, NSError *_Nullable error) {
+                        XCTAssertNotNil(error);
+                        XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
+                        XCTAssertEqual(error.code, FIRFirestoreErrorCodeUnavailable);
+                        [expectation2 fulfill];
+                      }];
+  [self awaitExpectations];
+}
+
+- (void)testClearPersistenceWhileRunningFails {
+  FIRDocumentReference *doc = [self documentRef];
+  FIRFirestore *firestore = doc.firestore;
+
+  [self enableNetwork];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"clearPersistence"];
+  [firestore clearPersistenceWithCompletion:^(NSError *_Nullable error) {
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
+    XCTAssertEqual(error.code, FIRFirestoreErrorCodeFailedPrecondition);
+    [expectation fulfill];
+  }];
+  [self awaitExpectations];
 }
 
 @end

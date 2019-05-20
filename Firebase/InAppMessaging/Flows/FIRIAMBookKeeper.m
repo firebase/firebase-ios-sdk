@@ -234,7 +234,7 @@ static NSTimeInterval kMaxFetchWaitTimeInSeconds = 3 * 24 * 60 * 60;
   [self.defaults setDouble:fetchTimestamp forKey:FIRIAM_UserDefaultsKeyForLastFetchTimestamp];
   self.lastFetchTime = fetchTimestamp;
 
-  if (nextFetchWaitTime) {
+  if (nextFetchWaitTime != nil) {
     if (nextFetchWaitTime.doubleValue > kMaxFetchWaitTimeInSeconds) {
       FIRLogInfo(kFIRLoggerInAppMessaging, @"I-IAM270006",
                  @"next fetch wait time %lf is too large. Ignore it.",
