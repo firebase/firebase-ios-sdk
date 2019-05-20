@@ -17,9 +17,9 @@
 #import <GoogleDataTransport/GDTPlatform.h>
 
 #if TARGET_OS_IOS || TARGET_OS_TVOS
-const GDTBackgroundIdentifier GDTBackgroundIdentifierInvalid = UIBackgroundTaskInvalid;
+const GDTBackgroundIdentifier GDTBackgroundIdentifierInvalid = 0;
 #else
-const GDTBackgroundIdentifier GDTBackgroundIdentifierInvalid = -1;
+const GDTBackgroundIdentifier GDTBackgroundIdentifierInvalid = 0;
 #endif // TARGET_OS_IOS || TARGET_OS_TVOS
 
 NSString * const kGDTApplicationDidEnterBackgroundNotification = @"GDTApplicationDidEnterBackgroundNotification";
@@ -39,6 +39,10 @@ BOOL GDTReachabilityFlagsContainWWAN(SCNetworkReachabilityFlags flags) {
 @implementation GDTApplication
 
 + (void)load {
+#if TARGET_OS_IOS || TARGET_OS_TVOS
+  NSAssert(GDTBackgroundIdentifierInvalid == UIBackgroundTaskInvalid,
+           @"GDTBackgroundIdentifierInvalid and UIBackgroundTaskInvalid should be the same.");
+#endif
   [self sharedApplication];
 }
 
