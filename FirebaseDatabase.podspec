@@ -51,10 +51,10 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
                            'Example/Database/App/GoogleService-Info.plist'
   end
 
-  # s.test_spec 'integration' do |int_tests|
-  #   int_tests.source_files = 'Example/Storage/Tests/Integration/*.[mh]'
-  #   int_tests.requires_app_host = true
-  #   int_tests.resources = 'Example/Storage/App/1mb.dat',
-  #                         'Example/Storage/App/GoogleService-Info.plist'
-  #end
+  s.test_spec 'integration' do |int_tests|
+    int_tests.source_files = 'Example/Database/Tests/Integration/*.[mh]',
+                             'Example/Database/Tests/Helpers/*.[mh]',
+                             'Example/Shared/FIRAuthInteropFake.[mh]'
+    int_tests.resources = 'Example/Database/App/GoogleService-Info.plist'
+  end
 end

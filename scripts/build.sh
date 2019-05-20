@@ -207,13 +207,6 @@ case "$product-$method-$platform" in
           "${xcb_flags[@]}" \
           build \
           test
-
-        RunXcodebuild \
-          -workspace 'Example/Firebase.xcworkspace' \
-          -scheme "Database_IntegrationTests_iOS" \
-          "${xcb_flags[@]}" \
-          build \
-          test
       fi
 
       # Test iOS Objective-C static library build
@@ -375,6 +368,42 @@ case "$product-$method-$platform" in
         "${xcb_flags[@]}" \
         build \
         test
+    ;;
+
+  Database-xcodebuild-*)
+    RunXcodebuild \
+      -workspace 'gen/FirebaseDatabase/FirebaseDatabase.xcworkspace' \
+      -scheme "FirebaseDatabase-iOS-Unit-unit" \
+      "${ios_flags[@]}" \
+      "${xcb_flags[@]}" \
+      build \
+      test
+    RunXcodebuild \
+      -workspace 'gen/FirebaseDatabase/FirebaseDatabase.xcworkspace' \
+      -scheme "FirebaseDatabase-macOS-Unit-unit" \
+      "${macos_flags[@]}" \
+      "${xcb_flags[@]}" \
+      build \
+      test
+    RunXcodebuild \
+      -workspace 'gen/FirebaseDatabase/FirebaseDatabase.xcworkspace' \
+      -scheme "FirebaseDatabase-tvOS-Unit-unit" \
+      "${tvos_flags[@]}" \
+      "${xcb_flags[@]}" \
+      build \
+      test
+
+    if [[ "$TRAVIS_PULL_REQUEST" == "false" ||
+          "$TRAVIS_PULL_REQUEST_SLUG" == "$TRAVIS_REPO_SLUG" ]]; then
+      # Integration tests are only run on iOS to minimize flake failures.
+      RunXcodebuild \
+        -workspace 'gen/FirebaseDatabase/FirebaseDatabase.xcworkspace' \
+        -scheme "FirebaseDatabase-iOS-Unit-integration" \
+        "${ios_flags[@]}" \
+        "${xcb_flags[@]}" \
+        build \
+        test
+      fi
     ;;
 
   Storage-xcodebuild-*)

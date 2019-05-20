@@ -69,6 +69,18 @@ jobs:
 
     - stage: test
       env:
+        - PROJECT=Database PLATFORM=all METHOD=xcodebuild
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
+        # The pod lib lint tests are fast enough that it's not worth a separate stage.
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseDatabase.podspec --skip-tests
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseDatabase.podspec --use-libraries --skip-tests
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseDatabase.podspec --use-modular-headers --skip-tests
+
+    - stage: test
+      env:
         - PROJECT=Functions PLATFORM=iOS METHOD=pod-lib-lint
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
@@ -104,7 +116,6 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseAnalyticsInterop.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseAuth.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseAuthInterop.podspec
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseDatabase.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseDynamicLinks.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseInstanceID.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseMessaging.podspec
@@ -133,7 +144,6 @@ jobs:
         - travis_retry ./scripts/pod_lib_lint.sh FirebaseAnalyticsInterop.podspec --use-libraries
         - travis_retry ./scripts/pod_lib_lint.sh FirebaseAuth.podspec --use-libraries
         - travis_retry ./scripts/pod_lib_lint.sh FirebaseAuthInterop.podspec --use-libraries
-        - travis_retry ./scripts/pod_lib_lint.sh FirebaseDatabase.podspec --use-libraries
         - travis_retry ./scripts/pod_lib_lint.sh FirebaseDynamicLinks.podspec --use-libraries
         - travis_retry ./scripts/pod_lib_lint.sh FirebaseInstanceID.podspec --use-libraries
         # The Protobuf dependency of FirebaseMessaging has warnings with --use-libraries
@@ -363,3 +373,5 @@ jobs:
 branches:
   only:
     - master
+    # Delete next line before merge
+    - pb-db-testspec

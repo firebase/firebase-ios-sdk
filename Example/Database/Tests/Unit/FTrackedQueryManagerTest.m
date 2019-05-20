@@ -195,8 +195,10 @@
     FTrackedQueryManager *manager = [self newManagerWithClock:clock];
 
     for (NSUInteger i = 0; i < 10; i++) {
-      [manager setQueryActive:[FQuerySpec defaultQueryAtPath:PATH(([NSString stringWithFormat:@"%lu", (unsigned long)i]))]];
-      [manager setQueryInactive:[FQuerySpec defaultQueryAtPath:PATH(([NSString stringWithFormat:@"%lu", (unsigned long)i]))]];
+        [manager setQueryActive:[FQuerySpec defaultQueryAtPath:
+                               PATH(([NSString stringWithFormat:@"%lu", (unsigned long)i]))]];
+        [manager setQueryInactive:[FQuerySpec defaultQueryAtPath:
+                                 PATH(([NSString stringWithFormat:@"%lu", (unsigned long)i]))]];
         [clock tick];
     }
 

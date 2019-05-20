@@ -66,6 +66,13 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     ./Functions/Backend/start.sh synchronous
     ;;
 
+  Database-*)
+    # Install the workspace to have better control over test runs than
+    # pod lib lint, since the integration tests can be flaky.
+    bundle exec pod gen FirebaseDatabase.podspec --local-sources=./
+    install_secrets
+    ;;
+
   Storage-*)
     # Install the workspace to have better control over test runs than
     # pod lib lint, since the integration tests can be flaky.
