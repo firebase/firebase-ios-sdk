@@ -33,15 +33,8 @@ static NSString *const kSubDirectoryName = @"FirebaseInstanceIDStoreTest";
 static NSString *const kAuthorizedEntity = @"test-audience";
 static NSString *const kScope = @"test-scope";
 static NSString *const kToken = @"test-token";
-static NSString *const kKey = @"test-key";
-static NSString *const kTimeSuffix = @"-time";
 static NSString *const kAuthID = @"test-auth-id";
 static NSString *const kSecret = @"test-secret";
-
-// This should stay in sync with the same constant name in FIRInstanceIDStore.
-// We don't want to make a new method in FIRInstanceIDStore to avoid adding
-// binary bloat.
-static NSString *const kFIRInstanceIDAPNSTokenKey = @"APNSTuple";
 
 @interface FIRInstanceIDStore ()
 
@@ -60,13 +53,13 @@ static NSString *const kFIRInstanceIDAPNSTokenKey = @"APNSTuple";
 
 @interface FIRInstanceIDStoreTest : XCTestCase
 
-@property(nonatomic) FIRInstanceIDStore *instanceIDStore;
-@property(nonatomic) FIRInstanceIDBackupExcludedPlist *checkinPlist;
-@property(nonatomic) FIRInstanceIDCheckinStore *checkinStore;
-@property(nonatomic) FIRInstanceIDTokenStore *tokenStore;
-@property(nonatomic) id mockCheckinStore;
-@property(nonatomic) id mockTokenStore;
-@property(nonatomic) id mockInstanceIDStore;
+@property(assign, nonatomic) FIRInstanceIDStore *instanceIDStore;
+@property(assign, nonatomic) FIRInstanceIDBackupExcludedPlist *checkinPlist;
+@property(assign, nonatomic) FIRInstanceIDCheckinStore *checkinStore;
+@property(assign, nonatomic) FIRInstanceIDTokenStore *tokenStore;
+@property(assign, nonatomic) id mockCheckinStore;
+@property(assign, nonatomic) id mockTokenStore;
+@property(assign, nonatomic) id mockInstanceIDStore;
 
 @end
 
@@ -103,7 +96,8 @@ static NSString *const kFIRInstanceIDAPNSTokenKey = @"APNSTuple";
   [self.instanceIDStore removeAllCachedTokensWithHandler:nil];
   [self.instanceIDStore removeCheckinPreferencesWithHandler:nil];
   [FIRInstanceIDStore removeSubDirectory:kSubDirectoryName error:nil];
-  [_mockCheckinStore stopMocking];
+  // EXC_BAD_ACCESS and doesn't seem necessary. Perhaps https://github.com/erikdoe/ocmock/issues/317
+  // [_mockCheckinStore stopMocking];
   [_mockTokenStore stopMocking];
   [_mockInstanceIDStore stopMocking];
   [super tearDown];

@@ -39,4 +39,17 @@ services.
   s.dependency 'FirebaseCore', '~> 6.0'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 6.0'
   s.dependency 'GoogleUtilities/Environment', '~> 6.0'
+
+  s.test_spec 'unit' do |unit_tests|
+    unit_tests.source_files = 'Example/InstanceID/Tests/*.[mh]'
+    unit_tests.requires_app_host = true
+    unit_tests.dependency 'OCMock'
+    unit_tests.pod_target_xcconfig = {
+      # Unit tests do library imports using repo-root relative paths.
+      'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
+      # Prevent linker warning for test category override of
+      # store:didDeleteFCMScopedTokensForCheckin:
+      'OTHER_LDFLAGS' => '-Xlinker -no_objc_category_merging'
+   }
+  end
 end

@@ -92,7 +92,7 @@
   // Mock that the plist doesn't exist, and call the invalidation check. It should
   // trigger the identities to be deleted.
   id plistMock = OCMPartialMock(self.keyPairStore.plist);
-  [[[plistMock stub] andReturnValue:OCMOCK_VALUE(NO)] doesFileExist];
+  [[[plistMock stub] andReturnValue:[NSNumber numberWithBool:NO]] doesFileExist];
   // Mock the keypair store, to check if key pair deletes are requested
   id storeMock = OCMPartialMock(self.keyPairStore);
   // Now trigger a possible invalidation.
@@ -105,7 +105,7 @@
   // Mock that the plist doesn't exist, and call the invalidation check. It should
   // trigger the identities to be deleted.
   id plistMock = OCMPartialMock(self.keyPairStore.plist);
-  [[[plistMock stub] andReturnValue:OCMOCK_VALUE(YES)] doesFileExist];
+  [[[plistMock stub] andReturnValue:[NSNumber numberWithBool:YES]] doesFileExist];
   // Mock the keypair store, to check if key pair deletes are requested
   id storeMock = OCMPartialMock(self.keyPairStore);
   // Now trigger a possible invalidation.
@@ -141,7 +141,7 @@
                               XCTAssertNotEqualObjects(iid1, iid2);
                               [identityResetExpectation fulfill];
                             }];
-  [self waitForExpectationsWithTimeout:1 handler:nil];
+  [self waitForExpectationsWithTimeout:3 handler:nil];
 }
 
 /**
