@@ -22,6 +22,12 @@
 #include "absl/base/internal/unaligned_access.h"
 #include "absl/base/port.h"
 
+#if !defined(ABSL_IS_LITTLE_ENDIAN) && !defined(ABSL_IS_BIG_ENDIAN)
+#error \
+    "Unsupported byte order: Either ABSL_IS_BIG_ENDIAN or " \
+       "ABSL_IS_LITTLE_ENDIAN must be defined"
+#endif
+
 #define UNALIGNED_LOAD32 ABSL_INTERNAL_UNALIGNED_LOAD32
 #define UNALIGNED_LOAD64 ABSL_INTERNAL_UNALIGNED_LOAD64
 #define UNALIGNED_STORE32 ABSL_INTERNAL_UNALIGNED_STORE32
@@ -125,8 +131,8 @@ inline static int AdvanceIfNoSpecialBytes(uint32_t v_32, const char* p) {
 inline static const char* SkipToNextSpecialByte(const char* start,
                                                 const char* limit) {
   // If these constants were ever changed, this routine needs to change
-  HARD_ASSERT(kEscape1 == 0);
-  HARD_ASSERT((kEscape2 & 0xff) == 255);
+  static_assert(kEscape1 == 0, "bit fiddling needs readjusting");
+  static_assert((kEscape2 & 0xff) == 255, "bit fiddling needs readjusting");
   const char* p = start;
   while (p + 8 <= limit) {
     // Find out if any of the next 8 bytes are either 0 or 255 (our
@@ -153,7 +159,7 @@ inline static const char* SkipToNextSpecialByte(const char* start,
       p += 8;
     } else {
 // We know the next 8 bytes have a special byte: find it
-#ifdef IS_LITTLE_ENDIAN
+#ifdef ABSL_IS_LITTLE_ENDIAN
       uint32_t v_32 = static_cast<uint32_t>(v);  // Low 32 bits of v
 #else
       uint32_t v_32 = UNALIGNED_LOAD32(p);

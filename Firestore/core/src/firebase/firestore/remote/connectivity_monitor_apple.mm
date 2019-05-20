@@ -76,7 +76,8 @@ void OnReachabilityChangedCallback(SCNetworkReachabilityRef /*unused*/,
  */
 class ConnectivityMonitorApple : public ConnectivityMonitor {
  public:
-  explicit ConnectivityMonitorApple(AsyncQueue* worker_queue)
+  explicit ConnectivityMonitorApple(
+      const std::shared_ptr<AsyncQueue>& worker_queue)
       : ConnectivityMonitor{worker_queue} {
     reachability_ = CreateReachability();
     if (!reachability_) {
@@ -147,7 +148,7 @@ void OnReachabilityChangedCallback(SCNetworkReachabilityRef /*unused*/,
 }  // namespace
 
 std::unique_ptr<ConnectivityMonitor> ConnectivityMonitor::Create(
-    AsyncQueue* worker_queue) {
+    const std::shared_ptr<AsyncQueue>& worker_queue) {
   return absl::make_unique<ConnectivityMonitorApple>(worker_queue);
 }
 

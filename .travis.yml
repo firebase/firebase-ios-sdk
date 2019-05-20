@@ -35,6 +35,16 @@ jobs:
 
     - stage: test
       env:
+        - PROJECT=Core PLATFORM=iOS METHOD=pod-lib-lint
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseCore.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseCore.podspec --use-libraries
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseCore.podspec --use-modular-headers
+
+    - stage: test
+      env:
         - PROJECT=Functions PLATFORM=iOS METHOD=pod-lib-lint
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
@@ -67,7 +77,6 @@ jobs:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh GoogleUtilities.podspec
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseCore.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseAnalyticsInterop.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseAuth.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseAuthInterop.podspec
@@ -98,7 +107,6 @@ jobs:
         - ./scripts/install_prereqs.sh
       script:
         - travis_retry ./scripts/pod_lib_lint.sh GoogleUtilities.podspec --use-libraries
-        - travis_retry ./scripts/pod_lib_lint.sh FirebaseCore.podspec --use-libraries
         - travis_retry ./scripts/pod_lib_lint.sh FirebaseAnalyticsInterop.podspec --use-libraries
         - travis_retry ./scripts/pod_lib_lint.sh FirebaseAuth.podspec --use-libraries
         - travis_retry ./scripts/pod_lib_lint.sh FirebaseAuthInterop.podspec --use-libraries
@@ -132,6 +140,15 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh GoogleDataTransport.podspec
 
+    # GoogleDataTransport integration tests using the default Xcode version.
+    - stage: test
+      env:
+        - PROJECT=GoogleDataTransportIntegrationTest PLATFORM=iOS METHOD=xcodebuild
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
+
     # GoogleDataTransportCCTSupport unit tests and pod linting using the default Xcode version.
     - stage: test
       env:
@@ -153,6 +170,13 @@ jobs:
         - travis_retry ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
     # Alternative platforms
+    - stage: test
+      env:
+        - PROJECT=Firestore PLATFORM=macOS METHOD=cmake
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
     # Test Firestore on Xcode 8 to use old llvm to ensure C++ portability.
     - stage: test
@@ -307,7 +331,7 @@ jobs:
     - env:
       - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=tsan
     - env:
-      - PROJECT=InAppMessaging PLATFORM=iOS METHOD=xcodebuild
+      - PROJECT=GoogleDataTransportIntegrationTest PLATFORM=iOS METHOD=xcodebuild
 
   # TODO(varconst): enable if it's possible to make this flag work on build
   # stages. It's supposed to avoid waiting for jobs that are allowed to fail

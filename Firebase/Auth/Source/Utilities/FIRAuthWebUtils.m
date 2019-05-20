@@ -23,12 +23,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** @var kAuthDomainSuffix
-    @brief The suffix of the auth domain pertiaining to a given Firebase project.
- */
-static NSString *const kAuthDomainSuffix = @"firebaseapp.com";
-
 @implementation FIRAuthWebUtils
+
++ (NSArray<NSString *> *)supportedAuthDomains {
+  return @[@"firebaseapp.com", @"web.app"];
+}
 
 + (NSString *)randomStringWithLength:(NSUInteger)length {
   NSMutableString *randomString = [[NSMutableString alloc] init];
@@ -99,11 +98,13 @@ static NSString *const kAuthDomainSuffix = @"firebaseapp.com";
     }
     NSString *authDomain;
     for (NSString *domain in response.authorizedDomains) {
-      NSInteger index = domain.length - kAuthDomainSuffix.length;
-      if (index >= 2) {
-        if ([domain hasSuffix:kAuthDomainSuffix] && domain.length >= kAuthDomainSuffix.length + 2) {
-          authDomain = domain;
-          break;
+      for (NSString *suportedAuthDomain in [self supportedAuthDomains]) {
+        NSInteger index = domain.length - suportedAuthDomain.length;
+        if (index >= 2) {
+          if ([domain hasSuffix:suportedAuthDomain] && domain.length >= suportedAuthDomain.length + 2) {
+            authDomain = domain;
+            break;
+          }
         }
       }
     }
@@ -166,6 +167,29 @@ static NSString *const kAuthDomainSuffix = @"firebaseapp.com";
                                    options:NSLiteralSearch
                                      range:NSMakeRange(0, [resultString length])];
   return [resultString stringByRemovingPercentEncoding];
+}
+
++ (NSDictionary<NSString *, NSString *> *)parseURL:(NSString *)urlString {
+  NSString *linkURL = [NSURLComponents componentsWithString:urlString].query;
+  if (!linkURL) {
+    return @{};
+  }
+  NSArray<NSString *> *URLComponents = [linkURL componentsSeparatedByString:@"&"];
+  NSMutableDictionary<NSString *, NSString *> *queryItems =
+  [[NSMutableDictionary alloc] initWithCapacity:URLComponents.count];
+  for (NSString *component in URLComponents) {
+    NSRange equalRange = [component rangeOfString:@"="];
+    if (equalRange.location != NSNotFound) {
+      NSString *queryItemKey =
+      [[component substringToIndex:equalRange.location] stringByRemovingPercentEncoding];
+      NSString *queryItemValue =
+      [[component substringFromIndex:equalRange.location + 1] stringByRemovingPercentEncoding];
+      if (queryItemKey && queryItemValue) {
+        queryItems[queryItemKey] = queryItemValue;
+      }
+    }
+  }
+  return queryItems;
 }
 
 @end

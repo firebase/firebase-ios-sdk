@@ -126,6 +126,9 @@ typedef void (^GDTCCTIntegrationTestBlock)(NSURLSessionUploadTask *_Nullable);
   XCTestExpectation *taskCreatedExpectation = [self expectationWithDescription:@"task created"];
   XCTestExpectation *taskDoneExpectation = [self expectationWithDescription:@"task done"];
 
+  taskCreatedExpectation.assertForOverFulfill = NO;
+  taskDoneExpectation.assertForOverFulfill = NO;
+
   [[GDTCCTUploader sharedInstance]
       addObserver:self
        forKeyPath:@"currentTask"

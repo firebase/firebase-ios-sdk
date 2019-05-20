@@ -88,12 +88,13 @@ ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
 @end
 
 @implementation FSTQueryListenerTests {
-  DelayedConstructor<ExecutorLibdispatch> _executor;
+  std::shared_ptr<ExecutorLibdispatch> _executor;
   ListenOptions _includeMetadataChanges;
 }
 
 - (void)setUp {
-  _executor.Init(dispatch_queue_create("FSTQueryListenerTests Queue", DISPATCH_QUEUE_SERIAL));
+  _executor = std::make_shared<ExecutorLibdispatch>(
+      dispatch_queue_create("FSTQueryListenerTests Queue", DISPATCH_QUEUE_SERIAL));
   _includeMetadataChanges = ListenOptions::FromIncludeMetadataChanges(true);
 }
 
@@ -178,11 +179,11 @@ ViewSnapshot::Listener Accumulating(std::vector<ViewSnapshot> *values) {
 
   std::shared_ptr<AsyncEventListener<ViewSnapshot>> listener =
       AsyncEventListener<ViewSnapshot>::Create(
-          _executor.get(), EventListener<ViewSnapshot>::Create(
-                               [&accum, &listener](const StatusOr<ViewSnapshot> &maybe_snapshot) {
-                                 accum.push_back(maybe_snapshot.ValueOrDie());
-                                 listener->Mute();
-                               }));
+          _executor, EventListener<ViewSnapshot>::Create(
+                         [&accum, &listener](const StatusOr<ViewSnapshot> &maybe_snapshot) {
+                           accum.push_back(maybe_snapshot.ValueOrDie());
+                           listener->Mute();
+                         }));
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
   ViewSnapshot viewSnapshot1 = FSTTestApplyChanges(view, @[ doc1 ], absl::nullopt).value();

@@ -217,7 +217,7 @@ NS_SWIFT_NAME(InAppMessagingImageOnlyDisplay)
                      campaignName:(NSString *)campaignName
               renderAsTestMessage:(BOOL)renderAsTestMessage
                       triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
-                        imageData:(FIRInAppMessagingImageData *)imageData
+                        imageData:(nullable FIRInAppMessagingImageData *)imageData
                         actionURL:(nullable NSURL *)actionURL NS_DESIGNATED_INITIALIZER;
 @end
 

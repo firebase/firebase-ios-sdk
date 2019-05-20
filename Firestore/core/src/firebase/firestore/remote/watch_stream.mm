@@ -33,7 +33,7 @@ using util::AsyncQueue;
 using util::TimerId;
 using util::Status;
 
-WatchStream::WatchStream(AsyncQueue* async_queue,
+WatchStream::WatchStream(const std::shared_ptr<AsyncQueue>& async_queue,
                          CredentialsProvider* credentials_provider,
                          FSTSerializerBeta* serializer,
                          GrpcConnection* grpc_connection,

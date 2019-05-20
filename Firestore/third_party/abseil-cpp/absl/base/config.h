@@ -5,7 +5,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//      http://www.apache.org/licenses/LICENSE-2.0
+//      https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -118,7 +118,7 @@
 // Checks whether `std::is_trivially_copy_assignable<T>` is supported.
 
 // Notes: Clang with libc++ supports these features, as does gcc >= 5.1 with
-// either libc++ or libstdc++, and Visual Studio.
+// either libc++ or libstdc++, and Visual Studio (but not NVCC).
 #if defined(ABSL_HAVE_STD_IS_TRIVIALLY_CONSTRUCTIBLE)
 #error ABSL_HAVE_STD_IS_TRIVIALLY_CONSTRUCTIBLE cannot be directly set
 #elif defined(ABSL_HAVE_STD_IS_TRIVIALLY_ASSIGNABLE)
@@ -127,7 +127,7 @@
     (!defined(__clang__) && defined(__GNUC__) &&                 \
      (__GNUC__ > 5 || (__GNUC__ == 5 && __GNUC_MINOR__ >= 1)) && \
      (defined(_LIBCPP_VERSION) || defined(__GLIBCXX__))) ||      \
-    defined(_MSC_VER)
+    (defined(_MSC_VER) && !defined(__NVCC__))
 #define ABSL_HAVE_STD_IS_TRIVIALLY_CONSTRUCTIBLE 1
 #define ABSL_HAVE_STD_IS_TRIVIALLY_ASSIGNABLE 1
 #endif
@@ -274,7 +274,8 @@
 #error ABSL_HAVE_MMAP cannot be directly set
 #elif defined(__linux__) || defined(__APPLE__) || defined(__FreeBSD__) ||   \
     defined(__ros__) || defined(__native_client__) || defined(__asmjs__) || \
-    defined(__wasm__) || defined(__Fuchsia__) || defined(__sun)
+    defined(__wasm__) || defined(__Fuchsia__) || defined(__sun) || \
+    defined(__ASYLO__)
 #define ABSL_HAVE_MMAP 1
 #endif
 
@@ -328,6 +329,8 @@
 #define ABSL_HAVE_ALARM 1
 #elif defined(_MSC_VER)
 // feature tests for Microsoft's library
+#elif defined(__EMSCRIPTEN__)
+// emscripten doesn't support signals
 #elif defined(__native_client__)
 #else
 // other standard libraries
@@ -362,6 +365,18 @@
 #error "absl endian detection needs to be set up for your compiler"
 #endif
 
+// MacOS 10.13 doesn't let you use <any>, <optional>, or <variant> even though
+// the headers exist and are publicly noted to work.  See
+// https://github.com/abseil/abseil-cpp/issues/207 and
+// https://developer.apple.com/documentation/xcode_release_notes/xcode_10_release_notes
+#if defined(__APPLE__) && defined(_LIBCPP_VERSION) && \
+    defined(__MAC_OS_X_VERSION_MIN_REQUIRED__) &&     \
+    __ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__ < 101400
+#define ABSL_INTERNAL_MACOS_CXX17_TYPES_UNAVAILABLE 1
+#else
+#define ABSL_INTERNAL_MACOS_CXX17_TYPES_UNAVAILABLE 0
+#endif
+
 // ABSL_HAVE_STD_ANY
 //
 // Checks whether C++17 std::any is available by checking whether <any> exists.
@@ -370,7 +385,8 @@
 #endif
 
 #ifdef __has_include
-#if __has_include(<any>) && __cplusplus >= 201703L
+#if __has_include(<any>) && __cplusplus >= 201703L && \
+    !ABSL_INTERNAL_MACOS_CXX17_TYPES_UNAVAILABLE
 #define ABSL_HAVE_STD_ANY 1
 #endif
 #endif
@@ -383,7 +399,8 @@
 #endif
 
 #ifdef __has_include
-#if __has_include(<optional>) && __cplusplus >= 201703L
+#if __has_include(<optional>) && __cplusplus >= 201703L && \
+    !ABSL_INTERNAL_MACOS_CXX17_TYPES_UNAVAILABLE
 #define ABSL_HAVE_STD_OPTIONAL 1
 #endif
 #endif
@@ -396,7 +413,8 @@
 #endif
 
 #ifdef __has_include
-#if __has_include(<variant>) && __cplusplus >= 201703L
+#if __has_include(<variant>) && __cplusplus >= 201703L && \
+    !ABSL_INTERNAL_MACOS_CXX17_TYPES_UNAVAILABLE
 #define ABSL_HAVE_STD_VARIANT 1
 #endif
 #endif
@@ -427,6 +445,14 @@
 #define ABSL_HAVE_STD_OPTIONAL 1
 #define ABSL_HAVE_STD_VARIANT 1
 #define ABSL_HAVE_STD_STRING_VIEW 1
+#endif
+
+// In debug mode, MSVC 2017's std::variant throws a EXCEPTION_ACCESS_VIOLATION
+// SEH exception from emplace for variant<SomeStruct> when constructing the
+// struct can throw. This defeats some of variant_test and
+// variant_exception_safety_test.
+#if defined(_MSC_VER) && _MSC_VER >= 1700 && defined(_DEBUG)
+#define ABSL_INTERNAL_MSVC_2017_DBG_MODE
 #endif
 
 #endif  // ABSL_BASE_CONFIG_H_

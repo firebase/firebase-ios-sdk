@@ -153,6 +153,8 @@ typedef struct _gdt_cct_LogEvent {
     bool has_event_time_ms;
     int64_t event_time_ms;
     pb_bytes_array_t *source_extension;
+    bool has_event_code;
+    int32_t event_code;
     bool has_timezone_offset_seconds;
     int64_t timezone_offset_seconds;
     bool has_event_uptime_ms;
@@ -193,7 +195,7 @@ extern const gdt_cct_QosTierConfiguration_QosTier gdt_cct_LogRequest_qos_tier_de
 extern const int32_t gdt_cct_QosTierConfiguration_log_source_default;
 
 /* Initializer values for message structs */
-#define gdt_cct_LogEvent_init_default            {false, 0, NULL, false, 0, false, 0, false, gdt_cct_NetworkConnectionInfo_init_default}
+#define gdt_cct_LogEvent_init_default            {false, 0, NULL, false, 0, false, 0, false, 0, false, gdt_cct_NetworkConnectionInfo_init_default}
 #define gdt_cct_NetworkConnectionInfo_init_default {false, gdt_cct_NetworkConnectionInfo_NetworkType_NONE, false, gdt_cct_NetworkConnectionInfo_MobileSubtype_UNKNOWN_MOBILE_SUBTYPE}
 #define gdt_cct_IosClientInfo_init_default       {NULL, NULL, NULL, NULL, NULL, NULL, NULL}
 #define gdt_cct_ClientInfo_init_default          {false, _gdt_cct_ClientInfo_ClientType_MIN, false, gdt_cct_IosClientInfo_init_default}
@@ -202,7 +204,7 @@ extern const int32_t gdt_cct_QosTierConfiguration_log_source_default;
 #define gdt_cct_QosTierConfiguration_init_default {false, _gdt_cct_QosTierConfiguration_QosTier_MIN, false, 0}
 #define gdt_cct_QosTiersOverride_init_default    {0, NULL, false, 0}
 #define gdt_cct_LogResponse_init_default         {false, 0, false, gdt_cct_QosTiersOverride_init_default}
-#define gdt_cct_LogEvent_init_zero               {false, 0, NULL, false, 0, false, 0, false, gdt_cct_NetworkConnectionInfo_init_zero}
+#define gdt_cct_LogEvent_init_zero               {false, 0, NULL, false, 0, false, 0, false, 0, false, gdt_cct_NetworkConnectionInfo_init_zero}
 #define gdt_cct_NetworkConnectionInfo_init_zero  {false, _gdt_cct_NetworkConnectionInfo_NetworkType_MIN, false, _gdt_cct_NetworkConnectionInfo_MobileSubtype_MIN}
 #define gdt_cct_IosClientInfo_init_zero          {NULL, NULL, NULL, NULL, NULL, NULL, NULL}
 #define gdt_cct_ClientInfo_init_zero             {false, _gdt_cct_ClientInfo_ClientType_MIN, false, gdt_cct_IosClientInfo_init_zero}
@@ -230,6 +232,7 @@ extern const int32_t gdt_cct_QosTierConfiguration_log_source_default;
 #define gdt_cct_QosTiersOverride_qos_tier_configuration_tag 1
 #define gdt_cct_QosTiersOverride_qos_tier_fingerprint_tag 2
 #define gdt_cct_LogEvent_event_time_ms_tag       1
+#define gdt_cct_LogEvent_event_code_tag          11
 #define gdt_cct_LogEvent_event_uptime_ms_tag     17
 #define gdt_cct_LogEvent_source_extension_tag    6
 #define gdt_cct_LogEvent_timezone_offset_seconds_tag 15
@@ -244,7 +247,7 @@ extern const int32_t gdt_cct_QosTierConfiguration_log_source_default;
 #define gdt_cct_LogResponse_qos_tier_tag         3
 
 /* Struct field encoding specification for nanopb */
-extern const pb_field_t gdt_cct_LogEvent_fields[6];
+extern const pb_field_t gdt_cct_LogEvent_fields[7];
 extern const pb_field_t gdt_cct_NetworkConnectionInfo_fields[3];
 extern const pb_field_t gdt_cct_IosClientInfo_fields[8];
 extern const pb_field_t gdt_cct_ClientInfo_fields[3];

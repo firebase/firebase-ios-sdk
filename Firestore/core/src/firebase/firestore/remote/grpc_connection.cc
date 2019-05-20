@@ -17,6 +17,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
 
 #include <algorithm>
+#include <mutex>  // NOLINT(build/c++11)
 #include <string>
 #include <utility>
 
@@ -66,23 +67,60 @@ struct HostConfig {
   bool use_insecure_channel = false;
 };
 
-using ConfigByHost = std::unordered_map<std::string, HostConfig>;
+class HostConfigMap {
+  using ConfigByHost = std::unordered_map<std::string, HostConfig>;
+  using Guard = std::lock_guard<std::mutex>;
 
-ConfigByHost& Config() {
-  static ConfigByHost config_by_host_;
+ public:
+  const HostConfig* _Nullable find(const std::string& host) const {
+    Guard guard{mutex_};
+    auto iter = map_.find(host);
+    if (iter == map_.end()) {
+      return nullptr;
+    } else {
+      return &(iter->second);
+    }
+  }
+
+  void UseTestCertificate(const std::string& host,
+                          const Path& certificate_path,
+                          const std::string& target_name) {
+    HARD_ASSERT(!host.empty(), "Empty host name");
+    HARD_ASSERT(!certificate_path.native_value().empty(),
+                "Empty path to test certificate");
+    HARD_ASSERT(!target_name.empty(), "Empty SSL target name");
+
+    Guard guard(mutex_);
+    HostConfig& host_config = map_[host];
+    host_config.certificate_path = certificate_path;
+    host_config.target_name = target_name;
+  }
+
+  void UseInsecureChannel(const std::string& host) {
+    HARD_ASSERT(!host.empty(), "Empty host name");
+
+    Guard guard(mutex_);
+    HostConfig& host_config = map_[host];
+    host_config.use_insecure_channel = true;
+  }
+
+ private:
+  ConfigByHost map_;
+  mutable std::mutex mutex_;
+};
+
+HostConfigMap& Config() {
+  static HostConfigMap config_by_host_;
   return config_by_host_;
-}
-
-bool HasSpecialConfig(const std::string& host) {
-  return Config().find(host) != Config().end();
 }
 
 }  // namespace
 
-GrpcConnection::GrpcConnection(const DatabaseInfo& database_info,
-                               util::AsyncQueue* worker_queue,
-                               grpc::CompletionQueue* grpc_queue,
-                               ConnectivityMonitor* connectivity_monitor)
+GrpcConnection::GrpcConnection(
+    const DatabaseInfo& database_info,
+    const std::shared_ptr<util::AsyncQueue>& worker_queue,
+    grpc::CompletionQueue* grpc_queue,
+    ConnectivityMonitor* connectivity_monitor)
     : database_info_{&database_info},
       worker_queue_{NOT_NULL(worker_queue)},
       grpc_queue_{NOT_NULL(grpc_queue)},
@@ -144,22 +182,28 @@ void GrpcConnection::EnsureActiveStub() {
 std::shared_ptr<grpc::Channel> GrpcConnection::CreateChannel() const {
   const std::string& host = database_info_->host();
 
-  if (!HasSpecialConfig(host)) {
+  grpc::ChannelArguments args;
+  // Ensure gRPC recovers from a dead connection. (Not typically necessary, as
+  // the OS will usually notify gRPC when a connection dies. But not always.
+  // This acts as a failsafe.)
+  args.SetInt(GRPC_ARG_KEEPALIVE_TIME_MS, 30 * 1000);
+
+  const HostConfig* host_config = Config().find(host);
+  if (!host_config) {
     std::string root_certificate = LoadGrpcRootCertificate();
-    return grpc::CreateChannel(host, CreateSslCredentials(root_certificate));
+    return grpc::CreateCustomChannel(
+        host, CreateSslCredentials(root_certificate), args);
   }
 
-  const HostConfig& host_config = Config()[host];
-
   // For the case when `Settings.sslEnabled == false`.
-  if (host_config.use_insecure_channel) {
-    return grpc::CreateChannel(host, grpc::InsecureChannelCredentials());
+  if (host_config->use_insecure_channel) {
+    return grpc::CreateCustomChannel(host, grpc::InsecureChannelCredentials(),
+                                     args);
   }
 
   // For tests only
-  grpc::ChannelArguments args;
-  args.SetSslTargetNameOverride(host_config.target_name);
-  Path path = host_config.certificate_path;
+  args.SetSslTargetNameOverride(host_config->target_name);
+  Path path = host_config->certificate_path;
   StatusOr<std::string> test_certificate = ReadFile(path);
   HARD_ASSERT(test_certificate.ok(),
               StringFormat("Unable to open root certificates at file path %s",
@@ -241,21 +285,11 @@ void GrpcConnection::Unregister(GrpcCall* call) {
     const std::string& host,
     const Path& certificate_path,
     const std::string& target_name) {
-  HARD_ASSERT(!host.empty(), "Empty host name");
-  HARD_ASSERT(!certificate_path.native_value().empty(),
-              "Empty path to test certificate");
-  HARD_ASSERT(!target_name.empty(), "Empty SSL target name");
-
-  HostConfig& host_config = Config()[host];
-  host_config.certificate_path = certificate_path;
-  host_config.target_name = target_name;
+  Config().UseTestCertificate(host, certificate_path, target_name);
 }
 
 /*static*/ void GrpcConnection::UseInsecureChannel(const std::string& host) {
-  HARD_ASSERT(!host.empty(), "Empty host name");
-
-  HostConfig& host_config = Config()[host];
-  host_config.use_insecure_channel = true;
+  Config().UseInsecureChannel(host);
 }
 
 }  // namespace remote

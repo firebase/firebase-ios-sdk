@@ -128,10 +128,9 @@ function(cc_binary name)
   maybe_remove_objc_sources(sources ${ccb_SOURCES})
   add_executable(${name} ${sources})
   add_objc_flags(${name} ${ccb_SOURCES})
-  add_test(${name} ${name})
 
-  target_include_directories(${name} PUBLIC ${FIREBASE_SOURCE_DIR})
-  target_link_libraries(${name} ${ccb_DEPENDS})
+  target_include_directories(${name} PRIVATE ${FIREBASE_SOURCE_DIR})
+  target_link_libraries(${name} PRIVATE ${ccb_DEPENDS})
 
   if(ccb_EXCLUDE_FROM_ALL)
     set_property(
@@ -160,8 +159,8 @@ function(cc_test name)
   add_objc_flags(${name} ${cct_SOURCES})
   add_test(${name} ${name})
 
-  target_include_directories(${name} PUBLIC ${FIREBASE_SOURCE_DIR})
-  target_link_libraries(${name} ${cct_DEPENDS})
+  target_include_directories(${name} PRIVATE ${FIREBASE_SOURCE_DIR})
+  target_link_libraries(${name} PRIVATE ${cct_DEPENDS})
 endfunction()
 
 # cc_fuzz_test(

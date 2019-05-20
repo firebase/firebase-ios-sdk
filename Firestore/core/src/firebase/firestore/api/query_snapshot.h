@@ -24,6 +24,7 @@
 #include "Firestore/core/src/firebase/firestore/api/document_change.h"
 #include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/api/snapshot_metadata.h"
+#include "Firestore/core/src/firebase/firestore/core/event_listener.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
 #include "Firestore/core/src/firebase/firestore/objc/objc_class.h"
@@ -36,11 +37,15 @@ namespace firebase {
 namespace firestore {
 namespace api {
 
+class Query;
+
 /**
  * A `QuerySnapshot` contains zero or more `DocumentSnapshot` objects.
  */
 class QuerySnapshot {
  public:
+  using Listener = std::unique_ptr<core::EventListener<QuerySnapshot>>;
+
   QuerySnapshot(std::shared_ptr<Firestore> firestore,
                 FSTQuery* query,
                 core::ViewSnapshot&& snapshot,
@@ -63,6 +68,8 @@ class QuerySnapshot {
   const std::shared_ptr<Firestore>& firestore() const {
     return firestore_;
   }
+
+  Query query() const;
 
   FSTQuery* internal_query() const;
 

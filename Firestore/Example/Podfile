@@ -3,8 +3,8 @@
 #source 'https://github.com/CocoaPods/Specs.git'
 
 # Uncomment the next two lines for pre-release testing on public repo
-source 'https://github.com/Firebase/SpecsStaging.git'
-source 'https://github.com/CocoaPods/Specs.git'
+#source 'https://github.com/Firebase/SpecsStaging.git'
+#source 'https://github.com/CocoaPods/Specs.git'
 
 use_frameworks!
 
@@ -43,7 +43,7 @@ target 'Firestore_Example_iOS' do
   # The next line is the forcing function for the Firebase pod. The Firebase
   # version's subspecs should depend on the component versions in their
   # corresponding podspec's.
-  pod 'Firebase/CoreOnly', '6.0.0-pre'
+  pod 'Firebase/CoreOnly', '6.0.0'
 
   pod 'FirebaseAuth', :path => '../../'
   pod 'FirebaseAuthInterop', :path => '../../'
@@ -54,6 +54,7 @@ target 'Firestore_Example_iOS' do
   target 'Firestore_Tests_iOS' do
     inherit! :search_paths
 
+    pod 'GoogleBenchmark', :podspec => 'GoogleBenchmark.podspec'
     pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
     pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
 
@@ -99,6 +100,7 @@ target 'Firestore_Example_macOS' do
   target 'Firestore_Tests_macOS' do
     inherit! :search_paths
 
+    pod 'GoogleBenchmark', :podspec => 'GoogleBenchmark.podspec'
     pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
     pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
 
@@ -126,6 +128,7 @@ target 'Firestore_Example_tvOS' do
   target 'Firestore_Tests_tvOS' do
     inherit! :search_paths
 
+    pod 'GoogleBenchmark', :podspec => 'GoogleBenchmark.podspec'
     pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
     pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
 

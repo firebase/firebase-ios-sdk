@@ -26,7 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Converts objects in JSON to Objective-C types.
  */
-- (id)decode:(id)object error:(NSError **)error;
+- (nullable id)decode:(id)object error:(NSError **)error;
 
 @end
 

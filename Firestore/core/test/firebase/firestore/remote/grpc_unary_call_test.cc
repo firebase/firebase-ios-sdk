@@ -48,9 +48,10 @@ using Type = GrpcCompletion::Type;
 class GrpcUnaryCallTest : public testing::Test {
  public:
   GrpcUnaryCallTest()
-      : worker_queue{absl::make_unique<ExecutorStd>()},
+      : worker_queue{std::make_shared<AsyncQueue>(
+            absl::make_unique<ExecutorStd>())},
         connectivity_monitor{CreateNoOpConnectivityMonitor()},
-        tester{&worker_queue, connectivity_monitor.get()},
+        tester{worker_queue, connectivity_monitor.get()},
         call{tester.CreateUnaryCall()} {
   }
 
@@ -58,7 +59,7 @@ class GrpcUnaryCallTest : public testing::Test {
     if (call) {
       // It's okay to call `FinishImmediately` more than once.
       KeepPollingGrpcQueue();
-      worker_queue.EnqueueBlocking([&] { call->FinishImmediately(); });
+      worker_queue->EnqueueBlocking([&] { call->FinishImmediately(); });
     }
     tester.Shutdown();
   }
@@ -79,7 +80,7 @@ class GrpcUnaryCallTest : public testing::Test {
     tester.KeepPollingGrpcQueue();
   }
 
-  AsyncQueue worker_queue;
+  std::shared_ptr<AsyncQueue> worker_queue;
 
   std::unique_ptr<ConnectivityMonitor> connectivity_monitor;
   GrpcStreamTester tester;
@@ -92,13 +93,13 @@ class GrpcUnaryCallTest : public testing::Test {
 // Correct API usage
 
 TEST_F(GrpcUnaryCallTest, FinishImmediatelyIsIdempotent) {
-  worker_queue.EnqueueBlocking(
+  worker_queue->EnqueueBlocking(
       [&] { EXPECT_NO_THROW(call->FinishImmediately()); });
 
   StartCall();
 
   KeepPollingGrpcQueue();
-  worker_queue.EnqueueBlocking([&] {
+  worker_queue->EnqueueBlocking([&] {
     EXPECT_NO_THROW(call->FinishImmediately());
     EXPECT_NO_THROW(call->FinishImmediately());
   });
@@ -113,7 +114,7 @@ TEST_F(GrpcUnaryCallTest, CanGetResponseHeadersAfterFinishing) {
   StartCall();
 
   KeepPollingGrpcQueue();
-  worker_queue.EnqueueBlocking([&] {
+  worker_queue->EnqueueBlocking([&] {
     call->FinishImmediately();
     EXPECT_NO_THROW(call->GetResponseHeaders());
   });
@@ -121,7 +122,7 @@ TEST_F(GrpcUnaryCallTest, CanGetResponseHeadersAfterFinishing) {
 
 TEST_F(GrpcUnaryCallTest, CannotFinishAndNotifyBeforeStarting) {
   // No callback has been assigned.
-  worker_queue.EnqueueBlocking(
+  worker_queue->EnqueueBlocking(
       [&] { EXPECT_ANY_THROW(call->FinishAndNotify(Status::OK())); });
 }
 
@@ -151,7 +152,7 @@ TEST_F(GrpcUnaryCallTest, Error) {
 // Callback destroys reader
 
 TEST_F(GrpcUnaryCallTest, CallbackCanDestroyCallOnSuccess) {
-  worker_queue.EnqueueBlocking([&] {
+  worker_queue->EnqueueBlocking([&] {
     call->Start([this](const StatusOr<grpc::ByteBuffer>&) { call.reset(); });
   });
 
@@ -161,7 +162,7 @@ TEST_F(GrpcUnaryCallTest, CallbackCanDestroyCallOnSuccess) {
 }
 
 TEST_F(GrpcUnaryCallTest, CallbackCanDestroyCallOnError) {
-  worker_queue.EnqueueBlocking([&] {
+  worker_queue->EnqueueBlocking([&] {
     call->Start([this](const StatusOr<grpc::ByteBuffer>&) { call.reset(); });
   });
 

@@ -20,37 +20,19 @@
 
 @implementation GDTTestPrioritizer
 
-- (instancetype)init {
-  self = [super init];
-  if (self) {
-    _uploadPackage = [[GDTTestUploadPackage alloc] init];
-  }
-  return self;
-}
-
 - (GDTUploadPackage *)uploadPackageWithConditions:(GDTUploadConditions)conditions {
   if (_uploadPackageWithConditionsBlock) {
     _uploadPackageWithConditionsBlock();
   }
-  return _uploadPackage;
+  GDTUploadPackage *uploadPackage = [[GDTUploadPackage alloc] initWithTarget:kGDTTargetTest];
+  uploadPackage.events = _events;
+  return uploadPackage;
 }
 
 - (void)prioritizeEvent:(GDTStoredEvent *)event {
   if (_prioritizeEventBlock) {
     _prioritizeEventBlock(event);
   }
-}
-
-- (void)unprioritizeEvents:(NSSet<GDTStoredEvent *> *)events {
-}
-
-- (void)appWillBackground:(UIApplication *)app {
-}
-
-- (void)appWillForeground:(UIApplication *)app {
-}
-
-- (void)appWillTerminate:(UIApplication *)application {
 }
 
 @end

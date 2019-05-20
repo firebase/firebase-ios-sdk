@@ -65,7 +65,7 @@
 }
 
 /** Tests unprioritizing events. */
-- (void)testUnprioritizeEvents {
+- (void)testPackageDelivered {
   GDTCCTPrioritizer *prioritizer = [[GDTCCTPrioritizer alloc] init];
   [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTEventQosDefault]];
   [prioritizer prioritizeEvent:[_generator generateStoredEvent:GDTEventQosDefault]];
@@ -80,7 +80,7 @@
     XCTAssertEqual(prioritizer.events.count, 9);
   });
   GDTUploadPackage *package = [prioritizer uploadPackageWithConditions:GDTUploadConditionWifiData];
-  [prioritizer unprioritizeEvents:package.events];
+  [prioritizer packageDelivered:package successful:YES];
   package = [prioritizer uploadPackageWithConditions:GDTUploadConditionWifiData];
   XCTAssertEqual(package.events.count, 0);
 }

@@ -1,5 +1,5 @@
-# Unreleased
-- [fixed] Fixed carsh when URL passesed `StorageReference.putFile()` is `nil` (#2852)
+# 3.2.1
+- [fixed] Fixed crash when URL passed to `StorageReference.putFile()` is `nil` (#2852).
 
 # 3.1.0
 - [fixed] `StorageReference.putFile()` now correctly propagates error if file to upload does not exist (#2458, #2350).

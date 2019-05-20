@@ -18,6 +18,7 @@
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_EXPONENTIAL_BACKOFF_H_
 
 #include <chrono>  // NOLINT(build/c++11)
+#include <memory>
 
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/secure_random.h"
@@ -54,7 +55,7 @@ class ExponentialBackoff {
    *     performed. Note that jitter will still be applied, so the actual delay
    *     could be as much as `1.5*max_delay`.
    */
-  ExponentialBackoff(util::AsyncQueue* queue,
+  ExponentialBackoff(const std::shared_ptr<util::AsyncQueue>& queue,
                      util::TimerId timer_id,
                      double backoff_factor,
                      util::AsyncQueue::Milliseconds initial_delay,
@@ -98,7 +99,7 @@ class ExponentialBackoff {
   Milliseconds GetDelayWithJitter();
   Milliseconds ClampDelay(Milliseconds delay) const;
 
-  util::AsyncQueue* const queue_;
+  std::shared_ptr<util::AsyncQueue> queue_;
   const util::TimerId timer_id_;
   util::DelayedOperation delayed_operation_;
 
