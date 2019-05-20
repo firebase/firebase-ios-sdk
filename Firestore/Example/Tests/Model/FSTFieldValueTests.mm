@@ -26,6 +26,7 @@
 #import "Firestore/Example/Tests/API/FSTAPIHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
+#include "Firestore/core/include/firebase/firestore/geo_point.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
@@ -33,6 +34,7 @@
 
 namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
+using firebase::firestore::GeoPoint;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::FieldValue;
 
@@ -323,7 +325,7 @@ union DoubleBits {
                                  previousValue:nil] ],
     @[
       FSTTestFieldValue(FSTTestGeoPoint(0, 1)),
-      [FSTGeoPointValue geoPointValue:FSTTestGeoPoint(0, 1)]
+      FieldValue::FromGeoPoint(GeoPoint(0, 1)).Wrap()
     ],
     @[ FSTTestFieldValue(FSTTestGeoPoint(1, 0)) ],
     @[

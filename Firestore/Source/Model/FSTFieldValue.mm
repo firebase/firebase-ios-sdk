@@ -34,6 +34,7 @@
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::GeoPoint;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
@@ -252,57 +253,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-#pragma mark - FSTGeoPointValue
-
-@interface FSTGeoPointValue ()
-@property(nonatomic, strong, readonly) FIRGeoPoint *internalValue;
-@end
-
-@implementation FSTGeoPointValue
-
-+ (instancetype)geoPointValue:(FIRGeoPoint *)value {
-  return [[FSTGeoPointValue alloc] initWithValue:value];
-}
-
-- (id)initWithValue:(FIRGeoPoint *)value {
-  self = [super init];
-  if (self) {
-    _internalValue = value;  // FIRGeoPoint is immutable.
-  }
-  return self;
-}
-
-- (FieldValue::Type)type {
-  return FieldValue::Type::GeoPoint;
-}
-
-- (FSTTypeOrder)typeOrder {
-  return FSTTypeOrderGeoPoint;
-}
-
-- (id)value {
-  return self.internalValue;
-}
-
-- (BOOL)isEqual:(id)other {
-  return [other isKindOfClass:[FSTFieldValue class]] &&
-         ((FSTFieldValue *)other).type == FieldValue::Type::GeoPoint &&
-         [self.internalValue isEqual:((FSTGeoPointValue *)other).internalValue];
-}
-
-- (NSUInteger)hash {
-  return [self.internalValue hash];
-}
-
-- (NSComparisonResult)compare:(FSTFieldValue *)other {
-  if (other.type == FieldValue::Type::GeoPoint) {
-    return [self.internalValue compare:((FSTGeoPointValue *)other).internalValue];
-  } else {
-    return [self defaultCompare:other];
-  }
-}
-
-@end
 #pragma mark - FSTBlobValue
 
 static NSComparisonResult CompareBytes(NSData *left, NSData *right) {
@@ -800,7 +750,11 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
       return util::WrapNSString(self.internalValue.string_value());
     case FieldValue::Type::Blob:
     case FieldValue::Type::Reference:
-    case FieldValue::Type::GeoPoint:
+      HARD_FAIL("TODO(rsgowman): implement");
+    case FieldValue::Type::GeoPoint: {
+      GeoPoint value = self.internalValue.geo_point_value();
+      return [[FIRGeoPoint alloc] initWithLatitude:value.latitude() longitude:value.longitude()];
+    }
     case FieldValue::Type::Array:
     case FieldValue::Type::Object:
       HARD_FAIL("TODO(rsgowman): implement");

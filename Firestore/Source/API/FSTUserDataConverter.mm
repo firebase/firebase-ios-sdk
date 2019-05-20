@@ -29,6 +29,7 @@
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
 #import "Firestore/Source/API/FIRFieldValue+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
+#import "Firestore/Source/API/FIRGeoPoint+Internal.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 
@@ -452,7 +453,8 @@ NS_ASSUME_NONNULL_BEGIN
     return [FSTTimestampValue timestampValue:truncatedTimestamp];
 
   } else if ([input isKindOfClass:[FIRGeoPoint class]]) {
-    return [FSTGeoPointValue geoPointValue:input];
+    FIRGeoPoint *geoPoint = input;
+    return FieldValue::FromGeoPoint([geoPoint toGeoPoint]).Wrap();
 
   } else if ([input isKindOfClass:[NSData class]]) {
     return [FSTBlobValue blobValue:input];
