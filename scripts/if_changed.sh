@@ -83,6 +83,11 @@ else
 'Firebase/InAppMessaging)'
       ;;
 
+    InstanceID-*)
+      check_changes '^(Firebase/InstanceID|Example/InstanceID|Firebase/Core|GoogleUtilities|'\
+'FirebaseInstanceID.podspec)'
+      ;;
+
     Firestore-xcodebuild|Firestore-pod-lib-lint)
       check_changes '^(Firestore|FirebaseFirestore.podspec|FirebaseFirestoreSwift.podspec|'\
 'GoogleUtilities)'
