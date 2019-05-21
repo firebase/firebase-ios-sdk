@@ -284,7 +284,7 @@ union DoubleBits {
 }
 
 - (void)testValueEquality {
-  DatabaseId database_id = DatabaseId("project", DatabaseId::kDefault);
+  DatabaseId database_id("project");
   NSArray *groups = @[
     @[ FSTTestFieldValue(@YES), FieldValue::True().Wrap() ],
     @[ FSTTestFieldValue(@NO), FieldValue::False().Wrap() ],

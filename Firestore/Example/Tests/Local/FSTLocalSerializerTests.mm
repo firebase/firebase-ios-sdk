@@ -74,8 +74,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FSTLocalSerializerTests
 
 - (void)setUp {
-  DatabaseId databaseId("p", "d");
-  self.remoteSerializer = [[FSTSerializerBeta alloc] initWithDatabaseID:std::move(databaseId)];
+  self.remoteSerializer = [[FSTSerializerBeta alloc] initWithDatabaseID:DatabaseId("p", "d")];
   self.serializer = [[FSTLocalSerializer alloc] initWithRemoteSerializer:self.remoteSerializer];
 }
 
