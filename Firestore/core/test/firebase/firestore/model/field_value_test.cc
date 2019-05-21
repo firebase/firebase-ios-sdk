@@ -88,7 +88,7 @@ TEST(FieldValueTest, ImplicitlyCreatesObjects) {
 
 TEST(FieldValueTest, CanOverwritePrimitivesWithObjects) {
   ObjectValue old = WrapObject("a", Map("b", "old"));
-  ObjectValue mod = old.Set(Field("a"), ObjectValue::FromMap(Map("b", "mod")));
+  ObjectValue mod = old.Set(Field("a"), WrapObject("b", "mod"));
   EXPECT_NE(old, mod);
   EXPECT_EQ(WrapObject("a", Map("b", "old")), old);
   EXPECT_EQ(WrapObject("a", Map("b", "mod")), mod);
@@ -147,7 +147,7 @@ TEST(FieldValueTest, DeletesNestedKeys) {
   EXPECT_NE(old, mod);
   EXPECT_EQ(WrapObject(second), old);
 
-  model::FieldValue::Map third = Map("a", Map("b", 1));
+  FieldValue::Map third = Map("a", Map("b", 1));
   EXPECT_EQ(WrapObject(third), mod);
 
   old = mod;
