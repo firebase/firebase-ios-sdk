@@ -131,9 +131,8 @@ NSDateComponents *FSTTestDateComponents(
 }
 
 FSTUserDataConverter *FSTTestUserDataConverter() {
-  DatabaseId database_id{"project"};
   FSTUserDataConverter *converter =
-      [[FSTUserDataConverter alloc] initWithDatabaseID:std::move(database_id)
+      [[FSTUserDataConverter alloc] initWithDatabaseID:DatabaseId("project")
                                           preConverter:^id _Nullable(id _Nullable input) {
                                             return input;
                                           }];
@@ -184,9 +183,8 @@ FSTUnknownDocument *FSTTestUnknownDoc(const absl::string_view path,
 }
 
 FSTDocumentKeyReference *FSTTestRef(std::string projectID, std::string database, NSString *path) {
-  DatabaseId database_id{projectID, database};
   return [[FSTDocumentKeyReference alloc] initWithKey:FSTTestDocKey(path)
-                                           databaseID:std::move(database_id)];
+                                           databaseID:DatabaseId(projectID, database)];
 }
 
 FSTQuery *FSTTestQuery(const absl::string_view path) {

@@ -41,8 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FSTPersistenceTestHelpers
 
 + (FSTLocalSerializer *)localSerializer {
-  DatabaseId database_id{"p", "d"};
-  FSTSerializerBeta *remoteSerializer = [[FSTSerializerBeta alloc] initWithDatabaseID:database_id];
+  auto remoteSerializer = [[FSTSerializerBeta alloc] initWithDatabaseID:DatabaseId("p", "d")];
   return [[FSTLocalSerializer alloc] initWithRemoteSerializer:remoteSerializer];
 }
 
