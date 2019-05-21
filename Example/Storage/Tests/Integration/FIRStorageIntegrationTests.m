@@ -76,7 +76,7 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 60;
       NSBundle *bundle = [NSBundle bundleForClass:[self class]];
       filePath = [bundle pathForResource:@"1mb" ofType:@"dat"];
     }
-    NSData *data =  [NSData dataWithContentsOfFile:filePath];
+    NSData *data = [NSData dataWithContentsOfFile:filePath];
 
     XCTAssertNotNil(data, "Could not load bundled file");
     [ref putData:data
