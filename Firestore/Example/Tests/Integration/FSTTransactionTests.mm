@@ -246,8 +246,6 @@
 }
 
 - (void)testIncrementTransactionally {
-  if ([FSTIntegrationTestCase isRunningAgainstEmulator]) return;
-
   // A barrier to make sure every transaction reaches the same spot.
   dispatch_semaphore_t writeBarrier = dispatch_semaphore_create(0);
   __block volatile int32_t started = 0;
@@ -290,8 +288,6 @@
 }
 
 - (void)testUpdateTransactionally {
-  if ([FSTIntegrationTestCase isRunningAgainstEmulator]) return;
-
   // A barrier to make sure every transaction reaches the same spot.
   dispatch_semaphore_t writeBarrier = dispatch_semaphore_create(0);
   __block volatile int32_t started = 0;
@@ -458,8 +454,6 @@
 }
 
 - (void)testCancellationOnError {
-  if ([FSTIntegrationTestCase isRunningAgainstEmulator]) return;
-
   FIRFirestore *firestore = [self firestore];
   FIRDocumentReference *doc = [[firestore collectionWithPath:@"towns"] documentWithAutoID];
   __block volatile int32_t count = 0;
@@ -486,7 +480,7 @@
 }
 
 - (void)testUpdateFieldsWithDotsTransactionally {
-  if ([FSTIntegrationTestCase isRunningAgainstEmulator]) return;
+  if ([FSTIntegrationTestCase isRunningAgainstEmulator]) return;  // b/112104025
 
   FIRDocumentReference *doc = [self documentRef];
 
