@@ -67,9 +67,9 @@ NSString* _Nullable FindCertFileInResourceBundle(NSBundle* _Nullable bundle,
 /**
  * Finds gRPCCertificates.bundle inside the given parent, if it exists.
  *
- * This function exists mostly to handle differences in platforms.
- * On iOS, resources are nested directly within the top-level of the parent
- * bundle, but on macOS this will actually be in Contents/Resources.
+ * This function exists mostly to handle differences in platforms.  On iOS,
+ * resources are nested directly within the top-level of the parent bundle, but
+ * on macOS this will actually be in Contents/Resources.
  *
  * @param parent A framework or app bundle to check.
  * @return The nested gRPCCertificates.bundle if found, otherwise nil.
@@ -77,11 +77,23 @@ NSString* _Nullable FindCertFileInResourceBundle(NSBundle* _Nullable bundle,
 NSBundle* _Nullable FindCertBundleInParent(NSBundle* _Nullable parent) {
   if (!parent) return nil;
 
-  NSString* path = [parent pathForResource:@"gRPCCertificates"
-                                    ofType:@"bundle"];
-  if (!path) return nil;
+  static NSString* const bundle_names[] = {
+      // gRPC-C++ 0.0.9 Changed the name of the resource bundle to allow it to
+      // coexist with Objective-C gRPC.
+      @"gRPCCertificates-Cpp",
 
-  return [[NSBundle alloc] initWithPath:path];
+      // Older gRPC-C++ or Objective-C gRPC use this name.
+      @"gRPCCertificates",
+  };
+
+  for (NSString* bundle_name : bundle_names) {
+    NSString* path = [parent pathForResource:bundle_name ofType:@"bundle"];
+    if (path) {
+      return [[NSBundle alloc] initWithPath:path];
+    }
+  }
+
+  return nil;
 }
 
 using BundleLoader = NSBundle* _Nullable (*)(void);
