@@ -43,6 +43,7 @@
 #import "FIRAuthOperationType.h"
 #import "FIRAuthSettings.h"
 #import "FIRAuthStoredUserManager.h"
+#import "FIRAuthWebUtils.h"
 #import "FIRUser_Internal.h"
 #import "FirebaseAuth.h"
 #import "FIRAuthBackend.h"
@@ -678,10 +679,10 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
         kInvalidEmailSignInLinkExceptionMessage];
     return;
   }
-  NSDictionary<NSString *, NSString *> *queryItems = FIRAuthParseURL(link);
+  NSDictionary<NSString *, NSString *> *queryItems = [FIRAuthWebUtils parseURL:link];
   if (![queryItems count]) {
     NSURLComponents *urlComponents = [NSURLComponents componentsWithString:link];
-    queryItems = FIRAuthParseURL(urlComponents.query);
+    queryItems = [FIRAuthWebUtils parseURL:urlComponents.query];
   }
   NSString *actionCode = queryItems[@"oobCode"];
 
@@ -1198,13 +1199,13 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   if (link.length == 0) {
     return NO;
   }
-  NSDictionary<NSString *, NSString *> *queryItems = FIRAuthParseURL(link);
+  NSDictionary<NSString *, NSString *> *queryItems = [FIRAuthWebUtils parseURL:link];
   if (![queryItems count]) {
     NSURLComponents *urlComponents = [NSURLComponents componentsWithString:link];
     if (!urlComponents.query) {
       return NO;
     }
-    queryItems = FIRAuthParseURL(urlComponents.query);
+    queryItems = [FIRAuthWebUtils parseURL:urlComponents.query];
   }
 
   if (![queryItems count]) {
@@ -1218,34 +1219,6 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     return YES;
   }
   return NO;
-}
-
-/** @fn FIRAuthParseURL:NSString
-    @brief Parses an incoming URL into all available query items.
-    @param urlString The url to be parsed.
-    @return A dictionary of available query items in the target URL.
- */
-static NSDictionary<NSString *, NSString *> *FIRAuthParseURL(NSString *urlString) {
-  NSString *linkURL = [NSURLComponents componentsWithString:urlString].query;
-  if (!linkURL) {
-    return @{};
-  }
-  NSArray<NSString *> *URLComponents = [linkURL componentsSeparatedByString:@"&"];
-  NSMutableDictionary<NSString *, NSString *> *queryItems =
-      [[NSMutableDictionary alloc] initWithCapacity:URLComponents.count];
-  for (NSString *component in URLComponents) {
-    NSRange equalRange = [component rangeOfString:@"="];
-    if (equalRange.location != NSNotFound) {
-      NSString *queryItemKey =
-          [[component substringToIndex:equalRange.location] stringByRemovingPercentEncoding];
-      NSString *queryItemValue =
-          [[component substringFromIndex:equalRange.location + 1] stringByRemovingPercentEncoding];
-      if (queryItemKey && queryItemValue) {
-        queryItems[queryItemKey] = queryItemValue;
-      }
-    }
-  }
-  return queryItems;
 }
 
 - (FIRAuthStateDidChangeListenerHandle)addAuthStateDidChangeListener:

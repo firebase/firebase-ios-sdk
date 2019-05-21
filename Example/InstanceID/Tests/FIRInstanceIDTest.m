@@ -40,7 +40,6 @@ static FIRInstanceIDTokenInfo *sTokenInfo;
 // Faking checkin calls
 static NSString *const kDeviceAuthId = @"device-id";
 static NSString *const kSecretToken = @"secret-token";
-static NSString *const kDigest = @"com.google.digest";
 static NSString *const kVersionInfo = @"1.0";
 // FIRApp configuration.
 static NSString *const kGCMSenderID = @"correct_gcm_sender_id";
@@ -204,7 +203,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 - (void)testTokenIsFetchedDuringIIDGeneration {
   XCTestExpectation *tokenExpectation = [self
       expectationWithDescription:@"Token is refreshed when getID is called to avoid IID conflict."];
-  NSError *error;
+  NSError *error = nil;
   [[[self.mockKeyPairStore stub] andReturn:kFakeIID] appIdentityWithError:[OCMArg setTo:error]];
 
   [self.mockInstanceID getIDWithHandler:^(NSString *identity, NSError *error) {
