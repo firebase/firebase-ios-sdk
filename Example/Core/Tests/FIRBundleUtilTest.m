@@ -87,8 +87,9 @@ static NSString *const kFileType = @"fileType";
   id environmentUtilsMock = [OCMockObject mockForClass:[GULAppEnvironmentUtil class]];
   [[[environmentUtilsMock stub] andReturnValue:@(YES)] isAppExtension];
 
-  [OCMStub([self.mockBundle bundleIdentifier]) andReturn:@"com.google.test"];
-  XCTAssertTrue([FIRBundleUtil hasBundleIdentifierPrefix:@"com.google.test.someextension"
+  // Mock bundle should have what app extension has, the extension bundle ID.
+  [OCMStub([self.mockBundle bundleIdentifier]) andReturn:@"com.google.test.someextension"];
+  XCTAssertTrue([FIRBundleUtil hasBundleIdentifierPrefix:@"com.google.test"
                                                inBundles:@[ self.mockBundle ]]);
 
   [environmentUtilsMock stopMocking];
@@ -98,17 +99,20 @@ static NSString *const kFileType = @"fileType";
   id environmentUtilsMock = [OCMockObject mockForClass:[GULAppEnvironmentUtil class]];
   [[[environmentUtilsMock stub] andReturnValue:@(YES)] isAppExtension];
 
-  [OCMStub([self.mockBundle bundleIdentifier]) andReturn:@"com.google.test"];
-  XCTAssertFalse([FIRBundleUtil hasBundleIdentifierPrefix:@"com.google.test.someextension.some"
+  [OCMStub([self.mockBundle bundleIdentifier]) andReturn:@"com.google.test.someextension.some"];
+  XCTAssertFalse([FIRBundleUtil hasBundleIdentifierPrefix:@"com.google.test"
                                                 inBundles:@[ self.mockBundle ]]);
 
-  XCTAssertFalse([FIRBundleUtil hasBundleIdentifierPrefix:@"com.google.testsomeextension"
+  [OCMStub([self.mockBundle bundleIdentifier]) andReturn:@"com.google.testsomeextension"];
+  XCTAssertFalse([FIRBundleUtil hasBundleIdentifierPrefix:@"com.google.test"
                                                 inBundles:@[ self.mockBundle ]]);
 
-  XCTAssertFalse([FIRBundleUtil hasBundleIdentifierPrefix:@"com.google.testsomeextension.some"
+  [OCMStub([self.mockBundle bundleIdentifier]) andReturn:@"com.google.testsomeextension.some"];
+  XCTAssertFalse([FIRBundleUtil hasBundleIdentifierPrefix:@"com.google.test"
                                                 inBundles:@[ self.mockBundle ]]);
 
-  XCTAssertFalse([FIRBundleUtil hasBundleIdentifierPrefix:@"not-exist"
+  [OCMStub([self.mockBundle bundleIdentifier]) andReturn:@"not-exist"];
+  XCTAssertFalse([FIRBundleUtil hasBundleIdentifierPrefix:@"com.google.test"
                                                 inBundles:@[ self.mockBundle ]]);
 
   // Should be NO, since if @"com.google.tests" is an app extension identifier, then the app bundle
