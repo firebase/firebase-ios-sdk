@@ -92,12 +92,17 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     bundle exec pod install --project-directory=SymbolCollisionTest --repo-update
     ;;
 
-  GoogleDataTransport-iOS-xcodebuild)
+  GoogleDataTransport-*-xcodebuild)
     gem install xcpretty
     bundle exec pod gen GoogleDataTransport.podspec --gen-directory=GoogleDataTransport/gen
     ;;
 
-  GoogleDataTransportCCTSupport-iOS-xcodebuild)
+  GoogleDataTransportIntegrationTest-*-xcodebuild)
+    gem install xcpretty
+    bundle exec pod gen GoogleDataTransport.podspec --gen-directory=GoogleDataTransport/gen
+    ;;
+
+  GoogleDataTransportCCTSupport-*-xcodebuild)
     gem install xcpretty
     # TODO(mikehaney24): Remove the SpecsStaging repo once GDT is published.
     bundle exec pod gen GoogleDataTransportCCTSupport.podspec \

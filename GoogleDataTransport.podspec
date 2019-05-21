@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'GoogleDataTransport'
-  s.version          = '0.1.2'
+  s.version          = '0.1.3'
   s.summary          = 'Google iOS SDK data transport.'
 
   s.description      = <<-DESC
@@ -16,6 +16,8 @@ Shared library for iOS SDK data transport needs.
   }
 
   s.ios.deployment_target = '8.0'
+  s.osx.deployment_target = '10.11'
+  s.tvos.deployment_target = '10.0'
 
   # To develop or run the tests, >= 1.6.0 must be installed.
   s.cocoapods_version = '>= 1.4.0'

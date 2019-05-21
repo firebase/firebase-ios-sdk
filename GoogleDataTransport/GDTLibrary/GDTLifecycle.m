@@ -48,14 +48,14 @@
     NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
     [notificationCenter addObserver:self
                            selector:@selector(applicationDidEnterBackground:)
-                               name:UIApplicationDidEnterBackgroundNotification
+                               name:kGDTApplicationDidEnterBackgroundNotification
                              object:nil];
     [notificationCenter addObserver:self
                            selector:@selector(applicationWillEnterForeground:)
-                               name:UIApplicationWillEnterForegroundNotification
+                               name:kGDTApplicationWillEnterForegroundNotification
                              object:nil];
 
-    NSString *name = UIApplicationWillTerminateNotification;
+    NSString *name = kGDTApplicationWillTerminateNotification;
     [notificationCenter addObserver:self
                            selector:@selector(applicationWillTerminate:)
                                name:name
@@ -69,7 +69,7 @@
 }
 
 - (void)applicationDidEnterBackground:(NSNotification *)notification {
-  UIApplication *application = [UIApplication sharedApplication];
+  GDTApplication *application = [GDTApplication sharedApplication];
   if ([[GDTTransformer sharedInstance] respondsToSelector:@selector(appWillBackground:)]) {
     [[GDTTransformer sharedInstance] appWillBackground:application];
   }
@@ -85,7 +85,7 @@
 }
 
 - (void)applicationWillEnterForeground:(NSNotification *)notification {
-  UIApplication *application = [UIApplication sharedApplication];
+  GDTApplication *application = [GDTApplication sharedApplication];
   if ([[GDTTransformer sharedInstance] respondsToSelector:@selector(appWillForeground:)]) {
     [[GDTTransformer sharedInstance] appWillForeground:application];
   }
@@ -101,7 +101,7 @@
 }
 
 - (void)applicationWillTerminate:(NSNotification *)notification {
-  UIApplication *application = [UIApplication sharedApplication];
+  GDTApplication *application = [GDTApplication sharedApplication];
   if ([[GDTTransformer sharedInstance] respondsToSelector:@selector(appWillTerminate:)]) {
     [[GDTTransformer sharedInstance] appWillTerminate:application];
   }
