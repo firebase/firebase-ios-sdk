@@ -64,6 +64,8 @@ class DatabaseId : public util::Comparable<DatabaseId> {
   size_t Hash() const;
 
  private:
+  // DocumentIds are copied into every ReferenceValue we create so hide the
+  // actual values behind a shared_ptr to make copying cheaper.
   struct Rep {
     std::string project_id;
     std::string database_id;
