@@ -280,6 +280,10 @@ class ObjectValue : public util::Comparable<ObjectValue> {
     return *fv_.object_value_;
   }
 
+  const FieldValue& AsFieldValue() const {
+    return fv_;
+  }
+
   util::ComparisonResult CompareTo(const ObjectValue& rhs) const;
 
   std::string ToString() const;
