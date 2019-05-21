@@ -295,8 +295,6 @@
 }
 
 - (void)testCollectionGroupQueries {
-  if ([FSTIntegrationTestCase isRunningAgainstEmulator]) return;  // b/131774876
-
   // Use .document() to get a random collection group name to use but ensure it starts with 'b'
   // for predictable ordering.
   NSString *collectionGroup = [NSString
@@ -331,8 +329,6 @@
 }
 
 - (void)testCollectionGroupQueriesWithStartAtEndAtWithArbitraryDocumentIDs {
-  if ([FSTIntegrationTestCase isRunningAgainstEmulator]) return;  // b/131774876
-
   // Use .document() to get a random collection group name to use but ensure it starts with 'b'
   // for predictable ordering.
   NSString *collectionGroup = [NSString
@@ -370,8 +366,6 @@
 }
 
 - (void)testCollectionGroupQueriesWithWhereFiltersOnArbitraryDocumentIDs {
-  if ([FSTIntegrationTestCase isRunningAgainstEmulator]) return;  // b/131774876
-
   // Use .document() to get a random collection group name to use but ensure it starts with 'b'
   // for predictable ordering.
   NSString *collectionGroup = [NSString
