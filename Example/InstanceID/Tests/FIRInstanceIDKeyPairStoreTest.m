@@ -141,7 +141,7 @@
                               XCTAssertNotEqualObjects(iid1, iid2);
                               [identityResetExpectation fulfill];
                             }];
-  [self waitForExpectationsWithTimeout:3 handler:nil];
+  [self waitForExpectationsWithTimeout:5 handler:nil];
 }
 
 /**
