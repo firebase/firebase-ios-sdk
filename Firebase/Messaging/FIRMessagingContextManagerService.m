@@ -24,6 +24,8 @@
 #import "FIRMessagingLogger.h"
 #import "FIRMessagingUtilities.h"
 
+#import <GoogleUtilities/GULAppDelegateSwizzler.h>
+
 #define kFIRMessagingContextManagerPrefixKey @"google.c.cm."
 #define kFIRMessagingContextManagerNotificationKeyPrefix @"gcm.notification."
 
@@ -177,14 +179,11 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
   if (userInfo.count) {
     notification.userInfo = userInfo;
   }
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  UIApplication *application = FIRMessagingUIApplication();
+  UIApplication *application = [GULAppDelegateSwizzler sharedApplication];
   if (!application) {
     return;
   }
   [application scheduleLocalNotification:notification];
-#pragma clang diagnostic pop
 #endif
 }
 

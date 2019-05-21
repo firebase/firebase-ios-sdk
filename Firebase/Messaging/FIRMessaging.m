@@ -21,10 +21,6 @@
 #import "FIRMessaging.h"
 #import "FIRMessaging_Private.h"
 
-#if TARGET_OS_IOS ||TARGET_OS_TV
-#import <UIKit/UIKit.h>
-#endif
-
 #import "FIRMessagingAnalytics.h"
 #import "FIRMessagingClient.h"
 #import "FIRMessagingConstants.h"
@@ -52,6 +48,7 @@
 #import <FirebaseInstanceID/FIRInstanceID_Private.h>
 #import <GoogleUtilities/GULReachabilityChecker.h>
 #import <GoogleUtilities/GULUserDefaults.h>
+#import <GoogleUtilities/GULAppDelegateSwizzler.h>
 
 #import "NSError+FIRMessaging.h"
 
@@ -447,9 +444,9 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
     return;
   }
 #if TARGET_OS_OSX
-    return;
+  return;
 #else
-  UIApplication *application = FIRMessagingUIApplication();
+  UIApplication *application = [GULAppDelegateSwizzler sharedApplication];
   if (!application) {
     return;
   }
@@ -685,14 +682,13 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 }
 
 - (BOOL)shouldBeConnectedAutomatically {
-  // MCS channel should be disabled in macOS
 #if TARGET_OS_OSX
     return NO;
 #else
-    // We require a token from Instance ID
-    NSString *token = self.defaultFcmToken;
+  // We require a token from Instance ID
+  NSString *token = self.defaultFcmToken;
   // Only on foreground connections
-  UIApplication *application = FIRMessagingUIApplication();
+  UIApplication *application = [GULAppDelegateSwizzler sharedApplication];
   if (!application) {
     return NO;
   }
