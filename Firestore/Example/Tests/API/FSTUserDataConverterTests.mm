@@ -78,9 +78,14 @@ using firebase::firestore::model::FieldValue;
     XCTAssertEqualObjects([wrapped value], value);
     XCTAssertEqual(wrapped.type, FieldValue::Type::Boolean);
   }
+}
 
-  // Unsigned chars could conceivably be handled consistently with signed chars but on arm64 these
-  // end up being stored as signed shorts.
+- (void)testConvertsUnsignedCharToInteger {
+  // See comments in FSTUserDataConverter regarding handling of signed char. Essentially, signed
+  // char has to be treated as boolean. Unsigned chars could conceivably be handled consistently
+  // with signed chars but on arm64 these end up being stored as signed shorts. This forces us to
+  // choose, and it's more useful to support shorts as Integers than it is to treat unsigned char as
+  // Boolean.
   FSTFieldValue *wrapped = FSTTestFieldValue([NSNumber numberWithUnsignedChar:1]);
   XCTAssertEqualObjects(wrapped, [FSTIntegerValue integerValue:1]);
 }
@@ -90,7 +95,7 @@ union DoubleBits {
   uint64_t bits;
 };
 
-- (void)testConvertstrings {
+- (void)testConvertsStrings {
   NSArray *values = @[ @"", @"abc" ];
   for (id value in values) {
     FSTFieldValue *wrapped = FSTTestFieldValue(value);

@@ -16,7 +16,12 @@
 
 #import "GDTCCTLibrary/Private/GDTCCTNanopbHelpers.h"
 
+#if TARGET_OS_IOS || TARGET_OS_TVOS
 #import <UIKit/UIKit.h>
+#elif TARGET_OS_OSX
+#import <AppKit/AppKit.h>
+#endif // TARGET_OS_IOS || TARGET_OS_TVOS
+
 #import <nanopb/pb.h>
 #import <nanopb/pb_decode.h>
 #import <nanopb/pb_encode.h>
@@ -122,13 +127,18 @@ gdt_cct_ClientInfo GDTCCTConstructClientInfo() {
   gdt_cct_ClientInfo clientInfo = gdt_cct_ClientInfo_init_default;
   clientInfo.client_type = gdt_cct_ClientInfo_ClientType_IOS_FIREBASE;
   clientInfo.has_client_type = 1;
+#if TARGET_OS_IOS || TARGET_OS_TVOS
   clientInfo.ios_client_info = GDTCCTConstructiOSClientInfo();
   clientInfo.has_ios_client_info = 1;
+#elif TARGET_OS_OSX
+  // TODO(mikehaney24): Expand the proto to include macOS client info.
+#endif
   return clientInfo;
 }
 
 gdt_cct_IosClientInfo GDTCCTConstructiOSClientInfo() {
   gdt_cct_IosClientInfo iOSClientInfo = gdt_cct_IosClientInfo_init_default;
+#if TARGET_OS_IOS || TARGET_OS_TVOS
   UIDevice *device = [UIDevice currentDevice];
   NSBundle *bundle = [NSBundle mainBundle];
   NSLocale *locale = [NSLocale currentLocale];
@@ -145,6 +155,7 @@ gdt_cct_IosClientInfo GDTCCTConstructiOSClientInfo() {
   iOSClientInfo.language_code =
       languageCode ? GDTCCTEncodeString(languageCode) : GDTCCTEncodeString(@"en");
   iOSClientInfo.application_bundle_id = GDTCCTEncodeString(bundle.bundleIdentifier);
+#endif
   return iOSClientInfo;
 }
 

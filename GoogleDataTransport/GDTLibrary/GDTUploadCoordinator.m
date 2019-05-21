@@ -137,8 +137,7 @@
                             kSCNetworkReachabilityFlagsConnectionOnDemand;
   BOOL connectionOnTraffic = (currentFlags & kSCNetworkReachabilityFlagsConnectionOnTraffic) ==
                              kSCNetworkReachabilityFlagsConnectionOnTraffic;
-  BOOL isWWAN =
-      (currentFlags & kSCNetworkReachabilityFlagsIsWWAN) == kSCNetworkReachabilityFlagsIsWWAN;
+  BOOL isWWAN = GDTReachabilityFlagsContainWWAN(currentFlags);
 
   if (!reachable) {
     return GDTUploadConditionNoNetwork;
@@ -187,13 +186,13 @@ static NSString *const ktargetToInFlightPackagesKey =
 
 #pragma mark - GDTLifecycleProtocol
 
-- (void)appWillForeground:(UIApplication *)app {
+- (void)appWillForeground:(GDTApplication *)app {
   // Not entirely thread-safe, but it should be fine.
   self->_runningInBackground = NO;
   [self startTimer];
 }
 
-- (void)appWillBackground:(UIApplication *)app {
+- (void)appWillBackground:(GDTApplication *)app {
   // Not entirely thread-safe, but it should be fine.
   self->_runningInBackground = YES;
 
@@ -201,7 +200,7 @@ static NSString *const ktargetToInFlightPackagesKey =
   [self stopTimer];
 
   // Create an immediate background task to run until the end of the current queue of work.
-  __block UIBackgroundTaskIdentifier bgID = [app beginBackgroundTaskWithExpirationHandler:^{
+  __block GDTBackgroundIdentifier bgID = [app beginBackgroundTaskWithExpirationHandler:^{
     [app endBackgroundTask:bgID];
   }];
   dispatch_async(_coordinationQueue, ^{
@@ -209,7 +208,7 @@ static NSString *const ktargetToInFlightPackagesKey =
   });
 }
 
-- (void)appWillTerminate:(UIApplication *)application {
+- (void)appWillTerminate:(GDTApplication *)application {
   dispatch_sync(_coordinationQueue, ^{
     [self stopTimer];
   });

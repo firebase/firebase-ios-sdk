@@ -15,7 +15,8 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
+
+#import <GoogleDataTransport/GDTPlatform.h>
 
 @class GDTEvent;
 
@@ -29,21 +30,21 @@ NS_ASSUME_NONNULL_BEGIN
 /** Indicates an imminent app termination in the rare occurrence when -applicationWillTerminate: has
  * been called.
  *
- * @param app The UIApplication instance.
+ * @param app The GDTApplication instance.
  */
-- (void)appWillTerminate:(UIApplication *)app;
+- (void)appWillTerminate:(GDTApplication *)app;
 
 /** Indicates that the app is moving to background and eventual suspension.
  *
- * @param app The UIApplication instance.
+ * @param app The GDTApplication instance.
  */
-- (void)appWillBackground:(UIApplication *)app;
+- (void)appWillBackground:(GDTApplication *)app;
 
 /** Indicates that the app is resuming operation.
  *
- * @param app The UIApplication instance.
+ * @param app The GDTApplication instance.
  */
-- (void)appWillForeground:(UIApplication *)app;
+- (void)appWillForeground:(GDTApplication *)app;
 
 @end
 
@@ -54,7 +55,7 @@ NS_ASSUME_NONNULL_BEGIN
  * library (GDTStorage and GDTUploadCoordinator singletons) will deserialize themselves from and to
  * disk before and after every operation, respectively.
  */
-@interface GDTLifecycle : NSObject <UIApplicationDelegate>
+@interface GDTLifecycle : NSObject <GDTApplicationDelegate>
 
 @end
 
