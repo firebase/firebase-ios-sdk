@@ -18,7 +18,7 @@
 
 #include <cerrno>
 
-#include "Firestore/core/test/firebase/firestore/util/status_test_util.h"
+#include "Firestore/core/test/firebase/firestore/util/status_testing.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 

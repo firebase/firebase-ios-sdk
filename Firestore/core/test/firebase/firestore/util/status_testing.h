@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_UTIL_STATUS_TEST_UTIL_H_
-#define FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_UTIL_STATUS_TEST_UTIL_H_
+#ifndef FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_UTIL_STATUS_TESTING_H_
+#define FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_UTIL_STATUS_TESTING_H_
 
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "gtest/gtest.h"
@@ -52,4 +52,4 @@ inline testing::AssertionResult Equal(Status expected, Status actual) {
 // If you want to check for particular errors, a better alternative is:
 // EXPECT_EQ(..expected FirestoreErrorCode..., status.code());
 
-#endif  // FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_UTIL_STATUS_TEST_UTIL_H_
+#endif  // FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_UTIL_STATUS_TESTING_H_

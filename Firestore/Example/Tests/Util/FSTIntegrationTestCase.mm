@@ -41,7 +41,7 @@
 #include "Firestore/core/src/firebase/firestore/util/path.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/testutil/app_testing.h"
-#include "Firestore/core/test/firebase/firestore/util/status_test_util.h"
+#include "Firestore/core/test/firebase/firestore/util/status_testing.h"
 
 #include "absl/memory/memory.h"
 
