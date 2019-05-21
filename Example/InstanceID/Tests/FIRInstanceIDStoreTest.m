@@ -53,13 +53,13 @@ static NSString *const kSecret = @"test-secret";
 
 @interface FIRInstanceIDStoreTest : XCTestCase
 
-@property(assign, nonatomic) FIRInstanceIDStore *instanceIDStore;
-@property(assign, nonatomic) FIRInstanceIDBackupExcludedPlist *checkinPlist;
-@property(assign, nonatomic) FIRInstanceIDCheckinStore *checkinStore;
-@property(assign, nonatomic) FIRInstanceIDTokenStore *tokenStore;
-@property(assign, nonatomic) id mockCheckinStore;
-@property(assign, nonatomic) id mockTokenStore;
-@property(assign, nonatomic) id mockInstanceIDStore;
+@property(strong, nonatomic) FIRInstanceIDStore *instanceIDStore;
+@property(strong, nonatomic) FIRInstanceIDBackupExcludedPlist *checkinPlist;
+@property(strong, nonatomic) FIRInstanceIDCheckinStore *checkinStore;
+@property(strong, nonatomic) FIRInstanceIDTokenStore *tokenStore;
+@property(strong, nonatomic) id mockCheckinStore;
+@property(strong, nonatomic) id mockTokenStore;
+@property(strong, nonatomic) id mockInstanceIDStore;
 
 @end
 
@@ -96,8 +96,7 @@ static NSString *const kSecret = @"test-secret";
   [self.instanceIDStore removeAllCachedTokensWithHandler:nil];
   [self.instanceIDStore removeCheckinPreferencesWithHandler:nil];
   [FIRInstanceIDStore removeSubDirectory:kSubDirectoryName error:nil];
-  // EXC_BAD_ACCESS and doesn't seem necessary. Perhaps https://github.com/erikdoe/ocmock/issues/317
-  // [_mockCheckinStore stopMocking];
+  [_mockCheckinStore stopMocking];
   [_mockTokenStore stopMocking];
   [_mockInstanceIDStore stopMocking];
   [super tearDown];
@@ -245,13 +244,13 @@ static NSString *const kSecret = @"test-secret";
 }
 
 - (void)testResetCredentialsWithNoCachedCheckin {
-  _mockCheckinStore = [OCMockObject niceMockForClass:[FIRInstanceIDCheckinStore class]];
-  [[_mockCheckinStore reject]
+  id niceMockCheckinStore = [OCMockObject niceMockForClass:[FIRInstanceIDCheckinStore class]];
+  [[niceMockCheckinStore reject]
       removeCheckinPreferencesWithHandler:[OCMArg invokeBlockWithArgs:[NSNull null], nil]];
   // Always setting up stub after expect.
   OCMStub([_checkinStore cachedCheckinPreferences]).andReturn(nil);
 
   [_instanceIDStore resetCredentialsIfNeeded];
-  OCMVerifyAll(_mockCheckinStore);
+  OCMVerifyAll(niceMockCheckinStore);
 }
 @end
