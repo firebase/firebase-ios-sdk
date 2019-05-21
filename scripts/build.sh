@@ -332,7 +332,7 @@ case "$product-$method-$platform" in
   GoogleDataTransport-xcodebuild-*)
     RunXcodebuild \
         -workspace 'GoogleDataTransport/gen/GoogleDataTransport/GoogleDataTransport.xcworkspace' \
-        -scheme "GoogleDataTransport-$platform-Unit-Tests-Unit"
+        -scheme "GoogleDataTransport-$platform-Unit-Tests-Unit" \
         "${xcb_flags[@]}" \
         build \
         test
