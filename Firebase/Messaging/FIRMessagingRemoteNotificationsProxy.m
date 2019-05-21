@@ -17,9 +17,6 @@
 #import "FIRMessagingRemoteNotificationsProxy.h"
 
 #import <objc/runtime.h>
-#if TARGET_OS_IOS ||TARGET_OS_TV
-#import <UIKit/UIKit.h>
-#endif
 
 #import "FIRMessagingConstants.h"
 #import "FIRMessagingLogger.h"
@@ -412,12 +409,6 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
 }
 
 - (void)application:(UIApplication *)application
-didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
-  // Pass the APNSToken along to FIRMessaging (and auto-detect the token type)
-  [FIRMessaging messaging].APNSToken = deviceToken;
-}
-
-- (void)application:(UIApplication *)application
 didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
   // Log the fact that we failed to register for remote notifications
   FIRMessagingLoggerError(kFIRMessagingMessageCodeRemoteNotificationsProxyAPNSFailed,
@@ -427,11 +418,9 @@ didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
 }
 #endif
 
-#if TARGET_OS_OSX
-- (void)application:(NSApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+- (void)application:(GULApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
     [FIRMessaging messaging].APNSToken = deviceToken;
 }
-#endif
 
 #pragma mark - Swizzled Methods
 
