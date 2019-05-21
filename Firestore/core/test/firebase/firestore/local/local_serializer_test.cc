@@ -37,6 +37,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/serializer.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
+#include "Firestore/core/test/firebase/firestore/util/status_testing.h"
 #include "google/protobuf/util/message_differencer.h"
 #include "gtest/gtest.h"
 
@@ -74,9 +75,6 @@ using testutil::Query;
 using testutil::UnknownDoc;
 using util::Status;
 
-// TODO(rsgowman): This is copied from remote/serializer_tests.cc. Refactor.
-#define EXPECT_OK(status) EXPECT_TRUE(StatusOk(status))
-
 class LocalSerializerTest : public ::testing::Test {
  public:
   LocalSerializerTest()
@@ -99,26 +97,6 @@ class LocalSerializerTest : public ::testing::Test {
     // bytes with our (nanopb based) deserializer and ensure the result is the
     // same as the expected model.
     ExpectDeserializationRoundTrip(args...);
-  }
-
-  /**
-   * Checks the status. Don't use directly; use one of the relevant macros
-   * instead. eg:
-   *
-   *   Status good_status = ...;
-   *   ASSERT_OK(good_status);
-   *
-   *   Status bad_status = ...;
-   *   EXPECT_NOT_OK(bad_status);
-   */
-  // TODO(rsgowman): This is copied from remote/serializer_tests.cc. Refactor.
-  testing::AssertionResult StatusOk(const Status& status) {
-    if (!status.ok()) {
-      return testing::AssertionFailure()
-             << "Status should have been ok, but instead contained "
-             << status.ToString();
-    }
-    return testing::AssertionSuccess();
   }
 
  private:
