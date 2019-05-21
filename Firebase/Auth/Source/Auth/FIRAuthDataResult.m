@@ -39,12 +39,12 @@ static NSString *const kUserCodingKey = @"user";
  */
 static NSString *const kCredentialCodingKey = @"credential";
 
-- (nullable instancetype)initWithUser:(nullable FIRUser *)user
+- (nullable instancetype)initWithUser:(FIRUser *)user
                    additionalUserInfo:(nullable FIRAdditionalUserInfo *)additionalUserInfo {
   return [self initWithUser:user additionalUserInfo:additionalUserInfo credential:nil];
 }
 
-- (nullable instancetype)initWithUser:(nullable FIRUser *)user
+- (nullable instancetype)initWithUser:(FIRUser *)user
                    additionalUserInfo:(nullable FIRAdditionalUserInfo *)additionalUserInfo
                            credential:(nullable FIROAuthCredential *)credential {
   self = [super init];
