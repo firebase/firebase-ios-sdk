@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
- #import "FIRMessagingExtensionHelper.h"
+#import "FIRMessagingExtensionHelper.h"
 
- #import "FIRMMessageCode.h"
+#import "FIRMMessageCode.h"
 #import "FIRMessagingLogger.h"
 
- static NSString *const kPayloadOptionsName = @"fcm_options";
+static NSString *const kPayloadOptionsName = @"fcm_options";
 static NSString *const kPayloadOptionsImageURLName = @"image";
 
- @interface FIRMessagingExtensionHelper ()
+@interface FIRMessagingExtensionHelper ()
 @property(nonatomic, strong) void (^contentHandler)(UNNotificationContent *contentToDeliver);
 @property(nonatomic, strong) UNMutableNotificationContent *bestAttemptContent;
 
- @end
+@end
 
- @implementation FIRMessagingExtensionHelper
+@implementation FIRMessagingExtensionHelper
 
- - (void)populateNotificationContent:(UNMutableNotificationContent *)content
+- (void)populateNotificationContent:(UNMutableNotificationContent *)content
                  withContentHandler:(void (^)(UNNotificationContent *_Nonnull))contentHandler {
   self.contentHandler = [contentHandler copy];
   self.bestAttemptContent = content;

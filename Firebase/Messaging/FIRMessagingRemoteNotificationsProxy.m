@@ -52,7 +52,6 @@ static NSString *kUserNotificationDidReceiveResponseSelectorString =
 
 + (BOOL)canSwizzleMethods {
   return [GULAppDelegateSwizzler isAppDelegateProxyEnabled];
-    return NO;
 }
 
 + (instancetype)sharedProxy {

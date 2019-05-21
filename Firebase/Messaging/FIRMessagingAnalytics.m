@@ -14,16 +14,13 @@
  * limitations under the License.
  */
 
-#if __has_include(<UIKit/UIKit.h>)
-#import <UIKit/UIKit.h>
-#endif
-
 #import "FIRMessagingAnalytics.h"
 #import "FIRMessagingLogger.h"
 
 #import <FirebaseAnalyticsInterop/FIRInteropEventNames.h>
 #import <FirebaseAnalyticsInterop/FIRInteropParameterNames.h>
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
+#import <GoogleUtilities/GULAppDelegateSwizzler.h>
 
 static NSString *const kLogTag = @"FIRMessagingAnalytics";
 
@@ -189,7 +186,7 @@ withNotification:(NSDictionary *)notification
     return;
   }
 #if TARGET_OS_IOS ||TARGET_OS_TV
-  UIApplication *application = [self currentUIApplication];
+  UIApplication *application = [GULAppDelegateSwizzler sharedApplication];
   if (!application) {
     return;
   }
@@ -213,18 +210,5 @@ withNotification:(NSDictionary *)notification
   }
 #endif
 }
-
-#if TARGET_OS_IOS ||TARGET_OS_TV
-+ (UIApplication *)currentUIApplication {
-  Class applicationClass = nil;
-  if (![GULAppEnvironmentUtil isAppExtension]) {
-    Class cls = NSClassFromString(@"UIApplication");
-    if (cls && [cls respondsToSelector:NSSelectorFromString(@"sharedApplication")]) {
-      applicationClass = cls;
-    }
-  }
-  return [applicationClass sharedApplication];
-}
-#endif
 
 @end

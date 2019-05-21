@@ -14,11 +14,7 @@
  * limitations under the License.
  */
 
-#if __has_include(<UIKit/UIKit.h>)
-#import <UIKit/UIKit.h>
-#else
 #import <Foundation/Foundation.h>
-#endif
 
 typedef NS_ENUM(int8_t, FIRMessagingProtoTag) {
   kFIRMessagingProtoTagInvalid = -1,
