@@ -67,7 +67,7 @@ else
       ;;
 
     Core-*)
-      check_changes '^(Firebase/Core|GoogleUtilities|FirebaseCore.podspec)'
+      check_changes '^(Firebase/Core|Example/Core/Tests|GoogleUtilities|FirebaseCore.podspec)'
       ;;
 
     Functions-*)
@@ -98,6 +98,10 @@ else
 
     GoogleDataTransportCCTSupport-*)
       check_changes '^(GoogleDataTransportCCTSupport|GoogleDataTransportCCTSupport.podspec|GoogleDataTransport|GoogleDataTransport.podspec)'
+      ;;
+
+    Storage-*)
+      check_changes '^(Firebase/Core|Firebase/Storage|Example/Storage|GoogleUtilities|FirebaseStorage.podspec)'
       ;;
 
     *)

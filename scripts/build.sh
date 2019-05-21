@@ -86,27 +86,35 @@ function RunXcodebuild() {
   fi
 }
 
+ios_flags=(
+  -sdk 'iphonesimulator'
+  -destination 'platform=iOS Simulator,name=iPhone 7'
+)
+macos_flags=(
+  -sdk 'macosx'
+  -destination 'platform=OS X,arch=x86_64'
+)
+tvos_flags=(
+  -sdk "appletvsimulator"
+  -destination 'platform=tvOS Simulator,name=Apple TV'
+)
+
 # Compute standard flags for all platforms
 case "$platform" in
   iOS)
-    xcb_flags=(
-      -sdk 'iphonesimulator'
-      -destination 'platform=iOS Simulator,name=iPhone 7'
-    )
+    xcb_flags=("${ios_flags[@]}")
     ;;
 
   macOS)
-    xcb_flags=(
-      -sdk 'macosx'
-      -destination 'platform=OS X,arch=x86_64'
-    )
+    xcb_flags=("${macos_flags[@]}")
     ;;
 
   tvOS)
-    xcb_flags=(
-      -sdk "appletvsimulator"
-      -destination 'platform=tvOS Simulator,name=Apple TV'
-    )
+    xcb_flags=("${tvos_flags[@]}")
+    ;;
+
+  all)
+    xcb_flags=()
     ;;
 
   *)
@@ -196,13 +204,6 @@ case "$product-$method-$platform" in
         RunXcodebuild \
           -workspace 'Example/Firebase.xcworkspace' \
           -scheme "Auth_ApiTests" \
-          "${xcb_flags[@]}" \
-          build \
-          test
-
-        RunXcodebuild \
-          -workspace 'Example/Firebase.xcworkspace' \
-          -scheme "Storage_IntegrationTests_iOS" \
           "${xcb_flags[@]}" \
           build \
           test
@@ -368,7 +369,7 @@ case "$product-$method-$platform" in
         build \
         test
 
-        RunXcodebuild \
+    RunXcodebuild \
         -workspace 'GoogleDataTransportCCTSupport/gen/GoogleDataTransportCCTSupport/GoogleDataTransportCCTSupport.xcworkspace' \
         -scheme "GoogleDataTransportCCTSupport-$platform-Unit-Tests-Integration" \
         "${xcb_flags[@]}" \
@@ -376,6 +377,41 @@ case "$product-$method-$platform" in
         test
     ;;
 
+  Storage-xcodebuild-*)
+    RunXcodebuild \
+      -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
+      -scheme "FirebaseStorage-iOS-Unit-unit" \
+      "${ios_flags[@]}" \
+      "${xcb_flags[@]}" \
+      build \
+      test
+    RunXcodebuild \
+      -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
+      -scheme "FirebaseStorage-macOS-Unit-unit" \
+      "${macos_flags[@]}" \
+      "${xcb_flags[@]}" \
+      build \
+      test
+    RunXcodebuild \
+      -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
+      -scheme "FirebaseStorage-tvOS-Unit-unit" \
+      "${tvos_flags[@]}" \
+      "${xcb_flags[@]}" \
+      build \
+      test
+
+    if [[ "$TRAVIS_PULL_REQUEST" == "false" ||
+          "$TRAVIS_PULL_REQUEST_SLUG" == "$TRAVIS_REPO_SLUG" ]]; then
+      # Integration tests are only run on iOS to minimize flake failures.
+      RunXcodebuild \
+        -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
+        -scheme "FirebaseStorage-iOS-Unit-integration" \
+        "${ios_flags[@]}" \
+        "${xcb_flags[@]}" \
+        build \
+        test
+      fi
+    ;;
   *)
     echo "Don't know how to build this product-platform-method combination" 1>&2
     echo "  product=$product" 1>&2
