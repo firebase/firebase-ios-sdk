@@ -78,7 +78,7 @@ NSBundle* _Nullable FindCertBundleInParent(NSBundle* _Nullable parent) {
   if (!parent) return nil;
 
   static NSString* const bundle_names[] = {
-      // gRPC-C++ 0.0.9 Changed the name of the resource bundle to allow it to
+      // gRPC-C++ 0.0.9 changed the name of the resource bundle to allow it to
       // coexist with Objective-C gRPC.
       @"gRPCCertificates-Cpp",
 
