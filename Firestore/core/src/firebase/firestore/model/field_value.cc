@@ -31,7 +31,6 @@
 #include "Firestore/core/src/firebase/firestore/util/to_string.h"
 #include "absl/memory/memory.h"
 #include "absl/strings/escaping.h"
-#include "absl/types/variant.h"
 
 namespace firebase {
 namespace firestore {
@@ -424,24 +423,6 @@ class MapContents : public FieldValue::BaseValue {
  private:
   FieldValue::Map value_;
 };
-
-#if 0
-union {
-  // There is no null type as tag_ alone is enough for Null FieldValue.
-  bool boolean_value_;
-  int64_t integer_value_;
-  double double_value_;
-  std::unique_ptr<Timestamp> timestamp_value_;
-  std::unique_ptr<ServerTimestamp> server_timestamp_value_;
-  // TODO(rsgowman): Change unique_ptr<std::string> to nanopb::String?
-  std::unique_ptr<std::string> string_value_;
-  std::unique_ptr<std::vector<uint8_t>> blob_value_;
-  std::unique_ptr<ReferenceValue> reference_value_;
-  std::unique_ptr<GeoPoint> geo_point_value_;
-  std::unique_ptr<std::vector<FieldValue>> array_value_;
-  std::unique_ptr<Map> object_value_;
-};
-#endif
 
 FieldValue::FieldValue() : FieldValue(std::make_shared<NullValue>()) {
 }
