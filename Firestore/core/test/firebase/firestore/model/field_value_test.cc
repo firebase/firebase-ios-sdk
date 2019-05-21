@@ -133,32 +133,30 @@ TEST(FieldValueTest, DeletesHandleMissingKeys) {
 }
 
 TEST(FieldValueTest, DeletesNestedKeys) {
-  FieldValue::Map orig =
-      Object("a", Object("b", 1, "c", Object("d", 2, "e", 3))).object_value();
-  ObjectValue old = WrapObject(orig);
+  ObjectValue old =
+      Object("a", Object("b", 1, "c", Object("d", 2, "e", 3)));
   ObjectValue mod = old.Delete(Field("a.c.d"));
 
   EXPECT_NE(mod, old);
-  EXPECT_EQ(WrapObject(orig), old);
 
-  FieldValue::Map second =
-      Object("a", Object("b", 1, "c", Object("e", 3))).object_value();
-  EXPECT_EQ(WrapObject(second), mod);
+  ObjectValue second =
+      Object("a", Object("b", 1, "c", Object("e", 3)));
+  EXPECT_EQ(second, mod);
 
   old = mod;
   mod = old.Delete(Field("a.c"));
 
   EXPECT_NE(old, mod);
-  EXPECT_EQ(WrapObject(second), old);
+  EXPECT_EQ(second, old);
 
-  FieldValue::Map third = Object("a", Object("b", 1)).object_value();
-  EXPECT_EQ(WrapObject(third), mod);
+  ObjectValue third = Object("a", Object("b", 1));
+  EXPECT_EQ(third, mod);
 
   old = mod;
   mod = old.Delete(Field("a"));
 
   EXPECT_NE(old, mod);
-  EXPECT_EQ(WrapObject(third), old);
+  EXPECT_EQ(third, old);
   EXPECT_EQ(ObjectValue::Empty(), mod);
 }
 

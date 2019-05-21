@@ -105,6 +105,10 @@ inline model::FieldValue Value(const model::FieldValue& value) {
   return value;
 }
 
+inline model::ObjectValue Value(const model::ObjectValue& value) {
+  return value;
+}
+
 inline model::FieldValue ArrayValue(std::vector<model::FieldValue>&& value) {
   return model::FieldValue::FromArray(std::move(value));
 }
@@ -114,7 +118,7 @@ namespace details {
 /**
  * Recursive base case for AddPairs, below. Returns the map.
  */
-inline model::FieldValue::Map AddPairs(const model::FieldValue::Map& prior) {
+inline model::ObjectValue AddPairs(const model::ObjectValue& prior) {
   return prior;
 }
 
@@ -130,11 +134,13 @@ inline model::FieldValue::Map AddPairs(const model::FieldValue::Map& prior) {
  * @return The resulting map.
  */
 template <typename ValueType, typename... Args>
-model::FieldValue::Map AddPairs(const model::FieldValue::Map& prior,
-                                const std::string& key,
-                                const ValueType& value,
-                                Args... rest) {
-  return AddPairs(prior.insert(key, Value(value)), rest...);
+model::ObjectValue AddPairs(const model::ObjectValue& prior,
+                            const std::string& key,
+                            const ValueType& value,
+                            Args... rest) {
+  return AddPairs(
+      prior.Set(model::FieldPath::FromDotSeparatedString(key), Value(value)),
+      rest...);
 }
 
 /**
@@ -144,15 +150,15 @@ model::FieldValue::Map AddPairs(const model::FieldValue::Map& prior,
  *     be passed to Value().
  */
 template <typename... Args>
-model::FieldValue::Map MakeMap(Args... key_value_pairs) {
-  return AddPairs(model::FieldValue::Map(), key_value_pairs...);
+model::ObjectValue MakeMap(Args... key_value_pairs) {
+  return AddPairs(model::ObjectValue::Empty(), key_value_pairs...);
 }
 
 }  // namespace details
 
 /** Wraps an immutable sorted map in FieldValue with Type::Object. */
-inline model::FieldValue Object(const model::FieldValue::Map& value) {
-  return model::FieldValue::FromMap(value);
+inline model::ObjectValue Object(const model::FieldValue::Map& value) {
+  return model::ObjectValue::FromMap(value);
 }
 
 /**
@@ -162,13 +168,17 @@ inline model::FieldValue Object(const model::FieldValue::Map& value) {
  *     be passed to Value().
  */
 template <typename... Args>
-model::FieldValue Object(Args... key_value_pairs) {
-  return Object(details::MakeMap(key_value_pairs...));
+model::ObjectValue Object(Args... key_value_pairs) {
+  return details::MakeMap(key_value_pairs...);
 }
 
 /** Wraps an immutable sorted map into an ObjectValue with Type::Object. */
 inline model::ObjectValue WrapObject(const model::FieldValue::Map& value) {
   return model::ObjectValue::FromMap(value);
+}
+
+inline model::ObjectValue WrapObject(const model::ObjectValue& value) {
+  return value;
 }
 
 /**
@@ -179,7 +189,7 @@ inline model::ObjectValue WrapObject(const model::FieldValue::Map& value) {
  */
 template <typename... Args>
 model::ObjectValue WrapObject(Args... key_value_pairs) {
-  return WrapObject(details::MakeMap(key_value_pairs...));
+  return details::MakeMap(key_value_pairs...);
 }
 
 inline model::DocumentKey Key(absl::string_view path) {
