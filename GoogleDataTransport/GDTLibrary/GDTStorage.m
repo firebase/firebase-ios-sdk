@@ -76,10 +76,10 @@ static NSString *GDTStoragePath() {
 - (void)storeEvent:(GDTEvent *)event {
   [self createEventDirectoryIfNotExists];
 
-  __block UIBackgroundTaskIdentifier bgID = UIBackgroundTaskInvalid;
+  __block GDTBackgroundIdentifier bgID = GDTBackgroundIdentifierInvalid;
   if (_runningInBackground) {
-    bgID = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
-      [[UIApplication sharedApplication] endBackgroundTask:bgID];
+    bgID = [[GDTApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
+      [[GDTApplication sharedApplication] endBackgroundTask:bgID];
     }];
   }
 
@@ -110,9 +110,9 @@ static NSString *GDTStoragePath() {
     }
 
     // If running in the background, save state to disk and end the associated background task.
-    if (bgID != UIBackgroundTaskInvalid) {
+    if (bgID != GDTBackgroundIdentifierInvalid) {
       [NSKeyedArchiver archiveRootObject:self toFile:[GDTStorage archivePath]];
-      [[UIApplication sharedApplication] endBackgroundTask:bgID];
+      [[GDTApplication sharedApplication] endBackgroundTask:bgID];
     }
   });
 }
@@ -192,16 +192,16 @@ static NSString *GDTStoragePath() {
 
 #pragma mark - GDTLifecycleProtocol
 
-- (void)appWillForeground:(UIApplication *)app {
+- (void)appWillForeground:(GDTApplication *)app {
   [NSKeyedUnarchiver unarchiveObjectWithFile:[GDTStorage archivePath]];
   self->_runningInBackground = NO;
 }
 
-- (void)appWillBackground:(UIApplication *)app {
+- (void)appWillBackground:(GDTApplication *)app {
   self->_runningInBackground = YES;
   [NSKeyedArchiver archiveRootObject:self toFile:[GDTStorage archivePath]];
   // Create an immediate background task to run until the end of the current queue of work.
-  __block UIBackgroundTaskIdentifier bgID = [app beginBackgroundTaskWithExpirationHandler:^{
+  __block GDTBackgroundIdentifier bgID = [app beginBackgroundTaskWithExpirationHandler:^{
     [app endBackgroundTask:bgID];
   }];
   dispatch_async(_storageQueue, ^{
@@ -209,7 +209,7 @@ static NSString *GDTStoragePath() {
   });
 }
 
-- (void)appWillTerminate:(UIApplication *)application {
+- (void)appWillTerminate:(GDTApplication *)application {
   [NSKeyedArchiver archiveRootObject:self toFile:[GDTStorage archivePath]];
 }
 

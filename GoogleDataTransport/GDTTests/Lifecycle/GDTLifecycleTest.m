@@ -106,7 +106,7 @@
       5.0);
 
   NSNotificationCenter *notifCenter = [NSNotificationCenter defaultCenter];
-  [notifCenter postNotificationName:UIApplicationDidEnterBackgroundNotification object:nil];
+  [notifCenter postNotificationName:kGDTApplicationDidEnterBackgroundNotification object:nil];
   XCTAssertTrue([GDTStorage sharedInstance].runningInBackground);
   XCTAssertTrue([GDTUploadCoordinator sharedInstance].runningInBackground);
   GDTWaitForBlock(
@@ -133,7 +133,7 @@
       5.0);
 
   NSNotificationCenter *notifCenter = [NSNotificationCenter defaultCenter];
-  [notifCenter postNotificationName:UIApplicationDidEnterBackgroundNotification object:nil];
+  [notifCenter postNotificationName:kGDTApplicationDidEnterBackgroundNotification object:nil];
 
   GDTWaitForBlock(
       ^BOOL {
@@ -143,7 +143,7 @@
       5.0);
 
   [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
-  [notifCenter postNotificationName:UIApplicationWillEnterForegroundNotification object:nil];
+  [notifCenter postNotificationName:kGDTApplicationWillEnterForegroundNotification object:nil];
   XCTAssertFalse([GDTStorage sharedInstance].runningInBackground);
   XCTAssertFalse([GDTUploadCoordinator sharedInstance].runningInBackground);
   GDTWaitForBlock(
@@ -169,7 +169,7 @@
       5.0);
 
   NSNotificationCenter *notifCenter = [NSNotificationCenter defaultCenter];
-  [notifCenter postNotificationName:UIApplicationWillTerminateNotification object:nil];
+  [notifCenter postNotificationName:kGDTApplicationWillTerminateNotification object:nil];
   GDTWaitForBlock(
       ^BOOL {
         NSFileManager *fm = [NSFileManager defaultManager];

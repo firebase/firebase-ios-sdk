@@ -69,10 +69,15 @@ static BOOL const kAPNSSandbox = NO;
 
 - (void)testTokenInfoCreationWithInvalidArchive {
   NSData *badData = [@"badData" dataUsingEncoding:NSUTF8StringEncoding];
+  FIRInstanceIDTokenInfo *info = nil;
+  @try {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  FIRInstanceIDTokenInfo *info = [NSKeyedUnarchiver unarchiveObjectWithData:badData];
+    info = [NSKeyedUnarchiver unarchiveObjectWithData:badData];
 #pragma clang diagnostic pop
+  } @catch (NSException *e) {
+    XCTAssertEqualObjects([e name], @"NSInvalidArgumentException");
+  }
   XCTAssertNil(info);
 }
 
