@@ -84,6 +84,19 @@ NSBundle* _Nullable FindCertBundleInParent(NSBundle* _Nullable parent) {
   return [[NSBundle alloc] initWithPath:path];
 }
 
+using BundleLoader = NSBundle* _Nullable (*)(void);
+
+// CocoaPods: try to load from the gRPC-C++ Framework.
+NSBundle* _Nullable FindGrpcCppFrameworkBundle() {
+  return [NSBundle bundleWithIdentifier:@"org.cocoapods.grpcpp"];
+}
+
+// CocoaPods: also allow loading from the Objective-C gRPC Framework.
+NSBundle* _Nullable FindGrpcObjcFrameworkBundle() {
+  return [NSBundle bundleWithIdentifier:@"org.cocoapods.GRPCClient"];
+}
+
+// Carthage: try to load from the FirebaseFirestore.framework
 NSBundle* _Nullable FindFirestoreFrameworkBundle() {
   // Load FIRFirestore reflectively to avoid a circular reference at build time.
   Class firestore_class = objc_getClass("FIRFirestore");
@@ -92,34 +105,36 @@ NSBundle* _Nullable FindFirestoreFrameworkBundle() {
   return [NSBundle bundleForClass:firestore_class];
 }
 
+// Carthage and manual projects: users manually adding resources to the project
+// may add the certificate to the main application bundle. Note that
+// `mainBundle` is nil for unit tests of library projects.
+NSBundle* _Nullable FindMainBundle() {
+  return [NSBundle mainBundle];
+}
+
 /**
  * Finds the path to the roots.pem certificates file, wherever it may be.
  *
- * Carthage users will find roots.pem inside gRPCCertificates.bundle in
- * the main bundle.
+ * Carthage users will find roots.pem inside gRPCCertificates.bundle in the
+ * main bundle.
  *
- * There have been enough variations and workarounds posted on this that
- * this also accepts the roots.pem file outside gRPCCertificates.bundle.
+ * There have been enough variations and workarounds posted on this that this
+ * also accepts the roots.pem file outside gRPCCertificates.bundle.
  */
 NSString* FindPathToCertificatesFile() {
-  // Certificates file might be present in either the gRPC-C++ framework or (for
-  // some projects) in the main bundle.
-  NSBundle* bundles[] = {
-      // CocoaPods: try to load from the gRPC-C++ Framework.
-      [NSBundle bundleWithIdentifier:@"org.cocoapods.grpcpp"],
-
-      // Carthage: try to load from the FirebaseFirestore.framework
-      FindFirestoreFrameworkBundle(),
-
-      // Carthage and manual projects: users manually adding resources to the
-      // project may add the certificate to the main application bundle. Note
-      // that `mainBundle` is nil for unit tests of library projects.
-      [NSBundle mainBundle],
+  // Certificates file might be present in gRPC frameworks, Firestore, or the
+  // main bundle.
+  static BundleLoader loaders[] = {
+      FindGrpcCppFrameworkBundle,
+      FindGrpcObjcFrameworkBundle,
+      FindFirestoreFrameworkBundle,
+      FindMainBundle,
   };
 
   NSString* path = nil;
 
-  for (NSBundle* parent : bundles) {
+  for (BundleLoader loader : loaders) {
+    NSBundle* parent = loader();
     if (!parent) continue;
 
     NSBundle* certs_bundle = FindCertBundleInParent(parent);
