@@ -45,6 +45,16 @@ jobs:
 
     - stage: test
       env:
+        - PROJECT=InstanceID PLATFORM=iOS METHOD=pod-lib-lint
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseInstanceID.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseInstanceID.podspec --use-libraries
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseInstanceID.podspec --use-modular-headers
+
+    - stage: test
+      env:
         - PROJECT=Storage PLATFORM=all METHOD=xcodebuild
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
@@ -105,7 +115,6 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseAuth.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseAuthInterop.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseDynamicLinks.podspec
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseInstanceID.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseMessaging.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseInAppMessaging.podspec
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseInAppMessagingDisplay.podspec
@@ -133,7 +142,6 @@ jobs:
         - travis_retry ./scripts/pod_lib_lint.sh FirebaseAuth.podspec --use-libraries
         - travis_retry ./scripts/pod_lib_lint.sh FirebaseAuthInterop.podspec --use-libraries
         - travis_retry ./scripts/pod_lib_lint.sh FirebaseDynamicLinks.podspec --use-libraries
-        - travis_retry ./scripts/pod_lib_lint.sh FirebaseInstanceID.podspec --use-libraries
         # The Protobuf dependency of FirebaseMessaging has warnings with --use-libraries
         - travis_retry ./scripts/pod_lib_lint.sh FirebaseMessaging.podspec --use-libraries --allow-warnings
         - travis_retry ./scripts/pod_lib_lint.sh FirebaseInAppMessaging.podspec --use-libraries
