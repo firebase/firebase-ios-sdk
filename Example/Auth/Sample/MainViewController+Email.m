@@ -21,6 +21,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef void (^ShowEmailDialogCompletion)(FIRAuthCredential *credential);
+
 @implementation MainViewController (Email)
 
 - (StaticContentTableViewSection *)emailAuthSection {
@@ -36,10 +38,12 @@ NS_ASSUME_NONNULL_BEGIN
                                        action:^{ [weakSelf unlinkFromProvider:FIREmailAuthProviderID completion:nil]; }],
     [StaticContentTableViewCell cellWithTitle:@"Reauthenticate Email Password"
                                        action:^{ [weakSelf reauthenticateEmailPassword]; }],
-    [StaticContentTableViewCell cellWithTitle:@"Sign in with Email Link"
-                                       action:^{ [weakSelf sendEmailSignInLink]; }],
     [StaticContentTableViewCell cellWithTitle:@"Send Email Sign in Link"
+                                       action:^{ [weakSelf sendEmailSignInLink]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Sign in with Email Link"
                                        action:^{ [weakSelf signInWithEmailLink]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Link with Email Link"
+                                       action:^{ [weakSelf linkWithEmailLink]; }],
     ]];
 }
 
@@ -173,24 +177,6 @@ NS_ASSUME_NONNULL_BEGIN
   }];
 }
 
-- (void)showEmailPasswordDialogWithCompletion:(ShowEmailPasswordDialogCompletion)completion {
-  [self showTextInputPromptWithMessage:@"Email Address:"
-                       completionBlock:^(BOOL userPressedOK, NSString *_Nullable email) {
-    if (!userPressedOK || !email.length) {
-      return;
-    }
-    [self showTextInputPromptWithMessage:@"Password:"
-                        completionBlock:^(BOOL userPressedOK, NSString *_Nullable password) {
-        if (!userPressedOK || !password.length) {
-          return;
-        }
-        FIRAuthCredential *credential = [FIREmailAuthProvider credentialWithEmail:email
-                                                                         password:password];
-        completion(credential);
-      }];
-    }];
-}
-
 - (void)signInWithEmailLink {
   [self showTextInputPromptWithMessage:@"Email Address:"
                           keyboardType:UIKeyboardTypeEmailAddress
@@ -250,6 +236,60 @@ NS_ASSUME_NONNULL_BEGIN
          [self showMessagePrompt:@"Sent"];
         }];
       });
+    }];
+  }];
+}
+
+- (void)linkWithEmailLink {
+  [self showEmailLinkDialogWithCompletion:^(FIRAuthCredential *credential) {
+    [self showSpinner:^{
+      [[self user] linkWithCredential:credential
+                           completion:^(FIRAuthDataResult *result, NSError *error) {
+        if (error) {
+          [self logFailure:@"link Email Link failed." error:error];
+        } else {
+          [self logSuccess:@"link Email Link succeeded."];
+        }
+        [self hideSpinner:^{
+          [self showTypicalUIForUserUpdateResultsWithTitle:@"Link with Email Link" error:error];
+        }];
+      }];
+    }];
+  }];
+}
+
+- (void)showEmailPasswordDialogWithCompletion:(ShowEmailDialogCompletion)completion {
+  [self showTextInputPromptWithMessage:@"Email Address:"
+                       completionBlock:^(BOOL userPressedOK, NSString *_Nullable email) {
+    if (!userPressedOK || !email.length) {
+      return;
+    }
+    [self showTextInputPromptWithMessage:@"Password:"
+                         completionBlock:^(BOOL userPressedOK, NSString *_Nullable password) {
+        if (!userPressedOK || !password.length) {
+          return;
+        }
+        FIRAuthCredential *credential = [FIREmailAuthProvider credentialWithEmail:email
+                                                                         password:password];
+        completion(credential);
+      }];
+    }];
+}
+
+- (void)showEmailLinkDialogWithCompletion:(ShowEmailDialogCompletion)completion {
+  [self showTextInputPromptWithMessage:@"Email Address:"
+                       completionBlock:^(BOOL userPressedOK, NSString *_Nullable email) {
+    if (!userPressedOK || !email.length) {
+      return;
+    }
+    [self showTextInputPromptWithMessage:@"Link:"
+                         completionBlock:^(BOOL userPressedOK, NSString *_Nullable link) {
+      if (!userPressedOK || !link.length) {
+        return;
+      }
+      FIRAuthCredential *credential = [FIREmailAuthProvider credentialWithEmail:email
+                                                                           link:link];
+      completion(credential);
     }];
   }];
 }

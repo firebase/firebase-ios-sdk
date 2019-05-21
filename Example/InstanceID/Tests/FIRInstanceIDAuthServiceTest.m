@@ -25,7 +25,6 @@
 
 static NSString *const kDeviceAuthId = @"device-id";
 static NSString *const kSecretToken = @"secret-token";
-static NSString *const kDigest = @"com.google.digest";
 static NSString *const kVersionInfo = @"1.0";
 
 @interface FIRInstanceIDCheckinService ()

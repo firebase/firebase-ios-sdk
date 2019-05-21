@@ -132,7 +132,7 @@
         NSRange theRange;
         theRange.location = 0;
         theRange.length = self.initializationEvents;
-        [actualPathsAndEvents removeObjectsInRange:theRange];
+        [self.actualPathsAndEvents removeObjectsInRange:theRange];
 
         return YES;
     } timeout:kFirebaseTestTimeout];
@@ -150,7 +150,7 @@
         }
 
         FTupleEventTypeString* evt = [[FTupleEventTypeString alloc] initWithFirebase:ref withEvent:type withString:name];
-        [actualPathsAndEvents addObject:evt];
+        [self.actualPathsAndEvents addObject:evt];
 
         NSLog(@"Adding event: %@ (%@)", evt, [snap value]);
 

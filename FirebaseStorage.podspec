@@ -37,4 +37,18 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
     'GCC_PREPROCESSOR_DEFINITIONS' =>
       'FIRStorage_VERSION=' + s.version.to_s
   }
+
+  s.test_spec 'unit' do |unit_tests|
+    unit_tests.source_files = 'Example/Storage/Tests/Unit/*.[mh]',
+                              'Example/Shared/FIRComponentTestUtilities.*',
+                              'Example/Shared/FIRAuthInteropFake.*'
+    unit_tests.dependency 'OCMock'
+  end
+
+  s.test_spec 'integration' do |int_tests|
+    int_tests.source_files = 'Example/Storage/Tests/Integration/*.[mh]'
+    int_tests.requires_app_host = true
+    int_tests.resources = 'Example/Storage/App/1mb.dat',
+                          'Example/Storage/App/GoogleService-Info.plist'
+  end
 end

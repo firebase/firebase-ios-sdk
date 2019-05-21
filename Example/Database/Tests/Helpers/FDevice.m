@@ -58,7 +58,8 @@ static NSUInteger deviceId = 0;
 - (id)initWithUrl:(NSString *)firebaseUrl andOnline:(BOOL)online {
     self = [super init];
     if (self) {
-        config = [FTestHelpers configForName:[NSString stringWithFormat:@"device-%lu", deviceId++]];
+        config = [FTestHelpers configForName:
+                  [NSString stringWithFormat:@"device-%lu", (unsigned long)deviceId++]];
         config.persistenceEnabled = YES;
         url = firebaseUrl;
         isOnline = online;

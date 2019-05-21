@@ -98,7 +98,7 @@
   [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
 
-- (void)disable_testUploadNotTriggeredWhenWaitTimeConditionNotSatisfied {
+- (void)testUploadNotTriggeredWhenWaitTimeConditionNotSatisfied {
   // using a real storage in this case
   FIRIAMClearcutLogStorage *logStorage =
       [[FIRIAMClearcutLogStorage alloc] initWithExpireAfterInSeconds:1000
