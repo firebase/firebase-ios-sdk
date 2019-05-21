@@ -141,8 +141,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FSTSerializerBetaTests
 
 - (void)setUp {
-  DatabaseId databaseId("p", "d");
-  self.serializer = [[FSTSerializerBeta alloc] initWithDatabaseID:std::move(databaseId)];
+  self.serializer = [[FSTSerializerBeta alloc] initWithDatabaseID:DatabaseId("p", "d")];
 }
 
 - (void)testEncodesNull {
@@ -286,8 +285,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesResourceNames {
-  DatabaseId databaseId("project");
-  self.serializer = [[FSTSerializerBeta alloc] initWithDatabaseID:std::move(databaseId)];
+  self.serializer = [[FSTSerializerBeta alloc] initWithDatabaseID:DatabaseId("project")];
 
   FSTDocumentKeyReference *reference = FSTTestRef("project", DatabaseId::kDefault, @"foo/bar");
 
