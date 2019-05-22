@@ -38,6 +38,8 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
+namespace {
+
 using BaseValue = FieldValue::BaseValue;
 using Type = FieldValue::Type;
 
@@ -46,28 +48,8 @@ using util::CompareContainer;
 using util::ComparisonResult;
 
 template <typename T>
-static const T& Cast(const std::shared_ptr<BaseValue>& rep) {
-  return *static_cast<T*>(rep.get());
-}
-
-template <typename T>
-static const T& Cast(const BaseValue& rep) {
+const T& Cast(const BaseValue& rep) {
   return static_cast<const T&>(rep);
-}
-
-ComparisonResult FieldValue::BaseValue::CompareTypes(
-    const BaseValue& other) const {
-  Type this_type = type();
-  Type other_type = other.type();
-
-  // This does not necessarily mean the types are actually the same. For those
-  // types that allow mixed types they'll need to handle this further.
-  if (FieldValue::Comparable(this_type, other_type)) {
-    return ComparisonResult::Same;
-  }
-
-  // Otherwise, the types themselves are defined in order.
-  return Compare(this_type, other_type);
 }
 
 class NullValue : public FieldValue::BaseValue {
@@ -101,6 +83,14 @@ class NullValue : public FieldValue::BaseValue {
   }
 };
 
+/**
+ * A base class for implementing a "simple" field value type. Simple field
+ * values:
+ *
+ *   * Are only comparable with values of their own type
+ *   * Can be implemented by delegating to standard utilities, e.g. ToString()
+ *     by calling util::ToString.
+ */
 template <Type type_enum, typename ValueType>
 class SimpleFieldValue : public FieldValue::BaseValue {
  public:
@@ -144,7 +134,7 @@ class SimpleFieldValue : public FieldValue::BaseValue {
 
 class BooleanValue : public SimpleFieldValue<Type::Boolean, bool> {
  public:
-  using SimpleFieldValue<Type::Boolean, bool>::SimpleFieldValue;
+  using SimpleFieldValue::SimpleFieldValue;
 };
 
 template <Type type_enum, typename ValueType>
@@ -159,6 +149,10 @@ class IntegerValue : public NumberValue<Type::Integer, int64_t> {
  public:
   using NumberValue<Type::Integer, int64_t>::NumberValue;
 };
+
+int64_t Integer(const BaseValue& rep) {
+  return Cast<IntegerValue>(rep).value();
+}
 
 class DoubleValue : public NumberValue<Type::Double, double> {
  public:
@@ -176,6 +170,11 @@ class DoubleValue : public NumberValue<Type::Double, double> {
   }
 };
 
+double
+Double(const BaseValue& rep) {
+  return Cast<DoubleValue>(rep).value();
+}
+
 template <Type type_enum, typename ValueType>
 ComparisonResult NumberValue<type_enum, ValueType>::CompareTo(
     const BaseValue& other) const {
@@ -185,25 +184,21 @@ ComparisonResult NumberValue<type_enum, ValueType>::CompareTo(
   Type this_type = this->type();
   Type other_type = other.type();
 
-  if (this_type == Type::Integer) {
-    int64_t this_value = Cast<IntegerValue>(*this).value();
-    if (other_type == Type::Integer) {
-      int64_t other_value = Cast<IntegerValue>(other).value();
-      return Compare(this_value, other_value);
+  if (this_type == other_type) {
+    if (this_type == Type::Integer) {
+      return Compare(Integer(*this), Integer(other));
     } else {
-      double other_value = Cast<DoubleValue>(other).value();
-      return util::ReverseOrder(
-          util::CompareMixedNumber(other_value, this_value));
+      return Compare(Double(*this), Double(other));
     }
 
   } else {
-    double this_value = Cast<DoubleValue>(*this).value();
-    if (other_type == Type::Double) {
-      double other_value = Cast<DoubleValue>(other).value();
-      return Compare(this_value, other_value);
+    if (this_type == Type::Integer) {
+      // CompareMixedNumber only takes (double, int64_t) so reverse the argument
+      // order and then reverse the result.
+      return util::ReverseOrder(
+          util::CompareMixedNumber(Double(other), Integer(*this)));
     } else {
-      int64_t other_value = Cast<IntegerValue>(other).value();
-      return util::CompareMixedNumber(this_value, other_value);
+      return util::CompareMixedNumber(Double(*this), Integer(other));
     }
   }
 }
@@ -495,6 +490,8 @@ class MapContents : public FieldValue::BaseValue {
   FieldValue::Map value_;
 };
 
+}  // namespace
+
 FieldValue::FieldValue() : FieldValue(std::make_shared<NullValue>()) {
 }
 
@@ -513,47 +510,47 @@ bool FieldValue::Comparable(Type lhs, Type rhs) {
 
 bool FieldValue::boolean_value() const {
   HARD_ASSERT(type() == Type::Boolean);
-  return Cast<BooleanValue>(rep_).value();
+  return Cast<BooleanValue>(*rep_).value();
 }
 
 int64_t FieldValue::integer_value() const {
   HARD_ASSERT(type() == Type::Integer);
-  return Cast<IntegerValue>(rep_).value();
+  return Cast<IntegerValue>(*rep_).value();
 }
 
 double FieldValue::double_value() const {
   HARD_ASSERT(type() == Type::Double);
-  return Cast<DoubleValue>(rep_).value();
+  return Cast<DoubleValue>(*rep_).value();
 }
 
 Timestamp FieldValue::timestamp_value() const {
   HARD_ASSERT(type() == Type::Timestamp);
-  return Cast<TimestampValue>(rep_).value();
+  return Cast<TimestampValue>(*rep_).value();
 }
 
 const std::string& FieldValue::string_value() const {
   HARD_ASSERT(type() == Type::String);
-  return Cast<StringValue>(rep_).value();
+  return Cast<StringValue>(*rep_).value();
 }
 
 const std::vector<uint8_t>& FieldValue::blob_value() const {
   HARD_ASSERT(type() == Type::Blob);
-  return Cast<BlobValue>(rep_).value();
+  return Cast<BlobValue>(*rep_).value();
 }
 
 const GeoPoint& FieldValue::geo_point_value() const {
   HARD_ASSERT(type() == Type::GeoPoint);
-  return Cast<GeoPointValue>(rep_).value();
+  return Cast<GeoPointValue>(*rep_).value();
 }
 
 const FieldValue::Array& FieldValue::array_value() const {
   HARD_ASSERT(type() == Type::Array);
-  return Cast<ArrayContents>(rep_).value();
+  return Cast<ArrayContents>(*rep_).value();
 }
 
 const FieldValue::Map& FieldValue::object_value() const {
   HARD_ASSERT(type() == Type::Object);
-  return Cast<MapContents>(rep_).value();
+  return Cast<MapContents>(*rep_).value();
 }
 
 // TODO(rsgowman): Reorder this file to match its header.
@@ -735,6 +732,21 @@ bool operator==(const FieldValue& lhs, const FieldValue& rhs) {
 
 std::ostream& operator<<(std::ostream& os, const FieldValue& value) {
   return os << value.ToString();
+}
+
+ComparisonResult FieldValue::BaseValue::CompareTypes(
+    const BaseValue& other) const {
+  Type this_type = type();
+  Type other_type = other.type();
+
+  // This does not necessarily mean the types are actually the same. For those
+  // types that allow mixed types they'll need to handle this further.
+  if (FieldValue::Comparable(this_type, other_type)) {
+    return ComparisonResult::Same;
+  }
+
+  // Otherwise, the types themselves are defined in order.
+  return Compare(this_type, other_type);
 }
 
 ObjectValue ObjectValue::FromMap(const FieldValue::Map& value) {
