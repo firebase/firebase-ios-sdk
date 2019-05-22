@@ -46,12 +46,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init NS_UNAVAILABLE;
 
 - (instancetype)initWithKey:(model::DocumentKey)key
-                 databaseID:(const model::DatabaseId *)databaseID NS_DESIGNATED_INITIALIZER;
+                 databaseID:(model::DatabaseId)databaseID NS_DESIGNATED_INITIALIZER;
 
 - (const model::DocumentKey &)key;
 
-// Does not own the DatabaseId instance.
-@property(nonatomic, assign, readonly) const model::DatabaseId *databaseID;
+@property(nonatomic, assign, readonly) const model::DatabaseId &databaseID;
 
 @end
 
@@ -68,7 +67,7 @@ typedef id _Nullable (^FSTPreConverterBlock)(id _Nullable);
 @interface FSTUserDataConverter : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
-- (instancetype)initWithDatabaseID:(const model::DatabaseId *)databaseID
+- (instancetype)initWithDatabaseID:(model::DatabaseId)databaseID
                       preConverter:(FSTPreConverterBlock)preConverter NS_DESIGNATED_INITIALIZER;
 
 /** Parse document data from a non-merge setData call.*/

@@ -90,11 +90,10 @@ TEST(Serializer, CanLinkToNanopb) {
 // Fixture for running serializer tests.
 class SerializerTest : public ::testing::Test {
  public:
-  SerializerTest() : serializer(kDatabaseId) {
+  SerializerTest() : serializer(DatabaseId("p", "d")) {
     msg_diff.ReportDifferencesToString(&message_differences);
   }
 
-  const DatabaseId kDatabaseId{"p", "d"};
   Serializer serializer;
 
   template <typename... Args>

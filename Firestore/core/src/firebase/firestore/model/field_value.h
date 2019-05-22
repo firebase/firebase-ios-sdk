@@ -179,10 +179,7 @@ class FieldValue : public util::Comparable<FieldValue> {
   static FieldValue FromString(const std::string& value);
   static FieldValue FromString(std::string&& value);
   static FieldValue FromBlob(const uint8_t* source, size_t size);
-  static FieldValue FromReference(const DocumentKey& value,
-                                  const DatabaseId* database_id);
-  static FieldValue FromReference(DocumentKey&& value,
-                                  const DatabaseId* database_id);
+  static FieldValue FromReference(DatabaseId database_id, DocumentKey value);
   static FieldValue FromGeoPoint(const GeoPoint& value);
   static FieldValue FromArray(const std::vector<FieldValue>& value);
   static FieldValue FromArray(std::vector<FieldValue>&& value);
@@ -310,9 +307,8 @@ struct ServerTimestamp {
 };
 
 struct ReferenceValue {
-  DocumentKey reference;
-  // Does not own the DatabaseId instance.
-  const DatabaseId* database_id = nullptr;
+  DatabaseId database_id;
+  DocumentKey key;
 
   std::string ToString() const;
   friend std::ostream& operator<<(std::ostream& os,

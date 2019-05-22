@@ -83,8 +83,7 @@ class Serializer {
    * @param database_id Must remain valid for the lifetime of this Serializer
    * object.
    */
-  explicit Serializer(
-      const firebase::firestore::model::DatabaseId& database_id);
+  explicit Serializer(model::DatabaseId database_id);
 
   /**
    * Encodes the string to nanopb bytes.
@@ -231,7 +230,7 @@ class Serializer {
 
   std::string EncodeQueryPath(const model::ResourcePath& path) const;
 
-  const model::DatabaseId& database_id_;
+  model::DatabaseId database_id_;
   const std::string database_name_;
 };
 

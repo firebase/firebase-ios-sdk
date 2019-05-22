@@ -78,7 +78,6 @@ using firebase::firestore::local::OrphanedDocumentCallback;
 using firebase::firestore::local::ReferenceSet;
 using firebase::firestore::local::RemoteDocumentCache;
 using firebase::firestore::local::TargetCallback;
-using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::ListenSequenceNumber;
 using firebase::firestore::model::ResourcePath;

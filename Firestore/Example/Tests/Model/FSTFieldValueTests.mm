@@ -284,7 +284,7 @@ union DoubleBits {
 }
 
 - (void)testValueEquality {
-  DatabaseId database_id = DatabaseId("project", DatabaseId::kDefault);
+  DatabaseId database_id("project");
   NSArray *groups = @[
     @[ FSTTestFieldValue(@YES), FieldValue::True().Wrap() ],
     @[ FSTTestFieldValue(@NO), FieldValue::False().Wrap() ],
@@ -329,7 +329,7 @@ union DoubleBits {
     @[
       [FSTReferenceValue
           referenceValue:[FSTDocumentKey keyWithDocumentKey:FSTTestDocKey(@"coll/doc1")]
-              databaseID:&database_id],
+              databaseID:database_id],
       FSTTestFieldValue(FSTTestRef("project", DatabaseId::kDefault, @"coll/doc1"))
     ],
     @[ FSTTestRef("project", "(default)", @"coll/doc2") ],
