@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-#if TARGET_OS_IOS
-#import <UIKit/UIKit.h>
+#if (TARGET_OS_IOS && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0) || \
+    (TARGET_OS_OSX && __MAC_OS_X_VERSION_MAX_ALLOWED >= __MAC_10_14)
 #import <XCTest/XCTest.h>
-
 #import <OCMock/OCMock.h>
 
 #import "FIRMessaging.h"
@@ -32,10 +31,9 @@ static NSString *const kValidImageURL =
     @"chubbyBunny.jpg?alt=media&token=d6c56a57-c007-4b27-b20f-f267cc83e9e5";
 
 @interface FIRMessagingExtensionHelper (ExposedForTest)
-#if TARGET_OS_IOS && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
+
 - (void)loadAttachmentForURL:(NSURL *)attachmentURL
            completionHandler:(void (^)(UNNotificationAttachment *))completionHandler;
-#endif
 @end
 
 @interface FIRMessagingExtensionHelperTest : XCTestCase {
@@ -55,7 +53,6 @@ static NSString *const kValidImageURL =
   [_mockExtensionHelper stopMocking];
 }
 
-#if TARGET_OS_IOS && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 #ifdef COCOAPODS
 // This test requires internet access.
 - (void)testModifyNotificationWithValidPayloadData {
@@ -108,7 +105,6 @@ static NSString *const kValidImageURL =
                                      completionHandler:[OCMArg any]]);
   [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
-#endif
 
 @end
 

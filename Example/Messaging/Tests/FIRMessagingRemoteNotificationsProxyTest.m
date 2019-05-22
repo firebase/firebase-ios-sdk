@@ -233,7 +233,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
   [OCMStub([self.mockSharedApplication delegate]) andReturn:appDelegate];
   [self.proxy swizzleMethodsIfPossible];
 
-#if TARGET_OS_IOS || TARGET_OS_TV
+#if TARGET_OS_IOS
   NSDictionary *notification = @{@"test" : @""};
 
   //Test application:didReceiveRemoteNotification:
@@ -286,7 +286,6 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 }
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
-
 - (void)testListeningForDelegateChangesOnInvalidUserNotificationCenter {
   RandomObject *invalidNotificationCenter = [[RandomObject alloc] init];
   OCMStub([self.mockUserNotificationCenter currentNotificationCenter]).andReturn(invalidNotificationCenter);

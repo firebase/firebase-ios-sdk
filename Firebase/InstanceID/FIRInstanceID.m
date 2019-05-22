@@ -58,9 +58,11 @@ int64_t const kMinRetryIntervalForDefaultTokenInSeconds = 10;       // 10 second
 // change.
 NSInteger const kMaxRetryCountForDefaultToken = 5;
 
+#if TARGET_OS_IOS || TARGET_OS_TV
 static NSString *const kEntitlementsAPSEnvironmentKey = @"Entitlements.aps-environment";
-static NSString *const kEntitlementsAPSEnvironmentKeyForMac =
-    @"com.apple.developer.aps-environment";
+#else
+static NSString *const kEntitlementsAPSEnvironmentKey = @"com.apple.developer.aps-environment";
+#endif
 static NSString *const kEntitlementsKeyForMac = @"Entitlements";
 static NSString *const kAPSEnvironmentDevelopmentValue = @"development";
 /// FIRMessaging selector that returns the current FIRMessaging auto init
@@ -1155,7 +1157,7 @@ static FIRInstanceID *gInstanceID;
   NSString *apsEnvironment = [plistMap valueForKeyPath:kEntitlementsAPSEnvironmentKey];
 #elif TARGET_OS_OSX
   NSDictionary *entitlements = [plistMap valueForKey:kEntitlementsKeyForMac];
-  NSString *apsEnvironment = [entitlements valueForKey:kEntitlementsAPSEnvironmentKeyForMac];
+  NSString *apsEnvironment = [entitlements valueForKey:kEntitlementsAPSEnvironmentKey];
 #endif
 
   NSString *debugString __unused =

@@ -182,10 +182,12 @@ withNotification:(NSDictionary *)notification
 
 + (void)logMessage:(NSDictionary *)notification
        toAnalytics:(id<FIRAnalyticsInterop> _Nullable)analytics {
+    // iOS onlly because Analytics doesn't support tvOS.
+#if TARGET_OS_IOS
   if (![self canLogNotification:notification]) {
     return;
   }
-#if TARGET_OS_IOS ||TARGET_OS_TV
+
   UIApplication *application = [GULAppDelegateSwizzler sharedApplication];
   if (!application) {
     return;

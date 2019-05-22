@@ -40,7 +40,7 @@ static NSString *const kPayloadOptionsImageURLName = @"image";
     [self deliverNotification];
     return;
   }
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_OSX
   NSURL *attachmentURL = [NSURL URLWithString:currentImageURL];
   if (attachmentURL) {
     [self loadAttachmentForURL:attachmentURL
@@ -58,7 +58,7 @@ static NSString *const kPayloadOptionsImageURLName = @"image";
 #endif
 }
 
- #if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_OSX
 - (void)loadAttachmentForURL:(NSURL *)attachmentURL
            completionHandler:(void (^)(UNNotificationAttachment *))completionHandler {
   __block UNNotificationAttachment *attachment = nil;
@@ -107,7 +107,7 @@ static NSString *const kPayloadOptionsImageURLName = @"image";
 }
 #endif
 
- - (void)deliverNotification {
+- (void)deliverNotification {
   if (self.contentHandler) {
     self.contentHandler(self.bestAttemptContent);
   }
