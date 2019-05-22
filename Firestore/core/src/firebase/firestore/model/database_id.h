@@ -32,11 +32,8 @@ class DatabaseId : public util::Comparable<DatabaseId> {
   /** The default name for "unset" database ID in resource names. */
   static constexpr const char* kDefault = "(default)";
 
-#if defined(__OBJC__)
-  // For objective-c++ initialization; to be removed after migration.
-  // Do NOT use in C++ code.
+  // TODO(wilhuff): Remove this after FieldValue rewrite.
   DatabaseId() = default;
-#endif  // defined(__OBJC__)
 
   /**
    * Creates and returns a new DatabaseId.
@@ -44,7 +41,8 @@ class DatabaseId : public util::Comparable<DatabaseId> {
    * @param project_id The project for the database.
    * @param database_id The database in the project to use.
    */
-  DatabaseId(std::string project_id, std::string database_id);
+  explicit DatabaseId(std::string project_id,
+                      std::string database_id = kDefault);
 
   const std::string& project_id() const {
     return rep_->project_id;

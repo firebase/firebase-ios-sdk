@@ -250,7 +250,7 @@ MockDatastore::MockDatastore(const core::DatabaseInfo& database_info,
 std::shared_ptr<WatchStream> MockDatastore::CreateWatchStream(WatchStreamCallback* callback) {
   watch_stream_ = std::make_shared<MockWatchStream>(
       worker_queue_, credentials_,
-      [[FSTSerializerBeta alloc] initWithDatabaseID:&database_info_->database_id()],
+      [[FSTSerializerBeta alloc] initWithDatabaseID:database_info_->database_id()],
       grpc_connection(), callback, this);
 
   return watch_stream_;
@@ -259,7 +259,7 @@ std::shared_ptr<WatchStream> MockDatastore::CreateWatchStream(WatchStreamCallbac
 std::shared_ptr<WriteStream> MockDatastore::CreateWriteStream(WriteStreamCallback* callback) {
   write_stream_ = std::make_shared<MockWriteStream>(
       worker_queue_, credentials_,
-      [[FSTSerializerBeta alloc] initWithDatabaseID:&database_info_->database_id()],
+      [[FSTSerializerBeta alloc] initWithDatabaseID:database_info_->database_id()],
       grpc_connection(), callback, this);
 
   return write_stream_;

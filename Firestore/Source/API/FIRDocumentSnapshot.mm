@@ -194,16 +194,16 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
     return [self convertedArray:(FSTArrayValue *)value options:options];
   } else if (value.type == FieldValue::Type::Reference) {
     FSTReferenceValue *ref = (FSTReferenceValue *)value;
-    const DatabaseId *refDatabase = ref.databaseID;
-    const DatabaseId *database = &_snapshot.firestore()->database_id();
-    if (*refDatabase != *database) {
+    const DatabaseId &refDatabase = ref.databaseID;
+    const DatabaseId &database = _snapshot.firestore()->database_id();
+    if (refDatabase != database) {
       // TODO(b/32073923): Log this as a proper warning.
       NSLog(@"WARNING: Document %@ contains a document reference within a different database "
              "(%s/%s) which is not supported. It will be treated as a reference within the "
              "current database (%s/%s) instead.",
-            self.reference.path, refDatabase->project_id().c_str(),
-            refDatabase->database_id().c_str(), database->project_id().c_str(),
-            database->database_id().c_str());
+            self.reference.path, refDatabase.project_id().c_str(),
+            refDatabase.database_id().c_str(), database.project_id().c_str(),
+            database.database_id().c_str());
     }
     DocumentKey key = [[ref valueWithOptions:options] key];
     return [[FIRDocumentReference alloc] initWithKey:key firestore:_snapshot.firestore()];

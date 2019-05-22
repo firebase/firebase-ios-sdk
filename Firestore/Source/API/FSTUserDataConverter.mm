@@ -71,19 +71,24 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTDocumentKeyReference {
   DocumentKey _key;
+  DatabaseId _databaseID;
 }
 
-- (instancetype)initWithKey:(DocumentKey)key databaseID:(const DatabaseId *)databaseID {
+- (instancetype)initWithKey:(DocumentKey)key databaseID:(DatabaseId)databaseID {
   self = [super init];
   if (self) {
     _key = std::move(key);
-    _databaseID = databaseID;
+    _databaseID = std::move(databaseID);
   }
   return self;
 }
 
-- (const firebase::firestore::model::DocumentKey &)key {
+- (const model::DocumentKey &)key {
   return _key;
+}
+
+- (const model::DatabaseId &)databaseID {
+  return _databaseID;
 }
 
 @end
@@ -91,18 +96,18 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - FSTUserDataConverter
 
 @interface FSTUserDataConverter ()
-// Does not own the DatabaseId instance.
-@property(assign, nonatomic, readonly) const DatabaseId *databaseID;
 @property(strong, nonatomic, readonly) FSTPreConverterBlock preConverter;
 @end
 
-@implementation FSTUserDataConverter
+@implementation FSTUserDataConverter {
+  DatabaseId _databaseID;
+}
 
-- (instancetype)initWithDatabaseID:(const DatabaseId *)databaseID
+- (instancetype)initWithDatabaseID:(DatabaseId)databaseID
                       preConverter:(FSTPreConverterBlock)preConverter {
   self = [super init];
   if (self) {
-    _databaseID = databaseID;
+    _databaseID = std::move(databaseID);
     _preConverter = preConverter;
   }
   return self;
@@ -455,15 +460,15 @@ NS_ASSUME_NONNULL_BEGIN
 
   } else if ([input isKindOfClass:[FSTDocumentKeyReference class]]) {
     FSTDocumentKeyReference *reference = input;
-    if (*reference.databaseID != *self.databaseID) {
-      const DatabaseId *other = reference.databaseID;
+    if (reference.databaseID != _databaseID) {
+      const DatabaseId &other = reference.databaseID;
       ThrowInvalidArgument(
           "Document Reference is for database %s/%s but should be for database %s/%s%s",
-          other->project_id(), other->database_id(), self.databaseID->project_id(),
-          self.databaseID->database_id(), context.FieldDescription());
+          other.project_id(), other.database_id(), _databaseID.project_id(),
+          _databaseID.database_id(), context.FieldDescription());
     }
     return [FSTReferenceValue referenceValue:[FSTDocumentKey keyWithDocumentKey:reference.key]
-                                  databaseID:self.databaseID];
+                                  databaseID:_databaseID];
 
   } else {
     ThrowInvalidArgument("Unsupported type: %s%s", NSStringFromClass([input class]),

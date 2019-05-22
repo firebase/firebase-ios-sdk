@@ -649,6 +649,10 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                            refreshToken:response.refreshToken
                               anonymous:NO
                                callback:^(FIRUser *_Nullable user, NSError *_Nullable error) {
+      if (error && callback) {
+        callback(nil, error);
+        return;
+      }
       FIRAdditionalUserInfo *additionalUserInfo =
       [[FIRAdditionalUserInfo alloc] initWithProviderID:FIRGameCenterAuthProviderID
                                                 profile:nil
@@ -705,10 +709,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                            refreshToken:response.refreshToken
                               anonymous:NO
                                callback:^(FIRUser *_Nullable user, NSError *_Nullable error) {
-      if (error) {
-        if (callback) {
-          callback(nil, error);
-        }
+      if (error && callback) {
+        callback(nil, error);
         return;
       }
       FIRAdditionalUserInfo *additionalUserInfo =
@@ -770,7 +772,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                           callback:callback];
     } else {
       // Email password sign in
-      FIRAuthResultCallback completeEmailSignIn = ^(FIRUser *user, NSError *error) {
+      FIRAuthResultCallback completeEmailSignIn = ^(FIRUser *_Nullable user,
+                                                    NSError *_Nullable error) {
         if (callback) {
           if (error) {
             callback(nil, error);
@@ -781,8 +784,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                                         profile:nil
                                                        username:nil
                                                       isNewUser:NO];
-          FIRAuthDataResult *result = [[FIRAuthDataResult alloc] initWithUser:user
-                                                           additionalUserInfo:additionalUserInfo];
+          FIRAuthDataResult *result = user ?
+              [[FIRAuthDataResult alloc] initWithUser:user
+                                   additionalUserInfo:additionalUserInfo] : nil;
           callback(result, error);
         }
       };
@@ -822,6 +826,10 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                refreshToken:response.refreshToken
                                   anonymous:NO
                                    callback:^(FIRUser *_Nullable user, NSError *_Nullable error) {
+          if (error && callback) {
+            callback(nil, error);
+            return;
+          }
           FIRAdditionalUserInfo *additionalUserInfo =
               [[FIRAdditionalUserInfo alloc] initWithProviderID:FIRPhoneAuthProviderID
                                                         profile:nil
@@ -874,6 +882,10 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                               anonymous:NO
                                callback:^(FIRUser *_Nullable user, NSError *_Nullable error) {
       if (callback) {
+        if (error) {
+          callback(nil, error);
+          return;
+        }
         FIRAdditionalUserInfo *additionalUserInfo =
             [FIRAdditionalUserInfo userInfoWithVerifyAssertionResponse:response];
         FIROAuthCredential *updatedOAuthCredential =
@@ -909,15 +921,19 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                              refreshToken:response.refreshToken
                                 anonymous:YES
                                  callback:^(FIRUser * _Nullable user, NSError * _Nullable error) {
+        if (error) {
+          decoratedCallback(nil, error);
+          return;
+        }
         FIRAdditionalUserInfo *additionalUserInfo =
           [[FIRAdditionalUserInfo alloc] initWithProviderID:FIREmailAuthProviderID
                                                     profile:nil
                                                    username:nil
                                                   isNewUser:YES];
-        FIRAuthDataResult *authDataResult =
+        FIRAuthDataResult *authDataResult = user ?
             [[FIRAuthDataResult alloc] initWithUser:user
-                                 additionalUserInfo:additionalUserInfo];
-        decoratedCallback(authDataResult, nil);
+                                 additionalUserInfo:additionalUserInfo] : nil;
+        decoratedCallback(authDataResult, error);
       }];
     }];
   });
@@ -955,15 +971,19 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                              refreshToken:response.refreshToken
                                 anonymous:NO
                                  callback:^(FIRUser *_Nullable user, NSError *_Nullable error) {
+        if (error) {
+          decoratedCallback(nil, error);
+          return;
+        }
         FIRAdditionalUserInfo *additionalUserInfo =
           [[FIRAdditionalUserInfo alloc] initWithProviderID:FIREmailAuthProviderID
                                                     profile:nil
                                                    username:nil
                                                   isNewUser:YES];
-        FIRAuthDataResult *authDataResult =
+        FIRAuthDataResult *authDataResult = user ?
             [[FIRAuthDataResult alloc] initWithUser:user
-                                 additionalUserInfo:additionalUserInfo];
-        decoratedCallback(authDataResult, nil);
+                                 additionalUserInfo:additionalUserInfo] : nil;
+        decoratedCallback(authDataResult, error);
       }];
     }];
   });
@@ -1435,10 +1455,8 @@ didReceiveRemoteNotification:(NSDictionary *)userInfo {
                               anonymous:NO
                                callback:^(FIRUser *_Nullable user,
                                           NSError *_Nullable error) {
-      if (error) {
-        if (completion) {
-          completion(nil, error);
-        }
+      if (error && completion) {
+        completion(nil, error);
         return;
       }
       FIRAdditionalUserInfo *additonalUserInfo =
@@ -1446,10 +1464,10 @@ didReceiveRemoteNotification:(NSDictionary *)userInfo {
                                                    profile:nil
                                                   username:nil
                                                  isNewUser:response.isNewUser];
-      FIRAuthDataResult *result =
-          [[FIRAuthDataResult alloc] initWithUser:user additionalUserInfo:additonalUserInfo];
+      FIRAuthDataResult *result = user ?
+          [[FIRAuthDataResult alloc] initWithUser:user additionalUserInfo:additonalUserInfo] : nil;
       if (completion) {
-        completion(result, nil);
+        completion(result, error);
       }
     }];
   }];

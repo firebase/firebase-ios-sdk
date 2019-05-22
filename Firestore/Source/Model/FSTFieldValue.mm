@@ -550,17 +550,19 @@ static NSComparisonResult CompareBytes(NSData *left, NSData *right) {
 @property(nonatomic, strong, readonly) FSTDocumentKey *key;
 @end
 
-@implementation FSTReferenceValue
-
-+ (instancetype)referenceValue:(FSTDocumentKey *)value databaseID:(const DatabaseId *)databaseID {
-  return [[FSTReferenceValue alloc] initWithValue:value databaseID:databaseID];
+@implementation FSTReferenceValue {
+  DatabaseId _databaseID;
 }
 
-- (id)initWithValue:(FSTDocumentKey *)value databaseID:(const DatabaseId *)databaseID {
++ (instancetype)referenceValue:(FSTDocumentKey *)value databaseID:(DatabaseId)databaseID {
+  return [[FSTReferenceValue alloc] initWithValue:value databaseID:std::move(databaseID)];
+}
+
+- (id)initWithValue:(FSTDocumentKey *)value databaseID:(DatabaseId)databaseID {
   self = [super init];
   if (self) {
     _key = value;
-    _databaseID = databaseID;
+    _databaseID = std::move(databaseID);
   }
   return self;
 }
@@ -587,11 +589,11 @@ static NSComparisonResult CompareBytes(NSData *left, NSData *right) {
   }
 
   FSTReferenceValue *otherRef = (FSTReferenceValue *)other;
-  return self.key.key == otherRef.key.key && *self.databaseID == *otherRef.databaseID;
+  return self.key.key == otherRef.key.key && self.databaseID == otherRef.databaseID;
 }
 
 - (NSUInteger)hash {
-  NSUInteger result = self.databaseID->Hash();
+  NSUInteger result = self.databaseID.Hash();
   result = 31 * result + [self.key hash];
   return result;
 }
@@ -599,12 +601,11 @@ static NSComparisonResult CompareBytes(NSData *left, NSData *right) {
 - (NSComparisonResult)compare:(FSTFieldValue *)other {
   if (other.type == FieldValue::Type::Reference) {
     FSTReferenceValue *ref = (FSTReferenceValue *)other;
-    NSComparisonResult cmp =
-        WrapCompare(self.databaseID->project_id(), ref.databaseID->project_id());
+    NSComparisonResult cmp = WrapCompare(self.databaseID.project_id(), ref.databaseID.project_id());
     if (cmp != NSOrderedSame) {
       return cmp;
     }
-    cmp = WrapCompare(self.databaseID->database_id(), ref.databaseID->database_id());
+    cmp = WrapCompare(self.databaseID.database_id(), ref.databaseID.database_id());
     return cmp != NSOrderedSame ? cmp : WrapCompare(self.key.key, ref.key.key);
   } else {
     return [self defaultCompare:other];

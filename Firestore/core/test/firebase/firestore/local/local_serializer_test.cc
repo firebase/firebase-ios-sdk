@@ -78,11 +78,10 @@ using util::Status;
 class LocalSerializerTest : public ::testing::Test {
  public:
   LocalSerializerTest()
-      : remote_serializer(kDatabaseId), serializer(remote_serializer) {
+      : remote_serializer(DatabaseId("p", "d")), serializer(remote_serializer) {
     msg_diff.ReportDifferencesToString(&message_differences);
   }
 
-  const DatabaseId kDatabaseId{"p", "d"};
   remote::Serializer remote_serializer;
   local::LocalSerializer serializer;
 

@@ -70,14 +70,11 @@ NSString *LevelDBDir() {
 }
 
 FSTLevelDB *LevelDBPersistence() {
-  // This owns the DatabaseIds since we do not have FirestoreClient instance to own them.
-  static DatabaseId database_id{"p", "d"};
-
   NSString *dir = LevelDBDir();
-  FSTSerializerBeta *remoteSerializer = [[FSTSerializerBeta alloc] initWithDatabaseID:&database_id];
-  FSTLocalSerializer *serializer =
-      [[FSTLocalSerializer alloc] initWithRemoteSerializer:remoteSerializer];
-  FSTLevelDB *db = [[FSTLevelDB alloc] initWithDirectory:dir serializer:serializer];
+  auto remoteSerializer = [[FSTSerializerBeta alloc] initWithDatabaseID:DatabaseId("p", "d")];
+  auto serializer = [[FSTLocalSerializer alloc] initWithRemoteSerializer:remoteSerializer];
+  auto db = [[FSTLevelDB alloc] initWithDirectory:dir serializer:serializer];
+
   NSError *error;
   BOOL success = [db start:&error];
   if (!success) {

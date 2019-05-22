@@ -19,6 +19,7 @@
 
 #include <algorithm>
 #include <chrono>  // NOLINT(build/c++11)
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -51,7 +52,138 @@ namespace testutil {
  */
 constexpr const char* kDeleteSentinel = "<DELETE>";
 
-// Below are convenience methods for creating instances for tests.
+// Convenience methods for creating instances for tests.
+
+inline model::FieldValue Value(std::nullptr_t) {
+  return model::FieldValue::Null();
+}
+
+/**
+ * Creates a boolean FieldValue.
+ *
+ * @param bool_value A boolean value that disallows implicit conversions.
+ */
+template <typename T,
+          typename = typename std::enable_if<std::is_same<bool, T>{}>::type>
+inline model::FieldValue Value(T bool_value) {
+  return model::FieldValue::FromBoolean(bool_value);
+}
+
+// Overload that captures integer literals. Without this, int64_t and double
+// are equally applicable conversions.
+inline model::FieldValue Value(int value) {
+  return model::FieldValue::FromInteger(value);
+}
+
+inline model::FieldValue Value(int64_t value) {
+  return model::FieldValue::FromInteger(value);
+}
+
+inline model::FieldValue Value(double value) {
+  return model::FieldValue::FromDouble(value);
+}
+
+inline model::FieldValue Value(Timestamp value) {
+  return model::FieldValue::FromTimestamp(std::move(value));
+}
+
+inline model::FieldValue Value(const char* value) {
+  return model::FieldValue::FromString(value);
+}
+
+inline model::FieldValue Value(const std::string& value) {
+  return model::FieldValue::FromString(value);
+}
+
+inline model::FieldValue Value(const GeoPoint& value) {
+  return model::FieldValue::FromGeoPoint(value);
+}
+
+// This overload allows Object() to appear as a value (along with any explicitly
+// constructed FieldValues).
+inline model::FieldValue Value(const model::FieldValue& value) {
+  return value;
+}
+
+inline model::FieldValue Value(const model::ObjectValue& value) {
+  return value.AsFieldValue();
+}
+
+inline model::FieldValue Value(const model::FieldValue::Map& value) {
+  return Value(model::ObjectValue::FromMap(value));
+}
+
+inline model::FieldValue ArrayValue(std::vector<model::FieldValue>&& value) {
+  return model::FieldValue::FromArray(std::move(value));
+}
+
+namespace details {
+
+/**
+ * Recursive base case for AddPairs, below. Returns the map.
+ */
+inline model::FieldValue::Map AddPairs(const model::FieldValue::Map& prior) {
+  return prior;
+}
+
+/**
+ * Inserts the given key-value pair into the map, and then recursively calls
+ * AddPairs to add any remaining arguments.
+ *
+ * @param prior A map into which the values should be inserted.
+ * @param key The key naming the field to insert.
+ * @param value A value to wrap with a call to Value(), above.
+ * @param rest Any remaining arguments
+ *
+ * @return The resulting map.
+ */
+template <typename ValueType, typename... Args>
+model::FieldValue::Map AddPairs(const model::FieldValue::Map& prior,
+                                const std::string& key,
+                                const ValueType& value,
+                                Args... rest) {
+  return AddPairs(prior.insert(key, Value(value)), rest...);
+}
+
+/**
+ * Creates an immutable sorted map from the given key/value pairs.
+ *
+ * @param key_value_pairs Alternating strings naming keys and values that can
+ *     be passed to Value().
+ */
+template <typename... Args>
+model::FieldValue::Map MakeMap(Args... key_value_pairs) {
+  return AddPairs(model::FieldValue::Map(), key_value_pairs...);
+}
+
+}  // namespace details
+
+/** Wraps an immutable sorted map into an ObjectValue. */
+inline model::ObjectValue WrapObject(const model::FieldValue::Map& value) {
+  return model::ObjectValue::FromMap(value);
+}
+
+/**
+ * Creates an ObjectValue from the given key/value pairs.
+ *
+ * @param key_value_pairs Alternating strings naming keys and values that can
+ *     be passed to Value().
+ */
+template <typename... Args>
+model::ObjectValue WrapObject(Args... key_value_pairs) {
+  return WrapObject(details::MakeMap(key_value_pairs...));
+}
+
+/**
+ * Creates an ObjectValue from the given key/value pairs with Type::Object.
+ *
+ * @param key_value_pairs Alternating strings naming keys and values that can
+ *     be passed to Value().
+ */
+template <typename... Args>
+model::FieldValue::Map Map(Args... key_value_pairs) {
+  return details::MakeMap(key_value_pairs...);
+}
 
 inline model::DocumentKey Key(absl::string_view path) {
   return model::DocumentKey::FromPathString(path);

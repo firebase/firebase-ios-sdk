@@ -95,14 +95,14 @@ NS_ASSUME_NONNULL_BEGIN
       id<FIRAuthInterop> auth = FIR_COMPONENT(FIRAuthInterop, self.app.container);
       auto credentialsProvider = absl::make_unique<FirebaseCredentialsProvider>(self.app, auth);
 
-      std::string projectID = util::MakeString(self.app.options.projectID);
+      model::DatabaseId databaseID{util::MakeString(self.app.options.projectID),
+                                   util::MakeString(database)};
       std::string persistenceKey = util::MakeString(self.app.name);
-      firestore = [[FIRFirestore alloc] initWithProjectID:std::move(projectID)
-                                                 database:util::MakeString(database)
-                                           persistenceKey:std::move(persistenceKey)
-                                      credentialsProvider:std::move(credentialsProvider)
-                                              workerQueue:std::move(workerQueue)
-                                              firebaseApp:self.app];
+      firestore = [[FIRFirestore alloc] initWithDatabaseID:std::move(databaseID)
+                                            persistenceKey:std::move(persistenceKey)
+                                       credentialsProvider:std::move(credentialsProvider)
+                                               workerQueue:std::move(workerQueue)
+                                               firebaseApp:self.app];
       _instances[key] = firestore;
     }
 

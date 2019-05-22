@@ -173,10 +173,11 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
  * A reference value stored in Firestore.
  */
 @interface FSTReferenceValue : FSTFieldValue <FSTDocumentKey *>
-+ (instancetype)referenceValue:(FSTDocumentKey *)value
-                    databaseID:(const model::DatabaseId *)databaseID;
-// Does not own this DatabaseId.
-@property(nonatomic, assign, readonly) const model::DatabaseId *databaseID;
+
++ (instancetype)referenceValue:(FSTDocumentKey *)value databaseID:(model::DatabaseId)databaseID;
+
+@property(nonatomic, assign, readonly) const model::DatabaseId &databaseID;
+
 @end
 
 /**
