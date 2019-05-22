@@ -31,7 +31,7 @@ using Type = FieldValue::Type;
 using absl::nullopt;
 using testutil::Field;
 using testutil::Key;
-using testutil::Object;
+using testutil::Map;
 using testutil::Value;
 using testutil::WrapObject;
 
@@ -44,8 +44,7 @@ const uint8_t* Bytes(const char* value) {
 }  // namespace
 
 TEST(FieldValueTest, ExtractsFields) {
-  ObjectValue value =
-      WrapObject("foo", Object("a", 1, "b", true, "c", "string"));
+  ObjectValue value = WrapObject("foo", Map("a", 1, "b", true, "c", "string"));
 
   ASSERT_EQ(Type::Object, value.Get(Field("foo"))->type());
 
@@ -67,7 +66,7 @@ TEST(FieldValueTest, OverwritesExistingFields) {
 }
 
 TEST(FieldValueTest, AddsNewFields) {
-  ObjectValue empty = WrapObject();
+  ObjectValue empty = ObjectValue::Empty();
   ObjectValue mod = empty.Set(Field("a"), Value("mod"));
   EXPECT_EQ(ObjectValue::Empty(), empty);
   EXPECT_EQ(WrapObject("a", "mod"), mod);
@@ -84,23 +83,23 @@ TEST(FieldValueTest, ImplicitlyCreatesObjects) {
 
   EXPECT_NE(old, mod);
   EXPECT_EQ(WrapObject("a", "old"), old);
-  EXPECT_EQ(WrapObject("a", "old", "b", Object("c", Object("d", "mod"))), mod);
+  EXPECT_EQ(WrapObject("a", "old", "b", Map("c", Map("d", "mod"))), mod);
 }
 
 TEST(FieldValueTest, CanOverwritePrimitivesWithObjects) {
-  ObjectValue old = WrapObject("a", Object("b", "old"));
-  ObjectValue mod = old.Set(Field("a"), Object("b", "mod"));
+  ObjectValue old = WrapObject("a", Map("b", "old"));
+  ObjectValue mod = old.Set(Field("a"), WrapObject("b", "mod"));
   EXPECT_NE(old, mod);
-  EXPECT_EQ(WrapObject("a", Object("b", "old")), old);
-  EXPECT_EQ(WrapObject("a", Object("b", "mod")), mod);
+  EXPECT_EQ(WrapObject("a", Map("b", "old")), old);
+  EXPECT_EQ(WrapObject("a", Map("b", "mod")), mod);
 }
 
 TEST(FieldValueTest, AddsToNestedObjects) {
-  ObjectValue old = WrapObject("a", Object("b", "old"));
+  ObjectValue old = WrapObject("a", Map("b", "old"));
   ObjectValue mod = old.Set(Field("a.c"), Value("mod"));
   EXPECT_NE(old, mod);
-  EXPECT_EQ(WrapObject("a", Object("b", "old")), old);
-  EXPECT_EQ(WrapObject("a", Object("b", "old", "c", "mod")), mod);
+  EXPECT_EQ(WrapObject("a", Map("b", "old")), old);
+  EXPECT_EQ(WrapObject("a", Map("b", "old", "c", "mod")), mod);
 }
 
 TEST(FieldValueTest, DeletesKey) {
@@ -118,31 +117,28 @@ TEST(FieldValueTest, DeletesKey) {
 }
 
 TEST(FieldValueTest, DeletesHandleMissingKeys) {
-  ObjectValue old = WrapObject("a", Object("b", 1, "c", 2));
+  ObjectValue old = WrapObject("a", Map("b", 1, "c", 2));
   ObjectValue mod = old.Delete(Field("b"));
   EXPECT_EQ(mod, old);
-  EXPECT_EQ(WrapObject("a", Object("b", 1, "c", 2)), mod);
+  EXPECT_EQ(WrapObject("a", Map("b", 1, "c", 2)), mod);
 
   mod = old.Delete(Field("a.d"));
   EXPECT_EQ(mod, old);
-  EXPECT_EQ(WrapObject("a", Object("b", 1, "c", 2)), mod);
+  EXPECT_EQ(WrapObject("a", Map("b", 1, "c", 2)), mod);
 
   mod = old.Delete(Field("a.b.c"));
   EXPECT_EQ(mod, old);
-  EXPECT_EQ(WrapObject("a", Object("b", 1, "c", 2)), mod);
+  EXPECT_EQ(WrapObject("a", Map("b", 1, "c", 2)), mod);
 }
 
 TEST(FieldValueTest, DeletesNestedKeys) {
-  FieldValue::Map orig =
-      Object("a", Object("b", 1, "c", Object("d", 2, "e", 3))).object_value();
+  FieldValue::Map orig = Map("a", Map("b", 1, "c", Map("d", 2, "e", 3)));
   ObjectValue old = WrapObject(orig);
   ObjectValue mod = old.Delete(Field("a.c.d"));
 
   EXPECT_NE(mod, old);
-  EXPECT_EQ(WrapObject(orig), old);
 
-  FieldValue::Map second =
-      Object("a", Object("b", 1, "c", Object("e", 3))).object_value();
+  FieldValue::Map second = Map("a", Map("b", 1, "c", Map("e", 3)));
   EXPECT_EQ(WrapObject(second), mod);
 
   old = mod;
@@ -151,7 +147,7 @@ TEST(FieldValueTest, DeletesNestedKeys) {
   EXPECT_NE(old, mod);
   EXPECT_EQ(WrapObject(second), old);
 
-  FieldValue::Map third = Object("a", Object("b", 1)).object_value();
+  FieldValue::Map third = Map("a", Map("b", 1));
   EXPECT_EQ(WrapObject(third), mod);
 
   old = mod;
