@@ -253,7 +253,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 
   // Verify our swizzled method was called
   OCMExpect([self.mockMessaging appDidReceiveMessage:notification]);
-    
+
   [appDelegate application:self.mockSharedApplication
       didReceiveRemoteNotification:notification
       fetchCompletionHandler:^(UIBackgroundFetchResult result) {}];
