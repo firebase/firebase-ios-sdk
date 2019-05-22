@@ -257,6 +257,9 @@ class ObjectValue : public util::Comparable<ObjectValue> {
    * @return A new FieldValue with the field set.
    */
   ObjectValue Set(const FieldPath& field_path, const FieldValue& value) const;
+  ObjectValue Set(const FieldPath& field_path, const ObjectValue& value) const {
+    return Set(field_path, value.fv_);
+  }
 
   /**
    * Returns a FieldValue with the field path deleted. If there is no field at
@@ -275,6 +278,10 @@ class ObjectValue : public util::Comparable<ObjectValue> {
 
   const FieldValue::Map& GetInternalValue() const {
     return *fv_.object_value_;
+  }
+
+  const FieldValue& AsFieldValue() const {
+    return fv_;
   }
 
   util::ComparisonResult CompareTo(const ObjectValue& rhs) const;
