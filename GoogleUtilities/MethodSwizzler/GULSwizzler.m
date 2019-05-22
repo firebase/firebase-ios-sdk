@@ -57,27 +57,28 @@ dispatch_queue_t GetGULSwizzlingQueue(void) {
     Class class = NSClassFromString(@"GULSwizzlingCache");
     if (class) {
       SEL cacheSelector = NSSelectorFromString(@"cacheCurrentIMP:forNewIMP:forClass:withSelector:");
-      NSInvocation *inv = [NSInvocation invocationWithMethodSignature:
-                           [class methodSignatureForSelector:cacheSelector]];
+      NSInvocation *inv = [NSInvocation
+          invocationWithMethodSignature:[class methodSignatureForSelector:cacheSelector]];
       [inv setSelector:cacheSelector];
       [inv setTarget:class];
       [inv setArgument:&(currentImp) atIndex:2];
       [inv setArgument:&(newImp) atIndex:3];
       [inv setArgument:&(resolvedClass) atIndex:4];
-      [inv setArgument:(void * _Nonnull)&(selector) atIndex:5];
+      [inv setArgument:(void *_Nonnull) & (selector) atIndex:5];
       [inv invoke];
     }
 #endif
 
     const char *typeEncoding = method_getTypeEncoding(method);
-    __unused IMP originalImpOfClass = class_replaceMethod(resolvedClass, selector, newImp, typeEncoding);
+    __unused IMP originalImpOfClass =
+        class_replaceMethod(resolvedClass, selector, newImp, typeEncoding);
 
 #ifdef DEBUG
     // If !originalImpOfClass, then the IMP came from a superclass.
     if (originalImpOfClass) {
       SEL selector = NSSelectorFromString(@"originalIMPOfCurrentIMP:");
-      NSInvocation *inv = [NSInvocation invocationWithMethodSignature:
-                           [class methodSignatureForSelector:selector]];
+      NSInvocation *inv =
+          [NSInvocation invocationWithMethodSignature:[class methodSignatureForSelector:selector]];
       [inv setSelector:selector];
       [inv setTarget:class];
       [inv setArgument:&(currentImp) atIndex:2];
@@ -87,7 +88,7 @@ dispatch_queue_t GetGULSwizzlingQueue(void) {
       if (originalImpOfClass != testOriginal) {
         GULLogWarning(kGULLoggerSwizzler, NO,
                       [NSString stringWithFormat:@"I-SWZ%06ld",
-                       (long)kGULSwizzlerMessageCodeMethodSwizzling000],
+                                                 (long)kGULSwizzlerMessageCodeMethodSwizzling000],
                       @"Swizzling class: %@ SEL:%@ after it has been previously been swizzled.",
                       NSStringFromClass(resolvedClass), NSStringFromSelector(selector));
       }

@@ -54,9 +54,9 @@
   // Pointer inequality to make sure the IMPs are different.
   XCTAssertNotEqual(originalIMP, intermediateIMP);
   [GULSwizzlingCache cacheCurrentIMP:originalIMP
-                                            forNewIMP:intermediateIMP
-                                             forClass:swizzledClass
-                                         withSelector:swizzledSelector];
+                           forNewIMP:intermediateIMP
+                            forClass:swizzledClass
+                        withSelector:swizzledSelector];
   IMP returnedOriginalIMPWhenSwizzledOnce =
       [GULSwizzlingCache originalIMPOfCurrentIMP:intermediateIMP];
   // Pointer equality to make sure they're the same IMP.
@@ -67,11 +67,11 @@
   // Pointer inequality to make sure the IMPs are different.
   XCTAssertNotEqual(intermediateIMP, intermediateIMP2);
   [GULSwizzlingCache cacheCurrentIMP:intermediateIMP
-                                            forNewIMP:intermediateIMP2
-                                             forClass:swizzledClass
-                                         withSelector:swizzledSelector];
+                           forNewIMP:intermediateIMP2
+                            forClass:swizzledClass
+                        withSelector:swizzledSelector];
   IMP returnedOriginalIMPWhenSwizzledTwice =
-     [GULSwizzlingCache originalIMPOfCurrentIMP:intermediateIMP2];
+      [GULSwizzlingCache originalIMPOfCurrentIMP:intermediateIMP2];
   // Pointer inequality to make sure the IMPs are different.
   XCTAssertEqual(returnedOriginalIMPWhenSwizzledTwice, originalIMP);
 
@@ -79,11 +79,10 @@
   // Pointer inequality to make sure the IMPs are different.
   XCTAssertNotEqual(intermediateIMP, newIMP);
   [GULSwizzlingCache cacheCurrentIMP:intermediateIMP
-                                            forNewIMP:newIMP
-                                             forClass:swizzledClass
-                                         withSelector:swizzledSelector];
-  IMP returnedOriginalIMPWhenSwizzledThrice =
-      [GULSwizzlingCache originalIMPOfCurrentIMP:newIMP];
+                           forNewIMP:newIMP
+                            forClass:swizzledClass
+                        withSelector:swizzledSelector];
+  IMP returnedOriginalIMPWhenSwizzledThrice = [GULSwizzlingCache originalIMPOfCurrentIMP:newIMP];
   // Pointer equality to make sure they're the same IMP.
   XCTAssertEqual(returnedOriginalIMPWhenSwizzledThrice, originalIMP);
 }
@@ -98,9 +97,9 @@
   // Pointer inequality to make sure the IMPs are different.
   XCTAssertNotEqual(originalIMP, newIMP);
   [GULSwizzlingCache cacheCurrentIMP:originalIMP
-                                            forNewIMP:newIMP
-                                             forClass:swizzledClass
-                                         withSelector:swizzledSelector];
+                           forNewIMP:newIMP
+                            forClass:swizzledClass
+                        withSelector:swizzledSelector];
   IMP returnedOriginalIMP = [[GULSwizzlingCache sharedInstance] cachedIMPForClass:swizzledClass
                                                                      withSelector:swizzledSelector];
   // Pointer equality to make sure they're the same IMP.
@@ -117,18 +116,18 @@
   // Pointer inequality to make sure the IMPs are different.
   XCTAssertNotEqual(originalIMP, intermediateIMP);
   [GULSwizzlingCache cacheCurrentIMP:originalIMP
-                                            forNewIMP:intermediateIMP
-                                             forClass:swizzledClass
-                                         withSelector:swizzledSelector];
+                           forNewIMP:intermediateIMP
+                            forClass:swizzledClass
+                        withSelector:swizzledSelector];
 
   // Any valid IMP is OK for test.
   IMP newIMP = class_getMethodImplementation(swizzledClass, @selector(mutableCopy));
   // Pointer inequality to make sure the IMPs are different.
   XCTAssertNotEqual(intermediateIMP, newIMP);
   [GULSwizzlingCache cacheCurrentIMP:intermediateIMP
-                                            forNewIMP:newIMP
-                                             forClass:swizzledClass
-                                         withSelector:swizzledSelector];
+                           forNewIMP:newIMP
+                            forClass:swizzledClass
+                        withSelector:swizzledSelector];
   IMP returnedOriginalIMP = [[GULSwizzlingCache sharedInstance] cachedIMPForClass:swizzledClass
                                                                      withSelector:swizzledSelector];
   // Pointer equality to make sure they're the same IMP.
@@ -144,9 +143,9 @@
   IMP newIMP = class_getMethodImplementation(swizzledClass, @selector(copy));
   XCTAssertNotEqual(originalIMP, newIMP);
   [GULSwizzlingCache cacheCurrentIMP:originalIMP
-                                            forNewIMP:newIMP
-                                             forClass:swizzledClass
-                                         withSelector:swizzledSelector];
+                           forNewIMP:newIMP
+                            forClass:swizzledClass
+                        withSelector:swizzledSelector];
   XCTAssert([[GULSwizzlingCache sharedInstance] cachedIMPForClass:swizzledClass
                                                      withSelector:swizzledSelector] != NULL);
   XCTAssertEqual([GULSwizzlingCache originalIMPOfCurrentIMP:newIMP], originalIMP,
@@ -170,9 +169,9 @@
   IMP newIMP = class_getMethodImplementation(swizzledClass, @selector(copy));
   XCTAssertNotEqual(originalIMP, newIMP);
   [GULSwizzlingCache cacheCurrentIMP:originalIMP
-                                            forNewIMP:newIMP
-                                             forClass:swizzledClass
-                                         withSelector:swizzledSelector];
+                           forNewIMP:newIMP
+                            forClass:swizzledClass
+                        withSelector:swizzledSelector];
   XCTAssert([[GULSwizzlingCache sharedInstance] cachedIMPForClass:swizzledClass
                                                      withSelector:swizzledSelector] != NULL);
   XCTAssertEqual([GULSwizzlingCache originalIMPOfCurrentIMP:newIMP], originalIMP,
@@ -186,9 +185,9 @@
   IMP newIMP2 = class_getMethodImplementation(swizzledClass2, @selector(stringByAppendingString:));
   XCTAssertNotEqual(originalIMP2, newIMP2);
   [GULSwizzlingCache cacheCurrentIMP:originalIMP2
-                                            forNewIMP:newIMP2
-                                             forClass:swizzledClass2
-                                         withSelector:swizzledSelector2];
+                           forNewIMP:newIMP2
+                            forClass:swizzledClass2
+                        withSelector:swizzledSelector2];
   XCTAssert([[GULSwizzlingCache sharedInstance] cachedIMPForClass:swizzledClass2
                                                      withSelector:swizzledSelector2] != NULL);
   [[GULSwizzlingCache sharedInstance] clearCacheForSwizzledIMP:newIMP

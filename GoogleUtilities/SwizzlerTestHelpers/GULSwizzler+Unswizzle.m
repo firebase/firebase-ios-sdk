@@ -18,7 +18,7 @@
 
 #import "GULSwizzlingCache.h"
 
-extern dispatch_queue_t GetGULSwizzlingQueue(void) ;
+extern dispatch_queue_t GetGULSwizzlingQueue(void);
 
 @implementation GULSwizzler (Unswizzle)
 
