@@ -15,7 +15,8 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <objc/runtime.h>
+
+#import <GoogleUtilities/GULSwizzler.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
