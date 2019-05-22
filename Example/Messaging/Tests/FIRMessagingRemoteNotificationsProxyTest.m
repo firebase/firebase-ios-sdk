@@ -232,7 +232,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
   FakeAppDelegate *appDelegate = [[FakeAppDelegate alloc] init];
   [OCMStub([self.mockSharedApplication delegate]) andReturn:appDelegate];
   [self.proxy swizzleMethodsIfPossible];
-    
+
 #if TARGET_OS_IOS || TARGET_OS_TV
   NSDictionary *notification = @{@"test" : @""};
 
