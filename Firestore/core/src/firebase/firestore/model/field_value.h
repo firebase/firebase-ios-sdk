@@ -146,11 +146,6 @@ class FieldValue : public util::Comparable<FieldValue> {
     return *blob_value_;
   }
 
-  const Map& object_value() const {
-    HARD_ASSERT(tag_ == Type::Object);
-    return *object_value_;
-  }
-
   /**
    * Returns a string_view of the blob_value(). This can be useful when using
    * abseil bytewise APIs that accept this type.
@@ -259,6 +254,9 @@ class ObjectValue : public util::Comparable<ObjectValue> {
    * @return A new FieldValue with the field set.
    */
   ObjectValue Set(const FieldPath& field_path, const FieldValue& value) const;
+  ObjectValue Set(const FieldPath& field_path, const ObjectValue& value) const {
+    return Set(field_path, value.fv_);
+  }
 
   /**
    * Returns a FieldValue with the field path deleted. If there is no field at
@@ -277,6 +275,10 @@ class ObjectValue : public util::Comparable<ObjectValue> {
 
   const FieldValue::Map& GetInternalValue() const {
     return *fv_.object_value_;
+  }
+
+  const FieldValue& AsFieldValue() const {
+    return fv_;
   }
 
   util::ComparisonResult CompareTo(const ObjectValue& rhs) const;
