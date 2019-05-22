@@ -20,6 +20,7 @@
 #import <FirebaseCore/FIRApp.h>
 #import <FirebaseCore/FIROptions.h>
 #import <GoogleUtilities/GULSwizzler.h>
+#import <GoogleUtilities/GULSwizzler+Unswizzle.h>
 #import "DynamicLinks/FIRDLRetrievalProcessFactory.h"
 #import "DynamicLinks/FIRDLRetrievalProcessResult+Private.h"
 #import "DynamicLinks/FIRDynamicLink+Private.h"

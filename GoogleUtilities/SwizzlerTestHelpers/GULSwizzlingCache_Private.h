@@ -24,7 +24,7 @@
  *  @return The original IMP that would be invoked if we hadn't swizzled at all, and in cases where
  *      currentIMP is not something that we put there, just returns currentIMP.
  */
-- (IMP)originalIMPOfCurrentIMP:(IMP)currentIMP;
++ (IMP)originalIMPOfCurrentIMP:(IMP)currentIMP;
 
 #pragma mark - Helper methods for testing
 
