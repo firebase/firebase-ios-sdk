@@ -67,7 +67,11 @@ else
       ;;
 
     Core-*)
-      check_changes '^(Firebase/Core|GoogleUtilities|FirebaseCore.podspec)'
+      check_changes '^(Firebase/Core|Example/Core/Tests|GoogleUtilities|FirebaseCore.podspec)'
+      ;;
+
+    Database-*)
+      check_changes '^(Firebase/Core|Firebase/Database|Example/Database|GoogleUtilities|FirebaseDatabase.podspec)'
       ;;
 
     Functions-*)
@@ -77,6 +81,11 @@ else
     InAppMessaging-*)
       check_changes '^(Firebase/InAppMessagingDisplay|InAppMessagingDisplay|InAppMessaging|'\
 'Firebase/InAppMessaging)'
+      ;;
+
+    InstanceID-*)
+      check_changes '^(Firebase/InstanceID|Example/InstanceID|Firebase/Core|GoogleUtilities|'\
+'FirebaseInstanceID.podspec)'
       ;;
 
     Firestore-xcodebuild|Firestore-pod-lib-lint)
@@ -92,8 +101,16 @@ else
       check_changes '^(GoogleDataTransport|GoogleDataTransport.podspec)'
       ;;
 
+    GoogleDataTransportIntegrationTest-*)
+      check_changes '^(GoogleDataTransport|GoogleDataTransport.podspec)'
+      ;;
+
     GoogleDataTransportCCTSupport-*)
       check_changes '^(GoogleDataTransportCCTSupport|GoogleDataTransportCCTSupport.podspec|GoogleDataTransport|GoogleDataTransport.podspec)'
+      ;;
+
+    Storage-*)
+      check_changes '^(Firebase/Core|Firebase/Storage|Example/Storage|GoogleUtilities|FirebaseStorage.podspec)'
       ;;
 
     *)

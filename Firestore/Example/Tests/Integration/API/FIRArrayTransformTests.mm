@@ -42,12 +42,6 @@
   id<FIRListenerRegistration> _listenerRegistration;
 }
 
-- (void)invokeTest {
-  // None of these tests work in the emulator as of 1.4.5.
-  if ([FSTIntegrationTestCase isRunningAgainstEmulator]) return;
-  [super invokeTest];
-}
-
 - (void)setUp {
   [super setUp];
 
@@ -172,12 +166,6 @@
 @implementation FIRArrayTransformServerApplicationTests {
   // A document reference to read and write to.
   FIRDocumentReference *_docRef;
-}
-
-- (void)invokeTest {
-  // None of these tests work in the emulator as of 1.4.5.
-  if ([FSTIntegrationTestCase isRunningAgainstEmulator]) return;
-  [super invokeTest];
 }
 
 - (void)setUp {

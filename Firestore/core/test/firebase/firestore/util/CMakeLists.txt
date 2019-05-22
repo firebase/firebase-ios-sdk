@@ -156,7 +156,7 @@ cc_test(
     ordered_code_test.cc
     status_apple_test.mm
     status_test.cc
-    status_test_util.h
+    status_testing.h
     statusor_test.cc
     strerror_test.cc
     string_format_apple_test.mm

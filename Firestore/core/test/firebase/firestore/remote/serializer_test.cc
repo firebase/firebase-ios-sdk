@@ -45,6 +45,7 @@
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
+#include "Firestore/core/test/firebase/firestore/util/status_testing.h"
 #include "absl/types/optional.h"
 #include "google/protobuf/stubs/common.h"
 #include "google/protobuf/util/message_differencer.h"
@@ -74,11 +75,6 @@ using firebase::firestore::util::Status;
 using firebase::firestore::util::StatusOr;
 using google::protobuf::util::MessageDifferencer;
 
-#define ASSERT_OK(status) ASSERT_TRUE(StatusOk(status))
-#define ASSERT_NOT_OK(status) ASSERT_FALSE(StatusOk(status))
-#define EXPECT_OK(status) EXPECT_TRUE(StatusOk(status))
-#define EXPECT_NOT_OK(status) EXPECT_FALSE(StatusOk(status))
-
 TEST(Serializer, CanLinkToNanopb) {
   // This test doesn't actually do anything interesting as far as actually using
   // nanopb is concerned but that it can run at all is proof that all the
@@ -90,11 +86,10 @@ TEST(Serializer, CanLinkToNanopb) {
 // Fixture for running serializer tests.
 class SerializerTest : public ::testing::Test {
  public:
-  SerializerTest() : serializer(kDatabaseId) {
+  SerializerTest() : serializer(DatabaseId("p", "d")) {
     msg_diff.ReportDifferencesToString(&message_differences);
   }
 
-  const DatabaseId kDatabaseId{"p", "d"};
   Serializer serializer;
 
   template <typename... Args>
@@ -115,30 +110,6 @@ class SerializerTest : public ::testing::Test {
       const SnapshotVersion& read_time,
       const v1::BatchGetDocumentsResponse& proto) {
     ExpectDeserializationRoundTrip(key, absl::nullopt, read_time, proto);
-  }
-
-  /**
-   * Checks the status. Don't use directly; use one of the relevant macros
-   * instead. eg:
-   *
-   *   Status good_status = ...;
-   *   ASSERT_OK(good_status);
-   *
-   *   Status bad_status = ...;
-   *   EXPECT_NOT_OK(bad_status);
-   */
-  testing::AssertionResult StatusOk(const Status& status) {
-    if (!status.ok()) {
-      return testing::AssertionFailure()
-             << "Status should have been ok, but instead contained "
-             << status.ToString();
-    }
-    return testing::AssertionSuccess();
-  }
-
-  template <typename T>
-  testing::AssertionResult StatusOk(const StatusOr<T>& status) {
-    return StatusOk(status.status());
   }
 
   /**

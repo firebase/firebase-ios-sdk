@@ -91,7 +91,7 @@
 
 #pragma mark - GDTLifecycleProtocol
 
-- (void)appWillBackground:(nonnull UIApplication *)app {
+- (void)appWillBackground:(nonnull GDTApplication *)app {
   dispatch_async(_registrarQueue, ^{
     for (id<GDTUploader> uploader in [self->_targetToUploader allValues]) {
       if ([uploader respondsToSelector:@selector(appWillBackground:)]) {
@@ -106,7 +106,7 @@
   });
 }
 
-- (void)appWillForeground:(nonnull UIApplication *)app {
+- (void)appWillForeground:(nonnull GDTApplication *)app {
   dispatch_async(_registrarQueue, ^{
     for (id<GDTUploader> uploader in [self->_targetToUploader allValues]) {
       if ([uploader respondsToSelector:@selector(appWillForeground:)]) {
@@ -121,7 +121,7 @@
   });
 }
 
-- (void)appWillTerminate:(nonnull UIApplication *)app {
+- (void)appWillTerminate:(nonnull GDTApplication *)app {
   dispatch_sync(_registrarQueue, ^{
     for (id<GDTUploader> uploader in [self->_targetToUploader allValues]) {
       if ([uploader respondsToSelector:@selector(appWillTerminate:)]) {

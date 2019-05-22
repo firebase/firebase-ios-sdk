@@ -211,7 +211,6 @@ _ERROR_CATEGORIES = [
     'readability/namespace',
     'readability/nolint',
     'readability/nul',
-    'readability/objc',
     'readability/strings',
     'readability/todo',
     'readability/utf8',
@@ -4625,30 +4624,6 @@ def CheckIncludeLine(filename, clean_lines, linenum, include_state, error):
       include_state.SetLastHeader(canonical_include)
 
 
-_BANNED_OBJC_WORDS = (r'\bYES\b', r'\bNO\b', r'\bBOOL\b')
-_BANNED_OBJC_REPLACEMENTS = {
-    'YES': 'true',
-    'NO': 'false',
-    'BOOL': 'bool',
-}
-
-_BANNED_OBJC_WORDS_RE = re.compile('(' + '|'.join(_BANNED_OBJC_WORDS) + ')')
-
-
-def CheckObjcConversion(filename, lines, error):
-  if 'Firestore/core/' not in filename:
-    return
-
-  for linenum, line in enumerate(lines):
-    match = _BANNED_OBJC_WORDS_RE.search(line)
-    if match:
-      word = match.group(1)
-      replacement = _BANNED_OBJC_REPLACEMENTS[word]
-      error(filename, linenum, 'readability/objc', 4,
-            'Migrate %s to %s' %
-            (word, replacement))
-
-
 
 def _GetTextInside(text, start_pattern):
   r"""Retrieves all the text between matching open and close parentheses.
@@ -6029,8 +6004,6 @@ def ProcessFileData(filename, file_extension, lines, error,
   nesting_state = NestingState()
 
   ResetNolintSuppressions()
-
-  CheckObjcConversion(filename, lines, error)
 
   CheckForCopyright(filename, lines, error)
   ProcessGlobalSuppresions(lines)

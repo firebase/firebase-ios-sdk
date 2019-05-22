@@ -430,7 +430,11 @@ static NSString *kFirebaseTestAltNamespace = @"https://foobar.firebaseio.com";
     __block BOOL done = NO;
     [database.reference.childByAutoId observeSingleEventOfType:FIRDataEventTypeValue
                                                      withBlock:^(FIRDataSnapshot *snapshot) {
-        dispatch_assert_queue(callbackQueue);
+                                                       if (@available(iOS 10.0, macOS 10.12, *)) {
+                                                         dispatch_assert_queue(callbackQueue);
+                                                       } else {
+                                                         NSAssert(YES, @"Test requires iOS 10");
+                                                       }
         done = YES;
     }];
     WAIT_FOR(done);
