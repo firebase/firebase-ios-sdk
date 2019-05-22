@@ -195,7 +195,7 @@ target 'Storage_Example_macOS' do
 end
 
 target 'Messaging_Example_macOS' do
-  platform :osx, '10.14'
+  platform :osx, '10.11'
 
   pod 'FirebaseMessaging', :path => '../'
   target 'Messaging_Tests_macOS' do
@@ -205,7 +205,7 @@ target 'Messaging_Example_macOS' do
 end
 
 target 'InstanceID_Example_macOS' do
-  platform :osx, '10.14'
+  platform :osx, '10.11'
 
   pod 'FirebaseInstanceID', :path => '../'
 
