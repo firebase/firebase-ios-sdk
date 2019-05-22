@@ -43,6 +43,8 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
+class ObjectValue;
+
 // A bit pattern for our canonical NaN value. Exposed here for testing.
 ABSL_CONST_INIT extern const uint64_t kCanonicalNanBits;
 
@@ -81,6 +83,8 @@ class FieldValue {
   };
 
   FieldValue();
+
+  FieldValue(ObjectValue value);  // NOLINT(runtime/explicit)
 
 #if __OBJC__
   FSTFieldValue* Wrap() &&;
@@ -229,6 +233,9 @@ class ObjectValue : public util::Comparable<ObjectValue> {
    * @return A new FieldValue with the field set.
    */
   ObjectValue Set(const FieldPath& field_path, const FieldValue& value) const;
+  ObjectValue Set(const FieldPath& field_path, const ObjectValue& value) const {
+    return Set(field_path, value.fv_);
+  }
 
   /**
    * Returns a FieldValue with the field path deleted. If there is no field at
@@ -247,6 +254,10 @@ class ObjectValue : public util::Comparable<ObjectValue> {
 
   const FieldValue::Map& GetInternalValue() const;
 
+  const FieldValue& AsFieldValue() const {
+    return fv_;
+  }
+
   util::ComparisonResult CompareTo(const ObjectValue& rhs) const;
 
   std::string ToString() const;
@@ -260,6 +271,11 @@ class ObjectValue : public util::Comparable<ObjectValue> {
 
   FieldValue fv_;
 };
+
+// Pretend you can automatically upcast from ObjectValue to FieldValue.
+inline FieldValue::FieldValue(ObjectValue object)
+    : FieldValue(object.AsFieldValue()) {
+}
 
 inline bool operator!=(const FieldValue& lhs, const FieldValue& rhs) {
   // See operator== for why this isn't using util::Same().

@@ -118,6 +118,18 @@ inline model::FieldValue Value(const model::FieldValue& value) {
   return value;
 }
 
+inline model::FieldValue Value(const model::ObjectValue& value) {
+  return value.AsFieldValue();
+}
+
+inline model::FieldValue Value(const model::FieldValue::Map& value) {
+  return Value(model::ObjectValue::FromMap(value));
+}
+
+inline model::FieldValue ArrayValue(std::vector<model::FieldValue>&& value) {
+  return model::FieldValue::FromArray(std::move(value));
+}
+
 namespace details {
 
 /**
@@ -169,25 +181,20 @@ inline model::FieldValue Array(Args... values) {
   return model::FieldValue::FromArray(std::move(contents));
 }
 
-/** Wraps an immutable sorted map in FieldValue with Type::Object. */
-inline model::FieldValue Object(const model::FieldValue::Map& value) {
-  return model::FieldValue::FromMap(value);
+/** Wraps an immutable sorted map into an ObjectValue. */
+inline model::ObjectValue WrapObject(const model::FieldValue::Map& value) {
+  return model::ObjectValue::FromMap(value);
 }
 
 /**
- * Creates a FieldValue from the given key/value pairs with Type::Object.
+ * Creates an ObjectValue from the given key/value pairs.
  *
  * @param key_value_pairs Alternating strings naming keys and values that can
  *     be passed to Value().
  */
 template <typename... Args>
-model::FieldValue Object(Args... key_value_pairs) {
-  return Object(details::MakeMap(key_value_pairs...));
-}
-
-/** Wraps an immutable sorted map into an ObjectValue with Type::Object. */
-inline model::ObjectValue WrapObject(const model::FieldValue::Map& value) {
-  return model::ObjectValue::FromMap(value);
+model::ObjectValue WrapObject(Args... key_value_pairs) {
+  return WrapObject(details::MakeMap(key_value_pairs...));
 }
 
 /**
@@ -197,8 +204,8 @@ inline model::ObjectValue WrapObject(const model::FieldValue::Map& value) {
  *     be passed to Value().
  */
 template <typename... Args>
-model::ObjectValue WrapObject(Args... key_value_pairs) {
-  return WrapObject(details::MakeMap(key_value_pairs...));
+model::FieldValue::Map Map(Args... key_value_pairs) {
+  return details::MakeMap(key_value_pairs...);
 }
 
 inline model::DocumentKey Key(absl::string_view path) {
