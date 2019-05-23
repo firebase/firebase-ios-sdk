@@ -168,7 +168,7 @@ NSString *FIRInstanceIDPrivateTagWithSubtype(NSString *subtype);
 
   [self waitForExpectationsWithTimeout:0.5 handler:NULL];
 
-  // Should be release once finished
+  // Should be released once finished
   XCTAssertNil(publicKeyRef);
 }
 
