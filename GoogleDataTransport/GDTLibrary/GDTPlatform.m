@@ -18,18 +18,21 @@
 
 const GDTBackgroundIdentifier GDTBackgroundIdentifierInvalid = 0;
 
-NSString * const kGDTApplicationDidEnterBackgroundNotification = @"GDTApplicationDidEnterBackgroundNotification";
+NSString *const kGDTApplicationDidEnterBackgroundNotification =
+    @"GDTApplicationDidEnterBackgroundNotification";
 
-NSString * const kGDTApplicationWillEnterForegroundNotification = @"GDTApplicationWillEnterForegroundNotification";
+NSString *const kGDTApplicationWillEnterForegroundNotification =
+    @"GDTApplicationWillEnterForegroundNotification";
 
-NSString * const kGDTApplicationWillTerminateNotification = @"GDTApplicationWillTerminateNotification";
+NSString *const kGDTApplicationWillTerminateNotification =
+    @"GDTApplicationWillTerminateNotification";
 
 BOOL GDTReachabilityFlagsContainWWAN(SCNetworkReachabilityFlags flags) {
 #if TARGET_OS_IOS
   return (flags & kSCNetworkReachabilityFlagsIsWWAN) == kSCNetworkReachabilityFlagsIsWWAN;
 #else
   return NO;
-#endif // TARGET_OS_IOS
+#endif  // TARGET_OS_IOS
 }
 
 @implementation GDTApplication
@@ -76,24 +79,23 @@ BOOL GDTReachabilityFlagsContainWWAN(SCNetworkReachabilityFlags flags) {
                            selector:@selector(macOSApplicationWillTerminate:)
                                name:NSApplicationWillTerminateNotification
                              object:nil];
-#endif // TARGET_OS_IOS || TARGET_OS_TVOS
+#endif  // TARGET_OS_IOS || TARGET_OS_TVOS
   }
   return self;
 }
-
 
 - (GDTBackgroundIdentifier)beginBackgroundTaskWithExpirationHandler:(void (^)(void))handler {
 #if TARGET_OS_IOS || TARGET_OS_TVOS
   return [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:handler];
 #else
   return GDTBackgroundIdentifierInvalid;
-#endif // TARGET_OS_IOS || TARGET_OS_TVOS
+#endif  // TARGET_OS_IOS || TARGET_OS_TVOS
 }
 
 - (void)endBackgroundTask:(GDTBackgroundIdentifier)bgID {
 #if TARGET_OS_IOS || TARGET_OS_TVOS
   [[UIApplication sharedApplication] endBackgroundTask:bgID];
-#endif //TARGET_OS_IOS || TARGET_OS_TVOS
+#endif  // TARGET_OS_IOS || TARGET_OS_TVOS
 }
 
 #pragma mark - UIApplicationDelegate
@@ -113,7 +115,7 @@ BOOL GDTReachabilityFlagsContainWWAN(SCNetworkReachabilityFlags flags) {
   NSNotificationCenter *notifCenter = [NSNotificationCenter defaultCenter];
   [notifCenter postNotificationName:kGDTApplicationWillTerminateNotification object:nil];
 }
-#endif // TARGET_OS_IOS || TARGET_OS_TVOS
+#endif  // TARGET_OS_IOS || TARGET_OS_TVOS
 
 #pragma mark - NSApplicationDelegate
 
@@ -122,6 +124,6 @@ BOOL GDTReachabilityFlagsContainWWAN(SCNetworkReachabilityFlags flags) {
   NSNotificationCenter *notifCenter = [NSNotificationCenter defaultCenter];
   [notifCenter postNotificationName:kGDTApplicationWillTerminateNotification object:nil];
 }
-#endif // TARGET_OS_OSX
+#endif  // TARGET_OS_OSX
 
 @end

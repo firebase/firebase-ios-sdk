@@ -21,18 +21,18 @@
 #import <UIKit/UIKit.h>
 #elif TARGET_OS_OSX
 #import <AppKit/AppKit.h>
-#endif // TARGET_OS_IOS || TARGET_OS_TVOS
+#endif  // TARGET_OS_IOS || TARGET_OS_TVOS
 
 NS_ASSUME_NONNULL_BEGIN
 
 /** A notification sent out if the app is backgrounding. */
-FOUNDATION_EXPORT NSString * const kGDTApplicationDidEnterBackgroundNotification;
+FOUNDATION_EXPORT NSString *const kGDTApplicationDidEnterBackgroundNotification;
 
 /** A notification sent out if the app is foregrounding. */
-FOUNDATION_EXPORT NSString * const kGDTApplicationWillEnterForegroundNotification;
+FOUNDATION_EXPORT NSString *const kGDTApplicationWillEnterForegroundNotification;
 
 /** A notification sent out if the app is terminating. */
-FOUNDATION_EXPORT NSString * const kGDTApplicationWillTerminateNotification;
+FOUNDATION_EXPORT NSString *const kGDTApplicationWillTerminateNotification;
 
 /** Compares flags with the WWAN reachability flag, if available, and returns YES if present.
  *
@@ -54,7 +54,7 @@ FOUNDATION_EXPORT const GDTBackgroundIdentifier GDTBackgroundIdentifierInvalid;
 @protocol GDTApplicationDelegate <NSApplicationDelegate>
 #else
 @protocol GDTApplicationDelegate <NSObject>
-#endif // TARGET_OS_IOS || TARGET_OS_TVOS
+#endif  // TARGET_OS_IOS || TARGET_OS_TVOS
 
 @end
 
@@ -73,7 +73,8 @@ FOUNDATION_EXPORT const GDTBackgroundIdentifier GDTBackgroundIdentifierInvalid;
  * @return An identifier for the background task, or GDTBackgroundIdentifierInvalid if one couldn't
  * be created.
  */
-- (GDTBackgroundIdentifier)beginBackgroundTaskWithExpirationHandler:(void(^ __nullable)(void))handler;
+- (GDTBackgroundIdentifier)beginBackgroundTaskWithExpirationHandler:
+    (void (^__nullable)(void))handler;
 
 /** Ends the background task if the identifier is valid.
  *

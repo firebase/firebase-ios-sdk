@@ -16,8 +16,8 @@
 
 #import "GDTCCTLibrary/Private/GDTCCTUploader.h"
 
-#import <GoogleDataTransport/GDTRegistrar.h>
 #import <GoogleDataTransport/GDTPlatform.h>
+#import <GoogleDataTransport/GDTRegistrar.h>
 
 #import <nanopb/pb.h>
 #import <nanopb/pb_decode.h>
