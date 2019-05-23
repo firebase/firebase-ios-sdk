@@ -139,6 +139,8 @@ NSString *FIRInstanceIDPrivateTagWithSubtype(NSString *subtype);
   [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
+// Disabling test for now. We need to find a flake free way to insure the publicKeyRef is retained.
+#ifdef DISABLED
 - (void)testUpdateKeyRefWithTagRetainsAndReleasesKeyRef {
   SecKeyRef publicKeyRef;
 
@@ -164,5 +166,6 @@ NSString *FIRInstanceIDPrivateTagWithSubtype(NSString *subtype);
   }
   [self waitForExpectationsWithTimeout:0.5 handler:NULL];
 }
+#endif
 
 @end
