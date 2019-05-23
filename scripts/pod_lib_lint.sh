@@ -28,30 +28,42 @@ podspec is the podspec to lint
 
 options can be any options for pod spec lint
 
-Optionally, ALT_SOURCES can be set in the script to add extra repos to the
-search path. This is useful when APIs to core dependencies like FirebaseCore or
-GoogleUtilities and the public podspecs are not yet updated.
 EOF
   exit 1
 fi
 
-# Set ALT_SOURCES like the following to continue lint testing until release when Utilities
-# or Core APIs change. GoogleUtilities.podspec and FirebaseCore.podspec should be
-# manually pushed to a temporary Specs repo. See
-# https://guides.cocoapods.org/making/private-cocoapods.
-ALT_SOURCES="--sources=https://github.com/Firebase/SpecsStaging.git,https://github.com/CocoaPods/Specs.git"
-
 command=(bundle exec pod lib lint "$@")
 
-if [[ -n "${ALT_SOURCES:-}" ]]; then
-  command+=("${ALT_SOURCES}")
+# CocoaPods 1.7.0 added the `--include-podspecs` option for `pod lib lint` to
+# find dependencies locally instead of via a specs repo. This enables testing
+# changes across multiple pods without needing to push the dependent pods to
+# a staging repo.
+
+if [[ $1 == "GoogleUtilities.podspec" ||
+      $1 == "GoogleDataTransport.podspec" ]] ; then
+  # No local dependencies.
+  dep_string=''
+else
+  if [[ $1 == "GoogleDataTransportCCTSupport.podspec" ]]; then
+    deps="GoogleDataTransport"
+  elif [[ $1 == "FirebaseCore.podspec" ]]; then
+    deps="GoogleUtilities"
+  else
+    # Most pods need GoogleUtilities and FirebaseCore.
+    deps="GoogleUtilities,FirebaseCore"
+    # Those listed below have additional local pod dependencies.
+    if [[ $1 == "FirebaseInAppMessagingDisplay.podspec" ]]; then
+      deps="$deps,FirebaseInAppMessaging"
+    elif [[ $1 == "FirebaseMessaging.podspec" ]]; then
+      deps="$deps,FirebaseInstanceID"
+    fi
+  fi
+  dep_string="--include-podspecs={${deps}}.podspec"
 fi
+
+command+=("${dep_string}")
 
 echo "${command[*]}"
 "${command[@]}"; result=$?
 
-if [[ $result != 0 ]]; then
-  # retry because of occasional network flakiness
-  "${command[@]}"; result=$?
-fi
 exit $result
