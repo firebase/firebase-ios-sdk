@@ -130,11 +130,11 @@ xcb_flags+=(
   COMPILER_INDEX_STORE_ENABLE=NO
 )
 
-# TODO(varconst): --warn-unused-vars - right now, it makes the log overflow on
-# Travis.
+# TODO(varconst): Add --warn-unused-vars and --warn-uninitialized.
+# Right now, it makes the log overflow on Travis because many of our
+# dependencies don't build cleanly this way.
 cmake_options=(
   -Wdeprecated
-  --warn-uninitialized
 )
 
 xcode_version=$(xcodebuild -version | head -n 1)
