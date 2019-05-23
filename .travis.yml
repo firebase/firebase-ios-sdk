@@ -102,6 +102,16 @@ jobs:
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
+    - stage: test
+      env:
+        - PROJECT=GoogleUtilities PLATFORM=iOS METHOD=pod-lib-lint
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleUtilities.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --use-libraries
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --use-modular-headers
+
     # pod lib lint to check build and warnings for dynamic framework build (use_frameworks!)
     - stage: test
       env:
@@ -136,7 +146,6 @@ jobs:
       before_install:
         - ./scripts/install_prereqs.sh
       script:
-        - travis_retry ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --use-libraries
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseAnalyticsInterop.podspec --use-libraries
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseAuth.podspec --use-libraries
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseAuthInterop.podspec --use-libraries
