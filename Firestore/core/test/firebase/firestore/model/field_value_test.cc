@@ -31,9 +31,6 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-#pragma ide diagnostic ignored "readability-magic-numbers"
-#pragma ide diagnostic ignored "cppcoreguidelines-avoid-magic-numbers"
-
 namespace firebase {
 namespace firestore {
 namespace model {
