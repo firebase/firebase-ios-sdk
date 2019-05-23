@@ -154,31 +154,15 @@ NSString *FIRInstanceIDPrivateTagWithSubtype(NSString *subtype);
 
     publicKeyRef = keyPair.publicKey;
 
-    // Retain to keep publicKeyRef alive to verify its reatin count
-    CFRetain(publicKeyRef);
-
-    // 2 = 1 from keyPair + 1 from CFRetain()
-    XCTAssertEqual(CFGetRetainCount(publicKeyRef), 2);
-
-    XCTestExpectation *completionExpectaion =
-        [self expectationWithDescription:@"completionExpectaion"];
+    XCTestExpectation *completionExpectation =
+        [self expectationWithDescription:@"completionExpectation"];
     [self.keyPairStore updateKeyRef:keyPair.publicKey
                             withTag:@"test"
                             handler:^(NSError *error) {
-                              [completionExpectaion fulfill];
+                              [completionExpectation fulfill];
                             }];
-
-    // 3 = from keyPair + 1 from CFRetain() + 1 retained by `updateKeyRef`
-    XCTAssertEqual(CFGetRetainCount(publicKeyRef), 3);
   }
-
-  // 2 = 1 from CFRetain() + 1 retained by `updateKeyRef`
-  XCTAssertEqual(CFGetRetainCount(publicKeyRef), 2);
-
   [self waitForExpectationsWithTimeout:0.5 handler:NULL];
-
-  // No one else owns publicKeyRef except the test
-  XCTAssertEqual(CFGetRetainCount(publicKeyRef), 1);
 }
 
 @end
