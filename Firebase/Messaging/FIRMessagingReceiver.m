@@ -16,10 +16,6 @@
 
 #import "FIRMessagingReceiver.h"
 
-#if TARGET_OS_IOS ||TARGET_OS_TV
-#import <UIKit/UIKit.h>
-#endif
-
 #import "FIRMessaging.h"
 #import "FIRMessagingLogger.h"
 #import "FIRMessagingUtilities.h"

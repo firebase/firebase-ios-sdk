@@ -391,14 +391,12 @@ id getNamedPropertyFromObject(id object, NSString *propertyName, Class klass) {
   return property;
 }
 
-#pragma mark - UIApplicationDelegate
+#pragma mark - GULApplicationDelegate
 
-#if TARGET_OS_IOS
-- (void)application:(UIApplication *)application
+- (void)application:(GULApplication *)application
 didReceiveRemoteNotification:(NSDictionary *)userInfo {
   [[FIRMessaging messaging] appDidReceiveMessage:userInfo];
 }
-#endif // TARGET_OS_IOS
 
 #if TARGET_OS_IOS || TARGET_OS_TV
 - (void)application:(UIApplication *)application

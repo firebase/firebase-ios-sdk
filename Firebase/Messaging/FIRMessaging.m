@@ -443,14 +443,11 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
     });
     return;
   }
-#if TARGET_OS_OSX
-  return;
-#else
-  UIApplication *application = [GULAppDelegateSwizzler sharedApplication];
+  GULApplication *application = [GULAppDelegateSwizzler sharedApplication];
   if (!application) {
     return;
   }
-  id<UIApplicationDelegate> appDelegate = application.delegate;
+  id<GULApplicationDelegate> appDelegate = application.delegate;
   SEL continueUserActivitySelector =
       @selector(application:continueUserActivity:restorationHandler:);
   SEL openURLWithOptionsSelector = @selector(application:openURL:options:);
@@ -473,10 +470,12 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
     }];
 
   } else if ([appDelegate respondsToSelector:openURLWithOptionsSelector]) {
+#if TARGET_OS_IOS
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunguarded-availability"
     [appDelegate application:application openURL:url options:@{}];
 #pragma clang diagnostic pop
+#endif
 
   // Similarly, |application:openURL:sourceApplication:annotation:| will also always be called, due
   // to the default swizzling done by FIRAAppDelegateProxy in Firebase Analytics
@@ -498,7 +497,6 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 #pragma clang diagnostic pop
 #endif
   }
-#endif // TARGET_OS_OSX
 }
 
 - (NSURL *)linkURLFromMessage:(NSDictionary *)message {
