@@ -56,12 +56,12 @@ target 'DynamicLinks_Example_iOS' do
   platform :ios, '8.0'
 
   pod 'FirebaseDynamicLinks', :path => '../'
+  pod 'GoogleUtilities/MethodSwizzler', :path => '../'
+  pod 'GoogleUtilities/SwizzlerTestHelpers', :path => '../'
 
   target 'DynamicLinks_Tests_iOS' do
     inherit! :search_paths
     pod 'OCMock'
-    pod 'GoogleUtilities/MethodSwizzler', :path => '../'
-    pod 'GoogleUtilities/SwizzlerTestHelpers', :path => '../'
   end
 end
 
