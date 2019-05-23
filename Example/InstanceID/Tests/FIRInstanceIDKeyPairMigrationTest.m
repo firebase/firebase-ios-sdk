@@ -140,7 +140,7 @@ NSString *FIRInstanceIDPrivateTagWithSubtype(NSString *subtype);
 }
 
 - (void)testUpdateKeyRefWithTagRetainsAndReleasesKeyRef {
-  SecKeyRef publicKeyRef;
+  __weak id publicKeyRef;
 
   @autoreleasepool {
     NSString *legacyPublicKeyTag =
@@ -152,13 +152,7 @@ NSString *FIRInstanceIDPrivateTagWithSubtype(NSString *subtype);
                                                                     publicTag:legacyPublicKeyTag];
     XCTAssertTrue([keyPair isValid]);
 
-    publicKeyRef = keyPair.publicKey;
-
-    // Retain to keep publicKeyRef alive to verify its reatin count
-    CFRetain(publicKeyRef);
-
-    // 2 = 1 from keyPair + 1 from CFRetain()
-    XCTAssertEqual(CFGetRetainCount(publicKeyRef), 2);
+    publicKeyRef = (__bridge id)keyPair.publicKey;
 
     XCTestExpectation *completionExpectaion =
         [self expectationWithDescription:@"completionExpectaion"];
@@ -167,18 +161,15 @@ NSString *FIRInstanceIDPrivateTagWithSubtype(NSString *subtype);
                             handler:^(NSError *error) {
                               [completionExpectaion fulfill];
                             }];
-
-    // 3 = from keyPair + 1 from CFRetain() + 1 retained by `updateKeyRef`
-    XCTAssertEqual(CFGetRetainCount(publicKeyRef), 3);
   }
 
-  // 2 = 1 from CFRetain() + 1 retained by `updateKeyRef`
-  XCTAssertEqual(CFGetRetainCount(publicKeyRef), 2);
+  // Should be still alive until execution finished
+  XCTAssertNotNil(publicKeyRef);
 
   [self waitForExpectationsWithTimeout:0.5 handler:NULL];
 
-  // No one else owns publicKeyRef except the test
-  XCTAssertEqual(CFGetRetainCount(publicKeyRef), 1);
+  // Should be release once finished
+  XCTAssertNil(publicKeyRef);
 }
 
 @end
