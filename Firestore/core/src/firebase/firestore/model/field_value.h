@@ -41,9 +41,6 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-struct ReferenceValue;
-struct ServerTimestamp;
-
 /**
  * tagged-union class representing an immutable data value as stored in
  * Firestore. FieldValue represents all the different kinds of values
@@ -51,6 +48,7 @@ struct ServerTimestamp;
  */
 class FieldValue : public util::Comparable<FieldValue> {
  public:
+  using Array = std::vector<FieldValue>;
   using Map = immutable::SortedMap<std::string, FieldValue>;
 
   /**
@@ -77,26 +75,7 @@ class FieldValue : public util::Comparable<FieldValue> {
     // position instead, see the doc comment above.
   };
 
-  /**
-   * Checks if the given type is a numeric, such as Type::Integer or
-   * Type::Double.
-   */
-  static bool IsNumber(Type type) {
-    return type == Type::Integer || type == Type::Double;
-  }
-
-  FieldValue() {
-  }
-
-  // Do not inline these ctor/dtor below, which contain call to non-trivial
-  // operator=.
-  FieldValue(const FieldValue& value);
-  FieldValue(FieldValue&& value);
-
-  ~FieldValue();
-
-  FieldValue& operator=(const FieldValue& value);
-  FieldValue& operator=(FieldValue&& value);
+  FieldValue();
 
 #if __OBJC__
   FSTFieldValue* Wrap() &&;
@@ -104,7 +83,15 @@ class FieldValue : public util::Comparable<FieldValue> {
 
   /** Returns the true type for this value. */
   Type type() const {
-    return tag_;
+    return rep_->type();
+  }
+
+  /**
+   * Checks if the given type is a numeric, such as Type::Integer or
+   * Type::Double.
+   */
+  static bool IsNumber(Type type) {
+    return type == Type::Integer || type == Type::Double;
   }
 
   /**
@@ -116,51 +103,23 @@ class FieldValue : public util::Comparable<FieldValue> {
    */
   static bool Comparable(Type lhs, Type rhs);
 
-  bool boolean_value() const {
-    HARD_ASSERT(tag_ == Type::Boolean);
-    return boolean_value_;
-  }
+  bool boolean_value() const;
 
-  int64_t integer_value() const {
-    HARD_ASSERT(tag_ == Type::Integer);
-    return integer_value_;
-  }
+  int64_t integer_value() const;
 
-  double double_value() const {
-    HARD_ASSERT(tag_ == Type::Double);
-    return double_value_;
-  }
+  double double_value() const;
 
-  Timestamp timestamp_value() const {
-    HARD_ASSERT(tag_ == Type::Timestamp);
-    return *timestamp_value_;
-  }
+  Timestamp timestamp_value() const;
 
-  const std::string& string_value() const {
-    HARD_ASSERT(tag_ == Type::String);
-    return *string_value_;
-  }
+  const std::string& string_value() const;
 
-  const std::vector<uint8_t>& blob_value() const {
-    HARD_ASSERT(tag_ == Type::Blob);
-    return *blob_value_;
-  }
+  const std::vector<uint8_t>& blob_value() const;
 
-  /**
-   * Returns a string_view of the blob_value(). This can be useful when using
-   * abseil bytewise APIs that accept this type.
-   */
-  absl::string_view blob_value_as_string_view() const;
+  const GeoPoint& geo_point_value() const;
 
-  const GeoPoint& geo_point_value() const {
-    HARD_ASSERT(tag_ == Type::GeoPoint);
-    return *geo_point_value_;
-  }
+  const Array& array_value() const;
 
-  const std::vector<FieldValue>& array_value() const {
-    HARD_ASSERT(tag_ == Type::Array);
-    return *array_value_;
-  }
+  const Map& object_value() const;
 
   /** factory methods. */
   static FieldValue Null();
@@ -181,45 +140,47 @@ class FieldValue : public util::Comparable<FieldValue> {
   static FieldValue FromBlob(const uint8_t* source, size_t size);
   static FieldValue FromReference(DatabaseId database_id, DocumentKey value);
   static FieldValue FromGeoPoint(const GeoPoint& value);
-  static FieldValue FromArray(const std::vector<FieldValue>& value);
-  static FieldValue FromArray(std::vector<FieldValue>&& value);
+  static FieldValue FromArray(const Array& value);
+  static FieldValue FromArray(Array&& value);
   static FieldValue FromMap(const Map& value);
   static FieldValue FromMap(Map&& value);
 
-  size_t Hash() const;
-
-  util::ComparisonResult CompareTo(const FieldValue& rhs) const;
-
-  std::string ToString() const;
-  friend std::ostream& operator<<(std::ostream& os, const FieldValue& value);
-
- private:
-  friend class ObjectValue;
-
-  explicit FieldValue(bool value) : tag_(Type::Boolean), boolean_value_(value) {
+  size_t Hash() const {
+    return rep_->Hash();
   }
 
-  /**
-   * Switch to the specified type, if different from the current type.
-   */
-  void SwitchTo(Type type);
+  util::ComparisonResult CompareTo(const FieldValue& rhs) const {
+    return rep_->CompareTo(*rhs.rep_);
+  }
 
-  Type tag_ = Type::Null;
-  union {
-    // There is no null type as tag_ alone is enough for Null FieldValue.
-    bool boolean_value_;
-    int64_t integer_value_;
-    double double_value_;
-    std::unique_ptr<Timestamp> timestamp_value_;
-    std::unique_ptr<ServerTimestamp> server_timestamp_value_;
-    // TODO(rsgowman): Change unique_ptr<std::string> to nanopb::String?
-    std::unique_ptr<std::string> string_value_;
-    std::unique_ptr<std::vector<uint8_t>> blob_value_;
-    std::unique_ptr<ReferenceValue> reference_value_;
-    std::unique_ptr<GeoPoint> geo_point_value_;
-    std::unique_ptr<std::vector<FieldValue>> array_value_;
-    std::unique_ptr<Map> object_value_;
+  std::string ToString() const {
+    return rep_->ToString();
+  }
+
+  friend std::ostream& operator<<(std::ostream& os, const FieldValue& value);
+
+  friend class ObjectValue;
+  class BaseValue {
+   public:
+    virtual ~BaseValue() = default;
+
+    virtual Type type() const = 0;
+
+    virtual std::string ToString() const = 0;
+
+    virtual util::ComparisonResult CompareTo(const BaseValue& other) const = 0;
+
+    virtual size_t Hash() const = 0;
+
+   protected:
+    util::ComparisonResult CompareTypes(const BaseValue& other) const;
   };
+
+ private:
+  explicit FieldValue(std::shared_ptr<BaseValue> rep) : rep_(std::move(rep)) {
+  }
+
+  std::shared_ptr<BaseValue> rep_;
 };
 
 /** A structured object value stored in Firestore. */
@@ -273,9 +234,7 @@ class ObjectValue : public util::Comparable<ObjectValue> {
   // which is a copy of the immutable map, but with some fields (such as server
   // timestamps) optionally resolved. Do we need the same here?
 
-  const FieldValue::Map& GetInternalValue() const {
-    return *fv_.object_value_;
-  }
+  const FieldValue::Map& GetInternalValue() const;
 
   const FieldValue& AsFieldValue() const {
     return fv_;
@@ -293,28 +252,6 @@ class ObjectValue : public util::Comparable<ObjectValue> {
                        const FieldValue& value) const;
 
   FieldValue fv_;
-};
-
-struct ServerTimestamp {
-  Timestamp local_write_time;
-  absl::optional<FieldValue> previous_value;
-
-  std::string ToString() const;
-  friend std::ostream& operator<<(std::ostream& os,
-                                  const ServerTimestamp& value);
-
-  size_t Hash() const;
-};
-
-struct ReferenceValue {
-  DatabaseId database_id;
-  DocumentKey key;
-
-  std::string ToString() const;
-  friend std::ostream& operator<<(std::ostream& os,
-                                  const ReferenceValue& value);
-
-  size_t Hash() const;
 };
 
 }  // namespace model
