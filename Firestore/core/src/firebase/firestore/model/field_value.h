@@ -45,9 +45,6 @@ namespace model {
 
 class ObjectValue;
 
-// A bit pattern for our canonical NaN value. Exposed here for testing.
-ABSL_CONST_INIT extern const uint64_t kCanonicalNanBits;
-
 /**
  * tagged-union class representing an immutable data value as stored in
  * Firestore. FieldValue represents all the different kinds of values
@@ -84,7 +81,7 @@ class FieldValue {
 
   FieldValue();
 
-  FieldValue(ObjectValue value);  // NOLINT(runtime/explicit)
+  FieldValue(ObjectValue object);  // NOLINT(runtime/explicit)
 
 #if __OBJC__
   FSTFieldValue* Wrap() &&;
@@ -167,6 +164,25 @@ class FieldValue {
     return rep_->CompareTo(*rhs.rep_);
   }
 
+  /**
+   * Checks if the two values are equal, returning true if the value is
+   * perceptibly different in any regard.
+   *
+   * Comparison for FieldValues is defined by whether or not values should
+   * match for the purposes of querying. Comparison therefore makes the broadest
+   * possible allowance, looking only for logical equality. This means that e.g.
+   * -0.0, +0.0 and 0 (floating point and integer zeros) are all considered the
+   * same value for comparison purposes.
+   *
+   * Equality for FieldValues is defined by whether or not a user could
+   * perceive a change to the value. That is, a change from integer zero to
+   * a double zero can be perceived and so these values are unequal despite
+   * comparing same.
+   *
+   * This makes FieldValue one of the special cases where equality is
+   * inconsistent with comparison. There are cases where CompareTo will return
+   * Same but operator== will return false.
+   */
   friend bool operator==(const FieldValue& lhs, const FieldValue& rhs);
 
   std::string ToString() const {
@@ -294,6 +310,9 @@ inline bool operator<=(const FieldValue& lhs, const FieldValue& rhs) {
 inline bool operator>=(const FieldValue& lhs, const FieldValue& rhs) {
   return !(lhs < rhs);
 }
+
+// A bit pattern for our canonical NaN value. Exposed here for testing.
+ABSL_CONST_INIT extern const uint64_t kCanonicalNanBits;
 
 }  // namespace model
 }  // namespace firestore

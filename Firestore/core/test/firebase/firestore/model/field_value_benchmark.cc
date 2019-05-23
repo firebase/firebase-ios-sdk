@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -121,8 +121,8 @@ struct FromValueVisitor {
   FieldValue operator()(double value) {
     return FieldValue::FromDouble(value);
   }
-  FieldValue operator()(const std::string& value) {
-    return FieldValue::FromString(value);
+  FieldValue operator()(std::string value) {
+    return FieldValue::FromString(std::move(value));
   }
   FieldValue operator()(const Timestamp& value) {
     return FieldValue::FromTimestamp(value);
