@@ -44,9 +44,6 @@ namespace model {
 
 class ObjectValue;
 
-// A bit pattern for our canonical NaN value. Exposed here for testing.
-ABSL_CONST_INIT extern const uint64_t kCanonicalNanBits;
-
 /**
  * tagged-union class representing an immutable data value as stored in
  * Firestore. FieldValue represents all the different kinds of values
@@ -83,7 +80,7 @@ class FieldValue {
 
   FieldValue();
 
-  FieldValue(ObjectValue value);  // NOLINT(runtime/explicit)
+  FieldValue(ObjectValue object);  // NOLINT(runtime/explicit)
 
 #if __OBJC__
   FSTFieldValue* Wrap() &&;
@@ -307,6 +304,9 @@ inline bool operator<=(const FieldValue& lhs, const FieldValue& rhs) {
 inline bool operator>=(const FieldValue& lhs, const FieldValue& rhs) {
   return !(lhs < rhs);
 }
+
+// A bit pattern for our canonical NaN value. Exposed here for testing.
+ABSL_CONST_INIT extern const uint64_t kCanonicalNanBits;
 
 }  // namespace model
 }  // namespace firestore
