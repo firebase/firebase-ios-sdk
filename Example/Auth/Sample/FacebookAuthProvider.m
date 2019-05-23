@@ -49,9 +49,9 @@ static NSString *const kFacebookAppID = KFACEBOOK_APP_ID;
 
   [ApplicationDelegate setOpenURLDelegate:self];
   [FBSDKSettings setAppID:kFacebookAppID];
-  [_loginManager logInWithReadPermissions:@[ @"email" ]
-                       fromViewController:viewController
-                                  handler:^(FBSDKLoginManagerLoginResult *result, NSError *error) {
+  [_loginManager logInWithPermissions:@[ @"email" ]
+                   fromViewController:viewController
+                              handler:^(FBSDKLoginManagerLoginResult *result, NSError *error) {
     [ApplicationDelegate setOpenURLDelegate:nil];
     if (!error && result.isCancelled) {
       error = [NSError errorWithDomain:@"com.google.FirebaseAuthSample" code:-1 userInfo:nil];
