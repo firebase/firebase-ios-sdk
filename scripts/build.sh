@@ -199,8 +199,9 @@ case "$product-$method-$platform" in
       # Code Coverage collection is only working on iOS currently.
       ./scripts/collect_metrics.sh 'Example/Firebase.xcworkspace' "AllUnitTests_$platform"
 
-      # Run integration tests (not allowed on PRs)
-      if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+      # Run integration tests (not allowed on forks)
+      if [[ "$TRAVIS_PULL_REQUEST" == "false" ||
+            "$TRAVIS_PULL_REQUEST_SLUG" == "$TRAVIS_REPO_SLUG" ]]; then
         RunXcodebuild \
           -workspace 'Example/Firebase.xcworkspace' \
           -scheme "Auth_ApiTests" \
