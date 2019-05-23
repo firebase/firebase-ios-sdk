@@ -21,11 +21,20 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
+#include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
 namespace firestore {
 namespace testutil {
+
+using testing::Each;
+using testing::Eq;
+using testing::Not;
+
+MATCHER_P(HashEq, other, "has equal hash") {
+  return util::Hash(arg) == util::Hash(other);
+}
 
 /**
  * Tester for operator== and Hash() methods of a class.
@@ -67,19 +76,15 @@ class EqualsTester {
       const std::vector<T>& group = groups_[i];
       for (const T& item : group) {
         // Verify that all items in the group are equal.
-        for (const T& other_item : group) {
-          EXPECT_EQ(item, other_item);
-          EXPECT_EQ(util::Hash(item), util::Hash(other_item));
-        }
+        EXPECT_THAT(group, Each(Eq(item)));
+        EXPECT_THAT(group, Each(HashEq(item)));
 
         // Verify that all items in other groups are unequal.
         for (size_t j = 0; j < groups_.size(); ++j) {
           if (i == j) continue;
 
           const std::vector<T>& other_group = groups_[j];
-          for (const T& other_item : other_group) {
-            EXPECT_NE(item, other_item);
-          }
+          EXPECT_THAT(other_group, Each(Not(Eq(item))));
         }
       }
     }

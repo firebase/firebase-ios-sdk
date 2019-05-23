@@ -309,6 +309,7 @@ TEST(FieldValueTest, NormalizesNaNs) {
 
   // Round trip otherwise preserves NaNs
   EXPECT_EQ(kAlternateNanBits, ToBits(alternate));
+  EXPECT_NE(kCanonicalNanBits, ToBits(alternate));
 
   // Creating a FieldValue from a double should normalize NaNs.
   auto Normalize = [](uint64_t bits) -> uint64_t {
