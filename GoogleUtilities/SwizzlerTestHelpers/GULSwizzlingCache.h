@@ -41,6 +41,20 @@
                forClass:(Class)aClass
            withSelector:(SEL)selector;
 
+/** Save the existing IMP that exists before we install the new IMP for a class, selector combo.
+ *  If the currentIMP is something that we put there, it will ignore it and instead point newIMP
+ *  to what existed before we swizzled.
+ *
+ *  @param newIMP new The IMP that is going to replace the current IMP.
+ *  @param currentIMP The IMP returned by class_getMethodImplementation.
+ *  @param aClass The class that we're swizzling.
+ *  @param selector The selector we're swizzling.
+ */
++ (void)cacheCurrentIMP:(IMP)currentIMP
+              forNewIMP:(IMP)newIMP
+               forClass:(Class)aClass
+           withSelector:(SEL)selector;
+
 /** Returns the cached IMP that would be invoked with the class and selector combo had we
  *  never swizzled.
  *
