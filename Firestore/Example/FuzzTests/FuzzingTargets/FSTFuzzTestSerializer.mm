@@ -33,7 +33,7 @@ using firebase::firestore::nanopb::Reader;
 using firebase::firestore::remote::Serializer;
 
 int FuzzTestDeserialization(const uint8_t *data, size_t size) {
-  Serializer serializer{DatabaseId{"project", DatabaseId::kDefault}};
+  Serializer serializer{DatabaseId{"project"}};
 
   @autoreleasepool {
     @try {

@@ -234,7 +234,7 @@ NSString* WriteStreamSerializer::Describe(GCFSWriteResponse* response) {
 
 DatastoreSerializer::DatastoreSerializer(const DatabaseInfo& database_info)
     : serializer_{[[FSTSerializerBeta alloc]
-          initWithDatabaseID:&database_info.database_id()]} {
+          initWithDatabaseID:database_info.database_id()]} {
 }
 
 GCFSCommitRequest* DatastoreSerializer::CreateCommitRequest(

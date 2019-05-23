@@ -28,7 +28,12 @@ namespace model {
 
 using Type = FieldValue::Type;
 
+using absl::nullopt;
+using testutil::Field;
 using testutil::Key;
+using testutil::Map;
+using testutil::Value;
+using testutil::WrapObject;
 
 namespace {
 
@@ -37,6 +42,121 @@ const uint8_t* Bytes(const char* value) {
 }
 
 }  // namespace
+
+TEST(FieldValueTest, ExtractsFields) {
+  ObjectValue value = WrapObject("foo", Map("a", 1, "b", true, "c", "string"));
+
+  ASSERT_EQ(Type::Object, value.Get(Field("foo"))->type());
+
+  EXPECT_EQ(Value(1), value.Get(Field("foo.a")));
+  EXPECT_EQ(Value(true), value.Get(Field("foo.b")));
+  EXPECT_EQ(Value("string"), value.Get(Field("foo.c")));
+
+  EXPECT_EQ(nullopt, value.Get(Field("foo.a.b")));
+  EXPECT_EQ(nullopt, value.Get(Field("bar")));
+  EXPECT_EQ(nullopt, value.Get(Field("bar.a")));
+}
+
+TEST(FieldValueTest, OverwritesExistingFields) {
+  ObjectValue old = WrapObject("a", "old");
+  ObjectValue mod = old.Set(Field("a"), Value("mod"));
+  EXPECT_NE(old, mod);
+  EXPECT_EQ(WrapObject("a", "old"), old);
+  EXPECT_EQ(WrapObject("a", "mod"), mod);
+}
+
+TEST(FieldValueTest, AddsNewFields) {
+  ObjectValue empty = ObjectValue::Empty();
+  ObjectValue mod = empty.Set(Field("a"), Value("mod"));
+  EXPECT_EQ(ObjectValue::Empty(), empty);
+  EXPECT_EQ(WrapObject("a", "mod"), mod);
+
+  ObjectValue old = mod;
+  mod = old.Set(Field("b"), Value(1));
+  EXPECT_EQ(WrapObject("a", "mod"), old);
+  EXPECT_EQ(WrapObject("a", "mod", "b", 1), mod);
+}
+
+TEST(FieldValueTest, ImplicitlyCreatesObjects) {
+  ObjectValue old = WrapObject("a", "old");
+  ObjectValue mod = old.Set(Field("b.c.d"), Value("mod"));
+
+  EXPECT_NE(old, mod);
+  EXPECT_EQ(WrapObject("a", "old"), old);
+  EXPECT_EQ(WrapObject("a", "old", "b", Map("c", Map("d", "mod"))), mod);
+}
+
+TEST(FieldValueTest, CanOverwritePrimitivesWithObjects) {
+  ObjectValue old = WrapObject("a", Map("b", "old"));
+  ObjectValue mod = old.Set(Field("a"), WrapObject("b", "mod"));
+  EXPECT_NE(old, mod);
+  EXPECT_EQ(WrapObject("a", Map("b", "old")), old);
+  EXPECT_EQ(WrapObject("a", Map("b", "mod")), mod);
+}
+
+TEST(FieldValueTest, AddsToNestedObjects) {
+  ObjectValue old = WrapObject("a", Map("b", "old"));
+  ObjectValue mod = old.Set(Field("a.c"), Value("mod"));
+  EXPECT_NE(old, mod);
+  EXPECT_EQ(WrapObject("a", Map("b", "old")), old);
+  EXPECT_EQ(WrapObject("a", Map("b", "old", "c", "mod")), mod);
+}
+
+TEST(FieldValueTest, DeletesKey) {
+  ObjectValue old = WrapObject("a", 1, "b", 2);
+  ObjectValue mod = old.Delete(Field("a"));
+
+  EXPECT_NE(old, mod);
+  EXPECT_EQ(WrapObject("a", 1, "b", 2), old);
+  EXPECT_EQ(WrapObject("b", 2), mod);
+
+  ObjectValue empty = mod.Delete(Field("b"));
+  EXPECT_NE(mod, empty);
+  EXPECT_EQ(WrapObject("b", 2), mod);
+  EXPECT_EQ(ObjectValue::Empty(), empty);
+}
+
+TEST(FieldValueTest, DeletesHandleMissingKeys) {
+  ObjectValue old = WrapObject("a", Map("b", 1, "c", 2));
+  ObjectValue mod = old.Delete(Field("b"));
+  EXPECT_EQ(mod, old);
+  EXPECT_EQ(WrapObject("a", Map("b", 1, "c", 2)), mod);
+
+  mod = old.Delete(Field("a.d"));
+  EXPECT_EQ(mod, old);
+  EXPECT_EQ(WrapObject("a", Map("b", 1, "c", 2)), mod);
+
+  mod = old.Delete(Field("a.b.c"));
+  EXPECT_EQ(mod, old);
+  EXPECT_EQ(WrapObject("a", Map("b", 1, "c", 2)), mod);
+}
+
+TEST(FieldValueTest, DeletesNestedKeys) {
+  FieldValue::Map orig = Map("a", Map("b", 1, "c", Map("d", 2, "e", 3)));
+  ObjectValue old = WrapObject(orig);
+  ObjectValue mod = old.Delete(Field("a.c.d"));
+
+  EXPECT_NE(mod, old);
+
+  FieldValue::Map second = Map("a", Map("b", 1, "c", Map("e", 3)));
+  EXPECT_EQ(WrapObject(second), mod);
+
+  old = mod;
+  mod = old.Delete(Field("a.c"));
+
+  EXPECT_NE(old, mod);
+  EXPECT_EQ(WrapObject(second), old);
+
+  FieldValue::Map third = Map("a", Map("b", 1));
+  EXPECT_EQ(WrapObject(third), mod);
+
+  old = mod;
+  mod = old.Delete(Field("a"));
+
+  EXPECT_NE(old, mod);
+  EXPECT_EQ(WrapObject(third), old);
+  EXPECT_EQ(ObjectValue::Empty(), mod);
+}
 
 TEST(FieldValue, ToString) {
   EXPECT_EQ("null", FieldValue::Null().ToString());
@@ -56,7 +176,8 @@ TEST(FieldValue, ToString) {
             FieldValue::FromTimestamp(Timestamp(12, 42)).ToString());
 
   EXPECT_EQ(
-      "ServerTimestamp(local_write_time=Timestamp(seconds=12, nanoseconds=42))",
+      "ServerTimestamp(local_write_time=Timestamp(seconds=12, "
+      "nanoseconds=42))",
       FieldValue::FromServerTimestamp(Timestamp(12, 42)).ToString());
 
   EXPECT_EQ("", FieldValue::FromString("").ToString());
@@ -67,8 +188,7 @@ TEST(FieldValue, ToString) {
   auto blob = FieldValue::FromBlob(reinterpret_cast<const uint8_t*>(hi), 2);
   EXPECT_EQ("<4849>", blob.ToString());
 
-  DatabaseId database_id("p", "d");
-  auto ref = FieldValue::FromReference(Key("foo/bar"), &database_id);
+  auto ref = FieldValue::FromReference(DatabaseId("p", "d"), Key("foo/bar"));
   EXPECT_EQ("Reference(key=foo/bar)", ref.ToString());
 
   auto geo_point = FieldValue::FromGeoPoint(GeoPoint(41.8781, -87.6298));
@@ -195,12 +315,11 @@ TEST(FieldValue, BlobType) {
 }
 
 TEST(FieldValue, ReferenceType) {
-  const DatabaseId id("project", "database");
-  const FieldValue a =
-      FieldValue::FromReference(DocumentKey::FromPathString("root/abc"), &id);
-  DocumentKey key = DocumentKey::FromPathString("root/def");
-  const FieldValue b = FieldValue::FromReference(key, &id);
-  const FieldValue c = FieldValue::FromReference(std::move(key), &id);
+  DatabaseId id("project", "database");
+  FieldValue a = FieldValue::FromReference(id, Key("root/abc"));
+  DocumentKey key = Key("root/def");
+  FieldValue b = FieldValue::FromReference(id, key);
+  FieldValue c = FieldValue::FromReference(id, std::move(key));
   EXPECT_EQ(Type::Reference, a.type());
   EXPECT_EQ(Type::Reference, b.type());
   EXPECT_EQ(Type::Reference, c.type());
@@ -344,20 +463,15 @@ TEST(FieldValue, Copy) {
   clone = null_value;
   EXPECT_EQ(FieldValue::Null(), clone);
 
-  const DatabaseId database_id("project", "database");
-  const FieldValue reference_value = FieldValue::FromReference(
-      DocumentKey::FromPathString("root/abc"), &database_id);
+  DatabaseId database_id("project", "database");
+  FieldValue reference_value =
+      FieldValue::FromReference(database_id, Key("root/abc"));
   clone = reference_value;
-  EXPECT_EQ(FieldValue::FromReference(DocumentKey::FromPathString("root/abc"),
-                                      &database_id),
-            clone);
-  EXPECT_EQ(FieldValue::FromReference(DocumentKey::FromPathString("root/abc"),
-                                      &database_id),
+  EXPECT_EQ(FieldValue::FromReference(database_id, Key("root/abc")), clone);
+  EXPECT_EQ(FieldValue::FromReference(database_id, Key("root/abc")),
             reference_value);
   clone = *&clone;
-  EXPECT_EQ(FieldValue::FromReference(DocumentKey::FromPathString("root/abc"),
-                                      &database_id),
-            clone);
+  EXPECT_EQ(FieldValue::FromReference(database_id, Key("root/abc")), clone);
   clone = null_value;
   EXPECT_EQ(FieldValue::Null(), clone);
 
@@ -403,90 +517,6 @@ TEST(FieldValue, Copy) {
   EXPECT_EQ(FieldValue::Null(), clone);
 }
 
-TEST(FieldValue, Move) {
-  FieldValue clone = FieldValue::True();
-
-  FieldValue null_value = FieldValue::Null();
-  clone = std::move(null_value);
-  EXPECT_EQ(FieldValue::Null(), clone);
-
-  FieldValue true_value = FieldValue::True();
-  clone = std::move(true_value);
-  EXPECT_EQ(FieldValue::True(), clone);
-  clone = FieldValue::Null();
-  EXPECT_EQ(FieldValue::Null(), clone);
-
-  FieldValue nan_value = FieldValue::Nan();
-  clone = std::move(nan_value);
-  EXPECT_EQ(FieldValue::Nan(), clone);
-  clone = FieldValue::Null();
-  EXPECT_EQ(FieldValue::Null(), clone);
-
-  FieldValue integer_value = FieldValue::FromInteger(1L);
-  clone = std::move(integer_value);
-  EXPECT_EQ(FieldValue::FromInteger(1L), clone);
-  clone = FieldValue::Null();
-  EXPECT_EQ(FieldValue::Null(), clone);
-
-  FieldValue double_value = FieldValue::FromDouble(1.0);
-  clone = std::move(double_value);
-  EXPECT_EQ(FieldValue::FromDouble(1.0), clone);
-  clone = FieldValue::Null();
-  EXPECT_EQ(FieldValue::Null(), clone);
-
-  FieldValue timestamp_value = FieldValue::FromTimestamp({100, 200});
-  clone = std::move(timestamp_value);
-  EXPECT_EQ(FieldValue::FromTimestamp({100, 200}), clone);
-  clone = FieldValue::Null();
-  EXPECT_EQ(FieldValue::Null(), clone);
-
-  FieldValue string_value = FieldValue::FromString("abc");
-  clone = std::move(string_value);
-  EXPECT_EQ(FieldValue::FromString("abc"), clone);
-  clone = FieldValue::Null();
-  EXPECT_EQ(FieldValue::Null(), clone);
-
-  FieldValue blob_value = FieldValue::FromBlob(Bytes("abc"), 4);
-  clone = std::move(blob_value);
-  EXPECT_EQ(FieldValue::FromBlob(Bytes("abc"), 4), clone);
-  clone = FieldValue::Null();
-  EXPECT_EQ(FieldValue::Null(), clone);
-
-  const DatabaseId database_id("project", "database");
-  FieldValue reference_value = FieldValue::FromReference(
-      DocumentKey::FromPathString("root/abc"), &database_id);
-  clone = std::move(reference_value);
-  EXPECT_EQ(FieldValue::FromReference(DocumentKey::FromPathString("root/abc"),
-                                      &database_id),
-            clone);
-  clone = null_value;  // NOLINT: use after move intended
-  EXPECT_EQ(FieldValue::Null(), clone);
-
-  FieldValue geo_point_value = FieldValue::FromGeoPoint({1, 2});
-  clone = std::move(geo_point_value);
-  EXPECT_EQ(FieldValue::FromGeoPoint({1, 2}), clone);
-  clone = null_value;
-  EXPECT_EQ(FieldValue::Null(), clone);
-
-  FieldValue array_value = FieldValue::FromArray(
-      std::vector<FieldValue>{FieldValue::True(), FieldValue::False()});
-  clone = std::move(array_value);
-  EXPECT_EQ(FieldValue::FromArray(std::vector<FieldValue>{FieldValue::True(),
-                                                          FieldValue::False()}),
-            clone);
-  clone = FieldValue::Null();
-  EXPECT_EQ(FieldValue::Null(), clone);
-
-  FieldValue object_value = FieldValue::FromMap(
-      {{"true", FieldValue::True()}, {"false", FieldValue::False()}});
-  clone = std::move(object_value);
-  EXPECT_EQ(FieldValue::FromMap(
-                {{"true", FieldValue::True()}, {"false", FieldValue::False()}}),
-            clone);
-  clone = FieldValue::Null();
-  EXPECT_EQ(FieldValue::Null(), clone);
-}
-
 TEST(FieldValue, CompareMixedType) {
   const FieldValue null_value = FieldValue::Null();
   const FieldValue true_value = FieldValue::True();
@@ -495,8 +525,8 @@ TEST(FieldValue, CompareMixedType) {
   const FieldValue string_value = FieldValue::FromString("abc");
   const FieldValue blob_value = FieldValue::FromBlob(Bytes("abc"), 4);
   const DatabaseId database_id("project", "database");
-  const FieldValue reference_value = FieldValue::FromReference(
-      DocumentKey::FromPathString("root/abc"), &database_id);
+  const FieldValue reference_value =
+      FieldValue::FromReference(database_id, Key("root/abc"));
   const FieldValue geo_point_value = FieldValue::FromGeoPoint({1, 2});
   const FieldValue array_value =
       FieldValue::FromArray(std::vector<FieldValue>());
@@ -539,93 +569,6 @@ TEST(FieldValue, CompareWithOperator) {
   EXPECT_FALSE(small == large);
 }
 
-TEST(FieldValue, Set) {
-  // Set a field in an object.
-  const ObjectValue value = ObjectValue::FromMap({
-      {"a", FieldValue::FromString("A")},
-      {"b", FieldValue::FromMap({
-                {"ba", FieldValue::FromString("BA")},
-            })},
-  });
-  const ObjectValue expected = ObjectValue::FromMap({
-      {"a", FieldValue::FromString("A")},
-      {"b", FieldValue::FromMap({
-                {"ba", FieldValue::FromString("BA")},
-                {"bb", FieldValue::FromString("BB")},
-            })},
-  });
-  EXPECT_EQ(expected,
-            value.Set(testutil::Field("b.bb"), FieldValue::FromString("BB")));
-}
-
-TEST(FieldValue, SetRecursive) {
-  // Set a field in a new object.
-  const ObjectValue value = ObjectValue::FromMap({
-      {"a", FieldValue::FromString("A")},
-  });
-  const ObjectValue expected = ObjectValue::FromMap({
-      {"a", FieldValue::FromString("A")},
-      {"b", FieldValue::FromMap({
-                {"bb", FieldValue::FromString("BB")},
-            })},
-  });
-  EXPECT_EQ(expected,
-            value.Set(testutil::Field("b.bb"), FieldValue::FromString("BB")));
-}
-
-TEST(FieldValue, Delete) {
-  const ObjectValue value = ObjectValue::FromMap({
-      {"a", FieldValue::FromString("A")},
-      {"b", FieldValue::FromMap({
-                {"ba", FieldValue::FromString("BA")},
-                {"bb", FieldValue::FromString("BB")},
-            })},
-  });
-  const ObjectValue expected = ObjectValue::FromMap({
-      {"a", FieldValue::FromString("A")},
-      {"b", FieldValue::FromMap({
-                {"ba", FieldValue::FromString("BA")},
-            })},
-  });
-  EXPECT_EQ(expected, value.Delete(testutil::Field("b.bb")));
-}
-
-TEST(FieldValue, DeleteNothing) {
-  const ObjectValue value = ObjectValue::FromMap({
-      {"a", FieldValue::FromString("A")},
-      {"b", FieldValue::FromMap({
-                {"ba", FieldValue::FromString("BA")},
-                {"bb", FieldValue::FromString("BB")},
-            })},
-  });
-  EXPECT_EQ(value, value.Delete(testutil::Field("aa")));
-}
-
-TEST(FieldValue, Get) {
-  const ObjectValue value = ObjectValue::FromMap({
-      {"a", FieldValue::FromString("A")},
-      {"b", FieldValue::FromMap({
-                {"ba", FieldValue::FromString("BA")},
-                {"bb", FieldValue::FromString("BB")},
-            })},
-  });
-  EXPECT_EQ(FieldValue::FromString("A"), value.Get(testutil::Field("a")));
-  EXPECT_EQ(FieldValue::FromString("BA"), value.Get(testutil::Field("b.ba")));
-  EXPECT_EQ(FieldValue::FromString("BB"), value.Get(testutil::Field("b.bb")));
-}
-
-TEST(FieldValue, GetNothing) {
-  const ObjectValue value = ObjectValue::FromMap({
-      {"a", FieldValue::FromString("A")},
-      {"b", FieldValue::FromMap({
-                {"ba", FieldValue::FromString("BA")},
-                {"bb", FieldValue::FromString("BB")},
-            })},
-  });
-  EXPECT_EQ(absl::nullopt, value.Get(testutil::Field("aa")));
-  EXPECT_EQ(absl::nullopt, value.Get(testutil::Field("a.a")));
-}
-
 TEST(FieldValue, IsSmallish) {
   // We expect the FV to use 4 bytes to track the type of the union, plus 8
   // bytes for the union contents themselves. The other 4 is for padding. We
@@ -633,6 +576,6 @@ TEST(FieldValue, IsSmallish) {
   EXPECT_LE(sizeof(FieldValue), 2 * sizeof(int64_t));
 }
 
-}  //  namespace model
-}  //  namespace firestore
-}  //  namespace firebase
+}  // namespace model
+}  // namespace firestore
+}  // namespace firebase

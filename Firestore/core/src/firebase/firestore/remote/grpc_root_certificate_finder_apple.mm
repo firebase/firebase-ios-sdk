@@ -67,9 +67,9 @@ NSString* _Nullable FindCertFileInResourceBundle(NSBundle* _Nullable bundle,
 /**
  * Finds gRPCCertificates.bundle inside the given parent, if it exists.
  *
- * This function exists mostly to handle differences in platforms.
- * On iOS, resources are nested directly within the top-level of the parent
- * bundle, but on macOS this will actually be in Contents/Resources.
+ * This function exists mostly to handle differences in platforms.  On iOS,
+ * resources are nested directly within the top-level of the parent bundle, but
+ * on macOS this will actually be in Contents/Resources.
  *
  * @param parent A framework or app bundle to check.
  * @return The nested gRPCCertificates.bundle if found, otherwise nil.
@@ -77,13 +77,38 @@ NSString* _Nullable FindCertFileInResourceBundle(NSBundle* _Nullable bundle,
 NSBundle* _Nullable FindCertBundleInParent(NSBundle* _Nullable parent) {
   if (!parent) return nil;
 
-  NSString* path = [parent pathForResource:@"gRPCCertificates"
-                                    ofType:@"bundle"];
-  if (!path) return nil;
+  static NSString* const bundle_names[] = {
+      // gRPC-C++ 0.0.9 changed the name of the resource bundle to allow it to
+      // coexist with Objective-C gRPC.
+      @"gRPCCertificates-Cpp",
 
-  return [[NSBundle alloc] initWithPath:path];
+      // Older gRPC-C++ or Objective-C gRPC use this name.
+      @"gRPCCertificates",
+  };
+
+  for (NSString* bundle_name : bundle_names) {
+    NSString* path = [parent pathForResource:bundle_name ofType:@"bundle"];
+    if (path) {
+      return [[NSBundle alloc] initWithPath:path];
+    }
+  }
+
+  return nil;
 }
 
+using BundleLoader = NSBundle* _Nullable (*)(void);
+
+// CocoaPods: try to load from the gRPC-C++ Framework.
+NSBundle* _Nullable FindGrpcCppFrameworkBundle() {
+  return [NSBundle bundleWithIdentifier:@"org.cocoapods.grpcpp"];
+}
+
+// CocoaPods: also allow loading from the Objective-C gRPC Framework.
+NSBundle* _Nullable FindGrpcObjcFrameworkBundle() {
+  return [NSBundle bundleWithIdentifier:@"org.cocoapods.GRPCClient"];
+}
+
+// Carthage: try to load from the FirebaseFirestore.framework
 NSBundle* _Nullable FindFirestoreFrameworkBundle() {
   // Load FIRFirestore reflectively to avoid a circular reference at build time.
   Class firestore_class = objc_getClass("FIRFirestore");
@@ -92,34 +117,36 @@ NSBundle* _Nullable FindFirestoreFrameworkBundle() {
   return [NSBundle bundleForClass:firestore_class];
 }
 
+// Carthage and manual projects: users manually adding resources to the project
+// may add the certificate to the main application bundle. Note that
+// `mainBundle` is nil for unit tests of library projects.
+NSBundle* _Nullable FindMainBundle() {
+  return [NSBundle mainBundle];
+}
+
 /**
  * Finds the path to the roots.pem certificates file, wherever it may be.
  *
- * Carthage users will find roots.pem inside gRPCCertificates.bundle in
- * the main bundle.
+ * Carthage users will find roots.pem inside gRPCCertificates.bundle in the
+ * main bundle.
  *
- * There have been enough variations and workarounds posted on this that
- * this also accepts the roots.pem file outside gRPCCertificates.bundle.
+ * There have been enough variations and workarounds posted on this that this
+ * also accepts the roots.pem file outside gRPCCertificates.bundle.
  */
 NSString* FindPathToCertificatesFile() {
-  // Certificates file might be present in either the gRPC-C++ framework or (for
-  // some projects) in the main bundle.
-  NSBundle* bundles[] = {
-      // CocoaPods: try to load from the gRPC-C++ Framework.
-      [NSBundle bundleWithIdentifier:@"org.cocoapods.grpcpp"],
-
-      // Carthage: try to load from the FirebaseFirestore.framework
-      FindFirestoreFrameworkBundle(),
-
-      // Carthage and manual projects: users manually adding resources to the
-      // project may add the certificate to the main application bundle. Note
-      // that `mainBundle` is nil for unit tests of library projects.
-      [NSBundle mainBundle],
+  // Certificates file might be present in gRPC frameworks, Firestore, or the
+  // main bundle.
+  static BundleLoader loaders[] = {
+      FindGrpcCppFrameworkBundle,
+      FindGrpcObjcFrameworkBundle,
+      FindFirestoreFrameworkBundle,
+      FindMainBundle,
   };
 
   NSString* path = nil;
 
-  for (NSBundle* parent : bundles) {
+  for (BundleLoader loader : loaders) {
+    NSBundle* parent = loader();
     if (!parent) continue;
 
     NSBundle* certs_bundle = FindCertBundleInParent(parent);

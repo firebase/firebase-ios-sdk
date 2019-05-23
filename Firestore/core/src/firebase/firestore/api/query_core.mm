@@ -213,7 +213,7 @@ Query Query::Filter(FieldPath field_path,
       }
       field_value = [FSTReferenceValue
           referenceValue:[FSTDocumentKey keyWithDocumentKey:DocumentKey{path}]
-              databaseID:&firestore_->database_id()];
+              databaseID:firestore_->database_id()];
     } else if (field_value.type != FieldValue::Type::Reference) {
       ThrowInvalidArgument(
           "Invalid query. When querying by document ID you must provide a "

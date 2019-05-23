@@ -35,7 +35,6 @@ namespace remote {
 using auth::Token;
 using auth::User;
 using core::DatabaseInfo;
-using model::DatabaseId;
 using util::AsyncQueue;
 using util::ExecutorStd;
 using util::GrpcStreamTester;

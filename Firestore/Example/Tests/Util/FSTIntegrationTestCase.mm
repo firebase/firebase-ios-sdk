@@ -41,7 +41,7 @@
 #include "Firestore/core/src/firebase/firestore/util/path.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/testutil/app_testing.h"
-#include "Firestore/core/test/firebase/firestore/util/status_test_util.h"
+#include "Firestore/core/test/firebase/firestore/util/status_testing.h"
 
 #include "absl/memory/memory.h"
 
@@ -229,13 +229,13 @@ static bool runningAgainstEmulator = false;
 
   std::unique_ptr<CredentialsProvider> credentials_provider =
       absl::make_unique<firebase::firestore::auth::EmptyCredentialsProvider>();
-  NSString *projectID = app.options.projectID;
-  FIRFirestore *firestore = [[FIRFirestore alloc] initWithProjectID:util::MakeString(projectID)
-                                                           database:DatabaseId::kDefault
-                                                     persistenceKey:util::MakeString(persistenceKey)
-                                                credentialsProvider:std::move(credentials_provider)
-                                                        workerQueue:std::move(workerQueue)
-                                                        firebaseApp:app];
+  std::string projectID = util::MakeString(app.options.projectID);
+  FIRFirestore *firestore =
+      [[FIRFirestore alloc] initWithDatabaseID:DatabaseId(projectID)
+                                persistenceKey:util::MakeString(persistenceKey)
+                           credentialsProvider:std::move(credentials_provider)
+                                   workerQueue:std::move(workerQueue)
+                                   firebaseApp:app];
 
   firestore.settings = [FSTIntegrationTestCase settings];
   [_firestores addObject:firestore];

@@ -16,6 +16,7 @@
 
 #import "GDTCCTLibrary/Private/GDTCCTUploader.h"
 
+#import <GoogleDataTransport/GDTPlatform.h>
 #import <GoogleDataTransport/GDTRegistrar.h>
 
 #import <nanopb/pb.h>
@@ -33,7 +34,7 @@
 @property(nullable, nonatomic, readwrite) NSURLSessionUploadTask *currentTask;
 
 /** If running in the background, the current background ID. */
-@property(nonatomic) UIBackgroundTaskIdentifier backgroundID;
+@property(nonatomic) GDTBackgroundIdentifier backgroundID;
 
 @end
 
@@ -59,7 +60,7 @@
     _uploaderQueue = dispatch_queue_create("com.google.GDTCCTUploader", DISPATCH_QUEUE_SERIAL);
     NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
     _uploaderSession = [NSURLSession sessionWithConfiguration:config];
-    _backgroundID = UIBackgroundTaskInvalid;
+    _backgroundID = GDTBackgroundIdentifierInvalid;
   }
   return self;
 }
@@ -105,9 +106,9 @@
           }
           pb_release(gdt_cct_LogResponse_fields, &logResponse);
           [package completeDelivery];
-          if (self->_backgroundID != UIBackgroundTaskInvalid) {
-            [[UIApplication sharedApplication] endBackgroundTask:self->_backgroundID];
-            self->_backgroundID = UIBackgroundTaskInvalid;
+          if (self->_backgroundID != GDTBackgroundIdentifierInvalid) {
+            [[GDTApplication sharedApplication] endBackgroundTask:self->_backgroundID];
+            self->_backgroundID = GDTBackgroundIdentifierInvalid;
           }
           self.currentTask = nil;
           self.currentUploadPackage = nil;
@@ -178,13 +179,13 @@
 
 #pragma mark - GDTLifecycleProtocol
 
-- (void)appWillBackground:(UIApplication *)app {
+- (void)appWillBackground:(GDTApplication *)app {
   _backgroundID = [app beginBackgroundTaskWithExpirationHandler:^{
     [app endBackgroundTask:self->_backgroundID];
   }];
 }
 
-- (void)appWillTerminate:(UIApplication *)application {
+- (void)appWillTerminate:(GDTApplication *)application {
   dispatch_sync(_uploaderQueue, ^{
     [self.currentTask cancel];
     [self.currentUploadPackage completeDelivery];

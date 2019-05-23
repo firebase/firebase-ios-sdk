@@ -175,7 +175,7 @@ NS_ASSUME_NONNULL_BEGIN
     GrpcConnection::UseInsecureChannel(util::MakeString(settings.host));
   }
 
-  DatabaseId database_id(util::MakeString(projectID), DatabaseId::kDefault);
+  DatabaseId database_id(util::MakeString(projectID));
 
   _databaseInfo =
       DatabaseInfo(database_id, "test-key", util::MakeString(settings.host), settings.sslEnabled);

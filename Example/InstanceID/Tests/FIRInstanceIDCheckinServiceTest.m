@@ -64,7 +64,7 @@ static NSString *const kVersionInfo = @"1.0";
                         // For accuracy purposes it's better to compare seconds since the test
                         // should never run for more than 1 second.
                         NSInteger expectedTimestampInSeconds =
-                            FIRInstanceIDCurrentTimestampInSeconds();
+                            (NSInteger)FIRInstanceIDCurrentTimestampInSeconds();
                         NSInteger actualTimestampInSeconds =
                             checkinPreferences.lastCheckinTimestampMillis / 1000.0;
                         XCTAssertEqual(expectedTimestampInSeconds, actualTimestampInSeconds);
