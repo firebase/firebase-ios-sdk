@@ -146,7 +146,7 @@
 
   // we expect expectation to be fulfilled right away since the upload can be carried out without
   // delay
-  [self waitForExpectationsWithTimeout:10.0 handler:nil];
+  [self waitForExpectationsWithTimeout:20.0 handler:nil];
   XCTAssertFalse(sendingAttempted);
 }
 
