@@ -203,6 +203,12 @@ ComparisonResult NumberValue<type_enum, ValueType>::CompareTo(
   }
 }
 
+// TODO(wilhuff): Use SimpleFieldValue as a base once we migrate to absl::Hash.
+//
+// This can't extend SimpleFieldValue because `util::Hash` is undefined for
+// Timestamp (and you can't override a compile-time error in a base class out
+// of existence). absl::Hash allows us to implement hashing in a way that
+// requires no public declaration of conformance.
 class TimestampValue : public BaseValue {
  public:
   explicit TimestampValue(Timestamp value) : value_(value) {

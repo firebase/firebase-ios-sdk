@@ -230,16 +230,6 @@ static TimePoint kDate2 = MakeTimePoint(2016, 10, 21, 15, 32, 0);
 static Timestamp kTimestamp2{1477063920, 0};
 
 TEST(FieldValueTest, Equality) {
-  // Comparison for FieldValues is defined by whether or not values should
-  // match for the purposes of querying. Comparison therefore makes the broadest
-  // possible allowance, looking for logical equality. This means that e.g.
-  // -0.0, +0.0 and 0 (floating point and integer zeros) are all considered the
-  // same value for comparison purposes.
-  //
-  // Equality for FieldValues is defined by whether or not a user could
-  // perceive a change to the value. That is, a change from integer zero to
-  // a double zero can be perceived and so these values are unequal despite
-  // comparing same.
   testutil::EqualsTester<FieldValue>()
       .AddEqualityGroup(FieldValue::Null(), Value(nullptr))
       .AddEqualityGroup(FieldValue::False(), Value(false))

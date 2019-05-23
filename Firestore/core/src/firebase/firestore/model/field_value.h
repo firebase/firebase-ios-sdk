@@ -161,6 +161,25 @@ class FieldValue {
     return rep_->CompareTo(*rhs.rep_);
   }
 
+  /**
+   * Checks if the two values are equal, returning true if the value is
+   * perceptibly different in any regard.
+   *
+   * Comparison for FieldValues is defined by whether or not values should
+   * match for the purposes of querying. Comparison therefore makes the broadest
+   * possible allowance, looking only for logical equality. This means that e.g.
+   * -0.0, +0.0 and 0 (floating point and integer zeros) are all considered the
+   * same value for comparison purposes.
+   *
+   * Equality for FieldValues is defined by whether or not a user could
+   * perceive a change to the value. That is, a change from integer zero to
+   * a double zero can be perceived and so these values are unequal despite
+   * comparing same.
+   *
+   * This makes FieldValue one of the special cases where equality is
+   * inconsistent with comparison. There are cases where CompareTo will return
+   * Same but operator== will return false.
+   */
   friend bool operator==(const FieldValue& lhs, const FieldValue& rhs);
 
   std::string ToString() const {
