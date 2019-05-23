@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/nanopb/nanopb_string.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
 
 #include "gtest/gtest.h"
 
@@ -22,57 +22,57 @@ namespace firebase {
 namespace firestore {
 namespace nanopb {
 
-TEST(String, DefaultConstructor) {
-  String str;
+TEST(ByteStringTest, DefaultConstructor) {
+  ByteString str;
   EXPECT_EQ(nullptr, str.data());
 }
 
-TEST(String, FromStdString) {
+TEST(ByteStringTest, FromStdString) {
   std::string original{"foo"};
-  String copy{original};
+  ByteString copy{original};
   EXPECT_EQ(copy, original);
 
   original = "bar";
   EXPECT_EQ(copy, "foo");
 }
 
-TEST(String, FromCString) {
+TEST(ByteStringTest, FromCString) {
   char original[] = {'f', 'o', 'o', '\0'};
-  String copy{original};
+  ByteString copy{original};
   EXPECT_EQ(copy, original);
 
   original[0] = 'b';
   EXPECT_EQ(copy, "foo");
 }
 
-TEST(String, WrapByteNullTerminatedArray) {
+TEST(ByteStringTest, WrapByteNullTerminatedArray) {
   auto original =
       static_cast<pb_bytes_array_t*>(malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(4)));
   memcpy(original->bytes, "foo", 4);  // null terminator
   original->size = 3;
 
-  String wrapper = String::Wrap(original);
+  ByteString wrapper = ByteString::Take(original);
   EXPECT_EQ(wrapper, absl::string_view{"foo"});
 
   original->bytes[0] = 'b';
   EXPECT_EQ(wrapper, absl::string_view{"boo"});
 }
 
-TEST(String, WrapByteUnterminatedArray) {
+TEST(ByteStringTest, WrapByteUnterminatedArray) {
   auto original =
       static_cast<pb_bytes_array_t*>(malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(3)));
   memcpy(original->bytes, "foo", 3);  // no null terminator
   original->size = 3;
 
-  String wrapper = String::Wrap(original);
+  ByteString wrapper = ByteString::Take(original);
   EXPECT_EQ(wrapper, absl::string_view{"foo"});
 
   original->bytes[0] = 'b';
   EXPECT_EQ(wrapper, absl::string_view{"boo"});
 }
 
-TEST(String, Release) {
-  String value{"foo"};
+TEST(ByteStringTest, Release) {
+  ByteString value{"foo"};
 
   pb_bytes_array_t* released = value.release();
   EXPECT_EQ(released->size, 3);
@@ -82,11 +82,11 @@ TEST(String, Release) {
   free(released);
 }
 
-TEST(String, Comparison) {
-  String abc{"abc"};
-  String def{"def"};
+TEST(ByteStringTest, Comparison) {
+  ByteString abc{"abc"};
+  ByteString def{"def"};
 
-  String abc2{"abc"};
+  ByteString abc2{"abc"};
 
   EXPECT_TRUE(abc == abc);
   EXPECT_TRUE(abc == abc2);
