@@ -154,12 +154,12 @@ NSString *FIRInstanceIDPrivateTagWithSubtype(NSString *subtype);
 
     publicKeyRef = (__bridge id)keyPair.publicKey;
 
-    XCTestExpectation *completionExpectaion =
-        [self expectationWithDescription:@"completionExpectaion"];
+    XCTestExpectation *completionExpectation =
+        [self expectationWithDescription:@"completionExpectation"];
     [self.keyPairStore updateKeyRef:keyPair.publicKey
                             withTag:@"test"
                             handler:^(NSError *error) {
-                              [completionExpectaion fulfill];
+                              [completionExpectation fulfill];
                             }];
   }
 
