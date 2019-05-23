@@ -404,7 +404,7 @@ DEPRECATED_MSG_ATTRIBUTE("Please use fetchSignInMethodsForEmail:completion: for 
 /** @fn signInWithProvider:UIDelegate:completion:
     @brief Signs in using the provided auth provider instance.
 
-    @param provider An isntance of an auth provider used to initiate the sign-in flow.
+    @param provider An instance of an auth provider used to initiate the sign-in flow.
     @param UIDelegate Optionally an instance of a class conforming to the FIRAuthUIDelegate
         protocol, this is used for presenting the web context. If nil, a default FIRAuthUIDelegate
         will be used.
