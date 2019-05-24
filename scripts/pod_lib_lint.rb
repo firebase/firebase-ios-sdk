@@ -92,9 +92,10 @@ def find_local_deps(podspec_file, seen = Set[])
   deps.each do |dep_name|
     dep_file = File.join(spec_dir, "#{dep_name}.podspec")
     if File.exist?(dep_file) then
-      if seen.add?(dep_file)
+      dep_podspec = File.basename(dep_file)
+      if seen.add?(dep_podspec)
         # Depend on the podspec we found and any podspecs it depends upon.
-        results.push(File.basename(dep_file))
+        results.push(dep_podspec)
         results.push(*find_local_deps(dep_file, seen))
       end
     end
