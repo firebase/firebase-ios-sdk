@@ -7128,7 +7128,7 @@
 					"\"${PODS_ROOT}/../../Firebase/Auth/Source\"/**",
 				);
 				INFOPLIST_FILE = Auth/Sample/Application.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.FirebaseExperimental1;
@@ -7167,7 +7167,7 @@
 					"\"${PODS_ROOT}/../../Firebase/Auth/Source\"/**",
 				);
 				INFOPLIST_FILE = Auth/Sample/Application.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.FirebaseExperimental1;
