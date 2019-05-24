@@ -29,6 +29,7 @@ cc_test(
   DEPENDS
     firebase_firestore_model
     firebase_firestore_testutil
+    GMock::GMock
 )
 
 cc_binary(
