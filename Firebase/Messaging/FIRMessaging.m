@@ -48,7 +48,6 @@
 #import <FirebaseInstanceID/FIRInstanceID_Private.h>
 #import <GoogleUtilities/GULReachabilityChecker.h>
 #import <GoogleUtilities/GULUserDefaults.h>
-#import <GoogleUtilities/GULAppDelegateSwizzler.h>
 
 #import "NSError+FIRMessaging.h"
 
@@ -432,6 +431,7 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 }
 
 - (void)handleIncomingLinkIfNeededFromMessage:(NSDictionary *)message {
+#if TARGET_OS_IOS || TARGET_OS_TV
   NSURL *url = [self linkURLFromMessage:message];
   if (url == nil) {
     return;
@@ -443,13 +443,14 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
     });
     return;
   }
-  GULApplication *application = [GULAppDelegateSwizzler sharedApplication];
+  UIApplication *application = FIRMessagingUIApplication();
   if (!application) {
     return;
   }
-  id<GULApplicationDelegate> appDelegate = application.delegate;
+  id<UIApplicationDelegate> appDelegate = application.delegate;
   SEL continueUserActivitySelector =
       @selector(application:continueUserActivity:restorationHandler:);
+
   SEL openURLWithOptionsSelector = @selector(application:openURL:options:);
   SEL openURLWithSourceApplicationSelector =
       @selector(application:openURL:sourceApplication:annotation:);
@@ -470,17 +471,13 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
     }];
 
   } else if ([appDelegate respondsToSelector:openURLWithOptionsSelector]) {
-#if TARGET_OS_IOS || TARGET_OS_TV
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunguarded-availability"
     [appDelegate application:application openURL:url options:@{}];
 #pragma clang diagnostic pop
-#endif
-
   // Similarly, |application:openURL:sourceApplication:annotation:| will also always be called, due
   // to the default swizzling done by FIRAAppDelegateProxy in Firebase Analytics
   } else if ([appDelegate respondsToSelector:openURLWithSourceApplicationSelector]) {
-#if TARGET_OS_IOS
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [appDelegate application:application
@@ -488,15 +485,13 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
            sourceApplication:FIRMessagingAppIdentifier()
                   annotation:@{}];
 #pragma clang diagnostic pop
-#endif
   } else if ([appDelegate respondsToSelector:handleOpenURLSelector]) {
-#if TARGET_OS_IOS
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [appDelegate application:application handleOpenURL:url];
 #pragma clang diagnostic pop
-#endif
   }
+#endif
 }
 
 - (NSURL *)linkURLFromMessage:(NSDictionary *)message {
