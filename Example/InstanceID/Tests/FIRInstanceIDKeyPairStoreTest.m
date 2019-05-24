@@ -244,15 +244,4 @@
   [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
-//#pragma mark - Helpers
-//
-//- (void)drainKeychainQueue {
-//
-//  [[FIRInstanceIDKeychain sharedInstance] removeItemWithQuery:@{} handler:^(NSError *error) {
-//    [queueDrained fulfill];
-//  }];
-//
-//  [self waitForExpectations:@[queueDrained] timeout:10];
-//}
-
 @end
