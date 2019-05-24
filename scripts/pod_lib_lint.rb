@@ -20,7 +20,11 @@ require 'set'
 def usage()
   script = File.basename($0)
   STDERR.puts <<~EOF
-  USAGE: #{script} podspec
+  USAGE: #{script} podspec [options]
+
+  podspec is the podspec to lint
+
+  options can be any options for pod spec lint
   EOF
 end
 
@@ -30,11 +34,17 @@ def main(args)
     exit(1)
   end
 
-  seen = Set[]
-  deps = find_local_deps(args[0], seen)
-  deps.sort.each do |dep|
-    puts dep
-  end
+  command = %w(bundle exec pod lib lint)
+
+  # Figure out which dependencies are local
+  podspec_file = args[0]
+  deps = find_local_deps(podspec_file)
+  arg = make_include_podspecs(deps)
+  command.push(arg) if arg
+
+  command.push(*args)
+  puts command.join(' ')
+  exec(*command)
 end
 
 # Loads all the specs (inclusing subspecs) from the given podspec file.
@@ -65,7 +75,7 @@ end
 # Given a podspec file, finds all local dependencies that have a local podspec
 # in the same directory. Modifies seen to include all seen podspecs, which
 # guarantees that a given podspec will only be processed once.
-def find_local_deps(podspec_file, seen)
+def find_local_deps(podspec_file, seen = Set[])
   results = []
   spec_dir = File.dirname(podspec_file)
 
@@ -84,6 +94,19 @@ def find_local_deps(podspec_file, seen)
   end
 
   return results
+end
+
+# Returns an --include-podspecs argument that indicates the given deps are
+# locally available. Returns nil if deps is empty.
+def make_include_podspecs(deps)
+  return nil if not deps
+
+  if deps.size == 1 then
+    deps_joined = deps[0]
+  else
+    deps_joined  = "{" + deps.join(',') + "}"
+  end
+  return "--include-podspecs=#{deps_joined}"
 end
 
 main(ARGV)
