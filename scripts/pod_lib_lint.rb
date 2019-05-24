@@ -17,6 +17,10 @@
 require 'cocoapods'
 require 'set'
 
+# Enable ruby options after 'require' because cocoapods is noisy
+$VERBOSE = true   # ruby -w
+#$DEBUG = true    # ruby --debug
+
 def usage()
   script = File.basename($0)
   STDERR.puts <<~EOF
@@ -49,6 +53,7 @@ end
 
 # Loads all the specs (inclusing subspecs) from the given podspec file.
 def load_specs(podspec_file)
+  trace('loading', podspec_file)
   results = []
 
   spec = Pod::Spec.from_file(podspec_file)
@@ -69,7 +74,9 @@ def all_deps(specs)
     end
   end
 
-  return result.to_a
+  result = result.to_a
+  trace('   deps', *result)
+  return result
 end
 
 # Given a podspec file, finds all local dependencies that have a local podspec
@@ -107,6 +114,12 @@ def make_include_podspecs(deps)
     deps_joined  = "{" + deps.join(',') + "}"
   end
   return "--include-podspecs=#{deps_joined}"
+end
+
+def trace(*args)
+  return if not $DEBUG
+
+  STDERR.puts(args.join(' '))
 end
 
 main(ARGV)
