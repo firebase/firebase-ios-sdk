@@ -62,10 +62,17 @@
 }
 
 - (void)tearDown {
-  [super tearDown];
   NSError *error = nil;
   [self.keyPairStore removeKeyPairCreationTimePlistWithError:&error];
-  [self.keyPairStore deleteSavedKeyPairWithSubtype:kFIRInstanceIDKeyPairSubType handler:nil];
+
+  XCTestExpectation *queueDrained = [self expectationWithDescription:@"drainKeychainQueue"];
+  [self.keyPairStore deleteSavedKeyPairWithSubtype:kFIRInstanceIDKeyPairSubType
+                                           handler:^(NSError *error) {
+                                             [queueDrained fulfill];
+                                           }];
+  [self waitForExpectations:@[ queueDrained ] timeout:10];
+
+  [super tearDown];
 }
 
 /**
@@ -236,4 +243,16 @@
                             }];
   [self waitForExpectationsWithTimeout:1 handler:nil];
 }
+
+//#pragma mark - Helpers
+//
+//- (void)drainKeychainQueue {
+//
+//  [[FIRInstanceIDKeychain sharedInstance] removeItemWithQuery:@{} handler:^(NSError *error) {
+//    [queueDrained fulfill];
+//  }];
+//
+//  [self waitForExpectations:@[queueDrained] timeout:10];
+//}
+
 @end
