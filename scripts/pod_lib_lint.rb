@@ -112,7 +112,7 @@ end
 # Returns an --include-podspecs argument that indicates the given deps are
 # locally available. Returns nil if deps is empty.
 def make_include_podspecs(deps)
-  return nil if not deps
+  return nil if deps.empty?
 
   if deps.size == 1 then
     deps_joined = deps[0]
