@@ -117,12 +117,21 @@ static NSString *const kNewAPNSTokenString = @"newAPNSData";
 }
 
 - (void)tearDown {
+  self.fakeCheckin = nil;
+
+  [self.mockTokenManager stopMocking];
+  self.mockTokenManager = nil;
+
+  self.tokenManager = nil;
+  self.tokenStore = nil;
+  self.fakeKeyChain = nil;
+
   NSError *error;
   if (![self.checkinPlist deleteFile:&error]) {
     XCTFail(@"Failed to delete checkin plist %@", error);
   }
+  self.checkinPlist = nil;
 
-  self.tokenManager = nil;
   [FIRInstanceIDStore removeSubDirectory:kSubDirectoryName error:nil];
   [super tearDown];
 }
@@ -173,7 +182,7 @@ static NSString *const kNewAPNSTokenString = @"newAPNSData";
                                                  [tokenExpectation fulfill];
                                                }];
 
-  [self waitForExpectationsWithTimeout:1 handler:nil];
+  [self waitForExpectations:@[tokenExpectation] timeout:1];
 }
 
 /**
@@ -223,10 +232,7 @@ static NSString *const kNewAPNSTokenString = @"newAPNSData";
                                                  [tokenExpectation fulfill];
                                                }];
 
-  [self waitForExpectationsWithTimeout:1
-                               handler:^(NSError *error) {
-                                 XCTAssertNil(error.localizedDescription);
-                               }];
+  [self waitForExpectations:@[tokenExpectation] timeout:1];
 }
 
 /**
@@ -273,10 +279,7 @@ static NSString *const kNewAPNSTokenString = @"newAPNSData";
                                                  [tokenExpectation fulfill];
                                                }];
 
-  [self waitForExpectationsWithTimeout:1
-                               handler:^(NSError *error) {
-                                 XCTAssertNil(error.localizedDescription);
-                               }];
+  [self waitForExpectations:@[tokenExpectation] timeout:1];
 }
 
 /**
@@ -318,10 +321,7 @@ static NSString *const kNewAPNSTokenString = @"newAPNSData";
                                                [deleteExpectation fulfill];
                                              }];
 
-  [self waitForExpectationsWithTimeout:1
-                               handler:^(NSError *error) {
-                                 XCTAssertNil(error.localizedDescription);
-                               }];
+  [self waitForExpectations:@[deleteExpectation] timeout:1];
 }
 
 /**
@@ -364,10 +364,7 @@ static NSString *const kNewAPNSTokenString = @"newAPNSData";
                                                [deleteExpectation fulfill];
                                              }];
 
-  [self waitForExpectationsWithTimeout:1
-                               handler:^(NSError *error) {
-                                 XCTAssertNil(error.localizedDescription);
-                               }];
+  [self waitForExpectations:@[deleteExpectation] timeout:1];
 }
 
 #pragma mark - Cached Token Invalidation
