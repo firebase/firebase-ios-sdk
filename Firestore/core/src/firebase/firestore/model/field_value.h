@@ -159,7 +159,7 @@ class FieldValue {
   }
 
   /**
-   * Checks if the two values are equal, returning true if the value is
+   * Checks if the two values are equal, returning false if the value is
    * perceptibly different in any regard.
    *
    * Comparison for FieldValues is defined by whether or not values should

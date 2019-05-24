@@ -268,7 +268,8 @@ TEST(FieldValueTest, Equality) {
       .AddEqualityGroup(Array("foo", "bar"), Array("foo", "bar"))
       .AddEqualityGroup(Array("foo", "bar", "baz"))
       .AddEqualityGroup(Array("foo"))
-      .AddEqualityGroup(WrapObject("bar", 1, "foo", 2), WrapObject("foo", 2, "bar", 1))
+      .AddEqualityGroup(WrapObject("bar", 1, "foo", 2),
+                        WrapObject("foo", 2, "bar", 1))
       .AddEqualityGroup(WrapObject("bar", 2, "foo", 1))
       .AddEqualityGroup(WrapObject("bar", 1))
       .AddEqualityGroup(WrapObject("foo", 1))
