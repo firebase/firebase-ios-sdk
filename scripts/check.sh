@@ -76,6 +76,7 @@ EOF
 }
 
 set -euo pipefail
+set -x
 unset CDPATH
 
 # Change to the top-directory of the working tree
@@ -86,7 +87,7 @@ ALLOW_DIRTY=false
 COMMIT_METHOD="none"
 START_REVISION="origin/master"
 TEST_ONLY=false
-VERBOSE=false
+VERBOSE=true
 
 # Default to verbose operation if this isn't an interactive build.
 if [[ ! -t 1 ]]; then
@@ -175,7 +176,17 @@ if [[ "${START_REVISION}" == "origin/master" ]]; then
   fi
 fi
 
-START_SHA=$(git rev-parse "${START_REVISION}")
+if [[ "${START_REVISION}" == *..* ]]; then
+  RANGE_START="${START_REVISION/..*/}"
+  RANGE_END="${START_REVISION/*../}"
+
+  NEW_RANGE_START=$(git merge-base origin/master "${RANGE_END}")
+  START_REVISION="${START_REVISION/$RANGE_START/$NEW_RANGE_START}"
+
+  START_SHA="${START_REVISION}"
+else
+  START_SHA=$(git rev-parse "${START_REVISION}")
+fi
 
 if [[ "${VERBOSE}" == true ]]; then
   echo "START_REVISION=$START_REVISION"
