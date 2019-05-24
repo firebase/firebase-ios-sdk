@@ -16,10 +16,19 @@
 
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 
+#if __APPLE__
+#import <CoreFoundation/CoreFoundation.h>
+#endif  // __APPLE__
+
+#include <chrono>  // NOLINT(build/c++11)
 #include <climits>
+#include <cmath>
 #include <vector>
 
+#include "Firestore/core/test/firebase/firestore/testutil/equals_tester.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
+#include "absl/base/casts.h"
+#include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
@@ -29,16 +38,40 @@ namespace model {
 using Type = FieldValue::Type;
 
 using absl::nullopt;
+using testing::Not;
+using testutil::Array;
+using testutil::BlobValue;
+using testutil::DbId;
 using testutil::Field;
 using testutil::Key;
 using testutil::Map;
 using testutil::Value;
 using testutil::WrapObject;
 
+using Clock = std::chrono::system_clock;
+using TimePoint = std::chrono::time_point<Clock>;
+using Sec = std::chrono::seconds;
+using Ms = std::chrono::milliseconds;
+
 namespace {
 
 const uint8_t* Bytes(const char* value) {
   return reinterpret_cast<const uint8_t*>(value);
+}
+
+uint64_t ToBits(double value) {
+  return absl::bit_cast<uint64_t>(value);
+}
+
+double ToDouble(uint64_t value) {
+  return absl::bit_cast<double>(value);
+}
+
+// All permutations of the 51 other non-MSB significand bits are also NaNs.
+const uint64_t kAlternateNanBits = 0x7fff000000000000ULL;
+
+MATCHER(IsNan, "a NaN") {
+  return std::isnan(arg);
 }
 
 }  // namespace
@@ -156,6 +189,141 @@ TEST(FieldValueTest, DeletesNestedKeys) {
   EXPECT_NE(old, mod);
   EXPECT_EQ(WrapObject(third), old);
   EXPECT_EQ(ObjectValue::Empty(), mod);
+}
+
+#if defined(_WIN32)
+#define timegm _mkgmtime
+
+#elif defined(__ANDROID__)
+// time.h doesn't necessarily define this properly, even though it's present
+// from API 12 and up.
+extern time_t timegm(struct tm*);
+#endif
+
+/**
+ * Makes a TimePoint from the given date components, given in UTC.
+ */
+static TimePoint MakeTimePoint(
+    int year, int month, int day, int hour, int minute, int second) {
+  struct std::tm tm {};
+  tm.tm_year = year - 1900;  // counts from 1900
+  tm.tm_mon = month - 1;     // counts from 0
+  tm.tm_mday = day;          // counts from 1
+  tm.tm_hour = hour;
+  tm.tm_min = minute;
+  tm.tm_sec = second;
+
+  // std::mktime produces a time value in local time, and conversion to GMT is
+  // not defined. timegm is nonstandard but widespread enough for our purposes.
+  time_t t = timegm(&tm);
+  return Clock::from_time_t(t);
+}
+
+static TimePoint kDate1 = MakeTimePoint(2016, 5, 20, 10, 20, 0);
+static Timestamp kTimestamp1{1463739600, 0};
+
+static TimePoint kDate2 = MakeTimePoint(2016, 10, 21, 15, 32, 0);
+static Timestamp kTimestamp2{1477063920, 0};
+
+TEST(FieldValueTest, Equality) {
+  testutil::EqualsTester<FieldValue>()
+      .AddEqualityGroup(FieldValue::Null(), Value(nullptr))
+      .AddEqualityGroup(FieldValue::False(), Value(false))
+      .AddEqualityGroup(FieldValue::True(), Value(true))
+      .AddEqualityGroup(Value(0.0 / 0.0), Value(ToDouble(kCanonicalNanBits)),
+                        Value(ToDouble(kAlternateNanBits)),
+                        Value(std::nan("1")), Value(std::nan("2")))
+      // -0.0 and 0.0 compareTo the same but are not equal.
+      .AddEqualityGroup(Value(-0.0))
+      .AddEqualityGroup(Value(0.0))
+      .AddEqualityGroup(Value(1), FieldValue::FromInteger(1LL))
+      // Doubles and Longs aren't equal (even though they compare same).
+      .AddEqualityGroup(Value(1.0), FieldValue::FromDouble(1.0))
+      .AddEqualityGroup(Value(1.1), FieldValue::FromDouble(1.1))
+      .AddEqualityGroup(BlobValue(0, 1, 1))
+      .AddEqualityGroup(BlobValue(0, 1))
+      .AddEqualityGroup(Value("string"), FieldValue::FromString("string"))
+      .AddEqualityGroup(Value("strin"))
+      // latin small letter e + combining acute accent
+      .AddEqualityGroup(Value("e\u0301b"))
+      // latin small letter e with acute accent
+      .AddEqualityGroup(Value("\u00e9a"))
+      .AddEqualityGroup(Value(Timestamp::FromTimePoint(kDate1)),
+                        Value(kTimestamp1))
+      .AddEqualityGroup(Value(Timestamp::FromTimePoint(kDate2)),
+                        Value(kTimestamp2))
+      // NOTE: ServerTimestampValues can't be parsed via Value().
+      .AddEqualityGroup(FieldValue::FromServerTimestamp(kTimestamp1),
+                        FieldValue::FromServerTimestamp(kTimestamp1))
+      .AddEqualityGroup(FieldValue::FromServerTimestamp(kTimestamp2))
+      .AddEqualityGroup(Value(GeoPoint(0, 1)),
+                        FieldValue::FromGeoPoint(GeoPoint(0, 1)))
+      .AddEqualityGroup(Value(GeoPoint(1, 0)))
+      .AddEqualityGroup(FieldValue::FromReference(DbId(), Key("coll/doc1")),
+                        FieldValue::FromReference(DbId(), Key("coll/doc1")))
+      .AddEqualityGroup(
+          FieldValue::FromReference(DbId("project", "bar"), Key("coll/doc2")))
+      .AddEqualityGroup(
+          FieldValue::FromReference(DbId("project", "baz"), Key("coll/doc2")))
+      .AddEqualityGroup(Array("foo", "bar"), Array("foo", "bar"))
+      .AddEqualityGroup(Array("foo", "bar", "baz"))
+      .AddEqualityGroup(Array("foo"))
+      .AddEqualityGroup(WrapObject("bar", 1, "foo", 2),
+                        WrapObject("foo", 2, "bar", 1))
+      .AddEqualityGroup(WrapObject("bar", 2, "foo", 1))
+      .AddEqualityGroup(WrapObject("bar", 1))
+      .AddEqualityGroup(WrapObject("foo", 1))
+      .TestEquals();
+}
+
+#if __APPLE__
+// Validates that NSNumber/CFNumber normalize NaNs to the same values that
+// Firestore does. This uses CoreFoundation's CFNumber instead of NSNumber just
+// to keep the test in a single file.
+TEST(FieldValueTest, CanonicalBitsAreCanonical) {
+  double input = ToDouble(kAlternateNanBits);
+  CFNumberRef number = CFNumberCreate(nullptr, kCFNumberDoubleType, &input);
+
+  double actual = 0.0;
+  CFNumberGetValue(number, kCFNumberDoubleType, &actual);
+  CFRelease(number);
+
+  ASSERT_EQ(kCanonicalNanBits, ToBits(actual));
+}
+#endif  // __APPLE__
+
+TEST(FieldValueTest, NormalizesNaNs) {
+  // NOTE: With v1 query semantics, it's no longer as important that our NaN
+  // representation matches the backend, since all NaNs are defined to sort as
+  // equal, but we preserve the normalization and this test regardless for now.
+
+  // Bedrock assumption: our canonical NaN bits are actually a NaN.
+  double canonical = ToDouble(kCanonicalNanBits);
+  double alternate = ToDouble(kAlternateNanBits);
+  ASSERT_THAT(canonical, IsNan());
+  ASSERT_THAT(alternate, IsNan());
+  ASSERT_THAT(0.0, Not(IsNan()));
+
+  // Round trip otherwise preserves NaNs
+  EXPECT_EQ(kAlternateNanBits, ToBits(alternate));
+  EXPECT_NE(kCanonicalNanBits, ToBits(alternate));
+
+  // Creating a FieldValue from a double should normalize NaNs.
+  auto Normalize = [](uint64_t bits) -> uint64_t {
+    double value = ToDouble(bits);
+    double normalized = FieldValue::FromDouble(value).double_value();
+    return ToBits(normalized);
+  };
+
+  EXPECT_EQ(kCanonicalNanBits, Normalize(kAlternateNanBits));
+
+  // A NaN that's canonical except it has the sign bit set (would be negative if
+  // signs mattered)
+  EXPECT_EQ(kCanonicalNanBits, Normalize(0xfff8000000000000ULL));
+
+  // A signaling NaN with significand where MSB is 0, and some non-MSB bit is
+  // one.
+  EXPECT_EQ(kCanonicalNanBits, Normalize(0xfff4000000000000ULL));
 }
 
 TEST(FieldValue, ToString) {
