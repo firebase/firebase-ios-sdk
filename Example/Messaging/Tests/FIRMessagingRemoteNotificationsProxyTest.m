@@ -31,12 +31,9 @@
 @property(nonatomic, weak) id delegate;
 @end
 @implementation RandomObject
-#if TARGET_OS_IOS || TARGET_OS_TV
-- (void)application:(UIApplication *)application
-didReceiveRemoteNotification:(NSDictionary *)userInfo
-fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
+- (void)application:(GULApplication *)application
+didReceiveRemoteNotification:(NSDictionary *)userInfo  {
 }
-#endif
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center
@@ -181,7 +178,6 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 #pragma mark - Method Swizzling Tests
 
 - (void)testSwizzlingNonAppDelegate {
-#if TARGET_OS_IOS || TARGET_OS_TV
   RandomObject *invalidAppDelegate = [[RandomObject alloc] init];
   [OCMStub([self.mockSharedApplication delegate]) andReturn:invalidAppDelegate];
   [self.proxy swizzleMethodsIfPossible];
@@ -189,9 +185,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
   OCMReject([self.mockMessaging appDidReceiveMessage:[OCMArg any]]);
 
   [invalidAppDelegate application:self.mockSharedApplication
-     didReceiveRemoteNotification:@{}
-           fetchCompletionHandler:^(UIBackgroundFetchResult result) {}];
-#endif
+     didReceiveRemoteNotification:@{}];
 }
 
 - (void)testSwizzledIncompleteAppDelegateRemoteNotificationMethod {
