@@ -206,7 +206,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
   IncompleteAppDelegate *incompleteAppDelegate = [[IncompleteAppDelegate alloc] init];
   [OCMStub([self.mockSharedApplication delegate]) andReturn:incompleteAppDelegate];
   [self.proxy swizzleMethodsIfPossible];
-    
+
 #if TARGET_OS_IOS || TARGET_OS_TV
   SEL remoteNotificationWithFetchHandler =
       @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:);
@@ -241,7 +241,6 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 #if TARGET_OS_IOS || TARGET_OS_TV
   // Verify our swizzled method was called
   OCMExpect([self.mockMessaging appDidReceiveMessage:notification]);
-    
 
   [appDelegate application:self.mockSharedApplication
       didReceiveRemoteNotification:notification
