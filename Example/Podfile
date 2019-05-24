@@ -56,12 +56,12 @@ target 'DynamicLinks_Example_iOS' do
   platform :ios, '8.0'
 
   pod 'FirebaseDynamicLinks', :path => '../'
+  pod 'GoogleUtilities/MethodSwizzler', :path => '../'
+  pod 'GoogleUtilities/SwizzlerTestHelpers', :path => '../'
 
   target 'DynamicLinks_Tests_iOS' do
     inherit! :search_paths
     pod 'OCMock'
-    pod 'GoogleUtilities/MethodSwizzler', :path => '../'
-    pod 'GoogleUtilities/SwizzlerTestHelpers', :path => '../'
   end
 end
 
@@ -284,15 +284,3 @@ target 'InstanceID_Example_tvOS' do
     pod 'OCMock'
   end
 end
-
-# Set define to turn on GUL_UNSWIZZLING and GUL_APP_DELEGATE_TESTING for the unit tests
-post_install do |installer_representation|
-  installer_representation.pods_project.targets.each do |target|
-      target.build_configurations.each do |config|
-          if config.name != 'Release'
-              config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)', 'GUL_UNSWIZZLING_ENABLED=1', 'GUL_APP_DELEGATE_TESTING=1']
-          end
-      end
-  end
-end
-
