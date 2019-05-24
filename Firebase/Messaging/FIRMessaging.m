@@ -470,7 +470,7 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
     }];
 
   } else if ([appDelegate respondsToSelector:openURLWithOptionsSelector]) {
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_TV
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunguarded-availability"
     [appDelegate application:application openURL:url options:@{}];
