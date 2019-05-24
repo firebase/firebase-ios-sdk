@@ -83,6 +83,11 @@ end
 # in the same directory. Modifies seen to include all seen podspecs, which
 # guarantees that a given podspec will only be processed once.
 def find_local_deps(podspec_file, seen = Set[])
+  # Mark the current podspec seen to prevent a pod from depending upon itself
+  # (as might happen if a subspec of the pod depends upon another subpsec of
+  # the pod.
+  seen.add(File.basename(podspec_file))
+
   results = []
   spec_dir = File.dirname(podspec_file)
 
