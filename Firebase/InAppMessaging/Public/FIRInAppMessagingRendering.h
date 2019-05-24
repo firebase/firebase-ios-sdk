@@ -135,7 +135,7 @@ NS_SWIFT_NAME(InAppMessagingCardDisplay)
 /*
  * Gets the body text for a card FIAM message.
  */
-@property(nonatomic, nullable, copy) NSString *body;
+@property(nonatomic, nullable, copy, readonly) NSString *body;
 
 /**
  * Gets the color for text in card FIAM message. It applies to both title and body text.
@@ -150,7 +150,7 @@ NS_SWIFT_NAME(InAppMessagingCardDisplay)
 /**
  * Image data for the supplied landscape image for a card FIAM message.
  */
-@property(nonatomic, nullable, copy) FIRInAppMessagingImageData *landscapeImageData;
+@property(nonatomic, nullable, copy, readonly) FIRInAppMessagingImageData *landscapeImageData;
 
 /**
  * The background color for a card FIAM message.
@@ -170,12 +170,12 @@ NS_SWIFT_NAME(InAppMessagingCardDisplay)
 /**
  * Metadata for a card FIAM message's secondary action button.
  */
-@property(nonatomic, nullable) FIRInAppMessagingActionButton *secondaryActionButton;
+@property(nonatomic, nullable, readonly) FIRInAppMessagingActionButton *secondaryActionButton;
 
 /**
  * The action URL for a card FIAM message's secondary action button.
  */
-@property(nonatomic, nullable) NSURL *secondaryActionURL;
+@property(nonatomic, nullable, readonly) NSURL *secondaryActionURL;
 
 - (instancetype)init NS_UNAVAILABLE;
 

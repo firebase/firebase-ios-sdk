@@ -19,14 +19,22 @@ import UIKit
 class CardMessageViewController: CommonMessageTestVC {
   class TestableCardMessage: InAppMessagingCardDisplay {
     var writableTitle: String
+    var writableBody: String?
     var writableTextColor: UIColor
     var writablePortraitImageData: InAppMessagingImageData
+    var writableLandscapeImageData: InAppMessagingImageData?
     var writableBackgroundColor: UIColor
     var writablePrimaryActionButton: InAppMessagingActionButton
     var writablePrimaryActionURL: URL
+    var writableSecondaryActionButton: InAppMessagingActionButton?
+    var writableSecondaryActionURL: URL?
 
     override var title: String {
       return writableTitle
+    }
+    
+    override var body: String? {
+      return writableBody
     }
 
     override var textColor: UIColor {
@@ -35,6 +43,10 @@ class CardMessageViewController: CommonMessageTestVC {
 
     override var portraitImageData: InAppMessagingImageData {
       return writablePortraitImageData
+    }
+    
+    override var landscapeImageData: InAppMessagingImageData? {
+      return writableLandscapeImageData
     }
 
     override var displayBackgroundColor: UIColor {
@@ -48,19 +60,35 @@ class CardMessageViewController: CommonMessageTestVC {
     override var primaryActionURL: URL {
       return writablePrimaryActionURL
     }
+    
+    override var secondaryActionButton: InAppMessagingActionButton? {
+      return writablePrimaryActionButton
+    }
+    
+    override var secondaryActionURL: URL? {
+      return writableSecondaryActionURL
+    }
 
     init(titleText: String,
+         body: String?,
          textColor: UIColor,
          portraitImageData: InAppMessagingImageData,
+         landscapeImageData: InAppMessagingImageData?,
          backgroundColor: UIColor,
          primaryActionButton: InAppMessagingActionButton,
-         primaryActionURL: URL) {
+         primaryActionURL: URL,
+         secondaryActionButton: InAppMessagingActionButton?,
+         secondaryActionURL: URL?) {
       writableTitle = titleText
+      writableBody = body
       writableTextColor = textColor
       writablePortraitImageData = portraitImageData
+      writableLandscapeImageData = landscapeImageData
       writableBackgroundColor = backgroundColor
       writablePrimaryActionButton = primaryActionButton
       writablePrimaryActionURL = primaryActionURL
+      writableSecondaryActionButton = secondaryActionButton
+      writableSecondaryActionURL = secondaryActionURL
       super.init(messageID: "testID",
                  campaignName: "testCampaign",
                  renderAsTestMessage: false,
@@ -94,14 +122,16 @@ class CardMessageViewController: CommonMessageTestVC {
 
     let cardMessage = TestableCardMessage(
       titleText: normalMessageTitle,
+      body: normalMessageBody,
       textColor: UIColor.black,
       portraitImageData: portraitImageData,
+      landscapeImageData: landscapeImageData,
       backgroundColor: UIColor.white,
       primaryActionButton: defaultActionButton,
-      primaryActionURL: URL(string: "http://google.com")!
+      primaryActionURL: URL(string: "http://google.com")!,
+      secondaryActionButton: nil,
+      secondaryActionURL: nil
     )
-    cardMessage.body = normalMessageBody
-    cardMessage.landscapeImageData = landscapeImageData
 
     displayImpl.displayMessage(cardMessage, displayDelegate: self)
   }
@@ -112,13 +142,16 @@ class CardMessageViewController: CommonMessageTestVC {
 
     let cardMessage = TestableCardMessage(
       titleText: normalMessageTitle,
+      body: nil,
       textColor: UIColor.black,
       portraitImageData: portraitImageData,
+      landscapeImageData: nil,
       backgroundColor: UIColor.white,
       primaryActionButton: defaultActionButton,
-      primaryActionURL: URL(string: "http://google.com")!
+      primaryActionURL: URL(string: "http://google.com")!,
+      secondaryActionButton: nil,
+      secondaryActionURL: nil
     )
-    cardMessage.body = normalMessageBody
 
     displayImpl.displayMessage(cardMessage, displayDelegate: self)
   }
@@ -132,16 +165,17 @@ class CardMessageViewController: CommonMessageTestVC {
 
     let cardMessage = TestableCardMessage(
       titleText: normalMessageTitle,
+      body: normalMessageBody,
       textColor: UIColor.black,
       portraitImageData: portraitImageData,
+      landscapeImageData: landscapeImageData,
       backgroundColor: UIColor.white,
       primaryActionButton: defaultActionButton,
-      primaryActionURL: URL(string: "http://google.com")!
+      primaryActionURL: URL(string: "http://google.com")!,
+      secondaryActionButton: defaultSecondaryActionButton,
+      secondaryActionURL: nil
     )
-    cardMessage.body = normalMessageBody
-    cardMessage.landscapeImageData = landscapeImageData
-    cardMessage.secondaryActionButton = defaultSecondaryActionButton
-
+    
     displayImpl.displayMessage(cardMessage, displayDelegate: self)
   }
 
@@ -151,15 +185,17 @@ class CardMessageViewController: CommonMessageTestVC {
 
     let cardMessage = TestableCardMessage(
       titleText: longTitleText,
+      body: normalMessageBody,
       textColor: UIColor.black,
       portraitImageData: portraitImageData,
+      landscapeImageData: nil,
       backgroundColor: UIColor.white,
       primaryActionButton: defaultActionButton,
-      primaryActionURL: URL(string: "http://google.com")!
+      primaryActionURL: URL(string: "http://google.com")!,
+      secondaryActionButton: defaultSecondaryActionButton,
+      secondaryActionURL: nil
     )
-    cardMessage.body = normalMessageBody
-    cardMessage.secondaryActionButton = defaultSecondaryActionButton
-
+    
     displayImpl.displayMessage(cardMessage, displayDelegate: self)
   }
 
@@ -169,14 +205,16 @@ class CardMessageViewController: CommonMessageTestVC {
 
     let cardMessage = TestableCardMessage(
       titleText: normalMessageTitle,
+      body: longBodyText,
       textColor: UIColor.black,
       portraitImageData: portraitImageData,
+      landscapeImageData: nil,
       backgroundColor: UIColor.white,
       primaryActionButton: defaultActionButton,
-      primaryActionURL: URL(string: "http://google.com")!
+      primaryActionURL: URL(string: "http://google.com")!,
+      secondaryActionButton: defaultSecondaryActionButton,
+      secondaryActionURL: nil
     )
-    cardMessage.body = longBodyText
-    cardMessage.secondaryActionButton = defaultSecondaryActionButton
 
     displayImpl.displayMessage(cardMessage, displayDelegate: self)
   }
@@ -187,14 +225,17 @@ class CardMessageViewController: CommonMessageTestVC {
 
     let cardMessage = TestableCardMessage(
       titleText: longTitleText,
+      body: nil,
       textColor: UIColor.black,
       portraitImageData: portraitImageData,
+      landscapeImageData: nil,
       backgroundColor: UIColor.white,
       primaryActionButton: defaultActionButton,
-      primaryActionURL: URL(string: "http://google.com")!
+      primaryActionURL: URL(string: "http://google.com")!,
+      secondaryActionButton: defaultSecondaryActionButton,
+      secondaryActionURL: nil
     )
-    cardMessage.secondaryActionButton = defaultSecondaryActionButton
-
+    
     displayImpl.displayMessage(cardMessage, displayDelegate: self)
   }
 
@@ -204,15 +245,17 @@ class CardMessageViewController: CommonMessageTestVC {
 
     let cardMessage = TestableCardMessage(
       titleText: longTitleText,
+      body: normalMessageBody,
       textColor: UIColor.black,
       portraitImageData: portraitImageData,
+      landscapeImageData: nil,
       backgroundColor: UIColor.white,
       primaryActionButton: longTextButton,
-      primaryActionURL: URL(string: "http://google.com")!
+      primaryActionURL: URL(string: "http://google.com")!,
+      secondaryActionButton: defaultSecondaryActionButton,
+      secondaryActionURL: nil
     )
-    cardMessage.body = normalMessageBody
-    cardMessage.secondaryActionButton = defaultSecondaryActionButton
-
+    
     displayImpl.displayMessage(cardMessage, displayDelegate: self)
   }
 
@@ -222,15 +265,17 @@ class CardMessageViewController: CommonMessageTestVC {
 
     let cardMessage = TestableCardMessage(
       titleText: longTitleText,
+      body: normalMessageBody,
       textColor: UIColor.black,
       portraitImageData: portraitImageData,
+      landscapeImageData: nil,
       backgroundColor: UIColor.white,
       primaryActionButton: defaultActionButton,
-      primaryActionURL: URL(string: "http://google.com")!
+      primaryActionURL: URL(string: "http://google.com")!,
+      secondaryActionButton: longTextButton,
+      secondaryActionURL: nil
     )
-    cardMessage.body = normalMessageBody
-    cardMessage.secondaryActionButton = longTextButton
-
+    
     displayImpl.displayMessage(cardMessage, displayDelegate: self)
   }
 
@@ -240,14 +285,17 @@ class CardMessageViewController: CommonMessageTestVC {
 
     let cardMessage = TestableCardMessage(
       titleText: normalMessageTitle,
+      body: normalMessageBody,
       textColor: UIColor.black,
       portraitImageData: portraitImageData,
+      landscapeImageData: nil,
       backgroundColor: UIColor.white,
       primaryActionButton: defaultActionButton,
-      primaryActionURL: URL(string: "http://google.com")!
+      primaryActionURL: URL(string: "http://google.com")!,
+      secondaryActionButton: nil,
+      secondaryActionURL: nil
     )
-    cardMessage.body = normalMessageBody
-
+    
     displayImpl.displayMessage(cardMessage, displayDelegate: self)
   }
 
@@ -257,14 +305,17 @@ class CardMessageViewController: CommonMessageTestVC {
 
     let cardMessage = TestableCardMessage(
       titleText: normalMessageTitle,
+      body: normalMessageBody,
       textColor: UIColor.black,
       portraitImageData: portraitImageData,
+      landscapeImageData: nil,
       backgroundColor: UIColor.white,
       primaryActionButton: defaultActionButton,
-      primaryActionURL: URL(string: "http://google.com")!
+      primaryActionURL: URL(string: "http://google.com")!,
+      secondaryActionButton: nil,
+      secondaryActionURL: nil
     )
-    cardMessage.body = normalMessageBody
-
+    
     displayImpl.displayMessage(cardMessage, displayDelegate: self)
   }
 }
