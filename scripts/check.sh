@@ -161,14 +161,12 @@ fi
 
 # Show Travis-related environment variables, to help with debuging failures.
 if [[ "${VERBOSE}" == true ]]; then
-  env | egrep '^TRAVIS_(BRANCH|COMMIT|PULL)' | sort || true
+  env | egrep '^TRAVIS_(BRANCH|COMMIT|PULL|REPO)' | sort || true
 fi
 
-# When travis clones a repo for building, it uses a shallow clone. When
-# building a branch it can sometimes give a revision range that refers to
-# commits that don't exist in the shallow clone. This has been observed in a
-# branch build where the branch only has a single commit. The cause of this
-# behavior is unclear but as a workaround ...
+# When travis clones a repo for building, it uses a shallow clone. After the
+# first commit on a non-master branch, TRAVIS_COMMIT_RANGE is not set and
+# START_REVISION is "origin/master" because a range wasn't passed in.
 if [[ "${START_REVISION}" == *..* ]]; then
   RANGE_START="${START_REVISION/..*/}"
   RANGE_END="${START_REVISION/*../}"
