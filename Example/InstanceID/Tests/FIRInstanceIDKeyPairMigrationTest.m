@@ -139,33 +139,41 @@ NSString *FIRInstanceIDPrivateTagWithSubtype(NSString *subtype);
   [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
-// Disabling test for now. We need to find a flake free way to insure the publicKeyRef is retained.
-#ifdef DISABLED
 - (void)testUpdateKeyRefWithTagRetainsAndReleasesKeyRef {
-  SecKeyRef publicKeyRef;
+  __weak id weakKeyRef;
 
+  // Use a local autorelease pool to make sure any autorelease objects allocated will be released.
   @autoreleasepool {
-    NSString *legacyPublicKeyTag =
-        FIRInstanceIDLegacyPublicTagWithSubtype(kFIRInstanceIDKeyPairSubType);
-    NSString *legacyPrivateKeyTag =
-        FIRInstanceIDLegacyPrivateTagWithSubtype(kFIRInstanceIDKeyPairSubType);
-    FIRInstanceIDKeyPair *keyPair =
-        [[FIRInstanceIDKeychain sharedInstance] generateKeyPairWithPrivateTag:legacyPrivateKeyTag
-                                                                    publicTag:legacyPublicKeyTag];
-    XCTAssertTrue([keyPair isValid]);
-
-    publicKeyRef = keyPair.publicKey;
-
+    SecKeyRef keyRef = [self generateKeyRef];
+    weakKeyRef = (__bridge id)(keyRef);
     XCTestExpectation *completionExpectation =
-        [self expectationWithDescription:@"completionExpectation"];
-    [self.keyPairStore updateKeyRef:keyPair.publicKey
+    [self expectationWithDescription:@"completionExpectation"];
+    [self.keyPairStore updateKeyRef:keyRef
                             withTag:@"test"
                             handler:^(NSError *error) {
                               [completionExpectation fulfill];
                             }];
+
+    // Release locally allocated CoreFoundation object.
+    CFRelease(keyRef);
   }
+
+  // Should be still alive until execution finished
+  XCTAssertNotNil(weakKeyRef);
   [self waitForExpectationsWithTimeout:0.5 handler:NULL];
+
+  // Should be released once finished
+  XCTAssertNil(weakKeyRef);
 }
-#endif
+
+- (SecKeyRef)generateKeyRef {
+  NSDictionary* attributes =
+  @{ (id)kSecAttrKeyType : (id)kSecAttrKeyTypeRSA,
+     (id)kSecAttrKeySizeInBits : @2048,
+     (id)kSecPrivateKeyAttrs: @{ (id)kSecAttrIsPermanent:    @(NO) }
+     };
+
+  return SecKeyCreateRandomKey((__bridge CFDictionaryRef)attributes, NULL);
+}
 
 @end
