@@ -173,11 +173,9 @@ if [[ "${START_REVISION}" == *..* ]]; then
   RANGE_END="${START_REVISION/*../}"
 
   # If needed, check if we have access to master and add it to the repo.
-  if [[ "${START_REVISION}" == "origin/master" ]]; then
-    if ! git rev-parse origin/master >& /dev/null; then
-      git remote set-branches --add origin master
-      git fetch origin
-    fi
+  if ! git rev-parse origin/master >& /dev/null; then
+    git remote set-branches --add origin master
+    git fetch origin
   fi
 
   NEW_RANGE_START=$(git merge-base origin/master "${RANGE_END}")
