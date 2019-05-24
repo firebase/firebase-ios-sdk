@@ -165,7 +165,7 @@ NSDate *_Nullable FIRDLAppInstallationDate() {
 NSString *FIRDLDeviceModelName() {
   // this method will return string like iPad3,3
   // for Simulator this will be x86_64
-  static NSString *machineString;
+  static NSString *machineString = @"";
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
     size_t size;

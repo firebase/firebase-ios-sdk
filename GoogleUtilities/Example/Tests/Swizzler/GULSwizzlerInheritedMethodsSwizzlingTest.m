@@ -25,6 +25,7 @@
  */
 #import <XCTest/XCTest.h>
 
+#import <GoogleUtilities/GULSwizzler+Unswizzle.h>
 #import <GoogleUtilities/GULSwizzler.h>
 
 /** This class hierarchy exists exclusively for tests that test swizzling and unswizzling methods

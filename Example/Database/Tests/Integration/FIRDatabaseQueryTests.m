@@ -133,11 +133,13 @@
     XCTAssertThrows([ref queryLimitedToLast:0], @"Can't pass zero as limit");
     XCTAssertThrows([ref queryLimitedToFirst:0], @"Can't pass zero as limit");
     XCTAssertThrows([ref queryLimitedToLast:0], @"Can't pass zero as limit");
-    uint64_t MAX_ALLOWED_VALUE = (1l << 31) - 1;
-    [ref queryLimitedToFirst:MAX_ALLOWED_VALUE];
-    [ref queryLimitedToLast:MAX_ALLOWED_VALUE];
-    XCTAssertThrows([ref queryLimitedToFirst:(MAX_ALLOWED_VALUE+1)], @"Can't pass limits that don't fit into 32 bit signed integer range");
-    XCTAssertThrows([ref queryLimitedToLast:(MAX_ALLOWED_VALUE+1)], @"Can't pass limits that don't fit into 32 bit signed integer range");
+    uint64_t MAX_ALLOWED_VALUE = (uint64_t)(1l << 31) - 1;
+    [ref queryLimitedToFirst:(NSUInteger)MAX_ALLOWED_VALUE];
+    [ref queryLimitedToLast:(NSUInteger)MAX_ALLOWED_VALUE];
+    XCTAssertThrows([ref queryLimitedToFirst:(NSUInteger)(MAX_ALLOWED_VALUE+1)],
+                    @"Can't pass limits that don't fit into 32 bit signed integer range");
+    XCTAssertThrows([ref queryLimitedToLast:(NSUInteger)(MAX_ALLOWED_VALUE+1)],
+                    @"Can't pass limits that don't fit into 32 bit signed integer range");
 }
 
 - (void) testInvalidKeys {

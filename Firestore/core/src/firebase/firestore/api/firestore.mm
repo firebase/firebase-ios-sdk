@@ -23,6 +23,7 @@
 #import "Firestore/Source/API/FIRTransaction+Internal.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 #import "Firestore/Source/Core/FSTQuery.h"
+#import "Firestore/Source/Local/FSTLevelDB.h"
 
 #include "Firestore/core/src/firebase/firestore/api/document_reference.h"
 #include "Firestore/core/src/firebase/firestore/api/settings.h"
@@ -51,13 +52,12 @@ using util::Executor;
 using util::ExecutorLibdispatch;
 using util::Status;
 
-Firestore::Firestore(std::string project_id,
-                     std::string database,
+Firestore::Firestore(model::DatabaseId database_id,
                      std::string persistence_key,
                      std::unique_ptr<CredentialsProvider> credentials_provider,
-                     std::unique_ptr<AsyncQueue> worker_queue,
+                     std::shared_ptr<AsyncQueue> worker_queue,
                      void* extension)
-    : database_id_{std::move(project_id), std::move(database)},
+    : database_id_{std::move(database_id)},
       credentials_provider_{std::move(credentials_provider)},
       persistence_key_{std::move(persistence_key)},
       worker_queue_{std::move(worker_queue)},
@@ -69,8 +69,8 @@ FSTFirestoreClient* Firestore::client() {
   return client_;
 }
 
-AsyncQueue* Firestore::worker_queue() {
-  return [client_ workerQueue];
+const std::shared_ptr<AsyncQueue>& Firestore::worker_queue() {
+  return worker_queue_;
 }
 
 const Settings& Firestore::settings() const {
@@ -120,13 +120,10 @@ WriteBatch Firestore::GetBatch() {
 
 FIRQuery* Firestore::GetCollectionGroup(NSString* collection_id) {
   EnsureClientConfigured();
-  FIRFirestore* wrapper =
-      [FIRFirestore recoverFromFirestore:shared_from_this()];
 
-  return
-      [FIRQuery referenceWithQuery:[FSTQuery queryWithPath:ResourcePath::Empty()
-                                           collectionGroup:collection_id]
-                         firestore:wrapper];
+  FSTQuery* query = [FSTQuery queryWithPath:ResourcePath::Empty()
+                            collectionGroup:collection_id];
+  return [[FIRQuery alloc] initWithQuery:query firestore:shared_from_this()];
 }
 
 void Firestore::RunTransaction(
@@ -140,15 +137,32 @@ void Firestore::RunTransaction(
 }
 
 void Firestore::Shutdown(util::StatusCallback callback) {
-  if (!client_) {
-    if (callback) {
-      // We should be dispatching the callback on the user dispatch queue
-      // but if the client is nil here that queue was never created.
-      callback(Status::OK());
+  // The client must be initialized to ensure that all subsequent API usage
+  // throws an exception.
+  EnsureClientConfigured();
+  [client_ shutdownWithCallback:std::move(callback)];
+}
+
+void Firestore::ClearPersistence(util::StatusCallback callback) {
+  worker_queue()->Enqueue([this, callback] {
+    auto Yield = [=](Status status) {
+      if (callback) {
+        this->user_executor_->Execute([=] { callback(status); });
+      }
+    };
+
+    {
+      std::lock_guard<std::mutex> lock{mutex_};
+      if (client_ && !client().isShutdown) {
+        Yield(util::Status(
+            FirestoreErrorCode::FailedPrecondition,
+            "Persistence cannot be cleared while the client is running."));
+        return;
+      }
     }
-  } else {
-    [client_ shutdownWithCallback:std::move(callback)];
-  }
+
+    Yield([FSTLevelDB clearPersistence:MakeDatabaseInfo()]);
+  });
 }
 
 void Firestore::EnableNetwork(util::StatusCallback callback) {
@@ -165,17 +179,19 @@ void Firestore::EnsureClientConfigured() {
   std::lock_guard<std::mutex> lock{mutex_};
 
   if (!client_) {
-    DatabaseInfo database_info(database_id_, persistence_key_, settings_.host(),
-                               settings_.ssl_enabled());
-
     HARD_ASSERT(worker_queue_, "Expected non-null worker queue");
     client_ =
-        [FSTFirestoreClient clientWithDatabaseInfo:database_info
+        [FSTFirestoreClient clientWithDatabaseInfo:MakeDatabaseInfo()
                                           settings:settings_
                                credentialsProvider:credentials_provider_.get()
-                                      userExecutor:std::move(user_executor_)
-                                       workerQueue:std::move(worker_queue_)];
+                                      userExecutor:user_executor_
+                                       workerQueue:worker_queue_];
   }
+}
+
+DatabaseInfo Firestore::MakeDatabaseInfo() const {
+  return DatabaseInfo(database_id_, persistence_key_, settings_.host(),
+                      settings_.ssl_enabled());
 }
 
 }  // namespace api

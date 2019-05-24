@@ -68,7 +68,7 @@ static NSString *GDTStoragePath() {
     _storageQueue = dispatch_queue_create("com.google.GDTStorage", DISPATCH_QUEUE_SERIAL);
     _targetToEventSet = [[NSMutableDictionary alloc] init];
     _storedEvents = [[NSMutableOrderedSet alloc] init];
-    _uploader = [GDTUploadCoordinator sharedInstance];
+    _uploadCoordinator = [GDTUploadCoordinator sharedInstance];
   }
   return self;
 }
@@ -76,10 +76,10 @@ static NSString *GDTStoragePath() {
 - (void)storeEvent:(GDTEvent *)event {
   [self createEventDirectoryIfNotExists];
 
-  __block UIBackgroundTaskIdentifier bgID = UIBackgroundTaskInvalid;
+  __block GDTBackgroundIdentifier bgID = GDTBackgroundIdentifierInvalid;
   if (_runningInBackground) {
-    bgID = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
-      [[UIApplication sharedApplication] endBackgroundTask:bgID];
+    bgID = [[GDTApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
+      [[GDTApplication sharedApplication] endBackgroundTask:bgID];
     }];
   }
 
@@ -106,25 +106,19 @@ static NSString *GDTStoragePath() {
 
     // Check the QoS, if it's high priority, notify the target that it has a high priority event.
     if (event.qosTier == GDTEventQoSFast) {
-      [self.uploader forceUploadForTarget:target];
+      [self.uploadCoordinator forceUploadForTarget:target];
     }
 
     // If running in the background, save state to disk and end the associated background task.
-    if (bgID != UIBackgroundTaskInvalid) {
+    if (bgID != GDTBackgroundIdentifierInvalid) {
       [NSKeyedArchiver archiveRootObject:self toFile:[GDTStorage archivePath]];
-      [[UIApplication sharedApplication] endBackgroundTask:bgID];
+      [[GDTApplication sharedApplication] endBackgroundTask:bgID];
     }
   });
 }
 
 - (void)removeEvents:(NSSet<GDTStoredEvent *> *)events {
   NSSet<GDTStoredEvent *> *eventsToRemove = [events copy];
-  GDTStoredEvent *anyEvent = [eventsToRemove anyObject];
-  id<GDTPrioritizer> prioritizer =
-      [GDTRegistrar sharedInstance].targetToPrioritizer[anyEvent.target];
-  GDTAssert(prioritizer, @"There must be a prioritizer.");
-  [prioritizer unprioritizeEvents:events];
-
   dispatch_async(_storageQueue, ^{
     for (GDTStoredEvent *event in eventsToRemove) {
       // Remove from disk, first and foremost.
@@ -133,8 +127,6 @@ static NSString *GDTStoragePath() {
         NSURL *fileURL = event.dataFuture.fileURL;
         [[NSFileManager defaultManager] removeItemAtURL:fileURL error:&error];
         GDTAssert(error == nil, @"There was an error removing an event file: %@", error);
-        GDTAssert([GDTRegistrar sharedInstance].targetToPrioritizer[event.target] == prioritizer,
-                  @"All logs within an upload set should have the same prioritizer.");
       }
 
       // Remove from the tracking collections.
@@ -200,16 +192,16 @@ static NSString *GDTStoragePath() {
 
 #pragma mark - GDTLifecycleProtocol
 
-- (void)appWillForeground:(UIApplication *)app {
+- (void)appWillForeground:(GDTApplication *)app {
   [NSKeyedUnarchiver unarchiveObjectWithFile:[GDTStorage archivePath]];
   self->_runningInBackground = NO;
 }
 
-- (void)appWillBackground:(UIApplication *)app {
+- (void)appWillBackground:(GDTApplication *)app {
   self->_runningInBackground = YES;
   [NSKeyedArchiver archiveRootObject:self toFile:[GDTStorage archivePath]];
   // Create an immediate background task to run until the end of the current queue of work.
-  __block UIBackgroundTaskIdentifier bgID = [app beginBackgroundTaskWithExpirationHandler:^{
+  __block GDTBackgroundIdentifier bgID = [app beginBackgroundTaskWithExpirationHandler:^{
     [app endBackgroundTask:bgID];
   }];
   dispatch_async(_storageQueue, ^{
@@ -217,7 +209,7 @@ static NSString *GDTStoragePath() {
   });
 }
 
-- (void)appWillTerminate:(UIApplication *)application {
+- (void)appWillTerminate:(GDTApplication *)application {
   [NSKeyedArchiver archiveRootObject:self toFile:[GDTStorage archivePath]];
 }
 
@@ -228,6 +220,9 @@ static NSString *const kGDTStorageStoredEventsKey = @"GDTStorageStoredEventsKey"
 
 /** The NSKeyedCoder key for the targetToEventSet property. */
 static NSString *const kGDTStorageTargetToEventSetKey = @"GDTStorageTargetToEventSetKey";
+
+/** The NSKeyedCoder key for the uploadCoordinator property. */
+static NSString *const kGDTStorageUploadCoordinatorKey = @"GDTStorageUploadCoordinatorKey";
 
 + (BOOL)supportsSecureCoding {
   return YES;
@@ -242,6 +237,9 @@ static NSString *const kGDTStorageTargetToEventSetKey = @"GDTStorageTargetToEven
     sharedInstance->_targetToEventSet =
         [aDecoder decodeObjectOfClass:[NSMutableDictionary class]
                                forKey:kGDTStorageTargetToEventSetKey];
+    sharedInstance->_uploadCoordinator =
+        [aDecoder decodeObjectOfClass:[GDTUploadCoordinator class]
+                               forKey:kGDTStorageUploadCoordinatorKey];
   });
   return sharedInstance;
 }
@@ -251,6 +249,7 @@ static NSString *const kGDTStorageTargetToEventSetKey = @"GDTStorageTargetToEven
   dispatch_sync(sharedInstance.storageQueue, ^{
     [aCoder encodeObject:sharedInstance->_storedEvents forKey:kGDTStorageStoredEventsKey];
     [aCoder encodeObject:sharedInstance->_targetToEventSet forKey:kGDTStorageTargetToEventSetKey];
+    [aCoder encodeObject:sharedInstance->_uploadCoordinator forKey:kGDTStorageUploadCoordinatorKey];
   });
 }
 

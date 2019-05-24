@@ -30,10 +30,11 @@ const gdt_cct_QosTierConfiguration_QosTier gdt_cct_LogRequest_qos_tier_default =
 const int32_t gdt_cct_QosTierConfiguration_log_source_default = 0;
 
 
-const pb_field_t gdt_cct_LogEvent_fields[6] = {
+const pb_field_t gdt_cct_LogEvent_fields[7] = {
     PB_FIELD(  1, INT64   , OPTIONAL, STATIC  , FIRST, gdt_cct_LogEvent, event_time_ms, event_time_ms, 0),
     PB_FIELD(  6, BYTES   , OPTIONAL, POINTER , OTHER, gdt_cct_LogEvent, source_extension, event_time_ms, 0),
-    PB_FIELD( 15, SINT64  , OPTIONAL, STATIC  , OTHER, gdt_cct_LogEvent, timezone_offset_seconds, source_extension, 0),
+    PB_FIELD( 11, INT32   , OPTIONAL, STATIC  , OTHER, gdt_cct_LogEvent, event_code, source_extension, 0),
+    PB_FIELD( 15, SINT64  , OPTIONAL, STATIC  , OTHER, gdt_cct_LogEvent, timezone_offset_seconds, event_code, 0),
     PB_FIELD( 17, INT64   , OPTIONAL, STATIC  , OTHER, gdt_cct_LogEvent, event_uptime_ms, timezone_offset_seconds, 0),
     PB_FIELD( 23, MESSAGE , OPTIONAL, STATIC  , OTHER, gdt_cct_LogEvent, network_connection_info, event_uptime_ms, &gdt_cct_NetworkConnectionInfo_fields),
     PB_LAST_FIELD

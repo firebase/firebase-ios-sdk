@@ -34,7 +34,7 @@ if(HAVE_LEVELDB)
       leveldb_util.h
     DEPENDS
       # TODO(b/111328563) Force nanopb first to work around ODR violations
-      protobuf-nanopb
+      protobuf-nanopb-static
 
       LevelDB::LevelDB
       absl_strings
@@ -79,7 +79,7 @@ cc_library(
     remote_document_cache.h
   DEPENDS
     # TODO(b/111328563) Force nanopb first to work around ODR violations
-    protobuf-nanopb
+    protobuf-nanopb-static
 
     ${FIREBASE_FIRESTORE_LOCAL_PERSISTENCE}
     absl_strings

@@ -11,15 +11,3 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-if(APPLE)
-  cc_binary(
-    firebase_firestore_util_string_apple_benchmark
-    SOURCES
-      string_apple_benchmark.mm
-    DEPENDS
-      benchmark
-      benchmark_main
-      firebase_firestore_util_base_apple
-  )
-endif()

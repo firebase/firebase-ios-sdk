@@ -90,12 +90,16 @@ NS_SWIFT_NAME(InAppMessagingImageData)
 
 /** Defines the metadata for a FIAM action.
  */
+NS_SWIFT_NAME(InAppMessagingAction)
 @interface FIRInAppMessagingAction : NSObject
 
 /*
  * The text of the action button, if applicable.
  */
 @property(nonatomic, nullable, copy, readonly) NSString *actionText;
+/*
+ * The URL to follow if the action is clicked.
+ */
 @property(nonatomic, nonnull, copy, readonly) NSURL *actionURL;
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -137,7 +141,7 @@ NS_SWIFT_NAME(InAppMessagingCardDisplay)
 /**
  * Gets the color for text in card FIAM message. It applies to both title and body text.
  */
-@property(nonatomic, copy, nonnull) UIColor *textColor;
+@property(nonatomic, copy, nonnull, readonly) UIColor *textColor;
 
 /*
  * Image data for the supplied portrait image for a card FIAM messasge.
@@ -152,7 +156,7 @@ NS_SWIFT_NAME(InAppMessagingCardDisplay)
 /**
  * The background color for a card FIAM message.
  */
-@property(nonatomic, copy, nonnull) UIColor *displayBackgroundColor;
+@property(nonatomic, copy, nonnull, readonly) UIColor *displayBackgroundColor;
 
 /**
  * Metadata for a card FIAM message's primary action button.
@@ -175,20 +179,6 @@ NS_SWIFT_NAME(InAppMessagingCardDisplay)
 @property(nonatomic, nullable, readonly) NSURL *secondaryActionURL;
 
 - (instancetype)init NS_UNAVAILABLE;
-- (instancetype)initWithMessageID:(NSString *)messageID
-                     campaignName:(NSString *)campaignName
-              renderAsTestMessage:(BOOL)renderAsTestMessage
-                      triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
-                        titleText:(NSString *)title
-                         bodyText:(nullable NSString *)body
-                        textColor:(UIColor *)textColor
-                portraitImageData:(FIRInAppMessagingImageData *)portraitImageData
-               landscapeImageData:(nullable FIRInAppMessagingImageData *)landscapeImageData
-                  backgroundColor:(UIColor *)backgroundColor
-              primaryActionButton:(FIRInAppMessagingActionButton *)primaryActionButton
-                 primaryActionURL:(NSURL *)primaryActionURL
-            secondaryActionButton:(nullable FIRInAppMessagingActionButton *)secondaryActionButton
-               secondaryActionURL:(nullable NSURL *)secondaryActionURL;
 
 @end
 
@@ -305,7 +295,7 @@ NS_SWIFT_NAME(InAppMessagingImageOnlyDisplay)
                      campaignName:(NSString *)campaignName
               renderAsTestMessage:(BOOL)renderAsTestMessage
                       triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
-                        imageData:(FIRInAppMessagingImageData *)imageData
+                        imageData:(nullable FIRInAppMessagingImageData *)imageData
                         actionURL:(nullable NSURL *)actionURL NS_DESIGNATED_INITIALIZER;
 @end
 

@@ -16,6 +16,7 @@
 
 #import "GDTCCTLibrary/Private/GDTCCTUploader.h"
 
+#import <GoogleDataTransport/GDTPlatform.h>
 #import <GoogleDataTransport/GDTRegistrar.h>
 
 #import <nanopb/pb.h>
@@ -31,6 +32,9 @@
 
 // Redeclared as readwrite.
 @property(nullable, nonatomic, readwrite) NSURLSessionUploadTask *currentTask;
+
+/** If running in the background, the current background ID. */
+@property(nonatomic) GDTBackgroundIdentifier backgroundID;
 
 @end
 
@@ -56,6 +60,7 @@
     _uploaderQueue = dispatch_queue_create("com.google.GDTCCTUploader", DISPATCH_QUEUE_SERIAL);
     NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
     _uploaderSession = [NSURLSession sessionWithConfiguration:config];
+    _backgroundID = GDTBackgroundIdentifierInvalid;
   }
   return self;
 }
@@ -79,38 +84,60 @@
   return defaultServerURL;
 }
 
-- (void)uploadPackage:(GDTUploadPackage *)package
-           onComplete:(GDTUploaderCompletionBlock)onComplete {
+- (void)uploadPackage:(GDTUploadPackage *)package {
   dispatch_async(_uploaderQueue, ^{
     NSAssert(!self->_currentTask, @"An upload shouldn't be initiated with another in progress.");
+    NSAssert(!self->_currentUploadPackage, @"An upload shouldn't be initiated with a new package.");
     NSURL *serverURL = self.serverURL ? self.serverURL : [self defaultServerURL];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:serverURL];
     request.HTTPMethod = @"POST";
 
-    id completionHandler = ^(NSData *_Nullable data, NSURLResponse *_Nullable response,
-                             NSError *_Nullable error) {
-      NSAssert(!error, @"There should be no errors uploading events: %@", error);
-      if (onComplete) {
-        GDTClock *nextUploadTime;
-        NSError *decodingError;
-        gdt_cct_LogResponse response = GDTCCTDecodeLogResponse(data, &decodingError);
-        if (!decodingError && response.has_next_request_wait_millis) {
-          nextUploadTime = [GDTClock clockSnapshotInTheFuture:response.next_request_wait_millis];
-        } else {
-          // 15 minutes from now.
-          nextUploadTime = [GDTClock clockSnapshotInTheFuture:15 * 60 * 1000];
-        }
-        pb_release(gdt_cct_LogResponse_fields, &response);
-        onComplete(kGDTTargetCCT, nextUploadTime, error);
-      }
-      self.currentTask = nil;
-    };
+    id completionHandler =
+        ^(NSData *_Nullable data, NSURLResponse *_Nullable response, NSError *_Nullable error) {
+          NSAssert(!error, @"There should be no errors uploading events: %@", error);
+          NSError *decodingError;
+          gdt_cct_LogResponse logResponse = GDTCCTDecodeLogResponse(data, &decodingError);
+          if (!decodingError && logResponse.has_next_request_wait_millis) {
+            self->_nextUploadTime =
+                [GDTClock clockSnapshotInTheFuture:logResponse.next_request_wait_millis];
+          } else {
+            // 15 minutes from now.
+            self->_nextUploadTime = [GDTClock clockSnapshotInTheFuture:15 * 60 * 1000];
+          }
+          pb_release(gdt_cct_LogResponse_fields, &logResponse);
+          [package completeDelivery];
+          if (self->_backgroundID != GDTBackgroundIdentifierInvalid) {
+            [[GDTApplication sharedApplication] endBackgroundTask:self->_backgroundID];
+            self->_backgroundID = GDTBackgroundIdentifierInvalid;
+          }
+          self.currentTask = nil;
+          self.currentUploadPackage = nil;
+        };
+    self->_currentUploadPackage = package;
     NSData *requestProtoData = [self constructRequestProtoFromPackage:(GDTUploadPackage *)package];
     self.currentTask = [self.uploaderSession uploadTaskWithRequest:request
                                                           fromData:requestProtoData
                                                  completionHandler:completionHandler];
     [self.currentTask resume];
   });
+}
+
+- (BOOL)readyToUploadWithConditions:(GDTUploadConditions)conditions {
+  __block BOOL result;
+  dispatch_sync(_uploaderQueue, ^{
+    if (self->_currentUploadPackage) {
+      result = NO;
+      return;
+    }
+    if ((conditions & GDTUploadConditionHighPriority) == GDTUploadConditionHighPriority) {
+      result = self.currentTask == nil;
+      return;
+    } else if (self->_nextUploadTime) {
+      result = [[GDTClock snapshot] isAfter:self->_nextUploadTime];
+    }
+    result = result && !self->_currentTask;
+  });
+  return result;
 }
 
 #pragma mark - Private helper methods
@@ -140,15 +167,29 @@
   return data ? data : [[NSData alloc] init];
 }
 
+#pragma mark - GDTUploadPackageProtocol
+
+- (void)packageExpired:(GDTUploadPackage *)package {
+  dispatch_async(_uploaderQueue, ^{
+    [self.currentTask cancel];
+    self.currentTask = nil;
+    self.currentUploadPackage = nil;
+  });
+}
+
 #pragma mark - GDTLifecycleProtocol
 
-- (void)appWillBackground:(UIApplication *)app {
+- (void)appWillBackground:(GDTApplication *)app {
+  _backgroundID = [app beginBackgroundTaskWithExpirationHandler:^{
+    [app endBackgroundTask:self->_backgroundID];
+  }];
 }
 
-- (void)appWillForeground:(UIApplication *)app {
-}
-
-- (void)appWillTerminate:(UIApplication *)application {
+- (void)appWillTerminate:(GDTApplication *)application {
+  dispatch_sync(_uploaderQueue, ^{
+    [self.currentTask cancel];
+    [self.currentUploadPackage completeDelivery];
+  });
 }
 
 @end

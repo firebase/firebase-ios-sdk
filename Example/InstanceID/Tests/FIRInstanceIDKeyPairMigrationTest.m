@@ -30,7 +30,7 @@
 @interface FIRInstanceIDKeyPairStore (ExposedForTest)
 
 @property(nonatomic, readwrite, strong) FIRInstanceIDBackupExcludedPlist *plist;
-@property(nonatomic, readwrite, strong) FIRInstanceIDKeyPair *keyPair;
+@property(atomic, readwrite, strong) FIRInstanceIDKeyPair *keyPair;
 BOOL FIRInstanceIDHasMigratedKeyPair(NSString *legacyPublicKeyTag, NSString *newPublicKeyTag);
 NSString *FIRInstanceIDLegacyPublicTagWithSubtype(NSString *subtype);
 NSString *FIRInstanceIDLegacyPrivateTagWithSubtype(NSString *subtype);
@@ -44,6 +44,10 @@ NSString *FIRInstanceIDPrivateTagWithSubtype(NSString *subtype);
                             handler:(void (^)(NSError *))handler;
 - (void)migrateKeyPairCacheIfNeededWithHandler:(void (^)(NSError *error))handler;
 + (NSString *)keyStoreFileName;
+
+- (void)updateKeyRef:(SecKeyRef)keyRef
+             withTag:(NSString *)tag
+             handler:(void (^)(NSError *error))handler;
 @end
 
 // Need to separate the tests from FIRInstanceIDKeyPairStoreTest for separate keychain operations
@@ -68,7 +72,7 @@ NSString *FIRInstanceIDPrivateTagWithSubtype(NSString *subtype);
   [self.keyPairStore removeKeyPairCreationTimePlistWithError:&error];
 }
 
-- (void)testMigrationDataIfLegtacyKeyPairsNotExist {
+- (void)testMigrationDataIfLegacyKeyPairsNotExist {
   NSString *legacyPublicKeyTag =
       FIRInstanceIDLegacyPublicTagWithSubtype(kFIRInstanceIDKeyPairSubType);
 
@@ -132,6 +136,36 @@ NSString *FIRInstanceIDPrivateTagWithSubtype(NSString *subtype);
                                                    }];
   }];
 
-  [self waitForExpectationsWithTimeout:1000 handler:nil];
+  [self waitForExpectationsWithTimeout:1 handler:nil];
 }
+
+// Disabling test for now. We need to find a flake free way to insure the publicKeyRef is retained.
+#ifdef DISABLED
+- (void)testUpdateKeyRefWithTagRetainsAndReleasesKeyRef {
+  SecKeyRef publicKeyRef;
+
+  @autoreleasepool {
+    NSString *legacyPublicKeyTag =
+        FIRInstanceIDLegacyPublicTagWithSubtype(kFIRInstanceIDKeyPairSubType);
+    NSString *legacyPrivateKeyTag =
+        FIRInstanceIDLegacyPrivateTagWithSubtype(kFIRInstanceIDKeyPairSubType);
+    FIRInstanceIDKeyPair *keyPair =
+        [[FIRInstanceIDKeychain sharedInstance] generateKeyPairWithPrivateTag:legacyPrivateKeyTag
+                                                                    publicTag:legacyPublicKeyTag];
+    XCTAssertTrue([keyPair isValid]);
+
+    publicKeyRef = keyPair.publicKey;
+
+    XCTestExpectation *completionExpectation =
+        [self expectationWithDescription:@"completionExpectation"];
+    [self.keyPairStore updateKeyRef:keyPair.publicKey
+                            withTag:@"test"
+                            handler:^(NSError *error) {
+                              [completionExpectation fulfill];
+                            }];
+  }
+  [self waitForExpectationsWithTimeout:0.5 handler:NULL];
+}
+#endif
+
 @end

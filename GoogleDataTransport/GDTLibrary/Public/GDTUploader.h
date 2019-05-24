@@ -18,37 +18,29 @@
 
 #import <GoogleDataTransport/GDTClock.h>
 #import <GoogleDataTransport/GDTLifecycle.h>
+#import <GoogleDataTransport/GDTPrioritizer.h>
 #import <GoogleDataTransport/GDTTargets.h>
-
-@class GDTUploadPackage;
+#import <GoogleDataTransport/GDTUploadPackage.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** A convenient typedef to define the block to be called upon completion of an upload to the
- * backend.
- *
- * target: The target that was uploading.
- * nextUploadAttemptUTC: The desired next upload attempt time.
- * uploadError: Populated with any upload error. If non-nil, a retry will be attempted.
- */
-typedef void (^GDTUploaderCompletionBlock)(GDTTarget target,
-                                           GDTClock *nextUploadAttemptUTC,
-                                           NSError *_Nullable uploadError);
-
 /** This protocol defines the common interface for uploader implementations. */
-@protocol GDTUploader <NSObject, GDTLifecycleProtocol>
+@protocol GDTUploader <NSObject, GDTLifecycleProtocol, GDTUploadPackageProtocol>
 
 @required
 
+/** Returns YES if the uploader can make an upload attempt, NO otherwise.
+ *
+ * @param conditions The conditions that the upload attempt is likely to occur under.
+ * @return YES if the uploader can make an upload attempt, NO otherwise.
+ */
+- (BOOL)readyToUploadWithConditions:(GDTUploadConditions)conditions;
+
 /** Uploads events to the backend using this specific backend's chosen format.
  *
- * @param package The event package to upload.
- * @param onComplete A block to invoke upon completing the upload. Has three arguments:
- *   - target: The GDTTarget that just uploaded.
- *   - nextUploadAttemptUTC: A clock representing the next upload attempt.
- *   - uploadError: An error object describing the upload error, or nil if upload was successful.
+ * @param package The event package to upload. Make sure to call -completeDelivery.
  */
-- (void)uploadPackage:(GDTUploadPackage *)package onComplete:(GDTUploaderCompletionBlock)onComplete;
+- (void)uploadPackage:(GDTUploadPackage *)package;
 
 @end
 

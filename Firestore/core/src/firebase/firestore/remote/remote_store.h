@@ -115,7 +115,7 @@ class RemoteStore : public TargetMetadataProvider,
  public:
   RemoteStore(FSTLocalStore* local_store,
               std::shared_ptr<Datastore> datastore,
-              util::AsyncQueue* worker_queue,
+              const std::shared_ptr<util::AsyncQueue>& worker_queue,
               std::function<void(model::OnlineState)> online_state_handler);
 
   void set_sync_engine(id<FSTRemoteSyncer> sync_engine) {

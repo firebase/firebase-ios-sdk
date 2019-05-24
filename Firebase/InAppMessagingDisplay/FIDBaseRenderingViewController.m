@@ -152,7 +152,7 @@ static const NSTimeInterval kMinValidImpressionTime = 3.0;
     [self.displayDelegate messageClicked:[self inAppMessage] withAction:action];
   } else {
     FIRLogWarning(kFIRLoggerInAppMessagingDisplay, @"I-FID200008",
-                  @"Display delegate is nil while trying to follow action.");
+                  @"Display delegate is nil while trying to follow action :%@.", action.actionText);
   }
   return;
 }

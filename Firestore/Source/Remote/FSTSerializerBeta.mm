@@ -85,17 +85,14 @@ using firebase::firestore::remote::WatchTargetChangeState;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FSTSerializerBeta ()
-// Does not own this DatabaseId.
-@property(nonatomic, assign, readonly) const DatabaseId *databaseID;
-@end
+@implementation FSTSerializerBeta {
+  DatabaseId _databaseID;
+}
 
-@implementation FSTSerializerBeta
-
-- (instancetype)initWithDatabaseID:(const DatabaseId *)databaseID {
+- (instancetype)initWithDatabaseID:(DatabaseId)databaseID {
   self = [super init];
   if (self) {
-    _databaseID = databaseID;
+    _databaseID = std::move(databaseID);
   }
   return self;
 }
@@ -137,19 +134,19 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - DocumentKey <=> Key proto
 
 - (NSString *)encodedDocumentKey:(const DocumentKey &)key {
-  return [self encodedResourcePathForDatabaseID:self.databaseID path:key.path()];
+  return [self encodedResourcePathForDatabaseID:_databaseID path:key.path()];
 }
 
 - (DocumentKey)decodedDocumentKey:(NSString *)name {
   const ResourcePath path = [self decodedResourcePathWithDatabaseID:name];
-  HARD_ASSERT(path[1] == self.databaseID->project_id(),
+  HARD_ASSERT(path[1] == _databaseID.project_id(),
               "Tried to deserialize key from different project.");
-  HARD_ASSERT(path[3] == self.databaseID->database_id(),
+  HARD_ASSERT(path[3] == _databaseID.database_id(),
               "Tried to deserialize key from different datbase.");
   return DocumentKey{[self localResourcePathForQualifiedResourcePath:path]};
 }
 
-- (NSString *)encodedResourcePathForDatabaseID:(const DatabaseId *)databaseID
+- (NSString *)encodedResourcePathForDatabaseID:(const DatabaseId &)databaseID
                                           path:(const ResourcePath &)path {
   return util::WrapNSString([self encodedResourcePathForDatabaseID:databaseID]
                                 .Append("documents")
@@ -165,7 +162,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSString *)encodedQueryPath:(const ResourcePath &)path {
-  return [self encodedResourcePathForDatabaseID:self.databaseID path:path];
+  return [self encodedResourcePathForDatabaseID:_databaseID path:path];
 }
 
 - (ResourcePath)decodedQueryPath:(NSString *)name {
@@ -180,8 +177,8 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-- (ResourcePath)encodedResourcePathForDatabaseID:(const DatabaseId *)databaseID {
-  return ResourcePath{"projects", databaseID->project_id(), "databases", databaseID->database_id()};
+- (ResourcePath)encodedResourcePathForDatabaseID:(const DatabaseId &)databaseID {
+  return ResourcePath{"projects", databaseID.project_id(), "databases", databaseID.database_id()};
 }
 
 - (ResourcePath)localResourcePathForQualifiedResourcePath:(const ResourcePath &)resourceName {
@@ -195,8 +192,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSString *)encodedDatabaseID {
-  return util::WrapNSString(
-      [self encodedResourcePathForDatabaseID:self.databaseID].CanonicalString());
+  return util::WrapNSString([self encodedResourcePathForDatabaseID:_databaseID].CanonicalString());
 }
 
 #pragma mark - FSTFieldValue <=> Value proto
@@ -335,11 +331,11 @@ NS_ASSUME_NONNULL_BEGIN
   return result;
 }
 
-- (GCFSValue *)encodedReferenceValueForDatabaseID:(const DatabaseId *)databaseID
+- (GCFSValue *)encodedReferenceValueForDatabaseID:(const DatabaseId &)databaseID
                                               key:(const DocumentKey &)key {
-  HARD_ASSERT(*databaseID == *self.databaseID, "Database %s:%s cannot encode reference from %s:%s",
-              self.databaseID->project_id(), self.databaseID->database_id(),
-              databaseID->project_id(), databaseID->database_id());
+  HARD_ASSERT(databaseID == _databaseID, "Database %s:%s cannot encode reference from %s:%s",
+              _databaseID.project_id(), _databaseID.database_id(), databaseID.project_id(),
+              databaseID.database_id());
   GCFSValue *result = [GCFSValue message];
   result.referenceValue = [self encodedResourcePathForDatabaseID:databaseID path:key.path()];
   return result;
@@ -352,11 +348,11 @@ NS_ASSUME_NONNULL_BEGIN
   const DocumentKey key{[self localResourcePathForQualifiedResourcePath:path]};
 
   const DatabaseId database_id(project, database);
-  HARD_ASSERT(database_id == *self.databaseID, "Database %s:%s cannot encode reference from %s:%s",
-              self.databaseID->project_id(), self.databaseID->database_id(),
-              database_id.project_id(), database_id.database_id());
+  HARD_ASSERT(database_id == _databaseID, "Database %s:%s cannot encode reference from %s:%s",
+              _databaseID.project_id(), _databaseID.database_id(), database_id.project_id(),
+              database_id.database_id());
   return [FSTReferenceValue referenceValue:[FSTDocumentKey keyWithDocumentKey:key]
-                                databaseID:self.databaseID];
+                                databaseID:_databaseID];
 }
 
 - (GCFSArrayValue *)encodedArrayValue:(FSTArrayValue *)arrayValue {

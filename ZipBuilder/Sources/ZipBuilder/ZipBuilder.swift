@@ -82,6 +82,10 @@ struct ZipBuilder {
     /// expected version numbers.
     var currentReleasePath: URL?
 
+    /// The path to a directory to move all build logs to. If nil, a temporary directory will be
+    /// used.
+    var logsOutputDir: URL?
+
     /// Default initializer with all required paths.
     init(templateDir: URL, coreDiagnosticsDir: URL) {
       self.templateDir = templateDir
@@ -335,17 +339,21 @@ struct ZipBuilder {
   ///   - frameworkLocations: A dictionary containing the pod name as the key and a location to
   ///                         the compiled frameworks.
   ///   - ignoreFrameworks: A list of Pod
+  /// - Returns: The filenames of the frameworks that were copied.
   /// - Throws: Various FileManager errors in case the copying fails, or an error if the framework
   //            doesn't exist in `frameworkLocations`.
   private func copyFrameworks(fromPods installedPods: [CocoaPodUtils.PodInfo],
                               toDirectory dir: URL,
                               frameworkLocations: [String: [URL]],
                               podsToIgnore: [String],
-                              foldersToIgnore: [String]) throws {
+                              foldersToIgnore: [String]) throws -> [String] {
     let fileManager = FileManager.default
     if !fileManager.directoryExists(at: dir) {
       try fileManager.createDirectory(at: dir, withIntermediateDirectories: false, attributes: nil)
     }
+
+    // Keep track of the names of the frameworks copied over.
+    var copiedFrameworkNames: [String] = []
 
     // Loop through each InstalledPod item and get the name so we can fetch the framework and copy
     // it to the destination directory.
@@ -375,8 +383,11 @@ struct ZipBuilder {
 
         let destination = dir.appendingPathComponent(frameworkName)
         try fileManager.copyItem(at: framework, to: destination)
+        copiedFrameworkNames.append(frameworkName.replacingOccurrences(of: ".framework", with: ""))
       }
     }
+
+    return copiedFrameworkNames
   }
 
   /// Copies required files from the Firebase pod (i.e. `Firebase.h`, `module.modulemap`, etc) into
@@ -525,14 +536,12 @@ struct ZipBuilder {
     let installedPods = CocoaPodUtils.installPods([pod], inDir: projectDir, customSpecRepos: customSpecRepos)
     // Copy the frameworks into the proper product directory.
     let productDir = rootZipDir.appendingPathComponent(pod.rawValue)
-    try copyFrameworks(fromPods: installedPods,
-                       toDirectory: productDir,
-                       frameworkLocations: builtFrameworks,
-                       podsToIgnore: podsToIgnore,
-                       foldersToIgnore: pod.duplicateFrameworksToRemove())
+    let namedFrameworks = try copyFrameworks(fromPods: installedPods,
+                                             toDirectory: productDir,
+                                             frameworkLocations: builtFrameworks,
+                                             podsToIgnore: podsToIgnore,
+                                             foldersToIgnore: pod.duplicateFrameworksToRemove())
 
-    // Return the names of all the installed frameworks.
-    let namedFrameworks = installedPods.map { $0.name }
     let copiedFrameworks = namedFrameworks.filter {
       // Only return the frameworks that aren't contained in the "podsToIgnore" array, aren't an
       // interop framework (since they don't compile to frameworks), or the Firebase pod itself.
@@ -699,7 +708,8 @@ struct ZipBuilder {
         let framework = builder.buildFramework(withName: pod.name,
                                                version: pod.version,
                                                cacheKey: pod.cacheKey,
-                                               cacheEnabled: useCache)
+                                               cacheEnabled: useCache,
+                                               logsOutputDir: paths.logsOutputDir)
 
         frameworks = [framework]
       } else {

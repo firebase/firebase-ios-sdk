@@ -16,6 +16,7 @@
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
+#import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRLogger.h>
 #import <FirebaseCore/FIROptions.h>
 #import <FirebaseFirestore/FIRCollectionReference.h>
@@ -40,7 +41,7 @@
 #include "Firestore/core/src/firebase/firestore/util/path.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/testutil/app_testing.h"
-#include "Firestore/core/test/firebase/firestore/util/status_test_util.h"
+#include "Firestore/core/test/firebase/firestore/util/status_testing.h"
 
 #include "absl/memory/memory.h"
 
@@ -212,6 +213,11 @@ static bool runningAgainstEmulator = false;
 }
 
 - (FIRFirestore *)firestoreWithProjectID:(NSString *)projectID {
+  FIRApp *app = AppForUnitTesting(util::MakeString(projectID));
+  return [self firestoreWithApp:app];
+}
+
+- (FIRFirestore *)firestoreWithApp:(FIRApp *)app {
   NSString *persistenceKey = [NSString stringWithFormat:@"db%lu", (unsigned long)_firestores.count];
 
   dispatch_queue_t queue =
@@ -221,21 +227,18 @@ static bool runningAgainstEmulator = false;
 
   FIRSetLoggerLevel(FIRLoggerLevelDebug);
 
-  FIRApp *app = AppForUnitTesting();
   std::unique_ptr<CredentialsProvider> credentials_provider =
       absl::make_unique<firebase::firestore::auth::EmptyCredentialsProvider>();
-
-  FIRFirestore *firestore = [[FIRFirestore alloc] initWithProjectID:util::MakeString(projectID)
-                                                           database:DatabaseId::kDefault
-                                                     persistenceKey:util::MakeString(persistenceKey)
-                                                credentialsProvider:std::move(credentials_provider)
-                                                        workerQueue:std::move(workerQueue)
-                                                        firebaseApp:app];
+  std::string projectID = util::MakeString(app.options.projectID);
+  FIRFirestore *firestore =
+      [[FIRFirestore alloc] initWithDatabaseID:DatabaseId(projectID)
+                                persistenceKey:util::MakeString(persistenceKey)
+                           credentialsProvider:std::move(credentials_provider)
+                                   workerQueue:std::move(workerQueue)
+                                   firebaseApp:app];
 
   firestore.settings = [FSTIntegrationTestCase settings];
-
   [_firestores addObject:firestore];
-
   return firestore;
 }
 
@@ -287,6 +290,15 @@ static bool runningAgainstEmulator = false;
 
 - (void)shutdownFirestore:(FIRFirestore *)firestore {
   [firestore shutdownWithCompletion:[self completionForExpectationWithName:@"shutdown"]];
+  [self awaitExpectations];
+}
+
+- (void)deleteApp:(FIRApp *)app {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"Delete app"];
+  [app deleteApp:^(BOOL completion) {
+    XCTAssertTrue(completion);
+    [expectation fulfill];
+  }];
   [self awaitExpectations];
 }
 
@@ -438,7 +450,7 @@ static bool runningAgainstEmulator = false;
   [self awaitExpectations];
 }
 
-- (AsyncQueue *)queueForFirestore:(FIRFirestore *)firestore {
+- (const std::shared_ptr<util::AsyncQueue> &)queueForFirestore:(FIRFirestore *)firestore {
   return [firestore workerQueue];
 }
 

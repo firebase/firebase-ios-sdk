@@ -76,24 +76,24 @@
   if (self.errorEncountered) {
     block(nil, nil, [NSError errorWithDomain:@"image error" code:0 userInfo:nil]);
   } else {
-    NSString *str = @"image data";
-    NSData *data = [str dataUsingEncoding:NSUTF8StringEncoding];
-    block(data, nil, nil);
+    NSData *imageData = [@"image data" dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *landscapeImageData = [@"landscape image data" dataUsingEncoding:NSUTF8StringEncoding];
+
+    block(imageData, landscapeImageData, nil);
   }
 }
 @end
 
-// Defines how the message display component triggers the delegate in unit testing
+// Defines how the message display component triggers the delegate in unit testing.
 typedef NS_ENUM(NSInteger, FIRInAppMessagingDelegateInteraction) {
-  FIRInAppMessagingDelegateInteractionDismiss,  // message display component triggers
-  // messageDismissedWithType:
-  FIRInAppMessagingDelegateInteractionClick,  // message display component triggers
-  // messageClicked:
-  FIRInAppMessagingDelegateInteractionError,  // message display component triggers
-  // displayErrorEncountered:
-  FIRInAppMessagingDelegateInteractionImpressionDetected,  // message has finished a valid
-  // impression, but it's not getting
-  // closed by the user.
+  // Message display component triggers messageDismissedWithType:.
+  FIRInAppMessagingDelegateInteractionDismiss,
+  // Message display component triggers messageClicked:.
+  FIRInAppMessagingDelegateInteractionClick,
+  // Message display component triggers displayErrorEncountered:.
+  FIRInAppMessagingDelegateInteractionError,
+  // Message has finished a valid impression, but it's not getting closed by the user.
+  FIRInAppMessagingDelegateInteractionImpressionDetected,
 };
 
 // A class implementing protocol FIRInAppMessagingDisplay to be used for unit testing
@@ -127,9 +127,9 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDelegateInteraction) {
   self.message = messageForDisplay;
 
   switch (self.delegateInteraction) {
-    case FIRInAppMessagingDelegateInteractionClick: {
+    case FIRInAppMessagingDelegateInteractionClick:
       [displayDelegate messageClicked:messageForDisplay withAction:self.action];
-    } break;
+      break;
     case FIRInAppMessagingDelegateInteractionDismiss:
       [displayDelegate messageDismissed:messageForDisplay
                             dismissType:FIRInAppMessagingDismissTypeAuto];

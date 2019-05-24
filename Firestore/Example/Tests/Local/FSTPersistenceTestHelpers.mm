@@ -41,10 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FSTPersistenceTestHelpers
 
 + (FSTLocalSerializer *)localSerializer {
-  // This owns the DatabaseIds since we do not have FirestoreClient instance to own them.
-  static DatabaseId database_id{"p", "d"};
-
-  FSTSerializerBeta *remoteSerializer = [[FSTSerializerBeta alloc] initWithDatabaseID:&database_id];
+  auto remoteSerializer = [[FSTSerializerBeta alloc] initWithDatabaseID:DatabaseId("p", "d")];
   return [[FSTLocalSerializer alloc] initWithRemoteSerializer:remoteSerializer];
 }
 

@@ -75,9 +75,10 @@
   NSBundle *resourceBundle = [self getViewResourceBundle];
 
   if (resourceBundle == nil) {
-    NSError *error = [NSError errorWithDomain:kFirebaseInAppMessagingDisplayErrorDomain
-                                         code:FIAMDisplayRenderErrorTypeUnspecifiedError
-                                     userInfo:@{@"message" : @"resource bundle is missing"}];
+    NSError *error =
+        [NSError errorWithDomain:kFirebaseInAppMessagingDisplayErrorDomain
+                            code:FIAMDisplayRenderErrorTypeUnspecifiedError
+                        userInfo:@{NSLocalizedDescriptionKey : @"Resource bundle is missing."}];
     [displayDelegate displayErrorForMessage:cardMessage error:error];
     return;
   }
@@ -93,9 +94,10 @@
     if (cardVC == nil) {
       FIRLogWarning(kFIRLoggerInAppMessagingDisplay, @"I-FID100011",
                     @"View controller can not be created.");
-      NSError *error = [NSError errorWithDomain:kFirebaseInAppMessagingDisplayErrorDomain
-                                           code:FIAMDisplayRenderErrorTypeUnspecifiedError
-                                       userInfo:@{}];
+      NSError *error = [NSError
+          errorWithDomain:kFirebaseInAppMessagingDisplayErrorDomain
+                     code:FIAMDisplayRenderErrorTypeUnspecifiedError
+                 userInfo:@{NSLocalizedDescriptionKey : @"View controller could not be created"}];
       [displayDelegate displayErrorForMessage:cardMessage error:error];
       return;
     }
@@ -222,23 +224,23 @@
 - (void)displayMessage:(FIRInAppMessagingDisplayMessage *)messageForDisplay
        displayDelegate:(id<FIRInAppMessagingDisplayDelegate>)displayDelegate {
   if ([messageForDisplay isKindOfClass:[FIRInAppMessagingModalDisplay class]]) {
-    FIRLogDebug(kFIRLoggerInAppMessagingDisplay, @"I-FID100000", @"Display a modal message");
+    FIRLogDebug(kFIRLoggerInAppMessagingDisplay, @"I-FID100000", @"Display a modal message.");
     [self.class displayModalViewWithMessageDefinition:(FIRInAppMessagingModalDisplay *)
                                                           messageForDisplay
                                       displayDelegate:displayDelegate];
 
   } else if ([messageForDisplay isKindOfClass:[FIRInAppMessagingBannerDisplay class]]) {
-    FIRLogDebug(kFIRLoggerInAppMessagingDisplay, @"I-FID100001", @"Display a banner message");
+    FIRLogDebug(kFIRLoggerInAppMessagingDisplay, @"I-FID100001", @"Display a banner message.");
     [self.class displayBannerViewWithMessageDefinition:(FIRInAppMessagingBannerDisplay *)
                                                            messageForDisplay
                                        displayDelegate:displayDelegate];
   } else if ([messageForDisplay isKindOfClass:[FIRInAppMessagingImageOnlyDisplay class]]) {
-    FIRLogDebug(kFIRLoggerInAppMessagingDisplay, @"I-FID100002", @"Display an image only message");
+    FIRLogDebug(kFIRLoggerInAppMessagingDisplay, @"I-FID100002", @"Display an image only message.");
     [self.class displayImageOnlyViewWithMessageDefinition:(FIRInAppMessagingImageOnlyDisplay *)
                                                               messageForDisplay
                                           displayDelegate:displayDelegate];
   } else if ([messageForDisplay isKindOfClass:[FIRInAppMessagingCardDisplay class]]) {
-    FIRLogDebug(kFIRLoggerInAppMessagingDisplay, @"I-FID100009", @"Display a card message");
+    FIRLogDebug(kFIRLoggerInAppMessagingDisplay, @"I-FID100009", @"Display a card message.");
     [self.class displayCardViewWithMessageDefinition:(FIRInAppMessagingCardDisplay *)
                                                          messageForDisplay
                                      displayDelegate:displayDelegate];

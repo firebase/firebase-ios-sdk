@@ -102,16 +102,15 @@ NS_ASSUME_NONNULL_BEGIN
   return [provider firestoreForDatabase:database];
 }
 
-- (instancetype)initWithProjectID:(std::string)projectID
-                         database:(std::string)database
-                   persistenceKey:(std::string)persistenceKey
-              credentialsProvider:(std::unique_ptr<CredentialsProvider>)credentialsProvider
-                      workerQueue:(std::unique_ptr<AsyncQueue>)workerQueue
-                      firebaseApp:(FIRApp *)app {
+- (instancetype)initWithDatabaseID:(model::DatabaseId)databaseID
+                    persistenceKey:(std::string)persistenceKey
+               credentialsProvider:(std::unique_ptr<CredentialsProvider>)credentialsProvider
+                       workerQueue:(std::shared_ptr<AsyncQueue>)workerQueue
+                       firebaseApp:(FIRApp *)app {
   if (self = [super init]) {
-    _firestore = std::make_shared<Firestore>(
-        std::move(projectID), std::move(database), std::move(persistenceKey),
-        std::move(credentialsProvider), std::move(workerQueue), (__bridge void *)self);
+    _firestore = std::make_shared<Firestore>(std::move(databaseID), std::move(persistenceKey),
+                                             std::move(credentialsProvider), std::move(workerQueue),
+                                             (__bridge void *)self);
 
     _app = app;
 
@@ -125,7 +124,7 @@ NS_ASSUME_NONNULL_BEGIN
       }
     };
 
-    _dataConverter = [[FSTUserDataConverter alloc] initWithDatabaseID:&_firestore->database_id()
+    _dataConverter = [[FSTUserDataConverter alloc] initWithDatabaseID:_firestore->database_id()
                                                          preConverter:block];
     // Use the property setter so the default settings get plumbed into _firestoreClient.
     self.settings = [[FIRFirestoreSettings alloc] init];
@@ -273,16 +272,20 @@ NS_ASSUME_NONNULL_BEGIN
   return _firestore;
 }
 
-- (AsyncQueue *)workerQueue {
+- (const std::shared_ptr<util::AsyncQueue> &)workerQueue {
   return _firestore->worker_queue();
 }
 
-- (const DatabaseId *)databaseID {
-  return &_firestore->database_id();
+- (const DatabaseId &)databaseID {
+  return _firestore->database_id();
 }
 
 + (BOOL)isLoggingEnabled {
   return util::LogIsLoggable(util::kLogLevelDebug);
+}
+
+- (void)clearPersistenceWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
+  _firestore->ClearPersistence(util::MakeCallback(completion));
 }
 
 + (FIRFirestore *)recoverFromFirestore:(std::shared_ptr<Firestore>)firestore {

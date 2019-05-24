@@ -45,6 +45,7 @@
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/util/filesystem.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
@@ -77,7 +78,6 @@ using firebase::firestore::local::OrphanedDocumentCallback;
 using firebase::firestore::local::ReferenceSet;
 using firebase::firestore::local::RemoteDocumentCache;
 using firebase::firestore::local::TargetCallback;
-using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::ListenSequenceNumber;
 using firebase::firestore::model::ResourcePath;
@@ -343,6 +343,13 @@ static const char *kReservedPathComponent = "firestore";
                                        lruParams:lruParams];
   *ptr = db;
   return Status::OK();
+}
+
++ (Status)clearPersistence:(const DatabaseInfo &)databaseInfo {
+  Path levelDBDir = [FSTLevelDB storageDirectoryForDatabaseInfo:databaseInfo
+                                             documentsDirectory:[FSTLevelDB documentsDirectory]];
+  LOG_DEBUG("Clearing persistence for path: %s", levelDBDir.ToUtf8String());
+  return util::RecursivelyDelete(levelDBDir);
 }
 
 - (instancetype)initWithLevelDB:(std::unique_ptr<leveldb::DB>)db

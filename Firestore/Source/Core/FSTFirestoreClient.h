@@ -23,6 +23,7 @@
 
 #include "Firestore/core/src/firebase/firestore/api/document_reference.h"
 #include "Firestore/core/src/firebase/firestore/api/document_snapshot.h"
+#include "Firestore/core/src/firebase/firestore/api/query_core.h"
 #include "Firestore/core/src/firebase/firestore/api/settings.h"
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
@@ -70,8 +71,8 @@ NS_ASSUME_NONNULL_BEGIN
                               settings:(const api::Settings &)settings
                    credentialsProvider:
                        (auth::CredentialsProvider *)credentialsProvider  // no passing ownership
-                          userExecutor:(std::unique_ptr<util::Executor>)userExecutor
-                           workerQueue:(std::unique_ptr<util::AsyncQueue>)workerQueue;
+                          userExecutor:(std::shared_ptr<util::Executor>)userExecutor
+                           workerQueue:(std::shared_ptr<util::AsyncQueue>)workerQueue;
 
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -104,9 +105,8 @@ NS_ASSUME_NONNULL_BEGIN
  * Retrieves a (possibly empty) set of documents from the cache via the
  * indicated completion.
  */
-- (void)getDocumentsFromLocalCache:(FIRQuery *)query
-                        completion:(void (^)(FIRQuerySnapshot *_Nullable query,
-                                             NSError *_Nullable error))completion;
+- (void)getDocumentsFromLocalCache:(const api::Query &)query
+                          callback:(api::QuerySnapshot::Listener &&)callback;
 
 /** Write mutations. callback will be notified when it's written to the backend. */
 - (void)writeMutations:(std::vector<FSTMutation *> &&)mutations
@@ -118,17 +118,18 @@ NS_ASSUME_NONNULL_BEGIN
                 resultCallback:(core::TransactionResultCallback)resultCallback;
 
 /** The database ID of the databaseInfo this client was initialized with. */
-// Ownes a DatabaseInfo instance, which contains the id here.
-@property(nonatomic, assign, readonly) const model::DatabaseId *databaseID;
+@property(nonatomic, assign, readonly) const model::DatabaseId &databaseID;
 
 /**
  * Dispatch queue for user callbacks / events. This will often be the "Main Dispatch Queue" of the
  * app but the developer can configure it to a different queue if they so choose.
  */
-- (util::Executor *)userExecutor;
+- (const std::shared_ptr<util::Executor> &)userExecutor;
 
 /** For testing only. */
-- (util::AsyncQueue *)workerQueue;
+- (const std::shared_ptr<util::AsyncQueue> &)workerQueue;
+
+- (bool)isShutdown;
 
 @end
 

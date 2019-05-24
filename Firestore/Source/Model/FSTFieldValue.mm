@@ -38,6 +38,8 @@ using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::FieldValue;
+using firebase::firestore::model::FieldValueOptions;
+using firebase::firestore::model::ServerTimestampBehavior;
 using firebase::firestore::util::Comparator;
 using firebase::firestore::util::CompareMixedNumber;
 using firebase::firestore::util::DoubleBitwiseEquals;
@@ -47,23 +49,6 @@ using firebase::firestore::util::ReverseOrder;
 using firebase::firestore::util::WrapCompare;
 
 NS_ASSUME_NONNULL_BEGIN
-
-#pragma mark - FSTFieldValueOptions
-
-@implementation FSTFieldValueOptions
-
-- (instancetype)initWithServerTimestampBehavior:(ServerTimestampBehavior)serverTimestampBehavior
-                   timestampsInSnapshotsEnabled:(BOOL)timestampsInSnapshotsEnabled {
-  self = [super init];
-
-  if (self) {
-    _serverTimestampBehavior = serverTimestampBehavior;
-    _timestampsInSnapshotsEnabled = timestampsInSnapshotsEnabled;
-  }
-  return self;
-}
-
-@end
 
 #pragma mark - FSTFieldValue
 
@@ -88,7 +73,7 @@ NS_ASSUME_NONNULL_BEGIN
   @throw FSTAbstractMethodException();  // NOLINT
 }
 
-- (id)valueWithOptions:(FSTFieldValueOptions *)options {
+- (id)valueWithOptions:(const FieldValueOptions &)options {
   return [self value];
 }
 
@@ -337,8 +322,8 @@ NS_ASSUME_NONNULL_BEGIN
   return self.internalValue;
 }
 
-- (id)valueWithOptions:(FSTFieldValueOptions *)options {
-  if (options.timestampsInSnapshotsEnabled) {
+- (id)valueWithOptions:(const FieldValueOptions &)options {
+  if (options.timestamps_in_snapshots_enabled()) {
     return self.value;
   } else {
     return [self.value dateValue];
@@ -399,16 +384,16 @@ NS_ASSUME_NONNULL_BEGIN
   return [NSNull null];
 }
 
-- (id)valueWithOptions:(FSTFieldValueOptions *)options {
-  switch (options.serverTimestampBehavior) {
-    case ServerTimestampBehavior::None:
+- (id)valueWithOptions:(const FieldValueOptions &)options {
+  switch (options.server_timestamp_behavior()) {
+    case ServerTimestampBehavior::kNone:
       return [NSNull null];
-    case ServerTimestampBehavior::Estimate:
+    case ServerTimestampBehavior::kEstimate:
       return [[FSTTimestampValue timestampValue:self.localWriteTime] valueWithOptions:options];
-    case ServerTimestampBehavior::Previous:
+    case ServerTimestampBehavior::kPrevious:
       return self.previousValue ? [self.previousValue valueWithOptions:options] : [NSNull null];
     default:
-      HARD_FAIL("Unexpected server timestamp option: %s", options.serverTimestampBehavior);
+      HARD_FAIL("Unexpected server timestamp option: %s", options.server_timestamp_behavior());
   }
 }
 
@@ -565,17 +550,19 @@ static NSComparisonResult CompareBytes(NSData *left, NSData *right) {
 @property(nonatomic, strong, readonly) FSTDocumentKey *key;
 @end
 
-@implementation FSTReferenceValue
-
-+ (instancetype)referenceValue:(FSTDocumentKey *)value databaseID:(const DatabaseId *)databaseID {
-  return [[FSTReferenceValue alloc] initWithValue:value databaseID:databaseID];
+@implementation FSTReferenceValue {
+  DatabaseId _databaseID;
 }
 
-- (id)initWithValue:(FSTDocumentKey *)value databaseID:(const DatabaseId *)databaseID {
++ (instancetype)referenceValue:(FSTDocumentKey *)value databaseID:(DatabaseId)databaseID {
+  return [[FSTReferenceValue alloc] initWithValue:value databaseID:std::move(databaseID)];
+}
+
+- (id)initWithValue:(FSTDocumentKey *)value databaseID:(DatabaseId)databaseID {
   self = [super init];
   if (self) {
     _key = value;
-    _databaseID = databaseID;
+    _databaseID = std::move(databaseID);
   }
   return self;
 }
@@ -602,11 +589,11 @@ static NSComparisonResult CompareBytes(NSData *left, NSData *right) {
   }
 
   FSTReferenceValue *otherRef = (FSTReferenceValue *)other;
-  return self.key.key == otherRef.key.key && *self.databaseID == *otherRef.databaseID;
+  return self.key.key == otherRef.key.key && self.databaseID == otherRef.databaseID;
 }
 
 - (NSUInteger)hash {
-  NSUInteger result = self.databaseID->Hash();
+  NSUInteger result = self.databaseID.Hash();
   result = 31 * result + [self.key hash];
   return result;
 }
@@ -614,12 +601,11 @@ static NSComparisonResult CompareBytes(NSData *left, NSData *right) {
 - (NSComparisonResult)compare:(FSTFieldValue *)other {
   if (other.type == FieldValue::Type::Reference) {
     FSTReferenceValue *ref = (FSTReferenceValue *)other;
-    NSComparisonResult cmp =
-        WrapCompare(self.databaseID->project_id(), ref.databaseID->project_id());
+    NSComparisonResult cmp = WrapCompare(self.databaseID.project_id(), ref.databaseID.project_id());
     if (cmp != NSOrderedSame) {
       return cmp;
     }
-    cmp = WrapCompare(self.databaseID->database_id(), ref.databaseID->database_id());
+    cmp = WrapCompare(self.databaseID.database_id(), ref.databaseID.database_id());
     return cmp != NSOrderedSame ? cmp : WrapCompare(self.key.key, ref.key.key);
   } else {
     return [self defaultCompare:other];
@@ -680,7 +666,7 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
   return result;
 }
 
-- (id)valueWithOptions:(FSTFieldValueOptions *)options {
+- (id)valueWithOptions:(const FieldValueOptions &)options {
   NSMutableDictionary *result = [NSMutableDictionary dictionary];
   [self.internalValue
       enumerateKeysAndObjectsUsingBlock:^(NSString *key, FSTFieldValue *obj, BOOL *stop) {
@@ -863,7 +849,7 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
   return result;
 }
 
-- (id)valueWithOptions:(FSTFieldValueOptions *)options {
+- (id)valueWithOptions:(const FieldValueOptions &)options {
   NSMutableArray *result = [NSMutableArray arrayWithCapacity:_internalValue.count];
   [self.internalValue enumerateObjectsUsingBlock:^(FSTFieldValue *obj, NSUInteger idx, BOOL *stop) {
     [result addObject:[obj valueWithOptions:options]];

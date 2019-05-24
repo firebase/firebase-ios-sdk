@@ -1,9 +1,18 @@
-//
-//  FIDCardViewController.m
-//  FirebaseInAppMessagingDisplay
-//
-//  Created by Chris Tibbs on 2/19/19.
-//
+/*
+ * Copyright 2019 Google
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #import "FIDCardViewController.h"
 #import "FIRCore+InAppMessagingDisplay.h"
@@ -83,7 +92,7 @@
   self.bodyTextView.contentInset = UIEdgeInsetsZero;
   self.bodyTextView.textContainer.lineFragmentPadding = 0;
 
-  // make the background half transparent
+  // Make the background half transparent.
   [self.view setBackgroundColor:[UIColor.grayColor colorWithAlphaComponent:0.5]];
 
   self.titleLabel.text = self.cardDisplayMessage.title;
@@ -110,6 +119,9 @@
 - (void)viewDidLayoutSubviews {
   [super viewDidLayoutSubviews];
 
+  // The landscape image is optional and only displayed if:
+  // 1. Landscape image exists.
+  // 2. The iOS device is in "landscape" mode (regular width or compact height).
   if (self.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassRegular ||
       self.traitCollection.verticalSizeClass == UIUserInterfaceSizeClassCompact) {
     NSData *imageData = self.cardDisplayMessage.landscapeImageData

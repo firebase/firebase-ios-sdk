@@ -81,7 +81,7 @@ class WatchStreamCallback {
  */
 class WatchStream : public Stream {
  public:
-  WatchStream(util::AsyncQueue* async_queue,
+  WatchStream(const std::shared_ptr<util::AsyncQueue>& async_queue,
               auth::CredentialsProvider* credentials_provider,
               FSTSerializerBeta* serializer,
               GrpcConnection* grpc_connection,

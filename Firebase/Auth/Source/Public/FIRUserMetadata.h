@@ -18,7 +18,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** @class FIRUserMetdata
+/** @class FIRUserMetadata
     @brief A data class representing the metadata corresponding to a Firebase user.
  */
 NS_SWIFT_NAME(UserMetadata)

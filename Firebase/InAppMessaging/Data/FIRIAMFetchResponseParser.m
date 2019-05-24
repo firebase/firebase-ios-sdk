@@ -187,6 +187,7 @@
     title = body = imageURLStr = landscapeImageURLStr = actionButtonText =
         secondaryActionButtonText = actionURLStr = secondaryActionURLStr = nil;
 
+    // TODO: Refactor this giant if-else block into separate parsing methods per message type.
     if ([content[@"banner"] isKindOfClass:[NSDictionary class]]) {
       NSDictionary *bannerNode = (NSDictionary *)contentNode[@"banner"];
       mode = FIRIAMRenderAsBannerView;

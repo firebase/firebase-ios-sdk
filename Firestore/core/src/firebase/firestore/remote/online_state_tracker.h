@@ -18,7 +18,9 @@
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_ONLINE_STATE_TRACKER_H_
 
 #include <functional>
+#include <memory>
 #include <string>
+#include <utility>
 
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
@@ -44,7 +46,7 @@ class OnlineStateTracker {
   OnlineStateTracker() = default;
 
   OnlineStateTracker(
-      util::AsyncQueue* worker_queue,
+      const std::shared_ptr<util::AsyncQueue>& worker_queue,
       std::function<void(model::OnlineState)> online_state_handler)
       : worker_queue_{worker_queue},
         online_state_handler_{online_state_handler} {
@@ -111,7 +113,7 @@ class OnlineStateTracker {
    * The worker queue to use for running timers (and to call
    * `online_state_handler_`).
    */
-  util::AsyncQueue* worker_queue_ = nullptr;
+  std::shared_ptr<util::AsyncQueue> worker_queue_;
 
   /** A callback to be notified on `OnlineState` changes. */
   std::function<void(model::OnlineState)> online_state_handler_;

@@ -1627,64 +1627,6 @@ static const NSTimeInterval kExpectationTimeout = 2;
   OCMVerifyAll(_mockBackend);
 }
 
-/** @fn testLinkingAnonymousAccountsUpdatesIsAnonymous
-    @brief Tests the flow of a successful @c linkAndRetrieveDataWithCredential:completion:
-        invocation for email credential.
- */
-- (void)testLinkingAnonymousAccountsUpdatesIsAnonymous {
-  FIRAuthCredential *linkEmailCredential =
-      [FIREmailAuthProvider credentialWithEmail:kEmail
-                                           link:@"https://google.com?oobCode=aCode&mode=signIn"];
-
-  id (^mockUserInfoWithDisplayName)(NSString *, BOOL) = ^(NSString *displayName,
-                                                          BOOL hasProviders) {
-    NSArray *providers = hasProviders ? @[ @{
-      @"providerId": FIREmailAuthProviderID,
-      @"email": kEmail
-      } ] : @[];
-    FIRGetAccountInfoResponseUser *responseUser =
-        [[FIRGetAccountInfoResponseUser alloc] initWithDictionary:@{
-          @"providerUserInfo": providers,
-          @"localId": kLocalID,
-          @"displayName": displayName,
-          @"email": kEmail
-        }];
-    return responseUser;
-  };
-  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
-  id userInfoResponse = mockUserInfoWithDisplayName(kGoogleDisplayName, NO);
-
-  [self signInAnonymouslyWithMockGetAccountInfoResponse:userInfoResponse
-                                             completion:^(FIRUser *user) {
-    // Pretend that the display name and providers on the server have been updated.
-    // Get account info is expected to be invoked twice.
-    id updatedMockUser = mockUserInfoWithDisplayName(kNewDisplayName, YES);
-    [self expectGetAccountInfoWithMockUserInfoResponse:updatedMockUser];
-    [self expectGetAccountInfoWithMockUserInfoResponse:updatedMockUser];
-    OCMExpect([_mockBackend setAccountInfo:[OCMArg any] callback:[OCMArg any]])
-        .andCallBlock2(^(FIRSetAccountInfoRequest *_Nullable request,
-                         FIRSetAccountInfoResponseCallback callback) {
-      id mockSetAccountInfoResponse = OCMClassMock([FIRSetAccountInfoResponse class]);
-      OCMStub([mockSetAccountInfoResponse email]).andReturn(kNewEmail);
-      OCMStub([mockSetAccountInfoResponse displayName]).andReturn(kNewDisplayName);
-      callback(mockSetAccountInfoResponse, nil);
-    });
-    XCTAssertTrue(user.isAnonymous);
-
-    [user linkWithCredential:linkEmailCredential
-                  completion:^(FIRAuthDataResult *_Nullable linkAuthResult,
-                                 NSError *_Nullable error) {
-      XCTAssertTrue([NSThread isMainThread]);
-      XCTAssertNil(error);
-      XCTAssertEqualObjects(user.email, kEmail);
-      XCTAssertFalse(user.isAnonymous);
-      [expectation fulfill];
-    }];
-  }];
-  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
-  OCMVerifyAll(_mockBackend);
-}
-
 /** @fn testlinkEmailAndRetrieveDataSuccess
     @brief Tests the flow of a successful @c linkAndRetrieveDataWithCredential:completion:
         invocation for email credential.

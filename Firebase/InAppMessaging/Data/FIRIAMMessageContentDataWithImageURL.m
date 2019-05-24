@@ -108,14 +108,19 @@ static NSInteger const SuccessHTTPStatusCode = 200;
                   }];
   } else {
     // Fetch both images separately, call completion when they're both fetched.
-    __block NSData *portrait;
-    __block NSData *landscape;
-    __block NSError *landscapeImageLoadError;
+    __block NSData *portrait = nil;
+    __block NSData *landscape = nil;
+    __block NSError *landscapeImageLoadError = nil;
 
     [self fetchImageFromURL:_imageURL
                   withBlock:^(NSData *_Nullable imageData, NSError *_Nullable error) {
+                    __weak FIRIAMMessageContentDataWithImageURL *weakSelf = self;
+
                     // If the portrait image fails to load, we treat this as a failure.
                     if (error) {
+                      // Cancel landscape image fetch.
+                      [weakSelf.URLSession invalidateAndCancel];
+
                       block(nil, nil, error);
                       return;
                     }
@@ -157,8 +162,8 @@ static NSInteger const SuccessHTTPStatusCode = 200;
               if (httpResponse.statusCode == SuccessHTTPStatusCode) {
                 if (httpResponse.MIMEType == nil || ![httpResponse.MIMEType hasPrefix:@"image"]) {
                   NSString *errorDesc =
-                      [NSString stringWithFormat:@"None image MIME type %@"
-                                                  " detected for url %@",
+                      [NSString stringWithFormat:@"No image MIME type %@"
+                                                  " detected for URL %@",
                                                  httpResponse.MIMEType, self.imageURL];
                   FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM000004", @"%@", errorDesc);
 
@@ -182,10 +187,15 @@ static NSInteger const SuccessHTTPStatusCode = 200;
                 block(nil, error);
               }
             } else {
-              FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM000002",
-                            @"Internal error: got a non http response from fetching image for "
-                            @"image url as %@",
-                            self->_imageURL);
+              NSString *errorDesc =
+                  [NSString stringWithFormat:@"Internal error: got a non HTTP response from "
+                                             @"fetching image for image URL as %@",
+                                             imageURL];
+              FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM000002", @"%@", errorDesc);
+              NSError *error = [NSError errorWithDomain:NSURLErrorDomain
+                                                   code:FIRIAMSDKRuntimeErrorNonHTTPResponseForImage
+                                               userInfo:@{NSLocalizedDescriptionKey : errorDesc}];
+              block(nil, error);
             }
           }
         }];

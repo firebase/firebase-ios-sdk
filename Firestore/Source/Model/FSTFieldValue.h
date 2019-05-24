@@ -23,9 +23,9 @@
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
+#include "Firestore/core/src/firebase/firestore/model/field_value_options.h"
 
 @class FIRTimestamp;
-@class FSTFieldValueOptions;
 @class FIRGeoPoint;
 
 namespace model = firebase::firestore::model;
@@ -45,28 +45,6 @@ typedef NS_ENUM(NSInteger, FSTTypeOrder) {
   FSTTypeOrderArray,
   FSTTypeOrderObject,
 };
-
-/** Defines the return value for pending server timestamps. */
-enum class ServerTimestampBehavior { None, Estimate, Previous };
-
-/** Holds properties that define field value deserialization options. */
-@interface FSTFieldValueOptions : NSObject
-
-@property(nonatomic, readonly, assign) ServerTimestampBehavior serverTimestampBehavior;
-
-@property(nonatomic) BOOL timestampsInSnapshotsEnabled;
-
-- (instancetype)init NS_UNAVAILABLE;
-
-/**
- * Creates an FSTFieldValueOptions instance that specifies deserialization behavior for pending
- * server timestamps.
- */
-- (instancetype)initWithServerTimestampBehavior:(ServerTimestampBehavior)serverTimestampBehavior
-                   timestampsInSnapshotsEnabled:(BOOL)timestampsInSnapshotsEnabled
-    NS_DESIGNATED_INITIALIZER;
-
-@end
 
 /**
  * Abstract base class representing an immutable data value as stored in Firestore. FSTFieldValue
@@ -111,7 +89,7 @@ enum class ServerTimestampBehavior { None, Estimate, Previous };
  * Options can be provided to configure the deserialization of some field values (such as server
  * timestamps).
  */
-- (T)valueWithOptions:(FSTFieldValueOptions *)options;
+- (T)valueWithOptions:(const model::FieldValueOptions &)options;
 
 /** Compares against another FSTFieldValue. */
 - (NSComparisonResult)compare:(FSTFieldValue *)other;
@@ -164,7 +142,7 @@ enum class ServerTimestampBehavior { None, Estimate, Previous };
  *   (see [FSTTransformMutation applyTo]). They can only exist in the local view of a document.
  *   Therefore they do not need to be parsed or serialized.
  * - When evaluated locally (e.g. via FSTDocumentSnapshot data), they by default evaluate to NSNull.
- *   This behavior can be configured by passing custom FSTFieldValueOptions to `valueWithOptions:`.
+ *   This behavior can be configured by passing custom FieldValueOptions to `valueWithOptions:`.
  * - They sort after all FSTTimestampValues. With respect to other FSTServerTimestampValues, they
  *   sort by their localWriteTime.
  */
@@ -195,10 +173,11 @@ enum class ServerTimestampBehavior { None, Estimate, Previous };
  * A reference value stored in Firestore.
  */
 @interface FSTReferenceValue : FSTFieldValue <FSTDocumentKey *>
-+ (instancetype)referenceValue:(FSTDocumentKey *)value
-                    databaseID:(const model::DatabaseId *)databaseID;
-// Does not own this DatabaseId.
-@property(nonatomic, assign, readonly) const model::DatabaseId *databaseID;
+
++ (instancetype)referenceValue:(FSTDocumentKey *)value databaseID:(model::DatabaseId)databaseID;
+
+@property(nonatomic, assign, readonly) const model::DatabaseId &databaseID;
+
 @end
 
 /**

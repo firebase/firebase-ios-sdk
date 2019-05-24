@@ -23,7 +23,7 @@ class CommonMessageTestVC: UIViewController, InAppMessagingDisplayDelegate {
 
   // start of InAppMessagingDisplayDelegate functions
   func messageClicked(_ inAppMessage: InAppMessagingDisplayMessage,
-                      with action: FIRInAppMessagingAction) {
+                      with action: InAppMessagingAction) {
     print("message clicked to follow action url")
     messageClosedWithClick = true
   }

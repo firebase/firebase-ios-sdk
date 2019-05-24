@@ -2150,7 +2150,7 @@
     FIRDatabaseReference * ref = [FTestHelpers getRandomNode];
 
     long long jsMaxInt = 9007199254740992;
-    long jsMaxIntPlusOne = jsMaxInt + 1;
+    long jsMaxIntPlusOne = (long)jsMaxInt + 1;
     NSNumber* toSet = [NSNumber numberWithLong:jsMaxIntPlusOne];
     [ref setValue:toSet];
 

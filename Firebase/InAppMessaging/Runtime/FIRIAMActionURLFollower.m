@@ -58,7 +58,7 @@
       }
     }
     FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM300010",
-                @"Detected %d custom url schems from environment", (int)customSchemeURLs.count);
+                @"Detected %d custom URL schemes from environment", (int)customSchemeURLs.count);
 
     if ([NSThread isMainThread]) {
       // We can not dispatch sychronously to main queue if we are already in main queue. That

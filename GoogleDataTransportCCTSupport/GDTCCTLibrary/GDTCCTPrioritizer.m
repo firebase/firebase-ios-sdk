@@ -56,16 +56,8 @@ const static NSUInteger kMillisPerDay = 8.64e+7;
   });
 }
 
-- (void)unprioritizeEvents:(NSSet<GDTStoredEvent *> *)events {
-  dispatch_async(_queue, ^{
-    for (GDTStoredEvent *event in events) {
-      [self.events removeObject:event];
-    }
-  });
-}
-
 - (GDTUploadPackage *)uploadPackageWithConditions:(GDTUploadConditions)conditions {
-  GDTUploadPackage *package = [[GDTUploadPackage alloc] init];
+  GDTUploadPackage *package = [[GDTUploadPackage alloc] initWithTarget:kGDTTargetCCT];
   dispatch_sync(_queue, ^{
     NSSet<GDTStoredEvent *> *logEventsThatWillBeSent;
     // A high priority event effectively flushes all events to be sent.
@@ -173,15 +165,19 @@ NSNumber *GDTCCTQosTierFromGDTEventQosTier(GDTEventQoS qosTier) {
       }];
 }
 
-#pragma mark - GDTLifecycleProtocol
+#pragma mark - GDTUploadPackageProtocol
 
-- (void)appWillBackground:(UIApplication *)app {
+- (void)packageDelivered:(GDTUploadPackage *)package successful:(BOOL)successful {
+  dispatch_async(_queue, ^{
+    NSSet<GDTStoredEvent *> *events = [package.events copy];
+    for (GDTStoredEvent *event in events) {
+      [self.events removeObject:event];
+    }
+  });
 }
 
-- (void)appWillForeground:(UIApplication *)app {
-}
-
-- (void)appWillTerminate:(UIApplication *)application {
+- (void)packageExpired:(GDTUploadPackage *)package {
+  [self packageDelivered:package successful:YES];
 }
 
 @end

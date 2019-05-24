@@ -40,8 +40,7 @@
   return self;
 }
 
-- (void)uploadPackage:(GDTUploadPackage *)package
-           onComplete:(GDTUploaderCompletionBlock)onComplete {
+- (void)uploadPackage:(GDTUploadPackage *)package {
   NSAssert(!_currentUploadTask, @"An upload shouldn't be initiated with another in progress.");
   NSURL *serverURL = arc4random_uniform(2) ? [_serverURL URLByAppendingPathComponent:@"log"]
                                            : [_serverURL URLByAppendingPathComponent:@"logBatch"];
@@ -58,7 +57,7 @@
     NSAssert(fileData, @"An event file shouldn't be empty");
     [uploadData appendData:fileData];
   }
-  NSURLSessionUploadTask *uploadTask =
+  _currentUploadTask =
       [session uploadTaskWithRequest:request
                             fromData:uploadData
                    completionHandler:^(NSData *_Nullable data, NSURLResponse *_Nullable response,
@@ -66,22 +65,18 @@
                      NSLog(@"Batch upload complete.");
                      // Remove from the prioritizer if there were no errors.
                      NSAssert(!error, @"There should be no errors uploading events: %@", error);
-                     if (onComplete) {
-                       // In real usage, the server would/should return a desired next upload time.
-                       GDTClock *nextUploadTime = [GDTClock clockSnapshotInTheFuture:1000];
-                       onComplete(kGDTIntegrationTestTarget, nextUploadTime, error);
+                     if (error) {
+                       [package retryDeliveryInTheFuture];
+                     } else {
+                       [package completeDelivery];
                      }
+                     self->_currentUploadTask = nil;
                    }];
-  [uploadTask resume];
+  [_currentUploadTask resume];
 }
 
-- (void)appWillBackground:(UIApplication *)app {
-}
-
-- (void)appWillForeground:(UIApplication *)app {
-}
-
-- (void)appWillTerminate:(UIApplication *)application {
+- (BOOL)readyToUploadWithConditions:(GDTUploadConditions)conditions {
+  return _currentUploadTask ? NO : YES;
 }
 
 @end

@@ -20,4 +20,4 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
 "$DIR/ProtoSupport/generate_cct_protos.sh" || echo "Something went wrong generating protos.";
 
-pod gen "$DIR/../GoogleDataTransportCCTSupport.podspec" --auto-open --gen-directory="$DIR/gen" --clean
+pod gen "${DIR}/../GoogleDataTransportCCTSupport.podspec" --auto-open --gen-directory="${DIR}/gen" --local-sources="${DIR}/../" --clean

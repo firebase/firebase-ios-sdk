@@ -40,8 +40,8 @@
 - (void) fetchTokenForcingRefresh:(BOOL)forceRefresh withCallback:(fbt_void_nsstring_nserror)callback {
     // Simulate delay
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10 * NSEC_PER_MSEC)), [FIRDatabaseQuery sharedQueue], ^{
-        if (firstFetch) {
-            firstFetch = NO;
+        if (self->firstFetch) {
+            self->firstFetch = NO;
             callback(@"bad-token", nil);
         } else {
             callback(nil, nil);

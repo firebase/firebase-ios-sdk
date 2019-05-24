@@ -16,18 +16,14 @@
 
 #import <objc/runtime.h>
 
+#ifdef DEBUG
 #import <GoogleUtilities/GULLogger.h>
 #import "../Common/GULLoggerCodes.h"
 
-#ifdef GUL_UNSWIZZLING_ENABLED
-#import <GoogleUtilities/GULSwizzlingCache.h>
-// We need a private method for an assert.
-#import <GoogleUtilities/GULSwizzlingCache_Private.h>
+static GULLoggerService kGULLoggerSwizzler = @"[GoogleUtilites/MethodSwizzler]";
 #endif
 
-static GULLoggerService kGULLoggerSwizzler = @"[GoogleUtilites/MethodSwizzler]";
-
-dispatch_queue_t GetGULSwizzlingQueue() {
+dispatch_queue_t GetGULSwizzlingQueue(void) {
   static dispatch_queue_t queue;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
@@ -56,24 +52,40 @@ dispatch_queue_t GetGULSwizzlingQueue() {
     NSAssert(method, @"You're attempting to swizzle a method that doesn't exist. (%@, %@)",
              NSStringFromClass(resolvedClass), NSStringFromSelector(selector));
     IMP newImp = imp_implementationWithBlock(block);
-
-#ifdef GUL_UNSWIZZLING_ENABLED
+#ifdef DEBUG
     IMP currentImp = class_getMethodImplementation(resolvedClass, selector);
-    [[GULSwizzlingCache sharedInstance] cacheCurrentIMP:currentImp
-                                              forNewIMP:newImp
-                                               forClass:resolvedClass
-                                           withSelector:selector];
+    Class class = NSClassFromString(@"GULSwizzlingCache");
+    if (class) {
+      SEL cacheSelector = NSSelectorFromString(@"cacheCurrentIMP:forNewIMP:forClass:withSelector:");
+      NSInvocation *inv = [NSInvocation
+          invocationWithMethodSignature:[class methodSignatureForSelector:cacheSelector]];
+      [inv setSelector:cacheSelector];
+      [inv setTarget:class];
+      [inv setArgument:&(currentImp) atIndex:2];
+      [inv setArgument:&(newImp) atIndex:3];
+      [inv setArgument:&(resolvedClass) atIndex:4];
+      [inv setArgument:(void *_Nonnull) & (selector) atIndex:5];
+      [inv invoke];
+    }
 #endif
 
     const char *typeEncoding = method_getTypeEncoding(method);
     __unused IMP originalImpOfClass =
         class_replaceMethod(resolvedClass, selector, newImp, typeEncoding);
 
-#ifdef GUL_UNSWIZZLING_ENABLED
+#ifdef DEBUG
     // If !originalImpOfClass, then the IMP came from a superclass.
     if (originalImpOfClass) {
-      if (originalImpOfClass !=
-          [[GULSwizzlingCache sharedInstance] originalIMPOfCurrentIMP:currentImp]) {
+      SEL selector = NSSelectorFromString(@"originalIMPOfCurrentIMP:");
+      NSInvocation *inv =
+          [NSInvocation invocationWithMethodSignature:[class methodSignatureForSelector:selector]];
+      [inv setSelector:selector];
+      [inv setTarget:class];
+      [inv setArgument:&(currentImp) atIndex:2];
+      [inv invoke];
+      IMP testOriginal;
+      [inv getReturnValue:&testOriginal];
+      if (originalImpOfClass != testOriginal) {
         GULLogWarning(kGULLoggerSwizzler, NO,
                       [NSString stringWithFormat:@"I-SWZ%06ld",
                                                  (long)kGULSwizzlerMessageCodeMethodSwizzling000],
@@ -83,53 +95,6 @@ dispatch_queue_t GetGULSwizzlingQueue() {
     }
 #endif
   });
-}
-
-+ (void)unswizzleClass:(Class)aClass selector:(SEL)selector isClassSelector:(BOOL)isClassSelector {
-#ifdef GUL_UNSWIZZLING_ENABLED
-  dispatch_sync(GetGULSwizzlingQueue(), ^{
-    NSAssert(aClass != nil && selector != nil, @"You cannot unswizzle a nil class or selector.");
-    Method method = nil;
-    Class resolvedClass = aClass;
-    if (isClassSelector) {
-      resolvedClass = object_getClass(aClass);
-      method = class_getClassMethod(aClass, selector);
-    } else {
-      method = class_getInstanceMethod(aClass, selector);
-    }
-    NSAssert(method, @"Couldn't find the method you're unswizzling in the runtime.");
-    IMP originalImp = [[GULSwizzlingCache sharedInstance] cachedIMPForClass:resolvedClass
-                                                               withSelector:selector];
-    NSAssert(originalImp, @"This class/selector combination hasn't been swizzled");
-    IMP currentImp = method_setImplementation(method, originalImp);
-    BOOL didRemoveBlock = imp_removeBlock(currentImp);
-    NSAssert(didRemoveBlock, @"Wasn't able to remove the block of a swizzled IMP.");
-    [[GULSwizzlingCache sharedInstance] clearCacheForSwizzledIMP:currentImp
-                                                        selector:selector
-                                                          aClass:resolvedClass];
-  });
-#else
-  NSAssert(NO, @"Unswizzling is disabled.");
-#endif
-}
-
-+ (nullable IMP)originalImplementationForClass:(Class)aClass
-                                      selector:(SEL)selector
-                               isClassSelector:(BOOL)isClassSelector {
-#ifdef GUL_UNSWIZZLING_ENABLED
-  __block IMP originalImp = nil;
-  dispatch_sync(GetGULSwizzlingQueue(), ^{
-    Class resolvedClass = isClassSelector ? object_getClass(aClass) : aClass;
-    originalImp = [[GULSwizzlingCache sharedInstance] cachedIMPForClass:resolvedClass
-                                                           withSelector:selector];
-    NSAssert(originalImp, @"The IMP for this class/selector combo doesn't exist (%@, %@).",
-             NSStringFromClass(resolvedClass), NSStringFromSelector(selector));
-  });
-  return originalImp;
-#else
-  NSAssert(NO, @"Unswizzling is disabled and the original IMP is not cached.");
-  return nil;
-#endif
 }
 
 + (nullable IMP)currentImplementationForClass:(Class)aClass
@@ -181,5 +146,4 @@ dispatch_queue_t GetGULSwizzlingQueue() {
   free(vars);
   return array;
 }
-
 @end

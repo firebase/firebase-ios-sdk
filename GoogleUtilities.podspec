@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'GoogleUtilities'
-  s.version          = '6.0.0'
+  s.version          = '6.1.0'
   s.summary          = 'Google Utilities for iOS (plus community support for macOS and tvOS)'
 
   s.description      = <<-DESC
@@ -90,6 +90,7 @@ other Google CocoaPods. They're not intended for direct public usage.
   s.subspec 'SwizzlerTestHelpers' do |sths|
     sths.source_files = 'GoogleUtilities/SwizzlerTestHelpers/*.[hm]'
     sths.private_header_files = 'GoogleUtilities/SwizzlerTestHelpers/*.h'
+    sths.dependency 'GoogleUtilities/MethodSwizzler'
   end
 
   s.subspec 'UserDefaults' do |ud|

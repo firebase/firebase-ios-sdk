@@ -65,7 +65,7 @@ namespace remote {
 
 class MockWatchStream : public WatchStream {
  public:
-  MockWatchStream(AsyncQueue* worker_queue,
+  MockWatchStream(const std::shared_ptr<AsyncQueue>& worker_queue,
                   CredentialsProvider* credentials_provider,
                   FSTSerializerBeta* serializer,
                   GrpcConnection* grpc_connection,
@@ -156,7 +156,7 @@ class MockWatchStream : public WatchStream {
 
 class MockWriteStream : public WriteStream {
  public:
-  MockWriteStream(AsyncQueue* worker_queue,
+  MockWriteStream(const std::shared_ptr<AsyncQueue>& worker_queue,
                   CredentialsProvider* credentials_provider,
                   FSTSerializerBeta* serializer,
                   GrpcConnection* grpc_connection,
@@ -239,7 +239,7 @@ class MockWriteStream : public WriteStream {
 };
 
 MockDatastore::MockDatastore(const core::DatabaseInfo& database_info,
-                             util::AsyncQueue* worker_queue,
+                             const std::shared_ptr<util::AsyncQueue>& worker_queue,
                              auth::CredentialsProvider* credentials)
     : Datastore{database_info, worker_queue, credentials, CreateNoOpConnectivityMonitor()},
       database_info_{&database_info},
@@ -250,7 +250,7 @@ MockDatastore::MockDatastore(const core::DatabaseInfo& database_info,
 std::shared_ptr<WatchStream> MockDatastore::CreateWatchStream(WatchStreamCallback* callback) {
   watch_stream_ = std::make_shared<MockWatchStream>(
       worker_queue_, credentials_,
-      [[FSTSerializerBeta alloc] initWithDatabaseID:&database_info_->database_id()],
+      [[FSTSerializerBeta alloc] initWithDatabaseID:database_info_->database_id()],
       grpc_connection(), callback, this);
 
   return watch_stream_;
@@ -259,7 +259,7 @@ std::shared_ptr<WatchStream> MockDatastore::CreateWatchStream(WatchStreamCallbac
 std::shared_ptr<WriteStream> MockDatastore::CreateWriteStream(WriteStreamCallback* callback) {
   write_stream_ = std::make_shared<MockWriteStream>(
       worker_queue_, credentials_,
-      [[FSTSerializerBeta alloc] initWithDatabaseID:&database_info_->database_id()],
+      [[FSTSerializerBeta alloc] initWithDatabaseID:database_info_->database_id()],
       grpc_connection(), callback, this);
 
   return write_stream_;

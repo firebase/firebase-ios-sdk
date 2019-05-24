@@ -30,3 +30,15 @@ cc_test(
     firebase_firestore_model
     firebase_firestore_testutil
 )
+
+cc_binary(
+  firebase_firestore_model_field_value_benchmark
+  SOURCES
+    field_value_benchmark.cc
+  DEPENDS
+    absl::variant
+    benchmark
+    benchmark_main
+    firebase_firestore_model
+    firebase_firestore_testutil
+)

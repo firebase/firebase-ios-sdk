@@ -279,7 +279,10 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
   BOOL didOpenDatabase = YES;
   if (![fileManager fileExistsAtPath:path]) {
     // We've to separate between different versions here because of backwards compatbility issues.
-    int result = sqlite3_open([path UTF8String], &_database);
+    int result = sqlite3_open_v2([path UTF8String],
+                                 &_database,
+                                 SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | SQLITE_OPEN_FILEPROTECTION_NONE,
+                                 NULL);
     if (result != SQLITE_OK) {
       NSString *errorString = FIRMessagingStringFromSQLiteResult(result);
       NSString *errorMessage =
@@ -299,7 +302,10 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
     [self createTableWithName:kTableS2DRmqIds command:kCreateTableS2DRmqIds];
   } else {
     // Calling sqlite3_open should create the database, since the file doesn't exist.
-    int result = sqlite3_open([path UTF8String], &_database);
+    int result = sqlite3_open_v2([path UTF8String],
+                                 &_database,
+                                 SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | SQLITE_OPEN_FILEPROTECTION_NONE,
+                                 NULL);
     if (result != SQLITE_OK) {
       NSString *errorString = FIRMessagingStringFromSQLiteResult(result);
       NSString *errorMessage =

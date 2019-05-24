@@ -6,7 +6,7 @@ target 'SymbolCollisionTest' do
   # use_frameworks!
 
   # Firebase Pods
-    pod 'Firebase', '6.0.0'
+    pod 'Firebase', '6.1.0'
     pod 'FirebaseAnalytics'
     pod 'FirebaseAuth'
     pod 'FirebaseCore'
@@ -35,7 +35,7 @@ target 'SymbolCollisionTest' do
     pod 'Crashlytics'
     pod 'DigitsMigrationHelper'
     pod 'EarlGrey'
-    pod 'GeoFire'
+#    pod 'GeoFire' -- requires Firebase/Database 4.0
     pod 'google-cast-sdk'
     pod 'Google-Mobile-Ads-SDK'
     pod 'GoogleAnalytics'

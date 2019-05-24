@@ -40,12 +40,11 @@ NS_ASSUME_NONNULL_BEGIN
  * Initializes a Firestore object with all the required parameters directly. This exists so that
  * tests can create FIRFirestore objects without needing FIRApp.
  */
-- (instancetype)initWithProjectID:(std::string)projectID
-                         database:(std::string)database
-                   persistenceKey:(std::string)persistenceKey
-              credentialsProvider:(std::unique_ptr<auth::CredentialsProvider>)credentialsProvider
-                      workerQueue:(std::unique_ptr<util::AsyncQueue>)workerQueue
-                      firebaseApp:(FIRApp *)app;
+- (instancetype)initWithDatabaseID:(model::DatabaseId)databaseID
+                    persistenceKey:(std::string)persistenceKey
+               credentialsProvider:(std::unique_ptr<auth::CredentialsProvider>)credentialsProvider
+                       workerQueue:(std::shared_ptr<util::AsyncQueue>)workerQueue
+                       firebaseApp:(FIRApp *)app;
 @end
 
 /** Internal FIRFirestore API we don't want exposed in our public header files. */
@@ -65,12 +64,27 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)shutdownWithCompletion:(nullable void (^)(NSError *_Nullable error))completion
     NS_SWIFT_NAME(shutdown(completion:));
 
+/**
+ * Clears the persistent storage. This includes pending writes and cached documents.
+ *
+ * Must be called while the firestore instance is not started (after the app is shutdown or when
+ * the app is first initialized). On startup, this method must be called before other methods
+ * (other than `FIRFirestore.settings`). If the firestore instance is still running, the function
+ * will complete with an error code of `FailedPrecondition`.
+ *
+ * Note: `clearPersistence(completion:)` is primarily intended to help write reliable tests that
+ * use Firestore. It uses the most efficient mechanism possible for dropping existing data but
+ * does not attempt to securely overwrite or otherwise make cached data unrecoverable. For
+ * applications that are sensitive to the disclosure of cache data in between user sessions we
+ * strongly recommend not to enable persistence in the first place.
+ */
+- (void)clearPersistenceWithCompletion:(nullable void (^)(NSError *_Nullable error))completion;
+
+- (const std::shared_ptr<util::AsyncQueue> &)workerQueue;
+
 @property(nonatomic, assign, readonly) std::shared_ptr<api::Firestore> wrapped;
 
-@property(nonatomic, assign, readonly) util::AsyncQueue *workerQueue;
-
-// FIRFirestore owns the DatabaseId instance.
-@property(nonatomic, assign, readonly) const model::DatabaseId *databaseID;
+@property(nonatomic, assign, readonly) const model::DatabaseId &databaseID;
 @property(nonatomic, strong, readonly) FSTUserDataConverter *dataConverter;
 
 @end

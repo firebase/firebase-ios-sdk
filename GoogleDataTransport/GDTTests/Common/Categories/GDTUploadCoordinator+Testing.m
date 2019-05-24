@@ -19,17 +19,16 @@
 #import <objc/runtime.h>
 
 #import "GDTLibrary/Private/GDTStorage.h"
-#import "GDTLibrary/Private/GDTUploadCoordinator_Private.h"
 #import "GDTLibrary/Public/GDTRegistrar.h"
 
 @implementation GDTUploadCoordinator (Testing)
 
 - (void)reset {
-  [self.targetToNextUploadTimes removeAllObjects];
-  [self.targetToInFlightEventSet removeAllObjects];
-  [self.forcedUploadQueue removeAllObjects];
-  self.storage = [GDTStorage sharedInstance];
-  self.registrar = [GDTRegistrar sharedInstance];
+  dispatch_sync(self.coordinationQueue, ^{
+    self.storage = [GDTStorage sharedInstance];
+    self.registrar = [GDTRegistrar sharedInstance];
+    [self.targetToInFlightPackages removeAllObjects];
+  });
 }
 
 - (void)setTimerInterval:(uint64_t)timerInterval {

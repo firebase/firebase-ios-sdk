@@ -18,22 +18,16 @@
 
 @implementation GDTTestUploader
 
-- (void)uploadPackage:(GDTUploadPackage *)package
-           onComplete:(GDTUploaderCompletionBlock)onComplete {
-  if (_uploadEventsBlock) {
-    _uploadEventsBlock(package, onComplete);
-  } else if (onComplete) {
-    onComplete(kGDTTargetCCT, [GDTClock snapshot], nil);
+- (void)uploadPackage:(GDTUploadPackage *)package {
+  if (_uploadPackageBlock) {
+    _uploadPackageBlock(package);
+  } else {
+    [package completeDelivery];
   }
 }
 
-- (void)appWillBackground:(nonnull UIApplication *)app {
-}
-
-- (void)appWillForeground:(nonnull UIApplication *)app {
-}
-
-- (void)appWillTerminate:(UIApplication *)application {
+- (BOOL)readyToUploadWithConditions:(GDTUploadConditions)conditions {
+  return YES;
 }
 
 @end

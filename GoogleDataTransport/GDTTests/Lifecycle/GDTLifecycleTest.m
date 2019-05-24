@@ -22,7 +22,7 @@
 
 #import "GDTLibrary/Private/GDTStorage_Private.h"
 #import "GDTLibrary/Private/GDTTransformer_Private.h"
-#import "GDTLibrary/Private/GDTUploadCoordinator_Private.h"
+#import "GDTLibrary/Private/GDTUploadCoordinator.h"
 
 #import "GDTTests/Lifecycle/Helpers/GDTLifecycleTestPrioritizer.h"
 #import "GDTTests/Lifecycle/Helpers/GDTLifecycleTestUploader.h"
@@ -81,7 +81,6 @@
   // Don't check the error, because it'll be populated in cases where the file doesn't exist.
   NSError *error;
   [[NSFileManager defaultManager] removeItemAtPath:[GDTStorage archivePath] error:&error];
-  [[NSFileManager defaultManager] removeItemAtPath:[GDTUploadCoordinator archivePath] error:&error];
   self.uploader = [[GDTLifecycleTestUploader alloc] init];
   [[GDTRegistrar sharedInstance] registerUploader:self.uploader target:kGDTTargetTest];
 
@@ -107,14 +106,13 @@
       5.0);
 
   NSNotificationCenter *notifCenter = [NSNotificationCenter defaultCenter];
-  [notifCenter postNotificationName:UIApplicationDidEnterBackgroundNotification object:nil];
+  [notifCenter postNotificationName:kGDTApplicationDidEnterBackgroundNotification object:nil];
   XCTAssertTrue([GDTStorage sharedInstance].runningInBackground);
   XCTAssertTrue([GDTUploadCoordinator sharedInstance].runningInBackground);
   GDTWaitForBlock(
       ^BOOL {
         NSFileManager *fm = [NSFileManager defaultManager];
-        return [fm fileExistsAtPath:[GDTStorage archivePath] isDirectory:NULL] &&
-               [fm fileExistsAtPath:[GDTUploadCoordinator archivePath] isDirectory:NULL];
+        return [fm fileExistsAtPath:[GDTStorage archivePath] isDirectory:NULL];
       },
       5.0);
 }
@@ -135,18 +133,17 @@
       5.0);
 
   NSNotificationCenter *notifCenter = [NSNotificationCenter defaultCenter];
-  [notifCenter postNotificationName:UIApplicationDidEnterBackgroundNotification object:nil];
+  [notifCenter postNotificationName:kGDTApplicationDidEnterBackgroundNotification object:nil];
 
   GDTWaitForBlock(
       ^BOOL {
         NSFileManager *fm = [NSFileManager defaultManager];
-        return [fm fileExistsAtPath:[GDTStorage archivePath] isDirectory:NULL] &&
-               [fm fileExistsAtPath:[GDTUploadCoordinator archivePath] isDirectory:NULL];
+        return [fm fileExistsAtPath:[GDTStorage archivePath] isDirectory:NULL];
       },
       5.0);
 
   [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
-  [notifCenter postNotificationName:UIApplicationWillEnterForegroundNotification object:nil];
+  [notifCenter postNotificationName:kGDTApplicationWillEnterForegroundNotification object:nil];
   XCTAssertFalse([GDTStorage sharedInstance].runningInBackground);
   XCTAssertFalse([GDTUploadCoordinator sharedInstance].runningInBackground);
   GDTWaitForBlock(
@@ -172,12 +169,11 @@
       5.0);
 
   NSNotificationCenter *notifCenter = [NSNotificationCenter defaultCenter];
-  [notifCenter postNotificationName:UIApplicationWillTerminateNotification object:nil];
+  [notifCenter postNotificationName:kGDTApplicationWillTerminateNotification object:nil];
   GDTWaitForBlock(
       ^BOOL {
         NSFileManager *fm = [NSFileManager defaultManager];
-        return [fm fileExistsAtPath:[GDTStorage archivePath] isDirectory:NULL] &&
-               [fm fileExistsAtPath:[GDTUploadCoordinator archivePath] isDirectory:NULL];
+        return [fm fileExistsAtPath:[GDTStorage archivePath] isDirectory:NULL];
       },
       5.0);
 }

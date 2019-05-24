@@ -22,7 +22,7 @@ class ModalMessageViewController: CommonMessageTestVC {
   @IBOutlet var verifyLabel: UILabel!
 
   override func messageClicked(_ inAppMessage: InAppMessagingDisplayMessage,
-                               with action: FIRInAppMessagingAction) {
+                               with action: InAppMessagingAction) {
     super.messageClicked(inAppMessage, with: action)
     verifyLabel.text = "message clicked!"
   }

@@ -157,7 +157,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @implementation FSTDatastoreTests {
-  std::unique_ptr<AsyncQueue> _testWorkerQueue;
+  std::shared_ptr<AsyncQueue> _testWorkerQueue;
   FSTLocalStore *_localStore;
   EmptyCredentialsProvider _credentials;
 
@@ -175,18 +175,18 @@ NS_ASSUME_NONNULL_BEGIN
     GrpcConnection::UseInsecureChannel(util::MakeString(settings.host));
   }
 
-  DatabaseId database_id(util::MakeString(projectID), DatabaseId::kDefault);
+  DatabaseId database_id(util::MakeString(projectID));
 
   _databaseInfo =
       DatabaseInfo(database_id, "test-key", util::MakeString(settings.host), settings.sslEnabled);
 
   dispatch_queue_t queue = dispatch_queue_create(
       "com.google.firestore.FSTDatastoreTestsWorkerQueue", DISPATCH_QUEUE_SERIAL);
-  _testWorkerQueue = absl::make_unique<AsyncQueue>(absl::make_unique<ExecutorLibdispatch>(queue));
-  _datastore = std::make_shared<Datastore>(_databaseInfo, _testWorkerQueue.get(), &_credentials);
+  _testWorkerQueue = std::make_shared<AsyncQueue>(absl::make_unique<ExecutorLibdispatch>(queue));
+  _datastore = std::make_shared<Datastore>(_databaseInfo, _testWorkerQueue, &_credentials);
 
-  _remoteStore = absl::make_unique<RemoteStore>(_localStore, _datastore, _testWorkerQueue.get(),
-                                                [](OnlineState) {});
+  _remoteStore =
+      absl::make_unique<RemoteStore>(_localStore, _datastore, _testWorkerQueue, [](OnlineState) {});
 
   _testWorkerQueue->Enqueue([=] { _remoteStore->Start(); });
 }

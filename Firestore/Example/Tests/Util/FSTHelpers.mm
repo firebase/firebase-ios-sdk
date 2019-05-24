@@ -131,10 +131,8 @@ NSDateComponents *FSTTestDateComponents(
 }
 
 FSTUserDataConverter *FSTTestUserDataConverter() {
-  // This owns the DatabaseIds since we do not have FirestoreClient instance to own them.
-  static DatabaseId database_id{"project", DatabaseId::kDefault};
   FSTUserDataConverter *converter =
-      [[FSTUserDataConverter alloc] initWithDatabaseID:&database_id
+      [[FSTUserDataConverter alloc] initWithDatabaseID:DatabaseId("project")
                                           preConverter:^id _Nullable(id _Nullable input) {
                                             return input;
                                           }];
@@ -185,11 +183,8 @@ FSTUnknownDocument *FSTTestUnknownDoc(const absl::string_view path,
 }
 
 FSTDocumentKeyReference *FSTTestRef(std::string projectID, std::string database, NSString *path) {
-  // This owns the DatabaseIds since we do not have FirestoreClient instance to own them.
-  static std::list<DatabaseId> database_ids;
-  database_ids.emplace_back(std::move(projectID), std::move(database));
   return [[FSTDocumentKeyReference alloc] initWithKey:FSTTestDocKey(path)
-                                           databaseID:&database_ids.back()];
+                                           databaseID:DatabaseId(projectID, database)];
 }
 
 FSTQuery *FSTTestQuery(const absl::string_view path) {
