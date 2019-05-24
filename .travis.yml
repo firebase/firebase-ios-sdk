@@ -49,9 +49,8 @@ jobs:
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseInstanceID.podspec
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseInstanceID.podspec --use-libraries
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseInstanceID.podspec --use-modular-headers
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseInstanceID.podspec --platforms=ios
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseInstanceID.podspec --platforms=tvos
 
     - stage: test
       env:
@@ -146,6 +145,10 @@ jobs:
         - travis_retry ./scripts/pod_lib_lint.sh FirebaseMessaging.podspec --use-libraries --allow-warnings
         - travis_retry ./scripts/pod_lib_lint.sh FirebaseInAppMessaging.podspec --use-libraries
         - travis_retry ./scripts/pod_lib_lint.sh FirebaseInAppMessagingDisplay.podspec --use-libraries
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseInstanceID.podspec --use-libraries --platforms=ios
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseInstanceID.podspec --use-libraries --platforms=tvos
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseInstanceID.podspec --use-modular-headers --platforms=ios
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseInstanceID.podspec --use-modular-headers --platforms=tvos
 
     - stage: test
       if: type = cron

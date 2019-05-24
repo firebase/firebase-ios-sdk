@@ -31,9 +31,6 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-#pragma ide diagnostic ignored "readability-magic-numbers"
-#pragma ide diagnostic ignored "cppcoreguidelines-avoid-magic-numbers"
-
 namespace firebase {
 namespace firestore {
 namespace model {
@@ -48,7 +45,6 @@ using testutil::DbId;
 using testutil::Field;
 using testutil::Key;
 using testutil::Map;
-using testutil::Ref;
 using testutil::Value;
 using testutil::WrapObject;
 
@@ -263,7 +259,7 @@ TEST(FieldValueTest, Equality) {
       .AddEqualityGroup(Value(GeoPoint(0, 1)),
                         FieldValue::FromGeoPoint(GeoPoint(0, 1)))
       .AddEqualityGroup(Value(GeoPoint(1, 0)))
-      .AddEqualityGroup(Value(Ref("coll/doc1")),
+      .AddEqualityGroup(FieldValue::FromReference(DbId(), Key("coll/doc1")),
                         FieldValue::FromReference(DbId(), Key("coll/doc1")))
       .AddEqualityGroup(
           FieldValue::FromReference(DbId("project", "bar"), Key("coll/doc2")))
@@ -272,7 +268,8 @@ TEST(FieldValueTest, Equality) {
       .AddEqualityGroup(Array("foo", "bar"), Array("foo", "bar"))
       .AddEqualityGroup(Array("foo", "bar", "baz"))
       .AddEqualityGroup(Array("foo"))
-      .AddEqualityGroup(WrapObject("bar", 1, "foo", 2), WrapObject("foo", 2, "bar", 1))
+      .AddEqualityGroup(WrapObject("bar", 1, "foo", 2),
+                        WrapObject("foo", 2, "bar", 1))
       .AddEqualityGroup(WrapObject("bar", 2, "foo", 1))
       .AddEqualityGroup(WrapObject("bar", 1))
       .AddEqualityGroup(WrapObject("foo", 1))

@@ -170,8 +170,7 @@ class DoubleValue : public NumberValue<Type::Double, double> {
   }
 };
 
-double
-Double(const BaseValue& rep) {
+double Double(const BaseValue& rep) {
   return Cast<DoubleValue>(rep).value();
 }
 
