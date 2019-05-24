@@ -76,7 +76,6 @@ EOF
 }
 
 set -euo pipefail
-set -x
 unset CDPATH
 
 # Change to the top-directory of the working tree
