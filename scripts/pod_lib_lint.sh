@@ -39,11 +39,9 @@ command=(bundle exec pod lib lint "$@")
 # changes across multiple pods without needing to push the dependent pods to
 # a staging repo.
 
-if [[ $1 == "GoogleUtilities.podspec" ||
-      $1 == "GoogleDataTransport.podspec" ]] ; then
-  # No local dependencies.
-  dep_string=''
-else
+if ! [[ $1 == "GoogleUtilities.podspec" ||
+        $1 == "GoogleDataTransport.podspec" ]] ; then
+  # There are local dependencies.
   if [[ $1 == "GoogleDataTransportCCTSupport.podspec" ]]; then
     deps="GoogleDataTransport"
   elif [[ $1 == "FirebaseCore.podspec" ]]; then
@@ -58,10 +56,8 @@ else
       deps="$deps,FirebaseInstanceID"
     fi
   fi
-  dep_string="--include-podspecs={${deps}}.podspec"
+  command+=("--include-podspecs={${deps}}.podspec")
 fi
-
-command+=("${dep_string}")
 
 echo "${command[*]}"
 "${command[@]}"; result=$?
