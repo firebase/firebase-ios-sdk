@@ -27,8 +27,6 @@
 #include <vector>
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
-#include "Firestore/core/src/firebase/firestore/api/document_reference.h"
-#include "Firestore/core/src/firebase/firestore/api/firestore.h"
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/core/relation_filter.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
@@ -95,11 +93,6 @@ inline model::FieldValue Value(const char* value) {
 
 inline model::FieldValue Value(const std::string& value) {
   return model::FieldValue::FromString(value);
-}
-
-inline model::FieldValue Value(const api::DocumentReference& value) {
-  return model::FieldValue::FromReference(value.firestore()->database_id(),
-                                          value.key());
 }
 
 inline model::FieldValue Value(const GeoPoint& value) {
@@ -226,12 +219,6 @@ inline model::DatabaseId DbId(std::string project) {
 
 inline model::DatabaseId DbId() {
   return model::DatabaseId("project", model::DatabaseId::kDefault);
-}
-
-inline api::DocumentReference Ref(absl::string_view path) {
-  static auto firestore = std::make_shared<api::Firestore>(
-      DbId(), "persistence-key", nullptr, nullptr, nullptr);
-  return api::DocumentReference(Key(path), firestore);
 }
 
 inline model::ResourcePath Resource(absl::string_view field) {

@@ -45,7 +45,6 @@ using testutil::DbId;
 using testutil::Field;
 using testutil::Key;
 using testutil::Map;
-using testutil::Ref;
 using testutil::Value;
 using testutil::WrapObject;
 
@@ -260,7 +259,7 @@ TEST(FieldValueTest, Equality) {
       .AddEqualityGroup(Value(GeoPoint(0, 1)),
                         FieldValue::FromGeoPoint(GeoPoint(0, 1)))
       .AddEqualityGroup(Value(GeoPoint(1, 0)))
-      .AddEqualityGroup(Value(Ref("coll/doc1")),
+      .AddEqualityGroup(FieldValue::FromReference(DbId(), Key("coll/doc1")),
                         FieldValue::FromReference(DbId(), Key("coll/doc1")))
       .AddEqualityGroup(
           FieldValue::FromReference(DbId("project", "bar"), Key("coll/doc2")))
