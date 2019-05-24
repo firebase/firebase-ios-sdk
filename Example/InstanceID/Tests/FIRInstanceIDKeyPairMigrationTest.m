@@ -147,7 +147,7 @@ NSString *FIRInstanceIDPrivateTagWithSubtype(NSString *subtype);
     SecKeyRef keyRef = [self generateKeyRef];
     weakKeyRef = (__bridge id)(keyRef);
     XCTestExpectation *completionExpectation =
-    [self expectationWithDescription:@"completionExpectation"];
+        [self expectationWithDescription:@"completionExpectation"];
     [self.keyPairStore updateKeyRef:keyRef
                             withTag:@"test"
                             handler:^(NSError *error) {
@@ -167,13 +167,19 @@ NSString *FIRInstanceIDPrivateTagWithSubtype(NSString *subtype);
 }
 
 - (SecKeyRef)generateKeyRef {
-  NSDictionary* attributes =
-  @{ (id)kSecAttrKeyType : (id)kSecAttrKeyTypeRSA,
-     (id)kSecAttrKeySizeInBits : @2048,
-     (id)kSecPrivateKeyAttrs: @{ (id)kSecAttrIsPermanent:    @(NO) }
-     };
+  NSDictionary *keyAttributes = @{(__bridge id)kSecAttrIsPermanent : @YES};
+  NSDictionary *keyPairAttributes = @{
+    (__bridge id)kSecAttrKeyType : (__bridge id)kSecAttrKeyTypeRSA,
+    (__bridge id)kSecAttrLabel : @"[FIRInstanceIDKeyPairMigrationTest generateKeyRef]",
+    (__bridge id)kSecAttrKeySizeInBits : @(2048),
+    (__bridge id)kSecPrivateKeyAttrs : keyAttributes,
+    (__bridge id)kSecPublicKeyAttrs : keyAttributes,
+  };
 
-  return SecKeyCreateRandomKey((__bridge CFDictionaryRef)attributes, NULL);
+  SecKeyRef publicKey = NULL;
+  SecKeyGeneratePair((__bridge CFDictionaryRef)keyPairAttributes, &publicKey, NULL);
+
+  return publicKey;
 }
 
 @end
