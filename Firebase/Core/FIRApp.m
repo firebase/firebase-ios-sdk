@@ -91,7 +91,7 @@ static NSMutableArray<Class<FIRLibrary>> *sRegisteredAsConfigurable;
 
 @end
 
-@implementation FIRApp
+@implementation   FIRApp
 
 // This is necessary since our custom getter prevents `_options` from being created.
 @synthesize options = _options;
