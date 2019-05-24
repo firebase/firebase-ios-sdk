@@ -3,10 +3,12 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 51;
+	objectVersion = 50;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2544AF6B2230656D00C5B420 /* CardMessageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2544AF6A2230656D00C5B420 /* CardMessageViewController.swift */; };
+		25574C3322795A4C0083735E /* InAppMessagingDisplayCardViewUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25574C3222795A4C0083735E /* InAppMessagingDisplayCardViewUITests.swift */; };
 		AD7200B52124D19200AFD5F3 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD7200B42124D19200AFD5F3 /* AppDelegate.swift */; };
 		AD7200BA2124D19200AFD5F3 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AD7200B82124D19200AFD5F3 /* Main.storyboard */; };
 		AD7200BC2124D19400AFD5F3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AD7200BB2124D19400AFD5F3 /* Assets.xcassets */; };
@@ -32,6 +34,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2544AF6A2230656D00C5B420 /* CardMessageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardMessageViewController.swift; sourceTree = "<group>"; };
+		25574C3222795A4C0083735E /* InAppMessagingDisplayCardViewUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppMessagingDisplayCardViewUITests.swift; sourceTree = "<group>"; };
 		AD7200B22124D19200AFD5F3 /* FiamDisplaySwiftExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FiamDisplaySwiftExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AD7200B42124D19200AFD5F3 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		AD7200B92124D19200AFD5F3 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -75,6 +79,7 @@
 				AD7200C62124E24300AFD5F3 /* BannerMessageViewController.swift */,
 				AD7200C52124E24200AFD5F3 /* ImageOnlyMessageViewController.swift */,
 				AD7200C72124E24300AFD5F3 /* ModalMessageViewController.swift */,
+				2544AF6A2230656D00C5B420 /* CardMessageViewController.swift */,
 				AD7200B42124D19200AFD5F3 /* AppDelegate.swift */,
 				AD7200B82124D19200AFD5F3 /* Main.storyboard */,
 				AD7200BB2124D19400AFD5F3 /* Assets.xcassets */,
@@ -91,6 +96,7 @@
 				AD7200DB2126136D00AFD5F3 /* InAppMessagingDisplayUITestsBase.swift */,
 				AD7200DD2126147100AFD5F3 /* InAppMessagingDisplayBannerViewUITests.swift */,
 				AD7200DF2126150600AFD5F3 /* InAppMessagingDisplayImageOnlyViewUITests.swift */,
+				25574C3222795A4C0083735E /* InAppMessagingDisplayCardViewUITests.swift */,
 				AD7200D52125F92100AFD5F3 /* Info.plist */,
 			);
 			path = "InAppMessagingDisplay-UITests";
@@ -215,6 +221,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2544AF6B2230656D00C5B420 /* CardMessageViewController.swift in Sources */,
 				AD7200C82124E24300AFD5F3 /* ImageOnlyMessageViewController.swift in Sources */,
 				AD7200CA2124E24300AFD5F3 /* ModalMessageViewController.swift in Sources */,
 				AD7200CC2124E2A800AFD5F3 /* CommonMessageTestVC.swift in Sources */,
@@ -231,6 +238,7 @@
 				AD7200DE2126147100AFD5F3 /* InAppMessagingDisplayBannerViewUITests.swift in Sources */,
 				AD7200DC2126136D00AFD5F3 /* InAppMessagingDisplayUITestsBase.swift in Sources */,
 				AD7200E02126150600AFD5F3 /* InAppMessagingDisplayImageOnlyViewUITests.swift in Sources */,
+				25574C3322795A4C0083735E /* InAppMessagingDisplayCardViewUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

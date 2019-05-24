@@ -53,12 +53,15 @@ CGFloat FETCH_MIN_INTERVALS = 1;
 
   FIRIAMMessageContentDataWithImageURL *m1ContentData =
       [[FIRIAMMessageContentDataWithImageURL alloc]
-          initWithMessageTitle:@"m1 title"
-                   messageBody:@"message body"
-              actionButtonText:nil
-                     actionURL:[NSURL URLWithString:@"http://google.com"]
-                      imageURL:[NSURL URLWithString:@"https://unsplash.it/300/300"]
-               usingURLSession:nil];
+               initWithMessageTitle:@"m1 title"
+                        messageBody:@"message body"
+                   actionButtonText:nil
+          secondaryActionButtonText:nil
+                          actionURL:[NSURL URLWithString:@"http://google.com"]
+                 secondaryActionURL:nil
+                           imageURL:[NSURL URLWithString:@"https://unsplash.it/300/300"]
+                  landscapeImageURL:nil
+                    usingURLSession:nil];
 
   FIRIAMRenderingEffectSetting *renderSetting1 =
       [FIRIAMRenderingEffectSetting getDefaultRenderingEffectSetting];
@@ -77,12 +80,15 @@ CGFloat FETCH_MIN_INTERVALS = 1;
 
   FIRIAMMessageContentDataWithImageURL *m2ContentData =
       [[FIRIAMMessageContentDataWithImageURL alloc]
-          initWithMessageTitle:@"m2 title"
-                   messageBody:@"message body"
-              actionButtonText:nil
-                     actionURL:[NSURL URLWithString:@"http://google.com"]
-                      imageURL:[NSURL URLWithString:@"https://unsplash.it/300/400"]
-               usingURLSession:nil];
+               initWithMessageTitle:@"m2 title"
+                        messageBody:@"message body"
+                   actionButtonText:nil
+          secondaryActionButtonText:nil
+                          actionURL:[NSURL URLWithString:@"http://google.com"]
+                 secondaryActionURL:nil
+                           imageURL:[NSURL URLWithString:@"https://unsplash.it/300/400"]
+                  landscapeImageURL:nil
+                    usingURLSession:nil];
 
   FIRIAMRenderingEffectSetting *renderSetting2 =
       [FIRIAMRenderingEffectSetting getDefaultRenderingEffectSetting];
@@ -101,12 +107,15 @@ CGFloat FETCH_MIN_INTERVALS = 1;
 
   FIRIAMMessageContentDataWithImageURL *m3ContentData =
       [[FIRIAMMessageContentDataWithImageURL alloc]
-          initWithMessageTitle:@"m3 title"
-                   messageBody:@"message body"
-              actionButtonText:nil
-                     actionURL:[NSURL URLWithString:@"http://google.com"]
-                      imageURL:[NSURL URLWithString:@"https://unsplash.it/400/300"]
-               usingURLSession:nil];
+               initWithMessageTitle:@"m3 title"
+                        messageBody:@"message body"
+                   actionButtonText:nil
+          secondaryActionButtonText:nil
+                          actionURL:[NSURL URLWithString:@"http://google.com"]
+                 secondaryActionURL:nil
+                           imageURL:[NSURL URLWithString:@"https://unsplash.it/400/300"]
+                  landscapeImageURL:nil
+                    usingURLSession:nil];
 
   FIRIAMRenderingEffectSetting *renderSetting3 =
       [FIRIAMRenderingEffectSetting getDefaultRenderingEffectSetting];

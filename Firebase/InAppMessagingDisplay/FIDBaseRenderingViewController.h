@@ -41,8 +41,8 @@ NS_ASSUME_NONNULL_BEGIN
 // Call this when the user choose to dismiss the message
 - (void)dismissView:(FIRInAppMessagingDismissType)dismissType;
 
-// Call this when end user wants to follow the action url
-- (void)followActionURL;
+// Call this when end user wants to follow the action
+- (void)followAction:(FIRInAppMessagingAction *)action;
 
 // Returns the in-app message being displayed. Overridden by message type subclasses.
 - (nullable FIRInAppMessagingDisplayMessage *)inAppMessage;
