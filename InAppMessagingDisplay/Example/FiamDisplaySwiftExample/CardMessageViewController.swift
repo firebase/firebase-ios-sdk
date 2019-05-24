@@ -32,7 +32,7 @@ class CardMessageViewController: CommonMessageTestVC {
     override var title: String {
       return writableTitle
     }
-    
+
     override var body: String? {
       return writableBody
     }
@@ -44,7 +44,7 @@ class CardMessageViewController: CommonMessageTestVC {
     override var portraitImageData: InAppMessagingImageData {
       return writablePortraitImageData
     }
-    
+
     override var landscapeImageData: InAppMessagingImageData? {
       return writableLandscapeImageData
     }
@@ -60,11 +60,11 @@ class CardMessageViewController: CommonMessageTestVC {
     override var primaryActionURL: URL {
       return writablePrimaryActionURL
     }
-    
+
     override var secondaryActionButton: InAppMessagingActionButton? {
       return writablePrimaryActionButton
     }
-    
+
     override var secondaryActionURL: URL? {
       return writableSecondaryActionURL
     }
@@ -175,7 +175,7 @@ class CardMessageViewController: CommonMessageTestVC {
       secondaryActionButton: defaultSecondaryActionButton,
       secondaryActionURL: nil
     )
-    
+
     displayImpl.displayMessage(cardMessage, displayDelegate: self)
   }
 
@@ -195,7 +195,7 @@ class CardMessageViewController: CommonMessageTestVC {
       secondaryActionButton: defaultSecondaryActionButton,
       secondaryActionURL: nil
     )
-    
+
     displayImpl.displayMessage(cardMessage, displayDelegate: self)
   }
 
@@ -235,7 +235,7 @@ class CardMessageViewController: CommonMessageTestVC {
       secondaryActionButton: defaultSecondaryActionButton,
       secondaryActionURL: nil
     )
-    
+
     displayImpl.displayMessage(cardMessage, displayDelegate: self)
   }
 
@@ -255,7 +255,7 @@ class CardMessageViewController: CommonMessageTestVC {
       secondaryActionButton: defaultSecondaryActionButton,
       secondaryActionURL: nil
     )
-    
+
     displayImpl.displayMessage(cardMessage, displayDelegate: self)
   }
 
@@ -275,7 +275,7 @@ class CardMessageViewController: CommonMessageTestVC {
       secondaryActionButton: longTextButton,
       secondaryActionURL: nil
     )
-    
+
     displayImpl.displayMessage(cardMessage, displayDelegate: self)
   }
 
@@ -295,7 +295,7 @@ class CardMessageViewController: CommonMessageTestVC {
       secondaryActionButton: nil,
       secondaryActionURL: nil
     )
-    
+
     displayImpl.displayMessage(cardMessage, displayDelegate: self)
   }
 
@@ -315,7 +315,7 @@ class CardMessageViewController: CommonMessageTestVC {
       secondaryActionButton: nil,
       secondaryActionURL: nil
     )
-    
+
     displayImpl.displayMessage(cardMessage, displayDelegate: self)
   }
 }
