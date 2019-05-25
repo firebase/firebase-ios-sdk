@@ -115,7 +115,7 @@
   // the uploading
   NSTimeInterval currentMoment = 10000;
   OCMStub([self.mockTimeFetcher currentTimestampInSeconds]).andReturn(currentMoment);
-  uploader.nextValidSendTimeInMills = (int64_t)(currentMoment + 5) * 1000;
+  uploader.nextValidSendTimeInMills = (int64_t)(currentMoment + 25) * 1000;
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"Triggers send on sender"];
 
