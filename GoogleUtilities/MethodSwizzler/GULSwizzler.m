@@ -20,7 +20,7 @@
 #import <GoogleUtilities/GULLogger.h>
 #import "../Common/GULLoggerCodes.h"
 
-static GULLoggerService kGULLoggerSwizzler = @"[GoogleUtilites/MethodSwizzler]";
+static GULLoggerService kGULLoggerSwizzler = @"[GoogleUtilities/MethodSwizzler]";
 #endif
 
 dispatch_queue_t GetGULSwizzlingQueue(void) {
