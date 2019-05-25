@@ -15,6 +15,8 @@
 #import "FIRTestCase.h"
 #import "FIRTestComponents.h"
 
+#import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsData.h>
+
 #import <FirebaseCore/FIRAnalyticsConfiguration.h>
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIROptionsInternal.h>
@@ -620,7 +622,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   // Add an observer for the diagnostics notification. Currently no object is sent, but in the
   // future that could change so leave it as OCMOCK_ANY.
   [self.notificationCenter addMockObserver:self.observerMock
-                                      name:kFIRAppDiagnosticsNotification
+                                      name:kFIRDiagnosticsNotification
                                     object:OCMOCK_ANY];
 
   // Stub out reading from user defaults since stubbing out the BOOL has issues. If the data
